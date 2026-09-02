@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { readFile, writeFile, mkdir } from "node:fs/promises"
+import { writeSync } from "node:fs"
 import { dirname, resolve } from "node:path"
 import { pathToFileURL } from "node:url"
 import { buildCompiledMcp } from "../../tools/mcp/build-compiled.mjs"
@@ -21,7 +22,9 @@ const defaultDependencies = {
 export async function runMcpRoundTrip(manifest, overrides = {}) {
   const dependencies = { ...defaultDependencies, ...overrides }
   const components = requireComponents(manifest)
+  dependencies.onProgress?.("build")
   await dependencies.buildMcp()
+  dependencies.onProgress?.("connect")
   const session = await dependencies.createSession({ serverMode: "compiled" })
   const results = []
 
@@ -29,6 +32,7 @@ export async function runMcpRoundTrip(manifest, overrides = {}) {
     for (const component of components) {
       let imported
       try {
+        dependencies.onProgress?.("import", component.componentPath)
         imported = await dependencies.callToCompletion(session, "nkdk.import_from_xml", {
           xmlDir: component.xmlDir,
           projectDir: component.projectDir,
@@ -43,6 +47,7 @@ export async function runMcpRoundTrip(manifest, overrides = {}) {
 
       let synced
       try {
+        dependencies.onProgress?.("export", component.componentPath)
         synced = await dependencies.callToCompletion(session, "nkdk.sync_to_xml", {
           xmlDir: component.xmlOutputDir,
           projectDir: component.projectDir,
@@ -61,9 +66,11 @@ export async function runMcpRoundTrip(manifest, overrides = {}) {
       })
     }
   } finally {
+    dependencies.onProgress?.("close")
     await session.close()
   }
 
+  dependencies.onProgress?.("done")
   return { ok: true, components: results }
 }
 
@@ -92,9 +99,13 @@ function parseCliArgs(argv) {
   const options = {}
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index]
+    if (arg === "--progress") {
+      options.progress = true
+      continue
+    }
     const value = argv[index + 1]
     if ((arg !== "--manifest" && arg !== "--output") || value === undefined) {
-      throw new Error("Использование: mcp-round-trip.mjs --manifest path [--output path]")
+      throw new Error("Использование: mcp-round-trip.mjs --manifest path [--output path] [--progress]")
     }
     if (arg === "--manifest") options.manifest = value
     else options.output = value
@@ -122,7 +133,13 @@ async function main() {
   const controller = new AbortController()
   const disposeSignals = bindProcessCancellation(controller)
   try {
-    const result = await runMcpRoundTrip({ ...manifest, signal: controller.signal })
+    const labels = { build: "Сборка MCP", connect: "Подключение MCP", import: "Импорт XML → YAML",
+      export: "Экспорт YAML → XML", close: "Закрытие MCP", done: "MCP round-trip завершён" }
+    const result = await runMcpRoundTrip({ ...manifest, signal: controller.signal }, {
+      onProgress: options.progress ? (stage, component) => {
+        writeSync(1, `[MCP] ${labels[stage]}${component ? `: ${component}` : ""}\n`)
+      } : undefined,
+    })
     await writeJson(options.output, result)
   } finally {
     disposeSignals()

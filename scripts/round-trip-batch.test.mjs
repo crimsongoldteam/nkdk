@@ -1,10 +1,11 @@
 import assert from "node:assert/strict"
-import { spawnSync } from "node:child_process"
+import { spawn, spawnSync } from "node:child_process"
 import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
-import { join } from "node:path"
+import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
 import test from "node:test"
+import { runMcpRoundTrip } from "../.agents/skills/round-trip-yaml/mcp-round-trip.mjs"
 
 const script = fileURLToPath(new URL("./round-trip-batch.mjs", import.meta.url))
 
@@ -41,13 +42,38 @@ function fixture(t, names) {
 const fs = require('node:fs');
 const path = require('node:path');
 const childProcess = require('node:child_process');
-const originalSpawn = childProcess.spawnSync;
-childProcess.spawnSync = (command, ...args) => {
-  if (['bash', 'find', 'ln', 'rm', 'cp', 'mv'].includes(command)) throw new Error('Unix command forbidden: ' + command);
-  return originalSpawn(command, ...args);
-};
+for (const method of ['spawn', 'spawnSync']) {
+  const originalSpawn = childProcess[method];
+  childProcess[method] = (command, ...args) => {
+    if (['bash', 'find', 'ln', 'rm', 'cp', 'mv'].includes(command)) throw new Error('Unix command forbidden: ' + command);
+    if (process.env.NKDK_TEST_TRACE_GIT && command === 'git') fs.writeSync(1, '[test] git\\n');
+    return originalSpawn(command, ...args);
+  };
+}
+if (process.env.NKDK_TEST_SLOW_SCAN) {
+  const { performance } = require('node:perf_hooks');
+  const originalNow = performance.now.bind(performance);
+  const originalRead = fs.readdirSync;
+  let elapsed = 0;
+  performance.now = () => originalNow() + elapsed;
+  fs.readdirSync = (...args) => { elapsed += 3000; return originalRead(...args); };
+}
+if (process.env.NKDK_TEST_NO_SCAN) {
+  const originalRead = fs.readdirSync;
+  fs.readdirSync = (directory, ...args) => {
+    if (fs.realpathSync.native(directory) === fs.realpathSync.native(process.env.NKDK_TEST_NO_SCAN)) throw new Error('Unselected directory scanned');
+    return originalRead(directory, ...args);
+  };
+}
 require('node:module').syncBuiltinESMExports();
 if (path.basename(process.argv[1] ?? '') === 'mcp-round-trip.mjs') {
+if (process.env.NKDK_TEST_PROGRESS_ACK) {
+  if (!process.argv.includes('--progress')) process.exit(46);
+  fs.writeSync(1, '[MCP] Импорт XML → YAML\\n');
+  const deadline = Date.now() + 3000;
+  while (!fs.existsSync(process.env.NKDK_TEST_PROGRESS_ACK) && Date.now() < deadline) Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 10);
+  if (!fs.existsSync(process.env.NKDK_TEST_PROGRESS_ACK)) process.exit(45);
+}
 const manifest = JSON.parse(fs.readFileSync(process.argv[process.argv.indexOf('--manifest') + 1], 'utf8'));
 for (const component of manifest.components) {
   if (component.componentPath !== 'cf') process.exit(42);
@@ -64,6 +90,9 @@ for (const component of manifest.components) {
   if (component.xmlDir.endsWith('03-error')) { console.error('Ошибка чтения XML'); process.exit(7); }
   fs.mkdirSync(path.join(component.yamlDir, 'Справочники'), {recursive:true});
   fs.writeFileSync(path.join(component.yamlDir, 'Справочники', 'Товары.yaml'), 'Поле: !xml/raw {\u0024xml: null}\\nСтрока: !xml/string текст\\n');
+  fs.writeFileSync(path.join(component.yamlDir, 'resource.bin'), Buffer.from([0, 255, 10]));
+  fs.mkdirSync(path.join(component.yamlDir, '.nkdk'), {recursive:true});
+  fs.writeFileSync(path.join(component.yamlDir, '.nkdk', 'cache.bin'), Buffer.alloc(1000));
   const warnings = [
     {severity:'warning', code:'xml_raw_scope_too_broad', message:'Широкий raw', targetProjectPath:'Справочники/Товары.yaml'},
   ];
@@ -105,7 +134,7 @@ for (const component of manifest.components) {
 process.exit(0);
 }
 `)
-  const run = (args = ["--repo", repo], extraEnv = {}) => spawnSync(process.execPath, [script, ...args], {
+  const options = (extraEnv) => ({
     cwd: root,
     encoding: "utf8",
     env: {
@@ -121,7 +150,9 @@ process.exit(0);
       ...extraEnv,
     },
   })
-  return { repo, root, base, run }
+  const run = (args = ["--repo", repo], extraEnv = {}) => spawnSync(process.execPath, [script, ...args], options(extraEnv))
+  const start = (extraEnv = {}) => spawn(process.execPath, [script, "--repo", repo], options(extraEnv))
+  return { repo, root, base, run, start }
 }
 
 function report(repo) {
@@ -147,6 +178,70 @@ function durationSeconds(value) {
   assert.ok(seconds < 60)
   return minutes * 60 + seconds
 }
+
+test("сообщает этап до первого Git-вызова, показывает ход обхода и итог каждой конфигурации", (t) => {
+  const { repo, run } = fixture(t, ["02-clean"])
+  mkdirSync(join(repo, "cf/02-clean/nested/deeper"), { recursive: true })
+  const result = run(["--test", "--repo", repo], { NKDK_TEST_TRACE_GIT: "1", NKDK_TEST_SLOW_SCAN: "1" })
+  assert.equal(result.status, 0, result.stderr)
+  assert.match(result.stdout, /^Запуск пакетного round-trip/u)
+  const stages = [/Проверка корня/u, /\[test\] git/u, /Проверка отсутствия изменений/u,
+    /Поиск конфигураций/u, /Подсчёт размеров.*Git/u, /Выбрано конфигураций: 1/u,
+    /Проверка безопасности выбранных конфигураций/u,
+    /Просмотрено каталогов: \d+; текущий:/u,
+    /Создание ветки/u, /\[1\/1\] cf\/02-clean/u, /Запуск MCP/u,
+    /Сохранение XML/u, /Сбор статистики/u, /Проверка XML-различий/u,
+    /Удаление временных каталогов конфигурации/u, /Результат cf\/02-clean: без расхождений/u,
+    /Сохранение итогового отчёта/u, /Прогон завершён/u]
+  let tail = result.stdout
+  for (const stage of stages) {
+    const found = stage.exec(tail)
+    assert.ok(found, `Не найден этап ${stage} после предыдущего: ${tail}`)
+    tail = tail.slice(found.index + found[0].length)
+  }
+  assert.match(result.stdout, /Обход завершён: каталогов \d+/u)
+})
+
+test("передаёт сообщения MCP в консоль до его завершения и сохраняет их в журнале", async (t) => {
+  const { repo, root, start } = fixture(t, ["02-clean"])
+  const ack = join(root, "progress-received")
+  const child = start({ NKDK_TEST_PROGRESS_ACK: ack })
+  let stdout = ""
+  let stderr = ""
+  child.stdout.setEncoding("utf8")
+  child.stdout.on("data", (chunk) => {
+    stdout += chunk
+    if (stdout.includes("[MCP] Импорт XML → YAML")) writeFileSync(ack, "received")
+  })
+  child.stderr.on("data", (chunk) => { stderr += chunk })
+  const code = await new Promise((resolve, reject) => { child.on("error", reject); child.on("close", resolve) })
+  assert.equal(code, 0, stderr)
+  assert.equal(existsSync(ack), true)
+  const logDir = stdout.match(/^Логи: (.+)$/mu)[1]
+  assert.match(readFileSync(join(logDir, "log-1.txt"), "utf8"), /\[MCP\] Импорт XML → YAML/u)
+  assert.match(report(repo), /без расхождений/u)
+})
+
+test("MCP объявляет этапы до работы и не объявляет экспорт после ошибки импорта", async (t) => {
+  for (const failImport of [false, true]) await t.test(String(failImport), async () => {
+    const events = []
+    const pending = runMcpRoundTrip({ components: [{ xmlDir: "/xml", xmlOutputDir: "/out", projectDir: "/project", componentPath: "cf" }] }, {
+      onProgress: (stage) => events.push(stage),
+      buildMcp: () => events.push("building"),
+      createSession: async () => ({ close: async () => events.push("closed") }),
+      callToCompletion: async (_session, tool) => {
+        events.push(tool)
+        if (failImport) throw new Error("import failed")
+        return { payload: { ok: true } }
+      },
+      writeResult: async () => {},
+    })
+    if (failImport) await assert.rejects(pending, /import failed/u)
+    else await pending
+    assert.deepEqual(events, ["build", "building", "connect", "import", "nkdk.import_from_xml",
+      ...(failImport ? [] : ["export", "nkdk.sync_to_xml"]), "close", "closed", ...(failImport ? [] : ["done"])])
+  })
+})
 
 test("накапливает отдельные коммиты с diff и сохраняет все результаты в итоговом отчёте", (t) => {
   const { repo, base, run } = fixture(t, ["04-change", "02-clean", "01-change [a]"])
@@ -175,7 +270,7 @@ test("накапливает отдельные коммиты с diff и сох
   assert.equal(header[1], "Состояние: завершён")
   assert.equal(header[2], `Ветка: ${git(repo, "branch", "--show-current")}`)
   assert.doesNotMatch(text, /XML-репозиторий:|Исходный коммит|Коммит NKDK|Журналы:|Режим:|Считаются физические|— означает|Каталоги и YAML|Источник широких|Число файлов включает|XML-различия сохраняются/u)
-  assert.ok(text.includes('| Итого | — | 4 | — | — | 3 | 3 | 0 | 0 | 0 | 3 | 0 | 0 | 3 |'))
+  assert.ok(text.includes('| Итого | — | 4 | — | 66 | 216 | 3 | 3 | 0 | 0 | 0 | 3 | 0 | 0 | 3 |'))
   assert.equal(text.split("\n").filter((line) => line.startsWith("| ---")).length, 1)
   assert.equal(readFileSync(join(repo, "cf/01-change [a]/new.xml"), "utf8"), "new\n")
   assert.equal(git(repo, "rev-parse", "main"), base)
@@ -264,7 +359,7 @@ test("отказывает без локальной main, не подставл
   assert.equal(git(repo, "rev-parse", "HEAD"), base)
 })
 
-test("очищает конфликтующий ignored-файл, а при ошибке проверки main возвращает исходную ветку", async (t) => {
+test("сохраняет конфликтующий ignored-файл, а при ошибке проверки main возвращает исходную ветку", async (t) => {
   for (const collision of [false, true]) await t.test(String(collision), (t) => {
     const { repo, run } = fixture(t, ["02-clean"])
     if (collision) {
@@ -281,21 +376,15 @@ test("очищает конфликтующий ignored-файл, а при ош
     writeFileSync(join(repo, ".gitignore"), "local.txt\n")
     git(repo, "add", ".gitignore")
     git(repo, "commit", "-qm", "previous run settings")
-    writeFileSync(join(repo, "local.txt"), "precious local data\n")
+    if (collision) writeFileSync(join(repo, "local.txt"), "precious local data\n")
     const before = git(repo, "rev-parse", "HEAD")
     const result = run()
     assert.equal(git(repo, "rev-parse", "previous-run"), before)
-    if (collision) {
-      assert.equal(result.status, 0, result.stderr)
-      assert.equal(git(repo, "rev-parse", "HEAD^"), git(repo, "rev-parse", "main"))
-      assert.equal(readFileSync(join(repo, "local.txt"), "utf8"), "main data\n")
-    } else {
-      assert.equal(result.status, 1)
-      assert.equal(git(repo, "branch", "--show-current"), "previous-run")
-      assert.equal(git(repo, "rev-parse", "HEAD"), before)
-      assert.equal(existsSync(join(repo, "local.txt")), false)
-      assert.equal(git(repo, "branch", "--list", "codex/round-trip-*"), "")
-    }
+    assert.equal(result.status, 1)
+    assert.equal(git(repo, "branch", "--show-current"), "previous-run")
+    assert.equal(git(repo, "rev-parse", "HEAD"), before)
+    if (collision) assert.equal(readFileSync(join(repo, "local.txt"), "utf8"), "precious local data\n")
+    assert.equal(git(repo, "branch", "--list", "codex/round-trip-*"), "")
   })
 })
 
@@ -305,7 +394,7 @@ test("при отсутствии diff создаёт только отчёт и
   assert.equal(result.status, 0, result.stderr)
   assert.equal(git(repo, "rev-list", "--count", `${base}..HEAD`), "1")
   assert.ok(report(repo).includes("| cf/02-clean | без расхождений | 0 | — |"))
-  assert.ok(report(repo).includes("| cf/02-clean | без расхождений | 0 | — | — | 1 | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 1 |"))
+  assert.ok(report(repo).includes("| cf/02-clean | без расхождений | 0 | — | 22 | 72 | 1 | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 1 |"))
   const logDir = result.stdout.match(/^Логи: (.+)$/mu)[1]
   const log = readFileSync(join(logDir, 'log-1.txt'), 'utf8')
   assert.match(log, /string=1/u)
@@ -316,7 +405,7 @@ test("при отсутствии diff создаёт только отчёт и
   assert.equal(git(repo, "diff", base, "--", "cf"), "")
 })
 
-test("тестовый режим обрабатывает только три наименьших каталога по байтам, включая вложенные файлы", (t) => {
+test("выбирает три конфигурации по байтам Git, независимо от CRLF, без обхода невыбранных каталогов", (t) => {
   const { repo, run } = fixture(t, ["01-change [a]", "02-clean", "03-clean", "04-change", "05-clean"])
   for (const [name, padding] of [["01-change [a]", 100], ["02-clean", 2], ["03-clean", 2], ["04-change", 1], ["05-clean", 2]]) {
     const dir = join(repo, "cf", name)
@@ -324,10 +413,17 @@ test("тестовый режим обрабатывает только три �
     mkdirSync(join(dir, "nested"))
     writeFileSync(join(dir, "nested", "data.bin"), "x".repeat(padding))
   }
-  git(repo, "add", "cf")
+  writeFileSync(join(repo, ".gitattributes"), "*.xml text eol=crlf\n")
+  git(repo, "add", ".")
   git(repo, "commit", "-qm", "sizes")
   const base = git(repo, "rev-parse", "HEAD")
-  const result = run(["--test", "--repo", repo])
+  for (const name of ["01-change [a]", "02-clean", "03-clean", "04-change", "05-clean"]) {
+    writeFileSync(join(repo, "cf", name, "old.xml"), "old\r\n")
+  }
+  git(repo, "add", "cf")
+  assert.equal(git(repo, "diff", "--cached"), "")
+  assert.equal(git(repo, "status", "--porcelain"), "")
+  const result = run(["--test", "--repo", repo], { NKDK_TEST_NO_SCAN: join(repo, "cf/01-change [a]") })
   assert.equal(result.status, 0, result.stderr)
   assert.deepEqual([...result.stdout.matchAll(/^\[\d+\/3\] (.+)$/gmu)].map((match) => match[1]),
     ["cf/04-change", "cf/02-clean", "cf/03-clean"])
@@ -340,6 +436,21 @@ test("тестовый режим обрабатывает только три �
   assert.equal(git(repo, "diff", base, "--", "cf/01-change [a]", "cf/05-clean"), "")
   assert.equal(git(repo, "rev-list", "--count", `${base}..HEAD`), "2")
   assert.equal(git(repo, "status", "--porcelain"), "")
+})
+
+test("отчёт показывает XML из main и NKDK с ресурсами без .nkdk, включая размер после ошибки экспорта", (t) => {
+  const { repo, run } = fixture(t, ["02-чистая [a]", "03-error", "03-sync-error"])
+  const result = run()
+  assert.equal(result.status, 1)
+  const rows = report(repo).split("\n").filter((line) => line.startsWith("| "))
+    .map((line) => line.split("|").slice(1, -1).map((value) => value.trim()))
+  const sizes = (name) => ["XML, байт", "NKDK, байт"].map((column) =>
+    rows.find((row) => row[0] === name)[rows[0].indexOf(column)])
+  // 18 + 4 байта исходного XML; 69 байт UTF-8 YAML + 3 байта ресурса.
+  assert.deepEqual(sizes("cf/02-чистая [a]"), ["22", "72"])
+  assert.deepEqual(sizes("cf/03-error"), ["22", "—"])
+  assert.deepEqual(sizes("cf/03-sync-error"), ["22", "72"])
+  assert.deepEqual(sizes("Итого"), ["66", "144"])
 })
 
 test("тестовый режим принимает репозиторий из окружения и меньше трёх конфигураций", (t) => {
@@ -376,7 +487,7 @@ test("сохраняет статистику и полный текст оши�
   const result = run()
   assert.equal(result.status, 1)
   assert.ok(report(repo).includes("| cf/03-sync-error | ошибка | — | — |"))
-  assert.ok(report(repo).includes("| cf/03-sync-error | ошибка | — | — | — | 1 | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 1 |"))
+  assert.ok(report(repo).includes("| cf/03-sync-error | ошибка | — | — | 22 | 72 | 1 | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 1 |"))
   assert.ok(report(repo).includes("| cf/04-change | есть расхождения | 1 |"))
   assert.match(report(repo), /## Ошибки[\s\S]*full_xml_sync_assignment_failed[\s\S]*Неверный #order: ожидались DataPath и Title/u)
   assert.match(report(repo), /Формы\/Форма.yaml/u)
@@ -415,25 +526,32 @@ test("при отказе XML-коммита отчёт не захватыва�
   assert.ok(report(repo).includes("| cf/02-clean | без расхождений | 0 | — |"))
 })
 
-test("перед запуском сбрасывает tracked и staged изменения, удаляет untracked и ignored файлы", (t) => {
-  const { repo, run } = fixture(t, ["02-clean"])
-  writeFileSync(join(repo, ".gitignore"), "cf/local.txt\ncf/02-clean/local-cache/\n")
-  git(repo, "add", ".gitignore")
-  git(repo, "commit", "-qm", "ignore unrelated file")
-  writeFileSync(join(repo, "cf/local.txt"), "user data\n")
-  mkdirSync(join(repo, "cf/02-clean/local-cache"))
-  writeFileSync(join(repo, "cf/02-clean/local-cache/data.txt"), "ignored data\n")
-  writeFileSync(join(repo, "README.md"), "staged edit\n")
-  git(repo, "add", "README.md")
-  writeFileSync(join(repo, "cf/02-clean/old.xml"), "unstaged edit\n")
-  writeFileSync(join(repo, "untracked.txt"), "untracked data\n")
-  const result = run()
-  assert.equal(result.status, 0, result.stderr)
-  for (const file of ["cf/local.txt", "cf/02-clean/local-cache", "untracked.txt"]) assert.equal(existsSync(join(repo, file)), false)
-  assert.equal(readFileSync(join(repo, "README.md"), "utf8"), "Source\n")
-  assert.equal(readFileSync(join(repo, "cf/02-clean/old.xml"), "utf8"), "old\n")
-  assert.match(result.stdout, /Очистка XML-репозитория/u)
-  assert.equal(git(repo, "status", "--porcelain"), "")
+test("отказывает до создания ветки при любых локальных изменениях, ничего не удаляя и не сбрасывая", async (t) => {
+  for (const kind of ["unstaged", "staged", "deleted", "untracked", "ignored", "ignored-outside-cf", "assume-unchanged", "skip-worktree"]) await t.test(kind, (t) => {
+    const { repo, root, run } = fixture(t, ["02-clean"])
+    writeFileSync(join(repo, ".gitignore"), "cache/\n")
+    git(repo, "add", ".gitignore")
+    git(repo, "commit", "-qm", "ignore cache")
+    const beforeHead = git(repo, "rev-parse", "HEAD")
+    const file = join(repo, kind === "ignored" ? "cf/02-clean/cache/local.txt"
+      : kind === "ignored-outside-cf" ? "cache/local.txt" : kind === "untracked" ? "local.txt" : "README.md")
+    mkdirSync(dirname(file), { recursive: true })
+    if (kind === "deleted") rmSync(file)
+    else writeFileSync(file, "precious local data\n")
+    if (kind === "staged") git(repo, "add", "README.md")
+    if (["assume-unchanged", "skip-worktree"].includes(kind)) git(repo, "update-index", `--${kind}`, "README.md")
+    const before = git(repo, "status", "--porcelain", "--ignored")
+    const result = run()
+    assert.equal(result.status, 1)
+    assert.match(result.stderr, /изменени|неотслеживаем|игнорируем/u)
+    assert.equal(git(repo, "status", "--porcelain", "--ignored"), before)
+    assert.equal(git(repo, "rev-parse", "HEAD"), beforeHead)
+    assert.equal(git(repo, "branch", "--show-current"), "main")
+    assert.equal(git(repo, "branch", "--list", "codex/round-trip-*"), "")
+    if (kind !== "deleted") assert.equal(readFileSync(file, "utf8"), "precious local data\n")
+    assert.equal(existsSync(join(repo, "round-trip-reports")), false)
+    assert.deepEqual(temporaryRuns(root), [])
+  })
 })
 
 test("отказывает до создания ветки при небезопасном источнике", async (t) => {

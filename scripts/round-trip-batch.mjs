@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-import { spawnSync } from "node:child_process"
-import { appendFileSync, closeSync, copyFileSync, cpSync, existsSync, lstatSync, mkdirSync, mkdtempSync, openSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync } from "node:fs"
+import { spawn, spawnSync } from "node:child_process"
+import { appendFileSync, closeSync, copyFileSync, cpSync, existsSync, lstatSync, mkdirSync, mkdtempSync, openSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync, writeSync } from "node:fs"
 import { tmpdir } from "node:os"
-import { dirname, join, posix, resolve } from "node:path"
+import { dirname, join, posix, relative, resolve } from "node:path"
 import { performance } from "node:perf_hooks"
 import { fileURLToPath } from "node:url"
 import { collectRoundTripStatistics, readDiagnostics, XML_STATISTIC_KINDS } from "./round-trip-statistics.mjs"
@@ -10,6 +10,30 @@ import { collectRoundTripStatistics, readDiagnostics, XML_STATISTIC_KINDS } from
 const nkdkRoot = dirname(dirname(fileURLToPath(import.meta.url)))
 const runner = join(nkdkRoot, ".agents/skills/round-trip-yaml/mcp-round-trip.mjs")
 const durationKeys = ["importMs", "exportMs", "totalMs"]
+
+function progress(message) {
+  // Синхронная запись видна и во время блокирующего обхода каталогов на Windows.
+  writeSync(1, `${message}\n`)
+}
+
+function traversalProgress(root, label) {
+  const started = performance.now()
+  let lastOutput = started
+  let directories = 0
+  progress(label)
+  return {
+    visit(directory) {
+      directories += 1
+      const now = performance.now()
+      if (now - lastOutput < 5000) return
+      progress(`Просмотрено каталогов: ${directories}; текущий: ${relative(root, directory) || "."}; прошло ${formatDuration(now - started)}`)
+      lastOutput = now
+    },
+    finish() {
+      progress(`Обход завершён: каталогов ${directories}; прошло ${formatDuration(performance.now() - started)}`)
+    },
+  }
+}
 
 function formatDuration(milliseconds) {
   if (milliseconds === undefined) return undefined
@@ -56,13 +80,15 @@ function configurations(repo) {
   return paths.sort()
 }
 
-function rejectNestedRepositories(repo, paths) {
+function rejectNestedRepositories(repo, paths, label) {
+  const traversal = traversalProgress(repo, label)
   const modes = git(repo, "ls-files", "--format=%(objectmode)", "--", ...paths)
   if (modes.split("\n").includes("160000")) {
     throw new Error("Подмодули внутри конфигураций не поддерживаются")
   }
   // Не следуем по ссылкам/junction и не обходим служебный Git самого репозитория.
   function visit(directory) {
+    traversal.visit(directory)
     for (const entry of readdirSync(directory, { withFileTypes: true })) {
       const path = join(directory, entry.name)
       if (entry.name.toLowerCase() === ".git") {
@@ -79,17 +105,87 @@ function rejectNestedRepositories(repo, paths) {
     }
   }
   for (const path of paths) visit(join(repo, path))
+  traversal.finish()
 }
 
-function directoryBytes(directory) {
+function directoryBytes(directory, traversal, excludedDirectory) {
+  traversal?.visit(directory)
   let bytes = 0
   for (const entry of readdirSync(directory, { withFileTypes: true })) {
     const path = join(directory, entry.name)
     if (entry.isSymbolicLink()) throw new Error(`Недопустимая символическая ссылка: ${path}`)
-    if (entry.isDirectory()) bytes += directoryBytes(path)
+    if (entry.isDirectory()) {
+      if (entry.name !== excludedDirectory) bytes += directoryBytes(path, traversal, excludedDirectory)
+    }
     else if (entry.isFile()) bytes += lstatSync(path).size
   }
   return bytes
+}
+
+async function readGitRecords(repo, args, onRecord) {
+  const child = spawn("git", ["-C", repo, ...args], {
+    stdio: ["ignore", "pipe", "pipe"],
+    env: { ...process.env, GIT_LITERAL_PATHSPECS: "1" },
+  })
+  // Поток может превышать maxBuffer обычного Git-вызова на больших репозиториях.
+  child.stdout.setEncoding("utf8")
+  child.stderr.setEncoding("utf8")
+  await new Promise((resolve, reject) => {
+    let pending = ""
+    let stderr = ""
+    let failure
+    child.on("error", (error) => { failure = error })
+    child.stderr.on("data", (chunk) => { stderr = (stderr + chunk).slice(-8192) })
+    child.stdout.on("data", (chunk) => {
+      if (failure) return
+      try {
+        const records = (pending + chunk).split("\0")
+        pending = records.pop()
+        for (const record of records) onRecord(record)
+      } catch (error) {
+        failure = error
+        child.kill()
+      }
+    })
+    child.on("close", (code, signal) => {
+      if (failure || code !== 0 || pending) {
+        reject(new Error(`git ${args[0]}: ${failure?.message || stderr.trim() || signal || (pending ? "неполный вывод" : `код ${code}`)}`))
+      } else resolve()
+    })
+  })
+}
+
+async function configurationSizes(repo, base, paths) {
+  const sizes = new Map(paths.map((path) => [path, 0]))
+  await readGitRecords(repo, ["ls-tree", "-r", "-l", "-z", base, "--", ...paths], (record) => {
+    const tab = record.indexOf("\t")
+    const [mode, type, , size] = record.slice(0, tab).trim().split(/\s+/u)
+    const path = record.slice(tab + 1)
+    if (mode === "160000") throw new Error(`Подмодуль внутри конфигурации: ${path}`)
+    if (mode === "120000") throw new Error(`Недопустимая символическая ссылка: ${path}`)
+    const bytes = Number(size)
+    const configuration = path.split("/").slice(0, 2).join("/")
+    if (tab < 0 || type !== "blob" || !Number.isSafeInteger(bytes) || bytes < 0 || !sizes.has(configuration)) {
+      throw new Error("Некорректный размер файла в дереве Git")
+    }
+    const total = sizes.get(configuration) + bytes
+    if (!Number.isSafeInteger(total)) throw new Error(`Слишком большой размер конфигурации: ${configuration}`)
+    sizes.set(configuration, total)
+  })
+  return sizes
+}
+
+async function requireCleanRepository(repo) {
+  progress("Проверка отсутствия изменений, неотслеживаемых и игнорируемых файлов")
+  await readGitRecords(repo, ["ls-files", "-v", "-z"], (record) => {
+    if (/^[a-zS]/u.test(record)) {
+      throw new Error(`Git может скрывать изменения: снимите assume-unchanged/skip-worktree перед запуском: ${record.slice(2)}`)
+    }
+  })
+  const changes = git(repo, "status", "--porcelain", "--untracked-files=normal", "--ignored", "--ignore-submodules=none")
+  if (changes) {
+    throw new Error(`В XML-репозитории есть изменения, неотслеживаемые или игнорируемые файлы. Сохраните или уберите их перед запуском; автоматическая очистка отключена.\n${changes}`)
+  }
 }
 
 function cell(value) {
@@ -104,13 +200,15 @@ function saveReport(report) {
     : values[0]
   const files = report.entries.some((entry) => entry.files !== undefined)
     ? report.entries.reduce((sum, entry) => sum + (entry.files ?? 0), 0) : undefined
-  const bytes = report.testMode ? report.entries.reduce((sum, entry) => sum + entry.bytes, 0) : undefined
+  const bytes = report.entries.reduce((sum, entry) => sum + entry.bytes, 0)
+  const nkdkBytes = report.entries.some((entry) => entry.nkdkBytes !== undefined)
+    ? report.entries.reduce((sum, entry) => sum + (entry.nkdkBytes ?? 0), 0) : undefined
   const durations = durationKeys.map((key) => {
     const available = report.entries.map((entry) => entry[key]).filter((value) => value !== undefined)
     return available.length ? formatDuration(available.reduce((sum, value) => sum + value, 0)) : undefined
   })
   const rows = report.entries.map((entry, index) =>
-    `| ${[entry.path, entry.status, entry.files, entry.commit, entry.bytes, ...values[index], ...durationKeys.map((key) => formatDuration(entry[key]))].map(cell).join(" | ")} | [журнал](${report.logDirectory.split("/").at(-1)}/log-${index + 1}.txt) |`)
+    `| ${[entry.path, entry.status, entry.files, entry.commit, entry.bytes, entry.nkdkBytes, ...values[index], ...durationKeys.map((key) => formatDuration(entry[key]))].map(cell).join(" | ")} | [журнал](${report.logDirectory.split("/").at(-1)}/log-${index + 1}.txt) |`)
   const failures = report.entries.filter((entry) => entry.error || entry.statisticsError || entry.timingError)
     .flatMap((entry) => [
       `### ${cell(entry.path)}`, "",
@@ -121,10 +219,10 @@ function saveReport(report) {
     "# Результаты round-trip XML → YAML → XML", "",
     `Начало (UTC): ${report.startedAt}`, "", `Состояние: ${report.status}`, "",
     `Ветка: ${report.branch}`, "",
-    `| Конфигурация | Результат | Изменённых файлов | Коммит | Размер, байт | YAML-файлов | ${XML_STATISTIC_KINDS.join(" | ")} | Широкие raw | Импорт | Экспорт | Всего | Журнал |`,
-    `| --- | --- | ---: | --- | ---: | ${Array(XML_STATISTIC_KINDS.length + 5).fill("---:").join(" | ")} | --- |`,
+    `| Конфигурация | Результат | Изменённых файлов | Коммит | XML, байт | NKDK, байт | YAML-файлов | ${XML_STATISTIC_KINDS.join(" | ")} | Широкие raw | Импорт | Экспорт | Всего | Журнал |`,
+    `| --- | --- | ---: | --- | ---: | ---: | ${Array(XML_STATISTIC_KINDS.length + 5).fill("---:").join(" | ")} | --- |`,
     ...rows,
-    `| ${["Итого", undefined, files, undefined, bytes, ...total, ...durations, undefined].map(cell).join(" | ")} |`, "",
+    `| ${["Итого", undefined, files, undefined, bytes, nkdkBytes, ...total, ...durations, undefined].map(cell).join(" | ")} |`, "",
     "## Ошибки", "", ...(failures.length ? failures : ["Ошибок нет.", ""]),
   ].join("\n")
   writeFileSync(join(report.repo, report.file), text)
@@ -194,7 +292,8 @@ async function readRunErrors(run) {
   return [...errors]
 }
 
-function runConfiguration(repo, entry, run) {
+async function runConfiguration(repo, entry, run) {
+  progress(`Подготовка временного проекта: ${entry.path}`)
   mkdirSync(run.tempDir, { recursive: true })
   const manifestDirectory = join(run.tempDir, "round-trip-yaml-mcp-project")
   const component = {
@@ -211,33 +310,53 @@ function runConfiguration(repo, entry, run) {
   mkdirSync(component.xmlOutputDir)
   const manifest = join(manifestDirectory, "configuration.manifest.json")
   writeFileSync(manifest, JSON.stringify({ components: [component] }))
-  if (git(repo, "status", "--porcelain", "--", entry.path)) {
+  if (git(repo, "status", "--porcelain", "--untracked-files=normal", "--ignored", "--ignore-submodules=none", "--", entry.path)) {
     throw new Error(`Активный XML-каталог содержит изменения: ${entry.path}`)
   }
-  directoryBytes(component.xmlDir) // Отклоняет ссылки до копирования/замены.
+  const sourceTraversal = traversalProgress(repo, `Проверка исходного XML: ${entry.path}`)
+  directoryBytes(component.xmlDir, sourceTraversal) // Отклоняет ссылки до копирования/замены.
+  sourceTraversal.finish()
   const output = openSync(run.log, "w")
   try {
     appendFileSync(output, `[yaml] ${run.yamlDir}\n[xml] ${component.xmlOutputDir}\n[manifest] ${manifest}\n`)
-    const result = spawnSync(process.execPath, [runner, "--manifest", manifest], {
+    progress(`Запуск MCP: ${entry.path}; подробный журнал: ${run.log}`)
+    const child = spawn(process.execPath, [runner, "--manifest", manifest, "--progress"], {
       cwd: nkdkRoot,
-      stdio: ["ignore", output, output],
+      stdio: ["ignore", "pipe", output],
       env: {
         ...process.env,
         GIT_LITERAL_PATHSPECS: "1",
       },
     })
-    if (result.error || result.status !== 0) {
-      throw new Error(`round-trip: ${result.error?.message ?? result.signal ?? `код ${result.status}`}; лог: ${run.log}`)
-    }
+    await new Promise((resolve, reject) => {
+      let failure
+      child.on("error", (error) => { failure = error })
+      child.stdout.on("data", (chunk) => {
+        try {
+          appendFileSync(output, chunk)
+          writeSync(1, chunk)
+        } catch (error) {
+          failure = error
+          child.kill()
+        }
+      })
+      child.on("close", (code, signal) => {
+        if (failure || code !== 0) reject(new Error(`round-trip: ${failure?.message ?? signal ?? `код ${code}`}; лог: ${run.log}`))
+        else resolve()
+      })
+    })
   } finally {
     closeSync(output)
   }
-  directoryBytes(component.xmlOutputDir)
+  const outputTraversal = traversalProgress(component.xmlOutputDir, `Проверка экспортированного XML: ${entry.path}`)
+  directoryBytes(component.xmlOutputDir, outputTraversal)
+  outputTraversal.finish()
   const exportedConfiguration = join(component.xmlOutputDir, "Configuration.xml")
   if (!existsSync(exportedConfiguration) || !lstatSync(exportedConfiguration).isFile()) {
     throw new Error("Экспорт не создал Configuration.xml; исходный XML не заменён")
   }
   // Эти файлы не входят в YAML-договор; результат экспортёра не перезаписываем.
+  progress(`Сохранение XML в ветке прогона: ${entry.path}`)
   const referenceFiles = [".nakidka-migrations.yaml", "Ext/ParentConfigurations.bin"]
   const parentDirectory = join(component.xmlDir, "Ext", "ParentConfigurations")
   if (existsSync(parentDirectory)) {
@@ -258,7 +377,8 @@ function runConfiguration(repo, entry, run) {
   cpSync(component.xmlOutputDir, component.xmlDir, { recursive: true })
 }
 
-function prepareBatch(repo, testMode, timestamp) {
+async function prepareBatch(repo, testMode, timestamp) {
+  progress("Проверка исходной ветки main и текущего состояния Git")
   let base
   try {
     base = git(repo, "rev-parse", "--verify", "refs/heads/main^{commit}")
@@ -267,30 +387,29 @@ function prepareBatch(repo, testMode, timestamp) {
   }
   const previousBranch = git(repo, "branch", "--show-current")
   const previousCommit = git(repo, "rev-parse", "HEAD")
-  // Reset может удалить untracked-каталог на месте tracked-файла: сначала
-  // исключаем вложенные Git-репозитории во всём целевом репозитории.
-  rejectNestedRepositories(repo, ["."])
-  console.log(`Очистка XML-репозитория: ${repo}`)
-  console.log(git(repo, "reset", "--hard", "HEAD"))
-  const removed = git(repo, "clean", "-fdx")
-  if (removed) console.log(removed)
+  await requireCleanRepository(repo)
   let switched = false
   try {
     if (previousCommit !== base) {
+      progress("Переключение на исходное дерево main")
       // Проверяем дерево main, не передвигая её и не затирая ignored-файлы.
       git(repo, "switch", "--no-overwrite-ignore", "--detach", base)
       switched = true
+      await requireCleanRepository(repo)
     }
+    progress("Поиск конфигураций в cf")
     const paths = configurations(repo)
-    rejectNestedRepositories(repo, paths)
-    if (git(repo, "ls-files", "--others", "--ignored", "--exclude-standard", "--", ...paths)) {
-      throw new Error("В каталогах конфигураций есть игнорируемые файлы: round-trip может удалить их. Перенесите их перед запуском.")
-    }
+    progress(`Найдено конфигураций: ${paths.length}`)
+    progress("Подсчёт размеров XML-конфигураций из дерева Git main")
+    const sizes = await configurationSizes(repo, base, paths)
+    const candidates = paths.map((path) => ({ path, bytes: sizes.get(path), status: "не обработана" }))
     const entries = testMode
-      ? paths.map((path) => ({ path, bytes: directoryBytes(join(repo, path)), status: "не обработана" }))
+      ? candidates
         .sort((left, right) => left.bytes - right.bytes || (left.path < right.path ? -1 : left.path > right.path ? 1 : 0))
         .slice(0, 3)
-      : paths.map((path) => ({ path, status: "не обработана" }))
+      : candidates
+    progress(`Выбрано конфигураций: ${entries.length} из ${paths.length}`)
+    rejectNestedRepositories(repo, entries.map((entry) => entry.path), "Проверка безопасности выбранных конфигураций")
     const reportsDir = join(repo, "round-trip-reports")
     if (existsSync(reportsDir)) requireDirectory(reportsDir)
     const file = `round-trip-reports/${timestamp}.md`
@@ -305,6 +424,7 @@ function prepareBatch(repo, testMode, timestamp) {
     git(repo, "var", "GIT_AUTHOR_IDENT")
     git(repo, "var", "GIT_COMMITTER_IDENT")
     const branch = `codex/round-trip-${timestamp}`
+    progress(`Создание ветки: ${branch}`)
     git(repo, "switch", "--no-overwrite-ignore", "-c", branch, base)
     return { entries, reportsDir, file, logDirectory, branch }
   } catch (error) {
@@ -316,14 +436,16 @@ function prepareBatch(repo, testMode, timestamp) {
 }
 
 async function runBatch(repoPath, testMode) {
+  progress(`Запуск пакетного round-trip: ${repoPath}; режим: ${testMode ? "три наименьшие конфигурации" : "все конфигурации"}`)
   const startedAt = new Date().toISOString()
   const timestamp = startedAt.replace("T", "_").replaceAll(":", "-").replace(".", "-")
   // Native разрешает также Windows 8.3-имена и регистр существующих каталогов.
+  progress("Проверка корня XML-репозитория")
   const repo = realpathSync.native(resolve(repoPath))
   if (realpathSync.native(git(repo, "rev-parse", "--show-toplevel")) !== repo) {
     throw new Error("--repo должен указывать на корень Git-репозитория")
   }
-  const { entries, reportsDir, file, logDirectory, branch } = prepareBatch(repo, testMode, timestamp)
+  const { entries, reportsDir, file, logDirectory, branch } = await prepareBatch(repo, testMode, timestamp)
   const report = {
     repo, file, logDirectory, startedAt, testMode, branch,
     tempRoot: mkdtempSync(join(tmpdir(), "nkdk-round-trip-batch-")),
@@ -347,8 +469,9 @@ async function runBatch(repoPath, testMode) {
       entry.status = "выполняется"
       saveReport(report)
       try {
-        runConfiguration(repo, entry, run)
+        await runConfiguration(repo, entry, run)
       } finally {
+        progress(`Сбор статистики и диагностики: ${entry.path}`)
         try {
           Object.assign(entry, readRunDurations(run))
         } catch (error) {
@@ -356,7 +479,9 @@ async function runBatch(repoPath, testMode) {
         }
         // После успешного import YAML и его диагностика остаются даже при ошибке sync.
         try {
-          entry.statistics = await collectRoundTripStatistics(runComponent(run))
+          const component = runComponent(run)
+          if (existsSync(component.importOutputPath)) entry.nkdkBytes = directoryBytes(run.yamlDir, undefined, ".nkdk")
+          entry.statistics = await collectRoundTripStatistics(component)
           appendFileSync(run.log, ["", "=== Статистика XML-тегов ===",
             XML_STATISTIC_KINDS.map((kind) => `${kind}=${entry.statistics.tags[kind]}`).join(", "),
             ...entry.statistics.broadRaw.map((item) => `Каталог YAML: ${posix.dirname(item.file)}\nШирокий raw: ${item.file} — ${item.count}`), ""].join("\n"))
@@ -364,11 +489,13 @@ async function runBatch(repoPath, testMode) {
           entry.statisticsError = error.message
         }
       }
+      progress(`Проверка XML-различий: ${entry.path}`)
       git(repo, "add", "-A", "--", entry.path)
       const changes = git(repo, "diff", "--cached", "--name-only", "--no-renames", "-z", "--", entry.path)
       entry.files = changes.split("\0").filter(Boolean).length
       entry.status = entry.files === 0 ? "без расхождений" : "есть расхождения"
       if (entry.files > 0) {
+        progress(`Создание XML-коммита: ${entry.path}; изменённых файлов: ${entry.files}`)
         git(repo, "commit", "--only", "-m", "chore: :wrench: сохранить расхождения round-trip", "-m", entry.path, "--", entry.path)
         entry.commit = git(repo, "rev-parse", "HEAD")
       }
@@ -393,15 +520,19 @@ async function runBatch(repoPath, testMode) {
     }
     saveReport(report)
     // Удаляются только каталоги этой конфигурации внутри собственного mkdtemp.
+    progress(`Удаление временных каталогов конфигурации: ${entry.path}`)
     rmSync(run.tempDir, { recursive: true, force: true, maxRetries: 3 })
     entry.totalMs = performance.now() - entryStartedAt
     saveReport(report)
+    progress(`Результат ${entry.path}: ${entry.status}; время ${formatDuration(entry.totalMs)}`)
   }
   report.status = failed ? "завершён с ошибками" : "завершён"
   saveReport(report)
+  progress("Сохранение итогового отчёта и журналов в Git")
   git(repo, "add", "--", file, logDirectory)
   // Только отчёт и журналы: остатки ошибочного XML-коммита не захватываются.
   git(repo, "commit", "--only", "-m", "docs: :memo: сохранить отчёт пакетного round-trip", "--", file, logDirectory)
+  progress("Удаление общего временного каталога прогона")
   rmSync(report.tempRoot, { recursive: true, force: true, maxRetries: 3 })
   console.log(`Прогон ${report.status}. Отчёт: ${join(repo, file)}`)
   return failed ? 1 : 0
@@ -410,7 +541,7 @@ async function runBatch(repoPath, testMode) {
 try {
   const args = process.argv.slice(2)
   if (args.length === 1 && ["-h", "--help"].includes(args[0])) {
-    console.log("Использование: node scripts/round-trip-batch.mjs [--test] --repo /путь/к/XML-репозиторию\nБез --repo используется NKDK_XML_REPO из окружения. Обрабатываются конфигурации cf/*.\n--test: только три наименьшие конфигурации по суммарному размеру файлов в байтах.")
+    console.log("Использование: node scripts/round-trip-batch.mjs [--test] --repo /путь/к/XML-репозиторию\nБез --repo используется NKDK_XML_REPO из окружения. Обрабатываются конфигурации cf/*.\n--test: только три наименьшие конфигурации по суммарному размеру файлов в Git main.\nРепозиторий должен быть чистым, включая неотслеживаемые и игнорируемые файлы; автоматической очистки нет.")
   } else {
     let repoPath
     let testMode = false
