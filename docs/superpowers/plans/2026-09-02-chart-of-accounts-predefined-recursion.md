@@ -60,7 +60,7 @@
   Выполнить:
 
   ```bash
-  pnpm --filter @nkdk/rules exec vitest run --no-isolate --project integration packages/rules/metadata/appliedObjects/metadataChartOfAccounts/predefined/roundTrip.integration.test.ts
+  pnpm --filter @nkdk/rules exec vitest run --no-isolate --project integration metadata/appliedObjects/metadataChartOfAccounts/predefined/roundTrip.integration.test.ts
   ```
 
   Ожидаемый результат: тест не находит специфичные поля во вложенном YAML и/или видит лишний `IsFolder=false`; это подтверждает исходный дефект, а не ошибку теста.
@@ -211,8 +211,9 @@
   Выполнить:
 
   ```bash
-  pnpm --filter @nkdk/rules exec vitest run --no-isolate --project integration packages/rules/metadata/appliedObjects/metadataChartOfAccounts/predefined/roundTrip.integration.test.ts
-  pnpm --filter @nkdk/rules exec vitest run --no-isolate --project core-metadata packages/rules/metadata/appliedObjects/metadataChartOfAccounts/predefined/rules.test.ts packages/rules/metadata/ruleRuntime/metadataItem/ruleFactory.test.ts packages/rules/metadata/ruleRuntime/property/canonicalXMLDefaults.test.ts
+  pnpm --filter @nkdk/rules exec vitest run --no-isolate --project integration metadata/appliedObjects/metadataChartOfAccounts/predefined/roundTrip.integration.test.ts
+  pnpm --filter @nkdk/rules exec vitest run --no-isolate --project core-metadata metadata/appliedObjects/metadataChartOfAccounts/predefined/rules.test.ts metadata/ruleRuntime/metadataItem/ruleFactory.test.ts
+  pnpm --filter @nkdk/rules exec vitest run --no-isolate --project unit metadata/ruleRuntime/property/canonicalXMLDefaults.test.ts
   pnpm duplicates -- --base c751974c86b5c4ee59206513ccc91a0685e6ff7c
   ```
 
