@@ -81,6 +81,7 @@ export function validateConfigurationExtensionPropertyStates(
     }
     if (extension.propertyKey === "predefined") {
       diagnostics.push(...validatePredefinedCollectionState({
+        projectDir: params.projectDir,
         projectPath: fact.projectPath,
         entry: fact.entry,
         extension: extension.value,
@@ -102,7 +103,6 @@ export function validateConfigurationExtensionPropertyStates(
     if (extension.mode === "extend" || extension.mode === "xml") continue
     if (extension.mode === "multi") {
       diagnostics.push(...validateMulti({
-        projectDir: params.projectDir,
         projectPath: fact.projectPath,
         entry: fact.entry,
         propertyKey: extension.propertyKey,
