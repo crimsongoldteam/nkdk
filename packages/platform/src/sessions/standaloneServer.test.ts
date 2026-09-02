@@ -100,7 +100,8 @@ describe("standalone server session", () => {
     await expect(session.loadPartialConfiguration?.(
       "/project/package.zip",
       ["Catalogs/Справочник/Ext/ObjectModule.bsl"],
-      fixture.operationLog
+      fixture.operationLog,
+      "Расширение"
     )).resolves.toEqual({ warnings: [], loadMode: "partial" })
 
     expect(fixture.calls).toContain("spawn ibsrv --data /project/.nkdk/platform-sessions/standalone/server-data --session-data /project/.nkdk/platform-sessions/standalone/session-data --config /project/.nkdk/platform-sessions/standalone/config.yaml cwd=/project/.nkdk/platform-sessions/standalone")
@@ -111,7 +112,9 @@ describe("standalone server session", () => {
     expect(loadCall).toContain('/load.lst"')
     expect(fixture.calls.some((call) => call.includes("--update-config-dump-info"))).toBe(false)
     expect(loadCall).toContain("--partial")
-    expect(fixture.calls).toContain('shell.run config update-db-cfg --session-terminate="prompt"')
+    expect(fixture.calls).toContain(
+      'shell.run config update-db-cfg --session-terminate="prompt" --extension="Расширение"'
+    )
     expect(fixture.operationLogText).toContain("stage=protocol-handshake status=start")
     expect(fixture.operationLogText).toContain("stage=protocol-handshake status=ready")
     expect(fixture.operationLogText).toContain("stage=authentication status=start")

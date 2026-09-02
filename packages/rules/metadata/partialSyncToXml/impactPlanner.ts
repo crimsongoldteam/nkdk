@@ -91,9 +91,10 @@ export function buildPartialXmlImpactPlan(params: {
     if (match === undefined || match.kind === "ignore") continue
     const current = requiredCurrentResource(version.projectPath)
     includeDirectCurrent(current)
-    if (current.kind === "content" && current.assignment?.role === "fileItem" &&
-      current.assignment.fileBackedTarget === undefined) {
-      includeFileItemCollection(current)
+    if (current.kind === "content" && current.assignment?.role === "fileItem") {
+      const declaration = declaredFileBackedTarget(current)
+      if (declaration === undefined) includeFileItemCollection(current)
+      else includeMemberCollection(current, declaration)
     }
   }
 

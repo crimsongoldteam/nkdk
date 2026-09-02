@@ -1,4 +1,3 @@
-import { join } from "node:path"
 import type { Diagnostic } from "@nkdk/runtime"
 import { getDataPathOwnerKind } from "@nkdk/runtime/rule-kit"
 import type {
@@ -9,6 +8,11 @@ import type { ProjectStateStructuredDocumentEntry } from "../../projectState/fil
 import { resolveProjectStateDataPathReferenceBatch } from "../../validation/projectStateDependencyValidation"
 import { isRedundantClientApplicationBaseForm } from "./baseFormNecessity"
 import { parseClientApplicationFormSemanticPayload } from "./formSemanticPayload"
+import {
+  collectBorrowedFormDataPathChecks,
+  missingBorrowedFormRootDiagnostics,
+  unavailableBorrowedFormSegmentDiagnostics,
+} from "./borrowedFormDataPathPolicy"
 
 const DOCUMENT_KIND = "clientApplicationForm"
 
@@ -32,7 +36,7 @@ export function validateBorrowedClientApplicationForms(
         representation === "working" && componentKind === "element"
       ),
       actual: extensionFacts.map(({ entry }) => entry),
-      filePath: absolutePath(params.projectDir, first.projectPath),
+      filePath: first.projectPath,
       subject: "основной формы",
     }))
     const currentElementNames = new Set(baseEntries
@@ -47,6 +51,25 @@ export function validateBorrowedClientApplicationForms(
       .filter(({ componentKind }) => componentKind === "element")
       .map(({ name }) => name))
     const workingEntries = extensionFacts.map(({ entry }) => entry)
+    const borrowedFormDataPathChecks = collectBorrowedFormDataPathChecks({
+      workingEntries,
+      currentEntries: baseEntries,
+    })
+    diagnostics.push(...missingBorrowedFormRootDiagnostics({
+      checks: borrowedFormDataPathChecks,
+      workingEntries,
+      currentEntries: baseEntries,
+      filePath: first.projectPath,
+    }))
+    diagnostics.push(...unavailableBorrowedFormSegmentDiagnostics({
+      checks: borrowedFormDataPathChecks,
+      workingEntries,
+      componentPath: first.componentPath,
+      projectPath: first.projectPath,
+      filePath: first.projectPath,
+      projectDir: params.projectDir,
+      queryPort: params.queryPort,
+    }))
     const workingElements = new Map(workingEntries
       .filter(({ componentKind }) => componentKind === "element")
       .map((entry) => [entry.name, entry]))
@@ -94,7 +117,7 @@ export function validateBorrowedClientApplicationForms(
       const borrowed = currentElementNames.has(entry.name) || savedElementNames.has(entry.name)
       if (borrowed && payload?.primaryDataPath === "empty") {
         diagnostics.push({
-          filePath: absolutePath(params.projectDir, first.projectPath),
+          filePath: first.projectPath,
           line: 1,
           col: 1,
           severity: "error",
@@ -138,7 +161,7 @@ export function validateBorrowedClientApplicationForms(
     redundantCandidates.forEach(({ entry }, index) => {
       if (!resolvedRedundant.has(String(index))) return
       diagnostics.push({
-        filePath: absolutePath(params.projectDir, first.projectPath),
+        filePath: first.projectPath,
         line: 1,
         col: 1,
         severity: "error",
@@ -150,7 +173,7 @@ export function validateBorrowedClientApplicationForms(
     for (const name of savedElementNames) {
       if (currentElementNames.has(name)) continue
       diagnostics.push({
-        filePath: absolutePath(params.projectDir, first.projectPath),
+        filePath: first.projectPath,
         line: 1,
         col: 1,
         severity: "warning",
@@ -164,23 +187,29 @@ export function validateBorrowedClientApplicationForms(
     const first = baseFacts[0]
     if (first === undefined || !first.componentPath.startsWith("cfe/")) continue
     const working = groupFactsByAddress(workingGroups, first.componentPath, first.entry.logicalAddress)
+    const current = params.queryPort.readStructuredDocumentEntries({
+      componentPath: "cf",
+      logicalAddress: first.entry.logicalAddress,
+    })
     diagnostics.push(...missingDiagnostics({
       required: baseFacts.map(({ entry }) => entry).filter(({ componentKind }) =>
         ["element", "attribute", "command", "parameter"].includes(componentKind)
       ),
       actual: working.map(({ entry }) => entry),
-      filePath: absolutePath(params.projectDir, first.projectPath),
+      filePath: first.projectPath,
       subject: "сохранённой основы",
       useRequiredPath: true,
     }))
+    diagnostics.push(...missingBorrowedBaseComponentDiagnostics({
+      working: working.map(({ entry }) => entry),
+      current,
+      saved: baseFacts.map(({ entry }) => entry),
+      filePath: first.projectPath,
+    }))
     diagnostics.push(...baseDataPathDiagnostics({
       facts: baseFacts,
-      filePath: absolutePath(params.projectDir, first.projectPath),
+      filePath: first.projectPath,
     }))
-    const current = params.queryPort.readStructuredDocumentEntries({
-      componentPath: "cf",
-      logicalAddress: first.entry.logicalAddress,
-    })
     const currentYaml = semanticDocumentYaml(current)
     const workingYaml = semanticDocumentYaml(working.map(({ entry }) => entry))
     const savedYaml = semanticDocumentYaml(baseFacts.map(({ entry }) => entry))
@@ -195,7 +224,7 @@ export function validateBorrowedClientApplicationForms(
       })
     ) {
       diagnostics.push({
-        filePath: absolutePath(params.projectDir, first.projectPath),
+        filePath: first.projectPath,
         line: 1,
         col: 1,
         severity: "error",
@@ -206,6 +235,28 @@ export function validateBorrowedClientApplicationForms(
     }
   }
   return diagnostics
+}
+
+function missingBorrowedBaseComponentDiagnostics(params: {
+  readonly working: readonly ProjectStateStructuredDocumentEntry[]
+  readonly current: readonly ProjectStateStructuredDocumentEntry[]
+  readonly saved: readonly ProjectStateStructuredDocumentEntry[]
+  readonly filePath: string
+}): readonly Diagnostic[] {
+  const supportedKinds = new Set(["attribute", "command", "parameter"])
+  const current = new Set(params.current.filter(({ componentKind }) => supportedKinds.has(componentKind)).map(componentKey))
+  const saved = new Set(params.saved.map(componentKey))
+  return params.working
+    .filter((entry) => supportedKinds.has(entry.componentKind) && current.has(componentKey(entry)) && !saved.has(componentKey(entry)))
+    .map((entry) => ({
+      filePath: params.filePath,
+      line: 1,
+      col: 1,
+      severity: "error" as const,
+      source: "cross-file" as const,
+      message: `Заимствованный ${componentLabel(entry.componentKind)} «${entry.name}» необходимо добавить и в сохранённую основу формы`,
+      path: yamlPointer(entry.yamlPath),
+    }))
 }
 
 function semanticDocumentYaml(entries: readonly ProjectStateStructuredDocumentEntry[]) {
@@ -309,8 +360,4 @@ function componentLabel(kind: string): string {
 
 function yamlPointer(path: readonly (string | number)[]): string {
   return `/${path.map((segment) => String(segment).replace(/~/g, "~0").replace(/\//g, "~1")).join("/")}`
-}
-
-function absolutePath(projectDir: string, projectPath: string): string {
-  return join(projectDir, ...projectPath.split("/"))
 }

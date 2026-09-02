@@ -30,6 +30,43 @@ describe("проекция структуры формы", () => {
     })
   })
 
+  it("проецирует все зарегистрированные свойства DataPath с владельцем", () => {
+    const components = collectClientApplicationFormStructure({
+      Элементы: {
+        Поле: {
+          Вид: "ПолеВвода",
+          ПутьКДанным: "Контрагент.ИНН",
+          ПутьКДаннымКартинкиМножественногоЗначения: "Контрагент.Картинка",
+        },
+      },
+    }, { kind: "Справочник", name: "Товары" })
+
+    const dataPaths = components.filter(({ componentKind }) => componentKind === "dataPath")
+    expect(dataPaths).toHaveLength(2)
+    expect(dataPaths).toEqual(expect.arrayContaining([
+      {
+        componentKind: "dataPath",
+        name: "Контрагент.ИНН",
+        yamlPath: ["Элементы", "Поле", "ПутьКДанным"],
+        payload: JSON.stringify({
+          version: 1,
+          mode: "explicit",
+          owner: { kind: "Справочник", name: "Товары" },
+        }),
+      },
+      {
+        componentKind: "dataPath",
+        name: "Контрагент.Картинка",
+        yamlPath: ["Элементы", "Поле", "ПутьКДаннымКартинкиМножественногоЗначения"],
+        payload: JSON.stringify({
+          version: 1,
+          mode: "explicit",
+          owner: { kind: "Справочник", name: "Товары" },
+        }),
+      },
+    ]))
+  })
+
   it("добавляет роль и topology-адрес документа", () => {
     const projected = projectClientApplicationFormStructure({
       components: collectClientApplicationFormStructure(yaml),

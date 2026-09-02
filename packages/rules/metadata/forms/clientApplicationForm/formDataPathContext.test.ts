@@ -1,14 +1,18 @@
 import { describe, expect, it } from "vitest"
+import "../../../tests/metadataExecutionContext"
 import { markXmlAnomalyExportClaim, readXmlAnomalyExportClaim } from "@nkdk/runtime"
 import "../../appliedObjects"
 import "../../forms"
 import {
   compactImportedFormDataPaths,
+  materializeInheritedRootFormDataPaths,
   materializeImplicitFormDataPaths,
   prepareFormDataPathContextFromYAML,
+  requiresImportedFormDataPathCompaction,
 } from "./formDataPathContext"
 import { catalogOwnerCache } from "./__tests__/catalogOwnerCache"
 import type { ClientApplicationFormYAML } from "./types"
+import { resolveDataPathCore } from "../../validation/dataPath/coreResolver"
 
 describe("prepareFormDataPathContextFromYAML", () => {
   it("вычисляет кандидаты обычных элементов, таблиц и колонок", () => {
@@ -69,19 +73,20 @@ describe("prepareFormDataPathContextFromYAML", () => {
         Таблица: { Вид: "ТаблицаФормы" },
       },
     } satisfies ClientApplicationFormYAML
-    const context = prepareFormDataPathContextFromYAML({
-      yaml: {
-        Элементы: {
-          Код: { Вид: "ПолеВвода" },
-          Таблица: {
-            Вид: "ТаблицаФормы",
-            Элементы: {
-              ТаблицаНоваяКолонка: { Вид: "ПолеВвода" },
-            },
+    const yaml = {
+      Элементы: {
+        Код: { Вид: "ПолеВвода" },
+        Таблица: {
+          Вид: "ТаблицаФормы",
+          Элементы: {
+            ТаблицаНоваяКолонка: { Вид: "ПолеВвода" },
           },
-          Историческое: { Вид: "ПолеВвода" },
         },
+        Историческое: { Вид: "ПолеВвода" },
       },
+    } satisfies ClientApplicationFormYAML
+    const context = prepareFormDataPathContextFromYAML({
+      yaml,
       currentConfigurationFormYaml,
       savedBaseFormYaml: {
         Элементы: { Историческое: { Вид: "ПолеВвода", ПутьКДанным: "Старое.Значение" } },
@@ -94,6 +99,7 @@ describe("prepareFormDataPathContextFromYAML", () => {
       origin: "borrowed",
       present: false,
       currentConfigurationValue: "Объект.Код",
+      presentInCurrentConfiguration: true,
     })
     expect(context.elementsByName.get("Таблица")).toMatchObject({ origin: "borrowed" })
     expect(context.elementsByName.get("ТаблицаНоваяКолонка")).toMatchObject({
@@ -103,6 +109,63 @@ describe("prepareFormDataPathContextFromYAML", () => {
       candidateInternal: "Объект.Таблица.НоваяКолонка",
     })
     expect(context.elementsByName.get("Историческое")).toMatchObject({ origin: "borrowed" })
+
+    materializeInheritedRootFormDataPaths({ yaml, context })
+
+    expect(yaml.Элементы.Код).not.toHaveProperty("ПутьКДанным")
+  })
+
+  it("материализует путь элемента только из исторической основы через унаследованный реквизит", () => {
+    const yaml: ClientApplicationFormYAML = {
+      Элементы: { ИсторическоеПоле: { Вид: "ПолеВвода" } },
+    }
+    const context = prepareFormDataPathContextFromYAML({
+      yaml,
+      currentConfigurationFormYaml: {
+        Реквизиты: {
+          Объект: { Тип: "CatalogObject.Товары", ОсновнойРеквизит: "Истина" },
+        },
+      },
+      savedBaseFormYaml: {
+        Элементы: { ИсторическоеПоле: { Вид: "ПолеВвода" } },
+      },
+      ownerCache: catalogOwnerCache(),
+    })
+
+    expect(context.elementsByName.get("ИсторическоеПоле")).toMatchObject({
+      origin: "borrowed",
+      candidateRootOrigin: "inherited",
+    })
+    expect(context.elementsByName.get("ИсторическоеПоле")?.presentInCurrentConfiguration).toBeUndefined()
+    materializeInheritedRootFormDataPaths({ yaml, context })
+
+    expect(yaml.Элементы.ИсторическоеПоле.ПутьКДанным).toBe("Объект.ИсторическоеПоле")
+  })
+
+  it.each([
+    ["working", { Реквизиты: { Объект: { Тип: "CatalogObject.Товары" } } }],
+    ["inherited", {}],
+  ] as const)("сохраняет происхождение %s корневого реквизита", (expectedOrigin, yaml) => {
+    const context = prepareFormDataPathContextFromYAML({
+      yaml,
+      currentConfigurationFormYaml: {
+        Реквизиты: { Объект: { Тип: "CatalogObject.Товары" } },
+      },
+      ownerCache: catalogOwnerCache(),
+    })
+
+    const resolved = resolveDataPathCore({
+      value: "Объект.Код",
+      nameMode: "yaml",
+      index: context.index,
+      ownerCache: catalogOwnerCache(),
+    })
+
+    expect(resolved).toMatchObject({
+      status: "ok",
+      root: { kind: "formAttribute", name: "Объект", origin: expectedOrigin },
+      target: { source: { kind: "objectField", name: "Код" } },
+    })
   })
 
   it("не вычисляет кандидат обычного элемента без основного реквизита", () => {
@@ -225,7 +288,78 @@ describe("prepareFormDataPathContextFromYAML", () => {
 
     expect(yaml.Элементы.Поле.ПутьКДанным).toBe("Объект.Поле")
   })
+
+  it("сохраняет явный импортированный путь через только унаследованный реквизит", () => {
+    const yaml = {
+      Элементы: {
+        Наименование: { Вид: "ПолеВвода", ПутьКДанным: "Объект.Наименование" },
+      },
+    } satisfies ClientApplicationFormYAML
+    const context = prepareFormDataPathContextFromYAML({
+      yaml,
+      currentConfigurationFormYaml: {
+        Реквизиты: {
+          Объект: { Тип: "CatalogObject.Товары", ОсновнойРеквизит: "Истина" },
+        },
+      },
+      ownerCache: catalogOwnerCache(),
+    })
+
+    compactImportedFormDataPaths({ yaml, context })
+
+    expect(yaml.Элементы.Наименование.ПутьКДанным).toBe("Объект.Наименование")
+  })
+
+  it.each(["Наименование", "Неизвестное"])("материализует путь %s через унаследованный реквизит независимо от разрешения", (name) => {
+    const yaml: ClientApplicationFormYAML = {
+      Элементы: { [name]: { Вид: "ПолеВвода" } },
+    }
+    const context = inheritedRootContext(yaml)
+
+    materializeInheritedRootFormDataPaths({ yaml, context })
+
+    expect(yaml.Элементы[name].ПутьКДанным).toBe(`Объект.${name}`)
+  })
+
+  it("запускает финализацию для отсутствующего пути без working-основного реквизита", () => {
+    expect(requiresImportedFormDataPathCompaction({
+      Элементы: { Наименование: { Вид: "ПолеВвода" } },
+    })).toBe(true)
+  })
+
+  it.each([
+    [undefined, "Объект.НеизвестнаяТаблица.Колонка"],
+    ["Объект.ДругаяТаблица", "Объект.ДругаяТаблица.Колонка"],
+    ["", undefined],
+  ] as const)("материализует неявную колонку неразрешимой таблицы с путём %s", (tablePath, expected) => {
+    const yaml: ClientApplicationFormYAML = {
+      Элементы: {
+        НеизвестнаяТаблица: {
+          Вид: "ТаблицаФормы",
+          ...(tablePath === undefined ? {} : { ПутьКДанным: tablePath }),
+          Элементы: { НеизвестнаяТаблицаКолонка: { Вид: "ПолеВвода" } },
+        },
+      },
+    }
+    const context = inheritedRootContext(yaml)
+
+    materializeInheritedRootFormDataPaths({ yaml, context })
+
+    expect(yaml.Элементы.НеизвестнаяТаблица.Элементы.НеизвестнаяТаблицаКолонка.ПутьКДанным).toBe(expected)
+  })
 })
+
+function inheritedRootContext(yaml: ClientApplicationFormYAML) {
+  return prepareFormDataPathContextFromYAML({
+    yaml,
+    currentConfigurationFormYaml: {
+      Реквизиты: {
+        Объект: { Тип: "CatalogObject.Товары", ОсновнойРеквизит: "Истина" },
+      },
+    },
+    ownerCache: catalogOwnerCache(),
+  })
+}
 
 function elementCandidates(context: ReturnType<typeof prepareFormDataPathContextFromYAML>) {
   return Object.fromEntries(

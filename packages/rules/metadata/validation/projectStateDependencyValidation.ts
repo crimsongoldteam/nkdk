@@ -18,7 +18,7 @@ import {
 } from "./dataPath/ownerCache"
 import type { FormDataPathSource, OwnerTypeRef } from "./dataPath/types"
 import type { ResolvedDataPathTarget } from "./dataPath/resolver"
-import { resolveDataPath } from "./dataPath/resolver"
+import { resolveDataPathCore, type ResolveDataPathCoreResult } from "./dataPath/coreResolver"
 import { projectStateFieldIndex } from "./dataPath/projectStateFieldIndex"
 import type { FormDataPathIndex } from "./dataPath/formIndex"
 import {
@@ -37,7 +37,7 @@ import type {
   ProjectStateQueryPort,
 } from "../projectState/contracts/dependencyValidation"
 import type { ProjectStatePendingDependencyCheck } from "../projectState/contracts/fileUpdate"
-import { parseProjectPath, projectPathFromFileSystem } from "../projectDefinition/path"
+import { projectPathFromFileSystem } from "../projectDefinition/path"
 import type { ProjectStateDependencyValidator } from "../projectState/contracts/dependencyValidation"
 import type {
   ProjectStateSemanticValidationResult,
@@ -53,6 +53,7 @@ import { validateProjectStateDataTableReferenceBatch } from "./dataTables/projec
 import type { DataTableRegistrySet } from "./dataTables/registry"
 import { currentValidationRegistrySet } from "./validationExecutionContext"
 import { resolveProjectValueTargets } from "./projectReferenceValueResolver"
+import { assertProjectDiagnosticPaths } from "../projectState/diagnosticPaths"
 
 export function createProjectStateDependencyValidator(params: {
   readonly structuredDocumentValidators?: readonly ProjectStateStructuredDocumentValidator[]
@@ -81,7 +82,10 @@ export function createProjectStateDependencyValidator(params: {
     validateAddressableRequired: validateProjectStateAddressableRequiredBatch,
     validateReferenceCoverage: validateProjectStateReferenceCoverageBatch,
     validateStructuredDocuments: (validationParams) =>
-      (params.structuredDocumentValidators ?? []).flatMap((validator) => validator(validationParams)),
+      (params.structuredDocumentValidators ?? []).flatMap((validator) => assertProjectDiagnosticPaths(
+        validator(validationParams),
+        validator.name || "Structured document validator",
+      )),
   }
 }
 
@@ -175,6 +179,14 @@ export interface ProjectStateResolvedDataPathReference {
   readonly target: ResolvedDataPathTarget
 }
 
+export interface ProjectStateDataPathReferenceResult {
+  readonly requestId: string
+  readonly componentPath: string
+  readonly projectPath: string
+  readonly check: Extract<ProjectStatePendingDependencyCheck, { kind: "dataPath" }>
+  readonly resolution: ResolveDataPathCoreResult
+}
+
 export function projectStateDataPathReferenceLocation(
   reference: ProjectStateResolvedDataPathReference,
 ): ProjectDataPathReferenceLocation {
@@ -194,6 +206,24 @@ export function resolveProjectStateDataPathReferenceBatch(params: {
   readonly projectDir: string
   readonly queryPort: Pick<ProjectStateQueryPort, "readDependencyInputs" | "readDependencyOwnerInputs">
 }): readonly ProjectStateResolvedDataPathReference[] {
+  return resolveProjectStateDataPathReferenceResultBatch(params).flatMap((result) =>
+    result.resolution.status !== "error" && result.resolution.target !== undefined
+      ? [{
+          requestId: result.requestId,
+          componentPath: result.componentPath,
+          projectPath: result.projectPath,
+          check: result.check,
+          target: result.resolution.target,
+        }]
+      : []
+  )
+}
+
+export function resolveProjectStateDataPathReferenceResultBatch(params: {
+  readonly checks: readonly ProjectStateDataPathReferenceCheck[]
+  readonly projectDir: string
+  readonly queryPort: Pick<ProjectStateQueryPort, "readDependencyInputs" | "readDependencyOwnerInputs">
+}): readonly ProjectStateDataPathReferenceResult[] {
   if (params.checks.length === 0) return []
   const inputs = params.queryPort.readDependencyInputs(params.checks.map(({ requestId, componentPath, projectPath, check }) => ({
     requestId,
@@ -202,11 +232,10 @@ export function resolveProjectStateDataPathReferenceBatch(params: {
     check,
   })))
   const owners = preloadDataPathOwners(params.queryPort, params.checks, inputs)
-  const resolved: ProjectStateResolvedDataPathReference[] = []
+  const resolved: ProjectStateDataPathReferenceResult[] = []
   forEachDependencyResult(params.checks, inputs, (check, result) => {
     if (result.status !== "found") return
-    const resolution = resolveDataPath({
-      location: { ...check.check.location, filePath: check.projectPath },
+    const resolution = resolveDataPathCore({
       value: check.check.value,
       index: dependencyFormIndex(result.input.forms),
       ownerCache: preloadedOwnerCache({
@@ -217,9 +246,7 @@ export function resolveProjectStateDataPathReferenceBatch(params: {
       ...(check.check.tableContext === undefined ? {} : { tableContext: check.check.tableContext }),
       nameMode: "yaml",
     })
-    if (resolution.status !== "error" && resolution.target !== undefined) {
-      resolved.push({ ...check, target: resolution.target })
-    }
+    resolved.push({ ...check, resolution })
   })
   return resolved
 }
@@ -272,10 +299,9 @@ export function readProjectStateDependencyReadiness(params: {
   return {
     blockedComponentPaths,
     diagnostics: createProjectDegradationDiagnostics({
-      projectDir: "",
       hasConfiguration,
       blockedComponentPaths: [...blockedComponentPaths],
-    }).map((diagnostic) => ({ ...diagnostic, filePath: parseProjectPath(diagnostic.filePath) })),
+    }),
   }
 }
 

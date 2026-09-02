@@ -32,16 +32,22 @@ export function buildProjectStateYamlFileUpdate(
   params: BuildProjectStateYamlFileUpdateParams,
 ): ProjectStateYamlFileUpdate {
   const { descriptor, firstPass } = params
+  const projectedDataPathKeys = new Set(firstPass.structuredComponents
+    ?.filter(({ componentKind }) => componentKind === "dataPath")
+    .map(({ yamlPath }) => JSON.stringify(yamlPath)) ?? [])
   const components = firstPass.structuredComponents === undefined
     ? undefined
     : [
         ...firstPass.structuredComponents,
         ...(descriptor.indexContribution === "isolated" && firstPass.state.kind === "form"
-          ? firstPass.state.pendingChecks.filter((check) => check.kind === "dataPath").map((check) => ({
-              componentKind: "dataPath" as const,
-              name: check.value,
-              yamlPath: check.yamlPath,
-            }))
+          ? firstPass.state.pendingChecks.flatMap((check) => {
+              if (check.kind !== "dataPath" || projectedDataPathKeys.has(JSON.stringify(check.yamlPath))) return []
+              return [{
+                componentKind: "dataPath" as const,
+                name: check.value,
+                yamlPath: check.yamlPath,
+              }]
+            })
           : []),
       ]
   const update = toProjectStateFileUpdate(firstPass, {

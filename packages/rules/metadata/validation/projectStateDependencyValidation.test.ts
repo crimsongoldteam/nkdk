@@ -1,5 +1,4 @@
-import { parseMetadataYaml } from "@nkdk/runtime"
-import { join } from "node:path"
+import { parseMetadataYaml, type Diagnostic } from "@nkdk/runtime"
 import { beforeAll,describe,expect,it,vi } from "vitest"
 import { mockContext } from "../../tests/mockContext"
 import "../../tests/metadataExecutionContext"
@@ -29,6 +28,7 @@ type ProjectMemberIndexEntry,
 } from "./projectReferenceIndex"
 import {
 createProjectStateDependencyValidator,
+resolveProjectStateDataPathReferenceResultBatch,
 validateProjectStateAddressableRequiredBatch,
 validateProjectStateDependencyBatch,
 validateProjectStateOwnerBatch,
@@ -70,6 +70,60 @@ if (!objectTargetResult.ok || objectTargetResult.target.kind !== "object") {
 const objectTarget = objectTargetResult.target
 
 describe("dependency validation из ProjectState", () => {
+  it("сохраняет подробную причину неразрешённого DataPath", () => {
+    const owner = { kind: "Справочник", name: "Товары" }
+    const results = resolveProjectStateDataPathReferenceResultBatch({
+      checks: [{
+        requestId: "path:0",
+        componentPath: "cfe/X",
+        projectPath: "cfe/X/Форма.yaml",
+        check: {
+          kind: "dataPath",
+          yamlPath: ["ПутьКДанным"],
+          location: { line: 1, col: 1, path: "/ПутьКДанным" },
+          owner,
+          value: "Объект.ИНН",
+          policyInput: { yaml: "ПутьКДанным" },
+          policy: "formDataPath",
+        },
+      }],
+      projectDir: "/project",
+      queryPort: {
+        readDependencyInputs: (requests) => requests.map(({ requestId }) => ({
+          requestId,
+          status: "found" as const,
+          input: {
+            owners: [{ owner, facts: {} }],
+            fields: [],
+            forms: [{
+              kind: "root" as const,
+              owner,
+              name: "Объект",
+              source: {
+                kind: "formAttribute" as const,
+                name: "Объект",
+                typeInfo: { kinds: ["object" as const], nextTypes: [owner] },
+              },
+            }],
+          },
+        })),
+        readDependencyOwnerInputs: (requests) => requests.map(({ requestId }) => ({
+          requestId,
+          status: "missing" as const,
+        })),
+      },
+    })
+
+    expect(results).toEqual([expect.objectContaining({
+      requestId: "path:0",
+      resolution: expect.objectContaining({
+        status: "error",
+        failedSegmentIndex: 1,
+        issues: [expect.objectContaining({ code: "unknown_field" })],
+      }),
+    })])
+  })
+
   it("не требует поля заимствованного объекта расширения, найденного в cf", () => {
     const resolveTargets = vi.fn(() => [{ requestId: "required:0", status: "found" as const, target: {
       kind: "object" as const,
@@ -156,10 +210,84 @@ describe("dependency validation из ProjectState", () => {
     }))
     expect(diagnostics).toEqual([
       expect.objectContaining({
-        filePath: join("/project", extension.projectPath),
+        filePath: extension.projectPath,
         message: expect.stringContaining("ПолеCF"),
       }),
     ])
+    store.rollbackUpdate()
+  })
+
+  it("указывает имя структурного валидатора с абсолютным путём", () => {
+    function absolutePathValidator(): readonly Diagnostic[] {
+      return [{
+        filePath: "C:\\project\\cfe\\X\\Форма.yaml",
+        line: 1,
+        col: 1,
+        severity: "error",
+        source: "structure",
+        message: "Ошибка",
+      }]
+    }
+    const validator = createProjectStateDependencyValidator({
+      structuredDocumentValidators: [absolutePathValidator],
+    })
+    const { store } = createBinaryProjectStateTestFixture(validator)
+    store.beginUpdate()
+
+    expect(() => store.validateDependencies({ requests: [] }))
+      .toThrow("absolutePathValidator вернул недопустимый путь диагностики")
+    store.rollbackUpdate()
+  })
+
+  it("не дублирует общую ошибку DataPath специализированной ошибкой формы", () => {
+    const validator = createProjectStateDependencyValidator({
+      structuredDocumentValidators: [validateBorrowedClientApplicationForms],
+    })
+    const owner = { kind: "Справочник", name: "Товары" }
+    const path = "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml"
+    const cf = {
+      ...structuredFormUpdate("cf", "Поле"),
+      structuredDocuments: [{
+        documentKind: "clientApplicationForm",
+        representation: "working" as const,
+        logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента",
+        workingProjectPath: path,
+        componentKind: "attribute",
+        name: "Контрагент",
+        yamlPath: ["Реквизиты", "Контрагент"],
+      }],
+    }
+    const extensionSource = ownerDependencySource("cfe/X", owner, "Контрагент.ИНН", `cfe/X/${path}`)
+    const extension = {
+      ...extensionSource,
+      forms: [],
+      pendingChecks: extensionSource.pendingChecks.map((check) => ({
+        ...check,
+        yamlPath: ["Элементы", "ИНН", "ПутьКДанным"],
+        location: { ...check.location, path: "/Элементы/ИНН/ПутьКДанным" },
+      })),
+      structuredDocuments: [{
+        documentKind: "clientApplicationForm",
+        representation: "working" as const,
+        logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента",
+        workingProjectPath: path,
+        componentKind: "dataPath",
+        name: "Контрагент.ИНН",
+        yamlPath: ["Элементы", "ИНН", "ПутьКДанным"],
+        payload: JSON.stringify({ version: 1, mode: "explicit", owner }),
+      }],
+    }
+    const { store } = createBinaryProjectStateTestFixture(validator)
+    store.beginUpdate()
+    replaceFiles(store, [cf, extension, ownerUpdate("cfe/X", [], owner), configurationUpdate(true)])
+
+    const diagnostics = store.validateDependencies({ requests: [] }).filter(({ path }) =>
+      path === "/Элементы/ИНН/ПутьКДанным"
+    )
+    expect(diagnostics).toEqual([expect.objectContaining({
+      source: "cross-file",
+      message: "Путь «Контрагент.ИНН» использует реквизит формы «Контрагент», который не добавлен в «Реквизиты» заимствованной формы",
+    })])
     store.rollbackUpdate()
   })
 
@@ -175,7 +303,7 @@ describe("dependency validation из ProjectState", () => {
     replaceFiles(store, [current, extension, base, configurationUpdate(true)])
 
     expect(store.validateDependencies({ requests: [] })).toContainEqual(expect.objectContaining({
-      filePath: join("/project", base.projectPath),
+      filePath: base.projectPath,
       message: expect.stringContaining("БазоваяФорма.yaml избыточна"),
     }))
     store.commitUpdate()

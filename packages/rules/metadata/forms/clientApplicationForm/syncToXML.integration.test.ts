@@ -1,10 +1,15 @@
-import { createXmlAnomalyAnnotations } from "@nkdk/runtime"
+import {
+  createConfigurationIndexCollector,
+  createConfigurationIndexExportRuntime,
+  createXmlAnomalyAnnotations,
+} from "@nkdk/runtime"
 import fs from "fs"
 import os from "os"
 import { join } from "path"
 import { describe,expect,it } from "vitest"
 import "../../../tests/metadataExecutionContext"
 import { mockContextToXML } from "../../../tests/mockContext"
+import { testConfigurationIndexReader } from "../../../tests/configurationIndex"
 import { getXMLFixtureDir } from "../../../tests/readFixtureXML"
 import { prepareYamlFiles } from "../../project/prepareYamlFiles"
 import { prepareFormXML,writePreparedFormToXML } from "./syncToXML"
@@ -82,6 +87,58 @@ describe("writePreparedFormToXML", () => {
     const table = body.Form.BaseForm.ChildItems[0].Table
 
     expect(table).toMatchObject({ AutoRefresh: false, ShowRoot: true })
+  })
+
+  it("назначает один расширенный ID впервые заимствованному реквизиту сохранённого BaseForm", () => {
+    const formAddress = "Справочник.Товары.Форма.ФормаЭлемента"
+    const source = testConfigurationIndexReader()
+    const contextWithIndex = (logicalAddress: string, targetProjectPath: string) => {
+      const context = mockContextToXML()
+      return {
+        ...context,
+        exportToXML: {
+          ...context.exportToXML,
+          configurationIndex: createConfigurationIndexExportRuntime({
+            source,
+            collector: createConfigurationIndexCollector(),
+            targetProjectPath,
+            logicalAddress,
+          }),
+        },
+      }
+    }
+    const prepared = (projectPath: string) => ({
+      projectPath,
+      filePath: `/tmp/${projectPath}`,
+      role: "form" as const,
+      owner: { dir: "Справочник", name: "Товары" },
+      data: { Реквизиты: { Объект: { Тип: "Строка" } } },
+      annotations: createXmlAnomalyAnnotations(),
+      syntaxDiagnostics: [],
+    })
+
+    const result = prepareFormXML({
+      context: contextWithIndex(formAddress, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml"),
+      preparedYamlFile: prepared("Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml"),
+      baseFormPreparedYamlFile: prepared("Справочник/Товары/Формы/ФормаЭлемента/БазоваяФорма.yaml"),
+      currentConfigurationFormPreparedYamlFile: prepared("cf/Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml"),
+      baseFormSourceKind: "saved",
+      baseFormContext: contextWithIndex(
+        `${formAddress}.ОсноваФормы`,
+        "Справочник/Товары/Формы/ФормаЭлемента/БазоваяФорма.yaml",
+      ),
+      formName: "ФормаЭлемента",
+    })
+    const body = result.find(({ targetKind }) => targetKind === "body")?.xml as Record<string, any>
+    const outerAttribute = body.Form.Attributes.Attribute.find(
+      (attribute: Record<string, unknown>) => attribute._name === "Объект",
+    )
+    const baseAttribute = body.Form.BaseForm.Attributes.Attribute.find(
+      (attribute: Record<string, unknown>) => attribute._name === "Объект",
+    )
+
+    expect(outerAttribute._id).toBe("1000001")
+    expect(baseAttribute._id).toBe("1000001")
   })
 
   it("пишет managed form из подготовленного YAML после удаления исходного файла", async () => {

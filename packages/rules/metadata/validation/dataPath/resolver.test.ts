@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import "../../../tests/metadataExecutionContext"
 import type { TypeDescription } from "../../commonObjects/typeDescription/types"
 import type { ClientApplicationForm } from "../../forms/clientApplicationForm/types"
 import type { FormAttribute } from "../../forms/commonObjects/formAttribute/types"
@@ -177,6 +178,38 @@ describe("resolveDataPath", () => {
         segments: ["ПометкаУдаления"],
         source: { kind: "formAttribute", name: "ПометкаУдаления" },
         typeInfo: { kinds: ["boolean"] },
+      },
+    })
+  })
+
+  it("переносит нейтральное происхождение корня в трассу результата", () => {
+    const source = {
+      kind: "formAttribute",
+      name: "ПометкаУдаления",
+      typeInfo: { kinds: ["boolean"], nextTypes: [] },
+      origin: "inherited",
+    } as never
+    const roots = new Map([["ПометкаУдаления", source]])
+
+    const result = resolveDataPathCore({
+      value: "ПометкаУдаления",
+      nameMode: "yaml",
+      index: {
+        roots,
+        additionalColumnsByTablePath: new Map(),
+        tabularElementsByName: new Map(),
+        duplicateDiagnostics: [],
+        getRoot: (name) => roots.get(name),
+      },
+      ownerCache: ownerCache([]),
+    })
+
+    expect(result).toMatchObject({
+      status: "ok",
+      root: { kind: "formAttribute", name: "ПометкаУдаления", origin: "inherited" },
+      target: {
+        segmentIndex: 0,
+        source: { kind: "formAttribute", name: "ПометкаУдаления", origin: "inherited" },
       },
     })
   })
@@ -858,9 +891,8 @@ describe("resolveDataPath", () => {
   })
 
   it("keeps unknown tabular section columns as errors when no additional column exists", () => {
-    const result = resolve("Объект.Товары.Артикул", {
-      index: indexWithAttributes([attribute("Объект", { type: ["DocumentRef.Заказ"] })]),
-      ownerCache: ownerCache([
+    const index = indexWithAttributes([attribute("Объект", { type: ["DocumentRef.Заказ"] })])
+    const cache = ownerCache([
         owner({
           ref: { kind: "Документ", name: "Заказ" },
           rule: MetadataDocumentRules,
@@ -875,8 +907,8 @@ describe("resolveDataPath", () => {
             ],
           },
         }),
-      ]),
-    })
+      ])
+    const result = resolve("Объект.Товары.Артикул", { index, ownerCache: cache })
 
     expect(result).toMatchObject({
       status: "error",
@@ -885,6 +917,16 @@ describe("resolveDataPath", () => {
           message: 'ПутьКДанным "Объект.Товары.Артикул": неизвестная колонка "Артикул"',
         }),
       ],
+    })
+    expect(resolveDataPathCore({
+      value: "Объект.Товары.Артикул",
+      index,
+      ownerCache: cache,
+      nameMode: "yaml",
+    })).toMatchObject({
+      status: "error",
+      failedSegmentIndex: 2,
+      issues: [{ code: "unknown_column" }],
     })
   })
 
@@ -2711,6 +2753,20 @@ describe("resolveDataPath", () => {
           message: 'ПутьКДанным "Объект.Parent": неизвестный реквизит "Parent"',
         }),
       ],
+    })
+  })
+
+  it("указывает первый недоступный сегмент в нейтральном результате", () => {
+    const result = resolveDataPathCore({
+      ...catalogGoodsResolveParams(),
+      value: "Объект.ИНН",
+      nameMode: "yaml",
+    })
+
+    expect(result).toMatchObject({
+      status: "error",
+      failedSegmentIndex: 1,
+      issues: [{ code: "unknown_field" }],
     })
   })
 

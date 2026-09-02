@@ -205,7 +205,9 @@ describe("Designer agent session", () => {
     expect(fixture.calls.find((call) => call.startsWith("shell.run config load-files"))).toMatch(
       /^shell\.run config load-files --dir="\.nkdk-load\/[^/]+" --archive="package\.zip" --no-check --list-file="\.nkdk-load\/[^/]+\/load\.lst" --update-config-dump-info --extension="Расширение"$/u
     )
-    expect(fixture.calls).toContain('shell.run config update-db-cfg --session-terminate="prompt"')
+    expect(fixture.calls).toContain(
+      'shell.run config update-db-cfg --session-terminate="prompt" --extension="Расширение"'
+    )
     expect(fixture.calls.findLast((call) => call.startsWith("rm "))).toMatch(
       /^rm \/project\/\.nkdk\/0\/\.nkdk-load\/[^/]+$/u
     )

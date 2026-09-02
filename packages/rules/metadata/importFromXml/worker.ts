@@ -495,16 +495,20 @@ async function processSecondPass(
       ...(imported.baseFormCandidate === undefined ? {} : { baseFormCandidate: imported.baseFormCandidate }),
     }
     preparedYaml.set(assignmentId, prepared)
-      const configurationIndex = secondPass.configurationStore === undefined
-        ? createLocalConfigurationIndexReader(new Map(
+      const configurationBlocks = secondPass.configurationStore === undefined
+        ? new Map(
             prepared.configurationFragment === undefined
               ? []
               : [[prepared.targetProjectPath, prepared.configurationFragment]],
-          ))
-        : createLocalConfigurationIndexReader(secondPass.configurationStore.getBlocks([
-            prepared.targetProjectPath,
-            ...(prepared.baseFormCandidate === undefined ? [] : [prepared.baseFormCandidate.targetProjectPath]),
-          ]))
+          )
+        : secondPass.configurationStore.getBlocks([prepared.targetProjectPath])
+      // Основа импортируется во втором проходе и ещё отсутствует в снимке первого.
+      const configurationIndex = createLocalConfigurationIndexReader(new Map([
+        ...configurationBlocks,
+        ...(prepared.baseFormCandidate === undefined
+          ? []
+          : [[prepared.baseFormCandidate.targetProjectPath, prepared.baseFormCandidate.configurationFragment] as const]),
+      ]))
       const baseConfigurationIndex = secondPass.baseConfigurationStore === undefined
         || prepared.baseFormCandidate === undefined
         ? undefined
@@ -838,6 +842,7 @@ async function prepareYamlForFinalPass(
         yaml: prepared.yaml,
         rule: prepared.rule,
         ownerMetadataCache,
+        annotations: prepared.annotations,
         ...(currentConfigurationData === undefined ? {} : { currentConfigurationYAML: currentConfigurationData }),
         ...(preparedBaseFormCandidate === undefined
           ? {}
@@ -845,6 +850,54 @@ async function prepareYamlForFinalPass(
       })
     }
   )
+  const validateAndApplyImportedIssues = (includeSerializedIssues = true) => {
+    let serialized = serializePreparedYaml(
+      prepared.targetProjectPath,
+      prepared.yaml,
+      state,
+      profiler,
+      prepared.annotations,
+    )
+    let validated = measureSerializedImportYamlValidation(prepared, serialized, state, profiler)
+    const semanticIssues = validateFinalImportSemantics({
+      index: validated.index,
+      final: validated.final,
+      projectDir: state.projectDir,
+      readSession,
+      pendingChecks: validated.pendingChecks,
+    })
+    const classified = classifyImportedIssues({
+      issues: [...(includeSerializedIssues ? validated.issues : []), ...semanticIssues],
+      requiresImportant: (target) => requiresImportantForImportedTarget(prepared, target),
+    })
+    if (classified.fatal.length > 0) {
+      throw new Error(`Валидация импортированного YAML завершилась внутренней ошибкой: ${classified.fatal
+        .map(({ code }) => code).join(", ")}`)
+    }
+    if (classified.decisions.length > 0) {
+      applyImportedIssueDecisions({
+        data: prepared.yaml,
+        annotations: prepared.annotations,
+        decisions: classified.decisions,
+      })
+      serialized = serializePreparedYaml(
+        prepared.targetProjectPath,
+        prepared.yaml,
+        state,
+        profiler,
+        prepared.annotations,
+      )
+      validated = measureSerializedImportYamlValidation(prepared, serialized, state, profiler)
+    }
+    return { serialized, validated, semanticIssues, decisions: classified.decisions }
+  }
+  const materializedFormDataPaths = collectImportedFormDataPaths(prepared.yaml, prepared.rule)
+  const hasMaterializedFormDataPath = materializedFormDataPaths.some((current) =>
+    !originalFormDataPaths.some((original) => sameYamlPath(original.yamlPath, current.yamlPath))
+  )
+  const initialValidation = hasMaterializedFormDataPath
+    ? validateAndApplyImportedIssues(false)
+    : { semanticIssues: [], decisions: [] }
   const proof = await profiler.measureAsync(
     "Подготовка импорта конфигурации",
     "Контрольный экспорт XML",
@@ -930,44 +983,10 @@ async function prepareYamlForFinalPass(
       }),
     })
   }
-  let serialized = serializePreparedYaml(
-    prepared.targetProjectPath,
-    prepared.yaml,
-    state,
-    profiler,
-    prepared.annotations,
-  )
-  let validated = measureSerializedImportYamlValidation(prepared, serialized, state, profiler)
-  const semanticIssues = validateFinalImportSemantics({
-    index: validated.index,
-    final: validated.final,
-    projectDir: state.projectDir,
-    readSession,
-    pendingChecks: validated.pendingChecks,
-  })
-  const classified = classifyImportedIssues({
-    issues: [...validated.issues, ...semanticIssues],
-    requiresImportant: (target) => requiresImportantForImportedTarget(prepared, target),
-  })
-  if (classified.fatal.length > 0) {
-    throw new Error(`Валидация импортированного YAML завершилась внутренней ошибкой: ${classified.fatal
-      .map(({ code }) => code).join(", ")}`)
-  }
-  if (classified.decisions.length > 0) {
-    applyImportedIssueDecisions({
-      data: prepared.yaml,
-      annotations: prepared.annotations,
-      decisions: classified.decisions,
-    })
-    serialized = serializePreparedYaml(
-      prepared.targetProjectPath,
-      prepared.yaml,
-      state,
-      profiler,
-      prepared.annotations,
-    )
-    validated = measureSerializedImportYamlValidation(prepared, serialized, state, profiler)
-  }
+  const finalValidation = validateAndApplyImportedIssues()
+  const { serialized, validated } = finalValidation
+  const semanticIssues = [...initialValidation.semanticIssues, ...finalValidation.semanticIssues]
+  const decisions = [...initialValidation.decisions, ...finalValidation.decisions]
   const baseForm = preparedBaseFormCandidate === undefined
     ? undefined
     : prepareSerializedBaseFormCandidate({
@@ -989,7 +1008,7 @@ async function prepareYamlForFinalPass(
       index: withPreparedFormIndexFallback(prepared, validated.index),
       final: semanticIssues.length === 0
         ? validated.final
-        : applyImportedDecisionsToFinalState(validated.final, classified.decisions, serialized.localHash),
+        : applyImportedDecisionsToFinalState(validated.final, decisions, serialized.localHash),
     },
     ...(baseForm === undefined ? {} : { base: baseForm }),
     configurationFragments:

@@ -5,7 +5,7 @@ import {
 } from "@nkdk/runtime"
 import type { Diagnostic, DiagnosticSource, DiagnosticSeverity } from "@nkdk/runtime"
 import { yamlPathToPointer } from "@nkdk/runtime"
-import { join } from "node:path"
+import { resolve } from "node:path"
 import type {
   ProjectStateDependencyValidator,
   ProjectStateAddressableRequiredCheck,
@@ -24,6 +24,7 @@ import {
 import { createBinaryProjectStateQueryPort } from "./readSession"
 import type { ProjectStateSnapshotView } from "./snapshot"
 import { createTypedProjectStateReader, type TypedProjectStateReader } from "./typedReader"
+import { assertProjectDiagnosticPaths } from "../diagnosticPaths"
 
 const SEVERITIES = [undefined, "error", "warning"] as const
 const SOURCES = [undefined, "syntax", "structure", "external-file", "cross-file", "reference"] as const
@@ -121,17 +122,63 @@ export function validateSnapshotDependencyDiagnostics(
     validate: (checks) => dependencyValidator.validateDependencies({ checks, projectDir, queryPort }),
   })
   addAccepted(accepted, dependencyResult.acceptedXmlAnomalies)
+  const structuredDiagnostics = applyStructuredXmlAnomalyBoundaries({
+    diagnostics: assertProjectDiagnosticPaths(dependencyValidator.validateStructuredDocuments({
+      facts: structuredDocuments,
+      projectDir,
+      queryPort,
+    }), "ProjectState dependency validation"),
+    boundaries: [
+      ...references.filter(({ reference }) => reference.xmlAnomaly !== undefined).map(referenceBoundaryValue),
+      ...dependencies.filter(({ check }) => check.xmlAnomaly !== undefined).map(dependencyBoundaryValue),
+    ],
+    accepted,
+    projectDir,
+  })
+  const specializedErrorBoundaries = new Set(structuredDiagnostics
+    .filter(({ severity, path }) => severity === "error" && path !== undefined)
+    .map(({ filePath, path }) => diagnosticBoundaryKey(projectDir, filePath, path!)))
+  const dependencyDiagnostics = dependencyResult.diagnostics.filter(({ severity, filePath, path }) =>
+    severity !== "error"
+    || path === undefined
+    || !specializedErrorBoundaries.has(diagnosticBoundaryKey(projectDir, filePath, path))
+  )
 
-  return [
+  return assertProjectDiagnosticPaths([
     ...referenceResult.diagnostics,
     ...dependencyValidator.validateOwners({ checks: owners, projectDir, queryPort }),
-    ...dependencyResult.diagnostics,
+    ...dependencyDiagnostics,
     ...dependencyValidator.validateAddressableRequired({ checks: addressableRequired, projectDir, queryPort }),
     ...dependencyValidator.validateReferenceCoverage({ checks: referenceCoverage, projectDir, queryPort }),
-    ...dependencyValidator.validateStructuredDocuments({ facts: structuredDocuments, projectDir, queryPort }),
+    ...structuredDiagnostics,
     ...readiness.diagnostics,
-    ...unnecessaryXmlAnomalyDiagnostics(pending, accepted, projectDir),
-  ]
+    ...unnecessaryXmlAnomalyDiagnostics(pending, accepted),
+  ], "ProjectState dependency validation")
+}
+
+function diagnosticBoundaryKey(projectDir: string, filePath: string, path: string): string {
+  return `${resolve(projectDir, filePath).toLowerCase()}\u0000${path}`
+}
+
+function applyStructuredXmlAnomalyBoundaries(params: {
+  readonly diagnostics: readonly Diagnostic[]
+  readonly boundaries: readonly ProjectStateXmlAnomalyBoundary[]
+  readonly accepted: Set<string>
+  readonly projectDir: string
+}): Diagnostic[] {
+  const boundaries = new Map(params.boundaries.map((boundary) => [
+    diagnosticBoundaryKey(params.projectDir, boundary.projectPath, yamlPathToPointer(boundary.yamlPath) ?? ""),
+    boundaryKey(boundary),
+  ]))
+  return params.diagnostics.filter((diagnostic) => {
+    // Смысловая межфайловая ошибка подтверждает ту же границу, что и проверка
+    // ссылки. Структурные ошибки и соседние свойства тегом не подавляются.
+    if (diagnostic.severity !== "error" || diagnostic.source !== "cross-file" || diagnostic.path === undefined) return true
+    const key = boundaries.get(diagnosticBoundaryKey(params.projectDir, diagnostic.filePath, diagnostic.path))
+    if (key === undefined) return true
+    params.accepted.add(key)
+    return false
+  })
 }
 
 function validatePendingInWaves<T>(params: {
@@ -248,10 +295,9 @@ function boundaryKey(boundary: ProjectStateXmlAnomalyBoundary): string {
 function unnecessaryXmlAnomalyDiagnostics(
   pending: ReadonlyMap<string, ProjectStateXmlAnomalyBoundary & { readonly line: number; readonly col: number }>,
   accepted: ReadonlySet<string>,
-  projectDir: string,
 ): Diagnostic[] {
   return [...pending].flatMap(([key, boundary]) => accepted.has(key) ? [] : [{
-    filePath: join(projectDir, boundary.projectPath),
+    filePath: boundary.projectPath,
     line: boundary.line,
     col: boundary.col,
     path: yamlPathToPointer(boundary.yamlPath),

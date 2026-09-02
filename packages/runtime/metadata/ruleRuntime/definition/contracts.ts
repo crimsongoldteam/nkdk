@@ -221,6 +221,7 @@ export interface MetadataImportedYamlFinalizerParams {
   yaml: unknown
   rule: MetadataItemRule
   ownerMetadataCache: import("../../validation/dataPath/contracts").OwnerMetadataCache
+  annotations?: import("../../../yaml/xmlAnomalyAnnotations").XmlAnomalyAnnotations
   currentConfigurationYAML?: unknown
   savedBaseYAML?: unknown
 }

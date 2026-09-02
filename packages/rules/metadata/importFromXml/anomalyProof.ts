@@ -1358,6 +1358,8 @@ export async function proveXmlAnomalyBoundaries(params: {
     if (exported === undefined) continue
     const exportedNodes = exportedElements.get(exported)
     const acceptedSourceAbsence = isAcceptedSourceAbsence(boundary, exportedNodes)
+    const acceptedInvalidAbsence = !boundary.presentInSource
+      && annotationIndex.invalidLogicalPaths.has(yamlPathKey(boundary.yamlPath))
     const exact = boundary.presentInSource
       ? acceptedSourceAbsence
         || (isCapturedProofBoundary(boundary) && boundary.targets.length > 0 && boundary.targets.every((target) =>
@@ -1367,11 +1369,20 @@ export async function proveXmlAnomalyBoundaries(params: {
           ) === target.signature
         ))
       : exportedNodes?.get(boundary.xmlPath) === undefined
-    if (exact) {
+    if (exact || acceptedInvalidAbsence) {
       if (acceptedSourceAbsence && verificationSourcePaths.has(boundary.sourcePath)) {
         transformations.push({
           sourcePath: boundary.sourcePath,
           side: "source",
+          xmlPath: boundary.xmlPath,
+          value: null,
+          hasSemanticValue: false,
+        })
+      }
+      if (acceptedInvalidAbsence && verificationSourcePaths.has(boundary.sourcePath)) {
+        transformations.push({
+          sourcePath: boundary.sourcePath,
+          side: "exported",
           xmlPath: boundary.xmlPath,
           value: null,
           hasSemanticValue: false,
@@ -1659,6 +1670,8 @@ export async function proveXmlAnomalyBoundaries(params: {
       )
       const hasHandledBoundary = sourceBoundaries.some((boundary) =>
         hasRawForBoundary(annotationIndex, boundary)
+        || (!boundary.presentInSource
+          && annotationIndex.invalidLogicalPaths.has(yamlPathKey(boundary.yamlPath)))
       )
       if (hasCapturedBoundary || hasHandledBoundary) continue
     }
@@ -2190,6 +2203,7 @@ interface ProofAnnotationIndex {
   readonly rootRaw: boolean
   readonly rawByRuntimePath: ReadonlyMap<string, XmlAnomalyAnnotationsSnapshot["entries"][number]["annotation"]>
   readonly rawLogicalPaths: ReadonlySet<string>
+  readonly invalidLogicalPaths: ReadonlySet<string>
 }
 
 function createProofAnnotationIndex(
@@ -2200,18 +2214,25 @@ function createProofAnnotationIndex(
     XmlAnomalyAnnotationsSnapshot["entries"][number]["annotation"]
   >()
   const rawLogicalPaths = new Set<string>()
+  const invalidLogicalPaths = new Set<string>()
   for (const entry of annotations.entries) {
-    if (entry.annotation.kind !== "raw") continue
-    rawByRuntimePath.set(yamlPathKey([...entry.parentPath, entry.key]), entry.annotation)
     const logicalKey = entry.annotation.target === "key"
       ? entry.annotation.logicalKey ?? entry.key
       : entry.key
-    rawLogicalPaths.add(yamlPathKey([...entry.parentPath, logicalKey]))
+    const logicalPath = yamlPathKey([...entry.parentPath, logicalKey])
+    if (entry.annotation.kind === "invalid") {
+      invalidLogicalPaths.add(logicalPath)
+      continue
+    }
+    if (entry.annotation.kind !== "raw") continue
+    rawByRuntimePath.set(yamlPathKey([...entry.parentPath, entry.key]), entry.annotation)
+    rawLogicalPaths.add(logicalPath)
   }
   return {
     rootRaw: annotations.root?.kind === "raw",
     rawByRuntimePath,
     rawLogicalPaths,
+    invalidLogicalPaths,
   }
 }
 

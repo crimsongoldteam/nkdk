@@ -120,6 +120,15 @@ export function buildLoadPartialConfigurationCommand(params: {
   ].join(" ")
 }
 
+export function buildUpdateDatabaseConfigurationCommand(extensionName?: string): string {
+  return [
+    'config update-db-cfg --session-terminate="prompt"',
+    ...(extensionName === undefined
+      ? []
+      : [`--extension="${interactiveValue(extensionName)}"`]),
+  ].join(" ")
+}
+
 function designerConnectionArgument(connection: InfobaseConnection): string {
   if (connection.type === "file") return `/F${connection.path}`
   if (connection.type === "server") return `/S${connection.server}\\${connection.reference}`

@@ -7,6 +7,7 @@ import {
   buildDumpConfigurationCommand,
   buildListDesignerExtensionsCommand,
   buildLoadPartialConfigurationCommand,
+  buildUpdateDatabaseConfigurationCommand,
   classifyPartialLoad,
 } from "./commands"
 import { PlatformSessionError } from "./errors"
@@ -396,7 +397,7 @@ export async function createDesignerAgentSession(
           { signal, timeoutMs: dependencies.commandTimeoutMs, operationLog }
         )
         if (updateDatabaseConfiguration) {
-          await commandSession.run('config update-db-cfg --session-terminate="prompt"', {
+          await commandSession.run(buildUpdateDatabaseConfigurationCommand(extensionName), {
             signal,
             timeoutMs: dependencies.commandTimeoutMs,
             operationLog,

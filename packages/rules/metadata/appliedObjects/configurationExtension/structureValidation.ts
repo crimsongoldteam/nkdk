@@ -1,4 +1,3 @@
-import { join } from "node:path"
 import type { Diagnostic } from "@nkdk/runtime"
 import type { ProjectStateStructuredDocumentValidationParams } from "../../projectState/contracts/dependencyValidation"
 import type { ProjectStateStructuredDocumentEntry } from "../../projectState/contracts/fileUpdate"
@@ -28,7 +27,7 @@ export function validateConfigurationExtensionStructure(
     }).some(({ documentKind }) => documentKind === CONFIGURATION_EXTENSION_STRUCTURE_DOCUMENT)
     if (hasBaseConfiguration) continue
     diagnostics.push(structureDiagnostic(
-      params, root.workingProjectPath,
+      root.workingProjectPath,
       "Для валидации расширения требуется индекс расширяемой конфигурации cf",
     ))
   }
@@ -45,7 +44,7 @@ export function validateConfigurationExtensionStructure(
     const payload = structurePayload(fact.entry.payload)
     if (fact.entry.name === "MetadataExchangePlan" && payload.distributedInfoBase === true) {
       diagnostics.push({
-        ...structureDiagnostic(params, fact.projectPath,
+        ...structureDiagnostic(fact.projectPath,
           "План обмена, добавленный расширением, нельзя использовать в распределённой информационной базе"),
         path: "/РаспределеннаяИнформационнаяБаза",
       })
@@ -57,7 +56,7 @@ export function validateConfigurationExtensionStructure(
       ) < 0
     ) {
       diagnostics.push({
-        ...structureDiagnostic(params, fact.projectPath,
+        ...structureDiagnostic(fact.projectPath,
           "Наборы типов и определяемые типы недоступны до Версия8_3_20"),
         path: "/Тип",
       })
@@ -65,7 +64,7 @@ export function validateConfigurationExtensionStructure(
     }
     if (movedBorrowedObject(params, fact.componentPath, fact.entry, extensionFacts)) {
       diagnostics.push(structureDiagnostic(
-        params, fact.projectPath,
+        fact.projectPath,
         `Нельзя перемещать заимствованный объект «${fact.entry.logicalAddress}» в собственный объект расширения`,
       ))
       continue
@@ -82,7 +81,7 @@ export function validateConfigurationExtensionStructure(
       !registry.allowsOwnBorrowedChild(parent.name, collection)
     )
     if (!forbidden) continue
-    diagnostics.push(structureDiagnostic(params, fact.projectPath, unavailableByVersion
+    diagnostics.push(structureDiagnostic(fact.projectPath, unavailableByVersion
       ? `Собственный объект вида «${fact.entry.name}» недоступен до ${since}`
       : parent === undefined
         ? `Собственный объект вида «${fact.entry.name}» запрещён в расширении`
@@ -139,12 +138,11 @@ function structurePayload(payload: string | undefined): {
 }
 
 function structureDiagnostic(
-  params: ProjectStateStructuredDocumentValidationParams,
   projectPath: string,
   message: string,
 ): Diagnostic {
   return {
-    filePath: join(params.projectDir, ...projectPath.split("/")),
+    filePath: projectPath,
     line: 1,
     col: 1,
     severity: "error",
