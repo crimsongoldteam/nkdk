@@ -1,4 +1,4 @@
-import type { ParsedYaml } from "@nkdk/runtime"
+import { isMetadataTargetUuid, type ParsedYaml } from "@nkdk/runtime"
 import type { PendingMetadataTargetReferenceCandidate } from "@nkdk/runtime/rule-kit"
 import type { Diagnostic } from "../../validation/types"
 import { diagnosticAtYamlPath, type YamlPath } from "../../validation/yamlLocations"
@@ -14,7 +14,7 @@ export function materializeMetadataValueReference(params: {
   readonly parsed: ParsedYaml
   readonly yamlPath: YamlPath
 }): { references: PendingMetadataTargetReferenceCandidate[]; diagnostics: Diagnostic[] } {
-  if (params.value.type !== "ref" || params.value.value === "" || isDesignTimeRefUuid(params.value.value)) {
+  if (params.value.type !== "ref" || params.value.value === "" || isMetadataTargetUuid(params.value.value)) {
     return { references: [], diagnostics: [] }
   }
 
@@ -62,8 +62,4 @@ export function materializeCanonicalMetadataReference(params: {
     ],
     diagnostics: [],
   }
-}
-
-function isDesignTimeRefUuid(value: string): boolean {
-  return /^[0-9a-f-]{36}\.[0-9a-f-]{36}$/i.test(value)
 }

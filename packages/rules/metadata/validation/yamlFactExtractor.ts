@@ -769,7 +769,7 @@ function collectPendingReferences(params: {
 
     if (property.children !== undefined) {
       references.push(
-        ...collectNestedReferences({
+        ...(property.nestedShape === "object" ? collectNestedObject : collectNestedReferences)({
           filePath: params.filePath,
           parsed: params.parsed,
           owner: params.owner,
@@ -828,10 +828,33 @@ function collectNestedReferences(params: {
   return Object.entries(record).flatMap(([key, item]) => collectNestedItem({ ...params, item, itemKey: key }))
 }
 
+function collectNestedObject(
+  params: Parameters<typeof collectNestedReferences>[0],
+): PendingMetadataTargetReference[] {
+  return collectNestedValue({
+    ...params,
+    item: params.value,
+    itemYamlPath: params.yamlPath,
+  })
+}
+
 function collectNestedItem(
   params: Parameters<typeof collectNestedReferences>[0] & { item: unknown; itemKey: string | number }
 ): PendingMetadataTargetReference[] {
-  const itemYamlPath = [...params.yamlPath, params.itemKey]
+  return collectNestedValue({
+    ...params,
+    itemYamlPath: [...params.yamlPath, params.itemKey],
+  })
+}
+
+function collectNestedValue(
+  params: Parameters<typeof collectNestedReferences>[0] & {
+    item: unknown
+    itemYamlPath: readonly (string | number)[]
+    itemKey?: string | number
+  },
+): PendingMetadataTargetReference[] {
+  const { itemYamlPath } = params
   const item = asRecord(params.item)
   const references: PendingMetadataTargetReference[] = []
   if (item !== undefined && params.nestedItemType !== undefined) {
@@ -1606,7 +1629,6 @@ function projectWithoutRawDescendants(value: unknown, parsed: ParsedYaml): unkno
       projected.push(child)
     }
     if (!changed) return value
-    parsed.annotations.copy(value, projected)
     return projected
   }
   let changed = false
@@ -1624,7 +1646,6 @@ function projectWithoutRawDescendants(value: unknown, parsed: ParsedYaml): unkno
     projected[key] = child
   }
   if (!changed) return value
-  parsed.annotations.copy(value, projected)
   return projected
 }
 

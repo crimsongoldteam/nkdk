@@ -100,7 +100,43 @@ function importStructuredForm(
   })
 }
 
+function managedFormMetadataDocument() {
+  return parseXmlDocumentWithSaxes(
+    `<MetaDataObject><Form><Properties><FormType>Managed</FormType></Properties></Form></MetaDataObject>`,
+    { preserveXsiNil: true },
+  )
+}
+
+function importAuditedStructuredForm(
+  formDocument: ReturnType<typeof parseXmlDocumentWithSaxes>,
+) {
+  const metadataDocument = managedFormMetadataDocument()
+  const audit = createXmlImportAuditSession([formDocument.roots[0]!, metadataDocument.roots[0]!])
+  const annotations = createXmlAnomalyAnnotations()
+  const result = importStructuredForm(formDocument, metadataDocument, audit, annotations)
+  audit.finalize()
+  return { result, annotations }
+}
+
 describe("importClientApplicationFormFromXMLToYAML", () => {
+  it("помечает UUID функциональной опции реквизита формы до контрольного экспорта", () => {
+    const uuid = "6537a19c-3357-46a2-96a6-1fe4619ddbc8"
+    const formDocument = parseXmlDocumentWithSaxes(`
+      <Form xmlns="http://v8.1c.ru/8.3/xcf/logform">
+        <Attributes>
+          <Attribute name="Сумма" id="1">
+            <Type/>
+            <FunctionalOptions><Item>${uuid}</Item></FunctionalOptions>
+          </Attribute>
+        </Attributes>
+      </Form>`, { preserveXsiNil: true })
+    const { result, annotations } = importAuditedStructuredForm(formDocument)
+
+    expect(serializeYAMLDocument(result.yaml, annotations).text)
+      .toContain(`- !xml/uuid ${uuid}`)
+    expect(() => snapshotXmlAnomalyAnnotations(result.yaml, annotations)).not.toThrow()
+  })
+
   it("импортирует повторные AdditionalColumns через их точные XML-узлы", () => {
     const formDocument = parseXmlDocumentWithSaxes(`
       <Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config">
@@ -119,14 +155,7 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
           </Attribute>
         </Attributes>
       </Form>`, { preserveXsiNil: true })
-    const metadataDocument = parseXmlDocumentWithSaxes(
-      `<MetaDataObject><Form><Properties><FormType>Managed</FormType></Properties></Form></MetaDataObject>`,
-      { preserveXsiNil: true },
-    )
-    const audit = createXmlImportAuditSession([formDocument.roots[0]!, metadataDocument.roots[0]!])
-    const annotations = createXmlAnomalyAnnotations()
-    const result = importStructuredForm(formDocument, metadataDocument, audit, annotations)
-    audit.finalize()
+    const { result, annotations } = importAuditedStructuredForm(formDocument)
 
     expect(result.yaml).toMatchObject({
       Реквизиты: {

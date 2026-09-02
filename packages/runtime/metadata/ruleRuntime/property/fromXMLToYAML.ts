@@ -960,7 +960,7 @@ export function importPropertiesFromXMLToYAML(params: {
 
   if (result === undefined) return undefined
   normalizeTypeOwnedMetadataTargets({ result, rule })
-  return sortYamlRuleProperties(result, params.annotations)
+  return sortYamlRuleProperties(result)
 }
 
 function metadataTargetSiblingYamlKeys(rule: MetadataItemRule): ReadonlySet<string> {

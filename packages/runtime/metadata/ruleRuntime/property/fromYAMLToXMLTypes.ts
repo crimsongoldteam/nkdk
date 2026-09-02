@@ -107,6 +107,7 @@ export type YAMLToXMLNestedRule =
         context: import("../../context/types").ConfigurationContextWithExportToXML
         yaml: unknown
         ownerYAML: unknown
+        annotations?: XmlAnomalyAnnotations
         baseYAML?: unknown
         baseYAMLContext?: import("../../context/types").ConfigurationContextWithExportToXML
         baseConfigurationIndex?: import("../../configurationIndex/localReader").LocalConfigurationIndexReader

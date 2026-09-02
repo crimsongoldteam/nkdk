@@ -65,6 +65,7 @@ export interface ValidationRulesPropertySnapshot {
   metadataTarget?: MetadataTargetConstraint
   ownerFactRole?: OwnerFactRole
   nestedItemType?: string
+  nestedShape?: "object" | "collection"
   children?: readonly ValidationRulesPropertySnapshot[]
 }
 
@@ -221,19 +222,39 @@ function childrenSnapshot(
   rules?: RuleRegistrySet,
 ): {
   nestedItemType?: string
+  nestedShape?: "object" | "collection"
   children?: readonly ValidationRulesPropertySnapshot[]
 } {
   const itemRule = nestedItemRule(property, rules)
   if (itemRule === undefined) return {}
-  if (ancestorItemTypes.has(itemRule.itemType)) return { nestedItemType: itemRule.itemType }
+  const nestedShape = nestedYamlShape(property, rules)
+  if (ancestorItemTypes.has(itemRule.itemType)) {
+    return {
+      nestedItemType: itemRule.itemType,
+      ...(nestedShape === undefined ? {} : { nestedShape }),
+    }
+  }
   return {
     nestedItemType: itemRule.itemType,
+    ...(nestedShape === undefined ? {} : { nestedShape }),
     children: snapshotProperties(
       itemRule.properties,
       new Set([...ancestorItemTypes, itemRule.itemType]),
       rules,
     ),
   }
+}
+
+function nestedYamlShape(
+  property: SnapshotSourceProperty,
+  rules?: RuleRegistrySet,
+): "object" | "collection" | undefined {
+  const nested = rules?.execution.getTypeRule(property.type, "yamlToXMLNestedRule")
+    ?? (rules === undefined ? getTypeRule(property.type, "yamlToXMLNestedRule") : undefined)
+  if (nested === undefined) return undefined
+  return nested.kind === "externalFile" || nested.kind === "item" || nested.kind === "polymorphicRecord"
+    ? "object"
+    : "collection"
 }
 
 function nestedItemRule(

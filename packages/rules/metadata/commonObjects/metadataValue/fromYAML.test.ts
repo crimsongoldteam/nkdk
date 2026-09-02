@@ -97,16 +97,17 @@ describe("importMetadataValueFromYAML", () => {
     ).toThrow('Неизвестный корень "Catalog"')
   })
 
-  it("keeps uuid design-time references as ref values", () => {
+  it("сохраняет составной UUID DesignTimeRef дословно", () => {
+    const uuidReference = "447E2BD8-FA43-442E-91DB-B17634E036D9.C26F06AB-FB3E-46A7-A391-FDCCD77B4231"
     expect(
       importMetadataValueFromYAML(
         mockContext,
         { type: "MetadataValue", valueType: ["ref"] } as any,
-        "447e2bd8-fa43-442e-91db-b17634e036d9.c26f06ab-fb3e-46a7-a391-fdccd77b4231"
+        uuidReference
       )
     ).toEqual({
       type: "ref",
-      value: "447e2bd8-fa43-442e-91db-b17634e036d9.c26f06ab-fb3e-46a7-a391-fdccd77b4231",
+      value: uuidReference,
     })
   })
 

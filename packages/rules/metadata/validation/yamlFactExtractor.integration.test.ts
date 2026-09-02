@@ -25,6 +25,27 @@ beforeAll(() => {
 
 
 describe("extractValidationYamlFacts", () => {
+  it("принимает !xml/uuid во встроенной форме общей формы", () => {
+    const projectDir = "/project"
+    const file = resolveValidationProjectFile(
+      projectDir,
+      "/project/ОбщаяФорма/РедактированиеСтроки/Свойства.yaml",
+    )
+    if (file === undefined) throw new Error("Файл общей формы не распознан")
+    const parsed = parseMetadataYaml([
+      "Форма:",
+      "  Реквизиты:",
+      "    Скидка:",
+      "      Тип: ПоложительноеЧисло(1, 0)",
+      "      ФункциональныеОпции:",
+      "        - !xml/uuid 6537a19c-3357-46a2-96a6-1fe4619ddbc8",
+    ].join("\n"))
+
+    const facts = extractValidationYamlFacts({ file, parsed, rulesSnapshot })
+
+    expect(facts.diagnostics).toEqual([])
+  })
+
   it("запускает локальную проверку для корневого item type", () => {
     const facts = catalogRootValidationFacts("{}\n", (params) => [
       diagnosticAtYamlPath({
