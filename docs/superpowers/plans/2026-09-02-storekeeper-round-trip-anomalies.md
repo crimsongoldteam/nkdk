@@ -651,8 +651,7 @@ metadata-ссылку с точной XML-аннотацией по `MetadataTar
 - Modify: `packages/rules/metadata/commonObjects/userVisible/fromYAML.ts`
 - Modify: `packages/rules/metadata/commonObjects/userVisible/fromYAML.test.ts`
 - Modify: `packages/rules/metadata/appliedObjects/metadataSubsystem/fromXMLToYAMLToXML.integration.test.ts`
-- Modify: `packages/rules/metadata/importFromXml/worker.ts`
-- Modify: `packages/rules/metadata/importFromXml/worker.integration.test.ts`
+- Verify: `packages/rules/metadata/importFromXml/worker.integration.test.ts`
 
 **Interfaces:**
 
@@ -687,11 +686,10 @@ metadata-ссылку с точной XML-аннотацией по `MetadataTar
   resolver только для UUID с `invalid`. Для ключа использовать
   `annotation.logicalKey` и записать его обратно через `occurrence.setValue`.
   `fromYAMLToXML.ts` передаёт эти данные и в fused, и в обычный путь.
-  Удалить `isXmlImportControlExportContext`: режим операции больше не является
-  основанием для послабления. В import worker применить уже вычисленные между
-  проходами `ImportProjectIssueDecision` к YAML-аннотациям до контрольного
-  экспорта; ранее сгруппированные `issueDecisionsByProjectPath` не
-  использовались.
+  Существующий `isXmlImportControlExportContext` сохранить только как узкое
+  разрешение для внутреннего экспорта UUID, уже прочитанного из XML: этот
+  экспорт идёт до окончательной validation и назначения тега. Обычный sync не
+  имеет такого контекста и обязан предъявить точный `!xml/invalid`.
 
 - [ ] **Step 4: Покрыть YAML-ключ `UserVisible`**
 
@@ -719,9 +717,7 @@ metadata-ссылку с точной XML-аннотацией по `MetadataTar
     packages/runtime/metadata/ruleRuntime/property/fromYAMLToXML.ts \
     packages/rules/metadata/commonObjects/userVisible/fromYAML.ts \
     packages/rules/metadata/commonObjects/userVisible/fromYAML.test.ts \
-    packages/rules/metadata/appliedObjects/metadataSubsystem/fromXMLToYAMLToXML.integration.test.ts \
-    packages/rules/metadata/importFromXml/worker.ts \
-    packages/rules/metadata/importFromXml/worker.integration.test.ts
+    packages/rules/metadata/appliedObjects/metadataSubsystem/fromXMLToYAMLToXML.integration.test.ts
   git commit -m "fix: :bug: сохранить принятые UUID metadata-ссылок"
   ```
 
