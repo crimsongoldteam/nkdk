@@ -310,42 +310,15 @@ describe("prepareFormDataPathContextFromYAML", () => {
     expect(yaml.Элементы.Наименование.ПутьКДанным).toBe("Объект.Наименование")
   })
 
-  it("материализует отсутствующий путь собственного элемента через унаследованный реквизит", () => {
+  it.each(["Наименование", "Неизвестное"])("материализует путь %s через унаследованный реквизит независимо от разрешения", (name) => {
     const yaml: ClientApplicationFormYAML = {
-      Элементы: { Наименование: { Вид: "ПолеВвода" } },
+      Элементы: { [name]: { Вид: "ПолеВвода" } },
     }
-    const context = prepareFormDataPathContextFromYAML({
-      yaml,
-      currentConfigurationFormYaml: {
-        Реквизиты: {
-          Объект: { Тип: "CatalogObject.Товары", ОсновнойРеквизит: "Истина" },
-        },
-      },
-      ownerCache: catalogOwnerCache(),
-    })
+    const context = inheritedRootContext(yaml)
 
     materializeInheritedRootFormDataPaths({ yaml, context })
 
-    expect(yaml.Элементы.Наименование.ПутьКДанным).toBe("Объект.Наименование")
-  })
-
-  it("материализует диагностическую границу, даже если конечный сегмент не разрешается", () => {
-    const yaml: ClientApplicationFormYAML = {
-      Элементы: { Неизвестное: { Вид: "ПолеВвода" } },
-    }
-    const context = prepareFormDataPathContextFromYAML({
-      yaml,
-      currentConfigurationFormYaml: {
-        Реквизиты: {
-          Объект: { Тип: "CatalogObject.Товары", ОсновнойРеквизит: "Истина" },
-        },
-      },
-      ownerCache: catalogOwnerCache(),
-    })
-
-    materializeInheritedRootFormDataPaths({ yaml, context })
-
-    expect(yaml.Элементы.Неизвестное.ПутьКДанным).toBe("Объект.Неизвестное")
+    expect(yaml.Элементы[name].ПутьКДанным).toBe(`Объект.${name}`)
   })
 
   it("запускает финализацию для отсутствующего пути без working-основного реквизита", () => {
@@ -368,21 +341,25 @@ describe("prepareFormDataPathContextFromYAML", () => {
         },
       },
     }
-    const context = prepareFormDataPathContextFromYAML({
-      yaml,
-      currentConfigurationFormYaml: {
-        Реквизиты: {
-          Объект: { Тип: "CatalogObject.Товары", ОсновнойРеквизит: "Истина" },
-        },
-      },
-      ownerCache: catalogOwnerCache(),
-    })
+    const context = inheritedRootContext(yaml)
 
     materializeInheritedRootFormDataPaths({ yaml, context })
 
     expect(yaml.Элементы.НеизвестнаяТаблица.Элементы.НеизвестнаяТаблицаКолонка.ПутьКДанным).toBe(expected)
   })
 })
+
+function inheritedRootContext(yaml: ClientApplicationFormYAML) {
+  return prepareFormDataPathContextFromYAML({
+    yaml,
+    currentConfigurationFormYaml: {
+      Реквизиты: {
+        Объект: { Тип: "CatalogObject.Товары", ОсновнойРеквизит: "Истина" },
+      },
+    },
+    ownerCache: catalogOwnerCache(),
+  })
+}
 
 function elementCandidates(context: ReturnType<typeof prepareFormDataPathContextFromYAML>) {
   return Object.fromEntries(
