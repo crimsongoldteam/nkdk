@@ -7,7 +7,8 @@ import {
 } from "./fn"
 import {
   cloneMetadataTargetValue,
-  exportMetadataTargetOccurrencesToYAML,
+  projectMetadataTargetOccurrencesToYAML,
+  type MetadataTargetYAMLProjection,
 } from "./metadataTargetOccurrences"
 import type { PropertyRule } from "./types"
 import type { MetadataTargetOwner } from "../metadataTarget/types"
@@ -109,13 +110,20 @@ export function exportPropertyMetadataTargetsToYAML(
   params: Parameters<typeof exportPropertyValueToYAML>[0],
   value: unknown,
 ): unknown {
+  return projectPropertyMetadataTargetsToYAML(params, value).value
+}
+
+export function projectPropertyMetadataTargetsToYAML(
+  params: Parameters<typeof exportPropertyValueToYAML>[0],
+  value: unknown,
+): MetadataTargetYAMLProjection {
   const handler = params.compiled === undefined
     ? params.execution === undefined
       ? getTypeRule(params.rule.type, "metadataTargetOccurrences")
       : params.execution.getTypeRule(params.rule.type, "metadataTargetOccurrences")
     : params.compiled.operations.metadataTargetOccurrences
   if (handler === undefined) {
-    return value
+    return { value, uuidOccurrences: [] }
   }
   const prepared = cloneMetadataTargetValue(value)
   const occurrences = handler({
@@ -125,7 +133,7 @@ export function exportPropertyMetadataTargetsToYAML(
     propRule: params.rule,
     owner: params.owner,
   })
-  return exportMetadataTargetOccurrencesToYAML({ value: prepared, occurrences, owner: params.owner })
+  return projectMetadataTargetOccurrencesToYAML({ value: prepared, occurrences, owner: params.owner })
 }
 
 export function canExportPropertyToYAML(params: { context: ConfigurationContext; rule: PropertyRule }): boolean {

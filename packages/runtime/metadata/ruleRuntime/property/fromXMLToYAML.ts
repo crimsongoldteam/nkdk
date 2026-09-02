@@ -30,9 +30,9 @@ import {
 import { importPropertyFromXML } from "./fromXML"
 import {
   canExportPropertyToYAML,
-  exportPropertyMetadataTargetsToYAML,
   exportPropertyValueBeforeMetadataTargetsToYAML,
   getExportToYAMLResult,
+  projectPropertyMetadataTargetsToYAML,
 } from "./toYAML"
 import { getTypeRule } from "./typeRuleRegistry"
 import type { MetadataItemRule, PropertyRule } from "./types"
@@ -60,6 +60,7 @@ import { encodeXmlRawElement } from "../../../xml/structure/rawCodec"
 import { beginPropertyTypeProfile, finishPropertyTypeProfile } from "./propertyTypeProfile"
 import type { CompiledProperty, CompiledPropertyRuleExecution } from "./compiledPropertyPlan"
 import { canUseAtomicFromXMLToYAML } from "./atomicConversion"
+import { assignMetadataTargetUuidAnnotations } from "./metadataTargetOccurrences"
 
 export class DirectImportConversionError extends Error {
   constructor(
@@ -647,19 +648,8 @@ export function importPropertiesFromXMLToYAML(params: {
                 preserveImplicitValue: preserveExplicitDefault,
               })
             : value
-          const yamlValue = !convertedDirectly
-            ? usesFusedRepresentation
-              ? exportPropertyMetadataTargetsToYAML({
-                  context: sourceContext,
-                  rule: propertyRule,
-                  value,
-                  name: itemName,
-                  owner: propertyOwner,
-                  execution: params.execution,
-                  compiled,
-                  preserveImplicitValue: preserveExplicitDefault,
-                }, yamlValueBeforeMetadataTargets)
-              : exportPropertyMetadataTargetsToYAML({
+          const yamlProjection = !convertedDirectly
+            ? projectPropertyMetadataTargetsToYAML({
                 context: sourceContext,
                 rule: propertyRule,
                 value,
@@ -668,8 +658,9 @@ export function importPropertiesFromXMLToYAML(params: {
                 execution: params.execution,
                 compiled,
                 preserveImplicitValue: preserveExplicitDefault,
-                }, yamlValueBeforeMetadataTargets)
-            : yamlValueBeforeMetadataTargets
+              }, yamlValueBeforeMetadataTargets)
+            : { value: yamlValueBeforeMetadataTargets, uuidOccurrences: [] }
+          const yamlValue = yamlProjection.value
           const exportedYamlValue = yamlValue
           params.facts?.acceptProperty({
             itemType: rule.itemType,
@@ -796,6 +787,13 @@ export function importPropertiesFromXMLToYAML(params: {
           if (result !== undefined) {
             Object.assign(result, exportedValues)
             copyYAMLRuntimeMetadata(exportedValues, result)
+            if (params.annotations !== undefined && yamlProjection.uuidOccurrences.length > 0) {
+              assignMetadataTargetUuidAnnotations({
+                yaml: result,
+                annotations: params.annotations,
+                occurrences: yamlProjection.uuidOccurrences,
+              })
+            }
           }
           addProfileTime(params.profile, "collectorMs", collectorStartedAt)
         } catch (cause) {
@@ -962,7 +960,7 @@ export function importPropertiesFromXMLToYAML(params: {
 
   if (result === undefined) return undefined
   normalizeTypeOwnedMetadataTargets({ result, rule })
-  return sortYamlRuleProperties(result)
+  return sortYamlRuleProperties(result, params.annotations)
 }
 
 function metadataTargetSiblingYamlKeys(rule: MetadataItemRule): ReadonlySet<string> {

@@ -5,8 +5,20 @@ export const MD_OBJECT_REF_UUID_SOURCE =
 
 const MD_OBJECT_REF_UUID = new RegExp(`^${MD_OBJECT_REF_UUID_SOURCE}$`)
 
+export const METADATA_TARGET_UUID_SOURCE =
+  "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+
+const METADATA_TARGET_UUID = new RegExp(
+  `^(?:${METADATA_TARGET_UUID_SOURCE})(?:\\.${METADATA_TARGET_UUID_SOURCE})?$`,
+  "iu",
+)
+
 export function isMDObjectRefUuid(value: string): boolean {
   return MD_OBJECT_REF_UUID.test(value)
+}
+
+export function isMetadataTargetUuid(value: string): boolean {
+  return METADATA_TARGET_UUID.test(value)
 }
 
 export function isXmlImportControlExportContext(context: ConfigurationContext): boolean {

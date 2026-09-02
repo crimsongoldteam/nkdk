@@ -1,4 +1,5 @@
 import { markYAMLScalarTag, yamlScalarTagAt } from "../../../yaml/scalarTags"
+import type { XmlAnomalyAnnotations } from "../../../yaml/xmlAnomalyAnnotations"
 
 const collator = new Intl.Collator("ru")
 
@@ -9,7 +10,10 @@ const priority = (key: string): number => {
   return 3
 }
 
-export const sortYamlRuleProperties = (value: Record<string, unknown>): Record<string, unknown> => {
+export const sortYamlRuleProperties = (
+  value: Record<string, unknown>,
+  annotations?: XmlAnomalyAnnotations,
+): Record<string, unknown> => {
   const keys = Object.keys(value).sort(
     (left, right) => priority(left) - priority(right) || collator.compare(left, right)
   )
@@ -29,6 +33,8 @@ export const sortYamlRuleProperties = (value: Record<string, unknown>): Record<s
     const scalarTag = yamlScalarTagAt(value, key)
     if (scalarTag !== undefined) markYAMLScalarTag(result, key, scalarTag)
   }
+
+  annotations?.copy(value, result)
 
   return result
 }
