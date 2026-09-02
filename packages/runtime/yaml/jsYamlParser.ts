@@ -311,6 +311,7 @@ function rawPayloadOf(node: Node, kind: XmlAnomalyKind): "compact" | "null" | un
 
 function xmlAnomalyTag(tag: string): { kind: XmlAnomalyKind; occurrence: number; numbered: boolean } | undefined {
   const match = /^!xml\/(raw|invalid|important)(?:\/([1-9]\d*))?$/u.exec(tag)
+    ?? /^!xml\/(uuid)$/u.exec(tag)
   if (match === null) return undefined
   return { kind: match[1] as XmlAnomalyKind, occurrence: Number(match[2] ?? 1), numbered: match[2] !== undefined }
 }
@@ -367,7 +368,9 @@ function annotatedMappingKeySources(source: string, events: readonly Event[]): s
 
 function isXmlAnnotationTagEvent(source: string, event: Extract<Event, { type: typeof EVENT_SCALAR }>): boolean {
   if (event.tagStart < 0 || event.tagEnd < 0) return false
-  return /^!xml\/(?:raw|invalid|important)(?:\/[1-9]\d*)?$/u.test(source.slice(event.tagStart, event.tagEnd))
+  return /^!xml\/(?:(?:raw|invalid|important)(?:\/[1-9]\d*)?|uuid)$/u.test(
+    source.slice(event.tagStart, event.tagEnd),
+  )
 }
 
 function sourceScalarEnd(event: Extract<Event, { type: typeof EVENT_SCALAR }>): number {
