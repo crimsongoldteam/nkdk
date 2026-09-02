@@ -197,11 +197,68 @@ test("передаёт вычисленный путь компонента в i
   assert.match(script, /componentPath:process\.argv\[6\]/u)
 })
 
-test("сохраняет служебное состояние миграций вне YAML-договора", () => {
-  assert.match(
-    script,
-    /REFERENCE_ONLY_XML_FILES=\([^\n]*"\.nakidka-migrations\.yaml"/u,
-  )
+test("сохраняет служебное состояние миграций вне YAML-договора", async (t) => {
+  const root = await mkdtemp(join(tmpdir(), "nkdk-round-trip-migrations-"))
+  t.after(() => rm(root, { recursive: true, force: true }))
+  const xmlRepo = join(root, "xml-repo")
+  const xmlDir = join(xmlRepo, "cf")
+  const fakeBin = join(root, "bin")
+  await mkdir(xmlDir, { recursive: true })
+  await mkdir(fakeBin)
+  await writeFile(join(xmlDir, "Configuration.xml"), "<MetaDataObject/>\n")
+  await writeFile(join(xmlDir, ".nakidka-migrations.yaml"), "migrations: []\n")
+  run("git", ["init", "-q"], xmlRepo)
+  run("git", ["add", "cf/Configuration.xml", "cf/.nakidka-migrations.yaml"], xmlRepo)
+  run("git", ["-c", "user.name=NKDK Test", "-c", "user.email=test@example.invalid", "commit", "-qm", "fixture"], xmlRepo)
+
+  const fakeNode = join(fakeBin, "node")
+  await writeFile(fakeNode, `#!/usr/bin/env bash
+if [[ "\${1:-}" == *"/.agents/skills/round-trip-yaml/mcp-round-trip.mjs" ]]; then
+  manifest=""
+  output=""
+  while [ "$#" -gt 0 ]; do
+    case "$1" in
+      --manifest) manifest="$2"; shift 2 ;;
+      --output) output="$2"; shift 2 ;;
+      *) shift ;;
+    esac
+  done
+  "$NKDK_TEST_REAL_NODE" -e '
+    const fs = require("node:fs")
+    const path = require("node:path")
+    const manifest = JSON.parse(fs.readFileSync(process.argv[1], "utf8"))
+    for (const component of manifest.components) {
+      fs.mkdirSync(component.xmlOutputDir, { recursive: true })
+      fs.copyFileSync(
+        path.join(component.xmlDir, "Configuration.xml"),
+        path.join(component.xmlOutputDir, "Configuration.xml"),
+      )
+    }
+    fs.writeFileSync(process.argv[2], JSON.stringify({ components: [] }))
+  ' "$manifest" "$output"
+  exit $?
+fi
+exec "$NKDK_TEST_REAL_NODE" "$@"
+`)
+  await chmod(fakeNode, 0o755)
+
+  const result = spawnSync("bash", [fileURLToPath(new URL("./round-trip.sh", import.meta.url))], {
+    encoding: "utf8",
+    env: {
+      ...process.env,
+      NKDK_ROUND_TRIP_YAML_DIR: join(root, "yaml"),
+      NKDK_TEST_REAL_NODE: process.execPath,
+      NKDK_XML_DIR: xmlDir,
+      NKDK_XML_REPO: xmlRepo,
+      PATH: `${fakeBin}:${process.env.PATH}`,
+      TMPDIR: join(root, "tmp"),
+    },
+  })
+
+  assert.equal(result.status, 0, result.stderr)
+  assert.match(result.stdout, /Round-trip чистый: диффов нет/u)
+  assert.equal(await readFile(join(xmlDir, ".nakidka-migrations.yaml"), "utf8"), "migrations: []\n")
+  assert.equal(run("git", ["status", "--short", "--", "cf"], xmlRepo), "")
 })
 
 test("для выбранного вложенного XML-каталога использует логический путь cf", async (t) => {
