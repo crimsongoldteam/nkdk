@@ -70,6 +70,28 @@ describe("compareXmlStructures", () => {
     }])
   })
 
+  it("сопоставляет именованные повторяющиеся элементы при разной длине списка", () => {
+    const source = roots([
+      "<Root><Items>",
+      '<Item name="A"><Value>one</Value></Item>',
+      '<Item name="B"><Value>two</Value></Item>',
+      "</Items></Root>",
+    ].join(""))
+    const exported = roots([
+      "<Root><Items>",
+      '<Item name="X"><Value>default</Value></Item>',
+      '<Item name="A"><Value>one</Value></Item>',
+      '<Item name="B"><Value>two</Value></Item>',
+      "</Items></Root>",
+    ].join(""))
+
+    expect(compareXmlStructureDifferences(source, exported)).toEqual([{
+      path: "/Root[1]/Items[1]/Item[1]",
+      ownerPath: "/Root[1]/Items[1]",
+      kind: "presence",
+    }])
+  })
+
   it("builds a minimal recursive patch from ordinary export to source XML", () => {
     const source = roots(
       '<Value mode="new"><Known>kept</Known><Changed>new</Changed><Added>added</Added></Value>',

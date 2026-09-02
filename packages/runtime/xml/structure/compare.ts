@@ -235,7 +235,7 @@ function compareElementLists(
     }, parentPath, differences)
     return
   }
-  compareAddressedLists(expected, actual, elementKey, (left, right) => {
+  compareAddressedLists(expected, actual, elementListKey(expected, actual), (left, right) => {
     compareElement(left, right, differences)
   }, parentPath, differences)
 }
@@ -306,7 +306,7 @@ function compareContent(
   compareAddressedLists(
     expected.content,
     actual.content,
-    contentKey,
+    contentListKey(expected.content, actual.content),
     (left, right) => compareContentNode(left, right, differences),
     expected.path,
     differences
@@ -442,6 +442,42 @@ function elementKey(node: XmlElementNode): string {
 function elementOrderKey(node: XmlElementNode): string {
   const name = node.attributes.find((attribute) => attribute.name === "name")?.value
   return name === undefined ? elementKey(node) : `${node.name}:name=${name}`
+}
+
+function elementListKey(
+  expected: readonly XmlElementNode[],
+  actual: readonly XmlElementNode[],
+): (node: XmlElementNode) => string {
+  const hasNamedElement = [...expected, ...actual].some(hasNameAttribute)
+  return expected.length !== actual.length
+    && hasNamedElement
+    && hasUniqueKeys(expected, elementOrderKey)
+    && hasUniqueKeys(actual, elementOrderKey)
+    ? elementOrderKey
+    : elementKey
+}
+
+function contentListKey(
+  expected: readonly XmlContentNode[],
+  actual: readonly XmlContentNode[],
+): (node: XmlContentNode) => string {
+  const hasNamedElement = [...expected, ...actual].some(
+    (node) => node.type === "element" && hasNameAttribute(node),
+  )
+  return expected.length !== actual.length
+    && hasNamedElement
+    && hasUniqueKeys(expected, contentOrderKey)
+    && hasUniqueKeys(actual, contentOrderKey)
+    ? contentOrderKey
+    : contentKey
+}
+
+function hasNameAttribute(node: XmlElementNode): boolean {
+  return node.attributes.some((attribute) => attribute.name === "name")
+}
+
+function hasUniqueKeys<T>(values: readonly T[], key: (value: T) => string): boolean {
+  return new Set(values.map(key)).size === values.length
 }
 
 function attributeKey(node: XmlAttributeNode): string {
