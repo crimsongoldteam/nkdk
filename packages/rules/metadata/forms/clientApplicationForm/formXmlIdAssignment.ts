@@ -39,7 +39,7 @@ export function assignFormXmlIds(
 
   const occupied = new Map<object, Map<string, Candidate>>()
   for (const candidate of candidates) {
-    const logicalAddress = candidate.reservation.runtime?.logicalAddress
+    const logicalAddress = sessionLogicalAddress(candidate)
     const sessionId = logicalAddress === undefined ? undefined : session.idsByLogicalAddress.get(logicalAddress)
     const snapshotId = validXmlId(candidate.reservation.runtime?.identity("xmlId"))
     const referenceId = validXmlId(stringId(candidate.reference?._id))
@@ -53,7 +53,7 @@ export function assignFormXmlIds(
   const nextBySpace = new Map<FormXmlIdSpace, number>()
   for (const candidate of candidates) {
     if (candidate.id === undefined) {
-      let next = nextBySpace.get(candidate.reservation.space) ?? 1
+      let next = nextBySpace.get(candidate.reservation.space) ?? firstAvailableXmlId(candidate)
       const used = session.occupiedBySpace.get(candidate.reservation.space)
       while (used?.has(String(next)) === true) next++
       candidate.id = String(next)
@@ -70,16 +70,31 @@ export function assignFormXmlIds(
 function reserveSession(candidate: Candidate, session: FormXmlIdAssignmentSession): void {
   const id = candidate.id
   const runtime = candidate.reservation.runtime
-  if (id === undefined || runtime === undefined || candidate.reservation.specialId !== undefined) return
-  const logicalAddress = runtime.logicalAddress
-  const previousId = session.idsByLogicalAddress.get(logicalAddress)
-  if (previousId !== undefined && previousId !== id) {
-    throw new Error(`Логическому адресу ${logicalAddress} назначены разные ID: ${previousId} и ${id}`)
+  if (id === undefined || candidate.reservation.specialId !== undefined) return
+  if (runtime !== undefined) {
+    const logicalAddress = sessionLogicalAddress(candidate)
+    if (logicalAddress === undefined) return
+    const previousId = session.idsByLogicalAddress.get(logicalAddress)
+    if (previousId !== undefined && previousId !== id) {
+      throw new Error(`Логическому адресу ${logicalAddress} назначены разные ID: ${previousId} и ${id}`)
+    }
+    session.idsByLogicalAddress.set(logicalAddress, id)
   }
-  session.idsByLogicalAddress.set(logicalAddress, id)
   const occupied = session.occupiedBySpace.get(candidate.reservation.space) ?? new Set<string>()
   occupied.add(id)
   session.occupiedBySpace.set(candidate.reservation.space, occupied)
+}
+
+function sessionLogicalAddress(candidate: Candidate): string | undefined {
+  const logicalAddress = candidate.reservation.runtime?.logicalAddress
+  if (logicalAddress === undefined || candidate.reservation.space !== "attributes") return logicalAddress
+  return logicalAddress.replace(/\.ОсноваФормы(?=\.|$)/u, "")
+}
+
+function firstAvailableXmlId(candidate: Candidate): number {
+  return candidate.reservation.runtime?.logicalAddress.includes(".ОсноваФормы.") === true
+    ? 1_000_001
+    : 1
 }
 
 function collectCandidates(generated: unknown, reference: unknown, result: Candidate[], scope: object): void {

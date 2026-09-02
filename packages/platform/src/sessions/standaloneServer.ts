@@ -9,6 +9,7 @@ import {
   buildStandaloneConfigInit,
   buildStandaloneLaunch,
   buildLoadPartialConfigurationCommand,
+  buildUpdateDatabaseConfigurationCommand,
   classifyPartialLoad,
 } from "./commands"
 import { PlatformSessionError } from "./errors"
@@ -356,7 +357,7 @@ export async function createStandaloneServerSession(
         await operationLog.append(`command ${command}`)
         await residentCommandSession.run(command, { signal, timeoutMs: dependencies.commandTimeoutMs, operationLog })
         if (updateDatabaseConfiguration) {
-          await residentCommandSession.run('config update-db-cfg --session-terminate="prompt"', {
+          await residentCommandSession.run(buildUpdateDatabaseConfigurationCommand(extensionName), {
             signal,
             timeoutMs: dependencies.commandTimeoutMs,
             operationLog,

@@ -60,6 +60,21 @@ describe("проверка заимствованной формы", () => {
     ])).toEqual([])
   })
 
+  it("требует добавить заимствованный реквизит и в сохранённую основу", () => {
+    const diagnostics = validate([
+      fact("cf", "working", "attribute", "Объект", ["Реквизиты", "Объект"]),
+      fact("cfe/X", "working", "attribute", "Объект", ["Реквизиты", "Объект"]),
+      fact("cfe/X", "base", "document", "", [], "БазоваяФорма.yaml"),
+    ])
+
+    expect(diagnostics).toContainEqual(expect.objectContaining({
+      severity: "error",
+      filePath: "cfe/X/БазоваяФорма.yaml",
+      path: "/Реквизиты/Объект",
+      message: "Заимствованный реквизит «Объект» необходимо добавить и в сохранённую основу формы",
+    }))
+  })
+
   it("сообщает только о первом недоступном metadata-сегменте", () => {
     const diagnostics = validate([
       fact("cf", "working", "attribute", "Контрагент", ["Реквизиты", "Контрагент"]),

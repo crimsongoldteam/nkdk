@@ -135,6 +135,39 @@ describe("assignFormXmlIds", () => {
     expect(outerAttribute._id).toBe(baseAttribute._id)
   })
 
+  it("не объединяет пространства команд внешней формы и BaseForm", () => {
+    const setup = runtimeSetup([])
+    const session = createFormXmlIdAssignmentSession()
+    const baseCommand = { _name: "Обновить", _id: "" }
+    const outerCommand = { _name: "Обновить", _id: "" }
+    register(setup.runtime.withLogicalAddress("Форма.ОсноваФормы.Команда.Обновить"), baseCommand, "commands")
+    register(setup.runtime.withLogicalAddress("Форма.Команда.Обновить"), outerCommand, "commands")
+
+    assignFormXmlIds({ Commands: [baseCommand] }, undefined, session)
+    assignFormXmlIds({ Commands: [outerCommand] }, undefined, session)
+
+    expect(baseCommand._id).toBe("1000001")
+    expect(outerCommand._id).toBe("1")
+  })
+
+  it("резервирует ID узла BaseForm без runtime перед внешней формой", () => {
+    const session = createFormXmlIdAssignmentSession()
+    const baseElement = { _name: "Код", _id: "" }
+    registerFormXmlIdReservation(baseElement, { space: "elements" })
+    assignFormXmlIds(
+      { Items: [baseElement] },
+      { Items: [{ _name: "Код", _id: "1" }] },
+      session,
+    )
+
+    const setup = runtimeSetup([])
+    const ownElement = { _name: "ДатаАктуальности", _id: "" }
+    register(setup.runtime.withLogicalAddress("Форма.Элемент.ДатаАктуальности"), ownElement, "elements")
+    assignFormXmlIds({ Items: [ownElement] }, undefined, session)
+
+    expect(ownElement._id).toBe("2")
+  })
+
   it("пропускает некорректный ID снимка и выбирает допустимый", () => {
     const address = "Форма.Атрибут.Контрагент"
     const setup = runtimeSetup([entity(address, "not-an-id")])

@@ -187,6 +187,10 @@ export function validateBorrowedClientApplicationForms(
     const first = baseFacts[0]
     if (first === undefined || !first.componentPath.startsWith("cfe/")) continue
     const working = groupFactsByAddress(workingGroups, first.componentPath, first.entry.logicalAddress)
+    const current = params.queryPort.readStructuredDocumentEntries({
+      componentPath: "cf",
+      logicalAddress: first.entry.logicalAddress,
+    })
     diagnostics.push(...missingDiagnostics({
       required: baseFacts.map(({ entry }) => entry).filter(({ componentKind }) =>
         ["element", "attribute", "command", "parameter"].includes(componentKind)
@@ -196,14 +200,16 @@ export function validateBorrowedClientApplicationForms(
       subject: "сохранённой основы",
       useRequiredPath: true,
     }))
+    diagnostics.push(...missingBorrowedBaseComponentDiagnostics({
+      working: working.map(({ entry }) => entry),
+      current,
+      saved: baseFacts.map(({ entry }) => entry),
+      filePath: first.projectPath,
+    }))
     diagnostics.push(...baseDataPathDiagnostics({
       facts: baseFacts,
       filePath: first.projectPath,
     }))
-    const current = params.queryPort.readStructuredDocumentEntries({
-      componentPath: "cf",
-      logicalAddress: first.entry.logicalAddress,
-    })
     const currentYaml = semanticDocumentYaml(current)
     const workingYaml = semanticDocumentYaml(working.map(({ entry }) => entry))
     const savedYaml = semanticDocumentYaml(baseFacts.map(({ entry }) => entry))
@@ -229,6 +235,28 @@ export function validateBorrowedClientApplicationForms(
     }
   }
   return diagnostics
+}
+
+function missingBorrowedBaseComponentDiagnostics(params: {
+  readonly working: readonly ProjectStateStructuredDocumentEntry[]
+  readonly current: readonly ProjectStateStructuredDocumentEntry[]
+  readonly saved: readonly ProjectStateStructuredDocumentEntry[]
+  readonly filePath: string
+}): readonly Diagnostic[] {
+  const supportedKinds = new Set(["attribute", "command", "parameter"])
+  const current = new Set(params.current.filter(({ componentKind }) => supportedKinds.has(componentKind)).map(componentKey))
+  const saved = new Set(params.saved.map(componentKey))
+  return params.working
+    .filter((entry) => supportedKinds.has(entry.componentKind) && current.has(componentKey(entry)) && !saved.has(componentKey(entry)))
+    .map((entry) => ({
+      filePath: params.filePath,
+      line: 1,
+      col: 1,
+      severity: "error" as const,
+      source: "cross-file" as const,
+      message: `Заимствованный ${componentLabel(entry.componentKind)} «${entry.name}» необходимо добавить и в сохранённую основу формы`,
+      path: yamlPointer(entry.yamlPath),
+    }))
 }
 
 function semanticDocumentYaml(entries: readonly ProjectStateStructuredDocumentEntry[]) {
