@@ -58,7 +58,14 @@ function visitNested<State>(params: MetadataRuleYamlContext<State> & {
   readonly collectionUidSegment?: string
 }): void {
   const nested = getTypeRule(params.propertyRule.type, "yamlToXMLNestedRule")
-  if (nested === undefined || nested.kind === "externalFile") return
+  if (nested === undefined) return
+  if (nested.kind === "externalFile") {
+    const item = getTypeRule(params.propertyRule.type, "nestedItemRule")
+    if (item === undefined || !("itemRule" in item)) return
+    const object = { ...params, rule: item.itemRule }
+    visitObject({ ...object, state: params.enterNestedObject?.(object) ?? params.state })
+    return
+  }
   if (nested.kind === "item") {
     const object = {
       ...params,

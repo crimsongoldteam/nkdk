@@ -14,7 +14,7 @@ import { type OwnerMetadata, type OwnerMetadataCache } from "./dataPath/ownerCac
 import type { ValidationOwnerFacts } from "./dataPath/ownerFacts"
 import { validationOwnerRef } from "./dataPath/validationOwnerRef"
 import { buildObjectFieldIndex, type ObjectField, type ObjectFieldIndex, type ObjectFieldKind } from "./dataPath/objectFields"
-import { validateExcludedEqualNameYAML } from "./excludeIfEqualNameYAML"
+import { validateMetadataRuleYamlProperties } from "./metadataRuleYamlProperties"
 import { getProjectFileValidators, getProjectReferenceMemberIndexContributors } from "./projectReferenceIndexRegistry"
 import {
   projectMemberIndexKey,
@@ -1032,7 +1032,7 @@ function validateProjectPropertiesFirstPass(
     params.file.kind === "configuration" ? rootStringProperty(parsed.data, "Имя") : params.file.owner.name
   const equalNameStartedAt = performance.now()
   let localizedTextProperties = 0
-  const equalNameDiagnostics = validateExcludedEqualNameYAML({
+  const equalNameDiagnostics = validateMetadataRuleYamlProperties({
     filePath: params.file.absolutePath,
     parsed,
     rule: params.file.owner.spec.rule,
