@@ -86,7 +86,11 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
   configurationIndexUidSegment?: string
   configurationIndexAddressing?: ConfigurationIndexAddressingMode
   preserveItemPropertyPresence?: true
-  recordYamlKeyFromYAML?: (params: { yaml: Record<string, unknown>; name: string }) => string
+  recordYamlKeyFromYAML?: (params: {
+    yaml: Record<string, unknown>
+    name: string
+    propertyRule: PropertyRule
+  }) => string
   classifyYamlKey?: ClassifyNamedCollectionYamlKey
   traversal: DirectImportTraversal
 }): Record<string, unknown> | Array<Record<string, unknown>> | undefined {
@@ -162,7 +166,7 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
     const yamlKey =
       keyYaml === undefined
         ? undefined
-        : (params.recordYamlKeyFromYAML?.({ yaml: itemYaml, name }) ??
+        : (params.recordYamlKeyFromYAML?.({ yaml: itemYaml, name, propertyRule: params.rule }) ??
           (itemYaml[keyYaml] === undefined ? name : String(itemYaml[keyYaml])))
     const itemRulePath = enterNestedYamlRule(params.traversal, itemRule.itemType).rulePath
     if (params.yamlAsArray === true) {

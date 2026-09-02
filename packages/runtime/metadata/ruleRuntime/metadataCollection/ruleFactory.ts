@@ -81,7 +81,11 @@ type CollectionRule<Rule extends MetadataItemRule, CollectionType extends Proper
     { kind: "collection" }
   >["referenceIdentity"]
   /** Для YAML-объекта коллекции: YAML-элемент → ключ записи при прямом XML → YAML обходе. */
-  recordYamlKeyFromYAML?: (params: { yaml: Record<string, unknown>; name: string }) => string
+  recordYamlKeyFromYAML?: (params: {
+    yaml: Record<string, unknown>
+    name: string
+    propertyRule: PropertyRule
+  }) => string
   /** Нейтральная классификация ключа выполняется concrete-слоем до удаления ключевого YAML-поля. */
   classifyYamlKey?: ClassifyNamedCollectionYamlKey
   fromXMLToYAML?: ImportFromXMLToYAMLFunction
@@ -170,6 +174,7 @@ export const defineMetadataItemCollectionRule = <
     keyField: typeof params.keyField === "string" ? params.keyField : undefined,
     nameFromYAMLKey: params.nameFromYAMLKey,
     nameFromYAMLKeyForProperty: params.nameFromYAMLKeyForProperty,
+    recordYamlKeyFromYAML: params.recordYamlKeyFromYAML,
     completeItemNames: params.completeItemNames,
     preserveReferenceItems: params.preserveReferenceItems,
     sparseItems: params.sparseItems,

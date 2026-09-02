@@ -84,6 +84,33 @@ describe("registerMetadataItemCollectionRule direct importer", () => {
 
     expect(rules.property.getTypeRule(propertyType, "importFromXMLToYAML")).toBe(fromXMLToYAML)
   })
+
+  it("передаёт propertyRule в отображение внутреннего имени на YAML-ключ", () => {
+    const propertyType = "TestCanonicalNameCollection" as PropertyRuleType
+    const rules = createCollectionRegistry(defineMetadataItemCollectionRule({
+      propertyType,
+      itemRule,
+      xmlElement: "Item",
+      keyField: "name",
+      completeItemNames: () => ["ExchangeDate"],
+      recordYamlKeyFromYAML: ({ name, propertyRule }) =>
+        (propertyRule as PropertyRule & { names: Record<string, string> }).names[name] ?? name,
+    }))
+    const descriptor = rules.property.getTypeRule(propertyType, "yamlToXMLNestedRule")
+
+    expect(descriptor).toMatchObject({
+      kind: "collection",
+      recordYamlKeyFromYAML: expect.any(Function),
+    })
+    if (descriptor?.kind !== "collection" || descriptor.recordYamlKeyFromYAML === undefined) {
+      throw new Error("Не передано отображение имени коллекции")
+    }
+    expect(descriptor.recordYamlKeyFromYAML({
+      yaml: {},
+      name: "ExchangeDate",
+      propertyRule: { type: propertyType, names: { ExchangeDate: "ДатаОбмена" } } as never,
+    })).toBe("ДатаОбмена")
+  })
 })
 
 describe("registerMetadataItemCollectionRule default toJSONSchema", () => {

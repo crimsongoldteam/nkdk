@@ -14,6 +14,13 @@ function buildNameFromYAML(rule: PropertyRule | undefined): (yamlKey: string) =>
   return (yamlKey) => reverse.get(yamlKey) ?? StandartAttributeNameFromYAML(yamlKey)
 }
 
+function buildYamlName(rule: PropertyRule | undefined): (name: string) => string {
+  const names = (rule as StandardAttributeDescriptionsPropertyRule | undefined)?.standartAttributeNames
+  return (name) => names?.[name]
+    ?? StandartAttributeNameToYAML[name as keyof typeof StandartAttributeNameToYAML]
+    ?? name
+}
+
 const collectionRule = defineMetadataItemCollectionRule({
   propertyType: "StandardAttributeDescriptions",
   itemRule: StandardAttributeDescriptionRules,
@@ -33,7 +40,7 @@ const collectionRule = defineMetadataItemCollectionRule({
   sparseItems: true,
   omitDefaultsForSparseItems: true,
   omitEmptyOutput: true,
-  recordYamlKeyFromYAML: ({ name }) => StandartAttributeNameToYAML[name as keyof typeof StandartAttributeNameToYAML],
+  recordYamlKeyFromYAML: ({ name, propertyRule }) => buildYamlName(propertyRule)(name),
   fromXMLToYAML: importStandardAttributeDescriptionsFromXMLToYAML,
   toJSONSchema: exportStandardAttributeDescriptionToJSONSchema,
 })
