@@ -60,6 +60,43 @@ it("не запускает смысловые обработчики для acc
   expect(validateDependencies).not.toHaveBeenCalled()
 })
 
+it.each([
+  { state: "pending", boundarySource: "reference" },
+  { state: "accepted", boundarySource: "dependency" },
+  { state: "none", boundarySource: "both" },
+] as const)(
+  "применяет $state XML-границу ($boundarySource) к межфайловой проверке, сохраняя остальные ошибки и факты",
+  ({ state, boundarySource }) => {
+    const semantic = {
+      filePath: "cf/Объект.yaml", line: 1, col: 1, path: "/Значение",
+      severity: "error" as const, source: "cross-file" as const, message: "Смысловая ошибка",
+    }
+    const otherProperty = { ...semantic, path: "/Другое" }
+    const otherFile = { ...semantic, filePath: "cfe/Расширение/Объект.yaml" }
+    const nestedProperty = { ...semantic, path: "/Значение/Вложенное" }
+    const structural = { ...semantic, source: "structure" as const, message: "Ошибка структуры" }
+    const warning = { ...semantic, severity: "warning" as const }
+    const validateStructuredDocuments = vi.fn<ProjectStateDependencyValidator["validateStructuredDocuments"]>(() => [
+      semantic, otherProperty, otherFile, nestedProperty, structural, warning,
+    ])
+    const diagnostics = validateSnapshotDependencyDiagnostics(snapshot(state, 1, boundarySource), "/project", testValidator({
+      validateStructuredDocuments,
+    }))
+
+    expect(diagnostics).toEqual([
+      ...(state === "none" ? [semantic] : []),
+      otherProperty, otherFile, nestedProperty, structural, warning,
+    ])
+    expect(validateStructuredDocuments.mock.calls[0]![0].facts).toEqual([{
+      componentPath: "cf", projectPath: "cf/Объект.yaml",
+      entry: {
+        documentKind: "test", representation: "working", logicalAddress: "Товары",
+        workingProjectPath: "Объект.yaml", componentKind: "dataPath", name: "Объект.Код", yamlPath,
+      },
+    }])
+  },
+)
+
 it("оставляет специализированную диагностику вместо общей на той же YAML-границе", () => {
   const common = {
     filePath: "cf/Объект.yaml",
@@ -101,20 +138,30 @@ it("отклоняет абсолютный путь от валидатора �
     .toThrow("ProjectState dependency validation вернул недопустимый путь диагностики")
 })
 
-function snapshot(xmlAnomaly: "pending" | "accepted" | "none", dependencyCopies = 1): ProjectStateSnapshotView {
+function snapshot(
+  xmlAnomaly: "pending" | "accepted" | "none",
+  dependencyCopies = 1,
+  boundarySource: "reference" | "dependency" | "both" = "both",
+): ProjectStateSnapshotView {
   const writer = createProjectStateFragmentWriter()
   const update = richYamlUpdate("cf/Объект.yaml", "cf", "Товары")
   const reference = update.pendingReferences[0]!
-  const dependency = update.pendingChecks[0]!
+  const originalDependency = update.pendingChecks[0]!
+  if (originalDependency.kind !== "dataPath") throw new Error("Ожидалась проверка DataPath")
+  const { xmlAnomaly: _xmlAnomaly, ...dependency } = originalDependency
   writer.appendFile({
     ...update,
     localValidation: { contributedFacts: true, diagnostics: [], schemaDiagnostics: [] },
-    pendingReferences: [{
+    structuredDocuments: [{
+      documentKind: "test", representation: "working", logicalAddress: "Товары",
+      workingProjectPath: "Объект.yaml", componentKind: "dataPath", name: "Объект.Код", yamlPath,
+    }],
+    pendingReferences: boundarySource === "dependency" ? [] : [{
       ...reference,
       yamlPath: [...yamlPath],
       ...(xmlAnomaly === "none" ? {} : { xmlAnomaly }),
     }],
-    pendingChecks: Array.from({ length: dependencyCopies }, () => ({
+    pendingChecks: Array.from({ length: boundarySource === "reference" ? 0 : dependencyCopies }, () => ({
       ...dependency,
       yamlPath: [...yamlPath],
       location: { ...dependency.location, path: "/Значение" },

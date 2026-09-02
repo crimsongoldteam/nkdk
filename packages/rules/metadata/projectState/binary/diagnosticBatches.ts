@@ -122,10 +122,18 @@ export function validateSnapshotDependencyDiagnostics(
     validate: (checks) => dependencyValidator.validateDependencies({ checks, projectDir, queryPort }),
   })
   addAccepted(accepted, dependencyResult.acceptedXmlAnomalies)
-  const structuredDiagnostics = dependencyValidator.validateStructuredDocuments({
-    facts: structuredDocuments,
+  const structuredDiagnostics = applyStructuredXmlAnomalyBoundaries({
+    diagnostics: assertProjectDiagnosticPaths(dependencyValidator.validateStructuredDocuments({
+      facts: structuredDocuments,
+      projectDir,
+      queryPort,
+    }), "ProjectState dependency validation"),
+    boundaries: [
+      ...references.filter(({ reference }) => reference.xmlAnomaly !== undefined).map(referenceBoundaryValue),
+      ...dependencies.filter(({ check }) => check.xmlAnomaly !== undefined).map(dependencyBoundaryValue),
+    ],
+    accepted,
     projectDir,
-    queryPort,
   })
   const specializedErrorBoundaries = new Set(structuredDiagnostics
     .filter(({ severity, path }) => severity === "error" && path !== undefined)
@@ -150,6 +158,27 @@ export function validateSnapshotDependencyDiagnostics(
 
 function diagnosticBoundaryKey(projectDir: string, filePath: string, path: string): string {
   return `${resolve(projectDir, filePath).toLowerCase()}\u0000${path}`
+}
+
+function applyStructuredXmlAnomalyBoundaries(params: {
+  readonly diagnostics: readonly Diagnostic[]
+  readonly boundaries: readonly ProjectStateXmlAnomalyBoundary[]
+  readonly accepted: Set<string>
+  readonly projectDir: string
+}): Diagnostic[] {
+  const boundaries = new Map(params.boundaries.map((boundary) => [
+    diagnosticBoundaryKey(params.projectDir, boundary.projectPath, yamlPathToPointer(boundary.yamlPath) ?? ""),
+    boundaryKey(boundary),
+  ]))
+  return params.diagnostics.filter((diagnostic) => {
+    // Смысловая межфайловая ошибка подтверждает ту же границу, что и проверка
+    // ссылки. Структурные ошибки и соседние свойства тегом не подавляются.
+    if (diagnostic.severity !== "error" || diagnostic.source !== "cross-file" || diagnostic.path === undefined) return true
+    const key = boundaries.get(diagnosticBoundaryKey(params.projectDir, diagnostic.filePath, diagnostic.path))
+    if (key === undefined) return true
+    params.accepted.add(key)
+    return false
+  })
 }
 
 function validatePendingInWaves<T>(params: {

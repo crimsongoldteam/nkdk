@@ -137,6 +137,19 @@ describe("configuration extension XML import", () => {
     ))).toBe(false)
   })
 
+  it.each(["", ".ОсноваФормы"])("сохраняет ID реквизита и вложенной колонки при контрольном экспорте %s", (representation) => {
+    const entities = [...importedExtension.snapshot.blocks.values()].flatMap(({ entities }) => entities)
+    const root = `Справочник.СправочникПолный.Форма.ФормаОтчета${representation}.Атрибут.СохраненныйОбъект`
+    expect(entities).toEqual(expect.arrayContaining([
+      expect.objectContaining({ logicalAddress: root, xmlId: "1000009" }),
+      expect.objectContaining({
+        logicalAddress: `${root}.ДополнительныеКолонки.СохраненныйОбъект%2EСтроки.Колонка.ТрудозатратыФакт`,
+        xmlId: "1",
+      }),
+    ]))
+    expect(importedExtension.result.failed).toEqual([])
+  })
+
   it("не сохраняет восстановимую основу вложенной и общей формы", () => {
     const { projectDir } = importedExtension
 
@@ -285,6 +298,7 @@ async function importExtension() {
   addFormWithRedundantBase(inputDir)
   addFormWithHistoricalElement(inputDir)
   addCommonFormWithRedundantBase(inputDir)
+  addSavedFormIdentityRegression(inputDir)
 
   const result = await importConfigurationFromXml({
     context: mockContextFromXML(),
@@ -374,6 +388,25 @@ async function importExtension() {
     baseFormText,
     snapshot,
   }
+}
+
+function addSavedFormIdentityRegression(inputDir: string): void {
+  const path = join(inputDir, "Catalogs/СправочникПолный/Forms/ФормаОтчета/Ext/Form.xml")
+  const attribute = [
+    '<Attribute name="СохраненныйОбъект" id="1000009">',
+    '<Type><v8:Type>cfg:CatalogObject.СправочникПолный</v8:Type></Type>',
+    '<Columns><AdditionalColumns table="СохраненныйОбъект.Строки">',
+    '<Column name="ТрудозатратыФакт" id="1"><Type><v8:Type>xs:decimal</v8:Type></Type></Column>',
+    '</AdditionalColumns></Columns>',
+    '</Attribute>',
+  ].join("\n")
+  replaceExactlyOnce(path, "\n\t</Attributes>", [
+    "",
+    '<Attribute name="СобственнаяДата" id="1000001"><Type><v8:Type>xs:dateTime</v8:Type></Type></Attribute>',
+    attribute,
+    "\t</Attributes>",
+  ].join("\n"))
+  replaceExactlyOnce(path, "\n\t\t</Attributes>", `\n${attribute}\n\t\t</Attributes>`)
 }
 
 function textBetween(source: string, startMarker: string, endMarker: string): string {

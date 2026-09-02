@@ -495,16 +495,20 @@ async function processSecondPass(
       ...(imported.baseFormCandidate === undefined ? {} : { baseFormCandidate: imported.baseFormCandidate }),
     }
     preparedYaml.set(assignmentId, prepared)
-      const configurationIndex = secondPass.configurationStore === undefined
-        ? createLocalConfigurationIndexReader(new Map(
+      const configurationBlocks = secondPass.configurationStore === undefined
+        ? new Map(
             prepared.configurationFragment === undefined
               ? []
               : [[prepared.targetProjectPath, prepared.configurationFragment]],
-          ))
-        : createLocalConfigurationIndexReader(secondPass.configurationStore.getBlocks([
-            prepared.targetProjectPath,
-            ...(prepared.baseFormCandidate === undefined ? [] : [prepared.baseFormCandidate.targetProjectPath]),
-          ]))
+          )
+        : secondPass.configurationStore.getBlocks([prepared.targetProjectPath])
+      // Основа импортируется во втором проходе и ещё отсутствует в снимке первого.
+      const configurationIndex = createLocalConfigurationIndexReader(new Map([
+        ...configurationBlocks,
+        ...(prepared.baseFormCandidate === undefined
+          ? []
+          : [[prepared.baseFormCandidate.targetProjectPath, prepared.baseFormCandidate.configurationFragment] as const]),
+      ]))
       const baseConfigurationIndex = secondPass.baseConfigurationStore === undefined
         || prepared.baseFormCandidate === undefined
         ? undefined
