@@ -9,6 +9,7 @@ import { parseMetadataTargetFromModel } from "../../../commonObjects/metadataTar
 import {
   chartOfAccountsPredefinedAccountingFlagsRule,
   chartOfAccountsPredefinedExtDimensionTypesRule,
+  chartOfAccountsPredefinedItemCollectionRule,
 } from "../builders"
 
 export const PredefinedAccountingFlagRules = {
@@ -89,6 +90,10 @@ export const ChartOfAccountsPredefinedItemRules = {
   ],
   properties: {
     ...PredefinedItemRules.properties,
+    childItems: chartOfAccountsPredefinedItemCollectionRule({
+      xml: "ChildItems",
+      yaml: "Элементы",
+    }),
     isFolder: {
       ...PredefinedItemRules.properties.isFolder,
       toXML: false,
@@ -126,6 +131,14 @@ export const ChartOfAccountsPredefinedItemRules = {
   },
 } as const satisfies MetadataItemRule
 
+export const metadataRuleLayer002 = defineMetadataItemCollectionRule({
+  propertyType: "ChartOfAccountsPredefinedItemCollection",
+  itemRule: ChartOfAccountsPredefinedItemRules,
+  xmlElement: "Item",
+  keyField: "name",
+  configurationIndexUidSegment: "Предопределенный",
+})
+
 export const ChartOfAccountsPredefinedRules = {
   ...PredefinedRules,
   xmlOrder: [
@@ -133,9 +146,10 @@ export const ChartOfAccountsPredefinedRules = {
   ],
   properties: {
     ...PredefinedRules.properties,
-    items: {
-      ...PredefinedRules.properties.items,
-      itemRule: ChartOfAccountsPredefinedItemRules,
-    },
+    items: chartOfAccountsPredefinedItemCollectionRule({
+      xml: "Item",
+      yamlInline: true,
+      yaml: "items",
+    }),
   },
 } as const satisfies MetadataItemRule
