@@ -1114,8 +1114,13 @@ function annotationAtValue(
 function yamlValueAtPath(value: unknown, path: readonly (string | number)[]): unknown {
   let current = value
   for (const segment of path) {
-    if (!isObjectContainer(current)) return undefined
-    current = (current as Record<string | number, unknown>)[segment]
+    if (Array.isArray(current)) {
+      if (typeof segment !== "number") return undefined
+      current = current[segment]
+      continue
+    }
+    if (!isRecord(current)) return undefined
+    current = current[String(segment)]
   }
   return current
 }
