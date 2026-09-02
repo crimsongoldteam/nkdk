@@ -73,19 +73,20 @@ describe("prepareFormDataPathContextFromYAML", () => {
         Таблица: { Вид: "ТаблицаФормы" },
       },
     } satisfies ClientApplicationFormYAML
-    const context = prepareFormDataPathContextFromYAML({
-      yaml: {
-        Элементы: {
-          Код: { Вид: "ПолеВвода" },
-          Таблица: {
-            Вид: "ТаблицаФормы",
-            Элементы: {
-              ТаблицаНоваяКолонка: { Вид: "ПолеВвода" },
-            },
+    const yaml = {
+      Элементы: {
+        Код: { Вид: "ПолеВвода" },
+        Таблица: {
+          Вид: "ТаблицаФормы",
+          Элементы: {
+            ТаблицаНоваяКолонка: { Вид: "ПолеВвода" },
           },
-          Историческое: { Вид: "ПолеВвода" },
         },
+        Историческое: { Вид: "ПолеВвода" },
       },
+    } satisfies ClientApplicationFormYAML
+    const context = prepareFormDataPathContextFromYAML({
+      yaml,
       currentConfigurationFormYaml,
       savedBaseFormYaml: {
         Элементы: { Историческое: { Вид: "ПолеВвода", ПутьКДанным: "Старое.Значение" } },
@@ -98,6 +99,7 @@ describe("prepareFormDataPathContextFromYAML", () => {
       origin: "borrowed",
       present: false,
       currentConfigurationValue: "Объект.Код",
+      presentInCurrentConfiguration: true,
     })
     expect(context.elementsByName.get("Таблица")).toMatchObject({ origin: "borrowed" })
     expect(context.elementsByName.get("ТаблицаНоваяКолонка")).toMatchObject({
@@ -107,6 +109,37 @@ describe("prepareFormDataPathContextFromYAML", () => {
       candidateInternal: "Объект.Таблица.НоваяКолонка",
     })
     expect(context.elementsByName.get("Историческое")).toMatchObject({ origin: "borrowed" })
+
+    materializeInheritedRootFormDataPaths({ yaml, context })
+
+    expect(yaml.Элементы.Код).not.toHaveProperty("ПутьКДанным")
+  })
+
+  it("материализует путь элемента только из исторической основы через унаследованный реквизит", () => {
+    const yaml: ClientApplicationFormYAML = {
+      Элементы: { ИсторическоеПоле: { Вид: "ПолеВвода" } },
+    }
+    const context = prepareFormDataPathContextFromYAML({
+      yaml,
+      currentConfigurationFormYaml: {
+        Реквизиты: {
+          Объект: { Тип: "CatalogObject.Товары", ОсновнойРеквизит: "Истина" },
+        },
+      },
+      savedBaseFormYaml: {
+        Элементы: { ИсторическоеПоле: { Вид: "ПолеВвода" } },
+      },
+      ownerCache: catalogOwnerCache(),
+    })
+
+    expect(context.elementsByName.get("ИсторическоеПоле")).toMatchObject({
+      origin: "borrowed",
+      candidateRootOrigin: "inherited",
+    })
+    expect(context.elementsByName.get("ИсторическоеПоле")?.presentInCurrentConfiguration).toBeUndefined()
+    materializeInheritedRootFormDataPaths({ yaml, context })
+
+    expect(yaml.Элементы.ИсторическоеПоле.ПутьКДанным).toBe("Объект.ИсторическоеПоле")
   })
 
   it.each([

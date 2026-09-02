@@ -65,7 +65,7 @@ describe("configuration extension XML import", () => {
 
     expect(result).toMatchObject({
       componentPath: "cfe/РасширениеКонтроль",
-      succeeded: 7,
+      succeeded: 8,
       failed: [],
     })
     expect(result.warnings).toEqual(expect.arrayContaining([
@@ -148,6 +148,15 @@ describe("configuration extension XML import", () => {
       projectDir,
       "cfe/РасширениеКонтроль/ОбщаяФорма/ОбщаяРавнаяОснова/БазоваяФорма.yaml",
     ))).toBe(false)
+  })
+
+  it("помечает путь элемента только из исторической основы", () => {
+    const { historicalFormText, historicalBaseFormText } = importedExtension
+
+    expect(historicalFormText)
+      .toContain("ПутьКДанным: !xml/invalid БазовыйОбъект.ИсторическоеПоле")
+    expect(historicalFormText).not.toContain("!xml/raw")
+    expect(historicalBaseFormText).toContain("ИсторическоеПоле:")
   })
 
   it("импортирует состав собственного плана расширения без ExtensionProperty", () => {
@@ -274,6 +283,7 @@ async function importExtension() {
   )
   addFormWithoutBase(inputDir)
   addFormWithRedundantBase(inputDir)
+  addFormWithHistoricalElement(inputDir)
   addCommonFormWithRedundantBase(inputDir)
 
   const result = await importConfigurationFromXml({
@@ -317,6 +327,14 @@ async function importExtension() {
     projectDir,
     formWithoutBaseProjectPath,
   )
+  const historicalFormText = readText(
+    projectDir,
+    "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Формы/ФормаИсторическийЭлемент/Форма.yaml",
+  )
+  const historicalBaseFormText = readText(
+    projectDir,
+    "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Формы/ФормаИсторическийЭлемент/БазоваяФорма.yaml",
+  )
   const catalogText = readText(
     projectDir,
     "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Свойства.yaml",
@@ -349,6 +367,8 @@ async function importExtension() {
     form,
     formWithoutBase,
     formWithoutBaseText,
+    historicalFormText,
+    historicalBaseFormText,
     yamlText,
     catalogText,
     baseFormText,
@@ -398,11 +418,17 @@ async function importBaseConfiguration(projectDir: string): Promise<void> {
       "\t\t\t<Form>ФормаОтчета</Form>",
       "\t\t\t<Form>ФормаБезОсновы</Form>",
       "\t\t\t<Form>ФормаРавнаяОснова</Form>",
+      "\t\t\t<Form>ФормаИсторическийЭлемент</Form>",
       "\t\t</ChildObjects>",
     ].join("\n"),
   )
 
-  for (const formName of ["ФормаОтчета", "ФормаБезОсновы", "ФормаРавнаяОснова"]) {
+  for (const formName of [
+    "ФормаОтчета",
+    "ФормаБезОсновы",
+    "ФормаРавнаяОснова",
+    "ФормаИсторическийЭлемент",
+  ]) {
     const formsDir = join(inputDir, "Catalogs", "СправочникПолный", "Forms")
     const metadataPath = join(formsDir, `${formName}.xml`)
     const bodyPath = join(formsDir, formName, "Ext", "Form.xml")
@@ -464,7 +490,7 @@ async function importBaseConfiguration(projectDir: string): Promise<void> {
   })
   expect(result.failed).toEqual([])
   expect(result.componentPath).toBe("cf")
-  expect(result.succeeded).toBe(7)
+  expect(result.succeeded).toBe(8)
 }
 
 function baseFormAttributesXml(): string[] {
@@ -566,6 +592,63 @@ function addFormWithRedundantBase(inputDir: string): void {
     join(inputDir, "Catalogs", "СправочникПолный.xml"),
     "\t\t\t<Form>ФормаБезОсновы</Form>",
     "\t\t\t<Form>ФормаБезОсновы</Form>\n\t\t\t<Form>ФормаРавнаяОснова</Form>",
+  )
+}
+
+function historicalFieldXml(indent: string): string[] {
+  return [
+    `${indent}<InputField name="ИсторическоеПоле" id="30">`,
+    `${indent}\t<ContextMenu name="ИсторическоеПолеКонтекстноеМеню" id="31"/>`,
+    `${indent}\t<ExtendedTooltip name="ИсторическоеПолеРасширеннаяПодсказка" id="32"/>`,
+    `${indent}</InputField>`,
+  ]
+}
+
+function addFormWithHistoricalElement(inputDir: string): void {
+  const formsDir = join(inputDir, "Catalogs", "СправочникПолный", "Forms")
+  const sourceMetadataPath = join(formsDir, "ФормаБезОсновы.xml")
+  const targetMetadataPath = join(formsDir, "ФормаИсторическийЭлемент.xml")
+  const sourceFormDir = join(formsDir, "ФормаБезОсновы")
+  const targetFormDir = join(formsDir, "ФормаИсторическийЭлемент")
+  fs.copyFileSync(sourceMetadataPath, targetMetadataPath)
+  fs.cpSync(sourceFormDir, targetFormDir, { recursive: true })
+  replaceExactlyOnce(
+    targetMetadataPath,
+    "99999999-9999-4999-8999-999999999999",
+    "12121212-1212-4121-8121-121212121212",
+  )
+  replaceExactlyOnce(
+    targetMetadataPath,
+    "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+    "13131313-1313-4131-8131-131313131313",
+  )
+  replaceExactlyOnce(
+    targetMetadataPath,
+    "<Name>ФормаБезОсновы</Name>",
+    "<Name>ФормаИсторическийЭлемент</Name>",
+  )
+
+  const targetFormPath = join(targetFormDir, "Ext", "Form.xml")
+  replaceExactlyOnce(
+    targetFormPath,
+    "\t</ChildItems>\n\t<Attributes>",
+    `${historicalFieldXml("\t\t").join("\n")}\n\t</ChildItems>\n\t<Attributes>`,
+  )
+  const baseForm = [
+    "\t<BaseForm version=\"2.20\">",
+    "\t\t<AutoCommandBar name=\"ФормаКоманднаяПанель\" id=\"-1\"/>",
+    "\t\t<ChildItems>",
+    ...historicalFieldXml("\t\t\t"),
+    "\t\t</ChildItems>",
+    "\t\t<Attributes/>",
+    "\t</BaseForm>",
+  ].join("\n")
+  replaceExactlyOnce(targetFormPath, "</Form>", `${baseForm}\n</Form>`)
+  replaceExactlyOnce(
+    join(inputDir, "Catalogs", "СправочникПолный.xml"),
+    "\t\t\t<Form>ФормаРавнаяОснова</Form>",
+    "\t\t\t<Form>ФормаРавнаяОснова</Form>\n" +
+      "\t\t\t<Form>ФормаИсторическийЭлемент</Form>",
   )
 }
 

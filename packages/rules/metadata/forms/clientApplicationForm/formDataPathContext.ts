@@ -32,6 +32,7 @@ export interface FormElementDataPathState {
   readonly compactImplicitDataPath?: boolean
   readonly valueInternal?: string
   readonly currentConfigurationValue?: string
+  readonly presentInCurrentConfiguration?: true
 }
 
 export interface FormDataPathContext {
@@ -159,11 +160,18 @@ export function materializeInheritedRootFormDataPaths(params: {
 }): readonly MaterializedInheritedDataPath[] {
   const materialized: MaterializedInheritedDataPath[] = []
   for (const element of params.context.elementsByName.values()) {
+    const inheritedFromCurrentForm =
+      element.origin === "borrowed" && element.presentInCurrentConfiguration === true
+    const missingOrEmptyPath =
+      !element.present
+      || element.value === undefined
+      || element.value === null
+      || element.value === ""
     if (
-      element.origin !== "own"
-      || element.present
+      !missingOrEmptyPath
       || element.candidateRootOrigin !== "inherited"
       || element.candidateYaml === undefined
+      || inheritedFromCurrentForm
     ) continue
     const parent = recordAtPath(params.yaml, element.yamlPath)
     parent["ПутьКДанным"] = element.candidateYaml
@@ -424,6 +432,8 @@ function prepareCollectedForm(params: {
         ? resolvePath(element.collected.value, semanticElementName(element.collected))?.internal
         : undefined
     const currentConfigurationValue = params.currentConfigurationForm?.effectivePath(name)?.yaml
+    const presentInCurrentConfiguration =
+      params.currentConfigurationForm?.elementsByName.has(name) === true
     elementsByName.set(name, {
       name,
       ...(isElementType(element.collected.itemType) ? { elementType: element.collected.itemType } : {}),
@@ -451,6 +461,7 @@ function prepareCollectedForm(params: {
           }),
       ...(valueInternal === undefined ? {} : { valueInternal }),
       ...(currentConfigurationValue === undefined ? {} : { currentConfigurationValue }),
+      ...(presentInCurrentConfiguration ? { presentInCurrentConfiguration: true as const } : {}),
     })
   }
 
