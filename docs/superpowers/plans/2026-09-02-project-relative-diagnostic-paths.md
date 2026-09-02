@@ -45,7 +45,7 @@ expect(() => assertProjectStateFileUpdateBatch(batchWithWorkingProjectPath("C:\\
 
 - [ ] **Step 2: Запустить тест и подтвердить падение**
 
-Run: `pnpm exec vitest run packages/rules/metadata/projectState/fileUpdate.test.ts --project unit`
+Run: `pnpm --dir packages/rules exec vitest run metadata/projectState/fileUpdate.test.ts --project core-metadata`
 
 Expected: FAIL, потому что `assertIdentity` и `workingProjectPath` сейчас проверяются только как строки.
 
@@ -68,7 +68,7 @@ function assertRelativeProjectPath(value: unknown, path: string): void {
 
 - [ ] **Step 4: Запустить целевой тест**
 
-Run: `pnpm exec vitest run packages/rules/metadata/projectState/fileUpdate.test.ts --project unit`
+Run: `pnpm --dir packages/rules exec vitest run metadata/projectState/fileUpdate.test.ts --project core-metadata`
 
 Expected: PASS.
 
@@ -117,7 +117,7 @@ expect(diagnostics).toContainEqual(expect.objectContaining({
 
 - [ ] **Step 2: Запустить целевые тесты и подтвердить падение**
 
-Run: `pnpm exec vitest run packages/rules/metadata/forms/clientApplicationForm/borrowedFormValidation.test.ts packages/rules/metadata/appliedObjects/configurationExtension/propertyStateValidation.test.ts packages/rules/metadata/appliedObjects/configurationExtension/structureValidation.test.ts packages/rules/metadata/appliedObjects/configurationExtension/historyValidation.test.ts --project unit`
+Run: `pnpm --dir packages/rules exec vitest run metadata/forms/clientApplicationForm/borrowedFormValidation.test.ts metadata/appliedObjects/configurationExtension/propertyStateValidation.test.ts metadata/appliedObjects/configurationExtension/structureValidation.test.ts metadata/appliedObjects/configurationExtension/historyValidation.test.ts --project core-metadata`
 
 Expected: FAIL с абсолютными фактическими `filePath`.
 
@@ -183,7 +183,7 @@ expect(() => assertProjectDiagnosticPaths([
 
 - [ ] **Step 2: Запустить тест и подтвердить падение**
 
-Run: `pnpm exec vitest run packages/rules/metadata/projectState/diagnosticPaths.test.ts --project unit`
+Run: `pnpm --dir packages/rules exec vitest run metadata/projectState/diagnosticPaths.test.ts --project core-metadata`
 
 Expected: FAIL, модуль отсутствует.
 
@@ -217,7 +217,7 @@ export function assertProjectDiagnosticPaths(
 
 - [ ] **Step 6: Запустить целевые тесты**
 
-Run: `pnpm exec vitest run packages/rules/metadata/projectState/diagnosticPaths.test.ts packages/rules/metadata/validation/projectStateDependencyValidation.test.ts packages/rules/metadata/projectState/binary/diagnosticBatches.test.ts --project unit`
+Run: `pnpm --dir packages/rules exec vitest run metadata/projectState/diagnosticPaths.test.ts metadata/validation/projectStateDependencyValidation.test.ts metadata/projectState/binary/diagnosticBatches.test.ts --project core-metadata`
 
 Expected: PASS.
 
@@ -265,7 +265,9 @@ expect(reopened.getBlocks(["Справочник/Товары/Свойства.y
 
 - [ ] **Step 3: Запустить интеграционные тесты вне песочницы**
 
-Run: `pnpm exec vitest run packages/runtime/metadata/configurationIndex/store.integration.test.ts packages/rules/metadata/projectState/binary/persistence.integration.test.ts --project integration`
+Run: `pnpm --dir packages/runtime exec vitest run metadata/configurationIndex/store.integration.test.ts --project integration`
+
+Run: `pnpm --dir packages/rules exec vitest run metadata/projectState/binary/persistence.integration.test.ts --project integration`
 
 Expected: PASS; после закрытия тестов временные каталоги удаляются без EPERM.
 
