@@ -64,7 +64,7 @@ function assertRelativeProjectPath(value: unknown, path: string): void {
 }
 ```
 
-Вызвать её для `projectPath`, `componentPath`, `workingProjectPath`, `itemProjectPath`, `ownerProjectPath` и каждого значения `dependencies`. Не изменять типы DTO и двоичный формат.
+Вызвать её для `projectPath`, `componentPath`, `workingProjectPath`, `itemProjectPath` и `ownerProjectPath`. Поле `dependencies` не проверять этим правилом: оно содержит логические ключи зависимостей, а не пути. Не изменять типы DTO и двоичный формат.
 
 - [ ] **Step 4: Запустить целевой тест**
 
