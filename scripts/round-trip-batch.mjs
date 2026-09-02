@@ -47,7 +47,7 @@ function configurations(repo) {
     const path = join(root, entry.name)
     if (entry.isSymbolicLink()) throw new Error(`Недопустимая символическая ссылка: ${path}`)
     if (!entry.isDirectory() || !existsSync(join(path, "Configuration.xml"))) continue
-    if (realpathSync(git(path, "rev-parse", "--show-toplevel")) !== repo) {
+    if (realpathSync.native(git(path, "rev-parse", "--show-toplevel")) !== repo) {
       throw new Error(`Вложенный репозиторий конфигурации не поддерживается: ${path}`)
     }
     paths.push(`cf/${entry.name}`)
@@ -318,8 +318,9 @@ function prepareBatch(repo, testMode, timestamp) {
 async function runBatch(repoPath, testMode) {
   const startedAt = new Date().toISOString()
   const timestamp = startedAt.replace("T", "_").replaceAll(":", "-").replace(".", "-")
-  const repo = realpathSync(resolve(repoPath))
-  if (realpathSync(git(repo, "rev-parse", "--show-toplevel")) !== repo) {
+  // Native разрешает также Windows 8.3-имена и регистр существующих каталогов.
+  const repo = realpathSync.native(resolve(repoPath))
+  if (realpathSync.native(git(repo, "rev-parse", "--show-toplevel")) !== repo) {
     throw new Error("--repo должен указывать на корень Git-репозитория")
   }
   const { entries, reportsDir, file, logDirectory, branch } = prepareBatch(repo, testMode, timestamp)

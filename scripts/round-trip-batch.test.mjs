@@ -196,6 +196,18 @@ test("сохраняет reference-only файлы после экспорта �
   assert.match(report(repo), /Тестовая конфигурация \| без расхождений/u)
 })
 
+test("Windows: принимает корень репозитория с другим регистром и кратким путём TEMP", { skip: process.platform !== "win32" }, (t) => {
+  // Windows CI задаёт TEMP через RUNNER~1; Git возвращает полное имя каталога.
+  const { repo, base, run } = fixture(t, ["02-clean"])
+  const input = repo.toUpperCase()
+  t.diagnostic(JSON.stringify({ input, gitRoot: git(repo, "rev-parse", "--show-toplevel") }))
+  const result = run(["--repo", input])
+  assert.equal(result.status, 0, result.stderr)
+  assert.equal(git(repo, "rev-parse", "HEAD^"), base)
+  assert.equal(git(repo, "diff", base, "--", "cf"), "")
+  assert.match(report(repo), /cf\/02-clean \| без расхождений/u)
+})
+
 test("не заменяет исходный XML неполным экспортом и продолжает следующие конфигурации", (t) => {
   const { repo, base, run } = fixture(t, ["03-empty", "04-change"])
   const result = run()
@@ -299,7 +311,7 @@ test("при отсутствии diff создаёт только отчёт и
   assert.match(log, /string=1/u)
   assert.match(log, /Широкий raw: Справочники\/Товары.yaml — 1/u)
   assert.match(log, /Каталог YAML: Справочники/u)
-  assert.ok(logDir.startsWith(join(realpathSync(repo), "round-trip-reports")))
+  assert.ok(logDir.startsWith(join(realpathSync.native(repo), "round-trip-reports")))
   assert.deepEqual(temporaryRuns(root), [])
   assert.equal(git(repo, "diff", base, "--", "cf"), "")
 })
