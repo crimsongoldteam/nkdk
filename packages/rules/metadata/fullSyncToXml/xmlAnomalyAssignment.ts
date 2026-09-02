@@ -215,20 +215,17 @@ function serializePreparedAssignmentXml(
     throw new Error("Один XML-документ не может содержать несколько raw-границ корня")
   }
   const documentRootBoundary = documentRootBoundaries[0]
-  if (documentRootBoundary !== undefined) {
-    const elementName = ordinary[0]?.name ?? documentRootBoundary.documentRootName!
-    const value = documentRootBoundary.hasSemanticValue === true
-      ? applyDocumentRootPatch(ordinary, documentRootBoundary.value)
-      : documentRootBoundary.value
-    ordinary = decodeXmlRawValue(value, {
-      elementName,
-      suppressOrdinaryOutput: true,
-    }).nodes
+  // Порядок может ссылаться на ребёнка, который появится только после raw-вставки.
+  const deferredRootOrder = documentRootBoundary !== undefined && isRootOrderPatch(documentRootBoundary)
+  if (documentRootBoundary !== undefined && !deferredRootOrder) {
+    ordinary = applyDocumentRootBoundary(ordinary, documentRootBoundary)
   }
   const nestedBoundaries = resolvedBoundaries.filter(({ documentRootName }) => documentRootName === undefined)
-  if (nestedBoundaries.length === 0) return xmlExport(ordinary)
   try {
-    return xmlExport(mergeXmlRawFragments(ordinary, nestedBoundaries))
+    const merged = nestedBoundaries.length === 0 ? ordinary : mergeXmlRawFragments(ordinary, nestedBoundaries)
+    return xmlExport(documentRootBoundary !== undefined && deferredRootOrder
+      ? applyDocumentRootBoundary(merged, documentRootBoundary)
+      : merged)
   } catch (caught) {
     const message = caught instanceof Error ? caught.message : String(caught)
     throw new Error(
@@ -236,6 +233,28 @@ function serializePreparedAssignmentXml(
       { cause: caught },
     )
   }
+}
+
+function isRootOrderPatch(boundary: PreparedXmlAnomalyBoundary): boolean {
+  return boundary.hasSemanticValue === true && isOrderOnlyXmlPatch(boundary.value)
+}
+
+function isOrderOnlyXmlPatch(value: unknown): boolean {
+  if (!isRecord(value)) return false
+  const keys = Object.keys(value)
+  if (Array.isArray(value["#order"])) return keys.every((key) => key === "#order" || key === "#text")
+  return keys.length === 1 && isOrderOnlyXmlPatch(value[keys[0]!])
+}
+
+function applyDocumentRootBoundary(
+  ordinary: readonly XmlElementNode[],
+  boundary: PreparedXmlAnomalyBoundary,
+): readonly XmlElementNode[] {
+  const elementName = ordinary[0]?.name ?? boundary.documentRootName!
+  const value = boundary.hasSemanticValue === true
+    ? applyDocumentRootPatch(ordinary, boundary.value)
+    : boundary.value
+  return decodeXmlRawValue(value, { elementName, suppressOrdinaryOutput: true }).nodes
 }
 
 function rootFingerprints(
