@@ -78,6 +78,7 @@ describe("configuration extension PropertyState validation", () => {
     const diagnostics = validatePredefined(extension, base)
 
     expect(diagnostics).toEqual([expect.objectContaining({
+      filePath: "cfe/X/Пример/Один/Свойства.yaml",
       severity,
       path: "/Предопределенные/Группа",
     })])
@@ -146,6 +147,7 @@ describe("configuration extension PropertyState validation", () => {
     ])
 
     expect(validatePredefined(extension, base)).toEqual([expect.objectContaining({
+      filePath: "cfe/X/Пример/Один/Свойства.yaml",
       severity: "error",
       path: "/Состав/0",
     })])

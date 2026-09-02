@@ -37,7 +37,7 @@ import type {
   ProjectStateQueryPort,
 } from "../projectState/contracts/dependencyValidation"
 import type { ProjectStatePendingDependencyCheck } from "../projectState/contracts/fileUpdate"
-import { parseProjectPath, projectPathFromFileSystem } from "../projectDefinition/path"
+import { projectPathFromFileSystem } from "../projectDefinition/path"
 import type { ProjectStateDependencyValidator } from "../projectState/contracts/dependencyValidation"
 import type {
   ProjectStateSemanticValidationResult,
@@ -299,10 +299,9 @@ export function readProjectStateDependencyReadiness(params: {
   return {
     blockedComponentPaths,
     diagnostics: createProjectDegradationDiagnostics({
-      projectDir: "",
       hasConfiguration,
       blockedComponentPaths: [...blockedComponentPaths],
-    }).map((diagnostic) => ({ ...diagnostic, filePath: parseProjectPath(diagnostic.filePath) })),
+    }),
   }
 }
 
