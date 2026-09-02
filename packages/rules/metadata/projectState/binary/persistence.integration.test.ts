@@ -10,9 +10,10 @@ import {
   saveBinaryProjectState,
 } from "./persistence"
 import { ProjectStateSnapshotView } from "./snapshot"
-import { resourceUpdate } from "./testData"
+import { resourceUpdate, richYamlUpdate } from "./testData"
 import { createProjectStateFragmentWriter, openProjectStateFragment } from "./fragment"
 import { createProjectStateDependencyValidator } from "../../validation/projectStateDependencyValidation"
+import { readLocalDiagnosticBatch } from "./diagnosticBatches"
 
 describe("двоичный файл состояния проекта", () => {
   const projects = trackTempProjectDirs("nkdk-binary-state-")
@@ -50,6 +51,28 @@ describe("двоичный файл состояния проекта", () => {
     expect(actual).toBeDefined()
     expect(new ProjectStateSnapshotView(actual!).filePaths()).toEqual(["cf/icon.png"])
     expect(basename(projectStateBinaryPath(projectDir))).toBe("project-state.bin")
+  })
+
+  it("открывает состояние и диагностики после переноса в другой корень проекта", async () => {
+    const sourceProjectDir = await projects.create()
+    const targetProjectDir = await projects.create()
+    const writer = createProjectStateFragmentWriter()
+    writer.appendFile(richYamlUpdate("cf/Объект.yaml", "cf", "Товары"), 1n)
+    const snapshot = buildProjectStateSnapshot({
+      fragments: [openProjectStateFragment(writer.finish())],
+      deletions: [],
+    })
+    await saveBinaryProjectState(sourceProjectDir, snapshot)
+    const target = projectStateBinaryPath(targetProjectDir)
+    await fs.promises.mkdir(dirname(target), { recursive: true })
+    await fs.promises.rename(projectStateBinaryPath(sourceProjectDir), target)
+
+    const loaded = await loadBinaryProjectState(targetProjectDir)
+    expect(loaded).toBeDefined()
+    const view = new ProjectStateSnapshotView(loaded!)
+    expect(view.filePaths()).toEqual(["cf/Объект.yaml"])
+    const diagnostics = readLocalDiagnosticBatch(view, false, createProjectStateDependencyValidator())
+    expect(diagnostics.diagnostic(0).filePath).toBe("cf/Объект.yaml")
   })
 
   it("сохраняет несколько доказательств одной файловой цели после повторной загрузки", async () => {

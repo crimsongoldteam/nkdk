@@ -18,14 +18,30 @@ describe("BaseForm configuration index reader", () => {
     expect(projected.entity(attributeAddress)?.xmlId).toBe("1000001")
   })
 
-  it("не подставляет идентификатор базы для выбранного адреса без идентификатора расширения", () => {
+  it("назначает идентификатор расширения выбранному адресу без сохранённого идентификатора", () => {
     const projected = createBaseFormConfigurationIndexReader({
       base: reader([{ logicalAddress: attributeAddress, xmlId: "5" }]),
       extension: reader([{ logicalAddress: attributeAddress, children: [{ xmlName: "Form", name: "Поле" }] }]),
       formLogicalAddress: formAddress,
       extensionIdentityAddresses: new Set([attributeAddress]),
     })
-    expect(projected.entity(attributeAddress)).toEqual({ logicalAddress: attributeAddress })
+    expect(projected.entity(attributeAddress)).toEqual({ logicalAddress: attributeAddress, xmlId: "1000001" })
+  })
+
+  it("не повторяет занятый идентификатор при новом заимствовании", () => {
+    const existingAddress = childUid(formAddress, "Атрибут", "Существующий")
+    const projected = createBaseFormConfigurationIndexReader({
+      base: reader([
+        { logicalAddress: existingAddress, xmlId: "4" },
+        { logicalAddress: attributeAddress, xmlId: "5" },
+      ]),
+      extension: reader([{ logicalAddress: existingAddress, xmlId: "1000001" }]),
+      formLogicalAddress: formAddress,
+      extensionIdentityAddresses: new Set([existingAddress, attributeAddress]),
+    })
+
+    expect(projected.entity(existingAddress)?.xmlId).toBe("1000001")
+    expect(projected.entity(attributeAddress)?.xmlId).toBe("1000002")
   })
 
   it("перечисляет ту же проекцию, что и точечное чтение", () => {

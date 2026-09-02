@@ -1,6 +1,7 @@
 import type { ClientApplicationFormYAML } from "./types"
 import {
   compactImportedFormDataPaths,
+  materializeInheritedRootFormDataPaths,
   prepareFormDataPathContextFromYAML,
   requiresImportedFormDataPathCompaction,
 } from "./formDataPathContext"
@@ -32,6 +33,10 @@ export const clientApplicationFormImportedYamlFinalizerRules = defineMetadataRul
         rule,
       })
       compactImportedFormDataPaths({
+        yaml: form,
+        context: dataPathContext,
+      })
+      materializeInheritedRootFormDataPaths({
         yaml: form,
         context: dataPathContext,
       })

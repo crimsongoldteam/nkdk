@@ -70,4 +70,5 @@ export interface FormDataPathSource {
   name: string
   typeInfo: DataPathTypeInfo
   tableSource?: FormDataPathTableSource
+  origin?: "working" | "inherited"
 }

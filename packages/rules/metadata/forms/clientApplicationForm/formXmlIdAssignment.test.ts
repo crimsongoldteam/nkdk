@@ -8,7 +8,7 @@ import {
   type ConfigurationIndexBlockEntity,
   type FormXmlIdSpace,
 } from "@nkdk/runtime"
-import { assignFormXmlIds } from "./formXmlIdAssignment"
+import { assignFormXmlIds, createFormXmlIdAssignmentSession } from "./formXmlIdAssignment"
 import { testConfigurationIndexReader } from "../../../tests/configurationIndex"
 
 describe("assignFormXmlIds", () => {
@@ -100,6 +100,103 @@ describe("assignFormXmlIds", () => {
 
     expect(() => assignFormXmlIds({ BaseForm: first, AutoCommandBar: second })).not.toThrow()
     expect([first._id, second._id]).toEqual(["-1", "-1"])
+  })
+
+  it("разрешает одинаковый сохранённый ID в независимых XML-контейнерах", () => {
+    const firstAddress = "Форма.ПерваяГруппа.Поле"
+    const secondAddress = "Форма.ВтораяГруппа.Поле"
+    const setup = runtimeSetup([entity(firstAddress, "1"), entity(secondAddress, "1")])
+    const first = { _name: "Первое", _id: "" }
+    const second = { _name: "Второе", _id: "" }
+    register(setup.runtime.withLogicalAddress(firstAddress), first, "elements")
+    register(setup.runtime.withLogicalAddress(secondAddress), second, "elements")
+
+    expect(() => assignFormXmlIds({
+      First: { Items: [first] },
+      Second: { Items: [second] },
+    })).not.toThrow()
+    expect([first._id, second._id]).toEqual(["1", "1"])
+  })
+
+  it("повторно использует ID смыслового реквизита во внешней форме и BaseForm", () => {
+    const setup = runtimeSetup([])
+    const session = createFormXmlIdAssignmentSession()
+    const occupied = { _name: "Другой", _id: "" }
+    const baseAttribute = { _name: "Контрагент", _id: "" }
+    const outerAttribute = { _name: "Контрагент", _id: "" }
+    register(setup.runtime.withLogicalAddress("Форма.Атрибут.Другой"), occupied, "attributes")
+    register(setup.runtime.withLogicalAddress("Форма.Атрибут.Контрагент"), baseAttribute, "attributes")
+    register(setup.runtime.withLogicalAddress("Форма.Атрибут.Контрагент"), outerAttribute, "attributes")
+
+    assignFormXmlIds({ Attributes: [occupied, baseAttribute] }, undefined, session)
+    assignFormXmlIds({ Attributes: [outerAttribute] }, undefined, session)
+
+    expect(baseAttribute._id).toBe("2")
+    expect(outerAttribute._id).toBe(baseAttribute._id)
+  })
+
+  it("не объединяет пространства команд внешней формы и BaseForm", () => {
+    const setup = runtimeSetup([])
+    const session = createFormXmlIdAssignmentSession()
+    const baseCommand = { _name: "Обновить", _id: "" }
+    const outerCommand = { _name: "Обновить", _id: "" }
+    register(setup.runtime.withLogicalAddress("Форма.ОсноваФормы.Команда.Обновить"), baseCommand, "commands")
+    register(setup.runtime.withLogicalAddress("Форма.Команда.Обновить"), outerCommand, "commands")
+
+    assignFormXmlIds({ Commands: [baseCommand] }, undefined, session)
+    assignFormXmlIds({ Commands: [outerCommand] }, undefined, session)
+
+    expect(baseCommand._id).toBe("1000001")
+    expect(outerCommand._id).toBe("1")
+  })
+
+  it("резервирует ID узла BaseForm без runtime перед внешней формой", () => {
+    const session = createFormXmlIdAssignmentSession()
+    const baseElement = { _name: "Код", _id: "" }
+    registerFormXmlIdReservation(baseElement, { space: "elements" })
+    assignFormXmlIds(
+      { Items: [baseElement] },
+      { Items: [{ _name: "Код", _id: "1" }] },
+      session,
+    )
+
+    const setup = runtimeSetup([])
+    const ownElement = { _name: "ДатаАктуальности", _id: "" }
+    register(setup.runtime.withLogicalAddress("Форма.Элемент.ДатаАктуальности"), ownElement, "elements")
+    assignFormXmlIds({ Items: [ownElement] }, undefined, session)
+
+    expect(ownElement._id).toBe("2")
+  })
+
+  it("пропускает некорректный ID снимка и выбирает допустимый", () => {
+    const address = "Форма.Атрибут.Контрагент"
+    const setup = runtimeSetup([entity(address, "not-an-id")])
+    const attribute = { _name: "Контрагент", _id: "" }
+    register(setup.runtime.withLogicalAddress(address), attribute, "attributes")
+
+    assignFormXmlIds(
+      { Attributes: [attribute] },
+      { Attributes: [{ _name: "Контрагент", _id: "7" }] },
+      createFormXmlIdAssignmentSession(),
+    )
+
+    expect(attribute._id).toBe("7")
+  })
+
+  it("учитывает ID reference только в соответствующем пространстве", () => {
+    const setup = runtimeSetup([])
+    const attribute = { _name: "Новый", _id: "" }
+    const element = { _name: "Поле", _id: "" }
+    register(setup.runtime.withLogicalAddress("Форма.Атрибут.Новый"), attribute, "attributes")
+    register(setup.runtime.withLogicalAddress("Форма.Элемент.Поле"), element, "elements")
+    const session = createFormXmlIdAssignmentSession({
+      references: [{ Attributes: { Attribute: [{ _name: "Старый", _id: "1" }] } }],
+    })
+
+    assignFormXmlIds({ Attributes: [attribute], Elements: [element] }, undefined, session)
+
+    expect(attribute._id).toBe("2")
+    expect(element._id).toBe("1")
   })
 })
 

@@ -13,6 +13,12 @@ export interface FormElementDataPathPayloadV1 {
   readonly owner?: { readonly kind: string; readonly name: string }
 }
 
+export interface FormDataPathPayloadV1 {
+  readonly version: 1
+  readonly mode: "explicit"
+  readonly owner?: { readonly kind: string; readonly name: string }
+}
+
 export function collectClientApplicationFormStructure(
   yaml: unknown,
   owner?: { readonly kind: string; readonly name: string }
@@ -52,12 +58,25 @@ export function collectClientApplicationFormStructure(
     }
     return { ...component, payload: JSON.stringify(payload) }
   })
+  const dataPaths = preparation.collected.occurrences.map((occurrence) => {
+    const payload: FormDataPathPayloadV1 = {
+      version: 1,
+      mode: "explicit",
+      ...(owner === undefined ? {} : { owner }),
+    }
+    return {
+      componentKind: "dataPath",
+      name: occurrence.value,
+      yamlPath: occurrence.yamlPath,
+      payload: JSON.stringify(payload),
+    }
+  })
   return [{
     componentKind: "document",
     name: "",
     yamlPath: [],
     payload: serializeClientApplicationFormSemanticPayload(yaml),
-  }, ...withPayload, ...mainAttributeComponents(yaml)]
+  }, ...withPayload, ...dataPaths, ...mainAttributeComponents(yaml)]
 }
 
 function mainAttributeComponents(yaml: unknown): FormStructuredComponent[] {

@@ -282,6 +282,7 @@ export function extractValidationYamlFacts(params: {
         rule: params.file.itemRule,
         logicalAddress: extensionLogicalAddress,
         workingProjectPath: params.file.projectPath,
+        owner: { kind: params.file.owner.dir, name: params.file.owner.name },
         runtime: params.runtime,
         collectPropertyStates: belongsToBorrowedPair,
         borrowed: belongsToBorrowedPair,
@@ -330,6 +331,7 @@ function collectConfigurationExtensionDocuments(params: {
   readonly rule: MetadataItemRule
   readonly logicalAddress: string
   readonly workingProjectPath: string
+  readonly owner: { readonly kind: string; readonly name: string }
   readonly runtime?: ValidationRegistrySet
   readonly collectPropertyStates: boolean
   readonly borrowed: boolean
@@ -342,6 +344,21 @@ function collectConfigurationExtensionDocuments(params: {
     yaml: params.yaml,
     rule: params.rule,
     initialState: { logicalAddress: params.logicalAddress, metadataObject: true },
+    onExternalFile: ({ yaml, propertyRule, state }) => {
+      const formAdapter = params.runtime?.form.adapter
+      const formStructureProjection = params.runtime?.form.structureProjection
+      if (
+        formAdapter === undefined
+        || formStructureProjection === undefined
+        || propertyRule.type !== formAdapter.formRule.itemType
+      ) return
+      documents.push(...formStructureProjection({
+        components: formAdapter.collectStructuredComponents(yaml, params.owner),
+        representation: "working",
+        logicalAddress: state.logicalAddress,
+        workingProjectPath: params.workingProjectPath,
+      }))
+    },
     onObject: ({ yaml, rule, yamlPath, state }) => {
       if (!state.metadataObject) return
       const record = metadataRecord(yaml)

@@ -21,7 +21,7 @@ import {
   prepareFormDataPathContextFromYAML,
   type FormDataPathContext,
 } from "./formDataPathContext"
-import { assignFormXmlIds } from "./formXmlIdAssignment"
+import { assignFormXmlIds, type FormXmlIdAssignmentSession } from "./formXmlIdAssignment"
 import { resolveDataPathCore } from "../../validation/dataPath/coreResolver"
 
 const emptyOwnerMetadataCache = {
@@ -43,6 +43,7 @@ export interface ConvertClientApplicationFormFromYAMLToXMLParams {
   readonly currentConfigurationFormYaml?: ClientApplicationFormYAML
   readonly savedBaseFormYaml?: ClientApplicationFormYAML
   readonly annotations?: XmlAnomalyAnnotations
+  readonly xmlIdSession?: FormXmlIdAssignmentSession
 }
 
 export interface DirectClientApplicationFormXMLResult {
@@ -128,7 +129,7 @@ export function convertClientApplicationFormYAMLToXMLCore(
     ...formProperties,
     ...(params.baseFormXML === undefined ? {} : { BaseForm: params.baseFormXML }),
   } as ClientApplicationFormXML
-  assignFormXmlIds(formXML, params.referenceFormXML)
+  assignFormXmlIds(formXML, params.referenceFormXML, params.xmlIdSession)
 
   const generatedForm = asRecord(metadataProperties.Form) ?? {}
   const metadataXML = {

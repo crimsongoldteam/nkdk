@@ -99,6 +99,37 @@ describe("ProjectStateFileUpdateBatch", () => {
     expect(() => assertProjectStateFileUpdateBatch({ updates: [update], hashBytes: new Uint8Array(8) })).toThrow()
   })
 
+  it.each([
+    "C:\\temp\\file.yaml",
+    "/tmp/file.yaml",
+    "../file.yaml",
+    "cf/../file.yaml",
+  ])("отклоняет ненормализованный путь файла project state %s", (projectPath) => {
+    const update = resourceUpdate(projectPath)
+
+    expect(() => assertProjectStateFileUpdateBatch({ updates: [update], hashBytes: new Uint8Array(8) }))
+      .toThrow("updates[0].projectPath должен быть нормализованным относительным путём")
+  })
+
+  it("отклоняет абсолютный workingProjectPath структурированного документа", () => {
+    const update = {
+      ...yamlUpdate("cfe/Расширение/Форма.yaml"),
+      componentPath: "cfe/Расширение",
+      structuredDocuments: [{
+        documentKind: "clientApplicationForm",
+        representation: "working",
+        logicalAddress: "Catalog.Товары.Form.ФормаЭлемента",
+        workingProjectPath: "C:\\temp\\Форма.yaml",
+        componentKind: "element",
+        name: "Поле",
+        yamlPath: ["Элементы", "Поле"],
+      }],
+    }
+
+    expect(() => assertProjectStateFileUpdateBatch({ updates: [update], hashBytes: new Uint8Array(8) }))
+      .toThrow("updates[0].structuredDocuments[0].workingProjectPath должен быть нормализованным относительным путём")
+  })
+
   it("keeps only the portable DataPath policy fields", () => {
     const rule = {
       yaml: "ПутьКДанным",

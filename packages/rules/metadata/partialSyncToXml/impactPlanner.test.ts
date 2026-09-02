@@ -348,6 +348,32 @@ describe("partial XML impact planner", () => {
     expectFirstFormAssignment(result)
   })
 
+  it("добавляет в пакет соседние формы при изменении существующей формы", () => {
+    const result = plan(
+      [root, language, owner, firstForm, firstModule, secondForm, secondModule],
+      changes({ changed: [firstForm] }),
+    )
+
+    expect(result.selection).toEqual({
+      kind: "selected",
+      projectPaths: [root, owner, firstForm, firstModule, secondForm, secondModule].sort(utf8),
+    })
+    expect(documentPaths(result)).toEqual([
+      "Configuration.xml",
+      "Objects/Товары.xml",
+      "Objects/Товары/Forms/Первая.xml",
+      "Objects/Товары/Forms/Первая/Ext/Form.xml",
+      "Objects/Товары/Forms/Вторая.xml",
+      "Objects/Товары/Forms/Вторая/Ext/Form.xml",
+    ].sort(utf8))
+    expect(result.loadTargets).toEqual([
+      "Configuration.xml",
+      "Objects/Товары.xml",
+      "Objects/Товары/Forms/Первая.xml",
+      "Objects/Товары/Forms/Первая/Ext/Form.xml",
+    ].sort(utf8))
+  })
+
   it.each(["changed", "added"] as const)("включает задание формы при %s её сохранённой основы", (kind) => {
     const result = plan(
       [root, language, owner, firstForm, firstBaseForm],

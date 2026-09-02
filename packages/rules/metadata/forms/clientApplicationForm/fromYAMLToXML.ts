@@ -6,6 +6,7 @@ import { ClientApplicationFormRules } from "./rules"
 import type { ClientApplicationFormXML, ClientApplicationFormYAML } from "./types"
 import type { SelectedBaseYAMLInput } from "@nkdk/runtime/rule-kit"
 import type { YAMLToXMLNestedRule } from "@nkdk/runtime/rule-kit"
+import { createFormXmlIdAssignmentSession } from "./formXmlIdAssignment"
 
 export const convertClientApplicationFormFromYAMLToXML =
   convertClientApplicationFormYAMLToXMLCore
@@ -36,6 +37,10 @@ export const clientApplicationFormYamlToXmlNestedRule: Extract<
     if (extensionYaml.ТипФормы === "Обычная" || owner.ТипФормы === "Обычная") return undefined
     const selectedBase = selectedBaseYAMLInput(baseYAML)
     const baseFormYAML = selectedBase?.baseFormYAML ?? baseYAML
+    const referenceForm = referenceXML?.Form as ClientApplicationFormXML | undefined
+    const xmlIdSession = createFormXmlIdAssignmentSession({
+      references: [referenceForm],
+    })
     const baseFormXML =
       baseFormYAML === undefined
         ? undefined
@@ -56,14 +61,16 @@ export const clientApplicationFormYamlToXmlNestedRule: Extract<
                 }
             ),
             formName: name,
+            referenceFormXML: referenceForm?.BaseForm as ClientApplicationFormXML | undefined,
             rule,
+            xmlIdSession,
           })
     return {
       Form: convertClientApplicationFormYAMLToXMLCore({
         context,
         yaml: extensionYaml,
         name,
-        referenceFormXML: referenceXML?.Form as ClientApplicationFormXML | undefined,
+        referenceFormXML: referenceForm,
         ...(baseFormXML === undefined ? {} : { baseFormXML }),
         ...(selectedBase === undefined
           ? baseYAMLContext === undefined && baseFormYAML !== undefined
@@ -77,6 +84,7 @@ export const clientApplicationFormYamlToXmlNestedRule: Extract<
                 : {}),
             }),
         rule,
+        xmlIdSession,
         annotations,
       }).formXML,
     }

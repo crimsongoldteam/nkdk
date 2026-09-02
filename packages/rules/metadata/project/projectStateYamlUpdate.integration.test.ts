@@ -57,6 +57,7 @@ describe("buildProjectStateYamlFileUpdate", () => {
         rootProjectPath: `cf/${projectPath}`,
         projectPath,
         role: "form",
+        indexContribution: "isolated",
       },
       firstPass,
       fileBackedTargets: [],
@@ -72,6 +73,16 @@ describe("buildProjectStateYamlFileUpdate", () => {
       expect.objectContaining({ componentKind: "attribute", name: "Объект" }),
       expect.objectContaining({ componentKind: "element", name: "Поле" }),
     ]))
+    expect(update.structuredDocuments?.filter(({ componentKind }) => componentKind === "dataPath"))
+      .toEqual([expect.objectContaining({
+        name: "Объект",
+        yamlPath: ["Элементы", "Поле", "ПутьКДанным"],
+        payload: JSON.stringify({
+          version: 1,
+          mode: "explicit",
+          owner: { kind: "Справочник", name: "Товары" },
+        }),
+      })])
     const document = update.structuredDocuments?.find(({ componentKind }) => componentKind === "document")
     expect(JSON.parse(document?.payload ?? "null")).toMatchObject({
       version: 1,

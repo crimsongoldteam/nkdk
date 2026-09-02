@@ -1,4 +1,3 @@
-import { join } from "node:path"
 import type { Diagnostic } from "@nkdk/runtime"
 import type { ProjectStateStructuredDocumentEntry } from "../../projectState/contracts/fileUpdate"
 
@@ -147,7 +146,7 @@ function diagnostic(
   message: string,
 ): Diagnostic {
   return {
-    filePath: join(params.projectDir, ...params.projectPath.split("/")),
+    filePath: params.projectPath,
     line: 1,
     col: 1,
     severity,

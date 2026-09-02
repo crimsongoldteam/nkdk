@@ -7,6 +7,7 @@ import "../../tests/metadataExecutionContext"
 import { mockContext } from "../../tests/mockContext"
 import { createPropertyStateCapabilityRegistry } from "../appliedObjects/configurationExtension/propertyStateCapabilities"
 import { configurationExtensionPropertyStateCapabilities } from "../appliedObjects/configurationExtension/propertyStateRules"
+import { metadataRules } from "../composition/metadataRules"
 import { defineMetadataRules } from "../ruleRuntime/definition"
 import { emptyMetadataRules } from "../ruleRuntime/definition/testSupport"
 import { createRuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
@@ -594,6 +595,54 @@ describe("extractValidationYamlFacts", () => {
     ]))
     const section = facts.structuredDocuments?.find(({ name }) => name === "MetadataTabularSection")
     expect(JSON.parse(section?.payload ?? "null")).toMatchObject({ lineNumberLength: 9 })
+  })
+
+  it("проецирует встроенную форму расширения в структурный документ", () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-yaml-facts-form-"))
+    const componentDir = join(projectDir, "cfe", "Расширение")
+    const projectPath = "ОбщаяФорма/InputField/Свойства.yaml"
+    const filePath = join(componentDir, projectPath)
+    mkdirSync(join(componentDir, "ОбщаяФорма", "InputField"), { recursive: true })
+    const resolvedFile = resolveValidationProjectFile(componentDir, filePath)
+    if (resolvedFile === undefined) throw new Error("file not resolved")
+    const runtime = createValidationRegistrySet(metadataRules, createRuleRegistrySet(metadataRules))
+
+    const facts = extractValidationYamlFacts({
+      file: {
+        ...resolvedFile,
+        componentPath: "cfe/Расширение",
+        componentDir,
+      },
+      parsed: parseMetadataYaml([
+        "Форма:",
+        "  Реквизиты:",
+        "    Таблица:",
+        "      Тип: ТаблицаЗначений",
+        "  Элементы:",
+        "    Поле:",
+        "      Вид: ПолеВвода",
+        "      ПутьКДанным: Таблица.Реквизит",
+        "",
+      ].join("\n")),
+      rulesSnapshot,
+      runtime,
+      validationDiagnostics: false,
+    })
+
+    expect(facts.structuredDocuments).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        documentKind: "clientApplicationForm",
+        logicalAddress: "ОбщаяФорма.InputField",
+        componentKind: "attribute",
+        name: "Таблица",
+      }),
+      expect.objectContaining({
+        documentKind: "clientApplicationForm",
+        logicalAddress: "ОбщаяФорма.InputField",
+        componentKind: "dataPath",
+        name: "Таблица.Реквизит",
+      }),
+    ]))
   })
 
   it("помечает обычную ссылку многорежимного свойства как control", () => {

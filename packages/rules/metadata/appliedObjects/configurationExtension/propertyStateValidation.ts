@@ -1,4 +1,3 @@
-import { join } from "node:path"
 import type { Diagnostic } from "@nkdk/runtime"
 import type { ProjectStateStructuredDocumentValidationParams } from "../../projectState/contracts/dependencyValidation"
 import type { ProjectStateStructuredDocumentEntry } from "../../projectState/contracts/fileUpdate"
@@ -41,7 +40,7 @@ export function validateConfigurationExtensionPropertyStates(
         logicalAddress: fact.entry.logicalAddress,
       }).some((entry) => entry.documentKind === CONFIGURATION_EXTENSION_STRUCTURE_DOCUMENT)
       if (!baseObjectExists && extension.explicitMode !== true) continue
-      diagnostics.push(diagnostic(params.projectDir, fact.projectPath, fact.entry, "error",
+      diagnostics.push(diagnostic(fact.projectPath, fact.entry, "error",
         `Свойство «${extension.propertyKey}» отсутствует в основной конфигурации`))
       continue
     }
@@ -50,7 +49,7 @@ export function validateConfigurationExtensionPropertyStates(
       extension.propertyKey === "content" &&
       !functionalOptionHasBooleanLocation(params, fact.entry.logicalAddress)
     ) {
-      diagnostics.push(diagnostic(params.projectDir, fact.projectPath, fact.entry, "error",
+      diagnostics.push(diagnostic(fact.projectPath, fact.entry, "error",
         "Состав функциональной опции доступен только при булевом типе объекта из Размещения"))
       continue
     }
@@ -76,7 +75,7 @@ export function validateConfigurationExtensionPropertyStates(
       extension.mode !== "xml" && knownItem !== undefined &&
       (capability === undefined || !capability.modes.includes(extension.mode))
     ) {
-      diagnostics.push(diagnostic(params.projectDir, fact.projectPath, fact.entry, "error",
+      diagnostics.push(diagnostic(fact.projectPath, fact.entry, "error",
         `Режим свойства «${extension.propertyKey}» недоступен при ${compatibilityMode ?? "Версия8_3_27"}`))
       continue
     }
@@ -104,7 +103,6 @@ export function validateConfigurationExtensionPropertyStates(
     if (extension.mode === "extend" || extension.mode === "xml") continue
     if (extension.mode === "multi") {
       diagnostics.push(...validateMulti({
-        projectDir: params.projectDir,
         projectPath: fact.projectPath,
         entry: fact.entry,
         propertyKey: extension.propertyKey,
@@ -115,7 +113,7 @@ export function validateConfigurationExtensionPropertyStates(
     }
     if (sameValue(extension.value, basePayload.value)) continue
     const severity = extension.mode === "notify" ? "warning" : "error"
-    diagnostics.push(diagnostic(params.projectDir, fact.projectPath, fact.entry, severity,
+    diagnostics.push(diagnostic(fact.projectPath, fact.entry, severity,
       severity === "warning"
         ? `Проверяемое свойство «${extension.propertyKey}» отличается от основной конфигурации`
         : `Контролируемое свойство «${extension.propertyKey}» отличается от основной конфигурации`))
@@ -175,22 +173,22 @@ function validateExternalFile(params: {
     projectPath: params.extensionProjectPath,
   })
   if (extensionHash === undefined) {
-    return [diagnostic(params.params.projectDir, params.fact.projectPath, params.fact.entry, "error",
+    return [diagnostic(params.fact.projectPath, params.fact.entry, "error",
       `Отсутствует внешний файл «${params.extensionProjectPath}»`)]
   }
   if (params.mode === "extend" || params.mode === "xml") return []
   if (params.baseProjectPath === undefined) {
-    return [diagnostic(params.params.projectDir, params.fact.projectPath, params.fact.entry, "error",
+    return [diagnostic(params.fact.projectPath, params.fact.entry, "error",
       "Соответствующий внешний файл отсутствует в основной конфигурации")]
   }
   const baseHash = params.params.queryPort.readFileHash?.({ componentPath: "cf", projectPath: params.baseProjectPath })
   if (baseHash === undefined) {
-    return [diagnostic(params.params.projectDir, params.fact.projectPath, params.fact.entry, "error",
+    return [diagnostic(params.fact.projectPath, params.fact.entry, "error",
       `Не найден хэш внешнего файла основной конфигурации «${params.baseProjectPath}»`)]
   }
   if (baseHash === extensionHash) return []
   const severity = params.mode === "notify" ? "warning" : "error"
-  return [diagnostic(params.params.projectDir, params.fact.projectPath, params.fact.entry, severity,
+  return [diagnostic(params.fact.projectPath, params.fact.entry, severity,
     severity === "warning"
       ? "Проверяемый внешний файл отличается от основной конфигурации"
       : "Контролируемый внешний файл отличается от основной конфигурации")]
@@ -219,7 +217,6 @@ function extensionCompatibilityModes(
 }
 
 function validateMulti(params: {
-  readonly projectDir: string
   readonly projectPath: string
   readonly entry: ProjectStateStructuredDocumentEntry
   readonly propertyKey: string
@@ -227,7 +224,7 @@ function validateMulti(params: {
   readonly base: unknown
 }): readonly Diagnostic[] {
   if (!Array.isArray(params.extension)) {
-    return [diagnostic(params.projectDir, params.projectPath, params.entry, "error",
+    return [diagnostic(params.projectPath, params.entry, "error",
       `Некорректный MultiState свойства «${params.propertyKey}»`)]
   }
   const baseParts = Array.isArray(params.base) ? params.base : [{ mode: "control", value: params.base }]
@@ -241,7 +238,7 @@ function validateMulti(params: {
       sameValue((basePart as { value?: unknown }).value, value))
     if (found) continue
     const severity = mode === "notify" ? "warning" : "error"
-    diagnostics.push(diagnostic(params.projectDir, params.projectPath, params.entry, severity,
+    diagnostics.push(diagnostic(params.projectPath, params.entry, severity,
       severity === "warning"
         ? `Проверяемая часть свойства «${params.propertyKey}» отличается от основной конфигурации`
         : `Контролируемая часть свойства «${params.propertyKey}» отличается от основной конфигурации`))
@@ -262,14 +259,13 @@ function sameValue(left: unknown, right: unknown): boolean {
 }
 
 function diagnostic(
-  projectDir: string,
   projectPath: string,
   entry: ProjectStateStructuredDocumentEntry,
   severity: "error" | "warning",
   message: string,
 ): Diagnostic {
   return {
-    filePath: join(projectDir, ...projectPath.split("/")),
+    filePath: projectPath,
     line: 1,
     col: 1,
     severity,

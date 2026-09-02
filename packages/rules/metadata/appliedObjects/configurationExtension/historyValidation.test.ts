@@ -61,7 +61,10 @@ describe("configuration extension data history", () => {
       dataHistory: "Использовать",
     })
     expect(validate(root, own, "cfe/X/Объект/Новый/Свойства.yaml"))
-      .toEqual([expect.objectContaining({ severity: "error" })])
+      .toEqual([expect.objectContaining({
+        filePath: "cfe/X/Объект/Новый/Свойства.yaml",
+        severity: "error",
+      })])
   })
 
   it.each([

@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest"
-import { join } from "node:path"
 import "../../../tests/metadataExecutionContext"
 import type {
   ProjectStateStructuredDocumentFact,
@@ -15,7 +14,7 @@ describe("проверка заимствованной формы", () => {
 
     expect(diagnostics).toEqual([
       expect.objectContaining({
-        filePath: join("/project/cfe/X/Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml"),
+        filePath: "cfe/X/Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
         severity: "warning",
         message: expect.stringContaining("ПолеCF"),
       }),
@@ -37,6 +36,69 @@ describe("проверка заимствованной формы", () => {
       working("cfe/X", "ПолеCF"),
       working("cfe/X", "Собственное"),
     ])).toEqual([])
+  })
+
+  it("требует явно добавить унаследованный корень нового DataPath", () => {
+    const diagnostics = validate([
+      fact("cf", "working", "attribute", "Контрагент", ["Реквизиты", "Контрагент"]),
+      explicitDataPath("cfe/X", "Контрагент.ИНН", ["Элементы", "ИНН", "ПутьКДанным"]),
+    ])
+
+    expect(diagnostics).toContainEqual(expect.objectContaining({
+      severity: "error",
+      source: "cross-file",
+      path: "/Элементы/ИНН/ПутьКДанным",
+      message: "Путь «Контрагент.ИНН» использует реквизит формы «Контрагент», который не добавлен в «Реквизиты» заимствованной формы",
+    }))
+  })
+
+  it("разрешает DataPath через явно добавленный working-реквизит", () => {
+    expect(validate([
+      fact("cf", "working", "attribute", "Контрагент", ["Реквизиты", "Контрагент"]),
+      fact("cfe/X", "working", "attribute", "Контрагент", ["Реквизиты", "Контрагент"]),
+      explicitDataPath("cfe/X", "Контрагент.Код", ["Элементы", "Код", "ПутьКДанным"]),
+    ])).toEqual([])
+  })
+
+  it("требует добавить заимствованный реквизит и в сохранённую основу", () => {
+    const diagnostics = validate([
+      fact("cf", "working", "attribute", "Объект", ["Реквизиты", "Объект"]),
+      fact("cfe/X", "working", "attribute", "Объект", ["Реквизиты", "Объект"]),
+      fact("cfe/X", "base", "document", "", [], "БазоваяФорма.yaml"),
+    ])
+
+    expect(diagnostics).toContainEqual(expect.objectContaining({
+      severity: "error",
+      filePath: "cfe/X/БазоваяФорма.yaml",
+      path: "/Реквизиты/Объект",
+      message: "Заимствованный реквизит «Объект» необходимо добавить и в сохранённую основу формы",
+    }))
+  })
+
+  it("сообщает только о первом недоступном metadata-сегменте", () => {
+    const diagnostics = validate([
+      fact("cf", "working", "attribute", "Контрагент", ["Реквизиты", "Контрагент"]),
+      fact("cfe/X", "working", "attribute", "Контрагент", ["Реквизиты", "Контрагент"]),
+      explicitDataPath("cfe/X", "Контрагент.ИНН", ["Элементы", "ИНН", "ПутьКДанным"]),
+    ])
+
+    expect(diagnostics).toEqual([expect.objectContaining({
+      path: "/Элементы/ИНН/ПутьКДанным",
+      message: "Путь «Контрагент.ИНН» обращается к реквизиту «ИНН», который недоступен в компоненте расширения",
+    })])
+  })
+
+  it("требует working-корень для вычисляемого пути собственного элемента", () => {
+    const diagnostics = validate([
+      fact("cf", "working", "attribute", "Объект", ["Реквизиты", "Объект"]),
+      fact("cf", "working", "mainAttribute", "Объект", ["Реквизиты", "Объект", "ОсновнойРеквизит"]),
+      workingWithDataPath("cfe/X", "ДатаАктуальности", "missing"),
+    ])
+
+    expect(diagnostics).toContainEqual(expect.objectContaining({
+      path: "/Элементы/ДатаАктуальности/ПутьКДанным",
+      message: "Путь «Объект.ДатаАктуальности» использует реквизит формы «Объект», который не добавлен в «Реквизиты» заимствованной формы",
+    }))
   })
 
   it("запрещает пустой ПутьКДанным заимствованного элемента", () => {
@@ -110,7 +172,7 @@ describe("проверка заимствованной формы", () => {
 
     expect(diagnostics).toEqual([
       expect.objectContaining({
-        filePath: join("/project/cfe/X/БазоваяФорма.yaml"),
+        filePath: "cfe/X/БазоваяФорма.yaml",
         severity: "warning",
         path: `/${dottedPath.replaceAll(".", "/")}`,
         message: expect.stringContaining(name),
@@ -128,7 +190,7 @@ describe("проверка заимствованной формы", () => {
 
     expect(diagnostics).toEqual([
       expect.objectContaining({
-        filePath: join("/project/cfe/X/БазоваяФорма.yaml"),
+        filePath: "cfe/X/БазоваяФорма.yaml",
         severity: "error",
         path: "/Элементы/Поле/ПутьКДанным",
         message: expect.stringContaining("РеквизитРабочейФормы"),
@@ -152,7 +214,7 @@ describe("проверка заимствованной формы", () => {
 
     expect(diagnostics).toContainEqual(expect.objectContaining({
       severity: "error",
-      filePath: join("/project/cfe/X/БазоваяФорма.yaml"),
+      filePath: "cfe/X/БазоваяФорма.yaml",
       path: "/",
       message: "БазоваяФорма.yaml избыточна: основа полностью восстанавливается из основной конфигурации и рабочей формы расширения",
     }))
@@ -189,7 +251,7 @@ describe("проверка заимствованной формы", () => {
     ])
 
     expect(diagnostics).toContainEqual(expect.objectContaining({
-      filePath: join("/project/cfe/X/ОбщаяФорма/РабочийСтол/БазоваяФорма.yaml"),
+      filePath: "cfe/X/ОбщаяФорма/РабочийСтол/БазоваяФорма.yaml",
       severity: "error",
     }))
   })
@@ -207,6 +269,7 @@ function validate(facts: readonly ProjectStateStructuredDocumentFact[]) {
           const targetOwner = rootOwner.kind === "ВнешнийИсточникДанных"
             ? { kind: "ВнешнийИсточникДанныхТаблица", name: `${rootOwner.name}.Таблица` }
             : rootOwner
+          const rootName = check.value.split(".")[0]?.replace(/\[\d+\]$/, "") ?? ""
           return {
             requestId,
             status: "found" as const,
@@ -225,10 +288,10 @@ function validate(facts: readonly ProjectStateStructuredDocumentFact[]) {
               forms: [{
                 kind: "root" as const,
                 owner: rootOwner,
-                name: "Объект",
+                name: rootName,
                 source: {
                   kind: "formAttribute" as const,
-                  name: "Объект",
+                  name: rootName,
                   typeInfo: {
                     kinds: ["object"],
                     nextTypes: [targetOwner],
@@ -274,6 +337,25 @@ function workingWithDataPath(
         primaryDataPath,
         ...(value === undefined ? {} : { value }),
         owner,
+      }),
+    },
+  }
+}
+
+function explicitDataPath(
+  componentPath: string,
+  value: string,
+  yamlPath: readonly string[],
+): ProjectStateStructuredDocumentFact {
+  const result = fact(componentPath, "working", "dataPath", value, yamlPath)
+  return {
+    ...result,
+    entry: {
+      ...result.entry,
+      payload: JSON.stringify({
+        version: 1,
+        mode: "explicit",
+        owner: { kind: "Справочник", name: "Товары" },
       }),
     },
   }
