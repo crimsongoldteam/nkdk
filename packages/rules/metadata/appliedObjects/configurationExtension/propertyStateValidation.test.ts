@@ -41,6 +41,7 @@ describe("configuration extension PropertyState validation", () => {
     })
 
     expect(diagnostics).toEqual([expect.objectContaining({
+      filePath: "cfe/X/Пример/Один/Свойства.yaml",
       severity: "error",
       message: expect.stringContaining("основной конфигурации"),
       path: "/Поле",

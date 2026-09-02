@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest"
-import { join } from "node:path"
 import "../../../tests/metadataExecutionContext"
 import type {
   ProjectStateStructuredDocumentFact,
@@ -15,7 +14,7 @@ describe("проверка заимствованной формы", () => {
 
     expect(diagnostics).toEqual([
       expect.objectContaining({
-        filePath: join("/project/cfe/X/Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml"),
+        filePath: "cfe/X/Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
         severity: "warning",
         message: expect.stringContaining("ПолеCF"),
       }),
@@ -158,7 +157,7 @@ describe("проверка заимствованной формы", () => {
 
     expect(diagnostics).toEqual([
       expect.objectContaining({
-        filePath: join("/project/cfe/X/БазоваяФорма.yaml"),
+        filePath: "cfe/X/БазоваяФорма.yaml",
         severity: "warning",
         path: `/${dottedPath.replaceAll(".", "/")}`,
         message: expect.stringContaining(name),
@@ -176,7 +175,7 @@ describe("проверка заимствованной формы", () => {
 
     expect(diagnostics).toEqual([
       expect.objectContaining({
-        filePath: join("/project/cfe/X/БазоваяФорма.yaml"),
+        filePath: "cfe/X/БазоваяФорма.yaml",
         severity: "error",
         path: "/Элементы/Поле/ПутьКДанным",
         message: expect.stringContaining("РеквизитРабочейФормы"),
@@ -200,7 +199,7 @@ describe("проверка заимствованной формы", () => {
 
     expect(diagnostics).toContainEqual(expect.objectContaining({
       severity: "error",
-      filePath: join("/project/cfe/X/БазоваяФорма.yaml"),
+      filePath: "cfe/X/БазоваяФорма.yaml",
       path: "/",
       message: "БазоваяФорма.yaml избыточна: основа полностью восстанавливается из основной конфигурации и рабочей формы расширения",
     }))
@@ -237,7 +236,7 @@ describe("проверка заимствованной формы", () => {
     ])
 
     expect(diagnostics).toContainEqual(expect.objectContaining({
-      filePath: join("/project/cfe/X/ОбщаяФорма/РабочийСтол/БазоваяФорма.yaml"),
+      filePath: "cfe/X/ОбщаяФорма/РабочийСтол/БазоваяФорма.yaml",
       severity: "error",
     }))
   })

@@ -38,7 +38,11 @@ describe("configuration extension structure validation", () => {
       queryPort: queryWithParent(baseConfiguration),
     })
 
-    expect(diagnostics).toEqual([expect.objectContaining({ severity: "error", source: "structure" })])
+    expect(diagnostics).toEqual([expect.objectContaining({
+      filePath: "cfe/X/Объект/Новый/Свойства.yaml",
+      severity: "error",
+      source: "structure",
+    })])
   })
 
   it("requires the extended configuration index", () => {

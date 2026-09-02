@@ -1,4 +1,3 @@
-import { join } from "node:path"
 import type { Diagnostic } from "@nkdk/runtime"
 import type { ProjectStateStructuredDocumentValidationParams } from "../../projectState/contracts/dependencyValidation"
 import { compareCompatibilityModes, normalizeCompatibilityMode } from "./propertyStateCapabilities"
@@ -25,7 +24,7 @@ export function validateConfigurationExtensionHistory(
       componentPath: "cf", logicalAddress: fact.entry.logicalAddress,
     }).some(({ documentKind }) => documentKind === "configurationExtensionStructure")
     if (!hasBase) diagnostics.push({
-      filePath: join(params.projectDir, ...fact.projectPath.split("/")), line: 1, col: 1,
+      filePath: fact.projectPath, line: 1, col: 1,
       severity: "error", source: "structure", path: "/ИсторияДанных",
       message: capability.availability === "versioned" && compareCompatibilityModes(
         normalizeCompatibilityMode(modes.get(fact.componentPath)), capability.sinceMode,
@@ -47,7 +46,7 @@ export function validateConfigurationExtensionHistory(
     }).some(({ documentKind }) => documentKind === "configurationExtensionStructure")
     if (hasBase) continue
     diagnostics.push({
-      filePath: join(params.projectDir, ...fact.projectPath.split("/")), line: 1, col: 1,
+      filePath: fact.projectPath, line: 1, col: 1,
       severity: "error", source: "structure", path: "/ДлинаНомераСтроки",
       message: "В режиме совместимости 8.3.26 и ниже длина номера строки должна быть равна 5",
     })

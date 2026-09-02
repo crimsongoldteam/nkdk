@@ -1,4 +1,3 @@
-import { join } from "node:path"
 import type { Diagnostic } from "@nkdk/runtime"
 import { getDataPathOwnerKind } from "@nkdk/runtime/rule-kit"
 import type {
@@ -37,7 +36,7 @@ export function validateBorrowedClientApplicationForms(
         representation === "working" && componentKind === "element"
       ),
       actual: extensionFacts.map(({ entry }) => entry),
-      filePath: absolutePath(params.projectDir, first.projectPath),
+      filePath: first.projectPath,
       subject: "основной формы",
     }))
     const currentElementNames = new Set(baseEntries
@@ -60,14 +59,14 @@ export function validateBorrowedClientApplicationForms(
       checks: borrowedFormDataPathChecks,
       workingEntries,
       currentEntries: baseEntries,
-      filePath: absolutePath(params.projectDir, first.projectPath),
+      filePath: first.projectPath,
     }))
     diagnostics.push(...unavailableBorrowedFormSegmentDiagnostics({
       checks: borrowedFormDataPathChecks,
       workingEntries,
       componentPath: first.componentPath,
       projectPath: first.projectPath,
-      filePath: absolutePath(params.projectDir, first.projectPath),
+      filePath: first.projectPath,
       projectDir: params.projectDir,
       queryPort: params.queryPort,
     }))
@@ -118,7 +117,7 @@ export function validateBorrowedClientApplicationForms(
       const borrowed = currentElementNames.has(entry.name) || savedElementNames.has(entry.name)
       if (borrowed && payload?.primaryDataPath === "empty") {
         diagnostics.push({
-          filePath: absolutePath(params.projectDir, first.projectPath),
+          filePath: first.projectPath,
           line: 1,
           col: 1,
           severity: "error",
@@ -162,7 +161,7 @@ export function validateBorrowedClientApplicationForms(
     redundantCandidates.forEach(({ entry }, index) => {
       if (!resolvedRedundant.has(String(index))) return
       diagnostics.push({
-        filePath: absolutePath(params.projectDir, first.projectPath),
+        filePath: first.projectPath,
         line: 1,
         col: 1,
         severity: "error",
@@ -174,7 +173,7 @@ export function validateBorrowedClientApplicationForms(
     for (const name of savedElementNames) {
       if (currentElementNames.has(name)) continue
       diagnostics.push({
-        filePath: absolutePath(params.projectDir, first.projectPath),
+        filePath: first.projectPath,
         line: 1,
         col: 1,
         severity: "warning",
@@ -193,13 +192,13 @@ export function validateBorrowedClientApplicationForms(
         ["element", "attribute", "command", "parameter"].includes(componentKind)
       ),
       actual: working.map(({ entry }) => entry),
-      filePath: absolutePath(params.projectDir, first.projectPath),
+      filePath: first.projectPath,
       subject: "сохранённой основы",
       useRequiredPath: true,
     }))
     diagnostics.push(...baseDataPathDiagnostics({
       facts: baseFacts,
-      filePath: absolutePath(params.projectDir, first.projectPath),
+      filePath: first.projectPath,
     }))
     const current = params.queryPort.readStructuredDocumentEntries({
       componentPath: "cf",
@@ -219,7 +218,7 @@ export function validateBorrowedClientApplicationForms(
       })
     ) {
       diagnostics.push({
-        filePath: absolutePath(params.projectDir, first.projectPath),
+        filePath: first.projectPath,
         line: 1,
         col: 1,
         severity: "error",
@@ -333,8 +332,4 @@ function componentLabel(kind: string): string {
 
 function yamlPointer(path: readonly (string | number)[]): string {
   return `/${path.map((segment) => String(segment).replace(/~/g, "~0").replace(/\//g, "~1")).join("/")}`
-}
-
-function absolutePath(projectDir: string, projectPath: string): string {
-  return join(projectDir, ...projectPath.split("/"))
 }
