@@ -2,9 +2,17 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `executing-plans-with-review`, and inside it `superpowers:executing-plans`, to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking. Implementation remains in the primary agent; only the final conformance review is delegated.
 
-**Goal:** Сохранить отсутствующий канонический стандартный реквизит точечным `!xml/raw` и корректно проверять локализацию во вложенной форме общей формы.
+**Goal:** Сохранить отсутствующий канонический стандартный реквизит точечным
+`!xml/raw`, корректно проверять локализацию во вложенной форме и получить чистый
+Storekeeper round-trip с принятыми неразрешёнными UUID.
 
-**Architecture:** Фабрика именованной metadata-коллекции передаёт существующее отображение внутреннего имени в YAML-ключ proof-слою. Структурное сравнение выравнивает повторяющиеся XML-элементы по уникальному `name`, после чего proof создаёт единственную границу отсутствующего канонического item. Проверка файлов свойств обходит все виды `yamlToXMLNestedRule` существующим `traverseMetadataRuleYaml` и валидирует каждый объект без повторной рекурсии.
+**Architecture:** Фабрика именованной metadata-коллекции передаёт существующее
+отображение внутреннего имени в YAML-ключ proof-слою. Структурное сравнение
+выравнивает повторяющиеся XML-элементы по уникальному `name`, после чего proof
+создаёт единственную границу отсутствующего канонического item. Проверка файлов
+свойств обходит все виды `yamlToXMLNestedRule`. Обычный YAML → XML связывает
+metadata-ссылку с точной XML-аннотацией по `MetadataTargetOccurrence.location`,
+а raw целого item без внешней привязки явно относится к основному документу.
 
 **Tech Stack:** TypeScript, Vitest, rule-kit, структурный XML parser, XML anomaly proof, project validation, MCP, `round-trip-yaml`.
 
@@ -563,7 +571,7 @@
   git commit -m "fix: :bug: проверить локализацию вложенной общей формы"
   ```
 
-### Task 5: Зафиксировать договор и проверить настоящую конфигурацию
+### Task 5: Зафиксировать договор и впервые проверить настоящую конфигурацию
 
 **Files:**
 
@@ -574,7 +582,8 @@
 **Interfaces:**
 
 - Consumes: реализованные collection proof и nested validation.
-- Produces: документированный пример canonical item raw-null, чистый Storekeeper round-trip и полный набор зелёных проверок.
+- Produces: документированный пример canonical item raw-null и реальные
+  diagnostics Storekeeper после первых четырёх слоёв.
 
 - [ ] **Step 1: Дополнить реестр XML-аномалий точным примером**
 
@@ -625,40 +634,175 @@
     ./.agents/skills/round-trip-yaml/round-trip.sh
   ```
 
-  Expected:
+  Expected для первого диагностического прогона:
 
-  - import и sync завершаются exit 0;
-  - project validation не содержит 24 сообщений о лишнем `!xml/invalid en`;
-  - XML diff для `ExchangePlans/ОбменСМобильнымиПриложениями.xml` отсутствует;
-  - нет широкого raw, `name: !xml/raw`, `<_name>` и предупреждений proof;
-  - существующий внешний рабочий diff skill оставляет согласно своему договору.
+  - import завершается без прежних 24 ошибок локализации;
+  - XML `ДатаОбмена: !xml/raw` имеет `$xml: null`, без широкого raw и `<_name>`;
+  - любые оставшиеся ошибки sync записаны с `sourceProjectPath` и разобраны на
+    общие причины до расширения спецификации.
 
-- [ ] **Step 5: Зафиксировать сведения для независимой проверки**
+### Task 6: Перенести точный `!xml/invalid` до resolver metadata-ссылок
 
-  Выполнить и сохранить вывод в отчёте исполнителя, не создавая generated-файл
-  в репозитории:
+**Files:**
+
+- Modify: `packages/runtime/metadata/helpers/mdObjectRefUuid.ts`
+- Modify: `packages/runtime/metadata/ruleRuntime/property/metadataTargetOccurrences.ts`
+- Modify: `packages/runtime/metadata/ruleRuntime/property/fromYAMLToXML.ts`
+- Modify: `packages/rules/metadata/commonObjects/userVisible/fromYAML.ts`
+- Modify: `packages/rules/metadata/commonObjects/userVisible/fromYAML.test.ts`
+- Modify: `packages/rules/metadata/appliedObjects/metadataSubsystem/fromXMLToYAMLToXML.integration.test.ts`
+- Modify: `packages/rules/metadata/importFromXml/worker.ts`
+- Modify: `packages/rules/metadata/importFromXml/worker.integration.test.ts`
+
+**Interfaces:**
+
+- Consumes: исходное YAML-дерево, `XmlAnomalyAnnotations` и точный
+  `MetadataTargetOccurrence.location`.
+- Produces: неразрешённый UUID сохраняется только при `invalid` на том же
+  value/key; аннотированный YAML-ключ восстанавливается через `logicalKey`.
+- Preserves: обычный UUID и не-UUID строка продолжают проходить resolver и
+  выдавать прежнюю ошибку.
+
+- [ ] **Step 1: Написать RED-тест значения состава подсистемы**
+
+  Разобрать реальный YAML `Состав: [!xml/invalid <uuid>]`, передать `data` и
+  `annotations` в `testPropertyFromYAMLToXML` с `MetadataSubsystemRules` и
+  ожидать тот же UUID в `xr:Item`. Такой же UUID без тега должен завершиться
+  ошибкой «Неизвестный корень».
+
+- [ ] **Step 2: Подтвердить RED**
 
   ```bash
-  git status --short
-  git log --oneline 0c879181b23384cfa868d63d0765f455d021f3eb..HEAD
-  git diff --stat 0c879181b23384cfa868d63d0765f455d021f3eb
+  pnpm --filter @nkdk/rules exec vitest run --no-isolate --project integration \
+    metadata/appliedObjects/metadataSubsystem/fromXMLToYAMLToXML.integration.test.ts \
+    -t 'сохраняет неразрешённый UUID состава только с !xml/invalid'
   ```
 
-  Независимому reviewer передать spec, этот plan, base SHA, worktree и весь
-  `git status --short`. Reviewer не изменяет файлы и возвращает только
-  `VERDICT: APPROVED` либо `CHANGES_REQUIRED` по договору
-  `executing-plans-with-review`.
+  Expected: tagged-случай ошибочно доходит до resolver.
 
-- [ ] **Step 6: После APPROVED повторить финальные проверки без изменения дерева**
+- [ ] **Step 3: Заменить эвристику режима на точную аннотацию**
+
+  `importMetadataTargetOccurrencesFromYAML` получает YAML и annotations,
+  находит аннотацию value/key по `occurrence.location` и разрешает пропуск
+  resolver только для UUID с `invalid`. Для ключа использовать
+  `annotation.logicalKey` и записать его обратно через `occurrence.setValue`.
+  `fromYAMLToXML.ts` передаёт эти данные и в fused, и в обычный путь.
+  Удалить `isXmlImportControlExportContext`: режим операции больше не является
+  основанием для послабления. В import worker применить уже вычисленные между
+  проходами `ImportProjectIssueDecision` к YAML-аннотациям до контрольного
+  экспорта; ранее сгруппированные `issueDecisionsByProjectPath` не
+  использовались.
+
+- [ ] **Step 4: Покрыть YAML-ключ `UserVisible`**
+
+  Добавить тест роли с ключом `!xml/invalid <uuid>` и проверить точное имя UUID
+  в модели. Тот же ключ без тега должен остаться ошибкой.
+
+- [ ] **Step 5: Получить GREEN и проверить слой**
 
   ```bash
+  pnpm --filter @nkdk/rules exec vitest run --no-isolate --project unit \
+    metadata/commonObjects/userVisible/fromYAML.test.ts
+  pnpm --filter @nkdk/rules exec vitest run --no-isolate --project integration \
+    metadata/appliedObjects/metadataSubsystem/fromXMLToYAMLToXML.integration.test.ts \
+    metadata/importFromXml/worker.integration.test.ts
+  pnpm --filter @nkdk/runtime exec tsc --noEmit
+  pnpm --filter @nkdk/rules exec tsc --noEmit
+  pnpm duplicates -- --base 0c879181b23384cfa868d63d0765f455d021f3eb
+  ```
+
+- [ ] **Step 6: Зафиксировать слой**
+
+  ```bash
+  git add packages/runtime/metadata/helpers/mdObjectRefUuid.ts \
+    packages/runtime/metadata/ruleRuntime/property/metadataTargetOccurrences.ts \
+    packages/runtime/metadata/ruleRuntime/property/fromYAMLToXML.ts \
+    packages/rules/metadata/commonObjects/userVisible/fromYAML.ts \
+    packages/rules/metadata/commonObjects/userVisible/fromYAML.test.ts \
+    packages/rules/metadata/appliedObjects/metadataSubsystem/fromXMLToYAMLToXML.integration.test.ts \
+    packages/rules/metadata/importFromXml/worker.ts \
+    packages/rules/metadata/importFromXml/worker.integration.test.ts
+  git commit -m "fix: :bug: сохранить принятые UUID metadata-ссылок"
+  ```
+
+### Task 7: Привязать raw целого item к основному XML-документу
+
+**Files:**
+
+- Modify: `packages/rules/metadata/fullSyncToXml/xmlAnomalyAssignment.ts`
+- Modify: `packages/rules/metadata/fullSyncToXml/xmlAnomalyAssignment.integration.test.ts`
+
+**Interfaces:**
+
+- Consumes: raw item с export claim без `documentPath` и `tag`.
+- Produces: `PreparedXmlAnomalyBoundary` с `path: "$item"` и
+  `documentSelector: ""`.
+- Preserves: raw внешнего файла использует `documentPath`, tagged-документ —
+  `tag`.
+
+- [ ] **Step 1: Написать и подтвердить RED-тест**
+
+  В существующем тесте whole raw item именованной коллекции проверить
+  `{ path: "$item", documentSelector: "" }`.
+
+  ```bash
+  pnpm --filter @nkdk/rules exec vitest run --no-isolate --project integration \
+    metadata/fullSyncToXml/xmlAnomalyAssignment.integration.test.ts \
+    -t 'адресует raw item и его поля'
+  ```
+
+  Expected: `$item` не содержит document selector.
+
+- [ ] **Step 2: Назначить selector по общему правилу**
+
+  В `rawItemBoundary` при отсутствии `documentPath` и `tag` вернуть
+  `documentSelector: ""`. Остальные две ветки не менять.
+
+- [ ] **Step 3: Получить GREEN и проверить слой**
+
+  ```bash
+  pnpm --filter @nkdk/rules exec vitest run --no-isolate --project integration \
+    metadata/fullSyncToXml/xmlAnomalyAssignment.integration.test.ts
+  pnpm --filter @nkdk/rules exec tsc --noEmit
+  pnpm duplicates -- --base 0c879181b23384cfa868d63d0765f455d021f3eb
+  ```
+
+- [ ] **Step 4: Зафиксировать слой**
+
+  ```bash
+  git add packages/rules/metadata/fullSyncToXml/xmlAnomalyAssignment.ts \
+    packages/rules/metadata/fullSyncToXml/xmlAnomalyAssignment.integration.test.ts
+  git commit -m "fix: :bug: привязать raw элемента к основному XML"
+  ```
+
+### Task 8: Повторить real round-trip и провести независимую проверку
+
+- [ ] **Step 1: Запустить Storekeeper на свежем MCP вне песочницы**
+
+  Использовать чистый отдельный XML-worktree, не изменяя пользовательский
+  каталог. Expected: import, validation и sync без ошибок; итоговый XML без
+  структурных расхождений.
+
+- [ ] **Step 2: Выполнить обязательные проверки**
+
+  ```bash
+  pnpm type-check
   pnpm test
   pnpm test:architecture:rules
   pnpm test:architecture
   pnpm duplicates -- --base 0c879181b23384cfa868d63d0765f455d021f3eb
-  git status --short
+  git diff --check 0c879181b23384cfa868d63d0765f455d021f3eb
   ```
 
-  Если любая команда меняет файл или реализация исправляется после review,
-  предыдущий APPROVED недействителен: тот же reviewer повторно проверяет весь
-  diff. Завершение PR-цикла в этот план не входит.
+- [ ] **Step 3: Зафиксировать сведения для reviewer**
+
+  Передать spec, plan, base SHA, worktree, `git status --short`, журнал
+  коммитов, результаты полного теста и настоящего round-trip. Reviewer не
+  изменяет файлы и возвращает только `VERDICT: APPROVED` либо
+  `CHANGES_REQUIRED`.
+
+- [ ] **Step 4: После APPROVED повторить финальные проверки без изменения дерева**
+
+  Если реализация исправляется после review, предыдущий APPROVED недействителен:
+  тот же reviewer повторно проверяет весь diff. Завершение PR-цикла не входит в
+  этот план.
