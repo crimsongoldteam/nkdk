@@ -207,6 +207,11 @@ export type YAMLToXMLNestedRule =
       readonly keyField?: string
       readonly nameFromYAMLKey?: (yamlKey: string) => string
       readonly nameFromYAMLKeyForProperty?: (params: { yamlKey: string; propertyRule: PropertyRule }) => string
+      readonly recordYamlKeyFromYAML?: (params: {
+        yaml: Record<string, unknown>
+        name: string
+        propertyRule: PropertyRule
+      }) => string
       readonly completeItemNames?: (params: {
         source: YAMLPropertySource
         propertyRule: PropertyRule

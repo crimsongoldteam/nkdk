@@ -2,6 +2,7 @@ import { mkdirSync,mkdtempSync,rmSync,writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { dirname,join } from "path"
 import { afterEach,beforeAll,describe,expect,it,vi } from "vitest"
+import { createConfigurationLanguages } from "@nkdk/runtime"
 import "../../tests/metadataExecutionContext"
 import { mockContext } from "../../tests/mockContext"
 import { createPropertyStateCapabilityRegistry } from "../appliedObjects/configurationExtension/propertyStateCapabilities"
@@ -672,6 +673,60 @@ describe("validateProjectFileFirstPass references", () => {
         }),
       ])
     )
+  }, 20_000)
+
+  it.each([
+    {
+      name: "отклоняет незарегистрированный язык без тега",
+      title: ["      ru: Заголовок", "      en: Title"],
+      expectedPath: "/Форма/Заголовок/en",
+      expectedMessage: "Незарегистрированный язык en",
+    },
+    {
+      name: "принимает незарегистрированный язык с !xml/invalid",
+      title: ["      ru: Заголовок", "      !xml/invalid en: Title"],
+      expectedPath: undefined,
+      expectedMessage: undefined,
+    },
+    {
+      name: "принимает зарегистрированный язык",
+      title: ["      ru: Заголовок"],
+      expectedPath: undefined,
+      expectedMessage: undefined,
+    },
+  ])("$name во вложенной общей форме", ({ title, expectedPath, expectedMessage }) => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-common-form-language-"))
+    tempDirs.push(projectDir)
+    const projectPath = "ОбщаяФорма/РабочийСтол/Свойства.yaml"
+    writeProjectFile(projectDir, projectPath, [
+      "Форма:",
+      "  Заголовок:",
+      ...title,
+    ])
+    const file = resolveValidationProjectFile(projectDir, join(projectDir, projectPath))
+    if (!file) throw new Error("file not resolved")
+    const first = validateProjectFileFirstPass({
+      projectDir,
+      file,
+      cache: createProjectYamlCache(),
+      context: {
+        ...mockContext,
+        languages: createConfigurationLanguages({ default: "ru", registered: ["ru"] }),
+      },
+      schemaCache: sharedSchemaCache,
+      rulesSnapshot,
+    })
+    const languageDiagnostics = first.diagnostics.filter(({ message }) =>
+      message.includes("Незарегистрированный язык") || message.includes("Тег XML-аномалии лишний")
+    )
+
+    if (expectedPath === undefined || expectedMessage === undefined) {
+      expect(languageDiagnostics).toEqual([])
+    } else {
+      expect(languageDiagnostics).toEqual([
+        expect.objectContaining({ path: expectedPath, message: expect.stringContaining(expectedMessage) }),
+      ])
+    }
   }, 20_000)
 
   it("keeps a form index contribution without pending DataPath checks", () => {

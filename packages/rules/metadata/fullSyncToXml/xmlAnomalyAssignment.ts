@@ -909,7 +909,7 @@ function rawItemBoundary(params: {
     hasSemanticValue: params.annotation.hasSemanticValue === true,
     exportClaimId: params.exportClaimId,
     ...(params.documentPath === undefined
-      ? params.tag === undefined ? {} : { tag: params.tag }
+      ? params.tag === undefined ? { documentSelector: "" } : { tag: params.tag }
       : { documentPath: params.documentPath }),
   }
 }

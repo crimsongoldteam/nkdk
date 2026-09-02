@@ -28,6 +28,7 @@ import {
 import {
   captureXmlAnomalyProofAudit,
   deriveXmlAnomalyProofBoundaries,
+  deriveXmlAnomalyPlannedAbsenceBoundaries,
   deriveXmlAnomalyProofPlan,
   proveXmlAnomalyBoundaries,
   resetXmlPathIndexVisitCountForTests,
@@ -39,6 +40,24 @@ import {
 
 const sourcePath = "/source/Owner.xml"
 const formSourcePath = "/source/Ext/Form.xml"
+
+function standardAttributesOwnerRule(): MetadataItemRule {
+  return {
+    itemType: "Owner",
+    properties: {
+      standardAttributes: {
+        type: "StandardAttributeDescriptions",
+        xml: "StandardAttributes",
+        yaml: "СтандартныеРеквизиты",
+        standartAttributeNames: {
+          ExchangeDate: "ДатаОбмена",
+          Description: "Наименование",
+          Code: "Код",
+        },
+      },
+    },
+  }
+}
 
 describe("XML anomaly proof", () => {
   const deepXmlDepth = 3_000
@@ -806,6 +825,87 @@ describe("XML anomaly proof", () => {
       xmlPath: "/MetaDataObject[1]/Catalog[1]/ChildObjects[1]/Attribute[1]/Properties[1]/Type[1]",
       yamlPath: ["Реквизиты", "Код", "Тип"],
       rulePath: ["attributes", "type"],
+      presentInSource: false,
+    }))
+  })
+
+  it("планирует отсутствие канонического элемента именованной коллекции", () => {
+    const source = [
+      '<Owner xmlns:xr="urn:xr"><StandardAttributes>',
+      '<xr:StandardAttribute name="Code"/>',
+      '<xr:StandardAttribute name="Description"/>',
+      "</StandardAttributes></Owner>",
+    ].join("")
+    const document = parseXmlDocumentWithSaxes(source)
+    const rule = standardAttributesOwnerRule()
+    const common = {
+      sources: [{ sourcePath, role: "body" as const, document }],
+      rule,
+      data: {
+        СтандартныеРеквизиты: {
+          Код: {},
+          Наименование: {},
+        },
+      },
+      itemAnchors: [
+        {
+          sourcePath,
+          xmlPath: "/Owner[1]/StandardAttributes[1]/xr:StandardAttribute[1]",
+          yamlPath: ["СтандартныеРеквизиты", "Код"],
+          rulePath: ["standardAttributes"],
+        },
+        {
+          sourcePath,
+          xmlPath: "/Owner[1]/StandardAttributes[1]/xr:StandardAttribute[2]",
+          yamlPath: ["СтандартныеРеквизиты", "Наименование"],
+          rulePath: ["standardAttributes"],
+        },
+      ],
+    }
+
+    const boundaries = deriveXmlAnomalyPlannedAbsenceBoundaries(common)
+
+    expect(boundaries).toContainEqual(expect.objectContaining({
+      xmlPath: "/Owner[1]/StandardAttributes[1]/xr:StandardAttribute[1]",
+      yamlPath: ["СтандартныеРеквизиты", "ДатаОбмена"],
+      rulePath: ["standardAttributes"],
+      presentInSource: false,
+    }))
+    expect(boundaries).not.toContainEqual(expect.objectContaining({
+      yamlPath: ["СтандартныеРеквизиты", "Код"],
+      presentInSource: false,
+    }))
+
+    const withExchangeDate = parseXmlDocumentWithSaxes(source.replace(
+      "<StandardAttributes>",
+      '<StandardAttributes><xr:StandardAttribute name="ExchangeDate"/>',
+    ))
+    const presentBoundaries = deriveXmlAnomalyPlannedAbsenceBoundaries({
+      ...common,
+      sources: [{ sourcePath, role: "body", document: withExchangeDate }],
+      data: {
+        СтандартныеРеквизиты: {
+          ДатаОбмена: {},
+          Код: {},
+          Наименование: {},
+        },
+      },
+      itemAnchors: [
+        {
+          sourcePath,
+          xmlPath: "/Owner[1]/StandardAttributes[1]/xr:StandardAttribute[1]",
+          yamlPath: ["СтандартныеРеквизиты", "ДатаОбмена"],
+          rulePath: ["standardAttributes"],
+        },
+        ...common.itemAnchors.map((anchor, index) => ({
+          ...anchor,
+          xmlPath: `/Owner[1]/StandardAttributes[1]/xr:StandardAttribute[${index + 2}]`,
+        })),
+      ],
+    })
+
+    expect(presentBoundaries).not.toContainEqual(expect.objectContaining({
+      yamlPath: ["СтандартныеРеквизиты", "ДатаОбмена"],
       presentInSource: false,
     }))
   })

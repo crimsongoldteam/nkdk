@@ -755,11 +755,13 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
         const atomicInputValue = occurrenceHandler === undefined
           ? sourceValue
           : importMetadataTargetsFromYAML({
-              context: diagnosticContext,
               value: sourceValue,
               handler: occurrenceHandler,
               rule: planned.propertyRule,
               owner: importParams.owner,
+              yaml,
+              annotations: params.annotations,
+              allowUnresolvedUuid: isXmlImportControlExportContext(diagnosticContext),
             })
         const fused = atomicInvocation.conversion.fromYAMLToXML({
           context: diagnosticContext,
@@ -991,11 +993,13 @@ export function callAtomicFromYAML(params: AtomicFromYAMLParams): unknown {
   const importedValue = occurrenceHandler === undefined
     ? value
     : importMetadataTargetsFromYAML({
-        context,
         value,
         handler: occurrenceHandler,
         rule,
         owner,
+        yaml,
+        annotations,
+        allowUnresolvedUuid: isXmlImportControlExportContext(context),
       })
   const atomicConversion = resolveAtomicConversion({
     rule,
@@ -1042,11 +1046,13 @@ export function callAtomicFromYAML(params: AtomicFromYAMLParams): unknown {
 }
 
 function importMetadataTargetsFromYAML(params: {
-  context: ConfigurationContext
   value: unknown
   handler: MetadataTargetOccurrencesFunction
   rule: PropertyRule
   owner?: MetadataTargetOwner
+  yaml?: unknown
+  annotations?: import("../../../yaml/xmlAnomalyAnnotations").XmlAnomalyAnnotations
+  allowUnresolvedUuid?: boolean
 }): unknown {
   const prepared = cloneMetadataTargetValue(params.value)
   const occurrences = params.handler({
@@ -1060,7 +1066,9 @@ function importMetadataTargetsFromYAML(params: {
     value: prepared,
     occurrences,
     owner: params.owner,
-    allowUnresolvedUuid: isXmlImportControlExportContext(params.context),
+    yaml: params.yaml,
+    annotations: params.annotations,
+    allowUnresolvedUuid: params.allowUnresolvedUuid,
   })
 }
 

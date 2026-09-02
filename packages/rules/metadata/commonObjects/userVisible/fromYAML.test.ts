@@ -1,3 +1,4 @@
+import { parseMetadataYaml } from "@nkdk/runtime"
 import type { UserVisiblePropertyRule } from "@nkdk/runtime/rule-kit"
 import { describe, expect, it } from "vitest"
 import { mockContext } from "../../../tests/mockContext"
@@ -62,5 +63,37 @@ describe("importUserVisibleFromYAML", () => {
         },
       })
     ).toBeUndefined()
+  })
+
+  it("сохраняет неразрешённый UUID роли только с !xml/invalid", () => {
+    const uuid = "a786340b-1ca9-48ee-8517-6bd389390bcc"
+    const parsed = parseMetadataYaml([
+      "Использование:",
+      "  Роли:",
+      `    !xml/invalid ${uuid}: Истина`,
+    ].join("\n"))
+    const yaml = parsed.data as { Использование: unknown }
+    const roles = (yaml.Использование as { Роли: Record<string, unknown> }).Роли
+    expect(parsed.annotations.keyAt(roles, Object.keys(roles)[0]!)).toMatchObject({
+      kind: "invalid",
+      logicalKey: uuid,
+    })
+
+    expect(importUserVisibleFromYAML({
+      context: mockContext,
+      rule: userVisibleRule,
+      value: yaml.Использование,
+      yaml,
+      annotations: parsed.annotations,
+    })).toEqual({
+      common: true,
+      values: [{ name: uuid, value: true }],
+    })
+    expect(() => importUserVisibleFromYAML({
+      context: mockContext,
+      rule: userVisibleRule,
+      value: { Роли: { [uuid]: "Истина" } },
+      yaml: { Использование: { Роли: { [uuid]: "Истина" } } },
+    })).toThrow(`Неизвестный корень "${uuid}"`)
   })
 })
