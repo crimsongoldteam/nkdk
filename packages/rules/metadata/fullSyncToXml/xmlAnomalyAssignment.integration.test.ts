@@ -577,6 +577,9 @@ describe("единое восстановление XML-аномалий assignm
     ].join("\n"), anomalyRuntime({}), collectionOwnerRule, anomalyRegistries)
 
     const semanticCollection = (prepared.preparedYamlFile.data as Record<string, unknown>).Реквизиты as Record<string, unknown>
+    expect(prepared.rawBoundaries).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: "$item", documentSelector: "" }),
+    ]))
     expect(xmlAnnotatedMappingEntries(semanticCollection, prepared.preparedYamlFile.annotations)).toEqual([
       ["Код", {}],
       ["Код", {}],
