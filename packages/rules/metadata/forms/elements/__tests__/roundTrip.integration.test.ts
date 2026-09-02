@@ -16,6 +16,7 @@ import {
 import type { CollectableElementType } from "../../../ruleRuntime/formElement/types"
 import { withKnownXMLDefaults } from "../../../../tests/knownXMLDefaults"
 import { createFormDataPathIndexFromYAML } from "../../clientApplicationForm/formDataPathMetadata"
+import { TableInputFieldRules } from "../inputField/rules"
 import { getElementRule } from "../ruleRuntime/ruleFactory"
 
 import "../index"
@@ -42,6 +43,20 @@ const fixtures = fs
   .filter((fixture) => !excludedFixtures.has(fixture))
 
 describe("элементы формы XML → YAML → XML", () => {
+  it("выгружает фиксацию табличного поля перед гиперссылкой ячейки", () => {
+    const result = testMetadataItemFromYAMLToXML({
+      rule: TableInputFieldRules,
+      name: "Колонка",
+      yaml: {
+        ФиксацияВТаблице: "Право",
+        ГиперссылкаЯчейки: "Истина",
+      },
+    }).xml
+    const xml = xmlExport({ InputField: result }, false)
+
+    expect(xml.indexOf("<FixingInTable>")).toBeLessThan(xml.indexOf("<CellHyperlink>"))
+  })
+
   it.each(fixtures)("%s", (fixture) => {
     const parsed = importContentFromXML<Record<string, Record<string, unknown>>>(fs.readFileSync(fixture, "utf8"), {
       preserveXsiNil: true,
