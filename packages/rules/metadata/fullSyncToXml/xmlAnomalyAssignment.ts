@@ -720,7 +720,7 @@ function rawBoundary(params: {
   const claimsCurrentItem = params.exportClaimId !== undefined
     && property === undefined
     && publicPath?.segments.length === 1
-    && publicPath.segments[0] === params.rule?.itemType
+    && publicPath.segments[0] === xmlItemTag(params.rule)
   const path = claimsCurrentItem ? [] : [...params.xmlPrefix, ...effectiveRawPath]
   const claimsParentItem = params.exportClaimId !== undefined && path.length === 0
   const documentRoot = publicPath?.documentRoot === true
@@ -767,6 +767,11 @@ function rawBoundary(params: {
         }),
     ...(params.exportClaimId === undefined ? {} : { exportClaimId: params.exportClaimId }),
   }
+}
+
+function xmlItemTag(rule: MetadataItemRule | undefined): string | undefined {
+  if (rule === undefined) return undefined
+  return "xmlTag" in rule && typeof rule.xmlTag === "string" ? rule.xmlTag : rule.itemType
 }
 
 function propertyAtPublicRawPath(

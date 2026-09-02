@@ -7,6 +7,8 @@ import {
   xmlAnnotatedMappingEntries,
   xmlObjectDocumentBuildCountForTests,
   yamlScalarTagAt,
+  type XmlContentNode,
+  type XmlElementNode,
   type XmlAnomalyRuntime,
 } from "@nkdk/runtime"
 import {
@@ -866,6 +868,37 @@ describe("единое восстановление XML-аномалий assignm
     expectExternalFormItemBoundary(prepared)
   })
 
+  it("привязывает raw физического XML-тега к табличному полю ввода", () => {
+    const xml = exportFormWithAnomalies([
+      "Элементы:",
+      "  Таблица:",
+      "    Вид: ТаблицаФормы",
+      "    Элементы:",
+      "      Колонка:",
+      "        Вид: ПолеВвода",
+      "        ФиксацияВТаблице: Право",
+      "        ГиперссылкаЯчейки: Истина",
+      '        "@Form\\\\InputField": !xml/raw',
+      "          $xml:",
+      '            "#order": [FixingInTable, CellHyperlink, ContextMenu, ExtendedTooltip]',
+    ])
+    const form = parseXmlDocumentWithSaxes(xml).roots[0]
+    const rootChildItems = form?.content.find(isElementNamed("ChildItems"))
+    const table = rootChildItems?.content.find(isElementNamed("Table"))
+    const tableChildItems = table?.content.find(isElementNamed("ChildItems"))
+    const inputFields = tableChildItems?.content.filter(isElementNamed("InputField")) ?? []
+    const inputFieldChildren = inputFields[0]?.content.filter(isElementNode) ?? []
+
+    expect(inputFields).toHaveLength(1)
+    expect(inputFieldChildren.map(({ name }) => name)).toEqual([
+      "FixingInTable",
+      "CellHyperlink",
+      "ContextMenu",
+      "ExtendedTooltip",
+    ])
+    expect(inputFieldChildren.some(({ name }) => name === "InputField")).toBe(false)
+  })
+
   it("накладывает атрибуты вычисляемого collection item поверх обычного экспорта", () => {
     const yaml = [
       "Элементы:",
@@ -1296,6 +1329,14 @@ function exportFormWithAnomalies(lines: readonly string[], withDataPaths = false
   )
   const yaml = prepared.preparedYamlFile.data as ClientApplicationFormYAML
   return exportPreparedFormAssignment(prepared, yaml, withDataPaths)
+}
+
+function isElementNode(node: XmlContentNode): node is XmlElementNode {
+  return node.type === "element"
+}
+
+function isElementNamed(name: string): (node: XmlContentNode) => node is XmlElementNode {
+  return (node): node is XmlElementNode => node.type === "element" && node.name === name
 }
 
 function exportPreparedFormAssignment(
