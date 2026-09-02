@@ -170,18 +170,19 @@ function addFormWithHistoricalElement(inputDir: string): void {
 
 ```ts
 it("помечает путь элемента только из исторической основы", () => {
-  const { result, historicalFormText, historicalBaseFormText } = importedExtension
+  const { historicalFormText, historicalBaseFormText } = importedExtension
 
   expect(historicalFormText)
     .toContain("ПутьКДанным: !xml/invalid БазовыйОбъект.ИсторическоеПоле")
   expect(historicalFormText).not.toContain("!xml/raw")
   expect(historicalBaseFormText).toContain("ИсторическоеПоле:")
-  expect(result.diagnostics).toContainEqual(expect.objectContaining({
-    severity: "error",
-    message: expect.stringContaining("БазовыйОбъект.ИсторическоеПоле"),
-  }))
 })
 ```
+
+Общая проверка результата импорта продолжает ожидать `failed: []`: после
+принятия точечной аномалии итоговая валидация не дублирует её как непринятую
+ошибку. Наличие точного `!xml/invalid` доказывает, что предшествующая
+классификация обнаружила ошибочный путь и применила импортное решение.
 
 Обновить ожидаемое число успешно импортированных назначений с `7` на `8` и
 для импорта базовой `cf`, и для импорта расширения. Существующие проверки
