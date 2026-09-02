@@ -806,6 +806,16 @@ async function prepareYamlForFinalPass(
     savedBaseForm: preparedBaseFormCandidate,
     currentConfigurationYAML,
   })
+  const importedIssueDecisions = activeSecondPass?.issueDecisionsByProjectPath.get(
+    prepared.targetProjectPath,
+  ) ?? []
+  if (importedIssueDecisions.length > 0) {
+    applyImportedIssueDecisions({
+      data: prepared.yaml,
+      annotations: prepared.annotations,
+      decisions: importedIssueDecisions,
+    })
+  }
   profiler.measure(
     "Подготовка импорта конфигурации",
     "Уточнение отложенных зависимых значений YAML",

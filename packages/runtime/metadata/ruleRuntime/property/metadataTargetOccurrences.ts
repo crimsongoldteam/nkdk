@@ -9,6 +9,7 @@ import type {
   MetadataTargetOwner,
 } from "../metadataTarget/types"
 import { copyYAMLRuntimeMetadata } from "../../../yaml/runtimeMetadata"
+import type { XmlAnomalyAnnotation, XmlAnomalyAnnotations } from "../../../yaml/xmlAnomalyAnnotations"
 import { isMDObjectRefUuid } from "../../helpers/mdObjectRefUuid"
 import type { PropertyRule } from "./types"
 
@@ -42,7 +43,8 @@ interface MetadataTargetTransformationParams {
   readonly value: unknown
   readonly occurrences: readonly MetadataTargetOccurrence[]
   readonly owner?: MetadataTargetOwner
-  readonly allowUnresolvedUuid?: boolean
+  readonly yaml?: unknown
+  readonly annotations?: XmlAnomalyAnnotations
 }
 
 export function exportMetadataTargetOccurrencesToYAML(params: MetadataTargetTransformationParams): unknown {
@@ -73,7 +75,10 @@ export function importMetadataTargetOccurrencesFromYAML(params: MetadataTargetTr
   let result = params.value
   for (const occurrence of params.occurrences) {
     if (occurrence.representation.kind !== "canonical") continue
-    const text = occurrence.representation.canonical
+    const annotation = annotationForOccurrence(params, occurrence)
+    const text = occurrence.location.kind === "key" && annotation?.logicalKey !== undefined
+      ? annotation.logicalKey
+      : occurrence.representation.canonical
     const constraint = metadataTargetConstraintForOwner(occurrence.constraint, params.owner)
     const parsed = parseMetadataTargetFromYAML({ value: text, constraint, owner: params.owner })
     if (parsed.ok) {
@@ -85,10 +90,59 @@ export function importMetadataTargetOccurrencesFromYAML(params: MetadataTargetTr
       const model = parseMetadataTargetFromModel({ canonical: text, constraint, owner: params.owner })
       if (!model.ok) continue
     }
-    if (params.allowUnresolvedUuid === true && isMDObjectRefUuid(text)) continue
+    if (isMDObjectRefUuid(text) && isInvalidAnnotation(annotation)) {
+      occurrence.setValue(text)
+      continue
+    }
     throw new Error(parsed.message)
   }
   return result
+}
+
+function annotationForOccurrence(
+  params: Pick<MetadataTargetTransformationParams, "yaml" | "annotations">,
+  occurrence: MetadataTargetOccurrence,
+): XmlAnomalyAnnotation | undefined {
+  const annotations = params.annotations
+  if (annotations === undefined) return undefined
+  const location = occurrence.location
+  return location.kind === "key"
+    ? annotationAtMappingKey(params.yaml, location.path, location.key, annotations)
+    : annotationAtValue(params.yaml, location.path, annotations)
+}
+
+function isInvalidAnnotation(annotation: XmlAnomalyAnnotation | undefined): boolean {
+  return annotation?.kind === "invalid" || annotation?.semantic?.kind === "invalid"
+}
+
+function annotationAtMappingKey(
+  yaml: unknown,
+  path: YamlPath,
+  key: string,
+  annotations: XmlAnomalyAnnotations,
+): XmlAnomalyAnnotation | undefined {
+  const mapping = valueAtPath(yaml, path)
+  return isRecord(mapping) ? annotations.keyAt(mapping, key) : undefined
+}
+
+function annotationAtValue(
+  yaml: unknown,
+  path: YamlPath,
+  annotations: XmlAnomalyAnnotations,
+): XmlAnomalyAnnotation | undefined {
+  const key = path.at(-1)
+  if (key === undefined) return annotations.root()
+  const parent = valueAtPath(yaml, path.slice(0, -1))
+  return typeof parent === "object" && parent !== null ? annotations.at(parent, key) : undefined
+}
+
+function valueAtPath(value: unknown, path: YamlPath): unknown {
+  let current = value
+  for (const segment of path) {
+    if (typeof current !== "object" || current === null) return undefined
+    current = (current as Record<string | number, unknown>)[segment]
+  }
+  return current
 }
 
 export function cloneMetadataTargetValue(value: unknown): unknown {

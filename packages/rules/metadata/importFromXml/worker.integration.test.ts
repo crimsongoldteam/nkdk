@@ -579,7 +579,19 @@ describe("XML import worker second pass", () => {
       externalFiles: [],
     }
 
-    const { second } = await runAssignmentSecondPass(outputDir, assignment, fullValidationSchemaCache)
+    const { second } = await runAssignmentSecondPass(
+      outputDir,
+      assignment,
+      fullValidationSchemaCache,
+      [{
+        targetProjectPath: assignment.targetProjectPath,
+        decision: {
+          kind: "invalid",
+          target: { kind: "path", path: ["Состав", 9] },
+          issueCodes: ["metadata-target.unknown-root"],
+        },
+      }],
+    )
 
     expect(second).toMatchObject({ kind: "secondPassResult", diagnostics: [] })
     expect(readFileSync(join(outputDir, assignment.targetProjectPath), "utf8"))
@@ -1249,6 +1261,7 @@ async function runAssignmentSecondPass(
   outputDir: string,
   assignment: ImportAssignment,
   schemaCache: ValidationSchemaCache = fastValidationSchemaCache,
+  issueDecisions: readonly ImportProjectIssueDecision[] = [],
 ) {
   await initializeWorker(outputDir, schemaCache)
   const first = expectFirstPass(await runImportWorkerCommand({ kind: "firstPass", assignments: [assignment] }))
@@ -1256,6 +1269,7 @@ async function runAssignmentSecondPass(
     kind: "beginSecondPass",
     readToken: createReadToken(first),
     exportProfile: exportProfileForTests(),
+    issueDecisions,
   })
   const second = await runImportWorkerCommand({ kind: "secondPass", assignmentId: assignment.id })
   await runImportWorkerCommand({ kind: "endSecondPass" })

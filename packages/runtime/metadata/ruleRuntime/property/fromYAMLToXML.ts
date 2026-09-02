@@ -50,7 +50,6 @@ import { copyXmlAnomalyExportClaim, readXmlAnomalyRawCollectionItems } from "../
 import { currentPropertyRuleRegistrySet } from "./propertyRuleExecutionContext"
 import { yamlScalarTagAt } from "../../../yaml/scalarTags"
 import { assertYAMLScalarTagAllowed } from "./yamlScalarTagPolicy"
-import { isXmlImportControlExportContext } from "../../helpers/mdObjectRefUuid"
 import { beginPropertyTypeProfile, finishPropertyTypeProfile } from "./propertyTypeProfile"
 import {
   canUseAtomicFromYAMLToXML,
@@ -755,11 +754,12 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
         const atomicInputValue = occurrenceHandler === undefined
           ? sourceValue
           : importMetadataTargetsFromYAML({
-              context: diagnosticContext,
               value: sourceValue,
               handler: occurrenceHandler,
               rule: planned.propertyRule,
               owner: importParams.owner,
+              yaml,
+              annotations: params.annotations,
             })
         const fused = atomicInvocation.conversion.fromYAMLToXML({
           context: diagnosticContext,
@@ -991,11 +991,12 @@ export function callAtomicFromYAML(params: AtomicFromYAMLParams): unknown {
   const importedValue = occurrenceHandler === undefined
     ? value
     : importMetadataTargetsFromYAML({
-        context,
         value,
         handler: occurrenceHandler,
         rule,
         owner,
+        yaml,
+        annotations,
       })
   const atomicConversion = resolveAtomicConversion({
     rule,
@@ -1042,11 +1043,12 @@ export function callAtomicFromYAML(params: AtomicFromYAMLParams): unknown {
 }
 
 function importMetadataTargetsFromYAML(params: {
-  context: ConfigurationContext
   value: unknown
   handler: MetadataTargetOccurrencesFunction
   rule: PropertyRule
   owner?: MetadataTargetOwner
+  yaml?: unknown
+  annotations?: import("../../../yaml/xmlAnomalyAnnotations").XmlAnomalyAnnotations
 }): unknown {
   const prepared = cloneMetadataTargetValue(params.value)
   const occurrences = params.handler({
@@ -1060,7 +1062,8 @@ function importMetadataTargetsFromYAML(params: {
     value: prepared,
     occurrences,
     owner: params.owner,
-    allowUnresolvedUuid: isXmlImportControlExportContext(params.context),
+    yaml: params.yaml,
+    annotations: params.annotations,
   })
 }
 
