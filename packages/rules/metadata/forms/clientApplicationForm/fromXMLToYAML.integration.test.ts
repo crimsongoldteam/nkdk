@@ -710,9 +710,15 @@ describe("форма XML → YAML → XML", () => {
     const formXML = {
       ...(namespace === undefined ? {} : { "_xmlns:dcssch": namespace }),
     } as ClientApplicationFormXML
-    const converted = roundTripFormWithoutReference(formXML)
+    const { converted, exportContext } = directFormRoundTripWithoutReference(formXML)
 
     expect(Object.prototype.hasOwnProperty.call(converted.formXML, "_xmlns:dcssch")).toBe(expected)
+    expect(
+      exportContext.exportToXML.configurationIndex?.collector.fragment("Тест.yaml").entities,
+    ).toContainEqual({
+      logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента.XMLNamespace.dcssch",
+      xmlValue: expected ? "present" : "absent",
+    })
   })
 
   it("восстанавливает идентификаторы элементов формы без reference XML", () => {
@@ -948,6 +954,10 @@ describe("форма XML → YAML → XML", () => {
 })
 
 function roundTripFormWithoutReference(formXML: ClientApplicationFormXML) {
+  return directFormRoundTripWithoutReference(formXML).converted
+}
+
+function directFormRoundTripWithoutReference(formXML: ClientApplicationFormXML) {
   const contexts = createDirectRoundTripContexts({
     logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента",
   })
@@ -958,11 +968,13 @@ function roundTripFormWithoutReference(formXML: ClientApplicationFormXML) {
     formXML,
     metadataXML,
   })
-  return convertClientApplicationFormFromYAMLToXML({
-    context: contexts.exportContext(),
+  const exportContext = contexts.exportContext()
+  const converted = convertClientApplicationFormFromYAMLToXML({
+    context: exportContext,
     yaml: imported.yaml as ClientApplicationFormYAML,
     name: "ФормаЭлемента",
   })
+  return { converted, exportContext }
 }
 
 function importReportForm(form: ClientApplicationFormXML) {

@@ -1056,12 +1056,16 @@ function importMetadataTargetsFromYAML(params: {
   annotations?: import("../../../yaml/xmlAnomalyAnnotations").XmlAnomalyAnnotations
 }): unknown {
   const prepared = cloneMetadataTargetValue(params.value)
-  const occurrences = params.handler({
-    value: prepared,
-    representation: "yaml",
-    yamlPath: typeof params.rule.yaml === "string" ? [params.rule.yaml] : [],
-    propRule: params.rule,
-    owner: params.owner,
+  const occurrences = metadataTargetOccurrencesWithLogicalAnnotatedKeys({
+    occurrences: params.handler({
+      value: prepared,
+      representation: "yaml",
+      yamlPath: typeof params.rule.yaml === "string" ? [params.rule.yaml] : [],
+      propRule: params.rule,
+      owner: params.owner,
+    }),
+    yaml: params.yaml,
+    annotations: params.annotations,
   })
   return importMetadataTargetOccurrencesFromYAML({
     value: prepared,
@@ -1074,6 +1078,29 @@ function importMetadataTargetsFromYAML(params: {
           annotations: params.annotations,
           occurrence,
         }),
+  })
+}
+
+function metadataTargetOccurrencesWithLogicalAnnotatedKeys(params: {
+  occurrences: readonly MetadataTargetOccurrence[]
+  yaml: unknown
+  annotations: import("../../../yaml/xmlAnomalyAnnotations").XmlAnomalyAnnotations | undefined
+}): readonly MetadataTargetOccurrence[] {
+  if (params.annotations === undefined) return params.occurrences
+  const annotations = params.annotations
+  return params.occurrences.map((occurrence) => {
+    if (occurrence.location.kind !== "key") return occurrence
+    const annotation = annotationAtMappingKey(
+      params.yaml,
+      annotations,
+      occurrence.location.path,
+      occurrence.location.key,
+    )
+    if (annotation?.logicalKey === undefined) return occurrence
+    return {
+      ...occurrence,
+      representation: { kind: "canonical", canonical: annotation.logicalKey },
+    }
   })
 }
 

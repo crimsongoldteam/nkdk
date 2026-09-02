@@ -110,6 +110,8 @@ allowUnresolvedUuid: isXmlImportControlExportContext(params.context)
   `location.path.slice(0, -1)` и читает `annotations.at(parent, key)`;
 - для `location.kind === "key"` находит отображение по `location.path` и читает
   `annotations.keyAt(parent, location.key)`;
+- для аннотированного ключа передаёт преобразованию `annotation.logicalKey`
+  вместо технического ключа разобранного YAML-объекта;
 - возвращает `true` только для `invalid` и `important`;
 - при отсутствующем YAML, annotations, родителе или ключе возвращает `false`.
 

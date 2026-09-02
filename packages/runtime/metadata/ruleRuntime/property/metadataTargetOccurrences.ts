@@ -90,7 +90,10 @@ export function importMetadataTargetOccurrencesFromYAML(params: MetadataTargetTr
     const allowUnresolvedUuid = params.allowUnresolvedUuid === true || (
       typeof params.allowUnresolvedUuid === "function" && params.allowUnresolvedUuid(occurrence)
     )
-    if (allowUnresolvedUuid && isMDObjectRefUuid(text)) continue
+    if (allowUnresolvedUuid && isMDObjectRefUuid(text)) {
+      occurrence.setValue(text)
+      continue
+    }
     throw new Error(parsed.message)
   }
   return result

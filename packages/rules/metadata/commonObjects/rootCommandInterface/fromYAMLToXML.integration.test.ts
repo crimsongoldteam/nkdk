@@ -9,6 +9,7 @@ import {
   testMetadataItemFromYAMLToXML,
 } from "../../../tests/directConversion"
 import { importContentFromXML, parseMetadataYaml } from "@nkdk/runtime"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { RootCommandInterfaceRules } from "./rules"
 import type { RootCommandInterfaceYAML } from "./types"
 
@@ -58,10 +59,10 @@ describe("RootCommandInterface YAML → XML", () => {
     ).toThrow()
   })
 
-  it("сохраняет принятый invalid UUID отсутствующей подсистемы", () => {
+  it.each(["invalid", "important"] as const)("сохраняет принятый %s UUID отсутствующей подсистемы", (kind) => {
     const parsed = parseMetadataYaml([
       "ПорядокПодсистем:",
-      `  - !xml/invalid ${OPAQUE_UUID}`,
+      `  - !xml/${kind} ${OPAQUE_UUID}`,
     ].join("\n"))
     const result = serializeDirectXML(testMetadataItemFromYAMLToXML({
       rule: RootCommandInterfaceRules,
@@ -70,6 +71,57 @@ describe("RootCommandInterface YAML → XML", () => {
     }).xml)
 
     expect(result).toContain(`<Subsystem>${OPAQUE_UUID}</Subsystem>`)
+  })
+
+  it.each(["invalid", "important"] as const)("не распространяет %s на соседний UUID-элемент", (kind) => {
+    const parsed = parseMetadataYaml([
+      "ПорядокПодсистем:",
+      `  - !xml/${kind} ${OPAQUE_UUID}`,
+      `  - ${SECOND_OPAQUE_UUID}`,
+    ].join("\n"))
+
+    expect(() => testMetadataItemFromYAMLToXML({
+      rule: RootCommandInterfaceRules,
+      yaml: parsed.data,
+      annotations: parsed.annotations,
+    })).toThrow()
+  })
+
+  it.each(["invalid", "important"] as const)("сохраняет принятый %s UUID в ключе роли", (kind) => {
+    const parsed = parseRoleKeysYAML([
+      `    !xml/${kind} ${OPAQUE_UUID}: Истина`,
+    ])
+    const result = serializeDirectXML(testMetadataItemFromYAMLToXML({
+      rule: ANNOTATED_ROLE_KEYS_RULES,
+      yaml: parsed.data,
+      annotations: parsed.annotations,
+    }).xml)
+
+    expect(result).toContain(`name="${OPAQUE_UUID}"`)
+  })
+
+  it("преобразует допустимый аннотированный ключ роли в каноническую XML-ссылку", () => {
+    const parsed = parseRoleKeysYAML(["    !xml/important Администратор: Истина"])
+    const result = serializeDirectXML(testMetadataItemFromYAMLToXML({
+      rule: ANNOTATED_ROLE_KEYS_RULES,
+      yaml: parsed.data,
+      annotations: parsed.annotations,
+    }).xml)
+
+    expect(result).toContain('name="Role.Администратор"')
+  })
+
+  it.each(["invalid", "important"] as const)("не распространяет %s на соседний UUID-ключ", (kind) => {
+    const parsed = parseRoleKeysYAML([
+      `    !xml/${kind} ${OPAQUE_UUID}: Истина`,
+      `    ${SECOND_OPAQUE_UUID}: Ложь`,
+    ])
+
+    expect(() => testMetadataItemFromYAMLToXML({
+      rule: ANNOTATED_ROLE_KEYS_RULES,
+      yaml: parsed.data,
+      annotations: parsed.annotations,
+    })).toThrow()
   })
 
   it.each(["CommandInterface.xml", "MainSectionCommandInterface.xml"])("round-trips %s", (fixture) => {
@@ -132,6 +184,14 @@ function convertYAML(yaml: unknown): string {
   return serializeDirectXML(testMetadataItemFromYAMLToXML({ rule: RootCommandInterfaceRules, yaml }).xml)
 }
 
+function parseRoleKeysYAML(roleLines: readonly string[]) {
+  return parseMetadataYaml([
+    "Использование:",
+    "  Роли:",
+    ...roleLines,
+  ].join("\n"))
+}
+
 function expectFixtureRoundTrip(fixture: string): string {
   const source = readFileSync(join(import.meta.dirname, "__fixtures__", fixture), "utf8")
   const result = roundTrip(source)
@@ -163,6 +223,18 @@ const normalize = (value: string): string =>
 
 const UUID_COMMAND = "0:2f109eaa-d341-4592-a04f-3f199e75d879"
 const OPAQUE_UUID = "12345678-1234-4234-9234-123456789abc"
+const SECOND_OPAQUE_UUID = "87654321-4321-4321-8321-cba987654321"
+const ANNOTATED_ROLE_KEYS_RULES = {
+  itemType: "AnnotatedRoleKeys",
+  xmlOrder: ["visible"],
+  properties: {
+    visible: {
+      type: "UserVisible",
+      yaml: "Использование",
+      xml: "Visibility",
+    },
+  },
+} as const satisfies MetadataItemRule
 const FULL_YAML = { ВидимостьПодсистем: { "Subsystem.ПодсистемаПоУмолчанию": { Общее: "Ложь", Роли: { Администратор: "Ложь" } } }, ПорядокПодсистем: ["Подсистема.ПодсистемаПоУмолчанию"], ВидимостьКоманд: [{ Команда: "Справочник.СправочникПолный.Команда.ПоУмолчанию", Общее: "Истина" }], РазмещениеКоманд: [{ Команда: "Справочник.СправочникПолный.Команда.ПоУмолчанию", ГруппаКоманд: "ПанельНавигацииОбычное", Размещение: "Вручную" }], ПорядокКоманд: [{ Команда: "Справочник.СправочникПолный.Команда.ПоУмолчанию", ГруппаКоманд: "ПанельНавигацииОбычное" }], ПорядокГрупп: ["ПанельНавигацииОбычное"] }
 const ROOT = `<CommandInterface xmlns="http://v8.1c.ru/8.3/xcf/extrnprops" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" version="2.20">`
 const UNKNOWN_VISIBILITY_XML = `${ROOT}<CommandsVisibility><Command name="Catalog.Товары.StandardCommand.OpenList" customAttribute="keep"><Visibility><xr:Common>true</xr:Common><UnknownVisibility>keep nested</UnknownVisibility></Visibility><UnknownCommandChild>keep command</UnknownCommandChild></Command></CommandsVisibility></CommandInterface>`
