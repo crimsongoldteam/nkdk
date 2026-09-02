@@ -3,6 +3,7 @@ import type { MetadataProjectResourceKind } from "../projectDefinition/resources
 import { memberKindToYAML, rootToYAML } from "@nkdk/runtime/rule-kit"
 import type { ProjectStateFileUpdateBatch, ProjectStateImportIndexContribution } from "./contracts/fileUpdate"
 import { currentRuleRegistrySet } from "@nkdk/runtime/rule-kit"
+import { parseProjectPath } from "../projectDefinition/path"
 
 export const PROJECT_STATE_HASH_BYTE_LENGTH = 8
 const HASH_BYTE_LENGTH = PROJECT_STATE_HASH_BYTE_LENGTH
@@ -167,6 +168,7 @@ function assertProjectStateFileUpdate(value: unknown, path: string): void {
     for (const key of ["documentKind", "representation", "logicalAddress", "workingProjectPath", "componentKind", "name"] as const) {
       assertString(row[key], `${rowPath}.${key}`)
     }
+    assertRelativeProjectPath(row["workingProjectPath"], `${rowPath}.workingProjectPath`)
     assertYamlPath(row["yamlPath"], `${rowPath}.yamlPath`)
     assertOptionalString(row["payload"], `${rowPath}.payload`)
   })
@@ -223,7 +225,9 @@ function assertFileBackedTargetLocation(value: unknown, path: string): void {
 
 function assertRelativeProjectPath(value: unknown, path: string): void {
   assertString(value, path)
-  if (value.startsWith("/") || value.includes("\\") || value.split("/").includes("..")) {
+  try {
+    if (parseProjectPath(value) !== value) throw new Error("not normalized")
+  } catch {
     throw new Error(`${path} должен быть нормализованным относительным путём`)
   }
 }
@@ -595,8 +599,8 @@ function assertIdentity(
   path: string,
   expectedResourceKind: MetadataProjectResourceKind
 ): void {
-  assertString(update["projectPath"], `${path}.projectPath`)
-  assertString(update["componentPath"], `${path}.componentPath`)
+  assertRelativeProjectPath(update["projectPath"], `${path}.projectPath`)
+  assertRelativeProjectPath(update["componentPath"], `${path}.componentPath`)
   if (update["resourceKind"] !== expectedResourceKind) {
     throw new Error(`${path}.resourceKind не соответствует kind`)
   }
