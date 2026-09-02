@@ -505,7 +505,7 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
     )
   })
 
-  it("не сохраняет скрытые YAML-свойства Form.xml в снимке", () => {
+  it("сохраняет в снимке только UUID и состояние пространства имён Form.xml", () => {
     const collector = createConfigurationIndexCollector()
     const logicalAddress = "Справочник.Контрагенты.Форма.ФормаЭлемента"
     const context = withConfigurationIndexCollector(mockContextFromXML(), collector, logicalAddress)
@@ -522,10 +522,16 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
       },
     })
 
-    expect(collector.fragment("Форма.yaml").entities).toEqual([{
-      logicalAddress,
-      uuid: "00000000-0000-4000-8000-000000000001",
-    }])
+    expect(collector.fragment("Форма.yaml").entities).toEqual([
+      {
+        logicalAddress,
+        uuid: "00000000-0000-4000-8000-000000000001",
+      },
+      {
+        logicalAddress: `${logicalAddress}.XMLNamespace.dcssch`,
+        xmlValue: "absent",
+      },
+    ])
   })
 
   it("добавляет !проверять metadata формы и сохраняет Extended Form в секции Изменять", () => {
@@ -678,9 +684,6 @@ describe("форма XML → YAML → XML", () => {
   })
 
   it("сохраняет порядок событий формы без reference XML", () => {
-    const contexts = createDirectRoundTripContexts({
-      logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента",
-    })
     const formXML = {
       Events: {
         Event: [
@@ -690,19 +693,7 @@ describe("форма XML → YAML → XML", () => {
         ],
       },
     } as ClientApplicationFormXML
-    const metadataXML = { Form: { Properties: { FormType: "Managed" } } } as FormMetadataXML
-
-    const imported = importClientApplicationFormFromXMLToYAML({
-      context: contexts.importContext,
-      formName: "ФормаЭлемента",
-      formXML,
-      metadataXML,
-    })
-    const converted = convertClientApplicationFormFromYAMLToXML({
-      context: contexts.exportContext(),
-      yaml: imported.yaml as ClientApplicationFormYAML,
-      name: "ФормаЭлемента",
-    })
+    const converted = roundTripFormWithoutReference(formXML)
     const events = converted.formXML.Events?.Event
 
     expect(Array.isArray(events) ? events.map((event) => event._name) : []).toEqual([
@@ -710,6 +701,18 @@ describe("форма XML → YAML → XML", () => {
       "BeforeClose",
       "ActivationProcessing",
     ])
+  })
+
+  it.each([
+    ["отсутствующее", undefined, false],
+    ["присутствующее", "http://v8.1c.ru/8.1/data-composition-system/schema", true],
+  ] as const)("сохраняет %s пространство имён dcssch без reference XML", (_name, namespace, expected) => {
+    const formXML = {
+      ...(namespace === undefined ? {} : { "_xmlns:dcssch": namespace }),
+    } as ClientApplicationFormXML
+    const converted = roundTripFormWithoutReference(formXML)
+
+    expect(Object.prototype.hasOwnProperty.call(converted.formXML, "_xmlns:dcssch")).toBe(expected)
   })
 
   it("восстанавливает идентификаторы элементов формы без reference XML", () => {
@@ -943,6 +946,24 @@ describe("форма XML → YAML → XML", () => {
     })).toThrow("Явное XML-имя singleton должно быть помечено тегом !xml/name")
   })
 })
+
+function roundTripFormWithoutReference(formXML: ClientApplicationFormXML) {
+  const contexts = createDirectRoundTripContexts({
+    logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента",
+  })
+  const metadataXML = { Form: { Properties: { FormType: "Managed" } } } as FormMetadataXML
+  const imported = importClientApplicationFormFromXMLToYAML({
+    context: contexts.importContext,
+    formName: "ФормаЭлемента",
+    formXML,
+    metadataXML,
+  })
+  return convertClientApplicationFormFromYAMLToXML({
+    context: contexts.exportContext(),
+    yaml: imported.yaml as ClientApplicationFormYAML,
+    name: "ФормаЭлемента",
+  })
+}
 
 function importReportForm(form: ClientApplicationFormXML) {
   const metadata = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(

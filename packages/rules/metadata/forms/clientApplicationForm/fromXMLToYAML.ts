@@ -26,6 +26,7 @@ import type { ClientApplicationFormXML, FormMetadataXML } from "./types"
 import { createClientApplicationFormImportSources } from "./xmlImportSources"
 import type { MetadataItemRule } from "../../ruleRuntime"
 import { createFormDataPathIndexFromYAML } from "./formDataPathMetadata"
+import { recordClientApplicationFormNamespaces } from "./namespaces"
 
 export function importClientApplicationFormFromXMLToYAML(params: {
   context: Parameters<typeof importPropertiesFromXMLToYAML>[0]["context"]
@@ -45,7 +46,6 @@ export function importClientApplicationFormFromXMLToYAML(params: {
   if (params.formXML === undefined && params.metadataXML.Form.Properties.FormType !== "Ordinary") {
     throw new Error(`Не найден Form.xml для управляемой формы ${params.formName}`)
   }
-
   const localIndexesCollector = createLocalIndexesCollector()
   const deferred = params.mode === "facts" ? undefined : createDeferredValuePathCollector()
   const augmenterSource = { ...params.metadataXML.Form }
@@ -82,6 +82,9 @@ export function importClientApplicationFormFromXMLToYAML(params: {
       source: augmenterSource,
       yaml,
     })
+  }
+  if (params.formXML !== undefined) {
+    recordClientApplicationFormNamespaces(params.context, params.formXMLNode ?? params.formXML)
   }
 
   const localIndexes = localIndexesCollector.finish()
