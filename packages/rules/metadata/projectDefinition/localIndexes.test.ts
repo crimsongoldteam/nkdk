@@ -119,6 +119,30 @@ describe("createLocalIndexesCollector", () => {
     ])
   })
 
+  it("не включает UUID metadata-ссылки в индекс зависимостей", () => {
+    const collector = createLocalIndexesCollector()
+
+    collector.acceptProperty({
+      yamlPath: ["ФункциональныеОпции"],
+      rulePath: [{ propertyKey: "functionalOptions" }],
+      rule: {
+        type: "MetadataItemLinks",
+        metadataTarget: { kind: "object", roots: ["FunctionalOption"] },
+      },
+      value: [
+        "a786340b-1ca9-48ee-8517-6bd389390bcc",
+        "ФункциональнаяОпция.Склад",
+      ],
+    })
+
+    expect(collector.finish().metadata.metadataTargets).toEqual([{
+      yamlPath: ["ФункциональныеОпции", 1],
+      value: "ФункциональнаяОпция.Склад",
+      constraint: { kind: "object", roots: ["FunctionalOption"] },
+      rulePath: [{ propertyKey: "functionalOptions" }],
+    }])
+  })
+
   it("сохраняет dependency картинки по YAML-пути поля Ссылка", () => {
     const collector = createLocalIndexesCollector()
 

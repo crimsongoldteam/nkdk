@@ -550,7 +550,7 @@ describe("XML import worker second pass", () => {
     expect(controlExportCountForTests()).toBe(1)
   })
 
-  it("сохраняет неразбираемый UUID состава подсистемы как invalid", async () => {
+  it("сохраняет UUID состава подсистемы как uuid", async () => {
     setControlExportForTests(undefined)
     const inputDir = createTempDir("subsystem-invalid-uuid-input")
     const outputDir = createTempDir("subsystem-invalid-uuid-output")
@@ -583,7 +583,7 @@ describe("XML import worker second pass", () => {
 
     expect(second).toMatchObject({ kind: "secondPassResult", diagnostics: [] })
     expect(readFileSync(join(outputDir, assignment.targetProjectPath), "utf8"))
-      .toContain(`- !xml/invalid ${uuid}`)
+      .toContain(`- !xml/uuid ${uuid}`)
     expect(controlExportCountForTests()).toBe(1)
   })
 

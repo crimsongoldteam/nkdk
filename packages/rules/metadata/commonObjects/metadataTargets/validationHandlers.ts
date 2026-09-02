@@ -184,7 +184,13 @@ const collectMetadataValueTargetOccurrences: MetadataTargetOccurrencesFunction =
       setValue: (nextValue) => { value.value = nextValue },
     })]
   }
-  return []
+  if (typeof value !== "string" || value === "") return []
+  return [nestedValueOccurrence({
+    canonical: value,
+    constraint,
+    path: params.yamlPath,
+    setValue: (_nextValue) => undefined,
+  })]
 })
 
 const collectColorTargetOccurrences: MetadataTargetOccurrencesFunction = (params) => withTargetConstraint(params, (value) => {

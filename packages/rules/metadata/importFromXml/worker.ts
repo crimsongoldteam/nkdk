@@ -522,7 +522,6 @@ async function processSecondPass(
         controlExport,
         configurationIndex,
         baseConfigurationIndex,
-        secondPass.exportProfile,
       )
       prepared.proofAudit = undefined
       const main = await writeMainImportYaml({ serialized: output.main.serialized, profiler })
@@ -731,7 +730,6 @@ async function prepareYamlForFinalPass(
   controlExport: typeof executeImportControlExport,
   configurationIndex: ReturnType<typeof createLocalConfigurationIndexReader>,
   baseConfigurationIndex?: ReturnType<typeof createLocalConfigurationIndexReader>,
-  exportProfile?: XmlComponentExportProfile,
 ): Promise<{
   main: PreparedSerializedYaml
   base?: PreparedSerializedYaml
@@ -828,7 +826,6 @@ async function prepareYamlForFinalPass(
         queryPort: readSession,
         getContributor: getProjectReferenceValueContributor,
       }),
-      metadataTargetCanonicalizer: (value) => exportProfile?.designTimeReferenceByUuid?.[value],
       preserveRawXML: false,
     })
   )

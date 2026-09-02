@@ -10,6 +10,59 @@ import {
 } from "./xmlAnomalyAnnotations"
 
 describe("XML-аннотации YAML", () => {
+  it("сохраняет !xml/uuid на скалярном значении, элементе списка и ключе", () => {
+    const uuid = "A786340B-1CA9-48EE-8517-6BD389390BCC"
+    const composite = `${uuid}.00000000-0000-0000-0000-000000000000`
+    const source = [
+      `Значение: !xml/uuid ${uuid}`,
+      "Список:",
+      `  - !xml/uuid ${composite}`,
+      "Ключи:",
+      `  !xml/uuid ${uuid}: Истина`,
+    ].join("\n")
+
+    const parsed = parseMetadataYaml(source)
+    expect(parsed.syntaxErrors).toEqual([])
+    const data = parsed.data as {
+      Значение: string
+      Список: string[]
+      Ключи: Record<string, string>
+    }
+    const runtimeKey = Object.keys(data.Ключи)[0]!
+
+    expect(data.Значение).toBe(uuid)
+    expect(data.Список).toEqual([composite])
+    expect(parsed.annotations.at(data, "Значение")).toEqual({
+      kind: "uuid",
+      occurrence: 1,
+      target: "value",
+    })
+    expect(parsed.annotations.at(data.Список, 0)).toEqual({
+      kind: "uuid",
+      occurrence: 1,
+      target: "value",
+    })
+    expect(parsed.annotations.keyAt(data.Ключи, runtimeKey)).toEqual({
+      kind: "uuid",
+      occurrence: 1,
+      target: "key",
+      logicalKey: uuid,
+    })
+    expect(serializeYAMLDocument(parsed.data, parsed.annotations).text).toBe(source)
+  })
+
+  it.each([
+    ["mapping", "Значение: !xml/uuid { Часть: value }"],
+    ["sequence", "Значение: !xml/uuid [value]"],
+    ["корневая карта", "!xml/uuid\nЗначение: value"],
+    ["корневой скаляр", "!xml/uuid 00000000-0000-0000-0000-000000000000"],
+    ["номер occurrence", "!xml/uuid/2 Значение: value"],
+  ])("отклоняет !xml/uuid на %s", (_name, source) => {
+    const parsed = parseMetadataYaml(source)
+
+    expect(parsed.syntaxErrors).toHaveLength(1)
+  })
+
   it("удаляет аннотации отброшенного смыслового поддерева", () => {
     const annotations = createXmlAnomalyAnnotations()
     const retained = { value: true }

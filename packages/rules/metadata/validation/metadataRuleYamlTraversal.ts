@@ -69,6 +69,10 @@ function visitNested<State>(params: MetadataRuleYamlContext<State> & {
   if (nested === undefined) return
   if (nested.kind === "externalFile") {
     params.onExternalFile?.(params)
+    const item = getTypeRule(params.propertyRule.type, "nestedItemRule")
+    if (item === undefined || !("itemRule" in item)) return
+    const object = { ...params, rule: item.itemRule }
+    visitObject({ ...object, state: params.enterNestedObject?.(object) ?? params.state })
     return
   }
   if (nested.kind === "item") {

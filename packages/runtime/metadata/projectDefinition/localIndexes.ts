@@ -10,6 +10,7 @@ import {
   attachXmlImportAttemptAdapter,
   attachXmlImportBufferedLocalIndexesFactory,
 } from "../ruleRuntime/xmlAnomaly/attempt"
+import { isMetadataTargetUuid } from "../helpers/mdObjectRefUuid"
 
 export type {
   LocalIndexes,
@@ -205,6 +206,7 @@ function appendMetadataTargetFact(
   value: string,
   yamlPath: readonly (string | number)[]
 ): void {
+  if (isMetadataTargetUuid(value)) return
   target.push({
     yamlPath: [...yamlPath],
     value,

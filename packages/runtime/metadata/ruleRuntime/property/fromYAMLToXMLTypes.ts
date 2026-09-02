@@ -107,6 +107,7 @@ export type YAMLToXMLNestedRule =
         context: import("../../context/types").ConfigurationContextWithExportToXML
         yaml: unknown
         ownerYAML: unknown
+        annotations?: XmlAnomalyAnnotations
         baseYAML?: unknown
         baseYAMLContext?: import("../../context/types").ConfigurationContextWithExportToXML
         baseConfigurationIndex?: import("../../configurationIndex/localReader").LocalConfigurationIndexReader
@@ -207,6 +208,11 @@ export type YAMLToXMLNestedRule =
       readonly keyField?: string
       readonly nameFromYAMLKey?: (yamlKey: string) => string
       readonly nameFromYAMLKeyForProperty?: (params: { yamlKey: string; propertyRule: PropertyRule }) => string
+      readonly recordYamlKeyFromYAML?: (params: {
+        yaml: Record<string, unknown>
+        name: string
+        propertyRule: PropertyRule
+      }) => string
       readonly completeItemNames?: (params: {
         source: YAMLPropertySource
         propertyRule: PropertyRule

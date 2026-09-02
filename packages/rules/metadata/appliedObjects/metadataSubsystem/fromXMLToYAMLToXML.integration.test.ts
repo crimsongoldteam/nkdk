@@ -1,3 +1,4 @@
+import { parseMetadataYaml } from "@nkdk/runtime"
 import { describe, expect, it } from "vitest"
 import { testPropertyFromXMLToYAML, testPropertyFromYAMLToXML } from "../../../tests/directConversion"
 import type { MetadataItemRule } from "../../ruleRuntime"
@@ -77,5 +78,28 @@ describe("MetadataSubsystem: единое преобразование сост�
         yaml: { Состав: ["Документ.АвансовыйОтчет.Реквизит.Организация"] },
       })
     ).toThrow('Неизвестный сегмент "Реквизит"')
+  })
+
+  it("сохраняет UUID состава только с !xml/uuid", () => {
+    const uuid = "a786340b-1ca9-48ee-8517-6bd389390bcc"
+    const parsed = parseMetadataYaml(["Состав:", `  - !xml/uuid ${uuid}`].join("\n"))
+
+    const exported = testPropertyFromYAMLToXML({
+      rule,
+      yaml: parsed.data,
+      annotations: parsed.annotations,
+    })
+
+    expect(exported.xml).toMatchObject({
+      Properties: {
+        Content: {
+          "xr:Item": [expect.objectContaining({ "#text": uuid })],
+        },
+      },
+    })
+    expect(() => testPropertyFromYAMLToXML({
+      rule,
+      yaml: { Состав: [uuid] },
+    })).toThrow("UUID metadata-ссылки требует !xml/uuid")
   })
 })

@@ -2,8 +2,10 @@ import fs from "node:fs"
 import os from "node:os"
 import { join } from "node:path"
 import {
+  compareXmlStructures,
   createConfigurationIndexCollector,
   createLocalConfigurationIndexReader,
+  parseXmlDocumentWithSaxes,
   restoreXmlAnomalyAnnotations,
   serializeYAMLDocument,
   snapshotXmlAnomalyAnnotations,
@@ -27,6 +29,7 @@ const syncXmlDir = join(import.meta.dirname, "../appliedObjects/configuration/__
 let topology: ReturnType<typeof createValidationProjectComponent>["topology"]
 let catalogNode: NonNullable<typeof topology>["assignments"][number]
 let catalogFormNode: NonNullable<typeof topology>["assignments"][number]
+let exchangePlanNode: NonNullable<typeof topology>["assignments"][number]
 
 describe("executeImportControlExport", () => {
   const tempDirs: string[] = []
@@ -43,6 +46,11 @@ describe("executeImportControlExport", () => {
     )
     if (formNode === undefined) throw new Error("Не найден topology-узел формы справочника")
     catalogFormNode = formNode
+    const exchangeNode = topology.assignments.find(
+      ({ projectPattern }) => projectPattern === "ПланОбмена/{ownerName}/Свойства.yaml",
+    )
+    if (exchangeNode === undefined) throw new Error("Не найден topology-узел плана обмена")
+    exchangePlanNode = exchangeNode
   })
   beforeEach(resetControlExportCountForTests)
   afterEach(() => {
@@ -319,6 +327,89 @@ describe("executeImportControlExport", () => {
       "Properties",
     ])
     expect(controlExportCountForTests()).toBe(1)
+  })
+
+  it("сохраняет отсутствующий канонический реквизит точечным raw", async () => {
+    const inputDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-control-export-exchange-plan-"))
+    tempDirs.push(inputDir)
+    const sourcePath = join(inputDir, "ПланОбменаВсеСвойства.xml")
+    const fixture = fs.readFileSync(
+      join(import.meta.dirname, "../appliedObjects/metadataExchangePlan/__fixtures__/full.xml"),
+      "utf8",
+    )
+    const source = fixture.replace(
+      /\s*<xr:StandardAttribute name="ExchangeDate">[\s\S]*?<\/xr:StandardAttribute>/u,
+      "",
+    )
+    if (source === fixture) throw new Error("В fixture не найден ExchangeDate")
+    fs.writeFileSync(sourcePath, source)
+    const assignment = exchangePlanAssignment(sourcePath)
+    const { prepared, index } = await prepareControlInput(assignment)
+    let ordinaryExportParams: Parameters<typeof prepareFullXmlSyncAssignment>[0] | undefined
+
+    const result = await executeImportControlExport({
+      assignment,
+      data: prepared.yaml,
+      annotations: snapshotXmlAnomalyAnnotations(prepared.yaml, prepared.annotations),
+      audit: prepared.proofAudit,
+      rule: prepared.rule,
+      topology,
+      context: mockXmlImportContext(),
+      exportProfile: configurationExportProfileForTests(),
+      index,
+      composition: { children: () => [] },
+      ordinaryExporter(params) {
+        ordinaryExportParams = params
+        return prepareFullXmlSyncAssignment(params)
+      },
+    })
+    const annotations = restoreXmlAnomalyAnnotations(result.data, result.annotations)
+    const text = serializeYAMLDocument(result.data, annotations).text
+
+    expect(text).toContain([
+      "  ДатаОбмена: !xml/raw",
+      "    $xml: null",
+    ].join("\n"))
+    expect(text).not.toContain("СтандартныеРеквизиты: !xml/raw")
+    expect(text).not.toContain("name: !xml/raw")
+    expect(result.warnings).toEqual([])
+
+    if (ordinaryExportParams === undefined) throw new Error("Обычный экспорт плана обмена не был вызван")
+    const focusedAnnotations = restoreXmlAnomalyAnnotations(result.data, {
+      version: 1,
+      entries: result.annotations.entries.filter(({ parentPath, key }) =>
+        parentPath[0] === "СтандартныеРеквизиты" || key === "СтандартныеРеквизиты"
+      ),
+    })
+    const exported = prepareFullXmlSyncAssignment({
+      ...ordinaryExportParams,
+      preparedYamlFile: {
+        ...ordinaryExportParams.preparedYamlFile,
+        data: result.data,
+        annotations: focusedAnnotations,
+      },
+      xmlAnomalyRawFallback: true,
+    })
+    const metadata = exported.documents.find(({ targetXmlPath }) =>
+      targetXmlPath.endsWith("/ПланОбменаВсеСвойства.xml")
+    )
+    if (metadata === undefined) throw new Error("Экспорт не подготовил XML плана обмена")
+    const xml = buildPreparedAssignmentControlDocument({
+      document: metadata,
+      context: ordinaryExportParams.context,
+    }).materializeXml()
+
+    const sourceStandardAttributes = nestedXmlElement(
+      parseXmlDocumentWithSaxes(source).roots[0]!,
+      ["ExchangePlan", "Properties", "StandardAttributes"],
+    )
+    const exportedStandardAttributes = nestedXmlElement(
+      parseXmlDocumentWithSaxes(xml).roots[0]!,
+      ["ExchangePlan", "Properties", "StandardAttributes"],
+    )
+    expect(compareXmlStructures([sourceStandardAttributes], [exportedStandardAttributes])).toEqual([])
+    expect(xml).not.toContain('name="ExchangeDate"')
+    expect(xml).not.toContain("<_name>")
   })
 
   it("локализует неизвестный xsi:type на значении свойства", async () => {
@@ -818,6 +909,35 @@ function catalogAssignment(sourcePath = join(syncXmlDir, "Catalogs/Контра�
     xmlFiles: [{ role: "metadata", sourcePath }],
     externalFiles: [],
   }
+}
+
+function exchangePlanAssignment(sourcePath: string): ImportAssignment {
+  const ownerName = "ПланОбменаВсеСвойства"
+  return {
+    id: "exchange-plan",
+    role: "properties",
+    topologyAddress: { nodeId: exchangePlanNode.id, values: { ownerName } },
+    targetProjectPath: `ПланОбмена/${ownerName}/Свойства.yaml`,
+    itemType: "MetadataExchangePlan",
+    itemName: ownerName,
+    logicalAddress: `ПланОбмена.${ownerName}`,
+    owner: undefined,
+    xmlFiles: [{ role: "metadata", sourcePath }],
+    externalFiles: [],
+  }
+}
+
+function nestedXmlElement(
+  root: ReturnType<typeof parseXmlDocumentWithSaxes>["roots"][number],
+  names: readonly string[],
+) {
+  let current = root
+  for (const name of names) {
+    const child = current.content.find((node) => node.type === "element" && node.name === name)
+    if (child === undefined || child.type !== "element") throw new Error(`Не найден XML-элемент ${name}`)
+    current = child
+  }
+  return current
 }
 
 function catalogFormAssignment(metadataPath: string, bodyPath: string): ImportAssignment {

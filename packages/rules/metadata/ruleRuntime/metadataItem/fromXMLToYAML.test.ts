@@ -28,6 +28,39 @@ import {
 } from "../../../tests/xmlImportAttempt"
 
 describe("importMetadataItemFromXMLToYAML", () => {
+  it("назначает !xml/uuid metadata-ссылке после присоединения свойства к YAML", () => {
+    const uuid = "a786340b-1ca9-48ee-8517-6bd389390bcc"
+    const annotations = createXmlAnomalyAnnotations()
+    const collector = createLocalIndexesCollector()
+    const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
+    const yaml = importPropertiesFromXMLToYAML({
+      context,
+      rule: {
+        itemType: "TestMetadataTargetUuid",
+        properties: {
+          ref: {
+            type: "string",
+            xml: "Ref",
+            yaml: "Ссылка",
+            metadataTarget: { kind: "object", roots: ["Catalog"] },
+          },
+        },
+      } as MetadataItemRule,
+      sources: [{ context, xml: { Ref: uuid } }],
+      yamlPath: [],
+      rulePath: [],
+      collector,
+      annotations,
+    }) as Record<string, unknown>
+
+    expect(yaml).toEqual({ Ссылка: uuid })
+    expect(annotations.at(yaml, "Ссылка")).toEqual({
+      kind: "uuid",
+      occurrence: 1,
+      target: "value",
+    })
+  })
+
   it("передаёт локальный вариант объекта вложенным правилам без утечки между соседями", () => {
     const observed: [string, "full" | "adopted" | undefined][] = []
     const observationType = "TestCurrentXMLDefaultVariant" as PropertyRuleType

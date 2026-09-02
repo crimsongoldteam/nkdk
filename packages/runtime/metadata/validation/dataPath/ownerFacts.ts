@@ -148,10 +148,17 @@ function normalizedOwnerFact(
   if (role === "periodicity" || role === "dependenceOnCalculationTypes")
     return typeof value === "string" ? value : undefined
   if (role === "correspondence" || role === "actionPeriod" || role === "basePeriod")
-    return typeof value === "boolean" ? String(value) : undefined
+    return booleanOwnerFact(value)
   if (role === "maxExtDimensionCount") return typeof value === "number" ? String(value) : undefined
   if (role === "commands") return namedTypedItemsFromYaml(value, annotations)
   if (role === "predefined" || role === "enumValues") return namedValueItemsFromYaml(value, annotations)
+  return undefined
+}
+
+function booleanOwnerFact(value: unknown): string | undefined {
+  if (typeof value === "boolean") return String(value)
+  if (value === "Истина") return "true"
+  if (value === "Ложь") return "false"
   return undefined
 }
 

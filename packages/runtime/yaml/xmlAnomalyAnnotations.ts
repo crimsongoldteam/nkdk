@@ -2,7 +2,7 @@ import { yamlMappingEntries } from "./mappingTags"
 import type { XmlRawValue } from "../xml/structure/rawCodec"
 import { copyYAMLRuntimeMetadataDeep } from "./runtimeMetadata"
 
-export type XmlAnomalyKind = "raw" | "invalid" | "important"
+export type XmlAnomalyKind = "raw" | "invalid" | "important" | "uuid"
 
 export interface XmlSemanticAnomalyAnnotation {
   readonly kind: "invalid" | "important"

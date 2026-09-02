@@ -1,5 +1,3 @@
-import { markYAMLScalarTag, yamlScalarTagAt } from "../../../yaml/scalarTags"
-
 const collator = new Intl.Collator("ru")
 
 const priority = (key: string): number => {
@@ -10,25 +8,16 @@ const priority = (key: string): number => {
 }
 
 export const sortYamlRuleProperties = (value: Record<string, unknown>): Record<string, unknown> => {
-  const keys = Object.keys(value).sort(
+  const originalKeys = Object.keys(value)
+  const keys = [...originalKeys].sort(
     (left, right) => priority(left) - priority(right) || collator.compare(left, right)
   )
-  const result: Record<string, unknown> = {}
+  if (keys.every((key, index) => key === originalKeys[index])) return value
 
+  const descriptors = keys.map((key) => [key, Object.getOwnPropertyDescriptor(value, key)!] as const)
   for (const key of keys) {
-    if (key === "__proto__") {
-      Object.defineProperty(result, key, {
-        value: value[key],
-        enumerable: true,
-        configurable: true,
-        writable: true,
-      })
-    } else {
-      result[key] = value[key]
-    }
-    const scalarTag = yamlScalarTagAt(value, key)
-    if (scalarTag !== undefined) markYAMLScalarTag(result, key, scalarTag)
+    if (!Reflect.deleteProperty(value, key)) throw new Error(`Нельзя упорядочить YAML-свойство ${key}`)
   }
-
-  return result
+  for (const [key, descriptor] of descriptors) Object.defineProperty(value, key, descriptor)
+  return value
 }

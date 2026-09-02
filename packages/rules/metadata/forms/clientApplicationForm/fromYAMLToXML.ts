@@ -24,6 +24,7 @@ export const clientApplicationFormYamlToXmlNestedRule: Extract<
     context,
     yaml,
     ownerYAML,
+    annotations,
     baseYAML,
     baseYAMLContext,
     baseConfigurationIndex,
@@ -84,6 +85,7 @@ export const clientApplicationFormYamlToXmlNestedRule: Extract<
             }),
         rule,
         xmlIdSession,
+        annotations,
       }).formXML,
     }
   },

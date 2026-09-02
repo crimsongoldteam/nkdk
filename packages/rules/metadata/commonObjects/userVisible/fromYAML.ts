@@ -2,7 +2,10 @@ import { importBooleanFromYAML } from "../boolean/fromYAML"
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { ImportFromYAMLFunctionNew } from "../../ruleRuntime"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
-import { ConfigurationContext, isXmlImportControlExportContext } from "@nkdk/runtime"
+import {
+  ConfigurationContext,
+  type XmlAnomalyAnnotations,
+} from "@nkdk/runtime"
 import {
   cloneMetadataTargetValue,
   importMetadataTargetOccurrencesFromYAML,
@@ -16,6 +19,7 @@ export const importUserVisibleFromYAML: ImportFromYAMLFunctionNew = (params: {
   value: UserVisibleYAML | undefined
   source?: UserVisible | undefined
   yaml?: Record<string, any> | undefined
+  annotations?: XmlAnomalyAnnotations
 }): UserVisible | undefined => {
   if (params.value === undefined) return undefined
   const prepared = cloneMetadataTargetValue(params.value) as UserVisibleYAML
@@ -27,7 +31,8 @@ export const importUserVisibleFromYAML: ImportFromYAMLFunctionNew = (params: {
       yamlPath: typeof params.rule.yaml === "string" ? [params.rule.yaml] : [],
       propRule: params.rule,
     }),
-    allowUnresolvedUuid: isXmlImportControlExportContext(params.context),
+    yaml: params.yaml,
+    annotations: params.annotations,
   }) as UserVisibleYAML
   return importPreparedUserVisibleFromYAML({ ...params, value })
 }

@@ -8,6 +8,8 @@ import type {
   ProjectStateYamlPath,
 } from "./fileUpdate"
 import type { ProjectStateReadToken } from "./contracts/readToken"
+import type { ProjectDependencyOwnerInputQuery } from "./contracts/dependencyValidation"
+export type { ProjectDependencyOwnerInputQuery } from "./contracts/dependencyValidation"
 
 export interface ProjectTargetLookup {
   readonly requestId: string
@@ -93,12 +95,6 @@ export interface ProjectDependencyInput {
 export type ProjectDependencyInputResult =
   | { readonly requestId: string; readonly status: "found"; readonly input: ProjectDependencyInput }
   | { readonly requestId: string; readonly status: "missing" }
-
-export interface ProjectDependencyOwnerInputQuery {
-  readonly requestId: string
-  readonly componentPath: string
-  readonly owner: OwnerTypeRef
-}
 
 export interface ProjectDependencyOwnerInput {
   readonly owner: OwnerTypeRef

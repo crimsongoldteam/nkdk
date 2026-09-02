@@ -73,12 +73,18 @@ export function validateParsedFileWithIssues(
   const schemaIssues = (valid ? [] : typeboxErrorsToValidationIssues(errors))
     .map((issue) => logicalIssueTarget(issue, parsed.data, parsed.annotations))
     .filter((issue) => !isHiddenByRawWithoutSemantic(issue.target.path, parsed.data, parsed.annotations))
+    .filter((issue) => !hasUuidAnnotationAtPath(issue.target.path, parsed.data, parsed.annotations))
   const issues = [
     ...schemaIssues,
     ...duplicateAnnotatedKeyIssues(parsed.data, parsed.annotations),
   ]
   const schemaDiagnostics = (valid ? [] : typeboxErrorsToDiagnostics(errors, parsed, filePath))
     .filter((diagnostic) => !isHiddenByRawWithoutSemantic(
+      validationIssuePathFromPointer(diagnostic.path ?? ""),
+      parsed.data,
+      parsed.annotations,
+    ))
+    .filter((diagnostic) => !hasUuidAnnotationAtPath(
       validationIssuePathFromPointer(diagnostic.path ?? ""),
       parsed.data,
       parsed.annotations,
@@ -91,6 +97,23 @@ export function validateParsedFileWithIssues(
     diagnostics: schemaDiagnostics,
     importantRegistered,
   })
+}
+
+function hasUuidAnnotationAtPath(
+  path: readonly (string | number)[],
+  root: unknown,
+  annotations: ParsedYaml["annotations"],
+): boolean {
+  const key = path.at(-1)
+  if (key === undefined) return annotations.root()?.kind === "uuid"
+  const parent = path.slice(0, -1).reduce<unknown>((current, segment) =>
+    typeof current === "object" && current !== null
+      ? (current as Record<string | number, unknown>)[segment]
+      : undefined, root)
+  return typeof parent === "object" && parent !== null
+    && (annotations.at(parent, key)?.kind === "uuid" || (
+      typeof key === "string" && annotations.keyAt(parent, key)?.kind === "uuid"
+    ))
 }
 
 function duplicateAnnotatedKeyIssues(
@@ -137,12 +160,14 @@ export function evaluateParsedXmlAnomalyBoundaries(params: {
   readonly diagnostics: readonly Diagnostic[]
   readonly importantRegistered?: (target: ValidationIssueTarget) => boolean
   readonly deferUnnecessaryFor?: (target: ValidationIssueTarget) => boolean
+  readonly excludeBoundary?: (target: ValidationIssueTarget) => boolean
 }): ParsedXmlAnomalyEvaluation {
   let visibleIssues = [...params.issues]
   const contractIssues: ValidationIssue[] = []
   const acceptedTargets = new Set<string>()
   const boundaries: XmlAnomalyBoundaryState[] = []
   for (const boundary of semanticAnomalyBoundaries(params.parsed.data, params.parsed.annotations)) {
+    if (params.excludeBoundary?.(boundary.target) === true) continue
     const evaluated = evaluateXmlAnomalyBoundary({
       annotation: boundary.annotation,
       target: boundary.target,

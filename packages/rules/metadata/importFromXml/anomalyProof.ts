@@ -25,6 +25,7 @@ import {
   type XmlStructureDifference,
 } from "@nkdk/runtime"
 import {
+  createYAMLPropertySource,
   getCompiledXMLPropertyOrder,
   getTypeRule,
   getYAMLToXMLPlan,
@@ -705,6 +706,20 @@ function appendPlannedAbsenceBoundaries(params: {
           rulePrefix: rulePath,
         })
       }
+      appendMissingCanonicalCollectionItems({
+        nested: nestedConversion,
+        propertyRule: planned.propertyRule,
+        ownerRule: params.rule,
+        ownerYaml: valueAtYamlPath(params.data, params.yamlPrefix),
+        anchors,
+        sourcePath: params.source.sourcePath,
+        sourceRole: params.source.role,
+        containerXmlPath: xmlPath,
+        yamlPath,
+        rulePath,
+        boundaries: params.boundaries,
+        existingYamlPaths: params.existingYamlPaths,
+      })
       continue
     }
     if (element !== undefined) {
@@ -743,6 +758,72 @@ function appendPlannedAbsenceBoundaries(params: {
       presentInSource: false,
     })
   }
+}
+
+function appendMissingCanonicalCollectionItems(params: {
+  readonly nested: Extract<YAMLToXMLNestedRule, { kind: "collection" }>
+  readonly propertyRule: PropertyRule
+  readonly ownerRule: MetadataItemRule
+  readonly ownerYaml: unknown
+  readonly anchors: readonly XmlAnomalyItemAnchor[]
+  readonly sourcePath: string
+  readonly sourceRole: ImportXmlInput["role"]
+  readonly containerXmlPath: string
+  readonly yamlPath: readonly (string | number)[]
+  readonly rulePath: readonly string[]
+  readonly boundaries: XmlAnomalyProofBoundary[]
+  readonly existingYamlPaths: Set<string>
+}): void {
+  const { nested } = params
+  if (
+    nested.yamlShape !== "record"
+    || nested.completeItemNames === undefined
+    || nested.recordYamlKeyFromYAML === undefined
+    || nested.xmlElement === undefined
+  ) return
+
+  const source = createYAMLPropertySource({
+    yaml: params.ownerYaml,
+    rule: params.ownerRule,
+  })
+  const canonicalNames = nested.completeItemNames({
+    source,
+    propertyRule: params.propertyRule,
+  })
+  const recordYamlKeyFromYAML = nested.recordYamlKeyFromYAML
+  const publicKeys = canonicalNames.map((name) => recordYamlKeyFromYAML({
+    yaml: {},
+    name,
+    propertyRule: params.propertyRule,
+  }))
+  if (publicKeys.some((key) => key.length === 0) || new Set(publicKeys).size !== publicKeys.length) {
+    throw new Error("Имена канонических элементов коллекции должны иметь уникальные непустые YAML-ключи")
+  }
+
+  const presentNames = new Set(params.anchors.flatMap((anchor) => {
+    const yamlKey = anchor.yamlPath.at(-1)
+    if (typeof yamlKey !== "string") return []
+    return [
+      nested.nameFromYAMLKeyForProperty?.({ yamlKey, propertyRule: params.propertyRule })
+        ?? nested.nameFromYAMLKey?.(yamlKey)
+        ?? yamlKey,
+    ]
+  }))
+  canonicalNames.forEach((name, canonicalIndex) => {
+    if (presentNames.has(name)) return
+    const itemYamlPath = [...params.yamlPath, publicKeys[canonicalIndex]!]
+    const yamlBoundaryKey = JSON.stringify([params.sourcePath, itemYamlPath])
+    if (params.existingYamlPaths.has(yamlBoundaryKey)) return
+    params.existingYamlPaths.add(yamlBoundaryKey)
+    params.boundaries.push({
+      sourcePath: params.sourcePath,
+      sourceRole: params.sourceRole,
+      xmlPath: `${params.containerXmlPath}/${nested.xmlElement}[${canonicalIndex + 1}]`,
+      yamlPath: itemYamlPath,
+      rulePath: params.rulePath,
+      presentInSource: false,
+    })
+  })
 }
 
 function resolveNestedItemRule(params: {
@@ -1045,6 +1126,35 @@ export async function proveXmlAnomalyBoundaries(params: {
     return document
   }
 
+  const exportedProofPathCache = new Map<string, string>()
+  const exportedNodeAtProofPath = (
+    sourcePath: string,
+    proofPath: string,
+    exportedNodes: ReadonlyMap<string, XmlImportAuditedNode> | undefined,
+  ): XmlImportAuditedNode | undefined => {
+    const cacheKey = JSON.stringify([sourcePath, proofPath])
+    let exportedPath = exportedProofPathCache.get(cacheKey)
+    if (exportedPath === undefined) {
+      exportedPath = resolveExportedProofPath({
+        sourcePath,
+        proofPath,
+        itemAnchors: params.audit.itemAnchors ?? [],
+        sourceElements: rereadElements.get(sourcePath),
+        exportedNodes,
+      })
+      exportedProofPathCache.set(cacheKey, exportedPath)
+    }
+    return exportedNodes?.get(exportedPath)
+  }
+  const exportedElementAtProofPath = (
+    sourcePath: string,
+    proofPath: string,
+    exportedNodes: ReadonlyMap<string, XmlImportAuditedNode> | undefined,
+  ): XmlElementNode | undefined => {
+    const node = exportedNodeAtProofPath(sourcePath, proofPath, exportedNodes)
+    return node !== undefined && "type" in node && node.type === "element" ? node : undefined
+  }
+
   const changedSourcePaths = new Set<string>()
   for (const source of params.audit.sources) {
     const exported = exportedDocumentForSource(params.exported, source)
@@ -1138,7 +1248,10 @@ export async function proveXmlAnomalyBoundaries(params: {
     const exact = boundary.presentInSource
       ? acceptedSourceAbsence
         || (isCapturedProofBoundary(boundary) && boundary.targets.length > 0 && boundary.targets.every((target) =>
-          targetSignature(exportedNodes?.get(target.path), target.signature) === target.signature
+          targetSignature(
+            exportedNodeAtProofPath(boundary.sourcePath, target.path, exportedNodes),
+            target.signature,
+          ) === target.signature
         ))
       : exportedNodes?.get(boundary.xmlPath) === undefined
     if (exact || acceptedInvalidAbsence) {
@@ -1244,7 +1357,11 @@ export async function proveXmlAnomalyBoundaries(params: {
           const sourceComparison = sourceElements.get(comparison.xmlPath)
           if (sourceComparison === undefined) return false
           if (comparison !== level) {
-            const exportedComparison = xmlElementAtPath(exportedNodes, comparison.xmlPath)
+            const exportedComparison = exportedElementAtProofPath(
+              boundary.sourcePath,
+              comparison.xmlPath,
+              exportedNodes,
+            )
             return exportedComparison !== undefined
               && sameElementShellAfterIndependentRaw({
                 source: sourceComparison,
@@ -1256,7 +1373,11 @@ export async function proveXmlAnomalyBoundaries(params: {
           }
           const parentPath = parentElementPath(level.xmlPath)
           if (parentPath === undefined) return true
-          const exportedParent = xmlElementAtPath(exportedNodes, parentPath)
+          const exportedParent = exportedElementAtProofPath(
+            boundary.sourcePath,
+            parentPath,
+            exportedNodes,
+          )
           const sourceParent = sourceElements.get(parentPath)
           return exportedParent !== undefined
             && sourceParent !== undefined
@@ -1279,7 +1400,11 @@ export async function proveXmlAnomalyBoundaries(params: {
       && valueAtYamlPath(data, selected.yamlPath) !== undefined
     const rawYamlPath = publicRawYamlPath(localRawYamlPath, boundary, hasSemanticValue)
     assertRawYamlPathAvailable(data, annotationSnapshot, rawYamlPath, selected.yamlPath)
-    const exportedSelectedNode = exportedElements.get(exported)?.get(selected.xmlPath)
+    const exportedSelectedNode = exportedNodeAtProofPath(
+      boundary.sourcePath,
+      selected.xmlPath,
+      exportedElements.get(exported),
+    )
     const exportedSelected = exportedSelectedNode !== undefined
       && "type" in exportedSelectedNode
       && exportedSelectedNode.type === "element"
@@ -2249,14 +2374,40 @@ function targetSignature(
     : nodeSignature(node)
 }
 
-function xmlElementAtPath(
-  nodes: ReadonlyMap<string, XmlImportAuditedNode> | undefined,
-  path: string,
-): XmlElementNode | undefined {
-  const node = nodes?.get(path)
-  return node !== undefined && "type" in node && node.type === "element"
-    ? node
-    : undefined
+function resolveExportedProofPath(params: {
+  readonly sourcePath: string
+  readonly proofPath: string
+  readonly itemAnchors: readonly XmlAnomalyItemAnchor[]
+  readonly sourceElements: ReadonlyMap<string, XmlElementNode> | undefined
+  readonly exportedNodes: ReadonlyMap<string, XmlImportAuditedNode> | undefined
+}): string {
+  if (params.sourceElements === undefined || params.exportedNodes === undefined) return params.proofPath
+  const anchors = params.itemAnchors
+    .filter((anchor) =>
+      anchor.sourcePath === params.sourcePath
+      && isElementPathAtOrBelow(params.proofPath, anchor.xmlPath)
+    )
+    .toSorted((left, right) => xmlPathDepth(right.xmlPath) - xmlPathDepth(left.xmlPath))
+  for (const anchor of anchors) {
+    const sourceAnchor = params.sourceElements.get(anchor.xmlPath)
+    const identity = sourceAnchor?.attributes.find(({ name }) => name === "name")?.value
+    const sourceParentPath = parentElementPath(anchor.xmlPath)
+    if (sourceAnchor === undefined || identity === undefined || sourceParentPath === undefined) continue
+    const exportedParentPath = resolveExportedProofPath({
+      ...params,
+      proofPath: sourceParentPath,
+    })
+    const exportedParent = params.exportedNodes.get(exportedParentPath)
+    if (exportedParent === undefined || !("type" in exportedParent) || exportedParent.type !== "element") continue
+    const matches = exportedParent.content.filter((node): node is XmlElementNode =>
+      node.type === "element"
+      && node.name === sourceAnchor.name
+      && node.attributes.some(({ name, value }) => name === "name" && value === identity)
+    )
+    if (matches.length !== 1) continue
+    return `${matches[0]!.path}${params.proofPath.slice(anchor.xmlPath.length)}`
+  }
+  return params.proofPath
 }
 
 function nodeSignature(node: XmlImportAuditedNode): bigint | string {

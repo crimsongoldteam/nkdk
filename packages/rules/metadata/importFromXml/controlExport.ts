@@ -525,7 +525,6 @@ function controlExportContext(
       ...(context.exportToXML ?? {}),
       componentKind: profile.componentKind,
       adoptedUuids: profile.adoptedUuids,
-      designTimeReferenceByUuid: profile.designTimeReferenceByUuid,
       xmlDefaultVariantByLogicalAddress: profile.xmlDefaultVariantByLogicalAddress,
       ...(profile.typeDescriptionXMLNameByType === undefined
         ? {}

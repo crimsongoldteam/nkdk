@@ -3,7 +3,7 @@ export type YAMLScalarTagKey = string | number
 
 export const PROPERTY_STATE_YAML_TAGS = ["проверять", "изменять"] as const
 export const XML_REPRESENTATION_YAML_TAGS = ["xml/string", "xml/name", "xml/standard-attributes"] as const
-export const XML_ANNOTATION_TAGS = ["raw", "invalid", "important"] as const
+export const XML_ANNOTATION_TAGS = ["raw", "invalid", "important", "uuid"] as const
 
 export type PropertyStateYAMLTag = (typeof PROPERTY_STATE_YAML_TAGS)[number]
 export type XMLRepresentationYAMLTag = (typeof XML_REPRESENTATION_YAML_TAGS)[number]
@@ -162,34 +162,38 @@ const xmlRepresentationTags = XML_REPRESENTATION_YAML_TAGS.map((tag) =>
   })
 )
 
-const xmlAnnotationTags = XML_ANNOTATION_TAGS.flatMap((tag) => [
-  defineScalarTag(`!xml/${tag}`, {
+const xmlAnnotationTags = XML_ANNOTATION_TAGS.flatMap((tag) => {
+  const scalar = defineScalarTag(`!xml/${tag}`, {
     resolve(value) {
       return tag === "raw" ? (value === "" ? undefined : value) : parseYAMLScalarPayload(value)
     },
     identify: () => false,
-  }),
-  xmlAnnotationMappingTag(`!xml/${tag}`),
-  defineSequenceTag<unknown[], unknown[]>(`!xml/${tag}`, {
-    create: () => [],
-    addItem: (carrier, value) => { carrier.push(value) },
-    identify: () => false,
-  }),
-  ...(tag === "raw" ? [] : [
-    defineScalarTag(`!xml/${tag}/`, {
-      matchByTagPrefix: true,
-      resolve: (value) => parseYAMLScalarPayload(value),
-      identify: () => false,
-    }),
-    xmlAnnotationMappingTag(`!xml/${tag}/`, true),
-    defineSequenceTag<unknown[], unknown[]>(`!xml/${tag}/`, {
-      matchByTagPrefix: true,
+  })
+  if (tag === "uuid") return [scalar]
+  return [
+    scalar,
+    xmlAnnotationMappingTag(`!xml/${tag}`),
+    defineSequenceTag<unknown[], unknown[]>(`!xml/${tag}`, {
       create: () => [],
       addItem: (carrier, value) => { carrier.push(value) },
       identify: () => false,
     }),
-  ]),
-])
+    ...(tag === "raw" ? [] : [
+      defineScalarTag(`!xml/${tag}/`, {
+        matchByTagPrefix: true,
+        resolve: (value) => parseYAMLScalarPayload(value),
+        identify: () => false,
+      }),
+      xmlAnnotationMappingTag(`!xml/${tag}/`, true),
+      defineSequenceTag<unknown[], unknown[]>(`!xml/${tag}/`, {
+        matchByTagPrefix: true,
+        create: () => [],
+        addItem: (carrier, value) => { carrier.push(value) },
+        identify: () => false,
+      }),
+    ]),
+  ]
+})
 
 function xmlAnnotationMappingTag(tag: string, matchByTagPrefix = false) {
   return defineMappingTag<Record<string, unknown>, Record<string, unknown>>(tag, {

@@ -2,6 +2,7 @@ import { mkdirSync,mkdtempSync,rmSync,writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { dirname,join } from "path"
 import { afterEach,beforeAll,describe,expect,it,vi } from "vitest"
+import { createConfigurationLanguages } from "@nkdk/runtime"
 import "../../tests/metadataExecutionContext"
 import { mockContext } from "../../tests/mockContext"
 import { createPropertyStateCapabilityRegistry } from "../appliedObjects/configurationExtension/propertyStateCapabilities"
@@ -635,17 +636,45 @@ describe("validateProjectFileFirstPass references", () => {
     }))
   })
 
-  it("не сохраняет подавленную ошибку элемента последовательности в schema diagnostics", () => {
+  it("принимает !xml/uuid элемента metadata-последовательности без зависимости", () => {
     const first = validateAppliedObject(
       "Подсистема/Тест/Свойства.yaml",
       [
         "Состав:",
-        "  - !xml/invalid a0f8c954-9877-4b52-9172-02b76aebb903",
+        "  - !xml/uuid a0f8c954-9877-4b52-9172-02b76aebb903",
       ].join("\n"),
     )
 
     expect(first.diagnostics).toEqual([])
     expect(first.schemaDiagnostics).toEqual([])
+    expect(first.pendingReferences).toEqual([])
+  })
+
+  it.each([
+    [
+      "UUID без тега",
+      ["Состав:", "  - a0f8c954-9877-4b52-9172-02b76aebb903"].join("\n"),
+      "UUID metadata-ссылки требует !xml/uuid",
+    ],
+    [
+      "UUID с прежним invalid",
+      ["Состав:", "  - !xml/invalid a0f8c954-9877-4b52-9172-02b76aebb903"].join("\n"),
+      "UUID metadata-ссылки требует !xml/uuid",
+    ],
+    [
+      "uuid на смысловой ссылке",
+      ["Состав:", "  - !xml/uuid Справочник.Товары"].join("\n"),
+      "!xml/uuid допустим только для UUID или UUID.UUID metadata-ссылки",
+    ],
+    [
+      "uuid на обычной строке",
+      "Комментарий: !xml/uuid a0f8c954-9877-4b52-9172-02b76aebb903",
+      "!xml/uuid допустим только для metadata-ссылки",
+    ],
+  ])("отклоняет неверный договор !xml/uuid: %s", (_name, yaml, message) => {
+    const first = validateAppliedObject("Подсистема/Тест/Свойства.yaml", yaml)
+
+    expect(validationErrors(first)).toContainEqual(expect.objectContaining({ message }))
   })
 
   it("validates common form body through the shared form schema", () => {
@@ -672,6 +701,60 @@ describe("validateProjectFileFirstPass references", () => {
         }),
       ])
     )
+  }, 20_000)
+
+  it.each([
+    {
+      name: "отклоняет незарегистрированный язык без тега",
+      title: ["      ru: Заголовок", "      en: Title"],
+      expectedPath: "/Форма/Заголовок/en",
+      expectedMessage: "Незарегистрированный язык en",
+    },
+    {
+      name: "принимает незарегистрированный язык с !xml/invalid",
+      title: ["      ru: Заголовок", "      !xml/invalid en: Title"],
+      expectedPath: undefined,
+      expectedMessage: undefined,
+    },
+    {
+      name: "принимает зарегистрированный язык",
+      title: ["      ru: Заголовок"],
+      expectedPath: undefined,
+      expectedMessage: undefined,
+    },
+  ])("$name во вложенной общей форме", ({ title, expectedPath, expectedMessage }) => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-common-form-language-"))
+    tempDirs.push(projectDir)
+    const projectPath = "ОбщаяФорма/РабочийСтол/Свойства.yaml"
+    writeProjectFile(projectDir, projectPath, [
+      "Форма:",
+      "  Заголовок:",
+      ...title,
+    ])
+    const file = resolveValidationProjectFile(projectDir, join(projectDir, projectPath))
+    if (!file) throw new Error("file not resolved")
+    const first = validateProjectFileFirstPass({
+      projectDir,
+      file,
+      cache: createProjectYamlCache(),
+      context: {
+        ...mockContext,
+        languages: createConfigurationLanguages({ default: "ru", registered: ["ru"] }),
+      },
+      schemaCache: sharedSchemaCache,
+      rulesSnapshot,
+    })
+    const languageDiagnostics = first.diagnostics.filter(({ message }) =>
+      message.includes("Незарегистрированный язык") || message.includes("Тег XML-аномалии лишний")
+    )
+
+    if (expectedPath === undefined || expectedMessage === undefined) {
+      expect(languageDiagnostics).toEqual([])
+    } else {
+      expect(languageDiagnostics).toEqual([
+        expect.objectContaining({ path: expectedPath, message: expect.stringContaining(expectedMessage) }),
+      ])
+    }
   }, 20_000)
 
   it("keeps a form index contribution without pending DataPath checks", () => {
@@ -760,6 +843,26 @@ describe("validateProjectFileFirstPass references", () => {
       expect.objectContaining({ canonical: "FunctionalOption.ДоступностьСкладов" }),
       expect.objectContaining({ canonical: "Role.Администратор" }),
     ]))
+  })
+
+  it("принимает !xml/uuid в ключе роли UserVisible без зависимости", () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
+    tempDirs.push(projectDir)
+    const projectPath = "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml"
+    writeProjectFile(projectDir, projectPath, [
+      "Реквизиты:",
+      "  Поле:",
+      "    Тип: Строка",
+      "    Просмотр:",
+      "      Роли:",
+      "        !xml/uuid A786340B-1CA9-48EE-8517-6BD389390BCC: Ложь",
+    ])
+
+    const first = validateProjectPath(projectDir, projectPath)
+
+    expect(first.diagnostics).toEqual([])
+    expect(first.schemaDiagnostics).toEqual([])
+    expect(first.pendingReferences).toEqual([])
   })
 
   it("проверяет уникальность имён элементов внутри общей формы", () => {
