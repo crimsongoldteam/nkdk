@@ -64,7 +64,7 @@ export const importMetadataValueFromYAML = (
 
   if (
     typeof data === "string" &&
-    ruleTyped?.valueType?.includes("ref") &&
+    (ruleTyped?.valueType?.includes("ref") === true || ruleTyped?.metadataTarget !== undefined) &&
     isMetadataTargetUuid(data)
   ) {
     return { type: "ref", value: data }
