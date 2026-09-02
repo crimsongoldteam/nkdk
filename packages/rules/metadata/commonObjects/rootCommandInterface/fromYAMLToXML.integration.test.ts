@@ -8,7 +8,7 @@ import {
   testMetadataItemFromXMLToYAML,
   testMetadataItemFromYAMLToXML,
 } from "../../../tests/directConversion"
-import { importContentFromXML } from "@nkdk/runtime"
+import { importContentFromXML, parseMetadataYaml } from "@nkdk/runtime"
 import { RootCommandInterfaceRules } from "./rules"
 import type { RootCommandInterfaceYAML } from "./types"
 
@@ -56,6 +56,20 @@ describe("RootCommandInterface YAML → XML", () => {
     expect(() =>
       convertYAML({ ПорядокПодсистем: [OPAQUE_UUID] })
     ).toThrow()
+  })
+
+  it("сохраняет принятый invalid UUID отсутствующей подсистемы", () => {
+    const parsed = parseMetadataYaml([
+      "ПорядокПодсистем:",
+      `  - !xml/invalid ${OPAQUE_UUID}`,
+    ].join("\n"))
+    const result = serializeDirectXML(testMetadataItemFromYAMLToXML({
+      rule: RootCommandInterfaceRules,
+      yaml: parsed.data,
+      annotations: parsed.annotations,
+    }).xml)
+
+    expect(result).toContain(`<Subsystem>${OPAQUE_UUID}</Subsystem>`)
   })
 
   it.each(["CommandInterface.xml", "MainSectionCommandInterface.xml"])("round-trips %s", (fixture) => {

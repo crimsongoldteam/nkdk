@@ -42,7 +42,9 @@ interface MetadataTargetTransformationParams {
   readonly value: unknown
   readonly occurrences: readonly MetadataTargetOccurrence[]
   readonly owner?: MetadataTargetOwner
-  readonly allowUnresolvedUuid?: boolean
+  readonly allowUnresolvedUuid?:
+    | boolean
+    | ((occurrence: MetadataTargetOccurrence) => boolean)
 }
 
 export function exportMetadataTargetOccurrencesToYAML(params: MetadataTargetTransformationParams): unknown {
@@ -85,7 +87,10 @@ export function importMetadataTargetOccurrencesFromYAML(params: MetadataTargetTr
       const model = parseMetadataTargetFromModel({ canonical: text, constraint, owner: params.owner })
       if (!model.ok) continue
     }
-    if (params.allowUnresolvedUuid === true && isMDObjectRefUuid(text)) continue
+    const allowUnresolvedUuid = params.allowUnresolvedUuid === true || (
+      typeof params.allowUnresolvedUuid === "function" && params.allowUnresolvedUuid(occurrence)
+    )
+    if (allowUnresolvedUuid && isMDObjectRefUuid(text)) continue
     throw new Error(parsed.message)
   }
   return result

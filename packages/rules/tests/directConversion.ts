@@ -211,6 +211,7 @@ export function testMetadataItemFromYAMLToXML(params: {
   propertyValues?: ReadonlyMap<string, unknown>
   ownerYAML?: unknown
   externalWriteFactory?: YAMLToXMLExternalWriteFactory
+  annotations?: XmlAnomalyAnnotations
 }): ToXMLResult {
   return withDirectMetadataExecution(() => {
     const result = convertMetadataItemFromYAMLToXML({
@@ -220,6 +221,7 @@ export function testMetadataItemFromYAMLToXML(params: {
       }),
       context: params.context ?? mockContextToXML(),
       yaml: params.yaml,
+      annotations: params.annotations,
       rule: params.rule,
       name: params.name,
       outputs: [{ key: "owner", referenceXML: params.referenceXML }],

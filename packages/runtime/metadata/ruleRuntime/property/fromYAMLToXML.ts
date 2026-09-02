@@ -19,6 +19,7 @@ import {
 import {
   cloneMetadataTargetValue,
   importMetadataTargetOccurrencesFromYAML,
+  type MetadataTargetOccurrence,
   type MetadataTargetOccurrencesFunction,
 } from "./metadataTargetOccurrences"
 import { convertMetadataItemFromYAMLToXML } from "../metadataItem/fromYAMLToXML"
@@ -760,6 +761,8 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
               handler: occurrenceHandler,
               rule: planned.propertyRule,
               owner: importParams.owner,
+              yaml,
+              annotations: params.annotations,
             })
         const fused = atomicInvocation.conversion.fromYAMLToXML({
           context: diagnosticContext,
@@ -996,6 +999,8 @@ export function callAtomicFromYAML(params: AtomicFromYAMLParams): unknown {
         handler: occurrenceHandler,
         rule,
         owner,
+        yaml,
+        annotations,
       })
   const atomicConversion = resolveAtomicConversion({
     rule,
@@ -1047,6 +1052,8 @@ function importMetadataTargetsFromYAML(params: {
   handler: MetadataTargetOccurrencesFunction
   rule: PropertyRule
   owner?: MetadataTargetOwner
+  yaml?: unknown
+  annotations?: import("../../../yaml/xmlAnomalyAnnotations").XmlAnomalyAnnotations
 }): unknown {
   const prepared = cloneMetadataTargetValue(params.value)
   const occurrences = params.handler({
@@ -1060,8 +1067,61 @@ function importMetadataTargetsFromYAML(params: {
     value: prepared,
     occurrences,
     owner: params.owner,
-    allowUnresolvedUuid: isXmlImportControlExportContext(params.context),
+    allowUnresolvedUuid: isXmlImportControlExportContext(params.context)
+      ? true
+      : (occurrence) => isAcceptedSemanticOccurrence({
+          yaml: params.yaml,
+          annotations: params.annotations,
+          occurrence,
+        }),
   })
+}
+
+function isAcceptedSemanticOccurrence(params: {
+  yaml: unknown
+  annotations: import("../../../yaml/xmlAnomalyAnnotations").XmlAnomalyAnnotations | undefined
+  occurrence: MetadataTargetOccurrence
+}): boolean {
+  if (params.annotations === undefined) return false
+  const { location } = params.occurrence
+  const annotation = location.kind === "key"
+    ? annotationAtMappingKey(params.yaml, params.annotations, location.path, location.key)
+    : annotationAtValue(params.yaml, params.annotations, location.path)
+  return annotation?.kind === "invalid" || annotation?.kind === "important"
+}
+
+function annotationAtMappingKey(
+  yaml: unknown,
+  annotations: import("../../../yaml/xmlAnomalyAnnotations").XmlAnomalyAnnotations,
+  path: readonly (string | number)[],
+  key: string,
+) {
+  const parent = yamlValueAtPath(yaml, path)
+  return isRecord(parent) ? annotations.keyAt(parent, key) : undefined
+}
+
+function annotationAtValue(
+  yaml: unknown,
+  annotations: import("../../../yaml/xmlAnomalyAnnotations").XmlAnomalyAnnotations,
+  path: readonly (string | number)[],
+) {
+  const key = path.at(-1)
+  if (key === undefined) return annotations.root()
+  const parent = yamlValueAtPath(yaml, path.slice(0, -1))
+  return isObjectContainer(parent) ? annotations.at(parent, key) : undefined
+}
+
+function yamlValueAtPath(value: unknown, path: readonly (string | number)[]): unknown {
+  let current = value
+  for (const segment of path) {
+    if (!isObjectContainer(current)) return undefined
+    current = (current as Record<string | number, unknown>)[segment]
+  }
+  return current
+}
+
+function isObjectContainer(value: unknown): value is Record<string | number, unknown> {
+  return value !== null && typeof value === "object"
 }
 
 function shouldUseOnlyImportedValue(params: { rule: PropertyRule; value: unknown }): boolean {
