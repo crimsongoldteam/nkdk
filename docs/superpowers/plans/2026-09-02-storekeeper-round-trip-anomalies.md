@@ -416,6 +416,7 @@
 
 - Create: `packages/rules/metadata/validation/metadataRuleYamlProperties.ts`
 - Create: `packages/rules/metadata/validation/metadataRuleYamlProperties.test.ts`
+- Modify: `packages/rules/metadata/validation/metadataRuleYamlTraversal.ts`
 - Modify: `packages/rules/metadata/validation/projectValidationPasses.ts`
 - Modify: `packages/rules/metadata/validation/projectValidationPasses.integration.test.ts`
 
@@ -450,7 +451,8 @@
   ```
 
   Production mutation caught: возврат к `resolvePropertyItemRule` не входит в
-  фиксированный `yamlToXMLNestedRule.kind === "item"`.
+  `ClientApplicationForm`, чей XML-descriptor имеет kind `externalFile`, а
+  вложенное YAML-правило зарегистрировано отдельно как `nestedItemRule`.
 
 - [ ] **Step 2: Подтвердить RED**
 
@@ -494,9 +496,10 @@
   return diagnostics
   ```
 
-  `enterNestedObject` не задавать: фиксированный вложенный item наследует имя
-  владельца. Внутреннюю рекурсию старого `validateExcludedEqualNameYAML` не
-  вызывать, иначе коллекции получат дубли.
+  `metadataRuleYamlTraversal` должен посещать объект `externalFile`, когда для
+  типа есть прямой `nestedItemRule`; `enterNestedObject` не задавать, поэтому
+  вложенная форма наследует имя владельца. Внутреннюю рекурсию старого
+  `validateExcludedEqualNameYAML` не вызывать, иначе коллекции получат дубли.
 
 - [ ] **Step 4: Получить GREEN unit-теста**
 
@@ -554,6 +557,7 @@
   ```bash
   git add packages/rules/metadata/validation/metadataRuleYamlProperties.ts \
     packages/rules/metadata/validation/metadataRuleYamlProperties.test.ts \
+    packages/rules/metadata/validation/metadataRuleYamlTraversal.ts \
     packages/rules/metadata/validation/projectValidationPasses.ts \
     packages/rules/metadata/validation/projectValidationPasses.integration.test.ts
   git commit -m "fix: :bug: проверить локализацию вложенной общей формы"
