@@ -532,6 +532,15 @@ export function importPropertiesFromXMLToYAML(params: {
             explicitEmptyValue !== undefined
               ? explicitEmptyValue
               : undefined
+          const registeredPresentEmptyItem =
+            importedValue === undefined &&
+            presentInXML &&
+            propertyRule.itemRule !== undefined &&
+            (compiled === undefined
+              ? typeRule(propertyRule.type, "xmlImportPropertyBehavior")
+              : compiled.operations.xmlImportPropertyBehavior)?.presenceAffectsExport === true
+              ? {}
+              : undefined
           const clearedMetadataTarget =
             !forReference &&
             sourceContext.fromXML.propertyStateCompatibilityMode !== undefined &&
@@ -545,7 +554,7 @@ export function importPropertiesFromXMLToYAML(params: {
               : importedValue === undefined && hasExplicitXMLKeyWithEmptyDefault && !convertedDirectly
               ? propertyRule.defaultValueXMLEmpty
               : importedValue === undefined
-                ? registeredExplicitEmptyValue
+                ? registeredExplicitEmptyValue ?? registeredPresentEmptyItem
                 : importedValue
           const preserveExplicitDefault =
             propertyRule.preserveExplicitDefaultXML === true && presentInXML && rawValue === propertyRule.defaultValueXML

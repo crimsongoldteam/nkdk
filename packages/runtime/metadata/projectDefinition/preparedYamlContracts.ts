@@ -1,5 +1,6 @@
 import type { Diagnostic } from "../diagnostics/types"
 import type { XmlAnomalyAnnotations } from "../../yaml/xmlAnomalyAnnotations"
+import type { DoubleQuotedScalarMarksSnapshot } from "../../yaml/explicitString"
 
 export interface PreparedYamlProject {
   projectDir: string
@@ -47,6 +48,7 @@ export interface PreparedYamlFile {
   owner: { dir: string; name: string }
   data?: unknown
   annotations: XmlAnomalyAnnotations
+  doubleQuotedScalarMarks?: DoubleQuotedScalarMarksSnapshot
   syntaxDiagnostics: Diagnostic[]
 }
 

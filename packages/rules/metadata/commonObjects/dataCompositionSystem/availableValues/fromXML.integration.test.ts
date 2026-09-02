@@ -4,11 +4,16 @@ import { describe, expect, it } from "vitest"
 import { importPropertyFromXML } from "../../../ruleRuntime"
 import { mockContextFromXML } from "../../../../tests/mockContext"
 import { readAndParseXMLFile } from "../../../../tests/readAndParseXMLFile"
-import { importContentFromXML } from "@nkdk/runtime"
-import { nilAndBooleanAvailableValues, stringAvailableValues } from "./__fixtures__/data"
+import { createXmlImportAuditSession, importContentFromXML, parseXmlDocumentWithSaxes } from "@nkdk/runtime"
+import {
+  nilAndBooleanAvailableValues,
+  stringAvailableValues,
+  stringAvailableValuesYAML,
+} from "./__fixtures__/data"
 import "../index"
 import { createPropertyRuleExecutor, createRuleRegistrySet } from "@nkdk/runtime/rule-kit"
 import { metadataRules } from "../../../composition/metadataRules"
+import { testPropertyFromXMLToYAML } from "../../../../tests/directConversion"
 
 const fixturesDir = join(dirname(fileURLToPath(import.meta.url)), "__fixtures__")
 const rule = { type: "DcsAvailableValues", xml: "dcssch:availableValue" } as const
@@ -59,5 +64,42 @@ describe("import DcsAvailableValues from XML", () => {
     })
 
     expect(result).toEqual(nilAndBooleanAvailableValues)
+  })
+
+  it("imports every repeated structural XML node without audit remainder", () => {
+    const document = parseXmlDocumentWithSaxes(`<Root>
+	<dcssch:availableValue>
+		<dcssch:value xsi:type="xs:string">Выставлен</dcssch:value>
+		<dcssch:presentation xsi:type="v8:LocalStringType">
+			<v8:item><v8:lang>ru</v8:lang><v8:content>Выставлен</v8:content></v8:item>
+		</dcssch:presentation>
+	</dcssch:availableValue>
+	<dcssch:availableValue>
+		<dcssch:value xsi:type="xs:string">Аннулирован</dcssch:value>
+		<dcssch:presentation xsi:type="v8:LocalStringType">
+			<v8:item><v8:lang>ru</v8:lang><v8:content>Аннулирован</v8:content></v8:item>
+		</dcssch:presentation>
+	</dcssch:availableValue>
+</Root>`)
+    const root = document.roots[0]!
+    const audit = createXmlImportAuditSession([root])
+
+    const result = testPropertyFromXMLToYAML({
+      rule: {
+        itemType: "DcsAvailableValuesProbe",
+        properties: {
+          availableValues: {
+            type: "DcsAvailableValues",
+            xml: "dcssch:availableValue",
+            yaml: "ДоступныеЗначения",
+          },
+        },
+      },
+      xml: root,
+      audit,
+    })
+
+    expect(result.yaml).toEqual({ ДоступныеЗначения: stringAvailableValuesYAML })
+    expect([...new Set(audit.outcomes().map(({ state }) => state))]).toEqual(["claimed"])
   })
 })
