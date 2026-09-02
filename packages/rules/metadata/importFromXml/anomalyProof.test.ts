@@ -950,6 +950,125 @@ describe("XML anomaly proof", () => {
     }))
   })
 
+  it.each([false, true])("сохраняет один самый глубокий пустой XML-контейнер (общий: %s)", async (shared) => {
+    const document = parseXmlDocumentWithSaxes("<Owner><Outer/></Owner>")
+    const rule = {
+      itemType: "Owner",
+      properties: {
+        values: {
+          type: "string",
+          xml: "Item",
+          yaml: "Значения",
+          xmlParents: ["Outer", "Container"],
+        },
+        ...(shared ? {
+          second: { type: "string" as const, xml: "Second", yaml: "Второе", xmlParents: ["Outer", "Container"] },
+        } : {}),
+      },
+    } as const satisfies MetadataItemRule
+
+    const boundaries = deriveXmlAnomalyPlannedAbsenceBoundaries({
+      sources: [{ sourcePath, role: "body", document }],
+      rule,
+      data: {},
+      itemAnchors: [],
+    })
+
+    expect(boundaries).toContainEqual(expect.objectContaining({
+      xmlPath: "/Owner[1]/Outer[1]",
+      yamlPath: ["Outer"],
+      rulePath: ["values"],
+      presentInSource: true,
+      targetPaths: ["/Owner[1]/Outer[1]"],
+      levels: expect.arrayContaining([expect.objectContaining({
+        xmlPath: "/Owner[1]/Outer[1]",
+        rawYamlPath: ["Outer"],
+      })]),
+    }))
+    expect(boundaries.filter(({ presentInSource }) => presentInSource)).toHaveLength(1)
+    expect(boundaries).toContainEqual(expect.objectContaining({
+      xmlPath: "/Owner[1]/Outer[1]/Container[1]",
+      yamlPath: ["Outer\\Container"],
+      presentInSource: false,
+    }))
+    const sources = [{ sourcePath, role: "body" as const, document }]
+    const proof = (exported: string) => proveXmlAnomalyBoundaries({
+      data: {},
+      annotations: { version: 1, entries: [] },
+      audit: captureXmlAnomalyProofAudit({ sources, boundaries }),
+      exported: [{ role: "body", document: parseXmlDocumentWithSaxes(exported) }],
+      readSource: async () => "<Owner><Outer/></Owner>",
+    })
+    const missing = await proof("<Owner/>")
+    expect(missing.warnings).toEqual([])
+    expect(missing.annotations.entries).toEqual([expect.objectContaining({
+      key: "@Owner\\Outer",
+      annotation: expect.objectContaining({ xml: {} }),
+    })])
+    const restoredByDefaults = await proof("<Owner><Outer><Container><Item>auto</Item></Container></Outer></Owner>")
+    expect(restoredByDefaults.annotations.entries).toEqual([expect.objectContaining({
+      key: "@Owner\\Outer\\Container",
+      annotation: expect.objectContaining({ xml: null }),
+    })])
+    expect(replayOwnerProof(restoredByDefaults, rule, { Outer: { Container: { Item: "auto" } } }).roots[0]!.structuralHash)
+      .toBe(document.roots[0]!.structuralHash)
+  })
+
+  it.each([
+    ["Container", "Sibling"],
+    ["Sibling", "Container"],
+  ])("восстанавливает порядок пустого контейнера у корня: %s, %s", async (first, second) => {
+    const values: Record<string, string> = { Container: "<Container/>", Sibling: "<Sibling>x</Sibling>" }
+    const source = `<Owner>${values[first!]}${values[second!]}</Owner>`
+    const rule = {
+      itemType: "Owner",
+      properties: {
+        value: { type: "string", yaml: "Значение", xml: "Value", xmlParents: ["Container"] },
+        sibling: { type: "string", yaml: "Сосед", xml: "Sibling" },
+      },
+    } as const satisfies MetadataItemRule
+    const data = { Сосед: "x" }
+    const result = await proveOwnerPlannedContainer(source, "<Owner><Sibling>x</Sibling></Owner>", rule, data)
+    expect(result.warnings).toEqual([])
+    const root = replayOwnerProof(result, rule, { Sibling: "x" }).roots[0]!
+    expect(root.content.flatMap((node) => node.type === "element" ? [node.name] : [])).toEqual([first, second])
+  })
+
+  it("адресует порядок пустого контейнера через XML-путь обычного вложенного свойства", async () => {
+    const source = "<Owner><Settings><ListSettings/><ManualQuery>true</ManualQuery></Settings></Owner>"
+    const document = parseXmlDocumentWithSaxes(source)
+    const rule = {
+      itemType: "Owner",
+      properties: { settings: { type: "DynamicList", xml: "Settings", yaml: "Настройки" } },
+    } as const satisfies MetadataItemRule
+    const data = { Настройки: { ПроизвольныйЗапрос: true } }
+    const result = await proveOwnerPlannedContainer(
+      source, "<Owner><Settings><ManualQuery>true</ManualQuery></Settings></Owner>", rule, data,
+    )
+    expect(result.warnings).toEqual([])
+    expect(replayOwnerProof(result, rule, { Settings: { ManualQuery: "true" } }).roots[0]!.structuralHash)
+      .toBe(document.roots[0]!.structuralHash)
+  })
+
+  it.each([false, true])("не повторяет XMLRoot-контейнер в адресе порядка метаданных (fallback: %s)", async (fallback) => {
+    const source = "<MetaDataObject><Catalog><Container/><Sibling>x</Sibling></Catalog></MetaDataObject>"
+    const rule = {
+      itemType: "MetadataCatalog",
+      properties: {
+        xmlRoot: MetadataCatalogRules.properties.xmlRoot,
+        value: { type: "string", yaml: "Значение", xml: "Value", xmlParents: ["Container"] },
+        sibling: { type: "string", yaml: "Сосед", xml: "Sibling" },
+      },
+    } as const satisfies MetadataItemRule
+    const result = await proveOwnerPlannedContainer(
+      source, "<MetaDataObject><Catalog><Sibling>x</Sibling></Catalog></MetaDataObject>",
+      rule, { Сосед: "x" }, "metadata", fallback,
+    )
+    expect(result.warnings).toEqual([])
+    expect(replayOwnerProof(result, rule, { Catalog: { Sibling: "x" } }, "MetaDataObject").roots[0]!.structuralHash)
+      .toBe(parseXmlDocumentWithSaxes(source).roots[0]!.structuralHash)
+  })
+
   it("планирует отсутствующий XML-default внутри элемента массива", () => {
     const document = parseXmlDocumentWithSaxes([
       '<Owner xmlns:xr="urn:xr"><Characteristics>',
@@ -1957,6 +2076,55 @@ function spyOnFormChildItemsResolver() {
     throw new Error("У GroupChildItems отсутствует dynamic resolveItemRule")
   }
   return vi.spyOn(descriptor, "resolveItemRule")
+}
+
+function proveOwnerPlannedContainer(
+  source: string, exported: string, rule: MetadataItemRule, data: unknown, role: "body" | "metadata" = "body",
+  fallback = false,
+) {
+  const sources = [{ sourcePath, role, document: parseXmlDocumentWithSaxes(source) }]
+  const boundaries = deriveXmlAnomalyPlannedAbsenceBoundaries({ sources, rule, data, itemAnchors: [] })
+  const rootPath = sources[0]!.document.roots[0]!.path
+  return proveXmlAnomalyBoundaries({
+    data,
+    annotations: { version: 1, entries: [] },
+    audit: captureXmlAnomalyProofAudit({
+      sources, boundaries,
+      fallbackBoundaries: fallback ? [{
+        sourcePath, sourceRole: role, xmlPath: rootPath, yamlPath: [], rulePath: [],
+        presentInSource: true, targetPaths: [rootPath],
+      }] : [],
+    }),
+    rule,
+    exported: [{ role, document: parseXmlDocumentWithSaxes(exported) }],
+    readSource: async () => source,
+  })
+}
+
+function replayOwnerProof(
+  result: Awaited<ReturnType<typeof proveXmlAnomalyBoundaries>>,
+  rule: MetadataItemRule,
+  ordinary: Record<string, unknown>,
+  rootName = "Owner",
+) {
+  const serialized = serializeYAMLDocument(result.data, restoreXmlAnomalyAnnotations(result.data, result.annotations))
+  const parsed = parseMetadataYaml(serialized.text)
+  const prepared = prepareXmlAnomalyAssignment({
+    preparedYamlFile: {
+      projectPath: "Owner.yaml", filePath: "/project/Owner.yaml", role: "properties",
+      owner: { dir: "Owner", name: "One" }, data: parsed.data,
+      annotations: parsed.annotations, syntaxDiagnostics: [],
+    },
+    rootRule: rule,
+    itemName: "One",
+  })
+  return parseXmlDocumentWithSaxes(buildPreparedAssignmentXml({
+    document: {
+      targetXmlPath: "Owner.xml", xml: { [rootName]: ordinary }, deferred: [],
+      rootRule: rule, rawBoundaries: prepared.rawBoundaries,
+    },
+    context: mockContextToXML(),
+  }))
 }
 
 function firstElement(document: ReturnType<typeof parseXmlDocumentWithSaxes>): XmlElementNode {

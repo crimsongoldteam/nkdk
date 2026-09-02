@@ -660,22 +660,7 @@ describe("executeImportControlExport", () => {
       "        _xsi:type: xs:string",
     ].join("\n"))
 
-    if (ordinaryExportParams === undefined) throw new Error("Обычный экспорт формы не был вызван")
-    const exported = prepareFullXmlSyncAssignment({
-      ...ordinaryExportParams,
-      preparedYamlFile: {
-        ...ordinaryExportParams.preparedYamlFile,
-        data: result.data,
-        annotations,
-      },
-      xmlAnomalyRawFallback: true,
-    })
-    const body = exported.documents.find(({ targetXmlPath }) => targetXmlPath.endsWith("/Ext/Form.xml"))
-    if (body === undefined) throw new Error("Экспорт не подготовил Form.xml")
-    const xml = buildPreparedAssignmentControlDocument({
-      document: body,
-      context: ordinaryExportParams.context,
-    }).materializeXml()
+    const xml = exportControlFormXml(ordinaryExportParams, result)
     expect(xml).toContain('<MinValue xsi:type="xs:string">1</MinValue>')
     expect(xml).toContain('<MaxValue xsi:type="xs:decimal">99.99</MaxValue>')
   })
@@ -709,6 +694,79 @@ describe("executeImportControlExport", () => {
     expect(result.annotations.entries).not.toEqual(expect.arrayContaining([
       expect.objectContaining({ key: "Columns\\AdditionalColumns" }),
     ]))
+  })
+
+  it("сохраняет явно пустой промежуточный контейнер свойства минимальным raw", async () => {
+    const { assignment } = createCatalogFormInput(
+      tempDirs,
+      "nkdk-control-export-empty-property-parent-",
+      [
+        '<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">',
+        "  <Attributes>",
+        '    <Attribute name="Список" id="1">',
+        "      <Type><v8:Type>cfg:DynamicList</v8:Type></Type>",
+        '      <Settings xsi:type="DynamicList">',
+        "        <ManualQuery>true</ManualQuery>",
+        "        <DynamicDataRead>true</DynamicDataRead>",
+        "        <ListSettings><dcsset:dataParameters/><dcsset:itemsViewMode>Normal</dcsset:itemsViewMode></ListSettings>",
+        "      </Settings>",
+        "    </Attribute>",
+        "  </Attributes>",
+        "</Form>",
+      ].join("\n"),
+    )
+    const { prepared, index } = await prepareControlInput(assignment)
+    let ordinaryExportParams: Parameters<typeof prepareFullXmlSyncAssignment>[0] | undefined
+    const result = await executePreparedFormControlExport(
+      assignment,
+      prepared,
+      index,
+      snapshotXmlAnomalyAnnotations(prepared.yaml, prepared.annotations),
+      false,
+      (params) => {
+        ordinaryExportParams = params
+        return prepareFullXmlSyncAssignment(params)
+      },
+    )
+
+    expect(result.warnings).toEqual([])
+    expect(result.annotations.entries).toContainEqual({
+      parentPath: ["Реквизиты", "Список", "ДинамическийСписок"],
+      key: "@Form\\ListSettings\\dcsset:dataParameters",
+      annotation: {
+        kind: "raw",
+        occurrence: 1,
+        target: "value",
+        xml: {},
+        hasSemanticValue: false,
+      },
+    })
+    expect(result.annotations.entries).not.toContainEqual(expect.objectContaining({
+      parentPath: ["Реквизиты"],
+      key: "Список",
+    }))
+    expect(result.annotations.entries).toContainEqual(expect.objectContaining({
+      parentPath: ["Реквизиты", "Список", "ДинамическийСписок"],
+      key: "@Form\\ListSettings",
+      annotation: expect.objectContaining({
+        kind: "raw",
+        xml: { "#order": ["dcsset:dataParameters", "dcsset:itemsViewMode"] },
+      }),
+    }))
+
+    const xml = exportControlFormXml(ordinaryExportParams, result)
+    const listSettings = nestedXmlElement(parseXmlDocumentWithSaxes(xml).roots[0]!, [
+      "Attributes",
+      "Attribute",
+      "Settings",
+      "ListSettings",
+    ])
+    expect(listSettings.content.flatMap((node) => node.type === "element" ? [node.name] : [])).toEqual([
+      "dcsset:dataParameters", "dcsset:itemsViewMode",
+    ])
+    const dataParameters = nestedXmlElement(listSettings, ["dcsset:dataParameters"])
+    expect(dataParameters.attributes).toEqual([])
+    expect(dataParameters.content).toEqual([])
   })
 
   it("локализует raw заголовка дополнительной колонки на свойстве Заголовок", async () => {
@@ -938,6 +996,28 @@ function nestedXmlElement(
     current = child
   }
   return current
+}
+
+function exportControlFormXml(
+  ordinaryExportParams: Parameters<typeof prepareFullXmlSyncAssignment>[0] | undefined,
+  result: Awaited<ReturnType<typeof executeImportControlExport>>,
+): string {
+  if (ordinaryExportParams === undefined) throw new Error("Обычный экспорт формы не был вызван")
+  const exported = prepareFullXmlSyncAssignment({
+    ...ordinaryExportParams,
+    preparedYamlFile: {
+      ...ordinaryExportParams.preparedYamlFile,
+      data: result.data,
+      annotations: restoreXmlAnomalyAnnotations(result.data, result.annotations),
+    },
+    xmlAnomalyRawFallback: true,
+  })
+  const body = exported.documents.find(({ targetXmlPath }) => targetXmlPath.endsWith("/Ext/Form.xml"))
+  if (body === undefined) throw new Error("Экспорт не подготовил Form.xml")
+  return buildPreparedAssignmentControlDocument({
+    document: body,
+    context: ordinaryExportParams.context,
+  }).materializeXml()
 }
 
 function catalogFormAssignment(metadataPath: string, bodyPath: string): ImportAssignment {

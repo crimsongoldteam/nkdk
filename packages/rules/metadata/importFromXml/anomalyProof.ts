@@ -351,6 +351,7 @@ export function deriveXmlAnomalyPlannedAbsenceBoundaries(params: {
   const metadataSource = params.sources.find(({ role }) => role === "metadata")
   const metadataRoot = metadataSource?.document.roots.find(({ name }) => name === "MetaDataObject")
   if (metadataSource !== undefined && metadataRoot !== undefined) {
+    const itemRoot = metadataItemRoot(metadataRoot, params.rule)
     appendPlannedAbsenceBoundaries({
       sources: params.sources,
       elementsBySourcePath,
@@ -358,7 +359,9 @@ export function deriveXmlAnomalyPlannedAbsenceBoundaries(params: {
       existingYamlPaths,
       existingXmlPaths,
       source: metadataSource,
-      root: metadataItemRoot(metadataRoot, params.rule),
+      root: itemRoot,
+      // XMLRoot-контейнер уже добавляется при подготовке XML assignment.
+      ownerRawYamlPath: [],
       rule: params.rule,
       yamlPrefix: [],
       rulePrefix: [],
@@ -379,6 +382,7 @@ export function deriveXmlAnomalyPlannedAbsenceBoundaries(params: {
       existingXmlPaths,
       source: bodySource,
       root: bodyRoot,
+      ownerRawYamlPath: [],
       rule: params.rule,
       yamlPrefix: [],
       rulePrefix: [],
@@ -648,6 +652,7 @@ function appendPlannedAbsenceBoundaries(params: {
   readonly existingXmlPaths: Set<string>
   readonly source: XmlAnomalyProofSource
   readonly root: XmlElementNode
+  readonly ownerRawYamlPath: readonly (string | number)[]
   readonly rule: MetadataItemRule
   readonly yamlPrefix: readonly (string | number)[]
   readonly rulePrefix: readonly string[]
@@ -657,7 +662,8 @@ function appendPlannedAbsenceBoundaries(params: {
   readonly data: unknown
 }): void {
   const elements = params.elementsBySourcePath.get(params.source.sourcePath)
-  for (const planned of getYAMLToXMLPlan(params.rule).properties) {
+  const plan = getYAMLToXMLPlan(params.rule)
+  for (const planned of plan.properties) {
     const yamlKey = planned.yamlKey ?? planned.propertyKey
     const yamlPath = [...params.yamlPrefix, yamlKey]
     const rulePath = [...params.rulePrefix, planned.propertyKey]
@@ -670,6 +676,7 @@ function appendPlannedAbsenceBoundaries(params: {
           ...params,
           source: externalSource,
           root: externalRoot,
+          ownerRawYamlPath: [],
           rule: nested,
           yamlPrefix: yamlPath,
           rulePrefix: rulePath,
@@ -701,6 +708,7 @@ function appendPlannedAbsenceBoundaries(params: {
         appendPlannedAbsenceBoundaries({
           ...params,
           root: itemRoot,
+          ownerRawYamlPath: [...anchor.yamlPath, itemRule.itemType],
           rule: itemRule,
           yamlPrefix: anchor.yamlPath,
           rulePrefix: rulePath,
@@ -734,6 +742,7 @@ function appendPlannedAbsenceBoundaries(params: {
         appendPlannedAbsenceBoundaries({
           ...params,
           root: element,
+          ownerRawYamlPath: [...params.yamlPrefix, planned.xmlPath.join("\\")],
           rule: nested,
           yamlPrefix: yamlPath,
           rulePrefix: rulePath,
@@ -747,17 +756,120 @@ function appendPlannedAbsenceBoundaries(params: {
       params.existingYamlPaths.has(yamlBoundaryKey)
       || params.existingXmlPaths.has(xmlBoundaryKey)
     ) continue
+    const emptyParent = explicitEmptyPropertyParent({
+      root: params.root,
+      xmlPath: planned.xmlPath,
+      yamlPath,
+      elements,
+      plan,
+      propertyKey: planned.propertyKey,
+      ownerRawYamlPath: params.ownerRawYamlPath,
+    })
     params.existingYamlPaths.add(yamlBoundaryKey)
     params.existingXmlPaths.add(xmlBoundaryKey)
+    const parentXmlKey = emptyParent === undefined
+      ? undefined
+      : JSON.stringify([params.source.sourcePath, emptyParent.xmlPath])
+    if (emptyParent !== undefined && parentXmlKey !== undefined && !params.existingXmlPaths.has(parentXmlKey)) {
+      params.existingXmlPaths.add(parentXmlKey)
+      params.boundaries.push({
+        sourcePath: params.source.sourcePath,
+        sourceRole: params.source.role,
+        xmlPath: emptyParent.xmlPath,
+        yamlPath: emptyParent.yamlPath,
+        rulePath,
+        presentInSource: true,
+        targetPaths: [emptyParent.xmlPath],
+        capturedTargets: emptyParent.capturedTargets,
+        levels: emptyParent.levels,
+      })
+    }
+    const absence = emptyParent?.absence ?? { xmlPath, yamlPath }
+    const absenceXmlKey = JSON.stringify([params.source.sourcePath, absence.xmlPath])
+    if (absence.xmlPath !== xmlPath && params.existingXmlPaths.has(absenceXmlKey)) continue
+    params.existingXmlPaths.add(absenceXmlKey)
     params.boundaries.push({
       sourcePath: params.source.sourcePath,
       sourceRole: params.source.role,
-      xmlPath,
-      yamlPath,
+      xmlPath: absence.xmlPath,
+      yamlPath: absence.yamlPath,
       rulePath,
       presentInSource: false,
     })
   }
+}
+
+function explicitEmptyPropertyParent(params: {
+  readonly root: XmlElementNode
+  readonly xmlPath: readonly string[]
+  readonly yamlPath: readonly (string | number)[]
+  readonly elements: ReadonlyMap<string, XmlElementNode> | undefined
+  readonly plan: ReturnType<typeof getYAMLToXMLPlan>
+  readonly propertyKey: string
+  readonly ownerRawYamlPath: readonly (string | number)[]
+}): {
+  readonly xmlPath: string
+  readonly yamlPath: readonly (string | number)[]
+  readonly capturedTargets: NonNullable<XmlAnomalyProofBoundary["capturedTargets"]>
+  readonly levels: readonly XmlAnomalyProofLevel[]
+  readonly absence: { readonly xmlPath: string; readonly yamlPath: readonly (string | number)[] }
+} | undefined {
+  if (params.xmlPath.length < 2) return undefined
+  let parent: XmlElementNode | undefined
+  let parentSegments: readonly string[] | undefined
+  for (let length = params.xmlPath.length - 1; length > 0; length -= 1) {
+    const candidateSegments = params.xmlPath.slice(0, length)
+    const candidate = params.elements?.get(appendElementPath(params.root.path, candidateSegments))
+    if (candidate === undefined) continue
+    if (!isExplicitEmptyElement(candidate)) return undefined
+    parent = candidate
+    parentSegments = candidateSegments
+    break
+  }
+  if (parent === undefined || parentSegments === undefined) return undefined
+  const ownerPath = params.yamlPath.slice(0, -1)
+  const containerYamlPath = [...ownerPath, parentSegments.join("\\")]
+  const absentSegments = params.xmlPath.slice(0, parentSegments.length + 1)
+  const levels: XmlAnomalyProofLevel[] = []
+  for (let length = parentSegments.length; length >= 0; length -= 1) {
+    const prefix = parentSegments.slice(0, length)
+    const element = length === 0 ? params.root : params.elements?.get(appendElementPath(params.root.path, prefix))
+    if (element === undefined) break
+    const protectedProperty = params.plan.properties.find((candidate) =>
+      candidate.propertyKey !== params.propertyKey && startsWithStringPath(candidate.xmlPath, prefix)
+    )
+    levels.push({
+      xmlPath: element.path,
+      yamlPath: length === 0 ? ownerPath : containerYamlPath,
+      rawYamlPath: length === 0 ? params.ownerRawYamlPath : [...ownerPath, prefix.join("\\")],
+      protectedYamlPaths: protectedProperty === undefined
+        ? []
+        : [[...ownerPath, protectedProperty.yamlKey ?? protectedProperty.propertyKey]],
+      elementName: element.name,
+      structuralHash: element.structuralHash,
+      span: { ...element.span },
+    })
+  }
+  return {
+    xmlPath: parent.path,
+    yamlPath: containerYamlPath,
+    // Здесь доказываем только присутствие контейнера. Его отсутствующие
+    // свойства сохраняют отдельные leaf-границы, в том числе для XML-default.
+    capturedTargets: [{ path: parent.path, signature: auditedNodeSignature(parent), span: { ...parent.span } }],
+    levels,
+    absence: {
+      xmlPath: appendElementPath(params.root.path, absentSegments),
+      yamlPath: absentSegments.length === params.xmlPath.length
+        ? params.yamlPath
+        : [...ownerPath, absentSegments.join("\\")],
+    },
+  }
+}
+
+function isExplicitEmptyElement(element: XmlElementNode): boolean {
+  return element.attributes.length === 0 && element.content.every(
+    (node) => node.type === "text" && node.value.trim().length === 0,
+  )
 }
 
 function appendMissingCanonicalCollectionItems(params: {
@@ -1174,13 +1286,16 @@ export async function proveXmlAnomalyBoundaries(params: {
           document: await readDocument(source.sourcePath),
         })
       }
-      const plannedAbsences = deriveXmlAnomalyPlannedAbsenceBoundaries({
+      const plannedAbsences = captureXmlAnomalyProofAudit({
         sources,
-        rule: params.rule,
-        data,
-        itemAnchors: params.audit.itemAnchors ?? [],
-        existingBoundaries: boundaries,
-      }).filter(({ sourcePath }) => changedSourcePaths.has(sourcePath))
+        boundaries: deriveXmlAnomalyPlannedAbsenceBoundaries({
+          sources,
+          rule: params.rule,
+          data,
+          itemAnchors: params.audit.itemAnchors ?? [],
+          existingBoundaries: boundaries,
+        }),
+      }).boundaries.filter(({ sourcePath }) => changedSourcePaths.has(sourcePath))
       boundaries.push(...plannedAbsences)
     }
   }
@@ -1471,12 +1586,13 @@ export async function proveXmlAnomalyBoundaries(params: {
       const exportedOrder = directElementOrder(exportedElement)
       if (sourceOrder.length <= 1) continue
       if (sameStrings(sourceOrder, exportedOrder)) continue
-      const insertsRawChild = related.some((boundary) =>
-        (boundary.levels ?? []).some((level) =>
+      const insertedChildren = related.flatMap((boundary) =>
+        (boundary.levels ?? []).filter((level) =>
           parentElementPath(level.xmlPath) === xmlPath
           && insertedRawXmlPaths.has(JSON.stringify([source.sourcePath, level.xmlPath]))
         )
       )
+      const insertsRawChild = insertedChildren.length > 0
       if (!sameStringMultiset(sourceOrder, exportedOrder) && !insertsRawChild) continue
       const canonicalOrder = params.rule === undefined || resolvedItemRules === undefined
         ? undefined
@@ -1487,6 +1603,7 @@ export async function proveXmlAnomalyBoundaries(params: {
             sourcePath: source.sourcePath,
             sourceRootPaths: source.roots.map(({ xmlPath: rootPath }) => rootPath),
             xmlPath,
+            insertedChildNames: insertedChildren.map(({ elementName }) => elementName),
           })
       if (
         insertsRawChild
@@ -1507,10 +1624,19 @@ export async function proveXmlAnomalyBoundaries(params: {
       assertRawYamlPathAvailable(data, annotationSnapshot, rawYamlPath, rawYamlPath)
       setRawYamlValue(mutableData(), rawYamlPath, undefined)
       const orderXml = insertsRawChild ? directContentOrderPatch(sourceElement) : { "#order": sourceOrder }
+      const documentRootPath = localRawYamlPath.length === 0
+        ? source.roots.find((root) => relativeXmlElementNames(root.xmlPath, xmlPath) !== undefined)?.xmlPath
+        : undefined
+      let annotationXml: XmlRawValue = orderXml
+      // Публичный @ адресует документ, а XMLRoot-владелец может быть внутри него.
+      const rootRelativePath = documentRootPath === undefined ? [] : relativeXmlElementNames(documentRootPath, xmlPath) ?? []
+      for (let index = rootRelativePath.length - 1; index >= 0; index -= 1) {
+        annotationXml = { [rootRelativePath[index]!]: annotationXml }
+      }
       annotationSnapshot = withRawAnnotation(
         annotationSnapshot,
         rawYamlPath,
-        orderXml,
+        annotationXml,
         false,
       )
       annotationIndex = createProofAnnotationIndex(annotationSnapshot)
@@ -1842,6 +1968,7 @@ function canonicalDirectElementOrder(params: {
   readonly sourcePath: string
   readonly sourceRootPaths: readonly string[]
   readonly xmlPath: string
+  readonly insertedChildNames: readonly string[]
 }): readonly string[] | undefined {
   const anchor = params.itemAnchors
     .filter((candidate) =>
@@ -1867,6 +1994,7 @@ function canonicalDirectElementOrder(params: {
   if (containerPrefix === undefined) return undefined
   const order: string[] = []
   const seen = new Set<string>()
+  const directPropertyNames = new Set<string>()
   const plan = getYAMLToXMLPlan(rule)
   const plannedByKey = new Map(plan.properties.map((planned) => [planned.propertyKey, planned]))
   for (const propertyKey of getCompiledXMLPropertyOrder(rule)) {
@@ -1874,6 +2002,9 @@ function canonicalDirectElementOrder(params: {
     if (planned === undefined) continue
     if (!startsWithStringPath(planned.xmlPath, containerPrefix)) continue
     const elementName = planned.xmlPath[containerPrefix.length]
+    if (elementName !== undefined && planned.xmlPath.length === containerPrefix.length + 1) {
+      directPropertyNames.add(elementName)
+    }
     if (
       elementName === undefined
       || elementName.startsWith("_")
@@ -1883,6 +2014,9 @@ function canonicalDirectElementOrder(params: {
     seen.add(elementName)
     order.push(elementName)
   }
+  // Промежуточный xmlParents-контейнер вставляется как XML-path raw, а не
+  // через PropertyRule, поэтому обычный порядок свойств его не упорядочит.
+  if (params.insertedChildNames.some((name) => !directPropertyNames.has(name))) return undefined
   return order.length === 0 ? undefined : order
 }
 
@@ -1949,6 +2083,7 @@ function orderRawYamlPath(
   const paths = [...candidates.values()]
   if (paths.length === 1) {
     const path = paths[0]!
+    if (path.length === 0) return ["#order"]
     const last = path.at(-1)
     if (typeof last !== "string") return undefined
     return [...path.slice(0, -1), `${last}\\#order`]
