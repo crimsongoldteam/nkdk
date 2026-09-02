@@ -1,5 +1,4 @@
 import { parseMetadataYaml } from "@nkdk/runtime"
-import { join } from "node:path"
 import { beforeAll,describe,expect,it,vi } from "vitest"
 import { mockContext } from "../../tests/mockContext"
 import "../../tests/metadataExecutionContext"
@@ -211,7 +210,7 @@ describe("dependency validation из ProjectState", () => {
     }))
     expect(diagnostics).toEqual([
       expect.objectContaining({
-        filePath: join("/project", extension.projectPath),
+        filePath: extension.projectPath,
         message: expect.stringContaining("ПолеCF"),
       }),
     ])
@@ -282,7 +281,7 @@ describe("dependency validation из ProjectState", () => {
     replaceFiles(store, [current, extension, base, configurationUpdate(true)])
 
     expect(store.validateDependencies({ requests: [] })).toContainEqual(expect.objectContaining({
-      filePath: join("/project", base.projectPath),
+      filePath: base.projectPath,
       message: expect.stringContaining("БазоваяФорма.yaml избыточна"),
     }))
     store.commitUpdate()

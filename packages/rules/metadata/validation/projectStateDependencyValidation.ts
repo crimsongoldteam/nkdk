@@ -53,6 +53,7 @@ import { validateProjectStateDataTableReferenceBatch } from "./dataTables/projec
 import type { DataTableRegistrySet } from "./dataTables/registry"
 import { currentValidationRegistrySet } from "./validationExecutionContext"
 import { resolveProjectValueTargets } from "./projectReferenceValueResolver"
+import { assertProjectDiagnosticPaths } from "../projectState/diagnosticPaths"
 
 export function createProjectStateDependencyValidator(params: {
   readonly structuredDocumentValidators?: readonly ProjectStateStructuredDocumentValidator[]
@@ -81,7 +82,10 @@ export function createProjectStateDependencyValidator(params: {
     validateAddressableRequired: validateProjectStateAddressableRequiredBatch,
     validateReferenceCoverage: validateProjectStateReferenceCoverageBatch,
     validateStructuredDocuments: (validationParams) =>
-      (params.structuredDocumentValidators ?? []).flatMap((validator) => validator(validationParams)),
+      (params.structuredDocumentValidators ?? []).flatMap((validator) => assertProjectDiagnosticPaths(
+        validator(validationParams),
+        validator.name || "Structured document validator",
+      )),
   }
 }
 

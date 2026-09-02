@@ -5,7 +5,7 @@ import {
 } from "@nkdk/runtime"
 import type { Diagnostic, DiagnosticSource, DiagnosticSeverity } from "@nkdk/runtime"
 import { yamlPathToPointer } from "@nkdk/runtime"
-import { join, resolve } from "node:path"
+import { resolve } from "node:path"
 import type {
   ProjectStateDependencyValidator,
   ProjectStateAddressableRequiredCheck,
@@ -24,6 +24,7 @@ import {
 import { createBinaryProjectStateQueryPort } from "./readSession"
 import type { ProjectStateSnapshotView } from "./snapshot"
 import { createTypedProjectStateReader, type TypedProjectStateReader } from "./typedReader"
+import { assertProjectDiagnosticPaths } from "../diagnosticPaths"
 
 const SEVERITIES = [undefined, "error", "warning"] as const
 const SOURCES = [undefined, "syntax", "structure", "external-file", "cross-file", "reference"] as const
@@ -135,7 +136,7 @@ export function validateSnapshotDependencyDiagnostics(
     || !specializedErrorBoundaries.has(diagnosticBoundaryKey(projectDir, filePath, path))
   )
 
-  return [
+  return assertProjectDiagnosticPaths([
     ...referenceResult.diagnostics,
     ...dependencyValidator.validateOwners({ checks: owners, projectDir, queryPort }),
     ...dependencyDiagnostics,
@@ -143,8 +144,8 @@ export function validateSnapshotDependencyDiagnostics(
     ...dependencyValidator.validateReferenceCoverage({ checks: referenceCoverage, projectDir, queryPort }),
     ...structuredDiagnostics,
     ...readiness.diagnostics,
-    ...unnecessaryXmlAnomalyDiagnostics(pending, accepted, projectDir),
-  ]
+    ...unnecessaryXmlAnomalyDiagnostics(pending, accepted),
+  ], "ProjectState dependency validation")
 }
 
 function diagnosticBoundaryKey(projectDir: string, filePath: string, path: string): string {
@@ -265,10 +266,9 @@ function boundaryKey(boundary: ProjectStateXmlAnomalyBoundary): string {
 function unnecessaryXmlAnomalyDiagnostics(
   pending: ReadonlyMap<string, ProjectStateXmlAnomalyBoundary & { readonly line: number; readonly col: number }>,
   accepted: ReadonlySet<string>,
-  projectDir: string,
 ): Diagnostic[] {
   return [...pending].flatMap(([key, boundary]) => accepted.has(key) ? [] : [{
-    filePath: join(projectDir, boundary.projectPath),
+    filePath: boundary.projectPath,
     line: boundary.line,
     col: boundary.col,
     path: yamlPathToPointer(boundary.yamlPath),

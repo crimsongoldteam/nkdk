@@ -34,6 +34,7 @@ it("сообщает о лишнем теге один раз после все�
   const diagnostics = validateSnapshotDependencyDiagnostics(snapshot("pending"), "/project", testValidator())
 
   expect(diagnostics).toEqual([expect.objectContaining({
+    filePath: "cf/Объект.yaml",
     path: "/Значение",
     source: "structure",
     message: "Тег XML-аномалии лишний: значение не содержит ошибки",
@@ -82,6 +83,22 @@ it("оставляет специализированную диагностик
   const diagnostics = validateSnapshotDependencyDiagnostics(snapshot("none"), "/project", validator)
   expect(diagnostics).toContainEqual(specialized)
   expect(diagnostics).not.toContainEqual(common)
+})
+
+it("отклоняет абсолютный путь от валидатора зависимостей", () => {
+  const validator = testValidator({
+    validateStructuredDocuments: () => [{
+      filePath: "C:\\project\\cf\\Объект.yaml",
+      line: 1,
+      col: 1,
+      severity: "error",
+      source: "structure",
+      message: "Ошибка",
+    }],
+  })
+
+  expect(() => validateSnapshotDependencyDiagnostics(snapshot("none"), "/project", validator))
+    .toThrow("ProjectState dependency validation вернул недопустимый путь диагностики")
 })
 
 function snapshot(xmlAnomaly: "pending" | "accepted" | "none", dependencyCopies = 1): ProjectStateSnapshotView {
