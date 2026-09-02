@@ -30,25 +30,29 @@ function fixture(t, names) {
   git(repo, "config", "user.name", "NKDK Test")
   git(repo, "config", "user.email", "test@example.invalid")
   git(repo, "config", "commit.gpgsign", "false")
+  git(repo, "config", "core.autocrlf", "false")
   git(repo, "config", "core.hooksPath", ".git/hooks")
   git(repo, "add", ".")
   git(repo, "commit", "-qm", "source")
   const base = git(repo, "rev-parse", "HEAD")
-  const bin = join(root, "bin")
-  mkdirSync(bin)
   mkdirSync(join(root, "tmp"))
-  const nodeShim = join(bin, "node")
-  writeFileSync(nodeShim, `#!${process.execPath}
+  const nodeShim = join(root, "mcp-preload.cjs")
+  writeFileSync(nodeShim, `
 const fs = require('node:fs');
 const path = require('node:path');
-if (!process.argv[2]?.endsWith('/mcp-round-trip.mjs')) {
-  const child = require('node:child_process').spawnSync(process.execPath, process.argv.slice(2), {stdio:'inherit'});
-  process.exit(child.status ?? 1);
-}
+const childProcess = require('node:child_process');
+const originalSpawn = childProcess.spawnSync;
+childProcess.spawnSync = (command, ...args) => {
+  if (['bash', 'find', 'ln', 'rm', 'cp', 'mv'].includes(command)) throw new Error('Unix command forbidden: ' + command);
+  return originalSpawn(command, ...args);
+};
+require('node:module').syncBuiltinESMExports();
+if (path.basename(process.argv[1] ?? '') === 'mcp-round-trip.mjs') {
 const manifest = JSON.parse(fs.readFileSync(process.argv[process.argv.indexOf('--manifest') + 1], 'utf8'));
 for (const component of manifest.components) {
   if (component.componentPath !== 'cf') process.exit(42);
   if (!component.yamlDir.startsWith(process.env.NKDK_TEST_ROOT)) process.exit(43);
+  if (component.yamlDir !== path.join(component.projectDir, 'cf')) process.exit(44);
   const operations = path.join(component.projectDir, '.nkdk', 'operations');
   fs.mkdirSync(operations, {recursive:true});
   const timing = {createdAt:'2026-09-02T00:00:00.000Z', updatedAt:'2026-09-02T00:00:02.000Z'};
@@ -85,6 +89,10 @@ for (const component of manifest.components) {
     ...timing, updatedAt:'2026-09-02T00:00:03.000Z', ok:true, status:'succeeded', operationKind:'sync_to_xml',
   }));
   fs.cpSync(component.xmlDir, component.xmlOutputDir, {recursive:true});
+  if (component.xmlDir.endsWith('03-empty')) fs.rmSync(path.join(component.xmlOutputDir, 'Configuration.xml'));
+  for (const relative of ['.nakidka-migrations.yaml', 'Ext/ParentConfigurations.bin', 'Ext/ParentConfigurations/base.cf']) {
+    fs.rmSync(path.join(component.xmlOutputDir, relative), {force:true});
+  }
   if (component.xmlDir.endsWith('01-change [a]')) {
     fs.writeFileSync(path.join(component.xmlOutputDir, 'Configuration.xml'), '<Changed/>\\n');
     fs.rmSync(path.join(component.xmlOutputDir, 'old.xml'));
@@ -94,15 +102,18 @@ for (const component of manifest.components) {
     fs.writeFileSync(path.join(component.xmlOutputDir, 'old.xml'), 'changed again\\n');
   }
 }
+process.exit(0);
+}
 `)
-  chmodSync(nodeShim, 0o755)
   const run = (args = ["--repo", repo], extraEnv = {}) => spawnSync(process.execPath, [script, ...args], {
     cwd: root,
     encoding: "utf8",
     env: {
       ...process.env,
-      PATH: `${bin}:${process.env.PATH}`,
+      NODE_OPTIONS: [process.env.NODE_OPTIONS, '--require', JSON.stringify(nodeShim)].filter(Boolean).join(' '),
       TMPDIR: join(root, "tmp"),
+      TEMP: join(root, "tmp"),
+      TMP: join(root, "tmp"),
       NKDK_TEST_ROOT: root,
       // Старые настройки одиночного запуска не должны влиять на пакетный.
       NKDK_XML_DIR: "/invalid/old-config",
@@ -169,6 +180,29 @@ test("накапливает отдельные коммиты с diff и сох
   assert.equal(readFileSync(join(repo, "cf/01-change [a]/new.xml"), "utf8"), "new\n")
   assert.equal(git(repo, "rev-parse", "main"), base)
   assert.equal(git(repo, "status", "--porcelain"), "")
+})
+
+test("сохраняет reference-only файлы после экспорта в каталоге с пробелами и кириллицей", (t) => {
+  const { repo, run } = fixture(t, ["Тестовая конфигурация"])
+  const directory = join(repo, "cf", "Тестовая конфигурация")
+  mkdirSync(join(directory, "Ext/ParentConfigurations"), { recursive: true })
+  const files = [".nakidka-migrations.yaml", "Ext/ParentConfigurations.bin", "Ext/ParentConfigurations/base.cf"]
+  for (const file of files) writeFileSync(join(directory, file), "reference bytes\n")
+  git(repo, "add", "cf")
+  git(repo, "commit", "-qm", "reference files")
+  const result = run()
+  assert.equal(result.status, 0, result.stderr)
+  for (const file of files) assert.equal(readFileSync(join(directory, file), "utf8"), "reference bytes\n")
+  assert.match(report(repo), /Тестовая конфигурация \| без расхождений/u)
+})
+
+test("не заменяет исходный XML неполным экспортом и продолжает следующие конфигурации", (t) => {
+  const { repo, base, run } = fixture(t, ["03-empty", "04-change"])
+  const result = run()
+  assert.equal(result.status, 1)
+  assert.match(report(repo), /cf\/03-empty \| ошибка/u)
+  assert.equal(git(repo, "diff", base, "--", "cf/03-empty"), "")
+  assert.equal(readFileSync(join(repo, "cf/04-change/old.xml"), "utf8"), "changed again\n")
 })
 
 test("создаёт ветку и выбирает конфигурации из main, не наследуя прошлый прогон", (t) => {
@@ -399,9 +433,11 @@ test("отказывает до создания ветки при небезо�
         const external = join(root, "external")
         mkdirSync(external)
         writeFileSync(join(external, "Configuration.xml"), "untouched\n")
-        symlinkSync(external, join(repo, "cf", "link"))
-        git(repo, "add", "cf/link")
-        git(repo, "commit", "-qm", "link")
+        symlinkSync(external, join(repo, "cf", "link"), process.platform === "win32" ? "junction" : "dir")
+        if (process.platform !== "win32") {
+          git(repo, "add", "cf/link")
+          git(repo, "commit", "-qm", "link")
+        }
       }
       if (kind === "subdirectory") args = ["--repo", join(repo, "cf")]
       if (kind.startsWith("ignored-")) {

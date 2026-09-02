@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { spawnSync } from "node:child_process"
-import { appendFileSync, closeSync, existsSync, lstatSync, mkdirSync, mkdtempSync, openSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync } from "node:fs"
+import { appendFileSync, closeSync, copyFileSync, cpSync, existsSync, lstatSync, mkdirSync, mkdtempSync, openSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { dirname, join, posix, resolve } from "node:path"
 import { performance } from "node:perf_hooks"
@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url"
 import { collectRoundTripStatistics, readDiagnostics, XML_STATISTIC_KINDS } from "./round-trip-statistics.mjs"
 
 const nkdkRoot = dirname(dirname(fileURLToPath(import.meta.url)))
-const runner = join(nkdkRoot, ".agents/skills/round-trip-yaml/round-trip.sh")
+const runner = join(nkdkRoot, ".agents/skills/round-trip-yaml/mcp-round-trip.mjs")
 const durationKeys = ["importMs", "exportMs", "totalMs"]
 
 function formatDuration(milliseconds) {
@@ -61,18 +61,24 @@ function rejectNestedRepositories(repo, paths) {
   if (modes.split("\n").includes("160000")) {
     throw new Error("Подмодули внутри конфигураций не поддерживаются")
   }
-  // .git внутри обычного tracked-каталога не виден в status и не является gitlink.
-  const nested = spawnSync("find", [...paths.map((path) => join(repo, path)),
-    "-name", ".git", "-prune", "!", "-path", join(repo, ".git"), "-print0",
-    "-o", "-name", "HEAD", "-type", "f", "-print0"], { encoding: "utf8" })
-  if (nested.error || nested.status !== 0) throw new Error(nested.error?.message || nested.stderr)
-  for (const path of nested.stdout.split("\0").filter(Boolean)) {
-    if (path.endsWith("/.git")) throw new Error(`Вложенный Git в репозитории: ${path}`)
-    // Bare-репозиторий хранит HEAD/objects/refs без обёртки .git.
-    const bare = spawnSync("git", ["--git-dir", dirname(path), "rev-parse", "--is-bare-repository"], { encoding: "utf8" })
-    if (bare.error) throw bare.error
-    if (bare.status === 0) throw new Error(`Вложенный Git в репозитории: ${dirname(path)}`)
+  // Не следуем по ссылкам/junction и не обходим служебный Git самого репозитория.
+  function visit(directory) {
+    for (const entry of readdirSync(directory, { withFileTypes: true })) {
+      const path = join(directory, entry.name)
+      if (entry.name.toLowerCase() === ".git") {
+        if (path === join(repo, ".git")) continue
+        throw new Error(`Вложенный Git в репозитории: ${path}`)
+      }
+      if (entry.isSymbolicLink()) throw new Error(`Недопустимая символическая ссылка: ${path}`)
+      if (entry.name === "HEAD" && entry.isFile()) {
+        const bare = spawnSync("git", ["--git-dir", directory, "rev-parse", "--is-bare-repository"], { encoding: "utf8" })
+        if (bare.error) throw bare.error
+        if (bare.status === 0) throw new Error(`Вложенный Git в репозитории: ${directory}`)
+      }
+      if (entry.isDirectory()) visit(path)
+    }
   }
+  for (const path of paths) visit(join(repo, path))
 }
 
 function directoryBytes(directory) {
@@ -190,18 +196,34 @@ async function readRunErrors(run) {
 
 function runConfiguration(repo, entry, run) {
   mkdirSync(run.tempDir, { recursive: true })
+  const manifestDirectory = join(run.tempDir, "round-trip-yaml-mcp-project")
+  const component = {
+    xmlDir: join(repo, entry.path),
+    xmlOutputDir: join(run.tempDir, "xml-output"),
+    projectDir: join(manifestDirectory, "project"),
+    componentPath: "cf",
+    yamlDir: run.yamlDir,
+    importOutputPath: join(manifestDirectory, "import-output.json"),
+    syncOutputPath: join(manifestDirectory, "sync-output.json"),
+  }
+  // Обычный каталог project/cf вместо symlink: Windows не требует Developer Mode.
+  mkdirSync(run.yamlDir, { recursive: true })
+  mkdirSync(component.xmlOutputDir)
+  const manifest = join(manifestDirectory, "configuration.manifest.json")
+  writeFileSync(manifest, JSON.stringify({ components: [component] }))
+  if (git(repo, "status", "--porcelain", "--", entry.path)) {
+    throw new Error(`Активный XML-каталог содержит изменения: ${entry.path}`)
+  }
+  directoryBytes(component.xmlDir) // Отклоняет ссылки до копирования/замены.
   const output = openSync(run.log, "w")
   try {
-    const result = spawnSync("bash", [runner], {
+    appendFileSync(output, `[yaml] ${run.yamlDir}\n[xml] ${component.xmlOutputDir}\n[manifest] ${manifest}\n`)
+    const result = spawnSync(process.execPath, [runner, "--manifest", manifest], {
       cwd: nkdkRoot,
       stdio: ["ignore", output, output],
       env: {
         ...process.env,
         GIT_LITERAL_PATHSPECS: "1",
-        NKDK_XML_REPO: repo,
-        NKDK_XML_DIR: join(repo, entry.path),
-        NKDK_ROUND_TRIP_YAML_DIR: run.yamlDir,
-        TMPDIR: run.tempDir,
       },
     })
     if (result.error || result.status !== 0) {
@@ -210,6 +232,30 @@ function runConfiguration(repo, entry, run) {
   } finally {
     closeSync(output)
   }
+  directoryBytes(component.xmlOutputDir)
+  const exportedConfiguration = join(component.xmlOutputDir, "Configuration.xml")
+  if (!existsSync(exportedConfiguration) || !lstatSync(exportedConfiguration).isFile()) {
+    throw new Error("Экспорт не создал Configuration.xml; исходный XML не заменён")
+  }
+  // Эти файлы не входят в YAML-договор; результат экспортёра не перезаписываем.
+  const referenceFiles = [".nakidka-migrations.yaml", "Ext/ParentConfigurations.bin"]
+  const parentDirectory = join(component.xmlDir, "Ext", "ParentConfigurations")
+  if (existsSync(parentDirectory)) {
+    referenceFiles.push(...readdirSync(parentDirectory).filter((name) => name.endsWith(".cf"))
+      .map((name) => join("Ext", "ParentConfigurations", name)))
+  }
+  for (const relative of referenceFiles) {
+    const source = join(component.xmlDir, relative)
+    const target = join(component.xmlOutputDir, relative)
+    if (!existsSync(source) || !lstatSync(source).isFile() || existsSync(target)) continue
+    mkdirSync(dirname(target), { recursive: true })
+    copyFileSync(source, target)
+  }
+  // Копирование поддерживает разные диски для TEMP и XML-репозитория.
+  for (const name of readdirSync(component.xmlDir)) {
+    rmSync(join(component.xmlDir, name), { recursive: true, force: true, maxRetries: 3 })
+  }
+  cpSync(component.xmlOutputDir, component.xmlDir, { recursive: true })
 }
 
 function prepareBatch(repo, testMode, timestamp) {
@@ -293,7 +339,7 @@ async function runBatch(repoPath, testMode) {
     console.log(`[${index + 1}/${entries.length}] ${entry.path}`)
     const run = {
       tempDir: join(report.tempRoot, `run-${index + 1}`),
-      yamlDir: join(report.tempRoot, "yaml", String(index + 1)),
+      yamlDir: join(report.tempRoot, `run-${index + 1}`, "round-trip-yaml-mcp-project", "project", "cf"),
       log: join(repo, logDirectory, `log-${index + 1}.txt`),
     }
     try {
@@ -346,8 +392,7 @@ async function runBatch(repoPath, testMode) {
     }
     saveReport(report)
     // Удаляются только каталоги этой конфигурации внутри собственного mkdtemp.
-    rmSync(run.tempDir, { recursive: true, force: true })
-    rmSync(run.yamlDir, { recursive: true, force: true })
+    rmSync(run.tempDir, { recursive: true, force: true, maxRetries: 3 })
     entry.totalMs = performance.now() - entryStartedAt
     saveReport(report)
   }
@@ -356,7 +401,7 @@ async function runBatch(repoPath, testMode) {
   git(repo, "add", "--", file, logDirectory)
   // Только отчёт и журналы: остатки ошибочного XML-коммита не захватываются.
   git(repo, "commit", "--only", "-m", "docs: :memo: сохранить отчёт пакетного round-trip", "--", file, logDirectory)
-  rmSync(report.tempRoot, { recursive: true, force: true })
+  rmSync(report.tempRoot, { recursive: true, force: true, maxRetries: 3 })
   console.log(`Прогон ${report.status}. Отчёт: ${join(repo, file)}`)
   return failed ? 1 : 0
 }

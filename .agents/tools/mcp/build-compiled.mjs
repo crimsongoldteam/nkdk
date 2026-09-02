@@ -9,19 +9,25 @@ export function buildCompiledMcp({
   spawn = spawnSync,
   root = repoRoot,
   exists = existsSync,
+  platform = process.platform,
 } = {}) {
   const generatedPackageFiles = ["packages/mcp/README.md", "packages/mcp/LICENSE"]
     .map((relativePath) => join(root, relativePath))
     .filter((path) => existsSync(path))
     .map((path) => ({ path, contents: readFileSync(path) }))
   try {
-    const result = spawn("pnpm", ["--filter", "@nkdk/mcp", "build"], {
+    // На Windows pnpm обычно является .cmd, а не исполняемым файлом.
+    // Команда фиксированная: пользовательские пути передаются только через cwd.
+    const command = platform === "win32" ? (process.env.ComSpec || "cmd.exe") : "pnpm"
+    const args = platform === "win32" ? ["/d", "/s", "/c", "pnpm --filter @nkdk/mcp build"]
+      : ["--filter", "@nkdk/mcp", "build"]
+    const result = spawn(command, args, {
       cwd: root,
       encoding: "utf8",
       maxBuffer: 1024 * 1024 * 128,
     })
-    if (result.status !== 0) {
-      const details = [result.stderr, result.stdout].filter(Boolean).join("\n").trim()
+    if (result.error || result.status !== 0) {
+      const details = [result.error?.message, result.stderr, result.stdout].filter(Boolean).join("\n").trim()
       throw new Error(
         `Сборка MCP завершилась с кодом ${result.status ?? "unknown"}${details.length === 0 ? "" : `\n${details}`}`
       )

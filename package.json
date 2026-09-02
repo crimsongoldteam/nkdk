@@ -26,7 +26,7 @@
     "fixtures:e2e:nkdk": "pnpm --filter @nkdk/rules exec tsx ../../e2e/update-nkdk-fixture.ts",
     "type-check": "pnpm --filter \"./packages/*\" -r exec tsc --noEmit && tsc --noEmit -p e2e/tsconfig.json",
     "test": "pnpm test:round-trip-batch && pnpm test:duplicates-script && pnpm test:unit-boundaries && pnpm -r --workspace-concurrency=1 run test",
-    "test:round-trip-batch": "node --test scripts/round-trip-batch.test.mjs scripts/round-trip-statistics.test.mjs",
+    "test:round-trip-batch": "node --test scripts/round-trip-batch.test.mjs scripts/round-trip-statistics.test.mjs .agents/tools/mcp/build-compiled.test.mjs",
     "test:duplicates-script": "node --test scripts/check-new-duplicates.test.mjs",
     "test:unit-boundaries": "node --test scripts/unit-test-dependency-boundaries.test.mjs && node scripts/check-unit-test-dependencies.mjs",
     "test:isolated": "pnpm -r --workspace-concurrency=1 run test:isolated",

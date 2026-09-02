@@ -73,6 +73,7 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @nkdk/runtime test:integration
+      - run: pnpm test:round-trip-batch
       - run: pnpm --filter @nkdk/mcp smoke:packed
 
   duplicates:
