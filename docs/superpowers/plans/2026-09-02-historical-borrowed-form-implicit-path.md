@@ -190,8 +190,8 @@ it("помечает путь элемента только из историч�
 Run:
 
 ```powershell
-pnpm --filter @nkdk/rules exec vitest run --config vitest.config.ts --project core-metadata packages/rules/metadata/forms/clientApplicationForm/formDataPathContext.test.ts
-pnpm --filter @nkdk/rules exec vitest run --config vitest.config.ts --project native-lmdb-integration packages/rules/metadata/importFromXml/importConfigurationExtension.integration.test.ts
+pnpm --filter @nkdk/rules exec vitest run --config vitest.config.ts --project core-metadata metadata/forms/clientApplicationForm/formDataPathContext.test.ts
+pnpm --filter @nkdk/rules exec vitest run --config vitest.config.ts --project native-lmdb-integration metadata/importFromXml/importConfigurationExtension.integration.test.ts
 ```
 
 Expected: unit-тест FAIL, потому что `materializeInheritedRootFormDataPaths` пропускает любой `origin: "borrowed"`; интеграционный тест FAIL, потому что YAML содержит диагностическую ошибку, но не содержит материализованного `ПутьКДанным` с `!xml/invalid`.
@@ -241,8 +241,8 @@ for (const element of params.context.elementsByName.values()) {
 Run:
 
 ```powershell
-pnpm --filter @nkdk/rules exec vitest run --config vitest.config.ts --project core-metadata packages/rules/metadata/forms/clientApplicationForm/formDataPathContext.test.ts packages/rules/metadata/forms/clientApplicationForm/borrowedFormDataPathPolicy.test.ts packages/rules/metadata/forms/clientApplicationForm/borrowedFormValidation.test.ts
-pnpm --filter @nkdk/rules exec vitest run --config vitest.config.ts --project native-lmdb-integration packages/rules/metadata/importFromXml/importConfigurationExtension.integration.test.ts
+pnpm --filter @nkdk/rules exec vitest run --config vitest.config.ts --project core-metadata metadata/forms/clientApplicationForm/formDataPathContext.test.ts metadata/forms/clientApplicationForm/borrowedFormDataPathPolicy.test.ts metadata/forms/clientApplicationForm/borrowedFormValidation.test.ts
+pnpm --filter @nkdk/rules exec vitest run --config vitest.config.ts --project native-lmdb-integration metadata/importFromXml/importConfigurationExtension.integration.test.ts
 pnpm --filter @nkdk/rules type-check
 ```
 
