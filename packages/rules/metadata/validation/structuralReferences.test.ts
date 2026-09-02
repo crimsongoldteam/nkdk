@@ -71,9 +71,9 @@ it.each([
 })
 
 it.each([
-  "3062c54f-92ed-42c5-b62f-1c0e685cfe75",
-  "1:93701593-5ac8-4266-b471-7e9ed35a9c3e",
-])("сообщает структурную ошибку для нетегированной внутренней ссылки %s", (payload) => {
+  ["3062c54f-92ed-42c5-b62f-1c0e685cfe75", "UUID metadata-ссылки требует !xml/uuid"],
+  ["1:93701593-5ac8-4266-b471-7e9ed35a9c3e", "Неизвестный корень"],
+])("сообщает структурную ошибку для нетегированной внутренней ссылки %s", (payload, message) => {
   const parsed = parseMetadataYaml(`Ссылка: ${payload}`)
   const registry = createPropertyRuleRegistrySet(metadataRules)
   const rule = {
@@ -87,7 +87,7 @@ it.each([
     },
   } as MetadataItemRule
 
-  expect(() => collectProbeReferences(parsed, rule, registry)).toThrow("Неизвестный корень")
+  expect(() => collectProbeReferences(parsed, rule, registry)).toThrow(message)
 })
 
 it("resolves and preserves a short member reference owned by the sibling type", () => {
@@ -229,6 +229,26 @@ it.each([
   expect(occurrences[0]).toMatchObject({
     location: { kind: "value", path: ["Значение"] },
     representation: { kind: "canonical", canonical },
+  })
+})
+
+it("перечисляет составной UUID MetadataValue из YAML", () => {
+  const uuid = "A786340B-1CA9-48EE-8517-6BD389390BCC.00000000-0000-0000-0000-000000000000"
+  const registry = createPropertyRuleRegistrySet(metadataRules)
+  const occurrences = registry.getTypeRule("MetadataValue", "metadataTargetOccurrences")!({
+    value: uuid,
+    representation: "yaml",
+    yamlPath: ["ЗначениеЗаполнения"],
+    propRule: {
+      type: "MetadataValue",
+      metadataTarget: { kind: "value", valueKinds: ["emptyRef"], allowEmptyRef: true },
+    },
+  })
+
+  expect(occurrences).toHaveLength(1)
+  expect(occurrences[0]).toMatchObject({
+    location: { kind: "value", path: ["ЗначениеЗаполнения"] },
+    representation: { kind: "canonical", canonical: uuid },
   })
 })
 

@@ -13,6 +13,7 @@ import {
   isTypeOwnedMetadataTargetUnavailable,
   metadataTargetOwnerForProperty,
 } from "../ruleRuntime/property/metadataTargetString"
+import { isMetadataTargetUuid } from "../helpers/mdObjectRefUuid"
 
 export interface StructuralReferencePropertyRule {
   readonly type: string
@@ -63,6 +64,7 @@ export interface StructuralReferenceRuntime {
     value: unknown
     owner?: MetadataTargetOwner
     yaml?: unknown
+    annotations?: ParsedYaml["annotations"]
   }) => unknown
   readonly valueToYAML: (params: {
     context: unknown
@@ -210,6 +212,7 @@ function collectObjectReferences(params: {
       value: yamlValue,
       owner: propertyOwner,
       yaml: record,
+      annotations: params.parsed.annotations,
     })
     const candidates = params.runtime.collectStructuralReferences({
       ...handlerParams,
@@ -241,6 +244,7 @@ function collectObjectReferences(params: {
         stagedCanonical = undefined
       }
       for (const candidate of candidates) {
+        if (isMetadataTargetUuid(candidate.canonical)) continue
         if (typeof candidate.setCanonical !== "function") {
           throw new Error(`Правило ${propertyRule.type} распознало ссылку без setter в ${params.filePath}`)
         }

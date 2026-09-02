@@ -47,6 +47,12 @@ interface MetadataTargetTransformationParams {
   readonly annotations?: XmlAnomalyAnnotations
 }
 
+export type MetadataTargetUuidContract =
+  | { readonly kind: "none" }
+  | { readonly kind: "accepted"; readonly annotation: XmlAnomalyAnnotation; readonly text: string }
+  | { readonly kind: "required"; readonly text: string }
+  | { readonly kind: "unnecessary"; readonly annotation: XmlAnomalyAnnotation; readonly text: string }
+
 export interface MetadataTargetYAMLProjection {
   readonly value: unknown
   readonly uuidOccurrences: readonly MetadataTargetOccurrence[]
@@ -91,21 +97,22 @@ export function importMetadataTargetOccurrencesFromYAML(params: MetadataTargetTr
   let result = params.value
   for (const occurrence of params.occurrences) {
     if (occurrence.representation.kind !== "canonical") continue
+    const uuidContract = metadataTargetUuidContractForOccurrence(params, occurrence)
+    if (uuidContract.kind === "required") {
+      throw new Error("UUID metadata-ссылки требует !xml/uuid")
+    }
+    if (uuidContract.kind === "unnecessary") {
+      throw new Error("!xml/uuid допустим только для UUID или UUID.UUID metadata-ссылки")
+    }
+    if (uuidContract.kind === "accepted") {
+      occurrence.setValue(uuidContract.text)
+      if (typeof params.value === "string" && params.occurrences.length === 1) result = uuidContract.text
+      continue
+    }
     const annotation = annotationForOccurrence(params, occurrence)
     const text = occurrence.location.kind === "key" && annotation?.logicalKey !== undefined
       ? annotation.logicalKey
       : occurrence.representation.canonical
-    if (isMetadataTargetUuid(text)) {
-      if (annotation?.kind !== "uuid") {
-        throw new Error("UUID metadata-ссылки требует !xml/uuid")
-      }
-      occurrence.setValue(text)
-      if (typeof params.value === "string" && params.occurrences.length === 1) result = text
-      continue
-    }
-    if (annotation?.kind === "uuid") {
-      throw new Error("!xml/uuid допустим только для UUID или UUID.UUID metadata-ссылки")
-    }
     const constraint = metadataTargetConstraintForOwner(occurrence.constraint, params.owner)
     const parsed = parseMetadataTargetFromYAML({ value: text, constraint, owner: params.owner })
     if (parsed.ok) {
@@ -120,6 +127,24 @@ export function importMetadataTargetOccurrencesFromYAML(params: MetadataTargetTr
     throw new Error(parsed.message)
   }
   return result
+}
+
+export function metadataTargetUuidContractForOccurrence(
+  params: Pick<MetadataTargetTransformationParams, "yaml" | "annotations">,
+  occurrence: MetadataTargetOccurrence,
+): MetadataTargetUuidContract {
+  const annotation = annotationForOccurrence(params, occurrence)
+  const text = occurrence.location.kind === "key" && annotation?.logicalKey !== undefined
+    ? annotation.logicalKey
+    : occurrence.representation.canonical
+  if (isMetadataTargetUuid(text)) {
+    return annotation?.kind === "uuid"
+      ? { kind: "accepted", annotation, text }
+      : { kind: "required", text }
+  }
+  return annotation?.kind === "uuid"
+    ? { kind: "unnecessary", annotation, text }
+    : { kind: "none" }
 }
 
 function annotationForOccurrence(
