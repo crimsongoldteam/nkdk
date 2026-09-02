@@ -39,7 +39,12 @@ export type ProjectDependencyInputQuery = Readonly<{
 }>
 export interface ProjectDependencyInput { readonly owners: readonly { readonly owner: OwnerTypeRef; readonly facts: ProjectStateOwnerFacts }[]; readonly fields: readonly ProjectStateFieldEntry[]; readonly forms: readonly ProjectStateFormEntry[] }
 export type ProjectDependencyInputResult = { readonly requestId: string; readonly status: "found"; readonly input: ProjectDependencyInput } | { readonly requestId: string; readonly status: "missing" }
-export interface ProjectDependencyOwnerInputQuery { readonly requestId: string; readonly componentPath: string; readonly owner: OwnerTypeRef }
+export interface ProjectDependencyOwnerInputQuery {
+  readonly requestId: string
+  readonly componentPath: string
+  readonly owner: OwnerTypeRef
+  readonly projectPath?: string
+}
 export interface ProjectDependencyOwnerInput { readonly owner: OwnerTypeRef; readonly facts: ProjectStateOwnerFacts; readonly fields: readonly ProjectStateFieldEntry[] }
 export type ProjectDependencyOwnerInputResult = { readonly requestId: string; readonly status: "found"; readonly input: ProjectDependencyOwnerInput } | { readonly requestId: string; readonly status: "missing" }
 export interface ProjectOwnerRefPageQuery { readonly componentPath: string; readonly kind: OwnerTypeRef["kind"]; readonly cursor?: string }

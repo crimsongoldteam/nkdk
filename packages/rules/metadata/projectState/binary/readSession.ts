@@ -300,8 +300,10 @@ function readDependencyOwnerInputs(
   readFields: ReadFields,
   requests: readonly ProjectDependencyOwnerInputQuery[],
 ) {
-  return requests.map(({ requestId, componentPath, owner }) => {
-    const selected = selectOwnerFile(snapshot, readOwners, componentPath, owner)
+  return requests.map(({ requestId, componentPath, owner, projectPath }) => {
+    const selected = projectPath === undefined
+      ? selectOwnerFile(snapshot, readOwners, componentPath, owner)
+      : selectOwnerProjectFile(snapshot, readOwners, componentPath, owner, projectPath)
     if (selected.status !== "found") return { requestId, status: "missing" as const }
     return {
       requestId,
@@ -313,6 +315,21 @@ function readDependencyOwnerInputs(
       },
     }
   })
+}
+
+function selectOwnerProjectFile(
+  snapshot: ProjectStateSnapshotView,
+  readOwners: ReadOwners,
+  componentPath: string,
+  owner: OwnerTypeRef,
+  projectPath: string,
+): ReturnType<typeof selectOwnerFile> {
+  const fileId = snapshot.findFile(projectPath)
+  if (fileId === undefined || snapshot.componentPath(fileId) !== componentPath) return { status: "missing" }
+  const owners = readOwners(fileId)
+  return owners.some((entry) => sameOwner(entry.owner, owner))
+    ? { status: "found", fileId, owners }
+    : { status: "missing" }
 }
 
 function findReferences(
