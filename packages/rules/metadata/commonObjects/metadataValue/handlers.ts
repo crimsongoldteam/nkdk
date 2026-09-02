@@ -169,7 +169,9 @@ export const primitiveValueHandlers: Record<MetadataPrimitiveValueType, Metadata
     fromYAML: (ctx, data) => {
       if (typeof data !== "string") return undefined
       if (data === ".") return { type: "ref", value: "" } satisfies MetadataRefValue
-      if (isMetadataTargetUuid(data)) return { type: "ref", value: data } satisfies MetadataRefValue
+      if (isMetadataTargetUuid(data) && data.includes(".")) {
+        return { type: "ref", value: data } satisfies MetadataRefValue
+      }
       const converted = importMetadataValueStringFromYAML(ctx, referenceValueRule, data)
       if (converted?.includes(".")) return { type: "ref", value: converted } satisfies MetadataRefValue
       return undefined

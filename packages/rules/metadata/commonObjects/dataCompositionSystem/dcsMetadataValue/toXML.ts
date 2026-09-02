@@ -264,8 +264,7 @@ const exportDcsMetadataValueToXMLForRule: ExportToXMLFunctionNew = ({ context, r
     value !== null &&
     typeof value === "object" &&
     !Array.isArray(value) &&
-    ((value as Record<string, unknown>).type === "string" ||
-      (value as Record<string, unknown>).type === "ref") &&
+    (value as Record<string, unknown>).type === "string" &&
     typeof (value as Record<string, unknown>).value === "string"
       ? { type: "uuid", value: (value as Record<string, unknown>).value }
       : value

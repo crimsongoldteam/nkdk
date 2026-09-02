@@ -55,6 +55,7 @@ describe("XML-аннотации YAML", () => {
     ["mapping", "Значение: !xml/uuid { Часть: value }"],
     ["sequence", "Значение: !xml/uuid [value]"],
     ["корневая карта", "!xml/uuid\nЗначение: value"],
+    ["корневой скаляр", "!xml/uuid 00000000-0000-0000-0000-000000000000"],
     ["номер occurrence", "!xml/uuid/2 Значение: value"],
   ])("отклоняет !xml/uuid на %s", (_name, source) => {
     const parsed = parseMetadataYaml(source)

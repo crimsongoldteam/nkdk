@@ -403,6 +403,9 @@ function applyParsedXmlAnomalyAnnotations(
       if (entry.annotation.kind === "raw") {
         throw new YAMLException("!xml/raw недопустим на корне metadata item")
       }
+      if (entry.annotation.kind === "uuid") {
+        throw new YAMLException("!xml/uuid недопустим на корне metadata item")
+      }
       annotations.setRoot(entry.annotation)
       if (entry.rawPayload === "compact") normalized = undefined
       if (entry.rawPayload === "null") normalized = null

@@ -1,6 +1,6 @@
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
-import { ExplicitYAMLString, isExplicitYAMLString } from "@nkdk/runtime"
+import { ExplicitYAMLString, isExplicitYAMLString, isMetadataTargetUuid } from "@nkdk/runtime"
 import { ConfigurationContext } from "@nkdk/runtime"
 import { primitiveValueHandlers } from "./handlers"
 import { importStandardPeriodFromYAML, isStandardPeriodYAML } from "../standardPeriod/fromYAML"
@@ -60,6 +60,14 @@ export const importMetadataValueFromYAML = (
   if (ruleTyped?.valueType?.includes("DataCompositionComparisonType")) {
     const result = primitiveValueHandlers.DataCompositionComparisonType.fromYAML(context, data)
     if (result !== undefined) return result
+  }
+
+  if (
+    typeof data === "string" &&
+    ruleTyped?.valueType?.includes("ref") &&
+    isMetadataTargetUuid(data)
+  ) {
+    return { type: "ref", value: data }
   }
 
   // Агрегатные типы определяются по форме данных, не по rule

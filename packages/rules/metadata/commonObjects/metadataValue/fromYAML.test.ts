@@ -111,6 +111,34 @@ describe("importMetadataValueFromYAML", () => {
     })
   })
 
+  it("не считает одиночный UUID metadata-ссылкой без ref-договора", () => {
+    const uuid = "00000000-0000-0000-0000-000000000000"
+
+    expect(importMetadataValueFromYAML(mockContext, undefined, uuid)).toEqual({
+      type: "string",
+      value: uuid,
+    })
+    expect(
+      importMetadataValueFromYAML(
+        mockContext,
+        { type: "MetadataValue", valueType: ["string"] } as any,
+        uuid,
+      ),
+    ).toEqual({ type: "string", value: uuid })
+  })
+
+  it("принимает одиночный UUID при явном ref-договоре", () => {
+    const uuid = "00000000-0000-0000-0000-000000000000"
+
+    expect(
+      importMetadataValueFromYAML(
+        mockContext,
+        { type: "MetadataValue", valueType: ["ref"] } as any,
+        uuid,
+      ),
+    ).toEqual({ type: "ref", value: uuid })
+  })
+
   it("imports explicit YAML string marker as string MetadataValue without valueType", () => {
     const result = importMetadataValueFromYAML(
       mockContext,
