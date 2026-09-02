@@ -292,6 +292,7 @@ interface PreparedForm {
   readonly elementsByName: ReadonlyMap<string, FormElementDataPathState>
   readonly effectiveMainAttribute?: string
   effectivePath(name: string): ResolvedPath | undefined
+  effectiveYamlPath(name: string): string | undefined
 }
 
 interface PendingElement {
@@ -378,10 +379,10 @@ function prepareCollectedForm(params: {
     let semanticLeafName: string | undefined
     if (collected.itemType !== "Table" && collected.tableOwnerName !== undefined) {
       const table = pending.get(collected.tableOwnerName)
-      const tablePath = table === undefined ? undefined : effectivePath(table)
+      const tablePath = table === undefined ? undefined : effectiveYamlPath(table)
       if (tablePath !== undefined) {
         const columnName = semanticElementName(collected)
-        candidateYaml = `${tablePath.yaml}.${columnName}`
+        candidateYaml = `${tablePath}.${columnName}`
         semanticLeafName = columnName
       }
     } else if (params.effectiveMainAttribute !== undefined) {
@@ -416,6 +417,19 @@ function prepareCollectedForm(params: {
     }
     element.effectiveState = "resolved"
     return element.effective
+  }
+
+  const effectiveYamlPath = (element: PendingElement): string | undefined => {
+    const resolved = effectivePath(element)
+    if (resolved !== undefined) return resolved.yaml
+    if (element.collected.present) {
+      const value = element.collected.value
+      return typeof value === "string" && value.trim().length > 0 ? value : undefined
+    }
+    if (params.currentConfigurationForm?.elementsByName.has(element.collected.name)) {
+      return params.currentConfigurationForm.effectiveYamlPath(element.collected.name)
+    }
+    return candidate(element)?.yaml
   }
 
   const elementsByName = new Map<string, FormElementDataPathState>()
@@ -474,6 +488,10 @@ function prepareCollectedForm(params: {
     effectivePath(name) {
       const element = pending.get(name)
       return element === undefined ? undefined : effectivePath(element)
+    },
+    effectiveYamlPath(name) {
+      const element = pending.get(name)
+      return element === undefined ? undefined : effectiveYamlPath(element)
     },
   }
 }

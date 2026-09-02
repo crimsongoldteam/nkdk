@@ -128,6 +128,8 @@ describe("configuration extension XML import", () => {
       .toContain("ПутьКДанным: !xml/invalid БазовыйОбъект.СобственноеПоле")
     expect(formWithoutBaseText)
       .toContain("ПутьКДанным: !xml/invalid БазовыйОбъект.Код")
+    expect(formWithoutBaseText)
+      .toContain("ПутьКДанным: !xml/invalid БазовыйОбъект.НеизвестнаяТаблица.Колонка")
     expect(formWithoutBaseText).not.toContain("!xml/raw")
     expect((formWithoutBase as { Элементы: Record<string, { ПутьКДанным?: unknown }> }).Элементы.Код)
       .toMatchObject({ ПутьКДанным: "БазовыйОбъект.Код" })
@@ -299,6 +301,23 @@ async function importExtension() {
   addFormWithHistoricalElement(inputDir)
   addCommonFormWithRedundantBase(inputDir)
   addSavedFormIdentityRegression(inputDir)
+  const unresolvedTable = fs.readFileSync(
+    join(formFixtureDir, "../../elements/table/__fixtures__/minimal.xml"),
+    "utf8",
+  ).replaceAll("Таблица", "НеизвестнаяТаблица")
+    .replace(/id="(\d+)"/g, (_match, id) => `id="${Number(id) + 100}"`)
+    .replace("</Table>", [
+      '<RowFilter xsi:nil="true"/>',
+      '<ChildItems><InputField name="НеизвестнаяТаблицаКолонка" id="120">',
+      '<ContextMenu name="НеизвестнаяТаблицаКолонкаКонтекстноеМеню" id="121"/>',
+      '<ExtendedTooltip name="НеизвестнаяТаблицаКолонкаРасширеннаяПодсказка" id="122"/>',
+      '</InputField></ChildItems></Table>',
+    ].join("\n"))
+  replaceExactlyOnce(
+    join(inputDir, "Catalogs/СправочникПолный/Forms/ФормаБезОсновы/Ext/Form.xml"),
+    "\t</ChildItems>\n\t<Attributes>",
+    `${unresolvedTable}\n\t</ChildItems>\n\t<Attributes>`,
+  )
 
   const result = await importConfigurationFromXml({
     context: mockContextFromXML(),

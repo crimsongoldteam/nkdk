@@ -353,6 +353,35 @@ describe("prepareFormDataPathContextFromYAML", () => {
       Элементы: { Наименование: { Вид: "ПолеВвода" } },
     })).toBe(true)
   })
+
+  it.each([
+    [undefined, "Объект.НеизвестнаяТаблица.Колонка"],
+    ["Объект.ДругаяТаблица", "Объект.ДругаяТаблица.Колонка"],
+    ["", undefined],
+  ] as const)("материализует неявную колонку неразрешимой таблицы с путём %s", (tablePath, expected) => {
+    const yaml: ClientApplicationFormYAML = {
+      Элементы: {
+        НеизвестнаяТаблица: {
+          Вид: "ТаблицаФормы",
+          ...(tablePath === undefined ? {} : { ПутьКДанным: tablePath }),
+          Элементы: { НеизвестнаяТаблицаКолонка: { Вид: "ПолеВвода" } },
+        },
+      },
+    }
+    const context = prepareFormDataPathContextFromYAML({
+      yaml,
+      currentConfigurationFormYaml: {
+        Реквизиты: {
+          Объект: { Тип: "CatalogObject.Товары", ОсновнойРеквизит: "Истина" },
+        },
+      },
+      ownerCache: catalogOwnerCache(),
+    })
+
+    materializeInheritedRootFormDataPaths({ yaml, context })
+
+    expect(yaml.Элементы.НеизвестнаяТаблица.Элементы.НеизвестнаяТаблицаКолонка.ПутьКДанным).toBe(expected)
+  })
 })
 
 function elementCandidates(context: ReturnType<typeof prepareFormDataPathContextFromYAML>) {
