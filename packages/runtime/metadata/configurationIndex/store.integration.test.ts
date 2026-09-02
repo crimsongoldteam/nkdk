@@ -1,4 +1,6 @@
 import { existsSync } from "node:fs"
+import { mkdir, rename } from "node:fs/promises"
+import { dirname } from "node:path"
 import { open, type Database } from "lmdb"
 import { afterAll, beforeAll, describe, expect, it } from "vitest"
 import { encodeBlockV1, encodeContentHash } from "./blockCodec"
@@ -116,6 +118,26 @@ describe("configuration index store", () => {
     )
     expect(blockReader.hasBlock("Документы/Заказ.yaml")).toBe(true)
     expect(blockReader.hasBlock("missing.yaml")).toBe(false)
+  })
+
+  it("opens a snapshot after moving it to another project root", async () => {
+    const source = configurationIndexStoreDescriptor(await scope.temporaryProject(), { kind: "configuration" })
+    const target = configurationIndexStoreDescriptor(await scope.temporaryProject(), { kind: "configuration" })
+    await createAndClose(source)
+    const block = { entities: [{ logicalAddress: "Справочник.Товары", xmlId: "1" }] }
+    await writeRaw(source.dataPath, (table) => {
+      table("hashes").putSync("Справочник/Товары/Свойства.yaml", encodeContentHash(1n))
+      table("blocks").putSync("Справочник/Товары/Свойства.yaml", encodeBlockV1(block))
+    })
+    await mkdir(dirname(target.dataPath), { recursive: true })
+    await rename(source.dataPath, target.dataPath)
+
+    const reopened = scope.open(target, "readOnly")
+    expect(reopened.readHashes()).toEqual([
+      { projectPath: "Справочник/Товары/Свойства.yaml", contentHash: 1n },
+    ])
+    expect(reopened.getBlocks(["Справочник/Товары/Свойства.yaml"]))
+      .toEqual(new Map([["Справочник/Товары/Свойства.yaml", block]]))
   })
 
   it("accepts a hash without a block", () => {
