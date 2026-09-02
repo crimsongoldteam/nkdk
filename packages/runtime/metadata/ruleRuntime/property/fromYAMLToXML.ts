@@ -50,6 +50,7 @@ import { copyXmlAnomalyExportClaim, readXmlAnomalyRawCollectionItems } from "../
 import { currentPropertyRuleRegistrySet } from "./propertyRuleExecutionContext"
 import { yamlScalarTagAt } from "../../../yaml/scalarTags"
 import { assertYAMLScalarTagAllowed } from "./yamlScalarTagPolicy"
+import { isXmlImportControlExportContext } from "../../helpers/mdObjectRefUuid"
 import { beginPropertyTypeProfile, finishPropertyTypeProfile } from "./propertyTypeProfile"
 import {
   canUseAtomicFromYAMLToXML,
@@ -760,6 +761,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
               owner: importParams.owner,
               yaml,
               annotations: params.annotations,
+              allowUnresolvedUuid: isXmlImportControlExportContext(diagnosticContext),
             })
         const fused = atomicInvocation.conversion.fromYAMLToXML({
           context: diagnosticContext,
@@ -997,6 +999,7 @@ export function callAtomicFromYAML(params: AtomicFromYAMLParams): unknown {
         owner,
         yaml,
         annotations,
+        allowUnresolvedUuid: isXmlImportControlExportContext(context),
       })
   const atomicConversion = resolveAtomicConversion({
     rule,
@@ -1049,6 +1052,7 @@ function importMetadataTargetsFromYAML(params: {
   owner?: MetadataTargetOwner
   yaml?: unknown
   annotations?: import("../../../yaml/xmlAnomalyAnnotations").XmlAnomalyAnnotations
+  allowUnresolvedUuid?: boolean
 }): unknown {
   const prepared = cloneMetadataTargetValue(params.value)
   const occurrences = params.handler({
@@ -1064,6 +1068,7 @@ function importMetadataTargetsFromYAML(params: {
     owner: params.owner,
     yaml: params.yaml,
     annotations: params.annotations,
+    allowUnresolvedUuid: params.allowUnresolvedUuid,
   })
 }
 

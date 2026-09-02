@@ -45,6 +45,7 @@ interface MetadataTargetTransformationParams {
   readonly owner?: MetadataTargetOwner
   readonly yaml?: unknown
   readonly annotations?: XmlAnomalyAnnotations
+  readonly allowUnresolvedUuid?: boolean
 }
 
 export function exportMetadataTargetOccurrencesToYAML(params: MetadataTargetTransformationParams): unknown {
@@ -90,7 +91,9 @@ export function importMetadataTargetOccurrencesFromYAML(params: MetadataTargetTr
       const model = parseMetadataTargetFromModel({ canonical: text, constraint, owner: params.owner })
       if (!model.ok) continue
     }
-    if (isMDObjectRefUuid(text) && isInvalidAnnotation(annotation)) {
+    if (isMDObjectRefUuid(text) && (
+      isInvalidAnnotation(annotation) || params.allowUnresolvedUuid === true
+    )) {
       occurrence.setValue(text)
       continue
     }
