@@ -26,7 +26,6 @@ import { createLocalIndexesCollector } from "../projectDefinition/localIndexes"
 import type { CompiledMetadataResourceTopology } from "../resourceTopology/core/types"
 import type { MetadataItemOwnerContextEntry } from "../ruleRuntime/appliedObject/metadataItemOwnerContext"
 import type { ValidationProfiler } from "../validation/profile"
-import { collectImportedDependentXmlValues } from "./dependentItems"
 import type { PackedImportXmlInput } from "./packedXmlAssignment"
 import {
   createResolvedAssignmentImportEnvironment,
@@ -137,7 +136,6 @@ export async function prepareImportFacts(params: {
       propertyXMLNodes: externalPropertyXml.nodesByPropertyKey,
     })
     dependentCandidates = dependent.finish()
-    collectImportedDependentXmlValues(dependentCandidates, params.collector)
     return {
       yaml: undefined,
       localIndexes: localIndexesCollector.finish(),

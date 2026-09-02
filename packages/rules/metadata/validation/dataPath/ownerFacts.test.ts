@@ -86,6 +86,9 @@ describe("ValidationOwnerFacts", () => {
   })
 
   it("сохраняет условия доступности виртуальных таблиц", () => {
+    expect(ownerFactFromYAML("correspondence", "Истина")).toBe("true")
+    expect(ownerFactFromYAML("actionPeriod", "Ложь")).toBe("false")
+
     const facts = createValidationOwnerFacts({
       ref: { kind: "РегистрРасчета", name: "Начисления" },
       filePath: "/project/РегистрРасчета/Начисления/Свойства.yaml",

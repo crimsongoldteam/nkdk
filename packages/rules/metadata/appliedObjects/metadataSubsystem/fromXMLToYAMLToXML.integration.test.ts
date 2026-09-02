@@ -80,9 +80,9 @@ describe("MetadataSubsystem: единое преобразование сост�
     ).toThrow('Неизвестный сегмент "Реквизит"')
   })
 
-  it("сохраняет неразрешённый UUID состава только с !xml/invalid", () => {
+  it("сохраняет UUID состава только с !xml/uuid", () => {
     const uuid = "a786340b-1ca9-48ee-8517-6bd389390bcc"
-    const parsed = parseMetadataYaml(["Состав:", `  - !xml/invalid ${uuid}`].join("\n"))
+    const parsed = parseMetadataYaml(["Состав:", `  - !xml/uuid ${uuid}`].join("\n"))
 
     const exported = testPropertyFromYAMLToXML({
       rule,
@@ -100,6 +100,6 @@ describe("MetadataSubsystem: единое преобразование сост�
     expect(() => testPropertyFromYAMLToXML({
       rule,
       yaml: { Состав: [uuid] },
-    })).toThrow(`Неизвестный корень "${uuid}"`)
+    })).toThrow("UUID metadata-ссылки требует !xml/uuid")
   })
 })

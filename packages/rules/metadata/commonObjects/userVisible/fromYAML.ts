@@ -4,7 +4,6 @@ import { ImportFromYAMLFunctionNew } from "../../ruleRuntime"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import {
   ConfigurationContext,
-  isXmlImportControlExportContext,
   type XmlAnomalyAnnotations,
 } from "@nkdk/runtime"
 import {
@@ -34,7 +33,6 @@ export const importUserVisibleFromYAML: ImportFromYAMLFunctionNew = (params: {
     }),
     yaml: params.yaml,
     annotations: params.annotations,
-    allowUnresolvedUuid: isXmlImportControlExportContext(params.context),
   }) as UserVisibleYAML
   return importPreparedUserVisibleFromYAML({ ...params, value })
 }

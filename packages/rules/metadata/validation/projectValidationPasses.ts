@@ -1125,13 +1125,26 @@ function evaluateProjectXmlAnomalyBoundaries(params: {
   readonly facts: ProjectValidationFileFacts
 }) {
   const deferredTargets = deferredXmlAnomalyTargetKeys(params.facts)
+  const uuidContractTargets = new Set(params.facts.diagnostics
+    .filter(({ message }) => isMetadataUuidContractMessage(message))
+    .map(({ path }) => validationIssueTargetKey({
+      kind: "path",
+      path: validationIssuePathFromPointer(path ?? ""),
+    })))
   return evaluateParsedXmlAnomalyBoundaries({
     filePath: params.filePath,
     parsed: params.parsed,
     diagnostics: params.diagnostics,
     issues: params.issues,
     deferUnnecessaryFor: (target) => deferredTargets.has(validationIssueTargetKey(target)),
+    excludeBoundary: (target) => uuidContractTargets.has(validationIssueTargetKey(target)),
   })
+}
+
+function isMetadataUuidContractMessage(message: string): boolean {
+  return message === "UUID metadata-ссылки требует !xml/uuid"
+    || message === "!xml/uuid допустим только для UUID или UUID.UUID metadata-ссылки"
+    || message === "!xml/uuid допустим только для metadata-ссылки"
 }
 
 function applyXmlAnomalyStates<T extends {

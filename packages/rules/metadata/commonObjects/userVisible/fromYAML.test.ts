@@ -65,17 +65,17 @@ describe("importUserVisibleFromYAML", () => {
     ).toBeUndefined()
   })
 
-  it("сохраняет неразрешённый UUID роли только с !xml/invalid", () => {
+  it("сохраняет UUID роли только с !xml/uuid", () => {
     const uuid = "a786340b-1ca9-48ee-8517-6bd389390bcc"
     const parsed = parseMetadataYaml([
       "Использование:",
       "  Роли:",
-      `    !xml/invalid ${uuid}: Истина`,
+      `    !xml/uuid ${uuid}: Истина`,
     ].join("\n"))
     const yaml = parsed.data as { Использование: unknown }
     const roles = (yaml.Использование as { Роли: Record<string, unknown> }).Роли
     expect(parsed.annotations.keyAt(roles, Object.keys(roles)[0]!)).toMatchObject({
-      kind: "invalid",
+      kind: "uuid",
       logicalKey: uuid,
     })
 
@@ -94,6 +94,22 @@ describe("importUserVisibleFromYAML", () => {
       rule: userVisibleRule,
       value: { Роли: { [uuid]: "Истина" } },
       yaml: { Использование: { Роли: { [uuid]: "Истина" } } },
-    })).toThrow(`Неизвестный корень "${uuid}"`)
+    })).toThrow("UUID metadata-ссылки требует !xml/uuid")
+
+    const invalid = parseMetadataYaml([
+      "Использование:",
+      "  Роли:",
+      `    !xml/invalid ${uuid}: Истина`,
+    ].join("\n"))
+    const invalidYaml = invalid.data as {
+      Использование: Parameters<typeof importUserVisibleFromYAML>[0]["value"]
+    }
+    expect(() => importUserVisibleFromYAML({
+      context: mockContext,
+      rule: userVisibleRule,
+      value: invalidYaml.Использование,
+      yaml: invalid.data as Record<string, unknown>,
+      annotations: invalid.annotations,
+    })).toThrow("UUID metadata-ссылки требует !xml/uuid")
   })
 })

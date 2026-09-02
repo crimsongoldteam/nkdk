@@ -367,6 +367,7 @@ const externalFilePropertyPrepareCapabilityRules = defineMetadataXmlPrepareCapab
         context: propertyContext,
         yaml: source.raw(propertyKey),
         ownerYAML: preparedYamlFile.data,
+        annotations: preparedYamlFile.annotations,
         ...(baseFormPreparedYamlFile !== undefined &&
         currentConfigurationFormPreparedYamlFile !== undefined &&
         baseFormSourceKind !== undefined

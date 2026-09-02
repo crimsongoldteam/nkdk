@@ -5,6 +5,7 @@ import { describe,expect,it } from "vitest"
 import {
 childSegmentUid,
 childUid,
+createXmlAnomalyAnnotations,
 importFromYAML
 } from "@nkdk/runtime"
 import "../../../tests/metadataExecutionContext"
@@ -74,6 +75,36 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
       name: "УправляемаяФорма",
       referenceXML: undefined,
     })).toHaveProperty("Form")
+  })
+
+  it("передаёт !xml/uuid во вложенное преобразование общей формы", () => {
+    const nestedRule = getTypeRule("ClientApplicationForm", "yamlToXMLNestedRule")
+    if (nestedRule?.kind !== "externalFile") throw new Error("Не зарегистрировано вложенное правило формы")
+    const uuid = "6537a19c-3357-46a2-96a6-1fe4619ddbc8"
+    const functionalOptions = [uuid]
+    const yaml = {
+      Реквизиты: {
+        Сумма: { Тип: "Число", ФункциональныеОпции: functionalOptions },
+      },
+    }
+    const annotations = createXmlAnomalyAnnotations()
+    annotations.set(functionalOptions, 0, { kind: "uuid", occurrence: 1, target: "value" })
+
+    const result = nestedRule.convert({
+      context: mockContextToXML(),
+      yaml,
+      ownerYAML: yaml,
+      name: "ОбщаяФорма",
+      referenceXML: undefined,
+      annotations,
+    })
+
+    const attributes = (result?.Form as ClientApplicationFormXML | undefined)?.Attributes?.Attribute
+    const attribute = Array.isArray(attributes) ? attributes[0] : attributes
+    if (attribute === undefined || !("FunctionalOptions" in attribute)) {
+      throw new Error("Реквизит формы не преобразован")
+    }
+    expect(attribute?.FunctionalOptions?.Item).toBe(uuid)
   })
 
   it("восстанавливает платформенное назначение при отсутствии YAML-поля", () => {

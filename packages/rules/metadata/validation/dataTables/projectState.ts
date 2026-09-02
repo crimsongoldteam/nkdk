@@ -90,6 +90,7 @@ function loadRecord(
     requestId: `data-table-owner:${canonical}`,
     componentPath: params.check.componentPath,
     owner,
+    ...(lookup?.status === "found" ? { projectPath: lookup.source.projectPath } : {}),
   }])[0]
   const sourceProjectPath = lookup?.status === "found"
     ? lookup.source.projectPath

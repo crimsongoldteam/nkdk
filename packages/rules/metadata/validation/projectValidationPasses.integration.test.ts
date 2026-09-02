@@ -636,17 +636,45 @@ describe("validateProjectFileFirstPass references", () => {
     }))
   })
 
-  it("не сохраняет подавленную ошибку элемента последовательности в schema diagnostics", () => {
+  it("принимает !xml/uuid элемента metadata-последовательности без зависимости", () => {
     const first = validateAppliedObject(
       "Подсистема/Тест/Свойства.yaml",
       [
         "Состав:",
-        "  - !xml/invalid a0f8c954-9877-4b52-9172-02b76aebb903",
+        "  - !xml/uuid a0f8c954-9877-4b52-9172-02b76aebb903",
       ].join("\n"),
     )
 
     expect(first.diagnostics).toEqual([])
     expect(first.schemaDiagnostics).toEqual([])
+    expect(first.pendingReferences).toEqual([])
+  })
+
+  it.each([
+    [
+      "UUID без тега",
+      ["Состав:", "  - a0f8c954-9877-4b52-9172-02b76aebb903"].join("\n"),
+      "UUID metadata-ссылки требует !xml/uuid",
+    ],
+    [
+      "UUID с прежним invalid",
+      ["Состав:", "  - !xml/invalid a0f8c954-9877-4b52-9172-02b76aebb903"].join("\n"),
+      "UUID metadata-ссылки требует !xml/uuid",
+    ],
+    [
+      "uuid на смысловой ссылке",
+      ["Состав:", "  - !xml/uuid Справочник.Товары"].join("\n"),
+      "!xml/uuid допустим только для UUID или UUID.UUID metadata-ссылки",
+    ],
+    [
+      "uuid на обычной строке",
+      "Комментарий: !xml/uuid a0f8c954-9877-4b52-9172-02b76aebb903",
+      "!xml/uuid допустим только для metadata-ссылки",
+    ],
+  ])("отклоняет неверный договор !xml/uuid: %s", (_name, yaml, message) => {
+    const first = validateAppliedObject("Подсистема/Тест/Свойства.yaml", yaml)
+
+    expect(validationErrors(first)).toContainEqual(expect.objectContaining({ message }))
   })
 
   it("validates common form body through the shared form schema", () => {
@@ -815,6 +843,26 @@ describe("validateProjectFileFirstPass references", () => {
       expect.objectContaining({ canonical: "FunctionalOption.ДоступностьСкладов" }),
       expect.objectContaining({ canonical: "Role.Администратор" }),
     ]))
+  })
+
+  it("принимает !xml/uuid в ключе роли UserVisible без зависимости", () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
+    tempDirs.push(projectDir)
+    const projectPath = "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml"
+    writeProjectFile(projectDir, projectPath, [
+      "Реквизиты:",
+      "  Поле:",
+      "    Тип: Строка",
+      "    Просмотр:",
+      "      Роли:",
+      "        !xml/uuid A786340B-1CA9-48EE-8517-6BD389390BCC: Ложь",
+    ])
+
+    const first = validateProjectPath(projectDir, projectPath)
+
+    expect(first.diagnostics).toEqual([])
+    expect(first.schemaDiagnostics).toEqual([])
+    expect(first.pendingReferences).toEqual([])
   })
 
   it("проверяет уникальность имён элементов внутри общей формы", () => {

@@ -7,7 +7,6 @@ import { describe,expect,it } from "vitest"
 import { MetadataCatalogRules } from "../appliedObjects/metadataCatalog/rules"
 import { ordinaryFillValueItemTypes } from "../commonObjects/fillValue/ordinaryItemTypes"
 import {
-collectImportedDependentXmlValues,
 normalizeImportedDependentItems,
 partitionImportedDependentItems,
 } from "./dependentItems"
@@ -43,7 +42,6 @@ describe("normalizeImportedDependentItems", () => {
       yaml,
       rule: MetadataCatalogRules,
       candidates: [candidate("MetadataAttribute", ["Реквизиты", "Получатель"], "Получатель")],
-      collector: createConfigurationIndexCollector(),
       owner: { dir: "Справочник", name: "Товары" },
     })
 
@@ -85,9 +83,8 @@ describe("normalizeImportedDependentItems", () => {
     expect(partitioned.deferred).toEqual([imported])
   })
 
-  it("заменяет UUID DesignTimeRef на смысловую ссылку перед проверкой", () => {
+  it("не заменяет UUID DesignTimeRef на смысловую ссылку", () => {
     const uuidReference = "11111111-1111-4111-8111-111111111111.22222222-2222-4222-8222-222222222222"
-    const canonical = "Справочник.СправочникРеквизит.ПредопределенноеЗначение"
     const attribute: Record<string, unknown> = {
       Тип: "Справочник.СправочникРеквизит",
       ЗначениеЗаполнения: uuidReference,
@@ -102,29 +99,11 @@ describe("normalizeImportedDependentItems", () => {
       rule: MetadataCatalogRules,
       candidates: [imported],
       owner: { dir: "Справочник", name: "Товары" },
-      metadataTargetCanonicalizer: (value) => value === uuidReference ? canonical : undefined,
-      metadataTargetLookup: (value) => value === canonical ? "found" : "missing",
       preserveRawXML: false,
     })
 
-    expect(attribute.ЗначениеЗаполнения).toBe(canonical)
+    expect(attribute.ЗначениеЗаполнения).toBe(uuidReference)
     expect(yamlScalarTagAt(attribute, "ЗначениеЗаполнения")).toBeUndefined()
-  })
-
-  it("сохраняет UUID-форму DesignTimeRef по адресу конкретного свойства", () => {
-    const uuidReference = "11111111-1111-4111-8111-111111111111.22222222-2222-4222-8222-222222222222"
-    const logicalAddress = "Справочник.Товары.Реквизит.Получатель.fillValue"
-    const collector = createConfigurationIndexCollector()
-
-    collectImportedDependentXmlValues([{
-      ...designTimeRefCandidate(),
-      logicalAddress,
-      xmlValue: { "_xsi:type": "xr:DesignTimeRef", "#text": uuidReference },
-    }], collector)
-
-    expect(collector.fragment("Справочник/Товары/Свойства.yaml").entities).toEqual([
-      { logicalAddress, xmlValue: uuidReference },
-    ])
   })
 
   it("сохраняет непустое допустимое значение для последующей локальной валидации", () => {
@@ -151,7 +130,6 @@ describe("normalizeImportedDependentItems", () => {
         "_xsi:type": "xs:string",
         "#text": "текст",
       })],
-      collector: createConfigurationIndexCollector(),
       owner: { dir: "Справочник", name: "Товары" },
     })).toBe(0)
     expect(yamlScalarTagAt(attribute, "ЗначениеЗаполнения")).toBeUndefined()
@@ -172,7 +150,6 @@ describe("normalizeImportedDependentItems", () => {
         logicalAddress,
         xmlValue: { "_xsi:type": "xs:string", "#text": fillValue },
       }],
-      collector,
       owner: { dir: "Справочник", name: "Товары" },
     })
 
@@ -203,7 +180,6 @@ describe("normalizeImportedDependentItems", () => {
         logicalAddress: "Справочник.Товары.Attribute.Получатель.Property.fillValue",
         xmlValue,
       }],
-      collector,
       owner: { dir: "Справочник", name: "Товары" },
     })
 
@@ -234,7 +210,6 @@ function normalizeMetadataAttribute(attribute: Record<string, unknown>): number 
     yaml: { Реквизиты: { Получатель: attribute } },
     rule: MetadataCatalogRules,
     candidates: [candidate("MetadataAttribute", ["Реквизиты", "Получатель"], "Получатель")],
-    collector: createConfigurationIndexCollector(),
     owner: { dir: "Справочник", name: "Товары" },
   })
 }

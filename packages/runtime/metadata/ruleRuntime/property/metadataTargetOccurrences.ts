@@ -10,7 +10,7 @@ import type {
 } from "../metadataTarget/types"
 import { copyYAMLRuntimeMetadata } from "../../../yaml/runtimeMetadata"
 import type { XmlAnomalyAnnotation, XmlAnomalyAnnotations } from "../../../yaml/xmlAnomalyAnnotations"
-import { isMDObjectRefUuid } from "../../helpers/mdObjectRefUuid"
+import { isMetadataTargetUuid } from "../../helpers/mdObjectRefUuid"
 import type { PropertyRule } from "./types"
 
 export type MetadataTargetLocation =
@@ -45,13 +45,30 @@ interface MetadataTargetTransformationParams {
   readonly owner?: MetadataTargetOwner
   readonly yaml?: unknown
   readonly annotations?: XmlAnomalyAnnotations
-  readonly allowUnresolvedUuid?: boolean
 }
 
-export function exportMetadataTargetOccurrencesToYAML(params: MetadataTargetTransformationParams): unknown {
+export type MetadataTargetUuidContract =
+  | { readonly kind: "none" }
+  | { readonly kind: "accepted"; readonly annotation: XmlAnomalyAnnotation; readonly text: string }
+  | { readonly kind: "required"; readonly text: string }
+  | { readonly kind: "unnecessary"; readonly annotation: XmlAnomalyAnnotation; readonly text: string }
+
+export interface MetadataTargetYAMLProjection {
+  readonly value: unknown
+  readonly uuidOccurrences: readonly MetadataTargetOccurrence[]
+}
+
+export function projectMetadataTargetOccurrencesToYAML(
+  params: MetadataTargetTransformationParams,
+): MetadataTargetYAMLProjection {
   let result = params.value
+  const uuidOccurrences: MetadataTargetOccurrence[] = []
   for (const occurrence of params.occurrences) {
     if (occurrence.representation.kind !== "canonical") continue
+    if (isMetadataTargetUuid(occurrence.representation.canonical)) {
+      uuidOccurrences.push(occurrence)
+      continue
+    }
     try {
       const nextValue = formatMetadataTargetToYAML({
         canonical: occurrence.representation.canonical,
@@ -69,13 +86,29 @@ export function exportMetadataTargetOccurrencesToYAML(params: MetadataTargetTran
       }
     }
   }
-  return result
+  return { value: result, uuidOccurrences }
+}
+
+export function exportMetadataTargetOccurrencesToYAML(params: MetadataTargetTransformationParams): unknown {
+  return projectMetadataTargetOccurrencesToYAML(params).value
 }
 
 export function importMetadataTargetOccurrencesFromYAML(params: MetadataTargetTransformationParams): unknown {
   let result = params.value
   for (const occurrence of params.occurrences) {
     if (occurrence.representation.kind !== "canonical") continue
+    const uuidContract = metadataTargetUuidContractForOccurrence(params, occurrence)
+    if (uuidContract.kind === "required") {
+      throw new Error("UUID metadata-ссылки требует !xml/uuid")
+    }
+    if (uuidContract.kind === "unnecessary") {
+      throw new Error("!xml/uuid допустим только для UUID или UUID.UUID metadata-ссылки")
+    }
+    if (uuidContract.kind === "accepted") {
+      occurrence.setValue(uuidContract.text)
+      if (typeof params.value === "string" && params.occurrences.length === 1) result = uuidContract.text
+      continue
+    }
     const annotation = annotationForOccurrence(params, occurrence)
     const text = occurrence.location.kind === "key" && annotation?.logicalKey !== undefined
       ? annotation.logicalKey
@@ -91,15 +124,27 @@ export function importMetadataTargetOccurrencesFromYAML(params: MetadataTargetTr
       const model = parseMetadataTargetFromModel({ canonical: text, constraint, owner: params.owner })
       if (!model.ok) continue
     }
-    if (isMDObjectRefUuid(text) && (
-      isInvalidAnnotation(annotation) || params.allowUnresolvedUuid === true
-    )) {
-      occurrence.setValue(text)
-      continue
-    }
     throw new Error(parsed.message)
   }
   return result
+}
+
+export function metadataTargetUuidContractForOccurrence(
+  params: Pick<MetadataTargetTransformationParams, "yaml" | "annotations">,
+  occurrence: MetadataTargetOccurrence,
+): MetadataTargetUuidContract {
+  const annotation = annotationForOccurrence(params, occurrence)
+  const text = occurrence.location.kind === "key" && annotation?.logicalKey !== undefined
+    ? annotation.logicalKey
+    : occurrence.representation.canonical
+  if (isMetadataTargetUuid(text)) {
+    return annotation?.kind === "uuid"
+      ? { kind: "accepted", annotation, text }
+      : { kind: "required", text }
+  }
+  return annotation?.kind === "uuid"
+    ? { kind: "unnecessary", annotation, text }
+    : { kind: "none" }
 }
 
 function annotationForOccurrence(
@@ -112,10 +157,6 @@ function annotationForOccurrence(
   return location.kind === "key"
     ? annotationAtMappingKey(params.yaml, location.path, location.key, annotations)
     : annotationAtValue(params.yaml, location.path, annotations)
-}
-
-function isInvalidAnnotation(annotation: XmlAnomalyAnnotation | undefined): boolean {
-  return annotation?.kind === "invalid" || annotation?.semantic?.kind === "invalid"
 }
 
 function annotationAtMappingKey(
@@ -146,6 +187,34 @@ function valueAtPath(value: unknown, path: YamlPath): unknown {
     current = (current as Record<string | number, unknown>)[segment]
   }
   return current
+}
+
+export function assignMetadataTargetUuidAnnotations(params: {
+  readonly yaml: unknown
+  readonly annotations: XmlAnomalyAnnotations
+  readonly occurrences: readonly MetadataTargetOccurrence[]
+}): void {
+  for (const occurrence of params.occurrences) {
+    const location = occurrence.location
+    if (location.kind === "key") {
+      const mapping = valueAtPath(params.yaml, location.path)
+      if (!isRecord(mapping)) throw new Error(`Не найден YAML-контейнер UUID-ключа: /${location.path.join("/")}`)
+      params.annotations.setKey(mapping, location.key, {
+        kind: "uuid",
+        occurrence: 1,
+        target: "key",
+        logicalKey: location.key,
+      })
+      continue
+    }
+    const key = location.path.at(-1)
+    if (key === undefined) throw new Error("!xml/uuid недопустим на корне YAML")
+    const parent = valueAtPath(params.yaml, location.path.slice(0, -1))
+    if (typeof parent !== "object" || parent === null) {
+      throw new Error(`Не найден YAML-контейнер UUID-значения: /${location.path.join("/")}`)
+    }
+    params.annotations.set(parent, key, { kind: "uuid", occurrence: 1, target: "value" })
+  }
 }
 
 export function cloneMetadataTargetValue(value: unknown): unknown {

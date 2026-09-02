@@ -1,5 +1,5 @@
 import { format, parse } from "date-fns"
-import { ConfigurationContext, ConfigurationContextFromXML } from "@nkdk/runtime"
+import { ConfigurationContext, ConfigurationContextFromXML, isMetadataTargetUuid } from "@nkdk/runtime"
 import { explicitYAMLString, isExplicitYAMLString } from "@nkdk/runtime"
 import {
   AccountTypeFromYAML,
@@ -68,16 +68,6 @@ const referenceValueRule = {
   type: "MetadataValue",
   metadataTarget: referenceValueConstraint,
 } as const satisfies MetadataValuePropertyRule
-
-export const DESIGN_TIME_REF_UUID_SOURCE =
-  "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
-export const DESIGN_TIME_REF_UUID_PATTERN = new RegExp(
-  `^${DESIGN_TIME_REF_UUID_SOURCE}\\.${DESIGN_TIME_REF_UUID_SOURCE}$`,
-)
-
-export function isDesignTimeRefUuid(value: string): boolean {
-  return DESIGN_TIME_REF_UUID_PATTERN.test(value)
-}
 
 export function isNamedMetadataValueReference(value: string): boolean {
   const parts = value.split(".")
@@ -179,14 +169,16 @@ export const primitiveValueHandlers: Record<MetadataPrimitiveValueType, Metadata
     fromYAML: (ctx, data) => {
       if (typeof data !== "string") return undefined
       if (data === ".") return { type: "ref", value: "" } satisfies MetadataRefValue
-      if (isDesignTimeRefUuid(data)) return { type: "ref", value: data } satisfies MetadataRefValue
+      if (isMetadataTargetUuid(data) && data.includes(".")) {
+        return { type: "ref", value: data } satisfies MetadataRefValue
+      }
       const converted = importMetadataValueStringFromYAML(ctx, referenceValueRule, data)
       if (converted?.includes(".")) return { type: "ref", value: converted } satisfies MetadataRefValue
       return undefined
     },
     toYAML: (ctx, v) => {
       if ((v as MetadataRefValue).value === "") return "."
-      if (isDesignTimeRefUuid((v as MetadataRefValue).value)) return (v as MetadataRefValue).value
+      if (isMetadataTargetUuid((v as MetadataRefValue).value)) return (v as MetadataRefValue).value
       const result = exportMetadataValueStringToYAML(ctx, referenceValueRule, (v as MetadataRefValue).value)
       if (!result) throw new Error(`MetadataValue: не удалось экспортировать ref: ${(v as MetadataRefValue).value}`)
       return result

@@ -17,10 +17,17 @@ import { enterNestedYamlRule, enterYamlProperty } from "../ruleRuntime/property/
 import type { YamlRuleCursor } from "@nkdk/runtime/rule-kit"
 import {
   createConfigurationLanguages,
+  isMetadataTargetUuid,
   parsedYamlFromKnownData,
+  snapshotXmlAnomalyAnnotations,
   type ConfigurationContext,
   type ParsedYaml,
+  type XmlAnomalyAnnotation,
 } from "@nkdk/runtime"
+import {
+  metadataTargetUuidContractForOccurrence,
+  type MetadataTargetOccurrence,
+} from "@nkdk/runtime/rule-kit"
 import type { FormDataPathIndex } from "./dataPath/formIndex"
 import { buildObjectFieldIndex, type ObjectFieldIndex } from "./dataPath/objectFields"
 import { ownerFactFromYAML, type ValidationOwnerFacts } from "./dataPath/ownerFacts"
@@ -174,6 +181,7 @@ export function extractValidationYamlFacts(params: {
   const objectTarget = objectTargetForProjectFile(params.file)
   const owner = referenceOwnerForProjectFile(params.file, objectTarget)
   const referenceDiagnostics: Diagnostic[] = []
+  const claimedUuidAnnotations = new Set<XmlAnomalyAnnotation>()
   const localValueDiagnostics: Diagnostic[] = []
   const localValueValidationProfile: LocalValueValidationProfile = {}
   if (validationDiagnostics && params.parsed.annotations.root() === undefined) {
@@ -212,7 +220,16 @@ export function extractValidationYamlFacts(params: {
           validationDiagnostics,
           pendingChecks,
           runtime: params.runtime,
+          claimedUuidAnnotations,
         })
+  if (validationDiagnostics) {
+    collectUnclaimedUuidAnnotationDiagnostics({
+      filePath: params.file.absolutePath,
+      parsed: params.parsed,
+      claimed: claimedUuidAnnotations,
+      diagnostics: referenceDiagnostics,
+    })
+  }
   const collectedLocalIndexes = localIndexesCollector.finish()
   const ownerFacts = spec === undefined
     ? undefined
@@ -651,6 +668,7 @@ function collectPendingReferences(params: {
   validationDiagnostics: boolean
   pendingChecks: ValidationPendingCheck[]
   runtime?: ValidationRegistrySet
+  claimedUuidAnnotations: Set<XmlAnomalyAnnotation>
 }): PendingMetadataTargetReference[] {
   const record = asRecord(params.value)
   if (record === undefined) return []
@@ -726,6 +744,14 @@ function collectPendingReferences(params: {
         owner: params.owner,
         siblingValue,
       })
+      auditMetadataTargetUuidOccurrences({
+        ...params,
+        value: sourceValue,
+        type: property.type,
+        metadataTarget: property.metadataTarget,
+        yamlPath,
+        owner: propertyOwner,
+      })
       references.push(
         ...collectTargetValues({
           filePath: params.filePath,
@@ -743,7 +769,7 @@ function collectPendingReferences(params: {
 
     if (property.children !== undefined) {
       references.push(
-        ...collectNestedReferences({
+        ...(property.nestedShape === "object" ? collectNestedObject : collectNestedReferences)({
           filePath: params.filePath,
           parsed: params.parsed,
           owner: params.owner,
@@ -762,6 +788,7 @@ function collectPendingReferences(params: {
           validationDiagnostics: params.validationDiagnostics,
           pendingChecks: params.pendingChecks,
           runtime: params.runtime,
+          claimedUuidAnnotations: params.claimedUuidAnnotations,
         })
       )
     }
@@ -789,6 +816,7 @@ function collectNestedReferences(params: {
   validationDiagnostics: boolean
   pendingChecks: ValidationPendingCheck[]
   runtime?: ValidationRegistrySet
+  claimedUuidAnnotations: Set<XmlAnomalyAnnotation>
 }): PendingMetadataTargetReference[] {
   if (Array.isArray(params.value)) {
     return params.value.flatMap((item, index) => collectNestedItem({ ...params, item, itemKey: index }))
@@ -800,10 +828,33 @@ function collectNestedReferences(params: {
   return Object.entries(record).flatMap(([key, item]) => collectNestedItem({ ...params, item, itemKey: key }))
 }
 
+function collectNestedObject(
+  params: Parameters<typeof collectNestedReferences>[0],
+): PendingMetadataTargetReference[] {
+  return collectNestedValue({
+    ...params,
+    item: params.value,
+    itemYamlPath: params.yamlPath,
+  })
+}
+
 function collectNestedItem(
   params: Parameters<typeof collectNestedReferences>[0] & { item: unknown; itemKey: string | number }
 ): PendingMetadataTargetReference[] {
-  const itemYamlPath = [...params.yamlPath, params.itemKey]
+  return collectNestedValue({
+    ...params,
+    itemYamlPath: [...params.yamlPath, params.itemKey],
+  })
+}
+
+function collectNestedValue(
+  params: Parameters<typeof collectNestedReferences>[0] & {
+    item: unknown
+    itemYamlPath: readonly (string | number)[]
+    itemKey?: string | number
+  },
+): PendingMetadataTargetReference[] {
+  const { itemYamlPath } = params
   const item = asRecord(params.item)
   const references: PendingMetadataTargetReference[] = []
   if (item !== undefined && params.nestedItemType !== undefined) {
@@ -882,6 +933,7 @@ function collectTargetValues(params: {
 
   if (typeof params.value === "string") {
     if (params.value === "") return []
+    if (isMetadataTargetUuid(params.value)) return []
     const reference = pendingReferenceFromYamlValue({ ...params, value: params.value, yamlPath: params.yamlPath })
     return reference === undefined ? [] : [reference]
   }
@@ -898,6 +950,83 @@ function collectTargetValues(params: {
   }
 
   return []
+}
+
+function auditMetadataTargetUuidOccurrences(params: {
+  filePath: string
+  parsed: ParsedYaml
+  owner: MetadataTargetOwner | undefined
+  value: unknown
+  type?: string
+  metadataTarget: NonNullable<PropertyRule["metadataTarget"]>
+  yamlPath: readonly (string | number)[]
+  diagnostics: Diagnostic[]
+  validationDiagnostics: boolean
+  runtime?: ValidationRegistrySet
+  claimedUuidAnnotations: Set<XmlAnomalyAnnotation>
+}): void {
+  if (params.type === undefined) return
+  const collect = params.runtime?.rules.execution.getTypeRule(params.type, "metadataTargetOccurrences")
+    ?? getTypeRule(params.type, "metadataTargetOccurrences")
+  if (collect === undefined) return
+  const occurrences = collect({
+    value: params.value,
+    representation: "yaml",
+    yamlPath: params.yamlPath,
+    propRule: {
+      type: params.type as PropertyRule["type"],
+      yaml: typeof params.yamlPath.at(-1) === "string" ? params.yamlPath.at(-1) as string : undefined,
+      metadataTarget: params.metadataTarget,
+    },
+    owner: params.owner,
+  })
+  for (const occurrence of occurrences) {
+    if (occurrence.representation.kind !== "canonical") continue
+    const contract = metadataTargetUuidContractForOccurrence({
+      yaml: params.parsed.data,
+      annotations: params.parsed.annotations,
+    }, occurrence)
+    if (contract.kind === "accepted" || contract.kind === "unnecessary") {
+      params.claimedUuidAnnotations.add(contract.annotation)
+    }
+    if (!params.validationDiagnostics || contract.kind === "none" || contract.kind === "accepted") continue
+    params.diagnostics.push(diagnosticAtYamlPath({
+      filePath: params.filePath,
+      parsed: params.parsed,
+      path: pathForMetadataTargetOccurrence(occurrence),
+      severity: "error",
+      source: "reference",
+      message: contract.kind === "required"
+        ? "UUID metadata-ссылки требует !xml/uuid"
+        : "!xml/uuid допустим только для UUID или UUID.UUID metadata-ссылки",
+    }))
+  }
+}
+
+function pathForMetadataTargetOccurrence(occurrence: MetadataTargetOccurrence): readonly (string | number)[] {
+  return occurrence.location.kind === "key"
+    ? [...occurrence.location.path, occurrence.location.key]
+    : occurrence.location.path
+}
+
+function collectUnclaimedUuidAnnotationDiagnostics(params: {
+  filePath: string
+  parsed: ParsedYaml
+  claimed: ReadonlySet<XmlAnomalyAnnotation>
+  diagnostics: Diagnostic[]
+}): void {
+  const snapshot = snapshotXmlAnomalyAnnotations(params.parsed.data, params.parsed.annotations)
+  for (const entry of snapshot.entries) {
+    if (entry.annotation.kind !== "uuid" || params.claimed.has(entry.annotation)) continue
+    params.diagnostics.push(diagnosticAtYamlPath({
+      filePath: params.filePath,
+      parsed: params.parsed,
+      path: [...entry.parentPath, entry.key],
+      severity: "error",
+      source: "reference",
+      message: "!xml/uuid допустим только для metadata-ссылки",
+    }))
+  }
 }
 
 function collectPictureTargetValues(params: {
@@ -1500,7 +1629,6 @@ function projectWithoutRawDescendants(value: unknown, parsed: ParsedYaml): unkno
       projected.push(child)
     }
     if (!changed) return value
-    parsed.annotations.copy(value, projected)
     return projected
   }
   let changed = false
@@ -1518,7 +1646,6 @@ function projectWithoutRawDescendants(value: unknown, parsed: ParsedYaml): unkno
     projected[key] = child
   }
   if (!changed) return value
-  parsed.annotations.copy(value, projected)
   return projected
 }
 

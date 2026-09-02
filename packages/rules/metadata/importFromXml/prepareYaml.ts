@@ -44,7 +44,6 @@ import { expandMetadataPathPattern } from "../resourceTopology/core/patterns"
 import type { ImportAssignment, ImportXmlInput } from "./types"
 import {
   normalizeImportedDependentItems,
-  collectImportedDependentXmlValues,
   partitionImportedDependentItems,
 } from "./dependentItems"
 import { createImportedFormDataPathIndex } from "../forms/clientApplicationForm/formDataPathMetadata"
@@ -273,7 +272,6 @@ function prepareImportYamlFromParsedInputs(params: {
       })
       if (yaml === undefined) throw new Error("XML-import не сформировал YAML")
       const dependentCandidates = dependent.finish()
-      collectImportedDependentXmlValues(dependentCandidates, params.collector)
       const partitioned = partitionImportedDependentItems({
         yaml,
         rule,
@@ -284,7 +282,6 @@ function prepareImportYamlFromParsedInputs(params: {
         yaml,
         rule,
         candidates: partitioned.immediate,
-        collector: params.collector,
         owner: dependentOwner,
         preserveRawXML: false,
       })

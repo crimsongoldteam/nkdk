@@ -35,7 +35,6 @@ describe("buildXmlComponentReconstructionProfile", () => {
     expect(profile).toEqual({
       componentKind: "configuration",
       adoptedUuids: {},
-      designTimeReferenceByUuid: {},
       xmlDefaultVariantByLogicalAddress: {
         "ПланВидовХарактеристик.ВидыСвойств": "indexed",
         "ПланВидовХарактеристик.ВидыСвойств.Характеристики[0].ПолеПутиКДанным": "indexed",
@@ -74,7 +73,6 @@ describe("buildXmlComponentReconstructionProfile", () => {
         Конфигурация: BASE_CONFIGURATION_UUID,
         "Справочник.Товары.Реквизит.Артикул": BASE_ATTRIBUTE_UUID,
       },
-      designTimeReferenceByUuid: {},
       xmlDefaultVariantByLogicalAddress: {
         Конфигурация: "adopted",
         "Справочник.Товары": "adopted",
@@ -207,7 +205,7 @@ describe("buildXmlComponentReconstructionProfile", () => {
     expect(profile.adoptedUuids["Справочник.Товары"]).toBe(BASE_ATTRIBUTE_UUID)
   })
 
-  it("resolves UUID DesignTimeRef for nested predefined values", () => {
+  it("оставляет в профиле только данные реконструкции объектов", () => {
     const typeId = "11111111-1111-4111-8111-111111111111"
     const valueId = "22222222-2222-4222-8222-222222222222"
     const owner = "Справочник.Товары"
@@ -225,34 +223,11 @@ describe("buildXmlComponentReconstructionProfile", () => {
       ]),
     })
 
-    expect(profile.designTimeReferenceByUuid?.[`${typeId}.${valueId}`])
-      .toBe("Справочник.Товары.Основной")
-  })
-
-  it("resolves UUID DesignTimeRef for empty references and enum values", () => {
-    const typeId = "11111111-1111-4111-8111-111111111111"
-    const emptyRefId = "22222222-2222-4222-8222-222222222222"
-    const enumValueId = "33333333-3333-4333-8333-333333333333"
-    const owner = "Перечисление.Статусы"
-    const profile = buildXmlComponentReconstructionProfile({
-      componentKind: "configuration",
-      target: source(["Конфигурация", owner], [
-        {
-          logicalAddress: `${owner}.InternalInfo.GeneratedType.EnumRef.TypeId`,
-          uuid: typeId,
-        },
-        {
-          logicalAddress: `${owner}.InternalInfo.GeneratedType.EnumRef.ValueId`,
-          uuid: emptyRefId,
-        },
-        { logicalAddress: `${owner}.Значение.Новый`, uuid: enumValueId },
-      ]),
-    })
-
-    expect(profile.designTimeReferenceByUuid).toMatchObject({
-      [`${typeId}.${emptyRefId}`]: "Перечисление.Статусы.ПустаяСсылка",
-      [`${typeId}.${enumValueId}`]: "Перечисление.Статусы.Новый",
-    })
+    expect(Object.keys(profile).sort()).toEqual([
+      "adoptedUuids",
+      "componentKind",
+      "xmlDefaultVariantByLogicalAddress",
+    ])
   })
 
   it("rejects conflicting UUIDs after address canonicalization", () => {

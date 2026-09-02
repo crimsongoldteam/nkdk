@@ -20,6 +20,37 @@ describe("project-state data table validation", () => {
 
     expect(diagnostics.map(({ message }) => message)).toEqual(expectedMessages)
   })
+
+  it("читает условия виртуальной таблицы из точного файла владельца", () => {
+    const sourceProjectPath = "cf/РегистрРасчета/Основной/Свойства.yaml"
+    const reference = dataTableReference("РегистрРасчета.Основной.ФактическийПериодДействия")
+
+    const diagnostics = validateProjectStateDataTableReferenceBatch({
+      checks: [{ requestId: "table", componentPath: "cf", reference }],
+      projectDir: "/project",
+      queryPort: {
+        resolveTargets: (requests) => requests.map(({ requestId }) => ({
+          requestId,
+          status: "found" as const,
+          target: { kind: "object" as const, canonical: "CalculationRegister.Основной" },
+          source: { projectPath: sourceProjectPath, componentPath: "cf" },
+        })),
+        readDependencyOwnerInputs: (requests) => requests.map((request) =>
+          "projectPath" in request && request.projectPath === sourceProjectPath
+            ? {
+                requestId: request.requestId,
+                status: "found" as const,
+                input: { owner: request.owner, facts: { actionPeriod: "true" }, fields: [] },
+              }
+            : { requestId: request.requestId, status: "missing" as const },
+        ),
+        readOwnerRefPage: () => ({ refs: [] }),
+      },
+      contributors: [collectAppliedObjectDataTables],
+    })
+
+    expect(diagnostics).toEqual([])
+  })
 })
 
 function dataTableReference(value: string): ProjectStatePendingReferenceCheck["reference"] {
