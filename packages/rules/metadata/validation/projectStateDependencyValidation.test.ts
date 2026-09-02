@@ -1,4 +1,4 @@
-import { parseMetadataYaml } from "@nkdk/runtime"
+import { parseMetadataYaml, type Diagnostic } from "@nkdk/runtime"
 import { beforeAll,describe,expect,it,vi } from "vitest"
 import { mockContext } from "../../tests/mockContext"
 import "../../tests/metadataExecutionContext"
@@ -214,6 +214,28 @@ describe("dependency validation из ProjectState", () => {
         message: expect.stringContaining("ПолеCF"),
       }),
     ])
+    store.rollbackUpdate()
+  })
+
+  it("указывает имя структурного валидатора с абсолютным путём", () => {
+    function absolutePathValidator(): readonly Diagnostic[] {
+      return [{
+        filePath: "C:\\project\\cfe\\X\\Форма.yaml",
+        line: 1,
+        col: 1,
+        severity: "error",
+        source: "structure",
+        message: "Ошибка",
+      }]
+    }
+    const validator = createProjectStateDependencyValidator({
+      structuredDocumentValidators: [absolutePathValidator],
+    })
+    const { store } = createBinaryProjectStateTestFixture(validator)
+    store.beginUpdate()
+
+    expect(() => store.validateDependencies({ requests: [] }))
+      .toThrow("absolutePathValidator вернул недопустимый путь диагностики")
     store.rollbackUpdate()
   })
 
