@@ -219,14 +219,23 @@ const presentInCurrentConfiguration =
 ```
 
 В `materializeInheritedRootFormDataPaths` заменить условие, безусловно
-допускающее только `origin === "own"`, на проверку этого признака:
+допускающее только `origin === "own"`, на проверку этого признака. Отсутствие
+XML `DataPath` в промежуточной YAML-модели разных элементов представлено либо
+отсутствующим свойством, либо пустым значением (`undefined`, `null`, `""`),
+поэтому все эти варианты являются одной диагностической границей. Непустое
+или некорректно типизированное явное значение не перезаписывать:
 
 ```ts
 for (const element of params.context.elementsByName.values()) {
   const inheritedFromCurrentForm =
     element.origin === "borrowed" && element.presentInCurrentConfiguration === true
+  const missingOrEmptyPath =
+    !element.present
+    || element.value === undefined
+    || element.value === null
+    || element.value === ""
   if (
-    element.present
+    !missingOrEmptyPath
     || element.candidateRootOrigin !== "inherited"
     || element.candidateYaml === undefined
     || inheritedFromCurrentForm
