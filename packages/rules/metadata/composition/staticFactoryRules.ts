@@ -5,6 +5,7 @@ import { metadataRuleLayer000 as contribution3 } from "../appliedObjects/metadat
 import { metadataRuleLayer000 as contribution4 } from "../appliedObjects/metadataCalculationRegister/types"
 import { metadataRuleLayer000 as contribution5 } from "../appliedObjects/metadataChartOfAccounts/predefined/rules"
 import { metadataRuleLayer001 as contribution6 } from "../appliedObjects/metadataChartOfAccounts/predefined/rules"
+import { metadataRuleLayer002 as chartOfAccountsPredefinedItemCollectionContribution } from "../appliedObjects/metadataChartOfAccounts/predefined/rules"
 import { metadataRuleLayer000 as contribution7 } from "../appliedObjects/metadataChartOfAccounts/types"
 import { metadataRuleLayer000 as contribution8 } from "../appliedObjects/metadataChartOfCalculationTypes/types"
 import { metadataRuleLayer000 as contribution9 } from "../appliedObjects/metadataChartOfCharacteristicTypes/types"
@@ -402,6 +403,7 @@ export const staticFactoryRules = composeMetadataRules(
   contribution4,
   contribution5,
   contribution6,
+  chartOfAccountsPredefinedItemCollectionContribution,
   contribution7,
   contribution8,
   contribution9,

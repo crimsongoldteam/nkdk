@@ -66,6 +66,22 @@ export function chartOfAccountsPredefinedExtDimensionTypesRule<
 ): Readonly<{ type: "ChartOfAccountsPredefinedExtDimensionTypes" } & Params> {
   return defineWidePropertyRule("ChartOfAccountsPredefinedExtDimensionTypes", params)
 }
+export interface ChartOfAccountsPredefinedItemCollectionWidePropertyRule extends WidePropertyRuleBase {
+  type: "ChartOfAccountsPredefinedItemCollection"
+}
+
+export type ChartOfAccountsPredefinedItemCollectionRuleParams = Omit<
+  ChartOfAccountsPredefinedItemCollectionWidePropertyRule,
+  "type"
+>
+
+export function chartOfAccountsPredefinedItemCollectionRule<
+  const Params extends ChartOfAccountsPredefinedItemCollectionRuleParams,
+>(
+  params: WideExactRuleParams<ChartOfAccountsPredefinedItemCollectionRuleParams, Params>
+): Readonly<{ type: "ChartOfAccountsPredefinedItemCollection" } & Params> {
+  return defineWidePropertyRule("ChartOfAccountsPredefinedItemCollection", params)
+}
 export const metadataChartOfAccountsAttributesRule = createOwnerAttributeCollectionRuleBuilder(
   "MetadataChartOfAccountsAttributes",
   MetadataChartOfAccountsAttributeRules
