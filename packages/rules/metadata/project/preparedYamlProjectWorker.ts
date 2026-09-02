@@ -7,6 +7,7 @@ import {
   hashFileBytes,
   parseMetadataYaml,
   rehydrateConfigurationContext,
+  snapshotDoubleQuotedScalarMarks,
   snapshotXmlAnomalyAnnotations,
 } from "@nkdk/runtime"
 import {
@@ -421,6 +422,7 @@ export function prepareYamlWorkerResultForTransport(
     yamlFiles: result.yamlFiles.map((file) => ({
       ...file,
       annotations: snapshotXmlAnomalyAnnotations(file.data, file.annotations),
+      doubleQuotedScalarMarks: file.doubleQuotedScalarMarks ?? snapshotDoubleQuotedScalarMarks(file.data),
     })),
   } as unknown as PreparedYamlProjectWorkerTaskResult
 }

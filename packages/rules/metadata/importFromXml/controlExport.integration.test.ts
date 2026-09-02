@@ -620,6 +620,42 @@ describe("executeImportControlExport", () => {
     ]))
   })
 
+  it("локализует raw заголовка дополнительной колонки на свойстве Заголовок", async () => {
+    const { assignment } = createCatalogFormInput(tempDirs, "nkdk-control-export-additional-column-title-", [
+      '<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:v8="http://v8.1c.ru/8.1/data/core">',
+      "  <Attributes>",
+      '    <Attribute name="Объект" id="1">',
+      "      <Type><v8:Type>xs:string</v8:Type></Type>",
+      '      <Columns><AdditionalColumns table="Объект.Товары">',
+      '        <Column name="ХарактеристикиИспользуются" id="2">',
+      "          <Title>",
+      "            <v8:item><v8:lang>ru</v8:lang><v8:content>Характеристики используются</v8:content></v8:item>",
+      "            <v8:item><v8:lang>en</v8:lang><v8:content>Variants are used</v8:content></v8:item>",
+      "          </Title>",
+      "          <Type><v8:Type>xs:boolean</v8:Type></Type>",
+      "        </Column>",
+      "      </AdditionalColumns></Columns>",
+      "    </Attribute>",
+      "  </Attributes>",
+      "</Form>",
+    ].join("\n"))
+    const { prepared, index } = await prepareControlInput(assignment)
+    const result = await executePreparedFormControlExport(
+      assignment,
+      prepared,
+      index,
+      snapshotXmlAnomalyAnnotations(prepared.yaml, prepared.annotations),
+    )
+    const annotations = restoreXmlAnomalyAnnotations(result.data, result.annotations)
+    const text = serializeYAMLDocument(result.data, annotations).text
+
+    expect(text).toContain([
+      "        ХарактеристикиИспользуются:",
+      "          Заголовок: !xml/raw",
+    ].join("\n"))
+    expect(text).not.toContain("        ХарактеристикиИспользуются: !xml/raw")
+  })
+
   it("сохраняет исходную компактную форму YAML при точном контрольном экспорте", async () => {
     const { assignment } = createCatalogFormInput(tempDirs, "nkdk-control-export-semantic-shape-", [
       '<Form xmlns="http://v8.1c.ru/8.3/xcf/logform"/>',

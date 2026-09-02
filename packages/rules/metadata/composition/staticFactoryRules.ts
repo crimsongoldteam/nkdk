@@ -187,6 +187,7 @@ import { metadataPropertyRule027 as contribution160 } from "../commonObjects/roo
 import { metadataPropertyRule028 as contribution161 } from "../commonObjects/rootCommandInterface/register"
 import { metadataPropertyRule029 as contribution162 } from "../commonObjects/rootCommandInterface/register"
 import { metadataPropertyRule030 as contribution163 } from "../commonObjects/rootCommandInterface/register"
+import { metadataPropertyRule031 as rootCommandInterfacePresenceContribution } from "../commonObjects/rootCommandInterface/register"
 import { metadataPropertyRule000 as contribution164 } from "../forms/commonObjects/formAttribute/fromXMLToYAML"
 import { metadataPropertyRule001 as contribution165 } from "../forms/commonObjects/formAttribute/fromXMLToYAML"
 import { metadataPropertyRule002 as contribution166 } from "../forms/commonObjects/formAttribute/fromXMLToYAML"
@@ -312,6 +313,7 @@ const factoryPropertyRules = defineMetadataRules({
   contribution161,
   contribution162,
   contribution163,
+  rootCommandInterfacePresenceContribution,
   contribution164,
   contribution165,
   contribution166,

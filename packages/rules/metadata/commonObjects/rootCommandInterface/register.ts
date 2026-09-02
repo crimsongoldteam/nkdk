@@ -672,3 +672,8 @@ export const metadataPropertyRule027 = definePropertyTypeRule("CommandInterfaceC
 export const metadataPropertyRule028 = definePropertyTypeRule("CommandInterfaceCommandGroups", "importFromXML", importCommandGroupsFromXML)
 export const metadataPropertyRule029 = definePropertyTypeRule("CommandInterfaceCommandGroups", "exportToXML", exportCommandGroupsToXML)
 export const metadataPropertyRule030 = definePropertyTypeRule("CommandInterfaceCommandGroups", "exportToJSONSchema", () => Type.Array(Type.String()))
+export const metadataPropertyRule031 = definePropertyTypeRule(
+  "RootCommandInterface",
+  "xmlImportPropertyBehavior",
+  { presenceAffectsExport: true },
+)

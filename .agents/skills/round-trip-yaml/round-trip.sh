@@ -45,7 +45,7 @@ is_positive_integer() {
   [[ "${1:-}" =~ ^[1-9][0-9]*$ ]]
 }
 
-REFERENCE_ONLY_XML_FILES=("Ext/ParentConfigurations.bin" "Ext/ParentConfigurations/*.cf")
+REFERENCE_ONLY_XML_FILES=(".nakidka-migrations.yaml" "Ext/ParentConfigurations.bin" "Ext/ParentConfigurations/*.cf")
 
 sanitize_path_segment() {
   round_trip_sanitize_path_segment "$1"

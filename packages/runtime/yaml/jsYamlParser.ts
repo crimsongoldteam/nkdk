@@ -136,7 +136,7 @@ interface ParsedXmlAnomalyAnnotation {
   readonly key: string | number | undefined
   readonly rawPayload?: "compact" | "null"
   readonly rawNullPaths?: readonly (readonly (string | number)[])[]
-  readonly doubleQuotedEmpty?: true
+  readonly doubleQuotedScalar?: string
 }
 
 function prepareMappingKeyTags(text: string): {
@@ -267,8 +267,8 @@ function collectValueAnnotation(
     key,
     rawPayload: rawPayloadOf(node, tag.kind),
     rawNullPaths: rawNullPathsOf(node, tag.kind),
-    ...(node.kind === "scalar" && node.style.doubleQuoted && node.value === ""
-      ? { doubleQuotedEmpty: true as const }
+    ...(node.kind === "scalar" && node.style.doubleQuoted
+      ? { doubleQuotedScalar: node.value }
       : {}),
   })
 }
@@ -425,8 +425,8 @@ function applyParsedXmlAnomalyAnnotations(
         })
         continue
       }
-      if (entry.doubleQuotedEmpty === true) {
-        setValueAt(parent, entry.key, "")
+      if (entry.doubleQuotedScalar !== undefined) {
+        setValueAt(parent, entry.key, entry.doubleQuotedScalar)
         markDoubleQuotedScalar(parent, entry.key)
       }
       if (entry.rawPayload === "null") setValueAt(parent, entry.key, null)

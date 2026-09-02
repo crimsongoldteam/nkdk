@@ -4,6 +4,7 @@ import { fileURLToPath, pathToFileURL } from "node:url"
 import Piscina, { move, transferableSymbol, valueSymbol } from "piscina"
 import {
   isXmlAnomalyAnnotationsSnapshot,
+  restoreDoubleQuotedScalarMarks,
   restoreXmlAnomalyAnnotations,
   type ConfigurationContext,
 } from "@nkdk/runtime"
@@ -523,8 +524,12 @@ function restorePreparedYamlWorkerResult(
     yamlFiles: result.yamlFiles.map((file) => {
       const transported: unknown = file.annotations
       if (!isXmlAnomalyAnnotationsSnapshot(transported)) return file
+      if (file.doubleQuotedScalarMarks !== undefined) {
+        restoreDoubleQuotedScalarMarks(file.data, file.doubleQuotedScalarMarks)
+      }
+      const { doubleQuotedScalarMarks: _transportedMarks, ...restoredFile } = file
       return {
-        ...file,
+        ...restoredFile,
         annotations: restoreXmlAnomalyAnnotations(file.data, transported),
       }
     }),
