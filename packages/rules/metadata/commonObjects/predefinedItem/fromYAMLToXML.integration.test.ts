@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest"
 import { compileValidationSchema } from "../../validation/compileValidationSchema"
 import { serializeDirectXML, testPropertyFixtureThroughYAML, testPropertyFromYAMLToXML } from "../../../tests/directConversion"
 import { mockContext, mockContextToXML } from "../../../tests/mockContext"
-import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import { createXMLPropertyExecution, type XMLPropertyExecutionObserver, type MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { groupYAML } from "./__fixtures__/group"
 import { itemYAML } from "./__fixtures__/item"
 import { exportPredefinedItemCollectionToJSONSchema } from "./toJSONSchema"
@@ -18,6 +18,28 @@ const cases = [
 ] as const
 
 describe("PredefinedItem YAML → XML", () => {
+  it("выбирает префикс при единственном экспорте Type, до закрытия родителя", () => {
+    const prefixes: unknown[] = []
+    const observer: XMLPropertyExecutionObserver = {
+      enterNested: () => observer,
+      complete() {},
+      write({ property, value }) {
+        if (property.propertyKey !== "type") return
+        const qname = (value as Record<string, Record<string, unknown>>)["v8:Type"]
+        if (qname !== undefined) prefixes.push(qname["#text"])
+      },
+    }
+    const xml = createXMLPropertyExecution({
+      context: chartContext(), rule: collectionRule, outputs: [{ key: "owner" }],
+      yaml: { Значение: { Корень: {
+        ТипЗначения: "Справочник.ЗначенияХарактеристик",
+        Элементы: { Дочерний: { ТипЗначения: "Справочник.ЗначенияХарактеристик" } },
+      } } },
+    }, undefined, observer).finish().outputs.get("owner")
+    expect(prefixes).toEqual(["d4p1:CatalogRef.ЗначенияХарактеристик", "d6p1:CatalogRef.ЗначенияХарактеристик"])
+    expect(serializeDirectXML(xml ?? {})).toContain("d6p1:CatalogRef.ЗначенияХарактеристик")
+  })
+
   it("imports undefined", () => {
     expect(testPropertyFromYAMLToXML({ rule: collectionRule, yaml: {} }).xml).toEqual({})
   })

@@ -110,7 +110,7 @@ export function convertMetadataCollectionFromYAMLToXML(
     }
     copyXmlAnomalyAnnotationsDeep(params.annotations, yaml, normalizedYAML)
     copyXmlAnomalyExportClaim(yaml, normalizedYAML)
-    const defaultItemContext = configurationIndexItemContext({
+    const defaultItemContext = configurationIndexCollectionItemContext({
       context: params.context,
       descriptor: params.descriptor,
       yaml: normalizedYAML,
@@ -522,7 +522,7 @@ function readXMLProperty(
   return undefined
 }
 
-function configurationIndexItemContext(params: {
+export function configurationIndexCollectionItemContext(params: {
   context: ConfigurationContextWithExportToXML
   descriptor: CollectionDescriptor
   yaml: unknown

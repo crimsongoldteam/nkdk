@@ -28,6 +28,29 @@ const contextWithTypeNamePolicy = (xmlName: "AnyRef" | "AnyIBRef") => {
 }
 
 describe("exportTypeDescriptionToXML", () => {
+  it("применяет подготовленный префикс только к объявленному пространству имён", () => {
+    const base = mockContextToXML()
+    const context = { ...base, exportToXML: {
+      ...base.exportToXML,
+      typeDescriptionXMLPrefixByNamespace: { "http://v8.1c.ru/8.1/data/enterprise/current-config": "d8p1" },
+    } }
+    const value: TypeDescription = { type: ["CatalogRef.Товары", "AnyIBRef", "boolean"] }
+    const declared = exportTypeDescriptionToXML(context, typeDescriptionRuleWithLocalNamespace, value)
+    expect(declared).toMatchObject({
+      "v8:Type": [{ "_xmlns:d8p1": "http://v8.1c.ru/8.1/data/enterprise/current-config", "#text": "d8p1:CatalogRef.Товары" }, "xs:boolean"],
+      "v8:TypeSet": { "_xmlns:d8p1": "http://v8.1c.ru/8.1/data/enterprise/current-config", "#text": "d8p1:AnyIBRef" },
+    })
+    expect(exportTypeDescriptionToXML(context, typeDescriptionRule, value)).toMatchObject({
+      "v8:Type": ["cfg:CatalogRef.Товары", "xs:boolean"], "v8:TypeSet": "cfg:AnyIBRef",
+    })
+    const reference = importTypeDescriptionFromXML(mockContextFromXML({ forReference: true }), mockRule, {
+      "v8:Type": { "_xmlns:old": "http://v8.1c.ru/8.1/data/enterprise/current-config", "#text": "old:CatalogRef.Товары" },
+    })
+    expect(exportTypeDescriptionToXML(context, typeDescriptionRuleWithLocalNamespace, { type: ["CatalogRef.Товары"] }, reference)).toEqual({
+      "v8:Type": { "_xmlns:d8p1": "http://v8.1c.ru/8.1/data/enterprise/current-config", "#text": "d8p1:CatalogRef.Товары" },
+    })
+  })
+
   it("should export undefined type description to XML", () => {
     const result = exportTypeDescriptionToXML(mockContext, mockRule, undefined)
     expect(result).toBeUndefined()
