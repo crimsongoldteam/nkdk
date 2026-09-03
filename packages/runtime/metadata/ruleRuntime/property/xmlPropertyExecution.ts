@@ -158,17 +158,19 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
 
 type PlannedXMLProperty = YAMLToXMLPlannedProperty | CompiledProperty
 
-/** Локальные события общей политики свойства; поздние предметные hooks ещё не выполнены. */
+/** Локальный потребитель общей политики; поздние предметные hooks ещё не выполнены. */
 export interface XMLPropertyExecutionObserver {
+  /** Уже закрытый импортом ребёнок возвращает только результат своего потребителя. */
+  reuseNested?(params: YAMLToXMLItemConversionParams): YAMLToXMLResult | undefined
   enterNested?(params: YAMLToXMLItemConversionParams): XMLPropertyExecutionObserver | undefined
   write(event: {
     readonly outputKey: string
     readonly property: PlannedXMLProperty
     readonly path: readonly string[]
     readonly value: unknown
-  }): void
+  }): { readonly retainedValue: unknown } | void
   complete(property: PlannedXMLProperty): void
-  finish?(result: YAMLToXMLResult): void
+  finish?(result: YAMLToXMLResult): YAMLToXMLResult | void
 }
 
 export interface XMLPropertyExecution {
@@ -193,7 +195,7 @@ export function createXMLPropertyExecution(
     : params.execution.getTypeRule(type, operation)
   const convertNestedProperties = (
     nestedParams: Omit<ConvertPropertiesFromYAMLToXMLParams, "execution">,
-  ) => createXMLPropertyExecution({
+  ) => observer?.reuseNested?.(nestedParams) ?? createXMLPropertyExecution({
     ...nestedParams,
     execution: params.execution,
   }, undefined, observer?.enterNested?.(nestedParams)).finish()
@@ -932,7 +934,7 @@ export function createXMLPropertyExecution(
       deferredByOutput: new Map(outputs.map(({ request, deferred }) => [request.key, deferred])),
       externalWrites,
     }
-    observer?.finish?.(completed)
+    completed = observer?.finish?.(completed) ?? completed
     return completed
     } catch (error) {
       failure = { error }
@@ -1421,8 +1423,8 @@ function writeXMLValue(params: {
 }
 
 function emitXMLValue(output: MutableOutput, property: PlannedXMLProperty, path: readonly string[], value: unknown): void {
-  output.observer?.write({ outputKey: output.request.key, property, path, value })
-  setAtPath(output.xml, path, value)
+  const consumed = output.observer?.write({ outputKey: output.request.key, property, path, value })
+  setAtPath(output.xml, path, consumed === undefined ? value : consumed.retainedValue)
 }
 
 function isEmptyCollectionOutput(value: unknown, xmlElement: string): boolean {

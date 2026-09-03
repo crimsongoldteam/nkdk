@@ -194,7 +194,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(completed).toEqual(stage === "write" ? [] : ["a", "b"])
   })
 
-  it("передаёт вложенные items одному потребителю без повторного преобразования детей", () => {
+  it.each(["output", "proof"] as const)("передаёт вложенные items одному потребителю без повторного преобразования детей: %s", (mode) => {
     const rules = createRuleRegistrySet(metadataRules)
     const calls: string[] = []
     rules.property.registerTypeRule("ProofScalar" as never, "importFromYAML", (({ value }) => {
@@ -220,12 +220,24 @@ describe("convertPropertiesFromYAMLToXML", () => {
       return {
         enterNested() { return observe(sourceChildren[nestedIndex++]!, (child) => children.push(child)) },
         write({ path, value }) {
-          if (typeof value !== "string") return
-          const child = sourceChildren.find((child) => child.name === path[0])!
-          children.push(proof.check(child, localXmlShapeFromObject(path[0]!, value)))
+          if (typeof value === "string") {
+            const child = sourceChildren.find((child) => child.name === path[0])!
+            children.push(proof.check(child, localXmlShapeFromObject(path[0]!, value)))
+          }
+          if (mode === "proof") return { retainedValue: {} }
         },
         complete() {},
-        finish() { const receipt = proof.check(node, { name: node.name, content: children }); done?.(receipt) },
+        finish(result) {
+          const receipt = proof.check(node, { name: node.name, content: children })
+          done?.(receipt)
+          if (mode !== "proof") return
+          // Уже проверенные XML-значения не попадают даже в собственный
+          // накопитель frame, а родителю передаётся только его вклад.
+          for (const output of result.outputs.values()) {
+            expect(Object.values(output)).toEqual(Object.keys(output).map(() => ({})))
+          }
+          return { ...result, outputs: new Map([...result.outputs.keys()].map((key) => [key, { receipt }])) }
+        },
       }
     }
     const result = createXMLPropertyExecution({
@@ -234,7 +246,9 @@ describe("convertPropertiesFromYAMLToXML", () => {
       yaml: { Элементы: [{ Подробности: { Значение: "a" } }, { Подробности: { Значение: "b" } }, { Подробности: { Значение: "c" } }] },
       outputs: [{ key: "owner" }],
     }, undefined, observe(source)).finish()
-    expect(result.outputs.get("owner")).toEqual({ Item: [{ Details: { Value: "a" } }, { Details: { Value: "b" } }, { Details: { Value: "c" } }] })
+    expect(result.outputs.get("owner")).toEqual(mode === "output"
+      ? { Item: [{ Details: { Value: "a" } }, { Details: { Value: "b" } }, { Details: { Value: "c" } }] }
+      : { receipt: { type: "element", name: "Root", occurrence: 1, sourceId: source.id } })
     expect(calls).toEqual(["from:a", "to:a", "from:b", "to:b", "from:c", "to:c"])
     expect(valueComparisons).toBe(3)
   })

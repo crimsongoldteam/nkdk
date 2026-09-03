@@ -122,9 +122,10 @@ export function importPropertiesFromXMLToYAML(params: {
 
   const retainResult = params.mode !== "facts" || params.produceResult === true
   const result: Record<string, unknown> | undefined = retainResult ? {} : undefined
-  const roundTrip = result === undefined || params.mode === "facts" ? undefined : params.roundTrip?.open({
+  const roundTrip = result === undefined || params.mode === "facts" || params.roundTrip === undefined
+    ? undefined : runRoundTripStep("open", () => params.roundTrip?.open({
     context, rule, yaml: result, sources, itemName, yamlPath, rulePath,
-  })
+  }))
   const retainedSiblingValues = new Map<string, unknown>()
   const retainedSiblingYamlKeys = metadataTargetSiblingYamlKeys(rule)
   const owner = metadataTargetOwnerFromRule({
@@ -815,7 +816,7 @@ export function importPropertiesFromXMLToYAML(params: {
           }
           addProfileTime(params.profile, "collectorMs", collectorStartedAt)
         } catch (cause) {
-          if (cause instanceof XmlImportAttemptInfrastructureError) throw cause
+          if (cause instanceof XmlImportAttemptInfrastructureError || cause instanceof DirectImportRoundTripError) throw cause
           throw new DirectImportConversionError(propertyYamlPath, propertyRulePath, xmlPath, cause)
         }
       }
@@ -847,9 +848,9 @@ export function importPropertiesFromXMLToYAML(params: {
   const importMatch = (match: Parameters<typeof importMatchUnprofiled>[0]): void => {
     const frame = beginPropertyTypeProfile(params.profile, match.entry.rule.type)
     try {
-      if (importMatchUnprofiled(match)) roundTrip?.ready({
+      if (importMatchUnprofiled(match) && roundTrip !== undefined) runRoundTripStep("ready", () => roundTrip.ready({
         propertyKey: match.entry.propertyKey, node: match.xmlNode, presentInXML: match.presentInXML, xmlPath: match.xmlPath,
-      })
+      }))
     } finally {
       finishPropertyTypeProfile(params.profile, frame, "XML → YAML")
     }
@@ -981,8 +982,24 @@ export function importPropertiesFromXMLToYAML(params: {
 
   if (result === undefined) return undefined
   normalizeTypeOwnedMetadataTargets({ result, rule })
-  roundTrip?.finish()
+  if (roundTrip !== undefined) runRoundTripStep("finish", () => roundTrip.finish())
   return orderYamlRuleProperties(result, compiledPlan?.yamlOrder ?? getYamlRulePropertyOrder(rule))
+}
+
+class DirectImportRoundTripError extends Error {
+  constructor(phase: string, cause: unknown) {
+    super(`Ошибка локальной проверки XML (${phase}): ${cause instanceof Error ? cause.message : String(cause)}`, { cause })
+    this.name = "DirectImportRoundTripError"
+  }
+}
+
+function runRoundTripStep<T>(phase: "open" | "ready" | "finish", run: () => T): T {
+  try {
+    return run()
+  } catch (cause) {
+    if (cause instanceof DirectImportRoundTripError) throw cause
+    throw new DirectImportRoundTripError(phase, cause)
+  }
 }
 
 function metadataTargetSiblingYamlKeys(rule: MetadataItemRule): ReadonlySet<string> {

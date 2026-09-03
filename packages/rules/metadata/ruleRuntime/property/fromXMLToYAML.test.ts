@@ -12,6 +12,8 @@ withConfigurationIndexCollector,
 withConfigurationIndexLogicalAddress
 } from "@nkdk/runtime"
 import { createRuleRegistrySet, createXMLPropertyExecution } from "@nkdk/runtime/rule-kit"
+import { importMetadataItemFromXMLToYAML, importMetadataItemCollectionFromXMLToYAML, type YAMLToXMLResult } from "@nkdk/runtime/rule-kit"
+import { isXmlElementNode, type LocalXmlChild } from "@nkdk/runtime"
 import { describe,expect,it,vi } from "vitest"
 import { mockContextFromXML, mockContextToXML } from "../../../tests/mockContext"
 import {
@@ -40,6 +42,89 @@ import { metadataRules } from "../../composition/metadataRules"
 
 describe("importPropertiesFromXMLToYAML", () => {
 
+  it("импортирует три вложенных item с единственным обратным преобразованием и только компактными вкладами детей", () => {
+    const rules = createRuleRegistrySet(metadataRules)
+    const calls: string[] = []
+    rules.property.registerTypeRule("NestedRoundTripScalar" as never, "compileAtomicConversion", () => ({
+      fromXMLToYAML: ({ value }) => { calls.push(`import:${String(value)}`); return { metadataValue: value, representationValue: value } },
+      fromYAMLToXML: ({ value }) => { calls.push(`export:${String(value)}`); return { metadataValue: value, representationValue: value } },
+    }))
+    const detailsRule: MetadataItemRule = { itemType: "Catalog", properties: {
+      value: { type: "NestedRoundTripScalar" as never, xml: "Value", yaml: "Значение" },
+    } }
+    const rowRule: MetadataItemRule = { itemType: "Catalog", properties: {
+      details: { type: "NestedRoundTripDetails" as never, xml: "Details", yaml: "Подробности" },
+    } }
+    const rule: MetadataItemRule = { itemType: "Catalog", properties: {
+      items: { type: "NestedRoundTripRows" as never, xml: "Items", yaml: "Элементы" },
+    } }
+    rules.property.registerTypeRule("NestedRoundTripDetails" as never, "importFromXMLToYAML", ({ context, xml, traversal }) =>
+      importMetadataItemFromXMLToYAML({ context, rule: detailsRule, xml, traversal }))
+    rules.property.registerTypeRule("NestedRoundTripDetails" as never, "yamlToXMLNestedRule", { kind: "item", itemRule: detailsRule })
+    rules.property.registerTypeRule("NestedRoundTripRows" as never, "importFromXMLToYAML", (params) =>
+      importMetadataItemCollectionFromXMLToYAML({ ...params, itemRule: rowRule, xmlElement: "Item", yamlAsArray: true }))
+    rules.property.registerTypeRule("NestedRoundTripRows" as never, "yamlToXMLNestedRule", {
+      kind: "collection", itemRule: rowRule, xmlElement: "Item", yamlShape: "array",
+    })
+    const root = parseXmlDocumentWithSaxes("<Root><Items><Item><Details><Value>a</Value></Details></Item><Item><Details><Value>b</Value></Details></Item><Item><Details><Value>c</Value></Details></Item></Items></Root>").roots[0]!
+    const context = mockContextFromXML()
+    let comparisons = 0
+    const proof = createLocalXmlProof({ onValue: () => comparisons++ })
+    const receipts = new WeakMap<object, LocalXmlChild>()
+    const completed = new WeakMap<object, YAMLToXMLResult>()
+    const yaml = importPropertiesWithSources({
+      execution: rules.execution, context, rule, sources: [{ context, xml: root }], yamlPath: [], rulePath: [],
+      collector: createLocalIndexesCollector(),
+      roundTrip: {
+        open({ yaml, rule, sources }) {
+          const source = sources[0]!.xml
+          if (!isXmlElementNode(source)) throw new Error("Нужен адресованный исходный XML")
+          const plan = rules.execution.propertyPlan(rule)
+          const order = createLocalXmlChildOrder(plan.yamlToXMLOrder)
+          const sourceChildren = new Map(source.content.flatMap((child) => child.type === "element" ? [[child.name, child] as const] : []))
+          const item = createXMLPropertyExecution({ execution: rules.execution, context: mockContextToXML(), rule, yaml, outputs: [{ key: "owner" }] }, undefined, {
+            reuseNested({ yaml }) {
+              if (yaml === null || typeof yaml !== "object") throw new Error("Ожидался YAML готового ребёнка")
+              const result = completed.get(yaml)
+              if (result === undefined) throw new Error("Вложенный item должен быть закрыт до свойства родителя")
+              completed.delete(yaml)
+              return result
+            },
+            write({ property, path, value }) {
+              const receipt = value !== null && typeof value === "object" ? receipts.get(value) : undefined
+              const child = receipt ?? proof.check(sourceChildren.get(path[0]!)!, localXmlShapeFromObject(path[0]!, value, (_name, child) => {
+                const receipt = child !== null && typeof child === "object" ? receipts.get(child) : undefined
+                if (receipt === undefined) throw new Error("Ожидался только компактный вклад ребёнка")
+                return receipt
+              }))
+              order.set(property.propertyKey, [child])
+              return { retainedValue: {} }
+            },
+            complete() {},
+            finish(result) {
+              const marker = {}
+              receipts.set(marker, proof.check(source, { name: source.name, content: order.finish() }))
+              const compact = { ...result, outputs: new Map([["owner", marker]]) }
+              completed.set(yaml, compact)
+              return compact
+            },
+          })
+          return {
+            ready({ propertyKey }) { item.execute(plan.propertiesByKey.get(propertyKey)!) },
+            finish() { item.finish() },
+          }
+        },
+      },
+    })
+    expect(yaml).toEqual({ Элементы: [
+      { Подробности: { Значение: "a" } },
+      { Подробности: { Значение: "b" } },
+      { Подробности: { Значение: "c" } },
+    ] })
+    expect(calls).toEqual(["import:a", "export:a", "import:b", "export:b", "import:c", "export:c"])
+    expect(comparisons).toBe(3)
+  })
+
   it.each(["facts", "yaml"] as const)("отделяет локальную проверку от первого прохода и raw-fallback: %s", (mode) => {
     const context = mockContextFromXML()
     const root = parseXmlDocumentWithSaxes("<Root><Value>x</Value></Root>").roots[0]!
@@ -53,6 +138,30 @@ describe("importPropertiesFromXMLToYAML", () => {
     })
     if (mode === "facts") expect(run()).toEqual({ Значение: "x" })
     else expect(run).toThrow(/proof infrastructure failed/)
+    expect(audit.rawCandidates()).toEqual([])
+  })
+
+  it.each(["open", "ready", "finish"] as const)("не превращает сбой проверки вложенного item в raw родителя: %s", (phase) => {
+    const rules = createRuleRegistrySet(metadataRules)
+    const childRule: MetadataItemRule = { itemType: "Catalog", properties: {
+      value: { type: "string", xml: "Value", yaml: "Значение" },
+    } }
+    rules.property.registerTypeRule("NestedProofFailure" as never, "importFromXMLToYAML", ({ context, xml, traversal }) =>
+      importMetadataItemFromXMLToYAML({ context, rule: childRule, xml, traversal }))
+    const context = mockContextFromXML()
+    const root = parseXmlDocumentWithSaxes("<Root><Child><Value>x</Value></Child></Root>").roots[0]!
+    const audit = createXmlImportAuditSession([root])
+    expect(() => importPropertiesWithSources({
+      execution: rules.execution, context, rule: { itemType: "Catalog", properties: {
+        child: { type: "NestedProofFailure" as never, xml: "Child", yaml: "Ребёнок" },
+      } },
+      sources: [{ context, xml: root }], yamlPath: [], rulePath: [], collector: createLocalIndexesCollector(), audit,
+      roundTrip: { open({ rule }) {
+        const fail = (current: string) => { if (rule === childRule && current === phase) throw new Error("nested proof infrastructure failed") }
+        fail("open")
+        return { ready() { fail("ready") }, finish() { fail("finish") } }
+      } },
+    })).toThrow(/nested proof infrastructure failed/)
     expect(audit.rawCandidates()).toEqual([])
   })
 
