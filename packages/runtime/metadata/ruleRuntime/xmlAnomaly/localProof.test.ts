@@ -3,6 +3,7 @@ import { parseXmlDocumentWithSaxes } from "../../../xml/import/saxesParser"
 import { createLocalXmlProof } from "./localProof"
 import { createXmlAnomalyAnnotations, snapshotXmlAnomalyAnnotations } from "../../../yaml/xmlAnomalyAnnotations"
 import { serializeYAMLDocument } from "../../../yaml/export"
+import { annotateXmlRawValue } from "./yamlProjection"
 
 describe("local XML proof", () => {
   it("проверяет содержимое дочернего узла один раз и сохраняет исходное дерево", () => {
@@ -148,13 +149,12 @@ describe("local XML proof", () => {
     if (child.type !== "element") throw new Error("Value")
     const yaml = { Поле: "converted" }
     const annotations = createXmlAnomalyAnnotations()
+    annotations.set(yaml, "Поле", { kind: "invalid", target: "value", occurrence: 1 })
     let corrections = 0
     const proof = createLocalXmlProof()
     const receipt = proof.check(child, { name: "Value", content: [{ type: "text", value: "converted" }] }, () => {
       corrections++
-      annotations.set(yaml, "Поле", {
-        kind: "raw", target: "value", occurrence: 1, hasSemanticValue: true, xml: { "#text": "original" },
-      })
+      annotateXmlRawValue({ parent: yaml, key: "Поле", annotations, hasSemanticValue: true, xml: { "#text": "original" } })
     })
     const completed = { ...yaml }
     const completedAnnotations = snapshotXmlAnomalyAnnotations(yaml, annotations)
@@ -164,6 +164,7 @@ describe("local XML proof", () => {
     expect(yaml).toEqual(completed)
     expect(snapshotXmlAnomalyAnnotations(yaml, annotations)).toEqual(completedAnnotations)
     expect(serializeYAMLDocument(yaml, annotations).text).toBe(serializedAtCompletion)
+    expect(serializedAtCompletion).toContain("$значение: !xml/invalid converted")
   })
 
   it("не теряет неизвестный пустой элемент рядом с проверенным", () => {

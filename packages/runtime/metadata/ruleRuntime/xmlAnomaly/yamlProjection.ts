@@ -6,6 +6,7 @@ import {
   encodeXmlRawElement,
   type XmlRawValue,
 } from "../../../xml/structure/rawCodec"
+import { xmlContentOrder, type XmlStructureDifference } from "../../../xml/structure/compare"
 import {
   appendXmlAnnotatedMappingEntry,
   createXmlAnomalyAnnotations,
@@ -91,44 +92,26 @@ export function projectNamedXmlCollectionForImportWithRuntimeKeys<T>(params: {
   return projected
 }
 
-export function projectXmlAuditRemainder(params: {
+interface XmlAuditProjectionParams {
   readonly yaml: Record<string, unknown>
   readonly annotations: XmlAnomalyAnnotationTable
   readonly audit: XmlImportAuditSession
   readonly root: XmlElementNode
   readonly boundary: XmlImportAuditBoundary
-}): void {
-  const rootOutcome = params.audit.getOutcome(params.root)
-  const existingKeys = new Set(
-    xmlAnnotatedMappingEntries(params.yaml, params.annotations).map(([key]) => key),
-  )
-  const projectedKeys = new Map<string, number>()
+}
 
-  const appendRaw = (path: string, value: XmlRawValue): void => {
-    if (existingKeys.has(path)) {
-      throw new Error(`Raw XML-путь ${path} пересекается с обычной YAML-границей`)
-    }
-    const previous = projectedKeys.get(path) ?? 0
-    projectedKeys.set(path, previous + 1)
-    appendXmlAnnotatedMappingEntry(params.yaml, params.annotations, {
-      logicalKey: path,
-      value: undefined,
-      ...(previous === 0
-        ? {}
-        : {
-            keyAnnotation: {
-              kind: "invalid" as const,
-              occurrence: previous,
-            },
-          }),
-      valueAnnotation: {
-        kind: "raw",
-        occurrence: 1,
-        xml: value,
-        hasSemanticValue: false,
-      },
-    })
-  }
+export function projectXmlAuditRemainder(params: XmlAuditProjectionParams): void {
+  projectXmlRemainder(params, true)
+}
+
+/** Собственные остатки frame; порядок завершит общий XML-proof после экспортной политики. */
+export function projectXmlAuditOwnRemainder(params: XmlAuditProjectionParams): void {
+  projectXmlRemainder(params, false)
+}
+
+function projectXmlRemainder(params: XmlAuditProjectionParams, recursive: boolean): void {
+  const rootOutcome = params.audit.getOutcome(params.root)
+  const appendRaw = createXmlRawAppender(params)
 
   const visitKnownElement = (element: XmlElementNode, path: readonly string[]): void => {
     const parentPatch: Record<string, XmlRawValue> = {}
@@ -214,9 +197,9 @@ export function projectXmlAuditRemainder(params: {
         continue
       }
       hasKnownChild = true
-      if (child.type === "element") visitKnownElement(child, [...path, child.name])
+      if (recursive && child.type === "element") visitKnownElement(child, [...path, child.name])
     }
-    if (hasUnknownChild && hasKnownChild) {
+    if (recursive && hasUnknownChild && hasKnownChild) {
       parentPatch["#order"] = contentChildren.map((child) =>
         child.type === "element" ? child.name : `?${child.target}`,
       )
@@ -228,6 +211,93 @@ export function projectXmlAuditRemainder(params: {
     throw new Error(`Ближайший YAML-владелец не заявил XML-корень ${params.root.path}`)
   }
   visitKnownElement(params.root, [])
+}
+
+/** Оформление уже обнаруженного порядка, без сравнения или повторного экспорта. */
+export function projectLocalXmlOrder(params: {
+  readonly yaml: Record<string, unknown>
+  readonly annotations: XmlAnomalyAnnotationTable
+  readonly root: XmlElementNode
+  readonly differences: readonly XmlStructureDifference[]
+  readonly path?: readonly string[]
+}): void {
+  const differences = params.differences.filter((difference) =>
+    difference.kind === "order" && difference.ownerPath === params.root.path,
+  )
+  if (differences.length === 0) return
+  const appendRaw = createXmlRawAppender(params)
+  const path = params.path ?? []
+  for (const difference of differences) {
+    if (difference.path === `${params.root.path}/#order`) {
+      appendRaw(formatPath([...path, "#order"]), xmlContentOrder(params.root))
+    } else if (difference.path === `${params.root.path}/#attributes/#order`) {
+      appendRaw(formatPath([...path, "#attributes"]), {
+        "#order": params.root.attributes.map(({ name }) => `_${name}`),
+      })
+    } else {
+      throw new Error(`Неизвестная граница порядка XML: ${difference.path}`)
+    }
+  }
+}
+
+/** Граница уже найдена исполнителем; поиск parent по пути и копирование YAML не нужны. */
+export function annotateXmlRawValue(params: {
+  readonly parent: object
+  readonly key: string | number
+  readonly annotations: XmlAnomalyAnnotationTable
+  readonly xml: XmlRawValue
+  readonly hasSemanticValue: boolean
+}): void {
+  const previous = params.annotations.at(params.parent, params.key)
+  if (previous?.kind === "uuid") {
+    throw new Error(`Raw XML-граница ${String(params.key)} поглощает независимую UUID-аннотацию`)
+  }
+  const semantic = previous?.kind === "invalid" || previous?.kind === "important"
+    ? { kind: previous.kind, occurrence: previous.occurrence }
+    : previous?.semantic
+  params.annotations.set(params.parent, params.key, {
+    kind: "raw",
+    occurrence: 1,
+    target: "value",
+    xml: params.xml,
+    hasSemanticValue: params.hasSemanticValue,
+    ...(semantic === undefined ? {} : { semantic }),
+  })
+}
+
+function createXmlRawAppender(params: {
+  readonly yaml: Record<string, unknown>
+  readonly annotations: XmlAnomalyAnnotationTable
+}): (path: string, value: XmlRawValue) => void {
+  const existingKeys = new Set(
+    xmlAnnotatedMappingEntries(params.yaml, params.annotations).map(([key]) => key),
+  )
+  const projectedKeys = new Map<string, number>()
+  return (path, value) => {
+    if (existingKeys.has(path)) {
+      throw new Error(`Raw XML-путь ${path} пересекается с обычной YAML-границей`)
+    }
+    const previous = projectedKeys.get(path) ?? 0
+    projectedKeys.set(path, previous + 1)
+    appendXmlAnnotatedMappingEntry(params.yaml, params.annotations, {
+      logicalKey: path,
+      value: undefined,
+      ...(previous === 0
+        ? {}
+        : {
+            keyAnnotation: {
+              kind: "invalid" as const,
+              occurrence: previous,
+            },
+          }),
+      valueAnnotation: {
+        kind: "raw",
+        occurrence: 1,
+        xml: value,
+        hasSemanticValue: false,
+      },
+    })
+  }
 }
 
 function assertRawSubtreeDoesNotOverlap(
@@ -387,10 +457,8 @@ function replaceStableOwnerYamlValue(params: {
     if (!Array.isArray(parent) || key < 0 || key >= parent.length) {
       throw new Error(`Для XML-границы ${params.xmlPath} не найден stable YAML owner`)
     }
-    params.annotations.set(parent, key, {
-      kind: "raw",
-      occurrence: 1,
-      target: "value",
+    annotateXmlRawValue({
+      parent, key, annotations: params.annotations,
       xml: params.value,
       hasSemanticValue: true,
     })
@@ -417,10 +485,8 @@ function replaceStableOwnerYamlValue(params: {
     return
   }
   const runtimeKey = runtimeKeys[0]!
-  params.annotations.set(parent, runtimeKey, {
-    kind: "raw",
-    occurrence: 1,
-    target: "value",
+  annotateXmlRawValue({
+    parent, key: runtimeKey, annotations: params.annotations,
     xml: params.value,
     hasSemanticValue: true,
   })
