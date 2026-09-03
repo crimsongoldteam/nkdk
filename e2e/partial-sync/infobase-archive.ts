@@ -32,6 +32,7 @@ export type InfobaseArchiveDependencies = {
 }
 
 export type InfobaseArchiveStore = {
+  create(params: ArchiveParams): Promise<ArchiveTiming>
   dump(params: ArchiveParams): Promise<ArchiveTiming>
   restore(params: ArchiveParams): Promise<ArchiveTiming>
 }
@@ -41,6 +42,27 @@ export function createInfobaseArchiveStore(
   dependencies: InfobaseArchiveDependencies = nodeDependencies,
 ): InfobaseArchiveStore {
   return {
+    async create(params) {
+      const ibcmd = await requireIbcmd(dependencies)
+      const startedAt = dependencies.now()
+      const outcome = await dependencies.runProcess(ibcmd, [
+        "infobase",
+        "create",
+        `--database-path=${params.baseDir}`,
+        `--data=${params.dataDir}`,
+        `--restore=${params.archivePath}`,
+      ])
+      const elapsedMs = dependencies.now() - startedAt
+      await dependencies.writeFile(params.logPath, formatLog(outcome))
+      if (outcome.exitCode !== 0) {
+        throw new Error(`Создание информационной базы из архива завершилось с кодом ${outcome.exitCode}; журнал: ${params.logPath}`)
+      }
+      return {
+        elapsedMs,
+        sizeBytes: await dependencies.fileSize(params.archivePath),
+        requiresReconnect: true,
+      }
+    },
     async dump(params) {
       const ibcmd = await requireIbcmd(dependencies)
       const temporaryPath = `${params.archivePath}.tmp`

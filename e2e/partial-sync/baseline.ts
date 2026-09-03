@@ -69,8 +69,8 @@ export async function prepareOrReuseBaseline(
 ): Promise<BaselineReference> {
   const platformVersion = await dependencies.platformVersion()
   const fixtureHashes = {
-    cf: await hashTree(params.cfXmlDir),
-    cfe: await hashTree(params.extensionXmlDir),
+    cf: await hashFileTree(params.cfXmlDir),
+    cfe: await hashFileTree(params.extensionXmlDir),
   }
   const compatibilityHash = sha256(Buffer.from(JSON.stringify({
     version: 1,
@@ -119,7 +119,7 @@ export async function prepareOrReuseBaseline(
       archivePath,
       logPath: join(paths.logsDir, "baseline-dump.log"),
     })
-    await sanitizeProject(paths.projectDir)
+    await removeVolatileProjectState(paths.projectDir)
     await rm(paths.baseDir, { recursive: true, force: true })
     await rm(paths.dataDir, { recursive: true, force: true })
     const manifest: BaselineManifest = {
@@ -129,7 +129,7 @@ export async function prepareOrReuseBaseline(
       platformVersion,
       nkdkBuildId: params.nkdkBuildId,
       archiveSha256: sha256(await readFile(archivePath)),
-      projectSha256: await hashTree(paths.projectDir),
+      projectSha256: await hashFileTree(paths.projectDir),
     }
     await writeFile(join(temporaryDir, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`)
     await readValidBaseline(temporaryDir, compatibilityHash, true)
@@ -178,7 +178,7 @@ async function readValidBaseline(
     const archivePath = join(directory, "baseline.dt")
     const projectDir = join(directory, "project")
     if (sha256(await readFile(archivePath)) !== parsed.archiveSha256 ||
-      await hashTree(projectDir) !== parsed.projectSha256) {
+      await hashFileTree(projectDir) !== parsed.projectSha256) {
       if (required) throw new Error(`Проверка хэшей эталона не пройдена: ${directory}`)
       return undefined
     }
@@ -204,7 +204,7 @@ function isBaselineManifest(value: unknown): value is BaselineManifest {
     isHash(Reflect.get(hashes, "cf")) && isHash(Reflect.get(hashes, "cfe"))
 }
 
-async function sanitizeProject(projectDir: string): Promise<void> {
+export async function removeVolatileProjectState(projectDir: string): Promise<void> {
   for (const path of [
     [".nkdk", "platform-sessions"],
     [".nkdk", "tmp"],
@@ -214,7 +214,7 @@ async function sanitizeProject(projectDir: string): Promise<void> {
   }
 }
 
-async function hashTree(root: string): Promise<string> {
+export async function hashFileTree(root: string): Promise<string> {
   const hash = createHash("sha256")
   for (const path of await listFiles(root)) {
     hash.update(relative(root, path).split(sep).join("/"))

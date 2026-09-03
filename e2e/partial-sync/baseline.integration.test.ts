@@ -68,6 +68,7 @@ async function createFixture() {
     async close() { calls.push("close-mcp") },
   }
   const archiveStore: InfobaseArchiveStore = {
+    async create() { throw new Error("unexpected create") },
     async dump({ archivePath }) {
       calls.push("dump")
       await writeFile(archivePath, "database")

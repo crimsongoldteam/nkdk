@@ -33,6 +33,16 @@ describe("infobase archive store", () => {
     )
     expect(outcome.requiresReconnect).toBe(true)
   })
+
+  it("создаёт новую базу непосредственно из эталонного dt", async () => {
+    const fixture = archiveFixture()
+
+    await fixture.store.create(params)
+
+    expect(fixture.calls).toContain(
+      "ibcmd:infobase create --database-path=C:/run/base --data=C:/run/data --restore=C:/run/step.dt",
+    )
+  })
 })
 
 const params = {
