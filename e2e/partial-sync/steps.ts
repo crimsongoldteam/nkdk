@@ -141,7 +141,7 @@ export function createPartialSyncSteps(
   }
 }
 
-async function importComponent(
+export async function importComponent(
   session: ScenarioMcpSession,
   projectDir: string,
   componentPath: ScenarioBlock["componentPath"],
@@ -157,7 +157,7 @@ async function importComponent(
   }
 }
 
-async function expectSuccessfulValidation(
+export async function expectSuccessfulValidation(
   session: ScenarioMcpSession,
   projectDir: string,
   attemptLogDir: string,
@@ -173,7 +173,7 @@ async function expectSuccessfulValidation(
   }
 }
 
-async function syncAndExpectStatus(
+export async function syncAndExpectStatus(
   session: ScenarioMcpSession,
   projectDir: string,
   componentPath: ScenarioBlock["componentPath"],
@@ -190,7 +190,7 @@ async function syncAndExpectStatus(
   }
 }
 
-async function expectEqualComponent(
+export async function expectEqualComponent(
   dependencies: PartialSyncStepDependencies,
   params: Parameters<typeof compareFileTrees>[0],
 ): Promise<void> {
@@ -200,7 +200,7 @@ async function expectEqualComponent(
   }
 }
 
-async function closePlatformConnection(
+export async function closePlatformConnection(
   session: ScenarioMcpSession,
   projectDir: string,
   attemptLogDir: string,
@@ -212,7 +212,7 @@ async function closePlatformConnection(
   )
 }
 
-async function prepareVerificationProject(
+export async function prepareVerificationProject(
   projectDir: string,
   baseDir: string,
   mode: "designer-agent" | "standalone-server",
@@ -221,7 +221,7 @@ async function prepareVerificationProject(
   await writeProjectSettings(projectDir, baseDir, mode)
 }
 
-async function resetDirectory(path: string): Promise<void> {
+export async function resetDirectory(path: string): Promise<void> {
   await rm(path, { recursive: true, force: true })
   await mkdir(path, { recursive: true })
 }
