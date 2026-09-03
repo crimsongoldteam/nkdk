@@ -3,6 +3,7 @@ import { cp, lstat, mkdir, readFile, rename, rm, writeFile } from "node:fs/promi
 import { dirname, join } from "node:path"
 import {
   hashFileTree,
+  hashPortableProjectTree,
   removeVolatileProjectState,
   type BaselineReference,
 } from "./baseline"
@@ -16,11 +17,12 @@ import {
 } from "./stepwise-state"
 
 type CheckpointManifest = {
-  readonly version: 1
+  readonly version: 2
   readonly stepKey: string
   readonly stepIndex: number
   readonly planHash: string
   readonly expectedProjectHash: string
+  readonly componentStateSha256: string
   readonly archiveSha256: string
 }
 
@@ -53,12 +55,19 @@ export async function publishStepCheckpoint(params: {
       logPath: join(params.workspace.logsDir, `checkpoint-${params.stepIndex}.log`),
     })
     await removeVolatileProjectState(params.workspace.projectDir)
+    const componentStateDir = join(staging, "components")
+    await cp(
+      join(params.workspace.projectDir, ".nkdk", "components"),
+      componentStateDir,
+      { recursive: true },
+    )
     const manifest: CheckpointManifest = {
-      version: 1,
+      version: 2,
       stepKey: params.step.key,
       stepIndex: params.stepIndex,
       planHash: params.state.planHash,
-      expectedProjectHash: await hashFileTree(params.workspace.projectDir),
+      expectedProjectHash: await hashPortableProjectTree(params.workspace.projectDir),
+      componentStateSha256: await hashFileTree(componentStateDir),
       archiveSha256: sha256(await readFile(archivePath)),
     }
     await writeFile(join(staging, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`)
@@ -121,8 +130,13 @@ export async function restoreStepCheckpoint(params: {
   }
   await dependencies.writeProjectSettings(params.workspace.projectDir, params.workspace.baseDir, params.mode)
   await removeVolatileProjectState(params.workspace.projectDir)
-  if (manifest !== undefined && await hashFileTree(params.workspace.projectDir) !== manifest.expectedProjectHash) {
+  if (manifest !== undefined && await hashPortableProjectTree(params.workspace.projectDir) !== manifest.expectedProjectHash) {
     throw new Error(`Воспроизведённый проект не совпадает с контрольной точкой ${manifest.stepKey}`)
+  }
+  if (manifest !== undefined) {
+    const target = join(params.workspace.projectDir, ".nkdk", "components")
+    await rm(target, { recursive: true, force: true })
+    await cp(join(params.workspace.checkpointDir, "components"), target, { recursive: true })
   }
   await mkdir(params.workspace.logsDir, { recursive: true })
   await dependencies.archiveStore.create({
@@ -170,16 +184,20 @@ async function readCheckpointManifest(
   }
   const actualHash = sha256(await readFile(join(directory, "current.dt")))
   if (actualHash !== parsed.archiveSha256) throw new Error(`Повреждён архив контрольной точки: ${directory}`)
+  if (await hashFileTree(join(directory, "components")) !== parsed.componentStateSha256) {
+    throw new Error(`Повреждён индекс контрольной точки: ${directory}`)
+  }
   return parsed
 }
 
 function isCheckpointManifest(value: unknown): value is CheckpointManifest {
   if (typeof value !== "object" || value === null) return false
   const manifest = value as Record<string, unknown>
-  return manifest["version"] === 1 &&
+  return manifest["version"] === 2 &&
     typeof manifest["stepKey"] === "string" && manifest["stepKey"].length > 0 &&
     Number.isInteger(manifest["stepIndex"]) && Number(manifest["stepIndex"]) >= 0 &&
     isHash(manifest["planHash"]) && isHash(manifest["expectedProjectHash"]) &&
+    isHash(manifest["componentStateSha256"]) &&
     isHash(manifest["archiveSha256"])
 }
 

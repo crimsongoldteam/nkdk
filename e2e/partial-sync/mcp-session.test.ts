@@ -88,6 +88,7 @@ describe("partial sync MCP session", () => {
 
   it("ожидает terminal результат фоновой операции в том же сеансе", async () => {
     const attemptLogDir = await mkdtemp(join(tmpdir(), "nkdk-mcp-session-background-"))
+    const waits: number[] = []
     const lowLevel = fakeLowLevel([
       { result: { content: [] }, payload: {
         ok: true, status: "accepted", operationId: "op-1", projectDir: "/project",
@@ -105,7 +106,7 @@ describe("partial sync MCP session", () => {
     const session = await openScenarioMcpSession({
       attemptLogDir,
       createSession: async () => lowLevel,
-      wait: async () => undefined,
+      wait: async (milliseconds) => { waits.push(milliseconds) },
     })
 
     await expect(session.call("nkdk.validate_project", { projectDir: "/project" }))
@@ -114,6 +115,7 @@ describe("partial sync MCP session", () => {
       .resolves.toMatchObject({ arguments: { projectDir: "/project", operationId: "op-1" } })
     await expect(readJson(join(attemptLogDir, "003-nkdk.get_operation.response.json")))
       .resolves.toMatchObject({ payload: { status: "succeeded" } })
+    expect(waits).toEqual([1_000])
   })
 
   it("сохраняет предметную ошибку из результата фоновой операции", async () => {

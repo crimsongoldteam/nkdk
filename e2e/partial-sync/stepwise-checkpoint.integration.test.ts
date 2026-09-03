@@ -34,6 +34,10 @@ describe("stepwise checkpoint", () => {
     await writeFile(join(fixture.workspace.projectDir, "value.txt"), "1")
     const firstState = await publishStepCheckpoint(fixture.publishParams, fixture.dependencies)
     await writeFile(join(fixture.workspace.projectDir, "value.txt"), "2")
+    await writeFile(
+      join(fixture.workspace.projectDir, ".nkdk", "components", "cf", "index.lmdb"),
+      "checkpoint-index",
+    )
     const state = await publishStepCheckpoint({
       ...fixture.publishParams,
       state: firstState,
@@ -51,6 +55,10 @@ describe("stepwise checkpoint", () => {
     }, fixture.dependencies)
 
     expect(await readFile(join(fixture.workspace.projectDir, "value.txt"), "utf8")).toBe("2")
+    expect(await readFile(
+      join(fixture.workspace.projectDir, ".nkdk", "components", "cf", "index.lmdb"),
+      "utf8",
+    )).toBe("checkpoint-index")
     expect(fixture.calls).toContain("create-base:current.dt")
     expect(fixture.calls.filter((call) => call.startsWith("apply:")))
       .toEqual(["apply:step-0", "apply:step-1"])
@@ -71,22 +79,28 @@ async function createFixture(options: { readonly dumpError?: Error } = {}) {
     statePath: join(root, "state.json"),
   }
   const baselineProject = join(root, "baseline-project")
-  await Promise.all([workspace.projectDir, baselineProject].map((path) => mkdir(path, { recursive: true })))
+  await Promise.all([
+    join(workspace.projectDir, ".nkdk", "components", "cf"),
+    join(baselineProject, ".nkdk", "components", "cf"),
+  ].map((path) => mkdir(path, { recursive: true })))
   await writeFile(join(baselineProject, "value.txt"), "0")
+  await writeFile(join(baselineProject, ".nkdk", "components", "cf", "index.lmdb"), "baseline-index")
   await writeFile(join(workspace.projectDir, "value.txt"), "2")
+  await writeFile(join(workspace.projectDir, ".nkdk", "components", "cf", "index.lmdb"), "working-index")
   const baselineArchive = join(root, "baseline.dt")
   await writeFile(baselineArchive, "baseline")
   const baseline: BaselineReference = {
     archivePath: baselineArchive,
     projectDir: baselineProject,
     manifest: {
-      version: 2,
+      version: 3,
       compatibilityHash: "a".repeat(64),
       fixtureHashes: { cf: "b".repeat(64), cfe: "c".repeat(64) },
       platformVersion: "8.3.27.2214",
       nkdkBuildId: "build-1",
       archiveSha256: "d".repeat(64),
       projectSha256: "e".repeat(64),
+      componentStateSha256: "1".repeat(64),
     },
   }
   const steps = [step("step-0", "1"), step("step-1", "2")]

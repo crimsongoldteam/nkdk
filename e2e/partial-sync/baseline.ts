@@ -26,16 +26,18 @@ export type PrepareBaselineParams = {
   readonly extensionName: string
   readonly mode: PlatformMode
   readonly nkdkBuildId: string
+  readonly writeProgress?: (message: string) => void
 }
 
 export type BaselineManifest = {
-  readonly version: 2
+  readonly version: 3
   readonly compatibilityHash: string
   readonly fixtureHashes: { readonly cf: string; readonly cfe: string }
   readonly platformVersion: string
   readonly nkdkBuildId: string
   readonly archiveSha256: string
   readonly projectSha256: string
+  readonly componentStateSha256: string
 }
 
 export type BaselineReference = {
@@ -73,14 +75,17 @@ export async function prepareOrReuseBaseline(
     cfe: await hashFileTree(params.extensionXmlDir),
   }
   const compatibilityHash = sha256(Buffer.from(JSON.stringify({
-    version: 2,
+    version: 3,
     fixtureHashes,
     platformVersion,
     nkdkBuildId: params.nkdkBuildId,
   })))
   const currentDir = join(params.baselineDir, "current")
   const reusable = await readValidBaseline(currentDir, compatibilityHash)
-  if (reusable !== undefined) return reusable
+  if (reusable !== undefined) {
+    params.writeProgress?.("Эталон: переиспользован")
+    return reusable
+  }
 
   const temporaryDir = join(params.baselineDir, `.current-${dependencies.operationId()}.tmp`)
   const previousDir = join(params.baselineDir, `.current-${dependencies.operationId()}.previous`)
@@ -97,22 +102,27 @@ export async function prepareOrReuseBaseline(
   }
   const archivePath = join(temporaryDir, "baseline.dt")
   try {
+    params.writeProgress?.("Эталон: создание и загрузка базы")
     await dependencies.prepareInfobase(paths)
     await dependencies.writeProjectSettings(paths.projectDir, paths.baseDir, params.mode)
     const session = await dependencies.openSession({ attemptLogDir: paths.logsDir })
     try {
+      params.writeProgress?.("Эталон: импорт основной конфигурации")
       await expectSuccessfulCall(session, "nkdk.import_from_infobase", {
         projectDir: paths.projectDir, componentPath: "cf", allowWrite: true,
       })
+      params.writeProgress?.("Эталон: импорт расширения")
       await expectSuccessfulCall(session, "nkdk.import_from_infobase", {
         projectDir: paths.projectDir,
         componentPath: `cfe/${params.extensionName}`,
         allowWrite: true,
       })
+      params.writeProgress?.("Эталон: валидация проекта")
       await expectSuccessfulCall(session, "nkdk.validate_project", { projectDir: paths.projectDir })
     } finally {
       await session.close()
     }
+    params.writeProgress?.("Эталон: создание архива базы")
     await dependencies.createArchiveStore(async () => undefined).dump({
       baseDir: paths.baseDir,
       dataDir: paths.dataDir,
@@ -123,13 +133,14 @@ export async function prepareOrReuseBaseline(
     await rm(paths.baseDir, { recursive: true, force: true })
     await rm(paths.dataDir, { recursive: true, force: true })
     const manifest: BaselineManifest = {
-      version: 2,
+      version: 3,
       compatibilityHash,
       fixtureHashes,
       platformVersion,
       nkdkBuildId: params.nkdkBuildId,
       archiveSha256: sha256(await readFile(archivePath)),
-      projectSha256: await hashFileTree(paths.projectDir),
+      projectSha256: await hashPortableProjectTree(paths.projectDir),
+      componentStateSha256: await hashFileTree(join(paths.projectDir, ".nkdk", "components")),
     }
     await writeFile(join(temporaryDir, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`)
     await readValidBaseline(temporaryDir, compatibilityHash, true)
@@ -143,6 +154,7 @@ export async function prepareOrReuseBaseline(
       throw caught
     }
     await rm(previousDir, { recursive: true, force: true })
+    params.writeProgress?.("Эталон: готов")
     return (await readValidBaseline(currentDir, compatibilityHash, true))!
   } finally {
     await rm(temporaryDir, { recursive: true, force: true })
@@ -178,7 +190,8 @@ async function readValidBaseline(
     const archivePath = join(directory, "baseline.dt")
     const projectDir = join(directory, "project")
     if (sha256(await readFile(archivePath)) !== parsed.archiveSha256 ||
-      await hashFileTree(projectDir) !== parsed.projectSha256) {
+      await hashPortableProjectTree(projectDir) !== parsed.projectSha256 ||
+      await hashFileTree(join(projectDir, ".nkdk", "components")) !== parsed.componentStateSha256) {
       if (required) throw new Error(`Проверка хэшей эталона не пройдена: ${directory}`)
       return undefined
     }
@@ -194,12 +207,13 @@ function isBaselineManifest(value: unknown): value is BaselineManifest {
   if (typeof value !== "object" || value === null) return false
   const manifest = value as Record<string, unknown>
   const hashes = manifest["fixtureHashes"]
-  return manifest["version"] === 2 &&
+  return manifest["version"] === 3 &&
     isHash(manifest["compatibilityHash"]) &&
     typeof manifest["platformVersion"] === "string" &&
     typeof manifest["nkdkBuildId"] === "string" &&
     isHash(manifest["archiveSha256"]) &&
     isHash(manifest["projectSha256"]) &&
+    isHash(manifest["componentStateSha256"]) &&
     typeof hashes === "object" && hashes !== null &&
     isHash(Reflect.get(hashes, "cf")) && isHash(Reflect.get(hashes, "cfe"))
 }
@@ -210,15 +224,26 @@ export async function removeVolatileProjectState(projectDir: string): Promise<vo
     [".nkdk", "tmp"],
     [".nkdk", "operations"],
     [".nkdk", "cache"],
-    [".nkdk", "components"],
   ]) {
     await rm(join(projectDir, ...path), { recursive: true, force: true })
   }
 }
 
+export async function hashPortableProjectTree(root: string): Promise<string> {
+  return hashSelectedFiles(root, (path) => {
+    const portable = relative(root, path).split(sep).join("/")
+    return !portable.startsWith(".nkdk/cache/") && !portable.startsWith(".nkdk/components/")
+  })
+}
+
 export async function hashFileTree(root: string): Promise<string> {
+  return hashSelectedFiles(root, () => true)
+}
+
+async function hashSelectedFiles(root: string, include: (path: string) => boolean): Promise<string> {
   const hash = createHash("sha256")
   for (const path of await listFiles(root)) {
+    if (!include(path)) continue
     hash.update(relative(root, path).split(sep).join("/"))
     hash.update("\0")
     hash.update(await readFile(path))

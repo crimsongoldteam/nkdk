@@ -19,13 +19,26 @@ describe("stepwise baseline", () => {
       "platform-version", "prepare-infobase", "write-settings", "open-mcp",
       "import-cf", "import-cfe", "validate", "close-mcp", "dump",
     ])
+    expect(fixture.progress).toEqual([
+      "Эталон: создание и загрузка базы",
+      "Эталон: импорт основной конфигурации",
+      "Эталон: импорт расширения",
+      "Эталон: валидация проекта",
+      "Эталон: создание архива базы",
+      "Эталон: готов",
+    ])
     expect(baseline.manifest.compatibilityHash).toMatch(/^[a-f0-9]{64}$/u)
     expect(JSON.parse(await readFile(join(fixture.baselineDir, "current", "manifest.json"), "utf8")))
-      .toMatchObject({ version: 2, platformVersion: "8.3.27.2214", nkdkBuildId: "build-1" })
+      .toMatchObject({
+        version: 3,
+        platformVersion: "8.3.27.2214",
+        nkdkBuildId: "build-1",
+        componentStateSha256: expect.stringMatching(/^[a-f0-9]{64}$/u),
+      })
     await expect(readFile(join(baseline.projectDir, ".nkdk", "cache", "project-state.bin")))
       .rejects.toMatchObject({ code: "ENOENT" })
-    await expect(readFile(join(baseline.projectDir, ".nkdk", "components", "cf", "index.lmdb")))
-      .rejects.toMatchObject({ code: "ENOENT" })
+    await expect(readFile(join(baseline.projectDir, ".nkdk", "components", "cf", "index.lmdb"), "utf8"))
+      .resolves.toBe("index")
   })
 
   it("переиспользует полностью совместимый эталон", async () => {
@@ -62,6 +75,7 @@ async function createFixture() {
   await writeFile(join(cfDir, "fixture.xml"), "cf")
   await writeFile(join(cfeDir, "fixture.xml"), "cfe")
   const calls: string[] = []
+  const progress: string[] = []
   const session: ScenarioMcpSession = {
     async call<T>(name: string) {
       calls.push(name === "nkdk.import_from_infobase"
@@ -85,6 +99,7 @@ async function createFixture() {
     baselineDir,
     cfDir,
     calls,
+    progress,
     params: {
       baselineDir,
       cfXmlDir: cfDir,
@@ -92,6 +107,7 @@ async function createFixture() {
       extensionName: "Расширение_All",
       mode: "designer-agent" as const,
       nkdkBuildId: "build-1",
+      writeProgress(message: string) { progress.push(message) },
     },
     dependencies: {
       async platformVersion() { calls.push("platform-version"); return "8.3.27.2214" },

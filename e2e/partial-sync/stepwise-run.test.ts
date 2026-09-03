@@ -37,9 +37,9 @@ it("соблюдает общий предел и не отменяет парн
         archivePath: "C:/run/baseline/current/baseline.dt",
         projectDir: "C:/run/baseline/current/project",
         manifest: {
-          version: 2, compatibilityHash: "compatibility", fixtureHashes: { cf: "cf", cfe: "cfe" },
+          version: 3, compatibilityHash: "compatibility", fixtureHashes: { cf: "cf", cfe: "cfe" },
           platformVersion: "8.3.27.2214", nkdkBuildId: "mcp-build",
-          archiveSha256: "archive", projectSha256: "project",
+          archiveSha256: "archive", projectSha256: "project", componentStateSha256: "components",
         },
       } satisfies BaselineReference
     },

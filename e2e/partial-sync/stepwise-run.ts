@@ -218,6 +218,7 @@ const nodeDependencies: StepwiseRunDependencies = {
       extensionName,
       mode,
       nkdkBuildId: await hashFileTree(join(repositoryRoot, "packages", "mcp", "dist")),
+      writeProgress(message) { process.stdout.write(`${message}\n`) },
     })
   },
   async runMode({ mode, workspace: runWorkspace, baseline }) {

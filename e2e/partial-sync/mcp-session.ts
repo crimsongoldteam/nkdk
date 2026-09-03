@@ -91,7 +91,7 @@ export async function openScenarioMcpSession(
         const lookup = await loggedCall("nkdk.get_operation", identity, attemptLogDir)
         const snapshot = requireOperationSnapshot(lookup.payload, identity)
         if (snapshot.status === "queued" || snapshot.status === "running") {
-          await (params.wait ?? delay)(100)
+          await (params.wait ?? delay)(1_000)
           continue
         }
         if (snapshot.status === "failed") {
