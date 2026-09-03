@@ -14,9 +14,11 @@ import {
   intersectBaseFormValues,
   projectProperty,
   type BaseFormProjectionContext,
+  type BaseFormPropertyProjection,
 } from "./baseFormProjectionRegistry"
 import { ClientApplicationFormRules } from "./rules"
 import type { ClientApplicationFormYAML } from "./types"
+import { equalBaseFormYaml } from "./baseFormYaml"
 
 export interface ProjectedBaseForm {
   readonly yaml: ClientApplicationFormYAML
@@ -53,14 +55,10 @@ export function projectClientApplicationBaseForm(params: {
     )
   }
   const extensionElementsByName = indexElementsByName(params.extensionYaml.Элементы, rootElementCollectionRule)
-  const attributeNames = intersectNamedComponentNames(params.baseYaml.Реквизиты, params.extensionYaml.Реквизиты)
-  const commandNames = intersectNamedComponentNames(params.baseYaml.Команды, params.extensionYaml.Команды)
-  const parameterNames = intersectNamedComponentNames(params.baseYaml.Параметры, params.extensionYaml.Параметры)
   const metadataCorrespondences: YAMLRuntimeCorrespondence[] = []
-  const projectionContext: BaseFormProjectionRuntimeContext = {
-    attributeNames,
-    commandNames,
-    parameterNames,
+  const projectionContext = createProjectionContext({
+    baseYaml: params.baseYaml,
+    extensionYaml: params.extensionYaml,
     baseAnnotations: params.baseAnnotations,
     extensionAnnotations: params.extensionAnnotations,
     registerYAMLRuntimeCorrespondence: (source, target) => {
@@ -68,7 +66,7 @@ export function projectClientApplicationBaseForm(params: {
         metadataCorrespondences.push({ source, target })
       }
     },
-  }
+  })
   const properties = projectMetadataItemProperties({
     baseYaml: params.baseYaml,
     extensionYaml: params.extensionYaml,
@@ -105,16 +103,196 @@ export function projectClientApplicationBaseForm(params: {
     yaml,
     annotations,
     explicitComponents: {
-      attributes: attributeNames,
-      commands: commandNames,
-      parameters: parameterNames,
+      attributes: projectionContext.attributeNames,
+      commands: projectionContext.commandNames,
+      parameters: projectionContext.parameterNames,
     },
   }
+}
+
+/**
+ * Compares the two effective BaseForm projections incrementally.  Unlike
+ * projectClientApplicationBaseForm(), this does not retain either complete
+ * projection and stops on the first meaningful difference.
+ */
+export function equalClientApplicationBaseFormProjections(params: {
+  readonly leftBaseYaml: ClientApplicationFormYAML
+  readonly rightBaseYaml: ClientApplicationFormYAML
+  readonly extensionYaml: ClientApplicationFormYAML
+  readonly rule?: MetadataItemRule
+}): boolean {
+  const rule = params.rule ?? ClientApplicationFormRules
+  const childItems = rule.properties.childItems
+  if (childItems === undefined) {
+    throw new Error(`Правило формы ${rule.itemType} не содержит коллекцию childItems`)
+  }
+  const leftContext = createProjectionContext({
+    baseYaml: params.leftBaseYaml,
+    extensionYaml: params.extensionYaml,
+  })
+  const rightContext = createProjectionContext({
+    baseYaml: params.rightBaseYaml,
+    extensionYaml: params.extensionYaml,
+  })
+  if (!equalProjectedProperties({
+    leftYaml: params.leftBaseYaml,
+    rightYaml: params.rightBaseYaml,
+    extensionYaml: params.extensionYaml,
+    leftRule: rule,
+    rightRule: rule,
+    extensionRule: rule,
+    leftContext,
+    rightContext,
+    skippedYamlKeys: new Set(["Элементы"]),
+  })) return false
+
+  const extensionElements = indexElementsByName(params.extensionYaml.Элементы, childItems)
+  return equalProjectedElementTrees({
+    leftElements: params.leftBaseYaml.Элементы,
+    rightElements: params.rightBaseYaml.Элементы,
+    leftCollectionRule: childItems,
+    rightCollectionRule: childItems,
+    extensionElements,
+    leftContext,
+    rightContext,
+  })
 }
 
 interface BaseFormProjectionRuntimeContext extends BaseFormProjectionContext {
   readonly baseAnnotations?: XmlAnomalyAnnotations
   readonly extensionAnnotations?: XmlAnomalyAnnotations
+}
+
+function createProjectionContext(params: {
+  readonly baseYaml: ClientApplicationFormYAML
+  readonly extensionYaml: ClientApplicationFormYAML
+  readonly baseAnnotations?: XmlAnomalyAnnotations
+  readonly extensionAnnotations?: XmlAnomalyAnnotations
+  readonly registerYAMLRuntimeCorrespondence?: (source: unknown, target: unknown) => void
+}): BaseFormProjectionRuntimeContext {
+  return {
+    attributeNames: intersectNamedComponentNames(params.baseYaml.Реквизиты, params.extensionYaml.Реквизиты),
+    commandNames: intersectNamedComponentNames(params.baseYaml.Команды, params.extensionYaml.Команды),
+    parameterNames: intersectNamedComponentNames(params.baseYaml.Параметры, params.extensionYaml.Параметры),
+    ...(params.baseAnnotations === undefined ? {} : { baseAnnotations: params.baseAnnotations }),
+    ...(params.extensionAnnotations === undefined ? {} : { extensionAnnotations: params.extensionAnnotations }),
+    ...(params.registerYAMLRuntimeCorrespondence === undefined
+      ? {}
+      : { registerYAMLRuntimeCorrespondence: params.registerYAMLRuntimeCorrespondence }),
+  }
+}
+
+function equalProjectedElementTrees(params: {
+  readonly leftElements: FormElementTreeYAML | undefined
+  readonly rightElements: FormElementTreeYAML | undefined
+  readonly leftCollectionRule: PropertyRule
+  readonly rightCollectionRule: PropertyRule
+  readonly extensionElements: ReadonlyMap<string, IndexedFormElement>
+  readonly leftContext: BaseFormProjectionRuntimeContext
+  readonly rightContext: BaseFormProjectionRuntimeContext
+}): boolean {
+  const left = params.leftElements ?? {}
+  const right = params.rightElements ?? {}
+  const names = new Set([...Object.keys(left), ...Object.keys(right)])
+  for (const name of names) {
+    const leftElement = left[name]
+    const rightElement = right[name]
+    if (leftElement === undefined || rightElement === undefined) return false
+    const leftRule = resolveFormElementRule({
+      yaml: leftElement,
+      name,
+      propertyRule: params.leftCollectionRule,
+    })
+    const rightRule = resolveFormElementRule({
+      yaml: rightElement,
+      name,
+      propertyRule: params.rightCollectionRule,
+    })
+    if (!Object.is(leftElement.Вид, rightElement.Вид)) return false
+    const extension = params.extensionElements.get(name)
+    if (extension !== undefined && !equalProjectedProperties({
+      leftYaml: normalizeProjectionAliases(leftElement, getTreeNodeJSONSchemaPropertyAliases(leftRule.itemType)),
+      rightYaml: normalizeProjectionAliases(rightElement, getTreeNodeJSONSchemaPropertyAliases(rightRule.itemType)),
+      extensionYaml: normalizeProjectionAliases(extension.yaml, getTreeNodeJSONSchemaPropertyAliases(extension.rule.itemType)),
+      leftRule,
+      rightRule,
+      extensionRule: extension.rule,
+      leftContext: params.leftContext,
+      rightContext: params.rightContext,
+      skippedYamlKeys: new Set(["Элементы"]),
+    })) return false
+
+    const leftChildrenRule = propertyRuleByYamlKey(leftRule, "Элементы")
+    const rightChildrenRule = propertyRuleByYamlKey(rightRule, "Элементы")
+    if (
+      (leftElement.Элементы !== undefined && leftChildrenRule === undefined)
+      || (rightElement.Элементы !== undefined && rightChildrenRule === undefined)
+    ) return false
+    if (!equalProjectedElementTrees({
+      leftElements: leftElement.Элементы,
+      rightElements: rightElement.Элементы,
+      leftCollectionRule: leftChildrenRule ?? params.leftCollectionRule,
+      rightCollectionRule: rightChildrenRule ?? params.rightCollectionRule,
+      extensionElements: params.extensionElements,
+      leftContext: params.leftContext,
+      rightContext: params.rightContext,
+    })) return false
+  }
+  return true
+}
+
+function equalProjectedProperties(params: {
+  readonly leftYaml: Record<string, unknown>
+  readonly rightYaml: Record<string, unknown>
+  readonly extensionYaml: Record<string, unknown>
+  readonly leftRule: MetadataItemRule
+  readonly rightRule: MetadataItemRule
+  readonly extensionRule: MetadataItemRule
+  readonly leftContext: BaseFormProjectionRuntimeContext
+  readonly rightContext: BaseFormProjectionRuntimeContext
+  readonly skippedYamlKeys?: ReadonlySet<string>
+}): boolean {
+  const keys = projectionYamlKeys(params.leftYaml, params.rightYaml, params.leftRule, params.rightRule)
+  for (const yamlKey of keys) {
+    if (params.skippedYamlKeys?.has(yamlKey) === true) continue
+    const left = projectMetadataItemProperty({
+      baseYaml: params.leftYaml,
+      extensionYaml: params.extensionYaml,
+      baseRule: params.leftRule,
+      extensionRule: params.extensionRule,
+      context: params.leftContext,
+      yamlKey,
+    })
+    const right = projectMetadataItemProperty({
+      baseYaml: params.rightYaml,
+      extensionYaml: params.extensionYaml,
+      baseRule: params.rightRule,
+      extensionRule: params.extensionRule,
+      context: params.rightContext,
+      yamlKey,
+    })
+    if (left.kind !== right.kind) return false
+    if (left.kind === "include" && right.kind === "include" && !equalBaseFormYaml(left.value, right.value)) {
+      return false
+    }
+  }
+  return true
+}
+
+function projectionYamlKeys(
+  leftYaml: Record<string, unknown>,
+  rightYaml: Record<string, unknown>,
+  leftRule: MetadataItemRule,
+  rightRule?: MetadataItemRule,
+): ReadonlySet<string> {
+  const yamlKeys = (rule: MetadataItemRule): string[] =>
+    Object.entries(rule.properties).map(([propertyKey, property]) => property.yaml ?? propertyKey)
+  return new Set([
+    ...yamlKeys(leftRule),
+    ...(rightRule === undefined ? [] : yamlKeys(rightRule)),
+    ...Object.keys(leftYaml),
+    ...Object.keys(rightYaml),
+  ])
 }
 
 function indexElementsByName(
@@ -306,82 +484,97 @@ function projectMetadataItemProperties(params: {
   readonly context: BaseFormProjectionRuntimeContext
   readonly skippedYamlKeys?: ReadonlySet<string>
 }): Record<string, unknown> {
-  const extensionRulesByYamlKey = propertyRulesByYamlKey(params.extensionRule)
-  const baseRulesByYamlKey = propertyRulesByYamlKey(params.baseRule)
-  const result = projectSharedRuntimeProperties({
-    baseYaml: params.baseYaml,
-    extensionYaml: params.extensionYaml,
-    baseRulesByYamlKey,
-    extensionRulesByYamlKey,
-    context: params.context,
-  })
-
-  for (const [propertyKey, basePropertyRule] of Object.entries(params.baseRule.properties)) {
-    const yamlKey = basePropertyRule.yaml ?? propertyKey
+  const result: Record<string, unknown> = {}
+  for (const yamlKey of projectionYamlKeys(
+    params.baseYaml,
+    {},
+    params.baseRule,
+  )) {
     if (params.skippedYamlKeys?.has(yamlKey) === true) continue
-    if (!Object.hasOwn(params.baseYaml, yamlKey) || !Object.hasOwn(params.extensionYaml, yamlKey)) {
-      continue
-    }
-    const extensionPropertyRule = extensionRulesByYamlKey.get(yamlKey)
-    if (extensionPropertyRule === undefined) continue
-
-    const baseValue = params.baseYaml[yamlKey]
-    const extensionValue = params.extensionYaml[yamlKey]
-    const projection = projectProperty({
-      rule: basePropertyRule,
-      baseValue,
-      extensionValue,
-      context: params.context,
-    })
+    const projection = projectMetadataItemProperty({ ...params, yamlKey })
     if (projection.kind === "omit") continue
-
-    const nestedProjection = projectNestedProperty({
-      baseValue: projection.value,
-      extensionValue,
-      basePropertyRule,
-      extensionPropertyRule,
-      context: params.context,
-    })
-    if (nestedProjection.kind === "omit") continue
-    if (
-      nestedProjection.kind === "include" &&
-      isEmptyNestedProjection(nestedProjection.value) &&
-      !Object.hasOwn(basePropertyRule, "defaultValueXMLEmpty")
-    ) {
-      continue
-    }
-    result[yamlKey] =
-      nestedProjection.kind === "include"
-        ? nestedProjection.value
-        : intersectBaseFormValues(
-            projection.value,
-            extensionValue,
-            params.context.registerYAMLRuntimeCorrespondence,
-          )
+    result[yamlKey] = projection.value
   }
   return result
 }
 
-function projectSharedRuntimeProperties(params: {
+function projectMetadataItemProperty(params: {
+  readonly baseYaml: Record<string, unknown>
+  readonly extensionYaml: Record<string, unknown>
+  readonly baseRule: MetadataItemRule
+  readonly extensionRule: MetadataItemRule
+  readonly context: BaseFormProjectionRuntimeContext
+  readonly yamlKey: string
+}): BaseFormPropertyProjection {
+  const baseRulesByYamlKey = propertyRulesByYamlKey(params.baseRule)
+  const extensionRulesByYamlKey = propertyRulesByYamlKey(params.extensionRule)
+  const basePropertyRule = baseRulesByYamlKey.get(params.yamlKey)
+  const extensionPropertyRule = extensionRulesByYamlKey.get(params.yamlKey)
+  if (basePropertyRule === undefined || extensionPropertyRule === undefined) {
+    return projectSharedRuntimeProperty({
+      ...params,
+      baseRulesByYamlKey,
+      extensionRulesByYamlKey,
+    })
+  }
+  if (!Object.hasOwn(params.baseYaml, params.yamlKey) || !Object.hasOwn(params.extensionYaml, params.yamlKey)) {
+    return { kind: "omit" }
+  }
+
+  const baseValue = params.baseYaml[params.yamlKey]
+  const extensionValue = params.extensionYaml[params.yamlKey]
+  const projection = projectProperty({
+    rule: basePropertyRule,
+    baseValue,
+    extensionValue,
+    context: params.context,
+  })
+  if (projection.kind === "omit") return projection
+
+  const nestedProjection = projectNestedProperty({
+    baseValue: projection.value,
+    extensionValue,
+    basePropertyRule,
+    extensionPropertyRule,
+    context: params.context,
+  })
+  if (nestedProjection.kind === "omit") return nestedProjection
+  if (
+    nestedProjection.kind === "include" &&
+    isEmptyNestedProjection(nestedProjection.value) &&
+    !Object.hasOwn(basePropertyRule, "defaultValueXMLEmpty")
+  ) {
+    return { kind: "omit" }
+  }
+  return {
+    kind: "include",
+    value: nestedProjection.kind === "include"
+      ? nestedProjection.value
+      : intersectBaseFormValues(
+          projection.value,
+          extensionValue,
+          params.context.registerYAMLRuntimeCorrespondence,
+        ),
+  }
+}
+
+function projectSharedRuntimeProperty(params: {
   readonly baseYaml: Record<string, unknown>
   readonly extensionYaml: Record<string, unknown>
   readonly baseRulesByYamlKey: ReadonlyMap<string, PropertyRule>
   readonly extensionRulesByYamlKey: ReadonlyMap<string, PropertyRule>
   readonly context: BaseFormProjectionRuntimeContext
-}): Record<string, unknown> {
-  return Object.fromEntries(Object.keys(params.baseYaml).flatMap((yamlKey) => {
-    if (
-      params.baseRulesByYamlKey.has(yamlKey)
-      || params.extensionRulesByYamlKey.has(yamlKey)
-      || !Object.hasOwn(params.extensionYaml, yamlKey)
-    ) return []
-    if (
-      !hasYAMLRuntimeMetadataAt(params.baseYaml, yamlKey, params.context.baseAnnotations)
-      || !hasYAMLRuntimeMetadataAt(params.extensionYaml, yamlKey, params.context.extensionAnnotations)
-      || !Object.is(params.baseYaml[yamlKey], params.extensionYaml[yamlKey])
-    ) return []
-    return [[yamlKey, params.baseYaml[yamlKey]]]
-  }))
+  readonly yamlKey: string
+}): BaseFormPropertyProjection {
+  if (
+    params.baseRulesByYamlKey.has(params.yamlKey)
+    || params.extensionRulesByYamlKey.has(params.yamlKey)
+    || !Object.hasOwn(params.extensionYaml, params.yamlKey)
+    || !hasYAMLRuntimeMetadataAt(params.baseYaml, params.yamlKey, params.context.baseAnnotations)
+    || !hasYAMLRuntimeMetadataAt(params.extensionYaml, params.yamlKey, params.context.extensionAnnotations)
+    || !Object.is(params.baseYaml[params.yamlKey], params.extensionYaml[params.yamlKey])
+  ) return { kind: "omit" }
+  return { kind: "include", value: params.baseYaml[params.yamlKey] }
 }
 
 function isEmptyNestedProjection(value: unknown): boolean {

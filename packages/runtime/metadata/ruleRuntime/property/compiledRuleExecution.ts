@@ -154,7 +154,12 @@ export function createCompiledRuleExecution(params: {
           const collection = key === undefined ? false : plan.propertiesByKey.get(key)?.operations.yamlToXMLNestedRule?.kind === "collection"
           const selector = collection ? nested.name ?? nested.rulePath?.at(-1) : undefined
           const queue = bindings?.get(selector)
-          const inlineKey = queue?.keys[queue.next]
+          const queuedKey = queue?.keys[queue.next]
+          // Нормализация YAML может добавить промежуточный item другого вида.
+          // Он не должен потреблять подтверждение следующего реального XML-ребёнка.
+          const inlineKey = queuedKey !== undefined && completed.get(queuedKey)?.rule === nested.rule
+            ? queuedKey
+            : undefined
           if (bindings !== undefined && queue !== undefined && inlineKey !== undefined) {
             queue.next++
             if (queue.next === queue.keys.length) bindings.delete(selector)
@@ -169,7 +174,11 @@ export function createCompiledRuleExecution(params: {
           // Inline YAML может быть скаляром или объектом другого, уже потреблённого ребёнка.
           // Связь задаётся владельцем и адресом элемента, никогда равенством значений.
           const entry = inlineKey === undefined ? take(nested.yaml as object, nested.rule.itemType) : takeKey(inlineKey)
-          if (entry.rule !== nested.rule) throw new Error("Правило закрытого XML item не совпадает с правилом родителя")
+          if (entry.rule !== nested.rule) {
+            throw new Error(
+              `Правило закрытого XML item ${entry.rule.itemType} не совпадает с правилом родителя ${nested.rule.itemType}`,
+            )
+          }
           return transport(entry.result)
         },
         write(event) {

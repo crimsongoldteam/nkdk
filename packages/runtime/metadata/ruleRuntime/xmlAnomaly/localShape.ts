@@ -13,9 +13,11 @@ export function localXmlShapeFromObject(
     const occurrences = new Map<string, number>()
     const content = value.map((entry, index) => {
       const descriptors = xmlObjectOwnContent(entry).filter((descriptor) => descriptor.kind === "child")
-      if (descriptors.length > 1) throw new Error(`XML-элемент ${name}[${index}] имеет несколько оболочек`)
-      const descriptor = descriptors[0]
-      const childName = descriptor?.name ?? ""
+      // Единственный ребёнок может быть оболочкой вариантной коллекции
+      // (например ChildItems). Несколько детей однозначно являются телом
+      // одного повторяемого элемента, а не несколькими оболочками.
+      const descriptor = descriptors.length === 1 ? descriptors[0] : undefined
+      const childName = descriptor?.name ?? name
       const occurrence = childName.length === 0 ? index + 1 : (occurrences.get(childName) ?? 0) + 1
       if (childName.length > 0) occurrences.set(childName, occurrence)
       const receipt = child(childName, descriptor?.value ?? entry, occurrence)

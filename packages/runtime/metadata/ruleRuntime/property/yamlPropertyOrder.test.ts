@@ -1,8 +1,11 @@
 import { describe, expect, it, vi } from "vitest"
 import {
   createXmlAnomalyAnnotations,
+  appendXmlAnnotatedMappingEntry,
   snapshotXmlAnomalyAnnotations,
 } from "../../../yaml/xmlAnomalyAnnotations"
+import { parseWithJsYaml } from "../../../yaml/jsYamlParser"
+import { serializeYAMLDocument } from "../../../yaml/export"
 import { orderYamlRuleProperties, sortYamlRuleProperties } from "./yamlPropertyOrder"
 
 describe("orderYamlRuleProperties", () => {
@@ -39,6 +42,24 @@ describe("orderYamlRuleProperties", () => {
     expect(Object.keys(ordered)).toEqual(["Вид", "Адрес", "Комментарий", "Язык"])
     expect(Object.getOwnPropertyDescriptor(ordered, symbol)?.value).toBe("retained")
     expect(ordered).toBe(source)
+  })
+
+  it("сохраняет последовательность номерных ключей XML-аннотаций", () => {
+    const source: Record<string, unknown> = {}
+    const annotations = createXmlAnomalyAnnotations()
+    appendXmlAnnotatedMappingEntry(source, annotations, { logicalKey: "ChildObjects\\Attribute", value: null })
+    for (let occurrence = 1; occurrence <= 10; occurrence += 1) {
+      appendXmlAnnotatedMappingEntry(source, annotations, {
+        logicalKey: "ChildObjects\\Attribute",
+        value: null,
+        keyAnnotation: { kind: "invalid", occurrence },
+      })
+    }
+
+    orderYamlRuleProperties(source, [], annotations)
+    const parsed = parseWithJsYaml(serializeYAMLDocument(source, annotations).text)
+
+    expect(parsed.syntaxErrors).toEqual([])
   })
 })
 

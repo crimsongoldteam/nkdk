@@ -693,7 +693,6 @@ function collectPendingReferences(params: {
   const references: PendingMetadataTargetReference[] = []
   for (const property of params.properties) {
     const yamlPath = [...params.yamlPath, ...property.yamlPath]
-    const hasAnomaly = hasXmlAnomalyAtPath(params.rootYaml, params.parsed, yamlPath)
     if (hasRawXmlAnomalyAtPath(params.rootYaml, params.parsed, yamlPath)) continue
     const sourceValue = valueAtLogicalPath(record, property.yamlPath, params.parsed)
     if (sourceValue === undefined) continue
@@ -708,7 +707,7 @@ function collectPendingReferences(params: {
       },
     ]
     if (property.type !== undefined) {
-      if (params.validationDiagnostics && !hasAnomaly) {
+      if (params.validationDiagnostics) {
         collectLocalValueValidation({
           filePath: params.filePath,
           parsed: params.parsed,
@@ -1188,12 +1187,16 @@ function extractFormYamlFacts(
   }) => reference)
   let localizedTextProperties = 0
   const localizedTextDiagnostics: Diagnostic[] = []
+  const localValueDiagnostics: Diagnostic[] = []
+  const localValueValidationProfile: LocalValueValidationProfile = {}
   traverseMetadataRuleYaml<{ readonly name: string | undefined }>({
     yaml: data,
     rule: adapter.formRule,
     initialState: { name: file.formName },
     onObject: ({ yaml, rule, yamlPath, state }) => {
       if (hasRawXmlAnomalyAtPath(data, parsed, yamlPath)) return
+      const yamlRecord = asRecord(yaml)
+      if (yamlRecord === undefined) return
       localizedTextDiagnostics.push(...validateRuleYAMLObjectProperties({
         filePath: file.absolutePath,
         parsed,
@@ -1204,6 +1207,22 @@ function extractFormYamlFacts(
         yamlPath,
         onLocalizedTextProperty: () => { localizedTextProperties += 1 },
       }))
+      for (const property of Object.values(rule.properties)) {
+        if (typeof property.yaml !== "string" || !Object.prototype.hasOwnProperty.call(yaml, property.yaml)) continue
+        const propertyPath = [...yamlPath, property.yaml]
+        if (hasRawXmlAnomalyAtPath(data, parsed, propertyPath)) continue
+        collectLocalValueValidation({
+          filePath: file.absolutePath,
+          parsed,
+          owner: file.owner,
+          type: property.type,
+          value: yamlRecord[property.yaml],
+          yamlPath: propertyPath,
+          diagnostics: localValueDiagnostics,
+          profile: localValueValidationProfile,
+          runtime,
+        })
+      }
     },
     enterCollectionItem: ({ itemName }) => ({ name: itemName }),
   })
@@ -1219,6 +1238,7 @@ function extractFormYamlFacts(
     pendingChecks: collected.pendingChecks,
     localizedTextProperties,
     localValueValidationProfile: {
+      ...localValueValidationProfile,
       [adapter.elementNamesProfileSubstep]: {
         items: 1,
         timeMs: collected.formElementNamesMs,
@@ -1226,6 +1246,7 @@ function extractFormYamlFacts(
     },
     diagnostics: [
       ...localizedTextDiagnostics,
+      ...localValueDiagnostics,
       ...collected.formElementNameDiagnostics,
       ...index.duplicateDiagnostics,
     ],
@@ -1534,14 +1555,6 @@ function valueAtPath(value: Record<string, unknown>, path: readonly (string | nu
     current = (current as Record<string | number, unknown>)[segment]
   }
   return current
-}
-
-function hasXmlAnomalyAtPath(
-  root: unknown,
-  parsed: ParsedYaml,
-  path: readonly (string | number)[],
-): boolean {
-  return hasXmlAnnotationAtPath(root, parsed, path, () => true)
 }
 
 function hasRawXmlAnomalyAtPath(

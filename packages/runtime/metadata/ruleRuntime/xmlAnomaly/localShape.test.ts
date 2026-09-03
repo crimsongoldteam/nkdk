@@ -45,6 +45,36 @@ describe("локальная форма обычного XML-выхода", () =
     expect(() => localXmlShapeFromObject("Root", { Child: "value" })).toThrow(/потребитель/)
   })
 
+  it("использует имя повторяемого XML-поля для элементов массива без оболочки", () => {
+    const seen: Array<{ name: string; occurrence: number }> = []
+    const shape = localXmlShapeFromObject("dcsset:right", [{ "#text": "А" }, { "#text": "Б" }],
+      (name, _value, occurrence) => {
+        seen.push({ name, occurrence })
+        return { type: "element", name, occurrence }
+      })
+
+    expect(seen).toEqual([
+      { name: "dcsset:right", occurrence: 1 },
+      { name: "dcsset:right", occurrence: 2 },
+    ])
+    expect(shape.content).toEqual([
+      { type: "element", name: "dcsset:right", occurrence: 1 },
+      { type: "element", name: "dcsset:right", occurrence: 2 },
+    ])
+  })
+
+  it("считает mapping с несколькими детьми телом повторяемого XML-поля", () => {
+    const seen: Array<{ name: string; value: unknown; occurrence: number }> = []
+    const entry = { "dcscor:use": true, "dcscor:field": "Код" }
+
+    localXmlShapeFromObject("dcscor:item", [entry], (name, value, occurrence) => {
+      seen.push({ name, value, occurrence })
+      return { type: "element", name, occurrence }
+    })
+
+    expect(seen).toEqual([{ name: "dcscor:item", value: entry, occurrence: 1 }])
+  })
+
   it("применяет обычную группировку ChildItems без обхода значений элементов", () => {
     const opaque = Object.defineProperty({}, "value", { enumerable: true, get() { throw new Error("Повторный обход") } })
     const names: string[] = []

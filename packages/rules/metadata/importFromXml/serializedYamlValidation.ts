@@ -1,5 +1,5 @@
-import type { SerializedYAMLDocument } from "@nkdk/runtime"
-import { parseMetadataYaml } from "@nkdk/runtime"
+import type { SerializedYAMLDocument, XmlAnomalyAnnotations } from "@nkdk/runtime"
+import { parsedYamlFromKnownData, parseMetadataYaml } from "@nkdk/runtime"
 import type { ConfigurationContext, ConfigurationContextFromXML } from "@nkdk/runtime"
 import type { ValidationProjectFile } from "../validation/projectFiles"
 import { createProjectYamlCacheFromEntries } from "../validation/projectYamlCache"
@@ -18,11 +18,40 @@ export function validateSerializedProjectYaml(params: {
   readonly schemaCache: ValidationSchemaCache
   readonly rulesSnapshot: ValidationRulesSnapshot
 }): ProjectValidationFirstPassResult {
-  const entry = {
+  return validateProjectYamlEntry(params, {
     filePath: params.file.absolutePath,
     text: params.document.text,
     parsed: parseMetadataYaml(params.document.text),
-  }
+  })
+}
+
+/** Проверяет уже построенный объект тем же полным первым проходом, не сериализуя YAML. */
+export function validateKnownProjectYaml(params: {
+  readonly projectDir: string
+  readonly file: ValidationProjectFile
+  readonly data: unknown
+  readonly annotations?: XmlAnomalyAnnotations
+  readonly context: ConfigurationContext
+  readonly schemaCache: ValidationSchemaCache
+  readonly rulesSnapshot: ValidationRulesSnapshot
+}): ProjectValidationFirstPassResult {
+  return validateProjectYamlEntry(params, {
+    filePath: params.file.absolutePath,
+    text: "",
+    parsed: parsedYamlFromKnownData("", params.data, params.annotations),
+  })
+}
+
+function validateProjectYamlEntry(
+  params: {
+    readonly projectDir: string
+    readonly file: ValidationProjectFile
+    readonly context: ConfigurationContext
+    readonly schemaCache: ValidationSchemaCache
+    readonly rulesSnapshot: ValidationRulesSnapshot
+  },
+  entry: Parameters<typeof createProjectYamlCacheFromEntries>[0][number],
+): ProjectValidationFirstPassResult {
   return validateProjectFileFirstPass({
     projectDir: params.projectDir,
     file: params.file,

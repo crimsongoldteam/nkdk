@@ -17,6 +17,8 @@ export function completeLocalXmlFragment(params: {
   }) => void
 }): LocalXmlChild {
   const visit = (source: XmlElementNode, name: string, value: unknown): LocalXmlChild => {
+    const completed = params.proof.completed(source)
+    if (completed !== undefined) return completed
     // Индекс только непосредственных детей и только у составного фрагмента.
     // Сами XML-узлы не копируются и не изменяются.
     let children: Map<string, XmlElementNode> | undefined

@@ -57,6 +57,22 @@ describe("необходимость сохранённой основы фор�
       savedBaseYaml: form({ Элементы: { Поле: { Вид: "ПолеВвода" } } }),
     })).toBe(false)
   })
+
+  it("останавливает сравнение на первом значимом отличии", () => {
+    const savedBase = form({ Высота: 99, Ширина: 20 })
+    Object.defineProperty(savedBase, "Ширина", {
+      enumerable: true,
+      get: () => {
+        throw new Error("позднее свойство не должно читаться")
+      },
+    })
+
+    expect(isRedundantClientApplicationBaseForm({
+      currentConfigurationYaml: form({ Высота: 20, Ширина: 20 }),
+      extensionYaml: form({ Высота: 20, Ширина: 20 }),
+      savedBaseYaml: savedBase,
+    })).toBe(false)
+  })
 })
 
 function form(value: object): ClientApplicationFormYAML {

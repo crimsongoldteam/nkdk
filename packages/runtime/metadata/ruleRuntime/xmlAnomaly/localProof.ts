@@ -231,7 +231,17 @@ export function createLocalXmlProof(instrumentation?: {
     mark(source, COMPARED | DIFFERENT)
     return finish(source, { annotated: true })
   }
-  return { compare, finish, checkValue, check, checkAbsent }
+  const completed = (source: XmlElementNode): LocalXmlChild | undefined =>
+    (state(source) & FINISHED) === 0
+      ? undefined
+      : { type: "element", name: source.name, occurrence: source.occurrence, sourceId: source.id }
+  const accept = (source: XmlElementNode): LocalXmlChild => {
+    if (state(source) !== 0) throw new Error(`Повторная проверка XML: ${source.path}`)
+    preserveRemaining(source)
+    mark(source, COMPARED | FINISHED)
+    return { type: "element", name: source.name, occurrence: source.occurrence, sourceId: source.id }
+  }
+  return { compare, finish, checkValue, check, checkAbsent, completed, accept }
 }
 
 export type LocalXmlProof = ReturnType<typeof createLocalXmlProof>

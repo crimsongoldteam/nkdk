@@ -105,6 +105,23 @@ describe("YAML-проекция XML-аномалий", () => {
     expect(xmlExport(merged, false)).toBe('<Document>\n\t<Root>\n\t\t<A>1</A>\n\t\t<Title>text</Title>\n\t\t<B>2</B>\n\t</Root>\n</Document>')
   })
 
+  it("сохраняет порядок вложенного XML-контейнера в его локальной raw-поправке", () => {
+    const root = parseXmlDocumentWithSaxes("<Properties><A/><B/></Properties>").roots[0]!
+    const yaml: Record<string, unknown> = {}
+    const annotations = createXmlAnomalyAnnotations()
+
+    projectLocalXmlOrder({
+      yaml,
+      annotations,
+      root,
+      path: ["Properties"],
+      differences: [{ kind: "order", path: `${root.path}/#order`, ownerPath: root.path }],
+    })
+
+    expect(annotations.at(yaml, "Properties")?.xml).toEqual({ "#order": ["A", "B"] })
+    expect(annotations.at(yaml, "Properties\\#order")).toBeUndefined()
+  })
+
   it("оформляет только остаток текущего XML-узла без обхода известного ребёнка и преждевременного order", () => {
     const root = parseXmlDocumentWithSaxes(
       '<Root><Known><FutureChild>inside</FutureChild></Known><Future>outside</Future></Root>',

@@ -27,6 +27,23 @@ describe("локальная сверка составного XML-фрагме�
     expect(source).toEqual(original)
   })
 
+  it("выщёлкивает уже проверенный узел из последующей границы родителя", () => {
+    const source = parseXmlDocumentWithSaxes("<Root><Settings><TypeSet>value</TypeSet></Settings></Root>").roots[0]!
+    const settings = source.content.find(isXmlElementNode)!
+    const typeSet = settings.content.find(isXmlElementNode)!
+    let comparisons = 0
+    const proof = createLocalXmlProof({ onValue: () => comparisons++ })
+    proof.check(typeSet, localXmlShapeFromObject("TypeSet", "value"))
+
+    expect(completeLocalXmlFragment({
+      source,
+      name: "Root",
+      value: { Settings: { TypeSet: "value" } },
+      proof,
+    })).toMatchObject({ sourceId: source.id })
+    expect(comparisons).toBe(1)
+  })
+
   it("передаёт расхождения ближайшей границе и не обходит лишнее экспортное поддерево", () => {
     const source = parseXmlDocumentWithSaxes('<Root><Lost><Deep>x</Deep></Lost><Item><Value>original</Value></Item><Tail/></Root>').roots[0]!
     const differences: { path: string; kinds: readonly string[] }[] = []

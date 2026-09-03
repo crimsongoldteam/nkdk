@@ -23,9 +23,13 @@ export function createImportLocalRoundTrip(params: {
   readonly annotations: XmlAnomalyAnnotationTable
   readonly decisions: readonly ImportedIssueDecision[]
   readonly profiler?: ValidationProfiler
+  readonly isDocumentRoot?: (rule: import("@nkdk/runtime/rule-kit").MetadataItemRule) => boolean
   readonly selectDecisions?: (
     yaml: Record<string, unknown>,
     rule: import("@nkdk/runtime/rule-kit").MetadataItemRule,
+    yamlPath: readonly (string | number)[],
+    root: boolean,
+    annotations: XmlAnomalyAnnotationTable,
   ) => readonly ImportedIssueDecision[]
   readonly finalizeRootYaml?: (
     yaml: Record<string, unknown>,
@@ -90,10 +94,13 @@ export function createImportLocalRoundTrip(params: {
         })),
       }
     },
-    beforeFinish({ yaml, rule, root }) {
-      params.finalizeRootYaml?.(yaml, rule)
-      if (!root) return
-      const decisions = params.selectDecisions?.(yaml, rule) ?? params.decisions
+    beforeFinish({ yaml, rule, yamlPath, root }) {
+      const documentRoot = root && (
+        params.isDocumentRoot?.(rule) ?? yamlPath.length === 0
+      )
+      if (documentRoot) params.finalizeRootYaml?.(yaml, rule)
+      const decisions = params.selectDecisions?.(yaml, rule, yamlPath, documentRoot, params.annotations)
+        ?? (documentRoot ? params.decisions : [])
       if (decisions.length === 0) return
       applyImportedIssueDecisions({
         data: yaml,

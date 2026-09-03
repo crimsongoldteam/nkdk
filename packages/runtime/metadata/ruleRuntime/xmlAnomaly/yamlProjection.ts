@@ -242,7 +242,11 @@ export function projectLocalXmlOrder(params: {
   const path = params.path ?? []
   for (const difference of differences) {
     if (difference.path === `${params.root.path}/#order`) {
-      appendRaw(formatPath([...path, "#order"]), xmlContentOrder(params.root))
+      if (path.length === 0) {
+        appendRaw("#order", xmlContentOrder(params.root))
+      } else {
+        appendRaw(formatPath(path), { "#order": xmlContentOrder(params.root) })
+      }
     } else if (difference.path === `${params.root.path}/#attributes/#order`) {
       appendRaw(formatPath([...path, "#attributes"]), {
         "#order": params.root.attributes.map(({ name }) => `_${name}`),

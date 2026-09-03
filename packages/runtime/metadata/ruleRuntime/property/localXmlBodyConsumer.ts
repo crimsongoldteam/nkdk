@@ -65,9 +65,22 @@ export function createLocalXmlBodyConsumer(params: {
       // Сначала закрываем самые глубокие границы. Родительский контейнер затем
       // получает их компактные подтверждения и не обходит тот же XML повторно.
       const orderedWrites = [...writes.values()].sort((left, right) => right.path.length - left.path.length)
+      const elementUseCount = new Map<number, number>()
+      for (const { property } of orderedWrites) {
+        const node = bindings.get(property.propertyKey)?.node
+        if (isXmlElementNode(node)) elementUseCount.set(node.id, (elementUseCount.get(node.id) ?? 0) + 1)
+      }
+      const completedElements = new Set<number>()
+      for (const binding of bindings.values()) {
+        if (!binding.structurallyClaimed || !isXmlElementNode(binding.node)) continue
+        const path = binding.xmlPath ?? [binding.node.name]
+        writePathCreating(preparedBody, path, params.proof.accept(binding.node))
+        completedElements.add(binding.node.id)
+      }
       for (const { property, path } of orderedWrites) {
         const binding = bindings.get(property.propertyKey)
         if (binding === undefined) throw new Error(`Не передана исходная XML-граница свойства ${property.propertyKey}`)
+        if (isXmlElementNode(binding.node) && completedElements.has(binding.node.id)) continue
         const value = readPath(preparedBody, path)
         if (!binding.presentInXML) {
           if (findAnyChildReceipt(value, params.childReceipt) !== undefined) continue
@@ -113,7 +126,13 @@ export function createLocalXmlBodyConsumer(params: {
           continue
         }
         const child = params.childReceipt(value)
-        const receipt = child ?? complete(binding.node, path.at(-1)!, value, property)
+        const receipt = child ?? complete(
+          binding.node,
+          path.at(-1)!,
+          value,
+          elementUseCount.get(binding.node.id) === 1 ? property : undefined,
+        )
+        completedElements.add(binding.node.id)
         if (receipt.name !== path.at(-1)) {
           params.annotate?.({
             source: binding.node,
@@ -196,6 +215,20 @@ function readPath(root: Record<string, unknown>, path: readonly string[]): unkno
 function writePath(root: Record<string, unknown>, path: readonly string[], value: unknown): void {
   const owner = path.slice(0, -1).reduce<unknown>((current, segment) => isRecord(current) ? current[segment] : undefined, root)
   if (!isRecord(owner)) throw new Error(`Не найден владелец XML-пути ${path.join("/")}`)
+  owner[path.at(-1)!] = value
+}
+
+function writePathCreating(root: Record<string, unknown>, path: readonly string[], value: unknown): void {
+  let owner = root
+  for (const segment of path.slice(0, -1)) {
+    const existing = owner[segment]
+    if (isRecord(existing)) owner = existing
+    else {
+      const created: Record<string, unknown> = {}
+      owner[segment] = created
+      owner = created
+    }
+  }
   owner[path.at(-1)!] = value
 }
 

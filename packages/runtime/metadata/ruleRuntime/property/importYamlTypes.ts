@@ -72,6 +72,8 @@ export interface DirectImportXMLPropertyBinding {
   readonly owner?: XmlElementNode
   readonly presentInXML: boolean
   readonly xmlPath?: readonly string[]
+  /** XML поддерево уже полностью перенесено в предметный индекс и не имеет YAML-значения. */
+  readonly structurallyClaimed?: true
 }
 
 /** Внутренний порт второго прохода. Первый проход фактов его не открывает. */

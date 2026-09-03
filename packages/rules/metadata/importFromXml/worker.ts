@@ -6,6 +6,7 @@ import {
   createLocalConfigurationIndexReader,
   createConfigurationIndexExportRuntime,
   hashFileBytes,
+  prepareYAMLDocumentData,
   rehydrateConfigurationContext,
   validationIssueTargetKey,
   validationIssuePathFromPointer,
@@ -36,7 +37,7 @@ import {
   createValidationSchemaCache,
   type ValidationSchemaCache,
 } from "../validation/projectValidationPasses"
-import { validateSerializedProjectYaml } from "./serializedYamlValidation"
+import { validateKnownProjectYaml, validateSerializedProjectYaml } from "./serializedYamlValidation"
 import type { ValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import {
   createProjectStateFileUpdateBatch,
@@ -108,14 +109,20 @@ import { buildProjectStateYamlFileUpdate } from "../project/projectStateYamlUpda
 import type { CompiledMetadataResourceTopology } from "../resourceTopology/core/types"
 import { importedClientApplicationForm } from "../forms/clientApplicationForm/formDataPathMetadata"
 import { createImportExportContext } from "./importExportContext"
-import { selectReadyImportedIssueDecisions } from "./semanticBoundary"
+import {
+  portableFirstPassIssueDecision,
+  normalizeImportedIssueDecisionPath,
+  selectImportedIssueDecisionsForBoundary,
+  selectReadyImportedIssueDecisions,
+} from "./semanticBoundary"
 import type { MetadataXmlPrepareComposition } from "../resourceTopology/adapters/capabilities"
 import type { PreparedYamlFile } from "../project/preparedYamlProject"
 import { classifyImportedIssues } from "./classifyImportedIssues"
 import type { ValidationIssue, ValidationIssueTarget } from "@nkdk/runtime"
-import { currentRuleRegistrySet } from "@nkdk/runtime/rule-kit"
+import { currentRuleRegistrySet, type RuleRegistrySet } from "@nkdk/runtime/rule-kit"
 import { traverseMetadataRuleYaml } from "../validation/metadataRuleYamlTraversal"
 import type { XmlComponentExportProfile } from "../project/xmlReconstructionProfile"
+import { createRegisteredMetadataRuleValidator, type MetadataRuleValidator } from "../validation/metadataRuleValidator"
 
 declare module "../workerPool/types" {
   interface MetadataWorkerOperationTypeMap {
@@ -176,6 +183,10 @@ interface DeferredImportYaml {
   baseFormCandidate?: NonNullable<PreparedImportYaml["baseFormCandidate"]>
   localProofCompleted?: true
   earlyIssueDecisions: readonly ImportIssueDecision[]
+  rootValidation?: {
+    readonly index: ProjectStateImportIndexContribution
+    readonly final: ProjectStateImportFinalFileStateBatch
+  }
   output?: PreparedImportOutput
 }
 
@@ -199,6 +210,7 @@ interface ActiveSecondPass {
   readonly composition: MetadataXmlPrepareComposition
   readonly issueDecisionsByProjectPath: ReadonlyMap<string, readonly ImportIssueDecision[]>
   readonly exportProfile?: XmlComponentExportProfile
+  readonly metadataRuleValidator: MetadataRuleValidator
 }
 
 export interface ImportWorkerCommandRunner {
@@ -512,7 +524,19 @@ async function processSecondPass(
           rule: assignmentRule,
         })?.yaml
     let earlyIssueDecisions: readonly ImportIssueDecision[] = []
-    let finalizedFormIssueDecisions: readonly ImportIssueDecision[] = []
+    let finalizedRootIssueDecisions: readonly ImportIssueDecision[] = []
+    let rootValidation: DeferredImportYaml["rootValidation"]
+    const pendingFirstPassDecisions = new Set(
+      (secondPass.issueDecisionsByProjectPath.get(assignment.targetProjectPath) ?? [])
+        .flatMap((decision) => portableFirstPassIssueDecision(decision) ?? []),
+    )
+    const validationFile = state.projectFileProjector({
+      projectPath: assignment.targetProjectPath,
+      topologyAddress: assignment.topologyAddress,
+    })
+    if (validationFile === undefined) {
+      throw new Error(`Не найден узел topology XML-import: ${assignment.topologyAddress.nodeId}`)
+    }
     const imported = await prepareImportYamlFromDocuments({
       assignment,
       context: importContext,
@@ -532,19 +556,61 @@ async function processSecondPass(
         execution,
         context: localRoundTripContext,
         decisions: secondPass.issueDecisionsByProjectPath.get(assignment.targetProjectPath) ?? [],
-        selectDecisions: (yaml, rule) => {
-          const firstPassDecisions = selectReadyImportedIssueDecisions({
+        selectDecisions: (yaml, rule, yamlPath, root, annotations) => {
+          const boundaryFirstPass = root
+            ? selectImportedIssueDecisionsForBoundary({
+                data: yaml,
+                yamlPath,
+                decisions: [...pendingFirstPassDecisions]
+                  .map((decision) => normalizeImportedIssueDecisionPath(yaml, decision)),
+              })
+            : []
+          const readySources = new Set(selectReadyImportedIssueDecisions({
             data: yaml,
-            decisions: secondPass.issueDecisionsByProjectPath.get(assignment.targetProjectPath) ?? [],
+            decisions: boundaryFirstPass.map(({ local }) => local),
             diagnostics: accumulator.warnings,
-          }).map((decision) => requiresImportantForImportedTarget({ yaml, rule }, decision.target)
-            ? { ...decision, kind: "important" as const }
-            : decision)
-          earlyIssueDecisions = mergeImportedIssueDecisions([
+          }).map((decision) => validationIssueTargetKey(decision.target)))
+          const selectedFirstPass = boundaryFirstPass.filter(({ local }) =>
+            readySources.has(validationIssueTargetKey(local.target)))
+          if (root) pendingFirstPassDecisions.clear()
+          const firstPassDecisions = selectedFirstPass.map(({ local }) =>
+            requiresImportantForImportedTarget({ yaml, rule }, local.target)
+              ? { ...local, kind: "important" as const }
+              : local)
+          const localIssues = root
+            ? secondPass.metadataRuleValidator.validateBoundary({
+                yaml,
+                rule,
+                yamlPath,
+                annotations,
+              })
+            : []
+          const localGlobal = classifyImportedIssues({
+            issues: localIssues,
+            requiresImportant: (target) => requiresImportantForImportedTarget(
+              { yaml, rule },
+              relativeValidationTarget(target, yamlPath),
+            ),
+          }).decisions
+          const local = localGlobal.map((decision) => ({
+            ...decision,
+            target: relativeValidationTarget(decision.target, yamlPath),
+          }))
+          const ready = mergeImportedIssueDecisions([
             ...firstPassDecisions,
-            ...finalizedFormIssueDecisions,
+            ...(root ? finalizedRootIssueDecisions : []),
+            ...local,
           ])
-          return earlyIssueDecisions
+          earlyIssueDecisions = mergeImportedIssueDecisions([
+            ...earlyIssueDecisions,
+            ...selectedFirstPass.map(({ source }, index) => ({
+              ...source,
+              kind: firstPassDecisions[index]?.kind ?? source.kind,
+            })),
+            ...(root ? finalizedRootIssueDecisions : []),
+            ...localGlobal,
+          ])
+          return ready
         },
         finalizeRootYaml: (yaml, rule, annotations, savedBaseYAML) => {
           const originalFormDataPaths = collectImportedFormDataPaths(yaml, rule)
@@ -565,7 +631,60 @@ async function processSecondPass(
             formDataPathIndex: ready.formDataPathIndex,
             ownerMetadataCache: secondPass.ownerMetadataCache,
           })
-          finalizedFormIssueDecisions = validateFinalizedFormDataPathDecisions({
+          earlyIssueDecisions = mergeImportedIssueDecisions(
+            earlyIssueDecisions.map((decision) => normalizeImportedIssueDecisionPath(yaml, decision)),
+          )
+          const canonical = prepareYAMLDocumentData(yaml, annotations)
+          const knownValidation = validateKnownProjectYaml({
+            projectDir: state.projectDir,
+            file: validationFile,
+            data: canonical.data,
+            annotations: canonical.annotations,
+            context: state.context,
+            schemaCache: state.schemaCache,
+            rulesSnapshot: state.rulesSnapshot,
+          })
+          const knownUpdate = buildProjectStateYamlFileUpdate({
+            projectDir: state.projectDir,
+            descriptor: {
+              componentPath: validationFile.componentPath,
+              componentDir: validationFile.componentDir,
+              rootProjectPath: validationFile.rootProjectPath,
+              projectPath: validationFile.projectPath,
+              role: validationFile.kind,
+            },
+            firstPass: knownValidation,
+            fileBackedTargets: importFileBackedTargets(state, assignment.targetProjectPath),
+          })
+          const knownState = splitImportYamlUpdate(knownUpdate, 0n)
+          rootValidation = knownState
+          const semanticIssues = validateFinalImportSemantics({
+            index: knownState.index,
+            final: knownState.final,
+            projectDir: state.projectDir,
+            readSession: secondPass.readSession,
+            pendingChecks: knownValidation.state.kind === "form" || knownValidation.state.kind === "properties"
+              ? knownValidation.state.pendingChecks
+              : [],
+          })
+          const schemaIssues = [
+            ...knownValidation.issues,
+            ...semanticIssues,
+          ].filter(({ code }) => code !== "xml/anomaly-tag-unnecessary")
+          const schemaClassified = classifyImportedIssues({
+            issues: schemaIssues,
+            requiresImportant: (target) => requiresImportantForImportedTarget({ yaml, rule }, target),
+          })
+          if (schemaClassified.fatal.length > 0) {
+            throw new Error(`Локальная схема завершилась внутренней ошибкой: ${schemaClassified.fatal
+              .map(({ code }) => code).join(", ")}`)
+          }
+          const addressableSchemaDecisions = selectImportedIssueDecisionsForBoundary({
+            data: yaml,
+            yamlPath: [],
+            decisions: schemaClassified.decisions,
+          }).map(({ local }) => local)
+          const formDecisions = validateFinalizedFormDataPathDecisions({
             yaml,
             rule,
             formDataPathIndex: ready.formDataPathIndex,
@@ -576,16 +695,18 @@ async function processSecondPass(
             ownerMetadataCache: secondPass.ownerMetadataCache,
             targetProjectPath: assignment.targetProjectPath,
           })
+          const addressableFormDecisions = selectImportedIssueDecisionsForBoundary({
+            data: yaml,
+            yamlPath: [],
+            decisions: formDecisions,
+          }).map(({ local }) => local)
+          finalizedRootIssueDecisions = mergeImportedIssueDecisions([
+            ...addressableSchemaDecisions,
+            ...addressableFormDecisions,
+          ])
         },
       },
     })
-    const validationFile = state.projectFileProjector({
-      projectPath: assignment.targetProjectPath,
-      topologyAddress: assignment.topologyAddress,
-    })
-    if (validationFile === undefined) {
-      throw new Error(`Не найден узел topology XML-import: ${assignment.topologyAddress.nodeId}`)
-    }
     prepared = {
       diagnosticAssignment: {
         targetProjectPath: assignment.targetProjectPath,
@@ -603,6 +724,7 @@ async function processSecondPass(
       dependentDeferred: imported.dependentDeferred,
       dependentOwner: imported.dependentOwner,
       earlyIssueDecisions,
+      ...(rootValidation === undefined ? {} : { rootValidation }),
       validationFile,
       configurationFragment: collector.fragment(assignment.targetProjectPath),
       ...(imported.baseFormCandidate === undefined ? {} : { baseFormCandidate: imported.baseFormCandidate }),
@@ -716,6 +838,10 @@ function beginSecondPass(
       controlComposition ?? [...assignedImports.values()].map(importControlCompositionEntry),
     ),
     issueDecisionsByProjectPath: groupIssueDecisionsByProjectPath(issueDecisions),
+    metadataRuleValidator: createRegisteredMetadataRuleValidator({
+      context: state.context,
+      rules: requireCurrentRuleRegistrySet(),
+    }),
     ...(exportProfile === undefined ? {} : { exportProfile }),
   }
 }
@@ -818,6 +944,22 @@ function sameYamlPath(left: readonly (string | number)[], right: readonly (strin
   return left.length === right.length && left.every((value, index) => value === right[index])
 }
 
+function relativeValidationTarget(
+  target: ValidationIssueTarget,
+  prefix: readonly (string | number)[],
+): ValidationIssueTarget {
+  if (!sameYamlPath(target.path.slice(0, prefix.length), prefix)) {
+    throw new Error(`Цель смысловой проверки находится вне текущей YAML-границы: ${validationIssueTargetKey(target)}`)
+  }
+  return { ...target, path: target.path.slice(prefix.length) }
+}
+
+function requireCurrentRuleRegistrySet(): RuleRegistrySet {
+  const rules = currentRuleRegistrySet<RuleRegistrySet>()
+  if (rules === undefined) throw new Error("Не задан execution context metadata rules")
+  return rules
+}
+
 function applyImportedDecisionsToFinalState(
   final: ProjectStateImportFinalFileStateBatch,
   decisions: readonly ImportIssueDecision[],
@@ -833,6 +975,21 @@ function applyImportedDecisionsToFinalState(
     if (update.kind !== "yaml") return update
     return {
       ...update,
+      localValidation: {
+        ...update.localValidation,
+        diagnostics: update.localValidation.diagnostics.filter((diagnostic) =>
+          !taggedPaths.some((path) => sameYamlPath(
+            path,
+            validationIssuePathFromPointer(diagnostic.path ?? ""),
+          )),
+        ),
+        schemaDiagnostics: update.localValidation.schemaDiagnostics.filter((diagnostic) =>
+          !taggedPaths.some((path) => sameYamlPath(
+            path,
+            validationIssuePathFromPointer(diagnostic.path ?? ""),
+          )),
+        ),
+      },
       pendingReferences: update.pendingReferences.map((reference) =>
         taggedPaths.some((path) => sameYamlPath(path, reference.yamlPath))
           ? { ...reference, xmlAnomaly: "accepted" as const }
@@ -844,9 +1001,7 @@ function applyImportedDecisionsToFinalState(
           : check),
     }
   })
-  const hashBytes = new Uint8Array(8)
-  new DataView(hashBytes.buffer).setBigUint64(0, hash, false)
-  return { updates, hashBytes }
+  return { updates, hashBytes: projectStateHashBytes(hash) }
 }
 
 async function endSecondPass(): Promise<void> {
@@ -914,11 +1069,32 @@ async function prepareYamlForFinalPass(
     })
     if (classified.fatal.length > 0) {
       throw new Error(`Валидация импортированного YAML завершилась внутренней ошибкой: ${classified.fatal
-        .map(({ code }) => code).join(", ")}`)
+        .map(({ code, params }) => {
+          const message = typeof params?.message === "string" ? ` (${params.message})` : ""
+          return `${code}${message}`
+        }).join(", ")}`)
     }
-    return { serialized, validated, semanticIssues, decisions: classified.decisions }
+    const decisions = selectImportedIssueDecisionsForBoundary({
+      data: prepared.yaml,
+      yamlPath: [],
+      decisions: classified.decisions,
+    }).map(({ local }) => local)
+    return { serialized, validated, semanticIssues, decisions }
   }
-  const finalValidation = validateImportedIssues()
+  const finalValidation = prepared.rootValidation === undefined
+    ? validateImportedIssues()
+    : {
+        serialized: serializePreparedYaml(
+          prepared.targetProjectPath,
+          prepared.yaml,
+          state,
+          profiler,
+          prepared.annotations,
+        ),
+        validated: prepared.rootValidation,
+        semanticIssues: [],
+        decisions: [],
+      }
   const { serialized, validated } = finalValidation
   assertNoLateImportedIssueDecisions(prepared, finalValidation.decisions)
   const decisions = mergeImportedIssueDecisions([
@@ -945,13 +1121,29 @@ async function prepareYamlForFinalPass(
       serialized: retainWritableYaml(serialized),
       index: withPreparedFormIndexFallback(prepared, validated.index),
       final: decisions.length === 0
-        ? validated.final
+        ? withImportFinalHash(validated.final, serialized.localHash)
         : applyImportedDecisionsToFinalState(validated.final, decisions, serialized.localHash),
     },
     ...(baseForm === undefined ? {} : { base: baseForm }),
     configurationFragments:
       baseFormConfigurationFragment === undefined ? [] : [baseFormConfigurationFragment],
   }
+}
+
+function withImportFinalHash(
+  final: ProjectStateImportFinalFileStateBatch,
+  hash: bigint,
+): ProjectStateImportFinalFileStateBatch {
+  if (final.updates.length !== 1) {
+    throw new Error("Окончательное состояние одного YAML должно содержать ровно одно обновление")
+  }
+  return { ...final, hashBytes: projectStateHashBytes(hash) }
+}
+
+function projectStateHashBytes(hash: bigint): Uint8Array {
+  const hashBytes = new Uint8Array(8)
+  new DataView(hashBytes.buffer).setBigUint64(0, hash, false)
+  return hashBytes
 }
 
 function withPreparedFormIndexFallback(
@@ -1024,11 +1216,20 @@ function assertNoLateImportedIssueDecisions(
   prepared: Pick<DeferredImportYaml, "targetProjectPath" | "earlyIssueDecisions">,
   finalDecisions: readonly ImportIssueDecision[],
 ): void {
-  const early = new Set(prepared.earlyIssueDecisions.map((decision) =>
-    `${decision.kind}\u0000${validationIssueTargetKey(decision.target)}`))
+  const early = new Map(prepared.earlyIssueDecisions.map((decision) => [
+    `${decision.kind}\u0000${validationIssueTargetKey(decision.target)}`,
+    decision.issueCodes,
+  ]))
   const late = finalDecisions
     .filter((decision) => !early.has(`${decision.kind}\u0000${validationIssueTargetKey(decision.target)}`))
-    .map((decision) => `${decision.kind} @ ${validationIssueTargetKey(decision.target)}`)
+    .map((decision) => {
+      const target = validationIssueTargetKey(decision.target)
+      const prior = prepared.earlyIssueDecisions.find((candidate) => validationIssueTargetKey(candidate.target) === target)
+      const earlyCodes = prior === undefined
+        ? ""
+        : `; раннее решение: ${prior.kind} [${prior.issueCodes.join(", ")}]`
+      return `${decision.kind} [${decision.issueCodes.join(", ")}] @ ${target}${earlyCodes}`
+    })
   if (late.length > 0) {
     throw new Error(`Смысловые решения появились после локального proof ${prepared.targetProjectPath}: ${late.join(", ")}`)
   }

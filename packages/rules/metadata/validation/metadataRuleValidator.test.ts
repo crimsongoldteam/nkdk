@@ -2,6 +2,7 @@ import { Type } from "typebox"
 import { describe, expect, it } from "vitest"
 import {
   compileValidationSchema,
+  markYAMLScalarTag,
   parseMetadataYaml,
   type ValidationSchemaValidator,
 } from "@nkdk/runtime"
@@ -24,6 +25,20 @@ function validator() {
     },
   })
   return { ...result, compilations: () => compilations }
+}
+
+it("разрешает вычисляемое поле, объявленное общей схемой объекта", () => {
+  const parsed = parseMetadataYaml("Вид: ПолеНадписи\nИспользовать: true\n")
+  const result = createMetadataRuleValidator({
+    propertyValidator: validatorForTest,
+    isKnownProperty: (_rule, key) => key === "Вид",
+  })
+
+  expect(result.validate({ yaml: parsed.data, annotations: parsed.annotations, rule: rootRule })).toEqual([])
+})
+
+function validatorForTest(rule: PropertyRule): ValidationSchemaValidator {
+  return compileValidationSchema({}, rule.type === "boolean" ? Type.Boolean() : Type.String())
 }
 
 describe("общий валидатор YAML по rules.ts", () => {
@@ -51,6 +66,17 @@ describe("общий валидатор YAML по rules.ts", () => {
 
     expect(validator().validate({ yaml: parsed.data, annotations: parsed.annotations, rule: rootRule }))
       .toEqual([])
+  })
+
+  it("не проверяет служебное представление стандартных реквизитов как обычное значение", () => {
+    const yaml = { Использовать: undefined }
+    markYAMLScalarTag(yaml, "Использовать", "xml/standard-attributes")
+
+    expect(validator().validate({
+      yaml,
+      annotations: parseMetadataYaml("").annotations,
+      rule: rootRule,
+    })).toEqual([])
   })
 
   it("проверяет соседнее свойство и отклоняет обычный неизвестный ключ", () => {

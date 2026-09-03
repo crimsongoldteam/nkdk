@@ -4,6 +4,7 @@ import { describe,expect,it } from "vitest"
 
 import {
 createXmlAnomalyAnnotations,
+createLocalXmlProof,
 createXmlImportAuditSession,
 importContentFromXML,
 parseXmlDocumentWithSaxes,
@@ -11,7 +12,7 @@ serializeYAMLDocument,
 xmlElementChildren,
 xmlExport
 } from "@nkdk/runtime"
-import { createRuleRegistrySet, createLocalIndexesCollector, createImportedDependentPropertyCollector, createDirectImportFactsCollector, createCompiledRuleExecution, importPropertiesFromXMLToYAML, withRuleRegistrySet, type MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import { createRuleRegistrySet, createLocalIndexesCollector, createImportedDependentPropertyCollector, createDirectImportFactsCollector, createCompiledRuleExecution, createAnnotatedLocalXmlBodyConsumer, importPropertiesFromXMLToYAML, withRuleRegistrySet, type MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import {
 createDirectRoundTripContexts,
 testPropertyFromXMLToYAML,
@@ -20,9 +21,10 @@ testPropertyFromYAMLToXML,
 
 import "../index"
 import "./fromXMLToYAML"
-import { FormAttributeColumnRules,FormAttributeRules } from "./rules"
+import { FormAttributeAdditionalColumnRules,FormAttributeColumnRules,FormAttributeRules } from "./rules"
 import { metadataRules } from "../../../composition/metadataRules"
 import { collectImportDependencyFacts, prepareImportDependencies } from "../../../importFromXml/preparedDependencies"
+import { createRegisteredMetadataRuleValidator } from "../../../validation/metadataRuleValidator"
 
 const rule = {
   itemType: "FormAttributesProbe",
@@ -83,6 +85,37 @@ function importStructuredFormAttributes(
 }
 
 describe("FormAttributes XML → YAML → XML", () => {
+  it("проверяет общий Settings реквизита один раз", () => {
+    const registries = createRuleRegistrySet(metadataRules)
+    const contexts = createDirectRoundTripContexts({ logicalAddress: "Форма.Атрибут.ДействияПроцесса" })
+    const context = contexts.importContext
+    const source = parseXmlDocumentWithSaxes(`
+      <Attribute xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ДействияПроцесса" id="5">
+        <Type><v8:Type>v8:ValueListType</v8:Type></Type>
+        <Settings xsi:type="v8:TypeDescription"><v8:TypeSet>cfg:BusinessProcessRoutePointRef</v8:TypeSet></Settings>
+      </Attribute>
+    `).roots[0]!
+    const base = { execution: registries.execution, context, rule: FormAttributeRules,
+      sources: [{ context, xml: source }], itemName: "ДействияПроцесса", yamlPath: [], rulePath: [] }
+    const dependent = createImportedDependentPropertyCollector()
+    const propertyFacts = createDirectImportFactsCollector()
+    const first = importPropertiesFromXMLToYAML({ ...base, mode: "facts", produceResult: true,
+      collector: createLocalIndexesCollector(), dependent, facts: propertyFacts,
+    })
+    const dependencies = attributeDependencies(registries.execution, first, dependent, propertyFacts)
+    const annotations = createXmlAnomalyAnnotations()
+    const roundTrip = createCompiledRuleExecution({
+      execution: registries.execution,
+      prepare: () => ({ context: contexts.exportContext(), name: "ДействияПроцесса", outputs: [{ key: "owner" }] }),
+      consumer: ({ yaml }, receipts) => createAnnotatedLocalXmlBodyConsumer({
+        key: "owner", source, proof: createLocalXmlProof(), yaml, annotations, ...receipts,
+      }),
+    })
+
+    expect(importPropertiesFromXMLToYAML({ ...base, collector: createLocalIndexesCollector(), dependencies, roundTrip }))
+      .toMatchObject({ Тип: "СписокЗначений" })
+  })
+
   it.each(["before", "after", "missing"] as const)("восстанавливает пустой Settings по фактам типа: %s", (placement) => {
     const registries = createRuleRegistrySet(metadataRules)
     withRuleRegistrySet(registries, () => {
@@ -97,10 +130,7 @@ describe("FormAttributes XML → YAML → XML", () => {
       const first = importPropertiesFromXMLToYAML({ ...params, mode: "facts", produceResult: true,
         collector: createLocalIndexesCollector(), dependent, facts: propertyFacts,
       })
-      const dependencies = prepareImportDependencies(collectImportDependencyFacts({
-        rule: FormAttributeRules, owner: { dir: "ОбщаяФорма", name: "Форма" }, yaml: first,
-        candidates: dependent.finish(), propertyFacts: propertyFacts.finish(), execution: registries.execution,
-      }), {}, registries.execution)
+      const dependencies = attributeDependencies(registries.execution, first, dependent, propertyFacts)
       const writes: unknown[] = []
       const roundTrip = createCompiledRuleExecution({
         execution: registries.execution,
@@ -185,6 +215,39 @@ describe("FormAttributes XML → YAML → XML", () => {
     expect(ready).toContain("additionalColumns")
     expect(closed).toBeDefined()
     expect(closed).toEqual(snapshot)
+  })
+
+  it("проверяет готовые дополнительные колонки той же схемой, что и проект", () => {
+    const registries = createRuleRegistrySet(metadataRules)
+    const context = createDirectRoundTripContexts({ logicalAddress: "Форма" }).importContext
+    const yaml = {
+      ДополнительныеКолонки: {
+        "Объект.Предметы": {
+          Картинка: { Тип: "Число(10, 0)" },
+        },
+      },
+    }
+
+    expect(createRegisteredMetadataRuleValidator({ context, rules: registries }).validateBoundary({
+      yaml,
+      annotations: createXmlAnomalyAnnotations(),
+      rule: FormAttributeRules,
+      yamlPath: [],
+    })).toEqual([])
+
+    expect(createRegisteredMetadataRuleValidator({ context, rules: registries }).validateBoundary({
+      yaml: { Колонки: { Шаг: { Тип: "Булево" } } },
+      annotations: createXmlAnomalyAnnotations(),
+      rule: FormAttributeAdditionalColumnRules,
+      yamlPath: [],
+    })).toEqual([])
+
+    expect(createRegisteredMetadataRuleValidator({ context, rules: registries }).validateBoundary({
+      yaml: { ИсходноеИмяПредмета: {} },
+      annotations: createXmlAnomalyAnnotations(),
+      rule: FormAttributeRules,
+      yamlPath: [],
+    })).toEqual([])
   })
 
   it("сворачивает известные дополнительные колонки ERP до первой", () => {
@@ -618,6 +681,22 @@ describe("FormAttributes XML → YAML → XML", () => {
   })
 
 })
+
+function attributeDependencies(
+  execution: ReturnType<typeof createRuleRegistrySet>["execution"],
+  yaml: unknown,
+  dependent: ReturnType<typeof createImportedDependentPropertyCollector>,
+  propertyFacts: ReturnType<typeof createDirectImportFactsCollector>,
+) {
+  return prepareImportDependencies(collectImportDependencyFacts({
+    rule: FormAttributeRules,
+    owner: { dir: "ОбщаяФорма", name: "Форма" },
+    yaml,
+    candidates: dependent.finish(),
+    propertyFacts: propertyFacts.finish(),
+    execution,
+  }), {}, execution)
+}
 
 function roundTripFixture(fixture: string, withReference: boolean): { expected: string; result: string } {
   const expected = readFormAttributeFixture(fixture)

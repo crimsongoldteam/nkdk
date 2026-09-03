@@ -189,7 +189,7 @@ export function importPropertiesFromXMLToYAML(params: {
     xmlNodes?: readonly XmlElementNode[]
     presentInXML: boolean
     ambiguousXMLKey: boolean
-  }): boolean => {
+  }): { readonly proofReady: boolean; readonly structurallyClaimed: boolean } => {
     if (params.profile !== undefined) params.profile.propertyCount++
     const {
       sourceState,
@@ -224,6 +224,7 @@ export function importPropertiesFromXMLToYAML(params: {
     ]).begin()
     let discardAttempt = false
     let proofReady = false
+    let structurallyClaimed = false
     try {
       const run = (): void => {
         const dependentImportProperty = compiled === undefined
@@ -276,6 +277,15 @@ export function importPropertiesFromXMLToYAML(params: {
           )
           addProfileTime(params.profile, "configurationIndexMs", indexStartedAt)
         }
+        if (
+          presentInXML
+          && isXmlElementNode(xmlNode)
+          && collectConfigurationIndex !== undefined
+          && propertyRule.toYAML === false
+          && propertyRule.toXML === false
+        ) {
+          structurallyClaimed = true
+        }
 
         if (!forReference && propertyRule.forReferenceOnly === true) {
           collectConfigurationIndexPropertyFromXML({
@@ -301,6 +311,9 @@ export function importPropertiesFromXMLToYAML(params: {
           // Смысловой YAML это свойство не получает, но локальный proof должен
           // выполнить штатный экспорт с исходным reference и тем самым учесть
           // служебную XML-структуру ровно один раз.
+          structurallyClaimed = presentInXML
+            && isXmlElementNode(xmlNode)
+            && collectConfigurationIndex !== undefined
           proofReady = roundTrip !== undefined && presentInXML
           return
         }
@@ -370,6 +383,7 @@ export function importPropertiesFromXMLToYAML(params: {
             isXmlElementNode(xmlNode)
           ) {
             params.audit?.claimStructuralSubtree(xmlNode, boundary)
+            structurallyClaimed = collectConfigurationIndex !== undefined
           }
           return
         }
@@ -860,16 +874,16 @@ export function importPropertiesFromXMLToYAML(params: {
         params.audit !== undefined
       ) {
         params.audit.rawCandidate(xmlNode, boundary, cause)
-        return false
+        return { proofReady: false, structurallyClaimed: false }
       }
       throw cause
     }
     if (discardAttempt) {
       attempt.rollback()
-      return false
+      return { proofReady: false, structurallyClaimed: false }
     }
     attempt.commit()
-    return proofReady
+    return { proofReady, structurallyClaimed }
   }
 
   const importMatch = (match: Parameters<typeof importMatchUnprofiled>[0]): void => {
@@ -880,9 +894,10 @@ export function importPropertiesFromXMLToYAML(params: {
         const binding = {
           propertyKey: match.entry.propertyKey, node: match.xmlNode, presentInXML: match.presentInXML, xmlPath: match.xmlPath,
           ...(match.xmlOwnerNode === undefined ? {} : { owner: match.xmlOwnerNode }),
+          ...(imported.structurallyClaimed ? { structurallyClaimed: true as const } : {}),
         }
         runRoundTripStep("bind", () => roundTrip.bind?.(binding))
-        if (imported) runRoundTripStep("ready", () => roundTrip.ready(binding))
+        if (imported.proofReady) runRoundTripStep("ready", () => roundTrip.ready(binding))
       }
     } finally {
       finishPropertyTypeProfile(params.profile, frame, "XML → YAML")
@@ -1019,7 +1034,11 @@ export function importPropertiesFromXMLToYAML(params: {
   if (params.dependencies?.propertyValue === undefined) normalizeTypeOwnedMetadataTargets({ result, rule })
   params.beforeFinish?.(result)
   if (roundTrip !== undefined) runRoundTripStep("finish", () => roundTrip.finish())
-  return orderYamlRuleProperties(result, compiledPlan?.yamlOrder ?? getYamlRulePropertyOrder(rule))
+  return orderYamlRuleProperties(
+    result,
+    compiledPlan?.yamlOrder ?? getYamlRulePropertyOrder(rule),
+    params.annotations,
+  )
 }
 
 class DirectImportRoundTripError extends Error {

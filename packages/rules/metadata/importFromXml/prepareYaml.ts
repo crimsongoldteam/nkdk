@@ -88,6 +88,9 @@ interface ImportLocalRoundTripOptions {
   readonly selectDecisions?: (
     yaml: Record<string, unknown>,
     rule: MetadataItemRule,
+    yamlPath: readonly (string | number)[],
+    root: boolean,
+    annotations: import("@nkdk/runtime").XmlAnomalyAnnotationTable,
   ) => readonly ImportedIssueDecision[]
   readonly finalizeRootYaml?: (
     yaml: Record<string, unknown>,
@@ -219,7 +222,6 @@ function prepareImportYamlFromParsedInputs(params: {
         : {
             localRoundTrip: {
               ...localRoundTripParams,
-              finalizeRootYaml,
               prepareRootProof: ({ key }) => key === "source-0" ? formBodyProof : undefined,
             },
           }),
@@ -227,6 +229,7 @@ function prepareImportYamlFromParsedInputs(params: {
     let localRoundTrip: ReturnType<typeof createImportLocalRoundTrip> | undefined
     localRoundTrip = localRoundTripParams === undefined ? undefined : createImportLocalRoundTrip({
       ...localRoundTripParams,
+      isDocumentRoot: (candidate) => candidate === rule,
       profiler: params.profiler,
       annotations,
       ...(finalizeRootYaml === undefined
@@ -396,15 +399,10 @@ function importAssignmentBaseFormCandidate(params: {
     decisions: [],
     annotations,
     profiler: params.profiler,
+    isDocumentRoot: (candidate) => candidate === companion.rule,
     ...(params.localRoundTrip.prepareRootProof === undefined
       ? {}
       : { prepareRootProof: params.localRoundTrip.prepareRootProof }),
-    ...(params.localRoundTrip.finalizeRootYaml === undefined
-      ? {}
-      : {
-          finalizeRootYaml: (yaml, rule) =>
-            params.localRoundTrip!.finalizeRootYaml!(yaml, rule, annotations, undefined),
-        }),
   })
   const baseForm = importBaseFormYaml({
     context: params.context,
