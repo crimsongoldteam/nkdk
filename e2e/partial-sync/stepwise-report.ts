@@ -169,20 +169,21 @@ function toMarkdown(report: StepwiseReport): string {
       "",
     )
   }
-  lines.push("| Сценарий | Режим | Попытка | Итог | Шаги | Время |", "|---|---|---:|---|---:|---:|")
+  lines.push("| Сценарий | Режим | Попытка | Итог | Шаги | Время | Журнал |", "|---|---|---:|---|---:|---:|---|")
   for (const [scenarioId, scenario] of Object.entries(report.scenarios)) {
     for (const [mode, data] of Object.entries(scenario.modes)) {
       for (const attempt of data.attempts) {
-        lines.push(`| ${scenarioId} | ${mode} | ${attempt.attempt} | ${attempt.status} | ${attempt.completedSteps}/${attempt.totalSteps} | ${attempt.durationMs} мс |`)
+        const attemptLogDir = attempt.steps.at(-1)?.attemptLogDir
+        lines.push(`| ${scenarioId} | ${mode} | ${attempt.attempt} | ${attempt.status} | ${attempt.completedSteps}/${attempt.totalSteps} | ${attempt.durationMs} мс | ${markdownLogLink(attemptLogDir)} |`)
         if (attempt.failure !== undefined) lines.push(`\n> ${attempt.failure.category}: ${attempt.failure.message}\n`)
       }
     }
   }
   if ((report.events?.length ?? 0) > 0) {
-    lines.push("", "## Ход выполнения", "", "| Сценарий | Режим | Попытка | Событие | Шаг/стадия | Время |", "|---|---|---:|---|---|---:|")
+    lines.push("", "## Ход выполнения", "", "| Сценарий | Режим | Попытка | Событие | Шаг/стадия | Время | Журнал |", "|---|---|---:|---|---|---:|---|")
     for (const event of report.events ?? []) {
       const subject = [event.stepKey, event.stage].filter((value) => value !== undefined).join(" / ")
-      lines.push(`| ${event.id} | ${event.mode} | ${event.attempt} | ${event.kind} | ${subject} | ${event.durationMs ?? ""} |`)
+      lines.push(`| ${event.id} | ${event.mode} | ${event.attempt} | ${event.kind} | ${subject} | ${event.durationMs ?? ""} | ${markdownLogLink(event.attemptLogDir)} |`)
     }
   }
   return `${lines.join("\n")}\n`
@@ -211,6 +212,10 @@ function isTerminalEvent(event: StepwiseProgressEvent): boolean {
 function normalizePath(path: string, runRoot: string): string {
   const value = isAbsolute(path) ? relative(runRoot, path) : path
   return value.replaceAll("\\", "/")
+}
+
+function markdownLogLink(path: string | undefined): string {
+  return path === undefined ? "" : `[журнал](<../${path}>)`
 }
 
 function summarize(scenarios: StepwiseReport["scenarios"]): StepwiseReportSummary {

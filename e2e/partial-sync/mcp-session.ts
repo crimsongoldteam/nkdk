@@ -40,6 +40,7 @@ export async function openScenarioMcpSession(
   let callNumber = 0
   let lastStderrPath: string | undefined
   let closed = false
+  let closePromise: Promise<void> | undefined
 
   async function loggedCall(
     toolName: string,
@@ -116,18 +117,21 @@ export async function openScenarioMcpSession(
         return snapshot.result as T
       }
     },
-    async close(): Promise<void> {
-      if (closed) return
+    close(): Promise<void> {
+      if (closePromise !== undefined) return closePromise
       closed = true
-      try {
-        await lowLevel.close()
-      } finally {
-        const remainingStderr = lowLevel.takeStderr()
-        if (remainingStderr.length > 0) {
-          const path = lastStderrPath ?? join(params.attemptLogDir, "000-session.server.stderr.log")
-          await appendFile(path, remainingStderr, "utf8")
+      closePromise = (async () => {
+        try {
+          await lowLevel.close()
+        } finally {
+          const remainingStderr = lowLevel.takeStderr()
+          if (remainingStderr.length > 0) {
+            const path = lastStderrPath ?? join(params.attemptLogDir, "000-session.server.stderr.log")
+            await appendFile(path, remainingStderr, "utf8")
+          }
         }
-      }
+      })()
+      return closePromise
     },
   }
 }

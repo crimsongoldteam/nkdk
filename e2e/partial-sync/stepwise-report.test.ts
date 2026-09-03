@@ -47,6 +47,8 @@ it("группирует одинаковые сценарии по режима
     .steps[0]?.attemptLogDir).toBe("scenarios/designer-agent/logs/step")
   expect(files.get("C:/run/reports/report.md")).toContain("standalone-server")
   expect(files.get("C:/run/reports/report.md")).toContain("abc123")
+  expect(files.get("C:/run/reports/report.md"))
+    .toContain("[журнал](<../scenarios/designer-agent/logs/step>)")
 })
 
 it("атомарно сохраняет ход активной попытки до её терминального результата", async () => {
@@ -75,6 +77,8 @@ it("атомарно сохраняет ход активной попытки �
     attemptLogDir: "scenarios/designer-agent/logs/step",
   })])
   expect(files.get("C:/run/reports/report.md")).toContain("validation")
+  expect(files.get("C:/run/reports/report.md"))
+    .toContain("[журнал](<../scenarios/designer-agent/logs/step>)")
   expect(files.has("C:/run/reports/report.json.tmp")).toBe(false)
 })
 

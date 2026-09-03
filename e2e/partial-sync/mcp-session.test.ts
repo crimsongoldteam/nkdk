@@ -86,6 +86,29 @@ describe("partial sync MCP session", () => {
     expect(lowLevel.closeCalls).toBe(1)
   })
 
+  it("возвращает общий promise параллельным вызовам close", async () => {
+    const attemptLogDir = await mkdtemp(join(tmpdir(), "nkdk-mcp-session-close-"))
+    let finishClose: (() => void) | undefined
+    let closeCalls = 0
+    const lowLevel: LowLevelMcpSession = {
+      async call() { throw new Error("unexpected call") },
+      takeStderr() { return "" },
+      async close() {
+        closeCalls += 1
+        await new Promise<void>((resolve) => { finishClose = resolve })
+      },
+    }
+    const session = await openScenarioMcpSession({ attemptLogDir, createSession: async () => lowLevel })
+
+    const first = session.close()
+    const second = session.close()
+
+    expect(second).toBe(first)
+    expect(closeCalls).toBe(1)
+    finishClose?.()
+    await Promise.all([first, second])
+  })
+
   it("ожидает terminal результат фоновой операции в том же сеансе", async () => {
     const attemptLogDir = await mkdtemp(join(tmpdir(), "nkdk-mcp-session-background-"))
     const waits: number[] = []
