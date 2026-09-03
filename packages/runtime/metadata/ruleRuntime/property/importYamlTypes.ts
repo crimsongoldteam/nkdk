@@ -66,6 +66,13 @@ export interface DirectImportTraversal<Execution = unknown> {
   profile?: DirectImportProfile
 }
 
+export interface DirectImportXMLPropertyBinding {
+  readonly propertyKey: string
+  readonly node?: XmlImportAuditedNode
+  readonly presentInXML: boolean
+  readonly xmlPath?: readonly string[]
+}
+
 /** Внутренний порт второго прохода. Первый проход фактов его не открывает. */
 export interface DirectImportRoundTripExecution {
   open(params: {
@@ -78,12 +85,9 @@ export interface DirectImportRoundTripExecution {
     readonly rulePath: readonly DeferredRulePathSegment[]
     readonly dependencies?: PreparedImportDependencies
   }): {
-    ready(params: {
-      readonly propertyKey: string
-      readonly node?: XmlImportAuditedNode
-      readonly presentInXML: boolean
-      readonly xmlPath?: readonly string[]
-    }): void
+    /** В том числе свойство без результата импорта: его XML-default ещё может сработать. */
+    bind?(params: DirectImportXMLPropertyBinding): void
+    ready(params: DirectImportXMLPropertyBinding): void
     finish(): void
   }
 }

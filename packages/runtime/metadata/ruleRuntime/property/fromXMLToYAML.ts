@@ -856,9 +856,14 @@ export function importPropertiesFromXMLToYAML(params: {
   const importMatch = (match: Parameters<typeof importMatchUnprofiled>[0]): void => {
     const frame = beginPropertyTypeProfile(params.profile, match.entry.rule.type)
     try {
-      if (importMatchUnprofiled(match) && roundTrip !== undefined) runRoundTripStep("ready", () => roundTrip.ready({
-        propertyKey: match.entry.propertyKey, node: match.xmlNode, presentInXML: match.presentInXML, xmlPath: match.xmlPath,
-      }))
+      const imported = importMatchUnprofiled(match)
+      if (roundTrip !== undefined) {
+        const binding = {
+          propertyKey: match.entry.propertyKey, node: match.xmlNode, presentInXML: match.presentInXML, xmlPath: match.xmlPath,
+        }
+        runRoundTripStep("bind", () => roundTrip.bind?.(binding))
+        if (imported) runRoundTripStep("ready", () => roundTrip.ready(binding))
+      }
     } finally {
       finishPropertyTypeProfile(params.profile, frame, "XML → YAML")
     }
@@ -1001,7 +1006,7 @@ class DirectImportRoundTripError extends Error {
   }
 }
 
-function runRoundTripStep<T>(phase: "open" | "ready" | "finish", run: () => T): T {
+function runRoundTripStep<T>(phase: "open" | "bind" | "ready" | "finish", run: () => T): T {
   try {
     return run()
   } catch (cause) {

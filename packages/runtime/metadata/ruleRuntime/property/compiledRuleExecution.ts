@@ -1,5 +1,5 @@
 import type { CompiledPropertyPlan, CompiledPropertyRuleExecution } from "./compiledPropertyPlan"
-import type { DirectImportRoundTripExecution } from "./importYamlTypes"
+import type { DirectImportRoundTripExecution, DirectImportXMLPropertyBinding } from "./importYamlTypes"
 import type { YAMLToXMLItemConversionParams, YAMLToXMLResult, YAMLToXMLExternalWrite } from "./fromYAMLToXMLTypes"
 import { createXMLPropertyExecution, prepareNestedXMLPropertyContext, prepareSingletonXMLContext, type XMLPropertyExecutionObserver } from "./xmlPropertyExecution"
 import type { LocalXmlChild } from "../xmlAnomaly/localProof"
@@ -23,8 +23,8 @@ export interface CompiledXMLProofResult {
 
 export interface CompiledXMLProofConsumer {
   /** Прямая привязка импорта, включая alias и отсутствие исходного свойства. */
-  ready?(source: Parameters<ReturnType<DirectImportRoundTripExecution["open"]>["ready"]>[0]): void
-  write(event: Parameters<XMLPropertyExecutionObserver["write"]>[0]): void
+  bind?(source: DirectImportXMLPropertyBinding): void
+  write(event: Parameters<XMLPropertyExecutionObserver["write"]>[0]): LocalXmlChild | void
   complete?: XMLPropertyExecutionObserver["complete"]
   /** На выходе только вклады корней; контрольные значения не сохраняются. */
   finish(output: YAMLToXMLResult): ReadonlyMap<string, LocalXmlChild>
@@ -163,8 +163,10 @@ export function createCompiledRuleExecution(params: {
           return transport(entry.result)
         },
         write(event) {
-          consumer.write(event)
-          return { retainedValue: {} }
+          const receipt = consumer.write(event)
+          const retainedValue = {}
+          if (receipt !== undefined) markers.set(retainedValue, receipt)
+          return { retainedValue }
         },
         complete(property) { consumer.complete?.(property) },
         finish(output) {
@@ -189,17 +191,32 @@ export function createCompiledRuleExecution(params: {
         },
       })
       active.push(frame)
+      let lastBinding: DirectImportXMLPropertyBinding | undefined
+      const boundProperties = new Set<string>()
+      const bind = (input: DirectImportXMLPropertyBinding) => {
+        lastBinding = input
+        boundProperties.add(input.propertyKey)
+        consumer.bind?.(input)
+      }
       return {
+        bind,
         ready(input) {
           const { propertyKey } = input
           const property = plan.propertiesByKey.get(propertyKey)
           if (property === undefined) throw new Error(`Не найдено свойство XML item: ${propertyKey}`)
-          consumer.ready?.(input)
+          if (lastBinding !== input) bind(input)
           withPreparedXMLDependencyFacts(source.yaml, dependencyFacts, () => item.execute(property))
         },
         finish() {
           if (active.at(-1) !== frame) throw new Error("XML item закрывается вне порядка вложенности")
-          try { withPreparedXMLDependencyFacts(source.yaml, dependencyFacts, () => item.finish()) } finally { active.pop() }
+          try {
+            for (const property of plan.properties) {
+              if (!boundProperties.has(property.propertyKey)) {
+                bind({ propertyKey: property.propertyKey, presentInXML: false })
+              }
+            }
+            withPreparedXMLDependencyFacts(source.yaml, dependencyFacts, () => item.finish())
+          } finally { active.pop() }
         },
       }
     },
