@@ -195,15 +195,20 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(completed).toEqual(stage === "write" ? [] : ["a", "b"])
   })
 
-  it("готовит собственную оболочку команды формы до дочерних свойств", () => {
+  it.each([
+    { type: "FormCommands", xml: "Commands", child: "Command", space: "commands", value: { Действие: "Do" }, wrapped: false },
+    { type: "FormAttributeColumns", xml: "Columns", child: "Column", space: "attributes", value: { Тип: "Строка" }, wrapped: false },
+    { type: "GroupChildItems", xml: "ChildItems", child: "Button", space: "elements", value: { Вид: "Кнопка" }, wrapped: true },
+  ] as const)("готовит собственную оболочку до дочерних свойств: $type", ({ type, xml, child, space, value, wrapped }) => {
     const rules = createRuleRegistrySet(metadataRules)
     let prepared = 0
     const result = createXMLPropertyExecution({
       execution: rules.execution, context: context(), outputs: [{ key: "owner" }],
-      rule: testRule({ commands: { type: "FormCommands", yaml: "Команды", xml: "Commands" } }),
-      yaml: { Команды: { Выполнить: { Действие: "Do" } } },
+      rule: testRule({ items: { type, yaml: "Элементы", xml } }),
+      yaml: { Элементы: { Выполнить: value } },
     }, undefined, {
       enterNested(params) {
+        if (params.name !== "Выполнить") return undefined
         expect(params.outputs[0]?.itemPreparation).toBeDefined()
         prepared++
         return undefined
@@ -211,13 +216,41 @@ describe("convertPropertiesFromYAMLToXML", () => {
       write() {}, complete() {},
     }).finish()
     expect(prepared).toBe(1)
-    const command = (result.outputs.get("owner")?.Commands as { Command: Record<string, unknown>[] }).Command[0]!
-    expect(Object.keys(command).slice(0, 2)).toEqual(["_name", "_id"])
-    expect(command).toMatchObject({ _name: "Выполнить", _id: "", Action: "Do" })
-    expect(formXmlIdReservation(command)?.space).toBe("commands")
-    const nested = rules.execution.getTypeRule("FormCommands", "yamlToXMLNestedRule")
-    expect(nested?.kind === "collection" ? nested.mapItemOutput : undefined).toBeUndefined()
+    const container = result.outputs.get("owner")?.[xml]
+    const item = wrapped
+      ? (container as Record<string, Record<string, unknown>>[])[0]![child]!
+      : (container as Record<string, Record<string, unknown>[]>)[child]![0]!
+    expect(Object.keys(item).slice(0, 2)).toEqual(["_name", "_id"])
+    expect(item).toMatchObject({ _name: "Выполнить", _id: "" })
+    expect(formXmlIdReservation(item)?.space).toBe(space)
+    const nested = rules.execution.getTypeRule(type, "yamlToXMLNestedRule")
+    if (!wrapped) expect(nested?.kind === "collection" ? nested.mapItemOutput : undefined).toBeUndefined()
   })
+
+  it.each(["ExtendedTooltip", "PopupExtendedTooltip", "GanttChartFieldTable", "AutoCommandBar"] as const)(
+    "готовит имя и ID singleton до дочерних свойств: %s", (type) => {
+      const rules = createRuleRegistrySet(metadataRules)
+      let entered = 0
+      const result = createXMLPropertyExecution({
+        execution: rules.execution, context: context(), outputs: [{ key: "owner" }], name: "Владелец",
+        rule: testRule({ element: { type, xml: "Element", yaml: "Элемент" } }), yaml: { Элемент: {} },
+      }, undefined, {
+        enterNested(params) {
+          if (entered++ === 0) expect(params.outputs[0]?.itemPreparation).toBeDefined()
+          return undefined
+        },
+        write() {}, complete() {},
+      }).finish()
+      expect(entered).toBeGreaterThan(0)
+      const xml = result.outputs.get("owner")!.Element as Record<string, unknown>
+      expect(Object.keys(xml).slice(0, 2)).toEqual(["_name", "_id"])
+      expect(xml._name).toEqual(expect.any(String))
+      expect(xml._id).toBe(type === "AutoCommandBar" ? "-1" : "")
+      expect(formXmlIdReservation(xml)).toMatchObject({ space: "elements", ...(type === "AutoCommandBar" ? { specialId: "-1" } : {}) })
+      const nested = rules.execution.getTypeRule(type, "yamlToXMLNestedRule")
+      expect(nested?.kind === "item" ? nested.transformOutput : undefined).toBeUndefined()
+    },
+  )
 
   it.each(["item", "collection"] as const)("не оборачивает повторно готовый вклад XML-ребёнка: %s", (kind) => {
     const rules = createRuleRegistrySet(metadataRules)

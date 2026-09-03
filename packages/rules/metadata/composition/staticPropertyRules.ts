@@ -413,6 +413,7 @@ import { metadataPropertyRule001 as rule391 } from "../forms/elements/popup/exte
 import { metadataPropertyRule002 as rule392 } from "../forms/elements/popup/extendedTooltip"
 import { metadataPropertyRule003 as rule393 } from "../forms/elements/popup/extendedTooltip"
 import { metadataPropertyRule004 as rule394 } from "../forms/elements/popup/extendedTooltip"
+import { metadataPropertyRule005 as popupTooltipOutput } from "../forms/elements/popup/extendedTooltip"
 import { metadataPropertyRule000 as rule395 } from "../commonObjects/formattedI8nText/toXML"
 import { metadataPropertyRule000 as rule396 } from "../commonObjects/i8nText/toXML"
 
@@ -802,6 +803,7 @@ export const staticPropertyTypes = propertyTypesFromContributions([
   rule392,
   rule393,
   rule394,
+  popupTooltipOutput,
   rule395,
   rule396,
   rule397,

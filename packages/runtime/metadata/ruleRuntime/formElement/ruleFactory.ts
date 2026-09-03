@@ -28,9 +28,7 @@ import type { ElementRule, ElementXML, SingleElementType } from "./types"
 import { defineMetadataRules } from "../definition"
 import type { MetadataRulesDefinition } from "../definition"
 import { emptyMetadataRules } from "../definition/testSupport"
-import { registerFormXmlIdReservation } from "../../configurationIndex/formXmlIdReservation"
-import { resolveFormElementXMLId } from "./xmlIdentity"
-import { copyXmlAnomalyExportClaim } from "../xmlAnomaly/exportClaim"
+import { createSingletonElementOutputPreparation } from "./ownOutput"
 export {
   defineElementRule,
   getElementRule,
@@ -48,7 +46,6 @@ export const createSingletonElementYAMLToXMLNestedRule = <Rule extends ElementRu
   toXML: ToXMLFn<ToMetadata<Rule["itemType"]>>
   nameStyle?: SingletonNameStyle
   directId?: string
-  transformOutput?: NonNullable<SingletonElementYAMLToXMLNestedRule["transformOutput"]>
 }): SingletonElementYAMLToXMLNestedRule => ({
   kind: "item",
   itemRule: params.elementRule,
@@ -90,33 +87,6 @@ export const createSingletonElementYAMLToXMLNestedRule = <Rule extends ElementRu
       nameStyle: params.nameStyle,
     }))
   },
-  transformOutput: (outputParams) => {
-    const { context, itemName, xml } = outputParams
-    const { _name, _id, ...properties } = xml
-    const runtime = params.directId === undefined ? context.exportToXML.configurationIndex : undefined
-    const indexedId = params.directId === undefined ? resolveFormElementXMLId(context) : undefined
-    const result = {
-      _name:
-        itemName ?? (
-          typeof _name === "string" && _name.length > 0
-            ? _name
-            : ""
-        ),
-      _id: params.directId ?? (typeof _id === "string" && _id.length > 0 ? _id : (indexedId ?? "")),
-      ...properties,
-    }
-    copyXmlAnomalyExportClaim(xml, result)
-    const transformed = params.transformOutput?.({ ...outputParams, xml: result }) ?? result
-    copyXmlAnomalyExportClaim(result, transformed)
-    if (transformed !== null && typeof transformed === "object" && !Array.isArray(transformed)) {
-      registerFormXmlIdReservation(transformed, {
-        ...(runtime === undefined ? {} : { runtime }),
-        space: "elements",
-        ...(params.directId === undefined ? {} : { specialId: params.directId }),
-      })
-    }
-    return transformed
-  },
 })
 
 export const defineElementAsType = <Rule extends ElementRule & { itemType: SingleElementType }>(params: {
@@ -156,6 +126,9 @@ export const defineElementAsType = <Rule extends ElementRule & { itemType: Singl
     createSingletonElementYAMLToXMLNestedRule({ elementRule, toXML, nameStyle, directId: params.directId })
   ))
   propertyTypeRules.push(defineExportToJSONSchema({ propertyType, elementRule, nameStyle }))
+  propertyTypeRules.push(definePropertyTypeRule(
+    propertyType, "prepareXMLItemOutput", createSingletonElementOutputPreparation(params.directId),
+  ))
 
   return defineMetadataRules({
     ...emptyMetadataRules,

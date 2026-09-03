@@ -4,13 +4,9 @@ import {
   configurationIndexExportFormElementLogicalAddress,
   withConfigurationIndexExportLogicalAddress,
 } from "../../configurationIndex/referenceView"
-import type { ConfigurationContextWithExportToXML } from "../../context/types"
 import { getChildContextToXML } from "../../context/childContext"
 import { copyYAMLRuntimeMetadata } from "../../../yaml/runtimeMetadata"
 import type { YAMLToXMLNestedRule } from "../property/fromYAMLToXMLTypes"
-import { registerFormXmlIdReservation } from "../../configurationIndex/formXmlIdReservation"
-import { resolveFormElementXMLId } from "./xmlIdentity"
-import { copyXmlAnomalyExportClaim } from "../xmlAnomaly/exportClaim"
 
 type FormElementCollectionNestedRule = Extract<YAMLToXMLNestedRule, { kind: "collection" }>
 
@@ -44,8 +40,8 @@ export function createFormElementCollectionNestedRule(params: {
         name,
       })
     },
-    mapItemOutput: ({ xml, itemRule, context, name }) => ({
-      [elementXMLTagName(itemRule)]: withNameAndId(xml, name, context),
+    mapItemOutput: ({ xml, itemRule }) => ({
+      [elementXMLTagName(itemRule)]: xml,
     }),
     unwrapReferenceItem: ({ xml, itemRule }) => {
       const value = xml[elementXMLTagName(itemRule)]
@@ -81,27 +77,6 @@ function normalizeDefinedFormElementYAML(
     ? { ...yaml, ...(buttonType === undefined ? {} : { Вид: buttonType }) }
     : yaml
   copyYAMLRuntimeMetadata(node, result)
-  return result
-}
-
-function withNameAndId(
-  xml: Record<string, unknown>,
-  name: string | undefined,
-  context: ConfigurationContextWithExportToXML
-): Record<string, unknown> {
-  const { _name, _id, ...properties } = xml
-  const runtime = context.exportToXML.configurationIndex
-  const indexedId = resolveFormElementXMLId(context)
-  const result = {
-    _name: typeof _name === "string" ? _name : name,
-    _id: typeof _id === "string" && _id.length > 0 ? _id : (indexedId ?? ""),
-    ...properties,
-  }
-  copyXmlAnomalyExportClaim(xml, result)
-  registerFormXmlIdReservation(result, {
-    ...(runtime === undefined ? {} : { runtime }),
-    space: "elements",
-  })
   return result
 }
 

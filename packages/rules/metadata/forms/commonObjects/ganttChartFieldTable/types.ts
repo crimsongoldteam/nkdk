@@ -18,6 +18,7 @@ import type { Table, TablePartialYAML } from "../../elements/table/types"
 import { exportElementToJSONSchema } from "../../../ruleRuntime/formElement/toJSONSchema"
 import { importSingleFormElementFromXMLToYAML } from "../../elements/ruleRuntime/fromXMLToYAML"
 import { createSingletonElementYAMLToXMLNestedRule } from "../../elements/ruleRuntime/ruleFactory"
+import { createSingletonElementOutputPreparation } from "@nkdk/runtime/rule-kit"
 import {
   type SingletonNameStyle,
 } from "../../../ruleRuntime/formElement/singletonName"
@@ -121,6 +122,9 @@ export const metadataPropertyRule003 = definePropertyTypeRule(
   })
 )
 export const metadataPropertyRule004 = definePropertyTypeRule("GanttChartFieldTable", "exportToJSONSchema", exportGanttChartFieldTableToJSONSchema)
+export const metadataPropertyRule005 = definePropertyTypeRule(
+  "GanttChartFieldTable", "prepareXMLItemOutput", createSingletonElementOutputPreparation(),
+)
 
 export interface GanttChartFieldTableWidePropertyRule extends WidePropertyRuleBase {
   type: "GanttChartFieldTable"

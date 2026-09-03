@@ -46,6 +46,7 @@ import { metadataPropertyRule000 as ganttProperty0 } from "../commonObjects/gant
 import { metadataPropertyRule001 as ganttProperty1 } from "../commonObjects/ganttChartFieldTable/types"
 import { metadataPropertyRule003 as ganttProperty3 } from "../commonObjects/ganttChartFieldTable/types"
 import { metadataPropertyRule004 as ganttProperty4 } from "../commonObjects/ganttChartFieldTable/types"
+import { metadataPropertyRule005 as ganttProperty5 } from "../commonObjects/ganttChartFieldTable/types"
 import { metadataRuleLayer001 as checkBoxFieldRules } from "./checkBoxField/rules"
 import { metadataRuleLayer002 as tableCheckBoxFieldRules } from "./checkBoxField/rules"
 import { metadataRuleLayer001 as inputFieldRules } from "./inputField/rules"
@@ -66,6 +67,7 @@ const ganttChartFieldTableRules = defineMetadataRules({
     ganttProperty1,
     ganttProperty3,
     ganttProperty4,
+    ganttProperty5,
   ]),
 })
 

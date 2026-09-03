@@ -4,6 +4,7 @@ import {
   defineMetadataRules,
   definePropertyTypeRule,
   propertyTypesFromContributions,
+  prepareFormElementOutput,
 } from "@nkdk/runtime/rule-kit"
 import { emptyMetadataRules } from "../../ruleRuntime/definition/testSupport"
 import { childItemsTreePropertyTypes, getChildItemTypesByPropertyType } from "../commonObjects/childItems/treeYAML"
@@ -14,7 +15,7 @@ import { metadataRuleLayer000 as childItemsImportRules } from "../commonObjects/
 const childItemsYamlRules = defineMetadataRules({
   ...emptyMetadataRules,
   propertyTypes: propertyTypesFromContributions(
-    childItemsTreePropertyTypes.map((propertyType) =>
+    childItemsTreePropertyTypes.flatMap((propertyType) => [
       definePropertyTypeRule(
         propertyType,
         "yamlToXMLNestedRule",
@@ -23,7 +24,9 @@ const childItemsYamlRules = defineMetadataRules({
           elementKinds: formElementTypeToYAML,
           allowedTypes: getChildItemTypesByPropertyType(propertyType),
         }),
-      )),
+      ),
+      definePropertyTypeRule(propertyType, "prepareXMLItemOutput", prepareFormElementOutput),
+    ]),
   ),
 })
 

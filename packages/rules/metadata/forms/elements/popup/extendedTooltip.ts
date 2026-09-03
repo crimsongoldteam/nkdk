@@ -8,6 +8,7 @@ import { ExtendedTooltipRules } from "../extendedTooltip/rules"
 import { getExtendedTooltipName } from "../extendedTooltip/helper"
 import { importSingleFormElementFromXMLToYAML } from "../ruleRuntime/fromXMLToYAML"
 import { createSingletonElementYAMLToXMLNestedRule } from "../ruleRuntime/ruleFactory"
+import { createSingletonElementOutputPreparation } from "@nkdk/runtime/rule-kit"
 import type { ElementXML } from "../../../ruleRuntime/formElement/types"
 import { getCanonicalSingletonName } from "../../../ruleRuntime/formElement/singletonName"
 import { exportSingleElementRuleToJSONSchema } from "../../../ruleRuntime/formElement/toJSONSchema"
@@ -67,10 +68,6 @@ export const metadataPropertyRule003 = definePropertyTypeRule(
   {
     ...popupExtendedTooltipNestedRule,
     normalizeYAML: ({ yaml }) => normalizePopupExtendedTooltipYAML(yaml),
-    transformOutput: (params) => popupExtendedTooltipNestedRule.transformOutput?.({
-      ...params,
-      yaml: normalizePopupExtendedTooltipYAML(params.yaml),
-    }),
   },
 )
 
@@ -82,6 +79,10 @@ export const metadataPropertyRule004 = definePropertyTypeRule(
     rule: ExtendedTooltipRules,
     explicitXMLName: true,
   }),
+)
+
+export const metadataPropertyRule005 = definePropertyTypeRule(
+  propertyType, "prepareXMLItemOutput", createSingletonElementOutputPreparation(),
 )
 
 function normalizePopupExtendedTooltipYAML(yaml: unknown): unknown {

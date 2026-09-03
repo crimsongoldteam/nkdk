@@ -197,7 +197,7 @@ describe("одиночный элемент формы", () => {
     expect(readXmlAnomalyExportClaim(exported.xml.ExtendedTooltip)).toBe("item-1")
   })
 
-  it("сохраняет export claim элемента коллекции при добавлении имени и id", () => {
+  it("оборачивает готовый элемент коллекции без чтения его XML и потери claim", () => {
     const contexts = createDirectRoundTripContexts({
       logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента.Элемент.Кнопка",
       targetProjectPath: "Форма.yaml",
@@ -213,7 +213,7 @@ describe("одиночный элемент формы", () => {
       elementKinds: { Button: "Кнопка" },
       allowedTypes: ["Button"],
     })
-    const xml = {}
+    const xml = new Proxy({}, { ownKeys() { throw new Error("Нельзя обходить готового ребёнка") } })
     markXmlAnomalyExportClaim(xml, "item-2")
 
     const mapped = descriptor.mapItemOutput!({
@@ -229,5 +229,6 @@ describe("одиночный элемент формы", () => {
     }) as Record<string, unknown>
 
     expect(readXmlAnomalyExportClaim(mapped.Button)).toBe("item-2")
+    expect(mapped.Button).toBe(xml)
   })
 })

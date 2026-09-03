@@ -17,7 +17,7 @@ import { i8nTextRule } from "../../../commonObjects/i8nText/types"
 import { stringRule } from "../../../commonObjects/string/types"
 import { systemEnumerationRule } from "../../../systemEnumerations/types"
 import { splitPascalCase } from "../../../helpers/canConvertToPascalCase"
-import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import { createNamedFormItemOutputPreparation, defineMetadataRules, type MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { defineMetadataItemCollectionRule } from "../../../ruleRuntime/metadataCollection/ruleFactory"
 import { restoreKnownDuplicateErpAdditionalColumns } from "../../knownAnomalies"
 import { addCanonicalValueListSettings } from "./valueListSettings"
@@ -246,22 +246,23 @@ export const metadataRuleLayer000 = defineMetadataItemCollectionRule({
   },
 })
 
-export const metadataRuleLayer001 = defineMetadataItemCollectionRule({
+const attributeColumns = defineMetadataItemCollectionRule({
   propertyType: "FormAttributeColumns",
   itemRule: FormAttributeColumnRules,
   xmlElement: "Column",
   keyField: "name",
   configurationIndexUidSegment: "Колонка",
   requiredIdentity: "xmlId",
-  mapItemOutput: ({ xml, context }) => {
-    const { _name, _id, ...properties } = xml
-    const result = { _name, _id: typeof _id === "string" ? _id : "", ...properties }
-    const runtime = context.exportToXML.configurationIndex
-    registerFormXmlIdReservation(result, {
-      ...(runtime === undefined ? {} : { runtime }),
-      space: "attributes",
-    })
-    return result
+})
+
+export const metadataRuleLayer001 = defineMetadataRules({
+  ...attributeColumns,
+  propertyTypes: {
+    ...attributeColumns.propertyTypes,
+    FormAttributeColumns: {
+      ...attributeColumns.propertyTypes.FormAttributeColumns,
+      prepareXMLItemOutput: createNamedFormItemOutputPreparation("attributes"),
+    },
   },
 })
 
