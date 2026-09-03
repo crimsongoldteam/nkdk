@@ -135,8 +135,26 @@ export async function runStepwiseCli(
     concurrency: limits,
     scenarioIds: jobs.map(({ mode }) => `${mode}/existing-partial-sync`),
   }
-  const settled = await runModeJobsWithConcurrency(jobs, limits, ({ mode }) =>
-    dependencies.runMode({ mode, workspace, baseline }))
+  let reportQueue = Promise.resolve()
+  const recordScenario = (scenario: ScenarioResult): Promise<void> => {
+    const operation = reportQueue.then(() =>
+      dependencies.record(workspace.reportsDir, scenario, metadata))
+    reportQueue = operation.catch(() => undefined)
+    return operation
+  }
+  const settled = await runModeJobsWithConcurrency(jobs, limits, async ({ mode }) => {
+    let scenario: ScenarioResult
+    try {
+      scenario = await dependencies.runMode({ mode, workspace, baseline })
+    } catch (caught) {
+      scenario = infrastructureFailure(
+        mode,
+        caught instanceof Error ? caught : new Error(String(caught)),
+      )
+    }
+    await recordScenario(scenario)
+    return scenario
+  })
   const scenarios: ScenarioResult[] = []
   for (let index = 0; index < settled.length; index += 1) {
     const outcome = settled[index]
@@ -144,7 +162,6 @@ export async function runStepwiseCli(
       ? outcome.value
       : infrastructureFailure(args.modes[index], outcome.error)
     scenarios.push(scenario)
-    await dependencies.record(workspace.reportsDir, scenario, metadata)
   }
   return {
     scenarios,

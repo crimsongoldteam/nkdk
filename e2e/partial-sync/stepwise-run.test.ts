@@ -19,6 +19,7 @@ it("соблюдает общий предел и не отменяет парн
   let maxRunning = 0
   const completed: string[] = []
   let recordedMetadata: StepwiseRunMetadata | undefined
+  const events: string[] = []
   const workspace = {
     root: "C:/run",
     baselineDir: "C:/run/baseline",
@@ -43,14 +44,21 @@ it("соблюдает общий предел и не отменяет парн
       } satisfies BaselineReference
     },
     async runMode({ mode }) {
+      events.push(`start:${mode}`)
       running += 1
       maxRunning = Math.max(maxRunning, running)
-      await Promise.resolve()
+      if (mode === "standalone-server") {
+        await new Promise((resolve) => setTimeout(resolve, 30))
+      }
       running -= 1
       completed.push(mode)
+      events.push(`finish:${mode}`)
       return result(mode, mode === "designer-agent" ? "failed" : "succeeded")
     },
-    async record(_reportDir, _result, metadata) { recordedMetadata = metadata },
+    async record(_reportDir, value, metadata) {
+      recordedMetadata = metadata
+      events.push(`record:${value.mode}`)
+    },
   }
 
   const outcome = await runStepwiseCli([
@@ -60,6 +68,9 @@ it("соблюдает общий предел и не отменяет парн
   expect(maxRunning).toBeLessThanOrEqual(2)
   expect(completed).toEqual(["designer-agent", "standalone-server"])
   expect(outcome.scenarios.map(({ status }) => status)).toEqual(["failed", "succeeded"])
+  expect(events.indexOf("record:designer-agent")).toBeLessThan(
+    events.indexOf("finish:standalone-server"),
+  )
   expect(recordedMetadata).toMatchObject({
     sourceRevision: "abc123",
     mcpBuildId: "mcp-build",
