@@ -48,6 +48,7 @@ function createFixture(options: { readonly comparisonEqual?: boolean } = {}) {
     key: "objects:create",
     layerKey: "objects",
     componentPath: "cf",
+    sourceOperationKeys: ["create"],
     operation: { key: "create", kind: "change", changes: [] },
   }
   return {

@@ -142,6 +142,7 @@ function step(key: string, after: string): ScenarioStep {
     key,
     layerKey: "layer",
     componentPath: "cf",
+    sourceOperationKeys: [key],
     operation: {
       key,
       kind: "change",

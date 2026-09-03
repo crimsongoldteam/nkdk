@@ -51,12 +51,17 @@ export const structuralPropertyOperations = [
       "",
     ].join("\n"),
   }),
-  insertOwnerSection({
+  replaceOwnerFragment({
     key: "structural:document-register-link",
     ownerKey: "object:document",
     targetKey: "object:information-register",
-    sectionKey: "Движения",
-    section: `Движения:\n  - РегистрСведений.${matrixObjectNames.informationRegister}\n`,
+    before: `Движения:\n  - РегистрНакопления.${matrixObjectNames.accumulationRegister}\n`,
+    after: [
+      "Движения:",
+      `  - РегистрНакопления.${matrixObjectNames.accumulationRegister}`,
+      `  - РегистрСведений.${matrixObjectNames.informationRegister}`,
+      "",
+    ].join("\n"),
   }),
   insertOwnerSection({
     key: "structural:task-business-process-link",

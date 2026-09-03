@@ -72,6 +72,7 @@ function createFixture(options: { readonly completedStepIndex?: number; readonly
 function step(index: number): ScenarioStep {
   return {
     key: `step-${index}`, layerKey: "objects", componentPath: "cf",
+    sourceOperationKeys: [`operation-${index}`],
     operation: { key: `operation-${index}`, kind: "change", changes: [] },
   }
 }
