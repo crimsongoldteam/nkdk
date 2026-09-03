@@ -404,14 +404,19 @@ describe("importPropertiesFromXMLToYAML", () => {
     expect(annotations.at(yaml, "Среднее")).toMatchObject({ kind: "raw", xml: null, hasSemanticValue: false })
   })
 
-  it("освобождает проверенный XML-атрибут до завершения тела", () => {
+  it.each([false, true])("освобождает проверенный XML-атрибут до завершения тела: mismatch=%s", (mismatch) => {
     const rules = createRuleRegistrySet(metadataRules)
+    rules.property.registerTypeRule("LocalRoundTripAttribute" as never, "compileAtomicConversion", () => ({
+      fromXMLToYAML: ({ value }) => ({ metadataValue: value, representationValue: mismatch ? "43" : value }),
+      fromYAMLToXML: ({ value }) => ({ metadataValue: value, representationValue: value }),
+    }))
     const rule: MetadataItemRule = { itemType: "Catalog", properties: {
-      id: { type: "string", xml: "_id", yaml: "ИД" },
+      id: { type: "LocalRoundTripAttribute" as never, xml: "_id", yaml: "ИД" },
     } }
     const context = mockContextFromXML()
     const root = parseXmlDocumentWithSaxes('<Root id="42"/>').roots[0]!
     let compared = 0
+    const scalarDifferences: string[] = []
     const yaml = importPropertiesWithSources({
       execution: rules.execution, context, rule, sources: [{ context, xml: root }], yamlPath: [], rulePath: [],
       collector: createLocalIndexesCollector(),
@@ -420,11 +425,13 @@ describe("importPropertiesFromXMLToYAML", () => {
         prepare: () => ({ context: mockContextToXML(), outputs: [{ key: "owner" }] }),
         consumer: (_item, receipts) => createLocalXmlBodyConsumer({
           key: "owner", source: root, proof: createLocalXmlProof({ onValue: () => compared++ }), ...receipts,
+          annotateScalar({ difference }: { difference: { kind: string } }) { scalarDifferences.push(difference.kind) },
         }),
       }),
     })
-    expect(yaml).toEqual({ ИД: "42" })
+    expect(yaml).toEqual({ ИД: mismatch ? "43" : "42" })
     expect(compared).toBe(1)
+    expect(scalarDifferences).toEqual(mismatch ? ["value"] : [])
   })
 
   it("объединяет fromXML и toYAML через скомпилированную атомарную пару", () => {

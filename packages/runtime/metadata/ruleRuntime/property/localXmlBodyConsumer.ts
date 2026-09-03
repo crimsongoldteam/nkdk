@@ -1,4 +1,5 @@
-import { isXmlElementNode, type XmlElementNode } from "../../../xml/import/document"
+import { isXmlElementNode, type XmlAddressedNode, type XmlElementNode } from "../../../xml/import/document"
+import type { XmlStructureDifference } from "../../../xml/structure/compare"
 import type { CompiledXMLProofConsumer } from "./compiledRuleExecution"
 import type { XMLItemOutputPreparation } from "./fromYAMLToXMLTypes"
 import type { LocalXmlChild, LocalXmlProof } from "../xmlAnomaly/localProof"
@@ -14,6 +15,10 @@ export function createLocalXmlBodyConsumer(params: {
   readonly scalarReceipt: (value: unknown) => import("../xmlAnomaly/localProof").LocalXmlScalar | undefined
   readonly itemPreparation?: XMLItemOutputPreparation
   readonly annotate?: Parameters<typeof completeLocalXmlFragment>[0]["annotate"]
+  readonly annotateScalar?: (boundary: {
+    readonly source: XmlAddressedNode & { readonly value: string }
+    readonly difference: XmlStructureDifference
+  }) => void
 }): CompiledXMLProofConsumer {
   const bindings = new Map<string, Parameters<NonNullable<CompiledXMLProofConsumer["bind"]>>[0]>()
   const complete = (source: XmlElementNode, name: string, value: unknown) => completeLocalXmlFragment({
@@ -37,7 +42,9 @@ export function createLocalXmlBodyConsumer(params: {
         if (binding.node === undefined || !("value" in binding.node)) {
           throw new Error(`Не передан скалярный XML-узел свойства ${property.propertyKey}`)
         }
-        return params.proof.checkValue(binding.node, String(value))
+        const scalarSource = binding.node
+        return params.proof.checkValue(scalarSource, String(value), params.annotateScalar === undefined
+          ? undefined : difference => params.annotateScalar!({ source: scalarSource, difference }))
       }
       const receipt = params.childReceipt(value)
       if (receipt === undefined) return complete(binding.node, name, value)
