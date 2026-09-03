@@ -46,6 +46,7 @@ export type StepwiseStepDependencies = {
     readonly componentPath: ScenarioComponentPath
     readonly baselineProjectDir: string
   }): Promise<void>
+  closeSource(session: ScenarioMcpSession, projectDir: string, logDir: string): Promise<void>
   importVerification(
     session: ScenarioMcpSession,
     projectDir: string,
@@ -105,6 +106,7 @@ export function createStepwiseSteps(
         componentPath: step.componentPath,
         baselineProjectDir: params.baselineProjectDir,
       })
+      await dependencies.closeSource(params.session, params.workspace.projectDir, attemptLogDir)
       try {
         await dependencies.importVerification(
           params.session, verificationProjectDir, step.componentPath, attemptLogDir,
@@ -153,6 +155,7 @@ const nodeDependencies: StepwiseStepDependencies = {
       )
     }
   },
+  closeSource: closePlatformConnection,
   importVerification: importComponent,
   async compareComponent(params) {
     const comparison = await compareFileTrees({

@@ -8,6 +8,7 @@ it("подтверждает каждый шаг повторным импорт
 
   expect(fixture.calls).toEqual([
     "apply", "validate-source", "sync:synchronized", "prepare-verification",
+    "close-source",
     "import-verification", "validate-verification", "compare-component",
     "close-verification", "sync:unchanged",
   ])
@@ -35,6 +36,7 @@ function createFixture(options: { readonly comparisonEqual?: boolean } = {}) {
       calls.push(`sync:${status}`)
     },
     async prepareVerification() { calls.push("prepare-verification") },
+    async closeSource() { calls.push("close-source") },
     async importVerification() { calls.push("import-verification") },
     async compareComponent() {
       calls.push("compare-component")
