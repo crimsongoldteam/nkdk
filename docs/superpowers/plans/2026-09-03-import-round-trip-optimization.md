@@ -1,0 +1,265 @@
+# Объединённый импорт и локальный round-trip — план реализации
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans through executing-plans-with-review. Implementation and fixes belong to the primary agent; delegate only the final independent review. Steps use checkbox syntax for tracking.
+
+**Goal:** Ускорить полный XML-импорт без ослабления проверки, повторного контрольного экспорта и позднего изменения итогового YAML.
+
+**Architecture:** Два чтения XML: сбор фактов, затем построение окончательного YAML и локальная проверка общим исполнителем rules. Обычный экспорт использует ту же экспортную политику, но собирает конечный XML; импорт освобождает проверенные фрагменты и сохраняет только состав и порядок непосредственных детей. Зависимости значений, смысловых проверок и основы формы готовы до второго прохода.
+
+**Tech Stack:** TypeScript, существующие пакеты `@nkdk/runtime` и `@nkdk/rules`, Vitest, LMDB, compiled MCP stdio, pnpm.
+
+**Spec:** `docs/superpowers/specs/2026-09-03-import-round-trip-optimization-design.md`.
+
+**Comparison base:** `09518104c82f11c1465816d68e04e8bccba2cb6b`.
+
+**Worktree:** `/Users/nikita/git/nkdk/.worktrees/round-trip-report-mb`, ветка `codex/round-trip-report-mb`.
+
+## Глобальные ограничения
+
+- Спецификация и `.agents/architecture.md` описывают целевой, а не уже реализованный путь.
+- Ровно два основных чтения/разбора XML; без MessagePack, альтернативной стратегии, третьего чтения для проверки и полного контрольного дерева.
+- Проверенное содержимое детей не преобразуется и не сравнивается повторно родителем. Присутствие, оболочка и порядок проверяются отдельно.
+- Обратное преобразование использует действительный YAML и общий обычный экспорт, а не исходный XML как ответ.
+- После единственного сравнения допускается оформление аномалии, но не повторный экспорт/сравнение. Возвращённый YAML окончателен, включая порядок и аннотации.
+- Не менять существующие XML-фикстуры, идентичности, договор снимка, правила выбора основы, допустимость значений и области применения `!xml`.
+- Не добавлять поля в `BasePropertyRule`, `PropertyRule` или параметры построителей без отдельного согласования.
+- Нейтральный исполнитель не знает конкретных видов метаданных; сборка регистраций остаётся в composition.
+- Unit-тесты работают в памяти. Файловые, process-, worker- и LMDB-проверки — integration. Проверки LMDB и полный `pnpm test` выполняются вне песочницы.
+- Новых зависимостей не требуется. `msgpackr` удаляется, если других потребителей нет; baseline архитектуры не обновляется ради обхода ошибок.
+- После каждого слоя: целевые тесты, `pnpm duplicates -- --base 09518104c82f11c1465816d68e04e8bccba2cb6b`, отдельный коммит по навыку `commit`.
+- Итоговая проверка времени тестов перенесена в конец по прямому указанию пользователя. Исходный `pnpm test` 2026-09-03 прошёл 4716 cases пакета rules по результату, но завершился кодом 1: пять cases заняли 55.89–76.25 мс при лимите 50 мс. Последующие native/integration не выполнялись. Это не разрешение отключать или повышать лимит.
+
+## Карта файлов и ответственности
+
+| Граница | Файлы |
+|---|---|
+| Два чтения, жизненный цикл задания | `packages/rules/metadata/importFromXml/worker.ts`, `prepareYaml.ts`, `prepareFacts.ts`, `types.ts`; удалить `packedXmlAssignment.ts` |
+| Подготовленные зависимости | новый `packages/rules/metadata/importFromXml/preparedDependencies.ts`; существующие `dependentItems.ts`, `ownerFacts.ts`, `prepareFacts.ts` |
+| План и порядок YAML | `packages/runtime/metadata/ruleRuntime/property/compiledPropertyPlan.ts`, `yamlPropertyOrder.ts` |
+| Общий исполнитель | новый `packages/runtime/metadata/ruleRuntime/property/compiledRuleExecution.ts`; `fromXMLToYAML.ts`, `fromYAMLToXML.ts`, `importYamlTypes.ts`, `fromYAMLToXMLTypes.ts` |
+| Общая политика одного экспортируемого свойства | новый `packages/runtime/metadata/ruleRuntime/property/xmlPropertyExecution.ts`; извлечь существующую политику из `fromYAMLToXML.ts` без её копии |
+| Локальное сравнение и учёт завершения | новый `packages/runtime/metadata/ruleRuntime/xmlAnomaly/localProof.ts`; существующие `importAudit.ts`, `packages/rules/metadata/importFromXml/anomalyProof.ts`, `xmlProofVerification.ts` |
+| Вложенные items/collections и XML-оболочки | `packages/runtime/metadata/ruleRuntime/metadataItem/fromYAMLToXML.ts`, `metadataCollection/fromYAMLToXML.ts`, `formElement/fromYAMLToXML.ts`, `formElement/ruleFactory.ts` |
+| Формы и основа | `packages/rules/metadata/forms/clientApplicationForm/{formDataPathContext,baseFormProjection,baseFormProjectionRegistry,baseFormNecessity,baseFormYaml,fromXMLToYAML,fromYAMLToXML,baseForm,importedYamlFinalizer}.ts` |
+| Смысловая проверка | новый `packages/rules/metadata/importFromXml/semanticBoundary.ts`; `classifyImportedIssues.ts`, `applyImportedIssueDecisions.ts`, `worker.ts` и существующие общие валидаторы |
+| Сведение операции | `packages/rules/metadata/importFromXml/{prepareYaml,worker,controlExport,workerPool}.ts`, `packages/rules/metadata/fullSyncToXml/xmlAnomalyAssignment.ts` |
+| Измерения | `.agents/skills/import-profile/import-profile.mjs`, `.agents/skills/import-profile/import-profile.test.mjs`, существующий runner полного round-trip |
+
+Новые модули выделяются по ответственности, а не создают вторую реализацию существующих политик. Публичные входы `importPropertiesFromXMLToYAML` и `convertPropertiesFromYAMLToXML` остаются совместимыми адаптерами. Добавление внутреннего протокола исполнения не расширяет декларации свойств.
+
+## Задача 1. Два чтения без упакованного XML
+
+**Файлы:** `importFromXml/worker.ts`, `prepareYaml.ts`, `prepareFacts.ts`, `types.ts`, `worker.integration.test.ts`, `packedXmlAssignment.ts`, `packedXmlAssignment.test.ts`, `packages/rules/package.json`, `pnpm-lock.yaml`.
+
+**Интерфейс:** тип `ParsedImportXmlDocument` заменяет `PackedImportXmlInput` на границе чтения; данные остаются `{ input: ImportXmlInput; document: XmlDocument }`. `readImportXmlDocuments` сохраняет параметры `profilePass: "first" | "second"`.
+
+- [ ] Изменить существующий integration-тест повторного чтения: убрать `vi.stubEnv("NKDK_IMPORT_XML_STRATEGY", "reread")`. Наблюдаемый договор — штатный запуск читает и разбирает исходный файл один раз на проход, не упаковывает его и выдаёт YAML.
+
+  ```ts
+  const { second } = await runAssignmentSecondPass(outputDir, catalogAssignment())
+  expect(second).toMatchObject({ kind: "secondPassResult", diagnostics: [] })
+  expect(lines.filter(line => line.includes('substep="Чтение XML второго прохода"'))).toHaveLength(1)
+  expect(lines.some(line => line.includes('substep="MessagePack pack"'))).toBe(false)
+  ```
+
+- [ ] Запустить тест вне песочницы и увидеть отсутствие второго чтения:
+
+  ```bash
+  pnpm --filter @nkdk/rules exec vitest run metadata/importFromXml/worker.integration.test.ts -t 'повторно читает XML' --no-isolate
+  ```
+
+- [ ] Перенести тип документа в `types.ts`; второй проход всегда получает:
+
+  ```ts
+  const inputs = await readImportXmlDocuments({ assignment, profiler, profilePass: "second" })
+  ```
+
+  Удалить store, packed-profiler, переключатель, put/take/release, счётчики packed bytes. Сохранить pending assignment IDs, очистку состояния при ошибке/dispose и метрики обоих чтений. Первый проход не удерживает `inputs`.
+- [ ] Удалить unit-тест удалённого codec/store: его договор больше не существует; защитой жизненного цикла остаются integration-тесты worker. Удалить `msgpackr` после проверки потребителей и штатно обновить lockfile.
+- [ ] Прогнать весь `worker.integration.test.ts`, type-check, проверку дублей; коммит `refactor: :recycle: заменить упаковку XML повторным чтением`.
+
+## Задача 2. Статический порядок YAML и завершение локальной границы
+
+**Файлы:** `compiledPropertyPlan.ts`, `yamlPropertyOrder.ts`, `yamlPropertyOrder.test.ts`, тесты compiled plan в `packages/rules/metadata/ruleRuntime/property/propertyRuleRegistrySet.test.ts`.
+
+**Интерфейс:** `compileYamlPropertyOrder(keys: readonly string[]): readonly string[]`; `orderYamlRuleProperties(value: Record<string, unknown>, keys: readonly string[]): Record<string, unknown>`. План хранит подготовленные обычные YAML-ключи; дополнительные ключи объединяются по тому же компаратору, а не сортируются вместе со всеми статическими полями.
+
+- [ ] Расширить существующий тест порядка случаем входа `Комментарий`, `Тип`, `Заголовок`, `Вид` и локальной аннотации на исходном объекте:
+
+  ```ts
+  expect(Object.keys(ordered)).toEqual(["Заголовок", "Вид", "Тип", "Комментарий"])
+  expect(ordered).toBe(source)
+  expect(snapshotXmlAnomalyAnnotations(ordered, annotations).entries)
+    .toEqual([expect.objectContaining({ key: "Комментарий" })])
+  ```
+
+  Отдельно проверить переиспользование порядка планом при нескольких экземплярах и новую ревизию реестра. Не менять порядок элементов коллекций.
+- [ ] Получить RED на новом API через `pnpm --filter @nkdk/runtime exec vitest run metadata/ruleRuntime/property/yamlPropertyOrder.test.ts`.
+- [ ] Выделить существующий русский компаратор; сортировать статические ключи только при компиляции плана. Собирать возвращаемый объект внутри текущего item, сохраняя property descriptors и объектную идентичность для таблицы аннотаций.
+- [ ] Применить подготовленный порядок в импортном адаптере вместо сортировки обычных ключей каждого экземпляра; прогнать тесты property import и порядка, duplicates; коммит.
+
+## Задача 3. Готовые зависимости второго прохода
+
+**Файлы:** `prepareFacts.ts`, `preparedDependencies.ts`, `worker.ts`, `dependentItems.ts`, `prepareFacts.integration.test.ts`, `fillValueImport.integration.test.ts`; `commonObjects/metadataPath/toYAML.ts` и текущие финализаторы.
+
+**Интерфейс:** подготовка зависимостей принадлежит координатору/воркеру перед преобразованием, а не `PropertyRule`. Новый `PreparedImportDependencies` предоставляет lookup по логическому адресу item и property key. Значения lookup — окончательные данные типа, owner, локальных индексов и зависимых свойств; не XML-деревья и не полные YAML объектов.
+
+- [ ] Расширить существующие cases `FillValue` и `CurrentData` двумя исходными порядками соседних полей; литералы ожиданий — одинаковое окончательное значение, отсутствие поздних изменений. Для `ВводПоСтроке` использовать существующие случаи implicit/explicit из `dependentItems.test.ts`.
+
+  ```ts
+  expect(importedValue).toEqual(expectedYamlValue)
+  expect(serializedAfterDiagnostics).toBe(serializedAtItemCompletion)
+  ```
+
+  `expectedYamlValue` брать из существующего literal case, а не вычислять текущим финализатором. Наблюдение завершения — через границу исполнителя, не через тестовый метод production-класса.
+- [ ] Запустить целевые tests и увидеть позднее изменение либо отсутствие готового контекста.
+- [ ] Сохранять факты по адресу при первом проходе и подготовить lookup после индексов. Передавать в преобразователь готовые факты вместо очереди финализации. Перенести существующие вычисления зависимых значений в эту границу, не менять resolver/допустимость.
+- [ ] Удалить соответствующие вызовы поздних финализаторов только после GREEN cases с теми же результатами; не удалять остальные финализаторы механически. Целевые тесты, type-check, duplicates, коммит.
+
+## Задача 4. Общая экспортная политика одного свойства
+
+**Файлы:** `xmlPropertyExecution.ts`, `fromYAMLToXML.ts`, `fromYAMLToXMLTypes.ts`; существующие `fromYAMLToXML.test.ts`, `implicitValueYAMLContract.test.ts`, `finalizeExportedXML.test.ts` в rules.
+
+**Интерфейс:** объект исполнения одного item предоставляет `execute(property: CompiledProperty): void` и `finish(): YAMLToXMLResult`. Параметры создания включают прежние `ConvertPropertiesFromYAMLToXMLParams` и источник `YAMLPropertySource`. Методы синхронные; уже выполненные свойства не запускаются повторно.
+
+- [ ] Добавить case обычного XML `A, C`, где правило отсутствующего YAML создаёт `B`; проверить XML `A, B, C`, empty/absent, namespace/attribute/default/implicit. Использовать простой локальный MetadataItemRule из существующего теста, не новые предметные rules.
+- [ ] Получить RED на поэлементном вызове общего исполнения; все старые whole-item assertions остаются.
+- [ ] Извлечь из текущего property-loop **одну** реализацию фильтрации tags, reference/indexed/adopted defaults, atomic conversion, nested selection, `writeXMLValue` и required parents. Адаптер обычного экспорта вызывает её в `plan.yamlToXMLOrder`:
+
+  ```ts
+  for (const property of plan.yamlToXMLOrder) item.execute(property)
+  return item.finish()
+  ```
+
+  Источник `raw/has` читает действительный YAML с аннотациями; facts используются для зависимостей, но не подменяют экспортируемое значение исходным XML.
+- [ ] Проверить прежний обычный экспорт и количество вызовов на property; duplicates, коммит. На этой промежуточной стадии импорт ещё использует прежнюю проверку и не считается оптимизированным.
+
+## Задача 5. Локальная проверка и логическое завершение XML
+
+**Файлы:** `xmlAnomaly/localProof.ts`, новый `localProof.test.ts` в runtime; `importAudit.ts`, `anomalyProof.ts`, `xmlProofVerification.ts`.
+
+**Интерфейс:** `createLocalXmlProof` создаётся на XML-документ задания. Граница получает конкретный `XmlElementNode`/attribute, локальный контрольный фрагмент и текущую YAML-границу; возвращает результат сравнения и компактный вклад состава/порядка. Хранилище завершения отделено от claim-аудита и от исходных nodes.
+
+- [ ] Добавить in-memory cases: известный child + неизвестный сосед; изменение child text; лишний экспортируемый узел; duplicate; отсутствующий/пустой узел; перестановка direct children. На дереве `Root/Item/Value` child сравнивается один раз, родитель не посещает его text.
+
+  ```ts
+  expect(comparedValues).toEqual(["Root/Item/Value"])
+  expect(structuralDifferences).toEqual([{ kind: "extra", name: "B" }])
+  expect(sourceDocument).toEqual(originalDocument)
+  ```
+
+  Счётчики передаются только инструментированному consumer; исходный документ копируется исключительно в тесте для проверки неизменности.
+- [ ] Получить RED, реализовать прямую привязку source node и завершение собственных частей. Claim/recognition не равны proof. Для direct children хранить идентификатор/имя/вхождение/позицию/наличие, без значений.
+- [ ] Перенести существующие локализацию и оформление аномалий на локальный вход: не запускать `resolveExportedProofPath` по полному документу, не собирать большой экспортируемый документ ради вызова старой функции. При annotation завершать фрагмент без второго экспорта.
+- [ ] Расширить проверки растущими коллекциями и вложенностью: число value comparisons равно числу значений, а не глубине × числу значений. Целевые тесты, type-check, duplicates, коммит.
+
+## Задача 6. Общая рекурсия и два потребителя XML
+
+**Файлы:** `compiledRuleExecution.ts`, `fromXMLToYAML.ts`, `fromYAMLToXML.ts`, `metadataItem/fromYAMLToXML.ts`, `metadataCollection/fromYAMLToXML.ts`, `importYamlTypes.ts`.
+
+**Интерфейс:** внутренний frame общего item содержит готовый plan, контекст, источник (`XML` или `YAML`) и consumer (`output` или `proof`). XML-адаптер подаёт найденные свойства в исходном порядке; YAML-адаптер — в экспортном. Вложенные calls идут через тот же executor, а не запускают полный экспорт полученного child YAML.
+
+- [ ] На существующих metadata item/collection tests включить импортный consumer и проверить три элемента с вложенным item: каждый child fromXML/toYAML/fromYAML/toXML вызван ровно по одному разу; обычный экспорт даёт прежний literal XML.
+- [ ] Получить RED. Перенести recursion/context/collection entry matching в общий frame. Для обычного экспорта consumer удерживает конечные children; для proof consumer принимает, сравнивает и освобождает каждый child, возвращая только его структурный вклад.
+- [ ] Учитывать `normalizeYAML`, `normalizeItemYAML`, выбор item rule/context, external metadata, reference remap, raw items и отсутствующие singleton **до** исполнения принадлежащих им значений. Не использовать повторное преобразование parent для вычисления wrappers.
+- [ ] Выполнять missing/default/evaluate rules при закрытии item, пропуская уже исполненные. После локальных аномалий закрывать состав/порядок и возвращать окончательный YAML по задаче 2.
+- [ ] Тесты nested/raw/aliases/duplicates/sparse/default/ID, type-check, duplicates, коммит. Параллельный legacy-путь допустим только до переключения операции в задаче 10, не в готовой реализации.
+
+## Задача 7. Предметные XML-оболочки без поздней правки детей
+
+**Файлы:** `formElement/{ruleFactory,fromYAMLToXML}.ts`, `forms/commonObjects/{formAttribute/rules,formCommand/types}.ts`, `commonObjects/predefinedItem/types.ts`, `commonObjects/dataCompositionSystem/{appearanceFields/rules,structureItemGroup/types,structureItemGroup/collection/types,orderItemFields/types}.ts`, `forms/elements/popup/extendedTooltip.ts`.
+
+**Интерфейс:** существующие зарегистрированные преобразователи предоставляют решения для собственной оболочки и своих значений до единственного сравнения. Нейтральный frame получает подготовленное решение через регистрацию; ни itemType switch, ни новые BasePropertyRule-поля не требуются.
+
+- [ ] Расширить существующие тесты named singleton, form attribute/command ID, predefined type prefixes, appearance shorthand и popup tooltip наблюдением ordinary/proof consumer. Ожидаемый XML сохраняется; descendants не выдаются повторно после parent hook.
+- [ ] Получить RED; заменить операции `transformOutput`/`mapItemOutput`, которые переписывают уже готовые children, поэлементным применением тех же предметных решений. Собственные `_name`, `_id`, namespace/type, wrapper и default должны быть окончательны до сравнения.
+- [ ] Применять те же решения в обычном экспорте. Удалить поздние hooks после миграции всех их потребителей; не сохранять fallback со сборкой полного контрольного дерева. Сохранить резервирование исходных и raw-ID до генерации новых.
+- [ ] Целевые предметные тесты плюс formXmlIdAssignment tests, type-check, duplicates, коммит.
+
+## Задача 8. Смысловая валидация до единственного сравнения
+
+**Файлы:** `semanticBoundary.ts`, `classifyImportedIssues.ts`, `applyImportedIssueDecisions.ts`, `worker.ts`; существующие `validation/metadataRuleValidator.test.ts`, `yamlFactExtractor.fillValue.test.ts`, `applyImportedIssueDecisions.test.ts`.
+
+**Интерфейс:** локальная валидация получает окончательное смысловое значение, ready dependencies и текущую YAML-границу; возвращает diagnostics и предусмотренные аннотации до `execute(property)`. Общие валидаторы проекта переиспользуются, а не копируются.
+
+- [ ] Проверить обратимый XML со смысловой ошибкой `singleOnly`: дополнительный элемент получает `!xml/invalid` до обратного преобразования. Обычный XML без ошибки остаётся без тега; пометка не отменяет прочие ограничения.
+- [ ] Получить RED на порядке вызовов и позднем изменении YAML. Перенести существующие checks на ближайшую готовую границу; межфайловые решения приходят из готовых индексов. Объектная проверка не повторяет уже завершённые child checks.
+
+  ```ts
+  const semantic = validateBoundary(value, readyDependencies)
+  applyBoundaryDecisions(semantic)
+  frame.execute(property)
+  ```
+
+  В этом фрагменте `validateBoundary` и `applyBoundaryDecisions` — локальные адаптеры существующих классификации и применения, определяемые в `semanticBoundary.ts`, без собственной системы тегов.
+- [ ] Убрать цикл `validateAndApplyImportedIssues` из worker после переноса всех его решений. Сериализация/схемная проверка могут диагностировать, но не менять итог. Внутренние ошибки не превращать в XML-аннотации.
+- [ ] Целевые тесты семантики, type-check, duplicates, коммит.
+
+## Задача 9. Форма расширения и BaseForm
+
+**Файлы:** перечисленные модули `forms/clientApplicationForm`, `prepareFacts.ts`, `preparedDependencies.ts`, `prepareYaml.ts`, `worker.ts`; tests `baseFormNecessity`, `baseFormProjection`, `baseFormYaml`, `formDataPathContext`, `importConfigurationExtension.integration`.
+
+**Интерфейс:** отдельно адресованные facts рабочей формы и основы, общий подготовленный контекст зависимостей и выбор `saved | projected` до второго прохода. Вложенный BaseForm frame использует тот же разобранный документ; при `projected` экспортируемый источник — проекция текущей cf, не копия исходного BaseForm.
+
+- [ ] Добавить case равных проекций с неизвестным XML-узлом BaseForm: файл основы не нужен, но unknown XML должен быть выявлен. Сохранить existing cases Width 20/99, hierarchy, commands/attributes/parameters и технических полей.
+- [ ] Добавить проверку одного чтения файла формы на каждый проход и отсутствия третьего импорта основы. Проверить historical path `Старое.Значение`, новые колонки, own/inherited roots, missing/empty path.
+- [ ] Получить RED. Выделить общие правила отбора из `baseFormProjection`/registry; сравнивать соответствующие значения по facts с ранним выходом при значимом отличии, без двух полных YAML-проекций и normalize-копий.
+- [ ] Подготовить current cf, saved names и export identity context между проходами. Во втором проходе выбрать действующий путь сразу; BaseForm обработать nested frame и вернуть отдельный финальный YAML только для `saved`.
+- [ ] Удалить поздние compact/materialize и full-base candidate сравнения после проверки эквивалентности decisions. Не переключать источник после proof; не пропускать proof для отсутствующего файла основы.
+- [ ] Целевые tests, type-check, duplicates, коммит.
+
+## Задача 10. Переключить операцию и убрать отдельный полный proof
+
+**Файлы:** `importFromXml/{prepareYaml,worker,controlExport,anomalyProof,xmlProofVerification,workerPool}.ts`, `fullSyncToXml/xmlAnomalyAssignment.ts`, integration tests импорта и полного экспорта.
+
+**Интерфейс:** второй проход возвращает окончательные YAML, annotations, diagnostics, state contributions и external writes. Полного control-export callback и последующего semantic rewrite больше нет; обычный sync сохраняет публичный договор.
+
+- [ ] Расширить существующий worker integration-case: production import строит итог с локальным proof, отсутствие повторного source read/serialization и unchanged YAML после диагностики. Проверить disposal, ошибки задания, публикацию state только по действующему договору.
+- [ ] Получить RED; соединить готовые зависимости, общий frame, локальную семантику и запись. Удалить старый full proof runtime и связанные только с ним caches/метрики/test-only hooks; перенести его регрессионные cases на новый публичный путь, не удалять защиту сценариев.
+- [ ] Проверить отсутствие накопления generated XML в parent и скрытого old-control fallback. Сохранить внешние файлы, XML-default variants, UUID-аннотации, raw ID и точный порядок.
+- [ ] Полный `pnpm type-check`, `pnpm test`, обе архитектурные команды, duplicates; исправлять ошибки реализации, не изменять baseline ограничений. Коммит.
+
+## Задача 11. Измерения и независимое итоговое ревью
+
+**Файлы:** результаты в `/Users/nikita/git/round-trip-reports`, runner профиля и его агрегатор при необходимости удаления старых packed-метрик; итоговые отметки этого плана.
+
+- [ ] До изменения production-кода снять базовый compiled профиль `doc`: один первый запуск и три повторных, 3 worker. Использовать временный каталог, возвращённый `mktemp -d`, не очищать пользовательский XML. Команда runner:
+
+  ```bash
+  node .agents/skills/import-profile/import-profile.mjs /Users/nikita/git/round-trip-compact/cf/doc /private/tmp/nkdk-import-before.aKF4E1/yaml --runs 4 --concurrency 3 --json
+  ```
+
+  Каталог создан через `mktemp -d`; JSON исходного запуска — `/private/tmp/nkdk-import-before.aKF4E1/baseline.json`. При повторении задачи использовать новый уникальный каталог, не очищать этот результат. Сборка вне измерения. Сохранить SHA, версии, вход, длительности, RSS, diagnostics. Подробный CPU-profile отделить от benchmark времени.
+- [ ] После реализации повторить в тех же условиях. Сравнить медиану/разброс, CPU/wall, RSS и обычный экспорт; не суммировать worker time с wall time. Проверить удержание памяти и счётчики на растущих коллекциях, включая массовые аномалии, defaults и порядок.
+- [ ] Выполнить e2e XML → YAML → XML на существующих fixtures, включая расширение. Отдельный обычный экспорт итогового YAML обязан подтвердить восстановление XML: импорт не делает вторую проверку после аннотации.
+- [ ] По указанию пользователя в конце выполнить три последовательных прогона профиля времени тестов, разобрать устойчивые превышения без изменения лимитов:
+
+  ```bash
+  pnpm test:profile -- --output reports/test-profile/current.json
+  pnpm test:profile -- --output reports/test-profile/current.json
+  pnpm test:profile -- --output reports/test-profile/current.json
+  ```
+
+- [ ] Выполнить все финальные проверки: `pnpm type-check`, `pnpm test`, `pnpm test:e2e`, `pnpm test:architecture:rules`, `pnpm test:architecture`, `pnpm duplicates -- --base 09518104c82f11c1465816d68e04e8bccba2cb6b`. Tests с LMDB вне песочницы. Не объявлять ускорение без измеримого выигрыша за пределами разброса.
+- [ ] Передать одному независимому review-only агенту spec, этот план, base SHA и worktree. Он читает весь diff с base, committed/staged/unstaged и относящиеся к реализации untracked. Договор ответа: `VERDICT: APPROVED | CHANGES_REQUIRED`, Findings с нарушенным требованием и Verification gaps.
+- [ ] Исправить все замечания самостоятельно, повторить затронутые проверки и направить полный обновлённый diff тому же ревьюеру. Нет лимита раундов или самоодобрения.
+- [ ] После APPROVED выполнить финальные проверки; любое изменение файлов отменяет одобрение. Только для неизменённого одобренного дерева переходить к `superpowers:finishing-a-development-branch`, не выполнять merge/push без выбранного пользователем варианта.
+
+## Покрытие спецификации
+
+| Раздел спецификации | Задачи |
+|---|---|
+| 1: два чтения | 1, 11 |
+| 2–3: объединение и зависимости | 3, 4, 6, 10 |
+| 4–5: локальная единственная проверка | 5, 6, 8, 10 |
+| 6: окончательный YAML и порядки | 2, 3, 5, 6, 8, 9 |
+| 7–8: память и исключение проверенных частей | 5, 6, 7, 11 |
+| 9: общий исполнитель | 4, 6, 7, 10 |
+| 10: производительность | 2–7, 10, 11 |
+| 11: смысловая валидация | 3, 8, 10 |
+| 12: форма и основа | 3, 7, 9, 11 |
+| 13: существующие финализаторы | 3, 7, 8, 9, 10 |
+
+## Порядок выполнения
+
+Сначала базовый benchmark из задачи 11, пока production-код равен base SHA. Затем задачи 1–10 по порядку; задача 11 закрывает измерения и review gate. Слои проверяются и коммитятся отдельно, но задача не считается выполненной по сумме частичных проверок без итогового APPROVED.
