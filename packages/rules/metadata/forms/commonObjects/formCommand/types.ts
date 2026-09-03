@@ -9,6 +9,7 @@ import { CurrentRowUse, FormCommandButtonRepresentation } from "../../../systemE
 import { importFormCommandsFromXMLToYAML } from "./fromXMLToYAML"
 import { FormCommandRules } from "./rules"
 import { registerFormXmlIdReservation } from "@nkdk/runtime"
+import { defineMetadataRules, type PrepareXMLItemOutputFunction } from "@nkdk/runtime/rule-kit"
 
 export type FormCommand = FormTypeByRule<typeof FormCommandRules>
 
@@ -35,7 +36,7 @@ export type FormCommandYAML = YAMLTypeByRule<typeof FormCommandRules>
 
 export type FormCommandsYAML = Record<string, FormCommandYAML>
 
-export const metadataRuleLayer000 = defineMetadataItemCollectionRule({
+const commandCollection = defineMetadataItemCollectionRule({
   propertyType: "FormCommands",
   itemRule: FormCommandRules,
   xmlElement: "Command",
@@ -43,14 +44,25 @@ export const metadataRuleLayer000 = defineMetadataItemCollectionRule({
   configurationIndexUidSegment: "Команда",
   requiredIdentity: "xmlId",
   fromXMLToYAML: importFormCommandsFromXMLToYAML,
-  mapItemOutput: ({ xml, context }) => {
-    const { _name, _id, ...properties } = xml
-    const result: Record<string, unknown> = { _name, _id: typeof _id === "string" ? _id : "", ...properties }
+})
+
+const prepareCommandOutput: PrepareXMLItemOutputFunction = ({ context }) => ({
+  attributes: ({ _name, _id, ...attributes }) => ({
+    _name, _id: typeof _id === "string" ? _id : "", ...attributes,
+  }),
+  initialize(body) {
     const runtime = context.exportToXML.configurationIndex
-    registerFormXmlIdReservation(result, {
+    registerFormXmlIdReservation(body, {
       ...(runtime === undefined ? {} : { runtime }),
       space: "commands",
     })
-    return result
+  },
+})
+
+export const metadataRuleLayer000 = defineMetadataRules({
+  ...commandCollection,
+  propertyTypes: {
+    ...commandCollection.propertyTypes,
+    FormCommands: { ...commandCollection.propertyTypes.FormCommands, prepareXMLItemOutput: prepareCommandOutput },
   },
 })

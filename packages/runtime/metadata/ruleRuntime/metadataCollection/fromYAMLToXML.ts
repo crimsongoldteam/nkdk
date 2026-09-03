@@ -9,6 +9,7 @@ import type {
   YAMLToXMLOutputRequest,
   YAMLToXMLResult,
   YAMLToXMLProfile,
+  PrepareXMLItemOutputFunction,
 } from "../property/fromYAMLToXMLTypes"
 import { copyXmlAnomalyAnnotationsDeep } from "../../../yaml/xmlAnomalyAnnotations"
 import { copyYAMLRuntimeMetadata } from "../../../yaml/runtimeMetadata"
@@ -46,6 +47,7 @@ export interface ConvertMetadataCollectionFromYAMLToXMLParams {
   readonly propertyRule?: PropertyRule
   readonly source?: YAMLPropertySource
   readonly outputs: readonly YAMLToXMLOutputRequest[]
+  readonly prepareItemOutput?: PrepareXMLItemOutputFunction
   readonly materializeCanonicalItems?: true
   readonly externalWriteFactory?: YAMLToXMLExternalWriteFactory
   readonly profile?: YAMLToXMLProfile
@@ -156,9 +158,8 @@ export function convertMetadataCollectionFromYAMLToXML(
       context: itemContextWithReferenceRemap,
       kind: params.descriptor.requiredIdentity,
     })
-    const itemOutputs = params.outputs.map((output) => ({
-      key: output.key,
-      referenceXML: findReferenceItem({
+    const itemOutputs = params.outputs.map((output) => {
+      const referenceXML = findReferenceItem({
         context: params.context,
         output,
         descriptor: params.descriptor,
@@ -167,10 +168,13 @@ export function convertMetadataCollectionFromYAMLToXML(
         yaml: normalizedYAML,
         name,
         index,
-      }),
-    }))
+      })
+      return { key: output.key, referenceXML }
+    })
     const converted = params.convertItem({
       convertProperties: params.convertProperties,
+      prepareOutput: params.prepareItemOutput,
+      propertyRule: params.propertyRule,
       context: itemContextWithReferenceRemap,
       yaml: normalizedYAML,
       annotations: params.annotations,

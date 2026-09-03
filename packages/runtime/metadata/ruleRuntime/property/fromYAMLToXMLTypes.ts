@@ -12,7 +12,23 @@ export interface YAMLToXMLOutputRequest {
   readonly context?: import("../../context/types").ConfigurationContextWithExportToXML
   /** Подготовленная оболочка текущего item; без значений дочерних свойств. */
   readonly xmlEnvelope?: XMLItemEnvelope
+  readonly itemPreparation?: XMLItemOutputPreparation
 }
+
+/** Предметное решение для собственных атрибутов, без доступа к XML детей. */
+export interface XMLItemOutputPreparation {
+  readonly attributes: (own: Readonly<Record<string, unknown>>) => Readonly<Record<string, unknown>>
+  readonly initialize?: (body: object) => void
+}
+
+export type PrepareXMLItemOutputFunction = (params: {
+  readonly context: import("../../context/types").ConfigurationContextWithExportToXML
+  readonly yaml: unknown
+  readonly itemRule: MetadataItemRule
+  readonly name?: string
+  readonly propertyRule?: PropertyRule
+  readonly referenceXML?: unknown
+}) => XMLItemOutputPreparation
 
 export interface XMLItemEnvelope {
   readonly path: readonly string[]

@@ -1,4 +1,4 @@
-import type { CompiledPropertyRuleExecution } from "./compiledPropertyPlan"
+import type { CompiledPropertyPlan, CompiledPropertyRuleExecution } from "./compiledPropertyPlan"
 import type { DirectImportRoundTripExecution } from "./importYamlTypes"
 import type { YAMLToXMLItemConversionParams, YAMLToXMLResult, YAMLToXMLExternalWrite } from "./fromYAMLToXMLTypes"
 import { createXMLPropertyExecution, type XMLPropertyExecutionObserver } from "./xmlPropertyExecution"
@@ -29,6 +29,7 @@ export function createCompiledRuleExecution(params: {
 }): DirectImportRoundTripExecution & { takeResult(yaml: object): CompiledXMLProofResult } {
   const completed = new WeakMap<object, { readonly rule: MetadataItemRule; readonly result: CompiledXMLProofResult }>()
   const markers = new WeakMap<object, LocalXmlChild>()
+  const active: { readonly plan: CompiledPropertyPlan }[] = []
   const children = {
     childReceipt(value: unknown): LocalXmlChild | undefined {
       return value !== null && typeof value === "object" ? markers.get(value) : undefined
@@ -51,11 +52,16 @@ export function createCompiledRuleExecution(params: {
   }
   return {
     open(source) {
+      const propertyKey = source.rulePath.at(-1)?.propertyKey
+      const ownerProperty = propertyKey === undefined ? undefined : active.at(-1)?.plan.propertiesByKey.get(propertyKey)
       const prepared = prepareMetadataItemXMLExecution({
         ...params.prepare(source), rule: source.rule, yaml: source.yaml,
+        prepareOutput: ownerProperty?.operations.prepareXMLItemOutput,
+        propertyRule: ownerProperty?.propertyRule,
       }, source.yaml).properties
       const consumer = params.consumer(source, children, prepared)
       const plan = params.execution.propertyPlan(source.rule)
+      const frame = { plan }
       const item = createXMLPropertyExecution({
         ...prepared, execution: params.execution, rule: source.rule, yaml: source.yaml,
       }, undefined, {
@@ -81,13 +87,17 @@ export function createCompiledRuleExecution(params: {
           return transport(result)
         },
       })
+      active.push(frame)
       return {
         ready({ propertyKey }) {
           const property = plan.propertiesByKey.get(propertyKey)
           if (property === undefined) throw new Error(`Не найдено свойство XML item: ${propertyKey}`)
           item.execute(property)
         },
-        finish() { item.finish() },
+        finish() {
+          if (active.at(-1) !== frame) throw new Error("XML item закрывается вне порядка вложенности")
+          try { item.finish() } finally { active.pop() }
+        },
       }
     },
     takeResult(yaml) { return take(yaml).result },

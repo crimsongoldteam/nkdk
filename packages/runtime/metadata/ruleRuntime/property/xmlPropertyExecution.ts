@@ -449,6 +449,9 @@ export function createXMLPropertyExecution(
     }
 
     if (nestedRule !== undefined && nestedRule.kind !== "externalFile") {
+      const prepareItemOutput = compiled === undefined
+        ? typeRule(planned.propertyRule.type, "prepareXMLItemOutput")
+        : compiled.operations.prepareXMLItemOutput
       const childCollection = params.rule.childCollections?.find((collection) => collection.propertyKey === propertyKey)
       const effectiveNestedRule =
         nestedRule.kind === "collection"
@@ -591,6 +594,7 @@ export function createXMLPropertyExecution(
           ? convertMetadataCollectionFromYAMLToXML({
               convertItem: convertNestedItem,
               convertProperties: convertNestedProperties,
+              prepareItemOutput,
               context: nestedContext,
               yaml: nestedYAML,
               annotations: params.annotations,
@@ -606,6 +610,8 @@ export function createXMLPropertyExecution(
             })
           : convertNestedItem({
               convertProperties: convertNestedProperties,
+              prepareOutput: prepareItemOutput,
+              propertyRule: planned.propertyRule,
               context: nestedItemContext,
               yaml: normalizedNestedYAML,
               annotations: params.annotations,

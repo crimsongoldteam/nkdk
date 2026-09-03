@@ -13,6 +13,7 @@ withConfigurationIndexCollector,
 withConfigurationIndexLogicalAddress
 } from "@nkdk/runtime"
 import { createRuleRegistrySet, createXMLPropertyExecution } from "@nkdk/runtime/rule-kit"
+import { prepareXMLItemOwnAttributes } from "@nkdk/runtime/rule-kit"
 import { createCompiledRuleExecution, importMetadataItemFromXMLToYAML, importMetadataItemCollectionFromXMLToYAML } from "@nkdk/runtime/rule-kit"
 import { isXmlElementNode } from "@nkdk/runtime"
 import { describe,expect,it,vi } from "vitest"
@@ -165,6 +166,12 @@ describe("importPropertiesFromXMLToYAML", () => {
     rules.property.registerTypeRule("NestedRoundTripRows" as never, "yamlToXMLNestedRule", {
       kind: "collection", itemRule: rowRule, xmlElement: "Item", yamlShape: "array",
     })
+    let preparedItems = 0
+    let completedOwnAttributes = 0
+    rules.property.registerTypeRule("NestedRoundTripRows" as never, "prepareXMLItemOutput", () => {
+      preparedItems++
+      return { attributes(own) { completedOwnAttributes++; return own } }
+    })
     const root = parseXmlDocumentWithSaxes("<Root><Items><Item><Details><Value>a</Value></Details></Item><Item><Details><Value>b</Value></Details></Item><Item><Details><Value>c</Value></Details></Item></Items></Root>").roots[0]!
     const context = mockContextFromXML()
     let comparisons = 0
@@ -172,7 +179,7 @@ describe("importPropertiesFromXMLToYAML", () => {
     const roundTrip = createCompiledRuleExecution({
       execution: rules.execution,
       prepare: () => ({ context: mockContextToXML(), outputs: [{ key: "owner" }] }),
-      consumer({ rule, sources, yaml }, { childReceipt }) {
+      consumer({ rule, sources, yaml }, { childReceipt }, prepared) {
           const source = sources[0]!.xml
           if (!isXmlElementNode(source)) throw new Error("Нужен адресованный исходный XML")
           const plan = rules.execution.propertyPlan(rule)
@@ -188,8 +195,11 @@ describe("importPropertiesFromXMLToYAML", () => {
               order.set(property.propertyKey, [child])
             },
             finish() {
+              const own = prepared.outputs[0]?.itemPreparation
+              if (rule === rowRule) expect(own).toBeDefined()
+              const attributes = localXmlShapeFromObject(source.name, prepareXMLItemOwnAttributes({}, own)).attributes
               return new Map([["owner", completeLocalXmlContainerBoundary({
-                source, actual: { name: source.name, content: order.finish() },
+                source, actual: { name: source.name, attributes, content: order.finish() },
                 proof, yaml, annotations: createXmlAnomalyAnnotations(),
               })]])
             },
@@ -207,6 +217,8 @@ describe("importPropertiesFromXMLToYAML", () => {
     ] })
     expect(calls).toEqual(["import:a", "export:a", "import:b", "export:b", "import:c", "export:c"])
     expect(comparisons).toBe(3)
+    expect(preparedItems).toBe(3)
+    expect(completedOwnAttributes).toBe(3)
     if (yaml === undefined) throw new Error("Ожидался YAML")
     expect(roundTrip.takeResult(yaml).roots.get("owner")).toEqual({ type: "element", name: "Root", occurrence: 1, sourceId: root.id })
     expect(() => roundTrip.takeResult(yaml)).toThrow(/закрыт|получен/)

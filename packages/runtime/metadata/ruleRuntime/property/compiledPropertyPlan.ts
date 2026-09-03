@@ -29,6 +29,7 @@ export const compiledPropertyOperationNames = [
   "requiresImportedYAMLFinalization",
   "finalizeExportedXML",
   "yamlToXMLNestedRule",
+  "prepareXMLItemOutput",
   "yamlScalarTagPolicy",
   "compileAtomicConversion",
 ] as const satisfies readonly TypeRulesOperations[]

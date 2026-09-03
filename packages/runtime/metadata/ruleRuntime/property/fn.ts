@@ -24,7 +24,7 @@ import type {
   ResolveNestedImportXMLSourcesFunction,
 } from "./importYamlTypes"
 import type { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
-import type { YAMLToXMLNestedRule } from "./fromYAMLToXMLTypes"
+import type { PrepareXMLItemOutputFunction, YAMLToXMLNestedRule } from "./fromYAMLToXMLTypes"
 import type { YAMLPropertySource } from "./fromYAMLToXMLTypes"
 import type { TypeRulesOperations } from "./ruleContracts"
 import type { RegisteredSystemEnumeration } from "./systemEnumerationRegistry"
@@ -322,6 +322,7 @@ export interface TypeRule {
   finalizeExportedXML?: FinalizeExportedXMLFunction
   collectLocalFactsFromYAML?: CollectLocalFactsFromYAMLFunction
   yamlToXMLNestedRule?: YAMLToXMLNestedRule
+  prepareXMLItemOutput?: PrepareXMLItemOutputFunction
   yamlScalarTagPolicy?: YAMLScalarTagPolicy
   compileAtomicConversion?: CompileAtomicConversionFunction
 }
@@ -386,6 +387,8 @@ export type importExportFunction<O extends TypeRulesOperations> = O extends "imp
                                                   ? CollectLocalFactsFromYAMLFunction | undefined
                                                   : O extends "yamlToXMLNestedRule"
                                                     ? YAMLToXMLNestedRule | undefined
+                                                  : O extends "prepareXMLItemOutput"
+                                                    ? PrepareXMLItemOutputFunction | undefined
                                                   : O extends "yamlScalarTagPolicy"
                                                     ? YAMLScalarTagPolicy | undefined
                                                     : O extends "compileAtomicConversion"

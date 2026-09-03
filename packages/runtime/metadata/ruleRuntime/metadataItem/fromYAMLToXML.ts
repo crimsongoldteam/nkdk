@@ -3,12 +3,14 @@ import type {
   XMLItemEnvelope,
   YAMLToXMLItemConversionParams,
   YAMLToXMLResult,
+  PrepareXMLItemOutputFunction,
 } from "../property/fromYAMLToXMLTypes"
 import type { MetadataItemRule, PropertyRule } from "../property/types"
 import { findInlineProperty } from "./yamlInline"
 import { recordCurrentExternalMetadataUuid } from "../externalMetadata/record"
 import type { DeferredRulePathSegment } from "../property/importYamlTypes"
 import { bindDeferredObjectValues } from "../property/deferredObjectValues"
+import { applyXMLItemOwnOutput } from "./ownOutput"
 
 export interface ConvertMetadataItemFromYAMLToXMLParams
   extends YAMLToXMLItemConversionParams {
@@ -16,6 +18,8 @@ export interface ConvertMetadataItemFromYAMLToXMLParams
     params: YAMLToXMLItemConversionParams
   ) => YAMLToXMLResult
   readonly ownerYAML?: unknown
+  readonly prepareOutput?: PrepareXMLItemOutputFunction
+  readonly propertyRule?: PropertyRule
 }
 
 interface XMLRootInfo {
@@ -51,6 +55,10 @@ export function prepareMetadataItemXMLExecution(
     ...output,
     referenceXML: sanitizeReferenceXML(unwrapReferenceBody(output.referenceXML, root)),
     xmlEnvelope: prepareXMLItemEnvelope(params, output.referenceXML, root),
+    itemPreparation: output.itemPreparation ?? params.prepareOutput?.({
+      context: params.context, yaml: params.yaml, itemRule: params.rule,
+      name: params.name ?? params.sourceItemName, propertyRule: params.propertyRule, referenceXML: output.referenceXML,
+    }),
   }))
   const itemName = params.name ?? params.sourceItemName
   const itemContext: ConfigurationContextWithExportToXML =
@@ -94,7 +102,7 @@ export function prepareMetadataItemXMLExecution(
         rule: params.rule,
         path: [],
       })
-      const finalRoot = wrapXMLRoot(request.xmlEnvelope, merged)
+      const finalRoot = wrapXMLRoot(request.xmlEnvelope, applyXMLItemOwnOutput(merged, request.itemPreparation))
       outputs.set(request.key, finalRoot)
       const prefix = request.xmlEnvelope.path
       deferredByOutput.set(

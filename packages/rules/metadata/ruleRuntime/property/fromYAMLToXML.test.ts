@@ -3,6 +3,7 @@ import { describe,expect,it,vi } from "vitest"
 import type { ConfigurationContextWithExportToXML, LocalXmlChild, XmlElementNode } from "@nkdk/runtime"
 import { completeLocalXmlScalarBoundary, createLocalXmlChildOrder, createLocalXmlProof, createXmlAnomalyAnnotations, localXmlShapeFromObject, parseXmlDocumentWithSaxes, createConfigurationIndexCollector,createConfigurationIndexExportRuntime,importFromYAML,markYAMLScalarTag,parseMetadataYaml } from "@nkdk/runtime"
 import { createRuleRegistrySet } from "@nkdk/runtime/rule-kit"
+import { formXmlIdReservation } from "@nkdk/runtime"
 import { testConfigurationIndexReader } from "../../../tests/configurationIndex"
 import "../../commonObjects/i8nText/fromXML"
 import "../../commonObjects/i8nText/fromYAML"
@@ -192,6 +193,30 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(() => item.finish()).toThrow(/consumer failed/)
     expect(writes).toEqual(stage === "write" ? ["a"] : ["a", "b"])
     expect(completed).toEqual(stage === "write" ? [] : ["a", "b"])
+  })
+
+  it("готовит собственную оболочку команды формы до дочерних свойств", () => {
+    const rules = createRuleRegistrySet(metadataRules)
+    let prepared = 0
+    const result = createXMLPropertyExecution({
+      execution: rules.execution, context: context(), outputs: [{ key: "owner" }],
+      rule: testRule({ commands: { type: "FormCommands", yaml: "Команды", xml: "Commands" } }),
+      yaml: { Команды: { Выполнить: { Действие: "Do" } } },
+    }, undefined, {
+      enterNested(params) {
+        expect(params.outputs[0]?.itemPreparation).toBeDefined()
+        prepared++
+        return undefined
+      },
+      write() {}, complete() {},
+    }).finish()
+    expect(prepared).toBe(1)
+    const command = (result.outputs.get("owner")?.Commands as { Command: Record<string, unknown>[] }).Command[0]!
+    expect(Object.keys(command).slice(0, 2)).toEqual(["_name", "_id"])
+    expect(command).toMatchObject({ _name: "Выполнить", _id: "", Action: "Do" })
+    expect(formXmlIdReservation(command)?.space).toBe("commands")
+    const nested = rules.execution.getTypeRule("FormCommands", "yamlToXMLNestedRule")
+    expect(nested?.kind === "collection" ? nested.mapItemOutput : undefined).toBeUndefined()
   })
 
   it.each(["item", "collection"] as const)("не оборачивает повторно готовый вклад XML-ребёнка: %s", (kind) => {
