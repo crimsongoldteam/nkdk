@@ -79,7 +79,12 @@ export function createLocalXmlProof(instrumentation?: {
     }))
     if (actualByKey.size !== actual.length) throw new Error(`Повторный структурный вклад XML: ${ownerPath}/#attributes`)
     const expectedKeys = source.map((attribute) => `${attribute.name}[${attribute.occurrence}]`)
-    compareOrder(expectedKeys, [...actualByKey.keys()], ownerPath, differences, `${ownerPath}/#attributes/#order`)
+    // Обычная поправка добавляет отсутствующие атрибуты в конец. Учитываем
+    // их будущие позиции здесь, при единственной проверке порядка, иначе
+    // восстановление первого атрибута могло бы незаметно переставить его.
+    const restoredKeys = [...actualByKey.keys()]
+    for (const key of expectedKeys) if (!actualByKey.has(key)) restoredKeys.push(key)
+    compareOrder(expectedKeys, restoredKeys, ownerPath, differences, `${ownerPath}/#attributes/#order`)
     for (const attribute of source) {
       const key = `${attribute.name}[${attribute.occurrence}]`
       const counterpart = actualByKey.get(key)

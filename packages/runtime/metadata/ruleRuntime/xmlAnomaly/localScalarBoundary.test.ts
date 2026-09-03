@@ -6,8 +6,67 @@ import { createXmlAnomalyAnnotations } from "../../../yaml/xmlAnomalyAnnotations
 import { serializeYAMLDocument } from "../../../yaml/export"
 import { createLocalXmlProof, type LocalXmlShape } from "./localProof"
 import { completeLocalXmlScalarBoundary } from "./localScalarBoundary"
+import { localXmlShapeFromObject } from "./localShape"
 
 describe("завершение локальной скалярной XML-границы", () => {
+  it.each([
+    {
+      source: '<Value a="1" b="2">right</Value>',
+      ordinary: '<Value b="2" a="wrong">wrong</Value>',
+      value: { _b: "2", _a: "wrong", "#text": "wrong" },
+      order: ["_a", "_b"],
+    },
+    {
+      source: '<Value a="1" b="2"/>', ordinary: '<Value b="2"/>', value: { _b: "2" },
+      order: ["_a", "_b"],
+    },
+    {
+      source: '<Value b="2" a="1"/>', ordinary: '<Value b="2"/>', value: { _b: "2" },
+      order: undefined,
+    },
+    {
+      source: '<Value a="1" b="2"/>', ordinary: '<Value b="2" a="1"/>', value: { _b: "2", _a: "1" },
+      order: ["_a", "_b"],
+    },
+  ])("восстанавливает порядок после поправки собственных значений: $source", ({ source, ordinary, value, order }) => {
+    const node = parseXmlDocumentWithSaxes(source).roots[0]!
+    const yaml = { Поле: "semantic" }
+    const annotations = createXmlAnomalyAnnotations()
+    completeLocalXmlScalarBoundary({
+      source: node, actual: localXmlShapeFromObject("Value", value),
+      proof: createLocalXmlProof(), annotations,
+      binding: { parent: yaml, key: "Поле", hasSemanticValue: true },
+      orderTarget: { yaml, path: ["Value"] },
+    })
+    const orderAnnotation = annotations.at(yaml, "Value\\#attributes")
+    expect(orderAnnotation?.xml).toEqual(order === undefined ? undefined : { "#order": order })
+    const patch = annotations.at(yaml, "Поле")
+    const restored = mergeXmlRawFragments(parseXmlDocumentWithSaxes(`<Root>${ordinary}</Root>`).roots, [
+      ...(patch === undefined ? [] : [{ path: "Value", value: patch.xml, suppressOrdinaryOutput: false, hasSemanticValue: true }]),
+      ...(orderAnnotation === undefined ? [] : [{
+        path: "Value\\#attributes", value: orderAnnotation.xml, suppressOrdinaryOutput: false,
+      }]),
+    ])
+    expect(xmlExport(restored, false)).toBe(`<Root>\n\t${source}\n</Root>`)
+  })
+
+  it("сохраняет весь скаляр при отсутствии смыслового YAML, а не только изменённую часть", () => {
+    const node = parseXmlDocumentWithSaxes('<Value a="1" b="2">original</Value>').roots[0]!
+    const yaml = {}
+    const annotations = createXmlAnomalyAnnotations()
+    completeLocalXmlScalarBoundary({
+      source: node, actual: localXmlShapeFromObject("Value", { _b: "2", _a: "wrong", "#text": "original" }),
+      proof: createLocalXmlProof(), annotations,
+      binding: { parent: yaml, key: "Поле", hasSemanticValue: false },
+    })
+    const annotation = annotations.at(yaml, "Поле")!
+    expect(annotation.xml).toEqual({ _a: "1", _b: "2", "#text": "original" })
+    const restored = mergeXmlRawFragments(parseXmlDocumentWithSaxes('<Root><Value b="2" a="wrong">original</Value></Root>').roots, [{
+      path: "Value", value: annotation.xml, suppressOrdinaryOutput: true,
+    }])
+    expect(xmlExport(restored, false)).toBe('<Root>\n\t<Value a="1" b="2">original</Value>\n</Root>')
+  })
+
   it.each<{ source: string; ordinary: string; actual?: LocalXmlShape; expectedPatch: unknown }>([
     { source: "", ordinary: "<Value>default</Value>", actual: { name: "Value", content: [{ type: "text", value: "default" }] }, expectedPatch: null },
     { source: "<Value/>", ordinary: "", expectedPatch: {} },

@@ -337,7 +337,11 @@ function boundariesOverlapUnsafely(left: PlannedBoundary, right: PlannedBoundary
     return false
   }
   if (left.kind === "element") return true
-  if (left.path.segments.length === right.path.segments.length) return true
+  if (left.path.segments.length === right.path.segments.length) {
+    // Порядок атрибутов не владеет их значениями и применяется после поправки.
+    return !(isOwnValuePatch(left) && right.kind === "attributes"
+      && right.attributes.attributes.length === 0 && right.attributes.order !== undefined)
+  }
   return !isShellPatch(left)
 }
 
@@ -362,6 +366,14 @@ function isShellPatch(
   ) return false
   const keys = Object.keys(boundary.patch)
   return keys.length > 0 && keys.every((key) => key.startsWith("_") || key === "#order")
+}
+
+function isOwnValuePatch(
+  boundary: Extract<PlannedBoundary, { readonly kind: "element" | "patch" }>,
+): boundary is Extract<PlannedBoundary, { readonly kind: "patch" }> & { readonly patch: Record<string, unknown> } {
+  return boundary.kind === "patch" && boundary.patch !== null && typeof boundary.patch === "object"
+    && !Array.isArray(boundary.patch)
+    && Object.keys(boundary.patch).every((key) => key.startsWith("_") || key === "#text")
 }
 
 function isPathPrefix(prefix: CanonicalRawPath, value: CanonicalRawPath): boolean {
@@ -390,14 +402,26 @@ function applyElementBoundary(
     const elementName = boundary.path.segments.at(-1) ?? boundary.path.rootName
     let replacement: MutableXmlElementNode[]
     try {
+      const attributesOnly = ordinary !== undefined && isOwnValuePatch(boundary) && !("#text" in boundary.patch)
       const patched = applyXmlPatch(
-        ordinary === undefined ? {} : encodeXmlRawElement(ordinary),
+        ordinary === undefined ? {} : encodeXmlRawElement(attributesOnly ? { ...ordinary, content: [] } : ordinary),
         boundary.patch as import("./rawCodec").XmlPatchValue,
       )
       replacement = decodeXmlRawValue(patched, {
         elementName,
         suppressOrdinaryOutput: true,
       }).nodes.map((node) => toMutableElement(node, "planned"))
+      const updated = replacement[0]
+      if (ordinary !== undefined && updated !== undefined && replacement.length === 1
+        && (isOwnValuePatch(boundary) || isShellPatch(boundary))) {
+        // Терминалы уже привязаны к физическим узлам. Поправка собственных
+        // значений не должна отрывать их от результата заменой поддерева.
+        ordinary.attributes = updated.attributes
+        if (!attributesOnly) ordinary.content = isShellPatch(boundary)
+          ? reorder(ordinary.content, updated.content.map(orderedContentName), orderedContentName)
+          : updated.content
+        replacement = [ordinary]
+      }
     } catch (caught) {
       const message = caught instanceof Error ? caught.message : String(caught)
       throw new Error(`${boundary.path.source}: ${message}`, { cause: caught })

@@ -8,6 +8,25 @@ const roots = (xml: string): readonly XmlElementNode[] =>
   parseXmlDocumentWithSaxes(xml, { preserveXsiNil: true }).roots
 
 describe("mergeXmlRawFragments", () => {
+  it.each([
+    { patch: { _mode: "new" }, expected: '\t\t<Child id="1" extra="kept"/>\n\t\t<Other/>' },
+    { patch: { _mode: "new", "#order": ["Other", "Child"] }, expected: '\t\t<Other/>\n\t\t<Child id="1" extra="kept"/>' },
+  ])("сохраняет терминал ребёнка при поправке оболочки родителя: $patch", ({ patch, expected }) => {
+    const merged = mergeXmlRawFragments(roots('<Root><Value mode="old"><Child id="1"/><Other/></Value></Root>'), [
+      { path: "Value", value: patch, hasSemanticValue: true, suppressOrdinaryOutput: false },
+      { path: "Value\\Child\\#attributes", value: { _extra: "kept" }, suppressOrdinaryOutput: false },
+    ])
+    expect(xmlExport(merged, false)).toBe(`<Root>\n\t<Value mode="new">\n${expected}\n\t</Value>\n</Root>`)
+  })
+
+  it("совмещает поправку собственных значений с порядком атрибутов той же границы", () => {
+    const merged = mergeXmlRawFragments(roots('<Root><Value b="2" a="wrong">wrong</Value></Root>'), [
+      { path: "Value\\#attributes", value: { "#order": ["_a", "_b"] }, suppressOrdinaryOutput: false },
+      { path: "Value", value: { _a: "1", "#text": "right" }, hasSemanticValue: true, suppressOrdinaryOutput: false },
+    ])
+    expect(xmlExport(merged, false)).toBe('<Root>\n\t<Value a="1" b="2">right</Value>\n</Root>')
+  })
+
   it("recursively applies an XML patch without replacing the semantic boundary", () => {
     const ordinary = roots(
       '<Root><Value mode="old"><Known>kept</Known><Changed>old</Changed><Removed>gone</Removed></Value></Root>',
