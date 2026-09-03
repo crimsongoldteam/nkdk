@@ -112,7 +112,7 @@ export function projectXmlAuditOwnRemainder(params: XmlAuditProjectionParams): v
 
 function projectXmlRemainder(params: XmlAuditProjectionParams, recursive: boolean): void {
   const rootOutcome = params.audit.getOutcome(params.root)
-  const appendRaw = createXmlRawAppender(params)
+  const appendRaw = createLocalXmlRawAppender(params)
 
   const visitKnownElement = (element: XmlElementNode, path: readonly string[]): void => {
     const parentPatch: Record<string, XmlRawValue> = {}
@@ -224,7 +224,7 @@ export function projectLocalXmlOwnValues(params: {
 }): void {
   if (params.differences.length === 0) return
   const patch = createLocalXmlScalarPatch(params.root, params.differences)
-  createXmlRawAppender(params)(parentRawPath(params.path ?? []), patch)
+  createLocalXmlRawAppender(params)(parentRawPath(params.path ?? []), patch)
 }
 
 /** Оформление уже обнаруженного порядка, без сравнения или повторного экспорта. */
@@ -239,7 +239,7 @@ export function projectLocalXmlOrder(params: {
     difference.kind === "order" && difference.ownerPath === params.root.path,
   )
   if (differences.length === 0) return
-  const appendRaw = createXmlRawAppender(params)
+  const appendRaw = createLocalXmlRawAppender(params)
   const path = params.path ?? []
   for (const difference of differences) {
     if (difference.path === `${params.root.path}/#order`) {
@@ -282,7 +282,7 @@ export function annotateXmlRawValue(params: {
   })
 }
 
-function createXmlRawAppender(params: {
+export function createLocalXmlRawAppender(params: {
   readonly yaml: Record<string, unknown>
   readonly annotations: XmlAnomalyAnnotationTable
 }): (path: string, value: XmlRawValue) => void {

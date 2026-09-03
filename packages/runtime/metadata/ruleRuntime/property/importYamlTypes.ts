@@ -69,6 +69,7 @@ export interface DirectImportTraversal<Execution = unknown> {
 export interface DirectImportXMLPropertyBinding {
   readonly propertyKey: string
   readonly node?: XmlImportAuditedNode
+  readonly owner?: XmlElementNode
   readonly presentInXML: boolean
   readonly xmlPath?: readonly string[]
 }

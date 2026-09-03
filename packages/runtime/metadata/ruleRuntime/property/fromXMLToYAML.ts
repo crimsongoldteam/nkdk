@@ -183,6 +183,7 @@ export function importPropertiesFromXMLToYAML(params: {
     xmlPath: readonly string[] | undefined
     sourceXMLValue: unknown
     xmlNode?: XmlImportAuditedNode
+    xmlOwnerNode?: XmlElementNode
     xmlNodes?: readonly XmlElementNode[]
     presentInXML: boolean
     ambiguousXMLKey: boolean
@@ -860,6 +861,7 @@ export function importPropertiesFromXMLToYAML(params: {
       if (roundTrip !== undefined) {
         const binding = {
           propertyKey: match.entry.propertyKey, node: match.xmlNode, presentInXML: match.presentInXML, xmlPath: match.xmlPath,
+          ...(match.xmlOwnerNode === undefined ? {} : { owner: match.xmlOwnerNode }),
         }
         runRoundTripStep("bind", () => roundTrip.bind?.(binding))
         if (imported) runRoundTripStep("ready", () => roundTrip.ready(binding))
@@ -882,6 +884,7 @@ export function importPropertiesFromXMLToYAML(params: {
       xmlPath: undefined,
       sourceXMLValue: undefined,
       xmlNode: undefined,
+      xmlOwnerNode: undefined,
       xmlNodes: undefined,
       presentInXML: false,
       ambiguousXMLKey: false,
@@ -935,6 +938,7 @@ export function importPropertiesFromXMLToYAML(params: {
           xmlPath: match.xmlPath,
           sourceXMLValue: match.xmlValue,
           xmlNode: match.xmlNode,
+          xmlOwnerNode: match.xmlOwnerNode,
           xmlNodes: match.xmlNodes?.filter(
             (node): node is XmlElementNode => "type" in node && node.type === "element",
           ),

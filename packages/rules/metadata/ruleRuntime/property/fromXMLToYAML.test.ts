@@ -11,7 +11,7 @@ withConfigurationIndexCollector,
 withConfigurationIndexLogicalAddress
 } from "@nkdk/runtime"
 import { createRuleRegistrySet } from "@nkdk/runtime/rule-kit"
-import { createCompiledRuleExecution, createLocalXmlBodyConsumer, importMetadataItemFromXMLToYAML, importMetadataItemCollectionFromXMLToYAML } from "@nkdk/runtime/rule-kit"
+import { createCompiledRuleExecution, createAnnotatedLocalXmlBodyConsumer, createLocalXmlBodyConsumer, importMetadataItemFromXMLToYAML, importMetadataItemCollectionFromXMLToYAML } from "@nkdk/runtime/rule-kit"
 import { isXmlElementNode } from "@nkdk/runtime"
 import { describe,expect,it,vi } from "vitest"
 import { mockContextFromXML, mockContextToXML } from "../../../tests/mockContext"
@@ -77,6 +77,28 @@ function importWithLocalXMLBody(params: {
       }),
     }),
   })
+}
+
+function importWithAnnotatedLocalXMLBody(params: {
+  readonly execution: ReturnType<typeof createRuleRegistrySet>["execution"]
+  readonly context: ConfigurationContextFromXML
+  readonly rule: MetadataItemRule
+  readonly root: XmlElementNode
+  readonly annotations: XmlAnomalyAnnotationTable
+}) {
+  const roundTrip = createCompiledRuleExecution({
+    execution: params.execution,
+    prepare: () => ({ context: mockContextToXML(), outputs: [{ key: "owner" }] }),
+    consumer: ({ yaml }, receipts) => createAnnotatedLocalXmlBodyConsumer({
+      key: "owner", source: params.root, proof: createLocalXmlProof(),
+      yaml, annotations: params.annotations, ...receipts,
+    }),
+  })
+  return importPropertiesWithSources({
+    execution: params.execution, context: params.context, rule: params.rule,
+    sources: [{ context: params.context, xml: params.root }], yamlPath: [], rulePath: [],
+    collector: createLocalIndexesCollector(), annotations: params.annotations, roundTrip,
+  })!
 }
 
 describe("importPropertiesFromXMLToYAML", () => {
@@ -420,18 +442,21 @@ describe("importPropertiesFromXMLToYAML", () => {
     let compared = 0
     const scalarDifferences: string[] = []
     let scalarProperty: unknown
+    let scalarOwner: unknown
     const yaml = importWithLocalXMLBody({
       execution: rules.execution, context, rule, root, annotations: createXmlAnomalyAnnotations(),
       proof: createLocalXmlProof({ onValue: () => compared++ }),
-      annotateScalar({ difference, property }) {
+      annotateScalar({ difference, property, owner }) {
         scalarDifferences.push(difference.kind)
         scalarProperty = property
+        scalarOwner = owner
       },
     })
     expect(yaml).toEqual({ ИД: mismatch ? "43" : "42" })
     expect(compared).toBe(1)
     expect(scalarDifferences).toEqual(mismatch ? ["value"] : [])
     expect(scalarProperty).toEqual(mismatch ? expect.objectContaining({ propertyKey: "id", yamlKey: "ИД" }) : undefined)
+    expect(scalarOwner).toBe(mismatch ? root : undefined)
   })
 
   it("передаёт правило свойства оформителю изменённого XML alias", () => {
@@ -448,6 +473,80 @@ describe("importPropertiesFromXMLToYAML", () => {
     })
     expect(yaml).toEqual({ Значение: "x" })
     expect(boundaryProperty).toMatchObject({ propertyKey: "value", yamlKey: "Значение" })
+  })
+
+  it("оформляет лексическое расхождение в итоговом YAML внутри общего frame", () => {
+    const rules = createRuleRegistrySet(metadataRules)
+    rules.property.registerTypeRule("LocalLexicalNumber" as never, "compileAtomicConversion", () => ({
+      fromXMLToYAML: ({ value }) => ({ metadataValue: Number(value), representationValue: Number(value) }),
+      fromYAMLToXML: ({ value }) => ({ metadataValue: value, representationValue: value }),
+    }))
+    const rule: MetadataItemRule = { itemType: "Catalog", properties: {
+      value: { type: "LocalLexicalNumber" as never, xml: "Value", yaml: "Значение" },
+    } }
+    const context = mockContextFromXML()
+    const root = parseXmlDocumentWithSaxes("<Root><Value>01</Value></Root>").roots[0]!
+    const annotations = createXmlAnomalyAnnotations()
+    const yaml = importWithAnnotatedLocalXMLBody({ execution: rules.execution, context, rule, root, annotations })
+    expect(yaml).toEqual({ Значение: 1 })
+    expect(annotations.at(yaml, "Значение")).toMatchObject({
+      kind: "raw", xml: { "#text": "01" }, hasSemanticValue: true,
+    })
+  })
+
+  it("оформляет расхождение XML-атрибута на его непосредственном владельце", () => {
+    const rules = createRuleRegistrySet(metadataRules)
+    rules.property.registerTypeRule("LocalAttributeNumber" as never, "compileAtomicConversion", () => ({
+      fromXMLToYAML: ({ value }) => ({ metadataValue: Number(value) + 1, representationValue: Number(value) + 1 }),
+      fromYAMLToXML: ({ value }) => ({ metadataValue: value, representationValue: value }),
+    }))
+    const rule: MetadataItemRule = { itemType: "Catalog", properties: {
+      id: { type: "LocalAttributeNumber" as never, xml: "_id", yaml: "ИД" },
+    } }
+    const context = mockContextFromXML()
+    const root = parseXmlDocumentWithSaxes('<Root id="42"/>').roots[0]!
+    const annotations = createXmlAnomalyAnnotations()
+    const yaml = importWithAnnotatedLocalXMLBody({ execution: rules.execution, context, rule, root, annotations })
+    expect(yaml).toEqual({ ИД: 43, "@": undefined })
+    expect(annotations.at(yaml, "@")).toMatchObject({
+      kind: "raw", xml: { _id: "42" }, hasSemanticValue: false,
+    })
+  })
+
+  it("сохраняет неизвестного непосредственного XML-ребёнка без raw всего тела", () => {
+    const rules = createRuleRegistrySet(metadataRules)
+    const rule: MetadataItemRule = { itemType: "Catalog", properties: {
+      known: { type: "string", xml: "Known", yaml: "Известное" },
+    } }
+    const context = mockContextFromXML()
+    const root = parseXmlDocumentWithSaxes("<Root><Future>y</Future><Known>x</Known></Root>").roots[0]!
+    const annotations = createXmlAnomalyAnnotations()
+    const yaml = importWithAnnotatedLocalXMLBody({ execution: rules.execution, context, rule, root, annotations })
+    expect(yaml).toEqual({ Известное: "x", Future: undefined, "#order": undefined })
+    expect(annotations.at(yaml, "Future")).toMatchObject({
+      kind: "raw", xml: "y", hasSemanticValue: false,
+    })
+    expect(annotations.at(yaml, "#order")).toMatchObject({
+      kind: "raw", xml: ["Future", "Known"], hasSemanticValue: false,
+    })
+  })
+
+  it("подавляет созданный экспортным default узел прямо в границе свойства", () => {
+    const rules = createRuleRegistrySet(metadataRules)
+    const rule: MetadataItemRule = { itemType: "Catalog", properties: {
+      value: {
+        type: "string", xml: "Value", yaml: "Значение",
+        defaultValueXML: "default", evaluateWhenYAMLMissing: true,
+      },
+    } }
+    const context = mockContextFromXML()
+    const root = parseXmlDocumentWithSaxes("<Root/>").roots[0]!
+    const annotations = createXmlAnomalyAnnotations()
+    const yaml = importWithAnnotatedLocalXMLBody({ execution: rules.execution, context, rule, root, annotations })
+    expect(yaml).toEqual({ Значение: undefined })
+    expect(annotations.at(yaml, "Значение")).toMatchObject({
+      kind: "raw", xml: null, hasSemanticValue: false,
+    })
   })
 
   it("объединяет fromXML и toYAML через скомпилированную атомарную пару", () => {

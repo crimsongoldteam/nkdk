@@ -23,6 +23,8 @@ export interface XMLImportMatch extends XMLImportPlanEntry {
   xmlPath: readonly string[]
   xmlValue: unknown
   xmlNode?: XmlElementNode | XmlAttributeNode
+  /** Непосредственный владелец структурного узла; не вычисляется поиском по пути. */
+  xmlOwnerNode?: XmlElementNode
   xmlNodes?: readonly (XmlElementNode | XmlAttributeNode)[]
   ambiguousXMLKey: boolean
 }
@@ -222,6 +224,7 @@ interface StructuralCandidate {
   readonly sourceXMLKey: string
   readonly xmlPath: readonly string[]
   readonly xmlNode: XmlElementNode | XmlAttributeNode
+  readonly xmlOwnerNode: XmlElementNode
   readonly entriesAtNode: readonly XMLImportPlanEntry[]
 }
 
@@ -318,6 +321,7 @@ function visitStructuralXMLImportPlan(params: {
               boundary: boundaryForEntry(entry),
             })),
       xmlNode: candidate.xmlNode,
+      xmlOwnerNode: candidate.xmlOwnerNode,
       xmlNodes: selectedCandidates.map(({ xmlNode }) => xmlNode),
       ambiguousXMLKey:
         candidate.entriesAtNode.length > 1 ||
@@ -337,10 +341,10 @@ function collectStructuralCandidates(params: {
   readonly candidates: StructuralCandidate[]
 }): void {
   for (const attribute of params.xml.attributes) {
-    appendStructuralCandidates(params, `_${attribute.name}`, attribute)
+    appendStructuralCandidates(params, `_${attribute.name}`, attribute, params.xml)
   }
   for (const child of elementChildren(params.xml)) {
-    const hasEntries = appendStructuralCandidates(params, child.name, child)
+    const hasEntries = appendStructuralCandidates(params, child.name, child, params.xml)
     const childPlan = params.node.childrenByXMLKey.get(child.name)
     if (childPlan === undefined) continue
     if (!hasEntries) params.audit?.claim(child, params.itemBoundary)
@@ -361,6 +365,7 @@ function appendStructuralCandidates(
   },
   sourceXMLKey: string,
   xmlNode: XmlElementNode | XmlAttributeNode,
+  xmlOwnerNode: XmlElementNode,
 ): boolean {
   const entriesAtNode = params.node.entriesByXMLKey.get(sourceXMLKey) ?? []
   for (const entry of entriesAtNode) {
@@ -369,6 +374,7 @@ function appendStructuralCandidates(
       sourceXMLKey,
       xmlPath: [...params.xmlPath, sourceXMLKey],
       xmlNode,
+      xmlOwnerNode,
       entriesAtNode,
     })
   }

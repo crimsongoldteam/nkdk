@@ -21,10 +21,12 @@ export interface CompiledXMLProofResult {
   readonly externalWrites: readonly YAMLToXMLExternalWrite[]
 }
 
+export const SUPPRESSED_LOCAL_XML_OUTPUT = Symbol("suppressedLocalXmlOutput")
+
 export interface CompiledXMLProofConsumer {
   /** Прямая привязка импорта, включая alias и отсутствие исходного свойства. */
   bind?(source: DirectImportXMLPropertyBinding): void
-  write(event: Parameters<XMLPropertyExecutionObserver["write"]>[0]): LocalXmlChild | LocalXmlScalar | void
+  write(event: Parameters<XMLPropertyExecutionObserver["write"]>[0]): LocalXmlChild | LocalXmlScalar | typeof SUPPRESSED_LOCAL_XML_OUTPUT | void
   complete?: XMLPropertyExecutionObserver["complete"]
   /** На выходе только вклады корней; контрольные значения не сохраняются. */
   finish(output: YAMLToXMLResult): ReadonlyMap<string, LocalXmlChild>
@@ -169,6 +171,7 @@ export function createCompiledRuleExecution(params: {
         },
         write(event) {
           const receipt = consumer.write(event)
+          if (receipt === SUPPRESSED_LOCAL_XML_OUTPUT) return { retainedValue: undefined }
           const retainedValue = {}
           if (receipt !== undefined) {
             if ("type" in receipt) markers.set(retainedValue, receipt)
