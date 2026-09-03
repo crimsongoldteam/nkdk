@@ -65,13 +65,16 @@ const CHILD_ITEMS_XML_TAG = "ChildItems"
 
 const toOrderedChildItemsNode = (items: unknown[]): Record<PropertyKey, unknown> => {
   const orderedChildren = items.flatMap((item): Array<{ key: string; value: unknown }> => {
-    const normalizedItem = normalizeXmlObjectForExport(item)
-    if (!isRecord(normalizedItem)) return []
-    return Object.entries(normalizedItem).map(([key, value]) => ({ key, value }))
+    if (!isRecord(item)) return []
+    return Object.entries(item).map(([key, value]) => ({ key, value }))
   })
 
   return { [XML_ORDERED_CHILDREN]: orderedChildren }
 }
+
+/** Только оболочка непосредственного свойства; содержимое детей не обходится. */
+export const normalizeXmlChildForExport = (key: string, value: unknown): unknown =>
+  key === CHILD_ITEMS_XML_TAG && Array.isArray(value) ? toOrderedChildItemsNode(value) : value
 
 export const normalizeXmlObjectForExport = (value: unknown): unknown => {
   if (Array.isArray(value)) {
@@ -83,9 +86,7 @@ export const normalizeXmlObjectForExport = (value: unknown): unknown => {
   const normalizedValue: Record<PropertyKey, unknown> = Object.fromEntries(
     Object.entries(value).map(([key, childValue]) => [
       key,
-      key === CHILD_ITEMS_XML_TAG && Array.isArray(childValue)
-        ? toOrderedChildItemsNode(childValue)
-        : normalizeXmlObjectForExport(childValue),
+      normalizeXmlChildForExport(key, normalizeXmlObjectForExport(childValue)),
     ])
   )
 

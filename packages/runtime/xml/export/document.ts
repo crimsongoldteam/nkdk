@@ -12,7 +12,7 @@ import {
   type XmlStructuralContent,
 } from "../structure/hash"
 import { parseXmlProcessingInstructionAttributes } from "../structure/processingInstruction"
-import { getXmlOrderedChildren, normalizeXmlObjectForExport } from "./exporter"
+import { getXmlOrderedChildren, normalizeXmlChildForExport, normalizeXmlObjectForExport } from "./exporter"
 
 export interface XmlObjectDocumentResult {
   readonly document: XmlDocument
@@ -87,7 +87,7 @@ function elementNode(
   const content: XmlContentNode[] = []
   let textCount = 0
   const childCounts = new Map<string, number>()
-  for (const descriptor of contentDescriptors(value)) {
+  for (const descriptor of xmlObjectOwnContent(value)) {
     if (descriptor.kind === "text") {
       appendText(descriptor.value)
       continue
@@ -127,10 +127,10 @@ function elementNode(
 }
 
 function elementStructuralHash(name: string, value: unknown): bigint {
-  const content = contentDescriptors(value).map((descriptor): XmlStructuralContent => {
+  const content = xmlObjectOwnContent(value).map((descriptor): XmlStructuralContent => {
     if (descriptor.kind === "text") return { type: "text", value: descriptor.value }
     if (descriptor.name.startsWith("?")) {
-      return processingInstructionStructure(descriptor.name.slice(1))
+      return xmlObjectProcessingInstruction(descriptor.name.slice(1))
     }
     return {
       type: "element",
@@ -139,7 +139,7 @@ function elementStructuralHash(name: string, value: unknown): bigint {
   })
   return hashXmlElementStructure({
     name,
-    attributes: structuralAttributes(value),
+    attributes: xmlObjectOwnAttributes(value),
     content: normalizeXmlElementContent(content),
   })
 }
@@ -148,12 +148,12 @@ type XmlObjectContentDescriptor =
   | { readonly kind: "text"; readonly value: string }
   | { readonly kind: "child"; readonly name: string; readonly value: unknown }
 
-function contentDescriptors(value: unknown): XmlObjectContentDescriptor[] {
+export function xmlObjectOwnContent(value: unknown): XmlObjectContentDescriptor[] {
   const children = isRecord(value)
     ? getXmlOrderedChildren(value)
       ?? Object.entries(value)
         .filter(([key]) => key !== "#text" && !key.startsWith("_"))
-        .map(([key, child]) => ({ key, value: child }))
+        .map(([key, child]) => ({ key, value: normalizeXmlChildForExport(key, child) }))
     : []
   const result: XmlObjectContentDescriptor[] = []
   const hasText = isRecord(value)
@@ -187,7 +187,7 @@ function elementAttributes(
 ): XmlAttributeNode[] {
   if (!isRecord(value)) return []
   const counts = new Map<string, number>()
-  return structuralAttributes(value).map(({ name, value: attribute }) => {
+  return xmlObjectOwnAttributes(value).map(({ name, value: attribute }) => {
     const occurrence = increment(counts, name)
     return {
       id: allocateId(),
@@ -200,7 +200,7 @@ function elementAttributes(
   })
 }
 
-function structuralAttributes(value: unknown): { readonly name: string; readonly value: string }[] {
+export function xmlObjectOwnAttributes(value: unknown): { readonly name: string; readonly value: string }[] {
   if (!isRecord(value)) return []
   return Object.entries(value).flatMap(([key, attribute]) =>
     key.startsWith("_") ? [{ name: key.slice(1), value: String(attribute) }] : []
@@ -214,7 +214,7 @@ function processingInstructionNode(
   occurrence: number,
   allocateId: () => number,
 ): XmlProcessingInstructionNode {
-  const structure = processingInstructionStructure(target)
+  const structure = xmlObjectProcessingInstruction(target)
   const attributes = structure.attributes.map(({ name, value }, index) => ({
     id: allocateId(),
     name,
@@ -235,7 +235,7 @@ function processingInstructionNode(
   }
 }
 
-function processingInstructionStructure(target: string) {
+export function xmlObjectProcessingInstruction(target: string) {
   const body = ""
   return {
     type: "processingInstruction" as const,

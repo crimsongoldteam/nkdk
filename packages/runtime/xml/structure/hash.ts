@@ -37,7 +37,10 @@ export function resetXmlStructureHashUpdateCountForTests(): void {
   xmlStructureHashUpdateCountValueForTests = 0
 }
 
-export function normalizeXmlElementContent<T extends XmlStructuralContent>(
+export function normalizeXmlElementContent<T extends
+  | { readonly type: "text"; readonly value: string }
+  | { readonly type: "element" | "processingInstruction" }
+>(
   content: readonly T[]
 ): readonly T[] {
   const hasElement = content.some((node) => node.type === "element")

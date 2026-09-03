@@ -181,6 +181,22 @@ describe("local XML proof", () => {
     expect(() => proof.compare(unknown, { name: "Unknown" })).toThrow(/повтор/i)
   })
 
+  it("завершает пропущенный экспортом узел после оформления присутствия, не сравнивая отсутствующие значения", () => {
+    const root = parseXmlDocumentWithSaxes('<Root><Value mode="x">original</Value></Root>').roots[0]!
+    const child = root.content[0]!
+    if (child.type !== "element") throw new Error("Value")
+    let comparisons = 0
+    const proof = createLocalXmlProof({ onValue: () => comparisons++ })
+    const differences: unknown[] = []
+    const receipt = proof.checkAbsent(child, (difference) => differences.push(difference))
+    expect(differences).toEqual([{ kind: "presence", path: child.path, ownerPath: root.path }])
+    expect(proof.compare(root, { name: "Root", content: [receipt] })).toEqual([])
+    proof.finish(root)
+    expect(comparisons).toBe(0)
+    expect(() => proof.checkAbsent(child, () => {})).toThrow(/повтор/i)
+    expect(() => proof.checkValue(child.attributes[0]!, "x")).toThrow(/повтор/i)
+  })
+
   it("различает порядок одноимённых вхождений по их структурному вкладу", () => {
     const root = parseXmlDocumentWithSaxes('<Root><Item>a</Item><Item>b</Item></Root>').roots[0]!
     const proof = createLocalXmlProof()

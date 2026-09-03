@@ -255,6 +255,9 @@ export function annotateXmlRawValue(params: {
   const semantic = previous?.kind === "invalid" || previous?.kind === "important"
     ? { kind: previous.kind, occurrence: previous.occurrence }
     : previous?.semantic
+  if (!params.hasSemanticValue && !Object.prototype.hasOwnProperty.call(params.parent, params.key)) {
+    Object.defineProperty(params.parent, params.key, { value: undefined, enumerable: true, writable: true, configurable: true })
+  }
   params.annotations.set(params.parent, params.key, {
     kind: "raw",
     occurrence: 1,

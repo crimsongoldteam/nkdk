@@ -200,8 +200,20 @@ export function createLocalXmlProof(instrumentation?: {
     annotate(differences)
     return finish(source, { annotated: true })
   }
-  return { compare, finish, checkValue, check }
+  const checkAbsent = (
+    source: XmlElementNode,
+    annotate: (difference: XmlStructureDifference) => void,
+  ): LocalXmlChild => {
+    if (state(source) !== 0) throw new Error(`Повторная проверка XML: ${source.path}`)
+    mark(source, STARTED)
+    annotate({ kind: "presence", path: source.path, ownerPath: source.path.slice(0, source.path.lastIndexOf("/")) })
+    mark(source, COMPARED | DIFFERENT)
+    return finish(source, { annotated: true })
+  }
+  return { compare, finish, checkValue, check, checkAbsent }
 }
+
+export type LocalXmlProof = ReturnType<typeof createLocalXmlProof>
 
 function sourceContentKey(content: XmlContentNode): string {
   const kind = content.type === "element" ? content.name
