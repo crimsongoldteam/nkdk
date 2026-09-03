@@ -22,6 +22,8 @@ export interface CompiledXMLProofResult {
 }
 
 export interface CompiledXMLProofConsumer {
+  /** Прямая привязка импорта, включая alias и отсутствие исходного свойства. */
+  ready?(source: Parameters<ReturnType<DirectImportRoundTripExecution["open"]>["ready"]>[0]): void
   write(event: Parameters<XMLPropertyExecutionObserver["write"]>[0]): void
   complete?: XMLPropertyExecutionObserver["complete"]
   /** На выходе только вклады корней; контрольные значения не сохраняются. */
@@ -188,9 +190,11 @@ export function createCompiledRuleExecution(params: {
       })
       active.push(frame)
       return {
-        ready({ propertyKey }) {
+        ready(input) {
+          const { propertyKey } = input
           const property = plan.propertiesByKey.get(propertyKey)
           if (property === undefined) throw new Error(`Не найдено свойство XML item: ${propertyKey}`)
+          consumer.ready?.(input)
           withPreparedXMLDependencyFacts(source.yaml, dependencyFacts, () => item.execute(property))
         },
         finish() {

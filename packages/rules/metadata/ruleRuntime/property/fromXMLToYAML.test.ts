@@ -2,6 +2,7 @@ import {
 createLocalXmlChildOrder,
 createLocalXmlProof,
 completeLocalXmlContainerBoundary,
+completeLocalXmlFragment,
 createXmlAnomalyAnnotations,
 localXmlShapeFromObject,
 projectLocalXmlOrder,
@@ -213,14 +214,16 @@ describe("importPropertiesFromXMLToYAML", () => {
           if (!isXmlElementNode(source)) throw new Error("Нужен адресованный исходный XML")
           const plan = rules.execution.propertyPlan(rule)
           const order = createLocalXmlChildOrder(plan.yamlToXMLOrder)
-          const sourceChildren = new Map(source.content.flatMap((child) => child.type === "element" ? [[child.name, child] as const] : []))
+          let sourceProperty: typeof source | undefined
           return {
+            ready({ node }) {
+              sourceProperty = isXmlElementNode(node) ? node : undefined
+            },
             write({ property, path, value }) {
-              const child = childReceipt(value) ?? proof.check(sourceChildren.get(path[0]!)!, localXmlShapeFromObject(path[0]!, value, (_name, child) => {
-                const receipt = childReceipt(child)
-                if (receipt === undefined) throw new Error("Ожидался только компактный вклад ребёнка")
-                return receipt
-              }))
+              if (sourceProperty === undefined) throw new Error("Не передана исходная XML-граница свойства")
+              const child = childReceipt(value) ?? completeLocalXmlFragment({
+                source: sourceProperty, name: path[0]!, value, proof, childReceipt,
+              })
               order.set(property.propertyKey, [child])
             },
             finish() {
