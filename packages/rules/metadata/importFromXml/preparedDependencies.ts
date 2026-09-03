@@ -2,6 +2,7 @@ import { copyYAMLRuntimeMetadata, yamlPathToPointer } from "@nkdk/runtime"
 import { recordAtPath } from "./dependentItems"
 import {
   prepareDependentImportFacts,
+  isDependentImportProperty,
   shouldRemoveImportedDependentProperty,
   type DependentImportFacts,
   type DependentItemParams,
@@ -15,6 +16,7 @@ export interface ImportDependencyFacts {
   readonly rule: MetadataItemRule
   readonly owner: DependentItemParams["owner"]
   readonly properties: ReadonlyMap<string, DependentImportFacts>
+  readonly items: ReadonlyMap<string, DependentImportFacts>
   readonly siblingProperties: ReadonlyMap<string, { readonly value: unknown }>
 }
 
@@ -28,23 +30,39 @@ export function collectImportDependencyFacts(params: {
   readonly propertyFacts?: readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][]
 }): ImportDependencyFacts {
   const properties = new Map<string, DependentImportFacts>()
-  for (const candidate of params.candidates) {
-    const item = recordAtPath(params.yaml, candidate.itemYamlPath)
-    if (item === undefined) continue
+  const items = new Map<string, DependentImportFacts>()
+  const inspectedItems = new Set<string>()
+  const itemFacts = (itemType: string, itemYamlPath: readonly (string | number)[], itemName?: string) => {
+    const address = itemAddress(itemYamlPath, itemType)
+    if (inspectedItems.has(address)) return items.get(address)
+    inspectedItems.add(address)
+    const item = recordAtPath(params.yaml, itemYamlPath)
+    if (item === undefined) return undefined
     const facts = prepareDependentImportFacts({
-      itemType: candidate.itemType,
-      itemName: candidate.itemName,
-      itemYamlPath: candidate.itemYamlPath,
-      item,
-      rootYaml: params.yaml,
-      rootRule: params.rule,
-      owner: params.owner,
+      itemType, itemName, itemYamlPath, item, rootYaml: params.yaml, rootRule: params.rule, owner: params.owner,
     })
+    if (facts !== undefined) items.set(address, facts)
+    return facts
+  }
+  for (const candidate of params.candidates) {
+    const facts = itemFacts(candidate.itemType, candidate.itemYamlPath, candidate.itemName)
     if (facts !== undefined) properties.set(propertyAddress(candidate), facts)
   }
   const siblingProperties = new Map<string, { readonly value: unknown }>()
+  const dependentRules = new Map<MetadataItemRule, boolean>()
   for (const fact of params.propertyFacts ?? []) {
     if (fact.itemRule === undefined) continue
+    let dependent = dependentRules.get(fact.itemRule)
+    if (dependent === undefined) {
+      dependent = Object.keys(fact.itemRule.properties).some(key => isDependentImportProperty(fact.itemType, key))
+      dependentRules.set(fact.itemRule, dependent)
+    }
+    if (dependent) {
+      const path = fact.yamlPath.slice(0, -1)
+      const name = path.at(-1)
+      const facts = itemFacts(fact.itemType, path, typeof name === "string" ? name : undefined)
+      if (facts !== undefined) items.set(itemAddress((fact.sourceYamlPath ?? fact.yamlPath).slice(0, -1), fact.itemType), facts)
+    }
     let keys = siblingKeys.get(fact.itemRule)
     if (keys === undefined) {
       keys = new Set(Object.values(fact.itemRule.properties).flatMap(({ metadataTarget }) =>
@@ -57,7 +75,7 @@ export function collectImportDependencyFacts(params: {
     const value = typeof fact.value === "string" ? fact.value : Array.isArray(fact.value) ? [...fact.value] : undefined
     siblingProperties.set(siblingAddress((fact.sourceYamlPath ?? fact.yamlPath).slice(0, -1), fact.propertyKey), { value })
   }
-  return { rule: params.rule, owner: params.owner, properties, siblingProperties }
+  return { rule: params.rule, owner: params.owner, properties, items, siblingProperties }
 }
 
 export function prepareImportDependencies(
@@ -65,6 +83,7 @@ export function prepareImportDependencies(
   lookups: Pick<DependentItemParams, "definedTypeLookup" | "metadataTargetLookup"> = {},
 ): PreparedImportDependencies {
   return {
+    itemFacts: (path, itemType) => facts.items.get(itemAddress(path, itemType)),
     propertyValue: (path, key) => facts.siblingProperties.get(siblingAddress(path, key)) ?? { value: undefined },
     shouldOmit(candidate, values) {
       const dependency = facts.properties.get(propertyAddress(candidate))
@@ -88,6 +107,12 @@ export function prepareImportDependencies(
 
 function siblingAddress(path: readonly (string | number)[], key: string): string {
   return `${yamlPathToPointer(path)}:${key}`
+}
+
+function itemAddress(path: readonly (string | number)[], itemType: string): string {
+  const address = yamlPathToPointer([itemType, ...path])
+  if (address === undefined) throw new Error("Не удалось адресовать факты зависимостей item")
+  return address
 }
 
 function propertyAddress(candidate: ImportedDependentPropertyCandidate): string {

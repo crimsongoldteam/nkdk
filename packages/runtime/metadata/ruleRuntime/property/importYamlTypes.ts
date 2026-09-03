@@ -76,6 +76,7 @@ export interface DirectImportRoundTripExecution {
     readonly itemName?: string
     readonly yamlPath: YamlPath
     readonly rulePath: readonly DeferredRulePathSegment[]
+    readonly dependencies?: PreparedImportDependencies
   }): {
     ready(params: {
       readonly propertyKey: string
@@ -88,6 +89,7 @@ export interface DirectImportRoundTripExecution {
 }
 
 export interface PreparedImportDependencies {
+  itemFacts?(itemYamlPath: YamlPath, itemType: string): import("./dependentItemRegistry").DependentImportFacts | undefined
   shouldOmit(candidate: ImportedDependentPropertyCandidate, values: Record<string, unknown>): boolean
   /** Полное решение первого прохода; отсутствующее свойство возвращает value: undefined. */
   propertyValue?(itemYamlPath: YamlPath, propertyKey: string): { readonly value: unknown }

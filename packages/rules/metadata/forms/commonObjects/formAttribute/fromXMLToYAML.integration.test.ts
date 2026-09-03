@@ -11,7 +11,7 @@ serializeYAMLDocument,
 xmlElementChildren,
 xmlExport
 } from "@nkdk/runtime"
-import { createRuleRegistrySet, createLocalIndexesCollector, createImportedDependentPropertyCollector, importPropertiesFromXMLToYAML, withRuleRegistrySet, type MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import { createRuleRegistrySet, createLocalIndexesCollector, createImportedDependentPropertyCollector, createDirectImportFactsCollector, createCompiledRuleExecution, importPropertiesFromXMLToYAML, withRuleRegistrySet, type MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import {
 createDirectRoundTripContexts,
 testPropertyFromXMLToYAML,
@@ -83,6 +83,43 @@ function importStructuredFormAttributes(
 }
 
 describe("FormAttributes XML → YAML → XML", () => {
+  it.each(["before", "after", "missing"] as const)("восстанавливает пустой Settings по фактам типа: %s", (placement) => {
+    const registries = createRuleRegistrySet(metadataRules)
+    withRuleRegistrySet(registries, () => {
+      const contexts = createDirectRoundTripContexts({ logicalAddress: "Форма.Атрибут.Список" })
+      const context = contexts.importContext
+      const settings = '<Settings xsi:type="v8:TypeDescription"/>'
+      const source = parseXmlDocumentWithSaxes(`<Attribute name="Список" id="1">${placement === "before" ? settings : ""}<Type><v8:Type>v8:ValueListType</v8:Type></Type>${placement === "after" ? settings : ""}</Attribute>`).roots[0]!
+      const dependent = createImportedDependentPropertyCollector()
+      const propertyFacts = createDirectImportFactsCollector()
+      const params = { execution: registries.execution, context, rule: FormAttributeRules,
+        sources: [{ context, xml: source }], itemName: "Список", yamlPath: [], rulePath: [] }
+      const first = importPropertiesFromXMLToYAML({ ...params, mode: "facts", produceResult: true,
+        collector: createLocalIndexesCollector(), dependent, facts: propertyFacts,
+      })
+      const dependencies = prepareImportDependencies(collectImportDependencyFacts({
+        rule: FormAttributeRules, owner: { dir: "ОбщаяФорма", name: "Форма" }, yaml: first,
+        candidates: dependent.finish(), propertyFacts: propertyFacts.finish(),
+      }))
+      const writes: unknown[] = []
+      const roundTrip = createCompiledRuleExecution({
+        execution: registries.execution,
+        prepare: () => ({ context: contexts.exportContext(), name: "Список", outputs: [{ key: "owner" }] }),
+        consumer: ({ yaml }) => ({
+          write({ property, value }) { if (property.propertyKey === "valueType") {
+            if (placement === "before") expect(yaml).not.toHaveProperty("Тип")
+            writes.push(value)
+          } },
+          finish: () => new Map([["owner", { type: "element", name: "Attribute", occurrence: 1, sourceId: source.id }]]),
+        }),
+      })
+      const yaml = importPropertiesFromXMLToYAML({ ...params, collector: createLocalIndexesCollector(), dependencies, roundTrip })
+      expect(writes).toEqual([{ "_xsi:type": "v8:TypeDescription" }])
+      expect(yaml).toMatchObject({ Тип: "СписокЗначений" })
+      expect(yaml).not.toHaveProperty("ТипЗначения")
+    })
+  })
+
   it.each([
     { types: ["v8:ValueListType"], expected: "Строка" },
     { types: ["xs:string"], expected: undefined },

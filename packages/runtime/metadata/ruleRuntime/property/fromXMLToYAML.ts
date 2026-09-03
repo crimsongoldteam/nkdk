@@ -125,7 +125,7 @@ export function importPropertiesFromXMLToYAML(params: {
   const result: Record<string, unknown> | undefined = retainResult ? params.initialYAML ?? {} : undefined
   const roundTrip = result === undefined || params.mode === "facts" || params.roundTrip === undefined
     ? undefined : runRoundTripStep("open", () => params.roundTrip?.open({
-    context, rule, yaml: result, sources, itemName, yamlPath, rulePath,
+    context, rule, yaml: result, sources, itemName, yamlPath, rulePath, dependencies: params.dependencies,
   }))
   const retainedSiblingValues = new Map<string, unknown>()
   const retainedSiblingYamlKeys = metadataTargetSiblingYamlKeys(rule)

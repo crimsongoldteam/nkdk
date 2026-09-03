@@ -7,6 +7,7 @@ import type { MetadataItemRule } from "./types"
 import { prepareMetadataItemXMLExecution } from "../metadataItem/fromYAMLToXML"
 import { findInlineProperty } from "../metadataItem/yamlInline"
 import { prepareMetadataCollectionItemXMLContext } from "../metadataCollection/fromYAMLToXML"
+import { withPreparedXMLDependencyFacts } from "./preparedXMLDependencies"
 
 type ImportItem = Parameters<DirectImportRoundTripExecution["open"]>[0]
 type InlineSelector = string | number | undefined
@@ -127,6 +128,7 @@ export function createCompiledRuleExecution(params: {
         propertyRule: ownerProperty?.propertyRule,
       }, source.yaml).properties
       const consumer = params.consumer(source, children, prepared)
+      const dependencyFacts = source.dependencies?.itemFacts?.(source.yamlPath, source.rule.itemType)
       const plan = params.execution.propertyPlan(source.rule)
       const frame = {
         plan, prepared, childIndices: new Map<string, number>(), inline: new Map<string, Map<InlineSelector, InlineBindings>>(),
@@ -189,11 +191,11 @@ export function createCompiledRuleExecution(params: {
         ready({ propertyKey }) {
           const property = plan.propertiesByKey.get(propertyKey)
           if (property === undefined) throw new Error(`Не найдено свойство XML item: ${propertyKey}`)
-          item.execute(property)
+          withPreparedXMLDependencyFacts(source.yaml, dependencyFacts, () => item.execute(property))
         },
         finish() {
           if (active.at(-1) !== frame) throw new Error("XML item закрывается вне порядка вложенности")
-          try { item.finish() } finally { active.pop() }
+          try { withPreparedXMLDependencyFacts(source.yaml, dependencyFacts, () => item.finish()) } finally { active.pop() }
         },
       }
     },

@@ -1,12 +1,30 @@
 import { describe, expect, it } from "vitest"
 import "../../tests/metadataExecutionContext"
 import { MetadataCatalogRules } from "../appliedObjects/metadataCatalog/rules"
+import { FormAttributeRules } from "../forms/commonObjects/formAttribute/rules"
 import { collectImportDependencyFacts, prepareImportDependencies } from "./preparedDependencies"
 import type { ImportedDependentPropertyCandidate } from "@nkdk/runtime/rule-kit"
 
 const owner = { dir: "Справочник", name: "Товары" }
 
 describe("prepared import dependencies", () => {
+  it("готовит факты отсутствующего зависимого свойства по исходному адресу item", () => {
+    const facts = collectImportDependencyFacts({
+      rule: MetadataCatalogRules, owner, candidates: [],
+      yaml: { Атрибуты: { Список: { Тип: "СписокЗначений", Колонки: { НеНужна: { Тип: "Строка" } } } } },
+      propertyFacts: [{
+        itemType: "FormAttribute", itemRule: FormAttributeRules, propertyKey: "type", value: "СписокЗначений",
+        yamlPath: ["Атрибуты", "Список", "Тип"], sourceYamlPath: ["Атрибуты", 0, "Тип"],
+      }],
+    })
+    const dependencies = prepareImportDependencies(facts)
+    const prepared = dependencies.itemFacts?.(["Атрибуты", 0], "FormAttribute")
+    expect(prepared).toEqual({ item: { Тип: "СписокЗначений" }, root: {} })
+    expect(dependencies.itemFacts?.(["Атрибуты", "Список"], "FormAttribute")).toBe(prepared)
+    expect(dependencies.itemFacts?.(["Атрибуты", 0], "MetadataAttribute")).toBeUndefined()
+    expect(facts.properties.size).toBe(0)
+  })
+
   it.each([
     [["СтандартныйРеквизит.Наименование", "СтандартныйРеквизит.Код"], true],
     [["СтандартныйРеквизит.Код", "СтандартныйРеквизит.Наименование"], false],
