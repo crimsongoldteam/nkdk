@@ -56,7 +56,15 @@ export function parseStepwiseState(value: unknown): StepwiseScenarioState {
 }
 
 export async function readStepwiseState(path: string): Promise<StepwiseScenarioState> {
-  return parseStepwiseState(JSON.parse(await readFile(path, "utf8")))
+  try {
+    return parseStepwiseState(JSON.parse(await readFile(path, "utf8")))
+  } catch (caught) {
+    if (!isMissingFile(caught)) throw caught
+    const temporaryPath = `${path}.tmp`
+    const state = parseStepwiseState(JSON.parse(await readFile(temporaryPath, "utf8")))
+    await rename(temporaryPath, path)
+    return state
+  }
 }
 
 export async function writeStepwiseState(path: string, state: StepwiseScenarioState): Promise<void> {
@@ -73,4 +81,8 @@ function assertHash(value: string, name: string): void {
 
 function isHash(value: unknown): value is string {
   return typeof value === "string" && /^[a-f0-9]{64}$/u.test(value)
+}
+
+function isMissingFile(value: unknown): boolean {
+  return value instanceof Error && Reflect.get(value, "code") === "ENOENT"
 }
