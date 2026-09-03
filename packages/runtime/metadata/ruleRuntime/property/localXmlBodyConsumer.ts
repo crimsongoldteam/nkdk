@@ -22,6 +22,7 @@ export function createLocalXmlBodyConsumer(params: {
   readonly annotateScalar?: (boundary: {
     readonly source: XmlAddressedNode & { readonly value: string }
     readonly difference: XmlStructureDifference
+    readonly property: LocalBodyProperty
   }) => void
 }): CompiledXMLProofConsumer {
   const bindings = new Map<string, Parameters<NonNullable<CompiledXMLProofConsumer["bind"]>>[0]>()
@@ -49,7 +50,7 @@ export function createLocalXmlBodyConsumer(params: {
         }
         const scalarSource = binding.node
         return params.proof.checkValue(scalarSource, String(value), params.annotateScalar === undefined
-          ? undefined : difference => params.annotateScalar!({ source: scalarSource, difference }))
+          ? undefined : difference => params.annotateScalar!({ source: scalarSource, difference, property }))
       }
       const receipt = params.childReceipt(value)
       if (receipt === undefined) return complete(binding.node, name, value, property)

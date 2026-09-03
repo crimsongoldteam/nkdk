@@ -419,14 +419,19 @@ describe("importPropertiesFromXMLToYAML", () => {
     const root = parseXmlDocumentWithSaxes('<Root id="42"/>').roots[0]!
     let compared = 0
     const scalarDifferences: string[] = []
+    let scalarProperty: unknown
     const yaml = importWithLocalXMLBody({
       execution: rules.execution, context, rule, root, annotations: createXmlAnomalyAnnotations(),
       proof: createLocalXmlProof({ onValue: () => compared++ }),
-      annotateScalar({ difference }) { scalarDifferences.push(difference.kind) },
+      annotateScalar({ difference, property }) {
+        scalarDifferences.push(difference.kind)
+        scalarProperty = property
+      },
     })
     expect(yaml).toEqual({ ИД: mismatch ? "43" : "42" })
     expect(compared).toBe(1)
     expect(scalarDifferences).toEqual(mismatch ? ["value"] : [])
+    expect(scalarProperty).toEqual(mismatch ? expect.objectContaining({ propertyKey: "id", yamlKey: "ИД" }) : undefined)
   })
 
   it("передаёт правило свойства оформителю изменённого XML alias", () => {
