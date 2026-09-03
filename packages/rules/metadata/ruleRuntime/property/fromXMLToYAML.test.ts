@@ -142,13 +142,13 @@ describe("importPropertiesFromXMLToYAML", () => {
     })).toThrow(/отложенн/)
   })
 
-  it.each(["identity", "collection-copy", "item-copy", "inline", "inline-collection", "context"] as const)("импортирует три вложенных item с единственным обратным преобразованием: %s", (normalization) => {
+  it.each(["identity", "collection-copy", "item-copy", "inline", "inline-collection", "context", "singleton-context"] as const)("импортирует три вложенных item с единственным обратным преобразованием: %s", (normalization) => {
     const rules = createRuleRegistrySet(metadataRules)
     const calls: string[] = []
     rules.property.registerTypeRule("NestedRoundTripScalar" as never, "compileAtomicConversion", () => ({
       fromXMLToYAML: ({ value }) => { calls.push(`import:${String(value)}`); return { metadataValue: value, representationValue: value } },
       fromYAMLToXML: ({ value, context }) => {
-        if (normalization === "context") expect(context.exportToXML?.version).toBe("prepared-child")
+        if (normalization === "context" || normalization === "singleton-context") expect(context.exportToXML?.version).toBe("prepared-child")
         calls.push(`export:${String(value)}`)
         return { metadataValue: value, representationValue: value }
       },
@@ -164,13 +164,28 @@ describe("importPropertiesFromXMLToYAML", () => {
     } }
     rules.property.registerTypeRule("NestedRoundTripDetails" as never, "importFromXMLToYAML", ({ context, xml, traversal }) =>
       importMetadataItemFromXMLToYAML({ context, rule: detailsRule, xml, traversal }))
+    let contextPreparations = 0
+    let namePreparations = 0
+    let propertyPreparations = 0
     rules.property.registerTypeRule("NestedRoundTripDetails" as never, "yamlToXMLNestedRule", {
       kind: "item", itemRule: detailsRule,
+      ...(normalization === "singleton-context" ? {
+        resolveContext: ({ context }: { context: ReturnType<typeof mockContextToXML> }) => {
+          propertyPreparations++
+          return { ...context, exportToXML: { ...context.exportToXML, version: "prepared-property" } }
+        },
+        resolveItemName: () => { namePreparations++; return "Детали" },
+        resolveItemContext: ({ context, itemName }: { context: ReturnType<typeof mockContextToXML>; itemName?: string }) => {
+          expect(context.exportToXML.version).toBe("prepared-property")
+          expect(itemName).toBe("Детали")
+          contextPreparations++
+          return { ...context, exportToXML: { ...context.exportToXML, version: "prepared-child" } }
+        },
+      } : {}),
       ...(normalization === "item-copy" ? { normalizeYAML: ({ yaml }: { yaml: unknown }) => ({ ...yaml as object }) } : {}),
     })
     rules.property.registerTypeRule("NestedRoundTripRows" as never, "importFromXMLToYAML", (params) =>
       importMetadataItemCollectionFromXMLToYAML({ ...params, itemRule: rowRule, xmlElement: "Item", yamlAsArray: true }))
-    let contextPreparations = 0
     rules.property.registerTypeRule("NestedRoundTripRows" as never, "yamlToXMLNestedRule", {
       kind: "collection", itemRule: rowRule, xmlElement: "Item", yamlShape: "array",
       ...(normalization === "context" ? { resolveItemContext: ({ context }: { context: ReturnType<typeof mockContextToXML> }) => {
@@ -231,7 +246,9 @@ describe("importPropertiesFromXMLToYAML", () => {
     expect(comparisons).toBe(3)
     expect(preparedItems).toBe(3)
     expect(completedOwnAttributes).toBe(3)
-    expect(contextPreparations).toBe(normalization === "context" ? 3 : 0)
+    expect(contextPreparations).toBe(normalization === "context" || normalization === "singleton-context" ? 3 : 0)
+    expect(propertyPreparations).toBe(normalization === "singleton-context" ? 3 : 0)
+    expect(namePreparations).toBe(normalization === "singleton-context" ? 3 : 0)
     if (yaml === undefined) throw new Error("Ожидался YAML")
     expect(roundTrip.takeResult(yaml).roots.get("owner")).toEqual({ type: "element", name: "Root", occurrence: 1, sourceId: root.id })
     expect(() => roundTrip.takeResult(yaml)).toThrow(/закрыт|получен/)

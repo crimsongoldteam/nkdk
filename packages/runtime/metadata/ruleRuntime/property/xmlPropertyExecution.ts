@@ -193,6 +193,7 @@ export function prepareNestedXMLPropertyContext(params: {
 
 /** Локальный потребитель общей политики; поздние предметные hooks ещё не выполнены. */
 export interface XMLPropertyExecutionObserver {
+  prepareNestedProperty?(params: Parameters<typeof prepareNestedXMLPropertyContext>[0]): ReturnType<typeof prepareNestedXMLPropertyContext>
   /** До подготовки оболочки: закрытый ребёнок возвращает окончательный вклад. */
   reuseNested?(params: YAMLToXMLItemConversionParams): YAMLToXMLResult | undefined
   enterNested?(params: YAMLToXMLItemConversionParams): XMLPropertyExecutionObserver | undefined
@@ -210,6 +211,20 @@ export interface XMLPropertyExecution {
   readonly properties: readonly PlannedXMLProperty[]
   execute(property: PlannedXMLProperty): void
   finish(): YAMLToXMLResult
+}
+
+export function prepareSingletonXMLContext(params: {
+  readonly context: ConfigurationContextWithExportToXML
+  readonly descriptor: Extract<YAMLToXMLNestedRule, { kind: "item" }>
+  readonly yaml: unknown
+  readonly ownerName?: string
+  readonly propertyRule: PropertyRule
+}) {
+  const { context, descriptor, yaml, ownerName, propertyRule } = params
+  const itemName = descriptor.resolveItemName?.({ context, yaml, ownerName, propertyRule })
+  const prepared = descriptor.resolveItemContext?.({ context, name: ownerName, itemName, propertyRule }) ?? context
+  assertRequiredConfigurationIdentity({ context: prepared, kind: descriptor.requiredIdentity })
+  return { context: prepared, itemName }
 }
 
 export function createXMLPropertyExecution(
@@ -485,7 +500,7 @@ export function createXMLPropertyExecution(
       const prepareItemOutput = compiled === undefined
         ? typeRule(planned.propertyRule.type, "prepareXMLItemOutput")
         : compiled.operations.prepareXMLItemOutput
-      const nestedProperty = prepareNestedXMLPropertyContext({
+      const nestedProperty = (observer?.prepareNestedProperty ?? prepareNestedXMLPropertyContext)({
         context: propertyContext, ownerRule: params.rule, ownerName: params.name, property: planned, nestedRule,
       })
       const effectiveNestedRule = nestedProperty.rule
@@ -547,23 +562,12 @@ export function createXMLPropertyExecution(
         copyYAMLRuntimeMetadata(nestedYAML, normalizedNestedYAML)
       }
       copyXmlAnomalyAnnotationsDeep(params.annotations, nestedYAML, normalizedNestedYAML)
-      const itemName = effectiveNestedRule.kind === "item"
-        ? effectiveNestedRule.resolveItemName?.({
-            context: nestedContext,
-            yaml: normalizedNestedYAML,
-            ownerName: params.name,
-            propertyRule: planned.propertyRule,
-          })
-        : undefined
-      const nestedItemContext =
-        effectiveNestedRule.kind === "item" && effectiveNestedRule.resolveItemContext !== undefined
-          ? effectiveNestedRule.resolveItemContext({
-              context: nestedContext,
-              name: params.name,
-              itemName,
-              propertyRule: planned.propertyRule,
-            })
-          : nestedContext
+      let preparedSingleton: ReturnType<typeof prepareSingletonXMLContext> | undefined
+      const singleton = () => preparedSingleton ??= effectiveNestedRule.kind === "item"
+        ? prepareSingletonXMLContext({
+          context: nestedContext, descriptor: effectiveNestedRule, yaml: normalizedNestedYAML,
+          ownerName: params.name, propertyRule: planned.propertyRule,
+        }) : { context: nestedContext, itemName: undefined }
       const hasRawCollectionItems =
         effectiveNestedRule.kind === "collection" &&
         readXmlAnomalyRawCollectionItems(nestedYAML).length > 0
@@ -588,12 +592,6 @@ export function createXMLPropertyExecution(
       ) {
         return
       }
-      if (effectiveNestedRule.kind === "item") {
-        assertRequiredConfigurationIdentity({
-          context: nestedItemContext,
-          kind: effectiveNestedRule.requiredIdentity,
-        })
-      }
       const nested =
         effectiveNestedRule.kind === "collection"
           ? convertMetadataCollectionFromYAMLToXML({
@@ -617,7 +615,8 @@ export function createXMLPropertyExecution(
               convertProperties: convertNestedProperties,
               prepareOutput: prepareItemOutput,
               propertyRule: planned.propertyRule,
-              context: nestedItemContext,
+              context: nestedContext,
+              prepareContext: () => singleton().context,
               yaml: normalizedNestedYAML,
               annotations: params.annotations,
               rule:
@@ -628,7 +627,7 @@ export function createXMLPropertyExecution(
                 effectiveNestedRule.kind === "item" && effectiveNestedRule.injectOwnerName === true
                   ? params.name
                   : undefined,
-              sourceItemName: itemName ?? params.name,
+              get sourceItemName() { return singleton().itemName ?? params.name },
               outputs: nestedOutputs,
               sparseYAML: effectiveNestedRule.kind === "item" ? effectiveNestedRule.sparseYAML : undefined,
               externalWriteFactory: params.externalWriteFactory,
@@ -658,7 +657,7 @@ export function createXMLPropertyExecution(
             referenceXML: isRecord(references[index]?.value) ? references[index]?.value : undefined,
             propertyRule: planned.propertyRule,
             source,
-            itemName,
+            get itemName() { return singleton().itemName },
           })
         }
         if (
