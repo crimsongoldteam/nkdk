@@ -83,6 +83,8 @@ export interface YAMLToXMLPropertyTypeProfile {
 
 export interface YAMLToXMLItemConversionParams {
   readonly context: import("../../context/types").ConfigurationContextWithExportToXML
+  /** Исполняется только для нового item; закрытый proof-вклад пропускает подготовку. */
+  readonly prepareContext?: () => import("../../context/types").ConfigurationContextWithExportToXML
   readonly yaml: unknown
   readonly annotations?: XmlAnomalyAnnotations
   readonly rule: MetadataItemRule

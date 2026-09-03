@@ -1,11 +1,12 @@
 import type { CompiledPropertyPlan, CompiledPropertyRuleExecution } from "./compiledPropertyPlan"
 import type { DirectImportRoundTripExecution } from "./importYamlTypes"
 import type { YAMLToXMLItemConversionParams, YAMLToXMLResult, YAMLToXMLExternalWrite } from "./fromYAMLToXMLTypes"
-import { createXMLPropertyExecution, type XMLPropertyExecutionObserver } from "./xmlPropertyExecution"
+import { createXMLPropertyExecution, prepareNestedXMLPropertyContext, type XMLPropertyExecutionObserver } from "./xmlPropertyExecution"
 import type { LocalXmlChild } from "../xmlAnomaly/localProof"
 import type { MetadataItemRule } from "./types"
 import { prepareMetadataItemXMLExecution } from "../metadataItem/fromYAMLToXML"
 import { findInlineProperty } from "../metadataItem/yamlInline"
+import { prepareMetadataCollectionItemXMLContext } from "../metadataCollection/fromYAMLToXML"
 
 type ImportItem = Parameters<DirectImportRoundTripExecution["open"]>[0]
 type InlineSelector = string | number | undefined
@@ -42,6 +43,8 @@ export function createCompiledRuleExecution(params: {
   const active: {
     readonly plan: CompiledPropertyPlan
     readonly inline: Map<string, Map<InlineSelector, InlineBindings>>
+    readonly prepared: YAMLToXMLItemConversionParams
+    readonly childIndices: Map<string, number>
   }[] = []
   const children = {
     childReceipt(value: unknown): LocalXmlChild | undefined {
@@ -80,14 +83,38 @@ export function createCompiledRuleExecution(params: {
         inline = findInlineProperty(source.rule) !== undefined
         inlineRules.set(source.rule, inline)
       }
+      const supplied = params.prepare(source)
+      let context = supplied.context
+      let name = supplied.name
+      const nestedRule = ownerProperty?.operations.yamlToXMLNestedRule
+      if (parent !== undefined && ownerProperty !== undefined && nestedRule !== undefined && nestedRule.kind !== "externalFile") {
+        const output = parent.prepared.outputs.find(output => output.tags === undefined
+          || (ownerProperty.propertyRule.tag !== undefined && output.tags.includes(ownerProperty.propertyRule.tag)))
+        const nested = prepareNestedXMLPropertyContext({
+          context: output?.context ?? parent.prepared.context, ownerRule: parent.plan.rule,
+          ownerName: parent.prepared.name, property: ownerProperty, nestedRule,
+        })
+        context = nested.context
+        if (nested.rule.kind === "collection") {
+          const position = source.yamlPath.at(-1)
+          const index = typeof position === "number" ? position : parent.childIndices.get(ownerProperty.propertyKey) ?? 0
+          parent.childIndices.set(ownerProperty.propertyKey, index + 1)
+          name = nested.rule.yamlShape === "array" ? undefined : source.itemName
+          context = prepareMetadataCollectionItemXMLContext({
+            context, descriptor: nested.rule, yaml: source.yaml, name, index,
+            itemRule: source.rule, propertyRule: ownerProperty.propertyRule,
+          })
+        }
+      }
       const prepared = prepareMetadataItemXMLExecution({
-        ...params.prepare(source), rule: source.rule, yaml: source.yaml,
+        ...supplied, context, name, sourceItemName: supplied.sourceItemName ?? source.itemName,
+        rule: source.rule, yaml: source.yaml,
         prepareOutput: ownerProperty?.operations.prepareXMLItemOutput,
         propertyRule: ownerProperty?.propertyRule,
       }, source.yaml).properties
       const consumer = params.consumer(source, children, prepared)
       const plan = params.execution.propertyPlan(source.rule)
-      const frame = { plan, inline: new Map<string, Map<InlineSelector, InlineBindings>>() }
+      const frame = { plan, prepared, childIndices: new Map<string, number>(), inline: new Map<string, Map<InlineSelector, InlineBindings>>() }
       const item = createXMLPropertyExecution({
         ...prepared, execution: params.execution, rule: source.rule, yaml: source.yaml,
       }, undefined, {

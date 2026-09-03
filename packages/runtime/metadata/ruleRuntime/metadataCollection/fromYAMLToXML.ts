@@ -110,54 +110,10 @@ export function convertMetadataCollectionFromYAMLToXML(
     }
     copyXmlAnomalyAnnotationsDeep(params.annotations, yaml, normalizedYAML)
     copyXmlAnomalyExportClaim(yaml, normalizedYAML)
-    const defaultItemContext = configurationIndexCollectionItemContext({
-      context: params.context,
-      descriptor: params.descriptor,
-      yaml: normalizedYAML,
-      name,
-      index,
-    })
-    const indexedItemContext =
-      params.descriptor.resolveItemContext?.({
-        context: params.context,
-        yaml: normalizedYAML,
-        name,
-        index,
-        itemRule,
-        propertyRule: params.propertyRule,
-      }) ?? defaultItemContext
-    const itemContext =
-      name === undefined || itemRule.externalMetadata === undefined
-        ? indexedItemContext
-        : getChildContextToXML({
-            context: indexedItemContext,
-            itemType: itemRule.itemType,
-            path: `${itemRule.itemType}.${name}`,
-            name,
-            externalMetadata: itemRule.externalMetadata,
-          })
-    const currentItemPath = collectionItemCurrentPath({
-      context: params.context,
-      propertyRule: params.propertyRule,
-      name,
-    })
-    const referenceRemap = itemContext.importFromYAML?.referenceRemap
-    const itemContextWithReferenceRemap =
-      currentItemPath === undefined || referenceRemap === undefined
-        ? itemContext
-        : {
-            ...itemContext,
-            importFromYAML: {
-              ...itemContext.importFromYAML,
-              referenceRemap: {
-                ...referenceRemap,
-                currentPath: currentItemPath,
-              },
-            },
-          }
-    assertRequiredConfigurationIdentity({
-      context: itemContextWithReferenceRemap,
-      kind: params.descriptor.requiredIdentity,
+    let preparedContext: ConfigurationContextWithExportToXML | undefined
+    const prepareContext = () => preparedContext ??= prepareMetadataCollectionItemXMLContext({
+      context: params.context, descriptor: params.descriptor, yaml: normalizedYAML,
+      name, index, itemRule, propertyRule: params.propertyRule,
     })
     const itemOutputs = params.outputs.map((output) => {
       const referenceXML = references.get(output.key)!({
@@ -174,7 +130,8 @@ export function convertMetadataCollectionFromYAMLToXML(
       convertProperties: params.convertProperties,
       prepareOutput: params.prepareItemOutput,
       propertyRule: params.propertyRule,
-      context: itemContextWithReferenceRemap,
+      context: params.context,
+      prepareContext,
       yaml: normalizedYAML,
       annotations: params.annotations,
       rule: itemRule,
@@ -212,7 +169,7 @@ export function convertMetadataCollectionFromYAMLToXML(
               index,
               itemRule,
               propertyRule: params.propertyRule,
-              context: itemContextWithReferenceRemap,
+              get context() { return prepareContext() },
               collectionYAML: params.yaml,
               referenceXML: output.referenceXML,
             })
@@ -245,6 +202,32 @@ export function convertMetadataCollectionFromYAMLToXML(
     deferredByOutput,
     externalWrites,
   }
+}
+
+export function prepareMetadataCollectionItemXMLContext(params: {
+  readonly context: ConfigurationContextWithExportToXML
+  readonly descriptor: CollectionDescriptor
+  readonly yaml: unknown
+  readonly name?: string
+  readonly index: number
+  readonly itemRule: MetadataItemRule
+  readonly propertyRule?: PropertyRule
+}): ConfigurationContextWithExportToXML {
+  const { context, descriptor, yaml, name, index, itemRule, propertyRule } = params
+  const indexed = descriptor.resolveItemContext?.({ context, yaml, name, index, itemRule, propertyRule })
+    ?? configurationIndexCollectionItemContext(params)
+  const itemContext = name === undefined || itemRule.externalMetadata === undefined ? indexed : getChildContextToXML({
+    context: indexed, itemType: itemRule.itemType, path: `${itemRule.itemType}.${name}`, name,
+    externalMetadata: itemRule.externalMetadata,
+  })
+  const currentPath = collectionItemCurrentPath({ context, propertyRule, name })
+  const referenceRemap = itemContext.importFromYAML?.referenceRemap
+  const prepared = currentPath === undefined || referenceRemap === undefined ? itemContext : {
+    ...itemContext,
+    importFromYAML: { ...itemContext.importFromYAML, referenceRemap: { ...referenceRemap, currentPath } },
+  }
+  assertRequiredConfigurationIdentity({ context: prepared, kind: descriptor.requiredIdentity })
+  return prepared
 }
 
 function completeCollectionEntries(params: {

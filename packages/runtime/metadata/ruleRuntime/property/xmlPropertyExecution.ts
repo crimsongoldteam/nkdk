@@ -39,6 +39,7 @@ import type {
   YAMLToXMLOutputRequest,
   YAMLToXMLResult,
   YAMLToXMLItemConversionParams,
+  YAMLToXMLNestedRule,
 } from "./fromYAMLToXMLTypes"
 import { copyXmlAnomalyAnnotationsDeep } from "../../../yaml/xmlAnomalyAnnotations"
 import { copyYAMLRuntimeMetadata } from "../../../yaml/runtimeMetadata"
@@ -158,6 +159,37 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
 }
 
 type PlannedXMLProperty = YAMLToXMLPlannedProperty | CompiledProperty
+
+export function prepareNestedXMLPropertyContext(params: {
+  readonly context: ConfigurationContextWithExportToXML
+  readonly ownerRule: MetadataItemRule
+  readonly ownerName?: string
+  readonly property: PlannedXMLProperty
+  readonly nestedRule: Exclude<YAMLToXMLNestedRule, { kind: "externalFile" }>
+}) {
+  const { context, ownerRule, ownerName, property, nestedRule } = params
+  const childCollection = ownerRule.childCollections?.find(collection => collection.propertyKey === property.propertyKey)
+  const effectiveNestedRule = nestedRule.kind === "collection"
+    ? { ...nestedRule, itemRule: childCollection?.itemRule ?? nestedRule.itemRule }
+    : nestedRule.kind === "item"
+      ? { ...nestedRule, itemRule: nestedRule.itemRuleFromProperty?.(property.propertyRule) ?? nestedRule.itemRule }
+      : nestedRule
+  const propertyContext = withConfigurationIndexExportPropertyContext(
+    context, property.yamlKey ?? property.propertyKey,
+    childCollection?.configurationIndexUidSegment ?? property.propertyRule.configurationIndexUidSegment ?? property.propertyRule.operationTarget?.migrationSegment,
+    {
+      propertyKey: property.propertyKey,
+      configurationIndexAddressing: property.propertyRule.configurationIndexAddressing
+        ?? ("configurationIndexAddressing" in effectiveNestedRule ? effectiveNestedRule.configurationIndexAddressing : undefined),
+    },
+  )
+  return {
+    rule: effectiveNestedRule,
+    context: effectiveNestedRule.kind === "item" && effectiveNestedRule.resolveContext !== undefined
+      ? effectiveNestedRule.resolveContext({ context: propertyContext, name: ownerName, propertyRule: property.propertyRule })
+      : propertyContext,
+  }
+}
 
 /** Локальный потребитель общей политики; поздние предметные hooks ещё не выполнены. */
 export interface XMLPropertyExecutionObserver {
@@ -453,19 +485,10 @@ export function createXMLPropertyExecution(
       const prepareItemOutput = compiled === undefined
         ? typeRule(planned.propertyRule.type, "prepareXMLItemOutput")
         : compiled.operations.prepareXMLItemOutput
-      const childCollection = params.rule.childCollections?.find((collection) => collection.propertyKey === propertyKey)
-      const effectiveNestedRule =
-        nestedRule.kind === "collection"
-          ? {
-              ...nestedRule,
-              itemRule: childCollection?.itemRule ?? nestedRule.itemRule,
-            }
-          : nestedRule.kind === "item"
-            ? {
-                ...nestedRule,
-                itemRule: nestedRule.itemRuleFromProperty?.(planned.propertyRule) ?? nestedRule.itemRule,
-              }
-            : nestedRule
+      const nestedProperty = prepareNestedXMLPropertyContext({
+        context: propertyContext, ownerRule: params.rule, ownerName: params.name, property: planned, nestedRule,
+      })
+      const effectiveNestedRule = nestedProperty.rule
       const scalarTag = typeof planned.yamlKey === "string" && yaml !== undefined
         ? yamlScalarTagAt(yaml, planned.yamlKey)
         : undefined
@@ -473,29 +496,7 @@ export function createXMLPropertyExecution(
         ? typeRule(planned.propertyRule.type, "yamlScalarTagPolicy")
         : compiled.operations.yamlScalarTagPolicy
       assertYAMLScalarTagAllowed({ tag: scalarTag, policy: scalarTagPolicy })
-      const nestedPropertyContext = withConfigurationIndexExportPropertyContext(
-        propertyContext,
-        planned.yamlKey ?? planned.propertyKey,
-        childCollection?.configurationIndexUidSegment ??
-          planned.propertyRule.configurationIndexUidSegment ??
-          planned.propertyRule.operationTarget?.migrationSegment,
-        {
-          propertyKey: planned.propertyKey,
-          configurationIndexAddressing:
-            planned.propertyRule.configurationIndexAddressing ??
-            ("configurationIndexAddressing" in effectiveNestedRule
-              ? effectiveNestedRule.configurationIndexAddressing
-              : undefined),
-        }
-      )
-      const nestedContext =
-        effectiveNestedRule.kind === "item" && effectiveNestedRule.resolveContext !== undefined
-          ? effectiveNestedRule.resolveContext({
-              context: nestedPropertyContext,
-              name: params.name,
-              propertyRule: planned.propertyRule,
-            })
-          : nestedPropertyContext
+      const nestedContext = nestedProperty.context
       const sourceNestedYAML =
         planned.propertyKey === namePropertyKey && params.name !== undefined && !sourceHasProperty
           ? params.name

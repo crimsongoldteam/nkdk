@@ -43,6 +43,7 @@ export function prepareMetadataItemXMLExecution(
   params: MetadataItemXMLPreparationParams,
   importedProperties?: Record<string, unknown>,
 ): { readonly properties: YAMLToXMLItemConversionParams; finish(converted: YAMLToXMLResult): YAMLToXMLResult } {
+  const context = params.prepareContext?.() ?? params.context
   const inline = findInlineProperty(params.rule)
   if (importedProperties === undefined && inline === undefined && params.yaml !== undefined && !isRecord(params.yaml)) {
     const rulePath = params.rulePath ?? []
@@ -56,18 +57,18 @@ export function prepareMetadataItemXMLExecution(
     referenceXML: sanitizeReferenceXML(unwrapReferenceBody(output.referenceXML, root)),
     xmlEnvelope: prepareXMLItemEnvelope(params, output.referenceXML, root),
     itemPreparation: output.itemPreparation ?? params.prepareOutput?.({
-      context: params.context, yaml: params.yaml, itemRule: params.rule,
+      context, yaml: params.yaml, itemRule: params.rule,
       name: params.name ?? params.sourceItemName, propertyRule: params.propertyRule, referenceXML: output.referenceXML,
     }),
   }))
   const itemName = params.name ?? params.sourceItemName
   const itemContext: ConfigurationContextWithExportToXML =
     itemName === undefined
-      ? params.context
+      ? context
       : {
-          ...params.context,
+          ...context,
           importFromYAML: {
-            ...(params.context.importFromYAML ?? {}),
+            ...(context.importFromYAML ?? {}),
             parent: { name: itemName },
           },
         }

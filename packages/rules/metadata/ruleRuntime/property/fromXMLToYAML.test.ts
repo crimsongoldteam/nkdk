@@ -142,12 +142,16 @@ describe("importPropertiesFromXMLToYAML", () => {
     })).toThrow(/отложенн/)
   })
 
-  it.each(["identity", "collection-copy", "item-copy", "inline", "inline-collection"] as const)("импортирует три вложенных item с единственным обратным преобразованием: %s", (normalization) => {
+  it.each(["identity", "collection-copy", "item-copy", "inline", "inline-collection", "context"] as const)("импортирует три вложенных item с единственным обратным преобразованием: %s", (normalization) => {
     const rules = createRuleRegistrySet(metadataRules)
     const calls: string[] = []
     rules.property.registerTypeRule("NestedRoundTripScalar" as never, "compileAtomicConversion", () => ({
       fromXMLToYAML: ({ value }) => { calls.push(`import:${String(value)}`); return { metadataValue: value, representationValue: value } },
-      fromYAMLToXML: ({ value }) => { calls.push(`export:${String(value)}`); return { metadataValue: value, representationValue: value } },
+      fromYAMLToXML: ({ value, context }) => {
+        if (normalization === "context") expect(context.exportToXML?.version).toBe("prepared-child")
+        calls.push(`export:${String(value)}`)
+        return { metadataValue: value, representationValue: value }
+      },
     }))
     const detailsRule: MetadataItemRule = { itemType: "Catalog", properties: {
       value: { type: "NestedRoundTripScalar" as never, xml: "Value", yaml: "Значение", ...(normalization === "inline" ? { yamlInline: true } : {}) },
@@ -166,8 +170,13 @@ describe("importPropertiesFromXMLToYAML", () => {
     })
     rules.property.registerTypeRule("NestedRoundTripRows" as never, "importFromXMLToYAML", (params) =>
       importMetadataItemCollectionFromXMLToYAML({ ...params, itemRule: rowRule, xmlElement: "Item", yamlAsArray: true }))
+    let contextPreparations = 0
     rules.property.registerTypeRule("NestedRoundTripRows" as never, "yamlToXMLNestedRule", {
       kind: "collection", itemRule: rowRule, xmlElement: "Item", yamlShape: "array",
+      ...(normalization === "context" ? { resolveItemContext: ({ context }: { context: ReturnType<typeof mockContextToXML> }) => {
+        contextPreparations++
+        return { ...context, exportToXML: { ...context.exportToXML, version: "prepared-child" } }
+      } } : {}),
       ...(normalization === "collection-copy" ? { normalizeItemYAML: ({ yaml }: { yaml: unknown }) => ({ ...yaml as object }) } : {}),
     })
     let preparedItems = 0
@@ -222,9 +231,41 @@ describe("importPropertiesFromXMLToYAML", () => {
     expect(comparisons).toBe(3)
     expect(preparedItems).toBe(3)
     expect(completedOwnAttributes).toBe(3)
+    expect(contextPreparations).toBe(normalization === "context" ? 3 : 0)
     if (yaml === undefined) throw new Error("Ожидался YAML")
     expect(roundTrip.takeResult(yaml).roots.get("owner")).toEqual({ type: "element", name: "Root", occurrence: 1, sourceId: root.id })
     expect(() => roundTrip.takeResult(yaml)).toThrow(/закрыт|получен/)
+  })
+
+  it("наследует префиксы предопределённых типов в импортном frame до экспорта значений", () => {
+    const rules = createRuleRegistrySet(metadataRules)
+    const context = mockContextFromXML()
+    const exportContext = mockContextToXML()
+    exportContext.exportToXML.itemsTree.push({ itemType: "MetadataChartOfCharacteristicTypes", name: "Виды", path: "Виды" })
+    const type = '<Type><v8:Type>cfg:CatalogRef.Товары</v8:Type></Type>'
+    const root = parseXmlDocumentWithSaxes(`<Root xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config"><Items><Item><Name>Корень</Name>${type}<ChildItems><Item><Name>Дочерний</Name>${type}</Item></ChildItems></Item></Items></Root>`).roots[0]!
+    const prefixes: unknown[] = []
+    const roundTrip = createCompiledRuleExecution({
+      execution: rules.execution,
+      prepare: () => ({ context: exportContext, outputs: [{ key: "owner" }] }),
+      consumer({ sources }) {
+        const source = sources[0]!.xml
+        if (!isXmlElementNode(source)) throw new Error("Ожидался XML-узел")
+        return {
+          write({ property, value }) {
+            if (property.propertyKey === "type") prefixes.push((value as Record<string, Record<string, unknown>>)["v8:Type"]?.["#text"])
+          },
+          finish: () => new Map([["owner", { type: "element", name: source.name, occurrence: 1, sourceId: source.id }]]),
+        }
+      },
+    })
+    importPropertiesWithSources({
+      execution: rules.execution, context, rule: { itemType: "Catalog", properties: {
+        items: { type: "PredefinedItemCollection", xml: "Items", yaml: "Элементы" },
+      } },
+      sources: [{ context, xml: root }], yamlPath: [], rulePath: [], collector: createLocalIndexesCollector(), roundTrip,
+    })
+    expect(prefixes).toEqual(["d4p1:CatalogRef.Товары", "d6p1:CatalogRef.Товары"])
   })
 
   it.each(["facts", "yaml"] as const)("отделяет локальную проверку от первого прохода и raw-fallback: %s", (mode) => {
