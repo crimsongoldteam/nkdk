@@ -436,6 +436,13 @@ describe("partial sync matrix", () => {
     expect(properties?.after).toBe(
       "Комментарий: До изменения\nНазначенияИспользования: ПлатформаИМобильноеПриложение\n",
     )
+
+    for (const key of ["object:document", "object:document-numerator"]) {
+      const declaration = rootObjectDeclarations.find((item) => item.key === key)
+      const minimalProperties = declaration?.changes[0]
+      expect(minimalProperties?.after, key).not.toContain("КонтрольУникальности")
+      expect(minimalProperties?.after, key).not.toContain("ПериодичностьНомера")
+    }
   })
 
   it("declares every reachable owner-child capability", () => {

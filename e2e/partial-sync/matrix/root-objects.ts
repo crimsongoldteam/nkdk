@@ -59,7 +59,6 @@ export const rootObjectDeclarations = [
     "MetadataDocument",
     "Документ",
     "Документ",
-    "КонтрольУникальности: Истина\nПериодичностьНомера: Непериодический\n",
   ),
   directoryRoot("object:data-processor", "MetadataDataProcessor", "Обработка", "Обработка"),
   directoryRoot(
@@ -103,7 +102,6 @@ export const rootObjectDeclarations = [
     "MetadataDocumentNumerator",
     "Нумератор",
     "Нумератор",
-    "КонтрольУникальности: Истина\nПериодичностьНомера: Непериодический\n",
   ),
   directoryRoot("object:enumeration", "MetadataEnumeration", "Перечисление", "Перечисление"),
   directoryRoot(
