@@ -69,8 +69,8 @@ function importWithLocalXMLBody(params: {
     roundTrip: createCompiledRuleExecution({
       execution: params.execution,
       prepare: () => ({ context: mockContextToXML(), outputs: [{ key: "owner" }] }),
-      consumer: ({ yaml }, { childReceipt }) => createLocalXmlBodyConsumer({
-        key: "owner", source: params.root, proof: params.proof, childReceipt,
+      consumer: ({ yaml }, receipts) => createLocalXmlBodyConsumer({
+        key: "owner", source: params.root, proof: params.proof, ...receipts,
         annotate: boundary => params.annotate({ yaml, ...boundary }),
       }),
     }),
@@ -230,13 +230,13 @@ describe("importPropertiesFromXMLToYAML", () => {
     const roundTrip = createCompiledRuleExecution({
       execution: rules.execution,
       prepare: () => ({ context: mockContextToXML(), outputs: [{ key: "owner" }] }),
-      consumer({ rule, sources }, { childReceipt }, prepared) {
+      consumer({ rule, sources }, receipts, prepared) {
           const source = sources[0]!.xml
           if (!isXmlElementNode(source)) throw new Error("Нужен адресованный исходный XML")
           const own = prepared.outputs[0]?.itemPreparation
           if (rule === rowRule) expect(own).toBeDefined()
           return createLocalXmlBodyConsumer({
-            key: "owner", source, proof, childReceipt, itemPreparation: own,
+            key: "owner", source, proof, ...receipts, itemPreparation: own,
           })
       },
     })
@@ -402,6 +402,29 @@ describe("importPropertiesFromXMLToYAML", () => {
     expect(annotated).toBe(1)
     expect(yaml).toEqual({ Первое: "one", Последнее: "three", Среднее: undefined })
     expect(annotations.at(yaml, "Среднее")).toMatchObject({ kind: "raw", xml: null, hasSemanticValue: false })
+  })
+
+  it("освобождает проверенный XML-атрибут до завершения тела", () => {
+    const rules = createRuleRegistrySet(metadataRules)
+    const rule: MetadataItemRule = { itemType: "Catalog", properties: {
+      id: { type: "string", xml: "_id", yaml: "ИД" },
+    } }
+    const context = mockContextFromXML()
+    const root = parseXmlDocumentWithSaxes('<Root id="42"/>').roots[0]!
+    let compared = 0
+    const yaml = importPropertiesWithSources({
+      execution: rules.execution, context, rule, sources: [{ context, xml: root }], yamlPath: [], rulePath: [],
+      collector: createLocalIndexesCollector(),
+      roundTrip: createCompiledRuleExecution({
+        execution: rules.execution,
+        prepare: () => ({ context: mockContextToXML(), outputs: [{ key: "owner" }] }),
+        consumer: (_item, receipts) => createLocalXmlBodyConsumer({
+          key: "owner", source: root, proof: createLocalXmlProof({ onValue: () => compared++ }), ...receipts,
+        }),
+      }),
+    })
+    expect(yaml).toEqual({ ИД: "42" })
+    expect(compared).toBe(1)
   })
 
   it("объединяет fromXML и toYAML через скомпилированную атомарную пару", () => {

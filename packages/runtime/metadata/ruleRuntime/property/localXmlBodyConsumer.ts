@@ -11,12 +11,14 @@ export function createLocalXmlBodyConsumer(params: {
   readonly source: XmlElementNode
   readonly proof: LocalXmlProof
   readonly childReceipt: (value: unknown) => LocalXmlChild | undefined
+  readonly scalarReceipt: (value: unknown) => import("../xmlAnomaly/localProof").LocalXmlScalar | undefined
   readonly itemPreparation?: XMLItemOutputPreparation
   readonly annotate?: Parameters<typeof completeLocalXmlFragment>[0]["annotate"]
 }): CompiledXMLProofConsumer {
   const bindings = new Map<string, Parameters<NonNullable<CompiledXMLProofConsumer["bind"]>>[0]>()
   const complete = (source: XmlElementNode, name: string, value: unknown) => completeLocalXmlFragment({
-    source, name, value, proof: params.proof, childReceipt: params.childReceipt, annotate: params.annotate,
+    source, name, value, proof: params.proof, childReceipt: params.childReceipt,
+    scalarReceipt: params.scalarReceipt, annotate: params.annotate,
   })
   return {
     bind(input) {
@@ -25,13 +27,18 @@ export function createLocalXmlBodyConsumer(params: {
     write({ outputKey, property, path, value }) {
       if (outputKey !== params.key) throw new Error(`XML-выход ${outputKey} не принадлежит текущему телу ${params.key}`)
       const name = path.at(-1)
-      if (name === undefined || name.startsWith("_") || name.startsWith("#")) {
+      if (name === undefined) {
         throw new Error(`Не подготовлена скалярная XML-граница: ${path.join("/")}`)
       }
       const binding = bindings.get(property.propertyKey)
       if (binding === undefined) throw new Error(`Не передана исходная XML-граница свойства ${property.propertyKey}`)
       if (!binding.presentInXML) return
-      if (!isXmlElementNode(binding.node)) throw new Error(`Не передан XML-узел свойства ${property.propertyKey}`)
+      if (!isXmlElementNode(binding.node)) {
+        if (binding.node === undefined || !("value" in binding.node)) {
+          throw new Error(`Не передан скалярный XML-узел свойства ${property.propertyKey}`)
+        }
+        return params.proof.checkValue(binding.node, String(value))
+      }
       const receipt = params.childReceipt(value)
       if (receipt === undefined) return complete(binding.node, name, value)
       if (receipt.name !== name) throw new Error(`Изменена оболочка закрытого XML-ребёнка: ${receipt.name} → ${name}`)

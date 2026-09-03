@@ -1,6 +1,6 @@
 import type { XmlElementNode } from "../../../xml/import/document"
 import type { XmlStructureDifference } from "../../../xml/structure/compare"
-import type { LocalXmlChild, LocalXmlProof } from "./localProof"
+import type { LocalXmlChild, LocalXmlProof, LocalXmlScalar } from "./localProof"
 import { localXmlShapeFromObject } from "./localShape"
 
 /** Контрольный фрагмент живёт только во время вызова; наружу выходят ID и порядок. */
@@ -10,6 +10,7 @@ export function completeLocalXmlFragment(params: {
   readonly value: unknown
   readonly proof: LocalXmlProof
   readonly childReceipt?: (value: unknown) => LocalXmlChild | undefined
+  readonly scalarReceipt?: (value: unknown) => LocalXmlScalar | undefined
   readonly annotate?: (boundary: {
     readonly source: XmlElementNode
     readonly differences: readonly XmlStructureDifference[]
@@ -31,7 +32,7 @@ export function completeLocalXmlFragment(params: {
       // Содержимое лишней ветки не влияет на отсутствие её в оригинале.
       // Граница родителя оформляет её подавление вместе с составом и порядком.
       return child === undefined ? { type: "element", name, occurrence } : visit(child, name, value)
-    })
+    }, params.scalarReceipt)
     return params.proof.check(source, actual, params.annotate === undefined ? undefined
       : differences => params.annotate!({ source, differences }))
   }

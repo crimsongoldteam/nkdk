@@ -2,7 +2,7 @@ import type { CompiledPropertyPlan, CompiledPropertyRuleExecution } from "./comp
 import type { DirectImportRoundTripExecution, DirectImportXMLPropertyBinding } from "./importYamlTypes"
 import type { YAMLToXMLItemConversionParams, YAMLToXMLResult, YAMLToXMLExternalWrite } from "./fromYAMLToXMLTypes"
 import { createXMLPropertyExecution, prepareNestedXMLPropertyContext, prepareSingletonXMLContext, type XMLPropertyExecutionObserver } from "./xmlPropertyExecution"
-import type { LocalXmlChild } from "../xmlAnomaly/localProof"
+import type { LocalXmlChild, LocalXmlScalar } from "../xmlAnomaly/localProof"
 import type { MetadataItemRule } from "./types"
 import { prepareMetadataItemXMLExecution } from "../metadataItem/fromYAMLToXML"
 import { findInlineProperty } from "../metadataItem/yamlInline"
@@ -24,7 +24,7 @@ export interface CompiledXMLProofResult {
 export interface CompiledXMLProofConsumer {
   /** Прямая привязка импорта, включая alias и отсутствие исходного свойства. */
   bind?(source: DirectImportXMLPropertyBinding): void
-  write(event: Parameters<XMLPropertyExecutionObserver["write"]>[0]): LocalXmlChild | void
+  write(event: Parameters<XMLPropertyExecutionObserver["write"]>[0]): LocalXmlChild | LocalXmlScalar | void
   complete?: XMLPropertyExecutionObserver["complete"]
   /** На выходе только вклады корней; контрольные значения не сохраняются. */
   finish(output: YAMLToXMLResult): ReadonlyMap<string, LocalXmlChild>
@@ -35,6 +35,7 @@ export function createCompiledRuleExecution(params: {
   readonly prepare: (item: ImportItem) => Omit<YAMLToXMLItemConversionParams, "rule" | "yaml">
   readonly consumer: (item: ImportItem, children: {
     childReceipt(value: unknown): LocalXmlChild | undefined
+    scalarReceipt(value: unknown): LocalXmlScalar | undefined
   }, prepared: YAMLToXMLItemConversionParams) => CompiledXMLProofConsumer
 }): DirectImportRoundTripExecution & { takeResult(yaml: object): CompiledXMLProofResult } {
   const completed = new WeakMap<object, { readonly rule: MetadataItemRule; readonly result: CompiledXMLProofResult }>()
@@ -42,6 +43,7 @@ export function createCompiledRuleExecution(params: {
   // Ключ не содержит ни исходного YAML, ни контрольного XML и живёт только в этом запуске.
   const identity = Symbol("compiledXMLBoundary")
   const markers = new WeakMap<object, LocalXmlChild>()
+  const scalarMarkers = new WeakMap<object, LocalXmlScalar>()
   const inlineRules = new WeakMap<MetadataItemRule, boolean>()
   const active: {
     readonly plan: CompiledPropertyPlan
@@ -53,6 +55,9 @@ export function createCompiledRuleExecution(params: {
   const children = {
     childReceipt(value: unknown): LocalXmlChild | undefined {
       return value !== null && typeof value === "object" ? markers.get(value) : undefined
+    },
+    scalarReceipt(value: unknown): LocalXmlScalar | undefined {
+      return value !== null && typeof value === "object" ? scalarMarkers.get(value) : undefined
     },
   }
   const transport = (result: CompiledXMLProofResult): YAMLToXMLResult => ({
@@ -165,7 +170,10 @@ export function createCompiledRuleExecution(params: {
         write(event) {
           const receipt = consumer.write(event)
           const retainedValue = {}
-          if (receipt !== undefined) markers.set(retainedValue, receipt)
+          if (receipt !== undefined) {
+            if ("type" in receipt) markers.set(retainedValue, receipt)
+            else scalarMarkers.set(retainedValue, receipt)
+          }
           return { retainedValue }
         },
         complete(property) { consumer.complete?.(property) },
