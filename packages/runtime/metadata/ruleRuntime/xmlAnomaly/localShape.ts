@@ -8,6 +8,23 @@ export function localXmlShapeFromObject(
   child?: (name: string, value: unknown, occurrence: number) => LocalXmlChild,
   scalar?: (value: unknown) => LocalXmlScalar | undefined,
 ): LocalXmlShape {
+  if (Array.isArray(value)) {
+    if (child === undefined) throw new Error(`Для XML-фрагмента ${name} необходим потребитель`)
+    const occurrences = new Map<string, number>()
+    const content = value.map((entry, index) => {
+      const descriptors = xmlObjectOwnContent(entry).filter((descriptor) => descriptor.kind === "child")
+      if (descriptors.length > 1) throw new Error(`XML-элемент ${name}[${index}] имеет несколько оболочек`)
+      const descriptor = descriptors[0]
+      const childName = descriptor?.name ?? ""
+      const occurrence = childName.length === 0 ? index + 1 : (occurrences.get(childName) ?? 0) + 1
+      if (childName.length > 0) occurrences.set(childName, occurrence)
+      const receipt = child(childName, descriptor?.value ?? entry, occurrence)
+      if (receipt.name.length === 0) throw new Error(`Не определено имя XML-элемента ${name}[${index}]`)
+      occurrences.set(receipt.name, Math.max(occurrences.get(receipt.name) ?? 0, receipt.occurrence))
+      return receipt
+    })
+    return { name, content }
+  }
   let counts: Map<string, number> | undefined
   const content = xmlObjectOwnContent(value).map((descriptor) => {
     if (descriptor.kind === "text") {

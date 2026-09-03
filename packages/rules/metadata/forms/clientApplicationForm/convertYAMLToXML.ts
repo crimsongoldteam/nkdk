@@ -8,7 +8,7 @@ import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import { getUUID } from "../../helpers/uuid"
 import { recordCurrentExternalMetadataUuid } from "../../ruleRuntime/externalMetadata/record"
 import { convertPropertiesFromYAMLToXML } from "../../ruleRuntime/property/fromYAMLToXML"
-import type { YAMLToXMLExternalWrite, YAMLToXMLProfile } from "@nkdk/runtime/rule-kit"
+import type { XMLItemOutputPreparation, YAMLToXMLExternalWrite, YAMLToXMLProfile } from "@nkdk/runtime/rule-kit"
 import { ClientApplicationFormRules } from "./rules"
 import type { ClientApplicationFormXML, ClientApplicationFormYAML, FormMetadataXML } from "./types"
 import { FormRulesTags } from "./rules"
@@ -79,6 +79,11 @@ export function convertClientApplicationFormYAMLToXMLCore(
   const materializedYaml = materializeImplicitFormDataPaths(params.yaml, formDataPathContext)
   copyXmlAnomalyAnnotationsDeep(params.annotations, params.yaml, materializedYaml)
   const resolveDataPath = params.context.importFromYAML?.resolveDataPath
+  const resolveTableSourceProfile = createTableSourceClassifier({
+    formDataPathIndex,
+    ownerMetadataCache,
+    resolveDataPath,
+  })
   const metadataContext = {
     ...params.context,
     importFromYAML: {
@@ -88,19 +93,11 @@ export function convertClientApplicationFormYAMLToXMLCore(
         : { effectiveMainAttribute: formDataPathContext.effectiveMainAttribute }),
       formDataPathIndex,
       ownerMetadataCache,
-      resolveTableSourceProfile: (dataPath: unknown, elementName?: string) =>
-        classifyTableSource({
-          dataPath:
-            dataPath ?? (
-              elementName === undefined
-                ? undefined
-                : formDataPathContext.elementsByName.get(elementName)?.currentConfigurationValue
-            ),
-          index: formDataPathIndex,
-          resolve: (value: string) => resolveDataPath === undefined
-            ? resolveDataPathCore({ value, nameMode: "yaml", index: formDataPathIndex, ownerCache: ownerMetadataCache })
-            : resolveDataPath({ value, index: formDataPathIndex, ownerCache: ownerMetadataCache }),
-        }),
+      resolveTableSourceProfile: (dataPath: unknown, elementName?: string) => resolveTableSourceProfile(
+        dataPath ?? (elementName === undefined
+          ? undefined
+          : formDataPathContext.elementsByName.get(elementName)?.currentConfigurationValue),
+      ),
     },
   }
   const formContext = createFormBodyContext(metadataContext)
@@ -160,6 +157,46 @@ function createFormBodyContext(context: ConfigurationContextWithExportToXML): Co
   )
 }
 
+/** Готовый индекс первого прохода позволяет вычислять контекст формы до построения YAML. */
+export function prepareClientApplicationFormProofContexts(
+  context: ConfigurationContextWithExportToXML,
+): { readonly metadata: ConfigurationContextWithExportToXML; readonly form: ConfigurationContextWithExportToXML } {
+  const formDataPathIndex = context.importFromYAML?.formDataPathIndex
+  const ownerMetadataCache = context.importFromYAML?.ownerMetadataCache ?? context.exportToYAML?.ownerMetadataCache
+  if (formDataPathIndex === undefined || ownerMetadataCache === undefined) {
+    return { metadata: context, form: createFormBodyContext(context) }
+  }
+  const resolveDataPath = context.importFromYAML?.resolveDataPath
+  const resolveTableSourceProfile = createTableSourceClassifier({
+    formDataPathIndex,
+    ownerMetadataCache,
+    resolveDataPath,
+  })
+  const metadata: ConfigurationContextWithExportToXML = {
+    ...context,
+    importFromYAML: {
+      ...context.importFromYAML,
+      resolveTableSourceProfile,
+    },
+  }
+  return { metadata, form: createFormBodyContext(metadata) }
+}
+
+function createTableSourceClassifier(params: {
+  readonly formDataPathIndex: NonNullable<ConfigurationContextWithExportToXML["importFromYAML"]>["formDataPathIndex"]
+  readonly ownerMetadataCache: NonNullable<ConfigurationContextWithExportToXML["importFromYAML"]>["ownerMetadataCache"]
+  readonly resolveDataPath: NonNullable<ConfigurationContextWithExportToXML["importFromYAML"]>["resolveDataPath"]
+}) {
+  const { formDataPathIndex: index, ownerMetadataCache: ownerCache, resolveDataPath } = params
+  return (dataPath: unknown) => classifyTableSource({
+    dataPath,
+    index: index!,
+    resolve: (value: string) => resolveDataPath === undefined
+      ? resolveDataPathCore({ value, nameMode: "yaml", index: index!, ownerCache: ownerCache! })
+      : resolveDataPath({ value, index: index!, ownerCache: ownerCache! }),
+  })
+}
+
 function readMetadataUUID(metadata: Record<string, unknown>): string | undefined {
   const form = asRecord(metadata.Form)
   return typeof form?._uuid === "string" ? form._uuid : undefined
@@ -192,3 +229,36 @@ const METADATA_NAMESPACES = {
   "_xmlns:xs": "http://www.w3.org/2001/XMLSchema",
   "_xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
 } as const
+
+/** Финальная оболочка двух корней формы для локального proof и обычного экспорта. */
+export function prepareClientApplicationFormRootOutput(params: {
+  readonly key: string
+  readonly context: ConfigurationContextWithExportToXML
+  readonly source?: import("@nkdk/runtime").XmlElementNode
+}): XMLItemOutputPreparation | undefined {
+  if (params.key === "source-0") {
+    return {
+      attributes: (own) => ({
+        ...clientApplicationFormNamespaces(params.context),
+        _version: "2.20",
+        ...own,
+      }),
+    }
+  }
+  if (params.key === "source-1") {
+    return {
+      attributes: (own) => ({ ...METADATA_NAMESPACES, _version: "2.20", ...own }),
+      initialize(body) {
+        const form = asRecord("Form" in body ? body.Form : undefined)
+        if (form === undefined) return
+        if (Object.prototype.hasOwnProperty.call(form, "_uuid")) return
+        const sourceForm = params.source?.content.find(
+          (entry): entry is import("@nkdk/runtime").XmlElementNode => entry.type === "element" && entry.name === "Form",
+        )
+        const sourceUuid = sourceForm?.attributes.find(({ name }) => name === "uuid")?.value
+        form._uuid = sourceUuid ?? (typeof form._uuid === "string" ? form._uuid : getUUID(params.context))
+      },
+    }
+  }
+  return undefined
+}

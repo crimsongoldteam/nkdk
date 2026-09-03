@@ -9,6 +9,7 @@ import {
   type XmlDocument,
   type XmlElementNode,
   type XmlRootStructure,
+  type ConfigurationContextWithExportToXML,
 } from "@nkdk/runtime"
 import { withConfigurationIndexCollector } from "@nkdk/runtime"
 import type { ConfigurationIndexCollector } from "@nkdk/runtime"
@@ -17,6 +18,7 @@ import { importClientApplicationFormFromXMLToYAML } from "../forms/clientApplica
 import { importBaseFormYaml } from "../forms/clientApplicationForm/baseFormYaml"
 import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
 import type { ClientApplicationFormXML, FormMetadataXML } from "../forms/clientApplicationForm/types"
+import { prepareClientApplicationFormProofContexts, prepareClientApplicationFormRootOutput } from "../forms/clientApplicationForm/convertYAMLToXML"
 import { importMetadataItemFromXMLToYAML } from "../ruleRuntime/metadataItem/fromXMLToYAML"
 import {
   appendMetadataItemOwner,
@@ -26,6 +28,7 @@ import {
 import { metadataTargetOwnerFromRule } from "../ruleRuntime/property/metadataTargetString"
 import type { MetadataItemRule, PropertyRule } from "@nkdk/runtime/rule-kit"
 import type { DirectImportProfile, DirectImportResult, PreparedImportDependencies } from "@nkdk/runtime/rule-kit"
+import type { CompiledPropertyRuleExecution } from "@nkdk/runtime/rule-kit"
 import type { ImportedDependentPropertyCandidate } from "@nkdk/runtime/rule-kit"
 import {
   createDeferredValuePathCollector,
@@ -42,6 +45,8 @@ import type { ValidationProfiler } from "../validation/profile"
 import type { ConfigurationIndexBlockFragment } from "@nkdk/runtime"
 import { expandMetadataPathPattern } from "../resourceTopology/core/patterns"
 import type { ImportAssignment, ImportXmlInput, ParsedImportXmlDocument } from "./types"
+import type { ImportedIssueDecision } from "./classifyImportedIssues"
+import { createImportLocalRoundTrip } from "./localRoundTrip"
 import {
   normalizeImportedDependentItems,
   partitionImportedDependentItems,
@@ -68,6 +73,7 @@ export interface PreparedImportYaml {
   dependentOwner: { readonly dir: string; readonly name: string }
   generatedFiles: ExternalFileEntry[]
   baseFormCandidate?: PreparedBaseFormCandidate
+  localProofCompleted?: true
 }
 
 export interface PreparedBaseFormCandidate {
@@ -162,6 +168,12 @@ export async function prepareImportYamlFromDocuments(params: {
   readonly inputs: readonly ParsedImportXmlDocument[]
   readonly profiler?: ValidationProfiler
   readonly topology?: CompiledMetadataResourceTopology
+  readonly localRoundTrip?: {
+    readonly execution: CompiledPropertyRuleExecution
+    readonly context: ConfigurationContextWithExportToXML
+    readonly decisions: readonly ImportedIssueDecision[]
+    readonly selectDecisions?: (yaml: Record<string, unknown>) => readonly ImportedIssueDecision[]
+  }
 }): Promise<PreparedImportYaml> {
   return prepareImportYamlFromParsedInputs({
     ...params,
@@ -184,12 +196,15 @@ function prepareImportYamlFromParsedInputs(params: {
   readonly profiler?: ValidationProfiler
   readonly topology?: CompiledMetadataResourceTopology
   readonly proofDetail?: "full" | "roots"
+  readonly localRoundTrip?: {
+    readonly execution: CompiledPropertyRuleExecution
+    readonly context: ConfigurationContextWithExportToXML
+    readonly decisions: readonly ImportedIssueDecision[]
+    readonly selectDecisions?: (yaml: Record<string, unknown>) => readonly ImportedIssueDecision[]
+  }
 }): PreparedImportYaml {
     const xmlInputs = params.xmlInputs
     const annotations = createXmlAnomalyAnnotations()
-    const audit = params.proofDetail === "roots"
-      ? undefined
-      : createXmlImportAuditSession(xmlInputs.flatMap(({ document }) => document?.roots ?? []))
     const {
       generatedFiles,
       rule,
@@ -202,6 +217,24 @@ function prepareImportYamlFromParsedInputs(params: {
       collector: params.collector,
       topology: params.topology,
     })
+    const formProofContexts = params.localRoundTrip === undefined || rule.itemType !== ClientApplicationFormRules.itemType
+      ? undefined
+      : prepareClientApplicationFormProofContexts(params.localRoundTrip.context)
+    const localRoundTrip = params.localRoundTrip === undefined ? undefined : createImportLocalRoundTrip({
+      ...params.localRoundTrip,
+      annotations,
+      ...(rule.itemType !== ClientApplicationFormRules.itemType
+        ? {}
+        : {
+            prepareRootOutput: ({ key, source }: { readonly key: string; readonly source: XmlElementNode }) =>
+              prepareClientApplicationFormRootOutput({ key, source, context: params.localRoundTrip!.context }),
+            prepareRootContext: ({ key }: { readonly key: string }) =>
+              key === "source-0" ? formProofContexts?.form : formProofContexts?.metadata,
+          }),
+    })
+    const audit = params.proofDetail === "roots" || localRoundTrip !== undefined
+      ? undefined
+      : createXmlImportAuditSession(xmlInputs.flatMap(({ document }) => document?.roots ?? []))
 
     const importProfile = params.profiler === undefined
       ? undefined
@@ -234,7 +267,11 @@ function prepareImportYamlFromParsedInputs(params: {
           annotations,
           profile: importProfile,
           rule,
+          roundTrip: localRoundTrip,
         })
+        if (imported.yaml !== undefined && imported.yaml !== null && typeof imported.yaml === "object") {
+          localRoundTrip?.release(imported.yaml)
+        }
         const baseFormCandidate = importAssignmentBaseFormCandidate({
           assignment: params.assignment,
           topology: params.topology,
@@ -268,6 +305,7 @@ function prepareImportYamlFromParsedInputs(params: {
           dependencies: params.dependencies,
           ...(audit === undefined ? {} : { audit }),
           annotations,
+          roundTrip: localRoundTrip,
           ...(metadataNode === undefined ? {} : { xmlNodes: [metadataNode] }),
           profile: importProfile,
         },
@@ -275,6 +313,8 @@ function prepareImportYamlFromParsedInputs(params: {
         propertyXMLNodes: externalPropertyXml.nodesByPropertyKey,
       })
       if (yaml === undefined) throw new Error("XML-import не сформировал YAML")
+      if (yaml === null || typeof yaml !== "object") throw new Error("XML-import сформировал не объект YAML")
+      localRoundTrip?.release(yaml)
       const dependentCandidates = dependent.finish()
       const partitioned = partitionImportedDependentItems({
         yaml,
@@ -310,7 +350,7 @@ function prepareImportYamlFromParsedInputs(params: {
     if (importProfile !== undefined) recordDirectImportProfile(params.profiler, importProfile)
     audit?.finalize()
     if (audit !== undefined) importAuditOutcomeCountValueForTests += audit.outcomes().length
-    const proofAudit = params.proofDetail === "roots"
+    const proofAudit = params.proofDetail === "roots" || localRoundTrip !== undefined
       ? {
           sources: xmlInputs.map(({ input, roots }) => ({
             sourcePath: input.sourcePath,
@@ -368,6 +408,7 @@ function prepareImportYamlFromParsedInputs(params: {
       dependentDeferred: result.dependentDeferred,
       dependentOwner,
       generatedFiles: [...generatedFiles, ...result.generatedFiles.filter((file) => !generatedFiles.includes(file))],
+      ...(localRoundTrip === undefined ? {} : { localProofCompleted: true }),
       ...(result.baseFormCandidate === undefined ? {} : { baseFormCandidate: result.baseFormCandidate }),
     }
 }

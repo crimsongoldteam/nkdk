@@ -32,7 +32,15 @@ export function createAnnotatedLocalXmlBodyConsumer(params: Omit<
         const key = property.yamlKey
         const expectedName = property.xmlPath.at(-1)
         if (key === undefined || expectedName === undefined) {
-          throw new Error(`Для XML-свойства ${property.propertyKey} не подготовлена YAML-граница`)
+          projectLocalXmlOwnValues({
+            yaml: params.yaml, annotations: params.annotations, root: source,
+            differences, path: property.xmlPath,
+          })
+          projectLocalXmlOrder({
+            yaml: params.yaml, annotations: params.annotations, root: source,
+            differences, path: property.xmlPath,
+          })
+          return
         }
         projectLocalXmlPropertyDifferences({
           parent: params.yaml, key, annotations: params.annotations,
@@ -89,7 +97,11 @@ export function createAnnotatedLocalXmlBodyConsumer(params: Omit<
     },
     annotateAbsent({ property }) {
       const key = property.yamlKey
-      if (key === undefined) throw new Error(`Для XML-свойства ${property.propertyKey} не подготовлена YAML-граница`)
+      if (key === undefined || property.propertyRule.toYAML === false) {
+        const label = property.propertyRule.yaml ?? property.xmlPath.at(-1)
+        if (label !== undefined) appendRaw(`@Form\\${label}`, null)
+        return
+      }
       annotateXmlRawValue({
         parent: params.yaml, key, annotations: params.annotations, xml: null,
         hasSemanticValue: Object.prototype.hasOwnProperty.call(params.yaml, key),
@@ -105,6 +117,7 @@ export function createAnnotatedLocalXmlBodyConsumers(params: {
     readonly source: BodyConsumerParams["source"]
     readonly proof: BodyConsumerParams["proof"]
     readonly itemPreparation?: BodyConsumerParams["itemPreparation"]
+    readonly xmlEnvelope?: BodyConsumerParams["xmlEnvelope"]
   }[]
   readonly yaml: Record<string, unknown>
   readonly annotations: XmlAnomalyAnnotationTable

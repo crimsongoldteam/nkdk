@@ -1,5 +1,18 @@
 import type { XmlAddressedNode, XmlAttributeNode, XmlContentNode, XmlElementNode } from "../../../xml/import/document"
 import type { XmlStructureDifference } from "../../../xml/structure/compare"
+import { normalizeXmlElementContent } from "../../../xml/structure/hash"
+
+export const LOCAL_XML_BOUNDARY = Symbol("localXmlBoundary")
+
+export function markLocalXmlBoundary<T extends object>(value: T): T {
+  Object.defineProperty(value, LOCAL_XML_BOUNDARY, { value: true })
+  return value
+}
+
+export function isLocalXmlBoundary(value: unknown): value is object {
+  return value !== null && typeof value === "object"
+    && (value as { readonly [LOCAL_XML_BOUNDARY]?: true })[LOCAL_XML_BOUNDARY] === true
+}
 
 /** Дочерний XML уже проверен; родителю передаётся только его структурный вклад. */
 export interface LocalXmlChild {
@@ -120,6 +133,7 @@ export function createLocalXmlProof(instrumentation?: {
     if (source.attributes.length > 0 || actual.attributes?.length) {
       attributes(source.attributes, actual.attributes ?? [], source.path, differences)
     }
+    const sourceContent = normalizeXmlElementContent(source.content)
     const counts = new Map<string, number>()
     const actualEntries = (actual.content ?? []).map((content) => {
       const kind = content.type === "element" ? content.name
@@ -132,7 +146,7 @@ export function createLocalXmlProof(instrumentation?: {
     if (actualByKey.size !== actualEntries.length) throw new Error(`Повторный структурный вклад XML: ${source.path}`)
     const expectedKeys: string[] = []
     const restoredKeys = actualEntries.map(({ key }) => key)
-    for (const content of source.content) {
+    for (const content of sourceContent) {
       const key = sourceContentKey(content)
       expectedKeys.push(key)
       const counterpart = actualByKey.get(key)

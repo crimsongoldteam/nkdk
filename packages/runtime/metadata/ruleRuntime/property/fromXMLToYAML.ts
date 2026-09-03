@@ -124,6 +124,7 @@ export function importPropertiesFromXMLToYAML(params: {
   const retainResult = params.mode !== "facts" || params.produceResult === true
   const result: Record<string, unknown> | undefined = retainResult ? params.initialYAML ?? {} : undefined
   const roundTrip = result === undefined || params.mode === "facts" || params.roundTrip === undefined
+    || params.roundTrip.accepts?.(sources) === false
     ? undefined : runRoundTripStep("open", () => params.roundTrip?.open({
     context, rule, yaml: result, sources, itemName, yamlPath, rulePath, dependencies: params.dependencies,
   }))
@@ -221,6 +222,7 @@ export function importPropertiesFromXMLToYAML(params: {
       params.facts,
     ]).begin()
     let discardAttempt = false
+    let proofReady = false
     try {
       const run = (): void => {
         const dependentImportProperty = compiled === undefined
@@ -366,6 +368,7 @@ export function importPropertiesFromXMLToYAML(params: {
           }
           return
         }
+        proofReady = true
 
         const hasExplicitXMLKeyWithEmptyDefault = "defaultValueXMLEmpty" in propertyRule && presentInXML
         const hasRawEmptyXML = hasExplicitXMLKeyWithEmptyDefault && (xmlValue === undefined || xmlValue === "")
@@ -678,7 +681,24 @@ export function importPropertiesFromXMLToYAML(params: {
               }, yamlValueBeforeMetadataTargets)
             : { value: yamlValueBeforeMetadataTargets, uuidOccurrences: [] }
           const yamlValue = yamlProjection.value
-          const exportedYamlValue = yamlValue
+          const finalize = compiled === undefined
+            ? typeRule(propertyRule.type, "finalizeImportedYAML")
+            : compiled.operations.finalizeImportedYAML
+          const requiresFinalization = compiled === undefined
+            ? typeRule(propertyRule.type, "requiresImportedYAMLFinalization")
+            : compiled.operations.requiresImportedYAMLFinalization
+          const shouldFinalize = finalize !== undefined
+            && (requiresFinalization === undefined || requiresFinalization({ value: yamlValue }))
+          const exportedYamlValue = params.dependencies !== undefined && shouldFinalize
+            ? finalize({
+                context: sourceContext,
+                rule: propertyRule,
+                value: yamlValue,
+                ...(sourceContext.importFromYAML?.formDataPathIndex === undefined
+                  ? {}
+                  : { formDataPathIndex: sourceContext.importFromYAML.formDataPathIndex }),
+              })
+            : yamlValue
           params.facts?.acceptProperty({
             itemType: rule.itemType,
             itemRule: rule,
@@ -796,16 +816,9 @@ export function importPropertiesFromXMLToYAML(params: {
             value: exportedYamlValue,
             ...(owner === undefined ? {} : { metadataTargetOwner: owner }),
           })
-          const finalize = compiled === undefined
-            ? typeRule(propertyRule.type, "finalizeImportedYAML")
-            : compiled.operations.finalizeImportedYAML
-          const requiresFinalization = compiled === undefined
-            ? typeRule(propertyRule.type, "requiresImportedYAMLFinalization")
-            : compiled.operations.requiresImportedYAMLFinalization
           if (
             params.dependencies === undefined &&
-            finalize !== undefined &&
-            (requiresFinalization === undefined || requiresFinalization({ value: yamlValue }))
+            shouldFinalize
           ) {
             deferred?.accept({ valuePath: propertyYamlPath, rulePath: propertyRulePath })
           }
@@ -851,7 +864,7 @@ export function importPropertiesFromXMLToYAML(params: {
       return false
     }
     attempt.commit()
-    return true
+    return proofReady
   }
 
   const importMatch = (match: Parameters<typeof importMatchUnprofiled>[0]): void => {

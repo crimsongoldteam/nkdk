@@ -2,10 +2,9 @@ import type { CompiledPropertyPlan, CompiledPropertyRuleExecution } from "./comp
 import type { DirectImportRoundTripExecution, DirectImportXMLPropertyBinding } from "./importYamlTypes"
 import type { YAMLToXMLItemConversionParams, YAMLToXMLResult, YAMLToXMLExternalWrite } from "./fromYAMLToXMLTypes"
 import { createXMLPropertyExecution, prepareNestedXMLPropertyContext, prepareSingletonXMLContext, type XMLPropertyExecutionObserver } from "./xmlPropertyExecution"
-import type { LocalXmlChild, LocalXmlScalar } from "../xmlAnomaly/localProof"
+import { markLocalXmlBoundary, type LocalXmlChild, type LocalXmlScalar } from "../xmlAnomaly/localProof"
 import type { MetadataItemRule } from "./types"
 import { prepareMetadataItemXMLExecution } from "../metadataItem/fromYAMLToXML"
-import { findInlineProperty } from "../metadataItem/yamlInline"
 import { prepareMetadataCollectionItemXMLContext } from "../metadataCollection/fromYAMLToXML"
 import { withPreparedXMLDependencyFacts } from "./preparedXMLDependencies"
 
@@ -22,11 +21,12 @@ export interface CompiledXMLProofResult {
 }
 
 export const SUPPRESSED_LOCAL_XML_OUTPUT = Symbol("suppressedLocalXmlOutput")
+export const RETAINED_LOCAL_XML_OUTPUT = Symbol("retainedLocalXmlOutput")
 
 export interface CompiledXMLProofConsumer {
   /** Прямая привязка импорта, включая alias и отсутствие исходного свойства. */
   bind?(source: DirectImportXMLPropertyBinding): void
-  write(event: Parameters<XMLPropertyExecutionObserver["write"]>[0]): LocalXmlChild | LocalXmlScalar | typeof SUPPRESSED_LOCAL_XML_OUTPUT | void
+  write(event: Parameters<XMLPropertyExecutionObserver["write"]>[0]): LocalXmlChild | LocalXmlScalar | typeof SUPPRESSED_LOCAL_XML_OUTPUT | typeof RETAINED_LOCAL_XML_OUTPUT | void
   complete?: XMLPropertyExecutionObserver["complete"]
   /** На выходе только вклады корней; контрольные значения не сохраняются. */
   finish(output: YAMLToXMLResult): ReadonlyMap<string, LocalXmlChild>
@@ -47,7 +47,6 @@ export function createCompiledRuleExecution(params: {
   const identity = Symbol("compiledXMLBoundary")
   const markers = new WeakMap<object, LocalXmlChild>()
   const scalarMarkers = new WeakMap<object, LocalXmlScalar>()
-  const inlineRules = new WeakMap<MetadataItemRule, boolean>()
   const active: {
     readonly plan: CompiledPropertyPlan
     readonly inline: Map<string, Map<InlineSelector, InlineBindings>>
@@ -65,7 +64,7 @@ export function createCompiledRuleExecution(params: {
   }
   const transport = (result: CompiledXMLProofResult): YAMLToXMLResult => ({
     outputs: new Map([...result.roots].map(([key, receipt]) => {
-      const marker = {}
+      const marker = markLocalXmlBoundary({})
       markers.set(marker, receipt)
       return [key, marker]
     })),
@@ -78,9 +77,9 @@ export function createCompiledRuleExecution(params: {
     completed.delete(key)
     return entry
   }
-  const take = (yaml: object) => {
+  const take = (yaml: object, itemType?: string) => {
     const key = (yaml as { readonly [identity]?: object })[identity]
-    if (key === undefined) throw new Error("Для XML item не подготовлена идентичность границы")
+    if (key === undefined) throw new Error(`Для XML item${itemType === undefined ? "" : ` ${itemType}`} не подготовлена идентичность границы`)
     return takeKey(key)
   }
   return {
@@ -90,11 +89,6 @@ export function createCompiledRuleExecution(params: {
       const propertyKey = source.rulePath.at(-1)?.propertyKey
       const parent = active.at(-1)
       const ownerProperty = propertyKey === undefined ? undefined : parent?.plan.propertiesByKey.get(propertyKey)
-      let inline = inlineRules.get(source.rule)
-      if (inline === undefined) {
-        inline = findInlineProperty(source.rule) !== undefined
-        inlineRules.set(source.rule, inline)
-      }
       const supplied = params.prepare(source)
       let context = supplied.context
       let name = supplied.name
@@ -131,12 +125,13 @@ export function createCompiledRuleExecution(params: {
           sourceItemName = singleton.itemName ?? parent.prepared.name
         }
       }
-      const prepared = prepareMetadataItemXMLExecution({
+      const itemPreparation = prepareMetadataItemXMLExecution({
         ...supplied, context, name, sourceItemName,
         rule: source.rule, yaml: source.yaml,
         prepareOutput: ownerProperty?.operations.prepareXMLItemOutput,
         propertyRule: ownerProperty?.propertyRule,
-      }, source.yaml).properties
+      }, source.yaml)
+      const prepared = itemPreparation.properties
       const consumer = params.consumer(source, children, prepared)
       const dependencyFacts = source.dependencies?.itemFacts?.(source.yamlPath, source.rule.itemType)
       const plan = params.execution.propertyPlan(source.rule)
@@ -164,16 +159,21 @@ export function createCompiledRuleExecution(params: {
           if (inlineKey === undefined && (nested.yaml === null || typeof nested.yaml !== "object")) {
             throw new Error("Для XML item не подготовлен объект YAML")
           }
+          if (
+            inlineKey === undefined
+            && (nested.yaml as { readonly [identity]?: object })[identity] === undefined
+          ) return undefined
           // Inline YAML может быть скаляром или объектом другого, уже потреблённого ребёнка.
           // Связь задаётся владельцем и адресом элемента, никогда равенством значений.
-          const entry = inlineKey === undefined ? take(nested.yaml as object) : takeKey(inlineKey)
+          const entry = inlineKey === undefined ? take(nested.yaml as object, nested.rule.itemType) : takeKey(inlineKey)
           if (entry.rule !== nested.rule) throw new Error("Правило закрытого XML item не совпадает с правилом родителя")
           return transport(entry.result)
         },
         write(event) {
           const receipt = consumer.write(event)
           if (receipt === SUPPRESSED_LOCAL_XML_OUTPUT) return { retainedValue: undefined }
-          const retainedValue = {}
+          if (receipt === RETAINED_LOCAL_XML_OUTPUT) return { retainedValue: event.value }
+          const retainedValue = markLocalXmlBoundary({})
           if (receipt !== undefined) {
             if ("type" in receipt) markers.set(retainedValue, receipt)
             else scalarMarkers.set(retainedValue, receipt)
@@ -182,12 +182,13 @@ export function createCompiledRuleExecution(params: {
         },
         complete(property) { consumer.complete?.(property) },
         finish(output) {
-          if ([...output.deferredByOutput.values()].some((values) => values.length > 0)) {
+          const finalized = itemPreparation.finish(output)
+          if ([...finalized.deferredByOutput.values()].some((values) => values.length > 0)) {
             throw new Error("Нельзя закрыть XML item с отложенными значениями")
           }
-          const result = { roots: consumer.finish(output), externalWrites: output.externalWrites }
+          const result = { roots: consumer.finish(finalized), externalWrites: finalized.externalWrites }
           completed.set(identityKey, { rule: source.rule, result })
-          if (inline && parent !== undefined && propertyKey !== undefined) {
+          if (parent !== undefined && propertyKey !== undefined) {
             let bindings = parent.inline.get(propertyKey)
             if (bindings === undefined) parent.inline.set(propertyKey, bindings = new Map())
             const nestedRule = ownerProperty?.operations.yamlToXMLNestedRule

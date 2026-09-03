@@ -11,6 +11,7 @@ import { recordCurrentExternalMetadataUuid } from "../externalMetadata/record"
 import type { DeferredRulePathSegment } from "../property/importYamlTypes"
 import { bindDeferredObjectValues } from "../property/deferredObjectValues"
 import { applyXMLItemOwnOutput } from "./ownOutput"
+import { isLocalXmlBoundary } from "../xmlAnomaly/localProof"
 
 export interface ConvertMetadataItemFromYAMLToXMLParams
   extends YAMLToXMLItemConversionParams {
@@ -239,7 +240,9 @@ function mergeReferenceXML(params: {
   for (const [key, referenceValue] of Object.entries(reference)) {
     if (Object.prototype.hasOwnProperty.call(generated, key)) {
       const generatedValue = generated[key]
-      if (isRecord(generatedValue) && isRecord(referenceValue)) {
+      if (isLocalXmlBoundary(generatedValue)) {
+        result[key] = generatedValue
+      } else if (isRecord(generatedValue) && isRecord(referenceValue)) {
         const propertyRule = findPropertyRule(rule, path, key)
         result[key] =
           propertyRule?.preserveUnknownReferenceXML !== false

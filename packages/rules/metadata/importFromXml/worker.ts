@@ -4,6 +4,7 @@ import { join, posix } from "node:path"
 import { createMovableBinaryResult } from "../workerPool/binaryResult"
 import {
   createLocalConfigurationIndexReader,
+  createConfigurationIndexExportRuntime,
   hashFileBytes,
   rehydrateConfigurationContext,
   restoreXmlAnomalyAnnotations,
@@ -104,7 +105,8 @@ import { finalizeImportedFormDataPathCompatibility } from "../forms/clientApplic
 import { buildProjectStateYamlFileUpdate } from "../project/projectStateYamlUpdate"
 import type { CompiledMetadataResourceTopology } from "../resourceTopology/core/types"
 import { importedClientApplicationForm } from "../forms/clientApplicationForm/formDataPathMetadata"
-import { executeImportControlExport } from "./controlExport"
+import { createImportControlExportContext, executeImportControlExport } from "./controlExport"
+import { selectReadyImportedIssueDecisions } from "./semanticBoundary"
 import type { XmlAnomalyProofAudit } from "./anomalyProof"
 import type { MetadataXmlPrepareComposition } from "../resourceTopology/adapters/capabilities"
 import type { BaseFormSourceResult } from "../fullSyncToXml/baseFormSource"
@@ -174,6 +176,8 @@ interface DeferredImportYaml {
   validationFile: ValidationProjectFile
   configurationFragment?: ConfigurationIndexBlockFragment
   baseFormCandidate?: NonNullable<PreparedImportYaml["baseFormCandidate"]>
+  localProofCompleted?: true
+  earlyIssueDecisions: readonly ImportIssueDecision[]
   output?: PreparedImportOutput
 }
 
@@ -459,6 +463,30 @@ async function processSecondPass(
         formDataPathIndex: ready.formDataPathIndex,
       }
     }
+    const initialConfigurationBlocks = secondPass.configurationStore === undefined
+      ? new Map<string, ConfigurationIndexBlockFragment>()
+      : secondPass.configurationStore.getBlocks([assignment.targetProjectPath])
+    const initialConfigurationIndex = createLocalConfigurationIndexReader(initialConfigurationBlocks)
+    const proofIndexCollector = createConfigurationIndexCollector()
+    const controlContext = createImportControlExportContext(importContext, requireSecondPassExportProfile())
+    const localRoundTripContext = {
+      ...controlContext,
+      exportToXML: {
+        ...controlContext.exportToXML,
+        configurationIndex: createConfigurationIndexExportRuntime({
+          source: initialConfigurationIndex,
+          collector: proofIndexCollector,
+          targetProjectPath: assignment.targetProjectPath,
+          logicalAddress: assignment.logicalAddress,
+          ...(importContext.importFromYAML?.referenceRemap === undefined ? {} : {
+            referencePathByCurrentPath: importContext.importFromYAML.referenceRemap.referencePathByCurrentPath,
+          }),
+        }),
+      },
+    }
+    const execution = currentRuleRegistrySet<{ execution: import("@nkdk/runtime/rule-kit").CompiledPropertyRuleExecution }>()?.execution
+    if (execution === undefined) throw new Error("Не задан общий исполнитель rules для локального proof")
+    let earlyIssueDecisions: readonly ImportIssueDecision[] = []
     const imported = await prepareImportYamlFromDocuments({
       assignment,
       context: importContext,
@@ -474,6 +502,19 @@ async function processSecondPass(
       inputs,
       profiler,
       topology: state.topology,
+      localRoundTrip: {
+        execution,
+        context: localRoundTripContext,
+        decisions: secondPass.issueDecisionsByProjectPath.get(assignment.targetProjectPath) ?? [],
+        selectDecisions: (yaml) => {
+          earlyIssueDecisions = selectReadyImportedIssueDecisions({
+            data: yaml,
+            decisions: secondPass.issueDecisionsByProjectPath.get(assignment.targetProjectPath) ?? [],
+            diagnostics: accumulator.warnings,
+          })
+          return earlyIssueDecisions
+        },
+      },
     })
     const validationFile = state.projectFileProjector({
       projectPath: assignment.targetProjectPath,
@@ -499,9 +540,11 @@ async function processSecondPass(
       deferred: imported.deferred,
       dependentDeferred: imported.dependentDeferred,
       dependentOwner: imported.dependentOwner,
+      earlyIssueDecisions,
       validationFile,
       configurationFragment: collector.fragment(assignment.targetProjectPath),
       ...(imported.baseFormCandidate === undefined ? {} : { baseFormCandidate: imported.baseFormCandidate }),
+      ...(imported.localProofCompleted === true ? { localProofCompleted: true } : {}),
     }
     preparedYaml.set(assignmentId, prepared)
       const configurationBlocks = secondPass.configurationStore === undefined
@@ -874,6 +917,7 @@ async function prepareYamlForFinalPass(
   const initialValidation = hasMaterializedFormDataPath
     ? validateAndApplyImportedIssues(false)
     : { semanticIssues: [], decisions: [] }
+  if (prepared.localProofCompleted !== true) {
   const proof = await profiler.measureAsync(
     "Подготовка импорта конфигурации",
     "Контрольный экспорт XML",
@@ -959,10 +1003,14 @@ async function prepareYamlForFinalPass(
       }),
     })
   }
+  }
   const finalValidation = validateAndApplyImportedIssues()
   const { serialized, validated } = finalValidation
-  const semanticIssues = [...initialValidation.semanticIssues, ...finalValidation.semanticIssues]
-  const decisions = [...initialValidation.decisions, ...finalValidation.decisions]
+  const decisions = [
+    ...prepared.earlyIssueDecisions,
+    ...initialValidation.decisions,
+    ...finalValidation.decisions,
+  ]
   const baseForm = preparedBaseFormCandidate === undefined
     ? undefined
     : prepareSerializedBaseFormCandidate({
@@ -982,7 +1030,7 @@ async function prepareYamlForFinalPass(
     main: {
       serialized: retainWritableYaml(serialized),
       index: withPreparedFormIndexFallback(prepared, validated.index),
-      final: semanticIssues.length === 0
+      final: decisions.length === 0
         ? validated.final
         : applyImportedDecisionsToFinalState(validated.final, decisions, serialized.localHash),
     },

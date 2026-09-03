@@ -32,6 +32,7 @@ import {
 } from "./anomalyProof"
 import type { ImportAssignment, ImportXmlInput } from "./types"
 import type { XmlComponentExportProfile } from "../project/xmlReconstructionProfile"
+import { importedYamlValueAtPath } from "./yamlPathValue"
 
 let controlExportCountValueForTests = 0
 
@@ -88,7 +89,7 @@ export async function executeImportControlExport(params: {
     }
   }
   const assignment = projectControlAssignment(params.assignment, params.topology)
-  const context = controlExportContext(params.context, params.exportProfile)
+  const context = createImportControlExportContext(params.context, params.exportProfile)
   const opaqueItemPaths = importedRawItemPaths(params.annotations, params.audit)
   // Целиком сохранённые элементы не имеют смыслового аналога. Они остаются
   // в контрольном XML; проверяемые предварительные raw свойств отключены.
@@ -360,13 +361,13 @@ function retainUnownedImportRaw(params: {
   if (retainedRaw.length === 0) return params
   for (const entry of retainedRaw) {
     const path = [...entry.parentPath, entry.key]
-    setValueAtPath(params.data, path, valueAtPath(params.imported.data, path))
+    setValueAtPath(params.data, path, importedYamlValueAtPath(params.imported.data, path))
   }
   copyYAMLRuntimeMetadataDeep({ source: params.imported.data, target: params.data })
   for (const entry of retainedRaw) {
     if (!rawItemPaths.has(JSON.stringify([...entry.parentPath, entry.key]))) continue
-    const source = objectRecordOrUndefined(valueAtPath(params.imported.data, entry.parentPath))
-    const target = objectRecordOrUndefined(valueAtPath(params.data, entry.parentPath))
+    const source = objectRecordOrUndefined(importedYamlValueAtPath(params.imported.data, entry.parentPath))
+    const target = objectRecordOrUndefined(importedYamlValueAtPath(params.data, entry.parentPath))
     if (source && target) markYAMLMappingKeyOrder(target, yamlMappingKeys(source))
   }
   const retainedPaths = new Set(retainedRaw.map((entry) => JSON.stringify([...entry.parentPath, entry.key])))
@@ -385,15 +386,6 @@ function retainUnownedImportRaw(params: {
       ],
     },
   }
-}
-
-function valueAtPath(root: unknown, path: readonly (string | number)[]): unknown {
-  let value = root
-  for (const segment of path) {
-    if (value === null || typeof value !== "object") return undefined
-    value = (value as Record<string | number, unknown>)[segment]
-  }
-  return value
 }
 
 function setValueAtPath(root: unknown, path: readonly (string | number)[], value: unknown): void {
@@ -557,7 +549,7 @@ function projectControlAssignment(
   }
 }
 
-function controlExportContext(
+export function createImportControlExportContext(
   context: XmlImportConfigurationContext,
   profile: XmlComponentExportProfile,
 ): ConfigurationContextWithExportToXML {

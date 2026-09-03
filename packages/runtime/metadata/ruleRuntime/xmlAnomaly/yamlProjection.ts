@@ -11,7 +11,6 @@ import {
   appendXmlAnnotatedMappingEntry,
   createXmlAnomalyAnnotations,
   type XmlAnomalyAnnotationTable,
-  xmlAnnotatedMappingEntries,
 } from "../../../yaml/xmlAnomalyAnnotations"
 import type {
   XmlImportAuditBoundary,
@@ -286,10 +285,16 @@ export function createLocalXmlRawAppender(params: {
   readonly yaml: Record<string, unknown>
   readonly annotations: XmlAnomalyAnnotationTable
 }): (path: string, value: XmlRawValue) => void {
-  const existingKeys = new Set(
-    xmlAnnotatedMappingEntries(params.yaml, params.annotations).map(([key]) => key),
-  )
+  const existingKeys = new Set<string>()
   const projectedKeys = new Map<string, number>()
+  for (const runtimeKey of Object.keys(params.yaml)) {
+    const logicalKey = params.annotations.keyAt(params.yaml, runtimeKey)?.logicalKey ?? runtimeKey
+    if (params.annotations.at(params.yaml, runtimeKey)?.kind === "raw") {
+      projectedKeys.set(logicalKey, (projectedKeys.get(logicalKey) ?? 0) + 1)
+    } else {
+      existingKeys.add(logicalKey)
+    }
+  }
   return (path, value) => {
     if (existingKeys.has(path)) {
       throw new Error(`Raw XML-путь ${path} пересекается с обычной YAML-границей`)

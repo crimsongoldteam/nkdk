@@ -17,6 +17,7 @@ import {
   type DirectImportResult,
   type DirectImportFactsSink,
   type DirectImportMode,
+  type DirectImportRoundTripExecution,
   type PreparedImportDependencies,
   type DirectImportXMLSource,
   type LocalIndexesCollector,
@@ -43,6 +44,7 @@ export function importClientApplicationFormFromXMLToYAML(params: {
   rule?: MetadataItemRule
   mode?: DirectImportMode
   facts?: DirectImportFactsSink
+  roundTrip?: DirectImportRoundTripExecution
 }): DirectImportResult {
   const rule = params.rule ?? ClientApplicationFormRules
   if (params.formXML === undefined && params.metadataXML.Form.Properties.FormType !== "Ordinary") {
@@ -71,6 +73,7 @@ export function importClientApplicationFormFromXMLToYAML(params: {
     mode: params.mode,
     facts: params.facts,
     dependencies: params.dependencies,
+    roundTrip: params.roundTrip,
     createSources: (context) => createClientApplicationFormImportSources({
       context,
       formXML: params.formXMLNode ?? params.formXML,
@@ -113,6 +116,7 @@ export function importClientApplicationFormBodyFromXML(params: {
   rule?: MetadataItemRule
   mode?: DirectImportMode
   facts?: DirectImportFactsSink
+  roundTrip?: DirectImportRoundTripExecution
 }): { yaml: Record<string, unknown> | undefined; generatedFiles: ExternalFileEntry[] } {
   const { context: _context, ...result } = importClientApplicationFormSources({
     ...params,
@@ -138,6 +142,7 @@ function importClientApplicationFormSources(params: {
   profile?: DirectImportProfile
   mode?: DirectImportMode
   facts?: DirectImportFactsSink
+  roundTrip?: DirectImportRoundTripExecution
   createSources(context: Parameters<typeof importPropertiesFromXMLToYAML>[0]["context"]): DirectImportXMLSource[]
 }): {
   yaml: Record<string, unknown> | undefined
@@ -171,6 +176,7 @@ function importClientApplicationFormSources(params: {
       mode: params.mode,
       facts: params.facts,
       dependencies: params.dependencies,
+      roundTrip: params.roundTrip,
     }),
     generatedFiles,
     context,

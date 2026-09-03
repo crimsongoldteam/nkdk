@@ -1,0 +1,156 @@
+import { createLocalXmlProof, isXmlElementNode, type ConfigurationContextWithExportToXML, type XmlAnomalyAnnotationTable, type XmlElementNode } from "@nkdk/runtime"
+import {
+  createAnnotatedLocalXmlBodyConsumers,
+  createCompiledRuleExecution,
+  type CompiledPropertyRuleExecution,
+  type DirectImportRoundTripExecution,
+  type XMLItemOutputPreparation,
+} from "@nkdk/runtime/rule-kit"
+import type { ImportedIssueDecision } from "./classifyImportedIssues"
+import { applyImportedIssueDecisions } from "./applyImportedIssueDecisions"
+
+interface SourceBoundary {
+  readonly key: string
+  readonly source: XmlElementNode
+  readonly proof: ReturnType<typeof createLocalXmlProof>
+}
+
+/** Рабочий локальный round-trip второго прохода без полного контрольного XML. */
+export function createImportLocalRoundTrip(params: {
+  readonly execution: CompiledPropertyRuleExecution
+  readonly context: ConfigurationContextWithExportToXML
+  readonly annotations: XmlAnomalyAnnotationTable
+  readonly decisions: readonly ImportedIssueDecision[]
+  readonly selectDecisions?: (yaml: Record<string, unknown>) => readonly ImportedIssueDecision[]
+  readonly prepareRootOutput?: (params: {
+    readonly key: string
+    readonly source: XmlElementNode
+  }) => XMLItemOutputPreparation | undefined
+  readonly prepareRootContext?: (params: {
+    readonly key: string
+    readonly source: XmlElementNode
+  }) => ConfigurationContextWithExportToXML | undefined
+}): DirectImportRoundTripExecution & { release(yaml: object): void } {
+  const active: SourceBoundary[][] = []
+  const preparedByYaml = new WeakMap<object, SourceBoundary[]>()
+  const opened = new WeakMap<XmlElementNode, string>()
+  const execution = createCompiledRuleExecution({
+    execution: params.execution,
+    prepare(item) {
+      const parent = active.at(-1) ?? []
+      const sources = item.sources.map(({ xml }, index): SourceBoundary => {
+        if (!isXmlElementNode(xml)) throw new Error(`Локальный proof требует адресный XML-источник ${item.rule.itemType}`)
+        const address = `${item.rule.itemType}:${item.yamlPath.join("/")}`
+        const previous = opened.get(xml)
+        if (previous !== undefined) throw new Error(`XML-граница ${xml.path} открыта повторно: ${previous} → ${address}`)
+        opened.set(xml, address)
+        const inherited = parent.find(({ source }) => isInside(source, xml))
+        return {
+          key: `source-${index}`,
+          source: xml,
+          proof: inherited?.proof ?? createLocalXmlProof(),
+        }
+      })
+      preparedByYaml.set(item.yaml, sources)
+      return {
+        context: { ...item.context, exportToXML: params.context.exportToXML },
+        annotations: params.annotations,
+        name: item.itemName,
+        sourceItemName: item.itemName,
+        outputs: sources.map(({ key, source }, index) => ({
+          key,
+          tags: item.sources[index]?.tags,
+          referenceXML: source.compatibilityValue,
+          ...(parent.length !== 0 || params.prepareRootContext === undefined
+            ? {}
+            : { context: params.prepareRootContext({ key, source }) }),
+          itemPreparation: withSourceTransportAttributes(
+            parent.length !== 0 || params.prepareRootOutput === undefined
+              ? undefined
+              : params.prepareRootOutput({ key, source }),
+            source,
+          ),
+        })),
+      }
+    },
+    beforeFinish({ yaml, root }) {
+      if (!root || params.decisions.length === 0) return
+      applyImportedIssueDecisions({
+        data: yaml,
+        annotations: params.annotations,
+        decisions: params.selectDecisions?.(yaml) ?? params.decisions,
+      })
+    },
+    consumer({ yaml, rule }, receipts, prepared) {
+      const sources = preparedByYaml.get(yaml)
+      if (sources === undefined) throw new Error("Не подготовлены XML-границы локального proof")
+      preparedByYaml.delete(yaml)
+      active.push(sources)
+      const delegate = createAnnotatedLocalXmlBodyConsumers({
+        sources: sources.map((source) => ({
+          ...source,
+          itemPreparation: prepared.outputs.find(({ key }) => key === source.key)?.itemPreparation,
+          xmlEnvelope: prepared.outputs.find(({ key }) => key === source.key)?.xmlEnvelope,
+        })),
+        yaml,
+        annotations: params.annotations,
+        ...receipts,
+      })
+      return {
+        bind: delegate.bind,
+        write: delegate.write,
+        complete: delegate.complete,
+        finish(output) {
+          try {
+            try {
+              return delegate.finish(output)
+            } catch (cause) {
+              const message = cause instanceof Error ? cause.message : String(cause)
+              throw new Error(`${rule.itemType} ${itemDescription(yaml, sources)}: ${message}`, { cause })
+            }
+          } finally {
+            if (active.at(-1) !== sources) throw new Error("XML-границы локального proof закрываются вне порядка")
+            active.pop()
+          }
+        },
+      }
+    },
+  })
+  return {
+    ...execution,
+    accepts(sources) { return sources.every(({ xml }) => isXmlElementNode(xml)) },
+    release(yaml) { execution.takeResult(yaml) },
+  }
+}
+
+const TRANSPORT_ATTRIBUTE = /^(?:id|uuid|version|xmlns(?::.*)?)$/u
+
+function withSourceTransportAttributes(
+  preparation: XMLItemOutputPreparation | undefined,
+  source: XmlElementNode,
+): XMLItemOutputPreparation | undefined {
+  const retained = Object.fromEntries(source.attributes
+    .filter(({ name }) => TRANSPORT_ATTRIBUTE.test(name))
+    .map(({ name, value }) => [`_${name}`, value]))
+  if (Object.keys(retained).length === 0) return preparation
+  return {
+    attributes: (own) => {
+      const result = { ...(preparation?.attributes(own) ?? own) }
+      for (const [key, value] of Object.entries(retained)) {
+        if (!Object.prototype.hasOwnProperty.call(result, key)) result[key] = value
+      }
+      return result
+    },
+    ...(preparation?.routeProperty === undefined ? {} : { routeProperty: preparation.routeProperty }),
+    ...(preparation?.initialize === undefined ? {} : { initialize: preparation.initialize }),
+    ...(preparation?.wrap === undefined ? {} : { wrap: preparation.wrap }),
+  }
+}
+
+function itemDescription(yaml: Record<string, unknown>, sources: readonly SourceBoundary[]): string {
+  return `${sources.map(({ source }) => source.path).join(", ")} (${Object.keys(yaml).join(", ")})`
+}
+
+function isInside(parent: XmlElementNode, child: XmlElementNode): boolean {
+  return child === parent || child.path.startsWith(`${parent.path}/`)
+}

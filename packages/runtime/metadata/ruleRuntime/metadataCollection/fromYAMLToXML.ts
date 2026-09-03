@@ -13,6 +13,7 @@ import type {
 } from "../property/fromYAMLToXMLTypes"
 import { copyXmlAnomalyAnnotationsDeep } from "../../../yaml/xmlAnomalyAnnotations"
 import { copyYAMLRuntimeMetadata } from "../../../yaml/runtimeMetadata"
+import { yamlMappingEntries } from "../../../yaml/mappingTags"
 import { markYAMLValueTag, yamlScalarTagAt } from "../../../yaml/scalarTags"
 import type { MetadataItemRule, PropertyRule } from "../property/types"
 import type { YAMLPropertySource } from "../property/fromYAMLToXMLTypes"
@@ -20,10 +21,8 @@ import { getChildContextToXML } from "../../context/childContext"
 import type { DeferredRulePathSegment } from "../property/importYamlTypes"
 import type { DeferredValuePath } from "../property/deferredObjectValues"
 import { assertRequiredConfigurationIdentity } from "../property/requiredIdentity"
-import {
-  xmlAnnotatedMappingEntries,
-  type XmlAnomalyAnnotations,
-} from "../../../yaml/xmlAnomalyAnnotations"
+import type { XmlAnomalyAnnotations } from "../../../yaml/xmlAnomalyAnnotations"
+import { decodeXmlRawValue, type XmlRawValue } from "../../../xml/structure/rawCodec"
 import {
   copyXmlAnomalyExportClaim,
   readXmlAnomalyExportClaim,
@@ -36,6 +35,12 @@ import {
 } from "../xmlAnomaly/exportClaim"
 
 type CollectionDescriptor = Extract<YAMLToXMLNestedRule, { kind: "collection" }>
+
+interface CollectionEntry {
+  readonly yaml: unknown
+  readonly name?: string
+  readonly rawXml?: XmlRawValue
+}
 
 export interface ConvertMetadataCollectionFromYAMLToXMLParams {
   readonly convertItem: typeof convertMetadataItemFromYAMLToXML
@@ -73,8 +78,21 @@ export function convertMetadataCollectionFromYAMLToXML(
   const externalWrites: YAMLToXMLExternalWrite[] = []
   const references = new Map(params.outputs.map((output) => [output.key, createReferenceLookup(output, params.descriptor)]))
 
-  entries.forEach(({ yaml, name }, index) => {
+  entries.forEach(({ yaml, name, rawXml }, index) => {
     if (params.profile !== undefined) params.profile.nestedItemCount++
+    if (rawXml !== undefined) {
+      const elementName = params.descriptor.xmlElement ?? name ?? params.descriptor.itemRule.itemType
+      const nodes = decodeXmlRawValue(rawXml, { elementName }).nodes
+      for (const output of params.outputs) {
+        const items = outputItems.get(output.key)!
+        for (const node of nodes) {
+          items.push(params.descriptor.xmlElement === undefined
+            ? { [node.name]: node.compatibilityValue }
+            : node.compatibilityValue)
+        }
+      }
+      return
+    }
     const rawItemClaimId = readXmlAnomalyRawItem(yaml)
     if (rawItemClaimId !== undefined) {
       for (const output of params.outputs) {
@@ -220,7 +238,7 @@ export function prepareMetadataCollectionItemXMLContext(params: {
 }
 
 function completeCollectionEntries(params: {
-  entries: { yaml: unknown; name?: string }[]
+  entries: CollectionEntry[]
   descriptor: CollectionDescriptor
   itemRule: MetadataItemRule
   propertyRule: PropertyRule | undefined
@@ -228,7 +246,7 @@ function completeCollectionEntries(params: {
   outputs: readonly YAMLToXMLOutputRequest[]
   materializeCanonicalItems: true | undefined
   context: ConfigurationContextWithExportToXML
-}): { yaml: unknown; name?: string }[] {
+}): CollectionEntry[] {
   if (params.descriptor.yamlShape !== "record") return params.entries
   const referenceNames = collectReferenceNames(params)
   const shapeNames = referenceNames
@@ -308,7 +326,7 @@ function collectionEntries(
   annotations: XmlAnomalyAnnotations | undefined,
   descriptor: CollectionDescriptor,
   propertyRule: PropertyRule | undefined
-): { yaml: unknown; name?: string }[] {
+): CollectionEntry[] {
   const rawItems = readXmlAnomalyRawCollectionItems(yaml)
   if (descriptor.yamlShape === "array") {
     const entries = Array.isArray(yaml) ? yaml.map((item, index) => ({
@@ -318,18 +336,23 @@ function collectionEntries(
     return entries
   }
   if (!isRecord(yaml)) return []
-  const entries = annotations === undefined
-    ? Object.entries(yaml)
-    : xmlAnnotatedMappingEntries(yaml, annotations)
-  const result: { yaml: unknown; name?: string }[] = entries.map(([key, value]) => ({
-    yaml: transferCollectionValueTag(yaml, key, value),
+  const entries = yamlMappingEntries(yaml)
+  const result: CollectionEntry[] = entries.map(([runtimeKey, value]) => {
+    const logicalKey = annotations?.keyAt(yaml, runtimeKey)?.logicalKey ?? runtimeKey
+    const annotation = annotations?.at(yaml, runtimeKey)
+    return {
+    yaml: transferCollectionValueTag(yaml, runtimeKey, value),
     name:
       (propertyRule === undefined
         ? undefined
-        : descriptor.nameFromYAMLKeyForProperty?.({ yamlKey: key, propertyRule })) ??
-      descriptor.nameFromYAMLKey?.(key) ??
-      key,
-  }))
+        : descriptor.nameFromYAMLKeyForProperty?.({ yamlKey: logicalKey, propertyRule })) ??
+      descriptor.nameFromYAMLKey?.(logicalKey) ??
+      logicalKey,
+    ...(annotation?.kind === "raw" && annotation.xml !== undefined
+      ? { rawXml: annotation.xml }
+      : {}),
+  }
+  })
   for (const item of rawItems) {
     result.splice(item.index, 0, {
       yaml: item.yaml,

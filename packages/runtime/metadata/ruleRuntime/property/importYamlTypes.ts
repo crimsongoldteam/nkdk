@@ -76,6 +76,8 @@ export interface DirectImportXMLPropertyBinding {
 
 /** Внутренний порт второго прохода. Первый проход фактов его не открывает. */
 export interface DirectImportRoundTripExecution {
+  /** Совместимость границы с локальным proof; неподдержанная вложенность проверяется владельцем. */
+  accepts?(sources: readonly DirectImportXMLSource[]): boolean
   open(params: {
     readonly context: ConfigurationContextFromXML
     readonly rule: MetadataItemRule
