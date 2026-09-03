@@ -1,6 +1,6 @@
 import type { ConfigurationContextWithExportToXML } from "../../context/types"
 import type {
-  YAMLToXMLOutputRequest,
+  XMLItemEnvelope,
   YAMLToXMLItemConversionParams,
   YAMLToXMLResult,
 } from "../property/fromYAMLToXMLTypes"
@@ -39,6 +39,7 @@ export function convertMetadataItemFromYAMLToXML(params: ConvertMetadataItemFrom
   const normalizedOutputs = params.outputs.map((output) => ({
     ...output,
     referenceXML: sanitizeReferenceXML(unwrapReferenceBody(output.referenceXML, root)),
+    xmlEnvelope: prepareXMLItemEnvelope(params, output.referenceXML, root),
   }))
   const itemName = params.name ?? params.sourceItemName
   const itemContext: ConfigurationContextWithExportToXML =
@@ -71,20 +72,19 @@ export function convertMetadataItemFromYAMLToXML(params: ConvertMetadataItemFrom
   const outputs = new Map<string, Record<string, unknown>>()
   const deferredByOutput = new Map<string, ReturnType<typeof bindDeferredObjectValues>>()
 
-  for (const request of params.outputs) {
+  for (const request of normalizedOutputs) {
     const generated = converted.outputs.get(request.key) ?? {}
     const generatedWithType =
-      params.rule.xsiType === undefined ? generated : { "_xsi:type": params.rule.xsiType, ...generated }
-    const referenceBody = sanitizeReferenceXML(unwrapReferenceBody(request.referenceXML, root))
+      params.rule.xsiType === undefined ? generated : { ...request.xmlEnvelope.bodyAttributes, ...generated }
     const merged = mergeReferenceXML({
       generated: generatedWithType,
-      reference: referenceBody,
+      reference: request.referenceXML,
       rule: params.rule,
       path: [],
     })
-    const finalRoot = wrapXMLRoot({ params, request, root, value: merged })
+    const finalRoot = wrapXMLRoot(request.xmlEnvelope, merged)
     outputs.set(request.key, finalRoot)
-    const prefix = root === undefined ? [] : root.isFileRoot ? [root.container] : ["MetaDataObject", root.container]
+    const prefix = request.xmlEnvelope.path
     deferredByOutput.set(
       request.key,
       bindDeferredObjectValues(
@@ -158,17 +158,24 @@ function unwrapReferenceBody(
   return isRecord(container) ? container : undefined
 }
 
-function wrapXMLRoot(params: {
-  params: ConvertMetadataItemFromYAMLToXMLParams
-  request: YAMLToXMLOutputRequest
-  root: XMLRootInfo | undefined
-  value: Record<string, unknown>
-}): Record<string, unknown> {
-  const { root } = params
-  if (root === undefined) return params.value
-  const rootAttributes = getRootAttributes(params.params, params.request.referenceXML, root)
-  if (root.isFileRoot) return { [root.container]: { ...rootAttributes, ...params.value } }
-  return { MetaDataObject: { ...rootAttributes, [root.container]: params.value } }
+function prepareXMLItemEnvelope(
+  params: ConvertMetadataItemFromYAMLToXMLParams,
+  referenceXML: unknown,
+  root: XMLRootInfo | undefined,
+): XMLItemEnvelope {
+  return {
+    path: root === undefined ? [] : root.isFileRoot ? [root.container] : ["MetaDataObject", root.container],
+    rootAttributes: root === undefined ? {} : getRootAttributes(params, referenceXML, root),
+    bodyAttributes: params.rule.xsiType === undefined ? {} : { "_xsi:type": params.rule.xsiType },
+  }
+}
+
+function wrapXMLRoot(envelope: XMLItemEnvelope, value: Record<string, unknown>): Record<string, unknown> {
+  let result = value
+  for (let index = envelope.path.length - 1; index >= 0; index--) {
+    result = { [envelope.path[index]!]: index === 0 ? { ...envelope.rootAttributes, ...result } : result }
+  }
+  return result
 }
 
 function getRootAttributes(

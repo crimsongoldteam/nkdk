@@ -29,6 +29,50 @@ const itemRule = {
 } as const satisfies MetadataItemRule
 
 describe("convertMetadataItemFromYAMLToXML", () => {
+  it.each([
+    { isFileRoot: false, path: ["MetaDataObject", "Entry"] },
+    { isFileRoot: true, path: ["Entry"] },
+  ])("готовит XML-оболочку до свойств, fileRoot=$isFileRoot", ({ isFileRoot, path }) => {
+    let preparations = 0
+    const rule = {
+      itemType: "TestPreparedXMLRoot",
+      xsiType: "EntryType",
+      properties: {
+        root: {
+          type: "XMLRoot",
+          container: "Entry",
+          isFileRoot,
+          forReferenceOnly: true,
+          rootAttributes: () => {
+            preparations++
+            return { _xmlns: "urn:entry" }
+          },
+        },
+        value: { type: "string", yaml: "Значение", xml: "Value" },
+      },
+    } as const satisfies MetadataItemRule
+    const result = convertMetadataItemFromYAMLToXML({
+      context: context(),
+      rule,
+      yaml: { Значение: "готово" },
+      outputs: [{ key: "main" }],
+      convertProperties(params) {
+        expect(preparations).toBe(1)
+        expect(params.outputs[0]?.xmlEnvelope).toEqual({
+          path,
+          rootAttributes: { _xmlns: "urn:entry" },
+          bodyAttributes: { "_xsi:type": "EntryType" },
+        })
+        return convertPropertiesFromYAMLToXML(params)
+      },
+    })
+
+    expect(preparations).toBe(1)
+    expect(result.outputs.get("main")).toEqual(isFileRoot
+      ? { Entry: { _xmlns: "urn:entry", "_xsi:type": "EntryType", Value: "готово" } }
+      : { MetaDataObject: { _xmlns: "urn:entry", Entry: { "_xsi:type": "EntryType", Value: "готово" } } })
+  })
+
   it("передаёт XML-аннотации вложенной именованной коллекции", () => {
     const collectionType = "TestAnnotatedNestedCollection" as PropertyRuleType
     registerMetadataItemCollectionRule({

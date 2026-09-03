@@ -10,6 +10,14 @@ export interface YAMLToXMLOutputRequest {
   readonly tags?: readonly string[]
   readonly referenceXML?: unknown
   readonly context?: import("../../context/types").ConfigurationContextWithExportToXML
+  /** Подготовленная оболочка текущего item; без значений дочерних свойств. */
+  readonly xmlEnvelope?: XMLItemEnvelope
+}
+
+export interface XMLItemEnvelope {
+  readonly path: readonly string[]
+  readonly rootAttributes: Readonly<Record<string, string>>
+  readonly bodyAttributes: Readonly<Record<string, string>>
 }
 
 export type YAMLToXMLExternalWrite =
