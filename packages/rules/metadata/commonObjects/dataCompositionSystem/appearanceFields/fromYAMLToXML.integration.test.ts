@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { testPropertyFromYAMLToXML } from "../../../../tests/directConversion"
-import "./rules"
+import { metadataPropertyRule000, metadataPropertyRule002 } from "./rules"
 
 const rule = {
   itemType: "Probe",
@@ -14,6 +14,13 @@ const rule = {
 } as const
 
 describe("AppearanceFields YAML → XML", () => {
+  it("маршрутизирует элементы без позднего преобразования готового item", () => {
+    const nested = metadataPropertyRule000.handler
+
+    expect(nested.kind).toBe("item")
+    expect(metadataPropertyRule002.handler).toBeTypeOf("function")
+  })
+
   it.each([
     ["empty xs:string", "", { "_xsi:type": "xs:string", "#text": "" }],
     ["empty LocalStringType", { Значение: {} }, { "_xsi:type": "v8:LocalStringType" }],

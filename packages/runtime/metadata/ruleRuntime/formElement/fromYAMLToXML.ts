@@ -41,9 +41,6 @@ export function createFormElementCollectionNestedRule(params: {
         name,
       })
     },
-    mapItemOutput: ({ xml, itemRule }) => ({
-      [elementXMLTagName(itemRule)]: xml,
-    }),
     unwrapReferenceItem: ({ xml, itemRule }) => {
       const value = xml[elementXMLTagName(itemRule)]
       return value !== null && typeof value === "object" && !Array.isArray(value)

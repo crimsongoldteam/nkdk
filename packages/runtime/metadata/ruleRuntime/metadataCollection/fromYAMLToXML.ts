@@ -158,25 +158,14 @@ export function convertMetadataCollectionFromYAMLToXML(
     for (const output of itemOutputs) {
       const xml = converted.outputs.get(output.key) ?? {}
       const exportClaimId = readXmlAnomalyExportClaim(normalizedYAML)
-      if (exportClaimId !== undefined) markXmlAnomalyExportClaim(xml, exportClaimId, true)
-      const mapped =
-        params.descriptor.mapItemOutput === undefined
-          ? xml
-          : params.descriptor.mapItemOutput({
-              xml,
-              yaml: normalizedYAML,
-              name,
-              index,
-              itemRule,
-              propertyRule: params.propertyRule,
-              get context() { return prepareContext() },
-              collectionYAML: params.yaml,
-              referenceXML: output.referenceXML,
-            })
-      if (mapped !== undefined) {
+      if (exportClaimId !== undefined) {
+        const claimTarget = params.descriptor.unwrapReferenceItem?.({ xml, itemRule }) ?? xml
+        markXmlAnomalyExportClaim(claimTarget, exportClaimId, true)
+      }
+      if (xml !== undefined) {
         const items = outputItems.get(output.key)!
         const itemIndex = items.length
-        items.push(mapped)
+        items.push(xml)
         const prefix =
           params.descriptor.xmlElement === undefined ? [itemIndex] : [params.descriptor.xmlElement, itemIndex]
         for (const deferred of converted.deferredByOutput.get(output.key) ?? []) {

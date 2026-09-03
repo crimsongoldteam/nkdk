@@ -646,21 +646,6 @@ export function createXMLPropertyExecution(
           copyXmlAnomalyExportClaim(normalizedNestedYAML, value)
         }
         if (
-          effectiveNestedRule.kind === "item" &&
-          effectiveNestedRule.transformOutput !== undefined &&
-          isRecord(value)
-        ) {
-          value = effectiveNestedRule.transformOutput({
-            context: nestedContext,
-            xml: value,
-            yaml: nestedYAML,
-            referenceXML: isRecord(references[index]?.value) ? references[index]?.value : undefined,
-            propertyRule: planned.propertyRule,
-            source,
-            get itemName() { return singleton().itemName },
-          })
-        }
-        if (
           effectiveNestedRule.kind === "collection" &&
           effectiveNestedRule.xmlElement !== undefined &&
           planned.propertyRule.xml === effectiveNestedRule.xmlElement &&
@@ -1435,8 +1420,23 @@ function writeXMLValue(params: {
 }
 
 function emitXMLValue(output: MutableOutput, property: PlannedXMLProperty, path: readonly string[], value: unknown): void {
-  const consumed = output.observer?.write({ outputKey: output.request.key, property, path, value })
-  setAtPath(output.xml, path, consumed === undefined ? value : consumed.retainedValue)
+  const routed = output.request.itemPreparation?.routeProperty?.({
+    propertyKey: property.propertyKey,
+    path,
+    value,
+  }) ?? { path, value }
+  const consumed = output.observer?.write({
+    outputKey: output.request.key,
+    property,
+    path: routed.path,
+    value: routed.value,
+  })
+  setAtPath(
+    output.xml,
+    routed.path,
+    consumed === undefined ? routed.value : consumed.retainedValue,
+    routed.append === true,
+  )
 }
 
 function isEmptyCollectionOutput(value: unknown, xmlElement: string): boolean {
@@ -1450,7 +1450,7 @@ function isExplicitEmptyXMLReference(value: unknown): boolean {
   return isRecord(value) && Object.keys(value).every((key) => key.startsWith("_"))
 }
 
-function setAtPath(target: Record<string, unknown>, path: readonly string[], value: unknown): void {
+function setAtPath(target: Record<string, unknown>, path: readonly string[], value: unknown, append = false): void {
   if (path.length === 0) return
   let current = target
   for (const segment of path.slice(0, -1)) {
@@ -1458,7 +1458,15 @@ function setAtPath(target: Record<string, unknown>, path: readonly string[], val
     if (!isRecord(nested)) current[segment] = {}
     current = current[segment] as Record<string, unknown>
   }
-  current[path.at(-1)!] = value
+  const key = path.at(-1)!
+  if (!append) {
+    current[key] = value
+    return
+  }
+  const previous = current[key]
+  current[key] = previous === undefined
+    ? [value]
+    : Array.isArray(previous) ? [...previous, value] : [previous, value]
 }
 
 function valueAtPath(target: Record<string, unknown>, path: readonly string[]): unknown {

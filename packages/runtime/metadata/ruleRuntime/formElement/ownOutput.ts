@@ -11,10 +11,17 @@ export function createNamedFormItemOutputPreparation(space: FormXmlIdSpace): Pre
   return ({ context }) => formItemPreparation(context, space, namedAttributes)
 }
 
-export const prepareFormElementOutput = formElementPreparation(false)
+export const prepareFormElementOutput: PrepareXMLItemOutputFunction = (params) => ({
+  ...formElementPreparation(false)(params),
+  wrap: (body) => ({ [formElementXMLTagName(params.itemRule)]: body }),
+})
 
 export function createSingletonElementOutputPreparation(directId?: string): PrepareXMLItemOutputFunction {
   return formElementPreparation(true, directId)
+}
+
+function formElementXMLTagName(rule: { readonly itemType: string }): string {
+  return "xmlTag" in rule && typeof rule.xmlTag === "string" ? rule.xmlTag : rule.itemType
 }
 
 function formElementPreparation(singleton: boolean, directId?: string): PrepareXMLItemOutputFunction {

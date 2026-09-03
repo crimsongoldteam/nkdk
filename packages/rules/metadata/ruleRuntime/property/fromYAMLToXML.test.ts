@@ -226,7 +226,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(item).toMatchObject({ _name: "Выполнить", _id: "" })
     expect(formXmlIdReservation(item)?.space).toBe(space)
     const nested = rules.execution.getTypeRule(type, "yamlToXMLNestedRule")
-    if (!wrapped) expect(nested?.kind === "collection" ? nested.mapItemOutput : undefined).toBeUndefined()
+    expect(nested?.kind === "collection" && "mapItemOutput" in nested).toBe(false)
   })
 
   it.each(["СписокЗначений", "Строка"])("выдаёт канонический Settings правилом свойства: %s", (type) => {
@@ -240,6 +240,25 @@ describe("convertPropertiesFromYAMLToXML", () => {
     const expected = type === "СписокЗначений" ? { "_xsi:type": "v8:TypeDescription" } : undefined
     expect(writes).toEqual(expected === undefined ? [] : [expected])
     expect(result.outputs.get("owner")?.Settings).toEqual(expected)
+  })
+
+  it("готовит окончательный маршрут AppearanceFields до дочернего свойства", () => {
+    let prepared = 0
+    const result = createXMLPropertyExecution({
+      execution: createRuleRegistrySet(metadataRules).execution,
+      context: context(), outputs: [{ key: "owner" }],
+      rule: testRule({ appearance: { type: "AppearanceFields", yaml: "Оформление", xml: "appearance" } }),
+      yaml: { Оформление: { Текст: "Строка" } },
+    }, undefined, {
+      enterNested(params) {
+        expect(params.outputs[0]?.itemPreparation?.routeProperty).toBeDefined()
+        prepared++
+      },
+      write() {}, complete() {},
+    }).finish()
+
+    expect(prepared).toBe(1)
+    expect(result.outputs.get("owner")).toHaveProperty("appearance.dcscor:item")
   })
 
   it.each(["ExtendedTooltip", "PopupExtendedTooltip", "GanttChartFieldTable", "AutoCommandBar"] as const)(
@@ -263,7 +282,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
       expect(xml._id).toBe(type === "AutoCommandBar" ? "-1" : "")
       expect(formXmlIdReservation(xml)).toMatchObject({ space: "elements", ...(type === "AutoCommandBar" ? { specialId: "-1" } : {}) })
       const nested = rules.execution.getTypeRule(type, "yamlToXMLNestedRule")
-      expect(nested?.kind === "item" ? nested.transformOutput : undefined).toBeUndefined()
+      expect(nested?.kind === "item" && "transformOutput" in nested).toBe(false)
     },
   )
 

@@ -70,6 +70,7 @@ import { metadataPropertyRule001 as rule72 } from "../commonObjects/dataComposit
 import { metadataPropertyRule000 as rule73 } from "../commonObjects/dataCompositionSystem/appearanceFields/fromYAML"
 import { metadataPropertyRule000 as rule74 } from "../commonObjects/dataCompositionSystem/appearanceFields/rules"
 import { metadataPropertyRule001 as rule75 } from "../commonObjects/dataCompositionSystem/appearanceFields/rules"
+import { metadataPropertyRule002 as appearanceFieldsOutputPreparation } from "../commonObjects/dataCompositionSystem/appearanceFields/rules"
 import { metadataPropertyRule000 as rule76 } from "../commonObjects/dataCompositionSystem/appearanceFields/toXML"
 import { metadataPropertyRule000 as rule77 } from "../commonObjects/dataCompositionSystem/availableFields/fromXML"
 import { metadataPropertyRule000 as rule78 } from "../commonObjects/dataCompositionSystem/availableFields/fromYAML"
@@ -490,6 +491,7 @@ export const staticPropertyTypes = propertyTypesFromContributions([
   rule73,
   rule74,
   rule75,
+  appearanceFieldsOutputPreparation,
   rule76,
   rule77,
   rule78,

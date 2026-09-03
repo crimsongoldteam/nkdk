@@ -18,7 +18,19 @@ export interface YAMLToXMLOutputRequest {
 /** Предметное решение для собственных атрибутов, без доступа к XML детей. */
 export interface XMLItemOutputPreparation {
   readonly attributes: (own: Readonly<Record<string, unknown>>) => Readonly<Record<string, unknown>>
+  /** Направляет готовый вклад одного свойства до передачи потребителю. */
+  readonly routeProperty?: (params: {
+    readonly propertyKey: string
+    readonly path: readonly string[]
+    readonly value: unknown
+  }) => {
+    readonly path: readonly string[]
+    readonly value: unknown
+    readonly append?: true
+  }
   readonly initialize?: (body: object) => void
+  /** Добавляет только внешнюю оболочку item, не обходя его детей. */
+  readonly wrap?: (body: Record<string, unknown>) => Record<string, unknown>
 }
 
 export type PrepareXMLItemOutputFunction = (params: {
@@ -173,15 +185,6 @@ export type YAMLToXMLNestedRule =
         itemName: string | undefined
         propertyRule: PropertyRule
       }) => import("../../context/types").ConfigurationContextWithExportToXML
-      readonly transformOutput?: (params: {
-        context: import("../../context/types").ConfigurationContextWithExportToXML
-        xml: Record<string, unknown>
-        yaml: unknown
-        referenceXML: Record<string, unknown> | undefined
-        propertyRule: PropertyRule
-        source: YAMLPropertySource
-        itemName: string | undefined
-      }) => unknown
     }
   | {
       readonly kind: "collection"
@@ -214,17 +217,6 @@ export type YAMLToXMLNestedRule =
         fromYAML(params: { yaml: unknown; name: string | undefined; itemRule: MetadataItemRule }): string | undefined
         fromXML(params: { xml: Record<string, unknown>; itemRule: MetadataItemRule }): string | undefined
       }
-      readonly mapItemOutput?: (params: {
-        xml: Record<string, unknown>
-        yaml: unknown
-        name: string | undefined
-        index: number
-        itemRule: MetadataItemRule
-        propertyRule: PropertyRule | undefined
-        context: import("../../context/types").ConfigurationContextWithExportToXML
-        collectionYAML: unknown
-        referenceXML: Record<string, unknown> | undefined
-      }) => unknown
       readonly unwrapReferenceItem?: (params: {
         xml: Record<string, unknown>
         itemRule: MetadataItemRule

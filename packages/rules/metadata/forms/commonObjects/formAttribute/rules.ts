@@ -272,25 +272,38 @@ export const metadataRuleLayer001 = defineMetadataRules({
   },
 })
 
-export const metadataRuleLayer002 = defineMetadataItemCollectionRule({
+const additionalColumns = defineMetadataItemCollectionRule({
   propertyType: "FormAttributeAdditionalColumns",
   itemRule: FormAttributeAdditionalColumnRules,
   xmlElement: "AdditionalColumns",
   keyField: "table",
   configurationIndexUidSegment: "ДополнительныеКолонки",
-  mapItemOutput: ({ xml, context }) => {
-    const table = typeof xml._table === "string" ? xml._table : ""
-    const columns = Array.isArray(xml.Column) ? xml.Column : xml.Column === undefined ? [] : [xml.Column]
-    const firstColumn = columns[0]
-    if (firstColumn === null || typeof firstColumn !== "object" || Array.isArray(firstColumn)) return xml
-    const name = typeof firstColumn._name === "string" ? firstColumn._name : undefined
-    const restored = restoreKnownDuplicateErpAdditionalColumns({
-      currentXMLPath: context.exportToXML.context?.currentXMLPath,
-      table,
-      columnName: name,
-      columnsCount: columns.length,
-      column: firstColumn,
-    })
-    return restored === undefined ? xml : { ...xml, Column: restored }
+})
+
+export const metadataRuleLayer002 = defineMetadataRules({
+  ...additionalColumns,
+  propertyTypes: {
+    ...additionalColumns.propertyTypes,
+    FormAttributeAdditionalColumns: {
+      ...additionalColumns.propertyTypes.FormAttributeAdditionalColumns,
+      prepareXMLItemOutput: ({ context, name }) => ({
+        attributes: (own) => own,
+        routeProperty: ({ propertyKey, path, value }) => {
+          if (propertyKey !== "columns") return { path, value }
+          const columns = Array.isArray(value) ? value : value === undefined ? [] : [value]
+          const firstColumn = columns[0]
+          if (firstColumn === null || typeof firstColumn !== "object" || Array.isArray(firstColumn)) return { path, value }
+          const column = firstColumn as Record<string, unknown>
+          const restored = restoreKnownDuplicateErpAdditionalColumns({
+            currentXMLPath: context.exportToXML.context?.currentXMLPath,
+            table: name ?? "",
+            columnName: typeof column._name === "string" ? column._name : undefined,
+            columnsCount: columns.length,
+            column,
+          })
+          return { path, value: restored ?? value }
+        },
+      }),
+    },
   },
 })

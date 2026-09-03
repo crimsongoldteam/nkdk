@@ -210,10 +210,10 @@ Singleton resolveItemName/resolveItemContext перенесены в общую 
 
 **Интерфейс:** существующие зарегистрированные преобразователи предоставляют решения для собственной оболочки и своих значений до единственного сравнения. Нейтральный frame получает подготовленное решение через регистрацию; ни itemType switch, ни новые BasePropertyRule-поля не требуются.
 
-- [ ] Расширить существующие тесты named singleton, form attribute/command ID, predefined type prefixes, appearance shorthand и popup tooltip наблюдением ordinary/proof consumer. Ожидаемый XML сохраняется; descendants не выдаются повторно после parent hook.
-- [ ] Получить RED; заменить операции `transformOutput`/`mapItemOutput`, которые переписывают уже готовые children, поэлементным применением тех же предметных решений. Собственные `_name`, `_id`, namespace/type, wrapper и default должны быть окончательны до сравнения.
-- [ ] Применять те же решения в обычном экспорте. Удалить поздние hooks после миграции всех их потребителей; не сохранять fallback со сборкой полного контрольного дерева. Сохранить резервирование исходных и raw-ID до генерации новых.
-- [ ] Целевые предметные тесты плюс formXmlIdAssignment tests, type-check, duplicates, коммит.
+- [x] Расширить существующие тесты named singleton, form attribute/command ID, predefined type prefixes, appearance shorthand и popup tooltip наблюдением ordinary/proof consumer. Ожидаемый XML сохраняется; descendants не выдаются повторно после parent hook.
+- [x] Получить RED; заменить операции `transformOutput`/`mapItemOutput`, которые переписывают уже готовые children, поэлементным применением тех же предметных решений. Собственные `_name`, `_id`, namespace/type, wrapper и default должны быть окончательны до сравнения.
+- [x] Применять те же решения в обычном экспорте. Удалить поздние hooks после миграции всех их потребителей; не сохранять fallback со сборкой полного контрольного дерева. Сохранить резервирование исходных и raw-ID до генерации новых.
+- [x] Целевые предметные тесты плюс formXmlIdAssignment tests, type-check, duplicates, коммит.
 
 ## Задача 8. Смысловая валидация до единственного сравнения
 

@@ -17,7 +17,6 @@ import { createImportedDependentPropertyCollector } from "../property/importYaml
 import type { MetadataItemRule } from "../property/types"
 import type { ElementRule } from "./types"
 import {
-  createFormElementCollectionNestedRule,
   defineElementAsType,
   defineElementRule,
   getElementRule,
@@ -31,6 +30,7 @@ import {
   importSingleFormElementFromXMLToYAML,
 } from "./fromXMLToYAML"
 import type { ElementXML } from "./types"
+import { prepareFormElementOutput } from "@nkdk/runtime/rule-kit"
 
 import "../../forms/elements/index"
 
@@ -231,25 +231,18 @@ describe("одиночный элемент формы", () => {
       enterpriseFieldType: "FormButtonType.UsualButton",
       properties: {},
     } as const satisfies ElementRule
-    const descriptor = createFormElementCollectionNestedRule({
-      elementRules: { Button: elementRule },
-      elementKinds: { Button: "Кнопка" },
-      allowedTypes: ["Button"],
-    })
     const xml = new Proxy({}, { ownKeys() { throw new Error("Нельзя обходить готового ребёнка") } })
     markXmlAnomalyExportClaim(xml, "item-2")
 
-    const mapped = descriptor.mapItemOutput!({
-      xml,
+    const preparation = prepareFormElementOutput({
+      context: contexts.exportContext(),
       yaml: { Вид: "Кнопка" },
       name: "Кнопка",
-      index: 0,
       itemRule: elementRule,
       propertyRule: undefined,
-      context: contexts.exportContext(),
-      collectionYAML: {},
       referenceXML: undefined,
-    }) as Record<string, unknown>
+    })
+    const mapped = preparation.wrap!(xml) as Record<string, unknown>
 
     expect(readXmlAnomalyExportClaim(mapped.Button)).toBe("item-2")
     expect(mapped.Button).toBe(xml)

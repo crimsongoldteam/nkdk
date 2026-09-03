@@ -24,5 +24,5 @@ export function applyXMLItemOwnOutput(
   for (const key of Object.keys(body)) if (!key.startsWith("_")) result[key] = body[key]
   copyXmlAnomalyExportClaim(body, result)
   preparation.initialize?.(result)
-  return result
+  return preparation.wrap?.(result) ?? result
 }

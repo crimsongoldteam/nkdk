@@ -94,9 +94,6 @@ type CollectionNestedRule = Extract<YAMLToXMLNestedRule, { readonly kind: "colle
 const resolveCollectionItemRule = vi.fn(
   (_params: Parameters<NonNullable<CollectionNestedRule["resolveItemRule"]>>[0]) => collectionItemRule,
 )
-const mapCollectionItemOutput = vi.fn(
-  ({ xml }: Parameters<NonNullable<CollectionNestedRule["mapItemOutput"]>>[0]) => xml,
-)
 const collectionDescriptor = {
   kind: "collection",
   itemRule: collectionItemRule,
@@ -104,7 +101,6 @@ const collectionDescriptor = {
   xmlElement: "Item",
   keyField: "name",
   resolveItemRule: resolveCollectionItemRule,
-  mapItemOutput: mapCollectionItemOutput,
 } as const satisfies YAMLToXMLNestedRule
 
 const collectionOwnerRule = {
@@ -563,7 +559,6 @@ describe("единое восстановление XML-аномалий assignm
 
   it("адресует raw item и его поля по физическим вхождениям named collection", () => {
     resolveCollectionItemRule.mockClear()
-    mapCollectionItemOutput.mockClear()
     const prepared = prepareAnomalies([
       "Реквизиты:",
       "  Код:",
@@ -616,10 +611,9 @@ describe("единое восстановление XML-аномалий assignm
       { Name: "Код", Value: "02" },
       { Name: "Код", Value: "03" },
     ])
-    expect(mapCollectionItemOutput).toHaveBeenCalledTimes(2)
   })
 
-  it("связывает raw поля form element с фактическим XML после normalize и wrapper map", () => {
+  it("связывает raw поля form element с фактическим XML после normalize и оболочки", () => {
     const xml = exportFormWithAnomalies([
       "Элементы:",
       "  Поле:",
@@ -774,7 +768,7 @@ describe("единое восстановление XML-аномалий assignm
     expect(new Set(prepared.rawBoundaries.map(({ exportClaimId }) => exportClaimId)).size).toBe(2)
   })
 
-  it("сохраняет привязку пустой группы дополнительных колонок после mapItemOutput", () => {
+  it("сохраняет привязку пустой группы дополнительных колонок", () => {
     const xml = exportFormWithAnomalies([
       "Реквизиты:",
       "  Объект:",

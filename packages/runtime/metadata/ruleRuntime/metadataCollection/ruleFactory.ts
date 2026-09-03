@@ -68,10 +68,6 @@ type CollectionRule<Rule extends MetadataItemRule, CollectionType extends Proper
   >["omitDefaultsForSparseItem"]
   /** Не создавать XML-контейнер, если после преобразования в коллекции нет элементов. */
   omitEmptyOutput?: true
-  mapItemOutput?: Extract<
-    import("../property/fromYAMLToXMLTypes").YAMLToXMLNestedRule,
-    { kind: "collection" }
-  >["mapItemOutput"]
   normalizeItemYAML?: Extract<
     import("../property/fromYAMLToXMLTypes").YAMLToXMLNestedRule,
     { kind: "collection" }
@@ -181,7 +177,6 @@ export const defineMetadataItemCollectionRule = <
     omitDefaultsForSparseItems: params.omitDefaultsForSparseItems,
     omitDefaultsForSparseItem: params.omitDefaultsForSparseItem,
     omitEmptyOutput: params.omitEmptyOutput,
-    mapItemOutput: params.mapItemOutput,
     normalizeItemYAML: params.normalizeItemYAML,
     referenceIdentity: params.referenceIdentity,
     configurationIndexUidSegment: params.configurationIndexUidSegment,
