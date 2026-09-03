@@ -3,7 +3,7 @@ import test, { mock } from "node:test"
 import {
   isSummaryProfileStep,
   runProfile,
-  summarizeControlExport,
+  summarizeLocalProof,
   summarizeFromXmlPropertyTypes,
   summarizeFusedAtomicTypes,
   summarizeImportSteps,
@@ -57,16 +57,7 @@ test("сводит этапы импорта и двоичной выдачи в
     worker("Чтение XML второго прохода", 5, 2_048),
     worker("Парсинг XML второго прохода", 7, 2_048),
     worker("Извлечение фактов XML", 11),
-    worker("MessagePack pack", 12),
-    worker("MessagePack unpack", 13),
-    worker("Packed XML store write", 14),
-    worker("Packed XML store read", 15),
-    worker("Packed XML bytes", 0, 4_096),
-    worker("toXML: построение объекта", 14),
-    worker("toXML: финализация deferred", 15),
-    worker("Контрольный XML: прямой hash", 16),
-    worker("Контрольный XML: дерево расхождения", 17),
-    worker("Доказательство XML-аномалий", 18),
+    worker("Локальный XML proof", 18),
     main("Передача двоичного результата", 20, 1_024),
     main("Подготовка начала diagnostics", 21),
     main("Запись полного отчёта diagnostics", 22, 2_048),
@@ -92,16 +83,7 @@ test("сводит этапы импорта и двоичной выдачи в
     secondPassXmlReadMs: 5,
     secondPassXmlParseMs: 7,
     factsOnlyMs: 11,
-    messagePackMs: 12,
-    messageUnpackMs: 13,
-    packedStoreWriteMs: 14,
-    packedStoreReadMs: 15,
-    packedBytes: 4_096,
-    toXmlObjectMs: 14,
-    toXmlFinalizeMs: 15,
-    directHashMs: 16,
-    mismatchDocumentMs: 17,
-    anomalyProofMs: 18,
+    localProofMs: 18,
     diagnosticPreviewMs: 21,
     diagnosticReportMs: 22,
     diagnosticReportBytes: 2_048,
@@ -118,18 +100,16 @@ test("пропускает профильные записи без строко
   assert.equal(isSummaryProfileStep({ substep: null }), false)
 })
 
-test("сводит режим контрольного XML и распределение второго прохода", () => {
+test("сводит число локально проверенных границ и распределение второго прохода", () => {
   const steps = [
-    { scope: "worker", worker: 0, substep: "Контрольный XML без сериализации", items: 3 },
-    { scope: "worker", worker: 1, substep: "Контрольный XML с сериализацией", items: 2 },
+    { scope: "worker", worker: 0, substep: "Локальный XML proof", items: 30 },
+    { scope: "worker", worker: 1, substep: "Локальный XML proof", items: 20 },
     { scope: "worker", worker: 0, substep: "Задания второго прохода", items: 3 },
     { scope: "worker", worker: 1, substep: "Задания второго прохода", items: 2 },
   ]
 
-  assert.deepEqual(summarizeControlExport(steps), {
-    direct: 3,
-    serialized: 2,
-    detailedRereads: 0,
+  assert.deepEqual(summarizeLocalProof(steps), {
+    boundaries: 50,
     assignmentsByWorker: [3, 2],
   })
 })

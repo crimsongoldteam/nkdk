@@ -109,7 +109,6 @@ import type { CompiledMetadataResourceTopology } from "../resourceTopology/core/
 import { importedClientApplicationForm } from "../forms/clientApplicationForm/formDataPathMetadata"
 import { createImportExportContext } from "./importExportContext"
 import { selectReadyImportedIssueDecisions } from "./semanticBoundary"
-import type { XmlAnomalyProofAudit } from "./anomalyProof"
 import type { MetadataXmlPrepareComposition } from "../resourceTopology/adapters/capabilities"
 import type { PreparedYamlFile } from "../project/preparedYamlProject"
 import { classifyImportedIssues } from "./classifyImportedIssues"
@@ -166,7 +165,6 @@ interface DeferredImportYaml {
   logicalAddress: string
   yaml: unknown
   annotations: XmlAnomalyAnnotations
-  proofAudit?: XmlAnomalyProofAudit
   rule: PreparedImportYaml["rule"]
   ownerContext: PreparedImportYaml["ownerContext"]
   formDataPathIndex: PreparedImportYaml["localIndexes"]["metadata"]["formDataPathIndex"]
@@ -220,7 +218,6 @@ export interface ImportWorkerCommandRunner {
     workerIndex?: number
     outputDir?: string
     preparedYamlIds: string[]
-    retainedProofAuditIds: string[]
   }
   readonly resetForTests: () => void
   readonly setSchemaCacheForTests: (schemaCache: ValidationSchemaCache | undefined) => void
@@ -599,7 +596,6 @@ async function processSecondPass(
       logicalAddress: assignment.logicalAddress,
       yaml: imported.yaml,
       annotations: imported.annotations,
-      proofAudit: imported.proofAudit,
       rule: imported.rule,
       ownerContext: imported.ownerContext,
       formDataPathIndex: imported.localIndexes.metadata.formDataPathIndex,
@@ -619,7 +615,6 @@ async function processSecondPass(
         state,
         profiler,
       )
-      prepared.proofAudit = undefined
       const main = await writeMainImportYaml({ serialized: output.main.serialized, profiler })
       accumulator.files.push(main.file)
       if (output.base !== undefined) {
@@ -1911,7 +1906,6 @@ function workerStateForTests(): {
   workerIndex?: number
   outputDir?: string
   preparedYamlIds: string[]
-  retainedProofAuditIds: string[]
 } {
   return {
     initialized: initializedState !== undefined,
@@ -1923,9 +1917,6 @@ function workerStateForTests(): {
           outputDir: initializedState.outputDir,
         }),
     preparedYamlIds: [...new Set([...preparedYaml.keys(), ...pendingAssignmentIds])],
-    retainedProofAuditIds: [...preparedYaml]
-      .filter(([, prepared]) => prepared.proofAudit !== undefined)
-      .map(([assignmentId]) => assignmentId),
   }
 }
 

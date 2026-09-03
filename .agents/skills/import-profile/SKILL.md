@@ -54,13 +54,14 @@ Peak RSS: <MiB>
 `secondPassMs`, `externalFilesMs`, `finalBuildMs`, `dependencyValidationMs`,
 `publicationMs`, `saveMs`, времена двоичного кодирования и приёма, подготовки
 начала diagnostics и JSONL-отчёта, размеры двоичных данных, отчёта и
-`structuredContent`, полное время до ответа `responseMs` и верхнюю оценку неразмеченного внешнего времени
-`mcpOverheadMs` в поле `phases`. Оценка может включать неразмеченные промежутки координатора; вложенные worker-этапы
-в неё повторно не складываются.
-Новый двухпроходный импорт дополнительно публикует `xmlParseMs`, `factsOnlyMs`,
-`messagePackMs`, `messageUnpackMs`, `packedBytes`, `toXmlObjectMs`,
-`toXmlFinalizeMs`, `directHashMs`, `mismatchDocumentMs` и `anomalyProofMs`.
-`controlExport.detailedRereads` должен оставаться равным нулю.
+`structuredContent`, полное время до ответа `responseMs` и верхнюю оценку
+неразмеченного внешнего времени `mcpOverheadMs` в поле `phases`. Оценка может
+включать неразмеченные промежутки координатора; вложенные worker-этапы в неё
+повторно не складываются.
+Двухпроходный импорт дополнительно публикует раздельные `xmlReadMs`,
+`xmlParseMs`, `factsOnlyMs` и `localProofMs`. Поле `localProof.boundaries`
+показывает число локально проверенных XML-границ. Метрик MessagePack, packed
+XML и отдельного контрольного экспорта быть не должно.
 Подробные checkpoints памяти для каждого задания включаются отдельно через
 `NKDK_PROFILE_MEMORY=1`; обычный профиль оставляет их выключенными, чтобы не
 искажать время и не создавать многомегабайтный stderr.

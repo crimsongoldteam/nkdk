@@ -574,7 +574,6 @@ async function preparePair(
     assignment,
     context,
     collector: legacyCollector,
-    proofDetail: "roots",
   })
   const factsCollector = createConfigurationIndexCollector()
   const facts = await prepareImportFacts({

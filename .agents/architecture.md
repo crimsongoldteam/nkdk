@@ -310,8 +310,8 @@ flowchart TD
 
 ### Импорт XML → YAML
 
-Ниже — согласованная целевая схема. Реализация пока использует MessagePack
-и отдельный полный контрольный экспорт; их замена описана в [спецификации](../docs/superpowers/specs/2026-09-03-import-round-trip-optimization-design.md).
+Ниже — действующая схема импорта. Переход от MessagePack и отдельного полного
+контрольного экспорта описан в [спецификации](../docs/superpowers/specs/2026-09-03-import-round-trip-optimization-design.md).
 
 ```mermaid
 flowchart TD

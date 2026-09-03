@@ -1,9 +1,7 @@
 import fs from "node:fs"
 import {
   createXmlAnomalyAnnotations,
-  createXmlImportAuditSession,
   createLocalXmlProof,
-  parseXmlCompatibilityWithRootStructures,
   parseXmlDocumentWithSaxes,
   type XmlAnomalyAnnotationTable,
   type XmlAnomalyAnnotations,
@@ -53,19 +51,12 @@ import {
   partitionImportedDependentItems,
 } from "./dependentItems"
 import { createImportedFormDataPathIndex } from "../forms/clientApplicationForm/formDataPathMetadata"
-import {
-  captureXmlAnomalyProofAudit,
-  deriveXmlAnomalyProofPlan,
-  type XmlAnomalyProofBoundary,
-  type XmlAnomalyProofAudit,
-} from "./anomalyProof"
 
 export interface PreparedImportYaml {
   assignment: ImportAssignment
   targetProjectPath: string
   yaml: unknown
   annotations: XmlAnomalyAnnotationTable
-  proofAudit: XmlAnomalyProofAudit
   rule: MetadataItemRule
   ownerContext: readonly MetadataItemOwnerContextEntry[]
   localIndexes: LocalIndexes
@@ -118,25 +109,7 @@ export interface ParsedImportXmlInput {
 }
 
 let registeredImportRuleLookupCountValueForTests = 0
-let importAuditOutcomeCountValueForTests = 0
-let rootProofParsePassCountValueForTests = 0
 const registeredImportRulesByItemType = new Map<string, MetadataItemRule | undefined>()
-
-export function importAuditOutcomeCountForTests(): number {
-  return importAuditOutcomeCountValueForTests
-}
-
-export function resetImportAuditOutcomeCountForTests(): void {
-  importAuditOutcomeCountValueForTests = 0
-}
-
-export function rootProofParsePassCountForTests(): number {
-  return rootProofParsePassCountValueForTests
-}
-
-export function resetRootProofParsePassCountForTests(): void {
-  rootProofParsePassCountValueForTests = 0
-}
 
 export function registeredImportRuleLookupCountForTests(): number {
   return registeredImportRuleLookupCountValueForTests
@@ -154,12 +127,10 @@ export async function prepareImportYaml(params: {
   collector: ConfigurationIndexCollector
   profiler?: ValidationProfiler
   topology?: CompiledMetadataResourceTopology
-  proofDetail?: "full" | "roots"
 }): Promise<PreparedImportYaml> {
   const xmlInputs = await readAndParseAssignmentXml(
     params.assignment.xmlFiles,
     params.profiler,
-    params.proofDetail ?? "full",
   )
   return prepareImportYamlFromParsedInputs({ ...params, xmlInputs })
 }
@@ -172,7 +143,6 @@ export async function readImportXmlDocuments(params: {
   return (await readAndParseAssignmentXml(
     params.assignment.xmlFiles,
     params.profiler,
-    "full",
     params.profilePass,
   )).map(
     ({ input, document }) => {
@@ -194,7 +164,6 @@ export async function prepareImportYamlFromDocuments(params: {
 }): Promise<PreparedImportYaml> {
   return prepareImportYamlFromParsedInputs({
     ...params,
-    proofDetail: "full",
     xmlInputs: params.inputs.map(({ input, document }) => ({
       input,
       document,
@@ -212,7 +181,6 @@ function prepareImportYamlFromParsedInputs(params: {
   readonly xmlInputs: ParsedImportXmlInput[]
   readonly profiler?: ValidationProfiler
   readonly topology?: CompiledMetadataResourceTopology
-  readonly proofDetail?: "full" | "roots"
   readonly localRoundTrip?: ImportLocalRoundTripOptions
 }): PreparedImportYaml {
     const xmlInputs = params.xmlInputs
@@ -245,6 +213,7 @@ function prepareImportYamlFromParsedInputs(params: {
       inputs: xmlInputs,
       context: importContext,
       dependencies: params.dependencies,
+      profiler: params.profiler,
       ...(localRoundTripParams === undefined
         ? {}
         : {
@@ -258,6 +227,7 @@ function prepareImportYamlFromParsedInputs(params: {
     let localRoundTrip: ReturnType<typeof createImportLocalRoundTrip> | undefined
     localRoundTrip = localRoundTripParams === undefined ? undefined : createImportLocalRoundTrip({
       ...localRoundTripParams,
+      profiler: params.profiler,
       annotations,
       ...(finalizeRootYaml === undefined
         ? {}
@@ -279,10 +249,6 @@ function prepareImportYamlFromParsedInputs(params: {
               key === "source-0" ? formBodyProof : undefined,
           }),
     })
-    const audit = params.proofDetail === "roots" || localRoundTrip !== undefined
-      ? undefined
-      : createXmlImportAuditSession(xmlInputs.flatMap(({ document }) => document?.roots ?? []))
-
     const importProfile = params.profiler === undefined
       ? undefined
       : createDirectImportProfile({ propertyTypes: true })
@@ -310,7 +276,6 @@ function prepareImportYamlFromParsedInputs(params: {
           metadataXML: metadataXML["MetaDataObject"] as FormMetadataXML,
           formXMLNode,
           metadataXMLNode,
-          audit,
           annotations,
           profile: importProfile,
           rule,
@@ -344,7 +309,6 @@ function prepareImportYamlFromParsedInputs(params: {
           deferred,
           dependent,
           dependencies: params.dependencies,
-          ...(audit === undefined ? {} : { audit }),
           annotations,
           roundTrip: localRoundTrip,
           ...(metadataNode === undefined ? {} : { xmlNodes: [metadataNode] }),
@@ -383,49 +347,6 @@ function prepareImportYamlFromParsedInputs(params: {
       }
     })
     if (importProfile !== undefined) recordDirectImportProfile(params.profiler, importProfile)
-    audit?.finalize()
-    if (audit !== undefined) importAuditOutcomeCountValueForTests += audit.outcomes().length
-    const proofAudit = params.proofDetail === "roots" || localRoundTrip !== undefined
-      ? {
-          sources: xmlInputs.map(({ input, roots }) => ({
-            sourcePath: input.sourcePath,
-            role: input.role,
-            roots: roots.map(({ path, name, structuralHash, span }) => ({
-              xmlPath: path,
-              elementName: name,
-              structuralHash,
-              span: { ...span },
-            })),
-          })),
-          boundaries: [],
-          itemAnchors: [],
-        }
-      : (() => {
-          if (audit === undefined) throw new Error("Подробный XML proof требует import audit")
-          const proofSources = xmlInputs.map(({ input, document }) => {
-            if (document === undefined) throw new Error("Подробный XML proof требует адресное XML-дерево")
-            return { sourcePath: input.sourcePath, role: input.role, document }
-          })
-          const proofPlan = deriveXmlAnomalyProofPlan({
-            sources: proofSources,
-            audit,
-            rule,
-            data: result.yaml,
-            includePlannedAbsences: false,
-          })
-          const fallbackBoundaries = externalPropertyRootBoundaries(
-            proofPlan.boundaries,
-            rule,
-            xmlInputs,
-          )
-          return captureXmlAnomalyProofAudit({
-            sources: proofSources,
-            boundaries: proofPlan.boundaries,
-            fallbackBoundaries,
-            itemAnchors: proofPlan.itemAnchors,
-          })
-        })()
-
     params.profiler?.record("Подготовка импорта конфигурации", "Сбор локальных индексов", {
       items: result.localIndexes.metadata.events.length,
       timeMs: 0,
@@ -435,7 +356,6 @@ function prepareImportYamlFromParsedInputs(params: {
       targetProjectPath: params.assignment.targetProjectPath,
       yaml: result.yaml,
       annotations,
-      proofAudit,
       rule,
       ownerContext,
       localIndexes: result.localIndexes,
@@ -454,6 +374,7 @@ function importAssignmentBaseFormCandidate(params: {
   readonly inputs: readonly ParsedImportXmlInput[]
   readonly context: XmlImportConfigurationContext
   readonly dependencies?: PreparedImportDependencies
+  readonly profiler?: ValidationProfiler
   readonly localRoundTrip?: Omit<ImportLocalRoundTripOptions, "finalizeRootYaml"> & {
     readonly finalizeRootYaml?: ImportLocalRoundTripOptions["finalizeRootYaml"]
   }
@@ -474,6 +395,7 @@ function importAssignmentBaseFormCandidate(params: {
     context: params.localRoundTrip.context,
     decisions: [],
     annotations,
+    profiler: params.profiler,
     ...(params.localRoundTrip.prepareRootProof === undefined
       ? {}
       : { prepareRootProof: params.localRoundTrip.prepareRootProof }),
@@ -648,7 +570,6 @@ export function buildOwnerContext(
 async function readAndParseAssignmentXml(
   xmlFiles: readonly ImportXmlInput[],
   profiler: ValidationProfiler | undefined,
-  proofDetail: "full" | "roots",
   profilePass?: "first" | "second",
 ): Promise<ParsedImportXmlInput[]> {
   const passLabel = profilePass === "first"
@@ -670,8 +591,8 @@ async function readAndParseAssignmentXml(
             "Подготовка импорта конфигурации",
             `Парсинг XML${passLabel}`,
             { items: 1, bytes: Buffer.byteLength(content) },
-            () => parseAssignmentXml(content, proofDetail),
-          ) ?? parseAssignmentXml(content, proofDetail)
+            () => parseAssignmentXml(content),
+          ) ?? parseAssignmentXml(content)
         })(),
       })
     } catch (caught) {
@@ -681,23 +602,12 @@ async function readAndParseAssignmentXml(
   return result
 }
 
-function parseAssignmentXml(
-  content: string,
-  proofDetail: "full" | "roots",
-): Omit<ParsedImportXmlInput, "input"> {
-  if (proofDetail === "full") {
-    const document = parseXmlDocumentWithSaxes(content, {
-      preserveXsiNil: true,
-      preserveEmptyElementNames: ["AdditionalFields"],
-    })
-    return { document, roots: document.roots, parsed: document.compatibility }
-  }
-  rootProofParsePassCountValueForTests += 1
-  const parsed = parseXmlCompatibilityWithRootStructures(content, {
+function parseAssignmentXml(content: string): Omit<ParsedImportXmlInput, "input"> {
+  const document = parseXmlDocumentWithSaxes(content, {
     preserveXsiNil: true,
     preserveEmptyElementNames: ["AdditionalFields"],
   })
-  return { parsed: parsed.compatibility, roots: parsed.roots }
+  return { document, roots: document.roots, parsed: document.compatibility }
 }
 
 function requireMetadataXmlNode(inputs: readonly ParsedImportXmlInput[]) {
@@ -798,41 +708,6 @@ export function mapExternalPropertyXmlInputs(
     if (input.document !== undefined) nodesByPropertyKey.set(key, input.document.roots)
   }
   return { compatibilityByPropertyKey, nodesByPropertyKey }
-}
-
-function externalPropertyRootBoundaries(
-  boundaries: readonly XmlAnomalyProofBoundary[],
-  rule: MetadataItemRule,
-  inputs: readonly ParsedImportXmlInput[],
-): XmlAnomalyProofBoundary[] {
-  const result: XmlAnomalyProofBoundary[] = []
-  for (const [propertyKey, propertyRule] of Object.entries(rule.properties) as Array<[string, PropertyRule]>) {
-    if (propertyRule.filePath === undefined || typeof propertyRule.yaml !== "string") continue
-    const normalizedFilePath = propertyRule.filePath.replaceAll("\\", "/")
-    const input = inputs.find(({ input }) => normalizedPath(input.sourcePath).endsWith(`/${normalizedFilePath}`))
-    if (input === undefined) continue
-    if (boundaries.some((boundary) =>
-      boundary.sourcePath === input.input.sourcePath
-      && boundary.yamlPath.length === 1
-      && boundary.yamlPath[0] === propertyRule.yaml
-    )) continue
-    const document = input.document
-    if (document === undefined) throw new Error("Внешнее XML-свойство требует адресное XML-дерево")
-    if (document.roots.length !== 1) {
-      throw new Error(`Внешнее XML-свойство ${propertyKey} должно содержать один корень`)
-    }
-    const root = document.roots[0]!
-    result.push({
-      sourcePath: input.input.sourcePath,
-      sourceRole: input.input.role,
-      xmlPath: root.path,
-      yamlPath: [propertyRule.yaml],
-      rulePath: [propertyKey],
-      presentInSource: true,
-      targetPaths: [root.path],
-    })
-  }
-  return result
 }
 
 function normalizedPath(path: string): string {

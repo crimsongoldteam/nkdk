@@ -70,7 +70,6 @@ function preparedYaml(params: {
     targetProjectPath: params.assignment.targetProjectPath,
     yaml: {},
     annotations: createXmlAnomalyAnnotations(),
-    proofAudit: { sources: [], boundaries: [] },
     ownerContext: [],
     localIndexes: { metadata: { events: [], ownerFacts: params.ownerFacts } },
     deferred: [],

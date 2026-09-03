@@ -8,6 +8,7 @@ import {
 } from "@nkdk/runtime/rule-kit"
 import type { ImportedIssueDecision } from "./classifyImportedIssues"
 import { applyImportedIssueDecisions } from "./applyImportedIssueDecisions"
+import type { ValidationProfiler } from "../validation/profile"
 
 interface SourceBoundary {
   readonly key: string
@@ -21,6 +22,7 @@ export function createImportLocalRoundTrip(params: {
   readonly context: ConfigurationContextWithExportToXML
   readonly annotations: XmlAnomalyAnnotationTable
   readonly decisions: readonly ImportedIssueDecision[]
+  readonly profiler?: ValidationProfiler
   readonly selectDecisions?: (
     yaml: Record<string, unknown>,
     rule: import("@nkdk/runtime/rule-kit").MetadataItemRule,
@@ -119,6 +121,7 @@ export function createImportLocalRoundTrip(params: {
         write: delegate.write,
         complete: delegate.complete,
         finish(output) {
+          const startedAt = performance.now()
           try {
             try {
               return delegate.finish(output)
@@ -127,6 +130,10 @@ export function createImportLocalRoundTrip(params: {
               throw new Error(`${rule.itemType} ${itemDescription(yaml, sources, opened)}: ${message}`, { cause })
             }
           } finally {
+            params.profiler?.record("Подготовка импорта конфигурации", "Локальный XML proof", {
+              items: sources.length,
+              timeMs: performance.now() - startedAt,
+            })
             if (active.at(-1) !== sources) throw new Error("XML-границы локального proof закрываются вне порядка")
             active.pop()
           }

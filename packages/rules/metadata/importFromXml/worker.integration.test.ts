@@ -167,7 +167,6 @@ describe("XML import worker first pass", () => {
     expect(first.stateForTests()).toEqual({
       initialized: false,
       preparedYamlIds: [],
-      retainedProofAuditIds: [],
     })
     expect(second.stateForTests()).toMatchObject({
       initialized: true,
@@ -394,7 +393,7 @@ describe("XML import worker first pass", () => {
     await runImportWorkerCommand({ kind: "firstPassBatch", assignments: [catalogAssignment()] })
 
     expect(workerStateForTests().preparedYamlIds).toEqual(["catalog"])
-    expect(workerStateForTests().retainedProofAuditIds).toEqual([])
+    expect(workerStateForTests()).not.toHaveProperty("retainedProofAuditIds")
     expect(await runImportWorkerCommand({ kind: "finishFirstPass" })).toBeUndefined()
   })
 
@@ -750,7 +749,7 @@ describe("XML import worker second pass", () => {
     expect(second.files.count).toBe(1)
     expect(existsSync(join(outputDir, assignment.targetProjectPath))).toBe(true)
     expect(workerStateForTests().preparedYamlIds).toEqual([])
-    expect(workerStateForTests().retainedProofAuditIds).toEqual([])
+    expect(workerStateForTests()).not.toHaveProperty("retainedProofAuditIds")
 
     await runImportWorkerCommand({ kind: "finishSecondPass" })
     expect(existsSync(join(outputDir, assignment.targetProjectPath))).toBe(true)

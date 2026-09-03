@@ -70,7 +70,6 @@ function preparedCatalogYaml(): PreparedImportYaml {
     targetProjectPath: assignment.targetProjectPath,
     yaml: { Имя: "Контрагенты" },
     annotations: createXmlAnomalyAnnotations(),
-    proofAudit: { sources: [], boundaries: [] },
     ownerContext: [],
     localIndexes: {
       metadata: {
@@ -105,7 +104,6 @@ function preparedFormYaml(): PreparedImportYaml {
     targetProjectPath: assignment.targetProjectPath,
     yaml: {},
     annotations: createXmlAnomalyAnnotations(),
-    proofAudit: { sources: [], boundaries: [] },
     ownerContext: [],
     localIndexes: { metadata: { events: [], ownerFacts: {} } },
     deferred: [],

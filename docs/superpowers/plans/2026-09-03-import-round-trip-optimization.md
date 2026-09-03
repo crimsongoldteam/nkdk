@@ -77,11 +77,11 @@ Singleton resolveItemName/resolveItemContext перенесены в общую 
 | План и порядок YAML | `packages/runtime/metadata/ruleRuntime/property/compiledPropertyPlan.ts`, `yamlPropertyOrder.ts` |
 | Общий исполнитель | новый `packages/runtime/metadata/ruleRuntime/property/compiledRuleExecution.ts`; `fromXMLToYAML.ts`, `fromYAMLToXML.ts`, `importYamlTypes.ts`, `fromYAMLToXMLTypes.ts` |
 | Общая политика одного экспортируемого свойства | новый `packages/runtime/metadata/ruleRuntime/property/xmlPropertyExecution.ts`; извлечь существующую политику из `fromYAMLToXML.ts` без её копии |
-| Локальное сравнение и учёт завершения | новый `packages/runtime/metadata/ruleRuntime/xmlAnomaly/localProof.ts`; существующие `importAudit.ts`, `packages/rules/metadata/importFromXml/anomalyProof.ts`, `xmlProofVerification.ts` |
+| Локальное сравнение и учёт завершения | `packages/runtime/metadata/ruleRuntime/xmlAnomaly/localProof.ts`, локальные границы и потребители property runtime |
 | Вложенные items/collections и XML-оболочки | `packages/runtime/metadata/ruleRuntime/metadataItem/fromYAMLToXML.ts`, `metadataCollection/fromYAMLToXML.ts`, `formElement/fromYAMLToXML.ts`, `formElement/ruleFactory.ts` |
 | Формы и основа | `packages/rules/metadata/forms/clientApplicationForm/{formDataPathContext,baseFormProjection,baseFormProjectionRegistry,baseFormNecessity,baseFormYaml,fromXMLToYAML,fromYAMLToXML,baseForm,importedYamlFinalizer}.ts` |
 | Смысловая проверка | новый `packages/rules/metadata/importFromXml/semanticBoundary.ts`; `classifyImportedIssues.ts`, `applyImportedIssueDecisions.ts`, `worker.ts` и существующие общие валидаторы |
-| Сведение операции | `packages/rules/metadata/importFromXml/{prepareYaml,worker,controlExport,workerPool}.ts`, `packages/rules/metadata/fullSyncToXml/xmlAnomalyAssignment.ts` |
+| Сведение операции | `packages/rules/metadata/importFromXml/{prepareYaml,worker,workerPool}.ts`, `packages/rules/metadata/fullSyncToXml/xmlAnomalyAssignment.ts` |
 | Измерения | `.agents/skills/import-profile/import-profile.mjs`, `.agents/skills/import-profile/import-profile.test.mjs`, существующий runner полного round-trip |
 
 Новые модули выделяются по ответственности, а не создают вторую реализацию существующих политик. Публичные входы `importPropertiesFromXMLToYAML` и `convertPropertiesFromYAMLToXML` остаются совместимыми адаптерами. Добавление внутреннего протокола исполнения не расширяет декларации свойств.

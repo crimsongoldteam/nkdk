@@ -127,7 +127,7 @@ export async function runProfile(options, overrides = {}) {
         truncated: payload?.truncated,
         report,
         workerPoolSize: workerPoolSize(steps),
-        controlExport: summarizeControlExport(steps),
+        localProof: summarizeLocalProof(steps),
         phases: summarizeImportSteps(steps, elapsedMs),
         fromXmlPropertyTypes: summarizeFromXmlPropertyTypes(steps),
         toXmlPropertyTypes: summarizeToXmlPropertyTypes(steps),
@@ -156,7 +156,7 @@ export async function runProfile(options, overrides = {}) {
     warmMaxMs: warm.length === 0 ? undefined : Math.max(...warm),
     peakRssMiB: max(allSteps.map((step) => step.rssPeak).filter((value) => value !== undefined)),
     peakHeapMiB: max(allSteps.map((step) => step.heapPeak).filter((value) => value !== undefined)),
-    controlExport: summarizeControlExport(allSteps),
+    localProof: summarizeLocalProof(allSteps),
     memoryCheckpoints: allSteps.filter(isMemoryCheckpointStep),
     profileRows: aggregateRows(allSteps.filter((step) =>
       isSummaryProfileStep(step) && !isMemoryCheckpointStep(step)
@@ -223,16 +223,7 @@ export function summarizeImportSteps(steps, elapsedMs) {
     ["secondPassXmlReadMs", sum(records("Чтение XML второго прохода", "worker"), "time")],
     ["secondPassXmlParseMs", sum(records("Парсинг XML второго прохода", "worker"), "time")],
     ["factsOnlyMs", sum(records("Извлечение фактов XML", "worker"), "time")],
-    ["messagePackMs", sum(records("MessagePack pack", "worker"), "time")],
-    ["messageUnpackMs", sum(records("MessagePack unpack", "worker"), "time")],
-    ["packedStoreWriteMs", sum(records("Packed XML store write", "worker"), "time")],
-    ["packedStoreReadMs", sum(records("Packed XML store read", "worker"), "time")],
-    ["packedBytes", sum(records("Packed XML bytes", "worker"), "bytes")],
-    ["toXmlObjectMs", sum(records("toXML: построение объекта", "worker"), "time")],
-    ["toXmlFinalizeMs", sum(records("toXML: финализация deferred", "worker"), "time")],
-    ["directHashMs", sum(records("Контрольный XML: прямой hash", "worker"), "time")],
-    ["mismatchDocumentMs", sum(records("Контрольный XML: дерево расхождения", "worker"), "time")],
-    ["anomalyProofMs", sum(records("Доказательство XML-аномалий", "worker"), "time")],
+    ["localProofMs", sum(records("Локальный XML proof", "worker"), "time")],
     ["diagnosticPreviewMs", sum(records("Подготовка начала diagnostics", "main"), "time")],
     ["diagnosticReportMs", sum(records("Запись полного отчёта diagnostics", "main"), "time")],
     ["diagnosticReportBytes", sum(records("Запись полного отчёта diagnostics", "main"), "bytes")],
@@ -260,16 +251,14 @@ export function summarizeImportSteps(steps, elapsedMs) {
   }
 }
 
-export function summarizeControlExport(steps) {
+export function summarizeLocalProof(steps) {
   const itemCount = (substep) => sum(
     steps.filter((step) => step.substep === substep),
     "items",
   )
   const workers = workerPoolSize(steps)
   return {
-    direct: itemCount("Контрольный XML без сериализации"),
-    serialized: itemCount("Контрольный XML с сериализацией"),
-    detailedRereads: 0,
+    boundaries: itemCount("Локальный XML proof"),
     assignmentsByWorker: Array.from({ length: workers }, (_unused, worker) =>
       sum(steps.filter((step) => step.worker === worker && step.substep === "Задания второго прохода"), "items")
     ),
