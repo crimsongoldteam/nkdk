@@ -80,7 +80,7 @@ async function createFixture(options: { readonly dumpError?: Error } = {}) {
     archivePath: baselineArchive,
     projectDir: baselineProject,
     manifest: {
-      version: 1,
+      version: 2,
       compatibilityHash: "a".repeat(64),
       fixtureHashes: { cf: "b".repeat(64), cfe: "c".repeat(64) },
       platformVersion: "8.3.27.2214",

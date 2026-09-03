@@ -21,7 +21,7 @@ describe("stepwise baseline", () => {
     ])
     expect(baseline.manifest.compatibilityHash).toMatch(/^[a-f0-9]{64}$/u)
     expect(JSON.parse(await readFile(join(fixture.baselineDir, "current", "manifest.json"), "utf8")))
-      .toMatchObject({ version: 1, platformVersion: "8.3.27.2214", nkdkBuildId: "build-1" })
+      .toMatchObject({ version: 2, platformVersion: "8.3.27.2214", nkdkBuildId: "build-1" })
     await expect(readFile(join(baseline.projectDir, ".nkdk", "cache", "project-state.bin")))
       .rejects.toMatchObject({ code: "ENOENT" })
     await expect(readFile(join(baseline.projectDir, ".nkdk", "components", "cf", "index.lmdb")))

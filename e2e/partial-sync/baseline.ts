@@ -29,7 +29,7 @@ export type PrepareBaselineParams = {
 }
 
 export type BaselineManifest = {
-  readonly version: 1
+  readonly version: 2
   readonly compatibilityHash: string
   readonly fixtureHashes: { readonly cf: string; readonly cfe: string }
   readonly platformVersion: string
@@ -73,7 +73,7 @@ export async function prepareOrReuseBaseline(
     cfe: await hashFileTree(params.extensionXmlDir),
   }
   const compatibilityHash = sha256(Buffer.from(JSON.stringify({
-    version: 1,
+    version: 2,
     fixtureHashes,
     platformVersion,
     nkdkBuildId: params.nkdkBuildId,
@@ -123,7 +123,7 @@ export async function prepareOrReuseBaseline(
     await rm(paths.baseDir, { recursive: true, force: true })
     await rm(paths.dataDir, { recursive: true, force: true })
     const manifest: BaselineManifest = {
-      version: 1,
+      version: 2,
       compatibilityHash,
       fixtureHashes,
       platformVersion,
@@ -194,7 +194,7 @@ function isBaselineManifest(value: unknown): value is BaselineManifest {
   if (typeof value !== "object" || value === null) return false
   const manifest = value as Record<string, unknown>
   const hashes = manifest["fixtureHashes"]
-  return manifest["version"] === 1 &&
+  return manifest["version"] === 2 &&
     isHash(manifest["compatibilityHash"]) &&
     typeof manifest["platformVersion"] === "string" &&
     typeof manifest["nkdkBuildId"] === "string" &&
