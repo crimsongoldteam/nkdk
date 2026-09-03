@@ -2,7 +2,7 @@ import { exchangePlanContentItemsRule, exchangePlanExtensionPropertyItemsRule } 
 import { metadataItemLinkRule } from "../metadataPath/types"
 import { xmlRootRule } from "../xmlRoot/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
-import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import { isMetadataRootName, rootToYAML, type MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { stringRule } from "../string/types"
 import { booleanRule } from "../boolean/types"
 export const ExchangePlanContentItemRules = {
@@ -16,6 +16,13 @@ export const ExchangePlanContentItemRules = {
       yaml: "Метаданные",
       xml: "Metadata",
       required: true,
+      metadataTarget: {
+        kind: "object",
+        allowedObjectPaths: [
+          ...Object.keys(rootToYAML).filter(isMetadataRootName).map((root) => [root] as const),
+          ["CalculationRegister", "Recalculation"],
+        ],
+      },
     }),
     autoRecord: systemEnumerationRule({
       yaml: "Авторегистрация",

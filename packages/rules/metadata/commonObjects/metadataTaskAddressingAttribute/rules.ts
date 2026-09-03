@@ -1,4 +1,4 @@
-import { stringRule } from "../string/types"
+import { metadataItemLinkRule } from "../metadataPath/types"
 import {
   METADATA_ATTRIBUTE_ALLOWED_TYPES,
   attributeChoiceFragment,
@@ -52,7 +52,7 @@ export const MetadataTaskAddressingAttributeRules = {
     ...attributeChoiceFragment.properties,
     ...attributeSearchAndHistoryFragment.properties,
     ...attributeUuidFragment.properties,
-    addressingDimension: stringRule({
+    addressingDimension: metadataItemLinkRule({
       yaml: "ИзмерениеАдресации",
       xml: "AddressingDimension",
       xmlParents: ["Properties"],

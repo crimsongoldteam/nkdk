@@ -17,6 +17,10 @@ describe("UUID metadata-ссылок", () => {
   it.each([
     [uuid, true],
     [compositeUuid, true],
+    [`1:${uuid}`, true],
+    [`2:${uuid}`, false],
+    [`1:${compositeUuid}`, false],
+    ["1:broken", false],
     ["00000000-0000-0000-0000-000000000000", true],
     [`${compositeUuid}.${uuid}`, false],
     [`{${uuid}}`, false],
@@ -114,7 +118,27 @@ describe("UUID metadata-ссылок", () => {
       occurrences: [valueOccurrence(data.Значение, ["Значение"])],
       yaml: data,
       annotations: parsed.annotations,
-    })).toThrow("!xml/uuid допустим только для UUID или UUID.UUID metadata-ссылки")
+    })).toThrow("!xml/uuid допустим только для UUID, UUID.UUID или 1:UUID metadata-ссылки")
+  })
+
+  it.each([uuid, compositeUuid, `1:${uuid}`])("сохраняет %s в скаляре, списке и ключе", (text) => {
+    const parsed = parseMetadataYaml(`Значение: !xml/uuid ${text}\nСписок:\n  - !xml/uuid ${text}\nРоли:\n  !xml/uuid ${text}: Истина\n`)
+    const data = parsed.data as { Значение: string; Список: string[]; Роли: Record<string, string> }
+    const values: string[] = []
+    const occurrences: MetadataTargetOccurrence[] = [
+      valueOccurrence(text, ["Значение"], (next) => values.push(next)),
+      valueOccurrence(text, ["Список", 0], (next) => values.push(next)),
+      {
+        location: { kind: "key", path: ["Роли"], key: Object.keys(data.Роли)[0] },
+        constraint,
+        representation: { kind: "canonical", canonical: text },
+        setValue: (next) => values.push(next),
+      },
+    ]
+    importMetadataTargetOccurrencesFromYAML({ value: data, yaml: data, annotations: parsed.annotations, occurrences })
+    expect(values).toEqual([text, text, text])
+    expect(() => importMetadataTargetOccurrencesFromYAML({ value: data, yaml: data, occurrences }))
+      .toThrow("UUID metadata-ссылки требует !xml/uuid")
   })
 
   it("оставляет обычную смысловую ссылку на прежнем пути разбора", () => {

@@ -1,9 +1,9 @@
+import { metadataObjectBelongingProperties } from "../../../../commonObjects/metadataObjectBelongingProperties"
 import type { MetadataItemRule, YAMLPropertySource } from "@nkdk/runtime/rule-kit"
 import { i8nTextRule } from "../../../../commonObjects/i8nText/types"
 import { metadataItemLinkRule, metadataItemLinksRule } from "../../../../commonObjects/metadataPath/types"
 import { stringRule } from "../../../../commonObjects/string/types"
 import { uuidPropertyRule } from "../../../../commonObjects/uuid/rule"
-import { systemEnumerationRule } from "../../../../systemEnumerations/types"
 
 const properties = ["Properties"]
 
@@ -82,19 +82,7 @@ export const MetadataCalculationRegisterRecalculationDimensionRules = {
       },
       toXML: hasOwnProperty("leadingRegisterData"),
     }),
-    objectBelonging: systemEnumerationRule({
-      yaml: "ПринадлежностьОбъекта",
-      xml: "ObjectBelonging",
-      typeSE: "ObjectBelonging",
-      xmlParents: properties,
-      toYAML: false,
-      fromYAML: false,
-      implicitValueYAML: "Native",
-    }),
-    extendedConfigurationObject: stringRule({
-      xml: "ExtendedConfigurationObject",
-      xmlParents: properties,
-      runtimeOnly: true,
-    }),
+    objectBelonging: metadataObjectBelongingProperties.objectBelonging,
+    extendedConfigurationObject: metadataObjectBelongingProperties.extendedConfigurationObject,
   },
 } as const satisfies MetadataItemRule

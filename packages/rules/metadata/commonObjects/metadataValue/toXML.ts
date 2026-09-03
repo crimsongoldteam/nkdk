@@ -30,6 +30,7 @@ const PRIMITIVE_TYPES: readonly MetadataPrimitiveValueType[] = [
   "typeRef",
   "uuid",
   "DataCompositionComparisonType",
+  "ComparisonType",
   "AccountType",
 ]
 

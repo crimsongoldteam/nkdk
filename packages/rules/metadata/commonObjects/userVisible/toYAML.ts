@@ -1,10 +1,10 @@
 import { exportBooleanToYAML } from "../boolean/toYAML"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
-import type { UserVisiblePropertyRule } from "@nkdk/runtime/rule-kit"
-import { ConfigurationContext } from "@nkdk/runtime"
+import type { PropertyRule, UserVisiblePropertyRule, ExportToYAMLFunctionNew } from "@nkdk/runtime/rule-kit"
+import { ConfigurationContext, type XmlAnomalyAnnotations } from "@nkdk/runtime"
 import {
-  cloneMetadataTargetValue,
-  exportMetadataTargetOccurrencesToYAML,
+  projectMetadataTargetOccurrencesToYAML,
+  assignMetadataTargetUuidAnnotations,
 } from "@nkdk/runtime/rule-kit"
 import type { UserVisible, UserVisibleRolesYAML, UserVisibleYAML } from "./types"
 import { collectUserVisibleMetadataTargetOccurrences } from "./metadataTargetOccurrences"
@@ -12,26 +12,31 @@ import { collectUserVisibleMetadataTargetOccurrences } from "./metadataTargetOcc
 export const exportUserVisibleToYAML = (
   context: ConfigurationContext,
   rule: UserVisiblePropertyRule,
-  userVisible: UserVisible | undefined
+  userVisible: UserVisible | undefined,
+  annotations?: XmlAnomalyAnnotations,
 ): Partial<Record<string, UserVisibleYAML>> | undefined => {
-  const raw = exportPreparedUserVisibleToYAML(context, rule, userVisible)
+  const raw = exportPreparedUserVisibleToYAML(context, rule, userVisible, annotations)
   if (raw === undefined) return undefined
-  const prepared = cloneMetadataTargetValue(raw)
-  return exportMetadataTargetOccurrencesToYAML({
-    value: prepared,
+  const projected = projectMetadataTargetOccurrencesToYAML({
+    value: raw,
     occurrences: collectUserVisibleMetadataTargetOccurrences({
-      value: prepared,
+      value: raw,
       representation: "yaml",
       yamlPath: [rule.yaml!],
       propRule: rule,
     }),
-  }) as Partial<Record<string, UserVisibleYAML>>
+  })
+  if (annotations !== undefined) assignMetadataTargetUuidAnnotations({
+    yaml: raw, annotations, occurrences: projected.uuidOccurrences,
+  })
+  return raw
 }
 
 const exportPreparedUserVisibleToYAML = (
   context: ConfigurationContext,
-  rule: UserVisiblePropertyRule,
+  rule: PropertyRule,
   userVisible: UserVisible | undefined,
+  annotations?: XmlAnomalyAnnotations,
 ): Partial<Record<string, UserVisibleYAML>> | undefined => {
   if (!userVisible) return undefined
   if (!rule.yaml) throw new Error("UserVisiblePropertyRule must have yaml property")
@@ -48,6 +53,9 @@ const exportPreparedUserVisibleToYAML = (
   const roles: UserVisibleRolesYAML = {}
   userVisible.values.forEach((item) => {
     roles[item.name] = exportBooleanToYAML(context, undefined, item.value)!
+    if (item.name === "") annotations?.setKey(roles, "", {
+      kind: "invalid", occurrence: 1, target: "key", logicalKey: "",
+    })
   })
 
   return {
@@ -58,4 +66,7 @@ const exportPreparedUserVisibleToYAML = (
   }
 }
 
-export const metadataPropertyRule000 = definePropertyTypeRule("UserVisible", "exportToYAML", exportPreparedUserVisibleToYAML as any)
+const exportAnnotatedUserVisibleToYAML: ExportToYAMLFunctionNew = ({ context, rule, value, annotations }) =>
+  exportPreparedUserVisibleToYAML(context, rule, value, annotations)
+
+export const metadataPropertyRule000 = definePropertyTypeRule("UserVisible", "exportToYAML", exportAnnotatedUserVisibleToYAML)

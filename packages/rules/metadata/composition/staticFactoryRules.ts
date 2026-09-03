@@ -1,4 +1,5 @@
 import { metadataRuleLayer000 as contribution0 } from "../appliedObjects/metadataAccountingRegister/types"
+import { metadataRuleLayer000 as interfaceContribution } from "../appliedObjects/metadataInterface/types"
 import { metadataRuleLayer000 as contribution1 } from "../appliedObjects/metadataAccumulationRegister/types"
 import { metadataRuleLayer000 as contribution2 } from "../appliedObjects/metadataBot/types"
 import { metadataRuleLayer000 as contribution3 } from "../appliedObjects/metadataBusinessProcess/types"
@@ -396,6 +397,7 @@ const factoryPropertyRules = defineMetadataRules({
 })
 
 export const staticFactoryRules = composeMetadataRules(
+  interfaceContribution,
   contribution0,
   contribution1,
   contribution2,

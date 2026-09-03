@@ -345,6 +345,8 @@ function collectNestedReferences(params: {
   if (Array.isArray(params.value)) {
     const references: StructuralYamlReference[] = []
     for (let index = 0; index < params.value.length; index += 1) {
+      const annotation = params.parsed.annotations.at(params.value, index)
+      if (annotation?.kind === "raw" && annotation.hasSemanticValue !== true) continue
       const result = collectObjectReferences({
         ...params,
         value: params.value[index],
@@ -367,6 +369,8 @@ function collectNestedReferences(params: {
   if (record === undefined) return { ok: true, references: [] }
   const references: StructuralYamlReference[] = []
   for (const [key, item] of Object.entries(record)) {
+    const annotation = params.parsed.annotations.at(record, key)
+    if (annotation?.kind === "raw" && annotation.hasSemanticValue !== true) continue
     const result = collectObjectReferences({
       ...params,
       value: item,

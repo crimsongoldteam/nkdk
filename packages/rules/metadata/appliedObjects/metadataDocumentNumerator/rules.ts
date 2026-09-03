@@ -1,8 +1,8 @@
+import { metadataIdentityProperties } from "../../commonObjects/metadataIdentityProperties"
 import { booleanRule } from "../../commonObjects/boolean/types"
 import { i8nTextRule } from "../../commonObjects/i8nText/types"
 import { numberRule } from "../../commonObjects/number/types"
 import { stringRule } from "../../commonObjects/string/types"
-import { uuidRule } from "../../commonObjects/uuid/types"
 import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
@@ -33,11 +33,7 @@ export const MetadataDocumentNumeratorRules = {
       toYAML: false,
       fromYAML: false,
     }),
-    uuid: uuidRule({
-      xml: "_uuid",
-      forReferenceOnly: true,
-      xmlParents: [],
-    }),
+    uuid: metadataIdentityProperties.uuid,
     name: stringRule({
       xmlParents: ["Properties"],
       required: true,

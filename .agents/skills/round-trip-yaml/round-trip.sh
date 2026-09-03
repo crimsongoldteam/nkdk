@@ -362,6 +362,7 @@ for RUN_XML_DIR in "${RUN_DIRS[@]}"; do
   SYNC_OUTPUT="${MCP_PROJECT_DIR}.${RUN_COMPONENT_KEY}.sync-output.json"
 
   RUN_XML_REL="$(config_rel_path "${RUN_XML_DIR}")"
+  node "${REPO_DIR}/scripts/normalize-xml-line-endings.mjs" --dir "${RUN_XML_DIR}"
   if [ -n "$(git -C "${NKDK_XML_REPO}" status --porcelain -- "${RUN_XML_REL}")" ]; then
     echo "Ошибка: активный XML-каталог содержит изменения: ${RUN_XML_REL}" >&2
     echo "Сохрани или откати изменения в этом каталоге перед запуском round-trip-yaml." >&2

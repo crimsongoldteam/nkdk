@@ -136,6 +136,7 @@ export type ExportToYAMLFunctionNew = (params: {
   value: any
   name?: string
   owner?: MetadataTargetOwner
+  annotations?: XmlAnomalyAnnotations
 }) => any | undefined
 
 export type ExportToEnterpriseFunction = (params: {

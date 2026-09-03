@@ -164,6 +164,9 @@ function collectNested(params: {
   const entries =
     descriptor.yamlShape === "record" ? Object.entries(asRecord(params.yaml) ?? {}) : arrayEntries(params.yaml)
   return entries.flatMap(([name, yaml], index) => {
+    // Pure raw nodes have no semantic object and therefore declare no data paths.
+    // Shape validation is performed independently of this facts projection.
+    if (asRecord(yaml) === undefined) return []
     const stringName = typeof name === "string" ? name : undefined
     const itemRule =
       params.resolveCollectionItemRule?.({ yaml, name: stringName, propertyRule: params.propertyRule }) ??

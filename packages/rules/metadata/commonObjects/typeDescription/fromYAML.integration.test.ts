@@ -1,4 +1,4 @@
-import { markYAMLScalarTag } from "@nkdk/runtime"
+import { createXmlAnomalyAnnotations, markYAMLScalarTag, parseMetadataYaml, serializeYAMLDocument } from "@nkdk/runtime"
 import { createRuleRegistrySet,type MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { describe,expect,it } from "vitest"
 import {
@@ -103,6 +103,34 @@ describe("importTaggedTypeDescriptionFromYAML", () => {
 })
 
 describe("importTypeDescriptionFromYAML with allowedTypes", () => {
+  it.each([2, 3])("помечает только лишние DefinedType и восстанавливает %i TypeSet", (count) => {
+    const names = ["ДенежнаяСуммаЛюбогоЗнака", "ДенежнаяСуммаНеотрицательная", "Третий"].slice(0, count)
+    const source = { Type: { "v8:TypeSet": names.map(name => ({
+      "_xmlns:cfg": "http://v8.1c.ru/8.1/data/enterprise/current-config",
+      "#text": `cfg:DefinedType.${name}`,
+    })) } }
+    const contexts = createDirectRoundTripContexts()
+    const annotations = createXmlAnomalyAnnotations()
+    const imported = testPropertyFromXMLToYAML({ rule: restrictedItemRule, xml: source, annotations, context: contexts.importContext })
+    const text = serializeYAMLDocument(imported.yaml, annotations).text
+    expect(text.match(/!xml\/invalid/g)).toHaveLength(count - 1)
+    expect(text).not.toContain("!xml/invalid/")
+    expect(text).not.toContain("!xml/raw")
+    const parsed = parseMetadataYaml(text)
+    const exported = testPropertyFromYAMLToXML({ rule: restrictedItemRule, yaml: parsed.data, annotations: parsed.annotations, context: contexts.exportContext() })
+    expect(exported.xml.Type).toEqual(source.Type)
+    expect(() => testPropertyFromYAMLToXML({ rule: restrictedItemRule, yaml: parsed.data, context: contexts.exportContext() })).toThrow("allowedTypes")
+  })
+
+  it.each([
+    "- !xml/invalid ОпределяемыйТип.Один\n  - ОпределяемыйТип.Два",
+    "- ОпределяемыйТип.Один\n  - !xml/invalid ОпределяемыйТип.Неверное.Имя",
+    "- ОпределяемыйТип.Один\n  - !xml/invalid Строка",
+    "- ОпределяемыйТип.Один\n  - !xml/invalid ОпределяемыйТип.Один",
+  ])("invalid не отключает остальные ограничения: %s", (items) => {
+    const parsed = parseMetadataYaml(`Тип:\n  ${items}`)
+    expect(() => testPropertyFromYAMLToXML({ rule: restrictedItemRule, yaml: parsed.data, annotations: parsed.annotations })).toThrow("allowedTypes")
+  })
   it("imports allowed primitive and catalog reference values", () => {
     expect(
       importTypeDescriptionFromYAML(mockContext, restrictedCatalogAttributeRule, [

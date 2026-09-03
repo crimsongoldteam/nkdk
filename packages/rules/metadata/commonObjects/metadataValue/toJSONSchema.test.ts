@@ -9,6 +9,13 @@ type StringSchemaMetadata = {
 }
 
 describe("exportMetadataValueToJSONSchema", () => {
+  it("различает явные виды сравнения и обычную строку", () => {
+    const schema = compileValidationSchema(MetadataValueJSONSchema)
+    expect(schema.Check({ Тип: "ВидСравнения", Значение: "Равно" })).toBe(true)
+    expect(schema.Check({ Тип: "ВидСравненияКомпоновкиДанных", Значение: "Равно" })).toBe(true)
+    expect(schema.Check("Равно")).toBe(true)
+    expect(schema.Check({ Тип: "ВидСравнения", Значение: "Неизвестно" })).toBe(false)
+  })
   it("keeps common MetadataValue schema without metadataTarget", () => {
     const schema = exportMetadataValueToJSONSchema({
       context: mockContext,

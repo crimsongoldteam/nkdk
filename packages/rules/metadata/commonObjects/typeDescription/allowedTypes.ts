@@ -1,6 +1,7 @@
 import { Type, TSchema } from "typebox"
 import { Value } from "typebox/value"
 import { TypeDescriptionAllowedType, TypeDescriptionAllowedTypes } from "./types"
+import type { XmlAnomalyAnnotations } from "@nkdk/runtime"
 
 export const METADATA_NAME_YAML_PATTERN = "[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*"
 
@@ -178,8 +179,16 @@ export const buildTypeDescriptionJSONSchema = (allowedTypes: TypeDescriptionAllo
 export const assertTypeDescriptionYAMLAllowed = (params: {
   value: unknown
   allowedTypes: TypeDescriptionAllowedTypes
+  annotations?: XmlAnomalyAnnotations
 }): void => {
   const schema = buildTypeDescriptionJSONSchema(params.allowedTypes)
+
+  const values = params.value
+  if (Array.isArray(values) && values.length > 1 && new Set(values).size === values.length
+    && values.every((value, index) => typeof value === "string"
+      && value.startsWith("ОпределяемыйТип.")
+      && Value.Check(schema, value)
+      && (index === 0 || params.annotations?.at(values, index)?.kind === "invalid"))) return
 
   if (!Value.Check(schema, params.value)) {
     throw new Error("TypeDescription YAML value is not allowed by rule.allowedTypes")

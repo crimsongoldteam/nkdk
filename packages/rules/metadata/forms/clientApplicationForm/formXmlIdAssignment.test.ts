@@ -80,15 +80,67 @@ describe("assignFormXmlIds", () => {
     expect(second._id).toBe("1")
   })
 
-  it.each(["1", "-4"])("отклоняет повторный ID %s внутри одного XML-контейнера", (id) => {
+  it.each(["1", "-4", "523", "524", "525"])("сохраняет повторный исходный ID %s и не создаёт новых коллизий", (id) => {
     const firstAddress = "Форма.Элемент.Первый"
     const secondAddress = "Форма.Элемент.Второй"
     const setup = runtimeSetup([entity(firstAddress, id), entity(secondAddress, id)])
     const { first, second } = registerElementPair(setup.runtime, firstAddress, secondAddress)
 
-    expect(() => assignFormXmlIds({ Items: [first, second] })).toThrow(
-      `Повторный ID ${id} в XML-контейнере (elements)`,
-    )
+    const added = ["Новый", "ЕщёОдин"].map(name => {
+      const node = { _name: name, _id: "" }
+      register(setup.runtime.withLogicalAddress(`Форма.Элемент.${name}`), node, "elements")
+      return node
+    })
+    assignFormXmlIds({ Items: [...added, first, second] })
+
+    expect([first._id, second._id]).toEqual([id, id])
+    expect(new Set([id, ...added.map(node => node._id)]).size).toBe(3)
+    const next = runtimeSetup([...setup.collector.fragment("Форма.yaml").entities])
+    const restored = ["Новый", "ЕщёОдин", "Первый", "Второй"].map(name => {
+      const node = { _name: name, _id: "" }
+      register(next.runtime.withLogicalAddress(`Форма.Элемент.${name}`), node, "elements")
+      return node
+    })
+    assignFormXmlIds({ Items: restored })
+    expect(restored.map(node => node._id)).toEqual([...added.map(node => node._id), id, id])
+  })
+
+  it("согласует ID одного адреса из разных снимков в общей сессии", () => {
+    const address = "Форма.Элемент.Поле"
+    const session = createFormXmlIdAssignmentSession()
+    for (const id of ["1", "2"]) {
+      const setup = runtimeSetup([entity(address, id)])
+      const node = { _name: "Поле", _id: "" }
+      register(setup.runtime.withLogicalAddress(address), node, "elements")
+      assignFormXmlIds({ Items: [node] }, undefined, session)
+      expect(node._id).toBe("1")
+    }
+  })
+
+  it("не разрешает записать разные ID одного адреса в один снимок", () => {
+    const setup = runtimeSetup([])
+    setup.collector.setIdentity("Форма.Элемент.Поле", "xmlId", "1")
+    expect(() => setup.collector.setIdentity("Форма.Элемент.Поле", "xmlId", "2")).toThrow()
+  })
+
+  it("не занимает ID сохранённого raw-узла", () => {
+    const setup = runtimeSetup([])
+    const node = { _name: "НовоеПоле", _id: "" }
+    register(setup.runtime.withLogicalAddress("Форма.Элемент.НовоеПоле"), node, "elements")
+    assignFormXmlIds({ ChildItems: [{ Button: { _name: "Raw", _id: "1" } }, { InputField: node }] })
+    expect(node._id).toBe("2")
+  })
+
+  it("резервирует исходные ID даже удалённых элементов, но не соседней формы или другого пространства", () => {
+    const setup = runtimeSetup([
+      entity("Форма.Элемент.Удалённый", "1"),
+      entity("ДругаяФорма.Элемент.Поле", "2"),
+      entity("Форма.Атрибут.Объект", "2"),
+    ])
+    const node = { _name: "НовоеПоле", _id: "" }
+    register(setup.runtime.withLogicalAddress("Форма.Элемент.НовоеПоле"), node, "elements")
+    assignFormXmlIds({ ChildItems: [{ InputField: node }] })
+    expect(node._id).toBe("2")
   })
 
   it("разрешает одинаковый постоянный ID правила в разных проекциях одного результата", () => {
@@ -239,6 +291,7 @@ function runtimeSetup(entities: ConfigurationIndexBlockEntity[]) {
       collector,
       targetProjectPath: "Форма.yaml",
       logicalAddress: "Форма",
+      formElementRootLogicalAddress: "Форма",
     }),
   }
 }

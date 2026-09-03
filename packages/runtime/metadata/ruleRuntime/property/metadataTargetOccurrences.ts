@@ -102,7 +102,7 @@ export function importMetadataTargetOccurrencesFromYAML(params: MetadataTargetTr
       throw new Error("UUID metadata-ссылки требует !xml/uuid")
     }
     if (uuidContract.kind === "unnecessary") {
-      throw new Error("!xml/uuid допустим только для UUID или UUID.UUID metadata-ссылки")
+      throw new Error("!xml/uuid допустим только для UUID, UUID.UUID или 1:UUID metadata-ссылки")
     }
     if (uuidContract.kind === "accepted") {
       occurrence.setValue(uuidContract.text)
@@ -113,6 +113,10 @@ export function importMetadataTargetOccurrencesFromYAML(params: MetadataTargetTr
     const text = occurrence.location.kind === "key" && annotation?.logicalKey !== undefined
       ? annotation.logicalKey
       : occurrence.representation.canonical
+    if (occurrence.location.kind === "key" && text === "" && annotation?.kind === "invalid") {
+      occurrence.setValue(text)
+      continue
+    }
     const constraint = metadataTargetConstraintForOwner(occurrence.constraint, params.owner)
     const parsed = parseMetadataTargetFromYAML({ value: text, constraint, owner: params.owner })
     if (parsed.ok) {
@@ -217,16 +221,18 @@ export function assignMetadataTargetUuidAnnotations(params: {
   }
 }
 
-export function cloneMetadataTargetValue(value: unknown): unknown {
+export function cloneMetadataTargetValue(value: unknown, annotations?: XmlAnomalyAnnotations): unknown {
   if (Array.isArray(value)) {
-    const result = value.map(cloneMetadataTargetValue)
+    const result = value.map(item => cloneMetadataTargetValue(item, annotations))
     copyYAMLRuntimeMetadata(value, result)
+    annotations?.copy(value, result)
     return result
   }
   if (!isRecord(value)) return value
   const result: Record<string, unknown> = {}
-  for (const [key, item] of Object.entries(value)) result[key] = cloneMetadataTargetValue(item)
+  for (const [key, item] of Object.entries(value)) result[key] = cloneMetadataTargetValue(item, annotations)
   copyYAMLRuntimeMetadata(value, result)
+  annotations?.copy(value, result)
   return result
 }
 

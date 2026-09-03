@@ -3,6 +3,10 @@
   "minTokens": 50,
   "mode": "mild",
   "format": ["typescript", "tsx", "javascript"],
+  "ignorePattern": [
+    "(?m)^[ \\t]*import[ \\t]+(?:type[ \\t]+)?(?:[A-Za-z_$][\\w$]*[ \\t\\r\\n]*(?:,[ \\t\\r\\n]*)?)?(?:\\{[^}]*\\}|\\*[ \\t\\r\\n]+as[ \\t]+[A-Za-z_$][\\w$]*)?[ \\t\\r\\n]*from[ \\t\\r\\n]*(?:\"[^\"\\r\\n]*\"|'[^'\\r\\n]*')[ \\t]*;?",
+    "(?m)^[ \\t]*import[ \\t]*(?:\"[^\"\\r\\n]*\"|'[^'\\r\\n]*')[ \\t]*;?"
+  ],
   "ignore": [
     "**/node_modules/**",
     "**/dist/**",

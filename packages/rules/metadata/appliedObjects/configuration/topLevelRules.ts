@@ -41,6 +41,7 @@ import { MetadataWebSocketClientRules } from "../metadataWebSocketClient/rules"
 import { MetadataExternalDataSourceRules } from "../metadataExternalDataSource/rules"
 import { MetadataConstantRules } from "../metadataConstant/rules"
 import { MetadataStyleRules } from "../metadataStyle/rules"
+import { MetadataInterfaceRules } from "../metadataInterface/rules"
 import { MetadataStyleItemRules } from "../metadataStyleItem/rules"
 import { MetadataSubsystemRules } from "../metadataSubsystem/rules"
 import { MetadataTaskRules } from "../metadataTask/rules"
@@ -82,6 +83,7 @@ const RawTopLevelMetadataItemRules: readonly MetadataItemRule[] = [
   MetadataCommonFormRules,
   MetadataCommonPictureRules,
   MetadataStyleRules,
+  MetadataInterfaceRules,
   MetadataCommonCommandRules,
   MetadataCommandGroupRules,
   MetadataConstantRules,

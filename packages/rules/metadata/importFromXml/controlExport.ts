@@ -1,6 +1,9 @@
 import {
   applyXmlPatch,
   copyYAMLRuntimeMetadataDeep,
+  markYAMLMappingKeyOrder,
+  objectRecordOrUndefined,
+  yamlMappingKeys,
   createXmlAnomalyAnnotations,
   decodeXmlRawValue,
   restoreXmlAnomalyAnnotations,
@@ -86,6 +89,16 @@ export async function executeImportControlExport(params: {
   }
   const assignment = projectControlAssignment(params.assignment, params.topology)
   const context = controlExportContext(params.context, params.exportProfile)
+  const opaqueItemPaths = importedRawItemPaths(params.annotations, params.audit)
+  // Целиком сохранённые элементы не имеют смыслового аналога. Они остаются
+  // в контрольном XML; проверяемые предварительные raw свойств отключены.
+  const controlAnnotations = opaqueItemPaths.size === 0 ? params.annotations : {
+    ...params.annotations,
+    entries: params.annotations.entries.flatMap(entry => {
+      if (entry.annotation.kind !== "raw" || opaqueItemPaths.has(JSON.stringify([...entry.parentPath, entry.key]))) return [entry]
+      return entry.annotation.semantic === undefined ? [] : [{ ...entry, annotation: { ...entry.annotation.semantic, target: "value" as const } }]
+    }),
+  }
   controlExportCountValueForTests += 1
   const toXmlObjectStartedAt = performance.now()
   const prepared = (params.ordinaryExporter ?? prepareFullXmlSyncAssignment)({
@@ -99,10 +112,9 @@ export async function executeImportControlExport(params: {
         name: params.assignment.owner?.name ?? params.assignment.itemName,
       },
       data: params.data,
-      // Proof обязан проверить обычный экспорт, поэтому raw fallback здесь намеренно отключён.
-      // Обычный экспорт получает смысловую проекцию: существующий raw не
-      // участвует в PropertyRule, а invalid/important остаются значениями.
-      annotations: restoreXmlAnomalyAnnotations(params.data, params.annotations),
+      // Предварительный raw свойств не участвует в обычном экспорте;
+      // исключение — явно непрозрачные элементы, которым нет смысловой замены.
+      annotations: restoreXmlAnomalyAnnotations(params.data, controlAnnotations),
       syntaxDiagnostics: [],
     },
     context,
@@ -117,7 +129,7 @@ export async function executeImportControlExport(params: {
         }),
     composition: params.composition,
     topology: params.topology,
-    xmlAnomalyRawFallback: false,
+    xmlAnomalyRawFallback: opaqueItemPaths.size > 0,
     profilePropertyTypes: params.profilePropertyTypes,
   })
   const toXmlObjectMs = performance.now() - toXmlObjectStartedAt
@@ -135,7 +147,7 @@ export async function executeImportControlExport(params: {
     }
     const source = matchSource(params.assignment.xmlFiles, output.role, output.targetXmlPath)
     const control = (params.controlDocumentBuilder ?? buildPreparedAssignmentControlDocument)({
-      document: { ...document, rawBoundaries: [] },
+      document: opaqueItemPaths.size === 0 ? { ...document, rawBoundaries: [] } : document,
       context,
       profile: prepared.profile,
     })
@@ -152,6 +164,15 @@ export async function executeImportControlExport(params: {
       ...controlExportTimings(prepared.profile, toXmlObjectMs, 0),
     })
     const retainImportedYaml = !hasRawXmlAnomaly(params.annotations)
+    if (opaqueItemPaths.size > 0) {
+      const retained = retainUnownedImportRaw({
+        data: prepared.semanticYamlFile.data,
+        annotations: snapshotXmlAnomalyAnnotations(prepared.semanticYamlFile.data, semanticAnnotations),
+        imported: { data: params.data, annotations: params.annotations, audit: params.audit },
+        exported: preliminaryExported.map(({ role, sourcePath, control }) => ({ role, sourcePath, document: control.document() })),
+      })
+      return { ...retained, rereadSourcePaths: [], warnings: [] }
+    }
     return {
       data: retainImportedYaml ? params.data : prepared.semanticYamlFile.data,
       annotations: retainImportedYaml
@@ -279,6 +300,16 @@ function controlExportTimings(
   }
 }
 
+function importedRawItemPaths(annotations: XmlAnomalyAnnotationsSnapshot, audit: XmlAnomalyProofAudit): ReadonlySet<string> {
+  const anchors = new Set((audit.itemAnchors ?? []).map(anchor => JSON.stringify(anchor.yamlPath)))
+  return new Set(annotations.entries.flatMap(entry => {
+    const xml = entry.annotation.xml
+    const path = JSON.stringify([...entry.parentPath, entry.key])
+    return entry.annotation.kind === "raw" && entry.annotation.hasSemanticValue === false &&
+      xml !== null && typeof xml === "object" && "#name" in xml && typeof xml["#name"] === "string" && anchors.has(path) ? [path] : []
+  }))
+}
+
 function retainUnownedImportRaw(params: {
   readonly data: unknown
   readonly annotations: XmlAnomalyAnnotationsSnapshot
@@ -314,8 +345,10 @@ function retainUnownedImportRaw(params: {
       }),
     ]),
   )
-  const retained = params.imported.annotations.entries.filter((entry) => {
+  const rawItemPaths = importedRawItemPaths(params.imported.annotations, params.imported.audit)
+  const retainedRaw = params.imported.annotations.entries.filter((entry) => {
     if (entry.annotation.kind !== "raw") return false
+    if (rawItemPaths.has(JSON.stringify([...entry.parentPath, entry.key]))) return true
     if (typeof entry.key !== "string" || (!entry.key.includes("\\") && !entry.key.startsWith("@"))) {
       return false
     }
@@ -324,12 +357,21 @@ function retainUnownedImportRaw(params: {
     if (claimedElementNames.has(finalXmlName) || claimedElementNames.has(xmlLocalName(finalXmlName))) return false
     return !ownedYamlPaths.has(JSON.stringify([...entry.parentPath, entry.key]))
   })
-  if (retained.length === 0) return params
-  for (const entry of retained) {
+  if (retainedRaw.length === 0) return params
+  for (const entry of retainedRaw) {
     const path = [...entry.parentPath, entry.key]
     setValueAtPath(params.data, path, valueAtPath(params.imported.data, path))
   }
-  const retainedPaths = new Set(retained.map((entry) => JSON.stringify([...entry.parentPath, entry.key])))
+  copyYAMLRuntimeMetadataDeep({ source: params.imported.data, target: params.data })
+  for (const entry of retainedRaw) {
+    if (!rawItemPaths.has(JSON.stringify([...entry.parentPath, entry.key]))) continue
+    const source = objectRecordOrUndefined(valueAtPath(params.imported.data, entry.parentPath))
+    const target = objectRecordOrUndefined(valueAtPath(params.data, entry.parentPath))
+    if (source && target) markYAMLMappingKeyOrder(target, yamlMappingKeys(source))
+  }
+  const retainedPaths = new Set(retainedRaw.map((entry) => JSON.stringify([...entry.parentPath, entry.key])))
+  // Вместе с raw-значением сохраняем invalid-ключ повторного элемента.
+  const retained = params.imported.annotations.entries.filter(entry => retainedPaths.has(JSON.stringify([...entry.parentPath, entry.key])))
   return {
     data: params.data,
     annotations: {

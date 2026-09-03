@@ -1,3 +1,6 @@
+import { metadataIdentityProperties } from "../../commonObjects/metadataIdentityProperties"
+import { ownerFormLinks } from "../../commonObjects/metadataPath/formLinks"
+import { metadataItemLinkRule } from "../../commonObjects/metadataPath/types"
 import { internalInfoRule } from "../../commonObjects/internalInfo/types"
 import { minMaxValueRule } from "../../commonObjects/minMaxValue/types"
 import { typeDescriptionRule } from "../../commonObjects/typeDescription/types"
@@ -8,7 +11,6 @@ import { booleanRule } from "../../commonObjects/boolean/types"
 import { i8nTextRule } from "../../commonObjects/i8nText/types"
 import { moduleRule } from "../../commonObjects/module/types"
 import { stringRule } from "../../commonObjects/string/types"
-import { uuidRule } from "../../commonObjects/uuid/types"
 import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
 import { V8_MDCLASSES_ROOT } from "../../ruleRuntime/appliedObject/presets"
@@ -71,11 +73,7 @@ export const MetadataConstantRules = {
         { name: "ConstantValueKey", category: "ValueKey" },
       ],
     }),
-    uuid: uuidRule({
-      xml: "_uuid",
-      forReferenceOnly: true,
-      xmlParents: [],
-    }),
+    uuid: metadataIdentityProperties.uuid,
     name: stringRule({
       xmlParents: constantProperties,
       required: true,
@@ -103,12 +101,7 @@ export const MetadataConstantRules = {
       implicitValueYAML: true,
       xmlParents: constantProperties,
     }),
-    defaultForm: stringRule({
-      yaml: "ОсновнаяФорма",
-      xmlParents: constantProperties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
+    defaultForm: ownerFormLinks.defaultForm,
     extendedPresentation: i8nTextRule({
       yaml: "РасширенноеПредставление",
       xmlParents: constantProperties,
@@ -206,7 +199,7 @@ export const MetadataConstantRules = {
       implicitValueYAML: "Auto",
       xmlParents: constantProperties,
     }),
-    choiceForm: stringRule({
+    choiceForm: metadataItemLinkRule({
       yaml: "ФормаВыбора",
       xmlParents: constantProperties,
       metadataTarget: { kind: "member", owner: "type", typeProperty: "type", memberKinds: ["Form"] },

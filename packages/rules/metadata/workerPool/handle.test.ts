@@ -1,6 +1,7 @@
+import { fileURLToPath } from "node:url"
 import { describe, expect, it } from "vitest"
 import { createMockWorkerThreadPoolFactory } from "../../tests/mockWorkerThreadPool"
-import { createMetadataWorkerPoolHandle } from "./handle"
+import { createMetadataWorkerPoolHandle, createMetadataWorkerPoolOptions } from "./handle"
 import type { MetadataWorkerCommand, MetadataWorkerCommandResult, MetadataWorkerLine } from "./types"
 
 const context = { languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' }, version: "8.3.27" }
@@ -19,6 +20,12 @@ function createLines() {
 }
 
 describe("createMetadataWorkerPoolHandle", () => {
+  it("не назначает операционной линии принудительный лимит heap", () => {
+    const workerUrl = new URL("./custom-worker.js", import.meta.url)
+    const options = createMetadataWorkerPoolOptions(workerUrl)
+    expect(options).not.toHaveProperty("resourceLimits")
+    expect(options).toMatchObject({ minThreads: 1, maxThreads: 1, filename: fileURLToPath(workerUrl), execArgv: [] })
+  })
   it("uses the supplied worker entrypoint", async () => {
     const workerUrl = new URL("file:///custom-worker.js")
     const handle = createMetadataWorkerPoolHandle({

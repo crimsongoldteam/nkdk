@@ -13,6 +13,8 @@ yamlScalarTagAt
 import { bindDeferredObjectValues,createDeferredValuePathCollector } from "@nkdk/runtime/rule-kit"
 import { describe,expect,it,vi } from "vitest"
 import { createDirectRoundTripContexts } from "../../../tests/directConversion"
+import { prepareTestXmlAnomalyAssignment } from "../../xmlAnomalies/testSupport"
+import { buildPreparedAssignmentXml } from "../../fullSyncToXml/xmlAnomalyAssignment"
 import { mockContextFromXML,mockXmlImportContext } from "../../../tests/mockContext"
 import { readAndParseXMLFixture,readXMLFixtureAsString } from "../../../tests/readFixtureXML"
 import { createLocalIndexesCollector } from "../../projectDefinition/localIndexes"
@@ -119,6 +121,90 @@ function importAuditedStructuredForm(
 }
 
 describe("importClientApplicationFormFromXMLToYAML", () => {
+  it("передаёт аннотации ролей через вложенное Использование командного интерфейса", () => {
+    const uuid = "12345678-1234-4234-9234-123456789abc"
+    const document = parseXmlDocumentWithSaxes(`<Form><CommandInterface><CommandBar><Item>
+      <Command>0</Command><Type>Auto</Type><Visible><xr:Common>true</xr:Common>
+      <xr:Value name="">false</xr:Value><xr:Value name="${uuid}">true</xr:Value>
+      <xr:Value name="Role.Администратор">true</xr:Value>
+      </Visible></Item></CommandBar></CommandInterface></Form>`)
+    const { result, annotations } = importAuditedStructuredForm(document)
+    const text = serializeYAMLDocument(result.yaml, annotations).text
+    expect(text).toContain("!xml/invalid '': Ложь")
+    expect(text).toContain(`!xml/uuid ${uuid}: Истина`)
+    const parsed = parseMetadataYaml(text)
+    const exported = convertClientApplicationFormFromYAMLToXML({
+      context: createDirectRoundTripContexts().exportContext(), name: "Форма",
+      yaml: parsed.data as ClientApplicationFormYAML, annotations: parsed.annotations,
+    })
+    const xml = xmlExport({ Form: exported.formXML })
+    expect(xml).toContain('<xr:Value name="">false</xr:Value>')
+    expect(xml).toContain(`name="${uuid}"`)
+  })
+  it.each([
+    ["повторные имена", `<ChildItems>
+      <Button name="ЕстьКЭП" id="11"><Type>UsualButton</Type></Button>
+      <Button name="Сосед" id="12"><Type>UsualButton</Type></Button>
+      <Button name="ЕстьКЭП" id="21"><Type>Hyperlink</Type><ExtendedTooltip name="Подсказка" id="22"/></Button>
+      <Button name="ЕстьКЭП" id="31"><Type>UsualButton</Type></Button>
+    </ChildItems>`, "!xml/invalid/2 ЕстьКЭП", ["11", "12", "21", "31"]],
+    ["поле рисунка в контекстном меню", `<ChildItems><InputField name="Поле" id="1">
+      <ContextMenu name="ПолеКонтекстноеМеню" id="2"><ChildItems>
+        <Button name="До" id="3"><Type>UsualButton</Type></Button>
+        <PictureField name="ЕстьФайлы" id="4"><ExtendedTooltip name="Подсказка" id="5"/></PictureField>
+        <Button name="После" id="6"><Type>UsualButton</Type></Button>
+      </ChildItems></ContextMenu>
+    </InputField></ChildItems>`, "ЕстьФайлы: !xml/raw", ["3", "4", "6"]],
+  ] as const)("сохраняет локальными raw %s", (_case, body, expectedTag, expectedIds) => {
+    const contexts = createDirectRoundTripContexts({ logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента" })
+    const document = parseXmlDocumentWithSaxes(`<Form>${body}</Form>`, { preserveXsiNil: true })
+    const metadata = managedFormMetadataDocument()
+    const audit = createXmlImportAuditSession([document.roots[0]!, metadata.roots[0]!])
+    const annotations = createXmlAnomalyAnnotations()
+    const imported = importClientApplicationFormFromXMLToYAML({
+      context: contexts.importContext, formName: "ФормаЭлемента",
+      formXML: document.compatibility.Form as ClientApplicationFormXML,
+      metadataXML: metadata.compatibility.MetaDataObject as FormMetadataXML,
+      formXMLNode: document.roots[0]!, metadataXMLNode: metadata.roots[0]!, audit, annotations,
+    })
+    audit.finalize()
+    const text = serializeYAMLDocument(imported.yaml, annotations).text
+    expect(audit.rawCandidates().map(({ error }) => String(error))).toEqual([])
+    expect(text).toContain(expectedTag)
+    expect(text).not.toContain("Элементы: !xml/raw")
+    const parsed = parseMetadataYaml(text)
+    expect(parsed.syntaxErrors).toEqual([])
+    const prepared = prepareTestXmlAnomalyAssignment({ parsed, rootRule: ClientApplicationFormRules })
+    const context = contexts.exportContext()
+    const ordinary = convertClientApplicationFormFromYAMLToXML({
+      context, name: "ФормаЭлемента",
+      yaml: prepared.preparedYamlFile.data as ClientApplicationFormYAML,
+      annotations: prepared.preparedYamlFile.annotations,
+    })
+    const exported = buildPreparedAssignmentXml({
+      context,
+      document: { targetXmlPath: "Form.xml", xml: { Form: ordinary.formXML }, deferred: [],
+        rootRule: ClientApplicationFormRules, rawBoundaries: prepared.rawBoundaries },
+    })
+    const xml = parseXmlDocumentWithSaxes(exported).compatibility.Form as ClientApplicationFormXML
+    const items = _case === "повторные имена" ? xml.ChildItems
+      : (xml.ChildItems as Array<{ InputField: { ContextMenu: { ChildItems: unknown } } }>)[0]!.InputField.ContextMenu.ChildItems
+    expect((items as Array<Record<string, { _id: string }>>).map(item => Object.values(item)[0]!._id)).toEqual(expectedIds)
+    expect(exported).toContain('name="Подсказка"')
+  })
+
+  it("распознаёт первое имя во всей форме, а повтор в другой группе оставляет raw", () => {
+    const document = parseXmlDocumentWithSaxes(`<Form><ChildItems>
+      <UsualGroup name="Первая" id="1"><ChildItems><Button name="Повтор" id="2"><Type>UsualButton</Type></Button></ChildItems></UsualGroup>
+      <UsualGroup name="Вторая" id="3"><ChildItems><Button name="Повтор" id="4"><Type>Hyperlink</Type></Button></ChildItems></UsualGroup>
+    </ChildItems></Form>`)
+    const { result, annotations } = importAuditedStructuredForm(document)
+    const text = serializeYAMLDocument(result.yaml, annotations).text
+    expect(text).toContain("!xml/invalid Повтор: !xml/raw")
+    expect(text).toContain("Первая:")
+    expect(text).toContain("Вторая:")
+  })
+
   it("помечает UUID функциональной опции реквизита формы до контрольного экспорта", () => {
     const uuid = "6537a19c-3357-46a2-96a6-1fe4619ddbc8"
     const formDocument = parseXmlDocumentWithSaxes(`
@@ -534,7 +620,7 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
     )
   })
 
-  it("не сохраняет скрытые YAML-свойства Form.xml в снимке", () => {
+  it("сохраняет в снимке только UUID и состояние пространства имён Form.xml", () => {
     const collector = createConfigurationIndexCollector()
     const logicalAddress = "Справочник.Контрагенты.Форма.ФормаЭлемента"
     const context = withConfigurationIndexCollector(mockContextFromXML(), collector, logicalAddress)
@@ -551,10 +637,16 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
       },
     })
 
-    expect(collector.fragment("Форма.yaml").entities).toEqual([{
-      logicalAddress,
-      uuid: "00000000-0000-4000-8000-000000000001",
-    }])
+    expect(collector.fragment("Форма.yaml").entities).toEqual([
+      {
+        logicalAddress,
+        uuid: "00000000-0000-4000-8000-000000000001",
+      },
+      {
+        logicalAddress: `${logicalAddress}.XMLNamespace.dcssch`,
+        xmlValue: "absent",
+      },
+    ])
   })
 
   it("добавляет !проверять metadata формы и сохраняет Extended Form в секции Изменять", () => {
@@ -707,9 +799,6 @@ describe("форма XML → YAML → XML", () => {
   })
 
   it("сохраняет порядок событий формы без reference XML", () => {
-    const contexts = createDirectRoundTripContexts({
-      logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента",
-    })
     const formXML = {
       Events: {
         Event: [
@@ -719,19 +808,7 @@ describe("форма XML → YAML → XML", () => {
         ],
       },
     } as ClientApplicationFormXML
-    const metadataXML = { Form: { Properties: { FormType: "Managed" } } } as FormMetadataXML
-
-    const imported = importClientApplicationFormFromXMLToYAML({
-      context: contexts.importContext,
-      formName: "ФормаЭлемента",
-      formXML,
-      metadataXML,
-    })
-    const converted = convertClientApplicationFormFromYAMLToXML({
-      context: contexts.exportContext(),
-      yaml: imported.yaml as ClientApplicationFormYAML,
-      name: "ФормаЭлемента",
-    })
+    const converted = roundTripFormWithoutReference(formXML)
     const events = converted.formXML.Events?.Event
 
     expect(Array.isArray(events) ? events.map((event) => event._name) : []).toEqual([
@@ -739,6 +816,24 @@ describe("форма XML → YAML → XML", () => {
       "BeforeClose",
       "ActivationProcessing",
     ])
+  })
+
+  it.each([
+    ["отсутствующее", undefined, false],
+    ["присутствующее", "http://v8.1c.ru/8.1/data-composition-system/schema", true],
+  ] as const)("сохраняет %s пространство имён dcssch без reference XML", (_name, namespace, expected) => {
+    const formXML = {
+      ...(namespace === undefined ? {} : { "_xmlns:dcssch": namespace }),
+    } as ClientApplicationFormXML
+    const { converted, exportContext } = directFormRoundTripWithoutReference(formXML)
+
+    expect(Object.prototype.hasOwnProperty.call(converted.formXML, "_xmlns:dcssch")).toBe(expected)
+    expect(
+      exportContext.exportToXML.configurationIndex?.collector.fragment("Тест.yaml").entities,
+    ).toContainEqual({
+      logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента.XMLNamespace.dcssch",
+      xmlValue: expected ? "present" : "absent",
+    })
   })
 
   it("восстанавливает идентификаторы элементов формы без reference XML", () => {
@@ -972,6 +1067,30 @@ describe("форма XML → YAML → XML", () => {
     })).toThrow("Явное XML-имя singleton должно быть помечено тегом !xml/name")
   })
 })
+
+function roundTripFormWithoutReference(formXML: ClientApplicationFormXML) {
+  return directFormRoundTripWithoutReference(formXML).converted
+}
+
+function directFormRoundTripWithoutReference(formXML: ClientApplicationFormXML) {
+  const contexts = createDirectRoundTripContexts({
+    logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента",
+  })
+  const metadataXML = { Form: { Properties: { FormType: "Managed" } } } as FormMetadataXML
+  const imported = importClientApplicationFormFromXMLToYAML({
+    context: contexts.importContext,
+    formName: "ФормаЭлемента",
+    formXML,
+    metadataXML,
+  })
+  const exportContext = contexts.exportContext()
+  const converted = convertClientApplicationFormFromYAMLToXML({
+    context: exportContext,
+    yaml: imported.yaml as ClientApplicationFormYAML,
+    name: "ФормаЭлемента",
+  })
+  return { converted, exportContext }
+}
 
 function importReportForm(form: ClientApplicationFormXML) {
   const metadata = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(

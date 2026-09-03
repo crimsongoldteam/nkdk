@@ -1,3 +1,5 @@
+import { metadataIdentityProperties } from "../../commonObjects/metadataIdentityProperties"
+import { ownerFormLinks } from "../../commonObjects/metadataPath/formLinks"
 import { metadataCommandsRule } from "../metadataAccountingRegister/builders"
 import { metadataEnumerationValuesRule } from "./builders"
 import { characteristicsDescriptionsRule } from "../../commonObjects/characteristicsDescription/types"
@@ -9,7 +11,6 @@ import { booleanRule } from "../../commonObjects/boolean/types"
 import { i8nTextRule } from "../../commonObjects/i8nText/types"
 import { moduleRule } from "../../commonObjects/module/types"
 import { stringRule } from "../../commonObjects/string/types"
-import { uuidRule } from "../../commonObjects/uuid/types"
 import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
 import { V8_MDCLASSES_ROOT } from "../../ruleRuntime/appliedObject/presets"
@@ -32,11 +33,7 @@ export const MetadataEnumerationValueRules = {
     "uuid",
   ],
   properties: {
-    uuid: uuidRule({
-      xml: "_uuid",
-      forReferenceOnly: true,
-      xmlParents: [],
-    }),
+    uuid: metadataIdentityProperties.uuid,
     name: stringRule({
       yaml: "Имя",
       xml: "Name",
@@ -115,11 +112,7 @@ export const MetadataEnumerationRules = {
         { name: "EnumList", category: "List" },
       ],
     }),
-    uuid: uuidRule({
-      xml: "_uuid",
-      forReferenceOnly: true,
-      xmlParents: [],
-    }),
+    uuid: metadataIdentityProperties.uuid,
     name: stringRule({
       xmlParents: enumProperties,
       required: true,
@@ -175,30 +168,10 @@ export const MetadataEnumerationRules = {
       implicitValueYAML: "BothWays",
       xmlParents: enumProperties,
     }),
-    defaultListForm: stringRule({
-      yaml: "ОсновнаяФормаСписка",
-      xmlParents: enumProperties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
-    defaultChoiceForm: stringRule({
-      yaml: "ОсновнаяФормаДляВыбора",
-      xmlParents: enumProperties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
-    auxiliaryListForm: stringRule({
-      yaml: "ДополнительнаяФормаСписка",
-      xmlParents: enumProperties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
-    auxiliaryChoiceForm: stringRule({
-      yaml: "ДополнительнаяФормаДляВыбора",
-      xmlParents: enumProperties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
+    defaultListForm: ownerFormLinks.defaultListForm,
+    defaultChoiceForm: { ...ownerFormLinks.defaultChoiceForm, yaml: "ОсновнаяФормаДляВыбора" },
+    auxiliaryListForm: ownerFormLinks.auxiliaryListForm,
+    auxiliaryChoiceForm: { ...ownerFormLinks.auxiliaryChoiceForm, yaml: "ДополнительнаяФормаДляВыбора" },
     managerModule: moduleRule({
       externalMetadata: { segment: "ManagerModule", placement: "derivedEntry" },
       nkdkPath: "МодульМенеджера.bsl",

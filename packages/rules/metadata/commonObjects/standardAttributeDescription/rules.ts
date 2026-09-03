@@ -1,3 +1,4 @@
+import { metadataItemLinkRule } from "../metadataPath/types"
 import { minMaxValueRule } from "../minMaxValue/types"
 import { typeDescriptionRule } from "../typeDescription/types"
 import { typeLinkRule } from "../typeLink/types"
@@ -49,7 +50,7 @@ export const StandardAttributeDescriptionRules = {
       xml: "_name",
       defaultValue: ({ name }: { name?: string }) => (name ? StandartAttributeNameFromYAML(name) : undefined),
     }),
-    choiceForm: stringRule({
+    choiceForm: metadataItemLinkRule({
       yaml: "ФормаВыбора",
       xml: "xr:ChoiceForm",
       metadataTarget: { kind: "member", owner: "explicit", memberKinds: ["Form"] },

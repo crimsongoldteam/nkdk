@@ -203,6 +203,15 @@ export const rootObjectDeclarations = [
     "НазначенияИспользования: ПлатформаИМобильноеПриложение\n",
   ),
   directoryRoot("object:common-picture", "MetadataCommonPicture", "ОбщаяКартинка", "ОбщаяКартинка"),
+  directoryRoot(
+    "object:interface",
+    "MetadataInterface",
+    "Интерфейс",
+    "Интерфейс",
+    "",
+    [],
+    [{ path: "Interface.bin", contents: new Uint8Array() }],
+  ),
   directoryRoot("object:style", "MetadataStyle", "Стиль", "Стиль"),
   directoryRoot(
     "object:common-command",

@@ -4,6 +4,8 @@ import {
   objectRecordOrUndefined,
   withConfigurationIndexLogicalAddress,
   xmlElementChildren,
+  appendXmlAnnotatedMappingEntry,
+  encodeXmlRawElement,
 } from "@nkdk/runtime"
 import { getElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
 import type {
@@ -26,6 +28,7 @@ import { childItemsTreePropertyTypes, moveButtonTypeToTreeYAML } from "./treeYAM
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import type { TableChildItem } from "./types"
 import { copyYAMLRuntimeMetadata } from "@nkdk/runtime"
+import { formChildItemOccurrence } from "./xmlOccurrences"
 
 const resolveItemTypeFromXMLTag = (rule: PropertyRule, xmlTag: string, xmlValue?: Record<string, unknown>): string => {
   if (rule.type === "CommandBarChildItems" && xmlTag === "Button") {
@@ -50,6 +53,7 @@ export const importChildItemsFromXMLToYAML: ImportFromXMLToYAMLFunction = ({ con
     ? Array.isArray(xml) ? xml : [xml]
     : itemXmlNodes.map((node) => ({ [node.name]: node.compatibilityValue }))
   const result: Record<string, unknown> = {}
+  const occurrences = new Map<string, number>()
 
   for (const [index, value] of items.entries()) {
     const item = objectRecordOrUndefined(value)
@@ -63,6 +67,27 @@ export const importChildItemsFromXMLToYAML: ImportFromXMLToYAMLFunction = ({ con
       throw new Error("У элемента формы отсутствует name")
     }
     const itemName = xmlValue._name
+    const occurrence = formChildItemOccurrence(itemXmlNodes?.[index]) ?? occurrences.get(itemName) ?? 0
+    occurrences.set(itemName, occurrence + 1)
+    const parentItemType = [...traversal.rulePath].reverse().find(segment => segment.nestedItemType !== undefined)?.nestedItemType
+    const misplacedPicture = rule.type === "CommandBarChildItems" && parentItemType === "ContextMenu" && itemType === "PictureField"
+    if (occurrence > 0 || misplacedPicture) {
+      if (traversal.mode === "facts") continue
+      const node = itemXmlNodes?.[index]
+      if (node === undefined || traversal.annotations === undefined) {
+        throw new Error("Для сохранения аномального элемента формы нужны XML-узел и таблица аннотаций")
+      }
+      const key = appendXmlAnnotatedMappingEntry(result, traversal.annotations, {
+        logicalKey: itemName,
+        value: undefined,
+        ...(occurrence === 0 ? {} : { keyAnnotation: { kind: "invalid" as const, occurrence } }),
+        valueAnnotation: { kind: "raw", occurrence: 1, xml: encodeXmlRawElement(node, ""), hasSemanticValue: false },
+      })
+      const boundary = { itemType, yamlPath: [...traversal.yamlPath, key], rulePath: traversal.rulePath }
+      traversal.audit?.claim(node, boundary)
+      traversal.audit?.claimStructuralSubtree(node, boundary)
+      continue
+    }
     const collection = getConfigurationIndexCollectionContext(context)
     const logicalAddress =
       collection === undefined ? undefined : getConfigurationIndexFormElementLogicalAddress(collection, itemName)

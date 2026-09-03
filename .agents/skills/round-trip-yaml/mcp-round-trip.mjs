@@ -30,6 +30,8 @@ export async function runMcpRoundTrip(manifest, overrides = {}) {
 
   try {
     for (const component of components) {
+      const importStatus = (status) => dependencies.writeResult(component.importStatusPath, { componentPath: component.componentPath, status })
+      await importStatus("running")
       let imported
       try {
         dependencies.onProgress?.("import", component.componentPath)
@@ -41,8 +43,10 @@ export async function runMcpRoundTrip(manifest, overrides = {}) {
           allowWrite: true,
         }, { signal: manifest.signal })
       } catch (error) {
+        await importStatus("failed")
         throw stageError("import", component.componentPath, error)
       }
+      await importStatus("succeeded")
       await dependencies.writeResult(component.importOutputPath, imported.payload)
 
       let synced

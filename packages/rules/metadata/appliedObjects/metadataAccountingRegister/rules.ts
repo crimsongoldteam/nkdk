@@ -1,3 +1,5 @@
+import { metadataIdentityProperties } from "../../commonObjects/metadataIdentityProperties"
+import { ownerFormLinks } from "../../commonObjects/metadataPath/formLinks"
 import {
   additionalIndexRule,
   metadataAccountingRegisterAttributesRule,
@@ -163,18 +165,8 @@ export const MetadataAccountingRegisterRules = {
       required: true,
       defaultValue: ({ name }: { name?: string }) => name,
     }),
-    synonym: i8nTextRule({
-      yaml: "Синоним",
-      xmlParents: properties,
-      defaultValueXMLRaw: "",
-      excludeIfEqualNameYAML: true,
-    }),
-    comment: stringRule({
-      yaml: "Комментарий",
-      xmlParents: properties,
-      defaultValueXMLRaw: "",
-      defaultValueAdoptedXML: "",
-    }),
+    synonym: metadataIdentityProperties.synonym,
+    comment: metadataIdentityProperties.comment,
     useStandardCommands: booleanRule({
       yaml: "ИспользоватьСтандартныеКоманды",
       defaultValueXML: true,
@@ -206,18 +198,8 @@ export const MetadataAccountingRegisterRules = {
       implicitValueYAML: 0,
       xmlParents: properties,
     }),
-    defaultListForm: stringRule({
-      yaml: "ОсновнаяФормаСписка",
-      xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
-    auxiliaryListForm: stringRule({
-      yaml: "ДополнительнаяФормаСписка",
-      xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
+    defaultListForm: ownerFormLinks.defaultListForm,
+    auxiliaryListForm: ownerFormLinks.auxiliaryListForm,
     standardAttributes: standardAttributeDescriptionsRule({
       yaml: "СтандартныеРеквизиты",
       standartAttributeNames: MetadataAccountingRegisterStandardAttributeNames,

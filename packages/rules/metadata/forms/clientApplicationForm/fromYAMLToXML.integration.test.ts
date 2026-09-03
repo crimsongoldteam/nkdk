@@ -107,6 +107,18 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     expect(attribute?.FunctionalOptions?.Item).toBe(uuid)
   })
 
+  it("добавляет пространство имён dcssch новой форме без индекса", () => {
+    const result = convertClientApplicationFormFromYAMLToXML({
+      context: mockContextToXML(),
+      yaml: {} as ClientApplicationFormYAML,
+      name: "Форма",
+    })
+
+    expect(result.formXML["_xmlns:dcssch"]).toBe(
+      "http://v8.1c.ru/8.1/data-composition-system/schema",
+    )
+  })
+
   it("восстанавливает платформенное назначение при отсутствии YAML-поля", () => {
     const result = convertClientApplicationFormFromYAMLToXML({
       context: mockContextToXML(),

@@ -1,3 +1,5 @@
+import { metadataIdentityProperties } from "../../commonObjects/metadataIdentityProperties"
+import { ownerFormLinks } from "../../commonObjects/metadataPath/formLinks"
 import { additionalIndexRule, metadataCommandsRule } from "../metadataAccountingRegister/builders"
 import { metadataDocumentJournalColumnsRule } from "./builders"
 import { childFormNamesRule } from "../../commonObjects/childFormNames/types"
@@ -10,7 +12,6 @@ import { booleanRule } from "../../commonObjects/boolean/types"
 import { i8nTextRule } from "../../commonObjects/i8nText/types"
 import { moduleRule } from "../../commonObjects/module/types"
 import { stringRule } from "../../commonObjects/string/types"
-import { uuidRule } from "../../commonObjects/uuid/types"
 import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
 import { V8_MDCLASSES_ROOT } from "../../ruleRuntime/appliedObject/presets"
@@ -81,40 +82,16 @@ export const MetadataDocumentJournalRules = {
         { name: "DocumentJournalManager", category: "Manager" },
       ],
     }),
-    uuid: uuidRule({
-      xml: "_uuid",
-      forReferenceOnly: true,
-      xmlParents: [],
-    }),
+    uuid: metadataIdentityProperties.uuid,
     name: stringRule({
       xmlParents: properties,
       required: true,
       defaultValue: ({ name }: { name?: string }) => name,
     }),
-    synonym: i8nTextRule({
-      yaml: "Синоним",
-      xmlParents: properties,
-      defaultValueXMLRaw: "",
-      excludeIfEqualNameYAML: true,
-    }),
-    comment: stringRule({
-      yaml: "Комментарий",
-      xmlParents: properties,
-      defaultValueXMLRaw: "",
-      defaultValueAdoptedXML: "",
-    }),
-    defaultForm: stringRule({
-      yaml: "ОсновнаяФорма",
-      xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
-    auxiliaryForm: stringRule({
-      yaml: "ДополнительнаяФорма",
-      xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
+    synonym: metadataIdentityProperties.synonym,
+    comment: metadataIdentityProperties.comment,
+    defaultForm: ownerFormLinks.defaultForm,
+    auxiliaryForm: ownerFormLinks.auxiliaryForm,
     useStandardCommands: booleanRule({
       yaml: "ИспользоватьСтандартныеКоманды",
       defaultValueXML: true,

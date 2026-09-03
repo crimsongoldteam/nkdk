@@ -1,6 +1,6 @@
-import type { PropertyRule } from "@nkdk/runtime/rule-kit"
+import type { PropertyRule, ExportToYAMLFunctionNew } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
-import { ConfigurationContext } from "@nkdk/runtime"
+import { ConfigurationContext, type XmlAnomalyAnnotations } from "@nkdk/runtime"
 import { METADATA_NAME_YAML_PATTERN } from "./allowedTypes"
 import {
   getSystemEnumerationYAMLType,
@@ -16,7 +16,8 @@ const CURRENT_CONFIG_NAMESPACE = "http://v8.1c.ru/8.1/data/enterprise/current-co
 export const exportTypeDescriptionToYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule | undefined,
-  typeDescription: TypeDescription | undefined
+  typeDescription: TypeDescription | undefined,
+  annotations?: XmlAnomalyAnnotations,
 ): TypeDescriptionYAML | undefined => {
   if (!typeDescription) {
     return undefined
@@ -28,6 +29,12 @@ export const exportTypeDescriptionToYAML = (
   for (const typeId of typeDescription.typeId ?? []) {
     exportedTypes.push(typeId)
   }
+  let definedTypes = 0
+  typeDescription.type.forEach((type, index) => {
+    if (!type.startsWith("DefinedType.")) return
+    if (definedTypes++ === 0) return
+    annotations?.set(exportedTypes, index, { kind: "invalid", occurrence: 1, target: "value" })
+  })
   if (exportedTypes.length === 0) return undefined
   if (exportedTypes.length === 1) return exportedTypes[0] as TypeDescriptionYAML
 
@@ -204,4 +211,7 @@ const formatSingleType = (type: string, typeDescription: TypeDescription): strin
   return rule.enterprise
 }
 
-export const metadataPropertyRule000 = definePropertyTypeRule("TypeDescription", "exportToYAML", exportTypeDescriptionToYAML)
+const exportAnnotatedTypeDescriptionToYAML: ExportToYAMLFunctionNew = ({ context, rule, value, annotations }) =>
+  exportTypeDescriptionToYAML(context, rule, value, annotations)
+
+export const metadataPropertyRule000 = definePropertyTypeRule("TypeDescription", "exportToYAML", exportAnnotatedTypeDescriptionToYAML)

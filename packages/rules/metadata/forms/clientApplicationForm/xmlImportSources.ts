@@ -7,11 +7,13 @@ import {
 import type { ConfigurationContextFromXML } from "@nkdk/runtime"
 import type { DirectImportXMLSource } from "@nkdk/runtime/rule-kit"
 import { FormRulesTags } from "./rules"
+import { indexFormChildItemOccurrences } from "../commonObjects/childItems/xmlOccurrences"
 
 export function createClientApplicationFormBodyImportSource(params: {
   context: ConfigurationContextFromXML
   xml: unknown
 }): DirectImportXMLSource {
+  if (isXmlElementNode(params.xml)) indexFormChildItemOccurrences(params.xml)
   const collection = getConfigurationIndexCollectionContext(params.context)
   const context =
     collection === undefined

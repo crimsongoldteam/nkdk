@@ -6,7 +6,7 @@ import "../../commonObjects/number/toJSONSchema"
 import "../../commonObjects/string/toJSONSchema"
 import "../../systemEnumerations/toJSONSchema"
 import { mockContext } from "../../../tests/mockContext"
-import { exportPropertyToJSONSchema } from "./toJSONSchema"
+import { exportPropertyToJSONSchema, getImplicitValueYAML } from "./toJSONSchema"
 import {
   createJSONSchemaExportContext,
 } from "../jsonSchemaRefs"
@@ -23,6 +23,10 @@ const validationContext = {
 }
 
 describe("exportPropertyToJSONSchema implicitValueYAML", () => {
+  it("сохраняет неявную пустую одиночную ссылку без разрешения непустого имени", () => {
+    expect(getImplicitValueYAML({ type: "MetadataItemLink", implicitValueYAML: "" })).toBe("")
+    expect(getImplicitValueYAML({ type: "MetadataItemLink", implicitValueYAML: "Catalog.Товары" })).toBeUndefined()
+  })
   it.each([
     ["без неявного значения", { type: "boolean" }, ["Истина", "Ложь"]],
     ["с явным noImplicitValueYAML", { type: "boolean", noImplicitValueYAML: true }, ["Истина", "Ложь"]],

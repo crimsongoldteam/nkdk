@@ -73,6 +73,30 @@ test("после terminal import failure не запускает sync и зак�
   assert.deepEqual(calls, ["nkdk.import_from_xml", "close"])
 })
 
+test("сохраняет машинный статус импорта до записи payload и ошибки экспорта", async () => {
+  for (const failure of ["import", "payload", "export", undefined]) {
+    const writes = []
+    const pending = runMcpRoundTrip({ components: [{ xmlDir: "/xml", xmlOutputDir: "/out", projectDir: "/project", componentPath: "cf", importStatusPath: "/status", importOutputPath: "/payload" }] }, {
+      buildMcp() {},
+      createSession: async () => ({ async close() {} }),
+      callToCompletion: async (_session, tool) => {
+        if ((tool === "nkdk.import_from_xml" && failure === "import") || (tool === "nkdk.sync_to_xml" && failure === "export")) throw new Error(failure)
+        return { payload: { ok: true } }
+      },
+      writeResult: async (path, value) => {
+        if (path === "/payload" && failure === "payload") throw new Error("payload")
+        if (path === "/status") writes.push(value)
+      },
+    })
+    if (failure) await assert.rejects(pending, new RegExp(failure))
+    else await pending
+    assert.deepEqual(writes, [
+      { componentPath: "cf", status: "running" },
+      { componentPath: "cf", status: failure === "import" ? "failed" : "succeeded" },
+    ])
+  }
+})
+
 function run(command, args, cwd) {
   const result = spawnSync(command, args, { cwd, encoding: "utf8" })
   assert.equal(result.status, 0, result.stderr)
@@ -151,6 +175,30 @@ test("даёт корневому временному каталогу безо
 test("проверяет только активный XML-каталог, а не рабочее дерево nkdk", () => {
   assert.doesNotMatch(script, /git -C "\$\{REPO_DIR\}" status/u)
   assert.match(script, /git -C "\$\{NKDK_XML_REPO\}" status --porcelain -- "\$\{RUN_XML_REL\}"/u)
+})
+
+test("нормализует CRLF до проверки чистоты и не запускает импорт несохранённой выгрузки", async (t) => {
+  const root = await mkdtemp(join(tmpdir(), "nkdk-round-trip-crlf-"))
+  t.after(() => rm(root, { recursive: true, force: true }))
+  const xmlDir = join(root, "cf")
+  await mkdir(xmlDir)
+  await writeFile(join(root, ".gitattributes"), "*.xml -text\n")
+  await writeFile(join(xmlDir, "Configuration.xml"), "<MetaDataObject/>\r\n")
+  run("git", ["init", "-q"], root)
+  run("git", ["add", "."], root)
+  run("git", ["-c", "user.name=NKDK Test", "-c", "user.email=test@example.invalid", "commit", "-qm", "fixture"], root)
+  // Разрешаем нормализацию и добавляем пользовательское изменение:
+  // runner обязан сохранить его, но остановиться до импорта.
+  await writeFile(join(root, ".gitattributes"), "*.xml !text\n")
+  await writeFile(join(xmlDir, "Configuration.xml"), "<MetaDataObject changed='yes'/>\r\n")
+  const result = spawnSync("bash", [fileURLToPath(new URL("./round-trip.sh", import.meta.url))], {
+    encoding: "utf8",
+    env: { ...process.env, NKDK_XML_REPO: root, NKDK_XML_DIR: xmlDir, NKDK_ROUND_TRIP_YAML_DIR: join(root, "yaml"), TMPDIR: join(root, "tmp") },
+  })
+  assert.notEqual(result.status, 0)
+  assert.match(result.stderr, /активный XML-каталог содержит изменения/u)
+  assert.equal(await readFile(join(xmlDir, "Configuration.xml"), "utf8"), "<MetaDataObject changed='yes'/>\n")
+  assert.equal(run("git", ["show", "HEAD:cf/Configuration.xml"], root), "<MetaDataObject/>\r\n")
 })
 
 test("собирает tracked и untracked diff, исключая git-ignored файлы", async (t) => {

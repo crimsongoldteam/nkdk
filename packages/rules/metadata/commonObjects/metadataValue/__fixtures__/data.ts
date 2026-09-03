@@ -11,6 +11,21 @@ type MetadataValueFixture = {
 
 export const metadataValueFixtures: MetadataValueFixture[] = [
   {
+    name: "ComparisonType in choice list",
+    rule: { type: "MetadataValue" },
+    internal: { type: "formChoiceListDesTimeValue", presentation: { items: { ru: "Сравнение" } }, value: { type: "ComparisonType", value: "Equal" } },
+    YAML: { Представление: "Сравнение", Значение: { Тип: "ВидСравнения", Значение: "Равно" } },
+    XML: '<Value xsi:type="FormChoiceListDesTimeValue">\n\t<Presentation>\n\t\t<v8:item>\n\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t<v8:content>Сравнение</v8:content>\n\t\t</v8:item>\n\t</Presentation>\n\t<Value xsi:type="ent:ComparisonType">Equal</Value>\n</Value>',
+  },
+  ...([ ["Equal", "Равно"], ["NotEqual", "НеРавно"], ["InList", "ВСписке"], ["NotInList", "НеВСписке"] ] as const)
+    .map(([value, translated]): MetadataValueFixture => ({
+      name: `ComparisonType ${value}`,
+      rule: { type: "MetadataValue" },
+      internal: { type: "ComparisonType", value },
+      YAML: { Тип: "ВидСравнения", Значение: translated },
+      XML: `<Value xsi:type="ent:ComparisonType">${value}</Value>`,
+    })),
+  {
     name: "string",
     rule: { type: "MetadataValue" },
     internal: { type: "string", value: "Текстовое значение" },

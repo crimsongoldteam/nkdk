@@ -194,6 +194,7 @@ describe("configuration extension PropertyState augmenter", () => {
   it.each([
     ["synonym", "Синоним", "Synonym", undefined, ""],
     ["defaultListForm", "ОсновнаяФормаСписка", "DefaultListForm", undefined, ""],
+    ["defaultForm", "ОсновнаяФорма", "DefaultForm", "MetadataItemLink", ""],
     ["objectPresentation", "ПредставлениеОбъекта", "ObjectPresentation", undefined, ""],
     ["owners", "Владельцы", "Owners", "MetadataObjectRefCollection", []],
     ["content", "Содержимое", "Content", "MetadataItemLinks", []],

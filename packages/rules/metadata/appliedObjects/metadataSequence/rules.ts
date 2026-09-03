@@ -1,3 +1,4 @@
+import { metadataIdentityProperties } from "../../commonObjects/metadataIdentityProperties"
 import { additionalIndexRule } from "../metadataAccountingRegister/builders"
 import { metadataSequenceDimensionsRule } from "./builders"
 import { internalInfoRule } from "../../commonObjects/internalInfo/types"
@@ -5,7 +6,6 @@ import { metadataItemLinksRule } from "../../commonObjects/metadataPath/types"
 import { i8nTextRule } from "../../commonObjects/i8nText/types"
 import { moduleRule } from "../../commonObjects/module/types"
 import { stringRule } from "../../commonObjects/string/types"
-import { uuidRule } from "../../commonObjects/uuid/types"
 import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
 import { V8_MDCLASSES_ROOT } from "../../ruleRuntime/appliedObject/presets"
@@ -46,11 +46,7 @@ export const MetadataSequenceRules = {
         { name: "SequenceRecordSet", category: "RecordSet" },
       ],
     }),
-    uuid: uuidRule({
-      xml: "_uuid",
-      forReferenceOnly: true,
-      xmlParents: [],
-    }),
+    uuid: metadataIdentityProperties.uuid,
     name: stringRule({
       xmlParents: ["Properties"],
       required: true,

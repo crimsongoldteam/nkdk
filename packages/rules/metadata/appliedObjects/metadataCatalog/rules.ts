@@ -1,3 +1,5 @@
+import { metadataIdentityProperties } from "../../commonObjects/metadataIdentityProperties"
+import { ownerFormLinks } from "../../commonObjects/metadataPath/formLinks"
 import { additionalIndexRule, metadataCommandsRule } from "../metadataAccountingRegister/builders"
 import { metadataCatalogAttributesRule, metadataCatalogTabularSectionsRule } from "./builders"
 import { characteristicsDescriptionsRule } from "../../commonObjects/characteristicsDescription/types"
@@ -14,7 +16,6 @@ import { i8nTextRule } from "../../commonObjects/i8nText/types"
 import { moduleRule } from "../../commonObjects/module/types"
 import { numberRule } from "../../commonObjects/number/types"
 import { stringRule } from "../../commonObjects/string/types"
-import { uuidRule } from "../../commonObjects/uuid/types"
 import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
 import { V8_MDCLASSES_ROOT } from "../../ruleRuntime/appliedObject/presets"
@@ -136,11 +137,7 @@ export const MetadataCatalogRules = {
         { name: "CatalogManager", category: "Manager" },
       ],
     }),
-    uuid: uuidRule({
-      xml: "_uuid",
-      forReferenceOnly: true,
-      xmlParents: [],
-    }),
+    uuid: metadataIdentityProperties.uuid,
     additionalIndexes: additionalIndexRule({
       yaml: "ДополнительныеИндексы",
       filePath: "Ext/AdditionalIndexes.xml",
@@ -156,36 +153,11 @@ export const MetadataCatalogRules = {
       implicitValueYAML: true,
       xmlParents: ["Properties"],
     }),
-    auxiliaryChoiceForm: stringRule({
-      yaml: "ДополнительнаяФормаДляВыбора",
-      xmlParents: ["Properties"],
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
-    auxiliaryFolderChoiceForm: stringRule({
-      yaml: "ДополнительнаяФормаДляВыбораГруппы",
-      xmlParents: ["Properties"],
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
-    auxiliaryFolderForm: stringRule({
-      yaml: "ДополнительнаяФормаГруппы",
-      xmlParents: ["Properties"],
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
-    auxiliaryListForm: stringRule({
-      yaml: "ДополнительнаяФормаСписка",
-      xmlParents: ["Properties"],
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
-    auxiliaryObjectForm: stringRule({
-      yaml: "ДополнительнаяФормаОбъекта",
-      xmlParents: ["Properties"],
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
+    auxiliaryChoiceForm: { ...ownerFormLinks.auxiliaryChoiceForm, yaml: "ДополнительнаяФормаДляВыбора" },
+    auxiliaryFolderChoiceForm: { ...ownerFormLinks.auxiliaryFolderChoiceForm, yaml: "ДополнительнаяФормаДляВыбораГруппы" },
+    auxiliaryFolderForm: ownerFormLinks.auxiliaryFolderForm,
+    auxiliaryListForm: ownerFormLinks.auxiliaryListForm,
+    auxiliaryObjectForm: ownerFormLinks.auxiliaryObjectForm,
     basedOn: metadataObjectRefCollectionRule({
       yaml: "ВводитсяНаОсновании",
       xmlParents: ["Properties"],
@@ -292,36 +264,11 @@ export const MetadataCatalogRules = {
       xmlParents: ["Properties"],
       defaultValueXMLRaw: {},
     }),
-    defaultChoiceForm: stringRule({
-      yaml: "ОсновнаяФормаДляВыбора",
-      xmlParents: ["Properties"],
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
-    defaultFolderChoiceForm: stringRule({
-      yaml: "ОсновнаяФормаДляВыбораГруппы",
-      xmlParents: ["Properties"],
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
-    defaultFolderForm: stringRule({
-      yaml: "ОсновнаяФормаГруппы",
-      xmlParents: ["Properties"],
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
-    defaultListForm: stringRule({
-      yaml: "ОсновнаяФормаСписка",
-      xmlParents: ["Properties"],
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
-    defaultObjectForm: stringRule({
-      yaml: "ОсновнаяФормаОбъекта",
-      xmlParents: ["Properties"],
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
+    defaultChoiceForm: { ...ownerFormLinks.defaultChoiceForm, yaml: "ОсновнаяФормаДляВыбора" },
+    defaultFolderChoiceForm: { ...ownerFormLinks.defaultFolderChoiceForm, yaml: "ОсновнаяФормаДляВыбораГруппы" },
+    defaultFolderForm: ownerFormLinks.defaultFolderForm,
+    defaultListForm: ownerFormLinks.defaultListForm,
+    defaultObjectForm: ownerFormLinks.defaultObjectForm,
     defaultPresentation: systemEnumerationRule({
       yaml: "ОсновноеПредставление",
       typeSE: "CatalogMainPresentation",

@@ -32,6 +32,7 @@ export type MetadataRootName =
   | "IntegrationService"
   | "Language"
   | "Style"
+  | "Interface"
   | "StyleItem"
   | "FunctionalOption"
   | "FunctionalOptionsParameter"

@@ -1,3 +1,4 @@
+import { metadataItemLinkRule } from "../../../commonObjects/metadataPath/types"
 import { filterRule } from "../../../commonObjects/dataCompositionSystem/conditionalAppearanceItem/builders"
 import { dcsLocalStringTypeRule } from "../../../commonObjects/dataCompositionSystem/dcsLocalStringType/types"
 import { settingsParameterValueRule } from "../../../commonObjects/dataCompositionSystem/parameterValue/types"
@@ -102,7 +103,7 @@ export const DynamicListRules = {
       yaml: "Группировка",
       xmlParents: ["ListSettings"],
     }),
-    mainTable: stringRule({
+    mainTable: metadataItemLinkRule({
       yaml: "ОсновнаяТаблица",
       metadataTarget: {
         kind: "dataTable",

@@ -1,4 +1,5 @@
 import { booleanRule } from "../../commonObjects/boolean/types"
+import { helpRule } from "../../commonObjects/help/types"
 import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
 import { V8_MDCLASSES_ROOT } from "../../ruleRuntime/appliedObject/presets"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
@@ -42,6 +43,14 @@ export const MetadataCommonCommandRules = {
       xmlParents: ["Properties"],
       defaultValueXML: false,
       implicitValueYAML: false,
+    }),
+    help: helpRule({
+      externalMetadata: { segment: "Help", placement: "derivedEntry" },
+      filePath: "Ext/Help.xml",
+      xmlPath: "Ext/Help.xml",
+      nkdkDir: "Справка",
+      toXML: false,
+      fromXML: false,
     }),
     commandParameterType: {
       ...MetadataCommandRules.properties.commandParameterType,

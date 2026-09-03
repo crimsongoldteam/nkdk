@@ -1,3 +1,5 @@
+import { explicitOwnerFormLinks } from "../metadataPath/formLinks"
+import { externalDataSourceObjectPresentationProperties } from "../metadataExternalDataSourceTable/fragments"
 import { getParentFromContext } from "../../context/helpers"
 import { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import { MetadataCommandRules } from "../metadataCommand/rules"
@@ -112,44 +114,10 @@ const dimensionTableProperties = {
     defaultValueXML: false,
     implicitValueYAML: false,
   },
-  defaultObjectForm: {
-    yaml: "ОсновнаяФормаОбъекта",
-    xml: "DefaultObjectForm",
-    type: "string",
-    xmlParents: properties,
-    metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-    defaultValueXMLRaw: "",
-  },
-  defaultListForm: {
-    yaml: "ОсновнаяФормаСписка",
-    xml: "DefaultListForm",
-    type: "string",
-    xmlParents: properties,
-    metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-    defaultValueXMLRaw: "",
-  },
-  defaultChoiceForm: {
-    yaml: "ОсновнаяФормаВыбора",
-    xml: "DefaultChoiceForm",
-    type: "string",
-    xmlParents: properties,
-    metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-    defaultValueXMLRaw: "",
-  },
-  objectPresentation: {
-    yaml: "ПредставлениеОбъекта",
-    xml: "ObjectPresentation",
-    type: "I8nText",
-    xmlParents: properties,
-    defaultValueXMLRaw: "",
-  },
-  extendedObjectPresentation: {
-    yaml: "РасширенноеПредставлениеОбъекта",
-    xml: "ExtendedObjectPresentation",
-    type: "I8nText",
-    xmlParents: properties,
-    defaultValueXMLRaw: "",
-  },
+  defaultObjectForm: explicitOwnerFormLinks.defaultObjectForm,
+  defaultListForm: explicitOwnerFormLinks.defaultListForm,
+  defaultChoiceForm: explicitOwnerFormLinks.defaultChoiceForm,
+  ...externalDataSourceObjectPresentationProperties,
   listPresentation: {
     yaml: "ПредставлениеСписка",
     xml: "ListPresentation",

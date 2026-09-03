@@ -184,8 +184,10 @@ describe("XML import discovery", () => {
     expect(form?.externalFiles).not.toContainEqual(expect.objectContaining({ sourcePath: join(xmlDir, helpXml) }))
   })
 
-  it("maps a real child-form Ext/Help/ru.html to Справка/ru.html", async () => {
-    const formRoot = "DataProcessors/ОбработкаВсеСвойства/Forms/Форма"
+  it.each([
+    ["DataProcessors/ОбработкаВсеСвойства/Forms/Форма", "Обработка/ОбработкаВсеСвойства/Формы/Форма", "Форма.yaml"],
+    ["CommonCommands/Команда", "ОбщаяКоманда/Команда", "Свойства.yaml"],
+  ])("maps %s help XML and HTML to its owner", async (formRoot, projectRoot, yamlFile) => {
     const helpHtml = `${formRoot}/Ext/Help/ru.html`
     const result = await discoverXmlImport({
       xmlDir,
@@ -195,11 +197,24 @@ describe("XML import discovery", () => {
       }),
     })
 
-    const form = result.assignments.find((assignment) => assignment.targetProjectPath.endsWith("/Форма/Форма.yaml"))
+    const form = result.assignments.find((assignment) => assignment.targetProjectPath === `${projectRoot}/${yamlFile}`)
+    expect(form?.xmlFiles).toContainEqual({ role: "property", sourcePath: join(xmlDir, `${formRoot}/Ext/Help.xml`) })
     expect(form?.externalFiles).toContainEqual({
       sourcePath: join(xmlDir, helpHtml),
-      targetProjectPath: "Обработка/ОбработкаВсеСвойства/Формы/Форма/Справка/ru.html",
+      targetProjectPath: `${projectRoot}/Справка/ru.html`,
     })
+  })
+
+  it("does not invent help resources for a common command without help", async () => {
+    const result = await discoverXmlImport({
+      xmlDir,
+      topology: compileRegisteredMetadataResourceTopology(),
+      fs: fakeFs(["CommonCommands/Команда.xml"]),
+    })
+    expect(result.assignments[0].xmlFiles).toEqual([
+      { role: "metadata", sourcePath: join(xmlDir, "CommonCommands/Команда.xml") },
+    ])
+    expect(result.assignments[0].externalFiles).toEqual([])
   })
 
   it("maps a real form item Picture.png to its ExternalFormItemFile target", async () => {

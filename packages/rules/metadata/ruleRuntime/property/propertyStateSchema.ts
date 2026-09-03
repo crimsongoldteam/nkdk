@@ -153,7 +153,7 @@ function ownPropertySchema(source: TSchema, rule: PropertyRule): TSchema {
 export function getOwnPropertyImplicitValueYAML(rule: PropertyRule): string | number | undefined {
   if (rule.preserveExplicitDefaultXML === true) return undefined
   return getImplicitValueYAML(rule) ?? (
-    (rule.type === "string" || rule.type === "I8nText") && rule.defaultValueXMLRaw === ""
+    (rule.type === "string" || rule.type === "I8nText" || rule.type === "MetadataItemLink") && rule.defaultValueXMLRaw === ""
       ? ""
       : undefined
   )

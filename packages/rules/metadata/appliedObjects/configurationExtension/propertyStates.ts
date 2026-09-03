@@ -233,7 +233,7 @@ function emptyPlainYAMLValue(type: MetadataItemRule["properties"][string]["type"
     type === "XDTOPackages"
   ) return []
   if (type === "TypeDescription") return []
-  if (type === "string" || type === "I8nText" || type === "Picture") return ""
+  if (type === "string" || type === "I8nText" || type === "Picture" || type === "MetadataItemLink") return ""
   return undefined
 }
 

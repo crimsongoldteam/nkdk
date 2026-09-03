@@ -175,8 +175,8 @@ function saveReport(report) {
     "# Результаты round-trip XML → YAML → XML", "",
     `Начало (UTC): ${report.startedAt}`, "", `Состояние: ${report.status}`, "",
     `Ветка: ${report.branch}`, "",
-    `| Конфигурация | Результат | Изменённых файлов | XML, МБ | NKDK, МБ | YAML-файлов | ${XML_STATISTIC_KINDS.join(" | ")} | Широкие raw | Импорт | Экспорт | Всего | Журнал |`,
-    `| --- | --- | ---: | ---: | ---: | ${Array(XML_STATISTIC_KINDS.length + 5).fill("---:").join(" | ")} | --- |`,
+    `| Конфигурация | Результат | Изменённых файлов | XML, МБ | NKDK, МБ | YAML-файлов | ${XML_STATISTIC_KINDS.join(" | ")} | Широкие raw | #order | Импорт | Экспорт | Всего | Журнал |`,
+    `| --- | --- | ---: | ---: | ---: | ${Array(XML_STATISTIC_KINDS.length + 6).fill("---:").join(" | ")} | --- |`,
     ...rows,
     `| ${["Итого", undefined, files, formatMegabytes(bytes), formatMegabytes(nkdkBytes), ...total, ...durations, undefined].map(cell).join(" | ")} |`, "",
     "## Ошибки", "", ...(failures.length ? failures : ["Ошибок нет.", ""]),
@@ -186,7 +186,7 @@ function saveReport(report) {
 
 function statisticValues(statistics) {
   return [statistics?.yamlFiles, ...XML_STATISTIC_KINDS.map((kind) => statistics?.tags[kind]),
-    statistics?.broadRaw.reduce((sum, item) => sum + item.count, 0)]
+    statistics?.broadRaw.reduce((sum, item) => sum + item.count, 0), statistics?.order]
 }
 
 function runComponent(run) {
@@ -206,6 +206,15 @@ function* runOperations(run) {
   for (const file of readdirSync(directory).filter((name) => name.endsWith(".json")).sort()) {
     yield JSON.parse(readFileSync(join(directory, file), "utf8"))
   }
+}
+
+function readImportStatus(component) {
+  if (!component.importStatusPath || !existsSync(component.importStatusPath)) return undefined
+  const result = JSON.parse(readFileSync(component.importStatusPath, "utf8"))
+  if (result.componentPath !== component.componentPath || !["running", "failed", "succeeded"].includes(result.status)) {
+    throw new Error("Некорректный машинный статус импорта")
+  }
+  return result.status
 }
 
 function readRunDurations(run) {
@@ -259,6 +268,7 @@ async function runConfiguration(repo, entry, run) {
     componentPath: "cf",
     yamlDir: run.yamlDir,
     importOutputPath: join(manifestDirectory, "import-output.json"),
+    importStatusPath: join(manifestDirectory, "import-status.json"),
     syncOutputPath: join(manifestDirectory, "sync-output.json"),
   }
   // Обычный каталог project/cf вместо symlink: Windows не требует Developer Mode.
@@ -429,11 +439,16 @@ async function runBatch(repoPath, testMode) {
         // После успешного import YAML и его диагностика остаются даже при ошибке sync.
         try {
           const component = runComponent(run)
-          if (existsSync(component.importOutputPath)) entry.nkdkBytes = directoryBytes(run.yamlDir, ".nkdk")
-          entry.statistics = await collectRoundTripStatistics(component)
-          appendFileSync(run.log, ["", "=== Статистика XML-тегов ===",
-            XML_STATISTIC_KINDS.map((kind) => `${kind}=${entry.statistics.tags[kind]}`).join(", "),
-            ...entry.statistics.broadRaw.map((item) => `Каталог YAML: ${posix.dirname(item.file)}\nШирокий raw: ${item.file} — ${item.count}`), ""].join("\n"))
+          const importStatus = readImportStatus(component)
+          const hasOutput = existsSync(component.importOutputPath)
+          if (importStatus === "succeeded" || hasOutput) entry.nkdkBytes = directoryBytes(run.yamlDir, ".nkdk")
+          if (importStatus !== "failed" || hasOutput) {
+            entry.statistics = await collectRoundTripStatistics(component)
+            appendFileSync(run.log, ["", "=== Статистика XML-тегов ===",
+              XML_STATISTIC_KINDS.map((kind) => `${kind}=${entry.statistics.tags[kind]}`).join(", "),
+              `#order=${entry.statistics.order}`,
+              ...entry.statistics.broadRaw.map((item) => `Каталог YAML: ${posix.dirname(item.file)}\nШирокий raw: ${item.file} — ${item.count}`), ""].join("\n"))
+          }
         } catch (error) {
           entry.statisticsError = error.message
         }

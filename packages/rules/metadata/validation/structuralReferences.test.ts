@@ -18,6 +18,7 @@ import { expect,it } from "vitest"
 import { mockContext } from "../../tests/mockContext"
 import { functionalOptionsPropertyRule } from "../commonObjects/functionalOptionsProperty/types"
 import { metadataRules } from "../composition/metadataRules"
+import { MetadataConfigurationRules } from "../appliedObjects/configuration/rules"
 import { createPropertyStructuralReferenceRuntime } from "../operations/references"
 import { emptyMetadataRules } from "../ruleRuntime/definition/testSupport"
 import { collectStructuralYamlReferences } from "./structuralReferences"
@@ -72,7 +73,8 @@ it.each([
 
 it.each([
   ["3062c54f-92ed-42c5-b62f-1c0e685cfe75", "UUID metadata-ссылки требует !xml/uuid"],
-  ["1:93701593-5ac8-4266-b471-7e9ed35a9c3e", "Неизвестный корень"],
+  ["1:93701593-5ac8-4266-b471-7e9ed35a9c3e", "UUID metadata-ссылки требует !xml/uuid"],
+  ["2:93701593-5ac8-4266-b471-7e9ed35a9c3e", "Неизвестный корень"],
 ])("сообщает структурную ошибку для нетегированной внутренней ссылки %s", (payload, message) => {
   const parsed = parseMetadataYaml(`Ссылка: ${payload}`)
   const registry = createPropertyRuleRegistrySet(metadataRules)
@@ -265,6 +267,15 @@ it("не считает системную рамку ссылкой на объ
   })
 
   expect(occurrences).toEqual([])
+})
+
+it("включает ОсновнойИнтерфейс в зависимости и сохраняет короткую запись при rename", () => {
+  const parsed = parseMetadataYaml("ОсновнойИнтерфейс: Полный\n")
+  const result = collectProbeReferences(parsed, MetadataConfigurationRules, createPropertyRuleRegistrySet(metadataRules))
+  expect(result).toMatchObject({ ok: true, references: [expect.objectContaining({ canonical: "Interface.Полный" })] })
+  if (!result.ok) throw new Error(result.message)
+  result.references[0]!.setCanonical("Interface.Новый")
+  expect(parsed.data).toEqual({ ОсновнойИнтерфейс: "Новый" })
 })
 
 function collectProbeReferences(

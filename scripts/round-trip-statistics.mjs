@@ -7,7 +7,8 @@ import { fileURLToPath } from "node:url"
 import { tsImport } from "tsx/esm/api"
 
 // Тот же парсер и реестр тегов, что использует production YAML; своих правил нет.
-const { parseEvents } = createRequire(new URL("../packages/runtime/package.json", import.meta.url))("js-yaml")
+const { parseEvents, getScalarValue, EVENT_DOCUMENT, EVENT_MAPPING, EVENT_SEQUENCE, EVENT_SCALAR, EVENT_POP } =
+  createRequire(new URL("../packages/runtime/package.json", import.meta.url))("js-yaml")
 const { XML_ANNOTATION_TAGS, XML_REPRESENTATION_YAML_TAGS, prepareYAMLScalarTagsForParser } =
   await tsImport("../packages/runtime/yaml/scalarTags.ts", import.meta.url)
 
@@ -17,15 +18,40 @@ export const XML_STATISTIC_KINDS = [
 ]
 
 export function countXmlTags(text) {
+  return countXmlSyntax(text).tags
+}
+
+export function countXmlOrder(text) {
+  return countXmlSyntax(text).order
+}
+
+function countXmlSyntax(text) {
   const counts = Object.fromEntries(XML_STATISTIC_KINDS.map((kind) => [kind, 0]))
   const source = prepareYAMLScalarTagsForParser(text)
+  const stack = []
+  let order = 0
   for (const event of parseEvents(source, {})) {
-    if (!(event.tagStart >= 0)) continue
-    const tag = source.slice(event.tagStart, event.tagEnd)
+    if (event.type === EVENT_POP) { stack.pop(); continue }
+    const parent = stack.at(-1)
+    const isKey = parent?.type === EVENT_MAPPING && parent.children % 2 === 0
+    const key = isKey && event.type === EVENT_SCALAR ? getScalarValue(source, event) : undefined
+    const property = !isKey && parent?.type === EVENT_MAPPING ? parent.key : undefined
+    const tag = event.tagStart >= 0 ? source.slice(event.tagStart, event.tagEnd) : ""
     const match = /^!xml\/([^/]+)(?:\/[1-9]\d*)?$/u.exec(tag)
     if (match && Object.hasOwn(counts, match[1])) counts[match[1]] += 1
+    const rawEnvelope = match?.[1] === "raw"
+    const xml = parent?.xml || (parent?.rawEnvelope && property === "$xml")
+    if ((isKey && key === "#order" && xml) ||
+        (rawEnvelope && typeof property === "string" && /^@(?:.*\\)?#order$/u.test(property))) order += 1
+    if (parent) {
+      if (isKey) parent.key = key
+      parent.children += 1
+    }
+    if ([EVENT_DOCUMENT, EVENT_MAPPING, EVENT_SEQUENCE].includes(event.type)) {
+      stack.push({ type: event.type, children: 0, rawEnvelope, xml: Boolean(xml) })
+    }
   }
-  return counts
+  return { tags: counts, order }
 }
 
 async function* yamlFiles(directory) {
@@ -77,14 +103,16 @@ export async function collectRoundTripStatistics({ yamlDir, importOutputPath }) 
   const broadRaw = await broadRawFiles(importOutputPath)
   const tags = countXmlTags("")
   let count = 0
+  let order = 0
   for await (const file of yamlFiles(yamlDir)) {
     try {
-      const counts = countXmlTags(await readFile(file, "utf8"))
-      for (const kind of XML_STATISTIC_KINDS) tags[kind] += counts[kind]
+      const counts = countXmlSyntax(await readFile(file, "utf8"))
+      for (const kind of XML_STATISTIC_KINDS) tags[kind] += counts.tags[kind]
+      order += counts.order
       count += 1
     } catch (error) {
       throw new Error(`Не удалось собрать статистику ${file}: ${error.message}`, { cause: error })
     }
   }
-  return { tags, yamlFiles: count, broadRaw }
+  return { tags, yamlFiles: count, broadRaw, order }
 }

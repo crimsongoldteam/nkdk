@@ -1,3 +1,5 @@
+import { metadataIdentityProperties } from "../../commonObjects/metadataIdentityProperties"
+import { ownerFormLinks } from "../../commonObjects/metadataPath/formLinks"
 import {
   additionalIndexRule,
   metadataCommandsRule,
@@ -114,36 +116,16 @@ export const MetadataCalculationRegisterRules = {
       required: true,
       defaultValue: ({ name }: { name?: string }) => name,
     }),
-    synonym: i8nTextRule({
-      yaml: "Синоним",
-      xmlParents: properties,
-      defaultValueXMLRaw: "",
-      excludeIfEqualNameYAML: true,
-    }),
-    comment: stringRule({
-      yaml: "Комментарий",
-      xmlParents: properties,
-      defaultValueXMLRaw: "",
-      defaultValueAdoptedXML: "",
-    }),
+    synonym: metadataIdentityProperties.synonym,
+    comment: metadataIdentityProperties.comment,
     useStandardCommands: booleanRule({
       yaml: "ИспользоватьСтандартныеКоманды",
       defaultValueXML: true,
       implicitValueYAML: true,
       xmlParents: properties,
     }),
-    defaultListForm: stringRule({
-      yaml: "ОсновнаяФормаСписка",
-      xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
-    auxiliaryListForm: stringRule({
-      yaml: "ДополнительнаяФормаСписка",
-      xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
+    defaultListForm: ownerFormLinks.defaultListForm,
+    auxiliaryListForm: ownerFormLinks.auxiliaryListForm,
     periodicity: systemEnumerationRule({
       yaml: "Периодичность",
       typeSE: "CalculationRegisterPeriodicity",

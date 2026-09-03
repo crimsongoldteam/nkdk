@@ -646,6 +646,7 @@ export function importPropertiesFromXMLToYAML(params: {
                 execution: params.execution,
                 compiled,
                 preserveImplicitValue: preserveExplicitDefault,
+                annotations: params.annotations,
               })
             : value
           const yamlProjection = !convertedDirectly
@@ -658,6 +659,7 @@ export function importPropertiesFromXMLToYAML(params: {
                 execution: params.execution,
                 compiled,
                 preserveImplicitValue: preserveExplicitDefault,
+                annotations: params.annotations,
               }, yamlValueBeforeMetadataTargets)
             : { value: yamlValueBeforeMetadataTargets, uuidOccurrences: [] }
           const yamlValue = yamlProjection.value

@@ -587,6 +587,52 @@ describe("XML import worker second pass", () => {
     expect(controlExportCountForTests()).toBe(1)
   })
 
+  it.each(["duplicate-id", "duplicate-name", "misplaced-picture"])("контрольный экспорт сохраняет аномалию формы %s локально", async (kind) => {
+    setControlExportForTests(undefined)
+    const result = await runCatalogAndFormSecondPass(createTempDir(kind), "Объект.Код", undefined, undefined, "LabelField", "owner-first", ({ form }) => {
+      const body = form.xmlFiles.find(({ role }) => role === "body")!.sourcePath
+      let source = readFileSync(body, "utf8")
+      if (kind === "misplaced-picture") {
+        source = source.replace('<ContextMenu name="ПутьКонтекстноеМеню" id="3"/>', '<ContextMenu name="ПутьКонтекстноеМеню" id="3"><ChildItems><PictureField name="Картинка" id="9"/></ChildItems></ContextMenu>')
+      } else {
+        const field = source.match(/<LabelField[^>]*>[\s\S]*?<\/LabelField>/u)![0]
+        const first = field.replace('id="2"', 'id="523"').replace('id="3"', 'id="524"').replace('id="4"', 'id="525"')
+        const second = kind === "duplicate-id" ? first.replaceAll("Путь", "Другой")
+          : first.replace('id="523"', 'id="623"').replace('id="524"', 'id="624"').replace('id="525"', 'id="625"')
+        const after = kind === "duplicate-name" ? first.replaceAll("Путь", "Последний").replaceAll('id="5', 'id="7') : ""
+        source = source.replace(field, first + second + after)
+      }
+      writeFileSync(body, source)
+    })
+    expect(result.first.diagnostics).toEqual([])
+    expect(result.second.diagnostics).toEqual([])
+    expect(result.second.warnings).not.toContainEqual(expect.objectContaining({ code: "xml_raw_scope_too_broad" }))
+    const yaml = readImportedFormYaml(result)
+    if (kind === "duplicate-id") {
+      expect(yaml).not.toMatch(/!xml\/invalid|523|524|525/u)
+      expect(yaml.match(/Вид: ПолеНадписи/gu)).toHaveLength(2)
+      expect(yaml).toContain("Другой:")
+    } else {
+      if (kind === "duplicate-name") {
+        expect(yaml).toContain("!xml/invalid Путь: !xml/raw")
+        expect(yaml.indexOf("!xml/invalid Путь:")).toBeLessThan(yaml.indexOf("Последний:"))
+      }
+      else expect(yaml).toContain("Картинка: !xml/raw")
+    }
+  })
+
+  it("контрольный экспорт сохраняет дополнительные определяемые типы как invalid", async () => {
+    setControlExportForTests(undefined)
+    const assignment = definedTypeFillValueAssignment()
+    const path = assignment.xmlFiles[0]!.sourcePath
+    writeFileSync(path, readFileSync(path, "utf8").replace("</Type>", "<v8:TypeSet>cfg:DefinedType.Другой</v8:TypeSet></Type>"))
+    const outputDir = createTempDir("multiple-defined-types")
+    const { first, second } = await runAssignmentSecondPass(outputDir, assignment, fullValidationSchemaCache)
+    expect(first.diagnostics).toEqual([])
+    expect(second).toMatchObject({ diagnostics: [] })
+    expect(readFileSync(join(outputDir, assignment.targetProjectPath), "utf8")).toContain("- !xml/invalid ОпределяемыйТип.Другой")
+  })
+
   it("возвращает предупреждение о слишком широкой области raw", async () => {
     const outputDir = createTempDir("broad-raw-warning")
     const assignment = catalogAssignment()

@@ -23,6 +23,7 @@ import {
 } from "./formDataPathContext"
 import { assignFormXmlIds, type FormXmlIdAssignmentSession } from "./formXmlIdAssignment"
 import { resolveDataPathCore } from "../../validation/dataPath/coreResolver"
+import { clientApplicationFormNamespaces } from "./namespaces"
 
 const emptyOwnerMetadataCache = {
   listRefs: () => [],
@@ -124,7 +125,7 @@ export function convertClientApplicationFormYAMLToXMLCore(
   recordCurrentExternalMetadataUuid({ context: params.context, uuid })
 
   const formXML = {
-    ...FORM_NAMESPACES,
+    ...clientApplicationFormNamespaces(params.context),
     _version: "2.20",
     ...formProperties,
     ...(params.baseFormXML === undefined ? {} : { BaseForm: params.baseFormXML }),
@@ -171,26 +172,6 @@ function asRecord(value: unknown): Record<string, unknown> | undefined {
 function isRecord(value: unknown): value is Record<string, any> {
   return value !== null && typeof value === "object" && !Array.isArray(value)
 }
-
-const FORM_NAMESPACES = {
-  _xmlns: "http://v8.1c.ru/8.3/xcf/logform",
-  "_xmlns:app": "http://v8.1c.ru/8.2/managed-application/core",
-  "_xmlns:cfg": "http://v8.1c.ru/8.1/data/enterprise/current-config",
-  "_xmlns:dcscor": "http://v8.1c.ru/8.1/data-composition-system/core",
-  "_xmlns:dcssch": "http://v8.1c.ru/8.1/data-composition-system/schema",
-  "_xmlns:dcsset": "http://v8.1c.ru/8.1/data-composition-system/settings",
-  "_xmlns:ent": "http://v8.1c.ru/8.1/data/enterprise",
-  "_xmlns:lf": "http://v8.1c.ru/8.2/managed-application/logform",
-  "_xmlns:style": "http://v8.1c.ru/8.1/data/ui/style",
-  "_xmlns:sys": "http://v8.1c.ru/8.1/data/ui/fonts/system",
-  "_xmlns:v8": "http://v8.1c.ru/8.1/data/core",
-  "_xmlns:v8ui": "http://v8.1c.ru/8.1/data/ui",
-  "_xmlns:web": "http://v8.1c.ru/8.1/data/ui/colors/web",
-  "_xmlns:win": "http://v8.1c.ru/8.1/data/ui/colors/windows",
-  "_xmlns:xr": "http://v8.1c.ru/8.3/xcf/readable",
-  "_xmlns:xs": "http://www.w3.org/2001/XMLSchema",
-  "_xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
-} as const
 
 const METADATA_NAMESPACES = {
   _xmlns: "http://v8.1c.ru/8.3/MDClasses",

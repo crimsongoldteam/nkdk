@@ -1,3 +1,4 @@
+import { metadataIdentityProperties } from "../../commonObjects/metadataIdentityProperties"
 import { homePageWorkAreaRule, rootCommandInterfaceRule } from "../configuration/builders"
 import { configurationInternalInfoRule, MetadataConfigurationRules } from "../configuration/rules"
 import { booleanRule } from "../../commonObjects/boolean/types"
@@ -6,7 +7,6 @@ import { i8nTextRule } from "../../commonObjects/i8nText/types"
 import { metadataItemLinkRule, metadataItemLinksRule } from "../../commonObjects/metadataPath/types"
 import { stringRule } from "../../commonObjects/string/types"
 import { usePurposesRule } from "../../commonObjects/usePurposes/types"
-import { uuidRule } from "../../commonObjects/uuid/types"
 import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
 import { V8_MDCLASSES_ROOT } from "../../ruleRuntime/appliedObject/presets"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
@@ -71,11 +71,7 @@ export const MetadataConfigurationExtensionRules = {
       fromYAML: false,
     }),
     childObjects: MetadataConfigurationRules.properties.childObjects,
-    uuid: uuidRule({
-      xml: "_uuid",
-      forReferenceOnly: true,
-      xmlParents: [],
-    }),
+    uuid: metadataIdentityProperties.uuid,
     internalInfo: configurationInternalInfoRule,
     objectBelonging: systemEnumerationRule({
       xml: "ObjectBelonging",

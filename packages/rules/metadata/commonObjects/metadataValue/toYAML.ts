@@ -29,6 +29,7 @@ const PRIMITIVE_TYPES: readonly MetadataPrimitiveValueType[] = [
   "typeRef",
   "uuid",
   "DataCompositionComparisonType",
+  "ComparisonType",
   "AccountType",
 ]
 
@@ -60,6 +61,10 @@ export const exportMetadataValueToYAML = (
       Тип: "ВидСчета",
       Значение: primitiveValueHandlers.AccountType.toYAML(context, data) as string,
     } as MetadataValueYAML
+  }
+
+  if (data.type === "ComparisonType") {
+    return { Тип: "ВидСравнения", Значение: primitiveValueHandlers.ComparisonType.toYAML(context, data) as string }
   }
 
   const handler = primitiveValueHandlers[data.type as MetadataPrimitiveValueType]

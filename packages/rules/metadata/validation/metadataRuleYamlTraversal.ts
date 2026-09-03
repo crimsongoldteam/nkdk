@@ -95,6 +95,7 @@ function visitNested<State>(params: MetadataRuleYamlContext<State> & {
   const fallbackRule = nested.itemRuleFromProperty?.(params.propertyRule) ?? nested.itemRule
   if (Array.isArray(params.yaml)) {
     params.yaml.forEach((item, index) => {
+      if (asRecord(item) === undefined) return
       const rule = nested.resolveItemRule?.({
         yaml: item,
         name: undefined,
@@ -118,6 +119,7 @@ function visitNested<State>(params: MetadataRuleYamlContext<State> & {
   if (record === undefined) return
   let index = 0
   for (const [yamlKey, item] of Object.entries(record)) {
+    if (asRecord(item) === undefined) { index += 1; continue }
     const itemName = nested.nameFromYAMLKeyForProperty?.({ yamlKey, propertyRule: params.propertyRule })
       ?? nested.nameFromYAMLKey?.(yamlKey)
       ?? yamlKey

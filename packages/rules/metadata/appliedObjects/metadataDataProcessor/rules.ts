@@ -1,3 +1,5 @@
+import { metadataIdentityProperties } from "../../commonObjects/metadataIdentityProperties"
+import { ownerFormLinks } from "../../commonObjects/metadataPath/formLinks"
 import { metadataCommandsRule } from "../metadataAccountingRegister/builders"
 import { metadataDataProcessorAttributesRule, metadataDataProcessorTabularSectionsRule } from "./builders"
 import { childFormNamesRule } from "../../commonObjects/childFormNames/types"
@@ -8,7 +10,6 @@ import { booleanRule } from "../../commonObjects/boolean/types"
 import { i8nTextRule } from "../../commonObjects/i8nText/types"
 import { moduleRule } from "../../commonObjects/module/types"
 import { stringRule } from "../../commonObjects/string/types"
-import { uuidRule } from "../../commonObjects/uuid/types"
 import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
 import { V8_MDCLASSES_ROOT } from "../../ruleRuntime/appliedObject/presets"
@@ -70,47 +71,23 @@ export const MetadataDataProcessorRules = {
         { name: "DataProcessorManager", category: "Manager" },
       ],
     }),
-    uuid: uuidRule({
-      xml: "_uuid",
-      forReferenceOnly: true,
-      xmlParents: [],
-    }),
+    uuid: metadataIdentityProperties.uuid,
     name: stringRule({
       xmlParents: properties,
       required: true,
       defaultValue: ({ name, operation }: { name?: string; operation?: string }) =>
         operation === "importFromYAML" ? name : undefined,
     }),
-    synonym: i8nTextRule({
-      yaml: "Синоним",
-      xmlParents: properties,
-      defaultValueXMLRaw: "",
-      excludeIfEqualNameYAML: true,
-    }),
-    comment: stringRule({
-      yaml: "Комментарий",
-      xmlParents: properties,
-      defaultValueXMLRaw: "",
-      defaultValueAdoptedXML: "",
-    }),
+    synonym: metadataIdentityProperties.synonym,
+    comment: metadataIdentityProperties.comment,
     useStandardCommands: booleanRule({
       yaml: "ИспользоватьСтандартныеКоманды",
       defaultValueXML: true,
       implicitValueYAML: true,
       xmlParents: properties,
     }),
-    defaultForm: stringRule({
-      yaml: "ОсновнаяФорма",
-      xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
-    auxiliaryForm: stringRule({
-      yaml: "ДополнительнаяФорма",
-      xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
+    defaultForm: ownerFormLinks.defaultForm,
+    auxiliaryForm: ownerFormLinks.auxiliaryForm,
     includeHelpInContents: booleanRule({
       yaml: "ВключатьСправкуВСодержание",
       defaultValueXML: false,

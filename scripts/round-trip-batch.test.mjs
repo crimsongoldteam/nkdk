@@ -79,6 +79,7 @@ for (const component of manifest.components) {
   if (!component.yamlDir.startsWith(process.env.NKDK_TEST_ROOT)) process.exit(43);
   if (component.yamlDir !== path.join(component.projectDir, 'cf')) process.exit(44);
   const operations = path.join(component.projectDir, '.nkdk', 'operations');
+  if (component.importStatusPath) fs.writeFileSync(component.importStatusPath, JSON.stringify({componentPath:'cf',status:component.xmlDir.endsWith('03-error') ? 'failed' : 'succeeded'}));
   fs.mkdirSync(operations, {recursive:true});
   const timing = {createdAt:'2026-09-02T00:00:00.000Z', updatedAt:'2026-09-02T00:00:02.000Z'};
   if (process.env.NKDK_TEST_IMPORT_MS) timing.updatedAt = new Date(Date.parse(timing.createdAt) + Number(process.env.NKDK_TEST_IMPORT_MS)).toISOString();
@@ -90,6 +91,7 @@ for (const component of manifest.components) {
   fs.mkdirSync(path.join(component.yamlDir, 'Справочники'), {recursive:true});
   fs.writeFileSync(path.join(component.yamlDir, 'Справочники', 'Товары.yaml'), 'Поле: !xml/raw {\u0024xml: null}\\nСтрока: !xml/string текст\\n');
   fs.writeFileSync(path.join(component.yamlDir, 'resource.bin'), Buffer.alloc(Number(process.env.NKDK_TEST_RESOURCE_BYTES ?? 3)));
+  if (process.env.NKDK_TEST_ORDER) fs.appendFileSync(path.join(component.yamlDir, 'Справочники', 'Товары.yaml'), 'Порядок: !xml/raw {\u0024xml: {"#order": [a, b]}}\\n');
   fs.mkdirSync(path.join(component.yamlDir, '.nkdk'), {recursive:true});
   fs.writeFileSync(path.join(component.yamlDir, '.nkdk', 'cache.bin'), Buffer.alloc(1000));
   const warnings = [
@@ -100,6 +102,8 @@ for (const component of manifest.components) {
     summary:{errors:0, warnings:1, shown:1, omitted:0},
   }));
   if (process.env.NKDK_TEST_BAD_STATISTICS && component.xmlDir.endsWith('01-change [a]')) fs.writeFileSync(component.importOutputPath, '{}');
+  if (component.xmlDir.endsWith('02-clean') && process.env.NKDK_TEST_IMPORT_OUTPUT === 'missing') fs.unlinkSync(component.importOutputPath);
+  if (component.xmlDir.endsWith('02-clean') && process.env.NKDK_TEST_IMPORT_OUTPUT === 'corrupt') fs.writeFileSync(component.importOutputPath, '{');
   if (component.xmlDir.endsWith('03-sync-error')) {
     const operations = path.join(component.projectDir, '.nkdk', 'operations');
     fs.mkdirSync(operations, {recursive:true});
@@ -457,6 +461,20 @@ test("отчёт показывает XML и NKDK без .nkdk в МБ, сохр
   assert.ok(rows.every((row) => row.length === rows[0].length))
 })
 
+test("колонка #order различает ноль и недоступность и суммирует объявления после ошибки экспорта", (t) => {
+  for (const enabled of [false, true]) {
+    const { repo, run } = fixture(t, ["02-clean", "03-error", "03-sync-error"])
+    assert.equal(run(["--repo", repo], enabled ? { NKDK_TEST_ORDER: "1" } : {}).status, 1)
+    const rows = report(repo).split("\n").filter(line => line.startsWith("| ")).map(line => line.split("|").slice(1, -1).map(cell => cell.trim()))
+    const column = rows[0].indexOf("#order")
+    assert.ok(column >= 0)
+    for (const [name, expected] of [["cf/02-clean", enabled ? "1" : "0"], ["cf/03-error", "—"], ["cf/03-sync-error", enabled ? "1" : "0"], ["Итого", enabled ? "2" : "0"]]) {
+      assert.equal(rows.find(row => row[0] === name)[column], expected)
+    }
+    assert.ok(rows.every(row => row.length === rows[0].length))
+  }
+})
+
 test("тестовый режим принимает репозиторий из окружения и меньше трёх конфигураций", (t) => {
   const { repo, run } = fixture(t, ["02-clean"])
   const result = run(["--test"], { NKDK_XML_REPO: repo })
@@ -476,6 +494,7 @@ test("после ошибки продолжает прогон, сохраня�
   assert.ok(text.includes("Состояние: завершён с ошибками"))
   assert.ok(text.includes("## Ошибки"))
   assert.ok(text.includes("Ошибка чтения XML"))
+  assert.doesNotMatch(text, /ENOENT/u)
   assert.deepEqual(timingCells(text, "cf/03-error").slice(0, 2), ["00:02", "—"])
   durationSeconds(timingCells(text, "cf/03-error")[2])
   assert.deepEqual(timingCells(text, "Итого").slice(0, 2), ["00:08", "00:09"])
@@ -500,6 +519,18 @@ test("сохраняет статистику и полный текст оши�
   durationSeconds(timingCells(report(repo), "cf/03-sync-error")[2])
   assert.equal([...report(repo).matchAll(/Неверный #order: ожидались DataPath и Title/gu)].length, 2)
   assert.deepEqual(temporaryRuns(root), [])
+})
+
+test("успешный импорт без результата или с повреждённым JSON остаётся ошибкой", (t) => {
+  for (const mode of ["missing", "corrupt"]) {
+    const { repo, root, run } = fixture(t, ["02-clean", "04-change"])
+    const result = run(["--repo", repo], { NKDK_TEST_IMPORT_OUTPUT: mode })
+    assert.equal(result.status, 1)
+    assert.match(report(repo), /cf\/02-clean \| ошибка/u)
+    assert.match(report(repo), /cf\/04-change \| есть расхождения/u)
+    assert.match(report(repo), mode === "missing" ? /ENOENT/u : /JSON/u)
+    assert.deepEqual(temporaryRuns(root), [])
+  }
 })
 
 test("ошибка статистики не теряет успешный XML-результат и не блокирует следующую конфигурацию", (t) => {

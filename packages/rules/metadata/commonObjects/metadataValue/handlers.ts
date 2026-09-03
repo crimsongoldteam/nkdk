@@ -6,6 +6,8 @@ import {
   AccountTypeToYAML,
   DataCompositionComparisonTypeFromYAML,
   DataCompositionComparisonTypeToYAML,
+  ComparisonTypeFromYAML,
+  ComparisonTypeToYAML,
 } from "../../systemEnumerations/types"
 import { importBooleanFromXML } from "../boolean/fromXML"
 import { exportBooleanToYAML } from "../boolean/toYAML"
@@ -239,50 +241,28 @@ export const primitiveValueHandlers: Record<MetadataPrimitiveValueType, Metadata
       String((v as unknown as { type: "uuid"; value: string }).value),
   } satisfies MetadataPrimitiveValueHandler,
 
-  DataCompositionComparisonType: {
-    fromXML: (_ctx: ConfigurationContextFromXML, text: string | boolean | number | undefined) => {
-      if (text === undefined) return undefined
-      return { type: "DataCompositionComparisonType", value: String(text) } as unknown as MetadataTypedValue
-    },
-    toXML: (v: MetadataTypedValue) =>
-      ({
-        "_xsi:type": MetadataValueTypeToXML.DataCompositionComparisonType,
-        "#text": String((v as unknown as { type: "DataCompositionComparisonType"; value: string }).value),
-      }) as unknown as MetadataPrimitiveValueXML,
-    fromYAML: (_ctx: ConfigurationContext, data: MetadataValueYAML) => {
-      if (typeof data !== "string") return undefined
-      const value = DataCompositionComparisonTypeFromYAML[data as keyof typeof DataCompositionComparisonTypeFromYAML]
-      if (value === undefined) return undefined
-      return { type: "DataCompositionComparisonType", value } as unknown as MetadataTypedValue
-    },
-    toYAML: (_ctx: ConfigurationContext, v: MetadataTypedValue) =>
-      DataCompositionComparisonTypeToYAML[
-        (
-          v as unknown as {
-            type: "DataCompositionComparisonType"
-            value: keyof typeof DataCompositionComparisonTypeToYAML
-          }
-        ).value
-      ],
-  } satisfies MetadataPrimitiveValueHandler,
+  DataCompositionComparisonType: enumerationValueHandler("DataCompositionComparisonType", DataCompositionComparisonTypeFromYAML, DataCompositionComparisonTypeToYAML),
+  ComparisonType: enumerationValueHandler("ComparisonType", ComparisonTypeFromYAML, ComparisonTypeToYAML),
+  AccountType: enumerationValueHandler("AccountType", AccountTypeFromYAML, AccountTypeToYAML),
+}
 
-  AccountType: {
-    fromXML: (_ctx: ConfigurationContextFromXML, text: string | boolean | number | undefined) => {
-      if (text === undefined) return undefined
-      return { type: "AccountType", value: String(text) } as unknown as MetadataTypedValue
+function enumerationValueHandler(
+  type: "ComparisonType" | "DataCompositionComparisonType" | "AccountType",
+  fromYAML: Readonly<Record<string, string>>,
+  toYAML: Readonly<Record<string, string>>,
+): MetadataPrimitiveValueHandler {
+  return {
+    fromXML: (_context, text) => text === undefined ? undefined : { type, value: String(text) },
+    toXML: (value) => {
+      if (!("value" in value)) throw new Error(`Для ${type} требуется значение`)
+      return { "_xsi:type": MetadataValueTypeToXML[type], "#text": String(value.value) }
     },
-    toXML: (v: MetadataTypedValue) =>
-      ({
-        "_xsi:type": MetadataValueTypeToXML.AccountType,
-        "#text": String((v as unknown as { type: "AccountType"; value: string }).value),
-      }) as unknown as MetadataPrimitiveValueXML,
-    fromYAML: (_ctx: ConfigurationContext, data: MetadataValueYAML) => {
+    fromYAML: (_context, data) => {
       if (typeof data !== "string") return undefined
-      const value = AccountTypeFromYAML[data as keyof typeof AccountTypeFromYAML]
-      if (value === undefined) return undefined
-      return { type: "AccountType", value } as unknown as MetadataTypedValue
+      const value = fromYAML[data]
+      return value === undefined ? undefined : { type, value }
     },
-    toYAML: (_ctx: ConfigurationContext, v: MetadataTypedValue) =>
-      AccountTypeToYAML[(v as unknown as { type: "AccountType"; value: keyof typeof AccountTypeToYAML }).value],
-  } satisfies MetadataPrimitiveValueHandler,
+    toYAML: (_context, value) => "value" in value && typeof value.value === "string"
+      ? toYAML[value.value] : undefined,
+  }
 }

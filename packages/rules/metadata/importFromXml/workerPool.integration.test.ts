@@ -30,10 +30,8 @@ afterEach(() => {
 })
 
 describe("XML import worker pool", () => {
-  it("ограничивает XML-import worker 512 МБ heap", () => {
-    expect(createXmlImportWorkerPoolOptions()).toMatchObject({
-      resourceLimits: { maxOldGenerationSizeMb: 512 },
-    })
+  it("не назначает XML-import worker принудительный лимит heap", () => {
+    expect(createXmlImportWorkerPoolOptions()).not.toHaveProperty("resourceLimits")
   })
 
   it("keeps the generic XML context free of component selection", () => {

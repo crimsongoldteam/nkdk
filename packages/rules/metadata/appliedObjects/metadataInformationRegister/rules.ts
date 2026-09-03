@@ -1,3 +1,5 @@
+import { metadataIdentityProperties } from "../../commonObjects/metadataIdentityProperties"
+import { ownerFormLinks } from "../../commonObjects/metadataPath/formLinks"
 import {
   additionalIndexRule,
   metadataCommandsRule,
@@ -14,7 +16,6 @@ import { booleanRule } from "../../commonObjects/boolean/types"
 import { i8nTextRule } from "../../commonObjects/i8nText/types"
 import { moduleRule } from "../../commonObjects/module/types"
 import { stringRule } from "../../commonObjects/string/types"
-import { uuidRule } from "../../commonObjects/uuid/types"
 import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
 import { V8_MDCLASSES_ROOT } from "../../ruleRuntime/appliedObject/presets"
@@ -104,28 +105,14 @@ export const MetadataInformationRegisterRules = {
         { name: "InformationRegisterRecordManager", category: "RecordManager" },
       ],
     }),
-    uuid: uuidRule({
-      xml: "_uuid",
-      forReferenceOnly: true,
-      xmlParents: [],
-    }),
+    uuid: metadataIdentityProperties.uuid,
     name: stringRule({
       xmlParents: properties,
       required: true,
       defaultValue: ({ name }: { name?: string }) => name,
     }),
-    synonym: i8nTextRule({
-      yaml: "Синоним",
-      xmlParents: properties,
-      defaultValueXMLRaw: "",
-      excludeIfEqualNameYAML: true,
-    }),
-    comment: stringRule({
-      yaml: "Комментарий",
-      xmlParents: properties,
-      defaultValueXMLRaw: "",
-      defaultValueAdoptedXML: "",
-    }),
+    synonym: metadataIdentityProperties.synonym,
+    comment: metadataIdentityProperties.comment,
     useStandardCommands: booleanRule({
       yaml: "ИспользоватьСтандартныеКоманды",
       defaultValueXML: true,
@@ -139,30 +126,10 @@ export const MetadataInformationRegisterRules = {
       implicitValueYAML: "InDialog",
       xmlParents: properties,
     }),
-    defaultRecordForm: stringRule({
-      yaml: "ОсновнаяФормаЗаписи",
-      xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
-    defaultListForm: stringRule({
-      yaml: "ОсновнаяФормаСписка",
-      xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
-    auxiliaryRecordForm: stringRule({
-      yaml: "ДополнительнаяФормаЗаписи",
-      xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
-    auxiliaryListForm: stringRule({
-      yaml: "ДополнительнаяФормаСписка",
-      xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
+    defaultRecordForm: ownerFormLinks.defaultRecordForm,
+    defaultListForm: ownerFormLinks.defaultListForm,
+    auxiliaryRecordForm: ownerFormLinks.auxiliaryRecordForm,
+    auxiliaryListForm: ownerFormLinks.auxiliaryListForm,
     standardAttributes: standardAttributeDescriptionsRule({
       yaml: "СтандартныеРеквизиты",
       standartAttributeNames: MetadataInformationRegisterStandardAttributeNames,

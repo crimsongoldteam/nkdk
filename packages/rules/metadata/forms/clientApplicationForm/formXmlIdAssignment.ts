@@ -8,7 +8,6 @@ interface Candidate {
   readonly node: Record<string, unknown>
   readonly reference: Record<string, unknown> | undefined
   readonly reservation: FormXmlIdReservation
-  readonly scope: object
   id?: string
 }
 
@@ -35,17 +34,21 @@ export function assignFormXmlIds(
   session: FormXmlIdAssignmentSession = createFormXmlIdAssignmentSession(),
 ): void {
   const candidates: Candidate[] = []
-  collectCandidates(generated, reference, candidates, rootScope(generated))
+  collectCandidates(generated, reference, candidates)
+  collectReferenceIds(reference, session.occupiedBySpace)
+  collectReferenceIds(generated, session.occupiedBySpace)
+  collectSnapshotIds(candidates, session.occupiedBySpace)
 
-  const occupied = new Map<object, Map<string, Candidate>>()
   for (const candidate of candidates) {
     const logicalAddress = sessionLogicalAddress(candidate)
     const sessionId = logicalAddress === undefined ? undefined : session.idsByLogicalAddress.get(logicalAddress)
     const snapshotId = validXmlId(candidate.reservation.runtime?.identity("xmlId"))
     const referenceId = validXmlId(stringId(candidate.reference?._id))
+    // A shared session coordinates current/base-form projections from different snapshots.
+    // Their historical IDs may differ; identity conflicts within one snapshot are
+    // rejected by its collector, not by comparing these independent sources.
     candidate.id = candidate.reservation.specialId ?? sessionId ?? snapshotId ?? referenceId
     if (candidate.id !== undefined) {
-      reserve(candidate, occupied)
       reserveSession(candidate, session)
     }
   }
@@ -58,7 +61,6 @@ export function assignFormXmlIds(
       while (used?.has(String(next)) === true) next++
       candidate.id = String(next)
       nextBySpace.set(candidate.reservation.space, next + 1)
-      reserve(candidate, occupied)
       reserveSession(candidate, session)
     }
     candidate.node._id = candidate.id
@@ -70,7 +72,9 @@ export function assignFormXmlIds(
 function reserveSession(candidate: Candidate, session: FormXmlIdAssignmentSession): void {
   const id = candidate.id
   const runtime = candidate.reservation.runtime
-  if (id === undefined || candidate.reservation.specialId !== undefined) return
+  if (id === undefined) return
+  if (!isXmlId(id)) throw new Error(`Некорректный ID формы: ${id}`)
+  if (candidate.reservation.specialId !== undefined) return
   if (runtime !== undefined) {
     const logicalAddress = sessionLogicalAddress(candidate)
     if (logicalAddress === undefined) return
@@ -97,21 +101,20 @@ function firstAvailableXmlId(candidate: Candidate): number {
     : 1
 }
 
-function collectCandidates(generated: unknown, reference: unknown, result: Candidate[], scope: object): void {
+function collectCandidates(generated: unknown, reference: unknown, result: Candidate[]): void {
   if (Array.isArray(generated)) {
     const references = Array.isArray(reference) ? reference : []
     for (const [index, item] of generated.entries()) {
-      collectCandidates(item, findReferenceNode(item, references) ?? references[index], result, generated)
+      collectCandidates(item, findReferenceNode(item, references) ?? references[index], result)
     }
     return
   }
   if (!isRecord(generated)) return
   const referenceRecord = isRecord(reference) ? reference : undefined
   const reservation = formXmlIdReservation(generated)
-  if (reservation !== undefined) result.push({ node: generated, reference: referenceRecord, reservation, scope })
-  const childScope = reservation === undefined ? scope : generated
+  if (reservation !== undefined) result.push({ node: generated, reference: referenceRecord, reservation })
   for (const [key, child] of Object.entries(generated)) {
-    collectCandidates(child, referenceRecord?.[key], result, childScope)
+    collectCandidates(child, referenceRecord?.[key], result)
   }
 }
 
@@ -128,25 +131,30 @@ function nestedName(value: unknown): string | undefined {
   return nested.length === 1 && typeof nested[0]?._name === "string" ? nested[0]._name : undefined
 }
 
-function reserve(
-  candidate: Candidate,
-  occupied: Map<object, Map<string, Candidate>>,
-): void {
-  const id = candidate.id
-  if (id === undefined) return
-  if (!isXmlId(id)) throw new Error(`Некорректный ID формы: ${id}`)
-  if (candidate.reservation.specialId !== undefined) return
-  const byId = occupied.get(candidate.scope) ?? new Map<string, Candidate>()
-  const previous = byId.get(id)
-  if (previous !== undefined && previous !== candidate) {
-    throw new Error(`Повторный ID ${id} в XML-контейнере (${candidate.reservation.space})`)
+function collectSnapshotIds(candidates: readonly Candidate[], occupied: Map<FormXmlIdSpace, Set<string>>): void {
+  const visited = new Map<object, Set<string>>()
+  for (const { reservation: { runtime } } of candidates) {
+    const root = runtime?.formElementRootLogicalAddress
+    if (runtime === undefined || root === undefined) continue
+    const sourceRoot = runtime.referencePathByCurrentPath?.get(root) ?? root
+    const roots = visited.get(runtime.source) ?? new Set<string>()
+    if (roots.has(sourceRoot)) continue
+    roots.add(sourceRoot)
+    visited.set(runtime.source, roots)
+    const prefix = `${sourceRoot}.`
+    for (const entity of runtime.source.entities()) {
+      if (!entity.logicalAddress.startsWith(prefix)) continue
+      const id = validXmlId(entity.xmlId)
+      if (id === undefined) continue
+      const relative = entity.logicalAddress.slice(prefix.length).replace(/^ОсноваФормы\./u, "")
+      const segment = relative.split(".", 1)[0]
+      const space = segment === "Элемент" ? "elements"
+        : segment === "Атрибут" ? "attributes"
+        : segment === "Команда" ? "commands"
+        : segment === "Параметр" ? "parameters" : undefined
+      if (space !== undefined) occupied.get(space)?.add(id)
+    }
   }
-  byId.set(id, candidate)
-  occupied.set(candidate.scope, byId)
-}
-
-function rootScope(value: unknown): object {
-  return value !== null && typeof value === "object" ? value : {}
 }
 
 function stringId(value: unknown): string | undefined {

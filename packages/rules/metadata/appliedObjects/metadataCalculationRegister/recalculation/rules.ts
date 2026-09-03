@@ -1,3 +1,4 @@
+import { metadataObjectBelongingProperties } from "../../../commonObjects/metadataObjectBelongingProperties"
 import { internalInfoRule } from "../../../commonObjects/internalInfo/types"
 import { i8nTextRule } from "../../../commonObjects/i8nText/types"
 import { moduleRule } from "../../../commonObjects/module/types"
@@ -84,20 +85,8 @@ export const RecalculationRules = {
       defaultValue: [],
       defaultValueXMLRaw: {},
     },
-    objectBelonging: systemEnumerationRule({
-      yaml: "ПринадлежностьОбъекта",
-      xml: "ObjectBelonging",
-      typeSE: "ObjectBelonging",
-      xmlParents: properties,
-      toYAML: false,
-      fromYAML: false,
-      implicitValueYAML: "Native",
-    }),
-    extendedConfigurationObject: stringRule({
-      xml: "ExtendedConfigurationObject",
-      xmlParents: properties,
-      runtimeOnly: true,
-    }),
+    objectBelonging: metadataObjectBelongingProperties.objectBelonging,
+    extendedConfigurationObject: metadataObjectBelongingProperties.extendedConfigurationObject,
     recordSetModule: moduleRule({
       nkdkPath: "МодульНабораЗаписей.bsl",
       xmlPath: "Ext/RecordSetModule.bsl",

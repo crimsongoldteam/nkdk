@@ -1,11 +1,10 @@
+import { metadataObjectBelongingProperties } from "../../commonObjects/metadataObjectBelongingProperties"
+import { metadataIdentityProperties } from "../../commonObjects/metadataIdentityProperties"
 import { metadataIntegrationServiceChannelsRule } from "./builders"
 import { internalInfoRule } from "../../commonObjects/internalInfo/types"
 import { moduleRule } from "../../commonObjects/module/types"
-import { i8nTextRule } from "../../commonObjects/i8nText/types"
 import { stringRule } from "../../commonObjects/string/types"
 import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
-import { uuidRule } from "../../commonObjects/uuid/types"
-import { systemEnumerationRule } from "../../systemEnumerations/types"
 import { V8_MDCLASSES_ROOT } from "../../ruleRuntime/appliedObject/presets"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 const properties = ["Properties"]
@@ -40,48 +39,22 @@ export const MetadataIntegrationServiceRules = {
       fromYAML: false,
       items: [{ name: "IntegrationServiceManager", category: "Manager" }],
     }),
-    uuid: uuidRule({
-      xml: "_uuid",
-      forReferenceOnly: true,
-      xmlParents: [],
-    }),
+    uuid: metadataIdentityProperties.uuid,
     name: stringRule({
       xmlParents: properties,
       required: true,
       defaultValue: ({ name }: { name?: string }) => name,
     }),
-    synonym: i8nTextRule({
-      yaml: "Синоним",
-      xmlParents: properties,
-      defaultValueXMLRaw: "",
-      excludeIfEqualNameYAML: true,
-    }),
-    comment: stringRule({
-      yaml: "Комментарий",
-      xmlParents: properties,
-      defaultValueXMLRaw: "",
-      defaultValueAdoptedXML: "",
-    }),
+    synonym: metadataIdentityProperties.synonym,
+    comment: metadataIdentityProperties.comment,
     externalIntegrationServiceAddress: stringRule({
       yaml: "АдресВнешнегоСервисаИнтеграции",
       xml: "ExternalIntegrationServiceAddress",
       xmlParents: properties,
       defaultValueXMLRaw: "",
     }),
-    objectBelonging: systemEnumerationRule({
-      yaml: "ПринадлежностьОбъекта",
-      xml: "ObjectBelonging",
-      typeSE: "ObjectBelonging",
-      xmlParents: properties,
-      toYAML: false,
-      fromYAML: false,
-      implicitValueYAML: "Native",
-    }),
-    extendedConfigurationObject: stringRule({
-      xml: "ExtendedConfigurationObject",
-      xmlParents: properties,
-      runtimeOnly: true,
-    }),
+    objectBelonging: metadataObjectBelongingProperties.objectBelonging,
+    extendedConfigurationObject: metadataObjectBelongingProperties.extendedConfigurationObject,
     channels: metadataIntegrationServiceChannelsRule({
       yaml: "Каналы",
       xml: "IntegrationServiceChannel",

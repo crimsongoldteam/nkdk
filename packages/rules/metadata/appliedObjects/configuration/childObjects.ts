@@ -15,6 +15,7 @@ export const STANDARD_CHILD_OBJECT_TYPE_ORDER = [
   "StyleItem",
   "Style",
   "CommonPicture",
+  "Interface",
   "SessionParameter",
   "Role",
   "CommonTemplate",

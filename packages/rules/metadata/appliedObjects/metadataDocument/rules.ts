@@ -1,3 +1,5 @@
+import { metadataIdentityProperties } from "../../commonObjects/metadataIdentityProperties"
+import { ownerFormLinks } from "../../commonObjects/metadataPath/formLinks"
 import { additionalIndexRule, metadataCommandsRule } from "../metadataAccountingRegister/builders"
 import { metadataDocumentAttributesRule, metadataDocumentTabularSectionsRule } from "./types"
 import { characteristicsDescriptionsRule } from "../../commonObjects/characteristicsDescription/types"
@@ -6,14 +8,13 @@ import { childTemplateNamesRule } from "../../commonObjects/childTemplateNames/t
 import { helpRule } from "../../commonObjects/help/types"
 import { internalInfoRule } from "../../commonObjects/internalInfo/types"
 import { metadataFieldsRule } from "../../commonObjects/metadataField/types"
-import { metadataItemLinksRule } from "../../commonObjects/metadataPath/types"
+import { metadataItemLinkRule, metadataItemLinksRule } from "../../commonObjects/metadataPath/types"
 import { standardAttributeDescriptionsRule } from "../../commonObjects/standardAttributeDescription/builders"
 import { booleanRule } from "../../commonObjects/boolean/types"
 import { i8nTextRule } from "../../commonObjects/i8nText/types"
 import { moduleRule } from "../../commonObjects/module/types"
 import { numberRule } from "../../commonObjects/number/types"
 import { stringRule } from "../../commonObjects/string/types"
-import { uuidRule } from "../../commonObjects/uuid/types"
 import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
 import { V8_MDCLASSES_ROOT } from "../../ruleRuntime/appliedObject/presets"
@@ -123,11 +124,7 @@ export const MetadataDocumentRules = {
         { name: "DocumentManager", category: "Manager" },
       ],
     }),
-    uuid: uuidRule({
-      xml: "_uuid",
-      forReferenceOnly: true,
-      xmlParents: [],
-    }),
+    uuid: metadataIdentityProperties.uuid,
     actionsWritingOnPost: systemEnumerationRule({
       yaml: "ЗаписьДвиженийПриПроведении",
       typeSE: "RegisterRecordsWritingOnPost",
@@ -152,24 +149,9 @@ export const MetadataDocumentRules = {
       implicitValueYAML: true,
       xmlParents: documentProperties,
     }),
-    auxiliaryChoiceForm: stringRule({
-      yaml: "ДополнительнаяФормаДляВыбора",
-      xmlParents: documentProperties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
-    auxiliaryListForm: stringRule({
-      yaml: "ДополнительнаяФормаСписка",
-      xmlParents: documentProperties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
-    auxiliaryObjectForm: stringRule({
-      yaml: "ДополнительнаяФормаОбъекта",
-      xmlParents: documentProperties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
+    auxiliaryChoiceForm: { ...ownerFormLinks.auxiliaryChoiceForm, yaml: "ДополнительнаяФормаДляВыбора" },
+    auxiliaryListForm: ownerFormLinks.auxiliaryListForm,
+    auxiliaryObjectForm: ownerFormLinks.auxiliaryObjectForm,
     basedOn: metadataItemLinksRule({
       yaml: "ВводитсяНаОсновании",
       metadataTarget: { kind: "object", allowedObjectPaths: commonBasedOnObjectPaths },
@@ -276,7 +258,7 @@ export const MetadataDocumentRules = {
       xmlParents: documentProperties,
       defaultValueXMLRaw: {},
     }),
-    defaultChoiceForm: stringRule({
+    defaultChoiceForm: metadataItemLinkRule({
       yaml: "ОсновнаяФормаДляВыбора",
       xmlParents: documentProperties,
       metadataTarget: {
@@ -288,18 +270,8 @@ export const MetadataDocumentRules = {
       },
       defaultValueXMLRaw: "",
     }),
-    defaultListForm: stringRule({
-      yaml: "ОсновнаяФормаСписка",
-      xmlParents: documentProperties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
-    defaultObjectForm: stringRule({
-      yaml: "ОсновнаяФормаОбъекта",
-      xmlParents: documentProperties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
+    defaultListForm: ownerFormLinks.defaultListForm,
+    defaultObjectForm: ownerFormLinks.defaultObjectForm,
     executeAfterWriteDataHistoryVersionProcessing: booleanRule({
       yaml: "ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных",
       defaultValueXML: false,
@@ -389,7 +361,7 @@ export const MetadataDocumentRules = {
       implicitValueYAML: "String",
       xmlParents: documentProperties,
     }),
-    numerator: stringRule({
+    numerator: metadataItemLinkRule({
       yaml: "Нумератор",
       xmlParents: documentProperties,
       metadataTarget: { kind: "object", roots: ["DocumentNumerator"] },

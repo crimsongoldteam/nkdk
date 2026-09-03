@@ -303,6 +303,10 @@ function applyXmlAnomalyAnnotationsToNode(
     if (keyAnnotation !== undefined) {
       item.key.value = keyAnnotation.logicalKey ?? runtimeKey
       applyXmlAnomalyTag(item.key, keyAnnotation)
+      if (item.key.value === "") {
+        item.key.style.singleQuoted = true
+        item.key.style.doubleQuoted = false
+      }
     }
     const valueAnnotation = annotations.at(source, runtimeKey)
     if (valueAnnotation !== undefined) applyXmlAnomalyTag(item.value, valueAnnotation, semanticData[runtimeKey])

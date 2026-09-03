@@ -2,7 +2,7 @@ import { definePropertyTypeRule } from "../../ruleRuntime/property/propertyRuleR
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { defineMetadataRules } from "../../ruleRuntime/definition"
 import { emptyMetadataRules } from "../../ruleRuntime/definition/testSupport"
-import { ConfigurationContext, isTaggedYAMLScalar } from "@nkdk/runtime"
+import { ConfigurationContext, isTaggedYAMLScalar, type XmlAnomalyAnnotations } from "@nkdk/runtime"
 import type { ImportFromYAMLFunctionNew } from "@nkdk/runtime/rule-kit"
 import { formulaFormatParser } from "../../helpers/formulaFormatParser/formulaFormatParser"
 import { assertTypeDescriptionYAMLAllowed, METADATA_NAME_YAML_PATTERN } from "./allowedTypes"
@@ -133,13 +133,14 @@ function importTypeDescriptionYAMLValue(
   value: unknown,
   _scalarOwner?: object,
   _scalarKey?: string | number,
+  annotations?: XmlAnomalyAnnotations,
 ): TypeDescription | undefined {
   if (value === undefined) return undefined
   const parsed = parseTypeDescriptionYAML(value)
   if (rule?.type === "TypeDescription" && rule.allowedTypes !== undefined) {
     const semanticValue = semanticTypeDescriptionYAML(value)
     if (semanticValue !== undefined) {
-      assertTypeDescriptionYAMLAllowed({ value: semanticValue, allowedTypes: rule.allowedTypes })
+      assertTypeDescriptionYAMLAllowed({ value: semanticValue, allowedTypes: rule.allowedTypes, annotations })
     }
   }
   return parsed
@@ -148,6 +149,7 @@ function importTypeDescriptionYAMLValue(
 function semanticTypeDescriptionYAML(
   value: unknown,
 ): TypeDescriptionYAML | undefined {
+  if (Array.isArray(value) && value.length > 1) return value as TypeDescriptionYAML
   const values = typeDescriptionYAMLItems(value)
     .map(({ value: item }) => item)
   if (values.length === 0) return undefined
@@ -157,7 +159,7 @@ function semanticTypeDescriptionYAML(
 export const importTaggedTypeDescriptionFromYAML: ImportFromYAMLFunctionNew = (params) => {
   const propertyName = params.rule.yaml ?? "Тип"
   if (params.value === undefined) return undefined
-  return importTypeDescriptionYAMLValue(params.rule, params.value, params.yaml, propertyName)
+  return importTypeDescriptionYAMLValue(params.rule, params.value, params.yaml, propertyName, params.annotations)
 }
 
 const getStringQualifiers = (parameters: string[], type: string): TypeDescriptionStringQualifiers | undefined => {

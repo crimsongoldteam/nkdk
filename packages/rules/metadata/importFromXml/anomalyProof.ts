@@ -432,6 +432,10 @@ function resolveDynamicItemRules(
   const resolved = createResolvedItemRuleIndex()
   const collectionIndexes = new Map<string, number>()
   for (const anchor of uniqueAnchors) {
+    const yaml = valueAtYamlPath(data, anchor.yamlPath)
+    // Якорь исходного XML остаётся и после удаления pure raw из смысловой
+    // проекции. Без элемента нельзя выбирать его динамическое правило.
+    if (yaml === undefined) continue
     const propertyKey = anchor.rulePath.at(-1)
     if (propertyKey === undefined) continue
     const ownerRule = compiledRuleAtPath({
@@ -458,7 +462,7 @@ function resolveDynamicItemRules(
     const itemRule = resolveNestedItemRule({
       nested,
       propertyRule: planned.propertyRule,
-      yaml: valueAtYamlPath(data, anchor.yamlPath),
+      yaml,
       name: typeof anchor.yamlPath.at(-1) === "string"
         ? String(anchor.yamlPath.at(-1))
         : undefined,

@@ -120,9 +120,9 @@ export function importSingleFormElementFromXMLToYAML(params: {
       rule: params.rule,
       sources: [{
         context: itemContext,
-        xml: params.nameStyle?.explicitXMLName === true
+        xml: params.traversal.xmlNodes?.[0] ?? (params.nameStyle?.explicitXMLName === true
           ? withoutImportableXMLName(params.xml)
-          : params.xml,
+          : params.xml),
       }],
       itemName: xmlName ?? canonicalName,
       yamlPath: params.traversal.yamlPath,

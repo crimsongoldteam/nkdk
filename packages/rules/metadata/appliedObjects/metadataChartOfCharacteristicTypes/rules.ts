@@ -1,3 +1,5 @@
+import { metadataIdentityProperties } from "../../commonObjects/metadataIdentityProperties"
+import { ownerFormLinks } from "../../commonObjects/metadataPath/formLinks"
 import { additionalIndexRule, metadataCommandsRule } from "../metadataAccountingRegister/builders"
 import {
   metadataChartOfCharacteristicTypesAttributesRule,
@@ -141,18 +143,8 @@ export const MetadataChartOfCharacteristicTypesRules = {
     }),
     uuid: uuidRule({ xml: "_uuid", forReferenceOnly: true, xmlParents: [] }),
     name: stringRule({ xmlParents: properties, required: true, defaultValue: ({ name }: { name?: string }) => name }),
-    synonym: i8nTextRule({
-      yaml: "Синоним",
-      xmlParents: properties,
-      defaultValueXMLRaw: "",
-      excludeIfEqualNameYAML: true,
-    }),
-    comment: stringRule({
-      yaml: "Комментарий",
-      xmlParents: properties,
-      defaultValueXMLRaw: "",
-      defaultValueAdoptedXML: "",
-    }),
+    synonym: metadataIdentityProperties.synonym,
+    comment: metadataIdentityProperties.comment,
     useStandardCommands: booleanRule({
       yaml: "ИспользоватьСтандартныеКоманды",
       defaultValueXML: true,
@@ -306,66 +298,16 @@ export const MetadataChartOfCharacteristicTypesRules = {
       implicitValueYAML: "Auto",
       xmlParents: properties,
     }),
-    defaultObjectForm: stringRule({
-      yaml: "ОсновнаяФормаОбъекта",
-      xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
-    defaultFolderForm: stringRule({
-      yaml: "ОсновнаяФормаГруппы",
-      xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
-    defaultListForm: stringRule({
-      yaml: "ОсновнаяФормаСписка",
-      xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
-    defaultChoiceForm: stringRule({
-      yaml: "ОсновнаяФормаВыбора",
-      xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
-    defaultFolderChoiceForm: stringRule({
-      yaml: "ОсновнаяФормаВыбораГруппы",
-      xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
-    auxiliaryObjectForm: stringRule({
-      yaml: "ДополнительнаяФормаОбъекта",
-      xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
-    auxiliaryFolderForm: stringRule({
-      yaml: "ДополнительнаяФормаГруппы",
-      xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
-    auxiliaryListForm: stringRule({
-      yaml: "ДополнительнаяФормаСписка",
-      xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
-    auxiliaryChoiceForm: stringRule({
-      yaml: "ДополнительнаяФормаВыбора",
-      xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
-    auxiliaryFolderChoiceForm: stringRule({
-      yaml: "ДополнительнаяФормаВыбораГруппы",
-      xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
+    defaultObjectForm: ownerFormLinks.defaultObjectForm,
+    defaultFolderForm: ownerFormLinks.defaultFolderForm,
+    defaultListForm: ownerFormLinks.defaultListForm,
+    defaultChoiceForm: ownerFormLinks.defaultChoiceForm,
+    defaultFolderChoiceForm: ownerFormLinks.defaultFolderChoiceForm,
+    auxiliaryObjectForm: ownerFormLinks.auxiliaryObjectForm,
+    auxiliaryFolderForm: ownerFormLinks.auxiliaryFolderForm,
+    auxiliaryListForm: ownerFormLinks.auxiliaryListForm,
+    auxiliaryChoiceForm: ownerFormLinks.auxiliaryChoiceForm,
+    auxiliaryFolderChoiceForm: ownerFormLinks.auxiliaryFolderChoiceForm,
     basedOn: metadataItemLinksRule({
       yaml: "ВводитсяНаОсновании",
       metadataTarget: { kind: "object", allowedObjectPaths: commonBasedOnObjectPaths },
