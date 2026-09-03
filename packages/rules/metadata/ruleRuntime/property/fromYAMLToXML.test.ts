@@ -11,7 +11,7 @@ import "../../commonObjects/usePurposes/fromYAML"
 import "../../commonObjects/usePurposes/toXML"
 import { metadataRules } from "../../composition/metadataRules"
 import type { ExportToXMLFunctionNew,ImportFromYAMLFunctionNew } from "./fn"
-import { convertPropertiesFromYAMLToXML } from "./fromYAMLToXML"
+import { convertPropertiesFromYAMLToXML, createXMLPropertyExecution } from "./fromYAMLToXML"
 import { createYAMLToXMLProfile,type YAMLToXMLNestedRule } from "./fromYAMLToXMLTypes"
 import type { PropertyRuleType } from "./registry"
 import { registerTypeRule } from "./typeRuleRegistry"
@@ -105,6 +105,30 @@ const contextWithXMLDefaultVariant = (
 }
 
 describe("convertPropertiesFromYAMLToXML", () => {
+  it("исполняет свойства по одному, включая отсутствующее YAML, только один раз", () => {
+    const execution = createRuleRegistrySet(metadataRules).execution
+    const rule = testRule({
+      a: { type: "string", yaml: "Первое", xml: "A" },
+      b: { type: "string", yaml: "Среднее", xml: "B", defaultValueXML: "среднее", evaluateWhenYAMLMissing: true },
+      c: { type: "string", yaml: "Последнее", xml: "C" },
+    })
+    const profile = createYAMLToXMLProfile()
+    const item = createXMLPropertyExecution({
+      execution, rule, context: context(), profile,
+      yaml: { Первое: "первое", Последнее: "последнее" },
+      outputs: [{ key: "owner" }],
+    })
+    for (const property of execution.propertyPlan(rule).yamlToXMLOrder) {
+      item.execute(property)
+      item.execute(property)
+    }
+    const result = item.finish()
+    expect(result.outputs.get("owner")).toEqual({ A: "первое", B: "среднее", C: "последнее" })
+    expect(Object.keys(result.outputs.get("owner")!)).toEqual(["A", "B", "C"])
+    expect(profile.propertyCount).toBe(3)
+    expect(item.finish()).toBe(result)
+    expect(() => item.execute(execution.propertyPlan(rule).yamlToXMLOrder[0]!)).toThrow(/завершён/)
+  })
   it("профилирует преобразование по типам PropertyRule", () => {
     const profile = createYAMLToXMLProfile({ propertyTypes: true })
 

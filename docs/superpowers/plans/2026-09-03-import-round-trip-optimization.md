@@ -122,9 +122,9 @@
 
 **Интерфейс:** объект исполнения одного item предоставляет `execute(property: CompiledProperty): void` и `finish(): YAMLToXMLResult`. Параметры создания включают прежние `ConvertPropertiesFromYAMLToXMLParams` и источник `YAMLPropertySource`. Методы синхронные; уже выполненные свойства не запускаются повторно.
 
-- [ ] Добавить case обычного XML `A, C`, где правило отсутствующего YAML создаёт `B`; проверить XML `A, B, C`, empty/absent, namespace/attribute/default/implicit. Использовать простой локальный MetadataItemRule из существующего теста, не новые предметные rules.
-- [ ] Получить RED на поэлементном вызове общего исполнения; все старые whole-item assertions остаются.
-- [ ] Извлечь из текущего property-loop **одну** реализацию фильтрации tags, reference/indexed/adopted defaults, atomic conversion, nested selection, `writeXMLValue` и required parents. Адаптер обычного экспорта вызывает её в `plan.yamlToXMLOrder`:
+- [x] Добавить case обычного XML `A, C`, где правило отсутствующего YAML создаёт `B`; проверить XML `A, B, C`, empty/absent, namespace/attribute/default/implicit. Использовать простой локальный MetadataItemRule из существующего теста, не новые предметные rules.
+- [x] Получить RED на поэлементном вызове общего исполнения; все старые whole-item assertions остаются.
+- [x] Извлечь из текущего property-loop **одну** реализацию фильтрации tags, reference/indexed/adopted defaults, atomic conversion, nested selection, `writeXMLValue` и required parents. Адаптер обычного экспорта вызывает её в `plan.yamlToXMLOrder`:
 
   ```ts
   for (const property of plan.yamlToXMLOrder) item.execute(property)
@@ -132,7 +132,7 @@
   ```
 
   Источник `raw/has` читает действительный YAML с аннотациями; facts используются для зависимостей, но не подменяют экспортируемое значение исходным XML.
-- [ ] Проверить прежний обычный экспорт и количество вызовов на property; duplicates, коммит. На этой промежуточной стадии импорт ещё использует прежнюю проверку и не считается оптимизированным.
+- [x] Проверить прежний обычный экспорт и количество вызовов на property; duplicates, коммит. На этой промежуточной стадии импорт ещё использует прежнюю проверку и не считается оптимизированным.
 
 ## Задача 5. Локальная проверка и логическое завершение XML
 
@@ -271,3 +271,4 @@
 - Уточнение пути теста задачи 2 при чтении кода: существующий набор compiled plan расположен в `compiledPropertyPlan.test.ts`, а не `propertyRuleRegistrySet.test.ts`; договор и объём задачи не меняются.
 - Задача 2: RED — отсутствовали подготовленный YAML-порядок и API размещения ключей; GREEN — 3 runtime-теста порядка и 93 tests compiled plan/property import. Проверены независимость XML/YAML-порядка, отсутствие сортировки статических ключей экземпляра, пропущенные/дополнительные ключи и сохранение аннотаций. `pnpm type-check`, `pnpm test:architecture`, duplicates прошли.
 - Задача 3: введены адресуемые компактные факты зависимостей (тип реквизита, необходимые свойства владельца и длины полей ввода); XML и полные YAML не удерживаются. Второй проход получает owner cache и индекс путей до импорта. Удалены поздний вызов нормализации FillValue в worker и регистрация финализатора ВводПоСтроке; при готовых зависимостях DataPath не попадает в очередь финализации. Основа и совместимость путей расширений остаются задачей 9. RED: отсутствовал API, затем отсутствовали факты ВводПоСтроке. GREEN: 188 целевых тестов в штатном `--no-isolate`, type-check, architecture, duplicates. Отдельный запуск dependentItems с изоляцией не разделял контекст реестра с test runner; штатный режим проходит без изменения тестовой инфраструктуры. Уточнён путь существующих implicit/explicit cases: `inputByStringRules.test.ts`, не `dependentItems.test.ts`.
+- Задача 4: общий `createXMLPropertyExecution` вынесен в `xmlPropertyExecution.ts`; прежний вход экспорта вызывает тот же исполнитель по подготовленному XML-порядку. RED: отсутствовал API. GREEN: 190 тестов обычного экспорта, implicit/default, финализаторов и compiled plan; type-check, architecture и duplicates прошли. Дополнительно проверены однократность исполнения свойства, XML отсутствующего YAML в позиции B и неизменность результата повторного finish. Полная контрольная проверка импорта пока не переключена.
