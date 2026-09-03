@@ -71,6 +71,7 @@ export function convertMetadataCollectionFromYAMLToXML(
   const outputItems = new Map(params.outputs.map(({ key }) => [key, [] as unknown[]]))
   const deferredByOutput = new Map(params.outputs.map(({ key }) => [key, [] as DeferredValuePath[]]))
   const externalWrites: YAMLToXMLExternalWrite[] = []
+  const references = new Map(params.outputs.map((output) => [output.key, createReferenceLookup(output, params.descriptor)]))
 
   entries.forEach(({ yaml, name }, index) => {
     if (params.profile !== undefined) params.profile.nestedItemCount++
@@ -159,10 +160,8 @@ export function convertMetadataCollectionFromYAMLToXML(
       kind: params.descriptor.requiredIdentity,
     })
     const itemOutputs = params.outputs.map((output) => {
-      const referenceXML = findReferenceItem({
+      const referenceXML = references.get(output.key)!({
         context: params.context,
-        output,
-        descriptor: params.descriptor,
         itemRule,
         propertyRule: params.propertyRule,
         yaml: normalizedYAML,
@@ -281,9 +280,10 @@ function completeCollectionEntries(params: {
     shapeNames.length === 0
       ? ruleNames
       : ruleNames.filter((name) => sourceNames.has(name))
+  const completedNameSet = new Set(completedNames)
   const requestedNames = params.descriptor.preserveReferenceItems !== true
     ? completedNames
-    : [...completedNames, ...referenceNames.filter((name) => !completedNames.includes(name))]
+    : [...completedNames, ...referenceNames.filter((name) => !completedNameSet.has(name))]
   if (requestedNames.length === 0) return params.entries
 
   const seenNames = new Set<string>()
@@ -304,8 +304,9 @@ function completeCollectionEntries(params: {
 
   const byName = new Map(params.entries.map((entry) => [entry.name, entry]))
   const result = requestedNames.map((name) => byName.get(name) ?? { name, yaml: {} })
+  const requestedNameSet = new Set(requestedNames)
   for (const entry of params.entries) {
-    if (entry.name === undefined || !requestedNames.includes(entry.name)) result.push(entry)
+    if (entry.name === undefined || !requestedNameSet.has(entry.name)) result.push(entry)
   }
   return result
 }
@@ -314,20 +315,20 @@ function collectReferenceNames(params: {
   descriptor: CollectionDescriptor
   outputs: readonly YAMLToXMLOutputRequest[]
 }): string[] {
-  const result: string[] = []
+  const result = new Set<string>()
   const keyField = params.descriptor.keyField ?? "name"
   const keyRule = params.descriptor.itemRule.properties[keyField]
-  if (keyRule === undefined) return result
+  if (keyRule === undefined) return []
   for (const output of params.outputs) {
     const collection = collectionReferenceValue(output.referenceXML, params.descriptor.xmlElement)
     const items = Array.isArray(collection) ? collection : collection === undefined ? [] : [collection]
     for (const item of items) {
       if (!isRecord(item)) continue
       const name = readXMLProperty(item, keyRule, keyField)
-      if (typeof name === "string" && !result.includes(name)) result.push(name)
+      if (typeof name === "string") result.add(name)
     }
   }
-  return result
+  return [...result]
 }
 
 function collectionEntries(
@@ -374,64 +375,85 @@ function transferCollectionValueTag(parent: object, key: string | number, value:
   return value
 }
 
-function findReferenceItem(params: {
+interface ReferenceLookupParams {
   context: ConfigurationContextWithExportToXML
-  output: YAMLToXMLOutputRequest
-  descriptor: CollectionDescriptor
   itemRule: MetadataItemRule
   propertyRule: PropertyRule | undefined
   yaml: unknown
   name?: string
   index: number
-}): Record<string, unknown> | undefined {
-  const collection = collectionReferenceValue(params.output.referenceXML, params.descriptor.xmlElement)
+}
+
+function createReferenceLookup(output: YAMLToXMLOutputRequest, descriptor: CollectionDescriptor) {
+  const collection = collectionReferenceValue(output.referenceXML, descriptor.xmlElement)
   const rawItems = Array.isArray(collection) ? collection.filter(isRecord) : isRecord(collection) ? [collection] : []
+  const byRule = new Map<MetadataItemRule, ReturnType<typeof prepareReferenceLookup>>()
+  return (params: ReferenceLookupParams): Record<string, unknown> | undefined => {
+    let lookup = byRule.get(params.itemRule)
+    if (lookup === undefined) {
+      lookup = prepareReferenceLookup(rawItems, descriptor, params.itemRule)
+      byRule.set(params.itemRule, lookup)
+    }
+    return lookup(params)
+  }
+}
+
+function prepareReferenceLookup(rawItems: Record<string, unknown>[], descriptor: CollectionDescriptor, itemRule: MetadataItemRule) {
   const items = rawItems.flatMap((item) => {
-    const unwrapped = params.descriptor.unwrapReferenceItem?.({ xml: item, itemRule: params.itemRule })
-    return unwrapped === undefined && params.descriptor.unwrapReferenceItem !== undefined ? [] : [unwrapped ?? item]
+    const unwrapped = descriptor.unwrapReferenceItem?.({ xml: item, itemRule })
+    return unwrapped === undefined && descriptor.unwrapReferenceItem !== undefined ? [] : [unwrapped ?? item]
   })
-  if (params.descriptor.referenceIdentity !== undefined) {
-    const identity = params.descriptor.referenceIdentity.fromYAML({
-      yaml: params.yaml,
-      name: params.name,
-      itemRule: params.itemRule,
-    })
-    if (identity !== undefined) {
-      const matches = items.filter(
-        (item) =>
-          params.descriptor.referenceIdentity!.fromXML({
-            xml: item,
-            itemRule: params.itemRule,
-          }) === identity
-      )
-      return matches.length === 1 ? matches[0] : undefined
+  const properties = new Map<string, Map<unknown, Record<string, unknown>>>()
+  const findProperty = (key: string, value: unknown) => {
+    const rule = itemRule.properties[key]
+    if (rule === undefined || Number.isNaN(value)) return undefined
+    let index = properties.get(key)
+    if (index === undefined) {
+      index = new Map()
+      for (const item of items) {
+        const keyValue = readXMLProperty(item, rule, key)
+        if (!index.has(keyValue)) index.set(keyValue, item)
+      }
+      properties.set(key, index)
     }
+    return index.get(value)
   }
-  const keyField = params.descriptor.keyField
-  if (keyField !== undefined && isRecord(params.yaml)) {
-    const keyRule = params.itemRule.properties[keyField]
-    const yamlKey = keyRule?.yaml
-    const yamlValue = yamlKey === undefined ? undefined : params.yaml[yamlKey]
-    if (keyRule !== undefined) {
-      const found = items.find((item) => readXMLProperty(item, keyRule, keyField) === yamlValue)
-      if (found !== undefined) return found
+  let identities: Map<string, Record<string, unknown> | undefined> | undefined
+  return (params: ReferenceLookupParams): Record<string, unknown> | undefined => {
+    if (descriptor.referenceIdentity !== undefined) {
+      const identity = descriptor.referenceIdentity.fromYAML({ yaml: params.yaml, name: params.name, itemRule })
+      if (identity !== undefined) {
+        if (identities === undefined) {
+          identities = new Map()
+          for (const item of items) {
+            const key = descriptor.referenceIdentity.fromXML({ xml: item, itemRule })
+            if (key !== undefined) identities.set(key, identities.has(key) ? undefined : item)
+          }
+        }
+        return identities.get(identity)
+      }
     }
-  }
-  if (params.name !== undefined) {
-    const nameRule = params.itemRule.properties.name
-    if (nameRule !== undefined) {
+    const keyField = descriptor.keyField
+    if (keyField !== undefined && isRecord(params.yaml)) {
+      const keyRule = itemRule.properties[keyField]
+      const yamlKey = keyRule?.yaml
+      const yamlValue = yamlKey === undefined ? undefined : params.yaml[yamlKey]
+      if (keyRule !== undefined) {
+        const found = findProperty(keyField, yamlValue)
+        if (found !== undefined) return found
+      }
+    }
+    if (params.name !== undefined && itemRule.properties.name !== undefined) {
       const referenceName =
         referenceItemName({
           context: params.context,
           propertyRule: params.propertyRule,
           currentName: params.name,
         }) ?? params.name
-      const found = items.find((item) => readXMLProperty(item, nameRule, "name") === referenceName)
-      if (found !== undefined) return found
-      return undefined
+      return findProperty("name", referenceName)
     }
+    return items[params.index]
   }
-  return items[params.index]
 }
 
 function collectionItemCurrentPath(params: {
