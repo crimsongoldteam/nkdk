@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { join } from "node:path"
 import {
   PlatformFixtureError,
   prepareInfobaseFixture,
@@ -60,9 +61,9 @@ describe("partial sync platform fixture", () => {
       },
     ])
     expect(fixture.writes.map(({ path }) => path)).toEqual([
-      "/Users/nikita/Базы 1С/temp_test/logs/attempt/01-create-and-load-configuration.log",
-      "/Users/nikita/Базы 1С/temp_test/logs/attempt/02-load-extension.log",
-      "/Users/nikita/Базы 1С/temp_test/logs/attempt/03-apply-extension.log",
+      join("/Users/nikita/Базы 1С/temp_test/logs/attempt", "01-create-and-load-configuration.log"),
+      join("/Users/nikita/Базы 1С/temp_test/logs/attempt", "02-load-extension.log"),
+      join("/Users/nikita/Базы 1С/temp_test/logs/attempt", "03-apply-extension.log"),
     ])
     expect(fixture.writes[0]?.content).toContain("stdout: ok")
     expect(fixture.writes[0]?.content).toContain("stderr:")
