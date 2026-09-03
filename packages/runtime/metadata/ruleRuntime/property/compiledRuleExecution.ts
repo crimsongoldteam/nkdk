@@ -35,6 +35,7 @@ export interface CompiledXMLProofConsumer {
 export function createCompiledRuleExecution(params: {
   readonly execution: CompiledPropertyRuleExecution
   readonly prepare: (item: ImportItem) => Omit<YAMLToXMLItemConversionParams, "rule" | "yaml">
+  readonly beforeFinish?: (item: ImportItem & { readonly root: boolean }) => void
   readonly consumer: (item: ImportItem, children: {
     childReceipt(value: unknown): LocalXmlChild | undefined
     scalarReceipt(value: unknown): LocalXmlScalar | undefined
@@ -221,6 +222,7 @@ export function createCompiledRuleExecution(params: {
         finish() {
           if (active.at(-1) !== frame) throw new Error("XML item закрывается вне порядка вложенности")
           try {
+            params.beforeFinish?.({ ...source, root: active.length === 1 })
             for (const property of plan.properties) {
               if (!boundProperties.has(property.propertyKey)) {
                 bind({ propertyKey: property.propertyKey, presentInXML: false })

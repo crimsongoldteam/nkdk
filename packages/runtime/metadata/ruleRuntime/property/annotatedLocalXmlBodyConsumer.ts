@@ -11,6 +11,8 @@ import {
   projectLocalXmlScalarDifference,
 } from "../xmlAnomaly/localPropertyBoundary"
 import { createLocalXmlBodyConsumer } from "./localXmlBodyConsumer"
+import type { CompiledXMLProofConsumer } from "./compiledRuleExecution"
+import type { LocalXmlChild } from "../xmlAnomaly/localProof"
 
 type BodyConsumerParams = Parameters<typeof createLocalXmlBodyConsumer>[0]
 
@@ -94,4 +96,46 @@ export function createAnnotatedLocalXmlBodyConsumer(params: Omit<
       })
     },
   })
+}
+
+/** Один локальный proof для всех XML-выходов item без сборки общего документа. */
+export function createAnnotatedLocalXmlBodyConsumers(params: {
+  readonly sources: readonly {
+    readonly key: string
+    readonly source: BodyConsumerParams["source"]
+    readonly proof: BodyConsumerParams["proof"]
+    readonly itemPreparation?: BodyConsumerParams["itemPreparation"]
+  }[]
+  readonly yaml: Record<string, unknown>
+  readonly annotations: XmlAnomalyAnnotationTable
+  readonly childReceipt: BodyConsumerParams["childReceipt"]
+  readonly scalarReceipt: BodyConsumerParams["scalarReceipt"]
+}): CompiledXMLProofConsumer {
+  const consumers = new Map(params.sources.map((source) => [source.key, createAnnotatedLocalXmlBodyConsumer({
+    ...source,
+    yaml: params.yaml,
+    annotations: params.annotations,
+    childReceipt: params.childReceipt,
+    scalarReceipt: params.scalarReceipt,
+  })] as const))
+  return {
+    bind(binding) {
+      for (const consumer of consumers.values()) consumer.bind?.(binding)
+    },
+    write(event) {
+      const consumer = consumers.get(event.outputKey)
+      if (consumer === undefined) throw new Error(`Не подготовлен локальный XML-выход ${event.outputKey}`)
+      return consumer.write(event)
+    },
+    complete(property) {
+      for (const consumer of consumers.values()) consumer.complete?.(property)
+    },
+    finish(output) {
+      const roots = new Map<string, LocalXmlChild>()
+      for (const consumer of consumers.values()) {
+        for (const [key, receipt] of consumer.finish(output)) roots.set(key, receipt)
+      }
+      return roots
+    },
+  }
 }

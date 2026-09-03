@@ -11,7 +11,7 @@ withConfigurationIndexCollector,
 withConfigurationIndexLogicalAddress
 } from "@nkdk/runtime"
 import { createRuleRegistrySet } from "@nkdk/runtime/rule-kit"
-import { createCompiledRuleExecution, createAnnotatedLocalXmlBodyConsumer, createLocalXmlBodyConsumer, importMetadataItemFromXMLToYAML, importMetadataItemCollectionFromXMLToYAML } from "@nkdk/runtime/rule-kit"
+import { createCompiledRuleExecution, createAnnotatedLocalXmlBodyConsumer, createAnnotatedLocalXmlBodyConsumers, createLocalXmlBodyConsumer, importMetadataItemFromXMLToYAML, importMetadataItemCollectionFromXMLToYAML } from "@nkdk/runtime/rule-kit"
 import { isXmlElementNode } from "@nkdk/runtime"
 import { describe,expect,it,vi } from "vitest"
 import { mockContextFromXML, mockContextToXML } from "../../../tests/mockContext"
@@ -198,6 +198,40 @@ describe("importPropertiesFromXMLToYAML", () => {
       } },
       sources: [{ context, xml: root }], yamlPath: [], rulePath: [], collector: createLocalIndexesCollector(), roundTrip,
     })).toThrow(/отложенн/)
+  })
+
+  it("применяет итоговые семантические аннотации до закрытия корневого proof", () => {
+    const rules = createRuleRegistrySet(metadataRules)
+    const context = mockContextFromXML()
+    const root = parseXmlDocumentWithSaxes("<Root><Value>x</Value></Root>").roots[0]!
+    const annotations = createXmlAnomalyAnnotations()
+    let prepared = 0
+    const roundTrip = createCompiledRuleExecution({
+      execution: rules.execution,
+      prepare: () => ({ context: mockContextToXML(), outputs: [{ key: "owner" }] }),
+      beforeFinish({ yaml, root: isRoot }) {
+        expect(isRoot).toBe(true)
+        expect(yaml).toEqual({ Значение: "x" })
+        annotations.set(yaml, "Значение", { kind: "invalid", occurrence: 1, target: "value" })
+        prepared++
+      },
+      consumer: ({ yaml }) => ({
+        write() {},
+        finish() {
+          expect(annotations.at(yaml, "Значение")).toMatchObject({ kind: "invalid" })
+          return new Map()
+        },
+      }),
+    })
+
+    importPropertiesWithSources({
+      execution: rules.execution, context, annotations, roundTrip,
+      rule: { itemType: "Catalog", properties: {
+        value: { type: "string", xml: "Value", yaml: "Значение" },
+      } },
+      sources: [{ context, xml: root }], yamlPath: [], rulePath: [], collector: createLocalIndexesCollector(),
+    })
+    expect(prepared).toBe(1)
   })
 
   it.each(["identity", "collection-copy", "item-copy", "inline", "inline-collection", "context", "singleton-context"] as const)("импортирует три вложенных item с единственным обратным преобразованием: %s", (normalization) => {
@@ -902,6 +936,43 @@ describe("importPropertiesFromXMLToYAML", () => {
 
     expect(yaml).toEqual({ Тело: "body", Метаданные: "metadata" })
     expect(calls).toEqual(["Body:body", "Metadata:metadata"])
+  })
+
+  it("проверяет два tagged XML-выхода без общего контрольного документа", () => {
+    const rules = createRuleRegistrySet(metadataRules)
+    const context = mockContextFromXML()
+    const body = parseXmlDocumentWithSaxes("<Body><Value>body</Value></Body>").roots[0]!
+    const metadata = parseXmlDocumentWithSaxes("<Metadata><Value>metadata</Value></Metadata>").roots[0]!
+    const annotations = createXmlAnomalyAnnotations()
+    const roundTrip = createCompiledRuleExecution({
+      execution: rules.execution,
+      prepare: () => ({ context: mockContextToXML(), outputs: [
+        { key: "body", tags: ["Body"] },
+        { key: "metadata", tags: ["Metadata"] },
+      ] }),
+      consumer: ({ yaml }, receipts) => createAnnotatedLocalXmlBodyConsumers({
+        sources: [
+          { key: "body", source: body, proof: createLocalXmlProof() },
+          { key: "metadata", source: metadata, proof: createLocalXmlProof() },
+        ],
+        yaml, annotations, ...receipts,
+      }),
+    })
+    const yaml = importPropertiesWithSources({
+      execution: rules.execution, context, annotations, roundTrip,
+      rule: { itemType: "Catalog", properties: {
+        body: { type: "string", xml: "Value", yaml: "Тело", tag: "Body" },
+        metadata: { type: "string", xml: "Value", yaml: "Метаданные", tag: "Metadata" },
+      } },
+      sources: [{ context, xml: body, tags: ["Body"] }, { context, xml: metadata, tags: ["Metadata"] }],
+      yamlPath: [], rulePath: [], collector: createLocalIndexesCollector(),
+    })!
+
+    expect(yaml).toEqual({ Тело: "body", Метаданные: "metadata" })
+    expect(roundTrip.takeResult(yaml).roots).toEqual(new Map([
+      ["body", { type: "element", name: "Body", occurrence: 1, sourceId: body.id }],
+      ["metadata", { type: "element", name: "Metadata", occurrence: 1, sourceId: metadata.id }],
+    ]))
   })
 
   it("не записывает present для свойств из частичных источников", () => {
