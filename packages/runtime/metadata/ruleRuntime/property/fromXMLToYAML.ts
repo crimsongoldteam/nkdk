@@ -37,7 +37,7 @@ import {
 import { getTypeRule } from "./typeRuleRegistry"
 import type { MetadataItemRule, PropertyRule } from "./types"
 import { getXMLImportPlan, visitXMLImportPlan, type XMLImportPlanEntry } from "./xmlImportPlan"
-import { sortYamlRuleProperties } from "./yamlPropertyOrder"
+import { getYamlRulePropertyOrder, orderYamlRuleProperties } from "./yamlPropertyOrder"
 import { enterNestedYamlRule } from "./yamlRuleCursor"
 import type { LocalIndexesCollector } from "../../projectDefinition/localIndexes"
 import type { YamlPath } from "../../diagnostics/types"
@@ -131,11 +131,12 @@ export function importPropertiesFromXMLToYAML(params: {
   const forReference = context.fromXML.forReference
   const importedExternalProperties = new Set<string>()
   const includeAllTags = sources.length === 1 && sources[0]?.tags === undefined
+  const compiledPlan = params.execution?.propertyPlan(rule)
   const sourceStates = sources.map((source) => {
     const planningStartedAt = performance.now()
-    const plan = params.execution === undefined
+    const plan = compiledPlan === undefined
       ? getXMLImportPlan({ rule, tags: source.tags, includeAllTags })
-      : params.execution.propertyPlan(rule).xmlImportView({ tags: source.tags, includeAllTags })
+      : compiledPlan.xmlImportView({ tags: source.tags, includeAllTags })
     addProfileTime(params.profile, "planningMs", planningStartedAt)
     const indexCollection = getConfigurationIndexCollectionContext(source.context)
     const xmlNode = isXmlElementNode(source.xml) ? source.xml : undefined
@@ -962,7 +963,7 @@ export function importPropertiesFromXMLToYAML(params: {
 
   if (result === undefined) return undefined
   normalizeTypeOwnedMetadataTargets({ result, rule })
-  return sortYamlRuleProperties(result)
+  return orderYamlRuleProperties(result, compiledPlan?.yamlOrder ?? getYamlRulePropertyOrder(rule))
 }
 
 function metadataTargetSiblingYamlKeys(rule: MetadataItemRule): ReadonlySet<string> {

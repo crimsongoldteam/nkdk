@@ -23,6 +23,25 @@ const registriesWithImport = (handler: ImportFromXMLFunction) =>
   }))
 
 describe("CompiledPropertyPlan", () => {
+  it("готовит независимый YAML-порядок и переиспользует его между экземплярами", () => {
+    const rule: MetadataItemRule = {
+      itemType: "Owner",
+      properties: {
+        comment: { type: "Sample", yaml: "Комментарий", xml: "Comment" },
+        type: { type: "Sample", yaml: "Тип", xml: "Type" },
+        title: { type: "Sample", yaml: "Заголовок", xml: "Title" },
+        kind: { type: "Sample", yaml: "Вид", xml: "Kind" },
+      },
+    }
+    const execution = createPropertyRuleExecutor(createPropertyRuleRegistrySet(emptyMetadataRules))
+    const first = execution.propertyPlan(rule)
+
+    expect(first.yamlOrder).toEqual(["Заголовок", "Вид", "Тип", "Комментарий"])
+    expect(first.yamlToXMLOrder.map(({ propertyKey }) => propertyKey))
+      .toEqual(["comment", "type", "title", "kind"])
+    expect(execution.propertyPlan(rule).yamlOrder).toBe(first.yamlOrder)
+  })
+
   it.each([
     ["skip", { type: "Sample", yaml: "Значение", xml: "Value" }],
     ["default", { type: "Sample", yaml: "Значение", xml: "Value", defaultValueXML: false }],
@@ -102,6 +121,7 @@ describe("CompiledPropertyPlan", () => {
       "registryRevision",
       "rule",
       "xmlImportView",
+      "yamlOrder",
       "yamlToXMLOrder",
     ].sort())
 

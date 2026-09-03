@@ -9,6 +9,7 @@ import {
   type XMLImportPlanEntry,
 } from "./xmlImportPlan"
 import type { CompiledAtomicConversion } from "./atomicConversion"
+import { compileYamlPropertyOrder } from "./yamlPropertyOrder"
 
 export const compiledPropertyOperationNames = [
   "importFromXML",
@@ -69,6 +70,7 @@ export interface CompiledPropertyPlan {
   readonly properties: readonly CompiledProperty[]
   readonly propertiesByKey: ReadonlyMap<string, CompiledProperty>
   readonly yamlToXMLOrder: readonly CompiledProperty[]
+  readonly yamlOrder: readonly string[]
   xmlImportView(params: {
     readonly tags?: readonly string[]
     readonly includeAllTags: boolean
@@ -109,6 +111,9 @@ export function compilePropertyPlan(params: CompilePropertyPlanParams): Compiled
     properties,
     propertiesByKey,
     yamlToXMLOrder,
+    yamlOrder: compileYamlPropertyOrder(properties.flatMap(property =>
+      property.yamlKey === undefined ? [] : [property.yamlKey],
+    )),
     xmlImportView(viewParams) {
       const key = viewParams.includeAllTags
         ? "*"
