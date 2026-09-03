@@ -56,6 +56,7 @@ import {
   resolveAtomicConversion,
 } from "./atomicConversion"
 import type { CompiledProperty, CompiledPropertyRuleExecution } from "./compiledPropertyPlan"
+import { orderXmlPropertyOutput } from "./xmlPropertyOutputOrder"
 
 export interface ConvertPropertiesFromYAMLToXMLParams extends YAMLToXMLItemConversionParams {
   readonly execution?: CompiledPropertyRuleExecution
@@ -232,6 +233,8 @@ export function createXMLPropertyExecution(
   const namePropertyKey = params.namePropertyKey ?? "name"
 
   const executed = new Set<string>()
+  let executionPosition = 0
+  let requiresOutputOrdering = false
   let completed: YAMLToXMLResult | undefined
   let failure: { readonly error: unknown } | undefined
   const executeProperty = (planned: PlannedXMLProperty): void => {
@@ -885,6 +888,7 @@ export function createXMLPropertyExecution(
     if (completed !== undefined) throw new Error("Экспорт свойств item уже завершён")
     if (executed.has(planned.propertyKey)) return
     executed.add(planned.propertyKey)
+    if (orderedProperties[executionPosition++]?.propertyKey !== planned.propertyKey) requiresOutputOrdering = true
     try {
       executeProperty(planned)
       observer?.complete(planned)
@@ -899,7 +903,10 @@ export function createXMLPropertyExecution(
     if (completed !== undefined) return completed
     try {
     for (const property of orderedProperties) execute(property)
-    for (const output of outputs) applyAutoRequiredXMLParents(output.xml, autoRequiredXMLParentRoots)
+    for (const output of outputs) {
+      if (requiresOutputOrdering) orderXmlPropertyOutput(output.xml, orderedProperties)
+      applyAutoRequiredXMLParents(output.xml, autoRequiredXMLParentRoots)
+    }
     const outputMap = new Map(outputs.map(({ request, xml }) => [request.key, xml]))
     if (yaml !== undefined) {
       const augmenterRegistry = params.execution ?? currentPropertyRuleRegistrySet<{

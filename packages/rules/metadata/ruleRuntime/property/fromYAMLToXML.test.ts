@@ -143,6 +143,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
     proof.finish(root)
     // Наблюдатель не меняет обычный XML-выход; переключение его потребителя — отдельный шаг.
     expect(result.outputs.get("owner")).toEqual({ A: "one", B: "default", C: "three" })
+    expect(Object.keys(result.outputs.get("owner")!)).toEqual(["A", "B", "C"])
   })
 
   it("исполняет свойства по одному, включая отсутствующее YAML, только один раз", () => {
