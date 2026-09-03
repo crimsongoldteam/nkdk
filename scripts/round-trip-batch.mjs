@@ -2,7 +2,7 @@
 import { spawn, spawnSync } from "node:child_process"
 import { appendFileSync, closeSync, copyFileSync, cpSync, existsSync, lstatSync, mkdirSync, mkdtempSync, openSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync, writeSync } from "node:fs"
 import { tmpdir } from "node:os"
-import { dirname, join, posix, relative, resolve } from "node:path"
+import { dirname, join, posix, resolve } from "node:path"
 import { performance } from "node:perf_hooks"
 import { fileURLToPath } from "node:url"
 import { collectRoundTripStatistics, readDiagnostics, XML_STATISTIC_KINDS } from "./round-trip-statistics.mjs"
@@ -16,23 +16,8 @@ function progress(message) {
   writeSync(1, `${message}\n`)
 }
 
-function traversalProgress(root, label) {
-  const started = performance.now()
-  let lastOutput = started
-  let directories = 0
-  progress(label)
-  return {
-    visit(directory) {
-      directories += 1
-      const now = performance.now()
-      if (now - lastOutput < 5000) return
-      progress(`Просмотрено каталогов: ${directories}; текущий: ${relative(root, directory) || "."}; прошло ${formatDuration(now - started)}`)
-      lastOutput = now
-    },
-    finish() {
-      progress(`Обход завершён: каталогов ${directories}; прошло ${formatDuration(performance.now() - started)}`)
-    },
-  }
+function formatMegabytes(bytes) {
+  return bytes === undefined ? undefined : (bytes / 1_000_000).toFixed(2).replace(".", ",")
 }
 
 function formatDuration(milliseconds) {
@@ -80,42 +65,13 @@ function configurations(repo) {
   return paths.sort()
 }
 
-function rejectNestedRepositories(repo, paths, label) {
-  const traversal = traversalProgress(repo, label)
-  const modes = git(repo, "ls-files", "--format=%(objectmode)", "--", ...paths)
-  if (modes.split("\n").includes("160000")) {
-    throw new Error("Подмодули внутри конфигураций не поддерживаются")
-  }
-  // Не следуем по ссылкам/junction и не обходим служебный Git самого репозитория.
-  function visit(directory) {
-    traversal.visit(directory)
-    for (const entry of readdirSync(directory, { withFileTypes: true })) {
-      const path = join(directory, entry.name)
-      if (entry.name.toLowerCase() === ".git") {
-        if (path === join(repo, ".git")) continue
-        throw new Error(`Вложенный Git в репозитории: ${path}`)
-      }
-      if (entry.isSymbolicLink()) throw new Error(`Недопустимая символическая ссылка: ${path}`)
-      if (entry.name === "HEAD" && entry.isFile()) {
-        const bare = spawnSync("git", ["--git-dir", directory, "rev-parse", "--is-bare-repository"], { encoding: "utf8" })
-        if (bare.error) throw bare.error
-        if (bare.status === 0) throw new Error(`Вложенный Git в репозитории: ${directory}`)
-      }
-      if (entry.isDirectory()) visit(path)
-    }
-  }
-  for (const path of paths) visit(join(repo, path))
-  traversal.finish()
-}
-
-function directoryBytes(directory, traversal, excludedDirectory) {
-  traversal?.visit(directory)
+function directoryBytes(directory, excludedDirectory) {
   let bytes = 0
   for (const entry of readdirSync(directory, { withFileTypes: true })) {
     const path = join(directory, entry.name)
     if (entry.isSymbolicLink()) throw new Error(`Недопустимая символическая ссылка: ${path}`)
     if (entry.isDirectory()) {
-      if (entry.name !== excludedDirectory) bytes += directoryBytes(path, traversal, excludedDirectory)
+      if (entry.name !== excludedDirectory) bytes += directoryBytes(path, excludedDirectory)
     }
     else if (entry.isFile()) bytes += lstatSync(path).size
   }
@@ -208,7 +164,7 @@ function saveReport(report) {
     return available.length ? formatDuration(available.reduce((sum, value) => sum + value, 0)) : undefined
   })
   const rows = report.entries.map((entry, index) =>
-    `| ${[entry.path, entry.status, entry.files, entry.commit, entry.bytes, entry.nkdkBytes, ...values[index], ...durationKeys.map((key) => formatDuration(entry[key]))].map(cell).join(" | ")} | [журнал](${report.logDirectory.split("/").at(-1)}/log-${index + 1}.txt) |`)
+    `| ${[entry.path, entry.status, entry.files, formatMegabytes(entry.bytes), formatMegabytes(entry.nkdkBytes), ...values[index], ...durationKeys.map((key) => formatDuration(entry[key]))].map(cell).join(" | ")} | [журнал](${report.logDirectory.split("/").at(-1)}/log-${index + 1}.txt) |`)
   const failures = report.entries.filter((entry) => entry.error || entry.statisticsError || entry.timingError)
     .flatMap((entry) => [
       `### ${cell(entry.path)}`, "",
@@ -219,10 +175,10 @@ function saveReport(report) {
     "# Результаты round-trip XML → YAML → XML", "",
     `Начало (UTC): ${report.startedAt}`, "", `Состояние: ${report.status}`, "",
     `Ветка: ${report.branch}`, "",
-    `| Конфигурация | Результат | Изменённых файлов | Коммит | XML, байт | NKDK, байт | YAML-файлов | ${XML_STATISTIC_KINDS.join(" | ")} | Широкие raw | Импорт | Экспорт | Всего | Журнал |`,
-    `| --- | --- | ---: | --- | ---: | ---: | ${Array(XML_STATISTIC_KINDS.length + 5).fill("---:").join(" | ")} | --- |`,
+    `| Конфигурация | Результат | Изменённых файлов | XML, МБ | NKDK, МБ | YAML-файлов | ${XML_STATISTIC_KINDS.join(" | ")} | Широкие raw | Импорт | Экспорт | Всего | Журнал |`,
+    `| --- | --- | ---: | ---: | ---: | ${Array(XML_STATISTIC_KINDS.length + 5).fill("---:").join(" | ")} | --- |`,
     ...rows,
-    `| ${["Итого", undefined, files, undefined, bytes, nkdkBytes, ...total, ...durations, undefined].map(cell).join(" | ")} |`, "",
+    `| ${["Итого", undefined, files, formatMegabytes(bytes), formatMegabytes(nkdkBytes), ...total, ...durations, undefined].map(cell).join(" | ")} |`, "",
     "## Ошибки", "", ...(failures.length ? failures : ["Ошибок нет.", ""]),
   ].join("\n")
   writeFileSync(join(report.repo, report.file), text)
@@ -313,9 +269,6 @@ async function runConfiguration(repo, entry, run) {
   if (git(repo, "status", "--porcelain", "--untracked-files=normal", "--ignored", "--ignore-submodules=none", "--", entry.path)) {
     throw new Error(`Активный XML-каталог содержит изменения: ${entry.path}`)
   }
-  const sourceTraversal = traversalProgress(repo, `Проверка исходного XML: ${entry.path}`)
-  directoryBytes(component.xmlDir, sourceTraversal) // Отклоняет ссылки до копирования/замены.
-  sourceTraversal.finish()
   const output = openSync(run.log, "w")
   try {
     appendFileSync(output, `[yaml] ${run.yamlDir}\n[xml] ${component.xmlOutputDir}\n[manifest] ${manifest}\n`)
@@ -348,9 +301,6 @@ async function runConfiguration(repo, entry, run) {
   } finally {
     closeSync(output)
   }
-  const outputTraversal = traversalProgress(component.xmlOutputDir, `Проверка экспортированного XML: ${entry.path}`)
-  directoryBytes(component.xmlOutputDir, outputTraversal)
-  outputTraversal.finish()
   const exportedConfiguration = join(component.xmlOutputDir, "Configuration.xml")
   if (!existsSync(exportedConfiguration) || !lstatSync(exportedConfiguration).isFile()) {
     throw new Error("Экспорт не создал Configuration.xml; исходный XML не заменён")
@@ -409,7 +359,6 @@ async function prepareBatch(repo, testMode, timestamp) {
         .slice(0, 3)
       : candidates
     progress(`Выбрано конфигураций: ${entries.length} из ${paths.length}`)
-    rejectNestedRepositories(repo, entries.map((entry) => entry.path), "Проверка безопасности выбранных конфигураций")
     const reportsDir = join(repo, "round-trip-reports")
     if (existsSync(reportsDir)) requireDirectory(reportsDir)
     const file = `round-trip-reports/${timestamp}.md`
@@ -480,7 +429,7 @@ async function runBatch(repoPath, testMode) {
         // После успешного import YAML и его диагностика остаются даже при ошибке sync.
         try {
           const component = runComponent(run)
-          if (existsSync(component.importOutputPath)) entry.nkdkBytes = directoryBytes(run.yamlDir, undefined, ".nkdk")
+          if (existsSync(component.importOutputPath)) entry.nkdkBytes = directoryBytes(run.yamlDir, ".nkdk")
           entry.statistics = await collectRoundTripStatistics(component)
           appendFileSync(run.log, ["", "=== Статистика XML-тегов ===",
             XML_STATISTIC_KINDS.map((kind) => `${kind}=${entry.statistics.tags[kind]}`).join(", "),
@@ -497,7 +446,6 @@ async function runBatch(repoPath, testMode) {
       if (entry.files > 0) {
         progress(`Создание XML-коммита: ${entry.path}; изменённых файлов: ${entry.files}`)
         git(repo, "commit", "--only", "-m", "chore: :wrench: сохранить расхождения round-trip", "-m", entry.path, "--", entry.path)
-        entry.commit = git(repo, "rev-parse", "HEAD")
       }
       if (entry.statisticsError) throw new Error(`Статистика: ${entry.statisticsError}`)
       if (entry.timingError) throw new Error(entry.timingError)
