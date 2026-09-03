@@ -25,6 +25,7 @@ import {
 } from "../xmlAnomaly/attempt"
 import { projectNamedXmlCollectionForImportWithRuntimeKeys } from "../xmlAnomaly/yamlProjection"
 import { markYAMLScalarTag, yamlValueTag } from "../../../yaml/scalarTags"
+import { createDirectImportFactsCollector } from "../property/importYamlTypes"
 
 type MetadataItemCollectionImportOptions = {
   propertyType?: PropertyRuleType
@@ -141,6 +142,8 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
       bufferedCollector === undefined || params.traversal.dependent === undefined
         ? undefined
         : createBufferedDependentCollector(params.traversal.dependent, yamlPath)
+    const bufferedFacts = bufferedCollector === undefined || params.traversal.facts === undefined
+      ? undefined : createDirectImportFactsCollector()
     const itemYamlValue = importMetadataItemFromXMLToYAML({
       context: itemContext,
       rule: itemRule,
@@ -153,6 +156,7 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
           collector: bufferedCollector?.collector ?? params.traversal.collector,
           deferred: bufferedDeferred?.collector ?? params.traversal.deferred,
           dependent: bufferedDependent?.collector ?? params.traversal.dependent,
+          facts: bufferedFacts ?? params.traversal.facts,
         },
         itemRule.itemType
       ),
@@ -190,6 +194,7 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
       bufferedCollector,
       bufferedDeferred,
       bufferedDependent,
+      bufferedFacts,
       xmlNode: itemNode,
     }]
   })
@@ -234,6 +239,12 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
     item.bufferedCollector?.flush(targetYamlPath)
     item.bufferedDeferred?.flush(targetYamlPath)
     item.bufferedDependent?.flush(targetYamlPath, yamlKey)
+    for (const fact of item.bufferedFacts?.finish() ?? []) {
+      params.traversal.facts?.acceptProperty({
+        ...fact,
+        yamlPath: [...targetYamlPath, ...fact.yamlPath.slice(item.sourceYamlPath.length)],
+      })
+    }
   }
   return projected.yaml
 }

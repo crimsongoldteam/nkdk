@@ -25,10 +25,27 @@ export type DirectImportMode = "yaml" | "facts"
 export interface DirectImportFactsSink {
   acceptProperty(fact: {
     readonly itemType: string
+    readonly itemRule?: MetadataItemRule
     readonly propertyKey: string
     readonly yamlPath: YamlPath
+    /** Адрес во время XML-обхода, до именования элементов коллекций. */
+    readonly sourceYamlPath?: YamlPath
     readonly value: unknown
   }): void
+}
+
+export function createDirectImportFactsCollector(): DirectImportFactsSink & {
+  finish(): readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][]
+} {
+  const facts: Parameters<DirectImportFactsSink["acceptProperty"]>[0][] = []
+  const collector = {
+    acceptProperty(fact: Parameters<DirectImportFactsSink["acceptProperty"]>[0]) {
+      facts.push({ ...fact, yamlPath: [...fact.yamlPath], sourceYamlPath: fact.sourceYamlPath ?? [...fact.yamlPath] })
+    },
+    finish: () => facts,
+  }
+  attachXmlImportAttemptAdapter(collector, arrayLengthXmlImportAttemptAdapter([facts]))
+  return collector
 }
 
 export interface DirectImportTraversal<Execution = unknown> {
@@ -72,6 +89,8 @@ export interface DirectImportRoundTripExecution {
 
 export interface PreparedImportDependencies {
   shouldOmit(candidate: ImportedDependentPropertyCandidate, values: Record<string, unknown>): boolean
+  /** Полное решение первого прохода; отсутствующее свойство возвращает value: undefined. */
+  propertyValue?(itemYamlPath: YamlPath, propertyKey: string): { readonly value: unknown }
 }
 
 export interface ImportedDependentPropertyCandidate {

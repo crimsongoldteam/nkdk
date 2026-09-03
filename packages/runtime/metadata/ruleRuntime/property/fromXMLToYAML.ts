@@ -216,6 +216,7 @@ export function importPropertiesFromXMLToYAML(params: {
       collector,
       deferred,
       params.dependent,
+      params.facts,
     ]).begin()
     let discardAttempt = false
     try {
@@ -633,14 +634,15 @@ export function importPropertiesFromXMLToYAML(params: {
           }
 
           const exportStartedAt = performance.now()
+          const siblingValue = (propertyKey: string): unknown => {
+            const prepared = params.dependencies?.propertyValue?.(yamlPath, propertyKey)
+            if (prepared !== undefined) return prepared.value
+            const siblingYaml = rule.properties[propertyKey]?.yaml
+            return siblingYaml === undefined ? undefined : result?.[siblingYaml] ?? retainedSiblingValues.get(siblingYaml)
+          }
           const propertyOwner = metadataTargetOwnerForProperty({
             rule: propertyRule,
-            siblingValue: (propertyKey) => {
-              const siblingYaml = rule.properties[propertyKey]?.yaml
-              return siblingYaml === undefined
-                ? undefined
-                : result?.[siblingYaml] ?? retainedSiblingValues.get(siblingYaml)
-            },
+            siblingValue,
             owner,
           })
           const yamlValueBeforeMetadataTargets = clearedMetadataTarget
@@ -677,6 +679,7 @@ export function importPropertiesFromXMLToYAML(params: {
           const exportedYamlValue = yamlValue
           params.facts?.acceptProperty({
             itemType: rule.itemType,
+            itemRule: rule,
             propertyKey: key,
             yamlPath: propertyYamlPath,
             value: exportedYamlValue,
@@ -730,6 +733,10 @@ export function importPropertiesFromXMLToYAML(params: {
             params.execution,
             compiled,
           )
+          if (exportedValues !== undefined && params.dependencies?.propertyValue !== undefined
+            && propertyRule.yaml !== undefined && isTypeOwnedMetadataTargetUnavailable({ rule: propertyRule, siblingValue })) {
+            delete exportedValues[propertyRule.yaml]
+          }
           const emptyDirectValue = convertedDirectly && (
             exportedYamlValue === undefined || isEmptySemanticContainer(exportedYamlValue)
           )
@@ -981,7 +988,7 @@ export function importPropertiesFromXMLToYAML(params: {
   }
 
   if (result === undefined) return undefined
-  normalizeTypeOwnedMetadataTargets({ result, rule })
+  if (params.dependencies?.propertyValue === undefined) normalizeTypeOwnedMetadataTargets({ result, rule })
   if (roundTrip !== undefined) runRoundTripStep("finish", () => roundTrip.finish())
   return orderYamlRuleProperties(result, compiledPlan?.yamlOrder ?? getYamlRulePropertyOrder(rule))
 }

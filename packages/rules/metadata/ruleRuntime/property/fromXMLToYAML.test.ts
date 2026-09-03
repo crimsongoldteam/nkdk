@@ -28,6 +28,7 @@ import {
 createDirectImportProfile,
 createDeferredValuePathCollector,
 createImportedDependentPropertyCollector,
+createDirectImportFactsCollector,
 } from "./importYamlTypes"
 import { PropertyRuleType } from "./registry"
 import { registerTypeRule } from "./typeRuleRegistry"
@@ -40,8 +41,85 @@ import { MetadataTaskRules } from "../../appliedObjects/metadataTask/rules"
 import { MetadataExternalDataSourceTableRules } from "../../commonObjects/metadataExternalDataSourceTable/rules"
 import { metadataRules } from "../../composition/metadataRules"
 import type { ExportToXMLFunctionNew } from "./fn"
+import type { DirectImportFactsSink } from "./importYamlTypes"
+import { collectImportDependencyFacts, prepareImportDependencies } from "../../importFromXml/preparedDependencies"
+
+function typeOwnedChoiceProperties(type: PropertyRuleType): MetadataItemRule["properties"] {
+  return {
+    type: { type, xml: "Type", yaml: "Тип" },
+    choice: { type: "MetadataItemLink", xml: "ChoiceForm", yaml: "ФормаВыбора", metadataTarget: {
+      kind: "member", owner: "type", typeProperty: "type", memberKinds: ["Form"],
+    } },
+  }
+}
 
 describe("importPropertiesFromXMLToYAML", () => {
+
+  it("сохраняет адрес обхода факта после именования элемента коллекции", () => {
+    const rules = createRuleRegistrySet(metadataRules)
+    const itemRule: MetadataItemRule = { itemType: "Catalog", properties: {
+      name: { type: "string", xml: "Name", yaml: "Имя" },
+      ...typeOwnedChoiceProperties("string"),
+    } }
+    rules.property.registerTypeRule("NamedFactItems" as never, "importFromXMLToYAML", (params) =>
+      importMetadataItemCollectionFromXMLToYAML({ ...params, itemRule, xmlElement: "Item", keyField: "name" }))
+    const rule: MetadataItemRule = { itemType: "Catalog", properties: {
+      items: { type: "NamedFactItems" as never, xml: "Items", yaml: "Элементы" },
+    } }
+    const context = mockContextFromXML()
+    const root = parseXmlDocumentWithSaxes("<Root><Items><Item><Name>Первый</Name><Type>Справочник.Товары</Type></Item></Items></Root>").roots[0]!
+    const facts = createDirectImportFactsCollector()
+    importPropertiesWithSources({
+      execution: rules.execution, context, rule, sources: [{ context, xml: root }], yamlPath: [], rulePath: [],
+      collector: createLocalIndexesCollector(), mode: "facts", facts,
+    })
+    expect(facts.finish().find(({ propertyKey }) => propertyKey === "type")).toMatchObject({
+      yamlPath: ["Элементы", "Первый", "Тип"], sourceYamlPath: ["Элементы", 0, "Тип"],
+    })
+    const dependencies = prepareImportDependencies(collectImportDependencyFacts({
+      rule, owner: { dir: "Справочник", name: "Товары" }, yaml: {}, candidates: [], propertyFacts: facts.finish(),
+    }))
+    expect(dependencies.propertyValue?.(["Элементы", 0], "type")).toEqual({ value: "Справочник.Товары" })
+    expect(dependencies.propertyValue?.(["Элементы", 1], "type")).toEqual({ value: undefined })
+  })
+
+  it.each([
+    { typeFirst: false, multi: false }, { typeFirst: true, multi: false },
+    { typeFirst: false, multi: true }, { typeFirst: true, multi: true },
+  ])("завершает ссылку по готовому типу до ready: typeFirst=$typeFirst multi=$multi", ({ typeFirst, multi }) => {
+    const rules = createRuleRegistrySet(metadataRules)
+    const typeValue = multi ? ["Справочник.Товары", "Справочник.Другие"] : "Справочник.Товары"
+    rules.property.registerTypeRule("ReadyOwnerType" as never, "compileAtomicConversion", () => ({
+      fromXMLToYAML: () => ({ metadataValue: typeValue, representationValue: typeValue }),
+      fromYAMLToXML: ({ value }) => ({ metadataValue: value, representationValue: value }),
+    }))
+    const rule: MetadataItemRule = { itemType: "Catalog", properties: typeOwnedChoiceProperties("ReadyOwnerType" as never) }
+    const typeXML = "<Type>type</Type>"
+    const choiceXML = "<ChoiceForm>Catalog.Товары.Form.Выбор</ChoiceForm>"
+    const root = parseXmlDocumentWithSaxes(`<Root>${typeFirst ? typeXML + choiceXML : choiceXML + typeXML}</Root>`).roots[0]!
+    const context = mockContextFromXML()
+    const propertyFacts: Parameters<DirectImportFactsSink["acceptProperty"]>[0][] = []
+    importPropertiesWithSources({
+      execution: rules.execution, context, rule, sources: [{ context, xml: root }], yamlPath: [], rulePath: [],
+      collector: createLocalIndexesCollector(), mode: "facts", facts: { acceptProperty(fact) { propertyFacts.push(fact) } },
+    })
+    const facts = collectImportDependencyFacts({
+      rule, owner: { dir: "Справочник", name: "Товары" }, yaml: {}, candidates: [], propertyFacts,
+    })
+    expect([...facts.siblingProperties.values()]).toEqual([{ value: typeValue }])
+    const dependencies = prepareImportDependencies(facts)
+    let atFinish: Record<string, unknown> | undefined
+    const yaml = importPropertiesWithSources({
+      execution: rules.execution, context, rule, sources: [{ context, xml: root }], yamlPath: [], rulePath: [],
+      collector: createLocalIndexesCollector(), dependencies,
+      roundTrip: { open({ yaml }) { return {
+        ready({ propertyKey }) { if (propertyKey === "choice") expect(yaml.ФормаВыбора).toBe(multi ? undefined : "Выбор") },
+        finish() { atFinish = { ...yaml } },
+      } } },
+    })
+    expect(yaml).toEqual(multi ? { Тип: typeValue } : { Тип: typeValue, ФормаВыбора: "Выбор" })
+    expect(yaml).toEqual(atFinish)
+  })
 
   it("не закрывает общий frame с отложенным XML-преобразованием", () => {
     const rules = createRuleRegistrySet(metadataRules)
@@ -1214,6 +1292,7 @@ describe("importPropertiesFromXMLToYAML", () => {
     const collector = createLocalIndexesCollector()
     const deferred = createDeferredValuePathCollector()
     const dependent = createImportedDependentPropertyCollector()
+    const facts = createDirectImportFactsCollector()
     const root = parseXmlDocumentWithSaxes(
       "<Root><Broken>broken</Broken><Good>good</Good></Root>",
     ).roots[0]!
@@ -1234,6 +1313,7 @@ describe("importPropertiesFromXMLToYAML", () => {
       collector,
       deferred,
       dependent,
+      facts,
       audit,
     })
 
@@ -1251,6 +1331,7 @@ describe("importPropertiesFromXMLToYAML", () => {
     })
     expect(deferred.finish()).toEqual([])
     expect(dependent.finish()).toEqual([])
+    expect(facts.finish().map(({ propertyKey }) => propertyKey)).toEqual(["good"])
     expect(
       audit.outcomes().find(({ node }) => node.path === "/Root[1]/Good[1]")?.boundaries,
     ).toEqual([

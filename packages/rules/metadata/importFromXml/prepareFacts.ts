@@ -21,7 +21,7 @@ import { resolveClientApplicationFormCollectionItemRule } from "../forms/clientA
 import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
 import type { ClientApplicationFormXML, FormMetadataXML } from "../forms/clientApplicationForm/types"
 import { importMetadataItemFromXMLToYAML } from "../ruleRuntime/metadataItem/fromXMLToYAML"
-import { createImportedDependentPropertyCollector } from "@nkdk/runtime/rule-kit"
+import { createDirectImportFactsCollector, createImportedDependentPropertyCollector } from "@nkdk/runtime/rule-kit"
 import { createLocalIndexesCollector } from "../projectDefinition/localIndexes"
 import type { CompiledMetadataResourceTopology } from "../resourceTopology/core/types"
 import type { MetadataItemOwnerContextEntry } from "../ruleRuntime/appliedObject/metadataItemOwnerContext"
@@ -86,16 +86,8 @@ export async function prepareImportFacts(params: {
     topology: params.topology,
   })
   const rootPropertyValues: Record<string, unknown> = {}
-  const propertyFacts: Parameters<DirectImportFactsSink["acceptProperty"]>[0][] = []
+  const facts = createDirectImportFactsCollector()
   let dependentCandidates: readonly ImportedDependentPropertyCandidate[] = []
-  const facts: DirectImportFactsSink = {
-    acceptProperty(fact) {
-      propertyFacts.push({ ...fact, yamlPath: [...fact.yamlPath] })
-      if (fact.yamlPath.length !== 1 || typeof fact.yamlPath[0] !== "string") return
-      if (!isCompactFactValue(fact.value)) return
-      rootPropertyValues[fact.yamlPath[0]] = fact.value
-    },
-  }
 
   const imported = measureFacts(params.profiler, () => {
     if (rule.itemType === ClientApplicationFormRules.itemType) {
@@ -145,7 +137,13 @@ export async function prepareImportFacts(params: {
     }
   })
 
-  const semanticProjection = projectAcceptedPropertyFacts(imported.localIndexes, propertyFacts)
+  const propertyFacts = facts.finish()
+  for (const fact of propertyFacts) {
+    if (fact.yamlPath.length !== 1 || typeof fact.yamlPath[0] !== "string" || !isCompactFactValue(fact.value)) continue
+    rootPropertyValues[fact.yamlPath[0]] = fact.value
+  }
+  const acceptedFacts = acceptedPropertyFacts(imported.localIndexes, propertyFacts)
+  const semanticProjection = projectPropertyFacts(acceptedFacts)
   const dependentIndex = extractDependentYamlIndexFacts({
     filePath: params.assignment.targetProjectPath,
     rootYaml: semanticProjection,
@@ -167,6 +165,7 @@ export async function prepareImportFacts(params: {
       rule,
       owner: dependentOwner,
       candidates: dependentCandidates,
+      propertyFacts: acceptedFacts,
     }),
     assignment: params.assignment,
     targetProjectPath: params.assignment.targetProjectPath,
@@ -235,16 +234,29 @@ function projectAcceptedPropertyFacts(
   indexes: LocalIndexes,
   propertyFacts: readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][],
 ): Record<string, unknown> {
+  return projectPropertyFacts(acceptedPropertyFacts(indexes, propertyFacts))
+}
+
+function acceptedPropertyFacts(
+  indexes: LocalIndexes,
+  propertyFacts: readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][],
+): Parameters<DirectImportFactsSink["acceptProperty"]>[0][] {
   const latestByKey = new Map<string, Parameters<DirectImportFactsSink["acceptProperty"]>[0]>()
   for (const fact of propertyFacts) latestByKey.set(propertyFactKey(fact.yamlPath, fact.propertyKey), fact)
-  const result: Record<string, unknown> = {}
+  const result: Parameters<DirectImportFactsSink["acceptProperty"]>[0][] = []
   for (const event of indexes.metadata.events) {
     if (event.kind !== "property") continue
     const propertyKey = event.rulePath.at(-1)?.propertyKey
     if (propertyKey === undefined) continue
     const fact = latestByKey.get(propertyFactKey(event.yamlPath, propertyKey))
-    if (fact !== undefined) setValueAtPath(result, event.yamlPath, fact.value)
+    if (fact !== undefined) result.push(fact)
   }
+  return result
+}
+
+function projectPropertyFacts(facts: readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][]): Record<string, unknown> {
+  const result: Record<string, unknown> = {}
+  for (const fact of facts) setValueAtPath(result, fact.yamlPath, fact.value)
   return result
 }
 
