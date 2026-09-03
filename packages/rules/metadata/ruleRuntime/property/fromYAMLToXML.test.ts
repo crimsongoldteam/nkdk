@@ -1,7 +1,7 @@
 import { describe,expect,it,vi } from "vitest"
 
-import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
-import { createConfigurationIndexCollector,createConfigurationIndexExportRuntime,importFromYAML,markYAMLScalarTag,parseMetadataYaml } from "@nkdk/runtime"
+import type { ConfigurationContextWithExportToXML, LocalXmlChild, XmlElementNode } from "@nkdk/runtime"
+import { completeLocalXmlScalarBoundary, createLocalXmlChildOrder, createLocalXmlProof, createXmlAnomalyAnnotations, localXmlShapeFromObject, parseXmlDocumentWithSaxes, createConfigurationIndexCollector,createConfigurationIndexExportRuntime,importFromYAML,markYAMLScalarTag,parseMetadataYaml } from "@nkdk/runtime"
 import { createRuleRegistrySet } from "@nkdk/runtime/rule-kit"
 import { testConfigurationIndexReader } from "../../../tests/configurationIndex"
 import "../../commonObjects/i8nText/fromXML"
@@ -11,7 +11,7 @@ import "../../commonObjects/usePurposes/fromYAML"
 import "../../commonObjects/usePurposes/toXML"
 import { metadataRules } from "../../composition/metadataRules"
 import type { ExportToXMLFunctionNew,ImportFromYAMLFunctionNew } from "./fn"
-import { convertPropertiesFromYAMLToXML, createXMLPropertyExecution } from "./fromYAMLToXML"
+import { convertPropertiesFromYAMLToXML, createXMLPropertyExecution, type XMLPropertyExecutionObserver } from "./fromYAMLToXML"
 import { createYAMLToXMLProfile,type YAMLToXMLNestedRule } from "./fromYAMLToXMLTypes"
 import type { PropertyRuleType } from "./registry"
 import { registerTypeRule } from "./typeRuleRegistry"
@@ -105,6 +105,46 @@ const contextWithXMLDefaultVariant = (
 }
 
 describe("convertPropertiesFromYAMLToXML", () => {
+  it("передаёт выход свойства на локальную проверку сразу, включая лишний default", () => {
+    const execution = createRuleRegistrySet(metadataRules).execution
+    const rule = testRule({
+      a: { type: "string", yaml: "Первое", xml: "A" },
+      b: { type: "string", yaml: "Среднее", xml: "B", defaultValueXML: "default", evaluateWhenYAMLMissing: true },
+      c: { type: "string", yaml: "Последнее", xml: "C" },
+    })
+    const root = parseXmlDocumentWithSaxes("<Root><A>one</A><C>three</C></Root>").roots[0]!
+    const nodes = new Map(root.content.flatMap((node) => node.type === "element" ? [[node.name, node] as const] : []))
+    const yaml: Record<string, unknown> = { Первое: "one", Последнее: "three" }
+    const annotations = createXmlAnomalyAnnotations()
+    const proof = createLocalXmlProof()
+    const childOrder = createLocalXmlChildOrder(execution.propertyPlan(rule).yamlToXMLOrder)
+    const completed: string[] = []
+    const item = createXMLPropertyExecution({
+      execution, rule, context: context(), yaml, outputs: [{ key: "owner" }],
+    }, undefined, {
+      write({ property, path, value, outputKey }) {
+        expect(outputKey).toBe("owner")
+        const receipt = completeLocalXmlScalarBoundary({
+          source: nodes.get(path[0]!), actual: localXmlShapeFromObject(path[0]!, value), proof, annotations,
+          binding: { parent: yaml, key: property.yamlKey!, hasSemanticValue: Object.hasOwn(yaml, property.yamlKey!) },
+        })
+        childOrder.set(property.propertyKey, receipt === undefined ? [] : [receipt])
+      },
+      complete(property) { completed.push(property.propertyKey) },
+    })
+    for (const property of [item.properties[2]!, item.properties[0]!]) {
+      item.execute(property)
+      expect(completed.at(-1)).toBe(property.propertyKey)
+    }
+    const result = item.finish()
+    expect(completed).toEqual(["c", "a", "b"])
+    expect(annotations.at(yaml, "Среднее")).toMatchObject({ kind: "raw", xml: null, hasSemanticValue: false })
+    expect(proof.compare(root, { name: "Root", content: childOrder.finish() })).toEqual([])
+    proof.finish(root)
+    // Наблюдатель не меняет обычный XML-выход; переключение его потребителя — отдельный шаг.
+    expect(result.outputs.get("owner")).toEqual({ A: "one", B: "default", C: "three" })
+  })
+
   it("исполняет свойства по одному, включая отсутствующее YAML, только один раз", () => {
     const execution = createRuleRegistrySet(metadataRules).execution
     const rule = testRule({
@@ -128,6 +168,74 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(profile.propertyCount).toBe(3)
     expect(item.finish()).toBe(result)
     expect(() => item.execute(execution.propertyPlan(rule).yamlToXMLOrder[0]!)).toThrow(/завершён/)
+  })
+
+  it.each(["write", "finish"] as const)("не повторяет экспорт после сбоя локального потребителя: %s", (stage) => {
+    const rule = testRule({
+      a: { type: "string", yaml: "Первое", xml: "A" },
+      b: { type: "string", yaml: "Второе", xml: "B" },
+    })
+    const writes: string[] = []
+    const completed: string[] = []
+    const item = createXMLPropertyExecution({
+      execution: createRuleRegistrySet(metadataRules).execution, rule, context: context(),
+      yaml: { Первое: "one", Второе: "two" }, outputs: [{ key: "owner" }],
+    }, undefined, {
+      write({ property }) { writes.push(property.propertyKey); if (stage === "write") throw new Error("consumer failed") },
+      complete(property) { completed.push(property.propertyKey) },
+      finish() { throw new Error("consumer failed") },
+    })
+    expect(() => stage === "write" ? item.execute(item.properties[0]!) : item.finish()).toThrow(/consumer failed/)
+    expect(() => item.execute(item.properties[0]!)).toThrow(/consumer failed/)
+    expect(() => item.execute(item.properties[1]!)).toThrow(/consumer failed/)
+    expect(() => item.finish()).toThrow(/consumer failed/)
+    expect(writes).toEqual(stage === "write" ? ["a"] : ["a", "b"])
+    expect(completed).toEqual(stage === "write" ? [] : ["a", "b"])
+  })
+
+  it("передаёт вложенные items одному потребителю без повторного преобразования детей", () => {
+    const rules = createRuleRegistrySet(metadataRules)
+    const calls: string[] = []
+    rules.property.registerTypeRule("ProofScalar" as never, "importFromYAML", (({ value }) => {
+      calls.push(`from:${String(value)}`); return value
+    }) as ImportFromYAMLFunctionNew)
+    rules.property.registerTypeRule("ProofScalar" as never, "exportToXML", (({ value }) => {
+      calls.push(`to:${String(value)}`); return value
+    }) as ExportToXMLFunctionNew)
+    rules.property.registerTypeRule("ProofDetails" as never, "yamlToXMLNestedRule", {
+      kind: "item", itemRule: testRule({ value: { type: "ProofScalar" as never, yaml: "Значение", xml: "Value" } }),
+    })
+    rules.property.registerTypeRule("ProofRows" as never, "yamlToXMLNestedRule", {
+      kind: "collection", yamlShape: "array", xmlElement: "Item",
+      itemRule: testRule({ details: { type: "ProofDetails" as never, yaml: "Подробности", xml: "Details" } }),
+    })
+    const source = parseXmlDocumentWithSaxes("<Root><Item><Details><Value>a</Value></Details></Item><Item><Details><Value>b</Value></Details></Item><Item><Details><Value>c</Value></Details></Item></Root>").roots[0]!
+    let valueComparisons = 0
+    const proof = createLocalXmlProof({ onValue: () => valueComparisons++ })
+    const observe = (node: XmlElementNode, done?: (child: LocalXmlChild) => void): XMLPropertyExecutionObserver => {
+      const sourceChildren = node.content.filter((child): child is XmlElementNode => child.type === "element")
+      const children: LocalXmlChild[] = []
+      let nestedIndex = 0
+      return {
+        enterNested() { return observe(sourceChildren[nestedIndex++]!, (child) => children.push(child)) },
+        write({ path, value }) {
+          if (typeof value !== "string") return
+          const child = sourceChildren.find((child) => child.name === path[0])!
+          children.push(proof.check(child, localXmlShapeFromObject(path[0]!, value)))
+        },
+        complete() {},
+        finish() { const receipt = proof.check(node, { name: node.name, content: children }); done?.(receipt) },
+      }
+    }
+    const result = createXMLPropertyExecution({
+      execution: rules.execution, context: context(),
+      rule: testRule({ items: { type: "ProofRows" as never, yaml: "Элементы", xml: "Item" } }),
+      yaml: { Элементы: [{ Подробности: { Значение: "a" } }, { Подробности: { Значение: "b" } }, { Подробности: { Значение: "c" } }] },
+      outputs: [{ key: "owner" }],
+    }, undefined, observe(source)).finish()
+    expect(result.outputs.get("owner")).toEqual({ Item: [{ Details: { Value: "a" } }, { Details: { Value: "b" } }, { Details: { Value: "c" } }] })
+    expect(calls).toEqual(["from:a", "to:a", "from:b", "to:b", "from:c", "to:c"])
+    expect(valueComparisons).toBe(3)
   })
   it("профилирует преобразование по типам PropertyRule", () => {
     const profile = createYAMLToXMLProfile({ propertyTypes: true })

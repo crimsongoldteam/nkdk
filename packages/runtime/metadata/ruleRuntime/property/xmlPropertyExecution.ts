@@ -94,6 +94,7 @@ interface MutableOutput {
   readonly request: YAMLToXMLOutputRequest
   readonly xml: Record<string, unknown>
   readonly deferred: DeferredValuePath[]
+  readonly observer?: XMLPropertyExecutionObserver
 }
 
 interface ReferenceProperty {
@@ -151,11 +152,23 @@ export function createYAMLPropertySource(params: {
 
 export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAMLToXMLParams): YAMLToXMLResult {
   const item = createXMLPropertyExecution(params)
-  for (const property of item.properties) item.execute(property)
   return item.finish()
 }
 
 type PlannedXMLProperty = YAMLToXMLPlannedProperty | CompiledProperty
+
+/** Локальные события общей политики свойства; поздние предметные hooks ещё не выполнены. */
+export interface XMLPropertyExecutionObserver {
+  enterNested?(params: YAMLToXMLItemConversionParams): XMLPropertyExecutionObserver | undefined
+  write(event: {
+    readonly outputKey: string
+    readonly property: PlannedXMLProperty
+    readonly path: readonly string[]
+    readonly value: unknown
+  }): void
+  complete(property: PlannedXMLProperty): void
+  finish?(result: YAMLToXMLResult): void
+}
 
 export interface XMLPropertyExecution {
   readonly properties: readonly PlannedXMLProperty[]
@@ -166,6 +179,7 @@ export interface XMLPropertyExecution {
 export function createXMLPropertyExecution(
   params: ConvertPropertiesFromYAMLToXMLParams,
   propertySource?: YAMLPropertySource,
+  observer?: XMLPropertyExecutionObserver,
 ): XMLPropertyExecution {
   const topLevelStartedAt = params.profile !== undefined && params.rulePath === undefined
     ? performance.now()
@@ -178,10 +192,10 @@ export function createXMLPropertyExecution(
     : params.execution.getTypeRule(type, operation)
   const convertNestedProperties = (
     nestedParams: Omit<ConvertPropertiesFromYAMLToXMLParams, "execution">,
-  ) => convertPropertiesFromYAMLToXML({
+  ) => createXMLPropertyExecution({
     ...nestedParams,
     execution: params.execution,
-  })
+  }, undefined, observer?.enterNested?.(nestedParams)).finish()
   const yaml = asRecord(params.yaml)
   const propertyValues = new Map(params.propertyValues)
   const source = propertySource ?? createYAMLPropertySource({
@@ -191,7 +205,7 @@ export function createXMLPropertyExecution(
     propertyValues,
     context: params.context,
   })
-  const outputs: MutableOutput[] = params.outputs.map((request) => ({ request, xml: {}, deferred: [] }))
+  const outputs: MutableOutput[] = params.outputs.map((request) => ({ request, xml: {}, deferred: [], observer }))
   const autoRequiredXMLParentRoots = new Set<string>()
   const externalWrites = [] as import("./fromYAMLToXMLTypes").YAMLToXMLExternalWrite[]
   const owner = metadataTargetOwnerFromRule({
@@ -219,10 +233,8 @@ export function createXMLPropertyExecution(
 
   const executed = new Set<string>()
   let completed: YAMLToXMLResult | undefined
-  const execute = (planned: PlannedXMLProperty): void => {
-    if (completed !== undefined) throw new Error("Экспорт свойств item уже завершён")
-    if (executed.has(planned.propertyKey)) return
-    executed.add(planned.propertyKey)
+  let failure: { readonly error: unknown } | undefined
+  const executeProperty = (planned: PlannedXMLProperty): void => {
     const propertyKey = planned.propertyKey
     const compiled = "operations" in planned ? planned : undefined
     const sourceHasProperty = source.has(propertyKey)
@@ -868,8 +880,25 @@ export function createXMLPropertyExecution(
     }
   }
 
+  const execute = (planned: PlannedXMLProperty): void => {
+    if (failure !== undefined) throw failure.error
+    if (completed !== undefined) throw new Error("Экспорт свойств item уже завершён")
+    if (executed.has(planned.propertyKey)) return
+    executed.add(planned.propertyKey)
+    try {
+      executeProperty(planned)
+      observer?.complete(planned)
+    } catch (error) {
+      failure = { error }
+      throw error
+    }
+  }
+
   const finish = (): YAMLToXMLResult => {
+    if (failure !== undefined) throw failure.error
     if (completed !== undefined) return completed
+    try {
+    for (const property of orderedProperties) execute(property)
     for (const output of outputs) applyAutoRequiredXMLParents(output.xml, autoRequiredXMLParentRoots)
     const outputMap = new Map(outputs.map(({ request, xml }) => [request.key, xml]))
     if (yaml !== undefined) {
@@ -896,7 +925,12 @@ export function createXMLPropertyExecution(
       deferredByOutput: new Map(outputs.map(({ request, deferred }) => [request.key, deferred])),
       externalWrites,
     }
+    observer?.finish?.(completed)
     return completed
+    } catch (error) {
+      failure = { error }
+      throw error
+    }
   }
   return { properties: orderedProperties, execute, finish }
 }
@@ -1362,10 +1396,10 @@ function writeXMLValue(params: {
     if (rule.xmlParents !== undefined && Object.prototype.hasOwnProperty.call(rule, "defaultValueXMLRaw")) {
       const canonical = rule.xml ?? capitalize(planned.propertyKey)
       const rawPath = isRecord(rule.defaultValueXMLRaw) ? rule.xmlParents : [...rule.xmlParents, canonical]
-      setAtPath(output.xml, rawPath, rule.defaultValueXMLRaw)
+      emitXMLValue(output, planned, rawPath, rule.defaultValueXMLRaw)
     } else if (reference.exists && Object.prototype.hasOwnProperty.call(rule, "defaultValueXMLEmpty")) {
       const canonical = rule.xml ?? capitalize(planned.propertyKey)
-      setAtPath(output.xml, [...(rule.xmlParents ?? []), canonical], {})
+      emitXMLValue(output, planned, [...(rule.xmlParents ?? []), canonical], {})
     }
     return undefined
   }
@@ -1375,8 +1409,13 @@ function writeXMLValue(params: {
   if (usesEmptyReferenceFallback && valueAtPath(output.xml, valuePath) !== undefined) {
     return undefined
   }
-  setAtPath(output.xml, valuePath, value)
+  emitXMLValue(output, planned, valuePath, value)
   return valuePath
+}
+
+function emitXMLValue(output: MutableOutput, property: PlannedXMLProperty, path: readonly string[], value: unknown): void {
+  output.observer?.write({ outputKey: output.request.key, property, path, value })
+  setAtPath(output.xml, path, value)
 }
 
 function isEmptyCollectionOutput(value: unknown, xmlElement: string): boolean {
