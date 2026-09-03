@@ -88,6 +88,7 @@ export function importPropertiesFromXMLToYAML(params: {
   deferred?: DeferredValuePathCollector
   dependent?: ImportedDependentPropertyCollector
   dependencies?: DirectImportTraversal["dependencies"]
+  roundTrip?: DirectImportTraversal["roundTrip"]
   profile?: DirectImportProfile
   propertyXML?: ReadonlyMap<string, unknown>
   propertyXMLNodes?: ReadonlyMap<string, readonly XmlElementNode[]>
@@ -121,6 +122,9 @@ export function importPropertiesFromXMLToYAML(params: {
 
   const retainResult = params.mode !== "facts" || params.produceResult === true
   const result: Record<string, unknown> | undefined = retainResult ? {} : undefined
+  const roundTrip = result === undefined || params.mode === "facts" ? undefined : params.roundTrip?.open({
+    context, rule, yaml: result, sources, itemName, yamlPath, rulePath,
+  })
   const retainedSiblingValues = new Map<string, unknown>()
   const retainedSiblingYamlKeys = metadataTargetSiblingYamlKeys(rule)
   const owner = metadataTargetOwnerFromRule({
@@ -180,7 +184,7 @@ export function importPropertiesFromXMLToYAML(params: {
     xmlNodes?: readonly XmlElementNode[]
     presentInXML: boolean
     ambiguousXMLKey: boolean
-  }): void => {
+  }): boolean => {
     if (params.profile !== undefined) params.profile.propertyCount++
     const {
       sourceState,
@@ -387,6 +391,7 @@ export function importPropertiesFromXMLToYAML(params: {
             deferred,
             dependent: params.dependent,
             dependencies: params.dependencies,
+            roundTrip: params.roundTrip,
             audit: params.audit,
             annotations: params.annotations,
             xmlNodes,
@@ -440,6 +445,7 @@ export function importPropertiesFromXMLToYAML(params: {
                   deferred,
                   dependent: params.dependent,
                   dependencies: params.dependencies,
+                  roundTrip: params.roundTrip,
                   audit: params.audit,
                   annotations: params.annotations,
                   profile: params.profile,
@@ -826,21 +832,24 @@ export function importPropertiesFromXMLToYAML(params: {
         params.audit !== undefined
       ) {
         params.audit.rawCandidate(xmlNode, boundary, cause)
-        return
+        return false
       }
       throw cause
     }
     if (discardAttempt) {
       attempt.rollback()
-      return
+      return false
     }
     attempt.commit()
+    return true
   }
 
   const importMatch = (match: Parameters<typeof importMatchUnprofiled>[0]): void => {
     const frame = beginPropertyTypeProfile(params.profile, match.entry.rule.type)
     try {
-      importMatchUnprofiled(match)
+      if (importMatchUnprofiled(match)) roundTrip?.ready({
+        property: match.entry, node: match.xmlNode, presentInXML: match.presentInXML, xmlPath: match.xmlPath,
+      })
     } finally {
       finishPropertyTypeProfile(params.profile, frame, "XML → YAML")
     }
@@ -972,6 +981,7 @@ export function importPropertiesFromXMLToYAML(params: {
 
   if (result === undefined) return undefined
   normalizeTypeOwnedMetadataTargets({ result, rule })
+  roundTrip?.finish()
   return orderYamlRuleProperties(result, compiledPlan?.yamlOrder ?? getYamlRulePropertyOrder(rule))
 }
 

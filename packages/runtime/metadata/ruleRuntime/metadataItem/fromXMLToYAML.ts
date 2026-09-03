@@ -112,6 +112,7 @@ export function importMetadataItemFromXMLToYAML(params: {
     deferred: params.traversal.deferred,
     dependent: params.traversal.dependent,
     dependencies: params.traversal.dependencies,
+    roundTrip: params.traversal.roundTrip,
     audit: params.traversal.audit,
     annotations: params.traversal.annotations,
     mode: params.traversal.mode,

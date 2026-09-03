@@ -11,7 +11,8 @@ import type {
 import type { MetadataItemRule, PropertyRule } from "./types"
 import type { DeferredValuePath } from "./deferredObjectValues"
 import type { XmlElementNode } from "../../../xml/import/document"
-import type { XmlImportAuditSession } from "../xmlAnomaly/importAudit"
+import type { XmlImportAuditSession, XmlImportAuditedNode } from "../xmlAnomaly/importAudit"
+import type { XMLImportPlanEntry } from "./xmlImportPlan"
 import type { XmlAnomalyAnnotationTable } from "../../../yaml/xmlAnomalyAnnotations"
 import {
   arrayLengthXmlImportAttemptAdapter,
@@ -42,10 +43,32 @@ export interface DirectImportTraversal<Execution = unknown> {
   deferred?: DeferredValuePathCollector
   dependent?: ImportedDependentPropertyCollector
   dependencies?: PreparedImportDependencies
+  roundTrip?: DirectImportRoundTripExecution
   audit?: XmlImportAuditSession
   annotations?: XmlAnomalyAnnotationTable
   xmlNodes?: readonly XmlElementNode[]
   profile?: DirectImportProfile
+}
+
+/** Внутренний порт второго прохода. Первый проход фактов его не открывает. */
+export interface DirectImportRoundTripExecution {
+  open(params: {
+    readonly context: ConfigurationContextFromXML
+    readonly rule: MetadataItemRule
+    readonly yaml: Record<string, unknown>
+    readonly sources: readonly DirectImportXMLSource[]
+    readonly itemName?: string
+    readonly yamlPath: YamlPath
+    readonly rulePath: readonly DeferredRulePathSegment[]
+  }): {
+    ready(params: {
+      readonly property: XMLImportPlanEntry
+      readonly node?: XmlImportAuditedNode
+      readonly presentInXML: boolean
+      readonly xmlPath?: readonly string[]
+    }): void
+    finish(): void
+  }
 }
 
 export interface PreparedImportDependencies {
