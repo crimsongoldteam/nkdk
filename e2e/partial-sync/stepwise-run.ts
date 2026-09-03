@@ -1,8 +1,10 @@
 import { randomUUID } from "node:crypto"
+import { execFile } from "node:child_process"
 import { availableParallelism, freemem } from "node:os"
 import { lstat, rm } from "node:fs/promises"
 import { isAbsolute, join, resolve } from "node:path"
 import { pathToFileURL } from "node:url"
+import { promisify } from "node:util"
 import { prepareOrReuseBaseline, hashFileTree, type BaselineReference } from "./baseline"
 import {
   resolveConcurrency,
@@ -15,7 +17,10 @@ import { createInfobaseArchiveStore } from "./infobase-archive"
 import { partialSyncMatrix } from "./matrix"
 import { openScenarioMcpSession } from "./mcp-session"
 import { writeProjectSettings } from "./project-settings"
-import { createStepwiseReportStore } from "./stepwise-report"
+import {
+  createStepwiseReportStore,
+  type StepwiseRunMetadata,
+} from "./stepwise-report"
 import {
   bindStepwiseCheckpointDependencies,
   runStepwiseScenario,
@@ -41,6 +46,7 @@ export type StepwiseRunOutcome = {
 
 export type StepwiseRunDependencies = {
   resources(): { readonly cpuCount: number; readonly availableMemoryBytes: number }
+  sourceRevision(): Promise<string>
   openWorkspace(root: string): Promise<StepwiseRunWorkspace>
   resetWorkspace(workspace: StepwiseRunWorkspace): Promise<void>
   prepareBaseline(params: {
@@ -52,7 +58,7 @@ export type StepwiseRunDependencies = {
     readonly workspace: StepwiseRunWorkspace
     readonly baseline: BaselineReference
   }): Promise<ScenarioResult>
-  record(reportDir: string, result: ScenarioResult): Promise<void>
+  record(reportDir: string, result: ScenarioResult, metadata: StepwiseRunMetadata): Promise<void>
 }
 
 export function parseStepwiseArgs(argv: readonly string[]): StepwiseArgs {
@@ -121,6 +127,14 @@ export async function runStepwiseCli(
   const baseline = await dependencies.prepareBaseline({ workspace, mode: args.modes[0] })
   const limits = resolveConcurrency(args.concurrency, dependencies.resources())
   const jobs = args.modes.map((mode) => ({ mode }))
+  const metadata: StepwiseRunMetadata = {
+    sourceRevision: await dependencies.sourceRevision(),
+    mcpBuildId: baseline.manifest.nkdkBuildId,
+    platformVersion: baseline.manifest.platformVersion,
+    compatibilityHash: baseline.manifest.compatibilityHash,
+    concurrency: limits,
+    scenarioIds: jobs.map(({ mode }) => `${mode}/existing-partial-sync`),
+  }
   const settled = await runModeJobsWithConcurrency(jobs, limits, ({ mode }) =>
     dependencies.runMode({ mode, workspace, baseline }))
   const scenarios: ScenarioResult[] = []
@@ -130,7 +144,7 @@ export async function runStepwiseCli(
       ? outcome.value
       : infrastructureFailure(args.modes[index], outcome.error)
     scenarios.push(scenario)
-    await dependencies.record(workspace.reportsDir, scenario)
+    await dependencies.record(workspace.reportsDir, scenario, metadata)
   }
   return {
     scenarios,
@@ -169,9 +183,14 @@ function infrastructureFailure(mode: PlatformMode, error: Error): ScenarioResult
 const repositoryRoot = resolve(import.meta.dirname, "../..")
 const fixturesRoot = join(repositoryRoot, "e2e", "fixtures", "xml")
 const extensionName = "Расширение_All"
+const execFileAsync = promisify(execFile)
 
 const nodeDependencies: StepwiseRunDependencies = {
   resources: () => ({ cpuCount: availableParallelism(), availableMemoryBytes: freemem() }),
+  async sourceRevision() {
+    const result = await execFileAsync("git", ["rev-parse", "HEAD"], { cwd: repositoryRoot })
+    return result.stdout.trim()
+  },
   openWorkspace: openStepwiseRunWorkspace,
   async resetWorkspace(workspace) { await rm(workspace.root, { recursive: true, force: true }) },
   async prepareBaseline({ workspace, mode }) {
@@ -225,7 +244,9 @@ const nodeDependencies: StepwiseRunDependencies = {
       await session.close()
     }
   },
-  async record(reportDir, result) { await createStepwiseReportStore(reportDir).record(result) },
+  async record(reportDir, result, metadata) {
+    await createStepwiseReportStore(reportDir, undefined, metadata).record(result)
+  },
 }
 
 async function pathExists(path: string): Promise<boolean> {

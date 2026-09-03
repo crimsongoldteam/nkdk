@@ -1,6 +1,7 @@
 import { expect, it } from "vitest"
 import type { BaselineReference } from "./baseline"
 import type { ScenarioResult } from "./stepwise-scenario"
+import type { StepwiseRunMetadata } from "./stepwise-report"
 import { parseStepwiseArgs, runStepwiseCli, type StepwiseRunDependencies } from "./stepwise-run"
 import type { StepwiseRunWorkspace } from "./stepwise-workspace"
 
@@ -17,6 +18,7 @@ it("соблюдает общий предел и не отменяет парн
   let running = 0
   let maxRunning = 0
   const completed: string[] = []
+  let recordedMetadata: StepwiseRunMetadata | undefined
   const workspace = {
     root: "C:/run",
     baselineDir: "C:/run/baseline",
@@ -26,9 +28,20 @@ it("соблюдает общий предел и не отменяет парн
   } satisfies StepwiseRunWorkspace
   const dependencies: StepwiseRunDependencies = {
     resources: () => ({ cpuCount: 8, availableMemoryBytes: 16_000_000_000 }),
+    async sourceRevision() { return "abc123" },
     async openWorkspace() { return workspace },
     async resetWorkspace() {},
-    async prepareBaseline() { return {} as BaselineReference },
+    async prepareBaseline() {
+      return {
+        archivePath: "C:/run/baseline/current/baseline.dt",
+        projectDir: "C:/run/baseline/current/project",
+        manifest: {
+          version: 1, compatibilityHash: "compatibility", fixtureHashes: { cf: "cf", cfe: "cfe" },
+          platformVersion: "8.3.27.2214", nkdkBuildId: "mcp-build",
+          archiveSha256: "archive", projectSha256: "project",
+        },
+      } satisfies BaselineReference
+    },
     async runMode({ mode }) {
       running += 1
       maxRunning = Math.max(maxRunning, running)
@@ -37,7 +50,7 @@ it("соблюдает общий предел и не отменяет парн
       completed.push(mode)
       return result(mode, mode === "designer-agent" ? "failed" : "succeeded")
     },
-    async record() {},
+    async record(_reportDir, _result, metadata) { recordedMetadata = metadata },
   }
 
   const outcome = await runStepwiseCli([
@@ -47,6 +60,17 @@ it("соблюдает общий предел и не отменяет парн
   expect(maxRunning).toBeLessThanOrEqual(2)
   expect(completed).toEqual(["designer-agent", "standalone-server"])
   expect(outcome.scenarios.map(({ status }) => status)).toEqual(["failed", "succeeded"])
+  expect(recordedMetadata).toMatchObject({
+    sourceRevision: "abc123",
+    mcpBuildId: "mcp-build",
+    platformVersion: "8.3.27.2214",
+    compatibilityHash: "compatibility",
+    concurrency: { total: 2, designerAgent: 2, standaloneServer: 2 },
+    scenarioIds: [
+      "designer-agent/existing-partial-sync",
+      "standalone-server/existing-partial-sync",
+    ],
+  })
 })
 
 function result(mode: ScenarioResult["mode"], status: ScenarioResult["status"]): ScenarioResult {
