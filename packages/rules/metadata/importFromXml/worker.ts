@@ -70,6 +70,7 @@ import {
   type PreparedImportYaml,
 } from "./prepareYaml"
 import { prepareImportFacts, type PreparedImportFacts } from "./prepareFacts"
+import { prepareImportDependencies, type ImportDependencyFacts } from "./preparedDependencies"
 import type {
   ImportAssignment,
   ImportControlCompositionEntry,
@@ -97,15 +98,12 @@ import type { MetadataWorkerOperationRegistry } from "../workerPool/operationReg
 import { prepareYamlFiles } from "../project/prepareYamlFiles"
 import { isRedundantClientApplicationBaseForm } from "../forms/clientApplicationForm/baseFormNecessity"
 import type { ClientApplicationFormYAML } from "../forms/clientApplicationForm/types"
-import { normalizeImportedDependentItems } from "./dependentItems"
 import { collectFormDataPathOccurrencesFromYAML } from "../validation/dataPath/formYamlTraversal"
 import { validatePendingChecks, type ValidationPendingCheck } from "../validation/projectValidationPendingChecks"
 import { finalizeImportedFormDataPathCompatibility } from "../forms/clientApplicationForm/importDataPathCompatibility"
 import { buildProjectStateYamlFileUpdate } from "../project/projectStateYamlUpdate"
 import type { CompiledMetadataResourceTopology } from "../resourceTopology/core/types"
 import { importedClientApplicationForm } from "../forms/clientApplicationForm/formDataPathMetadata"
-import { getProjectReferenceValueContributor } from "../validation/projectReferenceIndexRegistry"
-import { resolveImportedMetadataTargetStatus } from "./metadataTargetLookup"
 import { executeImportControlExport } from "./controlExport"
 import type { XmlAnomalyProofAudit } from "./anomalyProof"
 import type { MetadataXmlPrepareComposition } from "../resourceTopology/adapters/capabilities"
@@ -241,6 +239,10 @@ export function createImportWorkerCommandRunner(): ImportWorkerCommandRunner {
   let controlExportForTests: typeof executeImportControlExport | undefined
   const preparedYaml = new Map<string, DeferredImportYaml>()
   const pendingAssignmentIds = new Set<string>()
+  const dependencyFacts = new Map<string, {
+    readonly properties: ImportDependencyFacts
+    readonly formDataPathIndex: PreparedImportFacts["localIndexes"]["metadata"]["formDataPathIndex"]
+  }>()
   const assignedImports = new Map<string, ImportAssignment>()
   let activeSecondPass: ActiveSecondPass | undefined
   let firstPassAccumulator: FirstPassAccumulator | undefined
@@ -278,6 +280,7 @@ async function runImportWorkerCommand(
     await endSecondPass()
     preparedYaml.clear()
     pendingAssignmentIds.clear()
+    dependencyFacts.clear()
     assignedImports.clear()
     firstPassAccumulator?.fragmentWriter.discard()
     const projectDir = command.projectDir ?? command.outputDir
@@ -442,9 +445,31 @@ async function processSecondPass(
     const inputs = await readImportXmlDocuments({ assignment, profiler, profilePass: "second" })
     pendingAssignmentIds.delete(assignmentId)
     const collector = createConfigurationIndexCollector()
+    const ready = dependencyFacts.get(assignmentId)
+    if (ready === undefined) throw new Error(`Не подготовлены зависимости задания ${assignmentId}`)
+    const importContext = secondPassExportContext({
+      context: state.context,
+      ownerMetadataCache: secondPass.ownerMetadataCache,
+      targetProjectPath: assignment.targetProjectPath,
+      warnings: accumulator.warnings,
+    })
+    if (ready.formDataPathIndex !== undefined) {
+      importContext.importFromYAML = {
+        ...importContext.importFromYAML,
+        formDataPathIndex: ready.formDataPathIndex,
+      }
+    }
     const imported = await prepareImportYamlFromDocuments({
       assignment,
-      context: state.context,
+      context: importContext,
+      dependencies: prepareImportDependencies(ready.properties, {
+        definedTypeLookup: (name) => {
+          const result = secondPass.ownerMetadataCache.get({ kind: "ОпределяемыйТип", name })
+          if (result.status === "ok") return { status: "ok", type: result.owner.facts.type }
+          const reason = result.diagnostics.map(({ message }) => message).join("; ")
+          return { status: "unresolved", reason: reason || `не найден определяемый тип ${name}` }
+        },
+      }),
       collector,
       inputs,
       profiler,
@@ -531,6 +556,7 @@ async function processSecondPass(
   } finally {
     preparedYaml.delete(assignmentId)
     pendingAssignmentIds.delete(assignmentId)
+    dependencyFacts.delete(assignmentId)
   }
 
   profiler.record("Подготовка импорта конфигурации", "Формирование worker списка файлов результата импорта", {
@@ -783,31 +809,6 @@ async function prepareYamlForFinalPass(
     savedBaseForm: preparedBaseFormCandidate,
     currentConfigurationYAML,
   })
-  profiler.measure(
-    "Подготовка импорта конфигурации",
-    "Уточнение отложенных зависимых значений YAML",
-    { items: prepared.dependentDeferred.length },
-    () => normalizeImportedDependentItems({
-      yaml: prepared.yaml,
-      rule: prepared.rule,
-      candidates: prepared.dependentDeferred,
-      owner: prepared.dependentOwner,
-      definedTypeLookup: (name) => {
-        const result = ownerMetadataCache.get({ kind: "ОпределяемыйТип", name })
-        if (result.status === "ok") return { status: "ok", type: result.owner.facts.type }
-        const reason = result.diagnostics.map(({ message }) => message).join("; ")
-        return { status: "unresolved", reason: reason || `не найден определяемый тип ${name}` }
-      },
-      metadataTargetLookup: (canonical) => resolveImportedMetadataTargetStatus({
-        canonical,
-        componentPath: state.componentPath,
-        projectDir: state.projectDir,
-        queryPort: readSession,
-        getContributor: getProjectReferenceValueContributor,
-      }),
-      preserveRawXML: false,
-    })
-  )
   profiler.measure(
     "Подготовка импорта конфигурации",
     "Уточнение импортированного metadata-item",
@@ -1240,7 +1241,7 @@ function secondPassExportContext(params: {
   ownerMetadataCache: OwnerMetadataCache
   targetProjectPath: string
   warnings: ImportDiagnostic[]
-}): ConfigurationContext {
+}): XmlImportConfigurationContext {
   const { projectDir: _projectDir, ...baseExportContext } = params.context.exportToYAML ?? { toTyped: false }
   return {
     ...params.context,
@@ -1366,6 +1367,10 @@ async function processFirstPass(
           provisionalImportFinalContribution(prepared, validationContribution, state),
         )
         pendingAssignmentIds.add(assignment.id)
+        dependencyFacts.set(assignment.id, {
+          properties: prepared.dependencies,
+          formDataPathIndex: prepared.localIndexes.metadata.formDataPathIndex,
+        })
         readyForSecondPass = true
         accumulator.files.push(...assignmentFiles)
       } catch (caught) {
@@ -1972,6 +1977,7 @@ function clearWorkerState(): void {
   secondPassAccumulator?.fragmentWriter.discard()
   secondPassAccumulator = undefined
   pendingAssignmentIds.clear()
+  dependencyFacts.clear()
   preparedYaml.clear()
   assignedImports.clear()
   initializedState = undefined

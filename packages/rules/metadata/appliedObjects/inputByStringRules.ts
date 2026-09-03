@@ -4,6 +4,7 @@ import type {
   MetadataImportedYamlFinalizer,
   MetadataItemRule,
   PropertyRule,
+  DependentImportItemHandler,
 } from "@nkdk/runtime/rule-kit"
 import * as SystemEnumerations from "../systemEnumerations/types"
 import { inputByStringDefaultYAML, effectiveInputByStringLength, orderedEqual } from "../commonObjects/inputByStringFields/defaultValue"
@@ -15,6 +16,23 @@ import { emptyMetadataRules } from "../ruleRuntime/definition/testSupport"
 import { inputByStringObjectRules } from "./inputByStringObjectRules"
 
 type YAMLRoot = Record<string, unknown>
+
+function createInputByStringImportHandler(itemRule: MetadataItemRule): DependentImportItemHandler {
+  const [propertyKey, inputRule] = inputByStringProperty(itemRule)
+  return {
+    propertyKeys: [propertyKey],
+    prepareFacts: ({ item }) => ({
+      item: {},
+      root: Object.fromEntries(inputRule.standardFields.flatMap(({ length }) =>
+        Object.hasOwn(item, length.yaml) ? [[length.yaml, item[length.yaml]]] : [],
+      )),
+    }),
+    shouldRemove: ({ item, rootYaml }) => {
+      const actual = inputRule.yaml === undefined ? undefined : item[inputRule.yaml]
+      return Array.isArray(actual) && orderedEqual(actual, inputByStringDefaultYAML(inputRule, rootYaml))
+    },
+  }
+}
 
 export function createInputByStringFinalizer(itemRule: MetadataItemRule): MetadataImportedYamlFinalizer {
   const [, inputRule] = inputByStringProperty(itemRule)
@@ -52,13 +70,9 @@ export function createAppliedObjectValidator(
 
 export const appliedObjectInputByStringRules = defineMetadataRules({
   ...emptyMetadataRules,
-  operations: inputByStringObjectRules
-    .filter(hasInputByStringProperty)
-    .map((itemRule) => ({
-      kind: "importedYamlFinalizer" as const,
-      itemType: itemRule.itemType,
-      finalizer: createInputByStringFinalizer(itemRule),
-    })),
+  dependentItems: Object.fromEntries(inputByStringObjectRules.filter(hasInputByStringProperty).map((itemRule) => [
+    itemRule.itemType, { imported: createInputByStringImportHandler(itemRule) },
+  ])),
   validation: inputByStringObjectRules
     .filter(hasAppliedObjectValidation)
     .map((itemRule) => ({

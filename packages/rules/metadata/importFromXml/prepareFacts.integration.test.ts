@@ -20,7 +20,8 @@ import { createValidationProjectComponent } from "../validation/projectComponent
 import { extractProjectValidationFileFacts } from "../validation/projectValidationPasses"
 import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import { prepareImportFacts } from "./prepareFacts"
-import { prepareImportYaml } from "./prepareYaml"
+import { prepareImportYaml, prepareImportYamlFromDocuments } from "./prepareYaml"
+import { prepareImportDependencies } from "./preparedDependencies"
 import type { ImportAssignment } from "./types"
 import {
   extractImportValidationContribution,
@@ -171,6 +172,31 @@ describe("prepareImportFacts", () => {
     expect(formDataPathSnapshot(facts.localIndexes.metadata.formDataPathIndex)).toEqual(
       formDataPathSnapshot(legacy.localIndexes.metadata.formDataPathIndex),
     )
+  })
+
+  it.each(["attributes-first", "items-first"])("завершает CurrentData без очереди финализации: %s", async (order) => {
+    const assignment = managedFormAssignment()
+    const attributes = `<Attributes><Attribute name="Строки" id="1"><Type><v8:Type>v8:ValueTable</v8:Type></Type><Columns><Column name="Значение" id="1"><Type><v8:Type>xs:string</v8:Type></Type></Column></Columns></Attribute></Attributes>`
+    const items = `<ChildItems><Table name="Строки" id="1"><DataPath>Строки</DataPath></Table><InputField name="Поле" id="2"><DataPath>Items.Строки.CurrentData.Значение</DataPath></InputField></ChildItems>`
+    const inputs = parseAssignmentInputs(assignment).map((input) => input.input.role !== "body" ? input : {
+      input: input.input,
+      document: parseXmlDocumentWithSaxes(`<Form xmlns:v8="http://v8.1c.ru/8.1/data/core">${order === "attributes-first" ? attributes + items : items + attributes}</Form>`),
+    })
+    const context = mockXmlImportContext()
+    const facts = await prepareImportFacts({ assignment, context, inputs, collector: createConfigurationIndexCollector() })
+    const result = await prepareImportYamlFromDocuments({
+      assignment, inputs, collector: createConfigurationIndexCollector(),
+      dependencies: prepareImportDependencies(facts.dependencies),
+      context: {
+        ...context,
+        importFromYAML: { formDataPathIndex: facts.localIndexes.metadata.formDataPathIndex },
+        exportToYAML: { toTyped: false, ownerMetadataCache: {
+          listRefs: () => [], get: () => ({ status: "not-found", diagnostics: [] }),
+        } },
+      },
+    })
+    expect(JSON.stringify(result.yaml)).toContain("Элементы.Строки.ТекущиеДанные.Значение")
+    expect(result.deferred).toEqual([])
   })
 
   it("не применяет standalone-проверки клиентской формы к MetadataCommonForm", async () => {

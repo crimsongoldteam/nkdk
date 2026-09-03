@@ -259,6 +259,9 @@ export function createPropertyRuleRegistrySet(
         true
       )
     },
+    prepareDependentImportFacts(params) {
+      return dependentItems.get(params.itemType)?.imported?.prepareFacts?.(params)
+    },
     shouldTagImportedDependentProperty(params) {
       return (
         dependentItems.get(params.itemType)?.imported?.shouldTagXML?.(params) ===

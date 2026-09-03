@@ -95,12 +95,20 @@ export type DependentStructuralItemHandler = (
 
 export interface DependentImportItemHandler {
   readonly propertyKeys: readonly string[]
+  /** Только соседние значения, необходимые обработчику; не всё дерево item. */
+  prepareFacts?(params: DependentItemParams): DependentImportFacts
   shouldRemove(params: DependentItemParams & { readonly candidate: DependentImportedPropertyCandidate }): boolean
   shouldTagXML?(params: DependentItemParams & { readonly candidate: DependentImportedPropertyCandidate }): boolean
   shouldDefer?(params: DependentItemParams & { readonly candidate: DependentImportedPropertyCandidate }): boolean
 }
 
+export interface DependentImportFacts {
+  readonly item: Readonly<Record<string, unknown>>
+  readonly root: Readonly<Record<string, unknown>>
+}
+
 export interface DependentItemRegistryLookup {
+  prepareDependentImportFacts(params: DependentItemParams): DependentImportFacts | undefined
   analyzeDependentYamlItem(params: DependentYamlItemParams): DependentYamlItemAnalysis
   collectDependentStructuralItemReferences(params: DependentStructuralItemParams): readonly DependentStructuralItemReference[]
   isDependentImportProperty(itemType: string, propertyKey: string): boolean
@@ -113,6 +121,10 @@ export interface DependentItemRegistryLookup {
   shouldDeferImportedDependentProperty(
     params: DependentItemParams & { readonly candidate: DependentImportedPropertyCandidate },
   ): boolean
+}
+
+export function prepareDependentImportFacts(params: DependentItemParams): DependentImportFacts | undefined {
+  return currentPropertyRuleRegistrySet<DependentItemRegistryLookup>()?.prepareDependentImportFacts(params)
 }
 
 export function analyzeDependentYamlItem(params: DependentYamlItemParams): DependentYamlItemAnalysis {

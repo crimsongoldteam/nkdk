@@ -37,8 +37,10 @@ import { toDataPathPolicyInput } from "../validation/dataPath/policies"
 import type { ValidationPendingCheck } from "../validation/projectValidationPendingChecks"
 import type { PendingMetadataTargetReference } from "../validation/projectReferenceIndex"
 import { extractDependentYamlIndexFacts } from "../validation/yamlFactExtractor"
+import { collectImportDependencyFacts, type ImportDependencyFacts } from "./preparedDependencies"
 
 export interface PreparedImportFacts {
+  readonly dependencies: ImportDependencyFacts
   readonly assignment: ImportAssignment
   readonly targetProjectPath: string
   readonly rule: MetadataItemRule
@@ -160,6 +162,12 @@ export async function prepareImportFacts(params: {
   })
 
   return {
+    dependencies: collectImportDependencyFacts({
+      yaml: semanticProjection,
+      rule,
+      owner: dependentOwner,
+      candidates: dependentCandidates,
+    }),
     assignment: params.assignment,
     targetProjectPath: params.assignment.targetProjectPath,
     rule,

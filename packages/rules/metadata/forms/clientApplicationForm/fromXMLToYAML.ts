@@ -17,6 +17,7 @@ import {
   type DirectImportResult,
   type DirectImportFactsSink,
   type DirectImportMode,
+  type PreparedImportDependencies,
   type DirectImportXMLSource,
   type LocalIndexesCollector,
 } from "@nkdk/runtime/rule-kit"
@@ -29,6 +30,7 @@ import { createFormDataPathIndexFromYAML } from "./formDataPathMetadata"
 import { recordClientApplicationFormNamespaces } from "./namespaces"
 
 export function importClientApplicationFormFromXMLToYAML(params: {
+  dependencies?: PreparedImportDependencies
   context: Parameters<typeof importPropertiesFromXMLToYAML>[0]["context"]
   formName: string
   formXML?: ClientApplicationFormXML
@@ -68,6 +70,7 @@ export function importClientApplicationFormFromXMLToYAML(params: {
     profile: params.profile,
     mode: params.mode,
     facts: params.facts,
+    dependencies: params.dependencies,
     createSources: (context) => createClientApplicationFormImportSources({
       context,
       formXML: params.formXMLNode ?? params.formXML,
@@ -98,6 +101,7 @@ export function importClientApplicationFormFromXMLToYAML(params: {
 }
 
 export function importClientApplicationFormBodyFromXML(params: {
+  dependencies?: PreparedImportDependencies
   context: Parameters<typeof importPropertiesFromXMLToYAML>[0]["context"]
   formName: string
   formXML: ClientApplicationFormXML
@@ -123,6 +127,7 @@ export function importClientApplicationFormBodyFromXML(params: {
 }
 
 function importClientApplicationFormSources(params: {
+  dependencies?: PreparedImportDependencies
   context: Parameters<typeof importPropertiesFromXMLToYAML>[0]["context"]
   formName: string
   rule: MetadataItemRule
@@ -165,6 +170,7 @@ function importClientApplicationFormSources(params: {
       profile: params.profile,
       mode: params.mode,
       facts: params.facts,
+      dependencies: params.dependencies,
     }),
     generatedFiles,
     context,

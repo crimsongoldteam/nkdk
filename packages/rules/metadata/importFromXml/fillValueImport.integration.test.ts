@@ -15,6 +15,7 @@ import { resolveValidationProjectFile } from "../validation/projectFiles"
 import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import { extractValidationYamlFacts } from "../validation/yamlFactExtractor"
 import { prepareImportFacts } from "./prepareFacts"
+import { prepareImportDependencies } from "./preparedDependencies"
 import { prepareImportYaml } from "./prepareYaml"
 import type { ImportAssignment } from "./types"
 
@@ -32,7 +33,7 @@ afterEach(() => {
 describe("fill value XML import", () => {
 
   it.each(["type-before", "fill-before"] as const)(
-    "нормализует значение после полного дерева при порядке %s",
+    "завершает зависимое значение при импорте свойства при порядке %s",
     async (order) => {
       const sourcePath = copiedAttributeFixture({
         name: "СтроковыйРеквизитСИндексом",
@@ -42,10 +43,21 @@ describe("fill value XML import", () => {
         includeDeletionMark: true,
       })
       const collector = createConfigurationIndexCollector()
+      const importAssignment = assignment(sourcePath)
+      const facts = await prepareImportFacts({
+        assignment: importAssignment,
+        context: mockXmlImportContext(),
+        collector: createConfigurationIndexCollector(),
+        inputs: importAssignment.xmlFiles.map((input) => ({
+          input,
+          document: parseXmlDocumentWithSaxes(fs.readFileSync(input.sourcePath, "utf8")),
+        })),
+      })
       const prepared = await prepareImportYaml({
-        assignment: assignment(sourcePath),
+        assignment: importAssignment,
         context: mockXmlImportContext(),
         collector,
+        dependencies: prepareImportDependencies(facts.dependencies),
       })
 
       expect(prepared.yaml).not.toHaveProperty(
@@ -54,6 +66,7 @@ describe("fill value XML import", () => {
       expect(prepared.yaml).not.toHaveProperty(
         "СтандартныеРеквизиты.ПометкаУдаления.ЗначениеЗаполнения",
       )
+      expect(prepared.dependentDeferred).toEqual([])
       expect(collector.fragment("Справочник/СправочникПолный/Свойства.yaml").entities).not.toContainEqual(
         expect.objectContaining({
           logicalAddress: "Справочник.СправочникПолный.Реквизит.СтроковыйРеквизитСИндексом.fillValue",

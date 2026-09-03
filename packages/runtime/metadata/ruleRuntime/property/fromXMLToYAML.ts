@@ -87,6 +87,7 @@ export function importPropertiesFromXMLToYAML(params: {
   collector: LocalIndexesCollector
   deferred?: DeferredValuePathCollector
   dependent?: ImportedDependentPropertyCollector
+  dependencies?: DirectImportTraversal["dependencies"]
   profile?: DirectImportProfile
   propertyXML?: ReadonlyMap<string, unknown>
   propertyXMLNodes?: ReadonlyMap<string, readonly XmlElementNode[]>
@@ -385,6 +386,7 @@ export function importPropertiesFromXMLToYAML(params: {
             collector,
             deferred,
             dependent: params.dependent,
+            dependencies: params.dependencies,
             audit: params.audit,
             annotations: params.annotations,
             xmlNodes,
@@ -437,6 +439,7 @@ export function importPropertiesFromXMLToYAML(params: {
                   collector,
                   deferred,
                   dependent: params.dependent,
+                  dependencies: params.dependencies,
                   audit: params.audit,
                   annotations: params.annotations,
                   profile: params.profile,
@@ -750,7 +753,7 @@ export function importPropertiesFromXMLToYAML(params: {
             else selected.push(boundary)
           }
           if (dependentImportProperty) {
-            params.dependent?.accept({
+            const candidate = {
               itemType: rule.itemType,
               ...(itemName === undefined ? {} : { itemName }),
               itemYamlPath: yamlPath,
@@ -759,7 +762,12 @@ export function importPropertiesFromXMLToYAML(params: {
               ...(propertyLogicalAddress === undefined ? {} : { logicalAddress: propertyLogicalAddress }),
               xmlValue: sourceXMLValue,
               presentInXML,
-            })
+            }
+            if (params.dependencies !== undefined) {
+              if (params.dependencies.shouldOmit(candidate, exportedValues)) return
+            } else {
+              params.dependent?.accept(candidate)
+            }
           }
           const profile = params.profile
           if (profile !== undefined) profile.exportedCount++
@@ -779,6 +787,7 @@ export function importPropertiesFromXMLToYAML(params: {
             ? typeRule(propertyRule.type, "requiresImportedYAMLFinalization")
             : compiled.operations.requiresImportedYAMLFinalization
           if (
+            params.dependencies === undefined &&
             finalize !== undefined &&
             (requiresFinalization === undefined || requiresFinalization({ value: yamlValue }))
           ) {

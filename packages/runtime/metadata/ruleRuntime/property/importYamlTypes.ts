@@ -41,10 +41,15 @@ export interface DirectImportTraversal<Execution = unknown> {
   collector: LocalIndexesCollector
   deferred?: DeferredValuePathCollector
   dependent?: ImportedDependentPropertyCollector
+  dependencies?: PreparedImportDependencies
   audit?: XmlImportAuditSession
   annotations?: XmlAnomalyAnnotationTable
   xmlNodes?: readonly XmlElementNode[]
   profile?: DirectImportProfile
+}
+
+export interface PreparedImportDependencies {
+  shouldOmit(candidate: ImportedDependentPropertyCandidate, values: Record<string, unknown>): boolean
 }
 
 export interface ImportedDependentPropertyCandidate {

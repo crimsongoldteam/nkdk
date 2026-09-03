@@ -25,7 +25,7 @@ import {
 } from "../ruleRuntime/appliedObject/metadataItemOwnerContext"
 import { metadataTargetOwnerFromRule } from "../ruleRuntime/property/metadataTargetString"
 import type { MetadataItemRule, PropertyRule } from "@nkdk/runtime/rule-kit"
-import type { DirectImportProfile, DirectImportResult } from "@nkdk/runtime/rule-kit"
+import type { DirectImportProfile, DirectImportResult, PreparedImportDependencies } from "@nkdk/runtime/rule-kit"
 import type { ImportedDependentPropertyCandidate } from "@nkdk/runtime/rule-kit"
 import {
   createDeferredValuePathCollector,
@@ -120,6 +120,7 @@ export function resetRegisteredImportRuleLookupCountForTests(): void {
 }
 
 export async function prepareImportYaml(params: {
+  dependencies?: PreparedImportDependencies
   assignment: ImportAssignment
   context: XmlImportConfigurationContext
   collector: ConfigurationIndexCollector
@@ -154,6 +155,7 @@ export async function readImportXmlDocuments(params: {
 }
 
 export async function prepareImportYamlFromDocuments(params: {
+  readonly dependencies?: PreparedImportDependencies
   readonly assignment: ImportAssignment
   readonly context: XmlImportConfigurationContext
   readonly collector: ConfigurationIndexCollector
@@ -174,6 +176,7 @@ export async function prepareImportYamlFromDocuments(params: {
 }
 
 function prepareImportYamlFromParsedInputs(params: {
+  readonly dependencies?: PreparedImportDependencies
   readonly assignment: ImportAssignment
   readonly context: XmlImportConfigurationContext
   readonly collector: ConfigurationIndexCollector
@@ -220,6 +223,7 @@ function prepareImportYamlFromParsedInputs(params: {
           },
         }
         const imported = importClientApplicationFormFromXMLToYAML({
+          dependencies: params.dependencies,
           context: formImportContext,
           formName: params.assignment.itemName,
           formXML: bodyXML?.["Form"] as ClientApplicationFormXML | undefined,
@@ -261,6 +265,7 @@ function prepareImportYamlFromParsedInputs(params: {
           collector,
           deferred,
           dependent,
+          dependencies: params.dependencies,
           ...(audit === undefined ? {} : { audit }),
           annotations,
           ...(metadataNode === undefined ? {} : { xmlNodes: [metadataNode] }),
