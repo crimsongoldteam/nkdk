@@ -101,6 +101,18 @@ function importWithAnnotatedLocalXMLBody(params: {
   })!
 }
 
+function importUnknownLocalBody(xml: string) {
+  const rules = createRuleRegistrySet(metadataRules)
+  const rule: MetadataItemRule = { itemType: "Catalog", properties: {
+    known: { type: "string", xml: "Known", yaml: "Известное" },
+  } }
+  const context = mockContextFromXML()
+  const root = parseXmlDocumentWithSaxes(xml).roots[0]!
+  const annotations = createXmlAnomalyAnnotations()
+  const yaml = importWithAnnotatedLocalXMLBody({ execution: rules.execution, context, rule, root, annotations })
+  return { yaml, annotations }
+}
+
 describe("importPropertiesFromXMLToYAML", () => {
 
   it("сохраняет адрес обхода факта после именования элемента коллекции", () => {
@@ -514,20 +526,24 @@ describe("importPropertiesFromXMLToYAML", () => {
   })
 
   it("сохраняет неизвестного непосредственного XML-ребёнка без raw всего тела", () => {
-    const rules = createRuleRegistrySet(metadataRules)
-    const rule: MetadataItemRule = { itemType: "Catalog", properties: {
-      known: { type: "string", xml: "Known", yaml: "Известное" },
-    } }
-    const context = mockContextFromXML()
-    const root = parseXmlDocumentWithSaxes("<Root><Future>y</Future><Known>x</Known></Root>").roots[0]!
-    const annotations = createXmlAnomalyAnnotations()
-    const yaml = importWithAnnotatedLocalXMLBody({ execution: rules.execution, context, rule, root, annotations })
+    const { yaml, annotations } = importUnknownLocalBody("<Root><Future>y</Future><Known>x</Known></Root>")
     expect(yaml).toEqual({ Известное: "x", Future: undefined, "#order": undefined })
     expect(annotations.at(yaml, "Future")).toMatchObject({
       kind: "raw", xml: "y", hasSemanticValue: false,
     })
     expect(annotations.at(yaml, "#order")).toMatchObject({
       kind: "raw", xml: ["Future", "Known"], hasSemanticValue: false,
+    })
+  })
+
+  it("сохраняет неизвестную processing instruction отдельной локальной границей", () => {
+    const { yaml, annotations } = importUnknownLocalBody('<Root><?hint mode="x"?><Known>x</Known></Root>')
+    expect(yaml).toEqual({ Известное: "x", "?hint": undefined, "#order": undefined })
+    expect(annotations.at(yaml, "?hint")).toMatchObject({
+      kind: "raw", xml: { _mode: "x" }, hasSemanticValue: false,
+    })
+    expect(annotations.at(yaml, "#order")).toMatchObject({
+      kind: "raw", xml: ["?hint", "Known"], hasSemanticValue: false,
     })
   })
 

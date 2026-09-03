@@ -180,7 +180,7 @@ export function encodeXmlRawElement(
   return result
 }
 
-function encodeXmlRawProcessingInstruction(
+export function encodeXmlRawProcessingInstruction(
   node: XmlProcessingInstructionNode,
 ): XmlRawValue {
   const result: Record<string, string> = {}

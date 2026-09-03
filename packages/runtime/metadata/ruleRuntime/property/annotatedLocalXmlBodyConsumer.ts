@@ -4,7 +4,7 @@ import {
   projectLocalXmlOrder,
   projectLocalXmlOwnValues,
 } from "../xmlAnomaly/yamlProjection"
-import { encodeXmlRawElement } from "../../../xml/structure/rawCodec"
+import { encodeXmlRawElement, encodeXmlRawProcessingInstruction } from "../../../xml/structure/rawCodec"
 import { annotateXmlRawValue } from "../xmlAnomaly/yamlProjection"
 import {
   projectLocalXmlPropertyDifferences,
@@ -43,18 +43,30 @@ export function createAnnotatedLocalXmlBodyConsumer(params: Omit<
       const children = new Map(source.content.flatMap((node) =>
         node.type === "element" ? [[node.path, node] as const] : [],
       ))
+      const instructions = new Map(source.content.flatMap((node) =>
+        node.type === "processingInstruction" ? [[node.path, node] as const] : [],
+      ))
       const own = differences.filter((difference) => {
         if (difference.kind === "order") return false
         if (difference.ownerPath !== source.path || !difference.path.startsWith(`${source.path}/`)) return true
         const relative = difference.path.slice(source.path.length + 1)
         if (relative.startsWith("@") || relative.startsWith("#text[")) return true
         const child = /^([^/#?]+)\[(\d+)\]$/u.exec(relative)
-        if (difference.kind !== "presence" || child === null) return true
-        const sourceChild = children.get(difference.path)
-        if (sourceChild === undefined) {
-          throw new Error(`Не подготовлена YAML-граница лишнего XML-ребёнка ${difference.path}`)
+        if (difference.kind === "presence" && child !== null) {
+          const sourceChild = children.get(difference.path)
+          if (sourceChild === undefined) {
+            throw new Error(`Не подготовлена YAML-граница лишнего XML-ребёнка ${difference.path}`)
+          }
+          appendRaw(child[1]!, encodeXmlRawElement(sourceChild))
+          return false
         }
-        appendRaw(child[1]!, encodeXmlRawElement(sourceChild))
+        const instruction = /^\?([^/]+)\[(\d+)\]$/u.exec(relative)
+        if (difference.kind !== "presence" || instruction === null) return true
+        const sourceInstruction = instructions.get(difference.path)
+        if (sourceInstruction === undefined) {
+          throw new Error(`Не подготовлена YAML-граница лишней XML-инструкции ${difference.path}`)
+        }
+        appendRaw(`?${instruction[1]!}`, encodeXmlRawProcessingInstruction(sourceInstruction))
         return false
       })
       projectLocalXmlOwnValues({
