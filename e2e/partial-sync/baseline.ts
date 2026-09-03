@@ -209,6 +209,8 @@ export async function removeVolatileProjectState(projectDir: string): Promise<vo
     [".nkdk", "platform-sessions"],
     [".nkdk", "tmp"],
     [".nkdk", "operations"],
+    [".nkdk", "cache"],
+    [".nkdk", "components"],
   ]) {
     await rm(join(projectDir, ...path), { recursive: true, force: true })
   }

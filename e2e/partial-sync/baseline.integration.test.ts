@@ -22,6 +22,10 @@ describe("stepwise baseline", () => {
     expect(baseline.manifest.compatibilityHash).toMatch(/^[a-f0-9]{64}$/u)
     expect(JSON.parse(await readFile(join(fixture.baselineDir, "current", "manifest.json"), "utf8")))
       .toMatchObject({ version: 1, platformVersion: "8.3.27.2214", nkdkBuildId: "build-1" })
+    await expect(readFile(join(baseline.projectDir, ".nkdk", "cache", "project-state.bin")))
+      .rejects.toMatchObject({ code: "ENOENT" })
+    await expect(readFile(join(baseline.projectDir, ".nkdk", "components", "cf", "index.lmdb")))
+      .rejects.toMatchObject({ code: "ENOENT" })
   })
 
   it("переиспользует полностью совместимый эталон", async () => {
@@ -96,6 +100,10 @@ async function createFixture() {
         await mkdir(baseDir, { recursive: true })
         await mkdir(projectDir, { recursive: true })
         await writeFile(join(baseDir, "1Cv8.1CD"), "base")
+        await mkdir(join(projectDir, ".nkdk", "cache"), { recursive: true })
+        await mkdir(join(projectDir, ".nkdk", "components", "cf"), { recursive: true })
+        await writeFile(join(projectDir, ".nkdk", "cache", "project-state.bin"), "cache")
+        await writeFile(join(projectDir, ".nkdk", "components", "cf", "index.lmdb"), "index")
       },
       async writeProjectSettings() { calls.push("write-settings") },
       async openSession() { calls.push("open-mcp"); return session },
