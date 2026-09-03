@@ -7,6 +7,7 @@ export type ArchiveParams = {
   readonly dataDir: string
   readonly archivePath: string
   readonly logPath: string
+  readonly signal?: AbortSignal
 }
 
 export type ArchiveTiming = {
@@ -23,7 +24,7 @@ type ProcessOutcome = {
 
 export type InfobaseArchiveDependencies = {
   findPlatform(): Promise<{ readonly version: string; readonly ibcmdPath?: string } | undefined>
-  runProcess(command: string, args: readonly string[]): Promise<ProcessOutcome>
+  runProcess(command: string, args: readonly string[], signal?: AbortSignal): Promise<ProcessOutcome>
   remove(path: string): Promise<void>
   move(source: string, destination: string): Promise<void>
   fileSize(path: string): Promise<number>
@@ -51,7 +52,7 @@ export function createInfobaseArchiveStore(
         `--database-path=${params.baseDir}`,
         `--data=${params.dataDir}`,
         `--restore=${params.archivePath}`,
-      ])
+      ], params.signal)
       const elapsedMs = dependencies.now() - startedAt
       await dependencies.writeFile(params.logPath, formatLog(outcome))
       if (outcome.exitCode !== 0) {
@@ -75,7 +76,7 @@ export function createInfobaseArchiveStore(
         `--database-path=${params.baseDir}`,
         `--data=${params.dataDir}`,
         temporaryPath,
-      ])
+      ], params.signal)
       const elapsedMs = dependencies.now() - startedAt
       if (outcome.exitCode !== 0) {
         await dependencies.writeFile(params.logPath, formatLog(outcome))
@@ -102,7 +103,7 @@ export function createInfobaseArchiveStore(
         `--data=${params.dataDir}`,
         "--force",
         params.archivePath,
-      ])
+      ], params.signal)
       const elapsedMs = dependencies.now() - startedAt
       await dependencies.writeFile(params.logPath, formatLog(outcome))
       if (outcome.exitCode !== 0) {
@@ -132,11 +133,11 @@ function formatLog(outcome: ProcessOutcome): string {
 
 const nodeDependencies: InfobaseArchiveDependencies = {
   findPlatform,
-  runProcess(command, args) {
+  runProcess(command, args, signal) {
     return new Promise((resolve, reject) => {
       let stdout = ""
       let stderr = ""
-      const child = spawn(command, args, { shell: false, stdio: ["ignore", "pipe", "pipe"] })
+      const child = spawn(command, args, { shell: false, stdio: ["ignore", "pipe", "pipe"], signal })
       child.stdout.setEncoding("utf8")
       child.stderr.setEncoding("utf8")
       child.stdout.on("data", (chunk: string) => { stdout += chunk })

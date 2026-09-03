@@ -39,6 +39,7 @@ export async function publishStepCheckpoint(params: {
   readonly step: ScenarioStep
   readonly stepIndex: number
   readonly steps: readonly ScenarioStep[]
+  readonly signal?: AbortSignal
 }, dependencies: StepCheckpointDependencies): Promise<StepwiseScenarioState> {
   assertNextStep(params)
   const staging = `${params.workspace.checkpointDir}.${dependencies.operationId()}.tmp`
@@ -53,6 +54,7 @@ export async function publishStepCheckpoint(params: {
       dataDir: params.workspace.dataDir,
       archivePath,
       logPath: join(params.workspace.logsDir, `checkpoint-${params.stepIndex}.log`),
+      signal: params.signal,
     })
     await removeVolatileProjectState(params.workspace.projectDir)
     const componentStateDir = join(staging, "components")
@@ -111,6 +113,7 @@ export async function restoreStepCheckpoint(params: {
   readonly state: StepwiseScenarioState
   readonly steps: readonly ScenarioStep[]
   readonly mode: PlatformMode
+  readonly signal?: AbortSignal
 }, dependencies: StepCheckpointDependencies): Promise<void> {
   assertCompatibleState(params)
   const archivePath = params.state.checkpoint === null
@@ -144,6 +147,7 @@ export async function restoreStepCheckpoint(params: {
     dataDir: params.workspace.dataDir,
     archivePath,
     logPath: join(params.workspace.logsDir, "checkpoint-restore.log"),
+    signal: params.signal,
   })
 }
 

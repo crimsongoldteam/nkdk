@@ -28,9 +28,9 @@ it("группирует одинаковые сценарии по режима
   }
   const store = createStepwiseReportStore("C:/run/reports", io, metadata)
   await Promise.all([
-    store.record(result("designer-agent")),
+    store.record(result("designer-agent", 1)),
     store.record(result("standalone-server")),
-    store.record(result("designer-agent")),
+    store.record(result("designer-agent", 2)),
   ])
 
   const report = await store.read()
@@ -49,10 +49,39 @@ it("группирует одинаковые сценарии по режима
   expect(files.get("C:/run/reports/report.md")).toContain("abc123")
 })
 
-function result(mode: ScenarioResult["mode"]): ScenarioResult {
+it("атомарно сохраняет ход активной попытки до её терминального результата", async () => {
+  const files = new Map<string, string>()
+  const io: StepwiseReportIo = {
+    async mkdir() {},
+    async read(path) {
+      const value = files.get(path)
+      if (value === undefined) throw Object.assign(new Error("missing"), { code: "ENOENT" })
+      return value
+    },
+    async write(path, value) { files.set(path, value) },
+    async move(from, to) { files.set(to, files.get(from)!); files.delete(from) },
+  }
+  const store = createStepwiseReportStore("C:/run/reports", io)
+
+  await store.recordEvent({
+    id: "existing-partial-sync", mode: "designer-agent", attempt: 1,
+    kind: "stage-completed", stepKey: "step", stage: "validation", durationMs: 5,
+    attemptLogDir: "C:/run/scenarios/designer-agent/logs/step",
+  })
+
+  const report = await store.read()
+  expect(report.events).toEqual([expect.objectContaining({
+    kind: "stage-completed", stage: "validation", durationMs: 5,
+    attemptLogDir: "scenarios/designer-agent/logs/step",
+  })])
+  expect(files.get("C:/run/reports/report.md")).toContain("validation")
+  expect(files.has("C:/run/reports/report.json.tmp")).toBe(false)
+})
+
+function result(mode: ScenarioResult["mode"], attempt = 1): ScenarioResult {
   return {
     id: "existing-partial-sync", mode, status: "succeeded", completedSteps: 2,
-    totalSteps: 2, durationMs: 10, attempt: 1, steps: [{
+    totalSteps: 2, durationMs: 10, attempt, steps: [{
       stepKey: "step",
       stageTimings: {
         apply: 1, validation: 1, sync: 1, verificationImport: 1,

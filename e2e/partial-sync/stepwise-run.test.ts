@@ -59,6 +59,7 @@ it("соблюдает общий предел и не отменяет парн
       recordedMetadata = metadata
       events.push(`record:${value.mode}`)
     },
+    async recordEvent() {},
   }
 
   const outcome = await runStepwiseCli([
@@ -141,6 +142,7 @@ function runFixture(runMode?: StepwiseRunDependencies["runMode"]) {
       return result(mode, "succeeded")
     }),
     async record(_reportDir, value) { recorded.push(value) },
+    async recordEvent() {},
   }
   return { baselineModes, startedModes, recorded, dependencies }
 }

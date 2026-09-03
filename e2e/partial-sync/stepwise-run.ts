@@ -19,6 +19,7 @@ import { openScenarioMcpSession } from "./mcp-session"
 import { writeProjectSettings } from "./project-settings"
 import {
   createStepwiseReportStore,
+  type StepwiseProgressEvent,
   type StepwiseRunMetadata,
 } from "./stepwise-report"
 import {
@@ -52,14 +53,17 @@ export type StepwiseRunDependencies = {
   prepareBaseline(params: {
     readonly workspace: StepwiseRunWorkspace
     readonly mode: PlatformMode
+    readonly signal: AbortSignal
   }): Promise<BaselineReference>
   runMode(params: {
     readonly mode: PlatformMode
     readonly workspace: StepwiseRunWorkspace
     readonly baseline: BaselineReference
     readonly signal: AbortSignal
+    readonly onEvent: (event: StepwiseProgressEvent) => Promise<void>
   }): Promise<ScenarioResult>
   record(reportDir: string, result: ScenarioResult, metadata: StepwiseRunMetadata): Promise<void>
+  recordEvent(reportDir: string, event: StepwiseProgressEvent, metadata: StepwiseRunMetadata): Promise<void>
 }
 
 export function parseStepwiseArgs(argv: readonly string[]): StepwiseArgs {
@@ -131,7 +135,7 @@ export async function runStepwiseCli(
     workspace = await dependencies.openWorkspace(args.root)
   }
   signal.throwIfAborted()
-  const baseline = await dependencies.prepareBaseline({ workspace, mode: activeModes[0] })
+  const baseline = await dependencies.prepareBaseline({ workspace, mode: activeModes[0], signal })
   signal.throwIfAborted()
   const jobs = activeModes.map((mode) => ({ mode }))
   const metadata: StepwiseRunMetadata = {
@@ -149,10 +153,16 @@ export async function runStepwiseCli(
     reportQueue = operation.catch(() => undefined)
     return operation
   }
+  const recordEvent = (event: StepwiseProgressEvent): Promise<void> => {
+    const operation = reportQueue.then(() =>
+      dependencies.recordEvent(workspace.reportsDir, event, metadata))
+    reportQueue = operation.catch(() => undefined)
+    return operation
+  }
   const settled = await runModeJobsWithConcurrency(jobs, limits, async ({ mode }) => {
     let scenario: ScenarioResult
     try {
-      scenario = await dependencies.runMode({ mode, workspace, baseline, signal })
+      scenario = await dependencies.runMode({ mode, workspace, baseline, signal, onEvent: recordEvent })
     } catch (caught) {
       scenario = terminalInfrastructureResult(
         mode,
@@ -222,7 +232,7 @@ const nodeDependencies: StepwiseRunDependencies = {
   },
   openWorkspace: openStepwiseRunWorkspace,
   async resetWorkspace(workspace) { await rm(workspace.root, { recursive: true, force: true }) },
-  async prepareBaseline({ workspace, mode }) {
+  async prepareBaseline({ workspace, mode, signal }) {
     return prepareOrReuseBaseline({
       baselineDir: workspace.baselineDir,
       cfXmlDir: join(fixturesRoot, "cf"),
@@ -231,9 +241,10 @@ const nodeDependencies: StepwiseRunDependencies = {
       mode,
       nkdkBuildId: await hashFileTree(join(repositoryRoot, "packages", "mcp", "dist")),
       writeProgress(message) { process.stdout.write(`${message}\n`) },
+      signal,
     })
   },
-  async runMode({ mode, workspace: runWorkspace, baseline, signal }) {
+  async runMode({ mode, workspace: runWorkspace, baseline, signal, onEvent }) {
     signal.throwIfAborted()
     const workspace = runWorkspace.scenario(mode)
     const steps = buildStepwisePlan(partialSyncMatrix)
@@ -250,6 +261,10 @@ const nodeDependencies: StepwiseRunDependencies = {
       state = createInitialStepwiseState({ mode, planHash, compatibilityHash: baseline.manifest.compatibilityHash })
     }
     await writeStepwiseState(workspace.statePath, state)
+    const event = (value: Omit<StepwiseProgressEvent, "id" | "mode" | "attempt">) => onEvent({
+      id: "existing-partial-sync", mode, attempt: state.attempt, ...value,
+    })
+    await event({ kind: "started" })
     const session = await openScenarioMcpSession({ attemptLogDir: join(workspace.logsDir, `scenario-${state.attempt}`) })
     const closeOnAbort = () => { void session.close() }
     signal.addEventListener("abort", closeOnAbort, { once: true })
@@ -264,6 +279,7 @@ const nodeDependencies: StepwiseRunDependencies = {
     }
     const executor = createStepwiseSteps({
       workspace, session, mode, baselineProjectDir: baseline.projectDir, extensionName,
+      recordStage: (value) => event({ kind: "stage-completed", ...value }),
     })
     try {
       return await runStepwiseScenario({
@@ -272,6 +288,9 @@ const nodeDependencies: StepwiseRunDependencies = {
         now: Date.now,
         ...bindStepwiseCheckpointDependencies(checkpointDependencies),
         execute: executor.execute,
+        recordCheckpoint: (step, attemptLogDir) => event({
+          kind: "checkpoint-published", stepKey: step.key, attemptLogDir,
+        }),
       }, signal)
     } finally {
       signal.removeEventListener("abort", closeOnAbort)
@@ -280,6 +299,9 @@ const nodeDependencies: StepwiseRunDependencies = {
   },
   async record(reportDir, result, metadata) {
     await createStepwiseReportStore(reportDir, undefined, metadata).record(result)
+  },
+  async recordEvent(reportDir, event, metadata) {
+    await createStepwiseReportStore(reportDir, undefined, metadata).recordEvent(event)
   },
 }
 

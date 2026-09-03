@@ -3,6 +3,19 @@ import { dirname, isAbsolute, relative } from "node:path"
 import type { ResolvedConcurrency } from "./concurrency"
 import type { PlatformMode } from "./concurrency"
 import type { ScenarioResult } from "./stepwise-scenario"
+import type { StepExecutionStage } from "./stepwise-steps"
+
+export type StepwiseProgressEvent = {
+  readonly id: string
+  readonly mode: PlatformMode
+  readonly attempt: number
+  readonly kind: "started" | "stage-completed" | "checkpoint-published" |
+    "succeeded" | "failed" | "interrupted"
+  readonly stepKey?: string
+  readonly stage?: StepExecutionStage
+  readonly durationMs?: number
+  readonly attemptLogDir?: string
+}
 
 export type StepwiseRunMetadata = {
   readonly sourceRevision: string
@@ -29,6 +42,7 @@ export type StepwiseReport = {
       readonly attempts: readonly ScenarioResult[]
     }>
   }>
+  readonly events?: readonly StepwiseProgressEvent[]
 }
 
 export type StepwiseReportIo = {
@@ -50,37 +64,70 @@ export function createStepwiseReportStore(
     jsonPath,
     markdownPath,
     record(result: ScenarioResult): Promise<void> {
-      const operation = queue.then(async () => {
-        await io.mkdir(reportDir)
-        const report = await readReport(jsonPath, io)
+      return enqueue(async (report) => {
         const scenario = report.scenarios[result.id] ?? { modes: {} }
         const mode = scenario.modes[result.mode] ?? { attempts: [] }
         const normalizedResult = normalizeResult(result, dirname(reportDir))
+        const attempts = [...mode.attempts.filter(({ attempt }) => attempt !== result.attempt), normalizedResult]
         const scenarios = {
           ...report.scenarios,
           [result.id]: {
             modes: {
               ...scenario.modes,
-              [result.mode]: { attempts: [...mode.attempts, normalizedResult] },
+              [result.mode]: { attempts },
             },
           },
         }
-        const next: StepwiseReport = {
-          version: 1,
-          ...(metadata === undefined ? (report.run === undefined ? {} : { run: report.run }) : { run: metadata }),
-          scenarios,
-          summary: summarize(scenarios),
+        const terminalEvent: StepwiseProgressEvent = {
+          id: result.id,
+          mode: result.mode,
+          attempt: result.attempt,
+          kind: result.status,
+          durationMs: result.durationMs,
+          ...(result.steps.at(-1)?.stepKey === undefined ? {} : {
+            stepKey: result.steps.at(-1)?.stepKey,
+            attemptLogDir: result.steps.at(-1)?.attemptLogDir,
+          }),
         }
-        await publish(jsonPath, `${JSON.stringify(next, null, 2)}\n`, io)
-        await publish(markdownPath, toMarkdown(next), io)
+        const events = (report.events ?? []).filter((event) =>
+          event.id !== result.id || event.mode !== result.mode || event.attempt !== result.attempt ||
+          !isTerminalEvent(event))
+        return {
+          ...withMetadata(report, metadata), scenarios, summary: summarize(scenarios),
+          events: [...events, normalizeEvent(terminalEvent, dirname(reportDir))],
+        }
       })
-      queue = operation.catch(() => undefined)
-      return operation
+    },
+    recordEvent(event: StepwiseProgressEvent): Promise<void> {
+      return enqueue(async (report) => ({
+        ...withMetadata(report, metadata),
+        events: [...(report.events ?? []), normalizeEvent(event, dirname(reportDir))],
+      }))
     },
     async read(): Promise<StepwiseReport> {
       await queue
       return readReport(jsonPath, io)
     },
+  }
+
+  function enqueue(update: (report: StepwiseReport) => Promise<StepwiseReport>): Promise<void> {
+    const operation = queue.then(async () => {
+        await io.mkdir(reportDir)
+        const report = await readReport(jsonPath, io)
+        const next = await update(report)
+        await publish(jsonPath, `${JSON.stringify(next, null, 2)}\n`, io)
+        await publish(markdownPath, toMarkdown(next), io)
+      })
+    queue = operation.catch(() => undefined)
+    return operation
+  }
+}
+
+function withMetadata(report: StepwiseReport, metadata?: StepwiseRunMetadata): StepwiseReport {
+  return {
+    ...report,
+    version: 1,
+    ...(metadata === undefined ? {} : { run: metadata }),
   }
 }
 
@@ -131,6 +178,13 @@ function toMarkdown(report: StepwiseReport): string {
       }
     }
   }
+  if ((report.events?.length ?? 0) > 0) {
+    lines.push("", "## Ход выполнения", "", "| Сценарий | Режим | Попытка | Событие | Шаг/стадия | Время |", "|---|---|---:|---|---|---:|")
+    for (const event of report.events ?? []) {
+      const subject = [event.stepKey, event.stage].filter((value) => value !== undefined).join(" / ")
+      lines.push(`| ${event.id} | ${event.mode} | ${event.attempt} | ${event.kind} | ${subject} | ${event.durationMs ?? ""} |`)
+    }
+  }
   return `${lines.join("\n")}\n`
 }
 
@@ -142,6 +196,16 @@ function normalizeResult(result: ScenarioResult, runRoot: string): ScenarioResul
       attemptLogDir: normalizePath(step.attemptLogDir, runRoot),
     })),
   }
+}
+
+function normalizeEvent(event: StepwiseProgressEvent, runRoot: string): StepwiseProgressEvent {
+  return event.attemptLogDir === undefined
+    ? event
+    : { ...event, attemptLogDir: normalizePath(event.attemptLogDir, runRoot) }
+}
+
+function isTerminalEvent(event: StepwiseProgressEvent): boolean {
+  return event.kind === "succeeded" || event.kind === "failed" || event.kind === "interrupted"
 }
 
 function normalizePath(path: string, runRoot: string): string {

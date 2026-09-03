@@ -63,9 +63,20 @@ describe("stepwise baseline", () => {
     expect(second.manifest.compatibilityHash).not.toBe(first.manifest.compatibilityHash)
     expect(fixture.calls).toContain("prepare-infobase")
   })
+
+  it("останавливает подготовку эталона сигналом и закрывает активный MCP", async () => {
+    const fixture = await createFixture({ abortOnFirstImport: true })
+
+    await expect(prepareOrReuseBaseline(fixture.params, fixture.dependencies))
+      .rejects.toMatchObject({ name: "AbortError" })
+
+    expect(fixture.calls).toContain("close-mcp")
+    expect(fixture.calls).not.toContain("import-cfe")
+    expect(fixture.calls).not.toContain("dump")
+  })
 })
 
-async function createFixture() {
+async function createFixture(options: { readonly abortOnFirstImport?: boolean } = {}) {
   const root = await mkdtemp(join(tmpdir(), "nkdk-stepwise-baseline-"))
   roots.push(root)
   const baselineDir = join(root, "baseline")
@@ -76,11 +87,13 @@ async function createFixture() {
   await writeFile(join(cfeDir, "fixture.xml"), "cfe")
   const calls: string[] = []
   const progress: string[] = []
+  const controller = new AbortController()
   const session: ScenarioMcpSession = {
     async call<T>(name: string) {
       calls.push(name === "nkdk.import_from_infobase"
         ? calls.includes("import-cf") ? "import-cfe" : "import-cf"
         : "validate")
+      if (options.abortOnFirstImport && calls.at(-1) === "import-cf") controller.abort()
       return { ok: true, failed: [], diagnostics: [], summary: { errors: 0 } } as T
     },
     async close() { calls.push("close-mcp") },
@@ -108,6 +121,7 @@ async function createFixture() {
       mode: "designer-agent" as const,
       nkdkBuildId: "build-1",
       writeProgress(message: string) { progress.push(message) },
+      signal: controller.signal,
     },
     dependencies: {
       async platformVersion() { calls.push("platform-version"); return "8.3.27.2214" },

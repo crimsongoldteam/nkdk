@@ -92,6 +92,21 @@ describe("partial sync platform fixture", () => {
     expect(error).toMatchObject<Partial<PlatformFixtureError>>({ code })
     expect(fixture.launches).toHaveLength(exitCodes.length)
   })
+
+  it("передаёт сигнал отмены каждому процессу ibcmd", async () => {
+    const fixture = createFixture()
+    const controller = new AbortController()
+
+    await prepareInfobaseFixture({
+      baseDir: "/workspace/base", dataDir: "/workspace/data", logsDir: "/workspace/logs",
+      cfXmlDir: "/fixtures/cf", extensionXmlDir: "/fixtures/cfe", extensionName: "Расширение_All",
+      signal: controller.signal,
+    }, fixture.dependencies)
+
+    expect(fixture.signals).toEqual([
+      controller.signal, controller.signal, controller.signal,
+    ])
+  })
 })
 
 function createFixture(options: {
@@ -100,6 +115,7 @@ function createFixture(options: {
 } = {}) {
   const launches: Array<{ command: string; args: readonly string[] }> = []
   const writes: Array<{ path: string; content: string }> = []
+  const signals: Array<AbortSignal | undefined> = []
   const exitCodes = options.exitCodes ?? []
   const defaultInstallation = {
     version: "8.3.27.2214",
@@ -112,10 +128,11 @@ function createFixture(options: {
     async writeFile(path, content) {
       writes.push({ path, content })
     },
-    async runProcess(command, args) {
+    async runProcess(command, args, processOptions) {
       launches.push({ command, args })
+      signals.push(processOptions.signal)
       return { exitCode: exitCodes[launches.length - 1] ?? 0, stdout: "ok", stderr: "" }
     },
   }
-  return { dependencies, launches, writes }
+  return { dependencies, launches, writes, signals }
 }

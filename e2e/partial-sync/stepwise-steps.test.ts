@@ -13,6 +13,10 @@ it("подтверждает каждый шаг повторным импорт
     "import-verification", "validate-verification", "compare-component",
     "close-verification", "sync:unchanged",
   ])
+  expect(fixture.stages).toEqual([
+    "apply", "validation", "sync", "verificationImport",
+    "verificationValidation", "comparison", "unchanged",
+  ])
 })
 
 it("не принимает повторный импорт как новое ожидание", async () => {
@@ -43,6 +47,7 @@ function createFixture(options: {
   readonly failSourceValidation?: boolean
 } = {}) {
   const calls: string[] = []
+  const stages: string[] = []
   const dependencies: StepwiseStepDependencies = {
     operationId: () => "attempt-1",
     now: (() => { let value = 0; return () => ++value })(),
@@ -84,6 +89,8 @@ function createFixture(options: {
       mode: "designer-agent",
       baselineProjectDir: "baseline",
       extensionName: "Расширение_All",
+      async recordStage({ stage }) { stages.push(stage) },
     }, dependencies),
+    stages,
   }
 }

@@ -18,6 +18,7 @@ it("не публикует checkpoint упавшего шага", async () => {
 
   expect(result.status).toBe("failed")
   expect(fixture.published).toEqual(["step-0"])
+  expect(fixture.checkpoints).toEqual(["step-0"])
   expect(result.failure?.category).toBe("platform")
 })
 
@@ -65,6 +66,7 @@ function createFixture(options: {
     }
   const executed: string[] = []
   const published: string[] = []
+  const checkpoints: string[] = []
   const dependencies: StepwiseScenarioDependencies = {
     now: (() => { let value = 0; return () => ++value })(),
     async restore() {},
@@ -93,10 +95,12 @@ function createFixture(options: {
       }
       return state
     },
+    async recordCheckpoint(current) { checkpoints.push(current.key) },
   }
   return {
     executed,
     published,
+    checkpoints,
     dependencies,
     params: {
       id: "existing-partial-sync",

@@ -27,6 +27,7 @@ export type PrepareBaselineParams = {
   readonly mode: PlatformMode
   readonly nkdkBuildId: string
   readonly writeProgress?: (message: string) => void
+  readonly signal?: AbortSignal
 }
 
 export type BaselineManifest = {
@@ -54,6 +55,7 @@ type BuildPaths = {
   readonly cfXmlDir: string
   readonly extensionXmlDir: string
   readonly extensionName: string
+  readonly signal?: AbortSignal
 }
 
 export type BaselineDependencies = {
@@ -69,6 +71,7 @@ export async function prepareOrReuseBaseline(
   params: PrepareBaselineParams,
   dependencies: BaselineDependencies = nodeDependencies,
 ): Promise<BaselineReference> {
+  params.signal?.throwIfAborted()
   const platformVersion = await dependencies.platformVersion()
   const fixtureHashes = {
     cf: await hashFileTree(params.cfXmlDir),
@@ -99,35 +102,45 @@ export async function prepareOrReuseBaseline(
     cfXmlDir: params.cfXmlDir,
     extensionXmlDir: params.extensionXmlDir,
     extensionName: params.extensionName,
+    signal: params.signal,
   }
   const archivePath = join(temporaryDir, "baseline.dt")
   try {
     params.writeProgress?.("Эталон: создание и загрузка базы")
     await dependencies.prepareInfobase(paths)
+    params.signal?.throwIfAborted()
     await dependencies.writeProjectSettings(paths.projectDir, paths.baseDir, params.mode)
     const session = await dependencies.openSession({ attemptLogDir: paths.logsDir })
+    const closeOnAbort = () => { void session.close() }
+    params.signal?.addEventListener("abort", closeOnAbort, { once: true })
     try {
+      params.signal?.throwIfAborted()
       params.writeProgress?.("Эталон: импорт основной конфигурации")
       await expectSuccessfulCall(session, "nkdk.import_from_infobase", {
         projectDir: paths.projectDir, componentPath: "cf", allowWrite: true,
       })
+      params.signal?.throwIfAborted()
       params.writeProgress?.("Эталон: импорт расширения")
       await expectSuccessfulCall(session, "nkdk.import_from_infobase", {
         projectDir: paths.projectDir,
         componentPath: `cfe/${params.extensionName}`,
         allowWrite: true,
       })
+      params.signal?.throwIfAborted()
       params.writeProgress?.("Эталон: валидация проекта")
       await expectSuccessfulCall(session, "nkdk.validate_project", { projectDir: paths.projectDir })
     } finally {
+      params.signal?.removeEventListener("abort", closeOnAbort)
       await session.close()
     }
+    params.signal?.throwIfAborted()
     params.writeProgress?.("Эталон: создание архива базы")
     await dependencies.createArchiveStore(async () => undefined).dump({
       baseDir: paths.baseDir,
       dataDir: paths.dataDir,
       archivePath,
       logPath: join(paths.logsDir, "baseline-dump.log"),
+      signal: params.signal,
     })
     await removeVolatileProjectState(paths.projectDir)
     await rm(paths.baseDir, { recursive: true, force: true })
@@ -296,6 +309,7 @@ const nodeDependencies: BaselineDependencies = {
       cfXmlDir: paths.cfXmlDir,
       extensionXmlDir: paths.extensionXmlDir,
       extensionName: paths.extensionName,
+      signal: paths.signal,
     })
   },
   writeProjectSettings,

@@ -43,6 +43,7 @@ export type StepwiseScenarioDependencies = {
   restore(params: Parameters<typeof restoreStepCheckpoint>[0]): Promise<void>
   execute(step: ScenarioStep, progress: { readonly index: number; readonly total: number }): Promise<StepExecutionResult>
   publish(params: Parameters<typeof publishStepCheckpoint>[0]): Promise<StepwiseScenarioState>
+  recordCheckpoint?(step: ScenarioStep, attemptLogDir: string): Promise<void>
 }
 
 export async function runStepwiseScenario(
@@ -61,13 +62,17 @@ export async function runStepwiseScenario(
       state,
       steps: params.steps,
       mode: params.mode,
+      signal,
     })
     for (let index = state.completedStepIndex + 1; index < params.steps.length; index += 1) {
       signal?.throwIfAborted()
       const step = params.steps[index]
       const result = await dependencies.execute(step, { index: index + 1, total: params.steps.length })
       results.push(result)
-      state = await dependencies.publish({ workspace: params.workspace, state, step, stepIndex: index, steps: params.steps })
+      state = await dependencies.publish({
+        workspace: params.workspace, state, step, stepIndex: index, steps: params.steps, signal,
+      })
+      await dependencies.recordCheckpoint?.(step, result.attemptLogDir)
     }
     return result(params, state, results, "succeeded", dependencies.now() - startedAt)
   } catch (caught) {

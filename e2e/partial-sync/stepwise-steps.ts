@@ -83,6 +83,12 @@ type CreateStepwiseStepsParams = {
   readonly mode: PlatformMode
   readonly baselineProjectDir: string
   readonly extensionName: string
+  readonly recordStage?: (event: {
+    readonly stepKey: string
+    readonly stage: StepExecutionStage
+    readonly durationMs: number
+    readonly attemptLogDir: string
+  }) => Promise<void>
 }
 
 export function createStepwiseSteps(
@@ -100,23 +106,25 @@ export function createStepwiseSteps(
       const timings: Partial<Record<StepExecutionStage, number>> = {}
       let startedAt = dependencies.now()
       let activeStage: StepExecutionStage = "apply"
-      const measure = (stage: StepExecutionStage): void => {
+      const completeStage = async (stage: StepExecutionStage): Promise<void> => {
         const finishedAt = dependencies.now()
-        timings[stage] = finishedAt - startedAt
+        const durationMs = finishedAt - startedAt
+        timings[stage] = durationMs
         startedAt = finishedAt
+        await params.recordStage?.({ stepKey: step.key, stage, durationMs, attemptLogDir })
       }
 
       try {
         await dependencies.applyStep(params.workspace.projectDir, step)
-        measure("apply")
+        await completeStage("apply")
         activeStage = "validation"
         await dependencies.validate(params.session, params.workspace.projectDir, attemptLogDir)
-        measure("validation")
+        await completeStage("validation")
         activeStage = "sync"
         await dependencies.sync(
           params.session, params.workspace.projectDir, step.componentPath, attemptLogDir, "synchronized",
         )
-        measure("sync")
+        await completeStage("sync")
 
         const verificationProjectDir = join(params.workspace.verificationDir, safeKey)
         activeStage = "verificationImport"
@@ -132,18 +140,18 @@ export function createStepwiseSteps(
           await dependencies.importVerification(
             params.session, verificationProjectDir, step.componentPath, attemptLogDir,
           )
-          measure("verificationImport")
+          await completeStage("verificationImport")
           activeStage = "verificationValidation"
           await dependencies.validate(params.session, verificationProjectDir, attemptLogDir)
-          measure("verificationValidation")
+          await completeStage("verificationValidation")
           activeStage = "comparison"
           const equal = await dependencies.compareComponent({
             expectedDir: join(params.workspace.projectDir, step.componentPath),
             actualDir: join(verificationProjectDir, step.componentPath),
             reportDir: join(attemptLogDir, "compare-component"),
           })
-          measure("comparison")
           if (!equal) throw new Error(`Сравнение компонента ${step.componentPath} завершилось с различиями`)
+          await completeStage("comparison")
         } finally {
           await dependencies.closeVerification(params.session, verificationProjectDir, attemptLogDir)
         }
@@ -152,7 +160,7 @@ export function createStepwiseSteps(
         await dependencies.sync(
           params.session, params.workspace.projectDir, step.componentPath, attemptLogDir, "unchanged",
         )
-        measure("unchanged")
+        await completeStage("unchanged")
         return { stepKey: step.key, stageTimings: timings, attemptLogDir }
       } catch (caught) {
         const error = caught instanceof Error ? caught : new Error(String(caught))
