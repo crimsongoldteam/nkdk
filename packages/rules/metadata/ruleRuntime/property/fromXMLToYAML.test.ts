@@ -12,8 +12,8 @@ withConfigurationIndexCollector,
 withConfigurationIndexLogicalAddress
 } from "@nkdk/runtime"
 import { createRuleRegistrySet, createXMLPropertyExecution } from "@nkdk/runtime/rule-kit"
-import { importMetadataItemFromXMLToYAML, importMetadataItemCollectionFromXMLToYAML, type YAMLToXMLResult } from "@nkdk/runtime/rule-kit"
-import { isXmlElementNode, type LocalXmlChild } from "@nkdk/runtime"
+import { createCompiledRuleExecution, importMetadataItemFromXMLToYAML, importMetadataItemCollectionFromXMLToYAML } from "@nkdk/runtime/rule-kit"
+import { isXmlElementNode } from "@nkdk/runtime"
 import { describe,expect,it,vi } from "vitest"
 import { mockContextFromXML, mockContextToXML } from "../../../tests/mockContext"
 import {
@@ -39,8 +39,28 @@ import { MetadataDocumentNumeratorRules } from "../../appliedObjects/metadataDoc
 import { MetadataTaskRules } from "../../appliedObjects/metadataTask/rules"
 import { MetadataExternalDataSourceTableRules } from "../../commonObjects/metadataExternalDataSourceTable/rules"
 import { metadataRules } from "../../composition/metadataRules"
+import type { ExportToXMLFunctionNew } from "./fn"
 
 describe("importPropertiesFromXMLToYAML", () => {
+
+  it("не закрывает общий frame с отложенным XML-преобразованием", () => {
+    const rules = createRuleRegistrySet(metadataRules)
+    rules.property.registerTypeRule("UnfinishedProofValue" as never, "exportToXML", (({ value }) => value) as ExportToXMLFunctionNew)
+    rules.property.registerTypeRule("UnfinishedProofValue" as never, "finalizeExportedXML", ({ value }) => value)
+    const context = mockContextFromXML()
+    const root = parseXmlDocumentWithSaxes("<Root><Value>x</Value></Root>").roots[0]!
+    const roundTrip = createCompiledRuleExecution({
+      execution: rules.execution,
+      prepare: () => ({ context: mockContextToXML(), outputs: [{ key: "owner" }] }),
+      consumer: () => ({ write() {}, finish() { throw new Error("Нельзя выдавать подтверждение незавершённого значения") } }),
+    })
+    expect(() => importPropertiesWithSources({
+      execution: rules.execution, context, rule: { itemType: "Catalog", properties: {
+        value: { type: "UnfinishedProofValue" as never, xml: "Value", yaml: "Значение" },
+      } },
+      sources: [{ context, xml: root }], yamlPath: [], rulePath: [], collector: createLocalIndexesCollector(), roundTrip,
+    })).toThrow(/отложенн/)
+  })
 
   it("импортирует три вложенных item с единственным обратным преобразованием и только компактными вкладами детей", () => {
     const rules = createRuleRegistrySet(metadataRules)
@@ -70,51 +90,33 @@ describe("importPropertiesFromXMLToYAML", () => {
     const context = mockContextFromXML()
     let comparisons = 0
     const proof = createLocalXmlProof({ onValue: () => comparisons++ })
-    const receipts = new WeakMap<object, LocalXmlChild>()
-    const completed = new WeakMap<object, YAMLToXMLResult>()
-    const yaml = importPropertiesWithSources({
-      execution: rules.execution, context, rule, sources: [{ context, xml: root }], yamlPath: [], rulePath: [],
-      collector: createLocalIndexesCollector(),
-      roundTrip: {
-        open({ yaml, rule, sources }) {
+    const roundTrip = createCompiledRuleExecution({
+      execution: rules.execution,
+      prepare: () => ({ context: mockContextToXML(), outputs: [{ key: "owner" }] }),
+      consumer({ rule, sources }, { childReceipt }) {
           const source = sources[0]!.xml
           if (!isXmlElementNode(source)) throw new Error("Нужен адресованный исходный XML")
           const plan = rules.execution.propertyPlan(rule)
           const order = createLocalXmlChildOrder(plan.yamlToXMLOrder)
           const sourceChildren = new Map(source.content.flatMap((child) => child.type === "element" ? [[child.name, child] as const] : []))
-          const item = createXMLPropertyExecution({ execution: rules.execution, context: mockContextToXML(), rule, yaml, outputs: [{ key: "owner" }] }, undefined, {
-            reuseNested({ yaml }) {
-              if (yaml === null || typeof yaml !== "object") throw new Error("Ожидался YAML готового ребёнка")
-              const result = completed.get(yaml)
-              if (result === undefined) throw new Error("Вложенный item должен быть закрыт до свойства родителя")
-              completed.delete(yaml)
-              return result
-            },
+          return {
             write({ property, path, value }) {
-              const receipt = value !== null && typeof value === "object" ? receipts.get(value) : undefined
-              const child = receipt ?? proof.check(sourceChildren.get(path[0]!)!, localXmlShapeFromObject(path[0]!, value, (_name, child) => {
-                const receipt = child !== null && typeof child === "object" ? receipts.get(child) : undefined
+              const child = childReceipt(value) ?? proof.check(sourceChildren.get(path[0]!)!, localXmlShapeFromObject(path[0]!, value, (_name, child) => {
+                const receipt = childReceipt(child)
                 if (receipt === undefined) throw new Error("Ожидался только компактный вклад ребёнка")
                 return receipt
               }))
               order.set(property.propertyKey, [child])
-              return { retainedValue: {} }
             },
-            complete() {},
-            finish(result) {
-              const marker = {}
-              receipts.set(marker, proof.check(source, { name: source.name, content: order.finish() }))
-              const compact = { ...result, outputs: new Map([["owner", marker]]) }
-              completed.set(yaml, compact)
-              return compact
+            finish() {
+              return new Map([["owner", proof.check(source, { name: source.name, content: order.finish() })]])
             },
-          })
-          return {
-            ready({ propertyKey }) { item.execute(plan.propertiesByKey.get(propertyKey)!) },
-            finish() { item.finish() },
           }
-        },
       },
+    })
+    const yaml = importPropertiesWithSources({
+      execution: rules.execution, context, rule, sources: [{ context, xml: root }], yamlPath: [], rulePath: [],
+      collector: createLocalIndexesCollector(), roundTrip,
     })
     expect(yaml).toEqual({ Элементы: [
       { Подробности: { Значение: "a" } },
@@ -123,6 +125,9 @@ describe("importPropertiesFromXMLToYAML", () => {
     ] })
     expect(calls).toEqual(["import:a", "export:a", "import:b", "export:b", "import:c", "export:c"])
     expect(comparisons).toBe(3)
+    if (yaml === undefined) throw new Error("Ожидался YAML")
+    expect(roundTrip.takeResult(yaml).roots.get("owner")).toEqual({ type: "element", name: "Root", occurrence: 1, sourceId: root.id })
+    expect(() => roundTrip.takeResult(yaml)).toThrow(/закрыт|получен/)
   })
 
   it.each(["facts", "yaml"] as const)("отделяет локальную проверку от первого прохода и raw-fallback: %s", (mode) => {
