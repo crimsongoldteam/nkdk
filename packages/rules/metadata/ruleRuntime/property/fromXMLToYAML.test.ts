@@ -142,7 +142,7 @@ describe("importPropertiesFromXMLToYAML", () => {
     })).toThrow(/отложенн/)
   })
 
-  it.each(["identity", "collection-copy", "item-copy"] as const)("импортирует три вложенных item с единственным обратным преобразованием: %s", (normalization) => {
+  it.each(["identity", "collection-copy", "item-copy", "inline", "inline-collection"] as const)("импортирует три вложенных item с единственным обратным преобразованием: %s", (normalization) => {
     const rules = createRuleRegistrySet(metadataRules)
     const calls: string[] = []
     rules.property.registerTypeRule("NestedRoundTripScalar" as never, "compileAtomicConversion", () => ({
@@ -150,10 +150,10 @@ describe("importPropertiesFromXMLToYAML", () => {
       fromYAMLToXML: ({ value }) => { calls.push(`export:${String(value)}`); return { metadataValue: value, representationValue: value } },
     }))
     const detailsRule: MetadataItemRule = { itemType: "Catalog", properties: {
-      value: { type: "NestedRoundTripScalar" as never, xml: "Value", yaml: "Значение" },
+      value: { type: "NestedRoundTripScalar" as never, xml: "Value", yaml: "Значение", ...(normalization === "inline" ? { yamlInline: true } : {}) },
     } }
     const rowRule: MetadataItemRule = { itemType: "Catalog", properties: {
-      details: { type: "NestedRoundTripDetails" as never, xml: "Details", yaml: "Подробности" },
+      details: { type: "NestedRoundTripDetails" as never, xml: "Details", yaml: "Подробности", ...(normalization === "inline-collection" ? { yamlInline: true } : {}) },
     } }
     const rule: MetadataItemRule = { itemType: "Catalog", properties: {
       items: { type: "NestedRoundTripRows" as never, xml: "Items", yaml: "Элементы" },
@@ -176,7 +176,8 @@ describe("importPropertiesFromXMLToYAML", () => {
       preparedItems++
       return { attributes(own) { completedOwnAttributes++; return own } }
     })
-    const root = parseXmlDocumentWithSaxes("<Root><Items><Item><Details><Value>a</Value></Details></Item><Item><Details><Value>b</Value></Details></Item><Item><Details><Value>c</Value></Details></Item></Items></Root>").roots[0]!
+    const values = normalization === "inline" ? ["a", "a", "c"] : ["a", "b", "c"]
+    const root = parseXmlDocumentWithSaxes(`<Root><Items>${values.map(value => `<Item><Details><Value>${value}</Value></Details></Item>`).join("")}</Items></Root>`).roots[0]!
     const context = mockContextFromXML()
     let comparisons = 0
     const proof = createLocalXmlProof({ onValue: () => comparisons++ })
@@ -214,12 +215,10 @@ describe("importPropertiesFromXMLToYAML", () => {
       execution: rules.execution, context, rule, sources: [{ context, xml: root }], yamlPath: [], rulePath: [],
       collector: createLocalIndexesCollector(), roundTrip,
     })
-    expect(yaml).toEqual({ Элементы: [
-      { Подробности: { Значение: "a" } },
-      { Подробности: { Значение: "b" } },
-      { Подробности: { Значение: "c" } },
-    ] })
-    expect(calls).toEqual(["import:a", "export:a", "import:b", "export:b", "import:c", "export:c"])
+    expect(yaml).toEqual({ Элементы: values.map(value => normalization === "inline-collection" ? { Значение: value } : ({
+      Подробности: normalization === "inline" ? value : { Значение: value },
+    })) })
+    expect(calls).toEqual(values.flatMap(value => [`import:${value}`, `export:${value}`]))
     expect(comparisons).toBe(3)
     expect(preparedItems).toBe(3)
     expect(completedOwnAttributes).toBe(3)

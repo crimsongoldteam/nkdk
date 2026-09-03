@@ -5,8 +5,14 @@ import { createXMLPropertyExecution, type XMLPropertyExecutionObserver } from ".
 import type { LocalXmlChild } from "../xmlAnomaly/localProof"
 import type { MetadataItemRule } from "./types"
 import { prepareMetadataItemXMLExecution } from "../metadataItem/fromYAMLToXML"
+import { findInlineProperty } from "../metadataItem/yamlInline"
 
 type ImportItem = Parameters<DirectImportRoundTripExecution["open"]>[0]
+type InlineSelector = string | number | undefined
+interface InlineBindings {
+  readonly keys: object[]
+  next: number
+}
 
 export interface CompiledXMLProofResult {
   readonly roots: ReadonlyMap<string, LocalXmlChild>
@@ -32,7 +38,11 @@ export function createCompiledRuleExecution(params: {
   // Ключ не содержит ни исходного YAML, ни контрольного XML и живёт только в этом запуске.
   const identity = Symbol("compiledXMLBoundary")
   const markers = new WeakMap<object, LocalXmlChild>()
-  const active: { readonly plan: CompiledPropertyPlan }[] = []
+  const inlineRules = new WeakMap<MetadataItemRule, boolean>()
+  const active: {
+    readonly plan: CompiledPropertyPlan
+    readonly inline: Map<string, Map<InlineSelector, InlineBindings>>
+  }[] = []
   const children = {
     childReceipt(value: unknown): LocalXmlChild | undefined {
       return value !== null && typeof value === "object" ? markers.get(value) : undefined
@@ -47,20 +57,29 @@ export function createCompiledRuleExecution(params: {
     deferredByOutput: new Map(),
     externalWrites: result.externalWrites,
   })
-  const take = (yaml: object) => {
-    const key = (yaml as { readonly [identity]?: object })[identity]
-    if (key === undefined) throw new Error("Для XML item не подготовлена идентичность границы")
+  const takeKey = (key: object) => {
     const entry = completed.get(key)
     if (entry === undefined) throw new Error("XML item ещё не закрыт или его вклад уже получен")
     completed.delete(key)
     return entry
+  }
+  const take = (yaml: object) => {
+    const key = (yaml as { readonly [identity]?: object })[identity]
+    if (key === undefined) throw new Error("Для XML item не подготовлена идентичность границы")
+    return takeKey(key)
   }
   return {
     open(source) {
       const identityKey = {}
       Object.defineProperty(source.yaml, identity, { value: identityKey })
       const propertyKey = source.rulePath.at(-1)?.propertyKey
-      const ownerProperty = propertyKey === undefined ? undefined : active.at(-1)?.plan.propertiesByKey.get(propertyKey)
+      const parent = active.at(-1)
+      const ownerProperty = propertyKey === undefined ? undefined : parent?.plan.propertiesByKey.get(propertyKey)
+      let inline = inlineRules.get(source.rule)
+      if (inline === undefined) {
+        inline = findInlineProperty(source.rule) !== undefined
+        inlineRules.set(source.rule, inline)
+      }
       const prepared = prepareMetadataItemXMLExecution({
         ...params.prepare(source), rule: source.rule, yaml: source.yaml,
         prepareOutput: ownerProperty?.operations.prepareXMLItemOutput,
@@ -68,15 +87,27 @@ export function createCompiledRuleExecution(params: {
       }, source.yaml).properties
       const consumer = params.consumer(source, children, prepared)
       const plan = params.execution.propertyPlan(source.rule)
-      const frame = { plan }
+      const frame = { plan, inline: new Map<string, Map<InlineSelector, InlineBindings>>() }
       const item = createXMLPropertyExecution({
         ...prepared, execution: params.execution, rule: source.rule, yaml: source.yaml,
       }, undefined, {
         reuseNested(nested) {
-          if (nested.yaml === null || typeof nested.yaml !== "object") {
+          const key = nested.deferredRulePath?.at(-1)?.propertyKey
+          const bindings = key === undefined ? undefined : frame.inline.get(key)
+          const collection = key === undefined ? false : plan.propertiesByKey.get(key)?.operations.yamlToXMLNestedRule?.kind === "collection"
+          const selector = collection ? nested.name ?? nested.rulePath?.at(-1) : undefined
+          const queue = bindings?.get(selector)
+          const inlineKey = queue?.keys[queue.next]
+          if (bindings !== undefined && queue !== undefined && inlineKey !== undefined) {
+            queue.next++
+            if (queue.next === queue.keys.length) bindings.delete(selector)
+          }
+          if (inlineKey === undefined && (nested.yaml === null || typeof nested.yaml !== "object")) {
             throw new Error("Для XML item не подготовлен объект YAML")
           }
-          const entry = take(nested.yaml)
+          // Inline YAML может быть скаляром или объектом другого, уже потреблённого ребёнка.
+          // Связь задаётся владельцем и адресом элемента, никогда равенством значений.
+          const entry = inlineKey === undefined ? take(nested.yaml as object) : takeKey(inlineKey)
           if (entry.rule !== nested.rule) throw new Error("Правило закрытого XML item не совпадает с правилом родителя")
           return transport(entry.result)
         },
@@ -91,6 +122,18 @@ export function createCompiledRuleExecution(params: {
           }
           const result = { roots: consumer.finish(output), externalWrites: output.externalWrites }
           completed.set(identityKey, { rule: source.rule, result })
+          if (inline && parent !== undefined && propertyKey !== undefined) {
+            let bindings = parent.inline.get(propertyKey)
+            if (bindings === undefined) parent.inline.set(propertyKey, bindings = new Map())
+            const nestedRule = ownerProperty?.operations.yamlToXMLNestedRule
+            const selector = nestedRule?.kind === "collection"
+              ? nestedRule.yamlShape === "array"
+                ? source.yamlPath.at(-1) : source.itemName ?? source.yamlPath.at(-1)
+              : undefined
+            let queue = bindings.get(selector)
+            if (queue === undefined) bindings.set(selector, queue = { keys: [], next: 0 })
+            queue.keys.push(identityKey)
+          }
           return transport(result)
         },
       })
