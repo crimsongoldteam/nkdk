@@ -140,14 +140,7 @@ const nodeDependencies: StepwiseStepDependencies = {
   operationId: randomUUID,
   now: Date.now,
   async prepareAttemptLog(path) { await mkdir(path, { recursive: true }) },
-  async applyStep(projectDir, step) {
-    await applyScenarioBlock(projectDir, {
-      key: `${step.layerKey}:bulk:0`,
-      layerKey: step.layerKey,
-      componentPath: step.componentPath,
-      operations: [step.operation],
-    })
-  },
+  applyStep: applyStepwiseOperation,
   validate: expectSuccessfulValidation,
   sync: syncAndExpectStatus,
   async prepareVerification(params) {
@@ -171,4 +164,13 @@ const nodeDependencies: StepwiseStepDependencies = {
     return comparison.equal
   },
   closeVerification: closePlatformConnection,
+}
+
+export async function applyStepwiseOperation(projectDir: string, step: ScenarioStep): Promise<void> {
+  await applyScenarioBlock(projectDir, {
+    key: `${step.layerKey}:bulk:0`,
+    layerKey: step.layerKey,
+    componentPath: step.componentPath,
+    operations: [step.operation],
+  })
 }
