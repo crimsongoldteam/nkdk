@@ -11,7 +11,7 @@ serializeYAMLDocument,
 xmlElementChildren,
 xmlExport
 } from "@nkdk/runtime"
-import { createRuleRegistrySet, createLocalIndexesCollector, importPropertiesFromXMLToYAML, type MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import { createRuleRegistrySet, createLocalIndexesCollector, createImportedDependentPropertyCollector, importPropertiesFromXMLToYAML, withRuleRegistrySet, type MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import {
 createDirectRoundTripContexts,
 testPropertyFromXMLToYAML,
@@ -22,6 +22,7 @@ import "../index"
 import "./fromXMLToYAML"
 import { FormAttributeColumnRules,FormAttributeRules } from "./rules"
 import { metadataRules } from "../../../composition/metadataRules"
+import { collectImportDependencyFacts, prepareImportDependencies } from "../../../importFromXml/preparedDependencies"
 
 const rule = {
   itemType: "FormAttributesProbe",
@@ -82,6 +83,43 @@ function importStructuredFormAttributes(
 }
 
 describe("FormAttributes XML → YAML → XML", () => {
+  it.each([
+    { types: ["v8:ValueListType"], expected: "Строка" },
+    { types: ["xs:string"], expected: undefined },
+    { types: ["v8:ValueListType", "xs:string"], expected: undefined },
+  ])("готовит ТипЗначения по фактам до единственной проверки: $types", ({ types, expected }) => {
+    const registries = createRuleRegistrySet(metadataRules)
+    withRuleRegistrySet(registries, () => {
+      const context = createDirectRoundTripContexts({ logicalAddress: "Форма" }).importContext
+      const source = parseXmlDocumentWithSaxes(`<Root><Attributes><Attribute name="Объект" id="1">
+        <Settings xsi:type="v8:TypeDescription"><v8:Type>xs:string</v8:Type></Settings>
+        <Type>${types.map(type => `<v8:Type>${type}</v8:Type>`).join("")}</Type>
+      </Attribute></Attributes></Root>`).roots[0]!
+      const itemRule = { ...rule, properties: { value: { ...rule.properties.value, xml: "Attributes" } } }
+      const dependent = createImportedDependentPropertyCollector()
+      const params = { execution: registries.execution, context, rule: itemRule,
+        sources: [{ context, xml: source }], yamlPath: [], rulePath: [] }
+      const first = importPropertiesFromXMLToYAML({ ...params,
+        collector: createLocalIndexesCollector(), dependent, mode: "facts", produceResult: true,
+      })
+      const facts = collectImportDependencyFacts({
+        rule: itemRule, owner: { dir: "ОбщаяФорма", name: "Форма" }, yaml: first, candidates: dependent.finish(),
+      })
+      let inspected = false
+      importPropertiesFromXMLToYAML({ ...params,
+        collector: createLocalIndexesCollector(), dependencies: prepareImportDependencies(facts),
+        roundTrip: { open({ rule: currentRule, yaml }) { return {
+          ready({ propertyKey }) { if (currentRule === FormAttributeRules && propertyKey === "valueType") {
+            expect(yaml.ТипЗначения).toBe(expected)
+            inspected = true
+          } },
+          finish() {},
+        } } },
+      })
+      expect(inspected).toBe(true)
+    })
+  })
+
   it("завершает обычные и дополнительные колонки до закрытия реквизита", () => {
     const context = createDirectRoundTripContexts({ logicalAddress: "Форма" }).importContext
     const root = parseXmlDocumentWithSaxes(`<Root><Attributes><Attribute name="Объект" id="1"><Columns>

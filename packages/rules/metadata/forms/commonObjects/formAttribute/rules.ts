@@ -20,8 +20,7 @@ import { splitPascalCase } from "../../../helpers/canConvertToPascalCase"
 import { createNamedFormItemOutputPreparation, defineMetadataRules, type MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { defineMetadataItemCollectionRule } from "../../../ruleRuntime/metadataCollection/ruleFactory"
 import { restoreKnownDuplicateErpAdditionalColumns } from "../../knownAnomalies"
-import { addCanonicalValueListSettings } from "./valueListSettings"
-import { registerFormXmlIdReservation } from "@nkdk/runtime"
+import { formAttributeValueTypeDefault } from "./valueListSettings"
 
 const formAttributeTitleRule = i8nTextRule({
   yaml: "Заголовок",
@@ -105,6 +104,7 @@ export const FormAttributeRules = {
       xml: "Settings",
       addTypeDescriptionAttributeToXML: true,
       defaultValueXMLEmpty: { type: [] },
+      defaultValue: formAttributeValueTypeDefault,
       preserveEmptyXML: true,
     }),
     title: formAttributeTitleRule,
@@ -222,25 +222,33 @@ const FormAttributeAdditionalColumnRules = {
   },
 } as const satisfies MetadataItemRule
 
-export const metadataRuleLayer000 = defineMetadataItemCollectionRule({
+const formAttributes = defineMetadataItemCollectionRule({
   propertyType: "FormAttributes",
   itemRule: FormAttributeRules,
   xmlElement: "Attribute",
   keyField: "name",
   configurationIndexUidSegment: "Атрибут",
   requiredIdentity: "xmlId",
-  mapItemOutput: ({ xml, yaml, context }) => {
-    const { _name, _id, ...properties } = xml
-    const result = addCanonicalValueListSettings(
-      { _name, _id: typeof _id === "string" ? _id : "", ...properties },
-      yaml,
-    )
-    const runtime = context.exportToXML.configurationIndex
-    registerFormXmlIdReservation(result, {
-      ...(runtime === undefined ? {} : { runtime }),
-      space: "attributes",
-    })
-    return result
+})
+
+export const metadataRuleLayer000 = defineMetadataRules({
+  ...formAttributes,
+  propertyTypes: {
+    ...formAttributes.propertyTypes,
+    FormAttributes: {
+      ...formAttributes.propertyTypes.FormAttributes,
+      prepareXMLItemOutput: createNamedFormItemOutputPreparation("attributes"),
+    },
+  },
+  dependentItems: {
+    ...formAttributes.dependentItems,
+    FormAttribute: { imported: {
+      propertyKeys: ["valueType"],
+      prepareFacts: ({ item }) => ({
+        item: { Тип: item.Тип === "СписокЗначений" ? "СписокЗначений" : undefined }, root: {},
+      }),
+      shouldRemove: ({ item }) => item.Тип !== "СписокЗначений",
+    } },
   },
 })
 

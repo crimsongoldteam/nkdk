@@ -80,7 +80,7 @@ export const importFormAttributesFromXMLToYAML: ImportFromXMLToYAMLFunction = ({
     if (yamlValue === undefined) continue
     const yaml = objectRecordOrUndefined(yamlValue)
     if (yaml === undefined) throw new Error(`Реквизит формы ${name} должен преобразовываться в YAML-объект`)
-    if (!hasSoleValueListType(item)) delete yaml.ТипЗначения
+    if (traversal.dependencies === undefined && !hasSoleValueListType(item)) delete yaml.ТипЗначения
     entries.push({
       key: name,
       value: yaml,

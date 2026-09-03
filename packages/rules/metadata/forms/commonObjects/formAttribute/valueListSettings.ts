@@ -6,18 +6,17 @@ export function hasSoleValueListType(xml: Record<string, unknown>): boolean {
   return values.length === 1 && values[0] === "v8:ValueListType"
 }
 
-export function addCanonicalValueListSettings(
-  xml: Record<string, unknown>,
-  yaml: unknown,
-): Record<string, unknown> {
-  if (yaml === null || typeof yaml !== "object" || Array.isArray(yaml)) return xml
+export function formAttributeValueTypeDefault({ yaml, operation }: {
+  readonly yaml?: unknown
+  readonly operation: string
+}): { type: [] } | undefined {
+  if (operation !== "importFromYAML" || yaml === null || typeof yaml !== "object" || Array.isArray(yaml)) return undefined
   const item = yaml as Record<string, unknown>
   if (
     item.Тип === "СписокЗначений" &&
-    !Object.prototype.hasOwnProperty.call(item, "ТипЗначения") &&
-    xml.Settings === undefined
+    !Object.prototype.hasOwnProperty.call(item, "ТипЗначения")
   ) {
-    return { ...xml, Settings: { "_xsi:type": "v8:TypeDescription" } }
+    return { type: [] }
   }
-  return xml
+  return undefined
 }

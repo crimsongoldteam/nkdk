@@ -11,6 +11,7 @@ import "../../commonObjects/i8nText/toXML"
 import "../../commonObjects/usePurposes/fromYAML"
 import "../../commonObjects/usePurposes/toXML"
 import { metadataRules } from "../../composition/metadataRules"
+import { FormAttributeRules } from "../../forms/commonObjects/formAttribute/rules"
 import type { ExportToXMLFunctionNew,ImportFromYAMLFunctionNew } from "./fn"
 import { convertPropertiesFromYAMLToXML, createXMLPropertyExecution, type XMLPropertyExecutionObserver } from "./fromYAMLToXML"
 import { createYAMLToXMLProfile,type YAMLToXMLNestedRule } from "./fromYAMLToXMLTypes"
@@ -198,6 +199,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
   it.each([
     { type: "FormCommands", xml: "Commands", child: "Command", space: "commands", value: { Действие: "Do" }, wrapped: false },
     { type: "FormAttributeColumns", xml: "Columns", child: "Column", space: "attributes", value: { Тип: "Строка" }, wrapped: false },
+    { type: "FormAttributes", xml: "Attributes", child: "Attribute", space: "attributes", value: { Тип: "СписокЗначений" }, wrapped: false },
     { type: "GroupChildItems", xml: "ChildItems", child: "Button", space: "elements", value: { Вид: "Кнопка" }, wrapped: true },
   ] as const)("готовит собственную оболочку до дочерних свойств: $type", ({ type, xml, child, space, value, wrapped }) => {
     const rules = createRuleRegistrySet(metadataRules)
@@ -225,6 +227,19 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(formXmlIdReservation(item)?.space).toBe(space)
     const nested = rules.execution.getTypeRule(type, "yamlToXMLNestedRule")
     if (!wrapped) expect(nested?.kind === "collection" ? nested.mapItemOutput : undefined).toBeUndefined()
+  })
+
+  it.each(["СписокЗначений", "Строка"])("выдаёт канонический Settings правилом свойства: %s", (type) => {
+    const writes: unknown[] = []
+    const result = createXMLPropertyExecution({
+      execution: createRuleRegistrySet(metadataRules).execution, context: context(), rule: FormAttributeRules,
+      yaml: { Тип: type }, outputs: [{ key: "owner" }], name: "Список", namePropertyKey: "name",
+    }, undefined, {
+      write({ property, value }) { if (property.propertyKey === "valueType") writes.push(value) }, complete() {},
+    }).finish()
+    const expected = type === "СписокЗначений" ? { "_xsi:type": "v8:TypeDescription" } : undefined
+    expect(writes).toEqual(expected === undefined ? [] : [expected])
+    expect(result.outputs.get("owner")?.Settings).toEqual(expected)
   })
 
   it.each(["ExtendedTooltip", "PopupExtendedTooltip", "GanttChartFieldTable", "AutoCommandBar"] as const)(
