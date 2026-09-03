@@ -174,6 +174,11 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
     expect(text).not.toContain("Элементы: !xml/raw")
     const parsed = parseMetadataYaml(text)
     expect(parsed.syntaxErrors).toEqual([])
+    if (_case === "повторные имена") {
+      const first = (parsed.data as ClientApplicationFormYAML).Элементы?.ЕстьКЭП
+      expect(first).toBeDefined()
+      first!.Заголовок = "Изменённая первая кнопка"
+    }
     const prepared = prepareTestXmlAnomalyAssignment({ parsed, rootRule: ClientApplicationFormRules })
     const context = contexts.exportContext()
     const ordinary = convertClientApplicationFormFromYAMLToXML({
@@ -187,9 +192,17 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
         rootRule: ClientApplicationFormRules, rawBoundaries: prepared.rawBoundaries },
     })
     const xml = parseXmlDocumentWithSaxes(exported).compatibility.Form as ClientApplicationFormXML
-    const items = _case === "повторные имена" ? xml.ChildItems
-      : (xml.ChildItems as Array<{ InputField: { ContextMenu: { ChildItems: unknown } } }>)[0]!.InputField.ContextMenu.ChildItems
-    expect((items as Array<Record<string, { _id: string }>>).map(item => Object.values(item)[0]!._id)).toEqual(expectedIds)
+    const childNodes = (form: ClientApplicationFormXML) => (
+      _case === "повторные имена" ? form.ChildItems
+        : (form.ChildItems as Array<{ InputField: { ContextMenu: { ChildItems: unknown } } }>)[0]!.InputField.ContextMenu.ChildItems
+    ) as Array<Record<string, { _id: string }>>
+    const items = childNodes(xml)
+    const originalItems = childNodes(document.compatibility.Form as ClientApplicationFormXML)
+    expect(items.map(item => Object.values(item)[0]!._id)).toEqual(expectedIds)
+    for (const index of _case === "повторные имена" ? [2, 3] : [1]) {
+      expect(withoutFormattingText(items[index])).toEqual(withoutFormattingText(originalItems[index]))
+    }
+    if (_case === "повторные имена") expect(exported).toContain("<v8:content>Изменённая первая кнопка</v8:content>")
     expect(exported).toContain('name="Подсказка"')
   })
 
