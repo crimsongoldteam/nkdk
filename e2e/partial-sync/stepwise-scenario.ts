@@ -5,7 +5,7 @@ import {
   restoreStepCheckpoint,
   type StepCheckpointDependencies,
 } from "./stepwise-checkpoint"
-import type { StepExecutionResult } from "./stepwise-steps"
+import { StepExecutionFailure, type StepExecutionResult } from "./stepwise-steps"
 import type { StepwiseScenarioState } from "./stepwise-state"
 import type { ScenarioStep } from "./stepwise-plan"
 import type { ScenarioRunWorkspace } from "./stepwise-workspace"
@@ -48,11 +48,13 @@ export type StepwiseScenarioDependencies = {
 export async function runStepwiseScenario(
   params: StepwiseScenarioParams,
   dependencies: StepwiseScenarioDependencies,
+  signal?: AbortSignal,
 ): Promise<ScenarioResult> {
   const startedAt = dependencies.now()
   let state = params.state
   const results: StepExecutionResult[] = []
   try {
+    signal?.throwIfAborted()
     await dependencies.restore({
       workspace: params.workspace,
       baseline: params.baseline,
@@ -61,6 +63,7 @@ export async function runStepwiseScenario(
       mode: params.mode,
     })
     for (let index = state.completedStepIndex + 1; index < params.steps.length; index += 1) {
+      signal?.throwIfAborted()
       const step = params.steps[index]
       const result = await dependencies.execute(step, { index: index + 1, total: params.steps.length })
       results.push(result)
@@ -69,10 +72,12 @@ export async function runStepwiseScenario(
     return result(params, state, results, "succeeded", dependencies.now() - startedAt)
   } catch (caught) {
     const error = caught instanceof Error ? caught : new Error(String(caught))
-    return result(params, state, results, "failed", dependencies.now() - startedAt, {
+    if (error instanceof StepExecutionFailure) results.push(error.stepResult)
+    return result(params, state, results, signal?.aborted === true ? "interrupted" : "failed",
+      dependencies.now() - startedAt, {
       category: classifyFailure(error),
       message: error.message,
-    })
+      })
   }
 }
 

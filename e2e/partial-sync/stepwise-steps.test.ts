@@ -1,6 +1,7 @@
 import { expect, it } from "vitest"
+import { join } from "node:path"
 import type { ScenarioStep } from "./stepwise-plan"
-import { createStepwiseSteps, type StepwiseStepDependencies } from "./stepwise-steps"
+import { createStepwiseSteps, StepExecutionFailure, type StepwiseStepDependencies } from "./stepwise-steps"
 
 it("подтверждает каждый шаг повторным импортом до checkpoint", async () => {
   const fixture = createFixture()
@@ -22,7 +23,25 @@ it("не принимает повторный импорт как новое о
   expect(fixture.calls).not.toContain("sync:unchanged")
 })
 
-function createFixture(options: { readonly comparisonEqual?: boolean } = {}) {
+it("прикладывает к ошибке ключ шага, журнал и завершённые стадии", async () => {
+  const fixture = createFixture({ failSourceValidation: true })
+
+  const failure = await fixture.executor.execute(fixture.step, { index: 1, total: 1 })
+    .catch((caught: unknown) => caught)
+
+  expect(failure).toBeInstanceOf(StepExecutionFailure)
+  expect((failure as StepExecutionFailure).stepResult).toEqual({
+    stepKey: "objects:create",
+    stageTimings: { apply: 1 },
+    failedStage: "validation",
+    attemptLogDir: join("logs", "attempt-1-objects-create"),
+  })
+})
+
+function createFixture(options: {
+  readonly comparisonEqual?: boolean
+  readonly failSourceValidation?: boolean
+} = {}) {
   const calls: string[] = []
   const dependencies: StepwiseStepDependencies = {
     operationId: () => "attempt-1",
@@ -31,6 +50,7 @@ function createFixture(options: { readonly comparisonEqual?: boolean } = {}) {
     async applyStep() { calls.push("apply") },
     async validate(_session, projectDir) {
       calls.push(projectDir === "source" ? "validate-source" : "validate-verification")
+      if (projectDir === "source" && options.failSourceValidation) throw new Error("validation failed")
     },
     async sync(_session, _projectDir, _componentPath, _logDir, status) {
       calls.push(`sync:${status}`)

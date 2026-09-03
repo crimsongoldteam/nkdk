@@ -326,7 +326,7 @@ export type BaselineReference = {
 }
 ```
 
-Build in a sibling temporary directory, use the first enabled mode only for the baseline MCP import (`designer-agent` when enabled, otherwise `standalone-server`), remove `.nkdk/platform-sessions`, `.nkdk/tmp` and live LMDB/process state from the published project, verify all hashes, then rename the complete directory to `baseline/current`. Never accept a partial directory.
+Build in a sibling temporary directory, use the first enabled mode only for the baseline MCP import (`designer-agent` when enabled, otherwise `standalone-server`), remove `.nkdk/platform-sessions`, `.nkdk/tmp` and live process state from the published project, but retain the closed component indexes with a separate hash because partial sync cannot reconstruct their UUID mappings from YAML alone. Verify all hashes, then rename the complete directory to `baseline/current`. Never accept a partial directory.
 
 - [ ] **Step 5: Run baseline and old-step tests**
 

@@ -84,6 +84,67 @@ it("соблюдает общий предел и не отменяет парн
   })
 })
 
+it("не готовит эталон и не запускает отключённый нулевым пределом режим", async () => {
+  const fixture = runFixture()
+
+  const outcome = await runStepwiseCli([
+    "--root", "C:/run", "--designer-workers", "0", "--standalone-workers", "1",
+  ], fixture.dependencies)
+
+  expect(fixture.baselineModes).toEqual(["standalone-server"])
+  expect(fixture.startedModes).toEqual(["standalone-server"])
+  expect(outcome.scenarios.map(({ mode }) => mode)).toEqual(["standalone-server"])
+})
+
+it("записывает прерванный сигналом режим в отчёт", async () => {
+  const controller = new AbortController()
+  const fixture = runFixture(async ({ mode, signal }) => {
+    controller.abort()
+    await Promise.resolve()
+    return result(mode, signal.aborted ? "interrupted" : "succeeded")
+  })
+
+  const outcome = await runStepwiseCli(["--root", "C:/run", "--mode", "designer-agent"],
+    fixture.dependencies, controller.signal)
+
+  expect(outcome.scenarios[0].status).toBe("interrupted")
+  expect(fixture.recorded.map(({ status }) => status)).toEqual(["interrupted"])
+})
+
+function runFixture(runMode?: StepwiseRunDependencies["runMode"]) {
+  const baselineModes: string[] = []
+  const startedModes: string[] = []
+  const recorded: ScenarioResult[] = []
+  const workspace = {
+    root: "C:/run", baselineDir: "C:/run/baseline", reportsDir: "C:/run/reports",
+    runStatePath: "C:/run/run-state.json", scenario: () => ({} as never),
+  } satisfies StepwiseRunWorkspace
+  const dependencies: StepwiseRunDependencies = {
+    resources: () => ({ cpuCount: 8, availableMemoryBytes: 16_000_000_000 }),
+    async sourceRevision() { return "abc123" },
+    async openWorkspace() { return workspace },
+    async resetWorkspace() {},
+    async prepareBaseline({ mode }) {
+      baselineModes.push(mode)
+      return {
+        archivePath: "C:/run/baseline/current/baseline.dt",
+        projectDir: "C:/run/baseline/current/project",
+        manifest: {
+          version: 3, compatibilityHash: "compatibility", fixtureHashes: { cf: "cf", cfe: "cfe" },
+          platformVersion: "8.3.27.2214", nkdkBuildId: "mcp-build",
+          archiveSha256: "archive", projectSha256: "project", componentStateSha256: "components",
+        },
+      }
+    },
+    runMode: runMode ?? (async ({ mode }) => {
+      startedModes.push(mode)
+      return result(mode, "succeeded")
+    }),
+    async record(_reportDir, value) { recorded.push(value) },
+  }
+  return { baselineModes, startedModes, recorded, dependencies }
+}
+
 function result(mode: ScenarioResult["mode"], status: ScenarioResult["status"]): ScenarioResult {
   return {
     id: "existing-partial-sync", mode, status, completedSteps: status === "succeeded" ? 1 : 0,

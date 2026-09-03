@@ -57,6 +57,7 @@ export type StepwiseRunDependencies = {
     readonly mode: PlatformMode
     readonly workspace: StepwiseRunWorkspace
     readonly baseline: BaselineReference
+    readonly signal: AbortSignal
   }): Promise<ScenarioResult>
   record(reportDir: string, result: ScenarioResult, metadata: StepwiseRunMetadata): Promise<void>
 }
@@ -117,16 +118,22 @@ export function parseStepwiseArgs(argv: readonly string[]): StepwiseArgs {
 export async function runStepwiseCli(
   argv: readonly string[],
   dependencies: StepwiseRunDependencies = nodeDependencies,
+  signal: AbortSignal = new AbortController().signal,
 ): Promise<StepwiseRunOutcome> {
   const args = parseStepwiseArgs(argv)
+  const limits = resolveConcurrency(args.concurrency, dependencies.resources())
+  const activeModes = args.modes.filter((mode) =>
+    mode === "designer-agent" ? limits.designerAgent > 0 : limits.standaloneServer > 0)
+  if (activeModes.length === 0) throw new Error("Все выбранные режимы отключены нулевым пределом")
   let workspace = await dependencies.openWorkspace(args.root)
   if (args.reset) {
     await dependencies.resetWorkspace(workspace)
     workspace = await dependencies.openWorkspace(args.root)
   }
-  const baseline = await dependencies.prepareBaseline({ workspace, mode: args.modes[0] })
-  const limits = resolveConcurrency(args.concurrency, dependencies.resources())
-  const jobs = args.modes.map((mode) => ({ mode }))
+  signal.throwIfAborted()
+  const baseline = await dependencies.prepareBaseline({ workspace, mode: activeModes[0] })
+  signal.throwIfAborted()
+  const jobs = activeModes.map((mode) => ({ mode }))
   const metadata: StepwiseRunMetadata = {
     sourceRevision: await dependencies.sourceRevision(),
     mcpBuildId: baseline.manifest.nkdkBuildId,
@@ -145,11 +152,12 @@ export async function runStepwiseCli(
   const settled = await runModeJobsWithConcurrency(jobs, limits, async ({ mode }) => {
     let scenario: ScenarioResult
     try {
-      scenario = await dependencies.runMode({ mode, workspace, baseline })
+      scenario = await dependencies.runMode({ mode, workspace, baseline, signal })
     } catch (caught) {
-      scenario = infrastructureFailure(
+      scenario = terminalInfrastructureResult(
         mode,
         caught instanceof Error ? caught : new Error(String(caught)),
+        signal.aborted ? "interrupted" : "failed",
       )
     }
     await recordScenario(scenario)
@@ -160,7 +168,7 @@ export async function runStepwiseCli(
     const outcome = settled[index]
     const scenario = outcome.status === "succeeded"
       ? outcome.value
-      : infrastructureFailure(args.modes[index], outcome.error)
+      : terminalInfrastructureResult(activeModes[index], outcome.error, signal.aborted ? "interrupted" : "failed")
     scenarios.push(scenario)
   }
   return {
@@ -190,9 +198,13 @@ function parseConcurrency(value: string, argument: string): ConcurrencySetting {
   return parsed
 }
 
-function infrastructureFailure(mode: PlatformMode, error: Error): ScenarioResult {
+function terminalInfrastructureResult(
+  mode: PlatformMode,
+  error: Error,
+  status: "failed" | "interrupted",
+): ScenarioResult {
   return {
-    id: "existing-partial-sync", mode, status: "failed", completedSteps: 0, totalSteps: 0,
+    id: "existing-partial-sync", mode, status, completedSteps: 0, totalSteps: 0,
     durationMs: 0, attempt: 1, steps: [], failure: { category: "infrastructure", message: error.message },
   }
 }
@@ -221,7 +233,8 @@ const nodeDependencies: StepwiseRunDependencies = {
       writeProgress(message) { process.stdout.write(`${message}\n`) },
     })
   },
-  async runMode({ mode, workspace: runWorkspace, baseline }) {
+  async runMode({ mode, workspace: runWorkspace, baseline, signal }) {
+    signal.throwIfAborted()
     const workspace = runWorkspace.scenario(mode)
     const steps = buildStepwisePlan(partialSyncMatrix)
     const planHash = stepwisePlanHash(steps)
@@ -238,6 +251,8 @@ const nodeDependencies: StepwiseRunDependencies = {
     }
     await writeStepwiseState(workspace.statePath, state)
     const session = await openScenarioMcpSession({ attemptLogDir: join(workspace.logsDir, `scenario-${state.attempt}`) })
+    const closeOnAbort = () => { void session.close() }
+    signal.addEventListener("abort", closeOnAbort, { once: true })
     const archiveStore = createInfobaseArchiveStore(async () => {
       await session.call("nkdk.close_platform_connection", { projectDir: workspace.projectDir }, { attemptLogDir: workspace.logsDir })
     })
@@ -257,8 +272,9 @@ const nodeDependencies: StepwiseRunDependencies = {
         now: Date.now,
         ...bindStepwiseCheckpointDependencies(checkpointDependencies),
         execute: executor.execute,
-      })
+      }, signal)
     } finally {
+      signal.removeEventListener("abort", closeOnAbort)
       await session.close()
     }
   },
@@ -279,11 +295,18 @@ const isCliEntrypoint = process.argv[1] !== undefined &&
   pathToFileURL(resolve(process.argv[1])).href === import.meta.url
 
 if (isCliEntrypoint) {
-  runStepwiseCli(process.argv.slice(2)).then((outcome) => {
+  const controller = new AbortController()
+  const interrupt = () => controller.abort(new Error("Выполнение прервано пользователем"))
+  process.once("SIGINT", interrupt)
+  process.once("SIGTERM", interrupt)
+  runStepwiseCli(process.argv.slice(2), nodeDependencies, controller.signal).then((outcome) => {
     process.stdout.write(`JSON: ${outcome.reportJsonPath}\nMarkdown: ${outcome.reportMarkdownPath}\n`)
     if (outcome.scenarios.some(({ status }) => status !== "succeeded")) process.exitCode = 1
   }).catch((caught: unknown) => {
     process.stderr.write(`${caught instanceof Error ? caught.message : String(caught)}\n`)
     process.exitCode = 1
+  }).finally(() => {
+    process.removeListener("SIGINT", interrupt)
+    process.removeListener("SIGTERM", interrupt)
   })
 }

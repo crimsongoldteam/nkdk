@@ -16,14 +16,30 @@ import {
 import type { ScenarioStep } from "./stepwise-plan"
 import type { ScenarioRunWorkspace } from "./stepwise-workspace"
 
+export type StepExecutionStage =
+  | "apply"
+  | "validation"
+  | "sync"
+  | "verificationImport"
+  | "verificationValidation"
+  | "comparison"
+  | "unchanged"
+
 export type StepExecutionResult = {
   readonly stepKey: string
-  readonly stageTimings: Readonly<Record<
-    "apply" | "validation" | "sync" | "verificationImport" |
-    "verificationValidation" | "comparison" | "unchanged",
-    number
-  >>
+  readonly stageTimings: Readonly<Partial<Record<StepExecutionStage, number>>>
+  readonly failedStage?: StepExecutionStage
   readonly attemptLogDir: string
+}
+
+export class StepExecutionFailure extends Error {
+  readonly stepResult: StepExecutionResult
+
+  constructor(message: string, stepResult: StepExecutionResult, cause?: unknown) {
+    super(message, { cause })
+    this.name = "StepExecutionFailure"
+    this.stepResult = stepResult
+  }
 }
 
 export type StepwiseStepDependencies = {
@@ -81,58 +97,71 @@ export function createStepwiseSteps(
       const safeKey = step.key.replaceAll(/[^a-zA-Z0-9а-яА-ЯёЁ._-]/gu, "-")
       const attemptLogDir = join(params.workspace.logsDir, `${dependencies.operationId()}-${safeKey}`)
       await dependencies.prepareAttemptLog(attemptLogDir)
-      const timings: Partial<Record<keyof StepExecutionResult["stageTimings"], number>> = {}
+      const timings: Partial<Record<StepExecutionStage, number>> = {}
       let startedAt = dependencies.now()
-      const measure = (stage: keyof StepExecutionResult["stageTimings"]): void => {
+      let activeStage: StepExecutionStage = "apply"
+      const measure = (stage: StepExecutionStage): void => {
         const finishedAt = dependencies.now()
         timings[stage] = finishedAt - startedAt
         startedAt = finishedAt
       }
 
-      await dependencies.applyStep(params.workspace.projectDir, step)
-      measure("apply")
-      await dependencies.validate(params.session, params.workspace.projectDir, attemptLogDir)
-      measure("validation")
-      await dependencies.sync(
-        params.session, params.workspace.projectDir, step.componentPath, attemptLogDir, "synchronized",
-      )
-      measure("sync")
-
-      const verificationProjectDir = join(params.workspace.verificationDir, safeKey)
-      await dependencies.prepareVerification({
-        verificationProjectDir,
-        baseDir: params.workspace.baseDir,
-        mode: params.mode,
-        componentPath: step.componentPath,
-        baselineProjectDir: params.baselineProjectDir,
-      })
-      await dependencies.closeSource(params.session, params.workspace.projectDir, attemptLogDir)
       try {
-        await dependencies.importVerification(
-          params.session, verificationProjectDir, step.componentPath, attemptLogDir,
+        await dependencies.applyStep(params.workspace.projectDir, step)
+        measure("apply")
+        activeStage = "validation"
+        await dependencies.validate(params.session, params.workspace.projectDir, attemptLogDir)
+        measure("validation")
+        activeStage = "sync"
+        await dependencies.sync(
+          params.session, params.workspace.projectDir, step.componentPath, attemptLogDir, "synchronized",
         )
-        measure("verificationImport")
-        await dependencies.validate(params.session, verificationProjectDir, attemptLogDir)
-        measure("verificationValidation")
-        const equal = await dependencies.compareComponent({
-          expectedDir: join(params.workspace.projectDir, step.componentPath),
-          actualDir: join(verificationProjectDir, step.componentPath),
-          reportDir: join(attemptLogDir, "compare-component"),
+        measure("sync")
+
+        const verificationProjectDir = join(params.workspace.verificationDir, safeKey)
+        activeStage = "verificationImport"
+        await dependencies.prepareVerification({
+          verificationProjectDir,
+          baseDir: params.workspace.baseDir,
+          mode: params.mode,
+          componentPath: step.componentPath,
+          baselineProjectDir: params.baselineProjectDir,
         })
-        measure("comparison")
-        if (!equal) throw new Error(`Сравнение компонента ${step.componentPath} завершилось с различиями`)
-      } finally {
-        await dependencies.closeVerification(params.session, verificationProjectDir, attemptLogDir)
-      }
-      startedAt = dependencies.now()
-      await dependencies.sync(
-        params.session, params.workspace.projectDir, step.componentPath, attemptLogDir, "unchanged",
-      )
-      measure("unchanged")
-      return {
-        stepKey: step.key,
-        stageTimings: timings as StepExecutionResult["stageTimings"],
-        attemptLogDir,
+        await dependencies.closeSource(params.session, params.workspace.projectDir, attemptLogDir)
+        try {
+          await dependencies.importVerification(
+            params.session, verificationProjectDir, step.componentPath, attemptLogDir,
+          )
+          measure("verificationImport")
+          activeStage = "verificationValidation"
+          await dependencies.validate(params.session, verificationProjectDir, attemptLogDir)
+          measure("verificationValidation")
+          activeStage = "comparison"
+          const equal = await dependencies.compareComponent({
+            expectedDir: join(params.workspace.projectDir, step.componentPath),
+            actualDir: join(verificationProjectDir, step.componentPath),
+            reportDir: join(attemptLogDir, "compare-component"),
+          })
+          measure("comparison")
+          if (!equal) throw new Error(`Сравнение компонента ${step.componentPath} завершилось с различиями`)
+        } finally {
+          await dependencies.closeVerification(params.session, verificationProjectDir, attemptLogDir)
+        }
+        startedAt = dependencies.now()
+        activeStage = "unchanged"
+        await dependencies.sync(
+          params.session, params.workspace.projectDir, step.componentPath, attemptLogDir, "unchanged",
+        )
+        measure("unchanged")
+        return { stepKey: step.key, stageTimings: timings, attemptLogDir }
+      } catch (caught) {
+        const error = caught instanceof Error ? caught : new Error(String(caught))
+        throw new StepExecutionFailure(error.message, {
+          stepKey: step.key,
+          stageTimings: timings,
+          failedStage: activeStage,
+          attemptLogDir,
+        }, error)
       }
     },
   }

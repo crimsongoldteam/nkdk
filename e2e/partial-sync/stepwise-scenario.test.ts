@@ -1,5 +1,6 @@
 import { expect, it } from "vitest"
 import { runStepwiseScenario, type StepwiseScenarioDependencies } from "./stepwise-scenario"
+import { StepExecutionFailure } from "./stepwise-steps"
 import { createInitialStepwiseState } from "./stepwise-state"
 import type { ScenarioStep } from "./stepwise-plan"
 
@@ -20,7 +21,36 @@ it("не публикует checkpoint упавшего шага", async () => {
   expect(result.failure?.category).toBe("platform")
 })
 
-function createFixture(options: { readonly completedStepIndex?: number; readonly failStepIndex?: number } = {}) {
+it("сохраняет ключ, журнал и выполненные стадии упавшего шага", async () => {
+  const fixture = createFixture({ failStepIndex: 1, structuredFailure: true })
+  const result = await runStepwiseScenario(fixture.params, fixture.dependencies)
+
+  expect(result.steps.at(-1)).toEqual({
+    stepKey: "step-1",
+    stageTimings: { apply: 3, validation: 5 },
+    failedStage: "sync",
+    attemptLogDir: "logs/step-1",
+  })
+})
+
+it("возвращает interrupted после сигнала отмены", async () => {
+  const controller = new AbortController()
+  const fixture = createFixture()
+  fixture.dependencies.execute = async (current) => {
+    controller.abort()
+    throw new Error(`Остановлен ${current.key}`)
+  }
+
+  const result = await runStepwiseScenario(fixture.params, fixture.dependencies, controller.signal)
+
+  expect(result.status).toBe("interrupted")
+})
+
+function createFixture(options: {
+  readonly completedStepIndex?: number
+  readonly failStepIndex?: number
+  readonly structuredFailure?: boolean
+} = {}) {
   const steps = [0, 1, 2].map(step)
   const initial = createInitialStepwiseState({
     mode: "designer-agent", compatibilityHash: "a".repeat(64), planHash: "b".repeat(64),
@@ -40,7 +70,17 @@ function createFixture(options: { readonly completedStepIndex?: number; readonly
     async restore() {},
     async execute(current) {
       executed.push(current.key)
-      if (current === steps[options.failStepIndex ?? -1]) throw new Error("Ошибка платформы 1С")
+      if (current === steps[options.failStepIndex ?? -1]) {
+        if (options.structuredFailure) {
+          throw new StepExecutionFailure("Ошибка платформы 1С", {
+            stepKey: current.key,
+            stageTimings: { apply: 3, validation: 5 },
+            failedStage: "sync",
+            attemptLogDir: `logs/${current.key}`,
+          })
+        }
+        throw new Error("Ошибка платформы 1С")
+      }
       return { stepKey: current.key, stageTimings: timings(), attemptLogDir: `logs/${current.key}` }
     },
     async publish(params) {
