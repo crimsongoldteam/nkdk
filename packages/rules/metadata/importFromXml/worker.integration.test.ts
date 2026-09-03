@@ -385,7 +385,7 @@ describe("XML import worker first pass", () => {
       true
     )
     expect(lines.some((line) => line.includes('substep="Извлечение фактов XML"'))).toBe(true)
-    expect(lines.some((line) => line.includes('substep="MessagePack pack"'))).toBe(true)
+    expect(lines.some((line) => line.includes('substep="MessagePack pack"'))).toBe(false)
     expect(lines.some((line) => line.includes('substep="Удерживаемый packed XML"'))).toBe(false)
     expect(lines.some((line) => line.includes('substep="Подготовка описания файла проекта"'))).toBe(true)
     expect(lines.some((line) => line.includes('substep="Определение вида файла проекта"'))).toBe(false)
@@ -409,7 +409,7 @@ describe("XML import worker first pass", () => {
     await runImportWorkerCommand({ kind: "firstPassBatch", assignments: [catalogAssignment()] })
 
     expect(workerStateForTests().preparedYamlIds).toEqual(["catalog"])
-    expect(workerStateForTests().retainedProofAuditIds).toEqual(["catalog"])
+    expect(workerStateForTests().retainedProofAuditIds).toEqual([])
     expect(await runImportWorkerCommand({ kind: "finishFirstPass" })).toBeUndefined()
   })
 
@@ -460,7 +460,6 @@ describe("XML import worker second pass", () => {
   it("повторно читает XML во втором проходе без packed-хранилища", async () => {
     const error = vi.spyOn(console, "error").mockImplementation(() => undefined)
     vi.stubEnv("NKDK_PROFILE", "1")
-    vi.stubEnv("NKDK_IMPORT_XML_STRATEGY", "reread")
     const outputDir = createTempDir("reread-second-pass")
 
     const { second } = await runAssignmentSecondPass(outputDir, catalogAssignment())
@@ -789,7 +788,7 @@ describe("XML import worker second pass", () => {
     expect(checkpointLines).toEqual(expect.arrayContaining([
       expect.stringContaining(`substep="Начало задания второго прохода: ${assignments.catalog.id}"`),
       expect.stringContaining(`substep="Начало задания второго прохода: ${assignments.form.id}"`),
-      expect.stringMatching(/substep="Удерживаемый packed XML".*items=0 bytes=0/u),
+      expect.stringMatching(/substep="Задания, ожидающие второго прохода".*items=0/u),
     ]))
 
     const finished = await runImportWorkerCommand({ kind: "finishSecondPass" })
@@ -797,7 +796,7 @@ describe("XML import worker second pass", () => {
     const lines = error.mock.calls.map(([line]) => String(line)).filter((line) => line.startsWith("[nkdk-profile-step]"))
     expect(lines.length).toBeGreaterThan(0)
     expect(lines.filter((line) => line.includes("Начало задания второго прохода: "))).toHaveLength(2)
-    expect(lines.some((line) => line.includes("Удерживаемый packed XML"))).toBe(true)
+    expect(lines.some((line) => line.includes("Удерживаемый packed XML"))).toBe(false)
     expect(lines.filter((line) => line.includes('substep="Сериализация YAML"'))).toHaveLength(1)
   })
 

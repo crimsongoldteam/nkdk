@@ -41,7 +41,7 @@ import type { CompiledMetadataResourceTopology } from "../resourceTopology/core/
 import type { ValidationProfiler } from "../validation/profile"
 import type { ConfigurationIndexBlockFragment } from "@nkdk/runtime"
 import { expandMetadataPathPattern } from "../resourceTopology/core/patterns"
-import type { ImportAssignment, ImportXmlInput } from "./types"
+import type { ImportAssignment, ImportXmlInput, ParsedImportXmlDocument } from "./types"
 import {
   normalizeImportedDependentItems,
   partitionImportedDependentItems,
@@ -53,7 +53,6 @@ import {
   type XmlAnomalyProofBoundary,
   type XmlAnomalyProofAudit,
 } from "./anomalyProof"
-import type { PackedImportXmlInput } from "./packedXmlAssignment"
 
 export interface PreparedImportYaml {
   assignment: ImportAssignment
@@ -140,7 +139,7 @@ export async function readImportXmlDocuments(params: {
   readonly assignment: ImportAssignment
   readonly profiler?: ValidationProfiler
   readonly profilePass: "first" | "second"
-}): Promise<PackedImportXmlInput[]> {
+}): Promise<ParsedImportXmlDocument[]> {
   return (await readAndParseAssignmentXml(
     params.assignment.xmlFiles,
     params.profiler,
@@ -158,7 +157,7 @@ export async function prepareImportYamlFromDocuments(params: {
   readonly assignment: ImportAssignment
   readonly context: XmlImportConfigurationContext
   readonly collector: ConfigurationIndexCollector
-  readonly inputs: readonly PackedImportXmlInput[]
+  readonly inputs: readonly ParsedImportXmlDocument[]
   readonly profiler?: ValidationProfiler
   readonly topology?: CompiledMetadataResourceTopology
 }): Promise<PreparedImportYaml> {

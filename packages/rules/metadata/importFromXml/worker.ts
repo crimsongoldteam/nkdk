@@ -117,7 +117,6 @@ import type { ValidationIssue, ValidationIssueTarget } from "@nkdk/runtime"
 import { currentRuleRegistrySet } from "@nkdk/runtime/rule-kit"
 import { traverseMetadataRuleYaml } from "../validation/metadataRuleYamlTraversal"
 import type { XmlComponentExportProfile } from "../project/xmlReconstructionProfile"
-import { createPackedXmlAssignmentStore } from "./packedXmlAssignment"
 
 declare module "../workerPool/types" {
   interface MetadataWorkerOperationTypeMap {
@@ -241,17 +240,6 @@ export function createImportWorkerCommandRunner(): ImportWorkerCommandRunner {
   let schemaCacheForTests: ValidationSchemaCache | undefined
   let controlExportForTests: typeof executeImportControlExport | undefined
   const preparedYaml = new Map<string, DeferredImportYaml>()
-  let packedProfiler: ValidationProfiler | undefined
-  const packedStore = createPackedXmlAssignmentStore({ profiler: {
-    measure: (step, substep, params, action) => packedProfiler?.measure(step, substep, params, action) ?? action(),
-    measureAsync: (step, substep, params, action) => packedProfiler?.measureAsync(step, substep, params, action) ?? action(),
-    record: (step, substep, params) => packedProfiler?.record(step, substep, params),
-    checkpoint: (step, substep, params) => {
-      if (isImportMemoryProfilingEnabled()) packedProfiler?.checkpoint(step, substep, params)
-    },
-    records: () => packedProfiler?.records() ?? [],
-    flush: () => packedProfiler?.flush(),
-  } })
   const pendingAssignmentIds = new Set<string>()
   const assignedImports = new Map<string, ImportAssignment>()
   let activeSecondPass: ActiveSecondPass | undefined
@@ -289,7 +277,6 @@ async function runImportWorkerCommand(
   if (command.kind === "initialize") {
     await endSecondPass()
     preparedYaml.clear()
-    packedStore.clear()
     pendingAssignmentIds.clear()
     assignedImports.clear()
     firstPassAccumulator?.fragmentWriter.discard()
@@ -383,7 +370,7 @@ async function runImportWorkerCommand(
         accumulator.profiler.checkpoint(
           "Подготовка импорта конфигурации",
           `Начало задания второго прохода: ${assignmentId}`,
-          { items: packedStore.stats().assignments, bytes: packedStore.stats().bytes },
+          { items: pendingAssignmentIds.size },
         )
       }
       await processSecondPass(
@@ -393,7 +380,7 @@ async function runImportWorkerCommand(
         controlExportForTests ?? executeImportControlExport,
       )
     }
-    checkpointRetainedSecondPass(accumulator.profiler)
+    checkpointPendingSecondPass(accumulator.profiler)
     return finishImportWorkerBatch(accumulator, state.workerIndex)
   }
 
@@ -405,7 +392,7 @@ async function runImportWorkerCommand(
     await endSecondPass()
     const unfinished = pendingAssignmentIds.size
     if (unfinished > 0) {
-      throw new Error(`Второй проход XML-import не обработал ${unfinished} packed XML-заданий`)
+      throw new Error(`Второй проход XML-import не обработал ${unfinished} XML-заданий`)
     }
     return undefined
   }
@@ -440,7 +427,6 @@ async function processSecondPass(
   controlExport: typeof executeImportControlExport,
 ): Promise<void> {
   const profiler = accumulator.profiler
-  packedProfiler = profiler
   profiler.record("Подготовка импорта конфигурации", "Задания второго прохода", {
     items: 1,
     timeMs: 0,
@@ -453,9 +439,7 @@ async function processSecondPass(
   }
   let prepared: DeferredImportYaml | undefined
   try {
-    const inputs = shouldRereadXmlOnSecondPass()
-      ? await readImportXmlDocuments({ assignment, profiler, profilePass: "second" })
-      : packedStore.take(assignmentId)
+    const inputs = await readImportXmlDocuments({ assignment, profiler, profilePass: "second" })
     pendingAssignmentIds.delete(assignmentId)
     const collector = createConfigurationIndexCollector()
     const imported = await prepareImportYamlFromDocuments({
@@ -546,7 +530,6 @@ async function processSecondPass(
     )
   } finally {
     preparedYaml.delete(assignmentId)
-    packedStore.release(assignmentId)
     pendingAssignmentIds.delete(assignmentId)
   }
 
@@ -568,25 +551,17 @@ function createSecondPassAccumulator(workerIndex: number, profiler = createImpor
   }
 }
 
-function checkpointRetainedSecondPass(profiler: ValidationProfiler): void {
+function checkpointPendingSecondPass(profiler: ValidationProfiler): void {
   if (!isImportMemoryProfilingEnabled()) return
-  const retained = packedStore.stats()
   profiler.checkpoint(
     "Подготовка импорта конфигурации",
-    "Удерживаемый packed XML",
-    {
-      items: retained.assignments,
-      bytes: retained.bytes,
-    },
+    "Задания, ожидающие второго прохода",
+    { items: pendingAssignmentIds.size },
   )
 }
 
 function isImportMemoryProfilingEnabled(): boolean {
   return process.env["NKDK_PROFILE_MEMORY"] === "1"
-}
-
-function shouldRereadXmlOnSecondPass(): boolean {
-  return process.env["NKDK_IMPORT_XML_STRATEGY"] === "reread"
 }
 
 function finishImportWorkerBatch(accumulator: SecondPassAccumulator, workerIndex: number) {
@@ -1309,11 +1284,10 @@ async function processFirstPass(
   accumulator: FirstPassAccumulator,
 ): Promise<void> {
   const profiler = accumulator.profiler
-  packedProfiler = profiler
   for (const assignment of assignments) {
     assignedImports.set(assignment.id, assignment)
     const collector = createConfigurationIndexCollector()
-    let packed = false
+    let readyForSecondPass = false
     try {
       const inputs = await readImportXmlDocuments({ assignment, profiler, profilePass: "first" })
       const prepared = await prepareImportFacts({
@@ -1391,9 +1365,8 @@ async function processFirstPass(
         accumulator.fragmentWriter.appendImportFinal(
           provisionalImportFinalContribution(prepared, validationContribution, state),
         )
-        if (!shouldRereadXmlOnSecondPass()) packedStore.put(assignment.id, inputs)
         pendingAssignmentIds.add(assignment.id)
-        packed = true
+        readyForSecondPass = true
         accumulator.files.push(...assignmentFiles)
       } catch (caught) {
         accumulator.diagnostics.push(importAssignmentDiagnostic(assignment, caught, "xml_import_yaml_failed"))
@@ -1403,17 +1376,14 @@ async function processFirstPass(
     } catch (caught) {
       accumulator.diagnostics.push(importAssignmentDiagnostic(assignment, caught))
     } finally {
-      if (!packed) {
-        packedStore.release(assignment.id)
+      if (!readyForSecondPass) {
         pendingAssignmentIds.delete(assignment.id)
       }
     }
   }
 
-  const retained = packedStore.stats()
   profiler.record("Подготовка импорта конфигурации", "XML-задания, ожидающие второго прохода", {
     items: pendingAssignmentIds.size,
-    bytes: retained.bytes,
     timeMs: 0,
   })
 }
@@ -2001,7 +1971,6 @@ function clearWorkerState(): void {
   firstPassAccumulator = undefined
   secondPassAccumulator?.fragmentWriter.discard()
   secondPassAccumulator = undefined
-  packedStore.clear()
   pendingAssignmentIds.clear()
   preparedYaml.clear()
   assignedImports.clear()
@@ -2026,12 +1995,9 @@ function workerStateForTests(): {
           outputDir: initializedState.outputDir,
         }),
     preparedYamlIds: [...new Set([...preparedYaml.keys(), ...pendingAssignmentIds])],
-    retainedProofAuditIds: [...new Set([
-      ...pendingAssignmentIds,
-      ...[...preparedYaml]
+    retainedProofAuditIds: [...preparedYaml]
       .filter(([, prepared]) => prepared.proofAudit !== undefined)
       .map(([assignmentId]) => assignmentId),
-    ])],
   }
 }
 

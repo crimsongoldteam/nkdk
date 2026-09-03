@@ -26,13 +26,12 @@ import { createLocalIndexesCollector } from "../projectDefinition/localIndexes"
 import type { CompiledMetadataResourceTopology } from "../resourceTopology/core/types"
 import type { MetadataItemOwnerContextEntry } from "../ruleRuntime/appliedObject/metadataItemOwnerContext"
 import type { ValidationProfiler } from "../validation/profile"
-import type { PackedImportXmlInput } from "./packedXmlAssignment"
 import {
   createResolvedAssignmentImportEnvironment,
   mapExternalPropertyXmlInputs,
   type ParsedImportXmlInput,
 } from "./prepareYaml"
-import type { ImportAssignment } from "./types"
+import type { ImportAssignment, ParsedImportXmlDocument } from "./types"
 import { collectFormDataPathOccurrencesFromYAML } from "../validation/dataPath/formYamlTraversal"
 import { toDataPathPolicyInput } from "../validation/dataPath/policies"
 import type { ValidationPendingCheck } from "../validation/projectValidationPendingChecks"
@@ -67,7 +66,7 @@ export async function prepareImportFacts(params: {
   readonly assignment: ImportAssignment
   readonly context: XmlImportConfigurationContext
   readonly collector: ConfigurationIndexCollector
-  readonly inputs: readonly PackedImportXmlInput[]
+  readonly inputs: readonly ParsedImportXmlDocument[]
   readonly topology?: CompiledMetadataResourceTopology
   readonly profiler?: ValidationProfiler
 }): Promise<PreparedImportFacts> {
@@ -281,7 +280,7 @@ function setChild(
   container[segment] = value
 }
 
-function parsedInputs(inputs: readonly PackedImportXmlInput[]): ParsedFactsXmlInput[] {
+function parsedInputs(inputs: readonly ParsedImportXmlDocument[]): ParsedFactsXmlInput[] {
   return inputs.map(({ input, document }) => ({
     input,
     document,
@@ -292,7 +291,7 @@ function parsedInputs(inputs: readonly PackedImportXmlInput[]): ParsedFactsXmlIn
 
 function requireInput(
   inputs: readonly ParsedFactsXmlInput[],
-  role: PackedImportXmlInput["input"]["role"],
+  role: ParsedImportXmlDocument["input"]["role"],
 ): ParsedFactsXmlInput {
   const input = inputs.find((candidate) => candidate.input.role === role)
   if (input === undefined) throw new Error(`В задании XML-import отсутствует ${role} XML`)

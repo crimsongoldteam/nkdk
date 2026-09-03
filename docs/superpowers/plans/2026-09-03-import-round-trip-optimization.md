@@ -53,7 +53,7 @@
 
 **Интерфейс:** тип `ParsedImportXmlDocument` заменяет `PackedImportXmlInput` на границе чтения; данные остаются `{ input: ImportXmlInput; document: XmlDocument }`. `readImportXmlDocuments` сохраняет параметры `profilePass: "first" | "second"`.
 
-- [ ] Изменить существующий integration-тест повторного чтения: убрать `vi.stubEnv("NKDK_IMPORT_XML_STRATEGY", "reread")`. Наблюдаемый договор — штатный запуск читает и разбирает исходный файл один раз на проход, не упаковывает его и выдаёт YAML.
+- [x] Изменить существующий integration-тест повторного чтения: убрать `vi.stubEnv("NKDK_IMPORT_XML_STRATEGY", "reread")`. Наблюдаемый договор — штатный запуск читает и разбирает исходный файл один раз на проход, не упаковывает его и выдаёт YAML.
 
   ```ts
   const { second } = await runAssignmentSecondPass(outputDir, catalogAssignment())
@@ -62,25 +62,25 @@
   expect(lines.some(line => line.includes('substep="MessagePack pack"'))).toBe(false)
   ```
 
-- [ ] Запустить тест вне песочницы и увидеть отсутствие второго чтения:
+- [x] Запустить тест вне песочницы и увидеть отсутствие второго чтения:
 
   ```bash
   pnpm --filter @nkdk/rules exec vitest run metadata/importFromXml/worker.integration.test.ts -t 'повторно читает XML' --no-isolate
   ```
 
-- [ ] Перенести тип документа в `types.ts`; второй проход всегда получает:
+- [x] Перенести тип документа в `types.ts`; второй проход всегда получает:
 
   ```ts
   const inputs = await readImportXmlDocuments({ assignment, profiler, profilePass: "second" })
   ```
 
   Удалить store, packed-profiler, переключатель, put/take/release, счётчики packed bytes. Сохранить pending assignment IDs, очистку состояния при ошибке/dispose и метрики обоих чтений. Первый проход не удерживает `inputs`.
-- [ ] Удалить unit-тест удалённого codec/store: его договор больше не существует; защитой жизненного цикла остаются integration-тесты worker. Удалить `msgpackr` после проверки потребителей и штатно обновить lockfile.
-- [ ] Прогнать весь `worker.integration.test.ts`, type-check, проверку дублей; коммит `refactor: :recycle: заменить упаковку XML повторным чтением`.
+- [x] Удалить unit-тест удалённого codec/store: его договор больше не существует; защитой жизненного цикла остаются integration-тесты worker. Удалить `msgpackr` после проверки потребителей и штатно обновить lockfile.
+- [x] Прогнать весь `worker.integration.test.ts`, type-check, проверку дублей; коммит `refactor: :recycle: заменить упаковку XML повторным чтением`.
 
 ## Задача 2. Статический порядок YAML и завершение локальной границы
 
-**Файлы:** `compiledPropertyPlan.ts`, `yamlPropertyOrder.ts`, `yamlPropertyOrder.test.ts`, тесты compiled plan в `packages/rules/metadata/ruleRuntime/property/propertyRuleRegistrySet.test.ts`.
+**Файлы:** `compiledPropertyPlan.ts`, `yamlPropertyOrder.ts`, `yamlPropertyOrder.test.ts`, тесты compiled plan в `packages/rules/metadata/ruleRuntime/property/compiledPropertyPlan.test.ts`.
 
 **Интерфейс:** `compileYamlPropertyOrder(keys: readonly string[]): readonly string[]`; `orderYamlRuleProperties(value: Record<string, unknown>, keys: readonly string[]): Record<string, unknown>`. План хранит подготовленные обычные YAML-ключи; дополнительные ключи объединяются по тому же компаратору, а не сортируются вместе со всеми статическими полями.
 
@@ -263,3 +263,9 @@
 ## Порядок выполнения
 
 Сначала базовый benchmark из задачи 11, пока production-код равен base SHA. Затем задачи 1–10 по порядку; задача 11 закрывает измерения и review gate. Слои проверяются и коммитятся отдельно, но задача не считается выполненной по сумме частичных проверок без итогового APPROVED.
+
+## Журнал выполнения
+
+- Базовый benchmark: 4 успешных terminal result, 3 worker, Node.js 26.4.0, pnpm 10.33.0; время 133573 / 137567 / 149227 / 153507 мс, пиковый RSS 3680 МиБ. Каждый прогон: 9937 заданий, 3 ошибки и 1 предупреждение в диагностической сводке. Результаты и хэши 22182 выходных файлов: `/Users/nikita/git/round-trip-reports/import-optimization-2026-09-03-aKF4E1/before.json` и `before-yaml-manifest.json`.
+- Задача 1: RED — штатное второе чтение отсутствовало (ожидалось 1 событие, получено 0); GREEN — 39 integration-тестов worker. `pnpm type-check`, `pnpm test:architecture` и проверка новых дублей прошли. Прямой `msgpackr` удалён; транзитивную зависимость LMDB не удаляем.
+- Уточнение пути теста задачи 2 при чтении кода: существующий набор compiled plan расположен в `compiledPropertyPlan.test.ts`, а не `propertyRuleRegistrySet.test.ts`; договор и объём задачи не меняются.
