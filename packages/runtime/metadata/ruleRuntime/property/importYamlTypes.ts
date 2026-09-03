@@ -12,7 +12,6 @@ import type { MetadataItemRule, PropertyRule } from "./types"
 import type { DeferredValuePath } from "./deferredObjectValues"
 import type { XmlElementNode } from "../../../xml/import/document"
 import type { XmlImportAuditSession, XmlImportAuditedNode } from "../xmlAnomaly/importAudit"
-import type { XMLImportPlanEntry } from "./xmlImportPlan"
 import type { XmlAnomalyAnnotationTable } from "../../../yaml/xmlAnomalyAnnotations"
 import {
   arrayLengthXmlImportAttemptAdapter,
@@ -62,7 +61,7 @@ export interface DirectImportRoundTripExecution {
     readonly rulePath: readonly DeferredRulePathSegment[]
   }): {
     ready(params: {
-      readonly property: XMLImportPlanEntry
+      readonly propertyKey: string
       readonly node?: XmlImportAuditedNode
       readonly presentInXML: boolean
       readonly xmlPath?: readonly string[]

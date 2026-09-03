@@ -104,7 +104,7 @@ describe("importPropertiesFromXMLToYAML", () => {
             complete() {},
           })
           return {
-            ready({ property }) { frame.execute(rules.execution.propertyPlan(rule).propertiesByKey.get(property.propertyKey)!) },
+            ready({ propertyKey }) { frame.execute(rules.execution.propertyPlan(rule).propertiesByKey.get(propertyKey)!) },
             finish() {
               frame.finish()
               const differences = proof.compare(root, { name: "Root", content: order.finish() })
@@ -547,7 +547,7 @@ describe("importPropertiesFromXMLToYAML", () => {
       yamlPath: [],
       rulePath: [],
       collector: createLocalIndexesCollector(),
-      roundTrip: { open: ({ rule }) => ({ ready: ({ property }) => { completed.push(`${rule.itemType}.${property.propertyKey}`) }, finish() {} }) },
+      roundTrip: { open: ({ rule }) => ({ ready: ({ propertyKey }) => { completed.push(`${rule.itemType}.${propertyKey}`) }, finish() {} }) },
     })
 
     expect(yaml).toEqual({ Вложенный: { Значение: "value" } })

@@ -848,7 +848,7 @@ export function importPropertiesFromXMLToYAML(params: {
     const frame = beginPropertyTypeProfile(params.profile, match.entry.rule.type)
     try {
       if (importMatchUnprofiled(match)) roundTrip?.ready({
-        property: match.entry, node: match.xmlNode, presentInXML: match.presentInXML, xmlPath: match.xmlPath,
+        propertyKey: match.entry.propertyKey, node: match.xmlNode, presentInXML: match.presentInXML, xmlPath: match.xmlPath,
       })
     } finally {
       finishPropertyTypeProfile(params.profile, frame, "XML → YAML")
