@@ -1,6 +1,7 @@
 import {
 createLocalXmlChildOrder,
 createLocalXmlProof,
+completeLocalXmlContainerBoundary,
 createXmlAnomalyAnnotations,
 localXmlShapeFromObject,
 projectLocalXmlOrder,
@@ -171,7 +172,7 @@ describe("importPropertiesFromXMLToYAML", () => {
     const roundTrip = createCompiledRuleExecution({
       execution: rules.execution,
       prepare: () => ({ context: mockContextToXML(), outputs: [{ key: "owner" }] }),
-      consumer({ rule, sources }, { childReceipt }) {
+      consumer({ rule, sources, yaml }, { childReceipt }) {
           const source = sources[0]!.xml
           if (!isXmlElementNode(source)) throw new Error("Нужен адресованный исходный XML")
           const plan = rules.execution.propertyPlan(rule)
@@ -187,7 +188,10 @@ describe("importPropertiesFromXMLToYAML", () => {
               order.set(property.propertyKey, [child])
             },
             finish() {
-              return new Map([["owner", proof.check(source, { name: source.name, content: order.finish() })]])
+              return new Map([["owner", completeLocalXmlContainerBoundary({
+                source, actual: { name: source.name, content: order.finish() },
+                proof, yaml, annotations: createXmlAnomalyAnnotations(),
+              })]])
             },
           }
       },

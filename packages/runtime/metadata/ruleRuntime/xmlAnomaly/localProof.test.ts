@@ -167,15 +167,17 @@ describe("local XML proof", () => {
     expect(serializedAtCompletion).toContain("$значение: !xml/invalid converted")
   })
 
-  it("не теряет неизвестный пустой элемент рядом с проверенным", () => {
-    const root = parseXmlDocumentWithSaxes('<Root><Known>value</Known><Unknown/></Root>').roots[0]!
-    const known = root.content[0]!
-    const unknown = root.content[1]!
+  it.each([false, true])("не теряет неизвестный элемент и его позицию: unknownFirst=%s", (unknownFirst) => {
+    const knownXML = "<Known>value</Known>"
+    const root = parseXmlDocumentWithSaxes(`<Root>${unknownFirst ? "<Unknown/>" + knownXML : knownXML + "<Unknown/>"}</Root>`).roots[0]!
+    const known = root.content[unknownFirst ? 1 : 0]!
+    const unknown = root.content[unknownFirst ? 0 : 1]!
     if (known.type !== "element" || unknown.type !== "element") throw new Error("children")
     const proof = createLocalXmlProof()
     const receipt = proof.check(known, { name: "Known", content: [{ type: "text", value: "value" }] })
     expect(proof.compare(root, { name: "Root", content: [receipt] })).toEqual([
       { kind: "presence", path: unknown.path, ownerPath: root.path },
+      ...(unknownFirst ? [{ kind: "order", path: `${root.path}/#order`, ownerPath: root.path }] : []),
     ])
     proof.finish(root, { annotated: true })
     expect(() => proof.compare(unknown, { name: "Unknown" })).toThrow(/повтор/i)

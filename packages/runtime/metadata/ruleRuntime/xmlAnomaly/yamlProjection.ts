@@ -19,6 +19,7 @@ import type {
   XmlImportAuditSession,
   XmlImportAuditState,
 } from "./importAudit"
+import { createLocalXmlScalarPatch } from "./localPatch"
 
 export interface NamedXmlCollectionEntry<T = unknown> {
   readonly key: string
@@ -211,6 +212,19 @@ function projectXmlRemainder(params: XmlAuditProjectionParams, recursive: boolea
     throw new Error(`Ближайший YAML-владелец не заявил XML-корень ${params.root.path}`)
   }
   visitKnownElement(params.root, [])
+}
+
+/** Поправка только собственных значений, без поглощения готовых детей. */
+export function projectLocalXmlOwnValues(params: {
+  readonly yaml: Record<string, unknown>
+  readonly annotations: XmlAnomalyAnnotationTable
+  readonly root: XmlElementNode
+  readonly differences: readonly XmlStructureDifference[]
+  readonly path?: readonly string[]
+}): void {
+  if (params.differences.length === 0) return
+  const patch = createLocalXmlScalarPatch(params.root, params.differences)
+  createXmlRawAppender(params)(parentRawPath(params.path ?? []), patch)
 }
 
 /** Оформление уже обнаруженного порядка, без сравнения или повторного экспорта. */

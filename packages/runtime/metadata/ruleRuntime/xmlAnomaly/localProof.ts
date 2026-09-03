@@ -131,12 +131,14 @@ export function createLocalXmlProof(instrumentation?: {
     const actualByKey = new Map(actualEntries.map((entry) => [entry.key, entry.content]))
     if (actualByKey.size !== actualEntries.length) throw new Error(`Повторный структурный вклад XML: ${source.path}`)
     const expectedKeys: string[] = []
+    const restoredKeys = actualEntries.map(({ key }) => key)
     for (const content of source.content) {
       const key = sourceContentKey(content)
       expectedKeys.push(key)
       const counterpart = actualByKey.get(key)
       if (counterpart === undefined) {
         differences.push({ kind: "presence", path: content.path, ownerPath: source.path })
+        restoredKeys.push(key)
       } else if (content.type === "element" && counterpart.type === "element") {
         if (counterpart.sourceId !== content.id || (state(content) & FINISHED) === 0) {
           throw new Error(`Дочерний XML ещё не проверен: ${content.path}`)
@@ -155,7 +157,7 @@ export function createLocalXmlProof(instrumentation?: {
       actualByKey.delete(key)
     }
     for (const [key] of actualByKey) differences.push({ kind: "presence", path: `${source.path}/${key}`, ownerPath: source.path })
-    compareOrder(expectedKeys, actualEntries.map(({ key }) => key), source.path, differences)
+    compareOrder(expectedKeys, restoredKeys, source.path, differences)
     mark(source, COMPARED | (differences.length === 0 ? 0 : DIFFERENT))
     return differences
   }
