@@ -11,6 +11,7 @@ import {
   markXmlAnomalyExportClaim,
   parseXmlDocumentWithSaxes,
   readXmlAnomalyExportClaim,
+  yamlScalarTagAt,
 } from "@nkdk/runtime"
 import { createImportedDependentPropertyCollector } from "../property/importYamlTypes"
 import type { MetadataItemRule } from "../property/types"
@@ -50,6 +51,28 @@ const singletonElementProbeRule = {
 } as const satisfies MetadataItemRule
 
 describe("одиночный элемент формы", () => {
+  it("готовит явное имя singleton до открытия локальной проверки", () => {
+    const registries = createRuleRegistrySet(metadataRules)
+    const rule = withRuleRegistrySet(registries, () => getElementRule("ExtendedTooltip"))
+    let opened: Record<string, unknown> | undefined
+    const yaml = importSingleFormElementFromXMLToYAML({
+      context: singletonElementContexts().importContext,
+      rule, xml: { _name: "ОсобаяПодсказка", _id: "2" }, ownerXmlName: "Кнопка",
+      nameStyle: { canonicalSuffix: "РасширеннаяПодсказка", referenceSuffixes: ["РасширеннаяПодсказка"], canonicalNameMode: "ownerSuffix", explicitXMLName: true },
+      traversal: {
+        yamlPath: [], rulePath: [], collector: createLocalIndexesCollector(), execution: registries.execution,
+        roundTrip: { open({ yaml }) {
+          opened = yaml
+          expect(yaml.Имя).toBe("ОсобаяПодсказка")
+          expect(yamlScalarTagAt(yaml, "Имя")).toBe("xml/name")
+          return { ready() {}, finish() { expect(yaml.Имя).toBe("ОсобаяПодсказка") } }
+        } },
+      },
+    })
+    expect(yaml).toBe(opened)
+    expect(yaml).toEqual({ Имя: "ОсобаяПодсказка" })
+  })
+
   it.each(["обычный", "singleton"] as const)(
     "передаёт полный DirectImportTraversal во вложенные свойства: %s",
     (mode) => {

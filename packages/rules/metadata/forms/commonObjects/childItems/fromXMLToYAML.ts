@@ -14,8 +14,6 @@ import type {
   ElementType,
   ElementXML,
 } from "../../../ruleRuntime/formElement/types"
-import { CollectableElementTypeToYAML } from "../../elements/ruleRuntime/types"
-import { currentRuleRegistrySet } from "@nkdk/runtime/rule-kit"
 import type { ImportFromXMLToYAMLFunction } from "@nkdk/runtime/rule-kit"
 import {
   definePropertyTypeRule,
@@ -23,11 +21,10 @@ import {
 } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
 import { defineMetadataRules } from "../../../ruleRuntime/definition"
 import { emptyMetadataRules } from "../../../ruleRuntime/definition/testSupport"
-import { importFormElementPropertiesFromXMLToYAML } from "../../elements/ruleRuntime/fromXMLToYAML"
-import { childItemsTreePropertyTypes, moveButtonTypeToTreeYAML } from "./treeYAML"
+import { importFormElementFromXMLToYAML } from "../../elements/ruleRuntime/fromXMLToYAML"
+import { childItemsTreePropertyTypes } from "./treeYAML"
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import type { TableChildItem } from "./types"
-import { copyYAMLRuntimeMetadata } from "@nkdk/runtime"
 import { formChildItemOccurrence } from "./xmlOccurrences"
 
 const resolveItemTypeFromXMLTag = (rule: PropertyRule, xmlTag: string, xmlValue?: Record<string, unknown>): string => {
@@ -97,7 +94,7 @@ export const importChildItemsFromXMLToYAML: ImportFromXMLToYAMLFunction = ({ con
       collection?.collector.setIdentity(logicalAddress, "xmlId", xmlValue._id)
     }
 
-    const properties = importFormElementPropertiesFromXMLToYAML({
+    result[itemName] = importFormElementFromXMLToYAML({
       context: itemContext,
       rule: getElementRule(itemType) as ElementRule & { itemType: CollectableElementType },
       xml: xmlValue,
@@ -108,14 +105,6 @@ export const importChildItemsFromXMLToYAML: ImportFromXMLToYAMLFunction = ({ con
         ...(itemXmlNodes?.[index] === undefined ? {} : { xmlNodes: [itemXmlNodes[index]!] }),
       },
     })
-    const treeProperties = moveButtonTypeToTreeYAML({ itemType, yaml: properties })
-    const treeItem = {
-      Вид: currentRuleRegistrySet<{ formElementKinds: ReadonlyMap<string, string> }>()
-        ?.formElementKinds.get(itemType) ?? CollectableElementTypeToYAML[itemType],
-      ...treeProperties,
-    }
-    copyYAMLRuntimeMetadata(treeProperties, treeItem)
-    result[itemName] = treeItem
   }
 
   return Object.keys(result).length === 0 ? undefined : result

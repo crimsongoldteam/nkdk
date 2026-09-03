@@ -7,6 +7,7 @@ import {
 import { getChildContextToXML } from "../../context/childContext"
 import { copyYAMLRuntimeMetadata } from "../../../yaml/runtimeMetadata"
 import type { YAMLToXMLNestedRule } from "../property/fromYAMLToXMLTypes"
+import { formElementTreeRule } from "./treeRule"
 
 type FormElementCollectionNestedRule = Extract<YAMLToXMLNestedRule, { kind: "collection" }>
 
@@ -59,7 +60,7 @@ function requireDefinedElementRule(
 ): MetadataItemRule {
   const rule = itemType === undefined ? undefined : params.elementRules[itemType]
   if (rule === undefined) throw new Error(`Unknown element type: ${itemType ?? ""}`)
-  return rule
+  return formElementTreeRule(rule)
 }
 
 function elementXMLTagName(rule: MetadataItemRule): string {
@@ -72,12 +73,10 @@ function normalizeDefinedFormElementYAML(
   rule: MetadataItemRule,
 ): Record<string, unknown> {
   const node = asNode(value, name)
-  const { Вид: _kind, Тип: _legacyKind, ТипКнопки: buttonType, ...yaml } = node
-  const result = rule.itemType === "Button" || rule.itemType === "CommandBarButton"
-    ? { ...yaml, ...(buttonType === undefined ? {} : { Вид: buttonType }) }
-    : yaml
-  copyYAMLRuntimeMetadata(node, result)
-  return result
+  const { Вид: _kind, Тип: _legacyKind, ...yaml } = node
+  if (rule.properties.type?.yaml !== "ТипКнопки") delete yaml.ТипКнопки
+  copyYAMLRuntimeMetadata(node, yaml)
+  return yaml
 }
 
 export function resolveFormElementRule(params: {
@@ -107,14 +106,7 @@ export function normalizeFormElementYAML(params: {
   name: string | undefined
   propertyRule: PropertyRule
 }): Record<string, unknown> {
-  const node = asNode(params.yaml, params.name)
-  const itemType = resolveFormElementRule(params).itemType
-  const { Вид: _kind, Тип: _legacyKind, ТипКнопки: buttonType, ...yaml } = node
-  const result = itemType === "Button" || itemType === "CommandBarButton"
-    ? { ...yaml, ...(buttonType === undefined ? {} : { Вид: buttonType }) }
-    : yaml
-  copyYAMLRuntimeMetadata(node, result)
-  return result
+  return normalizeDefinedFormElementYAML(params.yaml, params.name, resolveFormElementRule(params))
 }
 
 function asNode(value: unknown, name: string | undefined): Record<string, unknown> {

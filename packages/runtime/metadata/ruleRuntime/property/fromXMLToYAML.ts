@@ -98,6 +98,7 @@ export function importPropertiesFromXMLToYAML(params: {
   mode?: DirectImportTraversal["mode"]
   facts?: DirectImportTraversal["facts"]
   produceResult?: boolean
+  initialYAML?: Record<string, unknown>
 }): Record<string, unknown> | undefined {
   const {
     context,
@@ -121,7 +122,7 @@ export function importPropertiesFromXMLToYAML(params: {
   const selectedAmbiguousBoundaries = new Map<XmlElementNode, XmlImportAuditBoundary[]>()
 
   const retainResult = params.mode !== "facts" || params.produceResult === true
-  const result: Record<string, unknown> | undefined = retainResult ? {} : undefined
+  const result: Record<string, unknown> | undefined = retainResult ? params.initialYAML ?? {} : undefined
   const roundTrip = result === undefined || params.mode === "facts" || params.roundTrip === undefined
     ? undefined : runRoundTripStep("open", () => params.roundTrip?.open({
     context, rule, yaml: result, sources, itemName, yamlPath, rulePath,

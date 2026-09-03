@@ -9,6 +9,26 @@ import "../../elements"
 import { importChildItemsFromXMLToYAML } from "./fromXMLToYAML"
 
 describe("importChildItemsFromXMLToYAML", () => {
+  it("проверяет уже окончательные Вид и ТипКнопки, не заменяя возвращённый item", () => {
+    let closed: Record<string, unknown> | undefined
+    const yaml = importChildItemsFromXMLToYAML({
+      context: mockContextFromXML(),
+      rule: { type: "GroupChildItems", yaml: "Элементы" },
+      xml: { Button: { _name: "Изменить", Type: "Hyperlink" } },
+      traversal: {
+        yamlPath: ["Элементы"], rulePath: [{ propertyKey: "childItems" }], collector: createLocalIndexesCollector(),
+        roundTrip: { open({ yaml }) { return {
+          ready({ propertyKey }) {
+            if (propertyKey === "type") expect(yaml).toMatchObject({ Вид: "Кнопка", ТипКнопки: "Гиперссылка" })
+          },
+          finish() { closed = yaml },
+        } } },
+      },
+    })
+    expect(yaml).toEqual({ Изменить: { Вид: "Кнопка", ТипКнопки: "Гиперссылка" } })
+    expect((yaml as Record<string, unknown>).Изменить).toBe(closed)
+  })
+
   it("строит YAML и плоские адреса обычного и single-элементов", () => {
     const configurationIndex = createConfigurationIndexCollector()
     const context = withConfigurationIndexFormElementRootLogicalAddress(
