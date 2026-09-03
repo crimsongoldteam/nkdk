@@ -35,6 +35,7 @@ const commonFormFixtureDir = join(
 )
 const languageFixtureDir = join(import.meta.dirname, "../appliedObjects/metadataLanguage/__fixtures__")
 const borrowedCommandBarButtonName = "ОбщаяПанельнаяКнопка"
+const baseFormUuid = "4e9b2646-e73a-4c98-ad43-19ac74b24770"
 const temporaryRoot = fs.mkdtempSync(join(os.tmpdir(), "nkdk-extension-import-"))
 let temporaryDirectoryIndex = 0
 const xmlImportWorkerPoolHandle = createXmlImportWorkerTestPool()
@@ -202,6 +203,11 @@ async function importExtension() {
   ]) {
     removeUnknownPropertyStates(join(inputDir, ...relativePath.split("/")))
   }
+  replaceExactlyOnce(
+    join(inputDir, "Catalogs", "СправочникПолный", "Forms", "ФормаОтчета.xml"),
+    "88888888-8888-4888-8888-888888888888",
+    baseFormUuid,
+  )
   replaceExactlyOnce(
     join(inputDir, "Catalogs", "СправочникПолный", "Forms", "ФормаОтчета", "Ext", "Form.xml"),
     "\t\t\t\t<Width>99</Width>",
@@ -572,11 +578,6 @@ function addFormWithoutBase(inputDir: string): void {
     "77777777-7777-4777-8777-777777777777",
     "99999999-9999-4999-8999-999999999999",
   )
-  replaceExactlyOnce(
-    targetMetadataPath,
-    "88888888-8888-4888-8888-888888888888",
-    "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
-  )
   replaceExactlyOnce(targetMetadataPath, "<Name>ФормаОтчета</Name>", "<Name>ФормаБезОсновы</Name>")
   const targetFormPath = join(targetFormDir, "Ext", "Form.xml")
   removeBaseFormElement(targetFormPath)
@@ -623,11 +624,6 @@ function addFormWithRedundantBase(inputDir: string): void {
     "99999999-9999-4999-8999-999999999999",
     "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
   )
-  replaceExactlyOnce(
-    targetMetadataPath,
-    "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
-    "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
-  )
   replaceExactlyOnce(targetMetadataPath, "<Name>ФормаБезОсновы</Name>", "<Name>ФормаРавнаяОснова</Name>")
 
   const targetFormPath = join(targetFormDir, "Ext", "Form.xml")
@@ -668,11 +664,6 @@ function addFormWithHistoricalElement(inputDir: string): void {
     targetMetadataPath,
     "99999999-9999-4999-8999-999999999999",
     "12121212-1212-4121-8121-121212121212",
-  )
-  replaceExactlyOnce(
-    targetMetadataPath,
-    "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
-    "13131313-1313-4131-8131-131313131313",
   )
   replaceExactlyOnce(
     targetMetadataPath,

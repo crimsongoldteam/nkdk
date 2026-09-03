@@ -214,7 +214,7 @@ export const FormAttributeColumnRules = {
   },
 } as const satisfies MetadataItemRule
 
-const FormAttributeAdditionalColumnRules = {
+export const FormAttributeAdditionalColumnRules = {
   itemType: "FormAttributeAdditionalColumn",
   properties: {
     table: stringRule({ xml: "_table", required: true }),

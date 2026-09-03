@@ -43,6 +43,7 @@ import type {
   ImportAssignment,
   ImportDiagnostic,
   ImportExternalFile,
+  ImportProjectIssueDecision,
   ImportResultFile,
   ImportSnapshotFile,
 } from "./types"
@@ -55,6 +56,7 @@ import {
 import { prepareImportXmlReconstructionProfile } from "./reconstructionProfile"
 import { configurationExtensionTypeDescriptionXMLNameByCompatibilityMode } from "../appliedObjects/configurationExtension/typeDescriptionPolicy"
 import type { XmlComponentExportProfile } from "../project/xmlReconstructionProfile"
+import { classifyImportedIssues } from "./classifyImportedIssues"
 
 export interface ConfigurationImportResult {
   componentPath?: string
@@ -336,6 +338,25 @@ export async function importConfigurationFromXml(
       await importSession.writeStateFragment(externalWriter.finish())
     }
     const semanticReadToken = await importSession.commitSemanticIndex()
+    const semanticValidation = await profiler.measureAsync(
+      "Подготовка импорта конфигурации",
+      "Классификация смысловых аномалий первого прохода",
+      { items: discovered.assignments.length },
+      () => importSession!.collectSemanticValidationIssues(),
+    )
+    const classifiedSemanticValidation = classifyImportedIssues({
+      issues: semanticValidation.map(({ issue }) => issue),
+      // Точный вид тега зависит от rules и определяется worker на готовом YAML.
+      requiresImportant: () => false,
+    })
+    if (classifiedSemanticValidation.fatal.length > 0) {
+      throw new Error(`Смысловой индекс import завершился внутренней ошибкой: ${classifiedSemanticValidation.fatal
+        .map(({ code }) => code).join(", ")}`)
+    }
+    const semanticIssueDecisions: ImportProjectIssueDecision[] = semanticValidation.flatMap(({ projectPath, issue }) => {
+      const classified = classifyImportedIssues({ issues: [issue], requiresImportant: () => false })
+      return classified.decisions.map((decision) => ({ targetProjectPath: projectPath, decision }))
+    })
     const reconstructionProfile = await profiler.measureAsync(
       "Подготовка импорта конфигурации",
       "Подготовка профиля восстановления XML компонента",
@@ -369,7 +390,7 @@ export async function importConfigurationFromXml(
       "Подготовка импорта конфигурации",
       "Второй проход worker",
       { items: discovered.assignments.length },
-      () => pool!.runSecondPass(readTokens, exportProfile, stateSink)
+      () => pool!.runSecondPass(readTokens, exportProfile, stateSink, semanticIssueDecisions)
     )
     temporaryCollections.push(second.diagnostics, second.warnings, second.files)
     warnings = [...second.warnings]

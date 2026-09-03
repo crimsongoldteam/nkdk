@@ -10,6 +10,7 @@ import {
   type MetadataItemRule,
   type PreparedImportDependencies,
   type DirectImportFactsSink,
+  type CompiledPropertyRuleExecution,
 } from "@nkdk/runtime/rule-kit"
 
 export interface ImportDependencyFacts {
@@ -28,6 +29,7 @@ export function collectImportDependencyFacts(params: {
   readonly yaml: unknown
   readonly candidates: readonly ImportedDependentPropertyCandidate[]
   readonly propertyFacts?: readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][]
+  readonly execution?: CompiledPropertyRuleExecution
 }): ImportDependencyFacts {
   const properties = new Map<string, DependentImportFacts>()
   const items = new Map<string, DependentImportFacts>()
@@ -38,9 +40,12 @@ export function collectImportDependencyFacts(params: {
     inspectedItems.add(address)
     const item = recordAtPath(params.yaml, itemYamlPath)
     if (item === undefined) return undefined
-    const facts = prepareDependentImportFacts({
+    const request = {
       itemType, itemName, itemYamlPath, item, rootYaml: params.yaml, rootRule: params.rule, owner: params.owner,
-    })
+    }
+    const facts = params.execution === undefined
+      ? prepareDependentImportFacts(request)
+      : params.execution.prepareDependentImportFacts(request)
     if (facts !== undefined) items.set(address, facts)
     return facts
   }
@@ -54,7 +59,9 @@ export function collectImportDependencyFacts(params: {
     if (fact.itemRule === undefined) continue
     let dependent = dependentRules.get(fact.itemRule)
     if (dependent === undefined) {
-      dependent = Object.keys(fact.itemRule.properties).some(key => isDependentImportProperty(fact.itemType, key))
+      dependent = Object.keys(fact.itemRule.properties).some(key => params.execution === undefined
+        ? isDependentImportProperty(fact.itemType, key)
+        : params.execution.isDependentImportProperty(fact.itemType, key))
       dependentRules.set(fact.itemRule, dependent)
     }
     if (dependent) {
@@ -81,6 +88,7 @@ export function collectImportDependencyFacts(params: {
 export function prepareImportDependencies(
   facts: ImportDependencyFacts,
   lookups: Pick<DependentItemParams, "definedTypeLookup" | "metadataTargetLookup"> = {},
+  execution?: CompiledPropertyRuleExecution,
 ): PreparedImportDependencies {
   return {
     itemFacts: (path, itemType) => facts.items.get(itemAddress(path, itemType)),
@@ -90,7 +98,7 @@ export function prepareImportDependencies(
       if (dependency === undefined) return false
       const item = { ...dependency.item, ...values }
       copyYAMLRuntimeMetadata(values, item)
-      return shouldRemoveImportedDependentProperty({
+      const request = {
         ...lookups,
         itemType: candidate.itemType,
         itemName: candidate.itemName,
@@ -100,7 +108,10 @@ export function prepareImportDependencies(
         rootRule: facts.rule,
         owner: facts.owner,
         candidate,
-      })
+      }
+      return execution === undefined
+        ? shouldRemoveImportedDependentProperty(request)
+        : execution.shouldRemoveImportedDependentProperty(request)
     },
   }
 }

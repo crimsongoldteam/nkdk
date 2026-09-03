@@ -40,7 +40,10 @@ export function createCompiledRuleExecution(params: {
     childReceipt(value: unknown): LocalXmlChild | undefined
     scalarReceipt(value: unknown): LocalXmlScalar | undefined
   }, prepared: YAMLToXMLItemConversionParams) => CompiledXMLProofConsumer
-}): DirectImportRoundTripExecution & { takeResult(yaml: object): CompiledXMLProofResult } {
+}): DirectImportRoundTripExecution & {
+  takeResult(yaml: object): CompiledXMLProofResult
+  retainReceipt(receipt: LocalXmlChild): object
+} {
   const completed = new WeakMap<object, { readonly rule: MetadataItemRule; readonly result: CompiledXMLProofResult }>()
   // Идентичность границы переносится штатным копированием служебных меток YAML.
   // Ключ не содержит ни исходного YAML, ни контрольного XML и живёт только в этом запуске.
@@ -235,5 +238,10 @@ export function createCompiledRuleExecution(params: {
       }
     },
     takeResult(yaml) { return take(yaml).result },
+    retainReceipt(receipt) {
+      const marker = markLocalXmlBoundary({})
+      markers.set(marker, receipt)
+      return marker
+    },
   }
 }

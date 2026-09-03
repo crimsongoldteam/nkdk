@@ -107,6 +107,12 @@ export function createPropertyRuleExecutor(
     isDependentImportProperty(itemType, propertyKey) {
       return registries.isDependentImportProperty(itemType, propertyKey)
     },
+    prepareDependentImportFacts(params) {
+      return registries.prepareDependentImportFacts(params)
+    },
+    shouldRemoveImportedDependentProperty(params) {
+      return registries.shouldRemoveImportedDependentProperty(params)
+    },
     getMetadataTargetOwnerResolver(itemType) {
       return registries.getMetadataTargetOwnerResolver(itemType)
     },

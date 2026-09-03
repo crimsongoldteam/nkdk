@@ -62,7 +62,10 @@ export function createLocalXmlBodyConsumer(params: {
       const envelopedBody = unwrapEnvelope(finalized, params.xmlEnvelope)
       const wrapped = params.itemPreparation?.wrap === undefined ? undefined : unwrapPreparedItem(envelopedBody)
       const preparedBody = wrapped?.body ?? envelopedBody
-      for (const { property, path } of writes.values()) {
+      // Сначала закрываем самые глубокие границы. Родительский контейнер затем
+      // получает их компактные подтверждения и не обходит тот же XML повторно.
+      const orderedWrites = [...writes.values()].sort((left, right) => right.path.length - left.path.length)
+      for (const { property, path } of orderedWrites) {
         const binding = bindings.get(property.propertyKey)
         if (binding === undefined) throw new Error(`Не передана исходная XML-граница свойства ${property.propertyKey}`)
         const value = readPath(preparedBody, path)

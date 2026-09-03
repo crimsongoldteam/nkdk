@@ -100,6 +100,14 @@ export interface PropertyRuleExecution {
     readonly schema: TSchema
   }): string | undefined
   isDependentImportProperty(itemType: string, propertyKey: string): boolean
+  prepareDependentImportFacts(
+    params: import("./dependentItemRegistry").DependentItemParams,
+  ): import("./dependentItemRegistry").DependentImportFacts | undefined
+  shouldRemoveImportedDependentProperty(
+    params: import("./dependentItemRegistry").DependentItemParams & {
+      readonly candidate: import("./dependentItemRegistry").DependentImportedPropertyCandidate
+    },
+  ): boolean
   getMetadataTargetOwnerResolver(
     itemType: string,
   ): MetadataTargetOwnerResolver | undefined

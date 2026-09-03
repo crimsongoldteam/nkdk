@@ -99,8 +99,8 @@ describe("FormAttributes XML → YAML → XML", () => {
       })
       const dependencies = prepareImportDependencies(collectImportDependencyFacts({
         rule: FormAttributeRules, owner: { dir: "ОбщаяФорма", name: "Форма" }, yaml: first,
-        candidates: dependent.finish(), propertyFacts: propertyFacts.finish(),
-      }))
+        candidates: dependent.finish(), propertyFacts: propertyFacts.finish(), execution: registries.execution,
+      }), {}, registries.execution)
       const writes: unknown[] = []
       const roundTrip = createCompiledRuleExecution({
         execution: registries.execution,
@@ -141,10 +141,11 @@ describe("FormAttributes XML → YAML → XML", () => {
       })
       const facts = collectImportDependencyFacts({
         rule: itemRule, owner: { dir: "ОбщаяФорма", name: "Форма" }, yaml: first, candidates: dependent.finish(),
+        execution: registries.execution,
       })
       let inspected = false
       importPropertiesFromXMLToYAML({ ...params,
-        collector: createLocalIndexesCollector(), dependencies: prepareImportDependencies(facts),
+        collector: createLocalIndexesCollector(), dependencies: prepareImportDependencies(facts, {}, registries.execution),
         roundTrip: { open({ rule: currentRule, yaml }) { return {
           ready({ propertyKey }) { if (currentRule === FormAttributeRules && propertyKey === "valueType") {
             expect(yaml.ТипЗначения).toBe(expected)

@@ -21,7 +21,14 @@ export function createImportLocalRoundTrip(params: {
   readonly context: ConfigurationContextWithExportToXML
   readonly annotations: XmlAnomalyAnnotationTable
   readonly decisions: readonly ImportedIssueDecision[]
-  readonly selectDecisions?: (yaml: Record<string, unknown>) => readonly ImportedIssueDecision[]
+  readonly selectDecisions?: (
+    yaml: Record<string, unknown>,
+    rule: import("@nkdk/runtime/rule-kit").MetadataItemRule,
+  ) => readonly ImportedIssueDecision[]
+  readonly finalizeRootYaml?: (
+    yaml: Record<string, unknown>,
+    rule: import("@nkdk/runtime/rule-kit").MetadataItemRule,
+  ) => void
   readonly prepareRootOutput?: (params: {
     readonly key: string
     readonly source: XmlElementNode
@@ -30,7 +37,15 @@ export function createImportLocalRoundTrip(params: {
     readonly key: string
     readonly source: XmlElementNode
   }) => ConfigurationContextWithExportToXML | undefined
-}): DirectImportRoundTripExecution & { release(yaml: object): void } {
+  readonly prepareRootProof?: (params: {
+    readonly key: string
+    readonly source: XmlElementNode
+  }) => ReturnType<typeof createLocalXmlProof> | undefined
+}): DirectImportRoundTripExecution & {
+  takeResult(yaml: object): import("@nkdk/runtime/rule-kit").CompiledXMLProofResult
+  retainReceipt(receipt: import("@nkdk/runtime/rule-kit").LocalXmlChild): object
+  release(yaml: object): void
+} {
   const active: SourceBoundary[][] = []
   const preparedByYaml = new WeakMap<object, SourceBoundary[]>()
   const opened = new WeakMap<XmlElementNode, string>()
@@ -48,7 +63,7 @@ export function createImportLocalRoundTrip(params: {
         return {
           key: `source-${index}`,
           source: xml,
-          proof: inherited?.proof ?? createLocalXmlProof(),
+          proof: inherited?.proof ?? params.prepareRootProof?.({ key: `source-${index}`, source: xml }) ?? createLocalXmlProof(),
         }
       })
       preparedByYaml.set(item.yaml, sources)
@@ -73,12 +88,15 @@ export function createImportLocalRoundTrip(params: {
         })),
       }
     },
-    beforeFinish({ yaml, root }) {
-      if (!root || params.decisions.length === 0) return
+    beforeFinish({ yaml, rule, root }) {
+      params.finalizeRootYaml?.(yaml, rule)
+      if (!root) return
+      const decisions = params.selectDecisions?.(yaml, rule) ?? params.decisions
+      if (decisions.length === 0) return
       applyImportedIssueDecisions({
         data: yaml,
         annotations: params.annotations,
-        decisions: params.selectDecisions?.(yaml) ?? params.decisions,
+        decisions,
       })
     },
     consumer({ yaml, rule }, receipts, prepared) {
@@ -106,7 +124,7 @@ export function createImportLocalRoundTrip(params: {
               return delegate.finish(output)
             } catch (cause) {
               const message = cause instanceof Error ? cause.message : String(cause)
-              throw new Error(`${rule.itemType} ${itemDescription(yaml, sources)}: ${message}`, { cause })
+              throw new Error(`${rule.itemType} ${itemDescription(yaml, sources, opened)}: ${message}`, { cause })
             }
           } finally {
             if (active.at(-1) !== sources) throw new Error("XML-границы локального proof закрываются вне порядка")
@@ -119,6 +137,8 @@ export function createImportLocalRoundTrip(params: {
   return {
     ...execution,
     accepts(sources) { return sources.every(({ xml }) => isXmlElementNode(xml)) },
+    takeResult(yaml) { return execution.takeResult(yaml) },
+    retainReceipt(receipt) { return execution.retainReceipt(receipt) },
     release(yaml) { execution.takeResult(yaml) },
   }
 }
@@ -136,8 +156,11 @@ function withSourceTransportAttributes(
   return {
     attributes: (own) => {
       const result = { ...(preparation?.attributes(own) ?? own) }
+      for (const key of Object.keys(result)) {
+        if (key.startsWith("_") && TRANSPORT_ATTRIBUTE.test(key.slice(1))) delete result[key]
+      }
       for (const [key, value] of Object.entries(retained)) {
-        if (!Object.prototype.hasOwnProperty.call(result, key)) result[key] = value
+        result[key] = value
       }
       return result
     },
@@ -147,8 +170,12 @@ function withSourceTransportAttributes(
   }
 }
 
-function itemDescription(yaml: Record<string, unknown>, sources: readonly SourceBoundary[]): string {
-  return `${sources.map(({ source }) => source.path).join(", ")} (${Object.keys(yaml).join(", ")})`
+function itemDescription(
+  yaml: Record<string, unknown>,
+  sources: readonly SourceBoundary[],
+  opened: WeakMap<XmlElementNode, string>,
+): string {
+  return `${sources.map(({ source }) => `${source.path} @ ${opened.get(source) ?? "?"}`).join(", ")} (${Object.keys(yaml).join(", ")})`
 }
 
 function isInside(parent: XmlElementNode, child: XmlElementNode): boolean {

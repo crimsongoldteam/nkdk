@@ -71,6 +71,7 @@ export async function prepareImportFacts(params: {
   readonly inputs: readonly ParsedImportXmlDocument[]
   readonly topology?: CompiledMetadataResourceTopology
   readonly profiler?: ValidationProfiler
+  readonly execution?: import("@nkdk/runtime/rule-kit").CompiledPropertyRuleExecution
 }): Promise<PreparedImportFacts> {
   const inputs = parsedInputs(params.inputs)
   const {
@@ -166,6 +167,7 @@ export async function prepareImportFacts(params: {
       owner: dependentOwner,
       candidates: dependentCandidates,
       propertyFacts: acceptedFacts,
+      ...(params.execution === undefined ? {} : { execution: params.execution }),
     }),
     assignment: params.assignment,
     targetProjectPath: params.assignment.targetProjectPath,
@@ -200,34 +202,50 @@ function prepareFormValidationFacts(params: {
   if (params.rule.itemType !== ClientApplicationFormRules.itemType) return undefined
   const form = importedClientApplicationForm({ yaml: projection, rule: params.rule })
   if (form === undefined) return undefined
-  const pendingChecks: ValidationPendingCheck[] = collectFormDataPathOccurrencesFromYAML({
+  const pendingChecks = prepareImportedFormDataPathChecks({
     yaml: form.yaml,
     rule: form.rule,
+    index,
+    owner: { kind: params.owner.dir, name: params.owner.name },
+    targetProjectPath: params.assignment.targetProjectPath,
+  })
+  return {
+    index,
+    owner: { kind: params.owner.dir, name: params.owner.name },
+    pendingChecks,
+  }
+}
+
+export function prepareImportedFormDataPathChecks(params: {
+  readonly yaml: unknown
+  readonly rule: MetadataItemRule
+  readonly index: NonNullable<LocalIndexes["metadata"]["formDataPathIndex"]>
+  readonly owner: { readonly kind: string; readonly name: string }
+  readonly targetProjectPath: string
+}): ValidationPendingCheck[] {
+  return collectFormDataPathOccurrencesFromYAML({
+    yaml: params.yaml,
+    rule: params.rule,
     resolveCollectionItemRule: ({ yaml, propertyRule }) =>
       resolveClientApplicationFormCollectionItemRule({ yaml, propertyRule }),
   }).map((occurrence) => ({
     kind: "dataPath",
     yamlPath: [...occurrence.yamlPath],
     location: {
-      filePath: params.assignment.targetProjectPath,
+      filePath: params.targetProjectPath,
       line: 1,
       col: 1,
       path: yamlPathToPointer(occurrence.yamlPath),
     },
-    owner: { kind: params.owner.dir, name: params.owner.name },
+    owner: params.owner,
     value: occurrence.value,
-    index,
+    index: params.index,
     policyInput: toDataPathPolicyInput(occurrence.rule),
     ...(occurrence.elementType === undefined ? {} : { elementType: occurrence.elementType }),
     ...(occurrence.hasValuesPicture === true ? { hasValuesPicture: true } : {}),
     ...(occurrence.tableContext === undefined ? {} : { tableContext: occurrence.tableContext }),
     policy: "formDataPath",
   }))
-  return {
-    index,
-    owner: { kind: params.owner.dir, name: params.owner.name },
-    pendingChecks,
-  }
 }
 
 function projectAcceptedPropertyFacts(

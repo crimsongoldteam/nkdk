@@ -15,7 +15,7 @@ import { importMetadataItemFromXMLToYAML } from "../../../ruleRuntime/metadataIt
 import type { ImportFromXMLToYAMLFunction } from "@nkdk/runtime/rule-kit"
 import { enterNestedYamlRule } from "../../../ruleRuntime/property/yamlRuleCursor"
 import { definePropertyTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
-import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
+import { FormAttributeAdditionalColumnRules, FormAttributeColumnRules, FormAttributeRules } from "./rules"
 import { hasSoleValueListType } from "./valueListSettings"
 import { isMetadataNameYAML } from "../../../commonObjects/metadataName/types"
 import { collapseKnownDuplicateErpAdditionalColumns } from "../../knownAnomalies"
@@ -157,6 +157,31 @@ function importAdditionalColumnsFromXMLToYAML(
         return typeof name === "string" ? name : undefined
       },
     })
+    if (collapsed === undefined) {
+      const itemTraversal = enterNestedYamlRule(
+        { ...params.traversal, yamlPath: [...params.traversal.yamlPath, table] },
+        FormAttributeAdditionalColumnRules.itemType,
+      )
+      const yaml = importMetadataItemFromXMLToYAML({
+        context,
+        rule: FormAttributeAdditionalColumnRules,
+        xml: itemNode ?? item,
+        name: table,
+        traversal: {
+          ...itemTraversal,
+          ...(itemNode === undefined ? {} : { xmlNodes: [itemNode] }),
+        },
+      })
+      // У inline-обёртки без Column смысловой результат пуст, но сама XML-
+      // граница уже закрыта и должна остаться элементом коллекции.
+      const yamlRecord = objectRecordOrUndefined(yaml) ?? {}
+      entries.push({ key: table, value: yamlRecord })
+      importedItems.push({
+        sourceYamlPath: itemTraversal.yamlPath,
+        ...(itemNode === undefined ? {} : { xmlNode: itemNode }),
+      })
+      continue
+    }
     if (collapsed !== undefined && columnNodes?.length === columnItems.length) {
       const omittedNodes = columnNodes.slice(1)
       const itemTraversal = enterNestedYamlRule(

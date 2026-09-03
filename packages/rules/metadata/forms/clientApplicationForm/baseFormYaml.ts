@@ -1,9 +1,9 @@
 import {
   childSegmentUid,
   copyYAMLRuntimeMetadata,
-  copyYAMLRuntimeMetadataDeep,
   createXmlAnomalyAnnotations,
   type XmlAnomalyAnnotationTable,
+  type XmlElementNode,
 } from "@nkdk/runtime"
 import {
   getConfigurationIndexCollectionContext,
@@ -39,11 +39,15 @@ export interface ImportedBaseFormYaml {
 
 export function importBaseFormYaml(params: {
   context: Parameters<typeof importClientApplicationFormBodyFromXML>[0]["context"]
-  baseFormXML: ClientApplicationFormXML
+  baseFormXML: ClientApplicationFormXML | XmlElementNode
   formName: string
   rule?: MetadataItemRule
+  annotations?: XmlAnomalyAnnotationTable
+  dependencies?: Parameters<typeof importClientApplicationFormBodyFromXML>[0]["dependencies"]
+  roundTrip?: Parameters<typeof importClientApplicationFormBodyFromXML>[0]["roundTrip"]
+  beforeFinish?: (yaml: Record<string, unknown>) => void
 }): ImportedBaseFormYaml {
-  const importedAnnotations = createXmlAnomalyAnnotations()
+  const importedAnnotations = params.annotations ?? createXmlAnomalyAnnotations()
   const configurationIndexCollector = createConfigurationIndexCollector()
   const currentCollection = getConfigurationIndexCollectionContext(params.context)
   const formLogicalAddress = currentCollection?.logicalAddress ?? params.formName
@@ -62,15 +66,15 @@ export function importBaseFormYaml(params: {
     collector: localIndexesCollector,
     deferred,
     annotations: importedAnnotations,
+    dependencies: params.dependencies,
+    roundTrip: params.roundTrip,
+    beforeFinish: (yaml) => {
+      normalizeBaseFormYamlInPlace(yaml)
+      params.beforeFinish?.(yaml)
+    },
   })
-  const yaml = normalizeBaseFormYaml(imported.yaml)
-  const annotations = createXmlAnomalyAnnotations()
-  copyYAMLRuntimeMetadataDeep({
-    source: imported.yaml,
-    target: yaml,
-    sourceAnnotations: importedAnnotations,
-    targetAnnotations: annotations,
-  })
+  const yaml = imported.yaml
+  const annotations = importedAnnotations
   const localIndexes = localIndexesCollector.finish()
   localIndexes.metadata.formDataPathIndex = createFormDataPathIndexFromYAML(yaml)
   return {
@@ -80,6 +84,22 @@ export function importBaseFormYaml(params: {
     deferred: deferred.finish(),
     generatedFiles: imported.generatedFiles,
     configurationIndexCollector,
+  }
+}
+
+function normalizeBaseFormYamlInPlace(value: unknown): void {
+  if (isExplicitYAMLString(value)) return
+  if (Array.isArray(value)) {
+    for (const child of value) normalizeBaseFormYamlInPlace(child)
+    return
+  }
+  if (!isRecord(value)) return
+  for (const [key, child] of Object.entries(value)) {
+    if (isXmlServiceKey(key)) {
+      delete value[key]
+      continue
+    }
+    normalizeBaseFormYamlInPlace(child)
   }
 }
 

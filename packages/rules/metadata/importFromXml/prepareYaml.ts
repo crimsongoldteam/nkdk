@@ -2,6 +2,7 @@ import fs from "node:fs"
 import {
   createXmlAnomalyAnnotations,
   createXmlImportAuditSession,
+  createLocalXmlProof,
   parseXmlCompatibilityWithRootStructures,
   parseXmlDocumentWithSaxes,
   type XmlAnomalyAnnotationTable,
@@ -86,6 +87,27 @@ export interface PreparedBaseFormCandidate {
   localIndexes: LocalIndexes
   deferred: readonly DeferredObjectValue[]
   configurationFragment: ConfigurationIndexBlockFragment
+  localProofReceipt?: import("@nkdk/runtime/rule-kit").LocalXmlChild
+}
+
+interface ImportLocalRoundTripOptions {
+  readonly execution: CompiledPropertyRuleExecution
+  readonly context: ConfigurationContextWithExportToXML
+  readonly decisions: readonly ImportedIssueDecision[]
+  readonly selectDecisions?: (
+    yaml: Record<string, unknown>,
+    rule: MetadataItemRule,
+  ) => readonly ImportedIssueDecision[]
+  readonly finalizeRootYaml?: (
+    yaml: Record<string, unknown>,
+    rule: MetadataItemRule,
+    annotations: import("@nkdk/runtime").XmlAnomalyAnnotationTable,
+    savedBaseYAML: unknown | undefined,
+  ) => void
+  readonly prepareRootProof?: (params: {
+    readonly key: string
+    readonly source: XmlElementNode
+  }) => ReturnType<typeof createLocalXmlProof> | undefined
 }
 
 export interface ParsedImportXmlInput {
@@ -168,12 +190,7 @@ export async function prepareImportYamlFromDocuments(params: {
   readonly inputs: readonly ParsedImportXmlDocument[]
   readonly profiler?: ValidationProfiler
   readonly topology?: CompiledMetadataResourceTopology
-  readonly localRoundTrip?: {
-    readonly execution: CompiledPropertyRuleExecution
-    readonly context: ConfigurationContextWithExportToXML
-    readonly decisions: readonly ImportedIssueDecision[]
-    readonly selectDecisions?: (yaml: Record<string, unknown>) => readonly ImportedIssueDecision[]
-  }
+  readonly localRoundTrip?: ImportLocalRoundTripOptions
 }): Promise<PreparedImportYaml> {
   return prepareImportYamlFromParsedInputs({
     ...params,
@@ -196,12 +213,7 @@ function prepareImportYamlFromParsedInputs(params: {
   readonly profiler?: ValidationProfiler
   readonly topology?: CompiledMetadataResourceTopology
   readonly proofDetail?: "full" | "roots"
-  readonly localRoundTrip?: {
-    readonly execution: CompiledPropertyRuleExecution
-    readonly context: ConfigurationContextWithExportToXML
-    readonly decisions: readonly ImportedIssueDecision[]
-    readonly selectDecisions?: (yaml: Record<string, unknown>) => readonly ImportedIssueDecision[]
-  }
+  readonly localRoundTrip?: ImportLocalRoundTripOptions
 }): PreparedImportYaml {
     const xmlInputs = params.xmlInputs
     const annotations = createXmlAnomalyAnnotations()
@@ -220,16 +232,51 @@ function prepareImportYamlFromParsedInputs(params: {
     const formProofContexts = params.localRoundTrip === undefined || rule.itemType !== ClientApplicationFormRules.itemType
       ? undefined
       : prepareClientApplicationFormProofContexts(params.localRoundTrip.context)
-    const localRoundTrip = params.localRoundTrip === undefined ? undefined : createImportLocalRoundTrip({
-      ...params.localRoundTrip,
+    const formBodyProof = params.localRoundTrip === undefined || rule.itemType !== ClientApplicationFormRules.itemType
+      ? undefined
+      : createLocalXmlProof()
+    const localRoundTripParams = params.localRoundTrip === undefined
+      ? undefined
+      : (({ finalizeRootYaml: _finalizeRootYaml, ...rest }) => rest)(params.localRoundTrip)
+    const finalizeRootYaml = params.localRoundTrip?.finalizeRootYaml
+    const baseFormCandidate = importAssignmentBaseFormCandidate({
+      assignment: params.assignment,
+      topology: params.topology,
+      inputs: xmlInputs,
+      context: importContext,
+      dependencies: params.dependencies,
+      ...(localRoundTripParams === undefined
+        ? {}
+        : {
+            localRoundTrip: {
+              ...localRoundTripParams,
+              finalizeRootYaml,
+              prepareRootProof: ({ key }) => key === "source-0" ? formBodyProof : undefined,
+            },
+          }),
+    })
+    let localRoundTrip: ReturnType<typeof createImportLocalRoundTrip> | undefined
+    localRoundTrip = localRoundTripParams === undefined ? undefined : createImportLocalRoundTrip({
+      ...localRoundTripParams,
       annotations,
+      ...(finalizeRootYaml === undefined
+        ? {}
+        : { finalizeRootYaml: (yaml: Record<string, unknown>, itemRule: MetadataItemRule) =>
+            finalizeRootYaml(yaml, itemRule, annotations, baseFormCandidate?.yaml) }),
       ...(rule.itemType !== ClientApplicationFormRules.itemType
         ? {}
         : {
             prepareRootOutput: ({ key, source }: { readonly key: string; readonly source: XmlElementNode }) =>
-              prepareClientApplicationFormRootOutput({ key, source, context: params.localRoundTrip!.context }),
+              withBaseFormReceipt(
+                prepareClientApplicationFormRootOutput({ key, source, context: localRoundTripParams.context }),
+                key === "source-0" && baseFormCandidate?.localProofReceipt !== undefined
+                  ? localRoundTrip!.retainReceipt(baseFormCandidate.localProofReceipt)
+                  : undefined,
+              ),
             prepareRootContext: ({ key }: { readonly key: string }) =>
               key === "source-0" ? formProofContexts?.form : formProofContexts?.metadata,
+            prepareRootProof: ({ key }: { readonly key: string }) =>
+              key === "source-0" ? formBodyProof : undefined,
           }),
     })
     const audit = params.proofDetail === "roots" || localRoundTrip !== undefined
@@ -272,12 +319,6 @@ function prepareImportYamlFromParsedInputs(params: {
         if (imported.yaml !== undefined && imported.yaml !== null && typeof imported.yaml === "object") {
           localRoundTrip?.release(imported.yaml)
         }
-        const baseFormCandidate = importAssignmentBaseFormCandidate({
-          assignment: params.assignment,
-          topology: params.topology,
-          inputs: xmlInputs,
-          context: importContext,
-        })
         return {
           ...imported,
           dependentDeferred: [],
@@ -332,12 +373,6 @@ function prepareImportYamlFromParsedInputs(params: {
       const localIndexes = collector.finish()
       const formDataPathIndex = createImportedFormDataPathIndex({ yaml, rule })
       if (formDataPathIndex !== undefined) localIndexes.metadata.formDataPathIndex = formDataPathIndex
-      const baseFormCandidate = importAssignmentBaseFormCandidate({
-        assignment: params.assignment,
-        topology: params.topology,
-        inputs: xmlInputs,
-        context: importContext,
-      })
       return {
         yaml,
         localIndexes,
@@ -418,18 +453,49 @@ function importAssignmentBaseFormCandidate(params: {
   readonly topology?: CompiledMetadataResourceTopology
   readonly inputs: readonly ParsedImportXmlInput[]
   readonly context: XmlImportConfigurationContext
+  readonly dependencies?: PreparedImportDependencies
+  readonly localRoundTrip?: Omit<ImportLocalRoundTripOptions, "finalizeRootYaml"> & {
+    readonly finalizeRootYaml?: ImportLocalRoundTripOptions["finalizeRootYaml"]
+  }
 }): PreparedBaseFormCandidate | undefined {
-  const bodyXML = params.inputs.find(({ input }) => input.role === "body")?.parsed
+  const bodyInput = params.inputs.find(({ input }) => input.role === "body")
+  const bodyXML = bodyInput?.parsed
   const baseFormXML = (bodyXML?.["Form"] as ClientApplicationFormXML | undefined)?.BaseForm
   if (baseFormXML === undefined) return undefined
+  const formNode = bodyInput?.document?.roots.find(({ name }) => name === "Form")
+  const baseFormNode = formNode?.content.find(
+    (node): node is XmlElementNode => node.type === "element" && node.name === "BaseForm",
+  )
   const companion = resolveBaseFormCompanion(params.assignment, params.topology)
   if (companion === undefined) return undefined
+  const annotations = createXmlAnomalyAnnotations()
+  const localRoundTrip = params.localRoundTrip === undefined ? undefined : createImportLocalRoundTrip({
+    execution: params.localRoundTrip.execution,
+    context: params.localRoundTrip.context,
+    decisions: [],
+    annotations,
+    ...(params.localRoundTrip.prepareRootProof === undefined
+      ? {}
+      : { prepareRootProof: params.localRoundTrip.prepareRootProof }),
+    ...(params.localRoundTrip.finalizeRootYaml === undefined
+      ? {}
+      : {
+          finalizeRootYaml: (yaml, rule) =>
+            params.localRoundTrip!.finalizeRootYaml!(yaml, rule, annotations, undefined),
+        }),
+  })
   const baseForm = importBaseFormYaml({
     context: params.context,
-    baseFormXML,
+    baseFormXML: baseFormNode ?? baseFormXML,
     formName: params.assignment.itemName,
     rule: companion.rule,
+    annotations,
+    dependencies: params.dependencies,
+    roundTrip: localRoundTrip,
   })
+  const localProofReceipt = baseForm.yaml !== undefined && localRoundTrip !== undefined
+    ? localRoundTrip.takeResult(baseForm.yaml as object).roots.get("source-0")
+    : undefined
   return {
     baseProjectPath: params.assignment.targetProjectPath,
     targetProjectPath: companion.targetProjectPath,
@@ -443,6 +509,22 @@ function importAssignmentBaseFormCandidate(params: {
     localIndexes: baseForm.localIndexes,
     deferred: bindDeferredObjectValues(baseForm.yaml, baseForm.deferred),
     configurationFragment: baseForm.configurationIndexCollector.fragment(companion.targetProjectPath),
+    ...(localProofReceipt === undefined ? {} : { localProofReceipt }),
+  }
+}
+
+function withBaseFormReceipt(
+  preparation: import("@nkdk/runtime/rule-kit").XMLItemOutputPreparation | undefined,
+  receipt: object | undefined,
+): import("@nkdk/runtime/rule-kit").XMLItemOutputPreparation | undefined {
+  if (receipt === undefined) return preparation
+  return {
+    ...(preparation ?? {}),
+    attributes: preparation?.attributes ?? ((own) => own),
+    initialize(body) {
+      preparation?.initialize?.(body)
+      Object.assign(body, { BaseForm: receipt })
+    },
   }
 }
 

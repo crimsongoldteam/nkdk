@@ -93,6 +93,7 @@ export function importPropertiesFromXMLToYAML(params: {
   propertyXML?: ReadonlyMap<string, unknown>
   propertyXMLNodes?: ReadonlyMap<string, readonly XmlElementNode[]>
   execution?: CompiledPropertyRuleExecution
+  beforeFinish?: (yaml: Record<string, unknown>) => void
   audit?: XmlImportAuditSession
   annotations?: XmlAnomalyAnnotationTable
   mode?: DirectImportTraversal["mode"]
@@ -297,6 +298,10 @@ export function importPropertiesFromXMLToYAML(params: {
               ? typeRule(propertyRule.type, "configurationIndexValueFromXML")
               : compiled.operations.configurationIndexValueFromXML,
           })
+          // Смысловой YAML это свойство не получает, но локальный proof должен
+          // выполнить штатный экспорт с исходным reference и тем самым учесть
+          // служебную XML-структуру ровно один раз.
+          proofReady = roundTrip !== undefined && presentInXML
           return
         }
         if (
@@ -1012,6 +1017,7 @@ export function importPropertiesFromXMLToYAML(params: {
 
   if (result === undefined) return undefined
   if (params.dependencies?.propertyValue === undefined) normalizeTypeOwnedMetadataTargets({ result, rule })
+  params.beforeFinish?.(result)
   if (roundTrip !== undefined) runRoundTripStep("finish", () => roundTrip.finish())
   return orderYamlRuleProperties(result, compiledPlan?.yamlOrder ?? getYamlRulePropertyOrder(rule))
 }

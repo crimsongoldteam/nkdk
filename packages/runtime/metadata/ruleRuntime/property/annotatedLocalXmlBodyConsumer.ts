@@ -1,4 +1,6 @@
 import type { XmlAnomalyAnnotationTable } from "../../../yaml/xmlAnomalyAnnotations"
+import type { XmlElementNode } from "../../../xml/import/document"
+import type { XmlStructureDifference } from "../../../xml/structure/compare"
 import {
   createLocalXmlRawAppender,
   projectLocalXmlOrder,
@@ -32,12 +34,8 @@ export function createAnnotatedLocalXmlBodyConsumer(params: Omit<
         const key = property.yamlKey
         const expectedName = property.xmlPath.at(-1)
         if (key === undefined || expectedName === undefined) {
-          projectLocalXmlOwnValues({
-            yaml: params.yaml, annotations: params.annotations, root: source,
-            differences, path: property.xmlPath,
-          })
-          projectLocalXmlOrder({
-            yaml: params.yaml, annotations: params.annotations, root: source,
+          projectPathOnlyPropertyDifferences({
+            yaml: params.yaml, annotations: params.annotations, source,
             differences, path: property.xmlPath,
           })
           return
@@ -50,40 +48,15 @@ export function createAnnotatedLocalXmlBodyConsumer(params: Omit<
         })
         return
       }
-      const children = new Map(source.content.flatMap((node) =>
-        node.type === "element" ? [[node.path, node] as const] : [],
-      ))
-      const instructions = new Map(source.content.flatMap((node) =>
-        node.type === "processingInstruction" ? [[node.path, node] as const] : [],
-      ))
-      const own = differences.filter((difference) => {
-        if (difference.kind === "order") return false
-        if (difference.ownerPath !== source.path || !difference.path.startsWith(`${source.path}/`)) return true
-        const relative = difference.path.slice(source.path.length + 1)
-        if (relative.startsWith("@") || relative.startsWith("#text[")) return true
-        const child = /^([^/#?]+)\[(\d+)\]$/u.exec(relative)
-        if (difference.kind === "presence" && child !== null) {
-          const sourceChild = children.get(difference.path)
-          if (sourceChild === undefined) {
-            throw new Error(`Не подготовлена YAML-граница лишнего XML-ребёнка ${difference.path}`)
-          }
-          appendRaw(child[1]!, encodeXmlRawElement(sourceChild))
-          return false
-        }
-        const instruction = /^\?([^/]+)\[(\d+)\]$/u.exec(relative)
-        if (difference.kind !== "presence" || instruction === null) return true
-        const sourceInstruction = instructions.get(difference.path)
-        if (sourceInstruction === undefined) {
-          throw new Error(`Не подготовлена YAML-граница лишней XML-инструкции ${difference.path}`)
-        }
-        appendRaw(`?${instruction[1]!}`, encodeXmlRawProcessingInstruction(sourceInstruction))
-        return false
-      })
-      projectLocalXmlOwnValues({
-        yaml: params.yaml, annotations: params.annotations, root: source, differences: own,
-      })
-      projectLocalXmlOrder({
-        yaml: params.yaml, annotations: params.annotations, root: source, differences,
+      projectUnownedDifferences({
+        yaml: params.yaml,
+        annotations: params.annotations,
+        source,
+        differences,
+        appendRaw,
+        pathPrefix: source === params.source
+          ? []
+          : relativeElementPath(params.source.path, source.path) ?? [],
       })
     },
     annotateScalar({ source, owner, difference, property }) {
@@ -108,6 +81,142 @@ export function createAnnotatedLocalXmlBodyConsumer(params: Omit<
       })
     },
   })
+}
+
+function projectUnownedDifferences(params: {
+  readonly yaml: Record<string, unknown>
+  readonly annotations: XmlAnomalyAnnotationTable
+  readonly source: XmlElementNode
+  readonly differences: readonly XmlStructureDifference[]
+  readonly appendRaw: ReturnType<typeof createLocalXmlRawAppender>
+  readonly pathPrefix: readonly string[]
+}): void {
+  const elements = new Map<string, { node: XmlElementNode; path: string[] }>()
+  const instructions = new Map<string, { node: Extract<XmlElementNode["content"][number], { type: "processingInstruction" }>; path: string[] }>()
+  const visit = (node: XmlElementNode, path: string[]): void => {
+    elements.set(node.path, { node, path })
+    for (const child of node.content) {
+      if (child.type === "element") visit(child, [...path, child.name])
+      if (child.type === "processingInstruction") {
+        instructions.set(child.path, { node: child, path: [...path, `?${child.target}`] })
+      }
+    }
+  }
+  visit(params.source, [])
+
+  const handled = new Set<XmlStructureDifference>()
+  for (const difference of params.differences) {
+    if (difference.kind !== "presence") continue
+    const element = elements.get(difference.path)
+    if (element !== undefined) {
+      if (element.path.length === 0) {
+        throw new Error(`Нельзя локализовать наличие корня ${difference.path} как дочерний raw`)
+      }
+      params.appendRaw([...params.pathPrefix, ...element.path].join("\\"), encodeXmlRawElement(element.node))
+      handled.add(difference)
+      continue
+    }
+    const instruction = instructions.get(difference.path)
+    if (instruction !== undefined) {
+      params.appendRaw([...params.pathPrefix, ...instruction.path].join("\\"), encodeXmlRawProcessingInstruction(instruction.node))
+      handled.add(difference)
+      continue
+    }
+    const generatedPath = relativeElementPath(params.source.path, difference.path)
+    if (generatedPath !== undefined) {
+      params.appendRaw([...params.pathPrefix, ...generatedPath].join("\\"), null)
+      handled.add(difference)
+    }
+  }
+
+  const scalarByOwner = new Map<string, XmlStructureDifference[]>()
+  for (const difference of params.differences) {
+    if (handled.has(difference) || difference.kind === "order") continue
+    const owner = elements.get(difference.ownerPath)
+    if (owner === undefined) throw new Error(`Неизвестная XML-граница ${difference.path}`)
+    const relative = difference.path.slice(difference.ownerPath.length + 1)
+    if (!relative.startsWith("@") && !relative.startsWith("#text[")) {
+      throw new Error(`Неизвестное XML-расхождение ${difference.path}`)
+    }
+    const own = scalarByOwner.get(difference.ownerPath) ?? []
+    own.push(difference)
+    scalarByOwner.set(difference.ownerPath, own)
+  }
+  for (const [ownerPath, differences] of scalarByOwner) {
+    const owner = elements.get(ownerPath)!
+    projectLocalXmlOwnValues({
+      yaml: params.yaml,
+      annotations: params.annotations,
+      root: owner.node,
+      differences,
+      path: [...params.pathPrefix, ...owner.path],
+    })
+  }
+
+  const orderOwners = new Set(params.differences
+    .filter(({ kind }) => kind === "order")
+    .map(({ ownerPath }) => ownerPath))
+  for (const ownerPath of orderOwners) {
+    const owner = elements.get(ownerPath)
+    if (owner === undefined) throw new Error(`Неизвестная XML-граница порядка ${ownerPath}`)
+    projectLocalXmlOrder({
+      yaml: params.yaml,
+      annotations: params.annotations,
+      root: owner.node,
+      differences: params.differences,
+      path: [...params.pathPrefix, ...owner.path],
+    })
+  }
+}
+
+function relativeElementPath(rootPath: string, path: string): string[] | undefined {
+  if (!path.startsWith(`${rootPath}/`)) return undefined
+  const result: string[] = []
+  for (const segment of path.slice(rootPath.length + 1).split("/")) {
+    const element = /^([^/#?]+)\[\d+\]$/u.exec(segment)
+    if (element === null) return undefined
+    result.push(element[1]!)
+  }
+  return result.length === 0 ? undefined : result
+}
+
+function projectPathOnlyPropertyDifferences(params: {
+  readonly yaml: Record<string, unknown>
+  readonly annotations: XmlAnomalyAnnotationTable
+  readonly source: BodyConsumerParams["source"]
+  readonly differences: readonly XmlStructureDifference[]
+  readonly path: readonly string[]
+}): void {
+  const own = params.differences.filter((difference) =>
+    difference.kind !== "order" && difference.ownerPath === params.source.path && (
+      difference.path.startsWith(`${params.source.path}/@`)
+      || difference.path.startsWith(`${params.source.path}/#text[`)
+    ),
+  )
+  projectLocalXmlOwnValues({ ...params, root: params.source, differences: own })
+  projectLocalXmlOrder({ ...params, root: params.source })
+
+  const appendRaw = createLocalXmlRawAppender(params)
+  const children = params.source.content.filter(
+    (node): node is XmlElementNode => node.type === "element",
+  )
+  const projected = new Set<string>()
+  for (const difference of params.differences) {
+    if (difference.kind === "order" || own.includes(difference)) continue
+    const child = children.find(({ path }) => difference.path === path || difference.path.startsWith(`${path}/`))
+    const relative = difference.path.startsWith(`${params.source.path}/`)
+      ? difference.path.slice(params.source.path.length + 1)
+      : ""
+    const generatedName = /^([^/#?]+)\[\d+\](?:\/|$)/u.exec(relative)?.[1]
+    const identity = child?.path ?? generatedName
+    if (identity === undefined || projected.has(identity)) {
+      if (identity === undefined) throw new Error(`Неизвестная XML-граница ${difference.path}`)
+      continue
+    }
+    projected.add(identity)
+    const name = child?.name ?? generatedName!
+    appendRaw([...params.path, name].join("\\"), child === undefined ? null : encodeXmlRawElement(child))
+  }
 }
 
 /** Один локальный proof для всех XML-выходов item без сборки общего документа. */

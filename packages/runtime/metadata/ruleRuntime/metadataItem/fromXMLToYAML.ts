@@ -122,14 +122,16 @@ export function importMetadataItemFromXMLToYAML(params: {
     propertyXML: params.propertyXML,
     propertyXMLNodes: params.propertyXMLNodes,
     execution: propertyExecutionFromTraversal(params.traversal),
+    beforeFinish: (yaml) => {
+      augmenterRegistry?.applyMetadataItemXmlImportAugmenter({
+        context,
+        rule: params.rule,
+        source: augmenterSource,
+        yaml,
+      })
+    },
   })
   if (yaml !== undefined) {
-    augmenterRegistry?.applyMetadataItemXmlImportAugmenter({
-      context,
-      rule: params.rule,
-      source: augmenterSource,
-      yaml,
-    })
     if (
       sourceNode !== undefined &&
       params.traversal.audit !== undefined &&

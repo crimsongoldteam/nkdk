@@ -45,6 +45,7 @@ export function importClientApplicationFormFromXMLToYAML(params: {
   mode?: DirectImportMode
   facts?: DirectImportFactsSink
   roundTrip?: DirectImportRoundTripExecution
+  beforeFinish?: (yaml: Record<string, unknown>) => void
 }): DirectImportResult {
   const rule = params.rule ?? ClientApplicationFormRules
   if (params.formXML === undefined && params.metadataXML.Form.Properties.FormType !== "Ordinary") {
@@ -74,6 +75,15 @@ export function importClientApplicationFormFromXMLToYAML(params: {
     facts: params.facts,
     dependencies: params.dependencies,
     roundTrip: params.roundTrip,
+    beforeFinish: (yaml) => {
+      applyMetadataItemXmlImportAugmenter({
+        context,
+        rule,
+        source: augmenterSource,
+        yaml,
+      })
+      params.beforeFinish?.(yaml)
+    },
     createSources: (context) => createClientApplicationFormImportSources({
       context,
       formXML: params.formXMLNode ?? params.formXML,
@@ -81,14 +91,6 @@ export function importClientApplicationFormFromXMLToYAML(params: {
     }),
   })
   const yaml = imported.yaml
-  if (yaml !== undefined) {
-    applyMetadataItemXmlImportAugmenter({
-      context: imported.context,
-      rule,
-      source: augmenterSource,
-      yaml,
-    })
-  }
   if (params.formXML !== undefined) {
     recordClientApplicationFormNamespaces(params.context, params.formXMLNode ?? params.formXML)
   }
@@ -117,6 +119,7 @@ export function importClientApplicationFormBodyFromXML(params: {
   mode?: DirectImportMode
   facts?: DirectImportFactsSink
   roundTrip?: DirectImportRoundTripExecution
+  beforeFinish?: (yaml: Record<string, unknown>) => void
 }): { yaml: Record<string, unknown> | undefined; generatedFiles: ExternalFileEntry[] } {
   const { context: _context, ...result } = importClientApplicationFormSources({
     ...params,
@@ -143,6 +146,7 @@ function importClientApplicationFormSources(params: {
   mode?: DirectImportMode
   facts?: DirectImportFactsSink
   roundTrip?: DirectImportRoundTripExecution
+  beforeFinish?: (yaml: Record<string, unknown>) => void
   createSources(context: Parameters<typeof importPropertiesFromXMLToYAML>[0]["context"]): DirectImportXMLSource[]
 }): {
   yaml: Record<string, unknown> | undefined
@@ -177,6 +181,7 @@ function importClientApplicationFormSources(params: {
       facts: params.facts,
       dependencies: params.dependencies,
       roundTrip: params.roundTrip,
+      beforeFinish: params.beforeFinish,
     }),
     generatedFiles,
     context,
