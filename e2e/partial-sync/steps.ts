@@ -1,11 +1,12 @@
 import { randomUUID } from "node:crypto"
-import { mkdir, rm, writeFile } from "node:fs/promises"
+import { mkdir, rm } from "node:fs/promises"
 import { join, resolve } from "node:path"
 import { compareFileTrees, type FileTreeComparison } from "../support/file-tree"
 import type { ScenarioBlock } from "./matrix/types"
 import type { ScenarioMcpSession } from "./mcp-session"
 import { applyScenarioBlock } from "./operation"
 import { prepareInfobaseFixture } from "./platform-fixture"
+import { writeProjectSettings } from "./project-settings"
 import type { ScenarioWorkspace } from "./workspace"
 
 export type ScenarioProgress = {
@@ -218,23 +219,6 @@ async function prepareVerificationProject(
 ): Promise<void> {
   await resetDirectory(projectDir)
   await writeProjectSettings(projectDir, baseDir, mode)
-}
-
-async function writeProjectSettings(
-  projectDir: string,
-  baseDir: string,
-  mode: "designer-agent" | "standalone-server",
-): Promise<void> {
-  const settingsDir = join(projectDir, ".nkdk")
-  await mkdir(settingsDir, { recursive: true })
-  await writeFile(join(settingsDir, "project.yaml"), [
-    "infobase:",
-    `  connectionString: 'File="${baseDir.replaceAll("'", "''")}";'`,
-    "  operations:",
-    "    import:",
-    `      mode: ${mode}`,
-    "",
-  ].join("\n"), { encoding: "utf8", mode: 0o600 })
 }
 
 async function resetDirectory(path: string): Promise<void> {
