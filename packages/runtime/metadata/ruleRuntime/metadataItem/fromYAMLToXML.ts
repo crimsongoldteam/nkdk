@@ -28,13 +28,24 @@ interface XMLRootInfo {
 }
 
 export function convertMetadataItemFromYAMLToXML(params: ConvertMetadataItemFromYAMLToXMLParams): YAMLToXMLResult {
+  const item = prepareMetadataItemXMLExecution(params)
+  return item.finish(params.convertProperties(item.properties))
+}
+
+type MetadataItemXMLPreparationParams = Omit<ConvertMetadataItemFromYAMLToXMLParams, "convertProperties">
+
+/** Общая подготовка без исполнения свойств. XML-источник уже имеет mapping свойств. */
+export function prepareMetadataItemXMLExecution(
+  params: MetadataItemXMLPreparationParams,
+  importedProperties?: Record<string, unknown>,
+): { readonly properties: YAMLToXMLItemConversionParams; finish(converted: YAMLToXMLResult): YAMLToXMLResult } {
   const inline = findInlineProperty(params.rule)
-  if (inline === undefined && params.yaml !== undefined && !isRecord(params.yaml)) {
+  if (importedProperties === undefined && inline === undefined && params.yaml !== undefined && !isRecord(params.yaml)) {
     const rulePath = params.rulePath ?? []
     const path = rulePath.length === 0 ? params.rule.itemType : rulePath.join(".")
     throw new Error(`${params.rule.itemType}: ожидался YAML-объект; путь rules: ${path}`)
   }
-  const yaml = inline === undefined ? params.yaml : { [inline.yamlKey]: params.yaml }
+  const yaml = importedProperties ?? (inline === undefined ? params.yaml : { [inline.yamlKey]: params.yaml })
   const root = findXMLRoot(params.rule)
   const normalizedOutputs = params.outputs.map((output) => ({
     ...output,
@@ -52,7 +63,7 @@ export function convertMetadataItemFromYAMLToXML(params: ConvertMetadataItemFrom
             parent: { name: itemName },
           },
         }
-  const converted = params.convertProperties({
+  const properties: YAMLToXMLItemConversionParams = {
     context: itemContext,
     yaml,
     annotations: params.annotations,
@@ -68,41 +79,44 @@ export function convertMetadataItemFromYAMLToXML(params: ConvertMetadataItemFrom
     profile: params.profile,
     rulePath: params.rulePath,
     deferredRulePath: enterDeferredNestedRule(params.deferredRulePath ?? [], params.rule.itemType),
-  })
-  const outputs = new Map<string, Record<string, unknown>>()
-  const deferredByOutput = new Map<string, ReturnType<typeof bindDeferredObjectValues>>()
+  }
+  const finish = (converted: YAMLToXMLResult): YAMLToXMLResult => {
+    const outputs = new Map<string, Record<string, unknown>>()
+    const deferredByOutput = new Map<string, ReturnType<typeof bindDeferredObjectValues>>()
 
-  for (const request of normalizedOutputs) {
-    const generated = converted.outputs.get(request.key) ?? {}
-    const generatedWithType =
-      params.rule.xsiType === undefined ? generated : { ...request.xmlEnvelope.bodyAttributes, ...generated }
-    const merged = mergeReferenceXML({
-      generated: generatedWithType,
-      reference: request.referenceXML,
-      rule: params.rule,
-      path: [],
-    })
-    const finalRoot = wrapXMLRoot(request.xmlEnvelope, merged)
-    outputs.set(request.key, finalRoot)
-    const prefix = request.xmlEnvelope.path
-    deferredByOutput.set(
-      request.key,
-      bindDeferredObjectValues(
-        finalRoot,
-        (converted.deferredByOutput.get(request.key) ?? []).map((entry) => ({
-          ...entry,
-          valuePath: [...prefix, ...entry.valuePath],
-        }))
+    for (const request of normalizedOutputs) {
+      const generated = converted.outputs.get(request.key) ?? {}
+      const generatedWithType =
+        params.rule.xsiType === undefined ? generated : { ...request.xmlEnvelope.bodyAttributes, ...generated }
+      const merged = mergeReferenceXML({
+        generated: generatedWithType,
+        reference: request.referenceXML,
+        rule: params.rule,
+        path: [],
+      })
+      const finalRoot = wrapXMLRoot(request.xmlEnvelope, merged)
+      outputs.set(request.key, finalRoot)
+      const prefix = request.xmlEnvelope.path
+      deferredByOutput.set(
+        request.key,
+        bindDeferredObjectValues(
+          finalRoot,
+          (converted.deferredByOutput.get(request.key) ?? []).map((entry) => ({
+            ...entry,
+            valuePath: [...prefix, ...entry.valuePath],
+          }))
+        )
       )
-    )
-  }
+    }
 
-  if (params.rule.externalMetadata !== undefined) {
-    const uuid = readMetadataItemUuid(outputs.values().next().value, params.rule, root)
-    if (uuid !== undefined) recordCurrentExternalMetadataUuid({ context: itemContext, uuid })
-  }
+    if (params.rule.externalMetadata !== undefined) {
+      const uuid = readMetadataItemUuid(outputs.values().next().value, params.rule, root)
+      if (uuid !== undefined) recordCurrentExternalMetadataUuid({ context: itemContext, uuid })
+    }
 
-  return { outputs, deferredByOutput, externalWrites: converted.externalWrites }
+    return { outputs, deferredByOutput, externalWrites: converted.externalWrites }
+  }
+  return { properties, finish }
 }
 
 function enterDeferredNestedRule(
@@ -159,7 +173,7 @@ function unwrapReferenceBody(
 }
 
 function prepareXMLItemEnvelope(
-  params: ConvertMetadataItemFromYAMLToXMLParams,
+  params: MetadataItemXMLPreparationParams,
   referenceXML: unknown,
   root: XMLRootInfo | undefined,
 ): XMLItemEnvelope {
@@ -179,7 +193,7 @@ function wrapXMLRoot(envelope: XMLItemEnvelope, value: Record<string, unknown>):
 }
 
 function getRootAttributes(
-  params: ConvertMetadataItemFromYAMLToXMLParams,
+  params: MetadataItemXMLPreparationParams,
   referenceXML: unknown,
   root: XMLRootInfo
 ): Record<string, string> {

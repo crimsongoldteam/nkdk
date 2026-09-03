@@ -6,7 +6,7 @@ import "../../commonObjects/i8nText/toXML"
 import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import { parseMetadataYaml } from "@nkdk/runtime"
 import type { MetadataItemRule } from "../property/types"
-import { convertMetadataItemFromYAMLToXML } from "./fromYAMLToXML"
+import { convertMetadataItemFromYAMLToXML, prepareMetadataItemXMLExecution } from "./fromYAMLToXML"
 import { convertPropertiesFromYAMLToXML } from "../property/fromYAMLToXML"
 import { registerTypeRule } from "../property/typeRuleRegistry"
 import { registerMetadataItemCollectionRule } from "../metadataCollection/ruleFactory"
@@ -29,6 +29,26 @@ const itemRule = {
 } as const satisfies MetadataItemRule
 
 describe("convertMetadataItemFromYAMLToXML", () => {
+  it("отделяет подготовку item от исполнения и повторно не готовит оболочку при закрытии", () => {
+    let preparations = 0
+    const prepared = prepareMetadataItemXMLExecution({
+      context: context(), name: "Первый", yaml: { Значение: "готово" }, outputs: [{ key: "owner" }],
+      rule: { ...itemRule, properties: {
+        root: { type: "XMLRoot", container: "Entry", isFileRoot: true, forReferenceOnly: true,
+          rootAttributes: () => { preparations++; return { _xmlns: "urn:entry" } } },
+        ...itemRule.properties,
+      } },
+    })
+    expect(preparations).toBe(1)
+    expect(prepared.properties.context.importFromYAML?.parent?.name).toBe("Первый")
+    expect(prepared.properties.outputs[0]?.xmlEnvelope?.path).toEqual(["Entry"])
+    const converted = convertPropertiesFromYAMLToXML(prepared.properties)
+    expect(prepared.finish(converted).outputs.get("owner")).toEqual({
+      Entry: { _xmlns: "urn:entry", Name: "Первый", Value: "готово" },
+    })
+    expect(preparations).toBe(1)
+  })
+
   it.each([
     { isFileRoot: false, path: ["MetaDataObject", "Entry"] },
     { isFileRoot: true, path: ["Entry"] },
@@ -321,7 +341,7 @@ describe("convertMetadataItemFromYAMLToXML", () => {
     })
   })
 
-  it("нормализует yamlInline, оборачивает XMLRoot и сохраняет неизвестный XML", () => {
+  it.each([false, true])("нормализует yamlInline без повторной обёртки mapping: imported=%s", (imported) => {
     const rule = {
       itemType: "CatalogAttribute",
       xsiType: "GeneratedType",
@@ -335,8 +355,8 @@ describe("convertMetadataItemFromYAMLToXML", () => {
         value: { type: "string", yaml: "Значение", xml: "Value", yamlInline: true },
       },
     } as const satisfies MetadataItemRule
-    const result = convertMetadataItemFromYAMLToXML({
-      convertProperties: convertPropertiesFromYAMLToXML,
+    const importedProperties = { Значение: "новое" }
+    const prepared = prepareMetadataItemXMLExecution({
       context: context(),
       yaml: "новое",
       rule,
@@ -351,7 +371,9 @@ describe("convertMetadataItemFromYAMLToXML", () => {
           },
         },
       ],
-    })
+    }, imported ? importedProperties : undefined)
+    if (imported) expect(prepared.properties.yaml).toBe(importedProperties)
+    const result = prepared.finish(convertPropertiesFromYAMLToXML(prepared.properties))
 
     expect(result.outputs.get("owner")).toEqual({
       MetaDataObject: {

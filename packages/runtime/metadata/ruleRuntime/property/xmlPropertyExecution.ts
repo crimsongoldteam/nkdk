@@ -160,7 +160,7 @@ type PlannedXMLProperty = YAMLToXMLPlannedProperty | CompiledProperty
 
 /** Локальный потребитель общей политики; поздние предметные hooks ещё не выполнены. */
 export interface XMLPropertyExecutionObserver {
-  /** Уже закрытый импортом ребёнок возвращает только результат своего потребителя. */
+  /** До подготовки оболочки: закрытый ребёнок возвращает окончательный вклад. */
   reuseNested?(params: YAMLToXMLItemConversionParams): YAMLToXMLResult | undefined
   enterNested?(params: YAMLToXMLItemConversionParams): XMLPropertyExecutionObserver | undefined
   write(event: {
@@ -195,10 +195,12 @@ export function createXMLPropertyExecution(
     : params.execution.getTypeRule(type, operation)
   const convertNestedProperties = (
     nestedParams: Omit<ConvertPropertiesFromYAMLToXMLParams, "execution">,
-  ) => observer?.reuseNested?.(nestedParams) ?? createXMLPropertyExecution({
+  ) => createXMLPropertyExecution({
     ...nestedParams,
     execution: params.execution,
   }, undefined, observer?.enterNested?.(nestedParams)).finish()
+  const convertNestedItem: typeof convertMetadataItemFromYAMLToXML = (nestedParams) =>
+    observer?.reuseNested?.(nestedParams) ?? convertMetadataItemFromYAMLToXML(nestedParams)
   const yaml = asRecord(params.yaml)
   const propertyValues = new Map(params.propertyValues)
   const source = propertySource ?? createYAMLPropertySource({
@@ -587,7 +589,7 @@ export function createXMLPropertyExecution(
       const nested =
         effectiveNestedRule.kind === "collection"
           ? convertMetadataCollectionFromYAMLToXML({
-              convertItem: convertMetadataItemFromYAMLToXML,
+              convertItem: convertNestedItem,
               convertProperties: convertNestedProperties,
               context: nestedContext,
               yaml: nestedYAML,
@@ -602,7 +604,7 @@ export function createXMLPropertyExecution(
               rulePath: [...(params.rulePath ?? [params.rule.itemType]), propertyKey],
               deferredRulePath: [...(params.deferredRulePath ?? []), { propertyKey }],
             })
-          : convertMetadataItemFromYAMLToXML({
+          : convertNestedItem({
               convertProperties: convertNestedProperties,
               context: nestedItemContext,
               yaml: normalizedNestedYAML,

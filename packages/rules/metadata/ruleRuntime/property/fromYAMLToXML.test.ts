@@ -194,6 +194,39 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(completed).toEqual(stage === "write" ? [] : ["a", "b"])
   })
 
+  it.each(["item", "collection"] as const)("не оборачивает повторно готовый вклад XML-ребёнка: %s", (kind) => {
+    const rules = createRuleRegistrySet(metadataRules)
+    let preparations = 0
+    const itemRule: MetadataItemRule = { itemType: "Catalog", properties: {
+      root: { type: "XMLRoot", container: "Entry", isFileRoot: true, forReferenceOnly: true,
+        rootAttributes: () => { preparations++; return { _xmlns: "urn:entry" } } },
+      value: { type: "string", xml: "Value", yaml: "Значение" },
+    } }
+    rules.property.registerTypeRule("CompletedXMLItem" as never, "yamlToXMLNestedRule", kind === "item"
+      ? { kind, itemRule }
+      : { kind, itemRule, xmlElement: "Item", yamlShape: "array" })
+    const childYAML = { Значение: "готово" }
+    const marker = Object.freeze({})
+    let reused = 0
+    const outputs: unknown[] = []
+    createXMLPropertyExecution({
+      execution: rules.execution, context: context(),
+      rule: testRule({ value: { type: "CompletedXMLItem" as never, xml: "Items", yaml: "Элементы" } }),
+      yaml: { Элементы: kind === "item" ? childYAML : [childYAML] }, outputs: [{ key: "owner" }],
+    }, undefined, {
+      reuseNested(params) {
+        expect(params.yaml).toBe(childYAML)
+        reused++
+        return { outputs: new Map([["owner", marker]]), deferredByOutput: new Map(), externalWrites: [] }
+      },
+      write({ value }) { outputs.push(value) },
+      complete() {},
+    }).finish()
+    expect(reused).toBe(1)
+    expect(preparations).toBe(0)
+    expect(kind === "item" ? outputs[0] : (outputs[0] as { Item: unknown[] }).Item[0]).toBe(marker)
+  })
+
   it.each(["output", "proof"] as const)("передаёт вложенные items одному потребителю без повторного преобразования детей: %s", (mode) => {
     const rules = createRuleRegistrySet(metadataRules)
     const calls: string[] = []

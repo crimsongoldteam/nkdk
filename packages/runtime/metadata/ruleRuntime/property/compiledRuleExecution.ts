@@ -4,6 +4,7 @@ import type { YAMLToXMLItemConversionParams, YAMLToXMLResult, YAMLToXMLExternalW
 import { createXMLPropertyExecution, type XMLPropertyExecutionObserver } from "./xmlPropertyExecution"
 import type { LocalXmlChild } from "../xmlAnomaly/localProof"
 import type { MetadataItemRule } from "./types"
+import { prepareMetadataItemXMLExecution } from "../metadataItem/fromYAMLToXML"
 
 type ImportItem = Parameters<DirectImportRoundTripExecution["open"]>[0]
 
@@ -24,7 +25,7 @@ export function createCompiledRuleExecution(params: {
   readonly prepare: (item: ImportItem) => Omit<YAMLToXMLItemConversionParams, "rule" | "yaml">
   readonly consumer: (item: ImportItem, children: {
     childReceipt(value: unknown): LocalXmlChild | undefined
-  }) => CompiledXMLProofConsumer
+  }, prepared: YAMLToXMLItemConversionParams) => CompiledXMLProofConsumer
 }): DirectImportRoundTripExecution & { takeResult(yaml: object): CompiledXMLProofResult } {
   const completed = new WeakMap<object, { readonly rule: MetadataItemRule; readonly result: CompiledXMLProofResult }>()
   const markers = new WeakMap<object, LocalXmlChild>()
@@ -50,8 +51,10 @@ export function createCompiledRuleExecution(params: {
   }
   return {
     open(source) {
-      const prepared = params.prepare(source)
-      const consumer = params.consumer(source, children)
+      const prepared = prepareMetadataItemXMLExecution({
+        ...params.prepare(source), rule: source.rule, yaml: source.yaml,
+      }, source.yaml).properties
+      const consumer = params.consumer(source, children, prepared)
       const plan = params.execution.propertyPlan(source.rule)
       const item = createXMLPropertyExecution({
         ...prepared, execution: params.execution, rule: source.rule, yaml: source.yaml,
