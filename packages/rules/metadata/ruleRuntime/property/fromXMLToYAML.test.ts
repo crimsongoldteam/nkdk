@@ -142,7 +142,7 @@ describe("importPropertiesFromXMLToYAML", () => {
     })).toThrow(/отложенн/)
   })
 
-  it("импортирует три вложенных item с единственным обратным преобразованием и только компактными вкладами детей", () => {
+  it.each(["identity", "collection-copy", "item-copy"] as const)("импортирует три вложенных item с единственным обратным преобразованием: %s", (normalization) => {
     const rules = createRuleRegistrySet(metadataRules)
     const calls: string[] = []
     rules.property.registerTypeRule("NestedRoundTripScalar" as never, "compileAtomicConversion", () => ({
@@ -160,11 +160,15 @@ describe("importPropertiesFromXMLToYAML", () => {
     } }
     rules.property.registerTypeRule("NestedRoundTripDetails" as never, "importFromXMLToYAML", ({ context, xml, traversal }) =>
       importMetadataItemFromXMLToYAML({ context, rule: detailsRule, xml, traversal }))
-    rules.property.registerTypeRule("NestedRoundTripDetails" as never, "yamlToXMLNestedRule", { kind: "item", itemRule: detailsRule })
+    rules.property.registerTypeRule("NestedRoundTripDetails" as never, "yamlToXMLNestedRule", {
+      kind: "item", itemRule: detailsRule,
+      ...(normalization === "item-copy" ? { normalizeYAML: ({ yaml }: { yaml: unknown }) => ({ ...yaml as object }) } : {}),
+    })
     rules.property.registerTypeRule("NestedRoundTripRows" as never, "importFromXMLToYAML", (params) =>
       importMetadataItemCollectionFromXMLToYAML({ ...params, itemRule: rowRule, xmlElement: "Item", yamlAsArray: true }))
     rules.property.registerTypeRule("NestedRoundTripRows" as never, "yamlToXMLNestedRule", {
       kind: "collection", itemRule: rowRule, xmlElement: "Item", yamlShape: "array",
+      ...(normalization === "collection-copy" ? { normalizeItemYAML: ({ yaml }: { yaml: unknown }) => ({ ...yaml as object }) } : {}),
     })
     let preparedItems = 0
     let completedOwnAttributes = 0

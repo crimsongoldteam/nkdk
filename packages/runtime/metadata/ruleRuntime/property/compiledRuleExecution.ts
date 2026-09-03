@@ -28,6 +28,9 @@ export function createCompiledRuleExecution(params: {
   }, prepared: YAMLToXMLItemConversionParams) => CompiledXMLProofConsumer
 }): DirectImportRoundTripExecution & { takeResult(yaml: object): CompiledXMLProofResult } {
   const completed = new WeakMap<object, { readonly rule: MetadataItemRule; readonly result: CompiledXMLProofResult }>()
+  // Идентичность границы переносится штатным копированием служебных меток YAML.
+  // Ключ не содержит ни исходного YAML, ни контрольного XML и живёт только в этом запуске.
+  const identity = Symbol("compiledXMLBoundary")
   const markers = new WeakMap<object, LocalXmlChild>()
   const active: { readonly plan: CompiledPropertyPlan }[] = []
   const children = {
@@ -45,13 +48,17 @@ export function createCompiledRuleExecution(params: {
     externalWrites: result.externalWrites,
   })
   const take = (yaml: object) => {
-    const entry = completed.get(yaml)
+    const key = (yaml as { readonly [identity]?: object })[identity]
+    if (key === undefined) throw new Error("Для XML item не подготовлена идентичность границы")
+    const entry = completed.get(key)
     if (entry === undefined) throw new Error("XML item ещё не закрыт или его вклад уже получен")
-    completed.delete(yaml)
+    completed.delete(key)
     return entry
   }
   return {
     open(source) {
+      const identityKey = {}
+      Object.defineProperty(source.yaml, identity, { value: identityKey })
       const propertyKey = source.rulePath.at(-1)?.propertyKey
       const ownerProperty = propertyKey === undefined ? undefined : active.at(-1)?.plan.propertiesByKey.get(propertyKey)
       const prepared = prepareMetadataItemXMLExecution({
@@ -83,7 +90,7 @@ export function createCompiledRuleExecution(params: {
             throw new Error("Нельзя закрыть XML item с отложенными значениями")
           }
           const result = { roots: consumer.finish(output), externalWrites: output.externalWrites }
-          completed.set(source.yaml, { rule: source.rule, result })
+          completed.set(identityKey, { rule: source.rule, result })
           return transport(result)
         },
       })

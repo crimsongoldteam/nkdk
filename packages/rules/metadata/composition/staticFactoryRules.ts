@@ -193,6 +193,8 @@ import { metadataPropertyRule031 as rootCommandInterfacePresenceContribution } f
 import { metadataPropertyRule000 as contribution164 } from "../forms/commonObjects/formAttribute/fromXMLToYAML"
 import { metadataPropertyRule001 as contribution165 } from "../forms/commonObjects/formAttribute/fromXMLToYAML"
 import { metadataPropertyRule002 as contribution166 } from "../forms/commonObjects/formAttribute/fromXMLToYAML"
+import { metadataPropertyRule004 as formAttributeColumnsImport } from "../forms/commonObjects/formAttribute/fromXMLToYAML"
+import { metadataPropertyRule005 as formAttributeAdditionalColumnsImport } from "../forms/commonObjects/formAttribute/fromXMLToYAML"
 import { metadataPropertyRule000 as contribution167 } from "../forms/commonObjects/formAttribute/toJSONSchema"
 import { metadataPropertyRule001 as contribution168 } from "../forms/commonObjects/formAttribute/toJSONSchema"
 
@@ -319,6 +321,8 @@ const factoryPropertyRules = defineMetadataRules({
   contribution164,
   contribution165,
   contribution166,
+  formAttributeColumnsImport,
+  formAttributeAdditionalColumnsImport,
   contribution167,
   contribution168,
   latePropertyContribution000,

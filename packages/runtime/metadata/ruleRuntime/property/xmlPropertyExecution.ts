@@ -41,6 +41,7 @@ import type {
   YAMLToXMLItemConversionParams,
 } from "./fromYAMLToXMLTypes"
 import { copyXmlAnomalyAnnotationsDeep } from "../../../yaml/xmlAnomalyAnnotations"
+import { copyYAMLRuntimeMetadata } from "../../../yaml/runtimeMetadata"
 import { assertRequiredConfigurationIdentity } from "./requiredIdentity"
 import { getTypeRule } from "./typeRuleRegistry"
 import type { MetadataItemRule, PropertyRule } from "./types"
@@ -541,6 +542,9 @@ export function createXMLPropertyExecution(
               propertyRule: planned.propertyRule,
             })
           : nestedYAML
+      if (normalizedNestedYAML !== nestedYAML && isRecord(nestedYAML) && isRecord(normalizedNestedYAML)) {
+        copyYAMLRuntimeMetadata(nestedYAML, normalizedNestedYAML)
+      }
       copyXmlAnomalyAnnotationsDeep(params.annotations, nestedYAML, normalizedNestedYAML)
       const itemName = effectiveNestedRule.kind === "item"
         ? effectiveNestedRule.resolveItemName?.({

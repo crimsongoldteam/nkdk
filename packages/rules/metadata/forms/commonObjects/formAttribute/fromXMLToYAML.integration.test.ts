@@ -11,7 +11,7 @@ serializeYAMLDocument,
 xmlElementChildren,
 xmlExport
 } from "@nkdk/runtime"
-import { createRuleRegistrySet, type MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import { createRuleRegistrySet, createLocalIndexesCollector, importPropertiesFromXMLToYAML, type MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import {
 createDirectRoundTripContexts,
 testPropertyFromXMLToYAML,
@@ -82,6 +82,35 @@ function importStructuredFormAttributes(
 }
 
 describe("FormAttributes XML → YAML → XML", () => {
+  it("завершает обычные и дополнительные колонки до закрытия реквизита", () => {
+    const context = createDirectRoundTripContexts({ logicalAddress: "Форма" }).importContext
+    const root = parseXmlDocumentWithSaxes(`<Root><Attributes><Attribute name="Объект" id="1"><Columns>
+      <Column name="Первая" id="2"><Type><v8:Type>xs:string</v8:Type></Type></Column>
+      <AdditionalColumns table="Таблица"><Column name="Вторая" id="3"><Type><v8:Type>xs:boolean</v8:Type></Type></Column></AdditionalColumns>
+    </Columns><Type><v8:Type>v8:ValueTable</v8:Type></Type></Attribute></Attributes></Root>`).roots[0]!
+    const ready: string[] = []
+    let closed: Record<string, unknown> | undefined
+    let snapshot: Record<string, unknown> | undefined
+    importPropertiesFromXMLToYAML({
+      execution: createRuleRegistrySet(metadataRules).execution, context,
+      rule: { ...rule, properties: { value: { ...rule.properties.value, xml: "Attributes" } } },
+      sources: [{ context, xml: root }], yamlPath: [], rulePath: [], collector: createLocalIndexesCollector(),
+      roundTrip: { open({ rule: itemRule, yaml }) { return {
+        ready({ propertyKey }) { if (itemRule === FormAttributeRules) ready.push(propertyKey) },
+        finish() { if (itemRule === FormAttributeRules) {
+          expect(yaml.Колонки).toEqual({ Первая: { Заголовок: "", Тип: "Строка" } })
+          expect(yaml.ДополнительныеКолонки).toEqual({ Таблица: { Вторая: { Заголовок: "", Тип: "Булево" } } })
+          closed = yaml
+          snapshot = structuredClone(yaml)
+        } },
+      } } },
+    })
+    expect(ready).toContain("columns")
+    expect(ready).toContain("additionalColumns")
+    expect(closed).toBeDefined()
+    expect(closed).toEqual(snapshot)
+  })
+
   it("сворачивает известные дополнительные колонки ERP до первой", () => {
     const contexts = createDirectRoundTripContexts({ logicalAddress: "Форма.Атрибут.Объект" })
     const context = {
@@ -105,6 +134,7 @@ describe("FormAttributes XML → YAML → XML", () => {
       </Root>
     `, undefined, context)
 
+    expect(audit.rawCandidates().map(({ error }) => error)).toEqual([])
     const additionalColumns = (yaml as {
       Значение: { Объект: { ДополнительныеКолонки: Record<string, Record<string, unknown>> } }
     }).Значение.Объект.ДополнительныеКолонки["Список.Способы"]!

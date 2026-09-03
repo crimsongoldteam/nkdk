@@ -5,6 +5,7 @@ import {
   projectNamedXmlCollectionForImportWithRuntimeKeys,
   type XmlElementNode,
   xmlElementChildren,
+  xmlImportCompatibilityValue,
 } from "@nkdk/runtime"
 import {
   getConfigurationIndexCollectionContext,
@@ -80,35 +81,6 @@ export const importFormAttributesFromXMLToYAML: ImportFromXMLToYAMLFunction = ({
     const yaml = objectRecordOrUndefined(yamlValue)
     if (yaml === undefined) throw new Error(`Реквизит формы ${name} должен преобразовываться в YAML-объект`)
     if (!hasSoleValueListType(item)) delete yaml.ТипЗначения
-    const columnsXmlNode = itemXmlNodes?.[index] === undefined
-      ? undefined
-      : xmlElementChildren(itemXmlNodes[index]!, "Columns")[0]
-
-    const columns = importColumnsFromXMLToYAML({
-      context: itemContext,
-      xml: objectRecordOrUndefined(item.Columns)?.Column,
-      xmlNodes: columnsXmlNode === undefined ? undefined : xmlElementChildren(columnsXmlNode, "Column"),
-      traversal: {
-        ...itemTraversal,
-        yamlPath: [...itemTraversal.yamlPath, "Колонки"],
-        rulePath: [...itemTraversal.rulePath, { propertyKey: "columns" }],
-      },
-    })
-    if (columns !== undefined) yaml.Колонки = columns
-
-    const additionalColumns = importAdditionalColumnsFromXMLToYAML({
-      context: itemContext,
-      xml: objectRecordOrUndefined(item.Columns)?.AdditionalColumns,
-      xmlNodes: columnsXmlNode === undefined
-        ? undefined
-        : xmlElementChildren(columnsXmlNode, "AdditionalColumns"),
-      traversal: {
-        ...itemTraversal,
-        yamlPath: [...itemTraversal.yamlPath, "ДополнительныеКолонки"],
-        rulePath: [...itemTraversal.rulePath, { propertyKey: "additionalColumns" }],
-      },
-    })
-    if (additionalColumns !== undefined) yaml.ДополнительныеКолонки = additionalColumns
     entries.push({
       key: name,
       value: yaml,
@@ -150,7 +122,18 @@ function importAdditionalColumnsFromXMLToYAML(
   for (const [index, value] of items.entries()) {
     const item = objectRecordOrUndefined(value)
     if (item === undefined || typeof item._table !== "string") continue
-    const table = item._table
+    const itemNode = params.xmlNodes?.[index]
+    const tableSource = itemNode === undefined ? item : objectRecordOrUndefined(xmlImportCompatibilityValue({
+      node: itemNode, audit: params.traversal.audit,
+      boundary: {
+        itemType: "FormAttributeAdditionalColumn",
+        yamlPath: [...params.traversal.yamlPath, item._table],
+        rulePath: enterNestedYamlRule(params.traversal, "FormAttributeAdditionalColumn").rulePath,
+      },
+    }))
+    // Здесь потребляется только оболочка и table; Column принадлежит своему item.
+    const table = tableSource?._table
+    if (typeof table !== "string") continue
     const logicalAddress =
       collection === undefined
         ? undefined
@@ -340,3 +323,12 @@ export const metadataPropertyRule002 = definePropertyTypeRule("FormAttributeColu
 export const metadataPropertyRule003 = definePropertyTypeRule("FormAttributes", "xmlImportPropertyBehavior", {
   nestedItemsOwnXMLChildren: true,
 })
+
+export const metadataPropertyRule004 = definePropertyTypeRule(
+  "FormAttributeColumns", "importFromXMLToYAML", ({ context, xml, traversal }) =>
+    importColumnsFromXMLToYAML({ context, xml, traversal, xmlNodes: traversal.xmlNodes }),
+)
+export const metadataPropertyRule005 = definePropertyTypeRule(
+  "FormAttributeAdditionalColumns", "importFromXMLToYAML", ({ context, xml, traversal }) =>
+    importAdditionalColumnsFromXMLToYAML({ context, xml, traversal, xmlNodes: traversal.xmlNodes }),
+)

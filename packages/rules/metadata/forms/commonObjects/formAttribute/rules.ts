@@ -130,7 +130,6 @@ export const FormAttributeRules = {
       yaml: "Колонки",
       xml: "Column",
       xmlParents: ["Columns"],
-      fromXML: false,
       fromYAML: false,
       defaultValue: [],
     }),
@@ -138,7 +137,6 @@ export const FormAttributeRules = {
       yaml: "ДополнительныеКолонки",
       xml: "AdditionalColumns",
       xmlParents: ["Columns"],
-      fromXML: false,
       fromYAML: false,
     }),
     functionalOptions: functionalOptionsPropertyRule({
