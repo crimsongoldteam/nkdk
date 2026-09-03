@@ -22,10 +22,7 @@ export function completeLocalXmlFragment(params: {
     let children: Map<string, XmlElementNode> | undefined
     const actual = localXmlShapeFromObject(name, value, (name, value, occurrence) => {
       const receipt = params.childReceipt?.(value)
-      if (receipt !== undefined) {
-        if (receipt.name !== name) throw new Error(`Изменена оболочка закрытого XML-ребёнка: ${receipt.name} → ${name}`)
-        return receipt
-      }
+      if (receipt !== undefined) return receipt
       children ??= new Map(source.content.flatMap(child => child.type === "element"
         ? [[`${child.name}[${child.occurrence}]`, child] as const] : []))
       const child = children.get(`${name}[${occurrence}]`)

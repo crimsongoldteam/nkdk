@@ -42,7 +42,7 @@ import { metadataRules } from "../../composition/metadataRules"
 import type { ExportToXMLFunctionNew } from "./fn"
 import type { DirectImportFactsSink } from "./importYamlTypes"
 import { collectImportDependencyFacts, prepareImportDependencies } from "../../importFromXml/preparedDependencies"
-import type { ConfigurationContextFromXML, LocalXmlProof, XmlAnomalyAnnotationTable, XmlElementNode, XmlStructureDifference } from "@nkdk/runtime"
+import type { ConfigurationContextFromXML, LocalXmlProof, XmlAnomalyAnnotationTable, XmlElementNode } from "@nkdk/runtime"
 
 function typeOwnedChoiceProperties(type: PropertyRuleType): MetadataItemRule["properties"] {
   return {
@@ -60,7 +60,8 @@ function importWithLocalXMLBody(params: {
   readonly root: XmlElementNode
   readonly annotations: XmlAnomalyAnnotationTable
   readonly proof: LocalXmlProof
-  readonly annotate: (params: { yaml: Record<string, unknown>; source: XmlElementNode; differences: readonly XmlStructureDifference[] }) => void
+  readonly annotate?: (params: { yaml: Record<string, unknown> } & Parameters<NonNullable<Parameters<typeof createLocalXmlBodyConsumer>[0]["annotate"]>>[0]) => void
+  readonly annotateScalar?: Parameters<typeof createLocalXmlBodyConsumer>[0]["annotateScalar"]
 }) {
   return importPropertiesWithSources({
     execution: params.execution, context: params.context, rule: params.rule,
@@ -71,7 +72,8 @@ function importWithLocalXMLBody(params: {
       prepare: () => ({ context: mockContextToXML(), outputs: [{ key: "owner" }] }),
       consumer: ({ yaml }, receipts) => createLocalXmlBodyConsumer({
         key: "owner", source: params.root, proof: params.proof, ...receipts,
-        annotate: boundary => params.annotate({ yaml, ...boundary }),
+        ...(params.annotate === undefined ? {} : { annotate: boundary => params.annotate!({ yaml, ...boundary }) }),
+        ...(params.annotateScalar === undefined ? {} : { annotateScalar: params.annotateScalar }),
       }),
     }),
   })
@@ -417,21 +419,30 @@ describe("importPropertiesFromXMLToYAML", () => {
     const root = parseXmlDocumentWithSaxes('<Root id="42"/>').roots[0]!
     let compared = 0
     const scalarDifferences: string[] = []
-    const yaml = importPropertiesWithSources({
-      execution: rules.execution, context, rule, sources: [{ context, xml: root }], yamlPath: [], rulePath: [],
-      collector: createLocalIndexesCollector(),
-      roundTrip: createCompiledRuleExecution({
-        execution: rules.execution,
-        prepare: () => ({ context: mockContextToXML(), outputs: [{ key: "owner" }] }),
-        consumer: (_item, receipts) => createLocalXmlBodyConsumer({
-          key: "owner", source: root, proof: createLocalXmlProof({ onValue: () => compared++ }), ...receipts,
-          annotateScalar({ difference }: { difference: { kind: string } }) { scalarDifferences.push(difference.kind) },
-        }),
-      }),
+    const yaml = importWithLocalXMLBody({
+      execution: rules.execution, context, rule, root, annotations: createXmlAnomalyAnnotations(),
+      proof: createLocalXmlProof({ onValue: () => compared++ }),
+      annotateScalar({ difference }) { scalarDifferences.push(difference.kind) },
     })
     expect(yaml).toEqual({ ИД: mismatch ? "43" : "42" })
     expect(compared).toBe(1)
     expect(scalarDifferences).toEqual(mismatch ? ["value"] : [])
+  })
+
+  it("передаёт правило свойства оформителю изменённого XML alias", () => {
+    const rules = createRuleRegistrySet(metadataRules)
+    const rule: MetadataItemRule = { itemType: "Catalog", properties: {
+      value: { type: "string", xml: "Value", xmlAliases: ["Alias"], yaml: "Значение" },
+    } }
+    const context = mockContextFromXML()
+    const root = parseXmlDocumentWithSaxes("<Root><Alias>x</Alias></Root>").roots[0]!
+    let boundaryProperty: unknown
+    const yaml = importWithLocalXMLBody({
+      execution: rules.execution, context, rule, root, annotations: createXmlAnomalyAnnotations(), proof: createLocalXmlProof(),
+      annotate(boundary) { boundaryProperty = boundary.property },
+    })
+    expect(yaml).toEqual({ Значение: "x" })
+    expect(boundaryProperty).toMatchObject({ propertyKey: "value", yamlKey: "Значение" })
   })
 
   it("объединяет fromXML и toYAML через скомпилированную атомарную пару", () => {

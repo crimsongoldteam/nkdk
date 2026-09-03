@@ -6,6 +6,8 @@ import type { LocalXmlChild, LocalXmlProof } from "../xmlAnomaly/localProof"
 import { completeLocalXmlFragment } from "../xmlAnomaly/localFragment"
 import { applyXMLItemOwnOutput } from "../metadataItem/ownOutput"
 
+type LocalBodyProperty = Parameters<CompiledXMLProofConsumer["write"]>[0]["property"]
+
 /** Потребитель тела одного выхода; внешняя XMLRoot-оболочка принадлежит владельцу. */
 export function createLocalXmlBodyConsumer(params: {
   readonly key: string
@@ -14,16 +16,19 @@ export function createLocalXmlBodyConsumer(params: {
   readonly childReceipt: (value: unknown) => LocalXmlChild | undefined
   readonly scalarReceipt: (value: unknown) => import("../xmlAnomaly/localProof").LocalXmlScalar | undefined
   readonly itemPreparation?: XMLItemOutputPreparation
-  readonly annotate?: Parameters<typeof completeLocalXmlFragment>[0]["annotate"]
+  readonly annotate?: (boundary: Parameters<NonNullable<Parameters<typeof completeLocalXmlFragment>[0]["annotate"]>>[0] & {
+    readonly property?: LocalBodyProperty
+  }) => void
   readonly annotateScalar?: (boundary: {
     readonly source: XmlAddressedNode & { readonly value: string }
     readonly difference: XmlStructureDifference
   }) => void
 }): CompiledXMLProofConsumer {
   const bindings = new Map<string, Parameters<NonNullable<CompiledXMLProofConsumer["bind"]>>[0]>()
-  const complete = (source: XmlElementNode, name: string, value: unknown) => completeLocalXmlFragment({
+  const complete = (source: XmlElementNode, name: string, value: unknown, property?: LocalBodyProperty) => completeLocalXmlFragment({
     source, name, value, proof: params.proof, childReceipt: params.childReceipt,
-    scalarReceipt: params.scalarReceipt, annotate: params.annotate,
+    scalarReceipt: params.scalarReceipt,
+    annotate: params.annotate === undefined ? undefined : boundary => params.annotate!({ ...boundary, property }),
   })
   return {
     bind(input) {
@@ -47,7 +52,7 @@ export function createLocalXmlBodyConsumer(params: {
           ? undefined : difference => params.annotateScalar!({ source: scalarSource, difference }))
       }
       const receipt = params.childReceipt(value)
-      if (receipt === undefined) return complete(binding.node, name, value)
+      if (receipt === undefined) return complete(binding.node, name, value, property)
       if (receipt.name !== name) throw new Error(`Изменена оболочка закрытого XML-ребёнка: ${receipt.name} → ${name}`)
       return receipt
     },

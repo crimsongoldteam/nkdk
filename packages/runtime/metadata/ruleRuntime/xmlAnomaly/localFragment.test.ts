@@ -68,4 +68,16 @@ describe("локальная сверка составного XML-фрагме�
     expect(() => completeLocalXmlFragment({ source, name: "Value", value: "x", proof: createLocalXmlProof() }))
       .toThrow(/Не оформлены аномалии/)
   })
+
+  it("доверяет имени уже оформленного дочернего вклада", () => {
+    const source = parseXmlDocumentWithSaxes("<Root><Alias>x</Alias></Root>").roots[0]!
+    const child = source.content.find(isXmlElementNode)!
+    const proof = createLocalXmlProof()
+    const receipt = proof.check(child, localXmlShapeFromObject("Alias", "x"))
+    const marker = {}
+    expect(completeLocalXmlFragment({
+      source, name: "Root", value: { Value: marker }, proof,
+      childReceipt: value => value === marker ? receipt : undefined,
+    })).toMatchObject({ sourceId: source.id })
+  })
 })
