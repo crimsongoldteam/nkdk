@@ -4,6 +4,7 @@ import {
   createConfigurationIndexCollector,
   createConfigurationIndexExportRuntime,
   registerFormXmlIdReservation,
+  markXmlAnomalyRawItem,
   type ConfigurationIndexExportRuntime,
   type ConfigurationIndexBlockEntity,
   type FormXmlIdSpace,
@@ -123,12 +124,22 @@ describe("assignFormXmlIds", () => {
     expect(() => setup.collector.setIdentity("Форма.Элемент.Поле", "xmlId", "2")).toThrow()
   })
 
-  it("не занимает ID сохранённого raw-узла", () => {
+  it.each([
+    ["Button", "elements"],
+    ["Attribute", "attributes"],
+    ["Command", "commands"],
+    ["Parameter", "parameters"],
+  ] as const)("не занимает ID ещё не восстановленного raw-узла %s и его детей", (name, space) => {
     const setup = runtimeSetup([])
     const node = { _name: "НовоеПоле", _id: "" }
-    register(setup.runtime.withLogicalAddress("Форма.Элемент.НовоеПоле"), node, "elements")
-    assignFormXmlIds({ ChildItems: [{ Button: { _name: "Raw", _id: "1" } }, { InputField: node }] })
-    expect(node._id).toBe("2")
+    const other = { _name: "ДругоеПространство", _id: "" }
+    register(setup.runtime.withLogicalAddress("Форма.НовоеПоле"), node, space)
+    register(setup.runtime.withLogicalAddress("Форма.Другое"), other, space === "elements" ? "attributes" : "elements")
+    const raw = {}
+    markXmlAnomalyRawItem(raw, "raw-1", { "#name": name, _id: "1", Nested: { _id: "2" } })
+    assignFormXmlIds({ Items: [raw, node, other] })
+    expect(node._id).toBe("3")
+    expect(other._id).toBe("1")
   })
 
   it("резервирует исходные ID даже удалённых элементов, но не соседней формы или другого пространства", () => {

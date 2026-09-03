@@ -145,9 +145,9 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
     ["повторные имена", `<ChildItems>
       <Button name="ЕстьКЭП" id="11"><Type>UsualButton</Type></Button>
       <Button name="Сосед" id="12"><Type>UsualButton</Type></Button>
-      <Button name="ЕстьКЭП" id="21"><Type>Hyperlink</Type><ExtendedTooltip name="Подсказка" id="22"/></Button>
-      <Button name="ЕстьКЭП" id="31"><Type>UsualButton</Type></Button>
-    </ChildItems>`, "!xml/invalid/2 ЕстьКЭП", ["11", "12", "21", "31"]],
+      <Button name="ЕстьКЭП" id="2"><Type>Hyperlink</Type><ExtendedTooltip name="Подсказка" id="3"/></Button>
+      <Button name="ЕстьКЭП" id="4"><Type>UsualButton</Type></Button>
+    </ChildItems>`, "!xml/invalid/2 ЕстьКЭП", ["11", "12", "2", "4"]],
     ["поле рисунка в контекстном меню", `<ChildItems><InputField name="Поле" id="1">
       <ContextMenu name="ПолеКонтекстноеМеню" id="2"><ChildItems>
         <Button name="До" id="3"><Type>UsualButton</Type></Button>
@@ -174,6 +174,8 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
     expect(text).not.toContain("Элементы: !xml/raw")
     const parsed = parseMetadataYaml(text)
     expect(parsed.syntaxErrors).toEqual([])
+    const elements = (parsed.data as ClientApplicationFormYAML).Элементы!
+    elements.НоваяКнопка = { Вид: "Кнопка" }
     if (_case === "повторные имена") {
       const first = (parsed.data as ClientApplicationFormYAML).Элементы?.ЕстьКЭП
       expect(first).toBeDefined()
@@ -198,7 +200,10 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
     ) as Array<Record<string, { _id: string }>>
     const items = childNodes(xml)
     const originalItems = childNodes(document.compatibility.Form as ClientApplicationFormXML)
-    expect(items.map(item => Object.values(item)[0]!._id)).toEqual(expectedIds)
+    expect(items.slice(0, expectedIds.length).map(item => Object.values(item)[0]!._id)).toEqual(expectedIds)
+    const ids = [...exported.matchAll(/\bid="(-?\d+)"/gu)].map(match => match[1])
+    expect(new Set(ids).size).toBe(ids.length)
+    expect(exported).toContain('name="НоваяКнопка"')
     for (const index of _case === "повторные имена" ? [2, 3] : [1]) {
       expect(withoutFormattingText(items[index])).toEqual(withoutFormattingText(originalItems[index]))
     }

@@ -130,6 +130,26 @@ describe("validateProjectFileFirstPass references", () => {
     ...result.diagnostics,
   ].filter(({ severity }) => severity === "error")
 
+  it.each([
+    ["ОпределяемыйТип.Один", "ОпределяемыйТип.Два"],
+    ["УникальныйИдентификатор", "Строка"],
+    ["Строка", "УникальныйИдентификатор"],
+    ["ХранилищеЗначения", "Булево"],
+  ])("принимает только адресную аномалию состава %s + %s", (first, second) => {
+    const validateTypes = (values: string[]) => validateAppliedObject("Документ/Тест/Свойства.yaml", [
+      "ТабличныеЧасти:", "  Начисление:", "    Реквизиты:", "      Баллы:", "        Тип:",
+      ...values.map(value => `          - ${value}`),
+    ].join("\n"))
+    expect(validationErrors(validateTypes([first, `!xml/invalid ${second}`]))).toEqual([])
+    const errors = validationErrors(validateTypes([first, second]))
+    expect(errors).toContainEqual(expect.objectContaining({
+      path: "/ТабличныеЧасти/Начисление/Реквизиты/Баллы/Тип/1", severity: "error",
+    }))
+    expect(validationErrors(validateTypes([`!xml/invalid ${first}`, second])).length).toBeGreaterThan(0)
+    expect(validationErrors(validateTypes(["Строка", "!xml/invalid Булево"])))
+      .toContainEqual(expect.objectContaining({ message: "Тег XML-аномалии лишний: значение не содержит ошибки" }))
+  })
+
   describe("applied-object schema boundaries", () => {
     const bounds = [
       ["ПланОбмена/Тест/Свойства.yaml", "ДлинаКода", 1, 50, 0, 51],

@@ -3,9 +3,11 @@ import { ExportToJSONSchemaFn, definePropertyTypeRule } from "../../ruleRuntime"
 import { buildTypeDescriptionJSONSchema } from "./allowedTypes"
 import { TypeDescriptionJSONSchema } from "./types"
 
-export const exportTypeDescriptionToJSONSchema: ExportToJSONSchemaFn = ({ rule }): TSchema => {
+export const exportTypeDescriptionToJSONSchema: ExportToJSONSchemaFn = ({ context, rule }): TSchema => {
   const base = rule.type === "TypeDescription" && rule.allowedTypes !== undefined
-    ? buildTypeDescriptionJSONSchema(rule.allowedTypes)
+    // Project validation checks composition at the offending item's path so an
+    // !xml/invalid there can be accepted. Public schemas remain strict.
+    ? buildTypeDescriptionJSONSchema(rule.allowedTypes, context.exportToJSONSchema?.validationPropertyRefs === true)
     : TypeDescriptionJSONSchema
   return base
 }

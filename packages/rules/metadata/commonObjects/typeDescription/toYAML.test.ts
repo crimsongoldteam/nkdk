@@ -4,8 +4,24 @@ import { typeFixturesTable } from "./__fixtures__/data"
 import { importTypeDescriptionFromYAML } from "./fromYAML"
 import { exportTypeDescriptionToYAML } from "./toYAML"
 import { TYPE_DESCRIPTION_SOURCE_TYPES } from "./types"
+import { createXmlAnomalyAnnotations } from "@nkdk/runtime"
 
 describe("exportTypeDescriptionToYAML", () => {
+  it.each([
+    [["UUID", "string"], [1]],
+    [["string", "UUID", "boolean"], [1]],
+    [["ValueStorage", "string", "boolean"], [1, 2]],
+    [["DefinedType.Один", "DefinedType.Два"], [1]],
+    [["Characteristic.Один", "boolean"], [1]],
+    [["ExternalDataSourceTableRef.ВнешнийИсточникДанныхОдин.ТаблицаОдин", "boolean"], [1]],
+    [["ExternalDataSourceCubeDimensionTableRef.ВнешнийИсточникДанныхОдин.КубОдин.ТаблицаИзмеренияОдин", "boolean"], [1]],
+    [["string", "boolean"], []],
+  ] as const)("помечает только несовместимые дополнительные типы %j", (types, invalidIndices) => {
+    const annotations = createXmlAnomalyAnnotations()
+    const yaml = exportTypeDescriptionToYAML(mockContext, mockRule, { type: [...types] }, annotations)
+    expect([...annotations.entries()].filter(entry => entry.parent === yaml).map(entry => entry.key))
+      .toEqual(invalidIndices)
+  })
   it("should format undefined type description", () => {
     const result = exportTypeDescriptionToYAML(mockContext, mockRule, undefined)
     expect(result).toBeUndefined()

@@ -27,6 +27,8 @@ import {
   copyXmlAnomalyExportClaim,
   readXmlAnomalyExportClaim,
   readXmlAnomalyRawItem,
+  markXmlAnomalyRawItem,
+  readXmlAnomalyRawItemXml,
   readXmlAnomalyRawCollectionItems,
   markXmlAnomalyExportClaim,
   XML_ANOMALY_RAW_ITEM_PLACEHOLDER,
@@ -75,6 +77,7 @@ export function convertMetadataCollectionFromYAMLToXML(
       for (const output of params.outputs) {
         const marker = {}
         markXmlAnomalyExportClaim(marker, rawItemClaimId, true)
+        markXmlAnomalyRawItem(marker, rawItemClaimId, readXmlAnomalyRawItemXml(yaml))
         outputItems.get(output.key)!.push(
           params.descriptor.xmlElement === undefined
             ? { [XML_ANOMALY_RAW_ITEM_PLACEHOLDER]: marker }

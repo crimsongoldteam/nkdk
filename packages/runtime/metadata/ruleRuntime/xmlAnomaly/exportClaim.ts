@@ -1,5 +1,6 @@
 const XML_ANOMALY_EXPORT_CLAIM = Symbol.for("@nkdk/runtime/xmlAnomalyExportClaim")
 const XML_ANOMALY_RAW_ITEM = Symbol.for("@nkdk/runtime/xmlAnomalyRawItem")
+const XML_ANOMALY_RAW_ITEM_XML = Symbol.for("@nkdk/runtime/xmlAnomalyRawItemXml")
 const XML_ANOMALY_RAW_COLLECTION_ITEMS = Symbol.for("@nkdk/runtime/xmlAnomalyRawCollectionItems")
 
 export const XML_ANOMALY_RAW_ITEM_PLACEHOLDER = "nkdkXmlAnomalyRawItem"
@@ -34,7 +35,7 @@ export function readXmlAnomalyExportClaim(value: unknown): string | undefined {
   return typeof claimId === "string" ? claimId : undefined
 }
 
-export function markXmlAnomalyRawItem(value: unknown, claimId: string): void {
+export function markXmlAnomalyRawItem(value: unknown, claimId: string, xml?: unknown): void {
   if (!isRecord(value)) {
     throw new Error(`XML anomaly raw item ${claimId} можно назначить только объекту`)
   }
@@ -43,6 +44,15 @@ export function markXmlAnomalyRawItem(value: unknown, claimId: string): void {
     enumerable: false,
     value: claimId,
   })
+  Object.defineProperty(value, XML_ANOMALY_RAW_ITEM_XML, {
+    configurable: true,
+    enumerable: false,
+    value: xml,
+  })
+}
+
+export function readXmlAnomalyRawItemXml(value: unknown): unknown {
+  return isRecord(value) ? value[XML_ANOMALY_RAW_ITEM_XML] : undefined
 }
 
 export function readXmlAnomalyRawItem(value: unknown): string | undefined {

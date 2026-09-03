@@ -1,7 +1,7 @@
 import type { PropertyRule, ExportToYAMLFunctionNew } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { ConfigurationContext, type XmlAnomalyAnnotations } from "@nkdk/runtime"
-import { METADATA_NAME_YAML_PATTERN } from "./allowedTypes"
+import { incompatibleTypeDescriptionIndices, METADATA_NAME_YAML_PATTERN } from "./allowedTypes"
 import {
   getSystemEnumerationYAMLType,
   getTypeDescriptionRule,
@@ -29,12 +29,9 @@ export const exportTypeDescriptionToYAML = (
   for (const typeId of typeDescription.typeId ?? []) {
     exportedTypes.push(typeId)
   }
-  let definedTypes = 0
-  typeDescription.type.forEach((type, index) => {
-    if (!type.startsWith("DefinedType.")) return
-    if (definedTypes++ === 0) return
+  for (const index of incompatibleTypeDescriptionIndices(exportedTypes)) {
     annotations?.set(exportedTypes, index, { kind: "invalid", occurrence: 1, target: "value" })
-  })
+  }
   if (exportedTypes.length === 0) return undefined
   if (exportedTypes.length === 1) return exportedTypes[0] as TypeDescriptionYAML
 

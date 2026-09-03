@@ -488,7 +488,7 @@ function cloneCollectionSemanticValue(params: Omit<Parameters<typeof cloneSemant
         if (params.mode === "preserve" && annotation.hasSemanticValue !== true) {
           const exportClaimId = nextExportClaimId(params.exportClaims)
           const semanticItem = {}
-          markXmlAnomalyRawItem(semanticItem, exportClaimId)
+          markXmlAnomalyRawItem(semanticItem, exportClaimId, annotation.xml)
           appendXmlAnomalyRawCollectionItem(target, { index, yaml: semanticItem })
           params.rawBoundaries.push(rawItemBoundary({
             annotation,
@@ -556,7 +556,7 @@ function cloneCollectionSemanticValue(params: Omit<Parameters<typeof cloneSemant
       if (params.mode === "preserve" && annotation.hasSemanticValue !== true) {
         const exportClaimId = nextExportClaimId(params.exportClaims)
         const semanticItem = {}
-        markXmlAnomalyRawItem(semanticItem, exportClaimId)
+        markXmlAnomalyRawItem(semanticItem, exportClaimId, annotation.xml)
         appendXmlAnomalyRawCollectionItem(target, {
           index,
           yaml: semanticItem,

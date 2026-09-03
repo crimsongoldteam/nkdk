@@ -125,11 +125,22 @@ describe("importTypeDescriptionFromYAML with allowedTypes", () => {
   it.each([
     "- !xml/invalid ОпределяемыйТип.Один\n  - ОпределяемыйТип.Два",
     "- ОпределяемыйТип.Один\n  - !xml/invalid ОпределяемыйТип.Неверное.Имя",
-    "- ОпределяемыйТип.Один\n  - !xml/invalid Строка",
     "- ОпределяемыйТип.Один\n  - !xml/invalid ОпределяемыйТип.Один",
   ])("invalid не отключает остальные ограничения: %s", (items) => {
     const parsed = parseMetadataYaml(`Тип:\n  ${items}`)
     expect(() => testPropertyFromYAMLToXML({ rule: restrictedItemRule, yaml: parsed.data, annotations: parsed.annotations })).toThrow("allowedTypes")
+  })
+  it.each([
+    ["УникальныйИдентификатор", "Строка"],
+    ["Строка", "УникальныйИдентификатор"],
+    ["ХранилищеЗначения", "Булево"],
+    ["ОпределяемыйТип.Один", "Строка"],
+  ])("восстанавливает согласованную аномалию %s + %s", (first, second) => {
+    const parsed = parseMetadataYaml(`Тип:\n  - ${first}\n  - !xml/invalid ${second}`)
+    expect(() => testPropertyFromYAMLToXML({
+      rule: restrictedItemRule, yaml: parsed.data, annotations: parsed.annotations,
+    })).not.toThrow()
+    expect(() => testPropertyFromYAMLToXML({ rule: restrictedItemRule, yaml: parsed.data })).toThrow("allowedTypes")
   })
   it("imports allowed primitive and catalog reference values", () => {
     expect(

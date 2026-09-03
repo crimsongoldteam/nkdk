@@ -1,5 +1,6 @@
 import {
   formXmlIdReservation,
+  readXmlAnomalyRawItemXml,
   type FormXmlIdReservation,
   type FormXmlIdSpace,
 } from "@nkdk/runtime"
@@ -175,10 +176,17 @@ function collectReferenceIds(
     return
   }
   if (!isRecord(value)) return
+  // Raw items are materialized after ID assignment. Their opaque XML travels
+  // with the placeholder so its IDs can be reserved without exporting it early.
+  const raw = readXmlAnomalyRawItemXml(value)
+  if (raw !== undefined) collectReferenceIds(raw, result, inheritedSpace)
+  const space = typeof value["#name"] === "string"
+    ? referenceSpace(value["#name"]) ?? inheritedSpace
+    : inheritedSpace
   const id = validXmlId(stringId(value._id))
-  if (id !== undefined) result.get(inheritedSpace)?.add(id)
+  if (id !== undefined) result.get(space)?.add(id)
   for (const [key, child] of Object.entries(value)) {
-    collectReferenceIds(child, result, referenceSpace(key) ?? inheritedSpace)
+    collectReferenceIds(child, result, referenceSpace(key) ?? space)
   }
 }
 

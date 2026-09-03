@@ -5,7 +5,7 @@ import { emptyMetadataRules } from "../../ruleRuntime/definition/testSupport"
 import { ConfigurationContext, isTaggedYAMLScalar, type XmlAnomalyAnnotations } from "@nkdk/runtime"
 import type { ImportFromYAMLFunctionNew } from "@nkdk/runtime/rule-kit"
 import { formulaFormatParser } from "../../helpers/formulaFormatParser/formulaFormatParser"
-import { assertTypeDescriptionYAMLAllowed, METADATA_NAME_YAML_PATTERN } from "./allowedTypes"
+import { assertTypeDescriptionYAMLAllowed, METADATA_NAME_YAML_PATTERN, validateTypeDescriptionComposition } from "./allowedTypes"
 import { getSystemEnumerationTypeFromYAML, getTypeFromYAML } from "./helper"
 import {
   PrimitiveTypeFromYAML,
@@ -189,4 +189,5 @@ export const metadataPropertyRule000 = definePropertyTypeRule("TypeDescription",
 export const typeDescriptionIndexRules = defineMetadataRules({
   ...emptyMetadataRules,
   indexValuesFromYAML: { TypeDescription: parseTypeDescriptionYAML },
+  validation: [{ kind: "localYamlValue", propertyType: "TypeDescription", validate: validateTypeDescriptionComposition }],
 })
