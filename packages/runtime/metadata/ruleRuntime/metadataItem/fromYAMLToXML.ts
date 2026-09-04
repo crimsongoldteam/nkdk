@@ -46,7 +46,13 @@ export function prepareMetadataItemXMLExecution(
 ): { readonly properties: YAMLToXMLItemConversionParams; finish(converted: YAMLToXMLResult): YAMLToXMLResult } {
   const context = params.prepareContext?.() ?? params.context
   const inline = findInlineProperty(params.rule)
-  if (importedProperties === undefined && inline === undefined && params.yaml !== undefined && !isRecord(params.yaml)) {
+  if (
+    importedProperties === undefined
+    && inline === undefined
+    && params.yaml !== undefined
+    && !isRecord(params.yaml)
+    && params.sparseYAML !== true
+  ) {
     const rulePath = params.rulePath ?? []
     const path = rulePath.length === 0 ? params.rule.itemType : rulePath.join(".")
     throw new Error(`${params.rule.itemType}: ожидался YAML-объект; путь rules: ${path}`)

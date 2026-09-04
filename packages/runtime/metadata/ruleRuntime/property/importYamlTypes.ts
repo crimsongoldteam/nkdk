@@ -32,6 +32,7 @@ export interface DirectImportFactsSink {
     /** Адрес во время XML-обхода, до именования элементов коллекций. */
     readonly sourceYamlPath?: YamlPath
     readonly value: unknown
+    readonly scalarTag?: YAMLScalarTag
     /** Было ли свойство физически представлено в исходном XML. */
     readonly presentInXML?: boolean
     /** Исходное смысловое XML-значение для локальной проверки опущенного default. */

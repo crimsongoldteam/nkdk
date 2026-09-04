@@ -52,6 +52,26 @@ describe("semanticBoundary", () => {
     })).toEqual([])
   })
 
+  it("отбрасывает устаревшую ошибку ссылки после построения общего индекса", () => {
+    const referenceDecision: ImportedIssueDecision = {
+      kind: "invalid",
+      target: { kind: "path", path: ["ЗначениеЗаполнения"] },
+      issueCodes: ["diagnostic.reference"],
+    }
+    expect(selectReadyImportedIssueDecisions({
+      data: { ЗначениеЗаполнения: "Справочник.Товары.Основной" },
+      decisions: [referenceDecision],
+      diagnostics: [],
+      confirmedDecisions: [],
+    })).toEqual([])
+    expect(selectReadyImportedIssueDecisions({
+      data: { ЗначениеЗаполнения: "Справочник.Товары.Основной" },
+      decisions: [referenceDecision],
+      diagnostics: [],
+      confirmedDecisions: [referenceDecision],
+    })).toEqual([referenceDecision])
+  })
+
   it("не переносит локальные решения первого прохода", () => {
     const localCodes = [
       "schema.anyOf",

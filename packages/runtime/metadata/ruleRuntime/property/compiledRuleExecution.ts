@@ -159,7 +159,8 @@ export function createCompiledRuleExecution(params: {
           return frame.nestedProperties.get(request.property.propertyKey) ?? prepareNestedXMLPropertyContext(request)
         },
         reuseNested(nested) {
-          const key = nested.deferredRulePath?.at(-1)?.propertyKey
+          const deferredKeys = nested.deferredRulePath?.map(({ propertyKey }) => propertyKey) ?? []
+          const key = deferredKeys.findLast(candidate => frame.inline.has(candidate)) ?? deferredKeys.at(-1)
           const bindings = key === undefined ? undefined : frame.inline.get(key)
           const collection = key === undefined ? false : plan.propertiesByKey.get(key)?.operations.yamlToXMLNestedRule?.kind === "collection"
           const selector = collection ? nested.name ?? nested.rulePath?.at(-1) : undefined
@@ -174,12 +175,13 @@ export function createCompiledRuleExecution(params: {
             queue.next++
             if (queue.next === queue.keys.length) bindings.delete(selector)
           }
-          if (inlineKey === undefined && (nested.yaml === null || typeof nested.yaml !== "object")) {
-            throw new Error("Для XML item не подготовлен объект YAML")
-          }
           if (
             inlineKey === undefined
-            && (nested.yaml as { readonly [identity]?: object })[identity] === undefined
+            && (
+              nested.yaml === null
+              || typeof nested.yaml !== "object"
+              || (nested.yaml as { readonly [identity]?: object })[identity] === undefined
+            )
           ) return undefined
           // Inline YAML может быть скаляром или объектом другого, уже потреблённого ребёнка.
           // Связь задаётся владельцем и адресом элемента, никогда равенством значений.
@@ -234,6 +236,7 @@ export function createCompiledRuleExecution(params: {
       active.push(frame)
       let lastBinding: DirectImportXMLPropertyBinding | undefined
       const boundProperties = new Set<string>()
+      const readyProperties = new Set<string>()
       const bind = (input: DirectImportXMLPropertyBinding) => {
         lastBinding = input
         boundProperties.add(input.propertyKey)
@@ -246,12 +249,30 @@ export function createCompiledRuleExecution(params: {
           const property = plan.propertiesByKey.get(propertyKey)
           if (property === undefined) throw new Error(`Не найдено свойство XML item: ${propertyKey}`)
           if (lastBinding !== input) bind(input)
-          withPreparedXMLDependencyFacts(source.yaml, dependencyFacts, () => item.execute(property))
+          if (params.beforeFinish === undefined) {
+            withPreparedXMLDependencyFacts(source.yaml, dependencyFacts, () => item.execute(property))
+          } else {
+            readyProperties.add(propertyKey)
+          }
         },
         finish() {
           if (active.at(-1) !== frame) throw new Error("XML item закрывается вне порядка вложенности")
           try {
             params.beforeFinish?.({ ...source, root: active.length === 1 })
+            if (source.yaml !== null && typeof source.yaml === "object") {
+              for (const property of plan.properties) {
+                const yamlKey = property.propertyRule.yaml
+                const preparedValue = propertyValues.get(property.propertyKey)
+                if (
+                  typeof yamlKey === "string"
+                  && preparedValue !== null
+                  && typeof preparedValue === "object"
+                  && Object.prototype.hasOwnProperty.call(source.yaml, yamlKey)
+                ) {
+                  propertyValues.delete(property.propertyKey)
+                }
+              }
+            }
             for (const property of plan.properties) {
               if (!boundProperties.has(property.propertyKey)) {
                 const semanticOmitted = source.dependencies
@@ -261,6 +282,12 @@ export function createCompiledRuleExecution(params: {
                   presentInXML: false,
                   ...(semanticOmitted ? { semanticOmitted: true } : {}),
                 })
+              }
+            }
+            if (params.beforeFinish !== undefined) {
+              for (const property of plan.properties) {
+                if (!readyProperties.has(property.propertyKey)) continue
+                withPreparedXMLDependencyFacts(source.yaml, dependencyFacts, () => item.execute(property))
               }
             }
             withPreparedXMLDependencyFacts(source.yaml, dependencyFacts, () => item.finish())

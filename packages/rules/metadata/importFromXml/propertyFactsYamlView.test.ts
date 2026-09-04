@@ -7,6 +7,16 @@ import {
 } from "./propertyFactsYamlView"
 
 describe("createPropertyFactsYamlView", () => {
+  it("сохраняет добавленные служебные Symbol в перечне ключей Proxy", () => {
+    const yaml = createPropertyFactsYamlView([fact(["Значение", "Вид"], "Цвет")])
+    const value = yaml.Значение as Record<string | symbol, unknown>
+    const marker = Symbol("marker")
+    Object.defineProperty(value, marker, { value: true })
+
+    expect(Reflect.ownKeys(value)).toContain(marker)
+    expect(Object.keys(value)).toEqual(["Вид"])
+  })
+
   it("читает адресные объекты и массивы без полной материализации YAML", () => {
     const facts = [
       fact(["Имя"], "Форма"),
@@ -28,6 +38,16 @@ describe("createPropertyFactsYamlView", () => {
   it("последний факт заменяет прежнее значение того же адреса", () => {
     const yaml = createPropertyFactsYamlView([fact(["Значение"], 1), fact(["Значение"], 2)])
     expect(yaml.Значение).toBe(2)
+  })
+
+  it("сохраняет длину адресного массива поверх компактного факта контейнера", () => {
+    const yaml = createPropertyFactsYamlView([
+      fact(["Тип"], []),
+      fact(["Тип", 0], "Справочник.Товары"),
+      fact(["Тип", 1], "Справочник.Другие"),
+    ])
+
+    expect(yaml.Тип).toEqual(["Справочник.Товары", "Справочник.Другие"])
   })
 
   it("применяет адресные удаления и добавления без обхода полного YAML", () => {

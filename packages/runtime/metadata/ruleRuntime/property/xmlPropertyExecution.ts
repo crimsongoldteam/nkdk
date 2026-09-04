@@ -250,7 +250,9 @@ export function createXMLPropertyExecution(
   const convertNestedItem: typeof convertMetadataItemFromYAMLToXML = (nestedParams) =>
     observer?.reuseNested?.(nestedParams) ?? convertMetadataItemFromYAMLToXML(nestedParams)
   const yaml = asRecord(params.yaml)
-  const propertyValues = new Map(params.propertyValues)
+  const propertyValues = params.propertyValues instanceof Map
+    ? params.propertyValues
+    : new Map(params.propertyValues)
   const source = propertySource ?? createYAMLPropertySource({
     yaml,
     rule: params.rule,

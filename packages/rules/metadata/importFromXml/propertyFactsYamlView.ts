@@ -1,3 +1,5 @@
+import { markYAMLScalarTag } from "@nkdk/runtime"
+import type { YAMLScalarTag } from "@nkdk/runtime"
 import type { DirectImportFactsSink } from "@nkdk/runtime/rule-kit"
 
 export type DirectImportPropertyFact = Parameters<DirectImportFactsSink["acceptProperty"]>[0]
@@ -5,6 +7,7 @@ export type DirectImportPropertyFact = Parameters<DirectImportFactsSink["acceptP
 interface FactNode {
   hasValue?: true
   value?: unknown
+  scalarTag?: YAMLScalarTag
   readonly children: Map<string | number, FactNode>
 }
 
@@ -30,6 +33,7 @@ export function createPropertyFactsYamlView(
     }
     node.hasValue = true
     node.value = fact.value
+    node.scalarTag = fact.scalarTag
   }
   return view(root, {}) as Readonly<Record<string, unknown>>
 }
@@ -100,9 +104,10 @@ function view(node: FactNode, inherited?: unknown): unknown {
     const indexes = [...node.children.keys()].filter((key): key is number => typeof key === "number")
     target.length = Math.max(Array.isArray(base) ? base.length : 0, ...indexes.map(index => index + 1), 0)
   }
-  return new Proxy(target, {
+  const proxy = new Proxy(target, {
     get(_target, property) {
       if (typeof property === "symbol") return Reflect.get(target, property)
+      if (array && property === "length") return Reflect.get(target, property)
       const segment = array && /^\d+$/u.test(property) ? Number(property) : property
       const child = node.children.get(segment)
       if (child !== undefined) {
@@ -121,7 +126,10 @@ function view(node: FactNode, inherited?: unknown): unknown {
         || Reflect.has(target, property)
     },
     ownKeys() {
-      const keys = new Set<string | symbol>(isContainer(base) ? Reflect.ownKeys(base) : [])
+      const keys = new Set<string | symbol>(Reflect.ownKeys(target))
+      if (isContainer(base)) {
+        for (const key of Reflect.ownKeys(base)) keys.add(key)
+      }
       for (const key of node.children.keys()) keys.add(String(key))
       if (array) keys.add("length")
       return [...keys]
@@ -134,6 +142,10 @@ function view(node: FactNode, inherited?: unknown): unknown {
       return { configurable: true, enumerable: true, writable: false, value: undefined }
     },
   })
+  for (const [key, child] of node.children) {
+    if (child.scalarTag !== undefined) markYAMLScalarTag(proxy, key, child.scalarTag)
+  }
+  return proxy
 }
 
 function isContainer(value: unknown): value is Record<string, unknown> | unknown[] {

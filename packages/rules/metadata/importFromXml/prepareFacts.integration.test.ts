@@ -60,6 +60,43 @@ describe("prepareImportFacts", () => {
     expect(facts).not.toHaveProperty("proofAudit")
   })
 
+  it("не удерживает составные YAML-поддеревья в фактах первого прохода", async () => {
+    const assignment = managedFormAssignment()
+    const facts = await prepareImportFacts({
+      assignment,
+      context: extensionContext(),
+      collector: createConfigurationIndexCollector(),
+      inputs: parseAssignmentInputs(assignment, true),
+    })
+
+    expect(facts.semanticFacts.filter(({ value }) => containsYamlContainer(value))).toEqual([])
+    expect((facts.baseFormSemanticFacts ?? []).filter(({ value }) => containsYamlContainer(value))).toEqual([])
+  })
+
+  it("восстанавливает все листья принятого составного свойства во втором проходе", async () => {
+    const assignment = styleItemAssignment()
+    const inputs = parseAssignmentInputs(assignment)
+    const context = mockXmlImportContext()
+    const facts = await prepareImportFacts({
+      assignment,
+      context,
+      collector: createConfigurationIndexCollector(),
+      inputs,
+    })
+    const prepared = await prepareImportYamlFromDocuments({
+      assignment,
+      context,
+      collector: createConfigurationIndexCollector(),
+      inputs,
+      dependencies: prepareImportDependencies(facts.dependencies),
+    })
+
+    expect(prepared.yaml).toMatchObject({
+      Тип: "Цвет",
+      Значение: { Вид: "Цвет", Значение: "#8A31E2" },
+    })
+  })
+
   it.each([
     ["корень конфигурации", () => configurationAssignment(
       join(extensionFixtureDir, "Configuration.xml"),
@@ -331,7 +368,40 @@ describe("prepareImportFacts", () => {
     expect(prepareImportDependencies(facts.dependencies).propertyValue?.([], "codeLength"))
       .toEqual({ value: 9 })
   })
+
+  it("включает предопределённые значения в общий индекс первого прохода", async () => {
+    const assignment = assignmentForProjectPath({
+      id: "catalog-predefined-facts",
+      targetProjectPath: "Справочник/СправочникСПредопределенными/Свойства.yaml",
+      itemType: "MetadataCatalog",
+      itemName: "СправочникСПредопределенными",
+      logicalAddress: "Справочник.СправочникСПредопределенными",
+      owner: undefined,
+      xmlFiles: [
+        { role: "metadata", sourcePath: join(e2eConfigurationDir, "Catalogs/СправочникСПредопределенными.xml") },
+        { role: "property:predefined", sourcePath: join(e2eConfigurationDir, "Catalogs/СправочникСПредопределенными/Ext/Predefined.xml") },
+      ],
+    })
+    const facts = await prepareImportFacts({
+      assignment,
+      context: mockXmlImportContext(),
+      collector: createConfigurationIndexCollector(),
+      inputs: parseAssignmentInputs(assignment),
+    })
+    const contribution = extractImportValidationContributionFromFacts({
+      prepared: facts,
+      projectDir: "/project",
+      file: validationFileForAssignment(assignment),
+    })
+    expect(contribution.validationContribution.objectRecords[0]?.ownerFacts.predefined)
+      .toContainEqual(expect.objectContaining({ name: "Предопределенный1" }))
+  })
 })
+
+function containsYamlContainer(value: unknown): boolean {
+  if (Array.isArray(value)) return value.some(containsYamlContainer)
+  return value !== null && typeof value === "object" && Object.keys(value).length > 0
+}
 
 function catalogAssignment(): ImportAssignment {
   const targetProjectPath = "Справочник/Контрагенты/Свойства.yaml"
@@ -349,6 +419,21 @@ function catalogAssignment(): ImportAssignment {
     xmlFiles: [{ role: "metadata", sourcePath: metadataPath }],
     externalFiles: [],
   }
+}
+
+function styleItemAssignment(): ImportAssignment {
+  return assignmentForProjectPath({
+    id: "style-item",
+    targetProjectPath: "ЭлементСтиля/ЭлементСтиляЦвет.yaml",
+    itemType: "MetadataStyleItem",
+    itemName: "ЭлементСтиляЦвет",
+    logicalAddress: "ЭлементСтиля.ЭлементСтиляЦвет",
+    owner: undefined,
+    xmlFiles: [{
+      role: "metadata",
+      sourcePath: join(e2eConfigurationDir, "StyleItems/ЭлементСтиляЦвет.xml"),
+    }],
+  })
 }
 
 function configurationAssignment(

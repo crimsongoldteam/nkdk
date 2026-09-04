@@ -143,6 +143,40 @@ describe("prepared import dependencies", () => {
       .toEqual({ value: {} })
   })
 
+  it("восстанавливает составное свойство для локального proof целиком", () => {
+    const nestedRule = {
+      itemType: "Nested",
+      properties: {
+        style: {
+          type: "StyleItemValue",
+          yaml: "Значение",
+        },
+      },
+    } as const satisfies MetadataItemRule
+    const facts = collectImportDependencyFacts({
+      rule: MetadataCatalogRules,
+      owner,
+      candidates: [],
+      yaml: {},
+      proofPropertyFacts: [{
+        itemType: nestedRule.itemType,
+        itemRule: nestedRule,
+        propertyKey: "style",
+        value: "Цвет",
+        yamlPath: ["Элементы", "Первый", "Значение", "Вид"],
+      }, {
+        itemType: nestedRule.itemType,
+        itemRule: nestedRule,
+        propertyKey: "style",
+        value: "Красный",
+        yamlPath: ["Элементы", "Первый", "Значение", "Значение"],
+      }],
+    })
+
+    expect(prepareImportDependencies(facts).propertyValue?.(["Элементы", "Первый"], "style"))
+      .toEqual({ value: { Вид: "Цвет", Значение: "Красный" } })
+  })
+
   it("не подавляет присутствующий пустой XML nested-свойства, опущенный из YAML", () => {
     const nestedRule = {
       itemType: "Nested",

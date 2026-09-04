@@ -1,4 +1,5 @@
 import type { ImportDiagnostic } from "../workerPool/importContracts"
+import { validationIssueTargetKey } from "@nkdk/runtime"
 import type { ImportedIssueDecision } from "./classifyImportedIssues"
 import { importedYamlValueAtPath } from "./yamlPathValue"
 
@@ -59,8 +60,15 @@ export function selectReadyImportedIssueDecisions(params: {
   readonly data: unknown
   readonly decisions: readonly ImportedIssueDecision[]
   readonly diagnostics: readonly ImportDiagnostic[]
+  readonly confirmedDecisions?: readonly ImportedIssueDecision[]
 }): readonly ImportedIssueDecision[] {
+  const confirmedReferenceTargets = new Set((params.confirmedDecisions ?? [])
+    .filter(({ issueCodes }) => issueCodes.includes("diagnostic.reference"))
+    .map(({ target }) => validationIssueTargetKey(target)))
   return params.decisions.filter((decision) => {
+    if (decision.issueCodes.includes("diagnostic.reference")) {
+      return confirmedReferenceTargets.has(validationIssueTargetKey(decision.target))
+    }
     if (!decision.issueCodes.includes("data-path.unresolved")) return true
     const value = importedYamlValueAtPath(params.data, decision.target.path)
     return typeof value === "string" && params.diagnostics.some((diagnostic) =>

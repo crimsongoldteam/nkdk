@@ -3,6 +3,7 @@ import {
   createXmlAnomalyAnnotations,
   createXmlImportAuditSession,
   createLocalXmlProof,
+  copyYAMLRuntimeMetadata,
   parseXmlDocumentWithSaxes,
   type XmlAnomalyAnnotationTable,
   type XmlAnomalyAnnotations,
@@ -178,6 +179,8 @@ export async function prepareImportYamlFromDocuments(params: {
   readonly formProofYaml?: ClientApplicationFormYAML
   readonly currentConfigurationFormYaml?: ClientApplicationFormYAML
   readonly savedBaseFormYaml?: ClientApplicationFormYAML
+  readonly baseFormSource?: "saved" | "projected"
+  readonly baseFormProofYaml?: ClientApplicationFormYAML
 }): Promise<PreparedImportYaml> {
   return prepareImportYamlFromParsedInputs({
     ...params,
@@ -203,6 +206,8 @@ function prepareImportYamlFromParsedInputs(params: {
   readonly formProofYaml?: ClientApplicationFormYAML
   readonly currentConfigurationFormYaml?: ClientApplicationFormYAML
   readonly savedBaseFormYaml?: ClientApplicationFormYAML
+  readonly baseFormSource?: "saved" | "projected"
+  readonly baseFormProofYaml?: ClientApplicationFormYAML
 }): PreparedImportYaml {
     const xmlInputs = params.xmlInputs
     const annotations = createXmlAnomalyAnnotations()
@@ -250,6 +255,8 @@ function prepareImportYamlFromParsedInputs(params: {
       dependencies: params.dependencies,
       baseFormDependencies: params.baseFormDependencies,
       profiler: params.profiler,
+      source: params.baseFormSource ?? "saved",
+      proofYaml: params.baseFormProofYaml,
       ...(localRoundTripParams === undefined
         ? {}
         : {
@@ -437,6 +444,8 @@ function importAssignmentBaseFormCandidate(params: {
   readonly dependencies?: PreparedImportDependencies
   readonly baseFormDependencies?: PreparedImportDependencies
   readonly profiler?: ValidationProfiler
+  readonly source: "saved" | "projected"
+  readonly proofYaml?: ClientApplicationFormYAML
   readonly localRoundTrip?: Omit<ImportLocalRoundTripOptions, "finalizeRootYaml"> & {
     readonly finalizeRootYaml?: ImportLocalRoundTripOptions["finalizeRootYaml"]
     readonly proofContext?: ConfigurationContextWithExportToXML
@@ -464,6 +473,11 @@ function importAssignmentBaseFormCandidate(params: {
     annotations,
     profiler: params.profiler,
     isDocumentRoot: (candidate) => candidate === companion.rule,
+    ...(params.proofYaml === undefined
+      ? {}
+      : {
+          finalizeRootYaml: (yaml) => replaceYamlRoot(yaml, params.proofYaml!),
+        }),
     ...(params.localRoundTrip.prepareRootProof === undefined
       ? {}
       : { prepareRootProof: params.localRoundTrip.prepareRootProof }),
@@ -485,7 +499,7 @@ function importAssignmentBaseFormCandidate(params: {
     ? localRoundTrip.takeResult(baseForm.yaml as object).roots.get("source-0")
     : undefined
   return {
-    source: "saved",
+    source: params.source,
     baseProjectPath: params.assignment.targetProjectPath,
     targetProjectPath: companion.targetProjectPath,
     owner: {
@@ -500,6 +514,12 @@ function importAssignmentBaseFormCandidate(params: {
     configurationFragment: baseForm.configurationIndexCollector.fragment(companion.targetProjectPath),
     ...(localProofReceipt === undefined ? {} : { localProofReceipt }),
   }
+}
+
+function replaceYamlRoot(target: Record<string, unknown>, source: ClientApplicationFormYAML): void {
+  for (const key of Object.keys(target)) delete target[key]
+  Object.assign(target, source)
+  copyYAMLRuntimeMetadata(source, target)
 }
 
 function withBaseFormReceipt(

@@ -66,7 +66,20 @@ export function createLocalXmlBodyConsumer(params: {
       const preparedBody = wrapped?.body ?? envelopedBody
       // Сначала закрываем самые глубокие границы. Родительский контейнер затем
       // получает их компактные подтверждения и не обходит тот же XML повторно.
-      const orderedWrites = [...writes.values()].sort((left, right) => right.path.length - left.path.length)
+      const writesByDepth = new Map<number, Parameters<CompiledXMLProofConsumer["write"]>[0][]>()
+      let maximumDepth = 0
+      for (const write of writes.values()) {
+        const depth = write.path.length
+        maximumDepth = Math.max(maximumDepth, depth)
+        const bucket = writesByDepth.get(depth) ?? []
+        bucket.push(write)
+        writesByDepth.set(depth, bucket)
+      }
+      const orderedWrites: Parameters<CompiledXMLProofConsumer["write"]>[0][] = []
+      for (let depth = maximumDepth; depth >= 0; depth -= 1) {
+        const bucket = writesByDepth.get(depth)
+        if (bucket !== undefined) orderedWrites.push(...bucket)
+      }
       const elementUseCount = new Map<number, number>()
       for (const { property } of orderedWrites) {
         const node = bindings.get(property.propertyKey)?.node
@@ -226,10 +239,15 @@ function collectContainerReceipts(
 ): ReadonlyMap<number, readonly LocalXmlChild[]> {
   const result = new Map<number, LocalXmlChild[]>()
   const seen = new Map<number, Set<number>>()
+  const directChildIdsByNode = new Map<number, ReadonlySet<number>>()
   for (const { property, childReceipts = [] } of writes) {
     const node = bindings.get(property.propertyKey)?.node
     if (!isXmlElementNode(node)) continue
-    const directChildIds = new Set(node.content.filter(isXmlElementNode).map(child => child.id))
+    let directChildIds = directChildIdsByNode.get(node.id)
+    if (directChildIds === undefined) {
+      directChildIds = new Set(node.content.filter(isXmlElementNode).map(child => child.id))
+      directChildIdsByNode.set(node.id, directChildIds)
+    }
     const direct = childReceipts.filter(
       (receipt): receipt is LocalXmlChild & { readonly sourceId: number } =>
         receipt.sourceId !== undefined && directChildIds.has(receipt.sourceId),

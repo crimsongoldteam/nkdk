@@ -64,7 +64,7 @@ import { beginPropertyTypeProfile, finishPropertyTypeProfile } from "./propertyT
 import type { CompiledProperty, CompiledPropertyRuleExecution } from "./compiledPropertyPlan"
 import { canUseAtomicFromXMLToYAML } from "./atomicConversion"
 import { assignMetadataTargetUuidAnnotations } from "./metadataTargetOccurrences"
-import { markYAMLScalarTag } from "../../../yaml/scalarTags"
+import { isTaggedYAMLScalar, markYAMLScalarTag, yamlValueTag } from "../../../yaml/scalarTags"
 
 export class DirectImportConversionError extends Error {
   constructor(
@@ -210,7 +210,9 @@ export function importPropertiesFromXMLToYAML(params: {
     const compiled = "operations" in entry ? entry as CompiledProperty : undefined
     const { source, indexCollection, ownerXmlName } = sourceState
     const { context: sourceContext } = source
-    const propertyYamlPath = [...yamlPath, propertyRule.yaml ?? key]
+    const propertyYamlPath = propertyRule.yamlInline === true
+      ? yamlPath
+      : [...yamlPath, propertyRule.yaml ?? key]
     const propertyRulePath = [...rulePath, { propertyKey: key }]
     const boundary: XmlImportAuditBoundary = {
       itemType: rule.itemType,
@@ -512,7 +514,7 @@ export function importPropertiesFromXMLToYAML(params: {
                   execution: params.execution,
                   mode: params.mode,
                   facts: params.facts,
-                  produceResult: true,
+                  produceResult: params.mode !== "facts",
                 }),
               { configurationIndexAddressing: nestedConfigurationIndexAddressing }
             )
@@ -591,6 +593,20 @@ export function importPropertiesFromXMLToYAML(params: {
             )
             addDirectImportProfile(params.profile, propertyRule.type, startedAt)
           }
+          if (
+            params.mode === "facts"
+            && convertedDirectly
+            && propertyRule.filePath !== undefined
+            && importedValue === undefined
+          ) {
+            collector.acceptProperty({
+              yamlPath: propertyYamlPath,
+              rulePath: propertyRulePath,
+              rule: propertyRule,
+              value: {},
+              ...(owner === undefined ? {} : { metadataTargetOwner: owner }),
+            })
+          }
           const claimedCanonicalRawDefault = claimCanonicalRawDefault({
             audit: params.audit,
             boundary,
@@ -607,9 +623,9 @@ export function importPropertiesFromXMLToYAML(params: {
             importedValue === undefined &&
             presentInXML &&
             propertyRule.itemRule !== undefined &&
-            (compiled === undefined
-              ? typeRule(propertyRule.type, "xmlImportPropertyBehavior")
-              : compiled.operations.xmlImportPropertyBehavior)?.presenceAffectsExport === true
+              (compiled === undefined
+                ? typeRule(propertyRule.type, "xmlImportPropertyBehavior")
+                : compiled.operations.xmlImportPropertyBehavior)?.presenceAffectsExport === true
               ? {}
               : undefined
           const clearedMetadataTarget =
@@ -771,18 +787,38 @@ export function importPropertiesFromXMLToYAML(params: {
             structurallyClaimed = true
             proofReady = false
           }
-          params.facts?.acceptProperty({
+          if (
+            params.mode === "facts"
+            && exportedYamlValue !== null
+            && typeof exportedYamlValue === "object"
+          ) {
+            acceptNestedPropertyFactLeaves({
+              facts: params.facts,
               itemType: rule.itemType,
               itemRule: rule,
               propertyKey: key,
               yamlPath: propertyYamlPath,
               value: exportedYamlValue,
               presentInXML,
-              ...(cleanValue === undefined
-              && importedValue !== undefined
-              ? { reconstructionValue: importedValue }
-              : {}),
-          })
+              retainContainers: false,
+            })
+          } else {
+            params.facts?.acceptProperty({
+                itemType: rule.itemType,
+                itemRule: rule,
+                propertyKey: key,
+                yamlPath: propertyYamlPath,
+                value: exportedYamlValue,
+                ...(yamlValueTag(exportedYamlValue) === undefined
+                  ? {}
+                  : { scalarTag: yamlValueTag(exportedYamlValue) }),
+                presentInXML,
+                ...(cleanValue === undefined
+                && importedValue !== undefined
+                ? { reconstructionValue: importedValue }
+                : {}),
+            })
+          }
           if (shouldImportForLocalProof && !shouldImportProperty) return
           if (!convertedDirectly && !usesFusedRepresentation) {
             const profile = params.profile
@@ -865,6 +901,20 @@ export function importPropertiesFromXMLToYAML(params: {
               params.audit.elideSubtree(xmlNode, boundary)
             }
             return
+          }
+          if (params.mode === "facts") {
+            for (const [yamlKey, exportedValue] of Object.entries(exportedValues)) {
+              acceptNestedPropertyFactLeaves({
+                facts: params.facts,
+                itemType: rule.itemType,
+                itemRule: rule,
+                propertyKey: key,
+                yamlPath: [...yamlPath, yamlKey],
+                value: exportedValue,
+                presentInXML,
+                retainContainers: true,
+              })
+            }
           }
           if (
             ambiguousXMLKey
@@ -1122,6 +1172,55 @@ export function importPropertiesFromXMLToYAML(params: {
     compiledPlan?.yamlOrder ?? getYamlRulePropertyOrder(rule),
     params.annotations,
   )
+}
+
+function acceptNestedPropertyFactLeaves(params: {
+  readonly facts: DirectImportTraversal["facts"]
+  readonly itemType: string
+  readonly itemRule: MetadataItemRule
+  readonly propertyKey: string
+  readonly yamlPath: YamlPath
+  readonly value: unknown
+  readonly presentInXML: boolean
+  readonly retainContainers: boolean
+}): void {
+  if (params.facts === undefined) return
+  const taggedScalar = isTaggedYAMLScalar(params.value) ? params.value : undefined
+  const value = taggedScalar?.value ?? params.value
+  const scalarTag = taggedScalar?.tag ?? yamlValueTag(value)
+  const container = value !== null && typeof value === "object"
+  if (scalarTag !== undefined || (container && params.retainContainers)) {
+    params.facts.acceptProperty({
+      itemType: params.itemType,
+      itemRule: params.itemRule,
+      propertyKey: container ? `$container:${params.propertyKey}` : params.propertyKey,
+      yamlPath: params.yamlPath,
+      value: Array.isArray(value) ? [] : {},
+      ...(scalarTag === undefined ? {} : { scalarTag }),
+      presentInXML: params.presentInXML,
+    })
+  }
+  const entries = Array.isArray(value)
+    ? value.map((child, index) => [index, child] as const)
+    : value !== null && typeof value === "object"
+      ? Object.entries(value)
+      : []
+  if (entries.length > 0) {
+    for (const [key, value] of entries) {
+      acceptNestedPropertyFactLeaves({ ...params, yamlPath: [...params.yamlPath, key], value })
+    }
+    return
+  }
+  if (container && params.retainContainers) return
+  params.facts.acceptProperty({
+    itemType: params.itemType,
+    itemRule: params.itemRule,
+    propertyKey: params.propertyKey,
+    yamlPath: params.yamlPath,
+    value,
+    ...(scalarTag === undefined ? {} : { scalarTag }),
+    presentInXML: params.presentInXML,
+  })
 }
 
 function acceptReconstructionPropertyFact(params: {

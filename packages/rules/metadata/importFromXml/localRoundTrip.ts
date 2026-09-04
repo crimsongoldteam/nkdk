@@ -60,11 +60,7 @@ export function createImportLocalRoundTrip(params: {
   release(yaml: object): void
 } {
   const active: SourceBoundary[][] = []
-  const activeItems: Array<{
-    readonly rule: import("@nkdk/runtime/rule-kit").MetadataItemRule
-    readonly itemName?: string
-    readonly yamlPath: readonly (string | number)[]
-  }> = []
+  const activeItemContexts: import("@nkdk/runtime").ContextElementToXML[] = []
   const preparedByYaml = new WeakMap<object, SourceBoundary[]>()
   const opened = new WeakMap<XmlElementNode, string>()
   const execution = createCompiledRuleExecution({
@@ -98,14 +94,7 @@ export function createImportLocalRoundTrip(params: {
           ...item.context,
           exportToXML: {
             ...params.context.exportToXML,
-            itemsTree: [...activeItems, item].map((entry) => ({
-              name: entry.itemName ?? "",
-              itemType: entry.rule.itemType as import("@nkdk/runtime").ContextElementToXML["itemType"],
-              path: entry.yamlPath.join("/"),
-              ...(entry.rule.externalMetadata === undefined
-                ? {}
-                : { externalMetadata: entry.rule.externalMetadata }),
-            })),
+            itemsTree: [...activeItemContexts, itemContext(item)],
           },
         },
         annotations: params.annotations,
@@ -149,7 +138,8 @@ export function createImportLocalRoundTrip(params: {
       const sources = preparedByYaml.get(yaml)
       if (sources === undefined) throw new Error("Не подготовлены XML-границы локального proof")
       active.push(sources)
-      activeItems.push(item)
+      const contextItem = itemContext(item)
+      activeItemContexts.push(contextItem)
       const delegate = createAnnotatedLocalXmlBodyConsumers({
         sources: sources.map((source) => ({
           ...source,
@@ -181,8 +171,8 @@ export function createImportLocalRoundTrip(params: {
             })
             if (active.at(-1) !== sources) throw new Error("XML-границы локального proof закрываются вне порядка")
             active.pop()
-            if (activeItems.at(-1) !== item) throw new Error("Rules локального proof закрываются вне порядка")
-            activeItems.pop()
+            if (activeItemContexts.at(-1) !== contextItem) throw new Error("Rules локального proof закрываются вне порядка")
+            activeItemContexts.pop()
           }
         },
       }
@@ -194,6 +184,19 @@ export function createImportLocalRoundTrip(params: {
     takeResult(yaml) { return execution.takeResult(yaml) },
     retainReceipt(receipt) { return execution.retainReceipt(receipt) },
     release(yaml) { execution.takeResult(yaml) },
+  }
+}
+
+function itemContext(item: {
+  readonly rule: import("@nkdk/runtime/rule-kit").MetadataItemRule
+  readonly itemName?: string
+  readonly yamlPath: readonly (string | number)[]
+}): import("@nkdk/runtime").ContextElementToXML {
+  return {
+    name: item.itemName ?? "",
+    itemType: item.rule.itemType as import("@nkdk/runtime").ContextElementToXML["itemType"],
+    path: item.yamlPath.join("/"),
+    ...(item.rule.externalMetadata === undefined ? {} : { externalMetadata: item.rule.externalMetadata }),
   }
 }
 

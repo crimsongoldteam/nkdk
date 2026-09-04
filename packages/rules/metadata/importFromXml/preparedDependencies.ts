@@ -1,6 +1,11 @@
 import { copyYAMLRuntimeMetadata, yamlPathToPointer, yamlScalarTagAt, type YAMLScalarTag } from "@nkdk/runtime"
 import { recordAtPath } from "./dependentItems"
 import {
+  createPropertyFactsYamlView,
+  propertyFactsWithReconstructionValues,
+} from "./propertyFactsYamlView"
+import { importedYamlValueAtPath } from "./yamlPathValue"
+import {
   prepareDependentImportFacts,
   isDependentImportProperty,
   shouldRemoveImportedDependentProperty,
@@ -78,6 +83,7 @@ export function collectImportDependencyFacts(params: {
     }
   }
   const siblingProperties = new Map<string, { readonly value: unknown }>()
+  const propertyFactsYaml = createPropertyFactsYamlView(params.propertyFacts ?? [])
   const proofPropertyFacts = params.proofPropertyFacts ?? params.propertyFacts ?? []
   const proofProperties = collectProofProperties(proofPropertyFacts)
   const finalProperties = collectFinalRootProperties({
@@ -110,8 +116,23 @@ export function collectImportDependencyFacts(params: {
       siblingKeys.set(fact.itemRule, keys)
     }
     if (!keys.has(fact.propertyKey)) continue
-    const value = typeof fact.value === "string" ? fact.value : Array.isArray(fact.value) ? [...fact.value] : undefined
-    siblingProperties.set(siblingAddress((fact.sourceYamlPath ?? fact.yamlPath).slice(0, -1), fact.propertyKey), { value })
+    const propertyRule = fact.itemRule.properties[fact.propertyKey]
+    const propertyRootIndex = typeof propertyRule?.yaml === "string"
+      ? fact.yamlPath.lastIndexOf(propertyRule.yaml)
+      : -1
+    const propertyPath = propertyRootIndex < 0
+      ? fact.yamlPath
+      : fact.yamlPath.slice(0, propertyRootIndex + 1)
+    const reconstructed = importedYamlValueAtPath(propertyFactsYaml, propertyPath)
+    const value = typeof reconstructed === "string"
+      ? reconstructed
+      : Array.isArray(reconstructed)
+        ? [...reconstructed]
+        : undefined
+    const itemPath = propertyRootIndex < 0
+      ? (fact.sourceYamlPath ?? fact.yamlPath).slice(0, -1)
+      : propertyPath.slice(0, -1)
+    siblingProperties.set(siblingAddress(itemPath, fact.propertyKey), { value })
   }
   return {
     rule: params.rule,
@@ -213,14 +234,33 @@ function collectCompactPropertyValues(
   facts: readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][],
 ): ReadonlyMap<string, { readonly value: unknown }> {
   const result = new Map<string, { readonly value: unknown }>()
+  const factsYaml = createPropertyFactsYamlView(propertyFactsWithReconstructionValues(facts))
+  const collected = new Set<string>()
   for (const fact of facts) {
-    const value = cloneCompactReconstructionValue(fact.reconstructionValue ?? fact.value)
+    const propertyRule = fact.itemRule?.properties[fact.propertyKey]
+    const propertyRootIndex = typeof propertyRule?.yaml === "string"
+      ? fact.yamlPath.lastIndexOf(propertyRule.yaml)
+      : -1
+    const finalPropertyPath = propertyRootIndex < 0
+      ? fact.yamlPath
+      : fact.yamlPath.slice(0, propertyRootIndex + 1)
+    const finalItemPath = finalPropertyPath.slice(0, -1)
+    const sourceFactPath = fact.sourceYamlPath ?? fact.yamlPath
+    const sourcePropertyRootIndex = typeof propertyRule?.yaml === "string"
+      ? sourceFactPath.lastIndexOf(propertyRule.yaml)
+      : -1
+    const sourceItemPath = sourcePropertyRootIndex < 0
+      ? sourceFactPath.slice(0, -1)
+      : sourceFactPath.slice(0, sourcePropertyRootIndex)
+    const collectionKey = `${siblingAddress(sourceItemPath, fact.propertyKey)}:${yamlPathToPointer(finalItemPath)}`
+    if (collected.has(collectionKey)) continue
+    collected.add(collectionKey)
+    const reconstructed = importedYamlValueAtPath(factsYaml, finalPropertyPath)
+    const value = reconstructed ?? cloneCompactReconstructionValue(fact.reconstructionValue ?? fact.value)
     if (value === undefined) continue
-    const sourcePath = (fact.sourceYamlPath ?? fact.yamlPath).slice(0, -1)
-    result.set(siblingAddress(sourcePath, fact.propertyKey), { value })
-    const finalPath = fact.yamlPath.slice(0, -1)
-    if (yamlPathToPointer(finalPath) !== yamlPathToPointer(sourcePath)) {
-      result.set(siblingAddress(finalPath, fact.propertyKey), { value })
+    result.set(siblingAddress(sourceItemPath, fact.propertyKey), { value })
+    if (yamlPathToPointer(finalItemPath) !== yamlPathToPointer(sourceItemPath)) {
+      result.set(siblingAddress(finalItemPath, fact.propertyKey), { value })
     }
   }
   return result

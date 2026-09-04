@@ -3,6 +3,7 @@ import { objectRecordOrUndefined } from "../../../helpers/record"
 import { importMetadataItemFromXMLToYAML } from "../metadataItem/fromXMLToYAML"
 import type {
   DeferredValuePathCollector,
+  DirectImportFactsSink,
   DirectImportTraversal,
   ImportedDependentPropertyCollector,
   ImportedDependentPropertyCandidate,
@@ -142,7 +143,7 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
       bufferedCollector === undefined || params.traversal.dependent === undefined
         ? undefined
         : createBufferedDependentCollector(params.traversal.dependent, yamlPath)
-    const bufferedFacts = bufferedCollector === undefined || params.traversal.facts === undefined
+    const bufferedFacts = params.traversal.facts === undefined
       ? undefined : createDirectImportFactsCollector()
     const itemYamlValue = importMetadataItemFromXMLToYAML({
       context: itemContext,
@@ -152,6 +153,7 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
       traversal: enterNestedYamlRule(
         {
           ...params.traversal,
+          ...(params.traversal.mode === "facts" ? { produceResult: false } : {}),
           yamlPath,
           collector: bufferedCollector?.collector ?? params.traversal.collector,
           deferred: bufferedDeferred?.collector ?? params.traversal.deferred,
@@ -161,8 +163,12 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
         itemRule.itemType
       ),
     })
-    if (itemYamlValue === undefined) return []
+    const bufferedPropertyFacts = bufferedFacts?.finish() ?? []
+    if (itemYamlValue === undefined && params.traversal.mode !== "facts") return []
     const itemYaml = objectRecordOrUndefined(itemYamlValue)
+      ?? (params.traversal.mode === "facts"
+        ? factItemShallowView(bufferedPropertyFacts, yamlPath)
+        : undefined)
     if (itemYaml === undefined) {
       throw new Error(`Элемент коллекции ${itemRule.itemType} должен преобразовываться в YAML-объект`)
     }
@@ -194,7 +200,7 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
       bufferedCollector,
       bufferedDeferred,
       bufferedDependent,
-      bufferedFacts,
+      bufferedPropertyFacts,
       xmlNode: itemNode,
     }]
   })
@@ -202,6 +208,9 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
 
   if (params.yamlAsArray === true) {
     const result = yamlItems.map(({ yaml }) => yaml)
+    for (const item of yamlItems) {
+      for (const fact of item.bufferedPropertyFacts) params.traversal.facts?.acceptProperty(fact)
+    }
     result.forEach((yaml, index) => {
       const tag = yamlValueTag(yaml)
       if (tag !== undefined) markYAMLScalarTag(result, index, tag)
@@ -239,7 +248,7 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
     item.bufferedCollector?.flush(targetYamlPath)
     item.bufferedDeferred?.flush(targetYamlPath)
     item.bufferedDependent?.flush(targetYamlPath, yamlKey)
-    for (const fact of item.bufferedFacts?.finish() ?? []) {
+    for (const fact of item.bufferedPropertyFacts) {
       params.traversal.facts?.acceptProperty({
         ...fact,
         yamlPath: [...targetYamlPath, ...fact.yamlPath.slice(item.sourceYamlPath.length)],
@@ -247,6 +256,28 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
     }
   }
   return projected.yaml
+}
+
+function factItemShallowView(
+  facts: readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][],
+  itemYamlPath: readonly (string | number)[],
+): Record<string, unknown> {
+  const counts = new Map<string, number>()
+  for (const fact of facts) {
+    const key = JSON.stringify([fact.yamlPath, fact.propertyKey])
+    counts.set(key, (counts.get(key) ?? 0) + 1)
+  }
+  return Object.fromEntries(facts.flatMap((fact) => {
+    if (
+      fact.yamlPath.length !== itemYamlPath.length + 1
+      || !fact.yamlPath.slice(0, -1).every((segment, index) => segment === itemYamlPath[index])
+    ) return []
+    const finalFact = fact.propertyKey.startsWith("$container:")
+      || (counts.get(JSON.stringify([fact.yamlPath, fact.propertyKey])) ?? 0) > 1
+    if (!finalFact) return []
+    const key = fact.yamlPath.at(-1)
+    return typeof key === "string" ? [[key, fact.value] as const] : []
+  }))
 }
 
 function createBufferedDependentCollector(

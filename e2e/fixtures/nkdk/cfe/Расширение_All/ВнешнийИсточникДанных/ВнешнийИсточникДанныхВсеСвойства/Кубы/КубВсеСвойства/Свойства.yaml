@@ -33,24 +33,5 @@
     Подсказка: ""
     Формат: ""
     ФорматРедактирования: ""
-    Properties\NameInDataSource: !xml/raw
-      $xml:
   РесурсПоУмолчанию:
     Тип: Строка(10)
-Properties: !xml/raw
-  $xml:
-    "#order":
-      - ObjectBelonging
-      - Name
-      - Comment
-      - ExtendedConfigurationObject
-      - NameInDataSource
-      - DefaultRecordForm
-      - DefaultListForm
-      - RecordPresentation
-      - ExtendedRecordPresentation
-      - ListPresentation
-      - ExtendedListPresentation
-      - Explanation
-Properties\NameInDataSource: !xml/raw
-  $xml:

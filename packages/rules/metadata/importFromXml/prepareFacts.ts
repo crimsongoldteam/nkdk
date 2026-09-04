@@ -9,6 +9,7 @@ import {
   childSegmentUid,
   createConfigurationIndexCollector,
   withConfigurationIndexCollector,
+  yamlScalarTagAt,
   yamlPathToPointer,
 } from "@nkdk/runtime"
 import type {
@@ -76,6 +77,7 @@ export interface PreparedImportFacts {
     readonly rootPropertyValues: Readonly<Record<string, unknown>>
   }
   readonly semanticFacts: readonly DirectImportPropertyFact[]
+  readonly formSemanticFacts?: readonly DirectImportPropertyFact[]
   readonly baseFormSemanticFacts?: readonly DirectImportPropertyFact[]
   readonly deferred: readonly import("@nkdk/runtime/rule-kit").DeferredValuePath[]
   readonly baseFormDeferred?: readonly import("@nkdk/runtime/rule-kit").DeferredValuePath[]
@@ -135,45 +137,6 @@ export async function prepareImportFacts(params: {
         produceResult: false,
         facts,
       })
-      const baseFormNode = body?.document.roots
-        .find(({ name }) => name === "Form")?.content
-        .find((node): node is import("@nkdk/runtime").XmlElementNode =>
-          node.type === "element" && node.name === "BaseForm")
-      const companion = resolveBaseFormCompanion(params.assignment, params.topology)
-      if (baseFormNode !== undefined && companion !== undefined) {
-        const baseFacts = createDirectImportFactsCollector()
-        const baseIndexesCollector = createLocalIndexesCollector()
-        const baseDeferred = createDeferredValuePathCollector()
-        importClientApplicationFormBodyFromXML({
-          context: withConfigurationIndexCollector(
-            importContext,
-            createConfigurationIndexCollector(),
-            childSegmentUid(params.assignment.logicalAddress, "ОсноваФормы"),
-          ),
-          formName: params.assignment.itemName,
-          formXML: baseFormNode,
-          collector: baseIndexesCollector,
-          deferred: baseDeferred,
-          rule: companion.rule,
-          mode: "facts",
-          produceResult: false,
-          facts: baseFacts,
-        })
-        const baseIndexes = baseIndexesCollector.finish()
-        baseFormDeferred = baseDeferred.finish()
-        const basePropertyFacts = baseFacts.finish()
-        baseFormSemanticFacts = acceptedPropertyFacts(baseIndexes, basePropertyFacts)
-        const baseView = createPropertyFactsYamlView(baseFormSemanticFacts)
-        baseFormDependencies = collectImportDependencyFacts({
-          yaml: baseView,
-          rule: companion.rule,
-          owner: dependentOwner,
-          candidates: [],
-          propertyFacts: acceptedPropertyFacts(baseIndexes, basePropertyFacts),
-          proofPropertyFacts: basePropertyFacts,
-          ...(params.execution === undefined ? {} : { execution: params.execution }),
-        })
-      }
       return importedForm
     }
 
@@ -209,6 +172,52 @@ export async function prepareImportFacts(params: {
     }
   })
 
+  if (baseFormSemanticFacts === undefined) {
+    const supportsClientApplicationForm = rule.itemType === ClientApplicationFormRules.itemType
+      || Object.values(rule.properties).some(({ type }) => type === "ClientApplicationForm")
+    const body = inputs.find(({ input }) => input.role === "body")
+    const baseFormNode = body?.document.roots
+      .find(({ name }) => name === "Form")?.content
+      .find((node): node is import("@nkdk/runtime").XmlElementNode =>
+        node.type === "element" && node.name === "BaseForm")
+    const companion = supportsClientApplicationForm
+      ? resolveBaseFormCompanion(params.assignment, params.topology)
+      : undefined
+    if (baseFormNode !== undefined && companion !== undefined) {
+      const baseFacts = createDirectImportFactsCollector()
+      const baseIndexesCollector = createLocalIndexesCollector()
+      const baseDeferred = createDeferredValuePathCollector()
+      importClientApplicationFormBodyFromXML({
+        context: withConfigurationIndexCollector(
+          importContext,
+          createConfigurationIndexCollector(),
+          childSegmentUid(params.assignment.logicalAddress, "ОсноваФормы"),
+        ),
+        formName: params.assignment.itemName,
+        formXML: baseFormNode,
+        collector: baseIndexesCollector,
+        deferred: baseDeferred,
+        rule: companion.rule,
+        mode: "facts",
+        produceResult: false,
+        facts: baseFacts,
+      })
+      const baseIndexes = baseIndexesCollector.finish()
+      baseFormDeferred = baseDeferred.finish()
+      const basePropertyFacts = baseFacts.finish()
+      baseFormSemanticFacts = acceptedPropertyFacts(baseIndexes, basePropertyFacts)
+      baseFormDependencies = collectImportDependencyFacts({
+        yaml: createPropertyFactsYamlView(baseFormSemanticFacts),
+        rule: companion.rule,
+        owner: dependentOwner,
+        candidates: [],
+        propertyFacts: baseFormSemanticFacts,
+        proofPropertyFacts: basePropertyFacts,
+        ...(params.execution === undefined ? {} : { execution: params.execution }),
+      })
+    }
+  }
+
   const propertyFacts = facts.finish()
   for (const fact of propertyFacts) {
     if (fact.yamlPath.length !== 1 || typeof fact.yamlPath[0] !== "string" || !isCompactFactValue(fact.value)) continue
@@ -233,6 +242,13 @@ export async function prepareImportFacts(params: {
     execution: params.execution,
   })
   const semanticView = createPropertyFactsYamlView(semanticFacts)
+  const formPropertyYaml = Object.values(rule.properties)
+    .find(({ type }) => type === "ClientApplicationForm")?.yaml
+  const formSemanticFacts = rule.itemType === ClientApplicationFormRules.itemType
+    ? semanticFacts
+    : typeof formPropertyYaml === "string"
+      ? semanticFacts
+      : undefined
   const dependentIndex = extractDependentYamlIndexFacts({
     filePath: params.assignment.targetProjectPath,
     rootYaml: semanticView,
@@ -270,6 +286,7 @@ export async function prepareImportFacts(params: {
     generatedFiles: [...generatedFiles, ...imported.generatedFiles.filter((file) => !generatedFiles.includes(file))],
     reconstructionFacts: { rootPropertyValues },
     semanticFacts,
+    ...(formSemanticFacts === undefined ? {} : { formSemanticFacts }),
     ...(baseFormSemanticFacts === undefined ? {} : { baseFormSemanticFacts }),
     deferred: imported.deferred,
     ...(baseFormDeferred === undefined ? {} : { baseFormDeferred }),
@@ -301,16 +318,62 @@ function augmentClientApplicationFormFacts(params: {
   const result = [...params.facts]
   for (const [key, value] of Object.entries(yaml)) {
     if (Object.hasOwn(before, key) && Object.is(before[key], value)) continue
-    result.push({
-      itemType: params.rule.itemType,
-      itemRule: params.rule,
-      propertyKey: `$augment:${key}`,
-      yamlPath: [key],
-      sourceYamlPath: [key],
-      value,
-    })
+    appendAugmentedFacts(result, params.rule, key, [key], value, yamlScalarTagAt(yaml, key))
   }
   return result
+}
+
+function appendAugmentedFacts(
+  target: DirectImportPropertyFact[],
+  rule: MetadataItemRule,
+  rootKey: string,
+  yamlPath: readonly (string | number)[],
+  value: unknown,
+  scalarTag?: import("@nkdk/runtime").YAMLScalarTag,
+): void {
+  if (Array.isArray(value) && value.length > 0) {
+    if (scalarTag !== undefined) {
+      target.push({
+        itemType: rule.itemType,
+        itemRule: rule,
+        propertyKey: `$augment:${rootKey}`,
+        yamlPath,
+        sourceYamlPath: yamlPath,
+        value: [],
+        scalarTag,
+      })
+    }
+    value.forEach((child, index) => {
+      appendAugmentedFacts(target, rule, rootKey, [...yamlPath, index], child)
+    })
+    return
+  }
+  if (value !== null && typeof value === "object" && Object.keys(value).length > 0) {
+    if (scalarTag !== undefined) {
+      target.push({
+        itemType: rule.itemType,
+        itemRule: rule,
+        propertyKey: `$augment:${rootKey}`,
+        yamlPath,
+        sourceYamlPath: yamlPath,
+        value: {},
+        scalarTag,
+      })
+    }
+    for (const [key, child] of Object.entries(value)) {
+      appendAugmentedFacts(target, rule, rootKey, [...yamlPath, key], child)
+    }
+    return
+  }
+  target.push({
+    itemType: rule.itemType,
+    itemRule: rule,
+    propertyKey: `$augment:${rootKey}`,
+    yamlPath,
+    sourceYamlPath: yamlPath,
+    value,
+    ...(scalarTag === undefined ? {} : { scalarTag }),
+  })
 }
 
 function prepareFormValidationFacts(params: {
@@ -379,16 +442,40 @@ function acceptedPropertyFacts(
 ): Parameters<DirectImportFactsSink["acceptProperty"]>[0][] {
   const latestByKey = new Map<string, Parameters<DirectImportFactsSink["acceptProperty"]>[0]>()
   for (const fact of propertyFacts) latestByKey.set(propertyFactKey(fact.yamlPath, fact.propertyKey), fact)
+  const compactFactsByPropertyRoot = new Map<string, Parameters<DirectImportFactsSink["acceptProperty"]>[0][]>()
+  for (const fact of latestByKey.values()) {
+    if (fact.propertyKey.startsWith("$")) continue
+    for (let length = 1; length <= fact.yamlPath.length; length++) {
+      const key = propertyFactKey(fact.yamlPath.slice(0, length), fact.propertyKey)
+      const descendants = compactFactsByPropertyRoot.get(key)
+      if (descendants === undefined) compactFactsByPropertyRoot.set(key, [fact])
+      else descendants.push(fact)
+    }
+  }
+  const latestContainerIndexByPath = new Map<string, number>()
+  propertyFacts.forEach((fact, index) => {
+    if (fact.propertyKey.startsWith("$container:")) {
+      latestContainerIndexByPath.set(JSON.stringify(fact.yamlPath), index)
+    }
+  })
   const result: Parameters<DirectImportFactsSink["acceptProperty"]>[0][] = []
-  for (const fact of propertyFacts) {
+  for (const [index, fact] of propertyFacts.entries()) {
     if (fact.propertyKey === "$formElementKind") result.push(fact)
+    if (!fact.propertyKey.startsWith("$container:")) continue
+    const ownLatest = latestContainerIndexByPath.get(JSON.stringify(fact.yamlPath))
+    if (ownLatest !== index) continue
+    const supersededByAncestor = fact.yamlPath.slice(1).some((_segment, length) => {
+      const ancestorIndex = latestContainerIndexByPath.get(JSON.stringify(fact.yamlPath.slice(0, length + 1)))
+      return ancestorIndex !== undefined && ancestorIndex > index
+    })
+    if (!supersededByAncestor) result.push(fact)
   }
   for (const event of indexes.metadata.events) {
     if (event.kind !== "property") continue
     const propertyKey = event.rulePath.at(-1)?.propertyKey
     if (propertyKey === undefined) continue
-    const fact = latestByKey.get(propertyFactKey(event.yamlPath, propertyKey))
-    if (fact !== undefined) result.push(fact)
+    const facts = compactFactsByPropertyRoot.get(propertyFactKey(event.yamlPath, propertyKey))
+    if (facts !== undefined) result.push(...facts)
   }
   return result
 }

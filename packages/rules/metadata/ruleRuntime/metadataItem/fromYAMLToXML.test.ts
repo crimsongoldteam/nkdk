@@ -158,6 +158,20 @@ describe("convertMetadataItemFromYAMLToXML", () => {
     ).toThrow("MetadataAttribute: ожидался YAML-объект")
   })
 
+  it("допускает скалярное представление разреженного metadata item", () => {
+    const result = convertMetadataItemFromYAMLToXML({
+      convertProperties: convertPropertiesFromYAMLToXML,
+      context: context(),
+      yaml: "tag",
+      sparseYAML: true,
+      rule: itemRule,
+      name: "Первый",
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({ Name: "Первый" })
+  })
+
   it("формирует metadata-item из YAML и имени записи без модели", () => {
     const result = convertMetadataItemFromYAMLToXML({
       convertProperties: convertPropertiesFromYAMLToXML,
