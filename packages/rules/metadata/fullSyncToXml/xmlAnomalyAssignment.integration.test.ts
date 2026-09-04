@@ -1281,6 +1281,17 @@ describe("единое восстановление XML-аномалий assignm
     ])
   })
 
+  it("сохраняет номер вхождения из публичного raw-пути", () => {
+    const prepared = prepareAnomalies([
+      '"Properties\\\\Future[2]": !xml/raw',
+      "  $xml: second",
+    ].join("\n"), anomalyRuntime({}), parentPatchRule)
+
+    expect(prepared.rawBoundaries).toEqual([
+      expect.objectContaining({ path: "Properties\\Future", occurrencePath: [null, 2] }),
+    ])
+  })
+
 
   it("сохраняет служебный порядок XML-дочерних элементов в чистой сборке", () => {
     const root = { First: "first", Second: "second" }

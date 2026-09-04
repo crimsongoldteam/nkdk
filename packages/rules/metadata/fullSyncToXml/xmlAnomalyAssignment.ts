@@ -733,11 +733,26 @@ function rawBoundary(params: {
   const rawPath = params.property !== undefined
     ? params.property.xmlPath.map(xmlPathSegment)
     : property === undefined
-      ? publicPath!.segments.map(xmlPathSegment)
+      ? publicPath!.segments.map((name, index) => ({
+          name,
+          ...(publicPath!.occurrences[index] === undefined
+            ? {}
+            : { occurrence: publicPath!.occurrences[index] }),
+        }))
       : sameStringPath(property.xmlPath, publicPath!.segments)
-        ? property.xmlPath.map(xmlPathSegment)
+        ? property.xmlPath.map((name, index) => ({
+            name,
+            ...(publicPath!.occurrences[index] === undefined
+              ? {}
+              : { occurrence: publicPath!.occurrences[index] }),
+          }))
         : [
-          ...publicPath!.segments.slice(0, -1).map(xmlPathSegment),
+          ...publicPath!.segments.slice(0, -1).map((name, index) => ({
+            name,
+            ...(publicPath!.occurrences[index] === undefined
+              ? {}
+              : { occurrence: publicPath!.occurrences[index] }),
+          })),
           ...property.xmlPath.map(xmlPathSegment),
         ]
   const repeatedElementName = rawPath.at(-1)?.name
@@ -761,6 +776,7 @@ function rawBoundary(params: {
     : params.property === undefined
         && repeatedElementName !== "#order"
         && physicalOccurrence !== undefined
+        && rawPath.at(-1)?.occurrence === undefined
       ? rawPath.map((segment, index) => index === rawPath.length - 1
         ? { ...segment, occurrence: physicalOccurrence }
         : segment)
@@ -1161,10 +1177,11 @@ function splitRawPath(key: string): readonly string[] {
 
 function parsePublicRawPath(key: string): {
   readonly segments: readonly string[]
+  readonly occurrences: readonly (number | undefined)[]
   readonly documentSelector?: string
   readonly documentRoot?: true
 } {
-  if (key === "@") return { segments: [], documentSelector: "", documentRoot: true }
+  if (key === "@") return { segments: [], occurrences: [], documentSelector: "", documentRoot: true }
 
   let path = key
   let documentSelector: string | undefined
@@ -1181,11 +1198,17 @@ function parsePublicRawPath(key: string): {
       throw new Error(`Недопустимое краткое имя XML-документа: ${selector}`)
     }
     documentSelector = selector
-    if (separator < 0) return { segments: [], documentSelector, documentRoot: true }
+    if (separator < 0) return { segments: [], occurrences: [], documentSelector, documentRoot: true }
     path = key.slice(separator + 1)
   }
 
-  const segments = splitRawPath(path)
+  const parsedSegments = splitRawPath(path).map((segment) => {
+    const match = /^(.*)\[([1-9]\d*)\]$/u.exec(segment)
+    return match === null
+      ? { name: segment, occurrence: undefined }
+      : { name: match[1]!, occurrence: Number(match[2]) }
+  })
+  const segments = parsedSegments.map(({ name }) => name)
   if (
     segments.length === 0 ||
     segments.some((segment, index) =>
@@ -1201,6 +1224,7 @@ function parsePublicRawPath(key: string): {
   }
   return {
     segments,
+    occurrences: parsedSegments.map(({ occurrence }) => occurrence),
     ...(documentSelector === undefined ? {} : { documentSelector }),
   }
 }

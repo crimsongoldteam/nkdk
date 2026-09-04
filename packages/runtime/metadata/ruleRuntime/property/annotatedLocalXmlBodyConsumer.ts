@@ -24,10 +24,12 @@ export function createAnnotatedLocalXmlBodyConsumer(params: Omit<
   "annotate" | "annotateScalar"
 > & {
   readonly yaml: Record<string, unknown>
+  readonly rawYaml?: Record<string, unknown>
   readonly annotations: XmlAnomalyAnnotationTable
   readonly rawPathPrefix?: readonly string[]
 }) {
-  const appendRaw = createLocalXmlRawAppender({ yaml: params.yaml, annotations: params.annotations })
+  const rawYaml = params.rawYaml ?? params.yaml
+  const appendRaw = createLocalXmlRawAppender({ yaml: rawYaml, annotations: params.annotations })
   return createLocalXmlBodyConsumer({
     ...params,
     annotate({ source, differences, property }) {
@@ -36,8 +38,9 @@ export function createAnnotatedLocalXmlBodyConsumer(params: Omit<
         const expectedName = property.xmlPath.at(-1)
         if (key === undefined || expectedName === undefined) {
           projectPathOnlyPropertyDifferences({
-            yaml: params.yaml, annotations: params.annotations, source,
-          differences, path: property.xmlPath,
+            yaml: rawYaml, annotations: params.annotations, source,
+            differences,
+            path: [...(params.rawPathPrefix ?? []), ...property.xmlPath],
           })
           return
         }
@@ -50,7 +53,7 @@ export function createAnnotatedLocalXmlBodyConsumer(params: Omit<
         return
       }
       projectUnownedDifferences({
-        yaml: params.yaml,
+        yaml: rawYaml,
         annotations: params.annotations,
         source,
         differences,
@@ -80,7 +83,7 @@ export function createAnnotatedLocalXmlBodyConsumer(params: Omit<
         || semanticOmitted
       ) {
         const label = property.propertyRule.yaml ?? property.xmlPath.at(-1)
-        if (label !== undefined) appendRaw(`@Form\\${label}`, null)
+        if (label !== undefined) appendRaw([...(params.rawPathPrefix ?? ["@Form"]), label].join("\\"), null)
         return
       }
       annotateXmlRawValue({
@@ -201,6 +204,7 @@ function projectPathOnlyPropertyDifferences(params: {
       || difference.path.startsWith(`${params.source.path}/#text[`)
     ),
   )
+  const ownSet = new Set(own)
   projectLocalXmlOwnValues({ ...params, root: params.source, differences: own })
   projectLocalXmlOrder({ ...params, root: params.source })
 
@@ -208,14 +212,20 @@ function projectPathOnlyPropertyDifferences(params: {
   const children = params.source.content.filter(
     (node): node is XmlElementNode => node.type === "element",
   )
+  const childrenByPath = new Map(children.map((child) => [child.path, child] as const))
   const projected = new Set<string>()
   for (const difference of params.differences) {
-    if (difference.kind === "order" || own.includes(difference)) continue
-    const child = children.find(({ path }) => difference.path === path || difference.path.startsWith(`${path}/`))
+    if (difference.kind === "order" || ownSet.has(difference)) continue
     const relative = difference.path.startsWith(`${params.source.path}/`)
       ? difference.path.slice(params.source.path.length + 1)
       : ""
-    const generatedName = /^([^/#?]+)\[\d+\](?:\/|$)/u.exec(relative)?.[1]
+    const firstSegment = /^([^/#?]+\[\d+\])(?:\/|$)/u.exec(relative)?.[1]
+    const child = firstSegment === undefined
+      ? undefined
+      : childrenByPath.get(`${params.source.path}/${firstSegment}`)
+    const generatedName = firstSegment === undefined
+      ? undefined
+      : /^([^/#?]+)\[\d+\]$/u.exec(firstSegment)?.[1]
     const identity = child?.path ?? generatedName
     if (identity === undefined || projected.has(identity)) {
       if (identity === undefined) throw new Error(`Неизвестная XML-граница ${difference.path}`)
@@ -238,6 +248,7 @@ export function createAnnotatedLocalXmlBodyConsumers(params: {
     readonly rawPathPrefix?: readonly string[]
   }[]
   readonly yaml: Record<string, unknown>
+  readonly rawYaml?: Record<string, unknown>
   readonly annotations: XmlAnomalyAnnotationTable
   readonly childReceipt: BodyConsumerParams["childReceipt"]
   readonly scalarReceipt: BodyConsumerParams["scalarReceipt"]
@@ -245,6 +256,7 @@ export function createAnnotatedLocalXmlBodyConsumers(params: {
   const consumers = new Map(params.sources.map((source) => [source.key, createAnnotatedLocalXmlBodyConsumer({
     ...source,
     yaml: params.yaml,
+    ...(params.rawYaml === undefined ? {} : { rawYaml: params.rawYaml }),
     annotations: params.annotations,
     childReceipt: params.childReceipt,
     scalarReceipt: params.scalarReceipt,

@@ -2,7 +2,10 @@ import { describe, expect, it } from "vitest"
 import { parseXmlDocumentWithSaxes } from "../../../xml/import/saxesParser"
 import { createLocalXmlProof } from "../xmlAnomaly/localProof"
 import { createXmlAnomalyAnnotations } from "../../../yaml/xmlAnomalyAnnotations"
-import { createAnnotatedLocalXmlBodyConsumers } from "./annotatedLocalXmlBodyConsumer"
+import {
+  createAnnotatedLocalXmlBodyConsumer,
+  createAnnotatedLocalXmlBodyConsumers,
+} from "./annotatedLocalXmlBodyConsumer"
 import { createLocalXmlBodyConsumer } from "./localXmlBodyConsumer"
 
 type WriteEvent = Parameters<ReturnType<typeof createLocalXmlBodyConsumer>["write"]>[0]
@@ -286,6 +289,58 @@ describe("createLocalXmlBodyConsumer", () => {
 
     expectOwnerFinished(consumer, { Items: { Item: ["A", "B"] } })
     expect(differences).toEqual([])
+  })
+
+  it("локализует массовые path-only расхождения одним проходом по детям", () => {
+    const count = 64
+    const root = parseXmlDocumentWithSaxes(
+      `<Root><Container>${Array.from({ length: count }, (_, index) => `<Child${index}/>`).join("")}</Container></Root>`,
+    ).roots[0]!
+    const container = root.content[0]!
+    if (container.type !== "element") throw new Error("Container")
+    let pathReads = 0
+    for (const child of container.content) {
+      if (child.type !== "element") continue
+      const path = child.path
+      Object.defineProperty(child, "path", {
+        configurable: true,
+        get() {
+          pathReads++
+          return path
+        },
+      })
+    }
+    const annotations = createXmlAnomalyAnnotations()
+    const consumer = createAnnotatedLocalXmlBodyConsumer({
+      key: "owner",
+      source: root,
+      proof: createLocalXmlProof(),
+      childReceipt: () => undefined,
+      scalarReceipt: () => undefined,
+      yaml: {},
+      annotations,
+    })
+    const property = asWriteProperty({
+      propertyKey: "container",
+      xmlPath: ["Container"],
+      propertyRule: { type: "object", xml: "Container", toYAML: false },
+      operations: {},
+    })
+    consumer.bind?.({
+      propertyKey: property.propertyKey,
+      node: container,
+      presentInXML: true,
+      xmlPath: ["Container"],
+    })
+    consumer.write({ outputKey: "owner", property, path: ["Container"], value: {} })
+    consumer.finish({
+      outputs: new Map([["owner", { Container: {} }]]),
+      deferredByOutput: new Map(),
+      externalWrites: [],
+    })
+
+    expect(pathReads).toBeLessThan(count * 4)
+    expect(annotations.entries()).toHaveLength(count)
   })
 })
 

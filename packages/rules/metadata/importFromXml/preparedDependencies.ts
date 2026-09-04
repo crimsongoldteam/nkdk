@@ -49,6 +49,15 @@ export function collectImportDependencyFacts(params: {
   const propertyItemNames = new Map<string, string>()
   const items = new Map<string, DependentImportFacts>()
   const inspectedItems = new Set<string>()
+  const propertyFactsBySource = new Map<string, NonNullable<typeof params.propertyFacts>[number]>()
+  for (const fact of params.propertyFacts ?? []) {
+    const key = propertyFactSourceAddress(
+      fact.itemType,
+      fact.propertyKey,
+      fact.sourceYamlPath ?? fact.yamlPath,
+    )
+    if (!propertyFactsBySource.has(key)) propertyFactsBySource.set(key, fact)
+  }
   const itemFacts = (itemType: string, itemYamlPath: readonly (string | number)[], itemName?: string) => {
     const address = itemAddress(itemYamlPath, itemType)
     if (inspectedItems.has(address)) return items.get(address)
@@ -65,10 +74,11 @@ export function collectImportDependencyFacts(params: {
     return facts
   }
   for (const candidate of params.candidates) {
-    const propertyFact = params.propertyFacts?.find((fact) =>
-      fact.itemType === candidate.itemType
-      && fact.propertyKey === candidate.propertyKey
-      && samePath(fact.sourceYamlPath ?? fact.yamlPath, candidate.yamlPath))
+    const propertyFact = propertyFactsBySource.get(propertyFactSourceAddress(
+      candidate.itemType,
+      candidate.propertyKey,
+      candidate.yamlPath,
+    ))
     const finalName = propertyFact?.yamlPath.at(-2)
     const itemName = typeof finalName === "string" ? finalName : candidate.itemName
     const facts = itemFacts(
@@ -144,6 +154,14 @@ export function collectImportDependencyFacts(params: {
     proofProperties,
     finalProperties,
   }
+}
+
+function propertyFactSourceAddress(
+  itemType: string,
+  propertyKey: string,
+  path: readonly (string | number)[],
+): string {
+  return `${itemType}\u0000${propertyKey}\u0000${yamlPathToPointer(path)}`
 }
 
 function collectFinalRootProperties(params: {

@@ -13,6 +13,7 @@ import {
   validationIssueTargetKey,
   validationIssuePathFromPointer,
   type XmlAnomalyAnnotations,
+  type XmlRawValue,
 } from "@nkdk/runtime"
 import { openConfigurationIndexStore } from "@nkdk/runtime/configuration-index-store"
 import { createConfigurationIndexCollector } from "@nkdk/runtime"
@@ -621,16 +622,56 @@ async function processSecondPass(
                 ownerCache: secondPass.ownerMetadataCache,
               }).map(({ yamlPath, value }) => ({ yamlPath, kind: "set", value })),
         ))
+    if (baseFormFactsView !== undefined) {
+      const originalBaseFormDataPaths = collectImportedFormDataPaths(
+        baseFormFactsView,
+        ClientApplicationFormRules,
+      )
+      finalizeMetadataItemImportedYaml({
+        yaml: baseFormFactsView,
+        rule: ClientApplicationFormRules,
+        ownerMetadataCache: secondPass.ownerMetadataCache,
+        ...(currentConfigurationFormYAML === undefined
+          ? {}
+          : { currentConfigurationYAML: currentConfigurationFormYAML }),
+      })
+      finalizeImportedFormDataPaths({
+        yaml: baseFormFactsView,
+        rule: ClientApplicationFormRules,
+        originalOccurrences: originalBaseFormDataPaths,
+        formDataPathIndex: baseFormDataPathIndex,
+        ownerMetadataCache: secondPass.ownerMetadataCache,
+      })
+    }
+    const savedBaseFormYAML = baseFormFactsView === undefined
+      ? undefined
+      : clientApplicationFormYaml(baseFormFactsView, assignment.targetProjectPath)
+    if (formFactsView !== undefined) {
+      const originalFormDataPaths = collectImportedFormDataPaths(formFactsView, assignmentRule)
+      finalizeMetadataItemImportedYaml({
+        yaml: formFactsView,
+        rule: assignmentRule,
+        ownerMetadataCache: secondPass.ownerMetadataCache,
+        ...(currentConfigurationFormYAML === undefined
+          ? {}
+          : { currentConfigurationYAML: currentConfigurationFormYAML }),
+        ...(savedBaseFormYAML === undefined ? {} : { savedBaseYAML: savedBaseFormYAML }),
+      })
+      finalizeImportedFormDataPaths({
+        yaml: formFactsView,
+        rule: assignmentRule,
+        originalOccurrences: originalFormDataPaths,
+        formDataPathIndex: ready.formDataPathIndex,
+        ownerMetadataCache: secondPass.ownerMetadataCache,
+      })
+    }
     const formProofValue = formFactsView === undefined
       ? undefined
       : importedClientApplicationForm({ yaml: formFactsView, rule: assignmentRule })?.yaml
     const formProofYAML = formProofValue === undefined
       ? undefined
       : clientApplicationFormYaml(formProofValue, assignment.targetProjectPath)
-    const savedBaseFormYAML = baseFormFactsView === undefined
-      ? undefined
-      : clientApplicationFormYaml(baseFormFactsView, assignment.targetProjectPath)
-    let baseFormSource = currentConfigurationFormYAML !== undefined
+    const baseFormSource = currentConfigurationFormYAML !== undefined
       && formProofYAML !== undefined
       && savedBaseFormYAML !== undefined
       && isRedundantClientApplicationBaseForm({
@@ -803,33 +844,17 @@ async function processSecondPass(
             formDataPathIndex: ready.formDataPathIndex,
             ownerMetadataCache: secondPass.ownerMetadataCache,
           })
-          const finalFormValue = importedClientApplicationForm({ yaml, rule })?.yaml
-          if (
-            currentConfigurationFormYAML !== undefined
-            && finalFormValue !== undefined
-            && savedBaseYAML !== undefined
-          ) {
-            const finalBaseFormRedundant = isRedundantClientApplicationBaseForm({
-              currentConfigurationYaml: currentConfigurationFormYAML,
-              extensionYaml: clientApplicationFormYaml(finalFormValue, assignment.targetProjectPath),
-              savedBaseYaml: savedBaseYAML,
-              rule: ClientApplicationFormRules,
-            })
-            // Fact-представление сохраняет явно прочитанные пустые контейнеры,
-            // которые итоговый YAML вправе опустить как неявные значения.
-            // Достаточно равенства любой из двух окончательных проекций.
-            baseFormSource = baseFormSource === "projected" || finalBaseFormRedundant
-              ? "projected"
-              : "saved"
-          }
           if (baseFormSource === "projected" && importedBaseFormCandidate !== undefined) {
-            appendProjectedBaseFormRawAnnotationsBeforeProof({
+            const appended = appendProjectedBaseFormRawAnnotationsBeforeProof({
               candidate: importedBaseFormCandidate,
               yaml,
               annotations,
               currentYaml: currentConfigurationYAMLBeforeProof!.data,
               currentAnnotations: currentConfigurationYAMLBeforeProof!.annotations,
             })
+            if (!appended) {
+              throw new Error("Не удалось перенести локальные аномалии избыточной BaseForm")
+            }
           }
           earlyIssueDecisions = mergeImportedIssueDecisions(
             earlyIssueDecisions.map((decision) => normalizeImportedIssueDecisionPath(yaml, decision)),
@@ -979,16 +1004,16 @@ function appendProjectedBaseFormRawAnnotationsBeforeProof(params: {
       : undefined
     return !isDeepStrictEqual(annotation, currentAnnotation)
   })
-  if (portable.some(({ parent, key, annotation }) =>
-    parent !== params.candidate.yaml
-    || typeof key !== "string"
+  if (portable.some(({ key, annotation }) =>
+    typeof key !== "string"
     || annotation.kind !== "raw"
     || annotation.target !== "value"
     || annotation.xml === undefined
   )) return false
 
+  const rawEntries: { path: string; xml: XmlRawValue }[] = []
   for (const { key, annotation } of portable) {
-    if (typeof key !== "string") return false
+    if (typeof key !== "string" || annotation.xml === undefined) return false
     const annotatedKey = params.candidate.annotations.keyAt(params.candidate.yaml, key)?.logicalKey
     const logicalKey = typeof annotatedKey === "string" ? annotatedKey : key
     const relativePath = logicalKey === "@Form"
@@ -999,17 +1024,70 @@ function appendProjectedBaseFormRawAnnotationsBeforeProof(params: {
     const path = relativePath.length === 0
       ? "@Form\\BaseForm"
       : `@Form\\BaseForm\\${relativePath}`
+    rawEntries.push({ path, xml: structuredClone(annotation.xml) })
+  }
+  const coalesced = coalesceXmlRawPaths(rawEntries)
+  if (coalesced === undefined) return false
+  for (const { path, xml } of coalesced) {
     appendXmlAnnotatedMappingEntry<unknown>(params.yaml, params.annotations, {
       logicalKey: path,
       value: undefined,
       valueAnnotation: {
         kind: "raw",
         occurrence: 1,
-        xml: annotation.xml,
+        xml,
         hasSemanticValue: false,
       },
     })
   }
+  return true
+}
+
+function coalesceXmlRawPaths(
+  entries: readonly { readonly path: string; readonly xml: XmlRawValue }[],
+): { path: string; xml: XmlRawValue }[] | undefined {
+  const result: { path: string; xml: XmlRawValue }[] = []
+  for (const entry of [...entries].sort((left, right) => rawPathDepth(left.path) - rawPathDepth(right.path))) {
+    const ancestor = result
+      .filter(({ path }) => entry.path.startsWith(`${path}\\`))
+      .sort((left, right) => rawPathDepth(right.path) - rawPathDepth(left.path))[0]
+    if (ancestor === undefined) {
+      result.push({ ...entry })
+      continue
+    }
+    const relative = entry.path.slice(ancestor.path.length + 1).split("\\")
+    if (!mergeXmlRawDescendant(ancestor.xml, relative, entry.xml)) return undefined
+  }
+  return result
+}
+
+function rawPathDepth(path: string): number {
+  return path.split("\\").length
+}
+
+function mergeXmlRawDescendant(
+  root: XmlRawValue,
+  path: readonly string[],
+  value: XmlRawValue,
+): boolean {
+  if (!isYamlRecord(root) || path.length === 0) return false
+  let parent: Record<string, unknown> = root
+  for (const segment of path.slice(0, -1)) {
+    const current = parent[segment]
+    if (current === undefined) {
+      const created: Record<string, unknown> = {}
+      parent[segment] = created
+      parent = created
+    } else if (isYamlRecord(current)) {
+      parent = current
+    } else {
+      return false
+    }
+  }
+  const key = path.at(-1)!
+  const current = parent[key]
+  if (current !== undefined && !isDeepStrictEqual(current, value)) return false
+  parent[key] = value
   return true
 }
 

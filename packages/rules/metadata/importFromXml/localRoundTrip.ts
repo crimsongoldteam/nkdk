@@ -36,6 +36,11 @@ export function createImportLocalRoundTrip(params: {
     yaml: Record<string, unknown>,
     rule: import("@nkdk/runtime/rule-kit").MetadataItemRule,
   ) => void
+  readonly prepareYamlForProof?: (
+    yaml: Record<string, unknown>,
+    rule: import("@nkdk/runtime/rule-kit").MetadataItemRule,
+    yamlPath: readonly (string | number)[],
+  ) => void
   readonly prepareRootOutput?: (params: {
     readonly key: string
     readonly source: XmlElementNode
@@ -54,14 +59,19 @@ export function createImportLocalRoundTrip(params: {
     readonly source: XmlElementNode
     readonly tags?: readonly string[]
   }) => readonly string[] | undefined
+  readonly accumulateRawAtDocumentRoot?: boolean
 }): DirectImportRoundTripExecution & {
   takeResult(yaml: object): import("@nkdk/runtime/rule-kit").CompiledXMLProofResult
   retainReceipt(receipt: import("@nkdk/runtime/rule-kit").LocalXmlChild): object
   release(yaml: object): void
 } {
   const active: SourceBoundary[][] = []
+  const activeYaml: Record<string, unknown>[] = []
   const activeItemContexts: import("@nkdk/runtime").ContextElementToXML[] = []
-  const preparedByYaml = new WeakMap<object, SourceBoundary[]>()
+  const preparedByYaml = new WeakMap<object, {
+    readonly sources: SourceBoundary[]
+    readonly contextItem: import("@nkdk/runtime").ContextElementToXML
+  }>()
   const opened = new WeakMap<XmlElementNode, string>()
   const execution = createCompiledRuleExecution({
     execution: params.execution,
@@ -76,11 +86,18 @@ export function createImportLocalRoundTrip(params: {
         // передаётся по стеку frame, без поиска и сортировки всех предков.
         const inherited = active.at(-1)?.find(({ source }) => isInside(source, xml))
         const key = `source-${index}`
-        const rawPathPrefix = params.prepareRootRawPathPrefix?.({
+        const rootRawPathPrefix = params.prepareRootRawPathPrefix?.({
           key,
           source: xml,
           tags: item.sources[index]?.tags,
-        }) ?? inherited?.rawPathPrefix
+        })
+        const rawPathPrefix = rootRawPathPrefix ?? (
+          inherited?.rawPathPrefix === undefined
+            ? undefined
+            : params.accumulateRawAtDocumentRoot === true
+              ? [...inherited.rawPathPrefix, ...relativeXmlElementNames(inherited.source, xml)]
+              : inherited.rawPathPrefix
+        )
         return {
           key,
           source: xml,
@@ -88,13 +105,15 @@ export function createImportLocalRoundTrip(params: {
           ...(rawPathPrefix === undefined ? {} : { rawPathPrefix }),
         }
       })
-      preparedByYaml.set(item.yaml, sources)
+      const contextItem = itemContext(item)
+      activeItemContexts.push(contextItem)
+      preparedByYaml.set(item.yaml, { sources, contextItem })
       return {
         context: {
           ...item.context,
           exportToXML: {
             ...params.context.exportToXML,
-            itemsTree: [...activeItemContexts, itemContext(item)],
+            itemsTree: activeItemContexts,
           },
         },
         annotations: params.annotations,
@@ -116,6 +135,7 @@ export function createImportLocalRoundTrip(params: {
       }
     },
     beforeFinish({ yaml, rule, yamlPath, root }) {
+      params.prepareYamlForProof?.(yaml, rule, yamlPath)
       const documentRoot = root && (
         params.isDocumentRoot?.(rule) ?? yamlPath.length === 0
       )
@@ -135,11 +155,14 @@ export function createImportLocalRoundTrip(params: {
     },
     consumer(item, receipts, prepared) {
       const { yaml, rule } = item
-      const sources = preparedByYaml.get(yaml)
-      if (sources === undefined) throw new Error("Не подготовлены XML-границы локального proof")
+      const preparedItem = preparedByYaml.get(yaml)
+      if (preparedItem === undefined) throw new Error("Не подготовлены XML-границы локального proof")
+      const { sources, contextItem } = preparedItem
       active.push(sources)
-      const contextItem = itemContext(item)
-      activeItemContexts.push(contextItem)
+      const rawYaml = params.accumulateRawAtDocumentRoot === true
+        ? activeYaml[0] ?? yaml
+        : yaml
+      activeYaml.push(yaml)
       const delegate = createAnnotatedLocalXmlBodyConsumers({
         sources: sources.map((source) => ({
           ...source,
@@ -148,6 +171,7 @@ export function createImportLocalRoundTrip(params: {
           ...(source.rawPathPrefix === undefined ? {} : { rawPathPrefix: source.rawPathPrefix }),
         })),
         yaml,
+        rawYaml,
         annotations: params.annotations,
         ...receipts,
       })
@@ -171,6 +195,8 @@ export function createImportLocalRoundTrip(params: {
             })
             if (active.at(-1) !== sources) throw new Error("XML-границы локального proof закрываются вне порядка")
             active.pop()
+            if (activeYaml.at(-1) !== yaml) throw new Error("YAML-границы локального proof закрываются вне порядка")
+            activeYaml.pop()
             if (activeItemContexts.at(-1) !== contextItem) throw new Error("Rules локального proof закрываются вне порядка")
             activeItemContexts.pop()
           }
@@ -245,4 +271,16 @@ function itemDescription(
 
 function isInside(parent: XmlElementNode, child: XmlElementNode): boolean {
   return child === parent || child.path.startsWith(`${parent.path}/`)
+}
+
+function relativeXmlElementNames(parent: XmlElementNode, child: XmlElementNode): string[] {
+  if (child === parent) return []
+  if (!child.path.startsWith(`${parent.path}/`)) {
+    throw new Error(`XML-граница ${child.path} не вложена в ${parent.path}`)
+  }
+  return child.path.slice(parent.path.length + 1).split("/").map((segment) => {
+    const match = /^(.*)\[(\d+)\]$/u.exec(segment)
+    if (match === null || match[2] === "1") return match?.[1] ?? segment
+    return `${match[1]}[${match[2]}]`
+  })
 }

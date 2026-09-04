@@ -65,6 +65,7 @@ import type { CompiledProperty, CompiledPropertyRuleExecution } from "./compiled
 import { canUseAtomicFromXMLToYAML } from "./atomicConversion"
 import { assignMetadataTargetUuidAnnotations } from "./metadataTargetOccurrences"
 import { isTaggedYAMLScalar, markYAMLScalarTag, yamlValueTag } from "../../../yaml/scalarTags"
+import { isExplicitYAMLString } from "../../../yaml/explicitString"
 
 export class DirectImportConversionError extends Error {
   constructor(
@@ -787,21 +788,23 @@ export function importPropertiesFromXMLToYAML(params: {
             structurallyClaimed = true
             proofReady = false
           }
-          if (
-            params.mode === "facts"
-            && exportedYamlValue !== null
-            && typeof exportedYamlValue === "object"
-          ) {
-            acceptNestedPropertyFactLeaves({
-              facts: params.facts,
-              itemType: rule.itemType,
-              itemRule: rule,
-              propertyKey: key,
-              yamlPath: propertyYamlPath,
-              value: exportedYamlValue,
-              presentInXML,
-              retainContainers: false,
-            })
+          if (params.mode === "facts" && exportedYamlValue !== null && typeof exportedYamlValue === "object") {
+            if (
+              propertyRule.externalFile
+              || propertyRule.derivedFrom?.externalFile
+              || !canExportPropertyToYAML({ context: sourceContext, rule: propertyRule })
+            ) {
+              acceptNestedPropertyFactLeaves({
+                facts: params.facts,
+                itemType: rule.itemType,
+                itemRule: rule,
+                propertyKey: key,
+                yamlPath: propertyYamlPath,
+                value: exportedYamlValue,
+                presentInXML,
+                retainContainers: false,
+              })
+            }
           } else {
             params.facts?.acceptProperty({
                 itemType: rule.itemType,
@@ -1165,13 +1168,14 @@ export function importPropertiesFromXMLToYAML(params: {
 
   if (result === undefined) return undefined
   if (params.dependencies?.propertyValue === undefined) normalizeTypeOwnedMetadataTargets({ result, rule })
-  params.beforeFinish?.(result)
-  if (roundTrip !== undefined) runRoundTripStep("finish", () => roundTrip.finish())
-  return orderYamlRuleProperties(
+  const orderedResult = orderYamlRuleProperties(
     result,
     compiledPlan?.yamlOrder ?? getYamlRulePropertyOrder(rule),
     params.annotations,
   )
+  params.beforeFinish?.(orderedResult)
+  if (roundTrip !== undefined) runRoundTripStep("finish", () => roundTrip.finish())
+  return orderedResult
 }
 
 function acceptNestedPropertyFactLeaves(params: {
@@ -1188,7 +1192,7 @@ function acceptNestedPropertyFactLeaves(params: {
   const taggedScalar = isTaggedYAMLScalar(params.value) ? params.value : undefined
   const value = taggedScalar?.value ?? params.value
   const scalarTag = taggedScalar?.tag ?? yamlValueTag(value)
-  const container = value !== null && typeof value === "object"
+  const container = value !== null && typeof value === "object" && !isExplicitYAMLString(value)
   if (scalarTag !== undefined || (container && params.retainContainers)) {
     params.facts.acceptProperty({
       itemType: params.itemType,

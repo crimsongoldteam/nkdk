@@ -40,6 +40,15 @@ describe("createPropertyFactsYamlView", () => {
     expect(yaml.Значение).toBe(2)
   })
 
+  it("не создаёт контейнеры для отсутствующего значения", () => {
+    const yaml = createPropertyFactsYamlView([
+      fact(["Элементы", "Поле", "КонтекстноеМеню", "Элементы"], undefined),
+      fact(["Элементы", "Поле", "Вид"], "ПолеВвода"),
+    ])
+
+    expect(yaml).toEqual({ Элементы: { Поле: { Вид: "ПолеВвода" } } })
+  })
+
   it("сохраняет длину адресного массива поверх компактного факта контейнера", () => {
     const yaml = createPropertyFactsYamlView([
       fact(["Тип"], []),

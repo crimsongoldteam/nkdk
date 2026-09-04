@@ -169,7 +169,11 @@ describe("configuration extension XML import", () => {
     expect(readText(
       projectDir,
       "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Формы/ФормаРавнаяОснова/Форма.yaml",
-    )).toContain('"@Form\\\\BaseForm\\\\Future": !xml/raw')
+    )).toEqual(expect.stringContaining('"@Form\\\\BaseForm\\\\Future": !xml/raw'))
+    expect(readText(
+      projectDir,
+      "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Формы/ФормаРавнаяОснова/Форма.yaml",
+    )).toContain('"@Form\\\\BaseForm\\\\AutoCommandBar\\\\FutureNested": !xml/raw')
   })
 
   it("помечает путь элемента только из исторической основы", () => {
@@ -637,7 +641,9 @@ function addFormWithRedundantBase(inputDir: string): void {
   addFormEvent(targetFormPath)
   const baseForm = [
     "\t<BaseForm version=\"2.20\">",
-    "\t\t<AutoCommandBar name=\"ФормаКоманднаяПанель\" id=\"-1\"/>",
+    "\t\t<AutoCommandBar name=\"ФормаКоманднаяПанель\" id=\"-1\">",
+    "\t\t\t<FutureNested>keep</FutureNested>",
+    "\t\t</AutoCommandBar>",
     ...formEventXml("\t\t"),
     ...baseFormAttributesXml().map((line) => `\t${line}`),
     "\t\t<Future>keep</Future>",

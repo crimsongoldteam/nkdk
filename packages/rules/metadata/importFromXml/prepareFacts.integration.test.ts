@@ -1,5 +1,6 @@
 import {
   createConfigurationIndexCollector,
+  isExplicitYAMLString,
   parseMetadataYaml,
   parseXmlDocumentWithSaxes,
   serializeYAMLDocument,
@@ -22,6 +23,7 @@ import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import { prepareImportFacts } from "./prepareFacts"
 import { prepareImportYaml, prepareImportYamlFromDocuments } from "./prepareYaml"
 import { prepareImportDependencies } from "./preparedDependencies"
+import { createPropertyFactsYamlView } from "./propertyFactsYamlView"
 import type { ImportAssignment } from "./types"
 import {
   extractImportValidationContribution,
@@ -71,6 +73,22 @@ describe("prepareImportFacts", () => {
 
     expect(facts.semanticFacts.filter(({ value }) => containsYamlContainer(value))).toEqual([])
     expect((facts.baseFormSemanticFacts ?? []).filter(({ value }) => containsYamlContainer(value))).toEqual([])
+  })
+
+  it("не материализует отсутствующие составные значения BaseForm", async () => {
+    const assignment = extensionReportVariantFormAssignment()
+    const context = extensionContext()
+    const facts = await prepareImportFacts({
+      assignment,
+      context,
+      collector: createConfigurationIndexCollector(),
+      inputs: parseAssignmentInputs(assignment, true),
+    })
+    const source = facts.baseFormSemanticFacts ?? []
+    const yaml = createPropertyFactsYamlView(source)
+
+    expect(JSON.stringify(yaml)).not.toContain('"КонтекстноеМеню":{}')
+    expect(JSON.stringify(yaml)).not.toContain('"Заголовок":{"Заголовок"')
   })
 
   it("восстанавливает все листья принятого составного свойства во втором проходе", async () => {
@@ -379,7 +397,7 @@ describe("prepareImportFacts", () => {
       owner: undefined,
       xmlFiles: [
         { role: "metadata", sourcePath: join(e2eConfigurationDir, "Catalogs/СправочникСПредопределенными.xml") },
-        { role: "property:predefined", sourcePath: join(e2eConfigurationDir, "Catalogs/СправочникСПредопределенными/Ext/Predefined.xml") },
+        { role: "property", sourcePath: join(e2eConfigurationDir, "Catalogs/СправочникСПредопределенными/Ext/Predefined.xml") },
       ],
     })
     const facts = await prepareImportFacts({
@@ -393,12 +411,13 @@ describe("prepareImportFacts", () => {
       projectDir: "/project",
       file: validationFileForAssignment(assignment),
     })
-    expect(contribution.validationContribution.objectRecords[0]?.ownerFacts.predefined)
+    expect(contribution.validationContribution.objectRecords[0]?.ownerFacts?.predefined)
       .toContainEqual(expect.objectContaining({ name: "Предопределенный1" }))
   })
 })
 
 function containsYamlContainer(value: unknown): boolean {
+  if (isExplicitYAMLString(value)) return false
   if (Array.isArray(value)) return value.some(containsYamlContainer)
   return value !== null && typeof value === "object" && Object.keys(value).length > 0
 }
@@ -629,6 +648,28 @@ function reportVariantFormAssignment(): ImportAssignment {
   const formRoot = join(e2eConfigurationDir, `Reports/${ownerName}/Forms/${itemName}`)
   return assignmentForProjectPath({
     id: "report-variant-form",
+    targetProjectPath: `Отчет/${ownerName}/Формы/${itemName}/Форма.yaml`,
+    itemType: "ClientApplicationForm",
+    itemName,
+    logicalAddress: `Отчет.${ownerName}.Форма.${itemName}`,
+    owner: {
+      itemType: "MetadataReport",
+      name: ownerName,
+      logicalAddress: `Отчет.${ownerName}`,
+    },
+    xmlFiles: [
+      { role: "metadata", sourcePath: `${formRoot}.xml` },
+      { role: "body", sourcePath: join(formRoot, "Ext/Form.xml") },
+    ],
+  })
+}
+
+function extensionReportVariantFormAssignment(): ImportAssignment {
+  const ownerName = "ОтчетВсеСвойства"
+  const itemName = "ФормаВарианта"
+  const formRoot = join(e2eAllExtensionDir, `Reports/${ownerName}/Forms/${itemName}`)
+  return assignmentForProjectPath({
+    id: "extension-report-variant-form",
     targetProjectPath: `Отчет/${ownerName}/Формы/${itemName}/Форма.yaml`,
     itemType: "ClientApplicationForm",
     itemName,

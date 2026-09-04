@@ -6,6 +6,7 @@ import { StandardAttributeDescriptionRules } from "../commonObjects/standardAttr
 import { MetadataWebServiceRules } from "../appliedObjects/metadataWebService/rules"
 import { collectImportDependencyFacts, prepareImportDependencies } from "./preparedDependencies"
 import type { ImportedDependentPropertyCandidate, MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import type { DirectImportPropertyFact } from "./propertyFactsYamlView"
 
 const owner = { dir: "Справочник", name: "Товары" }
 
@@ -91,6 +92,46 @@ describe("prepared import dependencies", () => {
     expect(prepareImportDependencies(facts).shouldOmit(candidate, {
       ЗначениеЗаполнения: "Справочник.Владельцы.ПустаяСсылка",
     })).toBe(true)
+  })
+
+  it("индексирует факты зависимых свойств одним проходом", () => {
+    const count = 64
+    let itemTypeReads = 0
+    const propertyFacts: DirectImportPropertyFact[] = Array.from({ length: count }, (_, index) => ({
+        get itemType() {
+          itemTypeReads++
+          return "StandardAttributeDescription"
+        },
+        itemRule: StandardAttributeDescriptionRules,
+        propertyKey: "fillValue",
+        value: `Значение${index}`,
+        yamlPath: ["СтандартныеРеквизиты", `Реквизит${index}`, "ЗначениеЗаполнения"],
+        sourceYamlPath: ["СтандартныеРеквизиты", index, "ЗначениеЗаполнения"],
+      }))
+    const candidates = Array.from({ length: count }, (_, index): ImportedDependentPropertyCandidate => ({
+      itemType: "StandardAttributeDescription",
+      itemName: `Реквизит${index}`,
+      itemYamlPath: ["СтандартныеРеквизиты", index],
+      propertyKey: "fillValue",
+      yamlPath: ["СтандартныеРеквизиты", index, "ЗначениеЗаполнения"],
+      presentInXML: true,
+      xmlValue: `Значение${index}`,
+    }))
+    const yaml = {
+      СтандартныеРеквизиты: Array.from({ length: count }, (_, index) => ({
+        ЗначениеЗаполнения: `Значение${index}`,
+      })),
+    }
+
+    collectImportDependencyFacts({
+      rule: MetadataCatalogRules,
+      owner,
+      candidates,
+      yaml,
+      propertyFacts,
+    })
+
+    expect(itemTypeReads).toBeLessThan(count * 4)
   })
 
   it("сохраняет компактное xmlOnly-значение для локального экспорта", () => {

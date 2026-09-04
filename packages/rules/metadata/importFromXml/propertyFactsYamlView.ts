@@ -21,7 +21,7 @@ export function createPropertyFactsYamlView(
 ): Readonly<Record<string, unknown>> {
   const root: FactNode = { children: new Map() }
   for (const fact of facts) {
-    if (fact.yamlPath.length === 0) continue
+    if (fact.yamlPath.length === 0 || (fact.value === undefined && fact.scalarTag === undefined)) continue
     let node = root
     for (const segment of fact.yamlPath) {
       let child = node.children.get(segment)
