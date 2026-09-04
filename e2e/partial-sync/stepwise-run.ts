@@ -55,6 +55,13 @@ export type StepwiseRunDependencies = {
     readonly mode: PlatformMode
     readonly signal: AbortSignal
   }): Promise<BaselineReference>
+  recoverInterruptedAttempts(params: {
+    readonly workspace: StepwiseRunWorkspace
+    readonly modes: readonly PlatformMode[]
+    readonly baseline: BaselineReference
+    readonly totalSteps: number
+    readonly metadata: StepwiseRunMetadata
+  }): Promise<void>
   runMode(params: {
     readonly mode: PlatformMode
     readonly workspace: StepwiseRunWorkspace
@@ -146,6 +153,13 @@ export async function runStepwiseCli(
     concurrency: limits,
     scenarioIds: jobs.map(({ mode }) => `${mode}/existing-partial-sync`),
   }
+  await dependencies.recoverInterruptedAttempts({
+    workspace,
+    modes: activeModes,
+    baseline,
+    totalSteps: buildStepwisePlan(partialSyncMatrix).length,
+    metadata,
+  })
   let reportQueue = Promise.resolve()
   const recordScenario = (scenario: ScenarioResult): Promise<void> => {
     const operation = reportQueue.then(() =>
@@ -243,6 +257,24 @@ const nodeDependencies: StepwiseRunDependencies = {
       writeProgress(message) { process.stdout.write(`${message}\n`) },
       signal,
     })
+  },
+  async recoverInterruptedAttempts({ workspace, modes, baseline, totalSteps, metadata }) {
+    const expectedPlanHash = stepwisePlanHash(buildStepwisePlan(partialSyncMatrix))
+    const store = createStepwiseReportStore(workspace.reportsDir, undefined, metadata)
+    for (const mode of modes) {
+      const scenarioWorkspace = workspace.scenario(mode)
+      if (!await pathExists(scenarioWorkspace.statePath)) continue
+      const state = await readStepwiseState(scenarioWorkspace.statePath)
+      if (state.mode !== mode || state.planHash !== expectedPlanHash ||
+        state.compatibilityHash !== baseline.manifest.compatibilityHash) continue
+      await store.recoverInterruptedAttempt({
+        id: state.scenario,
+        mode,
+        attempt: state.attempt,
+        completedSteps: state.completedStepIndex + 1,
+        totalSteps,
+      })
+    }
   },
   async runMode({ mode, workspace: runWorkspace, baseline, signal, onEvent }) {
     signal.throwIfAborted()

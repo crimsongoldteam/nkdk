@@ -43,6 +43,7 @@ it("соблюдает общий предел и не отменяет парн
         },
       } satisfies BaselineReference
     },
+    async recoverInterruptedAttempts() {},
     async runMode({ mode }) {
       events.push(`start:${mode}`)
       running += 1
@@ -97,6 +98,21 @@ it("не готовит эталон и не запускает отключён
   expect(outcome.scenarios.map(({ mode }) => mode)).toEqual(["standalone-server"])
 })
 
+it("восстанавливает оборванные попытки до запуска новых", async () => {
+  const order: string[] = []
+  const fixture = runFixture(async ({ mode }) => {
+    order.push(`run:${mode}`)
+    return result(mode, "succeeded")
+  })
+  const dependencies = Object.assign(fixture.dependencies, {
+    async recoverInterruptedAttempts() { order.push("recover") },
+  })
+
+  await runStepwiseCli(["--root", "C:/run", "--mode", "designer-agent"], dependencies)
+
+  expect(order).toEqual(["recover", "run:designer-agent"])
+})
+
 it("записывает прерванный сигналом режим в отчёт", async () => {
   const controller = new AbortController()
   const fixture = runFixture(async ({ mode, signal }) => {
@@ -137,6 +153,7 @@ function runFixture(runMode?: StepwiseRunDependencies["runMode"]) {
         },
       }
     },
+    async recoverInterruptedAttempts() {},
     runMode: runMode ?? (async ({ mode }) => {
       startedModes.push(mode)
       return result(mode, "succeeded")

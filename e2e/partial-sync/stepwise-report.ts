@@ -64,38 +64,51 @@ export function createStepwiseReportStore(
     jsonPath,
     markdownPath,
     record(result: ScenarioResult): Promise<void> {
+      return enqueue(async (report) => recordResult(report, result, dirname(reportDir), metadata))
+    },
+    recoverInterruptedAttempt(recovery: {
+      readonly id: string
+      readonly mode: PlatformMode
+      readonly attempt: number
+      readonly completedSteps: number
+      readonly totalSteps: number
+    }): Promise<void> {
       return enqueue(async (report) => {
-        const scenario = report.scenarios[result.id] ?? { modes: {} }
-        const mode = scenario.modes[result.mode] ?? { attempts: [] }
-        const normalizedResult = normalizeResult(result, dirname(reportDir))
-        const attempts = [...mode.attempts.filter(({ attempt }) => attempt !== result.attempt), normalizedResult]
-        const scenarios = {
-          ...report.scenarios,
-          [result.id]: {
-            modes: {
-              ...scenario.modes,
-              [result.mode]: { attempts },
-            },
+        const events = (report.events ?? []).filter((event) =>
+          event.id === recovery.id && event.mode === recovery.mode && event.attempt === recovery.attempt)
+        if (!events.some(({ kind }) => kind === "started") || events.some(isTerminalEvent)) {
+          return withMetadata(report, metadata)
+        }
+        const latestProgress = events.findLast((event) =>
+          event.stepKey !== undefined && event.attemptLogDir !== undefined)
+        const stageTimings: Partial<Record<StepExecutionStage, number>> = {}
+        if (latestProgress?.stepKey !== undefined) {
+          for (const event of events) {
+            if (event.kind !== "stage-completed" || event.stepKey !== latestProgress.stepKey ||
+              event.stage === undefined || event.durationMs === undefined) continue
+            stageTimings[event.stage] = (stageTimings[event.stage] ?? 0) + event.durationMs
+          }
+        }
+        const result: ScenarioResult = {
+          id: recovery.id,
+          mode: recovery.mode,
+          status: "interrupted",
+          completedSteps: recovery.completedSteps,
+          totalSteps: recovery.totalSteps,
+          durationMs: events.reduce((total, event) =>
+            event.kind === "stage-completed" ? total + (event.durationMs ?? 0) : total, 0),
+          attempt: recovery.attempt,
+          steps: latestProgress?.stepKey === undefined || latestProgress.attemptLogDir === undefined ? [] : [{
+            stepKey: latestProgress.stepKey,
+            stageTimings,
+            attemptLogDir: latestProgress.attemptLogDir,
+          }],
+          failure: {
+            category: "infrastructure",
+            message: "Предыдущий процесс завершился без штатного результата",
           },
         }
-        const terminalEvent: StepwiseProgressEvent = {
-          id: result.id,
-          mode: result.mode,
-          attempt: result.attempt,
-          kind: result.status,
-          durationMs: result.durationMs,
-          ...(result.steps.at(-1)?.stepKey === undefined ? {} : {
-            stepKey: result.steps.at(-1)?.stepKey,
-            attemptLogDir: result.steps.at(-1)?.attemptLogDir,
-          }),
-        }
-        const events = (report.events ?? []).filter((event) =>
-          event.id !== result.id || event.mode !== result.mode || event.attempt !== result.attempt ||
-          !isTerminalEvent(event))
-        return {
-          ...withMetadata(report, metadata), scenarios, summary: summarize(scenarios),
-          events: [...events, normalizeEvent(terminalEvent, dirname(reportDir))],
-        }
+        return recordResult(report, result, dirname(reportDir), metadata)
       })
     },
     recordEvent(event: StepwiseProgressEvent): Promise<void> {
@@ -120,6 +133,45 @@ export function createStepwiseReportStore(
       })
     queue = operation.catch(() => undefined)
     return operation
+  }
+}
+
+function recordResult(
+  report: StepwiseReport,
+  result: ScenarioResult,
+  runRoot: string,
+  metadata?: StepwiseRunMetadata,
+): StepwiseReport {
+  const scenario = report.scenarios[result.id] ?? { modes: {} }
+  const mode = scenario.modes[result.mode] ?? { attempts: [] }
+  const normalizedResult = normalizeResult(result, runRoot)
+  const attempts = [...mode.attempts.filter(({ attempt }) => attempt !== result.attempt), normalizedResult]
+  const scenarios = {
+    ...report.scenarios,
+    [result.id]: {
+      modes: {
+        ...scenario.modes,
+        [result.mode]: { attempts },
+      },
+    },
+  }
+  const terminalEvent: StepwiseProgressEvent = {
+    id: result.id,
+    mode: result.mode,
+    attempt: result.attempt,
+    kind: result.status,
+    durationMs: result.durationMs,
+    ...(result.steps.at(-1)?.stepKey === undefined ? {} : {
+      stepKey: result.steps.at(-1)?.stepKey,
+      attemptLogDir: result.steps.at(-1)?.attemptLogDir,
+    }),
+  }
+  const events = (report.events ?? []).filter((event) =>
+    event.id !== result.id || event.mode !== result.mode || event.attempt !== result.attempt ||
+    !isTerminalEvent(event))
+  return {
+    ...withMetadata(report, metadata), scenarios, summary: summarize(scenarios),
+    events: [...events, normalizeEvent(terminalEvent, runRoot)],
   }
 }
 

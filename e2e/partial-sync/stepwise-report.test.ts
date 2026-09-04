@@ -82,6 +82,52 @@ it("атомарно сохраняет ход активной попытки �
   expect(files.has("C:/run/reports/report.json.tmp")).toBe(false)
 })
 
+it("однократно восстанавливает незавершённую попытку как interrupted", async () => {
+  const files = new Map<string, string>()
+  const io: StepwiseReportIo = {
+    async mkdir() {},
+    async read(path) {
+      const value = files.get(path)
+      if (value === undefined) throw Object.assign(new Error("missing"), { code: "ENOENT" })
+      return value
+    },
+    async write(path, value) { files.set(path, value) },
+    async move(from, to) { files.set(to, files.get(from)!); files.delete(from) },
+  }
+  const store = createStepwiseReportStore("C:/run/reports", io)
+  await store.recordEvent({
+    id: "existing-partial-sync", mode: "designer-agent", attempt: 3, kind: "started",
+  })
+  await store.recordEvent({
+    id: "existing-partial-sync", mode: "designer-agent", attempt: 3,
+    kind: "stage-completed", stepKey: "step-3", stage: "validation", durationMs: 5,
+    attemptLogDir: "C:/run/scenarios/designer-agent/logs/step-3",
+  })
+
+  const recovery = {
+    id: "existing-partial-sync" as const,
+    mode: "designer-agent" as const,
+    attempt: 3,
+    completedSteps: 2,
+    totalSteps: 10,
+  }
+  await store.recoverInterruptedAttempt(recovery)
+  await store.recoverInterruptedAttempt(recovery)
+
+  const report = await store.read()
+  expect(report.scenarios["existing-partial-sync"].modes["designer-agent"].attempts).toEqual([
+    expect.objectContaining({
+      status: "interrupted", attempt: 3, completedSteps: 2, totalSteps: 10, durationMs: 5,
+      steps: [expect.objectContaining({
+        stepKey: "step-3",
+        stageTimings: { validation: 5 },
+        attemptLogDir: "scenarios/designer-agent/logs/step-3",
+      })],
+    }),
+  ])
+  expect(report.events?.filter(({ kind }) => kind === "interrupted")).toHaveLength(1)
+})
+
 function result(mode: ScenarioResult["mode"], attempt = 1): ScenarioResult {
   return {
     id: "existing-partial-sync", mode, status: "succeeded", completedSteps: 2,
