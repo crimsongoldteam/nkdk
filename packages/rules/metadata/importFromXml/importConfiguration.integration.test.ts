@@ -201,15 +201,18 @@ describe("configuration XML import coordinator", () => {
     expect(fragmentBatches).toEqual([fragmentData])
   })
 
-  it("не запускает смысловую проверку в первом проходе", async () => {
+  it("запускает смысловую проверку индекса между проходами", async () => {
+    const calls: string[] = []
     const semanticValidationCalls: number[] = []
     const result = await importConfigurationFromXml(
       createParams("configuration"),
-      fakeDependencies({ calls: [], semanticValidationCalls }),
+      fakeDependencies({ calls, semanticValidationCalls }),
     )
 
     expect(result.failed).toEqual([])
-    expect(semanticValidationCalls).toEqual([])
+    expect(semanticValidationCalls).toEqual([1])
+    expect(calls.indexOf("firstPass")).toBeLessThan(calls.indexOf("semanticValidation"))
+    expect(calls.indexOf("semanticValidation")).toBeLessThan(calls.indexOf("secondPass"))
   })
 
   it("builds the XML language registry before worker initialization", async () => {
@@ -1152,7 +1155,10 @@ function fakeProjectState(
           return readToken()
         },
         async collectSemanticValidationIssues() {
-          semanticValidationCalls?.push(1)
+          if (semanticValidationCalls !== undefined) {
+            semanticValidationCalls.push(1)
+            calls.push("semanticValidation")
+          }
           return []
         },
         async createReadToken() { return readToken() },
