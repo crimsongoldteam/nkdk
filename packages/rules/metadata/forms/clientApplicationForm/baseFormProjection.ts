@@ -271,10 +271,9 @@ function equalProjectedProperties(params: {
       context: params.rightContext,
       yamlKey,
     })
-    if (left.kind !== right.kind) return false
-    if (left.kind === "include" && right.kind === "include" && !equalBaseFormYaml(left.value, right.value)) {
-      return false
-    }
+    const leftValue = left.kind === "include" ? left.value : undefined
+    const rightValue = right.kind === "include" ? right.value : undefined
+    if (!equalBaseFormYaml(leftValue, rightValue)) return false
   }
   return true
 }

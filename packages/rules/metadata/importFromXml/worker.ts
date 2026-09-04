@@ -8,6 +8,8 @@ import {
   hashFileBytes,
   prepareYAMLDocumentData,
   rehydrateConfigurationContext,
+  createLocalXmlRawAppender,
+  snapshotXmlAnomalyAnnotations,
   validationIssueTargetKey,
   validationIssuePathFromPointer,
   type XmlAnomalyAnnotations,
@@ -612,7 +614,7 @@ async function processSecondPass(
           ])
           return ready
         },
-        finalizeRootYaml: (yaml, rule, annotations, savedBaseYAML) => {
+        finalizeRootYaml: (yaml, rule, annotations, savedBaseYAML, baseFormCandidate) => {
           const originalFormDataPaths = collectImportedFormDataPaths(yaml, rule)
           finalizeMetadataItemImportedYaml({
             yaml,
@@ -631,6 +633,25 @@ async function processSecondPass(
             formDataPathIndex: ready.formDataPathIndex,
             ownerMetadataCache: secondPass.ownerMetadataCache,
           })
+          if (
+            baseFormCandidate !== undefined
+            && currentConfigurationFormYAML !== undefined
+            && isRedundantClientApplicationBaseForm({
+              currentConfigurationYaml: clientApplicationFormYaml(
+                currentConfigurationFormYAML,
+                baseFormCandidate.baseProjectPath,
+              ),
+              extensionYaml: clientApplicationFormYaml(yaml, assignment.targetProjectPath),
+              savedBaseYaml: clientApplicationFormYaml(
+                baseFormCandidate.yaml,
+                baseFormCandidate.targetProjectPath,
+              ),
+              rule: baseFormCandidate.rule,
+            })
+            && projectRedundantBaseFormAnnotations({ yaml, annotations, candidate: baseFormCandidate })
+          ) {
+            baseFormCandidate.redundant = true
+          }
           earlyIssueDecisions = mergeImportedIssueDecisions(
             earlyIssueDecisions.map((decision) => normalizeImportedIssueDecisionPath(yaml, decision)),
           )
@@ -1024,28 +1045,10 @@ async function prepareYamlForFinalPass(
   if (prepared.localProofCompleted === true && prepared.deferred.length > 0) {
     throw new Error(`Локальный proof оставил ${prepared.deferred.length} отложенных YAML-значений: ${prepared.targetProjectPath}`)
   }
-  const currentConfigurationYAML = shouldReadCurrentConfigurationYaml({
-    componentPath: state.componentPath,
-    rule: prepared.rule,
-    hasBaseFormCandidate: prepared.baseFormCandidate !== undefined,
-  })
-    ? await readCurrentConfigurationFormYaml({
-        logicalAddress: prepared.logicalAddress,
-        fallbackProjectPath: prepared.baseFormCandidate?.baseProjectPath ?? prepared.targetProjectPath,
-        role: prepared.assignment.role === "fileItem" ? "form" : "properties",
-        rule: prepared.rule,
-        owner: prepared.dependentOwner,
-        state,
-      })
-    : undefined
-  const currentConfigurationData = currentConfigurationYAML?.data
   const preparedBaseFormCandidate = prepared.baseFormCandidate === undefined
     ? undefined
     : prepareBaseFormCandidate({
         candidate: prepared.baseFormCandidate,
-        ownerRule: prepared.rule,
-        extensionYaml: prepared.yaml,
-        currentConfigurationYAML: currentConfigurationData,
       })
   const validateImportedIssues = (includeSerializedIssues = true) => {
     const serialized = serializePreparedYaml(
@@ -1181,35 +1184,32 @@ function retargetNonEmptyConfigurationFragment(
 
 function prepareBaseFormCandidate(params: {
   candidate: NonNullable<DeferredImportYaml["baseFormCandidate"]>
-  ownerRule: DeferredImportYaml["rule"]
-  extensionYaml: unknown
-  currentConfigurationYAML: unknown
 }): NonNullable<DeferredImportYaml["baseFormCandidate"]> | undefined {
-  if (params.currentConfigurationYAML === undefined) {
-    throw new Error(`Не найдена текущая форма cf для ${params.candidate.baseProjectPath}`)
-  }
   if (params.candidate.deferred.length > 0) {
     throw new Error(`Локальный proof основы оставил ${params.candidate.deferred.length} отложенных YAML-значений: ${params.candidate.targetProjectPath}`)
   }
-  const currentForm = importedClientApplicationForm({
-    yaml: params.currentConfigurationYAML,
-    rule: params.ownerRule,
-  })
-  const extensionForm = importedClientApplicationForm({
-    yaml: params.extensionYaml,
-    rule: params.ownerRule,
-  })
-  if (currentForm === undefined || extensionForm === undefined) {
-    throw new Error(`Не найдены данные формы для ${params.candidate.baseProjectPath}`)
+  return params.candidate.redundant === true ? undefined : params.candidate
+}
+
+function projectRedundantBaseFormAnnotations(params: {
+  readonly yaml: Record<string, unknown>
+  readonly annotations: import("@nkdk/runtime").XmlAnomalyAnnotationTable
+  readonly candidate: NonNullable<DeferredImportYaml["baseFormCandidate"]>
+}): boolean {
+  const snapshot = snapshotXmlAnomalyAnnotations(params.candidate.yaml, params.candidate.annotations)
+  if (snapshot.root !== undefined) return false
+  const raw = snapshot.entries.filter(({ annotation }) =>
+    annotation.target === "value"
+    && annotation.kind === "raw"
+    && annotation.hasSemanticValue !== true)
+  if (raw.some(({ parentPath, annotation }) =>
+    parentPath.length !== 0
+    || annotation.xml === undefined)) return false
+  const appendRaw = createLocalXmlRawAppender(params)
+  for (const { key, annotation } of raw) {
+    appendRaw(`@Form\\BaseForm\\${String(key)}`, annotation.xml!)
   }
-  return isRedundantClientApplicationBaseForm({
-    currentConfigurationYaml: clientApplicationFormYaml(currentForm.yaml, params.candidate.baseProjectPath),
-    extensionYaml: clientApplicationFormYaml(extensionForm.yaml, params.candidate.targetProjectPath),
-    savedBaseYaml: clientApplicationFormYaml(params.candidate.yaml, params.candidate.targetProjectPath),
-    rule: params.candidate.rule,
-  })
-    ? undefined
-    : params.candidate
+  return true
 }
 
 function assertNoLateImportedIssueDecisions(

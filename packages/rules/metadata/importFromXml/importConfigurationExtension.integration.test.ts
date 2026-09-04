@@ -164,6 +164,10 @@ describe("configuration extension XML import", () => {
       projectDir,
       "cfe/РасширениеКонтроль/ОбщаяФорма/ОбщаяРавнаяОснова/БазоваяФорма.yaml",
     ))).toBe(false)
+    expect(readText(
+      projectDir,
+      "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Формы/ФормаРавнаяОснова/Форма.yaml",
+    )).toContain('"@Form\\\\BaseForm\\\\Future": !xml/raw')
   })
 
   it("помечает путь элемента только из исторической основы", () => {
@@ -633,6 +637,7 @@ function addFormWithRedundantBase(inputDir: string): void {
     "\t\t<AutoCommandBar name=\"ФормаКоманднаяПанель\" id=\"-1\"/>",
     ...formEventXml("\t\t"),
     ...baseFormAttributesXml().map((line) => `\t${line}`),
+    "\t\t<Future>keep</Future>",
     "\t</BaseForm>",
   ].join("\n")
   replaceExactlyOnce(targetFormPath, "</Form>", `${baseForm}\n</Form>`)

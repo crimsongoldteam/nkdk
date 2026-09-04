@@ -79,6 +79,7 @@ export interface PreparedBaseFormCandidate {
   deferred: readonly DeferredObjectValue[]
   configurationFragment: ConfigurationIndexBlockFragment
   localProofReceipt?: import("@nkdk/runtime/rule-kit").LocalXmlChild
+  redundant?: true
 }
 
 interface ImportLocalRoundTripOptions {
@@ -97,6 +98,7 @@ interface ImportLocalRoundTripOptions {
     rule: MetadataItemRule,
     annotations: import("@nkdk/runtime").XmlAnomalyAnnotationTable,
     savedBaseYAML: unknown | undefined,
+    baseFormCandidate: PreparedBaseFormCandidate | undefined,
   ) => void
   readonly prepareRootProof?: (params: {
     readonly key: string
@@ -235,7 +237,7 @@ function prepareImportYamlFromParsedInputs(params: {
       ...(finalizeRootYaml === undefined
         ? {}
         : { finalizeRootYaml: (yaml: Record<string, unknown>, itemRule: MetadataItemRule) =>
-            finalizeRootYaml(yaml, itemRule, annotations, baseFormCandidate?.yaml) }),
+            finalizeRootYaml(yaml, itemRule, annotations, baseFormCandidate?.yaml, baseFormCandidate) }),
       ...(rule.itemType !== ClientApplicationFormRules.itemType
         ? {}
         : {
@@ -397,6 +399,7 @@ function importAssignmentBaseFormCandidate(params: {
     execution: params.localRoundTrip.execution,
     context: params.localRoundTrip.context,
     decisions: [],
+    useReferenceXML: false,
     annotations,
     profiler: params.profiler,
     isDocumentRoot: (candidate) => candidate === companion.rule,

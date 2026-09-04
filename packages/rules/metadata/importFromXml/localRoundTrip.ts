@@ -23,6 +23,7 @@ export function createImportLocalRoundTrip(params: {
   readonly annotations: XmlAnomalyAnnotationTable
   readonly decisions: readonly ImportedIssueDecision[]
   readonly profiler?: ValidationProfiler
+  readonly useReferenceXML?: boolean
   readonly isDocumentRoot?: (rule: import("@nkdk/runtime/rule-kit").MetadataItemRule) => boolean
   readonly selectDecisions?: (
     yaml: Record<string, unknown>,
@@ -81,7 +82,7 @@ export function createImportLocalRoundTrip(params: {
         outputs: sources.map(({ key, source }, index) => ({
           key,
           tags: item.sources[index]?.tags,
-          referenceXML: source.compatibilityValue,
+          ...(params.useReferenceXML === false ? {} : { referenceXML: source.compatibilityValue }),
           ...(parent.length !== 0 || params.prepareRootContext === undefined
             ? {}
             : { context: params.prepareRootContext({ key, source }) }),
@@ -157,7 +158,7 @@ export function createImportLocalRoundTrip(params: {
   }
 }
 
-const TRANSPORT_ATTRIBUTE = /^(?:id|uuid|version|xmlns(?::.*)?)$/u
+const TRANSPORT_ATTRIBUTE = /^(?:id|name|uuid|version|xmlns(?::.*)?)$/u
 
 function withSourceTransportAttributes(
   preparation: XMLItemOutputPreparation | undefined,
