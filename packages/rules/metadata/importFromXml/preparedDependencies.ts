@@ -1,4 +1,4 @@
-import { copyYAMLRuntimeMetadata, yamlPathToPointer } from "@nkdk/runtime"
+import { copyYAMLRuntimeMetadata, yamlPathToPointer, yamlScalarTagAt, type YAMLScalarTag } from "@nkdk/runtime"
 import { recordAtPath } from "./dependentItems"
 import {
   prepareDependentImportFacts,
@@ -17,8 +17,16 @@ export interface ImportDependencyFacts {
   readonly rule: MetadataItemRule
   readonly owner: DependentItemParams["owner"]
   readonly properties: ReadonlyMap<string, DependentImportFacts>
+  readonly propertyItemNames: ReadonlyMap<string, string>
   readonly items: ReadonlyMap<string, DependentImportFacts>
   readonly siblingProperties: ReadonlyMap<string, { readonly value: unknown }>
+  readonly proofProperties: ReadonlyMap<string, { readonly value: unknown }>
+  readonly finalProperties: ReadonlyMap<string, {
+    readonly present: boolean
+    readonly value: unknown
+    readonly scalarTag?: YAMLScalarTag
+  }>
+  readonly reconstructionProperties: ReadonlyMap<string, { readonly value: unknown }>
 }
 
 const siblingKeys = new WeakMap<MetadataItemRule, ReadonlySet<string>>()
@@ -29,9 +37,13 @@ export function collectImportDependencyFacts(params: {
   readonly yaml: unknown
   readonly candidates: readonly ImportedDependentPropertyCandidate[]
   readonly propertyFacts?: readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][]
+  readonly proofPropertyFacts?: readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][]
+  readonly reconstructionPropertyFacts?: readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][]
+  readonly finalRootYaml?: Readonly<Record<string, unknown>>
   readonly execution?: CompiledPropertyRuleExecution
 }): ImportDependencyFacts {
   const properties = new Map<string, DependentImportFacts>()
+  const propertyItemNames = new Map<string, string>()
   const items = new Map<string, DependentImportFacts>()
   const inspectedItems = new Set<string>()
   const itemFacts = (itemType: string, itemYamlPath: readonly (string | number)[], itemName?: string) => {
@@ -50,10 +62,34 @@ export function collectImportDependencyFacts(params: {
     return facts
   }
   for (const candidate of params.candidates) {
-    const facts = itemFacts(candidate.itemType, candidate.itemYamlPath, candidate.itemName)
-    if (facts !== undefined) properties.set(propertyAddress(candidate), facts)
+    const propertyFact = params.propertyFacts?.find((fact) =>
+      fact.itemType === candidate.itemType
+      && fact.propertyKey === candidate.propertyKey
+      && samePath(fact.sourceYamlPath ?? fact.yamlPath, candidate.yamlPath))
+    const finalName = propertyFact?.yamlPath.at(-2)
+    const itemName = typeof finalName === "string" ? finalName : candidate.itemName
+    const facts = itemFacts(
+      candidate.itemType,
+      candidate.itemYamlPath,
+      itemName,
+    )
+    if (facts !== undefined) {
+      const address = propertyAddress(candidate)
+      properties.set(address, facts)
+      if (itemName !== undefined) propertyItemNames.set(address, itemName)
+    }
   }
   const siblingProperties = new Map<string, { readonly value: unknown }>()
+  const reconstructionProperties = collectReconstructionProperties(
+    params.reconstructionPropertyFacts ?? params.propertyFacts ?? [],
+  )
+  const proofPropertyFacts = params.proofPropertyFacts ?? params.propertyFacts ?? []
+  const proofProperties = collectProofProperties(proofPropertyFacts)
+  const finalProperties = collectFinalRootProperties({
+    rule: params.rule,
+    yaml: params.finalRootYaml,
+    propertyFacts: proofPropertyFacts,
+  })
   const dependentRules = new Map<MetadataItemRule, boolean>()
   for (const fact of params.propertyFacts ?? []) {
     if (fact.itemRule === undefined) continue
@@ -82,7 +118,120 @@ export function collectImportDependencyFacts(params: {
     const value = typeof fact.value === "string" ? fact.value : Array.isArray(fact.value) ? [...fact.value] : undefined
     siblingProperties.set(siblingAddress((fact.sourceYamlPath ?? fact.yamlPath).slice(0, -1), fact.propertyKey), { value })
   }
-  return { rule: params.rule, owner: params.owner, properties, items, siblingProperties }
+  return {
+    rule: params.rule,
+    owner: params.owner,
+    properties,
+    propertyItemNames,
+    items,
+    siblingProperties,
+    proofProperties,
+    finalProperties,
+    reconstructionProperties,
+  }
+}
+
+function collectFinalRootProperties(params: {
+  readonly rule: MetadataItemRule
+  readonly yaml?: Readonly<Record<string, unknown>>
+  readonly propertyFacts: readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][]
+}): ImportDependencyFacts["finalProperties"] {
+  const result = new Map<string, {
+    readonly present: boolean
+    readonly value: unknown
+    readonly scalarTag?: YAMLScalarTag
+  }>()
+  if (params.yaml === undefined) return result
+  for (const fact of params.propertyFacts) {
+    if (fact.itemRule === undefined) continue
+    const propertyRule = fact.itemRule.properties[fact.propertyKey]
+    if (typeof propertyRule?.yaml !== "string") continue
+    const finalItemPath = fact.yamlPath.slice(0, -1)
+    if (finalItemPath.length === 0) continue
+    const finalItem = recordAtPath(params.yaml, finalItemPath)
+    if (finalItem === undefined) continue
+    const present = Object.prototype.hasOwnProperty.call(finalItem, propertyRule.yaml)
+    if (present || propertyRule.preserveEmptyXML !== true) continue
+    const decision = { present: false, value: undefined }
+    result.set(siblingAddress(finalItemPath, fact.propertyKey), decision)
+    const sourceItemPath = (fact.sourceYamlPath ?? fact.yamlPath).slice(0, -1)
+    if (!samePath(sourceItemPath, finalItemPath)) {
+      result.set(siblingAddress(sourceItemPath, fact.propertyKey), decision)
+    }
+  }
+  const factByProperty = new Map(params.propertyFacts
+    .filter((fact) => fact.yamlPath.length === 1)
+    .map((fact) => [fact.propertyKey, fact]))
+  for (const [propertyKey, propertyRule] of Object.entries(params.rule.properties)) {
+    if (typeof propertyRule.yaml !== "string") continue
+    if (propertyRule.externalFile || propertyRule.filePath !== undefined) continue
+    const present = Object.prototype.hasOwnProperty.call(params.yaml, propertyRule.yaml)
+    if (!present) {
+      if (factByProperty.get(propertyKey)?.value !== undefined) {
+        result.set(siblingAddress([], propertyKey), { present: false, value: undefined })
+      }
+      continue
+    }
+    const finalValue = params.yaml[propertyRule.yaml]
+    if (
+      (finalValue === null || finalValue === undefined)
+      && factByProperty.get(propertyKey)?.reconstructionValue !== undefined
+    ) continue
+    const value = cloneCompactFinalValue(finalValue)
+    const scalarTag = yamlScalarTagAt(params.yaml, propertyRule.yaml)
+    if (value === undefined && scalarTag === undefined) continue
+    result.set(siblingAddress([], propertyKey), {
+      present: true,
+      value,
+      ...(scalarTag === undefined ? {} : { scalarTag }),
+    })
+  }
+  return result
+}
+
+function cloneCompactFinalValue(value: unknown): unknown {
+  if (
+    value === null
+    || typeof value === "string"
+    || typeof value === "number"
+    || typeof value === "boolean"
+    || typeof value === "bigint"
+  ) return value
+  if (value !== null && typeof value === "object" && !Array.isArray(value) && Object.keys(value).length === 0) {
+    return {}
+  }
+  return undefined
+}
+
+function collectReconstructionProperties(
+  facts: readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][],
+): ReadonlyMap<string, { readonly value: unknown }> {
+  return collectCompactPropertyValues(facts.filter(
+    fact => fact.itemRule?.properties[fact.propertyKey]?.forReferenceOnly === true,
+  ))
+}
+
+function collectProofProperties(
+  facts: readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][],
+): ReadonlyMap<string, { readonly value: unknown }> {
+  return collectCompactPropertyValues(facts)
+}
+
+function collectCompactPropertyValues(
+  facts: readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][],
+): ReadonlyMap<string, { readonly value: unknown }> {
+  const result = new Map<string, { readonly value: unknown }>()
+  for (const fact of facts) {
+    const value = cloneCompactReconstructionValue(fact.reconstructionValue ?? fact.value)
+    if (value === undefined) continue
+    const sourcePath = (fact.sourceYamlPath ?? fact.yamlPath).slice(0, -1)
+    result.set(siblingAddress(sourcePath, fact.propertyKey), { value })
+    const finalPath = fact.yamlPath.slice(0, -1)
+    if (yamlPathToPointer(finalPath) !== yamlPathToPointer(sourcePath)) {
+      result.set(siblingAddress(finalPath, fact.propertyKey), { value })
+    }
+  }
+  return result
 }
 
 export function prepareImportDependencies(
@@ -92,16 +241,27 @@ export function prepareImportDependencies(
 ): PreparedImportDependencies {
   return {
     itemFacts: (path, itemType) => facts.items.get(itemAddress(path, itemType)),
-    propertyValue: (path, key) => facts.siblingProperties.get(siblingAddress(path, key)) ?? { value: undefined },
+    propertyValue: (path, key) => {
+      const address = siblingAddress(path, key)
+      return facts.finalProperties.get(address)
+        ?? facts.siblingProperties.get(address)
+        ?? facts.proofProperties.get(address)
+        ?? { value: undefined }
+    },
+    reconstructionValue: (path, key) => facts.reconstructionProperties.get(siblingAddress(path, key)),
     shouldOmit(candidate, values) {
-      const dependency = facts.properties.get(propertyAddress(candidate))
+      const address = propertyAddress(candidate)
+      const dependency = facts.properties.get(address)
       if (dependency === undefined) return false
       const item = { ...dependency.item, ...values }
       copyYAMLRuntimeMetadata(values, item)
       const request = {
         ...lookups,
+        ...(facts.propertyItemNames.get(address) === undefined
+          ? {}
+          : { itemName: facts.propertyItemNames.get(address) }),
         itemType: candidate.itemType,
-        itemName: candidate.itemName,
+        ...(facts.propertyItemNames.has(address) ? {} : candidate.itemName === undefined ? {} : { itemName: candidate.itemName }),
         itemYamlPath: candidate.itemYamlPath,
         item,
         rootYaml: dependency.root,
@@ -109,11 +269,28 @@ export function prepareImportDependencies(
         owner: facts.owner,
         candidate,
       }
-      return execution === undefined
+      const omit = execution === undefined
         ? shouldRemoveImportedDependentProperty(request)
         : execution.shouldRemoveImportedDependentProperty(request)
+      return omit
     },
   }
+}
+
+function cloneCompactReconstructionValue(value: unknown): unknown {
+  if (
+    value === null
+    || typeof value === "string"
+    || typeof value === "number"
+    || typeof value === "boolean"
+    || typeof value === "bigint"
+  ) return value
+  if (Array.isArray(value)) {
+    const result = value.map(cloneCompactReconstructionValue)
+    return result.some(item => item === undefined) ? undefined : result
+  }
+  if (value !== null && typeof value === "object" && Object.keys(value).length === 0) return {}
+  return undefined
 }
 
 function siblingAddress(path: readonly (string | number)[], key: string): string {
@@ -128,4 +305,8 @@ function itemAddress(path: readonly (string | number)[], itemType: string): stri
 
 function propertyAddress(candidate: ImportedDependentPropertyCandidate): string {
   return candidate.logicalAddress ?? `${yamlPathToPointer(candidate.itemYamlPath)}:${candidate.propertyKey}`
+}
+
+function samePath(left: readonly (string | number)[], right: readonly (string | number)[]): boolean {
+  return left.length === right.length && left.every((value, index) => value === right[index])
 }

@@ -73,6 +73,28 @@ describe("локальное оформление XML-свойства", () => {
     expect(xmlExport(restored, false)).toBe("<Root>\n\t<Value>\n\t\t<Future>x</Future>\n\t\t<Known>ok</Known>\n\t</Value>\n</Root>")
   })
 
+  it("подавляет созданный атрибут у свойства без смыслового YAML-значения", () => {
+    const source = parseXmlDocumentWithSaxes('<FillValue xsi:nil="true"/>').roots[0]!
+    const yaml: Record<string, unknown> = {}
+    const annotations = createXmlAnomalyAnnotations()
+    const proof = createLocalXmlProof()
+    proof.check(source, localXmlShapeFromObject("FillValue", {
+      "_xsi:nil": "true",
+      "_xsi:type": "xs:string",
+    }), differences => {
+      projectLocalXmlPropertyDifferences({
+        parent: yaml, key: "ЗначениеЗаполнения", annotations, source,
+        expectedName: "FillValue", differences, hasSemanticValue: false,
+        orderPath: ["FillValue"],
+      })
+    })
+
+    expect(annotations.at(yaml, "ЗначениеЗаполнения")?.xml).toEqual({
+      "_xsi:nil": "true",
+      "_xsi:type": null,
+    })
+  })
+
   it("восстанавливает значение XML-атрибута через его YAML-свойство", () => {
     const owner = parseXmlDocumentWithSaxes('<Root id="42"/>').roots[0]!
     const source = owner.attributes[0]!

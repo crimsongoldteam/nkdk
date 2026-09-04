@@ -42,13 +42,16 @@ export function assignFormXmlIds(
 
   for (const candidate of candidates) {
     const logicalAddress = sessionLogicalAddress(candidate)
-    const sessionId = logicalAddress === undefined ? undefined : session.idsByLogicalAddress.get(logicalAddress)
+    const sessionId = logicalAddress === undefined || candidate.reservation.space !== "attributes"
+      ? undefined
+      : session.idsByLogicalAddress.get(logicalAddress)
     const snapshotId = validXmlId(candidate.reservation.runtime?.identity("xmlId"))
+    const assignedId = validXmlId(stringId(candidate.node._id))
     const referenceId = validXmlId(stringId(candidate.reference?._id))
     // A shared session coordinates current/base-form projections from different snapshots.
     // Their historical IDs may differ; identity conflicts within one snapshot are
     // rejected by its collector, not by comparing these independent sources.
-    candidate.id = candidate.reservation.specialId ?? sessionId ?? snapshotId ?? referenceId
+    candidate.id = candidate.reservation.specialId ?? sessionId ?? snapshotId ?? assignedId ?? referenceId
     if (candidate.id !== undefined) {
       reserveSession(candidate, session)
     }
@@ -76,7 +79,7 @@ function reserveSession(candidate: Candidate, session: FormXmlIdAssignmentSessio
   if (id === undefined) return
   if (!isXmlId(id)) throw new Error(`Некорректный ID формы: ${id}`)
   if (candidate.reservation.specialId !== undefined) return
-  if (runtime !== undefined) {
+  if (runtime !== undefined && candidate.reservation.space === "attributes") {
     const logicalAddress = sessionLogicalAddress(candidate)
     if (logicalAddress === undefined) return
     const previousId = session.idsByLogicalAddress.get(logicalAddress)

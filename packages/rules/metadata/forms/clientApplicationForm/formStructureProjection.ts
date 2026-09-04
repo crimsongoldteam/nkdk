@@ -4,6 +4,7 @@ import { indexClientApplicationFormComponents } from "./formComponentIndex"
 import { collectClientApplicationFormDataPathPreparation } from "./formDataPathContext"
 import { serializeClientApplicationFormSemanticPayload } from "./formSemanticPayload"
 import type { ClientApplicationFormYAML } from "./types"
+import type { XmlAnomalyAnnotations } from "@nkdk/runtime"
 
 export interface FormElementDataPathPayloadV1 {
   readonly version: 1
@@ -21,7 +22,8 @@ export interface FormDataPathPayloadV1 {
 
 export function collectClientApplicationFormStructure(
   yaml: unknown,
-  owner?: { readonly kind: string; readonly name: string }
+  owner?: { readonly kind: string; readonly name: string },
+  annotations?: XmlAnomalyAnnotations,
 ): readonly FormStructuredComponent[] {
   const index = indexClientApplicationFormComponents(yaml)
   const components = ([
@@ -58,25 +60,44 @@ export function collectClientApplicationFormStructure(
     }
     return { ...component, payload: JSON.stringify(payload) }
   })
-  const dataPaths = preparation.collected.occurrences.map((occurrence) => {
-    const payload: FormDataPathPayloadV1 = {
-      version: 1,
-      mode: "explicit",
-      ...(owner === undefined ? {} : { owner }),
-    }
-    return {
-      componentKind: "dataPath",
-      name: occurrence.value,
-      yamlPath: occurrence.yamlPath,
-      payload: JSON.stringify(payload),
-    }
-  })
+  const dataPaths = preparation.collected.occurrences
+    .filter((occurrence) => !hasInvalidAnnotation(yaml, occurrence.yamlPath, annotations))
+    .map((occurrence) => {
+      const payload: FormDataPathPayloadV1 = {
+        version: 1,
+        mode: "explicit",
+        ...(owner === undefined ? {} : { owner }),
+      }
+      return {
+        componentKind: "dataPath",
+        name: occurrence.value,
+        yamlPath: occurrence.yamlPath,
+        payload: JSON.stringify(payload),
+      }
+    })
   return [{
     componentKind: "document",
     name: "",
     yamlPath: [],
     payload: serializeClientApplicationFormSemanticPayload(yaml),
   }, ...withPayload, ...dataPaths, ...mainAttributeComponents(yaml)]
+}
+
+function hasInvalidAnnotation(
+  root: unknown,
+  path: readonly (string | number)[],
+  annotations: XmlAnomalyAnnotations | undefined,
+): boolean {
+  if (annotations === undefined || path.length === 0) return false
+  let parent = root
+  for (const segment of path.slice(0, -1)) {
+    if (parent === null || typeof parent !== "object") return false
+    parent = (parent as Record<string | number, unknown>)[segment]
+  }
+  if (parent === null || typeof parent !== "object") return false
+  const annotation = annotations.at(parent, path.at(-1)!)
+  return annotation?.kind === "invalid"
+    || (annotation?.kind === "raw" && annotation.semantic?.kind === "invalid")
 }
 
 function mainAttributeComponents(yaml: unknown): FormStructuredComponent[] {

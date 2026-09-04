@@ -20,10 +20,6 @@ export function projectLocalXmlPropertyDifferences(params: LocalXmlAnnotationBin
   readonly orderPath: readonly string[]
 }): void {
   if (params.differences.length === 0) return
-  if (!params.hasSemanticValue) {
-    annotateXmlRawValue({ ...params, xml: encodeXmlRawElement(params.source, params.expectedName) })
-    return
-  }
   const order = params.differences.filter(({ kind }) => kind === "order")
   const own = params.differences.filter(({ kind }) => kind !== "order")
   const rename = own.filter((difference) =>
@@ -38,7 +34,7 @@ export function projectLocalXmlPropertyDifferences(params: LocalXmlAnnotationBin
   const generated = own.filter((difference) => {
     if (difference.kind !== "presence" || !difference.path.startsWith(`${params.source.path}/`)) return false
     const relative = difference.path.slice(params.source.path.length + 1)
-    return /^[^/#?]+\[\d+\]$/u.test(relative) && !directChildren.has(difference.path)
+    return /^[^@/#?]+\[\d+\]$/u.test(relative) && !directChildren.has(difference.path)
   })
   const structural = new Set([...children, ...generated])
   const scalar = own.filter((difference) => difference.path !== params.source.path && !structural.has(difference))
@@ -67,6 +63,13 @@ export function projectLocalXmlPropertyDifferences(params: LocalXmlAnnotationBin
       differences: order, path: params.orderPath,
     })
   }
+  if (!params.hasSemanticValue) {
+    annotateXmlRawValue({
+      ...params,
+      xml: mergeXmlRawPatch(encodeXmlRawElement(params.source, params.expectedName), patch),
+    })
+    return
+  }
   if (Object.keys(patch).length > 0) annotateXmlRawValue({ ...params, xml: patch })
 }
 
@@ -90,6 +93,17 @@ export function projectLocalXmlScalarDifference(params: {
 
 function isRecord(value: object): value is Record<string, unknown> {
   return !Array.isArray(value)
+}
+
+function mergeXmlRawPatch(
+  source: Exclude<XmlRawValue, null>,
+  patch: Readonly<Record<string, XmlRawValue>>,
+): Exclude<XmlRawValue, null> {
+  if (Object.keys(patch).length === 0) return source
+  return {
+    ...(typeof source === "object" && !Array.isArray(source) ? source : { "#text": source }),
+    ...patch,
+  }
 }
 
 function appendPatchValue(patch: Record<string, XmlRawValue>, key: string, value: Exclude<XmlRawValue, null>): void {

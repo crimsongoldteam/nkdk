@@ -30,6 +30,7 @@ export function createLocalXmlBodyConsumer(params: {
     readonly path: readonly string[]
     readonly value: unknown
     readonly property: LocalBodyProperty
+    readonly semanticOmitted: boolean
   }) => void
 }): CompiledXMLProofConsumer {
   const bindings = new Map<string, Parameters<NonNullable<CompiledXMLProofConsumer["bind"]>>[0]>()
@@ -74,8 +75,18 @@ export function createLocalXmlBodyConsumer(params: {
       for (const binding of bindings.values()) {
         if (!binding.structurallyClaimed || !isXmlElementNode(binding.node)) continue
         const path = binding.xmlPath ?? [binding.node.name]
-        writePathCreating(preparedBody, path, params.proof.accept(binding.node))
-        completedElements.add(binding.node.id)
+        const nodes = binding.nodes?.length === 0 || binding.nodes === undefined
+          ? [binding.node]
+          : binding.nodes
+        const receipts = nodes.map((node) => {
+          completedElements.add(node.id)
+          return params.proof.completed(node) ?? params.proof.accept(node)
+        })
+        writePathCreating(
+          preparedBody,
+          path,
+          Array.isArray(readPath(preparedBody, path)) ? receipts : receipts[0],
+        )
       }
       for (const { property, path } of orderedWrites) {
         const binding = bindings.get(property.propertyKey)
@@ -92,7 +103,10 @@ export function createLocalXmlBodyConsumer(params: {
             ? writes.get(`${property.propertyKey}\u0000${path.join("\u0000")}`)?.value
             : undefined)
           if (generated !== undefined) {
-            params.annotateAbsent?.({ name: path.at(-1)!, path, value: generated, property })
+            params.annotateAbsent?.({
+              name: path.at(-1)!, path, value: generated, property,
+              semanticOmitted: binding.semanticOmitted === true,
+            })
             if (params.annotateAbsent === undefined) {
               params.annotate?.({
                 source: params.source,
@@ -120,12 +134,39 @@ export function createLocalXmlBodyConsumer(params: {
           writePath(preparedBody, path, receipt)
           continue
         }
-        const retained = findFinishedSource(value, binding.node.id, params.childReceipt)
-        if (retained !== undefined) {
-          writePath(preparedBody, path, retained)
+        if (
+          binding.nodes !== undefined
+          && Array.isArray(value)
+          && value.every(entry => findAnyChildReceipt(entry, params.childReceipt) === undefined)
+        ) {
+          const receipts = binding.nodes.map((node, index) => {
+            completedElements.add(node.id)
+            return complete(node, path.at(-1)!, value[index], property)
+          })
+          if (value.length > binding.nodes.length) {
+            const ownerPath = binding.owner?.path
+              ?? binding.node.path.slice(0, binding.node.path.lastIndexOf("/"))
+            params.annotate?.({
+              source: binding.node,
+              differences: value.slice(binding.nodes.length).map((_, index) => ({
+                kind: "presence" as const,
+                path: `${ownerPath}/${path.at(-1)}[${binding.nodes!.length + index + 1}]`,
+                ownerPath,
+              })),
+              property,
+            })
+          }
+          writePath(preparedBody, path, receipts)
           continue
         }
         const child = params.childReceipt(value)
+        const retained = child?.sourceId === binding.node.id
+          ? child
+          : findFinishedSource(value, binding.node.id, params.childReceipt)
+        if (retained !== undefined) {
+          writePath(preparedBody, path, child === retained ? retained : value)
+          continue
+        }
         const receipt = child ?? complete(
           binding.node,
           path.at(-1)!,

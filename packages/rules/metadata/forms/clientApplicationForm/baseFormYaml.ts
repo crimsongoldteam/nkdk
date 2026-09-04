@@ -4,6 +4,7 @@ import {
   createXmlAnomalyAnnotations,
   type XmlAnomalyAnnotationTable,
   type XmlElementNode,
+  type XmlImportAuditSession,
 } from "@nkdk/runtime"
 import {
   getConfigurationIndexCollectionContext,
@@ -43,6 +44,7 @@ export function importBaseFormYaml(params: {
   formName: string
   rule?: MetadataItemRule
   annotations?: XmlAnomalyAnnotationTable
+  audit?: XmlImportAuditSession
   dependencies?: Parameters<typeof importClientApplicationFormBodyFromXML>[0]["dependencies"]
   roundTrip?: Parameters<typeof importClientApplicationFormBodyFromXML>[0]["roundTrip"]
   beforeFinish?: (yaml: Record<string, unknown>) => void
@@ -66,6 +68,7 @@ export function importBaseFormYaml(params: {
     collector: localIndexesCollector,
     deferred,
     annotations: importedAnnotations,
+    audit: params.audit,
     dependencies: params.dependencies,
     roundTrip: params.roundTrip,
     beforeFinish: (yaml) => {

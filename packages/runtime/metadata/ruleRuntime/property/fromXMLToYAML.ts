@@ -55,12 +55,16 @@ import {
   createXmlImportAttemptJournal,
   XmlImportAttemptInfrastructureError,
 } from "../xmlAnomaly/attempt"
-import type { XmlAnomalyAnnotationTable } from "../../../yaml/xmlAnomalyAnnotations"
+import {
+  copyXmlAnomalyAnnotationsDeep,
+  type XmlAnomalyAnnotationTable,
+} from "../../../yaml/xmlAnomalyAnnotations"
 import { encodeXmlRawElement } from "../../../xml/structure/rawCodec"
 import { beginPropertyTypeProfile, finishPropertyTypeProfile } from "./propertyTypeProfile"
 import type { CompiledProperty, CompiledPropertyRuleExecution } from "./compiledPropertyPlan"
 import { canUseAtomicFromXMLToYAML } from "./atomicConversion"
 import { assignMetadataTargetUuidAnnotations } from "./metadataTargetOccurrences"
+import { markYAMLScalarTag } from "../../../yaml/scalarTags"
 
 export class DirectImportConversionError extends Error {
   constructor(
@@ -189,7 +193,7 @@ export function importPropertiesFromXMLToYAML(params: {
     xmlNodes?: readonly XmlElementNode[]
     presentInXML: boolean
     ambiguousXMLKey: boolean
-  }): { readonly proofReady: boolean; readonly structurallyClaimed: boolean } => {
+  }): { readonly proofReady: boolean; readonly structurallyClaimed: boolean; readonly semanticOmitted: boolean } => {
     if (params.profile !== undefined) params.profile.propertyCount++
     const {
       sourceState,
@@ -225,6 +229,8 @@ export function importPropertiesFromXMLToYAML(params: {
     let discardAttempt = false
     let proofReady = false
     let structurallyClaimed = false
+    const preparedPropertyDecision = params.dependencies?.propertyValue?.(yamlPath, key)
+    let semanticOmitted = preparedPropertyDecision?.present === false
     try {
       const run = (): void => {
         const dependentImportProperty = compiled === undefined
@@ -288,6 +294,30 @@ export function importPropertiesFromXMLToYAML(params: {
         }
 
         if (!forReference && propertyRule.forReferenceOnly === true) {
+          if (params.mode === "facts" && params.facts !== undefined) {
+            const reconstructionValue = runWithConfigurationIndexPropertyContext(
+              sourceContext,
+              propertyRule.yaml ?? key,
+              configurationIndexUidSegment,
+              (propertyContext) => importPropertyFromXML({
+                context: propertyContext,
+                rule: propertyRule,
+                value: sourceXMLValue,
+                name: key,
+                ownerXmlName,
+                execution: params.execution,
+                compiled,
+              }),
+              { configurationIndexAddressing: nestedConfigurationIndexAddressing },
+            )
+            params.facts.acceptProperty({
+              itemType: rule.itemType,
+              itemRule: rule,
+              propertyKey: key,
+              yamlPath: propertyYamlPath,
+              value: reconstructionValue,
+            })
+          }
           collectConfigurationIndexPropertyFromXML({
             context: sourceContext,
             logicalAddress:
@@ -708,7 +738,7 @@ export function importPropertiesFromXMLToYAML(params: {
             : compiled.operations.requiresImportedYAMLFinalization
           const shouldFinalize = finalize !== undefined
             && (requiresFinalization === undefined || requiresFinalization({ value: yamlValue }))
-          const exportedYamlValue = params.dependencies !== undefined && shouldFinalize
+          const convertedYamlValue = params.dependencies !== undefined && shouldFinalize
             ? finalize({
                 context: sourceContext,
                 rule: propertyRule,
@@ -718,12 +748,35 @@ export function importPropertiesFromXMLToYAML(params: {
                   : { formDataPathIndex: sourceContext.importFromYAML.formDataPathIndex }),
               })
             : yamlValue
+          const preparedProperty = preparedPropertyDecision
+          if (preparedProperty?.value !== undefined && preparedProperty.value !== convertedYamlValue) {
+            copyXmlAnomalyAnnotationsDeep(params.annotations, convertedYamlValue, preparedProperty.value)
+          }
+          const exportedYamlValue = preparedProperty?.present === true
+            ? preparedProperty.value
+            : preparedProperty?.present === false
+              ? undefined
+              : convertedYamlValue
+          if (
+            claimedCanonicalRawDefault
+            && exportedYamlValue === undefined
+            && isXmlElementNode(xmlNode)
+            && xmlNode.attributes.length === 0
+            && xmlNode.content.length === 0
+          ) {
+            structurallyClaimed = true
+            proofReady = false
+          }
           params.facts?.acceptProperty({
             itemType: rule.itemType,
             itemRule: rule,
             propertyKey: key,
             yamlPath: propertyYamlPath,
             value: exportedYamlValue,
+            ...(cleanValue === undefined
+              && importedValue !== undefined
+              ? { reconstructionValue: importedValue }
+              : {}),
           })
           if (!convertedDirectly && !usesFusedRepresentation) {
             const profile = params.profile
@@ -766,14 +819,23 @@ export function importPropertiesFromXMLToYAML(params: {
             !canExportPropertyToYAML({ context: sourceContext, rule: propertyRule })
           ) return
           const outputStartedAt = performance.now()
-          const exportedValues = getExportToYAMLResult(
-            propertyRule,
-            propertyRule.yaml!,
-            exportedYamlValue,
-            value,
-            params.execution,
-            compiled,
-          )
+          const exportedValues = preparedProperty?.present === true && typeof propertyRule.yaml === "string"
+            ? { [propertyRule.yaml]: exportedYamlValue }
+            : getExportToYAMLResult(
+                propertyRule,
+                propertyRule.yaml!,
+                exportedYamlValue,
+                value,
+                params.execution,
+                compiled,
+              )
+          if (
+            exportedValues !== undefined &&
+            preparedProperty?.scalarTag !== undefined &&
+            typeof propertyRule.yaml === "string"
+          ) {
+            markYAMLScalarTag(exportedValues, propertyRule.yaml, preparedProperty.scalarTag)
+          }
           if (exportedValues !== undefined && params.dependencies?.propertyValue !== undefined
             && propertyRule.yaml !== undefined && isTypeOwnedMetadataTargetUnavailable({ rule: propertyRule, siblingValue })) {
             delete exportedValues[propertyRule.yaml]
@@ -819,7 +881,10 @@ export function importPropertiesFromXMLToYAML(params: {
               presentInXML,
             }
             if (params.dependencies !== undefined) {
-              if (params.dependencies.shouldOmit(candidate, exportedValues)) return
+              if (params.dependencies.shouldOmit(candidate, exportedValues)) {
+                semanticOmitted = true
+                return
+              }
             } else {
               params.dependent?.accept(candidate)
             }
@@ -874,16 +939,16 @@ export function importPropertiesFromXMLToYAML(params: {
         params.audit !== undefined
       ) {
         params.audit.rawCandidate(xmlNode, boundary, cause)
-        return { proofReady: false, structurallyClaimed: false }
+        return { proofReady: false, structurallyClaimed: false, semanticOmitted: false }
       }
       throw cause
     }
     if (discardAttempt) {
       attempt.rollback()
-      return { proofReady: false, structurallyClaimed: false }
+      return { proofReady: false, structurallyClaimed: false, semanticOmitted: false }
     }
     attempt.commit()
-    return { proofReady, structurallyClaimed }
+    return { proofReady, structurallyClaimed, semanticOmitted }
   }
 
   const importMatch = (match: Parameters<typeof importMatchUnprofiled>[0]): void => {
@@ -891,13 +956,25 @@ export function importPropertiesFromXMLToYAML(params: {
     try {
       const imported = importMatchUnprofiled(match)
       if (roundTrip !== undefined) {
+        const canonicalParent = match.presentInXML
+          ? undefined
+          : canonicalRawDefaultParent(match.sourceState.xmlNode, match.entry.rule)
         const binding = {
-          propertyKey: match.entry.propertyKey, node: match.xmlNode, presentInXML: match.presentInXML, xmlPath: match.xmlPath,
+          propertyKey: match.entry.propertyKey,
+          node: canonicalParent?.node ?? match.xmlNode,
+          presentInXML: canonicalParent !== undefined || match.presentInXML,
+          xmlPath: canonicalParent?.path ?? match.xmlPath,
+          ...(match.xmlNodes === undefined ? {} : { nodes: match.xmlNodes }),
           ...(match.xmlOwnerNode === undefined ? {} : { owner: match.xmlOwnerNode }),
-          ...(imported.structurallyClaimed ? { structurallyClaimed: true as const } : {}),
+          ...(imported.semanticOmitted ? { semanticOmitted: true as const } : {}),
+          ...(imported.structurallyClaimed || canonicalParent !== undefined
+            ? { structurallyClaimed: true as const }
+            : {}),
         }
         runRoundTripStep("bind", () => roundTrip.bind?.(binding))
-        if (imported.proofReady) runRoundTripStep("ready", () => roundTrip.ready(binding))
+        if (imported.proofReady && canonicalParent === undefined) {
+          runRoundTripStep("ready", () => roundTrip.ready(binding))
+        }
       }
     } finally {
       finishPropertyTypeProfile(params.profile, frame, "XML → YAML")
@@ -1076,13 +1153,35 @@ function claimCanonicalRawDefault(params: {
   rule: PropertyRule
 }): boolean {
   if (
-    params.audit === undefined
-    || !isXmlElementNode(params.node)
+    !isXmlElementNode(params.node)
     || !Object.prototype.hasOwnProperty.call(params.rule, "defaultValueXMLRaw")
     || !sameCanonicalXmlValue(encodeXmlRawElement(params.node), params.rule.defaultValueXMLRaw)
   ) return false
-  claimAuditedSubtree(params.audit, params.node, params.boundary)
+  if (params.audit !== undefined) claimAuditedSubtree(params.audit, params.node, params.boundary)
   return true
+}
+
+function canonicalRawDefaultParent(
+  root: XmlImportAuditedNode | undefined,
+  rule: PropertyRule,
+): { readonly node: XmlElementNode; readonly path: readonly string[] } | undefined {
+  if (
+    !isXmlElementNode(root)
+    || !Object.prototype.hasOwnProperty.call(rule, "defaultValueXMLRaw")
+    || rule.xmlParents === undefined
+    || rule.xmlParents.length === 0
+  ) return undefined
+  let node = root
+  for (const name of rule.xmlParents) {
+    const matches = node.content.filter(
+      (child): child is XmlElementNode => child.type === "element" && child.name === name,
+    )
+    if (matches.length !== 1) return undefined
+    node = matches[0]!
+  }
+  return sameCanonicalXmlValue(encodeXmlRawElement(node), rule.defaultValueXMLRaw)
+    ? { node, path: rule.xmlParents }
+    : undefined
 }
 
 function claimAuditedSubtree(

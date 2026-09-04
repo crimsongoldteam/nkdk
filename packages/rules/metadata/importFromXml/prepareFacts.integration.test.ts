@@ -27,6 +27,7 @@ import {
   extractImportValidationContribution,
   extractImportValidationContributionFromFacts,
 } from "./validationContribution"
+import { withoutUnsupportedConfigurationExtensionPropertyStates } from "./configurationExtensionFixtureSupport"
 
 const configurationFixturesDir = join(import.meta.dirname, "../appliedObjects/configuration/__fixtures__")
 const metadataPath = join(configurationFixturesDir, "syncConfiguration/xml/Catalogs/Контрагенты.xml")
@@ -305,6 +306,31 @@ describe("prepareImportFacts", () => {
       expect.objectContaining({ constraint: expect.objectContaining({ validation: "translateOnly" }) }),
     )
   })
+
+  it("готовит исходное значение default, очищенного у заимствованного объекта", async () => {
+    const assignment = assignmentForProjectPath({
+      id: "adopted-catalog",
+      targetProjectPath: "Справочник/СправочникСПредопределенными/Свойства.yaml",
+      itemType: "MetadataCatalog",
+      itemName: "СправочникСПредопределенными",
+      logicalAddress: "Справочник.СправочникСПредопределенными",
+      owner: undefined,
+      xmlFiles: [{
+        role: "metadata",
+        sourcePath: join(e2eAllExtensionDir, "Catalogs/СправочникСПредопределенными.xml"),
+      }],
+    })
+    const facts = await prepareImportFacts({
+      assignment,
+      context: extensionContext(),
+      collector: createConfigurationIndexCollector(),
+      inputs: parseAssignmentInputs(assignment),
+    })
+
+    expect(facts.semanticProjection).toHaveProperty("ДлинаКода", undefined)
+    expect(prepareImportDependencies(facts.dependencies).propertyValue?.([], "codeLength"))
+      .toEqual({ value: 9 })
+  })
 })
 
 function catalogAssignment(): ImportAssignment {
@@ -570,17 +596,21 @@ async function preparePair(
   context: XmlImportConfigurationContext,
 ) {
   const legacyCollector = createConfigurationIndexCollector()
-  const legacy = await prepareImportYaml({
-    assignment,
-    context,
-    collector: legacyCollector,
-  })
+  const sanitizeExtensionStates = context.fromXML.metadataItemAugmenter === "configurationExtension"
+  const legacy = sanitizeExtensionStates
+    ? await prepareImportYamlFromDocuments({
+        assignment,
+        context,
+        collector: legacyCollector,
+        inputs: parseAssignmentInputs(assignment, true),
+      })
+    : await prepareImportYaml({ assignment, context, collector: legacyCollector })
   const factsCollector = createConfigurationIndexCollector()
   const facts = await prepareImportFacts({
     assignment,
     context,
     collector: factsCollector,
-    inputs: parseAssignmentInputs(assignment),
+    inputs: parseAssignmentInputs(assignment, sanitizeExtensionStates),
   })
   return { facts, factsCollector, legacy, legacyCollector }
 }
@@ -600,13 +630,16 @@ async function expectProjectedValidationPair(
   return { actual, facts, legacy }
 }
 
-function parseAssignmentInputs(assignment: ImportAssignment) {
+function parseAssignmentInputs(assignment: ImportAssignment, sanitizeExtensionStates = false) {
   return assignment.xmlFiles.map((input) => ({
     input,
-    document: parseXmlDocumentWithSaxes(fs.readFileSync(input.sourcePath, "utf8"), {
+    document: parseXmlDocumentWithSaxes(
+      sanitizeExtensionStates
+        ? withoutUnsupportedConfigurationExtensionPropertyStates(fs.readFileSync(input.sourcePath, "utf8"))
+        : fs.readFileSync(input.sourcePath, "utf8"), {
       preserveXsiNil: true,
       preserveEmptyElementNames: ["AdditionalFields"],
-    }),
+      }),
   }))
 }
 
@@ -614,7 +647,11 @@ function extensionContext() {
   const context = mockXmlImportContext()
   return {
     ...context,
-    fromXML: { ...context.fromXML, componentKind: "configurationExtension" as const },
+    fromXML: {
+      ...context.fromXML,
+      componentKind: "configurationExtension" as const,
+      metadataItemAugmenter: "configurationExtension",
+    },
   }
 }
 

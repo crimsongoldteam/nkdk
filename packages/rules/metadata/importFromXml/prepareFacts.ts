@@ -5,7 +5,12 @@ import type {
   XmlDocument,
   XmlImportConfigurationContext,
 } from "@nkdk/runtime"
-import { yamlPathToPointer } from "@nkdk/runtime"
+import {
+  childSegmentUid,
+  createConfigurationIndexCollector,
+  withConfigurationIndexCollector,
+  yamlPathToPointer,
+} from "@nkdk/runtime"
 import type {
   DirectImportFactsSink,
   ImportedDependentPropertyCandidate,
@@ -13,6 +18,8 @@ import type {
   MetadataItemRule,
 } from "@nkdk/runtime/rule-kit"
 import { importClientApplicationFormFromXMLToYAML } from "../forms/clientApplicationForm/fromXMLToYAML"
+import { importClientApplicationFormBodyFromXML } from "../forms/clientApplicationForm/fromXMLToYAML"
+import { normalizeBaseFormYaml } from "../forms/clientApplicationForm/baseFormYaml"
 import {
   createImportedFormDataPathIndex,
   importedClientApplicationForm,
@@ -21,7 +28,11 @@ import { resolveClientApplicationFormCollectionItemRule } from "../forms/clientA
 import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
 import type { ClientApplicationFormXML, FormMetadataXML } from "../forms/clientApplicationForm/types"
 import { importMetadataItemFromXMLToYAML } from "../ruleRuntime/metadataItem/fromXMLToYAML"
-import { createDirectImportFactsCollector, createImportedDependentPropertyCollector } from "@nkdk/runtime/rule-kit"
+import {
+  createDeferredValuePathCollector,
+  createDirectImportFactsCollector,
+  createImportedDependentPropertyCollector,
+} from "@nkdk/runtime/rule-kit"
 import { createLocalIndexesCollector } from "../projectDefinition/localIndexes"
 import type { CompiledMetadataResourceTopology } from "../resourceTopology/core/types"
 import type { MetadataItemOwnerContextEntry } from "../ruleRuntime/appliedObject/metadataItemOwnerContext"
@@ -29,6 +40,7 @@ import type { ValidationProfiler } from "../validation/profile"
 import {
   createResolvedAssignmentImportEnvironment,
   mapExternalPropertyXmlInputs,
+  resolveBaseFormCompanion,
   type ParsedImportXmlInput,
 } from "./prepareYaml"
 import type { ImportAssignment, ParsedImportXmlDocument } from "./types"
@@ -41,6 +53,7 @@ import { collectImportDependencyFacts, type ImportDependencyFacts } from "./prep
 
 export interface PreparedImportFacts {
   readonly dependencies: ImportDependencyFacts
+  readonly baseFormDependencies?: ImportDependencyFacts
   readonly assignment: ImportAssignment
   readonly targetProjectPath: string
   readonly rule: MetadataItemRule
@@ -53,6 +66,9 @@ export interface PreparedImportFacts {
     readonly rootPropertyValues: Readonly<Record<string, unknown>>
   }
   readonly semanticProjection: Readonly<Record<string, unknown>>
+  readonly baseFormSemanticProjection?: Readonly<Record<string, unknown>>
+  readonly deferred: readonly import("@nkdk/runtime/rule-kit").DeferredValuePath[]
+  readonly baseFormDeferred?: readonly import("@nkdk/runtime/rule-kit").DeferredValuePath[]
   readonly pendingReferences: readonly PendingMetadataTargetReference[]
   readonly pendingChecks: readonly ValidationPendingCheck[]
   readonly formValidation?: {
@@ -89,12 +105,16 @@ export async function prepareImportFacts(params: {
   const rootPropertyValues: Record<string, unknown> = {}
   const facts = createDirectImportFactsCollector()
   let dependentCandidates: readonly ImportedDependentPropertyCandidate[] = []
+  let baseFormSemanticProjection: Readonly<Record<string, unknown>> | undefined
+  let baseFormDependencies: ImportDependencyFacts | undefined
+  let baseFormDeferred: readonly import("@nkdk/runtime/rule-kit").DeferredValuePath[] | undefined
+  let finalRootYaml: Readonly<Record<string, unknown>> | undefined
 
   const imported = measureFacts(params.profiler, () => {
     if (rule.itemType === ClientApplicationFormRules.itemType) {
       const metadata = requireInput(inputs, "metadata")
       const body = inputs.find(({ input }) => input.role === "body")
-      return importClientApplicationFormFromXMLToYAML({
+      const importedForm = importClientApplicationFormFromXMLToYAML({
         context: importContext,
         formName: params.assignment.itemName,
         formXML: body?.parsed["Form"] as ClientApplicationFormXML | undefined,
@@ -105,13 +125,53 @@ export async function prepareImportFacts(params: {
         mode: "facts",
         facts,
       })
+      const baseFormNode = body?.document.roots
+        .find(({ name }) => name === "Form")?.content
+        .find((node): node is import("@nkdk/runtime").XmlElementNode =>
+          node.type === "element" && node.name === "BaseForm")
+      const companion = resolveBaseFormCompanion(params.assignment, params.topology)
+      if (baseFormNode !== undefined && companion !== undefined) {
+        const baseFacts = createDirectImportFactsCollector()
+        const baseIndexesCollector = createLocalIndexesCollector()
+        const baseDeferred = createDeferredValuePathCollector()
+        importClientApplicationFormBodyFromXML({
+          context: withConfigurationIndexCollector(
+            importContext,
+            createConfigurationIndexCollector(),
+            childSegmentUid(params.assignment.logicalAddress, "ОсноваФормы"),
+          ),
+          formName: params.assignment.itemName,
+          formXML: baseFormNode,
+          collector: baseIndexesCollector,
+          deferred: baseDeferred,
+          rule: companion.rule,
+          mode: "facts",
+          facts: baseFacts,
+        })
+        const baseIndexes = baseIndexesCollector.finish()
+        baseFormDeferred = baseDeferred.finish()
+        const basePropertyFacts = baseFacts.finish()
+        const baseProjection = projectAcceptedPropertyFacts(baseIndexes, basePropertyFacts)
+        baseFormSemanticProjection = normalizeBaseFormYaml(baseProjection) as Readonly<Record<string, unknown>>
+        baseFormDependencies = collectImportDependencyFacts({
+          yaml: baseProjection,
+          rule: companion.rule,
+          owner: dependentOwner,
+          candidates: [],
+          propertyFacts: acceptedPropertyFacts(baseIndexes, basePropertyFacts),
+          proofPropertyFacts: basePropertyFacts,
+          reconstructionPropertyFacts: basePropertyFacts,
+          ...(params.execution === undefined ? {} : { execution: params.execution }),
+        })
+      }
+      return importedForm
     }
 
     const localIndexesCollector = createLocalIndexesCollector()
     const dependent = createImportedDependentPropertyCollector()
     const metadata = requireInput(inputs, "metadata")
     const externalPropertyXml = mapExternalPropertyXmlInputs(rule, inputs)
-    importMetadataItemFromXMLToYAML({
+    const yaml = importMetadataItemFromXMLToYAML({
       context: importContext,
       rule,
       name: params.assignment.itemName,
@@ -119,6 +179,7 @@ export async function prepareImportFacts(params: {
         ?? metadata.parsed["MetaDataObject"],
       traversal: {
         mode: "facts",
+        produceResult: true,
         facts,
         yamlPath: [],
         rulePath: [],
@@ -129,6 +190,9 @@ export async function prepareImportFacts(params: {
       propertyXML: externalPropertyXml.compatibilityByPropertyKey,
       propertyXMLNodes: externalPropertyXml.nodesByPropertyKey,
     })
+    if (yaml !== undefined && typeof yaml === "object" && !Array.isArray(yaml)) {
+      finalRootYaml = yaml as Readonly<Record<string, unknown>>
+    }
     dependentCandidates = dependent.finish()
     return {
       yaml: undefined,
@@ -144,7 +208,8 @@ export async function prepareImportFacts(params: {
     rootPropertyValues[fact.yamlPath[0]] = fact.value
   }
   const acceptedFacts = acceptedPropertyFacts(imported.localIndexes, propertyFacts)
-  const semanticProjection = projectPropertyFacts(acceptedFacts)
+  const factProjection = projectPropertyFacts(acceptedFacts)
+  const semanticProjection = finalRootYaml ?? factProjection
   const dependentIndex = extractDependentYamlIndexFacts({
     filePath: params.assignment.targetProjectPath,
     rootYaml: semanticProjection,
@@ -162,13 +227,17 @@ export async function prepareImportFacts(params: {
 
   return {
     dependencies: collectImportDependencyFacts({
-      yaml: semanticProjection,
+      yaml: factProjection,
       rule,
       owner: dependentOwner,
       candidates: dependentCandidates,
       propertyFacts: acceptedFacts,
+      proofPropertyFacts: propertyFacts,
+      reconstructionPropertyFacts: propertyFacts,
+      ...(finalRootYaml === undefined ? {} : { finalRootYaml }),
       ...(params.execution === undefined ? {} : { execution: params.execution }),
     }),
+    ...(baseFormDependencies === undefined ? {} : { baseFormDependencies }),
     assignment: params.assignment,
     targetProjectPath: params.assignment.targetProjectPath,
     rule,
@@ -179,6 +248,9 @@ export async function prepareImportFacts(params: {
     generatedFiles: [...generatedFiles, ...imported.generatedFiles.filter((file) => !generatedFiles.includes(file))],
     reconstructionFacts: { rootPropertyValues },
     semanticProjection,
+    ...(baseFormSemanticProjection === undefined ? {} : { baseFormSemanticProjection }),
+    deferred: imported.deferred,
+    ...(baseFormDeferred === undefined ? {} : { baseFormDeferred }),
     pendingReferences: dependentIndex.pendingReferences,
     pendingChecks: [
       ...dependentIndex.pendingChecks,

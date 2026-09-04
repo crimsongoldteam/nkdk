@@ -18,6 +18,7 @@ import {
 import {
   projectNamedXmlCollection,
   projectXmlAuditOwnRemainder,
+  projectXmlAuditReference,
   projectXmlAuditRemainder,
   projectLocalXmlOrder,
   annotateXmlRawValue,
@@ -36,6 +37,25 @@ const knownBoundary: XmlImportAuditBoundary = {
 }
 
 describe("YAML-проекция XML-аномалий", () => {
+  it("исключает из reference XML незаявленные узлы, оставляя их локальному proof", () => {
+    const root = parseXmlDocumentWithSaxes(
+      '<Root id="1"><Known><Value>x</Value><Implicit>default</Implicit></Known><Future>keep</Future></Root>',
+    ).roots[0]!
+    const known = child(root, "Known")
+    const value = child(known, "Value")
+    const audit = createXmlImportAuditSession([root])
+    audit.claim(root, boundary)
+    audit.claim(root.attributes[0]!, boundary)
+    audit.claim(known, knownBoundary)
+    audit.claim(value, knownBoundary)
+    audit.claim(value.content[0]!, knownBoundary)
+
+    expect(projectXmlAuditReference(root, audit)).toEqual({
+      _id: "1",
+      Known: { Value: "x" },
+    })
+  })
+
   it("не заменяет локальным raw независимую UUID-аннотацию", () => {
     const yaml = { Ссылка: "67a752f4-43ae-4a32-977e-457414278800" }
     const annotations = createXmlAnomalyAnnotations()

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { createXmlAnomalyAnnotations } from "@nkdk/runtime"
 import "../../../tests/metadataExecutionContext"
 import {
   collectClientApplicationFormStructure,
@@ -65,6 +66,16 @@ describe("проекция структуры формы", () => {
         }),
       },
     ]))
+  })
+
+  it("не передаёт принятую invalid-аннотацию пути в межфайловую проверку", () => {
+    const field = { Вид: "ПолеВвода", ПутьКДанным: "Таблица[4].Реквизит" }
+    const form = { Элементы: { Поле: field } }
+    const annotations = createXmlAnomalyAnnotations()
+    annotations.set(field, "ПутьКДанным", { kind: "invalid", occurrence: 1, target: "value" })
+
+    expect(collectClientApplicationFormStructure(form, undefined, annotations))
+      .not.toContainEqual(expect.objectContaining({ componentKind: "dataPath" }))
   })
 
   it("добавляет роль и topology-адрес документа", () => {

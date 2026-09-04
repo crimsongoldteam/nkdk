@@ -36,7 +36,7 @@ describe("buildProjectStateYamlFileUpdate", () => {
     mkdirSync(dirname(filePath), { recursive: true })
     writeFileSync(
       filePath,
-      "Реквизиты:\n  Объект:\n    Тип: Строка\nЭлементы:\n  Поле:\n    Вид: ПолеВвода\n    ПутьКДанным: Объект\n",
+      "Реквизиты:\n  Объект:\n    Тип: Строка\nЭлементы:\n  Поле:\n    Вид: ПолеВвода\n    ПутьКДанным: Объект\n  НеверноеПоле:\n    Вид: ПолеВвода\n    ПутьКДанным: !xml/invalid Таблица[4].Реквизит\n",
     )
     const file = resolveValidationProjectFile(componentDir, filePath)
     if (file === undefined) throw new Error("Не удалось классифицировать форму")

@@ -52,7 +52,7 @@ export function importClientApplicationFormFromXMLToYAML(params: {
     throw new Error(`Не найден Form.xml для управляемой формы ${params.formName}`)
   }
   const localIndexesCollector = createLocalIndexesCollector()
-  const deferred = params.mode === "facts" ? undefined : createDeferredValuePathCollector()
+  const deferred = createDeferredValuePathCollector()
   const augmenterSource = { ...params.metadataXML.Form }
   const context = withResolvedXMLImportObjectVariant(
     params.context,
@@ -109,7 +109,7 @@ export function importClientApplicationFormBodyFromXML(params: {
   dependencies?: PreparedImportDependencies
   context: Parameters<typeof importPropertiesFromXMLToYAML>[0]["context"]
   formName: string
-  formXML: ClientApplicationFormXML
+  formXML: ClientApplicationFormXML | XmlElementNode
   collector: LocalIndexesCollector
   deferred?: DeferredValuePathCollector
   audit?: XmlImportAuditSession

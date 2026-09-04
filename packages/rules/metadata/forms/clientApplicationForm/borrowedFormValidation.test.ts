@@ -4,7 +4,10 @@ import type {
   ProjectStateStructuredDocumentFact,
   ProjectStateStructuredDocumentValidationParams,
 } from "../../projectState/contracts/dependencyValidation"
-import { validateBorrowedClientApplicationForms } from "./borrowedFormValidation"
+import {
+  validateBorrowedClientApplicationForms,
+  validateClientApplicationBaseFormDataPaths,
+} from "./borrowedFormValidation"
 
 const address = "Справочник.Товары.Форма.ФормаЭлемента"
 
@@ -196,6 +199,16 @@ describe("проверка заимствованной формы", () => {
         message: expect.stringContaining("РеквизитРабочейФормы"),
       }),
     ])
+  })
+
+  it("сопоставляет номерной вариант корня ПутьКДанным с реквизитом основы", () => {
+    expect(validateClientApplicationBaseFormDataPaths({
+      entries: [
+        { componentKind: "attribute", name: "Таблица", yamlPath: ["Реквизиты", "Таблица"] },
+        { componentKind: "dataPath", name: "Таблица[4].Реквизит", yamlPath: ["Элементы", "Поле", "ПутьКДанным"] },
+      ],
+      filePath: "cfe/X/БазоваяФорма.yaml",
+    })).toEqual([])
   })
 
   it("запрещает полностью восстановимую сохранённую основу", () => {

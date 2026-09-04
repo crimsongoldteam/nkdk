@@ -1,5 +1,6 @@
 import {
   compileValidationSchema,
+  isPropertyStateYAMLTag,
   typeboxErrorsToValidationIssues,
   yamlScalarTagAt,
   type ConfigurationContext,
@@ -15,6 +16,9 @@ import {
   type RuleRegistrySet,
 } from "@nkdk/runtime/rule-kit"
 import { traverseMetadataRuleYaml } from "./metadataRuleYamlTraversal"
+import { currentOperationRegistrySet } from "../operations/operationExecutionContext"
+import type { PropertyStateCapabilityRegistry } from "../ruleRuntime/definition"
+import { exportBorrowedPropertyStateSchema } from "../ruleRuntime/property/propertyStateSchema"
 
 export interface MetadataRuleValidator {
   validate(params: {
@@ -31,23 +35,25 @@ export interface MetadataRuleValidator {
 }
 
 export function createMetadataRuleValidator(params: {
-  readonly propertyValidator: (rule: PropertyRule) => ValidationSchemaValidator | undefined
+  readonly propertyValidator: (
+    rule: PropertyRule,
+    ownerRule: MetadataItemRule,
+  ) => ValidationSchemaValidator | undefined
   readonly isKnownProperty?: (rule: MetadataItemRule, key: string) => boolean
   readonly objectValidator?: (rule: MetadataItemRule) => ValidationSchemaValidator | undefined
   readonly validateRequired?: boolean
   readonly validateUnknownProperties?: boolean
 }): MetadataRuleValidator {
-  const validators = new WeakMap<PropertyRule, ValidationSchemaValidator>()
-  const withoutValidator = new WeakSet<PropertyRule>()
+  const validators = new WeakMap<MetadataItemRule, WeakMap<PropertyRule, ValidationSchemaValidator | null>>()
   const objectValidators = new WeakMap<MetadataItemRule, ValidationSchemaValidator>()
 
-  const validatorFor = (rule: PropertyRule): ValidationSchemaValidator | undefined => {
-    const cached = validators.get(rule)
-    if (cached !== undefined) return cached
-    if (withoutValidator.has(rule)) return undefined
-    const compiled = params.propertyValidator(rule)
-    if (compiled === undefined) withoutValidator.add(rule)
-    else validators.set(rule, compiled)
+  const validatorFor = (rule: PropertyRule, ownerRule: MetadataItemRule): ValidationSchemaValidator | undefined => {
+    let byProperty = validators.get(ownerRule)
+    if (byProperty === undefined) validators.set(ownerRule, byProperty = new WeakMap())
+    const cached = byProperty.get(rule)
+    if (cached !== undefined) return cached ?? undefined
+    const compiled = params.propertyValidator(rule, ownerRule)
+    byProperty.set(rule, compiled ?? null)
     return compiled
   }
   const objectValidatorFor = (rule: MetadataItemRule): ValidationSchemaValidator | undefined => {
@@ -107,11 +113,66 @@ export function createRegisteredMetadataRuleValidator(params: {
     params.rules,
     (name, available) => new Error(`Неизвестная JSON Schema "${name}". Доступные имена: ${available.join(", ")}`),
   )
+  const propertyStates = currentOperationRegistrySet<{
+    readonly propertyStates: PropertyStateCapabilityRegistry
+  }>()?.propertyStates
+  const borrowedSchemas = new WeakMap<MetadataItemRule, ValidationSchemaValidator>()
+  const extensionComponent = "fromXML" in params.context
+    && (params.context.fromXML as { readonly componentKind?: string }).componentKind === "configurationExtension"
   return createMetadataRuleValidator({
     validateRequired: false,
     validateUnknownProperties: false,
-    propertyValidator(rule) {
+    propertyValidator(rule, ownerRule) {
       if (params.rules.execution.getTypeRule(rule.type, "nestedItemRule") !== undefined) return undefined
+      const propertyKey = Object.entries(ownerRule.properties)
+        .find(([, candidate]) => candidate === rule)?.[0]
+      if (
+        propertyKey !== undefined &&
+        params.rules.execution.isDependentImportProperty(ownerRule.itemType, propertyKey)
+      ) return undefined
+      const capability = extensionComponent
+        ? propertyStates?.item(
+            ownerRule.itemType,
+            "fromXML" in params.context
+              ? (params.context.fromXML as { readonly propertyStateCompatibilityMode?: string }).propertyStateCompatibilityMode
+              : undefined,
+          )
+        : undefined
+      if (capability !== undefined && typeof rule.yaml === "string") {
+        let compiled = borrowedSchemas.get(ownerRule)
+        if (compiled === undefined) {
+          const graph = runtime.exportGraph({
+            context: params.context,
+            roots: [{ key: "item", rule: ownerRule, includeNestedChildItems: true }],
+            explicitXMLValues: true,
+            validationPropertyRefs: true,
+            excludeImplicitValueYAML: true,
+          })
+          compiled = compileValidationSchema(graph.schemas, exportBorrowedPropertyStateSchema({
+            rule: ownerRule,
+            capability,
+            source: graph.roots.item!,
+            closed: false,
+          }))
+          borrowedSchemas.set(ownerRule, compiled)
+        }
+        const yamlKey = rule.yaml
+        const prefix = `/${escapeJsonPointerSegment(yamlKey)}`
+        return {
+          Check(value) {
+            return compiled.Check({ [yamlKey]: value })
+          },
+          Errors(value) {
+            const [, errors] = compiled.Errors({ [yamlKey]: value })
+            const local = errors.flatMap((error) => {
+              if (error.instancePath === prefix) return [{ ...error, instancePath: "" }]
+              if (!error.instancePath.startsWith(`${prefix}/`)) return []
+              return [{ ...error, instancePath: error.instancePath.slice(prefix.length) }]
+            })
+            return [local.length === 0, local]
+          },
+        }
+      }
       const localRule: MetadataItemRule = {
         itemType: `LocalValidation:${rule.type}`,
         properties: {
@@ -149,7 +210,10 @@ function validateObject(params: {
   readonly rule: MetadataItemRule
   readonly yamlPath: readonly (string | number)[]
   readonly annotations: XmlAnomalyAnnotations
-  readonly validatorFor: (rule: PropertyRule) => ValidationSchemaValidator | undefined
+  readonly validatorFor: (
+    rule: PropertyRule,
+    ownerRule: MetadataItemRule,
+  ) => ValidationSchemaValidator | undefined
   readonly isKnownProperty?: (rule: MetadataItemRule, key: string) => boolean
   readonly objectValidatorFor: (rule: MetadataItemRule) => ValidationSchemaValidator | undefined
   readonly validateRequired?: boolean
@@ -216,8 +280,9 @@ function validateObject(params: {
       }
       if (valueAnnotation.hasSemanticValue !== true) continue
     }
-    if (yamlScalarTagAt(params.yaml, runtimeKey) === "xml/standard-attributes") continue
-    const validator = params.validatorFor(propertyRule)
+    const scalarTag = yamlScalarTagAt(params.yaml, runtimeKey)
+    if (scalarTag === "xml/standard-attributes" || isPropertyStateYAMLTag(scalarTag)) continue
+    const validator = params.validatorFor(propertyRule, params.rule)
     if (validator === undefined) continue
     const [, errors] = validator.Errors(value)
     const localErrors = errors.filter((error) =>
@@ -242,6 +307,10 @@ function validateObject(params: {
       })
     }
   }
+}
+
+function escapeJsonPointerSegment(value: string): string {
+  return value.replaceAll("~", "~0").replaceAll("/", "~1")
 }
 
 function filterKnownAdditionalProperties(

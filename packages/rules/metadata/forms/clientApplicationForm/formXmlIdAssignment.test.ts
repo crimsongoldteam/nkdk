@@ -106,16 +106,42 @@ describe("assignFormXmlIds", () => {
     expect(restored.map(node => node._id)).toEqual([...added.map(node => node._id), id, id])
   })
 
-  it("согласует ID одного адреса из разных снимков в общей сессии", () => {
-    const address = "Форма.Элемент.Поле"
+  it("согласует ID реквизита одного адреса из разных снимков в общей сессии", () => {
+    const address = "Форма.Атрибут.Поле"
     const session = createFormXmlIdAssignmentSession()
     for (const id of ["1", "2"]) {
       const setup = runtimeSetup([entity(address, id)])
       const node = { _name: "Поле", _id: "" }
-      register(setup.runtime.withLogicalAddress(address), node, "elements")
+      register(setup.runtime.withLogicalAddress(address), node, "attributes")
       assignFormXmlIds({ Items: [node] }, undefined, session)
       expect(node._id).toBe("1")
     }
+  })
+
+  it("сохраняет разные исходные ID элемента во внешней форме и BaseForm", () => {
+    const address = "Форма.Элемент.Группа"
+    const session = createFormXmlIdAssignmentSession()
+    for (const id of ["29", "32"]) {
+      const setup = runtimeSetup([entity(address, id)])
+      const node = { _name: "Группа", _id: "" }
+      register(setup.runtime.withLogicalAddress(address), node, "elements")
+      assignFormXmlIds({ Items: [node] }, undefined, session)
+      expect(node._id).toBe(id)
+    }
+  })
+
+  it("не переназначает ID уже построенного BaseForm при включении во внешнюю форму", () => {
+    const address = "Форма.ОсноваФормы.Элемент.ИсторическоеПоле"
+    const setup = runtimeSetup([])
+    const session = createFormXmlIdAssignmentSession()
+    const node = { _name: "ИсторическоеПоле", _id: "" }
+    register(setup.runtime.withLogicalAddress(address), node, "elements")
+
+    assignFormXmlIds({ Items: [node] }, undefined, session)
+    const assigned = node._id
+    assignFormXmlIds({ BaseForm: { Items: [node] } }, undefined, session)
+
+    expect(node._id).toBe(assigned)
   })
 
   it("не разрешает записать разные ID одного адреса в один снимок", () => {

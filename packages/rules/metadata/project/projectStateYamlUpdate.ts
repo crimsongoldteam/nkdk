@@ -41,7 +41,11 @@ export function buildProjectStateYamlFileUpdate(
         ...firstPass.structuredComponents,
         ...(descriptor.indexContribution === "isolated" && firstPass.state.kind === "form"
           ? firstPass.state.pendingChecks.flatMap((check) => {
-              if (check.kind !== "dataPath" || projectedDataPathKeys.has(JSON.stringify(check.yamlPath))) return []
+              if (
+                check.kind !== "dataPath"
+                || check.xmlAnomaly !== undefined
+                || projectedDataPathKeys.has(JSON.stringify(check.yamlPath))
+              ) return []
               return [{
                 componentKind: "dataPath" as const,
                 name: check.value,

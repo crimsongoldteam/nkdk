@@ -128,6 +128,13 @@ export class XmlAnomalyAnnotationTable implements XmlAnomalyAnnotations {
     this.#rebuildIndexes()
   }
 
+  retainSubtree(root: unknown): void {
+    const paths = new Map<object, readonly (string | number)[]>()
+    collectObjectPaths(root, [], paths)
+    this.#entries = this.#entries.filter(({ parent }) => parent === undefined || paths.has(parent))
+    this.#rebuildIndexes()
+  }
+
   #rebuildIndexes(): void {
     this.#root = undefined
     this.#rootEntryIndex = undefined

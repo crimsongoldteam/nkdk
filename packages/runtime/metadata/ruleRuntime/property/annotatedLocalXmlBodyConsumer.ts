@@ -68,9 +68,13 @@ export function createAnnotatedLocalXmlBodyConsumer(params: Omit<
         path: property.xmlPath.slice(0, -1),
       })
     },
-    annotateAbsent({ property }) {
+    annotateAbsent({ property, semanticOmitted }) {
       const key = property.yamlKey
-      if (key === undefined || property.propertyRule.toYAML === false) {
+      if (
+        key === undefined
+        || property.propertyRule.toYAML === false
+        || semanticOmitted
+      ) {
         const label = property.propertyRule.yaml ?? property.xmlPath.at(-1)
         if (label !== undefined) appendRaw(`@Form\\${label}`, null)
         return
@@ -242,7 +246,18 @@ export function createAnnotatedLocalXmlBodyConsumers(params: {
   })] as const))
   return {
     bind(binding) {
-      for (const consumer of consumers.values()) consumer.bind?.(binding)
+      const matching = binding.node === undefined
+        ? []
+        : params.sources.filter(({ source }) =>
+            binding.node === source || binding.node!.path.startsWith(`${source.path}/`))
+      const deepest = matching.reduce(
+        (length, { source }) => Math.max(length, source.path.length),
+        -1,
+      )
+      const targets = matching.length === 0
+        ? params.sources
+        : matching.filter(({ source }) => source.path.length === deepest)
+      for (const { key } of targets) consumers.get(key)?.bind?.(binding)
     },
     write(event) {
       const consumer = consumers.get(event.outputKey)

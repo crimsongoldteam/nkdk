@@ -93,6 +93,13 @@ export function createCompiledRuleExecution(params: {
       const parent = active.at(-1)
       const ownerProperty = propertyKey === undefined ? undefined : parent?.plan.propertiesByKey.get(propertyKey)
       const supplied = params.prepare(source)
+      const propertyValues = new Map(supplied.propertyValues)
+      for (const [key, propertyRule] of Object.entries(source.rule.properties)) {
+        const prepared = propertyRule.forReferenceOnly === true
+          ? source.dependencies?.reconstructionValue?.(source.yamlPath, key)
+          : source.dependencies?.propertyValue?.(source.yamlPath, key)
+        if (prepared?.value !== undefined) propertyValues.set(key, prepared.value)
+      }
       let context = supplied.context
       let name = supplied.name
       let sourceItemName = supplied.sourceItemName ?? source.itemName
@@ -129,7 +136,7 @@ export function createCompiledRuleExecution(params: {
         }
       }
       const itemPreparation = prepareMetadataItemXMLExecution({
-        ...supplied, context, name, sourceItemName,
+        ...supplied, context, name, sourceItemName, propertyValues,
         rule: source.rule, yaml: source.yaml,
         prepareOutput: ownerProperty?.operations.prepareXMLItemOutput,
         propertyRule: ownerProperty?.propertyRule,
@@ -238,7 +245,13 @@ export function createCompiledRuleExecution(params: {
             params.beforeFinish?.({ ...source, root: active.length === 1 })
             for (const property of plan.properties) {
               if (!boundProperties.has(property.propertyKey)) {
-                bind({ propertyKey: property.propertyKey, presentInXML: false })
+                const semanticOmitted = source.dependencies
+                  ?.propertyValue?.(source.yamlPath, property.propertyKey).present === false
+                bind({
+                  propertyKey: property.propertyKey,
+                  presentInXML: false,
+                  ...(semanticOmitted ? { semanticOmitted: true } : {}),
+                })
               }
             }
             withPreparedXMLDependencyFacts(source.yaml, dependencyFacts, () => item.finish())

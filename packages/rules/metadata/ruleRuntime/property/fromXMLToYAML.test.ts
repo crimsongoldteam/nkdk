@@ -37,10 +37,13 @@ import { MetadataCommonAttributeRules } from "../../appliedObjects/metadataCommo
 import { MetadataDocumentRules } from "../../appliedObjects/metadataDocument/rules"
 import { MetadataDocumentNumeratorRules } from "../../appliedObjects/metadataDocumentNumerator/rules"
 import { MetadataTaskRules } from "../../appliedObjects/metadataTask/rules"
+import { MetadataSubsystemRules } from "../../appliedObjects/metadataSubsystem/rules"
+import { MetadataWebServiceRules } from "../../appliedObjects/metadataWebService/rules"
+import { InputFieldRules } from "../../forms/elements/inputField/rules"
 import { MetadataExternalDataSourceTableRules } from "../../commonObjects/metadataExternalDataSourceTable/rules"
 import { metadataRules } from "../../composition/metadataRules"
 import type { ExportToXMLFunctionNew } from "./fn"
-import type { DirectImportFactsSink } from "./importYamlTypes"
+import type { DirectImportFactsSink, PreparedImportDependencies } from "./importYamlTypes"
 import { collectImportDependencyFacts, prepareImportDependencies } from "../../importFromXml/preparedDependencies"
 import type { ConfigurationContextFromXML, LocalXmlProof, XmlAnomalyAnnotationTable, XmlElementNode } from "@nkdk/runtime"
 
@@ -60,6 +63,7 @@ function importWithLocalXMLBody(params: {
   readonly root: XmlElementNode
   readonly annotations: XmlAnomalyAnnotationTable
   readonly proof: LocalXmlProof
+  readonly dependencies?: PreparedImportDependencies
   readonly annotate?: (params: { yaml: Record<string, unknown> } & Parameters<NonNullable<Parameters<typeof createLocalXmlBodyConsumer>[0]["annotate"]>>[0]) => void
   readonly annotateScalar?: Parameters<typeof createLocalXmlBodyConsumer>[0]["annotateScalar"]
 }) {
@@ -67,6 +71,7 @@ function importWithLocalXMLBody(params: {
     execution: params.execution, context: params.context, rule: params.rule,
     sources: [{ context: params.context, xml: params.root }], yamlPath: [], rulePath: [],
     collector: createLocalIndexesCollector(), annotations: params.annotations,
+    ...(params.dependencies === undefined ? {} : { dependencies: params.dependencies }),
     roundTrip: createCompiledRuleExecution({
       execution: params.execution,
       prepare: () => ({ context: mockContextToXML(), outputs: [{ key: "owner" }] }),
@@ -85,6 +90,7 @@ function importWithAnnotatedLocalXMLBody(params: {
   readonly rule: MetadataItemRule
   readonly root: XmlElementNode
   readonly annotations: XmlAnomalyAnnotationTable
+  readonly dependencies?: PreparedImportDependencies
 }) {
   const roundTrip = createCompiledRuleExecution({
     execution: params.execution,
@@ -98,6 +104,7 @@ function importWithAnnotatedLocalXMLBody(params: {
     execution: params.execution, context: params.context, rule: params.rule,
     sources: [{ context: params.context, xml: params.root }], yamlPath: [], rulePath: [],
     collector: createLocalIndexesCollector(), annotations: params.annotations, roundTrip,
+    ...(params.dependencies === undefined ? {} : { dependencies: params.dependencies }),
   })!
 }
 
@@ -114,6 +121,114 @@ function importUnknownLocalBody(xml: string) {
 }
 
 describe("importPropertiesFromXMLToYAML", () => {
+
+  it("проверяет подготовленное окончательное значение свойства", () => {
+    const rules = createRuleRegistrySet(metadataRules)
+    const context = mockContextFromXML()
+    const root = parseXmlDocumentWithSaxes("<Root><Value>xml-default</Value></Root>").roots[0]!
+    const exported: unknown[] = []
+    const roundTrip = createCompiledRuleExecution({
+      execution: rules.execution,
+      prepare: () => ({ context: mockContextToXML(), outputs: [{ key: "owner" }] }),
+      consumer: ({ sources }) => ({
+        write({ value }) {
+          exported.push(value)
+        },
+        finish: () => new Map([["owner", {
+          type: "element" as const,
+          name: (sources[0]!.xml as XmlElementNode).name,
+          occurrence: 1,
+          sourceId: (sources[0]!.xml as XmlElementNode).id,
+        }]]),
+      }),
+    })
+
+    const yaml = importPropertiesWithSources({
+      execution: rules.execution,
+      context,
+      rule: { itemType: "Catalog", properties: {
+        value: {
+          type: "string", xml: "Value", yaml: "Значение",
+          defaultValueXML: "xml-default", implicitValueYAML: "смысловой-default",
+        },
+      } },
+      sources: [{ context, xml: root }],
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+      dependencies: {
+        propertyValue: (_path, key) => key === "value"
+          ? { present: true, value: {}, scalarTag: "изменять" }
+          : { value: undefined },
+        shouldOmit: () => false,
+      },
+      roundTrip,
+    })
+
+    expect(yaml).toEqual({ Значение: {} })
+    expect(exported).toEqual(["xml-default"])
+  })
+
+  it("проверяет обратное преобразование опущенного зависимого свойства", () => {
+    const execution = createRuleRegistrySet(metadataRules).execution
+    const context = mockContextFromXML()
+    const root = parseXmlDocumentWithSaxes("<Root><Value>исходное</Value></Root>").roots[0]!
+    const ready = vi.fn()
+
+    const yaml = importPropertiesWithSources({
+      execution,
+      context,
+      rule: { itemType: "StandardAttributeDescription", properties: {
+        fillValue: { type: "string", xml: "Value", yaml: "Значение" },
+      } },
+      sources: [{ context, xml: root }],
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+      dependencies: { propertyValue: () => ({ value: undefined }), shouldOmit: () => true },
+      roundTrip: {
+        open: () => ({ ready, finish() {} }),
+      },
+    })
+
+    expect(yaml).toEqual({})
+    expect(ready).toHaveBeenCalledOnce()
+  })
+
+  it("проверяет forReferenceOnly-свойство по компактному факту первого прохода", () => {
+    const rules = createRuleRegistrySet(metadataRules)
+    const rule: MetadataItemRule = { itemType: "Catalog", properties: {
+      hidden: { type: "string", xml: "Hidden", yaml: "Скрытое", forReferenceOnly: true },
+    } }
+    const context = mockContextFromXML()
+    const source = parseXmlDocumentWithSaxes("<Root><Hidden>значение</Hidden></Root>").roots[0]!
+    const factSink = createDirectImportFactsCollector()
+    importPropertiesWithSources({
+      execution: rules.execution, context, rule, sources: [{ context, xml: source }],
+      yamlPath: [], rulePath: [], collector: createLocalIndexesCollector(), mode: "facts", facts: factSink,
+    })
+    const dependencies = prepareImportDependencies(collectImportDependencyFacts({
+      rule, owner: { dir: "Справочник", name: "Товары" }, yaml: {}, candidates: [],
+      propertyFacts: factSink.finish(), execution: rules.execution,
+    }), {}, rules.execution)
+    const annotations = createXmlAnomalyAnnotations()
+    const roundTrip = createCompiledRuleExecution({
+      execution: rules.execution,
+      prepare: () => ({ context: mockContextToXML(), outputs: [{ key: "owner" }] }),
+      consumer: ({ yaml }, receipts) => createAnnotatedLocalXmlBodyConsumer({
+        key: "owner", source, proof: createLocalXmlProof(), yaml, annotations, ...receipts,
+      }),
+    })
+
+    const yaml = importPropertiesWithSources({
+      execution: rules.execution, context, rule, sources: [{ context, xml: source }],
+      yamlPath: [], rulePath: [], collector: createLocalIndexesCollector(), dependencies, annotations, roundTrip,
+    })!
+
+    expect(yaml).toEqual({})
+    expect(roundTrip.takeResult(yaml).roots.get("owner")).toMatchObject({ sourceId: source.id })
+    expect(annotations.entries()).toEqual([])
+  })
 
   it("сохраняет адрес обхода факта после именования элемента коллекции", () => {
     const rules = createRuleRegistrySet(metadataRules)
@@ -585,7 +700,13 @@ describe("importPropertiesFromXMLToYAML", () => {
     })
   })
 
-  it("подавляет созданный экспортным default узел прямо в границе свойства", () => {
+  it.each([
+    ["обычного отсутствующего значения", undefined, "Значение"],
+    ["намеренно исключённого значения", {
+      shouldOmit: () => false,
+      propertyValue: () => ({ value: undefined, present: false as const }),
+    }, "@Form\\Значение"],
+  ] as const)("подавляет созданный экспортным default узел %s", (_case, dependencies, annotationKey) => {
     const rules = createRuleRegistrySet(metadataRules)
     const rule: MetadataItemRule = { itemType: "Catalog", properties: {
       value: {
@@ -596,9 +717,12 @@ describe("importPropertiesFromXMLToYAML", () => {
     const context = mockContextFromXML()
     const root = parseXmlDocumentWithSaxes("<Root/>").roots[0]!
     const annotations = createXmlAnomalyAnnotations()
-    const yaml = importWithAnnotatedLocalXMLBody({ execution: rules.execution, context, rule, root, annotations })
-    expect(yaml).toEqual({ Значение: undefined })
-    expect(annotations.at(yaml, "Значение")).toMatchObject({
+    const yaml = importWithAnnotatedLocalXMLBody({
+      execution: rules.execution, context, rule, root, annotations,
+      ...(dependencies === undefined ? {} : { dependencies }),
+    })
+    expect(yaml).toEqual({ [annotationKey]: undefined })
+    expect(annotations.at(yaml, annotationKey)).toMatchObject({
       kind: "raw", xml: null, hasSemanticValue: false,
     })
   })
@@ -1833,6 +1957,95 @@ describe("importPropertiesFromXMLToYAML", () => {
       ["/Root[1]/Value[1]", "claimed"],
       ["/Root[1]/Value[1]/@xsi:nil[1]", "claimed"],
     ])
+  })
+
+  it("передаёт канонический raw-дефолт локальной проверке как готовую структуру", () => {
+    const rules = createRuleRegistrySet(metadataRules)
+    const context = mockContextFromXML()
+    const root = parseXmlDocumentWithSaxes("<Root><Properties><Content/></Properties></Root>").roots[0]!
+    const bindings: Array<{ readonly structurallyClaimed?: true }> = []
+    let ready = 0
+
+    const yaml = importPropertiesWithSources({
+      execution: rules.execution,
+      context,
+      rule: {
+        itemType: "TestCanonicalRawDefaultOwner",
+        properties: { content: MetadataSubsystemRules.properties.content },
+      },
+      sources: [{ context, xml: root }],
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+      dependencies: {
+        shouldOmit: () => false,
+        propertyValue: () => ({ present: false, value: undefined }),
+      },
+      roundTrip: {
+        open: () => ({
+          bind: (binding) => bindings.push(binding),
+          ready: () => { ready++ },
+          finish() {},
+        }),
+      },
+    })
+
+    expect(yaml).toEqual({})
+    expect(bindings).toEqual([expect.objectContaining({ structurallyClaimed: true })])
+    expect(ready).toBe(0)
+  })
+
+  it("структурно подтверждает пустого XML-родителя отсутствующей коллекции", () => {
+    const rules = createRuleRegistrySet(metadataRules)
+    const context = mockContextFromXML()
+    const root = parseXmlDocumentWithSaxes("<Root><ChildObjects/></Root>").roots[0]!
+    const annotations = createXmlAnomalyAnnotations()
+
+    const yaml = importWithAnnotatedLocalXMLBody({
+      execution: rules.execution,
+      context,
+      rule: {
+        itemType: "TestCanonicalRawDefaultParentOwner",
+        properties: {
+          operations: MetadataWebServiceRules.properties.operations,
+        },
+      },
+      root,
+      annotations,
+      dependencies: {
+        shouldOmit: () => false,
+        propertyValue: () => ({ present: false, value: undefined }),
+      },
+    })
+
+    expect(yaml).toEqual({})
+    expect(annotations.entries()).toEqual([])
+  })
+
+  it("локально восстанавливает служебные поля элемента списка выбора", () => {
+    const rules = createRuleRegistrySet(metadataRules)
+    const context = mockContextFromXML()
+    const root = parseXmlDocumentWithSaxes([
+      "<Root><ChoiceList><xr:Item>",
+      "<xr:Presentation/><xr:CheckState>0</xr:CheckState>",
+      '<xr:Value xsi:type="FormChoiceListDesTimeValue"><Presentation/><Value xsi:type="xs:string">Значение1</Value></xr:Value>',
+      "</xr:Item></ChoiceList></Root>",
+    ].join("" )).roots[0]!
+    const annotations = createXmlAnomalyAnnotations()
+
+    const yaml = importWithAnnotatedLocalXMLBody({
+      execution: rules.execution,
+      context,
+      rule: {
+        itemType: "TestChoiceListOwner",
+        properties: { choiceList: InputFieldRules.properties.choiceList },
+      },
+      root,
+      annotations,
+    })
+
+    expect(yaml).toHaveProperty("СписокВыбора")
+    expect(annotations.entries()).toEqual([])
   })
 
   it("не считает частично прочитанное пустое значение осмысленно исключённым", () => {

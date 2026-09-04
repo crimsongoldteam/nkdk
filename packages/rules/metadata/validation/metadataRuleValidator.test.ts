@@ -79,6 +79,17 @@ describe("общий валидатор YAML по rules.ts", () => {
     })).toEqual([])
   })
 
+  it("не проверяет компактное значение PropertyState как обычное значение свойства", () => {
+    const yaml = { Использовать: {} }
+    markYAMLScalarTag(yaml, "Использовать", "изменять")
+
+    expect(validator().validate({
+      yaml,
+      annotations: parseMetadataYaml("").annotations,
+      rule: rootRule,
+    })).toEqual([])
+  })
+
   it("проверяет соседнее свойство и отклоняет обычный неизвестный ключ", () => {
     const parsed = parseMetadataYaml(`
 Использовать: true

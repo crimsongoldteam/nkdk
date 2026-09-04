@@ -19,6 +19,7 @@ createXmlImportWorkerTestPool,
 } from "../../tests/xmlImportWorkerTestPool"
 import { createPreparedYamlProjectWorkerPool } from "../project/preparedYamlProjectWorkerPool"
 import { importConfigurationFromXml } from "./importConfiguration"
+import { withoutUnsupportedConfigurationExtensionPropertyStates } from "./configurationExtensionFixtureSupport"
 
 const fixtureDir = join(dirname(fileURLToPath(import.meta.url)), "__fixtures__", "configurationExtension")
 const ownExchangePlanFixtureDir = join(
@@ -823,14 +824,7 @@ function replaceAllInFile(path: string, source: string, replacement: string): vo
 
 function removeUnknownPropertyStates(path: string): void {
   const content = fs.readFileSync(path, "utf8")
-  const withoutFutureState = content.replace(
-    /\s*<xr:PropertyState>\s*<xr:Property>[^<]+<\/xr:Property>\s*<xr:State>FutureState<\/xr:State>\s*<\/xr:PropertyState>/gu,
-    "",
-  )
-  fs.writeFileSync(path, withoutFutureState.replace(
-    /\s*<xr:PropertyState>\s*<xr:Property>UnknownProperty<\/xr:Property>\s*<xr:State>[^<]+<\/xr:State>\s*<\/xr:PropertyState>/gu,
-    "",
-  ))
+  fs.writeFileSync(path, withoutUnsupportedConfigurationExtensionPropertyStates(content))
 }
 
 function temporaryDirectory(): string {

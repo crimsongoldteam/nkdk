@@ -13,6 +13,7 @@ import type { DeferredValuePath } from "./deferredObjectValues"
 import type { XmlElementNode } from "../../../xml/import/document"
 import type { XmlImportAuditSession, XmlImportAuditedNode } from "../xmlAnomaly/importAudit"
 import type { XmlAnomalyAnnotationTable } from "../../../yaml/xmlAnomalyAnnotations"
+import type { YAMLScalarTag } from "../../../yaml/scalarTags"
 import {
   arrayLengthXmlImportAttemptAdapter,
   attachXmlImportAttemptAdapter,
@@ -31,6 +32,8 @@ export interface DirectImportFactsSink {
     /** Адрес во время XML-обхода, до именования элементов коллекций. */
     readonly sourceYamlPath?: YamlPath
     readonly value: unknown
+    /** Исходное смысловое XML-значение для локальной проверки опущенного default. */
+    readonly reconstructionValue?: unknown
   }): void
 }
 
@@ -69,9 +72,12 @@ export interface DirectImportTraversal<Execution = unknown> {
 export interface DirectImportXMLPropertyBinding {
   readonly propertyKey: string
   readonly node?: XmlImportAuditedNode
+  readonly nodes?: readonly XmlElementNode[]
   readonly owner?: XmlElementNode
   readonly presentInXML: boolean
   readonly xmlPath?: readonly string[]
+  /** Смысловое значение намеренно исключено решением зависимостей первого прохода. */
+  readonly semanticOmitted?: true
   /** XML поддерево уже полностью перенесено в предметный индекс и не имеет YAML-значения. */
   readonly structurallyClaimed?: true
 }
@@ -101,7 +107,14 @@ export interface PreparedImportDependencies {
   itemFacts?(itemYamlPath: YamlPath, itemType: string): import("./dependentItemRegistry").DependentImportFacts | undefined
   shouldOmit(candidate: ImportedDependentPropertyCandidate, values: Record<string, unknown>): boolean
   /** Полное решение первого прохода; отсутствующее свойство возвращает value: undefined. */
-  propertyValue?(itemYamlPath: YamlPath, propertyKey: string): { readonly value: unknown }
+  propertyValue?(itemYamlPath: YamlPath, propertyKey: string): {
+    readonly value: unknown
+    /** Окончательное решение первого прохода для самого свойства. */
+    readonly present?: boolean
+    readonly scalarTag?: YAMLScalarTag
+  }
+  /** Компактное значение служебного свойства, отсутствующего в итоговом YAML. */
+  reconstructionValue?(itemYamlPath: YamlPath, propertyKey: string): { readonly value: unknown } | undefined
 }
 
 export interface ImportedDependentPropertyCandidate {

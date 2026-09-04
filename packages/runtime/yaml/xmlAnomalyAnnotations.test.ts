@@ -292,6 +292,23 @@ describe("XML-аннотации YAML", () => {
     expect(snapshotXmlAnomalyAnnotations(data, parsed.annotations).entries).toHaveLength(1)
   })
 
+  it("удаляет аннотации временных копий вне итогового YAML", () => {
+    const kept = { Значение: "ok" }
+    const detached = { Значение: "temporary" }
+    const data = { Вложенное: kept }
+    const annotations = createXmlAnomalyAnnotations()
+    annotations.set(kept, "Значение", { kind: "important", occurrence: 1, target: "value" })
+    annotations.set(detached, "Значение", { kind: "raw", occurrence: 1, target: "value", xml: null })
+
+    annotations.retainSubtree(data)
+
+    expect(snapshotXmlAnomalyAnnotations(data, annotations).entries).toEqual([{
+      parentPath: ["Вложенное"],
+      key: "Значение",
+      annotation: { kind: "important", occurrence: 1, target: "value" },
+    }])
+  })
+
   it.each([
     ["номер /1", "!xml/invalid/1 Код: { Тип: Строка }"],
     ["первый номер /2", "!xml/invalid/2 Код: { Тип: Строка }"],

@@ -353,7 +353,7 @@ function collectConfigurationExtensionDocuments(params: {
         || propertyRule.type !== formAdapter.formRule.itemType
       ) return
       documents.push(...formStructureProjection({
-        components: formAdapter.collectStructuredComponents(yaml, params.owner),
+        components: formAdapter.collectStructuredComponents(yaml, params.owner, params.parsed.annotations),
         representation: "working",
         logicalAddress: state.logicalAddress,
         workingProjectPath: params.workingProjectPath,
@@ -1233,7 +1233,7 @@ function extractFormYamlFacts(
     structuredComponents: adapter.collectStructuredComponents(parsed.data, {
       kind: file.owner.dir,
       name: file.owner.name,
-    }),
+    }, parsed.annotations),
     pendingReferences,
     pendingChecks: collected.pendingChecks,
     localizedTextProperties,

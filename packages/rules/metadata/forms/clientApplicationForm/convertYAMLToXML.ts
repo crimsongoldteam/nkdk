@@ -23,6 +23,7 @@ import {
 } from "./formDataPathContext"
 import { assignFormXmlIds, type FormXmlIdAssignmentSession } from "./formXmlIdAssignment"
 import { resolveDataPathCore } from "../../validation/dataPath/coreResolver"
+import { formatDataPathStandardMembersWithIndex } from "../../commonObjects/metadataPath/dataPathStandardMembers"
 import { clientApplicationFormNamespaces } from "./namespaces"
 
 const emptyOwnerMetadataCache = {
@@ -160,22 +161,47 @@ function createFormBodyContext(context: ConfigurationContextWithExportToXML): Co
 /** Готовый индекс первого прохода позволяет вычислять контекст формы до построения YAML. */
 export function prepareClientApplicationFormProofContexts(
   context: ConfigurationContextWithExportToXML,
+  params?: {
+    readonly yaml: ClientApplicationFormYAML
+    readonly currentConfigurationFormYaml?: ClientApplicationFormYAML
+    readonly savedBaseFormYaml?: ClientApplicationFormYAML
+    readonly rule?: MetadataItemRule
+  },
 ): { readonly metadata: ConfigurationContextWithExportToXML; readonly form: ConfigurationContextWithExportToXML } {
-  const formDataPathIndex = context.importFromYAML?.formDataPathIndex
+  const prepared = params === undefined ? undefined : prepareFormDataPathContextFromYAML({
+    yaml: params.yaml,
+    ...(params.currentConfigurationFormYaml === undefined
+      ? {}
+      : { currentConfigurationFormYaml: params.currentConfigurationFormYaml }),
+    ...(params.savedBaseFormYaml === undefined ? {} : { savedBaseFormYaml: params.savedBaseFormYaml }),
+    ownerCache: context.importFromYAML?.ownerMetadataCache ?? context.exportToYAML?.ownerMetadataCache ?? emptyOwnerMetadataCache,
+    rule: params.rule ?? ClientApplicationFormRules,
+  })
+  const formDataPathIndex = prepared?.index ?? context.importFromYAML?.formDataPathIndex
   const ownerMetadataCache = context.importFromYAML?.ownerMetadataCache ?? context.exportToYAML?.ownerMetadataCache
   if (formDataPathIndex === undefined || ownerMetadataCache === undefined) {
     return { metadata: context, form: createFormBodyContext(context) }
   }
   const resolveDataPath = context.importFromYAML?.resolveDataPath
-  const resolveTableSourceProfile = createTableSourceClassifier({
+  const classifyTableSource = createTableSourceClassifier({
     formDataPathIndex,
     ownerMetadataCache,
     resolveDataPath,
   })
+  const resolveTableSourceProfile = (dataPath: unknown, elementName?: string) => {
+    const input = dataPath ?? (elementName === undefined
+      ? undefined
+      : prepared?.elementsByName.get(elementName)?.currentConfigurationValue)
+    return classifyTableSource(input)
+  }
   const metadata: ConfigurationContextWithExportToXML = {
     ...context,
     importFromYAML: {
       ...context.importFromYAML,
+      ...(prepared?.effectiveMainAttribute === undefined
+        ? {}
+        : { effectiveMainAttribute: prepared.effectiveMainAttribute }),
+      formDataPathIndex,
       resolveTableSourceProfile,
     },
   }
@@ -188,13 +214,25 @@ function createTableSourceClassifier(params: {
   readonly resolveDataPath: NonNullable<ConfigurationContextWithExportToXML["importFromYAML"]>["resolveDataPath"]
 }) {
   const { formDataPathIndex: index, ownerMetadataCache: ownerCache, resolveDataPath } = params
-  return (dataPath: unknown) => classifyTableSource({
-    dataPath,
-    index: index!,
-    resolve: (value: string) => resolveDataPath === undefined
+  return (dataPath: unknown) => {
+    const semanticDataPath = typeof dataPath === "string"
+      ? formatDataPathStandardMembersWithIndex({
+          value: dataPath,
+          direction: "internal-to-yaml",
+          index: index!,
+          ownerCache: ownerCache!,
+        })
+      : dataPath
+    const resolve = (value: string) => resolveDataPath === undefined
       ? resolveDataPathCore({ value, nameMode: "yaml", index: index!, ownerCache: ownerCache! })
-      : resolveDataPath({ value, index: index!, ownerCache: ownerCache! }),
-  })
+      : resolveDataPath({ value, index: index!, ownerCache: ownerCache! })
+    const result = classifyTableSource({
+      dataPath: semanticDataPath,
+      index: index!,
+      resolve,
+    })
+    return result
+  }
 }
 
 function readMetadataUUID(metadata: Record<string, unknown>): string | undefined {
