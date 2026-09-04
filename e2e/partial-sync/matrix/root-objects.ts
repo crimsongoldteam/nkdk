@@ -7,6 +7,7 @@ import { replaceYamlLine } from "./change-builders"
 const prefix = "ПроверкаЧастичнойСинхронизации"
 
 export const matrixObjectNames = {
+  accumulationRegister: `${prefix}РегистрНакопления`,
   businessProcess: `${prefix}БизнесПроцесс`,
   calculationRegister: `Я${prefix}РегистрРасчета`,
   catalog: `${prefix}Справочник`,
@@ -59,7 +60,7 @@ export const rootObjectDeclarations = [
     "MetadataDocument",
     "Документ",
     "Документ",
-    "КонтрольУникальности: Истина\nПериодичностьНомера: Непериодический\n",
+    `Движения:\n  - РегистрНакопления.${matrixObjectNames.accumulationRegister}\n`,
   ),
   directoryRoot("object:data-processor", "MetadataDataProcessor", "Обработка", "Обработка"),
   directoryRoot(
@@ -96,6 +97,8 @@ export const rootObjectDeclarations = [
     "MetadataAccumulationRegister",
     "РегистрНакопления",
     "РегистрНакопления",
+    "Ресурсы:\n  НачальныйРесурс:\n    Тип: Число(10, 0)\n",
+    ["object:document"],
   ),
   directoryRoot("object:exchange-plan", "MetadataExchangePlan", "ПланОбмена", "ПланОбмена"),
   fileRoot(
@@ -103,7 +106,6 @@ export const rootObjectDeclarations = [
     "MetadataDocumentNumerator",
     "Нумератор",
     "Нумератор",
-    "КонтрольУникальности: Истина\nПериодичностьНомера: Непериодический\n",
   ),
   directoryRoot("object:enumeration", "MetadataEnumeration", "Перечисление", "Перечисление"),
   directoryRoot(

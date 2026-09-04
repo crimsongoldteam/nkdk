@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { join } from "node:path"
 import {
   PlatformFixtureError,
   prepareInfobaseFixture,
@@ -60,9 +61,9 @@ describe("partial sync platform fixture", () => {
       },
     ])
     expect(fixture.writes.map(({ path }) => path)).toEqual([
-      "/Users/nikita/Базы 1С/temp_test/logs/attempt/01-create-and-load-configuration.log",
-      "/Users/nikita/Базы 1С/temp_test/logs/attempt/02-load-extension.log",
-      "/Users/nikita/Базы 1С/temp_test/logs/attempt/03-apply-extension.log",
+      join("/Users/nikita/Базы 1С/temp_test/logs/attempt", "01-create-and-load-configuration.log"),
+      join("/Users/nikita/Базы 1С/temp_test/logs/attempt", "02-load-extension.log"),
+      join("/Users/nikita/Базы 1С/temp_test/logs/attempt", "03-apply-extension.log"),
     ])
     expect(fixture.writes[0]?.content).toContain("stdout: ok")
     expect(fixture.writes[0]?.content).toContain("stderr:")
@@ -91,6 +92,21 @@ describe("partial sync platform fixture", () => {
     expect(error).toMatchObject<Partial<PlatformFixtureError>>({ code })
     expect(fixture.launches).toHaveLength(exitCodes.length)
   })
+
+  it("передаёт сигнал отмены каждому процессу ibcmd", async () => {
+    const fixture = createFixture()
+    const controller = new AbortController()
+
+    await prepareInfobaseFixture({
+      baseDir: "/workspace/base", dataDir: "/workspace/data", logsDir: "/workspace/logs",
+      cfXmlDir: "/fixtures/cf", extensionXmlDir: "/fixtures/cfe", extensionName: "Расширение_All",
+      signal: controller.signal,
+    }, fixture.dependencies)
+
+    expect(fixture.signals).toEqual([
+      controller.signal, controller.signal, controller.signal,
+    ])
+  })
 })
 
 function createFixture(options: {
@@ -99,6 +115,7 @@ function createFixture(options: {
 } = {}) {
   const launches: Array<{ command: string; args: readonly string[] }> = []
   const writes: Array<{ path: string; content: string }> = []
+  const signals: Array<AbortSignal | undefined> = []
   const exitCodes = options.exitCodes ?? []
   const defaultInstallation = {
     version: "8.3.27.2214",
@@ -111,10 +128,11 @@ function createFixture(options: {
     async writeFile(path, content) {
       writes.push({ path, content })
     },
-    async runProcess(command, args) {
+    async runProcess(command, args, processOptions) {
       launches.push({ command, args })
+      signals.push(processOptions.signal)
       return { exitCode: exitCodes[launches.length - 1] ?? 0, stdout: "ok", stderr: "" }
     },
   }
-  return { dependencies, launches, writes }
+  return { dependencies, launches, writes, signals }
 }

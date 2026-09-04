@@ -91,6 +91,7 @@ describe("platform session commands", () => {
         "/session/runtime",
         "--config",
         "/session/config.yaml",
+        "--disable-direct-gate",
       ],
     })
   })
