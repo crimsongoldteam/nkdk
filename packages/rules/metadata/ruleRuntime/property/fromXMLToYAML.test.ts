@@ -442,10 +442,14 @@ describe("importPropertiesFromXMLToYAML", () => {
       },
     })!
     expect(calls).toEqual(["import:c", "export:c", "import:a", "export:a"])
-    const orderKey = wrapped ? "Group\\#order" : "#order"
+    const orderKey = wrapped ? "Group" : "#order"
     expect(yaml).toEqual({ [orderKey]: undefined, Альфа: "a", Цета: "c" })
     expect(Object.keys(yaml)).toEqual(wrapped ? ["Альфа", "Цета", orderKey] : [orderKey, "Альфа", "Цета"])
-    expect(annotations.at(yaml, orderKey)).toMatchObject({ kind: "raw", xml: ["C", "A"], hasSemanticValue: false })
+    expect(annotations.at(yaml, orderKey)).toMatchObject({
+      kind: "raw",
+      xml: wrapped ? { "#order": ["C", "A"] } : ["C", "A"],
+      hasSemanticValue: false,
+    })
   })
 
   it("оформляет лишний XML-default без повторного экспорта свойств", () => {
