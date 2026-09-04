@@ -1,3 +1,4 @@
+import { join, resolve } from "node:path"
 import { expect, it } from "vitest"
 import type { BaselineReference } from "./baseline"
 import type { ScenarioResult } from "./stepwise-scenario"
@@ -6,8 +7,8 @@ import { parseStepwiseArgs, runStepwiseCli, type StepwiseRunDependencies } from 
 import type { StepwiseRunWorkspace } from "./stepwise-workspace"
 
 it("по умолчанию планирует оба режима с auto", () => {
-  expect(parseStepwiseArgs(["--root", "C:/run"])).toMatchObject({
-    root: "C:\\run",
+  expect(parseStepwiseArgs(["--root", runRoot])).toMatchObject({
+    root: runRoot,
     reset: false,
     concurrency: { total: "auto", designerAgent: "auto", standaloneServer: "auto" },
     modes: ["designer-agent", "standalone-server"],
@@ -21,10 +22,10 @@ it("соблюдает общий предел и не отменяет парн
   let recordedMetadata: StepwiseRunMetadata | undefined
   const events: string[] = []
   const workspace = {
-    root: "C:/run",
-    baselineDir: "C:/run/baseline",
-    reportsDir: "C:/run/reports",
-    runStatePath: "C:/run/run-state.json",
+    root: runRoot,
+    baselineDir: join(runRoot, "baseline"),
+    reportsDir: join(runRoot, "reports"),
+    runStatePath: join(runRoot, "run-state.json"),
     scenario: () => ({} as never),
   } satisfies StepwiseRunWorkspace
   const dependencies: StepwiseRunDependencies = {
@@ -34,8 +35,8 @@ it("соблюдает общий предел и не отменяет парн
     async resetWorkspace() {},
     async prepareBaseline() {
       return {
-        archivePath: "C:/run/baseline/current/baseline.dt",
-        projectDir: "C:/run/baseline/current/project",
+        archivePath: join(runRoot, "baseline", "current", "baseline.dt"),
+        projectDir: join(runRoot, "baseline", "current", "project"),
         manifest: {
           version: 3, compatibilityHash: "compatibility", fixtureHashes: { cf: "cf", cfe: "cfe" },
           platformVersion: "8.3.27.2214", nkdkBuildId: "mcp-build",
@@ -64,7 +65,7 @@ it("соблюдает общий предел и не отменяет парн
   }
 
   const outcome = await runStepwiseCli([
-    "--root", "C:/run", "--workers", "2",
+    "--root", runRoot, "--workers", "2",
   ], dependencies)
 
   expect(maxRunning).toBeLessThanOrEqual(2)
@@ -90,7 +91,7 @@ it("не готовит эталон и не запускает отключён
   const fixture = runFixture()
 
   const outcome = await runStepwiseCli([
-    "--root", "C:/run", "--designer-workers", "0", "--standalone-workers", "1",
+    "--root", runRoot, "--designer-workers", "0", "--standalone-workers", "1",
   ], fixture.dependencies)
 
   expect(fixture.baselineModes).toEqual(["standalone-server"])
@@ -108,7 +109,7 @@ it("восстанавливает оборванные попытки до за
     async recoverInterruptedAttempts() { order.push("recover") },
   })
 
-  await runStepwiseCli(["--root", "C:/run", "--mode", "designer-agent"], dependencies)
+  await runStepwiseCli(["--root", runRoot, "--mode", "designer-agent"], dependencies)
 
   expect(order).toEqual(["recover", "run:designer-agent"])
 })
@@ -121,7 +122,7 @@ it("записывает прерванный сигналом режим в о�
     return result(mode, signal.aborted ? "interrupted" : "succeeded")
   })
 
-  const outcome = await runStepwiseCli(["--root", "C:/run", "--mode", "designer-agent"],
+  const outcome = await runStepwiseCli(["--root", runRoot, "--mode", "designer-agent"],
     fixture.dependencies, controller.signal)
 
   expect(outcome.scenarios[0].status).toBe("interrupted")
@@ -133,8 +134,8 @@ function runFixture(runMode?: StepwiseRunDependencies["runMode"]) {
   const startedModes: string[] = []
   const recorded: ScenarioResult[] = []
   const workspace = {
-    root: "C:/run", baselineDir: "C:/run/baseline", reportsDir: "C:/run/reports",
-    runStatePath: "C:/run/run-state.json", scenario: () => ({} as never),
+    root: runRoot, baselineDir: join(runRoot, "baseline"), reportsDir: join(runRoot, "reports"),
+    runStatePath: join(runRoot, "run-state.json"), scenario: () => ({} as never),
   } satisfies StepwiseRunWorkspace
   const dependencies: StepwiseRunDependencies = {
     resources: () => ({ cpuCount: 8, availableMemoryBytes: 16_000_000_000 }),
@@ -144,8 +145,8 @@ function runFixture(runMode?: StepwiseRunDependencies["runMode"]) {
     async prepareBaseline({ mode }) {
       baselineModes.push(mode)
       return {
-        archivePath: "C:/run/baseline/current/baseline.dt",
-        projectDir: "C:/run/baseline/current/project",
+        archivePath: join(runRoot, "baseline", "current", "baseline.dt"),
+        projectDir: join(runRoot, "baseline", "current", "project"),
         manifest: {
           version: 3, compatibilityHash: "compatibility", fixtureHashes: { cf: "cf", cfe: "cfe" },
           platformVersion: "8.3.27.2214", nkdkBuildId: "mcp-build",
@@ -170,3 +171,5 @@ function result(mode: ScenarioResult["mode"], status: ScenarioResult["status"]):
     totalSteps: 1, durationMs: 1, attempt: 1, steps: [],
   }
 }
+
+const runRoot = resolve("/run")
