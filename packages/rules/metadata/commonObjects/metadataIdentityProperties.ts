@@ -8,7 +8,7 @@ const properties = ["Properties"]
 export const metadataIdentityProperties = {
   uuid: uuidRule({
     xml: "_uuid",
-    forReferenceOnly: true,
+    xmlOnly: true,
     xmlParents: [],
   }),
   name: stringRule({

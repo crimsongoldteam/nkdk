@@ -1,7 +1,7 @@
 import type { MetadataItemRule, PropertyRule } from "../property/types"
 
 /**
- * Находит инлайн-свойство правила (свойство с `yamlInline: true`, не помеченное `forReferenceOnly`).
+ * Находит инлайн-свойство правила (свойство с `yamlInline: true`, не помеченное как XML-only).
  *
  * Используется в YAML- и JSON-схема-ориентированных операциях `metadataItem`, чтобы убрать
  * лишний уровень вложенности, когда у item-rule есть единственное содержательное свойство —
@@ -14,7 +14,7 @@ import type { MetadataItemRule, PropertyRule } from "../property/types"
 export const findInlineProperty = (
   rule: MetadataItemRule
 ): { key: string; prop: PropertyRule; yamlKey: string } | undefined => {
-  const inline = Object.entries(rule.properties).filter(([, p]) => p.yamlInline === true && p.forReferenceOnly !== true)
+  const inline = Object.entries(rule.properties).filter(([, p]) => p.yamlInline === true && p.xmlOnly !== true)
   if (inline.length > 1) {
     throw new Error(
       `Rule "${rule.itemType}": yamlInline=true должно быть установлено максимум для одного свойства, найдено ${inline.length}`

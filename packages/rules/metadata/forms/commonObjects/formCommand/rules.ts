@@ -29,7 +29,7 @@ export const FormCommandRules = {
   properties: {
     id: elementIdRule({
       xml: "_id",
-      forReferenceOnly: true,
+      xmlOnly: true,
     }),
     name: stringRule({
       xml: "_name",

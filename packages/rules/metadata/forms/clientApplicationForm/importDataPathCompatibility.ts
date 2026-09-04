@@ -12,18 +12,42 @@ export function finalizeImportedFormDataPathCompatibility(params: {
   index: FormDataPathIndex
   ownerCache: OwnerMetadataCache
 }): void {
+  for (const change of importedFormDataPathCompatibilityChanges({
+    finalizedYaml: params.yaml,
+    originalOccurrences: params.originalOccurrences,
+    index: params.index,
+    ownerCache: params.ownerCache,
+  })) {
+    change.setValue(change.value)
+  }
+}
+
+export interface ImportedFormDataPathCompatibilityChange {
+  readonly yamlPath: readonly (string | number)[]
+  readonly value: string
+  readonly setValue: (value: string) => void
+}
+
+/** Возвращает адресные решения прежней проверки совместимости без их применения. */
+export function importedFormDataPathCompatibilityChanges(params: {
+  finalizedYaml: unknown
+  originalOccurrences: readonly FormDataPathOccurrence[]
+  index: FormDataPathIndex
+  ownerCache: OwnerMetadataCache
+}): readonly ImportedFormDataPathCompatibilityChange[] {
   const originals = new Map(
     params.originalOccurrences.map((occurrence) => [yamlPathKey(occurrence.yamlPath), occurrence])
   )
   const finalizedOccurrences = collectFormDataPathOccurrencesFromYAML({
-    yaml: params.yaml,
+    yaml: params.finalizedYaml,
     rule: ClientApplicationFormRules,
   })
+  const changes: ImportedFormDataPathCompatibilityChange[] = []
 
   for (const occurrence of finalizedOccurrences) {
     if (occurrence.rule.allowedKinds === undefined || occurrence.rule.yaml !== "ПутьКДанным") continue
     const original = originals.get(yamlPathKey(occurrence.yamlPath))
-    if (original === undefined) continue
+    if (original === undefined || typeof original.value !== "string") continue
 
     const resolution = resolveDataPathCore({
       value: occurrence.value,
@@ -41,8 +65,13 @@ export function finalizeImportedFormDataPathCompatibility(params: {
     })
     if (compatibility.status !== "incompatible") continue
 
-    occurrence.setValue(original.value)
+    changes.push({
+      yamlPath: occurrence.yamlPath,
+      value: original.value,
+      setValue: occurrence.setValue,
+    })
   }
+  return changes
 }
 
 function yamlPathKey(path: readonly (string | number)[]): string {

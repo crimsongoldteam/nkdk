@@ -101,11 +101,11 @@ export const MetadataEnumerationRules = {
     xmlRoot: xmlRootRule({
       container: "Enum",
       rootAttributes: V8_MDCLASSES_ROOT,
-      forReferenceOnly: true,
+      xmlOnly: true,
     }),
     internalInfo: internalInfoRule({
       xmlParents: [],
-      forReferenceOnly: true,
+      xmlOnly: true,
       items: [
         { name: "EnumRef", category: "Ref" },
         { name: "EnumManager", category: "Manager" },
@@ -214,13 +214,13 @@ export const MetadataEnumerationRules = {
     forms: childFormNamesRule({
       xml: "Form",
       folderName: "Формы",
-      forReferenceOnly: true,
+      xmlOnly: true,
       xmlParents: enumChildObjects,
     }),
     templates: childTemplateNamesRule({
       xml: "Template",
       folderName: "Шаблоны",
-      forReferenceOnly: true,
+      xmlOnly: true,
       xmlParents: enumChildObjects,
     }),
   },

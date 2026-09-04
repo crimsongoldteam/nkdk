@@ -60,13 +60,13 @@ export const MetadataConstantRules = {
     xmlRoot: xmlRootRule({
       container: "Constant",
       rootAttributes: V8_MDCLASSES_ROOT,
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
     }),
     internalInfo: internalInfoRule({
       xmlParents: [],
-      forReferenceOnly: true,
+      xmlOnly: true,
       items: [
         { name: "ConstantManager", category: "Manager" },
         { name: "ConstantValueManager", category: "ValueManager" },

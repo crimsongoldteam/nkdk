@@ -20,7 +20,7 @@ export const MetadataRoleRules = {
     xmlRoot: xmlRootRule({
       container: "Role",
       rootAttributes: V8_MDCLASSES_ROOT,
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
     }),

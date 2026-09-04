@@ -32,6 +32,8 @@ export interface DirectImportFactsSink {
     /** Адрес во время XML-обхода, до именования элементов коллекций. */
     readonly sourceYamlPath?: YamlPath
     readonly value: unknown
+    /** Было ли свойство физически представлено в исходном XML. */
+    readonly presentInXML?: boolean
     /** Исходное смысловое XML-значение для локальной проверки опущенного default. */
     readonly reconstructionValue?: unknown
   }): void
@@ -113,8 +115,6 @@ export interface PreparedImportDependencies {
     readonly present?: boolean
     readonly scalarTag?: YAMLScalarTag
   }
-  /** Компактное значение служебного свойства, отсутствующего в итоговом YAML. */
-  reconstructionValue?(itemYamlPath: YamlPath, propertyKey: string): { readonly value: unknown } | undefined
 }
 
 export interface ImportedDependentPropertyCandidate {

@@ -105,13 +105,13 @@ export const MetadataTaskRules = {
     xmlRoot: xmlRootRule({
       container: "Task",
       rootAttributes: V8_MDCLASSES_ROOT,
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
     }),
     internalInfo: internalInfoRule({
       xmlParents: [],
-      forReferenceOnly: true,
+      xmlOnly: true,
       items: [
         { name: "TaskObject", category: "Object" },
         { name: "TaskRef", category: "Ref" },
@@ -366,14 +366,14 @@ export const MetadataTaskRules = {
       xml: "Form",
       xmlParents: childObjects,
       folderName: "Формы",
-      forReferenceOnly: true,
+      xmlOnly: true,
     }),
     templates: childTemplateNamesRule({
       yaml: "Макеты",
       xml: "Template",
       xmlParents: childObjects,
       folderName: "Макеты",
-      forReferenceOnly: true,
+      xmlOnly: true,
     }),
     addressingAttributes: metadataTaskAddressingAttributesRule({
       yaml: "РеквизитыАдресации",

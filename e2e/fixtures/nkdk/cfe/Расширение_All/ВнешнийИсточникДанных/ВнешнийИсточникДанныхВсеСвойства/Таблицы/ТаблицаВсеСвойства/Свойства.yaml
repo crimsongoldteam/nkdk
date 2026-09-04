@@ -24,6 +24,21 @@
     Подсказка: ""
     РазрешитьNull: !изменять
     ТолькоЧтение: !изменять
+    Properties: !xml/raw
+      $xml:
+        "#order":
+          - ObjectBelonging
+          - Name
+          - Synonym
+          - Comment
+          - ExtendedConfigurationObject
+          - Type
+          - ToolTip
+          - NameInDataSource
+          - ReadOnly
+          - AllowNull
+    Properties\NameInDataSource: !xml/raw
+      $xml:
 Пояснение: ""
 ПредставлениеЗаписи: ""
 ПредставлениеСписка: ""

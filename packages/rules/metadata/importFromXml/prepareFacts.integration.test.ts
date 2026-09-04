@@ -327,7 +327,7 @@ describe("prepareImportFacts", () => {
       inputs: parseAssignmentInputs(assignment),
     })
 
-    expect(facts.semanticProjection).toHaveProperty("ДлинаКода", undefined)
+    expect(facts.semanticFacts).not.toContainEqual(expect.objectContaining({ yamlPath: ["ДлинаКода"] }))
     expect(prepareImportDependencies(facts.dependencies).propertyValue?.([], "codeLength"))
       .toEqual({ value: 9 })
   })

@@ -122,13 +122,13 @@ export const MetadataCatalogRules = {
     xmlRoot: xmlRootRule({
       container: "Catalog",
       rootAttributes: V8_MDCLASSES_ROOT,
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
     }),
     internalInfo: internalInfoRule({
       xmlParents: [],
-      forReferenceOnly: true,
+      xmlOnly: true,
       items: [
         { name: "CatalogObject", category: "Object" },
         { name: "CatalogRef", category: "Ref" },
@@ -489,7 +489,7 @@ export const MetadataCatalogRules = {
     forms: childFormNamesRule({
       xml: "Form",
       folderName: "Формы",
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
       xmlParents: ["ChildObjects"],
@@ -497,7 +497,7 @@ export const MetadataCatalogRules = {
     templates: childTemplateNamesRule({
       xml: "Template",
       folderName: "Шаблоны",
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
       xmlParents: ["ChildObjects"],

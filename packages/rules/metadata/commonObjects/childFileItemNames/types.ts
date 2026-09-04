@@ -8,7 +8,7 @@ import type { BasePropertyRule } from "@nkdk/runtime/rule-kit"
 export interface ChildFileItemNamesPropertyRule extends BasePropertyRule {
   type: "ChildFileItemNames"
   xml: string
-  forReferenceOnly: true
+  xmlOnly: true
 }
 
 export interface ChildFileItemNamesWidePropertyRule extends WidePropertyRuleBase {

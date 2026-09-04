@@ -30,7 +30,7 @@ export const MetadataHTTPServiceRules = {
     xmlRoot: xmlRootRule({
       container: "HTTPService",
       rootAttributes: V8_MDCLASSES_ROOT,
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
     }),

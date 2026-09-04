@@ -293,29 +293,13 @@ export function importPropertiesFromXMLToYAML(params: {
           structurallyClaimed = true
         }
 
-        if (!forReference && propertyRule.forReferenceOnly === true) {
+        if (!forReference && propertyRule.xmlOnly === true) {
           if (params.mode === "facts" && params.facts !== undefined) {
-            const reconstructionValue = runWithConfigurationIndexPropertyContext(
-              sourceContext,
-              propertyRule.yaml ?? key,
-              configurationIndexUidSegment,
-              (propertyContext) => importPropertyFromXML({
-                context: propertyContext,
-                rule: propertyRule,
-                value: sourceXMLValue,
-                name: key,
-                ownerXmlName,
-                execution: params.execution,
-                compiled,
-              }),
-              { configurationIndexAddressing: nestedConfigurationIndexAddressing },
-            )
-            params.facts.acceptProperty({
-              itemType: rule.itemType,
-              itemRule: rule,
-              propertyKey: key,
-              yamlPath: propertyYamlPath,
-              value: reconstructionValue,
+            acceptReconstructionPropertyFact({
+              facts: params.facts, sourceContext, propertyRule, propertyKey: key,
+              configurationIndexUidSegment, nestedConfigurationIndexAddressing,
+              sourceXMLValue, ownerXmlName, execution: params.execution, compiled,
+              itemRule: rule, yamlPath: propertyYamlPath, presentInXML,
             })
           }
           collectConfigurationIndexPropertyFromXML({
@@ -338,14 +322,28 @@ export function importPropertiesFromXMLToYAML(params: {
               ? typeRule(propertyRule.type, "configurationIndexValueFromXML")
               : compiled.operations.configurationIndexValueFromXML,
           })
-          // Смысловой YAML это свойство не получает, но локальный proof должен
-          // выполнить штатный экспорт с исходным reference и тем самым учесть
-          // служебную XML-структуру ровно один раз.
+          // Смысловой YAML это свойство не получает, но локальный proof выполняет
+          // штатный экспорт с компактным значением первого прохода.
           structurallyClaimed = presentInXML
             && isXmlElementNode(xmlNode)
             && collectConfigurationIndex !== undefined
           proofReady = roundTrip !== undefined && presentInXML
           return
+        }
+        if (
+          !forReference
+          && params.mode === "facts"
+          && params.facts !== undefined
+          && propertyRule.fromXML === false
+          && propertyRule.toXML !== false
+          && presentInXML
+        ) {
+          acceptReconstructionPropertyFact({
+            facts: params.facts, sourceContext, propertyRule, propertyKey: key,
+            configurationIndexUidSegment, nestedConfigurationIndexAddressing,
+            sourceXMLValue, ownerXmlName, execution: params.execution, compiled,
+            itemRule: rule, yamlPath: propertyYamlPath, presentInXML,
+          })
         }
         if (
           !presentInXML &&
@@ -402,9 +400,15 @@ export function importPropertiesFromXMLToYAML(params: {
           operation: "importFromXML",
         })
         const shouldImportForReference = forReference && propertyRule.fromXML === false && presentInXML
+        const shouldImportForLocalProof = !forReference
+          && roundTrip !== undefined
+          && propertyRule.fromXML === false
+          && propertyRule.toXML !== false
+          && presentInXML
         if (
           !shouldImportProperty &&
           !shouldImportForReference &&
+          !shouldImportForLocalProof &&
           propertyXML?.has(key) !== true
         ) {
           if (
@@ -768,16 +772,18 @@ export function importPropertiesFromXMLToYAML(params: {
             proofReady = false
           }
           params.facts?.acceptProperty({
-            itemType: rule.itemType,
-            itemRule: rule,
-            propertyKey: key,
-            yamlPath: propertyYamlPath,
-            value: exportedYamlValue,
-            ...(cleanValue === undefined
+              itemType: rule.itemType,
+              itemRule: rule,
+              propertyKey: key,
+              yamlPath: propertyYamlPath,
+              value: exportedYamlValue,
+              presentInXML,
+              ...(cleanValue === undefined
               && importedValue !== undefined
               ? { reconstructionValue: importedValue }
               : {}),
           })
+          if (shouldImportForLocalProof && !shouldImportProperty) return
           if (!convertedDirectly && !usesFusedRepresentation) {
             const profile = params.profile
             if (profile !== undefined) profile.yamlExportMs += performance.now() - exportStartedAt
@@ -1116,6 +1122,46 @@ export function importPropertiesFromXMLToYAML(params: {
     compiledPlan?.yamlOrder ?? getYamlRulePropertyOrder(rule),
     params.annotations,
   )
+}
+
+function acceptReconstructionPropertyFact(params: {
+  readonly facts: NonNullable<DirectImportTraversal["facts"]>
+  readonly sourceContext: ConfigurationContextFromXML
+  readonly propertyRule: PropertyRule
+  readonly propertyKey: string
+  readonly configurationIndexUidSegment: string | undefined
+  readonly nestedConfigurationIndexAddressing: PropertyRule["configurationIndexAddressing"]
+  readonly sourceXMLValue: unknown
+  readonly ownerXmlName: string | undefined
+  readonly execution: CompiledPropertyRuleExecution | undefined
+  readonly compiled: CompiledProperty | undefined
+  readonly itemRule: MetadataItemRule
+  readonly yamlPath: YamlPath
+  readonly presentInXML: boolean
+}): void {
+  const value = runWithConfigurationIndexPropertyContext(
+    params.sourceContext,
+    params.propertyRule.yaml ?? params.propertyKey,
+    params.configurationIndexUidSegment,
+    (propertyContext) => importPropertyFromXML({
+      context: propertyContext,
+      rule: params.propertyRule,
+      value: params.sourceXMLValue,
+      name: params.propertyKey,
+      ownerXmlName: params.ownerXmlName,
+      execution: params.execution,
+      compiled: params.compiled,
+    }),
+    { configurationIndexAddressing: params.nestedConfigurationIndexAddressing },
+  )
+  params.facts.acceptProperty({
+    itemType: params.itemRule.itemType,
+    itemRule: params.itemRule,
+    propertyKey: params.propertyKey,
+    yamlPath: params.yamlPath,
+    value,
+    presentInXML: params.presentInXML,
+  })
 }
 
 class DirectImportRoundTripError extends Error {

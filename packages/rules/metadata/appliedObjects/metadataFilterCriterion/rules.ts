@@ -44,13 +44,13 @@ export const MetadataFilterCriterionRules = {
     xmlRoot: xmlRootRule({
       container: "FilterCriterion",
       rootAttributes: V8_MDCLASSES_ROOT,
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
     }),
     internalInfo: internalInfoRule({
       xmlParents: [],
-      forReferenceOnly: true,
+      xmlOnly: true,
       items: [
         { name: "FilterCriterionManager", category: "Manager" },
         { name: "FilterCriterionList", category: "List" },
@@ -124,7 +124,7 @@ export const MetadataFilterCriterionRules = {
       yaml: "Формы",
       xml: "Form",
       folderName: "Формы",
-      forReferenceOnly: true,
+      xmlOnly: true,
       xmlParents: childObjects,
     }),
   },

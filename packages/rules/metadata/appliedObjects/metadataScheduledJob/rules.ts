@@ -31,7 +31,7 @@ export const MetadataScheduledJobRules = {
     xmlRoot: xmlRootRule({
       container: "ScheduledJob",
       rootAttributes: V8_MDCLASSES_ROOT,
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
     }),

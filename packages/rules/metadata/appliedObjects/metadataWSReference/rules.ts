@@ -26,13 +26,13 @@ export const MetadataWSReferenceRules = {
     xmlRoot: xmlRootRule({
       container: "WSReference",
       rootAttributes: V8_MDCLASSES_ROOT,
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
     }),
     internalInfo: internalInfoRule({
       xmlParents: [],
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
       items: [{ name: "WSReferenceManager", category: "Manager" }],

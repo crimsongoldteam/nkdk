@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { mockContextFromXML } from "../../../tests/mockContext"
 import { importChildFileItemNamesFromXML, metadataPropertyRule002 } from "./fromXML"
 
-const rule = { type: "ChildFileItemNames" as const, xml: "Table", forReferenceOnly: true as const }
+const rule = { type: "ChildFileItemNames" as const, xml: "Table", xmlOnly: true as const }
 
 describe("importChildFileItemNamesFromXML", () => {
   it("возвращает undefined при xml = undefined", () => {

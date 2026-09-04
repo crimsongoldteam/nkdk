@@ -341,8 +341,11 @@ function cloneSemanticValue(params: {
     }
   }
   const keys = new Set([...Object.keys(params.value), ...annotationsByKey.keys()])
+  const logicalOccurrences = new Map<string, number>()
   for (const runtimeKey of keys) {
     const { keyAnnotation, logicalKey, targetKey } = mappingEntryIdentity(params, target, runtimeKey)
+    const logicalOccurrence = (logicalOccurrences.get(logicalKey) ?? 0) + 1
+    logicalOccurrences.set(logicalKey, logicalOccurrence)
     const annotation = annotationsByKey.get(runtimeKey)
     const property = propertyForYamlKey(params.rule, logicalKey)
     const sourceValue = Object.prototype.hasOwnProperty.call(params.value, runtimeKey)
@@ -367,6 +370,8 @@ function cloneSemanticValue(params: {
           ...(params.documentTag === undefined ? {} : { documentTag: params.documentTag }),
           rule: params.rule,
           ownerYaml: params.value,
+          annotations: params.sourceAnnotations,
+          occurrence: logicalOccurrence,
           exportClaimId: params.exportClaimId,
         }))
       }
@@ -716,6 +721,8 @@ function rawBoundary(params: {
   readonly documentTag?: string
   readonly rule: MetadataItemRule | undefined
   readonly ownerYaml: unknown
+  readonly annotations: XmlAnomalyAnnotations
+  readonly occurrence?: number
   readonly exportClaimId?: string
 }): PreparedXmlAnomalyBoundary {
   if (params.annotation.kind !== "raw") throw new Error("XML-поправка требует !xml/raw")
@@ -727,7 +734,9 @@ function rawBoundary(params: {
     ? params.property.xmlPath.map(xmlPathSegment)
     : property === undefined
       ? publicPath!.segments.map(xmlPathSegment)
-      : [
+      : sameStringPath(property.xmlPath, publicPath!.segments)
+        ? property.xmlPath.map(xmlPathSegment)
+        : [
           ...publicPath!.segments.slice(0, -1).map(xmlPathSegment),
           ...property.xmlPath.map(xmlPathSegment),
         ]
@@ -735,7 +744,27 @@ function rawBoundary(params: {
   const targetsRepeatedSiblings = repeatedElementName !== undefined
     && isRecord(params.annotation.xml)
     && Array.isArray(params.annotation.xml[repeatedElementName])
-  const effectiveRawPath = targetsRepeatedSiblings ? rawPath.slice(0, -1) : rawPath
+  const ordinaryOccurrences = ordinaryPropertyOccurrences(params.ownerYaml, property)
+  const siblingOrder = isContainerShellPatch(params.annotation.xml)
+    ? undefined
+    : explicitRawSiblingOrder(params.ownerYaml, params.annotations, rawPath.slice(0, -1))
+      ?? rawSiblingOrder(params.ownerYaml, params.rule, params.logicalKey)
+      ?? (property === undefined ? undefined : propertySiblingOrder(params.rule, property))
+  const rawTargetsExistingOccurrence = repeatedElementName !== undefined
+    && siblingOrder !== undefined
+    && siblingOrder.filter((name) => name === repeatedElementName).length <= ordinaryOccurrences
+  const physicalOccurrence = params.occurrence === undefined
+    ? undefined
+    : (rawTargetsExistingOccurrence ? 0 : ordinaryOccurrences) + params.occurrence
+  const effectiveRawPath = targetsRepeatedSiblings
+    ? rawPath.slice(0, -1)
+    : params.property === undefined
+        && repeatedElementName !== "#order"
+        && physicalOccurrence !== undefined
+      ? rawPath.map((segment, index) => index === rawPath.length - 1
+        ? { ...segment, occurrence: physicalOccurrence }
+        : segment)
+      : rawPath
   const claimsCurrentItem = params.exportClaimId !== undefined
     && property === undefined
     && publicPath?.segments.length === 1
@@ -749,9 +778,6 @@ function rawBoundary(params: {
   if (params.annotation.xml === undefined) {
     throw new Error(`Для !xml/raw ${params.logicalKey} не сохранено обязательное $xml`)
   }
-  const siblingOrder = property === undefined
-    ? rawSiblingOrder(params.ownerYaml, params.rule, params.logicalKey)
-    : propertySiblingOrder(params.rule, property)
   const augmentsCompiledOutput = isCompiledOutputPatch(params.annotation.xml)
     && (
       property === undefined
@@ -797,8 +823,28 @@ function propertyAtPublicRawPath(
   rule: MetadataItemRule | undefined,
   path: ReturnType<typeof parsePublicRawPath> | undefined,
 ): PlannedProperty | undefined {
-  const logicalKey = path?.segments.at(-1)
-  return logicalKey === undefined ? undefined : propertyForYamlKey(rule, logicalKey)
+  if (rule === undefined || path === undefined) return undefined
+  const yamlProperty = propertyForYamlKey(rule, path.segments.at(-1) ?? "")
+  if (yamlProperty !== undefined) return yamlProperty
+  const matches = getYAMLToXMLPlan(rule).properties.filter((property) =>
+    sameStringPath(property.xmlPath, path.segments)
+  )
+  if (matches.length > 1) {
+    throw new Error(`XML-путь ${rule.itemType}.${path.segments.join("\\")} соответствует нескольким PropertyRule`)
+  }
+  return matches[0]
+}
+
+function ordinaryPropertyOccurrences(
+  ownerYaml: unknown,
+  property: PlannedProperty | undefined,
+): number {
+  if (!isRecord(ownerYaml) || property === undefined) return 0
+  const yamlKey = property.yamlKey ?? property.propertyKey
+  if (!Object.prototype.hasOwnProperty.call(ownerYaml, yamlKey)) return 0
+  const value = ownerYaml[yamlKey]
+  if (value === undefined) return 0
+  return Array.isArray(value) ? value.length : 1
 }
 
 function propertySiblingOrder(
@@ -846,6 +892,29 @@ function rawSiblingOrder(
   return result.length === 0 ? undefined : result
 }
 
+function explicitRawSiblingOrder(
+  ownerYaml: unknown,
+  annotations: XmlAnomalyAnnotations,
+  parentPath: readonly XmlTraversalPathSegment[],
+): readonly string[] | undefined {
+  if (!isRecord(ownerYaml)) return undefined
+  for (const entry of annotations.entries()) {
+    if (entry.parent !== ownerYaml || typeof entry.key !== "string" || entry.annotation.kind !== "raw") continue
+    const logicalKey = annotations.keyAt(ownerYaml, entry.key)?.logicalKey ?? entry.key
+    const segments = splitRawPath(logicalKey)
+    if (segments.at(-1) !== "#order" || !Array.isArray(entry.annotation.xml)) continue
+    const rawParent = segments.slice(0, -1)
+    if (
+      rawParent.length !== 0
+      && !sameStringPath(rawParent, parentPath.map(({ name }) => name))
+    ) continue
+    if (entry.annotation.xml.every((name): name is string => typeof name === "string")) {
+      return entry.annotation.xml
+    }
+  }
+  return undefined
+}
+
 function isCompiledRawAncestor(
   rule: MetadataItemRule | undefined,
   rawPath: readonly string[],
@@ -861,6 +930,12 @@ function isCompiledOutputPatch(value: unknown): boolean {
   return isRecord(value) && Object.keys(value).length > 0
 }
 
+function isContainerShellPatch(value: unknown): boolean {
+  return isRecord(value)
+    && Object.keys(value).length > 0
+    && Object.keys(value).every((key) => key.startsWith("_") || key === "#order")
+}
+
 function containsXmlDeletion(value: unknown): boolean {
   if (!isRecord(value)) return false
   return Object.values(value).some((item) => item === null || containsXmlDeletion(item))
@@ -868,6 +943,7 @@ function containsXmlDeletion(value: unknown): boolean {
 
 interface PlannedProperty {
   readonly propertyKey: string
+  readonly yamlKey?: string
   readonly propertyRule: PropertyRule
   readonly xmlPath: readonly string[]
 }
@@ -1091,7 +1167,7 @@ function parsePublicRawPath(key: string): {
   if (key === "@") return { segments: [], documentSelector: "", documentRoot: true }
 
   let path = key
-  let documentSelector = ""
+  let documentSelector: string | undefined
   if (key.startsWith("@")) {
     const separator = key.indexOf("\\")
     const selector = separator < 0 ? key.slice(1) : key.slice(1, separator)
@@ -1112,18 +1188,21 @@ function parsePublicRawPath(key: string): {
   const segments = splitRawPath(path)
   if (
     segments.length === 0 ||
-    segments.some((segment) =>
+    segments.some((segment, index) =>
       segment.length === 0 ||
       segment === "." ||
       segment === ".." ||
       segment === "#attributes" ||
-      segment === "#order" ||
+      (segment === "#order" && index !== segments.length - 1) ||
       segment.includes("/")
     )
   ) {
     throw new Error(`Недопустимый XML-путь: ${key}`)
   }
-  return { segments, documentSelector }
+  return {
+    segments,
+    ...(documentSelector === undefined ? {} : { documentSelector }),
+  }
 }
 
 function cloneXmlObject(value: Record<string, unknown>): Record<string, unknown> {

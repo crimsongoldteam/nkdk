@@ -25,6 +25,7 @@ export function createAnnotatedLocalXmlBodyConsumer(params: Omit<
 > & {
   readonly yaml: Record<string, unknown>
   readonly annotations: XmlAnomalyAnnotationTable
+  readonly rawPathPrefix?: readonly string[]
 }) {
   const appendRaw = createLocalXmlRawAppender({ yaml: params.yaml, annotations: params.annotations })
   return createLocalXmlBodyConsumer({
@@ -36,7 +37,7 @@ export function createAnnotatedLocalXmlBodyConsumer(params: Omit<
         if (key === undefined || expectedName === undefined) {
           projectPathOnlyPropertyDifferences({
             yaml: params.yaml, annotations: params.annotations, source,
-            differences, path: property.xmlPath,
+          differences, path: property.xmlPath,
           })
           return
         }
@@ -55,8 +56,11 @@ export function createAnnotatedLocalXmlBodyConsumer(params: Omit<
         differences,
         appendRaw,
         pathPrefix: source === params.source
-          ? []
-          : relativeElementPath(params.source.path, source.path) ?? [],
+          ? params.rawPathPrefix ?? []
+          : [
+              ...(params.rawPathPrefix ?? []),
+              ...(relativeElementPath(params.source.path, source.path) ?? []),
+            ],
       })
     },
     annotateScalar({ source, owner, difference, property }) {
@@ -231,6 +235,7 @@ export function createAnnotatedLocalXmlBodyConsumers(params: {
     readonly proof: BodyConsumerParams["proof"]
     readonly itemPreparation?: BodyConsumerParams["itemPreparation"]
     readonly xmlEnvelope?: BodyConsumerParams["xmlEnvelope"]
+    readonly rawPathPrefix?: readonly string[]
   }[]
   readonly yaml: Record<string, unknown>
   readonly annotations: XmlAnomalyAnnotationTable

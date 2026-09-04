@@ -8,7 +8,7 @@ export function externalDataSourceNamedProperties(
   properties: string[],
 ) {
   return {
-    uuid: { type: "uuid", xml: "_uuid", forReferenceOnly: true, xmlParents: root },
+    uuid: { type: "uuid", xml: "_uuid", xmlOnly: true, xmlParents: root },
     name: { type: "string", xmlParents: properties, required: true },
     synonym: {
       yaml: "Синоним",

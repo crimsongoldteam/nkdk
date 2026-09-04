@@ -35,7 +35,7 @@ export const MetadataWebSocketClientRules = {
     xmlRoot: xmlRootRule({
       container: "WebSocketClient",
       rootAttributes: V8_MDCLASSES_ROOT,
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
     }),

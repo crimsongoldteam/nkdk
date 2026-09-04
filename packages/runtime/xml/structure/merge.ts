@@ -545,7 +545,10 @@ function childLocation(
       }
       const selectedElement = selected[0]
       if (selectedElement === undefined) {
-        if (occurrence !== allElements.length + 1) {
+        const currentOccurrences = parent.content.filter(
+          (node) => node.type === "element" && node.name === name
+        ).length
+        if (occurrence !== currentOccurrences + 1) {
           throw new Error(`Не найдено вхождение ${occurrence} XML-сегмента ${name}`)
         }
         parent.content.push(...elements)

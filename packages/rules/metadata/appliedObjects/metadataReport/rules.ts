@@ -66,13 +66,13 @@ export const MetadataReportRules = {
     xmlRoot: xmlRootRule({
       container: "Report",
       rootAttributes: V8_MDCLASSES_ROOT,
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
     }),
     internalInfo: internalInfoRule({
       xmlParents: [],
-      forReferenceOnly: true,
+      xmlOnly: true,
       items: [
         { name: "ReportObject", category: "Object" },
         { name: "ReportManager", category: "Manager" },
@@ -189,7 +189,7 @@ export const MetadataReportRules = {
       xml: "Form",
       folderName: "Формы",
       itemRule: ClientApplicationFormWithExtendedPresentationRules,
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
       xmlParents: childObjects,
@@ -197,7 +197,7 @@ export const MetadataReportRules = {
     templates: childTemplateNamesRule({
       xml: "Template",
       folderName: "Шаблоны",
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
       xmlParents: childObjects,

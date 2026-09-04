@@ -151,7 +151,7 @@ function importPresentProperties(params: {
   for (const [propertyKey, capability] of Object.entries(item?.properties ?? {})) {
     const propertyRule = params.rule.properties[propertyKey]
     if (propertyRule === undefined || typeof propertyRule.yaml !== "string") continue
-    if (propertyRule.forReferenceOnly === true) continue
+    if (propertyRule.xmlOnly === true) continue
     if (
       !borrowed &&
       propertyRule.metadataTarget !== undefined &&

@@ -109,13 +109,13 @@ export const MetadataDocumentRules = {
     xmlRoot: xmlRootRule({
       container: "Document",
       rootAttributes: V8_MDCLASSES_ROOT,
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
     }),
     internalInfo: internalInfoRule({
       xmlParents: [],
-      forReferenceOnly: true,
+      xmlOnly: true,
       items: [
         { name: "DocumentObject", category: "Object" },
         { name: "DocumentRef", category: "Ref" },
@@ -212,7 +212,7 @@ export const MetadataDocumentRules = {
     forms: childFormNamesRule({
       xml: "Form",
       folderName: "Формы",
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
       xmlParents: documentChildObjects,
@@ -220,7 +220,7 @@ export const MetadataDocumentRules = {
     templates: childTemplateNamesRule({
       xml: "Template",
       folderName: "Шаблоны",
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
       xmlParents: documentChildObjects,

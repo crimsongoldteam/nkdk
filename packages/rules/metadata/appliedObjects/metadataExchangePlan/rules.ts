@@ -112,13 +112,13 @@ export const MetadataExchangePlanRules = {
     xmlRoot: xmlRootRule({
       container: "ExchangePlan",
       rootAttributes: V8_MDCLASSES_ROOT,
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
     }),
     internalInfo: internalInfoRule({
       xmlParents: [],
-      forReferenceOnly: true,
+      xmlOnly: true,
       thisNode: true,
       items: [
         { name: "ExchangePlanObject", category: "Object" },
@@ -354,7 +354,7 @@ export const MetadataExchangePlanRules = {
     forms: childFormNamesRule({
       xml: "Form",
       folderName: "Формы",
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
       xmlParents: childObjects,
@@ -362,7 +362,7 @@ export const MetadataExchangePlanRules = {
     templates: childTemplateNamesRule({
       xml: "Template",
       folderName: "Шаблоны",
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
       xmlParents: childObjects,

@@ -19,7 +19,6 @@ import type {
 } from "@nkdk/runtime/rule-kit"
 import { importClientApplicationFormFromXMLToYAML } from "../forms/clientApplicationForm/fromXMLToYAML"
 import { importClientApplicationFormBodyFromXML } from "../forms/clientApplicationForm/fromXMLToYAML"
-import { normalizeBaseFormYaml } from "../forms/clientApplicationForm/baseFormYaml"
 import {
   createImportedFormDataPathIndex,
   importedClientApplicationForm,
@@ -50,6 +49,17 @@ import type { ValidationPendingCheck } from "../validation/projectValidationPend
 import type { PendingMetadataTargetReference } from "../validation/projectReferenceIndex"
 import { extractDependentYamlIndexFacts } from "../validation/yamlFactExtractor"
 import { collectImportDependencyFacts, type ImportDependencyFacts } from "./preparedDependencies"
+import { resolveDeferredPropertyRule } from "../ruleRuntime/property/finalizeImportedYAML"
+import {
+  applyMetadataItemXmlImportAugmenter,
+  resolveMetadataItemXMLDefaultVariant,
+  withResolvedXMLImportObjectVariant,
+} from "../ruleRuntime/metadataItem/augmenterRegistry"
+import { getTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
+import {
+  createPropertyFactsYamlView,
+  type DirectImportPropertyFact,
+} from "./propertyFactsYamlView"
 
 export interface PreparedImportFacts {
   readonly dependencies: ImportDependencyFacts
@@ -65,8 +75,8 @@ export interface PreparedImportFacts {
   readonly reconstructionFacts: {
     readonly rootPropertyValues: Readonly<Record<string, unknown>>
   }
-  readonly semanticProjection: Readonly<Record<string, unknown>>
-  readonly baseFormSemanticProjection?: Readonly<Record<string, unknown>>
+  readonly semanticFacts: readonly DirectImportPropertyFact[]
+  readonly baseFormSemanticFacts?: readonly DirectImportPropertyFact[]
   readonly deferred: readonly import("@nkdk/runtime/rule-kit").DeferredValuePath[]
   readonly baseFormDeferred?: readonly import("@nkdk/runtime/rule-kit").DeferredValuePath[]
   readonly pendingReferences: readonly PendingMetadataTargetReference[]
@@ -105,10 +115,9 @@ export async function prepareImportFacts(params: {
   const rootPropertyValues: Record<string, unknown> = {}
   const facts = createDirectImportFactsCollector()
   let dependentCandidates: readonly ImportedDependentPropertyCandidate[] = []
-  let baseFormSemanticProjection: Readonly<Record<string, unknown>> | undefined
+  let baseFormSemanticFacts: readonly DirectImportPropertyFact[] | undefined
   let baseFormDependencies: ImportDependencyFacts | undefined
   let baseFormDeferred: readonly import("@nkdk/runtime/rule-kit").DeferredValuePath[] | undefined
-  let finalRootYaml: Readonly<Record<string, unknown>> | undefined
 
   const imported = measureFacts(params.profiler, () => {
     if (rule.itemType === ClientApplicationFormRules.itemType) {
@@ -123,6 +132,7 @@ export async function prepareImportFacts(params: {
         metadataXMLNode: metadata.document.roots.find(({ name }) => name === "MetaDataObject"),
         rule,
         mode: "facts",
+        produceResult: false,
         facts,
       })
       const baseFormNode = body?.document.roots
@@ -146,21 +156,21 @@ export async function prepareImportFacts(params: {
           deferred: baseDeferred,
           rule: companion.rule,
           mode: "facts",
+          produceResult: false,
           facts: baseFacts,
         })
         const baseIndexes = baseIndexesCollector.finish()
         baseFormDeferred = baseDeferred.finish()
         const basePropertyFacts = baseFacts.finish()
-        const baseProjection = projectAcceptedPropertyFacts(baseIndexes, basePropertyFacts)
-        baseFormSemanticProjection = normalizeBaseFormYaml(baseProjection) as Readonly<Record<string, unknown>>
+        baseFormSemanticFacts = acceptedPropertyFacts(baseIndexes, basePropertyFacts)
+        const baseView = createPropertyFactsYamlView(baseFormSemanticFacts)
         baseFormDependencies = collectImportDependencyFacts({
-          yaml: baseProjection,
+          yaml: baseView,
           rule: companion.rule,
           owner: dependentOwner,
           candidates: [],
           propertyFacts: acceptedPropertyFacts(baseIndexes, basePropertyFacts),
           proofPropertyFacts: basePropertyFacts,
-          reconstructionPropertyFacts: basePropertyFacts,
           ...(params.execution === undefined ? {} : { execution: params.execution }),
         })
       }
@@ -171,7 +181,7 @@ export async function prepareImportFacts(params: {
     const dependent = createImportedDependentPropertyCollector()
     const metadata = requireInput(inputs, "metadata")
     const externalPropertyXml = mapExternalPropertyXmlInputs(rule, inputs)
-    const yaml = importMetadataItemFromXMLToYAML({
+    importMetadataItemFromXMLToYAML({
       context: importContext,
       rule,
       name: params.assignment.itemName,
@@ -179,7 +189,7 @@ export async function prepareImportFacts(params: {
         ?? metadata.parsed["MetaDataObject"],
       traversal: {
         mode: "facts",
-        produceResult: true,
+        produceResult: false,
         facts,
         yamlPath: [],
         rulePath: [],
@@ -190,9 +200,6 @@ export async function prepareImportFacts(params: {
       propertyXML: externalPropertyXml.compatibilityByPropertyKey,
       propertyXMLNodes: externalPropertyXml.nodesByPropertyKey,
     })
-    if (yaml !== undefined && typeof yaml === "object" && !Array.isArray(yaml)) {
-      finalRootYaml = yaml as Readonly<Record<string, unknown>>
-    }
     dependentCandidates = dependent.finish()
     return {
       yaml: undefined,
@@ -207,12 +214,28 @@ export async function prepareImportFacts(params: {
     if (fact.yamlPath.length !== 1 || typeof fact.yamlPath[0] !== "string" || !isCompactFactValue(fact.value)) continue
     rootPropertyValues[fact.yamlPath[0]] = fact.value
   }
-  const acceptedFacts = acceptedPropertyFacts(imported.localIndexes, propertyFacts)
-  const factProjection = projectPropertyFacts(acceptedFacts)
-  const semanticProjection = finalRootYaml ?? factProjection
+  const acceptedFacts = rule.itemType === ClientApplicationFormRules.itemType
+    ? augmentClientApplicationFormFacts({
+        facts: acceptedPropertyFacts(imported.localIndexes, propertyFacts),
+        inputs,
+        context: importContext,
+        rule,
+      })
+    : acceptedPropertyFacts(imported.localIndexes, propertyFacts)
+  const preliminaryView = createPropertyFactsYamlView(acceptedFacts)
+  const preliminaryFormDataPathIndex = createImportedFormDataPathIndex({ yaml: preliminaryView, rule })
+  const semanticFacts = finalizeDeferredPropertyFacts({
+    facts: acceptedFacts,
+    deferred: imported.deferred,
+    rootRule: rule,
+    context: importContext,
+    formDataPathIndex: preliminaryFormDataPathIndex,
+    execution: params.execution,
+  })
+  const semanticView = createPropertyFactsYamlView(semanticFacts)
   const dependentIndex = extractDependentYamlIndexFacts({
     filePath: params.assignment.targetProjectPath,
-    rootYaml: semanticProjection,
+    rootYaml: semanticView,
     rootRule: rule,
     owner: dependentOwner,
     candidates: dependentCandidates,
@@ -221,20 +244,19 @@ export async function prepareImportFacts(params: {
     assignment: params.assignment,
     rule,
     localIndexes: imported.localIndexes,
-    propertyFacts,
+    propertyFacts: semanticFacts,
     owner: dependentOwner,
   })
 
   return {
     dependencies: collectImportDependencyFacts({
-      yaml: factProjection,
+      yaml: semanticView,
       rule,
       owner: dependentOwner,
       candidates: dependentCandidates,
       propertyFacts: acceptedFacts,
       proofPropertyFacts: propertyFacts,
-      reconstructionPropertyFacts: propertyFacts,
-      ...(finalRootYaml === undefined ? {} : { finalRootYaml }),
+      finalRootYaml: semanticView,
       ...(params.execution === undefined ? {} : { execution: params.execution }),
     }),
     ...(baseFormDependencies === undefined ? {} : { baseFormDependencies }),
@@ -247,8 +269,8 @@ export async function prepareImportFacts(params: {
     configurationFragment: params.collector.fragment(params.assignment.targetProjectPath),
     generatedFiles: [...generatedFiles, ...imported.generatedFiles.filter((file) => !generatedFiles.includes(file))],
     reconstructionFacts: { rootPropertyValues },
-    semanticProjection,
-    ...(baseFormSemanticProjection === undefined ? {} : { baseFormSemanticProjection }),
+    semanticFacts,
+    ...(baseFormSemanticFacts === undefined ? {} : { baseFormSemanticFacts }),
     deferred: imported.deferred,
     ...(baseFormDeferred === undefined ? {} : { baseFormDeferred }),
     pendingReferences: dependentIndex.pendingReferences,
@@ -260,6 +282,37 @@ export async function prepareImportFacts(params: {
   }
 }
 
+function augmentClientApplicationFormFacts(params: {
+  readonly facts: readonly DirectImportPropertyFact[]
+  readonly inputs: readonly ParsedFactsXmlInput[]
+  readonly context: XmlImportConfigurationContext
+  readonly rule: MetadataItemRule
+}): DirectImportPropertyFact[] {
+  const metadata = requireInput(params.inputs, "metadata")
+  const metadataObject = metadata.parsed["MetaDataObject"] as FormMetadataXML
+  const source = { ...metadataObject.Form }
+  const context = withResolvedXMLImportObjectVariant(
+    params.context,
+    resolveMetadataItemXMLDefaultVariant({ context: params.context, rule: params.rule, source }),
+  )
+  const before = createPropertyFactsYamlView(params.facts)
+  const yaml = Object.fromEntries(Object.keys(before).map(key => [key, before[key]]))
+  applyMetadataItemXmlImportAugmenter({ context, rule: params.rule, source, yaml })
+  const result = [...params.facts]
+  for (const [key, value] of Object.entries(yaml)) {
+    if (Object.hasOwn(before, key) && Object.is(before[key], value)) continue
+    result.push({
+      itemType: params.rule.itemType,
+      itemRule: params.rule,
+      propertyKey: `$augment:${key}`,
+      yamlPath: [key],
+      sourceYamlPath: [key],
+      value,
+    })
+  }
+  return result
+}
+
 function prepareFormValidationFacts(params: {
   readonly assignment: ImportAssignment
   readonly rule: MetadataItemRule
@@ -267,7 +320,7 @@ function prepareFormValidationFacts(params: {
   readonly propertyFacts: readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][]
   readonly owner: { readonly dir: string; readonly name: string }
 }): PreparedImportFacts["formValidation"] {
-  const projection = projectAcceptedPropertyFacts(params.localIndexes, params.propertyFacts)
+  const projection = createPropertyFactsYamlView(acceptedPropertyFacts(params.localIndexes, params.propertyFacts))
   const index = createImportedFormDataPathIndex({ yaml: projection, rule: params.rule })
   if (index === undefined) return undefined
   params.localIndexes.metadata.formDataPathIndex = index
@@ -320,13 +373,6 @@ export function prepareImportedFormDataPathChecks(params: {
   }))
 }
 
-function projectAcceptedPropertyFacts(
-  indexes: LocalIndexes,
-  propertyFacts: readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][],
-): Record<string, unknown> {
-  return projectPropertyFacts(acceptedPropertyFacts(indexes, propertyFacts))
-}
-
 function acceptedPropertyFacts(
   indexes: LocalIndexes,
   propertyFacts: readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][],
@@ -334,6 +380,9 @@ function acceptedPropertyFacts(
   const latestByKey = new Map<string, Parameters<DirectImportFactsSink["acceptProperty"]>[0]>()
   for (const fact of propertyFacts) latestByKey.set(propertyFactKey(fact.yamlPath, fact.propertyKey), fact)
   const result: Parameters<DirectImportFactsSink["acceptProperty"]>[0][] = []
+  for (const fact of propertyFacts) {
+    if (fact.propertyKey === "$formElementKind") result.push(fact)
+  }
   for (const event of indexes.metadata.events) {
     if (event.kind !== "property") continue
     const propertyKey = event.rulePath.at(-1)?.propertyKey
@@ -344,51 +393,40 @@ function acceptedPropertyFacts(
   return result
 }
 
-function projectPropertyFacts(facts: readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][]): Record<string, unknown> {
-  const result: Record<string, unknown> = {}
-  for (const fact of facts) setValueAtPath(result, fact.yamlPath, fact.value)
-  return result
+export function finalizeDeferredPropertyFacts(params: {
+  readonly facts: readonly DirectImportPropertyFact[]
+  readonly deferred: readonly import("@nkdk/runtime/rule-kit").DeferredValuePath[]
+  readonly rootRule: MetadataItemRule
+  readonly context: XmlImportConfigurationContext
+  readonly formDataPathIndex: LocalIndexes["metadata"]["formDataPathIndex"]
+  readonly execution?: import("@nkdk/runtime/rule-kit").CompiledPropertyRuleExecution
+}): DirectImportPropertyFact[] {
+  const deferredByPath = new Map(params.deferred.map(value => [yamlPathToPointer(value.valuePath), value]))
+  return params.facts.map((fact) => {
+    const deferred = deferredByPath.get(yamlPathToPointer(fact.yamlPath))
+    if (deferred === undefined) return fact
+    const rule = resolveDeferredPropertyRule(params.rootRule, deferred.rulePath, params.execution)
+    const finalize = params.execution === undefined
+      ? getTypeRule(rule.type, "finalizeImportedYAML")
+      : params.execution.getTypeRule(rule.type, "finalizeImportedYAML")
+    if (finalize === undefined) throw new Error(`Для типа ${rule.type} не зарегистрирован finalizeImportedYAML`)
+    const finalizedValue = finalize({
+      context: params.context,
+      rule,
+      value: fact.value,
+      ...(params.formDataPathIndex === undefined ? {} : { formDataPathIndex: params.formDataPathIndex }),
+    })
+    return {
+      ...fact,
+      value: finalizedValue,
+    }
+  })
 }
 
 function propertyFactKey(path: readonly (string | number)[], propertyKey: string): string {
   return JSON.stringify([path, propertyKey])
 }
 
-function setValueAtPath(root: Record<string, unknown>, path: readonly (string | number)[], value: unknown): void {
-  if (path.length === 0) return
-  let current: Record<string, unknown> | unknown[] = root
-  for (let index = 0; index < path.length - 1; index += 1) {
-    const segment = path[index]!
-    const nextSegment = path[index + 1]!
-    const existing = childAt(current, segment)
-    if (typeof existing === "object" && existing !== null) {
-      current = existing as Record<string, unknown> | unknown[]
-      continue
-    }
-    const created: Record<string, unknown> | unknown[] = typeof nextSegment === "number" ? [] : {}
-    setChild(current, segment, created)
-    current = created
-  }
-  setChild(current, path.at(-1)!, value)
-}
-
-function childAt(container: Record<string, unknown> | unknown[], segment: string | number): unknown {
-  if (!Array.isArray(container)) return container[String(segment)]
-  return typeof segment === "number" ? container[segment] : undefined
-}
-
-function setChild(
-  container: Record<string, unknown> | unknown[],
-  segment: string | number,
-  value: unknown,
-): void {
-  if (!Array.isArray(container)) {
-    container[String(segment)] = value
-    return
-  }
-  if (typeof segment !== "number") throw new Error(`Строковый сегмент ${segment} внутри YAML-массива`)
-  container[segment] = value
-}
 
 function parsedInputs(inputs: readonly ParsedImportXmlDocument[]): ParsedFactsXmlInput[] {
   return inputs.map(({ input, document }) => ({

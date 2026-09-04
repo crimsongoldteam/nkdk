@@ -1,5 +1,6 @@
 import { isXmlElementNode, type XmlAddressedNode, type XmlElementNode } from "../../../xml/import/document"
 import type { XmlStructureDifference } from "../../../xml/structure/compare"
+import { XML_ORDERED_CHILDREN } from "../../../xml/export/exporter"
 import { RETAINED_LOCAL_XML_OUTPUT, type CompiledXMLProofConsumer } from "./compiledRuleExecution"
 import type { XMLItemEnvelope, XMLItemOutputPreparation } from "./fromYAMLToXMLTypes"
 import type { LocalXmlChild, LocalXmlProof } from "../xmlAnomaly/localProof"
@@ -72,6 +73,7 @@ export function createLocalXmlBodyConsumer(params: {
         if (isXmlElementNode(node)) elementUseCount.set(node.id, (elementUseCount.get(node.id) ?? 0) + 1)
       }
       const completedElements = new Set<number>()
+      const containerReceipts = collectContainerReceipts(orderedWrites, bindings)
       for (const binding of bindings.values()) {
         if (!binding.structurallyClaimed || !isXmlElementNode(binding.node)) continue
         const path = binding.xmlPath ?? [binding.node.name]
@@ -88,20 +90,22 @@ export function createLocalXmlBodyConsumer(params: {
           Array.isArray(readPath(preparedBody, path)) ? receipts : receipts[0],
         )
       }
-      for (const { property, path } of orderedWrites) {
+      for (const { property, path, value: generatedValue, childReceipts: suppliedChildReceipts } of orderedWrites) {
         const binding = bindings.get(property.propertyKey)
         if (binding === undefined) throw new Error(`Не передана исходная XML-граница свойства ${property.propertyKey}`)
+        const childReceipts = isXmlElementNode(binding.node)
+          ? containerReceipts.get(binding.node.id) ?? suppliedChildReceipts ?? []
+          : suppliedChildReceipts ?? []
         if (isXmlElementNode(binding.node) && completedElements.has(binding.node.id)) continue
-        const value = readPath(preparedBody, path)
+        const retainedValue = readPath(preparedBody, path)
+        const value = retainedValue === undefined ? generatedValue : retainedValue
         if (!binding.presentInXML) {
-          if (findAnyChildReceipt(value, params.childReceipt) !== undefined) continue
+          if (childReceipts.length !== 0) continue
           if (isRecord(value) && value._id === "") {
             deletePath(preparedBody, path)
             continue
           }
-          const generated = value ?? (isComputedXmlOnlyProperty(property.propertyRule)
-            ? writes.get(`${property.propertyKey}\u0000${path.join("\u0000")}`)?.value
-            : undefined)
+          const generated = value
           if (generated !== undefined) {
             params.annotateAbsent?.({
               name: path.at(-1)!, path, value: generated, property,
@@ -131,13 +135,13 @@ export function createLocalXmlBodyConsumer(params: {
             ? undefined : difference => params.annotateScalar!({
               source: scalarSource, owner: binding.owner, difference, property,
             }))
-          writePath(preparedBody, path, receipt)
+          writePathCreating(preparedBody, path, receipt)
           continue
         }
         if (
           binding.nodes !== undefined
           && Array.isArray(value)
-          && value.every(entry => findAnyChildReceipt(entry, params.childReceipt) === undefined)
+          && childReceipts.length === 0
         ) {
           const receipts = binding.nodes.map((node, index) => {
             completedElements.add(node.id)
@@ -156,15 +160,35 @@ export function createLocalXmlBodyConsumer(params: {
               property,
             })
           }
-          writePath(preparedBody, path, receipts)
+          writePathCreating(preparedBody, path, receipts)
+          continue
+        }
+        const sourceNode = binding.node
+        if (
+          childReceipts.length !== 0
+          && sourceNode.name === path.at(-1)
+          && childReceipts.every(receipt => sourceNode.content.some(
+            child => child.type === "element" && child.id === receipt.sourceId,
+          ))
+        ) {
+          mergeContainerChildReceipts({
+            root: preparedBody,
+            path,
+            source: sourceNode,
+            receipts: childReceipts,
+            generatedValue,
+          })
           continue
         }
         const child = params.childReceipt(value)
-        const retained = child?.sourceId === binding.node.id
+        const direct = childReceipts.find(receipt => receipt.sourceId === sourceNode.id)
+        const retained = child?.sourceId === sourceNode.id
           ? child
-          : findFinishedSource(value, binding.node.id, params.childReceipt)
+          : direct
         if (retained !== undefined) {
-          writePath(preparedBody, path, child === retained ? retained : value)
+          writePathCreating(preparedBody, path, Array.isArray(value) && childReceipts.length !== 0
+            ? childReceipts
+            : retained)
           continue
         }
         const receipt = child ?? complete(
@@ -180,10 +204,10 @@ export function createLocalXmlBodyConsumer(params: {
             differences: [{ kind: "presence", path: binding.node.path, ownerPath: binding.node.path }],
             property,
           })
-          writePath(preparedBody, path, receipt)
+          writePathCreating(preparedBody, path, receipt)
           continue
         }
-        writePath(preparedBody, path, receipt)
+        writePathCreating(preparedBody, path, receipt)
       }
       const receipt = complete(
         params.source,
@@ -196,48 +220,32 @@ export function createLocalXmlBodyConsumer(params: {
   }
 }
 
-function findAnyChildReceipt(
-  value: unknown,
-  childReceipt: (value: unknown) => LocalXmlChild | undefined,
-): LocalXmlChild | undefined {
-  const receipt = childReceipt(value)
-  if (receipt !== undefined) return receipt
-  if (Array.isArray(value)) {
-    for (const entry of value) {
-      const found = findAnyChildReceipt(entry, childReceipt)
-      if (found !== undefined) return found
+function collectContainerReceipts(
+  writes: readonly Parameters<CompiledXMLProofConsumer["write"]>[0][],
+  bindings: ReadonlyMap<string, Parameters<NonNullable<CompiledXMLProofConsumer["bind"]>>[0]>,
+): ReadonlyMap<number, readonly LocalXmlChild[]> {
+  const result = new Map<number, LocalXmlChild[]>()
+  const seen = new Map<number, Set<number>>()
+  for (const { property, childReceipts = [] } of writes) {
+    const node = bindings.get(property.propertyKey)?.node
+    if (!isXmlElementNode(node)) continue
+    const directChildIds = new Set(node.content.filter(isXmlElementNode).map(child => child.id))
+    const direct = childReceipts.filter(
+      (receipt): receipt is LocalXmlChild & { readonly sourceId: number } =>
+        receipt.sourceId !== undefined && directChildIds.has(receipt.sourceId),
+    )
+    if (direct.length === 0) continue
+    const receipts = result.get(node.id) ?? []
+    const sourceIds = seen.get(node.id) ?? new Set<number>()
+    for (const receipt of direct) {
+      if (sourceIds.has(receipt.sourceId)) continue
+      sourceIds.add(receipt.sourceId)
+      receipts.push(receipt)
     }
-    return undefined
+    result.set(node.id, receipts)
+    seen.set(node.id, sourceIds)
   }
-  if (!isRecord(value)) return undefined
-  for (const entry of Object.values(value)) {
-    const found = findAnyChildReceipt(entry, childReceipt)
-    if (found !== undefined) return found
-  }
-  return undefined
-}
-
-
-function findFinishedSource(
-  value: unknown,
-  sourceId: number,
-  childReceipt: (value: unknown) => LocalXmlChild | undefined,
-): LocalXmlChild | undefined {
-  const receipt = childReceipt(value)
-  if (receipt?.sourceId === sourceId) return receipt
-  if (Array.isArray(value)) {
-    for (const entry of value) {
-      const found = findFinishedSource(entry, sourceId, childReceipt)
-      if (found !== undefined) return found
-    }
-    return undefined
-  }
-  if (value === null || typeof value !== "object") return undefined
-  for (const entry of Object.values(value)) {
-    const found = findFinishedSource(entry, sourceId, childReceipt)
-    if (found !== undefined) return found
-  }
-  return undefined
+  return result
 }
 
 function unwrapEnvelope(value: Record<string, unknown>, envelope: XMLItemEnvelope | undefined): Record<string, unknown> {
@@ -251,12 +259,6 @@ function readPath(root: Record<string, unknown>, path: readonly string[]): unkno
   let current: unknown = root
   for (const segment of path) current = isRecord(current) ? current[segment] : undefined
   return current
-}
-
-function writePath(root: Record<string, unknown>, path: readonly string[], value: unknown): void {
-  const owner = path.slice(0, -1).reduce<unknown>((current, segment) => isRecord(current) ? current[segment] : undefined, root)
-  if (!isRecord(owner)) throw new Error(`Не найден владелец XML-пути ${path.join("/")}`)
-  owner[path.at(-1)!] = value
 }
 
 function writePathCreating(root: Record<string, unknown>, path: readonly string[], value: unknown): void {
@@ -273,6 +275,56 @@ function writePathCreating(root: Record<string, unknown>, path: readonly string[
   owner[path.at(-1)!] = value
 }
 
+function mergeContainerChildReceipts(params: {
+  readonly root: Record<string, unknown>
+  readonly path: readonly string[]
+  readonly source: XmlElementNode
+  readonly receipts: readonly LocalXmlChild[]
+  readonly generatedValue: unknown
+}): void {
+  const receiptBySource = new Map(params.receipts.map(receipt => [receipt.sourceId, receipt]))
+  const grouped = new Map<string, LocalXmlChild[]>()
+  for (const child of params.source.content) {
+    if (child.type !== "element") continue
+    const receipt = receiptBySource.get(child.id)
+    if (receipt === undefined) continue
+    const values = grouped.get(child.name) ?? []
+    values.push(receipt)
+    grouped.set(child.name, values)
+  }
+  const existing = readPath(params.root, params.path)
+  const current = isRecord(existing) ? existing : {}
+  const generated = isRecord(params.generatedValue) ? params.generatedValue : {}
+  const merged: Record<string, unknown> = {}
+  for (const child of params.source.content) {
+    if (child.type !== "element" || Object.prototype.hasOwnProperty.call(merged, child.name)) continue
+    const receipts = grouped.get(child.name)
+    if (receipts !== undefined) {
+      merged[child.name] = Array.isArray(generated[child.name]) || receipts.length > 1
+        ? receipts
+        : receipts[0]
+    } else if (Object.prototype.hasOwnProperty.call(current, child.name)) {
+      merged[child.name] = current[child.name]
+    }
+  }
+  for (const [key, value] of Object.entries(current)) {
+    if (!Object.prototype.hasOwnProperty.call(merged, key)) merged[key] = value
+  }
+  const occurrences = new Map<string, number>()
+  const orderedChildren = params.source.content.flatMap((child) => {
+    if (child.type !== "element") return []
+    const occurrence = occurrences.get(child.name) ?? 0
+    occurrences.set(child.name, occurrence + 1)
+    const receipt = receiptBySource.get(child.id)
+    if (receipt !== undefined) return [{ key: child.name, value: receipt }]
+    const retained = current[child.name]
+    const value = Array.isArray(retained) ? retained[occurrence] : retained
+    return value === undefined ? [] : [{ key: child.name, value }]
+  })
+  ;(merged as Record<PropertyKey, unknown>)[XML_ORDERED_CHILDREN] = orderedChildren
+  writePathCreating(params.root, params.path, merged)
+}
+
 function deletePath(root: Record<string, unknown>, path: readonly string[]): void {
   const owner = path.slice(0, -1).reduce<unknown>((current, segment) => isRecord(current) ? current[segment] : undefined, root)
   if (isRecord(owner)) delete owner[path.at(-1)!]
@@ -284,11 +336,6 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function generatedPath(root: string, path: readonly string[]): string {
   return `${root}/${path.map((segment) => `${segment}[1]`).join("/")}`
-}
-
-function isComputedXmlOnlyProperty(rule: LocalBodyProperty["propertyRule"]): boolean {
-  return rule.fromXML === false && rule.toYAML === false && rule.fromYAML === false
-    && rule.evaluateWhenYAMLMissing === true
 }
 
 function unwrapPreparedItem(value: Record<string, unknown>): {

@@ -93,13 +93,13 @@ export const MetadataAccumulationRegisterRules = {
     xmlRoot: xmlRootRule({
       container: "AccumulationRegister",
       rootAttributes: V8_MDCLASSES_ROOT,
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
     }),
     internalInfo: internalInfoRule({
       xmlParents: [],
-      forReferenceOnly: true,
+      xmlOnly: true,
       items: [
         { name: "AccumulationRegisterRecord", category: "Record" },
         { name: "AccumulationRegisterManager", category: "Manager" },
@@ -214,7 +214,7 @@ export const MetadataAccumulationRegisterRules = {
     forms: childFormNamesRule({
       xml: "Form",
       folderName: "Формы",
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
       xmlParents: childObjects,
@@ -222,7 +222,7 @@ export const MetadataAccumulationRegisterRules = {
     templates: childTemplateNamesRule({
       xml: "Template",
       folderName: "Шаблоны",
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
       xmlParents: childObjects,

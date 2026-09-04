@@ -11,7 +11,7 @@ const inlineRule = {
       type: "XMLRoot",
       container: "Root",
       rootAttributes: { _xmlns: "ns" },
-      forReferenceOnly: true,
+      xmlOnly: true,
     },
     payload: { type: "string", yaml: "payload", yamlInline: true },
   },

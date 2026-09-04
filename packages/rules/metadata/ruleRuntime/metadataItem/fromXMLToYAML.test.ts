@@ -400,7 +400,7 @@ describe("importMetadataItemFromXMLToYAML", () => {
     const attributeRule = {
       itemType: "Task4NestedAttribute",
       properties: {
-        uuid: { type: "UUID", xml: "_uuid", forReferenceOnly: true },
+        uuid: { type: "UUID", xml: "_uuid", xmlOnly: true },
         name: { type: "string", xml: "Name", yaml: "Имя", xmlParents: ["Properties"] },
         type: { type: "string", xml: "Type", yaml: "Тип", xmlParents: ["Properties"] },
         format: { type: "string", xml: "Format", yaml: "Формат", xmlParents: ["Properties"] },

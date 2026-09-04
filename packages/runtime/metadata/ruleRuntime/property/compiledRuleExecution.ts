@@ -26,7 +26,10 @@ export const RETAINED_LOCAL_XML_OUTPUT = Symbol("retainedLocalXmlOutput")
 export interface CompiledXMLProofConsumer {
   /** Прямая привязка импорта, включая alias и отсутствие исходного свойства. */
   bind?(source: DirectImportXMLPropertyBinding): void
-  write(event: Parameters<XMLPropertyExecutionObserver["write"]>[0]): LocalXmlChild | LocalXmlScalar | typeof SUPPRESSED_LOCAL_XML_OUTPUT | typeof RETAINED_LOCAL_XML_OUTPUT | void
+  write(event: Parameters<XMLPropertyExecutionObserver["write"]>[0] & {
+    /** Вклады закрытых непосредственных детей этого свойства, без поиска в YAML. */
+    readonly childReceipts?: readonly LocalXmlChild[]
+  }): LocalXmlChild | LocalXmlScalar | typeof SUPPRESSED_LOCAL_XML_OUTPUT | typeof RETAINED_LOCAL_XML_OUTPUT | void
   complete?: XMLPropertyExecutionObserver["complete"]
   /** На выходе только вклады корней; контрольные значения не сохраняются. */
   finish(output: YAMLToXMLResult): ReadonlyMap<string, LocalXmlChild>
@@ -56,6 +59,7 @@ export function createCompiledRuleExecution(params: {
     readonly prepared: YAMLToXMLItemConversionParams
     readonly childIndices: Map<string, number>
     readonly nestedProperties: Map<string, ReturnType<typeof prepareNestedXMLPropertyContext>>
+    readonly childReceipts: Map<string, LocalXmlChild[]>
   }[] = []
   const children = {
     childReceipt(value: unknown): LocalXmlChild | undefined {
@@ -94,10 +98,8 @@ export function createCompiledRuleExecution(params: {
       const ownerProperty = propertyKey === undefined ? undefined : parent?.plan.propertiesByKey.get(propertyKey)
       const supplied = params.prepare(source)
       const propertyValues = new Map(supplied.propertyValues)
-      for (const [key, propertyRule] of Object.entries(source.rule.properties)) {
-        const prepared = propertyRule.forReferenceOnly === true
-          ? source.dependencies?.reconstructionValue?.(source.yamlPath, key)
-          : source.dependencies?.propertyValue?.(source.yamlPath, key)
+      for (const key of Object.keys(source.rule.properties)) {
+        const prepared = source.dependencies?.propertyValue?.(source.yamlPath, key)
         if (prepared?.value !== undefined) propertyValues.set(key, prepared.value)
       }
       let context = supplied.context
@@ -148,6 +150,7 @@ export function createCompiledRuleExecution(params: {
       const frame = {
         plan, prepared, childIndices: new Map<string, number>(), inline: new Map<string, Map<InlineSelector, InlineBindings>>(),
         nestedProperties: new Map<string, ReturnType<typeof prepareNestedXMLPropertyContext>>(),
+        childReceipts: new Map<string, LocalXmlChild[]>(),
       }
       const item = createXMLPropertyExecution({
         ...prepared, execution: params.execution, rule: source.rule, yaml: source.yaml,
@@ -189,7 +192,10 @@ export function createCompiledRuleExecution(params: {
           return transport(entry.result)
         },
         write(event) {
-          const receipt = consumer.write(event)
+          const receipt = consumer.write({
+            ...event,
+            childReceipts: frame.childReceipts.get(event.property.propertyKey) ?? [],
+          })
           if (receipt === SUPPRESSED_LOCAL_XML_OUTPUT) return { retainedValue: undefined }
           if (receipt === RETAINED_LOCAL_XML_OUTPUT) return { retainedValue: event.value }
           const retainedValue = markLocalXmlBoundary({})
@@ -208,6 +214,9 @@ export function createCompiledRuleExecution(params: {
           const result = { roots: consumer.finish(finalized), externalWrites: finalized.externalWrites }
           completed.set(identityKey, { rule: source.rule, result })
           if (parent !== undefined && propertyKey !== undefined) {
+            const receipts = parent.childReceipts.get(propertyKey) ?? []
+            receipts.push(...result.roots.values())
+            parent.childReceipts.set(propertyKey, receipts)
             let bindings = parent.inline.get(propertyKey)
             if (bindings === undefined) parent.inline.set(propertyKey, bindings = new Map())
             const nestedRule = ownerProperty?.operations.yamlToXMLNestedRule

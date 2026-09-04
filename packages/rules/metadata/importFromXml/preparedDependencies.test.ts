@@ -5,7 +5,7 @@ import { FormAttributeRules } from "../forms/commonObjects/formAttribute/rules"
 import { StandardAttributeDescriptionRules } from "../commonObjects/standardAttributeDescription/rules"
 import { MetadataWebServiceRules } from "../appliedObjects/metadataWebService/rules"
 import { collectImportDependencyFacts, prepareImportDependencies } from "./preparedDependencies"
-import type { ImportedDependentPropertyCandidate } from "@nkdk/runtime/rule-kit"
+import type { ImportedDependentPropertyCandidate, MetadataItemRule } from "@nkdk/runtime/rule-kit"
 
 const owner = { dir: "Справочник", name: "Товары" }
 
@@ -93,7 +93,7 @@ describe("prepared import dependencies", () => {
     })).toBe(true)
   })
 
-  it("сохраняет компактное forReferenceOnly-значение для локального экспорта", () => {
+  it("сохраняет компактное xmlOnly-значение для локального экспорта", () => {
     const facts = collectImportDependencyFacts({
       rule: MetadataCatalogRules, owner, candidates: [], yaml: {},
       propertyFacts: [{
@@ -105,7 +105,7 @@ describe("prepared import dependencies", () => {
       }],
     })
 
-    expect(prepareImportDependencies(facts).reconstructionValue?.([], "forms"))
+    expect(prepareImportDependencies(facts).propertyValue?.([], "forms"))
       .toEqual({ value: ["ФормаСписка", "ФормаЭлемента"] })
   })
 
@@ -140,6 +140,38 @@ describe("prepared import dependencies", () => {
     })
 
     expect(prepareImportDependencies(facts).propertyValue?.([], "operations"))
+      .toEqual({ value: {} })
+  })
+
+  it("не подавляет присутствующий пустой XML nested-свойства, опущенный из YAML", () => {
+    const nestedRule = {
+      itemType: "Nested",
+      properties: {
+        settings: {
+          type: "string",
+          yaml: "Настройки",
+          preserveEmptyXML: true,
+        },
+      },
+    } as const satisfies MetadataItemRule
+    const facts = collectImportDependencyFacts({
+      rule: MetadataCatalogRules,
+      owner,
+      candidates: [],
+      yaml: { Элементы: { Первый: {} } },
+      finalRootYaml: { Элементы: { Первый: {} } },
+      proofPropertyFacts: [{
+        itemType: nestedRule.itemType,
+        itemRule: nestedRule,
+        propertyKey: "settings",
+        value: undefined,
+        reconstructionValue: {},
+        presentInXML: true,
+        yamlPath: ["Элементы", "Первый", "Настройки"],
+      }],
+    })
+
+    expect(prepareImportDependencies(facts).propertyValue?.(["Элементы", "Первый"], "settings"))
       .toEqual({ value: {} })
   })
 

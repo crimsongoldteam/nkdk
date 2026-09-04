@@ -47,7 +47,7 @@ describe("ChildFormNames: единый импорт XML → YAML", () => {
   const rule = childFormNamesRule({
     xml: "Form",
     folderName: "Формы",
-    forReferenceOnly: true,
+    xmlOnly: true,
     toYAML: false,
     fromYAML: false,
     xmlParents: ["ChildObjects"] as string[],

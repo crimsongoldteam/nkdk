@@ -14,7 +14,7 @@ const createRule = (
       order?: number
       toXML?: false
       yaml?: string
-      forReferenceOnly?: true
+      xmlOnly?: true
     }
   >,
   xmlOrder?: readonly string[]

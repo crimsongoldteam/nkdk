@@ -28,13 +28,13 @@ export const MetadataIntegrationServiceRules = {
     xmlRoot: xmlRootRule({
       container: "IntegrationService",
       rootAttributes: V8_MDCLASSES_ROOT,
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
     }),
     internalInfo: internalInfoRule({
       xmlParents: [],
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
       items: [{ name: "IntegrationServiceManager", category: "Manager" }],

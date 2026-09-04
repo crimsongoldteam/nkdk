@@ -296,9 +296,20 @@ const VALUE_LIST_SETTINGS_XML_RAW_LOCATIONS = [
   "cf/ОбщаяФорма/ФормаПоиска/Свойства.yaml#/Форма/Реквизиты/ПоследниеЗапросы/@Form\\ТипЗначения",
 ] as const
 
+const EXTERNAL_DATA_SOURCE_EMPTY_NAME_XML_RAW_LOCATIONS = [
+  "cfe/Расширение_All/ВнешнийИсточникДанных/ВнешнийИсточникДанныхВсеСвойства/Кубы/КубВсеСвойства/Свойства.yaml#/Properties",
+  "cfe/Расширение_All/ВнешнийИсточникДанных/ВнешнийИсточникДанныхВсеСвойства/Кубы/КубВсеСвойства/Свойства.yaml#/Properties\\NameInDataSource",
+  "cfe/Расширение_All/ВнешнийИсточникДанных/ВнешнийИсточникДанныхВсеСвойства/Кубы/КубВсеСвойства/Свойства.yaml#/Ресурсы/РесурсВсеСвойства/Properties\\NameInDataSource",
+  "cfe/Расширение_All/ВнешнийИсточникДанных/ВнешнийИсточникДанныхВсеСвойства/Кубы/КубВсеСвойства/ТаблицыИзмерений/ТаблицаИзмеренияВсеСвойства/Свойства.yaml#/Properties",
+  "cfe/Расширение_All/ВнешнийИсточникДанных/ВнешнийИсточникДанныхВсеСвойства/Кубы/КубВсеСвойства/ТаблицыИзмерений/ТаблицаИзмеренияВсеСвойства/Свойства.yaml#/Properties\\NameInDataSource",
+  "cfe/Расширение_All/ВнешнийИсточникДанных/ВнешнийИсточникДанныхВсеСвойства/Таблицы/ТаблицаВсеСвойства/Свойства.yaml#/Поля/ПолеВсеСвойства/Properties",
+  "cfe/Расширение_All/ВнешнийИсточникДанных/ВнешнийИсточникДанныхВсеСвойства/Таблицы/ТаблицаВсеСвойства/Свойства.yaml#/Поля/ПолеВсеСвойства/Properties\\NameInDataSource",
+] as const
+
 const EXPECTED_XML_RAW_LOCATIONS = [
   ...RARE_FILL_VALUE_XML_RAW_LOCATIONS,
   ...VALUE_LIST_SETTINGS_XML_RAW_LOCATIONS,
+  ...EXTERNAL_DATA_SOURCE_EMPTY_NAME_XML_RAW_LOCATIONS,
 ].sort(compareUtf8)
 
 const EXPECTED_XML_INVALID_LOCATIONS = [

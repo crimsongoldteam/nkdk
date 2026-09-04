@@ -454,6 +454,17 @@ describe("единое восстановление XML-аномалий assignm
     ])
   })
 
+  it("не дублирует xmlParents в полном публичном XML-пути свойства", () => {
+    const prepared = prepareAnomalies([
+      '"Properties\\\\Known": !xml/raw',
+      "  $xml: null",
+    ].join("\n"), anomalyRuntime({}), parentPatchRule)
+
+    expect(prepared.rawBoundaries).toEqual([
+      expect.objectContaining({ path: "Properties\\Known" }),
+    ])
+  })
+
   it("объединяет смысловую поправку ребёнка с порядком raw-родителя", () => {
     const prepared = prepareAnomalies([
       "Известное: !xml/raw",
@@ -1180,6 +1191,97 @@ describe("единое восстановление XML-аномалий assignm
     expect(xml.indexOf("<Known>")).toBeLessThan(xml.indexOf("<Future>"))
   })
 
+  it("заменяет обычное пустое свойство path-raw перед применением порядка контейнера", () => {
+    const prepared = prepareAnomalies([
+      "Известное: !изменять",
+      '"Properties\\\\#order": !xml/raw',
+      "  $xml: [Known]",
+      '"Properties\\\\Known": !xml/raw',
+      "  $xml:",
+    ].join("\n"), anomalyRuntime({}), parentPatchRule)
+
+    expect(prepared.rawBoundaries).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        path: "Properties\\Known",
+        occurrencePath: [null, 1],
+        suppressOrdinaryOutput: true,
+      }),
+    ]))
+    const xml = buildPreparedAssignmentXml({
+      document: {
+        targetXmlPath: "Root.xml",
+        xml: { Root: { Properties: { Known: "" } } },
+        deferred: [],
+        rootRule: parentPatchRule,
+        rawBoundaries: prepared.rawBoundaries,
+      },
+      context: mockContextToXML(),
+    })
+
+    expect(xml.match(/<Known\/>/gu)).toHaveLength(1)
+  })
+
+  it("применяет локальную raw-поправку порядка по служебному XML-пути", () => {
+    const prepared = prepareAnomalies([
+      "Известное: value",
+      '"Properties\\\\#order": !xml/raw',
+      "  $xml: [Known, Future]",
+      '"Properties\\\\Future": !xml/raw',
+      "  $xml: future",
+    ].join("\n"), anomalyRuntime({}), parentPatchRule)
+
+    expect(prepared.rawBoundaries).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: "Properties\\#order", suppressOrdinaryOutput: false }),
+    ]))
+    expect(buildKnownParentXml(prepared.rawBoundaries)).toContain(
+      "<Properties>\n\t\t<Known>value</Known>\n\t\t<Future>future</Future>\n\t</Properties>",
+    )
+  })
+
+  it("привязывает raw-порядок Settings к фактически экспортированному реквизиту формы", () => {
+    const prepared = prepareAnomalies([
+      "Реквизиты:",
+      "  Расхождения:",
+      "    Тип: ДинамическийСписок",
+      "    ДинамическийСписок:",
+      '      "#order": !xml/raw',
+      "        $xml: [ManualQuery, DynamicDataRead, KeyField, KeyField, KeyField, ListSettings]",
+      "      ПроизвольныйЗапрос: Истина",
+      "      ПоляКлюча: first",
+      "      KeyField: !xml/raw",
+      "        $xml: second",
+      "      !xml/invalid KeyField: !xml/raw",
+      "        $xml: third",
+    ].join("\n"), anomalyRegistries.xmlAnomalies, ClientApplicationFormRules, anomalyRegistries)
+    const yaml = prepared.preparedYamlFile.data as ClientApplicationFormYAML
+    const orderBoundary = prepared.rawBoundaries.find(({ path }) => path === "Settings\\#order")
+    expect(orderBoundary).toMatchObject({ tag: FormRulesTags.Form })
+    expect(orderBoundary?.documentSelector).toBeUndefined()
+    expect(prepared.rawBoundaries.filter(({ path }) => path === "Settings\\KeyField")).toEqual([
+      expect.objectContaining({ occurrencePath: [null, 2] }),
+      expect.objectContaining({ occurrencePath: [null, 3] }),
+    ])
+
+    const xml = exportPreparedFormAssignment(prepared, yaml, false)
+    expect(xml).toMatch(/<Attribute name="Расхождения"[^>]*>[\s\S]*<Settings[^>]*>[\s\S]*<ManualQuery>true<\/ManualQuery>/u)
+    expect(xml.match(/<KeyField>/gu)).toHaveLength(3)
+  })
+
+  it("адресует повторные локальные raw-поля по физическим вхождениям", () => {
+    const prepared = prepareAnomalies([
+      '"Properties\\\\Future": !xml/raw',
+      "  $xml: first",
+      '!xml/invalid "Properties\\\\Future": !xml/raw',
+      "  $xml: second",
+    ].join("\n"), anomalyRuntime({}), parentPatchRule)
+
+    expect(prepared.rawBoundaries).toEqual([
+      expect.objectContaining({ path: "Properties\\Future", occurrencePath: [null, 1] }),
+      expect.objectContaining({ path: "Properties\\Future", occurrencePath: [null, 2] }),
+    ])
+  })
+
+
   it("сохраняет служебный порядок XML-дочерних элементов в чистой сборке", () => {
     const root = { First: "first", Second: "second" }
     Object.defineProperty(root, Symbol.for("xmlOrderedChildren"), {
@@ -1317,7 +1419,10 @@ function rootFingerprints(
   return roots.map(({ name, path, structuralHash }) => ({ name, path, structuralHash }))
 }
 
-function exportFormWithAnomalies(lines: readonly string[], withDataPaths = false): string {
+function exportFormWithAnomalies(
+  lines: readonly string[],
+  withDataPaths = false,
+): string {
   const prepared = prepareAnomalies(
     lines.join("\n"),
     anomalyRegistries.xmlAnomalies,

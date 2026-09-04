@@ -33,7 +33,7 @@ export const <ObjectName>Rules = {
 ```typescript
 const properties = ["DocumentNumerator", "Properties"]
 
-uuid:  { type: "string", xml: "_uuid", forReferenceOnly: true, xmlParents: ["DocumentNumerator"] }  // DocumentNumerator/@uuid
+uuid:  { type: "string", xml: "_uuid", xmlOnly: true, xmlParents: ["DocumentNumerator"] }  // DocumentNumerator/@uuid
 name:  { type: "string", required: true,                        xmlParents: properties }            // DocumentNumerator/Properties/Name
 ```
 
@@ -76,6 +76,6 @@ YAML-форма отличается от XML-формы и от внутрен�
 - английские TS-ключи свойств (`numberType`, `checkUnique`);
 - поле `yaml: "..."` — **русское имя** синонима (`"ТипНомера"`, `"КонтрольУникальности"`). Это имя, часть структуры правила;
 - `itemType`, `itemTypePrefix`;
-- XML-аннотации: `xml`, `xmlParents`, `defaultValueXML`, `defaultValueXMLRaw`, `forReferenceOnly`, `required`.
+- XML-аннотации: `xml`, `xmlParents`, `defaultValueXML`, `defaultValueXMLRaw`, `xmlOnly`, `required`.
 
 На шаге 4 **не** пишем YAML-поведенческих аннотаций: `defaultValueYAML`, `toYAML: false`, `fromYAML: false`, `excludeIfEqualNameYAML`, `useAsShortValueYAML`. Эти значения собираются в брифе (шаг 1) «в память» агента и добавляются в `rules.ts` на шаге 11 (YAML-цикл).

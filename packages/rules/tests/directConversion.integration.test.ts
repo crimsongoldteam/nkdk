@@ -68,7 +68,7 @@ describe("direct conversion test helpers", () => {
           type: "XMLRoot",
           container: "Item",
           rootAttributes: { _xmlns: "generated" },
-          forReferenceOnly: true,
+          xmlOnly: true,
         },
         value: { type: "string", yaml: "Значение", xml: "Value" },
       },

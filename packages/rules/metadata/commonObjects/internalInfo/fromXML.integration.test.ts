@@ -22,18 +22,18 @@ import { collectInternalInfoConfigurationIndexFromXML } from "./configurationInd
 
 const rule: PropertyRule = {
   type: "InternalInfo",
-  forReferenceOnly: true,
+  xmlOnly: true,
   items: [{ name: "ExchangePlanRef", category: "Ref" }],
 }
 
 const containedObjectsRule: PropertyRule = {
   type: "InternalInfo",
-  forReferenceOnly: true,
+  xmlOnly: true,
 }
 
 const generatedContainedObjectsRule: PropertyRule = {
   type: "InternalInfo",
-  forReferenceOnly: true,
+  xmlOnly: true,
   containedObjectClassIds: ["00000000-0000-0000-0000-000000000101", "00000000-0000-0000-0000-000000000102"],
 }
 
@@ -147,7 +147,7 @@ describe("importInternalInfoFromXML", () => {
 
     expect(() => collectInternalInfoConfigurationIndexFromXML({
       context: contexts.importContext,
-      rule: internalInfoRule({ xml: "InternalInfo", xmlParents: [], forReferenceOnly: true, items: [] }),
+      rule: internalInfoRule({ xml: "InternalInfo", xmlParents: [], xmlOnly: true, items: [] }),
       xml: undefined,
       propertyKey: "internalInfo",
     })).not.toThrow()
@@ -160,7 +160,7 @@ describe("importInternalInfoFromXML", () => {
           internalInfo: internalInfoRule({
             xml: "InternalInfo",
             xmlParents: [],
-            forReferenceOnly: true,
+            xmlOnly: true,
             items: [],
           }),
         },
@@ -220,7 +220,7 @@ describe("importInternalInfoFromXML", () => {
   it("creates distinct deterministic UUIDs for a new InternalInfo", () => {
     const newRule: PropertyRule = {
       type: "InternalInfo",
-      forReferenceOnly: true,
+      xmlOnly: true,
       thisNode: true,
       items: [
         { name: "CatalogRef", category: "Ref" },

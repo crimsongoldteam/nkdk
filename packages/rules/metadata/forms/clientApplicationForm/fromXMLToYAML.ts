@@ -30,22 +30,26 @@ import type { MetadataItemRule } from "../../ruleRuntime"
 import { createFormDataPathIndexFromYAML } from "./formDataPathMetadata"
 import { recordClientApplicationFormNamespaces } from "./namespaces"
 
-export function importClientApplicationFormFromXMLToYAML(params: {
+interface FormImportExecutionOptions {
   dependencies?: PreparedImportDependencies
   context: Parameters<typeof importPropertiesFromXMLToYAML>[0]["context"]
   formName: string
-  formXML?: ClientApplicationFormXML
-  metadataXML: FormMetadataXML
-  formXMLNode?: XmlElementNode
-  metadataXMLNode?: XmlElementNode
   audit?: XmlImportAuditSession
   annotations?: XmlAnomalyAnnotationTable
   profile?: DirectImportProfile
   rule?: MetadataItemRule
   mode?: DirectImportMode
+  produceResult?: boolean
   facts?: DirectImportFactsSink
   roundTrip?: DirectImportRoundTripExecution
   beforeFinish?: (yaml: Record<string, unknown>) => void
+}
+
+export function importClientApplicationFormFromXMLToYAML(params: FormImportExecutionOptions & {
+  formXML?: ClientApplicationFormXML
+  metadataXML: FormMetadataXML
+  formXMLNode?: XmlElementNode
+  metadataXMLNode?: XmlElementNode
 }): DirectImportResult {
   const rule = params.rule ?? ClientApplicationFormRules
   if (params.formXML === undefined && params.metadataXML.Form.Properties.FormType !== "Ordinary") {
@@ -68,13 +72,7 @@ export function importClientApplicationFormFromXMLToYAML(params: {
     formName: params.formName,
     collector: localIndexesCollector,
     deferred,
-    audit: params.audit,
-    annotations: params.annotations,
-    profile: params.profile,
-    mode: params.mode,
-    facts: params.facts,
-    dependencies: params.dependencies,
-    roundTrip: params.roundTrip,
+    ...formImportExecutionOptions(params),
     beforeFinish: (yaml) => {
       applyMetadataItemXmlImportAugmenter({
         context,
@@ -105,21 +103,10 @@ export function importClientApplicationFormFromXMLToYAML(params: {
   }
 }
 
-export function importClientApplicationFormBodyFromXML(params: {
-  dependencies?: PreparedImportDependencies
-  context: Parameters<typeof importPropertiesFromXMLToYAML>[0]["context"]
-  formName: string
+export function importClientApplicationFormBodyFromXML(params: FormImportExecutionOptions & {
   formXML: ClientApplicationFormXML | XmlElementNode
   collector: LocalIndexesCollector
   deferred?: DeferredValuePathCollector
-  audit?: XmlImportAuditSession
-  annotations?: XmlAnomalyAnnotationTable
-  profile?: DirectImportProfile
-  rule?: MetadataItemRule
-  mode?: DirectImportMode
-  facts?: DirectImportFactsSink
-  roundTrip?: DirectImportRoundTripExecution
-  beforeFinish?: (yaml: Record<string, unknown>) => void
 }): { yaml: Record<string, unknown> | undefined; generatedFiles: ExternalFileEntry[] } {
   const { context: _context, ...result } = importClientApplicationFormSources({
     ...params,
@@ -133,20 +120,10 @@ export function importClientApplicationFormBodyFromXML(params: {
   return result
 }
 
-function importClientApplicationFormSources(params: {
-  dependencies?: PreparedImportDependencies
-  context: Parameters<typeof importPropertiesFromXMLToYAML>[0]["context"]
-  formName: string
+function importClientApplicationFormSources(params: Omit<FormImportExecutionOptions, "rule"> & {
   rule: MetadataItemRule
   collector: LocalIndexesCollector
   deferred?: DeferredValuePathCollector
-  audit?: XmlImportAuditSession
-  annotations?: XmlAnomalyAnnotationTable
-  profile?: DirectImportProfile
-  mode?: DirectImportMode
-  facts?: DirectImportFactsSink
-  roundTrip?: DirectImportRoundTripExecution
-  beforeFinish?: (yaml: Record<string, unknown>) => void
   createSources(context: Parameters<typeof importPropertiesFromXMLToYAML>[0]["context"]): DirectImportXMLSource[]
 }): {
   yaml: Record<string, unknown> | undefined
@@ -174,16 +151,23 @@ function importClientApplicationFormSources(params: {
       rulePath: [],
       collector: params.collector,
       deferred: params.deferred,
-      audit: params.audit,
-      annotations: params.annotations,
-      profile: params.profile,
-      mode: params.mode,
-      facts: params.facts,
-      dependencies: params.dependencies,
-      roundTrip: params.roundTrip,
-      beforeFinish: params.beforeFinish,
+      ...formImportExecutionOptions(params),
     }),
     generatedFiles,
     context,
+  }
+}
+
+function formImportExecutionOptions(params: FormImportExecutionOptions) {
+  return {
+    audit: params.audit,
+    annotations: params.annotations,
+    profile: params.profile,
+    mode: params.mode,
+    produceResult: params.produceResult,
+    facts: params.facts,
+    dependencies: params.dependencies,
+    roundTrip: params.roundTrip,
+    beforeFinish: params.beforeFinish,
   }
 }

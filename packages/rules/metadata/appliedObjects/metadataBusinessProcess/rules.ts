@@ -97,13 +97,13 @@ export const MetadataBusinessProcessRules = {
     xmlRoot: xmlRootRule({
       container: "BusinessProcess",
       rootAttributes: V8_MDCLASSES_ROOT,
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
     }),
     internalInfo: internalInfoRule({
       xmlParents: [],
-      forReferenceOnly: true,
+      xmlOnly: true,
       items: [
         { name: "BusinessProcessObject", category: "Object" },
         { name: "BusinessProcessRef", category: "Ref" },
@@ -355,14 +355,14 @@ export const MetadataBusinessProcessRules = {
       xml: "Form",
       xmlParents: childObjects,
       folderName: "Формы",
-      forReferenceOnly: true,
+      xmlOnly: true,
     }),
     templates: childTemplateNamesRule({
       yaml: "Макеты",
       xml: "Template",
       xmlParents: childObjects,
       folderName: "Макеты",
-      forReferenceOnly: true,
+      xmlOnly: true,
     }),
     commands: metadataCommandsRule({
       yaml: "Команды",

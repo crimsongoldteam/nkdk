@@ -53,7 +53,7 @@ export const AccumulationRegisterAggregatesRules = {
         "_xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
         _version: "2.20",
       },
-      forReferenceOnly: true,
+      xmlOnly: true,
       isFileRoot: true,
     }),
     items: accumulationRegisterAggregateCollectionRule({

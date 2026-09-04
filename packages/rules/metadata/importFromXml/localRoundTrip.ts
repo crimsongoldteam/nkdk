@@ -14,6 +14,7 @@ interface SourceBoundary {
   readonly key: string
   readonly source: XmlElementNode
   readonly proof: ReturnType<typeof createLocalXmlProof>
+  readonly rawPathPrefix?: readonly string[]
 }
 
 /** Рабочий локальный round-trip второго прохода без полного контрольного XML. */
@@ -48,10 +49,11 @@ export function createImportLocalRoundTrip(params: {
     readonly key: string
     readonly source: XmlElementNode
   }) => ReturnType<typeof createLocalXmlProof> | undefined
-  readonly finalizeRootReference?: (params: {
+  readonly prepareRootRawPathPrefix?: (params: {
     readonly key: string
     readonly source: XmlElementNode
-  }) => unknown
+    readonly tags?: readonly string[]
+  }) => readonly string[] | undefined
 }): DirectImportRoundTripExecution & {
   takeResult(yaml: object): import("@nkdk/runtime/rule-kit").CompiledXMLProofResult
   retainReceipt(receipt: import("@nkdk/runtime/rule-kit").LocalXmlChild): object
@@ -64,7 +66,6 @@ export function createImportLocalRoundTrip(params: {
     readonly yamlPath: readonly (string | number)[]
   }> = []
   const preparedByYaml = new WeakMap<object, SourceBoundary[]>()
-  const referencesByYaml = new WeakMap<object, readonly { readonly key: string; readonly referenceXML?: unknown }[]>()
   const opened = new WeakMap<XmlElementNode, string>()
   const execution = createCompiledRuleExecution({
     execution: params.execution,
@@ -75,14 +76,20 @@ export function createImportLocalRoundTrip(params: {
         const previous = opened.get(xml)
         if (previous !== undefined) throw new Error(`XML-граница ${xml.path} открыта повторно: ${previous} → ${address}`)
         opened.set(xml, address)
-        const inherited = active
-          .flatMap((boundaries) => boundaries)
-          .filter(({ source }) => isInside(source, xml))
-          .sort((left, right) => right.source.path.length - left.source.path.length)[0]
+        // Вложенный item открывается поверх непосредственного родителя. Его proof
+        // передаётся по стеку frame, без поиска и сортировки всех предков.
+        const inherited = active.at(-1)?.find(({ source }) => isInside(source, xml))
+        const key = `source-${index}`
+        const rawPathPrefix = params.prepareRootRawPathPrefix?.({
+          key,
+          source: xml,
+          tags: item.sources[index]?.tags,
+        }) ?? inherited?.rawPathPrefix
         return {
-          key: `source-${index}`,
+          key,
           source: xml,
           proof: inherited?.proof ?? params.prepareRootProof?.({ key: `source-${index}`, source: xml }) ?? createLocalXmlProof(),
+          ...(rawPathPrefix === undefined ? {} : { rawPathPrefix }),
         }
       })
       preparedByYaml.set(item.yaml, sources)
@@ -107,7 +114,6 @@ export function createImportLocalRoundTrip(params: {
         outputs: sources.map(({ key, source, proof }, index) => ({
           key,
           tags: item.sources[index]?.tags,
-          referenceXML: source.compatibilityValue,
           ...(params.prepareRootContext === undefined
             ? {}
             : { context: params.prepareRootContext({ key, source }) }),
@@ -125,14 +131,6 @@ export function createImportLocalRoundTrip(params: {
         params.isDocumentRoot?.(rule) ?? yamlPath.length === 0
       )
       if (documentRoot) {
-        if (params.finalizeRootReference !== undefined) {
-          const references = referencesByYaml.get(yaml)
-          if (references === undefined) throw new Error("Не подготовлен reference XML локального proof")
-          for (const source of preparedByYaml.get(yaml) ?? []) {
-            const reference = references.find(({ key }) => key === source.key)?.referenceXML
-            replaceReferenceXML(reference, params.finalizeRootReference({ key: source.key, source: source.source }))
-          }
-        }
         params.finalizeRootYaml?.(yaml, rule)
       }
       const decisions = params.selectDecisions?.(yaml, rule, yamlPath, documentRoot, params.annotations)
@@ -150,7 +148,6 @@ export function createImportLocalRoundTrip(params: {
       const { yaml, rule } = item
       const sources = preparedByYaml.get(yaml)
       if (sources === undefined) throw new Error("Не подготовлены XML-границы локального proof")
-      referencesByYaml.set(yaml, prepared.outputs)
       active.push(sources)
       activeItems.push(item)
       const delegate = createAnnotatedLocalXmlBodyConsumers({
@@ -158,6 +155,7 @@ export function createImportLocalRoundTrip(params: {
           ...source,
           itemPreparation: prepared.outputs.find(({ key }) => key === source.key)?.itemPreparation,
           xmlEnvelope: prepared.outputs.find(({ key }) => key === source.key)?.xmlEnvelope,
+          ...(source.rawPathPrefix === undefined ? {} : { rawPathPrefix: source.rawPathPrefix }),
         })),
         yaml,
         annotations: params.annotations,
@@ -197,18 +195,6 @@ export function createImportLocalRoundTrip(params: {
     retainReceipt(receipt) { return execution.retainReceipt(receipt) },
     release(yaml) { execution.takeResult(yaml) },
   }
-}
-
-function replaceReferenceXML(target: unknown, value: unknown): void {
-  if (!isRecord(target) || !isRecord(value)) {
-    throw new Error("Reference XML локального proof должен быть объектом")
-  }
-  for (const key of Object.keys(target)) delete target[key]
-  Object.assign(target, value)
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === "object" && !Array.isArray(value)
 }
 
 const TRANSPORT_ATTRIBUTE = /^(?:id|name|uuid|version|xmlns(?::.*)?)$/u

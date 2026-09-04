@@ -69,13 +69,13 @@ export const MetadataDocumentJournalRules = {
     xmlRoot: xmlRootRule({
       container: "DocumentJournal",
       rootAttributes: V8_MDCLASSES_ROOT,
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
     }),
     internalInfo: internalInfoRule({
       xmlParents: [],
-      forReferenceOnly: true,
+      xmlOnly: true,
       items: [
         { name: "DocumentJournalSelection", category: "Selection" },
         { name: "DocumentJournalList", category: "List" },
@@ -151,7 +151,7 @@ export const MetadataDocumentJournalRules = {
     forms: childFormNamesRule({
       xml: "Form",
       folderName: "Формы",
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
       xmlParents: childObjects,
@@ -159,7 +159,7 @@ export const MetadataDocumentJournalRules = {
     templates: childTemplateNamesRule({
       xml: "Template",
       folderName: "Шаблоны",
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
       xmlParents: childObjects,

@@ -33,13 +33,13 @@ export const MetadataSequenceRules = {
     xmlRoot: xmlRootRule({
       container: "Sequence",
       rootAttributes: V8_MDCLASSES_ROOT,
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
     }),
     internalInfo: internalInfoRule({
       xmlParents: [],
-      forReferenceOnly: true,
+      xmlOnly: true,
       items: [
         { name: "SequenceRecord", category: "Record" },
         { name: "SequenceManager", category: "Manager" },

@@ -176,8 +176,8 @@ export interface BasePropertyRule {
   /** Имя элемента внутри коллекции MetadataItemLinks, если используется не xr:Item. */
   metadataItemLinksXMLItem?: string
 
-  /** Свойство используется только для построения референса */
-  forReferenceOnly?: true
+  /** XML-only свойство: участвует в индексах и восстановлении XML, но не входит в YAML. */
+  xmlOnly?: true
 
   /**
    * @deprecated Используется только старым sync форм и шаблонов до переноса на metadataTarget.
@@ -219,7 +219,7 @@ export interface BasePropertyRule {
   /**
    * Если true, при сериализации в YAML и JSON-схему значение этого свойства подставляется
    * напрямую как значение всего item-объекта (без обёртки ключом). Допустимо ровно одно
-   * содержательное (не forReferenceOnly) свойство с этим флагом на правило.
+   * содержательное (не XML-only) свойство с этим флагом на правило.
    * Скоп — только YAML/JSON-схема. Модель данных и XML-сериализация не затрагиваются.
    */
   yamlInline?: true
@@ -378,7 +378,7 @@ export interface InternalInfoPropertyRule extends BasePropertyRule {
   type: "InternalInfo"
   items?: Array<{ name: string; category: string }>
   containedObjectClassIds?: string[]
-  forReferenceOnly: true
+  xmlOnly: true
   getName?: (params: { context: ConfigurationContextWithExportToXML; metadata: { name: string } }) => string
   thisNode?: boolean
 }

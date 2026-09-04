@@ -59,13 +59,13 @@ export const MetadataDataProcessorRules = {
     xmlRoot: xmlRootRule({
       container: "DataProcessor",
       rootAttributes: V8_MDCLASSES_ROOT,
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
     }),
     internalInfo: internalInfoRule({
       xmlParents: [],
-      forReferenceOnly: true,
+      xmlOnly: true,
       items: [
         { name: "DataProcessorObject", category: "Object" },
         { name: "DataProcessorManager", category: "Manager" },
@@ -130,7 +130,7 @@ export const MetadataDataProcessorRules = {
       xml: "Form",
       folderName: "Формы",
       itemRule: ClientApplicationFormWithExtendedPresentationRules,
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
       xmlParents: childObjects,
@@ -138,7 +138,7 @@ export const MetadataDataProcessorRules = {
     templates: childTemplateNamesRule({
       xml: "Template",
       folderName: "Шаблоны",
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
       xmlParents: childObjects,

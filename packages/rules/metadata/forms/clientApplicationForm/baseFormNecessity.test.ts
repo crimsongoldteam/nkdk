@@ -22,6 +22,14 @@ describe("необходимость сохранённой основы фор�
     })).toBe(true)
   })
 
+  it("не учитывает технические поля корня", () => {
+    expect(isRedundantClientApplicationBaseForm({
+      currentConfigurationYaml: form({ Ширина: 20 }),
+      extensionYaml: form({ Ширина: 20 }),
+      savedBaseYaml: form({ Ширина: 20, _uuid: "legacy" }),
+    })).toBe(true)
+  })
+
   it("сохраняет основу с отличающимся свойством", () => {
     expect(isRedundantClientApplicationBaseForm({
       currentConfigurationYaml: form({ Ширина: 20 }),

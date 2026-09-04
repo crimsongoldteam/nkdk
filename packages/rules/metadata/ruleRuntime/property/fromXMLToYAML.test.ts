@@ -195,13 +195,18 @@ describe("importPropertiesFromXMLToYAML", () => {
     expect(ready).toHaveBeenCalledOnce()
   })
 
-  it("проверяет forReferenceOnly-свойство по компактному факту первого прохода", () => {
+  it("проверяет xmlOnly-свойство по компактному факту первого прохода", () => {
     const rules = createRuleRegistrySet(metadataRules)
+    rules.property.registerTypeRule("TestComputedObject" as never, "importFromXML", ((_context: unknown, _rule: unknown, value: { Item: string }) => value.Item) as never)
+    rules.property.registerTypeRule("TestComputedObject" as never, "exportToXML", ((_context: unknown, _rule: unknown, value: string) => ({ Item: value, Type: "Computed" })) as never)
     const rule: MetadataItemRule = { itemType: "Catalog", properties: {
-      hidden: { type: "string", xml: "Hidden", yaml: "Скрытое", forReferenceOnly: true },
+      hidden: { type: "string", xml: "Hidden", yaml: "Скрытое", xmlOnly: true },
+      disabled: { type: "TestComputedObject" as never, xml: "Disabled", yaml: "Выключено", fromXML: false },
     } }
     const context = mockContextFromXML()
-    const source = parseXmlDocumentWithSaxes("<Root><Hidden>значение</Hidden></Root>").roots[0]!
+    const source = parseXmlDocumentWithSaxes(
+      "<Root><Hidden>значение</Hidden><Disabled><Item>служебное</Item><Type>Computed</Type></Disabled></Root>",
+    ).roots[0]!
     const factSink = createDirectImportFactsCollector()
     importPropertiesWithSources({
       execution: rules.execution, context, rule, sources: [{ context, xml: source }],
@@ -1414,7 +1419,7 @@ describe("importPropertiesFromXMLToYAML", () => {
           type: "TestReferenceDirect",
           xml: "ReferenceOnly",
           yaml: "ТолькоСсылка",
-          forReferenceOnly: true,
+          xmlOnly: true,
         },
         disabled: { type: "TestReferenceDirect", xml: "Disabled", yaml: "Выключено", fromXML: false },
       },
@@ -1467,7 +1472,7 @@ describe("importPropertiesFromXMLToYAML", () => {
           technical: {
             type: "TestReferenceIndex",
             xml: "Technical",
-            forReferenceOnly: true,
+            xmlOnly: true,
           },
         },
       } as MetadataItemRule,
@@ -1642,7 +1647,7 @@ describe("importPropertiesFromXMLToYAML", () => {
           internalInfo: {
             type: "string",
             xml: "InternalInfo",
-            forReferenceOnly: true,
+            xmlOnly: true,
           },
           name: {
             type: "string",
@@ -2268,8 +2273,8 @@ describe("importPropertiesFromXMLToYAML", () => {
       rule: {
         itemType: "Catalog",
         properties: {
-          uuid: { type: "string", xml: "_uuid", forReferenceOnly: true },
-          id: { type: "string", xml: "_id", forReferenceOnly: true },
+          uuid: { type: "string", xml: "_uuid", xmlOnly: true },
+          id: { type: "string", xml: "_id", xmlOnly: true },
           name: { type: "string", xml: "_name" },
         },
       } as MetadataItemRule,

@@ -17,3 +17,23 @@
 ПредставлениеСписка: ""
 РасширенноеПредставлениеОбъекта: ""
 РасширенноеПредставлениеСписка: ""
+Properties: !xml/raw
+  $xml:
+    "#order":
+      - ObjectBelonging
+      - Name
+      - Synonym
+      - Comment
+      - ExtendedConfigurationObject
+      - NameInDataSource
+      - PresentationField
+      - DefaultObjectForm
+      - DefaultListForm
+      - DefaultChoiceForm
+      - ObjectPresentation
+      - ExtendedObjectPresentation
+      - ListPresentation
+      - ExtendedListPresentation
+      - Explanation
+Properties\NameInDataSource: !xml/raw
+  $xml:

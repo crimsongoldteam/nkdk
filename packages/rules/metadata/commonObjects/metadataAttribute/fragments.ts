@@ -408,7 +408,7 @@ export const attributeUuidFragment = metadataRuleFragment(["uuid"], {
     type: "uuid",
     xml: "_uuid",
     evaluateWhenYAMLMissing: true,
-    forReferenceOnly: true,
+    xmlOnly: true,
     toYAML: false,
     fromYAML: false,
   },

@@ -30,7 +30,7 @@ import {
 const itemRule = {
   itemType: "TestItem",
   properties: {
-    uuid: { type: "string", xml: "_uuid", forReferenceOnly: true },
+    uuid: { type: "string", xml: "_uuid", xmlOnly: true },
     name: { type: "string", xml: "Name", yaml: "Имя" },
     value: { type: "string", xml: "Value", yaml: "Значение" },
     path: { type: "TestDeferred" as PropertyRuleType, xml: "Path", yaml: "Путь" },

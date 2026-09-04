@@ -154,6 +154,27 @@ describe("mergeXmlRawFragments", () => {
     ].join("\n"))
   })
 
+  it("последовательно добавляет несколько новых физических вхождений", () => {
+    const merged = mergeXmlRawFragments(roots("<Root><Items><Value>first</Value></Items></Root>"), [
+      {
+        path: "Items\\Value",
+        occurrencePath: [null, 2],
+        value: "second",
+        suppressOrdinaryOutput: true,
+      },
+      {
+        path: "Items\\Value",
+        occurrencePath: [null, 3],
+        value: "third",
+        suppressOrdinaryOutput: true,
+      },
+    ])
+
+    expect(xmlExport(merged, false)).toContain(
+      "<Items>\n\t\t<Value>first</Value>\n\t\t<Value>second</Value>\n\t\t<Value>third</Value>\n\t</Items>",
+    )
+  })
+
   it("восстанавливает точный текст оболочки при вставке отсутствующего raw-ребёнка", () => {
     const merged = mergeXmlRawFragments(roots("<Root><Properties><B/></Properties></Root>"), [
       {

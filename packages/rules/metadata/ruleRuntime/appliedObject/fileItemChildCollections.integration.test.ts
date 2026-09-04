@@ -19,7 +19,7 @@ const childRule = {
       type: "XMLRoot",
       container: "DimensionTable",
       rootAttributes: {},
-      forReferenceOnly: true,
+      xmlOnly: true,
     },
     name: { type: "string", xmlParents: ["Properties"], required: true },
   },

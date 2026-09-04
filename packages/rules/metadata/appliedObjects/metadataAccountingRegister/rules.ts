@@ -142,13 +142,13 @@ export const MetadataAccountingRegisterRules = {
     xmlRoot: xmlRootRule({
       container: "AccountingRegister",
       rootAttributes: V8_MDCLASSES_ROOT,
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
     }),
     internalInfo: internalInfoRule({
       xmlParents: [],
-      forReferenceOnly: true,
+      xmlOnly: true,
       items: [
         { name: "AccountingRegisterRecord", category: "Record" },
         { name: "AccountingRegisterExtDimensions", category: "ExtDimensions" },
@@ -159,7 +159,6 @@ export const MetadataAccountingRegisterRules = {
         { name: "AccountingRegisterManager", category: "Manager" },
       ],
     }),
-    uuid: uuidRule({ xml: "_uuid", forReferenceOnly: true, xmlParents: [] }),
     name: stringRule({
       xmlParents: properties,
       required: true,
@@ -173,6 +172,7 @@ export const MetadataAccountingRegisterRules = {
       implicitValueYAML: true,
       xmlParents: properties,
     }),
+    uuid: uuidRule({ xml: "_uuid", xmlOnly: true, xmlParents: [] }),
     includeHelpInContents: booleanRule({
       yaml: "ВключатьСправкуВСодержание",
       defaultValueXML: false,
@@ -254,7 +254,7 @@ export const MetadataAccountingRegisterRules = {
       xml: "Form",
       xmlParents: childObjects,
       folderName: "Формы",
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
     }),
@@ -263,7 +263,7 @@ export const MetadataAccountingRegisterRules = {
       xml: "Template",
       xmlParents: childObjects,
       folderName: "Макеты",
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
     }),

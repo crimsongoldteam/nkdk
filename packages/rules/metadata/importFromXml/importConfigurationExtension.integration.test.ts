@@ -132,7 +132,8 @@ describe("configuration extension XML import", () => {
       .toContain("ПутьКДанным: !xml/invalid БазовыйОбъект.Код")
     expect(formWithoutBaseText)
       .toContain("ПутьКДанным: !xml/invalid БазовыйОбъект.НеизвестнаяТаблица.Колонка")
-    expect(formWithoutBaseText).not.toContain("!xml/raw")
+    expect(formWithoutBaseText).toContain('"@Form\\\\UnknownProperty": !xml/raw')
+    expect(formWithoutBaseText).toContain("Form\\Properties\\UnknownProperty: !xml/raw")
     expect((formWithoutBase as { Элементы: Record<string, { ПутьКДанным?: unknown }> }).Элементы.Код)
       .toMatchObject({ ПутьКДанным: "БазовыйОбъект.Код" })
     expect(fs.existsSync(join(
@@ -176,7 +177,8 @@ describe("configuration extension XML import", () => {
 
     expect(historicalFormText)
       .toContain("ПутьКДанным: !xml/invalid БазовыйОбъект.ИсторическоеПоле")
-    expect(historicalFormText).not.toContain("!xml/raw")
+    expect(historicalFormText).toContain('"@Form\\\\UnknownProperty": !xml/raw')
+    expect(historicalFormText).not.toContain('"@Form\\\\BaseForm')
     expect(historicalBaseFormText).toContain("ИсторическоеПоле:")
   })
 

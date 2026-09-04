@@ -290,7 +290,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
     const rules = createRuleRegistrySet(metadataRules)
     let preparations = 0
     const itemRule: MetadataItemRule = { itemType: "Catalog", properties: {
-      root: { type: "XMLRoot", container: "Entry", isFileRoot: true, forReferenceOnly: true,
+      root: { type: "XMLRoot", container: "Entry", isFileRoot: true, xmlOnly: true,
         rootAttributes: () => { preparations++; return { _xmlns: "urn:entry" } } },
       value: { type: "string", xml: "Value", yaml: "Значение" },
     } }

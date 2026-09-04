@@ -45,7 +45,7 @@ const configurationInternalInfoContainedObjectClassIds = [
 ]
 export const configurationInternalInfoRule: PropertyRule = internalInfoRule({
   xmlParents: [],
-  forReferenceOnly: true,
+  xmlOnly: true,
   evaluateWhenYAMLMissing: true,
   containedObjectClassIds: configurationInternalInfoContainedObjectClassIds,
 })
@@ -120,7 +120,7 @@ export const MetadataConfigurationRules = {
     xmlRoot: xmlRootRule({
       container: "Configuration",
       rootAttributes: V8_MDCLASSES_ROOT,
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
     }),

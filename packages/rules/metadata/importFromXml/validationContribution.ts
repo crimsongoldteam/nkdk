@@ -31,6 +31,7 @@ import type { ProjectLocalDependency } from "../projectDefinition/componentIndex
 import type { PreparedImportYaml } from "./prepareYaml"
 import type { PreparedImportFacts } from "./prepareFacts"
 import { extractImportOwnerFacts } from "./ownerFacts"
+import { createPropertyFactsYamlView } from "./propertyFactsYamlView"
 
 export interface ImportValidationContribution {
   validationContribution: ValidationIndexContribution
@@ -69,7 +70,7 @@ export function extractImportValidationContributionFromFacts(params: {
 }): ImportValidationContribution {
   return extractImportValidationContributionCore({
     ...params,
-    rawYaml: params.prepared.semanticProjection,
+    rawYaml: createPropertyFactsYamlView(params.prepared.semanticFacts),
   })
 }
 

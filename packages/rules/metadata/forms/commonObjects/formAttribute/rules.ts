@@ -93,7 +93,7 @@ export const FormAttributeRules = {
   properties: {
     id: stringRule({
       xml: "_id",
-      forReferenceOnly: true,
+      xmlOnly: true,
     }),
     name: stringRule({
       xml: "_name",
@@ -192,7 +192,7 @@ export const FormAttributeColumnRules = {
   properties: {
     id: stringRule({
       xml: "_id",
-      forReferenceOnly: true,
+      xmlOnly: true,
     }),
     name: stringRule({
       xml: "_name",

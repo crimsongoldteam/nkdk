@@ -9,7 +9,7 @@ import type { MetadataItemRule } from "../../ruleRuntime"
 import "./fromXML"
 import { exportChildFormNamesToXML } from "./toXML"
 
-const rule = { type: "ChildFormNames" as const, xml: "Form", folderName: "Формы", forReferenceOnly: true as const }
+const rule = { type: "ChildFormNames" as const, xml: "Form", folderName: "Формы", xmlOnly: true as const }
 
 const ctxWithForms = (forms: string[]) => {
   const ctx = mockContextToXML()

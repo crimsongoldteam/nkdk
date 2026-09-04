@@ -30,15 +30,25 @@ export function importFormElementFromXMLToYAML(params: {
   name: string
   traversal: DirectImportTraversal
 }): Record<string, unknown> {
-  const initialYAML = {
-    Вид: currentRuleRegistrySet<{ formElementKinds: ReadonlyMap<string, string> }>()
-      ?.formElementKinds.get(params.rule.itemType) ?? CollectableElementTypeToYAML[params.rule.itemType],
-  }
+  const kind = currentRuleRegistrySet<{ formElementKinds: ReadonlyMap<string, string> }>()
+    ?.formElementKinds.get(params.rule.itemType) ?? CollectableElementTypeToYAML[params.rule.itemType]
+  params.traversal.facts?.acceptProperty({
+    itemType: params.rule.itemType,
+    itemRule: params.rule,
+    propertyKey: "$formElementKind",
+    yamlPath: [...params.traversal.yamlPath, "Вид"],
+    value: kind,
+  })
+  const initialYAML = { Вид: kind }
   const result = importFormElementPropertiesFromXMLToYAML({
     ...params, rule: formElementTreeRule(params.rule), initialYAML,
   }) ?? initialYAML
   const keys = Object.keys(result)
-  return arrangeProperties(result, keys, ["Вид", ...keys.filter(key => key !== "Вид")])
+  return arrangeProperties(result, keys, [
+    "Вид",
+    ...keys.filter(key => key !== "Вид" && key !== "ТипКнопки"),
+    ...(Object.prototype.hasOwnProperty.call(result, "ТипКнопки") ? ["ТипКнопки"] : []),
+  ])
 }
 
 export function importFormElementPropertiesFromXMLToYAML(params: {

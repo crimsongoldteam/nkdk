@@ -546,7 +546,7 @@ describe("configuration extension YAML-to-XML augmenter", () => {
             type: "XMLRoot",
             container: "ExternalProperties",
             rootAttributes: {},
-            forReferenceOnly: true,
+            xmlOnly: true,
             isFileRoot: true,
           },
         },
@@ -592,7 +592,7 @@ describe("configuration extension YAML-to-XML augmenter", () => {
     const borrowedRule = {
       itemType: "BorrowedProbe",
       properties: {
-        uuid: { type: "UUID", xml: "_uuid", forReferenceOnly: true },
+        uuid: { type: "UUID", xml: "_uuid", xmlOnly: true },
         name: { type: "string", xml: "Name", xmlParents: ["Properties"] },
       },
     } as const satisfies MetadataItemRule

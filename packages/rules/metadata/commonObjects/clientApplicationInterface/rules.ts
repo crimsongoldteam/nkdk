@@ -15,7 +15,7 @@ export const ClientApplicationInterfaceRules = {
     xmlRoot: xmlRootRule({
       container: "ClientApplicationInterface",
       rootAttributes: clientApplicationInterfaceRootAttributes,
-      forReferenceOnly: true,
+      xmlOnly: true,
       isFileRoot: true,
       toYAML: false,
       fromYAML: false,

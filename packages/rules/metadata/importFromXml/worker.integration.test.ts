@@ -619,7 +619,7 @@ describe("XML import worker second pass", () => {
     )
 
     const yaml = readImportedFormYaml(result)
-    expect(yaml).not.toContain("!xml/raw")
+    expect(yaml).toContain('"@Form\\\\ИспользованиеДляГруппИЭлементов": !xml/raw')
     expect(yaml).not.toContain("@Form\\РасширеннаяПодсказка")
     expect(yaml).not.toContain("КонтекстноеМеню")
     expect(result.second.diagnostics).toEqual([])
@@ -914,6 +914,8 @@ describe("XML import worker second pass", () => {
   describe("порядок второго прохода", () => {
     const expectedYaml = [
       "Синоним: \"\"",
+      '"@Form\\\\ИспользованиеДляГруппИЭлементов": !xml/raw',
+      "  $xml: null",
       "НазначенияИспользования: ПлатформаИМобильноеПриложение",
       "Реквизиты:",
       "  Объект:",

@@ -1,17 +1,15 @@
 import { move, transferableSymbol, valueSymbol } from "piscina"
 import { existsSync } from "node:fs"
 import { join, posix } from "node:path"
+import { isDeepStrictEqual } from "node:util"
 import { createMovableBinaryResult } from "../workerPool/binaryResult"
 import {
   createLocalConfigurationIndexReader,
   createConfigurationIndexExportRuntime,
   hashFileBytes,
   prepareYAMLDocumentData,
+  appendXmlAnnotatedMappingEntry,
   rehydrateConfigurationContext,
-  createLocalXmlRawAppender,
-  cloneYAMLContainer,
-  createXmlAnomalyAnnotations,
-  snapshotXmlAnomalyAnnotations,
   validationIssueTargetKey,
   validationIssuePathFromPointer,
   type XmlAnomalyAnnotations,
@@ -24,8 +22,6 @@ import {
   finalizeMetadataItemImportedYaml,
   supportsMetadataItemImportedYamlFinalization,
 } from "../ruleRuntime/metadataItem/importedYamlFinalizerRegistry"
-import { finalizeImportedYamlValues } from "../ruleRuntime/property/finalizeImportedYAML"
-import { bindDeferredObjectValues } from "@nkdk/runtime/rule-kit"
 import type { OwnerMetadataCache } from "../validation/dataPath/ownerCache"
 import { sameValidationOwnerRef } from "../validation/dataPath/validationOwnerRef"
 import { createOperationProfiler, type ValidationProfiler } from "../validation/profile"
@@ -75,7 +71,17 @@ import {
   resolveAssignmentRule,
   type PreparedImportYaml,
 } from "./prepareYaml"
-import { prepareImportFacts, type PreparedImportFacts } from "./prepareFacts"
+import {
+  finalizeDeferredPropertyFacts,
+  prepareImportFacts,
+  type PreparedImportFacts,
+} from "./prepareFacts"
+import {
+  applyPropertyFactChanges,
+  createPropertyFactsYamlView,
+  propertyFactsWithReconstructionValues,
+  type DirectImportPropertyFact,
+} from "./propertyFactsYamlView"
 import {
   prepareImportDependencies,
   type ImportDependencyFacts,
@@ -105,18 +111,23 @@ import {
 import { createImportBinaryResult } from "./binaryResult"
 import type { MetadataWorkerOperationRegistry } from "../workerPool/operationRegistry"
 import { prepareYamlFiles } from "../project/prepareYamlFiles"
-import { isRedundantClientApplicationBaseForm } from "../forms/clientApplicationForm/baseFormNecessity"
-import { projectClientApplicationBaseForm } from "../forms/clientApplicationForm/baseFormProjection"
 import type { ClientApplicationFormYAML } from "../forms/clientApplicationForm/types"
 import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
+import { isRedundantClientApplicationBaseForm } from "../forms/clientApplicationForm/baseFormNecessity"
 import { collectClientApplicationFormStructure } from "../forms/clientApplicationForm/formStructureProjection"
 import { validateClientApplicationBaseFormDataPaths } from "../forms/clientApplicationForm/borrowedFormValidation"
 import { collectFormDataPathOccurrencesFromYAML } from "../validation/dataPath/formYamlTraversal"
 import { validatePendingChecks, type ValidationPendingCheck } from "../validation/projectValidationPendingChecks"
-import { finalizeImportedFormDataPathCompatibility } from "../forms/clientApplicationForm/importDataPathCompatibility"
+import {
+  finalizeImportedFormDataPathCompatibility,
+  importedFormDataPathCompatibilityChanges,
+} from "../forms/clientApplicationForm/importDataPathCompatibility"
 import { buildProjectStateYamlFileUpdate } from "../project/projectStateYamlUpdate"
 import type { CompiledMetadataResourceTopology } from "../resourceTopology/core/types"
-import { importedClientApplicationForm } from "../forms/clientApplicationForm/formDataPathMetadata"
+import {
+  createImportedFormDataPathIndex,
+  importedClientApplicationForm,
+} from "../forms/clientApplicationForm/formDataPathMetadata"
 import { createImportExportContext } from "./importExportContext"
 import {
   portableFirstPassIssueDecision,
@@ -263,8 +274,8 @@ export function createImportWorkerCommandRunner(): ImportWorkerCommandRunner {
     readonly properties: ImportDependencyFacts
     readonly baseFormProperties?: ImportDependencyFacts
     readonly formDataPathIndex: PreparedImportFacts["localIndexes"]["metadata"]["formDataPathIndex"]
-    readonly formSemanticProjection?: PreparedImportFacts["semanticProjection"]
-    readonly baseFormSemanticProjection?: NonNullable<PreparedImportFacts["baseFormSemanticProjection"]>
+    readonly formSemanticFacts?: readonly DirectImportPropertyFact[]
+    readonly baseFormSemanticFacts?: readonly DirectImportPropertyFact[]
     readonly deferred: PreparedImportFacts["deferred"]
     readonly baseFormDeferred?: NonNullable<PreparedImportFacts["baseFormDeferred"]>
   }>()
@@ -540,68 +551,81 @@ async function processSecondPass(
     const currentConfigurationFormYAML = currentConfigurationFormValue === undefined
       ? undefined
       : clientApplicationFormYaml(currentConfigurationFormValue, assignment.targetProjectPath)
-    const formProofProjection = ready.formSemanticProjection === undefined
+    const finalizedFormFacts = ready.formSemanticFacts === undefined
       ? undefined
-      : cloneYAMLContainer(ready.formSemanticProjection)
-    if (
-      formProofProjection !== undefined
-      && formProofProjection !== null
-      && typeof formProofProjection === "object"
-      && !Array.isArray(formProofProjection)
-    ) {
-      const originalFormDataPaths = collectImportedFormDataPaths(formProofProjection, assignmentRule)
-      finalizeImportedYamlValues({
-        yaml: formProofProjection,
-        rootRule: assignmentRule,
-        deferred: bindDeferredObjectValues(formProofProjection, ready.deferred),
-        context: importContext,
-        ...(ready.formDataPathIndex === undefined ? {} : { formDataPathIndex: ready.formDataPathIndex }),
-        execution,
-      })
-      finalizeMetadataItemImportedYaml({
-        yaml: formProofProjection,
-        rule: assignmentRule,
-        ownerMetadataCache: secondPass.ownerMetadataCache,
-        annotations: createXmlAnomalyAnnotations(),
-        ...(currentConfigurationFormYAML === undefined
-          ? {}
-          : { currentConfigurationYAML: currentConfigurationFormYAML }),
-        ...(ready.baseFormSemanticProjection === undefined
-          ? {}
-          : { savedBaseYAML: ready.baseFormSemanticProjection }),
-      })
-      finalizeImportedFormDataPaths({
-        yaml: formProofProjection,
-        rule: assignmentRule,
-        originalOccurrences: originalFormDataPaths,
-        formDataPathIndex: ready.formDataPathIndex,
-        ownerMetadataCache: secondPass.ownerMetadataCache,
-      })
-    }
-    const formProofValue = formProofProjection === undefined
+      : finalizeDeferredPropertyFacts({
+          facts: ready.formSemanticFacts,
+          deferred: ready.deferred,
+          rootRule: assignmentRule,
+          context: importContext,
+          formDataPathIndex: ready.formDataPathIndex,
+          execution,
+        })
+    const originalFormFactsView = ready.formSemanticFacts === undefined
       ? undefined
-      : importedClientApplicationForm({
-          yaml: formProofProjection,
-          rule: assignmentRule,
-        })?.yaml
+      : createPropertyFactsYamlView(propertyFactsWithReconstructionValues(ready.formSemanticFacts))
+    const compatibleFormFacts = finalizedFormFacts === undefined
+      || originalFormFactsView === undefined
+      || ready.formDataPathIndex === undefined
+      ? finalizedFormFacts
+      : applyPropertyFactChanges(
+          finalizedFormFacts,
+          importedFormDataPathCompatibilityChanges({
+            finalizedYaml: createPropertyFactsYamlView(finalizedFormFacts),
+            originalOccurrences: collectFormDataPathOccurrencesFromYAML({
+              yaml: originalFormFactsView,
+              rule: ClientApplicationFormRules,
+            }),
+            index: ready.formDataPathIndex,
+            ownerCache: secondPass.ownerMetadataCache,
+          }).map(({ yamlPath, value }) => ({ yamlPath, kind: "set", value })),
+        )
+    const formFactsView = compatibleFormFacts === undefined
+      ? undefined
+      : createPropertyFactsYamlView(compatibleFormFacts)
+    const rawBaseFormFactsView = ready.baseFormSemanticFacts === undefined
+      ? undefined
+      : createPropertyFactsYamlView(propertyFactsWithReconstructionValues(ready.baseFormSemanticFacts))
+    const baseFormDataPathIndex = rawBaseFormFactsView === undefined
+      ? undefined
+      : createImportedFormDataPathIndex({ yaml: rawBaseFormFactsView, rule: assignmentRule })
+    const finalizedBaseFormFacts = ready.baseFormSemanticFacts === undefined
+      ? undefined
+      : finalizeDeferredPropertyFacts({
+          facts: ready.baseFormSemanticFacts,
+          deferred: ready.baseFormDeferred ?? [],
+          rootRule: assignmentRule,
+          context: importContext,
+          formDataPathIndex: baseFormDataPathIndex,
+          execution,
+        })
+    const preliminaryBaseFormFactsView = finalizedBaseFormFacts === undefined
+      ? undefined
+      : createPropertyFactsYamlView(finalizedBaseFormFacts)
+    const baseFormFactsView = finalizedBaseFormFacts === undefined
+      || preliminaryBaseFormFactsView === undefined
+      || rawBaseFormFactsView === undefined
+      ? undefined
+      : createPropertyFactsYamlView(applyPropertyFactChanges(
+          finalizedBaseFormFacts,
+          baseFormDataPathIndex === undefined
+            ? []
+            : importedFormDataPathCompatibilityChanges({
+                finalizedYaml: preliminaryBaseFormFactsView,
+                originalOccurrences: collectFormDataPathOccurrencesFromYAML({
+                  yaml: rawBaseFormFactsView,
+                  rule: ClientApplicationFormRules,
+                }),
+                index: baseFormDataPathIndex,
+                ownerCache: secondPass.ownerMetadataCache,
+              }).map(({ yamlPath, value }) => ({ yamlPath, kind: "set", value })),
+        ))
+    const formProofValue = formFactsView === undefined
+      ? undefined
+      : importedClientApplicationForm({ yaml: formFactsView, rule: assignmentRule })?.yaml
     const formProofYAML = formProofValue === undefined
       ? undefined
       : clientApplicationFormYaml(formProofValue, assignment.targetProjectPath)
-    const projectedBaseFormYaml = currentConfigurationFormYAML === undefined
-      || ready.baseFormSemanticProjection === undefined
-      || ready.formSemanticProjection === undefined
-      || !isRedundantClientApplicationBaseForm({
-        currentConfigurationYaml: currentConfigurationFormYAML,
-        extensionYaml: clientApplicationFormYaml(ready.formSemanticProjection, assignment.targetProjectPath),
-        savedBaseYaml: clientApplicationFormYaml(ready.baseFormSemanticProjection, assignment.targetProjectPath),
-        rule: assignmentRule,
-      })
-      ? undefined
-      : projectClientApplicationBaseForm({
-          baseYaml: currentConfigurationFormYAML,
-          extensionYaml: clientApplicationFormYaml(ready.formSemanticProjection, assignment.targetProjectPath),
-          rule: assignmentRule,
-        }).yaml
     let earlyIssueDecisions: readonly ImportIssueDecision[] = []
     let finalizedRootIssueDecisions: readonly ImportIssueDecision[] = []
     let rootValidation: DeferredImportYaml["rootValidation"]
@@ -636,11 +660,11 @@ async function processSecondPass(
       ...(currentConfigurationFormYAML === undefined
         ? {}
         : { currentConfigurationFormYaml: currentConfigurationFormYAML }),
-      ...(ready.baseFormSemanticProjection === undefined
+      ...(baseFormFactsView === undefined
         ? {}
         : {
             savedBaseFormYaml: clientApplicationFormYaml(
-              ready.baseFormSemanticProjection,
+              baseFormFactsView,
               assignment.targetProjectPath,
             ),
           }),
@@ -648,7 +672,6 @@ async function processSecondPass(
       inputs,
       profiler,
       topology: state.topology,
-      ...(projectedBaseFormYaml === undefined ? {} : { projectedBaseFormYaml }),
       localRoundTrip: {
         execution,
         context: localRoundTripContext,
@@ -736,7 +759,7 @@ async function processSecondPass(
           ])
           return ready
         },
-        finalizeRootYaml: (yaml, rule, annotations, savedBaseYAML, baseFormCandidate) => {
+        finalizeRootYaml: (yaml, rule, annotations, savedBaseYAML) => {
           const originalFormDataPaths = collectImportedFormDataPaths(yaml, rule)
           finalizeMetadataItemImportedYaml({
             yaml,
@@ -755,25 +778,6 @@ async function processSecondPass(
             formDataPathIndex: ready.formDataPathIndex,
             ownerMetadataCache: secondPass.ownerMetadataCache,
           })
-          if (
-            baseFormCandidate !== undefined
-            && currentConfigurationFormYAML !== undefined
-            && isRedundantClientApplicationBaseForm({
-              currentConfigurationYaml: clientApplicationFormYaml(
-                currentConfigurationFormYAML,
-                baseFormCandidate.baseProjectPath,
-              ),
-              extensionYaml: clientApplicationFormYaml(yaml, assignment.targetProjectPath),
-              savedBaseYaml: clientApplicationFormYaml(
-                baseFormCandidate.yaml,
-                baseFormCandidate.targetProjectPath,
-              ),
-              rule: baseFormCandidate.rule,
-            })
-            && projectRedundantBaseFormAnnotations({ yaml, annotations, candidate: baseFormCandidate })
-          ) {
-            baseFormCandidate.redundant = true
-          }
           earlyIssueDecisions = mergeImportedIssueDecisions(
             earlyIssueDecisions.map((decision) => normalizeImportedIssueDecisionPath(yaml, decision)),
           )
@@ -833,6 +837,36 @@ async function processSecondPass(
         },
       },
     })
+    const importedForm = importedClientApplicationForm({ yaml: imported.yaml, rule: imported.rule })
+    const redundantBaseForm = imported.baseFormCandidate !== undefined
+      && currentConfigurationFormYAML !== undefined
+      && importedForm !== undefined
+      && isRedundantClientApplicationBaseForm({
+        currentConfigurationYaml: currentConfigurationFormYAML,
+        extensionYaml: clientApplicationFormYaml(importedForm.yaml, assignment.targetProjectPath),
+        savedBaseYaml: clientApplicationFormYaml(
+          imported.baseFormCandidate.yaml,
+          imported.baseFormCandidate.targetProjectPath,
+        ),
+        rule: imported.baseFormCandidate.rule,
+      })
+    const projectedBaseForm = redundantBaseForm
+      ? projectDiscardedBaseFormRawAnnotations({
+          candidate: imported.baseFormCandidate!,
+          yaml: imported.yaml,
+          annotations: imported.annotations,
+          currentYaml: currentConfigurationYAMLBeforeProof!.data,
+          currentAnnotations: currentConfigurationYAMLBeforeProof!.annotations,
+        })
+      : false
+    const resolvedBaseFormCandidate = imported.baseFormCandidate === undefined
+      || currentConfigurationFormYAML === undefined
+      || importedForm === undefined
+      ? imported.baseFormCandidate
+      : {
+          ...imported.baseFormCandidate,
+          source: projectedBaseForm ? "projected" as const : "saved" as const,
+        }
     prepared = {
       diagnosticAssignment: {
         targetProjectPath: assignment.targetProjectPath,
@@ -853,7 +887,7 @@ async function processSecondPass(
       ...(rootValidation === undefined ? {} : { rootValidation }),
       validationFile,
       configurationFragment: collector.fragment(assignment.targetProjectPath),
-      ...(imported.baseFormCandidate === undefined ? {} : { baseFormCandidate: imported.baseFormCandidate }),
+      ...(resolvedBaseFormCandidate === undefined ? {} : { baseFormCandidate: resolvedBaseFormCandidate }),
       ...(imported.localProofCompleted === true ? { localProofCompleted: true } : {}),
     }
     preparedYaml.set(assignmentId, prepared)
@@ -889,6 +923,99 @@ async function processSecondPass(
     items: prepared === undefined ? 0 : 1,
     timeMs: 0,
   })
+}
+
+function projectDiscardedBaseFormRawAnnotations(params: {
+  readonly candidate: NonNullable<PreparedImportYaml["baseFormCandidate"]>
+  readonly yaml: unknown
+  readonly annotations: import("@nkdk/runtime").XmlAnomalyAnnotationTable
+  readonly currentYaml: unknown
+  readonly currentAnnotations: XmlAnomalyAnnotations
+}): boolean {
+  if (!isYamlRecord(params.candidate.yaml) || !isYamlRecord(params.yaml) || !isYamlRecord(params.currentYaml)) {
+    return false
+  }
+  const currentRoot = params.currentAnnotations.root()
+  const candidateRoot = params.candidate.annotations.root()
+  if (!isDeepStrictEqual(candidateRoot, currentRoot)) return false
+  const basePaths = yamlObjectPaths(params.candidate.yaml)
+  const entries = [...params.candidate.annotations.entries()]
+  const portable = entries.filter(({ parent, key, annotation }) => {
+    if (parent === undefined || key === undefined) return false
+    const path = basePaths.get(parent)
+    const currentParent = path === undefined ? undefined : yamlValueAtPath(params.currentYaml, path)
+    const currentAnnotation = currentParent !== null && currentParent !== undefined && typeof currentParent === "object"
+      ? annotation.target === "key" && typeof key === "string"
+        ? params.currentAnnotations.keyAt(currentParent, key)
+        : params.currentAnnotations.at(currentParent, key)
+      : undefined
+    return !isDeepStrictEqual(annotation, currentAnnotation)
+  })
+  if (portable.some(({ parent, key, annotation }) =>
+    parent !== params.candidate.yaml
+    || typeof key !== "string"
+    || annotation.kind !== "raw"
+    || annotation.target !== "value"
+    || annotation.xml === undefined
+  )) return false
+
+  for (const { key, annotation } of portable) {
+    if (typeof key !== "string") return false
+    const annotatedKey = params.candidate.annotations.keyAt(params.candidate.yaml, key)?.logicalKey
+    const logicalKey = typeof annotatedKey === "string" ? annotatedKey : key
+    const relativePath = logicalKey === "@Form"
+      ? ""
+      : logicalKey.startsWith("@Form\\")
+        ? logicalKey.slice("@Form\\".length)
+        : logicalKey
+    const path = relativePath.length === 0
+      ? "@Form\\BaseForm"
+      : `@Form\\BaseForm\\${relativePath}`
+    appendXmlAnnotatedMappingEntry<unknown>(params.yaml, params.annotations, {
+      logicalKey: path,
+      value: undefined,
+      valueAnnotation: {
+        kind: "raw",
+        occurrence: 1,
+        xml: annotation.xml,
+        hasSemanticValue: false,
+      },
+    })
+  }
+  return true
+}
+
+function isYamlRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value)
+}
+
+function yamlObjectPaths(root: object): Map<object, readonly (string | number)[]> {
+  const result = new Map<object, readonly (string | number)[]>()
+  const visit = (value: unknown, path: readonly (string | number)[]): void => {
+    if (value === null || typeof value !== "object" || result.has(value)) return
+    result.set(value, path)
+    if (Array.isArray(value)) {
+      value.forEach((child, index) => visit(child, [...path, index]))
+      return
+    }
+    for (const [key, child] of Object.entries(value)) visit(child, [...path, key])
+  }
+  visit(root, [])
+  return result
+}
+
+function yamlValueAtPath(root: unknown, path: readonly (string | number)[]): unknown {
+  let current = root
+  for (const segment of path) {
+    if (typeof segment === "number") {
+      if (!Array.isArray(current)) return undefined
+      current = current[segment]
+      continue
+    }
+    if (!isYamlRecord(current)) return undefined
+    current = current[segment]
+  }
+  return current
 }
 
 function createSecondPassAccumulator(workerIndex: number, profiler = createImportWorkerProfiler(workerIndex)): SecondPassAccumulator {
@@ -1258,28 +1385,7 @@ function prepareBaseFormCandidate(params: {
   if (params.candidate.deferred.length > 0) {
     throw new Error(`Локальный proof основы оставил ${params.candidate.deferred.length} отложенных YAML-значений: ${params.candidate.targetProjectPath}`)
   }
-  return params.candidate.redundant === true ? undefined : params.candidate
-}
-
-function projectRedundantBaseFormAnnotations(params: {
-  readonly yaml: Record<string, unknown>
-  readonly annotations: import("@nkdk/runtime").XmlAnomalyAnnotationTable
-  readonly candidate: NonNullable<DeferredImportYaml["baseFormCandidate"]>
-}): boolean {
-  const snapshot = snapshotXmlAnomalyAnnotations(params.candidate.yaml, params.candidate.annotations)
-  if (snapshot.root !== undefined) return false
-  const raw = snapshot.entries.filter(({ annotation }) =>
-    annotation.target === "value"
-    && annotation.kind === "raw"
-    && annotation.hasSemanticValue !== true)
-  if (raw.some(({ parentPath, annotation }) =>
-    parentPath.length !== 0
-    || annotation.xml === undefined)) return false
-  const appendRaw = createLocalXmlRawAppender(params)
-  for (const { key, annotation } of raw) {
-    appendRaw(`@Form\\BaseForm\\${String(key)}`, annotation.xml!)
-  }
-  return true
+  return params.candidate.source === "projected" ? undefined : params.candidate
 }
 
 function assertNoLateImportedIssueDecisions(
@@ -1555,10 +1661,10 @@ async function processFirstPass(
           deferred: prepared.deferred,
           ...(prepared.rule.itemType !== ClientApplicationFormRules.itemType
             ? {}
-            : { formSemanticProjection: prepared.semanticProjection }),
-          ...(prepared.baseFormSemanticProjection === undefined
+            : { formSemanticFacts: prepared.semanticFacts }),
+          ...(prepared.baseFormSemanticFacts === undefined
             ? {}
-            : { baseFormSemanticProjection: prepared.baseFormSemanticProjection }),
+            : { baseFormSemanticFacts: prepared.baseFormSemanticFacts }),
           ...(prepared.baseFormDeferred === undefined
             ? {}
             : { baseFormDeferred: prepared.baseFormDeferred }),

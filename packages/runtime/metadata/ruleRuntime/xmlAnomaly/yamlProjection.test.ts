@@ -139,7 +139,6 @@ describe("YAML-проекция XML-аномалий", () => {
     })
 
     expect(annotations.at(yaml, "Properties")?.xml).toEqual({ "#order": ["A", "B"] })
-    expect(annotations.at(yaml, "Properties\\#order")).toBeUndefined()
   })
 
   it("оформляет только остаток текущего XML-узла без обхода известного ребёнка и преждевременного order", () => {

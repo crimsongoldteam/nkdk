@@ -8,7 +8,7 @@ describe("importXMLRootFromXML", () => {
       type: "XMLRoot",
       container: "DocumentNumerator",
       rootAttributes: {},
-      forReferenceOnly: true,
+      xmlOnly: true,
     } as const
     const xml = {
       _uuid: "04a24565-fe2a-45f1-bb2a-e0aef3324322",

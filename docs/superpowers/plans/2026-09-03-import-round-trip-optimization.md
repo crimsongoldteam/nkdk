@@ -254,6 +254,7 @@ Singleton resolveItemName/resolveItemContext перенесены в общую 
 - [x] Расширить существующий worker integration-case: production import строит итог с локальным proof, отсутствие повторного source read/serialization и unchanged YAML после диагностики. Проверить disposal, ошибки задания, публикацию state только по действующему договору.
 - [x] Получить RED; соединить готовые зависимости, общий frame, локальную семантику и запись. Удалить старый full proof runtime и связанные только с ним caches/метрики/test-only hooks; перенести его регрессионные cases на новый публичный путь, не удалять защиту сценариев.
 - [x] Проверить отсутствие накопления generated XML в parent и скрытого old-control fallback. Сохранить внешние файлы, XML-default variants, UUID-аннотации, raw ID и точный порядок.
+- [x] Заменить `forReferenceOnly` на явный договор `xmlOnly`; получать такие значения из общих компактных фактов без reference XML и отдельного канала восстановления.
 - [x] Полный `pnpm type-check`, `pnpm test`, обе архитектурные команды, duplicates; исправлять ошибки реализации, не изменять baseline ограничений. Коммит.
 
 ## Задача 11. Измерения и независимое итоговое ревью

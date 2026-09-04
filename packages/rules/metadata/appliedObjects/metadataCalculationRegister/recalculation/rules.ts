@@ -32,13 +32,13 @@ export const RecalculationRules = {
     xmlRoot: xmlRootRule({
       container: "Recalculation",
       rootAttributes: V8_MDCLASSES_ROOT,
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
     }),
     internalInfo: internalInfoRule({
       xmlParents: [],
-      forReferenceOnly: true,
+      xmlOnly: true,
       items: [
         { name: "RecalculationRecord", category: "Record" },
         { name: "RecalculationManager", category: "Manager" },
@@ -52,7 +52,7 @@ export const RecalculationRules = {
         return [parent.name, metadata.name].filter(Boolean).join(".")
       },
     }),
-    uuid: uuidRule({ xml: "_uuid", forReferenceOnly: true, xmlParents: [] }),
+    uuid: uuidRule({ xml: "_uuid", xmlOnly: true, xmlParents: [] }),
     name: stringRule({ xml: "Name", required: true, xmlParents: properties }),
     synonym: i8nTextRule({
       yaml: "Синоним",

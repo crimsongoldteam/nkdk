@@ -26,7 +26,6 @@ export interface ImportDependencyFacts {
     readonly value: unknown
     readonly scalarTag?: YAMLScalarTag
   }>
-  readonly reconstructionProperties: ReadonlyMap<string, { readonly value: unknown }>
 }
 
 const siblingKeys = new WeakMap<MetadataItemRule, ReadonlySet<string>>()
@@ -38,7 +37,6 @@ export function collectImportDependencyFacts(params: {
   readonly candidates: readonly ImportedDependentPropertyCandidate[]
   readonly propertyFacts?: readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][]
   readonly proofPropertyFacts?: readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][]
-  readonly reconstructionPropertyFacts?: readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][]
   readonly finalRootYaml?: Readonly<Record<string, unknown>>
   readonly execution?: CompiledPropertyRuleExecution
 }): ImportDependencyFacts {
@@ -80,9 +78,6 @@ export function collectImportDependencyFacts(params: {
     }
   }
   const siblingProperties = new Map<string, { readonly value: unknown }>()
-  const reconstructionProperties = collectReconstructionProperties(
-    params.reconstructionPropertyFacts ?? params.propertyFacts ?? [],
-  )
   const proofPropertyFacts = params.proofPropertyFacts ?? params.propertyFacts ?? []
   const proofProperties = collectProofProperties(proofPropertyFacts)
   const finalProperties = collectFinalRootProperties({
@@ -127,7 +122,6 @@ export function collectImportDependencyFacts(params: {
     siblingProperties,
     proofProperties,
     finalProperties,
-    reconstructionProperties,
   }
 }
 
@@ -151,7 +145,12 @@ function collectFinalRootProperties(params: {
     const finalItem = recordAtPath(params.yaml, finalItemPath)
     if (finalItem === undefined) continue
     const present = Object.prototype.hasOwnProperty.call(finalItem, propertyRule.yaml)
-    if (present || propertyRule.preserveEmptyXML !== true) continue
+    if (
+      present
+      || propertyRule.preserveEmptyXML !== true
+      || fact.presentInXML === true
+      || fact.reconstructionValue !== undefined
+    ) continue
     const decision = { present: false, value: undefined }
     result.set(siblingAddress(finalItemPath, fact.propertyKey), decision)
     const sourceItemPath = (fact.sourceYamlPath ?? fact.yamlPath).slice(0, -1)
@@ -167,7 +166,8 @@ function collectFinalRootProperties(params: {
     if (propertyRule.externalFile || propertyRule.filePath !== undefined) continue
     const present = Object.prototype.hasOwnProperty.call(params.yaml, propertyRule.yaml)
     if (!present) {
-      if (factByProperty.get(propertyKey)?.value !== undefined) {
+      const fact = factByProperty.get(propertyKey)
+      if (fact === undefined || fact.presentInXML === false) {
         result.set(siblingAddress([], propertyKey), { present: false, value: undefined })
       }
       continue
@@ -203,14 +203,6 @@ function cloneCompactFinalValue(value: unknown): unknown {
   return undefined
 }
 
-function collectReconstructionProperties(
-  facts: readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][],
-): ReadonlyMap<string, { readonly value: unknown }> {
-  return collectCompactPropertyValues(facts.filter(
-    fact => fact.itemRule?.properties[fact.propertyKey]?.forReferenceOnly === true,
-  ))
-}
-
 function collectProofProperties(
   facts: readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][],
 ): ReadonlyMap<string, { readonly value: unknown }> {
@@ -243,12 +235,14 @@ export function prepareImportDependencies(
     itemFacts: (path, itemType) => facts.items.get(itemAddress(path, itemType)),
     propertyValue: (path, key) => {
       const address = siblingAddress(path, key)
-      return facts.finalProperties.get(address)
+      const result = facts.finalProperties.get(address)
         ?? facts.siblingProperties.get(address)
         ?? facts.proofProperties.get(address)
         ?? { value: undefined }
+      if (key === "additionSource") {
+      }
+      return result
     },
-    reconstructionValue: (path, key) => facts.reconstructionProperties.get(siblingAddress(path, key)),
     shouldOmit(candidate, values) {
       const address = propertyAddress(candidate)
       const dependency = facts.properties.get(address)

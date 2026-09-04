@@ -157,7 +157,7 @@ describe("configuration extension PropertyState augmenter", () => {
     expect(yaml).toEqual({ Включено: undefined })
   })
 
-  it("не переносит forReferenceOnly-свойство через PropertyState capability", () => {
+  it("не переносит xmlOnly-свойство через PropertyState capability", () => {
     const rule = {
       itemType: "ReferenceOnlyProbe",
       properties: {
@@ -167,7 +167,7 @@ describe("configuration extension PropertyState augmenter", () => {
           xml: "DefaultForm",
           xmlParents: ["Properties"],
           defaultValueAdoptedXML: "",
-          forReferenceOnly: true,
+          xmlOnly: true,
         },
       },
     } as const satisfies MetadataItemRule

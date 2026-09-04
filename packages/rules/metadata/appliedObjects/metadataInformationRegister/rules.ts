@@ -88,13 +88,13 @@ export const MetadataInformationRegisterRules = {
     xmlRoot: xmlRootRule({
       container: "InformationRegister",
       rootAttributes: V8_MDCLASSES_ROOT,
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
     }),
     internalInfo: internalInfoRule({
       xmlParents: [],
-      forReferenceOnly: true,
+      xmlOnly: true,
       items: [
         { name: "InformationRegisterRecord", category: "Record" },
         { name: "InformationRegisterManager", category: "Manager" },
@@ -264,7 +264,7 @@ export const MetadataInformationRegisterRules = {
     forms: childFormNamesRule({
       xml: "Form",
       folderName: "Формы",
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
       xmlParents: childObjects,
@@ -272,7 +272,7 @@ export const MetadataInformationRegisterRules = {
     templates: childTemplateNamesRule({
       xml: "Template",
       folderName: "Шаблоны",
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
       xmlParents: childObjects,

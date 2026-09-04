@@ -34,7 +34,7 @@ describe("convertMetadataItemFromYAMLToXML", () => {
     const prepared = prepareMetadataItemXMLExecution({
       context: context(), name: "Первый", yaml: { Значение: "готово" }, outputs: [{ key: "owner" }],
       rule: { ...itemRule, properties: {
-        root: { type: "XMLRoot", container: "Entry", isFileRoot: true, forReferenceOnly: true,
+        root: { type: "XMLRoot", container: "Entry", isFileRoot: true, xmlOnly: true,
           rootAttributes: () => { preparations++; return { _xmlns: "urn:entry" } } },
         ...itemRule.properties,
       } },
@@ -62,7 +62,7 @@ describe("convertMetadataItemFromYAMLToXML", () => {
           type: "XMLRoot",
           container: "Entry",
           isFileRoot,
-          forReferenceOnly: true,
+          xmlOnly: true,
           rootAttributes: () => {
             preparations++
             return { _xmlns: "urn:entry" }
@@ -261,7 +261,7 @@ describe("convertMetadataItemFromYAMLToXML", () => {
           type: "XMLRoot",
           container: "Recalculation",
           rootAttributes: { _xmlns: "http://v8.1c.ru/8.3/MDClasses" },
-          forReferenceOnly: true,
+          xmlOnly: true,
         },
         name: { yaml: "Имя", xml: "Name", type: "string", xmlParents: ["Properties"] },
       },
@@ -350,7 +350,7 @@ describe("convertMetadataItemFromYAMLToXML", () => {
           type: "XMLRoot",
           container: "Attribute",
           rootAttributes: { _xmlns: "generated" },
-          forReferenceOnly: true,
+          xmlOnly: true,
         },
         value: { type: "string", yaml: "Значение", xml: "Value", yamlInline: true },
       },
@@ -398,7 +398,7 @@ describe("convertMetadataItemFromYAMLToXML", () => {
           type: "XMLRoot",
           container: "TestRoot",
           rootAttributes: {},
-          forReferenceOnly: true,
+          xmlOnly: true,
         },
         value: { type: deferredType, yaml: "Значение", xml: "Value", xmlParents: ["Properties"] },
       },

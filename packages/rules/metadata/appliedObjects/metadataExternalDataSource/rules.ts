@@ -38,13 +38,13 @@ export const MetadataExternalDataSourceRules = {
     xmlRoot: xmlRootRule({
       container: "ExternalDataSource",
       rootAttributes: V8_MDCLASSES_ROOT,
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
     }),
     internalInfo: internalInfoRule({
       xmlParents: [],
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
       items: [
@@ -66,13 +66,13 @@ export const MetadataExternalDataSourceRules = {
       yaml: "Таблицы",
       xml: "Table",
       xmlParents: childObjects,
-      forReferenceOnly: true,
+      xmlOnly: true,
     }),
     cubes: childFileItemNamesRule({
       yaml: "Кубы",
       xml: "Cube",
       xmlParents: childObjects,
-      forReferenceOnly: true,
+      xmlOnly: true,
     }),
     functions: metadataExternalDataSourceFunctionsRule({
       yaml: "Функции",

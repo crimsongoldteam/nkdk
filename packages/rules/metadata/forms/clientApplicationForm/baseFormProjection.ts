@@ -129,10 +129,12 @@ export function equalClientApplicationBaseFormProjections(params: {
   const leftContext = createProjectionContext({
     baseYaml: params.leftBaseYaml,
     extensionYaml: params.extensionYaml,
+    registerYAMLRuntimeCorrespondence: copyRuntimeMetadataForComparison,
   })
   const rightContext = createProjectionContext({
     baseYaml: params.rightBaseYaml,
     extensionYaml: params.extensionYaml,
+    registerYAMLRuntimeCorrespondence: copyRuntimeMetadataForComparison,
   })
   if (!equalProjectedProperties({
     leftYaml: params.leftBaseYaml,
@@ -156,6 +158,12 @@ export function equalClientApplicationBaseFormProjections(params: {
     leftContext,
     rightContext,
   })
+}
+
+function copyRuntimeMetadataForComparison(source: unknown, target: unknown): void {
+  if (isYamlObject(source) && isYamlObject(target)) {
+    copyYAMLRuntimeMetadataDeep({ source, target })
+  }
 }
 
 interface BaseFormProjectionRuntimeContext extends BaseFormProjectionContext {
@@ -210,17 +218,25 @@ function equalProjectedElementTrees(params: {
     })
     if (!Object.is(leftElement.Вид, rightElement.Вид)) return false
     const extension = params.extensionElements.get(name)
-    if (extension !== undefined && !equalProjectedProperties({
-      leftYaml: normalizeProjectionAliases(leftElement, getTreeNodeJSONSchemaPropertyAliases(leftRule.itemType)),
-      rightYaml: normalizeProjectionAliases(rightElement, getTreeNodeJSONSchemaPropertyAliases(rightRule.itemType)),
-      extensionYaml: normalizeProjectionAliases(extension.yaml, getTreeNodeJSONSchemaPropertyAliases(extension.rule.itemType)),
-      leftRule,
-      rightRule,
-      extensionRule: extension.rule,
-      leftContext: params.leftContext,
-      rightContext: params.rightContext,
-      skippedYamlKeys: new Set(["Элементы"]),
-    })) return false
+    if (extension !== undefined) {
+      const leftProjection = projectAliasedMetadataItemProperties({
+        baseYaml: leftElement,
+        extensionYaml: extension.yaml,
+        baseRule: leftRule,
+        extensionRule: extension.rule,
+        context: params.leftContext,
+        skippedYamlKeys: new Set(["Элементы"]),
+      })
+      const rightProjection = projectAliasedMetadataItemProperties({
+        baseYaml: rightElement,
+        extensionYaml: extension.yaml,
+        baseRule: rightRule,
+        extensionRule: extension.rule,
+        context: params.rightContext,
+        skippedYamlKeys: new Set(["Элементы"]),
+      })
+      if (!equalBaseFormYaml(leftProjection, rightProjection)) return false
+    }
 
     const leftChildrenRule = propertyRuleByYamlKey(leftRule, "Элементы")
     const rightChildrenRule = propertyRuleByYamlKey(rightRule, "Элементы")
@@ -254,7 +270,7 @@ function equalProjectedProperties(params: {
 }): boolean {
   const keys = projectionYamlKeys(params.leftYaml, params.rightYaml, params.leftRule, params.rightRule)
   for (const yamlKey of keys) {
-    if (params.skippedYamlKeys?.has(yamlKey) === true) continue
+    if (params.skippedYamlKeys?.has(yamlKey) === true || isXmlServiceYamlKey(yamlKey)) continue
     const left = projectMetadataItemProperty({
       baseYaml: params.leftYaml,
       extensionYaml: params.extensionYaml,
@@ -271,11 +287,22 @@ function equalProjectedProperties(params: {
       context: params.rightContext,
       yamlKey,
     })
-    const leftValue = left.kind === "include" ? left.value : undefined
-    const rightValue = right.kind === "include" ? right.value : undefined
-    if (!equalBaseFormYaml(leftValue, rightValue)) return false
+    if (left.kind !== right.kind) return false
+    if (
+      left.kind === "include"
+      && right.kind === "include"
+      && !equalBaseFormYaml(left.value, right.value)
+    ) return false
   }
   return true
+}
+
+function isXmlServiceYamlKey(key: string): boolean {
+  return key === "_id"
+    || key === "_uuid"
+    || key === "_version"
+    || key === "_xmlns"
+    || key.startsWith("_xmlns:")
 }
 
 function projectionYamlKeys(

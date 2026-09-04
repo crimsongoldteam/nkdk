@@ -1,9 +1,27 @@
 Синоним: Это форма контрагента
-Комментарий: !xml/raw
+"@Form\\ВключатьСправкуВСодержание": !xml/raw
+  $xml: null
+"@Form\\Комментарий": !xml/raw
+  $xml: null
+"@Form\\Реквизиты": !xml/raw
   $xml: null
 НазначенияИспользования: ПлатформаИМобильноеПриложение
 Элементы:
   ПолеВвода1:
     Вид: ПолеВвода
+    "@Form": !xml/raw
+      $xml:
+        "#order":
+          - DataPath
+          - ContextMenu
+          - ExtendedTooltip
+          - Width
     ПутьКДанным: !xml/invalid Реквизит
     Ширина: 10
+Form\Properties: !xml/raw
+  $xml:
+    "#order":
+      - FormType
+      - Name
+      - Synonym
+      - UsePurposes

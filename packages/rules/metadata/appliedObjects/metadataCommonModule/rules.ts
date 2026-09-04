@@ -31,7 +31,7 @@ export const MetadataCommonModuleRules = {
     xmlRoot: xmlRootRule({
       container: "CommonModule",
       rootAttributes: V8_MDCLASSES_ROOT,
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
     }),

@@ -25,7 +25,7 @@ export const MetadataEventSubscriptionRules = {
     xmlRoot: xmlRootRule({
       container: "EventSubscription",
       rootAttributes: V8_MDCLASSES_ROOT,
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
     }),

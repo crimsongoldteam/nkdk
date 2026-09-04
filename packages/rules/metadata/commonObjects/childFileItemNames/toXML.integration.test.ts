@@ -8,7 +8,7 @@ import {
 } from "../../../tests/directConversion"
 import type { MetadataItemRule } from "../../ruleRuntime"
 
-const rule = { type: "ChildFileItemNames" as const, xml: "Table", forReferenceOnly: true as const }
+const rule = { type: "ChildFileItemNames" as const, xml: "Table", xmlOnly: true as const }
 
 describe("exportChildFileItemNamesToXML", () => {
   it("возвращает непустой массив имён file-item объектов", () => {
@@ -35,7 +35,7 @@ describe("exportChildFileItemNamesToXML", () => {
           yaml: "Дети",
           xml: "Table",
           xmlParents: ["ChildObjects"],
-          forReferenceOnly: true,
+          xmlOnly: true,
         },
       },
     } as const satisfies MetadataItemRule

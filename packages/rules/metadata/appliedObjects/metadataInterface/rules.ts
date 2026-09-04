@@ -14,7 +14,7 @@ export const MetadataInterfaceRules = {
   itemTypePrefix: "Интерфейс",
   xmlDir: "Interfaces",
   properties: {
-    xmlRoot: xmlRootRule({ container: "Interface", rootAttributes: V8_MDCLASSES_ROOT, forReferenceOnly: true, toYAML: false, fromYAML: false }),
+    xmlRoot: xmlRootRule({ container: "Interface", rootAttributes: V8_MDCLASSES_ROOT, xmlOnly: true, toYAML: false, fromYAML: false }),
     ...metadataIdentityProperties,
     interface: templateRule({ nkdkPath: "Interface.bin", xmlPath: "Ext/Interface.bin", toXML: false, fromXML: false }),
     switchable: booleanRule({ xml: "Switchable", yaml: "Переключаемый", xmlParents: properties, implicitValueYAML: true }),

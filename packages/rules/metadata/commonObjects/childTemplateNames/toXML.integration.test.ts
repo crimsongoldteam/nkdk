@@ -13,7 +13,7 @@ const rule = {
   type: "ChildTemplateNames" as const,
   xml: "Template",
   folderName: "Макеты",
-  forReferenceOnly: true as const,
+  xmlOnly: true as const,
 }
 
 const ctxWithTemplates = (templates: string[]) => {

@@ -424,7 +424,7 @@ describe("configuration index в едином YAML → XML-обходе", () => 
         internalInfo: {
           type: "InternalInfo",
           xml: "InternalInfo",
-          forReferenceOnly: true,
+          xmlOnly: true,
           evaluateWhenYAMLMissing: true,
           items: [{ name: "CatalogRef", category: "Ref" }],
         },
@@ -486,7 +486,7 @@ describe("configuration index в едином YAML → XML-обходе", () => 
         internalInfo: {
           type: "InternalInfo",
           xml: "InternalInfo",
-          forReferenceOnly: true,
+          xmlOnly: true,
           evaluateWhenYAMLMissing: true,
           items: [],
         },
@@ -526,7 +526,7 @@ describe("configuration index в едином YAML → XML-обходе", () => 
         internalInfo: {
           type: "InternalInfo",
           xml: "InternalInfo",
-          forReferenceOnly: true,
+          xmlOnly: true,
           evaluateWhenYAMLMissing: true,
           items: [],
         },
@@ -581,7 +581,7 @@ describe("configuration index в едином YAML → XML-обходе", () => 
     const rule = {
       itemType: "Catalog",
       properties: {
-        uuid: { type: "uuid", xml: "_uuid", forReferenceOnly: true },
+        uuid: { type: "uuid", xml: "_uuid", xmlOnly: true },
       },
     } as const satisfies MetadataItemRule
 
