@@ -1204,11 +1204,11 @@ function acceptNestedPropertyFactLeaves(params: {
       presentInXML: params.presentInXML,
     })
   }
-  const entries = Array.isArray(value)
+  const entries = !container
+    ? []
+    : Array.isArray(value)
     ? value.map((child, index) => [index, child] as const)
-    : value !== null && typeof value === "object"
-      ? Object.entries(value)
-      : []
+    : Object.entries(value)
   if (entries.length > 0) {
     for (const [key, value] of entries) {
       acceptNestedPropertyFactLeaves({ ...params, yamlPath: [...params.yamlPath, key], value })

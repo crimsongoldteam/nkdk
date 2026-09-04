@@ -6,7 +6,7 @@ import { numberRule } from "../../commonObjects/number/types"
 import { stringRule } from "../../commonObjects/string/types"
 import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
-import { V8_MDCLASSES_ROOT } from "../../ruleRuntime/appliedObject/presets"
+import { V8_MDCLASSES_XML_ROOT } from "../../ruleRuntime/appliedObject/presets"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 const properties = ["Properties"]
 const childObjects = ["ChildObjects"]
@@ -29,19 +29,13 @@ export const MetadataHTTPServiceRules = {
   properties: {
     xmlRoot: xmlRootRule({
       container: "HTTPService",
-      rootAttributes: V8_MDCLASSES_ROOT,
-      xmlOnly: true,
-      toYAML: false,
-      fromYAML: false,
+      ...V8_MDCLASSES_XML_ROOT,
     }),
-    uuid: metadataIdentityProperties.uuid,
-    name: stringRule({
-      xmlParents: properties,
-      required: true,
+    ...metadataIdentityProperties,
+    name: {
+      ...metadataIdentityProperties.name,
       defaultValue: ({ name }: { name?: string }) => name,
-    }),
-    synonym: metadataIdentityProperties.synonym,
-    comment: metadataIdentityProperties.comment,
+    },
     rootURL: stringRule({
       yaml: "КорневойURL",
       xml: "RootURL",

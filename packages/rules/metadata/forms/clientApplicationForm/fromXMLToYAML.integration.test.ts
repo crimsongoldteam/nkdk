@@ -121,6 +121,28 @@ function importAuditedStructuredForm(
 }
 
 describe("importClientApplicationFormFromXMLToYAML", () => {
+  it("не отмечает восстановимый xsi:nil параметра выбора как raw", () => {
+    const document = parseXmlDocumentWithSaxes(`<Form><ChildItems>
+      <InputField name="ПараметрВыбораNil" id="7">
+        <ChoiceParameters><app:item name="Отбор.Ссылка"><app:value xsi:nil="true"/></app:item></ChoiceParameters>
+        <ContextMenu name="ПараметрВыбораNilКонтекстноеМеню" id="8"/>
+        <ExtendedTooltip name="ПараметрВыбораNilРасширеннаяПодсказка" id="9"/>
+      </InputField>
+    </ChildItems></Form>`, { preserveXsiNil: true })
+
+    const { result, annotations } = importAuditedStructuredForm(document)
+    const text = serializeYAMLDocument(result.yaml, annotations).text
+
+    expect(result.yaml).toMatchObject({
+      Элементы: {
+        ПараметрВыбораNil: {
+          ПараметрыВыбора: { "Отбор.Ссылка": undefined },
+        },
+      },
+    })
+    expect(text).not.toContain("!xml/raw")
+  })
+
   it("передаёт аннотации ролей через вложенное Использование командного интерфейса", () => {
     const uuid = "12345678-1234-4234-9234-123456789abc"
     const document = parseXmlDocumentWithSaxes(`<Form><CommandInterface><CommandBar><Item>
@@ -722,6 +744,7 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
       fromXML: { ...baseContext.fromXML, metadataItemAugmenter: "configurationExtension" },
     }
     const context = withConfigurationIndexCollector(extensionContext, collector, "ОбщаяФорма.Форма")
+    let keysAtProof: string[] | undefined
     const result = importClientApplicationFormFromXMLToYAML({
       context,
       formName: "Форма",
@@ -737,9 +760,20 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
         },
       },
       rule: ClientApplicationFormWithExtendedPresentationRules,
+      roundTrip: {
+        open: ({ rule, yaml }) => ({
+          ready() {},
+          finish() {
+            if (rule.itemType === "ClientApplicationForm") keysAtProof = Object.keys(yaml)
+          },
+        }),
+      },
     })
 
     expect(result.yaml).toMatchObject({ РасширенноеПредставление: "" })
+    if (result.yaml === null || typeof result.yaml !== "object") throw new Error("Ожидался YAML формы")
+    expect(Object.keys(result.yaml).at(-1)).toBe("РасширенноеПредставление")
+    expect(keysAtProof?.at(-1)).toBe("РасширенноеПредставление")
   })
 })
 

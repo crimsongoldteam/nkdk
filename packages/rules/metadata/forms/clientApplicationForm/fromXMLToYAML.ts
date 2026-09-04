@@ -80,6 +80,9 @@ export function importClientApplicationFormFromXMLToYAML(params: FormImportExecu
         source: augmenterSource,
         yaml,
       })
+      if (context.fromXML.currentXMLDefaultVariant === "adopted" && yaml.РасширенноеПредставление === "") {
+        movePropertyLast(yaml, "РасширенноеПредставление")
+      }
       params.beforeFinish?.(yaml)
     },
     createSources: (context) => createClientApplicationFormImportSources({
@@ -101,6 +104,14 @@ export function importClientApplicationFormFromXMLToYAML(params: FormImportExecu
     deferred: deferred?.finish() ?? [],
     generatedFiles: imported.generatedFiles,
   }
+}
+
+function movePropertyLast(value: Record<string, unknown>, key: string): void {
+  if (Object.keys(value).at(-1) === key) return
+  const descriptor = Object.getOwnPropertyDescriptor(value, key)
+  if (descriptor === undefined) return
+  if (!Reflect.deleteProperty(value, key)) throw new Error(`Нельзя переместить свойство ${key}`)
+  Object.defineProperty(value, key, descriptor)
 }
 
 export function importClientApplicationFormBodyFromXML(params: FormImportExecutionOptions & {

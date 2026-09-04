@@ -20,8 +20,20 @@ export function createPropertyFactsYamlView(
   facts: readonly DirectImportPropertyFact[],
 ): Readonly<Record<string, unknown>> {
   const root: FactNode = { children: new Map() }
+  const explicitContainerPaths = new Set(
+    facts
+      .filter(({ propertyKey }) => propertyKey.startsWith("$container:"))
+      .map(({ yamlPath }) => pathKey(yamlPath)),
+  )
   for (const fact of facts) {
-    if (fact.yamlPath.length === 0 || (fact.value === undefined && fact.scalarTag === undefined)) continue
+    const explicitUndefined = fact.value === undefined
+      && fact.scalarTag === undefined
+      && fact.presentInXML === true
+      && explicitContainerPaths.has(pathKey(fact.yamlPath.slice(0, -1)))
+    if (
+      fact.yamlPath.length === 0
+      || (fact.value === undefined && fact.scalarTag === undefined && !explicitUndefined)
+    ) continue
     let node = root
     for (const segment of fact.yamlPath) {
       let child = node.children.get(segment)

@@ -643,33 +643,19 @@ function functionalOptionAssignment(): ImportAssignment {
 }
 
 function reportVariantFormAssignment(): ImportAssignment {
-  const ownerName = "ОтчетВсеСвойства"
-  const itemName = "ФормаВарианта"
-  const formRoot = join(e2eConfigurationDir, `Reports/${ownerName}/Forms/${itemName}`)
-  return assignmentForProjectPath({
-    id: "report-variant-form",
-    targetProjectPath: `Отчет/${ownerName}/Формы/${itemName}/Форма.yaml`,
-    itemType: "ClientApplicationForm",
-    itemName,
-    logicalAddress: `Отчет.${ownerName}.Форма.${itemName}`,
-    owner: {
-      itemType: "MetadataReport",
-      name: ownerName,
-      logicalAddress: `Отчет.${ownerName}`,
-    },
-    xmlFiles: [
-      { role: "metadata", sourcePath: `${formRoot}.xml` },
-      { role: "body", sourcePath: join(formRoot, "Ext/Form.xml") },
-    ],
-  })
+  return reportVariantFormAssignmentFrom(e2eConfigurationDir, "report-variant-form")
 }
 
 function extensionReportVariantFormAssignment(): ImportAssignment {
+  return reportVariantFormAssignmentFrom(e2eAllExtensionDir, "extension-report-variant-form")
+}
+
+function reportVariantFormAssignmentFrom(rootDir: string, id: string): ImportAssignment {
   const ownerName = "ОтчетВсеСвойства"
   const itemName = "ФормаВарианта"
-  const formRoot = join(e2eAllExtensionDir, `Reports/${ownerName}/Forms/${itemName}`)
+  const formRoot = join(rootDir, `Reports/${ownerName}/Forms/${itemName}`)
   return assignmentForProjectPath({
-    id: "extension-report-variant-form",
+    id,
     targetProjectPath: `Отчет/${ownerName}/Формы/${itemName}/Форма.yaml`,
     itemType: "ClientApplicationForm",
     itemName,

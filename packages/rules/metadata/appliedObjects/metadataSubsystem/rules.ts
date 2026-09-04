@@ -7,9 +7,8 @@ import { metadataItemLinksRule } from "../../commonObjects/metadataPath/types"
 import { pictureRule } from "../../commonObjects/picture/types"
 import { booleanRule } from "../../commonObjects/boolean/types"
 import { i8nTextRule } from "../../commonObjects/i8nText/types"
-import { stringRule } from "../../commonObjects/string/types"
 import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
-import { V8_MDCLASSES_ROOT } from "../../ruleRuntime/appliedObject/presets"
+import { V8_MDCLASSES_XML_ROOT } from "../../ruleRuntime/appliedObject/presets"
 import "../../commonObjects/rootCommandInterface/register"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 const properties = ["Properties"]
@@ -87,19 +86,13 @@ export const MetadataSubsystemRules = {
   properties: {
     xmlRoot: xmlRootRule({
       container: "Subsystem",
-      rootAttributes: V8_MDCLASSES_ROOT,
-      xmlOnly: true,
-      toYAML: false,
-      fromYAML: false,
+      ...V8_MDCLASSES_XML_ROOT,
     }),
-    uuid: metadataIdentityProperties.uuid,
-    name: stringRule({
-      xmlParents: properties,
-      required: true,
+    ...metadataIdentityProperties,
+    name: {
+      ...metadataIdentityProperties.name,
       defaultValue: ({ name }: { name?: string }) => name,
-    }),
-    synonym: metadataIdentityProperties.synonym,
-    comment: metadataIdentityProperties.comment,
+    },
     includeHelpInContents: booleanRule({
       yaml: "ВключатьСправкуВСодержание",
       xml: "IncludeHelpInContents",

@@ -59,7 +59,12 @@ export function createAnnotatedLocalXmlBodyConsumer(params: Omit<
         differences,
         appendRaw,
         pathPrefix: source === params.source
-          ? params.rawPathPrefix ?? []
+          ? params.rawPathPrefix === undefined
+            || params.rawPathPrefix.length === 0
+            || source.name === "Form"
+            || params.rawPathPrefix.at(-1) === source.name
+            ? params.rawPathPrefix ?? []
+            : [...params.rawPathPrefix, source.name]
           : [
               ...(params.rawPathPrefix ?? []),
               ...(relativeElementPath(params.source.path, source.path) ?? []),
@@ -80,7 +85,10 @@ export function createAnnotatedLocalXmlBodyConsumer(params: Omit<
       if (
         key === undefined
         || property.propertyRule.toYAML === false
-        || semanticOmitted
+        || (
+          semanticOmitted
+          && Object.prototype.hasOwnProperty.call(property.propertyRule, "defaultValueXMLEmpty")
+        )
       ) {
         const label = property.propertyRule.yaml ?? property.xmlPath.at(-1)
         if (label !== undefined) appendRaw([...(params.rawPathPrefix ?? ["@Form"]), label].join("\\"), null)
@@ -286,7 +294,7 @@ export function createAnnotatedLocalXmlBodyConsumers(params: {
     },
     finish(output) {
       const roots = new Map<string, LocalXmlChild>()
-      for (const consumer of consumers.values()) {
+      for (const consumer of [...consumers.values()].reverse()) {
         for (const [key, receipt] of consumer.finish(output)) roots.set(key, receipt)
       }
       return roots

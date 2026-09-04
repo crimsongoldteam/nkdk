@@ -20,3 +20,11 @@ export const V8_MDCLASSES_ROOT = {
   "_xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
   _version: "2.20",
 } as const
+
+/** Общие параметры XMLRoot прикладного объекта из выгрузки MDClasses. */
+export const V8_MDCLASSES_XML_ROOT = {
+  rootAttributes: V8_MDCLASSES_ROOT,
+  xmlOnly: true,
+  toYAML: false,
+  fromYAML: false,
+} as const

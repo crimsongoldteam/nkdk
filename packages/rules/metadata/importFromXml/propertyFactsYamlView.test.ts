@@ -49,6 +49,18 @@ describe("createPropertyFactsYamlView", () => {
     expect(yaml).toEqual({ Элементы: { Поле: { Вид: "ПолеВвода" } } })
   })
 
+  it("сохраняет явное undefined внутри XML-контейнера", () => {
+    const yaml = createPropertyFactsYamlView([
+      { ...fact(["ПараметрыВыбора"], {}), propertyKey: "$container:choiceParameters" },
+      { ...fact(["ПараметрыВыбора", "Отбор.Ссылка"], undefined), presentInXML: true },
+    ])
+
+    const choiceParameters = yaml.ПараметрыВыбора as Record<string, unknown>
+    expect(Object.keys(choiceParameters)).toEqual(["Отбор.Ссылка"])
+    expect(Object.hasOwn(choiceParameters, "Отбор.Ссылка")).toBe(true)
+    expect(choiceParameters["Отбор.Ссылка"]).toBeUndefined()
+  })
+
   it("сохраняет длину адресного массива поверх компактного факта контейнера", () => {
     const yaml = createPropertyFactsYamlView([
       fact(["Тип"], []),
