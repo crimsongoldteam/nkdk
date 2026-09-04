@@ -34,7 +34,8 @@
     "test:architecture:rules": "node --test 'tools/dependency-cruiser/test/*.test.mjs'",
     "test:profile": "node packages/rules/scripts/run-test-duration-profile.mjs",
     "test:e2e": "vitest run --config e2e/vitest.config.ts",
-    "test:partial-sync": "pnpm --filter @nkdk/mcp build && tsx e2e/partial-sync/run.ts"
+    "test:partial-sync": "pnpm --filter @nkdk/mcp build && tsx e2e/partial-sync/run.ts",
+    "test:partial-sync:stepwise": "pnpm --filter @nkdk/mcp build && tsx e2e/partial-sync/stepwise-run.ts"
   },
   "devDependencies": {
     "@nkdk/platform": "workspace:*",

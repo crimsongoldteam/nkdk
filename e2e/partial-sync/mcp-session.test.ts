@@ -86,6 +86,83 @@ describe("partial sync MCP session", () => {
     expect(lowLevel.closeCalls).toBe(1)
   })
 
+  it("возвращает общий promise параллельным вызовам close", async () => {
+    const attemptLogDir = await mkdtemp(join(tmpdir(), "nkdk-mcp-session-close-"))
+    let finishClose: (() => void) | undefined
+    let closeCalls = 0
+    const lowLevel: LowLevelMcpSession = {
+      async call() { throw new Error("unexpected call") },
+      takeStderr() { return "" },
+      async close() {
+        closeCalls += 1
+        await new Promise<void>((resolve) => { finishClose = resolve })
+      },
+    }
+    const session = await openScenarioMcpSession({ attemptLogDir, createSession: async () => lowLevel })
+
+    const first = session.close()
+    const second = session.close()
+
+    expect(second).toBe(first)
+    expect(closeCalls).toBe(1)
+    finishClose?.()
+    await Promise.all([first, second])
+  })
+
+  it("ожидает terminal результат фоновой операции в том же сеансе", async () => {
+    const attemptLogDir = await mkdtemp(join(tmpdir(), "nkdk-mcp-session-background-"))
+    const waits: number[] = []
+    const lowLevel = fakeLowLevel([
+      { result: { content: [] }, payload: {
+        ok: true, status: "accepted", operationId: "op-1", projectDir: "/project",
+      } },
+      { result: { content: [] }, payload: {
+        ok: true, status: "running", operationId: "op-1", operationKind: "validate_project",
+        projectDir: "/project", createdAt: "now", updatedAt: "now", messages: [],
+      } },
+      { result: { content: [] }, payload: {
+        ok: true, status: "succeeded", operationId: "op-1", operationKind: "validate_project",
+        projectDir: "/project", createdAt: "now", updatedAt: "now", messages: [],
+        result: { ok: true, summary: { errors: 0 } },
+      } },
+    ])
+    const session = await openScenarioMcpSession({
+      attemptLogDir,
+      createSession: async () => lowLevel,
+      wait: async (milliseconds) => { waits.push(milliseconds) },
+    })
+
+    await expect(session.call("nkdk.validate_project", { projectDir: "/project" }))
+      .resolves.toEqual({ ok: true, summary: { errors: 0 } })
+    await expect(readJson(join(attemptLogDir, "002-nkdk.get_operation.request.json")))
+      .resolves.toMatchObject({ arguments: { projectDir: "/project", operationId: "op-1" } })
+    await expect(readJson(join(attemptLogDir, "003-nkdk.get_operation.response.json")))
+      .resolves.toMatchObject({ payload: { status: "succeeded" } })
+    expect(waits).toEqual([1_000])
+  })
+
+  it("сохраняет предметную ошибку из результата фоновой операции", async () => {
+    const attemptLogDir = await mkdtemp(join(tmpdir(), "nkdk-mcp-session-background-failure-"))
+    const lowLevel = fakeLowLevel([
+      { result: { content: [] }, payload: {
+        ok: true, status: "accepted", operationId: "op-1", projectDir: "/project",
+      } },
+      { result: { content: [] }, payload: {
+        ok: true, status: "succeeded", operationId: "op-1", operationKind: "sync_to_infobase",
+        projectDir: "/project", createdAt: "now", updatedAt: "now", messages: [],
+        result: { ok: false, code: "session_timeout", message: "Истекло время запуска агента" },
+      } },
+    ])
+    const session = await openScenarioMcpSession({
+      attemptLogDir,
+      createSession: async () => lowLevel,
+      wait: async () => undefined,
+    })
+
+    await expect(session.call("nkdk.sync_to_infobase", { projectDir: "/project" }))
+      .rejects.toThrow("session_timeout: Истекло время запуска агента")
+  })
+
   it.each([
     ["tool payload", { result: { content: [] }, payload: { ok: false, code: "invalid", message: "bad" } }],
     ["MCP error", { result: { isError: true, content: [{ type: "text", text: "bad" }] }, payload: undefined }],

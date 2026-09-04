@@ -71,6 +71,7 @@ export function buildStandaloneLaunch(params: {
       params.sessionDataDir,
       "--config",
       params.configPath,
+      "--disable-direct-gate",
     ],
   }
 }

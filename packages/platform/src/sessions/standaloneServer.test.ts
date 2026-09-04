@@ -104,7 +104,7 @@ describe("standalone server session", () => {
       "Расширение"
     )).resolves.toEqual({ warnings: [], loadMode: "partial" })
 
-    expect(fixture.calls).toContain("spawn ibsrv --data /project/.nkdk/platform-sessions/standalone/server-data --session-data /project/.nkdk/platform-sessions/standalone/session-data --config /project/.nkdk/platform-sessions/standalone/config.yaml cwd=/project/.nkdk/platform-sessions/standalone")
+    expect(fixture.calls).toContain("spawn ibsrv --data /project/.nkdk/platform-sessions/standalone/server-data --session-data /project/.nkdk/platform-sessions/standalone/session-data --config /project/.nkdk/platform-sessions/standalone/config.yaml --disable-direct-gate cwd=/project/.nkdk/platform-sessions/standalone")
     expect(fixture.calls).toContain("process.waitForOutput Stand-alone Server ready. timeout=60000")
     expect(fixture.calls).toContain("ssh.connect 127.0.0.1:8429 fingerprint")
     const loadCall = fixture.calls.find((call) => call.startsWith("shell.run config load-files"))

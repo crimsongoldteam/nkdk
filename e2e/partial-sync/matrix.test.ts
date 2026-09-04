@@ -25,7 +25,7 @@ import { extensionConfigurationVerificationOperations } from "./matrix/extension
 import { orderOperations } from "./matrix/order-operations"
 import { partialSyncMatrix } from "./matrix"
 import { operationLayerMembership } from "./matrix/layers"
-import { rootObjectDeclarations } from "./matrix/root-objects"
+import { matrixObjectNames, rootObjectDeclarations } from "./matrix/root-objects"
 import { rootPropertyOperations } from "./matrix/root-property-operations"
 import { structuralPropertyOperations } from "./matrix/structural-property-operations"
 import { buildScenarioPlan } from "./plan"
@@ -417,15 +417,22 @@ describe("partial sync matrix", () => {
   })
 
   it("defers non-required register resources to the child layer", () => {
-    for (const key of [
-      "object:accumulation-register",
-      "object:accounting-register",
-    ]) {
+    for (const key of ["object:accounting-register"]) {
       const declaration = rootObjectDeclarations.find((item) => item.key === key)
       const properties = declaration?.changes.find(({ path }) => path.endsWith("/Свойства.yaml"))
 
       expect(properties?.after, key).not.toContain("Ресурсы:")
     }
+  })
+
+  it("создаёт регистр накопления сразу с минимальным ресурсом и регистратором", () => {
+    const register = rootObjectDeclarations.find(({ key }) => key === "object:accumulation-register")
+    const document = rootObjectDeclarations.find(({ key }) => key === "object:document")
+
+    expect(register?.changes[0]?.after).toContain("НачальныйРесурс")
+    expect(document?.changes[0]?.after).toContain(
+      `РегистрНакопления.${matrixObjectNames.accumulationRegister}`,
+    )
   })
 
   it("omits implicit default properties from minimal root objects", () => {
@@ -436,6 +443,13 @@ describe("partial sync matrix", () => {
     expect(properties?.after).toBe(
       "Комментарий: До изменения\nНазначенияИспользования: ПлатформаИМобильноеПриложение\n",
     )
+
+    for (const key of ["object:document", "object:document-numerator"]) {
+      const declaration = rootObjectDeclarations.find((item) => item.key === key)
+      const minimalProperties = declaration?.changes[0]
+      expect(minimalProperties?.after, key).not.toContain("КонтрольУникальности")
+      expect(minimalProperties?.after, key).not.toContain("ПериодичностьНомера")
+    }
   })
 
   it("declares every reachable owner-child capability", () => {

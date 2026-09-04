@@ -26,7 +26,7 @@ export type PlatformFixtureDependencies = {
   runProcess(
     command: string,
     args: readonly string[],
-    options: { readonly cwd: string }
+    options: { readonly cwd: string; readonly signal?: AbortSignal }
   ): Promise<{ readonly exitCode: number; readonly stdout: string; readonly stderr: string }>
 }
 
@@ -37,6 +37,7 @@ type PrepareInfobaseFixtureParams = {
   readonly cfXmlDir: string
   readonly extensionXmlDir: string
   readonly extensionName: string
+  readonly signal?: AbortSignal
 }
 
 export async function prepareInfobaseFixture(
@@ -102,10 +103,12 @@ export async function prepareInfobaseFixture(
   ] as const
 
   for (const operation of operations) {
+    params.signal?.throwIfAborted()
     let outcome: { readonly exitCode: number; readonly stdout: string; readonly stderr: string }
     try {
       outcome = await dependencies.runProcess(installation.ibcmdPath, operation.args, {
         cwd: params.dataDir,
+        signal: params.signal,
       })
     } catch (caught) {
       throw new PlatformFixtureError(
@@ -142,6 +145,7 @@ const nodeDependencies: PlatformFixtureDependencies = {
       let stderr = ""
       const child = spawn(command, args, {
         cwd: options.cwd,
+        signal: options.signal,
         shell: false,
         stdio: ["ignore", "pipe", "pipe"],
       })
