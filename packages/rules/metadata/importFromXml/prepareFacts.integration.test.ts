@@ -60,6 +60,7 @@ describe("prepareImportFacts", () => {
     expect(facts).not.toHaveProperty("yaml")
     expect(facts).not.toHaveProperty("annotations")
     expect(facts).not.toHaveProperty("proofAudit")
+    expect(facts).not.toHaveProperty("reconstructionFacts")
   })
 
   it("не удерживает составные YAML-поддеревья в фактах первого прохода", async () => {

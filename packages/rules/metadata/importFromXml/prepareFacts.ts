@@ -73,9 +73,6 @@ export interface PreparedImportFacts {
   readonly localIndexes: LocalIndexes
   readonly configurationFragment: ConfigurationIndexBlockFragment
   readonly generatedFiles: readonly ExternalFileEntry[]
-  readonly reconstructionFacts: {
-    readonly rootPropertyValues: Readonly<Record<string, unknown>>
-  }
   readonly semanticFacts: readonly DirectImportPropertyFact[]
   readonly formSemanticFacts?: readonly DirectImportPropertyFact[]
   readonly baseFormSemanticFacts?: readonly DirectImportPropertyFact[]
@@ -114,7 +111,6 @@ export async function prepareImportFacts(params: {
     collector: params.collector,
     topology: params.topology,
   })
-  const rootPropertyValues: Record<string, unknown> = {}
   const facts = createDirectImportFactsCollector()
   let dependentCandidates: readonly ImportedDependentPropertyCandidate[] = []
   let baseFormSemanticFacts: readonly DirectImportPropertyFact[] | undefined
@@ -219,10 +215,6 @@ export async function prepareImportFacts(params: {
   }
 
   const propertyFacts = facts.finish()
-  for (const fact of propertyFacts) {
-    if (fact.yamlPath.length !== 1 || typeof fact.yamlPath[0] !== "string" || !isCompactFactValue(fact.value)) continue
-    rootPropertyValues[fact.yamlPath[0]] = fact.value
-  }
   const acceptedFacts = rule.itemType === ClientApplicationFormRules.itemType
     ? augmentClientApplicationFormFacts({
         facts: acceptedPropertyFacts(imported.localIndexes, propertyFacts),
@@ -284,7 +276,6 @@ export async function prepareImportFacts(params: {
     localIndexes: imported.localIndexes,
     configurationFragment: params.collector.fragment(params.assignment.targetProjectPath),
     generatedFiles: [...generatedFiles, ...imported.generatedFiles.filter((file) => !generatedFiles.includes(file))],
-    reconstructionFacts: { rootPropertyValues },
     semanticFacts,
     ...(formSemanticFacts === undefined ? {} : { formSemanticFacts }),
     ...(baseFormSemanticFacts === undefined ? {} : { baseFormSemanticFacts }),
@@ -531,14 +522,6 @@ function requireInput(
   const input = inputs.find((candidate) => candidate.input.role === role)
   if (input === undefined) throw new Error(`В задании XML-import отсутствует ${role} XML`)
   return input
-}
-
-function isCompactFactValue(value: unknown): boolean {
-  return value === null
-    || typeof value === "string"
-    || typeof value === "number"
-    || typeof value === "boolean"
-    || typeof value === "bigint"
 }
 
 function measureFacts<T>(profiler: ValidationProfiler | undefined, action: () => T): T {

@@ -46,7 +46,13 @@ export function createDirectImportFactsCollector(): DirectImportFactsSink & {
   const facts: Parameters<DirectImportFactsSink["acceptProperty"]>[0][] = []
   const collector = {
     acceptProperty(fact: Parameters<DirectImportFactsSink["acceptProperty"]>[0]) {
-      facts.push({ ...fact, yamlPath: [...fact.yamlPath], sourceYamlPath: fact.sourceYamlPath ?? [...fact.yamlPath] })
+      const yamlPath = [...fact.yamlPath]
+      const source = fact.sourceYamlPath
+      const sourceYamlPath = source === undefined
+        || (source.length === yamlPath.length && source.every((segment, index) => segment === yamlPath[index]))
+        ? yamlPath
+        : [...source]
+      facts.push({ ...fact, yamlPath, sourceYamlPath })
     },
     finish: () => facts,
   }

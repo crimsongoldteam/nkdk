@@ -361,7 +361,7 @@ function yamlPathKey(path: readonly (string | number)[]): string {
 function isPreparedImportFacts(
   prepared: PreparedImportYaml | PreparedImportFacts,
 ): prepared is PreparedImportFacts {
-  return "reconstructionFacts" in prepared
+  return "semanticFacts" in prepared
 }
 
 function objectTargetForFile(

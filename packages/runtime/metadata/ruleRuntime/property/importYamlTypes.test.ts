@@ -1,0 +1,36 @@
+import { describe, expect, it } from "vitest"
+import { createDirectImportFactsCollector } from "./importYamlTypes"
+
+describe("direct import fact paths", () => {
+  it.each([false, true])("отделяет совпадающие пути одной копией; исходный задан: %s", (explicit) => {
+    const yamlPath = ["Реквизиты", "Получатель", "Тип"]
+    const sourceYamlPath = [...yamlPath]
+    const collector = createDirectImportFactsCollector()
+    collector.acceptProperty({
+      itemType: "MetadataAttribute", propertyKey: "type", value: "Строка",
+      yamlPath, ...(explicit ? { sourceYamlPath } : {}),
+    })
+    yamlPath[1] = "Изменённый"
+    sourceYamlPath[1] = "Другой"
+
+    const [fact] = collector.finish()
+    expect(fact?.yamlPath).toEqual(["Реквизиты", "Получатель", "Тип"])
+    expect(fact?.sourceYamlPath).toBe(fact?.yamlPath)
+  })
+
+  it("сохраняет независимый исходный адрес именованного элемента", () => {
+    const yamlPath: (string | number)[] = ["Реквизиты", "Получатель", "Тип"]
+    const sourceYamlPath: (string | number)[] = ["Реквизиты", 0, "Тип"]
+    const collector = createDirectImportFactsCollector()
+    collector.acceptProperty({
+      itemType: "MetadataAttribute", propertyKey: "type", value: "Строка",
+      yamlPath, sourceYamlPath,
+    })
+    yamlPath[1] = "Изменённый"
+    sourceYamlPath[1] = 1
+
+    const [fact] = collector.finish()
+    expect(fact?.yamlPath).toEqual(["Реквизиты", "Получатель", "Тип"])
+    expect(fact?.sourceYamlPath).toEqual(["Реквизиты", 0, "Тип"])
+  })
+})
