@@ -50,13 +50,17 @@ export function collectImportDependencyFacts(params: {
   const items = new Map<string, DependentImportFacts>()
   const inspectedItems = new Set<string>()
   const propertyFactsBySource = new Map<string, NonNullable<typeof params.propertyFacts>[number]>()
-  for (const fact of params.propertyFacts ?? []) {
-    const key = propertyFactSourceAddress(
-      fact.itemType,
-      fact.propertyKey,
-      fact.sourceYamlPath ?? fact.yamlPath,
-    )
-    if (!propertyFactsBySource.has(key)) propertyFactsBySource.set(key, fact)
+  if (params.candidates.length > 0) {
+    const requestedPaths = new Set(params.candidates.map(candidate => yamlPathToPointer(candidate.yamlPath)))
+    const requestedAddresses = new Set(params.candidates.map(candidate => propertyFactSourceAddress(
+      candidate.itemType, candidate.propertyKey, candidate.yamlPath,
+    )))
+    for (const fact of params.propertyFacts ?? []) {
+      const path = fact.sourceYamlPath ?? fact.yamlPath
+      if (!requestedPaths.has(yamlPathToPointer(path))) continue
+      const key = propertyFactSourceAddress(fact.itemType, fact.propertyKey, path)
+      if (requestedAddresses.has(key) && !propertyFactsBySource.has(key)) propertyFactsBySource.set(key, fact)
+    }
   }
   const itemFacts = (itemType: string, itemYamlPath: readonly (string | number)[], itemName?: string) => {
     const address = itemAddress(itemYamlPath, itemType)
@@ -93,7 +97,7 @@ export function collectImportDependencyFacts(params: {
     }
   }
   const siblingProperties = new Map<string, { readonly value: unknown }>()
-  const propertyFactsYaml = createPropertyFactsYamlView(params.propertyFacts ?? [])
+  let propertyFactsYaml: Readonly<Record<string, unknown>> | undefined
   const proofPropertyFacts = params.proofPropertyFacts ?? params.propertyFacts ?? []
   const proofProperties = collectProofProperties(proofPropertyFacts)
   const finalProperties = collectFinalRootProperties({
@@ -126,6 +130,7 @@ export function collectImportDependencyFacts(params: {
       siblingKeys.set(fact.itemRule, keys)
     }
     if (!keys.has(fact.propertyKey)) continue
+    propertyFactsYaml ??= createPropertyFactsYamlView(params.propertyFacts ?? [])
     const propertyRule = fact.itemRule.properties[fact.propertyKey]
     const propertyRootIndex = typeof propertyRule?.yaml === "string"
       ? fact.yamlPath.lastIndexOf(propertyRule.yaml)
@@ -256,6 +261,9 @@ function collectCompactPropertyValues(
   const collected = new Set<string>()
   for (const fact of facts) {
     const propertyRule = fact.itemRule?.properties[fact.propertyKey]
+    // Служебные факты участвуют в составе значения, но не являются
+    // свойствами, которые общий экспорт может запросить по ключу rules.
+    if (propertyRule === undefined) continue
     const propertyRootIndex = typeof propertyRule?.yaml === "string"
       ? fact.yamlPath.lastIndexOf(propertyRule.yaml)
       : -1
@@ -297,8 +305,6 @@ export function prepareImportDependencies(
         ?? facts.siblingProperties.get(address)
         ?? facts.proofProperties.get(address)
         ?? { value: undefined }
-      if (key === "additionSource") {
-      }
       return result
     },
     shouldOmit(candidate, values) {

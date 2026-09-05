@@ -74,6 +74,11 @@ describe("prepared import dependencies", () => {
     const facts = collectImportDependencyFacts({
       rule: MetadataCatalogRules, owner, candidates: [candidate],
       yaml: { Реквизиты: { Получатель: { Тип: "Строка(10)", Заголовок: "Получатель", ЗначениеЗаполнения: "старое" } } },
+      propertyFacts: [{
+        itemType: "Independent", propertyKey: "title", yamlPath: ["Постороннее"],
+        get value() { throw new Error("Значение без потребителя зависимостей не должно читаться") },
+      }],
+      proofPropertyFacts: [],
     })
     expect([...facts.properties.values()]).toEqual([{ item: { Тип: "Строка(10)" }, root: {} }])
     const dependencies = prepareImportDependencies(facts)
@@ -106,7 +111,7 @@ describe("prepared import dependencies", () => {
     })).toBe(true)
   })
 
-  it("индексирует факты зависимых свойств одним проходом", () => {
+  it("индексирует только запрошенные зависимые свойства одним проходом", () => {
     const count = 64
     let itemTypeReads = 0
     const propertyFacts: DirectImportPropertyFact[] = Array.from({ length: count }, (_, index) => ({
@@ -134,8 +139,17 @@ describe("prepared import dependencies", () => {
         ЗначениеЗаполнения: `Значение${index}`,
       })),
     }
+    propertyFacts.push(...Array.from({ length: 512 }, (_, index): DirectImportPropertyFact => ({
+      get itemType() {
+        itemTypeReads++
+        return "Independent"
+      },
+      propertyKey: "title",
+      yamlPath: ["Посторонние", index, "Заголовок"],
+      value: `Заголовок${index}`,
+    })))
 
-    collectImportDependencyFacts({
+    const facts = collectImportDependencyFacts({
       rule: MetadataCatalogRules,
       owner,
       candidates,
@@ -143,6 +157,7 @@ describe("prepared import dependencies", () => {
       propertyFacts,
     })
 
+    expect(facts.properties.size).toBe(count)
     expect(itemTypeReads).toBeLessThan(count * 4)
   })
 
@@ -196,7 +211,7 @@ describe("prepared import dependencies", () => {
       .toEqual({ value: {} })
   })
 
-  it("восстанавливает составное свойство для локального proof целиком", () => {
+  it("восстанавливает составное свойство без удержания служебного контейнера в зависимостях", () => {
     const nestedRule = {
       itemType: "Nested",
       properties: {
@@ -214,6 +229,12 @@ describe("prepared import dependencies", () => {
       proofPropertyFacts: [{
         itemType: nestedRule.itemType,
         itemRule: nestedRule,
+        propertyKey: "$container:style",
+        value: {},
+        yamlPath: ["Элементы", "Первый", "Значение"],
+      }, {
+        itemType: nestedRule.itemType,
+        itemRule: nestedRule,
         propertyKey: "style",
         value: "Цвет",
         yamlPath: ["Элементы", "Первый", "Значение", "Вид"],
@@ -228,6 +249,8 @@ describe("prepared import dependencies", () => {
 
     expect(prepareImportDependencies(facts).propertyValue?.(["Элементы", "Первый"], "style"))
       .toEqual({ value: { Вид: "Цвет", Значение: "Красный" } })
+    expect(prepareImportDependencies(facts).propertyValue?.(["Элементы", "Первый"], "$container:style"))
+      .toEqual({ value: undefined })
   })
 
   it("не подавляет присутствующий пустой XML nested-свойства, опущенный из YAML", () => {
