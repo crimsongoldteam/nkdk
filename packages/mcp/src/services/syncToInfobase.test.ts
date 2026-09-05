@@ -11,6 +11,15 @@ const attemptDirectory = join("/project", ".nkdk", "tmp", "sync-to-infobase", "a
 const logPath = join(attemptDirectory, "platform.log")
 
 describe("sync to infobase", () => {
+  it("не начинает синхронизацию при отсутствии infobase", async () => {
+    const fixture = createFixture({ settings: {
+      status: "ready", projectDir: "/project", settingsPath: "/project/.nkdk/project.yaml", settings: { workerCount: 6 },
+    } })
+    expect(await syncToInfobase(input(), fixture.dependencies))
+      .toMatchObject({ ok: false, code: "invalid_project_settings" })
+    expect(fixture.events).toEqual(["readSettings"])
+  })
+
   it("requires confirmation before reading project state or settings", async () => {
     const fixture = createFixture()
 

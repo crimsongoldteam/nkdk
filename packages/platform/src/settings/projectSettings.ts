@@ -117,6 +117,7 @@ export async function readProjectSettings(
 }
 
 function semanticDiagnostics(settings: ProjectSettings): ProjectSettingsDiagnostic[] {
+  if (settings.infobase === undefined) return []
   const diagnostics: ProjectSettingsDiagnostic[] = []
   let connection: ReturnType<typeof parseConnection>
   try {

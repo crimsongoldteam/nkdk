@@ -70,6 +70,16 @@ describe("import from infobase", () => {
 
   it.each([
     [
+      "without infobase",
+      {
+        status: "ready" as const,
+        projectDir: "/project",
+        settingsPath: "/project/.nkdk/project.yaml",
+        settings: { workerCount: 6 },
+      },
+      "invalid_project_settings",
+    ],
+    [
       "missing",
       {
         status: "missing" as const,

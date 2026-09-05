@@ -58,7 +58,7 @@ export async function renameMetadataItem(
   params: RenameMetadataItemParams,
   rules?: MetadataOperationRules,
 ): Promise<MetadataOperationResult> {
-  const before = await params.projectState.refreshAndValidate({ projectDir: params.projectDir })
+  const before = await params.projectState.refreshAndValidate({ projectDir: params.projectDir, concurrency: params.concurrency })
   const beforeDiagnostics = [...before.diagnostics]
   before.diagnostics.release()
   if (hasMetadataOperationErrors(beforeDiagnostics) && params.ignoreValidationErrors !== true) {
@@ -116,7 +116,7 @@ export async function renameMetadataItem(
   if (params.allowWrite !== true) return success("plan", plan, plan.plannedChangedFiles, beforeDiagnostics)
 
   const applied = applyMetadataOperationFilePlan({ steps: plan.steps })
-  const after = await params.projectState.refreshAndValidate({ projectDir: params.projectDir })
+  const after = await params.projectState.refreshAndValidate({ projectDir: params.projectDir, concurrency: params.concurrency })
   const afterDiagnostics = [...after.diagnostics]
   after.diagnostics.release()
   if (!applied.ok) {

@@ -12,7 +12,7 @@ import {
   type ConfigurationIndexBlockFragment,
 } from "../configurationIndex"
 import type { ConfigurationIndexCandidateStore } from "../configurationIndex/store"
-import type { ConfigurationContextFromXML } from "@nkdk/runtime"
+import type { ConfigurationContextFromXML, WorkerCountSource } from "@nkdk/runtime"
 import { createOperationProfiler } from "../validation/profile"
 import {
   createPreparedYamlProjectWorkerPool,
@@ -72,6 +72,7 @@ export interface ImportConfigurationFromXmlParams {
   projectDir: string
   requestedComponentPath?: string
   concurrency?: number
+  workerCountSource?: WorkerCountSource
   copyExternalConcurrency?: number
   externalFileTransfer?: ExternalFileTransfer
   hashConcurrency?: number
@@ -228,7 +229,9 @@ export async function importConfigurationFromXml(
       ? withPropertyStateCompatibilityMode(operationContext, root)
       : operationContext
 
-    const concurrency = normalizeConcurrency(params.concurrency)
+    const concurrency = normalizeXmlImportConcurrency(params.concurrency)
+    const workerCountSource = params.workerCountSource ?? (params.concurrency === undefined ? "automatic" : "operation")
+    profiler.record("Подготовка импорта конфигурации", `Число воркеров: ${workerCountSource}`, { items: concurrency, timeMs: 0 })
     if (descriptor.baseAddress !== undefined) {
       await projectState.refreshAndValidate({
         projectDir: params.projectDir,
@@ -737,7 +740,7 @@ function operationDiagnostic(caught: unknown): ImportDiagnostic {
   }
 }
 
-function normalizeConcurrency(value: number | undefined): number {
+export function normalizeXmlImportConcurrency(value: number | undefined): number {
   if (value !== undefined) {
     if (!Number.isSafeInteger(value) || value < 1) {
       throw new Error("Степень параллелизма XML-import должна быть положительным целым числом")
