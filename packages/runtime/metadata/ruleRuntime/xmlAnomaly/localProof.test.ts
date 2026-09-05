@@ -27,7 +27,15 @@ describe("local XML proof", () => {
     expect(document).toEqual(original)
   })
 
-  it("не считает распознавание проверкой и не теряет лишний узел или порядок", () => {
+  it.each([
+    { reverse: false, expected: [
+      { kind: "presence", path: "/Root[1]/B[1]", ownerPath: "/Root[1]" },
+    ] },
+    { reverse: true, expected: [
+      { kind: "presence", path: "/Root[1]/B[1]", ownerPath: "/Root[1]" },
+      { kind: "order", path: "/Root[1]/#order", ownerPath: "/Root[1]" },
+    ] },
+  ])("отличает лишний узел от перестановки: reverse=$reverse", ({ reverse, expected }) => {
     const source = parseXmlDocumentWithSaxes('<Root><A/><C/></Root>').roots[0]!
     const a = source.content[0]!
     const c = source.content[1]!
@@ -36,11 +44,8 @@ describe("local XML proof", () => {
     expect(() => proof.finish(a)).toThrow(/провер/)
     proof.compare(a, { name: "A" })
     proof.compare(c, { name: "C" })
-    const actual = [proof.finish(c), { type: "element" as const, name: "B", occurrence: 1 }, proof.finish(a)]
-    expect(proof.compare(source, { name: "Root", content: actual })).toEqual([
-      { kind: "presence", path: `${source.path}/B[1]`, ownerPath: source.path },
-      { kind: "order", path: `${source.path}/#order`, ownerPath: source.path },
-    ])
+    const actual = [proof.finish(reverse ? c : a), { type: "element" as const, name: "B", occurrence: 1 }, proof.finish(reverse ? a : c)]
+    expect(proof.compare(source, { name: "Root", content: actual })).toEqual(expected)
     expect(() => proof.finish(source)).toThrow(/аномал/)
     proof.finish(source, { annotated: true })
   })
