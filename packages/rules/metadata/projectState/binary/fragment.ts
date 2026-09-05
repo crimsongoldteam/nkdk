@@ -1,4 +1,5 @@
 import { xxh3 } from "@node-rs/xxhash"
+import { BinaryRecordBuffer } from "@nkdk/runtime"
 import type { XmlAnomalyValidationState } from "@nkdk/runtime"
 import type {
   MetadataTargetConstraint,
@@ -330,10 +331,10 @@ export function createProjectStateFragmentWriter(options: {
   readonly hashString?: (bytes: Uint8Array) => bigint
 } = {}): ProjectStateFragmentWriter {
   const strings = new LocalStringTable(options.hashString ?? xxh3.xxh64)
-  let rows = emptyRows()
-  let files: ProjectStateFragmentFileRecord[] = []
+  const rows = emptyRows()
+  const files = new BinaryRecordBuffer(ProjectStateFragmentFileRecordView)
   let fileIds = new Map<string, number>()
-  let diagnostics: Record<string, number>[] = []
+  const diagnostics = new BinaryRecordBuffer(ProjectStateDiagnosticRecordView)
   let ownerTypeIds = new Map<string, number>()
   let closed = false
 
@@ -369,26 +370,29 @@ export function createProjectStateFragmentWriter(options: {
     finish() {
       assertOpen()
       closed = true
-      const packedStrings = strings.finish()
-      const stringBuffer = packedStrings.buffer
-      const fileBuffer = packFiles(files)
-      const factsBuffer = packFacts(rows)
-      const diagnosticsBuffer = packDiagnostics(diagnostics)
-      const header = new ArrayBuffer(ProjectStateFragmentHeaderRecordView.viewLength)
-      ProjectStateFragmentHeaderRecordView.encode({
-        magicFirst: MAGIC_FIRST,
-        magicSecond: MAGIC_SECOND,
-        ...PROJECT_STATE_FORMAT_VERSION,
-        reserved16: 0,
-        fileCount: files.length,
-        stringCount: packedStrings.count,
-        stringsByteLength: stringBuffer.byteLength,
-        filesByteLength: fileBuffer.byteLength,
-        factsByteLength: factsBuffer.byteLength,
-        diagnosticsByteLength: diagnosticsBuffer.byteLength,
-      }, new DataView(header))
-      release()
-      return { buffers: { header, strings: stringBuffer, files: fileBuffer, facts: factsBuffer, diagnostics: diagnosticsBuffer } }
+      try {
+        const packedStrings = strings.finish()
+        const stringBuffer = packedStrings.buffer
+        const fileBuffer = packFiles(files)
+        const factsBuffer = packFacts(rows)
+        const diagnosticsBuffer = packDiagnostics(diagnostics)
+        const header = new ArrayBuffer(ProjectStateFragmentHeaderRecordView.viewLength)
+        ProjectStateFragmentHeaderRecordView.encode({
+          magicFirst: MAGIC_FIRST,
+          magicSecond: MAGIC_SECOND,
+          ...PROJECT_STATE_FORMAT_VERSION,
+          reserved16: 0,
+          fileCount: files.length,
+          stringCount: packedStrings.count,
+          stringsByteLength: stringBuffer.byteLength,
+          filesByteLength: fileBuffer.byteLength,
+          factsByteLength: factsBuffer.byteLength,
+          diagnosticsByteLength: diagnosticsBuffer.byteLength,
+        }, new DataView(header))
+        return { buffers: { header, strings: stringBuffer, files: fileBuffer, facts: factsBuffer, diagnostics: diagnosticsBuffer } }
+      } finally {
+        release()
+      }
     },
     discard() {
       if (closed) return
@@ -429,16 +433,16 @@ export function createProjectStateFragmentWriter(options: {
     }
     const existing = fileIds.get(update.projectPath)
     if (existing !== undefined) {
-      const previous = files[existing]!
+      const previous = files.read(existing)
       if (previous.componentPathId !== record.componentPathId || previous.resourceKind !== record.resourceKind
         || previous.yamlRole !== record.yamlRole || previous.updateKind !== record.updateKind) {
         throw new Error(`Нельзя менять identity файла ${update.projectPath}`)
       }
-      files[existing] = record
+      files.write(existing, record)
       return existing
     }
     const fileId = files.length
-    files.push(record)
+    files.append(record)
     fileIds.set(update.projectPath, fileId)
     return fileId
   }
@@ -451,7 +455,7 @@ export function createProjectStateFragmentWriter(options: {
     update.localValidation.diagnostics.forEach((diagnostic) => appendDiagnostic(fileId, diagnostic))
     const schemaDiagnosticsStart = diagnostics.length
     update.localValidation.schemaDiagnostics.forEach((diagnostic) => appendDiagnostic(fileId, diagnostic))
-    rows.validationStatus.push({
+    rows.validationStatus.append({
       sourceFileId: fileId,
       contributedFacts: update.localValidation.contributedFacts ? 1 : 0,
       reserved8: 0,
@@ -464,7 +468,7 @@ export function createProjectStateFragmentWriter(options: {
   }
 
   function appendDiagnostic(fileId: number, diagnostic: ProjectStateYamlFileUpdate["localValidation"]["diagnostics"][number]): void {
-    diagnostics.push({
+    diagnostics.append({
       sourceFileId: fileId,
       line: diagnostic.line,
       col: diagnostic.col,
@@ -484,7 +488,7 @@ export function createProjectStateFragmentWriter(options: {
       const ownerId = appendOwnerType(entry.owner)
       const factsStart = rows.ownerFacts.length
       for (const [role, value] of Object.entries(entry.facts)) appendOwnerFact(ownerId, role, value)
-      rows.owners.push({
+      rows.owners.append({
         sourceFileId: fileId,
         kindId: strings.intern(entry.owner.kind),
         nameId: optionalString(entry.owner.name),
@@ -493,7 +497,7 @@ export function createProjectStateFragmentWriter(options: {
       })
     }
     for (const field of update.fields) {
-      rows.fields.push({
+      rows.fields.append({
         sourceFileId: fileId,
         ownerId: appendOwnerType(field.owner),
         nameId: strings.intern(field.name),
@@ -509,7 +513,7 @@ export function createProjectStateFragmentWriter(options: {
     }
     appendForms(update.forms, fileId)
     for (const entry of update.structuredDocuments ?? []) {
-      rows.structuredDocuments.push({
+      rows.structuredDocuments.append({
         sourceFileId: fileId,
         documentKindId: strings.intern(entry.documentKind),
         representationId: strings.intern(entry.representation),
@@ -527,7 +531,7 @@ export function createProjectStateFragmentWriter(options: {
     for (const reference of targets) {
       const detailsId = reference.details === undefined ? NONE : rows.referenceDetails.length
       if (reference.details !== undefined) {
-        rows.referenceDetails.push({
+        rows.referenceDetails.append({
           typeInfoId: reference.details.typeInfo === undefined ? NONE : appendTypeInfo({
             kinds: reference.details.typeInfo.kinds,
             nextTypes: [],
@@ -541,7 +545,7 @@ export function createProjectStateFragmentWriter(options: {
           reserved: 0,
         })
       }
-      rows.targets.push({
+      rows.targets.append({
         sourceFileId: fileId,
         canonicalId: strings.intern(reference.canonical),
         detailsId,
@@ -557,7 +561,7 @@ export function createProjectStateFragmentWriter(options: {
   function appendForms(forms: ProjectStateImportIndexContribution["forms"], fileId: number): void {
     for (const form of forms) {
       if (form.kind === "tabularElement") {
-        rows.formColumns.push({
+        rows.formColumns.append({
           sourceFileId: fileId,
           ownerTypeId: appendOwnerType(form.owner),
           nameId: strings.intern(form.name),
@@ -571,7 +575,7 @@ export function createProjectStateFragmentWriter(options: {
         continue
       }
       const source = form.source
-      rows[form.kind === "root" ? "forms" : "formColumns"].push({
+      rows[form.kind === "root" ? "forms" : "formColumns"].append({
         sourceFileId: fileId,
         ownerTypeId: appendOwnerType(form.owner),
         nameId: strings.intern(form.name),
@@ -596,7 +600,7 @@ export function createProjectStateFragmentWriter(options: {
       const serializedTarget = target.kind === "dataTable" || target.kind === "dataTableField"
         ? JSON.stringify(target)
         : targetMember
-      rows.pendingReferences.push({
+      rows.pendingReferences.append({
         sourceFileId: fileId,
         yamlPathId: appendYamlPath(reference.yamlPath),
         canonicalId: strings.intern(reference.canonical),
@@ -614,7 +618,7 @@ export function createProjectStateFragmentWriter(options: {
       payload: object,
       version = 1,
     ): void => {
-      rows.pendingChecks.push({
+      rows.pendingChecks.append({
         sourceFileId: fileId,
         yamlPathId: appendYamlPath(check.yamlPath),
         kindId: strings.intern(kind),
@@ -660,9 +664,9 @@ export function createProjectStateFragmentWriter(options: {
       }
       const allowedKindsStart = rows.allowedKinds.length
       for (const kind of check.policyInput.allowedKinds ?? []) {
-        rows.allowedKinds.push({ valueId: strings.intern(kind) })
+        rows.allowedKinds.append({ valueId: strings.intern(kind) })
       }
-      rows.pendingChecks.push({
+      rows.pendingChecks.append({
         sourceFileId: fileId,
         yamlPathId: appendYamlPath(check.yamlPath),
         kindId: strings.intern("dataPath"),
@@ -683,10 +687,10 @@ export function createProjectStateFragmentWriter(options: {
       })
     }
     for (const dependency of update.dependencies) {
-      rows.dependencies.push({ sourceFileId: fileId, projectPathId: strings.intern(dependency) })
+      rows.dependencies.append({ sourceFileId: fileId, projectPathId: strings.intern(dependency) })
     }
     for (const dependency of update.validationContextDependencies ?? []) {
-      rows.validationContextDependencies.push({
+      rows.validationContextDependencies.append({
         sourceFileId: fileId,
         keyId: strings.intern(dependency.key),
         versionId: strings.intern(dependency.version),
@@ -705,7 +709,7 @@ export function createProjectStateFragmentWriter(options: {
 
   function appendOwnerFact(ownerId: number, role: string, value: unknown): void {
     if (STRING_OWNER_FACT_ROLES.has(role) && typeof value === "string") {
-      rows.ownerFacts.push({
+      rows.ownerFacts.append({
         ownerId, roleId: strings.intern(role), valueKind: 1, reserved: 0,
         valueId: strings.intern(value), itemsStart: 0, itemsCount: 0,
       })
@@ -713,15 +717,15 @@ export function createProjectStateFragmentWriter(options: {
     }
     if (STRING_LIST_OWNER_FACT_ROLES.has(role) && Array.isArray(value) && value.every((item) => typeof item === "string")) {
       const itemsStart = rows.definedTypes.length
-      value.forEach((item) => rows.definedTypes.push({ valueId: strings.intern(item) }))
-      rows.ownerFacts.push({
+      value.forEach((item) => rows.definedTypes.append({ valueId: strings.intern(item) }))
+      rows.ownerFacts.append({
         ownerId, roleId: strings.intern(role), valueKind: 2, reserved: 0,
         valueId: NONE, itemsStart, itemsCount: value.length,
       })
       return
     }
     if (role === "type" && isTypeDescription(value)) {
-      rows.ownerFacts.push({
+      rows.ownerFacts.append({
         ownerId, roleId: strings.intern(role), valueKind: 3, reserved: 0,
         valueId: appendTypeDescription(value), itemsStart: 0, itemsCount: 0,
       })
@@ -731,7 +735,7 @@ export function createProjectStateFragmentWriter(options: {
       const ownerFactId = rows.ownerFacts.length
       const itemsStart = rows.ownerFactItems.length
       value.forEach((item) => appendOwnerFactItem(ownerFactId, NONE, item, 1))
-      rows.ownerFacts.push({
+      rows.ownerFacts.append({
         ownerId, roleId: strings.intern(role), valueKind: 4, reserved: 0,
         valueId: NONE, itemsStart, itemsCount: rows.ownerFactItems.length - itemsStart,
       })
@@ -745,7 +749,7 @@ export function createProjectStateFragmentWriter(options: {
         section.attributes.forEach((item) => appendOwnerFactItem(ownerFactId, sectionId, item, 3))
         section.standardAttributes?.forEach((item) => appendOwnerFactItem(ownerFactId, sectionId, item, 4))
       }
-      rows.ownerFacts.push({
+      rows.ownerFacts.append({
         ownerId, roleId: strings.intern(role), valueKind: 5, reserved: 0,
         valueId: NONE, itemsStart, itemsCount: rows.ownerFactItems.length - itemsStart,
       })
@@ -761,7 +765,7 @@ export function createProjectStateFragmentWriter(options: {
     kind: number,
   ): number {
     const id = rows.ownerFactItems.length
-    rows.ownerFactItems.push({
+    rows.ownerFactItems.append({
       ownerFactId,
       parentItemId,
       nameId: strings.intern(item.name),
@@ -775,11 +779,11 @@ export function createProjectStateFragmentWriter(options: {
 
   function appendTypeDescription(type: ProjectStateTypeDescription): number {
     const typesStart = rows.typeDescriptionValues.length
-    type.type.forEach((value) => rows.typeDescriptionValues.push({ valueId: strings.intern(value) }))
+    type.type.forEach((value) => rows.typeDescriptionValues.append({ valueId: strings.intern(value) }))
     const typeIdsStart = rows.typeDescriptionValues.length
-    type.typeId?.forEach((value) => rows.typeDescriptionValues.push({ valueId: strings.intern(value) }))
+    type.typeId?.forEach((value) => rows.typeDescriptionValues.append({ valueId: strings.intern(value) }))
     const id = rows.typeDescriptions.length
-    rows.typeDescriptions.push({
+    rows.typeDescriptions.append({
       typesStart,
       typesCount: type.type.length,
       typeIdsStart,
@@ -803,15 +807,15 @@ export function createProjectStateFragmentWriter(options: {
     readonly kinds: readonly string[]
   }): number {
     const kindsStart = rows.typeKinds.length
-    typeInfo.kinds.forEach((kind) => rows.typeKinds.push({ valueId: strings.intern(kind) }))
+    typeInfo.kinds.forEach((kind) => rows.typeKinds.append({ valueId: strings.intern(kind) }))
     const nextTypesStart = rows.ownerTypes.length
     typeInfo.nextTypes.forEach((owner) => appendOwnerType(owner, false))
     const definedTypesStart = rows.definedTypes.length
-    typeInfo.terminalTypes?.forEach((value) => rows.definedTypes.push({ valueId: strings.intern(value) }))
+    typeInfo.terminalTypes?.forEach((value) => rows.definedTypes.append({ valueId: strings.intern(value) }))
     const terminalTypesCount = rows.definedTypes.length - definedTypesStart
-    typeInfo.definedTypes?.forEach((value) => rows.definedTypes.push({ valueId: strings.intern(value) }))
+    typeInfo.definedTypes?.forEach((value) => rows.definedTypes.append({ valueId: strings.intern(value) }))
     const id = rows.typeInfo.length
-    rows.typeInfo.push({
+    rows.typeInfo.append({
       kindsStart,
       kindsCount: rows.typeKinds.length - kindsStart,
       nextTypesStart,
@@ -833,7 +837,7 @@ export function createProjectStateFragmentWriter(options: {
     const existing = deduplicate ? ownerTypeIds.get(key) : undefined
     if (existing !== undefined) return existing
     const id = rows.ownerTypes.length
-    rows.ownerTypes.push({ kindId: strings.intern(owner.kind), nameId: optionalString(owner.name) })
+    rows.ownerTypes.append({ kindId: strings.intern(owner.kind), nameId: optionalString(owner.name) })
     if (deduplicate) ownerTypeIds.set(key, id)
     return id
   }
@@ -846,7 +850,7 @@ export function createProjectStateFragmentWriter(options: {
       RegisterRecordSet: 6, TabularSection: 7, Registered: 8,
     }
     const id = rows.tableInfo.length
-    rows.tableInfo.push({
+    rows.tableInfo.append({
       ownerTypeId: owner === undefined ? NONE : appendOwnerType(owner),
       nameId: optionalString(name),
       kind: kinds[table.kind],
@@ -859,12 +863,12 @@ export function createProjectStateFragmentWriter(options: {
   function appendYamlPath(path: readonly (string | number)[]): number {
     const segmentsStart = rows.yamlPathSegments.length
     for (const segment of path) {
-      rows.yamlPathSegments.push(typeof segment === "string"
+      rows.yamlPathSegments.append(typeof segment === "string"
         ? { stringId: strings.intern(segment), numericValue: 0, kind: 1, reserved8: 0, reserved16: 0 }
         : { stringId: NONE, numericValue: segment, kind: 2, reserved8: 0, reserved16: 0 })
     }
     const id = rows.yamlPaths.length
-    rows.yamlPaths.push({ segmentsStart, segmentsCount: path.length })
+    rows.yamlPaths.append({ segmentsStart, segmentsCount: path.length })
     return id
   }
 
@@ -877,10 +881,11 @@ export function createProjectStateFragmentWriter(options: {
   }
 
   function release(): void {
-    files = []
+    files.clear()
     fileIds = new Map()
-    diagnostics = []
-    rows = emptyRows()
+    diagnostics.clear()
+    for (const buffer of Object.values(rows)) buffer.clear()
+    strings.clear()
     ownerTypeIds = new Map()
   }
 }
@@ -998,32 +1003,39 @@ class LocalStringTable {
       bytes.set(entry.bytes, utf8Offset + offset)
       offset += entry.bytes.byteLength
     })
-    this.#ids.clear()
-    this.#entries.splice(0)
+    this.clear()
     return { buffer, count }
   }
-}
 
-function emptyRows(): Record<ProjectStateFactTableKind, Record<string, number>[]> {
-  return {
-    validationStatus: [], targets: [], referenceDetails: [], pendingReferences: [],
-    owners: [], ownerFacts: [], ownerFactItems: [], fields: [], typeInfo: [], typeKinds: [], definedTypes: [],
-    ownerTypes: [], tableInfo: [], forms: [], formColumns: [], pendingChecks: [],
-    allowedKinds: [], dependencies: [], validationContextDependencies: [], yamlPaths: [], yamlPathSegments: [],
-    typeDescriptions: [], typeDescriptionValues: [], structuredDocuments: [],
+  clear(): void {
+    this.#ids.clear()
+    this.#entries.length = 0
   }
 }
 
-function packFiles(files: readonly ProjectStateFragmentFileRecord[]): ArrayBuffer {
-  const buffer = new ArrayBuffer(files.length * ProjectStateFragmentFileRecordView.viewLength)
-  const view = new DataView(buffer)
-  files.forEach((file, index) => {
-    ProjectStateFragmentFileRecordView.encode(file, view, index * ProjectStateFragmentFileRecordView.viewLength)
+type FactBuffers = Record<ProjectStateFactTableKind, BinaryRecordBuffer<Record<string, number>>>
+
+function emptyRows(): FactBuffers {
+  return Object.fromEntries(PROJECT_STATE_FACT_TABLE_ORDER.map(kind => [kind, factRecordBuffer(kind)])) as FactBuffers
+}
+
+/** Граница разнородных structurae-кодеков; формат задаёт каталог таблиц. */
+function factRecordBuffer(kind: ProjectStateFactTableKind): BinaryRecordBuffer<Record<string, number>> {
+  const codec = PROJECT_STATE_FACT_RECORD_VIEWS[kind]
+  return new BinaryRecordBuffer({
+    viewLength: codec.viewLength,
+    encode: (value, view, offset) => codec.encode(value as never, view, offset),
+    decode: (view, offset) => codec.decode(view, offset),
   })
+}
+
+function packFiles(files: BinaryRecordBuffer<ProjectStateFragmentFileRecord>): ArrayBuffer {
+  const buffer = new ArrayBuffer(files.byteLength)
+  files.copyTo(new Uint8Array(buffer), 0)
   return buffer
 }
 
-function packFacts(rows: Readonly<Record<ProjectStateFactTableKind, readonly Record<string, number>[]>>): ArrayBuffer {
+function packFacts(rows: Readonly<FactBuffers>): ArrayBuffer {
   const populatedKinds = PROJECT_STATE_FACT_TABLE_ORDER.filter((kind) => rows[kind].length > 0)
   const catalogOffset = ProjectStateFactSectionHeaderView.viewLength
   let offset = catalogOffset + populatedKinds.length * ProjectStateFactTableRecordView.viewLength
@@ -1045,25 +1057,17 @@ function packFacts(rows: Readonly<Record<ProjectStateFactTableKind, readonly Rec
       records: rows[kind].length,
       recordByteLength: recordView.viewLength,
     }, view, catalogOffset + index * ProjectStateFactTableRecordView.viewLength)
-    rows[kind].forEach((row, rowIndex) => {
-      recordView.encode(row as never, view, tableOffset + rowIndex * recordView.viewLength)
-    })
+    rows[kind].copyTo(new Uint8Array(buffer), tableOffset)
   })
   return buffer
 }
 
-function packDiagnostics(rows: readonly Record<string, number>[]): ArrayBuffer {
+function packDiagnostics(rows: BinaryRecordBuffer<ReturnType<typeof ProjectStateDiagnosticRecordView.decode>>): ArrayBuffer {
   const recordsOffset = ProjectStateDiagnosticSectionHeaderView.viewLength
   const buffer = new ArrayBuffer(recordsOffset + rows.length * ProjectStateDiagnosticRecordView.viewLength)
   const view = new DataView(buffer)
   ProjectStateDiagnosticSectionHeaderView.encode({ count: rows.length, recordsOffset }, view)
-  rows.forEach((row, index) => {
-    ProjectStateDiagnosticRecordView.encode(
-      row as never,
-      view,
-      recordsOffset + index * ProjectStateDiagnosticRecordView.viewLength,
-    )
-  })
+  rows.copyTo(new Uint8Array(buffer), recordsOffset)
   return buffer
 }
 
