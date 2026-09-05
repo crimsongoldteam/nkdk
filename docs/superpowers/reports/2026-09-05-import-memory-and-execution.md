@@ -143,10 +143,32 @@ YAML-каталога; после создания каталога выполн
 Ограничения исходной серии остаются: сырой внутренний stderr runner не
 сохраняет, холодность относится к процессу, не к кэшу ОС; удерживаемый heap
 после GC и CPU здесь не измерены. Отдельный ordinary export doc после этого
-коммита ещё не выполнен; полный e2e прошёл без обновления эталонов.
+коммита на момент измерения ещё не выполнялся; проверка ниже проведена отдельно.
 
 Перед коммитом пройдены `pnpm test` (8935 passed, 2 прежних skipped),
 `pnpm test:e2e` (214 passed), типы, обе проверки архитектуры и duplicates.
 Логи: `/private/tmp/nkdk-utf8-*-final.log`, архитектура —
 `/private/tmp/nkdk-utf8-architecture*.log`. Полное соответствие всему плану
 независимым ревью ещё не подтверждено.
+
+## Проверка обычного экспорта после настройки воркеров
+
+На `16055036b` заново собран MCP. `nkdk.sync_to_xml` экспортировал проект
+последнего профильного импорта в
+`/private/tmp/nkdk-import-binary-followup-V1FwLe/export`, без reference и без
+`ignoreValidationErrors`. Ответ: ok=true, succeeded=21697, 0 errors,
+0 warnings. Параметры и ответ сохранены в `export-request.json` и
+`export-response.json` рядом с результатом профиля.
+
+Побайтовая проверка дала 24 505 совпадающих файлов, без изменений и добавлений.
+Единственный неэкспортированный файл — пустой служебный
+`Ext/ParentConfigurations.bin`, который не входит в YAML-договор.
+После штатного переноса этого файла все 24 506 файлов совпали:
+`comparison-complete.json`: changedFiles=0, missingFiles=0, addedFiles=0.
+Исходный XML-каталог и e2e-эталоны не изменялись.
+
+После реализации настройки воркеров полный `pnpm test` прошёл: 8956 passed,
+2 прежних skipped; e2e — 214 passed. Логи:
+`/private/tmp/nkdk-worker-settings-full-tests.log` и
+`/private/tmp/nkdk-worker-settings-e2e.log`. Добавленный позднее табличный
+сценарий порядка отдельно проверен 17 тестами localProof, типами и duplicates.
