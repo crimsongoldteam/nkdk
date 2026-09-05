@@ -171,7 +171,7 @@ export class BinaryStringPoolBuilder {
   }
 }
 
-function readStringBytes(pool: BinaryStringPool, id: number): Uint8Array<ArrayBufferLike> {
+export function readBinaryStringBytes(pool: BinaryStringPool, id: number): Uint8Array<ArrayBufferLike> {
   if (!Number.isSafeInteger(id) || id < 0 || id >= pool.count) {
     throw new Error(`Неизвестный идентификатор строки: ${id}`)
   }
@@ -189,7 +189,7 @@ function readStringBytes(pool: BinaryStringPool, id: number): Uint8Array<ArrayBu
 }
 
 export function readBinaryString(pool: BinaryStringPool, id: number): string {
-  return textDecoder.decode(readStringBytes(pool, id))
+  return textDecoder.decode(readBinaryStringBytes(pool, id))
 }
 
 export function binaryStringEquals(
@@ -197,7 +197,7 @@ export function binaryStringEquals(
   id: number,
   utf8: Uint8Array,
 ): boolean {
-  return bytesEqual(readStringBytes(pool, id), utf8)
+  return bytesEqual(readBinaryStringBytes(pool, id), utf8)
 }
 
 export function packBinaryStringPool(pool: BinaryStringPool): SharedArrayBuffer {
