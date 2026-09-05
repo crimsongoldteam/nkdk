@@ -805,6 +805,16 @@ describe("XML import worker second pass", () => {
     }))
   })
 
+  it("сохраняет несовместимый путь флажка без повторной записи в факты", async () => {
+    const outputDir = createTempDir("incompatible-data-path")
+    const { assignments, second } = await runCatalogAndFormSecondPass(
+      outputDir, "Объект.Наименование", undefined, undefined, "CheckBoxField",
+    )
+    expect(second.diagnostics).toEqual([])
+    expect(readFileSync(join(outputDir, assignments.form.targetProjectPath), "utf8"))
+      .toContain("!xml/invalid Объект.Наименование")
+  })
+
   it("не применяет устаревшее решение первого прохода к разрешённой ссылке", async () => {
     const outputDir = createTempDir("resolved-second-pass-decision")
     const assignments = createCatalogAndFormAssignments("Объект.Товары.LineNumber")

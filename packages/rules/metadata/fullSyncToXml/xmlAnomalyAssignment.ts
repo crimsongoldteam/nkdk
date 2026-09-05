@@ -726,9 +726,17 @@ function rawBoundary(params: {
   readonly exportClaimId?: string
 }): PreparedXmlAnomalyBoundary {
   if (params.annotation.kind !== "raw") throw new Error("XML-поправка требует !xml/raw")
-  const publicPath = params.property === undefined
+  const suppliedPath = params.property === undefined
     ? parsePublicRawPath(params.logicalKey)
     : undefined
+  const ownerTag = params.xmlPrefix.at(-1)?.name
+    ?? (params.exportClaimId === undefined ? undefined : xmlItemTag(params.rule))
+  const publicPath = suppliedPath !== undefined
+    && ownerTag !== undefined
+    && suppliedPath.segments[0] === ownerTag
+    && suppliedPath.occurrences[0] === undefined
+      ? { ...suppliedPath, segments: suppliedPath.segments.slice(1), occurrences: suppliedPath.occurrences.slice(1) }
+      : suppliedPath
   const property = params.property ?? propertyAtPublicRawPath(params.rule, publicPath)
   const rawPath = params.property !== undefined
     ? params.property.xmlPath.map(xmlPathSegment)
@@ -762,7 +770,7 @@ function rawBoundary(params: {
   const ordinaryOccurrences = ordinaryPropertyOccurrences(params.ownerYaml, property)
   const siblingOrder = isContainerShellPatch(params.annotation.xml)
     ? undefined
-    : explicitRawSiblingOrder(params.ownerYaml, params.annotations, rawPath.slice(0, -1))
+    : explicitRawSiblingOrder(params.ownerYaml, params.annotations, rawPath.slice(0, -1), ownerTag)
       ?? rawSiblingOrder(params.ownerYaml, params.rule, params.logicalKey)
       ?? (property === undefined ? undefined : propertySiblingOrder(params.rule, property))
   const rawTargetsExistingOccurrence = repeatedElementName !== undefined
@@ -781,11 +789,7 @@ function rawBoundary(params: {
         ? { ...segment, occurrence: physicalOccurrence }
         : segment)
       : rawPath
-  const claimsCurrentItem = params.exportClaimId !== undefined
-    && property === undefined
-    && publicPath?.segments.length === 1
-    && publicPath.segments[0] === xmlItemTag(params.rule)
-  const path = claimsCurrentItem ? [] : [...params.xmlPrefix, ...effectiveRawPath]
+  const path = [...params.xmlPrefix, ...effectiveRawPath]
   const claimsParentItem = params.exportClaimId !== undefined && path.length === 0
   const documentRoot = publicPath?.documentRoot === true
   if (path.length === 0 && !documentRoot && !claimsParentItem) {
@@ -912,20 +916,26 @@ function explicitRawSiblingOrder(
   ownerYaml: unknown,
   annotations: XmlAnomalyAnnotations,
   parentPath: readonly XmlTraversalPathSegment[],
+  ownerTag: string | undefined,
 ): readonly string[] | undefined {
   if (!isRecord(ownerYaml)) return undefined
   for (const entry of annotations.entries()) {
     if (entry.parent !== ownerYaml || typeof entry.key !== "string" || entry.annotation.kind !== "raw") continue
     const logicalKey = annotations.keyAt(ownerYaml, entry.key)?.logicalKey ?? entry.key
-    const segments = splitRawPath(logicalKey)
-    if (segments.at(-1) !== "#order" || !Array.isArray(entry.annotation.xml)) continue
-    const rawParent = segments.slice(0, -1)
+    const standalone = splitRawPath(logicalKey).at(-1) === "#order" && Array.isArray(entry.annotation.xml)
+    const order = standalone ? entry.annotation.xml
+      : isRecord(entry.annotation.xml) ? entry.annotation.xml["#order"] : undefined
+    if (!Array.isArray(order)) continue
+    const segments = parsePublicRawPath(logicalKey).segments
+    const suppliedParent = standalone ? segments.slice(0, -1) : segments
+    const rawParent = ownerTag !== undefined && suppliedParent[0] === ownerTag
+      ? suppliedParent.slice(1) : suppliedParent
     if (
       rawParent.length !== 0
       && !sameStringPath(rawParent, parentPath.map(({ name }) => name))
     ) continue
-    if (entry.annotation.xml.every((name): name is string => typeof name === "string")) {
-      return entry.annotation.xml
+    if (order.every((name): name is string => typeof name === "string")) {
+      return order
     }
   }
   return undefined

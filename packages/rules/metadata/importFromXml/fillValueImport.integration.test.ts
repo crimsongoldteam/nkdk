@@ -4,11 +4,14 @@ import {
   parseXmlDocumentWithSaxes,
   serializeYAMLDocument,
 } from "@nkdk/runtime"
+import { createRuleRegistrySet } from "@nkdk/runtime/rule-kit"
 import fs from "node:fs"
 import os from "node:os"
 import { join } from "node:path"
-import { afterEach,describe,expect,it } from "vitest"
-import { mockXmlImportContext } from "../../tests/mockContext"
+import { afterEach, describe, expect, it } from "vitest"
+import { mockContextToXML, mockXmlImportContext } from "../../tests/mockContext"
+import { createLayeredOwnerMetadataCacheForTests } from "../../tests/layeredOwnerMetadataCache"
+import { metadataRules } from "../composition/metadataRules"
 import "../../tests/metadataExecutionContext"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
 import { resolveValidationProjectFile } from "../validation/projectFiles"
@@ -16,7 +19,7 @@ import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import { extractValidationYamlFacts } from "../validation/yamlFactExtractor"
 import { prepareImportFacts } from "./prepareFacts"
 import { prepareImportDependencies } from "./preparedDependencies"
-import { prepareImportYaml } from "./prepareYaml"
+import { prepareImportYaml, prepareImportYamlFromDocuments } from "./prepareYaml"
 import type { ImportAssignment } from "./types"
 
 
@@ -31,6 +34,39 @@ afterEach(() => {
 })
 
 describe("fill value XML import", () => {
+  it.each([
+    ["xs:dateTime", "0001-01-01T00:00:00", "ЗначениеЗаполнения: !xml/raw"],
+    ["xs:boolean", "false", "ЗначениеЗаполнения: Ложь"],
+  ])("проверяет FillValue %s по окончательному YAML", async (type, value, expected) => {
+    const sourcePath = copiedAttributeFixture({
+      name: "РеквизитСправочника", type: `<v8:Type>${type}</v8:Type>`,
+      fillValue: `<FillValue xsi:type="${type}">${value}</FillValue>`,
+    })
+    const prepared = await prepareWithProof(sourcePath)
+    expect(serializeYAMLDocument(prepared.yaml, prepared.annotations).text)
+      .toContain(expected)
+  })
+
+  it("сверяет неявное значение стандартного Владелец с контекстом владельца метаданных", async () => {
+    const sourcePath = copiedAttributeFixture({
+      name: "РеквизитСправочника", type: "<v8:Type>xs:boolean</v8:Type>",
+      fillValue: '<FillValue xsi:nil="true"/>', includeDeletionMark: true,
+    })
+    fs.writeFileSync(sourcePath, fs.readFileSync(sourcePath, "utf8").replace('name="DeletionMark"', 'name="Owner"'))
+    const context = mockXmlImportContext()
+    context.importFromYAML = {
+      ...context.importFromYAML,
+      ownerMetadataCache: createLayeredOwnerMetadataCacheForTests({ base: [{
+        ref: { kind: "Справочник", name: "СправочникПолный" },
+        filePath: "/project/cf/Справочник/СправочникПолный/Свойства.yaml",
+        fieldIndex: { fields: new Map(), standardAttributeAliases: new Map(), diagnostics: [] },
+        owners: ["Catalog.СправочникВладелец"],
+      }] }),
+    }
+    const prepared = await prepareWithProof(sourcePath, context)
+    expect(serializeYAMLDocument(prepared.yaml, prepared.annotations).text)
+      .toContain('_xsi:nil: "true"')
+  })
 
   it.each(["type-before", "fill-before"] as const)(
     "завершает зависимое значение при импорте свойства при порядке %s",
@@ -266,6 +302,20 @@ function copiedAttributeFixture(params: {
 </MetaDataObject>`
   fs.writeFileSync(sourcePath, xml)
   return sourcePath
+}
+
+async function prepareWithProof(sourcePath: string, context = mockXmlImportContext()) {
+  const currentAssignment = assignment(sourcePath)
+  const inputs = currentAssignment.xmlFiles.map(input => ({
+    input, document: parseXmlDocumentWithSaxes(fs.readFileSync(input.sourcePath, "utf8")),
+  }))
+  const execution = createRuleRegistrySet(metadataRules).execution
+  const facts = await prepareImportFacts({ assignment: currentAssignment, context, inputs, collector: createConfigurationIndexCollector() })
+  return prepareImportYamlFromDocuments({
+    assignment: currentAssignment, context, inputs, collector: createConfigurationIndexCollector(),
+    dependencies: prepareImportDependencies(facts.dependencies, {}, execution),
+    localRoundTrip: { execution, context: { ...mockContextToXML(), importFromYAML: context.importFromYAML }, decisions: [] },
+  })
 }
 
 function assignment(sourcePath: string): ImportAssignment {

@@ -11,6 +11,32 @@ import { createLocalXmlBodyConsumer } from "./localXmlBodyConsumer"
 type WriteEvent = Parameters<ReturnType<typeof createLocalXmlBodyConsumer>["write"]>[0]
 
 describe("createLocalXmlBodyConsumer", () => {
+  it("оставляет поправку дочернего XML-узла на его физическом пути", () => {
+    const root = parseXmlDocumentWithSaxes('<Root><Type><Value>first</Value><Value xmlns:p="urn:chart">p:Chart</Value></Type></Root>').roots[0]!
+    const node = root.content[0]!
+    if (node.type !== "element") throw new Error("Type")
+    const yaml = { Тип: "Диаграмма" }
+    const annotations = createXmlAnomalyAnnotations()
+    const consumer = createAnnotatedLocalXmlBodyConsumer({
+      key: "owner", source: root, proof: createLocalXmlProof(), yaml, annotations,
+      childReceipt: () => undefined, scalarReceipt: () => undefined,
+    })
+    const property = asWriteProperty({
+      propertyKey: "type", yamlKey: "Тип", xmlPath: ["Type"],
+      propertyRule: { type: "object", xml: "Type", yaml: "Тип" }, operations: {},
+    })
+    const value = { Value: ["first", { "_xmlns:q": "urn:chart", "#text": "q:Chart" }] }
+    consumer.bind?.({ propertyKey: "type", node, presentInXML: true, xmlPath: ["Type"] })
+    consumer.write({ outputKey: "owner", property, path: ["Type"], value })
+    consumer.finish({ outputs: new Map([["owner", { Type: value }]]), deferredByOutput: new Map(), externalWrites: [] })
+    expect(yaml.Тип).toBe("Диаграмма")
+    expect(Object.keys(yaml)).toContain("Type\\Value[2]")
+    expect(annotations.at(yaml, "Тип")).toBeUndefined()
+    expect(annotations.at(yaml, "Type\\Value[2]")).toMatchObject({
+      kind: "raw", xml: { "_xmlns:p": "urn:chart", "_xmlns:q": null, "#text": "p:Chart" },
+    })
+  })
+
   it("маршрутизирует структурную привязку только в содержащий её XML-выход", () => {
     const body = parseXmlDocumentWithSaxes("<Form/>").roots[0]!
     const metadata = parseXmlDocumentWithSaxes(

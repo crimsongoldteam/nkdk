@@ -19,6 +19,7 @@ export function createLocalXmlBodyConsumer(params: {
   readonly xmlEnvelope?: XMLItemEnvelope
   readonly annotate?: (boundary: Parameters<NonNullable<Parameters<typeof completeLocalXmlFragment>[0]["annotate"]>>[0] & {
     readonly property?: LocalBodyProperty
+    readonly propertySource?: XmlElementNode
   }) => void
   readonly annotateScalar?: (boundary: {
     readonly source: XmlAddressedNode & { readonly value: string }
@@ -39,7 +40,7 @@ export function createLocalXmlBodyConsumer(params: {
   const complete = (source: XmlElementNode, name: string, value: unknown, property?: LocalBodyProperty) => completeLocalXmlFragment({
     source, name, value, proof: params.proof, childReceipt: params.childReceipt,
     scalarReceipt: params.scalarReceipt,
-    annotate: params.annotate === undefined ? undefined : boundary => params.annotate!({ ...boundary, property }),
+    annotate: params.annotate === undefined ? undefined : boundary => params.annotate!({ ...boundary, property, propertySource: source }),
   })
   return {
     bind(input) {

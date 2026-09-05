@@ -886,9 +886,11 @@ describe("единое восстановление XML-аномалий assignm
       "        Вид: ПолеВвода",
       "        ФиксацияВТаблице: Право",
       "        ГиперссылкаЯчейки: Истина",
+      '        "@Form\\\\InputField\\\\HeaderHorizontalAlign": !xml/raw',
+      "          $xml: Auto",
       '        "@Form\\\\InputField": !xml/raw',
       "          $xml:",
-      '            "#order": [FixingInTable, CellHyperlink, ContextMenu, ExtendedTooltip]',
+      '            "#order": [FixingInTable, CellHyperlink, HeaderHorizontalAlign, ContextMenu, ExtendedTooltip]',
     ])
     const form = parseXmlDocumentWithSaxes(xml).roots[0]
     const rootChildItems = form?.content.find(isElementNamed("ChildItems"))
@@ -901,10 +903,24 @@ describe("единое восстановление XML-аномалий assignm
     expect(inputFieldChildren.map(({ name }) => name)).toEqual([
       "FixingInTable",
       "CellHyperlink",
+      "HeaderHorizontalAlign",
       "ContextMenu",
       "ExtendedTooltip",
     ])
     expect(inputFieldChildren.some(({ name }) => name === "InputField")).toBe(false)
+  })
+
+  it("привязывает поправку Settings к текущему вложенному объекту", () => {
+    const xml = exportFormWithAnomalies([
+      "Реквизиты:",
+      "  Список:",
+      "    Тип: ДинамическийСписок",
+      "    ДинамическийСписок:",
+      '      "@Form\\\\Settings\\\\Future": !xml/raw',
+      "        $xml: сохранено",
+    ])
+    expect(xml).toContain("<Future>сохранено</Future>")
+    expect(xml.match(/<Settings(?: |>|\/)/gu)).toHaveLength(1)
   })
 
   it("накладывает атрибуты вычисляемого collection item поверх обычного экспорта", () => {
@@ -1238,25 +1254,30 @@ describe("единое восстановление XML-аномалий assignm
     )
   })
 
-  it("привязывает raw-порядок Settings к фактически экспортированному реквизиту формы", () => {
+  it.each([false, true])("привязывает raw-порядок Settings к фактически экспортированному реквизиту формы: префикс %s", (qualified) => {
     const prepared = prepareAnomalies([
       "Реквизиты:",
       "  Расхождения:",
       "    Тип: ДинамическийСписок",
       "    ДинамическийСписок:",
-      '      "#order": !xml/raw',
-      "        $xml: [ManualQuery, DynamicDataRead, KeyField, KeyField, KeyField, ListSettings]",
+      ...(qualified ? [
+        '      "@Form\\\\Settings": !xml/raw',
+        '        $xml: { "#order": [ManualQuery, DynamicDataRead, KeyField, KeyField, KeyField, ListSettings] }',
+      ] : [
+        '      "#order": !xml/raw',
+        "        $xml: [ManualQuery, DynamicDataRead, KeyField, KeyField, KeyField, ListSettings]",
+      ]),
       "      ПроизвольныйЗапрос: Истина",
       "      ПоляКлюча: first",
-      "      KeyField: !xml/raw",
+      qualified ? '      "@Form\\\\Settings\\\\KeyField": !xml/raw' : "      KeyField: !xml/raw",
       "        $xml: second",
-      "      !xml/invalid KeyField: !xml/raw",
+      qualified ? '      !xml/invalid "@Form\\\\Settings\\\\KeyField": !xml/raw' : "      !xml/invalid KeyField: !xml/raw",
       "        $xml: third",
     ].join("\n"), anomalyRegistries.xmlAnomalies, ClientApplicationFormRules, anomalyRegistries)
     const yaml = prepared.preparedYamlFile.data as ClientApplicationFormYAML
-    const orderBoundary = prepared.rawBoundaries.find(({ path }) => path === "Settings\\#order")
+    const orderBoundary = prepared.rawBoundaries.find(({ path }) => path === (qualified ? "Settings" : "Settings\\#order"))
     expect(orderBoundary).toMatchObject({ tag: FormRulesTags.Form })
-    expect(orderBoundary?.documentSelector).toBeUndefined()
+    expect(orderBoundary?.documentSelector).toBe(qualified ? "Form" : undefined)
     expect(prepared.rawBoundaries.filter(({ path }) => path === "Settings\\KeyField")).toEqual([
       expect.objectContaining({ occurrencePath: [null, 2] }),
       expect.objectContaining({ occurrencePath: [null, 3] }),
@@ -1265,6 +1286,9 @@ describe("единое восстановление XML-аномалий assignm
     const xml = exportPreparedFormAssignment(prepared, yaml, false)
     expect(xml).toMatch(/<Attribute name="Расхождения"[^>]*>[\s\S]*<Settings[^>]*>[\s\S]*<ManualQuery>true<\/ManualQuery>/u)
     expect(xml.match(/<KeyField>/gu)).toHaveLength(3)
+    expect(xml).toContain("<KeyField>first</KeyField>")
+    expect(xml).toContain("<KeyField>second</KeyField>")
+    expect(xml).toContain("<KeyField>third</KeyField>")
   })
 
   it("адресует повторные локальные raw-поля по физическим вхождениям", () => {

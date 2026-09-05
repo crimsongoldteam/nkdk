@@ -48,6 +48,7 @@ export function importedFormDataPathCompatibilityChanges(params: {
     if (occurrence.rule.allowedKinds === undefined || occurrence.rule.yaml !== "ПутьКДанным") continue
     const original = originals.get(yamlPathKey(occurrence.yamlPath))
     if (original === undefined || typeof original.value !== "string") continue
+    if (occurrence.value === original.value) continue
 
     const resolution = resolveDataPathCore({
       value: occurrence.value,

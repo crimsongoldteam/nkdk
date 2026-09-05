@@ -32,8 +32,17 @@ export function createAnnotatedLocalXmlBodyConsumer(params: Omit<
   const appendRaw = createLocalXmlRawAppender({ yaml: rawYaml, annotations: params.annotations })
   return createLocalXmlBodyConsumer({
     ...params,
-    annotate({ source, differences, property }) {
+    annotate({ source, differences, property, propertySource }) {
       if (property !== undefined) {
+        if (propertySource !== undefined && source !== propertySource) {
+          const relative = relativeElementPath(propertySource.path, source.path, true)
+          if (relative === undefined) throw new Error(`XML-граница ${source.path} не принадлежит свойству ${propertySource.path}`)
+          projectUnownedDifferences({
+            yaml: rawYaml, annotations: params.annotations, source, differences, appendRaw,
+            pathPrefix: [...(params.rawPathPrefix ?? []), ...property.xmlPath, ...relative],
+          })
+          return
+        }
         const key = property.yamlKey
         const expectedName = property.xmlPath.at(-1)
         if (key === undefined || expectedName === undefined) {
@@ -188,13 +197,13 @@ function projectUnownedDifferences(params: {
   }
 }
 
-function relativeElementPath(rootPath: string, path: string): string[] | undefined {
+function relativeElementPath(rootPath: string, path: string, retainOccurrence = false): string[] | undefined {
   if (!path.startsWith(`${rootPath}/`)) return undefined
   const result: string[] = []
   for (const segment of path.slice(rootPath.length + 1).split("/")) {
-    const element = /^([^/#?]+)\[\d+\]$/u.exec(segment)
+    const element = /^([^/@#?]+)\[\d+\]$/u.exec(segment)
     if (element === null) return undefined
-    result.push(element[1]!)
+    result.push(retainOccurrence ? segment : element[1]!)
   }
   return result.length === 0 ? undefined : result
 }

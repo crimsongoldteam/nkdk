@@ -111,6 +111,11 @@ export function createImportLocalRoundTrip(params: {
       return {
         context: {
           ...item.context,
+          importFromYAML: {
+            ...item.context.importFromYAML,
+            metadataTargetOwners: item.context.exportToYAML?.metadataTargetOwners
+              ?? item.context.importFromYAML?.metadataTargetOwners,
+          },
           exportToXML: {
             ...params.context.exportToXML,
             itemsTree: activeItemContexts,

@@ -15,6 +15,20 @@ const ownerCache: OwnerMetadataCache = {
 }
 
 describe("finalizeImportedFormDataPathCompatibility", () => {
+  it("не перезаписывает уже сохранённый несовместимый путь", () => {
+    const yaml = formYaml("ПолеФлажок", "Строка")
+    const originalOccurrences = collectFormDataPathOccurrencesFromYAML({ yaml, rule: ClientApplicationFormRules })
+    Object.freeze(yaml.Элементы.Поле)
+    const params = {
+      finalizedYaml: yaml, originalOccurrences,
+      index: createFormDataPathIndexFromYAML(yaml), ownerCache,
+    }
+
+    expect(importedFormDataPathCompatibilityChanges(params)).toEqual([])
+    finalizeImportedFormDataPathCompatibility({ ...params, yaml })
+    expect(yaml.Элементы.Поле.ПутьКДанным).toBe("Значение")
+  })
+
   it("возвращает адресное решение до изменения YAML", () => {
     const yaml = {
       Реквизиты: {

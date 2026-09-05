@@ -249,6 +249,14 @@ export function createCompiledRuleExecution(params: {
           const property = plan.propertiesByKey.get(propertyKey)
           if (property === undefined) throw new Error(`Не найдено свойство XML item: ${propertyKey}`)
           if (lastBinding !== input) bind(input)
+          // Отсутствие готового смыслового поля должно доходить до экспорта:
+          // сохранённое значение первого прохода не заменяет исключённое поле.
+          if (
+            typeof property.propertyRule.yaml === "string"
+            && property.propertyRule.xmlOnly !== true
+            && property.propertyRule.fromXML !== false
+            && !Object.prototype.hasOwnProperty.call(source.yaml, property.propertyRule.yaml)
+          ) propertyValues.delete(propertyKey)
           if (params.beforeFinish === undefined) {
             withPreparedXMLDependencyFacts(source.yaml, dependencyFacts, () => item.execute(property))
           } else {
