@@ -110,6 +110,9 @@ export function createPropertyRuleExecutor(
     prepareDependentImportFacts(params) {
       return registries.prepareDependentImportFacts(params)
     },
+    dependentImportDependencies(context) {
+      return registries.dependentImportDependencies(context)
+    },
     shouldRemoveImportedDependentProperty(params) {
       return registries.shouldRemoveImportedDependentProperty(params)
     },

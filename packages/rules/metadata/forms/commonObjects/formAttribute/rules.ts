@@ -244,9 +244,7 @@ export const metadataRuleLayer000 = defineMetadataRules({
     ...formAttributes.dependentItems,
     FormAttribute: { imported: {
       propertyKeys: ["valueType"],
-      prepareFacts: ({ item }) => ({
-        item: { Тип: item.Тип === "СписокЗначений" ? "СписокЗначений" : undefined }, root: {},
-      }),
+      dependencies: { item: ["Тип"], root: [] },
       shouldRemove: ({ item }) => item.Тип !== "СписокЗначений",
     } },
   },

@@ -100,6 +100,9 @@ export interface PropertyRuleExecution {
     readonly schema: TSchema
   }): string | undefined
   isDependentImportProperty(itemType: string, propertyKey: string): boolean
+  dependentImportDependencies(
+    context: import("./dependentItemRegistry").DependentImportDependencyContext,
+  ): import("./dependentItemRegistry").DependentImportDependencies | undefined
   prepareDependentImportFacts(
     params: import("./dependentItemRegistry").DependentItemParams,
   ): import("./dependentItemRegistry").DependentImportFacts | undefined

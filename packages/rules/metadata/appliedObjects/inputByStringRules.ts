@@ -21,12 +21,7 @@ function createInputByStringImportHandler(itemRule: MetadataItemRule): Dependent
   const [propertyKey, inputRule] = inputByStringProperty(itemRule)
   return {
     propertyKeys: [propertyKey],
-    prepareFacts: ({ item }) => ({
-      item: {},
-      root: Object.fromEntries(inputRule.standardFields.flatMap(({ length }) =>
-        Object.hasOwn(item, length.yaml) ? [[length.yaml, item[length.yaml]]] : [],
-      )),
-    }),
+    dependencies: { item: [], root: inputRule.standardFields.map(({ length }) => length.yaml) },
     shouldRemove: ({ item, rootYaml }) => {
       const actual = inputRule.yaml === undefined ? undefined : item[inputRule.yaml]
       return Array.isArray(actual) && orderedEqual(actual, inputByStringDefaultYAML(inputRule, rootYaml))

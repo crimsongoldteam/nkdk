@@ -7,10 +7,22 @@ import { MetadataWebServiceRules } from "../appliedObjects/metadataWebService/ru
 import { collectImportDependencyFacts, prepareImportDependencies } from "./preparedDependencies"
 import type { ImportedDependentPropertyCandidate, MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import type { DirectImportPropertyFact } from "./propertyFactsYamlView"
+import { dependentImportDependencies } from "@nkdk/runtime/rule-kit"
 
 const owner = { dir: "Справочник", name: "Товары" }
 
 describe("prepared import dependencies", () => {
+  it.each([
+    ["MetadataAttribute", "Получатель", { item: ["Тип"], root: [] }],
+    ["StandardAttributeDescription", "Владелец", { item: [], root: ["Владельцы"] }],
+    ["StandardAttributeDescription", "Код", { item: [], root: ["ТипКода", "ДлинаКода", "ДопустимаяДлинаКода"] }],
+    ["StandardAttributeDescription", "Неизвестный", { item: [], root: [] }],
+  ])("объявляет зависимости до чтения YAML: %s %s", (itemType, itemName, expected) => {
+    expect(dependentImportDependencies({
+      itemType, itemName, itemYamlPath: [], rootRule: MetadataCatalogRules, owner,
+    })).toEqual(expected)
+  })
+
   it("готовит факты отсутствующего зависимого свойства по исходному адресу item", () => {
     const facts = collectImportDependencyFacts({
       rule: MetadataCatalogRules, owner, candidates: [],

@@ -10,7 +10,7 @@ import {
   inferFillValueReferenceConstraint,
   metadataAttributeUsesDefinedType,
   parseFillValueItem,
-  prepareFillValueDependencies,
+  fillValueDependencies,
 } from "./analyzeItem"
 import { materializeMetadataValueReference } from "../metadataTargets/referenceMaterializer"
 import { isMetadataRootName } from "../metadataTargets/roots"
@@ -79,7 +79,7 @@ const collectFillValueStructuralReference: DependentStructuralItemHandler = (par
 
 const metadataAttributeImport: DependentImportItemHandler = {
   propertyKeys: ["fillValue"],
-  prepareFacts: prepareFillValueDependencies,
+  dependencies: fillValueDependencies,
   shouldRemove: (params) => classifyMetadataAttributeFillValue(params).kind === "implicit",
   shouldTagXML: (params) => shouldTagFillValueXML(params, classifyMetadataAttributeFillValue(params).kind),
   shouldDefer: (params) =>
@@ -89,7 +89,7 @@ const metadataAttributeImport: DependentImportItemHandler = {
 
 const standardAttributeImport: DependentImportItemHandler = {
   propertyKeys: ["fillValue"],
-  prepareFacts: prepareFillValueDependencies,
+  dependencies: fillValueDependencies,
   shouldRemove: (params) => classifyStandardAttributeFillValue(params).kind === "implicit",
   shouldTagXML: (params) => shouldTagFillValueXML(params, classifyStandardAttributeFillValue(params).kind),
   shouldDefer: (params) => namedDesignTimeRef(params) !== undefined,
@@ -116,7 +116,7 @@ export const fillValueRules = defineMetadataRules({
     CharacteristicsDescription: {
       imported: {
         propertyKeys: ["typesFilterValue"],
-        prepareFacts: () => ({ item: {}, root: {} }),
+        dependencies: { item: [], root: [] },
         shouldRemove: () => false,
       },
     },

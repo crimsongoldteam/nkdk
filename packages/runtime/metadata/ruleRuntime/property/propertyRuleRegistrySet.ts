@@ -2,7 +2,8 @@ import type {
   MetadataRulesDefinition,
   PropertyTypeDefinition,
 } from "../definition"
-import type { DependentItemRegistryLookup } from "./dependentItemRegistry"
+import type { DependentItemRegistryLookup, DependentImportDependencyContext } from "./dependentItemRegistry"
+import { selectDependentImportFacts } from "./dependentItemRegistry"
 import type {
   CollectionItemRule,
   importExportFunction,
@@ -141,6 +142,13 @@ export function createPropertyRuleRegistrySet(
     Object.entries(definition.metadataTargetOwners),
   )
   const dependentItems = new Map(Object.entries(definition.dependentItems))
+  const dependentImportDependencies = (context: DependentImportDependencyContext) => {
+    const declaration = dependentItems.get(context.itemType)?.imported?.dependencies
+    return typeof declaration === "function" ? declaration({
+      itemType: context.itemType, itemName: context.itemName, itemYamlPath: context.itemYamlPath,
+      rootRule: context.rootRule, owner: context.owner,
+    }) : declaration
+  }
   const xmlImportAugmenters = new Map<string, MetadataItemXmlImportAugmenter>()
   const yamlToXmlAugmenters = new Map<string, MetadataItemYamlToXmlAugmenter>()
   const importedYamlFinalizers = new Map<string, MetadataImportedYamlFinalizer>()
@@ -259,8 +267,10 @@ export function createPropertyRuleRegistrySet(
         true
       )
     },
+    dependentImportDependencies,
     prepareDependentImportFacts(params) {
-      return dependentItems.get(params.itemType)?.imported?.prepareFacts?.(params)
+      const dependencies = dependentImportDependencies(params)
+      return dependencies === undefined ? undefined : selectDependentImportFacts(dependencies, params)
     },
     shouldTagImportedDependentProperty(params) {
       return (

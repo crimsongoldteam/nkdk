@@ -517,6 +517,39 @@ it("exports enterprise values through the owning registry", () => {
   })).toBe("second")
 })
 
+it.each([false, true])("reads only declared import dependencies; contextual: %s", (contextual) => {
+  const dependencies = { item: ["Тип", "Отсутствует", "Пусто"], root: ["ДлинаКода"] }
+  const execution = createPropertyRuleExecutor(createPropertyRuleRegistrySet(defineMetadataRules({
+    ...emptyMetadataRules,
+    dependentItems: {
+      Owner: { imported: {
+        propertyKeys: ["value"],
+        dependencies: contextual ? (context) => {
+          if (Object.hasOwn(context, "item") || Object.hasOwn(context, "rootYaml")) {
+            throw new Error("выбор зависимостей получил весь YAML")
+          }
+          return context.owner.dir === "Справочник" ? dependencies : { item: [], root: [] }
+        } : dependencies,
+        shouldRemove: () => false,
+      } },
+    },
+  })))
+  const params = {
+    itemType: "Owner", itemYamlPath: [], rootRule: ownerValueRule(),
+    owner: { dir: "Справочник", name: "Товары" },
+    item: { Тип: "Строка", Пусто: null, get Лишнее() { throw new Error("лишнее чтение") } },
+    rootYaml: { ДлинаКода: 9, get Лишнее() { throw new Error("лишнее чтение корня") } },
+  }
+
+  expect(execution.dependentImportDependencies(params)).toEqual({
+    item: ["Тип", "Отсутствует", "Пусто"], root: ["ДлинаКода"],
+  })
+  expect(execution.prepareDependentImportFacts(params)).toEqual({
+    item: { Тип: "Строка", Пусто: null }, root: { ДлинаКода: 9 },
+  })
+  expect(execution.prepareDependentImportFacts({ ...params, itemType: "Unknown" })).toBeUndefined()
+})
+
 it("classifies dependent imports from the owning registry", () => {
   const execution = (withDependentItem: boolean) => createPropertyRuleExecutor(
     createPropertyRuleRegistrySet(defineMetadataRules({
@@ -526,6 +559,7 @@ it("classifies dependent imports from the owning registry", () => {
             Owner: {
               imported: {
                 propertyKeys: ["value"],
+                dependencies: { item: [], root: [] },
                 shouldRemove: () => false,
               },
             },

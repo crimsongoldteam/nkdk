@@ -93,10 +93,18 @@ export type DependentStructuralItemHandler = (
   params: DependentStructuralItemParams
 ) => readonly DependentStructuralItemReference[]
 
+export type DependentImportDependencyContext = Pick<DependentItemParams,
+  "itemType" | "itemName" | "itemYamlPath" | "rootRule" | "owner">
+
+export interface DependentImportDependencies {
+  readonly item: readonly string[]
+  readonly root: readonly string[]
+}
+
 export interface DependentImportItemHandler {
   readonly propertyKeys: readonly string[]
-  /** Только соседние значения, необходимые обработчику; не всё дерево item. */
-  prepareFacts?(params: DependentItemParams): DependentImportFacts
+  readonly dependencies: DependentImportDependencies
+    | ((context: DependentImportDependencyContext) => DependentImportDependencies)
   shouldRemove(params: DependentItemParams & { readonly candidate: DependentImportedPropertyCandidate }): boolean
   shouldTagXML?(params: DependentItemParams & { readonly candidate: DependentImportedPropertyCandidate }): boolean
   shouldDefer?(params: DependentItemParams & { readonly candidate: DependentImportedPropertyCandidate }): boolean
@@ -108,6 +116,7 @@ export interface DependentImportFacts {
 }
 
 export interface DependentItemRegistryLookup {
+  dependentImportDependencies(context: DependentImportDependencyContext): DependentImportDependencies | undefined
   prepareDependentImportFacts(params: DependentItemParams): DependentImportFacts | undefined
   analyzeDependentYamlItem(params: DependentYamlItemParams): DependentYamlItemAnalysis
   collectDependentStructuralItemReferences(params: DependentStructuralItemParams): readonly DependentStructuralItemReference[]
@@ -121,6 +130,22 @@ export interface DependentItemRegistryLookup {
   shouldDeferImportedDependentProperty(
     params: DependentItemParams & { readonly candidate: DependentImportedPropertyCandidate },
   ): boolean
+}
+
+export function dependentImportDependencies(context: DependentImportDependencyContext): DependentImportDependencies | undefined {
+  return currentPropertyRuleRegistrySet<DependentItemRegistryLookup>()?.dependentImportDependencies(context)
+}
+
+export function selectDependentImportFacts(
+  dependencies: DependentImportDependencies,
+  params: Pick<DependentItemParams, "item" | "rootYaml">,
+): DependentImportFacts {
+  const select = (source: unknown, keys: readonly string[]): Record<string, unknown> => {
+    if (source === null || typeof source !== "object") return {}
+    return Object.fromEntries(keys.filter(key => Object.hasOwn(source, key))
+      .map(key => [key, Reflect.get(source, key)]))
+  }
+  return { item: select(params.item, dependencies.item), root: select(params.rootYaml, dependencies.root) }
 }
 
 export function prepareDependentImportFacts(params: DependentItemParams): DependentImportFacts | undefined {
