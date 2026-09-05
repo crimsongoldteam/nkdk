@@ -369,6 +369,11 @@ function workerPoolSize(steps) {
   return workers.length === 0 ? 0 : max(workers) + 1
 }
 
+const profileNumericUnits = new Map([
+  ["worker", ""], ["items", ""], ["bytes", ""], ["time", "ms"],
+  ...["rssStart", "rssEnd", "rssPeak", "heapStart", "heapEnd", "heapPeak"].map((key) => [key, "MiB"]),
+])
+
 function parseProfileLine(line) {
   const result = {}
   for (const token of tokenizeProfileLine(line).slice(1)) {
@@ -377,20 +382,13 @@ function parseProfileLine(line) {
     const key = token.slice(0, eq)
     const rawValue = token.slice(eq + 1)
     const value = parseProfileValue(rawValue)
-    if (typeof value !== "string") {
-      result[key] = value
-      continue
-    }
-    if (value.endsWith("ms")) {
-      result[key] = Number(value.slice(0, -"ms".length))
-      continue
-    }
-    if (value.endsWith("MiB")) {
-      result[key] = Number(value.slice(0, -"MiB".length))
-      continue
-    }
-    const number = Number(value)
-    result[key] = Number.isNaN(number) ? value : number
+    result[key] = value
+    const unit = profileNumericUnits.get(key)
+    if (unit === undefined || typeof value !== "string") continue
+    const match = /^(-?(?:\d+(?:\.\d+)?|\.\d+))(ms|MiB)?$/u.exec(value)
+    if (match === null || (match[2] !== undefined && match[2] !== unit)) continue
+    const number = Number(match[1])
+    if (Number.isFinite(number)) result[key] = number
   }
   return result
 }
@@ -598,7 +596,7 @@ function toTableRow(name, records) {
 function aggregateWorkerValues(records, field, mode) {
   const byWorker = new Map()
   for (const record of records) {
-    if (record.worker === undefined || record[field] === undefined) continue
+    if (!Number.isFinite(record.worker) || !Number.isFinite(record[field])) continue
     const current = byWorker.get(record.worker)
     byWorker.set(record.worker, mode === "max" ? Math.max(current ?? record[field], record[field]) : (current ?? 0) + record[field])
   }
@@ -648,7 +646,7 @@ function average(values) {
 }
 
 function sum(records, field) {
-  return records.reduce((total, record) => total + (record[field] ?? 0), 0)
+  return records.reduce((total, record) => total + (Number.isFinite(record[field]) ? record[field] : 0), 0)
 }
 
 function sumFields(record, fields) {

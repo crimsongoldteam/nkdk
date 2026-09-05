@@ -2,6 +2,7 @@ import assert from "node:assert/strict"
 import test, { mock } from "node:test"
 import {
   isSummaryProfileStep,
+  parseProfileSteps,
   runProfile,
   summarizeLocalProof,
   summarizeFromXmlPropertyTypes,
@@ -98,6 +99,43 @@ test("сводит этапы импорта и двоичной выдачи в
 test("пропускает профильные записи без строкового имени этапа", () => {
   assert.equal(isSummaryProfileStep({ substep: 42 }), false)
   assert.equal(isSummaryProfileStep({ substep: null }), false)
+})
+
+test("разбирает числовые метрики, не превращая имена правил в числа", () => {
+  const names = ["GroupChildItems", "TableChildItems", "123"]
+  const steps = parseProfileSteps(names.map((name) =>
+    `[nkdk-profile-step] operation="123" scope=worker worker=0 step="XML в YAML PropertyRule exclusive" substep="${name}" items=3 bytes=1024 time=12.5ms rssPeak=42MiB custom=123`
+  ).join("\n"))
+
+  assert.deepEqual(steps.map((step) => step.substep), names)
+  for (const step of steps) {
+    assert.equal(step.operation, "123")
+    assert.equal(step.worker, 0)
+    assert.equal(step.items, 3)
+    assert.equal(step.bytes, 1024)
+    assert.equal(step.time, 12.5)
+    assert.equal(step.rssPeak, 42)
+    assert.equal(step.custom, "123")
+  }
+  assert.deepEqual(summarizeFromXmlPropertyTypes(steps).map((row) => row.propertyType), names)
+})
+
+test("не включает повреждённые числовые метрики в суммы времени", () => {
+  const steps = parseProfileSteps(["12.5ms", "brokenms", "1MiB", "Infinity", ""].map((time) =>
+    `[nkdk-profile-step] scope=main step="Импорт" substep="Первый проход worker" time="${time}"`
+  ).join("\n"))
+
+  assert.deepEqual(steps.map((step) => step.time), [12.5, "brokenms", "1MiB", "Infinity", ""])
+  const summary = summarizeImportSteps(steps, 20)
+  assert.equal(summary.firstPassMs, 12.5)
+  assert.equal(summary.measuredMainMs, 12.5)
+  assert.equal(summary.mcpOverheadMs, 7.5)
+  const [property] = summarizeFromXmlPropertyTypes(steps.map((step) => ({
+    ...step, scope: "worker", worker: 0, items: 1,
+    step: "XML в YAML PropertyRule exclusive", substep: "GroupChildItems",
+  })))
+  assert.equal(property.exclusiveWorkerMs, 12.5)
+  assert.equal(property.exclusiveCriticalMs, 12.5)
 })
 
 test("сводит число локально проверенных границ и распределение второго прохода", () => {
