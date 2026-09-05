@@ -15,7 +15,6 @@ import {
 import {
   BinaryStringPoolBuilder,
   openBinaryStringPool,
-  packBinaryStringPool,
   readBinaryString,
 } from "../projectState/binary/stringPool"
 import {
@@ -143,7 +142,7 @@ function encodeFiles(files: readonly ImportResultFile[]): ArrayBuffer {
     sourcePathId: strings.intern(file.sourcePath),
     targetProjectPathId: strings.intern(file.targetProjectPath),
   }))
-  const packed = packBinaryStringPool(strings.finish())
+  const packed = strings.finishSection()
   const recordsOffset = FILE_HEADER_BYTES + packed.byteLength
   const buffer = new ArrayBuffer(recordsOffset + records.length * FILE_RECORD_BYTES)
   const view = new DataView(buffer)

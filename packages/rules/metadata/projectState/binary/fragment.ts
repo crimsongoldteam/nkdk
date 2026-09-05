@@ -1,5 +1,5 @@
 import { xxh3 } from "@node-rs/xxhash"
-import { BinaryRecordBuffer } from "@nkdk/runtime"
+import { BinaryRecordBuffer, Utf8StringArena } from "@nkdk/runtime"
 import type { XmlAnomalyValidationState } from "@nkdk/runtime"
 import type {
   MetadataTargetConstraint,
@@ -63,7 +63,6 @@ const MAGIC_FIRST = 0x4b444b4e
 const MAGIC_SECOND = 0x47415246
 const NONE = 0xffff_ffff
 const MAX_HASH = 0xffff_ffff_ffff_ffffn
-const textEncoder = new TextEncoder()
 const textDecoder = new TextDecoder()
 const YAML_ROLE_IDS = { configuration: 1, properties: 2, form: 3 } as const
 const REFERENCE_KIND_IDS = { object: 1, member: 2, value: 3 } as const
@@ -965,51 +964,45 @@ export function openProjectStateFragment(fragment: ProjectStateFragment): Projec
 }
 
 class LocalStringTable {
-  readonly #ids = new Map<string, number>()
-  readonly #entries: { readonly bytes: Uint8Array; readonly hash: bigint }[] = []
+  readonly #arena: Utf8StringArena
 
-  constructor(private readonly hash: (bytes: Uint8Array) => bigint) {}
+  constructor(hash: (bytes: Uint8Array) => bigint) { this.#arena = new Utf8StringArena(hash) }
 
   get count(): number {
-    return this.#entries.length
+    return this.#arena.count
   }
 
   intern(value: string): number {
-    const existing = this.#ids.get(value)
-    if (existing !== undefined) return existing
-    const bytes = textEncoder.encode(value)
-    const id = this.#entries.length
-    this.#entries.push({ bytes, hash: this.hash(bytes) })
-    this.#ids.set(value, id)
-    return id
+    return this.#arena.intern(value)
   }
 
   finish(): { readonly buffer: ArrayBuffer; readonly count: number } {
     const count = this.count
     const recordsOffset = ProjectStateFragmentStringSectionHeaderView.viewLength
     const utf8Offset = recordsOffset + count * ProjectStateFragmentStringRecordView.viewLength
-    const utf8ByteLength = this.#entries.reduce((sum, entry) => sum + entry.bytes.byteLength, 0)
+    let utf8ByteLength = 0
+    for (let id = 0; id < count; id++) utf8ByteLength += this.#arena.bytes(id).byteLength
     const buffer = new ArrayBuffer(utf8Offset + utf8ByteLength)
     const view = new DataView(buffer)
     const bytes = new Uint8Array(buffer)
     ProjectStateFragmentStringSectionHeaderView.encode({ count, recordsOffset, utf8Offset, utf8ByteLength }, view)
     let offset = 0
-    this.#entries.forEach((entry, id) => {
+    for (let id = 0; id < count; id++) {
+      const value = this.#arena.bytes(id)
       ProjectStateFragmentStringRecordView.encode(
-        { offset, byteLength: entry.bytes.byteLength, hash: entry.hash },
+        { offset, byteLength: value.byteLength, hash: this.#arena.hash(id) },
         view,
         recordsOffset + id * ProjectStateFragmentStringRecordView.viewLength,
       )
-      bytes.set(entry.bytes, utf8Offset + offset)
-      offset += entry.bytes.byteLength
-    })
+      bytes.set(value, utf8Offset + offset)
+      offset += value.byteLength
+    }
     this.clear()
     return { buffer, count }
   }
 
   clear(): void {
-    this.#ids.clear()
-    this.#entries.length = 0
+    this.#arena.clear()
   }
 }
 

@@ -10,6 +10,10 @@ it("хранит одинаковую UTF-8 строку один раз", () =>
   expect(first).toBe(second)
   expect(pool.count).toBe(1)
   expect(readBinaryString(pool, first)).toBe("Справочник.Товары")
+  expect(pool.records).toBe(pool.utf8)
+  expect(pool.records).toBe(pool.lookup.slots)
+  expect(() => builder.intern("после завершения")).toThrow(/закрыт/)
+  expect(() => builder.finish()).toThrow(/закрыт/)
 })
 
 it("принимает готовый хэш и различает коллизию по UTF-8 байтам", () => {

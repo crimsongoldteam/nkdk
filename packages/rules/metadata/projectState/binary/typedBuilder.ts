@@ -35,7 +35,7 @@ import {
   ProjectStateSnapshotView,
   type ProjectStateSharedBuffers,
 } from "./snapshot"
-import { BinaryStringPoolBuilder, packBinaryStringPool, readBinaryString, readBinaryStringBytes } from "./stringPool"
+import { BinaryStringPoolBuilder, openBinaryStringPool, readBinaryString, readBinaryStringBytes } from "./stringPool"
 
 const NONE = 0xffff_ffff
 
@@ -90,9 +90,9 @@ export function buildTypedProjectStateSnapshot(input: {
   const facts = packFacts(sources, strings)
   const diagnostics = packDiagnostics(sources, strings)
   const files = packFiles(candidates, strings)
-  const stringPool = strings.finish()
+  const packedStrings = strings.finishSection()
+  const stringPool = openBinaryStringPool(packedStrings)
   const lookups = packLookups(sources, ownerKeyIds, stringPool)
-  const packedStrings = packBinaryStringPool(stringPool)
   assertProjectStateFactSection({ facts, diagnostics, fileCount: candidates.length, stringCount: stringPool.count })
   return assembleSnapshot({ strings: packedStrings, files, facts, lookups, diagnostics }, candidates.length, stringPool.count)
 }

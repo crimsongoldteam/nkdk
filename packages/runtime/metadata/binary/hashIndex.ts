@@ -29,7 +29,8 @@ export const BinaryHashSlotRecordView = new View().create<BinaryHashSlotRecord>(
 
 const MAX_LOAD_FACTOR = 0.8
 
-function capacityFor(size: number): number {
+export function binaryHashIndexCapacity(size: number): number {
+  if (!Number.isSafeInteger(size) || size < 0) throw new RangeError("Неверное число записей индекса")
   const minimumCapacity = Math.max(1, Math.ceil(size / MAX_LOAD_FACTOR))
   let capacity = 1
 
@@ -73,35 +74,44 @@ export function buildBinaryHashIndex(
   }
 
   const size = hashes.length
-  const capacity = capacityFor(size)
+  const capacity = binaryHashIndexCapacity(size)
   const slots = new SharedArrayBuffer(capacity * BinaryHashSlotRecordView.viewLength)
-  const view = new DataView(slots)
   const builtIndex = { slots, byteOffset: 0, size, capacity }
+  writeBinaryHashIndex(builtIndex, id => ({ hash: hashes[id]!, recordId: recordIds[id]! }))
+  return builtIndex
+}
 
-  for (let entryIndex = 0; entryIndex < size; entryIndex += 1) {
-    const hash = hashes[entryIndex]
-    let slot = initialSlot(hash, capacity)
+/** Заполняет только диапазон индекса в принадлежащем вызывающему буфере. */
+export function writeBinaryHashIndex(
+  index: BinaryHashIndex,
+  entry: (id: number) => { readonly hash: bigint; readonly recordId: number },
+): void {
+  openBinaryHashIndex(index)
+  new Uint8Array(index.slots, index.byteOffset ?? 0, index.capacity * BinaryHashSlotRecordView.viewLength).fill(0)
+  const view = new DataView(index.slots)
+  for (let entryIndex = 0; entryIndex < index.size; entryIndex += 1) {
+    const { hash, recordId } = entry(entryIndex)
+    let slot = initialSlot(hash, index.capacity)
 
     while (
-      BinaryHashSlotRecordView.decode(view, slotOffset(builtIndex, slot)).occupied !== 0
+      BinaryHashSlotRecordView.decode(view, slotOffset(index, slot)).occupied !== 0
     ) {
-      slot = (slot + 1) & (capacity - 1)
+      slot = (slot + 1) & (index.capacity - 1)
     }
 
     BinaryHashSlotRecordView.encode(
       {
         hash,
-        recordId: recordIds[entryIndex],
+        recordId,
         occupied: 1,
         reserved8: 0,
         reserved16: 0,
       },
       view,
-      slotOffset(builtIndex, slot),
+      slotOffset(index, slot),
     )
   }
 
-  return builtIndex
 }
 
 export function findBinaryHashIndex(
