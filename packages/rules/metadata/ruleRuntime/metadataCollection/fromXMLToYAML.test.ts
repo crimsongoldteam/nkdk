@@ -5,6 +5,8 @@ import {
   createXmlAnomalyAnnotations,
   createXmlImportAuditSession,
   parseXmlDocumentWithSaxes,
+  isXmlElementNode,
+  xmlTextValue,
   serializeYAMLDocument,
   withConfigurationIndexCollector,
   xmlAnnotatedMappingEntries,
@@ -104,6 +106,35 @@ registerMetadataItemCollectionRule({
 })
 
 describe("importMetadataItemCollectionFromXMLToYAML", () => {
+  it("передаёт факты готового элемента массива до обработки следующего", () => {
+    const facts = createDirectImportFactsCollector()
+    let firstPublished = false
+    const valueType = "TestStreamingArrayValue" as PropertyRuleType
+    registerTypeRule(valueType, "importFromXML", (_context, _rule, value) => {
+      const text = isXmlElementNode(value) ? xmlTextValue(value) : value
+      if (text === "b") firstPublished = facts.finish().some(fact => fact.propertyKey === "value" && fact.value === "a")
+      return text
+    })
+    registerTypeRule(valueType, "exportToYAML", ({ value }: { value: unknown }) => value)
+    const result = importMetadataItemCollectionFromXMLToYAML({
+      context: mockContextFromXML(),
+      rule: { type: "TestArrayCollection" as PropertyRuleType, xml: "Item", yaml: "Элементы" },
+      xml: parseXmlDocumentWithSaxes("<Item><Value>a</Value></Item><Item><Value>b</Value></Item>").roots,
+      itemRule: { itemType: "StreamingArrayItem", properties: { value: { type: valueType, xml: "Value", yaml: "Значение" } } },
+      xmlElement: "Item", yamlAsArray: true,
+      traversal: { mode: "facts", facts, yamlPath: ["Элементы"], rulePath: [], collector: createLocalIndexesCollector() },
+    })
+    expect(result).toEqual([{ Значение: "a" }, { Значение: "b" }])
+    // Исполнитель сообщает исходное и окончательное смысловые значения.
+    expect(facts.finish().map(({ propertyKey, yamlPath, value }) => ({ propertyKey, yamlPath, value }))).toEqual([
+      { propertyKey: "value", yamlPath: ["Элементы", 0, "Значение"], value: "a" },
+      { propertyKey: "value", yamlPath: ["Элементы", 0, "Значение"], value: "a" },
+      { propertyKey: "value", yamlPath: ["Элементы", 1, "Значение"], value: "b" },
+      { propertyKey: "value", yamlPath: ["Элементы", 1, "Значение"], value: "b" },
+    ])
+    expect(firstPublished).toBe(true)
+  })
+
   it("выбирает ключи по фактам непосредственных полей без JSON-копий путей", () => {
     const document = parseXmlDocumentWithSaxes("<Item><Name>Первый</Name><Value>a</Value></Item><Item><Name>Второй</Name><Value>b</Value></Item>")
     const facts = createDirectImportFactsCollector()
@@ -386,8 +417,10 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
     const valueType = `TestNestedCollectionInfrastructureValue${phase}` as PropertyRuleType
     const collectionType = `TestNestedCollectionInfrastructure${phase}` as PropertyRuleType
     if (phase === "rollback") {
-      registerTypeRule(valueType, "importFromXMLToYAML", () => {
-        throw new Error("nested collection conversion failed")
+      registerTypeRule(valueType, "importFromXMLToYAML", ({ xml }) => {
+        const value = isXmlElementNode(xml) ? xmlTextValue(xml) : xml
+        if (value === "failure") throw new Error("nested collection conversion failed")
+        return value
       })
     }
     registerMetadataItemCollectionRule({
@@ -408,13 +441,14 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
     const { collector, cause } = createFailingXmlImportAttempt({
       phase,
       causeMessage: `${phase} nested collection infrastructure failed`,
-      targetAttempt: 2,
+      targetAttempt: 3,
     })
     const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
     const root = parseXmlDocumentWithSaxes(
-      "<Root><Item><Value>value</Value></Item></Root>",
+      "<Root><Item><Value>value</Value></Item><Item><Value>failure</Value></Item></Root>",
     ).roots[0]!
     const audit = createXmlImportAuditSession([root])
+    const facts = createDirectImportFactsCollector()
 
     const thrown = captureTestXmlImport({
       context,
@@ -427,9 +461,12 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
       } as MetadataItemRule,
       collector,
       audit,
+      facts,
+      mode: "facts",
     })
 
     expectXmlImportInfrastructureFailure({ thrown, phase, cause, audit })
+    expect(facts.finish()).toEqual([])
   })
 
   it("публикует готовые local facts с финальным YAML-ключом один раз", () => {

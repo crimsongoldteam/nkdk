@@ -191,6 +191,9 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
     const keyClassification = yamlKey === undefined
       ? undefined
       : params.classifyYamlKey?.({ yaml: itemYaml, name, yamlKey })
+    if (params.yamlAsArray === true) {
+      for (const fact of bufferedPropertyFacts) params.traversal.facts?.acceptProperty(fact)
+    }
     return [{
       yaml: itemYaml,
       name,
@@ -201,7 +204,7 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
       bufferedCollector,
       bufferedDeferred,
       bufferedDependent,
-      bufferedPropertyFacts,
+      bufferedPropertyFacts: params.yamlAsArray === true ? [] : bufferedPropertyFacts,
       xmlNode: itemNode,
     }]
   })
@@ -209,9 +212,6 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
 
   if (params.yamlAsArray === true) {
     const result = yamlItems.map(({ yaml }) => yaml)
-    for (const item of yamlItems) {
-      for (const fact of item.bufferedPropertyFacts) params.traversal.facts?.acceptProperty(fact)
-    }
     result.forEach((yaml, index) => {
       const tag = yamlValueTag(yaml)
       if (tag !== undefined) markYAMLScalarTag(result, index, tag)
