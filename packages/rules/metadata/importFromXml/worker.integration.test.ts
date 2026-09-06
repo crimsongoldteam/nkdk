@@ -35,6 +35,7 @@ import { createValidationProjectComponent } from "../validation/projectComponent
 import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
 import * as propertyFactsView from "./propertyFactsYamlView"
 import * as preparedFacts from "./prepareFacts"
+import * as importedYamlFinalizers from "../ruleRuntime/metadataItem/importedYamlFinalizerRegistry"
 
 const importWorker = createImportWorkerCommandRunner()
 const runImportWorkerCommand = importWorker.run
@@ -554,13 +555,17 @@ describe("XML import worker second pass", () => {
     }
     await beginCatalogAndFormSecondPass(createTempDir("form-direct-context"), assignments)
     const view = vi.spyOn(propertyFactsView, "createPropertyFactsYamlView")
+    const finalize = vi.spyOn(importedYamlFinalizers, "finalizeMetadataItemImportedYaml")
     try {
       const result = await runImportWorkerCommand({ kind: "secondPass", assignmentId: assignments.form.id })
       expect(result).toMatchObject({ kind: "secondPassResult", diagnostics: [] })
       // С основой остаются только входы ещё не перенесённой проекции.
       expect(view.mock.calls).toHaveLength(hasBaseForm ? 2 : 0)
+      const projections = new Set(view.mock.results.map(result => result.value))
+      expect(finalize.mock.calls.filter(([params]) => projections.has(params.yaml))).toEqual([])
     } finally {
       view.mockRestore()
+      finalize.mockRestore()
       await runImportWorkerCommand({ kind: "endSecondPass" })
     }
   })

@@ -5,6 +5,7 @@ import "../../appliedObjects"
 import "../../forms"
 import {
   compactImportedFormDataPaths,
+  collectImportedFormDataPathChanges,
   materializeInheritedRootFormDataPaths,
   materializeImplicitFormDataPaths,
   prepareFormDataPathContextFromYAML,
@@ -17,6 +18,27 @@ import type { ClientApplicationFormYAML } from "./types"
 import { resolveDataPathCore } from "../../validation/dataPath/coreResolver"
 
 describe("prepareFormDataPathContextFromYAML", () => {
+  it.each([false, true])("выдаёт окончательные изменения без YAML; унаследованный корень: %s", (inherited) => {
+    const yaml: ClientApplicationFormYAML = {
+      ...(inherited ? {} : { Реквизиты: { Объект: { Тип: "CatalogObject.Товары", ОсновнойРеквизит: "Истина" } } }),
+      Элементы: {
+        Код: { Вид: "ПолеВвода" },
+        Наименование: { Вид: "ПолеВвода", ПутьКДанным: "Объект.Наименование" },
+      },
+    }
+    const context = inherited ? inheritedRootContext(yaml)
+      : prepareFormDataPathContextFromYAML({ yaml, ownerCache: catalogOwnerCache() })
+    const before = structuredClone(yaml)
+    const changes = collectImportedFormDataPathChanges(context)
+    expect(yaml).toEqual(before)
+    expect(changes).toEqual(inherited
+      ? [{ yamlPath: ["Элементы", "Код", "ПутьКДанным"], kind: "set", value: "Объект.Код" }]
+      : [
+          { yamlPath: ["Элементы", "Код", "ПутьКДанным"], kind: "set", value: "" },
+          { yamlPath: ["Элементы", "Наименование", "ПутьКДанным"], kind: "delete" },
+        ])
+  })
+
   it("обновляет пути таблиц из окончательных фактов, не изменяя индекс первого прохода", () => {
     const preparation = collectClientApplicationFormDataPathPreparation({ yaml: {
       Реквизиты: { Объект: { Тип: "CatalogObject.Товары" } },

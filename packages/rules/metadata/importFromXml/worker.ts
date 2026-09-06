@@ -133,7 +133,7 @@ import {
 import { clientApplicationFormDataPathProjection } from "../forms/clientApplicationForm/formDataPathProjection"
 import { collectFormDataPathOccurrencesFromFacts } from "./formDataPathOccurrences"
 import { collectFormDataPathPreparationFromFacts, selectFormDataPathPreparationFacts } from "./formDataPathPreparation"
-import { prepareFormDataPathContext } from "../forms/clientApplicationForm/formDataPathContext"
+import { collectImportedFormDataPathChanges, prepareFormDataPathContext } from "../forms/clientApplicationForm/formDataPathContext"
 import { createImportExportContext } from "./importExportContext"
 import {
   portableFirstPassIssueDecision,
@@ -587,7 +587,7 @@ async function processSecondPass(
     const compatibleFormFacts = finalizedFormFacts !== undefined && ready.formSemanticFacts !== undefined
       && ready.formDataPathIndex !== undefined
       ? prepareCompatibleFormFacts({
-          facts: finalizedFormFacts, original: ready.formSemanticFacts,
+          facts: finalizedFormFacts, original: propertyFactsWithReconstructionValues(ready.formSemanticFacts),
           index: ready.formDataPathIndex, ownerCache: secondPass.ownerMetadataCache,
         })
       : finalizedFormFacts
@@ -600,9 +600,6 @@ async function processSecondPass(
           ownerCache: secondPass.ownerMetadataCache,
         })
       : undefined
-    const formFactsView = compatibleFormFacts === undefined || formProofDataPathContext !== undefined
-      ? undefined
-      : createPropertyFactsYamlView(compatibleFormFacts)
     const baseFormDataPathIndex = ready.baseFormDataPathIndex
     const finalizedBaseFormFacts = ready.baseFormSemanticFacts === undefined
       ? undefined
@@ -614,56 +611,34 @@ async function processSecondPass(
           formDataPathIndex: baseFormDataPathIndex,
           execution,
         })
-    const baseFormFactsView = finalizedBaseFormFacts === undefined
+    const compatibleBaseFormFacts = finalizedBaseFormFacts === undefined
       || ready.baseFormSemanticFacts === undefined
       ? undefined
-      : createPropertyFactsYamlView(baseFormDataPathIndex === undefined ? finalizedBaseFormFacts : prepareCompatibleFormFacts({
-          facts: finalizedBaseFormFacts, original: ready.baseFormSemanticFacts,
+      : baseFormDataPathIndex === undefined ? finalizedBaseFormFacts : prepareCompatibleFormFacts({
+          facts: finalizedBaseFormFacts, original: propertyFactsWithReconstructionValues(ready.baseFormSemanticFacts),
           index: baseFormDataPathIndex, ownerCache: secondPass.ownerMetadataCache,
+        })
+    const basePreparation = compatibleBaseFormFacts === undefined || baseFormDataPathIndex === undefined
+      ? undefined : collectFormDataPathPreparationFromFacts({ facts: compatibleBaseFormFacts, index: baseFormDataPathIndex })
+    const baseFormFactsView = compatibleBaseFormFacts === undefined ? undefined
+      : createPropertyFactsYamlView(basePreparation === undefined ? compatibleBaseFormFacts : finalizeProjectionFormFacts({
+          facts: compatibleBaseFormFacts, preparation: basePreparation,
+          currentConfigurationFormYAML, ownerCache: secondPass.ownerMetadataCache,
         }))
-    if (baseFormFactsView !== undefined) {
-      const originalBaseFormDataPaths = collectImportedFormDataPaths(
-        baseFormFactsView,
-        ClientApplicationFormRules,
-      )
-      finalizeMetadataItemImportedYaml({
-        yaml: baseFormFactsView,
-        rule: ClientApplicationFormRules,
-        ownerMetadataCache: secondPass.ownerMetadataCache,
-        ...(currentConfigurationFormYAML === undefined
-          ? {}
-          : { currentConfigurationYAML: currentConfigurationFormYAML }),
-      })
-      finalizeImportedFormDataPaths({
-        yaml: baseFormFactsView,
-        rule: ClientApplicationFormRules,
-        originalOccurrences: originalBaseFormDataPaths,
-        formDataPathIndex: baseFormDataPathIndex,
-        ownerMetadataCache: secondPass.ownerMetadataCache,
-      })
-    }
     const savedBaseFormYAML = baseFormFactsView === undefined
       ? undefined
       : clientApplicationFormYaml(baseFormFactsView, assignment.targetProjectPath)
-    if (formFactsView !== undefined) {
-      const originalFormDataPaths = collectImportedFormDataPaths(formFactsView, assignmentRule)
-      finalizeMetadataItemImportedYaml({
-        yaml: formFactsView,
-        rule: assignmentRule,
-        ownerMetadataCache: secondPass.ownerMetadataCache,
-        ...(currentConfigurationFormYAML === undefined
-          ? {}
-          : { currentConfigurationYAML: currentConfigurationFormYAML }),
-        ...(savedBaseFormYAML === undefined ? {} : { savedBaseYAML: savedBaseFormYAML }),
-      })
-      finalizeImportedFormDataPaths({
-        yaml: formFactsView,
-        rule: assignmentRule,
-        originalOccurrences: originalFormDataPaths,
-        formDataPathIndex: ready.formDataPathIndex,
-        ownerMetadataCache: secondPass.ownerMetadataCache,
-      })
-    }
+    const formFactsView = compatibleFormFacts === undefined || formProofDataPathContext !== undefined
+      ? undefined
+      : createPropertyFactsYamlView(ready.formDataPathIndex === undefined ? compatibleFormFacts : finalizeProjectionFormFacts({
+          facts: compatibleFormFacts,
+          preparation: collectFormDataPathPreparationFromFacts({
+            facts: compatibleFormFacts, index: ready.formDataPathIndex, yamlPathPrefix: formYamlPath,
+          }),
+          yamlPathPrefix: formYamlPath, currentConfigurationFormYAML,
+          savedBaseElementNames: basePreparation?.collected.elementsByName.keys(),
+          ownerCache: secondPass.ownerMetadataCache,
+        }))
     const formProofValue = formFactsView === undefined
       ? undefined
       : importedClientApplicationForm({ yaml: formFactsView, rule: assignmentRule })?.yaml
@@ -1542,10 +1517,31 @@ function prepareCompatibleFormFacts(params: {
   return applyPropertyFactChanges(params.facts, importedFormDataPathCompatibilityChangesFromOccurrences({
     finalizedOccurrences: collectFormDataPathOccurrencesFromFacts({ facts: params.facts, projection: clientApplicationFormDataPathProjection }),
     originalOccurrences: collectFormDataPathOccurrencesFromFacts({
-      facts: propertyFactsWithReconstructionValues(params.original), projection: clientApplicationFormDataPathProjection,
+      facts: params.original, projection: clientApplicationFormDataPathProjection,
     }),
     index: params.index, ownerCache: params.ownerCache,
   }).map(({ occurrence, value }) => ({ yamlPath: occurrence.yamlPath, kind: "set", value })))
+}
+
+function finalizeProjectionFormFacts(params: {
+  facts: readonly DirectImportPropertyFact[]
+  preparation: Parameters<typeof prepareFormDataPathContext>[0]["preparation"]
+  currentConfigurationFormYAML?: ClientApplicationFormYAML
+  savedBaseElementNames?: Iterable<string>
+  yamlPathPrefix?: readonly (string | number)[]
+  ownerCache: OwnerMetadataCache
+}) {
+  const context = prepareFormDataPathContext({
+    preparation: params.preparation, currentConfigurationFormYaml: params.currentConfigurationFormYAML,
+    savedBaseElementNames: params.savedBaseElementNames, ownerCache: params.ownerCache,
+  })
+  const changes = collectImportedFormDataPathChanges(context).map(change => ({
+    ...change, yamlPath: [...(params.yamlPathPrefix ?? []), ...change.yamlPath],
+  }))
+  return prepareCompatibleFormFacts({
+    facts: applyPropertyFactChanges(params.facts, changes), original: params.facts,
+    index: params.preparation.index, ownerCache: params.ownerCache,
+  })
 }
 
 function collectImportedFormDataPaths(yaml: unknown, rule: PreparedImportYaml["rule"]) {

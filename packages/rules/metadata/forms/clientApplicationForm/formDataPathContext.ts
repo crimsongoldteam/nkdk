@@ -72,18 +72,28 @@ export function compactImportedFormDataPaths(params: {
   readonly yaml: ClientApplicationFormYAML
   readonly context: FormDataPathContext
 }): void {
-  for (const element of params.context.elementsByName.values()) {
+  visitCompactedImportedFormDataPaths(params.context, (element, value) => {
+    const yaml = recordAtPath(params.yaml, element.yamlPath)
+    if (value === undefined) delete yaml["ПутьКДанным"]
+    else yaml["ПутьКДанным"] = value
+  })
+}
+
+function visitCompactedImportedFormDataPaths(
+  context: FormDataPathContext,
+  accept: (element: FormElementDataPathState, value: string | undefined) => void,
+): void {
+  for (const element of context.elementsByName.values()) {
     if (
       element.origin !== "own"
       || element.candidateInternal === undefined
       || element.compactImplicitDataPath === false
       || element.candidateRootOrigin === "inherited"
     ) continue
-    const yaml = recordAtPath(params.yaml, element.yamlPath)
     if (!element.present) {
-      yaml["ПутьКДанным"] = ""
+      accept(element, "")
     } else if (element.valueInternal === element.candidateInternal) {
-      delete yaml["ПутьКДанным"]
+      accept(element, undefined)
     }
   }
 }
@@ -165,7 +175,19 @@ export function materializeInheritedRootFormDataPaths(params: {
   readonly context: FormDataPathContext
 }): readonly MaterializedInheritedDataPath[] {
   const materialized: MaterializedInheritedDataPath[] = []
-  for (const element of params.context.elementsByName.values()) {
+  visitInheritedRootFormDataPaths(params.context, (element, value) => {
+    const parent = recordAtPath(params.yaml, element.yamlPath)
+    parent["ПутьКДанным"] = value
+    materialized.push({ parent, key: "ПутьКДанным" })
+  })
+  return materialized
+}
+
+function visitInheritedRootFormDataPaths(
+  context: FormDataPathContext,
+  accept: (element: FormElementDataPathState, value: string) => void,
+): void {
+  for (const element of context.elementsByName.values()) {
     const inheritedFromCurrentForm =
       element.origin === "borrowed" && element.presentInCurrentConfiguration === true
     const missingOrEmptyPath =
@@ -179,11 +201,19 @@ export function materializeInheritedRootFormDataPaths(params: {
       || element.candidateYaml === undefined
       || inheritedFromCurrentForm
     ) continue
-    const parent = recordAtPath(params.yaml, element.yamlPath)
-    parent["ПутьКДанным"] = element.candidateYaml
-    materialized.push({ parent, key: "ПутьКДанным" })
+    accept(element, element.candidateYaml)
   }
-  return materialized
+}
+
+export function collectImportedFormDataPathChanges(context: FormDataPathContext): readonly MaterializedDataPathChange[] {
+  const changes: MaterializedDataPathChange[] = []
+  const accept = (element: FormElementDataPathState, value: string | undefined) => {
+    const yamlPath = [...element.yamlPath, "ПутьКДанным"]
+    changes.push(value === undefined ? { yamlPath, kind: "delete" } : { yamlPath, kind: "set", value })
+  }
+  visitCompactedImportedFormDataPaths(context, accept)
+  visitInheritedRootFormDataPaths(context, accept)
+  return changes
 }
 
 export interface MaterializedInheritedDataPath {
