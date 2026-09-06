@@ -1,8 +1,32 @@
 import { describe, expect, it, vi } from "vitest"
 import { acceptedPropertyFacts } from "./prepareFacts"
 import type { DirectImportPropertyFact } from "./propertyFacts"
+import { baseFormProjectionSourceFromFacts } from "./baseFormProjectionFacts"
 
 describe("принятые факты свойств", () => {
+  it("закрытие родительской коллекции не удаляет контейнер независимого свойства с nil", () => {
+    const container: DirectImportPropertyFact = {
+      itemType: "InputField", propertyKey: "$container:choiceParameters",
+      yamlPath: ["Элементы", "Поле", "ПараметрыВыбора"], value: {},
+    }
+    const nil: DirectImportPropertyFact = {
+      itemType: "InputField", propertyKey: "choiceParameters",
+      yamlPath: ["Элементы", "Поле", "ПараметрыВыбора", "Отбор.Ссылка"],
+      value: undefined, presentInXML: true,
+    }
+    const parent: DirectImportPropertyFact = {
+      itemType: "Form", propertyKey: "$container:childItems", yamlPath: ["Элементы"], value: {},
+    }
+    const accepted = acceptedPropertyFacts({ metadata: { events: [{
+      kind: "property", propertyType: "ChoiceParameters",
+      yamlPath: ["Элементы", "Поле", "ПараметрыВыбора"], rulePath: [{ propertyKey: "choiceParameters" }],
+    }] } }, [container, nil, parent])
+
+    expect(accepted).toEqual([container, parent, nil])
+    expect(baseFormProjectionSourceFromFacts(accepted).child("Элементы")!.child("Поле")!.read("ПараметрыВыбора"))
+      .toEqual({ "Отбор.Ссылка": undefined })
+  })
+
   it("не копирует префиксы глубокого пути в JSON и не перечитывает вид свойства", () => {
     let reads = 0
     const path = ["Корень", ...Array.from({ length: 200 }, (_, index) => `Уровень${index}`)]

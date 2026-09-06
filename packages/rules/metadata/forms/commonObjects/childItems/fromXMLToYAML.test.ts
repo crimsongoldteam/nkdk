@@ -1,6 +1,6 @@
 import {
 createConfigurationIndexCollector,withConfigurationIndexCollector,
-withConfigurationIndexFormElementRootLogicalAddress
+withConfigurationIndexFormElementRootLogicalAddress, parseXmlDocumentWithSaxes
 } from "@nkdk/runtime"
 import { describe,expect,it,vi } from "vitest"
 import * as elementRules from "../../../ruleRuntime/formElement/ruleFactory"
@@ -8,8 +8,30 @@ import { mockContextFromXML } from "../../../../tests/mockContext"
 import { createLocalIndexesCollector } from "../../../projectDefinition/localIndexes"
 import "../../elements"
 import { importChildItemsFromXMLToYAML } from "./fromXMLToYAML"
+import { createDirectImportFactsCollector } from "@nkdk/runtime/rule-kit"
 
 describe("importChildItemsFromXMLToYAML", () => {
+  it("не собирает значения дочерних YAML-объектов повторно в режиме фактов", () => {
+    const facts = createDirectImportFactsCollector()
+    const xml = parseXmlDocumentWithSaxes('<ChildItems><Button name="ОК"><Type>UsualButton</Type><Width>20</Width></Button></ChildItems>').roots[0]!
+    const result = importChildItemsFromXMLToYAML({
+      context: mockContextFromXML(),
+      rule: { type: "GroupChildItems", yaml: "Элементы" },
+      xml,
+      traversal: {
+        mode: "facts", produceResult: true, facts, xmlNodes: [xml],
+        yamlPath: ["Элементы"], rulePath: [{ propertyKey: "childItems" }],
+        collector: createLocalIndexesCollector(),
+      },
+    })
+
+    expect(result).toEqual({ ОК: { Вид: "Кнопка" } })
+    expect(facts.finish()).toEqual(expect.arrayContaining([
+      expect.objectContaining({ yamlPath: ["Элементы", "ОК", "Ширина"], value: 20 }),
+      expect.objectContaining({ yamlPath: ["Элементы", "ОК", "ТипКнопки"], value: "ОбычнаяКнопка" }),
+    ]))
+  })
+
   it("проверяет уже окончательные Вид и ТипКнопки, не заменяя возвращённый item", () => {
     let closed: Record<string, unknown> | undefined
     const yaml = importChildItemsFromXMLToYAML({

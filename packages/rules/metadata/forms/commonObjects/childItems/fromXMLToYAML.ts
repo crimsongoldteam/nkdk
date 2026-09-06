@@ -123,6 +123,7 @@ export const importChildItemsFromXMLToYAML: ImportFromXMLToYAMLFunction = ({ con
       name: itemName,
       traversal: {
         ...traversal,
+        ...(traversal.mode === "facts" ? { produceResult: false } : {}),
         yamlPath: [...traversal.yamlPath, itemName],
         ...(itemXmlNode === undefined ? {} : { xmlNodes: [itemXmlNode] }),
       },

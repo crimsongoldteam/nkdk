@@ -469,8 +469,12 @@ export function acceptedPropertyFacts(
     for (let position = 0; position < fact.yamlPath.length; position++) {
       node = node.children!.get(fact.yamlPath[position]!)!
       if (position < fact.yamlPath.length - 1 && node.containerIndex !== undefined && node.containerIndex > index) {
-        superseded = true
-        break
+        const replacement = propertyFacts[node.containerIndex]!
+        if (replacement.propertyKey === fact.propertyKey
+          && replacement.itemType === fact.itemType && replacement.itemRule === fact.itemRule) {
+          superseded = true
+          break
+        }
       }
     }
     if (!superseded && node.containerIndex === index) result.push(fact)
