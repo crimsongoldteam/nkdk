@@ -12,6 +12,7 @@ import {
   rehydrateConfigurationContext,
   validationIssueTargetKey,
   validationIssuePathFromPointer,
+  xmlElementChildren,
   type XmlAnomalyAnnotations,
   type XmlRawValue,
 } from "@nkdk/runtime"
@@ -539,8 +540,8 @@ async function processSecondPass(
     )
     const hasBaseFormCandidate = inputs.some(({ input, document }) => {
       if (input.role !== "body") return false
-      const form = document.compatibility["Form"]
-      return form !== null && typeof form === "object" && !Array.isArray(form) && "BaseForm" in form
+      const forms = document.roots.filter(node => node.name === "Form")
+      return forms.length === 1 && xmlElementChildren(forms[0]!, "BaseForm").length > 0
     })
     const currentConfigurationYAMLBeforeProof = shouldReadCurrentConfigurationYaml({
       componentPath: state.componentPath,

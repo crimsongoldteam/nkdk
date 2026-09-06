@@ -1,12 +1,20 @@
 import type { MetadataImportComponentDescriptor } from "@nkdk/runtime/rule-kit"
+import { xmlElementChildren, xmlTextValue, type XmlElementNode } from "@nkdk/runtime"
 import { currentOperationRegistrySet } from "../operations/operationExecutionContext"
 
 export type XmlImportComponentDescriptor = MetadataImportComponentDescriptor
 
-export function resolveXmlImportRootItemName(root: Readonly<Record<string, unknown>>): string {
-  const configuration = root["Configuration"]
-  const properties = isRecord(configuration) ? configuration["Properties"] : undefined
-  const name = isRecord(properties) ? properties["Name"] : undefined
+export function resolveXmlImportRootItemName(root: XmlElementNode): string {
+  let nodes = [root]
+  for (const segment of ["Configuration", "Properties", "Name"]) {
+    nodes = nodes.flatMap(node => xmlElementChildren(node, segment))
+    if (nodes.length !== 1) throw new Error("Не задано имя корневого объекта XML-компонента")
+  }
+  const nameNode = nodes[0]!
+  if (nameNode.attributes.length > 0 || nameNode.content.some(child => child.type !== "text")) {
+    throw new Error("Не задано имя корневого объекта XML-компонента")
+  }
+  const name = xmlTextValue(nameNode)
   if (typeof name !== "string" || name.length === 0) {
     throw new Error("Не задано имя корневого объекта XML-компонента")
   }
@@ -19,7 +27,7 @@ export function registerXmlImportComponentDescriptor(descriptor: XmlImportCompon
   imports.register(descriptor)
 }
 
-export function resolveXmlImportComponent(root: Record<string, unknown>): XmlImportComponentDescriptor {
+export function resolveXmlImportComponent(root: XmlElementNode): XmlImportComponentDescriptor {
   const contextual = contextualImports()
   if (contextual === undefined) throw new Error("Не задан execution context import descriptors")
   return contextual.resolve(root)
@@ -35,12 +43,8 @@ function contextualImports() {
   return currentOperationRegistrySet<{
     imports: {
       register(descriptor: XmlImportComponentDescriptor): void
-      resolve(input: Readonly<Record<string, unknown>>): XmlImportComponentDescriptor
+      resolve(input: XmlElementNode): XmlImportComponentDescriptor
       get(kind: string): XmlImportComponentDescriptor
     }
   }>()?.imports
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value)
 }

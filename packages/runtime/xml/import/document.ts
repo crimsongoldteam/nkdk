@@ -52,7 +52,23 @@ export function isXmlElementNode(value: unknown): value is XmlElementNode {
     && typeof value === "object"
     && "type" in value
     && value.type === "element"
-    && "compatibilityValue" in value
+    && "name" in value && typeof value.name === "string"
+    && "id" in value && typeof value.id === "number"
+    && "attributes" in value && Array.isArray(value.attributes)
+    && "content" in value && Array.isArray(value.content)
+}
+
+export function xmlAttributeValue(node: XmlElementNode, name: string): string | undefined {
+  return node.attributes.find(attribute => attribute.name === name)?.value
+}
+
+/** Только непосредственный текст; наличие элемента проверяется отдельно. */
+export function xmlTextValue(node: XmlElementNode): string {
+  let text = ""
+  for (const child of node.content) {
+    if (child.type === "text") text += child.value
+  }
+  return text
 }
 
 export function xmlElementChildren(

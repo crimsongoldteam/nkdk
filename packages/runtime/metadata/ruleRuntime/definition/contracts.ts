@@ -1,4 +1,5 @@
 import type { TSchema } from "typebox"
+import type { XmlElementNode } from "../../../xml/import/document"
 
 import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"
 import type { ComponentAddress } from "../../components/address"
@@ -164,8 +165,8 @@ export type MetadataFormStructureProjection = (params: {
 
 export interface MetadataImportComponentDescriptor {
   readonly kind: string
-  detect(root: Readonly<Record<string, unknown>>): boolean
-  resolveRoot(root: Readonly<Record<string, unknown>>): {
+  detect(root: XmlElementNode): boolean
+  resolveRoot(root: XmlElementNode): {
     readonly address: ComponentAddress
     readonly itemName: string
   }

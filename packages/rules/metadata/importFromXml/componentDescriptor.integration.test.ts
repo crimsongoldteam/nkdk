@@ -1,8 +1,8 @@
 import fs from "node:fs"
 import { join } from "node:path"
 import { describe, expect, it } from "vitest"
-import type { ComponentAddress } from "@nkdk/runtime"
-import { importContentFromXML } from "@nkdk/runtime"
+import type { ComponentAddress, XmlElementNode } from "@nkdk/runtime"
+import { parseXmlDocumentWithSaxes } from "@nkdk/runtime"
 import {
   registerXmlImportComponentDescriptor,
   resolveXmlImportComponent,
@@ -11,7 +11,7 @@ import {
 
 function descriptor(params: {
   kind: string
-  detect(root: Record<string, unknown>): boolean
+  detect(root: XmlElementNode): boolean
   address?: ComponentAddress
 }): XmlImportComponentDescriptor {
   return {
@@ -26,21 +26,21 @@ function descriptor(params: {
 
 describe("XML import component descriptors", () => {
   it("returns the only descriptor that recognizes the XML root", () => {
-    const registered = descriptor({ kind: "test-single", detect: (root) => root["testSingle"] === true })
+    const registered = descriptor({ kind: "test-single", detect: (root) => root.name === "testSingle" })
     registerXmlImportComponentDescriptor(registered)
 
-    expect(resolveXmlImportComponent({ testSingle: true })).toBe(registered)
+    expect(resolveXmlImportComponent(parseRoot("<testSingle/>"))).toBe(registered)
   })
 
   it("rejects XML roots that no descriptor recognizes", () => {
-    expect(() => resolveXmlImportComponent({ unknownComponent: true })).toThrow(/не найдено/iu)
+    expect(() => resolveXmlImportComponent(parseRoot("<unknownComponent/>"))).toThrow(/не найдено/iu)
   })
 
   it("rejects XML roots recognized by multiple descriptors", () => {
-    registerXmlImportComponentDescriptor(descriptor({ kind: "test-first", detect: (root) => root["testBoth"] === true }))
-    registerXmlImportComponentDescriptor(descriptor({ kind: "test-second", detect: (root) => root["testBoth"] === true }))
+    registerXmlImportComponentDescriptor(descriptor({ kind: "test-first", detect: (root) => root.name === "testBoth" }))
+    registerXmlImportComponentDescriptor(descriptor({ kind: "test-second", detect: (root) => root.name === "testBoth" }))
 
-    expect(() => resolveXmlImportComponent({ testBoth: true })).toThrow(/несколько/iu)
+    expect(() => resolveXmlImportComponent(parseRoot("<testBoth/>"))).toThrow(/несколько/iu)
   })
 
   it("rejects a repeated component kind", () => {
@@ -52,10 +52,9 @@ describe("XML import component descriptors", () => {
   })
 
   it("recognizes a base configuration without ConfigurationExtensionPurpose", () => {
-    const parsed = importContentFromXML<Record<string, unknown>>(
+    const root = parseRoot(
       fs.readFileSync(join(import.meta.dirname, "../appliedObjects/configuration/__fixtures__/minimal.xml"), "utf-8")
     )
-    const root = parsed["MetaDataObject"] as Record<string, unknown>
     const component = resolveXmlImportComponent(root)
 
     expect(component.kind).toBe("configuration")
@@ -68,11 +67,28 @@ describe("XML import component descriptors", () => {
   })
 
   it("rejects an empty root name", () => {
-    const root = {
-      Configuration: { Properties: { Name: "" } },
-    }
+    const root = parseRoot("<MetaDataObject><Configuration><Properties><Name/></Properties></Configuration></MetaDataObject>")
     const component = resolveXmlImportComponent(root)
 
     expect(() => component.resolveRoot(root)).toThrow(/имя/iu)
   })
+
+  it("распознаёт расширение по присутствию пустого признака без compatibility", () => {
+    const root = parseRoot("<MetaDataObject><Configuration><Properties><Name>Расширение</Name><ConfigurationExtensionPurpose/></Properties></Configuration></MetaDataObject>")
+    const component = resolveXmlImportComponent(root)
+    expect(component.kind).toBe("configurationExtension")
+    expect(component.resolveRoot(root)).toEqual({
+      address: { kind: "configurationExtension", name: "Расширение" }, itemName: "Расширение",
+    })
+  })
 })
+
+function parseRoot(xml: string): XmlElementNode {
+  const root = parseXmlDocumentWithSaxes(xml).roots[0]!
+  const discardCompatibility = (node: XmlElementNode): void => {
+    Object.defineProperty(node, "compatibilityValue", { get() { throw new Error("Нельзя читать compatibility") } })
+    for (const child of node.content) if (child.type === "element") discardCompatibility(child)
+  }
+  discardCompatibility(root)
+  return root
+}

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import type { XmlAddressedNode, XmlElementNode } from "./document"
+import { isXmlElementNode, xmlAttributeValue, xmlElementChildren, xmlTextValue } from "./document"
 import { parseXmlDocumentWithSaxes } from "./saxesParser"
 
 const elementChildren = (element: XmlElementNode): XmlElementNode[] =>
@@ -9,6 +10,28 @@ const sourceOf = (source: string, node: XmlAddressedNode | undefined): string | 
   node === undefined ? undefined : source.slice(node.span.start, node.span.end)
 
 describe("структурный XML-документ", () => {
+  it("читает структуру без представления совместимости", () => {
+    const root = parseXmlDocumentWithSaxes('<Root b="2"><Value/><Value>2</Value></Root>').roots[0]!
+    const { compatibilityValue: _compatibility, ...structural } = root
+    expect(isXmlElementNode(structural)).toBe(true)
+    if (!isXmlElementNode(structural)) throw new Error("Структурный узел не распознан")
+    expect(xmlAttributeValue(structural, "b")).toBe("2")
+    expect(xmlAttributeValue(structural, "missing")).toBeUndefined()
+    expect(xmlElementChildren(structural, "Value").map(xmlTextValue)).toEqual(["", "2"])
+    expect(xmlElementChildren(structural, "Value").map(node => node.occurrence)).toEqual([1, 2])
+  })
+
+  it("читает только непосредственный текст без содержимого детей и PI", () => {
+    const root = parseXmlDocumentWithSaxes('<Root>A<![CDATA[B]]><Child>не включать</Child><?p x?>C</Root>').roots[0]!
+    expect(xmlTextValue(root)).toBe("ABC")
+  })
+
+  it.each([null, {}, { type: "element" }, { type: "element", compatibilityValue: {} }])(
+    "не принимает неполную структуру за XML элемент: %j", value => {
+      expect(isXmlElementNode(value)).toBe(false)
+    },
+  )
+
   it("не считает отступы между элементами содержимым, но сохраняет пробелы конечного значения", () => {
     const formatted = parseXmlDocumentWithSaxes(
       "<Root>\n  <Value>         </Value>\n  <Other>true</Other>\n</Root>"

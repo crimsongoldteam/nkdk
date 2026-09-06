@@ -12,7 +12,8 @@ import {
   type ConfigurationIndexBlockFragment,
 } from "../configurationIndex"
 import type { ConfigurationIndexCandidateStore } from "../configurationIndex/store"
-import type { ConfigurationContextFromXML, WorkerCountSource } from "@nkdk/runtime"
+import type { ConfigurationContextFromXML, WorkerCountSource, XmlElementNode } from "@nkdk/runtime"
+import { xmlElementChildren, xmlTextValue } from "@nkdk/runtime"
 import { createOperationProfiler } from "../validation/profile"
 import {
   createPreparedYamlProjectWorkerPool,
@@ -83,7 +84,7 @@ export interface ImportConfigurationFromXmlParams {
 }
 
 export interface ImportCoordinatorDependencies {
-  resolveComponent?(root: Record<string, unknown>): XmlImportComponentDescriptor
+  resolveComponent?(root: XmlElementNode): XmlImportComponentDescriptor
   assertNoPending?(projectDir: string, componentPath: string): void | Promise<void>
   createWorkerPool?(params: { concurrency: number }): XmlImportWorkerPool
   loadLanguagesFromXML?(xmlDir: string): ReturnType<typeof loadConfigurationLanguagesFromXML>
@@ -500,7 +501,7 @@ export async function importConfigurationFromXml(
 
 function withPropertyStateCompatibilityMode(
   context: ImportConfigurationFromXmlParams["context"],
-  root: Record<string, unknown>,
+  root: XmlElementNode,
 ): ImportConfigurationFromXmlParams["context"] {
   const mode = findPropertyStateCompatibilityMode(root)
   return typeof mode === "string"
@@ -508,26 +509,11 @@ function withPropertyStateCompatibilityMode(
     : context
 }
 
-function findPropertyStateCompatibilityMode(value: unknown): string | undefined {
-  if (typeof value !== "object" || value === null) return undefined
-  if (Array.isArray(value)) {
-    for (const item of value) {
-      const mode = findPropertyStateCompatibilityMode(item)
-      if (mode !== undefined) return mode
-    }
-    return undefined
-  }
-  const record = value as Record<string, unknown>
-  const properties = record.Properties
-  if (typeof properties === "object" && properties !== null && !Array.isArray(properties)) {
-    const mode = (properties as Record<string, unknown>).ConfigurationExtensionCompatibilityMode
-    if (typeof mode === "string") return mode
-  }
-  for (const item of Object.values(record)) {
-    const mode = findPropertyStateCompatibilityMode(item)
-    if (mode !== undefined) return mode
-  }
-  return undefined
+function findPropertyStateCompatibilityMode(root: XmlElementNode): string | undefined {
+  const configuration = xmlElementChildren(root, "Configuration")[0]
+  const properties = configuration === undefined ? undefined : xmlElementChildren(configuration, "Properties")[0]
+  const mode = properties === undefined ? undefined : xmlElementChildren(properties, "ConfigurationExtensionCompatibilityMode")[0]
+  return mode === undefined ? undefined : xmlTextValue(mode)
 }
 
 function importStatePhaseName(

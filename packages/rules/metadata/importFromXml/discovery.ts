@@ -1,6 +1,6 @@
 import { promises as nodeFs } from "fs"
 import { isAbsolute, join, relative, resolve } from "path"
-import { importContentFromXML } from "@nkdk/runtime"
+import { parseXmlDocumentWithSaxes, xmlElementChildren, xmlTextValue, type XmlElementNode } from "@nkdk/runtime"
 import { createImportAssignments, type ImportAssignmentGroup } from "./assignmentBuilder"
 import { expandMetadataPathPattern } from "../resourceTopology/core/patterns"
 import type { ImportAssignment, ImportExternalFile, ImportSnapshotFile } from "./types"
@@ -28,14 +28,14 @@ type ResolvedMatch = CompiledXmlResourceMatch
 export async function readXmlImportComponentRoot(
   xmlDir: string,
   fileSystem: Pick<XmlImportDiscoveryFileSystem, "readFile"> = defaultFileSystem
-): Promise<Record<string, unknown>> {
+): Promise<XmlElementNode> {
   if (fileSystem.readFile === undefined) {
     throw new Error("Не задано чтение корневого Configuration.xml")
   }
   const content = await fileSystem.readFile(resolve(xmlDir, "Configuration.xml"), "utf-8")
-  const parsed = importContentFromXML<Record<string, unknown>>(String(content))
-  const root = parsed["MetaDataObject"]
-  if (!isRecord(root)) {
+  const roots = parseXmlDocumentWithSaxes(String(content)).roots.filter(node => node.name === "MetaDataObject")
+  const root = roots[0]
+  if (roots.length !== 1 || root === undefined) {
     throw new Error("Configuration.xml не содержит корень MetaDataObject")
   }
   return root
@@ -208,15 +208,16 @@ async function readManifestValues(params: {
 }): Promise<Set<string>> {
   if (params.fileSystem.readFile === undefined) return new Set()
   const content = await params.fileSystem.readFile(params.manifestPath, "utf-8")
-  let value: unknown = importContentFromXML<Record<string, unknown>>(String(content))
-  for (const segment of params.listPath) {
-    value =
-      value !== null && typeof value === "object" && !Array.isArray(value)
-        ? (value as Record<string, unknown>)[segment]
-        : undefined
+  let nodes: readonly XmlElementNode[] = parseXmlDocumentWithSaxes(String(content)).roots
+  for (let index = 0; index < params.listPath.length; index++) {
+    nodes = nodes.filter(node => node.name === params.listPath[index])
+    if (index === params.listPath.length - 1) break
+    if (nodes.length !== 1) return new Set()
+    nodes = xmlElementChildren(nodes[0]!)
   }
-  const items = Array.isArray(value) ? value : value === undefined ? [] : [value]
-  return new Set(items.filter((item): item is string => typeof item === "string"))
+  return new Set(nodes
+    .filter(node => node.attributes.length === 0 && node.content.length > 0 && node.content.every(child => child.type === "text"))
+    .map(xmlTextValue))
 }
 
 async function listRegularFiles(xmlDir: string): Promise<string[]> {
@@ -343,8 +344,4 @@ function importDiscoveryError(code: string, paths: readonly string[]): Error & {
 
 function compareUtf8(left: string, right: string): number {
   return Buffer.compare(Buffer.from(left, "utf8"), Buffer.from(right, "utf8"))
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value)
 }
