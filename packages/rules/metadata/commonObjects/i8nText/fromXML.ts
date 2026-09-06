@@ -1,15 +1,31 @@
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
-import { ConfigurationContext } from "@nkdk/runtime"
+import { ConfigurationContext, isXmlElementNode, xmlElementChildren, xmlTextValue, type XmlElementNode } from "@nkdk/runtime"
 import type { I8nText, I8nTextLanguageXML, I8nTextPropertyRule, I8nTextXML } from "./types"
-import { importLocalizedItems } from "./anomalies"
+import { importLocalizedItems, importLocalizedOccurrences } from "./anomalies"
 
 export const importI8nTextFromXML = (
   _context: ConfigurationContext,
   _rule: PropertyRule,
-  xml: I8nTextXML | "" | undefined
+  xml: I8nTextXML | XmlElementNode | "" | undefined
 ): I8nText | undefined => {
   const narrowRule = _rule as I8nTextPropertyRule
+  if (isXmlElementNode(xml)) {
+    const items = xmlElementChildren(xml, "v8:item")
+    if (items.length === 0) {
+      return narrowRule.preserveEmptyXML || narrowRule.excludeIfEqualNameYAML ? { items: {} } : undefined
+    }
+    return { items: importLocalizedOccurrences((function* () {
+      for (const item of items) {
+        const language = xmlElementChildren(item, "v8:lang")[0]
+        const content = xmlElementChildren(item, "v8:content")[0]
+        yield {
+          language: language === undefined ? "" : xmlTextValue(language),
+          content: content === undefined ? "" : xmlTextValue(content),
+        }
+      }
+    })()) }
+  }
 
   if (xml === "") {
     return narrowRule.preserveEmptyXML || narrowRule.excludeIfEqualNameYAML ? { items: {} } : undefined

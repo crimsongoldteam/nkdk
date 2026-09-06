@@ -10,6 +10,7 @@ import { importFormAttributesFromXMLToYAML, metadataPropertyRule004, metadataPro
 import { hasSoleValueListType } from "../forms/commonObjects/formAttribute/valueListSettings"
 import { importChildItemsFromXMLToYAML } from "../forms/commonObjects/childItems/fromXMLToYAML"
 import { importStandardAttributeDescriptionsFromXMLToYAML } from "../commonObjects/standardAttributeDescription/fromXMLToYAML"
+import { importI8nTextFromXMLToYAML } from "../commonObjects/i8nText/fromXMLToYAML"
 
 const cases: readonly {
   name: string
@@ -18,6 +19,12 @@ const cases: readonly {
   xml: string
   expected: object
 }[] = [
+  {
+    name: "локализованные строки", convert: importI8nTextFromXMLToYAML,
+    rule: { type: "I8nText" },
+    xml: '<Title><v8:item><v8:lang>ru</v8:lang><v8:content>Текст</v8:content></v8:item><v8:item><v8:lang>en</v8:lang><v8:content>Text</v8:content></v8:item></Title>',
+    expected: { ru: "Текст", en: "Text" },
+  },
   {
     name: "колонки формы", convert: metadataPropertyRule004.handler,
     rule: { type: "FormAttributeColumns" }, xml: '<Column name="Тест" id="2"><Type><v8:Type>xs:string</v8:Type></Type></Column>',
