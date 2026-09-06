@@ -4,8 +4,27 @@ import { isRedundantClientApplicationBaseForm } from "./baseFormNecessity"
 import type { ClientApplicationFormYAML } from "./types"
 import { equalClientApplicationBaseFormProjections, projectClientApplicationBaseForm } from "./baseFormProjection"
 import { equalBaseFormYaml } from "./baseFormYaml"
+import { ClientApplicationFormRules } from "./rules"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 
 describe("необходимость сохранённой основы формы", () => {
+  it("готовит таблицу правил один раз на сравнение, а не на каждое свойство", () => {
+    let reads = 0
+    const properties: Record<string, PropertyRule> = { childItems: ClientApplicationFormRules.properties.childItems! }
+    const yaml: Record<string, unknown> = {}
+    for (let index = 0; index < 100; index++) {
+      const key = `Свойство${index}`
+      const property: PropertyRule = { type: "number", yaml: key }
+      Object.defineProperty(properties, key, { enumerable: true, get() { reads++; return property } })
+      yaml[key] = index
+    }
+    expect(equalClientApplicationBaseFormProjections({
+      leftBaseYaml: form(yaml), rightBaseYaml: form({ ...yaml }), extensionYaml: form({ ...yaml }),
+      rule: { ...ClientApplicationFormRules, properties },
+    })).toBe(true)
+    expect(reads).toBeLessThan(600)
+  })
+
   it.each([
     [{}, {}],
     [{ ТипКнопки: "Обычная" }, {}],

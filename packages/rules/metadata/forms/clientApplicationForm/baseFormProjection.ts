@@ -167,6 +167,7 @@ function copyRuntimeMetadataForComparison(source: unknown, target: unknown): voi
 }
 
 interface BaseFormProjectionRuntimeContext extends BaseFormProjectionContext {
+  readonly rulesByYamlKey: (rule: MetadataItemRule) => ReadonlyMap<string, PropertyRule>
   readonly baseAnnotations?: XmlAnomalyAnnotations
   readonly extensionAnnotations?: XmlAnomalyAnnotations
 }
@@ -178,7 +179,16 @@ function createProjectionContext(params: {
   readonly extensionAnnotations?: XmlAnomalyAnnotations
   readonly registerYAMLRuntimeCorrespondence?: (source: unknown, target: unknown) => void
 }): BaseFormProjectionRuntimeContext {
+  const preparedRules = new Map<MetadataItemRule, ReadonlyMap<string, PropertyRule>>()
   return {
+    rulesByYamlKey(rule) {
+      let prepared = preparedRules.get(rule)
+      if (prepared === undefined) {
+        prepared = propertyRulesByYamlKey(rule)
+        preparedRules.set(rule, prepared)
+      }
+      return prepared
+    },
     attributeNames: intersectNamedComponentNames(params.baseYaml.Реквизиты, params.extensionYaml.Реквизиты),
     commandNames: intersectNamedComponentNames(params.baseYaml.Команды, params.extensionYaml.Команды),
     parameterNames: intersectNamedComponentNames(params.baseYaml.Параметры, params.extensionYaml.Параметры),
@@ -538,8 +548,8 @@ function projectMetadataItemProperty(params: {
   readonly baseValueKey?: string
   readonly extensionValueKey?: string
 }): BaseFormPropertyProjection {
-  const baseRulesByYamlKey = propertyRulesByYamlKey(params.baseRule)
-  const extensionRulesByYamlKey = propertyRulesByYamlKey(params.extensionRule)
+  const baseRulesByYamlKey = params.context.rulesByYamlKey(params.baseRule)
+  const extensionRulesByYamlKey = params.context.rulesByYamlKey(params.extensionRule)
   const basePropertyRule = baseRulesByYamlKey.get(params.yamlKey)
   const extensionPropertyRule = extensionRulesByYamlKey.get(params.yamlKey)
   if (basePropertyRule === undefined || extensionPropertyRule === undefined) {
