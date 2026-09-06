@@ -77,10 +77,10 @@ import {
   type PreparedImportFacts,
 } from "./prepareFacts"
 import {
-  createPropertyFactsYamlView,
   propertyFactsWithReconstructionValues,
   type DirectImportPropertyFact,
-} from "./propertyFactsYamlView"
+} from "./propertyFacts"
+import { baseFormProjectionSourceFromFacts } from "./baseFormProjectionFacts"
 import { applyPropertyFactChanges } from "./propertyFactChanges"
 import {
   prepareImportDependencies,
@@ -113,8 +113,8 @@ import type { MetadataWorkerOperationRegistry } from "../workerPool/operationReg
 import { prepareYamlFiles } from "../project/prepareYamlFiles"
 import type { ClientApplicationFormYAML } from "../forms/clientApplicationForm/types"
 import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
-import { isRedundantClientApplicationBaseForm } from "../forms/clientApplicationForm/baseFormNecessity"
-import { projectClientApplicationBaseForm } from "../forms/clientApplicationForm/baseFormProjection"
+import { equalClientApplicationBaseFormSourceProjections, projectClientApplicationBaseFormSources } from "../forms/clientApplicationForm/baseFormProjection"
+import { yamlBaseFormProjectionSource } from "../forms/clientApplicationForm/baseFormProjectionSource"
 import { collectClientApplicationFormStructure } from "../forms/clientApplicationForm/formStructureProjection"
 import { validateClientApplicationBaseFormDataPaths } from "../forms/clientApplicationForm/borrowedFormValidation"
 import { collectFormDataPathOccurrencesFromYAML } from "../validation/dataPath/formYamlTraversal"
@@ -626,14 +626,11 @@ async function processSecondPass(
           ownerCache: secondPass.ownerMetadataCache,
         })
       : undefined
-    const baseFormFactsView = compatibleBaseFormFacts === undefined || currentConfigurationFormYAML === undefined ? undefined
-      : createPropertyFactsYamlView(basePreparation === undefined ? compatibleBaseFormFacts : finalizeProjectionFormFacts({
+    const savedBaseSource = compatibleBaseFormFacts === undefined || currentConfigurationFormYAML === undefined ? undefined
+      : baseFormProjectionSourceFromFacts(basePreparation === undefined ? compatibleBaseFormFacts : finalizeProjectionFormFacts({
           facts: compatibleBaseFormFacts, preparation: basePreparation,
           currentConfigurationForm, ownerCache: secondPass.ownerMetadataCache,
         }).facts)
-    const savedBaseFormYAML = baseFormFactsView === undefined
-      ? undefined
-      : clientApplicationFormYaml(baseFormFactsView, assignment.targetProjectPath)
     const projectedFormFacts = compatibleFormFacts === undefined || directFormProofDataPathContext !== undefined
       || ready.formDataPathIndex === undefined
       ? undefined
@@ -647,30 +644,26 @@ async function processSecondPass(
           ownerCache: secondPass.ownerMetadataCache,
         })
     const formProofDataPathContext = directFormProofDataPathContext ?? projectedFormFacts?.context
-    const formFactsView = compatibleFormFacts === undefined || directFormProofDataPathContext !== undefined
+    const formSource = compatibleFormFacts === undefined || directFormProofDataPathContext !== undefined || formYamlPath === undefined
       ? undefined
-      : createPropertyFactsYamlView(projectedFormFacts?.facts ?? compatibleFormFacts)
-    const formProofValue = formFactsView === undefined
-      ? undefined
-      : importedClientApplicationForm({ yaml: formFactsView, rule: assignmentRule })?.yaml
-    const formProofYAML = formProofValue === undefined
-      ? undefined
-      : clientApplicationFormYaml(formProofValue, assignment.targetProjectPath)
-    const baseFormSource = currentConfigurationFormYAML !== undefined
-      && formProofYAML !== undefined
-      && savedBaseFormYAML !== undefined
-      && isRedundantClientApplicationBaseForm({
-        currentConfigurationYaml: currentConfigurationFormYAML,
-        extensionYaml: formProofYAML,
-        savedBaseYaml: savedBaseFormYAML,
+      : baseFormProjectionSourceFromFacts(projectedFormFacts?.facts ?? compatibleFormFacts, formYamlPath)
+    const currentSource = currentConfigurationFormYAML === undefined
+      ? undefined : yamlBaseFormProjectionSource(currentConfigurationFormYAML)
+    const baseFormSource = currentSource !== undefined
+      && formSource !== undefined
+      && savedBaseSource !== undefined
+      && equalClientApplicationBaseFormSourceProjections({
+        leftBase: currentSource,
+        extension: formSource,
+        rightBase: savedBaseSource,
         rule: ClientApplicationFormRules,
       })
       ? "projected" as const
       : "saved" as const
     const baseFormProofYAML = baseFormSource === "projected"
-      ? projectClientApplicationBaseForm({
-          baseYaml: currentConfigurationFormYAML!,
-          extensionYaml: formProofYAML!,
+      ? projectClientApplicationBaseFormSources({
+          baseYaml: currentSource!,
+          extensionYaml: formSource!,
           rule: ClientApplicationFormRules,
         }).yaml
       : undefined
@@ -702,16 +695,10 @@ async function processSecondPass(
       ...(ready.baseFormProperties === undefined
         ? {}
         : { baseFormDependencies: prepareImportDependencies(ready.baseFormProperties, {}, execution) }),
-      ...(formProofYAML === undefined
-        ? {}
-        : { formProofYaml: formProofYAML }),
       ...(formProofDataPathContext === undefined ? {} : { formProofDataPathContext }),
       ...(currentConfigurationFormYAML === undefined
         ? {}
         : { currentConfigurationFormYaml: currentConfigurationFormYAML }),
-      ...(savedBaseFormYAML === undefined
-        ? {}
-        : { savedBaseFormYaml: savedBaseFormYAML }),
       baseFormSource,
       ...(baseFormProofYAML === undefined ? {} : { baseFormProofYaml: baseFormProofYAML }),
       collector,

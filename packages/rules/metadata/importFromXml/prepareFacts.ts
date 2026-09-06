@@ -60,7 +60,7 @@ import { getTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
 import {
   propertyFactsWithReconstructionValues,
   type DirectImportPropertyFact,
-} from "./propertyFactsYamlView"
+} from "./propertyFacts"
 import { selectImportPropertyPaths } from "./selectedPropertyFacts"
 
 export interface PreparedImportFacts {

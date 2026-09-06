@@ -23,21 +23,23 @@ export type { DeferredValuePath } from "./deferredObjectValues"
 
 export type DirectImportMode = "yaml" | "facts"
 
+export interface DirectImportPropertyFact {
+  readonly itemType: string
+  readonly itemRule?: MetadataItemRule
+  readonly propertyKey: string
+  readonly yamlPath: YamlPath
+  /** Адрес во время XML-обхода, до именования элементов коллекций. */
+  readonly sourceYamlPath?: YamlPath
+  readonly value: unknown
+  readonly scalarTag?: YAMLScalarTag
+  /** Было ли свойство физически представлено в исходном XML. */
+  readonly presentInXML?: boolean
+  /** Исходное смысловое XML-значение для локальной проверки опущенного default. */
+  readonly reconstructionValue?: unknown
+}
+
 export interface DirectImportFactsSink {
-  acceptProperty(fact: {
-    readonly itemType: string
-    readonly itemRule?: MetadataItemRule
-    readonly propertyKey: string
-    readonly yamlPath: YamlPath
-    /** Адрес во время XML-обхода, до именования элементов коллекций. */
-    readonly sourceYamlPath?: YamlPath
-    readonly value: unknown
-    readonly scalarTag?: YAMLScalarTag
-    /** Было ли свойство физически представлено в исходном XML. */
-    readonly presentInXML?: boolean
-    /** Исходное смысловое XML-значение для локальной проверки опущенного default. */
-    readonly reconstructionValue?: unknown
-  }): void
+  acceptProperty(fact: DirectImportPropertyFact): void
 }
 
 export function createDirectImportFactsCollector(): DirectImportFactsSink & {

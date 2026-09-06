@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest"
 import { applyPropertyFactChanges } from "./propertyFactChanges"
-import type { DirectImportPropertyFact } from "./propertyFactsYamlView"
+import type { DirectImportPropertyFact } from "./propertyFacts"
 
 describe("адресные изменения фактов", () => {
   it("не ищет родителя заново для каждого отсутствующего свойства", () => {

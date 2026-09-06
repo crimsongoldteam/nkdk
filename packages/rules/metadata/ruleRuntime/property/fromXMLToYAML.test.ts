@@ -52,7 +52,7 @@ import { metadataRules } from "../../composition/metadataRules"
 import type { ExportToXMLFunctionNew } from "./fn"
 import type { DirectImportFactsSink, PreparedImportDependencies } from "./importYamlTypes"
 import { collectImportDependencyFacts, prepareImportDependencies } from "../../importFromXml/preparedDependencies"
-import { createPropertyFactsYamlView } from "../../importFromXml/propertyFactsYamlView"
+import { materializeImportPropertyFacts } from "../../../tests/importPropertyFacts"
 import type { ConfigurationContextFromXML, LocalXmlProof, XmlAnomalyAnnotationTable, XmlElementNode } from "@nkdk/runtime"
 
 function typeOwnedChoiceProperties(type: PropertyRuleType): MetadataItemRule["properties"] {
@@ -2278,7 +2278,7 @@ describe("importPropertiesFromXMLToYAML", () => {
       mode: "facts",
       facts,
     })
-    expect(createPropertyFactsYamlView(facts.finish())).toEqual({
+    expect(materializeImportPropertyFacts(facts.finish())).toEqual({
       ПараметрыВыбора: { "Отбор.Ссылка": undefined },
     })
   })

@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest"
 import { acceptedPropertyFacts } from "./prepareFacts"
-import type { DirectImportPropertyFact } from "./propertyFactsYamlView"
+import type { DirectImportPropertyFact } from "./propertyFacts"
 
 describe("принятые факты свойств", () => {
   it("не копирует префиксы глубокого пути в JSON и не перечитывает вид свойства", () => {

@@ -26,8 +26,9 @@ import { prepareImportFacts } from "./prepareFacts"
 import { prepareImportYaml, prepareImportYamlFromDocuments } from "./prepareYaml"
 import { prepareImportDependencies } from "./preparedDependencies"
 import { registerMetadataItemXmlImportAugmenter } from "../ruleRuntime/metadataItem/augmenterRegistry"
-import { createPropertyFactsYamlView, propertyFactsWithReconstructionValues } from "./propertyFactsYamlView"
-import * as propertyFactsView from "./propertyFactsYamlView"
+import { materializeImportPropertyFacts } from "../../tests/importPropertyFacts"
+import { propertyFactsWithReconstructionValues } from "./propertyFacts"
+import * as propertyFactsView from "./baseFormProjectionFacts"
 import * as addressableMetadataTargets from "../validation/addressableMetadataTargets"
 import * as formDataPathMetadata from "../forms/clientApplicationForm/formDataPathMetadata"
 import { clientApplicationFormDataPathProjection, resolveClientApplicationFormCollectionItemRule } from "../forms/clientApplicationForm/formDataPathProjection"
@@ -178,7 +179,7 @@ describe("prepareImportFacts", () => {
       inputs: parseAssignmentInputs(assignment, true),
     })
     const expected = collectFormDataPathOccurrencesFromYAML({
-      yaml: createPropertyFactsYamlView(facts.semanticFacts), rule: facts.rule,
+      yaml: materializeImportPropertyFacts(facts.semanticFacts), rule: facts.rule,
       resolveCollectionItemRule: resolveClientApplicationFormCollectionItemRule,
     }).map(({ setValue: _setValue, ...occurrence }) => occurrence)
     expect(collectFormDataPathOccurrencesFromFacts({
@@ -188,7 +189,7 @@ describe("prepareImportFacts", () => {
       facts: facts.semanticFacts, index: facts.localIndexes.metadata.formDataPathIndex!,
     })
     const yamlPreparation = collectClientApplicationFormDataPathPreparation({
-      yaml: createPropertyFactsYamlView(facts.semanticFacts), rule: facts.rule,
+      yaml: materializeImportPropertyFacts(facts.semanticFacts), rule: facts.rule,
     })
     expect(preparation.collected.elementsByName).toEqual(yamlPreparation.collected.elementsByName)
     expect(preparation.effectiveMainAttribute).toBe(yamlPreparation.effectiveMainAttribute)
@@ -202,14 +203,14 @@ describe("prepareImportFacts", () => {
     })
     expect(facts.baseFormDataPathIndex).toBeDefined()
     const expected = formDataPathMetadata.createImportedFormDataPathIndex({
-      yaml: createPropertyFactsYamlView(propertyFactsWithReconstructionValues(facts.baseFormSemanticFacts!)),
+      yaml: materializeImportPropertyFacts(propertyFactsWithReconstructionValues(facts.baseFormSemanticFacts!)),
       rule: facts.rule,
     })
     expect(formDataPathSnapshot(facts.baseFormDataPathIndex)).toEqual(formDataPathSnapshot(expected))
   })
 
   it("не создаёт YAML-представление основы ради выбранных зависимостей", async () => {
-    const view = vi.spyOn(propertyFactsView, "createPropertyFactsYamlView")
+    const view = vi.spyOn(propertyFactsView, "baseFormProjectionSourceFromFacts")
     try {
       const assignment = extensionReportVariantFormAssignment()
       const facts = await prepareImportFacts({
@@ -235,7 +236,7 @@ describe("prepareImportFacts", () => {
   })
 
   it("не строит представления для проверок формы у обычного справочника", async () => {
-    const view = vi.spyOn(propertyFactsView, "createPropertyFactsYamlView")
+    const view = vi.spyOn(propertyFactsView, "baseFormProjectionSourceFromFacts")
     try {
       const assignment = catalogAssignment()
       const facts = await prepareImportFacts({
@@ -311,7 +312,7 @@ describe("prepareImportFacts", () => {
       inputs: parseAssignmentInputs(assignment, true),
     })
     const source = facts.baseFormSemanticFacts ?? []
-    const yaml = createPropertyFactsYamlView(source)
+    const yaml = materializeImportPropertyFacts(source)
 
     expect(JSON.stringify(yaml)).not.toContain('"КонтекстноеМеню":{}')
     expect(JSON.stringify(yaml)).not.toContain('"Заголовок":{"Заголовок"')
@@ -382,7 +383,7 @@ describe("prepareImportFacts", () => {
     const file = validationFileForAssignment(assignment)
     const expected = extractImportValidationContribution({ prepared: legacy, projectDir: "/project", file })
     const traversal = vi.spyOn(addressableMetadataTargets, "collectAddressableMetadataLogicalAddresses")
-    const yamlView = vi.spyOn(propertyFactsView, "createPropertyFactsYamlView")
+    const yamlView = vi.spyOn(propertyFactsView, "baseFormProjectionSourceFromFacts")
     let actual: ReturnType<typeof extractImportValidationContributionFromFacts>
     try {
       actual = extractImportValidationContributionFromFacts({ prepared: facts, projectDir: "/project", file })

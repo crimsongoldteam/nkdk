@@ -6,7 +6,7 @@ import { StandardAttributeDescriptionRules } from "../commonObjects/standardAttr
 import { MetadataWebServiceRules } from "../appliedObjects/metadataWebService/rules"
 import { collectImportDependencyFacts, prepareImportDependencies } from "./preparedDependencies"
 import type { ImportedDependentPropertyCandidate, MetadataItemRule } from "@nkdk/runtime/rule-kit"
-import type { DirectImportPropertyFact } from "./propertyFactsYamlView"
+import type { DirectImportPropertyFact } from "./propertyFacts"
 import { dependentImportDependencies } from "@nkdk/runtime/rule-kit"
 
 const owner = { dir: "Справочник", name: "Товары" }

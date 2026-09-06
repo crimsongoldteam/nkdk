@@ -1,29 +1,20 @@
 import { describe, expect, it } from "vitest"
 import {
-  createPropertyFactsYamlView,
   propertyFactsWithReconstructionValues,
   type DirectImportPropertyFact,
-} from "./propertyFactsYamlView"
+} from "./propertyFacts"
 import { applyPropertyFactChanges } from "./propertyFactChanges"
+import { materializeImportPropertyFacts } from "../../tests/importPropertyFacts"
+import { baseFormProjectionSourceFromFacts } from "./baseFormProjectionFacts"
 
-describe("createPropertyFactsYamlView", () => {
-  it("сохраняет добавленные служебные Symbol в перечне ключей Proxy", () => {
-    const yaml = createPropertyFactsYamlView([fact(["Значение", "Вид"], "Цвет")])
-    const value = yaml.Значение as Record<string | symbol, unknown>
-    const marker = Symbol("marker")
-    Object.defineProperty(value, marker, { value: true })
-
-    expect(Reflect.ownKeys(value)).toContain(marker)
-    expect(Object.keys(value)).toEqual(["Вид"])
-  })
-
+describe("адресные факты свойств", () => {
   it("читает адресные объекты и массивы без полной материализации YAML", () => {
     const facts = [
       fact(["Имя"], "Форма"),
       fact(["Элементы", "Поле", "Вид"], "ПолеВвода"),
       fact(["Элементы", "Поле", "Колонки", 0, "Имя"], "Код"),
     ]
-    const yaml = createPropertyFactsYamlView(facts)
+    const yaml = materializeImportPropertyFacts(facts)
     const columns = (yaml.Элементы as Record<string, Record<string, unknown>>).Поле!.Колонки as unknown[]
     expect(columns.length).toBe(1)
     expect(Object.keys(columns)).toEqual(["0"])
@@ -36,12 +27,12 @@ describe("createPropertyFactsYamlView", () => {
   })
 
   it("последний факт заменяет прежнее значение того же адреса", () => {
-    const yaml = createPropertyFactsYamlView([fact(["Значение"], 1), fact(["Значение"], 2)])
+    const yaml = materializeImportPropertyFacts([fact(["Значение"], 1), fact(["Значение"], 2)])
     expect(yaml.Значение).toBe(2)
   })
 
   it("не создаёт контейнеры для отсутствующего значения", () => {
-    const yaml = createPropertyFactsYamlView([
+    const yaml = materializeImportPropertyFacts([
       fact(["Элементы", "Поле", "КонтекстноеМеню", "Элементы"], undefined),
       fact(["Элементы", "Поле", "Вид"], "ПолеВвода"),
     ])
@@ -50,7 +41,7 @@ describe("createPropertyFactsYamlView", () => {
   })
 
   it("сохраняет явное undefined внутри XML-контейнера", () => {
-    const yaml = createPropertyFactsYamlView([
+    const yaml = materializeImportPropertyFacts([
       { ...fact(["ПараметрыВыбора"], {}), propertyKey: "$container:choiceParameters" },
       { ...fact(["ПараметрыВыбора", "Отбор.Ссылка"], undefined), presentInXML: true },
     ])
@@ -62,7 +53,7 @@ describe("createPropertyFactsYamlView", () => {
   })
 
   it("сохраняет длину адресного массива поверх компактного факта контейнера", () => {
-    const yaml = createPropertyFactsYamlView([
+    const yaml = materializeImportPropertyFacts([
       fact(["Тип"], []),
       fact(["Тип", 0], "Справочник.Товары"),
       fact(["Тип", 1], "Справочник.Другие"),
@@ -82,7 +73,7 @@ describe("createPropertyFactsYamlView", () => {
       { yamlPath: ["Элементы", "БезПути", "ПутьКДанным"], kind: "set", value: "" },
     ])
 
-    expect(createPropertyFactsYamlView(changed)).toEqual({
+    expect(materializeImportPropertyFacts(changed)).toEqual({
       Элементы: {
         Поле: { Вид: "ПолеВвода" },
         БезПути: { Вид: "ПолеВвода", ПутьКДанным: "" },
@@ -95,7 +86,7 @@ describe("createPropertyFactsYamlView", () => {
       ...fact(["Путь"], "Объект.Номер"),
       reconstructionValue: "Объект.Number",
     }
-    expect(createPropertyFactsYamlView(propertyFactsWithReconstructionValues([source]))).toEqual({
+    expect(materializeImportPropertyFacts(propertyFactsWithReconstructionValues([source]))).toEqual({
       Путь: "Объект.Number",
     })
   })
@@ -106,12 +97,12 @@ describe("createPropertyFactsYamlView", () => {
       fact(["Элементы", `Поле${index}`, "Значение"], index))
     const heapBefore = process.memoryUsage().heapUsed
 
-    const yaml = createPropertyFactsYamlView(facts)
+    const source = baseFormProjectionSourceFromFacts(facts)
     const heapGrowth = process.memoryUsage().heapUsed - heapBefore
-    const elements = yaml.Элементы as Record<string, { Значение: number }>
+    const elements = source.child("Элементы")!
 
-    expect(elements.Поле0?.Значение).toBe(0)
-    expect(elements[`Поле${count - 1}`]?.Значение).toBe(count - 1)
+    expect(elements.child("Поле0")?.read("Значение")).toBe(0)
+    expect(elements.child(`Поле${count - 1}`)?.read("Значение")).toBe(count - 1)
     expect(heapGrowth).toBeLessThan(64 * 1024 * 1024)
   })
 })

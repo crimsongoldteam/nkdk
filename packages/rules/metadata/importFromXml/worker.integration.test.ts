@@ -33,7 +33,7 @@ import { createImportReconstructionFactsWriter, openImportReconstructionFacts } 
 import type { ImportAssignment } from "./types"
 import { createValidationProjectComponent } from "../validation/projectComponents"
 import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
-import * as propertyFactsView from "./propertyFactsYamlView"
+import * as propertyFactsView from "./baseFormProjectionFacts"
 import * as preparedFacts from "./prepareFacts"
 import * as importedYamlFinalizers from "../ruleRuntime/metadataItem/importedYamlFinalizerRegistry"
 
@@ -168,7 +168,7 @@ describe("XML import worker first pass", () => {
         { role: "property", sourcePath: join(fixtureRoot, "ДинамическийСписок/Ext/Form.xml") },
       ],
     })
-    const view = vi.spyOn(propertyFactsView, "createPropertyFactsYamlView")
+    const view = vi.spyOn(propertyFactsView, "baseFormProjectionSourceFromFacts")
     try {
       const yaml = await importAssignmentYamlForProof(outputDir, assignment)
       expect(yaml).not.toContain("QueryText")
@@ -554,7 +554,7 @@ describe("XML import worker second pass", () => {
       writeFileSync(body.sourcePath, xml.replace("</Form>", `<BaseForm version="2.20">${content}</BaseForm></Form>`))
     }
     await beginCatalogAndFormSecondPass(createTempDir("form-direct-context"), assignments)
-    const view = vi.spyOn(propertyFactsView, "createPropertyFactsYamlView")
+    const view = vi.spyOn(propertyFactsView, "baseFormProjectionSourceFromFacts")
     const finalize = vi.spyOn(importedYamlFinalizers, "finalizeMetadataItemImportedYaml")
     const finalizeFacts = vi.spyOn(preparedFacts, "finalizeDeferredPropertyFacts")
     try {

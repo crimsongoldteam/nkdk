@@ -4,7 +4,7 @@ import { mockXmlImportContext } from "../../tests/mockContext"
 import type { MetadataItemRule, PropertyRuleType } from "@nkdk/runtime/rule-kit"
 import { registerTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
 import { finalizeDeferredPropertyFacts } from "./prepareFacts"
-import type { DirectImportPropertyFact } from "./propertyFactsYamlView"
+import type { DirectImportPropertyFact } from "./propertyFacts"
 
 describe("finalizeDeferredPropertyFacts", () => {
   it("применяет окончательное значение ко всем проекциям адреса, не копируя соседний факт", () => {

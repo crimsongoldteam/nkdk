@@ -2,13 +2,31 @@ import { describe, expect, it, vi } from "vitest"
 import "../../../tests/metadataExecutionContext"
 import { isRedundantClientApplicationBaseForm } from "./baseFormNecessity"
 import type { ClientApplicationFormYAML } from "./types"
-import { equalClientApplicationBaseFormProjections, projectClientApplicationBaseForm } from "./baseFormProjection"
+import { equalClientApplicationBaseFormProjections, equalClientApplicationBaseFormSourceProjections, projectClientApplicationBaseForm } from "./baseFormProjection"
+import { yamlBaseFormProjectionSource, type BaseFormProjectionSource } from "./baseFormProjectionSource"
 import { equalBaseFormYaml } from "./baseFormYaml"
 import { ClientApplicationFormRules } from "./rules"
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { UsualGroupRules } from "../elements/usualGroup/rules"
 
 describe("необходимость сохранённой основы формы", () => {
+  it("сравнивает адресный источник без материализации остальных полей", () => {
+    const current = yamlBaseFormProjectionSource({ Высота: 20, Ширина: 20 })
+    const saved: BaseFormProjectionSource = {
+      keys: () => ["Высота", "Ширина"],
+      has: key => key === "Высота" || key === "Ширина",
+      read(key) {
+        if (key === "Высота") return 99
+        throw new Error("Не читать другое поле после найденного расхождения")
+      },
+      child: () => undefined,
+      hasRuntimeMetadata: () => false,
+    }
+    expect(equalClientApplicationBaseFormSourceProjections({
+      leftBase: current, rightBase: saved, extension: current,
+    })).toBe(false)
+  })
+
   it("готовит таблицу правил один раз на сравнение, а не на каждое свойство", () => {
     let reads = 0
     const properties: Record<string, PropertyRule> = { childItems: ClientApplicationFormRules.properties.childItems! }
