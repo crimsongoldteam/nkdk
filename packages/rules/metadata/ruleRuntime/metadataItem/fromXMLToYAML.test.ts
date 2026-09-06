@@ -81,6 +81,7 @@ describe("importMetadataItemFromXMLToYAML", () => {
       return value
     })
     registerMetadataItemXmlImportAugmenter("test-current-xml-default-variant", {
+      yamlDependencies: () => [],
       resolveCurrentXMLDefaultVariant: ({ rule }) => {
         if (rule.itemType === "TestVariantParent") return "full"
         if (rule.itemType === "TestVariantAdoptedChild") return "adopted"

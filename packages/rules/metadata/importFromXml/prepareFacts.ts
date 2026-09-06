@@ -10,6 +10,7 @@ import {
   createConfigurationIndexCollector,
   withConfigurationIndexCollector,
   yamlScalarTagAt,
+  markYAMLScalarTag,
   yamlPathToPointer,
 } from "@nkdk/runtime"
 import type {
@@ -51,15 +52,16 @@ import { collectImportDependencyFacts, type ImportDependencyFacts } from "./prep
 import { resolveDeferredPropertyRule } from "../ruleRuntime/property/finalizeImportedYAML"
 import {
   applyMetadataItemXmlImportAugmenter,
+  metadataItemXmlImportYamlDependencies,
   resolveMetadataItemXMLDefaultVariant,
   withResolvedXMLImportObjectVariant,
 } from "../ruleRuntime/metadataItem/augmenterRegistry"
 import { getTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
 import {
-  createPropertyFactsYamlView,
   propertyFactsWithReconstructionValues,
   type DirectImportPropertyFact,
 } from "./propertyFactsYamlView"
+import { selectImportPropertyPaths } from "./selectedPropertyFacts"
 
 export interface PreparedImportFacts {
   readonly dependencies: ImportDependencyFacts
@@ -306,12 +308,18 @@ function augmentClientApplicationFormFacts(params: {
     params.context,
     resolveMetadataItemXMLDefaultVariant({ context: params.context, rule: params.rule, source }),
   )
-  const before = createPropertyFactsYamlView(params.facts)
-  const yaml = Object.fromEntries(Object.keys(before).map(key => [key, before[key]]))
+  const selected = selectImportPropertyPaths(params.facts, new Map(
+    metadataItemXmlImportYamlDependencies({ context, rule: params.rule, source }).map(key => [key, [key]]),
+  ))
+  const before = Object.fromEntries([...selected].map(([key, entry]) => [key, entry.value]))
+  const yaml = { ...before }
+  for (const [key, entry] of selected) if (entry.scalarTag !== undefined) markYAMLScalarTag(yaml, key, entry.scalarTag)
   applyMetadataItemXmlImportAugmenter({ context, rule: params.rule, source, yaml })
   const result = [...params.facts]
   for (const [key, value] of Object.entries(yaml)) {
-    if (Object.hasOwn(before, key) && Object.is(before[key], value)) continue
+    if ((value === null || typeof value !== "object")
+      && Object.hasOwn(before, key) && Object.is(before[key], value)
+      && selected.get(key)?.scalarTag === yamlScalarTagAt(yaml, key)) continue
     appendAugmentedFacts(result, params.rule, key, [key], value, yamlScalarTagAt(yaml, key))
   }
   return result

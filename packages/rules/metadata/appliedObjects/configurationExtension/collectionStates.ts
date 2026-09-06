@@ -24,6 +24,10 @@ import {
   mergeSavedChildren,
 } from "../../commonObjects/omittedChildren"
 
+export function configurationExtensionCollectionYamlDependencies(rule: MetadataItemRule): readonly string[] {
+  return rule.itemType === "ExchangePlanContent" ? ["items", "extensionProperties"] : []
+}
+
 export function importConfigurationExtensionCollectionState(params: {
   readonly context: ConfigurationContextFromXML
   readonly rule: MetadataItemRule

@@ -3,6 +3,7 @@ import type { MetadataItemRule } from "../property/types"
 import { currentPropertyRuleRegistrySet } from "../property/propertyRuleExecutionContext"
 
 export interface MetadataItemXmlImportAugmenter {
+  yamlDependencies(params: MetadataItemXmlImportVariantParams): readonly string[]
   resolveCurrentXMLDefaultVariant?(params: MetadataItemXmlImportVariantParams): XMLImportObjectVariant | undefined
   augment(params: MetadataItemXmlImportAugmentParams): void
 }
@@ -23,6 +24,7 @@ export interface MetadataItemXmlImportAugmenterContribution {
 }
 
 export interface MetadataItemXmlImportAugmenterRegistry {
+  yamlDependencies(params: MetadataItemXmlImportVariantParams): readonly string[]
   apply(params: Parameters<typeof applyMetadataItemXmlImportAugmenter>[0]): void
   resolveCurrentXMLDefaultVariant(
     params: MetadataItemXmlImportVariantParams,
@@ -38,6 +40,7 @@ export function createMetadataItemXmlImportAugmenterRegistry(
     instanceAugmenters.set(name, augmenter)
   }
   return {
+    yamlDependencies: (params) => selectedAugmenter(instanceAugmenters, params.context)?.yamlDependencies(params) ?? [],
     apply: (params) => applyFromRegistry(instanceAugmenters, params),
     resolveCurrentXMLDefaultVariant: (params) => resolveFromRegistry(instanceAugmenters, params),
   }
@@ -65,6 +68,14 @@ export function applyMetadataItemXmlImportAugmenter(params: {
   }>()
   if (registry === undefined) throw new Error("Не задан execution context property rules")
   registry.applyMetadataItemXmlImportAugmenter(params)
+}
+
+export function metadataItemXmlImportYamlDependencies(params: MetadataItemXmlImportVariantParams): readonly string[] {
+  const registry = currentPropertyRuleRegistrySet<{
+    metadataItemXmlImportYamlDependencies(value: MetadataItemXmlImportVariantParams): readonly string[]
+  }>()
+  if (registry === undefined) throw new Error("Не задан execution context property rules")
+  return registry.metadataItemXmlImportYamlDependencies(params)
 }
 
 export function resolveMetadataItemXMLDefaultVariant(

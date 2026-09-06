@@ -24,6 +24,25 @@ import { MetadataWebServiceOperationRules } from "../../commonObjects/metadataWe
 import { directPropertyRuleExecution, testMetadataItemFromXMLToYAML } from "../../../tests/directConversion"
 
 describe("configuration extension PropertyState augmenter", () => {
+  it("не запрашивает содержимое элементов формы ради состояний метаданных", () => {
+    const fields = withOperationRegistrySet({
+      propertyStates: createPropertyStateCapabilityRegistry([
+        definePropertyStateItemCapabilities(ClientApplicationFormRules, { properties: {
+          synonym: { availability: "borrowed", modes: ["control"], representation: "tagged" },
+          childItems: { availability: "own", modes: [] },
+          attributes: { availability: "own", modes: [] },
+          commands: { availability: "own", modes: [] },
+          parameters: { availability: "own", modes: [] },
+        } }),
+      ]),
+    }, () => configurationExtensionPropertyStatesAugmenter.yamlDependencies({
+      context: extensionContext(), rule: ClientApplicationFormRules,
+      source: { Properties: { Synonym: {} } },
+    }))
+    expect(fields).toContain("Синоним")
+    for (const field of ["Элементы", "Реквизиты", "Команды", "Параметры"]) expect(fields).not.toContain(field)
+  })
+
   it("определяет вариант только у правила с объявленной принадлежностью", () => {
     const ruleWithOwnership = {
       itemType: "OwnershipProbe",

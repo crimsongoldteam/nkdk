@@ -9,6 +9,7 @@ const SECTION_BY_MODE = {
   notify: "Проверять",
   extend: "Изменять",
 } as const
+export const propertyStateSectionNames: readonly string[] = Object.values(SECTION_BY_MODE)
 
 export function readPropertyStateSections(
   yaml: Readonly<Record<string, unknown>>,

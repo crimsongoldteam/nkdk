@@ -23,6 +23,7 @@ import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import { prepareImportFacts } from "./prepareFacts"
 import { prepareImportYaml, prepareImportYamlFromDocuments } from "./prepareYaml"
 import { prepareImportDependencies } from "./preparedDependencies"
+import { registerMetadataItemXmlImportAugmenter } from "../ruleRuntime/metadataItem/augmenterRegistry"
 import { createPropertyFactsYamlView, propertyFactsWithReconstructionValues } from "./propertyFactsYamlView"
 import * as propertyFactsView from "./propertyFactsYamlView"
 import * as addressableMetadataTargets from "../validation/addressableMetadataTargets"
@@ -49,6 +50,25 @@ const e2eAllExtensionDir = join(import.meta.dirname, "../../../../e2e/fixtures/x
 const e2eConfigurationDir = join(import.meta.dirname, "../../../../e2e/fixtures/xml/cf")
 
 describe("prepareImportFacts", () => {
+  it("сохраняет изменение выбранного объекта дополнением на месте", async () => {
+    registerMetadataItemXmlImportAugmenter("append-selected-purpose", {
+      yamlDependencies: () => ["Элементы"],
+      augment({ rule, yaml }) {
+        if (rule.itemType !== "ClientApplicationForm") return
+        const elements = yaml.Элементы
+        if (typeof elements !== "object" || elements === null) throw new Error("Ожидался выбранный объект")
+        Object.assign(elements, { ТестовоеПоле: "ДополнительноеЗначение" })
+      },
+    })
+    const assignment = reportVariantFormAssignment()
+    const context = mockXmlImportContext()
+    const prepared = await prepareImportFacts({
+      assignment, context: { ...context, fromXML: { ...context.fromXML, metadataItemAugmenter: "append-selected-purpose" } },
+      collector: createConfigurationIndexCollector(), inputs: parseAssignmentInputs(assignment, true),
+    })
+    expect(prepared.semanticFacts.some(fact => fact.value === "ДополнительноеЗначение")).toBe(true)
+  })
+
   it("не обходит YAML формы для подготовки запросов проверки путей", async () => {
     const fromYaml = vi.spyOn(formYamlTraversal, "collectFormDataPathOccurrencesFromYAML")
     try {
@@ -106,12 +126,12 @@ describe("prepareImportFacts", () => {
     try {
       const assignment = extensionReportVariantFormAssignment()
       const facts = await prepareImportFacts({
-        assignment, context: mockXmlImportContext(), collector: createConfigurationIndexCollector(),
+        assignment, context: extensionContext(), collector: createConfigurationIndexCollector(),
         inputs: parseAssignmentInputs(assignment, true),
       })
       expect(facts.baseFormSemanticFacts?.length).toBeGreaterThan(0)
       expect(facts.baseFormDependencies).toBeDefined()
-      expect(view.mock.calls.some(([input]) => input === facts.baseFormSemanticFacts)).toBe(false)
+      expect(view).not.toHaveBeenCalled()
     } finally {
       view.mockRestore()
     }

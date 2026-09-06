@@ -7,6 +7,7 @@ import {
   createMetadataItemXmlImportAugmenterRegistry,
   registerMetadataItemXmlImportAugmenter,
   resolveMetadataItemXMLDefaultVariant,
+  metadataItemXmlImportYamlDependencies,
 } from "./augmenterRegistry"
 
 const rule = {
@@ -15,8 +16,20 @@ const rule = {
 } satisfies MetadataItemRule
 
 describe("metadata item XML import augmenter registry", () => {
+  it("объявляет входные YAML-поля без чтения значений", () => {
+    registerMetadataItemXmlImportAugmenter("selected-yaml-fields", {
+      yamlDependencies: () => ["Выбранное"], augment() {},
+    })
+    const context = { ...mockContextFromXML(), fromXML: {
+      ...mockContextFromXML().fromXML, metadataItemAugmenter: "selected-yaml-fields",
+    } }
+    expect(metadataItemXmlImportYamlDependencies({ context, rule, source: {} })).toEqual(["Выбранное"])
+    expect(metadataItemXmlImportYamlDependencies({ context: mockContextFromXML(), rule, source: {} })).toEqual([])
+  })
+
   it("применяет обработчик, выбранный строковым ключом контекста", () => {
     registerMetadataItemXmlImportAugmenter("metadata-item-augmenter-test", {
+      yamlDependencies: () => [],
       augment({ source, yaml }) {
         yaml["Дополнение"] = source["Value"]
       },
@@ -55,6 +68,7 @@ describe("metadata item XML import augmenter registry", () => {
 
   it("разрешает вариант до применения обработчика", () => {
     registerMetadataItemXmlImportAugmenter("metadata-item-variant-test", {
+      yamlDependencies: () => [],
       resolveCurrentXMLDefaultVariant: ({ source }) =>
         source.Value === "borrowed" ? "adopted" : "full",
       augment() {},
@@ -83,7 +97,7 @@ describe("metadata item XML import augmenter registry", () => {
 it("isolates XML import augmenters between registry instances", () => {
   const createRegistry = (value: string) => createMetadataItemXmlImportAugmenterRegistry([{
     name: "sample",
-    augmenter: { augment: ({ yaml }) => { yaml.value = value } },
+    augmenter: { yamlDependencies: () => [], augment: ({ yaml }) => { yaml.value = value } },
   }])
   const context = {
     ...mockContextFromXML(),

@@ -5,15 +5,39 @@ import { convertPropertyFromXMLToYAML, getImplicitValueYAML } from "@nkdk/runtim
 import { currentOperationRegistrySet } from "../../operations/operationExecutionContext"
 import type { PropertyStateCapabilityRegistry, ResolvedPropertyStateItemCapability } from "../../ruleRuntime/definition"
 import { importMultiStateType } from "./multiState"
-import { writePropertyStateSection } from "../../ruleRuntime/property/propertyStateSections"
+import { propertyStateSectionNames, writePropertyStateSection } from "../../ruleRuntime/property/propertyStateSections"
 import { getOwnPropertyImplicitValueYAML } from "../../ruleRuntime/property/propertyStateSchema"
 import {
   EXTENDED_CONFIGURATION_OBJECT_YAML,
   writeExtendedConfigurationObjectYAML,
 } from "./extendedConfigurationObjectYAML"
-import { importConfigurationExtensionCollectionState } from "./collectionStates"
+import { configurationExtensionCollectionYamlDependencies, importConfigurationExtensionCollectionState } from "./collectionStates"
 
 export const configurationExtensionPropertyStatesAugmenter: MetadataItemXmlImportAugmenter = {
+  yamlDependencies({ context, rule, source }) {
+    const names = new Set([...propertyStateSectionNames, ...configurationExtensionCollectionYamlDependencies(rule)])
+    const item = propertyStateRegistry()?.item(rule.itemType, context.fromXML.propertyStateCompatibilityMode)
+    const borrowed = context.fromXML.currentXMLDefaultVariant === "adopted"
+    for (const state of propertyStates(source)) {
+      if (typeof state["xr:Property"] !== "string") continue
+      const key = propertyKeyForState(rule, item, state["xr:Property"])
+      const property = key === undefined ? undefined : rule.properties[key]
+      if (typeof property?.yaml === "string" && item?.properties[key!]?.representation !== "section") names.add(property.yaml)
+    }
+    for (const [key, capability] of Object.entries(item?.properties ?? {})) {
+      const property = rule.properties[key]
+      if (typeof property?.yaml !== "string" || property.xmlOnly === true) continue
+      if (!borrowed && property.metadataTarget !== undefined && Object.hasOwn(property, "implicitValueYAML")) names.add(property.yaml)
+      if (capability.availability === "own") {
+        if (getOwnPropertyImplicitValueYAML(property) !== undefined) names.add(property.yaml)
+        continue
+      }
+      if (!borrowed) continue
+      const owner = asRecord(valueAtImportXmlPath(source, rule, property.xmlParents ?? []))
+      if (owner !== undefined && Object.hasOwn(owner, property.xml ?? capitalize(key))) names.add(property.yaml)
+    }
+    return [...names]
+  },
   resolveCurrentXMLDefaultVariant({ rule, source }) {
     if (rule.properties.objectBelonging === undefined) return undefined
     return extensionServiceProperties(source, rule)?.objectBelonging === "Adopted"

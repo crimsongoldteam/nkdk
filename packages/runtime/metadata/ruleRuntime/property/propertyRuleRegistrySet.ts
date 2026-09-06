@@ -81,6 +81,7 @@ export interface PropertyRuleRegistrySet extends DependentItemRegistryLookup {
     params: MetadataItemXmlImportVariantParams,
   ): XMLImportObjectVariant | undefined
   applyMetadataItemXmlImportAugmenter(params: Parameters<MetadataItemXmlImportAugmenter["augment"]>[0]): void
+  metadataItemXmlImportYamlDependencies(params: MetadataItemXmlImportVariantParams): readonly string[]
   registerMetadataItemYamlToXmlAugmenter(componentKind: string, augmenter: MetadataItemYamlToXmlAugmenter): void
   augmentMetadataItemYamlToXml(params: Omit<Parameters<MetadataItemYamlToXmlAugmenter["augment"]>[0], "logicalAddress">): void
   registerImportedYamlFinalizer(itemType: string, finalizer: MetadataImportedYamlFinalizer): void
@@ -189,6 +190,9 @@ export function createPropertyRuleRegistrySet(
     },
     applyMetadataItemXmlImportAugmenter(params) {
       selectedXmlImportAugmenter(xmlImportAugmenters, params.context)?.augment(params)
+    },
+    metadataItemXmlImportYamlDependencies(params) {
+      return selectedXmlImportAugmenter(xmlImportAugmenters, params.context)?.yamlDependencies(params) ?? []
     },
     registerMetadataItemYamlToXmlAugmenter(componentKind, augmenter) {
       if (yamlToXmlAugmenters.has(componentKind)) {

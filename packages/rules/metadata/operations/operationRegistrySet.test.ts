@@ -100,7 +100,7 @@ it("owns XML import and YAML-to-XML augmenters from its rules", () => {
   const registries = createOperationRegistrySet(defineMetadataRules({
     ...emptyMetadataRules,
     operations: [
-      { kind: "xmlImportAugmenter", name: "sample", augmenter: { augment: ({ yaml }) => { yaml.imported = true } } },
+      { kind: "xmlImportAugmenter", name: "sample", augmenter: { yamlDependencies: () => [], augment: ({ yaml }) => { yaml.imported = true } } },
       { kind: "yamlToXmlAugmenter", componentKind: "sample", augmenter: { augment: ({ outputs }) => { outputs.get("metadata")!.exported = true } } },
     ],
   }))
