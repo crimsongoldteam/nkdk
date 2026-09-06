@@ -2,9 +2,7 @@ import { exportPropertyToYAML } from "../../metadata/ruleRuntime"
 import type { MetadataItemRule, PropertyRule } from "@nkdk/runtime/rule-kit"
 import { testPropertyFromXMLToYAML, testPropertyFromYAMLToXML } from "../directConversion"
 import { mockContext } from "../mockContext"
-import { readAndParseXMLFile } from "../readAndParseXMLFile"
-import { readAndParseXMLFixture } from "../readFixtureXML"
-import { importContentFromXML } from "@nkdk/runtime"
+import { readPropertyXML } from "../structuralXML"
 
 export const testExportPropertyModelThroughXMLToYAML = (params: {
   rule: PropertyRule
@@ -22,14 +20,7 @@ export const testExportPropertyModelThroughXMLToYAML = (params: {
     properties: { value: propertyRule },
   } as MetadataItemRule
   if (params.path !== undefined || params.xmlString !== undefined) {
-    const parsed =
-      params.xmlString !== undefined
-        ? importContentFromXML<Record<string, unknown>>(params.xmlString)
-        : params.importMetaUrl
-          ? readAndParseXMLFixture<Record<string, unknown>>(params.importMetaUrl, params.path!)
-          : readAndParseXMLFile<Record<string, unknown>>(params.path!)
-    const rootTag = params.xmlRootTag ?? params.rule.xml
-    const value = rootTag === undefined ? parsed : parsed[rootTag]
+    const value = readPropertyXML({ ...params, xmlRootTag: params.xmlRootTag ?? params.rule.xml })
     return testPropertyFromXMLToYAML({
       rule,
       xml: { Value: value },

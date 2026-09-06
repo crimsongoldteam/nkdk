@@ -1,4 +1,22 @@
 import { parseXmlDocumentWithSaxes, xmlElementChildren, type XmlElementNode } from "@nkdk/runtime"
+import { readXMLFileAsString } from "./readAndParseXMLFile"
+import { testFixturesDir } from "./testFixturesDir"
+
+/** Выбирает исходные корни свойства, не создавая объектную копию XML. */
+export function readPropertyXML(params: {
+  readonly xmlString?: string
+  readonly path?: string
+  readonly importMetaUrl?: string
+  readonly xmlRootTag?: string
+}): XmlElementNode | readonly XmlElementNode[] | undefined {
+  if (params.xmlString === undefined && params.path === undefined) throw new Error("Не задан тестовый XML")
+  const xml = params.xmlString ?? readXMLFileAsString(
+    params.path!, params.importMetaUrl === undefined ? undefined : testFixturesDir(params.importMetaUrl),
+  )
+  const document = parseXmlDocumentWithSaxes(xml)
+  const roots = params.xmlRootTag === undefined ? document.roots : document.roots.filter(node => node.name === params.xmlRootTag)
+  return roots.length === 1 ? roots[0] : roots.length === 0 ? undefined : roots
+}
 
 /** Запрещает тестируемому преобразователю читать старое представление любого узла. */
 export function parseStructuralXMLWithoutCompatibility(xml: string): XmlElementNode {

@@ -1,9 +1,5 @@
 import { performance } from "node:perf_hooks"
-import {
-  collectConfigurationIndexIdentityFromXML,
-  collectConfigurationIndexImportedValue,
-  collectConfigurationIndexPropertyFromXML,
-} from "../../configurationIndex/collector/collectProperty"
+import { collectConfigurationIndexIdentityFromXML } from "../../configurationIndex/collector/collectProperty"
 import {
   getConfigurationIndexCollectionContext,
   getConfigurationIndexCollectionXmlNodeLogicalAddress,
@@ -304,26 +300,6 @@ export function importPropertiesFromXMLToYAML(params: {
               itemRule: rule, yamlPath: propertyYamlPath, presentInXML,
             })
           }
-          collectConfigurationIndexPropertyFromXML({
-            context: sourceContext,
-            logicalAddress:
-              indexCollection === undefined
-                ? undefined
-                : configurationIndexPropertyXmlStateUid(
-                    indexCollection.logicalAddress,
-                    key,
-                    propertyRule.yaml,
-                    indexCollection.yamlPathAddressing === true ||
-                      propertyRule.configurationIndexAddressing === "yamlPath"
-                  ),
-            propertyKey: key,
-            xmlValue: sourceXMLValue,
-            presentInXML,
-            rule: propertyRule,
-            descriptor: compiled === undefined
-              ? typeRule(propertyRule.type, "configurationIndexValueFromXML")
-              : compiled.operations.configurationIndexValueFromXML,
-          })
           // Смысловой YAML это свойство не получает, но локальный proof выполняет
           // штатный экспорт с компактным значением первого прохода.
           structurallyClaimed = presentInXML
@@ -363,40 +339,6 @@ export function importPropertiesFromXMLToYAML(params: {
         if (xmlValue === undefined && propertyRule.type === "MetadataValue" && presentInXML) {
           xmlValue = { "_xsi:nil": true }
         }
-        const propertyLogicalAddress =
-          indexCollection === undefined
-            ? undefined
-            : configurationIndexPropertyXmlStateUid(
-                indexCollection.logicalAddress,
-                key,
-                propertyRule.yaml,
-                indexCollection.yamlPathAddressing === true || propertyRule.configurationIndexAddressing === "yamlPath"
-              )
-        if (sourceXMLKey !== undefined && !dependentImportProperty) {
-          const indexStartedAt = performance.now()
-          const nestedItemRule = compiled === undefined
-            ? typeRule(propertyRule.type, "nestedItemRule")
-            : compiled.operations.nestedItemRule
-          collectConfigurationIndexPropertyFromXML({
-            context: sourceContext,
-            logicalAddress: propertyLogicalAddress,
-            propertyKey: key,
-            xmlValue,
-            presentInXML:
-              presentInXML && nestedItemXMLTypeMatches(
-                nestedItemRule !== undefined && "itemRule" in nestedItemRule
-                  ? nestedItemRule.itemRule.xsiType
-                  : undefined,
-                xmlValue,
-              ),
-            rule: propertyRule,
-            descriptor: compiled === undefined
-              ? typeRule(propertyRule.type, "configurationIndexValueFromXML")
-              : compiled.operations.configurationIndexValueFromXML,
-          })
-          addProfileTime(params.profile, "configurationIndexMs", indexStartedAt)
-        }
-
         const shouldImportProperty = shouldProcessProperty({
           rule: propertyRule,
           operation: "importFromXML",
@@ -697,17 +639,6 @@ export function importPropertiesFromXMLToYAML(params: {
           }
           addProfileTime(params.profile, "defaultMs", defaultStartedAt)
 
-          if (value !== undefined && !dependentImportProperty) {
-            const indexStartedAt = performance.now()
-            collectConfigurationIndexImportedValue({
-              context: sourceContext,
-              logicalAddress: propertyLogicalAddress,
-              propertyKey: key,
-              importedValue: value,
-            })
-            addProfileTime(params.profile, "configurationIndexMs", indexStartedAt)
-          }
-
           const exportStartedAt = performance.now()
           const siblingValue = (propertyKey: string): unknown => {
             const prepared = params.dependencies?.propertyValue?.(yamlPath, propertyKey)
@@ -930,6 +861,14 @@ export function importPropertiesFromXMLToYAML(params: {
             else selected.push(boundary)
           }
           if (dependentImportProperty) {
+            const propertyLogicalAddress = indexCollection === undefined
+              ? undefined
+              : configurationIndexPropertyXmlStateUid(
+                  indexCollection.logicalAddress,
+                  key,
+                  propertyRule.yaml,
+                  indexCollection.yamlPathAddressing === true || propertyRule.configurationIndexAddressing === "yamlPath",
+                )
             const candidate = {
               itemType: rule.itemType,
               ...(itemName === undefined ? {} : { itemName }),
@@ -1417,13 +1356,6 @@ function normalizeTypeOwnedMetadataTargets(params: {
 function isScalarMetadataTarget(rule: PropertyRule): boolean {
   return rule.metadataTarget !== undefined &&
     (rule.type === "string" || rule.type === "MetadataItemLink" || rule.type === "MetadataField")
-}
-
-function nestedItemXMLTypeMatches(expectedXsiType: string | undefined, xmlValue: unknown): boolean {
-  if (expectedXsiType === undefined) return true
-  if (xmlValue === null || typeof xmlValue !== "object" || Array.isArray(xmlValue)) return false
-  const actualXsiType = (xmlValue as Record<string, unknown>)["_xsi:type"]
-  return actualXsiType === expectedXsiType
 }
 
 function getOwnerXmlName(xml: DirectImportXMLSource["xml"]): string | undefined {

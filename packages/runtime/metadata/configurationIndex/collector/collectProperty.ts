@@ -1,6 +1,5 @@
 import type { ConfigurationContextFromXML } from "../../context/types"
 import type { ConfigurationIndexValueFromXMLDescriptor } from "../../ruleRuntime/property/fn"
-import type { PropertyRule } from "../../ruleRuntime/property/types"
 import { getConfigurationIndexCollectionContext } from "./context"
 
 export function collectConfigurationIndexIdentityFromXML(params: {
@@ -25,25 +24,4 @@ export function collectConfigurationIndexIdentityFromXML(params: {
     }
     return
   }
-}
-
-export function collectConfigurationIndexPropertyFromXML(params: {
-  context: ConfigurationContextFromXML
-  logicalAddress?: string
-  propertyKey: string
-  xmlValue: unknown
-  presentInXML: boolean
-  rule: PropertyRule
-  descriptor?: ConfigurationIndexValueFromXMLDescriptor
-}): void {
-  void params
-}
-
-export function collectConfigurationIndexImportedValue(params: {
-  context: ConfigurationContextFromXML
-  logicalAddress?: string
-  propertyKey: string
-  importedValue: unknown
-}): void {
-  void params
 }
