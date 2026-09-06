@@ -1,10 +1,11 @@
 import type { ConfigurationContextWithExportToXML, ContextElementToXML } from "@nkdk/runtime"
 import { callAtomicToXML } from "../../metadata/ruleRuntime/property/fromYAMLToXML"
-import { importPropertyFromXML, type ElementXML, type PropertyRule } from "../../metadata/ruleRuntime"
+import { importPropertyFromXML, type PropertyRule } from "../../metadata/ruleRuntime"
 import { xmlExport } from "@nkdk/runtime"
 import { mockContextFromXML, mockContextToXML } from "../mockContext"
-import { readAndParseXMLFile, readXMLFileAsString } from "../readAndParseXMLFile"
-import { readAndParseXMLFixture, readXMLFixtureAsString } from "../readFixtureXML"
+import { readXMLFileAsString } from "../readAndParseXMLFile"
+import { readXMLFixtureAsString } from "../readFixtureXML"
+import { readPropertyXML } from "../structuralXML"
 
 type Params = {
   rule: PropertyRule
@@ -31,13 +32,10 @@ export function testAtomicToXML(params: Params & { importMetaUrl?: string; path?
   if (path !== undefined) {
     expectedResult = (importMetaUrl ? readXMLFixtureAsString(importMetaUrl, path) : readXMLFileAsString(path)).trimEnd()
     if (!("referenceMetadata" in params) && xmlRootTag !== undefined) {
-      const referenceXMLData = importMetaUrl
-        ? readAndParseXMLFixture<{ [key: string]: ElementXML }>(importMetaUrl, path)
-        : readAndParseXMLFile<{ [key: string]: ElementXML }>(path)
       referenceProperty = importPropertyFromXML({
         context: mockContextFromXML({ forReference: true }),
         rule,
-        value: referenceXMLData[xmlRootTag],
+        value: readPropertyXML({ xmlString: expectedResult, xmlRootTag }),
       })
     }
   }
