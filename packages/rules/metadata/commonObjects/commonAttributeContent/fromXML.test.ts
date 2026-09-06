@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 import { mockContextFromXML, mockRule } from "../../../tests/mockContext"
 import { importCommonAttributeContentFromXML } from "./fromXML"
 import { CommonAttributeContent, CommonAttributeContentItemXML, CommonAttributeContentXML } from "./types"
+import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"
 
 const fullXMLItems: CommonAttributeContentItemXML[] = [
   {
@@ -30,6 +31,14 @@ const full: CommonAttributeContent = [
 ]
 
 describe("importCommonAttributeContentFromXML", () => {
+  it.each([
+    ["<Content/>", undefined],
+    ["<Content><xr:Item/></Content>", undefined],
+    ['<Content><xr:Item><xr:Metadata>Catalog.А</xr:Metadata><xr:Use>Use</xr:Use></xr:Item><xr:Item><xr:Metadata>Catalog.Б</xr:Metadata><xr:Use>DontUse</xr:Use><xr:ConditionalSeparation>yes</xr:ConditionalSeparation></xr:Item></Content>', [{ metadata: "Catalog.А", use: "Use", conditionalSeparation: "" }, { metadata: "Catalog.Б", use: "DontUse", conditionalSeparation: "yes" }]],
+  ])("reads structural attribute content: %s", (xml, expected) => {
+    expect(importCommonAttributeContentFromXML(mockContextFromXML(), mockRule, parseStructuralXMLWithoutCompatibility(xml))).toEqual(expected)
+  })
+
   it("imports content items", () => {
     const result = importCommonAttributeContentFromXML(mockContextFromXML(), mockRule, fullXML)
 
