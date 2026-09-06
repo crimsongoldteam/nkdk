@@ -13,6 +13,7 @@ import { createXmlAnomalyAnnotations, importContentFromXML, parseMetadataYaml, s
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { RootCommandInterfaceRules } from "./rules"
 import type { RootCommandInterfaceYAML } from "./types"
+import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"
 
 import "./register"
 
@@ -235,14 +236,14 @@ function expectFixtureRoundTrip(fixture: string): string {
 }
 
 function roundTrip(xmlString: string, mutate?: (yaml: RootCommandInterfaceYAML) => void): string {
-  const referenceXML = importContentFromXML<Record<string, unknown>>(xmlString)
   const contexts = createDirectRoundTripContexts()
   const yaml = testMetadataItemFromXMLToYAML({
     context: contexts.importContext,
     rule: RootCommandInterfaceRules,
-    xml: referenceXML,
+    xml: parseStructuralXMLWithoutCompatibility(xmlString),
   }).yaml as RootCommandInterfaceYAML
   mutate?.(yaml)
+  const referenceXML = importContentFromXML<Record<string, unknown>>(xmlString)
   return serializeDirectXML(
     testMetadataItemFromYAMLToXML({
       context: contexts.exportContext(),

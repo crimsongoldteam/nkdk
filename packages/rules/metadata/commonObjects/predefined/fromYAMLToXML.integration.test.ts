@@ -4,13 +4,13 @@ import { describe, expect, it } from "vitest"
 
 import {
   createDirectRoundTripContexts,
-  readAppliedObjectFixture,
   serializeDirectXML,
   testMetadataItemFromXMLToYAML,
   testMetadataItemFromYAMLToXML,
 } from "../../../tests/directConversion"
 import { importContentFromXML } from "@nkdk/runtime"
 import { PredefinedRules } from "./rules"
+import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"
 
 import "./types"
 
@@ -24,8 +24,8 @@ describe("Predefined YAML → XML", () => {
   })
 
   it("round-trip from full.xml", () => {
-    const referenceXML = readAppliedObjectFixture(import.meta.url, "full.xml")
-    expect(normalize(roundTrip(referenceXML))).toBe(normalize(readFileSync(join(import.meta.dirname, "__fixtures__/full.xml"), "utf8")))
+    const source = readFileSync(join(import.meta.dirname, "__fixtures__/full.xml"), "utf8")
+    expect(normalize(roundTrip(source))).toBe(normalize(source))
   })
 
   it("preserves reference root xsi:type", () => {
@@ -33,7 +33,7 @@ describe("Predefined YAML → XML", () => {
       join(import.meta.dirname, "../../appliedObjects/metadataChartOfAccounts/__fixtures__/sync/xml/ПланСчетовВсеСвойства/Ext/Predefined.xml"),
       "utf8"
     )
-    const result = roundTrip(importContentFromXML<Record<string, unknown>>(source))
+    const result = roundTrip(source)
     expect(result).toContain('xsi:type="ChartOfAccountsPredefinedItems"')
     expect(normalize(result)).toBe(normalize(source))
   })
@@ -56,13 +56,14 @@ function convertYAML(yaml: unknown): string {
   return serializeDirectXML(testMetadataItemFromYAMLToXML({ rule: PredefinedRules, yaml }).xml)
 }
 
-function roundTrip(referenceXML: Record<string, unknown>): string {
+function roundTrip(source: string): string {
   const contexts = createDirectRoundTripContexts()
   const yaml = testMetadataItemFromXMLToYAML({
     context: contexts.importContext,
     rule: PredefinedRules,
-    xml: referenceXML,
+    xml: parseStructuralXMLWithoutCompatibility(source),
   }).yaml
+  const referenceXML = importContentFromXML<Record<string, unknown>>(source)
   return serializeDirectXML(
     testMetadataItemFromYAMLToXML({
       context: contexts.exportContext(),

@@ -2,9 +2,8 @@ import { describe, expect, it } from "vitest"
 
 import { withConfigurationIndexCollector } from "@nkdk/runtime"
 import { createConfigurationIndexCollector } from "@nkdk/runtime"
-import { testAppliedObjectFromXMLToYAML, testMetadataItemFromXMLToYAML } from "../../../tests/directConversion"
+import { testAppliedObjectFromXMLToYAML } from "../../../tests/directConversion"
 import { mockContextFromXML } from "../../../tests/mockContext"
-import { readAndParseXMLFixture } from "../../../tests/readFixtureXML"
 import { PredefinedRules } from "./rules"
 
 import "./types"
@@ -19,13 +18,11 @@ describe("Predefined XML → YAML", () => {
   it("пишет id предопределенных элементов в адреса конкретных элементов индекса", () => {
     const collector = createConfigurationIndexCollector()
     const context = withConfigurationIndexCollector(
-      mockContextFromXML({ forReference: true }),
+      mockContextFromXML(),
       collector,
       "Справочник.Товары"
     )
-    const parsed = readAndParseXMLFixture<Record<string, unknown>>(import.meta.url, "full.xml")
-
-    testMetadataItemFromXMLToYAML({ context, rule: PredefinedRules, xml: parsed })
+    testAppliedObjectFromXMLToYAML({ context, rule: PredefinedRules, importMetaUrl: import.meta.url, fixture: "full.xml" })
 
     expect(collector.fragment("Справочники/Товары/Свойства.yaml").entities).toEqual(
       expect.arrayContaining([
