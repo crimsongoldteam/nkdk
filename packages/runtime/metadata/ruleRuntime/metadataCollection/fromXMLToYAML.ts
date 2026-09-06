@@ -11,7 +11,7 @@ import type {
   LocalYamlFact,
 } from "../property/importYamlTypes"
 import type { PropertyRuleType } from "../property/registry"
-import type { ConfigurationIndexAddressingMode, ItemXML, MetadataItemRule, PropertyRule } from "../property/types"
+import type { ConfigurationIndexAddressingMode, MetadataItemRule, PropertyRule } from "../property/types"
 import { enterNestedYamlRule } from "../property/yamlRuleCursor"
 import { childUid, indexedUid, yamlIndexUid, yamlKeyUid } from "../../configurationIndex/logicalAddress"
 import {
@@ -43,16 +43,14 @@ export type ClassifyNamedCollectionYamlKey = (params: {
 
 function configurationIndexItemContext(params: {
   context: ConfigurationContextFromXML
-  item: ItemXML | XmlElementNode
+  itemName: string | undefined
   itemRule: MetadataItemRule
-  keyField?: string
   index: number
   options?: MetadataItemCollectionImportOptions
 }): ConfigurationContextFromXML {
-  const { context, item, itemRule, keyField, index, options } = params
+  const { context, itemName, itemRule, index, options } = params
   const collection = getConfigurationIndexCollectionContext(context)
   if (collection === undefined) return context
-  const itemName = itemNameFromXML(item, itemRule, keyField)
   const useYamlPath = collection.yamlPathAddressing === true || options?.configurationIndexAddressing === "yamlPath"
   if (useYamlPath) {
     return withConfigurationIndexLogicalAddress(
@@ -119,9 +117,8 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
     const itemName = itemNameFromXML(itemXml, itemRule, params.keyField)
     const itemContext = configurationIndexItemContext({
       context: params.context,
-      item: itemXml,
+      itemName,
       itemRule,
-      keyField: params.keyField,
       index,
       options: {
         propertyType: params.propertyType,

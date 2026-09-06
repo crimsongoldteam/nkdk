@@ -77,6 +77,7 @@ export function convertMetadataCollectionFromYAMLToXML(
   const deferredByOutput = new Map(params.outputs.map(({ key }) => [key, [] as DeferredValuePath[]]))
   const externalWrites: YAMLToXMLExternalWrite[] = []
   const references = new Map(params.outputs.map((output) => [output.key, createReferenceLookup(output, params.descriptor)]))
+  let defaultItemRule: MetadataItemRule | undefined
 
   entries.forEach(({ yaml, name, rawXml }, index) => {
     if (params.profile !== undefined) params.profile.nestedItemCount++
@@ -107,7 +108,7 @@ export function convertMetadataCollectionFromYAMLToXML(
       }
       return
     }
-    const defaultItemRule =
+    defaultItemRule ??=
       (params.propertyRule === undefined ? undefined : params.descriptor.itemRuleFromProperty?.(params.propertyRule)) ??
       params.descriptor.itemRule
     const itemRule =

@@ -103,6 +103,26 @@ registerMetadataItemCollectionRule({
 })
 
 describe("importMetadataItemCollectionFromXMLToYAML", () => {
+  it("использует уже прочитанное имя элемента для адреса индекса", () => {
+    const document = parseXmlDocumentWithSaxes('<Item name="Первый" uuid="11111111-1111-1111-1111-111111111111"><Value>a</Value></Item>')
+    const attribute = document.roots[0]!.attributes.find(attribute => attribute.name === "name")!
+    let reads = 0
+    Object.defineProperty(attribute, "value", { get() { reads++; return "Первый" } })
+    const index = createConfigurationIndexCollector()
+    const yaml = importMetadataItemCollectionFromXMLToYAML({
+      context: withConfigurationIndexCollector(mockContextFromXML(), index, "Владелец.A"),
+      rule: { type: "TestRecordCollection" as PropertyRuleType, xml: "Item", yaml: "Элементы" },
+      xml: document.roots[0], itemRule, xmlElement: "Item", keyField: "name",
+      traversal: { yamlPath: [], rulePath: [], collector: createLocalIndexesCollector() },
+    })
+    expect(yaml).toEqual({ Первый: { Значение: "a" } })
+    expect(index.fragment("test.yaml").entities).toContainEqual(expect.objectContaining({
+      logicalAddress: "Владелец.A.TestItem.Первый", uuid: "11111111-1111-1111-1111-111111111111",
+    }))
+    // Коллекция и собственные implicit-правила читают имя; адрес индекса использует готовое значение.
+    expect(reads).toBe(2)
+  })
+
   it("читает имена структурных элементов без промежуточных объектов", () => {
     const document = parseXmlDocumentWithSaxes("<Item><Name>Первый</Name><Value>a</Value></Item><Item><Name>Второй</Name><Value>b</Value></Item>")
     for (const node of document.roots) {

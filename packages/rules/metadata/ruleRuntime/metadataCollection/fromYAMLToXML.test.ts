@@ -37,6 +37,28 @@ function collectReferences(received: unknown[][]): typeof convertMetadataItemFro
 }
 
 describe("convertMetadataCollectionFromYAMLToXML", () => {
+  it("выбирает общее правило коллекции один раз", () => {
+    let resolutions = 0
+    const alternateRule: MetadataItemRule = {
+      itemType: "AlternateValue",
+      properties: { value: { type: "string", yaml: "Значение", xml: "Special" } },
+    }
+    const result = convertMetadataCollectionFromYAMLToXML({
+      convertItem: convertMetadataItemFromYAMLToXML,
+      convertProperties: convertPropertiesFromYAMLToXML,
+      context: context(),
+      yaml: [{ Значение: "a" }, { Значение: "b" }, { Значение: "c" }],
+      propertyRule: { type: "string" },
+      descriptor: {
+        kind: "collection", itemRule: nestedRule, yamlShape: "array", xmlElement: "Item",
+        itemRuleFromProperty: () => { resolutions++; return alternateRule },
+      },
+      outputs: [{ key: "owner" }],
+    })
+    expect(result.outputs.get("owner")).toEqual({ Item: [{ Special: "a" }, { Special: "b" }, { Special: "c" }] })
+    expect(resolutions).toBe(1)
+  })
+
   it("передаёт raw-элемент выходу без потери смешанного порядка", () => {
     const parsed = parseMetadataYaml([
       "Узел: !xml/raw",
