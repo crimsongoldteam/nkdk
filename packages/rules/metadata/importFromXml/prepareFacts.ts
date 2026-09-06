@@ -80,11 +80,6 @@ export interface PreparedImportFacts {
   readonly baseFormDeferred?: readonly import("@nkdk/runtime/rule-kit").DeferredValuePath[]
   readonly pendingReferences: readonly PendingMetadataTargetReference[]
   readonly pendingChecks: readonly ValidationPendingCheck[]
-  readonly formValidation?: {
-    readonly index: NonNullable<LocalIndexes["metadata"]["formDataPathIndex"]>
-    readonly owner: { readonly kind: string; readonly name: string }
-    readonly pendingChecks: readonly ValidationPendingCheck[]
-  }
 }
 
 type ParsedFactsXmlInput = Omit<ParsedImportXmlInput, "document"> & { readonly document: XmlDocument }
@@ -248,7 +243,7 @@ export async function prepareImportFacts(params: {
     owner: dependentOwner,
     candidates: dependentCandidates,
   })
-  const formValidation = prepareFormValidationFacts({
+  const formPendingChecks = prepareFormValidationChecks({
     assignment: params.assignment,
     rule,
     localIndexes: imported.localIndexes,
@@ -284,9 +279,8 @@ export async function prepareImportFacts(params: {
     pendingReferences: dependentIndex.pendingReferences,
     pendingChecks: [
       ...dependentIndex.pendingChecks,
-      ...(formValidation?.pendingChecks ?? []),
+      ...formPendingChecks,
     ],
-    ...(formValidation === undefined ? {} : { formValidation }),
   }
 }
 
@@ -367,32 +361,27 @@ function appendAugmentedFacts(
   })
 }
 
-function prepareFormValidationFacts(params: {
+function prepareFormValidationChecks(params: {
   readonly assignment: ImportAssignment
   readonly rule: MetadataItemRule
   readonly localIndexes: LocalIndexes
   readonly propertyFacts: readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][]
   readonly owner: { readonly dir: string; readonly name: string }
-}): PreparedImportFacts["formValidation"] {
+}): ValidationPendingCheck[] {
   const projection = createPropertyFactsYamlView(acceptedPropertyFacts(params.localIndexes, params.propertyFacts))
   const index = createImportedFormDataPathIndex({ yaml: projection, rule: params.rule })
-  if (index === undefined) return undefined
+  if (index === undefined) return []
   params.localIndexes.metadata.formDataPathIndex = index
-  if (params.rule.itemType !== ClientApplicationFormRules.itemType) return undefined
+  if (params.rule.itemType !== ClientApplicationFormRules.itemType) return []
   const form = importedClientApplicationForm({ yaml: projection, rule: params.rule })
-  if (form === undefined) return undefined
-  const pendingChecks = prepareImportedFormDataPathChecks({
+  if (form === undefined) return []
+  return prepareImportedFormDataPathChecks({
     yaml: form.yaml,
     rule: form.rule,
     index,
     owner: { kind: params.owner.dir, name: params.owner.name },
     targetProjectPath: params.assignment.targetProjectPath,
   })
-  return {
-    index,
-    owner: { kind: params.owner.dir, name: params.owner.name },
-    pendingChecks,
-  }
 }
 
 export function prepareImportedFormDataPathChecks(params: {

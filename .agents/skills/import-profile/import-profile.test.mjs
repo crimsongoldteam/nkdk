@@ -1,5 +1,6 @@
 import assert from "node:assert/strict"
 import test, { mock } from "node:test"
+import { readFileSync, rmSync } from "node:fs"
 import {
   isSummaryProfileStep,
   parseProfileSteps,
@@ -11,6 +12,66 @@ import {
   summarizeToXmlPropertyTypes,
   usage,
 } from "./import-profile.mjs"
+
+const withoutLogFiles = {
+  createLogDirectory: () => "/profile-logs",
+  writeRunLog: (directory, run) => `${directory}/run-${run}.stderr.log`,
+}
+
+test("сохраняет исходные журналы каждого прогона отдельно от JSON-сводки", async () => {
+  const logs = ["первый\nнеизвестная строка\n", "второй\r\nисходная строка 😀\n"]
+  let index = 0
+  const session = {
+    takeStderr: () => logs[index++],
+    close: async () => undefined,
+  }
+  let result
+  try {
+    result = await runProfile({ xmlDir: "/xml", yamlDir: "/yaml", runs: 2 }, {
+      buildMcp: () => {},
+      createSession: async () => session,
+      callToCompletion: async () => ({ result: { isError: false }, payload: { ok: true, succeeded: 1 } }),
+      now: () => 0,
+      clearOutput: () => {},
+      createProject: () => "/project",
+    })
+    assert.equal(typeof result.logsDir, "string")
+    assert.deepEqual(result.runs.map(({ stderrPath }) => readFileSync(stderrPath, "utf8")), logs)
+    assert.notEqual(result.runs[0].stderrPath, result.runs[1].stderrPath)
+    assert.ok(!JSON.stringify(result).includes("неизвестная строка"))
+  } finally {
+    if (result?.logsDir !== undefined) rmSync(result.logsDir, { recursive: true, force: true })
+  }
+})
+
+for (const interrupted of [false, true]) {
+  test(`сохраняет журнал неуспешного прогона (прерывание: ${interrupted})`, async () => {
+    const cause = new Error("Соединение прервано")
+    const writeRunLog = mock.fn(withoutLogFiles.writeRunLog)
+    const session = { takeStderr: () => "исходная диагностика\n", close: mock.fn(async () => {}) }
+    await assert.rejects(runProfile({ xmlDir: "/xml", yamlDir: "/yaml", runs: 1 }, {
+      ...withoutLogFiles,
+      writeRunLog,
+      buildMcp: () => {},
+      createSession: async () => session,
+      callToCompletion: async () => {
+        if (interrupted) throw cause
+        return { result: { isError: true }, payload: { ok: false } }
+      },
+      now: () => 0,
+      clearOutput: () => {},
+      createProject: () => "/project",
+    }), (error) => {
+      assert.match(error.message, /\/profile-logs\/run-1\.stderr\.log/u)
+      if (interrupted) assert.equal(error.cause, cause)
+      return true
+    })
+    assert.deepEqual(writeRunLog.mock.calls.map(({ arguments: args }) => args), [
+      ["/profile-logs", 1, "исходная диагностика\n"],
+    ])
+    assert.equal(session.close.mock.callCount(), 1)
+  })
+}
 
 test("справка позволяет явно задать число worker", () => {
   assert.match(usage(), /--concurrency N/u)
@@ -30,6 +91,7 @@ test("без явного параметра оставляет выбор чи�
   await runProfile(
     { xmlDir: "/xml", yamlDir: "/yaml", runs: 1 },
     {
+      ...withoutLogFiles,
       buildMcp: mock.fn(),
       createSession: mock.fn(async () => session),
       now: mock.fn(() => 0),
@@ -256,6 +318,7 @@ test("собирает MCP до замера и переиспользует о�
   const result = await runProfile(
     { xmlDir: "/xml", yamlDir: "/yaml", runs: 2, concurrency: 4 },
     {
+      ...withoutLogFiles,
       buildMcp,
       createSession,
       now: () => clock,
@@ -304,6 +367,7 @@ test("измеряет terminal результат через общий MCP wai
   const result = await runProfile(
     { xmlDir: "/xml", yamlDir: "/yaml", runs: 1, signal: controller.signal },
     {
+      ...withoutLogFiles,
       buildMcp: mock.fn(),
       createSession: mock.fn(async () => session),
       callToCompletion,
@@ -335,6 +399,7 @@ test("сохраняет упорядоченные checkpoints памяти о�
   const result = await runProfile(
     { xmlDir: "/xml", yamlDir: "/yaml", runs: 1 },
     {
+      ...withoutLogFiles,
       buildMcp: mock.fn(),
       createSession: mock.fn(async () => session),
       now: mock.fn(() => 0),

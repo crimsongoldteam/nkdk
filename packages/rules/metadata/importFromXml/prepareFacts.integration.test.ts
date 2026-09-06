@@ -209,7 +209,7 @@ describe("prepareImportFacts", () => {
       inputs: parseAssignmentInputs(assignment),
     })
 
-    expect(facts.formValidation?.pendingChecks).toEqual(expect.arrayContaining([
+    expect(facts.pendingChecks).toEqual(expect.arrayContaining([
       expect.objectContaining({
         kind: "dataPath",
         yamlPath: ["Элементы", "ПолеВвода1", "ПутьКДанным"],
@@ -217,15 +217,13 @@ describe("prepareImportFacts", () => {
       }),
     ]))
     expect(facts).not.toHaveProperty("yaml")
+    expect(facts).not.toHaveProperty("formValidation")
   })
 
   it("строит индекс путей формы напрямую из принятых фактов", async () => {
     const assignment = managedFormAssignment()
     const { facts, legacy } = await preparePair(assignment, extensionContext())
 
-    expect(formDataPathSnapshot(facts.formValidation?.index)).toEqual(
-      formDataPathSnapshot(legacy.localIndexes.metadata.formDataPathIndex),
-    )
     expect(formDataPathSnapshot(facts.localIndexes.metadata.formDataPathIndex)).toEqual(
       formDataPathSnapshot(legacy.localIndexes.metadata.formDataPathIndex),
     )
@@ -278,7 +276,7 @@ describe("prepareImportFacts", () => {
       projectDir: "/project",
       file,
     }))
-    expect(facts.formValidation).toBeUndefined()
+    expect(facts).not.toHaveProperty("formValidation")
   })
 
   it("сохраняет validation-вклад общей формы расширения", async () => {

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, symlinkSync } from "node:fs"
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, symlinkSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
@@ -86,6 +86,12 @@ const defaultDependencies = {
   now: () => performance.now(),
   clearOutput: clearDirectory,
   createProject: createProfileProject,
+  createLogDirectory: () => mkdtempSync(join(tmpdir(), "nkdk-import-profile-logs-")),
+  writeRunLog: (directory, run, stderr) => {
+    const path = join(directory, `run-${run}.stderr.log`)
+    writeFileSync(path, stderr, { encoding: "utf8", flag: "wx" })
+    return path
+  },
 }
 
 export async function runProfile(options, overrides = {}) {
@@ -93,6 +99,7 @@ export async function runProfile(options, overrides = {}) {
   const runs = []
   const allSteps = []
   dependencies.buildMcp()
+  const logsDir = dependencies.createLogDirectory()
   const session = await dependencies.createSession({
     serverMode: "compiled",
     env: { ...process.env, NKDK_PROFILE: "1" },
@@ -103,15 +110,23 @@ export async function runProfile(options, overrides = {}) {
       dependencies.clearOutput(options.yamlDir)
       const projectDir = dependencies.createProject(options.yamlDir)
       const started = dependencies.now()
-      const { result, payload } = await dependencies.callToCompletion(session, "nkdk.import_from_xml", {
-        xmlDir: options.xmlDir,
-        projectDir,
-        componentPath: "cf",
-        ...(options.concurrency === undefined ? {} : { concurrency: options.concurrency }),
-        allowWrite: true,
-      }, { signal: options.signal })
+      let completed
+      try {
+        completed = await dependencies.callToCompletion(session, "nkdk.import_from_xml", {
+          xmlDir: options.xmlDir,
+          projectDir,
+          componentPath: "cf",
+          ...(options.concurrency === undefined ? {} : { concurrency: options.concurrency }),
+          allowWrite: true,
+        }, { signal: options.signal })
+      } catch (cause) {
+        const stderrPath = dependencies.writeRunLog(logsDir, run, session.takeStderr())
+        throw new Error(`Импорт: прогон ${run} прерван; журнал: ${stderrPath}`, { cause })
+      }
+      const { result, payload } = completed
       const elapsedMs = Math.round(dependencies.now() - started)
       const stderr = session.takeStderr()
+      const stderrPath = dependencies.writeRunLog(logsDir, run, stderr)
       const steps = parseProfileSteps(stderr)
       for (const step of steps) allSteps.push(step)
       const summary = parseImportSummary(payload)
@@ -120,6 +135,7 @@ export async function runProfile(options, overrides = {}) {
       runs.push({
         run,
         elapsedMs,
+        stderrPath,
         exitCode: result.isError ? 1 : 0,
         succeeded: summary.succeeded,
         errors: summary.errors,
@@ -137,7 +153,7 @@ export async function runProfile(options, overrides = {}) {
 
       if (result.isError || operationFailed(payload)) {
         const details = [formatFailurePayload(payload), stderr.trim()].filter(Boolean).join("\n")
-        throw new Error(`Импорт: прогон ${run} завершился ошибкой${details.length === 0 ? "" : `\n${details}`}`)
+        throw new Error(`Импорт: прогон ${run} завершился ошибкой; журнал: ${stderrPath}${details.length === 0 ? "" : `\n${details}`}`)
       }
     }
   } finally {
@@ -149,6 +165,7 @@ export async function runProfile(options, overrides = {}) {
     mode: "compiled-mcp-stdio",
     xmlDir: options.xmlDir,
     yamlDir: options.yamlDir,
+    logsDir,
     runs,
     coldMs: runs[0]?.elapsedMs,
     warmAvgMs: average(warm),
@@ -439,6 +456,7 @@ function printResult(result, options) {
   console.log("Import profile: compiled MCP stdio")
   console.log(`XML-каталог: ${result.xmlDir}`)
   console.log(`YAML-каталог: ${result.yamlDir}`)
+  console.log(`Исходные журналы: ${result.logsDir}`)
   console.log(`Воркеры: ${lastRun?.workerPoolSize ?? "unknown"}`)
   console.log(`Cold: ${formatMs(result.coldMs)}`)
   console.log(

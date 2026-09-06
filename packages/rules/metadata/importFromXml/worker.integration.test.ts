@@ -415,6 +415,13 @@ describe("XML import worker first pass", () => {
     )
 
     expectDeferredFormFirstPass(first, assignments)
+    if (first.stateFragment === undefined) throw new Error("Ожидался вклад первого прохода")
+    const snapshot = new ProjectStateSnapshotView(buildProjectStateSnapshot({
+      fragments: [openProjectStateFragment(first.stateFragment)], deletions: [],
+    }))
+    const fileId = snapshot.findFile(`cf/${assignments.form.targetProjectPath}`)
+    expect(fileId).toBeDefined()
+    expect(createTypedProjectStateReader(snapshot).forms(fileId!)).toEqual([])
   })
 
   it("не генерирует внешний файл повторно, когда им владеет XML-выгрузка", async () => {

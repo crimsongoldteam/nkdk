@@ -2168,7 +2168,7 @@ function splitImportYamlUpdate(
 }
 
 function importIndexContribution(
-  prepared: PreparedImportYaml | PreparedImportFacts,
+  prepared: PreparedImportFacts,
   contribution: ImportValidationContribution,
   state: InitializedImportWorkerState,
 ): ProjectStateImportIndexContribution {
@@ -2178,7 +2178,6 @@ function importIndexContribution(
     prepared.assignment.role === "fileItem" ? "form" : "properties",
   )
   const validation = contribution.validationContribution
-  const formValidation = "formValidation" in prepared ? prepared.formValidation : undefined
   return {
     ...identity,
     targets: mergeImportTargetEntries([
@@ -2196,12 +2195,9 @@ function importIndexContribution(
     ]),
     owners: validation.objectRecords.flatMap(projectStateOwnerFacts),
     fields: validation.objectRecords.flatMap(projectStateFieldEntries),
-    forms: formValidation === undefined
-      ? []
-      : projectStateFormEntries({
-          owner: formValidation.owner,
-          index: formValidation.index,
-        }),
+    // Пути этого файла проверяет его воркер по локальному formDataPathIndex.
+    // Полная проекция будет записана с окончательным состоянием YAML.
+    forms: [],
   }
 }
 
