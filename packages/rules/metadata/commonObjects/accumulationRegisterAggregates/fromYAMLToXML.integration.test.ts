@@ -15,6 +15,18 @@ import "./register"
 const fixture = "../../../appliedObjects/metadataAccumulationRegister/__fixtures__/sync/xml/РегистрНакопленияВсеСвойстваОбороты/Ext/Aggregates.xml"
 
 describe("AccumulationRegisterAggregates YAML → XML", () => {
+  it("берёт владельца измерений из регистра, а не из вложенного агрегата", () => {
+    const context = mockContextToXML()
+    context.exportToXML = { ...context.exportToXML, itemsTree: [
+      { itemType: "MetadataAccumulationRegister", name: currentRegisterName, path: "" },
+      { itemType: "AccumulationRegisterAggregates", name: "", path: "Агрегаты" },
+      { itemType: "AccumulationRegisterAggregate", name: "", path: "Агрегаты/0" },
+    ] }
+    const result = testMetadataItemFromYAMLToXML({ context, rule: AccumulationRegisterAggregatesRules, yaml: aggregatesYAML })
+    expect(result.xml).toHaveProperty("AccumulationRegisterAggregates.Aggregate.0.Dimensions.Dimension.0._ref",
+      `AccumulationRegister.${currentRegisterName}.Dimension.ИзмерениеВсеСвойства`)
+  })
+
   it("round-trips real Aggregates.xml and restores dimension refs from current register context", () => {
     const context = mockContextToXML()
     context.exportToXML.context!.parentName = currentRegisterName

@@ -10,7 +10,9 @@ import fs from "node:fs"
 import { join } from "node:path"
 import { describe, expect, it, vi } from "vitest"
 import "../../tests/metadataExecutionContext"
-import { mockXmlImportContext } from "../../tests/mockContext"
+import { mockXmlImportContext, mockContextToXML } from "../../tests/mockContext"
+import { createRuleRegistrySet } from "@nkdk/runtime/rule-kit"
+import { metadataRules } from "../composition/metadataRules"
 import { MetadataCatalogRules } from "../appliedObjects/metadataCatalog/rules"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
 import { classifyMetadataProjectPath } from "../resourceTopology/core/projectProjection"
@@ -50,6 +52,54 @@ const e2eAllExtensionDir = join(import.meta.dirname, "../../../../e2e/fixtures/x
 const e2eConfigurationDir = join(import.meta.dirname, "../../../../e2e/fixtures/xml/cf")
 
 describe("prepareImportFacts", () => {
+  it.each([
+    ["MetadataExchangePlan", "ПланОбмена", "ExchangePlans", "ПланОбменаВсеСвойства", "Content.xml", true],
+    ["MetadataChartOfAccounts", "ПланСчетов", "ChartsOfAccounts", "ПланСчетовВсеСвойства", "Predefined.xml", false],
+    ["MetadataAccumulationRegister", "РегистрНакопления", "AccumulationRegisters", "РегистрНакопленияВсеСвойстваОбороты", "Aggregates.xml", false],
+  ] as const)("проверяет внешние XML без новых raw: %s", async (itemType, kind, folder, name, file, extension) => {
+    const directory = extension ? e2eAllExtensionDir : e2eConfigurationDir
+    const assignment = assignmentForProjectPath({
+      id: "external-proof", targetProjectPath: `${kind}/${name}/Свойства.yaml`,
+      itemType, itemName: name, logicalAddress: `${kind}.${name}`, owner: undefined,
+      xmlFiles: [
+        { role: "metadata", sourcePath: join(directory, `${folder}/${name}.xml`) },
+        { role: "property", sourcePath: join(directory, `${folder}/${name}/Ext/${file}`) },
+      ],
+    })
+    const inputs = parseAssignmentInputs(assignment, true)
+    const context = extension ? extensionContext() : mockXmlImportContext()
+    const execution = createRuleRegistrySet(metadataRules).execution
+    const facts = await prepareImportFacts({ assignment, inputs, context, collector: createConfigurationIndexCollector() })
+    const result = await prepareImportYamlFromDocuments({
+      assignment, inputs, context, collector: createConfigurationIndexCollector(),
+      dependencies: prepareImportDependencies(facts.dependencies, {}, execution),
+      localRoundTrip: { execution, context: { ...mockContextToXML(), importFromYAML: context.importFromYAML }, decisions: [] },
+    })
+    if (result.yaml === null || typeof result.yaml !== "object") throw new Error("Ожидался YAML объекта")
+    const externalKey = extension ? "Состав" : itemType === "MetadataChartOfAccounts" ? "Предопределенные" : "Агрегаты"
+    const external = Object.entries(result.yaml).find(([key]) => key === externalKey)?.[1]
+    if (extension) expect(external).toHaveLength(7)
+    expect(external).toBeDefined()
+    expect(serializeYAMLDocument(external, result.annotations).text).not.toContain("!xml/raw")
+  })
+
+  it.each([catalogAssignment, managedFormAssignment, commonFormAssignment, extensionReportVariantFormAssignment])("готовит оба прохода без объекта документа: %s", async (createAssignment) => {
+    const assignment = createAssignment()
+    const inputs = parseAssignmentInputs(assignment, true)
+    const options = { assignment, inputs, context: extensionContext(), topology: compileRegisteredMetadataResourceTopology() }
+    const expectedFacts = await prepareImportFacts({ ...options, collector: createConfigurationIndexCollector() })
+    const expectedYaml = await prepareImportYamlFromDocuments({ ...options, collector: createConfigurationIndexCollector() })
+    for (const { document } of inputs) {
+      Object.defineProperty(document, "compatibility", { get() { throw new Error("Document compatibility must not be read") } })
+    }
+    const facts = await prepareImportFacts({ ...options, collector: createConfigurationIndexCollector() })
+    const yaml = await prepareImportYamlFromDocuments({ ...options, collector: createConfigurationIndexCollector() })
+    const values = (result: typeof facts) => result.semanticFacts.map(({ yamlPath, value, scalarTag }) => ({ yamlPath, value, scalarTag }))
+    expect(values(facts)).toEqual(values(expectedFacts))
+    expect(yaml.yaml).toEqual(expectedYaml.yaml)
+    expect(yaml.baseFormCandidate?.yaml).toEqual(expectedYaml.baseFormCandidate?.yaml)
+  })
+
   it("сохраняет изменение выбранного объекта дополнением на месте", async () => {
     registerMetadataItemXmlImportAugmenter("append-selected-purpose", {
       yamlDependencies: () => ["Элементы"],

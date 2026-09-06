@@ -3,13 +3,30 @@ import {
   parseXmlDocumentWithSaxes,
   type XmlElementNode,
 } from "@nkdk/runtime"
-import { createRuleRegistrySet, type MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import { createRuleRegistrySet, importPropertiesFromXMLToYAML, type MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { describe, expect, it } from "vitest"
 import { metadataRules } from "../composition/metadataRules"
 import { mockContextFromXML, mockContextToXML } from "../../tests/mockContext"
 import { createImportLocalRoundTrip } from "./localRoundTrip"
+import { createLocalIndexesCollector } from "../projectDefinition/localIndexes"
 
 describe("import local round-trip", () => {
+  it("восстанавливает атрибут из ключа коллекции без дополнительного raw", () => {
+    const context = mockContextFromXML()
+    const execution = createRuleRegistrySet(metadataRules).execution
+    const annotations = createXmlAnomalyAnnotations()
+    const roundTrip = createImportLocalRoundTrip({ execution, context: mockContextToXML(), annotations, decisions: [] })
+    const rule: MetadataItemRule = { itemType: "KeyedFlagsProbe", properties: {
+      flags: { type: "ChartOfAccountsPredefinedAccountingFlags", xml: "Flags", yaml: "Признаки" },
+    } }
+    const yaml = importPropertiesFromXMLToYAML({
+      context, execution, rule, annotations, roundTrip, yamlPath: [], rulePath: [],
+      collector: createLocalIndexesCollector(),
+      sources: [{ context, xml: parseXmlDocumentWithSaxes('<Root><Flags><Flag ref="Флаг">false</Flag></Flags></Root>').roots[0]! }],
+    })
+    expect(yaml).toEqual({ Признаки: { Флаг: { Значение: "Ложь" } } })
+  })
+
   it("открывает глубокую цепочку с линейным числом обходов стека", () => {
     const depth = 64
     const roots = nestedElements(depth)

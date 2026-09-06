@@ -3,7 +3,9 @@ import type {
   XmlContentNode,
   XmlElementNode,
   XmlProcessingInstructionNode,
+  XmlTextNode,
 } from "../../../xml/import/document"
+import { isXmlElementNode } from "../../../xml/import/document"
 import type {
   XmlImportAuditBoundary,
   XmlImportAuditSession,
@@ -40,11 +42,11 @@ export function claimCanonicalXmlImportAttribute(params: {
 }
 
 export function xmlImportCompatibilityValue(params: {
-  readonly node: XmlElementNode | XmlAttributeNode
+  readonly node: XmlElementNode | XmlAttributeNode | XmlTextNode
   readonly audit?: XmlImportAuditSession
   readonly boundary: XmlImportAuditBoundary
 }): unknown {
-  if (!("type" in params.node)) {
+  if (!isXmlElementNode(params.node)) {
     params.audit?.claim(params.node, params.boundary)
     return params.node.value
   }

@@ -51,6 +51,7 @@ export function createCompiledRuleExecution(params: {
   // Идентичность границы переносится штатным копированием служебных меток YAML.
   // Ключ не содержит ни исходного YAML, ни контрольного XML и живёт только в этом запуске.
   const identity = Symbol("compiledXMLBoundary")
+  const inlineRules = new WeakMap<MetadataItemRule, boolean>()
   const markers = new WeakMap<object, LocalXmlChild>()
   const scalarMarkers = new WeakMap<object, LocalXmlScalar>()
   const active: {
@@ -104,6 +105,7 @@ export function createCompiledRuleExecution(params: {
       }
       let context = supplied.context
       let name = supplied.name
+      let namePropertyKey = supplied.namePropertyKey
       let sourceItemName = supplied.sourceItemName ?? source.itemName
       const nestedRule = ownerProperty?.operations.yamlToXMLNestedRule
       if (parent !== undefined && ownerProperty !== undefined && nestedRule !== undefined && nestedRule.kind !== "externalFile") {
@@ -119,6 +121,7 @@ export function createCompiledRuleExecution(params: {
         }
         context = nested.context
         if (nested.rule.kind === "collection") {
+          namePropertyKey = nested.rule.keyField
           const position = source.yamlPath.at(-1)
           const index = typeof position === "number" ? position : parent.childIndices.get(ownerProperty.propertyKey) ?? 0
           parent.childIndices.set(ownerProperty.propertyKey, index + 1)
@@ -138,7 +141,7 @@ export function createCompiledRuleExecution(params: {
         }
       }
       const itemPreparation = prepareMetadataItemXMLExecution({
-        ...supplied, context, name, sourceItemName, propertyValues,
+        ...supplied, context, name, namePropertyKey, sourceItemName, propertyValues,
         rule: source.rule, yaml: source.yaml,
         prepareOutput: ownerProperty?.operations.prepareXMLItemOutput,
         propertyRule: ownerProperty?.propertyRule,
@@ -159,6 +162,22 @@ export function createCompiledRuleExecution(params: {
           return frame.nestedProperties.get(request.property.propertyKey) ?? prepareNestedXMLPropertyContext(request)
         },
         reuseNested(nested) {
+          let inline = inlineRules.get(nested.rule)
+          if (inline === undefined) {
+            inline = params.execution.propertyPlan(nested.rule).properties.some(({ propertyRule }) =>
+              propertyRule.yamlInline === true && propertyRule.xmlOnly !== true)
+            inlineRules.set(nested.rule, inline)
+          }
+          // У обычного item идентичность сохраняется и после перестановки массива.
+          // Позиционная очередь нужна только свёрнутому inline-item, чей YAML
+          // является скаляром или YAML его ребёнка, а не самого item.
+          if (!inline) {
+            if (nested.yaml === null || typeof nested.yaml !== "object"
+              || (nested.yaml as { readonly [identity]?: object })[identity] === undefined) return undefined
+            const entry = take(nested.yaml, nested.rule.itemType)
+            if (entry.rule !== nested.rule) throw new Error(`Правило закрытого XML item ${entry.rule.itemType} не совпадает с правилом родителя ${nested.rule.itemType}`)
+            return transport(entry.result)
+          }
           const deferredKeys = nested.deferredRulePath?.map(({ propertyKey }) => propertyKey) ?? []
           const key = deferredKeys.findLast(candidate => frame.inline.has(candidate)) ?? deferredKeys.at(-1)
           const bindings = key === undefined ? undefined : frame.inline.get(key)

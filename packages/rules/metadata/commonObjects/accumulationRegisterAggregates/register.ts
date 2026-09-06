@@ -102,7 +102,7 @@ const getCurrentAccumulationRegisterName = (context: ConfigurationContextWithExp
   const parentName = context.exportToXML.context?.parentName
   if (parentName) return parentName
 
-  return getParentFromContext(context).name
+  return getParentFromContext(context, ["MetadataAccumulationRegister"]).name
 }
 
 export const metadataPropertyRule000 = definePropertyTypeRule("AccumulationRegisterAggregateDimensions", "importFromXML", importAggregateDimensionsFromXML)

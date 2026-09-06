@@ -1,4 +1,4 @@
-import { createDirectImportFactsCollector, createRuleRegistrySet, importPropertiesFromXMLToYAML, type MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import { createDirectImportFactsCollector, createRuleRegistrySet, importMetadataItemFromXMLToYAML, importPropertiesFromXMLToYAML, type MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { describe, expect, it } from "vitest"
 import { metadataRules } from "../../composition/metadataRules"
 import { createLocalIndexesCollector } from "../../projectDefinition/localIndexes"
@@ -6,6 +6,31 @@ import { mockContextFromXML } from "../../../tests/mockContext"
 import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"
 
 describe("compiled structural atomic import", () => {
+  it.each(["false", "<![CDATA[false]]>"])("reads the direct #text property: %s", text => {
+    const context = mockContextFromXML()
+    const rule: MetadataItemRule = { itemType: "TextPropertyProbe", properties: {
+      value: { type: "boolean", xml: "#text", yaml: "Значение" },
+    } }
+    const yaml = importPropertiesFromXMLToYAML({
+      context, rule, execution: createRuleRegistrySet(metadataRules).execution,
+      sources: [{ context, xml: parseStructuralXMLWithoutCompatibility(`<Flag ref="Флаг">${text}</Flag>`) }],
+      yamlPath: [], rulePath: [], collector: createLocalIndexesCollector(),
+    })
+    expect(yaml).toEqual({ Значение: "Ложь" })
+  })
+
+  it("imports a file root that is already the rule container", () => {
+    const rule: MetadataItemRule = { itemType: "ExternalRootProbe", properties: {
+      xmlRoot: { type: "XMLRoot", container: "Root", isFileRoot: true, xmlOnly: true },
+      text: { type: "string", xml: "Text", yaml: "Текст" },
+    } }
+    const yaml = importMetadataItemFromXMLToYAML({
+      context: mockContextFromXML(), rule, xml: parseStructuralXMLWithoutCompatibility("<Root><Text>Значение</Text></Root>"),
+      traversal: { yamlPath: [], rulePath: [], collector: createLocalIndexesCollector(), execution: createRuleRegistrySet(metadataRules).execution },
+    })
+    expect(yaml).toEqual({ Текст: "Значение" })
+  })
+
   it.each([false, true])("passes XML nodes without retaining them in facts, facts-only: %s", factsOnly => {
     const execution = createRuleRegistrySet(metadataRules).execution
     const context = mockContextFromXML()

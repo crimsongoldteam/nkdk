@@ -5,6 +5,7 @@ import {
   createLocalXmlProof,
   copyYAMLRuntimeMetadata,
   parseXmlDocumentWithSaxes,
+  isEmptyXmlElement,
   type XmlAnomalyAnnotationTable,
   type XmlAnomalyAnnotations,
   type XmlDocument,
@@ -18,7 +19,7 @@ import type { ExternalFileEntry, XmlImportConfigurationContext } from "@nkdk/run
 import { importClientApplicationFormFromXMLToYAML } from "../forms/clientApplicationForm/fromXMLToYAML"
 import { importBaseFormYaml } from "../forms/clientApplicationForm/baseFormYaml"
 import { ClientApplicationFormRules, FormRulesTags } from "../forms/clientApplicationForm/rules"
-import type { ClientApplicationFormXML, ClientApplicationFormYAML, FormMetadataXML } from "../forms/clientApplicationForm/types"
+import type { ClientApplicationFormYAML } from "../forms/clientApplicationForm/types"
 import { prepareClientApplicationFormProofContexts, prepareClientApplicationFormProofContextsFromPrepared, prepareClientApplicationFormRootOutput } from "../forms/clientApplicationForm/convertYAMLToXML"
 import type { FormDataPathContext } from "../forms/clientApplicationForm/formDataPathContext"
 import { importMetadataItemFromXMLToYAML } from "../ruleRuntime/metadataItem/fromXMLToYAML"
@@ -122,9 +123,8 @@ interface ImportLocalRoundTripOptions {
 
 export interface ParsedImportXmlInput {
   input: ImportXmlInput
-  parsed: Record<string, unknown>
   roots: readonly XmlRootStructure[]
-  document?: XmlDocument
+  document: XmlDocument
 }
 
 let registeredImportRuleLookupCountValueForTests = 0
@@ -197,7 +197,6 @@ export async function prepareImportYamlFromDocuments(params: ImportFormProofOpti
       input,
       document,
       roots: document.roots,
-      parsed: document.compatibility,
     })),
   })
 }
@@ -331,11 +330,9 @@ function prepareImportYamlFromParsedInputs(params: ImportFormProofOptions & {
       : createDirectImportProfile({ propertyTypes: true })
     const result: DirectImportResult & Pick<PreparedImportYaml, "baseFormCandidate" | "dependentDeferred"> = measureYaml(params.profiler, () => {
       if (rule.itemType === ClientApplicationFormRules.itemType) {
-        const metadataXML = requireMetadataXml(xmlInputs)
         const metadataXMLNode = requireMetadataXmlNode(xmlInputs)
         const bodyInput = xmlInputs.find(({ input }) => input.role === "body")
-        const bodyXML = bodyInput?.parsed
-        const formXMLNode = bodyInput?.document?.roots.find(({ name }) => name === "Form")
+        const formXMLNode = bodyInput?.document.roots.find(({ name }) => name === "Form")
         const formImportContext: XmlImportConfigurationContext = {
           ...importContext,
           fromXML: {
@@ -349,10 +346,8 @@ function prepareImportYamlFromParsedInputs(params: ImportFormProofOptions & {
           dependencies: params.dependencies,
           context: formImportContext,
           formName: params.assignment.itemName,
-          formXML: bodyXML?.["Form"] as ClientApplicationFormXML | undefined,
-          metadataXML: metadataXML["MetaDataObject"] as FormMetadataXML,
-          formXMLNode,
-          metadataXMLNode,
+          formXML: formXMLNode,
+          metadataXML: metadataXMLNode,
           annotations,
           profile: importProfile,
           rule,
@@ -371,14 +366,13 @@ function prepareImportYamlFromParsedInputs(params: ImportFormProofOptions & {
       const collector = createLocalIndexesCollector()
       const deferred = createDeferredValuePathCollector()
       const dependent = createImportedDependentPropertyCollector()
-      const metadataXML = requireMetadataXml(xmlInputs)
       const metadataNode = requireMetadataXmlNode(xmlInputs)
       const externalPropertyXml = mapExternalPropertyXmlInputs(rule, xmlInputs)
       const yaml = importMetadataItemFromXMLToYAML({
         context: importContext,
         rule,
         name: params.assignment.itemName,
-        xml: metadataNode ?? metadataXML["MetaDataObject"],
+        xml: metadataNode,
         traversal: {
           yamlPath: [],
           rulePath: [],
@@ -391,7 +385,7 @@ function prepareImportYamlFromParsedInputs(params: ImportFormProofOptions & {
           ...(metadataNode === undefined ? {} : { xmlNodes: [metadataNode] }),
           profile: importProfile,
         },
-        propertyXML: externalPropertyXml.compatibilityByPropertyKey,
+        propertyXML: externalPropertyXml.valuesByPropertyKey,
         propertyXMLNodes: externalPropertyXml.nodesByPropertyKey,
       })
       if (yaml === undefined) throw new Error("XML-import не сформировал YAML")
@@ -461,13 +455,11 @@ function importAssignmentBaseFormCandidate(params: {
   }
 }): PreparedBaseFormCandidate | undefined {
   const bodyInput = params.inputs.find(({ input }) => input.role === "body")
-  const bodyXML = bodyInput?.parsed
-  const baseFormXML = (bodyXML?.["Form"] as ClientApplicationFormXML | undefined)?.BaseForm
-  if (baseFormXML === undefined) return undefined
-  const formNode = bodyInput?.document?.roots.find(({ name }) => name === "Form")
+  const formNode = bodyInput?.document.roots.find(({ name }) => name === "Form")
   const baseFormNode = formNode?.content.find(
     (node): node is XmlElementNode => node.type === "element" && node.name === "BaseForm",
   )
+  if (baseFormNode === undefined || isEmptyXmlElement(baseFormNode)) return undefined
   const companion = resolveBaseFormCompanion(params.assignment, params.topology)
   if (companion === undefined) return undefined
   const annotations = createXmlAnomalyAnnotations()
@@ -505,7 +497,7 @@ function importAssignmentBaseFormCandidate(params: {
   })
   const baseForm = importBaseFormYaml({
     context: params.context,
-    baseFormXML: baseFormNode ?? baseFormXML,
+    baseFormXML: baseFormNode,
     formName: params.assignment.itemName,
     rule: companion.rule,
     annotations,
@@ -785,12 +777,15 @@ function parseAssignmentXml(content: string): Omit<ParsedImportXmlInput, "input"
     preserveXsiNil: true,
     preserveEmptyElementNames: ["AdditionalFields"],
   })
-  return { document, roots: document.roots, parsed: document.compatibility }
+  return { document, roots: document.roots }
 }
 
-function requireMetadataXmlNode(inputs: readonly ParsedImportXmlInput[]) {
+export function requireMetadataXmlNode(inputs: readonly ParsedImportXmlInput[]): XmlElementNode {
   const metadata = inputs.find(({ input }) => input.role === "metadata")
-  return metadata?.document?.roots.find(({ name }) => name === "MetaDataObject")
+  if (metadata === undefined) throw new Error("В задании XML-import отсутствует metadata XML")
+  const node = metadata.document.roots.find(({ name }) => name === "MetaDataObject")
+  if (node === undefined) throw new Error("В metadata XML отсутствует MetaDataObject")
+  return node
 }
 
 function measureYaml<T>(profiler: ValidationProfiler | undefined, fn: () => T): T {
@@ -862,30 +857,25 @@ function recordProfileBuckets(
   }
 }
 
-function requireMetadataXml(inputs: readonly ParsedImportXmlInput[]): Record<string, unknown> {
-  const metadata = inputs.find(({ input }) => input.role === "metadata")
-  if (metadata === undefined) throw new Error("В задании XML-import отсутствует metadata XML")
-  return metadata.parsed
-}
-
 export function mapExternalPropertyXmlInputs(
   rule: MetadataItemRule,
   inputs: readonly ParsedImportXmlInput[],
 ): {
-  readonly compatibilityByPropertyKey: ReadonlyMap<string, unknown>
+  readonly valuesByPropertyKey: ReadonlyMap<string, unknown>
   readonly nodesByPropertyKey: ReadonlyMap<string, readonly XmlElementNode[]>
 } {
-  const compatibilityByPropertyKey = new Map<string, unknown>()
+  const valuesByPropertyKey = new Map<string, unknown>()
   const nodesByPropertyKey = new Map<string, readonly XmlElementNode[]>()
   for (const [key, propertyRule] of Object.entries(rule.properties) as Array<[string, PropertyRule]>) {
     if (propertyRule.filePath === undefined) continue
     const normalizedFilePath = propertyRule.filePath.replace(/\\/g, "/")
     const input = inputs.find(({ input }) => normalizedPath(input.sourcePath).endsWith(`/${normalizedFilePath}`))
     if (input === undefined) continue
-    compatibilityByPropertyKey.set(key, input.parsed)
-    if (input.document !== undefined) nodesByPropertyKey.set(key, input.document.roots)
+    const roots = input.document.roots
+    valuesByPropertyKey.set(key, roots.length === 1 ? roots[0] : roots)
+    nodesByPropertyKey.set(key, roots)
   }
-  return { compatibilityByPropertyKey, nodesByPropertyKey }
+  return { valuesByPropertyKey, nodesByPropertyKey }
 }
 
 function normalizedPath(path: string): string {

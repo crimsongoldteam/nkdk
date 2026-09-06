@@ -21,6 +21,20 @@ const rule = {
 } as MetadataItemRule
 
 describe("XML import plan", () => {
+  it("отмечает весь непосредственный текст, прочитанный правилом #text", () => {
+    const root = parseXmlDocumentWithSaxes("<Root>до<Unknown/>после</Root>").roots[0]!
+    const audit = createXmlImportAuditSession([root])
+    const visit = vi.fn()
+    visitXMLImportPlan({
+      plan: getXMLImportPlan({ rule: { itemType: "TextPlan", properties: { value: { type: "string", xml: "#text" } } }, includeAllTags: true }),
+      xml: root, audit, visit,
+    })
+    audit.finalize()
+    expect(visit.mock.calls.map(([match]) => match.xmlValue)).toEqual(["допосле"])
+    expect(audit.outcomes().filter(({ node }) => "type" in node && node.type === "text").map(({ state }) => state)).toEqual(["claimed", "claimed"])
+    expect(audit.outcomes().find(({ node }) => "type" in node && node.type === "element" && node.name === "Unknown")?.state).toBe("unknown")
+  })
+
   it.each([1, 2])("передаёт %i вложенных узла без объектной копии", (count) => {
     const root = parseXmlDocumentWithSaxes(`<Root>${'<Item name="x"><Value/></Item>'.repeat(count)}</Root>`).roots[0]!
     const nodes = root.content.filter(node => node.type === "element")

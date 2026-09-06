@@ -2,7 +2,6 @@ import type {
   ConfigurationIndexBlockFragment,
   ConfigurationIndexCollector,
   ExternalFileEntry,
-  XmlDocument,
   XmlImportConfigurationContext,
 } from "@nkdk/runtime"
 import {
@@ -27,7 +26,6 @@ import { collectFormDataPathOccurrencesFromFacts } from "./formDataPathOccurrenc
 import { selectDependentValidationFacts } from "./dependentValidationFacts"
 import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
 import { formMetadataSource } from "../forms/clientApplicationForm/metadataXML"
-import type { ClientApplicationFormXML, FormMetadataXML } from "../forms/clientApplicationForm/types"
 import { importMetadataItemFromXMLToYAML } from "../ruleRuntime/metadataItem/fromXMLToYAML"
 import {
   createDeferredValuePathCollector,
@@ -42,6 +40,7 @@ import {
   createResolvedAssignmentImportEnvironment,
   mapExternalPropertyXmlInputs,
   resolveBaseFormCompanion,
+  requireMetadataXmlNode,
   type ParsedImportXmlInput,
 } from "./prepareYaml"
 import type { ImportAssignment, ParsedImportXmlDocument } from "./types"
@@ -85,7 +84,7 @@ export interface PreparedImportFacts {
   readonly pendingChecks: readonly ValidationPendingCheck[]
 }
 
-type ParsedFactsXmlInput = Omit<ParsedImportXmlInput, "document"> & { readonly document: XmlDocument }
+type ParsedFactsXmlInput = ParsedImportXmlInput
 
 export async function prepareImportFacts(params: {
   readonly assignment: ImportAssignment
@@ -118,15 +117,12 @@ export async function prepareImportFacts(params: {
 
   const imported = measureFacts(params.profiler, () => {
     if (rule.itemType === ClientApplicationFormRules.itemType) {
-      const metadata = requireInput(inputs, "metadata")
       const body = inputs.find(({ input }) => input.role === "body")
       const importedForm = importClientApplicationFormFromXMLToYAML({
         context: importContext,
         formName: params.assignment.itemName,
-        formXML: body?.parsed["Form"] as ClientApplicationFormXML | undefined,
-        metadataXML: metadata.parsed["MetaDataObject"] as FormMetadataXML,
-        formXMLNode: body?.document.roots.find(({ name }) => name === "Form"),
-        metadataXMLNode: metadata.document.roots.find(({ name }) => name === "MetaDataObject"),
+        formXML: body?.document.roots.find(({ name }) => name === "Form"),
+        metadataXML: requireMetadataXmlNode(inputs),
         rule,
         mode: "facts",
         produceResult: false,
@@ -143,8 +139,7 @@ export async function prepareImportFacts(params: {
       context: importContext,
       rule,
       name: params.assignment.itemName,
-      xml: metadata.document.roots.find(({ name }) => name === "MetaDataObject")
-        ?? metadata.parsed["MetaDataObject"],
+      xml: requireMetadataXmlNode(inputs),
       traversal: {
         mode: "facts",
         produceResult: false,
@@ -155,7 +150,7 @@ export async function prepareImportFacts(params: {
         dependent,
         xmlNodes: metadata.document.roots,
       },
-      propertyXML: externalPropertyXml.compatibilityByPropertyKey,
+      propertyXML: externalPropertyXml.valuesByPropertyKey,
       propertyXMLNodes: externalPropertyXml.nodesByPropertyKey,
     })
     dependentCandidates = dependent.finish()
@@ -302,9 +297,7 @@ function augmentClientApplicationFormFacts(params: {
 }): readonly DirectImportPropertyFact[] {
   if (!("metadataItemAugmenter" in params.context.fromXML)
     || typeof params.context.fromXML.metadataItemAugmenter !== "string") return params.facts
-  const metadata = requireInput(params.inputs, "metadata")
-  const metadataObject = metadata.document.roots.find(node => node.name === "MetaDataObject")
-  if (metadataObject === undefined) throw new Error("Не найден MetaDataObject метаданных формы")
+  const metadataObject = requireMetadataXmlNode(params.inputs)
   const source = formMetadataSource(metadataObject) ?? {}
   const context = withResolvedXMLImportObjectVariant(
     params.context,
@@ -529,7 +522,6 @@ function parsedInputs(inputs: readonly ParsedImportXmlDocument[]): ParsedFactsXm
     input,
     document,
     roots: document.roots,
-    parsed: document.compatibility,
   }))
 }
 

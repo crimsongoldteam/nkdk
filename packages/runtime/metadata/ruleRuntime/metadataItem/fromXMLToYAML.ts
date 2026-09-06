@@ -47,7 +47,7 @@ export function importMetadataItemFromXMLToYAML(params: {
   const root = rootNode === undefined ? objectRecordOrUndefined(params.xml) : undefined
   const sourceNode = rootNode === undefined
     ? undefined
-    : xmlRoot === undefined
+    : xmlRoot === undefined || rootNode.name === xmlRoot.container
       ? rootNode
       : rootNode.content.find(
           (node): node is XmlElementNode =>
