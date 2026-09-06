@@ -22,7 +22,7 @@ import { CollectableElementTypeToYAML, type CollectableElementType, type Element
 import { currentRuleRegistrySet } from "../ruleRegistryExecutionContext"
 import { arrangeProperties } from "../../../helpers/arrangeProperties"
 import { formElementTreeRule } from "./treeRule"
-import type { XmlElementNode } from "../../../xml/import/document"
+import { isXmlElementNode, xmlAttributeValue, type XmlElementNode } from "../../../xml/import/document"
 
 export function importFormElementFromXMLToYAML(params: {
   context: ConfigurationContextFromXML
@@ -91,7 +91,7 @@ export function importFormElementPropertiesFromXMLToYAML(params: {
 export function importSingleFormElementFromXMLToYAML(params: {
   context: ConfigurationContextFromXML
   rule: ElementRule
-  xml: ElementXML | undefined
+  xml: ElementXML | XmlElementNode | undefined
   ownerXmlName?: string
   nameStyle?: SingletonNameStyle
   directId?: string
@@ -120,7 +120,9 @@ export function importSingleFormElementFromXMLToYAML(params: {
     nameStyle: params.nameStyle,
     variant: inheritedNameVariant,
   })
-  const xmlName = typeof params.xml._name === "string" ? params.xml._name : undefined
+  const xmlName = isXmlElementNode(params.xml)
+    ? xmlAttributeValue(params.xml, "name")
+    : typeof params.xml._name === "string" ? params.xml._name : undefined
   const nameVariant = getSingletonNameVariant({
     xmlName,
     ownerXmlName: params.ownerXmlName,
@@ -129,7 +131,10 @@ export function importSingleFormElementFromXMLToYAML(params: {
   const itemContext = withSingletonNameVariantFromXML(context, nameVariant)
 
   if (params.directId === undefined) {
-    collectConfigurationIndexIdentityFromXML({ context: itemContext, sourceXmlKey: "_id", xmlValue: params.xml._id })
+    collectConfigurationIndexIdentityFromXML({
+      context: itemContext, sourceXmlKey: "_id",
+      xmlValue: isXmlElementNode(params.xml) ? xmlAttributeValue(params.xml, "id") : params.xml._id,
+    })
   }
   const initialYAML = {}
   attachExplicitSingletonName({ yaml: initialYAML, xmlName, generatedName, nameStyle: params.nameStyle })
@@ -141,7 +146,7 @@ export function importSingleFormElementFromXMLToYAML(params: {
       rule: params.rule,
       sources: [{
         context: itemContext,
-        xml: params.traversal.xmlNodes?.[0] ?? (params.nameStyle?.explicitXMLName === true
+        xml: params.traversal.xmlNodes?.[0] ?? (!isXmlElementNode(params.xml) && params.nameStyle?.explicitXMLName === true
           ? withoutImportableXMLName(params.xml)
           : params.xml),
       }],

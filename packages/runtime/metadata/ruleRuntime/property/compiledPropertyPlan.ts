@@ -155,7 +155,8 @@ function compileProperty(
   const repeatableXMLNodes = nestedRule?.kind === "collection"
     || operations.fileChildNamesDescriptor !== undefined
     || xmlImportBehavior?.repeatedXMLNodes === true
-  const nestedItemsOwnXMLNode = nestedRule?.kind === "collection" && (
+  const nestedItemsOwnXMLNode = nestedRule?.kind === "item" && operations.nestedItemRule !== undefined
+    || nestedRule?.kind === "collection" && (
     nestedRule.xmlElement === canonicalXMLKey
     || xmlImportBehavior?.nestedItemsOwnXMLChildren === true
   )

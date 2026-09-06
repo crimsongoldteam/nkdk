@@ -28,6 +28,21 @@ import {
 } from "../../../tests/xmlImportAttempt"
 
 describe("importMetadataItemFromXMLToYAML", () => {
+  it("передаёт структурный вложенный item без промежуточного значения", () => {
+    const type = "StructuralNestedItem" as PropertyRuleType
+    registerMetadataItemRule({ propertyType: type, itemRule: {
+      itemType: "StructuralChild", properties: { name: { type: "string", xml: "Name", yaml: "Имя" } },
+    } as MetadataItemRule })
+    const root = parseXmlDocumentWithSaxes("<Root><Child><Name>Пример</Name></Child></Root>").roots[0]!
+    const child = root.content.find(node => node.type === "element")!
+    Object.defineProperty(child, "compatibilityValue", { get() { throw new Error("Вложенному item не нужна копия") } })
+    expect(importMetadataItemFromXMLToYAML({
+      context: mockContextFromXML(), xml: root,
+      rule: { itemType: "StructuralParent", properties: { child: { type, xml: "Child", yaml: "Ребёнок" } } } as MetadataItemRule,
+      traversal: { yamlPath: [], rulePath: [], collector: createLocalIndexesCollector() },
+    })).toEqual({ Ребёнок: { Имя: "Пример" } })
+  })
+
   it("импортирует структурный объект без чтения промежуточного XML", () => {
     const node = parseXmlDocumentWithSaxes("<Root><Name>Пример</Name></Root>").roots[0]!
     Object.defineProperty(node, "compatibilityValue", { get() { throw new Error("intermediate XML read") } })

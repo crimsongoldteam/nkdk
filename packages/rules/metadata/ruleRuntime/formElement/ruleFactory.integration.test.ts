@@ -51,13 +51,17 @@ const singletonElementProbeRule = {
 } as const satisfies MetadataItemRule
 
 describe("одиночный элемент формы", () => {
-  it("готовит явное имя singleton до открытия локальной проверки", () => {
+  it.each([false, true])("готовит явное имя singleton до открытия локальной проверки; структурный XML: %s", (structural) => {
     const registries = createRuleRegistrySet(metadataRules)
     const rule = withRuleRegistrySet(registries, () => getElementRule("ExtendedTooltip"))
+    const xml = structural
+      ? parseXmlDocumentWithSaxes('<ExtendedTooltip name="ОсобаяПодсказка" id="2"/>').roots[0]!
+      : { _name: "ОсобаяПодсказка", _id: "2" }
+    if (structural) Object.defineProperty(xml, "compatibilityValue", { get() { throw new Error("Одиночному элементу не нужна копия") } })
     let opened: Record<string, unknown> | undefined
     const yaml = importSingleFormElementFromXMLToYAML({
       context: singletonElementContexts().importContext,
-      rule, xml: { _name: "ОсобаяПодсказка", _id: "2" }, ownerXmlName: "Кнопка",
+      rule, xml, ownerXmlName: "Кнопка",
       nameStyle: { canonicalSuffix: "РасширеннаяПодсказка", referenceSuffixes: ["РасширеннаяПодсказка"], canonicalNameMode: "ownerSuffix", explicitXMLName: true },
       traversal: {
         yamlPath: [], rulePath: [], collector: createLocalIndexesCollector(), execution: registries.execution,
@@ -175,7 +179,7 @@ describe("одиночный элемент формы", () => {
     expect(definition.formElements.ExtendedTooltip).toBe(elementRule)
   })
 
-  it("восстанавливает имя и id перед остальными XML-атрибутами без reference XML", () => {
+  it.each([false, true])("восстанавливает имя и id перед остальными XML-атрибутами; структурный XML: %s", (structural) => {
     const contexts = singletonElementContexts()
     const source = {
       ExtendedTooltip: {
@@ -188,7 +192,9 @@ describe("одиночный элемент формы", () => {
     const imported = testPropertyFromXMLToYAML({
       context: contexts.importContext,
       rule: singletonElementProbeRule,
-      xml: source,
+      xml: structural
+        ? parseXmlDocumentWithSaxes('<Root><ExtendedTooltip name="КнопкаРасширеннаяПодсказка" id="2" DisplayImportance="VeryHigh"/></Root>').roots[0]!
+        : source,
       name: "Кнопка",
     })
     const exported = testPropertyFromYAMLToXML({
@@ -203,6 +209,7 @@ describe("одиночный элемент формы", () => {
       "_id",
       "_DisplayImportance",
     ])
+    expect(exported.xml.ExtendedTooltip).toMatchObject({ _name: "КнопкаРасширеннаяПодсказка", _id: "2" })
   })
 
   it("сохраняет export claim одиночного элемента при добавлении имени и id", () => {

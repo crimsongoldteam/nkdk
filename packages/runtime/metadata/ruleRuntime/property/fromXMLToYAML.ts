@@ -1092,7 +1092,8 @@ export function importPropertiesFromXMLToYAML(params: {
         if ("flags" in entry) return (entry as CompiledProperty).flags.nestedItemsOwnXMLNode
         const { canonicalXMLKey, rule: propertyRule } = entry
         const nestedRule = typeRule(propertyRule.type, "yamlToXMLNestedRule")
-        return nestedRule?.kind === "collection" && (
+        return nestedRule?.kind === "item" && typeRule(propertyRule.type, "nestedItemRule") !== undefined
+          || nestedRule?.kind === "collection" && (
           nestedRule.xmlElement === canonicalXMLKey
           || typeRule(propertyRule.type, "xmlImportPropertyBehavior")?.nestedItemsOwnXMLChildren === true
         )

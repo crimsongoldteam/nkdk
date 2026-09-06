@@ -23,6 +23,19 @@ const registriesWithImport = (handler: ImportFromXMLFunction) =>
   }))
 
 describe("CompiledPropertyPlan", () => {
+  it.each([false, true])("отдаёт одиночному item XML-узел при наличии импортного договора: %s", (hasImportRule) => {
+    const itemRule: MetadataItemRule = { itemType: "Child", properties: {} }
+    const registries = createPropertyRuleRegistrySet(defineMetadataRules({
+      ...emptyMetadataRules,
+      propertyTypes: { Sample: {
+        yamlToXMLNestedRule: { kind: "item", itemRule },
+        ...(hasImportRule ? { nestedItemRule: { itemRule } } : {}),
+      } },
+    }))
+    const plan = createPropertyRuleExecutor(registries).propertyPlan(ownerValueRule())
+    expect(plan.propertiesByKey.get("value")?.flags.nestedItemsOwnXMLNode).toBe(hasImportRule)
+  })
+
   it("готовит действия отсутствующего XML один раз и фильтрует их по источнику", () => {
     const rule: MetadataItemRule = {
       itemType: "Owner",
