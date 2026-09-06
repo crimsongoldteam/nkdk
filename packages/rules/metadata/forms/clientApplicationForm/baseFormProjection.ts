@@ -54,7 +54,6 @@ export function projectClientApplicationBaseForm(params: {
       `Правило формы ${rule.itemType} не содержит коллекцию childItems`
     )
   }
-  const extensionElementsByName = indexElementsByName(params.extensionYaml.Элементы, rootElementCollectionRule)
   const metadataCorrespondences: YAMLRuntimeCorrespondence[] = []
   const projectionContext = createProjectionContext({
     baseYaml: params.baseYaml,
@@ -67,6 +66,7 @@ export function projectClientApplicationBaseForm(params: {
       }
     },
   })
+  const extensionElementsByName = indexElementsByName(params.extensionYaml.Элементы, rootElementCollectionRule, projectionContext)
   const properties = projectMetadataItemProperties({
     baseYaml: params.baseYaml,
     extensionYaml: params.extensionYaml,
@@ -148,7 +148,7 @@ export function equalClientApplicationBaseFormProjections(params: {
     skippedYamlKeys: new Set(["Элементы"]),
   })) return false
 
-  const extensionElements = indexElementsByName(params.extensionYaml.Элементы, childItems)
+  const extensionElements = indexElementsByName(params.extensionYaml.Элементы, childItems, leftContext)
   return equalProjectedElementTrees({
     leftElements: params.leftBaseYaml.Элементы,
     rightElements: params.rightBaseYaml.Элементы,
@@ -245,8 +245,8 @@ function equalProjectedElementTrees(params: {
       })) return false
     }
 
-    const leftChildrenRule = propertyRuleByYamlKey(leftRule, "Элементы")
-    const rightChildrenRule = propertyRuleByYamlKey(rightRule, "Элементы")
+    const leftChildrenRule = params.leftContext.rulesByYamlKey(leftRule).get("Элементы")
+    const rightChildrenRule = params.rightContext.rulesByYamlKey(rightRule).get("Элементы")
     if (
       (leftElement.Элементы !== undefined && leftChildrenRule === undefined)
       || (rightElement.Элементы !== undefined && rightChildrenRule === undefined)
@@ -278,7 +278,11 @@ function equalProjectedProperties(params: {
   readonly rightAliases?: Readonly<Record<string, string>>
   readonly extensionAliases?: Readonly<Record<string, string>>
 }): boolean {
-  const keys = projectionYamlKeys(params.leftYaml, params.rightYaml, params.leftRule, params.rightRule)
+  const keys = projectionYamlKeys(
+    params.leftYaml, params.rightYaml,
+    params.leftContext.rulesByYamlKey(params.leftRule),
+    params.rightContext.rulesByYamlKey(params.rightRule),
+  )
   for (const yamlKey of keys) {
     if (params.skippedYamlKeys?.has(yamlKey) === true || isXmlServiceYamlKey(yamlKey)) continue
     const left = projectMetadataItemProperty({
@@ -322,14 +326,12 @@ function isXmlServiceYamlKey(key: string): boolean {
 function projectionYamlKeys(
   leftYaml: Record<string, unknown>,
   rightYaml: Record<string, unknown>,
-  leftRule: MetadataItemRule,
-  rightRule?: MetadataItemRule,
+  leftRules: ReadonlyMap<string, PropertyRule>,
+  rightRules?: ReadonlyMap<string, PropertyRule>,
 ): ReadonlySet<string> {
-  const yamlKeys = (rule: MetadataItemRule): string[] =>
-    Object.entries(rule.properties).map(([propertyKey, property]) => property.yaml ?? propertyKey)
   return new Set([
-    ...yamlKeys(leftRule),
-    ...(rightRule === undefined ? [] : yamlKeys(rightRule)),
+    ...leftRules.keys(),
+    ...(rightRules === undefined ? [] : rightRules.keys()),
     ...Object.keys(leftYaml),
     ...Object.keys(rightYaml),
   ])
@@ -337,11 +339,12 @@ function projectionYamlKeys(
 
 function indexElementsByName(
   elements: FormElementTreeYAML | undefined,
-  collectionRule: PropertyRule
+  collectionRule: PropertyRule,
+  context: BaseFormProjectionRuntimeContext,
 ): ReadonlyMap<string, IndexedFormElement> {
   const result = new Map<string, IndexedFormElement>()
 
-  visitElementTree(elements, collectionRule, (name, element, rule) => {
+  visitElementTree(elements, collectionRule, context, (name, element, rule) => {
     if (result.has(name)) {
       throw new Error(`External form contains duplicate element name "${name}"`)
     }
@@ -354,6 +357,7 @@ function indexElementsByName(
 function visitElementTree(
   elements: FormElementTreeYAML | undefined,
   collectionRule: PropertyRule,
+  context: BaseFormProjectionRuntimeContext,
   visit: (name: string, element: FormElementTreeNodeYAML, rule: MetadataItemRule) => void
 ): void {
   if (elements === undefined) return
@@ -367,11 +371,11 @@ function visitElementTree(
     visit(name, element, rule)
 
     if (element.Элементы === undefined) continue
-    const childCollectionRule = propertyRuleByYamlKey(rule, "Элементы")
+    const childCollectionRule = context.rulesByYamlKey(rule).get("Элементы")
     if (childCollectionRule === undefined) {
       throw new Error(`Element "${name}" does not define the YAML property "Элементы"`)
     }
-    visitElementTree(element.Элементы, childCollectionRule, visit)
+    visitElementTree(element.Элементы, childCollectionRule, context, visit)
   }
 }
 
@@ -428,7 +432,7 @@ function projectElementSelection(params: {
   }
 
   if (params.baseElement.Элементы !== undefined) {
-    const childCollectionRule = propertyRuleByYamlKey(baseRule, "Элементы")
+    const childCollectionRule = params.context.rulesByYamlKey(baseRule).get("Элементы")
     if (childCollectionRule === undefined) {
       throw new Error(`Element "${params.name}" does not define the YAML property "Элементы"`)
     }
@@ -528,7 +532,7 @@ function projectMetadataItemProperties(params: {
   for (const yamlKey of projectionYamlKeys(
     params.baseYaml,
     {},
-    params.baseRule,
+    params.context.rulesByYamlKey(params.baseRule),
   )) {
     if (params.skippedYamlKeys?.has(yamlKey) === true) continue
     const projection = projectMetadataItemProperty({ ...params, yamlKey })
@@ -818,10 +822,6 @@ function propertyRulesByYamlKey(rule: MetadataItemRule): ReadonlyMap<string, Pro
       propertyRule,
     ])
   )
-}
-
-function propertyRuleByYamlKey(rule: MetadataItemRule, yamlKey: string): PropertyRule | undefined {
-  return propertyRulesByYamlKey(rule).get(yamlKey)
 }
 
 function asYamlRecord(value: unknown): Record<string, unknown> | undefined {

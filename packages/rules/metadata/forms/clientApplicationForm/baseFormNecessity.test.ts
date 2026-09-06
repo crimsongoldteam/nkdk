@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 import "../../../tests/metadataExecutionContext"
 import { isRedundantClientApplicationBaseForm } from "./baseFormNecessity"
 import type { ClientApplicationFormYAML } from "./types"
@@ -6,6 +6,7 @@ import { equalClientApplicationBaseFormProjections, projectClientApplicationBase
 import { equalBaseFormYaml } from "./baseFormYaml"
 import { ClientApplicationFormRules } from "./rules"
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
+import { UsualGroupRules } from "../elements/usualGroup/rules"
 
 describe("необходимость сохранённой основы формы", () => {
   it("готовит таблицу правил один раз на сравнение, а не на каждое свойство", () => {
@@ -22,7 +23,25 @@ describe("необходимость сохранённой основы фор�
       leftBaseYaml: form(yaml), rightBaseYaml: form({ ...yaml }), extensionYaml: form({ ...yaml }),
       rule: { ...ClientApplicationFormRules, properties },
     })).toBe(true)
-    expect(reads).toBeLessThan(600)
+    // По одному чтению таблицы для каждой стороны; порядок берётся из той же таблицы.
+    expect(reads).toBeLessThanOrEqual(200)
+  })
+
+  it("переиспользует таблицу правил во вложенных группах при сравнении и проекции", () => {
+    const yaml = form({ Элементы: Object.fromEntries(Array.from({ length: 5 }, (_, index) => [
+      `Группа${index}`, { Вид: "Группа", Элементы: { [`Вложенная${index}`]: { Вид: "Группа", Ширина: 20 } } },
+    ])) })
+    const entries = vi.spyOn(Object, "entries")
+    try {
+      expect(equalClientApplicationBaseFormProjections({ leftBaseYaml: yaml, rightBaseYaml: yaml, extensionYaml: yaml })).toBe(true)
+      const comparisonReads = entries.mock.calls.filter(([value]) => value === UsualGroupRules.properties).length
+      expect(comparisonReads).toBeLessThanOrEqual(2)
+      entries.mockClear()
+      expect(projectClientApplicationBaseForm({ baseYaml: yaml, extensionYaml: yaml }).yaml).toEqual(yaml)
+      expect(entries.mock.calls.filter(([value]) => value === UsualGroupRules.properties).length).toBeLessThanOrEqual(1)
+    } finally {
+      entries.mockRestore()
+    }
   })
 
   it.each([
