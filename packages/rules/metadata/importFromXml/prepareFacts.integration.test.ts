@@ -26,6 +26,7 @@ import { prepareImportDependencies } from "./preparedDependencies"
 import { createPropertyFactsYamlView } from "./propertyFactsYamlView"
 import * as propertyFactsView from "./propertyFactsYamlView"
 import * as addressableMetadataTargets from "../validation/addressableMetadataTargets"
+import * as formDataPathMetadata from "../forms/clientApplicationForm/formDataPathMetadata"
 import type { ImportAssignment } from "./types"
 import {
   extractImportValidationContribution,
@@ -102,6 +103,21 @@ describe("prepareImportFacts", () => {
 
     expect(facts.semanticFacts.filter(({ value }) => containsYamlContainer(value))).toEqual([])
     expect((facts.baseFormSemanticFacts ?? []).filter(({ value }) => containsYamlContainer(value))).toEqual([])
+  })
+
+  it("строит индекс путей формы без чтения полного YAML", async () => {
+    const assignment = managedFormAssignment()
+    const fromYaml = vi.spyOn(formDataPathMetadata, "createImportedFormDataPathIndex")
+    try {
+      const facts = await prepareImportFacts({
+        assignment, context: extensionContext(), collector: createConfigurationIndexCollector(),
+        inputs: parseAssignmentInputs(assignment, true),
+      })
+      expect(facts.localIndexes.metadata.formDataPathIndex).toBeDefined()
+      expect(fromYaml).not.toHaveBeenCalled()
+    } finally {
+      fromYaml.mockRestore()
+    }
   })
 
   it("не материализует отсутствующие составные значения BaseForm", async () => {

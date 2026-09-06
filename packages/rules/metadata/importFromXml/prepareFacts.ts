@@ -21,10 +21,10 @@ import type {
 import { importClientApplicationFormFromXMLToYAML } from "../forms/clientApplicationForm/fromXMLToYAML"
 import { importClientApplicationFormBodyFromXML } from "../forms/clientApplicationForm/fromXMLToYAML"
 import {
-  createImportedFormDataPathIndex,
   importedClientApplicationForm,
 } from "../forms/clientApplicationForm/formDataPathMetadata"
-import { resolveClientApplicationFormCollectionItemRule } from "../forms/clientApplicationForm/formDataPathProjection"
+import { clientApplicationFormDataPathProjection, resolveClientApplicationFormCollectionItemRule } from "../forms/clientApplicationForm/formDataPathProjection"
+import { createFormDataPathIndexFromFacts } from "./formDataPathFacts"
 import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
 import type { ClientApplicationFormXML, FormMetadataXML } from "../forms/clientApplicationForm/types"
 import { importMetadataItemFromXMLToYAML } from "../ruleRuntime/metadataItem/fromXMLToYAML"
@@ -222,7 +222,7 @@ export async function prepareImportFacts(params: {
     .find(({ type }) => type === "ClientApplicationForm")?.yaml
   const containsForm = rule.itemType === ClientApplicationFormRules.itemType || typeof formPropertyYaml === "string"
   const preliminaryFormDataPathIndex = containsForm
-    ? createImportedFormDataPathIndex({ yaml: createPropertyFactsYamlView(acceptedFacts), rule })
+    ? createFormDataPathIndexFromFacts({ facts: acceptedFacts, localIndexes: imported.localIndexes, projection: clientApplicationFormDataPathProjection })
     : undefined
   const semanticFacts = finalizeDeferredPropertyFacts({
     facts: acceptedFacts,
@@ -245,6 +245,7 @@ export async function prepareImportFacts(params: {
     assignment: params.assignment,
     rule,
     localIndexes: imported.localIndexes,
+    facts: semanticFacts,
     yaml: semanticView,
     owner: dependentOwner,
   }) : []
@@ -365,12 +366,12 @@ function prepareFormValidationChecks(params: {
   readonly assignment: ImportAssignment
   readonly rule: MetadataItemRule
   readonly localIndexes: LocalIndexes
+  readonly facts: readonly DirectImportPropertyFact[]
   readonly yaml: Readonly<Record<string, unknown>>
   readonly owner: { readonly dir: string; readonly name: string }
 }): ValidationPendingCheck[] {
   const projection = params.yaml
-  const index = createImportedFormDataPathIndex({ yaml: projection, rule: params.rule })
-  if (index === undefined) return []
+  const index = createFormDataPathIndexFromFacts({ facts: params.facts, localIndexes: params.localIndexes, projection: clientApplicationFormDataPathProjection })
   params.localIndexes.metadata.formDataPathIndex = index
   if (params.rule.itemType !== ClientApplicationFormRules.itemType) return []
   const form = importedClientApplicationForm({ yaml: projection, rule: params.rule })
