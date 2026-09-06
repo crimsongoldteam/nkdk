@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { fontYAMLFixtures } from "./__fixtures__/data"
 import { mockContextFromXML, mockRule } from "../../../tests/mockContext"
-import { importContentFromXML } from "@nkdk/runtime"
+import { importContentFromXML, parseXmlDocumentWithSaxes } from "@nkdk/runtime"
 import { importFontFromXML } from "./fromXML"
 import { FontXML } from "./types"
 
@@ -17,6 +17,13 @@ describe("importFontFromXML", () => {
     const result = importFontFromXML(mockContextFromXML(), mockRule, xmlData.Font)
 
     expect(result).toEqual(font)
+  })
+
+  it.each(fontYAMLFixtures)("imports $name directly from a structural XML node", ({ font, xml }) => {
+    const node = parseXmlDocumentWithSaxes(xml).roots[0]!
+    Object.defineProperty(node, "compatibilityValue", { get() { throw new Error("Compatibility XML must not be read") } })
+
+    expect(importFontFromXML(mockContextFromXML(), mockRule, node)).toEqual(font)
   })
 
   it("imports raw non-prefixed style item ref", () => {

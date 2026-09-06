@@ -1,22 +1,22 @@
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
-import { importBooleanFromXML } from "../boolean/fromXML"
 import { importI8nTextFromXML } from "../i8nText/fromXML"
 import type { FormattedI8nText, FormattedI8nTextXML } from "./types"
-import { ConfigurationContextFromXML } from "@nkdk/runtime"
+import { ConfigurationContextFromXML, isXmlElementNode, xmlAttributeValue, type XmlElementNode } from "@nkdk/runtime"
 
 export const importFormattedI8nTextFromXML = (
   context: ConfigurationContextFromXML,
   rule: PropertyRule,
-  xml: FormattedI8nTextXML | undefined
+  xml: FormattedI8nTextXML | XmlElementNode | undefined
 ): FormattedI8nText | undefined => {
   if (xml === undefined) return undefined
 
-  const formatted = importBooleanFromXML(context, undefined, xml._formatted) ?? false
+  const formattedXML = isXmlElementNode(xml) ? xmlAttributeValue(xml, "formatted") : xml._formatted
+  const formatted = formattedXML === true || formattedXML === "true"
   const resultI8nText = importI8nTextFromXML(context, rule, xml)
 
   if (resultI8nText === undefined) {
-    if (xml._formatted === undefined) return undefined
+    if (formattedXML === undefined) return undefined
     return {
       formatted,
       items: {},
