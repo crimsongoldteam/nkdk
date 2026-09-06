@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { parseXmlDocumentWithSaxes } from "@nkdk/runtime"
 import { mockContext } from "../../../tests/mockContext"
 import { importStandardPeriodFromXML } from "./fromXML"
 import { importStandardPeriodFromYAML } from "./fromYAML"
@@ -6,6 +7,18 @@ import { exportStandardPeriodToXML } from "./toXML"
 import { exportStandardPeriodToYAML } from "./toYAML"
 
 describe("StandardPeriod", () => {
+  it.each([
+    ["", undefined],
+    ["<v8:variant/>", { variant: "" }],
+    ['<v8:variant xsi:type="v8:StandardPeriodVariant"/>', undefined],
+    ["<v8:variant>Today</v8:variant>", { variant: "Today" }],
+    ['<v8:variant xsi:type="v8:StandardPeriodVariant">Custom</v8:variant><v8:startDate>0001-01-01T00:00:00</v8:startDate><v8:endDate>2026-09-06T00:00:00</v8:endDate>', { variant: "Custom", startDate: "0001-01-01T00:00:00", endDate: "2026-09-06T00:00:00" }],
+  ])("reads structural period %s", (xml, expected) => {
+    const node = parseXmlDocumentWithSaxes(`<Value>${xml}</Value>`).roots[0]!
+    Object.defineProperty(node, "compatibilityValue", { get() { throw new Error("Compatibility XML must not be read") } })
+    expect(importStandardPeriodFromXML(node)).toEqual(expected)
+  })
+
   it("round-trips custom period through YAML", () => {
     const model = {
       variant: "Custom",

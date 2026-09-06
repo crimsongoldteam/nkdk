@@ -1,10 +1,9 @@
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { ImportFromXMLFunction } from "@nkdk/runtime/rule-kit"
-import { ConfigurationContextFromXML } from "@nkdk/runtime"
+import { ConfigurationContextFromXML, isXmlElementNode, xmlAttributeValue, xmlElementChildren, xmlTextValue, type XmlElementNode } from "@nkdk/runtime"
 import { primitiveValueHandlers } from "./handlers"
 import { importStandardPeriodFromXML } from "../standardPeriod/fromXML"
-import { StandardPeriodXML } from "../standardPeriod/types"
 import { importI8nTextFromXML } from "../i8nText/fromXML"
 import {
   MetadataFixedArrayValue,
@@ -37,11 +36,14 @@ const PRIMITIVE_TYPES: readonly MetadataPrimitiveValueType[] = [
   "AccountType",
 ]
 
-const isEmptyMetadataValueXML = (value: Record<string, unknown>): boolean =>
-  Object.keys(value).every((key) => key === "_xsi:type")
+const isEmptyMetadataValueXML = (value: Record<string, unknown> | XmlElementNode): boolean =>
+  isXmlElementNode(value)
+    ? value.attributes.every(attribute => attribute.name === "xsi:type") && value.content.length === 0
+    : Object.keys(value).every((key) => key === "_xsi:type")
 
-const isNilMetadataValueXML = (value: Record<string, unknown>): boolean =>
-  value["_xsi:nil"] === true || value["_xsi:nil"] === "true"
+const isNilMetadataValueXML = (value: Record<string, unknown> | XmlElementNode): boolean =>
+  isXmlElementNode(value) ? xmlAttributeValue(value, "xsi:nil") === "true"
+    : value["_xsi:nil"] === true || value["_xsi:nil"] === "true"
 
 /**
  * Импортирует MetadataValue из XML. Всегда возвращает тегированную форму {type, value}.
@@ -59,7 +61,7 @@ export const importMetadataValueFromXML = (params: {
     return context.fromXML.forReference ? (data as any) : undefined
   }
 
-  const declaredXMLType = data["_xsi:type"] as MetadataValueTypeXML | undefined
+  const declaredXMLType = (isXmlElementNode(data) ? xmlAttributeValue(data, "xsi:type") : data["_xsi:type"]) as MetadataValueTypeXML | undefined
   if (type !== undefined && declaredXMLType !== undefined && declaredXMLType !== MetadataValueTypeToXML[type]) {
     throw new Error(
       `MetadataValue: ожидался тип ${MetadataValueTypeToXML[type]}, получен ${declaredXMLType}`,
@@ -69,9 +71,9 @@ export const importMetadataValueFromXML = (params: {
   const resultedType: MetadataValueType | undefined =
     type ?? MetadataValueTypeFromXML(declaredXMLType)
   if (!resultedType) {
-    if (context.fromXML.forReference && typeof data["_xsi:type"] === "string") return data as any
-    if (typeof data["_xsi:type"] === "string" && isEmptyMetadataValueXML(data)) return undefined
-    throw new Error(`MetadataValue: не распознан тип: ${data["_xsi:type"]}`)
+    if (context.fromXML.forReference && typeof declaredXMLType === "string") return data as any
+    if (typeof declaredXMLType === "string" && isEmptyMetadataValueXML(data)) return undefined
+    throw new Error(`MetadataValue: не распознан тип: ${declaredXMLType}`)
   }
 
   const ruleTyped = params.rule as MetadataValuePropertyRule | undefined
@@ -82,7 +84,7 @@ export const importMetadataValueFromXML = (params: {
   }
 
   if (resultedType === "formChoiceListDesTimeValue") {
-    return importFormChoiceListFromXML(context, data as MetadataFormChoiceListValueXML)
+    return importFormChoiceListFromXML(context, data)
   }
 
   if (resultedType === "valueList") {
@@ -90,7 +92,7 @@ export const importMetadataValueFromXML = (params: {
   }
 
   if (resultedType === "standardPeriod") {
-    const value = importStandardPeriodFromXML(data as StandardPeriodXML)
+    const value = importStandardPeriodFromXML(data)
     return value === undefined ? undefined : { type: "standardPeriod", value }
   }
 
@@ -98,21 +100,23 @@ export const importMetadataValueFromXML = (params: {
     throw new Error(`MetadataValue: неподдерживаемый примитивный тип: ${resultedType}`)
   }
 
-  const textValue = data["#text"] as string | boolean | number | undefined
+  const textValue = isXmlElementNode(data)
+    ? data.content.some(node => node.type === "text") ? xmlTextValue(data) : undefined
+    : data["#text"] as string | boolean | number | undefined
   const handler = primitiveValueHandlers[resultedType as MetadataPrimitiveValueType]
   return handler.fromXML(context, textValue)
 }
 
 export const importFixedArrayFromXML = (
   context: ConfigurationContextFromXML,
-  data: MetadataFixedArrayValueXML | { "v8:Value": unknown | unknown[] }
+  data: MetadataFixedArrayValueXML | { "v8:Value": unknown | unknown[] } | XmlElementNode
 ): MetadataFixedArrayValue => {
-  const raw = data["v8:Value"]
+  const raw = isXmlElementNode(data) ? xmlElementChildren(data, "v8:Value") : data["v8:Value"]
   const values = Array.isArray(raw) ? raw : [raw]
   return {
     type: "fixedArray",
-    value: values.map((value) =>
-      typeof value === "object" &&
+    value: (values.length === 0 && isXmlElementNode(data) ? [undefined] : values).map((value) =>
+      isXmlElementNode(value) && isNilMetadataValueXML(value) || typeof value === "object" &&
       value !== null &&
       "_xsi:nil" in value &&
       value["_xsi:nil"] === true
@@ -124,11 +128,13 @@ export const importFixedArrayFromXML = (
 
 export const importFormChoiceListFromXML = (
   context: ConfigurationContextFromXML,
-  data: MetadataFormChoiceListValueXML
+  data: MetadataFormChoiceListValueXML | XmlElementNode
 ): MetadataFormChoiceListValue | undefined => {
   if (!data) return undefined
-  const value = importMetadataValueFromXML({ context, rule: undefined, value: data.Value })
-  const presentation = importI8nTextFromXML(context, { type: "I8nText" }, data.Presentation)
+  const valueXML = isXmlElementNode(data) ? xmlElementChildren(data, "Value")[0] : data.Value
+  const presentationXML = isXmlElementNode(data) ? xmlElementChildren(data, "Presentation")[0] : data.Presentation
+  const value = importMetadataValueFromXML({ context, rule: undefined, value: valueXML })
+  const presentation = importI8nTextFromXML(context, { type: "I8nText" }, presentationXML)
   const result: MetadataFormChoiceListValue = { type: "formChoiceListDesTimeValue" }
   if (value !== undefined) result.value = value
   if (presentation !== undefined) result.presentation = presentation

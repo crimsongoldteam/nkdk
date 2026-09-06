@@ -1,4 +1,4 @@
-import { ConfigurationContextFromXML } from "@nkdk/runtime"
+import { ConfigurationContextFromXML, isXmlElementNode, xmlAttributeValue, xmlElementChildren, xmlTextValue, type XmlElementNode } from "@nkdk/runtime"
 import { SystemEnumerationDcsValueRootXML } from "./dcsTypes"
 import { SystemEnumerationPropertyRule } from "./types"
 import { resolveSystemEnumerationXsiType } from "./toDcsXML"
@@ -20,14 +20,25 @@ const textNode = (value: string | { "#text"?: string } | undefined): string => {
 export const importSystemEnumerationFromDcsXML = (
   _context: ConfigurationContextFromXML,
   rule: SystemEnumerationPropertyRule,
-  xml: SystemEnumerationDcsValueRootXML
+  xml: SystemEnumerationDcsValueRootXML | XmlElementNode
 ): string => {
-  const root = xml["dcscor:value"]
+  const root = isXmlElementNode(xml)
+    ? xml.name === "dcscor:value" ? xml : xmlElementChildren(xml, "dcscor:value")[0]
+    : xml["dcscor:value"]
   if (root === undefined) {
     throw new Error("DCS SystemEnumeration: missing dcscor:value")
   }
 
   const expected = resolveSystemEnumerationXsiType(rule.typeSE)
+  if (isXmlElementNode(root)) {
+    const actual = xmlAttributeValue(root, "xsi:type")
+    if (actual !== undefined && actual !== expected) {
+      throw new Error(`DCS SystemEnumeration: expected xsi:type ${expected}, got ${actual}`)
+    }
+    if (root.content.length === 0 && root.attributes.length === 0) return ""
+    if (!root.content.some(node => node.type === "text")) throw new Error("DCS SystemEnumeration: invalid text node")
+    return xmlTextValue(root)
+  }
   if (typeof root === "object" && root !== null && "_xsi:type" in root) {
     const actual = root["_xsi:type"]
     if (actual !== expected) {

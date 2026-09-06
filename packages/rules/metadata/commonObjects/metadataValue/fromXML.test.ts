@@ -1,10 +1,42 @@
 import { describe, expect, it } from "vitest"
 import { metadataValueFixtures } from "./__fixtures__/data"
 import { mockContextFromXML } from "../../../tests/mockContext"
-import { importContentFromXML } from "@nkdk/runtime"
+import { importContentFromXML, parseXmlDocumentWithSaxes, xmlElementChildren } from "@nkdk/runtime"
 import { importMetadataValueFromXML } from "./fromXML"
 
 describe("importMetadataValueFromXML", () => {
+  it.each([
+    ['<Value xsi:nil="true"/>', undefined],
+    ['<Value xsi:type="xs:string"/>', { type: "string", value: "" }],
+    ['<Value xsi:type="v8:TypeDescription"/>', undefined],
+    ['<Value xsi:type="v8:FixedArray"/>', { type: "fixedArray", value: [undefined] }],
+    ['<Value xsi:type="v8:FixedArray"><v8:Value xsi:nil="true"/></Value>', { type: "fixedArray", value: [undefined] }],
+  ])("preserves empty structural value %s", (xml, expected) => {
+    const node = parseXmlDocumentWithSaxes(xml).roots[0]!
+    const context = mockContextFromXML()
+    expect(importMetadataValueFromXML({ context, rule: undefined, value: node })).toEqual(expected)
+    expect(importMetadataValueFromXML({ context, rule: undefined, value: node.compatibilityValue })).toEqual(expected)
+  })
+
+  it.each([
+    '<Value xsi:type="v8:TypeDescription">unexpected</Value>',
+    '<Value xsi:type="v8:TypeDescription"><Foo>bar</Foo></Value>',
+  ])("rejects unrecognized structural content %s", (xml) => {
+    const value = parseXmlDocumentWithSaxes(xml).roots[0]!
+    expect(() => importMetadataValueFromXML({ context: mockContextFromXML(), rule: undefined, value }))
+      .toThrow("MetadataValue: не распознан тип: v8:TypeDescription")
+  })
+
+  it.each(metadataValueFixtures)("imports structural $name", (fixture) => {
+    const node = parseXmlDocumentWithSaxes(fixture.XML).roots[0]!
+    const nodes = [node]
+    for (const current of nodes) {
+      nodes.push(...xmlElementChildren(current))
+      Object.defineProperty(current, "compatibilityValue", { get() { throw new Error("Compatibility XML must not be read") } })
+    }
+    expect(importMetadataValueFromXML({ context: mockContextFromXML(), rule: fixture.rule, value: node })).toEqual(fixture.internal)
+  })
+
   const parseValue = (xml: string): any => {
     const wrapped = `<root>${xml}</root>`
     const parsed = importContentFromXML<{ root: { Value: any } }>(wrapped)
