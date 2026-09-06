@@ -4,9 +4,27 @@ import { mockContextFromXML,mockRule } from "../../../tests/mockContext"
 import { typeFixturesTable } from "./__fixtures__/data"
 import { importTypeDescriptionFromXML } from "./fromXML"
 import { exportTypeDescriptionToYAML } from "./toYAML"
-import { TypeDescriptionXML } from "./types"
+import { TypeDescriptionXML, TYPE_DESCRIPTION_SOURCE_TYPES } from "./types"
+import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"
 
 describe("importTypeDescriptionFromXML", () => {
+  it("keeps the source namespace without rebuilding XML", () => {
+    const source = parseStructuralXMLWithoutCompatibility('<Type><v8:Type xmlns:d7p1="http://v8.1c.ru/8.2/data/chart">d7p1:Chart</v8:Type></Type>')
+    const value = importTypeDescriptionFromXML(mockContextFromXML(), mockRule, source)
+    expect(value?.[TYPE_DESCRIPTION_SOURCE_TYPES]).toEqual({ Chart: { value: "d7p1:Chart", namespace: "http://v8.1c.ru/8.2/data/chart" } })
+    expect(exportTypeDescriptionToYAML(mockContextFromXML(), mockRule, value)).toBe("Диаграмма")
+  })
+
+  it("preserves type groups and repeated type IDs", () => {
+    const source = parseStructuralXMLWithoutCompatibility('<Type><v8:TypeSet>cfg:AnyRef</v8:TypeSet><v8:Type>xs:string</v8:Type><v8:TypeId>id</v8:TypeId><v8:TypeId>id</v8:TypeId></Type>')
+    expect(importTypeDescriptionFromXML(mockContextFromXML(), mockRule, source)).toEqual({ type: ["string", "AnyIBRef"], typeId: ["id", "id"] })
+  })
+
+  it.each(typeFixturesTable)("imports structural type: $internal.type", ({ internal, xml }) => {
+    const source = parseStructuralXMLWithoutCompatibility(xml)
+    expect(importTypeDescriptionFromXML(mockContextFromXML(), mockRule, source)).toEqual(internal)
+  })
+
   it("should import undefined type description from XML", () => {
     const result = importTypeDescriptionFromXML(mockContextFromXML(), mockRule, undefined)
     expect(result).toBeUndefined()
