@@ -13,7 +13,7 @@ withConfigurationIndexLogicalAddress
 } from "@nkdk/runtime"
 import { createRuleRegistrySet } from "@nkdk/runtime/rule-kit"
 import { createCompiledRuleExecution, createAnnotatedLocalXmlBodyConsumer, createAnnotatedLocalXmlBodyConsumers, createLocalXmlBodyConsumer, importMetadataItemFromXMLToYAML, importMetadataItemCollectionFromXMLToYAML } from "@nkdk/runtime/rule-kit"
-import { isXmlElementNode } from "@nkdk/runtime"
+import { isXmlElementNode, xmlTextValue } from "@nkdk/runtime"
 import { describe,expect,it,vi } from "vitest"
 import { mockContextFromXML, mockContextToXML } from "../../../tests/mockContext"
 import {
@@ -441,7 +441,7 @@ describe("importPropertiesFromXMLToYAML", () => {
     const rules = createRuleRegistrySet(metadataRules)
     const calls: string[] = []
     rules.property.registerTypeRule("NestedRoundTripScalar" as never, "compileAtomicConversion", () => ({
-      fromXMLToYAML: ({ value }) => { calls.push(`import:${String(value)}`); return { metadataValue: value, representationValue: value } },
+      fromXMLToYAML: ({ value: source }) => { const value = isXmlElementNode(source) ? xmlTextValue(source) : source; calls.push(`import:${String(value)}`); return { metadataValue: value, representationValue: value } },
       fromYAMLToXML: ({ value, context }) => {
         if (normalization === "context" || normalization === "singleton-context") expect(context.exportToXML?.version).toBe("prepared-child")
         calls.push(`export:${String(value)}`)
@@ -623,7 +623,7 @@ describe("importPropertiesFromXMLToYAML", () => {
     const rules = createRuleRegistrySet(metadataRules)
     const calls: string[] = []
     rules.property.registerTypeRule("LocalRoundTripScalar" as never, "compileAtomicConversion", () => ({
-      fromXMLToYAML: ({ value }) => { calls.push(`import:${String(value)}`); return { metadataValue: value, representationValue: value } },
+      fromXMLToYAML: ({ value: source }) => { const value = isXmlElementNode(source) ? xmlTextValue(source) : source; calls.push(`import:${String(value)}`); return { metadataValue: value, representationValue: value } },
       fromYAMLToXML: ({ value }) => { calls.push(`export:${String(value)}`); return { metadataValue: value, representationValue: value } },
     }))
     const rule = {
@@ -731,7 +731,10 @@ describe("importPropertiesFromXMLToYAML", () => {
   it("оформляет лексическое расхождение в итоговом YAML внутри общего frame", () => {
     const rules = createRuleRegistrySet(metadataRules)
     rules.property.registerTypeRule("LocalLexicalNumber" as never, "compileAtomicConversion", () => ({
-      fromXMLToYAML: ({ value }) => ({ metadataValue: Number(value), representationValue: Number(value) }),
+      fromXMLToYAML: ({ value: source }) => {
+        const value = Number(isXmlElementNode(source) ? xmlTextValue(source) : source)
+        return { metadataValue: value, representationValue: value }
+      },
       fromYAMLToXML: ({ value }) => ({ metadataValue: value, representationValue: value }),
     }))
     const rule: MetadataItemRule = { itemType: "Catalog", properties: {

@@ -30,7 +30,7 @@ describe("XML import plan", () => {
     const visit = vi.fn()
     visitXMLImportPlan({
       plan: getXMLImportPlan({ rule: { itemType: "NestedPlan", properties: { item: { type: "string", xml: "Item" } } }, includeAllTags: true }),
-      xml: root, visit, isRepeatable: () => true, nestedItemsOwnNode: () => true,
+      xml: root, visit, isRepeatable: () => true, useStructuralXMLValue: () => true,
     })
     expect(visit).toHaveBeenCalledOnce()
     expect(visit.mock.calls[0]![0].xmlNodes).toEqual(nodes)

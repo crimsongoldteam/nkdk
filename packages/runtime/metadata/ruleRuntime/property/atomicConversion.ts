@@ -11,6 +11,7 @@ export interface AtomicConversionResult<Representation = unknown> {
 export interface CompiledAtomicConversion {
   readonly fromXMLToYAML: (params: {
     readonly context: ConfigurationContext
+    /** Исходный XML может передаваться узлом; значения атрибутов и defaults — литералами. */
     readonly value: unknown
   }) => AtomicConversionResult
   readonly fromYAMLToXML: (params: {

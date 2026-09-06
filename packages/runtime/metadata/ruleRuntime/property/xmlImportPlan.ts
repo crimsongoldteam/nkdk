@@ -204,7 +204,7 @@ export const visitXMLImportPlan = (params: {
   auditItemBoundary?: XmlImportAuditBoundary
   auditBoundary?(entry: XMLImportPlanEntry): XmlImportAuditBoundary
   isRepeatable?(entry: XMLImportPlanEntry): boolean
-  nestedItemsOwnNode?(entry: XMLImportPlanEntry): boolean
+  useStructuralXMLValue?(entry: XMLImportPlanEntry): boolean
   claimRoot?: boolean
   visit(match: XMLImportMatch): void
 }): void => {
@@ -217,7 +217,7 @@ export const visitXMLImportPlan = (params: {
       auditItemBoundary: params.auditItemBoundary,
       auditBoundary: params.auditBoundary,
       isRepeatable: params.isRepeatable,
-      nestedItemsOwnNode: params.nestedItemsOwnNode,
+      useStructuralXMLValue: params.useStructuralXMLValue,
       claimRoot: params.claimRoot,
       visit: params.visit,
     })
@@ -242,7 +242,7 @@ function visitStructuralXMLImportPlan(params: {
   readonly auditItemBoundary?: XmlImportAuditBoundary
   readonly auditBoundary?: (entry: XMLImportPlanEntry) => XmlImportAuditBoundary
   readonly isRepeatable?: (entry: XMLImportPlanEntry) => boolean
-  readonly nestedItemsOwnNode?: (entry: XMLImportPlanEntry) => boolean
+  readonly useStructuralXMLValue?: (entry: XMLImportPlanEntry) => boolean
   readonly claimRoot?: boolean
   readonly visit: (match: XMLImportMatch) => void
 }): void {
@@ -303,13 +303,13 @@ function visitStructuralXMLImportPlan(params: {
     const selectedElements = selectedCandidates.flatMap(({ xmlNode }) =>
       "type" in xmlNode ? [xmlNode] : [],
     )
-    const ownsElements = selectedElements.length === selectedCandidates.length
-      && params.nestedItemsOwnNode?.(candidate.entry) === true
+    const structuralValue = selectedElements.length === selectedCandidates.length
+      && params.useStructuralXMLValue?.(candidate.entry) === true
     params.visit({
       ...candidate.entry,
       sourceXMLKey: candidate.sourceXMLKey,
       xmlPath: candidate.xmlPath,
-      xmlValue: ownsElements
+      xmlValue: structuralValue
         ? selectedElements.length === 1 ? selectedElements[0] : selectedElements
         : selection.repeatable && selectedCandidates.length > 1
         ? xmlImportCompatibilityValues({

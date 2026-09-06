@@ -1088,8 +1088,11 @@ export function importPropertiesFromXMLToYAML(params: {
           || typeRule(propertyRule.type, "fileChildNamesDescriptor") !== undefined
           || typeRule(propertyRule.type, "xmlImportPropertyBehavior")?.repeatedXMLNodes === true
       },
-      nestedItemsOwnNode: (entry) => {
-        if ("flags" in entry) return (entry as CompiledProperty).flags.nestedItemsOwnXMLNode
+      useStructuralXMLValue: (entry) => {
+        if ("flags" in entry) {
+          const flags = (entry as CompiledProperty).flags
+          return flags.nestedItemsOwnXMLNode || params.audit === undefined && flags.atomicFromXMLToYAMLEligible
+        }
         const { canonicalXMLKey, rule: propertyRule } = entry
         const nestedRule = typeRule(propertyRule.type, "yamlToXMLNestedRule")
         return nestedRule?.kind === "item" && typeRule(propertyRule.type, "nestedItemRule") !== undefined
