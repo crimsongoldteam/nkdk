@@ -34,7 +34,7 @@ const textNode = (value: unknown): string =>
 const maybeTextNode = (value: string | { "#text"?: unknown } | XmlElementNode | undefined): string | undefined => {
   if (value === undefined) return undefined
   if (typeof value === "string") return value
-  if (isXmlElementNode(value)) return value.content.some(node => node.type === "text") ? xmlTextValue(value) : undefined
+  if (isXmlElementNode(value)) return xmlTextValue(value) || undefined
   const text = value["#text"]
   return typeof text === "string" ? text : undefined
 }

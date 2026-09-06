@@ -6,11 +6,17 @@ import { importMetadataValueFromXML } from "./fromXML"
 
 describe("importMetadataValueFromXML", () => {
   it.each([
+    ['<Value/>', undefined],
+    ['<Value><![CDATA[]]></Value>', undefined],
     ['<Value xsi:nil="true"/>', undefined],
     ['<Value xsi:type="xs:string"/>', { type: "string", value: "" }],
+    ['<Value xsi:type="xs:decimal"><![CDATA[]]></Value>', undefined],
+    ['<Value xsi:type="xs:dateTime"><![CDATA[]]></Value>', undefined],
     ['<Value xsi:type="v8:TypeDescription"/>', undefined],
+    ['<Value xsi:type="v8:TypeDescription"><![CDATA[]]></Value>', undefined],
     ['<Value xsi:type="v8:FixedArray"/>', { type: "fixedArray", value: [undefined] }],
     ['<Value xsi:type="v8:FixedArray"><v8:Value xsi:nil="true"/></Value>', { type: "fixedArray", value: [undefined] }],
+    ['<Value xsi:type="v8:FixedArray"><v8:Value/></Value>', { type: "fixedArray", value: [undefined] }],
   ])("preserves empty structural value %s", (xml, expected) => {
     const node = parseXmlDocumentWithSaxes(xml).roots[0]!
     const context = mockContextFromXML()

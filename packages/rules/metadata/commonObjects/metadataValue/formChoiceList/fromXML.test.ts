@@ -12,6 +12,7 @@ import {
   withoutPresentationXML,
 } from "./__fixtures__/data"
 import { importFormChoiceListFromXML } from "./fromXML"
+import { parseStructuralXMLWithoutCompatibility } from "../../../../tests/structuralXML"
 
 const parseXML = (xml: string) => {
   const wrapped = `<root>${xml}</root>`
@@ -20,6 +21,14 @@ const parseXML = (xml: string) => {
 }
 
 describe("importFormChoiceListFromXML", () => {
+  it.each([
+    ["<Value/>", undefined],
+    ['<Value xsi:type="FormChoiceListDesTimeValue"/>', { type: "formChoiceListDesTimeValue" }],
+  ])("preserves structural value presence: %s", (xml, expected) => {
+    expect(importFormChoiceListFromXML(mockContextFromXML(), parseXML(xml))).toEqual(expected)
+    expect(importFormChoiceListFromXML(mockContextFromXML(), parseStructuralXMLWithoutCompatibility(xml))).toEqual(expected)
+  })
+
   it("should import formChoiceList with string value", () => {
     const result = importFormChoiceListFromXML(mockContextFromXML(), parseXML(withStringValueXML))
     expect(result).toEqual(withStringValue)

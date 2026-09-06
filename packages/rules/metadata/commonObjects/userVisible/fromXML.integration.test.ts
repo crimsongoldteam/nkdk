@@ -5,8 +5,41 @@ import { withMultipleValuesUserVisible } from "./__fixtures__/withMultipleValues
 import { withSingleValueUserVisible } from "./__fixtures__/withSingleValue"
 import { importUserVisibleFromXML } from "./fromXML"
 import { UserVisible,UserVisibleXML } from "./types"
+import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"
+import { readXMLFixtureAsString } from "../../../tests/readFixtureXML"
+import { importContentFromXML } from "@nkdk/runtime"
 
 describe("importUserVisibleFromXML", () => {
+  it("does not invent a role from a value without attributes", () => {
+    const xml = "<UserVisible><xr:Value>true</xr:Value></UserVisible>"
+    const expected = { common: false, values: [] }
+    expect(importUserVisibleFromXML(mockContextFromXML(), mockRule, importContentFromXML<{ UserVisible: UserVisibleXML }>(xml).UserVisible)).toEqual(expected)
+    expect(importUserVisibleFromXML(mockContextFromXML(), mockRule, parseStructuralXMLWithoutCompatibility(xml))).toEqual(expected)
+  })
+
+  it("rejects empty entries among repeated visibility values", () => {
+    const xml = '<UserVisible><xr:Value/><xr:Value name="Role.А">true</xr:Value></UserVisible>'
+    expect(() => importUserVisibleFromXML(mockContextFromXML(), mockRule, importContentFromXML<{ UserVisible: UserVisibleXML }>(xml).UserVisible)).toThrow()
+    expect(() => importUserVisibleFromXML(mockContextFromXML(), mockRule, parseStructuralXMLWithoutCompatibility(xml))).toThrow()
+  })
+
+  it.each([
+    ["withMultipleValues.xml", withMultipleValuesUserVisible],
+    ["withSingleValue.xml", withSingleValueUserVisible],
+    ["withEmptyValues.xml", { common: false, values: [] }],
+  ])("reads structural visibility: %s", (file, expected) => {
+    expect(importUserVisibleFromXML(mockContextFromXML(), mockRule, parseStructuralXMLWithoutCompatibility(readXMLFixtureAsString(import.meta.url, file)))).toEqual(expected)
+  })
+
+  it("preserves literal names, including empty names, in structural visibility", () => {
+    const xml = '<UserVisible><xr:Value name="">false</xr:Value><xr:Value name="b1d9c8b4-d05c-45c7-8db2-abc84e597700">true</xr:Value></UserVisible>'
+    expect(importUserVisibleFromXML(mockContextFromXML(), mockRule, parseStructuralXMLWithoutCompatibility(xml))).toEqual({ common: false, values: [{ name: "", value: false }, { name: "b1d9c8b4-d05c-45c7-8db2-abc84e597700", value: true }] })
+  })
+
+  it("keeps an empty structural visibility absent", () => {
+    expect(importUserVisibleFromXML(mockContextFromXML(), mockRule, parseStructuralXMLWithoutCompatibility("<UserVisible/>"))).toBeUndefined()
+  })
+
   it("should import Use from XML", () => {
     const xml = readAndParseXMLFile<{ UserVisible: UserVisibleXML }>("userVisible/withMultipleValues.xml")
 

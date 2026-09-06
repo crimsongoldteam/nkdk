@@ -2,8 +2,17 @@ import { describe, expect, it } from "vitest"
 import { mockContextFromXML, mockRule } from "../../../tests/mockContext"
 import { importUsePurposesFromXML } from "./fromXML"
 import { UsePurposesXML } from "./types"
+import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"
 
 describe("importUsePurposesFromXML", () => {
+  it.each([
+    ["<UsePurposes/>", undefined],
+    ["<UsePurposes><v8:Value/></UsePurposes>", undefined],
+    ['<UsePurposes><v8:Value xsi:type="app:ApplicationUsePurpose">PlatformApplication</v8:Value><v8:Value xsi:type="app:ApplicationUsePurpose">MobilePlatformApplication</v8:Value></UsePurposes>', ["PlatformApplication", "MobilePlatformApplication"]],
+  ])("reads structural purposes: %s", (xml, expected) => {
+    expect(importUsePurposesFromXML(mockContextFromXML(), mockRule, parseStructuralXMLWithoutCompatibility(xml))).toEqual(expected)
+  })
+
   it("should return undefined when xml is undefined", () => {
     const result = importUsePurposesFromXML(mockContextFromXML(), mockRule, undefined)
 

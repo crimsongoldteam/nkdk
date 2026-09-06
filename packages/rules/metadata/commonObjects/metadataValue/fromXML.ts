@@ -1,7 +1,7 @@
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { ImportFromXMLFunction } from "@nkdk/runtime/rule-kit"
-import { ConfigurationContextFromXML, isXmlElementNode, xmlAttributeValue, xmlElementChildren, xmlTextValue, type XmlElementNode } from "@nkdk/runtime"
+import { ConfigurationContextFromXML, isEmptyXmlElement, isXmlElementNode, xmlAttributeValue, xmlElementChildren, xmlTextValue, type XmlElementNode } from "@nkdk/runtime"
 import { primitiveValueHandlers } from "./handlers"
 import { importStandardPeriodFromXML } from "../standardPeriod/fromXML"
 import { importI8nTextFromXML } from "../i8nText/fromXML"
@@ -38,7 +38,7 @@ const PRIMITIVE_TYPES: readonly MetadataPrimitiveValueType[] = [
 
 const isEmptyMetadataValueXML = (value: Record<string, unknown> | XmlElementNode): boolean =>
   isXmlElementNode(value)
-    ? value.attributes.every(attribute => attribute.name === "xsi:type") && value.content.length === 0
+    ? value.attributes.every(attribute => attribute.name === "xsi:type") && value.content.every(node => node.type === "text" && node.value === "")
     : Object.keys(value).every((key) => key === "_xsi:type")
 
 const isNilMetadataValueXML = (value: Record<string, unknown> | XmlElementNode): boolean =>
@@ -57,6 +57,7 @@ export const importMetadataValueFromXML = (params: {
 }): MetadataTypedValue | undefined => {
   const { context, value: data, type } = params
   if (!data) return undefined
+  if (isXmlElementNode(data) && isEmptyXmlElement(data)) return undefined
   if (isNilMetadataValueXML(data)) {
     return context.fromXML.forReference ? (data as any) : undefined
   }
@@ -101,7 +102,7 @@ export const importMetadataValueFromXML = (params: {
   }
 
   const textValue = isXmlElementNode(data)
-    ? data.content.some(node => node.type === "text") ? xmlTextValue(data) : undefined
+    ? xmlTextValue(data) || undefined
     : data["#text"] as string | boolean | number | undefined
   const handler = primitiveValueHandlers[resultedType as MetadataPrimitiveValueType]
   return handler.fromXML(context, textValue)
@@ -128,9 +129,10 @@ export const importFixedArrayFromXML = (
 
 export const importFormChoiceListFromXML = (
   context: ConfigurationContextFromXML,
-  data: MetadataFormChoiceListValueXML | XmlElementNode
+  data: MetadataFormChoiceListValueXML | XmlElementNode | undefined
 ): MetadataFormChoiceListValue | undefined => {
   if (!data) return undefined
+  if (isXmlElementNode(data) && isEmptyXmlElement(data)) return undefined
   const valueXML = isXmlElementNode(data) ? xmlElementChildren(data, "Value")[0] : data.Value
   const presentationXML = isXmlElementNode(data) ? xmlElementChildren(data, "Presentation")[0] : data.Presentation
   const value = importMetadataValueFromXML({ context, rule: undefined, value: valueXML })

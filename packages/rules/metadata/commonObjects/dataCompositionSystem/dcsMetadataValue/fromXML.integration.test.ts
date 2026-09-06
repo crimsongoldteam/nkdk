@@ -16,6 +16,7 @@ describe("import MetadataDcsMetadataValue from XML", () => {
   it.each([
     ['<dcscor:value/>', "DCS MetadataValue: missing dcscor:value"],
     ['<dcscor:value xsi:type="Unknown"/>', "DCS MetadataValue: unsupported xsi:type Unknown"],
+    ['<dcscor:value xsi:type="dcscor:DesignTimeValue"><![CDATA[]]></dcscor:value>', "DCS MetadataValue: invalid DesignTimeValue"],
   ])("reports structural value errors without serializing XML: %s", (xml, message) => {
     expect(() => importDcsMetadataValueFromDcsXML(mockContextFromXML(), { type: "MetadataDcsMetadataValue", valueType: "Primitive" }, parseStructuralXMLWithoutCompatibility(xml))).toThrow(message)
   })
