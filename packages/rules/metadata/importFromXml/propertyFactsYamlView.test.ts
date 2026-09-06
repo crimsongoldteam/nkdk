@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest"
 import {
-  applyPropertyFactChanges,
   createPropertyFactsYamlView,
   propertyFactsWithReconstructionValues,
   type DirectImportPropertyFact,
 } from "./propertyFactsYamlView"
+import { applyPropertyFactChanges } from "./propertyFactChanges"
 
 describe("createPropertyFactsYamlView", () => {
   it("сохраняет добавленные служебные Symbol в перечне ключей Proxy", () => {

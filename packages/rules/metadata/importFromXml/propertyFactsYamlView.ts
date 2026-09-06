@@ -50,46 +50,6 @@ export function createPropertyFactsYamlView(
   return view(root, {}) as Readonly<Record<string, unknown>>
 }
 
-export function applyPropertyFactChanges(
-  facts: readonly DirectImportPropertyFact[],
-  changes: readonly {
-    readonly yamlPath: readonly (string | number)[]
-    readonly kind: "delete" | "set"
-    readonly value?: unknown
-  }[],
-): readonly DirectImportPropertyFact[] {
-  if (changes.length === 0) return facts
-  const byPath = new Map(changes.map(change => [pathKey(change.yamlPath), change]))
-  const result: DirectImportPropertyFact[] = []
-  const applied = new Set<string>()
-  for (const fact of facts) {
-    const key = pathKey(fact.yamlPath)
-    const change = byPath.get(key)
-    if (change === undefined) {
-      result.push(fact)
-      continue
-    }
-    applied.add(key)
-    if (change.kind === "set") result.push({ ...fact, value: change.value })
-  }
-  for (const change of changes) {
-    const key = pathKey(change.yamlPath)
-    if (change.kind !== "set" || applied.has(key)) continue
-    const parentPath = change.yamlPath.slice(0, -1)
-    const template = facts.find(fact => startsWithPath(fact.yamlPath, parentPath))
-    if (template === undefined) continue
-    result.push({
-      itemType: template.itemType,
-      ...(template.itemRule === undefined ? {} : { itemRule: template.itemRule }),
-      propertyKey: String(change.yamlPath.at(-1)),
-      yamlPath: [...change.yamlPath],
-      sourceYamlPath: [...change.yamlPath],
-      value: change.value,
-    })
-  }
-  return result
-}
-
 export function propertyFactsWithReconstructionValues(
   facts: readonly DirectImportPropertyFact[],
 ): readonly DirectImportPropertyFact[] {
@@ -100,10 +60,6 @@ export function propertyFactsWithReconstructionValues(
 
 function pathKey(path: readonly (string | number)[]): string {
   return JSON.stringify(path)
-}
-
-function startsWithPath(path: readonly (string | number)[], prefix: readonly (string | number)[]): boolean {
-  return prefix.every((segment, index) => path[index] === segment)
 }
 
 function view(node: FactNode, inherited?: unknown): unknown {

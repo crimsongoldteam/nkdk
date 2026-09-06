@@ -77,11 +77,11 @@ import {
   type PreparedImportFacts,
 } from "./prepareFacts"
 import {
-  applyPropertyFactChanges,
   createPropertyFactsYamlView,
   propertyFactsWithReconstructionValues,
   type DirectImportPropertyFact,
 } from "./propertyFactsYamlView"
+import { applyPropertyFactChanges } from "./propertyFactChanges"
 import {
   prepareImportDependencies,
   type ImportDependencyFacts,
