@@ -218,8 +218,12 @@ export async function prepareImportFacts(params: {
         rule,
       })
     : acceptedPropertyFacts(imported.localIndexes, propertyFacts)
-  const preliminaryView = createPropertyFactsYamlView(acceptedFacts)
-  const preliminaryFormDataPathIndex = createImportedFormDataPathIndex({ yaml: preliminaryView, rule })
+  const formPropertyYaml = Object.values(rule.properties)
+    .find(({ type }) => type === "ClientApplicationForm")?.yaml
+  const containsForm = rule.itemType === ClientApplicationFormRules.itemType || typeof formPropertyYaml === "string"
+  const preliminaryFormDataPathIndex = containsForm
+    ? createImportedFormDataPathIndex({ yaml: createPropertyFactsYamlView(acceptedFacts), rule })
+    : undefined
   const semanticFacts = finalizeDeferredPropertyFacts({
     facts: acceptedFacts,
     deferred: imported.deferred,
@@ -229,13 +233,7 @@ export async function prepareImportFacts(params: {
     execution: params.execution,
   })
   const semanticView = createPropertyFactsYamlView(semanticFacts)
-  const formPropertyYaml = Object.values(rule.properties)
-    .find(({ type }) => type === "ClientApplicationForm")?.yaml
-  const formSemanticFacts = rule.itemType === ClientApplicationFormRules.itemType
-    ? semanticFacts
-    : typeof formPropertyYaml === "string"
-      ? semanticFacts
-      : undefined
+  const formSemanticFacts = containsForm ? semanticFacts : undefined
   const dependentIndex = extractDependentYamlIndexFacts({
     filePath: params.assignment.targetProjectPath,
     rootYaml: semanticView,
@@ -243,13 +241,13 @@ export async function prepareImportFacts(params: {
     owner: dependentOwner,
     candidates: dependentCandidates,
   })
-  const formPendingChecks = prepareFormValidationChecks({
+  const formPendingChecks = containsForm ? prepareFormValidationChecks({
     assignment: params.assignment,
     rule,
     localIndexes: imported.localIndexes,
-    propertyFacts: semanticFacts,
+    yaml: semanticView,
     owner: dependentOwner,
-  })
+  }) : []
 
   return {
     dependencies: collectImportDependencyFacts({
@@ -289,7 +287,9 @@ function augmentClientApplicationFormFacts(params: {
   readonly inputs: readonly ParsedFactsXmlInput[]
   readonly context: XmlImportConfigurationContext
   readonly rule: MetadataItemRule
-}): DirectImportPropertyFact[] {
+}): readonly DirectImportPropertyFact[] {
+  if (!("metadataItemAugmenter" in params.context.fromXML)
+    || typeof params.context.fromXML.metadataItemAugmenter !== "string") return params.facts
   const metadata = requireInput(params.inputs, "metadata")
   const metadataObject = metadata.parsed["MetaDataObject"] as FormMetadataXML
   const source = { ...metadataObject.Form }
@@ -365,10 +365,10 @@ function prepareFormValidationChecks(params: {
   readonly assignment: ImportAssignment
   readonly rule: MetadataItemRule
   readonly localIndexes: LocalIndexes
-  readonly propertyFacts: readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][]
+  readonly yaml: Readonly<Record<string, unknown>>
   readonly owner: { readonly dir: string; readonly name: string }
 }): ValidationPendingCheck[] {
-  const projection = createPropertyFactsYamlView(acceptedPropertyFacts(params.localIndexes, params.propertyFacts))
+  const projection = params.yaml
   const index = createImportedFormDataPathIndex({ yaml: projection, rule: params.rule })
   if (index === undefined) return []
   params.localIndexes.metadata.formDataPathIndex = index
@@ -467,28 +467,28 @@ export function finalizeDeferredPropertyFacts(params: {
   readonly context: XmlImportConfigurationContext
   readonly formDataPathIndex: LocalIndexes["metadata"]["formDataPathIndex"]
   readonly execution?: import("@nkdk/runtime/rule-kit").CompiledPropertyRuleExecution
-}): DirectImportPropertyFact[] {
+}): readonly DirectImportPropertyFact[] {
   const deferredByPath = new Map(params.deferred.map(value => [yamlPathToPointer(value.valuePath), value]))
   // Внешний XML item передаёт адресные факты без отдельной очереди deferred.
   // Его зарегистрированный предикат определяет необходимость финализации.
   const finalizedByPath = new Map<ReturnType<typeof yamlPathToPointer>, unknown>()
-  const finalized = params.facts.map((fact) => {
-    const deferred = deferredByPath.get(yamlPathToPointer(fact.yamlPath))
+  for (const fact of params.facts) {
+    const deferred = deferredByPath.size === 0 ? undefined : deferredByPath.get(yamlPathToPointer(fact.yamlPath))
     const rule = deferred === undefined
       ? fact.itemRule?.properties[fact.propertyKey]
       : resolveDeferredPropertyRule(params.rootRule, deferred.rulePath, params.execution)
-    if (rule === undefined) return fact
+    if (rule === undefined) continue
     const finalize = params.execution === undefined
       ? getTypeRule(rule.type, "finalizeImportedYAML")
       : params.execution.getTypeRule(rule.type, "finalizeImportedYAML")
     if (finalize === undefined) {
       if (deferred !== undefined) throw new Error(`Для типа ${rule.type} не зарегистрирован finalizeImportedYAML`)
-      return fact
+      continue
     }
     const requiresFinalization = params.execution === undefined
       ? getTypeRule(rule.type, "requiresImportedYAMLFinalization")
       : params.execution.getTypeRule(rule.type, "requiresImportedYAMLFinalization")
-    if (deferred === undefined && (requiresFinalization === undefined || !requiresFinalization({ value: fact.value }))) return fact
+    if (deferred === undefined && (requiresFinalization === undefined || !requiresFinalization({ value: fact.value }))) continue
     const finalizedValue = finalize({
       context: params.context,
       rule,
@@ -496,14 +496,11 @@ export function finalizeDeferredPropertyFacts(params: {
       ...(params.formDataPathIndex === undefined ? {} : { formDataPathIndex: params.formDataPathIndex }),
     })
     finalizedByPath.set(yamlPathToPointer(fact.yamlPath), finalizedValue)
-    return {
-      ...fact,
-      value: finalizedValue,
-    }
-  })
+  }
+  if (finalizedByPath.size === 0) return params.facts
   // Один адрес может присутствовать как факт свойства и как лист контейнера.
   // Ни одна из этих проекций не должна перекрыть окончательное значение старым.
-  return finalized.map(fact => {
+  return params.facts.map(fact => {
     const key = yamlPathToPointer(fact.yamlPath)
     return finalizedByPath.has(key) ? { ...fact, value: finalizedByPath.get(key) } : fact
   })

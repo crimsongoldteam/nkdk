@@ -21,6 +21,28 @@ const typedItemRule: MetadataItemRule = {
 }
 
 describe("prepared import dependencies", () => {
+  it("не удерживает неизменённое независимое значение корня как решение второго прохода", () => {
+    const rule = { itemType: "IndependentRoot", properties: { text: { type: "string", yaml: "Текст" } } } as const satisfies MetadataItemRule
+    const value = "Большой независимый текст".repeat(1000)
+    const facts = collectImportDependencyFacts({
+      rule, owner, yaml: { Текст: value }, finalRootYaml: { Текст: value }, candidates: [],
+      propertyFacts: [{ itemType: rule.itemType, itemRule: rule, propertyKey: "text", yamlPath: ["Текст"], value, presentInXML: true }],
+    })
+    expect(facts.finalProperties.size).toBe(0)
+    expect(facts.proofProperties.size).toBe(0)
+    expect(prepareImportDependencies(facts).propertyValue?.([], "text")).toEqual({ value: undefined })
+  })
+
+  it("сохраняет отличающееся окончательное значение корня", () => {
+    const rule = { itemType: "FinalRoot", properties: { text: { type: "string", yaml: "Текст" } } } as const satisfies MetadataItemRule
+    const facts = collectImportDependencyFacts({
+      rule, owner, yaml: { Текст: "исходное" }, finalRootYaml: { Текст: "окончательное" }, candidates: [],
+      propertyFacts: [{ itemType: rule.itemType, itemRule: rule, propertyKey: "text", yamlPath: ["Текст"], value: "исходное", presentInXML: true }],
+    })
+    expect(prepareImportDependencies(facts).propertyValue?.([], "text"))
+      .toEqual({ present: true, value: "окончательное" })
+  })
+
   it("сохраняет явный undefined внутри выбранного XML-only массива", () => {
     const rule = { itemType: "ProofArray", properties: {
       values: { type: "string", yaml: "Значения", xmlOnly: true },

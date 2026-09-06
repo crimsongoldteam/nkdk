@@ -241,8 +241,16 @@ function collectFinalRootProperties(params: {
       (finalValue === null || finalValue === undefined)
       && factByProperty.get(propertyKey)?.reconstructionValue !== undefined
     ) continue
-    const value = cloneCompactFinalValue(finalValue)
     const scalarTag = yamlScalarTagAt(params.yaml, propertyRule.yaml)
+    const sourceFact = factByProperty.get(propertyKey)
+    if (
+      sourceFact !== undefined
+      && sourceFact.reconstructionValue === undefined
+      && scalarTag === undefined
+      && (finalValue === null || typeof finalValue !== "object")
+      && Object.is(finalValue, sourceFact.value)
+    ) continue
+    const value = cloneCompactFinalValue(finalValue)
     if (value === undefined && scalarTag === undefined) continue
     result.set(siblingAddress([], propertyKey), {
       present: true,

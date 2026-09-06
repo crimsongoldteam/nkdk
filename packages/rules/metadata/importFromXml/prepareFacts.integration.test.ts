@@ -8,7 +8,7 @@ import {
 } from "@nkdk/runtime"
 import fs from "node:fs"
 import { join } from "node:path"
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 import "../../tests/metadataExecutionContext"
 import { mockXmlImportContext } from "../../tests/mockContext"
 import { MetadataCatalogRules } from "../appliedObjects/metadataCatalog/rules"
@@ -24,6 +24,7 @@ import { prepareImportFacts } from "./prepareFacts"
 import { prepareImportYaml, prepareImportYamlFromDocuments } from "./prepareYaml"
 import { prepareImportDependencies } from "./preparedDependencies"
 import { createPropertyFactsYamlView } from "./propertyFactsYamlView"
+import * as propertyFactsView from "./propertyFactsYamlView"
 import type { ImportAssignment } from "./types"
 import {
   extractImportValidationContribution,
@@ -40,6 +41,32 @@ const e2eAllExtensionDir = join(import.meta.dirname, "../../../../e2e/fixtures/x
 const e2eConfigurationDir = join(import.meta.dirname, "../../../../e2e/fixtures/xml/cf")
 
 describe("prepareImportFacts", () => {
+  it("не создаёт дополнительные факты формы без выбранного XML-дополнения", async () => {
+    const assignment = managedFormAssignment()
+    const facts = await prepareImportFacts({
+      assignment, context: mockXmlImportContext(), collector: createConfigurationIndexCollector(),
+      inputs: parseAssignmentInputs(assignment, true),
+    })
+    expect(facts.semanticFacts.filter(fact => fact.propertyKey.startsWith("$augment:")).map(fact => fact.yamlPath)).toEqual([])
+    expect(facts.localIndexes.metadata.formDataPathIndex).toBeDefined()
+  })
+
+  it("не строит представления для проверок формы у обычного справочника", async () => {
+    const view = vi.spyOn(propertyFactsView, "createPropertyFactsYamlView")
+    try {
+      const assignment = catalogAssignment()
+      const facts = await prepareImportFacts({
+        assignment, context: mockXmlImportContext(), collector: createConfigurationIndexCollector(),
+        inputs: parseAssignmentInputs(assignment),
+      })
+      expect(view).toHaveBeenCalledTimes(1)
+      expect(facts.semanticFacts.some(fact => fact.value === "Контрагенты справочник")).toBe(true)
+      expect(facts.localIndexes.metadata.formDataPathIndex).toBeUndefined()
+    } finally {
+      view.mockRestore()
+    }
+  })
+
   it("даёт тот же configuration и dependency вклад без assignment-level YAML", async () => {
     const assignment = catalogAssignment()
     const { facts, legacy, legacyCollector } = await preparePair(assignment, mockXmlImportContext())
