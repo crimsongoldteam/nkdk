@@ -43,16 +43,32 @@ describe("importMetadataItemFromXMLToYAML", () => {
     })).toEqual({ Ребёнок: { Имя: "Пример" } })
   })
 
-  it("импортирует структурный объект без чтения промежуточного XML", () => {
+  it.each([false, true])("импортирует структурный объект без промежуточного XML, аудит: %s", (audited) => {
     const node = parseXmlDocumentWithSaxes("<Root><Name>Пример</Name></Root>").roots[0]!
     Object.defineProperty(node, "compatibilityValue", { get() { throw new Error("intermediate XML read") } })
+    const augmenter = `test-structural-source-${audited}`
+    registerMetadataItemXmlImportAugmenter(augmenter, {
+      yamlDependencies: () => [],
+      resolveCurrentXMLDefaultVariant({ source }) {
+        expect(source).toBe(node)
+        return "full"
+      },
+      augment({ source }) { expect(source).toBe(node) },
+    })
+    const context = mockXmlImportContext()
+    context.fromXML.metadataItemAugmenter = augmenter
+    const annotations = createXmlAnomalyAnnotations()
     const yaml = importMetadataItemFromXMLToYAML({
-      context: mockContextFromXML(),
+      context,
       rule: { itemType: "StructuralItem", properties: { name: { type: "string", xml: "Name", yaml: "Имя" } } } as MetadataItemRule,
       xml: node,
-      traversal: { yamlPath: [], rulePath: [], collector: createLocalIndexesCollector() },
+      traversal: {
+        yamlPath: [], rulePath: [], collector: createLocalIndexesCollector(), annotations,
+        ...(audited ? { audit: createXmlImportAuditSession([node]) } : {}),
+      },
     })
     expect(yaml).toEqual({ Имя: "Пример" })
+    expect(annotations.entries()).toEqual([])
   })
 
   it("назначает !xml/uuid metadata-ссылке после присоединения свойства к YAML", () => {

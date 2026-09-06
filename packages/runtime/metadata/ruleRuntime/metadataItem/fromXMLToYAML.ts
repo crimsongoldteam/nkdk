@@ -12,10 +12,7 @@ import {
 } from "./augmenterRegistry"
 import { isXmlElementNode, type XmlElementNode } from "../../../xml/import/document"
 import { objectRecordOrUndefined } from "../../../helpers/record"
-import {
-  xmlImportCompatibilityContainer,
-  xmlImportNodeForCompatibilityValue,
-} from "../xmlAnomaly/compatibilityView"
+import { xmlImportNodeForCompatibilityValue } from "../xmlAnomaly/compatibilityView"
 import { projectXmlAuditRemainder } from "../xmlAnomaly/yamlProjection"
 
 type InlineProperty = ReturnType<typeof findInlineProperty>
@@ -80,17 +77,7 @@ export function importMetadataItemFromXMLToYAML(params: {
     ? {}
     : sourceNode === undefined
     ? objectRecordOrUndefined(source) ?? {}
-    : params.traversal.audit === undefined
-    ? sourceNode
-    : objectRecordOrUndefined(xmlImportCompatibilityContainer({
-        node: sourceNode,
-        audit: params.traversal.audit,
-        boundary: {
-          itemType: params.rule.itemType,
-          yamlPath: params.traversal.yamlPath,
-          rulePath: params.traversal.rulePath,
-        },
-      })) ?? {}
+    : sourceNode
   const resolvedVariant = augmenterRegistry?.resolveMetadataItemXMLDefaultVariant({
     context: params.context,
     rule: params.rule,
