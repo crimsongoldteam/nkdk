@@ -4,7 +4,7 @@ import type { ConfigurationContext, ConfigurationContextFromXML } from "@nkdk/ru
 import { importMetadataItemFromXMLToYAML } from "../../../ruleRuntime/metadataItem/fromXMLToYAML"
 import type { MetadataItemRule, PropertyRule } from "@nkdk/runtime/rule-kit"
 import { getTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
-import { importContentFromXML } from "@nkdk/runtime"
+import { parseXmlDocumentWithSaxes } from "@nkdk/runtime"
 import { importFromYAML } from "@nkdk/runtime"
 import { createLocalIndexesCollector } from "../../../projectDefinition/localIndexes"
 import { TopLevelMetadataItemRules } from "../topLevelRules"
@@ -108,10 +108,10 @@ export async function collectStructuralStateFromXML(params: {
       if (!entry.isFile() || !entry.name.endsWith(".xml")) continue
       const name = basename(entry.name, ".xml")
       const content = await fs.promises.readFile(join(dir, entry.name), "utf-8")
-      const parsed = importContentFromXML<{ MetaDataObject: unknown }>(content)
+      const root = parseXmlDocumentWithSaxes(content).roots.find(node => node.name === "MetaDataObject")
       const yaml = importMetadataItemFromXMLToYAML({
         context,
-        xml: parsed.MetaDataObject,
+        xml: root,
         rule,
         name,
         traversal: {

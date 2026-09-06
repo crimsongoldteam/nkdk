@@ -2,7 +2,8 @@ import fs from "fs"
 import { mkdtempSync } from "fs"
 import { tmpdir } from "os"
 import { join } from "path"
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
+import * as runtime from "@nkdk/runtime"
 import { mockContextFromXML, mockContextToXML } from "../../../../tests/mockContext"
 import { collectStructuralStateFromXML, collectStructuralStateFromYAML } from "./collectState"
 
@@ -119,7 +120,11 @@ describe("collectStructuralState", () => {
       join(dir, "Catalogs", "СправочникПолный.xml")
     )
 
+    const legacy = vi.spyOn(runtime, "importContentFromXML").mockImplementation(() => {
+      throw new Error("Legacy XML parser must not be used")
+    })
     const state = await collectStructuralStateFromXML({ xmlDir: dir, context: mockContextFromXML() })
+      .finally(() => legacy.mockRestore())
     expect([...state.nodes.keys()].sort()).toEqual([
       "Справочник.СправочникПолный",
       "Справочник.СправочникПолный.Реквизит.РеквизитСправочника",
