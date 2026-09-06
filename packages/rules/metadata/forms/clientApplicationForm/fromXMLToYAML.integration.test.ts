@@ -121,6 +121,34 @@ function importAuditedStructuredForm(
 }
 
 describe("importClientApplicationFormFromXMLToYAML", () => {
+  it.each(["minimal", "full"])("импортирует %s только из структурных источников", (name) => {
+    const form = parseXmlDocumentWithSaxes(readXMLFixtureAsString(import.meta.url, `${name}.xml`), { preserveXsiNil: true })
+    const metadata = parseXmlDocumentWithSaxes(readXMLFixtureAsString(import.meta.url, `${name}Metadata.xml`), { preserveXsiNil: true })
+    const options = { context: { ...mockContextFromXML(), exportToYAML: { toTyped: true } }, formName: "Форма" }
+    const expected = importClientApplicationFormFromXMLToYAML({
+      ...options, formXML: form.compatibility.Form as ClientApplicationFormXML,
+      metadataXML: metadata.compatibility.MetaDataObject as FormMetadataXML,
+    })
+    Object.defineProperty(form, "compatibility", { get() { throw new Error("Document compatibility must not be read") } })
+    Object.defineProperty(metadata, "compatibility", { get() { throw new Error("Document compatibility must not be read") } })
+    const actual = importClientApplicationFormFromXMLToYAML({
+      ...options, formXML: form.roots[0]!, metadataXML: metadata.roots[0]!,
+    })
+    expect(actual.yaml).toEqual(expected.yaml)
+    expect(actual.localIndexes).toEqual({ metadata: {
+      ...expected.localIndexes.metadata,
+      formDataPathIndex: { ...expected.localIndexes.metadata.formDataPathIndex, getRoot: expect.any(Function) },
+    } })
+    for (const [key, value] of expected.localIndexes.metadata.formDataPathIndex!.roots) {
+      expect(actual.localIndexes.metadata.formDataPathIndex!.getRoot(key)).toEqual(value)
+    }
+  })
+
+  it("распознаёт обычную структурную форму без Form.xml", () => {
+    const metadataXML = parseXmlDocumentWithSaxes("<MetaDataObject><Form><Properties><FormType>Ordinary</FormType></Properties></Form></MetaDataObject>").roots[0]!
+    expect(() => importClientApplicationFormFromXMLToYAML({ context: mockContextFromXML(), formName: "Обычная", metadataXML })).not.toThrow()
+  })
+
   it("не отмечает восстановимый xsi:nil параметра выбора как raw", () => {
     const document = parseXmlDocumentWithSaxes(`<Form><ChildItems>
       <InputField name="ПараметрВыбораNil" id="7">

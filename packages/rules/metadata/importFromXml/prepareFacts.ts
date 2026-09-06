@@ -26,6 +26,7 @@ import { createFormDataPathIndexFromFacts } from "./formDataPathFacts"
 import { collectFormDataPathOccurrencesFromFacts } from "./formDataPathOccurrences"
 import { selectDependentValidationFacts } from "./dependentValidationFacts"
 import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
+import { formMetadataSource } from "../forms/clientApplicationForm/metadataXML"
 import type { ClientApplicationFormXML, FormMetadataXML } from "../forms/clientApplicationForm/types"
 import { importMetadataItemFromXMLToYAML } from "../ruleRuntime/metadataItem/fromXMLToYAML"
 import {
@@ -302,8 +303,9 @@ function augmentClientApplicationFormFacts(params: {
   if (!("metadataItemAugmenter" in params.context.fromXML)
     || typeof params.context.fromXML.metadataItemAugmenter !== "string") return params.facts
   const metadata = requireInput(params.inputs, "metadata")
-  const metadataObject = metadata.parsed["MetaDataObject"] as FormMetadataXML
-  const source = { ...metadataObject.Form }
+  const metadataObject = metadata.document.roots.find(node => node.name === "MetaDataObject")
+  if (metadataObject === undefined) throw new Error("Не найден MetaDataObject метаданных формы")
+  const source = formMetadataSource(metadataObject) ?? {}
   const context = withResolvedXMLImportObjectVariant(
     params.context,
     resolveMetadataItemXMLDefaultVariant({ context: params.context, rule: params.rule, source }),

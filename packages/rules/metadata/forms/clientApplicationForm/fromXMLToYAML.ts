@@ -29,6 +29,7 @@ import { createClientApplicationFormImportSources } from "./xmlImportSources"
 import type { MetadataItemRule } from "../../ruleRuntime"
 import { createFormDataPathIndexFromYAML } from "./formDataPathMetadata"
 import { recordClientApplicationFormNamespaces } from "./namespaces"
+import { formMetadataSource, formTypeFromMetadataXML } from "./metadataXML"
 
 interface FormImportExecutionOptions {
   dependencies?: PreparedImportDependencies
@@ -46,18 +47,20 @@ interface FormImportExecutionOptions {
 }
 
 export function importClientApplicationFormFromXMLToYAML(params: FormImportExecutionOptions & {
-  formXML?: ClientApplicationFormXML
-  metadataXML: FormMetadataXML
+  formXML?: ClientApplicationFormXML | XmlElementNode
+  metadataXML: FormMetadataXML | XmlElementNode
   formXMLNode?: XmlElementNode
   metadataXMLNode?: XmlElementNode
 }): DirectImportResult {
   const rule = params.rule ?? ClientApplicationFormRules
-  if (params.formXML === undefined && params.metadataXML.Form.Properties.FormType !== "Ordinary") {
+  const formXML = params.formXMLNode ?? params.formXML
+  const metadataXML = params.metadataXMLNode ?? params.metadataXML
+  if (formXML === undefined && formTypeFromMetadataXML(metadataXML) !== "Ordinary") {
     throw new Error(`Не найден Form.xml для управляемой формы ${params.formName}`)
   }
   const localIndexesCollector = createLocalIndexesCollector()
   const deferred = createDeferredValuePathCollector()
-  const augmenterSource = { ...params.metadataXML.Form }
+  const augmenterSource = formMetadataSource(metadataXML) ?? {}
   const context = withResolvedXMLImportObjectVariant(
     params.context,
     resolveMetadataItemXMLDefaultVariant({
@@ -87,13 +90,13 @@ export function importClientApplicationFormFromXMLToYAML(params: FormImportExecu
     },
     createSources: (context) => createClientApplicationFormImportSources({
       context,
-      formXML: params.formXMLNode ?? params.formXML,
-      metadataXML: params.metadataXMLNode ?? params.metadataXML,
+      formXML,
+      metadataXML,
     }),
   })
   const yaml = imported.yaml
-  if (params.formXML !== undefined) {
-    recordClientApplicationFormNamespaces(params.context, params.formXMLNode ?? params.formXML)
+  if (formXML !== undefined) {
+    recordClientApplicationFormNamespaces(params.context, formXML)
   }
 
   const localIndexes = localIndexesCollector.finish()
