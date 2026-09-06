@@ -8,6 +8,8 @@ import {
   materializeInheritedRootFormDataPaths,
   materializeImplicitFormDataPaths,
   prepareFormDataPathContextFromYAML,
+  prepareFormDataPathContext,
+  collectClientApplicationFormDataPathPreparation,
   requiresImportedFormDataPathCompaction,
 } from "./formDataPathContext"
 import { catalogOwnerCache } from "./__tests__/catalogOwnerCache"
@@ -15,6 +17,22 @@ import type { ClientApplicationFormYAML } from "./types"
 import { resolveDataPathCore } from "../../validation/dataPath/coreResolver"
 
 describe("prepareFormDataPathContextFromYAML", () => {
+  it("вычисляет контекст только по элементам и индексу, без YAML и запросов с setters", () => {
+    const source = collectClientApplicationFormDataPathPreparation({ yaml: {
+      Реквизиты: { Объект: { Тип: "CatalogObject.Товары", ОсновнойРеквизит: "Истина" } },
+      Элементы: { Наименование: { Вид: "ПолеВвода" } },
+    } })
+    const context = prepareFormDataPathContext({
+      preparation: {
+        collected: { elementsByName: source.collected.elementsByName },
+        index: source.index, effectiveMainAttribute: source.effectiveMainAttribute,
+      },
+      ownerCache: catalogOwnerCache(),
+    })
+    expect(context.effectiveMainAttribute).toBe("Объект")
+    expect(elementCandidates(context)).toEqual({ Наименование: ["Объект.Наименование", "Объект.Description"] })
+  })
+
   it("вычисляет кандидаты обычных элементов, таблиц и колонок", () => {
     const context = prepareFormDataPathContextFromYAML({
       yaml: {

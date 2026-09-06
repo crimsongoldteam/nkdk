@@ -41,10 +41,14 @@ export interface FormDataPathContext {
   readonly effectiveMainAttribute?: string
 }
 
-export interface ClientApplicationFormDataPathPreparation {
-  readonly collected: CollectedForm
+export interface FormDataPathPreparation {
+  readonly collected: Pick<CollectedForm, "elementsByName">
   readonly index: FormDataPathIndex
   readonly effectiveMainAttribute?: string
+}
+
+export interface ClientApplicationFormDataPathPreparation extends FormDataPathPreparation {
+  readonly collected: CollectedForm
 }
 
 export function collectClientApplicationFormDataPathPreparation(params: {
@@ -198,6 +202,24 @@ export function prepareFormDataPathContextFromYAML(params: {
   readonly preparation?: ClientApplicationFormDataPathPreparation
 }): FormDataPathContext {
   const rule = params.rule ?? ClientApplicationFormRules
+  return prepareFormDataPathContext({
+    preparation: params.preparation ?? collectClientApplicationFormDataPathPreparation({ yaml: params.yaml, rule }),
+    currentConfigurationFormYaml: params.currentConfigurationFormYaml,
+    savedBaseElementNames: params.savedBaseFormYaml === undefined
+      ? undefined : collectFormElements(params.savedBaseFormYaml, rule).elementsByName.keys(),
+    ownerCache: params.ownerCache,
+    rule,
+  })
+}
+
+export function prepareFormDataPathContext(params: {
+  readonly preparation: FormDataPathPreparation
+  readonly currentConfigurationFormYaml?: ClientApplicationFormYAML
+  readonly savedBaseElementNames?: Iterable<string>
+  readonly ownerCache: OwnerMetadataCache
+  readonly rule?: MetadataItemRule
+}): FormDataPathContext {
+  const rule = params.rule ?? ClientApplicationFormRules
   const currentConfigurationForm =
     params.currentConfigurationFormYaml === undefined
       ? undefined
@@ -207,13 +229,8 @@ export function prepareFormDataPathContextFromYAML(params: {
           rule,
         })
   const borrowedNames = new Set(currentConfigurationForm?.elementsByName.keys() ?? [])
-  if (params.savedBaseFormYaml !== undefined) {
-    collectFormElements(params.savedBaseFormYaml, rule).elementsByName.forEach((_value, name) => borrowedNames.add(name))
-  }
-  const preparation = params.preparation ?? collectClientApplicationFormDataPathPreparation({
-    yaml: params.yaml,
-    rule,
-  })
+  for (const name of params.savedBaseElementNames ?? []) borrowedNames.add(name)
+  const preparation = params.preparation
   const collected = preparation.collected
   const ownIndex = preparation.index
   const index = mergeFormDataPathIndexes(ownIndex, currentConfigurationForm?.index)
@@ -242,7 +259,7 @@ export function prepareFormDataPathContextFromYAML(params: {
 
 function withEffectiveTabularElementDataPaths(params: {
   index: FormDataPathIndex
-  collected: CollectedForm
+  collected: FormDataPathPreparation["collected"]
   prepared: PreparedForm
 }): FormDataPathIndex {
   const tabularElementsByName = new Map(params.index.tabularElementsByName)
@@ -321,7 +338,7 @@ function prepareStandaloneForm(params: {
 }
 
 function prepareCollectedForm(params: {
-  collected: CollectedForm
+  collected: FormDataPathPreparation["collected"]
   index: FormDataPathIndex
   ownerCache: OwnerMetadataCache
   effectiveMainAttribute?: string
