@@ -55,8 +55,8 @@ describe("одиночный элемент формы", () => {
     const registries = createRuleRegistrySet(metadataRules)
     const rule = withRuleRegistrySet(registries, () => getElementRule("ExtendedTooltip"))
     const xml = structural
-      ? parseXmlDocumentWithSaxes('<ExtendedTooltip name="ОсобаяПодсказка" id="2"/>').roots[0]!
-      : { _name: "ОсобаяПодсказка", _id: "2" }
+      ? parseXmlDocumentWithSaxes('<ExtendedTooltip name="ОсобаяПодсказка" id="2"><Width>20</Width></ExtendedTooltip>').roots[0]!
+      : { _name: "ОсобаяПодсказка", _id: "2", Width: "20" }
     if (structural) Object.defineProperty(xml, "compatibilityValue", { get() { throw new Error("Одиночному элементу не нужна копия") } })
     let opened: Record<string, unknown> | undefined
     const yaml = importSingleFormElementFromXMLToYAML({
@@ -69,12 +69,16 @@ describe("одиночный элемент формы", () => {
           opened = yaml
           expect(yaml.Имя).toBe("ОсобаяПодсказка")
           expect(yamlScalarTagAt(yaml, "Имя")).toBe("xml/name")
-          return { ready() {}, finish() { expect(yaml.Имя).toBe("ОсобаяПодсказка") } }
+          return { ready() {}, finish() {
+            expect(yaml.Имя).toBe("ОсобаяПодсказка")
+            expect(Object.keys(yaml)).toEqual(["Ширина", "Имя"])
+            Object.freeze(yaml)
+          } }
         } },
       },
     })
     expect(yaml).toBe(opened)
-    expect(yaml).toEqual({ Имя: "ОсобаяПодсказка" })
+    expect(yaml).toEqual({ Ширина: 20, Имя: "ОсобаяПодсказка" })
   })
 
   it.each(["обычный", "singleton"] as const)(

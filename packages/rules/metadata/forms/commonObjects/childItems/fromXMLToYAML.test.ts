@@ -14,18 +14,22 @@ describe("importChildItemsFromXMLToYAML", () => {
     const yaml = importChildItemsFromXMLToYAML({
       context: mockContextFromXML(),
       rule: { type: "GroupChildItems", yaml: "Элементы" },
-      xml: { Button: { _name: "Изменить", Type: "Hyperlink" } },
+      xml: { Button: { _name: "Изменить", Type: "Hyperlink", Width: "20" } },
       traversal: {
         yamlPath: ["Элементы"], rulePath: [{ propertyKey: "childItems" }], collector: createLocalIndexesCollector(),
         roundTrip: { open({ yaml }) { return {
           ready({ propertyKey }) {
             if (propertyKey === "type") expect(yaml).toMatchObject({ Вид: "Кнопка", ТипКнопки: "Гиперссылка" })
           },
-          finish() { closed = yaml },
+          finish() {
+            closed = yaml
+            expect(Object.keys(yaml)).toEqual(["Вид", "Ширина", "ТипКнопки"])
+            Object.freeze(yaml)
+          },
         } } },
       },
     })
-    expect(yaml).toEqual({ Изменить: { Вид: "Кнопка", ТипКнопки: "Гиперссылка" } })
+    expect(yaml).toEqual({ Изменить: { Вид: "Кнопка", Ширина: 20, ТипКнопки: "Гиперссылка" } })
     expect((yaml as Record<string, unknown>).Изменить).toBe(closed)
   })
 

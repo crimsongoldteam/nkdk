@@ -41,11 +41,15 @@ export function importFormElementFromXMLToYAML(params: {
     value: kind,
   })
   const initialYAML = { Вид: kind }
-  const result = importFormElementPropertiesFromXMLToYAML({
+  return importFormElementPropertiesFromXMLToYAML({
     ...params, rule: formElementTreeRule(params.rule), initialYAML,
+    beforeFinish: arrangeFormElementProperties,
   }) ?? initialYAML
+}
+
+function arrangeFormElementProperties(result: Record<string, unknown>): void {
   const keys = Object.keys(result)
-  return arrangeProperties(result, keys, [
+  arrangeProperties(result, keys, [
     "Вид",
     ...keys.filter(key => key !== "Вид" && key !== "ТипКнопки"),
     ...(Object.prototype.hasOwnProperty.call(result, "ТипКнопки") ? ["ТипКнопки"] : []),
@@ -59,9 +63,11 @@ export function importFormElementPropertiesFromXMLToYAML(params: {
   name: string
   traversal: DirectImportTraversal
   initialYAML?: Record<string, unknown>
+  beforeFinish?: (yaml: Record<string, unknown>) => void
 }): Record<string, unknown> | undefined {
   return importPropertiesFromXMLToYAML({
     initialYAML: params.initialYAML,
+    beforeFinish: params.beforeFinish,
     context: params.context,
     rule: params.rule,
     sources: [{
@@ -142,6 +148,7 @@ export function importSingleFormElementFromXMLToYAML(params: {
   const yaml = (
     importPropertiesFromXMLToYAML({
       initialYAML,
+      beforeFinish: explicitName ? arrangeExplicitSingletonName : undefined,
       context: itemContext,
       rule: params.rule,
       sources: [{
@@ -167,11 +174,12 @@ export function importSingleFormElementFromXMLToYAML(params: {
       execution: propertyExecutionFromTraversal(params.traversal),
     }) ?? initialYAML
   )
-  if (explicitName) {
-    const keys = Object.keys(yaml)
-    arrangeProperties(yaml, keys, [...keys.filter(key => key !== "Имя"), "Имя"])
-  }
   return yaml
+}
+
+function arrangeExplicitSingletonName(yaml: Record<string, unknown>): void {
+  const keys = Object.keys(yaml)
+  arrangeProperties(yaml, keys, [...keys.filter(key => key !== "Имя"), "Имя"])
 }
 
 function withoutImportableXMLName(xml: ElementXML): ElementXML {
