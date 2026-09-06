@@ -34,6 +34,7 @@ import type { ImportAssignment } from "./types"
 import { createValidationProjectComponent } from "../validation/projectComponents"
 import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
 import * as propertyFactsView from "./propertyFactsYamlView"
+import * as preparedFacts from "./prepareFacts"
 
 const importWorker = createImportWorkerCommandRunner()
 const runImportWorkerCommand = importWorker.run
@@ -514,6 +515,29 @@ describe("XML import worker first pass", () => {
 })
 
 describe("XML import worker second pass", () => {
+  it("не сохраняет независимые свойства формы между проходами", async () => {
+    const assignments = createCatalogAndFormAssignments("Объект.Код")
+    const metadata = assignments.form.xmlFiles.find(file => file.role === "metadata")!
+    const comment = "Независимый текст ".repeat(4096).trimEnd()
+    writeFileSync(metadata.sourcePath, readFileSync(metadata.sourcePath, "utf8")
+      .replace("<Comment/>", `<Comment>${comment}</Comment>`), "utf8")
+    const outputDir = createTempDir("form-retained-facts")
+    await beginCatalogAndFormSecondPass(outputDir, assignments)
+    const finalize = vi.spyOn(preparedFacts, "finalizeDeferredPropertyFacts")
+    try {
+      const result = await runImportWorkerCommand({ kind: "secondPass", assignmentId: assignments.form.id })
+      expect(result).toMatchObject({ kind: "secondPassResult", diagnostics: [] })
+      expect(finalize).toHaveBeenCalled()
+      const keys = finalize.mock.calls[0]![0].facts.map(fact => fact.propertyKey)
+      expect(keys.length).toBeGreaterThan(0)
+      expect(keys.filter(key => !["$formElementKind", "dataPath", "mainAttribute"].includes(key))).toEqual([])
+      expect(readFileSync(join(outputDir, assignments.form.targetProjectPath), "utf8")).toContain(`Комментарий: ${comment}`)
+    } finally {
+      finalize.mockRestore()
+      await runImportWorkerCommand({ kind: "endSecondPass" })
+    }
+  })
+
   it("готовит обычную форму после общего индекса без промежуточного YAML", async () => {
     const assignments = createCatalogAndFormAssignments("Объект.Код")
     await beginCatalogAndFormSecondPass(createTempDir("form-direct-context"), assignments)

@@ -13,6 +13,7 @@ import {
   validationIssueTargetKey,
   validationIssuePathFromPointer,
   xmlElementChildren,
+  yamlPathToPointer,
   type XmlAnomalyAnnotations,
   type XmlRawValue,
 } from "@nkdk/runtime"
@@ -131,7 +132,7 @@ import {
 } from "../forms/clientApplicationForm/formDataPathMetadata"
 import { clientApplicationFormDataPathProjection } from "../forms/clientApplicationForm/formDataPathProjection"
 import { collectFormDataPathOccurrencesFromFacts } from "./formDataPathOccurrences"
-import { collectFormDataPathPreparationFromFacts } from "./formDataPathPreparation"
+import { collectFormDataPathPreparationFromFacts, selectFormDataPathPreparationFacts } from "./formDataPathPreparation"
 import { prepareFormDataPathContext } from "../forms/clientApplicationForm/formDataPathContext"
 import { createImportExportContext } from "./importExportContext"
 import {
@@ -543,11 +544,7 @@ async function processSecondPass(
       state.context.fromXML.componentKind,
       state.topology,
     )
-    const hasBaseFormCandidate = inputs.some(({ input, document }) => {
-      if (input.role !== "body") return false
-      const forms = document.roots.filter(node => node.name === "Form")
-      return forms.length === 1 && xmlElementChildren(forms[0]!, "BaseForm").length > 0
-    })
+    const hasBaseFormCandidate = containsBaseFormCandidate(inputs)
     const currentConfigurationYAMLBeforeProof = shouldReadCurrentConfigurationYaml({
       componentPath: state.componentPath,
       rule: assignmentRule,
@@ -1683,6 +1680,14 @@ async function importWorkerEntryPoint(command: ImportWorkerCommand): Promise<Imp
       : result
 }
 
+function containsBaseFormCandidate(inputs: Awaited<ReturnType<typeof readImportXmlDocuments>>): boolean {
+  return inputs.some(({ input, document }) => {
+    if (input.role !== "body") return false
+    const forms = document.roots.filter(node => node.name === "Form")
+    return forms.length === 1 && xmlElementChildren(forms[0]!, "BaseForm").length > 0
+  })
+}
+
 async function processFirstPass(
   assignments: readonly ImportAssignment[],
   state: InitializedImportWorkerState,
@@ -1776,6 +1781,12 @@ async function processFirstPass(
           }),
         })
         pendingAssignmentIds.add(assignment.id)
+        const formSemanticFacts = prepared.formSemanticFacts === undefined
+          ? undefined
+          : prepared.rule.itemType === ClientApplicationFormRules.itemType && !containsBaseFormCandidate(inputs)
+            ? selectFormDataPathPreparationFacts(prepared.formSemanticFacts)
+            : prepared.formSemanticFacts
+        const formFactPaths = new Set(formSemanticFacts?.map(fact => yamlPathToPointer(fact.yamlPath)))
         dependencyFacts.set(assignment.id, {
           configurationFragment: fragment,
           properties: prepared.dependencies,
@@ -1788,10 +1799,10 @@ async function processFirstPass(
             ? {}
             : { baseFormProperties: prepared.baseFormDependencies }),
           formDataPathIndex: prepared.localIndexes.metadata.formDataPathIndex,
-          deferred: prepared.deferred,
-          ...(prepared.formSemanticFacts === undefined
+          deferred: prepared.deferred.filter(value => formFactPaths.has(yamlPathToPointer(value.valuePath))),
+          ...(formSemanticFacts === undefined
             ? {}
-            : { formSemanticFacts: prepared.formSemanticFacts }),
+            : { formSemanticFacts }),
           ...(prepared.baseFormSemanticFacts === undefined
             ? {}
             : { baseFormSemanticFacts: prepared.baseFormSemanticFacts }),

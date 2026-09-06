@@ -1,10 +1,23 @@
 import type { DirectImportFactsSink } from "@nkdk/runtime/rule-kit"
 import { describeFormElementDataPath, type FormDataPathPreparation } from "../forms/clientApplicationForm/formDataPathContext"
 import { yamlPathToPointer } from "@nkdk/runtime"
-import { primaryFormDataPathRule } from "../validation/dataPath/formYamlTraversal"
+import { isDataPathRule, primaryFormDataPathRule } from "../validation/dataPath/formYamlTraversal"
 import { clientApplicationFormDataPathProjection } from "../forms/clientApplicationForm/formDataPathProjection"
 import { isMainFormAttribute } from "../forms/clientApplicationForm/mainAttributeKinds"
 import { selectImportPropertyPaths } from "./selectedPropertyFacts"
+
+export function selectFormDataPathPreparationFacts(
+  facts: readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][],
+): typeof facts {
+  return facts.filter(fact => {
+    if (fact.propertyKey === "$formElementKind") return true
+    const key = fact.propertyKey.startsWith("$container:") ? fact.propertyKey.slice(11) : fact.propertyKey
+    if (key === "mainAttribute") return fact.itemType === clientApplicationFormDataPathProjection.attributeItemType
+    if (key === "valuesPicture" || key === "multipleValuesExtendedEdit") return true
+    const rule = fact.itemRule?.properties[key]
+    return rule !== undefined && isDataPathRule(rule)
+  })
+}
 
 export function collectFormDataPathPreparationFromFacts(params: {
   readonly facts: readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][]
