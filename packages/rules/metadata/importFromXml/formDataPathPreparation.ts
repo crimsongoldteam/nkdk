@@ -22,7 +22,9 @@ export function selectFormDataPathPreparationFacts(
 export function collectFormDataPathPreparationFromFacts(params: {
   readonly facts: readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][]
   readonly index: FormDataPathPreparation["index"]
+  readonly yamlPathPrefix?: readonly (string | number)[]
 }): FormDataPathPreparation {
+  const prefix = params.yamlPathPrefix ?? []
   const elements = new Map<string, {
     name: string
     yamlPath: (string | number)[]
@@ -34,13 +36,14 @@ export function collectFormDataPathPreparationFromFacts(params: {
   const tables = new Map<string, { name: string; yamlPath: (string | number)[] }>()
   let effectiveMainAttribute: string | undefined
   for (const fact of params.facts) {
+    if (!prefix.every((segment, index) => fact.yamlPath[index] === segment)) continue
     if (fact.propertyKey === "mainAttribute" && fact.itemType === clientApplicationFormDataPathProjection.attributeItemType
       && effectiveMainAttribute === undefined && isMainFormAttribute(fact.value)) {
       const name = fact.yamlPath.at(-2)
       if (typeof name === "string") effectiveMainAttribute = name
     }
     if (fact.propertyKey !== "$formElementKind" || fact.itemRule === undefined) continue
-    const yamlPath = fact.yamlPath.slice(0, -1)
+    const yamlPath = fact.yamlPath.slice(prefix.length, -1)
     const name = yamlPath.at(-1)
     if (typeof name !== "string") continue
     const ownerKey = yamlPathToPointer(yamlPath)!
@@ -49,7 +52,7 @@ export function collectFormDataPathPreparationFromFacts(params: {
     }
     const rule = primaryFormDataPathRule(fact.itemRule)
     if (typeof rule?.yaml !== "string") continue
-    const path = [...yamlPath, rule.yaml]
+    const path = [...prefix, ...yamlPath, rule.yaml]
     const pathKey = yamlPathToPointer(path)!
     paths.set(pathKey, path)
     elements.set(ownerKey, { name, yamlPath, fact, pathKey, yamlKey: rule.yaml })

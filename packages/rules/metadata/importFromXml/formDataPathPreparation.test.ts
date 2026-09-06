@@ -7,6 +7,24 @@ import { createFormDataPathIndexFromYAML } from "../forms/clientApplicationForm/
 import { collectFormDataPathPreparationFromFacts, selectFormDataPathPreparationFacts } from "./formDataPathPreparation"
 
 describe("вход контекста путей из фактов", () => {
+  it("готовит относительные пути встроенной формы и игнорирует соседние элементы", () => {
+    const result = collectFormDataPathPreparationFromFacts({
+      index: createFormDataPathIndexFromYAML({}), yamlPathPrefix: ["Форма"],
+      facts: [
+        { itemType: "InputField", itemRule: InputFieldRules, propertyKey: "$formElementKind",
+          yamlPath: ["Форма", "Элементы", "Поле", "Вид"], value: "ПолеВвода" },
+        { itemType: "InputField", itemRule: InputFieldRules, propertyKey: "dataPath",
+          yamlPath: ["Форма", "Элементы", "Поле", "ПутьКДанным"], value: "Объект.Код" },
+        { itemType: "InputField", itemRule: InputFieldRules, propertyKey: "$formElementKind",
+          yamlPath: ["Прочее", "Элементы", "Другое", "Вид"], value: "ПолеВвода" },
+      ],
+    })
+    expect([...result.collected.elementsByName.keys()]).toEqual(["Поле"])
+    expect(result.collected.elementsByName.get("Поле")).toMatchObject({
+      yamlPath: ["Элементы", "Поле"], present: true, value: "Объект.Код",
+    })
+  })
+
   it("оставляет только входы путей, не читая и не копируя посторонние значения", () => {
     const facts = [
       { itemType: "InputField", itemRule: InputFieldRules, propertyKey: "$formElementKind",

@@ -129,6 +129,7 @@ import { buildProjectStateYamlFileUpdate } from "../project/projectStateYamlUpda
 import type { CompiledMetadataResourceTopology } from "../resourceTopology/core/types"
 import {
   importedClientApplicationForm,
+  clientApplicationFormYamlPath,
 } from "../forms/clientApplicationForm/formDataPathMetadata"
 import { clientApplicationFormDataPathProjection } from "../forms/clientApplicationForm/formDataPathProjection"
 import { collectFormDataPathOccurrencesFromFacts } from "./formDataPathOccurrences"
@@ -581,7 +582,8 @@ async function processSecondPass(
           formDataPathIndex: ready.formDataPathIndex,
           execution,
         })
-    const directFormContext = assignmentRule.itemType === ClientApplicationFormRules.itemType
+    const formYamlPath = clientApplicationFormYamlPath(assignmentRule)
+    const directFormContext = formYamlPath !== undefined
       && !hasBaseFormCandidate && ready.formDataPathIndex !== undefined
     const originalFormFactsView = ready.formSemanticFacts === undefined || directFormContext
       ? undefined
@@ -609,7 +611,9 @@ async function processSecondPass(
         )
     const formProofDataPathContext = directFormContext && compatibleFormFacts !== undefined
       ? prepareFormDataPathContext({
-          preparation: collectFormDataPathPreparationFromFacts({ facts: compatibleFormFacts, index: ready.formDataPathIndex! }),
+          preparation: collectFormDataPathPreparationFromFacts({
+            facts: compatibleFormFacts, index: ready.formDataPathIndex!, yamlPathPrefix: formYamlPath,
+          }),
           currentConfigurationFormYaml: currentConfigurationFormYAML,
           ownerCache: secondPass.ownerMetadataCache,
         })
@@ -1682,7 +1686,7 @@ async function importWorkerEntryPoint(command: ImportWorkerCommand): Promise<Imp
 
 function containsBaseFormCandidate(inputs: Awaited<ReturnType<typeof readImportXmlDocuments>>): boolean {
   return inputs.some(({ input, document }) => {
-    if (input.role !== "body") return false
+    if (input.role === "metadata") return false
     const forms = document.roots.filter(node => node.name === "Form")
     return forms.length === 1 && xmlElementChildren(forms[0]!, "BaseForm").length > 0
   })
@@ -1783,7 +1787,7 @@ async function processFirstPass(
         pendingAssignmentIds.add(assignment.id)
         const formSemanticFacts = prepared.formSemanticFacts === undefined
           ? undefined
-          : prepared.rule.itemType === ClientApplicationFormRules.itemType && !containsBaseFormCandidate(inputs)
+          : clientApplicationFormYamlPath(prepared.rule) !== undefined && !containsBaseFormCandidate(inputs)
             ? selectFormDataPathPreparationFacts(prepared.formSemanticFacts)
             : prepared.formSemanticFacts
         const formFactPaths = new Set(formSemanticFacts?.map(fact => yamlPathToPointer(fact.yamlPath)))

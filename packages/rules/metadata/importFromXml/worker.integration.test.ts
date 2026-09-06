@@ -167,9 +167,15 @@ describe("XML import worker first pass", () => {
         { role: "property", sourcePath: join(fixtureRoot, "ДинамическийСписок/Ext/Form.xml") },
       ],
     })
-    const yaml = await importAssignmentYamlForProof(outputDir, assignment)
-    expect(yaml).not.toContain("QueryText")
-    expect(yaml).not.toContain("#order")
+    const view = vi.spyOn(propertyFactsView, "createPropertyFactsYamlView")
+    try {
+      const yaml = await importAssignmentYamlForProof(outputDir, assignment)
+      expect(yaml).not.toContain("QueryText")
+      expect(yaml).not.toContain("#order")
+      expect(view).not.toHaveBeenCalled()
+    } finally {
+      view.mockRestore()
+    }
   })
 
   it("проверяет CurrentData общей формы по окончательным путям таблиц", async () => {
