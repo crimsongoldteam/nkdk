@@ -194,7 +194,7 @@ export function importPropertiesFromXMLToYAML(params: {
     xmlNodes?: readonly XmlElementNode[]
     presentInXML: boolean
     ambiguousXMLKey: boolean
-  }): { readonly proofReady: boolean; readonly structurallyClaimed: boolean; readonly semanticOmitted: boolean } => {
+  }): { readonly proofReady: boolean; readonly structurallyClaimed: boolean; readonly semanticOmitted: boolean; readonly externalValue?: unknown } => {
     if (params.profile !== undefined) params.profile.propertyCount++
     const {
       sourceState,
@@ -231,6 +231,7 @@ export function importPropertiesFromXMLToYAML(params: {
     ]).begin()
     let discardAttempt = false
     let proofReady = false
+    let externalValue: unknown
     let structurallyClaimed = false
     const preparedPropertyDecision = params.dependencies?.propertyValue?.(yamlPath, key)
     let semanticOmitted = preparedPropertyDecision?.present === false
@@ -778,6 +779,7 @@ export function importPropertiesFromXMLToYAML(params: {
             : preparedProperty?.present === false
               ? undefined
               : convertedYamlValue
+          if (propertyRule.externalFile !== undefined) externalValue = exportedYamlValue
           if (
             claimedCanonicalRawDefault
             && exportedYamlValue === undefined
@@ -1007,7 +1009,7 @@ export function importPropertiesFromXMLToYAML(params: {
       return { proofReady: false, structurallyClaimed: false, semanticOmitted: false }
     }
     attempt.commit()
-    return { proofReady, structurallyClaimed, semanticOmitted }
+    return { proofReady, structurallyClaimed, semanticOmitted, externalValue }
   }
 
   const importMatch = (match: Parameters<typeof importMatchUnprofiled>[0]): void => {
@@ -1020,6 +1022,7 @@ export function importPropertiesFromXMLToYAML(params: {
           : canonicalRawDefaultParent(match.sourceState.xmlNode, match.entry.rule)
         const binding = {
           propertyKey: match.entry.propertyKey,
+          externalValue: imported.externalValue,
           node: canonicalParent?.node ?? match.xmlNode,
           presentInXML: canonicalParent !== undefined || match.presentInXML,
           xmlPath: canonicalParent?.path ?? match.xmlPath,

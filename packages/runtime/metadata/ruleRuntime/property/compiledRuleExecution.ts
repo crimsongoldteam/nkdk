@@ -238,6 +238,7 @@ export function createCompiledRuleExecution(params: {
       const boundProperties = new Set<string>()
       const readyProperties = new Set<string>()
       const bind = (input: DirectImportXMLPropertyBinding) => {
+        if (input.externalValue !== undefined) propertyValues.set(input.propertyKey, input.externalValue)
         lastBinding = input
         boundProperties.add(input.propertyKey)
         consumer.bind?.(input)

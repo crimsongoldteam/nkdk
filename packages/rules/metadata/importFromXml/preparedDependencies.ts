@@ -275,7 +275,11 @@ function cloneCompactFinalValue(value: unknown): unknown {
 function collectProofProperties(
   facts: readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][],
 ): ReadonlyMap<string, { readonly value: unknown }> {
-  return collectCompactPropertyValues(facts)
+  return collectCompactPropertyValues(facts.filter((fact) => {
+    const key = fact.propertyKey.startsWith("$container:") ? fact.propertyKey.slice("$container:".length) : fact.propertyKey
+    const rule = fact.itemRule?.properties[key]
+    return rule?.xmlOnly === true || rule?.fromXML === false || fact.reconstructionValue !== undefined
+  }))
 }
 
 function collectCompactPropertyValues(

@@ -227,7 +227,8 @@ function prepareImportYamlFromParsedInputs(params: {
       collector: params.collector,
       topology: params.topology,
     })
-    const formProofContexts = params.localRoundTrip === undefined || rule.itemType !== ClientApplicationFormRules.itemType
+    const formProofContexts = params.localRoundTrip === undefined
+      || (params.formProofYaml === undefined && rule.itemType !== ClientApplicationFormRules.itemType)
       ? undefined
       : prepareClientApplicationFormProofContexts(
           params.localRoundTrip.context,
@@ -241,7 +242,7 @@ function prepareImportYamlFromParsedInputs(params: {
                 ...(params.savedBaseFormYaml === undefined
                   ? {}
                   : { savedBaseFormYaml: params.savedBaseFormYaml }),
-                rule,
+                rule: ClientApplicationFormRules,
               },
         )
     const formBodyProof = params.localRoundTrip === undefined || rule.itemType !== ClientApplicationFormRules.itemType
@@ -249,7 +250,10 @@ function prepareImportYamlFromParsedInputs(params: {
       : createLocalXmlProof()
     const localRoundTripParams = params.localRoundTrip === undefined
       ? undefined
-      : (({ finalizeRootYaml: _finalizeRootYaml, ...rest }) => rest)(params.localRoundTrip)
+      : (({ finalizeRootYaml: _finalizeRootYaml, ...rest }) => ({
+          ...rest,
+          context: formProofContexts?.metadata ?? rest.context,
+        }))(params.localRoundTrip)
     const finalizeRootYaml = params.localRoundTrip?.finalizeRootYaml
     const baseFormCandidate = importAssignmentBaseFormCandidate({
       assignment: params.assignment,

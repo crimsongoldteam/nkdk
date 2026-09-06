@@ -21,6 +21,24 @@ const typedItemRule: MetadataItemRule = {
 }
 
 describe("prepared import dependencies", () => {
+  it("не читает обычное независимое поле ради сохранённой копии для proof", () => {
+    const rule = {
+      itemType: "Independent",
+      properties: { title: { type: "string", yaml: "Заголовок" } },
+    } as const satisfies MetadataItemRule
+    const facts = collectImportDependencyFacts({
+      rule, owner, yaml: {}, candidates: [],
+      propertyFacts: [{
+        itemType: rule.itemType,
+        itemRule: rule,
+        propertyKey: "title",
+        yamlPath: ["Заголовок"],
+        get value(): string { throw new Error("Независимое поле не должно копироваться в proofProperties") },
+      }],
+    })
+    expect(facts.proofProperties.size).toBe(0)
+  })
+
   it("читает каждый элемент выбранного составного типа один раз", () => {
     const rule = typedItemRule
     let reads = 0
@@ -269,13 +287,17 @@ describe("prepared import dependencies", () => {
       .toEqual({ value: {} })
   })
 
-  it("восстанавливает составное свойство без удержания служебного контейнера в зависимостях", () => {
+  it.each([
+    { xmlOnly: false, value: undefined },
+    { xmlOnly: true, value: { Вид: "Цвет", Значение: "Красный" } },
+  ])("сохраняет составное свойство только вне смыслового YAML: xmlOnly=$xmlOnly", ({ xmlOnly, value }) => {
     const nestedRule = {
       itemType: "Nested",
       properties: {
         style: {
           type: "StyleItemValue",
           yaml: "Значение",
+          ...(xmlOnly ? { xmlOnly: true } : {}),
         },
       },
     } as const satisfies MetadataItemRule
@@ -306,7 +328,7 @@ describe("prepared import dependencies", () => {
     })
 
     expect(prepareImportDependencies(facts).propertyValue?.(["Элементы", "Первый"], "style"))
-      .toEqual({ value: { Вид: "Цвет", Значение: "Красный" } })
+      .toEqual({ value })
     expect(prepareImportDependencies(facts).propertyValue?.(["Элементы", "Первый"], "$container:style"))
       .toEqual({ value: undefined })
   })

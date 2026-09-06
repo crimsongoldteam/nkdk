@@ -84,6 +84,8 @@ export interface DirectImportXMLPropertyBinding {
   readonly nodes?: readonly XmlElementNode[]
   readonly owner?: XmlElementNode
   readonly presentInXML: boolean
+  /** Значение текущего преобразования, записываемое во внешний файл, а не в YAML. */
+  readonly externalValue?: unknown
   readonly xmlPath?: readonly string[]
   /** Смысловое значение намеренно исключено решением зависимостей первого прохода. */
   readonly semanticOmitted?: true

@@ -143,7 +143,71 @@ afterEach(() => {
   for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true })
 })
 
+async function importAssignmentYamlForProof(outputDir: string, assignment: ImportAssignment): Promise<string> {
+  const { second } = await runAssignmentSecondPass(outputDir, assignment)
+  expect(second).toMatchObject({ kind: "secondPassResult", diagnostics: [] })
+  return readFileSync(join(outputDir, assignment.targetProjectPath), "utf8")
+}
+
 describe("XML import worker first pass", () => {
+  it("проверяет QueryText по значению второго прохода без копии в зависимостях", async () => {
+    const outputDir = createTempDir("common-form-query")
+    const fixtureRoot = join(import.meta.dirname, "../../../../e2e/fixtures/xml/cf/CommonForms")
+    const assignment = catalogAssignment({
+      id: "common-form-query",
+      topologyAddress: { nodeId: requireTopologyNode("ОбщаяФорма/{ownerName}/Свойства.yaml").id, values: { ownerName: "ДинамическийСписок" } },
+      targetProjectPath: "ОбщаяФорма/ДинамическийСписок/Свойства.yaml",
+      itemType: "MetadataCommonForm",
+      itemName: "ДинамическийСписок",
+      logicalAddress: "ОбщаяФорма.ДинамическийСписок",
+      xmlFiles: [
+        { role: "metadata", sourcePath: join(fixtureRoot, "ДинамическийСписок.xml") },
+        { role: "property", sourcePath: join(fixtureRoot, "ДинамическийСписок/Ext/Form.xml") },
+      ],
+    })
+    const yaml = await importAssignmentYamlForProof(outputDir, assignment)
+    expect(yaml).not.toContain("QueryText")
+    expect(yaml).not.toContain("#order")
+  })
+
+  it("проверяет CurrentData общей формы по окончательным путям таблиц", async () => {
+    const outputDir = createTempDir("common-form-current-data")
+    const sourceDir = createTempDir("common-form-source")
+    const fixtureRoot = join(import.meta.dirname, "../../../../e2e/fixtures/xml/cf/CommonForms")
+    const formHeader = readFileSync(join(fixtureRoot, "КомпоновщикНастроек/Ext/Form.xml"), "utf8").split("\n")[1]!
+    const metadataPath = join(sourceDir, "КомпоновщикНастроек.xml")
+    writeFileSync(metadataPath, readFileSync(join(fixtureRoot, "КомпоновщикНастроек.xml")))
+    const bodyDir = join(sourceDir, "КомпоновщикНастроек/Ext")
+    mkdirSync(bodyDir, { recursive: true })
+    const bodyPath = join(bodyDir, "Form.xml")
+    writeFileSync(bodyPath, `${formHeader}
+      <ChildItems><Table name="Таблица" id="1">
+        <DataPath>КомпоновщикНастроек.Settings</DataPath>
+        <ChildItems><CheckBoxField name="Флажок" id="2">
+          <DataPath>Items.Таблица.CurrentData.ItemDataParameters.Use</DataPath>
+        </CheckBoxField></ChildItems>
+      </Table></ChildItems>
+      <Attributes><Attribute name="КомпоновщикНастроек" id="1">
+        <Type><v8:Type>dcsset:SettingsComposer</v8:Type></Type>
+      </Attribute></Attributes>
+    </Form>`)
+    const assignment = catalogAssignment({
+      id: "common-form-current-data",
+      topologyAddress: { nodeId: requireTopologyNode("ОбщаяФорма/{ownerName}/Свойства.yaml").id, values: { ownerName: "КомпоновщикНастроек" } },
+      targetProjectPath: "ОбщаяФорма/КомпоновщикНастроек/Свойства.yaml",
+      itemType: "MetadataCommonForm",
+      itemName: "КомпоновщикНастроек",
+      logicalAddress: "ОбщаяФорма.КомпоновщикНастроек",
+      xmlFiles: [
+        { role: "metadata", sourcePath: metadataPath },
+        { role: "property", sourcePath: bodyPath },
+      ],
+    })
+    const yaml = await importAssignmentYamlForProof(outputDir, assignment)
+    expect(yaml).toContain("ПутьКДанным: Элементы.Таблица.ТекущиеДанные.ЭлементПараметрыДанных.Использование")
+    expect(yaml).not.toContain("ПутьКДанным: !xml/raw")
+  })
+
   it("keeps command runner state isolated between worker instances", async () => {
     const first = createImportWorkerCommandRunner()
     const second = createImportWorkerCommandRunner()

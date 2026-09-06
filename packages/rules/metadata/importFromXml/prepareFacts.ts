@@ -469,24 +469,43 @@ export function finalizeDeferredPropertyFacts(params: {
   readonly execution?: import("@nkdk/runtime/rule-kit").CompiledPropertyRuleExecution
 }): DirectImportPropertyFact[] {
   const deferredByPath = new Map(params.deferred.map(value => [yamlPathToPointer(value.valuePath), value]))
-  return params.facts.map((fact) => {
+  // Внешний XML item передаёт адресные факты без отдельной очереди deferred.
+  // Его зарегистрированный предикат определяет необходимость финализации.
+  const finalizedByPath = new Map<ReturnType<typeof yamlPathToPointer>, unknown>()
+  const finalized = params.facts.map((fact) => {
     const deferred = deferredByPath.get(yamlPathToPointer(fact.yamlPath))
-    if (deferred === undefined) return fact
-    const rule = resolveDeferredPropertyRule(params.rootRule, deferred.rulePath, params.execution)
+    const rule = deferred === undefined
+      ? fact.itemRule?.properties[fact.propertyKey]
+      : resolveDeferredPropertyRule(params.rootRule, deferred.rulePath, params.execution)
+    if (rule === undefined) return fact
     const finalize = params.execution === undefined
       ? getTypeRule(rule.type, "finalizeImportedYAML")
       : params.execution.getTypeRule(rule.type, "finalizeImportedYAML")
-    if (finalize === undefined) throw new Error(`Для типа ${rule.type} не зарегистрирован finalizeImportedYAML`)
+    if (finalize === undefined) {
+      if (deferred !== undefined) throw new Error(`Для типа ${rule.type} не зарегистрирован finalizeImportedYAML`)
+      return fact
+    }
+    const requiresFinalization = params.execution === undefined
+      ? getTypeRule(rule.type, "requiresImportedYAMLFinalization")
+      : params.execution.getTypeRule(rule.type, "requiresImportedYAMLFinalization")
+    if (deferred === undefined && (requiresFinalization === undefined || !requiresFinalization({ value: fact.value }))) return fact
     const finalizedValue = finalize({
       context: params.context,
       rule,
       value: fact.value,
       ...(params.formDataPathIndex === undefined ? {} : { formDataPathIndex: params.formDataPathIndex }),
     })
+    finalizedByPath.set(yamlPathToPointer(fact.yamlPath), finalizedValue)
     return {
       ...fact,
       value: finalizedValue,
     }
+  })
+  // Один адрес может присутствовать как факт свойства и как лист контейнера.
+  // Ни одна из этих проекций не должна перекрыть окончательное значение старым.
+  return finalized.map(fact => {
+    const key = yamlPathToPointer(fact.yamlPath)
+    return finalizedByPath.has(key) ? { ...fact, value: finalizedByPath.get(key) } : fact
   })
 }
 
