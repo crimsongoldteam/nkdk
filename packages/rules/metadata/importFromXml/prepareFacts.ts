@@ -417,53 +417,90 @@ function prepareImportedFormDataPathChecks(params: {
   }))
 }
 
+interface PropertyFactSlot {
+  fact?: DirectImportPropertyFact
+  descendants?: DirectImportPropertyFact[]
+}
+
+interface PropertyFactPathNode {
+  children?: Map<string | number, PropertyFactPathNode>
+  properties?: Map<string, PropertyFactSlot>
+  containerIndex?: number
+}
+
 export function acceptedPropertyFacts(
   indexes: LocalIndexes,
   propertyFacts: readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][],
 ): Parameters<DirectImportFactsSink["acceptProperty"]>[0][] {
-  const latestByKey = new Map<string, Parameters<DirectImportFactsSink["acceptProperty"]>[0]>()
-  for (const fact of propertyFacts) latestByKey.set(propertyFactKey(fact.yamlPath, fact.propertyKey), fact)
-  const compactFactsByPropertyRoot = new Map<string, Parameters<DirectImportFactsSink["acceptProperty"]>[0][]>()
+  const root: PropertyFactPathNode = {}
+  const latest: PropertyFactSlot[] = []
+  for (const [index, fact] of propertyFacts.entries()) {
+    const node = ensurePropertyFactPath(root, fact.yamlPath)
+    const key = fact.propertyKey
+    const slot = ensurePropertyFactSlot(node, key)
+    if (slot.fact === undefined) latest.push(slot)
+    slot.fact = fact
+    if (key.startsWith("$container:")) node.containerIndex = index
+  }
+  const boundaries: DirectImportPropertyFact[][] = []
   for (const event of indexes.metadata.events) {
     if (event.kind !== "property") continue
     const key = event.rulePath.at(-1)?.propertyKey
-    if (key !== undefined) compactFactsByPropertyRoot.set(propertyFactKey(event.yamlPath, key), [])
+    if (key === undefined) continue
+    const slot = ensurePropertyFactSlot(ensurePropertyFactPath(root, event.yamlPath), key)
+    boundaries.push(slot.descendants ??= [])
   }
-  for (const fact of latestByKey.values()) {
+  for (const slot of latest) {
+    const fact = slot.fact!
     const propertyKey = fact.propertyKey
     if (propertyKey.startsWith("$")) continue
-    for (let length = 1; length <= fact.yamlPath.length; length++) {
-      const key = propertyFactKey(fact.yamlPath.slice(0, length), propertyKey)
-      const descendants = compactFactsByPropertyRoot.get(key)
-      descendants?.push(fact)
+    let node = root
+    for (const segment of fact.yamlPath) {
+      node = node.children!.get(segment)!
+      node.properties?.get(propertyKey)?.descendants?.push(fact)
     }
   }
-  const latestContainerIndexByPath = new Map<string, number>()
-  propertyFacts.forEach((fact, index) => {
-    if (fact.propertyKey.startsWith("$container:")) {
-      latestContainerIndexByPath.set(JSON.stringify(fact.yamlPath), index)
-    }
-  })
   const result: Parameters<DirectImportFactsSink["acceptProperty"]>[0][] = []
   for (const [index, fact] of propertyFacts.entries()) {
     if (fact.propertyKey === "$formElementKind") result.push(fact)
     if (!fact.propertyKey.startsWith("$container:")) continue
-    const ownLatest = latestContainerIndexByPath.get(JSON.stringify(fact.yamlPath))
-    if (ownLatest !== index) continue
-    const supersededByAncestor = fact.yamlPath.slice(1).some((_segment, length) => {
-      const ancestorIndex = latestContainerIndexByPath.get(JSON.stringify(fact.yamlPath.slice(0, length + 1)))
-      return ancestorIndex !== undefined && ancestorIndex > index
-    })
-    if (!supersededByAncestor) result.push(fact)
+    let node = root
+    let superseded = false
+    for (let position = 0; position < fact.yamlPath.length; position++) {
+      node = node.children!.get(fact.yamlPath[position]!)!
+      if (position < fact.yamlPath.length - 1 && node.containerIndex !== undefined && node.containerIndex > index) {
+        superseded = true
+        break
+      }
+    }
+    if (!superseded && node.containerIndex === index) result.push(fact)
   }
-  for (const event of indexes.metadata.events) {
-    if (event.kind !== "property") continue
-    const propertyKey = event.rulePath.at(-1)?.propertyKey
-    if (propertyKey === undefined) continue
-    const facts = compactFactsByPropertyRoot.get(propertyFactKey(event.yamlPath, propertyKey))
-    if (facts !== undefined) result.push(...facts)
-  }
+  for (const facts of boundaries) result.push(...facts)
   return result
+}
+
+function ensurePropertyFactPath(root: PropertyFactPathNode, path: readonly (string | number)[]): PropertyFactPathNode {
+  let node = root
+  for (const segment of path) {
+    const children = node.children ??= new Map()
+    let child = children.get(segment)
+    if (child === undefined) {
+      child = {}
+      children.set(segment, child)
+    }
+    node = child
+  }
+  return node
+}
+
+function ensurePropertyFactSlot(node: PropertyFactPathNode, key: string): PropertyFactSlot {
+  const properties = node.properties ??= new Map()
+  let slot = properties.get(key)
+  if (slot === undefined) {
+    slot = {}
+    properties.set(key, slot)
+  }
+  return slot
 }
 
 export function finalizeDeferredPropertyFacts(params: {
@@ -511,11 +548,6 @@ export function finalizeDeferredPropertyFacts(params: {
     return finalizedByPath.has(key) ? { ...fact, value: finalizedByPath.get(key) } : fact
   })
 }
-
-function propertyFactKey(path: readonly (string | number)[], propertyKey: string): string {
-  return JSON.stringify([path, propertyKey])
-}
-
 
 function parsedInputs(inputs: readonly ParsedImportXmlDocument[]): ParsedFactsXmlInput[] {
   return inputs.map(({ input, document }) => ({
