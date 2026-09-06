@@ -2,7 +2,8 @@ import {
 createConfigurationIndexCollector,withConfigurationIndexCollector,
 withConfigurationIndexFormElementRootLogicalAddress
 } from "@nkdk/runtime"
-import { describe,expect,it } from "vitest"
+import { describe,expect,it,vi } from "vitest"
+import * as elementRules from "../../../ruleRuntime/formElement/ruleFactory"
 import { mockContextFromXML } from "../../../../tests/mockContext"
 import { createLocalIndexesCollector } from "../../../projectDefinition/localIndexes"
 import "../../elements"
@@ -97,28 +98,35 @@ describe("importChildItemsFromXMLToYAML", () => {
   })
 
   it("не смешивает вид кнопки с видом элемента", () => {
-    const yaml = importChildItemsFromXMLToYAML({
-      context: mockContextFromXML(),
-      rule: { type: "GroupChildItems", yaml: "Элементы" },
-      xml: {
-        Button: {
-          _name: "Изменить",
-          Type: "Hyperlink",
+    const lookup = vi.spyOn(elementRules, "getElementRule")
+    try {
+      const yaml = importChildItemsFromXMLToYAML({
+        context: mockContextFromXML(),
+        rule: { type: "GroupChildItems", yaml: "Элементы" },
+        xml: [{
+          Button: {
+            _name: "Изменить",
+            Type: "Hyperlink",
+          },
+        }, { Button: { _name: "ОК", Type: "UsualButton" } }],
+        traversal: {
+          yamlPath: ["Элементы"],
+          rulePath: [{ propertyKey: "childItems" }],
+          collector: createLocalIndexesCollector(),
         },
-      },
-      traversal: {
-        yamlPath: ["Элементы"],
-        rulePath: [{ propertyKey: "childItems" }],
-        collector: createLocalIndexesCollector(),
-      },
-    })
+      })
 
-    expect(yaml).toEqual({
-      Изменить: {
-        Вид: "Кнопка",
-        ТипКнопки: "Гиперссылка",
-      },
-    })
+      expect(yaml).toEqual({
+        Изменить: {
+          Вид: "Кнопка",
+          ТипКнопки: "Гиперссылка",
+        },
+        ОК: { Вид: "Кнопка", ТипКнопки: "ОбычнаяКнопка" },
+      })
+      expect(lookup.mock.calls.filter(([itemType]) => itemType === "Button")).toHaveLength(1)
+    } finally {
+      lookup.mockRestore()
+    }
   })
 
   it("записывает обязательный тип обычной кнопки отдельно от вида элемента", () => {

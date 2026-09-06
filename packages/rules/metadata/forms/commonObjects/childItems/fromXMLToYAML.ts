@@ -31,6 +31,14 @@ import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import type { TableChildItem } from "./types"
 import { formChildItemOccurrence } from "./xmlOccurrences"
 
+const tableXMLTagToItemType: Readonly<Record<string, TableChildItem["itemType"]>> = {
+  CheckBoxField: "TableCheckBoxField",
+  ColumnGroup: "ColumnGroup",
+  InputField: "TableInputField",
+  LabelField: "TableLabelField",
+  PictureField: "TablePictureField",
+}
+
 const resolveItemTypeFromXMLTag = (rule: PropertyRule, xmlTag: string, xmlValue?: Record<string, unknown> | XmlElementNode): string => {
   if (rule.type === "CommandBarChildItems" && xmlTag === "Button") {
     let type: unknown
@@ -43,13 +51,6 @@ const resolveItemTypeFromXMLTag = (rule: PropertyRule, xmlTag: string, xmlValue?
     return type === "CommandBarButton" || type === "CommandBarHyperlink" ? "CommandBarButton" : "Button"
   }
   if (rule.type !== "TableChildItems") return xmlTag
-  const tableXMLTagToItemType: Record<string, TableChildItem["itemType"]> = {
-    CheckBoxField: "TableCheckBoxField",
-    ColumnGroup: "ColumnGroup",
-    InputField: "TableInputField",
-    LabelField: "TableLabelField",
-    PictureField: "TablePictureField",
-  }
   return tableXMLTagToItemType[xmlTag] ?? xmlTag
 }
 
@@ -61,6 +62,10 @@ export const importChildItemsFromXMLToYAML: ImportFromXMLToYAMLFunction = ({ con
     : itemXmlNodes
   const result: Record<string, unknown> = {}
   const occurrences = new Map<string, number>()
+  const routes = new Map<CollectableElementType, ElementRule & { itemType: CollectableElementType }>()
+  const collection = getConfigurationIndexCollectionContext(context)
+  const parentItemType = traversal.rulePath.findLast(segment => segment.nestedItemType !== undefined)?.nestedItemType
+  const contextMenuItems = rule.type === "CommandBarChildItems" && parentItemType === "ContextMenu"
 
   for (const value of items) {
     const itemXmlNode = isXmlElementNode(value) ? value : undefined
@@ -79,8 +84,7 @@ export const importChildItemsFromXMLToYAML: ImportFromXMLToYAMLFunction = ({ con
     }
     const occurrence = formChildItemOccurrence(itemXmlNode) ?? occurrences.get(itemName) ?? 0
     occurrences.set(itemName, occurrence + 1)
-    const parentItemType = [...traversal.rulePath].reverse().find(segment => segment.nestedItemType !== undefined)?.nestedItemType
-    const misplacedPicture = rule.type === "CommandBarChildItems" && parentItemType === "ContextMenu" && itemType === "PictureField"
+    const misplacedPicture = contextMenuItems && itemType === "PictureField"
     if (occurrence > 0 || misplacedPicture) {
       if (traversal.mode === "facts") continue
       const node = itemXmlNode
@@ -98,7 +102,6 @@ export const importChildItemsFromXMLToYAML: ImportFromXMLToYAMLFunction = ({ con
       traversal.audit?.claimStructuralSubtree(node, boundary)
       continue
     }
-    const collection = getConfigurationIndexCollectionContext(context)
     const logicalAddress =
       collection === undefined ? undefined : getConfigurationIndexFormElementLogicalAddress(collection, itemName)
     const itemContext =
@@ -108,9 +111,14 @@ export const importChildItemsFromXMLToYAML: ImportFromXMLToYAMLFunction = ({ con
       collection?.collector.setIdentity(logicalAddress, "xmlId", id)
     }
 
+    let itemRule = routes.get(itemType)
+    if (itemRule === undefined) {
+      itemRule = getElementRule(itemType) as ElementRule & { itemType: CollectableElementType }
+      routes.set(itemType, itemRule)
+    }
     result[itemName] = importFormElementFromXMLToYAML({
       context: itemContext,
-      rule: getElementRule(itemType) as ElementRule & { itemType: CollectableElementType },
+      rule: itemRule,
       xml: xmlValue,
       name: itemName,
       traversal: {
