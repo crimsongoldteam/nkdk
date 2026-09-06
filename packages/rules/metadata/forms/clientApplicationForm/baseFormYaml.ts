@@ -133,10 +133,10 @@ export function normalizeBaseFormYaml(value: unknown): unknown {
 }
 
 export function equalBaseFormYaml(left: unknown, right: unknown): boolean {
-  return equalNormalizedValues(normalizeBaseFormYaml(left), normalizeBaseFormYaml(right))
+  return equalBaseFormValues(left, right)
 }
 
-function equalNormalizedValues(left: unknown, right: unknown): boolean {
+function equalBaseFormValues(left: unknown, right: unknown): boolean {
   left = unwrapExplicitYAMLString(left)
   right = unwrapExplicitYAMLString(right)
   if (Object.is(left, right)) return true
@@ -148,17 +148,17 @@ function equalNormalizedValues(left: unknown, right: unknown): boolean {
     return Array.isArray(left)
       && Array.isArray(right)
       && left.length === right.length
-      && left.every((value, index) => equalNormalizedValues(value, right[index]))
+      && left.every((value, index) => equalBaseFormValues(value, right[index]))
   }
   if (!isRecord(left) || !isRecord(right)) return false
-  const leftKeys = Object.keys(left)
-  const rightKeys = Object.keys(right)
+  const leftKeys = Object.keys(left).filter(key => !isXmlServiceKey(key))
+  const rightKeys = Object.keys(right).filter(key => !isXmlServiceKey(key))
   return leftKeys.length === rightKeys.length
-    && leftKeys.every((key) => Object.hasOwn(right, key) && equalNormalizedValues(left[key], right[key]))
+    && leftKeys.every((key) => Object.hasOwn(right, key) && equalBaseFormValues(left[key], right[key]))
 }
 
 function isEmptyRecord(value: unknown): boolean {
-  return isRecord(value) && Object.keys(value).length === 0
+  return isRecord(value) && Object.keys(value).every(isXmlServiceKey)
 }
 
 function isXmlServiceKey(key: string): boolean {

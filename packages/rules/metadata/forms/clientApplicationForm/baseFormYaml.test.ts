@@ -13,6 +13,19 @@ import {
 } from "./baseFormYaml"
 
 describe("base form YAML", () => {
+  it("останавливает сравнение вложенного значения без двух нормализованных копий", () => {
+    const value = { Первый: 2, Последний: "не нужен" }
+    Object.defineProperty(value, "Последний", { enumerable: true, get() { throw new Error("Повторный обход значения") } })
+    expect(equalBaseFormYaml({ Вложенный: { Первый: 1, Последний: "не нужен" } }, { Вложенный: value })).toBe(false)
+  })
+
+  it("не читает исключённые служебные значения при сравнении", () => {
+    const value = { Значение: 1 }
+    Object.defineProperty(value, "_id", { enumerable: true, get() { throw new Error("Служебное значение не участвует") } })
+    expect(equalBaseFormYaml(value, { Значение: 1, _id: "2" })).toBe(true)
+    expect(equalBaseFormYaml({ Значение: { _id: "1" } }, { Значение: undefined })).toBe(true)
+  })
+
   it("не считает namespaces, UUID и числовые id смысловыми данными", () => {
     const first = importBaseFormYaml({
       context: context(),
