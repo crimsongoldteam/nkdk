@@ -271,8 +271,20 @@ export function createXMLPropertyExecution(
   })
   const planningStartedAt = params.profile === undefined ? undefined : performance.now()
   const propertyPlan = params.execution?.propertyPlan(params.rule)
+  const namePropertyKey = params.namePropertyKey ?? "name"
   let orderedProperties: readonly (YAMLToXMLPlannedProperty | CompiledProperty)[] =
     propertyPlan?.yamlToXMLOrder ?? legacyYAMLToXMLProperties(params.rule)
+  if (
+    propertyPlan !== undefined
+    && propertySource === undefined
+    && observer === undefined
+    && propertyValues.size === 0
+    && (yaml === undefined || Object.getOwnPropertyNames(yaml).length === 0)
+    && params.externalWriteFactory === undefined
+    && params.outputs.every(output => output.referenceXML === undefined)
+  ) {
+    orderedProperties = propertyPlan.emptyYAMLExportOrder(params.name === undefined ? undefined : namePropertyKey)
+  }
   if (params.externalWriteFactory !== undefined) {
     const allProperties = propertyPlan?.properties ?? getYAMLToXMLPlan(params.rule).properties
     const orderedPropertyKeys = new Set(orderedProperties.map(({ propertyKey }) => propertyKey))
@@ -284,7 +296,6 @@ export function createXMLPropertyExecution(
   if (params.profile !== undefined && planningStartedAt !== undefined) {
     params.profile.planningMs += performance.now() - planningStartedAt
   }
-  const namePropertyKey = params.namePropertyKey ?? "name"
 
   const executed = new Set<string>()
   let executionPosition = 0

@@ -150,6 +150,7 @@ describe("CompiledPropertyPlan", () => {
       .toBe(first.propertiesByKey.get("value"))
     expect(first.propertiesByKey.get("value")?.operations.importFromXML).toBe(firstImport)
     expect(Object.keys(first).sort()).toEqual([
+      "emptyYAMLExportOrder",
       "missingXMLProperties",
       "properties",
       "propertiesByKey",

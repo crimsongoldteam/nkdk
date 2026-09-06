@@ -466,6 +466,25 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(fused).not.toHaveBeenCalled()
   })
 
+  it("переиспользует короткий план пустого YAML с сохранением имени и XML-default", () => {
+    const execution = createRuleRegistrySet(metadataRules).execution
+    const rule = testRule({
+      enabled: { type: "boolean", yaml: "Включено", xml: "Enabled" },
+      ownerName: { type: "number", yaml: "Имя", xml: "Name" },
+      width: { type: "number", yaml: "Ширина", xml: "Width", defaultValueXML: 10 },
+    })
+    const params = {
+      execution, rule, context: context(), yaml: {}, name: "7", namePropertyKey: "ownerName",
+      outputs: [{ key: "owner" }],
+    }
+    const first = createXMLPropertyExecution(params)
+    const second = createXMLPropertyExecution(params)
+
+    expect(first.properties.map(({ propertyKey }) => propertyKey)).toEqual(["ownerName", "width"])
+    expect(second.properties).toBe(first.properties)
+    expect(first.finish().outputs.get("owner")).toEqual({ Name: "7", Width: 10 })
+  })
+
   it("не считает присутствующий undefined отсутствующим YAML-свойством", () => {
     const rules = createRuleRegistrySet(metadataRules)
     const fromYAML = vi.fn(() => "явно-неопределено")

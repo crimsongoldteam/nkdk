@@ -73,6 +73,7 @@ export interface CompiledPropertyPlan {
   readonly missingXMLProperties: readonly CompiledProperty[]
   readonly propertiesByKey: ReadonlyMap<string, CompiledProperty>
   readonly yamlToXMLOrder: readonly CompiledProperty[]
+  emptyYAMLExportOrder(namePropertyKey?: string): readonly CompiledProperty[]
   readonly yamlOrder: readonly string[]
   xmlImportView(params: {
     readonly tags?: readonly string[]
@@ -108,6 +109,7 @@ export function compilePropertyPlan(params: CompilePropertyPlanParams): Compiled
       .filter((property): property is CompiledProperty => property !== undefined),
   )
   const xmlViews = new Map<string, XMLImportPlan<CompiledProperty>>()
+  const emptyYAMLOrders = new Map<string | undefined, readonly CompiledProperty[]>()
 
   const plan: CompiledPropertyPlan = {
     rule: params.rule,
@@ -116,6 +118,17 @@ export function compilePropertyPlan(params: CompilePropertyPlanParams): Compiled
     missingXMLProperties,
     propertiesByKey,
     yamlToXMLOrder,
+    emptyYAMLExportOrder(namePropertyKey) {
+      const cached = emptyYAMLOrders.get(namePropertyKey)
+      if (cached !== undefined) return cached
+      const order = Object.freeze(yamlToXMLOrder.filter(property =>
+        property.missingYAMLStrategy !== "skip"
+        || property.propertyKey === namePropertyKey
+        || property.propertyRule.externalFile !== undefined,
+      ))
+      emptyYAMLOrders.set(namePropertyKey, order)
+      return order
+    },
     yamlOrder: compileYamlPropertyOrder(properties.flatMap(property =>
       property.yamlKey === undefined ? [] : [property.yamlKey],
     )),
