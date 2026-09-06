@@ -51,13 +51,15 @@ Peak RSS: <MiB>
 Если профиль содержит шаги, добавь краткую таблицу распределения.
 
 Машинный результат каждого запуска содержит `firstPassMs`, `sharedIndexMs`,
-`secondPassMs`, `externalFilesMs`, `finalBuildMs`, `dependencyValidationMs`,
+`secondPassMs`, `externalFilesMs`, `finalBuildMs`, `localDependencyValidationMs`,
 `publicationMs`, `saveMs`, времена двоичного кодирования и приёма, подготовки
 начала diagnostics и JSONL-отчёта, размеры двоичных данных, отчёта и
 `structuredContent`, полное время до ответа `responseMs` и верхнюю оценку
 неразмеченного внешнего времени `mcpOverheadMs` в поле `phases`. Оценка может
 включать неразмеченные промежутки координатора; вложенные worker-этапы в неё
 повторно не складываются.
+`localDependencyValidationMs` — суммарное время локальных проверок подготовленных
+зависимостей у воркеров внутри второго прохода; в `measuredMainMs` оно не добавляется.
 Двухпроходный импорт дополнительно публикует раздельные `xmlReadMs`,
 `xmlParseMs`, `factsOnlyMs` и `localProofMs`. Поле `localProof.boundaries`
 показывает число локально проверенных XML-границ. Метрик MessagePack, packed

@@ -49,7 +49,7 @@ test("сводит этапы импорта и двоичной выдачи в
     main("Второй проход worker", 13),
     main("Копирование внешних файлов XML-выгрузки", 14),
     main("Построение окончательного состояния", 15),
-    main("Полная проверка зависимостей", 16),
+    worker("Локальная проверка зависимостей первого прохода", 16),
     main("Публикация состояния проекта", 17),
     main("Сохранение состояния проекта", 18),
     worker("Двоичное кодирование результата", 19, 1_024),
@@ -71,7 +71,7 @@ test("сводит этапы импорта и двоичной выдачи в
     secondPassMs: 13,
     externalFilesMs: 14,
     finalBuildMs: 15,
-    dependencyValidationMs: 16,
+    localDependencyValidationMs: 16,
     publicationMs: 17,
     saveMs: 18,
     workerBinaryEncodeMs: 19,
@@ -90,8 +90,8 @@ test("сводит этапы импорта и двоичной выдачи в
     diagnosticReportBytes: 2_048,
     mcpStructuredMs: 23,
     mcpStructuredBytes: 4_096,
-    measuredMainMs: 182,
-    mcpOverheadMs: 118,
+    measuredMainMs: 166,
+    mcpOverheadMs: 134,
     responseMs: 300,
   })
 })

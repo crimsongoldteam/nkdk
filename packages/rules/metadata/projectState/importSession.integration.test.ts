@@ -15,7 +15,6 @@ import type {
 import { assertProjectStateImportFinalFileStateBatch, createProjectStateImportSession } from "./importSession"
 import type { ProjectStateWriterHandle } from "./writerHandle"
 import { createProjectStateWriterHandle } from "./writerHandle"
-import { encodeDiagnosticBatch, openDiagnosticBatch } from "@nkdk/runtime"
 
 describe("ProjectState import session", () => {
   const externalResource = {
@@ -379,7 +378,9 @@ describe("ProjectState import session", () => {
 
   it("сообщает отдельные времена фиксации и завершения import", async () => {
     const phases: string[] = []
-    const writer = importSessionWriterStub()
+    const writer = importSessionWriterStub({
+      async validateDependencyDiagnosticBatches() { throw new Error("Запросы уже проверены их воркерами") },
+    })
     const importSession = await createProjectStateImportSession({
       projectDir: "/project",
       workerCount: 1,
@@ -396,63 +397,11 @@ describe("ProjectState import session", () => {
     expect(phases).toEqual([
       "sharedIndex",
       "finalBuild",
-      "dependencyValidation",
       "save",
       "publication",
     ])
   })
 
-  it("возвращает адресные ошибки зависимостей после смыслового индекса", async () => {
-    const writer = importSessionWriterStub({
-      async validateDependencyDiagnosticBatches() {
-        return [openDiagnosticBatch(encodeDiagnosticBatch([
-          {
-            filePath: "cf/Справочник/Товары/Свойства.yaml",
-            line: 7,
-            col: 5,
-            path: "/Реквизиты/Код/Тип",
-            severity: "error",
-            source: "reference",
-            code: "reference.not-found",
-            message: "Текст сообщения не участвует в классификации",
-          },
-          {
-            filePath: "/project/cfe/Расширение/Конфигурация.yaml",
-            line: 2,
-            col: 1,
-            path: "/ОсновнойЯзык",
-            severity: "error",
-            source: "cross-file",
-            code: "reference.not-included",
-            message: "Текст сообщения не участвует в классификации",
-          },
-        ]))]
-      },
-    })
-    const importSession = await createTestImportSession(writer, ["cf", "cfe/Расширение"])
-
-    await importSession.commitSharedIndex()
-
-    expect(await importSession.collectSemanticValidationIssues()).toEqual([
-      {
-        projectPath: "Конфигурация.yaml",
-        issue: {
-          code: "reference.not-included",
-          kind: "semantic",
-          target: { kind: "path", path: ["ОсновнойЯзык"] },
-        },
-      },
-      {
-        projectPath: "Справочник/Товары/Свойства.yaml",
-        issue: {
-          code: "reference.not-found",
-          kind: "semantic",
-          target: { kind: "path", path: ["Реквизиты", "Код", "Тип"] },
-        },
-      },
-    ])
-    await importSession.abort(new Error("test complete"))
-  })
 })
 
 function indexContribution(projectPath: string, name: string): ProjectStateImportIndexContribution {

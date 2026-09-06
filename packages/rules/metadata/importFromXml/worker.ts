@@ -52,10 +52,7 @@ import {
   type ProjectStateYamlFileUpdate,
 } from "../projectState/fileUpdate"
 import { createProjectStateOwnerMetadataCache } from "../validation/projectStateDependencyValidation"
-import {
-  createComposedProjectStateDependencyValidator,
-  openProjectStateReadSession,
-} from "../composition/projectState"
+import { createComposedProjectStateDependencyValidator, openProjectStateReadSession } from "../composition/projectState"
 import { resolveProjectPath } from "../projectDefinition/path"
 import { classifyMetadataProjectPath, projectStateFileBackedTargets } from "../projectDefinition/resources"
 import type { ProjectStateImportFinalFileStateBatch, ProjectStateImportIndexContribution } from "../projectState/importSession"
@@ -93,7 +90,6 @@ import type {
   ImportDiagnostic,
   ImportFirstPassResult,
   ImportIssueDecision,
-  ImportProjectIssueDecision,
   ImportResultFile,
   ImportSecondPassResult,
   ImportWorkerCommand,
@@ -119,7 +115,8 @@ import { projectClientApplicationBaseForm } from "../forms/clientApplicationForm
 import { collectClientApplicationFormStructure } from "../forms/clientApplicationForm/formStructureProjection"
 import { validateClientApplicationBaseFormDataPaths } from "../forms/clientApplicationForm/borrowedFormValidation"
 import { collectFormDataPathOccurrencesFromYAML } from "../validation/dataPath/formYamlTraversal"
-import { validatePendingChecks, type ValidationPendingCheck } from "../validation/projectValidationPendingChecks"
+import type { ValidationPendingCheck } from "../validation/projectValidationPendingChecks"
+import { validateLocalImportSemantics, validationIssueFromDiagnostic } from "./localValidation"
 import {
   finalizeImportedFormDataPathCompatibility,
   importedFormDataPathCompatibilityChanges,
@@ -230,7 +227,6 @@ interface ActiveSecondPass {
   readonly configurationStore?: ReturnType<typeof openConfigurationIndexStore>
   readonly baseConfigurationStore?: ReturnType<typeof openConfigurationIndexStore>
   readonly composition: MetadataXmlPrepareComposition
-  readonly issueDecisionsByProjectPath: ReadonlyMap<string, readonly ImportIssueDecision[]>
   readonly exportProfile?: XmlComponentExportProfile
   readonly metadataRuleValidator: MetadataRuleValidator
 }
@@ -280,6 +276,11 @@ export function createImportWorkerCommandRunner(): ImportWorkerCommandRunner {
     readonly baseFormSemanticFacts?: readonly DirectImportPropertyFact[]
     readonly deferred: PreparedImportFacts["deferred"]
     readonly baseFormDeferred?: NonNullable<PreparedImportFacts["baseFormDeferred"]>
+    readonly validation: {
+      readonly final: ProjectStateImportFinalFileStateBatch
+      readonly pendingChecks: readonly ValidationPendingCheck[]
+      readonly structuredDocuments: ProjectStateImportIndexContribution["structuredDocuments"]
+    }
   }>()
   const assignedImports = new Map<string, ImportAssignment>()
   let activeSecondPass: ActiveSecondPass | undefined
@@ -396,7 +397,6 @@ async function runImportWorkerCommand(
       requireInitializedState(),
       command.composition,
       command.exportProfile,
-      command.issueDecisions,
     )
     secondPassAccumulator?.fragmentWriter.discard()
     secondPassAccumulator = createSecondPassAccumulator(requireInitializedState().workerIndex)
@@ -482,6 +482,24 @@ async function processSecondPass(
     const collector = createConfigurationIndexCollector()
     const ready = dependencyFacts.get(assignmentId)
     if (ready === undefined) throw new Error(`Не подготовлены зависимости задания ${assignmentId}`)
+    const localValidation = profiler.measure(
+      "Подготовка импорта конфигурации",
+      "Локальная проверка зависимостей первого прохода",
+      { items: 1 },
+      () => classifyImportedIssues({
+        issues: validateLocalImportSemantics({
+          validator: createComposedProjectStateDependencyValidator(),
+          ...ready.validation,
+          projectDir: state.projectDir,
+          queryPort: secondPass.readSession,
+        }),
+        requiresImportant: () => false,
+      }),
+    )
+    if (localValidation.fatal.length > 0) {
+      throw new Error(`Локальная проверка импорта завершилась внутренней ошибкой: ${localValidation.fatal.map(({ code }) => code).join(", ")}`)
+    }
+    const firstPassDecisions = localValidation.decisions
     const importContext = secondPassExportContext({
       context: state.context,
       ownerMetadataCache: secondPass.ownerMetadataCache,
@@ -693,7 +711,7 @@ async function processSecondPass(
     let finalizedRootIssueDecisions: readonly ImportIssueDecision[] = []
     let rootValidation: DeferredImportYaml["rootValidation"]
     const pendingFirstPassDecisions = new Set(
-      (secondPass.issueDecisionsByProjectPath.get(assignment.targetProjectPath) ?? [])
+      firstPassDecisions
         .flatMap((decision) => portableFirstPassIssueDecision(decision) ?? []),
     )
     const validationFile = state.projectFileProjector({
@@ -735,7 +753,7 @@ async function processSecondPass(
       localRoundTrip: {
         execution,
         context: localRoundTripContext,
-        decisions: secondPass.issueDecisionsByProjectPath.get(assignment.targetProjectPath) ?? [],
+        decisions: firstPassDecisions,
         selectBaseFormDecisions: (yaml, rule, yamlPath, root, annotations) => {
           if (!root) return []
           const issues = secondPass.metadataRuleValidator.validateBoundary({
@@ -1174,7 +1192,6 @@ function beginSecondPass(
   state: InitializedImportWorkerState,
   controlComposition?: readonly ImportControlCompositionEntry[],
   exportProfile?: XmlComponentExportProfile,
-  issueDecisions: readonly ImportProjectIssueDecision[] = [],
 ): void {
   if (activeSecondPass !== undefined) throw new Error("Второй проход XML-import worker уже начат")
   const readSession = openProjectStateReadSession(readToken)
@@ -1196,25 +1213,12 @@ function beginSecondPass(
     composition: importControlComposition(
       controlComposition ?? [...assignedImports.values()].map(importControlCompositionEntry),
     ),
-    issueDecisionsByProjectPath: groupIssueDecisionsByProjectPath(issueDecisions),
     metadataRuleValidator: createRegisteredMetadataRuleValidator({
       context: state.context,
       rules: requireCurrentRuleRegistrySet(),
     }),
     ...(exportProfile === undefined ? {} : { exportProfile }),
   }
-}
-
-function groupIssueDecisionsByProjectPath(
-  entries: readonly ImportProjectIssueDecision[],
-): ReadonlyMap<string, readonly ImportIssueDecision[]> {
-  const result = new Map<string, ImportIssueDecision[]>()
-  for (const { targetProjectPath, decision } of entries) {
-    const decisions = result.get(targetProjectPath) ?? []
-    decisions.push(decision)
-    result.set(targetProjectPath, decisions)
-  }
-  return result
 }
 
 function requiresImportantForImportedTarget(
@@ -1754,12 +1758,21 @@ async function processFirstPass(
         const indexContribution = importIndexContribution(prepared, validationContribution, state)
         accumulator.fragmentWriter.appendImportIndex(indexContribution)
         accumulator.stateEntries += 1
-        accumulator.fragmentWriter.appendImportFinal(
-          provisionalImportFinalContribution(prepared, validationContribution, state),
-        )
+        const provisional = provisionalImportFinalContribution(prepared, validationContribution, state)
+        accumulator.fragmentWriter.appendImportFinal({
+          ...provisional,
+          updates: provisional.updates.map(update => update.kind !== "yaml" ? update : {
+            ...update, pendingReferences: [], pendingChecks: [],
+          }),
+        })
         pendingAssignmentIds.add(assignment.id)
         dependencyFacts.set(assignment.id, {
           properties: prepared.dependencies,
+          validation: {
+            final: provisional,
+            pendingChecks: prepared.pendingChecks.filter(({ kind }) => kind === "dataPath"),
+            structuredDocuments: indexContribution.structuredDocuments,
+          },
           ...(prepared.baseFormDependencies === undefined
             ? {}
             : { baseFormProperties: prepared.baseFormDependencies }),
@@ -2015,114 +2028,12 @@ function validateFinalImportSemantics(params: {
   readonly readSession: ActiveSecondPass["readSession"]
   readonly pendingChecks: readonly ValidationPendingCheck[]
 }): ValidationIssue[] {
-  if (params.final.updates.length !== 1) {
-    throw new Error("Окончательное состояние одного YAML должно содержать ровно одно обновление")
-  }
-  const update = params.final.updates[0]!
-  if (update.kind !== "yaml") return []
-  const validator = createComposedProjectStateDependencyValidator()
-  const componentPath = update.componentPath
-  const projectPath = update.projectPath
-  const queryPort = withCurrentImportIndex(params.readSession, params.index)
-  const ownerMetadataCache = createProjectStateOwnerMetadataCache({
-    projectDir: params.projectDir,
-    componentPath,
-    queryPort,
+  return validateLocalImportSemantics({
+    ...params,
+    validator: createComposedProjectStateDependencyValidator(),
+    queryPort: withCurrentImportIndex(params.readSession, params.index),
+    structuredDocuments: params.index.structuredDocuments,
   })
-  const references = update.pendingReferences.map((reference, index) => ({
-    requestId: `import-reference:${index}`,
-    componentPath,
-    reference: { ...reference, filePath: projectPath },
-  }))
-  const dependencies = update.pendingChecks.flatMap((check, index) =>
-    check.kind === "addressableRequired" || check.kind === "referenceCoverage" || check.kind === "dataPath"
-      ? []
-      : [{ requestId: `import-dependency:${index}`, componentPath, projectPath, check }]
-  )
-  const addressableRequired = update.pendingChecks.flatMap((check, index) =>
-    check.kind === "addressableRequired"
-      ? [{ requestId: `import-required:${index}`, componentPath, projectPath, check }]
-      : []
-  )
-  const referenceCoverage = update.pendingChecks.flatMap((check, index) =>
-    check.kind === "referenceCoverage"
-      ? [{ requestId: `import-coverage:${index}`, componentPath, projectPath, check }]
-      : []
-  )
-  const dataPathChecks = params.pendingChecks.filter(
-    (check): check is Extract<ValidationPendingCheck, { kind: "dataPath" }> => check.kind === "dataPath",
-  )
-  const owners = dataPathChecks.map((check, index) => ({
-    requestId: `owner:import-data-path:${index}`,
-    componentPath,
-    owner: check.owner,
-  }))
-  const dataPathValidation = validatePendingChecks({
-    ownerCache: ownerMetadataCache,
-    checks: dataPathChecks,
-  })
-  const diagnostics = [
-    ...dataPathValidation.diagnostics,
-    ...validator.validateReferences({
-      checks: references,
-      projectDir: params.projectDir,
-      queryPort,
-    }).diagnostics,
-    ...validator.validateOwners({
-      checks: owners,
-      projectDir: params.projectDir,
-      queryPort,
-    }),
-    ...validator.validateDependencies({
-      checks: dependencies,
-      projectDir: params.projectDir,
-      queryPort,
-    }).diagnostics,
-    ...validator.validateAddressableRequired({
-      checks: addressableRequired,
-      projectDir: params.projectDir,
-      queryPort,
-    }),
-    ...validator.validateReferenceCoverage({
-      checks: referenceCoverage,
-      projectDir: params.projectDir,
-      queryPort,
-    }),
-    ...validator.validateStructuredDocuments({
-      facts: (params.index.structuredDocuments ?? []).map((entry) => ({ componentPath, projectPath, entry })),
-      projectDir: params.projectDir,
-      queryPort,
-    }),
-  ]
-  return diagnostics
-    .filter(({ severity }) => severity === "error")
-    .map(validationIssueFromDiagnostic)
-}
-
-function validationIssueFromDiagnostic(diagnostic: {
-  readonly source: string
-  readonly code?: unknown
-  readonly path?: string
-  readonly message: string
-}): ValidationIssue {
-  return {
-    code: importDiagnosticCode(diagnostic),
-    kind: importDiagnosticKind(diagnostic.source),
-    target: importDiagnosticTarget(diagnostic.path),
-    params: { message: diagnostic.message },
-  }
-}
-
-function importDiagnosticCode(diagnostic: { readonly source: string; readonly code?: unknown }): string {
-  return typeof diagnostic.code === "string" ? diagnostic.code : `diagnostic.${diagnostic.source}`
-}
-
-function importDiagnosticKind(source: string): ValidationIssue["kind"] {
-  return source === "syntax" || source === "external-file" ? "infrastructure" : "semantic"
-}
-
-function importDiagnosticTarget(path: string | undefined): ValidationIssue["target"] {
-  return { kind: "path", path: validationIssuePathFromPointer(path ?? "") }
 }
 
 function withCurrentImportIndex(

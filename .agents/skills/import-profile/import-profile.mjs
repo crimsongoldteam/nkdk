@@ -195,7 +195,6 @@ export function summarizeImportSteps(steps, elapsedMs) {
     secondPassMs: "Второй проход worker",
     externalFilesMs: "Копирование внешних файлов XML-выгрузки",
     finalBuildMs: "Построение окончательного состояния",
-    dependencyValidationMs: "Полная проверка зависимостей",
     publicationMs: "Публикация состояния проекта",
     saveMs: "Сохранение состояния проекта",
   }
@@ -224,6 +223,7 @@ export function summarizeImportSteps(steps, elapsedMs) {
     ["secondPassXmlParseMs", sum(records("Парсинг XML второго прохода", "worker"), "time")],
     ["factsOnlyMs", sum(records("Извлечение фактов XML", "worker"), "time")],
     ["localProofMs", sum(records("Локальный XML proof", "worker"), "time")],
+    ["localDependencyValidationMs", sum(records("Локальная проверка зависимостей первого прохода", "worker"), "time")],
     ["diagnosticPreviewMs", sum(records("Подготовка начала diagnostics", "main"), "time")],
     ["diagnosticReportMs", sum(records("Запись полного отчёта diagnostics", "main"), "time")],
     ["diagnosticReportBytes", sum(records("Запись полного отчёта diagnostics", "main"), "bytes")],
@@ -236,7 +236,6 @@ export function summarizeImportSteps(steps, elapsedMs) {
     "secondPassMs",
     "externalFilesMs",
     "finalBuildMs",
-    "dependencyValidationMs",
     "publicationMs",
     "saveMs",
     "diagnosticPreviewMs",

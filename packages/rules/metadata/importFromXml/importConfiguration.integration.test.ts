@@ -201,7 +201,7 @@ describe("configuration XML import coordinator", () => {
     expect(fragmentBatches).toEqual([fragmentData])
   })
 
-  it("запускает смысловую проверку индекса между проходами", async () => {
+  it("не запускает централизованную проверку локальных запросов между проходами", async () => {
     const calls: string[] = []
     const semanticValidationCalls: number[] = []
     const result = await importConfigurationFromXml(
@@ -210,9 +210,8 @@ describe("configuration XML import coordinator", () => {
     )
 
     expect(result.failed).toEqual([])
-    expect(semanticValidationCalls).toEqual([1])
-    expect(calls.indexOf("firstPass")).toBeLessThan(calls.indexOf("semanticValidation"))
-    expect(calls.indexOf("semanticValidation")).toBeLessThan(calls.indexOf("secondPass"))
+    expect(semanticValidationCalls).toEqual([])
+    expect(calls.indexOf("firstPass")).toBeLessThan(calls.indexOf("secondPass"))
   })
 
   it("builds the XML language registry before worker initialization", async () => {
@@ -815,7 +814,6 @@ describe("configuration XML import coordinator", () => {
     for (const substep of [
       "Фиксация общего индекса",
       "Построение окончательного состояния",
-      "Полная проверка зависимостей",
       "Сохранение состояния проекта",
       "Публикация состояния проекта",
     ]) {
@@ -1165,7 +1163,6 @@ function fakeProjectState(
         async replaceFinalHashes(files) { replacedFinalHashes?.push(files) },
         async finalize(beforeCheckpoint) {
           importParams.profile?.onPhase?.({ phase: "finalBuild", elapsedMs: 1 })
-          importParams.profile?.onPhase?.({ phase: "dependencyValidation", elapsedMs: 1 })
           await beforeCheckpoint?.()
           importParams.profile?.onPhase?.({ phase: "save", elapsedMs: 1 })
           importParams.profile?.onPhase?.({ phase: "publication", elapsedMs: 1 })
@@ -1220,7 +1217,6 @@ function projectStateWithImportSession(
     async writeStateFragment() {},
     async replaceFinalHashes() {},
     commitSharedIndex: unexpected,
-    async collectSemanticValidationIssues() { return [] },
     createReadToken: unexpected,
     finalize: unexpected,
     async abort() {},

@@ -21,8 +21,6 @@ import {
 } from "./fileUpdateValidation"
 import {
   createMetadataDiagnosticCollection,
-  validationIssuePathFromPointer,
-  type ValidationIssue,
 } from "@nkdk/runtime"
 import {
   createPreparedImportStore,
@@ -40,7 +38,6 @@ export interface ProjectStateImportParams {
 export type ProjectStateImportProfilePhase =
   | "sharedIndex"
   | "finalBuild"
-  | "dependencyValidation"
   | "save"
   | "publication"
 
@@ -74,17 +71,12 @@ export interface ProjectStateImportSession {
   writeStateFragment(fragment: ProjectStateFragment): Promise<void>
   replaceFinalHashes(files: readonly { readonly projectPath: string; readonly hash: bigint }[]): Promise<void>
   commitSharedIndex(): Promise<ProjectStateReadToken>
-  collectSemanticValidationIssues(): Promise<readonly ProjectStateImportValidationIssue[]>
   /** Выдаёт отдельный одноразовый token следующему worker после фиксации индекса. */
   createReadToken(): Promise<ProjectStateReadToken>
   finalize(beforeCheckpoint?: () => Promise<void>): Promise<ProjectStateRefreshResult>
   abort(cause: unknown): Promise<void>
 }
 
-export interface ProjectStateImportValidationIssue {
-  readonly projectPath: string
-  readonly issue: ValidationIssue
-}
 
 export interface CreateProjectStateImportSessionParams extends ProjectStateImportParams {
   readonly writer: ProjectStateWriterHandle
@@ -239,32 +231,6 @@ export async function createProjectStateImportSession(
         sharedCommit = undefined
       }
     },
-    async collectSemanticValidationIssues() {
-      if (phase !== "final") {
-        throw new Error("Ошибки смыслового индекса доступны только после его фиксации")
-      }
-      const batches = await params.writer.validateDependencyDiagnosticBatches()
-      const diagnostics = createMetadataDiagnosticCollection(batches)
-      try {
-        return [...diagnostics]
-          .filter(({ severity }) => severity === "error")
-          .map((diagnostic) => ({
-            projectPath: importTargetProjectPath(diagnostic.filePath, params.output.componentPaths),
-            issue: {
-              code: diagnostic.code ?? `diagnostic.${diagnostic.source}`,
-              kind: diagnostic.source === "syntax" || diagnostic.source === "external-file"
-                ? "infrastructure" as const
-                : "semantic" as const,
-              target: {
-                kind: "path" as const,
-                path: validationIssuePathFromPointer(diagnostic.path ?? ""),
-              },
-            },
-          }))
-      } finally {
-        diagnostics.release()
-      }
-    },
     async createReadToken() {
       if (phase !== "final") {
         throw new Error("Индекс import ещё не зафиксирован")
@@ -278,16 +244,12 @@ export async function createProjectStateImportSession(
         await finalWrites
         return params.writer.readLocalDiagnosticBatches()
       })
-      const dependencyDiagnostics = await measurePhase(
-        "dependencyValidation",
-        () => params.writer.validateDependencyDiagnosticBatches(),
-      )
       await beforeCheckpoint?.()
       await closePreparedStore()
       const readToken = await params.writer.createReadToken()
       await measurePhase("save", () => params.writer.commitAndScheduleCheckpoint())
       const result: ProjectStateRefreshResult = {
-        diagnostics: createMetadataDiagnosticCollection([...localDiagnostics, ...dependencyDiagnostics]),
+        diagnostics: createMetadataDiagnosticCollection(localDiagnostics),
         readToken,
         stats: { hashedFiles: changedPaths.size, parsedYamlFiles: 0, changedFiles: changedPaths.size, deletedFiles: 0 },
       }
@@ -329,23 +291,6 @@ export async function createProjectStateImportSession(
   }
 }
 
-function importTargetProjectPath(
-  diagnosticFilePath: string,
-  componentPaths: readonly string[],
-): string {
-  const normalized = diagnosticFilePath.replaceAll("\\", "/")
-  const candidates = [...componentPaths]
-    .map((componentPath) => componentPath.replaceAll("\\", "/").replace(/^\/+|\/+$/gu, ""))
-    .filter((componentPath) => componentPath.length > 0)
-    .sort((left, right) => right.length - left.length)
-  for (const componentPath of candidates) {
-    if (normalized.startsWith(`${componentPath}/`)) return normalized.slice(componentPath.length + 1)
-    const marker = `/${componentPath}/`
-    const markerIndex = normalized.lastIndexOf(marker)
-    if (markerIndex >= 0) return normalized.slice(markerIndex + marker.length)
-  }
-  return normalized
-}
 
 function flattenFailures(caught: unknown): unknown[] {
   return caught instanceof AggregateError

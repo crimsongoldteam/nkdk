@@ -18,7 +18,6 @@ import type {
   ImportAssignment,
   ImportControlCompositionEntry,
   ImportDiagnostic,
-  ImportProjectIssueDecision,
   ImportResultFile,
   ImportWorkerCommand,
   ImportWorkerCommandResult,
@@ -51,7 +50,6 @@ export interface XmlImportWorkerPool {
     readTokens: readonly ProjectStateReadToken[],
     exportProfile: XmlComponentExportProfile,
     sink?: XmlImportStateSink,
-    issueDecisions?: readonly ImportProjectIssueDecision[],
   ): Promise<XmlImportSecondPassPoolResult>
   workerCount(): number
   close(): Promise<void>
@@ -263,7 +261,6 @@ function createXmlImportOperationPool(params: {
     readTokens: readonly ProjectStateReadToken[],
     sink: XmlImportStateSink,
     exportProfile: XmlComponentExportProfile,
-    issueDecisions: readonly ImportProjectIssueDecision[] = [],
   ): Promise<XmlImportSecondPassPoolResult> {
     if (readTokens.length !== activeWorkerIndexes.length) {
       throw new Error(`Второму проходу import требуется ${activeWorkerIndexes.length} отдельных read token`)
@@ -282,7 +279,7 @@ function createXmlImportOperationPool(params: {
         fileViewsByWorker[workerIndex] = fileViews
         assertProducerActive("secondPassRunning")
         const beginCommand = secondPassBeginCommand(
-          readTokens[activeIndex]!, controlComposition, exportProfile, issueDecisions,
+          readTokens[activeIndex]!, controlComposition, exportProfile,
         )
         const beginResponse = await runCommand(workerIndex, beginCommand)
         if (beginResponse !== undefined) {
@@ -418,11 +415,11 @@ function createXmlImportOperationPool(params: {
       }
     },
 
-    async runSecondPass(readTokens, exportProfile, sink = noopStateSink, issueDecisions = []) {
+    async runSecondPass(readTokens, exportProfile, sink = noopStateSink) {
       assertUsable(phase, fatalError)
       if (phase === "firstPassErrors") throw new Error("Первый проход import завершён с ошибками")
       if (phase !== "firstPassReady") throw new Error("Первый проход import не завершён успешно")
-      return runFollowingPass(readTokens, sink, exportProfile, issueDecisions)
+      return runFollowingPass(readTokens, sink, exportProfile)
     },
     workerCount() {
       return activeWorkerIndexes.length
@@ -686,12 +683,11 @@ function secondPassBeginCommand(
   readToken: ProjectStateReadToken,
   composition: readonly ImportControlCompositionEntry[],
   exportProfile: XmlComponentExportProfile | undefined,
-  issueDecisions: readonly ImportProjectIssueDecision[],
 ): Extract<ImportWorkerCommand, { kind: "beginSecondPass" }> {
   if (exportProfile === undefined) {
     throw new Error("Второй проход import не получил профиль восстановления XML")
   }
-  return { kind: "beginSecondPass", readToken, composition, exportProfile, issueDecisions }
+  return { kind: "beginSecondPass", readToken, composition, exportProfile }
 }
 
 function normalizeConcurrency(concurrency: number): number {
