@@ -1,7 +1,9 @@
 import type { FillValueEffectiveType } from "@nkdk/runtime/rule-kit"
+import { isXmlElementNode } from "@nkdk/runtime"
 import { describe, expect, it } from "vitest"
 import { normalizeEffectiveType } from "./valueClassification"
-import { scanFillValuesInXml, type StandardAttributeEnricher } from "./xmlScanner"
+import { rawFillValue, scanFillValuesInXml, type StandardAttributeEnricher } from "./xmlScanner"
+import { parseStructuralXMLWithoutCompatibility } from "../../tests/structuralXML"
 
 const dateType = {
   status: "known",
@@ -9,7 +11,9 @@ const dateType = {
   alternatives: [{ kind: "dateTime", dateFractions: "DateTime" }],
 } as const satisfies FillValueEffectiveType
 
-const enrichStandard: StandardAttributeEnricher = (params) => ({
+const enrichStandard: StandardAttributeEnricher = (params) => {
+  expect(isXmlElementNode(params.ownerXml)).toBe(true)
+  return {
   ownerKind: "Документ",
   effectiveType: dateType,
   type: normalizeEffectiveType(dateType, "rules"),
@@ -17,9 +21,21 @@ const enrichStandard: StandardAttributeEnricher = (params) => ({
     ? { kind: "notSpecified" }
     : { kind: "implicit" },
   rulesEvidence: { declaration: { family: "primitive", kind: "dateTime" } },
-})
+  }
+}
 
 describe("сканирование FillValue в XML", () => {
+  it.each([
+    [undefined, { form: "absent" }],
+    ['<FillValue/>', { form: "untypedEmpty" }],
+    ['<FillValue>текст</FillValue>', { form: "untypedText", text: "текст" }],
+    ['<FillValue xsi:nil="true"/>', { form: "nil" }],
+    ['<FillValue xsi:type="xs:string"/>', { form: "typedEmpty", xsiType: "xs:string" }],
+    ['<FillValue xsi:type="xs:string">0</FillValue>', { form: "typedText", xsiType: "xs:string", text: "0" }],
+  ] as const)("различает исходную XML-форму без объектного представления: %s", (xml, expected) => {
+    expect(rawFillValue(xml === undefined ? undefined : parseStructuralXMLWithoutCompatibility(xml))).toEqual(expected)
+  })
+
   it("извлекает обычные и стандартные реквизиты с исходной формой", () => {
     const result = scanFillValuesInXml({
       configuration: "demo",

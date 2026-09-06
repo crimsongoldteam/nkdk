@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { createStandardAttributeEnricher } from "./rulesEnrichment"
 import { scanFillValuesInXml } from "./xmlScanner"
+import { parseStructuralXMLWithoutCompatibility } from "../../tests/structuralXML"
 
 const enrich = createStandardAttributeEnricher()
 
@@ -9,7 +10,7 @@ describe("обогащение стандартного реквизита из 
     expect(enrich({
       ownerXmlKind: "Document",
       ownerName: "Заказ",
-      ownerXml: { Properties: { Name: "Заказ" } },
+      ownerXml: parseStructuralXMLWithoutCompatibility("<Document><Properties><Name>Заказ</Name></Properties></Document>"),
       internalName: "Date",
       raw: { form: "typedText", xsiType: "xs:dateTime", text: "0001-01-01T00:00:00" },
       typedValue: { type: "dateTime", value: "0001-01-01T00:00:00" },
@@ -25,7 +26,7 @@ describe("обогащение стандартного реквизита из 
     expect(enrich({
       ownerXmlKind: "Catalog",
       ownerName: "Контрагенты",
-      ownerXml: { Properties: { Name: "Контрагенты" } },
+      ownerXml: parseStructuralXMLWithoutCompatibility("<Catalog><Properties><Name>Контрагенты</Name></Properties></Catalog>"),
       internalName: "Ref",
       raw: { form: "nil" },
     })).toMatchObject({
@@ -43,14 +44,7 @@ describe("обогащение стандартного реквизита из 
     expect(enrich({
       ownerXmlKind: "Catalog",
       ownerName: "Контрагенты",
-      ownerXml: {
-        Properties: {
-          Name: "Контрагенты",
-          CodeType: "String",
-          CodeLength: "9",
-          CodeAllowedLength: "Variable",
-        },
-      },
+      ownerXml: parseStructuralXMLWithoutCompatibility("<Catalog><Properties><Name>Контрагенты</Name><CodeType>String</CodeType><CodeLength>9</CodeLength><CodeAllowedLength>Variable</CodeAllowedLength></Properties></Catalog>"),
       internalName: "Code",
       raw: { form: "typedEmpty", xsiType: "xs:string" },
       typedValue: { type: "string", value: "" },
@@ -76,7 +70,7 @@ describe("обогащение стандартного реквизита из 
     expect(enrich({
       ownerXmlKind: "Unknown",
       ownerName: "X",
-      ownerXml: { Properties: { Name: "X" } },
+      ownerXml: parseStructuralXMLWithoutCompatibility("<Unknown><Properties><Name>X</Name></Properties></Unknown>"),
       internalName: "Date",
       raw: { form: "nil" },
     })).toMatchObject({

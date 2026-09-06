@@ -1,5 +1,7 @@
 import {
   createConfigurationLanguages,
+  xmlElementsAtUniquePath,
+  type XmlElementNode,
   type ConfigurationContextFromXML,
 } from "@nkdk/runtime"
 import type {
@@ -18,8 +20,6 @@ import { metadataRules } from "../../metadata/composition/metadataRules"
 import type { MetadataExecutionRegistrySets } from "../../metadata/composition/metadataExecutionContext"
 import type { StandardAttributeEnricher, StandardAttributeEnrichment } from "./xmlScanner"
 import { normalizeEffectiveType } from "./valueClassification"
-
-type XmlRecord = Record<string, unknown>
 
 interface OwnerBinding {
   readonly ownerKind: string
@@ -107,7 +107,7 @@ function buildOwnerBindings(registries: MetadataExecutionRegistrySets): Map<stri
 }
 
 function importRequiredOwnerProperties(
-  ownerXml: XmlRecord,
+  ownerXml: XmlElementNode,
   ownerRule: MetadataItemRule,
   declaration: Extract<StandardMemberDeclaration, { memberKind: "standardAttribute" }>,
   registries: MetadataExecutionRegistrySets,
@@ -120,7 +120,8 @@ function importRequiredOwnerProperties(
       errors.push(`у ${ownerRule.itemType} отсутствует свойство ${key}`)
       continue
     }
-    const raw = valueAtPath(ownerXml, xmlPath(key, propertyRule))
+    const nodes = xmlElementsAtUniquePath([ownerXml], [ownerXml.name, ...xmlPath(key, propertyRule)])
+    const raw = nodes.length > 1 ? nodes : nodes[0]
     if (raw === undefined) {
       if (typeof propertyRule.implicitValueYAML !== "function" && propertyRule.implicitValueYAML !== undefined) {
         values[key] = propertyRule.implicitValueYAML
@@ -307,13 +308,4 @@ function unresolvedEnrichment(ownerKind: string, reason: string): StandardAttrib
 
 function xmlPath(key: string, rule: PropertyRule): readonly string[] {
   return [...(rule.xmlParents ?? []), rule.xml ?? `${key.charAt(0).toUpperCase()}${key.slice(1)}`]
-}
-
-function valueAtPath(source: unknown, path: readonly string[]): unknown {
-  let current = source
-  for (const segment of path) {
-    if (typeof current !== "object" || current === null || Array.isArray(current)) return undefined
-    current = (current as XmlRecord)[segment]
-  }
-  return current
 }

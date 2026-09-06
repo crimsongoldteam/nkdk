@@ -1,6 +1,10 @@
 import {
   createConfigurationLanguages,
-  parseXmlWithSaxes,
+  parseXmlDocumentWithSaxes,
+  xmlAttributeValue,
+  xmlElementChildren,
+  xmlTextValue,
+  type XmlElementNode,
   type ConfigurationContextFromXML,
 } from "@nkdk/runtime"
 import {
@@ -12,7 +16,6 @@ import {
 import { importMetadataValueFromXML } from "../../metadata/commonObjects/metadataValue/fromXML"
 import type { MetadataTypedValue } from "../../metadata/commonObjects/metadataValue/types"
 import { importTypeDescriptionFromXML } from "../../metadata/commonObjects/typeDescription/fromXML"
-import type { TypeDescriptionXML } from "../../metadata/commonObjects/typeDescription/types"
 import type {
   FillValueObservation,
   NormalizedType,
@@ -22,8 +25,6 @@ import type {
 } from "./model"
 import { stableRulesClassification } from "./model"
 import { classifyObservedValue, normalizeEffectiveType } from "./valueClassification"
-
-type XmlRecord = Record<string, unknown>
 
 const ordinaryElementNames = new Set([
   "CommonAttribute",
@@ -53,7 +54,7 @@ export interface StandardAttributeEnrichment {
 export type StandardAttributeEnricher = (params: {
   readonly ownerXmlKind: string
   readonly ownerName?: string
-  readonly ownerXml: XmlRecord
+  readonly ownerXml: XmlElementNode
   readonly internalName: string
   readonly raw: RawFillValue
   readonly typedValue?: MetadataTypedValue
@@ -70,13 +71,9 @@ export function scanFillValuesInXml(params: {
   readonly xml: string
   readonly enrichStandard: StandardAttributeEnricher
 }): ScanFillValuesResult {
-  const parsed = parseXmlWithSaxes<XmlRecord>(params.xml, {
-    preserveXsiNil: true,
-    preserveEmptyElements: true,
-  })
-  const metadata = asRecord(parsed.MetaDataObject)
-  const ownerEntry = metadata === undefined ? undefined : ownerXmlEntry(metadata)
-  if (ownerEntry === undefined) {
+  const metadata = parseXmlDocumentWithSaxes(params.xml).roots.find(node => node.name === "MetaDataObject")
+  const ownerNode = metadata === undefined ? undefined : xmlElementChildren(metadata)[0]
+  if (ownerNode === undefined) {
     return {
       observations: [],
       unresolved: [{
@@ -88,33 +85,26 @@ export function scanFillValuesInXml(params: {
     }
   }
 
-  const [ownerXmlKind, ownerXml] = ownerEntry
-  const ownerName = scalarText(asRecord(ownerXml.Properties)?.Name)
+  const ownerXml = ownerNode
+  const ownerXmlKind = ownerXml.name
+  const ownerName = scalarText(child(child(ownerXml, "Properties"), "Name"))
   const observations: FillValueObservation[] = []
   const unresolved: UnresolvedXmlObservation[] = []
 
-  visitElement(ownerXmlKind, ownerXml)
+  visitElement(ownerXml)
   return { observations, unresolved }
 
-  function visitElement(element: string, value: unknown): void {
-    if (Array.isArray(value)) {
-      for (const item of value) visitElement(element, item)
-      return
-    }
-    const record = asRecord(value)
-    if (record === undefined) return
-
+  function visitElement(value: XmlElementNode): void {
+    const element = value.name
     if (element === "xr:StandardAttribute") {
-      const internalName = scalarText(record._name)
+      const internalName = xmlAttributeValue(value, "name")
       if (internalName === undefined) {
         unresolved.push(unresolvedAt(element, "у стандартного реквизита отсутствует имя"))
         return
       }
-      const fillKey = Object.prototype.hasOwnProperty.call(record, "xr:FillValue")
-        ? "xr:FillValue"
-        : "FillValue"
-      const raw = rawFillValue(record[fillKey], Object.prototype.hasOwnProperty.call(record, fillKey))
-      const typed = parseTypedValue(record[fillKey], raw)
+      const fillValue = child(value, "xr:FillValue") ?? child(value, "FillValue")
+      const raw = rawFillValue(fillValue)
+      const typed = parseTypedValue(fillValue, raw)
       const enrichment = params.enrichStandard({
         ownerXmlKind,
         ...(ownerName === undefined ? {} : { ownerName }),
@@ -138,24 +128,23 @@ export function scanFillValuesInXml(params: {
       return
     }
 
-    const properties = asRecord(record.Properties)
-    if (ordinaryElementNames.has(element) && properties?.Type !== undefined) {
-      const attributeName = scalarText(properties.Name)
+    const properties = child(value, "Properties")
+    const type = child(properties, "Type")
+    if (ordinaryElementNames.has(element) && type !== undefined) {
+      const attributeName = scalarText(child(properties, "Name"))
       if (attributeName === undefined) {
         unresolved.push(unresolvedAt(element, "у обычного реквизита отсутствует имя"))
         return
       }
-      const raw = rawFillValue(
-        properties.FillValue,
-        Object.prototype.hasOwnProperty.call(properties, "FillValue"),
-      )
+      const fillValue = child(properties, "FillValue")
+      const raw = rawFillValue(fillValue)
       const typeDescription = importTypeDescriptionFromXML(
         context,
         undefined,
-        properties.Type as TypeDescriptionXML,
+        type,
       )
       const effectiveType = effectiveFillValueType(typeDescription)
-      const typed = parseTypedValue(properties.FillValue, raw)
+      const typed = parseTypedValue(fillValue, raw)
       const rulesClassification = typed.value === undefined
         ? ({ kind: typed.error === undefined ? "notSpecified" : "unresolved", ...(typed.error === undefined ? {} : { reason: typed.error }) } as FillValueClassification)
         : classifyFillValue({ effectiveType, value: typed.value })
@@ -174,16 +163,13 @@ export function scanFillValuesInXml(params: {
     }
 
     if (
-      Object.prototype.hasOwnProperty.call(record, "FillValue") ||
-      Object.prototype.hasOwnProperty.call(record, "xr:FillValue")
+      child(value, "FillValue") !== undefined || child(value, "xr:FillValue") !== undefined
     ) {
       unresolved.push(unresolvedAt(element, "неподдержанная XML-конструкция с FillValue"))
       return
     }
 
-    for (const [childElement, child] of Object.entries(record)) {
-      if (!childElement.startsWith("_") && childElement !== "#text") visitElement(childElement, child)
-    }
+    for (const nested of xmlElementChildren(value)) visitElement(nested)
   }
 
   function observation(candidate: {
@@ -226,17 +212,11 @@ export function scanFillValuesInXml(params: {
   }
 }
 
-export function rawFillValue(value: unknown, present: boolean): RawFillValue {
-  if (!present) return { form: "absent" }
-  const record = asRecord(value)
-  if (record === undefined) {
-    const text = scalarText(value) ?? ""
-    return text === "" ? { form: "untypedEmpty" } : { form: "untypedText", text }
-  }
-
-  const xsiType = scalarText(record["_xsi:type"])
-  const text = scalarText(record["#text"])
-  if (record["_xsi:nil"] === true || record["_xsi:nil"] === "true") return { form: "nil" }
+export function rawFillValue(value: XmlElementNode | undefined): RawFillValue {
+  if (value === undefined) return { form: "absent" }
+  const xsiType = xmlAttributeValue(value, "xsi:type")
+  const text = xmlTextValue(value)
+  if (xmlAttributeValue(value, "xsi:nil") === "true") return { form: "nil" }
   if (xsiType !== undefined) {
     return text === undefined || text === ""
       ? { form: "typedEmpty", xsiType }
@@ -252,34 +232,20 @@ interface ParsedTypedValue {
   readonly error?: string
 }
 
-function parseTypedValue(value: unknown, raw: RawFillValue): ParsedTypedValue {
-  if (raw.form === "absent" || raw.form === "nil") return {}
+function parseTypedValue(value: XmlElementNode | undefined, raw: RawFillValue): ParsedTypedValue {
+  if (value === undefined || raw.form === "absent" || raw.form === "nil") return {}
   try {
-    const xmlValue = asRecord(value) ?? { "#text": scalarText(value) ?? "" }
-    const typedValue = importMetadataValueFromXML({ context, rule: undefined, value: xmlValue })
+    const typedValue = importMetadataValueFromXML({ context, rule: undefined, value })
     return typedValue === undefined ? {} : { value: typedValue }
   } catch (error) {
     return { error: error instanceof Error ? error.message : String(error) }
   }
 }
 
-function ownerXmlEntry(metadata: XmlRecord): readonly [string, XmlRecord] | undefined {
-  for (const [key, value] of Object.entries(metadata)) {
-    if (key.startsWith("_") || key.startsWith("?")) continue
-    const record = asRecord(value)
-    if (record !== undefined) return [key, record]
-  }
-  return undefined
+function child(value: XmlElementNode | undefined, name: string): XmlElementNode | undefined {
+  return value === undefined ? undefined : xmlElementChildren(value, name)[0]
 }
 
-function asRecord(value: unknown): XmlRecord | undefined {
-  return typeof value === "object" && value !== null && !Array.isArray(value)
-    ? value as XmlRecord
-    : undefined
-}
-
-function scalarText(value: unknown): string | undefined {
-  if (typeof value === "string") return value
-  if (typeof value === "number" || typeof value === "boolean") return String(value)
-  return undefined
+function scalarText(value: XmlElementNode | undefined): string | undefined {
+  return value === undefined ? undefined : xmlTextValue(value) || undefined
 }
