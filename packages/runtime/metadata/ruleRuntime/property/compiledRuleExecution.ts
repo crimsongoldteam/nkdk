@@ -98,10 +98,13 @@ export function createCompiledRuleExecution(params: {
       const parent = active.at(-1)
       const ownerProperty = propertyKey === undefined ? undefined : parent?.plan.propertiesByKey.get(propertyKey)
       const supplied = params.prepare(source)
+      const plan = params.execution.propertyPlan(source.rule)
       const propertyValues = new Map(supplied.propertyValues)
-      for (const key of Object.keys(source.rule.properties)) {
-        const prepared = source.dependencies?.propertyValue?.(source.yamlPath, key)
-        if (prepared?.value !== undefined) propertyValues.set(key, prepared.value)
+      if (source.dependencies?.propertyValue !== undefined) {
+        for (const { propertyKey } of plan.properties) {
+          const prepared = source.dependencies.propertyValue(source.yamlPath, propertyKey)
+          if (prepared?.value !== undefined) propertyValues.set(propertyKey, prepared.value)
+        }
       }
       let context = supplied.context
       let name = supplied.name
@@ -149,7 +152,6 @@ export function createCompiledRuleExecution(params: {
       const prepared = itemPreparation.properties
       const consumer = params.consumer(source, children, prepared)
       const dependencyFacts = source.dependencies?.itemFacts?.(source.yamlPath, source.rule.itemType)
-      const plan = params.execution.propertyPlan(source.rule)
       const frame = {
         plan, prepared, childIndices: new Map<string, number>(), inline: new Map<string, Map<InlineSelector, InlineBindings>>(),
         nestedProperties: new Map<string, ReturnType<typeof prepareNestedXMLPropertyContext>>(),

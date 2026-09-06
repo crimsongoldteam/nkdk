@@ -45,6 +45,8 @@ import { MetadataTaskRules } from "../../appliedObjects/metadataTask/rules"
 import { MetadataSubsystemRules } from "../../appliedObjects/metadataSubsystem/rules"
 import { MetadataWebServiceRules } from "../../appliedObjects/metadataWebService/rules"
 import { InputFieldRules } from "../../forms/elements/inputField/rules"
+import { ExtendedTooltipRules } from "../../forms/elements/extendedTooltip/rules"
+import { ContextMenuRules } from "../../forms/elements/contextMenu/rules"
 import { MetadataExternalDataSourceTableRules } from "../../commonObjects/metadataExternalDataSourceTable/rules"
 import { metadataRules } from "../../composition/metadataRules"
 import type { ExportToXMLFunctionNew } from "./fn"
@@ -201,6 +203,57 @@ function stringValueRule(params: {
 }
 
 describe("importPropertiesFromXMLToYAML", () => {
+  it.each([false, true])("использует готовый план при подготовке входов сверки; зависимости: %s", (dependencies) => {
+    const execution = createRuleRegistrySet(metadataRules).execution
+    const rule: MetadataItemRule = { itemType: "ProofInputs", properties: {
+      width: { type: "number", xml: "Width", yaml: "Ширина" },
+    } }
+    let xml: unknown
+    const roundTrip = createCompiledRuleExecution({
+      execution,
+      prepare: () => ({ context: mockContextToXML(), outputs: [{ key: "owner" }] }),
+      consumer: () => ({
+          write(event) { xml = event.value },
+          finish() { return new Map() },
+      }),
+    })
+    const run = () => roundTrip.open({
+      context: mockContextFromXML(), rule, yaml: {}, sources: [], yamlPath: [], rulePath: [],
+      ...(!dependencies ? {} : { dependencies: {
+        shouldOmit: () => false,
+        propertyValue: () => ({ value: 7 }),
+      } }),
+    }).finish()
+    run()
+    const keys = vi.spyOn(Object, "keys")
+    try {
+      run()
+      expect(keys.mock.calls.filter(([value]) => value === rule.properties)).toEqual([])
+      expect(xml).toBe(dependencies ? 7 : undefined)
+    } finally {
+      keys.mockRestore()
+    }
+  })
+
+  it.each([
+    { rule: ExtendedTooltipRules, missingKeys: [], visited: 0 },
+    { rule: ContextMenuRules, missingKeys: ["childItems"], visited: 2 },
+  ])("не обходит незначимые отсутствующие свойства $rule.itemType", ({ rule, missingKeys, visited }) => {
+    const execution = createRuleRegistrySet(metadataRules).execution
+    const context = mockContextFromXML()
+    const profile = createDirectImportProfile({ propertyTypes: true })
+    const root = parseXmlDocumentWithSaxes(`<${rule.itemType} name="Поле" id="1"/>`).roots[0]!
+    const yaml = importPropertiesWithSources({
+      execution, context, rule, sources: [{ context, xml: root }],
+      yamlPath: [], rulePath: [], collector: createLocalIndexesCollector(), profile,
+    })
+    expect(yaml).toEqual({})
+    expect(execution.propertyPlan(rule).missingXMLProperties.map(property => property.propertyKey)).toEqual(missingKeys)
+    // У ContextMenu остаются исходный name и объявленный default пустой коллекции.
+    expect(profile.propertyCount).toBe(visited)
+    expect(profile.fusedAtomicCount).toBe(0)
+  })
+
 
   it("читает свойства структурного родителя без compatibilityValue", () => {
     const { compatibilityValue: _compatibility, ...root } = parseXmlDocumentWithSaxes('<Root name="Владелец"><Value>текст</Value></Root>').roots[0]!
