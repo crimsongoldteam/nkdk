@@ -122,7 +122,6 @@ import type { ValidationPendingCheck } from "../validation/projectValidationPend
 import { validateLocalImportSemantics, validationIssueFromDiagnostic } from "./localValidation"
 import {
   finalizeImportedFormDataPathCompatibility,
-  importedFormDataPathCompatibilityChanges,
   importedFormDataPathCompatibilityChangesFromOccurrences,
 } from "../forms/clientApplicationForm/importDataPathCompatibility"
 import { buildProjectStateYamlFileUpdate } from "../project/projectStateYamlUpdate"
@@ -585,30 +584,13 @@ async function processSecondPass(
     const formYamlPath = clientApplicationFormYamlPath(assignmentRule)
     const directFormContext = formYamlPath !== undefined
       && !hasBaseFormCandidate && ready.formDataPathIndex !== undefined
-    const originalFormFactsView = ready.formSemanticFacts === undefined || directFormContext
-      ? undefined
-      : createPropertyFactsYamlView(propertyFactsWithReconstructionValues(ready.formSemanticFacts))
-    const compatibleFormFacts = directFormContext && finalizedFormFacts !== undefined && ready.formSemanticFacts !== undefined
+    const compatibleFormFacts = finalizedFormFacts !== undefined && ready.formSemanticFacts !== undefined
+      && ready.formDataPathIndex !== undefined
       ? prepareCompatibleFormFacts({
           facts: finalizedFormFacts, original: ready.formSemanticFacts,
-          index: ready.formDataPathIndex!, ownerCache: secondPass.ownerMetadataCache,
+          index: ready.formDataPathIndex, ownerCache: secondPass.ownerMetadataCache,
         })
-      : finalizedFormFacts === undefined
-      || originalFormFactsView === undefined
-      || ready.formDataPathIndex === undefined
-      ? finalizedFormFacts
-      : applyPropertyFactChanges(
-          finalizedFormFacts,
-          importedFormDataPathCompatibilityChanges({
-            finalizedYaml: createPropertyFactsYamlView(finalizedFormFacts),
-            originalOccurrences: collectFormDataPathOccurrencesFromYAML({
-              yaml: originalFormFactsView,
-              rule: ClientApplicationFormRules,
-            }),
-            index: ready.formDataPathIndex,
-            ownerCache: secondPass.ownerMetadataCache,
-          }).map(({ yamlPath, value }) => ({ yamlPath, kind: "set", value })),
-        )
+      : finalizedFormFacts
     const formProofDataPathContext = directFormContext && compatibleFormFacts !== undefined
       ? prepareFormDataPathContext({
           preparation: collectFormDataPathPreparationFromFacts({

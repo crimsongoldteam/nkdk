@@ -544,14 +544,21 @@ describe("XML import worker second pass", () => {
     }
   })
 
-  it("готовит обычную форму после общего индекса без промежуточного YAML", async () => {
+  it.each([false, true])("готовит пути формы без промежуточного YAML; BaseForm: %s", async (hasBaseForm) => {
     const assignments = createCatalogAndFormAssignments("Объект.Код")
+    if (hasBaseForm) {
+      const body = assignments.form.xmlFiles.find(file => file.role === "body")!
+      const xml = readFileSync(body.sourcePath, "utf8")
+      const content = xml.slice(xml.indexOf(">", xml.indexOf("<Form ")) + 1, xml.lastIndexOf("</Form>"))
+      writeFileSync(body.sourcePath, xml.replace("</Form>", `<BaseForm version="2.20">${content}</BaseForm></Form>`))
+    }
     await beginCatalogAndFormSecondPass(createTempDir("form-direct-context"), assignments)
     const view = vi.spyOn(propertyFactsView, "createPropertyFactsYamlView")
     try {
       const result = await runImportWorkerCommand({ kind: "secondPass", assignmentId: assignments.form.id })
       expect(result).toMatchObject({ kind: "secondPassResult", diagnostics: [] })
-      expect(view.mock.calls.length).toBe(0)
+      // С основой остаются только входы ещё не перенесённой проекции.
+      expect(view.mock.calls).toHaveLength(hasBaseForm ? 2 : 0)
     } finally {
       view.mockRestore()
       await runImportWorkerCommand({ kind: "endSecondPass" })
