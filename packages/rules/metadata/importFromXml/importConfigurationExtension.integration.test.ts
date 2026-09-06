@@ -9,7 +9,7 @@ import fs from "node:fs"
 import os from "node:os"
 import { dirname,join } from "node:path"
 import { fileURLToPath } from "node:url"
-import { afterAll,beforeAll,describe,expect,it } from "vitest"
+import { afterAll,beforeAll,describe,expect,it,vi } from "vitest"
 import { mockContextFromXML } from "../../tests/mockContext"
 import "../../tests/metadataExecutionContext"
 import { createPreparedYamlWorkerThreadPoolFactory } from "../../tests/preparedYamlWorkerTestPool"
@@ -20,6 +20,7 @@ createXmlImportWorkerTestPool,
 import { createPreparedYamlProjectWorkerPool } from "../project/preparedYamlProjectWorkerPool"
 import { importConfigurationFromXml } from "./importConfiguration"
 import { withoutUnsupportedConfigurationExtensionPropertyStates } from "./configurationExtensionFixtureSupport"
+import * as formProofContexts from "../forms/clientApplicationForm/convertYAMLToXML"
 
 const fixtureDir = join(dirname(fileURLToPath(import.meta.url)), "__fixtures__", "configurationExtension")
 const ownExchangePlanFixtureDir = join(
@@ -48,6 +49,8 @@ const projectState = createImportProjectStateTestService({
   }),
 })
 let importedExtension: Awaited<ReturnType<typeof importExtension>>
+let rebuiltFormProofContexts = 0
+let preparedFormProofContexts = 0
 
 afterAll(async () => {
   await Promise.all([
@@ -59,7 +62,21 @@ afterAll(async () => {
 
 describe("configuration extension XML import", () => {
   beforeAll(async () => {
-    importedExtension = await importExtension()
+    const rebuild = vi.spyOn(formProofContexts, "prepareClientApplicationFormProofContexts")
+    const prepared = vi.spyOn(formProofContexts, "prepareClientApplicationFormProofContextsFromPrepared")
+    try {
+      importedExtension = await importExtension()
+      rebuiltFormProofContexts = rebuild.mock.calls.filter(([, params]) => params?.yaml !== undefined).length
+      preparedFormProofContexts = prepared.mock.calls.filter(([, context]) => context !== undefined).length
+    } finally {
+      rebuild.mockRestore()
+      prepared.mockRestore()
+    }
+  })
+
+  it("использует готовый контекст путей для сверки формы и основы, не восстанавливая его через YAML", () => {
+    expect(preparedFormProofContexts).toBeGreaterThan(0)
+    expect(rebuiltFormProofContexts).toBe(0)
   })
 
   it("сохраняет структуру расширения и локализует импортированные аномалии", () => {
