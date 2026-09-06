@@ -1,6 +1,7 @@
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import * as SE from "../../systemEnumerations/types"
-import { claimCanonicalXmlImportAttribute, ConfigurationContextFromXML } from "@nkdk/runtime"
+import { claimCanonicalXmlImportAttribute, ConfigurationContextFromXML, isXmlElementNode, xmlElementChildren, xmlTextValue, type XmlElementNode } from "@nkdk/runtime"
+import { readDcsText } from "../dcsText"
 import {
   ChoiceParameterLink,
   ChoiceParameterLinkDcsItemXML,
@@ -8,26 +9,19 @@ import {
   ChoiceParameterLinks,
 } from "./types"
 
-const textNode = (value: string | { "#text"?: string } | undefined): string => {
-  if (value === undefined) {
-    throw new Error("DCS ChoiceParameterLink: expected text value")
-  }
-  if (typeof value === "string") {
-    return value
-  }
-  const t = value["#text"]
-  if (typeof t === "string") {
-    return t
-  }
-  throw new Error("DCS ChoiceParameterLink: invalid text node")
-}
+const textNode = (value: unknown): string =>
+  readDcsText(value, "DCS ChoiceParameterLink: expected text value", "DCS ChoiceParameterLink: invalid text node")
 
-const optionalMode = (mode: ChoiceParameterLinkDcsItemXML["dcscor:mode"]): SE.LinkedValueChangeMode | undefined => {
+const optionalMode = (mode: ChoiceParameterLinkDcsItemXML["dcscor:mode"] | XmlElementNode): SE.LinkedValueChangeMode | undefined => {
   if (mode === undefined) {
     return undefined
   }
   if (typeof mode === "string") {
     return mode as SE.LinkedValueChangeMode
+  }
+  if (isXmlElementNode(mode)) {
+    return mode.content.some(node => node.type === "text") || mode.content.length === 0 && mode.attributes.length === 0
+      ? xmlTextValue(mode) as SE.LinkedValueChangeMode : undefined
   }
   claimCanonicalXmlImportAttribute({
     value: mode,
@@ -37,24 +31,26 @@ const optionalMode = (mode: ChoiceParameterLinkDcsItemXML["dcscor:mode"]): SE.Li
   return mode["#text"] as SE.LinkedValueChangeMode | undefined
 }
 
-const importChoiceParameterLinkDcsItem = (item: ChoiceParameterLinkDcsItemXML): ChoiceParameterLink => ({
-  name: textNode(item["dcscor:choiceParameter"]),
-  dataPath: textNode(item["dcscor:value"]),
-  valueChange: optionalMode(item["dcscor:mode"]),
+const importChoiceParameterLinkDcsItem = (item: ChoiceParameterLinkDcsItemXML | XmlElementNode): ChoiceParameterLink => ({
+  name: textNode(isXmlElementNode(item) ? xmlElementChildren(item, "dcscor:choiceParameter")[0] : item["dcscor:choiceParameter"]),
+  dataPath: textNode(isXmlElementNode(item) ? xmlElementChildren(item, "dcscor:value")[0] : item["dcscor:value"]),
+  valueChange: optionalMode(isXmlElementNode(item) ? xmlElementChildren(item, "dcscor:mode")[0] : item["dcscor:mode"]),
 })
 
 export const importChoiceParameterLinksFromDcsXML = (
   _context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
-  xml: ChoiceParameterLinkDcsValueRootXML
+  xml: ChoiceParameterLinkDcsValueRootXML | XmlElementNode
 ): ChoiceParameterLinks => {
-  const root = xml["dcscor:value"]
+  const root = isXmlElementNode(xml)
+    ? xml.name === "dcscor:value" ? xml : xmlElementChildren(xml, "dcscor:value")[0]
+    : xml["dcscor:value"]
   if (!root) {
     throw new Error("DCS ChoiceParameterLinks: missing dcscor:value")
   }
 
-  const rawItem = root["dcscor:item"]
-  const items: ChoiceParameterLinkDcsItemXML[] = Array.isArray(rawItem) ? rawItem : rawItem ? [rawItem] : []
+  const rawItem = isXmlElementNode(root) ? xmlElementChildren(root, "dcscor:item") : root["dcscor:item"]
+  const items: (ChoiceParameterLinkDcsItemXML | XmlElementNode)[] = Array.isArray(rawItem) ? rawItem : rawItem ? [rawItem] : []
 
   if (items.length === 0) {
     throw new Error("DCS ChoiceParameterLinks: missing dcscor:item")
@@ -66,7 +62,7 @@ export const importChoiceParameterLinksFromDcsXML = (
 export const importChoiceParameterLinkFromDcsXML = (
   context: ConfigurationContextFromXML,
   rule: PropertyRule | undefined,
-  xml: ChoiceParameterLinkDcsValueRootXML
+  xml: ChoiceParameterLinkDcsValueRootXML | XmlElementNode
 ): ChoiceParameterLink => {
   return importChoiceParameterLinksFromDcsXML(context, rule, xml)[0]
 }
