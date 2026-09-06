@@ -5,6 +5,18 @@ import { createFormDataPathIndexFromYAML } from "../forms/clientApplicationForm/
 import { createFormDataPathIndexFromFacts } from "./formDataPathFacts"
 
 describe("индекс путей из выбранных фактов", () => {
+  it("сохраняет таблицу без собственного пути и без события metadata-item", () => {
+    const actual = createFormDataPathIndexFromFacts({
+      projection: clientApplicationFormDataPathProjection,
+      localIndexes: { metadata: { events: [] } },
+      facts: [{
+        itemType: "Table", propertyKey: "$formElementKind", yamlPath: ["Элементы", "Строки", "Вид"],
+        get value(): unknown { throw new Error("Для объявления таблицы достаточно вида и адреса факта") },
+      }],
+    })
+    expect([...actual.tabularElementsByName]).toEqual([["Строки", { kind: "tabularFormElement" }]])
+  })
+
   it("сохраняет приоритет динамического списка независимо от порядка XML и не читает посторонние значения", () => {
     const ownerPath = ["Реквизиты", "Список"]
     const actual = createFormDataPathIndexFromFacts({

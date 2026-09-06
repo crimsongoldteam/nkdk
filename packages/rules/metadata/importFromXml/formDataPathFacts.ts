@@ -9,6 +9,10 @@ export function createFormDataPathIndexFromFacts(params: {
 }) {
   const projection = params.projection
   const collector = createFormDataPathMetadataCollector({ filePath: "", projection })
+  for (const fact of params.facts) {
+    if (fact.propertyKey !== "$formElementKind" || !projection.tabularElementItemTypes.includes(fact.itemType)) continue
+    collector.acceptItem({ itemType: fact.itemType, yamlPath: fact.yamlPath.slice(0, -1), rulePath: [] })
+  }
   const properties = params.localIndexes.metadata.events.filter(event => {
     if (event.kind === "item") { collector.acceptItem(event); return false }
     if (event.kind !== "property") return false

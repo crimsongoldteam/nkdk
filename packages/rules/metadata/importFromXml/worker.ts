@@ -126,7 +126,6 @@ import {
 import { buildProjectStateYamlFileUpdate } from "../project/projectStateYamlUpdate"
 import type { CompiledMetadataResourceTopology } from "../resourceTopology/core/types"
 import {
-  createImportedFormDataPathIndex,
   importedClientApplicationForm,
 } from "../forms/clientApplicationForm/formDataPathMetadata"
 import { createImportExportContext } from "./importExportContext"
@@ -275,6 +274,7 @@ export function createImportWorkerCommandRunner(): ImportWorkerCommandRunner {
     readonly formDataPathIndex: PreparedImportFacts["localIndexes"]["metadata"]["formDataPathIndex"]
     readonly formSemanticFacts?: readonly DirectImportPropertyFact[]
     readonly baseFormSemanticFacts?: readonly DirectImportPropertyFact[]
+    readonly baseFormDataPathIndex?: PreparedImportFacts["baseFormDataPathIndex"]
     readonly deferred: PreparedImportFacts["deferred"]
     readonly baseFormDeferred?: NonNullable<PreparedImportFacts["baseFormDeferred"]>
     readonly validation: {
@@ -604,9 +604,7 @@ async function processSecondPass(
     const rawBaseFormFactsView = ready.baseFormSemanticFacts === undefined
       ? undefined
       : createPropertyFactsYamlView(propertyFactsWithReconstructionValues(ready.baseFormSemanticFacts))
-    const baseFormDataPathIndex = rawBaseFormFactsView === undefined
-      ? undefined
-      : createImportedFormDataPathIndex({ yaml: rawBaseFormFactsView, rule: ClientApplicationFormRules })
+    const baseFormDataPathIndex = ready.baseFormDataPathIndex
     const finalizedBaseFormFacts = ready.baseFormSemanticFacts === undefined
       ? undefined
       : finalizeDeferredPropertyFacts({
@@ -1779,6 +1777,9 @@ async function processFirstPass(
           ...(prepared.baseFormSemanticFacts === undefined
             ? {}
             : { baseFormSemanticFacts: prepared.baseFormSemanticFacts }),
+          ...(prepared.baseFormDataPathIndex === undefined
+            ? {}
+            : { baseFormDataPathIndex: prepared.baseFormDataPathIndex }),
           ...(prepared.baseFormDeferred === undefined
             ? {}
             : { baseFormDeferred: prepared.baseFormDeferred }),

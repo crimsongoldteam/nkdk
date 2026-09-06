@@ -23,7 +23,7 @@ import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import { prepareImportFacts } from "./prepareFacts"
 import { prepareImportYaml, prepareImportYamlFromDocuments } from "./prepareYaml"
 import { prepareImportDependencies } from "./preparedDependencies"
-import { createPropertyFactsYamlView } from "./propertyFactsYamlView"
+import { createPropertyFactsYamlView, propertyFactsWithReconstructionValues } from "./propertyFactsYamlView"
 import * as propertyFactsView from "./propertyFactsYamlView"
 import * as addressableMetadataTargets from "../validation/addressableMetadataTargets"
 import * as formDataPathMetadata from "../forms/clientApplicationForm/formDataPathMetadata"
@@ -43,6 +43,36 @@ const e2eAllExtensionDir = join(import.meta.dirname, "../../../../e2e/fixtures/x
 const e2eConfigurationDir = join(import.meta.dirname, "../../../../e2e/fixtures/xml/cf")
 
 describe("prepareImportFacts", () => {
+  it("готовит отдельный индекс путей основы по её фактам", async () => {
+    const assignment = extensionReportVariantFormAssignment()
+    const facts = await prepareImportFacts({
+      assignment, context: extensionContext(), collector: createConfigurationIndexCollector(),
+      inputs: parseAssignmentInputs(assignment, true),
+    })
+    expect(facts.baseFormDataPathIndex).toBeDefined()
+    const expected = formDataPathMetadata.createImportedFormDataPathIndex({
+      yaml: createPropertyFactsYamlView(propertyFactsWithReconstructionValues(facts.baseFormSemanticFacts!)),
+      rule: facts.rule,
+    })
+    expect(formDataPathSnapshot(facts.baseFormDataPathIndex)).toEqual(formDataPathSnapshot(expected))
+  })
+
+  it("не создаёт YAML-представление основы ради выбранных зависимостей", async () => {
+    const view = vi.spyOn(propertyFactsView, "createPropertyFactsYamlView")
+    try {
+      const assignment = extensionReportVariantFormAssignment()
+      const facts = await prepareImportFacts({
+        assignment, context: mockXmlImportContext(), collector: createConfigurationIndexCollector(),
+        inputs: parseAssignmentInputs(assignment, true),
+      })
+      expect(facts.baseFormSemanticFacts?.length).toBeGreaterThan(0)
+      expect(facts.baseFormDependencies).toBeDefined()
+      expect(view.mock.calls.some(([input]) => input === facts.baseFormSemanticFacts)).toBe(false)
+    } finally {
+      view.mockRestore()
+    }
+  })
+
   it("не создаёт дополнительные факты формы без выбранного XML-дополнения", async () => {
     const assignment = managedFormAssignment()
     const facts = await prepareImportFacts({

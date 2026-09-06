@@ -59,6 +59,7 @@ import {
 import { getTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
 import {
   createPropertyFactsYamlView,
+  propertyFactsWithReconstructionValues,
   type DirectImportPropertyFact,
 } from "./propertyFactsYamlView"
 
@@ -76,6 +77,7 @@ export interface PreparedImportFacts {
   readonly semanticFacts: readonly DirectImportPropertyFact[]
   readonly formSemanticFacts?: readonly DirectImportPropertyFact[]
   readonly baseFormSemanticFacts?: readonly DirectImportPropertyFact[]
+  readonly baseFormDataPathIndex?: ReturnType<typeof createFormDataPathIndexFromFacts>
   readonly deferred: readonly import("@nkdk/runtime/rule-kit").DeferredValuePath[]
   readonly baseFormDeferred?: readonly import("@nkdk/runtime/rule-kit").DeferredValuePath[]
   readonly pendingReferences: readonly PendingMetadataTargetReference[]
@@ -109,6 +111,7 @@ export async function prepareImportFacts(params: {
   const facts = createDirectImportFactsCollector()
   let dependentCandidates: readonly ImportedDependentPropertyCandidate[] = []
   let baseFormSemanticFacts: readonly DirectImportPropertyFact[] | undefined
+  let baseFormDataPathIndex: PreparedImportFacts["baseFormDataPathIndex"]
   let baseFormDependencies: ImportDependencyFacts | undefined
   let baseFormDeferred: readonly import("@nkdk/runtime/rule-kit").DeferredValuePath[] | undefined
 
@@ -197,8 +200,13 @@ export async function prepareImportFacts(params: {
       baseFormDeferred = baseDeferred.finish()
       const basePropertyFacts = baseFacts.finish()
       baseFormSemanticFacts = acceptedPropertyFacts(baseIndexes, basePropertyFacts)
+      baseFormDataPathIndex = createFormDataPathIndexFromFacts({
+        facts: propertyFactsWithReconstructionValues(baseFormSemanticFacts),
+        localIndexes: baseIndexes,
+        projection: clientApplicationFormDataPathProjection,
+      })
       baseFormDependencies = collectImportDependencyFacts({
-        yaml: createPropertyFactsYamlView(baseFormSemanticFacts),
+        yaml: undefined,
         rule: companion.rule,
         owner: dependentOwner,
         candidates: [],
@@ -273,6 +281,7 @@ export async function prepareImportFacts(params: {
     semanticFacts,
     ...(formSemanticFacts === undefined ? {} : { formSemanticFacts }),
     ...(baseFormSemanticFacts === undefined ? {} : { baseFormSemanticFacts }),
+    ...(baseFormDataPathIndex === undefined ? {} : { baseFormDataPathIndex }),
     deferred: imported.deferred,
     ...(baseFormDeferred === undefined ? {} : { baseFormDeferred }),
     pendingReferences: dependentIndex.pendingReferences,
