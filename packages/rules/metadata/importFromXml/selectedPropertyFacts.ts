@@ -1,6 +1,6 @@
 import type { DirectImportFactsSink } from "@nkdk/runtime/rule-kit"
-import { yamlScalarTagAt, type YAMLScalarTag } from "@nkdk/runtime"
-import { createSelectedPropertyValue } from "./selectedPropertyValue"
+import { yamlPathToPointer, yamlScalarTagAt, type YAMLScalarTag } from "@nkdk/runtime"
+import { compactImportPropertyValue, createSelectedPropertyValue, importPropertyValueKind } from "./selectedPropertyValue"
 
 type PropertyFact = Parameters<DirectImportFactsSink["acceptProperty"]>[0]
 
@@ -27,6 +27,46 @@ export function selectImportPropertyPaths(
   facts: readonly PropertyFact[],
   paths: ReadonlyMap<string, readonly (string | number)[]>,
 ): ReadonlyMap<string, { readonly value: unknown; readonly scalarTag?: YAMLScalarTag }> {
+  return selectPropertyPaths(facts, paths, createSelectedPropertyValue)
+}
+
+/** Наличие и скаляр/пустой объект; содержимое составных значений не копируется. */
+export function selectImportCompactPropertyPaths(
+  facts: readonly PropertyFact[],
+  paths: ReadonlyMap<string, readonly (string | number)[]>,
+): ReadonlyMap<string, { readonly value: unknown; readonly kind: ReturnType<typeof importPropertyValueKind>; readonly scalarTag?: YAMLScalarTag }> {
+  const containers = new Set(facts.filter(fact => fact.propertyKey.startsWith("$container:"))
+    .map(fact => yamlPathToPointer(fact.yamlPath)))
+  const kinds = new Map<string, ReturnType<typeof importPropertyValueKind>>()
+  const selected = selectPropertyPaths(facts, paths, key => {
+    let value: unknown
+    let kind: ReturnType<typeof importPropertyValueKind> = "scalar"
+    let arrayBase = false
+    let numericChildren = true
+    return {
+      accept(path, next) {
+        value = path.length === 0 ? compactImportPropertyValue(next) : undefined
+        if (path.length === 0) {
+          kind = importPropertyValueKind(next)
+          arrayBase = kind === "array"
+          numericChildren = true
+        } else {
+          numericChildren &&= typeof path[0] === "number"
+          kind = arrayBase || numericChildren ? "array" : "object"
+        }
+      },
+      finish() { kinds.set(key, kind); return value },
+    }
+  }, fact => fact.presentInXML === true && containers.has(yamlPathToPointer(fact.yamlPath.slice(0, -1))))
+  return new Map([...selected].map(([key, value]) => [key, { ...value, kind: kinds.get(key)! }]))
+}
+
+function selectPropertyPaths(
+  facts: readonly PropertyFact[],
+  paths: ReadonlyMap<string, readonly (string | number)[]>,
+  createValue: (key: string) => ReturnType<typeof createSelectedPropertyValue>,
+  acceptUndefined: (fact: PropertyFact) => boolean = fact => fact.presentInXML === true,
+): ReadonlyMap<string, { readonly value: unknown; readonly scalarTag?: YAMLScalarTag }> {
   const root: SelectionNode = { children: new Map(), targets: [] }
   const targets: SelectionNode["targets"] = []
   for (const [key, path] of paths) {
@@ -39,7 +79,7 @@ export function selectImportPropertyPaths(
       }
       node = child
     }
-    const target = { key, value: createSelectedPropertyValue(), present: false }
+    const target = { key, value: createValue(key), present: false }
     node.targets.push(target)
     targets.push(target)
   }
@@ -65,7 +105,7 @@ export function selectImportPropertyPaths(
       for (let index = 0; index < fact.yamlPath.length && node !== undefined; index++) {
         if (node.targets.length > 0) {
           if (!read) { value = fact.value; read = true }
-          if (value !== undefined || fact.scalarTag !== undefined || fact.presentInXML === true) {
+          if (value !== undefined || fact.scalarTag !== undefined || acceptUndefined(fact)) {
             accept(node, fact.yamlPath.slice(index), value, fact.scalarTag)
           }
         }
@@ -73,7 +113,7 @@ export function selectImportPropertyPaths(
       }
       if (node !== undefined) {
         if (!read) value = fact.value
-        if (value !== undefined || fact.scalarTag !== undefined || fact.presentInXML === true) distribute(node, value, fact.scalarTag)
+        if (value !== undefined || fact.scalarTag !== undefined || acceptUndefined(fact)) distribute(node, value, fact.scalarTag)
       }
     }
   }

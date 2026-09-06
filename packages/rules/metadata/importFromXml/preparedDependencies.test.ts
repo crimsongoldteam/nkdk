@@ -21,6 +21,33 @@ const typedItemRule: MetadataItemRule = {
 }
 
 describe("prepared import dependencies", () => {
+  it.each(["скаляр", [], null])("не создаёт решение для поля внутри не-объекта: %o", (value) => {
+    const facts = collectNestedTextAbsenceFacts([{ itemType: "Root", propertyKey: "item", yamlPath: ["Элемент"], value }])
+    expect(facts.finalProperties.size).toBe(0)
+  })
+
+  it.each([false, true])("сохраняет различие undefined при явном контейнере: %s", (container) => {
+    const facts = collectNestedTextAbsenceFacts([
+        ...(container ? [{ itemType: "Root", propertyKey: "$container:item", yamlPath: ["Элемент"], value: {} }] : []),
+        { itemType: "Nested", propertyKey: "name", yamlPath: ["Элемент", "Имя"], value: "Имя" },
+        { itemType: "Nested", propertyKey: "text",
+          yamlPath: ["Элемент", "Текст"], value: undefined, presentInXML: true },
+    ])
+    expect(prepareImportDependencies(facts).propertyValue?.(["Элемент"], "text"))
+      .toEqual(container ? { value: undefined } : { present: false, value: undefined })
+  })
+
+  it("читает окончательное значение из фактов без YAML-представления", () => {
+    const rule = { itemType: "Root", properties: { text: { type: "string", yaml: "Текст" } } } as const satisfies MetadataItemRule
+    const facts = collectImportDependencyFacts({
+      rule, owner, yaml: undefined, candidates: [],
+      finalRootYaml: { get Текст(): unknown { throw new Error("Прежнее представление не нужно") } },
+      propertyFacts: [{ itemType: "Root", itemRule: rule, propertyKey: "text", yamlPath: ["Текст"], value: "исходное" }],
+      finalPropertyFacts: [{ itemType: "Root", itemRule: rule, propertyKey: "text", yamlPath: ["Текст"], value: "окончательное" }],
+    })
+    expect(prepareImportDependencies(facts).propertyValue?.([], "text")).toEqual({ present: true, value: "окончательное" })
+  })
+
   it.each([
     { preserveEmptyXML: false, presentInXML: false },
     { preserveEmptyXML: true, presentInXML: true },
@@ -456,6 +483,18 @@ describe("prepared import dependencies", () => {
   })
 
 })
+
+function collectNestedTextAbsenceFacts(finalPropertyFacts: readonly DirectImportPropertyFact[]) {
+  const nestedRule = { itemType: "Nested", properties: {
+    text: { type: "string", yaml: "Текст", preserveEmptyXML: true },
+  } } satisfies MetadataItemRule
+  return collectImportDependencyFacts({
+    rule: { itemType: "Root", properties: {} }, owner, yaml: undefined, candidates: [],
+    proofPropertyFacts: [{ itemType: "Nested", itemRule: nestedRule, propertyKey: "text",
+      yamlPath: ["Элемент", "Текст"], value: undefined, presentInXML: false }],
+    finalPropertyFacts,
+  })
+}
 
 function catalogCodeLengthFacts(finalRootYaml?: Readonly<Record<string, unknown>>) {
   return collectImportDependencyFacts({

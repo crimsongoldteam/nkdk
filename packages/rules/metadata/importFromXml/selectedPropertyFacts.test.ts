@@ -1,7 +1,23 @@
 import { describe, expect, it } from "vitest"
-import { selectImportPropertyValues, selectImportPropertyPaths } from "./selectedPropertyFacts"
+import { selectImportPropertyValues, selectImportPropertyPaths, selectImportCompactPropertyPaths } from "./selectedPropertyFacts"
 
 describe("отбор свойств из фактов", () => {
+  it("определяет присутствие и компактное значение без сборки вложенного объекта", () => {
+    const values = selectImportCompactPropertyPaths([
+      { itemType: "Item", propertyKey: "object", yamlPath: ["Объект"], value: {
+        get Вложенный(): unknown { throw new Error("Не нужно копировать содержимое") },
+      } },
+      { itemType: "Item", propertyKey: "empty", yamlPath: ["Пустой"], value: {} },
+      { itemType: "Item", propertyKey: "text", yamlPath: ["Текст"], value: "строка", scalarTag: "xml/string" as const },
+      { itemType: "Item", propertyKey: "nested", yamlPath: ["ИзЛистьев", "Поле"], value: "строка" },
+    ], new Map(["Объект", "Пустой", "Текст", "ИзЛистьев", "Нет"].map(key => [key, [key]])))
+    expect(values.get("Объект")).toEqual({ value: undefined, kind: "object" })
+    expect(values.get("Пустой")).toEqual({ value: {}, kind: "object" })
+    expect(values.get("Текст")).toEqual({ value: "строка", scalarTag: "xml/string", kind: "scalar" })
+    expect(values.get("ИзЛистьев")).toEqual({ value: undefined, kind: "object" })
+    expect(values.has("Нет")).toBe(false)
+  })
+
   it("сохраняет отдельный пустой контейнер поверх родительского значения", () => {
     const values = selectImportPropertyValues([
       { itemType: "Item", propertyKey: "$container:items", yamlPath: ["Объект", "Список"], value: [] },

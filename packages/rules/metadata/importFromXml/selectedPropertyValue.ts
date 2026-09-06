@@ -1,5 +1,16 @@
 import { copyYAMLRuntimeMetadata, markYAMLScalarTag, type YAMLScalarTag } from "@nkdk/runtime"
 
+export function importPropertyValueKind(value: unknown): "object" | "array" | "scalar" {
+  return Array.isArray(value) ? "array" : value !== null && typeof value === "object" ? "object" : "scalar"
+}
+
+export function compactImportPropertyValue(value: unknown): unknown {
+  if (value === null || typeof value === "string" || typeof value === "number"
+    || typeof value === "boolean" || typeof value === "bigint") return value
+  if (value !== null && typeof value === "object" && !Array.isArray(value) && Object.keys(value).length === 0) return {}
+  return undefined
+}
+
 /** Строит только одно заранее выбранное значение, не дерево YAML документа. */
 export function createSelectedPropertyValue() {
   let value: unknown

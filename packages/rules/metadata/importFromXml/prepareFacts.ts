@@ -262,7 +262,7 @@ export async function prepareImportFacts(params: {
       candidates: dependentCandidates,
       propertyFacts: semanticFacts,
       proofPropertyFacts: propertyFacts,
-      finalRootYaml: semanticView,
+      finalPropertyFacts: semanticFacts,
       ...(params.execution === undefined ? {} : { execution: params.execution }),
     }),
     ...(baseFormDependencies === undefined ? {} : { baseFormDependencies }),

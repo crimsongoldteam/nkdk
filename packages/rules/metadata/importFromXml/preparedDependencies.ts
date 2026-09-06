@@ -1,7 +1,7 @@
 import { copyYAMLRuntimeMetadata, yamlPathToPointer, yamlScalarTagAt, type YAMLScalarTag } from "@nkdk/runtime"
 import { recordAtPath } from "./dependentItems"
-import { createSelectedPropertyValue } from "./selectedPropertyValue"
-import { selectImportPropertyPaths } from "./selectedPropertyFacts"
+import { compactImportPropertyValue, createSelectedPropertyValue, importPropertyValueKind } from "./selectedPropertyValue"
+import { selectImportCompactPropertyPaths, selectImportPropertyPaths } from "./selectedPropertyFacts"
 import {
   prepareDependentImportFacts,
   dependentImportDependencies,
@@ -41,6 +41,7 @@ export function collectImportDependencyFacts(params: {
   readonly propertyFacts?: readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][]
   readonly proofPropertyFacts?: readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][]
   readonly finalRootYaml?: Readonly<Record<string, unknown>>
+  readonly finalPropertyFacts?: readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][]
   readonly execution?: CompiledPropertyRuleExecution
 }): ImportDependencyFacts {
   const properties = new Map<string, DependentImportFacts>()
@@ -108,6 +109,7 @@ export function collectImportDependencyFacts(params: {
   const finalProperties = collectFinalRootProperties({
     rule: params.rule,
     yaml: params.finalRootYaml,
+    finalPropertyFacts: params.finalPropertyFacts,
     propertyFacts: proofPropertyFacts,
   })
   const dependentRules = new Map<MetadataItemRule, boolean>()
@@ -252,6 +254,7 @@ function propertyFactSourceAddress(
 function collectFinalRootProperties(params: {
   readonly rule: MetadataItemRule
   readonly yaml?: Readonly<Record<string, unknown>>
+  readonly finalPropertyFacts?: readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][]
   readonly propertyFacts: readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][]
 }): ImportDependencyFacts["finalProperties"] {
   const result = new Map<string, {
@@ -259,7 +262,28 @@ function collectFinalRootProperties(params: {
     readonly value: unknown
     readonly scalarTag?: YAMLScalarTag
   }>()
-  if (params.yaml === undefined) return result
+  if (params.yaml === undefined && params.finalPropertyFacts === undefined) return result
+  const paths = new Map<string, readonly (string | number)[]>()
+  const request = (path: readonly (string | number)[]) => paths.set(yamlPathToPointer(path)!, path)
+  for (const property of Object.values(params.rule.properties)) {
+    if (typeof property.yaml === "string" && !property.externalFile && property.filePath === undefined) request([property.yaml])
+  }
+  for (const fact of params.propertyFacts) {
+    const property = fact.itemRule?.properties[fact.propertyKey]
+    if (typeof property?.yaml !== "string" || property.preserveEmptyXML !== true
+      || fact.presentInXML === true || fact.reconstructionValue !== undefined || fact.yamlPath.length <= 1) continue
+    request(fact.yamlPath.slice(0, -1))
+    request([...fact.yamlPath.slice(0, -1), property.yaml])
+  }
+  const selected = params.finalPropertyFacts === undefined
+    ? undefined : selectImportCompactPropertyPaths(params.finalPropertyFacts, paths)
+  const read = (path: readonly (string | number)[]) => {
+    if (selected !== undefined) return selected.get(yamlPathToPointer(path)!)
+    const parent = recordAtPath(params.yaml, path.slice(0, -1))
+    const key = path.at(-1)!
+    return parent === undefined || !Object.hasOwn(parent, key) ? undefined
+      : { value: parent[key], kind: importPropertyValueKind(parent[key]), scalarTag: yamlScalarTagAt(parent, key) }
+  }
   for (const fact of params.propertyFacts) {
     if (fact.itemRule === undefined) continue
     const propertyRule = fact.itemRule.properties[fact.propertyKey]
@@ -271,9 +295,8 @@ function collectFinalRootProperties(params: {
     ) continue
     const finalItemPath = fact.yamlPath.slice(0, -1)
     if (finalItemPath.length === 0) continue
-    const finalItem = recordAtPath(params.yaml, finalItemPath)
-    if (finalItem === undefined) continue
-    const present = Object.prototype.hasOwnProperty.call(finalItem, propertyRule.yaml)
+    if (read(finalItemPath)?.kind !== "object") continue
+    const present = read([...finalItemPath, propertyRule.yaml]) !== undefined
     if (present) continue
     const decision = { present: false, value: undefined }
     result.set(siblingAddress(finalItemPath, fact.propertyKey), decision)
@@ -288,7 +311,8 @@ function collectFinalRootProperties(params: {
   for (const [propertyKey, propertyRule] of Object.entries(params.rule.properties)) {
     if (typeof propertyRule.yaml !== "string") continue
     if (propertyRule.externalFile || propertyRule.filePath !== undefined) continue
-    const present = Object.prototype.hasOwnProperty.call(params.yaml, propertyRule.yaml)
+    const final = read([propertyRule.yaml])
+    const present = final !== undefined
     if (!present) {
       const fact = factByProperty.get(propertyKey)
       if (fact === undefined || fact.presentInXML === false) {
@@ -296,12 +320,12 @@ function collectFinalRootProperties(params: {
       }
       continue
     }
-    const finalValue = params.yaml[propertyRule.yaml]
+    const finalValue = final.value
     if (
       (finalValue === null || finalValue === undefined)
       && factByProperty.get(propertyKey)?.reconstructionValue !== undefined
     ) continue
-    const scalarTag = yamlScalarTagAt(params.yaml, propertyRule.yaml)
+    const scalarTag = final.scalarTag
     const sourceFact = factByProperty.get(propertyKey)
     if (
       sourceFact !== undefined
@@ -310,7 +334,7 @@ function collectFinalRootProperties(params: {
       && (finalValue === null || typeof finalValue !== "object")
       && Object.is(finalValue, sourceFact.value)
     ) continue
-    const value = cloneCompactFinalValue(finalValue)
+    const value = compactImportPropertyValue(finalValue)
     if (value === undefined && scalarTag === undefined) continue
     result.set(siblingAddress([], propertyKey), {
       present: true,
@@ -319,20 +343,6 @@ function collectFinalRootProperties(params: {
     })
   }
   return result
-}
-
-function cloneCompactFinalValue(value: unknown): unknown {
-  if (
-    value === null
-    || typeof value === "string"
-    || typeof value === "number"
-    || typeof value === "boolean"
-    || typeof value === "bigint"
-  ) return value
-  if (value !== null && typeof value === "object" && !Array.isArray(value) && Object.keys(value).length === 0) {
-    return {}
-  }
-  return undefined
 }
 
 function collectProofProperties(
