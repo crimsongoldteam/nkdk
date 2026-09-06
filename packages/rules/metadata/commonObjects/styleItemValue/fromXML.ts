@@ -1,4 +1,4 @@
-import { ConfigurationContextFromXML } from "@nkdk/runtime"
+import { ConfigurationContextFromXML, isEmptyXmlElement, isXmlElementNode, xmlAttributeValue, xmlTextValue, type XmlElementNode } from "@nkdk/runtime"
 import "../border/fromXML"
 import "../color/fromXML"
 import "../font/fromXML"
@@ -13,32 +13,34 @@ import type { StyleItemValue, StyleItemValueXML } from "./types"
 export const importStyleItemValueFromXML = (
   context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
-  value: StyleItemValueXML | undefined
+  value: StyleItemValueXML | XmlElementNode | undefined
 ): StyleItemValue | undefined => {
   if (!value) return undefined
+  if (isXmlElementNode(value) && isEmptyXmlElement(value)) return undefined
+  const xsiType = isXmlElementNode(value) ? xmlAttributeValue(value, "xsi:type") : value["_xsi:type"]
 
-  if (value["_xsi:type"] === "v8ui:Font") {
+  if (xsiType === "v8ui:Font") {
     return {
       type: "Font",
       value: importPropertyFromXML({ context, rule: { type: "Font" }, value }) as Font,
     }
   }
 
-  if (value["_xsi:type"] === "v8ui:Color") {
+  if (xsiType === "v8ui:Color") {
     return {
       type: "Color",
-      value: importPropertyFromXML({ context, rule: { type: "Color" }, value: value["#text"] }) as Color,
+      value: importPropertyFromXML({ context, rule: { type: "Color" }, value: isXmlElementNode(value) ? xmlTextValue(value) || undefined : "#text" in value ? value["#text"] : undefined }) as Color,
     }
   }
 
-  if (value["_xsi:type"] === "v8ui:Border") {
+  if (xsiType === "v8ui:Border") {
     return {
       type: "Border",
       value: importPropertyFromXML({ context, rule: { type: "Border" }, value }) as Border,
     }
   }
 
-  throw new Error(`StyleItemValue: неподдержанный xsi:type ${String(value["_xsi:type"])}`)
+  throw new Error(`StyleItemValue: неподдержанный xsi:type ${String(xsiType)}`)
 }
 
 export const metadataPropertyRule000 = definePropertyTypeRule("StyleItemValue", "importFromXML", importStyleItemValueFromXML)

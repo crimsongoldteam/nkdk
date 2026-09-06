@@ -1,7 +1,7 @@
 import { importNumberFromXML } from "../number/fromXML"
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
-import { ConfigurationContext, isXmlElementNode, xmlElementChildren, xmlTextValue, type XmlElementNode } from "@nkdk/runtime"
+import { ConfigurationContext, isEmptyXmlElement, isXmlElementNode, xmlElementChildren, xmlTextValue, type XmlElementNode } from "@nkdk/runtime"
 import { MetadataField } from "../metadataField/types"
 import type { TypeLink, TypeLinkXML } from "./types"
 
@@ -13,9 +13,9 @@ export const importTypeLinkFromXML = (
   if (!xml) return undefined
 
   if (isXmlElementNode(xml)) {
-    if (xml.attributes.length === 0 && xml.content.every(node => node.type === "text") && xmlTextValue(xml) === "") return undefined
+    if (isEmptyXmlElement(xml)) return undefined
     const path = xmlElementChildren(xml, "xr:DataPath")[0]
-    if (path === undefined || path.attributes.length === 0 && !path.content.some(node => node.type === "element") && xmlTextValue(path) === "") {
+    if (path === undefined || isEmptyXmlElement(path)) {
       throw new Error("Invalid TypeLink structure: missing xr:DataPath")
     }
     return {

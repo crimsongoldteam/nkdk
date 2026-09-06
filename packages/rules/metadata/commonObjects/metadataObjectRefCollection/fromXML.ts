@@ -1,4 +1,4 @@
-import { ConfigurationContextFromXML, isXmlElementNode, xmlElementChildren, xmlTextValue, type XmlElementNode } from "@nkdk/runtime"
+import { ConfigurationContextFromXML, isEmptyXmlElement, isXmlElementNode, xmlElementChildren, type XmlElementNode } from "@nkdk/runtime"
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { importMetadataValueFromXML } from "../metadataValue/fromXML"
@@ -11,7 +11,7 @@ export const importMetadataObjectRefCollectionFromXML = (
   data: MetadataObjectRefCollectionXML | XmlElementNode | undefined
 ): MetadataObjectRefCollection | undefined => {
   if (!data) return undefined
-  if (isXmlElementNode(data) && data.attributes.length === 0 && !data.content.some(node => node.type === "element") && xmlTextValue(data) === "") return undefined
+  if (isXmlElementNode(data) && isEmptyXmlElement(data)) return undefined
 
   const xrItems = isXmlElementNode(data) ? xmlElementChildren(data, "xr:Item") : data["xr:Item"]
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import type { XmlAddressedNode, XmlElementNode } from "./document"
-import { isXmlElementNode, xmlAttributeValue, xmlElementChildren, xmlElementsAtUniquePath, xmlTextValue } from "./document"
+import { isEmptyXmlElement, isXmlElementNode, xmlAttributeValue, xmlElementChildren, xmlElementsAtUniquePath, xmlTextValue } from "./document"
 import { parseXmlDocumentWithSaxes } from "./saxesParser"
 
 const elementChildren = (element: XmlElementNode): XmlElementNode[] =>
@@ -10,6 +10,19 @@ const sourceOf = (source: string, node: XmlAddressedNode | undefined): string | 
   node === undefined ? undefined : source.slice(node.span.start, node.span.end)
 
 describe("структурный XML-документ", () => {
+  it.each([
+    ["<Root/>", true],
+    ["<Root><![CDATA[]]></Root>", true],
+    ["<Root> </Root>", false],
+    ['<Root xsi:type="xs:string"/>', false],
+    ["<Root><Child/></Root>", false],
+    ["<Root><?keep value?></Root>", false],
+  ])("отличает пустой элемент от содержимого: %s", (xml, expected) => {
+    const root = parseXmlDocumentWithSaxes(xml).roots[0]!
+    Object.defineProperty(root, "compatibilityValue", { get() { throw new Error("Compatibility must not be read") } })
+    expect(isEmptyXmlElement(root)).toBe(expected)
+  })
+
   it("выбирает повторные листья только через однозначных родителей", () => {
     const roots = parseXmlDocumentWithSaxes('<Root><List><Value>1</Value><Value>2</Value></List></Root>').roots
     expect(xmlElementsAtUniquePath(roots, ["Root", "List", "Value"]).map(xmlTextValue)).toEqual(["1", "2"])

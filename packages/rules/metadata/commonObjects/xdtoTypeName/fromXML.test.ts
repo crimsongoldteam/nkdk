@@ -1,10 +1,19 @@
 import { describe, expect, it } from "vitest"
 import { ConfigurationContextFromXML } from "@nkdk/runtime"
 import { importXDTOTypeNameFromXML } from "./fromXML"
+import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"
 
 const context = { fromXML: { forReference: false } } as ConfigurationContextFromXML
 
 describe("import XDTOTypeName from XML", () => {
+  it.each([
+    ["<Type/>", undefined],
+    ["<Type>xs:string</Type>", { namespace: "http://www.w3.org/2001/XMLSchema", name: "string" }],
+    ['<Type xmlns:d6p1="http://www.1c.ru/dmil">d6p1:DMILResponse</Type>', { namespace: "http://www.1c.ru/dmil", name: "DMILResponse" }],
+  ])("reads structural qualified name: %s", (xml, expected) => {
+    expect(importXDTOTypeNameFromXML(context, undefined, parseStructuralXMLWithoutCompatibility(xml))).toEqual(expected)
+  })
+
   it("imports QName object with namespace declaration as expanded name", () => {
     const result = importXDTOTypeNameFromXML(context, undefined, {
       "#text": "d6p1:DMILResponse",

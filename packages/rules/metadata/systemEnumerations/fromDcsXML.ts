@@ -1,4 +1,4 @@
-import { ConfigurationContextFromXML, isXmlElementNode, xmlAttributeValue, xmlElementChildren, xmlTextValue, type XmlElementNode } from "@nkdk/runtime"
+import { ConfigurationContextFromXML, isEmptyXmlElement, isXmlElementNode, xmlAttributeValue, xmlElementChildren, xmlTextValue, type XmlElementNode } from "@nkdk/runtime"
 import { SystemEnumerationDcsValueRootXML } from "./dcsTypes"
 import { SystemEnumerationPropertyRule } from "./types"
 import { resolveSystemEnumerationXsiType } from "./toDcsXML"
@@ -37,7 +37,7 @@ export const importSystemEnumerationFromDcsXML = (
     }
     const text = xmlTextValue(root)
     if (text !== "") return text
-    if (root.attributes.length === 0 && !root.content.some(node => node.type === "element")) throw new Error("DCS SystemEnumeration: missing dcscor:value")
+    if (isEmptyXmlElement(root)) throw new Error("DCS SystemEnumeration: missing dcscor:value")
     throw new Error("DCS SystemEnumeration: invalid text node")
   }
   if (typeof root === "object" && root !== null && "_xsi:type" in root) {

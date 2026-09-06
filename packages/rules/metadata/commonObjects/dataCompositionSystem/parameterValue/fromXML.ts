@@ -1,6 +1,6 @@
 import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
-import { ConfigurationContextFromXML, isXmlElementNode, xmlAttributeValue, xmlElementChildren, xmlTextValue, type XmlElementNode } from "@nkdk/runtime"
+import { ConfigurationContextFromXML, isEmptyXmlElement, isXmlElementNode, xmlAttributeValue, xmlElementChildren, xmlTextValue, type XmlElementNode } from "@nkdk/runtime"
 import { importDcsMetadataValueFromDcsXML } from "../dcsMetadataValue/fromXML"
 import { toDcsMetadataValueRule } from "./dcsValueRule"
 import { importUserSettingPresentationFromXML } from "./userSettingPresentationXML"
@@ -57,7 +57,7 @@ export const importParameterValueFromDcsXML = (
   let valueFragments = isXmlElementNode(xml) ? xmlElementChildren(xml, "dcscor:value") : asArray(xml["dcscor:value"])
   const valueNodePresent = isXmlElementNode(xml) ? valueFragments.length > 0 : Object.prototype.hasOwnProperty.call(xml, "dcscor:value")
   const only = valueFragments.length === 1 ? valueFragments[0] : undefined
-  if (isXmlElementNode(only) && only.attributes.length === 0 && !only.content.some(node => node.type === "element") && xmlTextValue(only) === "") valueFragments = []
+  if (isXmlElementNode(only) && isEmptyXmlElement(only)) valueFragments = []
   const nilValuePresent = valueFragments.some(isNilValueFragment) || (valueNodePresent && valueFragments.length === 0)
   const valueParts = valueFragments
     .filter((fragment) => !isNilValueFragment(fragment))

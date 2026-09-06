@@ -1,47 +1,53 @@
-import { ConfigurationContextFromXML } from "@nkdk/runtime"
+import { ConfigurationContextFromXML, isEmptyXmlElement, isXmlElementNode, xmlAttributeValue, xmlElementChildren, xmlTextValue, type XmlElementNode } from "@nkdk/runtime"
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { importBooleanFromXML } from "../boolean/fromXML"
 import { isRawPictureRefValue, type Picture, type PictureXML } from "./types"
 
 const importTransparentPixel = (
-  transparentPixel: PictureXML["xr:TransparentPixel"] | undefined
+  transparentPixel: PictureXML["xr:TransparentPixel"] | XmlElementNode | undefined
 ): { x: number; y: number } | undefined => {
   if (!transparentPixel) return undefined
 
   return {
-    x: Number.parseInt(String(transparentPixel._x)),
-    y: Number.parseInt(String(transparentPixel._y)),
+    x: Number.parseInt(String(isXmlElementNode(transparentPixel) ? xmlAttributeValue(transparentPixel, "x") : transparentPixel._x)),
+    y: Number.parseInt(String(isXmlElementNode(transparentPixel) ? xmlAttributeValue(transparentPixel, "y") : transparentPixel._y)),
   }
 }
 
 export const importPictureFromXML = (
   context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
-  xml: PictureXML | undefined
+  xml: PictureXML | XmlElementNode | undefined
 ): Picture | undefined => {
   if (!xml) return undefined
+  if (isXmlElementNode(xml) && isEmptyXmlElement(xml)) return undefined
 
-  const xmlRef = xml["xr:Ref"]
+  const refNode = isXmlElementNode(xml) ? pictureChild(xml, "xr:Ref") : undefined
+  const xmlRef = isXmlElementNode(xml) ? refNode === undefined ? undefined : xmlTextValue(refNode) : xml["xr:Ref"]
+  const transparent = isXmlElementNode(xml) ? pictureChild(xml, "xr:LoadTransparent") : xml["xr:LoadTransparent"]
+  const pixel = isXmlElementNode(xml) ? pictureChild(xml, "xr:TransparentPixel") : xml["xr:TransparentPixel"]
   if (xmlRef && isRawPictureRefValue(xmlRef)) {
     return {
       rawRef: xmlRef,
-      ...(xml["xr:LoadTransparent"] !== undefined
-        ? { loadTransparent: importBooleanFromXML(context, undefined, xml["xr:LoadTransparent"]) }
+      ...(transparent !== undefined
+        ? { loadTransparent: importBooleanFromXML(context, undefined, transparent) }
         : {}),
-      ...(xml["xr:TransparentPixel"] !== undefined
-        ? { transparentPixel: importTransparentPixel(xml["xr:TransparentPixel"]) }
+      ...(pixel !== undefined
+        ? { transparentPixel: importTransparentPixel(pixel) }
         : {}),
     }
   }
 
-  const loadTransparent = importBooleanFromXML(context, undefined, xml["xr:LoadTransparent"])!
+  const loadTransparent = importBooleanFromXML(context, undefined, transparent)!
 
-  const transparentPixel = importTransparentPixel(xml["xr:TransparentPixel"])
+  const transparentPixel = importTransparentPixel(pixel)
+  const absNode = isXmlElementNode(xml) ? pictureChild(xml, "xr:Abs") : undefined
+  const absolute = isXmlElementNode(xml) ? absNode === undefined ? undefined : xmlTextValue(absNode) : xml["xr:Abs"]
 
-  if (xml["xr:Abs"]) {
+  if (absolute) {
     return {
-      ref: xml["xr:Abs"],
+      ref: absolute,
       type: "AbsolutePicture",
       loadTransparent,
       ...(transparentPixel ? { transparentPixel } : {}),
@@ -55,6 +61,11 @@ export const importPictureFromXML = (
     loadTransparent,
     ...(transparentPixel ? { transparentPixel } : {}),
   }
+}
+
+function pictureChild(node: XmlElementNode, name: string): XmlElementNode | undefined {
+  const child = xmlElementChildren(node, name)[0]
+  return child !== undefined && isEmptyXmlElement(child) ? undefined : child
 }
 
 export const metadataPropertyRule000 = definePropertyTypeRule("Picture", "importFromXML", importPictureFromXML)

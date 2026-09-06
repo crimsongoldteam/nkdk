@@ -6,6 +6,17 @@ import { importFontFromXML } from "./fromXML"
 import { FontXML } from "./types"
 
 describe("importFontFromXML", () => {
+  it("does not treat a processing instruction as an absent font", () => {
+    const xml = "<Font><?keep value?></Font>"
+    expect(importFontFromXML(mockContextFromXML(), mockRule, importContentFromXML<{ Font: FontXML }>(xml).Font)).toStrictEqual({ kind: undefined })
+    expect(importFontFromXML(mockContextFromXML(), mockRule, parseXmlDocumentWithSaxes(xml).roots[0])).toStrictEqual({ kind: undefined })
+  })
+
+  it.each(["<Font/>", "<Font><![CDATA[]]></Font>"])("keeps an empty structural font absent: %s", (xml) => {
+    expect(importFontFromXML(mockContextFromXML(), mockRule, importContentFromXML<{ Font?: FontXML }>(xml).Font)).toBeUndefined()
+    expect(importFontFromXML(mockContextFromXML(), mockRule, parseXmlDocumentWithSaxes(xml).roots[0])).toBeUndefined()
+  })
+
   it("should return undefined for undefined input", () => {
     const result = importFontFromXML(mockContextFromXML(), mockRule, undefined)
 

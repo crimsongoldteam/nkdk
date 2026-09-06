@@ -19,7 +19,7 @@ import { SystemEnumerationDcsValueRootXML } from "../../../systemEnumerations/dc
 import { importSystemEnumerationFromDcsXML } from "../../../systemEnumerations/fromDcsXML"
 import * as SystemEnumerations from "../../../systemEnumerations/types"
 import type { SystemEnumerationPropertyRule, SystemEnumerationTypeMap } from "../../../systemEnumerations/types"
-import { ConfigurationContextFromXML, isXmlElementNode, xmlAttributeValue, xmlElementChildren, xmlTextValue, type XmlElementNode } from "@nkdk/runtime"
+import { ConfigurationContextFromXML, isEmptyXmlElement, isXmlElementNode, xmlAttributeValue, xmlElementChildren, xmlTextValue, type XmlElementNode } from "@nkdk/runtime"
 import { readDcsText } from "../../dcsText"
 import {
   DcsMetadataValuePropertyRule,
@@ -93,7 +93,7 @@ const importDcsMetadataValueFromDcsXMLInternal = (
 ): MetadataDcsMetadataValue | undefined => {
   const elements = isXmlElementNode(xml) && xml.name !== "dcscor:value" ? xmlElementChildren(xml, "dcscor:value") : undefined
   const root = isXmlElementNode(xml) ? elements === undefined ? xml : elements.length <= 1 ? elements[0] : elements : xml["dcscor:value"]
-  if (root === undefined || isXmlElementNode(root) && root.attributes.length === 0 && !root.content.some(node => node.type === "element") && xmlTextValue(root) === "") {
+  if (root === undefined || isXmlElementNode(root) && isEmptyXmlElement(root)) {
     throw new Error("DCS MetadataValue: missing dcscor:value")
   }
 

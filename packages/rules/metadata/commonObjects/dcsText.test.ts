@@ -19,7 +19,7 @@ describe("readDcsText", () => {
     expect(() => readDcsText(document.roots[0], "missing", "invalid")).toThrow("missing")
   })
 
-  it.each(['<Value xsi:type="xs:string"/>', "<Value><Child/></Value>"])("rejects content without text: %s", (xml) => {
+  it.each(['<Value xsi:type="xs:string"/>', "<Value><Child/></Value>", "<Value><?keep value?></Value>"])("rejects content without text: %s", (xml) => {
     expect(() => readDcsText(parseXmlDocumentWithSaxes(xml).roots[0], "missing", "invalid")).toThrow("invalid")
   })
 

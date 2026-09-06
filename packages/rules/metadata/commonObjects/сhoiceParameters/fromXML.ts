@@ -1,4 +1,4 @@
-import { ConfigurationContextFromXML, isXmlElementNode, xmlAttributeValue, xmlElementChildren, xmlTextValue, type XmlElementNode } from "@nkdk/runtime"
+import { ConfigurationContextFromXML, isEmptyXmlElement, isXmlElementNode, xmlAttributeValue, xmlElementChildren, type XmlElementNode } from "@nkdk/runtime"
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { importMetadataValueFromXML } from "../metadataValue/fromXML"
@@ -11,7 +11,7 @@ export const importChoiceParametersFromXML = (
 ): ChoiceParameters | undefined => {
   if (!xml) return undefined
 
-  if (isXmlElementNode(xml) && xml.attributes.length === 0 && xml.content.every(node => node.type === "text") && xmlTextValue(xml) === "") return undefined
+  if (isXmlElementNode(xml) && isEmptyXmlElement(xml)) return undefined
   const appItems = isXmlElementNode(xml) ? xmlElementChildren(xml, "app:item") : xml["app:item"]
 
   const items = Array.isArray(appItems) ? appItems : [appItems]

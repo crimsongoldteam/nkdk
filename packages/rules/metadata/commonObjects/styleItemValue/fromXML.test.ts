@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 import { mockContextFromXML, mockRule } from "../../../tests/mockContext"
 import { importStyleItemValueFromXML } from "./fromXML"
 import { StyleItemValueXML } from "./types"
+import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"
 
 const fontXML: StyleItemValueXML = {
   "_xsi:type": "v8ui:Font",
@@ -30,6 +31,15 @@ const borderXML: StyleItemValueXML = {
 }
 
 describe("importStyleItemValueFromXML", () => {
+  it.each([
+    ["<Value/>", undefined],
+    ['<Value xsi:type="v8ui:Font" faceName="Arial" height="12"/>', { type: "Font", value: { faceName: "Arial", height: 12 } }],
+    ['<Value xsi:type="v8ui:Color">#8A31E2</Value>', { type: "Color", value: { type: "Absolute", value: "#8A31E2" } }],
+    ['<Value xsi:type="v8ui:Border" width="5"><v8ui:style>Overline</v8ui:style></Value>', { type: "Border", value: { width: 5, controlBorderType: "Overline" } }],
+  ])("dispatches structural style values: %s", (xml, expected) => {
+    expect(importStyleItemValueFromXML(mockContextFromXML(), mockRule, parseStructuralXMLWithoutCompatibility(xml))).toEqual(expected)
+  })
+
   it("should return undefined for undefined input", () => {
     const result = importStyleItemValueFromXML(mockContextFromXML(), mockRule, undefined)
 

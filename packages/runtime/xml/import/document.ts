@@ -62,6 +62,12 @@ export function xmlAttributeValue(node: XmlElementNode, name: string): string | 
   return node.attributes.find(attribute => attribute.name === name)?.value
 }
 
+/** Пустой текст не является значением; атрибуты, дочерние элементы и PI — являются. */
+export function isEmptyXmlElement(node: XmlElementNode): boolean {
+  return node.attributes.length === 0
+    && node.content.every(child => child.type === "text" && child.value === "")
+}
+
 /** Только непосредственный текст; наличие элемента проверяется отдельно. */
 export function xmlTextValue(node: XmlElementNode): string {
   let text = ""

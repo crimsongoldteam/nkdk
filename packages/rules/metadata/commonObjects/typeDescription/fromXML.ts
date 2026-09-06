@@ -1,7 +1,7 @@
 import { importNumberFromXML } from "../number/fromXML"
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
-import { ConfigurationContext, isXmlElementNode, xmlAttributeValue, xmlElementChildren, xmlTextValue, type XmlElementNode } from "@nkdk/runtime"
+import { ConfigurationContext, isEmptyXmlElement, isXmlElementNode, xmlAttributeValue, xmlElementChildren, xmlTextValue, type XmlElementNode } from "@nkdk/runtime"
 import { getTypePrefix, removeTypePrefix } from "./helper"
 import {
   TYPE_DESCRIPTION_SOURCE_TYPES,
@@ -74,7 +74,7 @@ export const getTypes = (type: SourceTypes): string[] | undefined => {
 
   let typeArray = Array.isArray(type) ? type : [type]
   const only = typeArray.length === 1 ? typeArray[0] : undefined
-  if (isXmlElementNode(only) && only.attributes.length === 0 && !only.content.some(node => node.type === "element") && xmlTextValue(only) === "") return undefined
+  if (isXmlElementNode(only) && isEmptyXmlElement(only)) return undefined
 
   return typeArray.map((typeItem) => getType(typeItem))
 }

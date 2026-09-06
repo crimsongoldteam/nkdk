@@ -1,6 +1,6 @@
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
-import { ConfigurationContextFromXML, isXmlElementNode, xmlElementChildren, xmlTextValue, type XmlElementNode } from "@nkdk/runtime"
+import { ConfigurationContextFromXML, isEmptyXmlElement, isXmlElementNode, xmlElementChildren, xmlTextValue, type XmlElementNode } from "@nkdk/runtime"
 import { importMetadataSimpleValueFromXML } from "../metadataValue/fromXML"
 import { MetadataPrimitiveValueXML } from "../metadataValue/types"
 import type { ChoiceParameterLinks, ChoiceParameterLinksXML } from "./types"
@@ -14,7 +14,7 @@ export const importChoiceParameterLinksFromXML = (
 
   if (Array.isArray(xml) && xml.length === 0) return undefined
 
-  if (isXmlElementNode(xml) && xml.attributes.length === 0 && xml.content.every(node => node.type === "text") && xmlTextValue(xml) === "") return undefined
+  if (isXmlElementNode(xml) && isEmptyXmlElement(xml)) return undefined
   const links = isXmlElementNode(xml) ? xmlElementChildren(xml, "xr:Link") : xml["xr:Link"]
 
   const items = Array.isArray(links) ? links : [links]

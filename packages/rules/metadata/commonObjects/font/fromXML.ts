@@ -1,7 +1,7 @@
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import * as SE from "../../systemEnumerations/types"
-import { ConfigurationContext, isXmlElementNode, xmlAttributeValue, type XmlElementNode } from "@nkdk/runtime"
+import { ConfigurationContext, isEmptyXmlElement, isXmlElementNode, xmlAttributeValue, type XmlElementNode } from "@nkdk/runtime"
 import { importBooleanFromXML } from "../boolean/fromXML"
 import { PrefixedFontsFromXML, type Font, type FontXML, type PrefixedFontsXML } from "./types"
 
@@ -11,6 +11,7 @@ export const importFontFromXML = (
   xml: FontXML | XmlElementNode | undefined
 ): Font | undefined => {
   if (!xml) return undefined
+  if (isXmlElementNode(xml) && isEmptyXmlElement(xml)) return undefined
 
   const attribute = <K extends keyof FontXML>(key: K): FontXML[K] | string | undefined =>
     isXmlElementNode(xml) ? xmlAttributeValue(xml, key.slice(1)) : xml[key]
