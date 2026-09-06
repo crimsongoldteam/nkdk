@@ -21,6 +21,30 @@ const typedItemRule: MetadataItemRule = {
 }
 
 describe("prepared import dependencies", () => {
+  it.each([
+    { preserveEmptyXML: false, presentInXML: false },
+    { preserveEmptyXML: true, presentInXML: true },
+    { preserveEmptyXML: true, presentInXML: false, reconstructionValue: "сохранено" },
+  ])("не читает вложенный YAML без необходимости решения об отсутствии: %o", (flags) => {
+    const rootRule = { itemType: "Root", properties: {} } satisfies MetadataItemRule
+    const nestedRule = { itemType: "Nested", properties: {
+      text: { type: "string", yaml: "Текст", preserveEmptyXML: flags.preserveEmptyXML },
+    } } satisfies MetadataItemRule
+    let reads = 0
+    const facts = collectImportDependencyFacts({
+      rule: rootRule, owner, yaml: {}, candidates: [],
+      finalRootYaml: { get Элементы() { reads++; return { Первый: {} } } },
+      proofPropertyFacts: [{
+        itemType: nestedRule.itemType, itemRule: nestedRule, propertyKey: "text",
+        yamlPath: ["Элементы", "Первый", "Текст"], value: undefined,
+        presentInXML: flags.presentInXML,
+        ...("reconstructionValue" in flags ? { reconstructionValue: flags.reconstructionValue } : {}),
+      }],
+    })
+    expect(facts.finalProperties.size).toBe(0)
+    expect(reads).toBe(0)
+  })
+
   it("не удерживает неизменённое независимое значение корня как решение второго прохода", () => {
     const rule = { itemType: "IndependentRoot", properties: { text: { type: "string", yaml: "Текст" } } } as const satisfies MetadataItemRule
     const value = "Большой независимый текст".repeat(1000)

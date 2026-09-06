@@ -263,18 +263,18 @@ function collectFinalRootProperties(params: {
   for (const fact of params.propertyFacts) {
     if (fact.itemRule === undefined) continue
     const propertyRule = fact.itemRule.properties[fact.propertyKey]
-    if (typeof propertyRule?.yaml !== "string") continue
+    if (
+      typeof propertyRule?.yaml !== "string"
+      || propertyRule.preserveEmptyXML !== true
+      || fact.presentInXML === true
+      || fact.reconstructionValue !== undefined
+    ) continue
     const finalItemPath = fact.yamlPath.slice(0, -1)
     if (finalItemPath.length === 0) continue
     const finalItem = recordAtPath(params.yaml, finalItemPath)
     if (finalItem === undefined) continue
     const present = Object.prototype.hasOwnProperty.call(finalItem, propertyRule.yaml)
-    if (
-      present
-      || propertyRule.preserveEmptyXML !== true
-      || fact.presentInXML === true
-      || fact.reconstructionValue !== undefined
-    ) continue
+    if (present) continue
     const decision = { present: false, value: undefined }
     result.set(siblingAddress(finalItemPath, fact.propertyKey), decision)
     const sourceItemPath = (fact.sourceYamlPath ?? fact.yamlPath).slice(0, -1)
