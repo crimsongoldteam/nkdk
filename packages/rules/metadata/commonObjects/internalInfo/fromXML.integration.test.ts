@@ -19,6 +19,7 @@ import { importInternalInfoFromXML } from "./fromXML"
 import { exportInternalInfoToXML } from "./toXML"
 import { InternalInfoRootXML, internalInfoRule } from "./types"
 import { collectInternalInfoConfigurationIndexFromXML } from "./configurationIndex"
+import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"
 
 const rule: PropertyRule = {
   type: "InternalInfo",
@@ -85,6 +86,26 @@ const importContainedObjectsFixture = () => {
 }
 
 describe("importInternalInfoFromXML", () => {
+  it("reads structural identities without compatibility XML", () => {
+    const parsed = importContentFromXML<{ InternalInfo: InternalInfoRootXML }>(xmlWithContainedObject).InternalInfo
+    const node = parseStructuralXMLWithoutCompatibility(xmlWithContainedObject)
+    expect(importInternalInfoFromXML(mockContextFromXML(), completeRule, node)).toEqual(
+      importInternalInfoFromXML(mockContextFromXML(), completeRule, parsed),
+    )
+  })
+
+  it("collects the same identities directly from XML nodes", () => {
+    const collect = (xml: unknown) => {
+      const contexts = createDirectRoundTripContexts({ logicalAddress: "Справочник.Товары", targetProjectPath: "Справочник/Товары/Свойства.yaml" })
+      collectInternalInfoConfigurationIndexFromXML({ context: contexts.importContext, rule: completeRule, xml, propertyKey: "internalInfo" })
+      return contexts.importContext.fromXML.configurationIndex?.collector.fragment("Справочник/Товары/Свойства.yaml").entities
+    }
+    const parsed = importContentFromXML<{ InternalInfo: InternalInfoRootXML }>(xmlWithContainedObject).InternalInfo
+    const expected = collect(parsed)
+    expect(expected).toHaveLength(4)
+    expect(collect(parseStructuralXMLWithoutCompatibility(xmlWithContainedObject))).toEqual(expected)
+  })
+
   it("создаёт пустой InternalInfo для правила без вычисляемых UUID", () => {
     expect(exportInternalInfoToXML({
       context: mockContextToXML(),

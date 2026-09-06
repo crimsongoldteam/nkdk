@@ -1,9 +1,10 @@
-import type { ConfigurationContext, ConfigurationContextFromXML } from "@nkdk/runtime"
+import type { ConfigurationContext, ConfigurationContextFromXML, XmlElementNode } from "@nkdk/runtime"
 import { getConfigurationIndexCollectionContext } from "@nkdk/runtime"
 import { childSegmentUid, childUid } from "@nkdk/runtime"
 import { getUUID } from "../../helpers/uuid"
 import type { CollectConfigurationIndexFromXMLFunction } from "@nkdk/runtime/rule-kit"
 import type { InternalInfoRootXML } from "./types"
+import { readInternalInfoXML } from "./readXML"
 
 const internalInfoAddress = (ownerAddress: string): string => childSegmentUid(ownerAddress, "InternalInfo")
 
@@ -52,45 +53,23 @@ export const collectInternalInfoConfigurationIndexFromXML: CollectConfigurationI
   xml,
 }) => {
   if (xml === undefined) return
-  collectInternalInfoIdentities(context, xml as InternalInfoRootXML)
+  collectInternalInfoIdentities(context, xml as InternalInfoRootXML | XmlElementNode)
 }
 
-function collectInternalInfoIdentities(context: ConfigurationContextFromXML, xml: InternalInfoRootXML): void {
+function collectInternalInfoIdentities(context: ConfigurationContextFromXML, xml: InternalInfoRootXML | XmlElementNode): void {
   const collection = getConfigurationIndexCollectionContext(context)
   if (collection === undefined) return
 
-  for (const item of asArray(xml["xr:GeneratedType"])) {
-    // Категория восстанавливается правилом и не входит в индекс, но должна быть
-    // отмечена как структурно прочитанная для последующего proof-export.
-    void item._category
-    const name = item._name.split(".")[0]!
-    collection.collector.setIdentity(
-      internalInfoGeneratedTypeIdAddress(collection.logicalAddress, name),
-      "uuid",
-      item["xr:TypeId"]
-    )
-    collection.collector.setIdentity(
-      internalInfoGeneratedValueIdAddress(collection.logicalAddress, name),
-      "uuid",
-      item["xr:ValueId"]
-    )
-  }
-
-  const thisNode = xml["xr:ThisNode"]
-  if (thisNode !== undefined) {
-    collection.collector.setIdentity(internalInfoThisNodeAddress(collection.logicalAddress), "uuid", thisNode)
-  }
-
-  for (const item of asArray(xml["xr:ContainedObject"])) {
-    collection.collector.setIdentity(
-      internalInfoContainedObjectIdAddress(collection.logicalAddress, item["xr:ClassId"]),
-      "uuid",
-      item["xr:ObjectId"]
-    )
-  }
-}
-
-function asArray<T>(value: T | T[] | undefined): T[] {
-  if (value === undefined) return []
-  return Array.isArray(value) ? value : [value]
+  readInternalInfoXML(xml, {
+    generatedType(name, typeId, valueId) {
+      collection.collector.setIdentity(internalInfoGeneratedTypeIdAddress(collection.logicalAddress, name), "uuid", typeId!)
+      collection.collector.setIdentity(internalInfoGeneratedValueIdAddress(collection.logicalAddress, name), "uuid", valueId!)
+    },
+    thisNode(value) {
+      collection.collector.setIdentity(internalInfoThisNodeAddress(collection.logicalAddress), "uuid", value)
+    },
+    containedObject(classId, objectId) {
+      collection.collector.setIdentity(internalInfoContainedObjectIdAddress(collection.logicalAddress, classId!), "uuid", objectId!)
+    },
+  })
 }
