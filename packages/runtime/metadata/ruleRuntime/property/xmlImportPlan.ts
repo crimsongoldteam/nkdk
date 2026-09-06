@@ -300,31 +300,32 @@ function visitStructuralXMLImportPlan(params: {
     const selection = selected.get(candidate)
     if (selection === undefined) continue
     const selectedCandidates = selection.candidates
-    const compatibilityAudit = selection.repeatable && params.nestedItemsOwnNode?.(candidate.entry) === true
-      ? undefined
-      : params.audit
     const selectedElements = selectedCandidates.flatMap(({ xmlNode }) =>
       "type" in xmlNode ? [xmlNode] : [],
     )
+    const ownsElements = selectedElements.length === selectedCandidates.length
+      && params.nestedItemsOwnNode?.(candidate.entry) === true
     params.visit({
       ...candidate.entry,
       sourceXMLKey: candidate.sourceXMLKey,
       xmlPath: candidate.xmlPath,
-      xmlValue: selection.repeatable && selectedCandidates.length > 1
+      xmlValue: ownsElements
+        ? selectedElements.length === 1 ? selectedElements[0] : selectedElements
+        : selection.repeatable && selectedCandidates.length > 1
         ? xmlImportCompatibilityValues({
             nodes: selectedElements,
-            audit: compatibilityAudit,
+            audit: params.audit,
             boundary: boundaryForEntry(candidate.entry),
           })
         : selectedCandidates.length === 1
           ? xmlImportCompatibilityValue({
               node: candidate.xmlNode,
-              audit: compatibilityAudit,
+              audit: params.audit,
               boundary: boundaryForEntry(candidate.entry),
             })
           : selectedCandidates.map(({ entry, xmlNode }) => xmlImportCompatibilityValue({
               node: xmlNode,
-              audit: compatibilityAudit,
+              audit: params.audit,
               boundary: boundaryForEntry(entry),
             })),
       xmlNode: candidate.xmlNode,

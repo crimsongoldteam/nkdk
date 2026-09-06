@@ -21,6 +21,22 @@ const rule = {
 } as MetadataItemRule
 
 describe("XML import plan", () => {
+  it.each([1, 2])("передаёт %i вложенных узла без объектной копии", (count) => {
+    const root = parseXmlDocumentWithSaxes(`<Root>${'<Item name="x"><Value/></Item>'.repeat(count)}</Root>`).roots[0]!
+    const nodes = root.content.filter(node => node.type === "element")
+    for (const node of nodes) {
+      Object.defineProperty(node, "compatibilityValue", { get() { throw new Error("Вложенный обработчик читает XML сам") } })
+    }
+    const visit = vi.fn()
+    visitXMLImportPlan({
+      plan: getXMLImportPlan({ rule: { itemType: "NestedPlan", properties: { item: { type: "string", xml: "Item" } } }, includeAllTags: true }),
+      xml: root, visit, isRepeatable: () => true, nestedItemsOwnNode: () => true,
+    })
+    expect(visit).toHaveBeenCalledOnce()
+    expect(visit.mock.calls[0]![0].xmlNodes).toEqual(nodes)
+    expect(visit.mock.calls[0]![0].xmlValue).toEqual(count === 1 ? nodes[0] : nodes)
+  })
+
   it("visits aliases and nested XML containers once in XML order", () => {
     const visit = vi.fn()
 

@@ -6,7 +6,7 @@ import { mockContextFromXML } from "../../tests/mockContext"
 import { createLocalIndexesCollector } from "../projectDefinition/localIndexes"
 import { importCalculatedFieldOrderExpressionFromXMLToYAML } from "../commonObjects/dataCompositionSystem/calculatedFieldOrderExpression/fromXMLToYAML"
 import { importFormCommandsFromXMLToYAML } from "../forms/commonObjects/formCommand/fromXMLToYAML"
-import { importFormAttributesFromXMLToYAML } from "../forms/commonObjects/formAttribute/fromXMLToYAML"
+import { importFormAttributesFromXMLToYAML, metadataPropertyRule004, metadataPropertyRule005 } from "../forms/commonObjects/formAttribute/fromXMLToYAML"
 import { hasSoleValueListType } from "../forms/commonObjects/formAttribute/valueListSettings"
 import { importChildItemsFromXMLToYAML } from "../forms/commonObjects/childItems/fromXMLToYAML"
 import { importStandardAttributeDescriptionsFromXMLToYAML } from "../commonObjects/standardAttributeDescription/fromXMLToYAML"
@@ -18,6 +18,16 @@ const cases: readonly {
   xml: string
   expected: object
 }[] = [
+  {
+    name: "колонки формы", convert: metadataPropertyRule004.handler,
+    rule: { type: "FormAttributeColumns" }, xml: '<Column name="Тест" id="2"><Type><v8:Type>xs:string</v8:Type></Type></Column>',
+    expected: { Тест: { Тип: "Строка" } },
+  },
+  {
+    name: "дополнительные колонки формы", convert: metadataPropertyRule005.handler,
+    rule: { type: "FormAttributeAdditionalColumns" }, xml: '<AdditionalColumns table="Таблица"><Column name="Тест" id="2"><Type><v8:Type>xs:string</v8:Type></Type></Column></AdditionalColumns>',
+    expected: { Таблица: { Тест: { Тип: "Строка" } } },
+  },
   {
     name: "стандартные реквизиты", convert: importStandardAttributeDescriptionsFromXMLToYAML,
     rule: { type: "StandardAttributeDescriptions", standartAttributeNames: { RecordType: "ВидДвижения" } },
