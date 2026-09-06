@@ -6,13 +6,15 @@ import {
 import type { ConfigurationIndexCollector } from "@nkdk/runtime"
 import { PropertyRule, definePropertyTypeRule } from "../../ruleRuntime"
 import { canonicalNamedChildren, childrenToPersist } from "../omittedChildren"
+import { childNamesFromXML } from "../childNamesXML"
 
 /** Импортирует список имён макетов из XML-тегов Template в ChildObjects. */
 export const importChildTemplateNamesFromXML = (
   _context: ConfigurationContextFromXML,
   _rule: PropertyRule,
-  xml: unknown
+  input: unknown
 ): string[] | undefined => {
+  const xml = childNamesFromXML(input)
   if (xml === undefined || xml === null) return undefined
   if (Array.isArray(xml)) return xml.length > 0 ? xml : undefined
   return [xml as string]
@@ -20,9 +22,10 @@ export const importChildTemplateNamesFromXML = (
 
 export const metadataPropertyRule000 = definePropertyTypeRule("ChildTemplateNames", "importFromXML", importChildTemplateNamesFromXML)
 
-export const metadataPropertyRule001 = definePropertyTypeRule("ChildTemplateNames", "collectConfigurationIndexFromXML", ({ context, xml }) => {
+export const metadataPropertyRule001 = definePropertyTypeRule("ChildTemplateNames", "collectConfigurationIndexFromXML", ({ context, xml: input }) => {
   const collection = getConfigurationIndexCollectionContext(context)
   if (collection === undefined) return
+  const xml = childNamesFromXML(input)
   const names = Array.isArray(xml) ? xml : [xml]
   if (!names.every((name): name is string => typeof name === "string")) return
   setChildTemplateNamesOmittedChildren(
