@@ -556,16 +556,21 @@ describe("XML import worker second pass", () => {
     await beginCatalogAndFormSecondPass(createTempDir("form-direct-context"), assignments)
     const view = vi.spyOn(propertyFactsView, "createPropertyFactsYamlView")
     const finalize = vi.spyOn(importedYamlFinalizers, "finalizeMetadataItemImportedYaml")
+    const finalizeFacts = vi.spyOn(preparedFacts, "finalizeDeferredPropertyFacts")
     try {
       const result = await runImportWorkerCommand({ kind: "secondPass", assignmentId: assignments.form.id })
       expect(result).toMatchObject({ kind: "secondPassResult", diagnostics: [] })
-      // С основой остаются только входы ещё не перенесённой проекции.
-      expect(view.mock.calls).toHaveLength(hasBaseForm ? 2 : 0)
+      // Без текущей cf сравнивать источники основы не требуется.
+      expect(view.mock.calls).toHaveLength(0)
       const projections = new Set(view.mock.results.map(result => result.value))
       expect(finalize.mock.calls.filter(([params]) => projections.has(params.yaml))).toEqual([])
+      for (const [params] of finalizeFacts.mock.calls) {
+        expect(params.facts.filter(fact => !["$formElementKind", "dataPath", "mainAttribute"].includes(fact.propertyKey))).toEqual([])
+      }
     } finally {
       view.mockRestore()
       finalize.mockRestore()
+      finalizeFacts.mockRestore()
       await runImportWorkerCommand({ kind: "endSecondPass" })
     }
   })

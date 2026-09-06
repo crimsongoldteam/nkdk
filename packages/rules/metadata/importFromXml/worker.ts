@@ -583,7 +583,8 @@ async function processSecondPass(
         })
     const formYamlPath = clientApplicationFormYamlPath(assignmentRule)
     const directFormContext = formYamlPath !== undefined
-      && !hasBaseFormCandidate && ready.formDataPathIndex !== undefined
+      && (!hasBaseFormCandidate || currentConfigurationFormYAML === undefined)
+      && ready.formDataPathIndex !== undefined
     const compatibleFormFacts = finalizedFormFacts !== undefined && ready.formSemanticFacts !== undefined
       && ready.formDataPathIndex !== undefined
       ? prepareCompatibleFormFacts({
@@ -591,15 +592,6 @@ async function processSecondPass(
           index: ready.formDataPathIndex, ownerCache: secondPass.ownerMetadataCache,
         })
       : finalizedFormFacts
-    const formProofDataPathContext = directFormContext && compatibleFormFacts !== undefined
-      ? prepareFormDataPathContext({
-          preparation: collectFormDataPathPreparationFromFacts({
-            facts: compatibleFormFacts, index: ready.formDataPathIndex!, yamlPathPrefix: formYamlPath,
-          }),
-          currentConfigurationFormYaml: currentConfigurationFormYAML,
-          ownerCache: secondPass.ownerMetadataCache,
-        })
-      : undefined
     const baseFormDataPathIndex = ready.baseFormDataPathIndex
     const finalizedBaseFormFacts = ready.baseFormSemanticFacts === undefined
       ? undefined
@@ -620,7 +612,17 @@ async function processSecondPass(
         })
     const basePreparation = compatibleBaseFormFacts === undefined || baseFormDataPathIndex === undefined
       ? undefined : collectFormDataPathPreparationFromFacts({ facts: compatibleBaseFormFacts, index: baseFormDataPathIndex })
-    const baseFormFactsView = compatibleBaseFormFacts === undefined ? undefined
+    const formProofDataPathContext = directFormContext && compatibleFormFacts !== undefined
+      ? prepareFormDataPathContext({
+          preparation: collectFormDataPathPreparationFromFacts({
+            facts: compatibleFormFacts, index: ready.formDataPathIndex!, yamlPathPrefix: formYamlPath,
+          }),
+          currentConfigurationFormYaml: currentConfigurationFormYAML,
+          savedBaseElementNames: basePreparation?.collected.elementsByName.keys(),
+          ownerCache: secondPass.ownerMetadataCache,
+        })
+      : undefined
+    const baseFormFactsView = compatibleBaseFormFacts === undefined || currentConfigurationFormYAML === undefined ? undefined
       : createPropertyFactsYamlView(basePreparation === undefined ? compatibleBaseFormFacts : finalizeProjectionFormFacts({
           facts: compatibleBaseFormFacts, preparation: basePreparation,
           currentConfigurationFormYAML, ownerCache: secondPass.ownerMetadataCache,
@@ -1763,12 +1765,16 @@ async function processFirstPass(
           }),
         })
         pendingAssignmentIds.add(assignment.id)
-        const formSemanticFacts = prepared.formSemanticFacts === undefined
-          ? undefined
-          : clientApplicationFormYamlPath(prepared.rule) !== undefined && !containsBaseFormCandidate(inputs)
-            ? selectFormDataPathPreparationFacts(prepared.formSemanticFacts)
-            : prepared.formSemanticFacts
+        const needsBaseProjection = containsBaseFormCandidate(inputs) && shouldReadCurrentConfigurationYaml({
+          componentPath: state.componentPath, rule: prepared.rule, hasBaseFormCandidate: true,
+        })
+        const retainFormFacts = (facts: readonly DirectImportPropertyFact[] | undefined) =>
+          facts === undefined || needsBaseProjection || clientApplicationFormYamlPath(prepared.rule) === undefined
+            ? facts : selectFormDataPathPreparationFacts(facts)
+        const formSemanticFacts = retainFormFacts(prepared.formSemanticFacts)
+        const baseFormSemanticFacts = retainFormFacts(prepared.baseFormSemanticFacts)
         const formFactPaths = new Set(formSemanticFacts?.map(fact => yamlPathToPointer(fact.yamlPath)))
+        const baseFormFactPaths = new Set(baseFormSemanticFacts?.map(fact => yamlPathToPointer(fact.yamlPath)))
         dependencyFacts.set(assignment.id, {
           configurationFragment: fragment,
           properties: prepared.dependencies,
@@ -1785,15 +1791,15 @@ async function processFirstPass(
           ...(formSemanticFacts === undefined
             ? {}
             : { formSemanticFacts }),
-          ...(prepared.baseFormSemanticFacts === undefined
+          ...(baseFormSemanticFacts === undefined
             ? {}
-            : { baseFormSemanticFacts: prepared.baseFormSemanticFacts }),
+            : { baseFormSemanticFacts }),
           ...(prepared.baseFormDataPathIndex === undefined
             ? {}
             : { baseFormDataPathIndex: prepared.baseFormDataPathIndex }),
           ...(prepared.baseFormDeferred === undefined
             ? {}
-            : { baseFormDeferred: prepared.baseFormDeferred }),
+            : { baseFormDeferred: prepared.baseFormDeferred.filter(value => baseFormFactPaths.has(yamlPathToPointer(value.valuePath))) }),
         })
         readyForSecondPass = true
         accumulator.files.push(...assignmentFiles)
