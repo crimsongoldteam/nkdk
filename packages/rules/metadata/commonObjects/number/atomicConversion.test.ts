@@ -1,9 +1,25 @@
 import { describe, expect, it } from "vitest"
 
 import { compileNumberAtomicConversion } from "./atomicConversion"
+import { importNumberFromXML } from "./fromXML"
+import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"
 
 describe("compileNumberAtomicConversion", () => {
   const context = {} as never
+
+  it.each([
+    ["<Value>42</Value>", 42],
+    ['<Value xsi:type="xs:decimal">42</Value>', 42],
+    ['<Value xsi:type="xs:string">42</Value>', 42],
+    ["<Value/>", undefined],
+    ['<Value xsi:type="xs:decimal"/>', undefined],
+    ['<Value xsi:type="xs:string"/>', Number.NaN],
+  ])("uses the same structural XML semantics: %s", (xml, expected) => {
+    const value = parseStructuralXMLWithoutCompatibility(xml)
+    const conversion = compileNumberAtomicConversion({ rule: { type: "number" } })
+    expect(importNumberFromXML(context, undefined, value)).toEqual(expected)
+    expect(conversion.fromXMLToYAML({ context, value })).toEqual({ metadataValue: expected, representationValue: expected })
+  })
 
   it.each([
     [42, 42],

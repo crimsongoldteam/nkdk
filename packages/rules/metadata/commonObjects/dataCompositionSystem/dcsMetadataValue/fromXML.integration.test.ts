@@ -8,6 +8,18 @@ import { mockContextFromXML } from "../../../../tests/mockContext"
 import { importDcsMetadataValueFromDcsXML } from "./fromXML"
 
 describe("import MetadataDcsMetadataValue from XML", () => {
+  it("does not turn a single wrapped value into an array", () => {
+    const source = parseStructuralXMLWithoutCompatibility('<Root><dcscor:value xsi:type="xs:decimal">1</dcscor:value></Root>')
+    expect(importDcsMetadataValueFromDcsXML(mockContextFromXML(), { type: "MetadataDcsMetadataValue", valueType: "Primitive" }, source)).toEqual({ type: "decimal", value: 1 })
+  })
+
+  it.each([
+    ['<dcscor:value/>', "DCS MetadataValue: missing dcscor:value"],
+    ['<dcscor:value xsi:type="Unknown"/>', "DCS MetadataValue: unsupported xsi:type Unknown"],
+  ])("reports structural value errors without serializing XML: %s", (xml, message) => {
+    expect(() => importDcsMetadataValueFromDcsXML(mockContextFromXML(), { type: "MetadataDcsMetadataValue", valueType: "Primitive" }, parseStructuralXMLWithoutCompatibility(xml))).toThrow(message)
+  })
+
   it.each(dcsMetadataValueFromXMLFixtures)("imports structural $title", (fixture) => {
     const source = parseStructuralXMLWithoutCompatibility(readXMLFixtureAsString(import.meta.url, fixture.xml))
     expect(importDcsMetadataValueFromDcsXML(mockContextFromXML(), fixture.rule, source)).toEqual(fixture.value)

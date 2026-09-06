@@ -5,9 +5,9 @@ export function readDcsText(value: unknown, missingMessage: string, invalidMessa
   if (value === undefined) throw new Error(missingMessage)
   if (typeof value === "string") return value
   if (isXmlElementNode(value)) {
-    if (value.content.some(node => node.type === "text") || value.content.length === 0 && value.attributes.length === 0) {
-      return xmlTextValue(value)
-    }
+    const text = xmlTextValue(value)
+    if (text !== "") return text
+    if (value.attributes.length === 0 && !value.content.some(node => node.type === "element")) throw new Error(missingMessage)
   } else if (value !== null && typeof value === "object" && "#text" in value && typeof value["#text"] === "string") {
     return value["#text"]
   }

@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest"
+import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"
+import { importBooleanFromXML } from "./fromXML"
 import {
   compileBooleanAtomicConversion,
   metadataPropertyRule000,
@@ -7,6 +9,18 @@ import {
 describe("compileBooleanAtomicConversion", () => {
   const conversion = compileBooleanAtomicConversion({ rule: { type: "boolean" } })
   const context = {} as never
+
+  it.each([
+    ["<Value>true</Value>", true, "Истина"],
+    ["<Value>false</Value>", false, "Ложь"],
+    ['<Value xsi:type="xs:boolean">true</Value>', true, "Истина"],
+    ["<Value/>", undefined, undefined],
+    ["<Value>1</Value>", undefined, undefined],
+  ])("uses the same structural boolean semantics: %s", (xml, metadataValue, representationValue) => {
+    const value = parseStructuralXMLWithoutCompatibility(xml)
+    expect(importBooleanFromXML(context, undefined, value)).toBe(metadataValue)
+    expect(conversion.fromXMLToYAML({ context, value })).toEqual({ metadataValue, representationValue })
+  })
 
   it.each([
     ["true", true, "Истина"],

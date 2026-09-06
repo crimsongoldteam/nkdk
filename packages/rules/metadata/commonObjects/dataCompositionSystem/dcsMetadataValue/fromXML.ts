@@ -92,8 +92,8 @@ const importDcsMetadataValueFromDcsXMLInternal = (
   xml: MetadataDcsMetadataValueDcsRootXML | XmlElementNode
 ): MetadataDcsMetadataValue | undefined => {
   const elements = isXmlElementNode(xml) && xml.name !== "dcscor:value" ? xmlElementChildren(xml, "dcscor:value") : undefined
-  const root = isXmlElementNode(xml) ? elements === undefined ? xml : elements.length === 0 ? undefined : elements : xml["dcscor:value"]
-  if (root === undefined) {
+  const root = isXmlElementNode(xml) ? elements === undefined ? xml : elements.length <= 1 ? elements[0] : elements : xml["dcscor:value"]
+  if (root === undefined || isXmlElementNode(root) && root.attributes.length === 0 && !root.content.some(node => node.type === "element") && xmlTextValue(root) === "") {
     throw new Error("DCS MetadataValue: missing dcscor:value")
   }
 
@@ -235,7 +235,7 @@ const importDcsMetadataValueFromDcsXMLInternal = (
     return { type: "SystemEnumeration", typeSE: inferredTypeSE, value }
   }
 
-  throw new Error(`DCS MetadataValue: unsupported xsi:type ${String(xsi)} in ${JSON.stringify(root)}`)
+  throw new Error(`DCS MetadataValue: unsupported xsi:type ${String(xsi)} in ${isXmlElementNode(root) ? root.path : JSON.stringify(root)}`)
 }
 
 export const importDcsMetadataValueFromDcsXML = (

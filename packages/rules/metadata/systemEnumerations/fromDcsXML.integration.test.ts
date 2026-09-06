@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { parseXmlDocumentWithSaxes } from "@nkdk/runtime"
+import { importContentFromXML, parseXmlDocumentWithSaxes } from "@nkdk/runtime"
 import { mockContextFromXML } from "../../tests/mockContext"
 import { readAndParseXMLFixture } from "../../tests/readFixtureXML"
 import { SystemEnumerationDcsValueRootXML } from "./dcsTypes"
@@ -12,7 +12,8 @@ describe("importSystemEnumerationFromDcsXML", () => {
     const context = mockContextFromXML()
     for (const structural of [false, true]) {
       const empty = parseXmlDocumentWithSaxes('<dcscor:value/>')
-      expect(importSystemEnumerationFromDcsXML(context, rule, structural ? empty.roots[0]! : { "dcscor:value": "" })).toBe("")
+      expect(() => importSystemEnumerationFromDcsXML(context, rule, structural ? empty.roots[0]! : importContentFromXML<SystemEnumerationDcsValueRootXML>('<dcscor:value/>')))
+        .toThrow("DCS SystemEnumeration: missing dcscor:value")
       const typed = parseXmlDocumentWithSaxes('<dcscor:value xsi:type="v8ui:HorizontalAlign"/>').roots[0]!
       expect(() => importSystemEnumerationFromDcsXML(context, rule, structural ? typed : { "dcscor:value": { "_xsi:type": "v8ui:HorizontalAlign" } }))
         .toThrow("DCS SystemEnumeration: invalid text node")

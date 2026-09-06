@@ -13,7 +13,8 @@ import {
   withoutOneValueChoiceParameter,
 } from "./__fixtures__/data"
 import { mockContext, mockContextFromXML, mockRule } from "../../../tests/mockContext"
-import { readAndParseXMLFixture } from "../../../tests/readFixtureXML"
+import { readAndParseXMLFixture, readXMLFixtureAsString } from "../../../tests/readFixtureXML"
+import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"
 import { xmlExport } from "@nkdk/runtime"
 import { exportToYAML } from "@nkdk/runtime"
 import { importFromYAML } from "@nkdk/runtime"
@@ -24,6 +25,22 @@ import { exportChoiceParametersToYAML } from "./toYAML"
 import { ChoiceParametersXML, ChoiceParametersYAML } from "./types"
 
 describe("importChoiceParametersFromXML", () => {
+  it.each(["<ChoiceParameters/>", "<ChoiceParameters><![CDATA[]]></ChoiceParameters>"])("keeps empty structural parameters %s absent", (xml) => {
+    expect(importChoiceParametersFromXML(mockContextFromXML(), mockRule, parseStructuralXMLWithoutCompatibility(xml))).toBeUndefined()
+  })
+
+  it.each([
+    ["single.xml", singleChoiceParameter],
+    ["multiple.xml", multipleChoiceParameters],
+    ["enum.xml", enumChoiceParameter],
+    ["fixedArray.xml", fixedArrayChoiceParameter],
+    ["fixedArrayWithNil.xml", fixedArrayWithNilChoiceParameters],
+    ["string.xml", stringChoiceParameter],
+  ])("imports structural %s", (path, expected) => {
+    const source = parseStructuralXMLWithoutCompatibility(readXMLFixtureAsString(import.meta.url, path))
+    expect(importChoiceParametersFromXML(mockContextFromXML(), mockRule, source)).toEqual(expected)
+  })
+
   it("should return undefined for undefined input", () => {
     const result = importChoiceParametersFromXML(mockContextFromXML(), mockRule, undefined)
 

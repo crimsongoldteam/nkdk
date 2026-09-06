@@ -45,7 +45,7 @@ const isDcsAutoColorValueFragment = (rule: SettingsParameterValuePropertyRule, f
 
 const childText = (node: XmlElementNode, name: string): string | undefined => {
   const child = xmlElementChildren(node, name)[0]
-  return child === undefined ? undefined : xmlTextValue(child)
+  return child === undefined ? undefined : xmlTextValue(child) || undefined
 }
 
 export const importParameterValueFromDcsXML = (
@@ -54,8 +54,10 @@ export const importParameterValueFromDcsXML = (
   xml: ParameterValueXML | SettingsParameterValueXML | XmlElementNode
 ): ParameterValue | SettingsParameterValue => {
   const dcsRule = toDcsMetadataValueRule(rule)
-  const valueFragments = isXmlElementNode(xml) ? xmlElementChildren(xml, "dcscor:value") : asArray(xml["dcscor:value"])
+  let valueFragments = isXmlElementNode(xml) ? xmlElementChildren(xml, "dcscor:value") : asArray(xml["dcscor:value"])
   const valueNodePresent = isXmlElementNode(xml) ? valueFragments.length > 0 : Object.prototype.hasOwnProperty.call(xml, "dcscor:value")
+  const only = valueFragments.length === 1 ? valueFragments[0] : undefined
+  if (isXmlElementNode(only) && only.attributes.length === 0 && !only.content.some(node => node.type === "element") && xmlTextValue(only) === "") valueFragments = []
   const nilValuePresent = valueFragments.some(isNilValueFragment) || (valueNodePresent && valueFragments.length === 0)
   const valueParts = valueFragments
     .filter((fragment) => !isNilValueFragment(fragment))
@@ -81,17 +83,15 @@ export const importParameterValueFromDcsXML = (
     const sx = xml as SettingsParameterValueXML
     const viewMode = isXmlElementNode(xml) ? childText(xml, "dcsset:viewMode") : sx["dcsset:viewMode"]
     const userSettingID = isXmlElementNode(xml) ? childText(xml, "dcsset:userSettingID") : sx["dcsset:userSettingID"]
-    const presentation = isXmlElementNode(xml) ? xmlElementChildren(xml, "dcsset:userSettingPresentation")[0] : sx["dcsset:userSettingPresentation"]
+    const presentationXml = isXmlElementNode(xml) ? xmlElementChildren(xml, "dcsset:userSettingPresentation")[0] : sx["dcsset:userSettingPresentation"]
+    const presentation = importUserSettingPresentationFromXML(context, presentationXml)
     return {
       ...base,
       ...(viewMode !== undefined ? { viewMode } : {}),
       ...(userSettingID !== undefined ? { userSettingID } : {}),
       ...(presentation !== undefined
         ? {
-            userSettingPresentation: importUserSettingPresentationFromXML(
-              context,
-              presentation
-            ),
+            userSettingPresentation: presentation,
           }
         : {}),
     } as SettingsParameterValue

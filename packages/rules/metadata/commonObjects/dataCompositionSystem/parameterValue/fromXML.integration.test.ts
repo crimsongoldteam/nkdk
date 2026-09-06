@@ -3,7 +3,8 @@ import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { testExportPropertyToYAML } from "../../../../tests/property/exportPropertyToYAML"
 import { testAtomicFromYAML } from "../../../../tests/property/atomicFromYAML"
 import { testImportPropertyFromXML } from "../../../../tests/property/importPropertyFromXML"
-import { exportToYAML } from "@nkdk/runtime"
+import { exportToYAML, importContentFromXML } from "@nkdk/runtime"
+import type { SettingsParameterValueXML, SettingsParameterValuePropertyRule } from "./types"
 import { importFromYAML } from "@nkdk/runtime"
 import { parseStructuralXMLWithoutCompatibility } from "../../../../tests/structuralXML"
 import { mockContextFromXML } from "../../../../tests/mockContext"
@@ -16,6 +17,14 @@ import {
 } from "./__fixtures__/data"
 
 describe("importParameterValueFromXML", () => {
+  it.each(["", "<dcscor:value/>"])("does not invent empty settings values: %s", (value) => {
+    const xml = `<dcscor:item xsi:type="dcsset:SettingsParameterValue"><dcscor:parameter/><dcsset:viewMode/><dcsset:userSettingID/><dcsset:userSettingPresentation/>${value}</dcscor:item>`
+    const rule: SettingsParameterValuePropertyRule = { type: "SettingsParameterValue", valueType: "Primitive" }
+    const expected = { parameter: undefined }
+    expect(importParameterValueFromDcsXML(mockContextFromXML(), rule, importContentFromXML<{ "dcscor:item": SettingsParameterValueXML }>(xml)["dcscor:item"])).toEqual(expected)
+    expect(importParameterValueFromDcsXML(mockContextFromXML(), rule, parseStructuralXMLWithoutCompatibility(xml))).toEqual(expected)
+  })
+
   it("reads structural settings fields and a short presentation", () => {
     const source = parseStructuralXMLWithoutCompatibility('<dcscor:item xsi:type="dcsset:SettingsParameterValue"><dcscor:parameter>Период</dcscor:parameter><dcsset:viewMode>Normal</dcsset:viewMode><dcsset:userSettingID>id</dcsset:userSettingID><dcsset:userSettingPresentation xsi:type="xs:string">Период с</dcsset:userSettingPresentation></dcscor:item>')
     expect(importParameterValueFromDcsXML(mockContextFromXML(), { type: "SettingsParameterValue", valueType: "Primitive" }, source)).toEqual({

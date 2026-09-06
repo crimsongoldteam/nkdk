@@ -44,6 +44,7 @@ export const importUserSettingPresentationFromXML = (
   xml: I8nTextXML | UserSettingPresentationShortXML | XmlElementNode | string | undefined
 ): I8nText | undefined => {
   if (xml === undefined) return undefined
+  if (isXmlElementNode(xml) && xml.attributes.length === 0 && !xml.content.some(node => node.type === "element") && xmlTextValue(xml) === "") return undefined
 
   if (isXmlElementNode(xml) && (xmlAttributeValue(xml, "xsi:type") === "xs:string"
     || xml.attributes.length === 0 && xml.content.every(node => node.type === "text"))) {

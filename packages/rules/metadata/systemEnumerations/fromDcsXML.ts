@@ -35,9 +35,10 @@ export const importSystemEnumerationFromDcsXML = (
     if (actual !== undefined && actual !== expected) {
       throw new Error(`DCS SystemEnumeration: expected xsi:type ${expected}, got ${actual}`)
     }
-    if (root.content.length === 0 && root.attributes.length === 0) return ""
-    if (!root.content.some(node => node.type === "text")) throw new Error("DCS SystemEnumeration: invalid text node")
-    return xmlTextValue(root)
+    const text = xmlTextValue(root)
+    if (text !== "") return text
+    if (root.attributes.length === 0 && !root.content.some(node => node.type === "element")) throw new Error("DCS SystemEnumeration: missing dcscor:value")
+    throw new Error("DCS SystemEnumeration: invalid text node")
   }
   if (typeof root === "object" && root !== null && "_xsi:type" in root) {
     const actual = root["_xsi:type"]

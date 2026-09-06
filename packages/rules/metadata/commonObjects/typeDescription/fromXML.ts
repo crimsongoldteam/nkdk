@@ -73,6 +73,8 @@ export const getTypes = (type: SourceTypes): string[] | undefined => {
   if (type === undefined) return undefined
 
   let typeArray = Array.isArray(type) ? type : [type]
+  const only = typeArray.length === 1 ? typeArray[0] : undefined
+  if (isXmlElementNode(only) && only.attributes.length === 0 && !only.content.some(node => node.type === "element") && xmlTextValue(only) === "") return undefined
 
   return typeArray.map((typeItem) => getType(typeItem))
 }
@@ -130,7 +132,7 @@ export const getType = (type: SourceType): string => {
 
 const getTypeText = (type: SourceType): string | undefined =>
   isXmlElementNode(type)
-    ? type.content.some(node => node.type === "text") || type.content.length === 0 && type.attributes.length === 0 ? xmlTextValue(type) : undefined
+    ? xmlTextValue(type) || undefined
     : typeof type === "string" ? type : type["#text"]
 
 const getTypeNamespace = (type: SourceType, value: string): string | undefined => {

@@ -8,6 +8,11 @@ import { TypeDescriptionXML, TYPE_DESCRIPTION_SOURCE_TYPES } from "./types"
 import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"
 
 describe("importTypeDescriptionFromXML", () => {
+  it.each(["<Type/>", "<Type><v8:Type/></Type>", "<Type><v8:TypeSet/></Type>"])("does not create a type from empty XML: %s", (xml) => {
+    expect(importTypeDescriptionFromXML(mockContextFromXML(), mockRule, importContentFromXML<{ Type?: TypeDescriptionXML }>(xml).Type)).toBeUndefined()
+    expect(importTypeDescriptionFromXML(mockContextFromXML(), mockRule, parseStructuralXMLWithoutCompatibility(xml))).toBeUndefined()
+  })
+
   it("keeps the source namespace without rebuilding XML", () => {
     const source = parseStructuralXMLWithoutCompatibility('<Type><v8:Type xmlns:d7p1="http://v8.1c.ru/8.2/data/chart">d7p1:Chart</v8:Type></Type>')
     const value = importTypeDescriptionFromXML(mockContextFromXML(), mockRule, source)
