@@ -2,6 +2,10 @@ import {
   getConfigurationIndexCollectionContext,
   getConfigurationIndexFormElementLogicalAddress,
   objectRecordOrUndefined,
+  isXmlElementNode,
+  xmlAttributeValue,
+  xmlTextValue,
+  type XmlElementNode,
   withConfigurationIndexLogicalAddress,
   xmlElementChildren,
   appendXmlAnnotatedMappingEntry,
@@ -27,9 +31,15 @@ import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import type { TableChildItem } from "./types"
 import { formChildItemOccurrence } from "./xmlOccurrences"
 
-const resolveItemTypeFromXMLTag = (rule: PropertyRule, xmlTag: string, xmlValue?: Record<string, unknown>): string => {
+const resolveItemTypeFromXMLTag = (rule: PropertyRule, xmlTag: string, xmlValue?: Record<string, unknown> | XmlElementNode): string => {
   if (rule.type === "CommandBarChildItems" && xmlTag === "Button") {
-    const type = xmlValue?.Type
+    let type: unknown
+    if (isXmlElementNode(xmlValue)) {
+      const types = xmlElementChildren(xmlValue, "Type")
+      if (types.length === 1 && types[0]!.attributes.length === 0 && types[0]!.content.every(node => node.type === "text")) {
+        type = xmlTextValue(types[0]!)
+      }
+    } else type = xmlValue?.Type
     return type === "CommandBarButton" || type === "CommandBarHyperlink" ? "CommandBarButton" : "Button"
   }
   if (rule.type !== "TableChildItems") return xmlTag
@@ -44,33 +54,36 @@ const resolveItemTypeFromXMLTag = (rule: PropertyRule, xmlTag: string, xmlValue?
 }
 
 export const importChildItemsFromXMLToYAML: ImportFromXMLToYAMLFunction = ({ context, rule, xml, traversal }) => {
-  if (xml === undefined) return undefined
+  if (xml === undefined && traversal.xmlNodes === undefined) return undefined
   const itemXmlNodes = traversal.xmlNodes?.flatMap((node) => xmlElementChildren(node))
   const items = itemXmlNodes === undefined
     ? Array.isArray(xml) ? xml : [xml]
-    : itemXmlNodes.map((node) => ({ [node.name]: node.compatibilityValue }))
+    : itemXmlNodes
   const result: Record<string, unknown> = {}
   const occurrences = new Map<string, number>()
 
-  for (const [index, value] of items.entries()) {
-    const item = objectRecordOrUndefined(value)
-    const xmlTag = item === undefined ? undefined : Object.keys(item)[0]
-    if (item === undefined || xmlTag === undefined) continue
-    const rawXml = objectRecordOrUndefined(item[xmlTag])
-    if (rawXml === undefined) continue
-    const itemType = resolveItemTypeFromXMLTag(rule, xmlTag, rawXml) as CollectableElementType
-    const xmlValue = (objectRecordOrUndefined(item[itemType]) ?? rawXml) as ElementXML
-    if (typeof xmlValue._name !== "string" || xmlValue._name.length === 0) {
+  for (const value of items) {
+    const itemXmlNode = isXmlElementNode(value) ? value : undefined
+    const item = itemXmlNode === undefined ? objectRecordOrUndefined(value) : undefined
+    const xmlTag = itemXmlNode?.name ?? (item === undefined ? undefined : Object.keys(item)[0])
+    if (xmlTag === undefined) continue
+    const rawXml = objectRecordOrUndefined(item?.[xmlTag])
+    if (itemXmlNode === undefined && rawXml === undefined) continue
+    const itemType = resolveItemTypeFromXMLTag(rule, xmlTag, itemXmlNode ?? rawXml) as CollectableElementType
+    const recordValue = (objectRecordOrUndefined(item?.[itemType]) ?? rawXml) as ElementXML | undefined
+    const xmlValue = itemXmlNode ?? recordValue
+    if (xmlValue === undefined) continue
+    const itemName = itemXmlNode === undefined ? recordValue?._name : xmlAttributeValue(itemXmlNode, "name")
+    if (typeof itemName !== "string" || itemName.length === 0) {
       throw new Error("У элемента формы отсутствует name")
     }
-    const itemName = xmlValue._name
-    const occurrence = formChildItemOccurrence(itemXmlNodes?.[index]) ?? occurrences.get(itemName) ?? 0
+    const occurrence = formChildItemOccurrence(itemXmlNode) ?? occurrences.get(itemName) ?? 0
     occurrences.set(itemName, occurrence + 1)
     const parentItemType = [...traversal.rulePath].reverse().find(segment => segment.nestedItemType !== undefined)?.nestedItemType
     const misplacedPicture = rule.type === "CommandBarChildItems" && parentItemType === "ContextMenu" && itemType === "PictureField"
     if (occurrence > 0 || misplacedPicture) {
       if (traversal.mode === "facts") continue
-      const node = itemXmlNodes?.[index]
+      const node = itemXmlNode
       if (node === undefined || traversal.annotations === undefined) {
         throw new Error("Для сохранения аномального элемента формы нужны XML-узел и таблица аннотаций")
       }
@@ -90,8 +103,9 @@ export const importChildItemsFromXMLToYAML: ImportFromXMLToYAMLFunction = ({ con
       collection === undefined ? undefined : getConfigurationIndexFormElementLogicalAddress(collection, itemName)
     const itemContext =
       logicalAddress === undefined ? context : withConfigurationIndexLogicalAddress(context, logicalAddress)
-    if (logicalAddress !== undefined && typeof xmlValue._id === "string") {
-      collection?.collector.setIdentity(logicalAddress, "xmlId", xmlValue._id)
+    const id = itemXmlNode === undefined ? recordValue?._id : xmlAttributeValue(itemXmlNode, "id")
+    if (logicalAddress !== undefined && typeof id === "string") {
+      collection?.collector.setIdentity(logicalAddress, "xmlId", id)
     }
 
     result[itemName] = importFormElementFromXMLToYAML({
@@ -102,7 +116,7 @@ export const importChildItemsFromXMLToYAML: ImportFromXMLToYAMLFunction = ({ con
       traversal: {
         ...traversal,
         yamlPath: [...traversal.yamlPath, itemName],
-        ...(itemXmlNodes?.[index] === undefined ? {} : { xmlNodes: [itemXmlNodes[index]!] }),
+        ...(itemXmlNode === undefined ? {} : { xmlNodes: [itemXmlNode] }),
       },
     })
   }

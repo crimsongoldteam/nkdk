@@ -10,7 +10,8 @@ import type {
 } from "@nkdk/runtime"
 
 const DCS_SCHEMA_PREFIX = "dcssch"
-const DCS_SCHEMA_ATTRIBUTE = `_xmlns:${DCS_SCHEMA_PREFIX}` as const
+const DCS_SCHEMA_XML_ATTRIBUTE = `xmlns:${DCS_SCHEMA_PREFIX}` as const
+const DCS_SCHEMA_ATTRIBUTE = `_${DCS_SCHEMA_XML_ATTRIBUTE}` as const
 const DCS_SCHEMA_NAMESPACE = "http://v8.1c.ru/8.1/data-composition-system/schema"
 const NAMESPACE_PRESENT = "present"
 const NAMESPACE_ABSENT = "absent"
@@ -41,9 +42,11 @@ export function recordClientApplicationFormNamespaces(
 ): void {
   const index = getConfigurationIndexCollectionContext(context)
   if (index === undefined) return
-  const value = isXmlElementNode(xml) ? xml.compatibilityValue : xml
-  const root = objectRecordOrUndefined(value)
-  const state = root !== undefined && Object.prototype.hasOwnProperty.call(root, DCS_SCHEMA_ATTRIBUTE)
+  const root = isXmlElementNode(xml) ? undefined : objectRecordOrUndefined(xml)
+  const present = isXmlElementNode(xml)
+    ? xml.attributes.some(attribute => attribute.name === DCS_SCHEMA_XML_ATTRIBUTE)
+    : root !== undefined && Object.hasOwn(root, DCS_SCHEMA_ATTRIBUTE)
+  const state = present
     ? NAMESPACE_PRESENT
     : NAMESPACE_ABSENT
   index.collector.setXmlValue(namespaceAddress(index.logicalAddress), state)

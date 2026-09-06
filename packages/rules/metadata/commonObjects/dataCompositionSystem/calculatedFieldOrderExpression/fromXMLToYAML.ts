@@ -8,13 +8,13 @@ export const importCalculatedFieldOrderExpressionFromXMLToYAML: ImportFromXMLToY
   xml,
   traversal,
 }) => {
-  const source = asRecord(xml)?.["dcssch:orderExpression"] ?? xml
   const itemXmlNodes = traversal.xmlNodes?.filter(
     (node) => node.name === "dcssch:orderExpression",
   )
+  const source = itemXmlNodes === undefined ? asRecord(xml)?.["dcssch:orderExpression"] ?? xml : undefined
   const items = itemXmlNodes === undefined
     ? Array.isArray(source) ? source : source === undefined ? [] : [source]
-    : itemXmlNodes.map(({ compatibilityValue }) => compatibilityValue)
+    : itemXmlNodes
   const result = items.flatMap((item, index) => {
     const itemXmlNode = itemXmlNodes?.[index]
     const { xmlNodes: _parentXmlNodes, ...itemTraversal } = traversal

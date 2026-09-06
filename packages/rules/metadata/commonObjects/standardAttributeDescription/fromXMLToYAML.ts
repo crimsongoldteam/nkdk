@@ -3,7 +3,7 @@ import type { ImportFromXMLToYAMLFunction } from "@nkdk/runtime/rule-kit"
 import type { StandardAttributeDescriptionsPropertyRule } from "@nkdk/runtime/rule-kit"
 import { StandardAttributeDescriptionRules } from "./rules"
 import { StandartAttributeNameToYAML, type StandartAttributeName } from "./standartAttributeNames"
-import { taggedYAMLScalar } from "@nkdk/runtime"
+import { isXmlElementNode, taggedYAMLScalar, xmlAttributeValue, xmlElementChildren, type XmlElementNode } from "@nkdk/runtime"
 
 export const importStandardAttributeDescriptionsFromXMLToYAML: ImportFromXMLToYAMLFunction = (params) => {
   const rule = params.rule as StandardAttributeDescriptionsPropertyRule
@@ -28,10 +28,7 @@ export const importStandardAttributeDescriptionsFromXMLToYAML: ImportFromXMLToYA
       : undefined
   }
   if (canonicalNames.size === 0) return yaml
-  const structuralXML = params.traversal.xmlNodes?.length === 1
-    ? params.traversal.xmlNodes[0]!.compatibilityValue
-    : params.xml
-  const preservedEmptyNames = collectPreservedEmptyNames(structuralXML)
+  const preservedEmptyNames = collectPreservedEmptyNames(params.xml, params.traversal.xmlNodes)
   for (const name of canonicalNames) {
     if (preservedEmptyNames.has(name)) continue
     const yamlKey = names[name] ?? StandartAttributeNameToYAML[name as StandartAttributeName] ?? name
@@ -43,15 +40,16 @@ export const importStandardAttributeDescriptionsFromXMLToYAML: ImportFromXMLToYA
     : yaml
 }
 
-function collectPreservedEmptyNames(xml: unknown): Set<string> {
-  const source = asRecord(xml)?.["xr:StandardAttribute"] ?? xml
-  const items = Array.isArray(source) ? source : source === undefined ? [] : [source]
+function collectPreservedEmptyNames(xml: unknown, nodes?: readonly XmlElementNode[]): Set<string> {
+  const source = nodes === undefined ? asRecord(xml)?.["xr:StandardAttribute"] ?? xml : undefined
+  const items = nodes?.flatMap(node => node.name === "xr:StandardAttribute" ? [node] : xmlElementChildren(node, "xr:StandardAttribute"))
+    ?? (Array.isArray(source) ? source : source === undefined ? [] : [source])
   const names = new Set<string>()
   for (const item of items) {
-    const record = asRecord(item)
-    if (record === undefined || typeof record._name !== "string") continue
-    if (record._name !== "RecordType" && !/^ExtDimension(Type)?\d+$/.test(record._name)) continue
-    names.add(record._name)
+    const name = isXmlElementNode(item) ? xmlAttributeValue(item, "name") : asRecord(item)?._name
+    if (typeof name !== "string") continue
+    if (name !== "RecordType" && !/^ExtDimension(Type)?\d+$/.test(name)) continue
+    names.add(name)
   }
   return names
 }

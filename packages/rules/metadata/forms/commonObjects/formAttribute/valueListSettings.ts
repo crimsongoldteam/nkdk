@@ -1,7 +1,15 @@
 import { preparedXMLDependencyFacts } from "@nkdk/runtime/rule-kit"
+import { isXmlElementNode, objectRecordOrUndefined, xmlElementChildren, xmlTextValue } from "@nkdk/runtime"
 
-export function hasSoleValueListType(xml: Record<string, unknown>): boolean {
-  const type = xml.Type
+export function hasSoleValueListType(xml: unknown): boolean {
+  if (isXmlElementNode(xml)) {
+    const types = xmlElementChildren(xml, "Type")
+    if (types.length !== 1) return false
+    const values = xmlElementChildren(types[0]!, "v8:Type")
+    return values.length === 1 && values[0]!.attributes.length === 0
+      && values[0]!.content.every(node => node.type === "text") && xmlTextValue(values[0]!) === "v8:ValueListType"
+  }
+  const type = objectRecordOrUndefined(xml)?.Type
   if (type === null || typeof type !== "object" || Array.isArray(type)) return false
   const raw = (type as Record<string, unknown>)["v8:Type"]
   const values = Array.isArray(raw) ? raw : raw === undefined ? [] : [raw]

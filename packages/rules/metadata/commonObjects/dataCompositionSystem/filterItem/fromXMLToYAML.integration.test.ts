@@ -6,6 +6,10 @@ import {
   projectXmlAuditRemainder,
   snapshotXmlAnomalyAnnotations,
 } from "@nkdk/runtime"
+import "../../../../tests/metadataExecutionContext"
+import { mockContextFromXML } from "../../../../tests/mockContext"
+import { importFilterItemFromXMLToYAML } from "./fromXMLToYAML"
+import { createLocalIndexesCollector } from "../../../projectDefinition/localIndexes"
 import { PropertyRule } from "../../../ruleRuntime"
 import { testPropertyFromXMLToYAML } from "../../../../tests/directConversion"
 import { testExportPropertyModelThroughXMLToYAML } from "../../../../tests/property/exportPropertyModelThroughXMLToYAML"
@@ -23,6 +27,20 @@ const rule: PropertyRule = {
 }
 
 describe("export FilterItem to YAML", () => {
+  it.each([false, true])("выбирает правило по атрибуту XML без compatibility; оболочка: %s", (wrapped) => {
+    const item = '<dcsset:item xsi:type="dcsset:FilterItemGroup"><dcsset:groupType>AndGroup</dcsset:groupType></dcsset:item>'
+    const root = parseXmlDocumentWithSaxes(wrapped ? `<Filter>${item}</Filter>` : item).roots[0]!
+    Object.defineProperty(root, "compatibilityValue", { get() { throw new Error("Не читать compatibility фильтра") } })
+    if (wrapped) {
+      const child = root.content.find(node => node.type === "element")!
+      Object.defineProperty(child, "compatibilityValue", { get() { throw new Error("Не читать compatibility элемента") } })
+    }
+    expect(importFilterItemFromXMLToYAML({
+      context: mockContextFromXML(), rule, xml: undefined,
+      traversal: { yamlPath: [], rulePath: [], collector: createLocalIndexesCollector(), xmlNodes: [root] },
+    })).toEqual([{ ТипГруппы: "ГруппаИ" }])
+  })
+
   it("привязывает вложенные элементы фильтра к их точным XML-узлам", () => {
     const document = parseXmlDocumentWithSaxes(`
       <Probe>

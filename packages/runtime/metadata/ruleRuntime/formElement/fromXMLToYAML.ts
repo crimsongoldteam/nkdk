@@ -22,11 +22,12 @@ import { CollectableElementTypeToYAML, type CollectableElementType, type Element
 import { currentRuleRegistrySet } from "../ruleRegistryExecutionContext"
 import { arrangeProperties } from "../../../helpers/arrangeProperties"
 import { formElementTreeRule } from "./treeRule"
+import type { XmlElementNode } from "../../../xml/import/document"
 
 export function importFormElementFromXMLToYAML(params: {
   context: ConfigurationContextFromXML
   rule: ElementRule & { itemType: CollectableElementType }
-  xml: ElementXML
+  xml: ElementXML | XmlElementNode
   name: string
   traversal: DirectImportTraversal
 }): Record<string, unknown> {
@@ -54,7 +55,7 @@ export function importFormElementFromXMLToYAML(params: {
 export function importFormElementPropertiesFromXMLToYAML(params: {
   context: ConfigurationContextFromXML
   rule: ElementRule & { itemType: CollectableElementType }
-  xml: ElementXML
+  xml: ElementXML | XmlElementNode
   name: string
   traversal: DirectImportTraversal
   initialYAML?: Record<string, unknown>

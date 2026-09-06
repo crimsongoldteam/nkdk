@@ -3,6 +3,8 @@ import { getTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
 import {
   getConfigurationIndexCollectionContext,
   objectRecordOrUndefined,
+  isXmlElementNode,
+  xmlAttributeValue,
   type XmlElementNode,
   withConfigurationIndexLogicalAddress,
   withConfigurationIndexXmlNodeLogicalAddress,
@@ -21,14 +23,16 @@ export const importStructureItemGroupFromXMLToYAML: ImportFromXMLToYAMLFunction 
   if (importGroupItems === undefined) return undefined
 
   const result: unknown[] = []
-  const visit = (value: unknown, xmlNode?: XmlElementNode): void => {
-    const group = objectRecordOrUndefined(xmlNode?.compatibilityValue ?? value)
-    if (group === undefined || group["_xsi:type"] !== "dcsset:StructureItemGroup") return
+  const visit = (value: unknown): void => {
+    const xmlNode = isXmlElementNode(value) ? value : undefined
+    const group = xmlNode === undefined ? objectRecordOrUndefined(value) : undefined
+    const type = xmlNode === undefined ? group?.["_xsi:type"] : xmlAttributeValue(xmlNode, "xsi:type")
+    if (type !== "dcsset:StructureItemGroup") return
     const flatIndex = result.length
     const yamlPath = [...traversal.yamlPath, flatIndex]
     const nodeContext = contextForStructureNode(context, flatIndex)
     const groupItemsContext = contextForYamlProperty(nodeContext, "ПоляГруппировки")
-    const groupItems = objectRecordOrUndefined(group["dcsset:groupItems"])?.["dcsset:item"]
+    const groupItems = objectRecordOrUndefined(group?.["dcsset:groupItems"])?.["dcsset:item"]
     const groupItemsNode = xmlNode === undefined
       ? undefined
       : xmlElementChildren(xmlNode, "dcsset:groupItems")[0]
@@ -45,7 +49,7 @@ export const importStructureItemGroupFromXMLToYAML: ImportFromXMLToYAMLFunction 
     const yaml = importGroupItems({
       context: groupItemsContext,
       rule: { type: "StructureItemGroupCollection" },
-      xml: groupItemNodes?.map(({ compatibilityValue }) => compatibilityValue) ?? groupItems,
+      xml: groupItemNodes ?? groupItems,
       name,
       traversal: {
         ...groupItemsTraversal,
@@ -57,10 +61,9 @@ export const importStructureItemGroupFromXMLToYAML: ImportFromXMLToYAMLFunction 
     const nestedGroupNodes = xmlNode === undefined
       ? undefined
       : xmlElementChildren(xmlNode, "dcsset:item")
-    const nestedGroups = nestedGroupNodes?.map(({ compatibilityValue }) => compatibilityValue)
-      ?? asArray(group["dcsset:item"])
-    nestedGroups.forEach((nestedGroup, index) => {
-      const nestedGroupNode = nestedGroupNodes?.[index]
+    const nestedGroups = nestedGroupNodes ?? asArray(group?.["dcsset:item"])
+    nestedGroups.forEach((nestedGroup) => {
+      const nestedGroupNode = isXmlElementNode(nestedGroup) ? nestedGroup : undefined
       if (nestedGroupNode !== undefined) {
         traversal.audit?.claim(nestedGroupNode, {
           itemType: "StructureItemGroup",
@@ -70,12 +73,12 @@ export const importStructureItemGroupFromXMLToYAML: ImportFromXMLToYAMLFunction 
           rulePath: [...traversal.rulePath, { propertyKey: "item" }],
         })
       }
-      visit(nestedGroup, nestedGroupNode)
+      visit(nestedGroup)
     })
   }
   const rootNodes = traversal.xmlNodes
-  const roots = rootNodes?.map(({ compatibilityValue }) => compatibilityValue) ?? asArray(xml)
-  roots.forEach((root, index) => visit(root, rootNodes?.[index]))
+  const roots = rootNodes ?? asArray(xml)
+  roots.forEach(visit)
   return result.length === 0 ? undefined : result
 }
 
