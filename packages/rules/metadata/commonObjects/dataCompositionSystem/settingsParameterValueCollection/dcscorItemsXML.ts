@@ -40,6 +40,7 @@ export const importSettingsParameterValueDcscorItemsFromXML = (params: {
 
   const items = normalizeDcscorItemsInput(xml)
   const parameters: Record<string, SettingsParameterValue> = {}
+  let parameterCount = 0
 
   for (const itemXml of items) {
     const parameterNode = isXmlElementNode(itemXml) ? xmlElementChildren(itemXml, "dcscor:parameter")[0] : undefined
@@ -55,7 +56,7 @@ export const importSettingsParameterValueDcscorItemsFromXML = (params: {
     }
 
     const itemContext = withConfigurationIndexYamlCollectionItemContext(context, {
-      index: Object.keys(parameters).length,
+      index: parameterCount,
       yamlKey: parameterName,
     })
     const nilValue = isXmlElementNode(itemXml) ? xmlElementChildren(itemXml, "dcscor:value").some(isXsiNil)
@@ -70,11 +71,13 @@ export const importSettingsParameterValueDcscorItemsFromXML = (params: {
     }) as SettingsParameterValue | undefined
 
     if (value !== undefined) {
+      const alreadyPresent = Object.prototype.hasOwnProperty.call(parameters, parameterName)
       parameters[parameterName] = nilValue ? { ...value, xmlNil: true } : value
+      if (!alreadyPresent && Object.prototype.hasOwnProperty.call(parameters, parameterName)) parameterCount++
     }
   }
 
-  return Object.keys(parameters).length > 0 ? parameters : undefined
+  return parameterCount > 0 ? parameters : undefined
 }
 
 export const exportSettingsParameterValueDcscorItemsToXML = (params: {
