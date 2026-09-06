@@ -82,10 +82,13 @@ const compileXMLImportPlan = <Entry extends XMLImportPlanEntry = XMLImportPlanEn
   tags?: readonly string[]
   includeAllTags: boolean
   entries?: readonly Entry[]
+  missingXMLProperties?: readonly Entry[]
 }): CompiledXMLImportPlan<Entry> => {
   const root = createNode()
   const defaults: Entry[] = []
   const entriesByPropertyKey = new Map<string, Entry>()
+  const missingKeys = params.missingXMLProperties === undefined
+    ? undefined : new Set(params.missingXMLProperties.map(({ propertyKey }) => propertyKey))
 
   const sourceEntries = params.entries ?? Object.entries(params.rule.properties).map(
     ([propertyKey, propertyRule]) => ({
@@ -105,10 +108,7 @@ const compileXMLImportPlan = <Entry extends XMLImportPlanEntry = XMLImportPlanEn
 
     if (propertyRule.filePath !== undefined) continue
 
-    const needsAbsentXMLImport =
-      Object.prototype.hasOwnProperty.call(propertyRule, "defaultValue") ||
-      Object.prototype.hasOwnProperty.call(propertyRule, "implicitValueXML")
-    if (needsAbsentXMLImport && shouldProcessProperty({ rule: propertyRule, operation: "importFromXML" })) {
+    if (missingKeys?.has(propertyKey) ?? needsAbsentXMLImport(propertyRule)) {
       defaults.push(entry)
     }
 
@@ -134,9 +134,16 @@ const compileXMLImportPlan = <Entry extends XMLImportPlanEntry = XMLImportPlanEn
 export const compileXMLImportPlanFromEntries = <Entry extends XMLImportPlanEntry>(params: {
   rule: MetadataItemRule
   entries: readonly Entry[]
+  missingXMLProperties?: readonly Entry[]
   tags?: readonly string[]
   includeAllTags: boolean
 }): XMLImportPlan<Entry> => compileXMLImportPlan(params)
+
+export function needsAbsentXMLImport(rule: PropertyRule): boolean {
+  return !rule.runtimeOnly && !rule.syncExternalOnly && rule.filePath === undefined
+    && (Object.hasOwn(rule, "defaultValue") || Object.hasOwn(rule, "implicitValueXML"))
+    && shouldProcessProperty({ rule, operation: "importFromXML" })
+}
 
 export const getXMLImportPlan = (params: {
   rule: MetadataItemRule

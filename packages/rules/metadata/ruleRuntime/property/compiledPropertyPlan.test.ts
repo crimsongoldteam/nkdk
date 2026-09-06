@@ -23,6 +23,27 @@ const registriesWithImport = (handler: ImportFromXMLFunction) =>
   }))
 
 describe("CompiledPropertyPlan", () => {
+  it("готовит действия отсутствующего XML один раз и фильтрует их по источнику", () => {
+    const rule: MetadataItemRule = {
+      itemType: "Owner",
+      properties: {
+        ignored: { type: "Sample", yaml: "Обычное" },
+        defaulted: { type: "Sample", yaml: "Дефолт", defaultValue: false, tag: "body" },
+        implicit: { type: "Sample", yaml: "Неявное", implicitValueXML: "", tag: "metadata" },
+        disabled: { type: "Sample", yaml: "Отключено", defaultValue: 1, fromXML: false },
+        external: { type: "Sample", yaml: "Файл", defaultValue: 1, filePath: "External.xml" },
+      },
+    }
+    const execution = createPropertyRuleExecutor(createPropertyRuleRegistrySet(emptyMetadataRules))
+    const plan = execution.propertyPlan(rule)
+    expect(plan.missingXMLProperties.map(({ propertyKey }) => propertyKey)).toEqual(["defaulted", "implicit"])
+    expect(execution.propertyPlan(rule).missingXMLProperties).toBe(plan.missingXMLProperties)
+    expect(plan.xmlImportView({ tags: ["body"], includeAllTags: false }).defaults.map(({ propertyKey }) => propertyKey))
+      .toEqual(["defaulted"])
+    expect(plan.xmlImportView({ tags: ["metadata"], includeAllTags: false }).defaults.map(({ propertyKey }) => propertyKey))
+      .toEqual(["implicit"])
+  })
+
   it("готовит независимый YAML-порядок и переиспользует его между экземплярами", () => {
     const rule: MetadataItemRule = {
       itemType: "Owner",
@@ -116,6 +137,7 @@ describe("CompiledPropertyPlan", () => {
       .toBe(first.propertiesByKey.get("value"))
     expect(first.propertiesByKey.get("value")?.operations.importFromXML).toBe(firstImport)
     expect(Object.keys(first).sort()).toEqual([
+      "missingXMLProperties",
       "properties",
       "propertiesByKey",
       "registryRevision",

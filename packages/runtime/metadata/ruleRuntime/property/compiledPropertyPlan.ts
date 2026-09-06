@@ -5,6 +5,7 @@ import type { TypeRulesOperations } from "./ruleContracts"
 import type { MetadataItemRule, PropertyRule } from "./types"
 import {
   compileXMLImportPlanFromEntries,
+  needsAbsentXMLImport,
   type XMLImportPlan,
   type XMLImportPlanEntry,
 } from "./xmlImportPlan"
@@ -69,6 +70,7 @@ export interface CompiledPropertyPlan {
   readonly rule: MetadataItemRule
   readonly registryRevision: number
   readonly properties: readonly CompiledProperty[]
+  readonly missingXMLProperties: readonly CompiledProperty[]
   readonly propertiesByKey: ReadonlyMap<string, CompiledProperty>
   readonly yamlToXMLOrder: readonly CompiledProperty[]
   readonly yamlOrder: readonly string[]
@@ -99,6 +101,7 @@ export function compilePropertyPlan(params: CompilePropertyPlanParams): Compiled
     ),
   )
   const propertiesByKey = new Map(properties.map((property) => [property.propertyKey, property]))
+  const missingXMLProperties = Object.freeze(properties.filter(({ propertyRule }) => needsAbsentXMLImport(propertyRule)))
   const yamlToXMLOrder = Object.freeze(
     getOrderedKeysToXML({ rule: params.rule })
       .map((propertyKey) => propertiesByKey.get(propertyKey))
@@ -110,6 +113,7 @@ export function compilePropertyPlan(params: CompilePropertyPlanParams): Compiled
     rule: params.rule,
     registryRevision: params.registryRevision,
     properties,
+    missingXMLProperties,
     propertiesByKey,
     yamlToXMLOrder,
     yamlOrder: compileYamlPropertyOrder(properties.flatMap(property =>
@@ -124,6 +128,7 @@ export function compilePropertyPlan(params: CompilePropertyPlanParams): Compiled
       const view = compileXMLImportPlanFromEntries({
         rule: params.rule,
         entries: properties,
+        missingXMLProperties,
         ...viewParams,
       })
       xmlViews.set(key, view)
