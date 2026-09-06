@@ -1,5 +1,4 @@
 import { Type } from "typebox"
-import { importBooleanFromXML } from "../boolean/fromXML"
 import { importBooleanFromYAML } from "../boolean/fromYAML"
 import { exportBooleanToYAML } from "../boolean/toYAML"
 import { buildMetadataTargetSchema, METADATA_NAME_PATTERN } from "../metadataTargets"
@@ -7,6 +6,8 @@ import { importMetadataItemLinkFromYAML } from "../metadataRef/fromYAML"
 import { exportMetadataItemLinkToYAML } from "../metadataRef/toYAML"
 import { ExportToXMLFunctionNew, defineMetadataItemRule, definePropertyTypeRule, type PropertyRule } from "../../ruleRuntime"
 import type { ConfigurationContext, ConfigurationContextFromXML } from "@nkdk/runtime"
+import { isXmlElementNode, xmlElementChildren, xmlTextValue, type XmlElementNode } from "@nkdk/runtime"
+import { readRoleVisibilityXML } from "../roleVisibilityXML"
 import { HomePageWorkAreaRules } from "./rules"
 import {
   HomePageWorkAreaColumnItem,
@@ -103,7 +104,7 @@ const defineReferenceRawXML = (params: {
   target: object
   xml: unknown
 }): void => {
-  if (!params.context.fromXML.forReference || params.xml === undefined) return
+  if (!params.context.fromXML.forReference || params.xml === undefined || isXmlElementNode(params.xml)) return
   Object.defineProperty(params.target, XML_REFERENCE_RAW, {
     value: params.xml,
     enumerable: false,
@@ -129,7 +130,7 @@ const importEnumFromXML = (
   _context: ConfigurationContextFromXML,
   _rule: PropertyRule,
   xml: unknown
-): string | undefined => (typeof xml === "string" ? xml : undefined)
+): string | undefined => (isXmlElementNode(xml) ? xmlTextValue(xml) : typeof xml === "string" ? xml : undefined)
 
 const exportEnumToXML: ExportToXMLFunctionNew = ({ value }) => (typeof value === "string" ? value : undefined)
 
@@ -159,24 +160,11 @@ const exportCommandInterfaceDisplayToYAML = (
 
 const importVisibilityFromXML = (
   context: ConfigurationContextFromXML,
-  xml: HomePageWorkAreaVisibilityXML | undefined
+  xml: HomePageWorkAreaVisibilityXML | XmlElementNode | undefined
 ): HomePageWorkAreaVisibility | undefined => {
-  if (xml === undefined) return undefined
-
-  const result: HomePageWorkAreaVisibility = {}
-  const common = importBooleanFromXML(context, undefined, xml["xr:Common"])
-  if (common !== undefined) result.common = common
-
-  const roles: Record<string, boolean> = {}
-  for (const role of toArray(xml["xr:Value"])) {
-    const roleName = getXMLName(role)
-    const value = importBooleanFromXML(context, undefined, role["#text"])
-    if (roleName !== undefined && value !== undefined) roles[roleName] = value
-  }
-  if (Object.keys(roles).length > 0) result.roles = roles
-
-  defineReferenceRawXML({ context, target: result, xml })
-  return Object.keys(result).length > 0 ? result : undefined
+  const result = readRoleVisibilityXML(xml)
+  if (result !== undefined) defineReferenceRawXML({ context, target: result, xml })
+  return result
 }
 
 const exportVisibilityToXML = (params: {
@@ -268,16 +256,19 @@ const findReferenceItemByForm = (
 const importColumnItemsFromXML = (
   context: ConfigurationContextFromXML,
   _rule: PropertyRule,
-  xml: HomePageWorkAreaColumnXML | undefined
+  xml: HomePageWorkAreaColumnXML | XmlElementNode | undefined
 ): HomePageWorkAreaColumnItems | undefined => {
   if (xml === undefined) return undefined
 
-  const result = toArray(xml.Item)
+  const result = (isXmlElementNode(xml) ? xmlElementChildren(xml, "Item") : toArray(xml.Item))
     .map((item) => {
       const columnItem: HomePageWorkAreaColumnItem = {}
-      if (item.Form !== undefined) columnItem.form = item.Form
-      if (item.Height !== undefined) columnItem.height = Number(item.Height)
-      const visibility = importVisibilityFromXML(context, item.Visibility)
+      const form = isXmlElementNode(item) ? childText(item, "Form") : item.Form
+      const height = isXmlElementNode(item) ? childText(item, "Height") : item.Height
+      if (form !== undefined) columnItem.form = form
+      if (height !== undefined) columnItem.height = Number(height)
+      const visibility = importVisibilityFromXML(context,
+        isXmlElementNode(item) ? xmlElementChildren(item, "Visibility")[0] : item.Visibility)
       if (visibility !== undefined) columnItem.visibility = visibility
       defineReferenceRawXML({ context, target: columnItem, xml: item })
       return Object.keys(columnItem).length > 0 ? columnItem : undefined
@@ -286,6 +277,11 @@ const importColumnItemsFromXML = (
 
   defineReferenceRawXML({ context, target: result, xml })
   return result
+}
+
+function childText(node: XmlElementNode, name: string): string | undefined {
+  const child = xmlElementChildren(node, name)[0]
+  return child === undefined ? undefined : xmlTextValue(child)
 }
 
 const exportColumnItemsToXML: ExportToXMLFunctionNew = ({ context, value, referenceMetadata }) => {

@@ -57,7 +57,7 @@ export function importMetadataItemFromXMLToYAML(params: {
     ? objectRecordOrUndefined(xmlRoot === undefined ? root : root?.[xmlRoot.container])
     : sourceNode.attributes.length > 0 || sourceNode.content.some(node => node.type !== "text")
       ? sourceNode
-      : objectRecordOrUndefined(sourceNode.compatibilityValue)
+      : undefined
   if (source === undefined) return undefined
   const inline = findInlinePropertyCached(params.rule)
   claimKnownXsiType({

@@ -6,6 +6,19 @@ import { mockContextFromXML } from "../../../tests/mockContext"
 import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"
 
 describe("compiled structural atomic import", () => {
+  it("передаёт структурный XML неатомарным преобразователям", () => {
+    const context = mockContextFromXML()
+    const rule: MetadataItemRule = { itemType: "StructuredValueProbe", properties: {
+      date: { type: "dateTime", xml: "Date", yaml: "Дата" },
+    } }
+    const yaml = importPropertiesFromXMLToYAML({
+      context, rule, execution: createRuleRegistrySet(metadataRules).execution,
+      sources: [{ context, xml: parseStructuralXMLWithoutCompatibility('<Root><Date xsi:type="xs:dateTime">2026-09-07T00:00:00</Date></Root>') }],
+      yamlPath: [], rulePath: [], collector: createLocalIndexesCollector(),
+    })
+    expect(yaml).toEqual({ Дата: "07.09.2026" })
+  })
+
   it.each(["false", "<![CDATA[false]]>"])("reads the direct #text property: %s", text => {
     const context = mockContextFromXML()
     const rule: MetadataItemRule = { itemType: "TextPropertyProbe", properties: {

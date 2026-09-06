@@ -8,6 +8,8 @@ import {
   xmlExport,
 } from "@nkdk/runtime"
 import type { ConfigurationIndexChild } from "@nkdk/runtime"
+import type { XmlElementNode } from "@nkdk/runtime"
+import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"
 import { mockContextFromXML } from "../../../tests/mockContext"
 import { getTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { configurationChildObjectsRule } from "./builders"
@@ -17,6 +19,18 @@ import { configurationChildObjectsFromIndex } from "./configurationChildObjects"
 const address = "Конфигурация.Свойство.childObjects"
 
 describe("ConfigurationChildObjects children", () => {
+  it("сохраняет исходный смешанный порядок непосредственно из XML-узлов", () => {
+    const root = parseStructuralXMLWithoutCompatibility("<ChildObjects><Catalog>Услуги</Catalog><Document>Заказ</Document><Catalog>Товары</Catalog></ChildObjects>")
+    expect(collect(root).fragment("Конфигурация.yaml").entities).toEqual([{
+      logicalAddress: address,
+      children: [
+        { xmlName: "Catalog", name: "Услуги" },
+        { xmlName: "Document", name: "Заказ" },
+        { xmlName: "Catalog", name: "Товары" },
+      ],
+    }])
+  })
+
   it("reads every repeated XML kind only once while restoring child order", () => {
     const itemCount = 200
     let itemReads = 0
@@ -90,7 +104,7 @@ describe("ConfigurationChildObjects children", () => {
   })
 })
 
-function collect(xml: ConfigurationChildObjectsXML) {
+function collect(xml: ConfigurationChildObjectsXML | XmlElementNode) {
   const collector = createConfigurationIndexCollector()
   const context = withConfigurationIndexCollector(mockContextFromXML(), collector, address)
   const rule = configurationChildObjectsRule({ xml: "ChildObjects", toYAML: false, fromYAML: false, toXML: false })

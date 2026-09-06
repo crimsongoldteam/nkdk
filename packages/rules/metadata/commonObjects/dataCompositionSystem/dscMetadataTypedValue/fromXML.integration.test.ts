@@ -10,7 +10,9 @@ import { PropertyRule } from "../../../ruleRuntime"
 import { testPropertyFromXMLToYAML } from "../../../../tests/directConversion"
 import { testImportPropertyFromXML } from "../../../../tests/property/importPropertyFromXML"
 import { dcsMetadataTypedValueFixtures, emptyValueListTypedValue } from "./__fixtures__/data"
-import { metadataPropertyRule001 } from "./fromXML"
+import { importDcsMetadataTypedValueFromXML, metadataPropertyRule001 } from "./fromXML"
+import { parseStructuralXMLWithoutCompatibility } from "../../../../tests/structuralXML"
+import { mockContextFromXML } from "../../../../tests/mockContext"
 
 const rule: PropertyRule = {
   type: "DcsMetadataTypedValue" as any,
@@ -18,6 +20,27 @@ const rule: PropertyRule = {
 }
 
 describe("import DcsMetadataTypedValue from XML", () => {
+  it.each([
+    '<value xsi:nil="true"/>',
+    '<value xmlns:t="http://v8.1c.ru/8.2/data/types" xsi:type="v8:Type">t:Undefined</value>',
+  ])("не сохраняет XML отсутствующего значения: %s", xml => {
+    expect(importDcsMetadataTypedValueFromXML(mockContextFromXML(), { type: "DcsMetadataTypedValue" },
+      parseStructuralXMLWithoutCompatibility(xml))).toBeUndefined()
+  })
+
+  it("проверяет структурный пустой список значений", () => {
+    const xml = '<value xsi:type="v8:ValueListType"><v8:valueType/><v8:lastId xsi:type="xs:decimal">-1</v8:lastId></value>'
+    expect(importDcsMetadataTypedValueFromXML(mockContextFromXML(), { type: "DcsMetadataTypedValue" },
+      parseStructuralXMLWithoutCompatibility(xml))).toEqual(emptyValueListTypedValue)
+    expect(() => importDcsMetadataTypedValueFromXML(mockContextFromXML(), { type: "DcsMetadataTypedValue" },
+      parseStructuralXMLWithoutCompatibility(xml.replace('</value>', '<v8:item/></value>')))).toThrow("non-empty")
+  })
+
+  it.each(dcsMetadataTypedValueFixtures)("читает структурное значение $name", fixture => {
+    expect(importDcsMetadataTypedValueFromXML(mockContextFromXML(), { type: "DcsMetadataTypedValue" },
+      parseStructuralXMLWithoutCompatibility(fixture.XML))).toEqual(fixture.model)
+  })
+
   it("объявляет повторные XML-узлы одним значением", () => {
     expect(metadataPropertyRule001.handler.repeatedXMLNodes).toBe(true)
   })

@@ -4,6 +4,10 @@ import {
   ConfigurationContext,
   ConfigurationContextFromXML,
   ConfigurationContextWithExportToXML,
+  isXmlElementNode,
+  xmlAttributeValue,
+  xmlElementChildren,
+  type XmlElementNode,
 } from "@nkdk/runtime"
 import { importBooleanFromXML } from "../boolean/fromXML"
 import { importBooleanFromYAML } from "../boolean/fromYAML"
@@ -22,18 +26,18 @@ import "./types"
 const importAggregateDimensionsFromXML = (
   context: ConfigurationContextFromXML,
   _rule: PropertyRule,
-  xml: AccumulationRegisterAggregateDimensionsXML | undefined
+  xml: AccumulationRegisterAggregateDimensionsXML | XmlElementNode | undefined
 ): AccumulationRegisterAggregateDimensions | undefined => {
-  const dimensions = xml?.Dimension
+  const dimensions = isXmlElementNode(xml) ? xmlElementChildren(xml, "Dimension") : xml?.Dimension
   if (dimensions === undefined) return undefined
 
   const result: AccumulationRegisterAggregateDimensions = {}
   const dimensionItems = Array.isArray(dimensions) ? dimensions : [dimensions]
 
   for (const item of dimensionItems) {
-    const name = getDimensionNameFromRef(item._ref)
+    const name = getDimensionNameFromRef(isXmlElementNode(item) ? xmlAttributeValue(item, "ref") : item._ref)
     if (name === undefined) continue
-    const value = importBooleanFromXML(context, _rule, item["#text"])
+    const value = importBooleanFromXML(context, _rule, isXmlElementNode(item) ? item : item["#text"])
     if (value !== undefined) result[name] = value
   }
 

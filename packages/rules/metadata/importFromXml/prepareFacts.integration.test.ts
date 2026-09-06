@@ -1,6 +1,7 @@
 import {
   createConfigurationIndexCollector,
   isExplicitYAMLString,
+  isXmlElementNode,
   parseMetadataYaml,
   parseXmlDocumentWithSaxes,
   serializeYAMLDocument,
@@ -10,9 +11,7 @@ import fs from "node:fs"
 import { join } from "node:path"
 import { describe, expect, it, vi } from "vitest"
 import "../../tests/metadataExecutionContext"
-import { mockXmlImportContext, mockContextToXML } from "../../tests/mockContext"
-import { createRuleRegistrySet } from "@nkdk/runtime/rule-kit"
-import { metadataRules } from "../composition/metadataRules"
+import { mockXmlImportContext } from "../../tests/mockContext"
 import { MetadataCatalogRules } from "../appliedObjects/metadataCatalog/rules"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
 import { classifyMetadataProjectPath } from "../resourceTopology/core/projectProjection"
@@ -42,6 +41,7 @@ import {
   extractImportValidationContributionFromFacts,
 } from "./validationContribution"
 import { withoutUnsupportedConfigurationExtensionPropertyStates } from "./configurationExtensionFixtureSupport"
+import { prepareProofYaml } from "../../tests/prepareProofYaml"
 
 const configurationFixturesDir = join(import.meta.dirname, "../appliedObjects/configuration/__fixtures__")
 const metadataPath = join(configurationFixturesDir, "syncConfiguration/xml/Catalogs/Контрагенты.xml")
@@ -52,6 +52,29 @@ const e2eAllExtensionDir = join(import.meta.dirname, "../../../../e2e/fixtures/x
 const e2eConfigurationDir = join(import.meta.dirname, "../../../../e2e/fixtures/xml/cf")
 
 describe("prepareImportFacts", () => {
+  it("не сохраняет XML-узлы в фактах полной формы", async () => {
+    const formRoot = join(e2eConfigurationDir, "BusinessProcesses/БизнесПроцессВсеСвойства/Forms/ФормаВыбора")
+    const assignment = assignmentForProjectPath({
+      id: "full-form-values", targetProjectPath: "БизнесПроцесс/БизнесПроцессВсеСвойства/Формы/ФормаВыбора/Форма.yaml",
+      itemType: "ClientApplicationForm", itemName: "ФормаВыбора", logicalAddress: "БизнесПроцесс.БизнесПроцессВсеСвойства.Форма.ФормаВыбора",
+      owner: { itemType: "MetadataBusinessProcess", name: "БизнесПроцессВсеСвойства", logicalAddress: "БизнесПроцесс.БизнесПроцессВсеСвойства" },
+      xmlFiles: [{ role: "metadata", sourcePath: `${formRoot}.xml` }, { role: "body", sourcePath: join(formRoot, "Ext/Form.xml") }],
+    })
+    const inputs = parseAssignmentInputs(assignment, true)
+    const context = mockXmlImportContext()
+    const facts = await prepareImportFacts({ assignment, inputs, context, collector: createConfigurationIndexCollector() })
+    const nodes: string[] = []
+    const inspect = (value: unknown): void => {
+      if (isXmlElementNode(value)) { nodes.push(value.path); return }
+      if (value !== null && typeof value === "object") for (const child of Object.values(value)) inspect(child)
+    }
+    inspect(facts.semanticFacts)
+    expect(nodes).toEqual([])
+    const prepared = await prepareProofYaml(assignment, inputs, context, facts)
+    inspect(prepared.yaml)
+    expect(nodes).toEqual([])
+  })
+
   it.each([
     ["MetadataExchangePlan", "ПланОбмена", "ExchangePlans", "ПланОбменаВсеСвойства", "Content.xml", true],
     ["MetadataChartOfAccounts", "ПланСчетов", "ChartsOfAccounts", "ПланСчетовВсеСвойства", "Predefined.xml", false],
@@ -68,13 +91,8 @@ describe("prepareImportFacts", () => {
     })
     const inputs = parseAssignmentInputs(assignment, true)
     const context = extension ? extensionContext() : mockXmlImportContext()
-    const execution = createRuleRegistrySet(metadataRules).execution
     const facts = await prepareImportFacts({ assignment, inputs, context, collector: createConfigurationIndexCollector() })
-    const result = await prepareImportYamlFromDocuments({
-      assignment, inputs, context, collector: createConfigurationIndexCollector(),
-      dependencies: prepareImportDependencies(facts.dependencies, {}, execution),
-      localRoundTrip: { execution, context: { ...mockContextToXML(), importFromYAML: context.importFromYAML }, decisions: [] },
-    })
+    const result = await prepareProofYaml(assignment, inputs, context, facts)
     if (result.yaml === null || typeof result.yaml !== "object") throw new Error("Ожидался YAML объекта")
     const externalKey = extension ? "Состав" : itemType === "MetadataChartOfAccounts" ? "Предопределенные" : "Агрегаты"
     const external = Object.entries(result.yaml).find(([key]) => key === externalKey)?.[1]

@@ -13,7 +13,7 @@ withConfigurationIndexLogicalAddress
 } from "@nkdk/runtime"
 import { createRuleRegistrySet } from "@nkdk/runtime/rule-kit"
 import { createCompiledRuleExecution, createAnnotatedLocalXmlBodyConsumer, createAnnotatedLocalXmlBodyConsumers, createLocalXmlBodyConsumer, importMetadataItemFromXMLToYAML, importMetadataItemCollectionFromXMLToYAML } from "@nkdk/runtime/rule-kit"
-import { isXmlElementNode, xmlTextValue } from "@nkdk/runtime"
+import { isXmlElementNode, xmlTextValue, xmlElementChildren } from "@nkdk/runtime"
 import { describe,expect,it,vi } from "vitest"
 import { mockContextFromXML, mockContextToXML } from "../../../tests/mockContext"
 import {
@@ -253,7 +253,8 @@ describe("importPropertiesFromXMLToYAML", () => {
 
   it("проверяет xmlOnly-свойство по компактному факту первого прохода", () => {
     const rules = createRuleRegistrySet(metadataRules)
-    rules.property.registerTypeRule("TestComputedObject" as never, "importFromXML", ((_context: unknown, _rule: unknown, value: { Item: string }) => value.Item) as never)
+    rules.property.registerTypeRule("TestComputedObject" as never, "importFromXML", ((_context: unknown, _rule: unknown, value: { Item: string } | XmlElementNode) =>
+      isXmlElementNode(value) ? xmlTextValue(xmlElementChildren(value, "Item")[0]!) : value.Item) as never)
     rules.property.registerTypeRule("TestComputedObject" as never, "exportToXML", ((_context: unknown, _rule: unknown, value: string) => ({ Item: value, Type: "Computed" })) as never)
     const rule: MetadataItemRule = { itemType: "Catalog", properties: {
       hidden: { type: "string", xml: "Hidden", yaml: "Скрытое", xmlOnly: true },

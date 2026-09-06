@@ -1,4 +1,6 @@
 import { metadataPropertyRule000 as rule0 } from "../appliedObjects/configuration/allowedIncomingShareRequestTypes"
+import { metadataPropertyRule000 as dataPathFromXML } from "../commonObjects/metadataPath/fromXML"
+import { metadataPropertyRule000 as commandNameFromXML } from "../forms/commonObjects/commandName/fromXML"
 import { metadataPropertyRule001 as rule1 } from "../appliedObjects/configuration/allowedIncomingShareRequestTypes"
 import { metadataPropertyRule002 as rule2 } from "../appliedObjects/configuration/allowedIncomingShareRequestTypes"
 import { metadataPropertyRule003 as rule3 } from "../appliedObjects/configuration/allowedIncomingShareRequestTypes"
@@ -840,4 +842,6 @@ export const staticPropertyTypes = propertyTypesFromContributions([
   rule428,
   rule429,
   rule430,
+  dataPathFromXML,
+  commandNameFromXML,
 ])

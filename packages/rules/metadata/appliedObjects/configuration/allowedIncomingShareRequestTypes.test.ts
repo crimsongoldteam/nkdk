@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest"
 import { getTypeRule } from "../../ruleRuntime"
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { mockContext } from "../../../tests/mockContext"
+import { xmlExport } from "@nkdk/runtime"
+import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"
 import {
   exportAllowedIncomingShareRequestTypesToJSONSchema,
   exportAllowedIncomingShareRequestTypesToXML,
@@ -72,6 +74,11 @@ const yamlFromAll: AllowedIncomingShareRequestTypesYAML = [
 ]
 
 describe("AllowedIncomingShareRequestTypes", () => {
+  it.each([xmlFromAll, neutralXmlWithEmptyFields])("читает app-поля из XML-узлов", (source) => {
+    const root = parseStructuralXMLWithoutCompatibility(xmlExport({ Types: source }, false))
+    expect(importAllowedIncomingShareRequestTypesFromXML(mockContext, undefined, root))
+      .toEqual(importAllowedIncomingShareRequestTypesFromXML(mockContext, undefined, source))
+  })
   it("keeps missing XML, YAML and model values undefined", () => {
     expect(importAllowedIncomingShareRequestTypesFromXML(mockContext, undefined, undefined)).toBeUndefined()
     expect(exportAllowedIncomingShareRequestTypesToXML(mockContext, undefined, undefined)).toBeUndefined()

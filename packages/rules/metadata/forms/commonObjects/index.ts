@@ -39,6 +39,7 @@ import "./childItems/toJSONSchema"
 import "./dataPath/toEnterprise"
 
 import "./commandName/toEnterprise"
+import "./commandName/fromXML"
 import "./commandName/toJSONSchema"
 
 import "./event/fromXML"

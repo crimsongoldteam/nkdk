@@ -1,4 +1,4 @@
-import { ConfigurationContextFromXML } from "@nkdk/runtime"
+import { ConfigurationContextFromXML, isXmlElementNode, xmlAttributeValue, xmlElementChildren, xmlTextValue } from "@nkdk/runtime"
 import { definePropertyTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
 import type { EventsPropertyRule, PropertyRule } from "@nkdk/runtime/rule-kit"
 import { eventBindingKey } from "./callType"
@@ -18,7 +18,8 @@ export const importEventsFromXML = (
   if (!value || typeof value !== "object") return undefined
 
   const eventsXML = value as EventsXML
-  const events = Array.isArray(eventsXML.Event) ? eventsXML.Event : [eventsXML.Event]
+  const events = isXmlElementNode(value) ? xmlElementChildren(value, "Event")
+    : Array.isArray(eventsXML.Event) ? eventsXML.Event : [eventsXML.Event]
   const parsedEvents = events.flatMap((event) => {
     const parsed = parseEventXML(event)
     return parsed === undefined ? [] : [parsed]
@@ -59,7 +60,9 @@ export const metadataPropertyRule000 = definePropertyTypeRule("Events", "importF
 
 function parseEventXML(value: unknown): EventXML | undefined {
   if (!value || typeof value !== "object" || Array.isArray(value)) return undefined
-  const { _name: name, _callType: callType, "#text": text } = value as Record<string, unknown>
+  const name = isXmlElementNode(value) ? xmlAttributeValue(value, "name") : (value as Record<string, unknown>)._name
+  const callType = isXmlElementNode(value) ? xmlAttributeValue(value, "callType") : (value as Record<string, unknown>)._callType
+  const text = isXmlElementNode(value) ? xmlTextValue(value) || undefined : (value as Record<string, unknown>)["#text"]
   if (typeof name !== "string" || name.length === 0 || typeof text !== "string") return undefined
   if (callType !== undefined && !isEventCallType(callType)) {
     throw new Error(`Недопустимый callType XML-события ${name}: ${String(callType)}`)

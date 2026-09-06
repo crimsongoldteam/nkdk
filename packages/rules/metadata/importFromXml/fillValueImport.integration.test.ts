@@ -4,14 +4,12 @@ import {
   parseXmlDocumentWithSaxes,
   serializeYAMLDocument,
 } from "@nkdk/runtime"
-import { createRuleRegistrySet } from "@nkdk/runtime/rule-kit"
 import fs from "node:fs"
 import os from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, it } from "vitest"
-import { mockContextToXML, mockXmlImportContext } from "../../tests/mockContext"
+import { mockXmlImportContext } from "../../tests/mockContext"
 import { createLayeredOwnerMetadataCacheForTests } from "../../tests/layeredOwnerMetadataCache"
-import { metadataRules } from "../composition/metadataRules"
 import "../../tests/metadataExecutionContext"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
 import { resolveValidationProjectFile } from "../validation/projectFiles"
@@ -19,8 +17,9 @@ import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import { extractValidationYamlFacts } from "../validation/yamlFactExtractor"
 import { prepareImportFacts } from "./prepareFacts"
 import { prepareImportDependencies } from "./preparedDependencies"
-import { prepareImportYaml, prepareImportYamlFromDocuments } from "./prepareYaml"
+import { prepareImportYaml } from "./prepareYaml"
 import type { ImportAssignment } from "./types"
+import { prepareProofYaml } from "../../tests/prepareProofYaml"
 
 
 const adoptedExtensionFixture = join(
@@ -309,13 +308,8 @@ async function prepareWithProof(sourcePath: string, context = mockXmlImportConte
   const inputs = currentAssignment.xmlFiles.map(input => ({
     input, document: parseXmlDocumentWithSaxes(fs.readFileSync(input.sourcePath, "utf8")),
   }))
-  const execution = createRuleRegistrySet(metadataRules).execution
   const facts = await prepareImportFacts({ assignment: currentAssignment, context, inputs, collector: createConfigurationIndexCollector() })
-  return prepareImportYamlFromDocuments({
-    assignment: currentAssignment, context, inputs, collector: createConfigurationIndexCollector(),
-    dependencies: prepareImportDependencies(facts.dependencies, {}, execution),
-    localRoundTrip: { execution, context: { ...mockContextToXML(), importFromYAML: context.importFromYAML }, decisions: [] },
-  })
+  return prepareProofYaml(currentAssignment, inputs, context, facts)
 }
 
 function assignment(sourcePath: string): ImportAssignment {

@@ -1,5 +1,5 @@
 import { Type } from "typebox"
-import { importBooleanFromXML } from "../boolean/fromXML"
+import { readRoleVisibilityXML } from "../roleVisibilityXML"
 import { importBooleanFromYAML } from "../boolean/fromYAML"
 import { exportBooleanToYAML } from "../boolean/toYAML"
 import { importMetadataItemLinksFromXML } from "../metadataRef/fromXML"
@@ -20,6 +20,7 @@ import {
   type PropertyRule,
 } from "../../ruleRuntime"
 import type { ConfigurationContext, ConfigurationContextFromXML } from "@nkdk/runtime"
+import { isXmlElementNode, xmlAttributeValue, xmlElementChildren, xmlTextValue, type XmlElementNode } from "@nkdk/runtime"
 import {
   CommandInterfaceOrder,
   CommandInterfaceOrderJSONSchema,
@@ -81,7 +82,13 @@ const commandReferenceRule = {
 } as const satisfies PropertyRule
 const XML_REFERENCE_RAW = "__xmlReferenceRaw"
 
-const getXMLName = (value: { _name?: string; name?: string }): string | undefined => value._name ?? value.name
+const getXMLName = (value: { _name?: string; name?: string } | XmlElementNode): string | undefined =>
+  isXmlElementNode(value) ? xmlAttributeValue(value, "name") ?? childText(value, "name") : value._name ?? value.name
+
+const childText = (node: XmlElementNode, name: string): string | undefined => {
+  const child = xmlElementChildren(node, name)[0]
+  return child === undefined ? undefined : xmlTextValue(child) || undefined
+}
 
 const toArray = <T>(value: T | T[] | undefined): T[] =>
   value === undefined ? [] : Array.isArray(value) ? value : [value]
@@ -110,7 +117,7 @@ const defineReferenceRawXML = (params: {
   target: object
   xml: unknown
 }): void => {
-  if (!params.context.fromXML.forReference || params.xml === undefined) return
+  if (!params.context.fromXML.forReference || params.xml === undefined || isXmlElementNode(params.xml)) return
   Object.defineProperty(params.target, XML_REFERENCE_RAW, {
     value: params.xml,
     enumerable: false,
@@ -202,37 +209,22 @@ const placementValueFromYAML = (value: string): string =>
   value in placementFromYAML ? placementFromYAML[value as keyof typeof placementFromYAML] : value
 
 const importVisibilityFromXML = (
-  context: ConfigurationContextFromXML,
-  item: CommandInterfaceVisibilityXML
+  _context: ConfigurationContextFromXML,
+  item: CommandInterfaceVisibilityXML | XmlElementNode
 ): CommandInterfaceVisibility | undefined => {
-  const visibility = item.Visibility
-  if (visibility === undefined) return undefined
-
-  const result: CommandInterfaceVisibility = {}
-  const common = importBooleanFromXML(context, undefined, visibility["xr:Common"])
-  if (common !== undefined) result.common = common
-
-  const roleValues = toArray(visibility["xr:Value"])
-  const roles: Record<string, boolean> = {}
-  for (const role of roleValues) {
-    const roleName = getXMLName(role)
-    const value = importBooleanFromXML(context, undefined, role["#text"])
-    if (roleName !== undefined && value !== undefined) roles[roleName] = value
-  }
-  if (Object.keys(roles).length > 0) result.roles = roles
-
-  return Object.keys(result).length > 0 ? result : undefined
+  const visibility = isXmlElementNode(item) ? xmlElementChildren(item, "Visibility")[0] : item.Visibility
+  return readRoleVisibilityXML(visibility)
 }
 
 const importVisibilityMapFromXML = (
   context: ConfigurationContextFromXML,
   _rule: PropertyRule,
-  xml: CommandInterfaceVisibilityMapXML | undefined
+  xml: CommandInterfaceVisibilityMapXML | XmlElementNode | undefined
 ): CommandInterfaceVisibilityMap | undefined => {
   if (xml === undefined) return undefined
 
   const result: CommandInterfaceVisibilityMap = []
-  for (const item of toArray(xml.Command)) {
+  for (const item of isXmlElementNode(xml) ? xmlElementChildren(xml, "Command") : toArray(xml.Command)) {
     const name = getXMLName(item)
     const visibility = importVisibilityFromXML(context, item)
     if (name !== undefined && visibility !== undefined) result.push({ command: name, visibility })
@@ -368,12 +360,12 @@ const exportVisibilityMapToYAML = (
 const importSubsystemsVisibilityMapFromXML = (
   context: ConfigurationContextFromXML,
   _rule: PropertyRule,
-  xml: CommandInterfaceVisibilityMapXML | undefined
+  xml: CommandInterfaceVisibilityMapXML | XmlElementNode | undefined
 ): CommandInterfaceSubsystemsVisibilityMap | undefined => {
   if (xml === undefined) return undefined
 
   const result: CommandInterfaceSubsystemsVisibilityMap = {}
-  for (const item of toArray(xml.Subsystem)) {
+  for (const item of isXmlElementNode(xml) ? xmlElementChildren(xml, "Subsystem") : toArray(xml.Subsystem)) {
     const name = getXMLName(item)
     const visibility = importVisibilityFromXML(context, item)
     if (name !== undefined && visibility !== undefined) result[name] = visibility
@@ -430,18 +422,18 @@ const exportSubsystemsVisibilityMapToYAML = (
 const importPlacementMapFromXML = (
   context: ConfigurationContextFromXML,
   _rule: PropertyRule,
-  xml: CommandInterfacePlacementMapXML | undefined
+  xml: CommandInterfacePlacementMapXML | XmlElementNode | undefined
 ): CommandInterfacePlacementMap | undefined => {
   if (xml === undefined) return undefined
 
   const result: CommandInterfacePlacementMap = []
-  for (const item of toArray(xml.Command)) {
+  for (const item of isXmlElementNode(xml) ? xmlElementChildren(xml, "Command") : toArray(xml.Command)) {
     const name = getXMLName(item)
     if (name === undefined) continue
     result.push({
       command: name,
-      commandGroup: item.CommandGroup,
-      placement: item.Placement,
+      commandGroup: isXmlElementNode(item) ? childText(item, "CommandGroup")! : item.CommandGroup,
+      placement: isXmlElementNode(item) ? childText(item, "Placement")! : item.Placement,
     })
   }
 
@@ -511,15 +503,16 @@ const exportPlacementMapToYAML = (
 const importOrderFromXML = (
   context: ConfigurationContextFromXML,
   _rule: PropertyRule,
-  xml: CommandInterfaceOrderXML | undefined
+  xml: CommandInterfaceOrderXML | XmlElementNode | undefined
 ): CommandInterfaceOrder | undefined => {
   if (xml === undefined) return undefined
 
-  const result = toArray(xml.Command)
+  const result = (isXmlElementNode(xml) ? xmlElementChildren(xml, "Command") : toArray(xml.Command))
     .map((item) => {
       const command = getXMLName(item)
-      return command !== undefined && item.CommandGroup !== undefined
-        ? { command, commandGroup: item.CommandGroup }
+      const commandGroup = isXmlElementNode(item) ? childText(item, "CommandGroup") : item.CommandGroup
+      return command !== undefined && commandGroup !== undefined
+        ? { command, commandGroup }
         : undefined
     })
     .filter((item): item is CommandInterfaceOrder[number] => item !== undefined)
@@ -599,11 +592,15 @@ const exportCommandInterfaceSubsystemsOrderToJSONSchema: ExportToJSONSchemaFn = 
 const importCommandGroupsFromXML = (
   _context: ConfigurationContextFromXML,
   rule: PropertyRule,
-  xml: Record<string, string | string[]> | undefined
+  xml: Record<string, string | string[]> | XmlElementNode | undefined
 ): string[] | undefined => {
   if (xml === undefined) return undefined
 
   const itemTag = rule.metadataItemLinksXMLItem ?? "Group"
+  if (isXmlElementNode(xml)) {
+    const items = xmlElementChildren(xml, itemTag)
+    return items.length === 0 ? undefined : items.map(xmlTextValue)
+  }
   const rawItems = xml[itemTag]
   if (rawItems === undefined) return undefined
   return toArray(rawItems)

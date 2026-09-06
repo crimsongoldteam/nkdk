@@ -48,7 +48,7 @@ type CollectableFormAttributeItem = ProjectedFormAttributeItem & {
 }
 
 export const importFormAttributesFromXMLToYAML: ImportFromXMLToYAMLFunction = ({ context, xml, traversal }) => {
-  const itemXmlNodes = traversal.xmlNodes?.flatMap((node) => xmlElementChildren(node, "Attribute"))
+  const itemXmlNodes = traversal.xmlNodes?.flatMap((node) => node.name === "Attribute" ? [node] : xmlElementChildren(node, "Attribute"))
   const source = itemXmlNodes === undefined ? objectRecordOrUndefined(xml)?.Attribute ?? xml : undefined
   const items = itemXmlNodes === undefined
     ? Array.isArray(source) ? source : source === undefined ? [] : [source]

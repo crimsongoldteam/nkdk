@@ -1,5 +1,6 @@
 import { ConfigurationContextFromXML } from "@nkdk/runtime"
 import { PropertyRule, definePropertyTypeRule } from "../../../ruleRuntime"
+import { readBooleanXML } from "../../../commonObjects/boolean/xmlValue"
 
 type ScrollBarUse = "AutoUse" | "DontUse" | "UseAlways"
 
@@ -8,9 +9,9 @@ const importScrollBarUseFromXML = (
   _rule: PropertyRule | undefined,
   xml: unknown
 ): ScrollBarUse | undefined => {
-  if (xml === undefined || xml === null) return undefined
-  if (xml === true || xml === "true") return "UseAlways"
-  if (xml === false || xml === "false") return "DontUse"
+  const value = readBooleanXML(xml)
+  if (value === true) return "UseAlways"
+  if (value === false) return "DontUse"
 
   return undefined
 }

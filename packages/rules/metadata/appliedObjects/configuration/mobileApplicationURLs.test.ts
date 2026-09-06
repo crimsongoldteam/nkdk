@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest"
 import { getTypeRule } from "../../ruleRuntime"
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { mockContext } from "../../../tests/mockContext"
+import { xmlExport } from "@nkdk/runtime"
+import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"
 import {
   exportMobileApplicationURLsToJSONSchema,
   exportMobileApplicationURLsToXML,
@@ -18,6 +20,11 @@ interface ArraySchemaWithObjectProperties {
 }
 
 const schemaRule = { type: "string" } satisfies PropertyRule
+
+it("читает мобильные ссылки и флаги платформ из XML-узлов", () => {
+  const root = parseStructuralXMLWithoutCompatibility(xmlExport({ URLs: xmlFromAll }, false))
+  expect(importMobileApplicationURLsFromXML(mockContext, undefined, root)).toEqual(modelFromAll)
+})
 
 const xmlFromAll = {
   "v8:Value": [

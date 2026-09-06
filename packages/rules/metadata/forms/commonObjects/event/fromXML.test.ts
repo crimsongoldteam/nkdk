@@ -2,10 +2,16 @@ import { describe, expect, it } from "vitest"
 import { mockContextFromXML } from "../../../../tests/mockContext"
 import { InputFieldRules } from "../../elements/inputField/rules"
 import { importEventsFromXML } from "./fromXML"
+import { parseStructuralXMLWithoutCompatibility } from "../../../../tests/structuralXML"
 
 const eventsRule = InputFieldRules.properties.events
 
 describe("import Events from XML", () => {
+  it("читает структурные события с порядком и типом вызова", () => {
+    const source = parseStructuralXMLWithoutCompatibility('<Events><Event name="OnChange" callType="Before">До</Event><Event name="OnChange" callType="After">После</Event><Event name="StartChoice">Выбор</Event></Events>')
+    expect(importEventsFromXML(mockContextFromXML(), eventsRule, source)).toEqual({ onChange: { Before: "До", After: "После" }, startChoice: "Выбор" })
+  })
+
   it("собирает обработчики одного события по callType", () => {
     const result = importEventsFromXML(mockContextFromXML(), eventsRule, {
       Event: [

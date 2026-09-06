@@ -96,12 +96,15 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
   classifyYamlKey?: ClassifyNamedCollectionYamlKey
   traversal: DirectImportTraversal
 }): Record<string, unknown> | Array<Record<string, unknown>> | undefined {
-  const structuralItems = collectionItemNodes(params.traversal.xmlNodes, params.xmlElement)
-  const items: { xml: Record<string, unknown> | XmlElementNode; node?: XmlElementNode }[] = structuralItems.length === 0
+  const sourceNodes = isXmlElementNode(params.xml) ? [params.xml]
+    : Array.isArray(params.xml) && params.xml.every(isXmlElementNode) ? params.xml
+    : params.traversal.xmlNodes
+  const structuralItems = collectionItemNodes(sourceNodes, params.xmlElement)
+  const items: { xml: Record<string, unknown> | XmlElementNode; node?: XmlElementNode }[] = sourceNodes === undefined
     ? normalizeCollectionItems(params.xml, params.xmlElement).map((xml) => ({ xml }))
     : structuralItems.flatMap((node) => {
         const xml = node.attributes.length > 0 || node.content.some(child => child.type !== "text")
-          ? node : objectRecordOrUndefined(node.compatibilityValue)
+          ? node : undefined
         return xml === undefined ? [] : [{ xml, node }]
       })
   if (items.length === 0) return undefined

@@ -45,7 +45,7 @@ import type { DeferredValuePathCollector } from "./importYamlTypes"
 import { copyYAMLRuntimeMetadata } from "../../../yaml/runtimeMetadata"
 import { isDependentImportProperty } from "./dependentItemRegistry"
 import type { PropertyRuleExecution } from "./fn"
-import { isXmlElementNode, xmlAttributeValue, type XmlElementNode } from "../../../xml/import/document"
+import { isXmlElementNode, isEmptyXmlElement, xmlAttributeValue, type XmlElementNode } from "../../../xml/import/document"
 import type {
   XmlImportAuditBoundary,
   XmlImportAuditedNode,
@@ -426,7 +426,8 @@ export function importPropertiesFromXMLToYAML(params: {
         proofReady = true
 
         const hasExplicitXMLKeyWithEmptyDefault = "defaultValueXMLEmpty" in propertyRule && presentInXML
-        const hasRawEmptyXML = hasExplicitXMLKeyWithEmptyDefault && (xmlValue === undefined || xmlValue === "")
+        const emptyXML = xmlValue === undefined || xmlValue === "" || isXmlElementNode(xmlValue) && isEmptyXmlElement(xmlValue)
+        const hasRawEmptyXML = hasExplicitXMLKeyWithEmptyDefault && emptyXML
         try {
           const direct = compiled === undefined
             ? typeRule(propertyRule.type, "importFromXMLToYAML")
@@ -436,7 +437,7 @@ export function importPropertiesFromXMLToYAML(params: {
             : compiled.operations.resolveNestedImportXMLSources
           const convertedDirectly = resolveNestedSources !== undefined || direct !== undefined
           const explicitEmptyValue =
-            presentInXML && (xmlValue === undefined || xmlValue === "")
+            presentInXML && emptyXML
               ? (compiled === undefined
                   ? typeRule(propertyRule.type, "xmlImportPropertyBehavior")
                   : compiled.operations.xmlImportPropertyBehavior)?.explicitEmptyValue?.({
@@ -634,7 +635,7 @@ export function importPropertiesFromXMLToYAML(params: {
             isScalarMetadataTarget(propertyRule) &&
             importedValue === undefined &&
             presentInXML &&
-            (xmlValue === undefined || xmlValue === "")
+            emptyXML
           const rawValue =
             clearedMetadataTarget
               ? null
@@ -1089,9 +1090,10 @@ export function importPropertiesFromXMLToYAML(params: {
           || typeRule(propertyRule.type, "xmlImportPropertyBehavior")?.repeatedXMLNodes === true
       },
       useStructuralXMLValue: (entry) => {
+        if (params.audit === undefined) return true
         if ("flags" in entry) {
           const flags = (entry as CompiledProperty).flags
-          return flags.nestedItemsOwnXMLNode || params.audit === undefined && flags.atomicFromXMLToYAMLEligible
+          return flags.nestedItemsOwnXMLNode
         }
         const { canonicalXMLKey, rule: propertyRule } = entry
         const nestedRule = typeRule(propertyRule.type, "yamlToXMLNestedRule")

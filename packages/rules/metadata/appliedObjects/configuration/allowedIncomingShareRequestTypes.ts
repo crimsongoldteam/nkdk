@@ -5,6 +5,8 @@ import { exportBooleanToYAML } from "../../commonObjects/boolean/toYAML"
 import { BooleanJSONSchema, StringboolYAML, StringboolXML } from "../../commonObjects/boolean/types"
 import { ExportToJSONSchemaFn, definePropertyTypeRule } from "../../ruleRuntime"
 import type { ConfigurationContext } from "@nkdk/runtime"
+import { isXmlElementNode, xmlElementChildren, type XmlElementNode } from "@nkdk/runtime"
+import { applicationXMLValue } from "./applicationXMLValue"
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 
 export interface AllowedIncomingShareRequestType {
@@ -74,10 +76,11 @@ const decimal = (value: DecimalXML | undefined): number => {
 export const importAllowedIncomingShareRequestTypesFromXML = (
   context: ConfigurationContext,
   _rule: PropertyRule | undefined,
-  xml: AllowedIncomingShareRequestTypesXML | "" | undefined
+  xml: AllowedIncomingShareRequestTypesXML | XmlElementNode | "" | undefined
 ): AllowedIncomingShareRequestTypes | undefined => {
   if (xml === undefined) return undefined
   if (xml === "") return []
+  if (isXmlElementNode(xml)) return xmlElementChildren(xml, "v8:Value").map(importShareRequestType)
 
   return normalizeArray(xml["v8:Value"]).map((item) => ({
     mime: text(item["app:mime"]),
@@ -86,6 +89,17 @@ export const importAllowedIncomingShareRequestTypesFromXML = (
     processingVariant: decimal(item["app:processingVariant"]),
     isCustom: importBooleanFromXML(context, undefined, item["app:isCustom"]) ?? false,
   }))
+}
+
+function importShareRequestType(node: XmlElementNode): AllowedIncomingShareRequestType {
+  const value = applicationXMLValue(node)
+  return {
+    mime: value.text("mime"),
+    uti: value.text("uti"),
+    ext: value.text("ext"),
+    processingVariant: Number(value.text("processingVariant")),
+    isCustom: value.boolean("isCustom"),
+  }
 }
 
 export const exportAllowedIncomingShareRequestTypesToXML = (

@@ -1,4 +1,5 @@
 import fs from "node:fs"
+import { parseStructuralXMLWithoutCompatibility } from "../../../../tests/structuralXML"
 import { fileURLToPath } from "node:url"
 import { describe,expect,it } from "vitest"
 
@@ -85,6 +86,13 @@ function importStructuredFormAttributes(
 }
 
 describe("FormAttributes XML → YAML → XML", () => {
+  it.each(settingsFixtures)("получает прежнюю строку настроек без XML-объекта: %s", fixture => {
+    const source = readFormAttributeFixture(fixture)
+    const expected = testPropertyFromXMLToYAML({ rule, xml: importContentFromXML(source, { preserveXsiNil: true }) }).yaml
+    const actual = testPropertyFromXMLToYAML({ rule, xml: parseStructuralXMLWithoutCompatibility(`<Probe>${source}</Probe>`) }).yaml
+    expect(actual).toEqual(expected)
+  })
+
   it("проверяет общий Settings реквизита один раз", () => {
     const registries = createRuleRegistrySet(metadataRules)
     const contexts = createDirectRoundTripContexts({ logicalAddress: "Форма.Атрибут.ДействияПроцесса" })

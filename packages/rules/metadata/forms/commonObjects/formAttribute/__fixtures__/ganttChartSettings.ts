@@ -7,6 +7,6 @@ export const ganttChartSettings = [
     type: { type: ["GanttChart"] },
     title: { items: { ru: "" } },
     columns: [],
-    ganttChart: { "d4p1:chart": undefined },
+    ganttChart: "<d4p1:chart/>",
   },
 ] satisfies FormAttributes

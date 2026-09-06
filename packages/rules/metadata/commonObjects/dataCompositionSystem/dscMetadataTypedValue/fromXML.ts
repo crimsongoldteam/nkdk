@@ -1,5 +1,5 @@
 import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
-import { ConfigurationContextFromXML } from "@nkdk/runtime"
+import { ConfigurationContextFromXML, isXmlElementNode, xmlAttributeValue, xmlTextValue, type XmlElementNode } from "@nkdk/runtime"
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { DcsMetadataTypedValueRegistry, DcsMetadataTypedValueTypeFromXML } from "./rules"
 import {
@@ -41,8 +41,19 @@ const isNilXML = (xml: DcsMetadataTypedValueXML | undefined): xml is DcsMetadata
 const importSingle = (
   context: ConfigurationContextFromXML,
   rule: DcsMetadataTypedValuePropertyRule,
-  xml: DcsMetadataTypedValueXML | undefined
+  xml: DcsMetadataTypedValueXML | XmlElementNode | undefined
 ): DcsMetadataTypedValueReferenceOrNil => {
+  if (isXmlElementNode(xml)) {
+    if (xmlAttributeValue(xml, "xsi:nil") === "true") return undefined
+    const xsiType = xmlAttributeValue(xml, "xsi:type")
+    if (xsiType === "v8:Type") {
+      const [prefix, name, extra] = xmlTextValue(xml).split(":")
+      if (prefix && name === "Undefined" && extra === undefined
+        && xmlAttributeValue(xml, `xmlns:${prefix}`) === DATA_TYPES_NAMESPACE) return undefined
+    }
+    const type = DcsMetadataTypedValueTypeFromXML(xsiType)
+    return DcsMetadataTypedValueRegistry[type].fromXML({ context, rule, xml })
+  }
   if (isNilXML(xml)) return undefined
   if (isUndefinedTypeXML(xml)) {
     return context.fromXML.forReference ? xml : undefined
@@ -55,7 +66,7 @@ const importSingle = (
 export const importDcsMetadataTypedValueFromXML = (
   context: ConfigurationContextFromXML,
   rule: DcsMetadataTypedValuePropertyRule,
-  xml: DcsMetadataTypedValueXML | (DcsMetadataTypedValueXML | undefined)[] | undefined
+  xml: DcsMetadataTypedValueXML | XmlElementNode | (DcsMetadataTypedValueXML | XmlElementNode | undefined)[] | undefined
 ): DcsMetadataTypedValueReference | DcsMetadataTypedValueReferenceOrNil[] | undefined => {
   if (xml === undefined) return undefined
   if (Array.isArray(xml)) {
