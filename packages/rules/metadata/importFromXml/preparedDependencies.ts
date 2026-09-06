@@ -365,7 +365,12 @@ function collectCompactPropertyValues(
     readonly aliases: Set<string>
     readable: boolean
   }
-  const selected = new Map<string, SelectedProofProperty>()
+  interface SelectionPath {
+    children?: Map<string | number, SelectionPath>
+    property?: SelectedProofProperty
+  }
+  const selected: SelectedProofProperty[] = []
+  const roots = new Map<string, SelectionPath>()
   const explicitContainers = new Set<ReturnType<typeof yamlPathToPointer>>()
   // Сначала пустые контейнеры: их поздняя запись не должна затереть листья.
   // Строятся только выбранные значения, не дерево всех YAML-адресов.
@@ -380,13 +385,20 @@ function collectCompactPropertyValues(
       const rootIndex = typeof propertyRule.yaml === "string" ? fact.yamlPath.lastIndexOf(propertyRule.yaml) : -1
       let path = rootIndex < 0 ? fact.yamlPath : fact.yamlPath.slice(0, rootIndex + 1)
       let entry: SelectedProofProperty | undefined
-      for (let length = 1; length <= path.length; length++) {
-        entry = selected.get(siblingAddress(path.slice(0, length), key))
+      let node = roots.get(key)
+      if (node === undefined) { node = {}; roots.set(key, node) }
+      for (const segment of path) {
+        const children: Map<string | number, SelectionPath> = node.children ??= new Map()
+        let child: SelectionPath | undefined = children.get(segment)
+        if (child === undefined) { child = {}; children.set(segment, child) }
+        node = child
+        entry = node.property
         if (entry !== undefined) break
       }
       if (entry === undefined) {
         entry = { path, value: createSelectedPropertyValue(), aliases: new Set(), readable: false }
-        selected.set(siblingAddress(path, key), entry)
+        node.property = entry
+        selected.push(entry)
       }
       path = entry.path
       if (!container) entry.readable = true
@@ -399,7 +411,7 @@ function collectCompactPropertyValues(
       entry.value.accept(fact.yamlPath.slice(path.length), value, fact.scalarTag)
     }
   }
-  for (const entry of selected.values()) {
+  for (const entry of selected) {
     const value = entry.value.finish()
     if (!entry.readable || value === undefined) continue
     const decision = { value }

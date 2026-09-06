@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 import "../../tests/metadataExecutionContext"
 import { MetadataCatalogRules } from "../appliedObjects/metadataCatalog/rules"
 import { FormAttributeRules } from "../forms/commonObjects/formAttribute/rules"
@@ -131,6 +131,32 @@ describe("prepared import dependencies", () => {
     expect(dependencies.propertyValue?.(["Объекты", 0], "names"))
       .toBe(dependencies.propertyValue?.(["Объекты", "Первый"], "names"))
     expect(reads).toBe(names.length)
+  })
+
+  it("ищет владельца выбранного значения без копирования каждого префикса пути", () => {
+    const rule = { itemType: "DeepProof", properties: {
+      text: { type: "string", yaml: "Текст", xmlOnly: true },
+    } } as const satisfies MetadataItemRule
+    const path = [...Array.from({ length: 200 }, (_, index) => `Узел${index}`), "Текст"]
+    let copiedSegments = 0
+    const slice = Array.prototype.slice
+    const spy = vi.spyOn(Array.prototype, "slice").mockImplementation(function (this: unknown[], start, end) {
+      const result = slice.call(this, start, end)
+      if (this[0] === "Узел0") copiedSegments += result.length
+      return result
+    })
+    try {
+      const facts = collectImportDependencyFacts({
+        rule, owner, yaml: undefined, candidates: [],
+        proofPropertyFacts: [{ itemType: rule.itemType, itemRule: rule, propertyKey: "text", yamlPath: path, value: "сохранено" }],
+      })
+      const value = prepareImportDependencies(facts).propertyValue?.(path.slice(0, -1), "text")
+      spy.mockRestore()
+      expect(value).toEqual({ value: "сохранено" })
+      expect(copiedSegments).toBeLessThanOrEqual(path.length * 8)
+    } finally {
+      spy.mockRestore()
+    }
   })
 
   it("не читает обычное независимое поле ради сохранённой копии для proof", () => {
