@@ -21,6 +21,45 @@ const typedItemRule: MetadataItemRule = {
 }
 
 describe("prepared import dependencies", () => {
+  it("сохраняет явный undefined внутри выбранного XML-only массива", () => {
+    const rule = { itemType: "ProofArray", properties: {
+      values: { type: "string", yaml: "Значения", xmlOnly: true },
+    } } as const satisfies MetadataItemRule
+    const facts = collectImportDependencyFacts({
+      rule, owner, yaml: {}, candidates: [], propertyFacts: [{
+        itemType: rule.itemType, itemRule: rule, propertyKey: "$container:values", yamlPath: ["Значения"], value: [],
+      }, {
+        itemType: rule.itemType, itemRule: rule, propertyKey: "values", yamlPath: ["Значения", 0], value: undefined, presentInXML: true,
+      }],
+    })
+    expect(prepareImportDependencies(facts).propertyValue?.([], "values")).toEqual({ value: [undefined] })
+  })
+
+  it("читает выбранные XML-only листья однократно и разделяет результат между адресами", () => {
+    const rule = {
+      itemType: "SelectedProof",
+      properties: { names: { type: "string", yaml: "Имена", xmlOnly: true } },
+    } as const satisfies MetadataItemRule
+    let reads = 0
+    const names = Array.from({ length: 64 }, (_, index) => `Имя${index}`)
+    const facts = collectImportDependencyFacts({
+      rule, owner, yaml: {}, candidates: [],
+      propertyFacts: [{
+        itemType: rule.itemType, itemRule: rule, propertyKey: "$container:names",
+        yamlPath: ["Объекты", "Первый", "Имена"], sourceYamlPath: ["Объекты", 0, "Имена"], value: [],
+      }, ...names.map((name, index): DirectImportPropertyFact => ({
+        itemType: rule.itemType, itemRule: rule, propertyKey: "names",
+        yamlPath: ["Объекты", "Первый", "Имена", index], sourceYamlPath: ["Объекты", 0, "Имена", index],
+        get value() { reads++; return name },
+      }))],
+    })
+    const dependencies = prepareImportDependencies(facts)
+    expect(dependencies.propertyValue?.(["Объекты", "Первый"], "names")).toEqual({ value: names })
+    expect(dependencies.propertyValue?.(["Объекты", 0], "names"))
+      .toBe(dependencies.propertyValue?.(["Объекты", "Первый"], "names"))
+    expect(reads).toBe(names.length)
+  })
+
   it("не читает обычное независимое поле ради сохранённой копии для proof", () => {
     const rule = {
       itemType: "Independent",

@@ -2,11 +2,6 @@ import { copyYAMLRuntimeMetadata, yamlPathToPointer, yamlScalarTagAt, type YAMLS
 import { recordAtPath } from "./dependentItems"
 import { createSelectedPropertyValue } from "./selectedPropertyValue"
 import {
-  createPropertyFactsYamlView,
-  propertyFactsWithReconstructionValues,
-} from "./propertyFactsYamlView"
-import { importedYamlValueAtPath } from "./yamlPathValue"
-import {
   prepareDependentImportFacts,
   isDependentImportProperty,
   shouldRemoveImportedDependentProperty,
@@ -165,7 +160,7 @@ export function collectImportDependencyFacts(params: {
       selected = createSelectedPropertyValue()
       siblingValues.set(address, selected)
     }
-    selected.accept(relativePath, factValue)
+    selected.accept(relativePath, factValue, fact.scalarTag)
   }
   for (const [address, selected] of siblingValues) {
     const value = selected.finish()
@@ -286,37 +281,51 @@ function collectCompactPropertyValues(
   facts: readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][],
 ): ReadonlyMap<string, { readonly value: unknown }> {
   const result = new Map<string, { readonly value: unknown }>()
-  const factsYaml = createPropertyFactsYamlView(propertyFactsWithReconstructionValues(facts))
-  const collected = new Set<string>()
-  for (const fact of facts) {
-    const propertyRule = fact.itemRule?.properties[fact.propertyKey]
-    // Служебные факты участвуют в составе значения, но не являются
-    // свойствами, которые общий экспорт может запросить по ключу rules.
-    if (propertyRule === undefined) continue
-    const propertyRootIndex = typeof propertyRule?.yaml === "string"
-      ? fact.yamlPath.lastIndexOf(propertyRule.yaml)
-      : -1
-    const finalPropertyPath = propertyRootIndex < 0
-      ? fact.yamlPath
-      : fact.yamlPath.slice(0, propertyRootIndex + 1)
-    const finalItemPath = finalPropertyPath.slice(0, -1)
-    const sourceFactPath = fact.sourceYamlPath ?? fact.yamlPath
-    const sourcePropertyRootIndex = typeof propertyRule?.yaml === "string"
-      ? sourceFactPath.lastIndexOf(propertyRule.yaml)
-      : -1
-    const sourceItemPath = sourcePropertyRootIndex < 0
-      ? sourceFactPath.slice(0, -1)
-      : sourceFactPath.slice(0, sourcePropertyRootIndex)
-    const collectionKey = `${siblingAddress(sourceItemPath, fact.propertyKey)}:${yamlPathToPointer(finalItemPath)}`
-    if (collected.has(collectionKey)) continue
-    collected.add(collectionKey)
-    const reconstructed = importedYamlValueAtPath(factsYaml, finalPropertyPath)
-    const value = reconstructed ?? cloneCompactReconstructionValue(fact.reconstructionValue ?? fact.value)
-    if (value === undefined) continue
-    result.set(siblingAddress(sourceItemPath, fact.propertyKey), { value })
-    if (yamlPathToPointer(finalItemPath) !== yamlPathToPointer(sourceItemPath)) {
-      result.set(siblingAddress(finalItemPath, fact.propertyKey), { value })
+  interface SelectedProofProperty {
+    readonly path: readonly (string | number)[]
+    readonly value: ReturnType<typeof createSelectedPropertyValue>
+    readonly aliases: Set<string>
+    readable: boolean
+  }
+  const selected = new Map<string, SelectedProofProperty>()
+  const explicitContainers = new Set<ReturnType<typeof yamlPathToPointer>>()
+  // Сначала пустые контейнеры: их поздняя запись не должна затереть листья.
+  // Строятся только выбранные значения, не дерево всех YAML-адресов.
+  for (const containers of [true, false]) {
+    for (const fact of facts) {
+      const container = fact.propertyKey.startsWith("$container:")
+      if (container !== containers) continue
+      const key = container ? fact.propertyKey.slice("$container:".length) : fact.propertyKey
+      const propertyRule = fact.itemRule?.properties[key]
+      if (propertyRule === undefined) continue
+      if (container) explicitContainers.add(yamlPathToPointer(fact.yamlPath))
+      const rootIndex = typeof propertyRule.yaml === "string" ? fact.yamlPath.lastIndexOf(propertyRule.yaml) : -1
+      let path = rootIndex < 0 ? fact.yamlPath : fact.yamlPath.slice(0, rootIndex + 1)
+      let entry: SelectedProofProperty | undefined
+      for (let length = 1; length <= path.length; length++) {
+        entry = selected.get(siblingAddress(path.slice(0, length), key))
+        if (entry !== undefined) break
+      }
+      if (entry === undefined) {
+        entry = { path, value: createSelectedPropertyValue(), aliases: new Set(), readable: false }
+        selected.set(siblingAddress(path, key), entry)
+      }
+      path = entry.path
+      if (!container) entry.readable = true
+      const sourcePath = fact.sourceYamlPath ?? fact.yamlPath
+      entry.aliases.add(siblingAddress(path.slice(0, -1), key))
+      entry.aliases.add(siblingAddress(sourcePath.slice(0, path.length - 1), key))
+      const value = Object.hasOwn(fact, "reconstructionValue") ? fact.reconstructionValue : fact.value
+      if (value === undefined && fact.scalarTag === undefined
+        && !(fact.presentInXML === true && explicitContainers.has(yamlPathToPointer(fact.yamlPath.slice(0, -1))))) continue
+      entry.value.accept(fact.yamlPath.slice(path.length), value, fact.scalarTag)
     }
+  }
+  for (const entry of selected.values()) {
+    const value = entry.value.finish()
+    if (!entry.readable || value === undefined) continue
+    const decision = { value }
+    for (const alias of entry.aliases) result.set(alias, decision)
   }
   return result
 }
@@ -362,22 +371,6 @@ export function prepareImportDependencies(
       return omit
     },
   }
-}
-
-function cloneCompactReconstructionValue(value: unknown): unknown {
-  if (
-    value === null
-    || typeof value === "string"
-    || typeof value === "number"
-    || typeof value === "boolean"
-    || typeof value === "bigint"
-  ) return value
-  if (Array.isArray(value)) {
-    const result = value.map(cloneCompactReconstructionValue)
-    return result.some(item => item === undefined) ? undefined : result
-  }
-  if (value !== null && typeof value === "object" && Object.keys(value).length === 0) return {}
-  return undefined
 }
 
 function siblingAddress(path: readonly (string | number)[], key: string): string {
