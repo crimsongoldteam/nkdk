@@ -8,7 +8,24 @@ export type XmlReconstructionComponentKind = "configuration" | "configurationExt
 
 export interface XmlReconstructionProfileIndex {
   readonly logicalAddresses: readonly string[]
-  readonly index: Pick<LocalConfigurationIndexReader, "entity" | "entities">
+  readonly index: { entities(): Iterable<XmlReconstructionEntity> }
+}
+
+export interface XmlReconstructionEntity {
+  readonly logicalAddress: string
+  readonly uuid?: string
+  readonly hasUuid: boolean
+  readonly hasIdentity: boolean
+}
+
+export function reconstructionProfileIndex(index: Pick<LocalConfigurationIndexReader, "entities">): XmlReconstructionProfileIndex["index"] {
+  return {
+    *entities() {
+      for (const { logicalAddress, uuid, xmlId } of index.entities()) {
+        yield { logicalAddress, ...(uuid === undefined ? {} : { uuid }), hasUuid: uuid !== undefined, hasIdentity: uuid !== undefined || xmlId !== undefined }
+      }
+    },
+  }
 }
 
 export interface XmlComponentReconstructionProfile {
@@ -45,7 +62,7 @@ function buildConfigurationProfile(
 ): XmlComponentReconstructionProfile {
   const indexedRoots = new Set(
     [...target.index.entities()]
-      .filter(({ uuid, xmlId }) => uuid !== undefined || xmlId !== undefined)
+      .filter(({ hasIdentity }) => hasIdentity)
       .map(({ logicalAddress }) => workerAddress(logicalAddress)),
   )
   const variants: Record<string, XMLDefaultVariant> = {}
@@ -67,7 +84,7 @@ function buildConfigurationExtensionProfile(
   ])
   const targetIndexedAddresses = indexedAddresses(target)
   const baseUuids = canonicalUuids(base)
-  const targetUuids = canonicalUuids(target)
+  const targetUuidAddresses = new Set([...target.index.entities()].filter(({ hasUuid }) => hasUuid).map(({ logicalAddress }) => workerAddress(logicalAddress)))
   const adoptedUuids: Record<string, string> = {}
   const variants: Record<string, XMLDefaultVariant> = {}
   const targetAddresses = target.logicalAddresses.includes("Конфигурация")
@@ -83,7 +100,7 @@ function buildConfigurationExtensionProfile(
     const uuid = baseUuids[address]
     if (uuid !== undefined) {
       setExact(adoptedUuids, address, uuid, "Противоречивые UUID")
-    } else if (address === "Конфигурация" || targetUuids[address] !== undefined) {
+    } else if (address === "Конфигурация" || targetUuidAddresses.has(address)) {
       throw new Error(`Не найден UUID основной конфигурации: ${address}`)
     }
   }
@@ -94,7 +111,7 @@ function buildConfigurationExtensionProfile(
     const uuid = baseUuids[address]
     if (uuid !== undefined) {
       setExact(adoptedUuids, address, uuid, "Противоречивые UUID")
-    } else if (targetUuids[address] !== undefined) {
+    } else if (targetUuidAddresses.has(address)) {
       throw new Error(`Не найден UUID основной конфигурации: ${address}`)
     }
   }

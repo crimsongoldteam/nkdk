@@ -39,7 +39,6 @@ export interface XmlImportWorkerPool {
     componentPath?: string
     componentKind: string
     metadataItemAugmenter?: string
-    configurationIndex?: ConfigurationIndexStoreDescriptor
     baseConfigurationIndex?: ConfigurationIndexStoreDescriptor
   }): Promise<void>
   runFirstPass(
@@ -87,6 +86,7 @@ export interface ImportResultFileCollection extends Iterable<ImportResultFile> {
 }
 
 export interface XmlImportStateBatch {
+  readonly reconstructionFactsBuffer?: ArrayBuffer
   readonly configurationFragment?: ConfigurationIndexBlockFragment
   readonly configurationFragmentBuffer?: ArrayBuffer
   readonly stateFragment?: ProjectStateFragment
@@ -245,7 +245,6 @@ function createXmlImportOperationPool(params: {
         componentPath?: string
         componentKind: string
         metadataItemAugmenter?: string
-        configurationIndex?: ConfigurationIndexStoreDescriptor
         baseConfigurationIndex?: ConfigurationIndexStoreDescriptor
       }
     | undefined
@@ -362,9 +361,6 @@ function createXmlImportOperationPool(params: {
             outputDir: initialized.outputDir,
             projectDir: initialized.projectDir,
             componentPath: initialized.componentPath,
-            ...(initialized.configurationIndex === undefined
-              ? {}
-              : { configurationIndex: initialized.configurationIndex }),
             ...(initialized.baseConfigurationIndex === undefined
               ? {}
               : { baseConfigurationIndex: initialized.baseConfigurationIndex }),
@@ -382,7 +378,9 @@ function createXmlImportOperationPool(params: {
             const batch = openProfiledImportBinaryResult(response, transferProfiler)
             diagnosticViews.push(batch.diagnostics)
             fileViews.push(batch.files)
-            if (batch.configurationFragmentBuffer !== undefined || batch.stateFragment !== undefined) {
+            if (batch.reconstructionFactsBuffer === undefined) throw new Error("Первый проход не вернул общие факты восстановления")
+            if (batch.configurationFragmentBuffer !== undefined) throw new Error("Первый проход не должен передавать полный блок восстановления")
+            {
               await stateQueue.run(() => transferProfiler.measureAsync(
                 "Подготовка импорта конфигурации",
                 "Применение состояния пачки первого прохода",
@@ -390,9 +388,7 @@ function createXmlImportOperationPool(params: {
                 () => {
                   assertProducerActive("firstPassRunning")
                   return sink.writeFirstPassState({
-                    ...(batch.configurationFragmentBuffer === undefined
-                      ? {}
-                      : { configurationFragmentBuffer: batch.configurationFragmentBuffer }),
+                    reconstructionFactsBuffer: batch.reconstructionFactsBuffer,
                     ...(batch.stateFragment === undefined ? {} : { stateFragment: batch.stateFragment }),
                   })
                 },

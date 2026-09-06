@@ -29,6 +29,7 @@ import {
 } from "./worker"
 import { importControlComposition } from "./controlComposition"
 import { importDiagnostic, openImportBinaryResult } from "./binaryResult"
+import { createImportReconstructionFactsWriter, openImportReconstructionFacts } from "../projectState/binary/reconstructionFacts"
 import type { ImportAssignment } from "./types"
 import { createValidationProjectComponent } from "../validation/projectComponents"
 import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
@@ -303,7 +304,9 @@ describe("XML import worker first pass", () => {
     })
     expect(workerStateForTests().preparedYamlIds).toEqual([valid.id])
     expect(result.files.map(({ targetProjectPath }) => targetProjectPath)).not.toContain(valid.targetProjectPath)
-    expect(result.configurationFragments).toHaveLength(1)
+    expect(result).not.toHaveProperty("configurationFragments")
+    expect([...openImportReconstructionFacts(result.reconstructionFactsBuffer).entities()])
+      .toEqual(expect.arrayContaining([expect.objectContaining({ logicalAddress: valid.logicalAddress })]))
   })
 
   it("links a topology rule resolution error to the assignment metadata XML", async () => {
@@ -334,13 +337,13 @@ describe("XML import worker first pass", () => {
       kind: "firstPassResult",
       diagnostics: [],
       files: [],
-      configurationFragments: [],
+      reconstructionFactsBuffer: createImportReconstructionFactsWriter().finish(),
       stateFragment,
     }
 
     const transferable = createFirstPassTransferable(result)
 
-    expect(transferable[transferableSymbol]).toEqual(Object.values(stateFragment.buffers))
+    expect(transferable[transferableSymbol]).toEqual([result.reconstructionFactsBuffer, ...Object.values(stateFragment.buffers)])
     expect(transferable[transferableSymbol].every((buffer) => buffer instanceof ArrayBuffer)).toBe(true)
     expect(transferable[valueSymbol]).toBe(result)
   })
@@ -1295,13 +1298,13 @@ async function prepareReadyYamlValidationScenario() {
     logicalAddress: "Справочник.СправочникПолный",
     xmlFiles: [{ role: "metadata", sourcePath: catalogFullXmlPath }],
   })
-  const { first, second } = await runAssignmentSecondPass(
+  const { second } = await runAssignmentSecondPass(
     outputDir,
     assignment,
     fullValidationSchemaCache,
   )
   if (second?.kind !== "secondPassResult") throw new Error("Ожидался secondPassResult")
-  const result = { ...second, configurationFragments: first.configurationFragments }
+  const result = second
 
   createReadToken(result)
   const fixture = sharedStateFixture

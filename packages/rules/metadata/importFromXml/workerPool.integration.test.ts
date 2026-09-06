@@ -4,7 +4,7 @@ import { join } from "node:path"
 import { afterEach, describe, expect, it } from "vitest"
 import { mockContextFromXML } from "../../tests/mockContext"
 import { createMockWorkerThreadPoolFactory } from "../../tests/mockWorkerThreadPool"
-import { decodeConfigurationBlockFragments } from "@nkdk/runtime"
+import { createImportReconstructionFactsWriter } from "../projectState/binary/reconstructionFacts"
 import type { ProjectStateReadToken } from "../projectState/contracts"
 import type { MetadataWorkerOperation } from "../workerPool/types"
 import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
@@ -201,7 +201,7 @@ describe("XML import worker pool", () => {
         if (command.kind !== "import") throw new Error("Ожидалась команда import")
         commands.push(command.command)
         const result = command.command.kind === "firstPassBatch"
-          ? createImportBinaryResult({ diagnostics: [], files: [] })
+          ? createImportBinaryResult({ diagnostics: [], files: [], reconstructionFactsBuffer: createImportReconstructionFactsWriter().finish() })
           : undefined
         return { kind: "importResult", result }
       },
@@ -323,7 +323,8 @@ describe("XML import worker pool", () => {
       [assignment("one"), assignment("two"), assignment("three"), assignment("four")],
       {
         async writeFirstPassState(batch: XmlImportStateBatch) {
-          expect(batch.configurationFragmentBuffer).toBeDefined()
+          expect(batch.reconstructionFactsBuffer).toBeDefined()
+          expect(batch.configurationFragmentBuffer).toBeUndefined()
           active += 1
           started += 1
           maxActive = Math.max(maxActive, active)
@@ -495,7 +496,6 @@ describe("XML import worker pool", () => {
     const pools = createFakePools()
     const pool = createXmlImportWorkerPool({ concurrency: 1, createWorkerPool: pools.factory })
     const context = mockContextFromXML()
-    const configurationIndex = configurationIndexStoreDescriptor("/project", { kind: "configurationExtension", name: "Расширение" })
     const baseConfigurationIndex = configurationIndexStoreDescriptor("/project", { kind: "configuration" })
 
     await pool.initialize({
@@ -504,7 +504,6 @@ describe("XML import worker pool", () => {
       outputDir: createTempDir("component"),
       componentKind: "test-component",
       metadataItemAugmenter: "test-augmenter",
-      configurationIndex,
       baseConfigurationIndex,
     })
     await pool.runFirstPass([assignment("component")])
@@ -515,10 +514,10 @@ describe("XML import worker pool", () => {
       context: {
         fromXML: { componentKind: "test-component", metadataItemAugmenter: "test-augmenter" },
       },
-      configurationIndex,
       baseConfigurationIndex,
     })
     expect(() => structuredClone(initialize)).not.toThrow()
+    expect(initialize).not.toHaveProperty("configurationIndex")
 
     await pool.close()
   })
@@ -756,6 +755,11 @@ function createFakePools() {
           targets: [], owners: [], fields: [], forms: [],
         }))
         const finalFileStateBatches = task.assignments.map((item) => fakeFinalBatch(`cf/${item.targetProjectPath}`))
+        const reconstructionFacts = createImportReconstructionFactsWriter()
+        for (const item of task.assignments) reconstructionFacts.append({
+          targetProjectPath: item.targetProjectPath,
+          entities: [{ logicalAddress: item.logicalAddress, xmlId: item.itemName }],
+        })
         return createImportBinaryResult({
           diagnostics: diagnostics.get(workerIndex) ?? [],
           files: task.assignments.map((item) => ({
@@ -763,15 +767,7 @@ function createFakePools() {
             sourcePath: join("/tmp/output", item.targetProjectPath),
             targetProjectPath: item.targetProjectPath,
           })),
-          configurationFragments: task.assignments.map((item) => ({
-              targetProjectPath: item.targetProjectPath,
-              entities: [
-                {
-                  logicalAddress: item.logicalAddress,
-                  xmlId: item.itemName,
-                },
-              ],
-            })),
+          reconstructionFactsBuffer: reconstructionFacts.finish(),
           stateFragment: createImportFragment(indexContributions, finalFileStateBatches),
         })
       }
@@ -892,10 +888,9 @@ function fragmentProjectPath(batch: XmlImportStateBatch): string {
 }
 
 function configurationProjectPaths(batch: XmlImportStateBatch): string[] {
-  if (batch.configurationFragment !== undefined) return [batch.configurationFragment.targetProjectPath]
-  if (batch.configurationFragmentBuffer === undefined) return []
-  return decodeConfigurationBlockFragments(batch.configurationFragmentBuffer)
-    .map(({ targetProjectPath }) => targetProjectPath)
+  if (batch.stateFragment === undefined) return []
+  const state = openProjectStateFragment(batch.stateFragment)
+  return Array.from({ length: state.fileCount }, (_, index) => state.stringValue(state.fileRecord(index).projectPathId).replace(/^cf\//u, ""))
 }
 
 function fakeFinalBatch(projectPath: string) {

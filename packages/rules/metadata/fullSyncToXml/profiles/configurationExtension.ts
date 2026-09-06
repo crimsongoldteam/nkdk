@@ -6,7 +6,7 @@ import {
 import { configurationExtensionTypeDescriptionXMLNameByType } from "../../appliedObjects/configurationExtension/typeDescriptionPolicy"
 import { expandMetadataPathPattern } from "../../resourceTopology/core/patterns"
 import type { ConfirmedComponentState } from "../../project/componentState/types"
-import { buildXmlComponentReconstructionProfile } from "../../project/xmlReconstructionProfile"
+import { buildXmlComponentReconstructionProfile, reconstructionProfileIndex } from "../../project/xmlReconstructionProfile"
 
 export const configurationExtensionFullXmlSyncProfile: FullXmlSyncComponentProfile = {
   kind: "configurationExtension",
@@ -72,11 +72,11 @@ function confirmedRuntime(
     componentKind: "configurationExtension",
     target: {
       logicalAddresses: target.indexes.logicalAddresses.map(({ logicalAddress }) => logicalAddress),
-      index: targetReader,
+      index: reconstructionProfileIndex(targetReader),
     },
     base: {
       logicalAddresses: base.indexes.logicalAddresses.map(({ logicalAddress }) => logicalAddress),
-      index: baseReader,
+      index: reconstructionProfileIndex(baseReader),
     },
   })
   const baseProjectPathByLogicalAddress = new Map(

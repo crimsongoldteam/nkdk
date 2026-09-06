@@ -5,6 +5,7 @@ import {
 import { describe, expect, it } from "vitest"
 import {
   buildXmlComponentReconstructionProfile,
+  reconstructionProfileIndex,
   type XmlReconstructionProfileIndex,
 } from "./xmlReconstructionProfile"
 
@@ -262,8 +263,8 @@ function source(
 ): XmlReconstructionProfileIndex {
   return {
     logicalAddresses,
-    index: createLocalConfigurationIndexReader(new Map([
+    index: reconstructionProfileIndex(createLocalConfigurationIndexReader(new Map([
       ["Свойства.yaml", { entities }],
-    ])),
+    ]))),
   }
 }

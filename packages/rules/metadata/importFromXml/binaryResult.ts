@@ -27,6 +27,7 @@ import {
 } from "../workerPool/projectStateBuffers"
 import type { ImportDiagnostic, ImportResultFile } from "./types"
 import type { MetadataDiagnostic } from "../validation/types"
+import { openImportReconstructionFacts } from "../projectState/binary/reconstructionFacts"
 
 const PAYLOAD_KIND = "import.batch"
 const FILE_HEADER_BYTES = 16
@@ -42,6 +43,7 @@ export interface ImportBinaryBatchView {
   readonly warnings: DiagnosticBatchView
   readonly files: ImportResultFileBatchView
   readonly configurationFragmentBuffer?: ArrayBuffer
+  readonly reconstructionFactsBuffer?: ArrayBuffer
   readonly stateFragment?: ProjectStateFragment
 }
 
@@ -50,6 +52,7 @@ export function createImportBinaryResult(params: {
   readonly warnings?: readonly ImportDiagnostic[]
   readonly files: readonly ImportResultFile[]
   readonly configurationFragments?: readonly ConfigurationIndexBlockFragment[]
+  readonly reconstructionFactsBuffer?: ArrayBuffer
   readonly stateFragment?: ProjectStateFragment
 }): MetadataWorkerBinaryResult {
   const configuration = params.configurationFragments === undefined
@@ -61,12 +64,14 @@ export function createImportBinaryResult(params: {
     counters: {
       hasConfiguration: configuration === undefined ? 0 : 1,
       hasState: params.stateFragment === undefined ? 0 : 1,
+      hasReconstructionFacts: params.reconstructionFactsBuffer === undefined ? 0 : 1,
     },
     buffers: [
       { name: "diagnostics", buffer: encodeImportDiagnostics(params.diagnostics) },
       { name: "warnings", buffer: encodeImportDiagnostics(params.warnings ?? []) },
       { name: "files", buffer: encodeFiles(params.files) },
       ...(configuration === undefined ? [] : [{ name: "configuration", buffer: configuration }]),
+      ...(params.reconstructionFactsBuffer === undefined ? [] : [{ name: "reconstructionFacts", buffer: params.reconstructionFactsBuffer }]),
       ...PROJECT_STATE_FRAGMENT_BUFFER_NAMES.map((name) => params.stateFragment === undefined
         ? undefined
         : { name: `projectState.${name}`, buffer: params.stateFragment.buffers[name] })
@@ -80,19 +85,23 @@ export function openImportBinaryResult(value: unknown): ImportBinaryBatchView {
   if (value.payloadKind !== PAYLOAD_KIND) throw new Error("Worker вернул неожиданный двоичный результат import")
   assertFlag(value.counters.hasConfiguration, "hasConfiguration")
   assertFlag(value.counters.hasState, "hasState")
-  if (Object.keys(value.counters).length !== 2) throw new Error("Повреждены счётчики двоичного результата import")
+  assertFlag(value.counters.hasReconstructionFacts, "hasReconstructionFacts")
+  if (Object.keys(value.counters).length !== 3) throw new Error("Повреждены счётчики двоичного результата import")
   const buffers = new Map(value.buffers.map(({ name, buffer }) => [name, buffer]))
   const expected = [
     "diagnostics",
     "warnings",
     "files",
     ...(value.counters.hasConfiguration === 1 ? ["configuration"] : []),
+    ...(value.counters.hasReconstructionFacts === 1 ? ["reconstructionFacts"] : []),
     ...(value.counters.hasState === 1 ? PROJECT_STATE_FRAGMENT_BUFFER_NAMES.map((name) => `projectState.${name}`) : []),
   ]
   if (buffers.size !== expected.length || expected.some((name) => !buffers.has(name))) {
     throw new Error("Повреждён состав буферов двоичного результата import")
   }
   const configurationFragmentBuffer = buffers.get("configuration")
+  const reconstructionFactsBuffer = buffers.get("reconstructionFacts")
+  if (reconstructionFactsBuffer !== undefined) openImportReconstructionFacts(reconstructionFactsBuffer)
   if (configurationFragmentBuffer !== undefined) decodeConfigurationBlockFragments(configurationFragmentBuffer)
   const stateFragment = value.counters.hasState === 0 ? undefined : projectStateFragmentFromNamedBuffers(buffers)
   if (stateFragment !== undefined) openProjectStateFragment(stateFragment)
@@ -101,6 +110,7 @@ export function openImportBinaryResult(value: unknown): ImportBinaryBatchView {
     warnings: openDiagnosticBatch({ bytes: new Uint8Array(requireBuffer(buffers, "warnings")) }),
     files: openFiles(requireBuffer(buffers, "files")),
     ...(configurationFragmentBuffer === undefined ? {} : { configurationFragmentBuffer }),
+    ...(reconstructionFactsBuffer === undefined ? {} : { reconstructionFactsBuffer }),
     ...(stateFragment === undefined ? {} : { stateFragment }),
   }
 }

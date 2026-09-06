@@ -107,7 +107,6 @@ export type ImportWorkerCommand =
       outputDir: string
       projectDir?: string
       componentPath?: string
-      configurationIndex?: ConfigurationIndexStoreDescriptor
       baseConfigurationIndex?: ConfigurationIndexStoreDescriptor
     }
   | { kind: "firstPass"; assignments: ImportAssignment[] }
@@ -129,7 +128,7 @@ export interface ImportFirstPassResult {
   kind: "firstPassResult"
   diagnostics: ImportDiagnostic[]
   files: ImportResultFile[]
-  configurationFragments: ConfigurationIndexBlockFragment[]
+  reconstructionFactsBuffer: ArrayBuffer
   stateFragment?: ProjectStateFragment
 }
 

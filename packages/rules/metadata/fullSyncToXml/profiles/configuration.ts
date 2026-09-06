@@ -3,7 +3,7 @@ import {
   type FullXmlSyncComponentProfile,
   type FullXmlSyncProfileRuntime,
 } from "../componentProfile"
-import { buildXmlComponentReconstructionProfile } from "../../project/xmlReconstructionProfile"
+import { buildXmlComponentReconstructionProfile, reconstructionProfileIndex } from "../../project/xmlReconstructionProfile"
 
 export const configurationFullXmlSyncProfile: FullXmlSyncComponentProfile = {
   kind: "configuration",
@@ -48,7 +48,7 @@ function confirmedRuntime(
     componentKind: "configuration",
     target: {
       logicalAddresses: target.indexes.logicalAddresses.map(({ logicalAddress }) => logicalAddress),
-      index: reader,
+      index: reconstructionProfileIndex(reader),
     },
   })
   return {

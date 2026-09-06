@@ -53,6 +53,7 @@ import {
   type XmlImportWorkerPoolHandle,
 } from "./workerPool"
 import { prepareImportXmlReconstructionProfile } from "./reconstructionProfile"
+import { createImportReconstructionFactsWriter, openImportReconstructionFacts, type ImportReconstructionFacts } from "../projectState/binary/reconstructionFacts"
 import { configurationExtensionTypeDescriptionXMLNameByCompatibilityMode } from "../appliedObjects/configurationExtension/typeDescriptionPolicy"
 import type { XmlComponentExportProfile } from "../project/xmlReconstructionProfile"
 
@@ -256,8 +257,8 @@ export async function importConfigurationFromXml(
       operationId,
       purpose: "import",
     })
-    const stateSink = createImportStateSink(importSession, indexCandidate)
-    const configurationIndexDescriptor = indexCandidate.descriptor()
+    const sharedReconstructionFacts: ImportReconstructionFacts[] = []
+    const stateSink = createImportStateSink(importSession, indexCandidate, sharedReconstructionFacts)
     if (params.xmlImportWorkerPoolHandle !== undefined) {
       pool = params.xmlImportWorkerPoolHandle.createOperationPool()
     } else if (deps.createWorkerPool !== undefined) {
@@ -300,7 +301,6 @@ export async function importConfigurationFromXml(
           ...(descriptor.metadataItemAugmenter === undefined
             ? {}
             : { metadataItemAugmenter: descriptor.metadataItemAugmenter }),
-          configurationIndex: configurationIndexDescriptor,
           ...(address.kind === "configurationExtension"
             ? {
                 baseConfigurationIndex: configurationIndexStoreDescriptor(
@@ -327,7 +327,12 @@ export async function importConfigurationFromXml(
       context: operationContext,
       files: discovered.snapshotFiles ?? [],
     })
-    if (snapshotFragments.length > 0) indexCandidate.mergeBlockFragments(snapshotFragments)
+    if (snapshotFragments.length > 0) {
+      indexCandidate.mergeBlockFragments(snapshotFragments)
+      const snapshotFacts = createImportReconstructionFactsWriter()
+      for (const fragment of snapshotFragments) snapshotFacts.append(fragment)
+      sharedReconstructionFacts.push(openImportReconstructionFacts(snapshotFacts.finish()))
+    }
     const externalSemanticState = externalFileSemanticStateBatch(
       validationComponent,
       discovered.assignments.flatMap(({ externalFiles }) => externalFiles),
@@ -348,9 +353,10 @@ export async function importConfigurationFromXml(
         assignments: discovered.assignments,
         projectState,
         projectStateReadToken: semanticReadToken,
-        targetIndex: indexCandidate!,
+        targetIndex: { *entities() { for (const facts of sharedReconstructionFacts) yield* facts.entities() } },
       }),
     )
+    sharedReconstructionFacts.length = 0
     const exportProfile: XmlComponentExportProfile = {
       ...reconstructionProfile,
       ...(address.kind !== "configurationExtension"
@@ -559,6 +565,7 @@ function flattenFailures(caught: unknown): unknown[] {
 function createImportStateSink(
   session: ProjectStateImportSession,
   candidate: ConfigurationIndexCandidateStore,
+  sharedReconstructionFacts: ImportReconstructionFacts[],
 ): XmlImportStateSink {
   const writeState = async (batch: Parameters<XmlImportStateSink["writeFirstPassState"]>[0]): Promise<void> => {
     if (batch.configurationFragment !== undefined) candidate.mergeBlockFragments([batch.configurationFragment])
@@ -570,7 +577,11 @@ function createImportStateSink(
     }
   }
   return {
-    writeFirstPassState: writeState,
+    async writeFirstPassState(batch) {
+      if (batch.reconstructionFactsBuffer === undefined) throw new Error("Первый проход не передал общие факты восстановления")
+      sharedReconstructionFacts.push(openImportReconstructionFacts(batch.reconstructionFactsBuffer))
+      if (batch.stateFragment !== undefined) await session.writeStateFragment(batch.stateFragment)
+    },
     writeSecondPassState: writeState,
   }
 }

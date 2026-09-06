@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { createProjectStateFragmentWriter } from "../projectState/binary/fragment"
 import { createMovableBinaryResult } from "../workerPool/binaryResult"
+import { createImportReconstructionFactsWriter, openImportReconstructionFacts } from "../projectState/binary/reconstructionFacts"
 import {
   createImportBinaryResult,
   importDiagnostic,
@@ -10,6 +11,16 @@ import {
 const transferableSymbol = Symbol.for("Piscina.transferable")
 
 describe("двоичный результат import", () => {
+  it("передаёт общий профиль отдельно от окончательных блоков", () => {
+    const writer = createImportReconstructionFactsWriter()
+    writer.append({ targetProjectPath: "Свойства.yaml", entities: [{ logicalAddress: "Конфигурация", xmlId: "3" }] })
+    const result = createImportBinaryResult({ diagnostics: [], files: [], reconstructionFactsBuffer: writer.finish() })
+    const view = openImportBinaryResult(result)
+    expect(view.configurationFragmentBuffer).toBeUndefined()
+    expect([...openImportReconstructionFacts(view.reconstructionFactsBuffer!).entities()])
+      .toEqual([{ logicalAddress: "Конфигурация", hasUuid: false, hasIdentity: true }])
+  })
+
   it("передаёт diagnostics, файлы, индекс и состояние отдельными буферами", () => {
     const state = createProjectStateFragmentWriter()
     state.appendImportFinal({

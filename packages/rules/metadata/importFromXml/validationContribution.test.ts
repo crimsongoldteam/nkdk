@@ -4,11 +4,44 @@ import { MetadataCatalogRules } from "../appliedObjects/metadataCatalog/rules"
 import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
 import type { PreparedImportYaml } from "./prepareYaml"
 import type { ImportAssignment } from "./types"
-import { extractImportValidationContribution } from "./validationContribution"
+import { extractImportValidationContribution, extractImportValidationContributionFromFacts } from "./validationContribution"
+import { collectImportDependencyFacts } from "./preparedDependencies"
+import type { PreparedImportFacts } from "./prepareFacts"
 import type { ValidationProjectFile } from "../validation/projectFiles"
 import { createMetadataItemProjectSchemaExporter } from "../projectDefinition/projectSpecHelpers"
 
 describe("extractImportValidationContribution", () => {
+  it("не читает смысловые свойства формы ради общего индекса", () => {
+    const form = preparedFormYaml()
+    const prepared: PreparedImportFacts = {
+      assignment: form.assignment,
+      targetProjectPath: form.targetProjectPath,
+      rule: form.rule,
+      ownerContext: form.ownerContext,
+      dependentOwner: form.dependentOwner,
+      localIndexes: form.localIndexes,
+      generatedFiles: [],
+      deferred: [],
+      pendingReferences: [],
+      pendingChecks: [],
+      configurationFragment: { targetProjectPath: form.targetProjectPath, entities: [] },
+      dependencies: collectImportDependencyFacts({
+        rule: form.rule, owner: form.dependentOwner, yaml: {}, candidates: [],
+      }),
+      get semanticFacts(): PreparedImportFacts["semanticFacts"] {
+        throw new Error("Свойства формы не нужны общему индексу")
+      },
+    }
+    const result = extractImportValidationContributionFromFacts({
+      prepared,
+      projectDir: "/project",
+      file: validationFile(form.targetProjectPath),
+    })
+    expect(result.validationContribution.memberIndexEntries).toHaveLength(1)
+    expect(result.validationContribution.objectRecords).toEqual([])
+    expect(result.validationContribution.logicalAddresses).toEqual([])
+  })
+
   it("профилирует вклад файла терминами архитектуры", () => {
     const measured: string[] = []
 

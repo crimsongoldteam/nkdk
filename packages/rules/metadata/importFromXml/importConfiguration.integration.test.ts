@@ -4,6 +4,7 @@ import { join } from "node:path"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import "../../tests/metadataExecutionContext"
 import { mockContextFromXML } from "../../tests/mockContext"
+import { createImportReconstructionFactsWriter } from "../projectState/binary/reconstructionFacts"
 import {
   configurationIndexStoreDescriptor,
   encodeConfigurationBlockFragments,
@@ -628,9 +629,11 @@ describe("configuration XML import coordinator", () => {
       async runFirstPass(_assignments, sink) {
         activeSinks.push(
           sink!.writeFirstPassState({
+            reconstructionFactsBuffer: createImportReconstructionFactsWriter().finish(),
             stateFragment: indexStateFragment("cf/first.yaml"),
           }),
           sink!.writeFirstPassState({
+            reconstructionFactsBuffer: createImportReconstructionFactsWriter().finish(),
             stateFragment: indexStateFragment("cf/second.yaml"),
           }),
         )
@@ -940,14 +943,18 @@ function fakeDependencies(params: {
         async runFirstPass(_assignments, sink) {
           call("firstPass")
           if (params.bufferedFragments === true) {
+            const writer = createImportReconstructionFactsWriter()
+            for (const fragment of fragmentData) writer.append(fragment)
             await sink?.writeFirstPassState({
-              configurationFragmentBuffer: encodeConfigurationBlockFragments(fragmentData),
+              reconstructionFactsBuffer: writer.finish(),
               stateFragment: finalStateFragment(stateBatch(firstPassFiles, 1, selectedComponentPath)),
             })
           } else {
             for (let index = 0; index < fragmentData.length; index += 1) {
+              const writer = createImportReconstructionFactsWriter()
+              writer.append(fragmentData[index]!)
               await sink?.writeFirstPassState({
-                configurationFragment: fragmentData[index],
+                reconstructionFactsBuffer: writer.finish(),
                 ...(index === 0
                   ? { stateFragment: finalStateFragment(stateBatch(firstPassFiles, 1, selectedComponentPath)) }
                   : {}),
@@ -968,6 +975,7 @@ function fakeDependencies(params: {
           fs.mkdirSync(componentDir, { recursive: true })
           fs.writeFileSync(join(componentDir, "Конфигурация.yaml"), "Имя: Конфигурация\n")
           await sink?.writeSecondPassState({
+            configurationFragmentBuffer: encodeConfigurationBlockFragments(fragmentData),
             stateFragment: finalStateFragment(stateBatch(secondPassFiles, 3, selectedComponentPath)),
           })
           return {

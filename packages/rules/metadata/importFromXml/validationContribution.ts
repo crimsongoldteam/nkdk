@@ -70,7 +70,7 @@ export function extractImportValidationContributionFromFacts(params: {
 }): ImportValidationContribution {
   return extractImportValidationContributionCore({
     ...params,
-    rawYaml: createPropertyFactsYamlView(params.prepared.semanticFacts),
+    rawYaml: params.file.kind === "form" ? undefined : createPropertyFactsYamlView(params.prepared.semanticFacts),
   })
 }
 
