@@ -2,8 +2,41 @@ import { describe, expect, it } from "vitest"
 import "../../../tests/metadataExecutionContext"
 import { isRedundantClientApplicationBaseForm } from "./baseFormNecessity"
 import type { ClientApplicationFormYAML } from "./types"
+import { equalClientApplicationBaseFormProjections, projectClientApplicationBaseForm } from "./baseFormProjection"
+import { equalBaseFormYaml } from "./baseFormYaml"
 
 describe("необходимость сохранённой основы формы", () => {
+  it.each([
+    [{}, {}],
+    [{ ТипКнопки: "Обычная" }, {}],
+    [{ ТипКнопки: "Обычная" }, { ТипКнопки: "Гиперссылка" }],
+    [{ ТипКнопки: "Гиперссылка" }, { ТипКнопки: "Гиперссылка" }],
+    [{ Ширина: 20 }, { Ширина: 21 }],
+    [{ Подсказка: { ru: "Текст" } }, { Подсказка: { ru: "Другой" } }],
+  ])("сравнение кнопки совпадает с обычными проекциями: %j / %j", (left, right) => {
+    const leftBaseYaml = form({ Элементы: { Кнопка: { Вид: "Кнопка", ...left } } })
+    const rightBaseYaml = form({ Элементы: { Кнопка: { Вид: "Кнопка", ...right } } })
+    const extensionYaml = form({ Элементы: { Кнопка: { Вид: "Кнопка", ТипКнопки: "Обычная", Ширина: 20, Подсказка: { ru: "Текст" } } } })
+    const expected = equalBaseFormYaml(
+      projectClientApplicationBaseForm({ baseYaml: leftBaseYaml, extensionYaml }).yaml,
+      projectClientApplicationBaseForm({ baseYaml: rightBaseYaml, extensionYaml }).yaml,
+    )
+    expect(equalClientApplicationBaseFormProjections({ leftBaseYaml, rightBaseYaml, extensionYaml })).toBe(expected)
+  })
+
+  it.each([
+    ["ПолеВвода", "Высота", "Ширина"],
+    ["Кнопка", "Ширина", "Высота"],
+  ])("сравнивает свойства элемента %s до чтения следующего значения", (kind, first, later) => {
+    const element = { Вид: kind, [first]: 99, [later]: 20 }
+    Object.defineProperty(element, later, { enumerable: true, get() { throw new Error("Не читать после найденного отличия") } })
+    const ordinary = form({ Элементы: { Поле: { Вид: kind, [first]: 20, [later]: 20 } } })
+    expect(isRedundantClientApplicationBaseForm({
+      currentConfigurationYaml: ordinary, extensionYaml: ordinary,
+      savedBaseYaml: form({ Элементы: { Поле: element } }),
+    })).toBe(false)
+  })
+
   it("считает избыточной основу с теми же событиями и техническими полями", () => {
     expect(isRedundantClientApplicationBaseForm({
       currentConfigurationYaml: form({

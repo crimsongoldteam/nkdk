@@ -219,23 +219,20 @@ function equalProjectedElementTrees(params: {
     if (!Object.is(leftElement.Вид, rightElement.Вид)) return false
     const extension = params.extensionElements.get(name)
     if (extension !== undefined) {
-      const leftProjection = projectAliasedMetadataItemProperties({
-        baseYaml: leftElement,
+      if (!equalProjectedProperties({
+        leftYaml: leftElement,
+        rightYaml: rightElement,
         extensionYaml: extension.yaml,
-        baseRule: leftRule,
+        leftRule,
+        rightRule,
         extensionRule: extension.rule,
-        context: params.leftContext,
+        leftContext: params.leftContext,
+        rightContext: params.rightContext,
+        leftAliases: getTreeNodeJSONSchemaPropertyAliases(leftRule.itemType),
+        rightAliases: getTreeNodeJSONSchemaPropertyAliases(rightRule.itemType),
+        extensionAliases: getTreeNodeJSONSchemaPropertyAliases(extension.rule.itemType),
         skippedYamlKeys: new Set(["Элементы"]),
-      })
-      const rightProjection = projectAliasedMetadataItemProperties({
-        baseYaml: rightElement,
-        extensionYaml: extension.yaml,
-        baseRule: rightRule,
-        extensionRule: extension.rule,
-        context: params.rightContext,
-        skippedYamlKeys: new Set(["Элементы"]),
-      })
-      if (!equalBaseFormYaml(leftProjection, rightProjection)) return false
+      })) return false
     }
 
     const leftChildrenRule = propertyRuleByYamlKey(leftRule, "Элементы")
@@ -267,6 +264,9 @@ function equalProjectedProperties(params: {
   readonly leftContext: BaseFormProjectionRuntimeContext
   readonly rightContext: BaseFormProjectionRuntimeContext
   readonly skippedYamlKeys?: ReadonlySet<string>
+  readonly leftAliases?: Readonly<Record<string, string>>
+  readonly rightAliases?: Readonly<Record<string, string>>
+  readonly extensionAliases?: Readonly<Record<string, string>>
 }): boolean {
   const keys = projectionYamlKeys(params.leftYaml, params.rightYaml, params.leftRule, params.rightRule)
   for (const yamlKey of keys) {
@@ -278,6 +278,8 @@ function equalProjectedProperties(params: {
       extensionRule: params.extensionRule,
       context: params.leftContext,
       yamlKey,
+      baseValueKey: params.leftAliases?.[yamlKey],
+      extensionValueKey: params.extensionAliases?.[yamlKey],
     })
     const right = projectMetadataItemProperty({
       baseYaml: params.rightYaml,
@@ -286,6 +288,8 @@ function equalProjectedProperties(params: {
       extensionRule: params.extensionRule,
       context: params.rightContext,
       yamlKey,
+      baseValueKey: params.rightAliases?.[yamlKey],
+      extensionValueKey: params.extensionAliases?.[yamlKey],
     })
     if (left.kind !== right.kind) return false
     if (
@@ -531,6 +535,8 @@ function projectMetadataItemProperty(params: {
   readonly extensionRule: MetadataItemRule
   readonly context: BaseFormProjectionRuntimeContext
   readonly yamlKey: string
+  readonly baseValueKey?: string
+  readonly extensionValueKey?: string
 }): BaseFormPropertyProjection {
   const baseRulesByYamlKey = propertyRulesByYamlKey(params.baseRule)
   const extensionRulesByYamlKey = propertyRulesByYamlKey(params.extensionRule)
@@ -543,12 +549,14 @@ function projectMetadataItemProperty(params: {
       extensionRulesByYamlKey,
     })
   }
-  if (!Object.hasOwn(params.baseYaml, params.yamlKey) || !Object.hasOwn(params.extensionYaml, params.yamlKey)) {
+  const baseValueKey = params.baseValueKey ?? params.yamlKey
+  const extensionValueKey = params.extensionValueKey ?? params.yamlKey
+  if (!Object.hasOwn(params.baseYaml, baseValueKey) || !Object.hasOwn(params.extensionYaml, extensionValueKey)) {
     return { kind: "omit" }
   }
 
-  const baseValue = params.baseYaml[params.yamlKey]
-  const extensionValue = params.extensionYaml[params.yamlKey]
+  const baseValue = params.baseYaml[baseValueKey]
+  const extensionValue = params.extensionYaml[extensionValueKey]
   const projection = projectProperty({
     rule: basePropertyRule,
     baseValue,
