@@ -1,10 +1,21 @@
 import { describe, expect, it } from "vitest"
 import { importPredefinedCodeFromXML } from "./fromXML"
+import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"
 
 const context = {} as never
 const rule = { type: "PredefinedCode" } as never
 
 describe("importPredefinedCodeFromXML", () => {
+  it.each([
+    ["<Code/>", undefined],
+    ["<Code>103    </Code>", "103    "],
+    ['<Code xsi:type="xs:integer">42</Code>', 42],
+    ['<Code xsi:type="xs:string">42</Code>', "42"],
+    ['<Code xsi:type="xs:integer"/>', undefined],
+  ])("reads structural code: %s", (xml, expected) => {
+    expect(importPredefinedCodeFromXML(context, rule, parseStructuralXMLWithoutCompatibility(xml))).toBe(expected)
+  })
+
   it("imports typed decimal code as number", () => {
     const result = importPredefinedCodeFromXML(context, rule, {
       "_xsi:type": "xs:decimal",
