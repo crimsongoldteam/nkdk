@@ -7,16 +7,16 @@ import { importI8nTextFromXML } from "../../i8nText/fromXML"
 import { I8nTextXML } from "../../i8nText/types"
 import { importMetadataValueFromXML } from "../../metadataValue/fromXML"
 import { MetadataValueTypeFromXML, MetadataValueTypeXML } from "../../metadataValue/types"
-import { importFromDcsXML as importTypeLinkFromDcsXML } from "../../typeLink/fromDcsXML"
+import { importTypeLinkDcsPayload } from "../../typeLink/fromDcsXML"
 import { TypeLinkDcsValueRootXML } from "../../typeLink/types"
-import { importChoiceParameterLinksFromDcsXML } from "../../сhoiceParameterLinks/fromDcsXML"
+import { importChoiceParameterLinksDcsPayload } from "../../сhoiceParameterLinks/fromDcsXML"
 import { ChoiceParameterLinkDcsValueRootXML } from "../../сhoiceParameterLinks/types"
-import { importChoiceParameterFromDcsXML } from "../../сhoiceParameters/fromDcsXML"
+import { importChoiceParameterDcsPayload } from "../../сhoiceParameters/fromDcsXML"
 import { ChoiceParameterDcsValueRootXML } from "../../сhoiceParameters/types"
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
 import { SystemEnumerationDcsValueRootXML } from "../../../systemEnumerations/dcsTypes"
-import { importSystemEnumerationFromDcsXML } from "../../../systemEnumerations/fromDcsXML"
+import { importSystemEnumerationDcsPayload } from "../../../systemEnumerations/fromDcsXML"
 import * as SystemEnumerations from "../../../systemEnumerations/types"
 import type { SystemEnumerationPropertyRule, SystemEnumerationTypeMap } from "../../../systemEnumerations/types"
 import { ConfigurationContextFromXML, isEmptyXmlElement, isXmlElementNode, xmlAttributeValue, xmlElementChildren, xmlTextValue, type XmlElementNode } from "@nkdk/runtime"
@@ -93,6 +93,14 @@ const importDcsMetadataValueFromDcsXMLInternal = (
 ): MetadataDcsMetadataValue | undefined => {
   const elements = isXmlElementNode(xml) && xml.name !== "dcscor:value" ? xmlElementChildren(xml, "dcscor:value") : undefined
   const root = isXmlElementNode(xml) ? elements === undefined ? xml : elements.length <= 1 ? elements[0] : elements : xml["dcscor:value"]
+  return importDcsMetadataPayloadInternal(context, rule, root)
+}
+
+const importDcsMetadataPayloadInternal = (
+  context: ConfigurationContextFromXML,
+  rule: DcsMetadataValuePropertyRule,
+  root: MetadataDcsMetadataValueDcsRootXML["dcscor:value"] | XmlElementNode | XmlElementNode[] | undefined,
+): MetadataDcsMetadataValue | undefined => {
   if (root === undefined || isXmlElementNode(root) && isEmptyXmlElement(root)) {
     throw new Error("DCS MetadataValue: missing dcscor:value")
   }
@@ -100,9 +108,7 @@ const importDcsMetadataValueFromDcsXMLInternal = (
   if (Array.isArray(root)) {
     const values = root
       .map((item) =>
-        importDcsMetadataValueFromDcsXMLInternal(context, rule, isXmlElementNode(item) ? item : {
-          "dcscor:value": item,
-        } as MetadataDcsMetadataValueDcsRootXML)
+        importDcsMetadataPayloadInternal(context, rule, item)
       )
       .filter((value): value is MetadataDcsMetadataSingleValue => value !== undefined)
 
@@ -113,10 +119,10 @@ const importDcsMetadataValueFromDcsXMLInternal = (
     if (!hasSystemEnumeration(rule)) {
       throw new Error("DCS MetadataValue: string dcscor:value requires rule.typeSE for system enumeration")
     }
-    return importSystemEnumerationFromDcsXML(
+    return importSystemEnumerationDcsPayload(
       context,
       { type: "SystemEnumeration", typeSE: rule.typeSE } as SystemEnumerationPropertyRule,
-      xml as SystemEnumerationDcsValueRootXML
+      root
     )
   }
 
@@ -127,22 +133,22 @@ const importDcsMetadataValueFromDcsXMLInternal = (
   }
 
   if (xsi === "dcscor:TypeLink") {
-    return importTypeLinkFromDcsXML(context, rule as unknown as PropertyRule, xml as TypeLinkDcsValueRootXML | XmlElementNode)
+    return importTypeLinkDcsPayload(context, rule as unknown as PropertyRule, root as TypeLinkDcsValueRootXML["dcscor:value"] | XmlElementNode)
   }
 
   if (xsi === "dcscor:ChoiceParameterLinks") {
-    return importChoiceParameterLinksFromDcsXML(
+    return importChoiceParameterLinksDcsPayload(
       context,
       rule as unknown as PropertyRule,
-      xml as ChoiceParameterLinkDcsValueRootXML | XmlElementNode
+      root as ChoiceParameterLinkDcsValueRootXML["dcscor:value"] | XmlElementNode
     )
   }
 
   if (xsi === "dcscor:ChoiceParameters") {
-    return importChoiceParameterFromDcsXML(
+    return importChoiceParameterDcsPayload(
       context,
       rule as unknown as PropertyRule,
-      xml as ChoiceParameterDcsValueRootXML | XmlElementNode
+      root as ChoiceParameterDcsValueRootXML["dcscor:value"] | XmlElementNode
     )
   }
 
@@ -218,19 +224,19 @@ const importDcsMetadataValueFromDcsXMLInternal = (
   }
 
   if (hasSystemEnumeration(rule)) {
-    return importSystemEnumerationFromDcsXML(
+    return importSystemEnumerationDcsPayload(
       context,
       { type: "SystemEnumeration", typeSE: rule.typeSE } as SystemEnumerationPropertyRule,
-      xml as SystemEnumerationDcsValueRootXML
+      root as SystemEnumerationDcsValueRootXML["dcscor:value"] | XmlElementNode
     )
   }
 
   const inferredTypeSE = inferEntSystemEnumerationType(xsi)
   if (inferredTypeSE !== undefined) {
-    const value = importSystemEnumerationFromDcsXML(
+    const value = importSystemEnumerationDcsPayload(
       context,
       { type: "SystemEnumeration", typeSE: inferredTypeSE } as SystemEnumerationPropertyRule,
-      xml as SystemEnumerationDcsValueRootXML
+      root as SystemEnumerationDcsValueRootXML["dcscor:value"] | XmlElementNode
     )
     return { type: "SystemEnumeration", typeSE: inferredTypeSE, value }
   }
@@ -251,6 +257,17 @@ export const importDcsMetadataValueFromDcsXML = (
   return result
 }
 
+/** Импортирует выбранное значение независимо от имени его XML-оболочки. */
+export const importDcsMetadataValuePayload = (
+  context: ConfigurationContextFromXML,
+  rule: DcsMetadataValuePropertyRule,
+  value: MetadataDcsMetadataValueDcsRootXML["dcscor:value"] | XmlElementNode,
+): MetadataDcsMetadataValue => {
+  const result = importDcsMetadataPayloadInternal(context, rule, value)
+  if (result === undefined) throw new Error("DCS MetadataValue: unexpected missing value")
+  return result
+}
+
 const isDcsMetadataValueRootXml = (value: unknown): value is MetadataDcsMetadataValueDcsRootXML =>
   typeof value === "object" && value !== null && !Array.isArray(value) && "dcscor:value" in value
 
@@ -260,10 +277,9 @@ const importDcsMetadataValueFromXMLForRule: (
   value: unknown
 ) => MetadataDcsMetadataValue | undefined = (context, rule, value) => {
   if (value === undefined || value === null) return null
-  const xml: MetadataDcsMetadataValueDcsRootXML | XmlElementNode = isXmlElementNode(value) || isDcsMetadataValueRootXml(value)
-    ? value
-    : { "dcscor:value": value as MetadataDcsMetadataValueDcsRootXML["dcscor:value"] }
-  return importDcsMetadataValueFromDcsXMLInternal(context, rule as unknown as DcsMetadataValuePropertyRule, xml)
+  return isDcsMetadataValueRootXml(value)
+    ? importDcsMetadataValueFromDcsXMLInternal(context, rule as unknown as DcsMetadataValuePropertyRule, value)
+    : importDcsMetadataPayloadInternal(context, rule as unknown as DcsMetadataValuePropertyRule, value as MetadataDcsMetadataValueDcsRootXML["dcscor:value"] | XmlElementNode)
 }
 
 export const metadataPropertyRule000 = definePropertyTypeRule("MetadataDcsMetadataValue", "importFromXML", importDcsMetadataValueFromXMLForRule)

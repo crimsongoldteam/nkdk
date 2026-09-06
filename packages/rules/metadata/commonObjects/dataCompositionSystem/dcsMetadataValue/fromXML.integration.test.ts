@@ -5,9 +5,16 @@ import { parseXmlDocumentWithSaxes } from "@nkdk/runtime"
 import { parseStructuralXMLWithoutCompatibility } from "../../../../tests/structuralXML"
 import { readXMLFixtureAsString } from "../../../../tests/readFixtureXML"
 import { mockContextFromXML } from "../../../../tests/mockContext"
-import { importDcsMetadataValueFromDcsXML } from "./fromXML"
+import { importDcsMetadataValueFromDcsXML, importDcsMetadataValuePayload } from "./fromXML"
 
 describe("import MetadataDcsMetadataValue from XML", () => {
+  it.each(dcsMetadataValueFromXMLFixtures)("imports unwrapped differently named $title", fixture => {
+    const xml = readXMLFixtureAsString(import.meta.url, fixture.xml)
+      .replace("<dcscor:value", "<dcssch:value")
+      .replace(/<\/dcscor:value>\s*$/, "</dcssch:value>")
+    expect(importDcsMetadataValuePayload(mockContextFromXML(), fixture.rule, parseStructuralXMLWithoutCompatibility(xml))).toEqual(fixture.value)
+  })
+
   it("does not turn a single wrapped value into an array", () => {
     const source = parseStructuralXMLWithoutCompatibility('<Root><dcscor:value xsi:type="xs:decimal">1</dcscor:value></Root>')
     expect(importDcsMetadataValueFromDcsXML(mockContextFromXML(), { type: "MetadataDcsMetadataValue", valueType: "Primitive" }, source)).toEqual({ type: "decimal", value: 1 })

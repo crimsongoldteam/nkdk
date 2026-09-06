@@ -14,12 +14,34 @@ import "../index"
 import { createPropertyRuleExecutor, createRuleRegistrySet } from "@nkdk/runtime/rule-kit"
 import { metadataRules } from "../../../composition/metadataRules"
 import { testPropertyFromXMLToYAML } from "../../../../tests/directConversion"
+import { parseStructuralXMLWithoutCompatibility } from "../../../../tests/structuralXML"
+import { readXMLFixtureAsString } from "../../../../tests/readFixtureXML"
+import { xmlElementChildren } from "@nkdk/runtime"
+import { importDcsAvailableValuesFromXML } from "./fromXML"
 
 const fixturesDir = join(dirname(fileURLToPath(import.meta.url)), "__fixtures__")
 const rule = { type: "DcsAvailableValues", xml: "dcssch:availableValue" } as const
 const execution = createPropertyRuleExecutor(createRuleRegistrySet(metadataRules).property)
 
 describe("import DcsAvailableValues from XML", () => {
+  it.each([
+    ["<dcssch:availableValue/>", undefined],
+    ["<dcssch:availableValue><dcssch:value/></dcssch:availableValue>", [{ itemType: "DcsAvailableValue" }]],
+    ['<dcssch:availableValue><dcssch:value xsi:type="xs:string"/></dcssch:availableValue>', [{ itemType: "DcsAvailableValue", value: { type: "string", value: "" } }]],
+  ])("preserves empty available values: %s", (xml, expected) => {
+    const legacy = importContentFromXML<{ "dcssch:availableValue": unknown }>(xml)["dcssch:availableValue"]
+    expect(importDcsAvailableValuesFromXML(mockContextFromXML(), rule, legacy)).toEqual(expected)
+    expect(importDcsAvailableValuesFromXML(mockContextFromXML(), rule, parseStructuralXMLWithoutCompatibility(xml))).toEqual(expected)
+  })
+
+  it.each([
+    ["strings.xml", stringAvailableValues],
+    ["nilAndBoolean.xml", nilAndBooleanAvailableValues],
+  ] as const)("imports nodes without XML wrappers: %s", (path, expected) => {
+    const root = parseStructuralXMLWithoutCompatibility(readXMLFixtureAsString(import.meta.url, path))
+    expect(importDcsAvailableValuesFromXML(mockContextFromXML(), rule, xmlElementChildren(root))).toEqual(expected)
+  })
+
   it("imports string values and presentations", () => {
     const xml = readAndParseXMLFile<{ root: { "dcssch:availableValue": unknown } }>("strings.xml", fixturesDir)
     const result = importPropertyFromXML({

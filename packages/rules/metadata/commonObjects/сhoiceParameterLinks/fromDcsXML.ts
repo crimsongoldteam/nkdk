@@ -38,13 +38,21 @@ const importChoiceParameterLinkDcsItem = (item: ChoiceParameterLinkDcsItemXML | 
 })
 
 export const importChoiceParameterLinksFromDcsXML = (
-  _context: ConfigurationContextFromXML,
-  _rule: PropertyRule | undefined,
+  context: ConfigurationContextFromXML,
+  rule: PropertyRule | undefined,
   xml: ChoiceParameterLinkDcsValueRootXML | XmlElementNode
 ): ChoiceParameterLinks => {
   const root = isXmlElementNode(xml)
     ? xml.name === "dcscor:value" ? xml : xmlElementChildren(xml, "dcscor:value")[0]
     : xml["dcscor:value"]
+  return importChoiceParameterLinksDcsPayload(context, rule, root)
+}
+
+export const importChoiceParameterLinksDcsPayload = (
+  _context: ConfigurationContextFromXML,
+  _rule: PropertyRule | undefined,
+  root: ChoiceParameterLinkDcsValueRootXML["dcscor:value"] | XmlElementNode | undefined,
+): ChoiceParameterLinks => {
   if (!root) {
     throw new Error("DCS ChoiceParameterLinks: missing dcscor:value")
   }

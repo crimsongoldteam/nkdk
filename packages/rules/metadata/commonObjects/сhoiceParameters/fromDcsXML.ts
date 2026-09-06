@@ -9,12 +9,20 @@ const textNode = (value: unknown): string =>
 
 export const importChoiceParameterFromDcsXML = (
   context: ConfigurationContextFromXML,
-  _rule: PropertyRule | undefined,
+  rule: PropertyRule | undefined,
   xml: ChoiceParameterDcsValueRootXML | XmlElementNode
 ): ChoiceParameter => {
   const root = isXmlElementNode(xml)
     ? xml.name === "dcscor:value" ? xml : xmlElementChildren(xml, "dcscor:value")[0]
     : xml["dcscor:value"]
+  return importChoiceParameterDcsPayload(context, rule, root)
+}
+
+export const importChoiceParameterDcsPayload = (
+  context: ConfigurationContextFromXML,
+  _rule: PropertyRule | undefined,
+  root: ChoiceParameterDcsValueRootXML["dcscor:value"] | XmlElementNode | undefined,
+): ChoiceParameter => {
   if (!root) {
     throw new Error("DCS ChoiceParameter: missing dcscor:value")
   }

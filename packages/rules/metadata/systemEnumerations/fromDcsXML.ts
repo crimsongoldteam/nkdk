@@ -18,13 +18,21 @@ const textNode = (value: string | { "#text"?: string } | undefined): string => {
 }
 
 export const importSystemEnumerationFromDcsXML = (
-  _context: ConfigurationContextFromXML,
+  context: ConfigurationContextFromXML,
   rule: SystemEnumerationPropertyRule,
   xml: SystemEnumerationDcsValueRootXML | XmlElementNode
 ): string => {
   const root = isXmlElementNode(xml)
     ? xml.name === "dcscor:value" ? xml : xmlElementChildren(xml, "dcscor:value")[0]
     : xml["dcscor:value"]
+  return importSystemEnumerationDcsPayload(context, rule, root)
+}
+
+export const importSystemEnumerationDcsPayload = (
+  _context: ConfigurationContextFromXML,
+  rule: SystemEnumerationPropertyRule,
+  root: SystemEnumerationDcsValueRootXML["dcscor:value"] | XmlElementNode | undefined,
+): string => {
   if (root === undefined) {
     throw new Error("DCS SystemEnumeration: missing dcscor:value")
   }

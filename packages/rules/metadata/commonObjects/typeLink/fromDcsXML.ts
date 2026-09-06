@@ -15,13 +15,21 @@ const linkItemNumber = (value: number | string | { "#text"?: string } | XmlEleme
 }
 
 export const importFromDcsXML = (
-  _context: ConfigurationContextFromXML,
-  _rule: PropertyRule | undefined,
+  context: ConfigurationContextFromXML,
+  rule: PropertyRule | undefined,
   xml: TypeLinkDcsValueRootXML | XmlElementNode
 ): TypeLink => {
   const root = isXmlElementNode(xml)
     ? xml.name === "dcscor:value" ? xml : xmlElementChildren(xml, "dcscor:value")[0]
     : xml["dcscor:value"]
+  return importTypeLinkDcsPayload(context, rule, root)
+}
+
+export const importTypeLinkDcsPayload = (
+  _context: ConfigurationContextFromXML,
+  _rule: PropertyRule | undefined,
+  root: TypeLinkDcsValueRootXML["dcscor:value"] | XmlElementNode | undefined,
+): TypeLink => {
   if (!root) {
     throw new Error("DCS TypeLink: missing dcscor:value")
   }
