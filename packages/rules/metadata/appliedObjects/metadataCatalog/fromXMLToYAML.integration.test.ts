@@ -1,4 +1,6 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
+import { isXmlElementNode } from "@nkdk/runtime"
+import * as metadataImport from "../../ruleRuntime/metadataItem/fromXMLToYAML"
 import {
   testAppliedObjectFromXMLToYAML,
   testPropertyFromXMLToYAML,
@@ -14,13 +16,21 @@ describe("MetadataCatalog XML → YAML", () => {
     ["full.xml", fullYAML],
     ["minimal.xml", minimalYAML],
   ] as const)("exports %s directly to YAML", (fixture, expected) => {
-    const result = testAppliedObjectFromXMLToYAML({
-      rule: MetadataCatalogRules,
-      importMetaUrl: import.meta.url,
-      fixture,
+    const convert = metadataImport.importMetadataItemFromXMLToYAML
+    const spy = vi.spyOn(metadataImport, "importMetadataItemFromXMLToYAML").mockImplementation(params => {
+      expect(isXmlElementNode(params.xml)).toBe(true)
+      return convert(params)
     })
-
-    expect(result.yaml).toEqual(expected)
+    try {
+      const result = testAppliedObjectFromXMLToYAML({
+        rule: MetadataCatalogRules,
+        importMetaUrl: import.meta.url,
+        fixture,
+      })
+      expect(result.yaml).toEqual(expected)
+    } finally {
+      spy.mockRestore()
+    }
   })
 
   it.each([

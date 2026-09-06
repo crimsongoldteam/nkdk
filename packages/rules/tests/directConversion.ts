@@ -19,6 +19,8 @@ import { createLocalIndexesCollector, type LocalIndexes } from "../metadata/proj
 import { mockContextFromXML, mockContextToXML } from "./mockContext"
 import { readAndParseXMLFixture, readXMLFixtureAsString } from "./readFixtureXML"
 import { xmlExport } from "@nkdk/runtime"
+import { isXmlElementNode, xmlElementChildren, xmlTextValue } from "@nkdk/runtime"
+import { parseStructuralXMLWithoutCompatibility } from "./structuralXML"
 import type {
   XmlAnomalyAnnotations,
   XmlAnomalyAnnotationTable,
@@ -328,9 +330,8 @@ interface AppliedObjectFixtureParams {
 export function testAppliedObjectFromXMLToYAML(
   params: AppliedObjectFixtureParams & { context?: ConfigurationContextFromXML }
 ): FromXMLResult {
-  const fixture = readAppliedObjectFixture(params.importMetaUrl, params.fixture)
-  const xml = isFileRoot(params.rule) ? fixture : (fixture.MetaDataObject ?? fixture)
-  const name = params.name ?? readItemName(fixture, params.rule)
+  const xml = parseStructuralXMLWithoutCompatibility(readXMLFixtureAsString(params.importMetaUrl, params.fixture))
+  const name = params.name ?? readItemName(xml, params.rule)
   return testMetadataItemFromXMLToYAML({
     rule: params.rule,
     xml,
@@ -404,10 +405,18 @@ function isFileRoot(rule: MetadataItemRule): boolean {
   )
 }
 
-function readItemName(fixture: Record<string, unknown>, rule: MetadataItemRule): string | undefined {
+function readItemName(fixture: Record<string, unknown> | XmlElementNode, rule: MetadataItemRule): string | undefined {
   const rootRule = Object.values(rule.properties).find(
     (propertyRule) => propertyRule.type === "XMLRoot" && typeof propertyRule.container === "string"
   )
+  if (isXmlElementNode(fixture)) {
+    let node: XmlElementNode | undefined = rootRule === undefined || fixture.name === rootRule.container
+      ? fixture : xmlElementChildren(fixture, rootRule.container)[0]
+    const nameRule = rule.properties.name
+    for (const parent of nameRule?.xmlParents ?? []) node = node === undefined ? undefined : xmlElementChildren(node, parent)[0]
+    const name = node === undefined ? undefined : xmlElementChildren(node, nameRule?.xml ?? "Name")[0]
+    return name === undefined ? undefined : xmlTextValue(name)
+  }
   const root = rootRule?.isFileRoot === true ? fixture : asRecord(fixture.MetaDataObject)
   let current: unknown = rootRule === undefined ? root : asRecord(root)?.[rootRule.container as string]
   const nameRule = rule.properties.name
