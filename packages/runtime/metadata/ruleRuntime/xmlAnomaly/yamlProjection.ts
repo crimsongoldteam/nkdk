@@ -104,55 +104,6 @@ export function projectXmlAuditRemainder(params: XmlAuditProjectionParams): void
   projectXmlRemainder(params, true)
 }
 
-/**
- * Оставляет в reference XML только уже заявленные импортом значения.
- * Незаявленные узлы затем обязаны быть построены экспортом либо проявиться
- * единственным расхождением локального proof.
- */
-export function projectXmlAuditReference(
-  root: XmlElementNode,
-  audit: XmlImportAuditSession,
-): unknown {
-  const projectElement = (element: XmlElementNode): unknown => {
-    const original = element.compatibilityValue
-    if (original === undefined || typeof original !== "object" || Array.isArray(original)) {
-      return element.content.some((node) =>
-        node.type === "text" && !isUnknown(audit.getOutcome(node).state)
-      ) ? original : undefined
-    }
-
-    const result: Record<string, unknown> = {}
-    for (const attribute of element.attributes) {
-      if (!isUnknown(audit.getOutcome(attribute).state)) result[`_${attribute.name}`] = attribute.value
-    }
-    const text = element.content.filter((node) => node.type === "text")
-    if (text.length > 0 && text.every((node) => !isUnknown(audit.getOutcome(node).state))) {
-      const originalText = (original as Record<string, unknown>)["#text"]
-      if (originalText !== undefined) result["#text"] = originalText
-    }
-
-    const children = new Map<string, unknown[]>()
-    for (const node of element.content) {
-      if (node.type === "text" || isUnknown(audit.getOutcome(node).state)) continue
-      const name = node.type === "element" ? node.name : `?${node.target}`
-      const value = node.type === "element"
-        ? projectElement(node)
-        : Object.fromEntries(node.attributes
-            .filter((attribute) => !isUnknown(audit.getOutcome(attribute).state))
-            .map((attribute) => [`_${attribute.name}`, attribute.value]))
-      const values = children.get(name) ?? []
-      values.push(value)
-      children.set(name, values)
-    }
-    for (const [name, values] of children) {
-      result[name] = values.length === 1 ? values[0] : values
-    }
-    return result
-  }
-
-  return projectElement(root)
-}
-
 /** Собственные остатки frame; порядок завершит общий XML-proof после экспортной политики. */
 export function projectXmlAuditOwnRemainder(params: XmlAuditProjectionParams): void {
   projectXmlRemainder(params, false)
