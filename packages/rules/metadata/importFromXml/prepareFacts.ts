@@ -416,20 +416,25 @@ export function prepareImportedFormDataPathChecks(params: {
   }))
 }
 
-function acceptedPropertyFacts(
+export function acceptedPropertyFacts(
   indexes: LocalIndexes,
   propertyFacts: readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][],
 ): Parameters<DirectImportFactsSink["acceptProperty"]>[0][] {
   const latestByKey = new Map<string, Parameters<DirectImportFactsSink["acceptProperty"]>[0]>()
   for (const fact of propertyFacts) latestByKey.set(propertyFactKey(fact.yamlPath, fact.propertyKey), fact)
   const compactFactsByPropertyRoot = new Map<string, Parameters<DirectImportFactsSink["acceptProperty"]>[0][]>()
+  for (const event of indexes.metadata.events) {
+    if (event.kind !== "property") continue
+    const key = event.rulePath.at(-1)?.propertyKey
+    if (key !== undefined) compactFactsByPropertyRoot.set(propertyFactKey(event.yamlPath, key), [])
+  }
   for (const fact of latestByKey.values()) {
-    if (fact.propertyKey.startsWith("$")) continue
+    const propertyKey = fact.propertyKey
+    if (propertyKey.startsWith("$")) continue
     for (let length = 1; length <= fact.yamlPath.length; length++) {
-      const key = propertyFactKey(fact.yamlPath.slice(0, length), fact.propertyKey)
+      const key = propertyFactKey(fact.yamlPath.slice(0, length), propertyKey)
       const descendants = compactFactsByPropertyRoot.get(key)
-      if (descendants === undefined) compactFactsByPropertyRoot.set(key, [fact])
-      else descendants.push(fact)
+      descendants?.push(fact)
     }
   }
   const latestContainerIndexByPath = new Map<string, number>()
