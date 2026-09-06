@@ -1,9 +1,9 @@
-import type { ElementXML, PropertyRule } from "../../metadata/ruleRuntime"
-import { importContentFromXML } from "@nkdk/runtime"
+import type { PropertyRule } from "../../metadata/ruleRuntime"
+import { parseXmlDocumentWithSaxes } from "@nkdk/runtime"
 import { createPropertyRuleExecutor, createRuleRegistrySet } from "@nkdk/runtime/rule-kit"
 import { metadataRules } from "../../metadata/composition/metadataRules"
 import { mockContextFromXML } from "../mockContext"
-import { readAndParseXMLFile } from "../readAndParseXMLFile"
+import { readXMLFileAsString } from "../readAndParseXMLFile"
 import { testFixturesDir } from "../testFixturesDir"
 
 const propertyRules = createPropertyRuleExecutor(createRuleRegistrySet(metadataRules).property)
@@ -13,7 +13,7 @@ export const testImportPropertyFromXML = (
     rule: PropertyRule
     /**
      * Корневой тег, под которым находятся данные в XML.
-     * Если не указан — весь распарсенный XML передаётся напрямую в `importPropertyFromXML`.
+     * Если не указан — передаются корневые узлы документа.
      */
     xmlRootTag?: string
     /** Передаётся в `mockContextFromXML({ forReference })` (по умолчанию false). */
@@ -30,18 +30,20 @@ export const testImportPropertyFromXML = (
 ): unknown => {
   const { rule, xmlRootTag, forReference } = params
 
-  const referenceXMLData =
+  const xml =
     "xmlString" in params
-      ? importContentFromXML<{ [key: string]: ElementXML }>(params.xmlString)
-      : readAndParseXMLFile<{ [key: string]: ElementXML }>(
+      ? params.xmlString
+      : readXMLFileAsString(
           params.path,
           params.importMetaUrl !== undefined ? testFixturesDir(params.importMetaUrl) : undefined
         )
-  const referenceXML = xmlRootTag !== undefined ? referenceXMLData[xmlRootTag] : referenceXMLData
+  const document = parseXmlDocumentWithSaxes(xml)
+  const roots = xmlRootTag === undefined ? document.roots : document.roots.filter(node => node.name === xmlRootTag)
+  const value = roots.length === 1 ? roots[0] : roots.length === 0 ? undefined : roots
 
   return propertyRules.fromXML({
     context: mockContextFromXML({ forReference: forReference ?? false }),
     rule,
-    value: referenceXML,
+    value,
   })
 }

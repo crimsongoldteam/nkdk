@@ -31,6 +31,10 @@ createImportedDependentPropertyCollector,
 createDirectImportFactsCollector,
 } from "./importYamlTypes"
 import { PropertyRuleType } from "./registry"
+import { parseMetadataYaml, serializeYAMLDocument } from "@nkdk/runtime"
+import { normalizeDirectRoundTripXML, testMetadataItemFromYAMLToXML, withDirectMetadataExecution } from "../../../tests/directConversion"
+import { prepareTestXmlAnomalyAssignment } from "../../xmlAnomalies/testSupport"
+import { buildPreparedAssignmentXml } from "../../fullSyncToXml/xmlAnomalyAssignment"
 import { registerTypeRule } from "./typeRuleRegistry"
 import type { MetadataItemRule } from "./types"
 import { MetadataCommonModuleRules } from "../../appliedObjects/metadataCommonModule/rules"
@@ -151,6 +155,35 @@ function xmlValueFixture(value: string) {
     root: parseXmlDocumentWithSaxes(`<Root><Value>${value}</Value></Root>`).roots[0]!,
   }
 }
+
+it("сохраняет v8:Type Undefined локальной сверкой без reference XML", () => {
+  const xml = '<value xmlns:d8p1="http://v8.1c.ru/8.2/data/types" xsi:type="v8:Type">d8p1:Undefined</value>'
+  const rule: MetadataItemRule = {
+    itemType: "DcsUndefinedProbe",
+    properties: { value: { type: "DcsMetadataTypedValue", yaml: "Значение", xml: "value" } },
+  }
+  const annotations = createXmlAnomalyAnnotations()
+  const yaml = importWithAnnotatedLocalXMLBody({
+    execution: createRuleRegistrySet(metadataRules).execution,
+    context: mockContextFromXML(), rule,
+    root: parseXmlDocumentWithSaxes(`<Probe>${xml}</Probe>`).roots[0]!,
+    annotations,
+  })
+  const prepared = withDirectMetadataExecution(() => prepareTestXmlAnomalyAssignment({
+    parsed: parseMetadataYaml(serializeYAMLDocument(yaml, annotations).text), rootRule: rule,
+  }))
+  const exported = testMetadataItemFromYAMLToXML({
+    rule, yaml: prepared.preparedYamlFile.data, annotations: prepared.preparedYamlFile.annotations,
+  })
+  const result = buildPreparedAssignmentXml({
+    context: mockContextToXML(),
+    document: {
+      targetXmlPath: "Probe.xml", rootRule: rule,
+      xml: { Probe: exported.xml }, deferred: [], rawBoundaries: prepared.rawBoundaries,
+    },
+  })
+  expect(normalizeDirectRoundTripXML(result)).toBe(`<Probe>\n\t${xml}\n</Probe>`)
+})
 
 function stringValueRule(params: {
   itemType?: string
