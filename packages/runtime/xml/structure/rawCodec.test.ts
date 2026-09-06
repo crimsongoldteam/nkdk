@@ -27,6 +27,21 @@ const groupedButtonsPatch = {
 }
 
 describe("decodeXmlRawValue", () => {
+  it("не строит вторую объектную копию raw, сохраняя mixed content, PI и дубли ID", () => {
+    const { nodes } = decodeXmlRawValue({
+      _xmlns: "urn:test", "#text": ["a", "b"],
+      Child: [{ _id: "1" }, { _id: "1" }],
+      "?future": { _mode: "x" },
+      "#order": ["#text", "Child", "?future", "#text", "Child"],
+    }, { elementName: "Root" })
+    expect(xmlExport(nodes, false)).toBe('<Root xmlns="urn:test">a<Child id="1"/><?future mode="x"?>b<Child id="1"/></Root>')
+    const pending = [...nodes]
+    for (const node of pending) {
+      expect(Reflect.get(node, "compatibilityValue")).toBeUndefined()
+      for (const child of node.content) if (child.type === "element") pending.push(child)
+    }
+  })
+
   it("сохраняет порядок полного вложенного XML-патча при добавлении ребёнка", () => {
     const patched = applyXmlPatch(
       {

@@ -4,6 +4,17 @@ import { XML_ORDERED_CHILDREN, xmlExport } from "./exporter"
 import { xmlObjectDocument } from "./document"
 
 describe("xmlObjectDocument", () => {
+  it("не удерживает исходный XML-объект через поля совместимости", () => {
+    const { document } = xmlObjectDocument({ Root: { _id: "1", Child: [{ _name: "a" }, "text"] } })
+    expect(Reflect.get(document, "compatibility") ?? {}).toEqual({})
+    const pending = [...document.roots]
+    for (const node of pending) {
+      expect(Reflect.get(node, "compatibilityValue")).toBeUndefined()
+      for (const child of node.content) if (child.type === "element") pending.push(child)
+    }
+    expect(xmlExport(document.roots, false)).toBe('<Root id="1">\n\t<Child name="a"/>\n\t<Child>text</Child>\n</Root>')
+  })
+
   it("строит доказательство структурного фрагмента с тем же порядком, текстом и PI", () => {
     const node = parseXmlDocumentWithSaxes('<Fragment attr="v">до<A/><?future mode="x" other="y" mode="z"?>после<A>2</A></Fragment>').roots[0]!
     Object.defineProperty(node, "compatibilityValue", { get() { throw new Error("Старый XML-объект не нужен") } })

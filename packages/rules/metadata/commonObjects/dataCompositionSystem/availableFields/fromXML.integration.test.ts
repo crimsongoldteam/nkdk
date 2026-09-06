@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "../../../ruleRuntime"
 import { testImportPropertyFromXML } from "../../../../tests/property/importPropertyFromXML"
+import { readXMLFixtureAsString } from "../../../../tests/readFixtureXML"
+import { parseStructuralXMLWithoutCompatibility } from "../../../../tests/structuralXML"
+import { mockContextFromXML } from "../../../../tests/mockContext"
+import { metadataPropertyRule000 as availableFields } from "./fromXML"
 import { fullAvailableFields, selectedItemAvailableFields } from "./__fixtures__/data"
 import "./types"
 
@@ -9,25 +13,19 @@ const rule: PropertyRule = {
 }
 
 describe("import available fields from XML", () => {
-  it("imports full.xml", () => {
+  it.each([
+    ["full.xml", fullAvailableFields],
+    ["selected-item.xml", selectedItemAvailableFields],
+  ] as const)("imports %s without compatibility XML", (path, expected) => {
     const result = testImportPropertyFromXML({
       rule,
-      path: "full.xml",
+      path,
       xmlRootTag: "dcsset:selection",
       importMetaUrl: import.meta.url,
     })
 
-    expect(result).toEqual(fullAvailableFields)
-  })
-
-  it("imports selected items", () => {
-    const result = testImportPropertyFromXML({
-      rule,
-      path: "selected-item.xml",
-      xmlRootTag: "dcsset:selection",
-      importMetaUrl: import.meta.url,
-    })
-
-    expect(result).toEqual(selectedItemAvailableFields)
+    expect(result).toEqual(expected)
+    const root = parseStructuralXMLWithoutCompatibility(readXMLFixtureAsString(import.meta.url, path))
+    expect(availableFields.handler(mockContextFromXML(), rule, root)).toEqual(expected)
   })
 })

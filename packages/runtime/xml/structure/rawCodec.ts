@@ -572,36 +572,9 @@ function materializeElement(
     attributes,
     content,
     span: { start: 0, end: 0 },
-    compatibilityValue: compatibilityValue(attributes, content),
+    compatibilityValue: undefined,
   }
   return { ...partial, structuralHash: hashXmlElementStructure(partial) }
-}
-
-function compatibilityValue(
-  attributes: readonly XmlAttributeNode[],
-  content: readonly XmlContentNode[]
-): unknown {
-  const value: Record<string, unknown> = {}
-  for (const attribute of attributes) value[`_${attribute.name}`] = attribute.value
-  const texts = content.filter((node): node is XmlTextNode => node.type === "text")
-  if (texts.length > 0) value["#text"] = texts.map(({ value: text }) => text).join("")
-  for (const node of content) {
-    if (node.type === "text") continue
-    const key = node.type === "element" ? node.name : `?${node.target}`
-    const nodeValue =
-      node.type === "element"
-        ? node.compatibilityValue
-        : Object.fromEntries(node.attributes.map(({ name, value: item }) => [`_${name}`, item]))
-    const previous = value[key]
-    if (previous === undefined) value[key] = nodeValue
-    else if (Array.isArray(previous)) previous.push(nodeValue)
-    else value[key] = [previous, nodeValue]
-  }
-  const keys = Object.keys(value)
-  if (attributes.length === 0 && keys.length === 1 && typeof value["#text"] === "string") {
-    return value["#text"]
-  }
-  return value
 }
 
 function toDraftElement(node: XmlElementNode): DraftXmlElement {

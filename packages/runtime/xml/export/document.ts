@@ -48,7 +48,7 @@ export function xmlObjectDocument(value: unknown): XmlObjectDocumentResult {
     document: {
       content: roots,
       roots,
-      compatibility: normalized,
+      compatibility: {},
       sourceLength: 0,
     },
   }
@@ -111,7 +111,7 @@ function elementNode(
     attributes,
     content: normalizedContent,
     span: syntheticSpan(),
-    compatibilityValue: value,
+    compatibilityValue: undefined,
   }
   return { ...partial, structuralHash: hashXmlElementStructure(partial) }
 

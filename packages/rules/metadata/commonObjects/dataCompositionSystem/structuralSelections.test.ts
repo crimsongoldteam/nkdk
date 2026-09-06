@@ -7,17 +7,8 @@ import type { DcsLocalStringTypeXML } from "./dcsLocalStringType/types"
 import { importGroupItemAutoFromXML } from "./structureItemGroup/items/groupItemAuto/fromXML"
 import { metadataPropertyRule000 as availableFields } from "./availableFields/fromXML"
 import type { AvailableFieldsXML } from "./availableFields/types"
-import { readXMLFixtureAsString } from "../../../tests/readFixtureXML"
 
 describe("structural DCS selections", () => {
-  it.each(["full.xml", "selected-item.xml"])("preserves available fields fixture %s", path => {
-    const xml = readXMLFixtureAsString(new URL("./availableFields/fromXML.integration.test.ts", import.meta.url).href, path)
-    const legacy = importContentFromXML<{ "dcsset:selection": AvailableFieldsXML }>(xml)["dcsset:selection"]
-    expect(availableFields.handler(mockContextFromXML(), mockRule, parseStructuralXMLWithoutCompatibility(xml))).toEqual(
-      availableFields.handler(mockContextFromXML(), mockRule, legacy),
-    )
-  })
-
   it("preserves the error for a repeated empty available-field entry", () => {
     const xml = "<Root><dcsset:item/><dcsset:item><dcsset:field>Поле</dcsset:field></dcsset:item></Root>"
     expect(() => availableFields.handler(mockContextFromXML(), mockRule, importContentFromXML<{ Root: AvailableFieldsXML }>(xml).Root)).toThrow(TypeError)
