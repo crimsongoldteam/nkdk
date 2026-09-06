@@ -6,6 +6,12 @@ import {
   getConfigurationIndexCollectionContext,
   getConfigurationIndexPropertyLogicalAddress,
   type ConfigurationIndexCollectionContext,
+  isXmlElementNode,
+  isEmptyXmlElement,
+  xmlAttributeValue,
+  xmlElementChildren,
+  xmlTextValue,
+  type XmlElementNode,
 } from "@nkdk/runtime"
 import { indexedUid } from "@nkdk/runtime"
 import {
@@ -110,7 +116,13 @@ const getReferenceRawXML = (referenceMetadata: unknown): Record<string, unknown>
   return isRecord(raw) ? raw : undefined
 }
 
-const getXMLId = (xml: { _id?: string; id?: string } | undefined): string | undefined => xml?._id ?? xml?.id
+const getXMLId = (xml: { _id?: string; id?: string } | XmlElementNode | undefined): string | undefined =>
+  isXmlElementNode(xml) ? xmlAttributeValue(xml, "id") ?? interfaceChildText(xml, "id") : xml?._id ?? xml?.id
+
+const interfaceChildText = (xml: XmlElementNode, name: string): string | undefined => {
+  const child = xmlElementChildren(xml, name)[0]
+  return child === undefined ? undefined : xmlTextValue(child) || undefined
+}
 
 const getRawXMLId = (xml: unknown): string | undefined => {
   if (!isRecord(xml)) return undefined
@@ -184,11 +196,16 @@ const getOrderedXMLChildren = <
     group?: ClientApplicationInterfaceGroupXML | ClientApplicationInterfaceGroupXML[]
   },
 >(
-  xml: T
+  xml: T | XmlElementNode
 ): Array<
-  | { key: "panel"; value: ClientApplicationInterfacePanelXML }
-  | { key: "group"; value: ClientApplicationInterfaceGroupXML }
+  | { key: "panel"; value: ClientApplicationInterfacePanelXML | XmlElementNode }
+  | { key: "group"; value: ClientApplicationInterfaceGroupXML | XmlElementNode }
 > => {
+  if (isXmlElementNode(xml)) {
+    return xml.content.flatMap(child => child.type === "element" && (child.name === "panel" || child.name === "group") && !isEmptyXmlElement(child)
+      ? [{ key: child.name, value: child }]
+      : [])
+  }
   const panels = toArray(xml.panel)
   const groups = toArray(xml.group)
   const childOrder = getXMLChildOrder(xml)?.filter((entry) => entry.key === "panel" || entry.key === "group")
@@ -333,23 +350,26 @@ const findReferenceItemIndex = (params: {
 
 const importPanelFromXML = (
   context: ConfigurationContextFromXML,
-  xml: ClientApplicationInterfacePanelXML
+  xml: ClientApplicationInterfacePanelXML | XmlElementNode
 ): ClientApplicationInterfacePanel => {
   const panel: ClientApplicationInterfacePanel = {
     kind: "panel",
   }
   const id = getXMLId(xml)
   if (id !== undefined) panel.id = id
-  if (xml.uuid !== undefined) panel.uuid = xml.uuid
-  if (xml.name !== undefined) panel.name = xml.name
-  if (xml.height !== undefined) panel.height = Number(xml.height)
+  const uuid = isXmlElementNode(xml) ? interfaceChildText(xml, "uuid") : xml.uuid
+  const name = isXmlElementNode(xml) ? interfaceChildText(xml, "name") : xml.name
+  const height = isXmlElementNode(xml) ? interfaceChildText(xml, "height") : xml.height
+  if (uuid !== undefined) panel.uuid = uuid
+  if (name !== undefined) panel.name = name
+  if (height !== undefined) panel.height = Number(height)
   defineReferenceRawXML({ context, target: panel, xml })
   return panel
 }
 
 const importGroupFromXML = (
   context: ConfigurationContextFromXML,
-  xml: ClientApplicationInterfaceGroupXML
+  xml: ClientApplicationInterfaceGroupXML | XmlElementNode
 ): ClientApplicationInterfaceGroup => {
   const group: ClientApplicationInterfaceGroup = { kind: "group" }
   const id = getXMLId(xml)
@@ -362,7 +382,7 @@ const importGroupFromXML = (
 
 const importItemsFromSectionXML = (
   context: ConfigurationContextFromXML,
-  xml: {
+  xml: XmlElementNode | {
     panel?: ClientApplicationInterfacePanelXML | ClientApplicationInterfacePanelXML[]
     group?: ClientApplicationInterfaceGroupXML | ClientApplicationInterfaceGroupXML[]
   }
@@ -390,15 +410,17 @@ const importItemsFromXML = (
 const importPanelDefsFromXML = (
   context: ConfigurationContextFromXML,
   _rule: PropertyRule,
-  xml: ClientApplicationInterfacePanelDefXML | ClientApplicationInterfacePanelDefXML[] | undefined
+  xml: ClientApplicationInterfacePanelDefXML | XmlElementNode | (ClientApplicationInterfacePanelDefXML | XmlElementNode)[] | undefined
 ): ClientApplicationInterfacePanelDefs | undefined => {
   const panelDefs = toArray(xml)
     .map((panelDef) => {
       const id = getXMLId(panelDef)
       if (id === undefined) return undefined
       const result: ClientApplicationInterfacePanelDef = { id }
-      if (panelDef.name !== undefined) result.name = panelDef.name
-      if (panelDef.spr !== undefined) result.spr = panelDef.spr
+      const name = isXmlElementNode(panelDef) ? interfaceChildText(panelDef, "name") : panelDef.name
+      const spr = isXmlElementNode(panelDef) ? interfaceChildText(panelDef, "spr") as SectionsPanelRepresentation | undefined : panelDef.spr
+      if (name !== undefined) result.name = name
+      if (spr !== undefined) result.spr = spr
       defineReferenceRawXML({ context, target: result, xml: panelDef })
       return result
     })
@@ -480,13 +502,17 @@ const exportItemsPropertyToYAML = (
 
 const importClientApplicationInterfaceFromXMLToYAML: ImportFromXMLToYAMLFunction = ({ context, xml }) => {
   const root = isRecord(xml) ? xml : undefined
-  const source = isRecord(root?.["ClientApplicationInterface"]) ? root["ClientApplicationInterface"] : root
+  const source = isXmlElementNode(xml)
+    ? xmlElementChildren(xml, "ClientApplicationInterface")[0] ?? xml
+    : isRecord(root?.["ClientApplicationInterface"]) ? root["ClientApplicationInterface"] : root
   if (!isRecord(source)) return undefined
+  if (isXmlElementNode(source) && source.attributes.length === 0 && source.content.every(child => child.type === "text")) return undefined
 
   const panelDefs = importPanelDefsFromXML(
     context,
     ClientApplicationInterfaceRules.properties.panelDefs,
-    source["panelDef"] as ClientApplicationInterfacePanelDefXML | ClientApplicationInterfacePanelDefXML[] | undefined
+    isXmlElementNode(source) ? xmlElementChildren(source, "panelDef")
+      : source["panelDef"] as ClientApplicationInterfacePanelDefXML | ClientApplicationInterfacePanelDefXML[] | undefined
   )
   const panelDefsById = new Map((panelDefs ?? []).map((panelDef) => [panelDef.id, panelDef]))
   const result: Record<string, unknown> = {}
@@ -497,12 +523,13 @@ const importClientApplicationInterfaceFromXMLToYAML: ImportFromXMLToYAMLFunction
   const sections: Partial<Record<(typeof SECTION_KEYS)[number], ClientApplicationInterfaceItems>> = {}
   for (const key of SECTION_KEYS) {
     const rule = ClientApplicationInterfaceRules.properties[key]
-    const items = importItemsFromXML(context, rule, source[rule.xml ?? key])
+    const items = importItemsFromXML(context, rule, isXmlElementNode(source) ? xmlElementChildren(source, rule.xml ?? key) : source[rule.xml ?? key])
     if (items !== undefined) sections[key] = items
     const yaml = exportItemsToYAML(undefined, undefined, items, panelDefsById)
     if (yaml !== undefined) result[rule.yaml] = yaml
   }
   collectClientApplicationInterfaceConfigurationIndex(context, sections, panelDefs)
+  if (isXmlElementNode(source)) return result
   const sourcePanelDefs = toArray(source["panelDef"])
   const emptyStandardRoot =
     Object.keys(result).length === 0 &&
