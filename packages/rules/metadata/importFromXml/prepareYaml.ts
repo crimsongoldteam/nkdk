@@ -19,7 +19,8 @@ import { importClientApplicationFormFromXMLToYAML } from "../forms/clientApplica
 import { importBaseFormYaml } from "../forms/clientApplicationForm/baseFormYaml"
 import { ClientApplicationFormRules, FormRulesTags } from "../forms/clientApplicationForm/rules"
 import type { ClientApplicationFormXML, ClientApplicationFormYAML, FormMetadataXML } from "../forms/clientApplicationForm/types"
-import { prepareClientApplicationFormProofContexts, prepareClientApplicationFormRootOutput } from "../forms/clientApplicationForm/convertYAMLToXML"
+import { prepareClientApplicationFormProofContexts, prepareClientApplicationFormProofContextsFromPrepared, prepareClientApplicationFormRootOutput } from "../forms/clientApplicationForm/convertYAMLToXML"
+import type { FormDataPathContext } from "../forms/clientApplicationForm/formDataPathContext"
 import { importMetadataItemFromXMLToYAML } from "../ruleRuntime/metadataItem/fromXMLToYAML"
 import {
   appendMetadataItemOwner,
@@ -170,7 +171,17 @@ export async function readImportXmlDocuments(params: {
   )
 }
 
-export async function prepareImportYamlFromDocuments(params: {
+interface ImportFormProofOptions {
+  readonly localRoundTrip?: ImportLocalRoundTripOptions
+  readonly formProofYaml?: ClientApplicationFormYAML
+  readonly formProofDataPathContext?: FormDataPathContext
+  readonly currentConfigurationFormYaml?: ClientApplicationFormYAML
+  readonly savedBaseFormYaml?: ClientApplicationFormYAML
+  readonly baseFormSource?: "saved" | "projected"
+  readonly baseFormProofYaml?: ClientApplicationFormYAML
+}
+
+export async function prepareImportYamlFromDocuments(params: ImportFormProofOptions & {
   readonly dependencies?: PreparedImportDependencies
   readonly baseFormDependencies?: PreparedImportDependencies
   readonly assignment: ImportAssignment
@@ -179,12 +190,6 @@ export async function prepareImportYamlFromDocuments(params: {
   readonly inputs: readonly ParsedImportXmlDocument[]
   readonly profiler?: ValidationProfiler
   readonly topology?: CompiledMetadataResourceTopology
-  readonly localRoundTrip?: ImportLocalRoundTripOptions
-  readonly formProofYaml?: ClientApplicationFormYAML
-  readonly currentConfigurationFormYaml?: ClientApplicationFormYAML
-  readonly savedBaseFormYaml?: ClientApplicationFormYAML
-  readonly baseFormSource?: "saved" | "projected"
-  readonly baseFormProofYaml?: ClientApplicationFormYAML
 }): Promise<PreparedImportYaml> {
   return prepareImportYamlFromParsedInputs({
     ...params,
@@ -197,7 +202,7 @@ export async function prepareImportYamlFromDocuments(params: {
   })
 }
 
-function prepareImportYamlFromParsedInputs(params: {
+function prepareImportYamlFromParsedInputs(params: ImportFormProofOptions & {
   readonly dependencies?: PreparedImportDependencies
   readonly baseFormDependencies?: PreparedImportDependencies
   readonly assignment: ImportAssignment
@@ -206,12 +211,6 @@ function prepareImportYamlFromParsedInputs(params: {
   readonly xmlInputs: ParsedImportXmlInput[]
   readonly profiler?: ValidationProfiler
   readonly topology?: CompiledMetadataResourceTopology
-  readonly localRoundTrip?: ImportLocalRoundTripOptions
-  readonly formProofYaml?: ClientApplicationFormYAML
-  readonly currentConfigurationFormYaml?: ClientApplicationFormYAML
-  readonly savedBaseFormYaml?: ClientApplicationFormYAML
-  readonly baseFormSource?: "saved" | "projected"
-  readonly baseFormProofYaml?: ClientApplicationFormYAML
 }): PreparedImportYaml {
     const xmlInputs = params.xmlInputs
     const annotations = createXmlAnomalyAnnotations()
@@ -227,7 +226,9 @@ function prepareImportYamlFromParsedInputs(params: {
       collector: params.collector,
       topology: params.topology,
     })
-    const formProofContexts = params.localRoundTrip === undefined
+    const formProofContexts = params.localRoundTrip !== undefined && params.formProofDataPathContext !== undefined
+      ? prepareClientApplicationFormProofContextsFromPrepared(params.localRoundTrip.context, params.formProofDataPathContext)
+      : params.localRoundTrip === undefined
       || (params.formProofYaml === undefined && rule.itemType !== ClientApplicationFormRules.itemType)
       ? undefined
       : prepareClientApplicationFormProofContexts(

@@ -31,6 +31,8 @@ import { clientApplicationFormDataPathProjection, resolveClientApplicationFormCo
 import { collectFormDataPathOccurrencesFromYAML } from "../validation/dataPath/formYamlTraversal"
 import * as formYamlTraversal from "../validation/dataPath/formYamlTraversal"
 import { collectFormDataPathOccurrencesFromFacts } from "./formDataPathOccurrences"
+import { collectFormDataPathPreparationFromFacts } from "./formDataPathPreparation"
+import { collectClientApplicationFormDataPathPreparation } from "../forms/clientApplicationForm/formDataPathContext"
 import type { ImportAssignment } from "./types"
 import {
   extractImportValidationContribution,
@@ -75,6 +77,14 @@ describe("prepareImportFacts", () => {
     expect(collectFormDataPathOccurrencesFromFacts({
       facts: facts.semanticFacts, projection: clientApplicationFormDataPathProjection,
     })).toEqual(expected)
+    const preparation = collectFormDataPathPreparationFromFacts({
+      facts: facts.semanticFacts, index: facts.localIndexes.metadata.formDataPathIndex!,
+    })
+    const yamlPreparation = collectClientApplicationFormDataPathPreparation({
+      yaml: createPropertyFactsYamlView(facts.semanticFacts), rule: facts.rule,
+    })
+    expect(preparation.collected.elementsByName).toEqual(yamlPreparation.collected.elementsByName)
+    expect(preparation.effectiveMainAttribute).toBe(yamlPreparation.effectiveMainAttribute)
   })
 
   it("готовит отдельный индекс путей основы по её фактам", async () => {

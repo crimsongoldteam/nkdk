@@ -9,6 +9,8 @@ import type { OwnerMetadataCache } from "../../validation/dataPath/ownerCache"
 import { getDataPathOwnerKind, standardMemberYamlToInternal } from "../../validation/dataPath/registry"
 import {
   collectFormDataPathOccurrencesFromYAML,
+  primaryFormDataPathRule,
+  type FormYAMLElementVisit,
   type FormYAMLItemVisitor,
 } from "../../validation/dataPath/formYamlTraversal"
 import type { ClientApplicationFormYAML } from "./types"
@@ -232,7 +234,7 @@ export function prepareFormDataPathContext(params: {
   for (const name of params.savedBaseElementNames ?? []) borrowedNames.add(name)
   const preparation = params.preparation
   const collected = preparation.collected
-  const ownIndex = preparation.index
+  const ownIndex = withFinalTabularElementDataPaths(preparation)
   const index = mergeFormDataPathIndexes(ownIndex, currentConfigurationForm?.index)
   const effectiveMainAttribute =
     preparation.effectiveMainAttribute ?? currentConfigurationForm?.effectiveMainAttribute
@@ -255,6 +257,21 @@ export function prepareFormDataPathContext(params: {
     elementsByName: prepared.elementsByName,
     ...(effectiveMainAttribute === undefined ? {} : { effectiveMainAttribute }),
   }
+}
+
+function withFinalTabularElementDataPaths(preparation: FormDataPathPreparation): FormDataPathIndex {
+  let updated: Map<string, FormDataPathTabularElementDeclaration> | undefined
+  for (const [name, element] of preparation.collected.elementsByName) {
+    if (element.itemType !== "Table") continue
+    const existing = preparation.index.tabularElementsByName.get(name)
+    if (existing === undefined) continue
+    const dataPath = element.present && typeof element.value === "string" && element.value.trim().length > 0
+      ? element.value : undefined
+    if (existing.dataPath === dataPath) continue
+    updated ??= new Map(preparation.index.tabularElementsByName)
+    updated.set(name, { kind: "tabularFormElement", ...(dataPath === undefined ? {} : { dataPath }) })
+  }
+  return updated === undefined ? preparation.index : { ...preparation.index, tabularElementsByName: updated }
 }
 
 function withEffectiveTabularElementDataPaths(params: {
@@ -527,25 +544,22 @@ function collectFormElements(
     resolveCollectionItemRule: resolveClientApplicationFormCollectionItemRule,
     visitElement: (visit) => {
       acceptFormTabularElementVisit(tabularElementsByName, visit)
-      const dataPath = visit.primaryDataPath
-      if (dataPath === undefined) return
-      const dataPathRule = Object.values(visit.rule.properties).find(
-        (propertyRule): propertyRule is DataPathPropertyRule =>
-          propertyRule.type === "DataPath" && propertyRule.yaml === dataPath.yamlKey
-      )
-      if (dataPathRule === undefined) return
-      elementsByName.set(visit.name, {
-        name: visit.name,
-        itemType: visit.itemType,
-        dataPathRule,
-        yamlPath: visit.yamlPath,
-        present: dataPath?.present ?? false,
-        value: dataPath?.value,
-        ...(visit.tableOwner === undefined ? {} : { tableOwnerName: visit.tableOwner.name }),
-      })
+      const element = describeFormElementDataPath(visit)
+      if (element !== undefined) elementsByName.set(visit.name, element)
     },
   })
   return { elementsByName, tabularElementsByName, occurrences }
+}
+
+export function describeFormElementDataPath(visit: Omit<FormYAMLElementVisit, "yaml">): CollectedFormElement | undefined {
+  const dataPath = visit.primaryDataPath
+  const dataPathRule = primaryFormDataPathRule(visit.rule)
+  if (dataPath === undefined || dataPathRule === undefined) return undefined
+  return {
+    name: visit.name, itemType: visit.itemType, dataPathRule, yamlPath: visit.yamlPath,
+    present: dataPath.present, value: dataPath.value,
+    ...(visit.tableOwner === undefined ? {} : { tableOwnerName: visit.tableOwner.name }),
+  }
 }
 
 function mergeFormDataPathIndexes(

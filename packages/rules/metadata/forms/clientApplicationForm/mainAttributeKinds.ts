@@ -28,10 +28,14 @@ export function findMainAttributeName(attributes: unknown): string | undefined {
   for (const [name, rawAttribute] of Object.entries(attributes)) {
     if (
       isRecord(rawAttribute) &&
-      (rawAttribute["ОсновнойРеквизит"] === true || rawAttribute["ОсновнойРеквизит"] === "Истина")
+      isMainFormAttribute(rawAttribute["ОсновнойРеквизит"])
     ) return name
   }
   return undefined
+}
+
+export function isMainFormAttribute(value: unknown): boolean {
+  return value === true || value === "Истина"
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

@@ -211,15 +211,19 @@ function readPrimaryDataPath(
   record: Record<string, unknown>,
   rule: MetadataItemRule
 ): FormYAMLElementVisit["primaryDataPath"] {
-  const dataPathRule = Object.values(rule.properties).find(
-    (propertyRule) => isDataPathRule(propertyRule) && propertyRule.yaml === "ПутьКДанным"
-  )
+  const dataPathRule = primaryFormDataPathRule(rule)
   if (dataPathRule === undefined || typeof dataPathRule.yaml !== "string") return undefined
   return {
     yamlKey: dataPathRule.yaml,
     present: Object.prototype.hasOwnProperty.call(record, dataPathRule.yaml),
     value: record[dataPathRule.yaml],
   }
+}
+
+export function primaryFormDataPathRule(rule: MetadataItemRule): DataPathPropertyRule | undefined {
+  return Object.values(rule.properties).find(
+    (propertyRule): propertyRule is DataPathPropertyRule => isDataPathRule(propertyRule) && propertyRule.yaml === "ПутьКДанным",
+  )
 }
 
 function arrayEntries(value: unknown): Array<[number, unknown]> {

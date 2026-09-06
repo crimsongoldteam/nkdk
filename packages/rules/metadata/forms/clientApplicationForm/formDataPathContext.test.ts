@@ -17,6 +17,20 @@ import type { ClientApplicationFormYAML } from "./types"
 import { resolveDataPathCore } from "../../validation/dataPath/coreResolver"
 
 describe("prepareFormDataPathContextFromYAML", () => {
+  it("обновляет пути таблиц из окончательных фактов, не изменяя индекс первого прохода", () => {
+    const preparation = collectClientApplicationFormDataPathPreparation({ yaml: {
+      Реквизиты: { Объект: { Тип: "CatalogObject.Товары" } },
+      Элементы: { Таблица: { Вид: "ТаблицаФормы", ПутьКДанным: "Объект.Код" } },
+    } })
+    const elementsByName = new Map(preparation.collected.elementsByName)
+    elementsByName.set("Таблица", { ...elementsByName.get("Таблица")!, value: "Объект.Наименование" })
+    const context = prepareFormDataPathContext({
+      preparation: { ...preparation, collected: { elementsByName } }, ownerCache: catalogOwnerCache(),
+    })
+    expect(context.index.tabularElementsByName.get("Таблица")?.dataPath).toBe("Объект.Наименование")
+    expect(preparation.index.tabularElementsByName.get("Таблица")?.dataPath).toBe("Объект.Код")
+  })
+
   it("вычисляет контекст только по элементам и индексу, без YAML и запросов с setters", () => {
     const source = collectClientApplicationFormDataPathPreparation({ yaml: {
       Реквизиты: { Объект: { Тип: "CatalogObject.Товары", ОсновнойРеквизит: "Истина" } },

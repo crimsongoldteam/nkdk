@@ -177,6 +177,13 @@ export function prepareClientApplicationFormProofContexts(
     ownerCache: context.importFromYAML?.ownerMetadataCache ?? context.exportToYAML?.ownerMetadataCache ?? emptyOwnerMetadataCache,
     rule: params.rule ?? ClientApplicationFormRules,
   })
+  return prepareClientApplicationFormProofContextsFromPrepared(context, prepared)
+}
+
+export function prepareClientApplicationFormProofContextsFromPrepared(
+  context: ConfigurationContextWithExportToXML,
+  prepared?: FormDataPathContext,
+): { readonly metadata: ConfigurationContextWithExportToXML; readonly form: ConfigurationContextWithExportToXML } {
   const formDataPathIndex = prepared?.index ?? context.importFromYAML?.formDataPathIndex
   const ownerMetadataCache = context.importFromYAML?.ownerMetadataCache ?? context.exportToYAML?.ownerMetadataCache
   if (formDataPathIndex === undefined || ownerMetadataCache === undefined) {

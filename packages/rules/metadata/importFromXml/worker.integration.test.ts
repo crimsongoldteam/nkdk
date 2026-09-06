@@ -33,6 +33,7 @@ import { createImportReconstructionFactsWriter, openImportReconstructionFacts } 
 import type { ImportAssignment } from "./types"
 import { createValidationProjectComponent } from "../validation/projectComponents"
 import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
+import * as propertyFactsView from "./propertyFactsYamlView"
 
 const importWorker = createImportWorkerCommandRunner()
 const runImportWorkerCommand = importWorker.run
@@ -513,6 +514,20 @@ describe("XML import worker first pass", () => {
 })
 
 describe("XML import worker second pass", () => {
+  it("готовит обычную форму после общего индекса без промежуточного YAML", async () => {
+    const assignments = createCatalogAndFormAssignments("Объект.Код")
+    await beginCatalogAndFormSecondPass(createTempDir("form-direct-context"), assignments)
+    const view = vi.spyOn(propertyFactsView, "createPropertyFactsYamlView")
+    try {
+      const result = await runImportWorkerCommand({ kind: "secondPass", assignmentId: assignments.form.id })
+      expect(result).toMatchObject({ kind: "secondPassResult", diagnostics: [] })
+      expect(view.mock.calls.length).toBe(0)
+    } finally {
+      view.mockRestore()
+      await runImportWorkerCommand({ kind: "endSecondPass" })
+    }
+  })
+
   it.each([
     ["Объект", true],
     ["Неизвестный", true],
