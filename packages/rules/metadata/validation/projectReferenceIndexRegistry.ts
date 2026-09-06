@@ -34,8 +34,13 @@ export type ProjectReferenceMemberIndexContributor = (params: {
   projectDir: string
   owner: OwnerMetadata
   objectTarget: Extract<ParsedMetadataTarget, { kind: "object" }>
-  rawYaml: unknown
+  readProperty: (yamlKey: string) => unknown
 }) => Iterable<ProjectMemberIndexEntry>
+
+export interface ProjectReferenceMemberIndexRegistration {
+  readonly yamlProperties: readonly string[]
+  readonly contributor: ProjectReferenceMemberIndexContributor
+}
 
 export type ProjectReferenceContribution =
   | DataTableDeclarationContribution
@@ -61,6 +66,7 @@ export type ProjectReferenceContribution =
     }
   | {
       readonly kind: "memberIndex"
+      readonly yamlProperties: readonly string[]
       readonly contributor: ProjectReferenceMemberIndexContributor
     }
 
@@ -69,7 +75,7 @@ export interface ProjectReferenceRegistrySet {
   getMemberContributors(kind: MetadataMemberKind): readonly ProjectReferenceMemberContributor[]
   getValueContributor(root: MetadataRootName): ProjectReferenceValueContributor | undefined
   getFileValidators(role: string): readonly ProjectFileValidator[]
-  getMemberIndexContributors(): readonly ProjectReferenceMemberIndexContributor[]
+  getMemberIndexContributors(): readonly ProjectReferenceMemberIndexRegistration[]
 }
 
 type ContextualValidationRegistry = { references: ProjectReferenceRegistrySet }
@@ -81,7 +87,7 @@ export function createProjectReferenceRegistrySet(
   const members = new Map<MetadataMemberKind, ProjectReferenceMemberContributor[]>()
   const values = new Map<MetadataRootName, ProjectReferenceValueContributor>()
   const fileValidators = new Map<string, ProjectFileValidator[]>()
-  const memberIndexes: ProjectReferenceMemberIndexContributor[] = []
+  const memberIndexes: ProjectReferenceMemberIndexRegistration[] = []
 
   for (const contribution of contributions) {
     if (contribution.kind === "objectPath") objectPaths.set(contribution.root, contribution.contributor)
@@ -90,7 +96,7 @@ export function createProjectReferenceRegistrySet(
     } else if (contribution.kind === "value") values.set(contribution.root, contribution.contributor)
     else if (contribution.kind === "fileValidator") {
       fileValidators.set(contribution.role, [...(fileValidators.get(contribution.role) ?? []), contribution.validator])
-    } else if (contribution.kind === "memberIndex") memberIndexes.push(contribution.contributor)
+    } else if (contribution.kind === "memberIndex") memberIndexes.push(contribution)
   }
 
   return {
@@ -124,6 +130,6 @@ export function getProjectFileValidators(role: string): readonly ProjectFileVali
   return currentValidationRegistrySet<ContextualValidationRegistry>()?.references.getFileValidators(role) ?? []
 }
 
-export function getProjectReferenceMemberIndexContributors(): readonly ProjectReferenceMemberIndexContributor[] {
+export function getProjectReferenceMemberIndexContributors(): readonly ProjectReferenceMemberIndexRegistration[] {
   return currentValidationRegistrySet<ContextualValidationRegistry>()?.references.getMemberIndexContributors() ?? []
 }

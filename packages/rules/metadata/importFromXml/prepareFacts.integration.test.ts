@@ -185,12 +185,15 @@ describe("prepareImportFacts", () => {
     const file = validationFileForAssignment(assignment)
     const expected = extractImportValidationContribution({ prepared: legacy, projectDir: "/project", file })
     const traversal = vi.spyOn(addressableMetadataTargets, "collectAddressableMetadataLogicalAddresses")
+    const yamlView = vi.spyOn(propertyFactsView, "createPropertyFactsYamlView")
     let actual: ReturnType<typeof extractImportValidationContributionFromFacts>
     try {
       actual = extractImportValidationContributionFromFacts({ prepared: facts, projectDir: "/project", file })
       expect(traversal).not.toHaveBeenCalled()
+      expect(yamlView).not.toHaveBeenCalled()
     } finally {
       traversal.mockRestore()
+      yamlView.mockRestore()
     }
 
     expect(expected.validationContribution.logicalAddresses.length).toBeGreaterThan(0)

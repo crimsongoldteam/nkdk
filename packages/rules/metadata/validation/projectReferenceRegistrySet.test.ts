@@ -30,6 +30,7 @@ it("isolates project reference contributions between rule sets", () => {
     },
     {
       kind: "memberIndex",
+      yamlProperties: [],
       contributor: () => [],
     },
   ]

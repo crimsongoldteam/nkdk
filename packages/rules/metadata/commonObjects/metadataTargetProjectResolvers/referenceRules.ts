@@ -18,7 +18,7 @@ const collections = [
 export const metadataTargetProjectReferenceRules: readonly ProjectReferenceContribution[] = collections.flatMap(
   ({ modelName, yamlName, kind }) => [
     { kind: "member" as const, memberKind: kind, contributor: createCollectionMemberResolver({ modelName, yamlName }) },
-    { kind: "memberIndex" as const, contributor: collectionMemberIndexContributor({ modelName, yamlName, kind }) },
+    { kind: "memberIndex" as const, yamlProperties: [yamlName], contributor: collectionMemberIndexContributor({ modelName, yamlName, kind }) },
   ],
 )
 
@@ -40,8 +40,8 @@ function collectionMemberIndexContributor(params: {
   yamlName: string
   kind: ProjectMemberIndexEntry["target"]["segments"][number]["kind"]
 }): ProjectReferenceMemberIndexContributor {
-  return ({ owner, objectTarget, rawYaml }) => {
-    const collection = metadataRecord(owner.facts)[params.modelName] ?? metadataRecord(rawYaml)[params.yamlName]
+  return ({ owner, objectTarget, readProperty }) => {
+    const collection = metadataRecord(owner.facts)[params.modelName] ?? readProperty(params.yamlName)
     const entries: ProjectMemberIndexEntry[] = []
     for (const item of collectionItems(collection)) {
       const target: Extract<ParsedMetadataTarget, { kind: "member" }> = {

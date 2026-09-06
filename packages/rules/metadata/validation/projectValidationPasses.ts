@@ -1294,12 +1294,13 @@ function buildMemberIndexEntries(params: {
   }
 
   if (params.objectTarget === undefined) return entries
-  for (const contributor of getProjectReferenceMemberIndexContributors()) {
+  for (const { contributor } of getProjectReferenceMemberIndexContributors()) {
     for (const entry of contributor({
       projectDir: params.projectDir,
       owner: params.owner,
       objectTarget: params.objectTarget,
-      rawYaml: params.rawYaml,
+      readProperty: (key) => params.rawYaml !== null && typeof params.rawYaml === "object"
+        ? Reflect.get(params.rawYaml, key) : undefined,
     })) addMemberIndexEntry(entries, seen, entry)
   }
 

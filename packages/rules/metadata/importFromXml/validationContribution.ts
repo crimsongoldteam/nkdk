@@ -32,7 +32,7 @@ import type { ProjectLocalDependency, ProjectLogicalAddressEntry } from "../proj
 import type { PreparedImportYaml } from "./prepareYaml"
 import type { PreparedImportFacts } from "./prepareFacts"
 import { extractImportOwnerFacts } from "./ownerFacts"
-import { createPropertyFactsYamlView } from "./propertyFactsYamlView"
+import { selectImportPropertyValues } from "./selectedPropertyFacts"
 
 export interface ImportValidationContribution {
   validationContribution: ValidationIndexContribution
@@ -60,6 +60,7 @@ export function extractImportValidationContribution(params: {
   return extractImportValidationContributionCore({
     ...params,
     rawYaml: params.prepared.yaml,
+    readProperty: (key) => metadataRecord(params.prepared.yaml)[key],
   })
 }
 
@@ -69,9 +70,14 @@ export function extractImportValidationContributionFromFacts(params: {
   file: ValidationProjectFile
   measure?: ImportValidationContributionMeasure
 }): ImportValidationContribution {
+  const values = params.file.kind === "form" ? new Map<string, unknown>() : selectImportPropertyValues(
+    params.prepared.semanticFacts,
+    new Set(["Тип", ...getProjectReferenceMemberIndexContributors().flatMap(({ yamlProperties }) => yamlProperties)]),
+  )
   return extractImportValidationContributionCore({
     ...params,
-    rawYaml: params.file.kind === "form" ? undefined : createPropertyFactsYamlView(params.prepared.semanticFacts),
+    rawYaml: undefined,
+    readProperty: (key) => values.get(key),
   })
 }
 
@@ -80,6 +86,7 @@ function extractImportValidationContributionCore(params: {
   projectDir: string
   file: ValidationProjectFile
   rawYaml: unknown
+  readProperty: (yamlKey: string) => unknown
   measure?: ImportValidationContributionMeasure
 }): ImportValidationContribution {
   const measure: ImportValidationContributionMeasure = params.measure ?? ((_step, action) => action())
@@ -120,7 +127,7 @@ function extractImportValidationContributionCore(params: {
 
   const objectIndexEntries = measure(
     "Сбор объектов общего индекса",
-    () => objectIndexEntriesForFile(file, params.rawYaml, params.prepared),
+    () => objectIndexEntriesForFile(file, params.rawYaml, params.prepared, params.readProperty),
   )
   const ownerFacts = measure(
     "Сбор сведений о владельцах и полях",
@@ -133,14 +140,14 @@ function extractImportValidationContributionCore(params: {
         projectDir: params.projectDir,
         file,
         prepared: params.prepared,
-        rawYaml: params.rawYaml,
+        readProperty: params.readProperty,
         facts,
       })),
       ...rawYamlMemberIndexEntries({
         projectDir: params.projectDir,
         file,
         prepared: params.prepared,
-        rawYaml: params.rawYaml,
+        readProperty: params.readProperty,
       }),
     ]),
   )
@@ -252,11 +259,11 @@ function objectIndexEntriesForFile(
   file: ValidationProjectFile,
   yaml: unknown,
   prepared: PreparedImportYaml | PreparedImportFacts,
+  readProperty: (yamlKey: string) => unknown,
 ): ProjectObjectIndexEntry[] {
   const target = objectTargetForFile(file)
   if (target === undefined) return []
-  const data = metadataRecord(yaml)
-  const type = data["Тип"]
+  const type = readProperty("Тип")
 
   return [
     {
@@ -446,7 +453,7 @@ function ownerMemberIndexEntries(params: {
   projectDir: string
   file: ValidationProjectFile
   prepared: PreparedImportYaml | PreparedImportFacts
-  rawYaml: unknown
+  readProperty: (yamlKey: string) => unknown
   facts: ValidationOwnerFacts
 }): ProjectMemberIndexEntry[] {
   const objectTarget = objectTargetForFile(params.file)
@@ -470,12 +477,12 @@ function ownerMemberIndexEntries(params: {
     rule: params.prepared.rule,
     spec: params.file.owner.spec,
   }
-  for (const contributor of getProjectReferenceMemberIndexContributors()) {
+  for (const { contributor } of getProjectReferenceMemberIndexContributors()) {
     for (const entry of contributor({
       projectDir: params.projectDir,
       owner,
       objectTarget,
-      rawYaml: params.rawYaml,
+      readProperty: params.readProperty,
     })) {
       appendMember(entries, seen, entry)
     }
@@ -487,7 +494,7 @@ function rawYamlMemberIndexEntries(params: {
   projectDir: string
   file: ValidationProjectFile
   prepared: PreparedImportYaml | PreparedImportFacts
-  rawYaml: unknown
+  readProperty: (yamlKey: string) => unknown
 }): ProjectMemberIndexEntry[] {
   const objectTarget = objectTargetForFile(params.file)
   if (objectTarget === undefined) return []
@@ -501,12 +508,12 @@ function rawYamlMemberIndexEntries(params: {
     rule: params.prepared.rule,
     spec: params.file.owner.spec,
   }
-  return getProjectReferenceMemberIndexContributors().flatMap((contributor) =>
+  return getProjectReferenceMemberIndexContributors().flatMap(({ contributor }) =>
     [...contributor({
       projectDir: params.projectDir,
       owner,
       objectTarget,
-      rawYaml: params.rawYaml,
+      readProperty: params.readProperty,
     })]
   )
 }

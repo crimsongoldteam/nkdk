@@ -6,7 +6,7 @@ import type { DirectImportFactsSink, LocalIndexes, MetadataItemRule, OwnerFactRo
 import type { ParsedMetadataTarget } from "@nkdk/runtime/rule-kit"
 import { validationOwnerRef } from "../validation/dataPath/validationOwnerRef"
 import { ownerFactFromYAML } from "../validation/dataPath/ownerFacts"
-import { createSelectedPropertyValue } from "./selectedPropertyValue"
+import { selectImportPropertyValues } from "./selectedPropertyFacts"
 
 type ImportPropertyFact = Parameters<DirectImportFactsSink["acceptProperty"]>[0]
 
@@ -49,25 +49,15 @@ export function extractImportOwnerFacts(
 }
 
 function ownerFactsFromProperties(rule: MetadataItemRule, facts: readonly ImportPropertyFact[]): Record<string, unknown> {
-  const selected = new Map<string, { role: OwnerFactRole; value: ReturnType<typeof createSelectedPropertyValue> }>()
+  const selected = new Map<string, OwnerFactRole>()
   for (const property of Object.values(rule.properties)) {
     if (property.ownerFactRole === undefined || typeof property.yaml !== "string") continue
-    selected.set(property.yaml, { role: property.ownerFactRole, value: createSelectedPropertyValue() })
+    selected.set(property.yaml, property.ownerFactRole)
   }
-  for (const containers of [true, false]) {
-    for (const fact of facts) {
-      if (fact.propertyKey.startsWith("$container:") !== containers) continue
-      const key = fact.yamlPath[0]
-      const target = typeof key === "string" ? selected.get(key) : undefined
-      if (target === undefined) continue
-      const value = fact.value
-      if (value === undefined && fact.scalarTag === undefined && fact.presentInXML !== true) continue
-      target.value.accept(fact.yamlPath.slice(1), value, fact.scalarTag)
-    }
-  }
+  const values = selectImportPropertyValues(facts, selected.keys())
   const result: Record<string, unknown> = {}
-  for (const { role, value } of selected.values()) {
-    const normalized = ownerFactFromYAML(role, value.finish())
+  for (const [key, role] of selected) {
+    const normalized = ownerFactFromYAML(role, values.get(key))
     if (normalized !== undefined) result[role] = normalized
   }
   return result
