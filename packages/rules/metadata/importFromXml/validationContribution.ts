@@ -12,6 +12,7 @@ import type { OwnerMetadata } from "../validation/dataPath/ownerCache"
 import type { ObjectField, ObjectFieldKind } from "../validation/dataPath/objectFields"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
 import {
+  addressableMetadataItemLogicalAddress,
   collectAddressableMetadataLogicalAddresses,
   collectAddressableMetadataObjectEntries,
   objectTargetForProjectFile,
@@ -27,7 +28,7 @@ import {
 } from "../validation/projectReferenceIndex"
 import type { ValidationProjectFile } from "../validation/projectFiles"
 import type { ValidationIndexContribution, ValidationObjectRecord } from "../validation/projectValidationTypes"
-import type { ProjectLocalDependency } from "../projectDefinition/componentIndexFacts"
+import type { ProjectLocalDependency, ProjectLogicalAddressEntry } from "../projectDefinition/componentIndexFacts"
 import type { PreparedImportYaml } from "./prepareYaml"
 import type { PreparedImportFacts } from "./prepareFacts"
 import { extractImportOwnerFacts } from "./ownerFacts"
@@ -160,6 +161,8 @@ function extractImportValidationContributionCore(params: {
     "Сбор логических адресов",
     () => canonicalTarget === undefined
       ? []
+      : isPreparedImportFacts(params.prepared)
+      ? collectLogicalAddressesFromFacts(params.prepared, params.file.projectPath)
       : collectAddressableMetadataLogicalAddresses({
           yaml: params.rawYaml,
           rule: file.itemRule,
@@ -276,6 +279,57 @@ function objectIndexEntriesForFile(
   ]
 }
 
+function collectLogicalAddressesFromFacts(prepared: PreparedImportFacts, filePath: string): ProjectLogicalAddressEntry[] {
+  const addressesByPath = new Map<string, string>()
+  const entries: { entry: ProjectLogicalAddressEntry; order: readonly number[] }[] = []
+  const itemPositions = new Map<string, number>()
+  const propertyPositions = new Map<MetadataItemRule, ReadonlyMap<string, number>>()
+  for (const event of prepared.localIndexes.metadata.events) {
+    if (event.kind !== "item" || event.name === undefined) continue
+    const resolved = resolveFactItemRule(prepared.rule, event)
+    if (resolved === undefined) continue
+    const logicalAddress = addressableMetadataItemLogicalAddress({
+      rule: resolved.itemRule,
+      propertyRule: resolved.propertyRule,
+      collectionUidSegment: resolved.collectionUidSegment,
+      itemName: event.name,
+      parent: nearestFactParent(addressesByPath, event.yamlPath) ?? prepared.assignment.logicalAddress,
+    })
+    if (logicalAddress === undefined) continue
+    addressesByPath.set(yamlPathKey(event.yamlPath), logicalAddress)
+    const order: number[] = []
+    let yamlOffset = 0
+    for (const step of resolved.steps) {
+      let positions = propertyPositions.get(step.ownerRule)
+      if (positions === undefined) {
+        positions = new Map(Object.keys(step.ownerRule.properties).map((key, index) => [key, index]))
+        propertyPositions.set(step.ownerRule, positions)
+      }
+      order.push(positions.get(step.propertyKey)!)
+      if (step.propertyRule.yamlInline !== true) yamlOffset += 1
+      if (step.collection) {
+        yamlOffset += 1
+        const key = yamlPathKey(event.yamlPath.slice(0, yamlOffset))
+        let position = itemPositions.get(key)
+        if (position === undefined) {
+          position = itemPositions.size
+          itemPositions.set(key, position)
+        }
+        order.push(position)
+      }
+    }
+    entries.push({ entry: { logicalAddress, sourceProjectPath: filePath }, order })
+  }
+  entries.sort((left, right) => {
+    for (let index = 0; index < Math.min(left.order.length, right.order.length); index++) {
+      const difference = left.order[index]! - right.order[index]!
+      if (difference !== 0) return difference
+    }
+    return left.order.length - right.order.length
+  })
+  return entries.map(({ entry }) => entry)
+}
+
 function collectAddressableObjectEntriesFromFacts(
   prepared: PreparedImportFacts,
   canonicalTarget: string,
@@ -314,14 +368,17 @@ function resolveFactItemRule(
   readonly itemRule: MetadataItemRule
   readonly propertyRule: PropertyRule
   readonly collectionUidSegment?: string
+  readonly steps: readonly FactRuleStep[]
 } | undefined {
   let currentRule = rootRule
   let lastProperty: PropertyRule | undefined
   let lastCollectionUidSegment: string | undefined
+  const steps: FactRuleStep[] = []
   for (const segment of event.rulePath) {
     const propertyRule = currentRule.properties[segment.propertyKey]
     if (propertyRule === undefined) return undefined
     const nested = getTypeRule(propertyRule.type, "nestedItemRule")
+    const yamlNested = getTypeRule(propertyRule.type, "yamlToXMLNestedRule")
     const nestedItemType = segment.nestedItemType ?? event.itemType
     const itemRule = nested === undefined
       ? undefined
@@ -329,18 +386,33 @@ function resolveFactItemRule(
         ? nested.itemRule
         : nested.resolveItemRule(nestedItemType)
     if (itemRule === undefined) continue
+    steps.push({
+      propertyRule,
+      propertyKey: segment.propertyKey,
+      ownerRule: currentRule,
+      collection: yamlNested?.kind === "collection",
+    })
     lastProperty = propertyRule
     lastCollectionUidSegment = currentRule.childCollections
       ?.find(({ propertyKey }) => propertyKey === segment.propertyKey)
       ?.configurationIndexUidSegment
+      ?? (yamlNested?.kind === "collection" ? yamlNested.configurationIndexUidSegment : undefined)
     currentRule = itemRule
   }
   if (lastProperty === undefined || currentRule.itemType !== event.itemType) return undefined
   return {
     itemRule: currentRule,
     propertyRule: lastProperty,
+    steps,
     ...(lastCollectionUidSegment === undefined ? {} : { collectionUidSegment: lastCollectionUidSegment }),
   }
+}
+
+interface FactRuleStep {
+  readonly propertyRule: PropertyRule
+  readonly propertyKey: string
+  readonly ownerRule: MetadataItemRule
+  readonly collection: boolean
 }
 
 function nearestFactParent(

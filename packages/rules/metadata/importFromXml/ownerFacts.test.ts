@@ -7,6 +7,19 @@ import { extractImportOwnerFacts } from "./ownerFacts"
 import type { ImportAssignment } from "./types"
 
 describe("extractImportOwnerFacts", () => {
+  it("читает только выбранные факты владельца без YAML-представления", () => {
+    const prepared = {
+      ...preparedYaml({ assignment: catalogAssignment(), rule: MetadataCatalogRules, ownerFacts: {} }),
+      semanticFacts: [
+        { itemType: "MetadataCatalog", propertyKey: "owners", yamlPath: ["Владельцы", 0], value: "Справочник.Владелец" },
+        { itemType: "MetadataCatalog", propertyKey: "comment", yamlPath: ["Комментарий"], get value(): never { throw new Error("unselected value") } },
+      ],
+    }
+    const yaml = { get Владельцы(): never { throw new Error("whole YAML read") } }
+    const facts = extractImportOwnerFacts(prepared, undefined, yaml)
+    expect(facts[0]?.owners).toEqual(["Catalog.Владелец"])
+  })
+
   it("reuses ValidationOwnerFacts and ObjectFieldIndex for an imported owner", () => {
     const prepared = preparedYaml({
       assignment: catalogAssignment(),

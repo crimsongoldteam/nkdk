@@ -25,6 +25,7 @@ import { prepareImportYaml, prepareImportYamlFromDocuments } from "./prepareYaml
 import { prepareImportDependencies } from "./preparedDependencies"
 import { createPropertyFactsYamlView } from "./propertyFactsYamlView"
 import * as propertyFactsView from "./propertyFactsYamlView"
+import * as addressableMetadataTargets from "../validation/addressableMetadataTargets"
 import type { ImportAssignment } from "./types"
 import {
   extractImportValidationContribution,
@@ -183,7 +184,14 @@ describe("prepareImportFacts", () => {
     const { facts, legacy } = await preparePair(assignment, mockXmlImportContext())
     const file = validationFileForAssignment(assignment)
     const expected = extractImportValidationContribution({ prepared: legacy, projectDir: "/project", file })
-    const actual = extractImportValidationContributionFromFacts({ prepared: facts, projectDir: "/project", file })
+    const traversal = vi.spyOn(addressableMetadataTargets, "collectAddressableMetadataLogicalAddresses")
+    let actual: ReturnType<typeof extractImportValidationContributionFromFacts>
+    try {
+      actual = extractImportValidationContributionFromFacts({ prepared: facts, projectDir: "/project", file })
+      expect(traversal).not.toHaveBeenCalled()
+    } finally {
+      traversal.mockRestore()
+    }
 
     expect(expected.validationContribution.logicalAddresses.length).toBeGreaterThan(0)
     expect(actual).toEqual(expected)

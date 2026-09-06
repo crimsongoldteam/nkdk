@@ -1,6 +1,6 @@
 import { parseMetadataTargetFromModel } from "../ruleRuntime/metadataTarget"
 import type { ParsedMetadataTarget } from "../ruleRuntime/metadataTarget/types"
-import type { MetadataItemRule } from "../ruleRuntime/property/types"
+import type { MetadataItemRule, PropertyRule } from "../ruleRuntime/property/types"
 import { projectObjectIndexKey, type ProjectObjectIndexEntry } from "./projectReferenceIndex"
 import { traverseMetadataRuleYaml } from "./metadataRuleYamlTraversal"
 import type { ProjectLogicalAddressEntry } from "../projectDefinition/componentIndexFacts"
@@ -73,19 +73,29 @@ export function collectAddressableMetadataLogicalAddresses(params: {
     rule: params.rule,
     initialState: params.logicalAddress,
     enterCollectionItem: ({ rule, propertyRule, collectionUidSegment, itemName, state: boundaryTarget }) => {
-      const externalMetadata = rule.externalMetadata
-      const externalAddressable =
-        externalMetadata?.placement === "ownedEntry" || externalMetadata?.placement === "ownerChild"
-      const segment = propertyRule.configurationIndexUidSegment ?? collectionUidSegment ?? externalMetadata?.segment
-      if ((!externalAddressable && rule.properties.uuid === undefined) || itemName === undefined || segment === undefined) {
-        return boundaryTarget
-      }
-      const logicalAddress = `${boundaryTarget}.${segment}.${itemName}`
+      const logicalAddress = addressableMetadataItemLogicalAddress({
+        rule, propertyRule, collectionUidSegment, itemName, parent: boundaryTarget,
+      })
+      if (logicalAddress === undefined) return boundaryTarget
       entries.push({ logicalAddress, sourceProjectPath: params.filePath })
       return logicalAddress
     },
   })
   return entries
+}
+
+export function addressableMetadataItemLogicalAddress(params: {
+  readonly rule: MetadataItemRule
+  readonly propertyRule: PropertyRule
+  readonly collectionUidSegment?: string
+  readonly itemName?: string
+  readonly parent: string
+}): string | undefined {
+  const external = params.rule.externalMetadata
+  const addressable = external?.placement === "ownedEntry" || external?.placement === "ownerChild"
+  const segment = params.propertyRule.configurationIndexUidSegment ?? params.collectionUidSegment ?? external?.segment
+  if ((!addressable && params.rule.properties.uuid === undefined) || params.itemName === undefined || segment === undefined) return undefined
+  return `${params.parent}.${segment}.${params.itemName}`
 }
 
 function objectIndexDetails(value: unknown): { type?: string } {
