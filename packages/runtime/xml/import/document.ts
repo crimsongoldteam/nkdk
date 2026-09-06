@@ -80,3 +80,18 @@ export function xmlElementChildren(
       child.type === "element" && (name === undefined || child.name === name),
   )
 }
+
+/** Промежуточные родители единственны; последний элемент может повторяться. */
+export function xmlElementsAtUniquePath(
+  roots: readonly XmlElementNode[],
+  path: readonly string[],
+): readonly XmlElementNode[] {
+  let nodes = roots
+  for (let index = 0; index < path.length; index++) {
+    nodes = nodes.filter(node => node.name === path[index])
+    if (index === path.length - 1) break
+    if (nodes.length !== 1) return []
+    nodes = xmlElementChildren(nodes[0]!)
+  }
+  return nodes
+}

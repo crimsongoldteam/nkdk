@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import type { XmlAddressedNode, XmlElementNode } from "./document"
-import { isXmlElementNode, xmlAttributeValue, xmlElementChildren, xmlTextValue } from "./document"
+import { isXmlElementNode, xmlAttributeValue, xmlElementChildren, xmlElementsAtUniquePath, xmlTextValue } from "./document"
 import { parseXmlDocumentWithSaxes } from "./saxesParser"
 
 const elementChildren = (element: XmlElementNode): XmlElementNode[] =>
@@ -10,6 +10,14 @@ const sourceOf = (source: string, node: XmlAddressedNode | undefined): string | 
   node === undefined ? undefined : source.slice(node.span.start, node.span.end)
 
 describe("структурный XML-документ", () => {
+  it("выбирает повторные листья только через однозначных родителей", () => {
+    const roots = parseXmlDocumentWithSaxes('<Root><List><Value>1</Value><Value>2</Value></List></Root>').roots
+    expect(xmlElementsAtUniquePath(roots, ["Root", "List", "Value"]).map(xmlTextValue)).toEqual(["1", "2"])
+    expect(xmlElementsAtUniquePath(roots, ["Root", "Missing", "Value"])).toEqual([])
+    const repeated = parseXmlDocumentWithSaxes('<Root><List><Value>1</Value></List><List><Value>2</Value></List></Root>').roots
+    expect(xmlElementsAtUniquePath(repeated, ["Root", "List", "Value"])).toEqual([])
+  })
+
   it("читает структуру без представления совместимости", () => {
     const root = parseXmlDocumentWithSaxes('<Root b="2"><Value/><Value>2</Value></Root>').roots[0]!
     const { compatibilityValue: _compatibility, ...structural } = root

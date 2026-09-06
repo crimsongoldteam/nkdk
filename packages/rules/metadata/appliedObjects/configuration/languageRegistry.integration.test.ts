@@ -2,7 +2,8 @@ import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { createConfigurationLanguages, rehydrateConfigurationContext } from "@nkdk/runtime"
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
+import * as runtime from "@nkdk/runtime"
 import {
   loadConfigurationLanguagesFromXML,
   loadConfigurationLanguagesFromYAML,
@@ -56,6 +57,20 @@ describe("createConfigurationLanguages", () => {
 })
 
 describe("сборщики реестра языков", () => {
+  it("не использует объектное представление XML для чтения языков", async () => {
+    const root = await mkdtemp(join(tmpdir(), "nkdk-language-structural-"))
+    const legacy = vi.spyOn(runtime, "importContentFromXML").mockImplementation(() => {
+      throw new Error("Запрещено старое представление XML")
+    })
+    try {
+      await writeXmlConfiguration(root, "Language.Русский", ["Русский"], { Русский: "ru" })
+      expect(await loadConfigurationLanguagesFromXML(root)).toMatchObject({ default: "ru", registered: ["ru"] })
+    } finally {
+      legacy.mockRestore()
+      await rm(root, { recursive: true, force: true })
+    }
+  })
+
   it("строят одинаковый реестр из XML и YAML", async () => {
     const root = await mkdtemp(join(tmpdir(), "nkdk-language-registry-"))
     const xmlDir = join(root, "xml")

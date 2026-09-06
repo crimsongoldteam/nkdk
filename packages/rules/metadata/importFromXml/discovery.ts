@@ -1,6 +1,6 @@
 import { promises as nodeFs } from "fs"
 import { isAbsolute, join, relative, resolve } from "path"
-import { parseXmlDocumentWithSaxes, xmlElementChildren, xmlTextValue, type XmlElementNode } from "@nkdk/runtime"
+import { parseXmlDocumentWithSaxes, xmlElementsAtUniquePath, xmlTextValue, type XmlElementNode } from "@nkdk/runtime"
 import { createImportAssignments, type ImportAssignmentGroup } from "./assignmentBuilder"
 import { expandMetadataPathPattern } from "../resourceTopology/core/patterns"
 import type { ImportAssignment, ImportExternalFile, ImportSnapshotFile } from "./types"
@@ -208,13 +208,7 @@ async function readManifestValues(params: {
 }): Promise<Set<string>> {
   if (params.fileSystem.readFile === undefined) return new Set()
   const content = await params.fileSystem.readFile(params.manifestPath, "utf-8")
-  let nodes: readonly XmlElementNode[] = parseXmlDocumentWithSaxes(String(content)).roots
-  for (let index = 0; index < params.listPath.length; index++) {
-    nodes = nodes.filter(node => node.name === params.listPath[index])
-    if (index === params.listPath.length - 1) break
-    if (nodes.length !== 1) return new Set()
-    nodes = xmlElementChildren(nodes[0]!)
-  }
+  const nodes = xmlElementsAtUniquePath(parseXmlDocumentWithSaxes(String(content)).roots, params.listPath)
   return new Set(nodes
     .filter(node => node.attributes.length === 0 && node.content.length > 0 && node.content.every(child => child.type === "text"))
     .map(xmlTextValue))

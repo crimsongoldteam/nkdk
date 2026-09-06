@@ -2,7 +2,7 @@ import fs from "fs"
 import { basename, dirname, join } from "path"
 import { convertFormFromXML } from "./convertFromXML"
 import type { SyncExternalFromXMLFunction } from "@nkdk/runtime/rule-kit"
-import { importContentFromXML } from "@nkdk/runtime"
+import { readHelpPageLanguages } from "../../commonObjects/help/xmlPages"
 
 /**
  * Сканирует `<xmlDir>/<name>/Forms/*.xml` и для каждого вызывает `convertFormFromXML`.
@@ -48,9 +48,7 @@ async function copyFormHelpFromXML(params: { formsDir: string; nkdkDir: string; 
   if (!fs.existsSync(helpXmlPath)) return
 
   const helpXmlContent = await fs.promises.readFile(helpXmlPath, "utf-8")
-  const helpParsed = importContentFromXML<{ Help: { Page?: string | string[] } }>(helpXmlContent)
-  const pages = helpParsed.Help?.Page
-  const langs: string[] = pages === undefined ? [] : Array.isArray(pages) ? pages : [pages]
+  const langs = readHelpPageLanguages(helpXmlContent)
 
   const helpDir = join(formsDir, formName, "Ext", "Help")
   if (!fs.existsSync(helpDir)) return
