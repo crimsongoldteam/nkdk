@@ -8,6 +8,9 @@ import { discoverFullXmlSyncPlan } from "../../fullSyncToXml/discovery"
 import { transferFullXmlSyncExternalFiles } from "../../fullSyncToXml/transferExternalFiles"
 import { compileRegisteredMetadataResourceTopology } from "../../resourceTopology/adapters/registeredRules"
 import { buildConfigurationChildObjectsFromProjectEntries } from "../configuration/childObjects"
+import { configurationChildObjectsFromIndex } from "../configuration/configurationChildObjects"
+import { createConfigurationIndexCollector, createConfigurationIndexExportRuntime } from "@nkdk/runtime"
+import { testConfigurationIndexReader } from "../../../tests/configurationIndex"
 
 describe("Interface resources", () => {
   const directories: string[] = []
@@ -41,11 +44,20 @@ describe("Interface resources", () => {
     expect(readFileSync(join(outputDir, "Interfaces/Полный/Ext/Interface.bin"))).toEqual(bytes)
   })
 
-  it("сохраняет интерфейсы и их исходный порядок в ChildObjects", () => {
-    const result = buildConfigurationChildObjectsFromProjectEntries({
+  it("сохраняет интерфейсы и их исходный порядок в ChildObjects по снимку", () => {
+    const current = buildConfigurationChildObjectsFromProjectEntries({
       entries: [{ dir: "Интерфейс", name: "Общий" }, { dir: "Интерфейс", name: "Полный" }],
-      referenceChildObjects: { Interface: ["Полный", "Общий"] },
     })
+    const index = createConfigurationIndexExportRuntime({
+      source: testConfigurationIndexReader([{
+        logicalAddress: "Конфигурация.Свойство.childObjects",
+        children: [{ xmlName: "Interface", name: "Полный" }, { xmlName: "Interface", name: "Общий" }],
+      }]),
+      collector: createConfigurationIndexCollector(),
+      targetProjectPath: "Конфигурация.yaml",
+      logicalAddress: "Конфигурация",
+    })
+    const result = configurationChildObjectsFromIndex(index, current)
     expect(result).toEqual({ Interface: ["Полный", "Общий"] })
   })
 })
