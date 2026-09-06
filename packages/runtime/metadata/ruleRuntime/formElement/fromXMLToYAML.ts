@@ -66,6 +66,7 @@ export function importFormElementPropertiesFromXMLToYAML(params: {
   beforeFinish?: (yaml: Record<string, unknown>) => void
 }): Record<string, unknown> | undefined {
   return importPropertiesFromXMLToYAML({
+    ...params.traversal,
     initialYAML: params.initialYAML,
     beforeFinish: params.beforeFinish,
     context: params.context,
@@ -77,19 +78,7 @@ export function importFormElementPropertiesFromXMLToYAML(params: {
         : params.xml,
     }],
     itemName: params.name,
-    yamlPath: params.traversal.yamlPath,
     rulePath: enterNestedYamlRule(params.traversal, params.rule.itemType).rulePath,
-    collector: params.traversal.collector,
-    deferred: params.traversal.deferred,
-    dependent: params.traversal.dependent,
-    dependencies: params.traversal.dependencies,
-    roundTrip: params.traversal.roundTrip,
-    audit: params.traversal.audit,
-    annotations: params.traversal.annotations,
-    mode: params.traversal.mode,
-    facts: params.traversal.facts,
-    produceResult: params.traversal.produceResult,
-    profile: params.traversal.profile,
     execution: propertyExecutionFromTraversal(params.traversal),
   })
 }
@@ -147,6 +136,7 @@ export function importSingleFormElementFromXMLToYAML(params: {
   const explicitName = Object.prototype.hasOwnProperty.call(initialYAML, "Имя")
   const yaml = (
     importPropertiesFromXMLToYAML({
+      ...params.traversal,
       initialYAML,
       beforeFinish: explicitName ? arrangeExplicitSingletonName : undefined,
       context: itemContext,
@@ -158,19 +148,8 @@ export function importSingleFormElementFromXMLToYAML(params: {
           : params.xml),
       }],
       itemName: xmlName ?? canonicalName,
-      yamlPath: params.traversal.yamlPath,
       rulePath: enterNestedYamlRule(params.traversal, params.rule.itemType).rulePath,
-      collector: params.traversal.collector,
-      deferred: params.traversal.deferred,
-      dependent: params.traversal.dependent,
-      dependencies: params.traversal.dependencies,
-      roundTrip: params.traversal.roundTrip,
-      audit: params.traversal.audit,
-      annotations: params.traversal.annotations,
-      mode: params.traversal.mode,
-      facts: params.traversal.facts,
-      produceResult: params.traversal.produceResult,
-      profile: params.traversal.profile,
+      produceResult: params.traversal.mode === "facts" ? false : params.traversal.produceResult,
       execution: propertyExecutionFromTraversal(params.traversal),
     }) ?? initialYAML
   )

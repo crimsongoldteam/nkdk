@@ -30,7 +30,7 @@ import {
   importSingleFormElementFromXMLToYAML,
 } from "./fromXMLToYAML"
 import type { ElementXML } from "./types"
-import { prepareFormElementOutput } from "@nkdk/runtime/rule-kit"
+import { createDirectImportFactsCollector, prepareFormElementOutput } from "@nkdk/runtime/rule-kit"
 
 import "../../forms/elements/index"
 
@@ -51,6 +51,26 @@ const singletonElementProbeRule = {
 } as const satisfies MetadataItemRule
 
 describe("одиночный элемент формы", () => {
+  it("в первом проходе сохраняет факты singleton без второй копии его свойств", () => {
+    const registries = createRuleRegistrySet(metadataRules)
+    const rule = withRuleRegistrySet(registries, () => getElementRule("ExtendedTooltip"))
+    const xml = parseXmlDocumentWithSaxes('<ExtendedTooltip name="ОсобаяПодсказка" id="2"><Width>20</Width></ExtendedTooltip>').roots[0]!
+    const facts = createDirectImportFactsCollector()
+    const yaml = importSingleFormElementFromXMLToYAML({
+      context: singletonElementContexts().importContext,
+      rule, xml, ownerXmlName: "Кнопка",
+      nameStyle: { canonicalSuffix: "РасширеннаяПодсказка", referenceSuffixes: ["РасширеннаяПодсказка"], canonicalNameMode: "ownerSuffix", explicitXMLName: true },
+      traversal: {
+        mode: "facts", produceResult: true, facts,
+        yamlPath: [], rulePath: [], collector: createLocalIndexesCollector(), execution: registries.execution,
+      },
+    })
+
+    expect(yaml).toEqual({ Имя: "ОсобаяПодсказка" })
+    expect(yamlScalarTagAt(yaml, "Имя")).toBe("xml/name")
+    expect(facts.finish()).toContainEqual(expect.objectContaining({ yamlPath: ["Ширина"], value: 20 }))
+  })
+
   it.each([false, true])("готовит явное имя singleton до открытия локальной проверки; структурный XML: %s", (structural) => {
     const registries = createRuleRegistrySet(metadataRules)
     const rule = withRuleRegistrySet(registries, () => getElementRule("ExtendedTooltip"))
