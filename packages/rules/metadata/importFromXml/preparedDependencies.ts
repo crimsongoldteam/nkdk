@@ -97,7 +97,7 @@ export function collectImportDependencyFacts(params: {
     }
   }
   const siblingProperties = new Map<string, { readonly value: unknown }>()
-  let propertyFactsYaml: Readonly<Record<string, unknown>> | undefined
+  const siblingFacts: NonNullable<typeof params.propertyFacts>[number][] = []
   const proofPropertyFacts = params.proofPropertyFacts ?? params.propertyFacts ?? []
   const proofProperties = collectProofProperties(proofPropertyFacts)
   const finalProperties = collectFinalRootProperties({
@@ -129,9 +129,16 @@ export function collectImportDependencyFacts(params: {
       ))
       siblingKeys.set(fact.itemRule, keys)
     }
-    if (!keys.has(fact.propertyKey)) continue
-    propertyFactsYaml ??= createPropertyFactsYamlView(params.propertyFacts ?? [])
-    const propertyRule = fact.itemRule.properties[fact.propertyKey]
+    const key = fact.propertyKey.startsWith("$container:")
+      ? fact.propertyKey.slice("$container:".length)
+      : fact.propertyKey
+    if (!keys.has(key)) continue
+    siblingFacts.push(fact)
+  }
+  const propertyFactsYaml = createPropertyFactsYamlView(siblingFacts)
+  for (const fact of siblingFacts) {
+    if (fact.propertyKey.startsWith("$container:")) continue
+    const propertyRule = fact.itemRule?.properties[fact.propertyKey]
     const propertyRootIndex = typeof propertyRule?.yaml === "string"
       ? fact.yamlPath.lastIndexOf(propertyRule.yaml)
       : -1

@@ -13,6 +13,40 @@ const owner = { dir: "Справочник", name: "Товары" }
 
 describe("prepared import dependencies", () => {
   it.each([
+    [[{ path: [], value: "Справочник.Товары" }], "Справочник.Товары"],
+    [[{ path: [0], value: "Справочник.Товары" }, { path: [1], value: "Строка" }], ["Справочник.Товары", "Строка"]],
+    [[{ path: [], value: [] }], []],
+    [[{ path: [0], value: undefined }], [undefined]],
+  ])("читает только факты типа для владельца ссылки: %j", (values, expected) => {
+    const rule: MetadataItemRule = {
+      itemType: "TypedItem",
+      properties: {
+        type: { type: "string", yaml: "Тип" },
+        form: { type: "string", yaml: "Форма", metadataTarget: {
+          kind: "member", owner: "type", typeProperty: "type", memberKinds: ["Form"],
+        } },
+      },
+    }
+    const facts = collectImportDependencyFacts({
+      rule, owner, candidates: [], yaml: {}, proofPropertyFacts: [],
+      propertyFacts: [
+        ...(Array.isArray(expected) ? [{
+          itemType: rule.itemType, itemRule: rule, propertyKey: "$container:type",
+          yamlPath: ["Реквизиты", "Товар", "Тип"], value: [],
+        }] : []),
+        ...values.map(({ path, value }): DirectImportPropertyFact => ({
+          itemType: rule.itemType, itemRule: rule, propertyKey: "type",
+          yamlPath: ["Реквизиты", "Товар", "Тип", ...path], value, presentInXML: true,
+        })),
+        { itemType: rule.itemType, itemRule: rule, propertyKey: "form", yamlPath: ["Форма"],
+          get value() { throw new Error("Значение ссылки не нужно для определения её владельца") } },
+      ],
+    })
+    expect(prepareImportDependencies(facts).propertyValue?.(["Реквизиты", "Товар"], "type"))
+      .toEqual({ value: expected })
+  })
+
+  it.each([
     ["MetadataAttribute", "Получатель", { item: ["Тип"], root: [] }],
     ["StandardAttributeDescription", "Владелец", { item: [], root: ["Владельцы"] }],
     ["StandardAttributeDescription", "Код", { item: [], root: ["ТипКода", "ДлинаКода", "ДопустимаяДлинаКода"] }],
