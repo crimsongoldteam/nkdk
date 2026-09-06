@@ -1,5 +1,5 @@
 import { capitalize } from "../../../helpers/capitalize"
-import type { XmlAttributeNode, XmlElementNode } from "../../../xml/import/document"
+import { isXmlElementNode, xmlElementChildren as elementChildren, type XmlAttributeNode, type XmlElementNode } from "../../../xml/import/document"
 
 import { shouldProcessProperty } from "./helpers"
 import type { MetadataItemRule, PropertyRule } from "./types"
@@ -421,16 +421,4 @@ function defaultPropertyBoundary(
   { propertyKey, rule }: XMLImportPlanEntry,
 ): XmlImportAuditBoundary {
   return { itemType, propertyKey, propertyType: rule.type }
-}
-
-function elementChildren(node: XmlElementNode): XmlElementNode[] {
-  return node.content.filter((child): child is XmlElementNode => child.type === "element")
-}
-
-function isXmlElementNode(value: unknown): value is XmlElementNode {
-  return value !== null &&
-    typeof value === "object" &&
-    "type" in value &&
-    value.type === "element" &&
-    "compatibilityValue" in value
 }

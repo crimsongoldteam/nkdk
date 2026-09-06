@@ -48,8 +48,28 @@ export function xmlImportCompatibilityValue(params: {
     params.audit?.claim(params.node, params.boundary)
     return params.node.value
   }
+  const scalar = readStructuralScalar(params.node, params.audit, params.boundary)
+  if (scalar !== undefined) return scalar
   if (params.audit === undefined) return params.node.compatibilityValue
   return createCompatibilityConsumption(params.audit, params.boundary).element(params.node)
+}
+
+function readStructuralScalar(
+  node: XmlElementNode,
+  audit: XmlImportAuditSession | undefined,
+  boundary: XmlImportAuditBoundary,
+): string | undefined {
+  if (node.attributes.length !== 0 || node.content.length === 0) return undefined
+  let value = ""
+  for (const child of node.content) {
+    if (child.type !== "text") return undefined
+    value += child.value
+  }
+  if (audit !== undefined) {
+    audit.claim(node, boundary)
+    for (const child of node.content) audit.claim(child, boundary)
+  }
+  return value
 }
 
 export function xmlImportCompatibilityValues(params: {
@@ -57,8 +77,14 @@ export function xmlImportCompatibilityValues(params: {
   readonly audit?: XmlImportAuditSession
   readonly boundary: XmlImportAuditBoundary
 }): readonly unknown[] {
-  const values = params.nodes.map(({ compatibilityValue }) => compatibilityValue)
-  if (params.audit === undefined) return values
+  let structuralOnly = true
+  const values = params.nodes.map(node => {
+    const scalar = readStructuralScalar(node, params.audit, params.boundary)
+    if (scalar !== undefined) return scalar
+    structuralOnly = false
+    return node.compatibilityValue
+  })
+  if (params.audit === undefined || structuralOnly) return values
   return createCompatibilityConsumption(params.audit, params.boundary).elements(
     params.nodes,
     values,

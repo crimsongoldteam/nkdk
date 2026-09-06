@@ -45,7 +45,7 @@ import type { DeferredValuePathCollector } from "./importYamlTypes"
 import { copyYAMLRuntimeMetadata } from "../../../yaml/runtimeMetadata"
 import { isDependentImportProperty } from "./dependentItemRegistry"
 import type { PropertyRuleExecution } from "./fn"
-import type { XmlElementNode } from "../../../xml/import/document"
+import { isXmlElementNode, xmlAttributeValue, type XmlElementNode } from "../../../xml/import/document"
 import type {
   XmlImportAuditBoundary,
   XmlImportAuditedNode,
@@ -154,9 +154,7 @@ export function importPropertiesFromXMLToYAML(params: {
     addProfileTime(params.profile, "planningMs", planningStartedAt)
     const indexCollection = getConfigurationIndexCollectionContext(source.context)
     const xmlNode = isXmlElementNode(source.xml) ? source.xml : undefined
-    const xml = xmlNode === undefined
-      ? source.xml as Record<string, unknown>
-      : compatibilityRecord(xmlNode.compatibilityValue)
+    const xml = source.xml
     return {
       source,
       xml,
@@ -1422,22 +1420,9 @@ function nestedItemXMLTypeMatches(expectedXsiType: string | undefined, xmlValue:
   return actualXsiType === expectedXsiType
 }
 
-function getOwnerXmlName(xml: Record<string, unknown>): string | undefined {
+function getOwnerXmlName(xml: DirectImportXMLSource["xml"]): string | undefined {
+  if (isXmlElementNode(xml)) return xmlAttributeValue(xml, "name")
   return typeof xml._name === "string" ? xml._name : undefined
-}
-
-function compatibilityRecord(value: unknown): Record<string, unknown> {
-  return value !== null && typeof value === "object" && !Array.isArray(value)
-    ? value as Record<string, unknown>
-    : {}
-}
-
-function isXmlElementNode(value: unknown): value is XmlElementNode {
-  return value !== null &&
-    typeof value === "object" &&
-    "type" in value &&
-    value.type === "element" &&
-    "compatibilityValue" in value
 }
 
 function isEmptySemanticContainer(value: unknown): boolean {

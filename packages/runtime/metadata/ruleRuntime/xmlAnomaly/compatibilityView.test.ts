@@ -5,6 +5,7 @@ import {
   claimCanonicalXmlImportAttribute,
   xmlImportCompatibilityContainer,
   xmlImportCompatibilityValues,
+  xmlImportCompatibilityValue,
 } from "./compatibilityView"
 
 function createCompatibilityFixture(xml: string, yamlPath: (string | number)[] = []) {
@@ -16,6 +17,26 @@ function createCompatibilityFixture(xml: string, yamlPath: (string | number)[] =
 }
 
 describe("xmlImportCompatibilityContainer", () => {
+  it("читает повторные текстовые листья без compatibility", () => {
+    const root = parseXmlDocumentWithSaxes("<Root><Value>A</Value><Value>B</Value></Root>").roots[0]!
+    const nodes = root.content.filter(node => node.type === "element")
+    for (const node of nodes) Object.defineProperty(node, "compatibilityValue", {
+      get() { throw new Error("Нельзя читать compatibility текстового листа") },
+    })
+    const audit = createXmlImportAuditSession([root])
+    expect(xmlImportCompatibilityValues({ nodes, audit, boundary: { itemType: "Owner" } })).toEqual(["A", "B"])
+    expect(audit.outcomes().filter(({ node }) => node.path.includes("/Value[")).map(({ state }) => state))
+      .toEqual(["claimed", "claimed", "claimed", "claimed"])
+  })
+
+  it.each([false, true])("читает текстовый лист без compatibility и без создания Proxy: audit=%s", audited => {
+    const root = parseXmlDocumentWithSaxes("<Value>A<![CDATA[B]]><!--c-->C</Value>").roots[0]!
+    Object.defineProperty(root, "compatibilityValue", { get() { throw new Error("Запрещено чтение compatibility") } })
+    const audit = audited ? createXmlImportAuditSession([root]) : undefined
+    expect(xmlImportCompatibilityValue({ node: root, audit, boundary: { itemType: "Owner" } })).toBe("ABC")
+    if (audit !== undefined) expect(audit.outcomes().map(({ state }) => state)).toEqual(["claimed", "claimed", "claimed"])
+  })
+
   it("индексирует дочерние XML-узлы перед обходом порядка конфигурации", () => {
     const itemCount = 200
     const parsedRoot = parseXmlDocumentWithSaxes(

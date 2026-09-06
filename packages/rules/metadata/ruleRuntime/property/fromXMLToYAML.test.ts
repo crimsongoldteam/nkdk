@@ -169,6 +169,22 @@ function stringValueRule(params: {
 
 describe("importPropertiesFromXMLToYAML", () => {
 
+  it("читает свойства структурного родителя без compatibilityValue", () => {
+    const { compatibilityValue: _compatibility, ...root } = parseXmlDocumentWithSaxes('<Root name="Владелец"><Value>текст</Value></Root>').roots[0]!
+    const context = mockContextFromXML()
+    const yaml = importPropertiesWithSources({
+      execution: createRuleRegistrySet(metadataRules).execution,
+      context,
+      rule: { itemType: "StructuralParent", properties: {
+        name: { type: "string", xml: "_name", yaml: "Имя" },
+        value: { type: "string", xml: "Value", yaml: "Значение" },
+      } },
+      sources: [{ context, xml: root }], yamlPath: [], rulePath: [],
+      collector: createLocalIndexesCollector(),
+    })
+    expect(yaml).toEqual({ Имя: "Владелец", Значение: "текст" })
+  })
+
   it("проверяет подготовленное окончательное значение свойства", () => {
     const rules = createRuleRegistrySet(metadataRules)
     const { context, root } = xmlValueFixture("xml-default")
