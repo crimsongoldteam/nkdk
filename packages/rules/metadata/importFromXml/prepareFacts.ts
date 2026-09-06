@@ -255,7 +255,7 @@ export async function prepareImportFacts(params: {
       rule,
       owner: dependentOwner,
       candidates: dependentCandidates,
-      propertyFacts: acceptedFacts,
+      propertyFacts: semanticFacts,
       proofPropertyFacts: propertyFacts,
       finalRootYaml: semanticView,
       ...(params.execution === undefined ? {} : { execution: params.execution }),

@@ -163,7 +163,7 @@ describe("prepared import dependencies", () => {
   it("готовит факты отсутствующего зависимого свойства по исходному адресу item", () => {
     const facts = collectImportDependencyFacts({
       rule: MetadataCatalogRules, owner, candidates: [],
-      yaml: { Атрибуты: { Список: { Тип: "СписокЗначений", Колонки: { НеНужна: { Тип: "Строка" } } } } },
+      yaml: { get Атрибуты(): unknown { throw new Error("Зависимость должна читаться из выбранного факта") } },
       propertyFacts: [{
         itemType: "FormAttribute", itemRule: FormAttributeRules, propertyKey: "type", value: "СписокЗначений",
         yamlPath: ["Атрибуты", "Список", "Тип"], sourceYamlPath: ["Атрибуты", 0, "Тип"],
@@ -212,6 +212,9 @@ describe("prepared import dependencies", () => {
       rule: MetadataCatalogRules, owner, candidates: [candidate],
       yaml: { Реквизиты: { Получатель: { Тип: "Строка(10)", Заголовок: "Получатель", ЗначениеЗаполнения: "старое" } } },
       propertyFacts: [{
+        itemType: "MetadataAttribute", propertyKey: "type",
+        yamlPath: ["Реквизиты", "Получатель", "Тип"], value: "Строка(10)",
+      }, {
         itemType: "Independent", propertyKey: "title", yamlPath: ["Постороннее"],
         get value() { throw new Error("Значение без потребителя зависимостей не должно читаться") },
       }],
@@ -236,6 +239,8 @@ describe("prepared import dependencies", () => {
         СтандартныеРеквизиты: [{ ЗначениеЗаполнения: "Справочник.Владельцы.ПустаяСсылка" }],
       },
       propertyFacts: [{
+        itemType: "MetadataCatalog", propertyKey: "owners", yamlPath: ["Владельцы"], value: ["Справочник.Владельцы"],
+      }, {
         itemType: "StandardAttributeDescription", itemRule: StandardAttributeDescriptionRules,
         propertyKey: "fillValue", value: "Справочник.Владельцы.ПустаяСсылка",
         yamlPath: ["СтандартныеРеквизиты", "Владелец", "ЗначениеЗаполнения"],

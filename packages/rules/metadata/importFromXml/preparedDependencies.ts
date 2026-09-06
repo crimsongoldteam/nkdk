@@ -1,8 +1,10 @@
 import { copyYAMLRuntimeMetadata, yamlPathToPointer, yamlScalarTagAt, type YAMLScalarTag } from "@nkdk/runtime"
 import { recordAtPath } from "./dependentItems"
 import { createSelectedPropertyValue } from "./selectedPropertyValue"
+import { selectImportPropertyPaths } from "./selectedPropertyFacts"
 import {
   prepareDependentImportFacts,
+  dependentImportDependencies,
   isDependentImportProperty,
   shouldRemoveImportedDependentProperty,
   type DependentImportFacts,
@@ -62,6 +64,11 @@ export function collectImportDependencyFacts(params: {
     const address = itemAddress(itemYamlPath, itemType)
     if (inspectedItems.has(address)) return items.get(address)
     inspectedItems.add(address)
+    if (selectedItems !== undefined) {
+      const facts = selectedItems.get(address)
+      if (facts !== undefined) items.set(address, facts)
+      return facts
+    }
     const item = recordAtPath(params.yaml, itemYamlPath)
     if (item === undefined) return undefined
     const request = {
@@ -73,6 +80,7 @@ export function collectImportDependencyFacts(params: {
     if (facts !== undefined) items.set(address, facts)
     return facts
   }
+  const selectedItems = params.propertyFacts === undefined ? undefined : collectSelectedDependentItems(params, propertyFactsBySource)
   for (const candidate of params.candidates) {
     const propertyFact = propertyFactsBySource.get(propertyFactSourceAddress(
       candidate.itemType,
@@ -105,18 +113,19 @@ export function collectImportDependencyFacts(params: {
   const dependentRules = new Map<MetadataItemRule, boolean>()
   for (const fact of params.propertyFacts ?? []) {
     if (fact.itemRule === undefined) continue
+    const itemType = fact.itemType
     let dependent = dependentRules.get(fact.itemRule)
     if (dependent === undefined) {
       dependent = Object.keys(fact.itemRule.properties).some(key => params.execution === undefined
-        ? isDependentImportProperty(fact.itemType, key)
-        : params.execution.isDependentImportProperty(fact.itemType, key))
+        ? isDependentImportProperty(itemType, key)
+        : params.execution.isDependentImportProperty(itemType, key))
       dependentRules.set(fact.itemRule, dependent)
     }
     if (dependent) {
       const path = fact.yamlPath.slice(0, -1)
       const name = path.at(-1)
-      const facts = itemFacts(fact.itemType, path, typeof name === "string" ? name : undefined)
-      if (facts !== undefined) items.set(itemAddress((fact.sourceYamlPath ?? fact.yamlPath).slice(0, -1), fact.itemType), facts)
+      const facts = itemFacts(itemType, path, typeof name === "string" ? name : undefined)
+      if (facts !== undefined) items.set(itemAddress((fact.sourceYamlPath ?? fact.yamlPath).slice(0, -1), itemType), facts)
     }
     let keys = siblingKeys.get(fact.itemRule)
     if (keys === undefined) {
@@ -179,6 +188,57 @@ export function collectImportDependencyFacts(params: {
     proofProperties,
     finalProperties,
   }
+}
+
+function collectSelectedDependentItems(
+  params: Parameters<typeof collectImportDependencyFacts>[0],
+  factsBySource: ReadonlyMap<string, Parameters<DirectImportFactsSink["acceptProperty"]>[0]>,
+): ReadonlyMap<string, DependentImportFacts> {
+  const requests = new Map<string, {
+    item: ReadonlyMap<string, string>
+    root: ReadonlyMap<string, string>
+  }>()
+  const paths = new Map<string, readonly (string | number)[]>()
+  const add = (itemType: string, itemPath: readonly (string | number)[], itemName?: string,
+    actualPath: readonly (string | number)[] = itemPath) => {
+    const address = itemAddress(itemPath, itemType)
+    if (requests.has(address)) return
+    const context = { itemType, itemName, itemYamlPath: itemPath, rootRule: params.rule, owner: params.owner }
+    const dependencies = params.execution === undefined
+      ? dependentImportDependencies(context) : params.execution.dependentImportDependencies(context)
+    if (dependencies === undefined) return
+    const select = (prefix: readonly (string | number)[], keys: readonly string[]) => new Map(keys.map(key => {
+      const path = [...prefix, key]
+      const pointer = yamlPathToPointer(path)! // Имя свойства делает путь непустым.
+      paths.set(pointer, path)
+      return [key, pointer]
+    }))
+    requests.set(address, { item: select(actualPath, dependencies.item), root: select([], dependencies.root) })
+  }
+  for (const candidate of params.candidates) {
+    const fact = factsBySource.get(propertyFactSourceAddress(candidate.itemType, candidate.propertyKey, candidate.yamlPath))
+    const finalName = fact?.yamlPath.at(-2)
+    add(candidate.itemType, candidate.itemYamlPath, typeof finalName === "string" ? finalName : candidate.itemName,
+      fact?.yamlPath.slice(0, -1) ?? candidate.itemYamlPath)
+  }
+  const inspected = new Set<string>()
+  for (const fact of params.propertyFacts ?? []) {
+    if (fact.itemRule === undefined) continue
+    const itemType = fact.itemType
+    const path = fact.yamlPath.slice(0, -1)
+    const address = itemAddress(path, itemType)
+    if (inspected.has(address)) continue
+    inspected.add(address)
+    const name = path.at(-1)
+    add(itemType, path, typeof name === "string" ? name : undefined)
+  }
+  const values = selectImportPropertyPaths(params.propertyFacts ?? [], paths)
+  const project = (selected: ReadonlyMap<string, string>) => Object.fromEntries(
+    [...selected].flatMap(([key, address]) => values.has(address) ? [[key, values.get(address)!.value]] : []),
+  )
+  return new Map([...requests].map(([address, request]) => [address, {
+    item: project(request.item), root: project(request.root),
+  }]))
 }
 
 function propertyFactSourceAddress(
