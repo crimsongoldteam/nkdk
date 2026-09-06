@@ -2,6 +2,7 @@ import {
   createConfigurationIndexCollector,
   isExplicitYAMLString,
   isXmlElementNode,
+  xmlElementChildren,
   parseMetadataYaml,
   parseXmlDocumentWithSaxes,
   serializeYAMLDocument,
@@ -52,6 +53,24 @@ const e2eAllExtensionDir = join(import.meta.dirname, "../../../../e2e/fixtures/x
 const e2eConfigurationDir = join(import.meta.dirname, "../../../../e2e/fixtures/xml/cf")
 
 describe("prepareImportFacts", () => {
+  it("проверяет основу формы без повторного объектного аудита XML", async () => {
+    const assignment = managedFormAssignment()
+    const inputs = parseAssignmentInputs(assignment, true)
+    const context = extensionContext()
+    const facts = await prepareImportFacts({ assignment, inputs, context, collector: createConfigurationIndexCollector() })
+    const nodes = inputs.flatMap(({ document }) => document.roots)
+    for (const node of nodes) {
+      nodes.push(...xmlElementChildren(node))
+      Object.defineProperty(node, "compatibilityValue", { get() { throw new Error("Основа не должна читать XML-объект") } })
+    }
+    const prepared = await prepareProofYaml(assignment, inputs, context, facts)
+    expect(prepared.baseFormCandidate?.yaml).toMatchObject({
+      Реквизиты: { БазовыйРеквизитФормы: { Тип: "Дата" } },
+      Элементы: { БазовоеПоле: { Вид: "ПолеВвода", Ширина: 99 } },
+    })
+    expect(prepared.baseFormCandidate?.localProofReceipt).toBeDefined()
+  })
+
   it("не сохраняет XML-узлы в фактах полной формы", async () => {
     const formRoot = join(e2eConfigurationDir, "BusinessProcesses/БизнесПроцессВсеСвойства/Forms/ФормаВыбора")
     const assignment = assignmentForProjectPath({

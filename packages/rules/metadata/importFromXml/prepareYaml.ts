@@ -463,7 +463,8 @@ function importAssignmentBaseFormCandidate(params: {
   const companion = resolveBaseFormCompanion(params.assignment, params.topology)
   if (companion === undefined) return undefined
   const annotations = createXmlAnomalyAnnotations()
-  const audit = baseFormNode === undefined ? undefined : createXmlImportAuditSession([baseFormNode])
+  // Локальное сравнение уже находит остаток XML; второй аудит чтений не нужен.
+  const audit = params.localRoundTrip === undefined ? createXmlImportAuditSession([baseFormNode]) : undefined
   const localRoundTrip = params.localRoundTrip === undefined ? undefined : createImportLocalRoundTrip({
     execution: params.localRoundTrip.execution,
     context: params.localRoundTrip.context,
