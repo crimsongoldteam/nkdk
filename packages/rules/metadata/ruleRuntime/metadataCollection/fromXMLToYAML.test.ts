@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, it } from "vitest"
+import { beforeAll, describe, expect, it, vi } from "vitest"
 import { mockContextFromXML } from "../../../tests/mockContext"
 import {
   createConfigurationIndexCollector,
@@ -11,6 +11,7 @@ import {
 } from "@nkdk/runtime"
 import { createLocalIndexesCollector } from "../../projectDefinition/localIndexes"
 import {
+  createDirectImportFactsCollector,
   createDeferredValuePathCollector,
   createImportedDependentPropertyCollector,
 } from "../property/importYamlTypes"
@@ -103,6 +104,26 @@ registerMetadataItemCollectionRule({
 })
 
 describe("importMetadataItemCollectionFromXMLToYAML", () => {
+  it("выбирает ключи по фактам непосредственных полей без JSON-копий путей", () => {
+    const document = parseXmlDocumentWithSaxes("<Item><Name>Первый</Name><Value>a</Value></Item><Item><Name>Второй</Name><Value>b</Value></Item>")
+    const facts = createDirectImportFactsCollector()
+    const stringify = vi.spyOn(JSON, "stringify")
+    try {
+      const yaml = importMetadataItemCollectionFromXMLToYAML({
+        context: mockContextFromXML(),
+        rule: { type: "TestRecordCollection" as PropertyRuleType, xml: "Item", yaml: "Элементы" },
+        xml: document.roots, itemRule, xmlElement: "Item", keyField: "name",
+        recordYamlKeyFromYAML: ({ yaml, name }) => `${name}-${yaml.Значение}`,
+        traversal: { mode: "facts", facts, yamlPath: [], rulePath: [], collector: createLocalIndexesCollector() },
+      })
+      expect(yaml).toEqual({ "Первый-a": { Значение: "a" }, "Второй-b": { Значение: "b" } })
+      expect(facts.finish()).toContainEqual(expect.objectContaining({ yamlPath: ["Второй-b", "Значение"], value: "b" }))
+      expect(stringify.mock.calls.filter(([value]) => Array.isArray(value) && Array.isArray(value[0]) && (value[1] === "name" || value[1] === "value"))).toEqual([])
+    } finally {
+      stringify.mockRestore()
+    }
+  })
+
   it("использует уже прочитанное имя элемента для адреса индекса", () => {
     const document = parseXmlDocumentWithSaxes('<Item name="Первый" uuid="11111111-1111-1111-1111-111111111111"><Value>a</Value></Item>')
     const attribute = document.roots[0]!.attributes.find(attribute => attribute.name === "name")!

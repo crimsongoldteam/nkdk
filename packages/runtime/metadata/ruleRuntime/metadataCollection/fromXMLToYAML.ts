@@ -263,22 +263,32 @@ function factItemShallowView(
   facts: readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][],
   itemYamlPath: readonly (string | number)[],
 ): Record<string, unknown> {
-  const counts = new Map<string, number>()
+  const fields = new Map<string, Map<string, number>>()
   for (const fact of facts) {
-    const key = JSON.stringify([fact.yamlPath, fact.propertyKey])
-    counts.set(key, (counts.get(key) ?? 0) + 1)
+    if (!isImmediateField(fact.yamlPath, itemYamlPath)) continue
+    const key = fact.yamlPath.at(-1)
+    if (typeof key !== "string") continue
+    let counts = fields.get(key)
+    if (counts === undefined) {
+      counts = new Map()
+      fields.set(key, counts)
+    }
+    counts.set(fact.propertyKey, (counts.get(fact.propertyKey) ?? 0) + 1)
   }
   return Object.fromEntries(facts.flatMap((fact) => {
-    if (
-      fact.yamlPath.length !== itemYamlPath.length + 1
-      || !fact.yamlPath.slice(0, -1).every((segment, index) => segment === itemYamlPath[index])
-    ) return []
-    const finalFact = fact.propertyKey.startsWith("$container:")
-      || (counts.get(JSON.stringify([fact.yamlPath, fact.propertyKey])) ?? 0) > 1
-    if (!finalFact) return []
+    if (!isImmediateField(fact.yamlPath, itemYamlPath)) return []
     const key = fact.yamlPath.at(-1)
-    return typeof key === "string" ? [[key, fact.value] as const] : []
+    if (typeof key !== "string") return []
+    const finalFact = fact.propertyKey.startsWith("$container:")
+      || (fields.get(key)?.get(fact.propertyKey) ?? 0) > 1
+    if (!finalFact) return []
+    return [[key, fact.value] as const]
   }))
+}
+
+function isImmediateField(path: readonly (string | number)[], parent: readonly (string | number)[]): boolean {
+  return path.length === parent.length + 1
+    && parent.every((segment, index) => segment === path[index])
 }
 
 function createBufferedDependentCollector(
