@@ -31,7 +31,7 @@ describe("metadata item XML import augmenter registry", () => {
     registerMetadataItemXmlImportAugmenter("metadata-item-augmenter-test", {
       yamlDependencies: () => [],
       augment({ source, yaml }) {
-        yaml["Дополнение"] = source["Value"]
+        yaml["Дополнение"] = "Value" in source ? source.Value : undefined
       },
     })
     const context = {
@@ -70,7 +70,7 @@ describe("metadata item XML import augmenter registry", () => {
     registerMetadataItemXmlImportAugmenter("metadata-item-variant-test", {
       yamlDependencies: () => [],
       resolveCurrentXMLDefaultVariant: ({ source }) =>
-        source.Value === "borrowed" ? "adopted" : "full",
+        "Value" in source && source.Value === "borrowed" ? "adopted" : "full",
       augment() {},
     })
     const context = {

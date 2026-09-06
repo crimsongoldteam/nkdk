@@ -1,6 +1,7 @@
 import type { ConfigurationContextFromXML, XMLImportObjectVariant } from "../../context/types"
 import type { MetadataItemRule } from "../property/types"
 import { currentPropertyRuleRegistrySet } from "../property/propertyRuleExecutionContext"
+import type { XmlElementNode } from "../../../xml/import/document"
 
 export interface MetadataItemXmlImportAugmenter {
   yamlDependencies(params: MetadataItemXmlImportVariantParams): readonly string[]
@@ -11,7 +12,7 @@ export interface MetadataItemXmlImportAugmenter {
 export interface MetadataItemXmlImportVariantParams {
   context: ConfigurationContextFromXML
   rule: MetadataItemRule
-  source: Record<string, unknown>
+  source: Record<string, unknown> | XmlElementNode
 }
 
 export interface MetadataItemXmlImportAugmentParams extends MetadataItemXmlImportVariantParams {
@@ -57,12 +58,7 @@ export function registerMetadataItemXmlImportAugmenter(
   registry.registerMetadataItemXmlImportAugmenter(name, augmenter)
 }
 
-export function applyMetadataItemXmlImportAugmenter(params: {
-  context: ConfigurationContextFromXML
-  rule: MetadataItemRule
-  source: Record<string, unknown>
-  yaml: Record<string, unknown>
-}): void {
+export function applyMetadataItemXmlImportAugmenter(params: MetadataItemXmlImportAugmentParams): void {
   const registry = currentPropertyRuleRegistrySet<{
     applyMetadataItemXmlImportAugmenter(value: typeof params): void
   }>()

@@ -80,6 +80,8 @@ export function importMetadataItemFromXMLToYAML(params: {
     ? {}
     : sourceNode === undefined
     ? objectRecordOrUndefined(source) ?? {}
+    : params.traversal.audit === undefined
+    ? sourceNode
     : objectRecordOrUndefined(xmlImportCompatibilityContainer({
         node: sourceNode,
         audit: params.traversal.audit,
