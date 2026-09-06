@@ -5,6 +5,9 @@ import { mockContext } from "../../../tests/mockContext"
 import { testImportPropertyFromXML } from "../../../tests/property/importPropertyFromXML"
 import { metadataRules } from "../../composition/metadataRules"
 import { exportPropertyToYAML } from "../../ruleRuntime/property/toYAML"
+import { importMinMaxValueFromXML } from "./fromXML"
+import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"
+import { mockContextFromXML } from "../../../tests/mockContext"
 
 import "./fromXML"
 import "./toYAML"
@@ -18,6 +21,16 @@ const stringRule = {
 const execution = createRuleRegistrySet(metadataRules).execution
 
 describe("MinMaxValue XML → YAML", () => {
+  it.each([
+    ['<MinValue xsi:type="xs:string">0,005</MinValue>', 0.005],
+    ['<MinValue xsi:type="xs:string">0.005</MinValue>', { kind: "xml", xsiType: "xs:string", text: "0.005" }],
+    ['<MinValue xsi:type="xs:decimal">3</MinValue>', { kind: "xml", xsiType: "xs:decimal", text: "3" }],
+    ["<MinValue>3</MinValue>", { kind: "xml", text: "3" }],
+    ["<MinValue/>", undefined],
+    ['<MinValue xsi:type="xs:string"/>', undefined],
+  ])("reads structural limits without losing their XML form: %s", (xml, expected) => {
+    expect(importMinMaxValueFromXML(mockContextFromXML(), stringRule, parseStructuralXMLWithoutCompatibility(xml))).toEqual(expected)
+  })
 
   it("imports canonical decimal comma as a number", () => {
     expect(importAndSerialize(stringRule, '<MinValue xsi:type="xs:string">0,005</MinValue>'))

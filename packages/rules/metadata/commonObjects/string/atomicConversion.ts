@@ -3,20 +3,14 @@ import type {
   CompiledAtomicConversion,
 } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { readStringXML } from "./xmlValue"
 
 const empty = Object.freeze({ metadataValue: undefined, representationValue: undefined })
 
 export const compileStringAtomicConversion: CompileAtomicConversionFunction = () => Object.freeze({
   fromXMLToYAML: ({ value }) => {
-    if (value === undefined) return empty
-    if (typeof value === "object" && value !== null) {
-      if (!("#text" in value)) return empty
-      const text = (value as Record<string, unknown>)["#text"]
-      if (text === undefined) return empty
-      const metadataValue = String(text)
-      return { metadataValue, representationValue: metadataValue }
-    }
-    const metadataValue = String(value)
+    const metadataValue = readStringXML(value)
+    if (metadataValue === undefined) return empty
     return { metadataValue, representationValue: metadataValue }
   },
   fromYAMLToXML: ({ value }) => ({

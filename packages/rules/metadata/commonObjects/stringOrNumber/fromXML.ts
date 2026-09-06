@@ -1,11 +1,11 @@
-import { ConfigurationContextFromXML } from "@nkdk/runtime"
+import { ConfigurationContextFromXML, isXmlElementNode, xmlAttributeValue, xmlTextValue, type XmlElementNode } from "@nkdk/runtime"
 import { PropertyRule } from "../../ruleRuntime"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { StringOrNumber, StringOrNumberReference } from "./types"
 
 const NUMERIC_XSI_TYPES = new Set(["xs:decimal", "xs:integer", "xs:double", "xs:float"])
 
-type StringOrNumberXML = string | number | { "#text"?: string | number; "_xsi:type"?: string } | undefined
+type StringOrNumberXML = string | number | { "#text"?: string | number; "_xsi:type"?: string } | XmlElementNode | undefined
 
 export const importStringOrNumberFromXML = (
   context: ConfigurationContextFromXML,
@@ -15,8 +15,8 @@ export const importStringOrNumberFromXML = (
   if (value === undefined) return undefined
 
   if (typeof value === "object" && value !== null) {
-    const text = value["#text"]
-    const xsiType = value["_xsi:type"]
+    const text = isXmlElementNode(value) ? xmlTextValue(value) : value["#text"]
+    const xsiType = isXmlElementNode(value) ? xmlAttributeValue(value, "xsi:type") : value["_xsi:type"]
     if (text === undefined || text === "") return undefined
 
     const importedValue = typeof xsiType === "string" && NUMERIC_XSI_TYPES.has(xsiType) ? Number(text) : String(text)
