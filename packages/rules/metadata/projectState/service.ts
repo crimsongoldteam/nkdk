@@ -275,8 +275,7 @@ export function createProjectStateService(
       preparedImportStore: () => session.preparedImportStore(),
       writeStateFragment: (fragment) => session.writeStateFragment(fragment),
       replaceFinalHashes: (files) => session.replaceFinalHashes(files),
-      commitWorkingIndex: () => session.commitWorkingIndex(),
-      commitSemanticIndex: () => session.commitSemanticIndex(),
+      commitSharedIndex: () => session.commitSharedIndex(),
       collectSemanticValidationIssues: () => session.collectSemanticValidationIssues(),
       createReadToken: () => session.createReadToken(),
       async finalize(beforeCheckpoint) {

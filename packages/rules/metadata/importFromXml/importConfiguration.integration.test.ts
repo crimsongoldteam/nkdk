@@ -691,8 +691,7 @@ describe("configuration XML import coordinator", () => {
     const primary = new Error("checkpoint failed")
     const cleanup = new Error("discard failed")
     params.projectState = projectStateWithImportSession({
-      async commitWorkingIndex() { return new Uint8Array([1]) as never },
-      async commitSemanticIndex() { return new Uint8Array([2]) as never },
+      async commitSharedIndex() { return new Uint8Array([1]) as never },
       async finalize(beforeCheckpoint) {
         await beforeCheckpoint?.()
         throw new AggregateError([primary, cleanup], primary.message)
@@ -814,7 +813,7 @@ describe("configuration XML import coordinator", () => {
     ).toBe(true)
     expect(lines.some((line) => line.includes('substep="Перенос результата импорта в проект"'))).toBe(false)
     for (const substep of [
-      "Фиксация рабочего индекса",
+      "Фиксация общего индекса",
       "Построение окончательного состояния",
       "Полная проверка зависимостей",
       "Сохранение состояния проекта",
@@ -1146,12 +1145,8 @@ function fakeProjectState(
       const preparedStore = memoryPreparedImportStore()
       return {
         async preparedImportStore() { return preparedStore },
-        async commitWorkingIndex() {
-          importParams.profile?.onPhase?.({ phase: "workingIndex", elapsedMs: 1 })
-          return readToken()
-        },
-        async commitSemanticIndex() {
-          importParams.profile?.onPhase?.({ phase: "semanticIndex", elapsedMs: 1 })
+        async commitSharedIndex() {
+          importParams.profile?.onPhase?.({ phase: "sharedIndex", elapsedMs: 1 })
           return readToken()
         },
         async collectSemanticValidationIssues() {
@@ -1224,8 +1219,7 @@ function projectStateWithImportSession(
     async preparedImportStore() { return memoryPreparedImportStore() },
     async writeStateFragment() {},
     async replaceFinalHashes() {},
-    commitWorkingIndex: unexpected,
-    commitSemanticIndex: unexpected,
+    commitSharedIndex: unexpected,
     async collectSemanticValidationIssues() { return [] },
     createReadToken: unexpected,
     finalize: unexpected,

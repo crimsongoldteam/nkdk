@@ -45,7 +45,7 @@ test("без явного параметра оставляет выбор чи�
 test("сводит этапы импорта и двоичной выдачи в стабильные поля", () => {
   const steps = [
     main("Первый проход worker", 11),
-    main("Фиксация рабочего индекса", 12),
+    main("Фиксация общего индекса", 12),
     main("Второй проход worker", 13),
     main("Копирование внешних файлов XML-выгрузки", 14),
     main("Построение окончательного состояния", 15),
@@ -67,7 +67,7 @@ test("сводит этапы импорта и двоичной выдачи в
 
   assert.deepEqual(summarizeImportSteps(steps, 300), {
     firstPassMs: 11,
-    workingIndexMs: 12,
+    sharedIndexMs: 12,
     secondPassMs: 13,
     externalFilesMs: 14,
     finalBuildMs: 15,

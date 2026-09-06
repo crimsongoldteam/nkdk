@@ -183,8 +183,7 @@ describe("ProjectStateService", () => {
     await service.createReadToken(projectDir)
 
     const session = await service.beginImport({ projectDir, workerCount: 1, output: { componentPaths: ["cf"] } })
-    await session.commitWorkingIndex()
-    await session.commitSemanticIndex()
+    await session.commitSharedIndex()
     const result = await session.finalize()
     expect([...result.diagnostics]).toEqual([])
     await expect(readProjectFiles(service, projectDir)).resolves.toEqual([{ projectPath: "old-2" }])
@@ -224,8 +223,7 @@ describe("ProjectStateService", () => {
           async refresh() { refreshCalls += 1; return refreshResult(refreshCalls) },
         },
       )
-      await session.commitWorkingIndex()
-      await session.commitSemanticIndex()
+      await session.commitSharedIndex()
 
       const queued = operation === "reset"
         ? service.reset(projectDir)
@@ -291,8 +289,7 @@ describe("ProjectStateService", () => {
         next.openProject = async (path) => { events.push("next-open"); await openNext(path) }
       },
     )
-    await session.commitWorkingIndex()
-    await session.commitSemanticIndex()
+    await session.commitSharedIndex()
     const resetting = service.reset(projectDir)
     await nextTurn()
 
@@ -318,8 +315,7 @@ describe("ProjectStateService", () => {
         }
       },
     )
-    await session.commitWorkingIndex()
-    await session.commitSemanticIndex()
+    await session.commitSharedIndex()
 
     const failure = await session.finalize().catch((caught: unknown) => caught)
 
@@ -356,8 +352,7 @@ describe("ProjectStateService", () => {
     const { projectDir, service, session } = await beginImportLeaseTest(
       "nkdk-project-state-import-release-once-",
     )
-    await session.commitWorkingIndex()
-    await session.commitSemanticIndex()
+    await session.commitSharedIndex()
 
     await session.finalize()
     await session.abort(new Error("late abort"))
@@ -379,8 +374,7 @@ describe("ProjectStateService", () => {
         }
       },
     )
-    await session.commitWorkingIndex()
-    await session.commitSemanticIndex()
+    await session.commitSharedIndex()
     const resetting = service.reset(projectDir)
     await nextTurn()
 

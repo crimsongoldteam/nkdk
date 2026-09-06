@@ -50,7 +50,7 @@ Peak RSS: <MiB>
 
 Если профиль содержит шаги, добавь краткую таблицу распределения.
 
-Машинный результат каждого запуска содержит `firstPassMs`, `workingIndexMs`,
+Машинный результат каждого запуска содержит `firstPassMs`, `sharedIndexMs`,
 `secondPassMs`, `externalFilesMs`, `finalBuildMs`, `dependencyValidationMs`,
 `publicationMs`, `saveMs`, времена двоичного кодирования и приёма, подготовки
 начала diagnostics и JSONL-отчёта, размеры двоичных данных, отчёта и

@@ -191,7 +191,7 @@ function createProfileProject(yamlDir) {
 export function summarizeImportSteps(steps, elapsedMs) {
   const names = {
     firstPassMs: "Первый проход worker",
-    workingIndexMs: "Фиксация рабочего индекса",
+    sharedIndexMs: "Фиксация общего индекса",
     secondPassMs: "Второй проход worker",
     externalFilesMs: "Копирование внешних файлов XML-выгрузки",
     finalBuildMs: "Построение окончательного состояния",
@@ -232,7 +232,7 @@ export function summarizeImportSteps(steps, elapsedMs) {
   ])
   const measuredMainMs = sumFields(phases, [
     "firstPassMs",
-    "workingIndexMs",
+    "sharedIndexMs",
     "secondPassMs",
     "externalFilesMs",
     "finalBuildMs",

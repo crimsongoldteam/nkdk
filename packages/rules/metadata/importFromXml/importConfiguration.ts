@@ -330,7 +330,6 @@ export async function importConfigurationFromXml(
       files: discovered.snapshotFiles ?? [],
     })
     if (snapshotFragments.length > 0) indexCandidate.mergeBlockFragments(snapshotFragments)
-    await importSession.commitWorkingIndex()
     const externalSemanticState = externalFileSemanticStateBatch(
       validationComponent,
       discovered.assignments.flatMap(({ externalFiles }) => externalFiles),
@@ -340,7 +339,7 @@ export async function importConfigurationFromXml(
       externalWriter.appendImportFinal(externalSemanticState)
       await importSession.writeStateFragment(externalWriter.finish())
     }
-    const semanticReadToken = await importSession.commitSemanticIndex()
+    const semanticReadToken = await importSession.commitSharedIndex()
     const semanticValidation = await profiler.measureAsync(
       "Подготовка импорта конфигурации",
       "Классификация смысловых аномалий первого прохода",
@@ -550,8 +549,7 @@ function importStatePhaseName(
   phase: import("../projectState/importSession").ProjectStateImportProfilePhase,
 ): string {
   return {
-    workingIndex: "Фиксация рабочего индекса",
-    semanticIndex: "Фиксация смыслового индекса",
+    sharedIndex: "Фиксация общего индекса",
     finalBuild: "Построение окончательного состояния",
     dependencyValidation: "Полная проверка зависимостей",
     save: "Сохранение состояния проекта",
