@@ -10,23 +10,44 @@ import type { DirectImportPropertyFact } from "./propertyFactsYamlView"
 import { dependentImportDependencies } from "@nkdk/runtime/rule-kit"
 
 const owner = { dir: "Справочник", name: "Товары" }
+const typedItemRule: MetadataItemRule = {
+  itemType: "TypedItem",
+  properties: {
+    type: { type: "string", yaml: "Тип" },
+    form: { type: "string", yaml: "Форма", metadataTarget: {
+      kind: "member", owner: "type", typeProperty: "type", memberKinds: ["Form"],
+    } },
+  },
+}
 
 describe("prepared import dependencies", () => {
+  it("читает каждый элемент выбранного составного типа один раз", () => {
+    const rule = typedItemRule
+    let reads = 0
+    const values = Array.from({ length: 64 }, (_, index) => `Справочник.Товар${index}`)
+    const facts = collectImportDependencyFacts({
+      rule, owner, candidates: [], yaml: {}, proofPropertyFacts: [],
+      propertyFacts: [{
+        itemType: rule.itemType, itemRule: rule, propertyKey: "$container:type",
+        yamlPath: ["Реквизиты", "Товар", "Тип"], value: [],
+      }, ...values.map((value, index): DirectImportPropertyFact => ({
+        itemType: rule.itemType, itemRule: rule, propertyKey: "type",
+        yamlPath: ["Реквизиты", "Товар", "Тип", index],
+        get value() { reads++; return value },
+      }))],
+    })
+    expect(prepareImportDependencies(facts).propertyValue?.(["Реквизиты", "Товар"], "type"))
+      .toEqual({ value: values })
+    expect(reads).toBe(values.length)
+  })
+
   it.each([
     [[{ path: [], value: "Справочник.Товары" }], "Справочник.Товары"],
     [[{ path: [0], value: "Справочник.Товары" }, { path: [1], value: "Строка" }], ["Справочник.Товары", "Строка"]],
     [[{ path: [], value: [] }], []],
     [[{ path: [0], value: undefined }], [undefined]],
   ])("читает только факты типа для владельца ссылки: %j", (values, expected) => {
-    const rule: MetadataItemRule = {
-      itemType: "TypedItem",
-      properties: {
-        type: { type: "string", yaml: "Тип" },
-        form: { type: "string", yaml: "Форма", metadataTarget: {
-          kind: "member", owner: "type", typeProperty: "type", memberKinds: ["Form"],
-        } },
-      },
-    }
+    const rule = typedItemRule
     const facts = collectImportDependencyFacts({
       rule, owner, candidates: [], yaml: {}, proofPropertyFacts: [],
       propertyFacts: [
@@ -36,7 +57,8 @@ describe("prepared import dependencies", () => {
         }] : []),
         ...values.map(({ path, value }): DirectImportPropertyFact => ({
           itemType: rule.itemType, itemRule: rule, propertyKey: "type",
-          yamlPath: ["Реквизиты", "Товар", "Тип", ...path], value, presentInXML: true,
+          yamlPath: ["Реквизиты", "Товар", "Тип", ...path],
+          sourceYamlPath: ["Реквизиты", 0, "Тип", ...path], value, presentInXML: true,
         })),
         { itemType: rule.itemType, itemRule: rule, propertyKey: "form", yamlPath: ["Форма"],
           get value() { throw new Error("Значение ссылки не нужно для определения её владельца") } },
@@ -44,6 +66,8 @@ describe("prepared import dependencies", () => {
     })
     expect(prepareImportDependencies(facts).propertyValue?.(["Реквизиты", "Товар"], "type"))
       .toEqual({ value: expected })
+    expect(prepareImportDependencies(facts).propertyValue?.(["Реквизиты", 0], "type"))
+      .toBe(prepareImportDependencies(facts).propertyValue?.(["Реквизиты", "Товар"], "type"))
   })
 
   it.each([

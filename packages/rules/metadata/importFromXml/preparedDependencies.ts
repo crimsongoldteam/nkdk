@@ -1,5 +1,6 @@
 import { copyYAMLRuntimeMetadata, yamlPathToPointer, yamlScalarTagAt, type YAMLScalarTag } from "@nkdk/runtime"
 import { recordAtPath } from "./dependentItems"
+import { createSelectedPropertyValue } from "./selectedPropertyValue"
 import {
   createPropertyFactsYamlView,
   propertyFactsWithReconstructionValues,
@@ -97,7 +98,8 @@ export function collectImportDependencyFacts(params: {
     }
   }
   const siblingProperties = new Map<string, { readonly value: unknown }>()
-  const siblingFacts: NonNullable<typeof params.propertyFacts>[number][] = []
+  const siblingValues = new Map<string, ReturnType<typeof createSelectedPropertyValue>>()
+  const siblingAliases = new Map<string, string>()
   const proofPropertyFacts = params.proofPropertyFacts ?? params.propertyFacts ?? []
   const proofProperties = collectProofProperties(proofPropertyFacts)
   const finalProperties = collectFinalRootProperties({
@@ -133,28 +135,44 @@ export function collectImportDependencyFacts(params: {
       ? fact.propertyKey.slice("$container:".length)
       : fact.propertyKey
     if (!keys.has(key)) continue
-    siblingFacts.push(fact)
-  }
-  const propertyFactsYaml = createPropertyFactsYamlView(siblingFacts)
-  for (const fact of siblingFacts) {
-    if (fact.propertyKey.startsWith("$container:")) continue
-    const propertyRule = fact.itemRule?.properties[fact.propertyKey]
+    const propertyRule = fact.itemRule.properties[key]
     const propertyRootIndex = typeof propertyRule?.yaml === "string"
       ? fact.yamlPath.lastIndexOf(propertyRule.yaml)
       : -1
     const propertyPath = propertyRootIndex < 0
       ? fact.yamlPath
       : fact.yamlPath.slice(0, propertyRootIndex + 1)
-    const reconstructed = importedYamlValueAtPath(propertyFactsYaml, propertyPath)
-    const value = typeof reconstructed === "string"
-      ? reconstructed
-      : Array.isArray(reconstructed)
-        ? [...reconstructed]
-        : undefined
     const itemPath = propertyRootIndex < 0
       ? (fact.sourceYamlPath ?? fact.yamlPath).slice(0, -1)
       : propertyPath.slice(0, -1)
-    siblingProperties.set(siblingAddress(itemPath, fact.propertyKey), { value })
+    const relativePath = fact.yamlPath.slice(propertyPath.length)
+    const factValue = fact.value
+    if (factValue === undefined && fact.scalarTag === undefined
+      && (fact.presentInXML !== true || relativePath.length === 0)) continue
+    const address = siblingAddress(itemPath, key)
+    if (fact.sourceYamlPath !== undefined) {
+      const sourceRootIndex = typeof propertyRule?.yaml === "string"
+        ? fact.sourceYamlPath.lastIndexOf(propertyRule.yaml)
+        : -1
+      const sourceItemPath = sourceRootIndex < 0
+        ? fact.sourceYamlPath.slice(0, -1)
+        : fact.sourceYamlPath.slice(0, sourceRootIndex)
+      const sourceAddress = siblingAddress(sourceItemPath, key)
+      if (sourceAddress !== address) siblingAliases.set(sourceAddress, address)
+    }
+    let selected = siblingValues.get(address)
+    if (selected === undefined) {
+      selected = createSelectedPropertyValue()
+      siblingValues.set(address, selected)
+    }
+    selected.accept(relativePath, factValue)
+  }
+  for (const [address, selected] of siblingValues) {
+    const value = selected.finish()
+    siblingProperties.set(address, { value: typeof value === "string" || Array.isArray(value) ? value : undefined })
+  }
+  for (const [alias, address] of siblingAliases) {
+    siblingProperties.set(alias, siblingProperties.get(address)!)
   }
   return {
     rule: params.rule,
