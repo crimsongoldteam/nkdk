@@ -31,6 +31,8 @@ export interface DirectImportPropertyFact {
   /** Адрес во время XML-обхода, до именования элементов коллекций. */
   readonly sourceYamlPath?: YamlPath
   readonly value: unknown
+  /** Значение уже прошло формирование YAML-проекции, а не только XML-преобразование. */
+  readonly exportedToYAML?: true
   readonly scalarTag?: YAMLScalarTag
   /** Было ли свойство физически представлено в исходном XML. */
   readonly presentInXML?: boolean

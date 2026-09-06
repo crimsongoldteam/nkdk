@@ -392,6 +392,7 @@ describe("importPropertiesFromXMLToYAML", () => {
     const context = mockContextFromXML()
     const root = parseXmlDocumentWithSaxes("<Root><Items><Item><Name>Первый</Name><Type>Справочник.Товары</Type></Item></Items></Root>").roots[0]!
     const propertyFacts = collectPropertyFacts({ execution: rules.execution, context, rule, root })
+    expect(propertyFacts.filter(({ propertyKey }) => propertyKey === "type")).toHaveLength(1)
     expect(propertyFacts.find(({ propertyKey }) => propertyKey === "type")).toMatchObject({
       yamlPath: ["Элементы", "Первый", "Тип"], sourceYamlPath: ["Элементы", 0, "Тип"],
     })

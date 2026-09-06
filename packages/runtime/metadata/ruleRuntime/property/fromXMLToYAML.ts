@@ -13,6 +13,7 @@ import type {
   DeferredRulePathSegment,
   DirectImportProfile,
   DirectImportTraversal,
+  DirectImportPropertyFact,
   DirectImportXMLSource,
   ImportedDependentPropertyCollector,
 } from "./importYamlTypes"
@@ -370,6 +371,7 @@ export function importPropertiesFromXMLToYAML(params: {
         const hasExplicitXMLKeyWithEmptyDefault = "defaultValueXMLEmpty" in propertyRule && presentInXML
         const emptyXML = xmlValue === undefined || xmlValue === "" || isXmlElementNode(xmlValue) && isEmptyXmlElement(xmlValue)
         const hasRawEmptyXML = hasExplicitXMLKeyWithEmptyDefault && emptyXML
+        let pendingScalarFact: DirectImportPropertyFact | undefined
         try {
           const direct = compiled === undefined
             ? typeRule(propertyRule.type, "importFromXMLToYAML")
@@ -737,8 +739,8 @@ export function importPropertiesFromXMLToYAML(params: {
                 retainContainers: false,
               })
             }
-          } else {
-            params.facts?.acceptProperty({
+          } else if (params.facts !== undefined) {
+            const fact: DirectImportPropertyFact = {
                 itemType: rule.itemType,
                 itemRule: rule,
                 propertyKey: key,
@@ -752,7 +754,9 @@ export function importPropertiesFromXMLToYAML(params: {
                 && importedValue !== undefined
                 ? { reconstructionValue: importedValue }
                 : {}),
-            })
+            }
+            if (params.mode === "facts") pendingScalarFact = fact
+            else params.facts?.acceptProperty(fact)
           }
           if (shouldImportForLocalProof && !shouldImportProperty) return
           if (!convertedDirectly && !usesFusedRepresentation) {
@@ -839,6 +843,21 @@ export function importPropertiesFromXMLToYAML(params: {
           }
           if (params.mode === "facts") {
             for (const [yamlKey, exportedValue] of Object.entries(exportedValues)) {
+              if (
+                pendingScalarFact !== undefined
+                && !Object.hasOwn(pendingScalarFact, "reconstructionValue")
+                && propertyYamlPath.length === yamlPath.length + 1
+                && propertyYamlPath[yamlPath.length] === yamlKey
+                && Object.is(exportedValue, exportedYamlValue)
+              ) {
+                params.facts?.acceptProperty({ ...pendingScalarFact, exportedToYAML: true })
+                pendingScalarFact = undefined
+                continue
+              }
+              if (pendingScalarFact !== undefined) {
+                params.facts?.acceptProperty(pendingScalarFact)
+                pendingScalarFact = undefined
+              }
               acceptNestedPropertyFactLeaves({
                 facts: params.facts,
                 itemType: rule.itemType,
@@ -848,6 +867,7 @@ export function importPropertiesFromXMLToYAML(params: {
                 value: exportedValue,
                 presentInXML,
                 retainContainers: true,
+                exportedToYAML: true,
               })
             }
           }
@@ -923,6 +943,8 @@ export function importPropertiesFromXMLToYAML(params: {
         } catch (cause) {
           if (cause instanceof XmlImportAttemptInfrastructureError || cause instanceof DirectImportRoundTripError) throw cause
           throw new DirectImportConversionError(propertyYamlPath, propertyRulePath, xmlPath, cause)
+        } finally {
+          if (pendingScalarFact !== undefined) params.facts?.acceptProperty(pendingScalarFact)
         }
       }
       run()
@@ -1133,6 +1155,7 @@ function acceptNestedPropertyFactLeaves(params: {
   readonly value: unknown
   readonly presentInXML: boolean
   readonly retainContainers: boolean
+  readonly exportedToYAML?: true
 }): void {
   if (params.facts === undefined) return
   const taggedScalar = isTaggedYAMLScalar(params.value) ? params.value : undefined
@@ -1148,6 +1171,7 @@ function acceptNestedPropertyFactLeaves(params: {
       value: Array.isArray(value) ? [] : {},
       ...(scalarTag === undefined ? {} : { scalarTag }),
       presentInXML: params.presentInXML,
+      ...(params.exportedToYAML === true ? { exportedToYAML: true } : {}),
     })
   }
   const entries = !container
@@ -1170,6 +1194,7 @@ function acceptNestedPropertyFactLeaves(params: {
     value,
     ...(scalarTag === undefined ? {} : { scalarTag }),
     presentInXML: params.presentInXML,
+    ...(params.exportedToYAML === true ? { exportedToYAML: true } : {}),
   })
 }
 

@@ -125,11 +125,9 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
       traversal: { mode: "facts", facts, yamlPath: ["Элементы"], rulePath: [], collector: createLocalIndexesCollector() },
     })
     expect(result).toEqual([{ Значение: "a" }, { Значение: "b" }])
-    // Исполнитель сообщает исходное и окончательное смысловые значения.
+    // Совпадающее исходное и окончательное значение хранится одним фактом.
     expect(facts.finish().map(({ propertyKey, yamlPath, value }) => ({ propertyKey, yamlPath, value }))).toEqual([
       { propertyKey: "value", yamlPath: ["Элементы", 0, "Значение"], value: "a" },
-      { propertyKey: "value", yamlPath: ["Элементы", 0, "Значение"], value: "a" },
-      { propertyKey: "value", yamlPath: ["Элементы", 1, "Значение"], value: "b" },
       { propertyKey: "value", yamlPath: ["Элементы", 1, "Значение"], value: "b" },
     ])
     expect(firstPublished).toBe(true)
