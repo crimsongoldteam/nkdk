@@ -2,6 +2,7 @@ import { importI8nTextFromXML } from "../../i8nText/fromXML"
 import { exportI8nTextToXML } from "../../i8nText/toXML"
 import type { I8nText, I8nTextXML } from "../../i8nText/types"
 import type { ConfigurationContext, ConfigurationContextFromXML } from "@nkdk/runtime"
+import { isXmlElementNode, xmlAttributeValue, xmlTextValue, type XmlElementNode } from "@nkdk/runtime"
 import type { UserSettingPresentationShortXML } from "./types"
 
 const shortFormMarker = Symbol("userSettingPresentationXML.shortForm")
@@ -40,17 +41,25 @@ const getSingleLanguageText = (items: I8nText["items"]): string | undefined => {
 
 export const importUserSettingPresentationFromXML = (
   context: ConfigurationContextFromXML,
-  xml: I8nTextXML | UserSettingPresentationShortXML | string | undefined
+  xml: I8nTextXML | UserSettingPresentationShortXML | XmlElementNode | string | undefined
 ): I8nText | undefined => {
   if (xml === undefined) return undefined
 
+  if (isXmlElementNode(xml) && (xmlAttributeValue(xml, "xsi:type") === "xs:string"
+    || xml.attributes.length === 0 && xml.content.every(node => node.type === "text"))) {
+    return importShortPresentation(context, xmlTextValue(xml))
+  }
   if (typeof xml === "string" || isShortForm(xml)) {
     const text = typeof xml === "string" ? xml : String(xml["#text"] ?? "")
-    const result: I8nText = { items: { [context.languages.default]: text } }
-    return context.fromXML.forReference ? markShortFormReference(result, text) : result
+    return importShortPresentation(context, text)
   }
 
   return importI8nTextFromXML(context, { type: "I8nText" }, xml)
+}
+
+function importShortPresentation(context: ConfigurationContextFromXML, text: string): I8nText {
+  const result: I8nText = { items: { [context.languages.default]: text } }
+  return context.fromXML.forReference ? markShortFormReference(result, text) : result
 }
 
 export const exportUserSettingPresentationToXML = (params: {

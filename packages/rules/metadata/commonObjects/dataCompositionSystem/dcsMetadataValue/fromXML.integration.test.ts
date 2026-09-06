@@ -1,19 +1,15 @@
 import { describe, expect, it } from "vitest"
 import { testImportPropertyFromXML } from "../../../../tests/property/importPropertyFromXML"
 import { dcsMetadataValueFromXMLFixtures } from "./__fixtures__/data"
-import { parseXmlDocumentWithSaxes, xmlElementChildren } from "@nkdk/runtime"
+import { parseXmlDocumentWithSaxes } from "@nkdk/runtime"
+import { parseStructuralXMLWithoutCompatibility } from "../../../../tests/structuralXML"
 import { readXMLFixtureAsString } from "../../../../tests/readFixtureXML"
 import { mockContextFromXML } from "../../../../tests/mockContext"
 import { importDcsMetadataValueFromDcsXML } from "./fromXML"
 
 describe("import MetadataDcsMetadataValue from XML", () => {
   it.each(dcsMetadataValueFromXMLFixtures)("imports structural $title", (fixture) => {
-    const source = parseXmlDocumentWithSaxes(readXMLFixtureAsString(import.meta.url, fixture.xml)).roots[0]!
-    const nodes = [source]
-    for (const node of nodes) {
-      nodes.push(...xmlElementChildren(node))
-      Object.defineProperty(node, "compatibilityValue", { get() { throw new Error("Compatibility XML must not be read") } })
-    }
+    const source = parseStructuralXMLWithoutCompatibility(readXMLFixtureAsString(import.meta.url, fixture.xml))
     expect(importDcsMetadataValueFromDcsXML(mockContextFromXML(), fixture.rule, source)).toEqual(fixture.value)
   })
 

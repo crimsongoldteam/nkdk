@@ -5,6 +5,9 @@ import { testAtomicFromYAML } from "../../../../tests/property/atomicFromYAML"
 import { testImportPropertyFromXML } from "../../../../tests/property/importPropertyFromXML"
 import { exportToYAML } from "@nkdk/runtime"
 import { importFromYAML } from "@nkdk/runtime"
+import { parseStructuralXMLWithoutCompatibility } from "../../../../tests/structuralXML"
+import { mockContextFromXML } from "../../../../tests/mockContext"
+import { importParameterValueFromDcsXML } from "./fromXML"
 import {
   nilSettingsParameterValue,
   nilSettingsParameterValueRule,
@@ -13,6 +16,18 @@ import {
 } from "./__fixtures__/data"
 
 describe("importParameterValueFromXML", () => {
+  it("reads structural settings fields and a short presentation", () => {
+    const source = parseStructuralXMLWithoutCompatibility('<dcscor:item xsi:type="dcsset:SettingsParameterValue"><dcscor:parameter>Период</dcscor:parameter><dcsset:viewMode>Normal</dcsset:viewMode><dcsset:userSettingID>id</dcsset:userSettingID><dcsset:userSettingPresentation xsi:type="xs:string">Период с</dcsset:userSettingPresentation></dcscor:item>')
+    expect(importParameterValueFromDcsXML(mockContextFromXML(), { type: "SettingsParameterValue", valueType: "Primitive" }, source)).toEqual({
+      parameter: "Период", viewMode: "Normal", userSettingID: "id", userSettingPresentation: { items: { ru: "Период с" } },
+    })
+  })
+
+  it.each(parameterValueFixtures)("imports structural $title", (fixture) => {
+    const source = parseStructuralXMLWithoutCompatibility(fixture.xml!)
+    expect(importParameterValueFromDcsXML(mockContextFromXML(), fixture.rule, source)).toEqual(fixture.value)
+  })
+
   it.each(parameterValueFixtures)("imports $title", (fixture) => {
     expect(
       testImportPropertyFromXML({

@@ -1,4 +1,4 @@
-import { ConfigurationContextFromXML } from "@nkdk/runtime"
+import { ConfigurationContextFromXML, type XmlElementNode } from "@nkdk/runtime"
 import { PropertyRule, definePropertyTypeRule } from "../../../ruleRuntime"
 import type {
   PropertyRuleExecution,
@@ -10,7 +10,7 @@ import type { SettingsParameterValueCollection, SettingsParameterValueCollection
 const importSettingsParameterValueCollectionFromXML = (
   context: ConfigurationContextFromXML,
   rule: PropertyRule,
-  xml: SettingsParameterValueCollectionXML | undefined,
+  xml: SettingsParameterValueCollectionXML | XmlElementNode | XmlElementNode[] | undefined,
   _ownerXmlName?: string,
   execution?: PropertyRuleExecution,
 ): SettingsParameterValueCollection | undefined => {
