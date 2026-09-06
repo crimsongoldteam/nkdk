@@ -27,6 +27,10 @@ import { createPropertyFactsYamlView, propertyFactsWithReconstructionValues } fr
 import * as propertyFactsView from "./propertyFactsYamlView"
 import * as addressableMetadataTargets from "../validation/addressableMetadataTargets"
 import * as formDataPathMetadata from "../forms/clientApplicationForm/formDataPathMetadata"
+import { clientApplicationFormDataPathProjection, resolveClientApplicationFormCollectionItemRule } from "../forms/clientApplicationForm/formDataPathProjection"
+import { collectFormDataPathOccurrencesFromYAML } from "../validation/dataPath/formYamlTraversal"
+import * as formYamlTraversal from "../validation/dataPath/formYamlTraversal"
+import { collectFormDataPathOccurrencesFromFacts } from "./formDataPathOccurrences"
 import type { ImportAssignment } from "./types"
 import {
   extractImportValidationContribution,
@@ -43,6 +47,36 @@ const e2eAllExtensionDir = join(import.meta.dirname, "../../../../e2e/fixtures/x
 const e2eConfigurationDir = join(import.meta.dirname, "../../../../e2e/fixtures/xml/cf")
 
 describe("prepareImportFacts", () => {
+  it("не обходит YAML формы для подготовки запросов проверки путей", async () => {
+    const fromYaml = vi.spyOn(formYamlTraversal, "collectFormDataPathOccurrencesFromYAML")
+    try {
+      const assignment = reportVariantFormAssignment()
+      const facts = await prepareImportFacts({
+        assignment, context: extensionContext(), collector: createConfigurationIndexCollector(),
+        inputs: parseAssignmentInputs(assignment, true),
+      })
+      expect(facts.pendingChecks.some(({ kind }) => kind === "dataPath")).toBe(true)
+      expect(fromYaml).not.toHaveBeenCalled()
+    } finally {
+      fromYaml.mockRestore()
+    }
+  })
+
+  it.each([managedFormAssignment, reportVariantFormAssignment, extensionReportVariantFormAssignment])("получает прежние запросы проверки путей из фактов: %s", async (createAssignment) => {
+    const assignment = createAssignment()
+    const facts = await prepareImportFacts({
+      assignment, context: extensionContext(), collector: createConfigurationIndexCollector(),
+      inputs: parseAssignmentInputs(assignment, true),
+    })
+    const expected = collectFormDataPathOccurrencesFromYAML({
+      yaml: createPropertyFactsYamlView(facts.semanticFacts), rule: facts.rule,
+      resolveCollectionItemRule: resolveClientApplicationFormCollectionItemRule,
+    }).map(({ setValue: _setValue, ...occurrence }) => occurrence)
+    expect(collectFormDataPathOccurrencesFromFacts({
+      facts: facts.semanticFacts, projection: clientApplicationFormDataPathProjection,
+    })).toEqual(expected)
+  })
+
   it("готовит отдельный индекс путей основы по её фактам", async () => {
     const assignment = extensionReportVariantFormAssignment()
     const facts = await prepareImportFacts({

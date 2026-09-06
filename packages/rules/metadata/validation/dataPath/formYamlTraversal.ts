@@ -34,6 +34,28 @@ export type FormYAMLCollectionItemRuleResolver = (params: {
   propertyRule: PropertyRule
 }) => MetadataItemRule | undefined
 
+export function describeFormDataPath(params: {
+  rule: DataPathPropertyRule
+  value: unknown
+  yamlPath: YamlPath
+  itemType: string
+  hasValuesPicture?: boolean
+  hasMultipleValuesExtendedEdit?: boolean
+  tableContext?: TableContext
+}): Omit<FormDataPathOccurrence, "setValue"> | undefined {
+  if (typeof params.value !== "string" || params.value.trim().length === 0) return undefined
+  return {
+    rule: params.rule,
+    value: params.value,
+    yamlPath: params.yamlPath,
+    nameMode: "yaml",
+    ...(isElementType(params.itemType) ? { elementType: params.itemType } : {}),
+    ...(params.hasValuesPicture === true ? { hasValuesPicture: true } : {}),
+    ...(params.hasMultipleValuesExtendedEdit === true ? { hasMultipleValuesExtendedEdit: true } : {}),
+    ...(params.tableContext !== undefined && params.rule.yaml === "ПутьКДанным" ? { tableContext: params.tableContext } : {}),
+  }
+}
+
 export function collectFormDataPathOccurrencesFromYAML(params: {
   yaml: unknown
   rule: MetadataItemRule
@@ -81,25 +103,20 @@ function collectItem(params: {
   for (const propertyRule of Object.values(params.rule.properties)) {
     if (typeof propertyRule.yaml !== "string") continue
     const rawValue = record[propertyRule.yaml]
-    if (isDataPathRule(propertyRule) && typeof rawValue === "string") {
-      const value = rawValue
-      if (value.trim().length === 0) continue
+    if (isDataPathRule(propertyRule)) {
+      const occurrence = describeFormDataPath({
+        rule: propertyRule, value: rawValue, yamlPath: [...params.yamlPath, propertyRule.yaml],
+        itemType: params.rule.itemType,
+        hasValuesPicture: hasYamlProperty(record, params.rule, "valuesPicture"),
+        hasMultipleValuesExtendedEdit: isYamlTrue(readYamlProperty(record, params.rule, "multipleValuesExtendedEdit")),
+        tableContext: params.tableContext,
+      })
+      if (occurrence === undefined) continue
       occurrences.push({
-        rule: propertyRule,
-        value,
+        ...occurrence,
         setValue: (nextValue) => {
           record[propertyRule.yaml as string] = nextValue
         },
-        yamlPath: [...params.yamlPath, propertyRule.yaml],
-        nameMode: "yaml",
-        ...(isElementType(params.rule.itemType) ? { elementType: params.rule.itemType } : {}),
-        ...(hasYamlProperty(record, params.rule, "valuesPicture") ? { hasValuesPicture: true } : {}),
-        ...(isYamlTrue(readYamlProperty(record, params.rule, "multipleValuesExtendedEdit"))
-          ? { hasMultipleValuesExtendedEdit: true }
-          : {}),
-        ...(params.tableContext !== undefined && propertyRule.yaml === "ПутьКДанным"
-          ? { tableContext: params.tableContext }
-          : {}),
       })
     }
   }
@@ -219,7 +236,7 @@ function hasYamlProperty(record: Record<string, unknown>, rule: MetadataItemRule
   return typeof yamlKey === "string" && Object.prototype.hasOwnProperty.call(record, yamlKey)
 }
 
-function isDataPathRule(rule: PropertyRule): rule is DataPathPropertyRule {
+export function isDataPathRule(rule: PropertyRule): rule is DataPathPropertyRule {
   return rule.type === "DataPath"
 }
 

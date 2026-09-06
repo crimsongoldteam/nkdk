@@ -6,6 +6,7 @@ import { createFormDataPathIndexFromYAML } from "./formDataPathMetadata"
 import {
   finalizeImportedFormDataPathCompatibility,
   importedFormDataPathCompatibilityChanges,
+  importedFormDataPathCompatibilityChangesFromOccurrences,
 } from "./importDataPathCompatibility"
 import { ClientApplicationFormRules } from "./rules"
 
@@ -55,6 +56,15 @@ describe("finalizeImportedFormDataPathCompatibility", () => {
     expect(changes.map(({ yamlPath, value }) => ({ yamlPath, value }))).toEqual([{
       yamlPath: ["Элементы", "Поле", "ПутьКДанным"],
       value: "Булево",
+    }])
+    const readonlyOccurrences = collectFormDataPathOccurrencesFromYAML({ yaml, rule: ClientApplicationFormRules })
+      .map(({ setValue: _setValue, ...occurrence }) => occurrence)
+    expect(importedFormDataPathCompatibilityChangesFromOccurrences({
+      finalizedOccurrences: readonlyOccurrences,
+      originalOccurrences: originalOccurrences.map(({ setValue: _setValue, ...occurrence }) => occurrence),
+      index: createFormDataPathIndexFromYAML(yaml), ownerCache,
+    }).map(({ occurrence, value }) => ({ yamlPath: occurrence.yamlPath, value }))).toEqual([{
+      yamlPath: ["Элементы", "Поле", "ПутьКДанным"], value: "Булево",
     }])
     expect(yaml.Элементы.Поле.ПутьКДанным).toBe("Строка")
   })

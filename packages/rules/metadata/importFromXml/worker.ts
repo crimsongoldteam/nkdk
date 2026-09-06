@@ -122,12 +122,15 @@ import { validateLocalImportSemantics, validationIssueFromDiagnostic } from "./l
 import {
   finalizeImportedFormDataPathCompatibility,
   importedFormDataPathCompatibilityChanges,
+  importedFormDataPathCompatibilityChangesFromOccurrences,
 } from "../forms/clientApplicationForm/importDataPathCompatibility"
 import { buildProjectStateYamlFileUpdate } from "../project/projectStateYamlUpdate"
 import type { CompiledMetadataResourceTopology } from "../resourceTopology/core/types"
 import {
   importedClientApplicationForm,
 } from "../forms/clientApplicationForm/formDataPathMetadata"
+import { clientApplicationFormDataPathProjection } from "../forms/clientApplicationForm/formDataPathProjection"
+import { collectFormDataPathOccurrencesFromFacts } from "./formDataPathOccurrences"
 import { createImportExportContext } from "./importExportContext"
 import {
   portableFirstPassIssueDecision,
@@ -601,9 +604,6 @@ async function processSecondPass(
     const formFactsView = compatibleFormFacts === undefined
       ? undefined
       : createPropertyFactsYamlView(compatibleFormFacts)
-    const rawBaseFormFactsView = ready.baseFormSemanticFacts === undefined
-      ? undefined
-      : createPropertyFactsYamlView(propertyFactsWithReconstructionValues(ready.baseFormSemanticFacts))
     const baseFormDataPathIndex = ready.baseFormDataPathIndex
     const finalizedBaseFormFacts = ready.baseFormSemanticFacts === undefined
       ? undefined
@@ -615,26 +615,25 @@ async function processSecondPass(
           formDataPathIndex: baseFormDataPathIndex,
           execution,
         })
-    const preliminaryBaseFormFactsView = finalizedBaseFormFacts === undefined
-      ? undefined
-      : createPropertyFactsYamlView(finalizedBaseFormFacts)
     const baseFormFactsView = finalizedBaseFormFacts === undefined
-      || preliminaryBaseFormFactsView === undefined
-      || rawBaseFormFactsView === undefined
+      || ready.baseFormSemanticFacts === undefined
       ? undefined
       : createPropertyFactsYamlView(applyPropertyFactChanges(
           finalizedBaseFormFacts,
           baseFormDataPathIndex === undefined
             ? []
-            : importedFormDataPathCompatibilityChanges({
-                finalizedYaml: preliminaryBaseFormFactsView,
-                originalOccurrences: collectFormDataPathOccurrencesFromYAML({
-                  yaml: rawBaseFormFactsView,
-                  rule: ClientApplicationFormRules,
+            : importedFormDataPathCompatibilityChangesFromOccurrences({
+                finalizedOccurrences: collectFormDataPathOccurrencesFromFacts({
+                  facts: finalizedBaseFormFacts,
+                  projection: clientApplicationFormDataPathProjection,
+                }),
+                originalOccurrences: collectFormDataPathOccurrencesFromFacts({
+                  facts: propertyFactsWithReconstructionValues(ready.baseFormSemanticFacts),
+                  projection: clientApplicationFormDataPathProjection,
                 }),
                 index: baseFormDataPathIndex,
                 ownerCache: secondPass.ownerMetadataCache,
-              }).map(({ yamlPath, value }) => ({ yamlPath, kind: "set", value })),
+              }).map(({ occurrence, value }) => ({ yamlPath: occurrence.yamlPath, kind: "set", value })),
         ))
     if (baseFormFactsView !== undefined) {
       const originalBaseFormDataPaths = collectImportedFormDataPaths(

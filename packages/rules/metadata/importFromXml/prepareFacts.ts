@@ -20,11 +20,9 @@ import type {
 } from "@nkdk/runtime/rule-kit"
 import { importClientApplicationFormFromXMLToYAML } from "../forms/clientApplicationForm/fromXMLToYAML"
 import { importClientApplicationFormBodyFromXML } from "../forms/clientApplicationForm/fromXMLToYAML"
-import {
-  importedClientApplicationForm,
-} from "../forms/clientApplicationForm/formDataPathMetadata"
-import { clientApplicationFormDataPathProjection, resolveClientApplicationFormCollectionItemRule } from "../forms/clientApplicationForm/formDataPathProjection"
+import { clientApplicationFormDataPathProjection } from "../forms/clientApplicationForm/formDataPathProjection"
 import { createFormDataPathIndexFromFacts } from "./formDataPathFacts"
+import { collectFormDataPathOccurrencesFromFacts } from "./formDataPathOccurrences"
 import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
 import type { ClientApplicationFormXML, FormMetadataXML } from "../forms/clientApplicationForm/types"
 import { importMetadataItemFromXMLToYAML } from "../ruleRuntime/metadataItem/fromXMLToYAML"
@@ -44,7 +42,6 @@ import {
   type ParsedImportXmlInput,
 } from "./prepareYaml"
 import type { ImportAssignment, ParsedImportXmlDocument } from "./types"
-import { collectFormDataPathOccurrencesFromYAML } from "../validation/dataPath/formYamlTraversal"
 import { toDataPathPolicyInput } from "../validation/dataPath/policies"
 import type { ValidationPendingCheck } from "../validation/projectValidationPendingChecks"
 import type { PendingMetadataTargetReference } from "../validation/projectReferenceIndex"
@@ -254,7 +251,6 @@ export async function prepareImportFacts(params: {
     rule,
     localIndexes: imported.localIndexes,
     facts: semanticFacts,
-    yaml: semanticView,
     owner: dependentOwner,
   }) : []
 
@@ -376,37 +372,26 @@ function prepareFormValidationChecks(params: {
   readonly rule: MetadataItemRule
   readonly localIndexes: LocalIndexes
   readonly facts: readonly DirectImportPropertyFact[]
-  readonly yaml: Readonly<Record<string, unknown>>
   readonly owner: { readonly dir: string; readonly name: string }
 }): ValidationPendingCheck[] {
-  const projection = params.yaml
   const index = createFormDataPathIndexFromFacts({ facts: params.facts, localIndexes: params.localIndexes, projection: clientApplicationFormDataPathProjection })
   params.localIndexes.metadata.formDataPathIndex = index
   if (params.rule.itemType !== ClientApplicationFormRules.itemType) return []
-  const form = importedClientApplicationForm({ yaml: projection, rule: params.rule })
-  if (form === undefined) return []
   return prepareImportedFormDataPathChecks({
-    yaml: form.yaml,
-    rule: form.rule,
+    occurrences: collectFormDataPathOccurrencesFromFacts({ facts: params.facts, projection: clientApplicationFormDataPathProjection }),
     index,
     owner: { kind: params.owner.dir, name: params.owner.name },
     targetProjectPath: params.assignment.targetProjectPath,
   })
 }
 
-export function prepareImportedFormDataPathChecks(params: {
-  readonly yaml: unknown
-  readonly rule: MetadataItemRule
+function prepareImportedFormDataPathChecks(params: {
+  readonly occurrences: ReturnType<typeof collectFormDataPathOccurrencesFromFacts>
   readonly index: NonNullable<LocalIndexes["metadata"]["formDataPathIndex"]>
   readonly owner: { readonly kind: string; readonly name: string }
   readonly targetProjectPath: string
 }): ValidationPendingCheck[] {
-  return collectFormDataPathOccurrencesFromYAML({
-    yaml: params.yaml,
-    rule: params.rule,
-    resolveCollectionItemRule: ({ yaml, propertyRule }) =>
-      resolveClientApplicationFormCollectionItemRule({ yaml, propertyRule }),
-  }).map((occurrence) => ({
+  return params.occurrences.map((occurrence) => ({
     kind: "dataPath",
     yamlPath: [...occurrence.yamlPath],
     location: {
