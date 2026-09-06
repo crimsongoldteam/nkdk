@@ -78,10 +78,6 @@ const createFrame = (
   structural,
 })
 
-export function parseXmlWithSaxes<T>(data: string, options: ImportContentFromXMLOptions = {}): T {
-  return parseXmlDocumentWithSaxes(data, options).compatibility as T
-}
-
 export function parseXmlDocumentWithSaxes(
   data: string,
   options: ImportContentFromXMLOptions = {}
@@ -254,27 +250,6 @@ export interface XmlRootStructure {
   readonly name: string
   readonly structuralHash: bigint
   readonly span: XmlSourceSpan
-}
-
-export function parseXmlCompatibilityWithRootStructures(
-  data: string,
-  options: ImportContentFromXMLOptions = {},
-): {
-  readonly compatibility: Readonly<Record<string, unknown>>
-  readonly roots: readonly XmlRootStructure[]
-  readonly sourceLength: number
-} {
-  const document = parseXmlDocumentWithSaxes(data, options)
-  return {
-    compatibility: document.compatibility,
-    roots: document.roots.map(({ path, name, structuralHash, span }) => ({
-      path,
-      name,
-      structuralHash,
-      span,
-    })),
-    sourceLength: document.sourceLength,
-  }
 }
 
 interface RootStructureFrame {
