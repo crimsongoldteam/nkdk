@@ -135,7 +135,7 @@ describe("prepareImportFacts", () => {
         assignment, context: mockXmlImportContext(), collector: createConfigurationIndexCollector(),
         inputs: parseAssignmentInputs(assignment),
       })
-      expect(view).toHaveBeenCalledTimes(1)
+      expect(view).not.toHaveBeenCalled()
       expect(facts.semanticFacts.some(fact => fact.value === "Контрагенты справочник")).toBe(true)
       expect(facts.localIndexes.metadata.formDataPathIndex).toBeUndefined()
     } finally {

@@ -23,6 +23,7 @@ import { importClientApplicationFormBodyFromXML } from "../forms/clientApplicati
 import { clientApplicationFormDataPathProjection } from "../forms/clientApplicationForm/formDataPathProjection"
 import { createFormDataPathIndexFromFacts } from "./formDataPathFacts"
 import { collectFormDataPathOccurrencesFromFacts } from "./formDataPathOccurrences"
+import { selectDependentValidationFacts } from "./dependentValidationFacts"
 import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
 import type { ClientApplicationFormXML, FormMetadataXML } from "../forms/clientApplicationForm/types"
 import { importMetadataItemFromXMLToYAML } from "../ruleRuntime/metadataItem/fromXMLToYAML"
@@ -237,11 +238,13 @@ export async function prepareImportFacts(params: {
     formDataPathIndex: preliminaryFormDataPathIndex,
     execution: params.execution,
   })
-  const semanticView = createPropertyFactsYamlView(semanticFacts)
   const formSemanticFacts = containsForm ? semanticFacts : undefined
   const dependentIndex = extractDependentYamlIndexFacts({
     filePath: params.assignment.targetProjectPath,
-    rootYaml: semanticView,
+    rootYaml: selectDependentValidationFacts({
+      rule, owner: dependentOwner, candidates: dependentCandidates, facts: semanticFacts,
+      execution: params.execution,
+    }),
     rootRule: rule,
     owner: dependentOwner,
     candidates: dependentCandidates,
@@ -256,7 +259,7 @@ export async function prepareImportFacts(params: {
 
   return {
     dependencies: collectImportDependencyFacts({
-      yaml: semanticView,
+      yaml: undefined,
       rule,
       owner: dependentOwner,
       candidates: dependentCandidates,
