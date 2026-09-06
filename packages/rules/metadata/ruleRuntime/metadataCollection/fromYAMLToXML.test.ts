@@ -4,6 +4,7 @@ import { createConfigurationIndexCollector } from "@nkdk/runtime"
 import { createConfigurationIndexExportRuntime } from "@nkdk/runtime"
 import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import { parseMetadataYaml } from "@nkdk/runtime"
+import { xmlExport, isXmlElementNode } from "@nkdk/runtime"
 import { yamlScalarTagAt } from "@nkdk/runtime"
 import type { YAMLToXMLNestedRule } from "../property/fromYAMLToXMLTypes"
 import type { MetadataItemRule, PropertyRule } from "../property/types"
@@ -36,6 +37,27 @@ function collectReferences(received: unknown[][]): typeof convertMetadataItemFro
 }
 
 describe("convertMetadataCollectionFromYAMLToXML", () => {
+  it("передаёт raw-элемент выходу без потери смешанного порядка", () => {
+    const parsed = parseMetadataYaml([
+      "Узел: !xml/raw",
+      "  $xml:",
+      '    _id: "7"',
+      '    "#text": [до, после]',
+      '    Child: [первый, второй]',
+      '    "#order": ["#text", Child, "#text", Child]',
+    ].join("\n"))
+    const result = convertMetadataCollectionFromYAMLToXML({
+      convertItem: convertMetadataItemFromYAMLToXML,
+      convertProperties: convertPropertiesFromYAMLToXML,
+      context: context(), yaml: parsed.data, annotations: parsed.annotations,
+      descriptor: { kind: "collection", itemRule: nestedRule, yamlShape: "record", xmlElement: "Item" },
+      outputs: [{ key: "owner" }],
+    })
+    const xml = result.outputs.get("owner")!
+    expect(xmlExport(xml, false)).toBe('<Item id="7">до<Child>первый</Child>после<Child>второй</Child></Item>')
+    expect(Array.isArray(xml.Item) && isXmlElementNode(xml.Item[0])).toBe(true)
+  })
+
   it.each([10, 100])("подготавливает reference коллекции один раз для %i элементов", (size) => {
     let unwrapped = 0
     let identities = 0

@@ -3,7 +3,7 @@ import type { MetadataRulesDefinition } from "../../../ruleRuntime/definition"
 import { emptyMetadataRules } from "../../../ruleRuntime/definition/testSupport"
 import { definePropertyTypeRule, propertyTypesFromContributions } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
 import type { PropertyRuleType } from "@nkdk/runtime/rule-kit"
-import { importContentFromXML, isXmlElementNode, xmlAttributeValue, xmlElementChildren, xmlExport } from "@nkdk/runtime"
+import { isXmlElementNode, parseXmlDocumentWithSaxes, xmlAttributeValue, xmlElementChildren, xmlExport } from "@nkdk/runtime"
 
 /** Настройки уже являются XML-фрагментом в смысловом YAML; вторая модель дерева не нужна. */
 export type SettingsFragment = string
@@ -32,6 +32,7 @@ function normalizeRecord(value: unknown): unknown {
 export const defineSettingsFragmentType = <TModel extends SettingsFragment>({
   propertyType, canonicalAttributes, matchXsiType,
 }: SettingsFragmentTypeRegistration): MetadataRulesDefinition<never> => {
+  const openingTag = xmlExport({ SettingsFragment: canonicalAttributes }, false).replace(/\/>$/u, ">")
   const propertyTypes = propertyTypesFromContributions([
     definePropertyTypeRule(propertyType, "importFromXML", (_context, _rule, xml) => {
       if (isXmlElementNode(xml)) {
@@ -50,9 +51,7 @@ export const defineSettingsFragmentType = <TModel extends SettingsFragment>({
     definePropertyTypeRule(propertyType, "exportToYAML", (_context, _rule, value: TModel | undefined) => value),
     definePropertyTypeRule(propertyType, "exportToXML", (_context, _rule, value: TModel | undefined) => {
       if (value === undefined) return undefined
-      const output = importContentFromXML<{ SettingsFragment?: SettingsFragmentXML }>(
-        `<SettingsFragment>${value}</SettingsFragment>`, { preserveXsiNil: true, preserveEmptyElements: true })
-      return { ...canonicalAttributes, ...normalizeRecord(output.SettingsFragment) as Record<string, unknown> }
+      return parseXmlDocumentWithSaxes(`${openingTag}${value}</SettingsFragment>`).roots[0]
     }),
   ])
   return defineMetadataRules({ ...emptyMetadataRules, propertyTypes })

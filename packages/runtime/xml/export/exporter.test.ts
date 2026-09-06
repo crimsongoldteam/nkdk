@@ -5,6 +5,30 @@ import { xmlExport } from "./exporter"
 const XML_ORDERED_CHILDREN = Symbol.for("xmlOrderedChildren")
 
 describe("xmlExport", () => {
+  it("сохраняет атрибуты каждого повторяемого корня со структурным свойством", () => {
+    const node = parseXmlDocumentWithSaxes("<Settings/>").roots[0]!
+    expect(xmlExport({ Attribute: [{ _name: "первый", Settings: node }, { _name: "второй", Settings: node }] }, false))
+      .toBe('<Attribute name="первый">\n\t<Settings/>\n</Attribute>\n<Attribute name="второй">\n\t<Settings/>\n</Attribute>')
+  })
+
+  it("не меняет прежнее форматирование обычного смешанного поля рядом со структурным", () => {
+    const child = parseXmlDocumentWithSaxes("<Native>значение</Native>").roots[0]!
+    const legacy = { "#text": "prefix", Child: "value" }
+    const ordered = { Root: { [XML_ORDERED_CHILDREN]: [
+      { key: "Native", value: "значение" }, { key: "Legacy", value: legacy },
+    ] } }
+    expect(xmlExport({ Root: { Native: child, Legacy: legacy } }, false)).toBe(xmlExport(ordered, false))
+  })
+
+  it("встраивает структурный XML в обычный результат без копии входного объекта", () => {
+    const source = '<Fragment flag="a&amp;b">до<A/><?future mode="x"?>после<A>2</A></Fragment>'
+    const node = parseXmlDocumentWithSaxes(source).roots[0]!
+    Object.defineProperty(node, "compatibilityValue", { get() { throw new Error("Старый XML-объект не нужен") } })
+    expect(xmlExport({ Root: { Fragment: node, Tail: { Value: "обычный" } } }, false)).toBe([
+      "<Root>", `\t${source}`, "\t<Tail>", "\t\t<Value>обычный</Value>", "\t</Tail>", "</Root>",
+    ].join("\n"))
+  })
+
   it("groups ChildItems array into one XML node and preserves child order", () => {
     const xml = xmlExport(
       {

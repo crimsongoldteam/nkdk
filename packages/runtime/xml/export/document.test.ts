@@ -4,6 +4,15 @@ import { XML_ORDERED_CHILDREN, xmlExport } from "./exporter"
 import { xmlObjectDocument } from "./document"
 
 describe("xmlObjectDocument", () => {
+  it("строит доказательство структурного фрагмента с тем же порядком, текстом и PI", () => {
+    const node = parseXmlDocumentWithSaxes('<Fragment attr="v">до<A/><?future mode="x" other="y" mode="z"?>после<A>2</A></Fragment>').roots[0]!
+    Object.defineProperty(node, "compatibilityValue", { get() { throw new Error("Старый XML-объект не нужен") } })
+    const value = { Root: { Fragment: node, Tail: "ok" } }
+    expect(normalize(xmlObjectDocument(value).document.roots)).toEqual(
+      normalize(parseXmlDocumentWithSaxes(xmlExport(value, false)).roots),
+    )
+  })
+
   it.each([
     ["атрибуты, текст и пустой элемент", { Root: { _id: "1", Text: "value", Empty: "" } }],
     ["повторные дети", { Root: { Item: [{ "#text": "one" }, { "#text": "two" }] } }],

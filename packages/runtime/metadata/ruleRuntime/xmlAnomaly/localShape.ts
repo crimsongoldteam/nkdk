@@ -1,6 +1,7 @@
 import type { LocalXmlChild, LocalXmlScalar, LocalXmlShape } from "./localProof"
 import { xmlObjectOwnAttributes, xmlObjectOwnContent, xmlObjectProcessingInstruction } from "../../../xml/export/document"
 import { normalizeXmlElementContent } from "../../../xml/structure/hash"
+import { isXmlElementNode } from "../../../xml/import/document"
 
 export function localXmlShapeFromObject(
   name: string,
@@ -30,7 +31,7 @@ export function localXmlShapeFromObject(
   let counts: Map<string, number> | undefined
   const content = xmlObjectOwnContent(value).map((descriptor) => {
     if (descriptor.kind === "text") {
-      const raw = value !== null && typeof value === "object" && !Array.isArray(value)
+      const raw = isXmlElementNode(value) ? descriptor.value : value !== null && typeof value === "object" && !Array.isArray(value)
         ? (value as Record<string, unknown>)["#text"] : value
       return { type: "text" as const, ...(scalar?.(raw) ?? { value: descriptor.value }) }
     }
@@ -42,7 +43,7 @@ export function localXmlShapeFromObject(
     return child(descriptor.name, descriptor.value, occurrence)
   })
   const attributes = xmlObjectOwnAttributes(value).map(attribute => {
-    const raw = value !== null && typeof value === "object" && !Array.isArray(value)
+    const raw = isXmlElementNode(value) ? attribute.value : value !== null && typeof value === "object" && !Array.isArray(value)
       ? (value as Record<string, unknown>)[`_${attribute.name}`] : undefined
     return { name: attribute.name, ...(scalar?.(raw) ?? { value: attribute.value }) }
   })

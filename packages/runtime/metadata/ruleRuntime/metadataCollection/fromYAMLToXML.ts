@@ -87,8 +87,8 @@ export function convertMetadataCollectionFromYAMLToXML(
         const items = outputItems.get(output.key)!
         for (const node of nodes) {
           items.push(params.descriptor.xmlElement === undefined
-            ? { [node.name]: node.compatibilityValue }
-            : node.compatibilityValue)
+            ? { [node.name]: node }
+            : node)
         }
       }
       return
