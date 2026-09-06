@@ -1,13 +1,14 @@
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
-import { ConfigurationContext } from "@nkdk/runtime"
+import { isXmlElementNode, xmlTextValue, type XmlElementNode, type ConfigurationContext } from "@nkdk/runtime"
 import { ColorPrefixToType, isRawColorRefValue, type Color, type ColorXML } from "./types"
 
 export const importColorFromXML = (
   _context: ConfigurationContext,
   _rule: PropertyRule | undefined,
-  xml: ColorXML | undefined
+  source: ColorXML | XmlElementNode | undefined
 ): Color | undefined => {
+  const xml = isXmlElementNode(source) ? xmlTextValue(source) : source
   if (!xml || xml === "auto") return undefined
 
   if (isRawColorRefValue(xml)) return { rawRef: xml }
