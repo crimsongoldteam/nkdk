@@ -28,6 +28,18 @@ import {
 } from "../../../tests/xmlImportAttempt"
 
 describe("importMetadataItemFromXMLToYAML", () => {
+  it("импортирует структурный объект без чтения промежуточного XML", () => {
+    const node = parseXmlDocumentWithSaxes("<Root><Name>Пример</Name></Root>").roots[0]!
+    Object.defineProperty(node, "compatibilityValue", { get() { throw new Error("intermediate XML read") } })
+    const yaml = importMetadataItemFromXMLToYAML({
+      context: mockContextFromXML(),
+      rule: { itemType: "StructuralItem", properties: { name: { type: "string", xml: "Name", yaml: "Имя" } } } as MetadataItemRule,
+      xml: node,
+      traversal: { yamlPath: [], rulePath: [], collector: createLocalIndexesCollector() },
+    })
+    expect(yaml).toEqual({ Имя: "Пример" })
+  })
+
   it("назначает !xml/uuid metadata-ссылке после присоединения свойства к YAML", () => {
     const uuid = "a786340b-1ca9-48ee-8517-6bd389390bcc"
     const annotations = createXmlAnomalyAnnotations()

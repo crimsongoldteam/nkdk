@@ -44,7 +44,7 @@ export function importMetadataItemFromXMLToYAML(params: {
     : rootNodeFromTraversal
       ? traversalRootNode
       : undefined
-  const root = objectRecordOrUndefined(rootNode?.compatibilityValue ?? params.xml)
+  const root = rootNode === undefined ? objectRecordOrUndefined(params.xml) : undefined
   const sourceNode = rootNode === undefined
     ? undefined
     : xmlRoot === undefined
@@ -53,10 +53,11 @@ export function importMetadataItemFromXMLToYAML(params: {
           (node): node is XmlElementNode =>
             node.type === "element" && node.name === xmlRoot.container,
         )
-  const sourceValue = sourceNode?.compatibilityValue ?? (
-    xmlRoot === undefined ? root : root?.[xmlRoot.container]
-  )
-  const source = objectRecordOrUndefined(sourceValue)
+  const source = sourceNode === undefined
+    ? objectRecordOrUndefined(xmlRoot === undefined ? root : root?.[xmlRoot.container])
+    : sourceNode.attributes.length > 0 || sourceNode.content.some(node => node.type !== "text")
+      ? sourceNode
+      : objectRecordOrUndefined(sourceNode.compatibilityValue)
   if (source === undefined) return undefined
   const inline = findInlinePropertyCached(params.rule)
   claimKnownXsiType({
@@ -74,8 +75,11 @@ export function importMetadataItemFromXMLToYAML(params: {
         value: Parameters<MetadataItemXmlImportAugmenter["augment"]>[0],
       ): void
     }>()
-  const augmenterSource = sourceNode === undefined
-    ? source
+  const augmenterSource = !("metadataItemAugmenter" in params.context.fromXML)
+    || typeof params.context.fromXML.metadataItemAugmenter !== "string"
+    ? {}
+    : sourceNode === undefined
+    ? objectRecordOrUndefined(source) ?? {}
     : objectRecordOrUndefined(xmlImportCompatibilityContainer({
         node: sourceNode,
         audit: params.traversal.audit,
@@ -84,7 +88,7 @@ export function importMetadataItemFromXMLToYAML(params: {
           yamlPath: params.traversal.yamlPath,
           rulePath: params.traversal.rulePath,
         },
-      })) ?? source
+      })) ?? {}
   const resolvedVariant = augmenterRegistry?.resolveMetadataItemXMLDefaultVariant({
     context: params.context,
     rule: params.rule,

@@ -18,7 +18,7 @@ import {
   getConfigurationIndexCollectionContext,
   withConfigurationIndexLogicalAddress,
 } from "../../configurationIndex/collector/context"
-import type { XmlElementNode } from "../../../xml/import/document"
+import { isXmlElementNode, xmlAttributeValue, xmlElementsAtUniquePath, xmlElementChildren, xmlTextValue, type XmlElementNode } from "../../../xml/import/document"
 import {
   arrayLengthXmlImportAttemptAdapter,
   attachXmlImportAttemptAdapter,
@@ -43,7 +43,7 @@ export type ClassifyNamedCollectionYamlKey = (params: {
 
 function configurationIndexItemContext(params: {
   context: ConfigurationContextFromXML
-  item: ItemXML
+  item: ItemXML | XmlElementNode
   itemRule: MetadataItemRule
   keyField?: string
   index: number
@@ -97,10 +97,11 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
   traversal: DirectImportTraversal
 }): Record<string, unknown> | Array<Record<string, unknown>> | undefined {
   const structuralItems = collectionItemNodes(params.traversal.xmlNodes, params.xmlElement)
-  const items: { xml: Record<string, unknown>; node?: XmlElementNode }[] = structuralItems.length === 0
+  const items: { xml: Record<string, unknown> | XmlElementNode; node?: XmlElementNode }[] = structuralItems.length === 0
     ? normalizeCollectionItems(params.xml, params.xmlElement).map((xml) => ({ xml }))
     : structuralItems.flatMap((node) => {
-        const xml = objectRecordOrUndefined(node.compatibilityValue)
+        const xml = node.attributes.length > 0 || node.content.some(child => child.type !== "text")
+          ? node : objectRecordOrUndefined(node.compatibilityValue)
         return xml === undefined ? [] : [{ xml, node }]
       })
   if (items.length === 0) return undefined
@@ -412,7 +413,20 @@ function normalizeCollectionItems(xml: unknown, xmlElement: string): Record<stri
       })
 }
 
-function itemNameFromXML(xml: Record<string, unknown>, rule: MetadataItemRule, keyField?: string): string | undefined {
+function itemNameFromXML(xml: Record<string, unknown> | XmlElementNode, rule: MetadataItemRule, keyField?: string): string | undefined {
+  if (isXmlElementNode(xml)) {
+    const attributeName = xmlAttributeValue(xml, "name")
+    if (attributeName !== undefined && attributeName.length > 0) return attributeName
+    const nameRule = rule.properties[keyField ?? "name"]
+    if (nameRule === undefined) return undefined
+    const parents = xmlElementsAtUniquePath([xml], [xml.name, ...(nameRule.xmlParents ?? [])])
+    if (parents.length !== 1) return undefined
+    const key = nameRule.xml ?? "Name"
+    if (key.startsWith("_")) return xmlAttributeValue(parents[0]!, key.slice(1)) || undefined
+    const values = xmlElementChildren(parents[0]!, key)
+    if (values.length !== 1 || values[0]!.attributes.length !== 0 || values[0]!.content.some(child => child.type !== "text")) return undefined
+    return xmlTextValue(values[0]!) || undefined
+  }
   if (typeof xml._name === "string" && xml._name.length > 0) return xml._name
 
   const nameRule = rule.properties[keyField ?? "name"]

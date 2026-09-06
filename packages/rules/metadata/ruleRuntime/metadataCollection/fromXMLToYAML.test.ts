@@ -20,6 +20,7 @@ import { registerTypeRule } from "../property/typeRuleRegistry"
 import type { MetadataItemRule } from "../property/types"
 import { importMetadataItemFromXMLToYAML } from "../metadataItem/fromXMLToYAML"
 import { registerMetadataItemCollectionRule } from "./ruleFactory"
+import { importMetadataItemCollectionFromXMLToYAML } from "./fromXMLToYAML"
 import {
   captureTestXmlImport,
   createFailingXmlImportAttempt,
@@ -102,6 +103,23 @@ registerMetadataItemCollectionRule({
 })
 
 describe("importMetadataItemCollectionFromXMLToYAML", () => {
+  it("читает имена структурных элементов без промежуточных объектов", () => {
+    const document = parseXmlDocumentWithSaxes("<Item><Name>Первый</Name><Value>a</Value></Item><Item><Name>Второй</Name><Value>b</Value></Item>")
+    for (const node of document.roots) {
+      Object.defineProperty(node, "compatibilityValue", { get() { throw new Error("intermediate collection item") } })
+    }
+    const yaml = importMetadataItemCollectionFromXMLToYAML({
+      context: mockContextFromXML(),
+      rule: { type: "TestRecordCollection" as PropertyRuleType, xml: "Item", yaml: "Элементы" },
+      xml: undefined,
+      itemRule,
+      xmlElement: "Item",
+      keyField: "name",
+      traversal: { yamlPath: [], rulePath: [], xmlNodes: document.roots, collector: createLocalIndexesCollector() },
+    })
+    expect(yaml).toEqual({ Первый: { Значение: "a" }, Второй: { Значение: "b" } })
+  })
+
   it("помечает первый и следующий элементы с невалидным повторным именем", () => {
     const annotations = createXmlAnomalyAnnotations()
     const { yaml } = importTestRecordCollection(
