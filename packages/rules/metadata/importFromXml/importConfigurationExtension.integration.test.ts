@@ -21,6 +21,7 @@ import { createPreparedYamlProjectWorkerPool } from "../project/preparedYamlProj
 import { importConfigurationFromXml } from "./importConfiguration"
 import { withoutUnsupportedConfigurationExtensionPropertyStates } from "./configurationExtensionFixtureSupport"
 import * as formProofContexts from "../forms/clientApplicationForm/convertYAMLToXML"
+import * as formDataPathContexts from "../forms/clientApplicationForm/formDataPathContext"
 
 const fixtureDir = join(dirname(fileURLToPath(import.meta.url)), "__fixtures__", "configurationExtension")
 const ownExchangePlanFixtureDir = join(
@@ -51,6 +52,7 @@ const projectState = createImportProjectStateTestService({
 let importedExtension: Awaited<ReturnType<typeof importExtension>>
 let rebuiltFormProofContexts = 0
 let preparedFormProofContexts = 0
+let reusedCurrentFormContext = false
 
 afterAll(async () => {
   await Promise.all([
@@ -64,19 +66,29 @@ describe("configuration extension XML import", () => {
   beforeAll(async () => {
     const rebuild = vi.spyOn(formProofContexts, "prepareClientApplicationFormProofContexts")
     const prepared = vi.spyOn(formProofContexts, "prepareClientApplicationFormProofContextsFromPrepared")
+    const paths = vi.spyOn(formDataPathContexts, "prepareFormDataPathContext")
     try {
       importedExtension = await importExtension()
       rebuiltFormProofContexts = rebuild.mock.calls.filter(([, params]) => params?.yaml !== undefined).length
       preparedFormProofContexts = prepared.mock.calls.filter(([, context]) => context !== undefined).length
+      const seen = new Set<object>()
+      reusedCurrentFormContext = paths.mock.calls.some(([{ currentConfigurationForm }]) => {
+        if (currentConfigurationForm === undefined) return false
+        if (seen.has(currentConfigurationForm)) return true
+        seen.add(currentConfigurationForm)
+        return false
+      })
     } finally {
       rebuild.mockRestore()
       prepared.mockRestore()
+      paths.mockRestore()
     }
   })
 
   it("использует готовый контекст путей для сверки формы и основы, не восстанавливая его через YAML", () => {
     expect(preparedFormProofContexts).toBeGreaterThan(0)
     expect(rebuiltFormProofContexts).toBe(0)
+    expect(reusedCurrentFormContext).toBe(true)
   })
 
   it("сохраняет структуру расширения и локализует импортированные аномалии", () => {

@@ -236,30 +236,23 @@ export function prepareFormDataPathContextFromYAML(params: {
   const rule = params.rule ?? ClientApplicationFormRules
   return prepareFormDataPathContext({
     preparation: params.preparation ?? collectClientApplicationFormDataPathPreparation({ yaml: params.yaml, rule }),
-    currentConfigurationFormYaml: params.currentConfigurationFormYaml,
+    currentConfigurationForm: params.currentConfigurationFormYaml === undefined
+      ? undefined : prepareStandaloneFormDataPaths({
+          yaml: params.currentConfigurationFormYaml, ownerCache: params.ownerCache, rule,
+        }),
     savedBaseElementNames: params.savedBaseFormYaml === undefined
       ? undefined : collectFormElements(params.savedBaseFormYaml, rule).elementsByName.keys(),
     ownerCache: params.ownerCache,
-    rule,
   })
 }
 
 export function prepareFormDataPathContext(params: {
   readonly preparation: FormDataPathPreparation
-  readonly currentConfigurationFormYaml?: ClientApplicationFormYAML
+  readonly currentConfigurationForm?: PreparedForm
   readonly savedBaseElementNames?: Iterable<string>
   readonly ownerCache: OwnerMetadataCache
-  readonly rule?: MetadataItemRule
 }): FormDataPathContext {
-  const rule = params.rule ?? ClientApplicationFormRules
-  const currentConfigurationForm =
-    params.currentConfigurationFormYaml === undefined
-      ? undefined
-      : prepareStandaloneForm({
-          yaml: params.currentConfigurationFormYaml,
-          ownerCache: params.ownerCache,
-          rule,
-        })
+  const currentConfigurationForm = params.currentConfigurationForm
   const borrowedNames = new Set(currentConfigurationForm?.elementsByName.keys() ?? [])
   for (const name of params.savedBaseElementNames ?? []) borrowedNames.add(name)
   const preparation = params.preparation
@@ -368,12 +361,12 @@ interface PendingElement {
   effective?: ResolvedPath
 }
 
-function prepareStandaloneForm(params: {
+export function prepareStandaloneFormDataPaths(params: {
   yaml: ClientApplicationFormYAML
   ownerCache: OwnerMetadataCache
-  rule: MetadataItemRule
+  rule?: MetadataItemRule
 }): PreparedForm {
-  const collected = collectFormElements(params.yaml, params.rule)
+  const collected = collectFormElements(params.yaml, params.rule ?? ClientApplicationFormRules)
   const index = createFormDataPathIndexFromYAML(params.yaml, collected.tabularElementsByName)
   return prepareCollectedForm({
     collected,

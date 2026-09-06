@@ -10,6 +10,7 @@ import {
   materializeImplicitFormDataPaths,
   prepareFormDataPathContextFromYAML,
   prepareFormDataPathContext,
+  prepareStandaloneFormDataPaths,
   collectClientApplicationFormDataPathPreparation,
   requiresImportedFormDataPathCompaction,
 } from "./formDataPathContext"
@@ -18,6 +19,38 @@ import type { ClientApplicationFormYAML } from "./types"
 import { resolveDataPathCore } from "../../validation/dataPath/coreResolver"
 
 describe("prepareFormDataPathContextFromYAML", () => {
+  it("переиспользует подготовленные пути cf для двух форм без повторного чтения YAML", () => {
+    let canRead = true
+    const ownerCache = catalogOwnerCache()
+    const currentConfigurationForm = prepareStandaloneFormDataPaths({
+      ownerCache,
+      yaml: {
+        get Реквизиты() {
+          if (!canRead) throw new Error("Повторное чтение YAML текущей cf")
+          return { Объект: { Тип: "CatalogObject.Товары", ОсновнойРеквизит: "Истина" as const } }
+        },
+        get Элементы() {
+          if (!canRead) throw new Error("Повторное чтение YAML текущей cf")
+          return { Код: { Вид: "ПолеВвода" as const, ПутьКДанным: "Объект.Код" } }
+        },
+      },
+    })
+    canRead = false
+    const preparation = collectClientApplicationFormDataPathPreparation({ yaml: {
+      Элементы: { Код: { Вид: "ПолеВвода" } },
+    } })
+    for (const savedBaseElementNames of [[], ["Историческое"]]) {
+      const context = prepareFormDataPathContext({
+        preparation, currentConfigurationForm, savedBaseElementNames, ownerCache,
+      })
+      expect(context.effectiveMainAttribute).toBe("Объект")
+      expect(context.elementsByName.get("Код")).toMatchObject({
+        origin: "borrowed", currentConfigurationValue: "Объект.Код", presentInCurrentConfiguration: true,
+      })
+    }
+    expect(preparation.index.getRoot("Объект")).toBeUndefined()
+  })
+
   it.each([false, true])("выдаёт окончательные изменения без YAML; унаследованный корень: %s", (inherited) => {
     const yaml: ClientApplicationFormYAML = {
       ...(inherited ? {} : { Реквизиты: { Объект: { Тип: "CatalogObject.Товары", ОсновнойРеквизит: "Истина" } } }),
