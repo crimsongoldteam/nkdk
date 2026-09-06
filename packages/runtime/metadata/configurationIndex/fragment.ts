@@ -4,18 +4,15 @@ import { compareConfigurationIndexUtf8, configurationIndexErrorMessage } from ".
 import type {
   ConfigurationIndexBlockEntity,
   ConfigurationIndexBlockFragment,
+  ConfigurationIndexChild,
   ConfigurationIndexFragmentCollection,
 } from "./types"
 
-const FRAGMENT_MAGIC = "NKDKCIF6"
-const fatalUtf8Decoder = new TextDecoder("utf-8", { fatal: true })
+const FRAGMENT_MAGIC = "NKDKCIF7"
+const fatalUtf8Decoder = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true })
 const utf8Encoder = new TextEncoder()
-
-interface FragmentEnvelope {
-  readonly magic: typeof FRAGMENT_MAGIC
-  readonly version: 6
-  readonly fragments: readonly ConfigurationIndexBlockFragment[]
-}
+const fragmentMagic = utf8Encoder.encode(FRAGMENT_MAGIC)
+const MAX_U32 = 0xffff_ffff
 
 export interface ConfigurationIndexFragmentBuilder {
   add(fragment: ConfigurationIndexBlockFragment): void
@@ -27,19 +24,28 @@ export interface ConfigurationIndexFragmentBuilder {
 export function createConfigurationIndexFragmentBuilder(): ConfigurationIndexFragmentBuilder {
   const blocks = new Map<string, Map<string, ConfigurationIndexBlockEntity>>()
   let finished = false
+  function addValidated(fragment: ConfigurationIndexBlockFragment): void {
+    if (finished) throw new Error("Builder фрагментов индекса конфигурации уже завершён")
+    const block = blocks.get(fragment.targetProjectPath) ?? new Map<string, ConfigurationIndexBlockEntity>()
+    blocks.set(fragment.targetProjectPath, block)
+    for (const entity of fragment.entities) {
+      const previous = block.get(entity.logicalAddress)
+      block.set(entity.logicalAddress, previous === undefined ? structuredClone(entity) : mergeEntity(previous, entity))
+    }
+  }
   return {
     add(fragment) {
-      if (finished) throw new Error("Builder фрагментов индекса конфигурации уже завершён")
-      const normalized = normalizeFragment(fragment)
-      const block = blocks.get(normalized.targetProjectPath) ?? new Map<string, ConfigurationIndexBlockEntity>()
-      blocks.set(normalized.targetProjectPath, block)
-      for (const entity of normalized.entities) {
-        const previous = block.get(entity.logicalAddress)
-        block.set(entity.logicalAddress, previous === undefined ? structuredClone(entity) : mergeEntity(previous, entity))
-      }
+      addValidated(normalizeFragment(fragment))
     },
     addEncoded(buffer) {
-      for (const fragment of decodeConfigurationBlockFragments(buffer)) this.add(fragment)
+      if (finished) throw new Error("Builder фрагментов индекса конфигурации уже завершён")
+      try {
+        visitConfigurationBlockFragments(buffer, addValidated)
+      } catch (error) {
+        blocks.clear()
+        finished = true
+        throw error
+      }
     },
     metrics() {
       return {
@@ -66,24 +72,69 @@ export function createConfigurationIndexFragmentBuilder(): ConfigurationIndexFra
 export function encodeConfigurationBlockFragments(
   fragments: readonly ConfigurationIndexBlockFragment[],
 ): ArrayBuffer {
-  const envelope: FragmentEnvelope = {
-    magic: FRAGMENT_MAGIC,
-    version: 6,
-    fragments: fragments.map(normalizeFragment),
+  if (fragments.length > MAX_U32) throw new Error("Слишком много фрагментов индекса конфигурации")
+  let length = fragmentMagic.byteLength + 4
+  const encoded = fragments.map((fragment) => {
+    const path = utf8Encoder.encode(validateConfigurationIndexProjectPath(fragment.targetProjectPath))
+    const block = encodeBlockV1({ entities: fragment.entities })
+    length += 8 + path.byteLength + block.byteLength
+    if (length > MAX_U32) throw new Error("Слишком большой буфер фрагментов индекса конфигурации")
+    return [path, block] as const
+  })
+  const buffer = new ArrayBuffer(length)
+  const bytes = new Uint8Array(buffer)
+  const header = new DataView(buffer)
+  bytes.set(fragmentMagic)
+  header.setUint32(fragmentMagic.byteLength, fragments.length, true)
+  let offset = fragmentMagic.byteLength + 4
+  for (const parts of encoded) {
+    for (const part of parts) {
+      header.setUint32(offset, part.byteLength, true)
+      offset += 4
+      bytes.set(part, offset)
+      offset += part.byteLength
+    }
   }
-  const bytes = utf8Encoder.encode(JSON.stringify(envelope))
-  return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength)
+  return buffer
 }
 
 export function decodeConfigurationBlockFragments(buffer: ArrayBuffer): ConfigurationIndexBlockFragment[] {
+  const fragments: ConfigurationIndexBlockFragment[] = []
+  visitConfigurationBlockFragments(buffer, (fragment) => fragments.push(fragment))
+  return fragments
+}
+
+function visitConfigurationBlockFragments(
+  buffer: ArrayBuffer,
+  visit: (fragment: ConfigurationIndexBlockFragment) => void,
+): void {
   try {
     if (!(buffer instanceof ArrayBuffer)) throw new Error("ожидался ArrayBuffer")
-    const parsed: unknown = JSON.parse(fatalUtf8Decoder.decode(new Uint8Array(buffer)))
-    if (!isRecord(parsed)) throw new Error("конверт должен быть объектом")
-    assertExactKeys(parsed, ["magic", "version", "fragments"], "конверт")
-    if (parsed.magic !== FRAGMENT_MAGIC || parsed.version !== 6) throw new Error("неподдерживаемая версия")
-    if (!Array.isArray(parsed.fragments)) throw new Error("fragments должен быть массивом")
-    return parsed.fragments.map(decodeFragment)
+    const bytes = new Uint8Array(buffer)
+    if (!fragmentMagic.every((byte, index) => bytes[index] === byte)) throw new Error("неподдерживаемая версия")
+    const header = new DataView(buffer)
+    let offset = fragmentMagic.byteLength
+    function readCount(): number {
+      if (offset + 4 > buffer.byteLength) throw new Error("усечённый заголовок")
+      const count = header.getUint32(offset, true)
+      offset += 4
+      return count
+    }
+    function readBytes(): Uint8Array {
+      const size = readCount()
+      if (size > buffer.byteLength - offset) throw new Error("усечённые данные")
+      const result = bytes.subarray(offset, offset + size)
+      offset += size
+      return result
+    }
+    const count = readCount()
+    if (count > (buffer.byteLength - offset) / 8) throw new Error("некорректное количество фрагментов")
+    for (let index = 0; index < count; index++) {
+      const targetProjectPath = validateConfigurationIndexProjectPath(fatalUtf8Decoder.decode(readBytes()))
+      const block = decodeBlockV1(readBytes())
+      visit({ targetProjectPath, entities: block.entities })
+    }
+    if (offset !== buffer.byteLength) throw new Error("лишние данные")
   } catch (error) {
     throw new Error(`Некорректный буфер фрагментов индекса конфигурации: ${errorMessage(error)}`, { cause: error })
   }
@@ -95,40 +146,6 @@ export function mergeConfigurationIndexFragments(
   const builder = createConfigurationIndexFragmentBuilder()
   for (const buffer of workerBuffers) builder.addEncoded(buffer)
   return builder.finish()
-}
-
-function decodeFragment(value: unknown): ConfigurationIndexBlockFragment {
-  if (!isRecord(value)) throw new Error("фрагмент должен быть объектом")
-  assertExactKeys(value, ["targetProjectPath", "entities"], "фрагмент")
-  if (typeof value.targetProjectPath !== "string") throw new Error("targetProjectPath должен быть строкой")
-  if (!Array.isArray(value.entities)) throw new Error("entities должен быть массивом")
-  return normalizeFragment({
-    targetProjectPath: value.targetProjectPath,
-    entities: value.entities.map(decodeEntity),
-  })
-}
-
-function decodeEntity(value: unknown): ConfigurationIndexBlockEntity {
-  if (!isRecord(value)) throw new Error("entity должна быть объектом")
-  assertExactKeys(value, ["logicalAddress", "uuid", "xmlId", "xmlValue", "children"], "entity")
-  if (typeof value.logicalAddress !== "string") throw new Error("logicalAddress должен быть строкой")
-  if (value.uuid !== undefined && typeof value.uuid !== "string") throw new Error("uuid должен быть строкой")
-  if (value.xmlId !== undefined && typeof value.xmlId !== "string") throw new Error("xmlId должен быть строкой")
-  if (value.xmlValue !== undefined && typeof value.xmlValue !== "string") throw new Error("xmlValue должен быть строкой")
-  if (value.children !== undefined && !Array.isArray(value.children)) throw new Error("children должен быть массивом")
-  const children = value.children?.map((child) => {
-    if (!isRecord(child)) throw new Error("children item должен быть объектом")
-    assertExactKeys(child, ["xmlName", "name"], "children item")
-    if (typeof child.xmlName !== "string" || typeof child.name !== "string") throw new Error("children item содержит не строку")
-    return { xmlName: child.xmlName, name: child.name }
-  })
-  return {
-    logicalAddress: value.logicalAddress,
-    ...(value.uuid === undefined ? {} : { uuid: value.uuid }),
-    ...(value.xmlId === undefined ? {} : { xmlId: value.xmlId }),
-    ...(value.xmlValue === undefined ? {} : { xmlValue: value.xmlValue }),
-    ...(children === undefined ? {} : { children }),
-  }
 }
 
 function normalizeFragment(fragment: ConfigurationIndexBlockFragment): ConfigurationIndexBlockFragment {
@@ -153,17 +170,11 @@ function mergeEntity(
   return result
 }
 
-function equalValue(left: unknown, right: unknown): boolean {
-  return JSON.stringify(left) === JSON.stringify(right)
-}
-
-function assertExactKeys(value: Record<string, unknown>, allowed: readonly string[], label: string): void {
-  const unknown = Object.keys(value).find((key) => !allowed.includes(key))
-  if (unknown !== undefined) throw new Error(`${label} содержит неизвестное поле ${unknown}`)
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === "object" && !Array.isArray(value)
+function equalValue(left: string | readonly ConfigurationIndexChild[], right: string | readonly ConfigurationIndexChild[]): boolean {
+  if (typeof left === "string" || typeof right === "string") return left === right
+  return left.length === right.length && left.every((child, index) =>
+    child.xmlName === right[index]!.xmlName && child.name === right[index]!.name,
+  )
 }
 
 function errorMessage(error: unknown): string {
