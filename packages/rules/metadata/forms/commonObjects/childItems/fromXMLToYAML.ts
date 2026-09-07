@@ -1,7 +1,6 @@
 import {
   getConfigurationIndexCollectionContext,
   getConfigurationIndexFormElementLogicalAddress,
-  objectRecordOrUndefined,
   isXmlElementNode,
   xmlAttributeValue,
   xmlTextValue,
@@ -16,7 +15,6 @@ import type {
   CollectableElementType,
   ElementRule,
   ElementType,
-  ElementXML,
 } from "../../../ruleRuntime/formElement/types"
 import type { ImportFromXMLToYAMLFunction } from "@nkdk/runtime/rule-kit"
 import {
@@ -39,15 +37,13 @@ const tableXMLTagToItemType: Readonly<Record<string, TableChildItem["itemType"]>
   PictureField: "TablePictureField",
 }
 
-const resolveItemTypeFromXMLTag = (rule: PropertyRule, xmlTag: string, xmlValue?: Record<string, unknown> | XmlElementNode): string => {
+const resolveItemTypeFromXMLTag = (rule: PropertyRule, xmlTag: string, xmlValue: XmlElementNode): string => {
   if (rule.type === "CommandBarChildItems" && xmlTag === "Button") {
     let type: unknown
-    if (isXmlElementNode(xmlValue)) {
-      const types = xmlElementChildren(xmlValue, "Type")
-      if (types.length === 1 && types[0]!.attributes.length === 0 && types[0]!.content.every(node => node.type === "text")) {
-        type = xmlTextValue(types[0]!)
-      }
-    } else type = xmlValue?.Type
+    const types = xmlElementChildren(xmlValue, "Type")
+    if (types.length === 1 && types[0]!.attributes.length === 0 && types[0]!.content.every(node => node.type === "text")) {
+      type = xmlTextValue(types[0]!)
+    }
     return type === "CommandBarButton" || type === "CommandBarHyperlink" ? "CommandBarButton" : "Button"
   }
   if (rule.type !== "TableChildItems") return xmlTag
@@ -56,10 +52,8 @@ const resolveItemTypeFromXMLTag = (rule: PropertyRule, xmlTag: string, xmlValue?
 
 export const importChildItemsFromXMLToYAML: ImportFromXMLToYAMLFunction = ({ context, rule, xml, traversal }) => {
   if (xml === undefined && traversal.xmlNodes === undefined) return undefined
-  const itemXmlNodes = traversal.xmlNodes?.flatMap((node) => xmlElementChildren(node))
-  const items = itemXmlNodes === undefined
-    ? Array.isArray(xml) ? xml : [xml]
-    : itemXmlNodes
+  const roots = traversal.xmlNodes ?? (isXmlElementNode(xml) ? [xml] : undefined)
+  if (roots === undefined) throw new Error("Для импорта элементов формы нужен структурный XML-узел")
   const result: Record<string, unknown> = {}
   const occurrences = new Map<string, number>()
   const routes = new Map<CollectableElementType, ElementRule & { itemType: CollectableElementType }>()
@@ -67,18 +61,9 @@ export const importChildItemsFromXMLToYAML: ImportFromXMLToYAMLFunction = ({ con
   const parentItemType = traversal.rulePath.findLast(segment => segment.nestedItemType !== undefined)?.nestedItemType
   const contextMenuItems = rule.type === "CommandBarChildItems" && parentItemType === "ContextMenu"
 
-  for (const value of items) {
-    const itemXmlNode = isXmlElementNode(value) ? value : undefined
-    const item = itemXmlNode === undefined ? objectRecordOrUndefined(value) : undefined
-    const xmlTag = itemXmlNode?.name ?? (item === undefined ? undefined : Object.keys(item)[0])
-    if (xmlTag === undefined) continue
-    const rawXml = objectRecordOrUndefined(item?.[xmlTag])
-    if (itemXmlNode === undefined && rawXml === undefined) continue
-    const itemType = resolveItemTypeFromXMLTag(rule, xmlTag, itemXmlNode ?? rawXml) as CollectableElementType
-    const recordValue = (objectRecordOrUndefined(item?.[itemType]) ?? rawXml) as ElementXML | undefined
-    const xmlValue = itemXmlNode ?? recordValue
-    if (xmlValue === undefined) continue
-    const itemName = itemXmlNode === undefined ? recordValue?._name : xmlAttributeValue(itemXmlNode, "name")
+  for (const itemXmlNode of childElements(roots)) {
+    const itemType = resolveItemTypeFromXMLTag(rule, itemXmlNode.name, itemXmlNode) as CollectableElementType
+    const itemName = xmlAttributeValue(itemXmlNode, "name")
     if (typeof itemName !== "string" || itemName.length === 0) {
       throw new Error("У элемента формы отсутствует name")
     }
@@ -88,7 +73,7 @@ export const importChildItemsFromXMLToYAML: ImportFromXMLToYAMLFunction = ({ con
     if (occurrence > 0 || misplacedPicture) {
       if (traversal.mode === "facts") continue
       const node = itemXmlNode
-      if (node === undefined || traversal.annotations === undefined) {
+      if (traversal.annotations === undefined) {
         throw new Error("Для сохранения аномального элемента формы нужны XML-узел и таблица аннотаций")
       }
       const key = appendXmlAnnotatedMappingEntry(result, traversal.annotations, {
@@ -106,7 +91,7 @@ export const importChildItemsFromXMLToYAML: ImportFromXMLToYAMLFunction = ({ con
       collection === undefined ? undefined : getConfigurationIndexFormElementLogicalAddress(collection, itemName)
     const itemContext =
       logicalAddress === undefined ? context : withConfigurationIndexLogicalAddress(context, logicalAddress)
-    const id = itemXmlNode === undefined ? recordValue?._id : xmlAttributeValue(itemXmlNode, "id")
+    const id = xmlAttributeValue(itemXmlNode, "id")
     if (logicalAddress !== undefined && typeof id === "string") {
       collection?.collector.setIdentity(logicalAddress, "xmlId", id)
     }
@@ -119,18 +104,24 @@ export const importChildItemsFromXMLToYAML: ImportFromXMLToYAMLFunction = ({ con
     result[itemName] = importFormElementFromXMLToYAML({
       context: itemContext,
       rule: itemRule,
-      xml: xmlValue,
+      xml: itemXmlNode,
       name: itemName,
       traversal: {
         ...traversal,
         ...(traversal.mode === "facts" ? { produceResult: false } : {}),
         yamlPath: [...traversal.yamlPath, itemName],
-        ...(itemXmlNode === undefined ? {} : { xmlNodes: [itemXmlNode] }),
+        xmlNodes: [itemXmlNode],
       },
     })
   }
 
   return Object.keys(result).length === 0 ? undefined : result
+}
+
+function* childElements(roots: readonly XmlElementNode[]): Iterable<XmlElementNode> {
+  for (const root of roots) {
+    for (const node of root.content) if (node.type === "element") yield node
+  }
 }
 
 export const metadataRuleLayer000 = defineMetadataRules({

@@ -19,7 +19,7 @@ describe("importChildItemsFromXMLToYAML", () => {
       rule: { type: "GroupChildItems", yaml: "Элементы" },
       xml,
       traversal: {
-        mode: "facts", produceResult: true, facts, xmlNodes: [xml],
+        mode: "facts", produceResult: true, facts,
         yamlPath: ["Элементы"], rulePath: [{ propertyKey: "childItems" }],
         collector: createLocalIndexesCollector(),
       },
@@ -37,7 +37,7 @@ describe("importChildItemsFromXMLToYAML", () => {
     const yaml = importChildItemsFromXMLToYAML({
       context: mockContextFromXML(),
       rule: { type: "GroupChildItems", yaml: "Элементы" },
-      xml: { Button: { _name: "Изменить", Type: "Hyperlink", Width: "20" } },
+      xml: parseXmlDocumentWithSaxes('<ChildItems><Button name="Изменить"><Type>Hyperlink</Type><Width>20</Width></Button></ChildItems>').roots[0],
       traversal: {
         yamlPath: ["Элементы"], rulePath: [{ propertyKey: "childItems" }], collector: createLocalIndexesCollector(),
         roundTrip: { open({ yaml }) { return {
@@ -67,17 +67,7 @@ describe("importChildItemsFromXMLToYAML", () => {
     const yaml = importChildItemsFromXMLToYAML({
       context,
       rule: { type: "GroupChildItems", yaml: "Элементы" },
-      xml: [
-        {
-          InputField: {
-            _name: "Поле",
-            _id: "1",
-            DataPath: "Объект.Наименование",
-            ContextMenu: { _name: "ПолеКонтекстноеМеню", _id: "2" },
-            ExtendedTooltip: { _name: "ПолеРасширеннаяПодсказка", _id: "3" },
-          },
-        },
-      ],
+      xml: parseXmlDocumentWithSaxes('<ChildItems><InputField name="Поле" id="1"><DataPath>Объект.Наименование</DataPath><ContextMenu name="ПолеКонтекстноеМеню" id="2"/><ExtendedTooltip name="ПолеРасширеннаяПодсказка" id="3"/></InputField></ChildItems>').roots[0],
       traversal: {
         yamlPath: ["Элементы"],
         rulePath: [{ propertyKey: "childItems" }],
@@ -125,12 +115,7 @@ describe("importChildItemsFromXMLToYAML", () => {
       const yaml = importChildItemsFromXMLToYAML({
         context: mockContextFromXML(),
         rule: { type: "GroupChildItems", yaml: "Элементы" },
-        xml: [{
-          Button: {
-            _name: "Изменить",
-            Type: "Hyperlink",
-          },
-        }, { Button: { _name: "ОК", Type: "UsualButton" } }],
+        xml: parseXmlDocumentWithSaxes('<ChildItems><Button name="Изменить"><Type>Hyperlink</Type></Button><Button name="ОК"><Type>UsualButton</Type></Button></ChildItems>').roots[0],
         traversal: {
           yamlPath: ["Элементы"],
           rulePath: [{ propertyKey: "childItems" }],
@@ -155,7 +140,7 @@ describe("importChildItemsFromXMLToYAML", () => {
     const yaml = importChildItemsFromXMLToYAML({
       context: mockContextFromXML(),
       rule: { type: "GroupChildItems", yaml: "Элементы" },
-      xml: { Button: { _name: "ОК", Type: "UsualButton" } },
+      xml: parseXmlDocumentWithSaxes('<ChildItems><Button name="ОК"><Type>UsualButton</Type></Button></ChildItems>').roots[0],
       traversal: {
         yamlPath: ["Элементы"],
         rulePath: [{ propertyKey: "childItems" }],

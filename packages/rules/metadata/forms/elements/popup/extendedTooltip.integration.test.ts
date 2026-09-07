@@ -1,3 +1,4 @@
+import { xmlElementFromTestValue } from "../../../../tests/structuralXML"
 import { describe,expect,it } from "vitest"
 
 import { createDirectRoundTripContexts, withDirectMetadataExecution } from "../../../../tests/directConversion"
@@ -53,15 +54,15 @@ function roundTrip(extendedTooltip: Record<string, unknown> | undefined) {
   const imported = importClientApplicationFormFromXMLToYAML({
     context: contexts.importContext,
     formName: "ФормаЭлемента",
-    formXML: {
+    formXML: xmlElementFromTestValue("Form", {
       AutoCommandBar: {
         _name: "ФормаКоманднаяПанель",
         _id: "-1",
         Autofill: false,
         ChildItems: [{ Popup: popup }],
       },
-    } as unknown as ClientApplicationFormXML,
-    metadataXML: { Form: { Properties: { FormType: "Managed" } } },
+    } as unknown as ClientApplicationFormXML),
+    metadataXML: xmlElementFromTestValue("MetaDataObject", { Form: { Properties: { FormType: "Managed" } } }),
   })
   const yaml = imported.yaml as ClientApplicationFormYAML
   const converted = convertClientApplicationFormFromYAMLToXML({

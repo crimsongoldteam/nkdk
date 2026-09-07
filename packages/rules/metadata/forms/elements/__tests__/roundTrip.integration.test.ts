@@ -10,6 +10,7 @@ import {
 } from "../../../../tests/directConversion"
 import {
   importContentFromXML,
+  parseXmlDocumentWithSaxes,
   withConfigurationIndexFormElementRootLogicalAddress,
   xmlExport,
 } from "@nkdk/runtime"
@@ -75,7 +76,7 @@ describe("элементы формы XML → YAML → XML", () => {
     })
     const yaml = testMetadataItemFromXMLToYAML({
       rule,
-      xml,
+      xml: parseXmlDocumentWithSaxes(fs.readFileSync(fixture, "utf8"), { preserveXsiNil: true }).roots[0],
       name,
       context: withConfigurationIndexFormElementRootLogicalAddress(contexts.importContext, formLogicalAddress),
     }).yaml

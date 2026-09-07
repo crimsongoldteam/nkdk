@@ -1,6 +1,14 @@
-import { parseXmlDocumentWithSaxes, xmlElementChildren, type XmlElementNode } from "@nkdk/runtime"
+import { isXmlElementNode, parseXmlDocumentWithSaxes, xmlElementChildren, xmlExport, type XmlElementNode } from "@nkdk/runtime"
 import { readXMLFileAsString } from "./readAndParseXMLFile"
 import { testFixturesDir } from "./testFixturesDir"
+
+/** Строит исходный XML для тестов с программно заданными значениями. */
+export function xmlElementFromTestValue(name: string, value: unknown): XmlElementNode {
+  if (isXmlElementNode(value)) return value
+  const root = parseXmlDocumentWithSaxes(xmlExport({ [name]: value }), { preserveXsiNil: true }).roots[0]
+  if (root === undefined) throw new Error("Тестовое значение должно создавать XML-элемент")
+  return root
+}
 
 /** Выбирает исходные корни свойства, не создавая объектную копию XML. */
 export function readPropertyXML(params: {

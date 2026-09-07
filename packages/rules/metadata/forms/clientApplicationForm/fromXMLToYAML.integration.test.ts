@@ -1,3 +1,4 @@
+import { xmlElementFromTestValue } from "../../../tests/structuralXML"
 import type { ConfigurationIndexBlockEntity } from "@nkdk/runtime"
 import {
 createConfigurationIndexCollector,createXmlAnomalyAnnotations,
@@ -39,6 +40,19 @@ const emptyOwnerMetadataCache = {
   get: () => ({ status: "not-found" as const, diagnostics: [] }),
 }
 
+function formFixtureInputs(formFixture: string, metadataFixture: string) {
+  const read = (file: string) => parseXmlDocumentWithSaxes(
+    readXMLFixtureAsString(import.meta.url, file), { preserveXsiNil: true },
+  ).roots[0]!
+  return { formXML: read(formFixture), metadataXML: read(metadataFixture) }
+}
+
+function emptyFormInputs(formName: string, metadataXML: FormMetadataXML) {
+  return { context: mockContextFromXML(), formName,
+    formXML: xmlElementFromTestValue("Form", {}),
+    metadataXML: xmlElementFromTestValue("MetaDataObject", metadataXML) }
+}
+
 function currentDataImportContext() {
   return {
     ...mockContextFromXML(),
@@ -60,7 +74,7 @@ function importValueTableCurrentDataForm(columns: FormAttributeColumnsXML, colum
   return importClientApplicationFormFromXMLToYAML({
     context: currentDataImportContext(),
     formName: "Форма",
-    formXML: {
+    formXML: xmlElementFromTestValue("Form", {
       Attributes: {
         Attribute: [{
           _name: "Строки",
@@ -79,8 +93,8 @@ function importValueTableCurrentDataForm(columns: FormAttributeColumnsXML, colum
           },
         },
       ],
-    },
-    metadataXML: { Form: { Properties: { FormType: "Managed" } } },
+    }),
+    metadataXML: xmlElementFromTestValue("MetaDataObject", { Form: { Properties: { FormType: "Managed" } } }),
   })
 }
 
@@ -93,8 +107,8 @@ function importStructuredForm(
   return importClientApplicationFormFromXMLToYAML({
     context: { ...mockContextFromXML(), exportToYAML: { toTyped: true } },
     formName: "Форма",
-    formXML: formDocument.compatibility.Form as ClientApplicationFormXML,
-    metadataXML: metadataDocument.compatibility.MetaDataObject as FormMetadataXML,
+    formXML: xmlElementFromTestValue("Form", formDocument.compatibility.Form as ClientApplicationFormXML),
+    metadataXML: xmlElementFromTestValue("MetaDataObject", metadataDocument.compatibility.MetaDataObject as FormMetadataXML),
     formXMLNode: formDocument.roots[0]!,
     metadataXMLNode: metadataDocument.roots[0]!,
     audit,
@@ -125,21 +139,13 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
     const form = parseXmlDocumentWithSaxes(readXMLFixtureAsString(import.meta.url, `${name}.xml`), { preserveXsiNil: true })
     const metadata = parseXmlDocumentWithSaxes(readXMLFixtureAsString(import.meta.url, `${name}Metadata.xml`), { preserveXsiNil: true })
     const options = { context: { ...mockContextFromXML(), exportToYAML: { toTyped: true } }, formName: "Форма" }
-    const expected = importClientApplicationFormFromXMLToYAML({
-      ...options, formXML: form.compatibility.Form as ClientApplicationFormXML,
-      metadataXML: metadata.compatibility.MetaDataObject as FormMetadataXML,
-    })
     Object.defineProperty(form, "compatibility", { get() { throw new Error("Document compatibility must not be read") } })
     Object.defineProperty(metadata, "compatibility", { get() { throw new Error("Document compatibility must not be read") } })
     const actual = importClientApplicationFormFromXMLToYAML({
-      ...options, formXML: form.roots[0]!, metadataXML: metadata.roots[0]!,
+      ...options, formXML: xmlElementFromTestValue("Form", form.roots[0]!), metadataXML: xmlElementFromTestValue("MetaDataObject", metadata.roots[0]!),
     })
-    expect(actual.yaml).toEqual(expected.yaml)
-    expect(actual.localIndexes).toEqual({ metadata: {
-      ...expected.localIndexes.metadata,
-      formDataPathIndex: { ...expected.localIndexes.metadata.formDataPathIndex, getRoot: expect.any(Function) },
-    } })
-    for (const [key, value] of expected.localIndexes.metadata.formDataPathIndex!.roots) {
+    expect(actual.yaml).toEqual(name === "full" ? fullClientApplicationFormYAML : minimalClientApplicationFormYAML)
+    for (const [key, value] of actual.localIndexes.metadata.formDataPathIndex!.roots) {
       expect(actual.localIndexes.metadata.formDataPathIndex!.getRoot(key)).toEqual(value)
     }
   })
@@ -213,8 +219,8 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
     const annotations = createXmlAnomalyAnnotations()
     const imported = importClientApplicationFormFromXMLToYAML({
       context: contexts.importContext, formName: "ФормаЭлемента",
-      formXML: document.compatibility.Form as ClientApplicationFormXML,
-      metadataXML: metadata.compatibility.MetaDataObject as FormMetadataXML,
+      formXML: xmlElementFromTestValue("Form", document.compatibility.Form as ClientApplicationFormXML),
+      metadataXML: xmlElementFromTestValue("MetaDataObject", metadata.compatibility.MetaDataObject as FormMetadataXML),
       formXMLNode: document.roots[0]!, metadataXMLNode: metadata.roots[0]!, audit, annotations,
     })
     audit.finalize()
@@ -329,7 +335,7 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
       context: mockContextFromXML(),
       formName: "ОбычнаяФорма",
       formXML: undefined,
-      metadataXML: { Form: { Properties: { FormType: "Ordinary" } } },
+      metadataXML: xmlElementFromTestValue("MetaDataObject", { Form: { Properties: { FormType: "Ordinary" } } }),
     })
 
     expect(result.yaml).toEqual({ ТипФормы: "Обычная" })
@@ -339,8 +345,8 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
     const result = importClientApplicationFormFromXMLToYAML({
       context: mockContextFromXML(),
       formName: "УправляемаяФорма",
-      formXML: {},
-      metadataXML: { Form: { Properties: { FormType: "Managed" } } },
+      formXML: xmlElementFromTestValue("Form", {}),
+      metadataXML: xmlElementFromTestValue("MetaDataObject", { Form: { Properties: { FormType: "Managed" } } }),
     })
 
     expect(result.yaml).not.toHaveProperty("ТипФормы")
@@ -352,7 +358,7 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
     const result = importClientApplicationFormBodyFromXML({
       context: mockContextFromXML(),
       formName: "Форма",
-      formXML: { Width: 12, Properties: { Comment: "Не часть тела" } },
+      formXML: xmlElementFromTestValue("Form", { Width: 12, Properties: { Comment: "Не часть тела" } }),
       rule: ClientApplicationFormRules,
       collector,
       deferred,
@@ -368,7 +374,7 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
     const result = importClientApplicationFormFromXMLToYAML({
       context: { ...mockContextFromXML(), exportToYAML: { toTyped: true } },
       formName: "Форма",
-      formXML: {
+      formXML: xmlElementFromTestValue("Form", {
         Attributes: {
           Attribute: [
             { _name: "ПроизвольныйРеквизит", _id: "1", Type: {} },
@@ -380,8 +386,8 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
             },
           ],
         },
-      },
-      metadataXML: { Form: { Properties: { FormType: "Managed" } } },
+      }),
+      metadataXML: xmlElementFromTestValue("MetaDataObject", { Form: { Properties: { FormType: "Managed" } } }),
     })
 
     expect(result.localIndexes.metadata.formDataPathIndex?.getRoot("ПроизвольныйРеквизит")?.typeInfo.kinds).toEqual([
@@ -443,8 +449,8 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
     const result = importClientApplicationFormFromXMLToYAML({
       context: mockContextFromXML(),
       formName: "Форма",
-      formXML: {},
-      metadataXML: {
+      formXML: xmlElementFromTestValue("Form", {}),
+      metadataXML: xmlElementFromTestValue("MetaDataObject", {
         Form: {
           Properties: {
             FormType: "Managed",
@@ -456,7 +462,7 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
             },
           },
         },
-      },
+      }),
     })
 
     if (expectedYAML === undefined) expect(result.yaml).not.toHaveProperty("НазначенияИспользования")
@@ -464,16 +470,13 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
   })
 
   it("обходит правила формы один раз для двух XML-источников", () => {
-    const form = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(import.meta.url, "minimal.xml")
-    const metadata = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(import.meta.url, "minimalMetadata.xml")
     const importSpy = vi.spyOn(propertyImporter, "importPropertiesFromXMLToYAML")
     importSpy.mockClear()
 
     importClientApplicationFormFromXMLToYAML({
       context: { ...mockContextFromXML(), exportToYAML: { toTyped: true } },
       formName: "Форма",
-      formXML: form.Form,
-      metadataXML: metadata.MetaDataObject,
+      ...formFixtureInputs("minimal.xml", "minimalMetadata.xml"),
     })
 
     const rootCalls = importSpy.mock.calls.filter(([params]) => params.rule === ClientApplicationFormRules)
@@ -540,14 +543,11 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
   })
 
   it("совпадает с действующим YAML полной формы", () => {
-    const form = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(import.meta.url, "full.xml")
-    const metadata = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(import.meta.url, "fullMetadata.xml")
 
     const result = importClientApplicationFormFromXMLToYAML({
       context: { ...mockContextFromXML(), exportToYAML: { toTyped: true } },
       formName: "Форма",
-      formXML: form.Form,
-      metadataXML: metadata.MetaDataObject,
+      ...formFixtureInputs("full.xml", "fullMetadata.xml"),
     })
 
     expect(result.yaml).toEqual(fullClientApplicationFormYAML)
@@ -558,14 +558,11 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
   })
 
   it("объединяет минимальные Form XML и metadata XML без модели", () => {
-    const form = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(import.meta.url, "minimal.xml")
-    const metadata = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(import.meta.url, "minimalMetadata.xml")
 
     const result = importClientApplicationFormFromXMLToYAML({
       context: { ...mockContextFromXML(), exportToYAML: { toTyped: true } },
       formName: "Форма",
-      formXML: form.Form,
-      metadataXML: metadata.MetaDataObject,
+      ...formFixtureInputs("minimal.xml", "minimalMetadata.xml"),
     })
 
     expect(result.yaml).toEqual(minimalClientApplicationFormYAML)
@@ -584,10 +581,7 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
     } as FormMetadataXML
 
     const specialized = importClientApplicationFormFromXMLToYAML({
-      context: mockContextFromXML(),
-      formName: "ФормаОтчета",
-      formXML: {},
-      metadataXML,
+      ...emptyFormInputs("ФормаОтчета", metadataXML),
       rule: ClientApplicationFormWithExtendedPresentationRules,
     })
     expect(specialized.yaml).not.toHaveProperty(
@@ -595,10 +589,7 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
     )
 
     const base = importClientApplicationFormFromXMLToYAML({
-      context: mockContextFromXML(),
-      formName: "ФормаСписка",
-      formXML: {},
-      metadataXML,
+      ...emptyFormInputs("ФормаСписка", metadataXML),
       rule: ClientApplicationFormRules,
     })
     expect(base.yaml).not.toHaveProperty("РасширенноеПредставление")
@@ -620,10 +611,7 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
     } as FormMetadataXML
 
     const specialized = importClientApplicationFormFromXMLToYAML({
-      context: mockContextFromXML(),
-      formName: "ФормаОтчета",
-      formXML: {},
-      metadataXML,
+      ...emptyFormInputs("ФормаОтчета", metadataXML),
       rule: ClientApplicationFormWithExtendedPresentationRules,
     })
     expect(specialized.yaml).toMatchObject({
@@ -631,10 +619,7 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
     })
 
     const base = importClientApplicationFormFromXMLToYAML({
-      context: mockContextFromXML(),
-      formName: "ФормаСписка",
-      formXML: {},
-      metadataXML,
+      ...emptyFormInputs("ФормаСписка", metadataXML),
       rule: ClientApplicationFormRules,
     })
     expect(base.yaml).not.toHaveProperty("РасширенноеПредставление")
@@ -648,7 +633,7 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
     importClientApplicationFormFromXMLToYAML({
       context,
       formName: "Основная",
-      formXML: {
+      formXML: xmlElementFromTestValue("Form", {
         ChildItems: [
           {
             GanttChartField: {
@@ -663,8 +648,8 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
             },
           },
         ],
-      } as ClientApplicationFormXML,
-      metadataXML: { Form: { Properties: { FormType: "Managed" } } },
+      } as ClientApplicationFormXML),
+      metadataXML: xmlElementFromTestValue("MetaDataObject", { Form: { Properties: { FormType: "Managed" } } }),
     })
 
     expect(identityFacts(collector.fragment("Форма.yaml").entities)).toEqual(
@@ -696,13 +681,13 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
     importClientApplicationFormFromXMLToYAML({
       context,
       formName: "ФормаЭлемента",
-      formXML: { Title: "Форма", Width: "80" },
-      metadataXML: {
+      formXML: xmlElementFromTestValue("Form", { Title: "Форма", Width: "80" }),
+      metadataXML: xmlElementFromTestValue("MetaDataObject", {
         Form: {
           _uuid: "00000000-0000-4000-8000-000000000001",
           Properties: { Name: "ФормаЭлемента", Comment: "Комментарий", FormType: "Managed" },
         },
-      },
+      }),
     })
 
     expect(collector.fragment("Форма.yaml").entities).toEqual([
@@ -748,7 +733,7 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
     const result = importClientApplicationFormFromXMLToYAML({
       context,
       formName: "ФормаЭлемента",
-      formXML: {},
+      formXML: xmlElementFromTestValue("Form", {}),
       metadataXML,
       rule: ClientApplicationFormWithExtendedPresentationRules,
     })
@@ -776,8 +761,8 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
     const result = importClientApplicationFormFromXMLToYAML({
       context,
       formName: "Форма",
-      formXML: {},
-      metadataXML: {
+      formXML: xmlElementFromTestValue("Form", {}),
+      metadataXML: xmlElementFromTestValue("MetaDataObject", {
         Form: {
           Properties: {
             ObjectBelonging: "Adopted",
@@ -786,7 +771,7 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
             ExtendedPresentation: "",
           },
         },
-      },
+      }),
       rule: ClientApplicationFormWithExtendedPresentationRules,
       roundTrip: {
         open: ({ rule, yaml }) => ({
@@ -842,8 +827,8 @@ describe("форма XML → YAML → XML", () => {
     const imported = importClientApplicationFormFromXMLToYAML({
       context: contexts.importContext,
       formName: "ФормаЭлемента",
-      formXML,
-      metadataXML,
+      formXML: xmlElementFromTestValue("Form", formXML),
+      metadataXML: xmlElementFromTestValue("MetaDataObject", metadataXML),
     })
 
     expect(imported.yaml).toMatchObject({
@@ -918,7 +903,6 @@ describe("форма XML → YAML → XML", () => {
 
   it("восстанавливает идентификаторы элементов формы без reference XML", () => {
     const form = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(import.meta.url, "full.xml")
-    const metadata = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(import.meta.url, "fullMetadata.xml")
     const sourceAttributes = form.Form.Attributes?.Attribute
     const sourceAttribute = (Array.isArray(sourceAttributes) ? sourceAttributes[0] : sourceAttributes) as {
       _id: string
@@ -949,8 +933,8 @@ describe("форма XML → YAML → XML", () => {
     const imported = importClientApplicationFormFromXMLToYAML({
       context: contexts.importContext,
       formName: "ФормаЭлемента",
-      formXML: form.Form,
-      metadataXML: metadata.MetaDataObject,
+      formXML: xmlElementFromTestValue("Form", form.Form),
+      metadataXML: parseXmlDocumentWithSaxes(readXMLFixtureAsString(import.meta.url, "fullMetadata.xml"), { preserveXsiNil: true }).roots[0]!,
     })
     const converted = convertClientApplicationFormFromYAMLToXML({
       context: contexts.exportContext(),
@@ -981,7 +965,6 @@ describe("форма XML → YAML → XML", () => {
   })
 
   it("восстанавливает порядок metadata-свойств по адресу metadata-файла", () => {
-    const form = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(import.meta.url, "full.xml")
     const metadata = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(import.meta.url, "fullMetadata.xml")
     const sourceProperties = metadata.MetaDataObject.Form.Properties
     metadata.MetaDataObject.Form.Properties = {
@@ -998,8 +981,8 @@ describe("форма XML → YAML → XML", () => {
     const imported = importClientApplicationFormFromXMLToYAML({
       context: contexts.importContext,
       formName: "ФормаСписка",
-      formXML: form.Form,
-      metadataXML: metadata.MetaDataObject,
+      formXML: parseXmlDocumentWithSaxes(readXMLFixtureAsString(import.meta.url, "full.xml"), { preserveXsiNil: true }).roots[0]!,
+      metadataXML: xmlElementFromTestValue("MetaDataObject", metadata.MetaDataObject),
     })
     const converted = convertClientApplicationFormFromYAMLToXML({
       context: contexts.exportContext(),
@@ -1018,11 +1001,6 @@ describe("форма XML → YAML → XML", () => {
   })
 
   it("восстанавливает обязательный пустой Comment формы без reference XML", () => {
-    const form = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(import.meta.url, "minimal.xml")
-    const metadata = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(
-      import.meta.url,
-      "minimalMetadata.xml",
-    )
     const contexts = createDirectRoundTripContexts({
       logicalAddress: "Справочник.Товары.Форма.Минимальная",
     })
@@ -1030,8 +1008,7 @@ describe("форма XML → YAML → XML", () => {
     const imported = importClientApplicationFormFromXMLToYAML({
       context: contexts.importContext,
       formName: "Минимальная",
-      formXML: form.Form,
-      metadataXML: metadata.MetaDataObject,
+      ...formFixtureInputs("minimal.xml", "minimalMetadata.xml"),
     })
     const converted = convertClientApplicationFormFromYAMLToXML({
       context: contexts.exportContext(),
@@ -1065,8 +1042,7 @@ describe("форма XML → YAML → XML", () => {
     const imported = importClientApplicationFormFromXMLToYAML({
       context: contexts.importContext,
       formName,
-      formXML: form.Form,
-      metadataXML: metadata.MetaDataObject,
+      ...formFixtureInputs(formFixture, metadataFixture),
     })
     const converted = convertClientApplicationFormFromYAMLToXML({
       context: contexts.exportContext(),
@@ -1184,8 +1160,8 @@ function importReportForm(form: ClientApplicationFormXML) {
   const imported = importClientApplicationFormFromXMLToYAML({
     context: contexts.importContext,
     formName,
-    formXML: form,
-    metadataXML: metadata.MetaDataObject,
+    formXML: xmlElementFromTestValue("Form", form),
+    metadataXML: parseXmlDocumentWithSaxes(readXMLFixtureAsString(import.meta.url, "reportFormMetadata.xml"), { preserveXsiNil: true }).roots[0]!,
   })
   return { contexts, formName, imported }
 }
