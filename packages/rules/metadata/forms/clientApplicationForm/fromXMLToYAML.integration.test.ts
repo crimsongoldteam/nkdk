@@ -673,7 +673,7 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
     )
   })
 
-  it("сохраняет в снимке только UUID и состояние пространства имён Form.xml", () => {
+  it("сохраняет в снимке UUID без состояния пространства имён Form.xml", () => {
     const collector = createConfigurationIndexCollector()
     const logicalAddress = "Справочник.Контрагенты.Форма.ФормаЭлемента"
     const context = withConfigurationIndexCollector(mockContextFromXML(), collector, logicalAddress)
@@ -694,10 +694,6 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
       {
         logicalAddress,
         uuid: "00000000-0000-4000-8000-000000000001",
-      },
-      {
-        logicalAddress: `${logicalAddress}.XMLNamespace.dcssch`,
-        xmlValue: "absent",
       },
     ])
   })
@@ -881,24 +877,6 @@ describe("форма XML → YAML → XML", () => {
       "BeforeClose",
       "ActivationProcessing",
     ])
-  })
-
-  it.each([
-    ["отсутствующее", undefined, false],
-    ["присутствующее", "http://v8.1c.ru/8.1/data-composition-system/schema", true],
-  ] as const)("сохраняет %s пространство имён dcssch без reference XML", (_name, namespace, expected) => {
-    const formXML = {
-      ...(namespace === undefined ? {} : { "_xmlns:dcssch": namespace }),
-    } as ClientApplicationFormXML
-    const { converted, exportContext } = directFormRoundTripWithoutReference(formXML)
-
-    expect(Object.prototype.hasOwnProperty.call(converted.formXML, "_xmlns:dcssch")).toBe(expected)
-    expect(
-      exportContext.exportToXML.configurationIndex?.collector.fragment("Тест.yaml").entities,
-    ).toContainEqual({
-      logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента.XMLNamespace.dcssch",
-      xmlValue: expected ? "present" : "absent",
-    })
   })
 
   it("восстанавливает идентификаторы элементов формы без reference XML", () => {

@@ -24,7 +24,7 @@ import {
 import { assignFormXmlIds, type FormXmlIdAssignmentSession } from "./formXmlIdAssignment"
 import { resolveDataPathCore } from "../../validation/dataPath/coreResolver"
 import { formatDataPathStandardMembersWithIndex } from "../../commonObjects/metadataPath/dataPathStandardMembers"
-import { clientApplicationFormNamespaces } from "./namespaces"
+import { FORM_NAMESPACES } from "./namespaces"
 
 const emptyOwnerMetadataCache = {
   listRefs: () => [],
@@ -123,7 +123,7 @@ export function convertClientApplicationFormYAMLToXMLCore(
   recordCurrentExternalMetadataUuid({ context: params.context, uuid })
 
   const formXML = {
-    ...clientApplicationFormNamespaces(params.context),
+    ...FORM_NAMESPACES,
     _version: "2.20",
     ...formProperties,
     ...(params.baseFormXML === undefined ? {} : { BaseForm: params.baseFormXML }),
@@ -284,7 +284,7 @@ export function prepareClientApplicationFormRootOutput(params: {
   if (params.key === "source-0") {
     return {
       attributes: (own) => ({
-        ...clientApplicationFormNamespaces(params.context),
+        ...FORM_NAMESPACES,
         _version: "2.20",
         ...own,
       }),

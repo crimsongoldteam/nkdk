@@ -102,7 +102,7 @@ export function createImportLocalRoundTrip(params: {
         return {
           key,
           source: xml,
-          ...(envelopeSource === undefined ? {} : { envelopeSource }),
+          ...(envelopeSource === undefined && active.length !== 0 ? {} : { envelopeSource: envelopeSource ?? xml }),
           proof: inherited?.proof ?? params.prepareRootProof?.({ key: `source-${index}`, source: xml }) ?? createLocalXmlProof(),
           ...(rawPathPrefix === undefined ? {} : { rawPathPrefix }),
         }
@@ -126,7 +126,7 @@ export function createImportLocalRoundTrip(params: {
         annotations: params.annotations,
         name: item.itemName,
         sourceItemName: item.itemName,
-        outputs: sources.map(({ key, source, proof }, index) => ({
+        outputs: sources.map(({ key, source, proof, envelopeSource }, index) => ({
           key,
           tags: item.sources[index]?.tags,
           ...(params.prepareRootContext === undefined
@@ -137,7 +137,7 @@ export function createImportLocalRoundTrip(params: {
               ? undefined
               : params.prepareRootOutput({ key, source, proof }),
             source,
-            item.sources[index]?.envelopeSource !== undefined,
+            envelopeSource !== undefined,
           ),
         })),
       }

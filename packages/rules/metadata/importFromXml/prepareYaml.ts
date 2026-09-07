@@ -299,7 +299,7 @@ function prepareImportYamlFromParsedInputs(params: ImportFormProofOptions & {
         readonly source: XmlElementNode
         readonly proof: ReturnType<typeof createLocalXmlProof>
       }) =>
-        source.name !== "Form"
+        source.name !== "Form" && !(rule.itemType === ClientApplicationFormRules.itemType && source.name === "MetaDataObject")
           ? undefined
           : withBaseFormReceipt(
               prepareClientApplicationFormRootOutput({ key, source, context: localRoundTripParams.context }),

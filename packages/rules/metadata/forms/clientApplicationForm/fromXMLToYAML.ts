@@ -28,7 +28,6 @@ import type { ClientApplicationFormXML, FormMetadataXML } from "./types"
 import { createClientApplicationFormImportSources } from "./xmlImportSources"
 import type { MetadataItemRule } from "../../ruleRuntime"
 import { createFormDataPathIndexFromYAML } from "./formDataPathMetadata"
-import { recordClientApplicationFormNamespaces } from "./namespaces"
 import { formMetadataSource, formTypeFromMetadataXML } from "./metadataXML"
 
 interface FormImportExecutionOptions {
@@ -95,9 +94,6 @@ export function importClientApplicationFormFromXMLToYAML(params: FormImportExecu
     }),
   })
   const yaml = imported.yaml
-  if (formXML !== undefined) {
-    recordClientApplicationFormNamespaces(params.context, formXML)
-  }
 
   const localIndexes = localIndexesCollector.finish()
   if (params.mode !== "facts") localIndexes.metadata.formDataPathIndex = createFormDataPathIndexFromYAML(yaml)

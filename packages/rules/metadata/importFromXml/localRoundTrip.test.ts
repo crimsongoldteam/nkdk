@@ -19,6 +19,7 @@ describe("import local round-trip", () => {
   it.each([
     { isFileRoot: false, attributes: 'xmlns="urn:probe" xmlns:custom="urn:custom"', patch: { "_xmlns:custom": "urn:custom", "_xmlns:app": null }, order: undefined },
     { isFileRoot: true, attributes: 'xmlns="urn:probe" xmlns:custom="urn:custom"', patch: { "_xmlns:custom": "urn:custom", "_xmlns:app": null }, order: undefined },
+    { isFileRoot: true, attributes: 'xmlns="urn:probe" xmlns:custom="urn:custom"', patch: { "_xmlns:custom": "urn:custom", "_xmlns:app": null }, order: undefined, bareRoot: true },
     { isFileRoot: true, attributes: 'xmlns="urn:probe" xmlns:app="urn:app"', patch: undefined, order: undefined, extraXML: "<Future>keep</Future>" },
     { isFileRoot: false, attributes: 'xmlns="urn:probe" xmlns:app="urn:app"', patch: undefined, order: undefined },
     { isFileRoot: false, attributes: 'xmlns="urn:probe" xmlns:app="urn:original"', patch: { "_xmlns:app": "urn:original" }, order: undefined },
@@ -26,10 +27,14 @@ describe("import local round-trip", () => {
     { isFileRoot: false, attributes: 'xmlns="urn:probe" xmlns:app="urn:app" version="unknown"', patch: undefined, order: undefined, error: "Не согласована XML-аномалия оболочки" },
   ])("проверяет оболочку без reference: $attributes, fileRoot=$isFileRoot", (scenario) => {
     const { isFileRoot, attributes, patch, order } = scenario
-    const { context, execution, annotations, roundTrip } = localRoundTripFixture()
+    const bareRoot = "bareRoot" in scenario
+    const preparation = { attributes: (own: Readonly<Record<string, unknown>>) => ({ _xmlns: "urn:probe", "_xmlns:app": "urn:app", ...own }) }
+    const { context, execution, annotations, roundTrip } = localRoundTripFixture(
+      bareRoot ? { prepareRootOutput: () => preparation } : {},
+    )
     const rule: MetadataItemRule = { itemType: "NamespaceProbe", properties: {
-      root: { type: "XMLRoot", container: "Probe", isFileRoot, xmlOnly: true,
-        rootAttributes: { _xmlns: "urn:probe", "_xmlns:app": "urn:app" } },
+      ...(bareRoot ? {} : { root: { type: "XMLRoot", container: "Probe", isFileRoot, xmlOnly: true,
+        rootAttributes: { _xmlns: "urn:probe", "_xmlns:app": "urn:app" } } }),
       name: { type: "string", xml: "Name", yaml: "Имя" },
     } }
     const rootName = isFileRoot ? "Probe" : "MetaDataObject"
@@ -51,11 +56,12 @@ describe("import local round-trip", () => {
     })
     expect(prepared.rawBoundaries.every(boundary => boundary.documentSelector === "")).toBe(true)
     const exported = convertMetadataItemFromYAMLToXML({
-      context: mockContextToXML(), rule, yaml: prepared.preparedYamlFile.data, outputs: [{ key: "out" }],
+      context: mockContextToXML(), rule, yaml: prepared.preparedYamlFile.data,
+      outputs: [{ key: "out", ...(bareRoot ? { itemPreparation: preparation } : {}) }],
       convertProperties: params => convertPropertiesFromYAMLToXML({ ...params, execution }),
     }).outputs.get("out")!
     const restored = buildPreparedAssignmentXml({
-      context: mockContextToXML(), document: { targetXmlPath: "Probe.xml", xml: exported,
+      context: mockContextToXML(), document: { targetXmlPath: "Probe.xml", xml: bareRoot ? { Probe: exported } : exported,
         deferred: [], rootRule: rule, rawBoundaries: prepared.rawBoundaries },
     })
     expect(restored.trim()).toBe(xmlExport([source]).trim())
@@ -113,11 +119,11 @@ describe("import local round-trip", () => {
   })
 })
 
-function localRoundTripFixture() {
+function localRoundTripFixture(options: Pick<Parameters<typeof createImportLocalRoundTrip>[0], "prepareRootOutput"> = {}) {
   const context = mockContextFromXML()
   const execution = createRuleRegistrySet(metadataRules).execution
   const annotations = createXmlAnomalyAnnotations()
-  const roundTrip = createImportLocalRoundTrip({ execution, context: mockContextToXML(), annotations, decisions: [] })
+  const roundTrip = createImportLocalRoundTrip({ execution, context: mockContextToXML(), annotations, decisions: [], ...options })
   return { context, execution, annotations, roundTrip }
 }
 
