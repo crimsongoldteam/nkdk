@@ -24,7 +24,7 @@ describe("exportChildFormNamesToXML", () => {
     ).toEqual(["ФормаСписка", "ФормаЭлемента"])
   })
 
-  it("сохраняет порядок существующих форм из reference и добавляет новые в конец", () => {
+  it("без снимка использует канонический порядок, а не reference", () => {
     expect(
       exportChildFormNamesToXML({
         context: mockContextToXML(),
@@ -32,7 +32,7 @@ describe("exportChildFormNamesToXML", () => {
         value: ["ФормаВыбора", "НоваяФорма", "ФормаОбъекта"],
         referenceMetadata: ["ФормаОбъекта", "ФормаВыбора"],
       })
-    ).toEqual(["ФормаОбъекта", "ФормаВыбора", "НоваяФорма"])
+    ).toEqual(["НоваяФорма", "ФормаВыбора", "ФормаОбъекта"])
   })
 
   it("возвращает формы из контекста при пустом value (IO-путь)", () => {
@@ -65,7 +65,7 @@ describe("exportChildFormNamesToXML", () => {
       rule: itemRule,
       xml: { Form: ["ФормаСписка", "ФормаВыбора", "ФормаЗадачи"] },
     })
-    const exportBase = ctxWithForms(["ФормаВыбора", "ФормаЗадачи", "ФормаСписка"])
+    const exportBase = ctxWithForms(["НоваяФорма", "ФормаВыбора", "ФормаЗадачи", "ФормаСписка"])
     const exportContext = contexts.exportContext(exportBase)
     const exported = testPropertyFromYAMLToXML({
       context: exportContext,
@@ -74,13 +74,14 @@ describe("exportChildFormNamesToXML", () => {
     })
 
     expect(imported.yaml).toEqual({})
-    expect(exported.xml).toEqual({ Form: ["ФормаСписка", "ФормаВыбора", "ФормаЗадачи"] })
+    expect(exported.xml).toEqual({ Form: ["ФормаСписка", "ФормаВыбора", "ФормаЗадачи", "НоваяФорма"] })
     expect(
       exportContext.exportToXML.configurationIndex?.collector.fragment("Тест.yaml").entities[0]?.children
     ).toEqual([
       { xmlName: "Form", name: "ФормаСписка" },
       { xmlName: "Form", name: "ФормаВыбора" },
       { xmlName: "Form", name: "ФормаЗадачи" },
+      { xmlName: "Form", name: "НоваяФорма" },
     ])
   })
 })

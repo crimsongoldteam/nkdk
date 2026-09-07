@@ -37,17 +37,6 @@ const groupYAML = (groupType: "ГруппаИ" | "ГруппаИли" | "Гру�
   ...extra,
 })
 
-const groupXML = (
-  groupType: "AndGroup" | "OrGroup" | "NotGroup",
-  guid?: string,
-  extra: Record<string, unknown> = {}
-): Record<string, unknown> => ({
-  "_xsi:type": "dcsset:FilterItemGroup",
-  "dcsset:groupType": groupType,
-  ...(guid === undefined ? {} : { "dcsset:userSettingID": guid }),
-  ...extra,
-})
-
 describe("export FilterItem to XML", () => {
   it("exports FilterItemComparison to XML", () => {
     const { result, expectedResult } = testExportPropertyModelThroughYAMLToXML({
@@ -127,7 +116,7 @@ describe("export FilterItem to XML", () => {
     expect(result).toEqual(expectedResult)
   })
 
-  describe("semantic reference matching", () => {
+  describe("идентификаторы пользовательских настроек из YAML", () => {
     const guidA = "aaaaaaaa-0000-0000-0000-000000000001"
     const guidB = "bbbbbbbb-0000-0000-0000-000000000002"
 
@@ -135,23 +124,24 @@ describe("export FilterItem to XML", () => {
       itemType: "FilterItemComparison",
       leftValue: { type: "Field", value: "Ссылка" },
       comparisonType: "Equal",
-      userSettingID: true,
+      userSettingID: guidA,
     }
     const itemB: FilterItemComparison = {
       itemType: "FilterItemComparison",
       leftValue: { type: "Field", value: "Статус" },
       comparisonType: "Equal",
-      userSettingID: true,
+      userSettingID: guidB,
     }
 
-    it("FilterItemComparison: сопоставляет по leftValue+comparisonType, а не по индексу", () => {
-      // current: [A, B], reference: [B, A] — порядок обратный
+    it("FilterItemComparison: сохраняет идентификаторы и порядок без reference", () => {
       const { result } = testExportPropertyModelThroughYAMLToXML({
         rule,
         value: [itemA, itemB],
-        yaml: [comparisonYAML("Ссылка"), comparisonYAML("Статус")],
+        yaml: [
+          comparisonYAML("Ссылка", { ИспользоватьПользовательскуюНастройку: guidA }),
+          comparisonYAML("Статус", { ИспользоватьПользовательскуюНастройку: guidB }),
+        ],
         xmlRootTag: "dcsset:item",
-        referenceMetadata: [comparisonXML("Статус", guidB), comparisonXML("Ссылка", guidA)],
       })
 
       // A должен получить GUID-A и идти раньше B с GUID-B
@@ -160,39 +150,35 @@ describe("export FilterItem to XML", () => {
       expect(result.indexOf(guidA)).toBeLessThan(result.indexOf(guidB))
     })
 
-    it("FilterItemComparison: элемент без совпадения в референсе не получает GUID", () => {
-      // reference содержит только B
+    it("FilterItemComparison: элемент без идентификатора в YAML не получает чужой GUID", () => {
       const { result } = testExportPropertyModelThroughYAMLToXML({
         rule,
-        value: [itemA, itemB],
-        yaml: [comparisonYAML("Ссылка"), comparisonYAML("Статус")],
+        value: [{ ...itemA, userSettingID: true }, itemB],
+        yaml: [comparisonYAML("Ссылка"), comparisonYAML("Статус", { ИспользоватьПользовательскуюНастройку: guidB })],
         xmlRootTag: "dcsset:item",
-        referenceMetadata: [comparisonXML("Статус", guidB)],
       })
 
       expect(result).not.toContain(guidA)
       expect(result).toContain(guidB)
     })
 
-    it("FilterItemGroup: сопоставляет по groupType", () => {
+    it("FilterItemGroup: сохраняет идентификаторы трёх видов групп из YAML", () => {
       const guidOrGroup = "cccccccc-0000-0000-0000-000000000003"
       const guidAndGroup = "dddddddd-0000-0000-0000-000000000004"
       const guidNotGroup = "eeeeeeee-0000-0000-0000-000000000008"
 
-      const orGroup: FilterItemGroup = { itemType: "FilterItemGroup", groupType: "OrGroup", userSettingID: true }
-      const andGroup: FilterItemGroup = { itemType: "FilterItemGroup", groupType: "AndGroup", userSettingID: true }
-      const notGroup: FilterItemGroup = { itemType: "FilterItemGroup", groupType: "NotGroup", userSettingID: true }
-      // current: [OrGroup, AndGroup, NotGroup], reference: обратный порядок
+      const orGroup: FilterItemGroup = { itemType: "FilterItemGroup", groupType: "OrGroup", userSettingID: guidOrGroup }
+      const andGroup: FilterItemGroup = { itemType: "FilterItemGroup", groupType: "AndGroup", userSettingID: guidAndGroup }
+      const notGroup: FilterItemGroup = { itemType: "FilterItemGroup", groupType: "NotGroup", userSettingID: guidNotGroup }
       const { result } = testExportPropertyModelThroughYAMLToXML({
         rule,
         value: [orGroup, andGroup, notGroup],
-        yaml: [groupYAML("ГруппаИли"), groupYAML("ГруппаИ"), groupYAML("ГруппаНе")],
-        xmlRootTag: "dcsset:item",
-        referenceMetadata: [
-          groupXML("NotGroup", guidNotGroup),
-          groupXML("AndGroup", guidAndGroup),
-          groupXML("OrGroup", guidOrGroup),
+        yaml: [
+          groupYAML("ГруппаИли", { ИспользоватьПользовательскуюНастройку: guidOrGroup }),
+          groupYAML("ГруппаИ", { ИспользоватьПользовательскуюНастройку: guidAndGroup }),
+          groupYAML("ГруппаНе", { ИспользоватьПользовательскуюНастройку: guidNotGroup }),
         ],
+        xmlRootTag: "dcsset:item",
       })
 
       expect(result).toContain(guidOrGroup)
@@ -235,7 +221,7 @@ describe("export FilterItem to XML", () => {
         itemType: "FilterItemComparison",
         leftValue: { type: "Field", value: "ТипОплаты" },
         comparisonType: "Equal",
-        userSettingID: true,
+        userSettingID: guid,
         userSettingPresentation: { items: { ru: "Способ оплаты" } },
       }
       const { result } = testExportPropertyModelThroughYAMLToXML({
@@ -243,15 +229,11 @@ describe("export FilterItem to XML", () => {
         value: [current],
         yaml: [
           comparisonYAML("ТипОплаты", {
+            ИспользоватьПользовательскуюНастройку: guid,
             ПредставлениеПользовательскойНастройки: "Способ оплаты",
           }),
         ],
         xmlRootTag: "dcsset:item",
-        referenceMetadata: [
-          comparisonXML("ТипОплаты", guid, {
-            "dcsset:userSettingPresentation": { "_xsi:type": "xs:string", "#text": "Способ оплаты" },
-          }),
-        ],
       })
 
       expect(result).toContain(`<dcsset:userSettingID>${guid}</dcsset:userSettingID>`)
@@ -259,12 +241,12 @@ describe("export FilterItem to XML", () => {
       expect(result).toContain("<v8:content>Способ оплаты</v8:content>")
     })
 
-    it("FilterItemComparison: сопоставляет implicit Equal и поле с точкой из YAML", () => {
+    it("FilterItemComparison: восстанавливает implicit Equal и поле с точкой из YAML", () => {
       const guid = "eeeeeeee-0000-0000-0000-000000000007"
       const current: FilterItemComparison = {
         itemType: "FilterItemComparison",
         leftValue: { type: "Field", value: ".ТипОплаты" },
-        userSettingID: true,
+        userSettingID: guid,
         userSettingPresentation: { items: { ru: "Способ оплаты" } },
       }
       const { result } = testExportPropertyModelThroughYAMLToXML({
@@ -272,15 +254,11 @@ describe("export FilterItem to XML", () => {
         value: [current],
         yaml: [
           comparisonYAML(".ТипОплаты", {
+            ИспользоватьПользовательскуюНастройку: guid,
             ПредставлениеПользовательскойНастройки: "Способ оплаты",
           }),
         ],
         xmlRootTag: "dcsset:item",
-        referenceMetadata: [
-          comparisonXML("ТипОплаты", guid, {
-            "dcsset:userSettingPresentation": { "_xsi:type": "xs:string", "#text": "Способ оплаты" },
-          }),
-        ],
       })
 
       expect(result).toContain(`<dcsset:userSettingID>${guid}</dcsset:userSettingID>`)
@@ -288,13 +266,13 @@ describe("export FilterItem to XML", () => {
       expect(result).toContain("<v8:content>Способ оплаты</v8:content>")
     })
 
-    it("FilterItemGroup: передает reference во вложенный FilterItemComparison", () => {
+    it("FilterItemGroup: сохраняет GUID вложенного FilterItemComparison из YAML", () => {
       const guid = "ffffffff-0000-0000-0000-000000000006"
       const currentNested: FilterItemComparison = {
         itemType: "FilterItemComparison",
         leftValue: { type: "Field", value: "Контрагент" },
         comparisonType: "Equal",
-        userSettingID: true,
+        userSettingID: guid,
         userSettingPresentation: { items: { ru: "Контрагент" } },
       }
       const currentGroup: FilterItemGroup = {
@@ -310,21 +288,13 @@ describe("export FilterItem to XML", () => {
             ИспользоватьПользовательскуюНастройку: "Ложь",
             Элементы: [
               comparisonYAML("Контрагент", {
+                ИспользоватьПользовательскуюНастройку: guid,
                 ПредставлениеПользовательскойНастройки: "Контрагент",
               }),
             ],
           }),
         ],
         xmlRootTag: "dcsset:item",
-        referenceMetadata: [
-          groupXML("AndGroup", undefined, {
-            "dcsset:item": [
-              comparisonXML("Контрагент", guid, {
-                "dcsset:userSettingPresentation": { "_xsi:type": "xs:string", "#text": "Контрагент" },
-              }),
-            ],
-          }),
-        ],
       })
 
       expect(result).toContain(`<dcsset:userSettingID>${guid}</dcsset:userSettingID>`)
