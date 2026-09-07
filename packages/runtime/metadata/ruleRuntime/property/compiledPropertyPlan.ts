@@ -11,6 +11,7 @@ import {
 } from "./xmlImportPlan"
 import type { CompiledAtomicConversion } from "./atomicConversion"
 import { compileYamlPropertyOrder } from "./yamlPropertyOrder"
+import { XMLImportViews } from "./xmlImportViews"
 
 export const compiledPropertyOperationNames = [
   "importFromXML",
@@ -108,7 +109,9 @@ export function compilePropertyPlan(params: CompilePropertyPlanParams): Compiled
       .map((propertyKey) => propertiesByKey.get(propertyKey))
       .filter((property): property is CompiledProperty => property !== undefined),
   )
-  const xmlViews = new Map<string, XMLImportPlan<CompiledProperty>>()
+  const xmlViews = new XMLImportViews(viewParams => compileXMLImportPlanFromEntries({
+    rule: params.rule, entries: properties, missingXMLProperties, ...viewParams,
+  }))
   const emptyYAMLOrders = new Map<string | undefined, readonly CompiledProperty[]>()
 
   const plan: CompiledPropertyPlan = {
@@ -133,19 +136,7 @@ export function compilePropertyPlan(params: CompilePropertyPlanParams): Compiled
       property.yamlKey === undefined ? [] : [property.yamlKey],
     )),
     xmlImportView(viewParams) {
-      const key = viewParams.includeAllTags
-        ? "*"
-        : JSON.stringify([...(viewParams.tags ?? [])].sort())
-      const cached = xmlViews.get(key)
-      if (cached !== undefined) return cached
-      const view = compileXMLImportPlanFromEntries({
-        rule: params.rule,
-        entries: properties,
-        missingXMLProperties,
-        ...viewParams,
-      })
-      xmlViews.set(key, view)
-      return view
+      return xmlViews.get(viewParams)
     },
   }
   return Object.freeze(plan)

@@ -198,6 +198,39 @@ describe("CompiledPropertyPlan", () => {
       .toEqual(["metadata"])
   })
 
+  it.each(["compiled", "standalone"] as const)("разделяет отсутствующий и пустой фильтр тегов: %s", (kind) => {
+    const rule: MetadataItemRule = { itemType: "FilterPresence", properties: {
+      untagged: { type: "Sample", xml: "Untagged" },
+      tagged: { type: "Sample", xml: "Tagged", tag: "Body" },
+    } }
+    const plan = createPropertyRuleExecutor(registriesWithImport(() => undefined)).propertyPlan(rule)
+    const view = (tags?: readonly string[]) => kind === "compiled"
+      ? plan.xmlImportView({ tags, includeAllTags: false })
+      : getXMLImportPlan({ rule, tags, includeAllTags: false })
+    expect([...view().entriesByPropertyKey.keys()]).toEqual(["untagged"])
+    expect([...view([]).entriesByPropertyKey.keys()]).toEqual([])
+    expect([...view(["Body"]).entriesByPropertyKey.keys()]).toEqual(["tagged"])
+    expect([...view().entriesByPropertyKey.keys()]).toEqual(["untagged"])
+  })
+
+  it.each(["compiled", "standalone"] as const)("читает кэш фильтров без JSON: %s", (kind) => {
+    const rule = ownerValueRule()
+    const plan = createPropertyRuleExecutor(registriesWithImport(() => undefined)).propertyPlan(rule)
+    const view = (tags?: readonly string[]) => kind === "compiled"
+      ? plan.xmlImportView({ tags, includeAllTags: false })
+      : getXMLImportPlan({ rule, tags, includeAllTags: false })
+    const expected = view(["Metadata", "Body"])
+    const stringify = vi.spyOn(JSON, "stringify")
+    let actual: ReturnType<typeof view>
+    let calls: number
+    try {
+      actual = view(["Body", "Metadata"])
+      calls = stringify.mock.calls.length
+    } finally { stringify.mockRestore() }
+    expect(actual).toBe(expected)
+    expect(calls).toBe(0)
+  })
+
   it("обходит canonical, alias и xmlParents так же, как прежний XML-план", () => {
     const rule: MetadataItemRule = {
       itemType: "StructuralOwner",

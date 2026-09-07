@@ -2,6 +2,7 @@ import { capitalize } from "../../../helpers/capitalize"
 import { isXmlElementNode, xmlTextValue, xmlElementChildren as elementChildren, type XmlAttributeNode, type XmlElementNode, type XmlTextNode } from "../../../xml/import/document"
 
 import { shouldProcessProperty } from "./helpers"
+import { XMLImportViews } from "./xmlImportViews"
 import type { MetadataItemRule, PropertyRule } from "./types"
 import type {
   XmlImportAuditBoundary,
@@ -44,15 +45,12 @@ interface CompiledXMLImportPlan<Entry extends XMLImportPlanEntry = XMLImportPlan
   readonly root: XMLImportPlanNode
 }
 
-const cache = new WeakMap<MetadataItemRule, Map<string, CompiledXMLImportPlan>>()
+const cache = new WeakMap<MetadataItemRule, XMLImportViews<CompiledXMLImportPlan>>()
 
 const createNode = (): XMLImportPlanNode => ({
   entriesByXMLKey: new Map(),
   childrenByXMLKey: new Map(),
 })
-
-const getCacheKey = (params: { tags?: readonly string[]; includeAllTags: boolean }): string =>
-  params.includeAllTags ? "*" : JSON.stringify([...(params.tags ?? [])].sort())
 
 const matchesSource = (params: {
   propertyRule: PropertyRule
@@ -152,17 +150,11 @@ export const getXMLImportPlan = (params: {
 }): XMLImportPlan => {
   let plansBySource = cache.get(params.rule)
   if (plansBySource === undefined) {
-    plansBySource = new Map()
+    const rule = params.rule
+    plansBySource = new XMLImportViews(filter => compileXMLImportPlan({ rule, ...filter }))
     cache.set(params.rule, plansBySource)
   }
-
-  const cacheKey = getCacheKey(params)
-  const cached = plansBySource.get(cacheKey)
-  if (cached !== undefined) return cached
-
-  const compiled = compileXMLImportPlan(params)
-  plansBySource.set(cacheKey, compiled)
-  return compiled
+  return plansBySource.get(params)
 }
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
