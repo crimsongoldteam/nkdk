@@ -106,8 +106,29 @@ registerMetadataItemCollectionRule({
 })
 
 describe("importMetadataItemCollectionFromXMLToYAML", () => {
+  it("не подготавливает вложенное правило для пустой коллекции", () => {
+    let reads = 0
+    const yaml = importMetadataItemCollectionFromXMLToYAML({
+      context: mockContextFromXML(),
+      rule: { type: "TestRecordCollection" as PropertyRuleType },
+      xml: parseXmlDocumentWithSaxes("<Items/>").roots[0],
+      itemRule: { itemType: itemRule.itemType, get properties() { reads++; return itemRule.properties } },
+      xmlElement: "Item", keyField: "name",
+      traversal: { yamlPath: [], rulePath: [], collector: createLocalIndexesCollector() },
+    })
+    expect(yaml).toBeUndefined()
+    expect(reads).toBe(0)
+  })
+
   it("передаёт факты готового элемента массива до обработки следующего", () => {
     const facts = createDirectImportFactsCollector()
+    const roots = parseXmlDocumentWithSaxes("<Item><Value>a</Value></Item><Item><Value>b</Value></Item>").roots
+    const content = roots[1]!.content[0]!
+    let secondReadBeforeFirst = false
+    Object.defineProperty(roots[1]!.content, 0, { get() {
+      secondReadBeforeFirst ||= !facts.finish().some(fact => fact.propertyKey === "value" && fact.value === "a")
+      return content
+    } })
     let firstPublished = false
     const valueType = "TestStreamingArrayValue" as PropertyRuleType
     registerTypeRule(valueType, "importFromXML", (_context, _rule, value) => {
@@ -119,7 +140,7 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
     const result = importMetadataItemCollectionFromXMLToYAML({
       context: mockContextFromXML(),
       rule: { type: "TestArrayCollection" as PropertyRuleType, xml: "Item", yaml: "Элементы" },
-      xml: parseXmlDocumentWithSaxes("<Item><Value>a</Value></Item><Item><Value>b</Value></Item>").roots,
+      xml: roots,
       itemRule: { itemType: "StreamingArrayItem", properties: { value: { type: valueType, xml: "Value", yaml: "Значение" } } },
       xmlElement: "Item", yamlAsArray: true,
       traversal: { mode: "facts", facts, yamlPath: ["Элементы"], rulePath: [], collector: createLocalIndexesCollector() },
@@ -131,6 +152,7 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
       { propertyKey: "value", yamlPath: ["Элементы", 1, "Значение"], value: "b" },
     ])
     expect(firstPublished).toBe(true)
+    expect(secondReadBeforeFirst).toBe(false)
   })
 
   it("выбирает ключи по фактам непосредственных полей без JSON-копий путей", () => {

@@ -97,15 +97,12 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
   const sourceNodes = isXmlElementNode(params.xml) ? [params.xml]
     : Array.isArray(params.xml) && params.xml.every(isXmlElementNode) ? params.xml
     : params.traversal.xmlNodes
-  const structuralItems = collectionItemNodes(sourceNodes, params.xmlElement)
-  const items: { xml: Record<string, unknown> | XmlElementNode; node?: XmlElementNode }[] = sourceNodes === undefined
-    ? normalizeCollectionItems(params.xml, params.xmlElement).map((xml) => ({ xml }))
-    : structuralItems.flatMap((node) => {
-        const xml = node.attributes.length > 0 || node.content.some(child => child.type !== "text")
-          ? node : undefined
-        return xml === undefined ? [] : [{ xml, node }]
-      })
-  if (items.length === 0) return undefined
+  const items: Iterable<Record<string, unknown> | XmlElementNode> = sourceNodes === undefined
+    ? normalizeCollectionItems(params.xml, params.xmlElement)
+    : collectionItemNodes(sourceNodes, params.xmlElement)
+  const iterator = items[Symbol.iterator]()
+  let next = iterator.next()
+  if (next.done) return undefined
   const sourceItemRule = params.itemRule
   const itemRule =
     params.preserveItemPropertyPresence === true
@@ -113,7 +110,8 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
       : sourceItemRule
   const keyField = params.keyField
   const keyYaml = keyField === undefined ? undefined : (itemRule.properties[keyField]?.yaml ?? keyField)
-  const yamlItems = items.flatMap(({ xml: itemXml, node: itemNode }, index) => {
+  const importItem = (itemXml: Record<string, unknown> | XmlElementNode, index: number) => {
+    const itemNode = isXmlElementNode(itemXml) ? itemXml : undefined
     const itemName = itemNameFromXML(itemXml, itemRule, params.keyField)
     const itemContext = configurationIndexItemContext({
       context: params.context,
@@ -165,7 +163,7 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
       ),
     })
     const bufferedPropertyFacts = bufferedFacts?.finish() ?? []
-    if (itemYamlValue === undefined && params.traversal.mode !== "facts") return []
+    if (itemYamlValue === undefined && params.traversal.mode !== "facts") return undefined
     const itemYaml = objectRecordOrUndefined(itemYamlValue)
       ?? (params.traversal.mode === "facts"
         ? factItemShallowView(bufferedPropertyFacts, yamlPath)
@@ -194,7 +192,7 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
     if (params.yamlAsArray === true) {
       for (const fact of bufferedPropertyFacts) params.traversal.facts?.acceptProperty(fact)
     }
-    return [{
+    return {
       yaml: itemYaml,
       name,
       yamlKey,
@@ -206,8 +204,15 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
       bufferedDependent,
       bufferedPropertyFacts: params.yamlAsArray === true ? [] : bufferedPropertyFacts,
       xmlNode: itemNode,
-    }]
-  })
+    }
+  }
+  const yamlItems: NonNullable<ReturnType<typeof importItem>>[] = []
+  let itemIndex = 0
+  while (!next.done) {
+    const imported = importItem(next.value, itemIndex++)
+    if (imported !== undefined) yamlItems.push(imported)
+    next = iterator.next()
+  }
   if (yamlItems.length === 0) return undefined
 
   if (params.yamlAsArray === true) {
@@ -374,17 +379,27 @@ function createBufferedItemCollector(parent: LocalIndexesCollector, sourceYamlPa
   }
 }
 
-function collectionItemNodes(
-  sources: readonly XmlElementNode[] | undefined,
+function* collectionItemNodes(
+  sources: readonly XmlElementNode[],
   xmlElement: string,
-): XmlElementNode[] {
-  if (sources === undefined || sources.length === 0) return []
-  if (sources.every(({ name }) => name === xmlElement)) return [...sources]
-  return sources.flatMap((source) =>
-    source.content.filter(
-      (node): node is XmlElementNode => node.type === "element" && node.name === xmlElement,
-    ),
-  )
+): Iterable<XmlElementNode> {
+  const direct = sources.every(({ name }) => name === xmlElement)
+  for (const source of sources) {
+    if (direct) {
+      if (hasItemBody(source)) yield source
+      continue
+    }
+    for (const node of source.content) {
+      if (node.type === "element" && node.name === xmlElement
+        && hasItemBody(node)) {
+        yield node
+      }
+    }
+  }
+}
+
+function hasItemBody(node: XmlElementNode): boolean {
+  return node.attributes.length > 0 || node.content.some(child => child.type !== "text")
 }
 
 function normalizeCollectionItems(xml: unknown, xmlElement: string): Record<string, unknown>[] {
