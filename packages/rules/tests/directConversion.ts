@@ -14,11 +14,16 @@ import type {
 } from "@nkdk/runtime/rule-kit"
 import type { CompiledPropertyRuleExecution, MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
-import { createPropertyRuleExecutor } from "@nkdk/runtime/rule-kit"
+import { createDirectImportFactsCollector, createImportedDependentPropertyCollector, createPropertyRuleExecutor } from "@nkdk/runtime/rule-kit"
 import { createLocalIndexesCollector, type LocalIndexes } from "../metadata/projectDefinition/localIndexes"
 import { mockContextFromXML, mockContextToXML } from "./mockContext"
 import { readAndParseXMLFixture, readXMLFixtureAsString } from "./readFixtureXML"
 import { xmlExport } from "@nkdk/runtime"
+import { createXmlAnomalyAnnotations, parseMetadataYaml, serializeYAMLDocument } from "@nkdk/runtime"
+import { createImportLocalRoundTrip } from "../metadata/importFromXml/localRoundTrip"
+import { collectImportDependencyFacts, prepareImportDependencies } from "../metadata/importFromXml/preparedDependencies"
+import { prepareTestXmlAnomalyAssignment } from "../metadata/xmlAnomalies/testSupport"
+import { buildPreparedAssignmentXml } from "../metadata/fullSyncToXml/xmlAnomalyAssignment"
 import { isXmlElementNode, xmlElementChildren, xmlTextValue } from "@nkdk/runtime"
 import { parseStructuralXMLWithoutCompatibility } from "./structuralXML"
 import type {
@@ -346,16 +351,31 @@ export function testAppliedObjectFromYAMLToXML(
     context?: ConfigurationContextWithExportToXML
   }
 ): ToXMLResult & { result: string; expected: string } {
-  const referenceXML = readAppliedObjectFixture(params.importMetaUrl, params.fixture)
-  const name = params.name ?? readItemName(referenceXML, params.rule)
+  const sourceXML = readXMLFixtureAsString(params.importMetaUrl, params.fixture)
+  const importedXML = parseStructuralXMLWithoutCompatibility(sourceXML)
+  const name = params.name ?? readItemName(importedXML, params.rule)
   const contexts = createDirectRoundTripContexts()
-  const importedXML = isFileRoot(params.rule) ? referenceXML : (referenceXML.MetaDataObject ?? referenceXML)
-  testMetadataItemFromXMLToYAML({
+  const importContext = withMetadataTargetOwnerForImport(contexts.importContext, params.rule, name)
+  const facts = createDirectImportFactsCollector()
+  const dependent = createImportedDependentPropertyCollector()
+  withDirectMetadataExecution(() => importMetadataItemFromXMLToYAML({
     rule: params.rule,
     xml: importedXML,
-    context: withMetadataTargetOwnerForImport(contexts.importContext, params.rule, name),
+    context: importContext,
     name,
-  })
+    traversal: {
+      mode: "facts", produceResult: false, facts, dependent,
+      yamlPath: [], rulePath: [], collector: createLocalIndexesCollector(),
+    },
+  }))
+  const propertyFacts = facts.finish()
+  const propertyValues = new Map<string, unknown>()
+  for (const fact of propertyFacts) {
+    const property = params.rule.properties[fact.propertyKey]
+    if (fact.itemRule === params.rule && property?.xmlOnly === true && typeof property.xml === "string") {
+      propertyValues.set(fact.propertyKey, fact.value)
+    }
+  }
   const baseContext = withMetadataTargetOwnerForExport(params.context ?? mockContextToXML(), params.rule, name)
   const contextBase =
     name === undefined
@@ -375,17 +395,35 @@ export function testAppliedObjectFromYAMLToXML(
           },
         }
   const context = contexts.exportContext(contextBase)
+  const annotations = createXmlAnomalyAnnotations()
+  const importedYaml = withDirectMetadataExecution(() => importMetadataItemFromXMLToYAML({
+    context: importContext, rule: params.rule, name, xml: importedXML,
+    traversal: {
+      yamlPath: [], rulePath: [], collector: createLocalIndexesCollector(), annotations,
+      dependencies: prepareImportDependencies(collectImportDependencyFacts({
+        rule: params.rule, owner: { dir: params.rule.itemType, name: name ?? "" }, yaml: undefined,
+        candidates: dependent.finish(), propertyFacts, execution: directPropertyRuleExecution,
+      }), {}, directPropertyRuleExecution),
+      roundTrip: createImportLocalRoundTrip({ execution: directPropertyRuleExecution, context, annotations, decisions: [] }),
+    },
+  }))
+  const prepared = prepareTestXmlAnomalyAssignment({
+    parsed: parseMetadataYaml(serializeYAMLDocument(importedYaml, annotations).text), rootRule: params.rule,
+  })
   const converted = testMetadataItemFromYAMLToXML({
     rule: params.rule,
     yaml: params.yaml,
     context,
     name,
-    referenceXML,
+    propertyValues,
   })
   return {
     ...converted,
-    result: serializeDirectXML(converted.xml),
-    expected: readXMLFixtureAsString(params.importMetaUrl, params.fixture),
+    result: buildPreparedAssignmentXml({ context, document: {
+      targetXmlPath: params.fixture, xml: converted.xml, deferred: [], rootRule: params.rule,
+      rawBoundaries: prepared.rawBoundaries,
+    } }),
+    expected: sourceXML,
   }
 }
 
@@ -397,12 +435,6 @@ export function readAppliedObjectFixture(importMetaUrl: string, fixture: string)
 
 export function serializeDirectXML(xml: Record<string, unknown>): string {
   return xmlExport(xml)
-}
-
-function isFileRoot(rule: MetadataItemRule): boolean {
-  return Object.values(rule.properties).some(
-    (propertyRule) => propertyRule.type === "XMLRoot" && propertyRule.isFileRoot === true
-  )
 }
 
 function readItemName(fixture: Record<string, unknown> | XmlElementNode, rule: MetadataItemRule): string | undefined {
