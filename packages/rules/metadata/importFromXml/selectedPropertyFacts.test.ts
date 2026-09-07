@@ -2,6 +2,19 @@ import { describe, expect, it } from "vitest"
 import { selectImportPropertyValues, selectImportPropertyPaths, selectImportCompactPropertyPaths } from "./selectedPropertyFacts"
 
 describe("отбор свойств из фактов", () => {
+  it.each([selectImportPropertyPaths, selectImportCompactPropertyPaths])("разделяет результат одного пути между разными потребителями: %s", (select) => {
+    const selected = select([
+      { itemType: "Item", propertyKey: "object", yamlPath: ["Объект"], value: {} },
+      { itemType: "Item", propertyKey: "other", yamlPath: ["Другой"], value: "значение" },
+    ], new Map([["проверка", ["Объект"]], ["соседний", ["Другой"]], ["экспорт", ["Объект"]]]))
+    expect([...selected.keys()]).toEqual(["проверка", "соседний", "экспорт"])
+    expect(selected.get("проверка")).toEqual(expect.objectContaining({ value: {} }))
+    expect(selected.get("экспорт")).toBe(selected.get("проверка"))
+    if (select === selectImportCompactPropertyPaths) {
+      expect(selected.get("экспорт")).toHaveProperty("kind", "object")
+    }
+  })
+
   it("определяет присутствие и компактное значение без сборки вложенного объекта", () => {
     const values = selectImportCompactPropertyPaths([
       { itemType: "Item", propertyKey: "object", yamlPath: ["Объект"], value: {
