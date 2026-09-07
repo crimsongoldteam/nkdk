@@ -47,9 +47,8 @@ const importAggregateDimensionsFromXML = (
 const exportAggregateDimensionsToXML = (params: {
   context: ConfigurationContextWithExportToXML
   value: AccumulationRegisterAggregateDimensions | undefined
-  referenceMetadata?: AccumulationRegisterAggregateDimensions
 }): AccumulationRegisterAggregateDimensionsXML | undefined => {
-  const dimensions = params.value ?? params.referenceMetadata
+  const dimensions = params.value
   if (dimensions === undefined) return undefined
 
   const registerName = getCurrentAccumulationRegisterName(params.context)

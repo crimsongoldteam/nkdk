@@ -3,8 +3,8 @@ import { ExportToXMLFunctionNew, definePropertyTypeRule } from "../../ruleRuntim
 import { getUUID } from "../../helpers/uuid"
 
 export const exportUUIDToXML: ExportToXMLFunctionNew = (params): string => {
-  const { context, value, referenceMetadata } = params
-  const uuid = (value as string | undefined) ?? (referenceMetadata as string | undefined) ?? getUUID(context)
+  const { context, value } = params
+  const uuid = (value as string | undefined) ?? getUUID(context)
   recordCurrentExternalMetadataUuid({ context, uuid })
   return uuid
 }

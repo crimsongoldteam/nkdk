@@ -11,10 +11,19 @@ import { aggregatesYAML, currentRegisterName } from "./__fixtures__/data"
 import { AccumulationRegisterAggregatesRules } from "./rules"
 
 import "./register"
+import { callAtomicToXML } from "../../ruleRuntime/property/fromYAMLToXML"
 
 const fixture = "../../../appliedObjects/metadataAccumulationRegister/__fixtures__/sync/xml/РегистрНакопленияВсеСвойстваОбороты/Ext/Aggregates.xml"
 
 describe("AccumulationRegisterAggregates YAML → XML", () => {
+  it("не восстанавливает удалённые измерения из reference", () => {
+    const context = mockContextToXML()
+    context.exportToXML.context!.parentName = currentRegisterName
+    expect(callAtomicToXML({
+      context, rule: { type: "AccumulationRegisterAggregateDimensions" }, value: undefined,
+      referenceValue: { СтароеИзмерение: true },
+    })).toBeUndefined()
+  })
   it("берёт владельца измерений из регистра, а не из вложенного агрегата", () => {
     const context = mockContextToXML()
     context.exportToXML = { ...context.exportToXML, itemsTree: [
