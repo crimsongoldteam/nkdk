@@ -1,4 +1,5 @@
 import { SaxesParser, type SaxesStartTagPlain, type SaxesTagPlain, type XMLDecl } from "saxes"
+import { Buffer } from "node:buffer"
 import type { ImportContentFromXMLOptions } from "./contracts"
 import type {
   XmlAttributeNode,
@@ -107,14 +108,15 @@ export function parseXmlDocumentWithSaxes(
     advanceContentBoundary(document, parser.position, true)
   })
   parser.on("opentagstart", (tag: SaxesStartTagPlain) => {
+    const name = ownXmlString(tag.name)
     const parent = requireElementParent(stack, tag.name)
     const occurrence = (parent.childCounts[tag.name] ?? 0) + 1
     const parentPath = parent.structural.path
     stack.push(
-      createFrame(tag.name, {
+      createFrame(name, {
         kind: "element",
         id: allocateNodeId(),
-        name: tag.name,
+        name,
         occurrence,
         path: `${parentPath}/${tag.name}[${occurrence}]`,
         attributes: [],
@@ -127,11 +129,14 @@ export function parseXmlDocumentWithSaxes(
     )
   })
   parser.on("attribute", ({ name, value }) => {
+    name = ownXmlString(name)
+    value = ownXmlString(value)
     const frame = stack.at(-1)
     const structural = frame?.structural
     if (frame === undefined || structural?.kind !== "element") {
       throw new Error("XML-атрибут вне элемента")
     }
+    Object.defineProperty(frame.attributes, name, { value, enumerable: true, configurable: true, writable: true })
     const occurrence =
       structural.attributes.filter((attribute) => attribute.name === name).length + 1
     structural.attributes.push({
@@ -152,7 +157,6 @@ export function parseXmlDocumentWithSaxes(
     ) {
       throw new Error("Несогласованный открывающий XML-тег")
     }
-    frame.attributes = tag.attributes
     frame.structural.nextContentStart = parser.position
   })
   parser.on("text", (text) => {
@@ -184,6 +188,8 @@ export function parseXmlDocumentWithSaxes(
     if (frame !== undefined) advanceContentBoundary(frame, parser.position, true)
   })
   parser.on("processinginstruction", ({ target, body }) => {
+    target = ownXmlString(target)
+    body = ownXmlString(body)
     const attributes: Record<string, string> = {}
     for (const { name, value } of parseXmlProcessingInstructionAttributes(body)) {
       attributes[`_${name}`] = value
@@ -367,7 +373,7 @@ export function parseXmlRootStructuresWithSaxes(data: string): {
     parent.nextContentStart = parser.position
     if (parent === document) roots.push({
       path: frame.path,
-      name: frame.name,
+      name: ownXmlString(frame.name),
       structuralHash,
       span,
     })
@@ -383,6 +389,7 @@ function appendText(
   span: XmlSourceSpan,
   allocateNodeId: () => number
 ): void {
+  text = ownXmlString(text)
   if (frame.structural.kind === "element") frame.text += text
   const { content } = frame.structural
   const previous = content.at(-1)
@@ -435,9 +442,9 @@ function finalizeElement(
 
 function appendDeclaration(document: ElementFrame, declaration: XMLDecl): void {
   const value: Record<string, string> = {}
-  if (declaration.version !== undefined) value._version = declaration.version
-  if (declaration.encoding !== undefined) value._encoding = declaration.encoding
-  if (declaration.standalone !== undefined) value._standalone = declaration.standalone
+  if (declaration.version !== undefined) value._version = ownXmlString(declaration.version)
+  if (declaration.encoding !== undefined) value._encoding = ownXmlString(declaration.encoding)
+  if (declaration.standalone !== undefined) value._standalone = ownXmlString(declaration.standalone)
   appendChild(document, "?xml", value)
 }
 
@@ -554,12 +561,18 @@ function createProcessingInstructionAttributes(
     const start = rawBodyStart + parsed.start
     attributes.push({
       id: allocateNodeId(),
-      name: parsed.name,
+      name: ownXmlString(parsed.name),
       occurrence: parsed.occurrence,
       path: `${parentPath}/@${parsed.name}[${parsed.occurrence}]`,
-      value: parsed.value,
+      value: ownXmlString(parsed.value),
       span: { start, end: rawBodyStart + parsed.end },
     })
   }
   return attributes
+}
+
+/** Короткий срез saxes не должен удерживать исходный XML после освобождения дерева. */
+function ownXmlString(value: string): string {
+  // Копируем кодовые единицы без нормализации Unicode и без сохранения буфера.
+  return value.length === 0 ? value : Buffer.from(value, "utf16le").toString("utf16le")
 }
