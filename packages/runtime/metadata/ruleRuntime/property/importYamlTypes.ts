@@ -44,12 +44,13 @@ export interface DirectImportFactsSink {
   acceptProperty(fact: DirectImportPropertyFact): void
 }
 
-export function createDirectImportFactsCollector(): DirectImportFactsSink & {
+export function createDirectImportFactsCollector(select?: (fact: DirectImportPropertyFact) => boolean): DirectImportFactsSink & {
   finish(): readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][]
 } {
   const facts: Parameters<DirectImportFactsSink["acceptProperty"]>[0][] = []
   const collector = {
     acceptProperty(fact: Parameters<DirectImportFactsSink["acceptProperty"]>[0]) {
+      if (select !== undefined && !select(fact)) return
       const yamlPath = [...fact.yamlPath]
       const source = fact.sourceYamlPath
       const sourceYamlPath = source === undefined

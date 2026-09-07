@@ -2,6 +2,18 @@ import { describe, expect, it } from "vitest"
 import { createDirectImportFactsCollector } from "./importYamlTypes"
 
 describe("direct import fact paths", () => {
+  it("отбрасывает ненужный факт до чтения значения и копирования пути", () => {
+    const collector = createDirectImportFactsCollector(fact => fact.propertyKey === "type")
+    collector.acceptProperty({
+      itemType: "MetadataAttribute", propertyKey: "title",
+      get yamlPath(): string[] { throw new Error("Путь не нужен") },
+      get value(): unknown { throw new Error("Значение не нужно") },
+    })
+    collector.acceptProperty({ itemType: "MetadataAttribute", propertyKey: "type", yamlPath: ["Тип"], value: "Строка" })
+    expect(collector.finish()).toEqual([
+      { itemType: "MetadataAttribute", propertyKey: "type", yamlPath: ["Тип"], sourceYamlPath: ["Тип"], value: "Строка" },
+    ])
+  })
   it.each([false, true])("отделяет совпадающие пути одной копией; исходный задан: %s", (explicit) => {
     const yamlPath = ["Реквизиты", "Получатель", "Тип"]
     const sourceYamlPath = [...yamlPath]

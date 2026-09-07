@@ -62,6 +62,7 @@ import {
   type DirectImportPropertyFact,
 } from "./propertyFacts"
 import { selectImportPropertyPaths } from "./selectedPropertyFacts"
+import { createFormImportFactSelection } from "./formImportFactSelection"
 
 export interface PreparedImportFacts {
   readonly dependencies: ImportDependencyFacts
@@ -108,7 +109,18 @@ export async function prepareImportFacts(params: {
     collector: params.collector,
     topology: params.topology,
   })
-  const facts = createDirectImportFactsCollector()
+  const formBody = rule.itemType === ClientApplicationFormRules.itemType
+    ? inputs.find(({ input }) => input.role === "body")?.document.roots.find(node => node.name === "Form")
+    : undefined
+  const hasBaseForm = formBody?.content.some(node => node.type === "element" && node.name === "BaseForm") === true
+  const formSource = formBody === undefined ? undefined : formMetadataSource(requireMetadataXmlNode(inputs)) ?? {}
+  const formVariantContext = formSource === undefined ? importContext : withResolvedXMLImportObjectVariant(
+    importContext, resolveMetadataItemXMLDefaultVariant({ context: importContext, rule, source: formSource }),
+  )
+  const facts = createDirectImportFactsCollector(formSource === undefined || hasBaseForm ? undefined : createFormImportFactSelection({
+    rule, owner: dependentOwner, execution: params.execution,
+    augmentedRoots: metadataItemXmlImportYamlDependencies({ context: formVariantContext, rule, source: formSource }),
+  }))
   let dependentCandidates: readonly ImportedDependentPropertyCandidate[] = []
   let baseFormSemanticFacts: readonly DirectImportPropertyFact[] | undefined
   let baseFormDataPathIndex: PreparedImportFacts["baseFormDataPathIndex"]

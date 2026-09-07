@@ -54,6 +54,17 @@ const e2eAllExtensionDir = join(import.meta.dirname, "../../../../e2e/fixtures/x
 const e2eConfigurationDir = join(import.meta.dirname, "../../../../e2e/fixtures/xml/cf")
 
 describe("prepareImportFacts", () => {
+  it("не сохраняет оформление элементов обычной формы между проходами", async () => {
+    const assignment = reportVariantFormAssignment()
+    const inputs = parseAssignmentInputs(assignment, true)
+    const context = mockXmlImportContext()
+    const facts = await prepareImportFacts({ assignment, inputs, context, collector: createConfigurationIndexCollector() })
+    expect(facts.semanticFacts.some(fact => fact.propertyKey === "width" && fact.value === 50)).toBe(false)
+    expect(facts.pendingChecks.some(check => check.kind === "dataPath")).toBe(true)
+    const prepared = await prepareProofYaml(assignment, inputs, context, facts)
+    expect(serializeYAMLDocument(prepared.yaml, prepared.annotations).text).toContain("Ширина: 50")
+    expect(prepared.yaml).toMatchObject({ КоманднаяПанель: { ГоризонтальноеПоложение: "Право" } })
+  })
   it("проверяет основу формы без повторного объектного аудита XML", async () => {
     const assignment = managedFormAssignment()
     const inputs = parseAssignmentInputs(assignment, true)
