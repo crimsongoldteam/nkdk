@@ -91,6 +91,7 @@ export function importMetadataItemFromXMLToYAML(params: {
     sources: [{
       context,
       xml: sourceNode ?? source,
+      ...(xmlRoot === undefined || rootNode === undefined ? {} : { envelopeSource: rootNode }),
       claimAuditRoot: shouldClaimAuditRoot({
         rootNodeFromTraversal: rootNodeFromTraversal
           || rootNode !== undefined && params.traversal.xmlNodes?.includes(rootNode) === true,

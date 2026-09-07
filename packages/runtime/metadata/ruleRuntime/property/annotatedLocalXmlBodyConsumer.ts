@@ -33,6 +33,22 @@ export function createAnnotatedLocalXmlBodyConsumer(params: Omit<
   return createLocalXmlBodyConsumer({
     ...params,
     annotate({ source, differences, property, propertySource }) {
+      if (source === params.envelopeSource) {
+        const own = differences.filter(difference => difference.ownerPath === source.path
+          && /^\/@xmlns(?::[^/]+)?\[\d+\]$/u.test(difference.path.slice(source.path.length)))
+        const order = differences.filter(difference => difference.path === `${source.path}/#attributes/#order`)
+        const selector = params.rawPathPrefix?.[0]
+        const projection = { yaml: rawYaml, annotations: params.annotations, root: source,
+          path: [selector?.startsWith("@") === true ? selector : "@"] }
+        projectLocalXmlOwnValues({ ...projection, differences: own })
+        projectLocalXmlOrder({ ...projection, differences: order })
+        const projected = new Set([...own, ...order])
+        differences = differences.filter(difference => !projected.has(difference))
+        if (differences.length === 0) return
+        if (source !== params.source) {
+          throw new Error(`Не согласована XML-аномалия оболочки: ${differences[0]!.path}`)
+        }
+      }
       if (property !== undefined) {
         if (propertySource !== undefined && source !== propertySource) {
           const relative = relativeElementPath(propertySource.path, source.path, true)
@@ -259,6 +275,7 @@ export function createAnnotatedLocalXmlBodyConsumers(params: {
   readonly sources: readonly {
     readonly key: string
     readonly source: BodyConsumerParams["source"]
+    readonly envelopeSource?: BodyConsumerParams["envelopeSource"]
     readonly proof: BodyConsumerParams["proof"]
     readonly itemPreparation?: BodyConsumerParams["itemPreparation"]
     readonly xmlEnvelope?: BodyConsumerParams["xmlEnvelope"]

@@ -1,5 +1,6 @@
 import {
-parseWithJsYaml
+parseWithJsYaml,
+parseMetadataYaml,
 } from "@nkdk/runtime"
 import {
 configurationIndexStoreDescriptor,
@@ -222,6 +223,15 @@ describe("configuration extension XML import", () => {
     expect(exchangePlan).toMatchObject({
       Состав: [{ Метаданные: "Справочник.ПроектныеЗадачи", Авторегистрация: "Запретить" }],
     })
+    const parsed = parseMetadataYaml(readText(importedExtension.projectDir,
+      "cfe/РасширениеКонтроль/ПланОбмена/дкз_ОбменТипы/Свойства.yaml"))
+    expect(parsed.annotations.at(parsed.data as object, "@")?.xml).toEqual({
+      "_xmlns:app": null, "_xmlns:cfg": null, "_xmlns:cmi": null,
+      "_xmlns:ent": null, "_xmlns:lf": null, "_xmlns:style": null,
+      "_xmlns:sys": null, "_xmlns:v8ui": null, "_xmlns:web": null,
+      "_xmlns:win": null, "_xmlns:xen": null, "_xmlns:xpr": null,
+    })
+    expect(parsed.annotations.at(parsed.data as object, "@\\#attributes")).toBeUndefined()
   })
 
 })

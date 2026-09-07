@@ -13,6 +13,7 @@ import type { ValidationProfiler } from "../validation/profile"
 interface SourceBoundary {
   readonly key: string
   readonly source: XmlElementNode
+  readonly envelopeSource?: XmlElementNode
   readonly proof: ReturnType<typeof createLocalXmlProof>
   readonly rawPathPrefix?: readonly string[]
 }
@@ -76,7 +77,7 @@ export function createImportLocalRoundTrip(params: {
   const execution = createCompiledRuleExecution({
     execution: params.execution,
     prepare(item) {
-      const sources = item.sources.map(({ xml }, index): SourceBoundary => {
+      const sources = item.sources.map(({ xml, envelopeSource }, index): SourceBoundary => {
         if (!isXmlElementNode(xml)) throw new Error(`Локальный proof требует адресный XML-источник ${item.rule.itemType}`)
         const address = `${item.rule.itemType}:${item.yamlPath.join("/")}`
         const previous = opened.get(xml)
@@ -101,6 +102,7 @@ export function createImportLocalRoundTrip(params: {
         return {
           key,
           source: xml,
+          ...(envelopeSource === undefined ? {} : { envelopeSource }),
           proof: inherited?.proof ?? params.prepareRootProof?.({ key: `source-${index}`, source: xml }) ?? createLocalXmlProof(),
           ...(rawPathPrefix === undefined ? {} : { rawPathPrefix }),
         }
@@ -135,6 +137,7 @@ export function createImportLocalRoundTrip(params: {
               ? undefined
               : params.prepareRootOutput({ key, source, proof }),
             source,
+            item.sources[index]?.envelopeSource !== undefined,
           ),
         })),
       }
@@ -236,16 +239,18 @@ const TRANSPORT_ATTRIBUTE = /^(?:id|name|uuid|version|xmlns(?::.*)?)$/u
 function withSourceTransportAttributes(
   preparation: XMLItemOutputPreparation | undefined,
   source: XmlElementNode,
+  compareNamespaces = false,
 ): XMLItemOutputPreparation | undefined {
   const retained = Object.fromEntries(source.attributes
-    .filter(({ name }) => TRANSPORT_ATTRIBUTE.test(name))
+    .filter(({ name }) => TRANSPORT_ATTRIBUTE.test(name) && !(compareNamespaces && /^xmlns(?::|$)/u.test(name)))
     .map(({ name, value }) => [`_${name}`, value]))
   if (Object.keys(retained).length === 0) return preparation
   return {
     attributes: (own) => {
       const result = { ...(preparation?.attributes(own) ?? own) }
       for (const key of Object.keys(result)) {
-        if (key.startsWith("_") && TRANSPORT_ATTRIBUTE.test(key.slice(1))) delete result[key]
+        if (key.startsWith("_") && TRANSPORT_ATTRIBUTE.test(key.slice(1))
+          && !(compareNamespaces && /^_xmlns(?::|$)/u.test(key))) delete result[key]
       }
       for (const [key, value] of Object.entries(retained)) {
         result[key] = value

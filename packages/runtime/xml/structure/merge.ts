@@ -243,7 +243,7 @@ function parseRawPath(boundary: XmlRawMergeBoundary): UnresolvedRawPath {
   const last = parts.at(-1)!
   const terminal = last === "#attributes" ? "attributes" : last === "#order" ? "order" : undefined
   const segments = terminal === undefined ? parts : parts.slice(0, -1)
-  if (segments.length === 0 || segments.some((segment) => !XML_PATH_NAME.test(segment))) {
+  if ((segments.length === 0 && terminal !== "attributes") || segments.some((segment) => !XML_PATH_NAME.test(segment))) {
     throw new Error(`Недопустимый XML-путь: ${source}`)
   }
   if (terminal === undefined && last.startsWith("#")) {

@@ -789,7 +789,9 @@ function rawBoundary(params: {
         ? { ...segment, occurrence: physicalOccurrence }
         : segment)
       : rawPath
-  const path = [...params.xmlPrefix, ...effectiveRawPath]
+  const rootAttributes = publicPath?.documentSelector !== undefined
+    && publicPath.segments.length === 1 && publicPath.segments[0] === "#attributes"
+  const path = [...(rootAttributes ? [] : params.xmlPrefix), ...effectiveRawPath]
   const claimsParentItem = params.exportClaimId !== undefined && path.length === 0
   const documentRoot = publicPath?.documentRoot === true
   if (path.length === 0 && !documentRoot && !claimsParentItem) {
@@ -804,8 +806,8 @@ function rawBoundary(params: {
       || params.exportClaimId !== undefined
       || containsXmlDeletion(params.annotation.xml)
     )
-  const hasSemanticValue =
-    params.annotation.hasSemanticValue === true || augmentsCompiledOutput || documentRoot
+  const hasSemanticValue = !isTerminalPath(path) &&
+    (params.annotation.hasSemanticValue === true || augmentsCompiledOutput || documentRoot)
   const documentTag = property?.propertyRule.tag ?? params.documentTag
   const documentPath = params.documentPath ?? property?.propertyRule.filePath
   const implicitMainDocument = documentPath === undefined
@@ -1199,11 +1201,11 @@ function parsePublicRawPath(key: string): {
     const separator = key.indexOf("\\")
     const selector = separator < 0 ? key.slice(1) : key.slice(1, separator)
     if (
-      selector.length === 0 ||
+      (selector.length === 0 && key.slice(separator + 1) !== "#attributes") ||
       selector.includes("/") ||
       selector.includes("\\") ||
       selector.endsWith(".xml") ||
-      !/^[:_\p{L}][:_\-.0-9\p{L}\p{M}\p{N}\u00B7]*$/u.test(selector)
+      (selector.length !== 0 && !/^[:_\p{L}][:_\-.0-9\p{L}\p{M}\p{N}\u00B7]*$/u.test(selector))
     ) {
       throw new Error(`Недопустимое краткое имя XML-документа: ${selector}`)
     }
@@ -1225,7 +1227,7 @@ function parsePublicRawPath(key: string): {
       segment.length === 0 ||
       segment === "." ||
       segment === ".." ||
-      segment === "#attributes" ||
+      (segment === "#attributes" && index !== segments.length - 1) ||
       (segment === "#order" && index !== segments.length - 1) ||
       segment.includes("/")
     )

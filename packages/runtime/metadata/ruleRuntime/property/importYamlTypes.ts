@@ -191,6 +191,8 @@ export function createDeferredValuePathCollector(): DeferredValuePathCollector {
 export interface DirectImportXMLSource {
   context: ConfigurationContextFromXML
   xml: Record<string, unknown> | XmlElementNode
+  /** Исходный корень XMLRoot; тело item может находиться внутри него. */
+  envelopeSource?: XmlElementNode
   tags?: string[]
   claimAuditRoot?: boolean
 }

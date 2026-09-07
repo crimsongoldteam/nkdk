@@ -12,6 +12,7 @@ type LocalBodyProperty = Parameters<CompiledXMLProofConsumer["write"]>[0]["prope
 export function createLocalXmlBodyConsumer(params: {
   readonly key: string
   readonly source: XmlElementNode
+  readonly envelopeSource?: XmlElementNode
   readonly proof: LocalXmlProof
   readonly childReceipt: (value: unknown) => LocalXmlChild | undefined
   readonly scalarReceipt: (value: unknown) => import("../xmlAnomaly/localProof").LocalXmlScalar | undefined
@@ -228,6 +229,12 @@ export function createLocalXmlBodyConsumer(params: {
         wrapped?.name ?? params.source.name,
         preparedBody,
       )
+      if (params.envelopeSource !== undefined && params.envelopeSource !== params.source) {
+        // Тело уже закрыто: оболочка получает только его подтверждение.
+        writePathCreating(finalized, params.xmlEnvelope?.path ?? [], receipt)
+        const rootValue = finalized[params.envelopeSource.name]
+        complete(params.envelopeSource, params.envelopeSource.name, rootValue)
+      }
       bindings.clear()
       return new Map([[params.key, receipt]])
     },
