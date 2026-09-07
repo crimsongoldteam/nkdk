@@ -709,21 +709,27 @@ describe("importPropertiesFromXMLToYAML", () => {
     expect(audit.rawCandidates()).toHaveLength(1)
   })
 
-  it.each([
-    { wrapped: false, audited: false }, { wrapped: true, audited: false },
-    { wrapped: false, audited: true }, { wrapped: true, audited: true },
-  ])("проверяет свойство сразу после XML → YAML и закрывает порядок: %o", ({ wrapped, audited }) => {
+  it.each([false, true].flatMap(atomic => [false, true].flatMap(wrapped =>
+    [false, true].flatMap(audited => [false, true].map(empty => ({ atomic, wrapped, audited, empty }))),
+  )))("проверяет свойство сразу после XML → YAML и закрывает порядок: %o", ({ atomic, wrapped, audited, empty }) => {
     const rules = createRuleRegistrySet(metadataRules)
     const calls: string[] = []
-    rules.property.registerTypeRule("LocalRoundTripScalar" as never, "compileAtomicConversion", () => ({
-      fromXMLToYAML: ({ value: source }) => {
-        expect(isXmlElementNode(source)).toBe(true)
-        const value = xmlTextValue(source as XmlElementNode)
-        calls.push(`import:${String(value)}`)
-        return { metadataValue: value, representationValue: value }
-      },
-      fromYAMLToXML: ({ value }) => { calls.push(`export:${String(value)}`); return { metadataValue: value, representationValue: value } },
-    }))
+    const fromXML = (source: unknown) => {
+      expect(isXmlElementNode(source)).toBe(true)
+      const value = xmlTextValue(source as XmlElementNode)
+      calls.push(`import:${String(value)}`)
+      return value
+    }
+    const toXML = (value: unknown) => { calls.push(`export:${String(value)}`); return value }
+    if (atomic) {
+      rules.property.registerTypeRule("LocalRoundTripScalar" as never, "compileAtomicConversion", () => ({
+        fromXMLToYAML: ({ value: source }) => { const value = fromXML(source); return { metadataValue: value, representationValue: value } },
+        fromYAMLToXML: ({ value }) => ({ metadataValue: value, representationValue: toXML(value) }),
+      }))
+    } else {
+      rules.property.registerTypeRule("LocalRoundTripScalar" as never, "importFromXML", (_context, _rule, value) => fromXML(value))
+      rules.property.registerTypeRule("LocalRoundTripScalar" as never, "exportToXML", (_context, _rule, value) => toXML(value))
+    }
     const rule = {
       itemType: "Catalog",
       properties: {
@@ -731,7 +737,7 @@ describe("importPropertiesFromXMLToYAML", () => {
         c: { type: "LocalRoundTripScalar" as never, xml: "C", yaml: "Цета", xmlParents: wrapped ? ["Group"] : [] },
       },
     } satisfies MetadataItemRule
-    const content = "<C>c</C><A>a</A>"
+    const content = empty ? "<C/><A/>" : "<C>c</C><A>a</A>"
     const root = parseXmlDocumentWithSaxes(`<Root>${wrapped ? `<Group>${content}</Group>` : content}</Root>`).roots[0]!
     const context = mockContextFromXML()
     const audit = audited ? createXmlImportAuditSession([root]) : undefined
@@ -743,13 +749,14 @@ describe("importPropertiesFromXMLToYAML", () => {
         projectLocalXmlOrder({ yaml, annotations, root: source, differences, path: wrapped ? ["Group"] : [] })
       },
     })!
-    expect(calls).toEqual(["import:c", "export:c", "import:a", "export:a"])
+    const a = empty ? "" : "a", c = empty ? "" : "c"
+    expect(calls).toEqual([`import:${c}`, `export:${c}`, `import:${a}`, `export:${a}`])
     if (audit !== undefined) {
       expect(audit.rawCandidates()).toEqual([])
       expect(audit.outcomes().filter(({ state }) => state === "unclaimed")).toEqual([])
     }
     const orderKey = wrapped ? "Group" : "#order"
-    expect(yaml).toEqual({ [orderKey]: undefined, Альфа: "a", Цета: "c" })
+    expect(yaml).toEqual({ [orderKey]: undefined, Альфа: a, Цета: c })
     expect(Object.keys(yaml)).toEqual(["Альфа", "Цета", orderKey])
     expect(annotations.at(yaml, orderKey)).toMatchObject({
       kind: "raw",
