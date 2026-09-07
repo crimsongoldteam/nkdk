@@ -48,17 +48,29 @@ export function collectImportDependencyFacts(params: {
   const properties = new ImportCandidateValues<{ readonly facts: DependentImportFacts; readonly itemName?: string }>()
   const items = new ImportPropertyValues<DependentImportFacts>()
   const inspectedItems = new ImportPropertyValues<object>()
-  const propertyFactsBySource = new Map<string, NonNullable<typeof params.propertyFacts>[number]>()
+  const propertyFactsBySource = new Map<string, ImportPropertyValues<NonNullable<typeof params.propertyFacts>[number]>>()
   if (params.candidates.length > 0) {
-    const requestedPaths = new Set(params.candidates.map(candidate => yamlPathToPointer(candidate.yamlPath)))
-    const requestedAddresses = new Set(params.candidates.map(candidate => propertyFactSourceAddress(
-      candidate.itemType, candidate.propertyKey, candidate.yamlPath,
-    )))
+    const requestedPaths = new ImportPropertyValues<Set<string>>()
+    for (const candidate of params.candidates) {
+      let types = requestedPaths.get(candidate.yamlPath, candidate.propertyKey)
+      if (types === undefined) {
+        types = new Set()
+        requestedPaths.set(candidate.yamlPath, candidate.propertyKey, types)
+      }
+      types.add(candidate.itemType)
+    }
     for (const fact of params.propertyFacts ?? []) {
       const path = fact.sourceYamlPath ?? fact.yamlPath
-      if (!requestedPaths.has(yamlPathToPointer(path))) continue
-      const key = propertyFactSourceAddress(fact.itemType, fact.propertyKey, path)
-      if (requestedAddresses.has(key) && !propertyFactsBySource.has(key)) propertyFactsBySource.set(key, fact)
+      const types = requestedPaths.get(path, fact.propertyKey)
+      if (types === undefined) continue
+      const itemType = fact.itemType
+      if (!types.has(itemType)) continue
+      let values = propertyFactsBySource.get(itemType)
+      if (values === undefined) {
+        values = new ImportPropertyValues()
+        propertyFactsBySource.set(itemType, values)
+      }
+      if (values.get(path, fact.propertyKey) === undefined) values.set(path, fact.propertyKey, fact)
     }
   }
   const itemFacts = (itemType: string, itemYamlPath: readonly (string | number)[], itemName?: string) => {
@@ -82,11 +94,7 @@ export function collectImportDependencyFacts(params: {
   }
   const selectedItems = params.propertyFacts === undefined ? undefined : collectSelectedDependentItems(params, propertyFactsBySource)
   for (const candidate of params.candidates) {
-    const propertyFact = propertyFactsBySource.get(propertyFactSourceAddress(
-      candidate.itemType,
-      candidate.propertyKey,
-      candidate.yamlPath,
-    ))
+    const propertyFact = propertyFactsBySource.get(candidate.itemType)?.get(candidate.yamlPath, candidate.propertyKey)
     const finalName = propertyFact?.yamlPath.at(-2)
     const itemName = typeof finalName === "string" ? finalName : candidate.itemName
     const facts = itemFacts(
@@ -189,7 +197,7 @@ export function collectImportDependencyFacts(params: {
 
 function collectSelectedDependentItems(
   params: Parameters<typeof collectImportDependencyFacts>[0],
-  factsBySource: ReadonlyMap<string, Parameters<DirectImportFactsSink["acceptProperty"]>[0]>,
+  factsBySource: ReadonlyMap<string, ImportPropertyValues<Parameters<DirectImportFactsSink["acceptProperty"]>[0]>>,
 ): ImportPropertyValues<DependentImportFacts> {
   const requests = new ImportPropertyValues<{
     readonly path: readonly (string | number)[]
@@ -220,7 +228,7 @@ function collectSelectedDependentItems(
     })
   }
   for (const candidate of params.candidates) {
-    const fact = factsBySource.get(propertyFactSourceAddress(candidate.itemType, candidate.propertyKey, candidate.yamlPath))
+    const fact = factsBySource.get(candidate.itemType)?.get(candidate.yamlPath, candidate.propertyKey)
     const finalName = fact?.yamlPath.at(-2)
     add(candidate.itemType, candidate.itemYamlPath, typeof finalName === "string" ? finalName : candidate.itemName,
       fact?.yamlPath.slice(0, -1) ?? candidate.itemYamlPath)
@@ -244,14 +252,6 @@ function collectSelectedDependentItems(
     result.set(request.path, request.itemType, { item: project(request.item), root: project(request.root) })
   }
   return result
-}
-
-function propertyFactSourceAddress(
-  itemType: string,
-  propertyKey: string,
-  path: readonly (string | number)[],
-): string {
-  return `${itemType}\u0000${propertyKey}\u0000${yamlPathToPointer(path)}`
 }
 
 function collectFinalRootProperties(params: {

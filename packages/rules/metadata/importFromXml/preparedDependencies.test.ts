@@ -365,6 +365,7 @@ describe("prepared import dependencies", () => {
       propertyKey: "fillValue", yamlPath: ["СтандартныеРеквизиты", 0, "ЗначениеЗаполнения"],
       presentInXML: true, xmlValue: { "_xsi:type": "xr:DesignTimeRef", "#text": "Catalog.Владельцы.EmptyRef" },
     }
+    const map = vi.spyOn(candidate.yamlPath, "map")
     const facts = collectImportDependencyFacts({
       rule: MetadataCatalogRules, owner, candidates: [candidate],
       yaml: {
@@ -384,6 +385,9 @@ describe("prepared import dependencies", () => {
     expect(prepareImportDependencies(facts).shouldOmit(candidate, {
       ЗначениеЗаполнения: "Справочник.Владельцы.ПустаяСсылка",
     })).toBe(true)
+    const mappedPaths = map.mock.calls.length
+    map.mockRestore()
+    expect(mappedPaths).toBe(0)
   })
 
   it("индексирует только запрошенные зависимые свойства одним проходом", () => {
