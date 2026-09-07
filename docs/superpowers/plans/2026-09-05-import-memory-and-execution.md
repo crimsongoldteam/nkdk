@@ -312,6 +312,10 @@
 
 ## Журнал выполнения
 
+- Для типизированных item-адресов прошли дополнительно 1135 проверок импорта/форм/путей, 214 e2e, duplicates и обе архитектурные проверки (/private/tmp/nkdk-item-path-{integration,e2e,duplicates,architecture-rules,architecture}.log). Полный pnpm test был зелёным до этого слоя и должен быть повторён на следующем проверочном срезе.
+
+- В задаче 2 зависимые item-факты, их предварительные запросы и отметки посещения переведены на уже существующий ImportPropertyValues. Подготовка и чтение не строят itemAddress; пути выбранных свойств получают локальные ключи без кодирования содержимого пути. Исходный/окончательный адреса читают один объект. RED обнаружил сериализацию при чтении, отдельный RED — смешение числового индекса 0 и строкового ключа "0"; после изменения прошли 169 непосредственных проверок и type-check (/private/tmp/nkdk-item-path-{red,collision-red,collision-green,final-types}.log). Ключи dependent property/candidate пока остаются строковыми; полный отбор при acceptProperty не объявляется завершённым.
+
 - Проверка исправления Interface завершена: type-check, duplicates от закреплённой базы, обе архитектурные проверки, полный pnpm test и 214 e2e прошли. Логи /private/tmp/nkdk-interface-{types,duplicates,architecture-rules,architecture,full,e2e}.log. Это закрывает только найденную потерю Switchable, не задачи 2–4 и не итоговый review gate.
 
 - При переводе applied-object помощника на экспорт без reference обнаружено нарушение уже согласованного договора Interface (§ «Переключаемый» спеки ошибок): опущенный YAML не восстанавливал Switchable=true. Существующие defaultValue с ограничением operation=importFromYAML и evaluateWhenYAMLMissing исправляют это без XML-default и без нового !xml. Новый тест проверяет обычный экспорт без reference, явную Ложь и отсутствие default при чтении XML. RED: /private/tmp/nkdk-interface-implicit-red.log; 13 предметных и 962 прикладных проверки прошли (/private/tmp/nkdk-interface-implicit-green.log, /private/tmp/nkdk-interface-applied-verified.log). Фикстуры и существующие ожидания не менялись.

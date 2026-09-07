@@ -21,6 +21,23 @@ const typedItemRule: MetadataItemRule = {
 }
 
 describe("prepared import dependencies", () => {
+  it("различает числовой индекс и строковый ключ зависимого элемента", () => {
+    const facts = collectImportDependencyFacts({
+      rule: MetadataCatalogRules, owner, yaml: undefined, candidates: [],
+      propertyFacts: [
+        { itemType: "FormAttribute", itemRule: FormAttributeRules, propertyKey: "type",
+          yamlPath: ["Атрибуты", 0, "Тип"], value: "СписокЗначений" },
+        { itemType: "FormAttribute", itemRule: FormAttributeRules, propertyKey: "type",
+          yamlPath: ["Атрибуты", "0", "Тип"], value: "ТаблицаЗначений" },
+      ],
+    })
+    const dependencies = prepareImportDependencies(facts)
+    expect(dependencies.itemFacts?.(["Атрибуты", 0], "FormAttribute"))
+      .toEqual({ item: { Тип: "СписокЗначений" }, root: {} })
+    expect(dependencies.itemFacts?.(["Атрибуты", "0"], "FormAttribute"))
+      .toEqual({ item: { Тип: "ТаблицаЗначений" }, root: {} })
+  })
+
   it("читает подготовленные значения по сегментам без сериализации пути", () => {
     const rule = { itemType: "DirectPath", properties: {
       text: { type: "string", yaml: "Текст", xmlOnly: true },
@@ -274,7 +291,14 @@ describe("prepared import dependencies", () => {
       finalRootYaml: { Атрибуты: { Список: { Тип: "СписокЗначений" } } },
     })
     const dependencies = prepareImportDependencies(facts)
-    const prepared = dependencies.itemFacts?.(["Атрибуты", 0], "FormAttribute")
+    const map = vi.spyOn(Array.prototype, "map")
+    let prepared: ReturnType<NonNullable<typeof dependencies.itemFacts>>
+    let mappedPaths: number
+    try {
+      prepared = dependencies.itemFacts?.(["Атрибуты", 0], "FormAttribute")
+      mappedPaths = map.mock.calls.length
+    } finally { map.mockRestore() }
+    expect(mappedPaths).toBe(0)
     expect(prepared).toEqual({ item: { Тип: "СписокЗначений" }, root: {} })
     expect(dependencies.itemFacts?.(["Атрибуты", "Список"], "FormAttribute")).toBe(prepared)
     expect(dependencies.itemFacts?.(["Атрибуты", 0], "MetadataAttribute")).toBeUndefined()
