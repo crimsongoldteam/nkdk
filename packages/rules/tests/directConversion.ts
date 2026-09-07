@@ -351,7 +351,22 @@ export function testAppliedObjectFromYAMLToXML(
     context?: ConfigurationContextWithExportToXML
   }
 ): ToXMLResult & { result: string; expected: string } {
-  const sourceXML = readXMLFixtureAsString(params.importMetaUrl, params.fixture)
+  return testMetadataItemYamlRoundTrip({
+    ...params, sourceXML: readXMLFixtureAsString(params.importMetaUrl, params.fixture),
+    targetXmlPath: params.fixture,
+  })
+}
+
+export function testMetadataItemYamlRoundTrip(params: {
+  rule: MetadataItemRule
+  sourceXML: string
+  targetXmlPath?: string
+  yaml?: unknown
+  name?: string
+  context?: ConfigurationContextWithExportToXML
+  mutate?: (yaml: unknown) => void
+}): ToXMLResult & { result: string; expected: string; yamlText: string } {
+  const sourceXML = params.sourceXML
   const importedXML = parseStructuralXMLWithoutCompatibility(sourceXML)
   const name = params.name ?? readItemName(importedXML, params.rule)
   const contexts = createDirectRoundTripContexts()
@@ -407,12 +422,15 @@ export function testAppliedObjectFromYAMLToXML(
       roundTrip: createImportLocalRoundTrip({ execution: directPropertyRuleExecution, context, annotations, decisions: [] }),
     },
   }))
+  const yamlText = serializeYAMLDocument(importedYaml, annotations).text
   const prepared = prepareTestXmlAnomalyAssignment({
-    parsed: parseMetadataYaml(serializeYAMLDocument(importedYaml, annotations).text), rootRule: params.rule,
+    parsed: parseMetadataYaml(yamlText), rootRule: params.rule,
   })
+  const yaml = params.yaml ?? prepared.preparedYamlFile.data
+  params.mutate?.(yaml)
   const converted = testMetadataItemFromYAMLToXML({
     rule: params.rule,
-    yaml: params.yaml,
+    yaml,
     context,
     name,
     propertyValues,
@@ -420,10 +438,11 @@ export function testAppliedObjectFromYAMLToXML(
   return {
     ...converted,
     result: buildPreparedAssignmentXml({ context, document: {
-      targetXmlPath: params.fixture, xml: converted.xml, deferred: [], rootRule: params.rule,
+      targetXmlPath: params.targetXmlPath ?? "Object.xml", xml: converted.xml, deferred: [], rootRule: params.rule,
       rawBoundaries: prepared.rawBoundaries,
     } }),
     expected: sourceXML,
+    yamlText,
   }
 }
 

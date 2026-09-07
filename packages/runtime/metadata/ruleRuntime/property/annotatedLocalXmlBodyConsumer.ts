@@ -3,7 +3,6 @@ import type { XmlElementNode } from "../../../xml/import/document"
 import type { XmlStructureDifference } from "../../../xml/structure/compare"
 import {
   createLocalXmlRawAppender,
-  projectLocalXmlOrder,
   projectLocalXmlOwnValues,
 } from "../xmlAnomaly/yamlProjection"
 import { encodeXmlRawElement, encodeXmlRawProcessingInstruction } from "../../../xml/structure/rawCodec"
@@ -40,8 +39,7 @@ export function createAnnotatedLocalXmlBodyConsumer(params: Omit<
         const selector = params.rawPathPrefix?.[0]
         const projection = { yaml: rawYaml, annotations: params.annotations, root: source,
           path: [selector?.startsWith("@") === true ? selector : "@"] }
-        projectLocalXmlOwnValues({ ...projection, differences: own })
-        projectLocalXmlOrder({ ...projection, differences: order })
+        projectLocalXmlOwnValues({ ...projection, differences: [...own, ...order] })
         const projected = new Set([...own, ...order])
         differences = differences.filter(difference => !projected.has(difference))
         if (differences.length === 0) return
@@ -175,11 +173,11 @@ function projectUnownedDifferences(params: {
 
   const scalarByOwner = new Map<string, XmlStructureDifference[]>()
   for (const difference of params.differences) {
-    if (handled.has(difference) || difference.kind === "order") continue
+    if (handled.has(difference)) continue
     const owner = elements.get(difference.ownerPath)
     if (owner === undefined) throw new Error(`Неизвестная XML-граница ${difference.path}`)
     const relative = difference.path.slice(difference.ownerPath.length + 1)
-    if (!relative.startsWith("@") && !relative.startsWith("#text[")) {
+    if (difference.kind !== "order" && !relative.startsWith("@") && !relative.startsWith("#text[")) {
       throw new Error(`Неизвестное XML-расхождение ${difference.path}`)
     }
     const own = scalarByOwner.get(difference.ownerPath) ?? []
@@ -197,20 +195,6 @@ function projectUnownedDifferences(params: {
     })
   }
 
-  const orderOwners = new Set(params.differences
-    .filter(({ kind }) => kind === "order")
-    .map(({ ownerPath }) => ownerPath))
-  for (const ownerPath of orderOwners) {
-    const owner = elements.get(ownerPath)
-    if (owner === undefined) throw new Error(`Неизвестная XML-граница порядка ${ownerPath}`)
-    projectLocalXmlOrder({
-      yaml: params.yaml,
-      annotations: params.annotations,
-      root: owner.node,
-      differences: params.differences,
-      path: [...params.pathPrefix, ...owner.path],
-    })
-  }
 }
 
 function relativeElementPath(rootPath: string, path: string, retainOccurrence = false): string[] | undefined {
@@ -238,8 +222,9 @@ function projectPathOnlyPropertyDifferences(params: {
     ),
   )
   const ownSet = new Set(own)
-  projectLocalXmlOwnValues({ ...params, root: params.source, differences: own })
-  projectLocalXmlOrder({ ...params, root: params.source })
+  projectLocalXmlOwnValues({ ...params, root: params.source, differences: [
+    ...own, ...params.differences.filter(difference => difference.kind === "order" && difference.ownerPath === params.source.path),
+  ] })
 
   const appendRaw = createLocalXmlRawAppender(params)
   const children = params.source.content.filter(

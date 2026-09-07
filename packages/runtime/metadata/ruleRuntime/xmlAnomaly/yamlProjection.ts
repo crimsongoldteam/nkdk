@@ -213,7 +213,7 @@ function projectXmlRemainder(params: XmlAuditProjectionParams, recursive: boolea
   visitKnownElement(params.root, [])
 }
 
-/** Поправка только собственных значений, без поглощения готовых детей. */
+/** Одна поправка собственных значений и порядка, без поглощения готовых детей. */
 export function projectLocalXmlOwnValues(params: {
   readonly yaml: Record<string, unknown>
   readonly annotations: XmlAnomalyAnnotationTable
@@ -222,8 +222,16 @@ export function projectLocalXmlOwnValues(params: {
   readonly path?: readonly string[]
 }): void {
   if (params.differences.length === 0) return
-  const patch = createLocalXmlScalarPatch(params.root, params.differences)
-  createLocalXmlRawAppender(params)(parentRawPath(params.path ?? []), patch)
+  const path = params.path ?? []
+  const patches = new Map<string, XmlRawValue>()
+  const scalar = params.differences.filter(difference => difference.kind !== "order")
+  if (scalar.length !== 0) patches.set(parentRawPath(path), createLocalXmlScalarPatch(params.root, scalar))
+  for (const [key, value] of localXmlOrderPatches(params)) {
+    const previous = patches.get(key)
+    patches.set(key, isRecord(previous) && isRecord(value) ? { ...previous, ...value } : value)
+  }
+  const appendRaw = createLocalXmlRawAppender(params)
+  for (const [key, value] of patches) appendRaw(key, value)
 }
 
 /** Оформление уже обнаруженного порядка, без сравнения или повторного экспорта. */
@@ -234,23 +242,31 @@ export function projectLocalXmlOrder(params: {
   readonly differences: readonly XmlStructureDifference[]
   readonly path?: readonly string[]
 }): void {
+  const appendRaw = createLocalXmlRawAppender(params)
+  for (const [path, value] of localXmlOrderPatches(params)) appendRaw(path, value)
+}
+
+function* localXmlOrderPatches(params: {
+  readonly root: XmlElementNode
+  readonly differences: readonly XmlStructureDifference[]
+  readonly path?: readonly string[]
+}): Generator<readonly [string, XmlRawValue]> {
   const differences = params.differences.filter((difference) =>
     difference.kind === "order" && difference.ownerPath === params.root.path,
   )
   if (differences.length === 0) return
-  const appendRaw = createLocalXmlRawAppender(params)
   const path = params.path ?? []
   for (const difference of differences) {
     if (difference.path === `${params.root.path}/#order`) {
       if (path.length === 0) {
-        appendRaw("#order", xmlContentOrder(params.root))
+        yield ["#order", xmlContentOrder(params.root)]
       } else {
-        appendRaw(formatPath(path), { "#order": xmlContentOrder(params.root) })
+        yield [formatPath(path), { "#order": xmlContentOrder(params.root) }]
       }
     } else if (difference.path === `${params.root.path}/#attributes/#order`) {
-      appendRaw(formatPath([...path, "#attributes"]), {
+      yield [formatPath([...path, "#attributes"]), {
         "#order": params.root.attributes.map(({ name }) => `_${name}`),
-      })
+      }]
     } else {
       throw new Error(`Неизвестная граница порядка XML: ${difference.path}`)
     }

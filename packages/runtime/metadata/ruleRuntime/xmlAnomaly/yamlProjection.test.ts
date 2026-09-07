@@ -20,6 +20,7 @@ import {
   projectXmlAuditOwnRemainder,
   projectXmlAuditRemainder,
   projectLocalXmlOrder,
+  projectLocalXmlOwnValues,
   annotateXmlRawValue,
 } from "./yamlProjection"
 
@@ -36,6 +37,20 @@ const knownBoundary: XmlImportAuditBoundary = {
 }
 
 describe("YAML-проекция XML-аномалий", () => {
+  it("собирает атрибуты и порядок одного узла в одну поправку", () => {
+    const root = parseXmlDocumentWithSaxes('<Value custom="keep"><Extra/>false</Value>').roots[0]!
+    const yaml: Record<string, unknown> = {}
+    const annotations = createXmlAnomalyAnnotations()
+    projectLocalXmlOwnValues({
+      yaml, annotations, root, path: ["Value"], differences: [
+        { kind: "presence", path: root.attributes[0]!.path, ownerPath: root.path },
+        { kind: "order", path: `${root.path}/#order`, ownerPath: root.path },
+      ],
+    })
+    expect(Object.keys(yaml)).toEqual(["Value"])
+    expect(annotations.at(yaml, "Value")?.xml).toEqual({ _custom: "keep", "#order": ["Extra", "#text"] })
+    expect(annotations.keyAt(yaml, "Value")).toBeUndefined()
+  })
   it("не заменяет локальным raw независимую UUID-аннотацию", () => {
     const yaml = { Ссылка: "67a752f4-43ae-4a32-977e-457414278800" }
     const annotations = createXmlAnomalyAnnotations()

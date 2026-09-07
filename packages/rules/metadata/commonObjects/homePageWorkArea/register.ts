@@ -75,50 +75,9 @@ const roleNameRule = {
   type: "MetadataItemLink",
   metadataTarget: { kind: "object", roots: ["Role"] },
 } as const satisfies PropertyRule
-const XML_REFERENCE_RAW = "__xmlReferenceRaw"
 
 const toArray = <T>(value: T | T[] | undefined): T[] =>
   value === undefined ? [] : Array.isArray(value) ? value : [value]
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  value !== null && typeof value === "object" && !Array.isArray(value)
-
-const cloneXMLValue = (value: unknown): unknown => {
-  if (Array.isArray(value)) return value.map(cloneXMLValue)
-  if (!isRecord(value)) return value
-  return Object.fromEntries(Object.entries(value).map(([key, entry]) => [key, cloneXMLValue(entry)]))
-}
-
-const copyUnknownXMLKeys = (source: unknown, knownKeys: string[]): Record<string, unknown> => {
-  if (!isRecord(source)) return {}
-  const known = new Set(knownKeys)
-  return Object.fromEntries(
-    Object.entries(source)
-      .filter(([key]) => key !== "#text" && !known.has(key))
-      .map(([key, value]) => [key, cloneXMLValue(value)])
-  )
-}
-
-const defineReferenceRawXML = (params: {
-  context: ConfigurationContextFromXML
-  target: object
-  xml: unknown
-}): void => {
-  if (!params.context.fromXML.forReference || params.xml === undefined || isXmlElementNode(params.xml)) return
-  Object.defineProperty(params.target, XML_REFERENCE_RAW, {
-    value: params.xml,
-    enumerable: false,
-  })
-}
-
-const getReferenceRawXML = (referenceMetadata: unknown): Record<string, unknown> | undefined => {
-  if (!isRecord(referenceMetadata)) return undefined
-  const raw = referenceMetadata[XML_REFERENCE_RAW]
-  return isRecord(raw) ? raw : undefined
-}
-
-const getXMLName = (value: { _name?: string; name?: string } | undefined): string | undefined =>
-  value?._name ?? value?.name
 
 const mapToYAML = <Map extends Record<string, string>>(map: Map, value: string | undefined): string | undefined =>
   value === undefined ? undefined : value in map ? map[value] : value
@@ -158,33 +117,17 @@ const exportCommandInterfaceDisplayToYAML = (
   value: string | undefined
 ): string | undefined => mapToYAML(maCommandInterfaceDisplaysToYAML, value)
 
-const importVisibilityFromXML = (
-  context: ConfigurationContextFromXML,
-  xml: HomePageWorkAreaVisibilityXML | XmlElementNode | undefined
-): HomePageWorkAreaVisibility | undefined => {
-  const result = readRoleVisibilityXML(xml)
-  if (result !== undefined) defineReferenceRawXML({ context, target: result, xml })
-  return result
-}
-
 const exportVisibilityToXML = (params: {
-  context: ConfigurationContext
   value: HomePageWorkAreaVisibility | undefined
-  referenceMetadata: unknown
 }): HomePageWorkAreaVisibilityXML | undefined => {
-  const { value, referenceMetadata } = params
+  const { value } = params
   if (value === undefined) return undefined
 
-  const reference =
-    getReferenceRawXML(referenceMetadata) ?? (isRecord(referenceMetadata) ? referenceMetadata : undefined)
-  const result = copyUnknownXMLKeys(reference, ["xr:Common", "xr:Value"]) as HomePageWorkAreaVisibilityXML
+  const result: HomePageWorkAreaVisibilityXML = {}
   if (value.common !== undefined) result["xr:Common"] = value.common
   if (value.roles !== undefined) {
-    const referenceRoles = toArray(reference?.["xr:Value"]).filter(isRecord)
     const roles = Object.entries(value.roles).map(([roleName, roleVisibility]) => {
-      const referenceRole = referenceRoles.find((role) => getXMLName(role) === roleName)
       return {
-        ...copyUnknownXMLKeys(referenceRole, ["_name", "name"]),
         _name: roleName,
         "#text": roleVisibility,
       }
@@ -240,21 +183,8 @@ const exportVisibilityToYAML = (
   return Object.keys(result).length > 0 ? result : undefined
 }
 
-const findReferenceItemByForm = (
-  referenceMetadata: unknown,
-  form: string | undefined
-): Record<string, unknown> | undefined => {
-  if (form === undefined) return undefined
-  const raw = getReferenceRawXML(referenceMetadata) ?? referenceMetadata
-  if (Array.isArray(raw)) {
-    return raw.map(getReferenceRawXML).find((item) => item?.Form === form)
-  }
-  const referenceItems = isRecord(raw) ? toArray(raw.Item).filter(isRecord) : []
-  return referenceItems.find((item) => item.Form === form)
-}
-
 const importColumnItemsFromXML = (
-  context: ConfigurationContextFromXML,
+  _context: ConfigurationContextFromXML,
   _rule: PropertyRule,
   xml: HomePageWorkAreaColumnXML | XmlElementNode | undefined
 ): HomePageWorkAreaColumnItems | undefined => {
@@ -267,15 +197,13 @@ const importColumnItemsFromXML = (
       const height = isXmlElementNode(item) ? childText(item, "Height") : item.Height
       if (form !== undefined) columnItem.form = form
       if (height !== undefined) columnItem.height = Number(height)
-      const visibility = importVisibilityFromXML(context,
+      const visibility = readRoleVisibilityXML(
         isXmlElementNode(item) ? xmlElementChildren(item, "Visibility")[0] : item.Visibility)
       if (visibility !== undefined) columnItem.visibility = visibility
-      defineReferenceRawXML({ context, target: columnItem, xml: item })
       return Object.keys(columnItem).length > 0 ? columnItem : undefined
     })
     .filter((item): item is HomePageWorkAreaColumnItem => item !== undefined)
 
-  defineReferenceRawXML({ context, target: result, xml })
   return result
 }
 
@@ -284,19 +212,15 @@ function childText(node: XmlElementNode, name: string): string | undefined {
   return child === undefined ? undefined : xmlTextValue(child)
 }
 
-const exportColumnItemsToXML: ExportToXMLFunctionNew = ({ context, value, referenceMetadata }) => {
+const exportColumnItemsToXML: ExportToXMLFunctionNew = ({ value }) => {
   if (value === undefined) return undefined
 
   const items = (value as HomePageWorkAreaColumnItems).map((item) => {
-    const referenceItem = findReferenceItemByForm(referenceMetadata, item.form)
-    const itemXML = copyUnknownXMLKeys(referenceItem, ["Form", "Height", "Visibility"]) as HomePageWorkAreaColumnItemXML
+    const itemXML: HomePageWorkAreaColumnItemXML = {}
     if (item.form !== undefined) itemXML.Form = item.form
     if (item.height !== undefined) itemXML.Height = item.height
-    const visibilityReference = item.visibility === undefined ? undefined : referenceItem?.Visibility
     const visibilityXML = exportVisibilityToXML({
-      context,
       value: item.visibility,
-      referenceMetadata: visibilityReference,
     })
     if (visibilityXML !== undefined) itemXML.Visibility = visibilityXML
     return itemXML
