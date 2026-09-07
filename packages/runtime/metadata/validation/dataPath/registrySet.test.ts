@@ -7,6 +7,32 @@ import {
   type DataPathContribution,
 } from "./registry"
 import type { DataPathTableInfo } from "./types"
+import type { StandardMemberDeclaration, StandardMemberNames } from "../../standardMembers/declarations"
+
+it("собирает пары имён один раз до следующей регистрации без изменения старого результата", () => {
+  let reads = 0
+  const names = { get internal() { reads++; return "Shared" }, yaml: "Общий" }
+  const member = (names: StandardMemberNames): StandardMemberDeclaration => ({
+    memberKind: "standardAttribute", family: "primitive", kind: "string",
+    names, phase: "index-time", sourceScope: "self",
+  })
+  const registry = createDataPathRegistrySet([
+    { kind: "formattingNamePairs", pairs: [{ internal: "Shared", yaml: "Общий" }] },
+    { kind: "standardMembers", ownerKind: "Owner", members: [member(names)] },
+  ])
+  const original = registry.getStandardMemberNamePairs()
+  const readsAfterPreparation = reads
+  for (let index = 0; index < 10; index++) registry.getStandardMemberNamePairs()
+  expect(reads).toBe(readsAfterPreparation)
+  expect(original).toEqual([{ internal: "Shared", yaml: "Общий" }])
+
+  registry.registerStandardMembers("Owner", [member({ internal: "Added", yaml: "Добавленный" })])
+  expect(registry.getStandardMemberNamePairs()).toEqual([
+    { internal: "Shared", yaml: "Общий" }, { internal: "Added", yaml: "Добавленный" },
+  ])
+  expect(original).toEqual([{ internal: "Shared", yaml: "Общий" }])
+  expect(createDataPathRegistrySet([]).getStandardMemberNamePairs()).toEqual([])
+})
 
 it("isolates every data path contribution between rule sets", () => {
   const owner = { ref: { kind: "Sample", name: "Item" } } as OwnerMetadata

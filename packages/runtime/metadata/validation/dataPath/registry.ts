@@ -4,7 +4,7 @@ import type { DataPathTableInfo, DataPathTypeInfo, FormDataPathColumnSource, Own
 import {
   commonStandardMemberFillValuePolicy,
 } from "../../standardMembers/declarations"
-import type { StandardMemberDeclaration } from "../../standardMembers/declarations"
+import type { StandardMemberDeclaration, StandardMemberNames } from "../../standardMembers/declarations"
 import type {
   DataPathTraceMember,
   DataPathViewDeclaration,
@@ -209,6 +209,7 @@ export function createDataPathRegistrySet(contributions: readonly DataPathContri
   }
   const standardMembers = new Map<string, StandardMemberDeclaration[]>()
   const formattingNamePairs: import("../../standardMembers/declarations").StandardMemberNames[] = []
+  let standardMemberNamePairs: readonly StandardMemberNames[] | undefined
   const elementProperties = new Map<string, readonly string[]>()
   const typedTypes = new Map<string, TypedDataPathTypeDeclaration>()
   const typedTypeAliases = new Map<string, string>()
@@ -222,6 +223,7 @@ export function createDataPathRegistrySet(contributions: readonly DataPathContri
       return fillValue === undefined ? member : { ...member, fillValue }
     })
     standardMembers.set(ownerKind, [...(standardMembers.get(ownerKind) ?? []), ...normalized])
+    standardMemberNamePairs = undefined
   }
   const ownerKindLookup: DataPathOwnerKindLookup = {
     get: (kind) => ownerKinds.get(kind),
@@ -342,7 +344,8 @@ export function createDataPathRegistrySet(contributions: readonly DataPathContri
     standardMemberYamlToInternalForOwnerKind: (ownerKind, yamlName) =>
       standardMembers.get(ownerKind)?.find(({ names }) => names.yaml === yamlName)?.names.internal,
     getStandardMemberNamePairs: () => {
-      const pairs = new Map<string, import("../../standardMembers/declarations").StandardMemberNames>()
+      if (standardMemberNamePairs !== undefined) return standardMemberNamePairs
+      const pairs = new Map<string, StandardMemberNames>()
       for (const names of formattingNamePairs) pairs.set(`${names.internal}\u0000${names.yaml}`, names)
       for (const members of standardMembers.values()) {
         for (const member of members) {
@@ -354,7 +357,7 @@ export function createDataPathRegistrySet(contributions: readonly DataPathContri
           }
         }
       }
-      return [...pairs.values()]
+      return standardMemberNamePairs = Object.freeze([...pairs.values()])
     },
     resolveTypedMember: ({ type, segment }) => {
       const canonicalType = typedTypeAliases.get(type)
