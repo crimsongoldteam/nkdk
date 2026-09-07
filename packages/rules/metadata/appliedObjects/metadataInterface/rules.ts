@@ -17,7 +17,11 @@ export const MetadataInterfaceRules = {
     xmlRoot: xmlRootRule({ container: "Interface", rootAttributes: V8_MDCLASSES_ROOT, xmlOnly: true, toYAML: false, fromYAML: false }),
     ...metadataIdentityProperties,
     interface: templateRule({ nkdkPath: "Interface.bin", xmlPath: "Ext/Interface.bin", toXML: false, fromXML: false }),
-    switchable: booleanRule({ xml: "Switchable", yaml: "Переключаемый", xmlParents: properties, implicitValueYAML: true }),
+    switchable: booleanRule({
+      xml: "Switchable", yaml: "Переключаемый", xmlParents: properties, implicitValueYAML: true,
+      evaluateWhenYAMLMissing: true,
+      defaultValue: ({ operation }: { operation: string }) => operation === "importFromYAML" ? true : undefined,
+    }),
     ...metadataObjectBelongingProperties,
   },
 } as const satisfies MetadataItemRule

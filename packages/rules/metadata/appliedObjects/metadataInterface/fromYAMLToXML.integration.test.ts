@@ -4,6 +4,15 @@ import { MetadataConfigurationRules } from "../configuration/rules"
 import { MetadataInterfaceRules } from "./rules"
 
 describe("Interface YAML", () => {
+  it("восстанавливает опущенный переключаемый только из YAML, без reference", () => {
+    const rule = { itemType: "InterfaceSwitchableProbe", properties: {
+      switchable: MetadataInterfaceRules.properties.switchable,
+    } }
+    expect(testPropertyFromYAMLToXML({ rule, yaml: {} }).xml).toEqual({ Properties: { Switchable: true } })
+    expect(testPropertyFromYAMLToXML({ rule, yaml: { Переключаемый: "Ложь" } }).xml)
+      .toEqual({ Properties: { Switchable: false } })
+    expect(testPropertyFromXMLToYAML({ rule, xml: { Properties: {} } }).yaml).toEqual({})
+  })
   it("восстанавливает принадлежность заимствованного интерфейса вне YAML", () => {
     const logicalAddress = "Интерфейс.Полный"
     const result = testMetadataItemFromYAMLToXML({ rule: MetadataInterfaceRules, yaml: {}, name: "Полный", context: createDirectAdoptedExportContext(logicalAddress) })
