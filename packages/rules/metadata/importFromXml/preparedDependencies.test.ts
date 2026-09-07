@@ -320,8 +320,13 @@ describe("prepared import dependencies", () => {
       rule: MetadataCatalogRules, owner, candidates: [candidate],
       yaml: { ДлинаКода: 3, ДлинаНаименования: 20, Реквизиты: { НеНужен: { Тип: "Строка" } } },
     })
-    expect(prepareImportDependencies(facts).shouldOmit(candidate, { ВводПоСтроке: value })).toBe(omitted)
-    expect([...facts.properties.values()]).toEqual([
+    const dependencies = prepareImportDependencies(facts)
+    const map = vi.spyOn(candidate.itemYamlPath, "map")
+    try {
+      expect(dependencies.shouldOmit(candidate, { ВводПоСтроке: value })).toBe(omitted)
+      expect(map).not.toHaveBeenCalled()
+    } finally { map.mockRestore() }
+    expect([...facts.properties.values()].map(entry => entry.facts)).toEqual([
       { item: {}, root: { ДлинаКода: 3, ДлинаНаименования: 20 } },
     ])
   })
@@ -344,10 +349,14 @@ describe("prepared import dependencies", () => {
       }],
       proofPropertyFacts: [],
     })
-    expect([...facts.properties.values()]).toEqual([{ item: { Тип: "Строка(10)" }, root: {} }])
+    expect([...facts.properties.values()].map(entry => entry.facts)).toEqual([{ item: { Тип: "Строка(10)" }, root: {} }])
     const dependencies = prepareImportDependencies(facts)
-    expect(dependencies.shouldOmit(candidate, { ЗначениеЗаполнения: "" })).toBe(true)
-    expect(dependencies.shouldOmit(candidate, { ЗначениеЗаполнения: "новое" })).toBe(false)
+    const map = vi.spyOn(candidate.itemYamlPath, "map")
+    try {
+      expect(dependencies.shouldOmit(candidate, { ЗначениеЗаполнения: "" })).toBe(true)
+      expect(dependencies.shouldOmit(candidate, { ЗначениеЗаполнения: "новое" })).toBe(false)
+      expect(map).not.toHaveBeenCalled()
+    } finally { map.mockRestore() }
   })
 
   it("использует окончательное имя элемента коллекции для зависимого свойства", () => {

@@ -1,6 +1,7 @@
 import { copyYAMLRuntimeMetadata, yamlPathToPointer, yamlScalarTagAt, type YAMLScalarTag } from "@nkdk/runtime"
 import { recordAtPath } from "./dependentItems"
 import { ImportPropertyValues } from "./propertyValues"
+import { ImportCandidateValues } from "./candidateValues"
 import { compactImportPropertyValue, createSelectedPropertyValue, importPropertyValueKind } from "./selectedPropertyValue"
 import { selectImportCompactPropertyPaths, selectImportPropertyPaths } from "./selectedPropertyFacts"
 import {
@@ -20,8 +21,7 @@ import {
 export interface ImportDependencyFacts {
   readonly rule: MetadataItemRule
   readonly owner: DependentItemParams["owner"]
-  readonly properties: ReadonlyMap<string, DependentImportFacts>
-  readonly propertyItemNames: ReadonlyMap<string, string>
+  readonly properties: ImportCandidateValues<{ readonly facts: DependentImportFacts; readonly itemName?: string }>
   readonly items: ImportPropertyValues<DependentImportFacts>
   readonly siblingProperties: ImportPropertyValues<{ readonly value: unknown }>
   readonly proofProperties: ImportPropertyValues<{ readonly value: unknown }>
@@ -45,8 +45,7 @@ export function collectImportDependencyFacts(params: {
   readonly finalPropertyFacts?: readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][]
   readonly execution?: CompiledPropertyRuleExecution
 }): ImportDependencyFacts {
-  const properties = new Map<string, DependentImportFacts>()
-  const propertyItemNames = new Map<string, string>()
+  const properties = new ImportCandidateValues<{ readonly facts: DependentImportFacts; readonly itemName?: string }>()
   const items = new ImportPropertyValues<DependentImportFacts>()
   const inspectedItems = new ImportPropertyValues<object>()
   const propertyFactsBySource = new Map<string, NonNullable<typeof params.propertyFacts>[number]>()
@@ -96,9 +95,7 @@ export function collectImportDependencyFacts(params: {
       itemName,
     )
     if (facts !== undefined) {
-      const address = propertyAddress(candidate)
-      properties.set(address, facts)
-      if (itemName !== undefined) propertyItemNames.set(address, itemName)
+      properties.set(candidate, { facts, ...(itemName === undefined ? {} : { itemName }) })
     }
   }
   const siblingProperties = new ImportPropertyValues<{ readonly value: unknown }>()
@@ -183,7 +180,6 @@ export function collectImportDependencyFacts(params: {
     rule: params.rule,
     owner: params.owner,
     properties,
-    propertyItemNames,
     items,
     siblingProperties,
     proofProperties,
@@ -444,18 +440,16 @@ export function prepareImportDependencies(
       return result
     },
     shouldOmit(candidate, values) {
-      const address = propertyAddress(candidate)
-      const dependency = facts.properties.get(address)
-      if (dependency === undefined) return false
+      const prepared = facts.properties.get(candidate)
+      if (prepared === undefined) return false
+      const dependency = prepared.facts
+      const itemName = prepared.itemName ?? candidate.itemName
       const item = { ...dependency.item, ...values }
       copyYAMLRuntimeMetadata(values, item)
       const request = {
         ...lookups,
-        ...(facts.propertyItemNames.get(address) === undefined
-          ? {}
-          : { itemName: facts.propertyItemNames.get(address) }),
+        ...(itemName === undefined ? {} : { itemName }),
         itemType: candidate.itemType,
-        ...(facts.propertyItemNames.has(address) ? {} : candidate.itemName === undefined ? {} : { itemName: candidate.itemName }),
         itemYamlPath: candidate.itemYamlPath,
         item,
         rootYaml: dependency.root,
@@ -473,10 +467,6 @@ export function prepareImportDependencies(
 
 const missingPropertyValue = Object.freeze({ value: undefined })
 const inspectedMarker = Object.freeze({})
-
-function propertyAddress(candidate: ImportedDependentPropertyCandidate): string {
-  return candidate.logicalAddress ?? `${yamlPathToPointer(candidate.itemYamlPath)}:${candidate.propertyKey}`
-}
 
 function samePath(left: readonly (string | number)[], right: readonly (string | number)[]): boolean {
   return left.length === right.length && left.every((value, index) => value === right[index])
