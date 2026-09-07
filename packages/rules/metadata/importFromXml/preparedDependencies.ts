@@ -1,5 +1,6 @@
 import { copyYAMLRuntimeMetadata, yamlPathToPointer, yamlScalarTagAt, type YAMLScalarTag } from "@nkdk/runtime"
 import { recordAtPath } from "./dependentItems"
+import { ImportPropertyValues } from "./propertyValues"
 import { compactImportPropertyValue, createSelectedPropertyValue, importPropertyValueKind } from "./selectedPropertyValue"
 import { selectImportCompactPropertyPaths, selectImportPropertyPaths } from "./selectedPropertyFacts"
 import {
@@ -22,9 +23,9 @@ export interface ImportDependencyFacts {
   readonly properties: ReadonlyMap<string, DependentImportFacts>
   readonly propertyItemNames: ReadonlyMap<string, string>
   readonly items: ReadonlyMap<string, DependentImportFacts>
-  readonly siblingProperties: ReadonlyMap<string, { readonly value: unknown }>
-  readonly proofProperties: ReadonlyMap<string, { readonly value: unknown }>
-  readonly finalProperties: ReadonlyMap<string, {
+  readonly siblingProperties: ImportPropertyValues<{ readonly value: unknown }>
+  readonly proofProperties: ImportPropertyValues<{ readonly value: unknown }>
+  readonly finalProperties: ImportPropertyValues<{
     readonly present: boolean
     readonly value: unknown
     readonly scalarTag?: YAMLScalarTag
@@ -101,9 +102,12 @@ export function collectImportDependencyFacts(params: {
       if (itemName !== undefined) propertyItemNames.set(address, itemName)
     }
   }
-  const siblingProperties = new Map<string, { readonly value: unknown }>()
-  const siblingValues = new Map<string, ReturnType<typeof createSelectedPropertyValue>>()
-  const siblingAliases = new Map<string, string>()
+  const siblingProperties = new ImportPropertyValues<{ readonly value: unknown }>()
+  const siblingValues = new ImportPropertyValues<{
+    selected: ReturnType<typeof createSelectedPropertyValue>
+    key: string
+    paths: (readonly (string | number)[])[]
+  }>()
   const proofPropertyFacts = params.proofPropertyFacts ?? params.propertyFacts ?? []
   const proofProperties = collectProofProperties(proofPropertyFacts)
   const finalProperties = collectFinalRootProperties({
@@ -155,7 +159,11 @@ export function collectImportDependencyFacts(params: {
     const factValue = fact.value
     if (factValue === undefined && fact.scalarTag === undefined
       && (fact.presentInXML !== true || relativePath.length === 0)) continue
-    const address = siblingAddress(itemPath, key)
+    let entry = siblingValues.get(itemPath, key)
+    if (entry === undefined) {
+      entry = { selected: createSelectedPropertyValue(), key, paths: [itemPath] }
+      siblingValues.set(itemPath, key, entry)
+    }
     if (fact.sourceYamlPath !== undefined) {
       const sourceRootIndex = typeof propertyRule?.yaml === "string"
         ? fact.sourceYamlPath.lastIndexOf(propertyRule.yaml)
@@ -163,22 +171,14 @@ export function collectImportDependencyFacts(params: {
       const sourceItemPath = sourceRootIndex < 0
         ? fact.sourceYamlPath.slice(0, -1)
         : fact.sourceYamlPath.slice(0, sourceRootIndex)
-      const sourceAddress = siblingAddress(sourceItemPath, key)
-      if (sourceAddress !== address) siblingAliases.set(sourceAddress, address)
+      if (!entry.paths.some(path => samePath(path, sourceItemPath))) entry.paths.push(sourceItemPath)
     }
-    let selected = siblingValues.get(address)
-    if (selected === undefined) {
-      selected = createSelectedPropertyValue()
-      siblingValues.set(address, selected)
-    }
-    selected.accept(relativePath, factValue, fact.scalarTag)
+    entry.selected.accept(relativePath, factValue, fact.scalarTag)
   }
-  for (const [address, selected] of siblingValues) {
-    const value = selected.finish()
-    siblingProperties.set(address, { value: typeof value === "string" || Array.isArray(value) ? value : undefined })
-  }
-  for (const [alias, address] of siblingAliases) {
-    siblingProperties.set(alias, siblingProperties.get(address)!)
+  for (const entry of siblingValues.values()) {
+    const value = entry.selected.finish()
+    const decision = { value: typeof value === "string" || Array.isArray(value) ? value : undefined }
+    for (const path of entry.paths) siblingProperties.set(path, entry.key, decision)
   }
   return {
     rule: params.rule,
@@ -257,7 +257,7 @@ function collectFinalRootProperties(params: {
   readonly finalPropertyFacts?: readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][]
   readonly propertyFacts: readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][]
 }): ImportDependencyFacts["finalProperties"] {
-  const result = new Map<string, {
+  const result = new ImportPropertyValues<{
     readonly present: boolean
     readonly value: unknown
     readonly scalarTag?: YAMLScalarTag
@@ -299,10 +299,10 @@ function collectFinalRootProperties(params: {
     const present = read([...finalItemPath, propertyRule.yaml]) !== undefined
     if (present) continue
     const decision = { present: false, value: undefined }
-    result.set(siblingAddress(finalItemPath, fact.propertyKey), decision)
+    result.set(finalItemPath, fact.propertyKey, decision)
     const sourceItemPath = (fact.sourceYamlPath ?? fact.yamlPath).slice(0, -1)
     if (!samePath(sourceItemPath, finalItemPath)) {
-      result.set(siblingAddress(sourceItemPath, fact.propertyKey), decision)
+      result.set(sourceItemPath, fact.propertyKey, decision)
     }
   }
   const factByProperty = new Map(params.propertyFacts
@@ -316,7 +316,7 @@ function collectFinalRootProperties(params: {
     if (!present) {
       const fact = factByProperty.get(propertyKey)
       if (fact === undefined || fact.presentInXML === false) {
-        result.set(siblingAddress([], propertyKey), { present: false, value: undefined })
+        result.set([], propertyKey, { present: false, value: undefined })
       }
       continue
     }
@@ -336,7 +336,7 @@ function collectFinalRootProperties(params: {
     ) continue
     const value = compactImportPropertyValue(finalValue)
     if (value === undefined && scalarTag === undefined) continue
-    result.set(siblingAddress([], propertyKey), {
+    result.set([], propertyKey, {
       present: true,
       value,
       ...(scalarTag === undefined ? {} : { scalarTag }),
@@ -347,7 +347,7 @@ function collectFinalRootProperties(params: {
 
 function collectProofProperties(
   facts: readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][],
-): ReadonlyMap<string, { readonly value: unknown }> {
+): ImportPropertyValues<{ readonly value: unknown }> {
   return collectCompactPropertyValues(facts.filter((fact) => {
     const key = fact.propertyKey.startsWith("$container:") ? fact.propertyKey.slice("$container:".length) : fact.propertyKey
     const rule = fact.itemRule?.properties[key]
@@ -357,12 +357,13 @@ function collectProofProperties(
 
 function collectCompactPropertyValues(
   facts: readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][],
-): ReadonlyMap<string, { readonly value: unknown }> {
-  const result = new Map<string, { readonly value: unknown }>()
+): ImportPropertyValues<{ readonly value: unknown }> {
+  const result = new ImportPropertyValues<{ readonly value: unknown }>()
   interface SelectedProofProperty {
     readonly path: readonly (string | number)[]
     readonly value: ReturnType<typeof createSelectedPropertyValue>
-    readonly aliases: Set<string>
+    readonly key: string
+    readonly aliases: (readonly (string | number)[])[]
     readable: boolean
   }
   interface SelectionPath {
@@ -396,15 +397,16 @@ function collectCompactPropertyValues(
         if (entry !== undefined) break
       }
       if (entry === undefined) {
-        entry = { path, value: createSelectedPropertyValue(), aliases: new Set(), readable: false }
+        entry = { path, key, value: createSelectedPropertyValue(), aliases: [], readable: false }
         node.property = entry
         selected.push(entry)
       }
       path = entry.path
       if (!container) entry.readable = true
       const sourcePath = fact.sourceYamlPath ?? fact.yamlPath
-      entry.aliases.add(siblingAddress(path.slice(0, -1), key))
-      entry.aliases.add(siblingAddress(sourcePath.slice(0, path.length - 1), key))
+      for (const alias of [path.slice(0, -1), sourcePath.slice(0, path.length - 1)]) {
+        if (!entry.aliases.some(existing => samePath(existing, alias))) entry.aliases.push(alias)
+      }
       const value = Object.hasOwn(fact, "reconstructionValue") ? fact.reconstructionValue : fact.value
       if (value === undefined && fact.scalarTag === undefined
         && !(fact.presentInXML === true && explicitContainers.has(yamlPathToPointer(fact.yamlPath.slice(0, -1))))) continue
@@ -415,7 +417,7 @@ function collectCompactPropertyValues(
     const value = entry.value.finish()
     if (!entry.readable || value === undefined) continue
     const decision = { value }
-    for (const alias of entry.aliases) result.set(alias, decision)
+    for (const alias of entry.aliases) result.set(alias, entry.key, decision)
   }
   return result
 }
@@ -428,11 +430,10 @@ export function prepareImportDependencies(
   return {
     itemFacts: (path, itemType) => facts.items.get(itemAddress(path, itemType)),
     propertyValue: (path, key) => {
-      const address = siblingAddress(path, key)
-      const result = facts.finalProperties.get(address)
-        ?? facts.siblingProperties.get(address)
-        ?? facts.proofProperties.get(address)
-        ?? { value: undefined }
+      const result = facts.finalProperties.get(path, key)
+        ?? facts.siblingProperties.get(path, key)
+        ?? facts.proofProperties.get(path, key)
+        ?? missingPropertyValue
       return result
     },
     shouldOmit(candidate, values) {
@@ -463,9 +464,7 @@ export function prepareImportDependencies(
   }
 }
 
-function siblingAddress(path: readonly (string | number)[], key: string): string {
-  return `${yamlPathToPointer(path)}:${key}`
-}
+const missingPropertyValue = Object.freeze({ value: undefined })
 
 function itemAddress(path: readonly (string | number)[], itemType: string): string {
   const address = yamlPathToPointer([itemType, ...path])

@@ -21,6 +21,29 @@ const typedItemRule: MetadataItemRule = {
 }
 
 describe("prepared import dependencies", () => {
+  it("читает подготовленные значения по сегментам без сериализации пути", () => {
+    const rule = { itemType: "DirectPath", properties: {
+      text: { type: "string", yaml: "Текст", xmlOnly: true },
+    } } as const satisfies MetadataItemRule
+    const facts = collectImportDependencyFacts({
+      rule, owner, yaml: undefined, candidates: [],
+      proofPropertyFacts: [{ itemType: rule.itemType, itemRule: rule, propertyKey: "text",
+        yamlPath: ["Объекты/~", "Первый:1", "Текст"], sourceYamlPath: ["Объекты/~", 0, "Текст"],
+        value: "сохранено" }],
+    })
+    const dependencies = prepareImportDependencies(facts)
+    const path = ["Объекты/~", "Первый:1"]
+    const map = vi.spyOn(path, "map")
+    try {
+      const value = dependencies.propertyValue?.(path, "text")
+      expect(value).toEqual({ value: "сохранено" })
+      expect(dependencies.propertyValue?.(["Объекты/~", 0], "text")).toBe(value)
+      expect(dependencies.propertyValue?.(["Объекты", "Первый:1"], "text")).toEqual({ value: undefined })
+      for (let index = 0; index < 10; index++) expect(dependencies.propertyValue?.(path, "text")).toBe(value)
+      expect(map).not.toHaveBeenCalled()
+    } finally { map.mockRestore() }
+  })
+
   it.each(["скаляр", [], null])("не создаёт решение для поля внутри не-объекта: %o", (value) => {
     const facts = collectNestedTextAbsenceFacts([{ itemType: "Root", propertyKey: "item", yamlPath: ["Элемент"], value }])
     expect(facts.finalProperties.size).toBe(0)
