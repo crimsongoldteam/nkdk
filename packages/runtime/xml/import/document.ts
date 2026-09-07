@@ -68,6 +68,11 @@ export function isEmptyXmlElement(node: XmlElementNode): boolean {
     && node.content.every(child => child.type === "text" && child.value === "")
 }
 
+/** Пустой элемент или текст без атрибутов, дочерних элементов и PI. */
+export function isPlainXmlTextElement(node: XmlElementNode): boolean {
+  return node.attributes.length === 0 && node.content.every(child => child.type === "text")
+}
+
 /** Только непосредственный текст; наличие элемента проверяется отдельно. */
 export function xmlTextValue(node: XmlElementNode): string {
   let text = ""

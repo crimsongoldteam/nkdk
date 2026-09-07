@@ -1,5 +1,5 @@
 import { capitalize } from "../../../helpers/capitalize"
-import { isXmlElementNode, xmlTextValue, xmlElementChildren as elementChildren, type XmlAttributeNode, type XmlElementNode, type XmlTextNode } from "../../../xml/import/document"
+import { isXmlElementNode, isPlainXmlTextElement, xmlTextValue, xmlElementChildren as elementChildren, type XmlAttributeNode, type XmlElementNode, type XmlTextNode } from "../../../xml/import/document"
 
 import { shouldProcessProperty } from "./helpers"
 import { XMLImportViews } from "./xmlImportViews"
@@ -196,7 +196,7 @@ export const visitXMLImportPlan = (params: {
   auditItemBoundary?: XmlImportAuditBoundary
   auditBoundary?(entry: XMLImportPlanEntry): XmlImportAuditBoundary
   isRepeatable?(entry: XMLImportPlanEntry): boolean
-  useStructuralXMLValue?(entry: XMLImportPlanEntry): boolean
+  useStructuralXMLValue?(entry: XMLImportPlanEntry, node: XmlElementNode): boolean
   claimRoot?: boolean
   visit(match: XMLImportMatch): void
 }): void => {
@@ -234,7 +234,7 @@ function visitStructuralXMLImportPlan(params: {
   readonly auditItemBoundary?: XmlImportAuditBoundary
   readonly auditBoundary?: (entry: XMLImportPlanEntry) => XmlImportAuditBoundary
   readonly isRepeatable?: (entry: XMLImportPlanEntry) => boolean
-  readonly useStructuralXMLValue?: (entry: XMLImportPlanEntry) => boolean
+  readonly useStructuralXMLValue?: (entry: XMLImportPlanEntry, node: XmlElementNode) => boolean
   readonly claimRoot?: boolean
   readonly visit: (match: XMLImportMatch) => void
 }): void {
@@ -296,7 +296,15 @@ function visitStructuralXMLImportPlan(params: {
       isXmlElementNode(xmlNode) ? [xmlNode] : [],
     )
     const structuralValue = selectedElements.length === selectedCandidates.length
-      && params.useStructuralXMLValue?.(candidate.entry) === true
+      && selectedElements.every(node => params.useStructuralXMLValue?.(candidate.entry, node) === true)
+    if (structuralValue && params.audit !== undefined) {
+      const boundary = boundaryForEntry(candidate.entry)
+      for (const node of selectedElements) {
+        if (!isPlainXmlTextElement(node)) continue
+        params.audit.claim(node, boundary)
+        for (const child of node.content) params.audit.claim(child, boundary)
+      }
+    }
     if (params.audit !== undefined && "type" in candidate.xmlNode && candidate.xmlNode.type === "text") {
       const boundary = boundaryForEntry(candidate.entry)
       for (const child of candidate.xmlOwnerNode.content) {

@@ -71,6 +71,7 @@ function importWithLocalXMLBody(params: {
   readonly root: XmlElementNode
   readonly annotations: XmlAnomalyAnnotationTable
   readonly proof: LocalXmlProof
+  readonly audit?: ReturnType<typeof createXmlImportAuditSession>
   readonly dependencies?: PreparedImportDependencies
   readonly annotate?: (params: { yaml: Record<string, unknown> } & Parameters<NonNullable<Parameters<typeof createLocalXmlBodyConsumer>[0]["annotate"]>>[0]) => void
   readonly annotateScalar?: Parameters<typeof createLocalXmlBodyConsumer>[0]["annotateScalar"]
@@ -79,6 +80,7 @@ function importWithLocalXMLBody(params: {
     execution: params.execution, context: params.context, rule: params.rule,
     sources: [{ context: params.context, xml: params.root }], yamlPath: [], rulePath: [],
     collector: createLocalIndexesCollector(), annotations: params.annotations,
+    ...(params.audit === undefined ? {} : { audit: params.audit }),
     ...(params.dependencies === undefined ? {} : { dependencies: params.dependencies }),
     roundTrip: createCompiledRuleExecution({
       execution: params.execution,
@@ -707,11 +709,19 @@ describe("importPropertiesFromXMLToYAML", () => {
     expect(audit.rawCandidates()).toHaveLength(1)
   })
 
-  it.each([false, true])("проверяет свойство сразу после XML → YAML и закрывает порядок: xmlParents=%s", (wrapped) => {
+  it.each([
+    { wrapped: false, audited: false }, { wrapped: true, audited: false },
+    { wrapped: false, audited: true }, { wrapped: true, audited: true },
+  ])("проверяет свойство сразу после XML → YAML и закрывает порядок: %o", ({ wrapped, audited }) => {
     const rules = createRuleRegistrySet(metadataRules)
     const calls: string[] = []
     rules.property.registerTypeRule("LocalRoundTripScalar" as never, "compileAtomicConversion", () => ({
-      fromXMLToYAML: ({ value: source }) => { const value = isXmlElementNode(source) ? xmlTextValue(source) : source; calls.push(`import:${String(value)}`); return { metadataValue: value, representationValue: value } },
+      fromXMLToYAML: ({ value: source }) => {
+        expect(isXmlElementNode(source)).toBe(true)
+        const value = xmlTextValue(source as XmlElementNode)
+        calls.push(`import:${String(value)}`)
+        return { metadataValue: value, representationValue: value }
+      },
       fromYAMLToXML: ({ value }) => { calls.push(`export:${String(value)}`); return { metadataValue: value, representationValue: value } },
     }))
     const rule = {
@@ -724,15 +734,20 @@ describe("importPropertiesFromXMLToYAML", () => {
     const content = "<C>c</C><A>a</A>"
     const root = parseXmlDocumentWithSaxes(`<Root>${wrapped ? `<Group>${content}</Group>` : content}</Root>`).roots[0]!
     const context = mockContextFromXML()
+    const audit = audited ? createXmlImportAuditSession([root]) : undefined
     const annotations = createXmlAnomalyAnnotations()
     const proof = createLocalXmlProof()
-    const yaml = importWithLocalXMLBody({ execution: rules.execution, context, rule, root, annotations, proof,
+    const yaml = importWithLocalXMLBody({ execution: rules.execution, context, rule, root, annotations, proof, audit,
       annotate({ yaml, source, differences }) {
         expect(differences.map(difference => difference.kind)).toEqual(["order"])
         projectLocalXmlOrder({ yaml, annotations, root: source, differences, path: wrapped ? ["Group"] : [] })
       },
     })!
     expect(calls).toEqual(["import:c", "export:c", "import:a", "export:a"])
+    if (audit !== undefined) {
+      expect(audit.rawCandidates()).toEqual([])
+      expect(audit.outcomes().filter(({ state }) => state === "unclaimed")).toEqual([])
+    }
     const orderKey = wrapped ? "Group" : "#order"
     expect(yaml).toEqual({ [orderKey]: undefined, Альфа: "a", Цета: "c" })
     expect(Object.keys(yaml)).toEqual(["Альфа", "Цета", orderKey])

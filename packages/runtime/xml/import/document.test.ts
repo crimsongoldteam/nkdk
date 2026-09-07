@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import type { XmlAddressedNode, XmlElementNode } from "./document"
-import { isEmptyXmlElement, isXmlElementNode, xmlAttributeValue, xmlElementChildren, xmlElementsAtUniquePath, xmlTextValue } from "./document"
+import { isEmptyXmlElement, isPlainXmlTextElement, isXmlElementNode, xmlAttributeValue, xmlElementChildren, xmlElementsAtUniquePath, xmlTextValue } from "./document"
 import { parseXmlDocumentWithSaxes } from "./saxesParser"
 
 const elementChildren = (element: XmlElementNode): XmlElementNode[] =>
@@ -11,16 +11,18 @@ const sourceOf = (source: string, node: XmlAddressedNode | undefined): string | 
 
 describe("структурный XML-документ", () => {
   it.each([
-    ["<Root/>", true],
-    ["<Root><![CDATA[]]></Root>", true],
-    ["<Root> </Root>", false],
-    ['<Root xsi:type="xs:string"/>', false],
-    ["<Root><Child/></Root>", false],
-    ["<Root><?keep value?></Root>", false],
-  ])("отличает пустой элемент от содержимого: %s", (xml, expected) => {
+    ["<Root/>", true, true],
+    ["<Root><![CDATA[]]></Root>", true, true],
+    ["<Root> </Root>", false, true],
+    ["<Root>текст</Root>", false, true],
+    ['<Root xsi:type="xs:string"/>', false, false],
+    ["<Root><Child/></Root>", false, false],
+    ["<Root><?keep value?></Root>", false, false],
+  ])("отличает пустой элемент от содержимого: %s", (xml, expected, plainText) => {
     const root = parseXmlDocumentWithSaxes(xml).roots[0]!
     Object.defineProperty(root, "compatibilityValue", { get() { throw new Error("Compatibility must not be read") } })
     expect(isEmptyXmlElement(root)).toBe(expected)
+    expect(isPlainXmlTextElement(root)).toBe(plainText)
   })
 
   it("выбирает повторные листья только через однозначных родителей", () => {
