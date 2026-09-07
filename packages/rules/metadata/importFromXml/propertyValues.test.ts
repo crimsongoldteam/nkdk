@@ -31,4 +31,24 @@ describe("ImportPropertyValues", () => {
     expect([...values.values()]).toEqual([present])
     expect(values.size).toBe(1)
   })
+
+  it("находит ближайшего строгого родителя за один проход, не смешивая числовые и строковые сегменты", () => {
+    const values = new ImportPropertyValues<{ value: string }>()
+    values.set([], "адрес", { value: "корень" })
+    values.set(["А"], "адрес", { value: "владелец" })
+    values.set(["А", 0], "адрес", { value: "числовой" })
+    values.set(["А", "0"], "адрес", { value: "строковый" })
+    values.set(["А", 0, "Б"], "адрес", { value: "сам элемент" })
+    const segments = ["А", 0, "Б", "В"]
+    let reads = 0
+    Object.defineProperty(segments, 0, { get() { reads++; return "А" } })
+    expect(values.nearestParent(segments, "адрес")).toEqual({ value: "сам элемент" })
+    expect(reads).toBe(1)
+    expect(values.nearestParent(["А", 0, "Б"], "адрес")).toEqual({ value: "числовой" })
+    expect(values.nearestParent(["А", "0", "Б"], "адрес")).toEqual({ value: "строковый" })
+    expect(values.nearestParent(["А", "нет", "Б"], "адрес")).toEqual({ value: "владелец" })
+    expect(values.nearestParent(["А"], "адрес")).toBeUndefined()
+    expect(values.nearestParent([], "адрес")).toBeUndefined()
+    expect(values.nearestParent(segments, "другое")).toBeUndefined()
+  })
 })

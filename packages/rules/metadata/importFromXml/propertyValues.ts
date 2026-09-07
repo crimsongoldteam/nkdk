@@ -21,6 +21,18 @@ export class ImportPropertyValues<T extends object> {
     return node?.value
   }
 
+  /** Ближайший непустой префикс, исключая сам путь и корень документа. */
+  nearestParent(path: Path, key: string): T | undefined {
+    let node = this.roots.get(key)
+    let parent: T | undefined
+    for (let index = 0; index < path.length - 1; index++) {
+      node = node?.children?.get(path[index]!)
+      if (node === undefined) break
+      if (node.value !== undefined) parent = node.value
+    }
+    return parent
+  }
+
   set(path: Path, key: string, value: T): void {
     let node = this.roots.get(key)
     if (node === undefined) { node = {}; this.roots.set(key, node) }

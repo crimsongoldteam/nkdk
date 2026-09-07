@@ -33,6 +33,7 @@ import type { PreparedImportYaml } from "./prepareYaml"
 import type { PreparedImportFacts } from "./prepareFacts"
 import { extractImportOwnerFacts } from "./ownerFacts"
 import { selectImportPropertyValues } from "./selectedPropertyFacts"
+import { ImportPropertyValues } from "./propertyValues"
 
 export interface ImportValidationContribution {
   validationContribution: ValidationIndexContribution
@@ -287,9 +288,9 @@ function objectIndexEntriesForFile(
 }
 
 function collectLogicalAddressesFromFacts(prepared: PreparedImportFacts, filePath: string): ProjectLogicalAddressEntry[] {
-  const addressesByPath = new Map<string, string>()
+  const addressesByPath = new ImportPropertyValues<{ value: string }>()
   const entries: { entry: ProjectLogicalAddressEntry; order: readonly number[] }[] = []
-  const itemPositions = new Map<string, number>()
+  const itemPositions = new ImportPropertyValues<{ value: number }>()
   const propertyPositions = new Map<MetadataItemRule, ReadonlyMap<string, number>>()
   for (const event of prepared.localIndexes.metadata.events) {
     if (event.kind !== "item" || event.name === undefined) continue
@@ -300,10 +301,10 @@ function collectLogicalAddressesFromFacts(prepared: PreparedImportFacts, filePat
       propertyRule: resolved.propertyRule,
       collectionUidSegment: resolved.collectionUidSegment,
       itemName: event.name,
-      parent: nearestFactParent(addressesByPath, event.yamlPath) ?? prepared.assignment.logicalAddress,
+      parent: addressesByPath.nearestParent(event.yamlPath, "address")?.value ?? prepared.assignment.logicalAddress,
     })
     if (logicalAddress === undefined) continue
-    addressesByPath.set(yamlPathKey(event.yamlPath), logicalAddress)
+    addressesByPath.set(event.yamlPath, "address", { value: logicalAddress })
     const order: number[] = []
     let yamlOffset = 0
     for (const step of resolved.steps) {
@@ -316,11 +317,11 @@ function collectLogicalAddressesFromFacts(prepared: PreparedImportFacts, filePat
       if (step.propertyRule.yamlInline !== true) yamlOffset += 1
       if (step.collection) {
         yamlOffset += 1
-        const key = yamlPathKey(event.yamlPath.slice(0, yamlOffset))
-        let position = itemPositions.get(key)
+        const path = event.yamlPath.slice(0, yamlOffset)
+        let position = itemPositions.get(path, "position")?.value
         if (position === undefined) {
           position = itemPositions.size
-          itemPositions.set(key, position)
+          itemPositions.set(path, "position", { value: position })
         }
         order.push(position)
       }
@@ -342,14 +343,14 @@ function collectAddressableObjectEntriesFromFacts(
   canonicalTarget: string,
   filePath: string,
 ): ProjectObjectIndexEntry[] {
-  const targetsByYamlPath = new Map<string, string>()
+  const targetsByYamlPath = new ImportPropertyValues<{ value: string }>()
   const entries: ProjectObjectIndexEntry[] = []
   for (const event of prepared.localIndexes.metadata.events) {
     if (event.kind !== "item" || event.name === undefined) continue
     const resolved = resolveFactItemRule(prepared.rule, event)
     const external = resolved?.itemRule.externalMetadata
     if (external?.placement !== "ownedEntry") continue
-    const parent = nearestFactParent(targetsByYamlPath, event.yamlPath) ?? canonicalTarget
+    const parent = targetsByYamlPath.nearestParent(event.yamlPath, "target")?.value ?? canonicalTarget
     const canonical = `${parent}.${external.segment}.${event.name}`
     const parsed = parseMetadataTargetFromModel({
       canonical,
@@ -358,7 +359,7 @@ function collectAddressableObjectEntriesFromFacts(
     if (!parsed.ok || parsed.target.kind !== "object") {
       throw new Error(`Некорректный адресуемый metadata target: ${canonical}`)
     }
-    targetsByYamlPath.set(yamlPathKey(event.yamlPath), canonical)
+    targetsByYamlPath.set(event.yamlPath, "target", { value: canonical })
     entries.push({
       canonical: projectObjectIndexKey(parsed.target),
       target: parsed.target,
@@ -420,21 +421,6 @@ interface FactRuleStep {
   readonly propertyKey: string
   readonly ownerRule: MetadataItemRule
   readonly collection: boolean
-}
-
-function nearestFactParent(
-  values: ReadonlyMap<string, string>,
-  yamlPath: readonly (string | number)[],
-): string | undefined {
-  for (let length = yamlPath.length - 1; length > 0; length -= 1) {
-    const value = values.get(yamlPathKey(yamlPath.slice(0, length)))
-    if (value !== undefined) return value
-  }
-  return undefined
-}
-
-function yamlPathKey(path: readonly (string | number)[]): string {
-  return JSON.stringify(path)
 }
 
 function isPreparedImportFacts(
