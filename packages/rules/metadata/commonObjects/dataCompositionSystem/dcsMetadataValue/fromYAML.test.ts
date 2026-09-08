@@ -106,7 +106,7 @@ describe("import MetadataDcsMetadataValue from YAML", () => {
     ).toEqual("Реквизит1")
   })
 
-  it("preserves source empty LocalStringType when YAML value is undefined", () => {
+  it("не восстанавливает пустой LocalStringType из старого источника", () => {
     const sourceValue = { items: {} }
 
     expect(
@@ -115,7 +115,7 @@ describe("import MetadataDcsMetadataValue from YAML", () => {
         value: undefined,
         sourceValue,
       })
-    ).toEqual(sourceValue)
+    ).toBeUndefined()
   })
 
   it("uses explicit YAML field over source empty LocalStringType", () => {
@@ -142,7 +142,6 @@ describe("import MetadataDcsMetadataValue from YAML", () => {
         mockContext,
         { type: "MetadataDcsMetadataValue", valueType: "DesignTimeValue", yaml: "value" },
         undefined,
-        sourceValue
       )
     ).toBeUndefined()
 

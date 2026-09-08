@@ -47,16 +47,23 @@ describe("importI8nTextFromYAML", () => {
     })
   })
 
-  describe("importI8nTextCombinedFromYAML", () => {
-    it.each(i8nTextFixtures)("should import combined: $name", (fixture) => {
+  describe("игнорирование старого источника", () => {
+    it.each(i8nTextFixtures)("читает полный YAML: $name", (fixture) => {
       const result = importI8nTextFromYAML({
         context: mockContext,
         rule: mockRule,
-        value: fixture.otherLanguagesYAML,
+        value: fixture.fullYAML,
         source: fixture.textFromStructure,
       })
 
       expect(result).toEqual(fixture.text)
+    })
+
+    it("не восстанавливает отсутствующий текст из source", () => {
+      expect(importI8nTextFromYAML({
+        context: mockContext, rule: mockRule, value: undefined,
+        source: { items: { ru: "Старый текст" } },
+      })).toBeUndefined()
     })
 
     it("preserves YAML order before source-only languages", () => {
@@ -140,7 +147,7 @@ describe("importI8nTextFromYAML", () => {
       })
     })
 
-    it("does not restore default language from the name when source does not contain it", () => {
+    it("восстанавливает язык из имени независимо от старого источника", () => {
       const rule: I8nTextPropertyRule = { type: "I8nText", excludeIfEqualNameYAML: true }
 
       const result = importI8nTextFromYAML({
@@ -153,6 +160,7 @@ describe("importI8nTextFromYAML", () => {
 
       expect(result).toEqual({
         items: {
+          ru: "Оценка отправлена",
           en: "Оценка отправлена",
         },
       })

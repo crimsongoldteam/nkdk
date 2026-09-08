@@ -18,6 +18,24 @@ const rule: PropertyRule = {
 describe("import SettingsParameterValueCollection from YAML", { timeout: 60_000 }, () => {
   const parseViaYamlText = <T>(value: T): T => importFromYAML<T>(exportToYAML(value))
 
+  it("сохраняет порядок YAML вместо порядка старого источника", () => {
+    const result = testAtomicFromYAML({
+      rule,
+      value: { Второй: { Значение: "B" }, Первый: { Значение: "A" } },
+      sourceValue: { parameters: { Первый: { parameter: "Первый" }, Второй: { parameter: "Второй" } } },
+    }) as { parameters: Record<string, unknown> }
+    expect(Object.keys(result.parameters)).toEqual(["Второй", "Первый"])
+  })
+
+  it("не восстанавливает отсутствующее значение параметра из источника", () => {
+    const result = testAtomicFromYAML({
+      rule: { ...rule, defaultItemRule: { type: "SettingsParameterValue", valueType: "DesignTimeValue" } },
+      value: { Параметр: {} },
+      sourceValue: { parameters: { Параметр: { parameter: "Параметр", value: { items: {} } } } },
+    })
+    expect(result).toEqual({ itemType: "SettingsParameterValueCollection", parameters: { Параметр: { parameter: "Параметр" } } })
+  })
+
   it("imports undefined", () => {
     const result = testAtomicFromYAML({ rule, value: undefined })
     expect(result).toBeUndefined()

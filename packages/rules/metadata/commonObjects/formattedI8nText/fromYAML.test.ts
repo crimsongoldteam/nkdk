@@ -71,7 +71,7 @@ describe("importFormattedI8nTextFromYAML", () => {
     })
   })
 
-  describe("merge with source", () => {
+  describe("игнорирование старого источника", () => {
     it.each(formattedI8nTextFixtures)("should import: %s", (fixture) => {
       const result = importFormattedI8nTextFromYAML({
         context: mockContext,
@@ -82,7 +82,7 @@ describe("importFormattedI8nTextFromYAML", () => {
       expect(result).toEqual(fixture.text)
     })
 
-    it("should keep source default language and take formatted from YAML value", () => {
+    it("берёт языки и форматирование только из YAML", () => {
       const result = importFormattedI8nTextFromYAML({
         context: mockContext,
         rule: formattedI8nTextRule,
@@ -92,7 +92,7 @@ describe("importFormattedI8nTextFromYAML", () => {
 
       expect(result).toEqual({
         formatted: true,
-        items: { ru: "Поле", en: "Field" },
+        items: { en: "Field" },
       })
     })
   })

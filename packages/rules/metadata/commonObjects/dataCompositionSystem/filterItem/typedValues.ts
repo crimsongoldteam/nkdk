@@ -79,15 +79,8 @@ const importFilterItemLocalStringTypeFromYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule | undefined,
   value: unknown,
-  sourceValue?: unknown
 ) => {
-  if (typeof value === "string" && typeof sourceValue === "object" && sourceValue !== null) {
-    if ("items" in sourceValue) return { items: { [context.languages.default]: value } }
-    if ("type" in sourceValue && (sourceValue as Record<string, unknown>).type === "string") {
-      return { type: "string", value }
-    }
-  }
-  return importDcsMetadataValueFromYAML(context, localStringRule as any, value as any, sourceValue as any)
+  return importDcsMetadataValueFromYAML(context, localStringRule as any, value as any)
 }
 
 export const metadataPropertyRule000 = definePropertyTypeRule("FilterItemFieldValue", "exportToXML", exportFilterItemFieldValueToXML as any)

@@ -664,3 +664,21 @@ reference-переходники ещё требуют завершения; и�
 Прошли 32 целевых теста событий, типы, duplicates, архитектура, pnpm test
 и 214 e2e. Логи: /private/tmp/nkdk-event-reference-{red,green2,types2,
 duplicates2,arch-rules,arch,full,e2e}.log. Полный план ещё не завершён.
+
+### Чтение локализованных значений YAML без прежнего источника
+
+Удалены подмешивание source-языков/форматирования, возврат отсутствующего
+LocalStringType из source, угадывание типа поля по прежнему значению,
+подмешивание значений ParameterValue и порядок параметров из source.
+AppearanceFields и FilterItem также больше не передают прежний источник.
+Локализованный текст читается сразу в окончательную коллекцию без двух
+промежуточных копий. Пустой фрагмент параметра передаёт явное отсутствие
+значения внутри уже существующего нормализованного аргумента; раньше имя
+параметра ошибочно становилось языковым ключом. XML/YAML-фикстуры не менялись.
+
+RED: три локализованных проверки, одна DCS и отдельный тест пустого параметра.
+GREEN: 854 целевых теста, 3138 integration, типы, duplicates, архитектура,
+pnpm test и 214 e2e. Логи: /private/tmp/nkdk-localized-reference-red.log,
+/private/tmp/nkdk-dcs-reference-red.log,
+/private/tmp/nkdk-yaml-source-{tests3,types3,integration,duplicates,arch-rules,arch,full,e2e}.log.
+Оставшиеся source-типы и общий API reference, парсер и финальный аудит открыты.

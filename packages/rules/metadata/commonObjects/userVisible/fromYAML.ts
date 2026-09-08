@@ -17,7 +17,6 @@ export const importUserVisibleFromYAML: ImportFromYAMLFunctionNew = (params: {
   context: ConfigurationContext
   rule: PropertyRule
   value: UserVisibleYAML | undefined
-  source?: UserVisible | undefined
   yaml?: Record<string, any> | undefined
   annotations?: XmlAnomalyAnnotations
 }): UserVisible | undefined => {
@@ -41,7 +40,6 @@ const importPreparedUserVisibleFromYAML: ImportFromYAMLFunctionNew = (params: {
   context: ConfigurationContext
   rule: PropertyRule
   value: UserVisibleYAML | undefined
-  source?: UserVisible | undefined
   yaml?: Record<string, any> | undefined
 }): UserVisible | undefined => {
   const { context, value } = params
