@@ -53,6 +53,7 @@ describe("writeFullXmlSyncAssignment for root Configuration", () => {
   ) {
     const context = mockContextToXML()
     const prepared = prepareFullXmlSyncAssignment({
+      profilePropertyTypes: false,
       assignment: assignments[0]!,
       composition: createFullXmlSyncCompositionReader(createFullXmlSyncCompositionSnapshot(assignments)),
       preparedYamlFile,

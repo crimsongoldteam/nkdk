@@ -17,6 +17,7 @@ import { createPreparedYamlWorkerThreadPoolFactory } from "../../tests/preparedY
 import {
 createImportProjectStateTestService,
 createXmlImportWorkerTestPool,
+createInspectableXmlImportWorkerTestPool,
 } from "../../tests/xmlImportWorkerTestPool"
 import { createPreparedYamlProjectWorkerPool } from "../project/preparedYamlProjectWorkerPool"
 import { importConfigurationFromXml } from "./importConfiguration"
@@ -43,6 +44,7 @@ const baseFormUuid = "4e9b2646-e73a-4c98-ad43-19ac74b24770"
 const temporaryRoot = fs.mkdtempSync(join(os.tmpdir(), "nkdk-extension-import-"))
 let temporaryDirectoryIndex = 0
 const xmlImportWorkerPoolHandle = createXmlImportWorkerTestPool()
+const multipleWorkers = createInspectableXmlImportWorkerTestPool(3)
 const preparedYamlWorkerFactory = createPreparedYamlWorkerThreadPoolFactory()
 const projectState = createImportProjectStateTestService({
   createPool: (concurrency) => createPreparedYamlProjectWorkerPool({
@@ -51,6 +53,9 @@ const projectState = createImportProjectStateTestService({
   }),
 })
 let importedExtension: Awaited<ReturnType<typeof importExtension>>
+let multipleWorkerExtension: Awaited<ReturnType<typeof importExtension>>
+let singleWorkerYaml: Record<string, string>
+let multipleWorkerYaml: Record<string, string>
 let rebuiltFormProofContexts = 0
 let preparedFormProofContexts = 0
 let reusedCurrentFormContext = false
@@ -58,6 +63,7 @@ let reusedCurrentFormContext = false
 afterAll(async () => {
   await Promise.all([
     xmlImportWorkerPoolHandle.close(),
+    multipleWorkers.handle.close(),
     projectState.close(),
   ])
   await fs.promises.rm(temporaryRoot, { recursive: true, force: true })
@@ -84,6 +90,22 @@ describe("configuration extension XML import", () => {
       prepared.mockRestore()
       paths.mockRestore()
     }
+    multipleWorkerExtension = await importExtension(multipleWorkers.handle, 3)
+    const yamlFiles = (imported: typeof importedExtension) => Object.fromEntries(imported.snapshot.hashes
+      .filter(({ projectPath }) => projectPath.endsWith(".yaml"))
+      .map(({ projectPath }) => [projectPath, readText(join(imported.projectDir, imported.result.componentPath!), projectPath)]))
+    singleWorkerYaml = yamlFiles(importedExtension)
+    multipleWorkerYaml = yamlFiles(multipleWorkerExtension)
+  })
+
+  it("сохраняет YAML и диагностику формы с основой при одном и трёх владельцах заданий", () => {
+    expect(multipleWorkerYaml).toEqual(singleWorkerYaml)
+    expect(multipleWorkerExtension.result.failed).toEqual([])
+    expect(multipleWorkerExtension.result.warnings).toEqual(importedExtension.result.warnings)
+    expect(multipleWorkerExtension.result.succeeded).toBe(importedExtension.result.succeeded)
+    const assigned = [0, 1, 2].map(index => multipleWorkers.commands(index)
+      .flatMap(command => command.kind === "firstPassBatch" ? command.assignments : []))
+    expect(assigned.filter(assignments => assignments.length > 0)).toHaveLength(3)
   })
 
   it("использует готовый контекст путей для сверки формы и основы, не восстанавливая его через YAML", () => {
@@ -236,9 +258,9 @@ describe("configuration extension XML import", () => {
 
 })
 
-async function importExtension() {
+async function importExtension(pool = xmlImportWorkerPoolHandle, concurrency = 1) {
   const projectDir = temporaryDirectory()
-  await importBaseConfiguration(projectDir)
+  await importBaseConfiguration(projectDir, pool, concurrency)
   const inputDir = temporaryDirectory()
   fs.cpSync(fixtureDir, inputDir, { recursive: true })
   fs.cpSync(
@@ -379,9 +401,9 @@ async function importExtension() {
     context: mockContextFromXML(),
     inputDir,
     projectDir,
-    concurrency: 1,
+    concurrency,
     operationId: "configuration-extension-e2e",
-    xmlImportWorkerPoolHandle,
+    xmlImportWorkerPoolHandle: pool,
     projectState,
   })
   const importedFormPath = join(
@@ -493,7 +515,7 @@ function textBetween(source: string, startMarker: string, endMarker: string): st
   return source.slice(start, end)
 }
 
-async function importBaseConfiguration(projectDir: string): Promise<void> {
+async function importBaseConfiguration(projectDir: string, pool = xmlImportWorkerPoolHandle, concurrency = 1): Promise<void> {
   const inputDir = temporaryDirectory()
   const configurationPath = join(inputDir, "Configuration.xml")
   fs.copyFileSync(join(configurationFixtureDir, "minimal.xml"), configurationPath)
@@ -591,9 +613,9 @@ async function importBaseConfiguration(projectDir: string): Promise<void> {
     context: mockContextFromXML(),
     inputDir,
     projectDir,
-    concurrency: 1,
+    concurrency,
     operationId: "configuration-base-e2e",
-    xmlImportWorkerPoolHandle,
+    xmlImportWorkerPoolHandle: pool,
     projectState,
   })
   expect(result.failed).toEqual([])

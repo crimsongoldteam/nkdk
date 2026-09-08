@@ -298,10 +298,11 @@
 - [ ] По прежнему указанию пользователя в конце выполнить три прогона, сравнить медианы превышающих 50 мс cases, не менять лимиты:
 
   ```bash
-  pnpm test:profile -- --output /private/tmp/nkdk-import-followup-rYXr7J/test-profile-1.json
-  pnpm test:profile -- --output /private/tmp/nkdk-import-followup-rYXr7J/test-profile-2.json
-  pnpm test:profile -- --output /private/tmp/nkdk-import-followup-rYXr7J/test-profile-3.json
+  pnpm test:profile -- --output reports/test-profile/import-final-1.json
   ```
+
+  Один вызов runner уже выполняет три прогона. По уточнению пользователя
+  2026-09-08 два лишних вызова удалены: требуется три прогона, не девять.
 
   Отчёт сохранить в `docs/superpowers/reports/2026-09-05-import-memory-and-execution.md`, указав команды, коммиты, версии, данные, ошибки и разброс.
 - [ ] Передать одному независимому review-only агенту spec, этот план, pinned base и worktree. Он читает документы и весь diff с базой, включая коммиты, staging, рабочие и относящиеся к реализации untracked-файлы. Проверяет также соответствие конечного пути всей спеке, даже если механизм существовал до базы доработок.

@@ -336,7 +336,7 @@ describe("prepareFullXmlSyncAssignment", () => {
     )
   })
 
-  it("prepares owner XML without writing files", () => {
+  it.each([undefined, false, true])("prepares owner XML with explicitly requested profiling: %s", (profilePropertyTypes) => {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-prepare-assignment-"))
     tempDirs.push(projectDir)
     const sourceProjectPath = "Обработка/ОбработкаВсеСвойства/Свойства.yaml"
@@ -385,6 +385,7 @@ describe("prepareFullXmlSyncAssignment", () => {
     const prepared = prepareFullXmlSyncAssignment({
       assignment,
       preparedYamlFile: yaml,
+      profilePropertyTypes,
       context: mockContextToXML(),
       index: testConfigurationIndexReader(),
       composition: {
@@ -425,7 +426,13 @@ describe("prepareFullXmlSyncAssignment", () => {
       },
     })
     expect(prepared.documents[1]?.xml).toMatchObject({ Help: { Page: "ru" } })
-    expect(prepared.profile.rulesPassCount).toBe(1)
+    if (profilePropertyTypes === undefined) {
+      expect(prepared.profile).toBeUndefined()
+    } else {
+      expect(prepared.profile?.rulesPassCount).toBe(1)
+      expect(prepared.profile?.propertyPaths.length).toBeGreaterThan(0)
+      expect(prepared.profile?.propertyTypeProfiling).toBe(profilePropertyTypes)
+    }
     expect(writeFile).not.toHaveBeenCalled()
   })
 
