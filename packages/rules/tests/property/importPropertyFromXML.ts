@@ -14,8 +14,6 @@ export const testImportPropertyFromXML = (
      * Если не указан — передаются корневые узлы документа.
      */
     xmlRootTag?: string
-    /** Передаётся в `mockContextFromXML({ forReference })` (по умолчанию false). */
-    forReference?: boolean
   } & (
     | {
         path: string
@@ -26,12 +24,12 @@ export const testImportPropertyFromXML = (
       }
   )
 ): unknown => {
-  const { rule, xmlRootTag, forReference } = params
+  const { rule, xmlRootTag } = params
 
   const value = readPropertyXML({ ...params, xmlRootTag })
 
   return propertyRules.fromXML({
-    context: mockContextFromXML({ forReference: forReference ?? false }),
+    context: mockContextFromXML(),
     rule,
     value,
   })

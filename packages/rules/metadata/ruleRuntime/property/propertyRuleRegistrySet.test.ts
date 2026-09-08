@@ -125,7 +125,7 @@ it("executes a conversion through the owning registry", () => {
       context: {
         languages: mockLanguages,
         version: "test",
-        fromXML: { forReference: false },
+        fromXML: { },
       },
       rule: { type: "Sample" },
       value: "value",
@@ -155,7 +155,7 @@ it("executes and caches an atomic XML conversion through the owning registry", (
     context: {
       languages: mockLanguages,
       version: "test",
-      fromXML: { forReference: false },
+      fromXML: { },
     },
     rule: { type: "Sample" as const },
   }
@@ -243,7 +243,7 @@ it("imports XML through the owning registry", () => {
   const context = {
     languages: mockLanguages,
     version: "test",
-    fromXML: { forReference: false },
+    fromXML: { },
   }
   const rule = { type: "Sample" }
 

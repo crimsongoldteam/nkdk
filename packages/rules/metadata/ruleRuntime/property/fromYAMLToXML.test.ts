@@ -1796,7 +1796,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
       yaml: {},
       rule: testRule({
         items: {
-          type: "NestedCollection" as never,
+          type: "AbsentYAMLPropertyProbe" as never,
           yaml: "Элементы",
           xml: "Items",
           defaultValueXMLEmpty: [],

@@ -106,7 +106,7 @@ export async function importFromInfobase(
         languages: defaultMcpConfigurationLanguages,
         version: "2.20",
         exportToYAML: { toTyped: false },
-        fromXML: { forReference: false },
+        fromXML: { },
       },
       inputDir: xmlDirectory,
       projectDir: component.projectDir,

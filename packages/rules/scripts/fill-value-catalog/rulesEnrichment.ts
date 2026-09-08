@@ -29,7 +29,7 @@ interface OwnerBinding {
 const context: ConfigurationContextFromXML = {
   version: "2.20",
   languages: createConfigurationLanguages({ default: "ru", registered: ["ru"] }),
-  fromXML: { forReference: false },
+  fromXML: { },
 }
 
 export function createStandardAttributeEnricher(): StandardAttributeEnricher {

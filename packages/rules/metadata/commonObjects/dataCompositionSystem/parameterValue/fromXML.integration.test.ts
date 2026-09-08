@@ -63,7 +63,7 @@ describe("importParameterValueFromXML", () => {
         rule: nilSettingsParameterValueRule,
         xmlRootTag: "dcscor:item",
         xmlString: xmlNilSettingsParameterValue,
-        forReference: true,
+
       })
     ).toEqual(nilSettingsParameterValue)
   })

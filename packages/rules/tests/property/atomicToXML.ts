@@ -33,7 +33,7 @@ export function testAtomicToXML(params: Params & { importMetaUrl?: string; path?
     expectedResult = (importMetaUrl ? readXMLFixtureAsString(importMetaUrl, path) : readXMLFileAsString(path)).trimEnd()
     if (!("referenceMetadata" in params) && xmlRootTag !== undefined) {
       referenceProperty = importPropertyFromXML({
-        context: mockContextFromXML({ forReference: true }),
+        context: mockContextFromXML(),
         rule,
         value: readPropertyXML({ xmlString: expectedResult, xmlRootTag }),
       })

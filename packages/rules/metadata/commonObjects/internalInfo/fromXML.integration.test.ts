@@ -70,7 +70,7 @@ const xmlWithContainedObject = `
 
 const importFixture = () => {
   const parsed = importContentFromXML<{ InternalInfo: InternalInfoRootXML }>(xml)
-  return importInternalInfoFromXML(mockContextFromXML({ forReference: true }), rule, parsed.InternalInfo)
+  return importInternalInfoFromXML(mockContextFromXML(), rule, parsed.InternalInfo)
 }
 
 const fixturesDir = join(dirname(fileURLToPath(import.meta.url)), "__fixtures__")
@@ -79,7 +79,7 @@ const importContainedObjectsFixture = () => {
   const source = readFileSync(join(fixturesDir, "containedObjects.xml"), "utf8")
   const parsed = importContentFromXML<{ InternalInfo: InternalInfoRootXML }>(source)
   return importInternalInfoFromXML(
-    mockContextFromXML({ forReference: true }),
+    mockContextFromXML(),
     containedObjectsRule,
     parsed.InternalInfo
   )
@@ -357,7 +357,7 @@ describe("importInternalInfoFromXML", () => {
     const exportedXML = xmlExport({ InternalInfo: exported }, false)
     const reparsed = importContentFromXML<{ InternalInfo: InternalInfoRootXML }>(exportedXML)
 
-    expect(importInternalInfoFromXML(mockContextFromXML({ forReference: true }), rule, reparsed.InternalInfo)).toEqual(
+    expect(importInternalInfoFromXML(mockContextFromXML(), rule, reparsed.InternalInfo)).toEqual(
       imported
     )
   })
@@ -390,7 +390,7 @@ describe("importInternalInfoFromXML", () => {
     const reparsed = importContentFromXML<{ InternalInfo: InternalInfoRootXML }>(exportedXML)
 
     expect(
-      importInternalInfoFromXML(mockContextFromXML({ forReference: true }), containedObjectsRule, reparsed.InternalInfo)
+      importInternalInfoFromXML(mockContextFromXML(), containedObjectsRule, reparsed.InternalInfo)
     ).toEqual(imported)
   })
 

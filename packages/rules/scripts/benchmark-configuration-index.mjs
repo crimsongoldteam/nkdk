@@ -37,7 +37,7 @@ try {
       languages: createConfigurationLanguages({ default: "ru", registered: ["ru"] }),
       version: "2.20",
       exportToYAML: { toTyped: false },
-      fromXML: { forReference: false },
+      fromXML: {},
     },
     inputDir: xmlDir,
     projectDir,

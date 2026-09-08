@@ -3,7 +3,7 @@ import { ConfigurationContextFromXML } from "@nkdk/runtime"
 import { importXDTOTypeNameFromXML } from "./fromXML"
 import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"
 
-const context = { fromXML: { forReference: false } } as ConfigurationContextFromXML
+const context = { fromXML: { } } as ConfigurationContextFromXML
 
 describe("import XDTOTypeName from XML", () => {
   it.each([

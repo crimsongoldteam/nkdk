@@ -67,7 +67,7 @@ describe("settingsParameterValueCollection dcscor items", () => {
       },
     ]
     const out = importSettingsParameterValueDcscorItemsFromXML({
-      context: mockContextFromXML({ forReference: false }),
+      context: mockContextFromXML(),
       ruleSet: ruleSet,
       xml: items,
       skipUnknownParameters: false,

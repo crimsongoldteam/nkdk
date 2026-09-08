@@ -65,7 +65,7 @@ describe("предопределённые счета XML → YAML → XML", () 
     const index = createConfigurationIndexCollector()
     const logicalAddress = "ChartOfAccounts.Хозрасчетный.Predefined"
     const context = withConfigurationIndexCollector(
-      mockContextFromXML({ forReference: true }),
+      mockContextFromXML(),
       index,
       logicalAddress,
     )

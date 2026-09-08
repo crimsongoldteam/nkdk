@@ -248,7 +248,7 @@ describe("export Events to XML", () => {
 
   it("сохраняет нестандартное XML-имя известного события из reference", () => {
     const rule = ClientApplicationFormRules.properties.events
-    const referenceMetadata = importEventsFromXML(mockContextFromXML({ forReference: true }), rule, {
+    const referenceMetadata = importEventsFromXML(mockContextFromXML(), rule, {
       Event: {
         _name: "047d4d09-961c-4bdc-8519-eef10674c35b",
         "#text": "ПослеЗаписи",

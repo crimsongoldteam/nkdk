@@ -77,7 +77,7 @@ describe("единый XML → YAML-обход: configuration index", () => {
     ({ rule, importMetaUrl, logicalAddress, projectPath, expected }) => {
       const collector = createConfigurationIndexCollector()
       const context = withConfigurationIndexCollector(
-        mockContextFromXML({ forReference: true }),
+        mockContextFromXML(),
         collector,
         logicalAddress
       )

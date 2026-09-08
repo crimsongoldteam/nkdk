@@ -43,7 +43,7 @@ describe("exportTypeDescriptionToXML", () => {
     expect(exportTypeDescriptionToXML(context, typeDescriptionRule, value)).toMatchObject({
       "v8:Type": ["cfg:CatalogRef.Товары", "xs:boolean"], "v8:TypeSet": "cfg:AnyIBRef",
     })
-    const reference = importTypeDescriptionFromXML(mockContextFromXML({ forReference: true }), mockRule, {
+    const reference = importTypeDescriptionFromXML(mockContextFromXML(), mockRule, {
       "v8:Type": { "_xmlns:old": "http://v8.1c.ru/8.1/data/enterprise/current-config", "#text": "old:CatalogRef.Товары" },
     })
     expect(exportTypeDescriptionToXML(context, typeDescriptionRuleWithLocalNamespace, { type: ["CatalogRef.Товары"] }, reference)).toEqual({
@@ -210,7 +210,7 @@ describe("exportTypeDescriptionToXML", () => {
       '<Type>\n\t<v8:Type xmlns:d7p1="http://v8.1c.ru/8.3/data/entext">d7p1:ConditionalAppearance</v8:Type>\n</Type>'
     )
     const referenceTypeDescription = importTypeDescriptionFromXML(
-      mockContextFromXML({ forReference: true }),
+      mockContextFromXML(),
       mockRule,
       referenceXml.Type
     )
@@ -234,7 +234,7 @@ describe("exportTypeDescriptionToXML", () => {
       '<Type>\n\t<v8:Type xmlns:d7p1="http://v8.1c.ru/8.2/data/chart">d7p1:Chart</v8:Type>\n</Type>'
     )
     const referenceTypeDescription = importTypeDescriptionFromXML(
-      mockContextFromXML({ forReference: true }),
+      mockContextFromXML(),
       mockRule,
       referenceXml.Type
     )
@@ -253,7 +253,7 @@ describe("exportTypeDescriptionToXML", () => {
       '<Type>\n\t<v8:Type xmlns:d4p1="http://v8.1c.ru/8.1/data/enterprise/current-config">d4p1:CatalogRef.ЗначенияХарактеристик</v8:Type>\n</Type>'
     )
     const referenceTypeDescription = importTypeDescriptionFromXML(
-      mockContextFromXML({ forReference: true }),
+      mockContextFromXML(),
       mockRule,
       referenceXml.Type
     )
@@ -277,7 +277,7 @@ describe("exportTypeDescriptionToXML", () => {
       '<Type>\n\t<v8:Type xmlns:d7p1="http://v8.1c.ru/8.2/data/chart">d7p1:Chart</v8:Type>\n\t<v8:Type>xs:string</v8:Type>\n</Type>'
     )
     const referenceTypeDescription = importTypeDescriptionFromXML(
-      mockContextFromXML({ forReference: true }),
+      mockContextFromXML(),
       mockRule,
       referenceXml.Type
     )
@@ -301,7 +301,7 @@ describe("exportTypeDescriptionToXML", () => {
       '<Type>\n\t<v8:Type xmlns:d7p1="http://v8.1c.ru/8.2/data/chart">d7p1:Chart</v8:Type>\n</Type>'
     )
     const referenceTypeDescription = importTypeDescriptionFromXML(
-      mockContextFromXML({ forReference: true }),
+      mockContextFromXML(),
       mockRule,
       referenceXml.Type
     )

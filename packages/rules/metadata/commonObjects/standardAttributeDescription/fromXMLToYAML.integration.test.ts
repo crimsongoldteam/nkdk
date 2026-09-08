@@ -69,7 +69,7 @@ describe("StandardAttributeDescriptions XML → YAML", () => {
       },
     } as const satisfies MetadataItemRule
     const imported = testPropertyFromXMLToYAML({
-      context: mockContextFromXML({ forReference: true }),
+      context: mockContextFromXML(),
       rule: itemRule,
       xml: {
         StandardAttributes: {

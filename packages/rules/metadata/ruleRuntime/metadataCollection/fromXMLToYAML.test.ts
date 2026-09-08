@@ -672,12 +672,12 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
     runDirectRule(
       "TestIndexedRecordCollection",
       xml,
-      withConfigurationIndexCollector(mockContextFromXML({ forReference: true }), recordCollector, "Владелец.A")
+      withConfigurationIndexCollector(mockContextFromXML(), recordCollector, "Владелец.A")
     )
     runDirectRule(
       "TestIndexedArrayCollection",
       xml,
-      withConfigurationIndexCollector(mockContextFromXML({ forReference: true }), arrayCollector, "Владелец.A")
+      withConfigurationIndexCollector(mockContextFromXML(), arrayCollector, "Владелец.A")
     )
 
     expect(recordCollector.fragment("test.yaml").entities).toEqual(
@@ -721,7 +721,7 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
     runDirectRule(
       "TestKeyedArrayCollection",
       xml,
-      withConfigurationIndexCollector(mockContextFromXML({ forReference: true }), indexCollector, "Владелец.A")
+      withConfigurationIndexCollector(mockContextFromXML(), indexCollector, "Владелец.A")
     )
 
     expect(indexCollector.fragment("test.yaml").entities).toContainEqual({
@@ -770,7 +770,7 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
   it("завершает прямой импорт ошибкой, если адресуемый элемент коллекции не имеет имени", () => {
     const indexCollector = createConfigurationIndexCollector()
     const context = withConfigurationIndexCollector(
-      mockContextFromXML({ forReference: true }),
+      mockContextFromXML(),
       indexCollector,
       "Владелец.A"
     )

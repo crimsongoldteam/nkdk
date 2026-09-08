@@ -139,7 +139,6 @@ export function importPropertiesFromXMLToYAML(params: {
     context,
     execution: params.execution,
   })
-  const forReference = context.fromXML.forReference
   const importedExternalProperties = new Set<string>()
   const includeAllTags = sources.length === 1 && sources[0]?.tags === undefined
   const compiledPlan = params.execution?.propertyPlan(rule)
@@ -292,7 +291,7 @@ export function importPropertiesFromXMLToYAML(params: {
           structurallyClaimed = true
         }
 
-        if (!forReference && propertyRule.xmlOnly === true) {
+        if (propertyRule.xmlOnly === true) {
           if (params.mode === "facts" && params.facts !== undefined) {
             acceptReconstructionPropertyFact({
               facts: params.facts, sourceContext, propertyRule, propertyKey: key,
@@ -310,8 +309,7 @@ export function importPropertiesFromXMLToYAML(params: {
           return
         }
         if (
-          !forReference
-          && params.mode === "facts"
+          params.mode === "facts"
           && params.facts !== undefined
           && propertyRule.fromXML === false
           && propertyRule.toXML !== false
@@ -344,15 +342,12 @@ export function importPropertiesFromXMLToYAML(params: {
           rule: propertyRule,
           operation: "importFromXML",
         })
-        const shouldImportForReference = forReference && propertyRule.fromXML === false && presentInXML
-        const shouldImportForLocalProof = !forReference
-          && roundTrip !== undefined
+        const shouldImportForLocalProof = roundTrip !== undefined
           && propertyRule.fromXML === false
           && propertyRule.toXML !== false
           && presentInXML
         if (
           !shouldImportProperty &&
-          !shouldImportForReference &&
           !shouldImportForLocalProof &&
           propertyXML?.has(key) !== true
         ) {
@@ -574,7 +569,6 @@ export function importPropertiesFromXMLToYAML(params: {
               ? {}
               : undefined
           const clearedMetadataTarget =
-            !forReference &&
             sourceContext.fromXML.propertyStateCompatibilityMode !== undefined &&
             isScalarMetadataTarget(propertyRule) &&
             importedValue === undefined &&
@@ -591,7 +585,7 @@ export function importPropertiesFromXMLToYAML(params: {
           const preserveExplicitDefault =
             propertyRule.preserveExplicitDefaultXML === true && presentInXML && rawValue === propertyRule.defaultValueXML
           const cleanValue =
-            !convertedDirectly && !forReference && rawValue === propertyRule.defaultValueXML && !preserveExplicitDefault
+            !convertedDirectly && rawValue === propertyRule.defaultValueXML && !preserveExplicitDefault
               ? undefined
               : rawValue
           const defaultStartedAt = performance.now()
@@ -602,7 +596,7 @@ export function importPropertiesFromXMLToYAML(params: {
             Array.isArray(propertyRule.defaultValue) &&
             propertyRule.defaultValue.length === 0 &&
             Array.isArray(propertyRule.defaultValueXMLEmpty)
-          const value = forReference || (convertedDirectly && !restoresExplicitEmptyInlineCollection)
+          const value = convertedDirectly && !restoresExplicitEmptyInlineCollection
             ? cleanValue
             : getValueOrDefault({
                 context: sourceContext,

@@ -117,7 +117,7 @@ describe("importMetadataValueFromXML", () => {
   it("does not keep xsi:nil as a hidden semantic value", () => {
     const xmlValue = parseValue('<Value xsi:nil="true"/>') ?? { "_xsi:nil": true }
     const result = importMetadataValueFromXML({
-      context: mockContextFromXML({ forReference: true }),
+      context: mockContextFromXML(),
       rule: undefined,
       value: xmlValue,
     })
@@ -128,7 +128,7 @@ describe("importMetadataValueFromXML", () => {
   it("does not keep an empty unknown xsi:type as a hidden semantic value", () => {
     const xmlValue = parseValue('<Value xsi:type="v8:TypeDescription"/>')
     const result = importMetadataValueFromXML({
-      context: mockContextFromXML({ forReference: true }),
+      context: mockContextFromXML(),
       rule: undefined,
       value: xmlValue,
     })

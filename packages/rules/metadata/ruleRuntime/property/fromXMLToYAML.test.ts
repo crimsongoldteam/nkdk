@@ -1606,7 +1606,7 @@ describe("importPropertiesFromXMLToYAML", () => {
     expect(indexCollector.fragment("test.yaml").entities).toEqual([])
   })
 
-  it("matches reference-mode import selection", () => {
+  it("не включает технические свойства через устаревший режим reference", () => {
     registerTypeRule("TestReferenceDirect" as PropertyRuleType, "importFromXMLToYAML", ({ xml }) => String(xml))
     const rule = {
       itemType: "TestDirectItem",
@@ -1634,14 +1634,14 @@ describe("importPropertiesFromXMLToYAML", () => {
     ).toEqual({})
     expect(
       importPropertiesFromXMLToYAML({
-        context: { ...mockContextFromXML({ forReference: true }), exportToYAML: { toTyped: true } },
+        context: { ...Object.assign(mockContextFromXML(), { fromXML: { forReference: true } }), exportToYAML: { toTyped: true } },
         rule,
         xml,
         yamlPath: [],
         rulePath: [],
         collector: createLocalIndexesCollector(),
       })
-    ).toEqual({ ТолькоСсылка: "one", Выключено: "two" })
+    ).toEqual({})
   })
 
   it("collects configuration-index data before skipping a reference-only property", () => {
@@ -1702,7 +1702,7 @@ describe("importPropertiesFromXMLToYAML", () => {
       { Value: undefined },
       {
         ...mockContextFromXML(),
-        fromXML: { forReference: false, propertyStateCompatibilityMode: "Adaptation" },
+        fromXML: { propertyStateCompatibilityMode: "Adaptation" },
         exportToYAML: { toTyped: true },
       },
     )).toEqual({ Значение: null })

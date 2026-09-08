@@ -27,7 +27,7 @@ describe("exportParameterValueToDcsXML", () => {
       rule: nilSettingsParameterValueRule,
       xmlRootTag: "dcscor:item",
       xmlString: xmlNilSettingsParameterValue,
-      forReference: true,
+
     })
 
     const { result } = testAtomicToXML({
@@ -60,7 +60,7 @@ describe("exportParameterValueToDcsXML", () => {
       rule: nilSettingsParameterValueRule,
       xmlRootTag: "dcscor:item",
       xmlString: xmlNilSettingsParameterValue,
-      forReference: true,
+
     })
 
     const { result } = testAtomicToXML({
@@ -118,7 +118,7 @@ describe("exportParameterValueToDcsXML", () => {
 	<dcscor:parameter>Период</dcscor:parameter>
 	<dcsset:userSettingPresentation xsi:type="xs:string">по</dcsset:userSettingPresentation>
 </dcscor:item>`,
-      forReference: true,
+
     })
 
     const { result } = testAtomicToXML({
@@ -142,7 +142,7 @@ describe("exportParameterValueToDcsXML", () => {
 	<dcscor:parameter>Период</dcscor:parameter>
 	<dcsset:userSettingPresentation xsi:type="xs:string">по</dcsset:userSettingPresentation>
 </dcscor:item>`,
-      forReference: true,
+
     })
 
     const { result } = testAtomicToXML({

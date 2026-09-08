@@ -205,7 +205,6 @@ export interface ToXMLConfigurationContext {
 }
 
 export interface FromXMLConfigurationContext {
-  forReference: boolean
   /** Абсолютный путь текущего XML-источника для предметных известных аномалий. */
   currentXMLPath?: string
   /** Режим, ограничивающий доступные состояния свойств импортируемого компонента. */

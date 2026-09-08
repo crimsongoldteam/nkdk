@@ -34,7 +34,7 @@ interface ImportFromXmlDeps {
       languages: ConfigurationLanguages
       version: "2.20"
       exportToYAML: { toTyped: false }
-      fromXML: { forReference: false }
+      fromXML: { }
     }
     inputDir: string
     projectDir: string
@@ -89,7 +89,7 @@ export async function importFromXml(
         languages: defaultMcpConfigurationLanguages,
         version: "2.20",
         exportToYAML: { toTyped: false },
-        fromXML: { forReference: false },
+        fromXML: { },
       },
       inputDir: input.xmlDir,
       projectDir: project.projectDir,

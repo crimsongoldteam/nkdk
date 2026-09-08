@@ -13,7 +13,7 @@ describe("userSettingPresentation XML helpers", () => {
   })
 
   it("imports without hidden XML and exports the short form from its value", () => {
-    const reference = importUserSettingPresentationFromXML(mockContextFromXML({ forReference: true }), {
+    const reference = importUserSettingPresentationFromXML(mockContextFromXML(), {
       "_xsi:type": "xs:string",
       "#text": "по",
     })

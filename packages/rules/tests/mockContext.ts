@@ -56,18 +56,15 @@ export const mockContextToXML = (): ConfigurationContextWithExportToXML => {
   }
 }
 
-export const mockContextFromXML = (params?: { forReference?: boolean }): ConfigurationContextFromXML => {
-  const forReference = params?.forReference ?? false
+export const mockContextFromXML = (): ConfigurationContextFromXML => {
   return {
     ...mockContext,
-    fromXML: {
-      forReference: forReference,
-    },
+    fromXML: {},
   }
 }
 
-export const mockXmlImportContext = (params?: { forReference?: boolean }): XmlImportConfigurationContext => {
-  const context = mockContextFromXML(params)
+export const mockXmlImportContext = (): XmlImportConfigurationContext => {
+  const context = mockContextFromXML()
   return {
     ...context,
     fromXML: { ...context.fromXML, componentKind: "configuration" },

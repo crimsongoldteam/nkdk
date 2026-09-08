@@ -6,7 +6,7 @@ import { parseStructuralXMLWithoutCompatibility } from "../../../../tests/struct
 describe("TableAdditionalSource import", () => {
   it("keeps the source name rather than replacing it with a reference placeholder", () => {
     const { yaml } = testPropertyFromXMLToYAML({
-      context: mockContextFromXML({ forReference: true }),
+      context: mockContextFromXML(),
       rule: {
         itemType: "AdditionalSourceProbe",
         properties: { source: { type: "TableAdditionalSource", xml: "Source", yaml: "Источник" } },

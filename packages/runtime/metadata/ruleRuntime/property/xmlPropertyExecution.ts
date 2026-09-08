@@ -642,7 +642,7 @@ export function createXMLPropertyExecution(
                 ? atomicConversion.fromXMLToYAML({
                     context: {
                       ...diagnosticContext,
-                      fromXML: { forReference: true },
+                      fromXML: { },
                     } as ConfigurationContextFromXML,
                     value: reference.value,
                   }).metadataValue
@@ -938,7 +938,7 @@ function callAtomicFromXML(params: {
       : params.execution.getTypeRule(params.rule.type, "importFromXML")
     : params.compiled.operations.importFromXML
   if (handler === undefined) return params.value
-  return handler({ ...params.context, fromXML: { forReference: true } }, params.rule, params.value, params.name)
+  return handler({ ...params.context, fromXML: { } }, params.rule, params.value, params.name)
 }
 
 export function callAtomicFromYAML(params: AtomicFromYAMLParams): unknown {

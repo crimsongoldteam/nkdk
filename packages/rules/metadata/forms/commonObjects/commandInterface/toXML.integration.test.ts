@@ -38,7 +38,7 @@ describe("exportCommandInterfaceToXML", () => {
     const expectedResult = readXMLFileAsString("full.xml", fixturesDir)
     const referenceXML = readAndParseXMLFile<{ CommandInterface: CommandInterfaceXML }>("full.xml", fixturesDir)
     const referenceData = importCommandInterfaceFromXML(
-      mockContextFromXML({ forReference: true }),
+      mockContextFromXML(),
       mockRule,
       referenceXML.CommandInterface
     )
@@ -96,7 +96,7 @@ describe("exportCommandInterfaceToXML", () => {
       fixturesDir
     )
     const referenceData = importCommandInterfaceFromXML(
-      mockContextFromXML({ forReference: true }),
+      mockContextFromXML(),
       mockRule,
       referenceXML.CommandInterface
     )
@@ -114,7 +114,7 @@ describe("exportCommandInterfaceToXML", () => {
       fixturesDir
     )
     const referenceData = importCommandInterfaceFromXML(
-      mockContextFromXML({ forReference: true }),
+      mockContextFromXML(),
       mockRule,
       referenceXML.CommandInterface
     )
@@ -132,7 +132,7 @@ describe("exportCommandInterfaceToXML", () => {
       fixturesDir
     )
     const referenceData = importCommandInterfaceFromXML(
-      mockContextFromXML({ forReference: true }),
+      mockContextFromXML(),
       mockRule,
       referenceXML.CommandInterface
     )
@@ -155,7 +155,7 @@ describe("exportCommandInterfaceToXML", () => {
       fixturesDir
     )
     const referenceData = importCommandInterfaceFromXML(
-      mockContextFromXML({ forReference: true }),
+      mockContextFromXML(),
       mockRule,
       referenceXML.CommandInterface
     )

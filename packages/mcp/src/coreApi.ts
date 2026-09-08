@@ -98,7 +98,7 @@ export interface CoreApi {
       languages: ConfigurationLanguages
       version: "2.20"
       exportToYAML: { toTyped: false }
-      fromXML: { forReference: false }
+      fromXML: { }
     }
     inputDir: string
     projectDir?: string
