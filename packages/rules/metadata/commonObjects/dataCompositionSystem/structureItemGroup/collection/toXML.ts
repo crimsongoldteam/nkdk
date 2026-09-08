@@ -7,25 +7,21 @@ type ToXMLParams = {
   context: ConfigurationContextWithExportToXML
   rule: PropertyRule
   value: unknown
-  referenceMetadata?: unknown
 }
 
 export const exportStructureItemGroupCollectionToXML = ({
   context,
   value,
-  // referenceMetadata,
 }: ToXMLParams): unknown => {
   if (!value || !Array.isArray(value) || value.length === 0) return undefined
 
   const items = value as StructureItemGroupCollection
-  // const referenceItems = Array.isArray(referenceMetadata) ? (referenceMetadata as StructureItemGroupCollection) : []
   const result: Record<string, unknown>[] = []
 
   for (let index = 0; index < items.length; index++) {
     const item = items[index]!
     const registryItem = findStructureItemGroupRegistryItemByItemType(item.itemType)
     if (!registryItem) continue
-    // const referenceItem = referenceItems[index]
 
     const converted = callAtomicToXML({
       context,

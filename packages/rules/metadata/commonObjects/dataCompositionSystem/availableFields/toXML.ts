@@ -23,8 +23,7 @@ const exportItem = (context: ConfigurationContextWithExportToXML, item: Availabl
 const exportAvailableFieldsToXML = (
   context: ConfigurationContextWithExportToXML,
   _rule: PropertyRule | undefined,
-  value: AvailableFields | undefined,
-  _referenceMetadata?: AvailableFields | undefined
+  value: AvailableFields | undefined
 ): AvailableFieldsXML | undefined => {
   if (!value || value.length === 0) return undefined
 

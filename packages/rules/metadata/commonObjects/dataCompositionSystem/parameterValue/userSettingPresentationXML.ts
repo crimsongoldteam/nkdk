@@ -5,33 +5,11 @@ import type { ConfigurationContext, ConfigurationContextFromXML } from "@nkdk/ru
 import { isEmptyXmlElement, isXmlElementNode, xmlAttributeValue, xmlTextValue, type XmlElementNode } from "@nkdk/runtime"
 import type { UserSettingPresentationShortXML } from "./types"
 
-const shortFormMarker = Symbol("userSettingPresentationXML.shortForm")
-const shortFormOriginalText = Symbol("userSettingPresentationXML.originalText")
-
-type UserSettingPresentationReference = I8nText & {
-  [shortFormMarker]?: "xs:string"
-  [shortFormOriginalText]?: string
-}
-
 const isShortForm = (xml: unknown): xml is UserSettingPresentationShortXML =>
   typeof xml === "object" &&
   xml !== null &&
   !Array.isArray(xml) &&
   (xml as Record<string, unknown>)["_xsi:type"] === "xs:string"
-
-const markShortFormReference = (value: I8nText, originalText: string): I8nText => {
-  Object.defineProperties(value, {
-    [shortFormMarker]: { value: "xs:string" },
-    [shortFormOriginalText]: { value: originalText },
-  })
-  return value
-}
-
-const itemsEqual = (left: I8nText["items"], right: I8nText["items"]): boolean => {
-  const leftEntries = Object.entries(left)
-  const rightEntries = Object.entries(right)
-  return leftEntries.length === rightEntries.length && leftEntries.every(([lang, text]) => right[lang] === text)
-}
 
 const getSingleLanguageText = (items: I8nText["items"]): string | undefined => {
   const entries = Object.entries(items)
@@ -59,22 +37,15 @@ export const importUserSettingPresentationFromXML = (
 }
 
 function importShortPresentation(context: ConfigurationContextFromXML, text: string): I8nText {
-  const result: I8nText = { items: { [context.languages.default]: text } }
-  return context.fromXML.forReference ? markShortFormReference(result, text) : result
+  return { items: { [context.languages.default]: text } }
 }
 
 export const exportUserSettingPresentationToXML = (params: {
   context: ConfigurationContext
   data: I8nText | undefined
-  referenceData?: I8nText | undefined
 }): I8nTextXML | UserSettingPresentationShortXML | undefined => {
-  const { context, data, referenceData } = params
+  const { context, data } = params
   if (data === undefined) return undefined
-
-  const reference = referenceData as UserSettingPresentationReference | undefined
-  if (reference?.[shortFormMarker] === "xs:string" && itemsEqual(data.items, reference.items)) {
-    return { "_xsi:type": "xs:string", "#text": reference[shortFormOriginalText] ?? "" }
-  }
 
   const singleLanguageText = getSingleLanguageText(data.items)
   if (singleLanguageText !== undefined) {

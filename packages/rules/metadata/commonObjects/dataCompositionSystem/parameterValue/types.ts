@@ -34,7 +34,6 @@ export type ParameterValue = {
   value?: MetadataDcsMetadataValue | MetadataDcsMetadataValue[]
   item?: ParameterValue[]
   xmlNil?: true
-  __referenceNilValue?: true
 }
 
 export type SettingsParameterValue = ParameterValue & {

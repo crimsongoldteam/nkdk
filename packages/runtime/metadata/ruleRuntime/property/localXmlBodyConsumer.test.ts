@@ -297,11 +297,17 @@ describe("createLocalXmlBodyConsumer", () => {
     expectOwnerFinished(consumer, { Child: value })
   })
 
-  it("проверяет все повторяющиеся скалярные XML-узлы одного свойства", () => {
+  it.each([
+    { second: "B", expected: [] },
+    { second: "changed", expected: [["Items", "Item[2]"]] },
+  ])("адресует повторяющиеся XML-узлы одного свойства: $second", ({ second, expected }) => {
     const { root, nodes } = repeatedScalarItems()
     const differences: unknown[] = []
     const consumer = bodyConsumer(root, {
-      annotate: ({ differences: found }) => differences.push(...found),
+      annotate: ({ property }) => {
+        expect(property?.yamlKey).toBeUndefined()
+        differences.push(property?.xmlPath)
+      },
     })
     const property = asWriteProperty({
       propertyKey: "items", yamlKey: "items", xmlPath: ["Items", "Item"],
@@ -311,10 +317,10 @@ describe("createLocalXmlBodyConsumer", () => {
       propertyKey: property.propertyKey, node: nodes[0], nodes,
       presentInXML: true, xmlPath: ["Items", "Item"],
     })
-    consumer.write({ outputKey: "owner", property, path: ["Items", "Item"], value: ["A", "B"] })
+    consumer.write({ outputKey: "owner", property, path: ["Items", "Item"], value: ["A", second] })
 
-    expectOwnerFinished(consumer, { Items: { Item: ["A", "B"] } })
-    expect(differences).toEqual([])
+    expectOwnerFinished(consumer, { Items: { Item: ["A", second] } })
+    expect(differences).toEqual(expected)
   })
 
   it("локализует массовые path-only расхождения одним проходом по детям", () => {

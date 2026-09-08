@@ -160,7 +160,13 @@ export function createLocalXmlBodyConsumer(params: {
         ) {
           const receipts = binding.nodes.map((node, index) => {
             completedElements.add(node.id)
-            return complete(node, path.at(-1)!, value[index], property)
+            // Одно свойство может выдавать несколько соседних XML-узлов.
+            // Поправка относится к конкретному вхождению, не ко всему YAML-массиву.
+            return complete(node, path.at(-1)!, value[index], {
+              ...property,
+              yamlKey: undefined,
+              xmlPath: [...path.slice(0, -1), node.path.slice(node.path.lastIndexOf("/") + 1)],
+            })
           })
           if (value.length > binding.nodes.length) {
             const ownerPath = binding.owner?.path

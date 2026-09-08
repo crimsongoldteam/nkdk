@@ -57,7 +57,7 @@ describe("importParameterValueFromXML", () => {
     ).toEqual(nilSettingsParameterValue)
   })
 
-  it("keeps nil marker only for reference import", () => {
+  it("does not retain a hidden nil marker in either import mode", () => {
     expect(
       testImportPropertyFromXML({
         rule: nilSettingsParameterValueRule,
@@ -65,10 +65,7 @@ describe("importParameterValueFromXML", () => {
         xmlString: xmlNilSettingsParameterValue,
         forReference: true,
       })
-    ).toEqual({
-      ...nilSettingsParameterValue,
-      __referenceNilValue: true,
-    })
+    ).toEqual(nilSettingsParameterValue)
   })
 
   it("imports userSettingPresentation xs:string as I8nText", () => {

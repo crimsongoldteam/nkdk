@@ -14,8 +14,7 @@ const valueRule = {
 export const exportDcsAvailableValuesToXML = (
   context: ConfigurationContext,
   _rule: PropertyRule | undefined,
-  values: DcsAvailableValues | undefined,
-  _referenceMetadata?: DcsAvailableValues
+  values: DcsAvailableValues | undefined
 ): unknown[] | undefined => {
   if (!values || values.length === 0) return undefined
 

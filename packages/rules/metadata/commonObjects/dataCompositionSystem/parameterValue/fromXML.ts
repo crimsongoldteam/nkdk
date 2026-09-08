@@ -55,10 +55,8 @@ export const importParameterValueFromDcsXML = (
 ): ParameterValue | SettingsParameterValue => {
   const dcsRule = toDcsMetadataValueRule(rule)
   let valueFragments = isXmlElementNode(xml) ? xmlElementChildren(xml, "dcscor:value") : asArray(xml["dcscor:value"])
-  const valueNodePresent = isXmlElementNode(xml) ? valueFragments.length > 0 : Object.prototype.hasOwnProperty.call(xml, "dcscor:value")
   const only = valueFragments.length === 1 ? valueFragments[0] : undefined
   if (isXmlElementNode(only) && isEmptyXmlElement(only)) valueFragments = []
-  const nilValuePresent = valueFragments.some(isNilValueFragment) || (valueNodePresent && valueFragments.length === 0)
   const valueParts = valueFragments
     .filter((fragment) => !isNilValueFragment(fragment))
     .filter((fragment) => !isDcsAutoColorValueFragment(rule, fragment))
@@ -76,7 +74,6 @@ export const importParameterValueFromDcsXML = (
     ...(use !== undefined ? { use } : {}),
     ...(value !== undefined ? { value } : {}),
     ...(item !== undefined ? { item } : {}),
-    ...(context.fromXML.forReference && nilValuePresent ? { __referenceNilValue: true as const } : {}),
   }
 
   if ((isXmlElementNode(xml) ? xmlAttributeValue(xml, "xsi:type") : xml["_xsi:type"]) === "dcsset:SettingsParameterValue") {

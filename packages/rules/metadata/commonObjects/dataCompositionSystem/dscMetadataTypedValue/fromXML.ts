@@ -5,8 +5,7 @@ import { DcsMetadataTypedValueRegistry, DcsMetadataTypedValueTypeFromXML } from 
 import {
   DcsMetadataTypedValueNilXML,
   DcsMetadataTypedValuePropertyRule,
-  DcsMetadataTypedValueReference,
-  DcsMetadataTypedValueReferenceOrNil,
+  DcsMetadataTypedValue,
   DcsMetadataTypedValueUndefinedTypeXML,
   DcsMetadataTypedValueXML,
 } from "./types"
@@ -42,7 +41,7 @@ const importSingle = (
   context: ConfigurationContextFromXML,
   rule: DcsMetadataTypedValuePropertyRule,
   xml: DcsMetadataTypedValueXML | XmlElementNode | undefined
-): DcsMetadataTypedValueReferenceOrNil => {
+): DcsMetadataTypedValue | undefined => {
   if (isXmlElementNode(xml)) {
     if (xmlAttributeValue(xml, "xsi:nil") === "true") return undefined
     const xsiType = xmlAttributeValue(xml, "xsi:type")
@@ -56,7 +55,7 @@ const importSingle = (
   }
   if (isNilXML(xml)) return undefined
   if (isUndefinedTypeXML(xml)) {
-    return context.fromXML.forReference ? xml : undefined
+    return undefined
   }
 
   const type = DcsMetadataTypedValueTypeFromXML(xml["_xsi:type"])
@@ -67,7 +66,7 @@ export const importDcsMetadataTypedValueFromXML = (
   context: ConfigurationContextFromXML,
   rule: DcsMetadataTypedValuePropertyRule,
   xml: DcsMetadataTypedValueXML | XmlElementNode | (DcsMetadataTypedValueXML | XmlElementNode | undefined)[] | undefined
-): DcsMetadataTypedValueReference | DcsMetadataTypedValueReferenceOrNil[] | undefined => {
+): DcsMetadataTypedValue | (DcsMetadataTypedValue | undefined)[] | undefined => {
   if (xml === undefined) return undefined
   if (Array.isArray(xml)) {
     const items = xml.map((item) => importSingle(context, rule, item))
@@ -80,7 +79,7 @@ const importDcsMetadataTypedValueFromXMLForRule = (
   context: ConfigurationContextFromXML,
   rule: PropertyRule,
   value: unknown
-): DcsMetadataTypedValueReference | DcsMetadataTypedValueReferenceOrNil[] | undefined =>
+): DcsMetadataTypedValue | (DcsMetadataTypedValue | undefined)[] | undefined =>
   importDcsMetadataTypedValueFromXML(
     context,
     rule as DcsMetadataTypedValuePropertyRule,

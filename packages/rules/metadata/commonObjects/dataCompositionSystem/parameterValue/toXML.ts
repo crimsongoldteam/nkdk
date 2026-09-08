@@ -31,16 +31,6 @@ const normalizeValues = (v: ParameterValue["value"]): MetadataDcsMetadataValue[]
   return v
 }
 
-const isExplicitEmptyLocalStringType = (value: unknown): value is MetadataDcsMetadataValue => {
-  if (typeof value !== "object" || value === null || Array.isArray(value)) return false
-
-  const keys = Object.keys(value)
-  if (keys.length !== 1 || keys[0] !== "items") return false
-
-  const items = (value as { items?: unknown }).items
-  return typeof items === "object" && items !== null && !Array.isArray(items) && Object.keys(items).length === 0
-}
-
 const hasSettingsExtension = (data: ParameterValue | SettingsParameterValue): data is SettingsParameterValue =>
   (data as SettingsParameterValue).viewMode !== undefined ||
   (data as SettingsParameterValue).userSettingID !== undefined ||
@@ -51,28 +41,14 @@ const shouldRestoreDcsAutoColorValue = (
   data: ParameterValue | SettingsParameterValue
 ): boolean => rule.valueType === "Color" && data.value === undefined
 
-const findReferenceParameterValue = (
-  data: ParameterValue | SettingsParameterValue,
-  referenceItems: ParameterValue[] | undefined,
-  index: number
-): ParameterValue | undefined => {
-  if (referenceItems === undefined) return undefined
-
-  const sameParameter = referenceItems.filter((referenceItem) => referenceItem.parameter === data.parameter)
-  if (sameParameter.length === 1) return sameParameter[0]
-
-  return referenceItems[index] ?? sameParameter[0]
-}
-
 export const exportParameterValueToDcsXML = (params: {
   context: ConfigurationContext
   rule: SettingsParameterValuePropertyRule
   data: ParameterValue | SettingsParameterValue
-  referenceData?: ParameterValue | SettingsParameterValue | undefined
   /** Для корня из `registerTypeRule("SettingsParameterValue")` — всегда с `xsi:type`. */
   rootSettingsXsi: boolean
 }): ParameterValueXML | SettingsParameterValueXML => {
-  const { context, rule, data, referenceData, rootSettingsXsi } = params
+  const { context, rule, data, rootSettingsXsi } = params
   const dcsRule = toDcsMetadataValueRule(rule)
 
   const values = normalizeValues(data.value)
@@ -85,25 +61,11 @@ export const exportParameterValueToDcsXML = (params: {
     valueNodes.push(fragment["dcscor:value"] as ParameterValueDcsValueFragment)
   }
 
-  if (valueNodes.length === 0 && data.value === undefined && referenceData?.__referenceNilValue === true) {
-    valueNodes.push({ "_xsi:nil": true } as ParameterValueDcsValueFragment)
-  }
-
-  const referenceValues = referenceData?.value !== undefined ? normalizeValues(referenceData.value) : []
-  if (valueNodes.length === 0 && data.value === undefined && referenceValues.length === 1) {
-    const referenceValue = referenceValues[0]
-    if (isExplicitEmptyLocalStringType(referenceValue)) {
-      const fragment = exportDcsMetadataValueToDcsXML({ context, rule: dcsRule, data: referenceValue })
-      valueNodes.push(fragment["dcscor:value"] as ParameterValueDcsValueFragment)
-    }
-  }
-
-  const itemsXml = data.item?.map((child, index) =>
+  const itemsXml = data.item?.map((child) =>
     exportParameterValueToDcsXML({
       context,
       rule,
       data: child,
-      referenceData: findReferenceParameterValue(child, referenceData?.item, index),
       rootSettingsXsi: hasSettingsExtension(child),
     })
   )
@@ -138,7 +100,6 @@ export const exportParameterValueToDcsXML = (params: {
             "dcsset:userSettingPresentation": exportUserSettingPresentationToXML({
               context,
               data: sd.userSettingPresentation,
-              referenceData: (referenceData as SettingsParameterValue | undefined)?.userSettingPresentation,
             }),
           }
         : {}),
@@ -151,14 +112,12 @@ export const exportParameterValueToDcsXML = (params: {
 export const exportSettingsParameterValueToDcsXML = (
   context: ConfigurationContext,
   rule: PropertyRule,
-  data: ParameterValue | SettingsParameterValue,
-  referenceData?: ParameterValue | SettingsParameterValue | undefined
+  data: ParameterValue | SettingsParameterValue
 ): ParameterValueXML | SettingsParameterValueXML =>
   exportParameterValueToDcsXML({
     context,
     rule: rule as unknown as SettingsParameterValuePropertyRule,
     data,
-    referenceData,
     rootSettingsXsi: (rule as SettingsParameterValuePropertyRule).exportSettingsXsiType ?? true,
   })
 

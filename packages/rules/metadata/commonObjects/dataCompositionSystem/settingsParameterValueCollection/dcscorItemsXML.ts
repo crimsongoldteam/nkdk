@@ -84,11 +84,10 @@ export const exportSettingsParameterValueDcscorItemsToXML = (params: {
   context: ConfigurationContextWithExportToXML
   ruleSet: SettingsParameterValueRuleSet
   parameters: Record<string, SettingsParameterValue>
-  referenceParameters?: Record<string, SettingsParameterValue>
   /** Если задан — только эти имена и в этом порядке (например оформление полей). */
   orderedParameterNames?: string[]
 }): SettingsParameterValueCollectionXML | undefined => {
-  const { context, ruleSet, parameters, referenceParameters, orderedParameterNames } = params
+  const { context, ruleSet, parameters, orderedParameterNames } = params
 
   const names =
     orderedParameterNames !== undefined
@@ -104,13 +103,11 @@ export const exportSettingsParameterValueDcscorItemsToXML = (params: {
     const itemRule = getSettingsParameterValueRuleForParameter(ruleSet, parameterName)
     if (itemRule === undefined) continue
 
-    const referenceField = referenceParameters?.[parameterName]
     const { xmlNil, ...fieldWithoutNil } = fieldValue
     const itemXml = callAtomicToXML({
       context,
       rule: itemRule,
       value: fieldWithoutNil,
-      referenceValue: referenceField,
     })
     if (itemXml !== undefined) {
       items.push(xmlNil === true
