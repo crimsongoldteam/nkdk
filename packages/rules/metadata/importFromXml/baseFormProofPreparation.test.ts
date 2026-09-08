@@ -1,8 +1,18 @@
 import { createXmlAnomalyAnnotations } from "@nkdk/runtime"
 import { describe, expect, it } from "vitest"
 import { createBaseFormProofPreparation } from "./baseFormProofPreparation"
+import { yamlBaseFormProjectionSource } from "../forms/clientApplicationForm/baseFormProjectionSource"
 
 describe("подготовка YAML основы к локальному сравнению", () => {
+  it("сохраняет смену формы значения между скаляром, отображением и массивом", () => {
+    const prepare = createBaseFormProofPreparation(yamlBaseFormProjectionSource({
+      Строка: "Текст", Отображение: { Имя: "Имя" }, Массив: [{ Имя: "Имя" }],
+    }), createXmlAnomalyAnnotations())
+    const root = { Строка: { ru: "Текст" }, Отображение: [1], Массив: { Лишнее: 1 } }
+    prepare(root, [])
+    expect(root).toEqual({ Строка: "Текст", Отображение: { Имя: "Имя" }, Массив: [{ Имя: "Имя" }] })
+  })
+
   it("не читает и не переписывает завершённое дочернее значение при подготовке родителя", () => {
     let childReads = 0
     const source = {
@@ -13,7 +23,7 @@ describe("подготовка YAML основы к локальному сра�
         },
       },
     }
-    const prepare = createBaseFormProofPreparation(source, createXmlAnomalyAnnotations())
+    const prepare = createBaseFormProofPreparation(yamlBaseFormProjectionSource(source), createXmlAnomalyAnnotations())
     const field = { Вид: "ПолеВвода", Ширина: 99 }
     prepare(field, ["Элементы", "Поле"])
     expect(field).toEqual({ Вид: "ПолеВвода", Ширина: 22 })
@@ -30,7 +40,7 @@ describe("подготовка YAML основы к локальному сра�
 
   it("обрабатывает ещё не завершённые значения в массивах", () => {
     const prepare = createBaseFormProofPreparation(
-      { Значения: [{ Имя: "Первое" }, { Имя: "Второе" }] },
+      yamlBaseFormProjectionSource({ Значения: [{ Имя: "Первое" }, { Имя: "Второе" }] }),
       createXmlAnomalyAnnotations(),
     )
     const first = { Имя: "Старое" }

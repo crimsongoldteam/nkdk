@@ -113,7 +113,7 @@ import type { MetadataWorkerOperationRegistry } from "../workerPool/operationReg
 import { prepareYamlFiles } from "../project/prepareYamlFiles"
 import type { ClientApplicationFormYAML } from "../forms/clientApplicationForm/types"
 import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
-import { equalClientApplicationBaseFormSourceProjections, projectClientApplicationBaseFormSources } from "../forms/clientApplicationForm/baseFormProjection"
+import { equalClientApplicationBaseFormSourceProjections, createClientApplicationBaseFormProjectionSource } from "../forms/clientApplicationForm/baseFormProjection"
 import { yamlBaseFormProjectionSource } from "../forms/clientApplicationForm/baseFormProjectionSource"
 import { collectClientApplicationFormStructure } from "../forms/clientApplicationForm/formStructureProjection"
 import { validateClientApplicationBaseFormDataPaths } from "../forms/clientApplicationForm/borrowedFormValidation"
@@ -660,12 +660,12 @@ async function processSecondPass(
       })
       ? "projected" as const
       : "saved" as const
-    const baseFormProofYAML = baseFormSource === "projected"
-      ? projectClientApplicationBaseFormSources({
+    const baseFormProofSource = baseFormSource === "projected"
+      ? createClientApplicationBaseFormProjectionSource({
           baseYaml: currentSource!,
           extensionYaml: formSource!,
           rule: ClientApplicationFormRules,
-        }).yaml
+        })
       : undefined
     let earlyIssueDecisions: readonly ImportIssueDecision[] = []
     let finalizedRootIssueDecisions: readonly ImportIssueDecision[] = []
@@ -700,7 +700,7 @@ async function processSecondPass(
         ? {}
         : { currentConfigurationFormYaml: currentConfigurationFormYAML }),
       baseFormSource,
-      ...(baseFormProofYAML === undefined ? {} : { baseFormProofYaml: baseFormProofYAML }),
+      ...(baseFormProofSource === undefined ? {} : { baseFormProofSource }),
       collector,
       inputs,
       profiler,

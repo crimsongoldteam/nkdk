@@ -19,6 +19,7 @@ import { importClientApplicationFormFromXMLToYAML } from "../forms/clientApplica
 import { importBaseFormYaml } from "../forms/clientApplicationForm/baseFormYaml"
 import { ClientApplicationFormRules, FormRulesTags } from "../forms/clientApplicationForm/rules"
 import type { ClientApplicationFormYAML } from "../forms/clientApplicationForm/types"
+import type { BaseFormProjectionSource } from "../forms/clientApplicationForm/baseFormProjectionSource"
 import { prepareClientApplicationFormProofContexts, prepareClientApplicationFormProofContextsFromPrepared, prepareClientApplicationFormRootOutput } from "../forms/clientApplicationForm/convertYAMLToXML"
 import type { FormDataPathContext } from "../forms/clientApplicationForm/formDataPathContext"
 import { importMetadataItemFromXMLToYAML } from "../ruleRuntime/metadataItem/fromXMLToYAML"
@@ -177,7 +178,7 @@ interface ImportFormProofOptions {
   readonly currentConfigurationFormYaml?: ClientApplicationFormYAML
   readonly savedBaseFormYaml?: ClientApplicationFormYAML
   readonly baseFormSource?: "saved" | "projected"
-  readonly baseFormProofYaml?: ClientApplicationFormYAML
+  readonly baseFormProofSource?: BaseFormProjectionSource
 }
 
 export async function prepareImportYamlFromDocuments(params: ImportFormProofOptions & {
@@ -263,7 +264,7 @@ function prepareImportYamlFromParsedInputs(params: ImportFormProofOptions & {
       baseFormDependencies: params.baseFormDependencies,
       profiler: params.profiler,
       source: params.baseFormSource ?? "saved",
-      proofYaml: params.baseFormProofYaml,
+      proofSource: params.baseFormProofSource,
       ...(localRoundTripParams === undefined
         ? {}
         : {
@@ -447,7 +448,7 @@ function importAssignmentBaseFormCandidate(params: {
   readonly baseFormDependencies?: PreparedImportDependencies
   readonly profiler?: ValidationProfiler
   readonly source: "saved" | "projected"
-  readonly proofYaml?: ClientApplicationFormYAML
+  readonly proofSource?: BaseFormProjectionSource
   readonly localRoundTrip?: Omit<ImportLocalRoundTripOptions, "finalizeRootYaml"> & {
     readonly finalizeRootYaml?: ImportLocalRoundTripOptions["finalizeRootYaml"]
     readonly proofContext?: ConfigurationContextWithExportToXML
@@ -464,8 +465,8 @@ function importAssignmentBaseFormCandidate(params: {
   const annotations = createXmlAnomalyAnnotations()
   // Локальное сравнение уже находит остаток XML; второй аудит чтений не нужен.
   const audit = params.localRoundTrip === undefined ? createXmlImportAuditSession([baseFormNode]) : undefined
-  const prepareProof = params.proofYaml === undefined
-    ? undefined : createBaseFormProofPreparation(params.proofYaml, annotations)
+  const prepareProof = params.proofSource === undefined
+    ? undefined : createBaseFormProofPreparation(params.proofSource, annotations)
   const localRoundTrip = params.localRoundTrip === undefined ? undefined : createImportLocalRoundTrip({
     execution: params.localRoundTrip.execution,
     context: params.localRoundTrip.context,

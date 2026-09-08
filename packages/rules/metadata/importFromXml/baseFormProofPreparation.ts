@@ -1,44 +1,46 @@
 import { copyYAMLRuntimeMetadata, type XmlAnomalyAnnotationTable } from "@nkdk/runtime"
-import { importedYamlValueAtPath } from "./yamlPathValue"
+import type { BaseFormProjectionSource } from "../forms/clientApplicationForm/baseFormProjectionSource"
 
 export function createBaseFormProofPreparation(
-  source: Record<string, unknown>,
+  source: BaseFormProjectionSource,
   annotations: XmlAnomalyAnnotationTable,
 ): (yaml: Record<string, unknown>, path: readonly (string | number)[]) => void {
   const prepared = new WeakSet<object>()
   return (yaml, path) => {
     if (prepared.has(yaml)) return
-    const value = importedYamlValueAtPath(source, path)
-    if (isRecord(value)) {
+    let value: BaseFormProjectionSource | undefined = source
+    for (const segment of path) value = value?.child(String(segment))
+    if (value !== undefined) {
       replaceMapping(yaml, value)
       prepared.add(yaml)
     }
   }
 
-  function replaceMapping(target: Record<string, unknown>, value: Record<string, unknown>): void {
+  function replaceMapping(target: Record<string, unknown>, value: BaseFormProjectionSource): void {
     for (const key of Object.keys(target)) {
-      if (!Object.hasOwn(value, key) && annotations.at(target, key)?.kind !== "raw") delete target[key]
+      if (!value.has(key) && annotations.at(target, key)?.kind !== "raw") delete target[key]
     }
-    for (const key of Object.keys(value)) {
+    for (const key of value.keys()) {
       if (isPrepared(target[key])) continue
-      replaceValue(target, key, value[key])
+      replaceValue(target, key, value)
     }
-    copyYAMLRuntimeMetadata(value, target)
+    if (value.metadataSource !== undefined) copyYAMLRuntimeMetadata(value.metadataSource, target)
   }
 
-  function replaceValue(target: Record<string, unknown> | unknown[], key: string | number, value: unknown): void {
+  function replaceValue(target: Record<string, unknown> | unknown[], key: string | number, source: BaseFormProjectionSource): void {
     const mapping = target as Record<string | number, unknown>
     const previous = mapping[key]
-    if (isRecord(previous) && isRecord(value)) {
-      replaceMapping(previous, value)
-    } else if (Array.isArray(previous) && Array.isArray(value)) {
-      previous.length = value.length
-      for (let index = 0; index < value.length; index += 1) {
-        if (!isPrepared(previous[index])) replaceValue(previous, index, value[index])
+    const child = previous !== null && typeof previous === "object" ? source.child(String(key)) : undefined
+    if (isRecord(previous) && child !== undefined && !Array.isArray(child.metadataSource)) {
+      replaceMapping(previous, child)
+    } else if (Array.isArray(previous) && child !== undefined && Array.isArray(child.metadataSource)) {
+      previous.length = child.keys().length
+      for (let index = 0; index < previous.length; index += 1) {
+        if (!isPrepared(previous[index])) replaceValue(previous, index, child)
       }
-      copyYAMLRuntimeMetadata(value, previous)
+      if (child.metadataSource !== undefined) copyYAMLRuntimeMetadata(child.metadataSource, previous)
     } else {
-      mapping[key] = value
+      mapping[key] = source.read(String(key))
     }
   }
 

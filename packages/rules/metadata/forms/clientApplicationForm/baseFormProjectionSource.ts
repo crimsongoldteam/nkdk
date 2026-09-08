@@ -18,10 +18,7 @@ export function yamlBaseFormProjectionSource(yaml: Record<string, unknown>): Bas
     read: key => yaml[key],
     child(key) {
       const value = yaml[key]
-      if (value === undefined) return undefined
-      if (value === null || typeof value !== "object") {
-        throw new Error(`Поле проекции основы ${key} должно быть объектом`)
-      }
+      if (value === null || typeof value !== "object") return undefined
       return yamlBaseFormProjectionSource(value as Record<string, unknown>)
     },
     hasRuntimeMetadata: (key, annotations) => hasYAMLRuntimeMetadataAt(yaml, key, annotations),

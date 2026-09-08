@@ -39,6 +39,83 @@ interface YAMLRuntimeCorrespondence {
   readonly target: object
 }
 
+/** Проекция для локального proof: дерево элементов не собирается в отдельный YAML. */
+export function createClientApplicationBaseFormProjectionSource(params: {
+  readonly baseYaml: BaseFormProjectionSource
+  readonly extensionYaml: BaseFormProjectionSource
+  readonly rule?: MetadataItemRule
+}): BaseFormProjectionSource {
+  const rule = params.rule ?? ClientApplicationFormRules
+  const collectionRule = rule.properties.childItems
+  if (collectionRule === undefined) throw new Error(`Правило формы ${rule.itemType} не содержит childItems`)
+  const context = createProjectionContext({
+    ...params,
+    registerYAMLRuntimeCorrespondence: copyRuntimeMetadataForComparison,
+  })
+  const extensionElements = indexElementsByName(params.extensionYaml.child("Элементы"), collectionRule, context)
+  return item(params.baseYaml, collectionRule, () => projectMetadataItemProperties({
+    ...params, baseRule: rule, extensionRule: rule, context, skippedYamlKeys: new Set(["Элементы"]),
+  }))
+
+  function item(
+    base: BaseFormProjectionSource,
+    childrenRule: PropertyRule | undefined,
+    properties: () => Record<string, unknown>,
+  ): BaseFormProjectionSource {
+    let own: Record<string, unknown> | undefined
+    const values = () => own ??= properties()
+    const children = base.child("Элементы")
+    const childSource = () => {
+      if (children === undefined) return undefined
+      if (childrenRule === undefined) throw new Error("Для элементов основы не определено правило коллекции")
+      return tree(children, childrenRule)
+    }
+    return {
+      keys: () => [...Object.keys(values()), ...(children === undefined ? [] : ["Элементы"])],
+      has: key => key === "Элементы" ? children !== undefined : Object.hasOwn(values(), key),
+      read: key => key === "Элементы" ? materializeProjection(childSource()) : values()[key],
+      child(key) {
+        if (key === "Элементы") return childSource()
+        const value = values()[key]
+        return isYamlObject(value) ? yamlBaseFormProjectionSource(value as Record<string, unknown>) : undefined
+      },
+      hasRuntimeMetadata: (key, annotations) => base.hasRuntimeMetadata(key, annotations),
+      metadataSource: base.metadataSource,
+    }
+  }
+
+  function tree(base: BaseFormProjectionSource, rule: PropertyRule): BaseFormProjectionSource {
+    const child = (name: string): BaseFormProjectionSource | undefined => {
+      if (!base.has(name)) return undefined
+      const value = base.child(name)!
+      const baseRule = resolveFormElementRule({ yaml: { Вид: value.read("Вид") }, name, propertyRule: rule })
+      const extension = extensionElements.get(name)
+      return item(value, context.rulesByYamlKey(baseRule).get("Элементы"), () => ({
+        Вид: value.read("Вид"),
+        ...(extension === undefined ? {} : projectAliasedMetadataItemProperties({
+          baseYaml: value, extensionYaml: extension.yaml, baseRule, extensionRule: extension.rule,
+          context, skippedYamlKeys: new Set(["Элементы"]),
+        })),
+      }))
+    }
+    return {
+      keys: () => base.keys(),
+      has: key => base.has(key),
+      read: key => materializeProjection(child(key)),
+      child,
+      hasRuntimeMetadata: (key, annotations) => base.hasRuntimeMetadata(key, annotations),
+      metadataSource: base.metadataSource,
+    }
+  }
+}
+
+function materializeProjection(source: BaseFormProjectionSource | undefined): unknown {
+  if (source === undefined) return undefined
+  const value = Object.fromEntries(source.keys().map(key => [key, source.read(key)]))
+  copyRuntimeMetadataForComparison(source.metadataSource, value)
+  return value
+}
+
 export function projectClientApplicationBaseForm(params: {
   readonly baseYaml: ClientApplicationFormYAML
   readonly extensionYaml: ClientApplicationFormYAML
