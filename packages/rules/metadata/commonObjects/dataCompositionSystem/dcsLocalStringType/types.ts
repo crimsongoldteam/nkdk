@@ -24,9 +24,8 @@ export type DcsLocalStringTypeRuleParams = Omit<DcsLocalStringTypeWidePropertyRu
 
 export function dcsLocalStringTypeRule<const Params extends DcsLocalStringTypeRuleParams>(
   params: WideExactRuleParams<DcsLocalStringTypeRuleParams, Params>
-): Readonly<{ type: "DcsLocalStringType"; preserveUnknownReferenceXML: false } & Params> {
+): Readonly<{ type: "DcsLocalStringType" } & Params> {
   return defineWidePropertyRule("DcsLocalStringType", {
-    preserveUnknownReferenceXML: false,
     ...params,
   })
 }

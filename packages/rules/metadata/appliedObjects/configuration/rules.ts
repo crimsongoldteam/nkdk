@@ -345,7 +345,6 @@ export const MetadataConfigurationRules = {
       xml: "RequiredMobileApplicationPermissions",
       implicitValueYAML: EMPTY_REQUIRED_MOBILE_APPLICATION_PERMISSIONS,
       evaluateWhenYAMLMissing: true,
-      preserveUnknownReferenceXML: false,
       defaultValueXML: EMPTY_REQUIRED_MOBILE_APPLICATION_PERMISSIONS,
       defaultValueXMLRaw: "",
       xmlParents: configurationProperties,
@@ -355,7 +354,6 @@ export const MetadataConfigurationRules = {
       xmlParents: configurationProperties,
       implicitValueYAML: IMPLICIT_USED_MOBILE_APPLICATION_FUNCTIONALITIES,
       evaluateWhenYAMLMissing: true,
-      preserveUnknownReferenceXML: false,
     }),
     standaloneConfigurationRestrictionRoles: metadataItemLinksRule({
       yaml: "РолиОграниченияАвтономнойКонфигурации",

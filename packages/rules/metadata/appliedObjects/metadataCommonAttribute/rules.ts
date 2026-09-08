@@ -144,7 +144,6 @@ export const MetadataCommonAttributeRules = {
       xmlParents: properties,
       defaultValueXMLRaw: { "_xsi:type": "xs:string" },
       exportNilValue: true,
-      preserveUnknownReferenceXML: false,
     }),
     fillChecking: systemEnumerationRule({
       yaml: "ПроверкаЗаполнения",

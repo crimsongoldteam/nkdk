@@ -10,7 +10,6 @@ export const CalculatedFieldOrderExpressionRules = {
       xml: "expression",
       yaml: "Выражение",
       xmlNamespace: "http://v8.1c.ru/8.1/data-composition-system/common",
-      preserveUnknownReferenceXML: false,
     }),
     orderType: systemEnumerationRule({
       typeSE: "DataCompositionSortDirection",
@@ -18,7 +17,6 @@ export const CalculatedFieldOrderExpressionRules = {
       yaml: "ТипУпорядочивания",
       xmlNamespace: "http://v8.1c.ru/8.1/data-composition-system/common",
       noImplicitValueYAML: true,
-      preserveUnknownReferenceXML: false,
     }),
     autoOrder: booleanRule({
       xml: "autoOrder",

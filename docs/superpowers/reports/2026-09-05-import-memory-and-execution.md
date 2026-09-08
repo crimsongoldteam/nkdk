@@ -597,3 +597,21 @@ compatibility ещё предстоит удалить; весь план не �
 /private/tmp/nkdk-item-collection-reference-{types2,duplicates,arch-rules,arch,full,e2e}.log.
 Остаточные reference-ветви исполнителя свойств, parser compatibility,
 итоговые профили и независимое ревью ещё открыты.
+
+### Удаление неиспользуемых флагов reference
+
+Из исполнителя свойств удалены ветви копирования отсутствующих значений из
+reference, неиспользуемые признаки indexedExplicitEmpty/synthesizedDefault,
+а из общих типов и rules — preserveUnknownReferenceXML и
+omitNonImplicitReferenceXMLWhenYAMLMissing. Чтение индекса явно обозначено
+как чтение identity; произвольные свойства XML индекс не возвращает.
+
+Проверка диаграммы Ганта показала, что её запрещённые служебные добавления
+раньше подавлялись старым флагом. Теперь общий исполнитель учитывает toXML
+до преобразования, без частного условия по диаграмме и без новых флагов.
+Все 106 исходных фикстур элементов формы вновь совпадают точно.
+
+Прошли 700 тестов ruleRuntime, type-check, duplicates от f9c51e1, обе
+архитектурные проверки, полный pnpm test и 214 e2e. Логи:
+/private/tmp/nkdk-property-dead-reference-{targeted3,elements,types2,duplicates2,arch-rules,arch,full,e2e}.log.
+Удаление старого представления парсера и завершение всего плана остаются открытыми.

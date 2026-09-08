@@ -98,9 +98,6 @@ export interface BasePropertyRule {
   /** Значение, подразумеваемое отсутствием XML-тега; при выгрузке не пишется явно. */
   implicitValueXML?: unknown
 
-  /** При отсутствии YAML-ключа не переносить из reference XML значение, отличное от implicitValueYAML. */
-  omitNonImplicitReferenceXMLWhenYAMLMissing?: true
-
   /** Явно фиксирует, что для YAML-свойства нет неявного значения. */
   noImplicitValueYAML?: true
 
@@ -140,9 +137,6 @@ export interface BasePropertyRule {
 
   /** Не импортировать из XML */
   fromXML?: false
-
-  /** Не переносить неизвестные вложенные XML-данные из reference внутрь результата атомарного exportToXML. */
-  preserveUnknownReferenceXML?: false
 
   /**
    * Вычислять XML-only свойство при отсутствии значения в YAML.

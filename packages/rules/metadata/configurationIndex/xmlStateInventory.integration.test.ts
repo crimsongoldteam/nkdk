@@ -54,7 +54,6 @@ describe("тонкое содержимое снимка конфигураци�
           yaml: "Длина",
           defaultValueXML: 25,
           implicitValueYAML: 30,
-          omitNonImplicitReferenceXMLWhenYAMLMissing: true,
         },
       },
     } as const satisfies MetadataItemRule

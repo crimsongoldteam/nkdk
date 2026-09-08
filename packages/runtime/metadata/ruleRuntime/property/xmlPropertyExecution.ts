@@ -90,7 +90,6 @@ export interface AtomicToXMLParams {
   readonly source?: YAMLPropertySource
   readonly propertyKey?: string
   readonly sourceHasProperty?: boolean
-  readonly preserveIndexedImplicitValue?: true
 }
 
 interface MutableOutput {
@@ -100,12 +99,10 @@ interface MutableOutput {
   readonly observer?: XMLPropertyExecutionObserver
 }
 
-interface ReferenceProperty {
+interface IndexedIdentityProperty {
   readonly exists: boolean
   readonly key?: string
   readonly value?: unknown
-  readonly indexedExplicitEmpty?: true
-  readonly synthesizedDefault?: true
 }
 
 export function createYAMLPropertySource(params: {
@@ -333,7 +330,7 @@ export function createXMLPropertyExecution(
       ? typeRule(planned.propertyRule.type, "nestedItemIdentity")?.reserveWhenAbsent === true
       : compiled.flags.reserveNestedItemWhenAbsent
     const references = matchingOutputs.map(({ request }) =>
-      readReferenceProperty({
+      readIndexedIdentityProperty({
         context: request.context ?? propertyContext,
         planned,
         execution: params.execution,
@@ -354,11 +351,7 @@ export function createXMLPropertyExecution(
         })
       )
     }
-    if (
-      !isYAMLPropertyExportEnabled({ source, planned, context: params.context }) &&
-      planned.propertyRule.preserveUnknownReferenceXML === false &&
-      references.every((reference) => !reference.exists || reference.synthesizedDefault === true)
-    ) return
+    if (!isYAMLPropertyExportEnabled({ source, planned, context: propertyContext })) return
     if (
       resolveXMLDefaultVariant(propertyContext) === "adopted" &&
       !sourceHasProperty &&
@@ -372,10 +365,7 @@ export function createXMLPropertyExecution(
       !reserveNestedItemWhenAbsent &&
       propertyKey !== namePropertyKey &&
       !sourceHasProperty &&
-      ((!references.some((reference) => reference.exists) && !requiresEvaluation) ||
-        (planned.propertyRule.exportNilValue === true &&
-          planned.propertyRule.preserveUnknownReferenceXML === false &&
-          references.every((reference) => reference.value === undefined))) &&
+      !references.some((reference) => reference.exists) && !requiresEvaluation &&
       (!hasXMLDefault || params.omitDefaultsForSparseYAML === true)
     ) {
       return
@@ -388,79 +378,6 @@ export function createXMLPropertyExecution(
 
 
     if (
-      !sourceHasProperty &&
-      !(planned.propertyKey === namePropertyKey && params.name !== undefined) &&
-      planned.propertyRule.omitNonImplicitReferenceXMLWhenYAMLMissing === true &&
-      Object.prototype.hasOwnProperty.call(planned.propertyRule, "implicitValueYAML") &&
-      typeof planned.propertyRule.implicitValueYAML !== "function" &&
-      references.every((reference) => reference.exists)
-    ) {
-      matchingOutputs.forEach((output, index) => {
-        const reference = references[index]!
-        const referenceValue = callAtomicFromXML({
-          context: propertyContext,
-          rule: planned.propertyRule,
-          value: reference.value,
-          name: params.name,
-          execution: params.execution,
-          compiled,
-        })
-        if (referenceValue === planned.propertyRule.implicitValueYAML) {
-          writeXMLValue({ context: propertyContext, output, planned, value: reference.value, reference })
-        }
-      })
-      return
-    }
-
-    if (
-      !sourceHasProperty &&
-      !(planned.propertyKey === namePropertyKey && params.name !== undefined) &&
-      planned.propertyRule.runtimeOnly !== true &&
-      planned.propertyRule.syncExternalOnly !== true &&
-      planned.propertyRule.filePath === undefined &&
-      planned.propertyRule.preserveEmptyXML !== true &&
-      planned.propertyRule.preserveUnknownReferenceXML !== false &&
-      planned.propertyRule.excludeIfEqualNameYAML !== true &&
-      nestedRule === undefined &&
-      !requiresEvaluation &&
-      references.every((reference) => reference.exists) &&
-      references.every(
-        (reference) =>
-          reference.synthesizedDefault !== true &&
-          (reference.value !== undefined ||
-            exportHandler === undefined ||
-            Object.prototype.hasOwnProperty.call(planned.propertyRule, "defaultValueXMLRaw"))
-      ) &&
-      (!hasXMLDefault ||
-        Object.prototype.hasOwnProperty.call(planned.propertyRule, "defaultValueXMLRaw") ||
-        references.every((reference) => reference.value !== undefined))
-    ) {
-      matchingOutputs.forEach((output, index) => {
-        const reference = references[index]!
-        const value =
-          reference.value === undefined &&
-          Object.prototype.hasOwnProperty.call(planned.propertyRule, "defaultValueXMLRaw")
-            ? planned.propertyRule.defaultValueXMLRaw
-            : reference.value
-        writeXMLValue({ context: propertyContext, output, planned, value, reference })
-      })
-      return
-    }
-
-    if (
-      !sourceHasProperty &&
-      !(planned.propertyKey === namePropertyKey && params.name !== undefined) &&
-      planned.propertyRule.preserveUnknownReferenceXML === false &&
-      !requiresEvaluation &&
-      !hasXMLDefault
-    ) {
-      return
-    }
-
-    const preservesIndexedProperty =
-      !sourceHasProperty && references.some((reference) => reference.synthesizedDefault === true)
-    if (
-      !preservesIndexedProperty &&
       !reserveNestedItemWhenAbsent &&
       !shouldConvertYAMLProperty({ source, planned, context: propertyContext })
     ) return
@@ -843,7 +760,6 @@ export function createXMLPropertyExecution(
               source,
               propertyKey,
               sourceHasProperty,
-              preserveIndexedImplicitValue: reference.synthesizedDefault === true,
             })
           : callAtomicToXML({
           handler: exportHandler,
@@ -856,9 +772,6 @@ export function createXMLPropertyExecution(
           source,
           propertyKey,
           sourceHasProperty,
-          ...(reference.synthesizedDefault === true
-            ? { preserveIndexedImplicitValue: true as const }
-            : {}),
           })
         if (params.profile !== undefined && !usedFusedAtomic) params.profile.atomicToXMLCount++
         const valuePath = writeXMLValue({ context: outputContext, output, planned, value: exported, reference })
@@ -947,7 +860,6 @@ function atomicRepresentationToXML(params: {
   readonly source?: YAMLPropertySource
   readonly propertyKey?: string
   readonly sourceHasProperty?: boolean
-  readonly preserveIndexedImplicitValue: boolean
 }): unknown {
   const { context, rule, metadataValue, representationValue, source, propertyKey } = params
   if (
@@ -965,10 +877,7 @@ function atomicRepresentationToXML(params: {
   if (isDefaultValue(metadataValue, rule.defaultValue)) {
     if (shouldCreateRawParent(metadataValue, rule)) return metadataValue
     if (Object.prototype.hasOwnProperty.call(rule, "defaultValueXMLRaw")) return rule.defaultValueXMLRaw
-    const xmlDefault = params.preserveIndexedImplicitValue
-      && Object.prototype.hasOwnProperty.call(rule, "defaultValueXML")
-      ? { exists: true, value: rule.defaultValueXML }
-      : resolveXMLDefault(context, rule, propertyKey, source)
+    const xmlDefault = resolveXMLDefault(context, rule, propertyKey, source)
     return xmlDefault.exists ? wrapWithNamespace(rule, xmlDefault.value) : undefined
   }
   return wrapWithNamespace(rule, representationValue)
@@ -1167,7 +1076,6 @@ export function callAtomicToXML(params: AtomicToXMLParams): unknown {
       source: params.source,
       propertyKey: params.propertyKey,
       sourceHasProperty: params.sourceHasProperty,
-      preserveIndexedImplicitValue: params.preserveIndexedImplicitValue === true,
     })
   }
   const handler = params.compiled === undefined
@@ -1183,10 +1091,7 @@ export function callAtomicToXML(params: AtomicToXMLParams): unknown {
     propertyKey,
     sourceHasProperty: params.sourceHasProperty,
   })
-  const xmlDefault =
-    params.preserveIndexedImplicitValue === true && Object.prototype.hasOwnProperty.call(rule, "defaultValueXML")
-      ? { exists: true, value: rule.defaultValueXML }
-      : resolveXMLDefault(context, rule, propertyKey, source)
+  const xmlDefault = resolveXMLDefault(context, rule, propertyKey, source)
   if (handler === undefined) {
     if (forcedXMLDefault.exists) return wrapWithNamespace(rule, forcedXMLDefault.value)
     if (isDefaultValue(value, rule.defaultValue)) {
@@ -1281,14 +1186,14 @@ function matchesOutputTag(rule: PropertyRule, output: YAMLToXMLOutputRequest): b
   return output.tags === undefined || (rule.tag !== undefined && output.tags.includes(rule.tag))
 }
 
-function readReferenceProperty(params: {
+function readIndexedIdentityProperty(params: {
   context: ConfigurationContextWithExportToXML
   planned: YAMLToXMLPlannedProperty
   execution?: PropertyRuleExecution
   identityDescriptor?: ConfigurationIndexValueFromXMLDescriptor
   identityDescriptorResolved?: boolean
-}): ReferenceProperty {
-  return referenceFromConfigurationIndex(
+}): IndexedIdentityProperty {
+  return indexedIdentityFromConfigurationIndex(
     params.context,
     params.planned,
     params.execution,
@@ -1297,14 +1202,14 @@ function readReferenceProperty(params: {
   )
 }
 
-function referenceFromConfigurationIndex(
+function indexedIdentityFromConfigurationIndex(
   context: ConfigurationContextWithExportToXML,
   planned: YAMLToXMLPlannedProperty,
   execution?: PropertyRuleExecution,
   identityDescriptor?: ConfigurationIndexValueFromXMLDescriptor,
   identityDescriptorResolved?: boolean,
-): ReferenceProperty {
-  const identity = identityReferenceFromConfigurationIndex(
+): IndexedIdentityProperty {
+  const identity = readIdentityFromConfigurationIndex(
     context,
     planned,
     execution,
@@ -1315,13 +1220,13 @@ function referenceFromConfigurationIndex(
   return { exists: false }
 }
 
-function identityReferenceFromConfigurationIndex(
+function readIdentityFromConfigurationIndex(
   context: ConfigurationContextWithExportToXML,
   planned: YAMLToXMLPlannedProperty,
   execution?: PropertyRuleExecution,
   identityDescriptor?: ConfigurationIndexValueFromXMLDescriptor,
   identityDescriptorResolved?: boolean,
-): ReferenceProperty | undefined {
+): IndexedIdentityProperty | undefined {
   if ((planned.propertyRule.xmlParents?.length ?? 0) > 0) return undefined
   const xmlKey = planned.propertyRule.xml ?? planned.xmlPath.at(-1)
   const runtime = context.exportToXML.configurationIndex
@@ -1348,7 +1253,7 @@ function writeXMLValue(params: {
   output: MutableOutput
   planned: YAMLToXMLPlannedProperty
   value: unknown
-  reference: ReferenceProperty
+  reference: IndexedIdentityProperty
 }): readonly string[] | undefined {
   const { output, planned, reference } = params
   const rule = planned.propertyRule
@@ -1357,16 +1262,7 @@ function writeXMLValue(params: {
     reference.exists &&
     planned.propertyRule.preserveEmptyXML !== true &&
     !Object.prototype.hasOwnProperty.call(rule, "implicitValueXML")
-  const rawValue =
-    params.value === undefined &&
-    reference.exists &&
-    planned.propertyRule.preserveEmptyXML === true &&
-    reference.indexedExplicitEmpty === true &&
-    isExplicitEmptyXMLReference(reference.value)
-      ? reference.value
-      : usesEmptyReferenceFallback
-        ? {}
-        : params.value
+  const rawValue = usesEmptyReferenceFallback ? {} : params.value
   const value = wrapWithNamespace(rule, rawValue)
   if (value === undefined) return undefined
   if (Array.isArray(value) && value.length === 0) {
@@ -1414,11 +1310,6 @@ function isEmptyCollectionOutput(value: unknown, xmlElement: string): boolean {
   if (!isRecord(value) || Object.keys(value).length !== 1) return false
   const items = value[xmlElement]
   return Array.isArray(items) && items.length === 0
-}
-
-function isExplicitEmptyXMLReference(value: unknown): boolean {
-  if (value === "" || value === undefined) return true
-  return isRecord(value) && Object.keys(value).every((key) => key.startsWith("_"))
 }
 
 function setAtPath(target: Record<string, unknown>, path: readonly string[], value: unknown, append = false): void {

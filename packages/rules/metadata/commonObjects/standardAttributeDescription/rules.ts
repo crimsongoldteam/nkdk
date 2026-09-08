@@ -124,7 +124,6 @@ export const StandardAttributeDescriptionRules = {
         implicitFillValueForStandardMember(context, name),
       defaultValueXMLRaw: { "_xsi:nil": true },
       exportNilValue: true,
-      preserveUnknownReferenceXML: false,
     }),
     format: i8nTextRule({
       yaml: "Формат",

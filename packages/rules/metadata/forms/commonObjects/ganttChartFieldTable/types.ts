@@ -38,21 +38,18 @@ const GanttChartFieldTableRules = {
       ...TableRules.properties.searchControl,
       toXML: (source: YAMLPropertySource, context?: ConfigurationContextWithExportToXML) =>
         source.has("searchControl") || hasSingletonIdentity(context, "УправлениеПоиском"),
-      preserveUnknownReferenceXML: false,
       evaluateWhenYAMLMissing: true,
     },
     searchStringRepresentation: {
       ...TableRules.properties.searchStringRepresentation,
       toXML: (source: YAMLPropertySource, context?: ConfigurationContextWithExportToXML) =>
         source.has("searchStringRepresentation") || hasSingletonIdentity(context, "СтрокаПоиска"),
-      preserveUnknownReferenceXML: false,
       evaluateWhenYAMLMissing: true,
     },
     viewStatusRepresentation: {
       ...TableRules.properties.viewStatusRepresentation,
       toXML: (source: YAMLPropertySource, context?: ConfigurationContextWithExportToXML) =>
         source.has("viewStatusRepresentation") || hasSingletonIdentity(context, "СостояниеПросмотра"),
-      preserveUnknownReferenceXML: false,
       evaluateWhenYAMLMissing: true,
     },
   },

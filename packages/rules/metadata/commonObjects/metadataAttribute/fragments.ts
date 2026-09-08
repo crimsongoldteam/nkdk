@@ -231,7 +231,6 @@ export const attributeFillFragment = metadataRuleFragment(
       xmlParents: propertiesParents,
       defaultValueXMLRaw: { "_xsi:nil": true },
       exportNilValue: true,
-      preserveUnknownReferenceXML: false,
     },
   } as const satisfies Record<string, MetadataRulePropertyShape>
 )
