@@ -155,11 +155,23 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
         : createBufferedDependentCollector(params.traversal.dependent, yamlPath)
     const bufferedFacts = params.traversal.facts === undefined
       ? undefined : createDirectImportFactsCollector()
+    const selectKey = (yaml: Record<string, unknown>) => {
+      const name = itemName ?? String(index)
+      const yamlKey = keyYaml === undefined ? undefined
+        : (params.recordYamlKeyFromYAML?.({ yaml, name, propertyRule: params.rule })
+          ?? (yaml[keyYaml] === undefined ? name : String(yaml[keyYaml])))
+      const keyClassification = yamlKey === undefined ? undefined
+        : params.classifyYamlKey?.({ yaml, name, yamlKey })
+      if (params.yamlAsArray !== true && keyYaml !== undefined) delete yaml[keyYaml]
+      return { name, yamlKey, keyClassification }
+    }
+    let selectedKey: ReturnType<typeof selectKey> | undefined
     const itemYamlValue = importMetadataItemFromXMLToYAML({
       context: itemContext,
       rule: itemRule,
       xml: itemNode ?? itemXml,
       name: itemName,
+      beforeFinish: yaml => { selectedKey = selectKey(yaml) },
       traversal: enterNestedYamlRule(
         {
           ...params.traversal,
@@ -182,12 +194,7 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
     if (itemYaml === undefined) {
       throw new Error(`Элемент коллекции ${itemRule.itemType} должен преобразовываться в YAML-объект`)
     }
-    const name = itemName ?? String(index)
-    const yamlKey =
-      keyYaml === undefined
-        ? undefined
-        : (params.recordYamlKeyFromYAML?.({ yaml: itemYaml, name, propertyRule: params.rule }) ??
-          (itemYaml[keyYaml] === undefined ? name : String(itemYaml[keyYaml])))
+    const { name, yamlKey, keyClassification } = selectedKey ?? selectKey(itemYaml)
     const itemRulePath = enterNestedYamlRule(params.traversal, itemRule.itemType).rulePath
     if (params.yamlAsArray === true) {
       params.traversal.collector.acceptItem({
@@ -197,9 +204,6 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
         rulePath: itemRulePath,
       })
     }
-    const keyClassification = yamlKey === undefined
-      ? undefined
-      : params.classifyYamlKey?.({ yaml: itemYaml, name, yamlKey })
     if (params.yamlAsArray === true) {
       for (const fact of bufferedPropertyFacts) params.traversal.facts?.acceptProperty(fact)
     }
@@ -237,7 +241,6 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
 
   if (keyYaml === undefined) return undefined
   const entries = yamlItems.map(({ yaml, yamlKey, keyClassification }) => {
-    delete yaml[keyYaml]
     return {
       key: yamlKey!,
       value: yaml,

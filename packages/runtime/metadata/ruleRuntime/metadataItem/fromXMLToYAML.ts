@@ -26,6 +26,7 @@ export function importMetadataItemFromXMLToYAML(params: {
   traversal: DirectImportTraversal
   propertyXML?: ReadonlyMap<string, unknown>
   propertyXMLNodes?: ReadonlyMap<string, readonly XmlElementNode[]>
+  beforeFinish?: (yaml: Record<string, unknown>) => void
 }): unknown {
   const xmlRoot = Object.values(params.rule.properties).find(
     (propertyRule) => propertyRule.type === "XMLRoot" && typeof propertyRule.container === "string"
@@ -113,6 +114,7 @@ export function importMetadataItemFromXMLToYAML(params: {
         source: augmenterSource,
         yaml,
       })
+      params.beforeFinish?.(yaml)
     },
   })
   if (yaml !== undefined) {

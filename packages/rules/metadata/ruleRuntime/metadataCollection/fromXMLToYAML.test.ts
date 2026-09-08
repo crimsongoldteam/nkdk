@@ -41,6 +41,26 @@ const itemRule = {
   },
 } as MetadataItemRule
 
+it("возвращает окончательное значение именованного элемента до закрытия его границы", () => {
+  const root = parseXmlDocumentWithSaxes("<Item><Name>Первый</Name><Value>a</Value></Item>").roots[0]!
+  let completed: Record<string, unknown> | undefined
+  const yaml = importMetadataItemCollectionFromXMLToYAML({
+    context: mockContextFromXML(),
+    rule: { type: "TestRecordCollection" as PropertyRuleType, xml: "Item", yaml: "Элементы" },
+    xml: root, itemRule, xmlElement: "Item", keyField: "name",
+    traversal: {
+      yamlPath: [], rulePath: [], collector: createLocalIndexesCollector(),
+      roundTrip: { open({ yaml }) { return {
+        ready() {},
+        finish() { completed = yaml; Object.freeze(yaml) },
+      } } },
+    },
+  })
+  expect(completed).toEqual({ Значение: "a" })
+  expect(yaml).toEqual({ Первый: { Значение: "a" } })
+  expect((yaml as Record<string, unknown>).Первый).toBe(completed)
+})
+
 beforeAll(() => {
 registerTypeRule("TestDeferred" as PropertyRuleType, "finalizeImportedYAML", ({ value }) => value)
 registerMetadataItemCollectionRule({
