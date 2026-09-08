@@ -114,7 +114,7 @@ describe("importMetadataValueFromXML", () => {
     expect(result).toBeUndefined()
   })
 
-  it("keeps xsi:nil for reference import", () => {
+  it("does not keep xsi:nil as a hidden semantic value", () => {
     const xmlValue = parseValue('<Value xsi:nil="true"/>') ?? { "_xsi:nil": true }
     const result = importMetadataValueFromXML({
       context: mockContextFromXML({ forReference: true }),
@@ -122,10 +122,10 @@ describe("importMetadataValueFromXML", () => {
       value: xmlValue,
     })
 
-    expect(result).toEqual({ "_xsi:nil": true })
+    expect(result).toBeUndefined()
   })
 
-  it("keeps unknown xsi:type for reference import", () => {
+  it("does not keep an empty unknown xsi:type as a hidden semantic value", () => {
     const xmlValue = parseValue('<Value xsi:type="v8:TypeDescription"/>')
     const result = importMetadataValueFromXML({
       context: mockContextFromXML({ forReference: true }),
@@ -133,7 +133,7 @@ describe("importMetadataValueFromXML", () => {
       value: xmlValue,
     })
 
-    expect(result).toEqual({ "_xsi:type": "v8:TypeDescription" })
+    expect(result).toBeUndefined()
   })
 
   it("throws on unknown xsi:type with text outside reference import", () => {

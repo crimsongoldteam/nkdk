@@ -486,3 +486,23 @@ XML/YAML-фикстуры не менялись. Итоговые замеры d
 /private/tmp/nkdk-root-interface-green.log и
 /private/tmp/nkdk-root-final-{types,duplicates,arch-rules,arch,full,e2e}.log.
 XML/YAML-фикстуры не изменены. Это промежуточный слой, а не завершение плана.
+
+### Скалярные значения без reference-подмены
+
+StringOrNumber возвращает строку/число без оболочки исходного xsi:type.
+MetadataValue больше не удерживает nil/неизвестный пустой тип при импорте,
+не восстанавливает их из reference и не принимает XML-объект вместо
+смыслового значения. Исходные неканонические типы и nil сохраняются
+существующими явными YAML-аннотациями; канонический FillValue не изменён.
+У стандартных реквизитов и TableAdditionalSource удалены особые результаты
+для forReference. Повторяющаяся подготовка скалярного round-trip вынесена
+в общий тестовый помощник без изменения проверяемых XML-результатов.
+
+RED подтвердил скрытое сохранение и подмену, затем прошли 321 скалярный/СКД
+тест и 36 тестов стандартных реквизитов/источника таблицы. Прошли type-check,
+duplicates от f9c51e1, обе архитектурные проверки, pnpm test и 214 e2e.
+Логи: /private/tmp/nkdk-scalar-reference-green2.log,
+/private/tmp/nkdk-reference-flags-green.log,
+/private/tmp/nkdk-scalar-final-{types,duplicates,arch-rules,arch,full,e2e}.log.
+Фикстуры не менялись. Общий runtime forReference и оставшиеся потребители
+ещё требуют удаления; полный план пока не завершён.

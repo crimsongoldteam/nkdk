@@ -59,7 +59,7 @@ export const importMetadataValueFromXML = (params: {
   if (!data) return undefined
   if (isXmlElementNode(data) && isEmptyXmlElement(data)) return undefined
   if (isNilMetadataValueXML(data)) {
-    return context.fromXML.forReference ? (data as any) : undefined
+    return undefined
   }
 
   const declaredXMLType = (isXmlElementNode(data) ? xmlAttributeValue(data, "xsi:type") : data["_xsi:type"]) as MetadataValueTypeXML | undefined
@@ -72,7 +72,6 @@ export const importMetadataValueFromXML = (params: {
   const resultedType: MetadataValueType | undefined =
     type ?? MetadataValueTypeFromXML(declaredXMLType)
   if (!resultedType) {
-    if (context.fromXML.forReference && typeof declaredXMLType === "string") return data as any
     if (typeof declaredXMLType === "string" && isEmptyMetadataValueXML(data)) return undefined
     throw new Error(`MetadataValue: не распознан тип: ${declaredXMLType}`)
   }

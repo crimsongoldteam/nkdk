@@ -58,7 +58,7 @@ describe("StandardAttributeDescriptions XML → YAML", () => {
     expect(result).toEqual({})
   })
 
-  it("не добавляет транспортный тег при reference-импорте", () => {
+  it("сохраняет отметку стандартной коллекции без отдельного reference-режима", () => {
     const itemRule = {
       itemType: "StandardAttributeReferenceImportProbe",
       properties: {
@@ -78,12 +78,7 @@ describe("StandardAttributeDescriptions XML → YAML", () => {
       },
     }).yaml as Record<string, unknown>
 
-    expect(imported).toEqual({
-      СтандартныеРеквизиты: {
-        ИмяПредопределенныхДанных: {},
-      },
-    })
-    expect(yamlScalarTagAt(imported, "СтандартныеРеквизиты")).toBeUndefined()
+    expect(yamlScalarTagAt(imported, "СтандартныеРеквизиты")).toBe("xml/standard-attributes")
   })
 
   it("помечает полностью стандартную присутствующую коллекцию кратким XML-тегом", () => {

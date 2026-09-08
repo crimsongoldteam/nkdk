@@ -357,6 +357,19 @@ export function testAppliedObjectFromYAMLToXML(
   })
 }
 
+export function testPropertyYamlRoundTrip(params: { sourceXML: string; rule: PropertyRule }) {
+  return testMetadataItemYamlRoundTrip({
+    sourceXML: params.sourceXML,
+    rule: {
+      itemType: "PropertyRoundTripProbe",
+      properties: {
+        root: { type: "XMLRoot", container: "Root", isFileRoot: true, xmlOnly: true, rootAttributes: {} },
+        value: params.rule,
+      },
+    },
+  })
+}
+
 export function testMetadataItemYamlRoundTrip(params: {
   rule: MetadataItemRule
   sourceXML: string

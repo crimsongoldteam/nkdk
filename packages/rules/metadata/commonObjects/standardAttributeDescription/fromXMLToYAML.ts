@@ -21,7 +21,7 @@ export const importStandardAttributeDescriptionsFromXMLToYAML: ImportFromXMLToYA
     traversal: params.traversal,
   })
   const canonicalNames = new Set(Object.keys(rule.standartAttributeNames ?? {}))
-  if (params.context.fromXML.forReference || Array.isArray(yaml)) return yaml
+  if (Array.isArray(yaml)) return yaml
   if (yaml === undefined) {
     return canonicalNames.size > 0
       ? taggedYAMLScalar("xml/standard-attributes", undefined)

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "../../../ruleRuntime"
 import { testAtomicToXML } from "../../../../tests/property/atomicToXML"
-import { testMetadataItemYamlRoundTrip } from "../../../../tests/directConversion"
+import { testPropertyYamlRoundTrip } from "../../../../tests/directConversion"
 import { dcsMetadataTypedValueFixtures, emptyValueListTypedValue } from "./__fixtures__/data"
 
 const rule: PropertyRule = {
@@ -61,11 +61,8 @@ describe("export DcsMetadataTypedValue to XML", () => {
 
   it.each(["", '<value xsi:type="xs:string">x</value>'])("preserves v8 Type Undefined through YAML: %s", (prefix) => {
     const sourceXML = `<Root>${prefix}<value xmlns:d8p1="http://v8.1c.ru/8.2/data/types" xsi:type="v8:Type">d8p1:Undefined</value></Root>`
-    const result = testMetadataItemYamlRoundTrip({ sourceXML, rule: {
-      itemType: "TypedValueProbe", properties: {
-        root: { type: "XMLRoot", container: "Root", isFileRoot: true, xmlOnly: true, rootAttributes: {} },
-        value: { type: "DcsMetadataTypedValue", xml: "value", yaml: "Значение" },
-      },
+    const result = testPropertyYamlRoundTrip({ sourceXML, rule: {
+      type: "DcsMetadataTypedValue", xml: "value", yaml: "Значение",
     } })
     expect(result.yamlText).toContain("!xml/raw")
     expect(result.result.replace(/>\s+</g, "><").replace(/^\ufeff?<\?xml[^>]+>\s*/, "")).toBe(sourceXML)

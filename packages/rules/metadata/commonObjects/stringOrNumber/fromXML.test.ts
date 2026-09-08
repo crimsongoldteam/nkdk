@@ -5,6 +5,10 @@ import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structura
 import { importStringOrNumberFromXML } from "./fromXML"
 
 describe("StringOrNumber structural import", () => {
+  it("returns the semantic number without retaining the original XML type", () => {
+    const value = parseStructuralXMLWithoutCompatibility('<Value xsi:type="xs:integer">42</Value>')
+    expect(importStringOrNumberFromXML(mockContextFromXML({ forReference: true }), undefined, value)).toBe(42)
+  })
   it.each([
     ["<Value/>", undefined],
     ['<Value xsi:type="xs:string"/>', undefined],
