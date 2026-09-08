@@ -1,10 +1,7 @@
 import { ConfigurationContextFromXML, isXmlElementNode, xmlAttributeValue, xmlElementChildren, xmlTextValue } from "@nkdk/runtime"
 import { definePropertyTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
 import type { EventsPropertyRule, PropertyRule } from "@nkdk/runtime/rule-kit"
-import { eventBindingKey } from "./callType"
 import type { EventCallTypeXML, EventXML, Events, EventsXML } from "./types"
-
-const referenceXmlNames = new WeakMap<object, ReadonlyMap<string, string>>()
 
 const isNonEmptyObject = (value: unknown): value is Record<string, unknown> => {
   return typeof value === "object" && value !== null && !Array.isArray(value) && Object.keys(value as object).length > 0
@@ -27,10 +24,8 @@ export const importEventsFromXML = (
   const eventKeys = eventRuleKeys(_rule, parsedEvents)
 
   const result: Events = {}
-  const aliases = new Map<string, string>()
   for (const event of parsedEvents) {
     const key = eventKeys.get(event._name)!
-    const bindingKey = eventBindingKey(key, event._callType)
     const previous = result[key]
 
     if (event._callType === undefined) {
@@ -44,16 +39,10 @@ export const importEventsFromXML = (
       result[key] = handlers
     }
 
-    aliases.set(bindingKey, event._name)
   }
 
   if (!isNonEmptyObject(result)) return undefined
-  referenceXmlNames.set(result, aliases)
   return result
-}
-
-export function getReferenceEventXmlName(value: object, key: string): string | undefined {
-  return referenceXmlNames.get(value)?.get(key)
 }
 
 export const metadataPropertyRule000 = definePropertyTypeRule("Events", "importFromXML", importEventsFromXML)

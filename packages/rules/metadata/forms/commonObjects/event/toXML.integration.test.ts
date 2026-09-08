@@ -1,9 +1,9 @@
 import { createConfigurationIndexCollector,createConfigurationIndexExportRuntime } from "@nkdk/runtime"
-import type { MetadataItemRule,PropertyRule } from "@nkdk/runtime/rule-kit"
+import type { ExportToXMLFunction,MetadataItemRule,PropertyRule } from "@nkdk/runtime/rule-kit"
 import { describe,expect,it } from "vitest"
 import { testConfigurationIndexReader } from "../../../../tests/configurationIndex"
 import {
-testPropertyFromXMLToYAML
+testPropertyFromXMLToYAML, testPropertiesYamlRoundTrip
 } from "../../../../tests/directConversion"
 import { mockContextFromXML,mockContextToXML } from "../../../../tests/mockContext"
 import { testAtomicToXML } from "../../../../tests/property/atomicToXML"
@@ -11,6 +11,8 @@ import { ClientApplicationFormRules } from "../../clientApplicationForm/rules"
 import { InputFieldRules } from "../../elements/inputField/rules"
 import { importEventsFromXML } from "./fromXML"
 import { exportEventsToXML } from "./toXML"
+
+const exportEventsAtRuntimeBoundary: ExportToXMLFunction = exportEventsToXML
 
 const eventRule = ClientApplicationFormRules.properties.events
 const eventProbeRule = {
@@ -41,6 +43,13 @@ function contextWithSnapshot() {
 
 describe("export Events to XML", () => {
 
+  it.each(["onChange", "047d4d09-961c-4bdc-8519-eef10674c35b"])("восстанавливает имя %s после сериализации YAML", (name) => {
+    const sourceXML = `<Events>\n\t<Event name="${name}">ПриИзменении</Event>\n</Events>`
+    const result = testPropertiesYamlRoundTrip({ rule: eventProbeRule, sourceXML })
+    expect(result.result.trim()).toBe(sourceXML)
+    if (name === "onChange") expect(result.yamlText).toContain("!xml/raw")
+  })
+
   it("не помечает обычные известные и неизвестные текстовые события", () => {
     const { yaml } = testPropertyFromXMLToYAML({
       rule: eventProbeRule,
@@ -66,7 +75,7 @@ describe("export Events to XML", () => {
     } as PropertyRule
 
     expect(
-      exportEventsToXML(
+      exportEventsAtRuntimeBoundary(
         context,
         rule,
         {
@@ -114,7 +123,7 @@ describe("export Events to XML", () => {
 
   it("сохраняет порядок YAML для обычных событий при другом порядке reference", () => {
     expect(
-      exportEventsToXML(
+      exportEventsAtRuntimeBoundary(
         mockContextToXML(),
         InputFieldRules.properties.events,
         {
@@ -167,7 +176,7 @@ describe("export Events to XML", () => {
 
   it("заменяет неизвестную обычную reference-привязку режимной", () => {
     expect(
-      exportEventsToXML(
+      exportEventsAtRuntimeBoundary(
         mockContextToXML(),
         eventRule,
         {
@@ -180,7 +189,7 @@ describe("export Events to XML", () => {
     ).toEqual({
       Event: [
         {
-          _name: "vendorSpecificFormEvent",
+          _name: "VendorSpecificFormEvent",
           _callType: "Before",
           "#text": "ПередВендорскимСобытием",
         },
@@ -229,7 +238,7 @@ describe("export Events to XML", () => {
     )
   })
 
-  it("keeps unknown reference event names unchanged", () => {
+  it("не берёт регистр неизвестного события из reference", () => {
     const { result } = testAtomicToXML({
       rule: ClientApplicationFormRules.properties.events,
       value: {
@@ -242,11 +251,11 @@ describe("export Events to XML", () => {
     })
 
     expect(result).toEqual(
-      "<Events>\n" + '\t<Event name="vendorSpecificFormEvent">ВендорскоеСобытие</Event>\n' + "</Events>"
+      "<Events>\n" + '\t<Event name="VendorSpecificFormEvent">ВендорскоеСобытие</Event>\n' + "</Events>"
     )
   })
 
-  it("сохраняет нестандартное XML-имя известного события из reference", () => {
+  it("не добавляет привязку с посторонним XML-именем из reference", () => {
     const rule = ClientApplicationFormRules.properties.events
     const referenceMetadata = importEventsFromXML(mockContextFromXML(), rule, {
       Event: {
@@ -261,6 +270,7 @@ describe("export Events to XML", () => {
       xmlRootTag: "Events",
     })
 
-    expect(result).toContain('<Event name="047d4d09-961c-4bdc-8519-eef10674c35b">ПослеЗаписи</Event>')
+    expect(result).toContain('<Event name="AfterWrite">ПослеЗаписи</Event>')
+    expect(result).not.toContain("047d4d09-961c-4bdc-8519-eef10674c35b")
   })
 })
