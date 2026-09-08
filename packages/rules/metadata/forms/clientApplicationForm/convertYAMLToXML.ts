@@ -35,8 +35,6 @@ export interface ConvertClientApplicationFormFromYAMLToXMLParams {
   readonly context: ConfigurationContextWithExportToXML
   readonly yaml: ClientApplicationFormYAML
   readonly name: string
-  readonly referenceFormXML?: ClientApplicationFormXML
-  readonly referenceMetadataXML?: FormMetadataXML
   readonly baseFormXML?: ClientApplicationFormXML
   readonly dataPathYaml?: ClientApplicationFormYAML
   readonly profile?: YAMLToXMLProfile
@@ -109,8 +107,8 @@ export function convertClientApplicationFormYAMLToXMLCore(
     rule,
     name: params.name,
     outputs: [
-      { key: "metadata", tags: [FormRulesTags.Metadata], referenceXML: params.referenceMetadataXML },
-      { key: "form", tags: [FormRulesTags.Form], referenceXML: params.referenceFormXML, context: formContext },
+      { key: "metadata", tags: [FormRulesTags.Metadata] },
+      { key: "form", tags: [FormRulesTags.Form], context: formContext },
     ],
     profile: params.profile,
     rulePath: [rule.itemType],
@@ -119,7 +117,7 @@ export function convertClientApplicationFormYAMLToXMLCore(
   const formProperties = converted.outputs.get("form") ?? {}
   const metadataProperties = converted.outputs.get("metadata") ?? {}
   const uuid =
-    readMetadataUUID(metadataProperties) ?? params.referenceMetadataXML?.Form?._uuid ?? getUUID(params.context)
+    readMetadataUUID(metadataProperties) ?? getUUID(params.context)
   recordCurrentExternalMetadataUuid({ context: params.context, uuid })
 
   const formXML = {
@@ -128,7 +126,7 @@ export function convertClientApplicationFormYAMLToXMLCore(
     ...formProperties,
     ...(params.baseFormXML === undefined ? {} : { BaseForm: params.baseFormXML }),
   } as ClientApplicationFormXML
-  assignFormXmlIds(formXML, params.referenceFormXML, params.xmlIdSession)
+  assignFormXmlIds(formXML, params.xmlIdSession)
 
   const generatedForm = asRecord(metadataProperties.Form) ?? {}
   const metadataXML = {

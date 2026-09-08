@@ -7,7 +7,6 @@ import {
 
 interface Candidate {
   readonly node: Record<string, unknown>
-  readonly reference: Record<string, unknown> | undefined
   readonly reservation: FormXmlIdReservation
   id?: string
 }
@@ -19,25 +18,20 @@ export interface FormXmlIdAssignmentSession {
 
 const FORM_XML_ID_SPACES: readonly FormXmlIdSpace[] = ["elements", "attributes", "commands", "parameters"]
 
-export function createFormXmlIdAssignmentSession(
-  params: { readonly references?: readonly unknown[] } = {},
-): FormXmlIdAssignmentSession {
+export function createFormXmlIdAssignmentSession(): FormXmlIdAssignmentSession {
   const occupiedBySpace = new Map<FormXmlIdSpace, Set<string>>(
     FORM_XML_ID_SPACES.map((space) => [space, new Set<string>()]),
   )
-  for (const reference of params.references ?? []) collectReferenceIds(reference, occupiedBySpace)
   return { idsByLogicalAddress: new Map(), occupiedBySpace }
 }
 
 export function assignFormXmlIds(
   generated: unknown,
-  reference?: unknown,
   session: FormXmlIdAssignmentSession = createFormXmlIdAssignmentSession(),
 ): void {
   const candidates: Candidate[] = []
-  collectCandidates(generated, reference, candidates)
-  collectReferenceIds(reference, session.occupiedBySpace)
-  collectReferenceIds(generated, session.occupiedBySpace)
+  collectCandidates(generated, candidates)
+  collectOccupiedXmlIds(generated, session.occupiedBySpace)
   collectSnapshotIds(candidates, session.occupiedBySpace)
 
   for (const candidate of candidates) {
@@ -47,11 +41,10 @@ export function assignFormXmlIds(
       : session.idsByLogicalAddress.get(logicalAddress)
     const snapshotId = validXmlId(candidate.reservation.runtime?.identity("xmlId"))
     const assignedId = validXmlId(stringId(candidate.node._id))
-    const referenceId = validXmlId(stringId(candidate.reference?._id))
     // A shared session coordinates current/base-form projections from different snapshots.
     // Their historical IDs may differ; identity conflicts within one snapshot are
     // rejected by its collector, not by comparing these independent sources.
-    candidate.id = candidate.reservation.specialId ?? sessionId ?? snapshotId ?? assignedId ?? referenceId
+    candidate.id = candidate.reservation.specialId ?? sessionId ?? snapshotId ?? assignedId
     if (candidate.id !== undefined) {
       reserveSession(candidate, session)
     }
@@ -105,34 +98,15 @@ function firstAvailableXmlId(candidate: Candidate): number {
     : 1
 }
 
-function collectCandidates(generated: unknown, reference: unknown, result: Candidate[]): void {
+function collectCandidates(generated: unknown, result: Candidate[]): void {
   if (Array.isArray(generated)) {
-    const references = Array.isArray(reference) ? reference : []
-    for (const [index, item] of generated.entries()) {
-      collectCandidates(item, findReferenceNode(item, references) ?? references[index], result)
-    }
+    for (const item of generated) collectCandidates(item, result)
     return
   }
   if (!isRecord(generated)) return
-  const referenceRecord = isRecord(reference) ? reference : undefined
   const reservation = formXmlIdReservation(generated)
-  if (reservation !== undefined) result.push({ node: generated, reference: referenceRecord, reservation })
-  for (const [key, child] of Object.entries(generated)) {
-    collectCandidates(child, referenceRecord?.[key], result)
-  }
-}
-
-function findReferenceNode(value: unknown, references: unknown[]): unknown {
-  const name = nestedName(value)
-  if (name === undefined) return undefined
-  return references.find((item) => nestedName(item) === name)
-}
-
-function nestedName(value: unknown): string | undefined {
-  if (!isRecord(value)) return undefined
-  if (typeof value._name === "string") return value._name
-  const nested = Object.values(value).filter(isRecord)
-  return nested.length === 1 && typeof nested[0]?._name === "string" ? nested[0]._name : undefined
+  if (reservation !== undefined) result.push({ node: generated, reservation })
+  for (const child of Object.values(generated)) collectCandidates(child, result)
 }
 
 function collectSnapshotIds(candidates: readonly Candidate[], occupied: Map<FormXmlIdSpace, Set<string>>): void {
@@ -169,31 +143,31 @@ function validXmlId(value: string | undefined): string | undefined {
   return value !== undefined && isXmlId(value) ? value : undefined
 }
 
-function collectReferenceIds(
+function collectOccupiedXmlIds(
   value: unknown,
   result: Map<FormXmlIdSpace, Set<string>>,
   inheritedSpace: FormXmlIdSpace = "elements",
 ): void {
   if (Array.isArray(value)) {
-    for (const item of value) collectReferenceIds(item, result, inheritedSpace)
+    for (const item of value) collectOccupiedXmlIds(item, result, inheritedSpace)
     return
   }
   if (!isRecord(value)) return
   // Raw items are materialized after ID assignment. Their opaque XML travels
   // with the placeholder so its IDs can be reserved without exporting it early.
   const raw = readXmlAnomalyRawItemXml(value)
-  if (raw !== undefined) collectReferenceIds(raw, result, inheritedSpace)
+  if (raw !== undefined) collectOccupiedXmlIds(raw, result, inheritedSpace)
   const space = typeof value["#name"] === "string"
-    ? referenceSpace(value["#name"]) ?? inheritedSpace
+    ? xmlIdSpaceForNodeName(value["#name"]) ?? inheritedSpace
     : inheritedSpace
   const id = validXmlId(stringId(value._id))
   if (id !== undefined) result.get(space)?.add(id)
   for (const [key, child] of Object.entries(value)) {
-    collectReferenceIds(child, result, referenceSpace(key) ?? space)
+    collectOccupiedXmlIds(child, result, xmlIdSpaceForNodeName(key) ?? space)
   }
 }
 
-function referenceSpace(key: string): FormXmlIdSpace | undefined {
+function xmlIdSpaceForNodeName(key: string): FormXmlIdSpace | undefined {
   if (key === "Attributes" || key === "Attribute" || key === "Columns" || key === "Column") return "attributes"
   if (key === "Commands" || key === "Command") return "commands"
   if (key === "Parameters" || key === "Parameter") return "parameters"

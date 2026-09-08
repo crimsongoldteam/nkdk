@@ -15,19 +15,16 @@ import { testConfigurationIndexReader } from "../../../tests/configurationIndex"
 describe("assignFormXmlIds", () => {
   it.each([
     ["снимок", "11", "22", undefined, "11"],
-    ["целевой XML", undefined, "22", undefined, "22"],
+    ["построенный XML", undefined, "22", undefined, "22"],
     ["специальный ID", "11", "22", "-1", "-1"],
     ["свободный ID", undefined, undefined, undefined, "1"],
-  ] as const)("использует приоритет: %s", (_case, snapshotId, referenceId, specialId, expected) => {
+  ] as const)("использует приоритет: %s", (_case, snapshotId, assignedId, specialId, expected) => {
     const address = "Форма.Элемент.Поле"
     const setup = runtimeSetup(snapshotId === undefined ? [] : [entity(address, snapshotId)])
-    const node = { _name: "Поле", _id: "" }
+    const node = { _name: "Поле", _id: assignedId ?? "" }
     register(setup.runtime.withLogicalAddress(address), node, "elements", specialId)
 
-    assignFormXmlIds(
-      { Items: [node] },
-      referenceId === undefined ? undefined : { Items: [{ _name: "Поле", _id: referenceId }] },
-    )
+    assignFormXmlIds({ Items: [node] })
 
     expect(node._id).toBe(expected)
     const identities = setup.collector.fragment("Форма.yaml").entities
@@ -40,17 +37,14 @@ describe("assignFormXmlIds", () => {
 
   it.each([
     ["снимка", "-4", undefined, "-4"],
-    ["целевого XML", undefined, "-6", "-6"],
-  ] as const)("сохраняет отрицательный ID из %s", (_case, snapshotId, referenceId, expected) => {
+    ["построенного XML", undefined, "-6", "-6"],
+  ] as const)("сохраняет отрицательный ID из %s", (_case, snapshotId, assignedId, expected) => {
     const address = "Форма.Элемент.Поле"
     const setup = runtimeSetup(snapshotId === undefined ? [] : [entity(address, snapshotId)])
-    const node = { _name: "Поле", _id: "" }
+    const node = { _name: "Поле", _id: assignedId ?? "" }
     register(setup.runtime.withLogicalAddress(address), node, "elements")
 
-    assignFormXmlIds(
-      { Items: [node] },
-      referenceId === undefined ? undefined : { Items: [{ _name: "Поле", _id: referenceId }] },
-    )
+    assignFormXmlIds({ Items: [node] })
 
     expect(node._id).toBe(expected)
   })
@@ -113,7 +107,7 @@ describe("assignFormXmlIds", () => {
       const setup = runtimeSetup([entity(address, id)])
       const node = { _name: "Поле", _id: "" }
       register(setup.runtime.withLogicalAddress(address), node, "attributes")
-      assignFormXmlIds({ Items: [node] }, undefined, session)
+      assignFormXmlIds({ Items: [node] }, session)
       expect(node._id).toBe("1")
     }
   })
@@ -125,7 +119,7 @@ describe("assignFormXmlIds", () => {
       const setup = runtimeSetup([entity(address, id)])
       const node = { _name: "Группа", _id: "" }
       register(setup.runtime.withLogicalAddress(address), node, "elements")
-      assignFormXmlIds({ Items: [node] }, undefined, session)
+      assignFormXmlIds({ Items: [node] }, session)
       expect(node._id).toBe(id)
     }
   })
@@ -137,9 +131,9 @@ describe("assignFormXmlIds", () => {
     const node = { _name: "ИсторическоеПоле", _id: "" }
     register(setup.runtime.withLogicalAddress(address), node, "elements")
 
-    assignFormXmlIds({ Items: [node] }, undefined, session)
+    assignFormXmlIds({ Items: [node] }, session)
     const assigned = node._id
-    assignFormXmlIds({ BaseForm: { Items: [node] } }, undefined, session)
+    assignFormXmlIds({ BaseForm: { Items: [node] } }, session)
 
     expect(node._id).toBe(assigned)
   })
@@ -217,8 +211,8 @@ describe("assignFormXmlIds", () => {
     register(setup.runtime.withLogicalAddress("Форма.Атрибут.Контрагент"), baseAttribute, "attributes")
     register(setup.runtime.withLogicalAddress("Форма.Атрибут.Контрагент"), outerAttribute, "attributes")
 
-    assignFormXmlIds({ Attributes: [occupied, baseAttribute] }, undefined, session)
-    assignFormXmlIds({ Attributes: [outerAttribute] }, undefined, session)
+    assignFormXmlIds({ Attributes: [occupied, baseAttribute] }, session)
+    assignFormXmlIds({ Attributes: [outerAttribute] }, session)
 
     expect(baseAttribute._id).toBe("2")
     expect(outerAttribute._id).toBe(baseAttribute._id)
@@ -232,8 +226,8 @@ describe("assignFormXmlIds", () => {
     register(setup.runtime.withLogicalAddress("Форма.ОсноваФормы.Команда.Обновить"), baseCommand, "commands")
     register(setup.runtime.withLogicalAddress("Форма.Команда.Обновить"), outerCommand, "commands")
 
-    assignFormXmlIds({ Commands: [baseCommand] }, undefined, session)
-    assignFormXmlIds({ Commands: [outerCommand] }, undefined, session)
+    assignFormXmlIds({ Commands: [baseCommand] }, session)
+    assignFormXmlIds({ Commands: [outerCommand] }, session)
 
     expect(baseCommand._id).toBe("1000001")
     expect(outerCommand._id).toBe("1")
@@ -241,18 +235,17 @@ describe("assignFormXmlIds", () => {
 
   it("резервирует ID узла BaseForm без runtime перед внешней формой", () => {
     const session = createFormXmlIdAssignmentSession()
-    const baseElement = { _name: "Код", _id: "" }
+    const baseElement = { _name: "Код", _id: "1" }
     registerFormXmlIdReservation(baseElement, { space: "elements" })
     assignFormXmlIds(
       { Items: [baseElement] },
-      { Items: [{ _name: "Код", _id: "1" }] },
       session,
     )
 
     const setup = runtimeSetup([])
     const ownElement = { _name: "ДатаАктуальности", _id: "" }
     register(setup.runtime.withLogicalAddress("Форма.Элемент.ДатаАктуальности"), ownElement, "elements")
-    assignFormXmlIds({ Items: [ownElement] }, undefined, session)
+    assignFormXmlIds({ Items: [ownElement] }, session)
 
     expect(ownElement._id).toBe("2")
   })
@@ -260,29 +253,26 @@ describe("assignFormXmlIds", () => {
   it("пропускает некорректный ID снимка и выбирает допустимый", () => {
     const address = "Форма.Атрибут.Контрагент"
     const setup = runtimeSetup([entity(address, "not-an-id")])
-    const attribute = { _name: "Контрагент", _id: "" }
+    const attribute = { _name: "Контрагент", _id: "7" }
     register(setup.runtime.withLogicalAddress(address), attribute, "attributes")
 
     assignFormXmlIds(
       { Attributes: [attribute] },
-      { Attributes: [{ _name: "Контрагент", _id: "7" }] },
       createFormXmlIdAssignmentSession(),
     )
 
     expect(attribute._id).toBe("7")
   })
 
-  it("учитывает ID reference только в соответствующем пространстве", () => {
+  it("учитывает уже построенный ID только в соответствующем пространстве", () => {
     const setup = runtimeSetup([])
     const attribute = { _name: "Новый", _id: "" }
     const element = { _name: "Поле", _id: "" }
     register(setup.runtime.withLogicalAddress("Форма.Атрибут.Новый"), attribute, "attributes")
     register(setup.runtime.withLogicalAddress("Форма.Элемент.Поле"), element, "elements")
-    const session = createFormXmlIdAssignmentSession({
-      references: [{ Attributes: { Attribute: [{ _name: "Старый", _id: "1" }] } }],
-    })
+    const session = createFormXmlIdAssignmentSession()
 
-    assignFormXmlIds({ Attributes: [attribute], Elements: [element] }, undefined, session)
+    assignFormXmlIds({ Attributes: [{ _name: "Старый", _id: "1" }, attribute], Elements: [element] }, session)
 
     expect(attribute._id).toBe("2")
     expect(element._id).toBe("1")

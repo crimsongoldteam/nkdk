@@ -294,6 +294,7 @@ function cloneSemanticValue(params: {
   readonly rawBoundaries: PreparedXmlAnomalyBoundary[]
   readonly exportClaims: { nextId: number }
   readonly exportClaimId?: string
+  readonly xmlOwnerTag?: string
   readonly mode: "preserve" | "projectionOnly"
 }): unknown {
   if (isExplicitYAMLString(params.value)) return params.value
@@ -373,6 +374,7 @@ function cloneSemanticValue(params: {
           annotations: params.sourceAnnotations,
           occurrence: logicalOccurrence,
           exportClaimId: params.exportClaimId,
+          xmlOwnerTag: params.xmlOwnerTag,
         }))
       }
       if (annotation.hasSemanticValue !== true) continue
@@ -518,6 +520,7 @@ function cloneCollectionSemanticValue(params: Omit<Parameters<typeof cloneSemant
         yamlPath: [...params.yamlPath, index],
         xmlPrefix: [],
         exportClaimId,
+        xmlOwnerTag: params.descriptor.xmlElement ?? xmlItemTag(rule),
       })
       if (exportClaimId !== undefined) markXmlAnomalyExportClaim(child, exportClaimId)
       target.push(child)
@@ -593,6 +596,7 @@ function cloneCollectionSemanticValue(params: Omit<Parameters<typeof cloneSemant
         yamlPath: [...params.yamlPath, logicalKey],
         xmlPrefix: [],
         exportClaimId,
+        xmlOwnerTag: params.descriptor.xmlElement ?? xmlItemTag(rule),
       })
       copyExplicitStringMark(params.value, runtimeKey, target, targetKey)
       const scalarTag = yamlScalarTagAt(params.value, runtimeKey)
@@ -724,13 +728,14 @@ function rawBoundary(params: {
   readonly annotations: XmlAnomalyAnnotations
   readonly occurrence?: number
   readonly exportClaimId?: string
+  readonly xmlOwnerTag?: string
 }): PreparedXmlAnomalyBoundary {
   if (params.annotation.kind !== "raw") throw new Error("XML-поправка требует !xml/raw")
   const suppliedPath = params.property === undefined
     ? parsePublicRawPath(params.logicalKey)
     : undefined
   const ownerTag = params.xmlPrefix.at(-1)?.name
-    ?? (params.exportClaimId === undefined ? undefined : xmlItemTag(params.rule))
+    ?? (params.exportClaimId === undefined ? undefined : params.xmlOwnerTag ?? xmlItemTag(params.rule))
   const publicPath = suppliedPath !== undefined
     && ownerTag !== undefined
     && suppliedPath.segments[0] === ownerTag

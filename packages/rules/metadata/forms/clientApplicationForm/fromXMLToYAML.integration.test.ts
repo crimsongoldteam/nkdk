@@ -14,6 +14,7 @@ yamlScalarTagAt
 import { bindDeferredObjectValues,createDeferredValuePathCollector } from "@nkdk/runtime/rule-kit"
 import { describe,expect,it,vi } from "vitest"
 import { createDirectRoundTripContexts } from "../../../tests/directConversion"
+import { testFormYamlRoundTrip } from "../../../tests/formYamlRoundTrip"
 import { prepareTestXmlAnomalyAssignment } from "../../xmlAnomalies/testSupport"
 import { buildPreparedAssignmentXml } from "../../fullSyncToXml/xmlAnomalyAssignment"
 import { mockContextFromXML,mockXmlImportContext } from "../../../tests/mockContext"
@@ -1010,39 +1011,15 @@ describe("форма XML → YAML → XML", () => {
     ["с динамическим списком", "withDynamicList.xml", "minimalMetadata.xml"],
   ] as const
 
-  it.each(cases)("сохраняет форму %s", (_title, formFixture, metadataFixture) => {
-    const form = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(import.meta.url, formFixture)
+  it.each(cases)("сохраняет форму %s", async (_title, formFixture, metadataFixture) => {
+    const formXML = readXMLFixtureAsString(import.meta.url, formFixture)
+    const metadataXML = readXMLFixtureAsString(import.meta.url, metadataFixture)
     const metadata = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(import.meta.url, metadataFixture)
-    const logicalAddress = "Справочник.Товары.Форма.ФормаЭлемента"
-    const contexts = createDirectRoundTripContexts({ logicalAddress })
-    const formName = String(metadata.MetaDataObject.Form.Properties.Name)
-
-    const imported = importClientApplicationFormFromXMLToYAML({
-      context: contexts.importContext,
-      formName,
-      ...formFixtureInputs(formFixture, metadataFixture),
+    const result = await testFormYamlRoundTrip({
+      formXML, metadataXML, name: String(metadata.MetaDataObject.Form.Properties.Name),
     })
-    const converted = convertClientApplicationFormFromYAMLToXML({
-      context: contexts.exportContext(),
-      yaml: imported.yaml as ClientApplicationFormYAML,
-      name: formName,
-      referenceFormXML: form.Form,
-      referenceMetadataXML: metadata.MetaDataObject,
-    })
-    const expectedMetadata = structuredClone(metadata.MetaDataObject)
-    expectedMetadata.Form.Properties.UsePurposes ??= {
-      "v8:Value": {
-        "_xsi:type": "app:ApplicationUsePurpose",
-        "#text": "PlatformApplication",
-      },
-    }
-
-    expect(canonicalSnapshot13XML(xmlExport({ Form: converted.formXML }))).toEqual(
-      canonicalSnapshot13XML(readXMLFixtureAsString(import.meta.url, formFixture))
-    )
-    expect(canonicalXML(xmlExport({ MetaDataObject: converted.metadataXML }))).toEqual(
-      canonicalXML(xmlExport({ MetaDataObject: expectedMetadata }))
-    )
+    expect(canonicalXML(result.documents.get("body")!)).toEqual(canonicalXML(formXML))
+    expect(canonicalXML(result.documents.get("metadata")!)).toEqual(canonicalXML(metadataXML))
   })
 
   it("сохраняет нестандартное имя singleton как компактный !xml/name", () => {
@@ -1146,48 +1123,6 @@ function importReportForm(form: ClientApplicationFormXML) {
 
 function canonicalXML(xml: string): unknown {
   return withoutFormattingText(importContentFromXML(xml))
-}
-
-const SNAPSHOT_13_XML_NAMES: Readonly<Record<string, string>> = {
-  ChildItemsHorizontalAlign: "HorizontalAlign",
-  ChildItemsVerticalAlign: "VerticalAlign",
-  SlaveItemsWidth: "ChildItemsWidth",
-  ItemsAndTitlesAlign: "ChildrenAlign",
-  CollapseItemsByImportance: "CollapseItemsByImportanceVariant",
-}
-
-function canonicalSnapshot13XML(xml: string): unknown {
-  return normalizeSnapshot13XML(canonicalXML(xml))
-}
-
-function normalizeSnapshot13XML(value: unknown): unknown {
-  if (Array.isArray(value)) {
-    return value.map(normalizeSnapshot13XML)
-  }
-  if (value === null || typeof value !== "object") return value
-  return Object.fromEntries(
-    Object.entries(value).map(([key, child]) => {
-      const normalizedKey = SNAPSHOT_13_XML_NAMES[key] ?? key
-      const normalizedChild = normalizeSnapshot13XML(child)
-      return [normalizedKey, normalizedKey === "Table" ? withCanonicalTableDefaults(normalizedChild) : normalizedChild]
-    })
-  )
-}
-
-function withCanonicalTableDefaults(value: unknown): unknown {
-  if (Array.isArray(value)) return value.map(withCanonicalTableDefaults)
-  if (value === null || typeof value !== "object") return value
-  const table = value as Record<string, unknown>
-  return {
-    ...table,
-    Period: table.Period ?? {
-      "v8:variant": { "#text": "Custom", "_xsi:type": "v8:StandardPeriodVariant" },
-      "v8:startDate": "0001-01-01T00:00:00",
-      "v8:endDate": "0001-01-01T00:00:00",
-    },
-    TopLevelParent: table.TopLevelParent ?? { "_xsi:nil": "true" },
-    RowFilter: table.RowFilter ?? { "_xsi:nil": "true" },
-  }
 }
 
 function withoutFormattingText(value: unknown): unknown {
