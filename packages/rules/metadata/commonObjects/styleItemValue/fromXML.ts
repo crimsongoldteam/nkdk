@@ -1,4 +1,4 @@
-import { ConfigurationContextFromXML, isEmptyXmlElement, isXmlElementNode, xmlAttributeValue, xmlTextValue, type XmlElementNode } from "@nkdk/runtime"
+import { ConfigurationContextFromXML, isEmptyXmlElement, xmlAttributeValue, xmlTextValue, type XmlElementNode } from "@nkdk/runtime"
 import "../border/fromXML"
 import "../color/fromXML"
 import "../font/fromXML"
@@ -8,16 +8,16 @@ import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { Border } from "../border/types"
 import { Color } from "../color/types"
 import { Font } from "../font/types"
-import type { StyleItemValue, StyleItemValueXML } from "./types"
+import type { StyleItemValue } from "./types"
 
 export const importStyleItemValueFromXML = (
   context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
-  value: StyleItemValueXML | XmlElementNode | undefined
+  value: XmlElementNode | undefined
 ): StyleItemValue | undefined => {
   if (!value) return undefined
-  if (isXmlElementNode(value) && isEmptyXmlElement(value)) return undefined
-  const xsiType = isXmlElementNode(value) ? xmlAttributeValue(value, "xsi:type") : value["_xsi:type"]
+  if (isEmptyXmlElement(value)) return undefined
+  const xsiType = xmlAttributeValue(value, "xsi:type")
 
   if (xsiType === "v8ui:Font") {
     return {
@@ -29,7 +29,7 @@ export const importStyleItemValueFromXML = (
   if (xsiType === "v8ui:Color") {
     return {
       type: "Color",
-      value: importPropertyFromXML({ context, rule: { type: "Color" }, value: isXmlElementNode(value) ? xmlTextValue(value) || undefined : "#text" in value ? value["#text"] : undefined }) as Color,
+      value: importPropertyFromXML({ context, rule: { type: "Color" }, value: xmlTextValue(value) || undefined }) as Color,
     }
   }
 

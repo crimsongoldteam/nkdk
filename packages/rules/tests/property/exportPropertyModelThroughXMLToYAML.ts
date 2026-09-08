@@ -2,7 +2,7 @@ import { exportPropertyToYAML } from "../../metadata/ruleRuntime"
 import type { MetadataItemRule, PropertyRule } from "@nkdk/runtime/rule-kit"
 import { testPropertyFromXMLToYAML, testPropertyFromYAMLToXML } from "../directConversion"
 import { mockContext } from "../mockContext"
-import { readPropertyXML } from "../structuralXML"
+import { readPropertyXML, xmlElementFromTestValue } from "../structuralXML"
 
 export const testExportPropertyModelThroughXMLToYAML = (params: {
   rule: PropertyRule
@@ -47,7 +47,7 @@ export const testExportPropertyModelThroughXMLToYAML = (params: {
 
   return testPropertyFromXMLToYAML({
     rule,
-    xml: xml.xml,
+    xml: xmlElementFromTestValue("DirectPropertyModelProbe", xml.xml),
     name: params.name,
   }).yaml
 }

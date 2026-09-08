@@ -615,3 +615,21 @@ omitNonImplicitReferenceXMLWhenYAMLMissing. Чтение индекса явно
 архитектурные проверки, полный pnpm test и 214 e2e. Логи:
 /private/tmp/nkdk-property-dead-reference-{targeted3,elements,types2,duplicates2,arch-rules,arch,full,e2e}.log.
 Удаление старого представления парсера и завершение всего плана остаются открытыми.
+
+### Структурные входы простых значений XML
+
+Border, Font, IndexField, MetadataItemLink/Links, StringOrNumber, StyleItemValue
+и параметр кнопки больше не принимают объектную копию XML. Тестовые входы
+переведены на структурные узлы, включая все корни повторных элементов.
+Обнаружены и исправлены распознавание xsi:type=TypeDescription у параметра
+кнопки и выбор всех повторных значений параметра СКД (существующая регистрация
+repeatedXMLNodes). Фикстуры XML и эталоны YAML не менялись. В синтетическом
+тесте перерасчёта пустой Comment теперь проходит настоящий XML-импорт и
+штатно опускается как неявное значение; непустой комментарий проверяется.
+
+Прошли 3138 integration, 299 целевых тестов, полные типы, duplicates от
+f9c51e1, архитектурные проверки, pnpm test и 214 e2e. Логи:
+/private/tmp/nkdk-native-scalar-integration6.log,
+/private/tmp/nkdk-native-scalar-targeted6.log,
+/private/tmp/nkdk-native-scalar-{types8,duplicates8,arch-rules,arch,full8,e2e8}.log.
+Полное удаление parser compatibility и итоговое ревью остаются открытыми.

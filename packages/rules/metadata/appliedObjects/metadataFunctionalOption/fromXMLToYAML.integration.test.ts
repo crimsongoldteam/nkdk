@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 import { testPropertyFromXMLToYAML } from "../../../tests/directConversion"
 import type { MetadataItemRule } from "../../ruleRuntime"
 import { MetadataFunctionalOptionRules } from "./rules"
+import { xmlElementFromTestValue } from "../../../tests/structuralXML"
 
 const rule = {
   itemType: "MetadataFunctionalOptionContentProbe",
@@ -19,7 +20,7 @@ describe("MetadataFunctionalOption: единый XML → YAML-обход", () =>
   it("сохраняет неподдерживаемую ссылку состава для последующей валидации", () => {
     const result = testPropertyFromXMLToYAML({
       rule,
-      xml: { Properties: { Content: { "xr:Object": ["CommonTemplate.ПечатнаяФорма"] } } },
+      xml: xmlElementFromTestValue("FunctionalOption", { Properties: { Content: { "xr:Object": ["CommonTemplate.ПечатнаяФорма"] } } }),
     })
 
     expect(result.yaml).toEqual({ СоставФункциональнойОпции: ["CommonTemplate.ПечатнаяФорма"] })

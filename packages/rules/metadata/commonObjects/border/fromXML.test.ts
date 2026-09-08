@@ -1,9 +1,8 @@
 import { describe, expect, it } from "vitest"
 import { borderTestCases } from "./__fixtures__/data"
 import { mockContextFromXML, mockRule } from "../../../tests/mockContext"
-import { importContentFromXML } from "@nkdk/runtime"
 import { importBorderFromXML } from "./fromXML"
-import { Border, BorderXML } from "./types"
+import { Border } from "./types"
 import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"
 
 describe("importBorderFromXML", () => {
@@ -24,8 +23,8 @@ describe("importBorderFromXML", () => {
     const fixture = borderTestCases.find((testCase) => testCase.name === "border by style ref")
     expect(fixture?.xml).toBeDefined()
 
-    const xml = importContentFromXML<{ Border: BorderXML }>(fixture!.xml!)
-    const result = importBorderFromXML(mockContextFromXML(), mockRule, xml.Border)
+    const xml = parseStructuralXMLWithoutCompatibility(fixture!.xml!)
+    const result = importBorderFromXML(mockContextFromXML(), mockRule, xml)
 
     expect(result).toEqual(fixture!.border)
   })
@@ -40,9 +39,9 @@ describe("importBorderFromXML", () => {
       controlBorderType: "Indented",
     }
 
-    const xml = importContentFromXML<{ Border: BorderXML }>(mockXml)
+    const xml = parseStructuralXMLWithoutCompatibility(mockXml)
 
-    const result = importBorderFromXML(mockContextFromXML(), mockRule, xml.Border)
+    const result = importBorderFromXML(mockContextFromXML(), mockRule, xml)
 
     expect(result).toEqual(expected)
   })

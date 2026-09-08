@@ -30,7 +30,7 @@ import { collectImportDependencyFacts, prepareImportDependencies } from "../meta
 import { prepareTestXmlAnomalyAssignment } from "../metadata/xmlAnomalies/testSupport"
 import { buildPreparedAssignmentXml } from "../metadata/fullSyncToXml/xmlAnomalyAssignment"
 import { isXmlElementNode, xmlElementChildren, xmlTextValue } from "@nkdk/runtime"
-import { parseStructuralXMLWithoutCompatibility } from "./structuralXML"
+import { parseStructuralXMLWithoutCompatibility, readPropertyXML } from "./structuralXML"
 import type {
   XmlAnomalyAnnotations,
   XmlAnomalyAnnotationTable,
@@ -283,7 +283,7 @@ export function testPropertyFixtureThroughYAML(params: {
   const imported = testPropertyFromXMLToYAML({
     context: importContext,
     rule,
-    xml: { Value: sourceValue },
+    xml: { Value: readPropertyXML({ xmlString: readXMLFixtureAsString(params.importMetaUrl, params.fixture), xmlRootTag: params.xmlRootTag }) },
     name,
   })
   const exportBase = mockContextToXML()

@@ -95,6 +95,7 @@ import { metadataPropertyRule000 as rule93 } from "../commonObjects/dataComposit
 import { metadataPropertyRule000 as dcsLocalStringYamlTagPolicy } from "../commonObjects/dataCompositionSystem/dcsLocalStringType/yamlScalarTagPolicy"
 import { metadataPropertyRule000 as rule94 } from "../commonObjects/dataCompositionSystem/dcsMetadataValue/fromXML"
 import { metadataPropertyRule001 as rule95 } from "../commonObjects/dataCompositionSystem/dcsMetadataValue/fromXML"
+import { metadataPropertyRule002 as rule431 } from "../commonObjects/dataCompositionSystem/dcsMetadataValue/fromXML"
 import { metadataPropertyRule000 as rule96 } from "../commonObjects/dataCompositionSystem/dcsMetadataValue/fromYAML"
 import { metadataPropertyRule000 as rule97 } from "../commonObjects/dataCompositionSystem/dcsMetadataValue/toYAML"
 import { metadataPropertyRule000 as rule98 } from "../commonObjects/dataCompositionSystem/parameterValue/fromYAML"
@@ -840,6 +841,7 @@ export const staticPropertyTypes = propertyTypesFromContributions([
   rule428,
   rule429,
   rule430,
+  rule431,
   dataPathFromXML,
   commandNameFromXML,
 ])

@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest"
 import { testPropertyFromXMLToYAML, testPropertyFromYAMLToXML } from "../../../tests/directConversion"
 import type { MetadataItemRule } from "../../ruleRuntime"
 import { MetadataSubsystemRules } from "./rules"
+import { xmlElementFromTestValue } from "../../../tests/structuralXML"
 
 const rule = {
   itemType: "MetadataSubsystemContentProbe",
@@ -54,7 +55,7 @@ describe("MetadataSubsystem: единое преобразование сост�
   it.each(cases)("преобразует допустимые ссылки состава в обоих направлениях: $canonical", ({ canonical, yaml }) => {
     const imported = testPropertyFromXMLToYAML({
       rule,
-      xml: { Properties: { Content: { "xr:Item": [canonical] } } },
+      xml: xmlElementFromTestValue("Subsystem", { Properties: { Content: { "xr:Item": [canonical] } } }),
     })
     expect(imported.yaml).toEqual({ Состав: [yaml] })
 

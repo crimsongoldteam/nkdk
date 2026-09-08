@@ -5,7 +5,7 @@ import { StringOrNumber } from "./types"
 
 const NUMERIC_XSI_TYPES = new Set(["xs:decimal", "xs:integer", "xs:double", "xs:float"])
 
-type StringOrNumberXML = string | number | { "#text"?: string | number; "_xsi:type"?: string } | XmlElementNode | undefined
+type StringOrNumberXML = string | number | XmlElementNode | undefined
 
 export const importStringOrNumberFromXML = (
   _context: ConfigurationContextFromXML,
@@ -14,9 +14,9 @@ export const importStringOrNumberFromXML = (
 ): StringOrNumber | undefined => {
   if (value === undefined) return undefined
 
-  if (typeof value === "object" && value !== null) {
-    const text = isXmlElementNode(value) ? xmlTextValue(value) : value["#text"]
-    const xsiType = isXmlElementNode(value) ? xmlAttributeValue(value, "xsi:type") : value["_xsi:type"]
+  if (isXmlElementNode(value)) {
+    const text = xmlTextValue(value)
+    const xsiType = xmlAttributeValue(value, "xsi:type")
     if (text === undefined || text === "") return undefined
 
     return typeof xsiType === "string" && NUMERIC_XSI_TYPES.has(xsiType) ? Number(text) : String(text)

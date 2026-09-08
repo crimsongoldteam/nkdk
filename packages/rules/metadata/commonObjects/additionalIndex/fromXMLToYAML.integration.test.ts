@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest"
 
-import { readAppliedObjectFixture, testMetadataItemFromXMLToYAML } from "../../../tests/directConversion"
+import { testMetadataItemFromXMLToYAML } from "../../../tests/directConversion"
+import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"
+import { readXMLFixtureAsString } from "../../../tests/readFixtureXML"
 import { AdditionalIndexRules } from "./rules"
 
 import "./types"
@@ -16,14 +18,14 @@ const expected = [
 
 describe("AdditionalIndex XML → YAML", () => {
   it("imports full.xml", () => {
-    const xml = readAppliedObjectFixture(import.meta.url, "full.xml")
+    const xml = parseStructuralXMLWithoutCompatibility(readXMLFixtureAsString(import.meta.url, "full.xml"))
     const result = testMetadataItemFromXMLToYAML({ rule: AdditionalIndexRules, xml })
 
     expect(result.yaml).toEqual(expected)
   })
 
   it("экспортирует items как корневой массив (без обёртки items:)", () => {
-    const xml = readAppliedObjectFixture(import.meta.url, "full.xml")
+    const xml = parseStructuralXMLWithoutCompatibility(readXMLFixtureAsString(import.meta.url, "full.xml"))
     const result = testMetadataItemFromXMLToYAML({ rule: AdditionalIndexRules, xml })
 
     expect(result.yaml).toEqual(expected)

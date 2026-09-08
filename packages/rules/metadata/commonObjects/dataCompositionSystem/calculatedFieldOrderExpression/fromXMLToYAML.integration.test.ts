@@ -63,6 +63,9 @@ describe("export CalculatedFieldOrderExpression to YAML", () => {
       rule: { type: "CalculatedFieldOrderExpression", yaml: "ВыраженияУпорядочивания" },
       value: fullOrderExpressions,
       yaml: fullOrderExpressionsYAML,
+      path: "full.xml",
+      xmlRootTag: "dcssch:orderExpression",
+      importMetaUrl: import.meta.url,
     })
 
     expect(result).toEqual({ ВыраженияУпорядочивания: fullOrderExpressionsYAML })

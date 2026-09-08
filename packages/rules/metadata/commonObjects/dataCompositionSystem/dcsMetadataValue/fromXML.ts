@@ -1,6 +1,5 @@
 import { importColorFromXML } from "../../color/fromXML"
 import { importFontFromXML } from "../../font/fromXML"
-import { FontXML } from "../../font/types"
 import { importFormattedI8nTextFromXML } from "../../formattedI8nText/fromXML"
 import { FormattedI8nTextXML } from "../../formattedI8nText/types"
 import { importI8nTextFromXML } from "../../i8nText/fromXML"
@@ -201,7 +200,8 @@ const importDcsMetadataPayloadInternal = (
   }
 
   if (xsi === "v8ui:Font") {
-    return importFontFromXML(context, undefined, isXmlElementNode(root) ? root : root as unknown as FontXML)!
+    if (!isXmlElementNode(root)) throw new Error("DCS Font: ожидается структурный XML-узел")
+    return importFontFromXML(context, undefined, root)!
   }
 
   if (xsi === "dcscor:Field") {
@@ -284,4 +284,7 @@ const importDcsMetadataValueFromXMLForRule: (
 
 export const metadataPropertyRule000 = definePropertyTypeRule("MetadataDcsMetadataValue", "importFromXML", importDcsMetadataValueFromXMLForRule)
 export const metadataPropertyRule001 = definePropertyTypeRule("MetadataDcsMetadataValue", "configurationIndexValueFromXML", {
+})
+export const metadataPropertyRule002 = definePropertyTypeRule("MetadataDcsMetadataValue", "xmlImportPropertyBehavior", {
+  repeatedXMLNodes: true,
 })

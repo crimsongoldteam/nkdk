@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { mockContextFromXML, mockRule } from "../../../tests/mockContext"
 import { importStyleItemValueFromXML } from "./fromXML"
 import { StyleItemValueXML } from "./types"
-import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"
+import { parseStructuralXMLWithoutCompatibility, xmlElementFromTestValue } from "../../../tests/structuralXML"
 
 const fontXML: StyleItemValueXML = {
   "_xsi:type": "v8ui:Font",
@@ -47,7 +47,7 @@ describe("importStyleItemValueFromXML", () => {
   })
 
   it("should import font style item value from XML", () => {
-    const result = importStyleItemValueFromXML(mockContextFromXML(), mockRule, fontXML)
+    const result = importStyleItemValueFromXML(mockContextFromXML(), mockRule, xmlElementFromTestValue("Value", fontXML))
 
     expect(result).toEqual({
       type: "Font",
@@ -65,7 +65,7 @@ describe("importStyleItemValueFromXML", () => {
   })
 
   it("should import color style item value from XML", () => {
-    const result = importStyleItemValueFromXML(mockContextFromXML(), mockRule, colorXML)
+    const result = importStyleItemValueFromXML(mockContextFromXML(), mockRule, xmlElementFromTestValue("Value", colorXML))
 
     expect(result).toEqual({
       type: "Color",
@@ -74,7 +74,7 @@ describe("importStyleItemValueFromXML", () => {
   })
 
   it("should import border style item value from XML", () => {
-    const result = importStyleItemValueFromXML(mockContextFromXML(), mockRule, borderXML)
+    const result = importStyleItemValueFromXML(mockContextFromXML(), mockRule, xmlElementFromTestValue("Value", borderXML))
 
     expect(result).toEqual({
       type: "Border",
