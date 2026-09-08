@@ -42,7 +42,7 @@ import type { DeferredValuePathCollector } from "./importYamlTypes"
 import { copyYAMLRuntimeMetadata } from "../../../yaml/runtimeMetadata"
 import { isDependentImportProperty } from "./dependentItemRegistry"
 import type { PropertyRuleExecution } from "./fn"
-import { isXmlElementNode, isEmptyXmlElement, isPlainXmlTextElement, xmlAttributeValue, type XmlElementNode } from "../../../xml/import/document"
+import { isXmlElementNode, isEmptyXmlElement, xmlAttributeValue, type XmlElementNode } from "../../../xml/import/document"
 import type {
   XmlImportAuditBoundary,
   XmlImportAuditedNode,
@@ -1044,20 +1044,7 @@ export function importPropertiesFromXMLToYAML(params: {
           || typeRule(propertyRule.type, "fileChildNamesDescriptor") !== undefined
           || typeRule(propertyRule.type, "xmlImportPropertyBehavior")?.repeatedXMLNodes === true
       },
-      useStructuralXMLValue: (entry, node) => {
-        if (params.audit === undefined || isPlainXmlTextElement(node)) return true
-        if ("flags" in entry) {
-          const flags = (entry as CompiledProperty).flags
-          return flags.nestedItemsOwnXMLNode
-        }
-        const { canonicalXMLKey, rule: propertyRule } = entry
-        const nestedRule = typeRule(propertyRule.type, "yamlToXMLNestedRule")
-        return nestedRule?.kind === "item" && typeRule(propertyRule.type, "nestedItemRule") !== undefined
-          || nestedRule?.kind === "collection" && (
-          nestedRule.xmlElement === canonicalXMLKey
-          || typeRule(propertyRule.type, "xmlImportPropertyBehavior")?.nestedItemsOwnXMLChildren === true
-        )
-      },
+      useStructuralXMLValue: () => true,
       claimRoot: sourceState.source.claimAuditRoot,
       visit(match) {
         sourceState.foundPropertyKeys.add(match.propertyKey)

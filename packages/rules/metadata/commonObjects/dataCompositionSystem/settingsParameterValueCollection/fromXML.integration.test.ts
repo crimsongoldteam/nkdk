@@ -1,15 +1,13 @@
 import {
-  createXmlAnomalyAnnotations,
-  createXmlImportAuditSession,
+  parseMetadataYaml,
   parseXmlDocumentWithSaxes,
-  projectXmlAuditRemainder,
 } from "@nkdk/runtime"
 import { describe, expect, it } from "vitest"
 import { createRuleRegistrySet, type MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { PropertyRule } from "../../../ruleRuntime"
 import { metadataRules } from "../../../composition/metadataRules"
 import { testImportPropertyFromXML } from "../../../../tests/property/importPropertyFromXML"
-import { testPropertyFromXMLToYAML } from "../../../../tests/directConversion"
+import { testPropertiesYamlRoundTrip } from "../../../../tests/directConversion"
 import { settingsParameterValueCollectionFixture } from "./__fixtures__/data"
 
 const rule: PropertyRule = {
@@ -76,22 +74,19 @@ describe("import SettingsParameterValueCollection from XML", () => {
     expect(result).toMatchObject({ parameters: { Параметр1: { xmlNil: true } } })
   })
 
-  it("структурно импортирует все повторяющиеся dcscor:item без raw-остатка", () => {
+  it("сохраняет повторные dcscor:item и отсутствие штатного xsi:type", () => {
     const registries = createRuleRegistrySet(metadataRules)
     expect(registries.property.getTypeRule(
       "SettingsParameterValueCollection",
       "xmlImportPropertyBehavior",
     ))
       .toEqual({ repeatedXMLNodes: true })
-    const document = parseXmlDocumentWithSaxes(`<Root>
+    const sourceXML = `
       <dcssch:inputParameters>
         <dcscor:item><dcscor:parameter>Первый</dcscor:parameter><dcscor:value xsi:type="dcscor:Field">Поле1</dcscor:value></dcscor:item>
         <dcscor:item><dcscor:parameter>Второй</dcscor:parameter><dcscor:value xsi:type="dcscor:Field">Поле2</dcscor:value></dcscor:item>
       </dcssch:inputParameters>
-    </Root>`)
-    const root = document.roots[0]!
-    const audit = createXmlImportAuditSession([root])
-    const annotations = createXmlAnomalyAnnotations()
+    `
     const ownerRule = {
       itemType: "SettingsParameterValueCollectionProbe",
       properties: {
@@ -103,29 +98,21 @@ describe("import SettingsParameterValueCollection from XML", () => {
         },
       },
     } as MetadataItemRule
-    const imported = testPropertyFromXMLToYAML({
+    const result = testPropertiesYamlRoundTrip({
       rule: ownerRule,
-      xml: root,
-      audit,
-      annotations,
-      execution: registries.execution,
-    }).yaml as Record<string, unknown>
-    audit.finalize()
-
-    projectXmlAuditRemainder({
-      yaml: imported,
-      annotations,
-      audit,
-      root,
-      boundary: { itemType: ownerRule.itemType, yamlPath: [], rulePath: [] },
+      sourceXML,
     })
 
-    expect(imported).toMatchObject({
+    expect(parseMetadataYaml(result.yamlText).data).toMatchObject({
       Значения: {
         Первый: { Значение: "Поле1" },
         Второй: { Значение: "Поле2" },
       },
     })
-    expect([...annotations.entries()]).toEqual([])
+    // Штатный экспорт добавляет xsi:type; исходное отсутствие сохраняется только на атрибуте.
+    expect(result.yamlText.match(/!xml\/raw/g)).toHaveLength(2)
+    expect(result.yamlText.match(/_xsi:type: null/g)).toHaveLength(2)
+    expect(parseXmlDocumentWithSaxes(result.result).roots[0]!.structuralHash)
+      .toEqual(parseXmlDocumentWithSaxes(sourceXML).roots[0]!.structuralHash)
   })
 })

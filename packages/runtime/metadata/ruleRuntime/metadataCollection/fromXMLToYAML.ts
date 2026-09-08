@@ -97,6 +97,17 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
   const sourceNodes = isXmlElementNode(params.xml) ? [params.xml]
     : Array.isArray(params.xml) && params.xml.every(isXmlElementNode) ? params.xml
     : params.traversal.xmlNodes
+  if (params.traversal.audit !== undefined && sourceNodes !== undefined) {
+    for (const source of sourceNodes) {
+      if (source.name === params.xmlElement) continue
+      // Оболочка коллекции известна; атрибуты и содержимое проверяются отдельно.
+      params.traversal.audit.claim(source, {
+        itemType: params.itemRule.itemType,
+        yamlPath: params.traversal.yamlPath,
+        rulePath: params.traversal.rulePath,
+      })
+    }
+  }
   const items: Iterable<Record<string, unknown> | XmlElementNode> = sourceNodes === undefined
     ? normalizeCollectionItems(params.xml, params.xmlElement)
     : collectionItemNodes(sourceNodes, params.xmlElement)

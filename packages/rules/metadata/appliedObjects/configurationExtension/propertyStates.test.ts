@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import "../../../tests/metadataExecutionContext"
 import { mockContextFromXML } from "../../../tests/mockContext"
-import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"
+import { parseStructuralXMLWithoutCompatibility, xmlElementFromTestValue } from "../../../tests/structuralXML"
 import {
   createConfigurationIndexCollector,
   withConfigurationIndexCollector,
@@ -707,7 +707,7 @@ describe("configuration extension PropertyState augmenter", () => {
           type: { type: "TypeDescription", yaml: "Тип", xml: "Type", xmlParents: ["Properties"] },
         },
       } as MetadataItemRule,
-      source: {
+      source: xmlElementFromTestValue("Attribute", {
         ...propertyStates(["Type", "MultiState"]),
         Properties: {
           Type: {
@@ -716,7 +716,7 @@ describe("configuration extension PropertyState augmenter", () => {
             "xr:ExtendValue": { "_xsi:type": "v8:TypeDescription", "v8:Type": "xs:boolean" },
           },
         },
-      },
+      }),
       yaml,
     })
 

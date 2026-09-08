@@ -5,7 +5,7 @@ import { exportToYAML } from "@nkdk/runtime"
 import { explicitYAMLString, isExplicitYAMLString, parseMetadataYaml, yamlScalarTagAt } from "@nkdk/runtime"
 import { createConfigurationIndexCollector } from "@nkdk/runtime"
 import { withConfigurationIndexCollector } from "@nkdk/runtime"
-import type { ClientApplicationFormXML } from "./types"
+import { xmlElementFromTestValue } from "../../../tests/structuralXML"
 import {
   equalBaseFormYaml,
   importBaseFormYaml,
@@ -168,8 +168,8 @@ function context() {
   )
 }
 
-function formXML(id: string, namespace: string, uuid: string): ClientApplicationFormXML {
-  return {
+function formXML(id: string, namespace: string, uuid: string) {
+  return xmlElementFromTestValue("Form", {
     _xmlns: namespace,
     _uuid: uuid,
     Width: 10,
@@ -179,5 +179,5 @@ function formXML(id: string, namespace: string, uuid: string): ClientApplication
     AutoCommandBar: {
       CommandBar: { _name: "ФормаКоманднаяПанель", _id: id },
     },
-  }
+  })
 }

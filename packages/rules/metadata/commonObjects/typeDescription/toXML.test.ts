@@ -1,10 +1,11 @@
-import { importContentFromXML,xmlExport } from "@nkdk/runtime"
+import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"
+import { xmlExport } from "@nkdk/runtime"
 import { describe,expect,it } from "vitest"
 import { mockContext,mockContextFromXML,mockContextToXML,mockRule } from "../../../tests/mockContext"
 import { typeFixturesTable } from "./__fixtures__/data"
 import { importTypeDescriptionFromXML } from "./fromXML"
 import { exportTypeDescriptionToXML } from "./toXML"
-import { TypeDescription,TypeDescriptionXML } from "./types"
+import { TypeDescription } from "./types"
 
 const exportTypeDescriptionAtRuntimeBoundary: (
   ...args: [...Parameters<typeof exportTypeDescriptionToXML>, unknown?]
@@ -208,13 +209,13 @@ describe("exportTypeDescriptionToXML", () => {
   })
 
   it("should export ConditionalAppearance type to XML with entext namespace", () => {
-    const referenceXml = importContentFromXML<{ Type?: TypeDescriptionXML }>(
+    const referenceXml = parseStructuralXMLWithoutCompatibility(
       '<Type>\n\t<v8:Type xmlns:d7p1="http://v8.1c.ru/8.3/data/entext">d7p1:ConditionalAppearance</v8:Type>\n</Type>'
     )
     const referenceTypeDescription = importTypeDescriptionFromXML(
       mockContextFromXML(),
       mockRule,
-      referenceXml.Type
+      referenceXml
     )
 
     const resultXml = exportTypeDescriptionAtRuntimeBoundary(
@@ -232,13 +233,13 @@ describe("exportTypeDescriptionToXML", () => {
   })
 
   it("выбирает канонический префикс вместо reference", () => {
-    const referenceXml = importContentFromXML<{ Type?: TypeDescriptionXML }>(
+    const referenceXml = parseStructuralXMLWithoutCompatibility(
       '<Type>\n\t<v8:Type xmlns:d7p1="http://v8.1c.ru/8.2/data/chart">d7p1:Chart</v8:Type>\n</Type>'
     )
     const referenceTypeDescription = importTypeDescriptionFromXML(
       mockContextFromXML(),
       mockRule,
-      referenceXml.Type
+      referenceXml
     )
 
     const resultXml = exportTypeDescriptionAtRuntimeBoundary(mockContext, mockRule, { type: ["Chart"] }, referenceTypeDescription)
@@ -251,13 +252,13 @@ describe("exportTypeDescriptionToXML", () => {
   })
 
   it("не добавляет локальное объявление cfg из reference", () => {
-    const referenceXml = importContentFromXML<{ Type?: TypeDescriptionXML }>(
+    const referenceXml = parseStructuralXMLWithoutCompatibility(
       '<Type>\n\t<v8:Type xmlns:d4p1="http://v8.1c.ru/8.1/data/enterprise/current-config">d4p1:CatalogRef.ЗначенияХарактеристик</v8:Type>\n</Type>'
     )
     const referenceTypeDescription = importTypeDescriptionFromXML(
       mockContextFromXML(),
       mockRule,
-      referenceXml.Type
+      referenceXml
     )
 
     const resultXml = exportTypeDescriptionAtRuntimeBoundary(
@@ -275,13 +276,13 @@ describe("exportTypeDescriptionToXML", () => {
   })
 
   it("канонически экспортирует все типы при изменении соседнего типа", () => {
-    const referenceXml = importContentFromXML<{ Type?: TypeDescriptionXML }>(
+    const referenceXml = parseStructuralXMLWithoutCompatibility(
       '<Type>\n\t<v8:Type xmlns:d7p1="http://v8.1c.ru/8.2/data/chart">d7p1:Chart</v8:Type>\n\t<v8:Type>xs:string</v8:Type>\n</Type>'
     )
     const referenceTypeDescription = importTypeDescriptionFromXML(
       mockContextFromXML(),
       mockRule,
-      referenceXml.Type
+      referenceXml
     )
 
     const resultXml = exportTypeDescriptionAtRuntimeBoundary(
@@ -299,13 +300,13 @@ describe("exportTypeDescriptionToXML", () => {
   })
 
   it("should not reuse reference prefix spelling for changed semantic type", () => {
-    const referenceXml = importContentFromXML<{ Type?: TypeDescriptionXML }>(
+    const referenceXml = parseStructuralXMLWithoutCompatibility(
       '<Type>\n\t<v8:Type xmlns:d7p1="http://v8.1c.ru/8.2/data/chart">d7p1:Chart</v8:Type>\n</Type>'
     )
     const referenceTypeDescription = importTypeDescriptionFromXML(
       mockContextFromXML(),
       mockRule,
-      referenceXml.Type
+      referenceXml
     )
 
     const resultXml = exportTypeDescriptionAtRuntimeBoundary(

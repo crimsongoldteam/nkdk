@@ -266,7 +266,7 @@ export function testPropertyFixtureThroughYAML(params: {
       value: {
         type: params.propertyType,
         yaml: "Значение",
-        xml: "Value",
+        xml: params.xmlRootTag,
         ...(params.itemRule === undefined ? {} : { itemRule: params.itemRule }),
       } as PropertyRule,
     },
@@ -283,7 +283,7 @@ export function testPropertyFixtureThroughYAML(params: {
   const imported = testPropertyFromXMLToYAML({
     context: importContext,
     rule,
-    xml: { Value: readPropertyXML({ xmlString: readXMLFixtureAsString(params.importMetaUrl, params.fixture), xmlRootTag: params.xmlRootTag }) },
+    xml: { [params.xmlRootTag]: readPropertyXML({ xmlString: readXMLFixtureAsString(params.importMetaUrl, params.fixture), xmlRootTag: params.xmlRootTag }) },
     name,
   })
   const exportBase = mockContextToXML()
@@ -333,7 +333,7 @@ export function testPropertyFixtureThroughYAML(params: {
     referenceXML: params.withReference === false ? undefined : { Value: sourceValue },
     name,
   })
-  const value = exported.xml.Value
+  const value = exported.xml[params.xmlRootTag]
   const output =
     params.xmlRootTag === "MetaDataObject" && isRecord(value) && isRecord(value.MetaDataObject)
       ? value

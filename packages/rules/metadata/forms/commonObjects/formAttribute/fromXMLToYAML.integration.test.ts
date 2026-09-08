@@ -1,3 +1,4 @@
+import { xmlElementFromTestValue } from "../../../../tests/structuralXML"
 import fs from "node:fs"
 import { parseStructuralXMLWithoutCompatibility } from "../../../../tests/structuralXML"
 import { fileURLToPath } from "node:url"
@@ -7,7 +8,6 @@ import {
 createXmlAnomalyAnnotations,
 createLocalXmlProof,
 createXmlImportAuditSession,
-importContentFromXML,
 parseXmlDocumentWithSaxes,
 serializeYAMLDocument,
 xmlElementChildren,
@@ -77,7 +77,7 @@ function importStructuredFormAttributes(
   } as const satisfies MetadataItemRule
   const { yaml } = testPropertyFromXMLToYAML({
     rule: structuredRule,
-    xml: root,
+    xml: xmlElementFromTestValue("Probe", root),
     audit,
     annotations,
     execution,
@@ -87,12 +87,6 @@ function importStructuredFormAttributes(
 }
 
 describe("FormAttributes XML → YAML → XML", () => {
-  it.each(settingsFixtures)("получает прежнюю строку настроек без XML-объекта: %s", fixture => {
-    const source = readFormAttributeFixture(fixture)
-    const expected = testPropertyFromXMLToYAML({ rule, xml: importContentFromXML(source, { preserveXsiNil: true }) }).yaml
-    const actual = testPropertyFromXMLToYAML({ rule, xml: parseStructuralXMLWithoutCompatibility(`<Probe>${source}</Probe>`) }).yaml
-    expect(actual).toEqual(expected)
-  })
 
   it("проверяет общий Settings реквизита один раз", () => {
     const registries = createRuleRegistrySet(metadataRules)
@@ -384,7 +378,7 @@ describe("FormAttributes XML → YAML → XML", () => {
       ],
     }
 
-    const { yaml } = testPropertyFromXMLToYAML({ rule, xml: source, annotations })
+    const { yaml } = testPropertyFromXMLToYAML({ rule, xml: xmlElementFromTestValue("Probe", source), annotations })
     const text = serializeYAMLDocument(yaml, annotations).text
     expect(text).toContain("!xml/invalid Таблица:")
     expect(text).toContain("!xml/invalid Колонка:")
@@ -409,12 +403,12 @@ describe("FormAttributes XML → YAML → XML", () => {
   it("не помечает отсутствие Settings у составного типа", () => {
     const { yaml } = testPropertyFromXMLToYAML({
       rule,
-      xml: {
+      xml: xmlElementFromTestValue("Probe", {
         Attribute: {
           _name: "Список",
           Type: { "v8:Type": ["v8:ValueListType", "xs:string"] },
         },
-      },
+      }),
     })
     const item = (yaml as { Значение: Record<string, Record<string, unknown>> }).Значение.Список!
 
@@ -424,7 +418,7 @@ describe("FormAttributes XML → YAML → XML", () => {
   it("сохраняет непустой Settings у единственного СпискаЗначений", () => {
     const { yaml } = testPropertyFromXMLToYAML({
       rule,
-      xml: {
+      xml: xmlElementFromTestValue("Probe", {
         Attribute: {
           _name: "Список",
           Type: { "v8:Type": "v8:ValueListType" },
@@ -434,7 +428,7 @@ describe("FormAttributes XML → YAML → XML", () => {
             "v8:StringQualifiers": { "v8:Length": 0, "v8:AllowedLength": "Variable" },
           },
         },
-      },
+      }),
     })
     const item = (yaml as { Значение: Record<string, Record<string, unknown>> }).Значение.Список!
 
@@ -466,10 +460,7 @@ describe("FormAttributes XML → YAML → XML", () => {
       fileURLToPath(new URL("__fixtures__/valueListWithReferenceEmptySettings.xml", import.meta.url)),
       "utf8",
     )
-    const xml = importContentFromXML<Record<string, unknown>>(source, {
-      preserveEmptyElements: true,
-      preserveXsiNil: true,
-    })
+    const xml = parseStructuralXMLWithoutCompatibility(`<Probe>${source}</Probe>`)
     const contexts = createDirectRoundTripContexts({
       logicalAddress: "ОбщаяФорма.СписокЗначений",
     })
@@ -484,7 +475,7 @@ describe("FormAttributes XML → YAML → XML", () => {
           },
         }
 
-    testPropertyFromXMLToYAML({ rule, xml, context: importContext })
+    testPropertyFromXMLToYAML({ rule, xml: xmlElementFromTestValue("Probe", xml), context: importContext })
     const entities = collection?.collector.fragment("Форма.yaml").entities ?? []
 
     expect(entities).not.toEqual(expect.arrayContaining([
@@ -500,16 +491,13 @@ describe("FormAttributes XML → YAML → XML", () => {
       fileURLToPath(new URL("__fixtures__/tableWithColumns.xml", import.meta.url)),
       "utf8"
     )
-    const xml = importContentFromXML<Record<string, unknown>>(source, {
-      preserveEmptyElements: true,
-      preserveXsiNil: true,
-    })
+    const xml = parseStructuralXMLWithoutCompatibility(`<Probe>${source}</Probe>`)
     const contexts = createDirectRoundTripContexts({
       logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента",
     })
     const { yaml } = testPropertyFromXMLToYAML({
       rule,
-      xml,
+      xml: xmlElementFromTestValue("Probe", xml),
       context: contexts.importContext,
     })
 
@@ -537,11 +525,8 @@ describe("FormAttributes XML → YAML → XML", () => {
       fileURLToPath(new URL("__fixtures__/columnAnyType.xml", import.meta.url)),
       "utf8"
     )
-    const xml = importContentFromXML<Record<string, unknown>>(source, {
-      preserveEmptyElements: true,
-      preserveXsiNil: true,
-    })
-    const { yaml } = testPropertyFromXMLToYAML({ rule, xml })
+    const xml = parseStructuralXMLWithoutCompatibility(`<Probe>${source}</Probe>`)
+    const { yaml } = testPropertyFromXMLToYAML({ rule, xml: xmlElementFromTestValue("Probe", xml) })
 
     expect(yaml).not.toHaveProperty(
       "Значение.ТаблицаСКолонкойБезТипа.Колонки.РеквизитБезТипа.Заголовок"
@@ -573,7 +558,7 @@ describe("FormAttributes XML → YAML → XML", () => {
   it("различает обычные и дополнительные колонки", () => {
     const { yaml } = testPropertyFromXMLToYAML({
       rule,
-      xml: {
+      xml: xmlElementFromTestValue("Probe", {
         Attribute: {
           _name: "Таблица",
           Type: { "v8:Type": "v8:ValueTable" },
@@ -588,7 +573,7 @@ describe("FormAttributes XML → YAML → XML", () => {
             ],
           },
         },
-      },
+      }),
     })
 
     expect(yaml).toMatchObject({
@@ -633,7 +618,7 @@ describe("FormAttributes XML → YAML → XML", () => {
     const contexts = createDirectRoundTripContexts({
       logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента",
     })
-    const yaml = testPropertyFromXMLToYAML({ rule, xml: source, context: contexts.importContext }).yaml
+    const yaml = testPropertyFromXMLToYAML({ rule, xml: xmlElementFromTestValue("Probe", source), context: contexts.importContext }).yaml
     const { xml } = testPropertyFromYAMLToXML({ rule, yaml, context: contexts.exportContext() })
 
     expect(xml).toMatchObject({
@@ -677,7 +662,7 @@ describe("FormAttributes XML → YAML → XML", () => {
     }
     const yaml = testPropertyFromXMLToYAML({
       rule,
-      xml: source,
+      xml: xmlElementFromTestValue("Probe", source),
       context: contexts.importContext,
     }).yaml
     const { xml } = testPropertyFromYAMLToXML({
@@ -710,17 +695,14 @@ function attributeDependencies(
 function roundTripFixture(fixture: string, withReference: boolean): { expected: string; result: string } {
   const expected = readFormAttributeFixture(fixture)
   if (withReference) return testPropertiesYamlRoundTrip({ sourceXML: expected, rule })
-  const parsed = importContentFromXML<Record<string, unknown>>(expected, {
-    preserveEmptyElements: true,
-    preserveXsiNil: true,
-  })
+  const parsed = parseStructuralXMLWithoutCompatibility(`<Probe>${expected}</Probe>`)
   const contexts = createDirectRoundTripContexts({
     logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента",
   })
   const imported = testPropertyFromXMLToYAML({
     context: contexts.importContext,
     rule,
-    xml: parsed,
+    xml: xmlElementFromTestValue("Probe", parsed),
   })
   const exportContext = contexts.exportContext()
   const converted = testPropertyFromYAMLToXML({

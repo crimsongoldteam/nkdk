@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 
 import { testPropertyFixtureThroughYAML, testPropertyFromXMLToYAML } from "../../../tests/directConversion"
-import { importContentFromXML } from "@nkdk/runtime"
+import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"
 import type { MetadataTargetOwnerContext } from "@nkdk/runtime"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 
@@ -120,7 +120,7 @@ function convertType(fixture: string, propertyType: string, metadataTargetOwners
 function convertInline(xmlString: string): unknown {
   return testPropertyFromXMLToYAML({
     rule,
-    xml: importContentFromXML<Record<string, unknown>>(xmlString),
+    xml: parseStructuralXMLWithoutCompatibility(`<Probe>${xmlString}</Probe>`),
   }).yaml
 }
 

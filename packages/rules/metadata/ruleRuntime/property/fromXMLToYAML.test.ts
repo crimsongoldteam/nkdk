@@ -53,7 +53,7 @@ import type { ExportToXMLFunctionNew } from "./fn"
 import type { DirectImportFactsSink, PreparedImportDependencies } from "./importYamlTypes"
 import { collectImportDependencyFacts, prepareImportDependencies } from "../../importFromXml/preparedDependencies"
 import { materializeImportPropertyFacts } from "../../../tests/importPropertyFacts"
-import type { ConfigurationContextFromXML, LocalXmlProof, XmlAnomalyAnnotationTable, XmlElementNode } from "@nkdk/runtime"
+import type { ConfigurationContextFromXML, LocalXmlProof, XmlAnomalyAnnotationTable, XmlElementNode, XmlProcessingInstructionNode } from "@nkdk/runtime"
 
 function typeOwnedChoiceProperties(type: PropertyRuleType): MetadataItemRule["properties"] {
   return {
@@ -2076,10 +2076,10 @@ describe("importPropertiesFromXMLToYAML", () => {
     expect(audit.rawCandidates()).toEqual([])
   })
 
-  it("заявляет только структурные части, фактически прочитанные PropertyRule", () => {
+  it("не подменяет доказательство восстановления фактом чтения XML-узла", () => {
     const selectiveType = "TestSelectiveStructuralRead" as PropertyRuleType
     registerTypeRule(selectiveType, "importFromXMLToYAML", ({ xml }) =>
-      (xml as Record<string, unknown>).Known,
+      isXmlElementNode(xml) ? xmlElementChildren(xml, "Known").map(xmlTextValue)[0] : undefined,
     )
     const { yaml, audit } = importAuditedStructuralProperty({
       propertyType: selectiveType,
@@ -2094,8 +2094,8 @@ describe("importPropertiesFromXMLToYAML", () => {
     expect(valuePropertyAuditStates(audit)).toEqual([
       ["/Root[1]/Value[1]", "claimed"],
       ["/Root[1]/Value[1]/@future[1]", "unknown"],
-      ["/Root[1]/Value[1]/Known[1]", "claimed"],
-      ["/Root[1]/Value[1]/Known[1]/#text[1]", "claimed"],
+      ["/Root[1]/Value[1]/Known[1]", "unknown"],
+      ["/Root[1]/Value[1]/Known[1]/#text[1]", "unknown"],
       ["/Root[1]/Value[1]/Unread[1]", "unknown"],
       ["/Root[1]/Value[1]/Unread[1]/@extra[1]", "unknown"],
       ["/Root[1]/Value[1]/Unread[1]/#text[1]", "unknown"],
@@ -2104,7 +2104,7 @@ describe("importPropertiesFromXMLToYAML", () => {
     ])
   })
 
-  it("отмечает полностью распознанное пустое значение как осмысленно исключённое", () => {
+  it("не признаёт сериализацию XML доказательством восстановления пустой коллекции", () => {
     const propertyType = "TestSemanticallyElidedCollection" as PropertyRuleType
     registerTypeRule(propertyType, "importFromXMLToYAML", ({ xml }) => {
       JSON.stringify(xml)
@@ -2119,10 +2119,10 @@ describe("importPropertiesFromXMLToYAML", () => {
 
     expect(yaml).toEqual({})
     expect(valuePropertyAuditStates(audit).map(([, state]) => state))
-      .toEqual(Array(4).fill("semanticallyElided"))
+      .toEqual(["claimed", "unknown", "unknown", "unknown"])
   })
 
-  it("считает полностью прочитанное и опущенное прямое значение восстановимым", () => {
+  it("не признаёт прочитанное и опущенное значение восстановимым без proof", () => {
     const propertyType = "TestSemanticallyElidedDirectValue" as PropertyRuleType
     registerTypeRule(propertyType, "importFromXMLToYAML", ({ xml }) => {
       JSON.stringify(xml)
@@ -2137,7 +2137,7 @@ describe("importPropertiesFromXMLToYAML", () => {
 
     expect(yaml).toEqual({})
     expect(valuePropertyAuditStates(audit).map(([, state]) => state))
-      .toEqual(Array(3).fill("semanticallyElided"))
+      .toEqual(["claimed", "unknown", "unknown"])
   })
 
   it("заявляет точную XML-форму канонического raw-дефолта", () => {
@@ -2309,7 +2309,7 @@ describe("importPropertiesFromXMLToYAML", () => {
   it("не считает частично прочитанное пустое значение осмысленно исключённым", () => {
     const propertyType = "TestPartiallyElidedCollection" as PropertyRuleType
     registerTypeRule(propertyType, "importFromXMLToYAML", ({ xml }) => {
-      void (xml as Record<string, unknown>).Known
+      if (isXmlElementNode(xml)) void xmlElementChildren(xml, "Known")
       return []
     })
     const { yaml, audit } = importAuditedStructuralProperty({
@@ -2322,8 +2322,8 @@ describe("importPropertiesFromXMLToYAML", () => {
     expect(yaml).toEqual({})
     expect(valuePropertyAuditStates(audit)).toEqual([
       ["/Root[1]/Value[1]", "claimed"],
-      ["/Root[1]/Value[1]/Known[1]", "claimed"],
-      ["/Root[1]/Value[1]/Known[1]/#text[1]", "claimed"],
+      ["/Root[1]/Value[1]/Known[1]", "unknown"],
+      ["/Root[1]/Value[1]/Known[1]/#text[1]", "unknown"],
       ["/Root[1]/Value[1]/Unknown[1]", "unknown"],
       ["/Root[1]/Value[1]/Unknown[1]/#text[1]", "unknown"],
     ])
@@ -2357,13 +2357,14 @@ describe("importPropertiesFromXMLToYAML", () => {
     )).toBe(true)
   })
 
-  it("отслеживает индекс повторов и enumeration атрибутов PI", () => {
+  it("читает повторы и PI напрямую, не объявляя их восстановленными", () => {
     const indexedType = "TestIndexedStructuralRead" as PropertyRuleType
     registerTypeRule(indexedType, "importFromXMLToYAML", ({ xml }) => {
-      const value = xml as Record<string, unknown>
+      if (!isXmlElementNode(xml)) throw new Error("Ожидался XML-узел")
+      const pi = xml.content.find(node => node.type === "processingInstruction")
       return {
-        second: (value.Row as unknown[])[1],
-        piKeys: Object.keys(value["?mode"] as object),
+        second: xmlTextValue(xmlElementChildren(xml, "Row")[1]!),
+        piKeys: pi?.type === "processingInstruction" ? pi.attributes.map(({ name }) => name) : [],
       }
     })
     const { yaml, audit } = importAuditedStructuralProperty({
@@ -2374,7 +2375,7 @@ describe("importPropertiesFromXMLToYAML", () => {
     audit.finalize()
 
     expect(audit.rawCandidates()).toEqual([])
-    expect(yaml).toEqual({ Значение: { second: "two", piKeys: ["_code"] } })
+    expect(yaml).toEqual({ Значение: { second: "two", piKeys: ["code"] } })
     expect(
       audit.outcomes()
         .filter(({ node }) =>
@@ -2384,10 +2385,10 @@ describe("importPropertiesFromXMLToYAML", () => {
     ).toEqual([
       ["/Root[1]/Value[1]/Row[1]", "unknown"],
       ["/Root[1]/Value[1]/Row[1]/#text[1]", "unknown"],
-      ["/Root[1]/Value[1]/Row[2]", "claimed"],
-      ["/Root[1]/Value[1]/Row[2]/#text[1]", "claimed"],
-      ["/Root[1]/Value[1]/?mode[1]", "claimed"],
-      ["/Root[1]/Value[1]/?mode[1]/@code[1]", "claimed"],
+      ["/Root[1]/Value[1]/Row[2]", "unknown"],
+      ["/Root[1]/Value[1]/Row[2]/#text[1]", "unknown"],
+      ["/Root[1]/Value[1]/?mode[1]", "unknown"],
+      ["/Root[1]/Value[1]/?mode[1]/@code[1]", "unknown"],
     ])
   })
 
@@ -2396,30 +2397,33 @@ describe("importPropertiesFromXMLToYAML", () => {
       kind: "чтении разных значений",
       first: "1",
       second: "2",
-      observe: (pi: Record<string, unknown>) => pi._a,
+      observe: (pi: XmlProcessingInstructionNode) => pi.attributes.at(-1)?.value,
       expected: "2",
     },
     {
       kind: "enumeration разных значений",
       first: "1",
       second: "2",
-      observe: (pi: Record<string, unknown>) => Object.keys(pi),
-      expected: ["_a"],
+      observe: (pi: XmlProcessingInstructionNode) => pi.attributes.map(({ name }) => name),
+      expected: ["a", "a"],
     },
     {
       kind: "чтении одинаковых значений",
       first: "2",
       second: "2",
-      observe: (pi: Record<string, unknown>) => pi._a,
+      observe: (pi: XmlProcessingInstructionNode) => pi.attributes.at(-1)?.value,
       expected: "2",
     },
   ])(
-    "заявляет последнюю effective occurrence при $kind repeated PI pseudoattribute",
+    "не теряет повторные атрибуты PI при $kind и не заявляет их без proof",
     ({ kind, first, second, observe, expected }) => {
       const indexedType = `TestEffectivePIAttribute${kind}` as PropertyRuleType
-      registerTypeRule(indexedType, "importFromXMLToYAML", ({ xml }) =>
-        observe((xml as Record<string, unknown>)["?mode"] as Record<string, unknown>),
-      )
+      registerTypeRule(indexedType, "importFromXMLToYAML", ({ xml }) => {
+        if (!isXmlElementNode(xml)) throw new Error("Ожидался XML-узел")
+        const pi = xml.content.find(node => node.type === "processingInstruction")
+        if (pi?.type !== "processingInstruction") throw new Error("Ожидалась инструкция XML")
+        return observe(pi)
+      })
       const { yaml, audit } = importAuditedStructuralProperty({
         propertyType: indexedType,
         itemType: `TestEffectivePIOwner${kind}`,
@@ -2434,7 +2438,7 @@ describe("importPropertiesFromXMLToYAML", () => {
           .map(({ node, state }) => [node.path, state]),
       ).toEqual([
         ["/Root[1]/Value[1]/?mode[1]/@a[1]", "unknown"],
-        ["/Root[1]/Value[1]/?mode[1]/@a[2]", "claimed"],
+        ["/Root[1]/Value[1]/?mode[1]/@a[2]", "unknown"],
       ])
     },
   )

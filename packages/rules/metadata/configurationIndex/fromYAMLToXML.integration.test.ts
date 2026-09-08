@@ -1,3 +1,4 @@
+import { xmlElementFromTestValue } from "../../tests/structuralXML"
 import type { ConfigurationContextWithExportToXML,ConfigurationIndexBlockEntity } from "@nkdk/runtime"
 import { createConfigurationIndexCollector,createConfigurationIndexExportRuntime } from "@nkdk/runtime"
 import type { MetadataItemRule,TypeRulesOperations } from "@nkdk/runtime/rule-kit"
@@ -89,7 +90,7 @@ describe("configuration index в едином YAML → XML-обходе", () => 
     const imported = testPropertyFromXMLToYAML({
       context: contexts.importContext,
       rule,
-      xml: source,
+      xml: xmlElementFromTestValue("Probe", source),
     })
     const exported = testPropertyFromYAMLToXML({
       context: contexts.exportContext(),

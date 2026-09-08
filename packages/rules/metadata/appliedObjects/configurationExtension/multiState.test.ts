@@ -1,8 +1,8 @@
-import { importContentFromXML,markYAMLScalarTag,yamlScalarTagAt } from "@nkdk/runtime"
+import { markYAMLScalarTag,yamlScalarTagAt } from "@nkdk/runtime"
 import { describe,expect,it } from "vitest"
 import { mockContext,mockContextFromXML } from "../../../tests/mockContext"
 import { exportMultiStateType,importMultiStateType,isMultiStateTypeYAML } from "./multiState"
-import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"
+import { parseStructuralXMLWithoutCompatibility, xmlElementFromTestValue } from "../../../tests/structuralXML"
 
 describe("configuration extension MultiState type", () => {
   it("reads structural groups in source order without compatibility objects", () => {
@@ -23,10 +23,8 @@ describe("configuration extension MultiState type", () => {
 
   it("preserves the existing decoding of a repeated group", () => {
     const text = `<Type xsi:type="xr:ExtendedProperty"><xr:ExtendValue><v8:Type>xs:boolean</v8:Type></xr:ExtendValue><xr:ExtendValue><v8:Type>xs:string</v8:Type></xr:ExtendValue></Type>`
-    const legacy = importMultiStateType(mockContextFromXML(), undefined, importContentFromXML<{ Type: unknown }>(text).Type)
     const structural = importMultiStateType(mockContextFromXML(), undefined, parseStructuralXMLWithoutCompatibility(text))
-    expect(legacy).toEqual([[]])
-    expect(structural).toEqual(legacy)
+    expect(structural).toEqual([[]])
     expect(yamlScalarTagAt(structural, 0)).toBe("изменять")
   })
 
@@ -146,8 +144,8 @@ describe("configuration extension MultiState type", () => {
 
 function extendedProperty(
   groups: Record<string, Record<string, unknown>>,
-): Record<string, unknown> {
-  return { "_xsi:type": "xr:ExtendedProperty", ...groups }
+): ReturnType<typeof xmlElementFromTestValue> {
+  return xmlElementFromTestValue("Type", { "_xsi:type": "xr:ExtendedProperty", ...groups })
 }
 
 function typeDescription(type: string): Record<string, unknown> {

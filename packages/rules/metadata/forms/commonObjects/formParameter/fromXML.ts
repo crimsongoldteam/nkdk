@@ -1,39 +1,38 @@
 import { importBooleanFromXML } from "../../../commonObjects/boolean/fromXML"
 import { importTypeDescriptionFromXML } from "../../../commonObjects/typeDescription/fromXML"
-import { ConfigurationContextFromXML, isXmlElementNode, xmlAttributeValue, xmlElementChildren, type XmlElementNode } from "@nkdk/runtime"
+import { ConfigurationContextFromXML, xmlAttributeValue, xmlElementChildren, type XmlElementNode } from "@nkdk/runtime"
 import { PropertyRule } from "../../elements/calendarField/rules"
 import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
-import { FormParameter, FormParameters, FormParametersXML, FormParameterXML } from "./types"
+import { FormParameter, FormParameters } from "./types"
 
 export const importFormParametersFromXML = (
   context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
-  xml: { Parameter: FormParametersXML } | XmlElementNode | undefined
+  xml: XmlElementNode | undefined
 ): FormParameters | undefined => {
   if (xml === undefined) {
     return undefined
   }
 
-  const items = isXmlElementNode(xml) ? xmlElementChildren(xml, "Parameter")
-    : Array.isArray(xml.Parameter) ? xml.Parameter : [xml.Parameter]
+  const items = xmlElementChildren(xml, "Parameter")
   return items.map((item) => importFormParameterFromXML({ context, xml: item }))
 }
 
 const importFormParameterFromXML = (params: {
   context: ConfigurationContextFromXML
-  xml: FormParameterXML | XmlElementNode
+  xml: XmlElementNode
 }): FormParameter => {
   const { context, xml } = params
   const result: FormParameter = {
-    name: isXmlElementNode(xml) ? xmlAttributeValue(xml, "name")! : xml._name,
+    name: xmlAttributeValue(xml, "name")!,
   }
 
-  const type = importTypeDescriptionFromXML(context, undefined, isXmlElementNode(xml) ? xmlElementChildren(xml, "Type")[0] : xml.Type)
+  const type = importTypeDescriptionFromXML(context, undefined, xmlElementChildren(xml, "Type")[0])
   if (type !== undefined) {
     result.type = type
   }
 
-  const keyParameterXML = isXmlElementNode(xml) ? xmlElementChildren(xml, "KeyParameter")[0] : xml.KeyParameter
+  const keyParameterXML = xmlElementChildren(xml, "KeyParameter")[0]
   if (keyParameterXML !== undefined) {
     const keyParameter = importBooleanFromXML(context, undefined, keyParameterXML)
     if (keyParameter !== undefined) {

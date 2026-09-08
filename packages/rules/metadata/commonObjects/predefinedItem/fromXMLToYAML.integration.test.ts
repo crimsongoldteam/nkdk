@@ -1,3 +1,4 @@
+import { xmlElementFromTestValue } from "../../../tests/structuralXML"
 import { describe,expect,it } from "vitest"
 
 import { importContentFromXML,markYAMLValueTag,parseMetadataYaml,yamlScalarTagAt } from "@nkdk/runtime"
@@ -48,7 +49,7 @@ describe("PredefinedItem XML → YAML", () => {
     const yaml = testPropertyFromXMLToYAML({
       context,
       rule: collectionRule,
-      xml: {
+      xml: xmlElementFromTestValue("Probe", {
         Item: {
           Name: "Группа",
           Code: "000000003",
@@ -65,7 +66,7 @@ describe("PredefinedItem XML → YAML", () => {
             },
           },
         },
-      },
+      }),
     }).yaml as { Значение: Record<string, Record<string, unknown>> }
 
     const group = yaml.Значение.Группа
@@ -92,13 +93,13 @@ describe("PredefinedItem XML → YAML", () => {
       context,
       rule: PredefinedItemRules,
       name: "Собственный",
-      xml: {
+      xml: xmlElementFromTestValue("Item", {
         Name: "Собственный",
         Code: "000000001",
         Description: "Собственный",
         IsFolder: false,
         ExtensionState: "AdoptedNotify",
-      },
+      }),
     })).toThrow("ExtensionState недопустим для full")
   })
 
@@ -168,7 +169,7 @@ describe("PredefinedItem XML → YAML", () => {
   it("imports Type for chart of characteristic types predefined item", () => {
     const yaml = testPropertyFromXMLToYAML({
       rule: collectionRule,
-      xml: importContentFromXML<Record<string, unknown>>(TYPE_XML),
+      xml: xmlElementFromTestValue("Probe", importContentFromXML<Record<string, unknown>>(TYPE_XML)),
     }).yaml
     expect(yaml).toHaveProperty("Значение.ПредопределенноеВсеСвойства.ТипЗначения", "Строка(10)")
   })
@@ -179,7 +180,7 @@ describe("PredefinedItem XML → YAML", () => {
   })
 
   it("exports undefined", () => {
-    expect(testPropertyFromXMLToYAML({ rule: collectionRule, xml: {} }).yaml).toEqual({})
+    expect(testPropertyFromXMLToYAML({ rule: collectionRule, xml: xmlElementFromTestValue("Probe", {}) }).yaml).toEqual({})
   })
 
   it.each(["group.xml", "item.xml"])("exports $name fixture", (fixture) => {
@@ -189,7 +190,7 @@ describe("PredefinedItem XML → YAML", () => {
   it("exports ТипЗначения for non-folder items and hides it for folders", () => {
     const item = testPropertyFromXMLToYAML({
       rule: collectionRule,
-      xml: importContentFromXML<Record<string, unknown>>(TYPE_XML),
+      xml: xmlElementFromTestValue("Probe", importContentFromXML<Record<string, unknown>>(TYPE_XML)),
     }).yaml
     const group = convert("group.xml", "PredefinedItemCollection").yaml
     expect(item).toHaveProperty("Значение.ПредопределенноеВсеСвойства.ТипЗначения", "Строка(10)")
@@ -201,7 +202,7 @@ describe("PredefinedItem XML → YAML", () => {
     const yaml = testPropertyFromXMLToYAML({
       context: contexts.importContext,
       rule: collectionRule,
-      xml: {
+      xml: xmlElementFromTestValue("Probe", {
         Item: predefinedItem("Первый", "d4p1", "CatalogRef.Товары", {
           Item: predefinedItem("Второй", "d6p1", "CatalogRef.Товары", {
             Item: predefinedItem("Третий", "d8p1", "CatalogRef.Товары", {
@@ -209,7 +210,7 @@ describe("PredefinedItem XML → YAML", () => {
             }),
           }),
         }),
-      },
+      }),
     }).yaml as Record<string, any>
 
     const first = yaml.Значение.Первый
@@ -227,7 +228,7 @@ describe("PredefinedItem XML → YAML", () => {
     const imported = testPropertyFromXMLToYAML({
       context: contexts.importContext,
       rule: collectionRule,
-      xml: { Item: predefinedItem("Первый", "d4p1", "CatalogRef", undefined, "v8:TypeSet") },
+      xml: xmlElementFromTestValue("Probe", { Item: predefinedItem("Первый", "d4p1", "CatalogRef", undefined, "v8:TypeSet") }),
     }).yaml as Record<string, any>
     const item = imported.Значение.Первый
 
@@ -317,7 +318,7 @@ function roundTrip(source: Record<string, unknown>) {
   const imported = testPropertyFromXMLToYAML({
     context: contexts.importContext,
     rule: collectionRule,
-    xml: source,
+    xml: xmlElementFromTestValue("Probe", source),
   })
   const exported = testPropertyFromYAMLToXML({
     context: contexts.exportContext(chartContext()),
@@ -341,7 +342,7 @@ function importCompoundType(prefix: string) {
   return testPropertyFromXMLToYAML({
     context: createDirectRoundTripContexts().importContext,
     rule: collectionRule,
-    xml: compoundPredefinedItem(prefix),
+    xml: xmlElementFromTestValue("Probe", compoundPredefinedItem(prefix)),
   })
 }
 

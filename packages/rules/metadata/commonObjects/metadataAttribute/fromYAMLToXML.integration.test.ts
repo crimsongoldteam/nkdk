@@ -1,6 +1,7 @@
 import { beforeAll,describe,expect,it } from "vitest"
 
 import { importContentFromXML } from "@nkdk/runtime"
+import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"
 import { type MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import {
 createDirectRoundTripContexts,
@@ -214,7 +215,7 @@ describe("MetadataAttributes YAML → XML", () => {
   })
 
   it("preserves reference empty Synonym when current synonym is generated from name", () => {
-    const referenceXML = importContentFromXML<Record<string, unknown>>(EMPTY_SYNONYM_XML)
+    const referenceXML = parseStructuralXMLWithoutCompatibility(`<Probe>${EMPTY_SYNONYM_XML}</Probe>`)
     const contexts = createDirectRoundTripContexts()
     const yaml = testPropertyFromXMLToYAML({ rule, xml: referenceXML, context: contexts.importContext }).yaml
     const result = serializeDirectXML(

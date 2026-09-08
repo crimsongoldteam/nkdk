@@ -1,3 +1,4 @@
+import { xmlElementFromTestValue } from "../../../tests/structuralXML"
 import { describe, expect, it } from "vitest"
 
 import { testPropertyFixtureThroughYAML, testPropertyFromXMLToYAML } from "../../../tests/directConversion"
@@ -31,7 +32,7 @@ describe("MetadataInformationRegisterResources XML → YAML", () => {
   it("exports empty resource synonym as explicit empty YAML", () => {
     const result = testPropertyFromXMLToYAML({
       rule,
-      xml: {
+      xml: xmlElementFromTestValue("Probe", {
         Resource: {
           Properties: {
             Name: "Ресурс1",
@@ -46,7 +47,7 @@ describe("MetadataInformationRegisterResources XML → YAML", () => {
             },
           },
         },
-      },
+      }),
     })
 
     expect(result.yaml).toHaveProperty("Значение.Ресурс1.Синоним", "")

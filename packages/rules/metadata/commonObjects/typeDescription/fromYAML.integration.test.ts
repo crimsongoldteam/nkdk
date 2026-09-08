@@ -1,3 +1,4 @@
+import { xmlElementFromTestValue } from "../../../tests/structuralXML"
 import { createXmlAnomalyAnnotations, markYAMLScalarTag, parseMetadataYaml, serializeYAMLDocument } from "@nkdk/runtime"
 import { createRuleRegistrySet,type MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { describe,expect,it } from "vitest"
@@ -111,7 +112,7 @@ describe("importTypeDescriptionFromYAML with allowedTypes", () => {
     })) } }
     const contexts = createDirectRoundTripContexts()
     const annotations = createXmlAnomalyAnnotations()
-    const imported = testPropertyFromXMLToYAML({ rule: restrictedItemRule, xml: source, annotations, context: contexts.importContext })
+    const imported = testPropertyFromXMLToYAML({ rule: restrictedItemRule, xml: xmlElementFromTestValue("Probe", source), annotations, context: contexts.importContext })
     const text = serializeYAMLDocument(imported.yaml, annotations).text
     expect(text.match(/!xml\/invalid/g)).toHaveLength(count - 1)
     expect(text).not.toContain("!xml/invalid/")
@@ -261,7 +262,7 @@ function importRestrictedCompound(type: string) {
     context: contexts.importContext,
     execution,
     rule: restrictedItemRule,
-    xml: {
+    xml: xmlElementFromTestValue("Probe", {
       Type: {
         "v8:Type": [
           {
@@ -275,7 +276,7 @@ function importRestrictedCompound(type: string) {
           "v8:AllowedLength": "Variable",
         },
       },
-    },
+    }),
   })
   return { contexts, execution, imported }
 }

@@ -1,3 +1,4 @@
+import { xmlElementFromTestValue } from "../../../tests/structuralXML"
 import { describe, expect, it } from "vitest"
 
 import { testMetadataItemFromXMLToYAML } from "../../../tests/directConversion"
@@ -18,7 +19,7 @@ describe("MetadataTaskAddressingAttribute XML → YAML", () => {
   it("imports addressing dimension", () => {
     const result = testMetadataItemFromXMLToYAML({
       rule: MetadataTaskAddressingAttributeRules,
-      xml: {
+      xml: xmlElementFromTestValue("Attribute", {
         _uuid: "d7d973ca-def2-485f-afd4-e16fb8ae54f5",
         Properties: {
           Name: "РеквизитАдресации",
@@ -27,7 +28,7 @@ describe("MetadataTaskAddressingAttribute XML → YAML", () => {
           Type: { "v8:Type": "xs:string" },
           AddressingDimension: "InformationRegister.Адресация.Dimension.Исполнитель",
         },
-      },
+      }),
     }).yaml
 
     expect(result).toMatchObject({
@@ -45,13 +46,13 @@ describe("MetadataTaskAddressingAttribute XML → YAML", () => {
     const result = testMetadataItemFromXMLToYAML({
       rule: MetadataTaskAddressingAttributeRules,
       context,
-      xml: {
+      xml: xmlElementFromTestValue("Attribute", {
         Properties: {
           Name: "РеквизитАдресации",
           Type: { "v8:Type": "xs:string" },
-          AddressingDimension: undefined,
+          AddressingDimension: "",
         },
-      },
+      }),
     }).yaml
 
     expect(result).toHaveProperty("ИзмерениеАдресации", null)
@@ -60,12 +61,12 @@ describe("MetadataTaskAddressingAttribute XML → YAML", () => {
   it("не добавляет отсутствующее измерение адресации", () => {
     const result = testMetadataItemFromXMLToYAML({
       rule: MetadataTaskAddressingAttributeRules,
-      xml: {
+      xml: xmlElementFromTestValue("Attribute", {
         Properties: {
           Name: "РеквизитАдресации",
           Type: { "v8:Type": "xs:string" },
         },
-      },
+      }),
     }).yaml
 
     expect(result).not.toHaveProperty("ИзмерениеАдресации")
