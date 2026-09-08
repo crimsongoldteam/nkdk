@@ -5,16 +5,11 @@ import { incompatibleTypeDescriptionIndices, METADATA_NAME_YAML_PATTERN } from "
 import {
   getSystemEnumerationYAMLType,
   getTypeDescriptionRule,
-  getTypeDescriptionRuleOrSystemEnumeration,
-  getTypePrefix,
 } from "./helper"
-import { PrimitiveTypeToYAML, TYPE_DESCRIPTION_SOURCE_TYPES, type TypeDescription, type TypeDescriptionYAML } from "./types"
-
-const GENERATED_PREFIX_PATTERN = /^d(\d+)p1$/
-const CURRENT_CONFIG_NAMESPACE = "http://v8.1c.ru/8.1/data/enterprise/current-config"
+import { PrimitiveTypeToYAML, type TypeDescription, type TypeDescriptionYAML } from "./types"
 
 export const exportTypeDescriptionToYAML = (
-  context: ConfigurationContext,
+  _context: ConfigurationContext,
   _rule: PropertyRule | undefined,
   typeDescription: TypeDescription | undefined,
   annotations?: XmlAnomalyAnnotations,
@@ -24,7 +19,7 @@ export const exportTypeDescriptionToYAML = (
   }
 
   const exportedTypes: unknown[] = typeDescription.type.map(
-    (type) => exportSingleTypeToYAML(context, type, typeDescription),
+    (type) => formatSingleType(type, typeDescription),
   )
   for (const typeId of typeDescription.typeId ?? []) {
     exportedTypes.push(typeId)
@@ -36,53 +31,6 @@ export const exportTypeDescriptionToYAML = (
   if (exportedTypes.length === 1) return exportedTypes[0] as TypeDescriptionYAML
 
   return exportedTypes as TypeDescriptionYAML
-}
-
-function exportSingleTypeToYAML(
-  context: ConfigurationContext,
-  type: string,
-  typeDescription: TypeDescription,
-) {
-  const yamlType = formatSingleType(type, typeDescription)
-  const sourceType = typeDescription[TYPE_DESCRIPTION_SOURCE_TYPES]?.[type]
-  const sourcePrefix = sourceType === undefined ? undefined : getTypePrefix(sourceType.value)
-  const separator = type.indexOf(".")
-  const baseType = separator === -1 ? type : type.slice(0, separator)
-  const typeRule = getTypeDescriptionRuleOrSystemEnumeration(baseType)
-  const canonicalPrefix = typeRule?.prefix
-  if (sourcePrefix !== undefined && !isCompatibleSourcePrefix(sourcePrefix, sourceType?.namespace, typeRule)) {
-    throw new Error(`Тип ${yamlType}: несовместимый XML-префикс ${sourcePrefix}`)
-  }
-  const contextualPrefix = typeRule?.prefix === "cfg"
-    ? canonicalPredefinedItemTypePrefix(context)
-    : undefined
-  if (sourcePrefix !== undefined && sourcePrefix === contextualPrefix) return yamlType
-  if (sourcePrefix !== undefined && sourcePrefix !== canonicalPrefix) return yamlType
-  return yamlType
-}
-
-function canonicalPredefinedItemTypePrefix(
-  context: ConfigurationContext,
-): string | undefined {
-  const itemTypes = context.exportToYAML?.metadataItemTypes
-  if (itemTypes === undefined) return undefined
-  let depth = 0
-  for (let index = itemTypes.length - 1; itemTypes[index] === "PredefinedItem"; index--) depth++
-  return depth === 0 ? undefined : `d${depth * 2 + 2}p1`
-}
-
-function isCompatibleSourcePrefix(
-  prefix: string,
-  namespace: string | undefined,
-  rule: ReturnType<typeof getTypeDescriptionRule>,
-): boolean {
-  if (rule === undefined) return false
-  const expectedNamespace = rule.prefix === "cfg" ? CURRENT_CONFIG_NAMESPACE : rule.namespace
-  if (prefix === rule.prefix) return namespace === undefined || expectedNamespace === undefined || namespace === expectedNamespace
-  const generated = GENERATED_PREFIX_PATTERN.exec(prefix)
-  if (generated === null || namespace !== expectedNamespace) return false
-  const number = Number(generated[1])
-  return rule.prefix === "cfg" ? number % 2 === 0 : rule.namespace !== undefined && number % 2 === 1
 }
 
 const formatStringQualifier = (stringQualifiers: NonNullable<TypeDescription["stringQualifiers"]>): string => {

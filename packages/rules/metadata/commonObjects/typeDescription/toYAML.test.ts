@@ -3,7 +3,8 @@ import { mockContext,mockRule } from "../../../tests/mockContext"
 import { typeFixturesTable } from "./__fixtures__/data"
 import { importTypeDescriptionFromYAML } from "./fromYAML"
 import { exportTypeDescriptionToYAML } from "./toYAML"
-import { TYPE_DESCRIPTION_SOURCE_TYPES } from "./types"
+import { importTypeDescriptionFromXML } from "./fromXML"
+import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"
 import { createXmlAnomalyAnnotations } from "@nkdk/runtime"
 
 describe("exportTypeDescriptionToYAML", () => {
@@ -39,31 +40,17 @@ describe("exportTypeDescriptionToYAML", () => {
   })
 
   it("не помечает !xml составной тип с каноническим префиксом cfg", () => {
-    const value = { type: ["CatalogObject.Товары"] }
-    Object.defineProperty(value, TYPE_DESCRIPTION_SOURCE_TYPES, {
-      value: {
-        "CatalogObject.Товары": {
-          value: "cfg:CatalogObject.Товары",
-          namespace: "http://v8.1c.ru/8.1/data/enterprise/current-config",
-        },
-      },
-    })
+    const value = importTypeDescriptionFromXML(mockContext, mockRule, parseStructuralXMLWithoutCompatibility(
+      '<Type><v8:Type xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config">cfg:CatalogObject.Товары</v8:Type></Type>',
+    ))
 
     expect(exportTypeDescriptionToYAML(mockContext, mockRule, value)).toBe("СправочникОбъект.Товары")
   })
 
   it("отклоняет несовместимый generated prefix ссылочного типа", () => {
-    const value = { type: ["CatalogRef.Товары"] }
-    Object.defineProperty(value, TYPE_DESCRIPTION_SOURCE_TYPES, {
-      value: {
-        "CatalogRef.Товары": {
-          value: "d7p1:CatalogRef.Товары",
-          namespace: "http://v8.1c.ru/8.1/data/enterprise/current-config",
-        },
-      },
-    })
-
-    expect(() => exportTypeDescriptionToYAML(mockContext, mockRule, value))
+    expect(() => importTypeDescriptionFromXML(mockContext, mockRule, parseStructuralXMLWithoutCompatibility(
+      '<Type><v8:Type xmlns:d7p1="http://v8.1c.ru/8.1/data/enterprise/current-config">d7p1:CatalogRef.Товары</v8:Type></Type>',
+    )))
       .toThrow("несовместимый XML-префикс d7p1")
   })
 

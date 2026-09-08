@@ -15,7 +15,6 @@ const isNilArrayItemYAML = (value: DcsMetadataTypedValueArrayItemYAML): value is
 const detectTypeFromYAML = (
   context: ConfigurationContext,
   value: DcsMetadataTypedValueYAML,
-  sourceValue?: DcsMetadataTypedValue
 ): DcsMetadataTypedValue["type"] => {
   if (typeof value === "string" && value.startsWith(".")) return "Field"
   if (typeof value === "number") return "decimal"
@@ -25,7 +24,6 @@ const detectTypeFromYAML = (
   if (typeof value === "object" && value !== null && !Array.isArray(value) && "Вариант" in value)
     return "StandardBeginningDate"
   if (typeof value === "string" && value.startsWith("'") && value.endsWith("'")) return "string"
-  if (sourceValue?.type === "ref" && DcsMetadataTypedValueRegistry.ref.detect({ context, yaml: value })) return "ref"
   if (DcsMetadataTypedValueRegistry.dateTime.detect({ context, yaml: value })) return "dateTime"
   if (DcsMetadataTypedValueRegistry.DesignTimeValue.detect({ context, yaml: value })) return "DesignTimeValue"
   if (DcsMetadataTypedValueRegistry.string.detect({ context, yaml: value })) return "string"
@@ -37,9 +35,8 @@ const importSingle = (
   context: ConfigurationContext,
   rule: DcsMetadataTypedValuePropertyRule,
   value: DcsMetadataTypedValueYAML,
-  sourceValue?: DcsMetadataTypedValue
 ): DcsMetadataTypedValue => {
-  const type = detectTypeFromYAML(context, value, sourceValue)
+  const type = detectTypeFromYAML(context, value)
 
   if (type === "string" && typeof value === "string" && value.startsWith("'") && value.endsWith("'")) {
     return { type: "string", value: value.slice(1, -1) }
@@ -62,30 +59,26 @@ export const importDcsMetadataTypedValueFromYAML = (
   context: ConfigurationContext,
   rule: DcsMetadataTypedValuePropertyRule,
   value: DcsMetadataTypedValueYAML | DcsMetadataTypedValueArrayItemYAML[] | undefined,
-  sourceValue?: DcsMetadataTypedValue | DcsMetadataTypedValue[]
 ): DcsMetadataTypedValue | (DcsMetadataTypedValue | undefined)[] | undefined => {
   if (value === undefined) return undefined
   if (Array.isArray(value)) {
-    const sourceItems = Array.isArray(sourceValue) ? sourceValue : []
-    return value.map((item, index) => {
+    return value.map((item) => {
       if (isNilArrayItemYAML(item)) return undefined
-      return importSingle(context, rule, item, sourceItems[index])
+      return importSingle(context, rule, item)
     })
   }
-  return importSingle(context, rule, value, Array.isArray(sourceValue) ? undefined : sourceValue)
+  return importSingle(context, rule, value)
 }
 
 const importDcsMetadataTypedValueFromYAMLForRule = (
   context: ConfigurationContext,
   rule: PropertyRule,
   value: unknown,
-  sourceValue?: unknown
 ): DcsMetadataTypedValue | (DcsMetadataTypedValue | undefined)[] | undefined =>
   importDcsMetadataTypedValueFromYAML(
     context,
     rule as DcsMetadataTypedValuePropertyRule,
     value as DcsMetadataTypedValueYAML | DcsMetadataTypedValueArrayItemYAML[],
-    sourceValue as DcsMetadataTypedValue | DcsMetadataTypedValue[] | undefined
   )
 
 export const metadataPropertyRule000 = definePropertyTypeRule("DcsMetadataTypedValue", "importFromYAML", importDcsMetadataTypedValueFromYAMLForRule)

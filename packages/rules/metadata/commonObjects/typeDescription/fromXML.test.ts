@@ -4,7 +4,7 @@ import { mockContextFromXML,mockRule } from "../../../tests/mockContext"
 import { typeFixturesTable } from "./__fixtures__/data"
 import { importTypeDescriptionFromXML } from "./fromXML"
 import { exportTypeDescriptionToYAML } from "./toYAML"
-import { TypeDescriptionXML, TYPE_DESCRIPTION_SOURCE_TYPES } from "./types"
+import { TypeDescriptionXML } from "./types"
 import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"
 
 describe("importTypeDescriptionFromXML", () => {
@@ -13,10 +13,10 @@ describe("importTypeDescriptionFromXML", () => {
     expect(importTypeDescriptionFromXML(mockContextFromXML(), mockRule, parseStructuralXMLWithoutCompatibility(xml))).toBeUndefined()
   })
 
-  it("keeps the source namespace without rebuilding XML", () => {
+  it("не сохраняет скрытую копию исходных XML-типов", () => {
     const source = parseStructuralXMLWithoutCompatibility('<Type><v8:Type xmlns:d7p1="http://v8.1c.ru/8.2/data/chart">d7p1:Chart</v8:Type></Type>')
     const value = importTypeDescriptionFromXML(mockContextFromXML(), mockRule, source)
-    expect(value?.[TYPE_DESCRIPTION_SOURCE_TYPES]).toEqual({ Chart: { value: "d7p1:Chart", namespace: "http://v8.1c.ru/8.2/data/chart" } })
+    expect(Object.getOwnPropertySymbols(value!)).toEqual([])
     expect(exportTypeDescriptionToYAML(mockContextFromXML(), mockRule, value)).toBe("Диаграмма")
   })
 

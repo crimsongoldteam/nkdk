@@ -46,14 +46,14 @@ describe("import DcsMetadataTypedValue from YAML", () => {
     ).toEqual({ type: "string", value: ".PDF" })
   })
 
-  it("imports YAML metadata reference as ref when source value was ref", () => {
+  it("не выбирает XML-тип ссылки по старому источнику", () => {
     expect(
       testAtomicFromYAML({
         rule,
         value: "Справочник.Организации.ПустаяСсылка",
         sourceValue: { type: "ref", value: "Catalog.Организации.EmptyRef" },
       })
-    ).toEqual({ type: "ref", value: "Catalog.Организации.EmptyRef" })
+    ).toEqual({ type: "DesignTimeValue", value: "Справочник.Организации.ПустаяСсылка" })
   })
 
   it("keeps YAML metadata reference as DesignTimeValue without ref source", () => {

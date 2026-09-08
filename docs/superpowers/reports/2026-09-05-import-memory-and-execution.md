@@ -682,3 +682,17 @@ pnpm test и 214 e2e. Логи: /private/tmp/nkdk-localized-reference-red.log,
 /private/tmp/nkdk-dcs-reference-red.log,
 /private/tmp/nkdk-yaml-source-{tests3,types3,integration,duplicates,arch-rules,arch,full,e2e}.log.
 Оставшиеся source-типы и общий API reference, парсер и финальный аудит открыты.
+
+### Описание типов без скрытого исходного XML
+
+Удалены символ и таблица исходных префиксов TypeDescription. Проверка
+допустимости префикса выполняется при чтении XML, без хранения исходного
+написания в смысловом значении. Экспорт использует канонические декларации
+и подготовленную политику пространств имён. DcsMetadataTypedValue больше
+не выбирает тип ref по прежнему source; тесты старого reference переведены
+на проверку независимости от него. XML/YAML-фикстуры не изменены.
+
+RED: две проверки скрытого источника. GREEN: 878 целевых тестов, 3138
+integration, типы, duplicates, обе проверки архитектуры, pnpm test и 214 e2e.
+Логи: /private/tmp/nkdk-type-source-{red,green2,types2,integration,duplicates,
+arch-rules,arch,full,e2e}.log. Общий reference API и остальные задачи открыты.

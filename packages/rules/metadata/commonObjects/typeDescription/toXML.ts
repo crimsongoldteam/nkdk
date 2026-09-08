@@ -4,18 +4,12 @@ import { ConfigurationContext } from "@nkdk/runtime"
 import {
   getSystemEnumerationTypeDescriptionRule,
   getTypeDescriptionRule,
-  getTypePrefix,
-  removeTypePrefix,
 } from "./helper"
 import {
-  TYPE_DESCRIPTION_SOURCE_TYPES,
   TypeDescription,
   TypeDescriptionRule,
-  TypeDescriptionSourceType,
-  TypeDescriptionSourceTypes,
   TypeDescriptionXML,
   TypeDescriptionXMLType,
-  TypeDescriptionTypeWithNamespaceXML,
 } from "./types"
 
 const ENTERPRISE_CURRENT_CONFIG_NAMESPACE = "http://v8.1c.ru/8.1/data/enterprise/current-config"
@@ -30,7 +24,6 @@ export const exportTypeDescriptionToXML = (
   _context: ConfigurationContext,
   _rule: PropertyRule | undefined,
   typeDescription: TypeDescription | undefined,
-  referenceTypeDescription?: TypeDescription
 ): TypeDescriptionXML | undefined => {
   if (!typeDescription) return undefined
   const stringQualifiers = getStringQualifiers(typeDescription)
@@ -38,11 +31,9 @@ export const exportTypeDescriptionToXML = (
   const dateQualifiers = getDateQualifiers(typeDescription)
   const binaryDataQualifiers = getBinaryDataQualifiers(typeDescription)
 
-  const sourceTypes = typeDescription[TYPE_DESCRIPTION_SOURCE_TYPES] ?? getReferenceSourceTypes(referenceTypeDescription)
   const typesXML = getTypesXML(
     typeDescription,
     shouldDeclareTypeNamespace(_rule),
-    sourceTypes,
     _context.exportToXML?.typeDescriptionXMLNameByType,
     _context.exportToXML?.typeDescriptionXMLPrefixByNamespace,
   )
@@ -75,7 +66,6 @@ const shouldDeclareTypeNamespace = (rule: PropertyRule | undefined): ((prefix: s
 const getTypesXML = (
   typeDescription: TypeDescription,
   declareTypeNamespace: (prefix: string) => boolean,
-  referenceSourceTypes: TypeDescriptionSourceTypes | undefined,
   xmlNameByType: Readonly<Record<string, string>> | undefined,
   prefixByNamespace: Readonly<Record<string, string>> | undefined,
 ): {
@@ -97,12 +87,7 @@ const getTypesXML = (
     if (!rule) throw new Error(`Type ${type} not found in TypeDescriptionRules`)
 
     const xmlBaseType = xmlNameByType?.[baseType]
-    const sourceType =
-      xmlBaseType === undefined ? getMatchingReferenceSourceType(type, rule, referenceSourceTypes) : undefined
-    const item =
-      sourceType !== undefined
-        ? getSourceTypeXML(sourceType, prefixByNamespace)
-        : getCanonicalTypeXML(type, rule, declareTypeNamespace, prefixByNamespace, xmlBaseType)
+    const item = getCanonicalTypeXML(type, rule, declareTypeNamespace, prefixByNamespace, xmlBaseType)
 
     if (rule.modifier === "typeset" || (rule.modifier === "complex" && !isComplex)) {
       typeSetXML.push(item)
@@ -117,13 +102,6 @@ const getTypesXML = (
   }
 }
 
-const getReferenceSourceTypes = (
-  referenceTypeDescription: TypeDescription | undefined
-): TypeDescriptionSourceTypes | undefined => {
-  if (!referenceTypeDescription) return undefined
-  return referenceTypeDescription[TYPE_DESCRIPTION_SOURCE_TYPES]
-}
-
 const getCanonicalTypeNamespace = (
   rule: ReturnType<typeof getTypeDescriptionRule>,
   declareTypeNamespace: (prefix: string) => boolean
@@ -133,34 +111,6 @@ const getCanonicalTypeNamespace = (
     return declareTypeNamespace(rule.prefix) || rule.prefix !== "dcsset" ? rule.namespace : undefined
   }
   return declareTypeNamespace(rule.prefix) && rule.prefix === "cfg" ? ENTERPRISE_CURRENT_CONFIG_NAMESPACE : undefined
-}
-
-const getMatchingReferenceSourceType = (
-  type: string,
-  rule: TypeDescriptionRule,
-  referenceSourceTypes: TypeDescriptionSourceTypes | undefined
-): TypeDescriptionSourceType | undefined => {
-  const sourceType = referenceSourceTypes?.[type]
-  if (sourceType === undefined) return undefined
-  if (removeTypePrefix(sourceType.value) !== type) return undefined
-  if (rule.namespace !== undefined && sourceType.namespace !== rule.namespace) return undefined
-
-  return sourceType
-}
-
-const getSourceTypeXML = (sourceType: TypeDescriptionSourceType, prefixByNamespace: Readonly<Record<string, string>> | undefined): TypeDescriptionXMLType => {
-  if (sourceType.namespace === undefined) return sourceType.value
-
-  const sourcePrefix = getTypePrefix(sourceType.value)
-  if (sourcePrefix === undefined) return sourceType.value
-  const prefix = prefixByNamespace?.[sourceType.namespace] ?? sourcePrefix
-
-  const item: TypeDescriptionTypeWithNamespaceXML = {
-    [`_xmlns:${prefix}`]: sourceType.namespace,
-    "#text": `${prefix}:${sourceType.value.slice(sourcePrefix.length + 1)}`,
-  }
-
-  return item
 }
 
 const getCanonicalTypeXML = (

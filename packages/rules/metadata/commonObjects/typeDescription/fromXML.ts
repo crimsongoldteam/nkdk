@@ -2,11 +2,9 @@ import { importNumberFromXML } from "../number/fromXML"
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { ConfigurationContext, isEmptyXmlElement, isXmlElementNode, xmlAttributeValue, xmlElementChildren, xmlTextValue, type XmlElementNode } from "@nkdk/runtime"
-import { getTypePrefix, removeTypePrefix } from "./helper"
+import { getTypePrefix, removeTypePrefix, getTypeDescriptionRuleOrSystemEnumeration } from "./helper"
 import {
-  TYPE_DESCRIPTION_SOURCE_TYPES,
   TypeDescription,
-  TypeDescriptionSourceTypes,
   TypeDescriptionXML,
   TypeDescriptionXMLType,
 } from "./types"
@@ -39,13 +37,6 @@ export const importTypeDescriptionFromXML = (
   }
 
   if (result.type.length === 0 && result.typeId === undefined) return undefined
-  const sourceTypes = extractSourceTypes(typeXML, typeSetXML)
-  if (Object.keys(sourceTypes).length > 0) {
-    Object.defineProperty(result, TYPE_DESCRIPTION_SOURCE_TYPES, {
-      value: sourceTypes,
-      enumerable: false,
-    })
-  }
 
   return result
 }
@@ -79,34 +70,6 @@ export const getTypes = (type: SourceTypes): string[] | undefined => {
   return typeArray.map((typeItem) => getType(typeItem))
 }
 
-const extractSourceTypes = (
-  typeXML: SourceTypes,
-  typeSetXML: SourceTypes
-): TypeDescriptionSourceTypes => {
-  const result: TypeDescriptionSourceTypes = {}
-  for (const type of toTypeArray(typeXML)) setSourceType(result, type)
-  for (const type of toTypeArray(typeSetXML)) setSourceType(result, type)
-
-  return result
-}
-
-const toTypeArray = (type: SourceTypes): SourceType[] => {
-  if (type === undefined) return []
-  return Array.isArray(type) ? type : [type]
-}
-
-const setSourceType = (sourceTypes: TypeDescriptionSourceTypes, type: SourceType): void => {
-  const value = getTypeText(type)
-  if (value === undefined) return
-
-  const semanticType = removeTypePrefix(value)
-  const namespace = getTypeNamespace(type, value)
-  sourceTypes[semanticType] = {
-    value,
-    ...(namespace !== undefined ? { namespace } : undefined),
-  }
-}
-
 const getTypeIds = (typeId: TypeDescriptionXML["v8:TypeId"] | unknown): string[] | undefined => {
   if (typeId === undefined) return undefined
 
@@ -127,7 +90,25 @@ export const getType = (type: SourceType): string => {
 
   if (text === undefined) throw new Error("Type is undefined")
 
-  return normalizeImportedTypeDescriptionName(removeTypePrefix(text))
+  const semanticType = normalizeImportedTypeDescriptionName(removeTypePrefix(text))
+  validateSourceTypePrefix(semanticType, text, getTypeNamespace(type, text))
+  return semanticType
+}
+
+function validateSourceTypePrefix(type: string, text: string, namespace: string | undefined): void {
+  const prefix = getTypePrefix(text)
+  if (prefix === undefined) return
+  const separator = type.indexOf(".")
+  const rule = getTypeDescriptionRuleOrSystemEnumeration(separator === -1 ? type : type.slice(0, separator))
+  if (rule === undefined) return
+  const expectedNamespace = rule.prefix === "cfg"
+    ? "http://v8.1c.ru/8.1/data/enterprise/current-config"
+    : rule.namespace
+  if (prefix === rule.prefix && (namespace === undefined || expectedNamespace === undefined || namespace === expectedNamespace)) return
+  const generated = /^d(\d+)p1$/.exec(prefix)
+  if (generated !== null && namespace === expectedNamespace
+    && (rule.prefix === "cfg" ? Number(generated[1]) % 2 === 0 : rule.namespace !== undefined && Number(generated[1]) % 2 === 1)) return
+  throw new Error(`Тип ${type}: несовместимый XML-префикс ${prefix}`)
 }
 
 const getTypeText = (type: SourceType): string | undefined =>
