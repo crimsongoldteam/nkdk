@@ -8,15 +8,19 @@ import {
 import { getTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
 import { isDataPathRule } from "../validation/dataPath/formYamlTraversal"
 import { clientApplicationFormDataPathProjection } from "../forms/clientApplicationForm/formDataPathProjection"
+import { importValidationPropertyNames } from "./importValidationProperties"
 
-/** Входы второго прохода обычной формы; сравнение BaseForm выбирает полный набор отдельно. */
-export function createFormImportFactSelection(params: {
+/** Отбор входов второго прохода; сравнение BaseForm выбирает полный набор отдельно. */
+export function createImportFactSelection(params: {
   readonly rule: MetadataItemRule
   readonly owner: { readonly dir: string; readonly name: string }
   readonly augmentedRoots: readonly string[]
   readonly execution?: CompiledPropertyRuleExecution
-}): (fact: DirectImportPropertyFact) => boolean {
-  const rootValues = new Set([clientApplicationFormDataPathProjection.attributesYaml, ...params.augmentedRoots])
+}) {
+  const rootValues = new Set([
+    clientApplicationFormDataPathProjection.attributesYaml, ...params.augmentedRoots,
+    ...importValidationPropertyNames(),
+  ])
   // Корневой singleton участвует в окончательном решении о пустом значении.
   for (const property of Object.values(params.rule.properties)) {
     const nested = params.execution === undefined
@@ -25,10 +29,8 @@ export function createFormImportFactSelection(params: {
     if (nested?.kind === "item" && typeof property.yaml === "string") rootValues.add(property.yaml)
   }
   const retainedProperties = new WeakMap<MetadataItemRule, { keys: ReadonlySet<string>; dependent: boolean }>()
-  return fact => {
-    if (fact.itemRule === undefined || fact.itemType === params.rule.itemType
-      || fact.propertyKey.startsWith("$") || rootValues.has(String(fact.yamlPath[0]))) return true
-    if (fact.reconstructionValue !== undefined || fact.scalarTag !== undefined) return true
+  const select = (fact: DirectImportPropertyFact, final: boolean): boolean => {
+    if (fact.itemRule === undefined) return true
     const property = fact.itemRule.properties[fact.propertyKey]
     if (property === undefined) return true
     let retained = retainedProperties.get(fact.itemRule)
@@ -51,8 +53,6 @@ export function createFormImportFactSelection(params: {
       retained = { keys, dependent: hasDependencies }
       retainedProperties.set(fact.itemRule, retained)
     }
-    if (retained.keys.has(fact.propertyKey)) return true
-    if (!retained.dependent) return false
     const path = fact.yamlPath.slice(0, -1)
     const name = path.at(-1)
     const context = {
@@ -60,9 +60,19 @@ export function createFormImportFactSelection(params: {
       ...(typeof name === "string" ? { itemName: name } : {}),
       rootRule: params.rule, owner: params.owner,
     }
-    const dependencies = params.execution === undefined
-      ? dependentImportDependencies(context)
-      : params.execution.dependentImportDependencies(context)
+    const dependencies = !retained.dependent ? undefined : params.execution === undefined
+      ? dependentImportDependencies(context) : params.execution.dependentImportDependencies(context)
+    for (const key of dependencies?.root ?? []) rootValues.add(key)
+    // Имена стандартных реквизитов становятся известны при обходе детей.
+    // Корневые кандидаты живут только до конца этого файла, не между проходами.
+    if (!final && fact.yamlPath.length === 1) return true
+    if (fact.propertyKey.startsWith("$") || rootValues.has(String(fact.yamlPath[0]))) return true
+    if (fact.reconstructionValue !== undefined || fact.scalarTag !== undefined || retained.keys.has(fact.propertyKey)) return true
     return typeof property.yaml === "string" && dependencies?.item.includes(property.yaml) === true
+  }
+  return {
+    get rootProperties(): ReadonlySet<string> { return rootValues },
+    accept: (fact: DirectImportPropertyFact) => select(fact, false),
+    finish: (facts: readonly DirectImportPropertyFact[]) => facts.filter(fact => select(fact, true)),
   }
 }

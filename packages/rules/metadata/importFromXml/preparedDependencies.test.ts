@@ -21,6 +21,19 @@ const typedItemRule: MetadataItemRule = {
 }
 
 describe("prepared import dependencies", () => {
+  it("различает отсутствующее выбранное поле и неотобранное независимое поле", () => {
+    const rule = { itemType: "SelectedRoot", properties: {
+      attributes: { type: "string", yaml: "Реквизиты" },
+      synonym: { type: "string", yaml: "Синоним" },
+    } } as const satisfies MetadataItemRule
+    const facts = collectImportDependencyFacts({
+      rule, owner, yaml: undefined, candidates: [], propertyFacts: [], finalPropertyFacts: [],
+      selectedRootProperties: new Set(["Реквизиты"]),
+    })
+    const dependencies = prepareImportDependencies(facts)
+    expect(dependencies.propertyValue?.([], "attributes")).toEqual({ present: false, value: undefined })
+    expect(dependencies.propertyValue?.([], "synonym")).toEqual({ value: undefined })
+  })
   it("различает числовой индекс и строковый ключ зависимого элемента", () => {
     const facts = collectImportDependencyFacts({
       rule: MetadataCatalogRules, owner, yaml: undefined, candidates: [],

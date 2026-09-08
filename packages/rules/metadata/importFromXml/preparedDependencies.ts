@@ -43,6 +43,7 @@ export function collectImportDependencyFacts(params: {
   readonly proofPropertyFacts?: readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][]
   readonly finalRootYaml?: Readonly<Record<string, unknown>>
   readonly finalPropertyFacts?: readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][]
+  readonly selectedRootProperties?: ReadonlySet<string>
   readonly execution?: CompiledPropertyRuleExecution
 }): ImportDependencyFacts {
   const properties = new ImportCandidateValues<{ readonly facts: DependentImportFacts; readonly itemName?: string }>()
@@ -119,6 +120,7 @@ export function collectImportDependencyFacts(params: {
     yaml: params.finalRootYaml,
     finalPropertyFacts: params.finalPropertyFacts,
     propertyFacts: proofPropertyFacts,
+    selectedRootProperties: params.selectedRootProperties,
   })
   const dependentRules = new Map<MetadataItemRule, boolean>()
   for (const fact of params.propertyFacts ?? []) {
@@ -259,6 +261,7 @@ function collectFinalRootProperties(params: {
   readonly yaml?: Readonly<Record<string, unknown>>
   readonly finalPropertyFacts?: readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][]
   readonly propertyFacts: readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][]
+  readonly selectedRootProperties?: ReadonlySet<string>
 }): ImportDependencyFacts["finalProperties"] {
   const result = new ImportPropertyValues<{
     readonly present: boolean
@@ -314,6 +317,10 @@ function collectFinalRootProperties(params: {
   for (const [propertyKey, propertyRule] of Object.entries(params.rule.properties)) {
     if (typeof propertyRule.yaml !== "string") continue
     if (propertyRule.externalFile || propertyRule.filePath !== undefined) continue
+    // Неотобранное независимое поле снова вычислит второй проход.
+    // Отсутствие его факта не является решением удалить поле из YAML.
+    if (params.yaml === undefined && params.selectedRootProperties !== undefined
+      && !factByProperty.has(propertyKey) && !params.selectedRootProperties.has(propertyRule.yaml)) continue
     const final = read([propertyRule.yaml])
     const present = final !== undefined
     if (!present) {

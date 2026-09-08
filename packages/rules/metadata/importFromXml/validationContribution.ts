@@ -34,6 +34,7 @@ import type { PreparedImportFacts } from "./prepareFacts"
 import { extractImportOwnerFacts } from "./ownerFacts"
 import { selectImportPropertyValues } from "./selectedPropertyFacts"
 import { ImportPropertyValues } from "./propertyValues"
+import { importValidationPropertyNames } from "./importValidationProperties"
 
 export interface ImportValidationContribution {
   validationContribution: ValidationIndexContribution
@@ -73,7 +74,7 @@ export function extractImportValidationContributionFromFacts(params: {
 }): ImportValidationContribution {
   const values = params.file.kind === "form" ? new Map<string, unknown>() : selectImportPropertyValues(
     params.prepared.semanticFacts,
-    new Set(["Тип", ...getProjectReferenceMemberIndexContributors().flatMap(({ yamlProperties }) => yamlProperties)]),
+    importValidationPropertyNames(),
   )
   return extractImportValidationContributionCore({
     ...params,

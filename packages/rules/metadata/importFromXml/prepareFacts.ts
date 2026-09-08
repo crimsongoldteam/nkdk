@@ -62,7 +62,7 @@ import {
   type DirectImportPropertyFact,
 } from "./propertyFacts"
 import { selectImportPropertyPaths } from "./selectedPropertyFacts"
-import { createFormImportFactSelection } from "./formImportFactSelection"
+import { createImportFactSelection } from "./importFactSelection"
 
 export interface PreparedImportFacts {
   readonly dependencies: ImportDependencyFacts
@@ -109,18 +109,19 @@ export async function prepareImportFacts(params: {
     collector: params.collector,
     topology: params.topology,
   })
-  const formBody = rule.itemType === ClientApplicationFormRules.itemType
-    ? inputs.find(({ input }) => input.role === "body")?.document.roots.find(node => node.name === "Form")
-    : undefined
+  const formBody = inputs.find(({ input }) => input.role === "body")?.document.roots.find(node => node.name === "Form")
   const hasBaseForm = formBody?.content.some(node => node.type === "element" && node.name === "BaseForm") === true
-  const formSource = formBody === undefined ? undefined : formMetadataSource(requireMetadataXmlNode(inputs)) ?? {}
+  const formSource = formBody === undefined || rule.itemType !== ClientApplicationFormRules.itemType
+    ? undefined : formMetadataSource(requireMetadataXmlNode(inputs)) ?? {}
   const formVariantContext = formSource === undefined ? importContext : withResolvedXMLImportObjectVariant(
     importContext, resolveMetadataItemXMLDefaultVariant({ context: importContext, rule, source: formSource }),
   )
-  const facts = createDirectImportFactsCollector(formSource === undefined || hasBaseForm ? undefined : createFormImportFactSelection({
+  const selection = hasBaseForm ? undefined : createImportFactSelection({
     rule, owner: dependentOwner, execution: params.execution,
-    augmentedRoots: metadataItemXmlImportYamlDependencies({ context: formVariantContext, rule, source: formSource }),
-  }))
+    augmentedRoots: formSource === undefined ? []
+      : metadataItemXmlImportYamlDependencies({ context: formVariantContext, rule, source: formSource }),
+  })
+  const facts = createDirectImportFactsCollector(selection?.accept)
   let dependentCandidates: readonly ImportedDependentPropertyCandidate[] = []
   let baseFormSemanticFacts: readonly DirectImportPropertyFact[] | undefined
   let baseFormDataPathIndex: PreparedImportFacts["baseFormDataPathIndex"]
@@ -225,7 +226,8 @@ export async function prepareImportFacts(params: {
     }
   }
 
-  const propertyFacts = facts.finish()
+  const collectedFacts = facts.finish()
+  const propertyFacts = selection?.finish(collectedFacts) ?? collectedFacts
   const acceptedFacts = rule.itemType === ClientApplicationFormRules.itemType
     ? augmentClientApplicationFormFacts({
         facts: acceptedPropertyFacts(imported.localIndexes, propertyFacts),
@@ -276,6 +278,7 @@ export async function prepareImportFacts(params: {
       propertyFacts: semanticFacts,
       proofPropertyFacts: propertyFacts,
       finalPropertyFacts: semanticFacts,
+      selectedRootProperties: selection?.rootProperties,
       ...(params.execution === undefined ? {} : { execution: params.execution }),
     }),
     ...(baseFormDependencies === undefined ? {} : { baseFormDependencies }),

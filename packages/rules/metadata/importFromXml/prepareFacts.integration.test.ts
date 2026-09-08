@@ -246,17 +246,25 @@ describe("prepareImportFacts", () => {
     expect(facts.localIndexes.metadata.formDataPathIndex).toBeDefined()
   })
 
-  it("не строит представления для проверок формы у обычного справочника", async () => {
+  it.each([
+    { name: "обычный", synonym: "Контрагенты справочник" },
+    { name: "большой независимый текст", synonym: "Я".repeat(131_072) },
+  ])("не хранит независимый синоним справочника: $name", async ({ synonym }) => {
     const view = vi.spyOn(propertyFactsView, "baseFormProjectionSourceFromFacts")
     try {
       const assignment = catalogAssignment()
+      const context = mockXmlImportContext()
+      const inputs = assignment.xmlFiles.map(input => ({ input, document: parseXmlDocumentWithSaxes(
+        fs.readFileSync(input.sourcePath, "utf8").replace("Контрагенты справочник", synonym),
+      ) }))
       const facts = await prepareImportFacts({
-        assignment, context: mockXmlImportContext(), collector: createConfigurationIndexCollector(),
-        inputs: parseAssignmentInputs(assignment),
+        assignment, context, collector: createConfigurationIndexCollector(), inputs,
       })
       expect(view).not.toHaveBeenCalled()
-      expect(facts.semanticFacts.some(fact => fact.value === "Контрагенты справочник")).toBe(true)
+      expect(facts.semanticFacts.some(fact => fact.value === synonym)).toBe(false)
       expect(facts.localIndexes.metadata.formDataPathIndex).toBeUndefined()
+      const prepared = await prepareProofYaml(assignment, inputs, context, facts)
+      expect(prepared.yaml).toMatchObject({ Синоним: synonym })
     } finally {
       view.mockRestore()
     }
