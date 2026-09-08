@@ -4,6 +4,17 @@ import { createBaseFormProofPreparation } from "./baseFormProofPreparation"
 import { yamlBaseFormProjectionSource } from "../forms/clientApplicationForm/baseFormProjectionSource"
 
 describe("подготовка YAML основы к локальному сравнению", () => {
+  it("не сокращает массив проекции с незаполненными позициями", () => {
+    const values = new Array<unknown>(3)
+    values[2] = { Значение: "Третье" }
+    const prepare = createBaseFormProofPreparation(
+      yamlBaseFormProjectionSource({ Значения: values }), createXmlAnomalyAnnotations(),
+    )
+    const root = { Значения: ["Первое", "Второе", "Третье"] }
+    prepare(root, [])
+    expect(root).toEqual({ Значения: [undefined, undefined, { Значение: "Третье" }] })
+  })
+
   it("сохраняет смену формы значения между скаляром, отображением и массивом", () => {
     const prepare = createBaseFormProofPreparation(yamlBaseFormProjectionSource({
       Строка: "Текст", Отображение: { Имя: "Имя" }, Массив: [{ Имя: "Имя" }],

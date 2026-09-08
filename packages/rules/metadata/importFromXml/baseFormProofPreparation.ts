@@ -34,7 +34,7 @@ export function createBaseFormProofPreparation(
     if (isRecord(previous) && child !== undefined && !Array.isArray(child.metadataSource)) {
       replaceMapping(previous, child)
     } else if (Array.isArray(previous) && child !== undefined && Array.isArray(child.metadataSource)) {
-      previous.length = child.keys().length
+      previous.length = child.metadataSource.length
       for (let index = 0; index < previous.length; index += 1) {
         if (!isPrepared(previous[index])) replaceValue(previous, index, child)
       }
