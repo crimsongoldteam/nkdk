@@ -57,6 +57,7 @@ function metadataImportAssignment(params: {
 
 afterEach(() => {
   vi.restoreAllMocks()
+  vi.unstubAllEnvs()
 })
 
 describe("prepareImportYaml", () => {
@@ -193,7 +194,8 @@ describe("prepareImportYaml", () => {
     }
   })
 
-  it("imports a common form through the standard nested rules converter", async () => {
+  it.each(["0", "1"])("imports a common form with detailed profiling explicitly %s", async (enabled) => {
+    vi.stubEnv("NKDK_PROFILE", enabled)
     const fixtureDir = join(import.meta.dirname, "../appliedObjects/metadataCommonForm/__fixtures__/sync")
     const collector = createConfigurationIndexCollector()
     const profiler = createOperationProfiler({
@@ -233,8 +235,8 @@ describe("prepareImportYaml", () => {
       "XML в YAML: атомарный тип ClientApplicationForm"
     )
     const substeps = profiler.records().map(({ substep }) => substep)
-    expect(substeps).toContain("XML в YAML: подготовка плана импорта")
-    expect(substeps).toContain("XML в YAML: обход XML")
+    expect(substeps.includes("XML в YAML: подготовка плана импорта")).toBe(enabled === "1")
+    expect(substeps.includes("XML в YAML: обход XML")).toBe(enabled === "1")
     expect(substeps).not.toContain("XML в YAML: определение порядка свойств")
     expect(substeps).not.toContain("XML в YAML: выбор свойств")
     expect(collector.fragment("ОбщаяФорма/КонстантаВсеСвойства/Свойства.yaml").entities).toContainEqual({

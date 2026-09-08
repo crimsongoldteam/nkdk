@@ -7,6 +7,32 @@ import type { ParsedMetadataTarget } from "@nkdk/runtime/rule-kit"
 import { validationOwnerRef } from "../validation/dataPath/validationOwnerRef"
 import { ownerFactFromYAML } from "../validation/dataPath/ownerFacts"
 import { selectImportPropertyValues } from "./selectedPropertyFacts"
+import type { CompiledPropertyPlan, CompiledPropertyRuleExecution } from "@nkdk/runtime/rule-kit"
+import type { XmlAnomalyAnnotations } from "@nkdk/runtime"
+
+const finalOwnerPlans = new WeakMap<CompiledPropertyPlan, readonly { readonly key: string; readonly role: OwnerFactRole }[]>()
+
+/** Компактная проекция объявленных свойств владельца; не выполняет rules детей. */
+export function collectFinalOwnerFactValues(params: {
+  readonly execution: CompiledPropertyRuleExecution
+  readonly rule: MetadataItemRule
+  readonly yaml: Record<string, unknown>
+  readonly annotations: XmlAnomalyAnnotations
+}): Partial<Record<OwnerFactRole, unknown>> {
+  const plan = params.execution.propertyPlan(params.rule)
+  let selected = finalOwnerPlans.get(plan)
+  if (selected === undefined) {
+    selected = plan.properties.flatMap(property => property.yamlKey === undefined || property.propertyRule.ownerFactRole === undefined
+      ? [] : [{ key: property.yamlKey, role: property.propertyRule.ownerFactRole }])
+    finalOwnerPlans.set(plan, selected)
+  }
+  const facts: Partial<Record<OwnerFactRole, unknown>> = {}
+  for (const { key, role } of selected) {
+    const fact = ownerFactFromYAML(role, params.yaml[key], params.annotations)
+    if (fact !== undefined) facts[role] = fact
+  }
+  return facts
+}
 
 type ImportPropertyFact = Parameters<DirectImportFactsSink["acceptProperty"]>[0]
 

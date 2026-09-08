@@ -11,6 +11,19 @@ const leadingAttribute =
   "РегистрРасчета.РегистрРасчетаВедущий.Реквизит.РеквизитВедущего"
 
 describe("recalculation leading-register links", () => {
+  it("использует связи текущего элемента даже при повторном имени", () => {
+    const first = dimension([current])
+    const second = dimension([leadingDimension])
+    const rootYaml = { Измерения: { Первое: first, Повторное: second } }
+    const result = analyzeRecalculationDimensionLinks({
+      itemType: "MetadataCalculationRegisterRecalculationDimension", itemName: "Первое", item: second,
+      itemYamlPath: ["Измерения", "Повторное"], rootYaml, rootRule: {}, filePath: "Свойства.yaml",
+      parsed: parseMetadataYaml("{}"), owner: { dir: "РегистрРасчета", name: "РегистрРасчетаВсеСвойства" },
+    })
+    expect(result.projectChecks[0]).toMatchObject({ kind: "referenceCoverage", requirements: [
+      { coveredBy: [] }, { coveredBy: ["CalculationRegister.РегистрРасчетаВедущий.Dimension.ИзмерениеПараметрыВыбора"] },
+    ] })
+  })
   it("accepts a complete matrix and different field kinds", () => {
     expect(analyze({
       Первое: dimension([current, leadingDimension]),

@@ -37,7 +37,7 @@ export function importFormElementFromXMLToYAML(params: {
     itemType: params.rule.itemType,
     itemRule: params.rule,
     propertyKey: "$formElementKind",
-    yamlPath: [...params.traversal.yamlPath, "Вид"],
+    yamlPath: params.traversal.pathCursor.child("Вид").toArray(),
     value: kind,
   })
   const initialYAML = { Вид: kind }

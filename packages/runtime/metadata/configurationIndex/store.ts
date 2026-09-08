@@ -54,7 +54,7 @@ export interface ConfigurationIndexStore {
 }
 
 export interface ConfigurationIndexCandidateStore extends ConfigurationIndexStore {
-  mergeBlockFragments(fragments: readonly ConfigurationIndexBlockFragment[]): void
+  mergeBlockFragments(fragments: Iterable<ConfigurationIndexBlockFragment>): void
   replaceHashes(files: readonly ConfigurationProjectFile[]): void
   copyActiveBlocksFrom(source: ConfigurationIndexStore, excludedProjectPaths: ReadonlySet<string>): void
   validateCandidate(): void
@@ -178,9 +178,8 @@ class LmdbConfigurationIndexStore implements ConfigurationIndexStore {
     })
   }
 
-  mergeBlockFragments(fragments: readonly ConfigurationIndexBlockFragment[]): void {
+  mergeBlockFragments(fragments: Iterable<ConfigurationIndexBlockFragment>): void {
     this.assertCandidate()
-    if (fragments.length === 0) return
     this.root.transactionSync(() => {
       for (const fragment of fragments) {
         const projectPath = validateProjectPath(fragment.targetProjectPath)

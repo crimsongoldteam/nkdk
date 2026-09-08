@@ -1,3 +1,4 @@
+import { ExecutionPath } from "@nkdk/runtime/rule-kit"
 import { createDirectImportFactsCollector, createRuleRegistrySet, importMetadataItemFromXMLToYAML, importPropertiesFromXMLToYAML, type MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { describe, expect, it } from "vitest"
 import { metadataRules } from "../../composition/metadataRules"
@@ -39,7 +40,7 @@ describe("compiled structural atomic import", () => {
     } }
     const yaml = importMetadataItemFromXMLToYAML({
       context: mockContextFromXML(), rule, xml: parseStructuralXMLWithoutCompatibility("<Root><Text>Значение</Text></Root>"),
-      traversal: { yamlPath: [], rulePath: [], collector: createLocalIndexesCollector(), execution: createRuleRegistrySet(metadataRules).execution },
+      traversal: { pathCursor: ExecutionPath.from<string | number>([]), rulePath: [], collector: createLocalIndexesCollector(), execution: createRuleRegistrySet(metadataRules).execution },
     })
     expect(yaml).toEqual({ Текст: "Значение" })
   })

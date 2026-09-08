@@ -1,7 +1,7 @@
 import { parseMetadataYaml } from "@nkdk/runtime"
 import { describe,expect,it } from "vitest"
 import type { ResolvedPropertyStateItemCapability } from "../../ruleRuntime/definition"
-import { collectConfigurationExtensionPropertyStateDocuments } from "../../validation/configurationExtensionPropertyStateFacts"
+import { collectConfigurationExtensionPropertyStateDocuments, createPropertyStateReferenceModeReader } from "../../validation/configurationExtensionPropertyStateFacts"
 
 const capability: ResolvedPropertyStateItemCapability = {
   itemType: "MetadataExample",
@@ -29,6 +29,21 @@ const rule = {
 } as never
 
 describe("configuration extension PropertyState facts", () => {
+  it("читает режим ссылки без нормализации соседних значений", () => {
+    const parsed = parseMetadataYaml("Заголовок: !проверять Новый\nМодуль: Код\nТип:\n  - Строка\n  - !изменять Число\n")
+    const yaml = parsed.data as Record<string, unknown>
+    Object.defineProperty(yaml, "Постороннее", {
+      enumerable: true, get() { throw new Error("Не нужно читать соседнее значение") },
+    })
+    const mode = createPropertyStateReferenceModeReader({ yaml, rule, capability })
+    expect(mode(["Заголовок"])).toBe("notify")
+    expect(mode(["Модуль"])).toBe("extend")
+    expect(mode(["Тип", 0])).toBe("control")
+    expect(mode(["Тип", 1])).toBe("extend")
+    expect(mode(["Тип"])).toBeUndefined()
+    expect(mode(["Постороннее"])).toBeUndefined()
+  })
+
   it("сохраняет режимы вложенных элементов смысловой коллекции", () => {
     const parsed = parseMetadataYaml([
       "Предопределенные:",

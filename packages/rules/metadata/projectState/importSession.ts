@@ -6,6 +6,7 @@ import type {
   ProjectStatePendingDependencyCheck,
   ProjectStatePendingReference,
   ProjectStateTargetEntry,
+  ProjectStateValidationContextDependency,
 } from "./fileUpdate"
 export type { ProjectStateImportIndexContribution } from "./fileUpdate"
 import type { ProjectStateRefreshResult } from "./refresh"
@@ -59,6 +60,7 @@ export type ProjectStateImportFinalFileState =
       readonly pendingReferences: readonly ProjectStatePendingReference[]
       readonly pendingChecks: readonly ProjectStatePendingDependencyCheck[]
       readonly dependencies: readonly string[]
+      readonly validationContextDependencies?: readonly ProjectStateValidationContextDependency[]
     })
 
 export interface ProjectStateImportFinalFileStateBatch {

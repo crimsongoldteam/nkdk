@@ -301,12 +301,20 @@ export function validateClientApplicationBaseFormDataPaths(params: {
   const attributes = new Set(params.entries
     .filter(({ componentKind }) => componentKind === "attribute")
     .map(({ name }) => name))
+  return validateClientApplicationBaseFormDataPathOccurrences({ ...params, attributes })
+}
+
+export function validateClientApplicationBaseFormDataPathOccurrences(params: {
+  readonly attributes: ReadonlySet<string>
+  readonly entries: readonly Pick<ProjectStateStructuredDocumentEntry, "componentKind" | "name" | "yamlPath">[]
+  readonly filePath: string
+}): readonly Diagnostic[] {
   return params.entries
     .filter(({ componentKind }) => componentKind === "dataPath")
     .flatMap((entry) => {
       const sourceRoot = entry.name.trim().split(".")[0]
       const root = sourceRoot?.replace(/\[\d+\]$/, "")
-      if (root === undefined || attributes.has(root) || root === "Элементы" || root === "ТекущиеДанные") return []
+      if (root === undefined || params.attributes.has(root) || root === "Элементы" || root === "ТекущиеДанные") return []
       return [{
         filePath: params.filePath,
         line: 1,

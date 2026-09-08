@@ -1,10 +1,43 @@
 import type { FormDataPathMetadataProjection } from "@nkdk/runtime"
-import type { DirectImportFactsSink } from "@nkdk/runtime/rule-kit"
+import type { CompiledPropertyPlan, CompiledPropertyRuleExecution, DirectImportFactsSink, MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import type { FormDataPathOccurrence } from "../validation/dataPath/formTraversal"
 import { yamlPathToPointer } from "@nkdk/runtime"
 import type { DataPathPropertyRule } from "@nkdk/runtime/rule-kit"
 import { describeFormDataPath, isDataPathRule } from "../validation/dataPath/formYamlTraversal"
 import { selectImportPropertyPaths } from "./selectedPropertyFacts"
+
+const boundaryPathPlans = new WeakMap<CompiledPropertyPlan, ReadonlyMap<string, readonly DataPathPropertyRule[]>>()
+
+export function collectBoundaryFormDataPaths(params: {
+  readonly execution: CompiledPropertyRuleExecution
+  readonly rule: MetadataItemRule
+  readonly yaml: Record<string, unknown>
+  readonly yamlPath: readonly (string | number)[]
+}): Omit<FormDataPathOccurrence, "setValue">[] {
+  const plan = params.execution.propertyPlan(params.rule)
+  let selected = boundaryPathPlans.get(plan)
+  if (selected === undefined) {
+    const paths = new Map<string, DataPathPropertyRule[]>()
+    for (const { propertyRule, yamlKey } of plan.properties) {
+      if (yamlKey === undefined || !isDataPathRule(propertyRule)) continue
+      const rules = paths.get(yamlKey) ?? []
+      rules.push(propertyRule)
+      paths.set(yamlKey, rules)
+    }
+    boundaryPathPlans.set(plan, selected = paths)
+  }
+  const result: Omit<FormDataPathOccurrence, "setValue">[] = []
+  for (const key of Object.keys(params.yaml)) {
+    for (const rule of selected.get(key) ?? []) {
+      const occurrence = describeFormDataPath({
+        rule, value: params.yaml[key], yamlPath: [...params.yamlPath, key], itemType: params.rule.itemType,
+        hasValuesPicture: params.yaml["КартинкаЗначений"] !== undefined,
+      })
+      if (occurrence !== undefined) result.push(occurrence)
+    }
+  }
+  return result
+}
 
 export function collectFormDataPathOccurrencesFromFacts(params: {
   readonly facts: readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][]

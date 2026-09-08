@@ -1,5 +1,5 @@
 import { yamlPathToPointer } from "@nkdk/runtime"
-import { dependentImportDependencies, type CompiledPropertyRuleExecution, type DirectImportFactsSink,
+import { dependentImportDependencies, dependentRootPropertyKey, type CompiledPropertyRuleExecution, type DirectImportFactsSink,
   type ImportedDependentPropertyCandidate, type MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { selectImportPropertyPaths } from "./selectedPropertyFacts"
 import { createSelectedPropertyValue } from "./selectedPropertyValue"
@@ -25,7 +25,7 @@ export function selectDependentValidationFacts(params: {
     const dependencies = params.execution === undefined
       ? dependentImportDependencies(context) : params.execution.dependentImportDependencies(context)
     for (const name of dependencies?.item ?? []) add([...candidate.itemYamlPath, name])
-    for (const name of dependencies?.root ?? []) add([name])
+    for (const name of dependencies?.root ?? []) add([dependentRootPropertyKey(name)])
   }
   const selected = selectImportPropertyPaths(params.facts, paths)
   const result = createSelectedPropertyValue()

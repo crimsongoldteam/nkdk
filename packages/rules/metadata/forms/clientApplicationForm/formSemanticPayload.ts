@@ -1,5 +1,6 @@
-import { normalizeBaseFormYaml } from "./baseFormYaml"
+import { isXmlServiceKey } from "./baseFormYaml"
 import type { ClientApplicationFormYAML } from "./types"
+import { yamlScalarTagAt } from "@nkdk/runtime"
 
 interface ClientApplicationFormSemanticPayloadV1 {
   readonly version: 1
@@ -7,7 +8,11 @@ interface ClientApplicationFormSemanticPayloadV1 {
 }
 
 export function serializeClientApplicationFormSemanticPayload(yaml: unknown): string {
-  return JSON.stringify({ version: 1, yaml: normalizeBaseFormYaml(yaml) })
+  return JSON.stringify({ version: 1, yaml }, function(this: unknown, key: string, value: unknown) {
+    if (isXmlServiceKey(key)) return undefined
+    return value === undefined && this !== null && typeof this === "object" && !Array.isArray(this)
+      && yamlScalarTagAt(this, key) === undefined ? {} : value
+  })
 }
 
 export function parseClientApplicationFormSemanticPayload(

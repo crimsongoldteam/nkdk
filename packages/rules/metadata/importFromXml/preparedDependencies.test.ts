@@ -4,10 +4,12 @@ import { MetadataCatalogRules } from "../appliedObjects/metadataCatalog/rules"
 import { FormAttributeRules } from "../forms/commonObjects/formAttribute/rules"
 import { StandardAttributeDescriptionRules } from "../commonObjects/standardAttributeDescription/rules"
 import { MetadataWebServiceRules } from "../appliedObjects/metadataWebService/rules"
+import { RecalculationRules } from "../appliedObjects/metadataCalculationRegister/recalculation/rules"
+import { MetadataCalculationRegisterRecalculationDimensionRules } from "../appliedObjects/metadataCalculationRegister/recalculation/dimension/rules"
 import { collectImportDependencyFacts, prepareImportDependencies } from "./preparedDependencies"
 import type { ImportedDependentPropertyCandidate, MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import type { DirectImportPropertyFact } from "./propertyFacts"
-import { dependentImportDependencies } from "@nkdk/runtime/rule-kit"
+import { dependentImportDependencies, selectDependentImportFacts } from "@nkdk/runtime/rule-kit"
 
 const owner = { dir: "Справочник", name: "Товары" }
 const typedItemRule: MetadataItemRule = {
@@ -21,6 +23,30 @@ const typedItemRule: MetadataItemRule = {
 }
 
 describe("prepared import dependencies", () => {
+  it("разделяет компактный набор связей между измерениями без удержания комментариев", () => {
+    const rule = MetadataCalculationRegisterRecalculationDimensionRules
+    const facts = collectImportDependencyFacts({
+      rule: RecalculationRules, owner, yaml: undefined, candidates: [],
+      propertyFacts: ["Первое", "Второе"].flatMap(name => [
+        { itemType: rule.itemType, itemRule: rule, propertyKey: "leadingRegisterData",
+          yamlPath: ["Измерения", name, "ДанныеВедущихРегистров"], value: ["Измерение"] },
+        { itemType: rule.itemType, itemRule: rule, propertyKey: "comment",
+          yamlPath: ["Измерения", name, "Комментарий"], value: "Не нужен во втором проходе" },
+      ]),
+    })
+    const first = facts.items.get(["Измерения", "Первое"], rule.itemType)!
+    const second = facts.items.get(["Измерения", "Второе"], rule.itemType)!
+    expect(first.root).toEqual({ Измерения: {
+      Первое: { ДанныеВедущихРегистров: ["Измерение"] }, Второе: { ДанныеВедущихРегистров: ["Измерение"] },
+    } })
+    expect(first.root).toBe(second.root)
+  })
+  it("оставляет в зависимости коллекции только объявленные поля и имена", () => {
+    const dependencies = { item: [], root: [{ collection: "Измерения", properties: ["Связи"] }] } as const
+    const rootYaml = { Измерения: { Первое: { Связи: ["Ссылка"], get Комментарий() { throw new Error("Лишнее поле") } }, Второе: {} } }
+    const first = selectDependentImportFacts(dependencies, { item: {}, rootYaml })
+    expect(first.root).toEqual({ Измерения: { Первое: { Связи: ["Ссылка"] }, Второе: {} } })
+  })
   it("различает отсутствующее выбранное поле и неотобранное независимое поле", () => {
     const rule = { itemType: "SelectedRoot", properties: {
       attributes: { type: "string", yaml: "Реквизиты" },

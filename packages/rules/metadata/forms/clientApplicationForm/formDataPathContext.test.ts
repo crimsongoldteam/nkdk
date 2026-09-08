@@ -355,6 +355,7 @@ describe("prepareFormDataPathContextFromYAML", () => {
       yaml,
       context: {
         index: {} as never,
+        localIndex: {} as never,
         elementsByName: new Map([[
           "Поле",
           {

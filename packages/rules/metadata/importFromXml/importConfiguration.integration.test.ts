@@ -1050,8 +1050,9 @@ function memoryCandidateStore(
     hasBlock: (projectPath) => blocks.has(projectPath),
     hasPending: () => false,
     mergeBlockFragments(fragments) {
-      fragmentBatches?.push([...fragments])
-      for (const fragment of fragments) mergeFragment(fragment)
+      const batch = [...fragments]
+      fragmentBatches?.push(batch)
+      for (const fragment of batch) mergeFragment(fragment)
     },
     replaceHashes(value) { hashes = [...value] },
     copyActiveBlocksFrom() {},

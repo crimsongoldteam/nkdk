@@ -1,3 +1,4 @@
+import { ExecutionPath } from "@nkdk/runtime/rule-kit"
 import {
   createXmlAnomalyAnnotations,
   createXmlImportAuditSession,
@@ -80,7 +81,7 @@ function importAddressedGroupItem(source: string) {
     rule: { type: "GroupItemField" },
     xml: root,
     traversal: {
-      yamlPath: [],
+      pathCursor: ExecutionPath.from<string | number>([]),
       rulePath: [],
       collector: createLocalIndexesCollector(),
       xmlNodes: [root],

@@ -1,6 +1,8 @@
 import {
   isolateProjectStateYamlUpdate,
-  toProjectStateFileUpdate,
+  toProjectStateFileUpdateFromFacts,
+  projectStateYamlFactsFromValidation,
+  type ProjectStateYamlFacts,
   type ProjectStateStructuredDocumentEntry,
   type ProjectStateTargetEntry,
   type ProjectStateYamlFileUpdate,
@@ -31,16 +33,29 @@ export interface BuildProjectStateYamlFileUpdateParams {
 export function buildProjectStateYamlFileUpdate(
   params: BuildProjectStateYamlFileUpdateParams,
 ): ProjectStateYamlFileUpdate {
-  const { descriptor, firstPass } = params
-  const projectedDataPathKeys = new Set(firstPass.structuredComponents
+  return buildProjectStateYamlFileUpdateFromFacts({
+    projectDir: params.projectDir, descriptor: params.descriptor,
+    facts: projectStateYamlFactsFromValidation(params.firstPass),
+    fileBackedTargets: params.fileBackedTargets,
+  })
+}
+
+export function buildProjectStateYamlFileUpdateFromFacts(params: {
+  readonly projectDir: string
+  readonly descriptor: ProjectStateYamlUpdateDescriptor
+  readonly facts: ProjectStateYamlFacts
+  readonly fileBackedTargets?: readonly ProjectStateTargetEntry[]
+}): ProjectStateYamlFileUpdate {
+  const { descriptor, facts } = params
+  const projectedDataPathKeys = new Set(facts.structuredComponents
     ?.filter(({ componentKind }) => componentKind === "dataPath")
     .map(({ yamlPath }) => JSON.stringify(yamlPath)) ?? [])
-  const components = firstPass.structuredComponents === undefined
+  const components = facts.structuredComponents === undefined
     ? undefined
     : [
-        ...firstPass.structuredComponents,
-        ...(descriptor.indexContribution === "isolated" && firstPass.state.kind === "form"
-          ? firstPass.state.pendingChecks.flatMap((check) => {
+        ...facts.structuredComponents,
+        ...(descriptor.indexContribution === "isolated" && descriptor.role === "form"
+          ? facts.pendingChecks.flatMap((check) => {
               if (
                 check.kind !== "dataPath"
                 || check.xmlAnomaly !== undefined
@@ -54,7 +69,7 @@ export function buildProjectStateYamlFileUpdate(
             })
           : []),
       ]
-  const update = toProjectStateFileUpdate(firstPass, {
+  const update = toProjectStateFileUpdateFromFacts(facts, {
     projectPath: descriptor.rootProjectPath,
     componentPath: descriptor.componentPath,
     resourceKind: "yaml",
@@ -65,7 +80,7 @@ export function buildProjectStateYamlFileUpdate(
       descriptor,
       components,
     }),
-    ...(firstPass.structuredDocuments ?? []),
+    ...(facts.structuredDocuments ?? []),
   ])
 
   return descriptor.indexContribution === "isolated"

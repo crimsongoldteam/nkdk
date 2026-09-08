@@ -30,7 +30,7 @@ export const importStructureItemGroupCollectionFromXMLToYAML: ImportFromXMLToYAM
       name,
       traversal: {
         ...itemTraversal,
-        yamlPath: [...traversal.yamlPath, index],
+        pathCursor: traversal.pathCursor.child(index),
         ...(itemNode === undefined ? {} : { xmlNodes: [itemNode] }),
       },
     })

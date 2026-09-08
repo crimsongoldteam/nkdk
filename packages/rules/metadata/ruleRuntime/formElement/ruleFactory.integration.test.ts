@@ -1,3 +1,4 @@
+import { ExecutionPath } from "@nkdk/runtime/rule-kit"
 import { describe, expect, it } from "vitest"
 
 import {
@@ -62,7 +63,7 @@ describe("одиночный элемент формы", () => {
       nameStyle: { canonicalSuffix: "РасширеннаяПодсказка", referenceSuffixes: ["РасширеннаяПодсказка"], canonicalNameMode: "ownerSuffix", explicitXMLName: true },
       traversal: {
         mode: "facts", produceResult: true, facts,
-        yamlPath: [], rulePath: [], collector: createLocalIndexesCollector(), execution: registries.execution,
+        pathCursor: ExecutionPath.from<string | number>([]), rulePath: [], collector: createLocalIndexesCollector(), execution: registries.execution,
       },
     })
 
@@ -84,7 +85,7 @@ describe("одиночный элемент формы", () => {
       rule, xml, ownerXmlName: "Кнопка",
       nameStyle: { canonicalSuffix: "РасширеннаяПодсказка", referenceSuffixes: ["РасширеннаяПодсказка"], canonicalNameMode: "ownerSuffix", explicitXMLName: true },
       traversal: {
-        yamlPath: [], rulePath: [], collector: createLocalIndexesCollector(), execution: registries.execution,
+        pathCursor: ExecutionPath.from<string | number>([]), rulePath: [], collector: createLocalIndexesCollector(), execution: registries.execution,
         roundTrip: { open({ yaml }) {
           opened = yaml
           expect(yaml.Имя).toBe("ОсобаяПодсказка")
@@ -129,7 +130,7 @@ describe("одиночный элемент формы", () => {
         },
       } as const satisfies ElementRule
       const traversal = {
-        yamlPath: [],
+        pathCursor: ExecutionPath.from<string | number>([]),
         rulePath: [],
         collector: createLocalIndexesCollector(),
         dependent,

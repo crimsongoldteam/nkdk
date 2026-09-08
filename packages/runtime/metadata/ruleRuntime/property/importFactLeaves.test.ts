@@ -2,10 +2,22 @@ import { describe, expect, it } from "vitest"
 import { acceptNestedPropertyFactLeaves } from "./importFactLeaves"
 import type { DirectImportPropertyFact } from "./importYamlTypes"
 import type { MetadataItemRule } from "./types"
+import { taggedYAMLScalar } from "../../../yaml/scalarTags"
 
 const itemRule: MetadataItemRule = { itemType: "FactProbe", properties: {} }
 
 describe("acceptNestedPropertyFactLeaves", () => {
+  it.each([undefined, null, "текст"])("публикует помеченный скаляр %s одним фактом", value => {
+    const facts: DirectImportPropertyFact[] = []
+    acceptNestedPropertyFactLeaves({
+      facts: { acceptProperty: fact => { facts.push(fact) } },
+      itemType: itemRule.itemType, itemRule, propertyKey: "value", yamlPath: ["Значение"],
+      value: taggedYAMLScalar("xml/standard-attributes", value), presentInXML: true, retainContainers: true,
+    })
+    expect(facts).toEqual([expect.objectContaining({
+      propertyKey: "value", yamlPath: ["Значение"], value, scalarTag: "xml/standard-attributes",
+    })])
+  })
   it.each([false, true])("читает следующее значение после публикации предыдущего; контейнеры: %s", (retainContainers) => {
     const facts: DirectImportPropertyFact[] = []
     let readAhead = false

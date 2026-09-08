@@ -85,6 +85,7 @@ describe("sync configuration from xml", () => {
   }
   let primaryImport: {
     result: Awaited<ReturnType<typeof syncConfigurationFromXMLForTest>>
+    configurationYaml: string
     formYaml: string
     catalogYaml: string
     hasDocument: boolean
@@ -94,7 +95,7 @@ describe("sync configuration from xml", () => {
     snapshot: Awaited<ReturnType<typeof readTestConfigurationIndex>>
     operationTempExists: boolean
   }
-  let partialImportResult: Awaited<ReturnType<typeof syncConfigurationFromXMLForTest>>
+  let partialImport: { result: Awaited<ReturnType<typeof syncConfigurationFromXMLForTest>>; yaml: string }
   let fullRootImport: {
     result: Awaited<ReturnType<typeof syncConfigurationFromXMLForTest>>
     yaml: string
@@ -154,11 +155,12 @@ describe("sync configuration from xml", () => {
       fs.writeFileSync(join(rootInput, "Ext", "Splash", "Picture.png"), Buffer.from([137, 80, 78, 71]))
       fs.writeFileSync(join(rootInput, "Ext", "StandaloneConfigurationContent.bin"), Buffer.from([4, 5, 6]))
 
-      await syncConfigurationFromXMLForTest({
+      const rootResult = await syncConfigurationFromXMLForTest({
         context: mockContextFromXML(),
         inputDir: rootInput,
         projectDir: rootProject,
       })
+      expect(rootResult.failed).toEqual([])
 
       rootExternalFiles = {
         managedApplicationModule: fs.readFileSync(join(rootOutput, "МодульПриложения.bsl"), "utf-8"),
@@ -202,6 +204,7 @@ describe("sync configuration from xml", () => {
     })
     primaryImport = {
       result,
+      configurationYaml: fs.readFileSync(join(outputDir, CONFIGURATION_YAML_FILE), "utf-8"),
       formYaml: fs.readFileSync(
         join(outputDir, "Справочник", "Контрагенты", "Формы", "ФормаЭлемента", "Форма.yaml"),
         "utf-8"
@@ -216,10 +219,10 @@ describe("sync configuration from xml", () => {
       snapshot: await readTestConfigurationIndex(projectDir),
       operationTempExists: fs.existsSync(join(projectDir, ".nkdk", "tmp", "import", operationId)),
     }
-    partialImportResult = await importTemporaryConfiguration(
+    partialImport = await importTemporaryConfiguration(
       join(__dirname, "__fixtures__/minimal.xml"),
       true,
-    ).then(({ result }) => result)
+    )
     fullRootImport = await importTemporaryConfiguration(join(__dirname, "__fixtures__/full.xml"))
     emptyClientApplicationInterfaceImport = await importTemporaryConfiguration(
       join(__dirname, "__fixtures__/full.xml"),
@@ -290,9 +293,8 @@ describe("sync configuration from xml", () => {
     expect(primaryImport.hasNumerator).toBe(true)
     expect(primaryImport.hasLegacyNumerator).toBe(false)
     expect(primaryImport.hasSequence).toBe(true)
-    expect(primaryImport.result.failed).toEqual(expect.arrayContaining([
-      expect.objectContaining({ code: "project_validation", severity: "error" }),
-    ]))
+    expect(primaryImport.result.failed).toEqual([])
+    expect(primaryImport.configurationYaml).toContain("ОсновнойЯзык: !xml/invalid")
     expect(primaryImport.result.warnings).toEqual([])
     expect(
       primaryImport.snapshot.entities.find(({ logicalAddress }) => logicalAddress === "Справочник.Контрагенты")
@@ -324,9 +326,8 @@ describe("sync configuration from xml", () => {
   })
 
   it("не падает на дампе без некоторых корневых разделов", () => {
-    expect(partialImportResult.failed).toEqual(expect.arrayContaining([
-      expect.objectContaining({ code: "project_validation", severity: "error" }),
-    ]))
+    expect(partialImport.result.failed).toEqual([])
+    expect(partialImport.yaml).toContain("ОсновнойЯзык: !xml/invalid")
   })
 
   it("пишет корневой файл Конфигурация.yaml из Configuration.xml", () => {

@@ -2,6 +2,8 @@ import { createLocalXmlProof, isXmlElementNode, type ConfigurationContextWithExp
 import {
   createAnnotatedLocalXmlBodyConsumers,
   createCompiledRuleExecution,
+  createXmlImportUndoLog,
+  attachXmlImportAttemptParticipants,
   type CompiledPropertyRuleExecution,
   type DirectImportRoundTripExecution,
   type XMLItemOutputPreparation,
@@ -9,6 +11,7 @@ import {
 import type { ImportedIssueDecision } from "./classifyImportedIssues"
 import { applyImportedIssueDecisions } from "./applyImportedIssueDecisions"
 import type { ValidationProfiler } from "../validation/profile"
+import { addressableMetadataItemSegment } from "../validation/addressableMetadataTargets"
 
 interface SourceBoundary {
   readonly key: string
@@ -25,6 +28,12 @@ export function createImportLocalRoundTrip(params: {
   readonly annotations: XmlAnomalyAnnotationTable
   readonly decisions: readonly ImportedIssueDecision[]
   readonly profiler?: ValidationProfiler
+  readonly attemptParticipant?: object
+  readonly placeCollectionItem?: (
+    parent: Record<string, unknown>, key: string, yamlPath: readonly (string | number)[],
+    annotations: XmlAnomalyAnnotationTable,
+    sourceYamlPath?: readonly (string | number)[],
+  ) => void
   readonly isDocumentRoot?: (rule: import("@nkdk/runtime/rule-kit").MetadataItemRule) => boolean
   readonly selectDecisions?: (
     yaml: Record<string, unknown>,
@@ -32,6 +41,11 @@ export function createImportLocalRoundTrip(params: {
     yamlPath: readonly (string | number)[],
     root: boolean,
     annotations: XmlAnomalyAnnotationTable,
+    itemName?: string,
+    context?: import("@nkdk/runtime").ConfigurationContext,
+    namedYamlPath?: () => readonly (string | number)[],
+    logicalAddressSegment?: string,
+    namedCollectionItem?: boolean,
   ) => readonly ImportedIssueDecision[]
   readonly finalizeRootYaml?: (
     yaml: Record<string, unknown>,
@@ -69,6 +83,18 @@ export function createImportLocalRoundTrip(params: {
   const active: SourceBoundary[][] = []
   const activeYaml: Record<string, unknown>[] = []
   const activeItemContexts: import("@nkdk/runtime").ContextElementToXML[] = []
+  const activeItemAddresses: { readonly yamlPath: readonly (string | number)[]; readonly itemName?: string; readonly rule: import("@nkdk/runtime/rule-kit").MetadataItemRule }[] = []
+  const undo = createXmlImportUndoLog()
+  const collectionSegments = new WeakMap<import("@nkdk/runtime/rule-kit").MetadataItemRule, ReadonlyMap<string, string>>()
+  const collectionSegment = (rule: import("@nkdk/runtime/rule-kit").MetadataItemRule, key: string) => {
+    let segments = collectionSegments.get(rule)
+    if (segments === undefined) {
+      segments = new Map(rule.childCollections?.flatMap(child => child.configurationIndexUidSegment === undefined
+        ? [] : [[child.propertyKey, child.configurationIndexUidSegment] as const]))
+      collectionSegments.set(rule, segments)
+    }
+    return segments.get(key)
+  }
   const preparedByYaml = new WeakMap<object, {
     readonly sources: SourceBoundary[]
     readonly contextItem: import("@nkdk/runtime").ContextElementToXML
@@ -107,6 +133,14 @@ export function createImportLocalRoundTrip(params: {
           ...(rawPathPrefix === undefined ? {} : { rawPathPrefix }),
         }
       })
+      const depths = [active.length, activeYaml.length, activeItemContexts.length, activeItemAddresses.length]
+      undo.remember(() => {
+        active.length = depths[0]!
+        activeYaml.length = depths[1]!
+        activeItemContexts.length = depths[2]!
+        activeItemAddresses.length = depths[3]!
+        preparedByYaml.delete(item.yaml)
+      })
       const contextItem = itemContext(item)
       activeItemContexts.push(contextItem)
       preparedByYaml.set(item.yaml, { sources, contextItem })
@@ -142,7 +176,7 @@ export function createImportLocalRoundTrip(params: {
         })),
       }
     },
-    beforeFinish({ yaml, rule, yamlPath, root }) {
+    beforeFinish({ yaml, rule, yamlPath, root, itemName, context, rulePath }) {
       params.prepareYamlForProof?.(yaml, rule, yamlPath)
       const documentRoot = root && (
         params.isDocumentRoot?.(rule) ?? yamlPath.length === 0
@@ -150,7 +184,25 @@ export function createImportLocalRoundTrip(params: {
       if (documentRoot) {
         params.finalizeRootYaml?.(yaml, rule)
       }
-      const decisions = params.selectDecisions?.(yaml, rule, yamlPath, documentRoot, params.annotations)
+      const parentRule = activeItemAddresses.at(-2)?.rule
+      const propertyKey = rulePath.at(-1)?.propertyKey
+      const propertyRule = propertyKey === undefined ? undefined : parentRule?.properties[propertyKey]
+      const nested = propertyRule === undefined ? undefined : params.execution.getTypeRule(propertyRule.type, "yamlToXMLNestedRule")
+      const logicalAddressSegment = propertyRule === undefined ? undefined : addressableMetadataItemSegment({
+        rule, propertyRule, itemName,
+        collectionUidSegment: parentRule === undefined || propertyKey === undefined ? undefined : collectionSegment(parentRule, propertyKey)
+          ?? (nested?.kind === "collection" ? nested.configurationIndexUidSegment : undefined),
+      })
+      const decisions = params.selectDecisions?.(yaml, rule, yamlPath, documentRoot, params.annotations, itemName, context, () => {
+        const named = [...yamlPath]
+        for (const address of activeItemAddresses) {
+          const position = address.yamlPath.length - 1
+          if (address.itemName !== undefined && typeof named[position] === "number") {
+            named[position] = address.itemName
+          }
+        }
+        return named
+      }, logicalAddressSegment, nested?.kind === "collection" && nested.yamlShape === "record")
         ?? (documentRoot ? params.decisions : [])
       if (decisions.length !== 0) {
         applyImportedIssueDecisions({
@@ -163,6 +215,9 @@ export function createImportLocalRoundTrip(params: {
     },
     consumer(item, receipts, prepared) {
       const { yaml, rule } = item
+      // Штатная подготовка экспорта уже отличает именованную коллекцию от
+      // массива: у элемента массива prepared.name отсутствует.
+      activeItemAddresses.push({ yamlPath: item.yamlPath, itemName: prepared.name, rule: item.rule })
       const preparedItem = preparedByYaml.get(yaml)
       if (preparedItem === undefined) throw new Error("Не подготовлены XML-границы локального proof")
       const { sources, contextItem } = preparedItem
@@ -207,13 +262,28 @@ export function createImportLocalRoundTrip(params: {
             activeYaml.pop()
             if (activeItemContexts.at(-1) !== contextItem) throw new Error("Rules локального proof закрываются вне порядка")
             activeItemContexts.pop()
+            activeItemAddresses.pop()
           }
         },
       }
     },
   })
+  const attemptParticipant = {}
+  attachXmlImportAttemptParticipants(attemptParticipant, [params.attemptParticipant, undo, execution.attemptParticipant])
   return {
     ...execution,
+    finalizeCreatedItem({ yaml, rule, yamlPath, context }) {
+      const decisions = params.selectDecisions?.(yaml, rule, yamlPath, false, params.annotations, undefined, context) ?? []
+      if (decisions.some(decision => decision.target.path.length === 0)) {
+        throw new Error("Аномалия всего созданного объекта требует адреса в родительской коллекции")
+      }
+      if (decisions.length !== 0) applyImportedIssueDecisions({ data: yaml, annotations: params.annotations, decisions })
+    },
+    attemptParticipant,
+    ...(params.placeCollectionItem === undefined ? {} : {
+      placeCollectionItem: (parent: Record<string, unknown>, key: string, path: readonly (string | number)[], sourceYamlPath?: readonly (string | number)[]) =>
+        params.placeCollectionItem!(parent, key, path, params.annotations, sourceYamlPath),
+    }),
     accepts(sources) { return sources.every(({ xml }) => isXmlElementNode(xml)) },
     takeResult(yaml) { return execution.takeResult(yaml) },
     retainReceipt(receipt) { return execution.retainReceipt(receipt) },

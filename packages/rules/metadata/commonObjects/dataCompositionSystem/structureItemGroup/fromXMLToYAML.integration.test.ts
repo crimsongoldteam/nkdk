@@ -1,3 +1,4 @@
+import { ExecutionPath } from "@nkdk/runtime/rule-kit"
 import {
   parseMetadataYaml,
   parseXmlDocumentWithSaxes,
@@ -29,7 +30,7 @@ describe("StructureItemGroup XML → YAML", () => {
     }
     expect(importStructureItemGroupFromXMLToYAML({
       context: mockContextFromXML(), rule: { type: "StructureItemGroup" }, xml: undefined,
-      traversal: { yamlPath: [], rulePath: [], collector: createLocalIndexesCollector(), xmlNodes: [root] },
+      traversal: { pathCursor: ExecutionPath.from<string | number>([]), rulePath: [], collector: createLocalIndexesCollector(), xmlNodes: [root] },
     })).toEqual(fixtureDynamicListStructureItemGroupYAML)
   })
 

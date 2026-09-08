@@ -8,6 +8,7 @@ import { prepareMetadataItemXMLExecution } from "../metadataItem/fromYAMLToXML"
 import { prepareMetadataCollectionItemXMLContext } from "../metadataCollection/fromYAMLToXML"
 import { withPreparedXMLDependencyFacts } from "./preparedXMLDependencies"
 import { ExecutionPath } from "./executionPath"
+import { createXmlImportUndoLog } from "../xmlAnomaly/attempt"
 
 type ImportItem = Parameters<DirectImportRoundTripExecution["open"]>[0]
 type InlineSelector = string | number | undefined
@@ -49,6 +50,12 @@ export function createCompiledRuleExecution(params: {
   retainReceipt(receipt: LocalXmlChild): object
 } {
   const completed = new WeakMap<object, { readonly rule: MetadataItemRule; readonly result: CompiledXMLProofResult }>()
+  const undo = createXmlImportUndoLog()
+  const set = <K, V>(map: Map<K, V>, key: K, value: V) => {
+    const previous = map.get(key), had = map.has(key)
+    undo.remember(() => { if (had) map.set(key, previous!); else map.delete(key) })
+    map.set(key, value)
+  }
   // Идентичность границы переносится штатным копированием служебных меток YAML.
   // Ключ не содержит ни исходного YAML, ни контрольного XML и живёт только в этом запуске.
   const identity = Symbol("compiledXMLBoundary")
@@ -83,6 +90,7 @@ export function createCompiledRuleExecution(params: {
   const takeKey = (key: object) => {
     const entry = completed.get(key)
     if (entry === undefined) throw new Error("XML item ещё не закрыт или его вклад уже получен")
+    undo.remember(() => { completed.set(key, entry) })
     completed.delete(key)
     return entry
   }
@@ -92,7 +100,10 @@ export function createCompiledRuleExecution(params: {
     return takeKey(key)
   }
   return {
+    attemptParticipant: undo,
     open(source) {
+      const depth = active.length
+      undo.remember(() => { active.length = depth })
       const identityKey = {}
       Object.defineProperty(source.yaml, identity, { value: identityKey })
       const propertyKey = source.rulePath.at(-1)?.propertyKey
@@ -102,7 +113,7 @@ export function createCompiledRuleExecution(params: {
       const plan = params.execution.propertyPlan(source.rule)
       const propertyValues = new Map(supplied.propertyValues)
       if (source.dependencies?.propertyValue !== undefined) {
-        for (const { propertyKey } of plan.properties) {
+        for (const propertyKey of source.dependencies.proofPropertyKeys(source.yamlPath)) {
           const prepared = source.dependencies.propertyValue(source.yamlPath, propertyKey)
           if (prepared?.value !== undefined) propertyValues.set(propertyKey, prepared.value)
         }
@@ -121,14 +132,14 @@ export function createCompiledRuleExecution(params: {
             context: output?.context ?? parent.prepared.context, ownerRule: parent.plan.rule,
             ownerName: parent.prepared.name, property: ownerProperty, nestedRule,
           })
-          parent.nestedProperties.set(ownerProperty.propertyKey, nested)
+          set(parent.nestedProperties, ownerProperty.propertyKey, nested)
         }
         context = nested.context
         if (nested.rule.kind === "collection") {
           namePropertyKey = nested.rule.keyField
           const position = source.yamlPath.at(-1)
           const index = typeof position === "number" ? position : parent.childIndices.get(ownerProperty.propertyKey) ?? 0
-          parent.childIndices.set(ownerProperty.propertyKey, index + 1)
+          set(parent.childIndices, ownerProperty.propertyKey, index + 1)
           name = nested.rule.yamlShape === "array" ? undefined : source.itemName
           context = prepareMetadataCollectionItemXMLContext({
             context, descriptor: nested.rule, yaml: source.yaml, name, index,
@@ -195,6 +206,8 @@ export function createCompiledRuleExecution(params: {
             ? queuedKey
             : undefined
           if (bindings !== undefined && queue !== undefined && inlineKey !== undefined) {
+            const previous = queue.next
+            undo.remember(() => { queue.next = previous; bindings.set(selector, queue) })
             queue.next++
             if (queue.next === queue.keys.length) bindings.delete(selector)
           }
@@ -237,20 +250,25 @@ export function createCompiledRuleExecution(params: {
             throw new Error("Нельзя закрыть XML item с отложенными значениями")
           }
           const result = { roots: consumer.finish(finalized), externalWrites: finalized.externalWrites }
+          undo.remember(() => { completed.delete(identityKey) })
           completed.set(identityKey, { rule: source.rule, result })
           if (parent !== undefined && propertyKey !== undefined) {
             const receipts = parent.childReceipts.get(propertyKey) ?? []
+            const receiptCount = receipts.length
+            undo.remember(() => { receipts.length = receiptCount })
             receipts.push(...result.roots.values())
-            parent.childReceipts.set(propertyKey, receipts)
+            set(parent.childReceipts, propertyKey, receipts)
             let bindings = parent.inline.get(propertyKey)
-            if (bindings === undefined) parent.inline.set(propertyKey, bindings = new Map())
+            if (bindings === undefined) set(parent.inline, propertyKey, bindings = new Map())
             const nestedRule = ownerProperty?.operations.yamlToXMLNestedRule
             const selector = nestedRule?.kind === "collection"
               ? nestedRule.yamlShape === "array"
                 ? source.yamlPath.at(-1) : source.itemName ?? source.yamlPath.at(-1)
               : undefined
             let queue = bindings.get(selector)
-            if (queue === undefined) bindings.set(selector, queue = { keys: [], next: 0 })
+            if (queue === undefined) set(bindings, selector, queue = { keys: [], next: 0 })
+            const keys = queue.keys, keyCount = keys.length
+            undo.remember(() => { keys.length = keyCount })
             queue.keys.push(identityKey)
           }
           return transport(result)
@@ -292,9 +310,10 @@ export function createCompiledRuleExecution(params: {
           try {
             params.beforeFinish?.({ ...source, root: active.length === 1 })
             if (source.yaml !== null && typeof source.yaml === "object") {
-              for (const property of plan.properties) {
+              for (const [key, preparedValue] of propertyValues) {
+                const property = plan.propertiesByKey.get(key)
+                if (property === undefined) continue
                 const yamlKey = property.propertyRule.yaml
-                const preparedValue = propertyValues.get(property.propertyKey)
                 if (
                   typeof yamlKey === "string"
                   && preparedValue !== null
@@ -305,7 +324,10 @@ export function createCompiledRuleExecution(params: {
                 }
               }
             }
-            for (const property of plan.properties) {
+            for (const [key, value] of source.dependencies?.exportPropertyValues?.(source.yamlPath) ?? []) {
+              propertyValues.set(key, value)
+            }
+            for (const property of item.properties) {
               if (!boundProperties.has(property.propertyKey)) {
                 const semanticOmitted = source.dependencies
                   ?.propertyValue?.(source.yamlPath, property.propertyKey).present === false
@@ -317,8 +339,8 @@ export function createCompiledRuleExecution(params: {
               }
             }
             if (params.beforeFinish !== undefined) {
-              for (const property of plan.properties) {
-                if (!readyProperties.has(property.propertyKey)) continue
+              for (const key of readyProperties) {
+                const property = plan.propertiesByKey.get(key)!
                 withPreparedXMLDependencyFacts(source.yaml, dependencyFacts, () => item.execute(property))
               }
             }

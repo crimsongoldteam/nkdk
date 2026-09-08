@@ -55,6 +55,7 @@ import {
 } from "./structuralReferences"
 import { validateRuleYAMLObjectProperties } from "./excludeIfEqualNameYAML"
 import { diagnosticAtYamlPath, yamlDiagnosticLocationAtPath } from "./yamlLocations"
+import { collectUniqueNameConflicts, uniqueNameConflictMessage } from "./uniqueNameConflicts"
 import type { Diagnostic } from "./types"
 import { createLocalIndexesCollector } from "../projectDefinition/localIndexes"
 import type { LocalIndexesCollector } from "../projectDefinition/localIndexes"
@@ -260,6 +261,7 @@ export function extractValidationYamlFacts(params: {
         },
         ...collectAddressableMetadataObjectEntries({
           yaml: params.parsed.data,
+          annotations: params.parsed.annotations,
           rule: params.file.itemRule,
           canonicalTarget: projectObjectIndexKey(objectTarget),
           filePath: params.file.absolutePath,
@@ -424,7 +426,7 @@ function collectConfigurationExtensionDocuments(params: {
   return documents
 }
 
-function pendingReferencePropertyStateMode(
+export function pendingReferencePropertyStateMode(
   yamlPath: readonly (string | number)[],
   documents: readonly ProjectStateStructuredDocumentEntry[],
   rule: MetadataItemRule,
@@ -591,43 +593,20 @@ function collectUniqueNameScopeDiagnostics(
 ): Diagnostic[] {
   if (spec.uniqueNameScopes.length === 0) return []
 
-  const diagnostics: Diagnostic[] = []
   const data = asRecord(parsed.data)
   if (data === undefined) return []
-
-  for (const scope of spec.uniqueNameScopes) {
-    const seen = new Map<string, string>()
-
-    for (const collection of scope.collections) {
-      const collectionYamlPath = yamlPathByModelKey(spec, collection)
-      if (collectionYamlPath === undefined) continue
-      const collectionValue = valueAtPath(data, collectionYamlPath)
-      const collectionRecord = asRecord(collectionValue)
-      if (collectionRecord === undefined) continue
-
-      for (const name of Object.keys(collectionRecord)) {
-        const previousCollectionYaml = seen.get(name)
-        const collectionYaml = collectionYamlPath.join("/")
-        if (previousCollectionYaml === undefined) {
-          seen.set(name, collectionYaml)
-          continue
-        }
-
-        diagnostics.push(
-          diagnosticAtYamlPath({
-            filePath: file.absolutePath,
-            parsed,
-            path: [...collectionYamlPath, name],
-            severity: "error",
-            source: "structure",
-            message: `Имя "${name}" должно быть уникальным в коллекциях ${previousCollectionYaml}, ${collectionYaml}`,
-          })
-        )
-      }
-    }
-  }
-
-  return diagnostics
+  return collectUniqueNameConflicts({
+    scopes: spec.uniqueNameScopes,
+    collectionPath: key => yamlPathByModelKey(spec, key),
+    names: path => Object.keys(asRecord(valueAtPath(data, path)) ?? {}),
+  }).map(conflict => diagnosticAtYamlPath({
+    filePath: file.absolutePath,
+    parsed,
+    path: [...conflict.collectionPath, conflict.name],
+    severity: "error",
+    source: "structure",
+    message: uniqueNameConflictMessage(conflict),
+  }))
 }
 
 function yamlPathByModelKey(
@@ -921,7 +900,7 @@ function collectNestedValue(
   return references
 }
 
-function dependentPendingReference(
+export function dependentPendingReference(
   reference: DependentReferenceCandidate,
 ): Omit<PendingMetadataTargetReference, "filePath"> {
   return reference as Omit<PendingMetadataTargetReference, "filePath">

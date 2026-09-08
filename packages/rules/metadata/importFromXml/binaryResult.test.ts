@@ -11,6 +11,16 @@ import {
 const transferableSymbol = Symbol.for("Piscina.transferable")
 
 describe("двоичный результат import", () => {
+  it("оставляет разбор блоков снимка транзакционному потребителю", () => {
+    const result = createImportBinaryResult({
+      diagnostics: [], files: [],
+      configurationFragments: [{ targetProjectPath: "А.yaml", entities: [{ logicalAddress: "А", xmlId: "1" }] }],
+    })
+    const configuration = result.buffers.find(({ name }) => name === "configuration")!
+    new Uint8Array(configuration.buffer).fill(0)
+    expect(openImportBinaryResult(result).configurationFragmentBuffer).toBe(configuration.buffer)
+  })
+
   it("передаёт общий профиль отдельно от окончательных блоков", () => {
     const writer = createImportReconstructionFactsWriter()
     writer.append({ targetProjectPath: "Свойства.yaml", entities: [{ logicalAddress: "Конфигурация", xmlId: "3" }] })

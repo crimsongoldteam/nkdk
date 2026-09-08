@@ -47,6 +47,23 @@ import { prepareProofYaml } from "../../tests/prepareProofYaml"
 
 const configurationFixturesDir = join(import.meta.dirname, "../appliedObjects/configuration/__fixtures__")
 const metadataPath = join(configurationFixturesDir, "syncConfiguration/xml/Catalogs/Контрагенты.xml")
+
+it("первый проход находит одинаковые имена реквизита и табличной части", async () => {
+  const assignment = catalogAssignment()
+  const input = assignment.xmlFiles[0]!
+  const document = parseXmlDocumentWithSaxes(`<MetaDataObject><Catalog>
+    <Properties><Name>Контрагенты</Name></Properties><ChildObjects>
+    <Attribute><Properties><Name>ОбщееИмя</Name></Properties></Attribute>
+    <TabularSection><Properties><Name>ОбщееИмя</Name></Properties></TabularSection>
+    </ChildObjects></Catalog></MetaDataObject>`)
+  const facts = await prepareImportFacts({
+    assignment, inputs: [{ input, document }], context: mockXmlImportContext(),
+    collector: createConfigurationIndexCollector(),
+  })
+  expect(facts.uniqueNameIssues).toEqual([expect.objectContaining({
+    target: { kind: "path", path: ["ТабличныеЧасти", "ОбщееИмя"] },
+  })])
+})
 const commonFormFixtureDir = join(import.meta.dirname, "../appliedObjects/metadataCommonForm/__fixtures__/sync/xml")
 const extensionFixtureDir = join(import.meta.dirname, "__fixtures__/configurationExtension")
 const fullCatalogFixture = join(import.meta.dirname, "../appliedObjects/metadataCatalog/__fixtures__/full.xml")

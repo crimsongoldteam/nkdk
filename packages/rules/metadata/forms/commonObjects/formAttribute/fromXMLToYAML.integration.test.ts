@@ -294,6 +294,8 @@ describe("FormAttributes XML → YAML → XML", () => {
     expect(omittedNodes.map((node) => audit.getOutcome(node).state)).toEqual(
       Array(4).fill("structurallyClaimed"),
     )
+    for (const node of omittedNodes) expect(audit.getOutcome(node).boundaries[0]?.yamlPath)
+      .toEqual(["Значение", "Объект", "ДополнительныеКолонки", "Список.Способы", "Реквизит1"])
   })
 
   it("привязывает общие Settings к выбранному по xsi:type свойству", () => {

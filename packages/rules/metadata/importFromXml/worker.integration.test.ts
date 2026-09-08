@@ -5,6 +5,7 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } 
 import { transferableSymbol, valueSymbol } from "piscina"
 import { mockXmlImportContext } from "../../tests/mockContext"
 import "../../tests/metadataExecutionContext"
+import * as localRuleValidation from "../validation/metadataRuleValidator"
 import type { ImportFirstPassResult } from "./types"
 import { createBinaryProjectStateStore } from "../projectState/binary/store"
 import { createProjectStateDependencyValidator } from "../validation/projectStateDependencyValidation"
@@ -18,7 +19,6 @@ import { resolveValidationProjectFile } from "../validation/projectFiles"
 import { createProjectYamlCache } from "../validation/projectYamlCache"
 import {
   createValidationSchemaCache,
-  type ValidationSchemaCache,
   validateProjectFileFirstPass,
 } from "../validation/projectValidationPasses"
 import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
@@ -35,7 +35,11 @@ import { createValidationProjectComponent } from "../validation/projectComponent
 import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
 import * as propertyFactsView from "./baseFormProjectionFacts"
 import * as preparedFacts from "./prepareFacts"
+import * as compiledRules from "@nkdk/runtime/rule-kit"
+import type { XmlAnomalyAnnotations } from "@nkdk/runtime"
 import * as importedYamlFinalizers from "../ruleRuntime/metadataItem/importedYamlFinalizerRegistry"
+import * as boundaryValidators from "../validation/metadataRuleValidator"
+import * as dependentItems from "./dependentItems"
 
 const importWorker = createImportWorkerCommandRunner()
 const runImportWorkerCommand = importWorker.run
@@ -55,13 +59,6 @@ const withDynamicListXmlPath = join(
   import.meta.dirname,
   "../forms/clientApplicationForm/__fixtures__/withDynamicList.xml"
 )
-const fullValidationSchemaCache = createValidationSchemaCache(mockXmlImportContext())
-const fastValidationSchemaCache = {
-  form: () => validSchema,
-  properties: () => validSchema,
-  compileAll: () => ({ formMs: 0, propertiesMs: 0, totalMs: 0 }),
-} satisfies ValidationSchemaCache
-let validationRulesSnapshot: ReturnType<typeof createValidationRulesSnapshot>
 let configurationTopology: ReturnType<typeof createValidationProjectComponent>["topology"]
 function requireTopologyNode(projectPattern: string) {
   const node = configurationTopology.assignments.find((candidate) => candidate.projectPattern === projectPattern)
@@ -71,7 +68,6 @@ function requireTopologyNode(projectPattern: string) {
 let catalogTopologyNode: ReturnType<typeof requireTopologyNode>
 let catalogFormTopologyNode: ReturnType<typeof requireTopologyNode>
 let subsystemTopologyNode: ReturnType<typeof requireTopologyNode>
-let catalogValidationFile: NonNullable<ReturnType<typeof resolveValidationProjectFile>>
 const tempDirs: string[] = []
 const stateStores: Array<ReturnType<typeof createBinaryProjectStateStore>["store"]> = []
 let sharedStateFixture: ReturnType<typeof createBinaryProjectStateStore> | undefined
@@ -102,7 +98,6 @@ describe("XML import control composition", () => {
 })
 
 beforeAll(async () => {
-  validationRulesSnapshot = createValidationRulesSnapshot(mockXmlImportContext())
   configurationTopology = createValidationProjectComponent(
     "/project",
     { kind: "configuration" },
@@ -110,13 +105,6 @@ beforeAll(async () => {
   catalogTopologyNode = requireTopologyNode("Справочник/{ownerName}/Свойства.yaml")
   catalogFormTopologyNode = requireTopologyNode("Справочник/{ownerName}/Формы/{itemName}/Форма.yaml")
   subsystemTopologyNode = requireTopologyNode("Подсистема/{ownerName}/Свойства.yaml")
-  const resolvedCatalogValidationFile = resolveValidationProjectFile(
-    "/project",
-    "/project/Справочник/Товары/Свойства.yaml",
-  )
-  if (resolvedCatalogValidationFile === undefined) throw new Error("Не удалось классифицировать тестовый YAML")
-  catalogValidationFile = resolvedCatalogValidationFile
-  fullValidationSchemaCache.properties(catalogValidationFile.owner.spec.rule)
   sharedStateFixture = createBinaryProjectStateStore({
     dependencyValidator: createProjectStateDependencyValidator(),
     projectDir: "/project",
@@ -133,11 +121,6 @@ beforeEach(async () => {
 afterAll(() => {
   for (const store of stateStores.splice(0)) store.close()
 })
-
-const validSchema = {
-  Check: () => true,
-  Errors: (): [boolean, []] => [true, []],
-}
 
 afterEach(() => {
   vi.unstubAllEnvs()
@@ -227,15 +210,8 @@ describe("XML import worker first pass", () => {
       context: mockXmlImportContext(),
       outputDir: `/tmp/${operationId}`,
     })
-    const options = {
-      persistentValidationState: {
-        schemaCache: fastValidationSchemaCache,
-        rulesSnapshot: validationRulesSnapshot,
-      },
-    }
-
-    await first.run(initialize("first-runner", 1), options)
-    await second.run(initialize("second-runner", 2), options)
+    await first.run(initialize("first-runner", 1))
+    await second.run(initialize("second-runner", 2))
     first.resetForTests()
 
     expect(first.stateForTests()).toEqual({
@@ -562,8 +538,7 @@ describe("XML import worker second pass", () => {
       expect(result).toMatchObject({ kind: "secondPassResult", diagnostics: [] })
       // Без текущей cf сравнивать источники основы не требуется.
       expect(view.mock.calls).toHaveLength(0)
-      const projections = new Set(view.mock.results.map(result => result.value))
-      expect(finalize.mock.calls.filter(([params]) => projections.has(params.yaml))).toEqual([])
+      expect(finalize).not.toHaveBeenCalled()
       for (const [params] of finalizeFacts.mock.calls) {
         expect(params.facts.filter(fact => !["$formElementKind", "dataPath", "mainAttribute"].includes(fact.propertyKey))).toEqual([])
       }
@@ -706,7 +681,6 @@ describe("XML import worker second pass", () => {
     const { second } = await runAssignmentSecondPass(
       outputDir,
       assignment,
-      fullValidationSchemaCache,
     )
 
     expect(second).toMatchObject({ kind: "secondPassResult", diagnostics: [] })
@@ -752,10 +726,47 @@ describe("XML import worker second pass", () => {
     const path = assignment.xmlFiles[0]!.sourcePath
     writeFileSync(path, readFileSync(path, "utf8").replace("</Type>", "<v8:TypeSet>cfg:DefinedType.Другой</v8:TypeSet></Type>"))
     const outputDir = createTempDir("multiple-defined-types")
-    const { first, second } = await runAssignmentSecondPass(outputDir, assignment, fullValidationSchemaCache)
+    const { first, second } = await runAssignmentSecondPass(outputDir, assignment)
     expect(first.diagnostics).toEqual([])
     expect(second).toMatchObject({ diagnostics: [] })
     expect(readFileSync(join(outputDir, assignment.targetProjectPath), "utf8")).toContain("- !xml/invalid ОпределяемыйТип.Другой")
+  })
+
+  it("помечает несовместимый FillValue определяемого типа до сравнения реквизита", async () => {
+    const assignment = definedTypeFillValueAssignment()
+    const source = assignment.xmlFiles[0]!.sourcePath
+    writeFileSync(source, readFileSync(source, "utf8")
+      .replaceAll("АвторДействия", "АвторНесовместимогоТипа")
+      .replaceAll("Пользователи", "ПользователиДляFillValue"))
+    const writer = createProjectStateFragmentWriter()
+    writer.appendImportIndex({
+      projectPath: "cf/ОпределяемыйТип/АвторНесовместимогоТипа/Свойства.yaml",
+      componentPath: "cf", resourceKind: "yaml", yamlRole: "properties",
+      targets: [{ kind: "object", canonical: "DefinedType.АвторНесовместимогоТипа" }],
+      owners: [{ owner: { kind: "ОпределяемыйТип", name: "АвторНесовместимогоТипа" },
+        facts: { type: { type: ["CatalogRef.Сотрудники", "CatalogRef.АвтоподстановкиДляОбъектов", "CatalogRef.ПолныеРоли"] } } }],
+      fields: [], forms: [],
+    })
+    writer.appendImportIndex({
+      projectPath: "cf/Справочник/ПользователиДляFillValue/Свойства.yaml",
+      componentPath: "cf", resourceKind: "yaml", yamlRole: "properties",
+      targets: [{ kind: "object", canonical: "Catalog.ПользователиДляFillValue" },
+        { kind: "value", canonical: "Catalog.ПользователиДляFillValue.EmptyRef" }],
+      owners: [], fields: [], forms: [],
+    })
+    appendSharedStateFragments([writer.finish()])
+    let observed = false
+    observeBeforeProof((yaml, annotations) => {
+      if (yaml.ЗначениеЗаполнения !== "Справочник.ПользователиДляFillValue.ПустаяСсылка") return
+      expect(annotations?.at(yaml, "ЗначениеЗаполнения")?.kind).toBe("invalid")
+      observed = true
+    })
+    const outputDir = createTempDir("incompatible-defined-fill-value")
+    const { second } = await runAssignmentSecondPass(outputDir, assignment)
+    expect(second).toMatchObject({ kind: "secondPassResult", diagnostics: [] })
+    expect(observed).toBe(true)
+    expect(readFileSync(join(outputDir, assignment.targetProjectPath), "utf8"))
+      .toContain("ЗначениеЗаполнения: !xml/invalid Справочник.ПользователиДляFillValue.ПустаяСсылка")
   })
 
   it("не сохраняет raw для восстановленных стандартных элементов формы", async () => {
@@ -830,6 +841,17 @@ describe("XML import worker second pass", () => {
   })
 
   it("уточняет отсутствующий путь элемента формы после загрузки владельца", async () => {
+    const checked: string[] = []
+    const createValidator = boundaryValidators.createRegisteredMetadataRuleValidator
+    vi.spyOn(boundaryValidators, "createRegisteredMetadataRuleValidator").mockImplementation(params => {
+      const validator = createValidator(params)
+      const validate = validator.validateBoundary
+      validator.validateBoundary = input => {
+        checked.push(input.rule.itemType)
+        return validate(input)
+      }
+      return validator
+    })
     const outputDir = createTempDir("implicit-form-data-path")
     const assignments = createCatalogAndFormAssignments("", "Товары", false, false, "LabelField", "Код", false)
     await initializeWorker(outputDir)
@@ -853,7 +875,11 @@ describe("XML import worker second pass", () => {
     if (second?.kind !== "secondPassResult") throw new Error("Ожидался secondPassResult")
     const formFile = second.files.find((file) => file.targetProjectPath === assignments.form.targetProjectPath)
     if (formFile === undefined) throw new Error("Ожидался файл формы")
-    expect(readFileSync(formFile.sourcePath, "utf-8")).toContain('ПутьКДанным: ""')
+    const yaml = readFileSync(formFile.sourcePath, "utf-8")
+    expect(yaml).toContain('ПутьКДанным: ""')
+    expect(yaml).not.toMatch(/ПутьКДанным: !xml\/raw/u)
+    expect(checked).toContain("LabelField")
+    expect(checked.indexOf("LabelField")).toBeLessThan(checked.indexOf("ClientApplicationForm"))
   })
 
   it("выводит удерживаемые данные после пачки и агрегированный профиль после прохода", async () => {
@@ -906,29 +932,18 @@ describe("XML import worker second pass", () => {
     const outputDir = createTempDir("third-pass-invalid")
     const assignments = createCatalogAndFormAssignments("Объект.НеизвестныйПереход.LineNumber")
     let localValidationRuns = 0
-    const countingSchemaCache = {
-      form: () => ({
-        Check: () => true,
-        Errors: (): [boolean, []] => {
-          localValidationRuns += 1
-          return [true, []]
-        },
-      }),
-      properties: () => ({
-        Check: () => true,
-        Errors: (): [boolean, []] => {
-          localValidationRuns += 1
-          return [true, []]
-        },
-      }),
-      compileAll: () => ({ formMs: 0, propertiesMs: 0, totalMs: 0 }),
-    } satisfies ValidationSchemaCache
+    const create = localRuleValidation.createRegisteredMetadataRuleValidator
+    const validation = vi.spyOn(localRuleValidation, "createRegisteredMetadataRuleValidator").mockImplementation(params => {
+      const validator = create(params)
+      const validate = validator.validateBoundary
+      return { ...validator, validateBoundary(input) { localValidationRuns++; return validate(input) } }
+    })
     const second = await finishCatalogAndFormSecondPassBatch(
       outputDir,
       assignments,
-      countingSchemaCache,
     )
     expect(second.diagnostics.count).toBe(0)
+    validation.mockRestore()
     expect(localValidationRuns).toBeGreaterThan(0)
     expect(readFileSync(join(outputDir, assignments.form.targetProjectPath), "utf8"))
       .toContain("ПутьКДанным: !xml/invalid Объект.НеизвестныйПереход.LineNumber")
@@ -967,7 +982,6 @@ describe("XML import worker second pass", () => {
     const second = await finishCatalogAndFormSecondPassBatch(
       outputDir,
       assignments,
-      fastValidationSchemaCache,
     )
 
     expect(second.diagnostics.count).toBe(0)
@@ -1215,17 +1229,12 @@ describe("XML import worker second pass", () => {
     const outputDir = createTempDir("validation-before-write")
     const assignment = catalogAssignment()
     const validationError = "Ошибка тестовой локальной валидации"
-    const failingSchemaCache = {
-      form: () => validSchema,
-      properties: () => ({
-        Check: () => false,
-        Errors: () => {
-          throw new Error(validationError)
-        },
-      }),
-      compileAll: () => ({ formMs: 0, propertiesMs: 0, totalMs: 0 }),
-    } satisfies ValidationSchemaCache
-    const { second } = await runAssignmentSecondPass(outputDir, assignment, failingSchemaCache)
+    const create = localRuleValidation.createRegisteredMetadataRuleValidator
+    const validation = vi.spyOn(localRuleValidation, "createRegisteredMetadataRuleValidator").mockImplementation(params => ({
+      ...create(params), validateBoundary() { throw new Error(validationError) },
+    }))
+    const { second } = await runAssignmentSecondPass(outputDir, assignment)
+    validation.mockRestore()
 
     expect(second).toMatchObject({
       kind: "secondPassResult",
@@ -1238,6 +1247,72 @@ describe("XML import worker second pass", () => {
     expect(existsSync(join(outputDir, assignment.targetProjectPath))).toBe(false)
     expect(workerStateForTests().preparedYamlIds).toEqual([])
   })
+})
+
+function observeBeforeProof(observe: (yaml: Record<string, unknown>, annotations: XmlAnomalyAnnotations | undefined) => void) {
+  const compile = compiledRules.createCompiledRuleExecution
+  const annotations = new WeakMap<object, XmlAnomalyAnnotations>()
+  vi.spyOn(compiledRules, "createCompiledRuleExecution").mockImplementation(params => compile({
+    ...params,
+    prepare(item) {
+      const prepared = params.prepare(item)
+      if (prepared.annotations !== undefined) annotations.set(item.yaml, prepared.annotations)
+      return prepared
+    },
+    beforeFinish(item) {
+      params.beforeFinish?.(item)
+      observe(item.yaml, annotations.get(item.yaml))
+    },
+  }))
+}
+
+it("worker назначает конфликт имён до корневого сравнения", async () => {
+  const sourcePath = join(createTempDir("unique-name-source"), "Catalog.xml")
+  const original = catalogAssignment()
+  const xml = readFileSync(original.xmlFiles[0]!.sourcePath, "utf8")
+  writeFileSync(sourcePath, xml.replace("</ChildObjects>", `<Attribute uuid="301fda37-ce86-4a9a-a764-f914a74e0188">
+    <Properties><Name>ОбщееИмя</Name></Properties></Attribute>
+    <TabularSection uuid="301fda37-ce86-4a9a-a764-f914a74e0189">
+    <Properties><Name>ОбщееИмя</Name></Properties></TabularSection></ChildObjects>`))
+  const assignment = catalogAssignment({ xmlFiles: [{ role: "metadata", sourcePath }] })
+  let observed = false
+  observeBeforeProof((data, annotations) => {
+    if (data.ТабличныеЧасти !== undefined) {
+      expect(annotations?.at(data.ТабличныеЧасти as object, "ОбщееИмя")?.kind).toBe("invalid")
+      expect(annotations?.root()).toBeUndefined()
+      observed = true
+    }
+  })
+  const { second } = await runAssignmentSecondPass(createTempDir("unique-name-output"), assignment)
+  expect(second).toMatchObject({ kind: "secondPassResult", diagnostics: [] })
+  expect(observed).toBe(true)
+})
+
+it("worker не оставляет зависимые свойства для изменения после локального сравнения", async () => {
+  const normalize = vi.spyOn(dependentItems, "normalizeImportedDependentItems")
+  const { second } = await runAssignmentSecondPass(createTempDir("final-dependent-output"), catalogAssignment())
+  expect(second).toMatchObject({ kind: "secondPassResult", diagnostics: [] })
+  expect(normalize).toHaveBeenCalled()
+  for (const [params] of normalize.mock.calls) expect(params.candidates).toEqual([])
+})
+
+it("worker помечает отсутствующую функциональную опцию ребёнка до корневого сравнения", async () => {
+  const { form } = createCatalogAndFormAssignments("", "Товары", false, false, "LabelField", "Путь", false)
+  const source = form.xmlFiles.find(file => file.role === "body")!.sourcePath
+  writeFileSync(source, readFileSync(source, "utf8").replace("</Attribute>",
+    "<FunctionalOptions><Item>FunctionalOption.НетТакойОпции</Item></FunctionalOptions></Attribute>"))
+  let observed = false
+  observeBeforeProof((yaml, annotations) => {
+    if (yaml.Реквизиты !== undefined) {
+      const data = yaml as { Реквизиты: { Объект: { ФункциональныеОпции: unknown[] } } }
+      expect(annotations?.at(data.Реквизиты.Объект.ФункциональныеОпции, 0)?.kind).toBe("invalid")
+      expect(annotations?.root()).toBeUndefined()
+      observed = true
+    }
+  })
+  const { second } = await runAssignmentSecondPass(createTempDir("reference-boundary-output"), form)
+  expect(second).toMatchObject({ kind: "secondPassResult", diagnostics: [] })
+  expect(observed).toBe(true)
 })
 
 async function prepareCatalogForThirdPass(outputDir: string) {
@@ -1343,7 +1418,6 @@ function expectDeferredFormFirstPass(
 
 async function initializeWorker(
   outputDir: string,
-  schemaCache: ValidationSchemaCache = fastValidationSchemaCache,
 ): Promise<void> {
   await runImportWorkerCommand({
     kind: "initialize",
@@ -1351,17 +1425,14 @@ async function initializeWorker(
     workerIndex: 0,
     context: mockXmlImportContext(),
     outputDir,
-  }, {
-    persistentValidationState: { schemaCache, rulesSnapshot: validationRulesSnapshot },
   })
 }
 
 async function beginCatalogAndFormSecondPass(
   outputDir: string,
   assignments: ReturnType<typeof createCatalogAndFormAssignments>,
-  schemaCache: ValidationSchemaCache = fastValidationSchemaCache,
 ): Promise<ImportFirstPassResult> {
-  await initializeWorker(outputDir, schemaCache)
+  await initializeWorker(outputDir)
   const first = expectFirstPass(await runImportWorkerCommand({
     kind: "firstPass",
     assignments: [assignments.catalog, assignments.form],
@@ -1377,9 +1448,8 @@ async function beginCatalogAndFormSecondPass(
 async function finishCatalogAndFormSecondPassBatch(
   outputDir: string,
   assignments: ReturnType<typeof createCatalogAndFormAssignments>,
-  schemaCache: ValidationSchemaCache,
 ) {
-  await beginCatalogAndFormSecondPass(outputDir, assignments, schemaCache)
+  await beginCatalogAndFormSecondPass(outputDir, assignments)
   const second = openImportBinaryResult(await runImportWorkerCommand({
     kind: "secondPassBatch",
     assignmentIds: [assignments.catalog.id, assignments.form.id],
@@ -1392,9 +1462,8 @@ async function finishCatalogAndFormSecondPassBatch(
 async function runAssignmentSecondPass(
   outputDir: string,
   assignment: ImportAssignment,
-  schemaCache: ValidationSchemaCache = fastValidationSchemaCache,
 ) {
-  await initializeWorker(outputDir, schemaCache)
+  await initializeWorker(outputDir)
   const first = expectFirstPass(await runImportWorkerCommand({ kind: "firstPass", assignments: [assignment] }))
   await runImportWorkerCommand({
     kind: "beginSecondPass",
@@ -1417,7 +1486,7 @@ function createReadToken(first: { readonly stateFragment?: ImportFirstPassResult
 
 async function prepareReadyYamlValidationScenario() {
   const outputDir = createTempDir("first-pass-ready")
-  await initializeWorker(outputDir, fullValidationSchemaCache)
+  await initializeWorker(outputDir)
   const assignment = catalogAssignment({
     itemName: "СправочникПолный",
     targetProjectPath: "Справочник/СправочникПолный/Свойства.yaml",
@@ -1427,7 +1496,6 @@ async function prepareReadyYamlValidationScenario() {
   const { second } = await runAssignmentSecondPass(
     outputDir,
     assignment,
-    fullValidationSchemaCache,
   )
   if (second?.kind !== "secondPassResult") throw new Error("Ожидался secondPassResult")
   const result = second

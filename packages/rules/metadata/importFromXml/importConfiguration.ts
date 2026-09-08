@@ -5,7 +5,7 @@ import { constrainedMemory } from "node:process"
 import {
   componentPath,
   configurationIndexStoreDescriptor,
-  decodeConfigurationBlockFragments,
+  iterateConfigurationBlockFragments,
   hashConfigurationProjectFileList,
   type ComponentAddress,
   type ConfigurationProjectFile,
@@ -556,7 +556,7 @@ function createImportStateSink(
   const writeState = async (batch: Parameters<XmlImportStateSink["writeFirstPassState"]>[0]): Promise<void> => {
     if (batch.configurationFragment !== undefined) candidate.mergeBlockFragments([batch.configurationFragment])
     if (batch.configurationFragmentBuffer !== undefined) {
-      candidate.mergeBlockFragments(decodeConfigurationBlockFragments(batch.configurationFragmentBuffer))
+      candidate.mergeBlockFragments(iterateConfigurationBlockFragments(batch.configurationFragmentBuffer))
     }
     if (batch.stateFragment !== undefined) {
       await session.writeStateFragment(batch.stateFragment)

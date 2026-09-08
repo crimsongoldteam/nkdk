@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest"
+import { createXmlAnomalyAnnotations } from "@nkdk/runtime"
+import "../../tests/metadataExecutionContext"
 import { defineMetadataItemCollectionRule } from "../ruleRuntime/metadataCollection/ruleFactory"
 import { composeMetadataRules } from "../ruleRuntime/definition"
 import { createPropertyRuleRegistrySet, withPropertyRuleRegistrySet } from "@nkdk/runtime/rule-kit"
@@ -142,6 +144,19 @@ describe("collectAddressableMetadataObjectEntries", () => {
       logicalAddress: "Перечисление.Статусы.EnumValue.Новый",
       sourceProjectPath: "/project/Перечисление/Статусы/Свойства.yaml",
     }])
+  })
+
+  it("uses the preserved name instead of the runtime key of an anomalous duplicate", () => {
+    const values = { Повтор: {}, runtime: {} }
+    const annotations = createXmlAnomalyAnnotations()
+    annotations.setKey(values, "runtime", { kind: "invalid", target: "key", logicalKey: "Повтор", occurrence: 1 })
+    const entries = withPropertyRuleRegistrySet(addressableRules, () => collectAddressableMetadataLogicalAddresses({
+      yaml: { Значения: values }, annotations, rule: ownerWithChildRule,
+      logicalAddress: "Перечисление.Статусы", filePath: "Свойства.yaml",
+    }))
+    expect(entries.map(entry => entry.logicalAddress)).toEqual([
+      "Перечисление.Статусы.EnumValue.Повтор", "Перечисление.Статусы.EnumValue.Повтор",
+    ])
   })
 
   it("collects enumeration values through the production rule", () => {

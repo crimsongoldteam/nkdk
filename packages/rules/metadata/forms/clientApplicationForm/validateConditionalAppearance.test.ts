@@ -91,8 +91,9 @@ function runValidation(
   yaml: Record<string, unknown>,
   elementNames: readonly string[] = [],
 ) {
+  const index = createFormDataPathIndexFromYAML(yaml)
   const dataPathContext: FormDataPathContext = {
-    index: createFormDataPathIndexFromYAML(yaml),
+    index, localIndex: index,
     elementsByName: new Map(elementNames.map((name) => [name, {
       name,
       dataPathRule: { type: "DataPath" },

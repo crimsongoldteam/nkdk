@@ -223,6 +223,7 @@ describe("importPropertiesFromXMLToYAML", () => {
       context: mockContextFromXML(), rule, yaml: {}, sources: [], yamlPath: [], rulePath: [],
       ...(!dependencies ? {} : { dependencies: {
         shouldOmit: () => false,
+        proofPropertyKeys: () => ["width"],
         propertyValue: () => ({ value: 7 }),
       } }),
     }).finish()
@@ -304,6 +305,7 @@ describe("importPropertiesFromXMLToYAML", () => {
       rulePath: [],
       collector: createLocalIndexesCollector(),
       dependencies: {
+        proofPropertyKeys: () => ["value"],
         propertyValue: (_path, key) => key === "value"
           ? { present: true, value: {}, scalarTag: "изменять" }
           : { value: undefined },
@@ -329,7 +331,7 @@ describe("importPropertiesFromXMLToYAML", () => {
       yamlPath: [],
       rulePath: [],
       collector: createLocalIndexesCollector(),
-      dependencies: { propertyValue: () => ({ value: undefined }), shouldOmit: () => true },
+      dependencies: { proofPropertyKeys: () => [], propertyValue: () => ({ value: undefined }), shouldOmit: () => true },
       roundTrip: {
         open: () => ({ ready, finish() {} }),
       },
@@ -518,6 +520,7 @@ describe("importPropertiesFromXMLToYAML", () => {
       rulePath: [],
       collector: createLocalIndexesCollector(),
       dependencies: {
+        proofPropertyKeys: () => ["value"],
         propertyValue: () => ({ value: { Предварительное: true } }),
         shouldOmit: () => false,
       },
@@ -905,6 +908,7 @@ describe("importPropertiesFromXMLToYAML", () => {
     ["обычного отсутствующего значения", undefined, "Значение"],
     ["намеренно исключённого значения", {
       shouldOmit: () => false,
+      proofPropertyKeys: () => ["value"],
       propertyValue: () => ({ value: undefined, present: false as const }),
     }, "Значение"],
   ] as const)("подавляет созданный экспортным default узел %s", (_case, dependencies, annotationKey) => {
@@ -1924,12 +1928,12 @@ describe("importPropertiesFromXMLToYAML", () => {
     })
     registerTypeRule(failedType, "importFromXMLToYAML", ({ context, traversal }) => {
       context.fromXML.configurationIndex?.collector.setIdentity("Лишний", "xmlId", "leaked")
-      traversal.deferred?.accept({ valuePath: traversal.yamlPath, rulePath: traversal.rulePath })
+      traversal.deferred?.accept({ valuePath: traversal.pathCursor.toArray(), rulePath: traversal.rulePath })
       traversal.dependent?.accept({
         itemType: "TestTransactionalItem",
         itemYamlPath: [],
         propertyKey: "broken",
-        yamlPath: traversal.yamlPath,
+        yamlPath: traversal.pathCursor.toArray(),
         xmlValue: "broken",
         presentInXML: true,
       })
@@ -2180,6 +2184,7 @@ describe("importPropertiesFromXMLToYAML", () => {
       collector: createLocalIndexesCollector(),
       dependencies: {
         shouldOmit: () => false,
+        proofPropertyKeys: () => ["content"],
         propertyValue: () => ({ present: false, value: undefined }),
       },
       roundTrip: {
@@ -2215,6 +2220,7 @@ describe("importPropertiesFromXMLToYAML", () => {
       annotations,
       dependencies: {
         shouldOmit: () => false,
+        proofPropertyKeys: () => ["operations"],
         propertyValue: () => ({ present: false, value: undefined }),
       },
     })

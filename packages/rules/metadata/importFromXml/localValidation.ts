@@ -47,22 +47,12 @@ export function validateLocalImportSemantics(params: {
       ? [{ requestId: `import-coverage:${index}`, componentPath, projectPath, check }]
       : []
   )
-  const dataPathChecks = params.pendingChecks.filter(
-    (check): check is Extract<ValidationPendingCheck, { kind: "dataPath" }> => check.kind === "dataPath",
-  )
   // Владелец в DataPath — контекст разрешения, а не самостоятельная ссылка.
   // Проверка пути сама запрашивает нужные метаданные; локальный реквизит формы
   // не требует существования объекта из контекста в таблице owners.
-  const dataPathDiagnostics = dataPathChecks.flatMap((check) => validatePendingChecks({
-    ownerCache: ownerMetadataCache,
-    checks: [check],
-  }).diagnostics.map((diagnostic) => ({
-    ...diagnostic,
-    // Ошибка чтения необходимых метаданных относится к использующему их пути,
-    // а не к корню текущей формы или к YAML другого задания.
-    filePath: check.location.filePath,
-    path: check.location.path,
-  })))
+  const dataPathDiagnostics = validateImportPendingChecks(
+    params.pendingChecks.filter(check => check.kind === "dataPath"), ownerMetadataCache,
+  )
   const diagnostics = [
     ...dataPathDiagnostics,
     ...validator.validateReferences({
@@ -94,6 +84,17 @@ export function validateLocalImportSemantics(params: {
   return diagnostics
     .filter(({ severity }) => severity === "error")
     .map(validationIssueFromDiagnostic)
+}
+
+export function validateImportPendingChecks(
+  checks: readonly ValidationPendingCheck[],
+  ownerCache: Parameters<typeof validatePendingChecks>[0]["ownerCache"],
+) {
+  return checks.flatMap(check => validatePendingChecks({
+    ownerCache, checks: [check],
+  }).diagnostics.map(diagnostic => ({
+    ...diagnostic, filePath: check.location.filePath, path: check.location.path,
+  })))
 }
 
 export function validationIssueFromDiagnostic(diagnostic: {

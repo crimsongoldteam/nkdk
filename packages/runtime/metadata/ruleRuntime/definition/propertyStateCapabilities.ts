@@ -25,11 +25,14 @@ export function createPropertyStateCapabilityRegistry(
     ? []
     : [contribution.delta])
 
+  const resolved = new Map<string, Map<string, ResolvedPropertyStateItemCapability>>()
   const item = (
     itemType: string,
     compatibilityMode?: string,
   ): ResolvedPropertyStateItemCapability | undefined => {
     const selectedMode = compatibilityModes.normalize(compatibilityMode)
+    const cached = resolved.get(itemType)?.get(selectedMode)
+    if (cached !== undefined) return cached
     const itemContribution = items.get(itemType)
     if (itemContribution === undefined) return undefined
     const properties: Record<string, PropertyStatePropertyCapability> = {}
@@ -55,7 +58,11 @@ export function createPropertyStateCapabilityRegistry(
         properties[propertyKey] = { ...current, ...propertyPatch }
       }
     }
-    return { itemType, properties }
+    const result = { itemType, properties }
+    let modes = resolved.get(itemType)
+    if (modes === undefined) resolved.set(itemType, modes = new Map())
+    modes.set(selectedMode, result)
+    return result
   }
 
   return {

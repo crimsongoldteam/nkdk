@@ -7,6 +7,14 @@ export const metadataRuleLayer000 = defineMetadataRules({
   dependentItems: {
     MetadataCalculationRegisterRecalculationDimension: {
       yaml: analyzeRecalculationDimensionLinks,
+      imported: {
+        propertyKeys: ["leadingRegisterData"],
+        dependencies: {
+          item: ["ИзмерениеРегистра", "ДанныеВедущихРегистров"],
+          root: [{ collection: "Измерения", properties: ["ИзмерениеРегистра", "ДанныеВедущихРегистров"] }],
+        },
+        shouldRemove: () => false,
+      },
     },
   },
 })

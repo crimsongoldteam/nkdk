@@ -37,7 +37,7 @@ export const importFilterItemFromXMLToYAML: ImportFromXMLToYAMLFunction = ({ con
       xml: itemNode ?? item,
       traversal: {
         ...itemTraversal,
-        yamlPath: [...traversal.yamlPath, index],
+        pathCursor: traversal.pathCursor.child(index),
         ...(itemNode === undefined ? {} : { xmlNodes: [itemNode] }),
       },
     })

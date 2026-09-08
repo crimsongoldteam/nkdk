@@ -9,6 +9,23 @@ import { serializeYAMLDocument } from "../../../yaml/export"
 import { orderYamlRuleProperties, sortYamlRuleProperties } from "./yamlPropertyOrder"
 
 describe("orderYamlRuleProperties", () => {
+  it("располагает повтор известного ключа после его первого вхождения", () => {
+    const source: Record<string, unknown> = { Язык: "ru", Адрес: "первый" }
+    const annotations = createXmlAnomalyAnnotations()
+    appendXmlAnnotatedMappingEntry(source, annotations, {
+      logicalKey: "Адрес", value: "второй", keyAnnotation: { kind: "invalid", occurrence: 1 },
+    })
+    orderYamlRuleProperties(source, ["Адрес", "Язык"], annotations)
+    expect(Object.values(source)).toEqual(["первый", "второй", "ru"])
+    expect(serializeYAMLDocument(source, annotations).text).toBe("Адрес: первый\n!xml/invalid Адрес: второй\nЯзык: ru")
+  })
+  it("ставит подготовленное добавляемое поле в конец до проверки объекта", () => {
+    const source = { ПутьКДанным: "", Ширина: 10, Вид: "Поле" }
+    const ordered = orderYamlRuleProperties(source, ["Вид", "ПутьКДанным", "Ширина"], undefined, new Set(["ПутьКДанным"]))
+    expect(Object.keys(ordered)).toEqual(["Вид", "Ширина", "ПутьКДанным"])
+    expect(ordered).toBe(source)
+  })
+
   it("размещает статические ключи без сортировки экземпляра и сохраняет аннотации", () => {
     const source = { Комментарий: "", Тип: "Строка", Заголовок: "Заголовок", Вид: "Поле" }
     const annotations = createXmlAnomalyAnnotations()

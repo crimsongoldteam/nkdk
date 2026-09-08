@@ -1,3 +1,4 @@
+import { ExecutionPath } from "@nkdk/runtime/rule-kit"
 import { describe, expect, it } from "vitest"
 import { parseXmlDocumentWithSaxes, xmlAttributeValue, xmlElementChildren } from "@nkdk/runtime"
 import type { ImportFromXMLToYAMLFunction, PropertyRule } from "@nkdk/runtime/rule-kit"
@@ -94,7 +95,7 @@ describe("структурные входы специализированных
     }
     expect(convert({
       context: mockContextFromXML(), rule, xml: undefined,
-      traversal: { yamlPath: [], rulePath: [], collector: createLocalIndexesCollector(), xmlNodes: [root] },
+      traversal: { pathCursor: ExecutionPath.from<string | number>([]), rulePath: [], collector: createLocalIndexesCollector(), xmlNodes: [root] },
     })).toMatchObject(expected)
   })
 })

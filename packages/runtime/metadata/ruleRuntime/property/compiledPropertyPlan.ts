@@ -75,6 +75,7 @@ export interface CompiledPropertyPlan {
   readonly propertiesByKey: ReadonlyMap<string, CompiledProperty>
   readonly yamlToXMLOrder: readonly CompiledProperty[]
   emptyYAMLExportOrder(namePropertyKey?: string): readonly CompiledProperty[]
+  selectedYAMLExportOrder(yaml: Readonly<Record<string, unknown>> | undefined, keys: Iterable<string>, namePropertyKey?: string): readonly CompiledProperty[]
   readonly yamlOrder: readonly string[]
   xmlImportView(params: {
     readonly tags?: readonly string[]
@@ -113,6 +114,14 @@ export function compilePropertyPlan(params: CompilePropertyPlanParams): Compiled
     rule: params.rule, entries: properties, missingXMLProperties, ...viewParams,
   }))
   const emptyYAMLOrders = new Map<string | undefined, readonly CompiledProperty[]>()
+  const exportPositions = new Map(yamlToXMLOrder.map((property, index) => [property.propertyKey, index]))
+  const yamlPositions = new Map<string, number[]>()
+  for (const [index, property] of yamlToXMLOrder.entries()) {
+    if (property.yamlKey === undefined) continue
+    const positions = yamlPositions.get(property.yamlKey) ?? []
+    positions.push(index)
+    yamlPositions.set(property.yamlKey, positions)
+  }
 
   const plan: CompiledPropertyPlan = {
     rule: params.rule,
@@ -131,6 +140,33 @@ export function compilePropertyPlan(params: CompilePropertyPlanParams): Compiled
       ))
       emptyYAMLOrders.set(namePropertyKey, order)
       return order
+    },
+    selectedYAMLExportOrder(yaml, keys, namePropertyKey) {
+      const absent = plan.emptyYAMLExportOrder(namePropertyKey)
+      let selected: Uint32Array | undefined
+      const include = (position: number) => {
+        selected ??= new Uint32Array(Math.ceil(yamlToXMLOrder.length / 32))
+        selected[position >>> 5] |= 1 << (position & 31)
+      }
+      for (const key of Object.keys(yaml ?? {})) {
+        for (const position of yamlPositions.get(key) ?? []) include(position)
+      }
+      for (const key of keys) {
+        const position = exportPositions.get(key)
+        if (position !== undefined) include(position)
+      }
+      if (selected === undefined) return absent
+      for (const property of absent) include(exportPositions.get(property.propertyKey)!)
+      const result: CompiledProperty[] = []
+      for (let word = 0; word < selected.length; word++) {
+        let bits = selected[word]!
+        while (bits !== 0) {
+          const bit = 31 - Math.clz32(bits & -bits)
+          result.push(yamlToXMLOrder[word * 32 + bit]!)
+          bits &= bits - 1
+        }
+      }
+      return result
     },
     yamlOrder: compileYamlPropertyOrder(properties.flatMap(property =>
       property.yamlKey === undefined ? [] : [property.yamlKey],

@@ -319,6 +319,7 @@ type ProjectStateImportFinalFileState =
       readonly pendingReferences: readonly ProjectStatePendingReference[]
       readonly pendingChecks: readonly ProjectStatePendingCheck[]
       readonly dependencies: readonly string[]
+      readonly validationContextDependencies?: readonly { readonly key: string; readonly version: string }[]
     })
 
 interface ProjectStateImportFinalFileStateBatch {

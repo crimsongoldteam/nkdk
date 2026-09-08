@@ -1,4 +1,5 @@
 import { metadataPropertyRule000 as rule0 } from "../appliedObjects/configuration/allowedIncomingShareRequestTypes"
+import { metadataPropertyRule063 as inputByStringTargetOccurrences } from "../commonObjects/metadataTargets/validationHandlers"
 import { metadataPropertyRule000 as dataPathFromXML } from "../commonObjects/metadataPath/fromXML"
 import { metadataPropertyRule000 as commandNameFromXML } from "../forms/commonObjects/commandName/fromXML"
 import { metadataPropertyRule001 as rule1 } from "../appliedObjects/configuration/allowedIncomingShareRequestTypes"
@@ -844,4 +845,5 @@ export const staticPropertyTypes = propertyTypesFromContributions([
   rule431,
   dataPathFromXML,
   commandNameFromXML,
+  inputByStringTargetOccurrences,
 ])

@@ -98,7 +98,26 @@ export type DependentImportDependencyContext = Pick<DependentItemParams,
 
 export interface DependentImportDependencies {
   readonly item: readonly string[]
-  readonly root: readonly string[]
+  readonly root: readonly (string | DependentCollectionSelection)[]
+}
+
+interface DependentCollectionSelection {
+  readonly collection: string
+  readonly properties: readonly string[]
+}
+
+export function dependentRootPropertyKey(selection: string | DependentCollectionSelection): string {
+  return typeof selection === "string" ? selection : selection.collection
+}
+
+function selectDependencyCollection(source: unknown, selection: DependentCollectionSelection): unknown {
+  if (source === null || typeof source !== "object" || Array.isArray(source)) return source
+  return Object.fromEntries(Object.keys(source).map(name => {
+    const child: unknown = Reflect.get(source, name)
+    return [name, child !== null && typeof child === "object" && !Array.isArray(child)
+      ? Object.fromEntries(selection.properties.filter(key => Object.hasOwn(child, key)).map(key => [key, Reflect.get(child, key)]))
+      : child]
+  }))
 }
 
 export interface DependentImportItemHandler {
@@ -145,7 +164,13 @@ export function selectDependentImportFacts(
     return Object.fromEntries(keys.filter(key => Object.hasOwn(source, key))
       .map(key => [key, Reflect.get(source, key)]))
   }
-  return { item: select(params.item, dependencies.item), root: select(params.rootYaml, dependencies.root) }
+  const root = select(params.rootYaml, dependencies.root.map(dependentRootPropertyKey))
+  for (const selection of dependencies.root) {
+    if (typeof selection !== "string" && Object.hasOwn(root, selection.collection)) {
+      root[selection.collection] = selectDependencyCollection(root[selection.collection], selection)
+    }
+  }
+  return { item: select(params.item, dependencies.item), root }
 }
 
 export function prepareDependentImportFacts(params: DependentItemParams): DependentImportFacts | undefined {

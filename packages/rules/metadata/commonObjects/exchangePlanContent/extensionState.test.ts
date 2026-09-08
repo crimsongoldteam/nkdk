@@ -24,6 +24,16 @@ describe("режимы элементов состава плана обмена
     { metadata: "Документ.ДокументКнопкаСПараметрамиExt", state: "Modify" },
   ] as const
 
+  it("сообщает только вновь созданные элементы после назначения окончательного режима", () => {
+    const created: { index: number; item: Record<string, unknown>; tag: unknown }[] = []
+    const joined = joinExchangePlanExtensionContent(items, states, (item, index) => {
+      created.push({ index, item, tag: yamlScalarTagAt(item, "Метаданные") })
+    })
+    expect(created.map(({ index }) => index)).toEqual([0, 2, 5])
+    expect(created[0]?.tag).toBe("изменять")
+    for (const { item, index } of created) expect(item).toBe(joined[index])
+  })
+
   it("соединяет использование и режим по Метаданные в порядке ExtensionProperty", () => {
     const joined = joinExchangePlanExtensionContent(items, states)
 

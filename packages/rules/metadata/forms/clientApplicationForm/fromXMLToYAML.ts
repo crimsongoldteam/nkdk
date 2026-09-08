@@ -96,7 +96,9 @@ export function importClientApplicationFormFromXMLToYAML(params: FormImportExecu
   const yaml = imported.yaml
 
   const localIndexes = localIndexesCollector.finish()
-  if (params.mode !== "facts") localIndexes.metadata.formDataPathIndex = createFormDataPathIndexFromYAML(yaml)
+  if (params.mode !== "facts" && params.roundTrip === undefined) {
+    localIndexes.metadata.formDataPathIndex = createFormDataPathIndexFromYAML(yaml)
+  }
   return {
     yaml,
     localIndexes,

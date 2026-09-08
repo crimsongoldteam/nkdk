@@ -1,3 +1,4 @@
+import { ExecutionPath } from "@nkdk/runtime/rule-kit"
 import fs from "node:fs"
 import {
   createXmlAnomalyAnnotations,
@@ -88,23 +89,15 @@ export interface PreparedBaseFormCandidate {
 }
 
 interface ImportLocalRoundTripOptions {
+  readonly attemptParticipant?: object
+  readonly placeCollectionItem?: Parameters<typeof createImportLocalRoundTrip>[0]["placeCollectionItem"]
   readonly execution: CompiledPropertyRuleExecution
   readonly context: ConfigurationContextWithExportToXML
   readonly decisions: readonly ImportedIssueDecision[]
-  readonly selectDecisions?: (
-    yaml: Record<string, unknown>,
-    rule: MetadataItemRule,
-    yamlPath: readonly (string | number)[],
-    root: boolean,
-    annotations: import("@nkdk/runtime").XmlAnomalyAnnotationTable,
-  ) => readonly ImportedIssueDecision[]
-  readonly selectBaseFormDecisions?: (
-    yaml: Record<string, unknown>,
-    rule: MetadataItemRule,
-    yamlPath: readonly (string | number)[],
-    root: boolean,
-    annotations: import("@nkdk/runtime").XmlAnomalyAnnotationTable,
-  ) => readonly ImportedIssueDecision[]
+  readonly selectDecisions?: Parameters<typeof createImportLocalRoundTrip>[0]["selectDecisions"]
+  readonly selectBaseFormDecisions?: Parameters<typeof createImportLocalRoundTrip>[0]["selectDecisions"]
+  readonly baseFormAttemptParticipant?: object
+  readonly placeBaseFormCollectionItem?: Parameters<typeof createImportLocalRoundTrip>[0]["placeCollectionItem"]
   readonly finalizeRootYaml?: (
     yaml: Record<string, unknown>,
     rule: MetadataItemRule,
@@ -325,7 +318,7 @@ function prepareImportYamlFromParsedInputs(params: ImportFormProofOptions & {
               tags?.includes(FormRulesTags.Form) === true ? ["@Form"] : undefined,
           }),
     })
-    const importProfile = params.profiler === undefined
+    const importProfile = params.profiler === undefined || process.env["NKDK_PROFILE"] !== "1"
       ? undefined
       : createDirectImportProfile({ propertyTypes: true })
     const result: DirectImportResult & Pick<PreparedImportYaml, "baseFormCandidate" | "dependentDeferred"> = measureYaml(params.profiler, () => {
@@ -374,7 +367,7 @@ function prepareImportYamlFromParsedInputs(params: ImportFormProofOptions & {
         name: params.assignment.itemName,
         xml: metadataNode,
         traversal: {
-          yamlPath: [],
+          pathCursor: ExecutionPath.from<string | number>([]),
           rulePath: [],
           collector,
           deferred,
@@ -406,7 +399,7 @@ function prepareImportYamlFromParsedInputs(params: ImportFormProofOptions & {
         preserveRawXML: false,
       })
       const localIndexes = collector.finish()
-      const formDataPathIndex = createImportedFormDataPathIndex({ yaml, rule })
+      const formDataPathIndex = localRoundTrip === undefined ? createImportedFormDataPathIndex({ yaml, rule }) : undefined
       if (formDataPathIndex !== undefined) localIndexes.metadata.formDataPathIndex = formDataPathIndex
       return {
         yaml,
@@ -471,6 +464,8 @@ function importAssignmentBaseFormCandidate(params: {
     execution: params.localRoundTrip.execution,
     context: params.localRoundTrip.context,
     decisions: [],
+    ...(params.localRoundTrip.baseFormAttemptParticipant === undefined ? {} : { attemptParticipant: params.localRoundTrip.baseFormAttemptParticipant }),
+    ...(params.localRoundTrip.placeBaseFormCollectionItem === undefined ? {} : { placeCollectionItem: params.localRoundTrip.placeBaseFormCollectionItem }),
     ...(params.localRoundTrip.selectBaseFormDecisions === undefined
       ? {}
       : { selectDecisions: params.localRoundTrip.selectBaseFormDecisions }),

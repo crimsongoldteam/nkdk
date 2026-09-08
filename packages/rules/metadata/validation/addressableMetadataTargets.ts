@@ -4,6 +4,7 @@ import type { MetadataItemRule, PropertyRule } from "../ruleRuntime/property/typ
 import { projectObjectIndexKey, type ProjectObjectIndexEntry } from "./projectReferenceIndex"
 import { traverseMetadataRuleYaml } from "./metadataRuleYamlTraversal"
 import type { ProjectLogicalAddressEntry } from "../projectDefinition/componentIndexFacts"
+import type { XmlAnomalyAnnotations } from "@nkdk/runtime"
 
 export function objectTargetForProjectFile(file: {
   readonly kind: "configuration" | "properties" | "form"
@@ -26,6 +27,7 @@ export function objectTargetForProjectFile(file: {
 
 export function collectAddressableMetadataObjectEntries(params: {
   readonly yaml: unknown
+  readonly annotations?: XmlAnomalyAnnotations
   readonly rule: MetadataItemRule
   readonly canonicalTarget: string
   readonly filePath: string
@@ -33,36 +35,36 @@ export function collectAddressableMetadataObjectEntries(params: {
   const entries: ProjectObjectIndexEntry[] = []
   traverseMetadataRuleYaml({
     yaml: params.yaml,
+    annotations: params.annotations,
     rule: params.rule,
     initialState: params.canonicalTarget,
     enterCollectionItem: ({ yaml, rule, itemName, state: boundaryTarget }) => {
       const externalMetadata = rule.externalMetadata
       if (externalMetadata?.placement !== "ownedEntry" || itemName === undefined) return boundaryTarget
       const target = `${boundaryTarget}.${externalMetadata.segment}.${itemName}`
-      const parsed = parseMetadataTargetFromModel({
-        canonical: target,
-        constraint: { kind: "object", allowNested: true },
-      })
-      if (!parsed.ok || parsed.target.kind !== "object") {
-        throw new Error(`Некорректный адресуемый metadata target: ${target}`)
-      }
-      entries.push({
-        canonical: projectObjectIndexKey(parsed.target),
-        target: parsed.target,
-        result: {
-          ok: true,
-          filePath: params.filePath,
-          details: objectIndexDetails(yaml),
-        },
-      })
+      entries.push(addressableMetadataObjectEntry({ canonical: target, filePath: params.filePath, ...objectIndexDetails(yaml) }))
       return target
     },
   })
   return entries
 }
 
+export function addressableMetadataObjectEntry(params: {
+  readonly canonical: string
+  readonly filePath: string
+  readonly type?: string
+}): ProjectObjectIndexEntry {
+  const parsed = parseMetadataTargetFromModel({ canonical: params.canonical, constraint: { kind: "object", allowNested: true } })
+  if (!parsed.ok || parsed.target.kind !== "object") throw new Error(`Некорректный адресуемый metadata target: ${params.canonical}`)
+  return {
+    canonical: projectObjectIndexKey(parsed.target), target: parsed.target,
+    result: { ok: true, filePath: params.filePath, details: params.type === undefined ? {} : { type: params.type } },
+  }
+}
+
 export function collectAddressableMetadataLogicalAddresses(params: {
   readonly yaml: unknown
+  readonly annotations?: XmlAnomalyAnnotations
   readonly rule: MetadataItemRule
   readonly logicalAddress: string
   readonly filePath: string
@@ -70,6 +72,7 @@ export function collectAddressableMetadataLogicalAddresses(params: {
   const entries: ProjectLogicalAddressEntry[] = []
   traverseMetadataRuleYaml({
     yaml: params.yaml,
+    annotations: params.annotations,
     rule: params.rule,
     initialState: params.logicalAddress,
     enterCollectionItem: ({ rule, propertyRule, collectionUidSegment, itemName, state: boundaryTarget }) => {
@@ -91,11 +94,21 @@ export function addressableMetadataItemLogicalAddress(params: {
   readonly itemName?: string
   readonly parent: string
 }): string | undefined {
+  const segment = addressableMetadataItemSegment(params)
+  return segment === undefined ? undefined : `${params.parent}.${segment}`
+}
+
+export function addressableMetadataItemSegment(params: {
+  readonly rule: MetadataItemRule
+  readonly propertyRule: PropertyRule
+  readonly collectionUidSegment?: string
+  readonly itemName?: string
+}): string | undefined {
   const external = params.rule.externalMetadata
   const addressable = external?.placement === "ownedEntry" || external?.placement === "ownerChild"
   const segment = params.propertyRule.configurationIndexUidSegment ?? params.collectionUidSegment ?? external?.segment
   if ((!addressable && params.rule.properties.uuid === undefined) || params.itemName === undefined || segment === undefined) return undefined
-  return `${params.parent}.${segment}.${params.itemName}`
+  return `${segment}.${params.itemName}`
 }
 
 function objectIndexDetails(value: unknown): { type?: string } {

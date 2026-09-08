@@ -41,13 +41,12 @@ export function runTestDurationProfile(projectRoot, options, spawn = spawnSync) 
         "vitest",
         "run",
         "--no-isolate",
-        "--sequence.shuffle",
-        `--sequence.seed=${seeds[index]}`,
         "--reporter=json",
         `--outputFile.json=${reportPath}`,
       ],
       {
         cwd: projectRoot,
+        env: { ...process.env, NKDK_TEST_PROFILE_SEED: String(seeds[index]) },
         stdio: "inherit",
       }
     )

@@ -1,3 +1,4 @@
+import { ExecutionPath } from "@nkdk/runtime/rule-kit"
 import fs from "node:fs"
 import { tmpdir } from "node:os"
 import { dirname, join } from "node:path"
@@ -198,7 +199,7 @@ export function testMetadataItemFromXMLToYAML(params: {
   return withDirectMetadataExecution(() => {
     const collector = createLocalIndexesCollector()
     const context = params.context ?? mockContextFromXML()
-    const traversal = { yamlPath: [], rulePath: [], collector }
+    const traversal = { pathCursor: ExecutionPath.from<string | number>([]), rulePath: [], collector }
     const direct = directPropertyRuleExecution.getTypeRule(params.rule.itemType, "importFromXMLToYAML")
     const yaml =
       direct === undefined
@@ -465,7 +466,7 @@ export function testMetadataItemYamlRoundTrip(params: {
   )
   importItem({
       mode: "facts", produceResult: false, facts, dependent,
-      yamlPath: [], rulePath: [], collector: createLocalIndexesCollector(),
+      pathCursor: ExecutionPath.from<string | number>([]), rulePath: [], collector: createLocalIndexesCollector(),
   })
   const propertyFacts = facts.finish()
   const propertyValues = new Map<string, unknown>()
@@ -506,7 +507,7 @@ export function testMetadataItemYamlRoundTrip(params: {
   const context = contexts.exportContext(contextBase)
   const annotations = createXmlAnomalyAnnotations()
   const importedYaml = importItem({
-      yamlPath: [], rulePath: [], collector: createLocalIndexesCollector(), annotations,
+      pathCursor: ExecutionPath.from<string | number>([]), rulePath: [], collector: createLocalIndexesCollector(), annotations,
       dependencies: prepareImportDependencies(collectImportDependencyFacts({
         rule: params.rule, owner: { dir: params.rule.itemType, name: name ?? "" }, yaml: undefined,
         candidates: dependent.finish(), propertyFacts, execution: directPropertyRuleExecution,

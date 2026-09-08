@@ -7,6 +7,9 @@ import { selectImportCompactPropertyPaths, selectImportPropertyPaths } from "./s
 import {
   prepareDependentImportFacts,
   dependentImportDependencies,
+  dependentRootPropertyKey,
+  selectDependentImportFacts,
+  type DependentImportDependencies,
   isDependentImportProperty,
   shouldRemoveImportedDependentProperty,
   type DependentImportFacts,
@@ -19,6 +22,7 @@ import {
 } from "@nkdk/runtime/rule-kit"
 
 export interface ImportDependencyFacts {
+  readonly exportProperties?: ImportPropertyValues<{ readonly value: unknown }>
   readonly rule: MetadataItemRule
   readonly owner: DependentItemParams["owner"]
   readonly properties: ImportCandidateValues<{ readonly facts: DependentImportFacts; readonly itemName?: string }>
@@ -26,6 +30,7 @@ export interface ImportDependencyFacts {
   readonly siblingProperties: ImportPropertyValues<{ readonly value: unknown }>
   readonly proofProperties: ImportPropertyValues<{ readonly value: unknown }>
   readonly finalProperties: ImportPropertyValues<{
+    readonly appendToYaml?: true
     readonly present: boolean
     readonly value: unknown
     readonly scalarTag?: YAMLScalarTag
@@ -188,6 +193,7 @@ export function collectImportDependencyFacts(params: {
   }
   return {
     rule: params.rule,
+    exportProperties: new ImportPropertyValues(),
     owner: params.owner,
     properties,
     items,
@@ -204,6 +210,7 @@ function collectSelectedDependentItems(
   const requests = new ImportPropertyValues<{
     readonly path: readonly (string | number)[]
     readonly itemType: string
+    readonly dependencies: DependentImportDependencies
     item: ReadonlyMap<string, string>
     root: ReadonlyMap<string, string>
   }>()
@@ -226,7 +233,7 @@ function collectSelectedDependentItems(
       return [key, selected.key]
     }))
     requests.set(itemPath, itemType, {
-      path: itemPath, itemType, item: select(actualPath, dependencies.item), root: select([], dependencies.root),
+      path: itemPath, itemType, dependencies, item: select(actualPath, dependencies.item), root: select([], dependencies.root.map(dependentRootPropertyKey)),
     })
   }
   for (const candidate of params.candidates) {
@@ -250,8 +257,14 @@ function collectSelectedDependentItems(
     [...selected].flatMap(([key, address]) => values.has(address) ? [[key, values.get(address)!.value]] : []),
   )
   const result = new ImportPropertyValues<DependentImportFacts>()
+  const roots = new Map<DependentImportDependencies, DependentImportFacts["root"]>()
   for (const request of requests.values()) {
-    result.set(request.path, request.itemType, { item: project(request.item), root: project(request.root) })
+    let root = roots.get(request.dependencies)
+    if (root === undefined) {
+      root = selectDependentImportFacts(request.dependencies, { item: {}, rootYaml: project(request.root) }).root
+      roots.set(request.dependencies, root)
+    }
+    result.set(request.path, request.itemType, { item: project(request.item), root })
   }
   return result
 }
@@ -438,6 +451,24 @@ export function prepareImportDependencies(
   execution?: CompiledPropertyRuleExecution,
 ): PreparedImportDependencies {
   return {
+    propertyKeys: path => facts.finalProperties.keys(path),
+    *proofPropertyKeys(path) {
+      yield* facts.finalProperties.keys(path)
+      yield* facts.siblingProperties.keys(path)
+      yield* facts.proofProperties.keys(path)
+    },
+    appendedYamlKeys(path) {
+      let keys: Set<string> | undefined
+      for (const key of facts.finalProperties.keys(path)) {
+        if (facts.finalProperties.get(path, key)?.appendToYaml === true) (keys ??= new Set()).add(key)
+      }
+      return keys
+    },
+    *exportPropertyValues(path) {
+      for (const key of facts.exportProperties?.keys(path) ?? []) {
+        yield [key, facts.exportProperties!.get(path, key)!.value] as const
+      }
+    },
     itemFacts: (path, itemType) => facts.items.get(path, itemType),
     propertyValue: (path, key) => {
       const result = facts.finalProperties.get(path, key)

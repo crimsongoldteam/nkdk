@@ -3,6 +3,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest"
 import { configurationIndexStoreDescriptor } from "./storePath"
 import { ConfigurationIndexStoreTestScope } from "./storeTestScope"
 import type { ConfigurationIndexStore } from "./store"
+import { encodeConfigurationBlockFragments, iterateConfigurationBlockFragments } from "./fragment"
 
 const scope = new ConfigurationIndexStoreTestScope()
 
@@ -127,6 +128,32 @@ afterAll(async () => {
 })
 
 describe("configuration index publication", () => {
+  it("объединяет двоичные блоки по одному и откатывает пачку при повреждении её конца", async () => {
+    const projectDir = await scope.temporaryProject()
+    const candidate = await scope.candidate({ projectDir, operationId: "encoded-batch-rollback" })
+    const encoded = encodeConfigurationBlockFragments([
+      { targetProjectPath: "А.yaml", entities: [{ logicalAddress: "А", xmlId: "1" }] },
+      { targetProjectPath: "Б.yaml", entities: [{ logicalAddress: "Б", xmlId: "2" }] },
+    ])
+    const damaged = encoded.slice(0, -1)
+    let visited = 0
+    function* observedFragments() {
+      for (const fragment of iterateConfigurationBlockFragments(damaged)) {
+        visited += 1
+        yield fragment
+        expect(candidate.hasBlock("А.yaml")).toBe(true)
+      }
+    }
+    expect(() => candidate.mergeBlockFragments(observedFragments())).toThrow("Некорректный буфер")
+    expect(visited).toBe(1)
+    expect(candidate.hasBlock("А.yaml")).toBe(false)
+    candidate.mergeBlockFragments(iterateConfigurationBlockFragments(encoded))
+    expect(candidate.getBlocks(["А.yaml", "Б.yaml"])).toEqual(new Map([
+      ["А.yaml", { entities: [{ logicalAddress: "А", xmlId: "1" }] }],
+      ["Б.yaml", { entities: [{ logicalAddress: "Б", xmlId: "2" }] }],
+    ]))
+  })
+
   it("откатывает всю пачку фрагментов при конфликте", async () => {
     const projectDir = await scope.temporaryProject()
     const candidate = await scope.candidate({ projectDir, operationId: "batch-rollback" })

@@ -18,7 +18,7 @@ import type {
   ElementType,
 } from "../../../ruleRuntime/formElement/types"
 import type { ImportFromXMLToYAMLFunction } from "@nkdk/runtime/rule-kit"
-import { createMetadataCollectionFrame, ExecutionPath } from "@nkdk/runtime/rule-kit"
+import { createMetadataCollectionFrame } from "@nkdk/runtime/rule-kit"
 import {
   definePropertyTypeRule,
   propertyTypesFromContributions,
@@ -64,7 +64,7 @@ export const importChildItemsFromXMLToYAML: ImportFromXMLToYAMLFunction = ({ con
   const collection = getConfigurationIndexCollectionContext(context)
   const parentItemType = traversal.rulePath.findLast(segment => segment.nestedItemType !== undefined)?.nestedItemType
   const contextMenuItems = rule.type === "CommandBarChildItems" && parentItemType === "ContextMenu"
-  const path = ExecutionPath.from(traversal.yamlPath)
+  const path = traversal.pathCursor
   const frame = createMetadataCollectionFrame({
     descriptor, propertyRule: rule, path,
     prepareContext(item) {
@@ -114,7 +114,7 @@ export const importChildItemsFromXMLToYAML: ImportFromXMLToYAMLFunction = ({ con
       traversal: {
         ...traversal,
         ...(traversal.mode === "facts" ? { produceResult: false } : {}),
-        yamlPath: item.path.toArray(),
+        pathCursor: item.path,
         xmlNodes: [itemXmlNode],
       },
     })

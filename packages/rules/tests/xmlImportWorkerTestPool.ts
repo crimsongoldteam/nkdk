@@ -7,7 +7,6 @@ import type { ProjectStateSharedBuffers } from "../metadata/projectState/binary/
 import { createProjectStateWriterHandle } from "../metadata/projectState/writerHandle"
 import { createProjectStateDependencyValidator } from "../metadata/validation/projectStateDependencyValidation"
 import { createMockWorkerThreadPoolFactory } from "./mockWorkerThreadPool"
-import { permissiveValidationSchemaCache } from "./permissiveValidationSchemaCache"
 import { metadataRules } from "../metadata/composition/metadataRules"
 import {
   createMetadataExecutionRegistrySets,
@@ -52,15 +51,7 @@ export function createInspectableXmlImportWorkerTestPool(concurrency = 1): {
     async (command, workerIndex) => {
       const worker = workers.get(workerIndex) ?? createImportWorkerCommandRunner()
       workers.set(workerIndex, worker)
-      return withMetadataExecutionRegistrySets(registries[workerIndex]!, async () => {
-        if (command.kind !== "initialize") return worker.run(command)
-        worker.setSchemaCacheForTests(permissiveValidationSchemaCache)
-        try {
-          return await worker.run(command)
-        } finally {
-          worker.setSchemaCacheForTests(undefined)
-        }
-      })
+      return withMetadataExecutionRegistrySets(registries[workerIndex]!, () => worker.run(command))
     },
   )
   return {

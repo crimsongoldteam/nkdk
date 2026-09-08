@@ -20,6 +20,7 @@ export {
   createConfigurationIndexFragmentBuilder,
   decodeConfigurationBlockFragments,
   encodeConfigurationBlockFragments,
+  iterateConfigurationBlockFragments,
   mergeConfigurationIndexFragments,
   type ConfigurationIndexFragmentBuilder,
 } from "@nkdk/runtime"

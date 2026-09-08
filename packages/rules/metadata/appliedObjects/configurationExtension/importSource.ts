@@ -12,6 +12,11 @@ export class ImportSourceReader {
     return isXmlElementNode(source) ? this.index(source).has(name) : importSourceHasProperty(source, name)
   }
 
+  entries(source: unknown): Iterable<readonly [string, unknown]> {
+    if (isXmlElementNode(source)) return this.index(source).entries()
+    return source !== null && typeof source === "object" && !Array.isArray(source) ? Object.entries(source) : []
+  }
+
   private index(source: XmlElementNode): Map<string, XmlElementNode | XmlElementNode[]> {
     const cached = this.children.get(source)
     if (cached !== undefined) return cached

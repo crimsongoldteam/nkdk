@@ -207,7 +207,7 @@ function collectNested(params: {
   })
 }
 
-function readPrimaryDataPath(
+export function readPrimaryDataPath(
   record: Record<string, unknown>,
   rule: MetadataItemRule
 ): FormYAMLElementVisit["primaryDataPath"] {
@@ -220,10 +220,16 @@ function readPrimaryDataPath(
   }
 }
 
+const primaryDataPathRules = new WeakMap<MetadataItemRule, DataPathPropertyRule | null>()
+
 export function primaryFormDataPathRule(rule: MetadataItemRule): DataPathPropertyRule | undefined {
-  return Object.values(rule.properties).find(
+  const cached = primaryDataPathRules.get(rule)
+  if (cached !== undefined) return cached ?? undefined
+  const selected = Object.values(rule.properties).find(
     (propertyRule): propertyRule is DataPathPropertyRule => isDataPathRule(propertyRule) && propertyRule.yaml === "ПутьКДанным",
   )
+  primaryDataPathRules.set(rule, selected ?? null)
+  return selected
 }
 
 function arrayEntries(value: unknown): Array<[number, unknown]> {

@@ -29,7 +29,7 @@ export const importStructureItemGroupFromXMLToYAML: ImportFromXMLToYAMLFunction 
     const type = xmlNode === undefined ? group?.["_xsi:type"] : xmlAttributeValue(xmlNode, "xsi:type")
     if (type !== "dcsset:StructureItemGroup") return
     const flatIndex = result.length
-    const yamlPath = [...traversal.yamlPath, flatIndex]
+    const pathCursor = traversal.pathCursor.child(flatIndex)
     const nodeContext = contextForStructureNode(context, flatIndex)
     const groupItemsContext = contextForYamlProperty(nodeContext, "ПоляГруппировки")
     const groupItems = objectRecordOrUndefined(group?.["dcsset:groupItems"])?.["dcsset:item"]
@@ -40,7 +40,7 @@ export const importStructureItemGroupFromXMLToYAML: ImportFromXMLToYAMLFunction 
       xmlNode,
       groupItemsNode,
       traversal,
-      yamlPath,
+      pathCursor,
     })
     const groupItemNodes = groupItemsNode === undefined
       ? undefined
@@ -53,7 +53,7 @@ export const importStructureItemGroupFromXMLToYAML: ImportFromXMLToYAMLFunction 
       name,
       traversal: {
         ...groupItemsTraversal,
-        yamlPath,
+        pathCursor,
         ...(groupItemNodes === undefined ? {} : { xmlNodes: groupItemNodes }),
       },
     })
@@ -69,7 +69,7 @@ export const importStructureItemGroupFromXMLToYAML: ImportFromXMLToYAMLFunction 
           itemType: "StructureItemGroup",
           propertyKey: "item",
           propertyType: "StructureItemGroup",
-          yamlPath: [...traversal.yamlPath, result.length],
+          yamlPath: traversal.pathCursor.child(result.length).toArray(),
           rulePath: [...traversal.rulePath, { propertyKey: "item" }],
         })
       }
@@ -115,13 +115,13 @@ function claimKnownGroupStructure(params: {
   xmlNode?: XmlElementNode
   groupItemsNode?: XmlElementNode
   traversal: Parameters<ImportFromXMLToYAMLFunction>[0]["traversal"]
-  yamlPath: readonly (string | number)[]
+  pathCursor: Parameters<ImportFromXMLToYAMLFunction>[0]["traversal"]["pathCursor"]
 }): void {
   const audit = params.traversal.audit
   if (audit === undefined) return
   const boundary = {
     itemType: "StructureItemGroup",
-    yamlPath: [...params.yamlPath],
+    yamlPath: params.pathCursor.toArray(),
     rulePath: params.traversal.rulePath,
   }
   if (params.groupItemsNode !== undefined) audit.claim(params.groupItemsNode, boundary)

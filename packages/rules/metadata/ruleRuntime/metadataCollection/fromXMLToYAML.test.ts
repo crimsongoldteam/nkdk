@@ -1,4 +1,5 @@
 import { beforeAll, describe, expect, it, vi } from "vitest"
+import { createTestImportTraversal } from "../../../tests/importTraversal"
 import { mockContextFromXML } from "../../../tests/mockContext"
 import {
   createConfigurationIndexCollector,
@@ -24,6 +25,7 @@ import type { MetadataItemRule } from "../property/types"
 import { importMetadataItemFromXMLToYAML } from "../metadataItem/fromXMLToYAML"
 import { registerMetadataItemCollectionRule } from "./ruleFactory"
 import { importMetadataItemCollectionFromXMLToYAML } from "./fromXMLToYAML"
+import { ExecutionPath } from "@nkdk/runtime/rule-kit"
 import {
   captureTestXmlImport,
   createFailingXmlImportAttempt,
@@ -41,6 +43,23 @@ const itemRule = {
   },
 } as MetadataItemRule
 
+it("не материализует пути элементов без YAML и сохраняемых фактов", () => {
+  const root = parseXmlDocumentWithSaxes(`<Items>${"<Item><Content/></Item>".repeat(128)}</Items>`).roots[0]!
+  const materialize = vi.spyOn(ExecutionPath.prototype, "toArray")
+  try {
+    const yaml = importMetadataItemCollectionFromXMLToYAML({
+      context: mockContextFromXML(),
+      rule: { type: "TestArrayCollection" as PropertyRuleType, xml: "Item", yaml: "Элементы" },
+      xml: root, itemRule: { itemType: "EmptyEnvelope", properties: {
+        content: { type: "XMLRoot", container: "Content" },
+      } }, xmlElement: "Item", yamlAsArray: true,
+      traversal: { pathCursor: ExecutionPath.from<string | number>([]), rulePath: [], collector: createLocalIndexesCollector() },
+    })
+    expect(yaml).toBeUndefined()
+    expect(materialize).not.toHaveBeenCalled()
+  } finally { materialize.mockRestore() }
+})
+
 it("возвращает окончательное значение именованного элемента до закрытия его границы", () => {
   const root = parseXmlDocumentWithSaxes("<Item><Name>Первый</Name><Value>a</Value></Item>").roots[0]!
   let completed: Record<string, unknown> | undefined
@@ -49,7 +68,7 @@ it("возвращает окончательное значение имено�
     rule: { type: "TestRecordCollection" as PropertyRuleType, xml: "Item", yaml: "Элементы" },
     xml: root, itemRule, xmlElement: "Item", keyField: "name",
     traversal: {
-      yamlPath: [], rulePath: [], collector: createLocalIndexesCollector(),
+      pathCursor: ExecutionPath.from<string | number>([]), rulePath: [], collector: createLocalIndexesCollector(),
       roundTrip: { open({ yaml }) { return {
         ready() {},
         finish() { completed = yaml; Object.freeze(yaml) },
@@ -134,7 +153,7 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
       xml: parseXmlDocumentWithSaxes("<Items/>").roots[0],
       itemRule: { itemType: itemRule.itemType, get properties() { reads++; return itemRule.properties } },
       xmlElement: "Item", keyField: "name",
-      traversal: { yamlPath: [], rulePath: [], collector: createLocalIndexesCollector() },
+      traversal: { pathCursor: ExecutionPath.from<string | number>([]), rulePath: [], collector: createLocalIndexesCollector() },
     })
     expect(yaml).toBeUndefined()
     expect(reads).toBe(0)
@@ -163,7 +182,7 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
       xml: roots,
       itemRule: { itemType: "StreamingArrayItem", properties: { value: { type: valueType, xml: "Value", yaml: "Значение" } } },
       xmlElement: "Item", yamlAsArray: true,
-      traversal: { mode: "facts", facts, yamlPath: ["Элементы"], rulePath: [], collector: createLocalIndexesCollector() },
+      traversal: { mode: "facts", facts, pathCursor: ExecutionPath.from<string | number>(["Элементы"]), rulePath: [], collector: createLocalIndexesCollector() },
     })
     expect(result).toEqual([{ Значение: "a" }, { Значение: "b" }])
     // Совпадающее исходное и окончательное значение хранится одним фактом.
@@ -185,7 +204,7 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
         rule: { type: "TestRecordCollection" as PropertyRuleType, xml: "Item", yaml: "Элементы" },
         xml: document.roots, itemRule, xmlElement: "Item", keyField: "name",
         recordYamlKeyFromYAML: ({ yaml, name }) => `${name}-${yaml.Значение}`,
-        traversal: { mode: "facts", facts, yamlPath: [], rulePath: [], collector: createLocalIndexesCollector() },
+        traversal: { mode: "facts", facts, pathCursor: ExecutionPath.from<string | number>([]), rulePath: [], collector: createLocalIndexesCollector() },
       })
       expect(yaml).toEqual({ "Первый-a": { Значение: "a" }, "Второй-b": { Значение: "b" } })
       expect(facts.finish()).toContainEqual(expect.objectContaining({ yamlPath: ["Второй-b", "Значение"], value: "b" }))
@@ -205,7 +224,7 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
       context: withConfigurationIndexCollector(mockContextFromXML(), index, "Владелец.A"),
       rule: { type: "TestRecordCollection" as PropertyRuleType, xml: "Item", yaml: "Элементы" },
       xml: document.roots[0], itemRule, xmlElement: "Item", keyField: "name",
-      traversal: { yamlPath: [], rulePath: [], collector: createLocalIndexesCollector() },
+      traversal: { pathCursor: ExecutionPath.from<string | number>([]), rulePath: [], collector: createLocalIndexesCollector() },
     })
     expect(yaml).toEqual({ Первый: { Значение: "a" } })
     expect(index.fragment("test.yaml").entities).toContainEqual(expect.objectContaining({
@@ -227,7 +246,7 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
       itemRule,
       xmlElement: "Item",
       keyField: "name",
-      traversal: { yamlPath: [], rulePath: [], xmlNodes: document.roots, collector: createLocalIndexesCollector() },
+      traversal: { pathCursor: ExecutionPath.from<string | number>([]), rulePath: [], xmlNodes: document.roots, collector: createLocalIndexesCollector() },
     })
     expect(yaml).toEqual({ Первый: { Значение: "a" }, Второй: { Значение: "b" } })
   })
@@ -349,13 +368,7 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
         },
       } as MetadataItemRule,
       xml: root,
-      traversal: {
-        yamlPath: [],
-        rulePath: [],
-        collector: createLocalIndexesCollector(),
-        audit,
-        annotations,
-      },
+      traversal: createTestImportTraversal({ audit, annotations }),
     }) as Record<string, unknown>
 
     expect(yaml).toEqual({
@@ -372,12 +385,12 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
     const failedType = "TestNestedBufferedFailure" as PropertyRuleType
     const collectionType = "TestNestedBufferedCollection" as PropertyRuleType
     registerTypeRule(failedType, "importFromXMLToYAML", ({ traversal }) => {
-      traversal.deferred?.accept({ valuePath: traversal.yamlPath, rulePath: traversal.rulePath })
+      traversal.deferred?.accept({ valuePath: traversal.pathCursor.toArray(), rulePath: traversal.rulePath })
       traversal.dependent?.accept({
         itemType: "TestNestedBufferedItem",
         itemYamlPath: ["Элементы", "Первый"],
         propertyKey: "broken",
-        yamlPath: traversal.yamlPath,
+        yamlPath: traversal.pathCursor.toArray(),
         xmlValue: "broken",
         presentInXML: true,
       })
@@ -896,13 +909,7 @@ function importRawRecordCollection(params: {
       },
     } as MetadataItemRule,
     xml: root,
-    traversal: {
-      yamlPath: [],
-      rulePath: [],
-      collector: createLocalIndexesCollector(),
-      audit,
-      annotations,
-    },
+    traversal: createTestImportTraversal({ audit, annotations }),
   }) as Record<string, unknown>
   return { items: yaml.Элементы as Record<string, unknown>, annotations, audit }
 }

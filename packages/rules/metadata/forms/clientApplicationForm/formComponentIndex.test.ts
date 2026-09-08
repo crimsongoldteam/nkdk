@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import "../../../tests/metadataExecutionContext"
 import { indexClientApplicationFormComponents } from "./formComponentIndex"
 
 describe("индекс компонентов формы", () => {

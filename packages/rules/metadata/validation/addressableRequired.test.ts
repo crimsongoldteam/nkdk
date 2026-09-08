@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest"
-import { parseMetadataYaml } from "@nkdk/runtime"
+import { parseMetadataYaml, parsedYamlFromKnownData, createXmlAnomalyAnnotations } from "@nkdk/runtime"
 import { defineMetadataItemCollectionRule } from "../ruleRuntime/metadataCollection/ruleFactory"
 import { composeMetadataRules, createPropertyRuleRegistrySet, withPropertyRuleRegistrySet } from "@nkdk/runtime/rule-kit"
 import type { MetadataItemRule } from "../ruleRuntime/property/types"
-import { collectAddressableRequiredChecks } from "./addressableRequired"
+import { collectAddressableRequiredChecks, collectAddressableBoundaryRequiredCheck } from "./addressableRequired"
 
 const addressableChildRule = {
   itemType: "RequiredAddressableChild",
@@ -41,6 +41,26 @@ const rootRule = {
 } as const satisfies MetadataItemRule
 
 describe("collectAddressableRequiredChecks", () => {
+  it("keeps the original name of an anomalous duplicate in a required check", () => {
+    const cubes = { Повтор: { ОбязательноеПоле: "Есть" }, runtime: {} }
+    const yaml = { ОбязательноеПолеКорня: "Есть", Кубы: cubes }
+    const annotations = createXmlAnomalyAnnotations()
+    annotations.setKey(cubes, "runtime", { kind: "invalid", target: "key", logicalKey: "Повтор", occurrence: 1 })
+    const result = withPropertyRuleRegistrySet(requiredRules, () => collectAddressableRequiredChecks({
+      yaml, parsed: parsedYamlFromKnownData("", yaml, annotations), rule: rootRule,
+      filePath: "Источник.yaml", canonicalTarget: "ExternalDataSource.Источник",
+    }))
+    expect(result).toEqual([expect.objectContaining({ canonicalTarget: "ExternalDataSource.Источник.Cube.Повтор",
+      yamlPath: ["Кубы", "runtime"], missing: ["ОбязательноеПоле"],
+    })])
+  })
+  it("collects only the current boundary without reading child values", () => {
+    const yaml = { get Кубы() { throw new Error("Вложенное значение не нужно читать") } }
+    const parsed = parseMetadataYaml("{}")
+    expect(collectAddressableBoundaryRequiredCheck({ yaml, parsed, rule: rootRule,
+      filePath: "Источник.yaml", yamlPath: [], canonicalTarget: "ExternalDataSource.Источник",
+    })?.missing).toEqual(["ОбязательноеПолеКорня"])
+  })
   it("defers a missing direct required field of the file target", () => {
     expect(checks("{}\n")).toEqual([
       expect.objectContaining({

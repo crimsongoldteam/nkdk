@@ -1,3 +1,4 @@
+import { ExecutionPath } from "@nkdk/runtime/rule-kit"
 import { describe, expect, it } from "vitest"
 import "../../../tests/metadataExecutionContext"
 import { mockContextFromXML } from "../../../tests/mockContext"
@@ -29,6 +30,23 @@ import { MetadataWebServiceOperationRules } from "../../commonObjects/metadataWe
 import { directPropertyRuleExecution, testMetadataItemFromXMLToYAML } from "../../../tests/directConversion"
 
 describe("configuration extension PropertyState augmenter", () => {
+  it("после подготовки не перебирает отсутствующие свойства пустого объекта", () => {
+    let reads = 0
+    const rule = { ...MetadataCatalogRules, properties: new Proxy(MetadataCatalogRules.properties, {
+      get(target, key, receiver) { reads++; return Reflect.get(target, key, receiver) },
+    }) }
+    const params = { rule, context: extensionContext(), source: parseStructuralXMLWithoutCompatibility(
+      "<Catalog><Properties><ObjectBelonging>Adopted</ObjectBelonging></Properties></Catalog>",
+    ) }
+    withOperationRegistrySet({ propertyStates: createPropertyStateCapabilityRegistry(configurationExtensionPropertyStateCapabilities) }, () => {
+      configurationExtensionPropertyStatesAugmenter.yamlDependencies(params)
+      configurationExtensionPropertyStatesAugmenter.augment({ ...params, yaml: {} })
+      reads = 0
+      configurationExtensionPropertyStatesAugmenter.yamlDependencies(params)
+      configurationExtensionPropertyStatesAugmenter.augment({ ...params, yaml: {} })
+      expect(reads).toBeLessThan(10)
+    })
+  })
   it("получает XML-узел из скомпилированного импорта объекта без compatibility", () => {
     const rule: MetadataItemRule = {
       itemType: "StructuralAugmenterProbe",
@@ -40,7 +58,7 @@ describe("configuration extension PropertyState augmenter", () => {
     const yaml = importMetadataItemFromXMLToYAML({
       context: extensionContext(), rule,
       xml: parseStructuralXMLWithoutCompatibility("<Object><Properties><ObjectBelonging>Adopted</ObjectBelonging><Value>Текст</Value></Properties></Object>"),
-      traversal: { yamlPath: [], rulePath: [], collector: createLocalIndexesCollector(), execution: createRuleRegistrySet(metadataRules).execution },
+      traversal: { pathCursor: ExecutionPath.from<string | number>([]), rulePath: [], collector: createLocalIndexesCollector(), execution: createRuleRegistrySet(metadataRules).execution },
     })
     expect(yaml).toEqual({ Значение: "Текст", ОбъектРасширяемойКонфигурации: {} })
   })

@@ -12,6 +12,7 @@ export interface ExtensionPropertyItem {
 export function joinExchangePlanExtensionContent(
   items: readonly Readonly<Record<string, unknown>>[],
   states: readonly ExtensionPropertyItem[],
+  onCreatedItem?: (item: Record<string, unknown>, index: number) => void,
 ): Record<string, unknown>[] {
   const itemByMetadata = uniqueByMetadata(items, "состава")
   const stateByMetadata = uniqueStates(states)
@@ -25,12 +26,13 @@ export function joinExchangePlanExtensionContent(
       throw new Error(`Для элемента состава «${metadata}» не задан режим ExtensionProperty`)
     }
   }
-  return states.map(({ metadata, state }) => {
+  return states.map(({ metadata, state }, index) => {
     const source = itemByMetadata.get(metadata)
     const item = source === undefined
       ? { Метаданные: metadata, Использовать: "Ложь" }
       : cloneItem(source)
     if (state === "Modify") markYAMLScalarTag(item, "Метаданные", "изменять")
+    if (source === undefined) onCreatedItem?.(item, index)
     return item
   })
 }

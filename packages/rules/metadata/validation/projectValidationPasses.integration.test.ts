@@ -73,6 +73,37 @@ describe("validateProjectFileFirstPass references", () => {
     return properties
   }
 
+  it.each([
+    { text: "Синоним: Описание", invalid: false },
+    { text: "Синоним: Таблица", invalid: true },
+    { text: "Синоним: Источник", invalid: false },
+    { text: "Синоним:\n  en: Title\n  ru: Описание", invalid: true },
+    { text: "Синоним:\n  ru: Описание\n  en: Title", invalid: false },
+  ])("проверяет собственное правило и имя таблицы: $text", ({ text, invalid }) => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-table-language-"))
+    tempDirs.push(projectDir)
+    const projectPath = "ВнешнийИсточникДанных/Источник/Таблицы/Таблица/Свойства.yaml"
+    writeProjectFile(projectDir, projectPath, text)
+    const first = validateProjectPath(projectDir, projectPath)
+    expect(first.validationContextDependencies).toEqual([{ key: "languages", version: mockContext.languages.version }])
+    expect(first.diagnostics.some(diagnostic => diagnostic.source === "structure")).toBe(invalid)
+  })
+
+  it("сохраняет договор properties без включения новых структурных проверок", () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-final-object-structure-"))
+    tempDirs.push(projectDir)
+    const projectPath = "Справочник/Товары/Свойства.yaml"
+    writeProjectFile(projectDir, projectPath, "Синоним: Описание товаров\nОсновнаяФормаОбъекта: Справочник.Товары.Форма.Основная")
+    const file = resolveValidationProjectFile(projectDir, join(projectDir, projectPath))!
+    const first = validateProjectFileFirstPass({ projectDir, file,
+      cache: createProjectYamlCache(), context: mockContext, schemaCache: sharedSchemaCache, rulesSnapshot,
+      runtime: { ...appliedObjectRuntime, propertyStates: createPropertyStateCapabilityRegistry(configurationExtensionPropertyStateCapabilities) },
+    })
+    expect(first.structuredDocuments).toBeUndefined()
+    expect(first.pendingReferences).toHaveLength(1)
+    expect(first.pendingReferences[0]!.propertyStateMode).toBeUndefined()
+  })
+
   const expectPropertyStateRejected = (
     projectDir: string,
     component: ReturnType<typeof createValidationProjectComponent>,

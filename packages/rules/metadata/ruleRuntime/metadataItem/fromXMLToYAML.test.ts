@@ -1,3 +1,5 @@
+import { ExecutionPath } from "@nkdk/runtime/rule-kit"
+import { createTestImportTraversal } from "../../../tests/importTraversal"
 import { describe, expect, it } from "vitest"
 import "../../../tests/metadataExecutionContext"
 import { mockContextFromXML, mockXmlImportContext } from "../../../tests/mockContext"
@@ -39,7 +41,7 @@ describe("importMetadataItemFromXMLToYAML", () => {
     expect(importMetadataItemFromXMLToYAML({
       context: mockContextFromXML(), xml: root,
       rule: { itemType: "StructuralParent", properties: { child: { type, xml: "Child", yaml: "Ребёнок" } } } as MetadataItemRule,
-      traversal: { yamlPath: [], rulePath: [], collector: createLocalIndexesCollector() },
+      traversal: { pathCursor: ExecutionPath.from<string | number>([]), rulePath: [], collector: createLocalIndexesCollector() },
     })).toEqual({ Ребёнок: { Имя: "Пример" } })
   })
 
@@ -63,7 +65,7 @@ describe("importMetadataItemFromXMLToYAML", () => {
       rule: { itemType: "StructuralItem", properties: { name: { type: "string", xml: "Name", yaml: "Имя" } } } as MetadataItemRule,
       xml: node,
       traversal: {
-        yamlPath: [], rulePath: [], collector: createLocalIndexesCollector(), annotations,
+        pathCursor: ExecutionPath.from<string | number>([]), rulePath: [], collector: createLocalIndexesCollector(), annotations,
         ...(audited ? { audit: createXmlImportAuditSession([node]) } : {}),
       },
     })
@@ -176,7 +178,7 @@ describe("importMetadataItemFromXMLToYAML", () => {
         Sibling: { Probe: "Sibling" },
       },
       traversal: {
-        yamlPath: [],
+        pathCursor: ExecutionPath.from<string | number>([]),
         rulePath: [],
         collector: createLocalIndexesCollector(),
       },
@@ -547,13 +549,7 @@ function importAuditedMetadataItem(
     context: { ...mockContextFromXML(), exportToYAML: { toTyped: true } },
     rule,
     xml: root,
-    traversal: {
-      yamlPath: [],
-      rulePath: [],
-      collector: createLocalIndexesCollector(),
-      audit,
-      annotations,
-    },
+    traversal: createTestImportTraversal({ audit, annotations }),
   }) as Record<string, unknown>
   return { yaml, annotations }
 }
@@ -580,6 +576,6 @@ function runMetadataItemRule(
       context: extensionContext,
       rule,
       xml,
-      traversal: { yamlPath: [], rulePath: [], collector },
+      traversal: { pathCursor: ExecutionPath.from<string | number>([]), rulePath: [], collector },
     }))
 }

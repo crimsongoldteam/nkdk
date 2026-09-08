@@ -748,6 +748,22 @@ describe("единое восстановление XML-аномалий assignm
     expect(xml).toContain("<BaseForm")
   })
 
+  it("не создаёт DataPath для явно пустого смыслового пути без raw", () => {
+    const xml = exportFormWithAnomalies([
+      "Реквизиты:",
+      "  Объект:",
+      "    Тип: CatalogObject.Товары",
+      "    ОсновнойРеквизит: Истина",
+      "Элементы:",
+      "  Код:",
+      "    Вид: ПолеНадписи",
+      '    ПутьКДанным: ""',
+    ], true)
+
+    expect(xml).not.toContain("<DataPath")
+    expect(xml).toContain("<LabelField")
+  })
+
   it("разрешает логическое имя локального raw через PropertyRule элемента формы", () => {
     const prepared = prepareAnomalies(
       tableRowFilterYaml().join("\n"),

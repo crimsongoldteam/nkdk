@@ -1,12 +1,24 @@
 import { createXmlAnomalyAnnotations } from "@nkdk/runtime"
+import "../../tests/metadataExecutionContext"
 import { describe, expect, it } from "vitest"
 import { MetadataCatalogRules } from "../appliedObjects/metadataCatalog/rules"
 import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
 import type { PreparedImportYaml } from "./prepareYaml"
-import { extractImportOwnerFacts } from "./ownerFacts"
+import { collectFinalOwnerFactValues, extractImportOwnerFacts } from "./ownerFacts"
+import { createRuleRegistrySet } from "@nkdk/runtime/rule-kit"
+import { metadataRules } from "../composition/metadataRules"
 import type { ImportAssignment } from "./types"
 
 describe("extractImportOwnerFacts", () => {
+  it("нормализует только объявленные свойства владельца, не читая постороннее содержимое", () => {
+    const yaml = { Реквизиты: { ИНН: { get Комментарий(): never { throw new Error("child content read") } } },
+      get Комментарий(): never { throw new Error("unselected root value") },
+    }
+    const facts = collectFinalOwnerFactValues({ rule: MetadataCatalogRules, yaml,
+      execution: createRuleRegistrySet(metadataRules).execution, annotations: createXmlAnomalyAnnotations() })
+    expect(facts.attributes).toEqual([{ name: "ИНН" }])
+    expect(facts.owners).toEqual([])
+  })
   it("читает только выбранные факты владельца без YAML-представления", () => {
     const prepared = {
       ...preparedYaml({ assignment: catalogAssignment(), rule: MetadataCatalogRules, ownerFacts: {} }),

@@ -1,3 +1,4 @@
+import { ExecutionPath } from "@nkdk/runtime/rule-kit"
 import { describe, expect, it } from "vitest"
 import {
   createXmlAnomalyAnnotations,
@@ -37,7 +38,7 @@ describe("export FilterItem to YAML", () => {
     }
     expect(importFilterItemFromXMLToYAML({
       context: mockContextFromXML(), rule, xml: undefined,
-      traversal: { yamlPath: [], rulePath: [], collector: createLocalIndexesCollector(), xmlNodes: [root] },
+      traversal: { pathCursor: ExecutionPath.from<string | number>([]), rulePath: [], collector: createLocalIndexesCollector(), xmlNodes: [root] },
     })).toEqual([{ ТипГруппы: "ГруппаИ" }])
   })
 

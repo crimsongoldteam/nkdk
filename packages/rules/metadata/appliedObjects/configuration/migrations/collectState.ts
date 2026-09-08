@@ -1,3 +1,4 @@
+import { ExecutionPath } from "@nkdk/runtime/rule-kit"
 import fs from "fs"
 import { basename, join } from "path"
 import type { ConfigurationContext, ConfigurationContextFromXML } from "@nkdk/runtime"
@@ -115,7 +116,7 @@ export async function collectStructuralStateFromXML(params: {
         rule,
         name,
         traversal: {
-          yamlPath: [],
+          pathCursor: ExecutionPath.from<string | number>([]),
           rulePath: [],
           collector: createLocalIndexesCollector(),
         },

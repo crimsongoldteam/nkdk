@@ -23,6 +23,22 @@ const registriesWithImport = (handler: ImportFromXMLFunction) =>
   }))
 
 describe("CompiledPropertyPlan", () => {
+  it("выбирает присутствующие поля в готовом XML-порядке через границы 32-битных слов", () => {
+    const execution = createPropertyRuleExecutor(registriesWithImport((_context, _rule, value) => value))
+    const rule: MetadataItemRule = { itemType: "Sparse", properties: Object.fromEntries(
+      Array.from({ length: 96 }, (_, index) => [`value${index}`, {
+        type: "Sample", yaml: `Поле${index}`,
+        ...(index === 8 ? { defaultValueXML: "default" } : {}),
+      }]),
+    ) }
+    const plan = execution.propertyPlan(rule)
+    const selected = plan.selectedYAMLExportOrder({ Поле95: 1, Поле32: 2, Поле31: 3, Поле0: 4 }, ["value63", "value32"])
+    expect(selected.map(property => property.propertyKey)).toEqual([
+      "value0", "value8", "value31", "value32", "value63", "value95",
+    ])
+    expect(plan.selectedYAMLExportOrder({}, [])).toBe(plan.emptyYAMLExportOrder())
+  })
+
   it.each([false, true])("отдаёт одиночному item XML-узел при наличии импортного договора: %s", (hasImportRule) => {
     const itemRule: MetadataItemRule = { itemType: "Child", properties: {} }
     const registries = createPropertyRuleRegistrySet(defineMetadataRules({
@@ -156,6 +172,7 @@ describe("CompiledPropertyPlan", () => {
       "propertiesByKey",
       "registryRevision",
       "rule",
+      "selectedYAMLExportOrder",
       "xmlImportView",
       "yamlOrder",
       "yamlToXMLOrder",

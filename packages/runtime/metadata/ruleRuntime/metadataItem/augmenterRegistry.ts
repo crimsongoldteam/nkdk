@@ -17,6 +17,8 @@ export interface MetadataItemXmlImportVariantParams {
 
 export interface MetadataItemXmlImportAugmentParams extends MetadataItemXmlImportVariantParams {
   yaml: Record<string, unknown>
+  /** Только новые смысловые объекты; их XML проверяет содержащая граница. */
+  onCreatedItem?(item: { readonly yaml: Record<string, unknown>; readonly rule: MetadataItemRule; readonly yamlPath: readonly (string | number)[] }): void
 }
 
 export interface MetadataItemXmlImportAugmenterContribution {

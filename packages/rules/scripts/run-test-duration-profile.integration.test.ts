@@ -1,11 +1,31 @@
 import fs from "node:fs"
+import { execFileSync } from "node:child_process"
 import os from "node:os"
-import { join } from "node:path"
-import { afterEach, describe, expect, it } from "vitest"
+import { join, resolve } from "node:path"
+import { afterEach, beforeAll, describe, expect, it } from "vitest"
 // @ts-expect-error CLI-модуль остаётся JavaScript без декларации типов.
 import { parseProfileArguments, runTestDurationProfile } from "./run-test-duration-profile.mjs"
 
 const temporaryDirectories: string[] = []
+let profileConfiguration: { seed: number; shuffle: boolean; groups: number[] }
+
+beforeAll(() => {
+  profileConfiguration = JSON.parse(execFileSync(process.execPath, ["--input-type=module", "-e", `
+    import { createVitest } from "vitest/node";
+    const vitest = await createVitest("test", { root: process.cwd(), watch: false, isolate: false });
+    try {
+      console.log(JSON.stringify({
+        seed: vitest.config.sequence.seed,
+        shuffle: vitest.config.sequence.shuffle,
+        groups: vitest.projects.map(project => project.config.sequence.groupOrder),
+      }));
+    } finally { await vitest.close(); }
+  `], {
+    cwd: resolve(import.meta.dirname, ".."),
+    env: { ...process.env, NKDK_TEST_PROFILE_SEED: "20260731" },
+    encoding: "utf8",
+  }))
+})
 
 afterEach(() => {
   for (const directory of temporaryDirectories.splice(0)) {
@@ -14,6 +34,13 @@ afterEach(() => {
 })
 
 describe("run test duration profile", () => {
+  it("перемешивает тесты воспроизводимо, сохраняя последовательные группы проектов", () => {
+    expect(profileConfiguration.seed).toBe(20260731)
+    expect(profileConfiguration.shuffle).toBe(true)
+    expect(profileConfiguration.groups.length).toBeGreaterThan(1)
+    expect(new Set(profileConfiguration.groups).size).toBe(profileConfiguration.groups.length)
+  })
+
   it("uses three runs and a 10 ms threshold", () => {
     expect(parseProfileArguments(["--", "--output", "reports/test-profile/current.json"])).toEqual({
       output: "reports/test-profile/current.json",
@@ -38,8 +65,9 @@ describe("run test duration profile", () => {
     const status = runTestDurationProfile(
       projectRoot,
       parseProfileArguments(["--output", "reports/test-profile/current.json"]),
-      (_command: string, args: string[]) => {
-        const seed = args.find((argument) => argument.startsWith("--sequence.seed="))!.split("=")[1]!
+      (_command: string, args: string[], options: { env: NodeJS.ProcessEnv }) => {
+        expect(args.some((argument) => argument.startsWith("--sequence."))).toBe(false)
+        const seed = options.env.NKDK_TEST_PROFILE_SEED!
         const output = args.find((argument) => argument.startsWith("--outputFile.json="))!.split("=")[1]!
         seeds.push(seed)
         fs.mkdirSync(join(output, ".."), { recursive: true })

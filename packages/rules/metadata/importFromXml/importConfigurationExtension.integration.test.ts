@@ -1,7 +1,9 @@
 import {
 parseWithJsYaml,
 parseMetadataYaml,
+type XmlAnomalyAnnotations,
 } from "@nkdk/runtime"
+import * as compiledRules from "@nkdk/runtime/rule-kit"
 import {
 configurationIndexStoreDescriptor,
 openConfigurationIndexStore,
@@ -24,6 +26,17 @@ import { importConfigurationFromXml } from "./importConfiguration"
 import { withoutUnsupportedConfigurationExtensionPropertyStates } from "./configurationExtensionFixtureSupport"
 import * as formProofContexts from "../forms/clientApplicationForm/convertYAMLToXML"
 import * as formDataPathContexts from "../forms/clientApplicationForm/formDataPathContext"
+import * as boundaryReferences from "./boundaryReferences"
+import * as serializedValidation from "./serializedYamlValidation"
+import { projectStateFormEntries } from "../projectState/fileUpdate"
+import { observeFinalImportYamlFacts } from "../../tests/finalImportValidationProbe"
+import type { ProjectStateStructuredDocumentEntry } from "../projectState/fileUpdate"
+import type { PendingMetadataTargetReference } from "../validation/projectReferenceIndex"
+import type { ValidationPendingCheck } from "../validation/projectValidationPendingChecks"
+import { projectStatePendingCheck } from "../projectState/fileUpdate"
+import { ProjectStateSnapshotView } from "../projectState/binary/snapshot"
+import { createTypedProjectStateReader } from "../projectState/binary/typedReader"
+import { buildProjectStateYamlFileUpdate } from "../project/projectStateYamlUpdate"
 
 const fixtureDir = join(dirname(fileURLToPath(import.meta.url)), "__fixtures__", "configurationExtension")
 const ownExchangePlanFixtureDir = join(
@@ -59,6 +72,10 @@ let multipleWorkerYaml: Record<string, string>
 let rebuiltFormProofContexts = 0
 let preparedFormProofContexts = 0
 let reusedCurrentFormContext = false
+let importedReferenceModes: { canonical: string; mode: string | undefined }[] = []
+let ownChildHasPropertyState: boolean[] = []
+const referenceComparisons: { expected: readonly PendingMetadataTargetReference[]; actual: readonly PendingMetadataTargetReference[] }[] = []
+const checkComparisons: { expected: readonly ValidationPendingCheck[]; actual: readonly ValidationPendingCheck[] }[] = []
 
 afterAll(async () => {
   await Promise.all([
@@ -70,12 +87,87 @@ afterAll(async () => {
 })
 
 describe("configuration extension XML import", () => {
+  it("сохраняет окончательные проверки расширения без повторного сбора по YAML", () => {
+    expect(checkComparisons.length).toBeGreaterThan(0)
+    const values = (checks: readonly ValidationPendingCheck[]) => checks.map(projectStatePendingCheck)
+      .sort((left, right) => JSON.stringify(left.yamlPath).localeCompare(JSON.stringify(right.yamlPath)))
+    for (const { expected, actual } of checkComparisons) expect(values(actual)).toEqual(values(expected))
+  })
   beforeAll(async () => {
+    const serialized = vi.spyOn(serializedValidation, "validateSerializedProjectYaml")
+    const compile = compiledRules.createCompiledRuleExecution
+    const annotationByYaml = new WeakMap<object, XmlAnomalyAnnotations>()
+    let annotatedBeforeExport = 0
+    const proof = vi.spyOn(compiledRules, "createCompiledRuleExecution").mockImplementation(params => compile({
+      ...params,
+      prepare(item) {
+        const prepared = params.prepare(item)
+        if (prepared.annotations !== undefined) annotationByYaml.set(item.yaml, prepared.annotations)
+        return prepared
+      },
+      beforeFinish(item) {
+        params.beforeFinish?.(item)
+        if (item.yaml.ПутьКДанным !== "НеОбъявленное.Поле") return
+        expect(item.yamlPath.length).toBeGreaterThan(0)
+        expect(annotationByYaml.get(item.yaml)?.at(item.yaml, "ПутьКДанным")?.kind).toBe("invalid")
+        annotatedBeforeExport++
+      },
+    }))
     const rebuild = vi.spyOn(formProofContexts, "prepareClientApplicationFormProofContexts")
     const prepared = vi.spyOn(formProofContexts, "prepareClientApplicationFormProofContextsFromPrepared")
     const paths = vi.spyOn(formDataPathContexts, "prepareFormDataPathContext")
+    const references = vi.spyOn(boundaryReferences, "collectBoundaryReferenceFacts")
+    const metadataDocumentsByFile = new Map<string, readonly ProjectStateStructuredDocumentEntry[]>()
+    const observation = observeFinalImportYamlFacts(({ params: validationParams, expected: finalExpected, update }) => {
+        if (validationParams.isolated === true) {
+          const file = validationParams.file
+          expect(update).toEqual(buildProjectStateYamlFileUpdate({
+            projectDir: validationParams.projectDir, firstPass: finalExpected,
+            descriptor: { componentPath: file.componentPath, componentDir: file.componentDir,
+              rootProjectPath: file.rootProjectPath, projectPath: file.projectPath, role: file.kind, indexContribution: "isolated" },
+          }))
+        }
+        const actual = validationParams.facts
+        if (validationParams!.file.kind !== "form") expect(finalExpected.dependencies).toEqual([])
+        const { ref: _ref, filePath: _filePath, fieldIndex: _fieldIndex, ...ownerValues } = finalExpected.objectRecords[0]?.ownerFacts ?? {}
+        expect(actual.ownerFacts ?? {}).toEqual(ownerValues)
+        if (validationParams!.file.kind !== "form") {
+          metadataDocumentsByFile.set(validationParams!.file.rootProjectPath, finalExpected.structuredDocuments ?? [])
+        }
+        const components = (values: typeof finalExpected.structuredComponents) => [...(values ?? [])]
+          .sort((a, b) => JSON.stringify([a.componentKind, a.name, a.yamlPath]).localeCompare(JSON.stringify([b.componentKind, b.name, b.yamlPath])))
+        expect(components(actual.structuredComponents)).toEqual(components(finalExpected.structuredComponents))
+        expect(actual.localizedTextProperties > 0).toBe(finalExpected.validationContextDependencies !== undefined)
+        expect(projectStateFormEntries(actual.formIndex === undefined ? undefined : {
+          owner: { kind: validationParams!.file.owner.dir, name: validationParams!.file.owner.name }, index: actual.formIndex,
+        })).toEqual(projectStateFormEntries(finalExpected.form))
+        const objects = (entries: typeof finalExpected.objectIndexEntries) => [...entries].sort((a, b) => a.canonical.localeCompare(b.canonical))
+        expect(objects(actual.objectIndexEntries)).toEqual(objects(finalExpected.objectIndexEntries))
+        const addresses = (entries: typeof finalExpected.logicalAddresses) => [...(entries ?? [])].sort((a, b) => a.logicalAddress.localeCompare(b.logicalAddress))
+        expect(addresses(actual.logicalAddresses)).toEqual(addresses(finalExpected.logicalAddresses))
+        const expectedChecks = finalExpected.state.kind === "form" || finalExpected.state.kind === "properties"
+          ? finalExpected.state.pendingChecks : []
+        referenceComparisons.push({ expected: finalExpected.pendingReferences, actual: actual.references })
+        checkComparisons.push({ expected: expectedChecks, actual: actual.checks })
+    })
     try {
       importedExtension = await importExtension()
+      expect(serialized).not.toHaveBeenCalled()
+      expect(annotatedBeforeExport).toBeGreaterThan(0)
+      const snapshot = new ProjectStateSnapshotView((await projectState.createReadToken(importedExtension.projectDir)).buffers)
+      const reader = createTypedProjectStateReader(snapshot)
+      expect([...metadataDocumentsByFile.keys()].some(path => path.startsWith("cf/"))).toBe(true)
+      expect([...metadataDocumentsByFile.keys()].some(path => path.startsWith("cfe/"))).toBe(true)
+      for (const [path, documents] of metadataDocumentsByFile) {
+        const fileId = snapshot.findFile(path)
+        expect(fileId, path).toBeDefined()
+        const ordered = (values: typeof documents) => [...values].sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)))
+        expect(ordered(reader.structuredDocuments(fileId!)), path).toEqual(ordered(documents))
+      }
+      importedReferenceModes = references.mock.results.flatMap(result => result.type === "return"
+        ? result.value.references.map(reference => ({ canonical: reference.canonical, mode: reference.propertyStateMode })) : [])
+      ownChildHasPropertyState = references.mock.calls.filter(([input]) => input.name === "СобственныйРеквизит")
+        .map(([input]) => input.propertyStateCapability !== undefined)
       rebuiltFormProofContexts = rebuild.mock.calls.filter(([, params]) => params?.yaml !== undefined).length
       preparedFormProofContexts = prepared.mock.calls.filter(([, context]) => context !== undefined).length
       const seen = new Set<object>()
@@ -86,9 +178,13 @@ describe("configuration extension XML import", () => {
         return false
       })
     } finally {
+      serialized.mockRestore()
+      proof.mockRestore()
       rebuild.mockRestore()
       prepared.mockRestore()
       paths.mockRestore()
+      references.mockRestore()
+      observation.restore()
     }
     multipleWorkerExtension = await importExtension(multipleWorkers.handle, 3)
     const yamlFiles = (imported: typeof importedExtension) => Object.fromEntries(imported.snapshot.hashes
@@ -96,6 +192,28 @@ describe("configuration extension XML import", () => {
       .map(({ projectPath }) => [projectPath, readText(join(imported.projectDir, imported.result.componentPath!), projectPath)]))
     singleWorkerYaml = yamlFiles(importedExtension)
     multipleWorkerYaml = yamlFiles(multipleWorkerExtension)
+  })
+
+  it("передаёт режимы заимствованных ссылок непосредственно из локального импорта", () => {
+    expect(importedReferenceModes).toContainEqual({
+      canonical: "Catalog.СправочникПолный.Form.ФормаОтчета", mode: "extend",
+    })
+    expect(ownChildHasPropertyState).toEqual([false])
+  })
+
+  it("сохраняет полный список ссылок по сравнению с независимым обходом", () => {
+    const normalized = (references: readonly PendingMetadataTargetReference[]) => references.map(reference => ({
+      canonical: reference.canonical, yamlPath: reference.yamlPath,
+    })).sort((left, right) => JSON.stringify(left).localeCompare(JSON.stringify(right)))
+    expect(referenceComparisons.length).toBeGreaterThan(0)
+    const additions: ReturnType<typeof normalized> = []
+    for (const { expected, actual } of referenceComparisons) {
+      const previous = normalized(expected)
+      const next = normalized(actual)
+      expect(next).toEqual(expect.arrayContaining(previous))
+      additions.push(...next.filter(value => !previous.some(entry => JSON.stringify(entry) === JSON.stringify(value))))
+    }
+    expect(additions).toEqual([{ canonical: "Catalog.ПроектныеЗадачи", yamlPath: ["Состав", 0, "Метаданные"] }])
   })
 
   it("сохраняет YAML и диагностику формы с основой при одном и трёх владельцах заданий", () => {
@@ -179,11 +297,11 @@ describe("configuration extension XML import", () => {
     expect((formWithoutBase as { Элементы: Record<string, { ПутьКДанным?: unknown }> }).Элементы.СобственноеПоле)
       .toMatchObject({ ПутьКДанным: "БазовыйОбъект.СобственноеПоле" })
     expect(formWithoutBaseText)
-      .toContain("ПутьКДанным: !xml/invalid БазовыйОбъект.СобственноеПоле")
+      .toMatch(/ПутьКДанным: !xml\/raw\n\s+\$значение: !xml\/invalid БазовыйОбъект\.СобственноеПоле\n\s+\$xml: null/u)
     expect(formWithoutBaseText)
-      .toContain("ПутьКДанным: !xml/invalid БазовыйОбъект.Код")
+      .toMatch(/ПутьКДанным: !xml\/raw\n\s+\$значение: !xml\/invalid БазовыйОбъект\.Код\n\s+\$xml: null/u)
     expect(formWithoutBaseText)
-      .toContain("ПутьКДанным: !xml/invalid БазовыйОбъект.НеизвестнаяТаблица.Колонка")
+      .toMatch(/ПутьКДанным: !xml\/raw\n\s+\$значение: !xml\/invalid БазовыйОбъект\.НеизвестнаяТаблица\.Колонка\n\s+\$xml: null/u)
     expect(formWithoutBaseText).toContain('"@Form\\\\UnknownProperty": !xml/raw')
     expect(formWithoutBaseText).toContain("Form\\Properties\\UnknownProperty: !xml/raw")
     expect((formWithoutBase as { Элементы: Record<string, { ПутьКДанным?: unknown }> }).Элементы.Код)
@@ -232,7 +350,7 @@ describe("configuration extension XML import", () => {
     const { historicalFormText, historicalBaseFormText } = importedExtension
 
     expect(historicalFormText)
-      .toContain("ПутьКДанным: !xml/invalid БазовыйОбъект.ИсторическоеПоле")
+      .toMatch(/ПутьКДанным: !xml\/raw\n\s+\$значение: !xml\/invalid БазовыйОбъект\.ИсторическоеПоле\n\s+\$xml: null/u)
     expect(historicalFormText).toContain('"@Form\\\\UnknownProperty": !xml/raw')
     expect(historicalFormText).not.toContain('"@Form\\\\BaseForm')
     expect(historicalBaseFormText).toContain("ИсторическоеПоле:")
@@ -276,6 +394,11 @@ async function importExtension(pool = xmlImportWorkerPoolHandle, concurrency = 1
     removeUnknownPropertyStates(join(inputDir, ...relativePath.split("/")))
   }
   replaceExactlyOnce(
+    join(inputDir, "Catalogs", "СправочникПолный.xml"),
+    "\n\t\t</Properties>\n",
+    "\n\t\t\t<DefaultObjectForm>Catalog.СправочникПолный.Form.ФормаОтчета</DefaultObjectForm>\n\t\t</Properties>\n",
+  )
+  replaceExactlyOnce(
     join(inputDir, "Catalogs", "СправочникПолный", "Forms", "ФормаОтчета.xml"),
     "88888888-8888-4888-8888-888888888888",
     baseFormUuid,
@@ -285,6 +408,7 @@ async function importExtension(pool = xmlImportWorkerPoolHandle, concurrency = 1
     "\t\t\t\t<Width>99</Width>",
     [
       "\t\t\t\t<Width>99</Width>",
+      "\t\t\t\t<DataPath>НеОбъявленное.Поле</DataPath>",
       "\t\t\t\t<ToolTip>",
       "\t\t\t\t\t<v8:item>",
       "\t\t\t\t\t\t<v8:lang>de</v8:lang>",

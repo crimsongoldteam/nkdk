@@ -1,5 +1,10 @@
+import { Type } from "typebox"
 import {
   compileValidationSchema,
+  parsedYamlFromKnownData,
+  validateRuleYAMLObjectProperties,
+  validationIssuePathFromPointer,
+  prepareYAMLDocumentData,
   isPropertyStateYAMLTag,
   typeboxErrorsToValidationIssues,
   yamlScalarTagAt,
@@ -31,7 +36,15 @@ export interface MetadataRuleValidator {
     readonly annotations: XmlAnomalyAnnotations
     readonly rule: MetadataItemRule
     readonly yamlPath: readonly (string | number)[]
+    readonly name?: string
+    readonly deferRequired?: boolean
+    readonly onLocalizedTextProperty?: (path: readonly (string | number)[]) => void
   }): ValidationIssue[]
+}
+
+interface BoundaryRulePlan {
+  readonly rulesByYamlKey: ReadonlyMap<string, PropertyRule>
+  readonly requiredYamlKeys: readonly string[]
 }
 
 export function createMetadataRuleValidator(params: {
@@ -46,6 +59,20 @@ export function createMetadataRuleValidator(params: {
 }): MetadataRuleValidator {
   const validators = new WeakMap<MetadataItemRule, WeakMap<PropertyRule, ValidationSchemaValidator | null>>()
   const objectValidators = new WeakMap<MetadataItemRule, ValidationSchemaValidator>()
+  const boundaryPlans = new WeakMap<MetadataItemRule, BoundaryRulePlan>()
+  const boundaryPlanFor = (rule: MetadataItemRule): BoundaryRulePlan => {
+    const cached = boundaryPlans.get(rule)
+    if (cached !== undefined) return cached
+    const rulesByYamlKey = new Map(Object.values(rule.properties).flatMap(property =>
+      typeof property.yaml === "string" && property.fromYAML !== false
+        ? [[property.yaml, property] as const] : []))
+    const plan = {
+      rulesByYamlKey,
+      requiredYamlKeys: [...rulesByYamlKey].flatMap(([key, property]) => property.required === true && property.runtimeOnly !== true ? [key] : []),
+    }
+    boundaryPlans.set(rule, plan)
+    return plan
+  }
 
   const validatorFor = (rule: PropertyRule, ownerRule: MetadataItemRule): ValidationSchemaValidator | undefined => {
     let byProperty = validators.get(ownerRule)
@@ -78,6 +105,7 @@ export function createMetadataRuleValidator(params: {
             yamlPath,
             annotations: input.annotations,
             validatorFor,
+            boundaryPlanFor,
             isKnownProperty: params.isKnownProperty,
             objectValidatorFor,
             validateRequired: params.validateRequired,
@@ -93,6 +121,7 @@ export function createMetadataRuleValidator(params: {
       validateObject({
         ...input,
         validatorFor,
+        boundaryPlanFor,
         isKnownProperty: params.isKnownProperty,
         objectValidatorFor,
         validateRequired: params.validateRequired,
@@ -117,11 +146,40 @@ export function createRegisteredMetadataRuleValidator(params: {
     readonly propertyStates: PropertyStateCapabilityRegistry
   }>()?.propertyStates
   const borrowedSchemas = new WeakMap<MetadataItemRule, ValidationSchemaValidator>()
+  const schemaPropertyNames = new WeakMap<MetadataItemRule, ReadonlySet<string>>()
   const extensionComponent = "fromXML" in params.context
     && (params.context.fromXML as { readonly componentKind?: string }).componentKind === "configurationExtension"
-  return createMetadataRuleValidator({
+  const validator = createMetadataRuleValidator({
     validateRequired: false,
     validateUnknownProperties: false,
+    isKnownProperty: (rule, key) => schemaPropertyNames.get(rule)?.has(key) ?? true,
+    objectValidator(rule) {
+      const source = runtime.exportRule({
+        context: params.context,
+        rule,
+        explicitXMLValues: true,
+        excludeImplicitValueYAML: true,
+      })
+      if ("properties" in source && isRecord(source.properties)) {
+        const names = new Set(Object.keys(source.properties))
+        const definition = params.rules.schemas.get(rule.itemType)
+        if (definition?.source === rule) {
+          const registered = runtime.exportDefinition({
+            context: params.context, definition,
+            explicitXMLValues: true, excludeImplicitValueYAML: true,
+          })
+          if ("properties" in registered && isRecord(registered.properties)) {
+            for (const key of Object.keys(registered.properties)) names.add(key)
+          }
+        }
+        schemaPropertyNames.set(rule, names)
+      }
+      // Обязательность берём из общей схемы (с учётом неявных значений),
+      // но содержимое уже завершённых дочерних объектов не проверяем повторно.
+      const required = "required" in source && Array.isArray(source.required)
+        ? source.required.filter((key): key is string => typeof key === "string") : []
+      return compileValidationSchema({}, Type.Object({}, { required, additionalProperties: true }))
+    },
     propertyValidator(rule, ownerRule) {
       if (params.rules.execution.getTypeRule(rule.type, "nestedItemRule") !== undefined) return undefined
       const propertyKey = Object.entries(ownerRule.properties)
@@ -156,27 +214,13 @@ export function createRegisteredMetadataRuleValidator(params: {
           }))
           borrowedSchemas.set(ownerRule, compiled)
         }
-        const yamlKey = rule.yaml
-        const prefix = `/${escapeJsonPointerSegment(yamlKey)}`
-        return {
-          Check(value) {
-            return compiled.Check({ [yamlKey]: value })
-          },
-          Errors(value) {
-            const [, errors] = compiled.Errors({ [yamlKey]: value })
-            const local = errors.flatMap((error) => {
-              if (error.instancePath === prefix) return [{ ...error, instancePath: "" }]
-              if (!error.instancePath.startsWith(`${prefix}/`)) return []
-              return [{ ...error, instancePath: error.instancePath.slice(prefix.length) }]
-            })
-            return [local.length === 0, local]
-          },
-        }
+        return propertyValueValidator(compiled, rule.yaml)
       }
+      const yamlKey = rule.yaml ?? "$значение"
       const localRule: MetadataItemRule = {
         itemType: `LocalValidation:${rule.type}`,
         properties: {
-          value: { ...rule, yaml: "$значение", required: true },
+          value: { ...rule, yaml: yamlKey, required: true },
         },
       }
       const graph = runtime.exportGraph({
@@ -187,22 +231,46 @@ export function createRegisteredMetadataRuleValidator(params: {
         excludeImplicitValueYAML: true,
       })
       const compiled = compileValidationSchema(graph.schemas, graph.roots.property!)
-      return {
-        Check(value) {
-          return compiled.Check({ $значение: value })
-        },
-        Errors(value) {
-          const [, errors] = compiled.Errors({ $значение: value })
-          const local = errors.flatMap((error) => {
-            if (error.instancePath === "/$значение") return [{ ...error, instancePath: "" }]
-            if (!error.instancePath.startsWith("/$значение/")) return []
-            return [{ ...error, instancePath: error.instancePath.slice("/$значение".length) }]
-          })
-          return [local.length === 0, local]
-        },
-      }
+      return propertyValueValidator(compiled, yamlKey)
     },
   })
+  return {
+    ...validator,
+    validateBoundary(input) {
+      const structural = validateRuleYAMLObjectProperties({
+        context: params.context,
+        filePath: "",
+        parsed: parsedYamlFromKnownData("", input.yaml, input.annotations),
+        rule: input.rule,
+        value: input.yaml,
+        yamlPath: input.yamlPath,
+        name: input.name,
+        onLocalizedTextProperty: input.onLocalizedTextProperty,
+      })
+      return [...validator.validateBoundary(input), ...structural.map((diagnostic): ValidationIssue => ({
+        code: "diagnostic.structure",
+        kind: "semantic",
+        target: { kind: "path", path: validationIssuePathFromPointer(diagnostic.path ?? "") },
+        params: { message: diagnostic.message },
+      }))]
+    },
+  }
+}
+
+function propertyValueValidator(compiled: ValidationSchemaValidator, yamlKey: string): ValidationSchemaValidator {
+  const prefix = `/${escapeJsonPointerSegment(yamlKey)}`
+  return {
+    Check: value => compiled.Check({ [yamlKey]: value }),
+    Errors(value) {
+      const [, errors] = compiled.Errors({ [yamlKey]: value })
+      const local = errors.flatMap(error => {
+        if (error.instancePath === prefix) return [{ ...error, instancePath: "" }]
+        if (!error.instancePath.startsWith(`${prefix}/`)) return []
+        return [{ ...error, instancePath: error.instancePath.slice(prefix.length) }]
+      })
+      return [local.length === 0, local]
+    },
+  }
 }
 
 function validateObject(params: {
@@ -210,10 +278,13 @@ function validateObject(params: {
   readonly rule: MetadataItemRule
   readonly yamlPath: readonly (string | number)[]
   readonly annotations: XmlAnomalyAnnotations
+  readonly name?: string
+  readonly deferRequired?: boolean
   readonly validatorFor: (
     rule: PropertyRule,
     ownerRule: MetadataItemRule,
   ) => ValidationSchemaValidator | undefined
+  readonly boundaryPlanFor: (rule: MetadataItemRule) => BoundaryRulePlan
   readonly isKnownProperty?: (rule: MetadataItemRule, key: string) => boolean
   readonly objectValidatorFor: (rule: MetadataItemRule) => ValidationSchemaValidator | undefined
   readonly validateRequired?: boolean
@@ -222,20 +293,16 @@ function validateObject(params: {
 }): void {
   if (!isRecord(params.yaml)) return
   const objectValidator = params.objectValidatorFor(params.rule)
-  if (objectValidator !== undefined) {
+  if (objectValidator !== undefined && params.deferRequired !== true) {
     const [, errors] = objectValidator.Errors(params.yaml)
+    const nameKey = params.name === undefined ? undefined : params.rule.properties.name?.yaml
     params.issues.push(...typeboxErrorsToValidationIssues(
       errors.filter(isLocalPropertyError).flatMap((error) =>
         filterKnownAdditionalProperties(error, params.rule, params.isKnownProperty)),
       params.yamlPath,
-    ))
+    ).filter(issue => !(nameKey !== undefined && issue.target.kind === "missing" && issue.target.path.at(-1) === nameKey)))
   }
-  const rulesByYamlKey = new Map(
-    Object.values(params.rule.properties).flatMap((rule) =>
-      typeof rule.yaml === "string" && rule.fromYAML !== false && rule.runtimeOnly !== true
-        ? [[rule.yaml, rule] as const]
-        : []),
-  )
+  const { rulesByYamlKey, requiredYamlKeys } = params.boundaryPlanFor(params.rule)
   const occurrences = new Map<string, number>()
 
   for (const [runtimeKey, value] of Object.entries(params.yaml)) {
@@ -247,8 +314,8 @@ function validateObject(params: {
     const propertyRule = rulesByYamlKey.get(logicalKey)
     const targetPath = [...params.yamlPath, logicalKey]
 
-    if (propertyRule === undefined) {
-      if (params.validateUnknownProperties === false) continue
+    if (propertyRule === undefined || (propertyRule.runtimeOnly === true && params.isKnownProperty?.(params.rule, logicalKey) === false)) {
+      if (propertyRule === undefined && params.validateUnknownProperties === false) continue
       if (params.isKnownProperty?.(params.rule, logicalKey) === true) continue
       if (valueAnnotation?.kind === "raw" && valueAnnotation.xml !== undefined) continue
       params.issues.push({
@@ -284,7 +351,9 @@ function validateObject(params: {
     if (scalarTag === "xml/standard-attributes" || isPropertyStateYAMLTag(scalarTag)) continue
     const validator = params.validatorFor(propertyRule, params.rule)
     if (validator === undefined) continue
-    const [, errors] = validator.Errors(value)
+    const semanticValue = value !== null && typeof value === "object"
+      ? prepareYAMLDocumentData(value, params.annotations).data : value
+    const [, errors] = validator.Errors(semanticValue)
     const localErrors = errors.filter((error) =>
       isLocalPropertyError(error) || error.keyword === "anyOf" || error.keyword === "oneOf")
     const localIssues = typeboxErrorsToValidationIssues(localErrors, targetPath)
@@ -297,8 +366,8 @@ function validateObject(params: {
   }
 
   if (objectValidator === undefined && params.validateRequired !== false) {
-    for (const [yamlKey, propertyRule] of rulesByYamlKey) {
-      if (propertyRule.required !== true || occurrences.has(yamlKey)) continue
+    for (const yamlKey of requiredYamlKeys) {
+      if (occurrences.has(yamlKey)) continue
       params.issues.push({
         code: "rules.required",
         kind: "semantic",

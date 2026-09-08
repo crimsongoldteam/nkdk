@@ -35,6 +35,7 @@ export function importConfigurationExtensionCollectionState(params: {
   readonly rule: MetadataItemRule
   readonly source: Record<string, unknown> | XmlElementNode
   readonly yaml: Record<string, unknown>
+  readonly onCreatedItem?: import("@nkdk/runtime/rule-kit").MetadataItemXmlImportAugmentParams["onCreatedItem"]
 }): void {
   const borrowed = params.context.fromXML.currentXMLDefaultVariant === "adopted"
   if (params.rule.itemType === "ExchangePlanContent") {
@@ -50,7 +51,9 @@ export function importConfigurationExtensionCollectionState(params: {
       metadata: requiredString(item.metadata, "Metadata"),
       state: requiredState(item.state),
     }))
-    params.yaml.items = joinExchangePlanExtensionContent(items, states)
+    params.yaml.items = joinExchangePlanExtensionContent(items, states, (yaml, index) => {
+      params.onCreatedItem?.({ yaml, rule: ExchangePlanContentItemRules, yamlPath: [index] })
+    })
     delete params.yaml.extensionProperties
     return
   }

@@ -24,7 +24,7 @@ export const importCalculatedFieldOrderExpressionFromXMLToYAML: ImportFromXMLToY
       xml: itemXmlNode ?? item,
       traversal: {
         ...itemTraversal,
-        yamlPath: [...traversal.yamlPath, index],
+        pathCursor: traversal.pathCursor.child(index),
         ...(itemXmlNode === undefined ? {} : { xmlNodes: [itemXmlNode] }),
       },
     })

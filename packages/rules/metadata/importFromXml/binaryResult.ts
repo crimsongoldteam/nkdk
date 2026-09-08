@@ -4,7 +4,6 @@ import {
   type DiagnosticBatchView,
 } from "@nkdk/runtime"
 import {
-  decodeConfigurationBlockFragments,
   encodeConfigurationBlockFragments,
 } from "@nkdk/runtime"
 import type { ConfigurationIndexBlockFragment } from "@nkdk/runtime"
@@ -102,7 +101,6 @@ export function openImportBinaryResult(value: unknown): ImportBinaryBatchView {
   const configurationFragmentBuffer = buffers.get("configuration")
   const reconstructionFactsBuffer = buffers.get("reconstructionFacts")
   if (reconstructionFactsBuffer !== undefined) openImportReconstructionFacts(reconstructionFactsBuffer)
-  if (configurationFragmentBuffer !== undefined) decodeConfigurationBlockFragments(configurationFragmentBuffer)
   const stateFragment = value.counters.hasState === 0 ? undefined : projectStateFragmentFromNamedBuffers(buffers)
   if (stateFragment !== undefined) openProjectStateFragment(stateFragment)
   return {

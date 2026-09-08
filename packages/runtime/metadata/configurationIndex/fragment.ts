@@ -1,5 +1,5 @@
 import { decodeBlockV1, encodeBlockV1 } from "./blockCodec"
-import { validateConfigurationIndexProjectPath } from "./store"
+import { validateConfigurationIndexProjectPath } from "./utilities"
 import { compareConfigurationIndexUtf8, configurationIndexErrorMessage } from "./utilities"
 import type {
   ConfigurationIndexBlockEntity,
@@ -40,7 +40,7 @@ export function createConfigurationIndexFragmentBuilder(): ConfigurationIndexFra
     addEncoded(buffer) {
       if (finished) throw new Error("Builder фрагментов индекса конфигурации уже завершён")
       try {
-        visitConfigurationBlockFragments(buffer, addValidated)
+        for (const fragment of iterateConfigurationBlockFragments(buffer)) addValidated(fragment)
       } catch (error) {
         blocks.clear()
         finished = true
@@ -99,15 +99,12 @@ export function encodeConfigurationBlockFragments(
 }
 
 export function decodeConfigurationBlockFragments(buffer: ArrayBuffer): ConfigurationIndexBlockFragment[] {
-  const fragments: ConfigurationIndexBlockFragment[] = []
-  visitConfigurationBlockFragments(buffer, (fragment) => fragments.push(fragment))
-  return fragments
+  return [...iterateConfigurationBlockFragments(buffer)]
 }
 
-function visitConfigurationBlockFragments(
+export function* iterateConfigurationBlockFragments(
   buffer: ArrayBuffer,
-  visit: (fragment: ConfigurationIndexBlockFragment) => void,
-): void {
+): IterableIterator<ConfigurationIndexBlockFragment> {
   try {
     if (!(buffer instanceof ArrayBuffer)) throw new Error("ожидался ArrayBuffer")
     const bytes = new Uint8Array(buffer)
@@ -132,7 +129,7 @@ function visitConfigurationBlockFragments(
     for (let index = 0; index < count; index++) {
       const targetProjectPath = validateConfigurationIndexProjectPath(fatalUtf8Decoder.decode(readBytes()))
       const block = decodeBlockV1(readBytes())
-      visit({ targetProjectPath, entities: block.entities })
+      yield { targetProjectPath, entities: block.entities }
     }
     if (offset !== buffer.byteLength) throw new Error("лишние данные")
   } catch (error) {

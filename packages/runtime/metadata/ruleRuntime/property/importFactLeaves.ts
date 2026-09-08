@@ -32,10 +32,10 @@ export function acceptNestedPropertyFactLeaves(params: {
   let current = params.value
   for (;;) {
     const taggedScalar = isTaggedYAMLScalar(current) ? current : undefined
-    const value = taggedScalar?.value ?? current
+    const value = taggedScalar === undefined ? current : taggedScalar.value
     const scalarTag = taggedScalar?.tag ?? yamlValueTag(value)
     const container = value !== null && typeof value === "object" && !isExplicitYAMLString(value)
-    if (scalarTag !== undefined || (container && params.retainContainers)) {
+    if (container && (scalarTag !== undefined || params.retainContainers)) {
       emit(Array.isArray(value) ? [] : {}, container ? `$container:${params.propertyKey}` : params.propertyKey, scalarTag)
     }
     if (container) {

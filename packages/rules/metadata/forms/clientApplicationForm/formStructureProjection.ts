@@ -1,6 +1,6 @@
 import type { ProjectStateStructuredDocumentEntry } from "../../projectState/fileUpdate"
 import type { FormStructuredComponent } from "../../validation/formContracts"
-import { indexClientApplicationFormComponents } from "./formComponentIndex"
+import { indexClientApplicationFormComponents, type ClientApplicationFormComponentIndex } from "./formComponentIndex"
 import { collectClientApplicationFormDataPathPreparation } from "./formDataPathContext"
 import { serializeClientApplicationFormSemanticPayload } from "./formSemanticPayload"
 import type { ClientApplicationFormYAML } from "./types"
@@ -26,6 +26,26 @@ export function collectClientApplicationFormStructure(
   annotations?: XmlAnomalyAnnotations,
 ): readonly FormStructuredComponent[] {
   const index = indexClientApplicationFormComponents(yaml)
+  const preparation = collectClientApplicationFormDataPathPreparation({
+    yaml: yaml as ClientApplicationFormYAML,
+  })
+  return projectPreparedClientApplicationFormStructure({ yaml, index,
+    elementsByName: preparation.collected.elementsByName, occurrences: preparation.collected.occurrences,
+    owner, annotations,
+  })
+}
+
+export function projectPreparedClientApplicationFormStructure(params: {
+  readonly yaml: unknown
+  readonly index: ClientApplicationFormComponentIndex
+  readonly elementsByName: ReadonlyMap<string, {
+    readonly present: boolean; readonly value: unknown; readonly tableOwnerName?: string
+  }>
+  readonly occurrences: readonly { readonly yamlPath: readonly (string | number)[]; readonly value: string }[]
+  readonly owner?: { readonly kind: string; readonly name: string }
+  readonly annotations?: XmlAnomalyAnnotations
+}): readonly FormStructuredComponent[] {
+  const { yaml, index, owner, annotations } = params
   const components = ([
     ["element", index.elements],
     ["attribute", index.attributes],
@@ -38,10 +58,7 @@ export function collectClientApplicationFormStructure(
       yamlPath: path.split("."),
     }))
   )
-  const preparation = collectClientApplicationFormDataPathPreparation({
-    yaml: yaml as ClientApplicationFormYAML,
-  })
-  const elements = new Map(preparation.collected.elementsByName)
+  const elements = params.elementsByName
   const withPayload = components.map((component) => {
     if (component.componentKind !== "element") return component
     const element = elements.get(component.name)
@@ -60,7 +77,7 @@ export function collectClientApplicationFormStructure(
     }
     return { ...component, payload: JSON.stringify(payload) }
   })
-  const dataPaths = preparation.collected.occurrences
+  const dataPaths = params.occurrences
     .filter((occurrence) => !hasInvalidAnnotation(yaml, occurrence.yamlPath, annotations))
     .map((occurrence) => {
       const payload: FormDataPathPayloadV1 = {

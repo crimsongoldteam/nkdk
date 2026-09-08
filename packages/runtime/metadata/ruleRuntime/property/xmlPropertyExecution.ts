@@ -272,16 +272,7 @@ export function createXMLPropertyExecution(
   const namePropertyKey = params.namePropertyKey ?? "name"
   let orderedProperties: readonly (YAMLToXMLPlannedProperty | CompiledProperty)[] =
     propertyPlan?.yamlToXMLOrder ?? legacyYAMLToXMLProperties(params.rule)
-  if (
-    propertyPlan !== undefined
-    && propertySource === undefined
-    && observer === undefined
-    && propertyValues.size === 0
-    && (yaml === undefined || Object.getOwnPropertyNames(yaml).length === 0)
-    && params.externalWriteFactory === undefined
-  ) {
-    orderedProperties = propertyPlan.emptyYAMLExportOrder(params.name === undefined ? undefined : namePropertyKey)
-  }
+  const sparse = propertyPlan !== undefined && propertySource === undefined && params.externalWriteFactory === undefined
   if (params.externalWriteFactory !== undefined) {
     const allProperties = propertyPlan?.properties ?? getYAMLToXMLPlan(params.rule).properties
     const orderedPropertyKeys = new Set(orderedProperties.map(({ propertyKey }) => propertyKey))
@@ -295,6 +286,12 @@ export function createXMLPropertyExecution(
   }
 
   const executed = new Set<string>()
+  const selectProperties = () => sparse
+    ? propertyPlan.selectedYAMLExportOrder(yaml, (function* () {
+      yield* propertyValues.keys()
+      yield* executed
+    })(), params.name === undefined ? undefined : namePropertyKey)
+    : orderedProperties
   let executionPosition = 0
   let requiresOutputOrdering = false
   let completed: YAMLToXMLResult | undefined
@@ -809,6 +806,7 @@ export function createXMLPropertyExecution(
     if (failure !== undefined) throw failure.error
     if (completed !== undefined) return completed
     try {
+    orderedProperties = selectProperties()
     for (const property of orderedProperties) execute(property)
     for (const output of outputs) {
       if (requiresOutputOrdering) orderXmlPropertyOutput(output.xml, orderedProperties)
@@ -846,7 +844,7 @@ export function createXMLPropertyExecution(
       throw error
     }
   }
-  return { properties: orderedProperties, execute, finish }
+  return { get properties() { return selectProperties() }, execute, finish }
 }
 
 function atomicRepresentationToXML(params: {

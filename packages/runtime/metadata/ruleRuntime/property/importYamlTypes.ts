@@ -14,6 +14,7 @@ import type { XmlElementNode } from "../../../xml/import/document"
 import type { XmlImportAuditSession, XmlImportAuditedNode } from "../xmlAnomaly/importAudit"
 import type { XmlAnomalyAnnotationTable } from "../../../yaml/xmlAnomalyAnnotations"
 import type { YAMLScalarTag } from "../../../yaml/scalarTags"
+import type { ExecutionPath } from "./executionPath"
 import {
   arrayLengthXmlImportAttemptAdapter,
   attachXmlImportAttemptAdapter,
@@ -70,7 +71,7 @@ export interface DirectImportTraversal<Execution = unknown> {
   facts?: DirectImportFactsSink
   produceResult?: boolean
   execution?: Execution
-  yamlPath: YamlPath
+  pathCursor: ExecutionPath<string | number>
   rulePath: readonly DeferredRulePathSegment[]
   collector: LocalIndexesCollector
   deferred?: DeferredValuePathCollector
@@ -100,6 +101,15 @@ export interface DirectImportXMLPropertyBinding {
 
 /** Внутренний порт второго прохода. Первый проход фактов его не открывает. */
 export interface DirectImportRoundTripExecution {
+  readonly attemptParticipant?: object
+  finalizeCreatedItem?(item: {
+    readonly yaml: Record<string, unknown>
+    readonly rule: MetadataItemRule
+    readonly yamlPath: YamlPath
+    readonly context: ConfigurationContextFromXML
+  }): void
+  /** Родительская граница: элемент уже включён в именованную коллекцию. */
+  placeCollectionItem?(parent: Record<string, unknown>, key: string, yamlPath: YamlPath, sourceYamlPath?: YamlPath): void
   /** Совместимость границы с локальным proof; неподдержанная вложенность проверяется владельцем. */
   accepts?(sources: readonly DirectImportXMLSource[]): boolean
   open(params: {
@@ -120,6 +130,13 @@ export interface DirectImportRoundTripExecution {
 }
 
 export interface PreparedImportDependencies {
+  /** Ключи свойств, добавлявшихся финализатором в конец смыслового YAML. */
+  appendedYamlKeys?(itemYamlPath: YamlPath): ReadonlySet<string> | undefined
+  /** Рабочие значения обычного экспорта, не подменяющие итоговый YAML. */
+  exportPropertyValues?(itemYamlPath: YamlPath): Iterable<readonly [string, unknown]>
+  propertyKeys?(itemYamlPath: YamlPath): Iterable<string>
+  /** Только подготовленные значения для обратного преобразования. */
+  proofPropertyKeys(itemYamlPath: YamlPath): Iterable<string>
   itemFacts?(itemYamlPath: YamlPath, itemType: string): import("./dependentItemRegistry").DependentImportFacts | undefined
   shouldOmit(candidate: ImportedDependentPropertyCandidate, values: Record<string, unknown>): boolean
   /** Полное решение первого прохода; отсутствующее свойство возвращает value: undefined. */

@@ -1,5 +1,6 @@
 import {
   dependentImportDependencies,
+  dependentRootPropertyKey,
   isDependentImportProperty,
   type CompiledPropertyRuleExecution,
   type DirectImportPropertyFact,
@@ -62,7 +63,7 @@ export function createImportFactSelection(params: {
     }
     const dependencies = !retained.dependent ? undefined : params.execution === undefined
       ? dependentImportDependencies(context) : params.execution.dependentImportDependencies(context)
-    for (const key of dependencies?.root ?? []) rootValues.add(key)
+    for (const key of dependencies?.root ?? []) rootValues.add(dependentRootPropertyKey(key))
     // Имена стандартных реквизитов становятся известны при обходе детей.
     // Корневые кандидаты живут только до конца этого файла, не между проходами.
     if (!final && fact.yamlPath.length === 1) return true

@@ -13,7 +13,7 @@ import {
   withConfigurationIndexLogicalAddress,
 } from "@nkdk/runtime"
 import { importMetadataItemFromXMLToYAML } from "../../../ruleRuntime/metadataItem/fromXMLToYAML"
-import type { ImportFromXMLToYAMLFunction } from "@nkdk/runtime/rule-kit"
+import { prepareNamedCollectionImportItem, type ImportFromXMLToYAMLFunction } from "@nkdk/runtime/rule-kit"
 import { enterNestedYamlRule } from "../../../ruleRuntime/property/yamlRuleCursor"
 import { definePropertyTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
 import { FormAttributeAdditionalColumnRules, FormAttributeColumnRules, FormAttributeRules } from "./rules"
@@ -38,7 +38,7 @@ type FormAttributeImportEntry = {
 }
 
 type ProjectedFormAttributeItem = {
-  sourceYamlPath: readonly (string | number)[]
+  placement: ReturnType<typeof prepareNamedCollectionImportItem>
   xmlNode?: XmlElementNode
 }
 
@@ -58,12 +58,13 @@ export const importFormAttributesFromXMLToYAML: ImportFromXMLToYAMLFunction = ({
   const collection = getConfigurationIndexCollectionContext(context)
 
   for (const { name, source: item, node: itemXmlNode } of namedXmlInputs(items)) {
+    const placement = prepareNamedCollectionImportItem(traversal, importedItems.length)
     const itemContext =
       collection === undefined
         ? context
         : withConfigurationIndexLogicalAddress(context, childUid(collection.logicalAddress, "Атрибут", name))
     const itemTraversal = enterNestedYamlRule(
-      { ...traversal, yamlPath: [...traversal.yamlPath, name] },
+      placement.traversal,
       FormAttributeRules.itemType
     )
     const yamlValue = importMetadataItemFromXMLToYAML({
@@ -80,7 +81,7 @@ export const importFormAttributesFromXMLToYAML: ImportFromXMLToYAMLFunction = ({
     const yaml = objectRecordOrUndefined(yamlValue)
     if (yaml === undefined) throw new Error(`Реквизит формы ${name} должен преобразовываться в YAML-объект`)
     if (traversal.dependencies === undefined && !hasSoleValueListType(itemXmlNode ?? item)) delete yaml.ТипЗначения
-    appendFormAttributeItem(entries, importedItems, name, yaml, itemTraversal, itemXmlNode)
+    appendFormAttributeItem(entries, importedItems, name, yaml, itemTraversal, placement, itemXmlNode)
   }
 
   const projected = projectFormAttributeCollection({
@@ -113,10 +114,11 @@ function importAdditionalColumnsFromXMLToYAML(
     const item = itemNode === undefined ? objectRecordOrUndefined(value) : undefined
     const table = itemNode === undefined ? item?._table : xmlAttributeValue(itemNode, "table")
     if (typeof table !== "string") continue
+    const placement = prepareNamedCollectionImportItem(params.traversal, index)
     if (itemNode !== undefined) {
       const boundary = {
         itemType: "FormAttributeAdditionalColumn",
-        yamlPath: [...params.traversal.yamlPath, table],
+        yamlPath: placement.sourceYamlPath,
         rulePath: enterNestedYamlRule(params.traversal, "FormAttributeAdditionalColumn").rulePath,
       }
       // Здесь потребляется только оболочка и table; Column принадлежит своему item.
@@ -147,7 +149,7 @@ function importAdditionalColumnsFromXMLToYAML(
     })
     if (collapsed === undefined) {
       const itemTraversal = enterNestedYamlRule(
-        { ...params.traversal, yamlPath: [...params.traversal.yamlPath, table] },
+        placement.traversal,
         FormAttributeAdditionalColumnRules.itemType,
       )
       const yaml = importMetadataItemFromXMLToYAML({
@@ -165,7 +167,7 @@ function importAdditionalColumnsFromXMLToYAML(
       const yamlRecord = objectRecordOrUndefined(yaml) ?? {}
       entries.push({ key: table, value: yamlRecord })
       importedItems.push({
-        sourceYamlPath: itemTraversal.yamlPath,
+        placement,
         ...(itemNode === undefined ? {} : { xmlNode: itemNode }),
       })
       continue
@@ -173,12 +175,12 @@ function importAdditionalColumnsFromXMLToYAML(
     if (collapsed !== undefined && columnNodes?.length === columnItems.length) {
       const omittedNodes = columnNodes.slice(1)
       const itemTraversal = enterNestedYamlRule(
-        { ...params.traversal, yamlPath: [...params.traversal.yamlPath, table, "Реквизит1"] },
+        { ...placement.traversal, pathCursor: placement.traversal.pathCursor.child("Реквизит1") },
         FormAttributeColumnRules.itemType,
       )
       const boundary = {
         itemType: FormAttributeColumnRules.itemType,
-        yamlPath: itemTraversal.yamlPath,
+        yamlPath: itemTraversal.pathCursor.toArray(),
         rulePath: itemTraversal.rulePath,
       }
       for (const node of omittedNodes) {
@@ -197,14 +199,13 @@ function importAdditionalColumnsFromXMLToYAML(
       xml: collapsed.first,
       xmlNodes: collapsed === undefined || columnNodes === undefined ? columnNodes : columnNodes.slice(0, 1),
       traversal: {
-        ...params.traversal,
-        yamlPath: [...params.traversal.yamlPath, table],
+        ...placement.traversal,
         rulePath: [...params.traversal.rulePath, { propertyKey: "columns" }],
       },
     })
     entries.push({ key: table, value: columns ?? {} })
     importedItems.push({
-      sourceYamlPath: [...params.traversal.yamlPath, table],
+      placement,
       ...(params.xmlNodes?.[index] === undefined ? {} : { xmlNode: params.xmlNodes[index] }),
     })
   }
@@ -244,8 +245,9 @@ function importColumnsFromXMLToYAML(
     if (logicalAddress !== undefined && typeof id === "string") {
       collection?.collector.setIdentity(logicalAddress, "xmlId", id)
     }
+    const preparePlacement = prepareNamedCollectionImportItem(params.traversal, index)
     const itemTraversal = enterNestedYamlRule(
-      { ...params.traversal, yamlPath: [...params.traversal.yamlPath, name] },
+      preparePlacement.traversal,
       FormAttributeColumnRules.itemType
     )
     const { xmlNodes: _parentXmlNodes, ...itemTraversalWithoutParentNodes } = itemTraversal
@@ -262,7 +264,7 @@ function importColumnsFromXMLToYAML(
     if (yaml !== undefined) {
       const yamlRecord = objectRecordOrUndefined(yaml)
       if (yamlRecord === undefined) throw new Error(`Колонка формы ${name} должна преобразовываться в YAML-объект`)
-      appendFormAttributeItem(entries, importedItems, name, yamlRecord, itemTraversal, itemXmlNode)
+      appendFormAttributeItem(entries, importedItems, name, yamlRecord, itemTraversal, preparePlacement, itemXmlNode)
     }
   }
 
@@ -289,11 +291,12 @@ function appendFormAttributeItem(
   name: string,
   value: Record<string, unknown>,
   traversal: FormAttributeImportTraversal,
+  placement: ReturnType<typeof prepareNamedCollectionImportItem>,
   xmlNode: XmlElementNode | undefined,
 ): void {
   entries.push({ key: name, value, ...(isMetadataNameYAML(name) ? {} : { invalid: true }) })
   importedItems.push({
-    sourceYamlPath: traversal.yamlPath,
+    placement,
     ...(xmlNode === undefined ? {} : { xmlNode }),
     name,
     rulePath: traversal.rulePath,
@@ -313,11 +316,7 @@ function projectFormAttributeCollection(params: {
   })
   const yamlPaths = params.importedItems.map((item, index) => {
     const runtimeKey = projected.runtimeKeys[index]!
-    const yamlPath = [...params.traversal.yamlPath, runtimeKey]
-    if (runtimeKey !== item.sourceYamlPath.at(-1)) {
-      params.traversal.audit?.rekeyYamlPath(item.sourceYamlPath, yamlPath, item.xmlNode)
-    }
-    return yamlPath
+    return item.placement.place(projected.yaml, runtimeKey, params.entries[index]!.key, item.xmlNode)
   })
   return { yaml: projected.yaml, yamlPaths }
 }

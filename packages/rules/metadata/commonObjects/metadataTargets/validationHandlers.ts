@@ -600,3 +600,4 @@ export const metadataPropertyRule059 = definePropertyTypeRule("IndexField", "met
 export const metadataPropertyRule060 = definePropertyTypeRule("Color", "metadataTargetOccurrences", collectColorTargetOccurrences)
 export const metadataPropertyRule061 = definePropertyTypeRule("Font", "metadataTargetOccurrences", collectFontTargetOccurrences)
 export const metadataPropertyRule062 = definePropertyTypeRule("Border", "metadataTargetOccurrences", collectBorderTargetOccurrences)
+export const metadataPropertyRule063 = definePropertyTypeRule("InputByStringFields", "metadataTargetOccurrences", collectListMetadataTargetOccurrences)

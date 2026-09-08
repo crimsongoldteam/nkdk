@@ -37,6 +37,7 @@ export function orderYamlRuleProperties(
   value: Record<string, unknown>,
   order: readonly string[],
   annotations?: XmlAnomalyAnnotations,
+  appendedKeys?: ReadonlySet<string>,
 ): Record<string, unknown> {
   const originalKeys = Object.keys(value)
   let known = orderKeys.get(order)
@@ -45,24 +46,29 @@ export function orderYamlRuleProperties(
     orderKeys.set(order, known)
   }
   const additional = originalKeys.filter(key => !known.has(key))
-  if (additional.length > 1) additional.sort((left, right) => {
+  const compare = (left: string, right: string) => {
     const leftAnnotation = annotations?.keyAt(value, left)
     const rightAnnotation = annotations?.keyAt(value, right)
     const byKey = compareKeys(leftAnnotation?.logicalKey ?? left, rightAnnotation?.logicalKey ?? right)
     if (byKey !== 0) return byKey
     return (leftAnnotation?.occurrence ?? 0) - (rightAnnotation?.occurrence ?? 0)
-  })
+  }
+  if (additional.length > 1) additional.sort(compare)
   const keys: string[] = []
   let additionalIndex = 0
   for (const key of order) {
     if (!Object.prototype.hasOwnProperty.call(value, key)) continue
-    while (additionalIndex < additional.length && compareKeys(additional[additionalIndex]!, key) < 0) {
+    while (additionalIndex < additional.length && compare(additional[additionalIndex]!, key) < 0) {
       keys.push(additional[additionalIndex++]!)
     }
     keys.push(key)
   }
   for (; additionalIndex < additional.length; additionalIndex++) keys.push(additional[additionalIndex]!)
-  return arrangeProperties(value, originalKeys, keys)
+  const finalKeys = appendedKeys === undefined || appendedKeys.size === 0 ? keys : [
+    ...keys.filter(key => !appendedKeys.has(key)),
+    ...keys.filter(key => appendedKeys.has(key)),
+  ]
+  return arrangeProperties(value, originalKeys, finalKeys)
 }
 
 export const sortYamlRuleProperties = (value: Record<string, unknown>): Record<string, unknown> => {

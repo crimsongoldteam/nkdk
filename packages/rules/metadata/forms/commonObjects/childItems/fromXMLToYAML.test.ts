@@ -1,3 +1,4 @@
+import { ExecutionPath } from "@nkdk/runtime/rule-kit"
 import {
 createConfigurationIndexCollector,withConfigurationIndexCollector,
 withConfigurationIndexFormElementRootLogicalAddress, parseXmlDocumentWithSaxes
@@ -19,7 +20,7 @@ describe("importChildItemsFromXMLToYAML", () => {
       xml,
       traversal: {
         mode: "facts", produceResult: true, facts,
-        yamlPath: ["Элементы"], rulePath: [{ propertyKey: "childItems" }],
+        pathCursor: ExecutionPath.from<string | number>(["Элементы"]), rulePath: [{ propertyKey: "childItems" }],
         collector: createLocalIndexesCollector(),
       },
     })
@@ -38,7 +39,7 @@ describe("importChildItemsFromXMLToYAML", () => {
       rule: { type: "GroupChildItems", yaml: "Элементы" },
       xml: parseXmlDocumentWithSaxes('<ChildItems><Button name="Изменить"><Type>Hyperlink</Type><Width>20</Width></Button></ChildItems>').roots[0],
       traversal: {
-        yamlPath: ["Элементы"], rulePath: [{ propertyKey: "childItems" }], collector: createLocalIndexesCollector(),
+        pathCursor: ExecutionPath.from<string | number>(["Элементы"]), rulePath: [{ propertyKey: "childItems" }], collector: createLocalIndexesCollector(),
         roundTrip: { open({ yaml }) { return {
           ready({ propertyKey }) {
             if (propertyKey === "type") expect(yaml).toMatchObject({ Вид: "Кнопка", ТипКнопки: "Гиперссылка" })
@@ -68,7 +69,7 @@ describe("importChildItemsFromXMLToYAML", () => {
       rule: { type: "GroupChildItems", yaml: "Элементы" },
       xml: parseXmlDocumentWithSaxes('<ChildItems><InputField name="Поле" id="1"><DataPath>Объект.Наименование</DataPath><ContextMenu name="ПолеКонтекстноеМеню" id="2"/><ExtendedTooltip name="ПолеРасширеннаяПодсказка" id="3"/></InputField></ChildItems>').roots[0],
       traversal: {
-        yamlPath: ["Элементы"],
+        pathCursor: ExecutionPath.from<string | number>(["Элементы"]),
         rulePath: [{ propertyKey: "childItems" }],
         collector: localIndexes,
       },
@@ -109,16 +110,7 @@ describe("importChildItemsFromXMLToYAML", () => {
   })
 
   it("не смешивает вид кнопки с видом элемента", () => {
-      const yaml = importChildItemsFromXMLToYAML({
-        context: mockContextFromXML(),
-        rule: { type: "GroupChildItems", yaml: "Элементы" },
-        xml: parseXmlDocumentWithSaxes('<ChildItems><Button name="Изменить"><Type>Hyperlink</Type></Button><Button name="ОК"><Type>UsualButton</Type></Button></ChildItems>').roots[0],
-        traversal: {
-          yamlPath: ["Элементы"],
-          rulePath: [{ propertyKey: "childItems" }],
-          collector: createLocalIndexesCollector(),
-        },
-      })
+      const yaml = importGroupChildren('<Button name="Изменить"><Type>Hyperlink</Type></Button><Button name="ОК"><Type>UsualButton</Type></Button>')
 
       expect(yaml).toEqual({
         Изменить: {
@@ -130,17 +122,21 @@ describe("importChildItemsFromXMLToYAML", () => {
   })
 
   it("записывает обязательный тип обычной кнопки отдельно от вида элемента", () => {
-    const yaml = importChildItemsFromXMLToYAML({
-      context: mockContextFromXML(),
-      rule: { type: "GroupChildItems", yaml: "Элементы" },
-      xml: parseXmlDocumentWithSaxes('<ChildItems><Button name="ОК"><Type>UsualButton</Type></Button></ChildItems>').roots[0],
-      traversal: {
-        yamlPath: ["Элементы"],
-        rulePath: [{ propertyKey: "childItems" }],
-        collector: createLocalIndexesCollector(),
-      },
-    })
+    const yaml = importGroupChildren('<Button name="ОК"><Type>UsualButton</Type></Button>')
 
     expect(yaml).toEqual({ ОК: { Вид: "Кнопка", ТипКнопки: "ОбычнаяКнопка" } })
   })
 })
+
+function importGroupChildren(body: string) {
+  return importChildItemsFromXMLToYAML({
+    context: mockContextFromXML(),
+    rule: { type: "GroupChildItems", yaml: "Элементы" },
+    xml: parseXmlDocumentWithSaxes(`<ChildItems>${body}</ChildItems>`).roots[0],
+    traversal: {
+      pathCursor: ExecutionPath.from<string | number>(["Элементы"]),
+      rulePath: [{ propertyKey: "childItems" }],
+      collector: createLocalIndexesCollector(),
+    },
+  })
+}

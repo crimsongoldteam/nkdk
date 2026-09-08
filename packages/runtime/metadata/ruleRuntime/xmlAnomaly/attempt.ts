@@ -131,6 +131,66 @@ export function createXmlImportAttemptJournal(
   }
 }
 
+/** Объединяет участников без преждевременного release вложенной транзакции. */
+export function attachXmlImportAttemptParticipants(participant: object, participants: readonly (object | undefined)[]): void {
+  const members = [...new Set(participants.flatMap(value => {
+    const adapter = value === undefined ? undefined : adapters.get(value)
+    return adapter === undefined ? [] : [adapter]
+  }))]
+  const states = new WeakMap<object, { adapter: XmlImportAttemptAdapter; checkpoint: unknown }[]>()
+  const entries = (checkpoint: unknown) => {
+    if (checkpoint === null || typeof checkpoint !== "object") throw new Error("Неизвестная составная попытка")
+    const state = states.get(checkpoint)
+    if (state === undefined) throw new Error("Завершённая составная попытка")
+    return { checkpoint, state }
+  }
+  attachXmlImportAttemptAdapter(participant, {
+    begin() {
+      const checkpoint = {}, started: { adapter: XmlImportAttemptAdapter; checkpoint: unknown }[] = []
+      try { for (const adapter of members) started.push({ adapter, checkpoint: adapter.begin() }) }
+      catch (error) { throw rollbackAfterFailure("begin", started, error) }
+      states.set(checkpoint, started)
+      return checkpoint
+    },
+    prepare(checkpoint) { prepareStarted(entries(checkpoint).state) },
+    commit(checkpoint) { for (const entry of [...entries(checkpoint).state].reverse()) entry.adapter.commit(entry.checkpoint) },
+    release(checkpoint) { const entry = entries(checkpoint); releaseStarted(entry.state); states.delete(entry.checkpoint) },
+    rollback(checkpoint) { const entry = entries(checkpoint); try { rollbackStarted(entry.state) } finally { states.delete(entry.checkpoint) } },
+  })
+}
+
+/** Журнал только изменённых слотов: begin не копирует индексы или деревья. */
+export function createXmlImportUndoLog() {
+  const undo: (() => void)[] = []
+  const checkpoints: { start: number; committed: boolean }[] = []
+  const current = (value: unknown) => {
+    const point = checkpoints.at(-1)
+    if (point === undefined || point !== value) throw new Error("Нарушен порядок XML-import undo")
+    return point
+  }
+  const participant = {
+    remember(action: () => void) { if (checkpoints.length !== 0) undo.push(action) },
+    assertIdle() { if (checkpoints.length !== 0) throw new Error("Не завершены попытки XML-import") },
+  }
+  attachXmlImportAttemptAdapter(participant, {
+    begin() { const point = { start: undo.length, committed: false }; checkpoints.push(point); return point },
+    prepare(value) { if (current(value).committed) throw new Error("XML-import undo уже подтверждён") },
+    commit(value) { current(value).committed = true },
+    release(value) {
+      if (!current(value).committed) throw new Error("XML-import undo не подтверждён")
+      checkpoints.pop()
+      if (checkpoints.length === 0) undo.length = 0
+    },
+    rollback(value) {
+      const { start } = current(value)
+      for (let index = undo.length - 1; index >= start; index--) undo[index]!()
+      undo.length = start
+      checkpoints.pop()
+    },
+  })
+  return participant
+}
+
 export function arrayLengthXmlImportAttemptAdapter(
   arrays: readonly unknown[][],
 ): XmlImportAttemptAdapter {

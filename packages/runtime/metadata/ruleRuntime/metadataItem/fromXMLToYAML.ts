@@ -91,7 +91,7 @@ export function importMetadataItemFromXMLToYAML(params: {
       }),
     }],
     itemName: params.name,
-    yamlPath: params.traversal.yamlPath,
+    pathCursor: params.traversal.pathCursor,
     rulePath: enterNestedYamlRule(params.traversal, params.rule.itemType).rulePath,
     collector: params.traversal.collector,
     deferred: params.traversal.deferred,
@@ -113,6 +113,12 @@ export function importMetadataItemFromXMLToYAML(params: {
         rule: params.rule,
         source: augmenterSource,
         yaml,
+        ...(params.traversal.roundTrip?.finalizeCreatedItem === undefined ? {} : {
+          onCreatedItem: (item: { readonly yaml: Record<string, unknown>; readonly rule: MetadataItemRule; readonly yamlPath: readonly (string | number)[] }) =>
+            params.traversal.roundTrip!.finalizeCreatedItem!({
+              ...item, context, yamlPath: [...params.traversal.pathCursor.toArray(), ...item.yamlPath],
+            }),
+        }),
       })
       params.beforeFinish?.(yaml)
     },
@@ -131,7 +137,7 @@ export function importMetadataItemFromXMLToYAML(params: {
         root: sourceNode,
         boundary: {
           itemType: params.rule.itemType,
-          yamlPath: params.traversal.yamlPath,
+          yamlPath: params.traversal.pathCursor.toArray(),
           rulePath: params.traversal.rulePath,
         },
       })
@@ -168,7 +174,7 @@ function claimKnownXsiType(params: {
   if (attribute === undefined) return
   params.traversal.audit.claim(attribute, {
     itemType: params.rule.itemType,
-    yamlPath: params.traversal.yamlPath,
+    yamlPath: params.traversal.pathCursor.toArray(),
     rulePath: params.traversal.rulePath,
   })
 }

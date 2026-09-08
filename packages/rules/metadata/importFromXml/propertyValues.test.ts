@@ -15,6 +15,8 @@ describe("ImportPropertyValues", () => {
     expect(values.get([], "поле:имя")).toEqual({ value: "корень" })
     expect(values.get(path, "поле:имя")).toBeUndefined()
     expect(values.get(["А/~:Б", 0], "другое")).toBeUndefined()
+    expect([...values.keys(["А/~:Б", 0])]).toEqual(["поле:имя"])
+    expect([...values.keys(["отсутствует"])]).toEqual([])
     expect(values.size).toBe(3)
     values.set(["А/~:Б", 0], "поле:имя", { value: "обновлено" })
     expect(values.size).toBe(3)

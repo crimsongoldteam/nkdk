@@ -1,8 +1,10 @@
+import { ExecutionPath } from "@nkdk/runtime/rule-kit"
 import type {
   ConfigurationIndexBlockFragment,
   ConfigurationIndexCollector,
   ExternalFileEntry,
   XmlImportConfigurationContext,
+  ValidationIssue,
 } from "@nkdk/runtime"
 import {
   childSegmentUid,
@@ -63,8 +65,10 @@ import {
 } from "./propertyFacts"
 import { selectImportPropertyPaths } from "./selectedPropertyFacts"
 import { createImportFactSelection } from "./importFactSelection"
+import { collectImportUniqueNameIssues } from "./uniqueNameScopes"
 
 export interface PreparedImportFacts {
+  readonly uniqueNameIssues?: readonly ValidationIssue[]
   readonly dependencies: ImportDependencyFacts
   readonly baseFormDependencies?: ImportDependencyFacts
   readonly assignment: ImportAssignment
@@ -157,7 +161,7 @@ export async function prepareImportFacts(params: {
         mode: "facts",
         produceResult: false,
         facts,
-        yamlPath: [],
+        pathCursor: ExecutionPath.from<string | number>([]),
         rulePath: [],
         collector: localIndexesCollector,
         dependent,
@@ -268,8 +272,10 @@ export async function prepareImportFacts(params: {
     facts: semanticFacts,
     owner: dependentOwner,
   }) : []
+  const uniqueNameIssues = collectImportUniqueNameIssues(rule, imported.localIndexes.metadata.events)
 
   return {
+    ...(uniqueNameIssues.length === 0 ? {} : { uniqueNameIssues }),
     dependencies: collectImportDependencyFacts({
       yaml: undefined,
       rule,

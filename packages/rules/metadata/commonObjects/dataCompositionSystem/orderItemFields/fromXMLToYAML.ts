@@ -25,7 +25,7 @@ export const importOrderItemFieldsFromXMLToYAML: ImportFromXMLToYAMLFunction = (
       xml: item,
       traversal: {
         ...traversal,
-        yamlPath: [...traversal.yamlPath, index],
+        pathCursor: traversal.pathCursor.child(index),
       },
     })
     return yaml === undefined ? [] : [yaml]

@@ -39,6 +39,8 @@ export interface FormElementDataPathState {
 
 export interface FormDataPathContext {
   readonly index: FormDataPathIndex
+  /** Собственные объявления до объединения с cf; нужны локальной проверке YAML. */
+  readonly localIndex: FormDataPathIndex
   readonly elementsByName: ReadonlyMap<string, FormElementDataPathState>
   readonly effectiveMainAttribute?: string
 }
@@ -141,22 +143,26 @@ export function requiresImportedFormDataPathCompaction(
   return false
 }
 
+/** Рабочее значение для экспорта; окончательный смысловой YAML не меняется. */
+export function prepareFormDataPathExportValue(
+  element: Pick<FormElementDataPathState, "origin" | "present" | "value" | "candidateYaml">,
+): { readonly value: string | undefined } | undefined {
+  if (element.origin !== "own") return undefined
+  if (element.present) return element.value === "" ? { value: undefined } : undefined
+  return element.candidateYaml === undefined ? undefined : { value: element.candidateYaml }
+}
+
 export function materializeImplicitFormDataPaths(
   yaml: ClientApplicationFormYAML,
   context: FormDataPathContext
 ): ClientApplicationFormYAML {
   const changes: MaterializedDataPathChange[] = []
   for (const element of context.elementsByName.values()) {
-    if (element.origin !== "own") continue
-    if (element.present) {
-      if (element.value === "") {
-        changes.push({ yamlPath: element.yamlPath, kind: "delete" })
-      }
-      continue
-    }
-    if (element.candidateYaml !== undefined) {
-      changes.push({ yamlPath: element.yamlPath, kind: "set", value: element.candidateYaml })
-    }
+    const prepared = prepareFormDataPathExportValue(element)
+    if (prepared === undefined) continue
+    changes.push(prepared.value === undefined
+      ? { yamlPath: element.yamlPath, kind: "delete" }
+      : { yamlPath: element.yamlPath, kind: "set", value: prepared.value })
   }
   if (changes.length === 0) return yaml
 
@@ -277,6 +283,7 @@ export function prepareFormDataPathContext(params: {
 
   return {
     index: effectiveIndex,
+    localIndex: ownIndex,
     elementsByName: prepared.elementsByName,
     ...(effectiveMainAttribute === undefined ? {} : { effectiveMainAttribute }),
   }

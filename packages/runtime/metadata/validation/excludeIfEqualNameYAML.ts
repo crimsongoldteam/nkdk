@@ -7,6 +7,18 @@ import type { Diagnostic } from "./types"
 import { diagnosticAtYamlPath, type YamlPath } from "./yamlLocations"
 import { yamlScalarTagAt } from "../../yaml/scalarTags"
 import { validateLocalizedTextYAMLProperty } from "./localizedTextYAML"
+import { prepareYAMLDocumentData } from "../../yaml/export"
+
+const localProperties = new WeakMap<MetadataItemRule, readonly PropertyRule[]>()
+
+function localPropertiesFor(rule: MetadataItemRule): readonly PropertyRule[] {
+  const cached = localProperties.get(rule)
+  if (cached !== undefined) return cached
+  const properties = Object.values(rule.properties).filter(property =>
+    property.type === "I8nText" || property.type === "FormattedI8nText")
+  localProperties.set(rule, properties)
+  return properties
+}
 
 export interface ValidateExcludedEqualNameYAMLParams {
   context: ConfigurationContext
@@ -14,7 +26,7 @@ export interface ValidateExcludedEqualNameYAMLParams {
   parsed: ParsedYaml
   rule: MetadataItemRule
   name: string | undefined
-  onLocalizedTextProperty?: () => void
+  onLocalizedTextProperty?: (path: YamlPath) => void
 }
 
 export function validateExcludedEqualNameYAML(params: ValidateExcludedEqualNameYAMLParams): Diagnostic[] {
@@ -54,16 +66,20 @@ function validateObject(
   if (!record) return []
 
   const diagnostics: Diagnostic[] = []
-  for (const propRule of Object.values(params.rule.properties)) {
+  for (const propRule of recurse ? Object.values(params.rule.properties) : localPropertiesFor(params.rule)) {
     if (typeof propRule.yaml !== "string") continue
 
-    const yamlValue = record[propRule.yaml]
+    const sourceValue = record[propRule.yaml]
+    const prepared = sourceValue !== null && typeof sourceValue === "object"
+      && (propRule.type === "I8nText" || propRule.type === "FormattedI8nText")
+      ? prepareYAMLDocumentData(sourceValue, params.parsed.annotations) : undefined
+    const yamlValue = prepared?.data ?? sourceValue
     if (yamlValue === undefined) continue
 
     const propertyPath = [...params.yamlPath, propRule.yaml]
     const localizedText = localizedTextValue(propRule, yamlValue)
     if (localizedText !== undefined) {
-      params.onLocalizedTextProperty?.()
+      params.onLocalizedTextProperty?.(propertyPath)
       const localizedOwner = propRule.type === "FormattedI8nText" ? asRecord(yamlValue) : record
       const localizedKey = propRule.type === "FormattedI8nText" ? "Текст" : propRule.yaml
       const localizedPath = propRule.type === "FormattedI8nText" ? [...propertyPath, "Текст"] : propertyPath
@@ -71,7 +87,7 @@ function validateObject(
         languages: params.context.languages,
         value: localizedText,
         valueTag: localizedOwner === undefined ? undefined : yamlScalarTagAt(localizedOwner, localizedKey),
-        annotations: params.parsed.annotations,
+        annotations: prepared?.annotations ?? params.parsed.annotations,
         path: localizedPath,
         foldable: propRule.excludeIfEqualNameYAML === true,
       })

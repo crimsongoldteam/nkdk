@@ -72,14 +72,14 @@ export function importBaseFormYaml(params: {
     dependencies: params.dependencies,
     roundTrip: params.roundTrip,
     beforeFinish: (yaml) => {
-      normalizeBaseFormYamlInPlace(yaml)
+      if (params.roundTrip === undefined) normalizeBaseFormYamlInPlace(yaml)
       params.beforeFinish?.(yaml)
     },
   })
   const yaml = imported.yaml
   const annotations = importedAnnotations
   const localIndexes = localIndexesCollector.finish()
-  localIndexes.metadata.formDataPathIndex = createFormDataPathIndexFromYAML(yaml)
+  if (params.roundTrip === undefined) localIndexes.metadata.formDataPathIndex = createFormDataPathIndexFromYAML(yaml)
   return {
     yaml,
     annotations,
@@ -161,7 +161,7 @@ function isEmptyRecord(value: unknown): boolean {
   return isRecord(value) && Object.keys(value).every(isXmlServiceKey)
 }
 
-function isXmlServiceKey(key: string): boolean {
+export function isXmlServiceKey(key: string): boolean {
   return key === "_id"
     || key === "_uuid"
     || key === "_version"

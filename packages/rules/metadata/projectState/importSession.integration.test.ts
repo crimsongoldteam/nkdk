@@ -15,6 +15,7 @@ import type {
 import { assertProjectStateImportFinalFileStateBatch, createProjectStateImportSession } from "./importSession"
 import type { ProjectStateWriterHandle } from "./writerHandle"
 import { createProjectStateWriterHandle } from "./writerHandle"
+import { refreshProjectState } from "./refresh"
 
 describe("ProjectState import session", () => {
   const externalResource = {
@@ -117,6 +118,43 @@ describe("ProjectState import session", () => {
     await writer.flushCheckpoint()
     expect(saved).toHaveLength(1)
     await writer.close()
+  })
+
+  it("сохраняет зависимость от языков через окончательный двоичный фрагмент импорта", async () => {
+    const writer = createProjectStateWriterHandle({
+      openStore: async () => createBinaryProjectStateTestFixture().store,
+      async save() {},
+    })
+    const importSession = await createTestImportSession(writer)
+    try {
+      const indexed = indexContribution("cf/a.yaml", "Товары")
+      await importSession.writeStateFragment(stateFragment([indexed]))
+      await importSession.commitSharedIndex()
+      const batch = {
+        updates: [{ ...finalState(indexed.projectPath), validationContextDependencies: [{ key: "languages", version: "ru-en" }] }],
+        hashBytes: new Uint8Array(8),
+      }
+      assertProjectStateImportFinalFileStateBatch(batch)
+      await importSession.writeStateFragment(stateFragment([], [batch]))
+      await importSession.finalize()
+      expect((await writer.readComponentProjection("cf")).updates).toContainEqual(expect.objectContaining({
+        validationContextDependencies: [{ key: "languages", version: "ru-en" }],
+      }))
+      let knownHashBits: Uint8Array<ArrayBufferLike> | undefined
+      await refreshProjectState({ projectDir: "/project", validationContextVersions: new Map([["languages", "ru-de"]]) }, {
+        handle: writer,
+        discoverFiles: async function* () {
+          yield { paths: [{ projectPath: indexed.projectPath, componentPath: "cf", absolutePath: "/project/cf/a.yaml", classify: () => undefined }] }
+        },
+        processFiles: async batches => {
+          for await (const selected of batches) knownHashBits = selected.knownHashBits
+          return { hashedFiles: 1, parsedYamlFiles: 0, changedFiles: 0, missingFiles: 0 }
+        },
+      })
+      expect(knownHashBits).toEqual(Uint8Array.of(0))
+    } finally {
+      await writer.close()
+    }
   })
 
   it("заменяет хэш окончательного состояния, сохраняя сведения о файле", async () => {
