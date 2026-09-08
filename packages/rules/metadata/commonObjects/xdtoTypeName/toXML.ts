@@ -16,8 +16,7 @@ const isBuiltInPrefix = (prefix: string): boolean => prefix === "xs" || prefix =
 export const exportXDTOTypeNameToXML = (
   _context: ConfigurationContextWithExportToXML,
   rule: PropertyRule | undefined,
-  value: XDTOTypeName | undefined,
-  _referenceValue?: XDTOTypeName | XDTOTypeNameXML
+  value: XDTOTypeName | undefined
 ): string | XDTOTypeNameXML | undefined => {
   if (value === undefined) return undefined
 

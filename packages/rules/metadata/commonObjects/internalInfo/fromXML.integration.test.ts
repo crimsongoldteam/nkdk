@@ -7,6 +7,7 @@ import {
   testPropertyFromXMLToYAML,
   testPropertyFromYAMLToXML,
 } from "../../../tests/directConversion"
+import { createYAMLPropertySource } from "../../ruleRuntime/property/fromYAMLToXML"
 import { mockContextFromXML, mockContextToXML } from "../../../tests/mockContext"
 import { withConfigurationIndexCollector } from "@nkdk/runtime"
 import { createConfigurationIndexCollector } from "@nkdk/runtime"
@@ -20,6 +21,10 @@ import { exportInternalInfoToXML } from "./toXML"
 import { InternalInfoRootXML, internalInfoRule } from "./types"
 import { collectInternalInfoConfigurationIndexFromXML } from "./configurationIndex"
 import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"
+
+const exportInternalInfoToXMLAtRuntimeBoundary: (
+  params: Parameters<typeof exportInternalInfoToXML>[0] & { readonly referenceMetadata?: unknown }
+) => ReturnType<typeof exportInternalInfoToXML> = exportInternalInfoToXML
 
 const rule: PropertyRule = {
   type: "InternalInfo",
@@ -107,12 +112,12 @@ describe("importInternalInfoFromXML", () => {
   })
 
   it("создаёт пустой InternalInfo для правила без вычисляемых UUID", () => {
-    expect(exportInternalInfoToXML({
+    expect(exportInternalInfoToXMLAtRuntimeBoundary({
       context: mockContextToXML(),
       rule: containedObjectsRule,
       value: undefined,
       referenceMetadata: undefined,
-      metadataItem: { itemType: "MetadataConfiguration" as never },
+      source: createYAMLPropertySource({ yaml: {}, rule: { itemType: "MetadataConfiguration", properties: {} } }),
     })).toEqual({})
   })
 
@@ -213,12 +218,12 @@ describe("importInternalInfoFromXML", () => {
       collector: createLocalIndexesCollector(),
     })
 
-    const exported = exportInternalInfoToXML({
+    const exported = exportInternalInfoToXMLAtRuntimeBoundary({
       context: contexts.exportContext(),
       rule: completeRule,
       value: undefined,
       referenceMetadata: undefined,
-      metadataItem: { itemType: "MetadataCatalog" as never, name: "Товары" },
+      source: createYAMLPropertySource({ yaml: {}, rule: { itemType: "MetadataCatalog", properties: {} }, itemName: "Товары" }),
     })
 
     expect(exported).toMatchObject({
@@ -253,12 +258,12 @@ describe("importInternalInfoFromXML", () => {
       ],
     }
     const exportNew = () =>
-      exportInternalInfoToXML({
+      exportInternalInfoToXMLAtRuntimeBoundary({
         context: createDirectRoundTripContexts({ logicalAddress: "Справочник.Новый" }).exportContext(),
         rule: newRule,
         value: undefined,
         referenceMetadata: undefined,
-        metadataItem: { itemType: "MetadataCatalog" as never, name: "Новый" },
+        source: createYAMLPropertySource({ yaml: {}, rule: { itemType: "MetadataCatalog", properties: {} }, itemName: "Новый" }),
       })
 
     const first = exportNew()
@@ -347,12 +352,12 @@ describe("importInternalInfoFromXML", () => {
 
   it("round-trips ThisNode with GeneratedType", () => {
     const imported = importFixture()
-    const exported = exportInternalInfoToXML({
+    const exported = exportInternalInfoToXMLAtRuntimeBoundary({
       context: mockContextToXML(),
       rule: ruleWithThisNode,
       value: imported,
       referenceMetadata: imported,
-      metadataItem: { itemType: "MetadataExchangePlan" as never },
+      source: createYAMLPropertySource({ yaml: {}, rule: { itemType: "MetadataExchangePlan", properties: {} } }),
     })
     const exportedXML = xmlExport({ InternalInfo: exported }, false)
     const reparsed = importContentFromXML<{ InternalInfo: InternalInfoRootXML }>(exportedXML)
@@ -379,12 +384,12 @@ describe("importInternalInfoFromXML", () => {
 
   it("round-trips ContainedObject items from model data", () => {
     const imported = importContainedObjectsFixture()
-    const exported = exportInternalInfoToXML({
+    const exported = exportInternalInfoToXMLAtRuntimeBoundary({
       context: mockContextToXML(),
       rule: containedObjectsRule,
       value: imported,
       referenceMetadata: undefined,
-      metadataItem: { itemType: "MetadataConfiguration" as never },
+      source: createYAMLPropertySource({ yaml: {}, rule: { itemType: "MetadataConfiguration", properties: {} } }),
     })
     const exportedXML = xmlExport({ InternalInfo: exported }, false)
     const reparsed = importContentFromXML<{ InternalInfo: InternalInfoRootXML }>(exportedXML)
@@ -395,12 +400,12 @@ describe("importInternalInfoFromXML", () => {
   })
 
   it("generates declared ContainedObject items without model or reference data", () => {
-    const exported = exportInternalInfoToXML({
+    const exported = exportInternalInfoToXMLAtRuntimeBoundary({
       context: mockContextToXML(),
       rule: generatedContainedObjectsRule,
       value: undefined,
       referenceMetadata: undefined,
-      metadataItem: { itemType: "MetadataConfiguration" as never },
+      source: createYAMLPropertySource({ yaml: {}, rule: { itemType: "MetadataConfiguration", properties: {} } }),
     })
 
     expect(exported["xr:ContainedObject"]).toEqual([
@@ -417,12 +422,12 @@ describe("importInternalInfoFromXML", () => {
 
   it("uses current ContainedObject ObjectId for declared ClassId", () => {
     const imported = importContainedObjectsFixture()
-    const exported = exportInternalInfoToXML({
+    const exported = exportInternalInfoToXMLAtRuntimeBoundary({
       context: mockContextToXML(),
       rule: generatedContainedObjectsRule,
       value: imported,
       referenceMetadata: { containedObjects: [{ classId: "00000000-0000-0000-0000-000000000101", objectId: "stale" }] },
-      metadataItem: { itemType: "MetadataConfiguration" as never },
+      source: createYAMLPropertySource({ yaml: {}, rule: { itemType: "MetadataConfiguration", properties: {} } }),
     })
 
     expect(exported["xr:ContainedObject"]).toEqual([
@@ -438,7 +443,7 @@ describe("importInternalInfoFromXML", () => {
   })
 
   it("uses current ThisNode and generated identities instead of reference", () => {
-    const exported = exportInternalInfoToXML({
+    const exported = exportInternalInfoToXMLAtRuntimeBoundary({
       context: mockContextToXML(),
       rule: ruleWithThisNode,
       value: {
@@ -455,7 +460,7 @@ describe("importInternalInfoFromXML", () => {
         },
         thisNode: "ref",
       },
-      metadataItem: { itemType: "MetadataExchangePlan" as never },
+      source: createYAMLPropertySource({ yaml: {}, rule: { itemType: "MetadataExchangePlan", properties: {} } }),
     })
 
     expect(exported["xr:ThisNode"]).toBe("new")
@@ -467,7 +472,7 @@ describe("importInternalInfoFromXML", () => {
   })
 
   it("does not resurrect undeclared contained objects from reference", () => {
-    const exported = exportInternalInfoToXML({
+    const exported = exportInternalInfoToXMLAtRuntimeBoundary({
       context: mockContextToXML(), rule: containedObjectsRule,
       value: undefined, referenceMetadata: importContainedObjectsFixture(),
     })
@@ -475,7 +480,7 @@ describe("importInternalInfoFromXML", () => {
   })
 
   it("generates ThisNode when rule opts in and no model or reference value exists", () => {
-    const exported = exportInternalInfoToXML({
+    const exported = exportInternalInfoToXMLAtRuntimeBoundary({
       context: mockContextToXML(),
       rule: ruleWithThisNode,
       value: {
@@ -485,14 +490,14 @@ describe("importInternalInfoFromXML", () => {
         },
       },
       referenceMetadata: undefined,
-      metadataItem: { itemType: "MetadataExchangePlan" as never },
+      source: createYAMLPropertySource({ yaml: {}, rule: { itemType: "MetadataExchangePlan", properties: {} } }),
     })
 
     expect(exported["xr:ThisNode"]).toBe("11111111-1111-4111-8111-111111111111")
   })
 
   it("does not export ThisNode without rule opt-in", () => {
-    const exported = exportInternalInfoToXML({
+    const exported = exportInternalInfoToXMLAtRuntimeBoundary({
       context: mockContextToXML(),
       rule,
       value: {
@@ -509,7 +514,7 @@ describe("importInternalInfoFromXML", () => {
         },
         thisNode: "ref",
       },
-      metadataItem: { itemType: "MetadataExchangePlan" as never },
+      source: createYAMLPropertySource({ yaml: {}, rule: { itemType: "MetadataExchangePlan", properties: {} } }),
     })
 
     expect(exported).not.toHaveProperty("xr:ThisNode")

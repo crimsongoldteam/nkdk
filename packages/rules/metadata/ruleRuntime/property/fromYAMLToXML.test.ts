@@ -13,7 +13,7 @@ import "../../commonObjects/usePurposes/toXML"
 import { metadataRules } from "../../composition/metadataRules"
 import { FormAttributeRules } from "../../forms/commonObjects/formAttribute/rules"
 import type { ExportToXMLFunctionNew,ImportFromYAMLFunctionNew } from "./fn"
-import { convertPropertiesFromYAMLToXML, createXMLPropertyExecution, type XMLPropertyExecutionObserver } from "./fromYAMLToXML"
+import { callAtomicFromYAML, convertPropertiesFromYAMLToXML, createXMLPropertyExecution, type XMLPropertyExecutionObserver } from "./fromYAMLToXML"
 import { createYAMLToXMLProfile,type YAMLToXMLNestedRule } from "./fromYAMLToXMLTypes"
 import type { PropertyRuleType } from "./registry"
 import { registerTypeRule } from "./typeRuleRegistry"
@@ -107,6 +107,15 @@ const contextWithXMLDefaultVariant = (
 }
 
 describe("convertPropertiesFromYAMLToXML", () => {
+  it("не подменяет отсутствующее значение YAML старым источником", () => {
+    const invocation = {
+      context: context(),
+      rule: { type: "String" } satisfies PropertyRule,
+      value: undefined,
+      referenceValue: "Устаревшее значение",
+    }
+    expect(callAtomicFromYAML(invocation)).toBeUndefined()
+  })
   it("передаёт выход свойства на локальную проверку сразу, включая лишний default", () => {
     const execution = createRuleRegistrySet(metadataRules).execution
     const rule = testRule({

@@ -25,14 +25,13 @@ describe("exportChildFormNamesToXML", () => {
   })
 
   it("без снимка использует канонический порядок, а не reference", () => {
-    expect(
-      exportChildFormNamesToXML({
+    const invocation = {
         context: mockContextToXML(),
         rule,
         value: ["ФормаВыбора", "НоваяФорма", "ФормаОбъекта"],
         referenceMetadata: ["ФормаОбъекта", "ФормаВыбора"],
-      })
-    ).toEqual(["НоваяФорма", "ФормаВыбора", "ФормаОбъекта"])
+    }
+    expect(exportChildFormNamesToXML(invocation)).toEqual(["НоваяФорма", "ФормаВыбора", "ФормаОбъекта"])
   })
 
   it("возвращает формы из контекста при пустом value (IO-путь)", () => {

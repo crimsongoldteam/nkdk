@@ -23,7 +23,7 @@ import type {
   RequiresImportedYAMLFinalizationFunction,
   ResolveNestedImportXMLSourcesFunction,
 } from "./importYamlTypes"
-import type { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
+import type { MetadataItemRule, PropertyRule } from "./types"
 import type { PrepareXMLItemOutputFunction, YAMLToXMLNestedRule } from "./fromYAMLToXMLTypes"
 import type { YAMLPropertySource } from "./fromYAMLToXMLTypes"
 import type { TypeRulesOperations } from "./ruleContracts"
@@ -39,18 +39,14 @@ export type { TypeRulesOperations, YAMLToXMLCondition } from "./ruleContracts"
 export type ExportToXMLFunction = (
   context: ConfigurationContextWithExportToXML,
   rule: PropertyRule,
-  value: any,
-  referenceValue?: any
+  value: any
 ) => any | undefined
 
-export type ExportToXMLFunctionNew = <T extends MetadataItem>(params: {
+export type ExportToXMLFunctionNew = (params: {
   context: ConfigurationContextWithExportToXML
   rule: PropertyRule
   source?: YAMLPropertySource
   propertyKey?: string
-  /** @deprecated Удаляется вместе со старой общей XML-оркестрацией. */
-  metadataItem?: T
-  referenceMetadata?: any
   value: any
 }) => any | undefined
 
@@ -121,7 +117,6 @@ export type ImportFromYAMLFunctionNew = (params: {
   rule: PropertyRule
   yaml?: any
   annotations?: XmlAnomalyAnnotations
-  source?: any
   value: any
   name?: string
   owner?: MetadataTargetOwner
@@ -131,8 +126,7 @@ export type ImportFromYAMLFunctionNew = (params: {
 export type importFromYAMLFunction = (
   context: ConfigurationContext,
   rule: PropertyRule,
-  value: any | undefined,
-  source?: any
+  value: any | undefined
 ) => any | undefined
 
 export type ExportToYAMLFunction = (

@@ -17,15 +17,19 @@ import { CommandInterfaceXML } from "./types"
 
 const fixturesDir = join(dirname(fileURLToPath(import.meta.url)), "__fixtures__")
 
+const exportCommandInterfaceToXMLAtRuntimeBoundary: (
+  ...args: [...Parameters<typeof exportCommandInterfaceToXML>, unknown?]
+) => ReturnType<typeof exportCommandInterfaceToXML> = exportCommandInterfaceToXML
+
 describe("exportCommandInterfaceToXML", () => {
   it("should return undefined when data is undefined", () => {
-    const result = exportCommandInterfaceToXML(mockContext, mockRule, undefined)
+    const result = exportCommandInterfaceToXMLAtRuntimeBoundary(mockContext, mockRule, undefined)
 
     expect(result).toBeUndefined()
   })
 
   it("should return undefined when data is empty", () => {
-    const result = exportCommandInterfaceToXML(mockContext, mockRule, {
+    const result = exportCommandInterfaceToXMLAtRuntimeBoundary(mockContext, mockRule, {
       NavigationPanel: [],
       CommandBar: [],
       itemType: "CommandInterface",
@@ -42,7 +46,7 @@ describe("exportCommandInterfaceToXML", () => {
       mockRule,
       referenceXML.CommandInterface
     )
-    const xmlData = exportCommandInterfaceToXML(mockContext, mockRule, fullCommandInterface, referenceData)
+    const xmlData = exportCommandInterfaceToXMLAtRuntimeBoundary(mockContext, mockRule, fullCommandInterface, referenceData)
 
     const result = xmlExport({ CommandInterface: xmlData }, false)
 
@@ -51,7 +55,7 @@ describe("exportCommandInterfaceToXML", () => {
 
   it("export commandBarIndexInsertion", () => {
     const expectedResult = readXMLFileAsString("commandBarIndexInsertion.xml", fixturesDir).trimEnd()
-    const xmlData = exportCommandInterfaceToXML(mockContext, mockRule, commandBarIndexInsertion)
+    const xmlData = exportCommandInterfaceToXMLAtRuntimeBoundary(mockContext, mockRule, commandBarIndexInsertion)
 
     const result = xmlExport({ CommandInterface: xmlData }, false)
 
@@ -59,7 +63,7 @@ describe("exportCommandInterfaceToXML", () => {
   })
 
   it("export indexedItemOrderSwap", () => {
-    const xmlData = exportCommandInterfaceToXML(mockContext, mockRule, indexedItemOrderSwap)
+    const xmlData = exportCommandInterfaceToXMLAtRuntimeBoundary(mockContext, mockRule, indexedItemOrderSwap)
     const result = xmlExport({ CommandInterface: xmlData }, false)
 
     expect(result).toMatchInlineSnapshot(`
@@ -100,7 +104,7 @@ describe("exportCommandInterfaceToXML", () => {
       mockRule,
       referenceXML.CommandInterface
     )
-    const xmlData = exportCommandInterfaceToXML(mockContext, mockRule, commandGroupReferenceOrder, referenceData)
+    const xmlData = exportCommandInterfaceToXMLAtRuntimeBoundary(mockContext, mockRule, commandGroupReferenceOrder, referenceData)
 
     const result = xmlExport({ CommandInterface: xmlData }, false)
 
@@ -118,7 +122,7 @@ describe("exportCommandInterfaceToXML", () => {
       mockRule,
       referenceXML.CommandInterface
     )
-    const xmlData = exportCommandInterfaceToXML(mockContext, mockRule, duplicateAutoCommandOrder, referenceData)
+    const xmlData = exportCommandInterfaceToXMLAtRuntimeBoundary(mockContext, mockRule, duplicateAutoCommandOrder, referenceData)
 
     const result = xmlExport({ CommandInterface: xmlData }, false)
 
@@ -136,7 +140,7 @@ describe("exportCommandInterfaceToXML", () => {
       mockRule,
       referenceXML.CommandInterface
     )
-    const xmlData = exportCommandInterfaceToXML(
+    const xmlData = exportCommandInterfaceToXMLAtRuntimeBoundary(
       mockContext,
       mockRule,
       duplicateCommandGroupReferenceOrder,
@@ -159,7 +163,7 @@ describe("exportCommandInterfaceToXML", () => {
       mockRule,
       referenceXML.CommandInterface
     )
-    const xmlData = exportCommandInterfaceToXML(
+    const xmlData = exportCommandInterfaceToXMLAtRuntimeBoundary(
       mockContext,
       mockRule,
       duplicateCommandAttributeReferenceOrder,
@@ -189,7 +193,7 @@ describe("exportCommandInterfaceToXML", () => {
         },
       ],
     }
-    const xmlData = exportCommandInterfaceToXML(mockContext, mockRule, data)
+    const xmlData = exportCommandInterfaceToXMLAtRuntimeBoundary(mockContext, mockRule, data)
 
     const result = xmlExport({ CommandInterface: xmlData }, false)
 
@@ -209,7 +213,7 @@ describe("exportCommandInterfaceToXML", () => {
   })
 
   it("does not export DefaultVisible when defaultVisible is absent", () => {
-    const xmlData = exportCommandInterfaceToXML(mockContext, mockRule, {
+    const xmlData = exportCommandInterfaceToXMLAtRuntimeBoundary(mockContext, mockRule, {
       itemType: "CommandInterface",
       NavigationPanel: [],
       CommandBar: [

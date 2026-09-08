@@ -4,6 +4,10 @@ import { formattedI8nTextFixtures } from "./__fixtures__/data"
 import { importFormattedI8nTextFromYAML } from "./fromYAML"
 import { FormattedI8nTextPropertyRule } from "./types"
 
+const importFormattedI8nTextFromYAMLAtRuntimeBoundary: (
+  params: Parameters<typeof importFormattedI8nTextFromYAML>[0] & { readonly source?: unknown }
+) => ReturnType<typeof importFormattedI8nTextFromYAML> = importFormattedI8nTextFromYAML
+
 const formattedI8nTextRule: FormattedI8nTextPropertyRule = {
   type: "FormattedI8nText",
   yaml: "Title",
@@ -11,7 +15,7 @@ const formattedI8nTextRule: FormattedI8nTextPropertyRule = {
 
 describe("importFormattedI8nTextFromYAML", () => {
   it("restores an omitted default-language text from the name", () => {
-    const result = importFormattedI8nTextFromYAML({
+    const result = importFormattedI8nTextFromYAMLAtRuntimeBoundary({
       context: mockContext,
       rule: {
         type: "FormattedI8nText",
@@ -30,7 +34,7 @@ describe("importFormattedI8nTextFromYAML", () => {
   })
 
   it("imports explicit empty text", () => {
-    const result = importFormattedI8nTextFromYAML({
+    const result = importFormattedI8nTextFromYAMLAtRuntimeBoundary({
       context: mockContext,
       rule: {
         type: "FormattedI8nText",
@@ -48,7 +52,7 @@ describe("importFormattedI8nTextFromYAML", () => {
   })
 
   it("восстанавливает пустой форматированный текст без языковых значений", () => {
-    const result = importFormattedI8nTextFromYAML({
+    const result = importFormattedI8nTextFromYAMLAtRuntimeBoundary({
       context: mockContext,
       rule: formattedI8nTextRule,
       value: { Форматированный: "Истина" },
@@ -62,7 +66,7 @@ describe("importFormattedI8nTextFromYAML", () => {
 
   describe("value-based YAML", () => {
     it.each(formattedI8nTextFixtures)("should import: %s", (fixture) => {
-      const result = importFormattedI8nTextFromYAML({
+      const result = importFormattedI8nTextFromYAMLAtRuntimeBoundary({
         context: mockContext,
         rule: formattedI8nTextRule,
         value: fixture.valueYAML,
@@ -73,7 +77,7 @@ describe("importFormattedI8nTextFromYAML", () => {
 
   describe("игнорирование старого источника", () => {
     it.each(formattedI8nTextFixtures)("should import: %s", (fixture) => {
-      const result = importFormattedI8nTextFromYAML({
+      const result = importFormattedI8nTextFromYAMLAtRuntimeBoundary({
         context: mockContext,
         rule: formattedI8nTextRule,
         value: fixture.valueYAML,
@@ -83,7 +87,7 @@ describe("importFormattedI8nTextFromYAML", () => {
     })
 
     it("берёт языки и форматирование только из YAML", () => {
-      const result = importFormattedI8nTextFromYAML({
+      const result = importFormattedI8nTextFromYAMLAtRuntimeBoundary({
         context: mockContext,
         rule: formattedI8nTextRule,
         value: { Форматированный: "Истина", Текст: { en: "Field" } },

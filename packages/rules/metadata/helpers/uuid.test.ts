@@ -37,9 +37,10 @@ describe("getUUID", () => {
     }
 
     expect(getUUID(context)).toBe(savedUuid)
-    expect(exportUUIDToXML({
-      context, rule: { type: "uuid" }, value: undefined,
+    const invocation = {
+      context, rule: { type: "uuid" as const }, value: undefined,
       referenceMetadata: "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
-    })).toBe(savedUuid)
+    }
+    expect(exportUUIDToXML(invocation)).toBe(savedUuid)
   })
 })

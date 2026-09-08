@@ -696,3 +696,21 @@ RED: две проверки скрытого источника. GREEN: 878 ц�
 integration, типы, duplicates, обе проверки архитектуры, pnpm test и 214 e2e.
 Логи: /private/tmp/nkdk-type-source-{red,green2,types2,integration,duplicates,
 arch-rules,arch,full,e2e}.log. Общий reference API и остальные задачи открыты.
+
+### Атомарные преобразователи без source/reference
+
+Удалены source/reference-аргументы общих fromYAML/toXML и подстановка старого
+значения при отсутствующем YAML. ID из снимка передаётся явным значением,
+не как reference. InternalInfo и панели интерфейса читают сведения владельца
+из текущего YAMLPropertySource, а не старого metadataItem. Убран неиспользуемый
+поиск панелей/групп в прежнем источнике. Тестовый экспорт больше не импортирует
+эталонный XML для скрытой передачи преобразователю.
+
+RED: отсутствующее строковое значение ошибочно возвращалось из reference.
+При удалении fallback выявлен отдельный регресс null очищенной ссылки;
+сохранена прежняя семантика default без возвращения скрытого источника.
+GREEN: 894 целевых теста, 3138 integration, типы, duplicates, обе архитектурные
+проверки, pnpm test и 214 e2e. XML/YAML-фикстуры не менялись.
+Логи: /private/tmp/nkdk-atomic-source-{red,targeted2,types6,integration2,
+duplicates,arch-rules,arch,full,e2e}.log. Параметры referenceXML верхнего
+уровня и единственное структурное дерево XML ещё требуют завершения.

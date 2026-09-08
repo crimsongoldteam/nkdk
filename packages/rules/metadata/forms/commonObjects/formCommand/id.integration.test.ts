@@ -13,10 +13,11 @@ describe("FormCommand identity", () => {
       propertiesItemXmlStack: [{ _name: "Команда" }],
     }
     context.exportToXML.context = obsoleteContext
-    callAtomicToXML({
+    const invocation = {
       context, rule: FormCommandRules.properties.id, value: undefined,
       referenceValue: { itemType: "FormCommand", id: "999" },
-    })
+    }
+    callAtomicToXML(invocation)
     expect(metadataForNumbering).toEqual([])
   })
 })

@@ -14,7 +14,7 @@ import {
 } from "./types"
 
 export const exportInternalInfoToXML: ExportToXMLFunctionNew = (params): InternalInfoRootXML | undefined => {
-  const { context, rule, value, metadataItem, source } = params
+  const { context, rule, value, source } = params
 
   const internalInfoRule = rule as InternalInfoPropertyRule
 
@@ -31,7 +31,7 @@ export const exportInternalInfoToXML: ExportToXMLFunctionNew = (params): Interna
 
   const itemsRule = ((rule as any).items ?? []) as { name: string; category: string }[]
 
-  const itemName = source?.itemName ?? (metadataItem as { name?: string } | undefined)?.name ?? ""
+  const itemName = source?.itemName ?? ""
   const nameItemPart = internalInfoRule?.getName
     ? internalInfoRule.getName({ context, metadata: { name: itemName } })
     : itemName

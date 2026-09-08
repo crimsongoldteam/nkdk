@@ -18,10 +18,11 @@ describe("AccumulationRegisterAggregates YAML → XML", () => {
   it("не восстанавливает удалённые измерения из reference", () => {
     const context = mockContextToXML()
     context.exportToXML.context!.parentName = currentRegisterName
-    expect(callAtomicToXML({
-      context, rule: { type: "AccumulationRegisterAggregateDimensions" }, value: undefined,
+    const invocation = {
+      context, rule: { type: "AccumulationRegisterAggregateDimensions" as const }, value: undefined,
       referenceValue: { СтароеИзмерение: true },
-    })).toBeUndefined()
+    }
+    expect(callAtomicToXML(invocation)).toBeUndefined()
   })
   it("берёт владельца измерений из регистра, а не из вложенного агрегата", () => {
     const context = mockContextToXML()

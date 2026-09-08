@@ -59,7 +59,6 @@ export type YAMLToXMLExternalWriteFactory = (params: {
   readonly name: string | undefined
   readonly propertyKey: string
   readonly propertyRule: PropertyRule
-  readonly referenceValue: unknown
 }) => readonly YAMLToXMLExternalWrite[]
 
 export interface YAMLToXMLResult {

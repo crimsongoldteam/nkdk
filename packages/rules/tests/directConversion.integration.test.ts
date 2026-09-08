@@ -108,9 +108,9 @@ describe("direct conversion test helpers", () => {
         structuralInputs.push(isXmlElementNode(xml))
         return isXmlElementNode(xml) ? xmlTextValue(xml) : xml
       })
-      registerTypeRule(propertyType, "exportToXML", (({ value, referenceMetadata }) => {
-        if (referenceMetadata !== undefined) throw new Error("Экспорт не должен получать reference")
-        return value
+      registerTypeRule(propertyType, "exportToXML", ((params) => {
+        if ("referenceMetadata" in params) throw new Error("Экспорт не должен получать reference")
+        return params.value
       }) as ExportToXMLFunctionNew)
     })
     const rule: MetadataItemRule = { ...MetadataCatalogRules, properties: {

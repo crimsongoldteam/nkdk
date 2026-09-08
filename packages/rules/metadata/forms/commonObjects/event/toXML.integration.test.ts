@@ -12,7 +12,9 @@ import { InputFieldRules } from "../../elements/inputField/rules"
 import { importEventsFromXML } from "./fromXML"
 import { exportEventsToXML } from "./toXML"
 
-const exportEventsAtRuntimeBoundary: ExportToXMLFunction = exportEventsToXML
+const exportEventsAtRuntimeBoundary: (
+  ...args: [...Parameters<ExportToXMLFunction>, unknown?]
+) => ReturnType<ExportToXMLFunction> = exportEventsToXML
 
 const eventRule = ClientApplicationFormRules.properties.events
 const eventProbeRule = {

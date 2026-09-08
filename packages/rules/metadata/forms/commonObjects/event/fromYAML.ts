@@ -15,8 +15,7 @@ const isEventsPropertyRule = (rule: PropertyRule): rule is EventsPropertyRule =>
 export const importEventsFromYAML = (
   _context: ConfigurationContext,
   rule: PropertyRule,
-  value: unknown,
-  _source?: unknown
+  value: unknown
 ): Events | undefined => {
   if (!isEventsPropertyRule(rule)) return undefined
   if (!value || typeof value !== "object") return undefined

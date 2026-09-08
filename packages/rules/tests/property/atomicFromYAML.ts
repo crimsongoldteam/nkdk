@@ -7,14 +7,16 @@ export const testAtomicFromYAML = (params: {
   value: unknown
   sourceValue?: unknown
   name?: string
-}): unknown =>
-  callAtomicFromYAML({
+}): unknown => {
+  const invocation = {
     context: mockContext,
     rule: params.rule,
     value: params.value,
     referenceValue: params.sourceValue,
     name: params.name,
-  })
+  }
+  return callAtomicFromYAML(invocation)
+}
 import { registerCommonObjects } from "../../metadata/commonObjects"
 
 registerCommonObjects()

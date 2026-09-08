@@ -71,7 +71,6 @@ export interface AtomicFromYAMLParams {
   readonly context: ConfigurationContext
   readonly rule: PropertyRule
   readonly value: unknown
-  readonly referenceValue?: unknown
   readonly yaml?: unknown
   readonly annotations?: import("../../../yaml/xmlAnomalyAnnotations").XmlAnomalyAnnotations
   readonly name?: string
@@ -86,7 +85,6 @@ export interface AtomicToXMLParams {
   readonly context: ConfigurationContextWithExportToXML
   readonly rule: PropertyRule
   readonly value: unknown
-  readonly referenceValue?: unknown
   readonly source?: YAMLPropertySource
   readonly propertyKey?: string
   readonly sourceHasProperty?: boolean
@@ -347,7 +345,6 @@ export function createXMLPropertyExecution(
           name: params.name,
           propertyKey,
           propertyRule: planned.propertyRule,
-          referenceValue: references[0]?.value,
         })
       )
     }
@@ -664,8 +661,7 @@ export function createXMLPropertyExecution(
         execution: params.execution,
         context: diagnosticContext,
         rule: planned.propertyRule,
-        value: sourceValue,
-        referenceValue: atomicReferences[0],
+        value: sourceValue === undefined ? atomicReferences[0] : sourceValue,
         yaml,
         annotations: params.annotations,
         name: params.name,
@@ -768,7 +764,6 @@ export function createXMLPropertyExecution(
           context: outputContext,
           rule: planned.propertyRule,
           value: imported,
-          referenceValue: atomicReferences[index],
           source,
           propertyKey,
           sourceHasProperty,
@@ -942,7 +937,7 @@ function callAtomicFromXML(params: {
 }
 
 export function callAtomicFromYAML(params: AtomicFromYAMLParams): unknown {
-  const { context, rule, value, referenceValue, yaml, annotations, name, owner } = params
+  const { context, rule, value, yaml, annotations, name, owner } = params
   const scalarTag = typeof rule.yaml === "string"
     ? yamlScalarTagAt(yaml, rule.yaml)
     : undefined
@@ -985,14 +980,13 @@ export function callAtomicFromYAML(params: AtomicFromYAMLParams): unknown {
     const imported = atomicConversion.fromYAMLToXML({
       context,
       value: atomicValue,
-    }).metadataValue ?? referenceValue
+    }).metadataValue
     return imported === undefined
       ? defaultValue({ context, rule, yaml, name, operation: "importFromYAML" })
       : imported
   }
   if (handler === undefined) {
-    const imported = importedValue ?? referenceValue
-    return imported === undefined ? defaultValue({ context, rule, yaml, name, operation: "importFromYAML" }) : imported
+    return importedValue ?? defaultValue({ context, rule, yaml, name, operation: "importFromYAML" })
   }
 
   const imported =
@@ -1001,19 +995,17 @@ export function callAtomicFromYAML(params: AtomicFromYAMLParams): unknown {
           context,
           rule,
           value: importedValue,
-          source: referenceValue,
           yaml,
           annotations,
           name,
           owner,
           restoreExcludedEqualName: params.restoreExcludedEqualName,
         })
-      : (handler as importFromYAMLFunction)(context, rule, importedValue, referenceValue)
-  if (rule.type === "MetadataDcsMetadataValue" && imported === null) return null
-  const resolved = shouldUseOnlyImportedValue({ rule, value })
-    ? imported
-    : (imported ?? normalizeReferenceFallback(rule, referenceValue))
-  return resolved === undefined ? defaultValue({ context, rule, yaml, name, operation: "importFromYAML" }) : resolved
+      : (handler as importFromYAMLFunction)(context, rule, importedValue)
+  if (imported === null && (
+    rule.type === "MetadataDcsMetadataValue" || (rule.preserveEmptyXML === true && value === undefined)
+  )) return null
+  return imported ?? defaultValue({ context, rule, yaml, name, operation: "importFromYAML" })
 }
 
 function importMetadataTargetsFromYAML(params: {
@@ -1041,22 +1033,8 @@ function importMetadataTargetsFromYAML(params: {
   })
 }
 
-function shouldUseOnlyImportedValue(params: { rule: PropertyRule; value: unknown }): boolean {
-  return (
-    (params.rule.preserveEmptyXML === true && params.value === undefined) ||
-    (params.rule.type === "MetadataDcsMetadataValue" &&
-      (params.rule as { valueType?: unknown }).valueType === "DesignTimeValue" &&
-      params.value === undefined)
-  )
-}
-
-function normalizeReferenceFallback(rule: PropertyRule, value: unknown): unknown {
-  if (rule.type !== "SystemEnumeration" || !isRecord(value)) return value
-  return typeof value["#text"] === "string" ? value["#text"] : value
-}
-
 export function callAtomicToXML(params: AtomicToXMLParams): unknown {
-  const { context, rule, value, referenceValue, source, propertyKey } = params
+  const { context, rule, value, source, propertyKey } = params
   if (Object.prototype.hasOwnProperty.call(rule, "implicitValueXML") && value === rule.implicitValueXML) {
     return undefined
   }
@@ -1109,9 +1087,8 @@ export function callAtomicToXML(params: AtomicToXMLParams): unknown {
           value: nextValue,
           source,
           propertyKey,
-          referenceMetadata: referenceValue,
         })
-      : (handler as ExportToXMLFunction)(context, rule, nextValue, referenceValue)
+      : (handler as ExportToXMLFunction)(context, rule, nextValue)
   if (forcedXMLDefault.exists) {
     return wrapWithNamespace(rule, exportValue(forcedXMLDefault.value))
   }
