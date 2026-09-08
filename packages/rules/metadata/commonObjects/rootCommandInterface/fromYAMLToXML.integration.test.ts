@@ -3,9 +3,8 @@ import { join } from "node:path"
 import { describe, expect, it } from "vitest"
 
 import {
-  createDirectRoundTripContexts,
   serializeDirectXML,
-  testMetadataItemFromXMLToYAML,
+  testMetadataItemYamlRoundTrip,
   testMetadataItemFromYAMLToXML,
   testPropertyFromXMLToYAML,
 } from "../../../tests/directConversion"
@@ -13,11 +12,18 @@ import { createXmlAnomalyAnnotations, importContentFromXML, parseMetadataYaml, s
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { RootCommandInterfaceRules } from "./rules"
 import type { RootCommandInterfaceYAML } from "./types"
-import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"
 
 import "./register"
 
 describe("RootCommandInterface YAML → XML", () => {
+  it("does not restore unknown command XML from a reference", () => {
+    const xml = testMetadataItemFromYAMLToXML({
+      rule: RootCommandInterfaceRules,
+      yaml: { ВидимостьКоманд: [{ Команда: "Catalog.Товары.StandardCommand.OpenList", Общее: "Истина" }] },
+      referenceXML: importContentFromXML(UNKNOWN_VISIBILITY_XML),
+    }).xml
+    expect(serializeDirectXML(xml)).not.toContain("customAttribute")
+  })
   it("аннотирует пустое имя роли при импорте, сохраняя смысл соседних ролей", () => {
     const annotations = createXmlAnomalyAnnotations()
     const imported = testPropertyFromXMLToYAML({
@@ -202,11 +208,9 @@ describe("RootCommandInterface YAML → XML", () => {
     expect(result).toContain("<CommandGroup>ActionsPanelCreate</CommandGroup>")
   })
 
-  it("preserves reference order details for duplicate command names", () => {
+  it("preserves original order details for duplicate command names", () => {
     const result = roundTrip(DUPLICATE_ORDER_XML)
-    expect(result).toContain('<Command orderAttribute="first" name="0">')
-    expect(result).toContain('<Command orderAttribute="other" name="Other">')
-    expect(result).toContain('<Command orderAttribute="second" name="0">')
+    expect(normalize(result).replace(/>\s+</g, "><")).toBe(normalize(DUPLICATE_ORDER_XML).replace(/>\s+</g, "><"))
   })
 
   it("preserves empty subsystem order items through YAML round-trip", () => {
@@ -236,22 +240,10 @@ function expectFixtureRoundTrip(fixture: string): string {
 }
 
 function roundTrip(xmlString: string, mutate?: (yaml: RootCommandInterfaceYAML) => void): string {
-  const contexts = createDirectRoundTripContexts()
-  const yaml = testMetadataItemFromXMLToYAML({
-    context: contexts.importContext,
-    rule: RootCommandInterfaceRules,
-    xml: parseStructuralXMLWithoutCompatibility(xmlString),
-  }).yaml as RootCommandInterfaceYAML
-  mutate?.(yaml)
-  const referenceXML = importContentFromXML<Record<string, unknown>>(xmlString)
-  return serializeDirectXML(
-    testMetadataItemFromYAMLToXML({
-      context: contexts.exportContext(),
-      rule: RootCommandInterfaceRules,
-      yaml,
-      referenceXML,
-    }).xml
-  )
+  return testMetadataItemYamlRoundTrip({
+    sourceXML: xmlString, rule: RootCommandInterfaceRules,
+    mutate: (yaml) => mutate?.(yaml as RootCommandInterfaceYAML),
+  }).result
 }
 
 const normalize = (value: string): string =>

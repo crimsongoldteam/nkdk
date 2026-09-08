@@ -80,7 +80,6 @@ const commandReferenceRule = {
   type: "MetadataItemLink",
   metadataTarget: { kind: "member", owner: "explicit", memberKinds: ["Command"] },
 } as const satisfies PropertyRule
-const XML_REFERENCE_RAW = "__xmlReferenceRaw"
 
 const getXMLName = (value: { _name?: string; name?: string } | XmlElementNode): string | undefined =>
   isXmlElementNode(value) ? xmlAttributeValue(value, "name") ?? childText(value, "name") : value._name ?? value.name
@@ -93,89 +92,16 @@ const childText = (node: XmlElementNode, name: string): string | undefined => {
 const toArray = <T>(value: T | T[] | undefined): T[] =>
   value === undefined ? [] : Array.isArray(value) ? value : [value]
 
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  value !== null && typeof value === "object" && !Array.isArray(value)
-
-const cloneXMLValue = (value: unknown): unknown => {
-  if (Array.isArray(value)) return value.map(cloneXMLValue)
-  if (!isRecord(value)) return value
-  return Object.fromEntries(Object.entries(value).map(([key, entry]) => [key, cloneXMLValue(entry)]))
-}
-
-const copyUnknownXMLKeys = (source: unknown, knownKeys: string[]): Record<string, unknown> => {
-  if (!isRecord(source)) return {}
-  const known = new Set(knownKeys)
-  return Object.fromEntries(
-    Object.entries(source)
-      .filter(([key]) => key !== "#text" && !known.has(key))
-      .map(([key, value]) => [key, cloneXMLValue(value)])
-  )
-}
-
-const defineReferenceRawXML = (params: {
-  context: ConfigurationContextFromXML
-  target: object
-  xml: unknown
-}): void => {
-  if (!params.context.fromXML.forReference || params.xml === undefined || isXmlElementNode(params.xml)) return
-  Object.defineProperty(params.target, XML_REFERENCE_RAW, {
-    value: params.xml,
-    enumerable: false,
-  })
-}
-
-const getReferenceRawXML = (referenceMetadata: unknown): Record<string, unknown> | undefined => {
-  if (referenceMetadata === null || referenceMetadata === undefined || typeof referenceMetadata !== "object") {
-    return undefined
-  }
-  const raw = (referenceMetadata as Record<string, unknown>)[XML_REFERENCE_RAW]
-  return isRecord(raw) ? raw : undefined
-}
-
-const findReferenceXMLItemByName = (params: {
-  referenceMetadata: unknown
-  itemKey: "Command" | "Subsystem"
-  name: string
-}): Record<string, unknown> | undefined => {
-  const raw = getReferenceRawXML(params.referenceMetadata)
-  const rawItems = raw?.[params.itemKey]
-  return toArray(rawItems)
-    .filter(isRecord)
-    .find((item) => getXMLName(item) === params.name)
-}
-
-const findReferenceXMLItemByNameAndIndex = (params: {
-  referenceMetadata: unknown
-  itemKey: "Command" | "Subsystem"
-  name: string
-  index: number
-}): Record<string, unknown> | undefined => {
-  const raw = getReferenceRawXML(params.referenceMetadata)
-  return toArray(raw?.[params.itemKey])
-    .filter(isRecord)
-    .filter((item) => getXMLName(item) === params.name)[params.index]
-}
-
-const mergeXMLItemWithReference = (params: {
-  referenceItem: Record<string, unknown> | undefined
+const exportNamedXMLItem = (params: {
   name: string
   knownValues: Record<string, unknown>
 }): Record<string, unknown> => {
-  const item = copyUnknownXMLKeys(params.referenceItem, ["_name", "name", ...Object.keys(params.knownValues)])
-  item._name = params.name
+  const item: Record<string, unknown> = { _name: params.name }
   for (const [key, value] of Object.entries(params.knownValues)) {
     if (value !== undefined) item[key] = value
   }
   return item
 }
-
-const findReferenceRoleVisibilityByName = (params: {
-  referenceVisibility: Record<string, unknown> | undefined
-  roleName: string
-}): Record<string, unknown> | undefined =>
-  toArray(params.referenceVisibility?.["xr:Value"])
-    .filter(isRecord)
-    .find((item) => getXMLName(item) === params.roleName)
 
 const getVisibilityXMLItemKey = (rule: PropertyRule): "Command" | "Subsystem" =>
   rule.xml === "SubsystemsVisibility" ? "Subsystem" : "Command"
@@ -230,22 +156,18 @@ const importVisibilityMapFromXML = (
     if (name !== undefined && visibility !== undefined) result.push({ command: name, visibility })
   }
 
-  defineReferenceRawXML({ context, target: result, xml })
   return result.length > 0 ? result : undefined
 }
 
 const exportVisibilityItemToXML = (params: {
-  referenceItem: Record<string, unknown> | undefined
   command: string
   visibility: CommandInterfaceVisibility
 }): CommandInterfaceVisibilityXML => {
-  const referenceVisibility = isRecord(params.referenceItem?.Visibility) ? params.referenceItem.Visibility : undefined
-  const visibilityXML = copyUnknownXMLKeys(referenceVisibility, ["xr:Common", "xr:Value"])
+  const visibilityXML: Record<string, unknown> = {}
   if (params.visibility.common !== undefined) visibilityXML["xr:Common"] = params.visibility.common
   if (params.visibility.roles !== undefined) {
     const roles = Object.entries(params.visibility.roles).map(([roleName, roleVisibility]) =>
-      mergeXMLItemWithReference({
-        referenceItem: findReferenceRoleVisibilityByName({ referenceVisibility, roleName }),
+      exportNamedXMLItem({
         name: roleName,
         knownValues: { "#text": roleVisibility },
       })
@@ -253,29 +175,19 @@ const exportVisibilityItemToXML = (params: {
     if (roles.length > 0) visibilityXML["xr:Value"] = roles
   }
 
-  return mergeXMLItemWithReference({
-    referenceItem: params.referenceItem,
+  return exportNamedXMLItem({
     name: params.command,
     knownValues: { Visibility: visibilityXML },
   }) as CommandInterfaceVisibilityXML
 }
 
-const exportVisibilityMapToXML: ExportToXMLFunctionNew = ({ rule, value, referenceMetadata }) => {
+const exportVisibilityMapToXML: ExportToXMLFunctionNew = ({ rule, value }) => {
   if (value === undefined) return undefined
 
   const itemKey = getVisibilityXMLItemKey(rule)
   const visibilityMap = value as CommandInterfaceVisibilityMap
-  const referenceIndexes = new Map<string, number>()
   const items = visibilityMap.map(({ command, visibility }) => {
-    const referenceIndex = referenceIndexes.get(command) ?? 0
-    referenceIndexes.set(command, referenceIndex + 1)
-    const referenceItem = findReferenceXMLItemByNameAndIndex({
-      referenceMetadata,
-      itemKey,
-      name: command,
-      index: referenceIndex,
-    })
-    return exportVisibilityItemToXML({ referenceItem, command, visibility })
+    return exportVisibilityItemToXML({ command, visibility })
   })
 
   return items.length > 0 ? { [itemKey]: items } : undefined
@@ -371,17 +283,15 @@ const importSubsystemsVisibilityMapFromXML = (
     if (name !== undefined && visibility !== undefined) result[name] = visibility
   }
 
-  defineReferenceRawXML({ context, target: result, xml })
   return Object.keys(result).length > 0 ? result : undefined
 }
 
-const exportSubsystemsVisibilityMapToXML: ExportToXMLFunctionNew = ({ value, referenceMetadata }) => {
+const exportSubsystemsVisibilityMapToXML: ExportToXMLFunctionNew = ({ value }) => {
   if (value === undefined) return undefined
 
   const visibilityMap = value as CommandInterfaceSubsystemsVisibilityMap
   const items = Object.entries(visibilityMap).map(([command, visibility]) => {
-    const referenceItem = findReferenceXMLItemByName({ referenceMetadata, itemKey: "Subsystem", name: command })
-    return exportVisibilityItemToXML({ referenceItem, command, visibility })
+    return exportVisibilityItemToXML({ command, visibility })
   })
 
   return items.length > 0 ? { Subsystem: items } : undefined
@@ -420,7 +330,7 @@ const exportSubsystemsVisibilityMapToYAML = (
 }
 
 const importPlacementMapFromXML = (
-  context: ConfigurationContextFromXML,
+  _context: ConfigurationContextFromXML,
   _rule: PropertyRule,
   xml: CommandInterfacePlacementMapXML | XmlElementNode | undefined
 ): CommandInterfacePlacementMap | undefined => {
@@ -437,26 +347,15 @@ const importPlacementMapFromXML = (
     })
   }
 
-  defineReferenceRawXML({ context, target: result, xml })
   return result.length > 0 ? result : undefined
 }
 
-const exportPlacementMapToXML: ExportToXMLFunctionNew = ({ value, referenceMetadata }) => {
+const exportPlacementMapToXML: ExportToXMLFunctionNew = ({ value }) => {
   if (value === undefined) return undefined
 
   const placementMap = value as CommandInterfacePlacementMap
-  const referenceIndexes = new Map<string, number>()
   const items = placementMap.map((placement) => {
-    const referenceIndex = referenceIndexes.get(placement.command) ?? 0
-    referenceIndexes.set(placement.command, referenceIndex + 1)
-    const referenceItem = findReferenceXMLItemByNameAndIndex({
-      referenceMetadata,
-      itemKey: "Command",
-      name: placement.command,
-      index: referenceIndex,
-    })
-    return mergeXMLItemWithReference({
-      referenceItem,
+    return exportNamedXMLItem({
       name: placement.command,
       knownValues: {
         CommandGroup: placement.commandGroup,
@@ -501,7 +400,7 @@ const exportPlacementMapToYAML = (
 }
 
 const importOrderFromXML = (
-  context: ConfigurationContextFromXML,
+  _context: ConfigurationContextFromXML,
   _rule: PropertyRule,
   xml: CommandInterfaceOrderXML | XmlElementNode | undefined
 ): CommandInterfaceOrder | undefined => {
@@ -517,26 +416,15 @@ const importOrderFromXML = (
     })
     .filter((item): item is CommandInterfaceOrder[number] => item !== undefined)
 
-  defineReferenceRawXML({ context, target: result, xml })
   return result.length > 0 ? result : undefined
 }
 
-const exportOrderToXML: ExportToXMLFunctionNew = ({ value, referenceMetadata }) => {
+const exportOrderToXML: ExportToXMLFunctionNew = ({ value }) => {
   if (value === undefined) return undefined
 
   const order = value as CommandInterfaceOrder
-  const referenceIndexes = new Map<string, number>()
   const items = order.map((item) => {
-    const referenceIndex = referenceIndexes.get(item.command) ?? 0
-    referenceIndexes.set(item.command, referenceIndex + 1)
-    const referenceItem = findReferenceXMLItemByNameAndIndex({
-      referenceMetadata,
-      itemKey: "Command",
-      name: item.command,
-      index: referenceIndex,
-    })
-    return mergeXMLItemWithReference({
-      referenceItem,
+    return exportNamedXMLItem({
       name: item.command,
       knownValues: { CommandGroup: item.commandGroup },
     }) as CommandInterfaceOrderXML["Command"]

@@ -472,3 +472,17 @@ XML/YAML-фикстуры не менялись. Итоговые замеры d
 Логи: /private/tmp/nkdk-interface-{runtime,targeted}.log и
 /private/tmp/nkdk-interface-final-{types,duplicates,arch-rules,arch,full,e2e}.log.
 Фикстуры не изменены; итоговый профиль и независимое ревью пока не выполнены.
+
+### Корневой командный интерфейс без скрытой XML-копии
+
+Удалены __xmlReferenceRaw и слияние reference XML для видимости команд,
+подсистем, размещения и порядка. Обычный экспорт строит только смысловые
+поля; неизвестные атрибуты, дочерние узлы и порядок сохраняются через
+сериализованные YAML-аннотации. Проверка повторяющихся имён теперь сравнивает
+весь результат с исходным XML, включая исходный порядок атрибутов.
+
+Прошли 42 целевых теста, type-check, duplicates от f9c51e1, обе
+архитектурные проверки, pnpm test и 214 e2e. Логи:
+/private/tmp/nkdk-root-interface-green.log и
+/private/tmp/nkdk-root-final-{types,duplicates,arch-rules,arch,full,e2e}.log.
+XML/YAML-фикстуры не изменены. Это промежуточный слой, а не завершение плана.
