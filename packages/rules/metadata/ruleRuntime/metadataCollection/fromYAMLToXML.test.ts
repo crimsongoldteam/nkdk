@@ -80,9 +80,8 @@ describe("convertMetadataCollectionFromYAMLToXML", () => {
     expect(Array.isArray(xml.Item) && isXmlElementNode(xml.Item[0])).toBe(true)
   })
 
-  it.each([10, 100])("подготавливает reference коллекции один раз для %i элементов", (size) => {
-    let unwrapped = 0
-    let identities = 0
+  it.each([10, 100])("не подготавливает reference коллекции для %i элементов", (size) => {
+    let reads = 0
     const items = Array.from({ length: size }, (_, index) => ({ Code: String(index), Unknown: index }))
     const received: unknown[][] = []
     convertMetadataCollectionFromYAMLToXML({
@@ -92,20 +91,14 @@ describe("convertMetadataCollectionFromYAMLToXML", () => {
       yaml: items.map(({ Code }) => ({ Код: Code })).reverse(),
       descriptor: {
         kind: "collection", itemRule: nestedRule, yamlShape: "array", xmlElement: "Item",
-        unwrapReferenceItem: ({ xml }) => { unwrapped++; return xml },
-        referenceIdentity: {
-          fromXML: ({ xml }) => { identities++; return String(xml.Code) },
-          fromYAML: ({ yaml }) => String((yaml as { Код: string }).Код),
-        },
       },
-      outputs: [{ key: "owner", referenceXML: { Item: items } }],
+      outputs: [{ key: "owner", referenceXML: { get Item() { reads++; return items } } }],
     })
-    expect(received).toEqual([...items].reverse().map(item => [item]))
-    expect(unwrapped).toBe(size)
-    expect(identities).toBe(size)
+    expect(received).toEqual(items.map(() => [undefined]))
+    expect(reads).toBe(0)
   })
 
-  it.each(["code", "name"] as const)("индексирует первое совпадение reference по %s, не сканируя коллекцию для каждого item", (key) => {
+  it.each(["code", "name"] as const)("не читает reference для ключа %s", (key) => {
     let reads = 0
     const items = Array.from({ length: 20 }, (_, index) => ({
       get Code() { reads++; return String(index) },
@@ -124,12 +117,11 @@ describe("convertMetadataCollectionFromYAMLToXML", () => {
       },
       outputs: [{ key: "owner", referenceXML: { Item: [...items, { Code: "0", Name: "0" }] } }],
     })
-    expect(received).toEqual(items.map(item => [item]))
-    // Для record дополнительно один проход нужен, чтобы собрать имена канонического состава.
-    expect(reads).toBe(key === "code" ? 20 : 40)
+    expect(received).toEqual(items.map(() => [undefined]))
+    expect(reads).toBe(0)
   })
 
-  it("не выбирает неоднозначную reference identity и отделяет индексы правил и выходов", () => {
+  it("не передаёт reference различным правилам и выходам полиморфной коллекции", () => {
     const alternateRule: MetadataItemRule = { ...nestedRule, itemType: "AlternateAttribute" }
     const references = [
       { Left: { Code: "duplicate" }, Right: { Code: "duplicate" } },
@@ -145,11 +137,6 @@ describe("convertMetadataCollectionFromYAMLToXML", () => {
       descriptor: {
         kind: "collection", itemRule: nestedRule, yamlShape: "array", xmlElement: "Item",
         resolveItemRule: ({ index }) => index === 0 ? nestedRule : alternateRule,
-        unwrapReferenceItem: ({ xml, itemRule }) => xml[itemRule === nestedRule ? "Left" : "Right"] as Record<string, unknown>,
-        referenceIdentity: {
-          fromXML: ({ xml }) => String(xml.Code),
-          fromYAML: ({ yaml }) => String((yaml as { Код: string }).Код),
-        },
       },
       outputs: [
         { key: "owner", referenceXML: { Item: references } },
@@ -157,8 +144,8 @@ describe("convertMetadataCollectionFromYAMLToXML", () => {
       ],
     })
     expect(received).toEqual([
-      [undefined, references[1]!.Left],
-      [references[1]!.Right, references[1]!.Right],
+      [undefined, undefined],
+      [undefined, undefined],
       [undefined, undefined],
     ])
   })
@@ -308,7 +295,7 @@ describe("convertMetadataCollectionFromYAMLToXML", () => {
     })
   })
 
-  it("сопоставляет элементы YAML-массива с сырым reference XML по keyField", () => {
+  it("строит элементы YAML-массива без переноса сырых свойств reference", () => {
     const descriptor = {
       kind: "collection",
       itemRule: nestedRule,
@@ -341,8 +328,8 @@ describe("convertMetadataCollectionFromYAMLToXML", () => {
 
     expect(result.outputs.get("owner")).toEqual({
       Item: [
-        { Code: "A", Value: "новое A", Unknown: "для A" },
-        { Code: "B", Value: "новое B", Unknown: "для B" },
+        { Code: "A", Value: "новое A" },
+        { Code: "B", Value: "новое B" },
       ],
     })
   })

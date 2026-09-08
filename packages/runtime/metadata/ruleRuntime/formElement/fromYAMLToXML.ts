@@ -41,7 +41,7 @@ export function createFormElementCollectionNestedRule(params: {
         name,
       })
     },
-    unwrapReferenceItem: ({ xml, itemRule }) => {
+    unwrapXMLItem: ({ xml, itemRule }) => {
       const value = xml[elementXMLTagName(itemRule)]
       return value !== null && typeof value === "object" && !Array.isArray(value)
         ? value as Record<string, unknown>

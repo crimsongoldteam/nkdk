@@ -574,3 +574,26 @@ parser compatibility остаются открытыми, как и итогов
 /private/tmp/nkdk-runtime-reference-{types5,duplicates5,arch-rules5,arch5,full5,e2e5}.log.
 Остаточное слияние reference в metadataItem/metadataCollection и parser
 compatibility ещё предстоит удалить; весь план не завершён.
+
+### Объекты и коллекции без слияния reference
+
+Удалены рекурсивное слияние неизвестных XML-полей, копирование атрибутов
+оболочки из reference, дополнительный индекс reference-коллекции, поиск
+элемента по reference identity и дополнение состава коллекции исходными
+элементами. Удалены соответствующие параметры описателей и неиспользуемый
+поиск reference identity у FilterItem. Разворачивание готового XML для
+привязки claim остаётся под именем unwrapXMLItem; это не входной reference.
+
+Оболочка строится из rules и контекста владельца, unknown XML сохраняется
+только явными аннотациями YAML. Отрицательные тесты проверяют отсутствие
+чтений reference, в том числе на коллекциях разных размеров. Проверки
+идентификаторов, raw, порядка и полиморфных элементов сохранены.
+
+Прошли 19 целевых тестов metadataItem, 14 metadataCollection,
+3138 интеграционных тестов, type-check, duplicates от f9c51e1, обе
+архитектурные проверки, полный pnpm test и 214 e2e. Фикстуры не менялись.
+Логи: /private/tmp/nkdk-item-reference-green2.log,
+/private/tmp/nkdk-collection-reference-{green,integration}.log,
+/private/tmp/nkdk-item-collection-reference-{types2,duplicates,arch-rules,arch,full,e2e}.log.
+Остаточные reference-ветви исполнителя свойств, parser compatibility,
+итоговые профили и независимое ревью ещё открыты.

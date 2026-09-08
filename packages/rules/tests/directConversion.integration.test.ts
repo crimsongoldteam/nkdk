@@ -60,7 +60,7 @@ describe("direct conversion test helpers", () => {
     expect(exported.externalWrites).toHaveLength(1)
   })
 
-  it("обрабатывает XMLRoot и сохраняет неизвестный reference XML", () => {
+  it("обрабатывает XMLRoot без копирования неизвестного reference XML", () => {
     const rule = {
       itemType: "TestDirectRoot",
       xsiType: "GeneratedType",
@@ -94,8 +94,8 @@ describe("direct conversion test helpers", () => {
     expect(imported.yaml).toEqual({ Значение: "old" })
     expect(exported.xml).toEqual({
       MetaDataObject: {
-        _xmlns: "reference",
-        Item: { "_xsi:type": "GeneratedType", Value: "new", Unknown: "keep" },
+        _xmlns: "generated",
+        Item: { "_xsi:type": "GeneratedType", Value: "new" },
       },
     })
   })

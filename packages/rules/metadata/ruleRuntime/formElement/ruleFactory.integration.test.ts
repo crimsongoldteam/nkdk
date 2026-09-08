@@ -271,7 +271,6 @@ describe("одиночный элемент формы", () => {
       name: "Кнопка",
       itemRule: elementRule,
       propertyRule: undefined,
-      referenceXML: undefined,
     })
     const mapped = preparation.wrap!(xml) as Record<string, unknown>
 

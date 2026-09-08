@@ -54,28 +54,16 @@ type CollectionRule<Rule extends MetadataItemRule, CollectionType extends Proper
     source: import("../property/fromYAMLToXMLTypes").YAMLPropertySource
     propertyRule: PropertyRule
   }) => readonly string[]
-  /** Сохранять элементы reference XML, отсутствующие в YAML. */
-  preserveReferenceItems?: true
   /** Сохранять в индексе присутствие каждого XML-свойства элемента коллекции. */
   preserveItemPropertyPresence?: true
   /** Не выводить XML-свойства элемента, отсутствующие в его YAML-записи. */
   sparseItems?: true
-  /** Не создавать XML-значения по умолчанию для отсутствующих полей разреженного элемента. */
-  omitDefaultsForSparseItems?: true
-  omitDefaultsForSparseItem?: Extract<
-    import("../property/fromYAMLToXMLTypes").YAMLToXMLNestedRule,
-    { kind: "collection" }
-  >["omitDefaultsForSparseItem"]
   /** Не создавать XML-контейнер, если после преобразования в коллекции нет элементов. */
   omitEmptyOutput?: true
   normalizeItemYAML?: Extract<
     import("../property/fromYAMLToXMLTypes").YAMLToXMLNestedRule,
     { kind: "collection" }
   >["normalizeItemYAML"]
-  referenceIdentity?: Extract<
-    import("../property/fromYAMLToXMLTypes").YAMLToXMLNestedRule,
-    { kind: "collection" }
-  >["referenceIdentity"]
   /** Для YAML-объекта коллекции: YAML-элемент → ключ записи при прямом XML → YAML обходе. */
   recordYamlKeyFromYAML?: (params: {
     yaml: Record<string, unknown>
@@ -172,13 +160,9 @@ export const defineMetadataItemCollectionRule = <
     nameFromYAMLKeyForProperty: params.nameFromYAMLKeyForProperty,
     recordYamlKeyFromYAML: params.recordYamlKeyFromYAML,
     completeItemNames: params.completeItemNames,
-    preserveReferenceItems: params.preserveReferenceItems,
     sparseItems: params.sparseItems,
-    omitDefaultsForSparseItems: params.omitDefaultsForSparseItems,
-    omitDefaultsForSparseItem: params.omitDefaultsForSparseItem,
     omitEmptyOutput: params.omitEmptyOutput,
     normalizeItemYAML: params.normalizeItemYAML,
-    referenceIdentity: params.referenceIdentity,
     configurationIndexUidSegment: params.configurationIndexUidSegment,
     requiredIdentity: params.requiredIdentity,
     configurationIndexAddressing: params.configurationIndexAddressing,

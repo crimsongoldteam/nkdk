@@ -39,7 +39,6 @@ export type PrepareXMLItemOutputFunction = (params: {
   readonly itemRule: MetadataItemRule
   readonly name?: string
   readonly propertyRule?: PropertyRule
-  readonly referenceXML?: unknown
 }) => XMLItemOutputPreparation
 
 export interface XMLItemEnvelope {
@@ -213,11 +212,7 @@ export type YAMLToXMLNestedRule =
         index: number
         propertyRule: PropertyRule | undefined
       }) => unknown
-      readonly referenceIdentity?: {
-        fromYAML(params: { yaml: unknown; name: string | undefined; itemRule: MetadataItemRule }): string | undefined
-        fromXML(params: { xml: Record<string, unknown>; itemRule: MetadataItemRule }): string | undefined
-      }
-      readonly unwrapReferenceItem?: (params: {
+      readonly unwrapXMLItem?: (params: {
         xml: Record<string, unknown>
         itemRule: MetadataItemRule
       }) => Record<string, unknown> | undefined
@@ -235,15 +230,7 @@ export type YAMLToXMLNestedRule =
         source: YAMLPropertySource
         propertyRule: PropertyRule
       }) => readonly string[]
-      readonly preserveReferenceItems?: true
       readonly sparseItems?: true
-      readonly omitDefaultsForSparseItems?: true
-      readonly omitDefaultsForSparseItem?: (params: {
-        yaml: unknown
-        name: string | undefined
-        referenceXML: Record<string, unknown> | undefined
-        propertyRule: PropertyRule | undefined
-      }) => boolean
       readonly omitEmptyOutput?: true
       readonly configurationIndexUidSegment?: string
       readonly configurationIndexAddressing?: ConfigurationIndexAddressingMode

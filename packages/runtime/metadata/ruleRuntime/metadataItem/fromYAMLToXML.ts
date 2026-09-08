@@ -11,7 +11,6 @@ import { recordCurrentExternalMetadataUuid } from "../externalMetadata/record"
 import type { DeferredRulePathSegment } from "../property/importYamlTypes"
 import { bindDeferredObjectValues } from "../property/deferredObjectValues"
 import { applyXMLItemOwnOutput } from "./ownOutput"
-import { isLocalXmlBoundary } from "../xmlAnomaly/localProof"
 
 export interface ConvertMetadataItemFromYAMLToXMLParams
   extends YAMLToXMLItemConversionParams {
@@ -29,7 +28,7 @@ interface XMLRootInfo {
   readonly isFileRoot: boolean
   readonly fallback:
     | Record<string, string>
-    | ((params: { data: unknown; referenceData: unknown; ownerMetadataItem: unknown }) => Record<string, string>)
+    | ((params: { data: unknown; ownerMetadataItem: unknown }) => Record<string, string>)
 }
 
 export function convertMetadataItemFromYAMLToXML(params: ConvertMetadataItemFromYAMLToXMLParams): YAMLToXMLResult {
@@ -61,11 +60,10 @@ export function prepareMetadataItemXMLExecution(
   const root = findXMLRoot(params.rule)
   const normalizedOutputs = params.outputs.map((output) => ({
     ...output,
-    referenceXML: sanitizeReferenceXML(unwrapReferenceBody(output.referenceXML, root)),
-    xmlEnvelope: prepareXMLItemEnvelope(params, output.referenceXML, root),
+    xmlEnvelope: prepareXMLItemEnvelope(params, root),
     itemPreparation: output.itemPreparation ?? params.prepareOutput?.({
       context, yaml: params.yaml, itemRule: params.rule,
-      name: params.name ?? params.sourceItemName, propertyRule: params.propertyRule, referenceXML: output.referenceXML,
+      name: params.name ?? params.sourceItemName, propertyRule: params.propertyRule,
     }),
   }))
   const itemName = params.name ?? params.sourceItemName
@@ -104,13 +102,7 @@ export function prepareMetadataItemXMLExecution(
       const generated = converted.outputs.get(request.key) ?? {}
       const generatedWithType =
         params.rule.xsiType === undefined ? generated : { ...request.xmlEnvelope.bodyAttributes, ...generated }
-      const merged = mergeReferenceXML({
-        generated: generatedWithType,
-        reference: request.referenceXML,
-        rule: params.rule,
-        path: [],
-      })
-      const finalRoot = wrapXMLRoot(request.xmlEnvelope, applyXMLItemOwnOutput(merged, request.itemPreparation))
+      const finalRoot = wrapXMLRoot(request.xmlEnvelope, applyXMLItemOwnOutput(generatedWithType, request.itemPreparation))
       outputs.set(request.key, finalRoot)
       const prefix = request.xmlEnvelope.path
       deferredByOutput.set(
@@ -152,7 +144,7 @@ function readMetadataItemUuid(
   if (xml === undefined) return undefined
   const uuidRule = Object.values(rule.properties).find((property) => property.type === "uuid")
   if (uuidRule === undefined) return undefined
-  let current: unknown = unwrapReferenceBody(xml, root)
+  let current: unknown = unwrapXMLBody(xml, root)
   for (const parent of uuidRule.xmlParents ?? []) current = isRecord(current) ? current[parent] : undefined
   if (!isRecord(current)) return undefined
   const value = current[uuidRule.xml ?? "Uuid"]
@@ -172,17 +164,17 @@ function findXMLRoot(rule: MetadataItemRule): XMLRootInfo | undefined {
   return undefined
 }
 
-function unwrapReferenceBody(
-  referenceXML: unknown,
+function unwrapXMLBody(
+  xml: unknown,
   root: XMLRootInfo | undefined
 ): Record<string, unknown> | undefined {
-  if (!isRecord(referenceXML)) return undefined
-  if (root === undefined) return referenceXML
+  if (!isRecord(xml)) return undefined
+  if (root === undefined) return xml
   if (root.isFileRoot) {
-    const container = referenceXML[root.container]
-    return isRecord(container) ? omitRootAttributes(container) : undefined
+    const container = xml[root.container]
+    return isRecord(container) ? container : undefined
   }
-  const metadataObject = isRecord(referenceXML.MetaDataObject) ? referenceXML.MetaDataObject : referenceXML
+  const metadataObject = isRecord(xml.MetaDataObject) ? xml.MetaDataObject : xml
   if (!isRecord(metadataObject)) return undefined
   const container = metadataObject[root.container]
   return isRecord(container) ? container : undefined
@@ -190,12 +182,11 @@ function unwrapReferenceBody(
 
 function prepareXMLItemEnvelope(
   params: MetadataItemXMLPreparationParams,
-  referenceXML: unknown,
   root: XMLRootInfo | undefined,
 ): XMLItemEnvelope {
   return {
     path: root === undefined ? [] : root.isFileRoot ? [root.container] : ["MetaDataObject", root.container],
-    rootAttributes: root === undefined ? {} : getRootAttributes(params, referenceXML, root),
+    rootAttributes: root === undefined ? {} : getRootAttributes(params, root),
     bodyAttributes: params.rule.xsiType === undefined ? {} : { "_xsi:type": params.rule.xsiType },
   }
 }
@@ -210,115 +201,11 @@ function wrapXMLRoot(envelope: XMLItemEnvelope, value: Record<string, unknown>):
 
 function getRootAttributes(
   params: MetadataItemXMLPreparationParams,
-  referenceXML: unknown,
   root: XMLRootInfo
 ): Record<string, string> {
-  const reference = isRecord(referenceXML) ? referenceXML : undefined
-  const referenceRoot = root.isFileRoot
-    ? reference?.[root.container]
-    : isRecord(reference?.MetaDataObject)
-      ? reference.MetaDataObject
-      : undefined
-  if (isRecord(referenceRoot)) {
-    const attributes = Object.fromEntries(
-      Object.entries(referenceRoot).filter(([key, value]) => key.startsWith("_") && typeof value === "string")
-    )
-    if (Object.keys(attributes).length > 0) return attributes as Record<string, string>
-  }
   return typeof root.fallback === "function"
-    ? root.fallback({ data: params.yaml, referenceData: referenceXML, ownerMetadataItem: params.ownerYAML })
+    ? root.fallback({ data: params.yaml, ownerMetadataItem: params.ownerYAML })
     : root.fallback
-}
-
-function omitRootAttributes(value: Record<string, unknown>): Record<string, unknown> {
-  return Object.fromEntries(Object.entries(value).filter(([key]) => !key.startsWith("_")))
-}
-
-function mergeReferenceXML(params: {
-  generated: Record<string, unknown>
-  reference: Record<string, unknown> | undefined
-  rule: MetadataItemRule
-  path: readonly string[]
-}): Record<string, unknown> {
-  const { generated, reference, rule, path } = params
-  if (reference === undefined) return generated
-  const result: Record<string, unknown> = {}
-  for (const [key, referenceValue] of Object.entries(reference)) {
-    if (Object.prototype.hasOwnProperty.call(generated, key)) {
-      const generatedValue = generated[key]
-      if (isLocalXmlBoundary(generatedValue)) {
-        result[key] = generatedValue
-      } else if (isRecord(generatedValue) && isRecord(referenceValue)) {
-        const propertyRule = findPropertyRule(rule, path, key)
-        result[key] =
-          propertyRule?.preserveUnknownReferenceXML !== false
-            ? mergeReferenceXML({
-                generated: generatedValue,
-                reference: referenceValue,
-                rule,
-                path: [...path, key],
-              })
-            : generatedValue
-      } else if (generatedValue !== undefined || referenceValue === undefined) {
-        result[key] = generatedValue
-      }
-      continue
-    }
-    const propertyRule = findPropertyRule(rule, path, key)
-    if (propertyRule !== undefined) {
-      continue
-    }
-    result[key] = referenceValue === undefined ? {} : referenceValue
-  }
-  for (const [key, generatedValue] of Object.entries(generated)) {
-    if (generatedValue === undefined || Object.prototype.hasOwnProperty.call(result, key)) continue
-    const propertyRule = findPropertyRule(rule, path, key)
-    if (propertyRule === undefined && isRecord(generatedValue)) {
-      const nested = mergeReferenceXML({
-        generated: generatedValue,
-        reference: {},
-        rule,
-        path: [...path, key],
-      })
-      if (Object.keys(nested).length === 0) continue
-      result[key] = nested
-      continue
-    }
-    if (
-      propertyRule !== undefined &&
-      propertyRule.defaultValueXML === generatedValue &&
-      reference?.[key] === undefined
-    ) {
-      continue
-    }
-    result[key] = generatedValue
-  }
-  return result
-}
-
-function sanitizeReferenceXML(value: Record<string, unknown> | undefined): Record<string, unknown> | undefined {
-  if (value === undefined) return undefined
-  const result: Record<string, unknown> = {}
-  for (const [key, entry] of Object.entries(value)) {
-    if (key === "#text" && typeof entry === "string" && entry.trim() === "") continue
-    result[key] = sanitizeReferenceValue(entry)
-  }
-  return result
-}
-
-function sanitizeReferenceValue(value: unknown): unknown {
-  if (Array.isArray(value)) return value.map(sanitizeReferenceValue)
-  if (!isRecord(value)) return value
-  return sanitizeReferenceXML(value)
-}
-
-function findPropertyRule(rule: MetadataItemRule, path: readonly string[], xmlKey: string): PropertyRule | undefined {
-  return Object.entries(rule.properties).find(([key, propertyRule]) => {
-    const parents = propertyRule.xmlParents ?? []
-    if (parents.length !== path.length || parents.some((parent, index) => parent !== path[index])) return false
-    const canonical = propertyRule.xml ?? `${key.charAt(0).toUpperCase()}${key.slice(1)}`
-    return canonical === xmlKey || (propertyRule.xmlAliases ?? []).includes(xmlKey)
-  })?.[1]
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

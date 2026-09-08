@@ -66,17 +66,13 @@ export function convertMetadataCollectionFromYAMLToXML(
   const entries = completeCollectionEntries({
     entries: collectionEntries(params.yaml, params.annotations, params.descriptor, params.propertyRule),
     descriptor: params.descriptor,
-    itemRule: params.descriptor.itemRule,
     propertyRule: params.propertyRule,
     source: params.source,
-    outputs: params.outputs,
     materializeCanonicalItems: params.materializeCanonicalItems,
-    context: params.context,
   })
   const outputItems = new Map(params.outputs.map(({ key }) => [key, [] as unknown[]]))
   const deferredByOutput = new Map(params.outputs.map(({ key }) => [key, [] as DeferredValuePath[]]))
   const externalWrites: YAMLToXMLExternalWrite[] = []
-  const references = new Map(params.outputs.map((output) => [output.key, createReferenceLookup(output, params.descriptor)]))
   let defaultItemRule: MetadataItemRule | undefined
 
   entries.forEach(({ yaml, name, rawXml }, index) => {
@@ -134,17 +130,7 @@ export function convertMetadataCollectionFromYAMLToXML(
       context: params.context, descriptor: params.descriptor, yaml: normalizedYAML,
       name, index, itemRule, propertyRule: params.propertyRule,
     })
-    const itemOutputs = params.outputs.map((output) => {
-      const referenceXML = references.get(output.key)!({
-        context: params.context,
-        itemRule,
-        propertyRule: params.propertyRule,
-        yaml: normalizedYAML,
-        name,
-        index,
-      })
-      return { key: output.key, referenceXML }
-    })
+    const itemOutputs = params.outputs.map(({ key }) => ({ key }))
     const converted = params.convertItem({
       convertProperties: params.convertProperties,
       prepareOutput: params.prepareItemOutput,
@@ -158,17 +144,6 @@ export function convertMetadataCollectionFromYAMLToXML(
       namePropertyKey: params.descriptor.keyField,
       outputs: itemOutputs,
       sparseYAML: params.descriptor.sparseItems,
-      omitDefaultsForSparseYAML:
-        (params.descriptor.omitDefaultsForSparseItems === true &&
-          itemOutputs.some(({ referenceXML }) => isAttributeOnlyRecord(referenceXML))) ||
-        params.descriptor.omitDefaultsForSparseItem?.({
-          yaml: normalizedYAML,
-          name,
-          referenceXML: itemOutputs.find(({ referenceXML }) => referenceXML !== undefined)?.referenceXML,
-          propertyRule: params.propertyRule,
-        }) === true
-          ? true
-          : undefined,
       externalWriteFactory: params.externalWriteFactory,
       profile: params.profile,
       rulePath: [...(params.rulePath ?? [params.descriptor.itemRule.itemType]), name ?? index],
@@ -178,7 +153,7 @@ export function convertMetadataCollectionFromYAMLToXML(
       const xml = converted.outputs.get(output.key) ?? {}
       const exportClaimId = readXmlAnomalyExportClaim(normalizedYAML)
       if (exportClaimId !== undefined) {
-        const claimTarget = params.descriptor.unwrapReferenceItem?.({ xml, itemRule }) ?? xml
+        const claimTarget = params.descriptor.unwrapXMLItem?.({ xml, itemRule }) ?? xml
         markXmlAnomalyExportClaim(claimTarget, exportClaimId, true)
       }
       if (xml !== undefined) {
@@ -241,16 +216,11 @@ export function prepareMetadataCollectionItemXMLContext(params: {
 function completeCollectionEntries(params: {
   entries: CollectionEntry[]
   descriptor: CollectionDescriptor
-  itemRule: MetadataItemRule
   propertyRule: PropertyRule | undefined
   source: YAMLPropertySource | undefined
-  outputs: readonly YAMLToXMLOutputRequest[]
   materializeCanonicalItems: true | undefined
-  context: ConfigurationContextWithExportToXML
 }): CollectionEntry[] {
   if (params.descriptor.yamlShape !== "record") return params.entries
-  const referenceNames = collectReferenceNames(params)
-  const shapeNames = referenceNames
   const shouldComplete =
     params.entries.length > 0 ||
     params.materializeCanonicalItems === true ||
@@ -263,18 +233,7 @@ function completeCollectionEntries(params: {
     const propertyLabel = params.propertyRule?.yaml ?? params.propertyRule?.type ?? "коллекция"
     throw new Error(`Для свойства ${propertyLabel} не определены канонические стандартные реквизиты`)
   }
-  const sourceNames = new Set([
-    ...params.entries.flatMap((entry) => entry.name === undefined ? [] : [entry.name]),
-    ...(params.descriptor.preserveReferenceItems === true ? shapeNames : []),
-  ])
-  const completedNames =
-    shapeNames.length === 0
-      ? ruleNames
-      : ruleNames.filter((name) => sourceNames.has(name))
-  const completedNameSet = new Set(completedNames)
-  const requestedNames = params.descriptor.preserveReferenceItems !== true
-    ? completedNames
-    : [...completedNames, ...referenceNames.filter((name) => !completedNameSet.has(name))]
+  const requestedNames = ruleNames
   if (requestedNames.length === 0) return params.entries
 
   const seenNames = new Set<string>()
@@ -300,26 +259,6 @@ function completeCollectionEntries(params: {
     if (entry.name === undefined || !requestedNameSet.has(entry.name)) result.push(entry)
   }
   return result
-}
-
-function collectReferenceNames(params: {
-  descriptor: CollectionDescriptor
-  outputs: readonly YAMLToXMLOutputRequest[]
-}): string[] {
-  const result = new Set<string>()
-  const keyField = params.descriptor.keyField ?? "name"
-  const keyRule = params.descriptor.itemRule.properties[keyField]
-  if (keyRule === undefined) return []
-  for (const output of params.outputs) {
-    const collection = collectionReferenceValue(output.referenceXML, params.descriptor.xmlElement)
-    const items = Array.isArray(collection) ? collection : collection === undefined ? [] : [collection]
-    for (const item of items) {
-      if (!isRecord(item)) continue
-      const name = readXMLProperty(item, keyRule, keyField)
-      if (typeof name === "string") result.add(name)
-    }
-  }
-  return [...result]
 }
 
 function collectionEntries(
@@ -371,87 +310,6 @@ function transferCollectionValueTag(parent: object, key: string | number, value:
   return value
 }
 
-interface ReferenceLookupParams {
-  context: ConfigurationContextWithExportToXML
-  itemRule: MetadataItemRule
-  propertyRule: PropertyRule | undefined
-  yaml: unknown
-  name?: string
-  index: number
-}
-
-function createReferenceLookup(output: YAMLToXMLOutputRequest, descriptor: CollectionDescriptor) {
-  const collection = collectionReferenceValue(output.referenceXML, descriptor.xmlElement)
-  const rawItems = Array.isArray(collection) ? collection.filter(isRecord) : isRecord(collection) ? [collection] : []
-  const byRule = new Map<MetadataItemRule, ReturnType<typeof prepareReferenceLookup>>()
-  return (params: ReferenceLookupParams): Record<string, unknown> | undefined => {
-    let lookup = byRule.get(params.itemRule)
-    if (lookup === undefined) {
-      lookup = prepareReferenceLookup(rawItems, descriptor, params.itemRule)
-      byRule.set(params.itemRule, lookup)
-    }
-    return lookup(params)
-  }
-}
-
-function prepareReferenceLookup(rawItems: Record<string, unknown>[], descriptor: CollectionDescriptor, itemRule: MetadataItemRule) {
-  const items = rawItems.flatMap((item) => {
-    const unwrapped = descriptor.unwrapReferenceItem?.({ xml: item, itemRule })
-    return unwrapped === undefined && descriptor.unwrapReferenceItem !== undefined ? [] : [unwrapped ?? item]
-  })
-  const properties = new Map<string, Map<unknown, Record<string, unknown>>>()
-  const findProperty = (key: string, value: unknown) => {
-    const rule = itemRule.properties[key]
-    if (rule === undefined || Number.isNaN(value)) return undefined
-    let index = properties.get(key)
-    if (index === undefined) {
-      index = new Map()
-      for (const item of items) {
-        const keyValue = readXMLProperty(item, rule, key)
-        if (!index.has(keyValue)) index.set(keyValue, item)
-      }
-      properties.set(key, index)
-    }
-    return index.get(value)
-  }
-  let identities: Map<string, Record<string, unknown> | undefined> | undefined
-  return (params: ReferenceLookupParams): Record<string, unknown> | undefined => {
-    if (descriptor.referenceIdentity !== undefined) {
-      const identity = descriptor.referenceIdentity.fromYAML({ yaml: params.yaml, name: params.name, itemRule })
-      if (identity !== undefined) {
-        if (identities === undefined) {
-          identities = new Map()
-          for (const item of items) {
-            const key = descriptor.referenceIdentity.fromXML({ xml: item, itemRule })
-            if (key !== undefined) identities.set(key, identities.has(key) ? undefined : item)
-          }
-        }
-        return identities.get(identity)
-      }
-    }
-    const keyField = descriptor.keyField
-    if (keyField !== undefined && isRecord(params.yaml)) {
-      const keyRule = itemRule.properties[keyField]
-      const yamlKey = keyRule?.yaml
-      const yamlValue = yamlKey === undefined ? undefined : params.yaml[yamlKey]
-      if (keyRule !== undefined) {
-        const found = findProperty(keyField, yamlValue)
-        if (found !== undefined) return found
-      }
-    }
-    if (params.name !== undefined && itemRule.properties.name !== undefined) {
-      const referenceName =
-        referenceItemName({
-          context: params.context,
-          propertyRule: params.propertyRule,
-          currentName: params.name,
-        }) ?? params.name
-      return findProperty("name", referenceName)
-    }
-    return items[params.index]
-  }
-}
-
 function collectionItemCurrentPath(params: {
   context: ConfigurationContextWithExportToXML
   propertyRule: PropertyRule | undefined
@@ -461,61 +319,6 @@ function collectionItemCurrentPath(params: {
   const segment = params.propertyRule?.operationTarget?.migrationSegment
   if (referenceRemap === undefined || segment === undefined || params.name === undefined) return undefined
   return `${referenceRemap.currentPath}.${segment}.${params.name}`
-}
-
-function referenceItemName(params: {
-  context: ConfigurationContextWithExportToXML
-  propertyRule: PropertyRule | undefined
-  currentName: string
-}): string | undefined {
-  const currentPath = collectionItemCurrentPath({
-    context: params.context,
-    propertyRule: params.propertyRule,
-    name: params.currentName,
-  })
-  if (currentPath === undefined) return undefined
-  return params.context.importFromYAML?.referenceRemap?.referencePathByCurrentPath.get(currentPath)?.split(".").at(-1)
-}
-
-function collectionReferenceValue(referenceXML: unknown, xmlElement: string | undefined): unknown {
-  if (xmlElement !== undefined && Array.isArray(referenceXML)) {
-    return referenceXML.flatMap((value) => {
-      if (
-        !isRecord(value) ||
-        Object.prototype.hasOwnProperty.call(value, "_xsi:type") ||
-        !Object.prototype.hasOwnProperty.call(value, xmlElement)
-      )
-        return value
-      const nested = value[xmlElement]
-      return Array.isArray(nested) ? nested : [nested]
-    })
-  }
-  if (
-    xmlElement !== undefined &&
-    isRecord(referenceXML) &&
-    Object.prototype.hasOwnProperty.call(referenceXML, xmlElement)
-  ) {
-    return referenceXML[xmlElement]
-  }
-  return referenceXML
-}
-
-function readXMLProperty(
-  item: Record<string, unknown>,
-  rule: { xml?: string; xmlParents?: string[]; xmlAliases?: string[] },
-  propertyKey: string
-): unknown {
-  let current: unknown = item
-  for (const parent of rule.xmlParents ?? []) {
-    if (!isRecord(current)) return undefined
-    current = current[parent]
-  }
-  if (!isRecord(current)) return undefined
-  const canonical = rule.xml ?? `${propertyKey.charAt(0).toUpperCase()}${propertyKey.slice(1)}`
-  for (const key of [canonical, ...(rule.xmlAliases ?? [])]) {
-    if (Object.prototype.hasOwnProperty.call(current, key)) return current[key]
-  }
-  return undefined
 }
 
 export function configurationIndexCollectionItemContext(params: {
@@ -564,8 +367,4 @@ function collectionKeyName(
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value)
-}
-
-function isAttributeOnlyRecord(value: unknown): boolean {
-  return isRecord(value) && Object.keys(value).every((key) => key.startsWith("_"))
 }

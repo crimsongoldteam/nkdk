@@ -294,7 +294,7 @@ describe("Configuration: единые XML → YAML и YAML → XML обходы"
     expect(imported.yaml).toMatchObject(yaml)
   })
 
-  it("сохраняет неизвестные корневые XML-узлы из reference", () => {
+  it("не сохраняет неизвестные корневые XML-узлы только из reference", () => {
     const referenceXML = cleanFixture()
     referenceXML.MetaDataObject.Configuration.Properties.UnknownProperty = { "#text": "Значение" }
 
@@ -308,6 +308,6 @@ describe("Configuration: единые XML → YAML и YAML → XML обходы"
     expect(
       (exported.xml.MetaDataObject as { Configuration: { Properties: Record<string, unknown> } }).Configuration
         .Properties.UnknownProperty
-    ).toEqual({ "#text": "Значение" })
+    ).toBeUndefined()
   })
 })

@@ -236,7 +236,7 @@ describe("convertMetadataItemFromYAMLToXML", () => {
     expect(result).toEqual({ ListSettings: {} })
   })
 
-  it("deeply preserves unknown nested reference XML while generated fields take precedence", () => {
+  it("не копирует неизвестные узлы и порядок из reference XML", () => {
     const rule = recalculationRule()
     const result = convert(
       rule,
@@ -248,12 +248,7 @@ describe("convertMetadataItemFromYAMLToXML", () => {
       }
     )
 
-    expect(result).toMatchObject({
-      Properties: { Name: "НовоеИмя", UnknownProperty: "keep" },
-      ChildObjects: { Dimension: "generated", UnknownChild: "keep-child" },
-      UnknownRoot: "keep-root",
-    })
-    expect((result.Properties as Record<string, unknown>).Use).toBeUndefined()
+    expect(result).toEqual(convert(rule, { Имя: "НовоеИмя", Использование: "Истина", Измерение: "generated" }))
   })
 
   it("keeps generated rule xsi:type over reference raw xsi:type", () => {
@@ -297,13 +292,12 @@ describe("convertMetadataItemFromYAMLToXML", () => {
         Recalculation: {
           "_xsi:type": "GeneratedType",
           Properties: { Name: "Имя" },
-          UnknownRoot: "keep-root",
         },
       },
     })
   })
 
-  it("preserves unknown nested reference XML inside a generated object property", () => {
+  it("не копирует неизвестный вложенный XML внутрь построенного свойства", () => {
     const result = convert(
       recalculationRule(),
       { Имя: "Имя", Синоним: "НовыйСиноним" },
@@ -321,10 +315,10 @@ describe("convertMetadataItemFromYAMLToXML", () => {
       Properties: {
         Synonym: {
           "v8:item": [{ "v8:lang": "ru", "v8:content": "НовыйСиноним" }],
-          UnknownNested: "keep-nested",
         },
       },
     })
+    expect((result.Properties as Record<string, unknown>).Synonym).not.toHaveProperty("UnknownNested")
   })
 
   it("exports nested generated fields when they are not XML defaults", () => {
@@ -332,7 +326,7 @@ describe("convertMetadataItemFromYAMLToXML", () => {
       Properties: { Name: "Имя" },
     })
 
-    expect(result).toEqual({ Properties: { Name: "Имя", Use: false } })
+    expect(result).toEqual({ Properties: { Name: "Имя", Use: false }, ChildObjects: {} })
   })
 
   it("removes reference keys when generated nested field is undefined", () => {
@@ -351,7 +345,8 @@ describe("convertMetadataItemFromYAMLToXML", () => {
     })
 
     expect(result).toEqual({
-      Properties: { Name: "Имя", Raw: { UnknownNested: "keep-nested" } },
+      Properties: { Name: "Имя", Use: true, Raw: { GeneratedUndefined: undefined } },
+      ChildObjects: {},
     })
   })
 
@@ -391,11 +386,10 @@ describe("convertMetadataItemFromYAMLToXML", () => {
 
     expect(result.outputs.get("owner")).toEqual({
       MetaDataObject: {
-        _xmlns: "reference",
+        _xmlns: "generated",
         Attribute: {
           "_xsi:type": "GeneratedType",
           Value: "новое",
-          Unknown: "сохранить",
         },
       },
     })
