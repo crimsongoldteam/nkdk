@@ -415,13 +415,13 @@ describe("importInternalInfoFromXML", () => {
     ])
   })
 
-  it("uses existing ContainedObject ObjectId for declared ClassId", () => {
+  it("uses current ContainedObject ObjectId for declared ClassId", () => {
     const imported = importContainedObjectsFixture()
     const exported = exportInternalInfoToXML({
       context: mockContextToXML(),
       rule: generatedContainedObjectsRule,
-      value: undefined,
-      referenceMetadata: imported,
+      value: imported,
+      referenceMetadata: { containedObjects: [{ classId: "00000000-0000-0000-0000-000000000101", objectId: "stale" }] },
       metadataItem: { itemType: "MetadataConfiguration" as never },
     })
 
@@ -437,7 +437,7 @@ describe("importInternalInfoFromXML", () => {
     ])
   })
 
-  it("prefers reference ThisNode when exporting", () => {
+  it("uses current ThisNode and generated identities instead of reference", () => {
     const exported = exportInternalInfoToXML({
       context: mockContextToXML(),
       rule: ruleWithThisNode,
@@ -450,15 +450,28 @@ describe("importInternalInfoFromXML", () => {
       },
       referenceMetadata: {
         ExchangePlanRef: {
-          typeId: "00000000-0000-0000-0000-000000000001",
-          valueId: "00000000-0000-0000-0000-000000000003",
+          typeId: "stale-type",
+          valueId: "stale-value",
         },
         thisNode: "ref",
       },
       metadataItem: { itemType: "MetadataExchangePlan" as never },
     })
 
-    expect(exported["xr:ThisNode"]).toBe("ref")
+    expect(exported["xr:ThisNode"]).toBe("new")
+    expect(exported["xr:GeneratedType"]).toEqual([{
+      _name: "ExchangePlanRef.", _category: "Ref",
+      "xr:TypeId": "00000000-0000-0000-0000-000000000001",
+      "xr:ValueId": "00000000-0000-0000-0000-000000000003",
+    }])
+  })
+
+  it("does not resurrect undeclared contained objects from reference", () => {
+    const exported = exportInternalInfoToXML({
+      context: mockContextToXML(), rule: containedObjectsRule,
+      value: undefined, referenceMetadata: importContainedObjectsFixture(),
+    })
+    expect(exported).toEqual({})
   })
 
   it("generates ThisNode when rule opts in and no model or reference value exists", () => {

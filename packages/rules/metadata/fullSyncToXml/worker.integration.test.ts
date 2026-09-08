@@ -601,7 +601,6 @@ describe("full XML sync worker", () => {
           forms: [],
           templates: [],
           parentName: "",
-          metadataForNumbering: [],
         },
       },
     })

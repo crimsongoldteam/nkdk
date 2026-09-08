@@ -111,7 +111,6 @@ export function testExportPropertyModelThroughYAMLToXML(params: Params): {
         forms: [],
         templates: [],
         parentName: "",
-        metadataForNumbering: [],
       },
     },
   }

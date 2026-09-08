@@ -374,7 +374,6 @@ import { metadataPropertyRule000 as rule340 } from "../forms/commonObjects/comma
 import { metadataPropertyRule000 as rule341 } from "../forms/commonObjects/commandName/toEnterprise"
 import { metadataPropertyRule000 as rule342 } from "../forms/commonObjects/commandName/toJSONSchema"
 import { metadataPropertyRule000 as rule343 } from "../forms/commonObjects/commandSet/toJSONSchema"
-import { metadataPropertyRule000 as rule344 } from "../forms/commonObjects/elementId/toXML"
 import { metadataPropertyRule000 as rule345 } from "../forms/commonObjects/event/fromXML"
 import { metadataPropertyRule000 as rule346 } from "../forms/commonObjects/event/fromYAML"
 import { metadataPropertyRule000 as rule347 } from "../forms/commonObjects/event/toJSONSchema"
@@ -761,7 +760,6 @@ export const staticPropertyTypes = propertyTypesFromContributions([
   rule341,
   rule342,
   rule343,
-  rule344,
   rule345,
   rule346,
   rule347,

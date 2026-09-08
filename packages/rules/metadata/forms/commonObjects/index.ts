@@ -55,5 +55,3 @@ import "./ganttChart/types"
 import "./ganttChartFieldTable/types"
 import "./planner/types"
 import "./spreadsheetDocument/types"
-
-import "./elementId/toXML"

@@ -506,3 +506,25 @@ duplicates от f9c51e1, обе архитектурные проверки, pnp
 /private/tmp/nkdk-scalar-final-{types,duplicates,arch-rules,arch,full,e2e}.log.
 Фикстуры не менялись. Общий runtime forReference и оставшиеся потребители
 ещё требуют удаления; полный план пока не завершён.
+
+### Идентификаторы без скрытой очереди и reference-подмены
+
+InternalInfo использует снимок и текущие значения, не UUID/ContainedObject
+из reference. Тесты подтверждают приоритет текущих данных и отсутствие
+восстановления удалённых объектов. Старый отдельный экспорт InternalInfo
+удалён; прежние XML-фикстуры проверяются действующим экспортным правилом.
+
+У ElementId обнаружена очередь metadataForNumbering без читателей.
+Удалены очередь, её пустые инициализации и старый обработчик; ID команды
+описывается тем же stringRule, что ID реквизита формы. Назначение и
+резервирование ID остаются в действующей общей сессии. Удалены функции
+скрытого referenceNameMode без production-потребителей; тесты проверяют
+действующий выбор варианта имени и сериализованный !xml/name.
+
+Прошли 64 целевых теста идентификаторов/имён, проверка InternalInfo текущим
+API, type-check, duplicates от f9c51e1, обе архитектурные проверки,
+pnpm test и 214 e2e. Логи: /private/tmp/nkdk-identity-targeted.log,
+/private/tmp/nkdk-internal-final-targeted.log,
+/private/tmp/nkdk-identity-final-{types,duplicates,arch-rules,arch,full,e2e}.log.
+Фикстуры не менялись. Reference-параметры самой формы, общий runtime и
+parser compatibility остаются открытыми, как и итоговые замеры/ревью.

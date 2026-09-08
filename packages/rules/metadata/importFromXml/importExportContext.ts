@@ -19,7 +19,6 @@ export function createImportExportContext(
       version: context.exportToXML?.version ?? context.version,
       itemsTree: context.exportToXML?.itemsTree ?? [],
       context: {
-        metadataForNumbering: [],
         forms: [],
         templates: [],
         parentName: "",

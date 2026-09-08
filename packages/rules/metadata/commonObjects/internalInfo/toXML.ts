@@ -1,6 +1,5 @@
 import type { ConfigurationContext } from "@nkdk/runtime"
 import { ExportToXMLFunctionNew, InternalInfoPropertyRule, definePropertyTypeRule } from "../../ruleRuntime"
-import { getUUID } from "../../helpers/uuid"
 import {
   internalInfoContainedObjectIdAddress,
   internalInfoGeneratedTypeIdAddress,
@@ -11,25 +10,22 @@ import {
 import {
   InternalInfo,
   InternalInfoContainedObjectXML,
-  InternalInfoItemsXML,
-  InternalInfoParam,
   InternalInfoRootXML,
 } from "./types"
 
 export const exportInternalInfoToXML: ExportToXMLFunctionNew = (params): InternalInfoRootXML | undefined => {
-  const { context, rule, value, referenceMetadata, metadataItem, source } = params
+  const { context, rule, value, metadataItem, source } = params
 
   const internalInfoRule = rule as InternalInfoPropertyRule
 
   const metadata = value as InternalInfo | undefined
-  const reference = referenceMetadata as InternalInfo | undefined
   const ownerAddress = context.exportToXML.configurationIndex?.logicalAddress
   const thisNode =
     internalInfoRule.thisNode === true
       ? resolveInternalInfoUuid({
           context,
           logicalAddress: ownerAddress === undefined ? undefined : internalInfoThisNodeAddress(ownerAddress),
-          fallback: reference?.thisNode ?? metadata?.thisNode,
+          fallback: metadata?.thisNode,
         })
       : undefined
 
@@ -43,7 +39,7 @@ export const exportInternalInfoToXML: ExportToXMLFunctionNew = (params): Interna
   const generated = itemsRule.map((item) => {
     const name = item.name
 
-    const existing = getInternalInfoItem(reference?.[name]) ?? getInternalInfoItem(metadata?.[name])
+    const existing = getInternalInfoItem(metadata?.[name])
 
     const typeId = resolveInternalInfoUuid({
       context,
@@ -77,7 +73,6 @@ export const exportInternalInfoToXML: ExportToXMLFunctionNew = (params): Interna
     context,
     classIds: internalInfoRule.containedObjectClassIds ?? [],
     metadata,
-    reference,
     ownerAddress,
   })
   if (containedObjects.length > 0) {
@@ -97,16 +92,12 @@ const getContainedObjectsXML = (params: {
   context: ConfigurationContext
   classIds: string[]
   metadata: InternalInfo | undefined
-  reference: InternalInfo | undefined
   ownerAddress: string | undefined
 }): InternalInfoContainedObjectXML[] => {
-  const referenceObjects = params.reference?.containedObjects ?? []
   const metadataObjects = params.metadata?.containedObjects ?? []
 
   if (params.classIds.length === 0) {
-    const containedObjects = referenceObjects.length > 0 ? referenceObjects : metadataObjects
-
-    return containedObjects.map((item) => {
+    return metadataObjects.map((item) => {
       const objectId = resolveInternalInfoUuid({
         context: params.context,
         logicalAddress:
@@ -124,7 +115,6 @@ const getContainedObjectsXML = (params: {
 
   const usedClassIds = new Set<string>()
   const findContainedObject = (classId: string) =>
-    referenceObjects.find((item) => item.classId === classId) ??
     metadataObjects.find((item) => item.classId === classId)
 
   const declared = params.classIds.map((classId) => {
@@ -144,7 +134,7 @@ const getContainedObjectsXML = (params: {
     }
   })
 
-  const extras = [...referenceObjects, ...metadataObjects]
+  const extras = metadataObjects
     .filter((item) => {
       if (usedClassIds.has(item.classId)) return false
       usedClassIds.add(item.classId)
@@ -166,21 +156,6 @@ const getContainedObjectsXML = (params: {
     })
 
   return [...declared, ...extras]
-}
-
-/** @deprecated */
-export const exportInternalInfoToXMLOld = <T extends InternalInfoParam[]>(
-  context: ConfigurationContext,
-  data: T
-): InternalInfoItemsXML<T> => {
-  return {
-    "xr:GeneratedType": data.map((param) => ({
-      _name: param.name,
-      _category: param.category,
-      "xr:TypeId": getUUID(context),
-      "xr:ValueId": getUUID(context),
-    })),
-  }
 }
 
 export const metadataPropertyRule000 = definePropertyTypeRule("InternalInfo", "exportToXML", exportInternalInfoToXML)

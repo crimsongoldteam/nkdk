@@ -219,9 +219,7 @@ const createFormScopedContext = (params: {
       ...context.exportToXML,
       context: {
         ...exportContext,
-        metadataForNumbering: [],
         currentXMLPath: currentXMLPath ?? exportContext.currentXMLPath,
-        propertiesItemXmlStack: [],
       },
     },
   }

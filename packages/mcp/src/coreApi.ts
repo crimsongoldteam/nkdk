@@ -120,7 +120,6 @@ export interface CoreApi {
           forms: []
           templates: []
           parentName: ""
-          metadataForNumbering: []
         }
       }
     }

@@ -95,7 +95,6 @@ export async function syncToXml(
             forms: [],
             templates: [],
             parentName: "",
-            metadataForNumbering: [],
           },
         },
       },

@@ -602,7 +602,6 @@ function exportContext(
       itemsTree: [],
       version: state.context.version,
       context: {
-        metadataForNumbering: [],
         forms: [],
         templates: [],
         parentName: "",

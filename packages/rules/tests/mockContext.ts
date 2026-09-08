@@ -48,7 +48,6 @@ export const mockContextToXML = (): ConfigurationContextWithExportToXML => {
       itemsTree: [],
       version: "2.20",
       context: {
-        metadataForNumbering: [],
         forms: [],
         templates: [],
         parentName: "",

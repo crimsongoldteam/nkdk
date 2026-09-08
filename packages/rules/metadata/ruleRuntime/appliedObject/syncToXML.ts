@@ -60,7 +60,6 @@ export const prepareAppliedObjectOwnerXML = (params: {
         forms: [...(params.fileChildNames?.forms ?? [])],
         templates: [...(params.fileChildNames?.templates ?? [])],
         parentName: params.name,
-        metadataForNumbering: contextWithFormDir.exportToXML.context?.metadataForNumbering ?? [],
       },
     },
   }

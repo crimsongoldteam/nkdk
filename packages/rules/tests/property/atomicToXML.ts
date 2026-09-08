@@ -46,7 +46,7 @@ export function testAtomicToXML(params: Params & { importMetaUrl?: string; path?
     exportToXML: {
       ...mockContextToXML().exportToXML,
       itemsTree: params.itemsTree ?? [],
-      context: { forms: [], templates: [], parentName: "", metadataForNumbering: [] },
+      context: { forms: [], templates: [], parentName: "" },
     },
   }
   const xml = callAtomicToXML({ context, rule, value, referenceValue: referenceProperty })
