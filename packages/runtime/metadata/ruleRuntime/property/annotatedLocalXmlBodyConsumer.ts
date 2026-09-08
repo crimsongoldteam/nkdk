@@ -137,8 +137,13 @@ function projectUnownedDifferences(params: {
   const instructions = new Map<string, { node: Extract<XmlElementNode["content"][number], { type: "processingInstruction" }>; path: string[] }>()
   const visit = (node: XmlElementNode, path: string[]): void => {
     elements.set(node.path, { node, path })
+    const counts = new Map<string, number>()
     for (const child of node.content) {
-      if (child.type === "element") visit(child, [...path, child.name])
+      if (child.type === "element") counts.set(child.name, (counts.get(child.name) ?? 0) + 1)
+    }
+    for (const child of node.content) {
+      if (child.type === "element") visit(child, [...path, (counts.get(child.name) ?? 0) > 1
+        ? child.path.slice(child.path.lastIndexOf("/") + 1) : child.name])
       if (child.type === "processingInstruction") {
         instructions.set(child.path, { node: child, path: [...path, `?${child.target}`] })
       }
@@ -164,7 +169,7 @@ function projectUnownedDifferences(params: {
       handled.add(difference)
       continue
     }
-    const generatedPath = relativeElementPath(params.source.path, difference.path)
+    const generatedPath = relativeElementPath(params.source.path, difference.path, true)
     if (generatedPath !== undefined) {
       params.appendRaw([...params.pathPrefix, ...generatedPath].join("\\"), null)
       handled.add(difference)
@@ -231,6 +236,8 @@ function projectPathOnlyPropertyDifferences(params: {
     (node): node is XmlElementNode => node.type === "element",
   )
   const childrenByPath = new Map(children.map((child) => [child.path, child] as const))
+  const childNameCounts = new Map<string, number>()
+  for (const child of children) childNameCounts.set(child.name, (childNameCounts.get(child.name) ?? 0) + 1)
   const projected = new Set<string>()
   for (const difference of params.differences) {
     if (difference.kind === "order" || ownSet.has(difference)) continue
@@ -250,7 +257,8 @@ function projectPathOnlyPropertyDifferences(params: {
       continue
     }
     projected.add(identity)
-    const name = child?.name ?? generatedName!
+    const name = child === undefined ? firstSegment! : (childNameCounts.get(child.name) ?? 0) > 1
+      ? child.path.slice(child.path.lastIndexOf("/") + 1) : child.name
     appendRaw([...params.path, name].join("\\"), child === undefined ? null : encodeXmlRawElement(child))
   }
 }

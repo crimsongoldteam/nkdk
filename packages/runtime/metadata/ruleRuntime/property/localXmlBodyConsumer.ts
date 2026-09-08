@@ -172,13 +172,12 @@ export function createLocalXmlBodyConsumer(params: {
             const ownerPath = binding.owner?.path
               ?? binding.node.path.slice(0, binding.node.path.lastIndexOf("/"))
             params.annotate?.({
-              source: binding.node,
+              source: params.source,
               differences: value.slice(binding.nodes.length).map((_, index) => ({
                 kind: "presence" as const,
                 path: `${ownerPath}/${path.at(-1)}[${binding.nodes!.length + index + 1}]`,
                 ownerPath,
               })),
-              property,
             })
           }
           writePathCreating(preparedBody, path, receipts)

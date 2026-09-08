@@ -6,7 +6,8 @@ createDirectRoundTripContexts,
 readAppliedObjectFixture,
 serializeDirectXML,
 testMetadataItemFromXMLToYAML,
-testMetadataItemFromYAMLToXML
+testMetadataItemFromYAMLToXML,
+testMetadataItemYamlRoundTrip,
 } from "../../../tests/directConversion"
 import { readXMLFixtureAsString } from "../../../tests/readFixtureXML"
 import { ClientApplicationInterfaceRules } from "./rules"
@@ -14,6 +15,10 @@ import { ClientApplicationInterfaceRules } from "./rules"
 import "./register"
 
 describe("ClientApplicationInterface YAML → XML", () => {
+  it("does not restore unknown panel XML from a reference", () => {
+    const source = interfaceXML('<top><panel id="id" custom="must-not-return"><uuid>cbab57f2-a0f3-4f0a-89ea-4cb19570ab75</uuid></panel></top>')
+    expect(convertYAML({ Верх: [{ Панель: "ПанельОткрытых" }] }, source)).not.toContain("must-not-return")
+  })
 
   it("imports sections, short panels, expanded panels and groups", () => {
     const result = convertYAML({
@@ -34,7 +39,7 @@ describe("ClientApplicationInterface YAML → XML", () => {
 
   it("round-trips ClientApplicationInterface.xml", () => {
     expect(roundTripFixture("ClientApplicationInterface.xml")).toBe(
-      withRequiredPanelDefs(fixtureXML("ClientApplicationInterface.xml"))
+      fixtureXML("ClientApplicationInterface.xml")
     )
   })
 
@@ -79,13 +84,13 @@ describe("ClientApplicationInterface YAML → XML", () => {
   })
 
   it("round-trips mixed panel and group order", () => {
-    expect(roundTripFixture("MixedOrder.xml")).toBe(withRequiredPanelDefs(fixtureXML("MixedOrder.xml")))
+    expect(roundTripFixture("MixedOrder.xml")).toBe(fixtureXML("MixedOrder.xml"))
   })
 
   it("round-trips named standard panel through YAML without losing uuid", () => {
     const result = roundTripFixture("NamedStandardPanel.xml")
 
-    expect(result).toBe(withRequiredPanelDefs(fixtureXML("NamedStandardPanel.xml")))
+    expect(result).toBe(fixtureXML("NamedStandardPanel.xml"))
     expect(result).toContain("<uuid>b553047f-c9aa-4157-978d-448ecad24248</uuid>")
     expect(result).toContain("<name>МояПанельИстории</name>")
   })
@@ -254,28 +259,13 @@ describe("ClientApplicationInterface YAML → XML", () => {
 })
 
 function roundTripFixture(fixture: string): string {
-  const xml = readAppliedObjectFixture(import.meta.url, fixture)
-  return roundTripParsedXML(xml)
+  return roundTripXML(readXMLFixtureAsString(import.meta.url, fixture))
 }
 
 function roundTripXML(xml: string): string {
-  return roundTripParsedXML(importContentFromXML<Record<string, unknown>>(xml))
-}
-
-function roundTripParsedXML(xml: Record<string, unknown>): string {
-  const contexts = createDirectRoundTripContexts()
-  const imported = testMetadataItemFromXMLToYAML({
-    context: contexts.importContext,
-    rule: ClientApplicationInterfaceRules,
-    xml,
-  })
-  const exported = testMetadataItemFromYAMLToXML({
-    context: contexts.exportContext(),
-    rule: ClientApplicationInterfaceRules,
-    yaml: imported.yaml,
-    referenceXML: xml,
-  })
-  return normalizeXML(serializeDirectXML(exported.xml))
+  return normalizeXML(testMetadataItemYamlRoundTrip({
+    sourceXML: xml, rule: ClientApplicationInterfaceRules,
+  }).result)
 }
 
 function convertYAML(yaml: unknown, reference?: string): string {
@@ -290,23 +280,6 @@ function convertYAML(yaml: unknown, reference?: string): string {
 
 function fixtureXML(fixture: string): string {
   return normalizeXML(readXMLFixtureAsString(import.meta.url, fixture))
-}
-
-const requiredPanelDefIds = [
-  "b553047f-c9aa-4157-978d-448ecad24248",
-  "13322b22-3960-4d68-93a6-fe2dd7f28ca3",
-  "c933ac92-92cd-459d-81cc-e0c8a83ced99",
-  "cbab57f2-a0f3-4f0a-89ea-4cb19570ab75",
-  "b2735bd3-d822-4430-ba59-c9e869693b24",
-]
-
-function withRequiredPanelDefs(xml: string): string {
-  const panelDefPattern = /\n\t<panelDef id="([^"]+)"[^>]*(?:\/>|>[\s\S]*?<\/panelDef>)/g
-  const definitions = [...xml.matchAll(panelDefPattern)].map((match) => ({ id: match[1], xml: match[0] }))
-  const byId = new Map(definitions.map((definition) => [definition.id, definition.xml]))
-  const ordered = requiredPanelDefIds.map((id) => byId.get(id) ?? `\n\t<panelDef id="${id}"/>`)
-  const extra = definitions.filter((definition) => !requiredPanelDefIds.includes(definition.id)).map(({ xml }) => xml)
-  return xml.replace(panelDefPattern, "").replace("\n</ClientApplicationInterface>", `${ordered.join("")}${extra.join("")}\n</ClientApplicationInterface>`)
 }
 
 function interfaceXML(content: string): string {

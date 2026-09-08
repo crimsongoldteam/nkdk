@@ -1,4 +1,5 @@
 import { Type } from "typebox"
+import { objectRecordOrUndefined } from "@nkdk/runtime"
 import { getUUID } from "../../helpers/uuid"
 import { ExportToXMLFunctionNew, ImportFromYAMLFunctionNew, defineMetadataItemRule, defineMetadataRules, definePropertyTypeRule, type ImportFromXMLToYAMLFunction, type PropertyRule } from "../../ruleRuntime"
 import type { ConfigurationContext, ConfigurationContextFromXML } from "@nkdk/runtime"
@@ -69,7 +70,6 @@ const requiredStandardPanelUuidSet = new Set<string>(requiredStandardPanelUuids)
 const clientApplicationInterfaceRootAttributes = ClientApplicationInterfaceRules.properties.xmlRoot.rootAttributes
 const clientApplicationInterfaceRootAttributeKeys = new Set(Object.keys(clientApplicationInterfaceRootAttributes))
 
-const XML_REFERENCE_RAW = "__xmlReferenceRaw"
 const XML_METADATA = Symbol.for("metadata")
 const XML_ORDERED_CHILDREN = Symbol.for("xmlOrderedChildren")
 const XML_SECTION_LENGTHS = Symbol("clientApplicationInterfaceSectionLengths")
@@ -79,42 +79,7 @@ const toArray = <T>(value: T | T[] | undefined): T[] =>
   value === undefined ? [] : Array.isArray(value) ? value : [value]
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
-  value !== null && typeof value === "object" && !Array.isArray(value)
-
-const cloneXMLValue = (value: unknown): unknown => {
-  if (Array.isArray(value)) return value.map(cloneXMLValue)
-  if (!isRecord(value)) return value
-  return Object.fromEntries(Object.entries(value).map(([key, entry]) => [key, cloneXMLValue(entry)]))
-}
-
-const copyUnknownXMLKeys = (source: unknown, knownKeys: string[]): Record<string, unknown> => {
-  if (!isRecord(source)) return {}
-  const known = new Set(knownKeys)
-  return Object.fromEntries(
-    Object.entries(source)
-      .filter(([key]) => key !== "#text" && !known.has(key))
-      .map(([key, value]) => [key, cloneXMLValue(value)])
-  )
-}
-
-const defineReferenceRawXML = (params: {
-  context?: ConfigurationContextFromXML
-  target: object
-  xml: unknown
-}): void => {
-  if (params.context !== undefined && !params.context.fromXML.forReference) return
-  if (params.xml === undefined) return
-  Object.defineProperty(params.target, XML_REFERENCE_RAW, {
-    value: params.xml,
-    enumerable: false,
-  })
-}
-
-const getReferenceRawXML = (referenceMetadata: unknown): Record<string, unknown> | undefined => {
-  if (!isRecord(referenceMetadata)) return undefined
-  const raw = referenceMetadata[XML_REFERENCE_RAW]
-  return isRecord(raw) ? raw : undefined
-}
+  objectRecordOrUndefined(value) !== undefined
 
 const getXMLId = (xml: { _id?: string; id?: string } | XmlElementNode | undefined): string | undefined =>
   isXmlElementNode(xml) ? xmlAttributeValue(xml, "id") ?? interfaceChildText(xml, "id") : xml?._id ?? xml?.id
@@ -282,17 +247,8 @@ const hasStableYAMLSignature = (item: ClientApplicationInterfaceItemsYAML[number
     (signature) => signature.startsWith("panel:uuid:") || signature.startsWith("panel:name:")
   )
 
-const hasStableItemSignature = (item: ClientApplicationInterfaceItem): boolean =>
-  getItemSignature(item).some(
-    (signature) =>
-      signature.startsWith("panel:uuid:") || signature.startsWith("panel:name:") || signature.startsWith("group:id:")
-  )
-
 const isWeakYAMLGroup = (item: ClientApplicationInterfaceItemsYAML[number]): boolean =>
   !("Панель" in item) && getYAMLItemSignature(item).length === 0
-
-const isWeakGroup = (item: ClientApplicationInterfaceItem): boolean =>
-  item.kind === "group" && getItemSignature(item).length === 0
 
 const countRemainingWeakYAMLGroups = (items: ClientApplicationInterfaceItemsYAML, startIndex: number): number =>
   items.slice(startIndex).filter(isWeakYAMLGroup).length
@@ -302,9 +258,6 @@ const countAvailableReferenceGroups = (
   usedReferenceIndexes: Set<number>
 ): number =>
   referenceItems?.filter((item, index) => item.kind === "group" && !usedReferenceIndexes.has(index)).length ?? 0
-
-const isSameKind = (item: ClientApplicationInterfaceItem, referenceItem: ClientApplicationInterfaceItem): boolean =>
-  item.kind === referenceItem.kind
 
 const isSameYAMLKind = (
   item: ClientApplicationInterfaceItemsYAML[number],
@@ -349,7 +302,7 @@ const findReferenceItemIndex = (params: {
 }
 
 const importPanelFromXML = (
-  context: ConfigurationContextFromXML,
+  _context: ConfigurationContextFromXML,
   xml: ClientApplicationInterfacePanelXML | XmlElementNode
 ): ClientApplicationInterfacePanel => {
   const panel: ClientApplicationInterfacePanel = {
@@ -363,7 +316,6 @@ const importPanelFromXML = (
   if (uuid !== undefined) panel.uuid = uuid
   if (name !== undefined) panel.name = name
   if (height !== undefined) panel.height = Number(height)
-  defineReferenceRawXML({ context, target: panel, xml })
   return panel
 }
 
@@ -376,7 +328,6 @@ const importGroupFromXML = (
   if (id !== undefined) group.id = id
   const items = importItemsFromSectionXML(context, xml)
   if (items.length > 0) group.items = items
-  defineReferenceRawXML({ context, target: group, xml })
   return group
 }
 
@@ -408,7 +359,7 @@ const importItemsFromXML = (
 }
 
 const importPanelDefsFromXML = (
-  context: ConfigurationContextFromXML,
+  _context: ConfigurationContextFromXML,
   _rule: PropertyRule,
   xml: ClientApplicationInterfacePanelDefXML | XmlElementNode | (ClientApplicationInterfacePanelDefXML | XmlElementNode)[] | undefined
 ): ClientApplicationInterfacePanelDefs | undefined => {
@@ -421,7 +372,6 @@ const importPanelDefsFromXML = (
       const spr = isXmlElementNode(panelDef) ? interfaceChildText(panelDef, "spr") as SectionsPanelRepresentation | undefined : panelDef.spr
       if (name !== undefined) result.name = name
       if (spr !== undefined) result.spr = spr
-      defineReferenceRawXML({ context, target: result, xml: panelDef })
       return result
     })
     .filter((panelDef): panelDef is ClientApplicationInterfacePanelDef => panelDef !== undefined)
@@ -561,7 +511,7 @@ const importClientApplicationInterfaceFromXMLToYAML: ImportFromXMLToYAMLFunction
         requiredStandardPanelUuidSet.has(panelDef.id) &&
         panelDef.name === undefined &&
         panelDef.spr === undefined &&
-        Object.keys(getReferenceRawXML(panelDef) ?? panelDef).every((key) => key === "_id" || key === "id")
+        Object.keys(panelDef).every((key) => key === "id")
     )
   return emptyStandardRoot ? {} : result
 }
@@ -680,33 +630,27 @@ const importItemsFromYAML: ImportFromYAMLFunctionNew = ({ context, rule, value, 
     )
   )
 
-const mergePanelWithReference = (
+const exportPanelXML = (
   panel: ClientApplicationInterfacePanel,
-  referencePanel: unknown,
   context: ConfigurationContext
 ): Record<string, unknown> => {
-  const referenceXML = getReferenceRawXML(referencePanel) ?? referencePanel
-  const xml = copyUnknownXMLKeys(referenceXML, ["_id", "id", "uuid", "name", "height"])
-  xml._id = panel.id ?? getXMLId(referenceXML as { _id?: string; id?: string } | undefined) ?? getUUID(context)
+  const xml: Record<string, unknown> = { _id: panel.id ?? getUUID(context) }
   if (panel.uuid !== undefined) xml.uuid = panel.uuid
   if (panel.name !== undefined) xml.name = panel.name
   if (panel.height !== undefined) xml.height = panel.height
   return xml
 }
 
-const mergeGroupWithReference = (
+const exportGroupXML = (
   group: ClientApplicationInterfaceGroup,
-  referenceGroup: unknown,
   context: ConfigurationContext
 ): Record<string, unknown> => {
-  const referenceXML = getReferenceRawXML(referenceGroup) ?? referenceGroup
-  const xml = copyUnknownXMLKeys(referenceXML, ["_id", "id", "panel", "group"])
-  const id = group.id ?? getXMLId(referenceXML as { _id?: string; id?: string } | undefined)
+  const xml: Record<string, unknown> = {}
+  const id = group.id
   if (id !== undefined) xml._id = id
   const childItems = exportItemsToSectionXML({
     context,
     items: group.items ?? [],
-    referenceItems: (referenceGroup as ClientApplicationInterfaceGroup | undefined)?.items,
   })
   Object.assign(xml, childItems)
   return xml
@@ -715,34 +659,17 @@ const mergeGroupWithReference = (
 const exportItemsToSectionXML = (params: {
   context: ConfigurationContext
   items: ClientApplicationInterfaceItems
-  referenceItems?: ClientApplicationInterfaceItems
-  usedReferenceIndexes?: Set<number>
-  fallbackIndexOffset?: number
 }): Record<string, unknown> => {
   const panels: Record<string, unknown>[] = []
   const groups: Record<string, unknown>[] = []
   const orderedChildren: Array<{ key: string; value: unknown }> = []
-  const usedReferenceIndexes = params.usedReferenceIndexes ?? new Set<number>()
-
-  params.items.forEach((item, index) => {
-    const fallbackIndex = (params.fallbackIndexOffset ?? 0) + index
-    const canUseIndexFallback = !hasStableItemSignature(item) && !isWeakGroup(item)
-    const referenceIndex = findReferenceItemIndex({
-      signatures: getItemSignature(item),
-      fallbackIndex,
-      referenceItems: params.referenceItems,
-      usedReferenceIndexes,
-      canUseIndexFallback,
-      isCompatibleByIndex: (referenceItem) => isSameKind(item, referenceItem),
-    })
-    if (referenceIndex !== undefined) usedReferenceIndexes.add(referenceIndex)
-    const referenceItem = referenceIndex !== undefined ? params.referenceItems?.[referenceIndex] : undefined
+  params.items.forEach((item) => {
     if (item.kind === "panel") {
-      const panel = mergePanelWithReference(item, referenceItem, params.context)
+      const panel = exportPanelXML(item, params.context)
       panels.push(panel)
       orderedChildren.push({ key: "panel", value: panel })
     } else {
-      const group = mergeGroupWithReference(item, referenceItem, params.context)
+      const group = exportGroupXML(item, params.context)
       groups.push(group)
       orderedChildren.push({ key: "group", value: group })
     }
@@ -761,11 +688,10 @@ const exportItemsToSectionXML = (params: {
   return section
 }
 
-const splitItemsByReferenceSections = (
-  items: ClientApplicationInterfaceItems,
-  referenceItems: ClientApplicationInterfaceItems | undefined
+const splitItemsBySections = (
+  items: ClientApplicationInterfaceItems
 ): ClientApplicationInterfaceItems[] => {
-  const sectionLengths = getSectionLengths(referenceItems) ?? getSectionLengths(items)
+  const sectionLengths = getSectionLengths(items)
   if (sectionLengths === undefined) return items.map((item) => [item])
 
   const sections: ClientApplicationInterfaceItems[] = []
@@ -780,21 +706,13 @@ const splitItemsByReferenceSections = (
   return sections.filter((section) => section.length > 0)
 }
 
-const exportItemsToXML: ExportToXMLFunctionNew = ({ context, value, referenceMetadata }) => {
+const exportItemsToXML: ExportToXMLFunctionNew = ({ context, value }) => {
   if (value === undefined) return undefined
   const items = value as ClientApplicationInterfaceItems
-  const referenceItems = referenceMetadata as ClientApplicationInterfaceItems | undefined
-  const usedReferenceIndexes = new Set<number>()
-  let offset = 0
-  return splitItemsByReferenceSections(items, referenceItems).map((sectionItems) => {
-    const fallbackIndexOffset = offset
-    offset += sectionItems.length
+  return splitItemsBySections(items).map((sectionItems) => {
     return exportItemsToSectionXML({
       context,
       items: sectionItems,
-      referenceItems,
-      usedReferenceIndexes,
-      fallbackIndexOffset,
     })
   })
 }
@@ -828,16 +746,13 @@ const collectPanelsFromYAML = (value: unknown): ClientApplicationInterfacePanel[
   })
 }
 
-const mergePanelDefWithReference = (params: {
+const exportPanelDefXML = (params: {
   id: string
   name?: string
   spr?: SectionsPanelRepresentation
-  referencePanelDef?: ClientApplicationInterfacePanelDef
 }): Record<string, unknown> => {
-  const referenceXML = getReferenceRawXML(params.referencePanelDef) ?? params.referencePanelDef
-  const xml = copyUnknownXMLKeys(referenceXML, ["_id", "id", "name", "spr"])
-  xml._id = params.id
-  const name = params.name ?? params.referencePanelDef?.name
+  const xml: Record<string, unknown> = { _id: params.id }
+  const name = params.name
   if (name !== undefined) xml.name = name
   if (params.spr !== undefined) xml.spr = params.spr
   return xml
@@ -847,16 +762,13 @@ const exportPanelDefsToXML: ExportToXMLFunctionNew = ({
   value,
   source,
   metadataItem,
-  referenceMetadata,
 }) => {
   const panels =
     source === undefined
       ? collectAllPanels(metadataItem as Record<string, unknown> | undefined)
       : collectAllPanelsFromYAMLSource(source)
   const panelDefs = (value as ClientApplicationInterfacePanelDefs | undefined) ?? []
-  const referencePanelDefs = (referenceMetadata as ClientApplicationInterfacePanelDefs | undefined) ?? panelDefs
   const byId = new Map(panelDefs.map((panelDef) => [panelDef.id, panelDef]))
-  const referenceById = new Map(referencePanelDefs.map((panelDef) => [panelDef.id, panelDef]))
   const explicitPanelDefIds =
     source === undefined
       ? new Set<string>()
@@ -879,10 +791,10 @@ const exportPanelDefsToXML: ExportToXMLFunctionNew = ({
   for (const id of requiredStandardPanelUuids) {
     emittedIds.add(id)
     result.push(
-      mergePanelDefWithReference({
+      exportPanelDefXML({
         id,
         spr: id === sectionsPanelUuid ? sectionsPanelRepresentation : undefined,
-        referencePanelDef: referenceById.get(id),
+        name: byId.get(id)?.name,
       })
     )
   }
@@ -898,11 +810,10 @@ const exportPanelDefsToXML: ExportToXMLFunctionNew = ({
     if (!shouldCreatePanelDef) continue
     emittedIds.add(panel.uuid)
     result.push(
-      mergePanelDefWithReference({
+      exportPanelDefXML({
         id: panel.uuid,
         name: panel.name ?? panelDef?.name,
         spr: panelDef?.spr,
-        referencePanelDef: referenceById.get(panel.uuid),
       })
     )
   }
@@ -939,3 +850,10 @@ export const metadataPropertyRule006 = definePropertyTypeRule(
 export const metadataPropertyRule007 = definePropertyTypeRule("ClientApplicationInterfacePanelDefs", "importFromXML", importPanelDefsFromXML)
 export const metadataPropertyRule008 = definePropertyTypeRule("ClientApplicationInterfacePanelDefs", "exportToXML", exportPanelDefsToXML)
 export const metadataPropertyRule009 = definePropertyTypeRule("ClientApplicationInterfacePanelDefs", "exportToJSONSchema", () => Type.Array(Type.Object({})))
+
+export const metadataPropertyRule011 = definePropertyTypeRule("ClientApplicationInterfaceItems", "xmlImportPropertyBehavior", {
+  repeatedXMLNodes: true,
+})
+export const metadataPropertyRule012 = definePropertyTypeRule("ClientApplicationInterfacePanelDefs", "xmlImportPropertyBehavior", {
+  repeatedXMLNodes: true,
+})

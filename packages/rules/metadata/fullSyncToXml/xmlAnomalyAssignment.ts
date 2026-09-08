@@ -802,7 +802,7 @@ function rawBoundary(params: {
   }
   const augmentsCompiledOutput = isCompiledOutputPatch(params.annotation.xml)
     && (
-      property === undefined
+      params.property === undefined
       || params.exportClaimId !== undefined
       || containsXmlDeletion(params.annotation.xml)
     )

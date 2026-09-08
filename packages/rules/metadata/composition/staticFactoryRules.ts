@@ -140,6 +140,7 @@ import { metadataPropertyRule007 as contribution113 } from "../commonObjects/cli
 import { metadataPropertyRule008 as contribution114 } from "../commonObjects/clientApplicationInterface/register"
 import { metadataPropertyRule009 as contribution115 } from "../commonObjects/clientApplicationInterface/register"
 import { metadataPropertyRule010 as clientApplicationInterfacePresenceContribution } from "../commonObjects/clientApplicationInterface/register"
+import { metadataPropertyRule011 as clientApplicationInterfaceItemsContribution, metadataPropertyRule012 as clientApplicationInterfacePanelDefsContribution } from "../commonObjects/clientApplicationInterface/register"
 import { metadataPropertyRule001 as contribution116 } from "../commonObjects/dataCompositionSystem/conditionalAppearance/types"
 import { metadataPropertyRule001 as contribution117 } from "../commonObjects/dataCompositionSystem/structureItemGroup/types"
 import { metadataPropertyRule002 as contribution118 } from "../commonObjects/dataCompositionSystem/structureItemGroup/types"
@@ -268,6 +269,8 @@ const factoryPropertyRules = defineMetadataRules({
   contribution114,
   contribution115,
   clientApplicationInterfacePresenceContribution,
+  clientApplicationInterfaceItemsContribution,
+  clientApplicationInterfacePanelDefsContribution,
   contribution116,
   contribution117,
   contribution118,
