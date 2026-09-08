@@ -8,7 +8,6 @@ import type { XmlAnomalyAnnotations } from "../../../yaml/xmlAnomalyAnnotations"
 export interface YAMLToXMLOutputRequest {
   readonly key: string
   readonly tags?: readonly string[]
-  readonly referenceXML?: unknown
   readonly context?: import("../../context/types").ConfigurationContextWithExportToXML
   /** Подготовленная оболочка текущего item; без значений дочерних свойств. */
   readonly xmlEnvelope?: XMLItemEnvelope
@@ -148,7 +147,6 @@ export type YAMLToXMLNestedRule =
         baseYAMLContext?: import("../../context/types").ConfigurationContextWithExportToXML
         baseConfigurationIndex?: import("../../configurationIndex/localReader").LocalConfigurationIndexReader
         name: string
-        referenceXML: Record<string, unknown> | undefined
       }) => Record<string, unknown> | undefined
     }
   | {

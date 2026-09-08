@@ -457,9 +457,8 @@ export function createXMLPropertyExecution(
         })
         return
       }
-      const nestedOutputs = matchingOutputs.map((output, index) => ({
+      const nestedOutputs = matchingOutputs.map(output => ({
         key: output.request.key,
-        referenceXML: references[index]?.value,
       }))
       const normalizedNestedYAML =
         effectiveNestedRule.kind === "item" && effectiveNestedRule.normalizeYAML !== undefined

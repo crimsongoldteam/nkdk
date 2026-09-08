@@ -31,7 +31,7 @@ const nestedRule = {
 
 function collectReferences(received: unknown[][]): typeof convertMetadataItemFromYAMLToXML {
   return ({ outputs }) => {
-    received.push(outputs.map(({ referenceXML }) => referenceXML))
+    received.push(outputs.map(output => "referenceXML" in output ? output.referenceXML : undefined))
     return { outputs: new Map(outputs.map(({ key }) => [key, {}])), deferredByOutput: new Map(), externalWrites: [] }
   }
 }
@@ -92,7 +92,7 @@ describe("convertMetadataCollectionFromYAMLToXML", () => {
       descriptor: {
         kind: "collection", itemRule: nestedRule, yamlShape: "array", xmlElement: "Item",
       },
-      outputs: [{ key: "owner", referenceXML: { get Item() { reads++; return items } } }],
+      outputs: [{ key: "owner", ...{ referenceXML: { get Item() { reads++; return items } } } }],
     })
     expect(received).toEqual(items.map(() => [undefined]))
     expect(reads).toBe(0)
@@ -115,7 +115,7 @@ describe("convertMetadataCollectionFromYAMLToXML", () => {
         kind: "collection", itemRule: nestedRule, xmlElement: "Item",
         yamlShape: key === "code" ? "array" : "record", keyField: key,
       },
-      outputs: [{ key: "owner", referenceXML: { Item: [...items, { Code: "0", Name: "0" }] } }],
+      outputs: [{ key: "owner", ...{ referenceXML: { Item: [...items, { Code: "0", Name: "0" }] } } }],
     })
     expect(received).toEqual(items.map(() => [undefined]))
     expect(reads).toBe(0)
@@ -139,8 +139,8 @@ describe("convertMetadataCollectionFromYAMLToXML", () => {
         resolveItemRule: ({ index }) => index === 0 ? nestedRule : alternateRule,
       },
       outputs: [
-        { key: "owner", referenceXML: { Item: references } },
-        { key: "external", referenceXML: { Item: [references[1]] } },
+        { key: "owner", ...{ referenceXML: { Item: references } } },
+        { key: "external", ...{ referenceXML: { Item: [references[1]] } } },
       ],
     })
     expect(received).toEqual([
@@ -316,12 +316,12 @@ describe("convertMetadataCollectionFromYAMLToXML", () => {
       outputs: [
         {
           key: "owner",
-          referenceXML: {
+          ...{ referenceXML: {
             Item: [
               { Code: "B", Unknown: "для B" },
               { Code: "A", Unknown: "для A" },
             ],
-          },
+          } },
         },
       ],
     })

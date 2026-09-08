@@ -730,7 +730,6 @@ describe("единое восстановление XML-аномалий assignm
         },
         baseYAMLContext: context,
         name: "Форма",
-        referenceXML: undefined,
       })),
     )
     if (converted === undefined) throw new Error("Управляемая форма не преобразована")

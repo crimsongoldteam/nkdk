@@ -541,7 +541,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
             ...(evaluateWhenYAMLMissing ? { evaluateWhenYAMLMissing: true as const } : {}),
           },
         }),
-        outputs: [{ key: "owner", referenceXML }],
+        outputs: [{ key: "owner", ...{ referenceXML } }],
         sparseYAML,
       })
 
@@ -610,7 +610,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
         },
         ["title", "group"]
       ),
-      outputs: [{ key: "owner", referenceXML: { Name: "старое", Group: "старое", Title: "старое" } }],
+      outputs: [{ key: "owner", ...{ referenceXML: { Name: "старое", Group: "старое", Title: "старое" } } }],
     })
 
     const xml = result.outputs.get("owner")
@@ -713,7 +713,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
           implicitValueXML: false,
         },
       }),
-      outputs: [{ key: "owner", referenceXML: { Value: false } }],
+      outputs: [{ key: "owner", ...{ referenceXML: { Value: false } } }],
     })
 
     expect(result.outputs.get("owner")).toEqual({})
@@ -758,54 +758,27 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(result.outputs.get("owner")).toEqual({ Field: "xml-default" })
   })
 
-  it("does not restore empty synonym from reference when YAML omits synonym", () => {
-    const result = convertPropertiesFromYAMLToXML({
-      context: context(),
-      yaml: {},
-      rule: synonymRule(),
-      name: "ПравилаОтправкиДокументов",
-      outputs: [{ key: "owner", referenceXML: { Synonym: {} } }],
-    })
-
-    expect(result.outputs.get("owner")).toEqual({})
-  })
-
-  it("exports explicit empty YAML synonym as empty XML", () => {
-    const result = convertPropertiesFromYAMLToXML({
-      context: context(),
-      yaml: { Синоним: "" },
-      rule: synonymRule(),
-      name: "ПравилаОтправкиДокументов",
-      outputs: [{ key: "owner", referenceXML: { Synonym: {} } }],
-    })
-
-    expect(result.outputs.get("owner")).toEqual({ Synonym: {} })
-  })
-
-  it("does not apply default synonym when YAML omits synonym and reference has no synonym", () => {
-    const result = convertPropertiesFromYAMLToXML({
-      context: context(),
-      yaml: {},
-      rule: synonymRule(),
-      name: "ПравилаОтправкиДокументов",
-      outputs: [{ key: "owner" }],
-    })
-
-    expect(result.outputs.get("owner")).toEqual({})
-  })
-
-  it("uses explicit YAML synonym over empty synonym from reference", () => {
-    const result = convertPropertiesFromYAMLToXML({
-      context: context(),
+  it.each([
+    { name: "не восстанавливает отсутствующий синоним из прежнего XML", yaml: {}, oldInput: { referenceXML: { Synonym: {} } }, expected: {} },
+    { name: "экспортирует явно пустой синоним", yaml: { Синоним: "" }, oldInput: { referenceXML: { Synonym: {} } }, expected: { Synonym: {} } },
+    { name: "не добавляет отсутствующий синоним без прежнего XML", yaml: {}, oldInput: {}, expected: {} },
+    {
+      name: "использует явно заданный синоним",
       yaml: { Синоним: "Явный синоним" },
+      oldInput: { referenceXML: { Synonym: {} } },
+      expected: { Synonym: { "v8:item": [{ "v8:lang": "ru", "v8:content": "Явный синоним" }] } },
+    },
+  ])("$name", ({ yaml, oldInput, expected }) => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml,
       rule: synonymRule(),
       name: "ПравилаОтправкиДокументов",
-      outputs: [{ key: "owner", referenceXML: { Synonym: {} } }],
+      // Посторонние данные намеренно присутствуют только в отрицательном тесте.
+      outputs: [{ key: "owner", ...oldInput }],
     })
 
-    expect(result.outputs.get("owner")).toEqual({
-      Synonym: { "v8:item": [{ "v8:lang": "ru", "v8:content": "Явный синоним" }] },
-    })
+    expect(result.outputs.get("owner")).toEqual(expected)
   })
 
   it("сразу передаёт атомарный результат fromYAML в toXML", () => {
@@ -919,7 +892,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
           implicitValueXML: false,
         },
       }),
-      outputs: [{ key: "owner", referenceXML: { Value: "true" } }],
+      outputs: [{ key: "owner", ...{ referenceXML: { Value: "true" } } }],
     })
 
     expect(result.outputs.get("owner")).toEqual({})
@@ -1337,7 +1310,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
       context: context(),
       yaml: { Тип: type },
       rule: typedFillValueTestRule(),
-      outputs: [{ key: "owner", referenceXML: { FillValue: { "_xsi:type": "v8:TypeDescription" } } }],
+      outputs: [{ key: "owner", ...{ referenceXML: { FillValue: { "_xsi:type": "v8:TypeDescription" } } } }],
     })
 
     expect(result.outputs.get("owner")).toMatchObject({ FillValue: expected })
@@ -1602,7 +1575,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
           xmlAliases: ["LegacyValue"],
         },
       }),
-      outputs: [{ key: "owner", referenceXML: { LegacyValue: referenceValue } }],
+      outputs: [{ key: "owner", ...{ referenceXML: { LegacyValue: referenceValue } } }],
     })
 
     expect(result.outputs.get("owner")).toEqual({})
@@ -1633,7 +1606,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
       rule: testRule({
         formType: { type: "string", xml: "FormType", defaultValueXML: "Managed" },
       }),
-      outputs: [{ key: "owner", referenceXML: { FormType: "Ordinary" } }],
+      outputs: [{ key: "owner", ...{ referenceXML: { FormType: "Ordinary" } } }],
     })
 
     expect(result.outputs.get("owner")).toEqual({ FormType: "Managed" })
@@ -1646,7 +1619,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
       rule: testRule({
         value: { type: "string", yaml: "Значение", xml: "Value" },
       }),
-      outputs: [{ key: "owner", referenceXML: { Value: "исходное" } }],
+      outputs: [{ key: "owner", ...{ referenceXML: { Value: "исходное" } } }],
     })
 
     expect(result.outputs.get("owner")).toEqual({})
@@ -1663,7 +1636,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
           xml: "Value",
         },
       }),
-      outputs: [{ key: "owner", referenceXML: { Value: "исходное" } }],
+      outputs: [{ key: "owner", ...{ referenceXML: { Value: "исходное" } } }],
     })
 
     expect(result.outputs.get("owner")).toEqual({})
@@ -1676,7 +1649,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
       rule: testRule({
         value: { type: "string", yaml: "Значение", xml: "Value", toXML: false },
       }),
-      outputs: [{ key: "owner", referenceXML: { Value: {} } }],
+      outputs: [{ key: "owner", ...{ referenceXML: { Value: {} } } }],
     })
 
     expect(result.outputs.get("owner")).toEqual({})
@@ -1692,8 +1665,8 @@ describe("convertPropertiesFromYAMLToXML", () => {
         title: { type: "string", yaml: "Заголовок", xml: "Title", tag: "form" },
       }),
       outputs: [
-        { key: "metadata", tags: ["metadata"], referenceXML: { Value: "старое" } },
-        { key: "form", tags: ["form"], referenceXML: { Title: "старая", Width: 10 } },
+        { key: "metadata", tags: ["metadata"], ...{ referenceXML: { Value: "старое" } } },
+        { key: "form", tags: ["form"], ...{ referenceXML: { Title: "старая", Width: 10 } } },
       ],
     })
 
@@ -1709,7 +1682,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
         added: { type: "string", yaml: "Новое", xml: "Added" },
         last: { type: "string", yaml: "Последнее", xml: "Last" },
       }),
-      outputs: [{ key: "owner", referenceXML: { Last: "старое", First: "старое" } }],
+      outputs: [{ key: "owner", ...{ referenceXML: { Last: "старое", First: "старое" } } }],
     })
 
     expect(Object.keys(result.outputs.get("owner")!)).toEqual(["First", "Added", "Last"])
@@ -1745,7 +1718,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
       rule: testRule({
         items: { type: "NestedReferenceCollection" as never, yaml: "Элементы", xml: "Items" },
       }),
-      outputs: [{ key: "owner", referenceXML: { Items: [{ Name: "Первый", Retained: "да" }] } }],
+      outputs: [{ key: "owner", ...{ referenceXML: { Items: [{ Name: "Первый", Retained: "да" }] } } }],
     })
 
     expect(result.outputs.get("owner")).toEqual({ Items: [{ Name: "Первый" }] })
@@ -1769,7 +1742,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
           defaultValueXMLEmpty: [],
         },
       }),
-      outputs: [{ key: "owner", referenceXML: { Items: undefined } }],
+      outputs: [{ key: "owner", ...{ referenceXML: { Items: undefined } } }],
     })
 
     expect(result.outputs.get("owner")).toEqual({})
@@ -1793,7 +1766,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
           defaultValueXMLEmpty: [],
         },
       }),
-      outputs: [{ key: "owner", referenceXML }],
+      outputs: [{ key: "owner", ...{ referenceXML } }],
     })
 
     expect(result.outputs.get("owner")).toEqual({ Items: { Item: [] } })
@@ -1811,7 +1784,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
           defaultValueXMLEmpty: [],
         },
       }),
-      outputs: [{ key: "owner", referenceXML: { Existing: true } }],
+      outputs: [{ key: "owner", ...{ referenceXML: { Existing: true } } }],
     })
 
     expect(result.outputs.get("owner")).toEqual({})

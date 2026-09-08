@@ -49,7 +49,6 @@ export const shouldProcessProperty = (params: {
   metadataItem?: any
   context?: import("../../context/types").ConfigurationContextWithExportToXML
   propertyKey?: string
-  referenceMetadata?: unknown
 }): boolean => {
   const { rule, operation, metadataItem, context } = params
 

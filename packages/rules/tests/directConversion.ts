@@ -181,7 +181,7 @@ export function testPropertyFromYAMLToXML(params: {
       rule: params.rule,
       execution: params.execution ?? directPropertyRuleExecution,
       name: params.name,
-      outputs: [{ key: "owner", referenceXML: params.referenceXML }],
+      outputs: [{ key: "owner" }],
       externalWriteFactory: params.externalWriteFactory,
       annotations: params.annotations,
     })
@@ -237,7 +237,7 @@ export function testMetadataItemFromYAMLToXML(params: {
       annotations: params.annotations,
       rule: params.rule,
       name: params.name,
-      outputs: [{ key: "owner", referenceXML: params.referenceXML }],
+      outputs: [{ key: "owner" }],
       propertyValues: params.propertyValues,
       ownerYAML: params.ownerYAML,
       externalWriteFactory: params.externalWriteFactory,

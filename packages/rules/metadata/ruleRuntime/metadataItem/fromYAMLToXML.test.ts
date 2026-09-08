@@ -372,12 +372,12 @@ describe("convertMetadataItemFromYAMLToXML", () => {
       outputs: [
         {
           key: "owner",
-          referenceXML: {
+          ...{ referenceXML: {
             MetaDataObject: {
               _xmlns: "reference",
               Attribute: { Value: "старое", Unknown: "сохранить" },
             },
-          },
+          } },
         },
       ],
     }, imported ? importedProperties : undefined)
@@ -458,7 +458,7 @@ function convert(rule: MetadataItemRule, yaml: unknown, referenceXML?: unknown):
     context: context(),
     yaml,
     rule,
-    outputs: [{ key: "owner", referenceXML }],
+    outputs: [{ key: "owner", ...{ referenceXML } }],
   })
   return result.outputs.get("owner") ?? {}
 }

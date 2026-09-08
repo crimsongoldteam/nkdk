@@ -60,7 +60,6 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
       yaml: { ТипФормы: "Обычная" },
       ownerYAML: { ТипФормы: "Обычная" },
       name: "ОбычнаяФорма",
-      referenceXML: undefined,
     })).toBeUndefined()
   })
 
@@ -73,7 +72,6 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
       yaml: {},
       ownerYAML: {},
       name: "УправляемаяФорма",
-      referenceXML: undefined,
     })).toHaveProperty("Form")
   })
 
@@ -95,7 +93,6 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
       yaml,
       ownerYAML: yaml,
       name: "ОбщаяФорма",
-      referenceXML: undefined,
       annotations,
     })
 
@@ -998,7 +995,6 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
       baseYAML: { Ширина: 80 },
       baseConfigurationIndex: testConfigurationIndexReader(),
       name: "ОбщаяФорма",
-      referenceXML: undefined,
     })
     if (result === undefined) throw new Error("Управляемая форма не преобразована")
 
@@ -1035,7 +1031,6 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
       },
       baseConfigurationIndex: testConfigurationIndexReader(),
       name: "ФормаЭлемента",
-      referenceXML: undefined,
     })
     if (result === undefined) throw new Error("Управляемая форма не преобразована")
     const outer = result.Form as ClientApplicationFormXML
@@ -1064,7 +1059,6 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
       },
       baseConfigurationIndex: testConfigurationIndexReader(),
       name: "ОбщаяФорма",
-      referenceXML: undefined,
     })
     if (result === undefined) throw new Error("Управляемая форма не преобразована")
     const form = result.Form as ClientApplicationFormXML
@@ -1119,7 +1113,6 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
       },
       baseYAMLContext: context,
       name: "ФормаДокумента",
-      referenceXML: undefined,
     })
     if (result === undefined) throw new Error("Управляемая форма не преобразована")
     const form = result.Form as ClientApplicationFormXML
