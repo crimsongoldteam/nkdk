@@ -4,13 +4,11 @@ import {
   configurationIndexExportFormElementLogicalAddress,
   withConfigurationIndexExportLogicalAddress,
 } from "../../configurationIndex/referenceView"
-import type { ConfigurationContextWithExportToXML } from "../../context/types"
 import { getChildContextToXML } from "../../context/childContext"
 import { copyYAMLRuntimeMetadata } from "../../../yaml/runtimeMetadata"
 import type { YAMLToXMLNestedRule } from "../property/fromYAMLToXMLTypes"
-import { registerFormXmlIdReservation } from "../../configurationIndex/formXmlIdReservation"
-import { resolveFormElementXMLId } from "./xmlIdentity"
-import { copyXmlAnomalyExportClaim } from "../xmlAnomaly/exportClaim"
+import { formElementTreeRule } from "./treeRule"
+import type { XmlElementNode } from "../../../xml/import/document"
 
 type FormElementCollectionNestedRule = Extract<YAMLToXMLNestedRule, { kind: "collection" }>
 
@@ -18,22 +16,38 @@ export function createFormElementCollectionNestedRule(params: {
   readonly elementRules: Readonly<Record<string, MetadataItemRule>>
   readonly elementKinds: Readonly<Record<string, string>>
   readonly allowedTypes: readonly string[]
+  readonly resolveXMLItemType?: (node: XmlElementNode) => string
 }): FormElementCollectionNestedRule {
-  const fallbackRule = requireDefinedElementRule(params, params.allowedTypes[0])
+  const routes = new Map<string, MetadataItemRule>()
+  const byKind = new Map<string, MetadataItemRule>()
+  const route = (itemType: string | undefined) => {
+    const existing = itemType === undefined ? undefined : routes.get(itemType)
+    if (existing !== undefined) return existing
+    const rule = requireDefinedElementRule(params, itemType)
+    routes.set(itemType!, rule)
+    return rule
+  }
+  for (const itemType of params.allowedTypes) {
+    const rule = route(itemType)
+    const kind = params.elementKinds[itemType]
+    if (kind !== undefined && !byKind.has(kind)) byKind.set(kind, rule)
+  }
+  const fallbackRule = route(params.allowedTypes[0])
   const resolve = (yaml: unknown, name: string | undefined) => {
     const node = asNode(yaml, name)
     const kind = node.Вид
     if (typeof kind !== "string") throw new Error(`Элемент "${name ?? ""}": обязательное поле "Вид" не задано`)
-    const itemType = params.allowedTypes.find((candidate) => params.elementKinds[candidate] === kind)
-    if (itemType === undefined) throw new Error(`Элемент "${name ?? ""}": неизвестный Вид "${kind}"`)
-    return requireDefinedElementRule(params, itemType)
+    const rule = byKind.get(kind)
+    if (rule === undefined) throw new Error(`Элемент "${name ?? ""}": неизвестный Вид "${kind}"`)
+    return rule
   }
   return {
     kind: "collection",
     itemRule: fallbackRule,
     requiredIdentity: "xmlId",
+    resolveXMLItemRule: node => route(params.resolveXMLItemType?.(node) ?? node.name),
     resolveItemRule: ({ yaml, name }) => resolve(yaml, name),
-    normalizeItemYAML: ({ yaml, name }) => normalizeDefinedFormElementYAML(yaml, name, resolve(yaml, name)),
+    normalizeItemYAML: ({ yaml, name, itemRule }) => normalizeDefinedFormElementYAML(yaml, name, itemRule),
     resolveItemContext: ({ context, name, itemRule }) => {
       const logicalAddress = name === undefined ? undefined : configurationIndexExportFormElementLogicalAddress(context, name)
       const indexedContext = logicalAddress === undefined ? context : withConfigurationIndexExportLogicalAddress(context, logicalAddress)
@@ -44,10 +58,7 @@ export function createFormElementCollectionNestedRule(params: {
         name,
       })
     },
-    mapItemOutput: ({ xml, itemRule, context, name }) => ({
-      [elementXMLTagName(itemRule)]: withNameAndId(xml, name, context),
-    }),
-    unwrapReferenceItem: ({ xml, itemRule }) => {
+    unwrapXMLItem: ({ xml, itemRule }) => {
       const value = xml[elementXMLTagName(itemRule)]
       return value !== null && typeof value === "object" && !Array.isArray(value)
         ? value as Record<string, unknown>
@@ -63,7 +74,7 @@ function requireDefinedElementRule(
 ): MetadataItemRule {
   const rule = itemType === undefined ? undefined : params.elementRules[itemType]
   if (rule === undefined) throw new Error(`Unknown element type: ${itemType ?? ""}`)
-  return rule
+  return formElementTreeRule(rule)
 }
 
 function elementXMLTagName(rule: MetadataItemRule): string {
@@ -76,33 +87,10 @@ function normalizeDefinedFormElementYAML(
   rule: MetadataItemRule,
 ): Record<string, unknown> {
   const node = asNode(value, name)
-  const { Вид: _kind, Тип: _legacyKind, ТипКнопки: buttonType, ...yaml } = node
-  const result = rule.itemType === "Button" || rule.itemType === "CommandBarButton"
-    ? { ...yaml, ...(buttonType === undefined ? {} : { Вид: buttonType }) }
-    : yaml
-  copyYAMLRuntimeMetadata(node, result)
-  return result
-}
-
-function withNameAndId(
-  xml: Record<string, unknown>,
-  name: string | undefined,
-  context: ConfigurationContextWithExportToXML
-): Record<string, unknown> {
-  const { _name, _id, ...properties } = xml
-  const runtime = context.exportToXML.configurationIndex
-  const indexedId = resolveFormElementXMLId(context)
-  const result = {
-    _name: typeof _name === "string" ? _name : name,
-    _id: typeof _id === "string" && _id.length > 0 ? _id : (indexedId ?? ""),
-    ...properties,
-  }
-  copyXmlAnomalyExportClaim(xml, result)
-  registerFormXmlIdReservation(result, {
-    ...(runtime === undefined ? {} : { runtime }),
-    space: "elements",
-  })
-  return result
+  const { Вид: _kind, Тип: _legacyKind, ...yaml } = node
+  if (rule.properties.type?.yaml !== "ТипКнопки") delete yaml.ТипКнопки
+  copyYAMLRuntimeMetadata(node, yaml)
+  return yaml
 }
 
 export function resolveFormElementRule(params: {
@@ -132,14 +120,7 @@ export function normalizeFormElementYAML(params: {
   name: string | undefined
   propertyRule: PropertyRule
 }): Record<string, unknown> {
-  const node = asNode(params.yaml, params.name)
-  const itemType = resolveFormElementRule(params).itemType
-  const { Вид: _kind, Тип: _legacyKind, ТипКнопки: buttonType, ...yaml } = node
-  const result = itemType === "Button" || itemType === "CommandBarButton"
-    ? { ...yaml, ...(buttonType === undefined ? {} : { Вид: buttonType }) }
-    : yaml
-  copyYAMLRuntimeMetadata(node, result)
-  return result
+  return normalizeDefinedFormElementYAML(params.yaml, params.name, resolveFormElementRule(params))
 }
 
 function asNode(value: unknown, name: string | undefined): Record<string, unknown> {

@@ -1,13 +1,7 @@
-import fs from "fs"
-import { join } from "path"
-import { importContentFromXML } from "@nkdk/runtime"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
-import { CONFIGURATION_XML_FILE } from "./constants"
 import { TopLevelMetadataItemRules } from "./topLevelRules"
 
 export type ConfigurationChildObjectsXML = Record<string, string | string[]>
-
-const PROPERTIES_YAML = "Свойства.yaml"
 
 export const STANDARD_CHILD_OBJECT_TYPE_ORDER = [
   "Language",
@@ -15,6 +9,7 @@ export const STANDARD_CHILD_OBJECT_TYPE_ORDER = [
   "StyleItem",
   "Style",
   "CommonPicture",
+  "Interface",
   "SessionParameter",
   "Role",
   "CommonTemplate",
@@ -78,74 +73,13 @@ const getSupportedChildObjectSpecs = (): ChildObjectSpec[] =>
     return yamlDir !== undefined && xmlName !== undefined ? [{ yamlDir, xmlName }] : []
   })
 
-const readYAMLObjectNames = (yamlRoot: string, yamlDir: string): string[] => {
-  const dir = join(yamlRoot, yamlDir)
-  if (!fs.existsSync(dir)) return []
-
-  return fs
-    .readdirSync(dir, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory() && fs.existsSync(join(dir, entry.name, PROPERTIES_YAML)))
-    .map((entry) => entry.name)
-}
-
-const normalizeReferenceNames = (childObjects: ConfigurationChildObjectsXML | undefined, xmlName: string): string[] => {
-  const value = childObjects?.[xmlName]
-  if (value === undefined) return []
-  return Array.isArray(value) ? value : [value]
-}
-
 const toXMLValue = (names: string[]): string | string[] | undefined => {
   if (names.length === 0) return undefined
   return names.length === 1 ? names[0] : names
 }
 
-export const readConfigurationChildObjectsFromXML = (inputDir: string): ConfigurationChildObjectsXML | undefined => {
-  const source = fs.readFileSync(join(inputDir, CONFIGURATION_XML_FILE), "utf-8")
-  const parsed = importContentFromXML<{
-    MetaDataObject?: { Configuration?: { ChildObjects?: ConfigurationChildObjectsXML | "" } }
-  }>(source)
-  const childObjects = parsed.MetaDataObject?.Configuration?.ChildObjects
-  return childObjects !== "" ? childObjects : undefined
-}
-
-export const buildConfigurationChildObjects = (params: {
-  yamlDir: string
-  referenceChildObjects?: ConfigurationChildObjectsXML
-  preserveReferenceNames?: boolean
-}): ConfigurationChildObjectsXML => {
-  const result: ConfigurationChildObjectsXML = {}
-  const specsByXMLName = new Map(getSupportedChildObjectSpecs().map((spec) => [spec.xmlName, spec]))
-
-  for (const xmlName of STANDARD_CHILD_OBJECT_TYPE_ORDER) {
-    const spec = specsByXMLName.get(xmlName)
-    if (!spec) continue
-
-    const yamlNames = new Set(
-      params.preserveReferenceNames
-        ? [
-            ...normalizeReferenceNames(params.referenceChildObjects, xmlName),
-            ...readYAMLObjectNames(params.yamlDir, spec.yamlDir),
-          ]
-        : readYAMLObjectNames(params.yamlDir, spec.yamlDir)
-    )
-    if (yamlNames.size === 0) continue
-
-    const referenceNames = normalizeReferenceNames(params.referenceChildObjects, xmlName)
-    const orderedExisting = referenceNames.filter((name) => yamlNames.delete(name))
-    const newNames = [...yamlNames].sort((a, b) => a.localeCompare(b, "ru"))
-    const value = toXMLValue([...orderedExisting, ...newNames])
-
-    if (value !== undefined) {
-      result[xmlName] = value
-    }
-  }
-
-  return result
-}
-
 export const buildConfigurationChildObjectsFromProjectEntries = (params: {
   entries: readonly { dir: string; name: string }[]
-  referenceChildObjects?: ConfigurationChildObjectsXML
 }): ConfigurationChildObjectsXML => {
   const result: ConfigurationChildObjectsXML = {}
   const specsByXMLName = new Map(getSupportedChildObjectSpecs().map((spec) => [spec.xmlName, spec]))
@@ -164,10 +98,8 @@ export const buildConfigurationChildObjectsFromProjectEntries = (params: {
     const yamlNames = new Set(namesByDir.get(spec.yamlDir) ?? [])
     if (yamlNames.size === 0) continue
 
-    const referenceNames = normalizeReferenceNames(params.referenceChildObjects, xmlName)
-    const orderedExisting = referenceNames.filter((name) => yamlNames.delete(name))
     const newNames = [...yamlNames].sort((a, b) => a.localeCompare(b, "ru"))
-    const value = toXMLValue([...orderedExisting, ...newNames])
+    const value = toXMLValue(newNames)
 
     if (value !== undefined) {
       result[xmlName] = value

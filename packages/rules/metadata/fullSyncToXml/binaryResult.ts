@@ -6,7 +6,6 @@ import type { ConfigurationIndexBlockFragment } from "@nkdk/runtime"
 import {
   BinaryStringPoolBuilder,
   openBinaryStringPool,
-  packBinaryStringPool,
   readBinaryString,
 } from "../projectState/binary/stringPool"
 import {
@@ -127,7 +126,7 @@ function encodePayload(params: {
   const writtenFiles = params.writtenFiles.map((value) => encodeFile(value, strings))
   const expectedOutputs = params.expectedOutputs.map((value) => encodeFile(value, strings))
   const documents = params.generatedDocuments.map((value) => encodeDocument(value, strings))
-  const packedStrings = packBinaryStringPool(strings.finish())
+  const packedStrings = strings.finishSection()
   const diagnosticsOffset = HEADER_BYTES + packedStrings.byteLength
   const warningsOffset = diagnosticsOffset + diagnostics.length * DIAGNOSTIC_BYTES
   const writtenOffset = warningsOffset + warnings.length * DIAGNOSTIC_BYTES

@@ -1,3 +1,6 @@
+import { metadataIdentityProperties } from "../../commonObjects/metadataIdentityProperties"
+import { ownerFormLinks } from "../../commonObjects/metadataPath/formLinks"
+import { metadataItemLinkRule } from "../../commonObjects/metadataPath/types"
 import { metadataCommandsRule } from "../metadataAccountingRegister/builders"
 import { metadataReportAttributesRule, metadataReportTabularSectionsRule } from "./builders"
 import { childFormNamesRule } from "../../commonObjects/childFormNames/types"
@@ -8,7 +11,6 @@ import { booleanRule } from "../../commonObjects/boolean/types"
 import { i8nTextRule } from "../../commonObjects/i8nText/types"
 import { moduleRule } from "../../commonObjects/module/types"
 import { stringRule } from "../../commonObjects/string/types"
-import { uuidRule } from "../../commonObjects/uuid/types"
 import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
 import { V8_MDCLASSES_ROOT } from "../../ruleRuntime/appliedObject/presets"
@@ -64,23 +66,19 @@ export const MetadataReportRules = {
     xmlRoot: xmlRootRule({
       container: "Report",
       rootAttributes: V8_MDCLASSES_ROOT,
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
     }),
     internalInfo: internalInfoRule({
       xmlParents: [],
-      forReferenceOnly: true,
+      xmlOnly: true,
       items: [
         { name: "ReportObject", category: "Object" },
         { name: "ReportManager", category: "Manager" },
       ],
     }),
-    uuid: uuidRule({
-      xml: "_uuid",
-      forReferenceOnly: true,
-      xmlParents: [],
-    }),
+    uuid: metadataIdentityProperties.uuid,
     name: stringRule({
       xmlParents: properties,
       required: true,
@@ -112,25 +110,9 @@ export const MetadataReportRules = {
       preserveExplicitDefaultXML: true,
       xmlParents: properties,
     }),
-    defaultForm: stringRule({
-      yaml: "ОсновнаяФорма",
-      xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-      defaultValueXMLEmpty: "",
-      defaultValue: "",
-      implicitValueYAML: "",
-    }),
-    auxiliaryForm: stringRule({
-      yaml: "ДополнительнаяФорма",
-      xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-      defaultValueXMLEmpty: "",
-      defaultValue: "",
-      implicitValueYAML: "",
-    }),
-    mainDataCompositionSchema: stringRule({
+    defaultForm: { ...ownerFormLinks.defaultForm, defaultValueXMLEmpty: "", defaultValue: "", implicitValueYAML: "" },
+    auxiliaryForm: { ...ownerFormLinks.auxiliaryForm, defaultValueXMLEmpty: "", defaultValue: "", implicitValueYAML: "" },
+    mainDataCompositionSchema: metadataItemLinkRule({
       yaml: "ОсновнаяСхемаКомпоновкиДанных",
       xmlParents: properties,
       metadataTarget: { kind: "member", owner: "this", memberKinds: ["Template"] },
@@ -139,33 +121,9 @@ export const MetadataReportRules = {
       defaultValue: "",
       implicitValueYAML: "",
     }),
-    defaultSettingsForm: stringRule({
-      yaml: "ОсновнаяФормаНастроекОтчета",
-      xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-      defaultValueXMLEmpty: "",
-      defaultValue: "",
-      implicitValueYAML: "",
-    }),
-    auxiliarySettingsForm: stringRule({
-      yaml: "ДополнительнаяФормаНастроекОтчета",
-      xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-      defaultValueXMLEmpty: "",
-      defaultValue: "",
-      implicitValueYAML: "",
-    }),
-    defaultVariantForm: stringRule({
-      yaml: "ОсновнаяФормаВариантаОтчета",
-      xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-      defaultValueXMLEmpty: "",
-      defaultValue: "",
-      implicitValueYAML: "",
-    }),
+    defaultSettingsForm: { ...ownerFormLinks.defaultSettingsForm, defaultValueXMLEmpty: "", defaultValue: "", implicitValueYAML: "" },
+    auxiliarySettingsForm: { ...ownerFormLinks.auxiliarySettingsForm, defaultValueXMLEmpty: "", defaultValue: "", implicitValueYAML: "" },
+    defaultVariantForm: { ...ownerFormLinks.defaultVariantForm, defaultValueXMLEmpty: "", defaultValue: "", implicitValueYAML: "" },
     variantsStorage: stringRule({
       yaml: "ХранилищеВариантовОтчетов",
       xmlParents: properties,
@@ -231,7 +189,7 @@ export const MetadataReportRules = {
       xml: "Form",
       folderName: "Формы",
       itemRule: ClientApplicationFormWithExtendedPresentationRules,
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
       xmlParents: childObjects,
@@ -239,7 +197,7 @@ export const MetadataReportRules = {
     templates: childTemplateNamesRule({
       xml: "Template",
       folderName: "Шаблоны",
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
       xmlParents: childObjects,

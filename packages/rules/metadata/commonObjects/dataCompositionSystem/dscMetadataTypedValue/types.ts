@@ -80,9 +80,6 @@ export type DcsMetadataTypedValueNilXML = {
   "_xsi:nil": true | "true"
 }
 
-export type DcsMetadataTypedValueReference = DcsMetadataTypedValue | DcsMetadataTypedValueUndefinedTypeXML
-export type DcsMetadataTypedValueReferenceOrNil = DcsMetadataTypedValueReference | undefined
-
 export type DcsMetadataTypedValueXML =
   | {
       "_xsi:type": "dcscor:Field"

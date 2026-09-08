@@ -1,7 +1,5 @@
-import {
-createConfigurationLanguages,
-importContentFromXML
-} from "@nkdk/runtime"
+import { createConfigurationLanguages, parseXmlDocumentWithSaxes } from "@nkdk/runtime"
+import { xmlFixtureValue as importContentFromXML } from "../../../tests/xmlFixtureValue"
 import { describe,expect,it } from "vitest"
 import { mockContextFromXML,mockRule } from "../../../tests/mockContext"
 import { getTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
@@ -15,6 +13,12 @@ const multilingualXMLContext = {
 }
 
 describe("importFormattedI8nTextFromXML", () => {
+  it.each(formattedI8nTextFixtures)("imports structural XML: $name", (fixture) => {
+    const node = fixture.xml ? parseXmlDocumentWithSaxes(fixture.xml).roots[0]! : undefined
+    if (node) Object.defineProperty(node, "compatibilityValue", { get() { throw new Error("Compatibility XML must not be read") } })
+    expect(importFormattedI8nTextFromXML(multilingualXMLContext, mockRule, node)).toEqual(fixture.text)
+  })
+
   it.each(formattedI8nTextFixtures)("should import: $name", (fixture) => {
     const xml = fixture.xml ? importContentFromXML<{ Title: FormattedI8nTextXML }>(fixture.xml) : undefined
     const result = importFormattedI8nTextFromXML(multilingualXMLContext, mockRule, xml?.Title)

@@ -1,10 +1,10 @@
 import type { ConfigurationContextWithExportToXML, ContextElementToXML } from "@nkdk/runtime"
 import { callAtomicToXML } from "../../metadata/ruleRuntime/property/fromYAMLToXML"
-import { importPropertyFromXML, type ElementXML, type PropertyRule } from "../../metadata/ruleRuntime"
+import type { PropertyRule } from "../../metadata/ruleRuntime"
 import { xmlExport } from "@nkdk/runtime"
-import { mockContextFromXML, mockContextToXML } from "../mockContext"
-import { readAndParseXMLFile, readXMLFileAsString } from "../readAndParseXMLFile"
-import { readAndParseXMLFixture, readXMLFixtureAsString } from "../readFixtureXML"
+import { mockContextToXML } from "../mockContext"
+import { readXMLFileAsString } from "../readAndParseXMLFile"
+import { readXMLFixtureAsString } from "../readFixtureXML"
 
 type Params = {
   rule: PropertyRule
@@ -26,32 +26,21 @@ export function testAtomicToXML(params: Params & { importMetaUrl?: string; path?
   result: string
 } {
   const { rule, value, xmlRootTag, path, importMetaUrl } = params
-  let referenceProperty: unknown
   let expectedResult: string | undefined
   if (path !== undefined) {
     expectedResult = (importMetaUrl ? readXMLFixtureAsString(importMetaUrl, path) : readXMLFileAsString(path)).trimEnd()
-    if (!("referenceMetadata" in params) && xmlRootTag !== undefined) {
-      const referenceXMLData = importMetaUrl
-        ? readAndParseXMLFixture<{ [key: string]: ElementXML }>(importMetaUrl, path)
-        : readAndParseXMLFile<{ [key: string]: ElementXML }>(path)
-      referenceProperty = importPropertyFromXML({
-        context: mockContextFromXML({ forReference: true }),
-        rule,
-        value: referenceXMLData[xmlRootTag],
-      })
-    }
   }
-  if ("referenceMetadata" in params) referenceProperty = params.referenceMetadata
 
   const context: ConfigurationContextWithExportToXML = {
     ...mockContextToXML(),
     exportToXML: {
       ...mockContextToXML().exportToXML,
       itemsTree: params.itemsTree ?? [],
-      context: { forms: [], templates: [], parentName: "", metadataForNumbering: [] },
+      context: { forms: [], templates: [], parentName: "" },
     },
   }
-  const xml = callAtomicToXML({ context, rule, value, referenceValue: referenceProperty })
+  const invocation = { context, rule, value, referenceValue: params.referenceMetadata }
+  const xml = callAtomicToXML(invocation)
   const effectiveRootTag = xmlRootTag ?? (rule as { xml?: string }).xml
   const result =
     params.exportXmlDataAsRoot === true

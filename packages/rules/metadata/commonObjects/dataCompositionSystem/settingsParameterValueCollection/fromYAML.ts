@@ -12,11 +12,12 @@ const isPlainObject = (v: unknown): v is Record<string, unknown> =>
 
 const wrapYamlFragment = (paramName: string, yamlFragment: unknown): SettingsParameterValueYAML => {
   if (yamlFragment === undefined || yamlFragment === null) {
-    return { Параметр: paramName }
+    return { Параметр: paramName, Значение: undefined }
   }
   if (typeof yamlFragment === "object" && !Array.isArray(yamlFragment)) {
     const o = yamlFragment as Record<string, unknown>
     return {
+      ...(Object.keys(o).length === 0 ? { Значение: undefined } : {}),
       ...o,
       ...("Значение" in o ? { Значение: asExplicitYAMLStringIfMarked(o, "Значение", o["Значение"]) } : {}),
       Параметр: o["Параметр"] ?? paramName,
@@ -29,7 +30,6 @@ const importSettingsParameterValueCollectionFromYAML = (
   context: ConfigurationContext,
   rule: PropertyRule,
   value: SettingsParameterValueCollectionYAML | unknown,
-  source?: SettingsParameterValueCollection
 ): SettingsParameterValueCollection | undefined => {
   if (value === undefined || value === null) return undefined
   if (!isPlainObject(value)) return undefined
@@ -43,7 +43,7 @@ const importSettingsParameterValueCollectionFromYAML = (
 
     const valueFragment = asExplicitYAMLStringIfMarked(value, paramName, yamlFragment)
     const wrapped = wrapYamlFragment(paramName, valueFragment)
-    const imported = importParameterValueFromYAML(context, itemRule, wrapped, source?.parameters[paramName])
+    const imported = importParameterValueFromYAML(context, itemRule, wrapped)
     if (imported !== undefined) {
       parameters[paramName] = {
         ...imported,
@@ -52,17 +52,7 @@ const importSettingsParameterValueCollectionFromYAML = (
     }
   }
 
-  if (Object.keys(parameters).length === 0) {
-    return { itemType: "SettingsParameterValueCollection", parameters: {} }
-  }
-  const orderedParameters: SettingsParameterValueCollection["parameters"] = {}
-  for (const name of Object.keys(source?.parameters ?? {})) {
-    if (parameters[name] !== undefined) orderedParameters[name] = parameters[name]
-  }
-  for (const [name, parameter] of Object.entries(parameters)) {
-    if (orderedParameters[name] === undefined) orderedParameters[name] = parameter
-  }
-  return { itemType: "SettingsParameterValueCollection", parameters: orderedParameters }
+  return { itemType: "SettingsParameterValueCollection", parameters }
 }
 
 export const metadataPropertyRule000 = definePropertyTypeRule("SettingsParameterValueCollection", "importFromYAML", importSettingsParameterValueCollectionFromYAML)

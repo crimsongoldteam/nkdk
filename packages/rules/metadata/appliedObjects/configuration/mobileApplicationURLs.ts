@@ -5,6 +5,8 @@ import { exportBooleanToYAML } from "../../commonObjects/boolean/toYAML"
 import { BooleanJSONSchema, StringboolYAML, StringboolXML } from "../../commonObjects/boolean/types"
 import { ExportToJSONSchemaFn, definePropertyTypeRule } from "../../ruleRuntime"
 import type { ConfigurationContext } from "@nkdk/runtime"
+import { isXmlElementNode, xmlElementChildren, type XmlElementNode } from "@nkdk/runtime"
+import { applicationXMLValue } from "./applicationXMLValue"
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import {
   exportRequiredMobileApplicationPermissionsToJSONSchema,
@@ -76,10 +78,11 @@ const text = (value: TextXML | undefined): string => {
 export const importMobileApplicationURLsFromXML = (
   context: ConfigurationContext,
   _rule: PropertyRule | undefined,
-  xml: MobileApplicationURLsXML | "" | undefined
+  xml: MobileApplicationURLsXML | XmlElementNode | "" | undefined
 ): MobileApplicationURLs | undefined => {
   if (xml === undefined) return undefined
   if (xml === "") return []
+  if (isXmlElementNode(xml)) return xmlElementChildren(xml, "v8:Value").map(importApplicationURL)
 
   return normalizeArray(xml["v8:Value"]).map((item) => ({
     baseUrl: text(item["app:baseUrl"]),
@@ -87,6 +90,16 @@ export const importMobileApplicationURLsFromXML = (
     useIOS: importBooleanFromXML(context, undefined, item["app:useIOS"]) ?? false,
     useWindows: importBooleanFromXML(context, undefined, item["app:useWindows"]) ?? false,
   }))
+}
+
+function importApplicationURL(node: XmlElementNode): MobileApplicationURL {
+  const value = applicationXMLValue(node)
+  return {
+    baseUrl: value.text("baseUrl"),
+    useAndroid: value.boolean("useAndroid"),
+    useIOS: value.boolean("useIOS"),
+    useWindows: value.boolean("useWindows"),
+  }
 }
 
 export const exportMobileApplicationURLsToXML = (

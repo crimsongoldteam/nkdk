@@ -5,9 +5,13 @@ import "../../appliedObjects"
 import "../../forms"
 import {
   compactImportedFormDataPaths,
+  collectImportedFormDataPathChanges,
   materializeInheritedRootFormDataPaths,
   materializeImplicitFormDataPaths,
   prepareFormDataPathContextFromYAML,
+  prepareFormDataPathContext,
+  prepareStandaloneFormDataPaths,
+  collectClientApplicationFormDataPathPreparation,
   requiresImportedFormDataPathCompaction,
 } from "./formDataPathContext"
 import { catalogOwnerCache } from "./__tests__/catalogOwnerCache"
@@ -15,6 +19,89 @@ import type { ClientApplicationFormYAML } from "./types"
 import { resolveDataPathCore } from "../../validation/dataPath/coreResolver"
 
 describe("prepareFormDataPathContextFromYAML", () => {
+  it("переиспользует подготовленные пути cf для двух форм без повторного чтения YAML", () => {
+    let canRead = true
+    const ownerCache = catalogOwnerCache()
+    const currentConfigurationForm = prepareStandaloneFormDataPaths({
+      ownerCache,
+      yaml: {
+        get Реквизиты() {
+          if (!canRead) throw new Error("Повторное чтение YAML текущей cf")
+          return { Объект: { Тип: "CatalogObject.Товары", ОсновнойРеквизит: "Истина" as const } }
+        },
+        get Элементы() {
+          if (!canRead) throw new Error("Повторное чтение YAML текущей cf")
+          return { Код: { Вид: "ПолеВвода" as const, ПутьКДанным: "Объект.Код" } }
+        },
+      },
+    })
+    canRead = false
+    const preparation = collectClientApplicationFormDataPathPreparation({ yaml: {
+      Элементы: { Код: { Вид: "ПолеВвода" } },
+    } })
+    for (const savedBaseElementNames of [[], ["Историческое"]]) {
+      const context = prepareFormDataPathContext({
+        preparation, currentConfigurationForm, savedBaseElementNames, ownerCache,
+      })
+      expect(context.effectiveMainAttribute).toBe("Объект")
+      expect(context.elementsByName.get("Код")).toMatchObject({
+        origin: "borrowed", currentConfigurationValue: "Объект.Код", presentInCurrentConfiguration: true,
+      })
+    }
+    expect(preparation.index.getRoot("Объект")).toBeUndefined()
+  })
+
+  it.each([false, true])("выдаёт окончательные изменения без YAML; унаследованный корень: %s", (inherited) => {
+    const yaml: ClientApplicationFormYAML = {
+      ...(inherited ? {} : { Реквизиты: { Объект: { Тип: "CatalogObject.Товары", ОсновнойРеквизит: "Истина" } } }),
+      Элементы: {
+        Код: { Вид: "ПолеВвода" },
+        Наименование: { Вид: "ПолеВвода", ПутьКДанным: "Объект.Наименование" },
+      },
+    }
+    const context = inherited ? inheritedRootContext(yaml)
+      : prepareFormDataPathContextFromYAML({ yaml, ownerCache: catalogOwnerCache() })
+    const before = structuredClone(yaml)
+    const changes = collectImportedFormDataPathChanges(context)
+    expect(yaml).toEqual(before)
+    expect(changes).toEqual(inherited
+      ? [{ yamlPath: ["Элементы", "Код", "ПутьКДанным"], kind: "set", value: "Объект.Код" }]
+      : [
+          { yamlPath: ["Элементы", "Код", "ПутьКДанным"], kind: "set", value: "" },
+          { yamlPath: ["Элементы", "Наименование", "ПутьКДанным"], kind: "delete" },
+        ])
+  })
+
+  it("обновляет пути таблиц из окончательных фактов, не изменяя индекс первого прохода", () => {
+    const preparation = collectClientApplicationFormDataPathPreparation({ yaml: {
+      Реквизиты: { Объект: { Тип: "CatalogObject.Товары" } },
+      Элементы: { Таблица: { Вид: "ТаблицаФормы", ПутьКДанным: "Объект.Код" } },
+    } })
+    const elementsByName = new Map(preparation.collected.elementsByName)
+    elementsByName.set("Таблица", { ...elementsByName.get("Таблица")!, value: "Объект.Наименование" })
+    const context = prepareFormDataPathContext({
+      preparation: { ...preparation, collected: { elementsByName } }, ownerCache: catalogOwnerCache(),
+    })
+    expect(context.index.tabularElementsByName.get("Таблица")?.dataPath).toBe("Объект.Наименование")
+    expect(preparation.index.tabularElementsByName.get("Таблица")?.dataPath).toBe("Объект.Код")
+  })
+
+  it("вычисляет контекст только по элементам и индексу, без YAML и запросов с setters", () => {
+    const source = collectClientApplicationFormDataPathPreparation({ yaml: {
+      Реквизиты: { Объект: { Тип: "CatalogObject.Товары", ОсновнойРеквизит: "Истина" } },
+      Элементы: { Наименование: { Вид: "ПолеВвода" } },
+    } })
+    const context = prepareFormDataPathContext({
+      preparation: {
+        collected: { elementsByName: source.collected.elementsByName },
+        index: source.index, effectiveMainAttribute: source.effectiveMainAttribute,
+      },
+      ownerCache: catalogOwnerCache(),
+    })
+    expect(context.effectiveMainAttribute).toBe("Объект")
+    expect(elementCandidates(context)).toEqual({ Наименование: ["Объект.Наименование", "Объект.Description"] })
+  })
+
   it("вычисляет кандидаты обычных элементов, таблиц и колонок", () => {
     const context = prepareFormDataPathContextFromYAML({
       yaml: {
@@ -268,6 +355,7 @@ describe("prepareFormDataPathContextFromYAML", () => {
       yaml,
       context: {
         index: {} as never,
+        localIndex: {} as never,
         elementsByName: new Map([[
           "Поле",
           {

@@ -13,6 +13,23 @@ import {
   openProjectStateFragment,
 } from "./fragment"
 
+it("завершает пустой фрагмент и не переоткрывает закрытый writer", () => {
+  const empty = createProjectStateFragmentWriter()
+  const view = openProjectStateFragment(empty.finish())
+  expect(view.fileCount).toBe(0)
+  expect(view.stringCount).toBe(0)
+  expect(view.diagnosticCount).toBe(0)
+  expect(() => empty.finish()).toThrow()
+
+  const discarded = createProjectStateFragmentWriter()
+  const update = richYamlUpdate("cf/Товары.yaml", "cf", "Catalog.Товары")
+  discarded.appendFile(update, 9n)
+  discarded.discard()
+  discarded.discard()
+  expect(() => discarded.appendFile(update, 10n)).toThrow()
+  expect(() => discarded.finish()).toThrow()
+})
+
 it("накапливает несколько файлов в одном типизированном фрагменте", () => {
   const writer = createProjectStateFragmentWriter()
   const update = richYamlUpdate("cf/Товары.yaml", "cf", "Catalog.Товары")

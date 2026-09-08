@@ -9,16 +9,19 @@ testMetadataItemFromYAMLToXML,
 testPropertyFromXMLToYAML,
 testPropertyFromYAMLToXML
 } from "../../../tests/directConversion"
+import { testPropertiesYamlRoundTrip } from "../../../tests/directConversion"
+import { readXMLFixtureAsString } from "../../../tests/readFixtureXML"
 import { testExportPropertyModelThroughYAMLToXML } from "../../../tests/property/exportPropertyModelThroughYAMLToXML"
 import {
 MetadataAccountingRegisterStandardAttributeNames,
 MetadataAccountingRegisterStandardAttributeNamesXML,
 } from "../../appliedObjects/metadataAccountingRegister/rules"
 import { MetadataEnumerationRules } from "../../appliedObjects/metadataEnumeration/rules"
+import { MetadataCatalogStandardAttributeNames } from "../../appliedObjects/metadataCatalog/rules"
 import type { PropertyRule } from "../../ruleRuntime"
 import { registerMetadataItemCollectionRule } from "../../ruleRuntime/metadataCollection/ruleFactory"
 import { convertPropertiesFromYAMLToXML } from "../../ruleRuntime/property/fromYAMLToXML"
-import { accountingExtDimensions,all,allYAML,minimal,minimalYAML,multiple } from "./__fixtures__/data"
+import { minimal,minimalYAML,multiple } from "./__fixtures__/data"
 import { fillValueEmptyRefTypeLoss } from "./__fixtures__/fillValueEmptyRefTypeLoss"
 import { StandardAttributeDescriptionRules } from "./rules"
 import { StandartAttributeNameToYAML } from "./types"
@@ -105,18 +108,11 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
   }
 
   it("exports all.xml from YAML", () => {
-    const { result } = testExportPropertyModelThroughYAMLToXML({
-      rule,
-      value: all,
-      yaml: allYAML,
-      xmlRootTag: "StandardAttributes",
-      path: "all.xml",
-      importMetaUrl: import.meta.url,
+    const { result, expected } = testPropertiesYamlRoundTrip({
+      sourceXML: readXMLFixtureAsString(import.meta.url, "all.xml"),
+      rule: standardAttributesOwnerRule("StandardAttributesProbe", MetadataCatalogStandardAttributeNames),
     })
-
-    expect([...result.matchAll(/<xr:StandardAttribute name="([^"]+)">/g)].map((match) => match[1])).toEqual(
-      ["Owner", "PredefinedDataName", "Code", "Description", "DeletionMark", "Predefined", "Parent", "Ref", "IsFolder"]
-    )
+    expect(result).toEqual(expected)
     expect(result).toContain("<xr:Comment>Комментарий</xr:Comment>")
     expect(result).toContain("Catalog.СправочникВладелец.Form.ФормаВыбора")
   })
@@ -331,7 +327,7 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
     expect(result).toBe('<xr:FillValue xsi:nil="true"/>')
   })
 
-  it("preserves reference-only collection values", () => {
+  it("не восстанавливает коллекцию, существующую только в reference", () => {
     const xmlString = `<StandardAttributes>
 	<xr:StandardAttribute name="ValueType">
 		<xr:Comment>reference-only</xr:Comment>
@@ -349,8 +345,7 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
       xmlString,
     })
 
-    expect(result).toContain('<xr:FillValue xsi:type="v8:TypeDescription"/>')
-    expect(result).toContain("<xr:Comment>reference-only</xr:Comment>")
+    expect(result).toBe("")
   })
 
   it("uses canonical FillValue through changed collection item", () => {
@@ -403,24 +398,12 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
   })
 
   it("exports explicit accounting ExtDimension attributes with reference", () => {
-    const { expectedResult, result } = testExportPropertyModelThroughYAMLToXML({
-      rule: {
-        type: "StandardAttributeDescriptions",
-        standartAttributeNames: {},
-      },
-      value: accountingExtDimensions,
-      yaml: {
-        ExtDimension1: {},
-        ExtDimensionType1: {},
-        ExtDimension50: {},
-        ExtDimensionType50: {},
-      },
-      xmlRootTag: "StandardAttributes",
-      path: "accounting-ext-dimensions.xml",
-      importMetaUrl: import.meta.url,
+    const { expected, result } = testPropertiesYamlRoundTrip({
+      sourceXML: readXMLFixtureAsString(import.meta.url, "accounting-ext-dimensions.xml"),
+      rule: standardAttributesOwnerRule("StandardAttributesProbe", {}),
     })
 
-    expect(result).toEqual(expectedResult)
+    expect(result).toEqual(expected)
   })
 
   it("exports only explicit accounting ExtDimension attributes without reference", () => {

@@ -1,9 +1,10 @@
 import {
   childSegmentUid,
   copyYAMLRuntimeMetadata,
-  copyYAMLRuntimeMetadataDeep,
   createXmlAnomalyAnnotations,
   type XmlAnomalyAnnotationTable,
+  type XmlElementNode,
+  type XmlImportAuditSession,
 } from "@nkdk/runtime"
 import {
   getConfigurationIndexCollectionContext,
@@ -39,11 +40,16 @@ export interface ImportedBaseFormYaml {
 
 export function importBaseFormYaml(params: {
   context: Parameters<typeof importClientApplicationFormBodyFromXML>[0]["context"]
-  baseFormXML: ClientApplicationFormXML
+  baseFormXML: ClientApplicationFormXML | XmlElementNode
   formName: string
   rule?: MetadataItemRule
+  annotations?: XmlAnomalyAnnotationTable
+  audit?: XmlImportAuditSession
+  dependencies?: Parameters<typeof importClientApplicationFormBodyFromXML>[0]["dependencies"]
+  roundTrip?: Parameters<typeof importClientApplicationFormBodyFromXML>[0]["roundTrip"]
+  beforeFinish?: (yaml: Record<string, unknown>) => void
 }): ImportedBaseFormYaml {
-  const importedAnnotations = createXmlAnomalyAnnotations()
+  const importedAnnotations = params.annotations ?? createXmlAnomalyAnnotations()
   const configurationIndexCollector = createConfigurationIndexCollector()
   const currentCollection = getConfigurationIndexCollectionContext(params.context)
   const formLogicalAddress = currentCollection?.logicalAddress ?? params.formName
@@ -62,17 +68,18 @@ export function importBaseFormYaml(params: {
     collector: localIndexesCollector,
     deferred,
     annotations: importedAnnotations,
+    audit: params.audit,
+    dependencies: params.dependencies,
+    roundTrip: params.roundTrip,
+    beforeFinish: (yaml) => {
+      if (params.roundTrip === undefined) normalizeBaseFormYamlInPlace(yaml)
+      params.beforeFinish?.(yaml)
+    },
   })
-  const yaml = normalizeBaseFormYaml(imported.yaml)
-  const annotations = createXmlAnomalyAnnotations()
-  copyYAMLRuntimeMetadataDeep({
-    source: imported.yaml,
-    target: yaml,
-    sourceAnnotations: importedAnnotations,
-    targetAnnotations: annotations,
-  })
+  const yaml = imported.yaml
+  const annotations = importedAnnotations
   const localIndexes = localIndexesCollector.finish()
-  localIndexes.metadata.formDataPathIndex = createFormDataPathIndexFromYAML(yaml)
+  if (params.roundTrip === undefined) localIndexes.metadata.formDataPathIndex = createFormDataPathIndexFromYAML(yaml)
   return {
     yaml,
     annotations,
@@ -80,6 +87,22 @@ export function importBaseFormYaml(params: {
     deferred: deferred.finish(),
     generatedFiles: imported.generatedFiles,
     configurationIndexCollector,
+  }
+}
+
+function normalizeBaseFormYamlInPlace(value: unknown): void {
+  if (isExplicitYAMLString(value)) return
+  if (Array.isArray(value)) {
+    for (const child of value) normalizeBaseFormYamlInPlace(child)
+    return
+  }
+  if (!isRecord(value)) return
+  for (const [key, child] of Object.entries(value)) {
+    if (isXmlServiceKey(key)) {
+      delete value[key]
+      continue
+    }
+    normalizeBaseFormYamlInPlace(child)
   }
 }
 
@@ -110,10 +133,10 @@ export function normalizeBaseFormYaml(value: unknown): unknown {
 }
 
 export function equalBaseFormYaml(left: unknown, right: unknown): boolean {
-  return equalNormalizedValues(normalizeBaseFormYaml(left), normalizeBaseFormYaml(right))
+  return equalBaseFormValues(left, right)
 }
 
-function equalNormalizedValues(left: unknown, right: unknown): boolean {
+function equalBaseFormValues(left: unknown, right: unknown): boolean {
   left = unwrapExplicitYAMLString(left)
   right = unwrapExplicitYAMLString(right)
   if (Object.is(left, right)) return true
@@ -125,20 +148,20 @@ function equalNormalizedValues(left: unknown, right: unknown): boolean {
     return Array.isArray(left)
       && Array.isArray(right)
       && left.length === right.length
-      && left.every((value, index) => equalNormalizedValues(value, right[index]))
+      && left.every((value, index) => equalBaseFormValues(value, right[index]))
   }
   if (!isRecord(left) || !isRecord(right)) return false
-  const leftKeys = Object.keys(left)
-  const rightKeys = Object.keys(right)
+  const leftKeys = Object.keys(left).filter(key => !isXmlServiceKey(key))
+  const rightKeys = Object.keys(right).filter(key => !isXmlServiceKey(key))
   return leftKeys.length === rightKeys.length
-    && leftKeys.every((key) => Object.hasOwn(right, key) && equalNormalizedValues(left[key], right[key]))
+    && leftKeys.every((key) => Object.hasOwn(right, key) && equalBaseFormValues(left[key], right[key]))
 }
 
 function isEmptyRecord(value: unknown): boolean {
-  return isRecord(value) && Object.keys(value).length === 0
+  return isRecord(value) && Object.keys(value).every(isXmlServiceKey)
 }
 
-function isXmlServiceKey(key: string): boolean {
+export function isXmlServiceKey(key: string): boolean {
   return key === "_id"
     || key === "_uuid"
     || key === "_version"

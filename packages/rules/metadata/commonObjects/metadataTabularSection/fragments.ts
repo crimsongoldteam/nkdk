@@ -39,7 +39,7 @@ export function tabularSectionInternalInfoFragment(params: {
     internalInfo: {
       type: "InternalInfo",
       evaluateWhenYAMLMissing: true,
-      forReferenceOnly: true,
+      xmlOnly: true,
       getName: params.getName,
       items: params.items,
     },
@@ -156,7 +156,7 @@ export const tabularSectionUuidFragment = metadataRuleFragment(["uuid"], {
     type: "uuid",
     xml: "_uuid",
     evaluateWhenYAMLMissing: true,
-    forReferenceOnly: true,
+    xmlOnly: true,
     toYAML: false,
     fromYAML: false,
   },

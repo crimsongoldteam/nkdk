@@ -3,13 +3,10 @@ import { join } from "node:path"
 import { describe, expect, it } from "vitest"
 
 import {
-  createDirectRoundTripContexts,
-  readAppliedObjectFixture,
   serializeDirectXML,
-  testMetadataItemFromXMLToYAML,
   testMetadataItemFromYAMLToXML,
+  testMetadataItemYamlRoundTrip,
 } from "../../../tests/directConversion"
-import { importContentFromXML } from "@nkdk/runtime"
 import { PredefinedRules } from "./rules"
 
 import "./types"
@@ -24,16 +21,16 @@ describe("Predefined YAML → XML", () => {
   })
 
   it("round-trip from full.xml", () => {
-    const referenceXML = readAppliedObjectFixture(import.meta.url, "full.xml")
-    expect(normalize(roundTrip(referenceXML))).toBe(normalize(readFileSync(join(import.meta.dirname, "__fixtures__/full.xml"), "utf8")))
+    const source = readFileSync(join(import.meta.dirname, "__fixtures__/full.xml"), "utf8")
+    expect(normalize(roundTrip(source))).toBe(normalize(source))
   })
 
-  it("preserves reference root xsi:type", () => {
+  it("восстанавливает xsi:type по владельцу — плану счетов", () => {
     const source = readFileSync(
       join(import.meta.dirname, "../../appliedObjects/metadataChartOfAccounts/__fixtures__/sync/xml/ПланСчетовВсеСвойства/Ext/Predefined.xml"),
       "utf8"
     )
-    const result = roundTrip(importContentFromXML<Record<string, unknown>>(source))
+    const result = roundTrip(source, { itemType: "MetadataChartOfAccounts" })
     expect(result).toContain('xsi:type="ChartOfAccountsPredefinedItems"')
     expect(normalize(result)).toBe(normalize(source))
   })
@@ -56,21 +53,8 @@ function convertYAML(yaml: unknown): string {
   return serializeDirectXML(testMetadataItemFromYAMLToXML({ rule: PredefinedRules, yaml }).xml)
 }
 
-function roundTrip(referenceXML: Record<string, unknown>): string {
-  const contexts = createDirectRoundTripContexts()
-  const yaml = testMetadataItemFromXMLToYAML({
-    context: contexts.importContext,
-    rule: PredefinedRules,
-    xml: referenceXML,
-  }).yaml
-  return serializeDirectXML(
-    testMetadataItemFromYAMLToXML({
-      context: contexts.exportContext(),
-      rule: PredefinedRules,
-      yaml,
-      referenceXML,
-    }).xml
-  )
+function roundTrip(source: string, ownerYAML?: unknown): string {
+  return testMetadataItemYamlRoundTrip({ rule: PredefinedRules, sourceXML: source, ownerYAML }).result
 }
 
 const normalize = (value: string): string =>

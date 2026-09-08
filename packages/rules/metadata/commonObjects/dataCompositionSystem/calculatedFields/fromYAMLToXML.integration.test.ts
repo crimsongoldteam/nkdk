@@ -26,7 +26,7 @@ describe("export CalculatedFields to XML", () => {
     expect(result).toContain("<v8:content>Настройки</v8:content>")
   })
 
-  it("matches reference fields by dataPath when restoring explicit Asc", () => {
+  it("не восстанавливает явный Asc только из reference", () => {
     const { result } = testExportPropertyModelThroughYAMLToXML({
       rule,
       value: [
@@ -70,6 +70,6 @@ describe("export CalculatedFields to XML", () => {
       xmlRootTag: "CalculatedField",
     })
 
-    expect(result).toContain("<dcssch:orderType>Asc</dcssch:orderType>")
+    expect(result).not.toContain("<dcssch:orderType>Asc</dcssch:orderType>")
   })
 })

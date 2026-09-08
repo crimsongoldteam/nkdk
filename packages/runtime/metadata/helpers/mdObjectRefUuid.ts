@@ -9,7 +9,7 @@ export const METADATA_TARGET_UUID_SOURCE =
   "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
 
 const METADATA_TARGET_UUID = new RegExp(
-  `^(?:${METADATA_TARGET_UUID_SOURCE})(?:\\.${METADATA_TARGET_UUID_SOURCE})?$`,
+  `^(?:${METADATA_TARGET_UUID_SOURCE}(?:\\.${METADATA_TARGET_UUID_SOURCE})?|1:${METADATA_TARGET_UUID_SOURCE})$`,
   "iu",
 )
 

@@ -15,27 +15,27 @@ import type {
 import { assertProjectStateImportFinalFileStateBatch, createProjectStateImportSession } from "./importSession"
 import type { ProjectStateWriterHandle } from "./writerHandle"
 import { createProjectStateWriterHandle } from "./writerHandle"
-import { encodeDiagnosticBatch, openDiagnosticBatch } from "@nkdk/runtime"
+import { refreshProjectState } from "./refresh"
 
 describe("ProjectState import session", () => {
-  it("принимает файловые цели в окончательном resource-state", () => {
-    const update = {
-      kind: "resource" as const,
-      projectPath: "cf/Документ/Заказ/Макеты/Печать/Template.xml",
-      componentPath: "cf",
-      resourceKind: "resource" as const,
-      targets: [{
-        kind: "member" as const,
-        canonical: "Document.Заказ.Template.Печать",
-        fileBacked: {
-          itemProjectPath: "cf/Документ/Заказ/Макеты/Печать",
-          ownerProjectPath: "cf/Документ/Заказ/Свойства.yaml",
-        },
-      }],
-    }
+  const externalResource = {
+    kind: "resource" as const,
+    projectPath: "cf/Документ/Заказ/Макеты/Печать/Template.xml",
+    componentPath: "cf",
+    resourceKind: "resource" as const,
+    targets: [{
+      kind: "member" as const,
+      canonical: "Document.Заказ.Template.Печать",
+      fileBacked: {
+        itemProjectPath: "cf/Документ/Заказ/Макеты/Печать",
+        ownerProjectPath: "cf/Документ/Заказ/Свойства.yaml",
+      },
+    }],
+  }
 
+  it("принимает файловые цели в окончательном resource-state", () => {
     expect(() => assertProjectStateImportFinalFileStateBatch({
-      updates: [update],
+      updates: [externalResource],
       hashBytes: new Uint8Array(8),
     })).not.toThrow()
   })
@@ -44,19 +44,24 @@ describe("ProjectState import session", () => {
   let projectDir: string
   let state: ReturnType<typeof createProjectStateService>
   let session: ProjectStateImportSession
-  let firstToken: Awaited<ReturnType<ProjectStateImportSession["commitWorkingIndex"]>>
-  let semanticToken: Awaited<ReturnType<ProjectStateImportSession["commitSemanticIndex"]>>
+  let firstToken: Awaited<ReturnType<ProjectStateImportSession["commitSharedIndex"]>>
   let secondToken: Awaited<ReturnType<ProjectStateImportSession["createReadToken"]>>
 
   beforeAll(async () => {
     projectDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-import-state-"))
     state = createProjectStateService()
     session = await state.beginImport({ projectDir, workerCount: 2, output: { componentPaths: ["cf"] } })
-    await session.writeStateFragment(stateFragment([contribution]))
-    firstToken = await session.commitWorkingIndex()
-    secondToken = await session.createReadToken()
-    await session.writeStateFragment(stateFragment([contribution]))
-    semanticToken = await session.commitSemanticIndex()
+    try {
+      await session.writeStateFragment(stateFragment([contribution]))
+      await session.writeStateFragment(stateFragment([], [{
+        updates: [externalResource], hashBytes: new Uint8Array(8),
+      }]))
+      firstToken = await session.commitSharedIndex()
+      secondToken = await session.createReadToken()
+    } catch (error) {
+      await session.abort(error)
+      throw error
+    }
   })
 
   afterAll(async () => {
@@ -67,15 +72,18 @@ describe("ProjectState import session", () => {
   it("фиксирует индекс для отдельных read sessions и принимает после этого окончательный фрагмент", async () => {
     const first = state.openReadSession(firstToken)
     const second = state.openReadSession(secondToken)
-    const semantic = state.openReadSession(semanticToken)
+    expect(firstToken.buffers).toBe(secondToken.buffers)
+    expect(firstToken.claim).not.toBe(secondToken.claim)
     expect(first.readOwners([{ requestId: "one", componentPath: "cf", owner: { kind: "Справочник", name: "Товары" } }]))
       .toEqual([expect.objectContaining({ requestId: "one", status: "found" })])
     expect(second.readOwners([{ requestId: "two", componentPath: "cf", owner: { kind: "Справочник", name: "Товары" } }]))
       .toEqual([expect.objectContaining({ requestId: "two", status: "found" })])
-    expect(semantic.readOwners([{ requestId: "semantic", componentPath: "cf", owner: { kind: "Справочник", name: "Товары" } }]))
-      .toEqual([expect.objectContaining({ requestId: "semantic", status: "found" })])
 
     const before = first.readComponentTargetPage({ componentPath: "cf" })
+    expect(before.entries).toContainEqual(expect.objectContaining({
+      logicalAddress: "Document.Заказ.Template.Печать",
+      sourceProjectPath: externalResource.projectPath,
+    }))
     await session.writeStateFragment(stateFragment(
       [contribution],
       [finalBatch(contribution.projectPath, 0x0102030405060708n)],
@@ -83,11 +91,10 @@ describe("ProjectState import session", () => {
     expect(first.readComponentTargetPage({ componentPath: "cf" })).toEqual(before)
     first.close()
     second.close()
-    semantic.close()
 
     const result = await session.finalize()
     expect([...result.diagnostics]).toEqual([])
-    expect(result.stats).toMatchObject({ changedFiles: 1 })
+    expect(result.stats).toMatchObject({ changedFiles: 2 })
   })
 
   it("не сохраняет рабочий индекс и сохраняет всё окончательное состояние один раз", async () => {
@@ -100,19 +107,54 @@ describe("ProjectState import session", () => {
     const importSession = await createTestImportSession(writer)
 
     await importSession.writeStateFragment(stateFragment([indexed]))
-    const firstToken = await importSession.commitWorkingIndex()
+    const firstToken = await importSession.commitSharedIndex()
     const secondToken = await importSession.createReadToken()
     expect(firstToken.buffers.files).toBe(secondToken.buffers.files)
     await writer.flushCheckpoint()
     expect(saved).toHaveLength(0)
 
-    await importSession.writeStateFragment(stateFragment([indexed]))
-    await importSession.commitSemanticIndex()
     await importSession.writeStateFragment(stateFragment([], [finalBatch(indexed.projectPath, 4n)]))
     await importSession.finalize()
     await writer.flushCheckpoint()
     expect(saved).toHaveLength(1)
     await writer.close()
+  })
+
+  it("сохраняет зависимость от языков через окончательный двоичный фрагмент импорта", async () => {
+    const writer = createProjectStateWriterHandle({
+      openStore: async () => createBinaryProjectStateTestFixture().store,
+      async save() {},
+    })
+    const importSession = await createTestImportSession(writer)
+    try {
+      const indexed = indexContribution("cf/a.yaml", "Товары")
+      await importSession.writeStateFragment(stateFragment([indexed]))
+      await importSession.commitSharedIndex()
+      const batch = {
+        updates: [{ ...finalState(indexed.projectPath), validationContextDependencies: [{ key: "languages", version: "ru-en" }] }],
+        hashBytes: new Uint8Array(8),
+      }
+      assertProjectStateImportFinalFileStateBatch(batch)
+      await importSession.writeStateFragment(stateFragment([], [batch]))
+      await importSession.finalize()
+      expect((await writer.readComponentProjection("cf")).updates).toContainEqual(expect.objectContaining({
+        validationContextDependencies: [{ key: "languages", version: "ru-en" }],
+      }))
+      let knownHashBits: Uint8Array<ArrayBufferLike> | undefined
+      await refreshProjectState({ projectDir: "/project", validationContextVersions: new Map([["languages", "ru-de"]]) }, {
+        handle: writer,
+        discoverFiles: async function* () {
+          yield { paths: [{ projectPath: indexed.projectPath, componentPath: "cf", absolutePath: "/project/cf/a.yaml", classify: () => undefined }] }
+        },
+        processFiles: async batches => {
+          for await (const selected of batches) knownHashBits = selected.knownHashBits
+          return { hashedFiles: 1, parsedYamlFiles: 0, changedFiles: 0, missingFiles: 0 }
+        },
+      })
+      expect(knownHashBits).toEqual(Uint8Array.of(0))
+    } finally {
+      await writer.close()
+    }
   })
 
   it("заменяет хэш окончательного состояния, сохраняя сведения о файле", async () => {
@@ -123,9 +165,7 @@ describe("ProjectState import session", () => {
     const importSession = await createTestImportSession(writer)
 
     await importSession.writeStateFragment(stateFragment([indexed]))
-    await importSession.commitWorkingIndex()
-    await importSession.writeStateFragment(stateFragment([indexed]))
-    await importSession.commitSemanticIndex()
+    await importSession.commitSharedIndex()
     await importSession.writeStateFragment(stateFragment([], [finalBatch(indexed.projectPath, 4n)]))
     const before = await writer.readComponentProjection("cf")
     await importSession.replaceFinalHashes([{ projectPath: indexed.projectPath, hash: 9n }])
@@ -310,7 +350,7 @@ describe("ProjectState import session", () => {
     expect(writesAfterRollback).toBe(0)
   })
 
-  it("ждёт начатые порции первого прохода перед фиксацией рабочего индекса", async () => {
+  it.each([true, false])("ждёт принятые порции перед общим индексом: начата=%s", async (started) => {
     const writing = gate()
     const events: string[] = []
     let beginCount = 0
@@ -337,20 +377,48 @@ describe("ProjectState import session", () => {
     })
 
     const activeWrite = importSession.writeStateFragment(stateFragment())
-    await writing.started
-    const committing = importSession.commitWorkingIndex()
+    if (started) await writing.started
+    const committing = importSession.commitSharedIndex()
     await Promise.resolve()
-    expect(events).toEqual(["write:start"])
-
+    expect(events).not.toContain("commit")
     writing.release()
     await Promise.all([activeWrite, committing])
     expect(events).toEqual(["write:start", "write:end", "commit"])
     expect(beginCount).toBe(2)
   })
 
+  it("не возобновляет import после отмены во время общей фиксации", async () => {
+    const committingGate = gate()
+    const events: string[] = []
+    const writer = importSessionWriterStub({
+      async commitUpdate() {
+        events.push("commit:start")
+        committingGate.start()
+        await committingGate.wait()
+        events.push("commit:end")
+      },
+      async rollbackUpdate() { events.push("rollback") },
+    })
+    const session = await createProjectStateImportSession({
+      projectDir: "/project", workerCount: 1, output: { componentPaths: ["cf"] }, writer,
+      async publish() {}, async discard() { events.push("discard") },
+    })
+    const committing = session.commitSharedIndex()
+    await committingGate.started
+    const aborting = session.abort(new Error("cancelled"))
+    committingGate.release()
+    const [commitResult, abortResult] = await Promise.allSettled([committing, aborting])
+    expect(commitResult.status).toBe("rejected")
+    expect(abortResult.status).toBe("fulfilled")
+    expect(events).toEqual(["commit:start", "commit:end", "rollback", "discard"])
+    await expect(session.createReadToken()).rejects.toThrow()
+  })
+
   it("сообщает отдельные времена фиксации и завершения import", async () => {
     const phases: string[] = []
-    const writer = importSessionWriterStub()
+    const writer = importSessionWriterStub({
+      async validateDependencyDiagnosticBatches() { throw new Error("Запросы уже проверены их воркерами") },
+    })
     const importSession = await createProjectStateImportSession({
       projectDir: "/project",
       workerCount: 1,
@@ -361,72 +429,17 @@ describe("ProjectState import session", () => {
       async discard() {},
     })
 
-    await importSession.commitWorkingIndex()
-    await importSession.commitSemanticIndex()
+    await importSession.commitSharedIndex()
     await importSession.finalize()
 
     expect(phases).toEqual([
-      "workingIndex",
-      "semanticIndex",
+      "sharedIndex",
       "finalBuild",
-      "dependencyValidation",
       "save",
       "publication",
     ])
   })
 
-  it("возвращает адресные ошибки зависимостей после смыслового индекса", async () => {
-    const writer = importSessionWriterStub({
-      async validateDependencyDiagnosticBatches() {
-        return [openDiagnosticBatch(encodeDiagnosticBatch([
-          {
-            filePath: "cf/Справочник/Товары/Свойства.yaml",
-            line: 7,
-            col: 5,
-            path: "/Реквизиты/Код/Тип",
-            severity: "error",
-            source: "reference",
-            code: "reference.not-found",
-            message: "Текст сообщения не участвует в классификации",
-          },
-          {
-            filePath: "/project/cfe/Расширение/Конфигурация.yaml",
-            line: 2,
-            col: 1,
-            path: "/ОсновнойЯзык",
-            severity: "error",
-            source: "cross-file",
-            code: "reference.not-included",
-            message: "Текст сообщения не участвует в классификации",
-          },
-        ]))]
-      },
-    })
-    const importSession = await createTestImportSession(writer, ["cf", "cfe/Расширение"])
-
-    await importSession.commitWorkingIndex()
-    await importSession.commitSemanticIndex()
-
-    expect(await importSession.collectSemanticValidationIssues()).toEqual([
-      {
-        projectPath: "Конфигурация.yaml",
-        issue: {
-          code: "reference.not-included",
-          kind: "semantic",
-          target: { kind: "path", path: ["ОсновнойЯзык"] },
-        },
-      },
-      {
-        projectPath: "Справочник/Товары/Свойства.yaml",
-        issue: {
-          code: "reference.not-found",
-          kind: "semantic",
-          target: { kind: "path", path: ["Реквизиты", "Код", "Тип"] },
-        },
-      },
-    ])
-    await importSession.abort(new Error("test complete"))
-  })
 })
 
 function indexContribution(projectPath: string, name: string): ProjectStateImportIndexContribution {

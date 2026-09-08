@@ -2,16 +2,16 @@ import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { importMetadataValueFromXML } from "../metadataValue/fromXML"
 import type { UsePurposes, UsePurposesXML } from "./types"
-import { ConfigurationContextFromXML } from "@nkdk/runtime"
+import { ConfigurationContextFromXML, isXmlElementNode, xmlElementChildren, type XmlElementNode } from "@nkdk/runtime"
 
 export const importUsePurposesFromXML = (
   context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
-  xml: UsePurposesXML | undefined
+  xml: UsePurposesXML | XmlElementNode | undefined
 ): UsePurposes | undefined => {
   if (!xml) return undefined
 
-  const values = xml["v8:Value"]
+  const values = isXmlElementNode(xml) ? xmlElementChildren(xml, "v8:Value") : xml["v8:Value"]
   if (!values) return undefined
 
   const valueArray = Array.isArray(values) ? values : [values]

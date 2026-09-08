@@ -14,7 +14,7 @@ describe("property rule builders", () => {
       xmlRootRule({
         container: "Language",
         rootAttributes: { xmlns: "urn:test" },
-        forReferenceOnly: true,
+        xmlOnly: true,
         toYAML: false,
         fromYAML: false,
       })
@@ -22,7 +22,7 @@ describe("property rule builders", () => {
       type: "XMLRoot",
       container: "Language",
       rootAttributes: { xmlns: "urn:test" },
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
     })
@@ -30,14 +30,14 @@ describe("property rule builders", () => {
     expect(
       uuidRule({
         xml: "_uuid",
-        forReferenceOnly: true,
+        xmlOnly: true,
         toYAML: false,
         fromYAML: false,
       })
     ).toEqual({
       type: "uuid",
       xml: "_uuid",
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
     })
@@ -108,7 +108,7 @@ describe("property rule builders", () => {
       systemEnumerationRule({ xml: "ObjectBelonging" })
 
       // @ts-expect-error XMLRoot rules require rootAttributes.
-      xmlRootRule({ container: "Language", forReferenceOnly: true })
+      xmlRootRule({ container: "Language", xmlOnly: true })
 
       booleanRule({ defaultValueXML: true })
       numberRule({ defaultValueXML: 1 })

@@ -50,13 +50,12 @@ for (const method of ['spawn', 'spawnSync']) {
     return originalSpawn(command, ...args);
   };
 }
-if (process.env.NKDK_TEST_SLOW_SCAN) {
-  const { performance } = require('node:perf_hooks');
-  const originalNow = performance.now.bind(performance);
+if (process.env.NKDK_TEST_NO_XML_SCAN && path.basename(process.argv[1] ?? '') === 'round-trip-batch.mjs') {
   const originalRead = fs.readdirSync;
-  let elapsed = 0;
-  performance.now = () => originalNow() + elapsed;
-  fs.readdirSync = (...args) => { elapsed += 3000; return originalRead(...args); };
+  fs.readdirSync = (directory, ...args) => {
+    if (path.basename(directory) === 'nested') throw new Error('Recursive XML scan forbidden');
+    return originalRead(directory, ...args);
+  };
 }
 if (process.env.NKDK_TEST_NO_SCAN) {
   const originalRead = fs.readdirSync;
@@ -80,6 +79,7 @@ for (const component of manifest.components) {
   if (!component.yamlDir.startsWith(process.env.NKDK_TEST_ROOT)) process.exit(43);
   if (component.yamlDir !== path.join(component.projectDir, 'cf')) process.exit(44);
   const operations = path.join(component.projectDir, '.nkdk', 'operations');
+  if (component.importStatusPath) fs.writeFileSync(component.importStatusPath, JSON.stringify({componentPath:'cf',status:component.xmlDir.endsWith('03-error') ? 'failed' : 'succeeded'}));
   fs.mkdirSync(operations, {recursive:true});
   const timing = {createdAt:'2026-09-02T00:00:00.000Z', updatedAt:'2026-09-02T00:00:02.000Z'};
   if (process.env.NKDK_TEST_IMPORT_MS) timing.updatedAt = new Date(Date.parse(timing.createdAt) + Number(process.env.NKDK_TEST_IMPORT_MS)).toISOString();
@@ -90,7 +90,8 @@ for (const component of manifest.components) {
   if (component.xmlDir.endsWith('03-error')) { console.error('Ошибка чтения XML'); process.exit(7); }
   fs.mkdirSync(path.join(component.yamlDir, 'Справочники'), {recursive:true});
   fs.writeFileSync(path.join(component.yamlDir, 'Справочники', 'Товары.yaml'), 'Поле: !xml/raw {\u0024xml: null}\\nСтрока: !xml/string текст\\n');
-  fs.writeFileSync(path.join(component.yamlDir, 'resource.bin'), Buffer.from([0, 255, 10]));
+  fs.writeFileSync(path.join(component.yamlDir, 'resource.bin'), Buffer.alloc(Number(process.env.NKDK_TEST_RESOURCE_BYTES ?? 3)));
+  if (process.env.NKDK_TEST_ORDER) fs.appendFileSync(path.join(component.yamlDir, 'Справочники', 'Товары.yaml'), 'Порядок: !xml/raw {\u0024xml: {"#order": [a, b]}}\\n');
   fs.mkdirSync(path.join(component.yamlDir, '.nkdk'), {recursive:true});
   fs.writeFileSync(path.join(component.yamlDir, '.nkdk', 'cache.bin'), Buffer.alloc(1000));
   const warnings = [
@@ -101,6 +102,8 @@ for (const component of manifest.components) {
     summary:{errors:0, warnings:1, shown:1, omitted:0},
   }));
   if (process.env.NKDK_TEST_BAD_STATISTICS && component.xmlDir.endsWith('01-change [a]')) fs.writeFileSync(component.importOutputPath, '{}');
+  if (component.xmlDir.endsWith('02-clean') && process.env.NKDK_TEST_IMPORT_OUTPUT === 'missing') fs.unlinkSync(component.importOutputPath);
+  if (component.xmlDir.endsWith('02-clean') && process.env.NKDK_TEST_IMPORT_OUTPUT === 'corrupt') fs.writeFileSync(component.importOutputPath, '{');
   if (component.xmlDir.endsWith('03-sync-error')) {
     const operations = path.join(component.projectDir, '.nkdk', 'operations');
     fs.mkdirSync(operations, {recursive:true});
@@ -179,16 +182,14 @@ function durationSeconds(value) {
   return minutes * 60 + seconds
 }
 
-test("сообщает этап до первого Git-вызова, показывает ход обхода и итог каждой конфигурации", (t) => {
+test("сообщает этапы и результат без отдельных рекурсивных обходов XML-каталогов", (t) => {
   const { repo, run } = fixture(t, ["02-clean"])
   mkdirSync(join(repo, "cf/02-clean/nested/deeper"), { recursive: true })
-  const result = run(["--test", "--repo", repo], { NKDK_TEST_TRACE_GIT: "1", NKDK_TEST_SLOW_SCAN: "1" })
+  const result = run(["--test", "--repo", repo], { NKDK_TEST_TRACE_GIT: "1", NKDK_TEST_NO_XML_SCAN: "1" })
   assert.equal(result.status, 0, result.stderr)
   assert.match(result.stdout, /^Запуск пакетного round-trip/u)
   const stages = [/Проверка корня/u, /\[test\] git/u, /Проверка отсутствия изменений/u,
     /Поиск конфигураций/u, /Подсчёт размеров.*Git/u, /Выбрано конфигураций: 1/u,
-    /Проверка безопасности выбранных конфигураций/u,
-    /Просмотрено каталогов: \d+; текущий:/u,
     /Создание ветки/u, /\[1\/1\] cf\/02-clean/u, /Запуск MCP/u,
     /Сохранение XML/u, /Сбор статистики/u, /Проверка XML-различий/u,
     /Удаление временных каталогов конфигурации/u, /Результат cf\/02-clean: без расхождений/u,
@@ -199,7 +200,7 @@ test("сообщает этап до первого Git-вызова, показ
     assert.ok(found, `Не найден этап ${stage} после предыдущего: ${tail}`)
     tail = tail.slice(found.index + found[0].length)
   }
-  assert.match(result.stdout, /Обход завершён: каталогов \d+/u)
+  assert.doesNotMatch(result.stdout, /Просмотрено каталогов|Обход завершён/u)
 })
 
 test("передаёт сообщения MCP в консоль до его завершения и сохраняет их в журнале", async (t) => {
@@ -262,15 +263,16 @@ test("накапливает отдельные коммиты с diff и сох
     return durationSeconds(value)
   })
   assert.ok(Math.abs(durationSeconds(timingCells(text, "Итого")[2]) - totalSeconds.reduce((sum, value) => sum + value, 0)) <= 1.5)
-  assert.ok(text.includes(`| cf/01-change [a] | есть расхождения | 3 | ${commits[0]} |`))
-  assert.ok(text.includes("| cf/02-clean | без расхождений | 0 | — |"))
-  assert.ok(text.includes(`| cf/04-change | есть расхождения | 1 | ${commits[1]} |`))
+  assert.ok(text.includes("| cf/01-change [a] | есть расхождения | 3 |"))
+  assert.ok(text.includes("| cf/02-clean | без расхождений | 0 |"))
+  assert.ok(text.includes("| cf/04-change | есть расхождения | 1 |"))
+  assert.doesNotMatch(text, /\| Коммит \|/u)
   const header = text.split("\n").filter((line) => line && !line.startsWith("#")).slice(0, 3)
   assert.match(header[0], /^Начало \(UTC\): \d{4}-/u)
   assert.equal(header[1], "Состояние: завершён")
   assert.equal(header[2], `Ветка: ${git(repo, "branch", "--show-current")}`)
   assert.doesNotMatch(text, /XML-репозиторий:|Исходный коммит|Коммит NKDK|Журналы:|Режим:|Считаются физические|— означает|Каталоги и YAML|Источник широких|Число файлов включает|XML-различия сохраняются/u)
-  assert.ok(text.includes('| Итого | — | 4 | — | 66 | 216 | 3 | 3 | 0 | 0 | 0 | 3 | 0 | 0 | 3 |'))
+  assert.ok(text.includes('| Итого | — | 4 | 0,00 | 0,00 | 3 | 3 | 0 | 0 | 0 | 3 | 0 | 0 | 3 |'))
   assert.equal(text.split("\n").filter((line) => line.startsWith("| ---")).length, 1)
   assert.equal(readFileSync(join(repo, "cf/01-change [a]/new.xml"), "utf8"), "new\n")
   assert.equal(git(repo, "rev-parse", "main"), base)
@@ -393,8 +395,7 @@ test("при отсутствии diff создаёт только отчёт и
   const result = run([], { NKDK_XML_REPO: repo })
   assert.equal(result.status, 0, result.stderr)
   assert.equal(git(repo, "rev-list", "--count", `${base}..HEAD`), "1")
-  assert.ok(report(repo).includes("| cf/02-clean | без расхождений | 0 | — |"))
-  assert.ok(report(repo).includes("| cf/02-clean | без расхождений | 0 | — | 22 | 72 | 1 | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 1 |"))
+  assert.ok(report(repo).includes("| cf/02-clean | без расхождений | 0 | 0,00 | 0,00 | 1 | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 1 |"))
   const logDir = result.stdout.match(/^Логи: (.+)$/mu)[1]
   const log = readFileSync(join(logDir, 'log-1.txt'), 'utf8')
   assert.match(log, /string=1/u)
@@ -410,6 +411,7 @@ test("выбирает три конфигурации по байтам Git, н
   for (const [name, padding] of [["01-change [a]", 100], ["02-clean", 2], ["03-clean", 2], ["04-change", 1], ["05-clean", 2]]) {
     const dir = join(repo, "cf", name)
     writeFileSync(join(dir, "Configuration.xml"), "x")
+    writeFileSync(join(dir, "old.xml"), "old\n".repeat(5000))
     mkdirSync(join(dir, "nested"))
     writeFileSync(join(dir, "nested", "data.bin"), "x".repeat(padding))
   }
@@ -418,7 +420,7 @@ test("выбирает три конфигурации по байтам Git, н
   git(repo, "commit", "-qm", "sizes")
   const base = git(repo, "rev-parse", "HEAD")
   for (const name of ["01-change [a]", "02-clean", "03-clean", "04-change", "05-clean"]) {
-    writeFileSync(join(repo, "cf", name, "old.xml"), "old\r\n")
+    writeFileSync(join(repo, "cf", name, "old.xml"), "old\r\n".repeat(5000))
   }
   git(repo, "add", "cf")
   assert.equal(git(repo, "diff", "--cached"), "")
@@ -429,7 +431,7 @@ test("выбирает три конфигурации по байтам Git, н
     ["cf/04-change", "cf/02-clean", "cf/03-clean"])
   const text = report(repo)
   const rows = text.split("\n").filter((line) => line.startsWith("| cf/"))
-  assert.deepEqual(rows.map((line) => line.split(" | ")[4]), ["6", "7", "7"])
+  assert.deepEqual(rows.map((line) => line.split(" | ")[3]), ["0,02", "0,02", "0,02"])
   assert.equal(text.split("\n").filter((line) => line.startsWith("| ---")).length, 1)
   assert.ok(!text.includes("cf/01-change [a]"))
   assert.ok(!text.includes("cf/05-clean"))
@@ -438,19 +440,39 @@ test("выбирает три конфигурации по байтам Git, н
   assert.equal(git(repo, "status", "--porcelain"), "")
 })
 
-test("отчёт показывает XML из main и NKDK с ресурсами без .nkdk, включая размер после ошибки экспорта", (t) => {
+test("отчёт показывает XML и NKDK без .nkdk в МБ, сохраняет недоступность и округляет итог после суммы", (t) => {
   const { repo, run } = fixture(t, ["02-чистая [a]", "03-error", "03-sync-error"])
-  const result = run()
+  for (const name of ["02-чистая [a]", "03-error", "03-sync-error"]) {
+    writeFileSync(join(repo, "cf", name, "padding.bin"), Buffer.alloc(1004977))
+  }
+  git(repo, "add", "cf")
+  git(repo, "commit", "-qm", "source sizes")
+  const result = run(["--repo", repo], { NKDK_TEST_RESOURCE_BYTES: "1004930" })
   assert.equal(result.status, 1)
   const rows = report(repo).split("\n").filter((line) => line.startsWith("| "))
     .map((line) => line.split("|").slice(1, -1).map((value) => value.trim()))
-  const sizes = (name) => ["XML, байт", "NKDK, байт"].map((column) =>
+  const sizes = (name) => ["XML, МБ", "NKDK, МБ"].map((column) =>
     rows.find((row) => row[0] === name)[rows[0].indexOf(column)])
-  // 18 + 4 байта исходного XML; 69 байт UTF-8 YAML + 3 байта ресурса.
-  assert.deepEqual(sizes("cf/02-чистая [a]"), ["22", "72"])
-  assert.deepEqual(sizes("cf/03-error"), ["22", "—"])
-  assert.deepEqual(sizes("cf/03-sync-error"), ["22", "72"])
-  assert.deepEqual(sizes("Итого"), ["66", "144"])
+  // XML: 22 + 1004977, NKDK: 69 + 1004930 = 1004999 байт; .nkdk не входит.
+  assert.deepEqual(sizes("cf/02-чистая [a]"), ["1,00", "1,00"])
+  assert.deepEqual(sizes("cf/03-error"), ["1,00", "—"])
+  assert.deepEqual(sizes("cf/03-sync-error"), ["1,00", "1,00"])
+  assert.deepEqual(sizes("Итого"), ["3,01", "2,01"])
+  assert.ok(rows.every((row) => row.length === rows[0].length))
+})
+
+test("колонка #order различает ноль и недоступность и суммирует объявления после ошибки экспорта", (t) => {
+  for (const enabled of [false, true]) {
+    const { repo, run } = fixture(t, ["02-clean", "03-error", "03-sync-error"])
+    assert.equal(run(["--repo", repo], enabled ? { NKDK_TEST_ORDER: "1" } : {}).status, 1)
+    const rows = report(repo).split("\n").filter(line => line.startsWith("| ")).map(line => line.split("|").slice(1, -1).map(cell => cell.trim()))
+    const column = rows[0].indexOf("#order")
+    assert.ok(column >= 0)
+    for (const [name, expected] of [["cf/02-clean", enabled ? "1" : "0"], ["cf/03-error", "—"], ["cf/03-sync-error", enabled ? "1" : "0"], ["Итого", enabled ? "2" : "0"]]) {
+      assert.equal(rows.find(row => row[0] === name)[column], expected)
+    }
+    assert.ok(rows.every(row => row.length === rows[0].length))
+  }
 })
 
 test("тестовый режим принимает репозиторий из окружения и меньше трёх конфигураций", (t) => {
@@ -458,7 +480,7 @@ test("тестовый режим принимает репозиторий из
   const result = run(["--test"], { NKDK_XML_REPO: repo })
   assert.equal(result.status, 0, result.stderr)
   assert.match(result.stdout, /\[1\/1\] cf\/02-clean/u)
-  assert.ok(report(repo).includes("| cf/02-clean | без расхождений | 0 | — |"))
+  assert.ok(report(repo).includes("| cf/02-clean | без расхождений | 0 |"))
 })
 
 test("после ошибки продолжает прогон, сохраняет последующие diff и очищает временные каталоги", (t) => {
@@ -466,12 +488,13 @@ test("после ошибки продолжает прогон, сохраня�
   const result = run()
   assert.equal(result.status, 1)
   const text = report(repo)
-  assert.ok(text.includes("| cf/02-clean | без расхождений | 0 | — |"))
-  assert.ok(text.includes("| cf/03-error | ошибка | — | — |"))
+  assert.ok(text.includes("| cf/02-clean | без расхождений | 0 |"))
+  assert.ok(text.includes("| cf/03-error | ошибка | — |"))
   assert.ok(text.includes("| cf/04-change | есть расхождения | 1 |"))
   assert.ok(text.includes("Состояние: завершён с ошибками"))
   assert.ok(text.includes("## Ошибки"))
   assert.ok(text.includes("Ошибка чтения XML"))
+  assert.doesNotMatch(text, /ENOENT/u)
   assert.deepEqual(timingCells(text, "cf/03-error").slice(0, 2), ["00:02", "—"])
   durationSeconds(timingCells(text, "cf/03-error")[2])
   assert.deepEqual(timingCells(text, "Итого").slice(0, 2), ["00:08", "00:09"])
@@ -486,8 +509,7 @@ test("сохраняет статистику и полный текст оши�
   const { repo, root, run } = fixture(t, ["03-sync-error", "04-change"])
   const result = run()
   assert.equal(result.status, 1)
-  assert.ok(report(repo).includes("| cf/03-sync-error | ошибка | — | — |"))
-  assert.ok(report(repo).includes("| cf/03-sync-error | ошибка | — | — | 22 | 72 | 1 | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 1 |"))
+  assert.ok(report(repo).includes("| cf/03-sync-error | ошибка | — | 0,00 | 0,00 | 1 | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 1 |"))
   assert.ok(report(repo).includes("| cf/04-change | есть расхождения | 1 |"))
   assert.match(report(repo), /## Ошибки[\s\S]*full_xml_sync_assignment_failed[\s\S]*Неверный #order: ожидались DataPath и Title/u)
   assert.match(report(repo), /Формы\/Форма.yaml/u)
@@ -499,12 +521,24 @@ test("сохраняет статистику и полный текст оши�
   assert.deepEqual(temporaryRuns(root), [])
 })
 
+test("успешный импорт без результата или с повреждённым JSON остаётся ошибкой", (t) => {
+  for (const mode of ["missing", "corrupt"]) {
+    const { repo, root, run } = fixture(t, ["02-clean", "04-change"])
+    const result = run(["--repo", repo], { NKDK_TEST_IMPORT_OUTPUT: mode })
+    assert.equal(result.status, 1)
+    assert.match(report(repo), /cf\/02-clean \| ошибка/u)
+    assert.match(report(repo), /cf\/04-change \| есть расхождения/u)
+    assert.match(report(repo), mode === "missing" ? /ENOENT/u : /JSON/u)
+    assert.deepEqual(temporaryRuns(root), [])
+  }
+})
+
 test("ошибка статистики не теряет успешный XML-результат и не блокирует следующую конфигурацию", (t) => {
   const { repo, root, base, run } = fixture(t, ["01-change [a]", "04-change"])
   const result = run(["--repo", repo], { NKDK_TEST_BAD_STATISTICS: "1" })
   assert.equal(result.status, 1)
   assert.equal(git(repo, "rev-list", "--count", `${base}..HEAD`), "3")
-  assert.match(report(repo), /cf\/01-change \[a\] \| ошибка \| 3 \| [a-f0-9]{40}/u)
+  assert.match(report(repo), /cf\/01-change \[a\] \| ошибка \| 3 \|/u)
   assert.match(report(repo), /cf\/04-change \| есть расхождения/u)
   assert.equal(git(repo, "status", "--porcelain"), "")
   assert.deepEqual(temporaryRuns(root), [])
@@ -522,8 +556,8 @@ test("при отказе XML-коммита отчёт не захватыва�
   assert.ok(git(repo, "show", "--format=", "--name-only", "HEAD").split("\n").every((path) => path.startsWith("round-trip-reports/")))
   assert.match(git(repo, "diff", "--cached", "--name-only"), /cf\/01-change \[a\]\/new.xml/u)
   assert.equal(git(repo, "diff", base, "HEAD", "--", "cf"), "")
-  assert.ok(report(repo).includes("| cf/01-change [a] | ошибка | 3 | — |"))
-  assert.ok(report(repo).includes("| cf/02-clean | без расхождений | 0 | — |"))
+  assert.ok(report(repo).includes("| cf/01-change [a] | ошибка | 3 |"))
+  assert.ok(report(repo).includes("| cf/02-clean | без расхождений | 0 |"))
 })
 
 test("отказывает до создания ветки при любых локальных изменениях, ничего не удаляя и не сбрасывая", async (t) => {
@@ -555,7 +589,7 @@ test("отказывает до создания ветки при любых л
 })
 
 test("отказывает до создания ветки при небезопасном источнике", async (t) => {
-  for (const kind of ["empty", "symlink", "subdirectory", "nested-repo", "nested-git-dir", "nested-over-tracked", "nested-bare-over-tracked", "ignored-report", "ignored-logs"]) {
+  for (const kind of ["empty", "symlink", "subdirectory", "nested-repo", "nested-over-tracked", "nested-bare-over-tracked", "ignored-report", "ignored-logs"]) {
     await t.test(kind, (t) => {
       const { repo, root, run } = fixture(t, kind === "empty" ? [] : ["02-clean"])
       let args = ["--repo", repo]
@@ -580,10 +614,6 @@ test("отказывает до создания ветки при небезо�
         if (kind.endsWith("over-tracked")) rmSync(nested)
         mkdirSync(nested)
         writeFileSync(join(nested, ".gitignore"), "local.txt\n")
-        if (kind === "nested-git-dir") {
-          git(repo, "add", "cf/02-clean/vendor")
-          git(repo, "commit", "-qm", "ordinary directory")
-        }
         if (kind === "nested-bare-over-tracked") git(nested, "init", "--bare", "-q")
         else {
           git(nested, "init", "-q")

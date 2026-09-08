@@ -13,6 +13,43 @@ import {
   type ConfigurationExtensionPropertyStateFactPayload,
 } from "../ruleRuntime/property/propertyStateFacts"
 
+const referencePropertyKeys = new WeakMap<ResolvedPropertyStateItemCapability, WeakMap<MetadataItemRule, ReadonlyMap<string, string>>>()
+
+/** Читает только режим выбранного свойства, не строя сериализованный снимок его значения. */
+export function createPropertyStateReferenceModeReader(params: {
+  readonly yaml: Readonly<Record<string, unknown>>
+  readonly rule: MetadataItemRule
+  readonly capability: ResolvedPropertyStateItemCapability
+}): (yamlPath: readonly (string | number)[]) => "control" | "notify" | "extend" | undefined {
+  let byRule = referencePropertyKeys.get(params.capability)
+  if (byRule === undefined) referencePropertyKeys.set(params.capability, byRule = new WeakMap())
+  let keys = byRule.get(params.rule)
+  if (keys === undefined) {
+    keys = new Map(Object.entries(params.capability.properties).flatMap(([key, property]) => {
+      const yamlName = params.rule.properties[key]?.yaml
+      return property.modes.length > 0 && typeof yamlName === "string" ? [[yamlName, key] as const] : []
+    }))
+    byRule.set(params.rule, keys)
+  }
+  const sections = readPropertyStateSections(params.yaml, params.capability)
+  return yamlPath => {
+    const yamlName = yamlPath[0]
+    if (typeof yamlName !== "string" || !Object.hasOwn(params.yaml, yamlName)) return undefined
+    const propertyKey = keys.get(yamlName)
+    if (propertyKey === undefined) return undefined
+    const property = params.capability.properties[propertyKey]!
+    const value = params.yaml[yamlName]
+    const tag = yamlScalarTagAt(params.yaml, yamlName)
+    assertAllowedScalarTag(params.capability.itemType, propertyKey, property.modes, tag)
+    const mode = sections.get(propertyKey) ?? scalarMode(property.modes, property.representation, tag, value)
+    if (mode === "control" || mode === "notify" || mode === "extend") return mode
+    if (mode !== "multi") return undefined
+    const index = yamlPath.slice(1).find((segment): segment is number => typeof segment === "number")
+    return Array.isArray(value) && index !== undefined && Object.hasOwn(value, index)
+      ? nestedMode(value, index) : undefined
+  }
+}
+
 export function collectConfigurationExtensionPropertyStateDocuments(params: {
   readonly yaml: Readonly<Record<string, unknown>>
   readonly rule: MetadataItemRule

@@ -17,11 +17,10 @@ import { i8nTextRule } from "../../../commonObjects/i8nText/types"
 import { stringRule } from "../../../commonObjects/string/types"
 import { systemEnumerationRule } from "../../../systemEnumerations/types"
 import { splitPascalCase } from "../../../helpers/canConvertToPascalCase"
-import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import { createNamedFormItemOutputPreparation, defineMetadataRules, type MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { defineMetadataItemCollectionRule } from "../../../ruleRuntime/metadataCollection/ruleFactory"
 import { restoreKnownDuplicateErpAdditionalColumns } from "../../knownAnomalies"
-import { addCanonicalValueListSettings } from "./valueListSettings"
-import { registerFormXmlIdReservation } from "@nkdk/runtime"
+import { formAttributeValueTypeDefault } from "./valueListSettings"
 
 const formAttributeTitleRule = i8nTextRule({
   yaml: "Заголовок",
@@ -94,7 +93,7 @@ export const FormAttributeRules = {
   properties: {
     id: stringRule({
       xml: "_id",
-      forReferenceOnly: true,
+      xmlOnly: true,
     }),
     name: stringRule({
       xml: "_name",
@@ -105,6 +104,7 @@ export const FormAttributeRules = {
       xml: "Settings",
       addTypeDescriptionAttributeToXML: true,
       defaultValueXMLEmpty: { type: [] },
+      defaultValue: formAttributeValueTypeDefault,
       preserveEmptyXML: true,
     }),
     title: formAttributeTitleRule,
@@ -130,7 +130,6 @@ export const FormAttributeRules = {
       yaml: "Колонки",
       xml: "Column",
       xmlParents: ["Columns"],
-      fromXML: false,
       fromYAML: false,
       defaultValue: [],
     }),
@@ -138,7 +137,6 @@ export const FormAttributeRules = {
       yaml: "ДополнительныеКолонки",
       xml: "AdditionalColumns",
       xmlParents: ["Columns"],
-      fromXML: false,
       fromYAML: false,
     }),
     functionalOptions: functionalOptionsPropertyRule({
@@ -194,7 +192,7 @@ export const FormAttributeColumnRules = {
   properties: {
     id: stringRule({
       xml: "_id",
-      forReferenceOnly: true,
+      xmlOnly: true,
     }),
     name: stringRule({
       xml: "_name",
@@ -216,7 +214,7 @@ export const FormAttributeColumnRules = {
   },
 } as const satisfies MetadataItemRule
 
-const FormAttributeAdditionalColumnRules = {
+export const FormAttributeAdditionalColumnRules = {
   itemType: "FormAttributeAdditionalColumn",
   properties: {
     table: stringRule({ xml: "_table", required: true }),
@@ -224,66 +222,86 @@ const FormAttributeAdditionalColumnRules = {
   },
 } as const satisfies MetadataItemRule
 
-export const metadataRuleLayer000 = defineMetadataItemCollectionRule({
+const formAttributes = defineMetadataItemCollectionRule({
   propertyType: "FormAttributes",
   itemRule: FormAttributeRules,
   xmlElement: "Attribute",
   keyField: "name",
   configurationIndexUidSegment: "Атрибут",
   requiredIdentity: "xmlId",
-  mapItemOutput: ({ xml, yaml, context }) => {
-    const { _name, _id, ...properties } = xml
-    const result = addCanonicalValueListSettings(
-      { _name, _id: typeof _id === "string" ? _id : "", ...properties },
-      yaml,
-    )
-    const runtime = context.exportToXML.configurationIndex
-    registerFormXmlIdReservation(result, {
-      ...(runtime === undefined ? {} : { runtime }),
-      space: "attributes",
-    })
-    return result
+})
+
+export const metadataRuleLayer000 = defineMetadataRules({
+  ...formAttributes,
+  propertyTypes: {
+    ...formAttributes.propertyTypes,
+    FormAttributes: {
+      ...formAttributes.propertyTypes.FormAttributes,
+      prepareXMLItemOutput: createNamedFormItemOutputPreparation("attributes"),
+    },
+  },
+  dependentItems: {
+    ...formAttributes.dependentItems,
+    FormAttribute: { imported: {
+      propertyKeys: ["valueType"],
+      dependencies: { item: ["Тип"], root: [] },
+      shouldRemove: ({ item }) => item.Тип !== "СписокЗначений",
+    } },
   },
 })
 
-export const metadataRuleLayer001 = defineMetadataItemCollectionRule({
+const attributeColumns = defineMetadataItemCollectionRule({
   propertyType: "FormAttributeColumns",
   itemRule: FormAttributeColumnRules,
   xmlElement: "Column",
   keyField: "name",
   configurationIndexUidSegment: "Колонка",
   requiredIdentity: "xmlId",
-  mapItemOutput: ({ xml, context }) => {
-    const { _name, _id, ...properties } = xml
-    const result = { _name, _id: typeof _id === "string" ? _id : "", ...properties }
-    const runtime = context.exportToXML.configurationIndex
-    registerFormXmlIdReservation(result, {
-      ...(runtime === undefined ? {} : { runtime }),
-      space: "attributes",
-    })
-    return result
+})
+
+export const metadataRuleLayer001 = defineMetadataRules({
+  ...attributeColumns,
+  propertyTypes: {
+    ...attributeColumns.propertyTypes,
+    FormAttributeColumns: {
+      ...attributeColumns.propertyTypes.FormAttributeColumns,
+      prepareXMLItemOutput: createNamedFormItemOutputPreparation("attributes"),
+    },
   },
 })
 
-export const metadataRuleLayer002 = defineMetadataItemCollectionRule({
+const additionalColumns = defineMetadataItemCollectionRule({
   propertyType: "FormAttributeAdditionalColumns",
   itemRule: FormAttributeAdditionalColumnRules,
   xmlElement: "AdditionalColumns",
   keyField: "table",
   configurationIndexUidSegment: "ДополнительныеКолонки",
-  mapItemOutput: ({ xml, context }) => {
-    const table = typeof xml._table === "string" ? xml._table : ""
-    const columns = Array.isArray(xml.Column) ? xml.Column : xml.Column === undefined ? [] : [xml.Column]
-    const firstColumn = columns[0]
-    if (firstColumn === null || typeof firstColumn !== "object" || Array.isArray(firstColumn)) return xml
-    const name = typeof firstColumn._name === "string" ? firstColumn._name : undefined
-    const restored = restoreKnownDuplicateErpAdditionalColumns({
-      currentXMLPath: context.exportToXML.context?.currentXMLPath,
-      table,
-      columnName: name,
-      columnsCount: columns.length,
-      column: firstColumn,
-    })
-    return restored === undefined ? xml : { ...xml, Column: restored }
+})
+
+export const metadataRuleLayer002 = defineMetadataRules({
+  ...additionalColumns,
+  propertyTypes: {
+    ...additionalColumns.propertyTypes,
+    FormAttributeAdditionalColumns: {
+      ...additionalColumns.propertyTypes.FormAttributeAdditionalColumns,
+      prepareXMLItemOutput: ({ context, name }) => ({
+        attributes: (own) => own,
+        routeProperty: ({ propertyKey, path, value }) => {
+          if (propertyKey !== "columns") return { path, value }
+          const columns = Array.isArray(value) ? value : value === undefined ? [] : [value]
+          const firstColumn = columns[0]
+          if (firstColumn === null || typeof firstColumn !== "object" || Array.isArray(firstColumn)) return { path, value }
+          const column = firstColumn as Record<string, unknown>
+          const restored = restoreKnownDuplicateErpAdditionalColumns({
+            currentXMLPath: context.exportToXML.context?.currentXMLPath,
+            table: name ?? "",
+            columnName: typeof column._name === "string" ? column._name : undefined,
+            columnsCount: columns.length,
+            column,
+          })
+          return { path, value: restored ?? value }
+        },
+      }),
+    },
   },
 })

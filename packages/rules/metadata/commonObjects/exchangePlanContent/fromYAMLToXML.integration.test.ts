@@ -44,6 +44,32 @@ describe("ExchangePlanContent YAML → XML", () => {
     )
   })
 
+  it("сохраняет регистр и его перерасчёт в составе с порядком и авторегистрацией", () => {
+    const source = { ExchangePlanContent: { Item: [
+      { Metadata: "CalculationRegister.Расчеты", AutoRecord: "Deny" },
+      { Metadata: "CalculationRegister.Расчеты.Recalculation.Перерасчет", AutoRecord: "Allow" },
+    ] } }
+    const contexts = createDirectRoundTripContexts()
+    const imported = testMetadataItemFromXMLToYAML({
+      rule: ExchangePlanContentRules, xml: source, context: contexts.importContext,
+    })
+    expect(imported.yaml).toEqual([
+      { Метаданные: "РегистрРасчета.Расчеты", Авторегистрация: "Запретить" },
+      { Метаданные: "РегистрРасчета.Расчеты.Перерасчет.Перерасчет", Авторегистрация: "Разрешить" },
+    ])
+    const restored = testMetadataItemFromYAMLToXML({
+      rule: ExchangePlanContentRules, yaml: imported.yaml, context: contexts.exportContext(),
+    })
+    expect(restored.xml).toMatchObject(source)
+  })
+
+  it("не разрешает произвольный дочерний объект регистра", () => {
+    expect(() => testMetadataItemFromYAMLToXML({
+      rule: ExchangePlanContentRules,
+      yaml: [{ Метаданные: "РегистрРасчета.Расчеты.Unknown.Дочерний" }],
+    })).toThrow()
+  })
+
   it("round-trips content items through the configuration snapshot without reference XML", () => {
     const source = readAppliedObjectFixture(import.meta.url, "content.xml")
     const roundTrip = createDirectRoundTripContexts()

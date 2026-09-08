@@ -86,7 +86,8 @@ export type CloseAllConnectionsResult = {
 }
 
 export type ProjectSettings = {
-  infobase: NormalizedPlatformConnectionSettings & {
+  workerCount?: number
+  infobase?: NormalizedPlatformConnectionSettings & {
     operations: { import: InfobaseImportSettings }
   }
 }

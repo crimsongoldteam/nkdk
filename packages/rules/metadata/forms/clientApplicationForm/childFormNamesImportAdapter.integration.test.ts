@@ -47,13 +47,14 @@ describe("ChildFormNames: единый импорт XML → YAML", () => {
   const rule = childFormNamesRule({
     xml: "Form",
     folderName: "Формы",
-    forReferenceOnly: true,
+    xmlOnly: true,
     toYAML: false,
     fromYAML: false,
     xmlParents: ["ChildObjects"] as string[],
   })
   let importedFormPath = ""
   let importFailures: unknown[] = []
+  let importedConfigurationYaml = ""
 
   beforeAll(async () => {
     const inputDir = preparedInputDirectory(sourceDir)
@@ -74,12 +75,12 @@ describe("ChildFormNames: единый импорт XML → YAML", () => {
       },
     )
     importFailures = result.failed
+    importedConfigurationYaml = fs.readFileSync(join(projectDir, "cf", "Конфигурация.yaml"), "utf-8")
   })
 
-  it("записывает Формы/<form>/Форма.yaml для каталога несмотря на validation errors неполной fixture", () => {
-    expect(importFailures).toEqual(expect.arrayContaining([
-      expect.objectContaining({ code: "project_validation", severity: "error" }),
-    ]))
+  it("записывает форму и сохраняет отсутствующий основной язык как аномалию", () => {
+    expect(importFailures).toEqual([])
+    expect(importedConfigurationYaml).toContain("ОсновнойЯзык: !xml/invalid")
     expect(fs.existsSync(importedFormPath)).toBe(true)
   })
 

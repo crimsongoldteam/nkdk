@@ -1,12 +1,20 @@
 import { describe, expect, it } from "vitest"
 import { asExplicitYAMLStringIfMarked, explicitYAMLString } from "./explicitString"
-import { exportToYAML, serializeYAMLDocument } from "./export"
+import { exportToYAML, prepareYAMLDocumentData, serializeYAMLDocument } from "./export"
 import { importFromYAML } from "./import"
 import { parseMetadataYaml } from "./parseMetadataYaml"
 import { markYAMLScalarTag, markYAMLValueTag, yamlScalarTagAt } from "./scalarTags"
 import { createXmlAnomalyAnnotations, xmlAnnotatedMappingEntries } from "./xmlAnomalyAnnotations"
 
 describe("exportToYAML", () => {
+  it("готовит для ранней проверки то же смысловое дерево, что сериализация", () => {
+    const source = { Пустое: undefined, Явное: explicitYAMLString("001") }
+    const prepared = prepareYAMLDocumentData(source)
+    const serialized = serializeYAMLDocument(source)
+
+    expect(prepared.data).toEqual(serialized.data)
+  })
+
   it.each([
     ["пустое значение", {}, "Нумератор: !изменять"],
     ["строка", "Авто", "Нумератор: !изменять Авто"],

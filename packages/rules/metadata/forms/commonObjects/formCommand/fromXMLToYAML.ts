@@ -10,14 +10,15 @@ import {
   withConfigurationIndexLogicalAddress,
 } from "@nkdk/runtime"
 import { importMetadataItemFromXMLToYAML } from "../../../ruleRuntime/metadataItem/fromXMLToYAML"
-import type { ImportFromXMLToYAMLFunction } from "@nkdk/runtime/rule-kit"
+import { prepareNamedCollectionImportItem, type ImportFromXMLToYAMLFunction } from "@nkdk/runtime/rule-kit"
 import { FormCommandRules } from "./rules"
 import { isMetadataNameYAML } from "../../../commonObjects/metadataName/types"
 import { enterNestedYamlRule } from "../../../ruleRuntime/property/yamlRuleCursor"
+import { namedXmlInputs } from "../namedXmlInputs"
 
 type ImportedFormCommand = {
   name: string
-  sourceYamlPath: readonly (string | number)[]
+  placement: ReturnType<typeof prepareNamedCollectionImportItem>
   rulePath: Parameters<ImportFromXMLToYAMLFunction>[0]["traversal"]["rulePath"]
   xmlNode?: XmlElementNode
 }
@@ -27,25 +28,21 @@ export const importFormCommandsFromXMLToYAML: ImportFromXMLToYAMLFunction = ({
   xml,
   traversal,
 }) => {
-  const source = objectRecordOrUndefined(xml)?.Command ?? xml
   const commandNodes = traversal.xmlNodes?.flatMap((node) => xmlElementChildren(node, "Command"))
-  const items = commandNodes?.map(({ compatibilityValue }) => compatibilityValue)
+  const source = commandNodes === undefined ? objectRecordOrUndefined(xml)?.Command ?? xml : undefined
+  const items = commandNodes
     ?? formCommandCompatibilityItems(source)
   const collection = getConfigurationIndexCollectionContext(context)
   const entries: Array<{ key: string; value: Record<string, unknown>; invalid?: true }> = []
   const importedItems: ImportedFormCommand[] = []
 
-  for (const [index, value] of items.entries()) {
-    const item = objectRecordOrUndefined(value)
-    if (item === undefined || typeof item._name !== "string") continue
-    const name = item._name
+  for (const { name, source: importXml, node: itemXmlNode } of namedXmlInputs(items)) {
+    const placement = prepareNamedCollectionImportItem(traversal, importedItems.length)
     const itemContext = formCommandItemContext(context, collection, name)
     const itemTraversal = enterNestedYamlRule(
-      { ...traversal, yamlPath: [...traversal.yamlPath, name] },
+      placement.traversal,
       FormCommandRules.itemType,
     )
-    const itemXmlNode = commandNodes?.[index]
-    const importXml = itemXmlNode ?? item
     const yaml = importMetadataItemFromXMLToYAML({
       context: itemContext,
       rule: FormCommandRules,
@@ -64,8 +61,8 @@ export const importFormCommandsFromXMLToYAML: ImportFromXMLToYAMLFunction = ({
       ...(isMetadataNameYAML(name) ? {} : { invalid: true }),
     })
     importedItems.push({
+      placement,
       name,
-      sourceYamlPath: itemTraversal.yamlPath,
       rulePath: itemTraversal.rulePath,
       ...(itemXmlNode === undefined ? {} : { xmlNode: itemXmlNode }),
     })
@@ -79,10 +76,7 @@ export const importFormCommandsFromXMLToYAML: ImportFromXMLToYAMLFunction = ({
   })
   for (const [index, item] of importedItems.entries()) {
     const runtimeKey = projected.runtimeKeys[index]!
-    const yamlPath = [...traversal.yamlPath, runtimeKey]
-    if (runtimeKey !== item.sourceYamlPath.at(-1)) {
-      traversal.audit?.rekeyYamlPath(item.sourceYamlPath, yamlPath, item.xmlNode)
-    }
+    const yamlPath = item.placement.place(projected.yaml, runtimeKey, item.name, item.xmlNode)
     traversal.collector.acceptItem({
       itemType: FormCommandRules.itemType,
       name: item.name,

@@ -1,3 +1,5 @@
+import { metadataIdentityProperties } from "../../commonObjects/metadataIdentityProperties"
+import { ownerFormLinks } from "../../commonObjects/metadataPath/formLinks"
 import { additionalIndexRule, metadataCommandsRule } from "../metadataAccountingRegister/builders"
 import {
   metadataChartOfCalculationTypesAttributesRule,
@@ -115,13 +117,13 @@ export const MetadataChartOfCalculationTypesRules = {
     xmlRoot: xmlRootRule({
       container: "ChartOfCalculationTypes",
       rootAttributes: V8_MDCLASSES_ROOT,
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
     }),
     internalInfo: internalInfoRule({
       xmlParents: [],
-      forReferenceOnly: true,
+      xmlOnly: true,
       items: [
         { name: "ChartOfCalculationTypesObject", category: "Object" },
         { name: "ChartOfCalculationTypesRef", category: "Ref" },
@@ -136,20 +138,10 @@ export const MetadataChartOfCalculationTypesRules = {
         { name: "LeadingCalculationTypesRow", category: "LeadingCalculationTypesRow" },
       ],
     }),
-    uuid: uuidRule({ xml: "_uuid", forReferenceOnly: true, xmlParents: [] }),
+    uuid: uuidRule({ xml: "_uuid", xmlOnly: true, xmlParents: [] }),
     name: stringRule({ xmlParents: properties, required: true, defaultValue: ({ name }: { name?: string }) => name }),
-    synonym: i8nTextRule({
-      yaml: "Синоним",
-      xmlParents: properties,
-      defaultValueXMLRaw: "",
-      excludeIfEqualNameYAML: true,
-    }),
-    comment: stringRule({
-      yaml: "Комментарий",
-      xmlParents: properties,
-      defaultValueXMLRaw: "",
-      defaultValueAdoptedXML: "",
-    }),
+    synonym: metadataIdentityProperties.synonym,
+    comment: metadataIdentityProperties.comment,
     useStandardCommands: booleanRule({
       yaml: "ИспользоватьСтандартныеКоманды",
       defaultValueXML: true,
@@ -239,42 +231,12 @@ export const MetadataChartOfCalculationTypesRules = {
       implicitValueYAML: "Auto",
       xmlParents: properties,
     }),
-    defaultObjectForm: stringRule({
-      yaml: "ОсновнаяФормаОбъекта",
-      xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
-    defaultListForm: stringRule({
-      yaml: "ОсновнаяФормаСписка",
-      xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
-    defaultChoiceForm: stringRule({
-      yaml: "ОсновнаяФормаВыбора",
-      xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
-    auxiliaryObjectForm: stringRule({
-      yaml: "ДополнительнаяФормаОбъекта",
-      xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
-    auxiliaryListForm: stringRule({
-      yaml: "ДополнительнаяФормаСписка",
-      xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
-    auxiliaryChoiceForm: stringRule({
-      yaml: "ДополнительнаяФормаВыбора",
-      xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
+    defaultObjectForm: ownerFormLinks.defaultObjectForm,
+    defaultListForm: ownerFormLinks.defaultListForm,
+    defaultChoiceForm: ownerFormLinks.defaultChoiceForm,
+    auxiliaryObjectForm: ownerFormLinks.auxiliaryObjectForm,
+    auxiliaryListForm: ownerFormLinks.auxiliaryListForm,
+    auxiliaryChoiceForm: ownerFormLinks.auxiliaryChoiceForm,
     basedOn: metadataItemLinksRule({
       yaml: "ВводитсяНаОсновании",
       metadataTarget: { kind: "object", allowedObjectPaths: commonBasedOnObjectPaths },
@@ -403,7 +365,7 @@ export const MetadataChartOfCalculationTypesRules = {
       xml: "Form",
       xmlParents: childObjects,
       folderName: "Формы",
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
     }),
@@ -412,7 +374,7 @@ export const MetadataChartOfCalculationTypesRules = {
       xml: "Template",
       xmlParents: childObjects,
       folderName: "Макеты",
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
     }),

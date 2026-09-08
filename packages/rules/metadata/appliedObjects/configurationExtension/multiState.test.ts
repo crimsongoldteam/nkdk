@@ -2,8 +2,32 @@ import { markYAMLScalarTag,yamlScalarTagAt } from "@nkdk/runtime"
 import { describe,expect,it } from "vitest"
 import { mockContext,mockContextFromXML } from "../../../tests/mockContext"
 import { exportMultiStateType,importMultiStateType,isMultiStateTypeYAML } from "./multiState"
+import { parseStructuralXMLWithoutCompatibility, xmlElementFromTestValue } from "../../../tests/structuralXML"
 
 describe("configuration extension MultiState type", () => {
+  it("reads structural groups in source order without compatibility objects", () => {
+    const xml = parseStructuralXMLWithoutCompatibility(`<Type xsi:type="xr:ExtendedProperty">
+      <xr:ExtendValue xsi:type="v8:TypeDescription"><v8:Type>xs:boolean</v8:Type></xr:ExtendValue>
+      <xr:CheckValue xsi:type="v8:TypeDescription"/>
+      <xr:NotifyValue xsi:type="v8:TypeDescription"><v8:Type>xs:dateTime</v8:Type><v8:DateQualifiers><v8:DateFractions>Date</v8:DateFractions></v8:DateQualifiers></xr:NotifyValue>
+    </Type>`)
+    const yaml = importMultiStateType(mockContextFromXML(), undefined, xml)
+    expect(yaml).toEqual(["Булево", [], "Дата"])
+    expect(yaml.map((_, index) => yamlScalarTagAt(yaml, index))).toEqual(["изменять", undefined, "проверять"])
+  })
+
+  it("rejects a structural type without the extended-property discriminator", () => {
+    expect(() => importMultiStateType(mockContextFromXML(), undefined, parseStructuralXMLWithoutCompatibility("<Type/>")))
+      .toThrow("MultiState типа должен храниться как xr:ExtendedProperty")
+  })
+
+  it("preserves the existing decoding of a repeated group", () => {
+    const text = `<Type xsi:type="xr:ExtendedProperty"><xr:ExtendValue><v8:Type>xs:boolean</v8:Type></xr:ExtendValue><xr:ExtendValue><v8:Type>xs:string</v8:Type></xr:ExtendValue></Type>`
+    const structural = importMultiStateType(mockContextFromXML(), undefined, parseStructuralXMLWithoutCompatibility(text))
+    expect(structural).toEqual([[]])
+    expect(yamlScalarTagAt(structural, 0)).toBe("изменять")
+  })
+
   it("imports CheckValue and ExtendValue without losing their modes", () => {
     const yaml = importMultiStateType(mockContextFromXML(), undefined, extendedProperty({
       "xr:CheckValue": typeDescription("cfg:CatalogRef.СправочникПолный"),
@@ -120,8 +144,8 @@ describe("configuration extension MultiState type", () => {
 
 function extendedProperty(
   groups: Record<string, Record<string, unknown>>,
-): Record<string, unknown> {
-  return { "_xsi:type": "xr:ExtendedProperty", ...groups }
+): ReturnType<typeof xmlElementFromTestValue> {
+  return xmlElementFromTestValue("Type", { "_xsi:type": "xr:ExtendedProperty", ...groups })
 }
 
 function typeDescription(type: string): Record<string, unknown> {

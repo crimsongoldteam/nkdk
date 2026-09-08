@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { ConfigurationContextFromXML } from "@nkdk/runtime"
 import { PropertyRule, importPropertyFromXML } from "../../../ruleRuntime"
+import { parseStructuralXMLWithoutCompatibility } from "../../../../tests/structuralXML"
 
 describe("importScrollBarUseFromXML (ScrollBarUseBoolean)", () => {
   const context = {
@@ -15,6 +16,13 @@ describe("importScrollBarUseFromXML (ScrollBarUseBoolean)", () => {
     expect(importPropertyFromXML({ context, rule, value: undefined })).toBeUndefined()
     expect(importPropertyFromXML({ context, rule, value: null })).toBeUndefined()
   })
+
+  it.each([["true", "UseAlways"], ["false", "DontUse"], ["unknown", undefined]])(
+    "читает XML-узел без объектного представления: %s", (text, expected) => {
+      const value = parseStructuralXMLWithoutCompatibility(`<Use>${text}</Use>`)
+      expect(importPropertyFromXML({ context, rule, value })).toBe(expected)
+    },
+  )
 
   it("converts true / 'true' to UseAlways", () => {
     expect(importPropertyFromXML({ context, rule, value: true })).toBe("UseAlways")

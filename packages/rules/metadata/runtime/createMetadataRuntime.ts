@@ -1,6 +1,8 @@
 import { withOperationRegistrySet } from "../operations/operationExecutionContext"
 import { createOperationRegistrySet } from "../operations/operationRegistrySet"
-import { validateProject } from "../project/validateProject"
+import { normalizeValidationConcurrency, validateProject } from "../project/validateProject"
+import { withProjectWorkerCount } from "../project/workerSettings"
+import { normalizeFullXmlSyncConcurrency } from "../fullSyncToXml/workerPool"
 import { createRuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
 import {
   createRuleSchemaRuntime,
@@ -27,6 +29,7 @@ import {
 import {
   createImportCoordinatorDependencies,
   importConfigurationFromXml,
+  normalizeXmlImportConcurrency,
 } from "../importFromXml/importConfiguration"
 import { syncConfigurationFromXML } from "../appliedObjects/configuration/convertFromXML"
 import {
@@ -130,35 +133,42 @@ export function createMetadataRuntime(
       ...validation,
       async validateProject(params) {
         assertOwnedState(params.projectState)
-        return withExecutionRegistries(() => validateProject(params))
+        const selected = await withProjectWorkerCount(params, () => normalizeValidationConcurrency(undefined))
+        return withExecutionRegistries(() => validateProject(selected))
       },
     },
     import: {
       async configurationFromXml(params) {
         assertOwnedState(params.projectState)
+        const selected = await withProjectWorkerCount(params, () => normalizeXmlImportConcurrency(undefined))
         return withExecutionRegistries(() =>
-          importConfigurationFromXml(params, importDependencies))
+          importConfigurationFromXml(selected, importDependencies))
       },
-      configurationFromSourceXml: (params) =>
-        withExecutionRegistries(() => syncConfigurationFromXML(params)),
+      async configurationFromSourceXml(params) {
+        const selected = await withProjectWorkerCount(params, () => normalizeXmlImportConcurrency(undefined))
+        return withExecutionRegistries(() => syncConfigurationFromXML(selected))
+      },
     },
     sync: {
       async planToXml(params) {
         assertOwnedState(params.projectState)
+        const selected = await withProjectWorkerCount(params, () => normalizeFullXmlSyncConcurrency(undefined))
         return withExecutionRegistries(() =>
-          planSyncConfigurationToXml(params, syncDependencies))
+          planSyncConfigurationToXml(selected, syncDependencies))
       },
       async configurationToXml(params) {
         assertOwnedState(params.projectState)
+        const selected = await withProjectWorkerCount(params, () => normalizeFullXmlSyncConcurrency(undefined))
         return withExecutionRegistries(() =>
-          syncConfigurationToXml(params, syncDependencies))
+          syncConfigurationToXml(selected, syncDependencies))
       },
       readState: readXmlSyncState,
       initializeState: initializeXmlSyncState,
       partial: {
         async prepare(params) {
           assertOwnedState(params.projectState)
-          return withExecutionRegistries(() => preparePartialXmlSyncPackage(params))
+          const selected = await withProjectWorkerCount(params, () => normalizeFullXmlSyncConcurrency(undefined))
+          return withExecutionRegistries(() => preparePartialXmlSyncPackage(selected))
         },
         readPending: readPendingPartialXmlSync,
         markTransferring: markPartialSyncTransferring,
@@ -173,11 +183,13 @@ export function createMetadataRuntime(
       operations,
       async rename(params) {
         assertOwnedState(params.projectState)
-        return withExecutionRegistries(() => renameMetadataItem(params, rules))
+        const selected = await withProjectWorkerCount(params, () => normalizeValidationConcurrency(undefined))
+        return withExecutionRegistries(() => renameMetadataItem(selected, rules))
       },
       async findReferences(params) {
         assertOwnedState(params.projectState)
-        return withExecutionRegistries(() => findMetadataReferences(params, rules))
+        const selected = await withProjectWorkerCount(params, () => normalizeValidationConcurrency(undefined))
+        return withExecutionRegistries(() => findMetadataReferences(selected, rules))
       },
     },
     close() {

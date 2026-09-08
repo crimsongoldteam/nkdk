@@ -1,7 +1,6 @@
 import {
 createConfigurationIndexCollector,
 parseMetadataYamlData,
-snapshotXmlAnomalyAnnotations
 } from "@nkdk/runtime"
 import { currentRuleRegistrySet,withRuleRegistrySet,type MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import fs from "node:fs"
@@ -21,21 +20,11 @@ import { createOperationProfiler } from "../validation/profile"
 import { discoverXmlImport } from "./discovery"
 import {
 prepareImportYaml,
-importAuditOutcomeCountForTests,
 registeredImportRuleLookupCountForTests,
-resetImportAuditOutcomeCountForTests,
-resetRootProofParsePassCountForTests,
 resetRegisteredImportRuleLookupCountForTests,
-rootProofParsePassCountForTests,
 resolveAssignmentRule,
 } from "./prepareYaml"
-import { createXmlAnomalyProofAddressIndex } from "./anomalyProof"
 import type { ImportAssignment } from "./types"
-import {
-createPreparedImportRecordSource,
-encodePreparedImportRecord,
-restorePreparedImportRecord,
-} from "./preparedRecord"
 
 const configurationFixturesDir = join(import.meta.dirname, "../appliedObjects/configuration/__fixtures__")
 const syncXmlDir = join(configurationFixturesDir, "syncConfiguration/xml")
@@ -68,6 +57,7 @@ function metadataImportAssignment(params: {
 
 afterEach(() => {
   vi.restoreAllMocks()
+  vi.unstubAllEnvs()
 })
 
 describe("prepareImportYaml", () => {
@@ -199,18 +189,13 @@ describe("prepareImportYaml", () => {
       expect(prepared.yaml).not.toHaveProperty(
         "РасширенноеПредставление"
       )
-      expect(prepared.proofAudit.boundaries).toContainEqual(expect.objectContaining({
-        sourceRole: "body",
-        xmlPath: "/Form[1]/ChildItems[1]/Table[1]/RowFilter[1]",
-        yamlPath: ["Элементы", "Таблица", "ОтборСтрок"],
-        auditState: "structurallyClaimed",
-      }))
     } finally {
       fs.rmSync(inputDir, { recursive: true, force: true })
     }
   })
 
-  it("imports a common form through the standard nested rules converter", async () => {
+  it.each(["0", "1"])("imports a common form with detailed profiling explicitly %s", async (enabled) => {
+    vi.stubEnv("NKDK_PROFILE", enabled)
     const fixtureDir = join(import.meta.dirname, "../appliedObjects/metadataCommonForm/__fixtures__/sync")
     const collector = createConfigurationIndexCollector()
     const profiler = createOperationProfiler({
@@ -250,41 +235,10 @@ describe("prepareImportYaml", () => {
       "XML в YAML: атомарный тип ClientApplicationForm"
     )
     const substeps = profiler.records().map(({ substep }) => substep)
-    expect(substeps).toContain("XML в YAML: подготовка плана импорта")
-    expect(substeps).toContain("XML в YAML: обход XML")
+    expect(substeps.includes("XML в YAML: подготовка плана импорта")).toBe(enabled === "1")
+    expect(substeps.includes("XML в YAML: обход XML")).toBe(enabled === "1")
     expect(substeps).not.toContain("XML в YAML: определение порядка свойств")
     expect(substeps).not.toContain("XML в YAML: выбор свойств")
-    expect(prepared.proofAudit.fallbackBoundaries).toContainEqual(expect.objectContaining({
-      sourceRole: "property",
-      xmlPath: "/Form[1]",
-      yamlPath: ["Форма"],
-    }))
-    expect(prepared.proofAudit.boundaries).not.toContainEqual(expect.objectContaining({
-      sourceRole: "property",
-      xmlPath: "/Form[1]",
-      yamlPath: ["Форма"],
-    }))
-    expect(prepared.proofAudit.itemAnchors).toContainEqual({
-      sourcePath: join(fixtureDir, "xml/КонстантаВсеСвойства/Ext/Form.xml"),
-      xmlPath: "/Form[1]/Attributes[1]/Attribute[1]",
-      yamlPath: ["Форма", "Реквизиты", "НаборКонстант"],
-      rulePath: ["form", "attributes"],
-    })
-    const proofAddressIndex = createXmlAnomalyProofAddressIndex(prepared.proofAudit)
-    expect(proofAddressIndex.deepest(
-      join(fixtureDir, "xml/КонстантаВсеСвойства/Ext/Form.xml"),
-      "/Form[1]/Attributes[1]/Attribute[1]/@id[1]",
-    )).toEqual({
-      sourcePath: join(fixtureDir, "xml/КонстантаВсеСвойства/Ext/Form.xml"),
-      xmlPath: "/Form[1]/Attributes[1]/Attribute[1]/@id[1]",
-      yamlPath: ["Форма", "Реквизиты", "НаборКонстант", "id"],
-      rulePath: [
-        { propertyKey: "form" },
-        { propertyKey: "attributes" },
-        { propertyKey: "id" },
-      ],
-      kind: "property",
-    })
     expect(collector.fragment("ОбщаяФорма/КонстантаВсеСвойства/Свойства.yaml").entities).toContainEqual({
       logicalAddress: "ОбщаяФорма.КонстантаВсеСвойства.Элемент.КонстантаВсеСвойства",
       xmlId: "1",
@@ -394,69 +348,6 @@ describe("prepareImportYaml", () => {
     } finally {
       fs.rmSync(inputDir, { recursive: true, force: true })
     }
-  })
-
-  it("сохраняет raw заведомо неизвестного XML без контрольного экспорта", async () => {
-    const inputDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-import-proof-audit-"))
-    try {
-      const metadataPath = join(inputDir, "Контрагенты.xml")
-      fs.writeFileSync(
-        metadataPath,
-        fs.readFileSync(join(syncXmlDir, "Catalogs/Контрагенты.xml"), "utf8")
-          .replace("\t\t</Properties>", "\t\t\t<Future code=\"x\">value</Future>\n\t\t</Properties>"),
-      )
-      const prepared = await prepareImportYaml({
-        assignment: { ...catalogAssignment(), xmlFiles: [{ role: "metadata", sourcePath: metadataPath }] },
-        context: mockXmlImportContext(),
-        collector: createConfigurationIndexCollector(),
-      })
-      const yaml = prepared.yaml as Record<string, unknown>
-
-      expect(yaml["Properties\\Future"]).toBeUndefined()
-      expect(prepared.annotations.at(yaml, "Properties\\Future")).toEqual(expect.objectContaining({
-        kind: "raw",
-        occurrence: 1,
-        target: "value",
-        hasSemanticValue: false,
-        xml: { _code: "x", "#text": "value" },
-      }))
-      expect(snapshotXmlAnomalyAnnotations(prepared.yaml, prepared.annotations).entries).toEqual(
-        expect.arrayContaining([expect.objectContaining({ parentPath: [], key: "Properties\\Future" })]),
-      )
-      expect(prepared.proofAudit.sources).toEqual([
-        expect.objectContaining({ sourcePath: metadataPath, role: "metadata" }),
-      ])
-      expect(prepared.proofAudit.boundaries).toEqual(expect.arrayContaining([
-        expect.objectContaining({ yamlPath: ["ДлинаКода"], presentInSource: true }),
-      ]))
-      expect(prepared.proofAudit.sources[0]?.roots[0]).not.toHaveProperty("attributes")
-      expect(prepared.proofAudit.sources[0]?.roots[0]).not.toHaveProperty("content")
-      expect(prepared.proofAudit.boundaries[0]?.levels[0]).not.toHaveProperty("compatibilityValue")
-      expect(prepared.proofAudit.boundaries[0]?.levels[0]).not.toHaveProperty("attributes")
-      expect(prepared.proofAudit.boundaries[0]?.levels[0]).not.toHaveProperty("content")
-      expect(prepared).not.toHaveProperty("xml")
-      expect(prepared).not.toHaveProperty("document")
-    } finally {
-      fs.rmSync(inputDir, { recursive: true, force: true })
-    }
-  })
-
-  it("для обычного первого прохода сохраняет только хэши корней proof", async () => {
-    resetImportAuditOutcomeCountForTests()
-    resetRootProofParsePassCountForTests()
-    const prepared = await prepareImportYaml({
-      assignment: catalogAssignment(),
-      context: mockXmlImportContext(),
-      collector: createConfigurationIndexCollector(),
-      proofDetail: "roots",
-    })
-
-    expect(prepared.proofAudit.sources).toHaveLength(1)
-    expect(prepared.proofAudit.sources[0]?.roots).not.toEqual([])
-    expect(prepared.proofAudit.boundaries).toEqual([])
-    expect(prepared.proofAudit.itemAnchors).toEqual([])
-    expect(importAuditOutcomeCountForTests()).toBe(0)
-    expect(rootProofParsePassCountForTests()).toBe(1)
   })
 
   it.each([
@@ -699,11 +590,6 @@ describe("prepareImportYaml", () => {
     expect(prepared.localIndexes.metadata.formDataPathIndex).toBeDefined()
     expect(prepared).not.toHaveProperty("model")
     expect(prepared).not.toHaveProperty("xml")
-    const restored = restorePreparedImportRecord(
-      encodePreparedImportRecord(createPreparedImportRecordSource(prepared)),
-    )
-    expect(restored.yaml).toEqual(prepared.yaml)
-    expect(restored.formDataPathIndex).toBeDefined()
     expect(readFile).toHaveBeenCalledTimes(2)
     expect(readFile).toHaveBeenCalledWith(metadataPath, "utf-8")
     expect(readFile).toHaveBeenCalledWith(bodyPath, "utf-8")
@@ -760,14 +646,6 @@ describe("prepareImportYaml", () => {
     expect(prepared.baseFormCandidate?.configurationFragment.entities.every(({ logicalAddress }) =>
       logicalAddress.startsWith("Справочник.СправочникПолный.Форма.ФормаОтчета.ОсноваФормы")
     )).toBe(true)
-    const restored = restorePreparedImportRecord(
-      encodePreparedImportRecord(createPreparedImportRecordSource(prepared)),
-    )
-    expect(restored.yaml).toEqual(prepared.yaml)
-    expect(restored.baseFormCandidate?.yaml).toEqual(prepared.baseFormCandidate?.yaml)
-    expect(restored.baseFormCandidate?.configurationFragment).toEqual(
-      prepared.baseFormCandidate?.configurationFragment,
-    )
     expect(collector.fragment(prepared.targetProjectPath).entities.some(({ logicalAddress }) =>
       logicalAddress.includes("ОсноваФормы")
     )).toBe(false)

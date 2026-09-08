@@ -60,7 +60,6 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
       yaml: { ТипФормы: "Обычная" },
       ownerYAML: { ТипФормы: "Обычная" },
       name: "ОбычнаяФорма",
-      referenceXML: undefined,
     })).toBeUndefined()
   })
 
@@ -73,7 +72,6 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
       yaml: {},
       ownerYAML: {},
       name: "УправляемаяФорма",
-      referenceXML: undefined,
     })).toHaveProperty("Form")
   })
 
@@ -95,7 +93,6 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
       yaml,
       ownerYAML: yaml,
       name: "ОбщаяФорма",
-      referenceXML: undefined,
       annotations,
     })
 
@@ -105,6 +102,18 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
       throw new Error("Реквизит формы не преобразован")
     }
     expect(attribute?.FunctionalOptions?.Item).toBe(uuid)
+  })
+
+  it("добавляет пространство имён dcssch новой форме без индекса", () => {
+    const result = convertClientApplicationFormFromYAMLToXML({
+      context: mockContextToXML(),
+      yaml: {} as ClientApplicationFormYAML,
+      name: "Форма",
+    })
+
+    expect(result.formXML["_xmlns:dcssch"]).toBe(
+      "http://v8.1c.ru/8.1/data-composition-system/schema",
+    )
   })
 
   it("восстанавливает платформенное назначение при отсутствии YAML-поля", () => {
@@ -277,18 +286,11 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
   it("формирует описание и содержимое формы прямо из YAML", () => {
     const yamlPath = fileURLToPath(new URL("__fixtures__/sync/yaml/Формы/ФормаЭлемента/Форма.yaml", import.meta.url))
     const yaml = importFromYAML<ClientApplicationFormYAML>(fs.readFileSync(yamlPath, "utf8"))
-    const referenceFormXML = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(import.meta.url, "full.xml")
-    const referenceMetadataXML = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(
-      import.meta.url,
-      "fullMetadata.xml"
-    )
 
     const result = convertClientApplicationFormFromYAMLToXML({
       context: mockContextToXML(),
       yaml,
       name: "ФормаЭлемента",
-      referenceFormXML: referenceFormXML.Form,
-      referenceMetadataXML: referenceMetadataXML.MetaDataObject,
     })
 
     expect(result.metadataXML.Form.Properties).toBeDefined()
@@ -710,19 +712,6 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
         Элементы: { Список: { Вид: "ТаблицаФормы", ПутьКДанным: "Список" } },
       } as ClientApplicationFormYAML,
       name: "ФормаСписка",
-      referenceFormXML: {
-        ChildItems: [
-          {
-            Table: {
-              _name: "Список",
-              _id: "1",
-              Period: period,
-              TopLevelParent: { "_xsi:nil": "true" },
-              RowFilter: { "_xsi:nil": "true" },
-            },
-          },
-        ],
-      },
     })
 
     expect(firstTable(result.formXML)).toMatchObject({
@@ -732,8 +721,8 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     expect(firstTable(result.formXML).RowFilter).toBeUndefined()
   })
 
-  it("сохраняет идентификаторы команд из reference XML по имени", () => {
-    const result = convertClientApplicationFormFromYAMLToXML({
+  it("не берёт идентификаторы новых команд из reference XML", () => {
+    const input = {
       context: mockContextToXML(),
       yaml: {
         Команды: {
@@ -750,12 +739,24 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
           ],
         },
       },
-    })
+    }
+    const result = convertClientApplicationFormFromYAMLToXML(input)
 
     expect(result.formXML.Commands?.Command).toEqual([
-      expect.objectContaining({ _name: "Команда1", _id: "7" }),
-      expect.objectContaining({ _name: "Команда2", _id: "9" }),
+      expect.objectContaining({ _name: "Команда1", _id: "1" }),
+      expect.objectContaining({ _name: "Команда2", _id: "2" }),
     ])
+  })
+
+  it("не берёт UUID новой формы из reference metadata XML", () => {
+    const input = {
+      context: mockContextToXML(), yaml: {} as ClientApplicationFormYAML, name: "НоваяФорма",
+      referenceMetadataXML: readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(
+        import.meta.url, "fullMetadata.xml",
+      ).MetaDataObject,
+    }
+    const result = convertClientApplicationFormFromYAMLToXML(input)
+    expect(result.metadataXML.Form._uuid).toBe("11111111-1111-4111-8111-111111111111")
   })
 
   it("восстанавливает общие metadata-default без reference XML", () => {
@@ -994,7 +995,6 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
       baseYAML: { Ширина: 80 },
       baseConfigurationIndex: testConfigurationIndexReader(),
       name: "ОбщаяФорма",
-      referenceXML: undefined,
     })
     if (result === undefined) throw new Error("Управляемая форма не преобразована")
 
@@ -1031,7 +1031,6 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
       },
       baseConfigurationIndex: testConfigurationIndexReader(),
       name: "ФормаЭлемента",
-      referenceXML: undefined,
     })
     if (result === undefined) throw new Error("Управляемая форма не преобразована")
     const outer = result.Form as ClientApplicationFormXML
@@ -1060,7 +1059,6 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
       },
       baseConfigurationIndex: testConfigurationIndexReader(),
       name: "ОбщаяФорма",
-      referenceXML: undefined,
     })
     if (result === undefined) throw new Error("Управляемая форма не преобразована")
     const form = result.Form as ClientApplicationFormXML
@@ -1115,7 +1113,6 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
       },
       baseYAMLContext: context,
       name: "ФормаДокумента",
-      referenceXML: undefined,
     })
     if (result === undefined) throw new Error("Управляемая форма не преобразована")
     const form = result.Form as ClientApplicationFormXML

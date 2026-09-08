@@ -1,28 +1,30 @@
 import { move, transferableSymbol, valueSymbol } from "piscina"
 import { existsSync } from "node:fs"
 import { join, posix } from "node:path"
+import { isDeepStrictEqual } from "node:util"
 import { createMovableBinaryResult } from "../workerPool/binaryResult"
 import {
   createLocalConfigurationIndexReader,
+  createConfigurationIndexExportRuntime,
   hashFileBytes,
+  parsedYamlFromKnownData,
+  appendXmlAnnotatedMappingEntry,
   rehydrateConfigurationContext,
-  restoreXmlAnomalyAnnotations,
-  snapshotXmlAnomalyAnnotations,
+  validationIssueTargetKey,
   validationIssuePathFromPointer,
+  xmlElementChildren,
+  yamlPathToPointer,
   type XmlAnomalyAnnotations,
+  type XmlRawValue,
 } from "@nkdk/runtime"
 import { openConfigurationIndexStore } from "@nkdk/runtime/configuration-index-store"
 import { createConfigurationIndexCollector } from "@nkdk/runtime"
-import type { ConfigurationContext, XmlImportConfigurationContext } from "@nkdk/runtime"
+import type { XmlImportConfigurationContext } from "@nkdk/runtime"
 import type { ConfigurationIndexBlockFragment } from "@nkdk/runtime"
-import { withExportMetadataTargetOwners } from "../ruleRuntime/appliedObject/metadataItemOwnerContext"
-import { finalizeImportedYamlValues } from "../ruleRuntime/property/finalizeImportedYAML"
 import {
-  finalizeMetadataItemImportedYaml,
   supportsMetadataItemImportedYamlFinalization,
 } from "../ruleRuntime/metadataItem/importedYamlFinalizerRegistry"
 import type { OwnerMetadataCache } from "../validation/dataPath/ownerCache"
-import { sameValidationOwnerRef } from "../validation/dataPath/validationOwnerRef"
 import { createOperationProfiler, type ValidationProfiler } from "../validation/profile"
 import {
   createValidationProjectAssignmentFileProjector,
@@ -33,31 +35,38 @@ import {
   validationProjectComponentFromAddress,
   type ValidationProjectComponent,
 } from "../validation/projectComponents"
-import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import {
-  createValidationSchemaCache,
-  type ValidationSchemaCache,
+  isBorrowedExtensionFile,
 } from "../validation/projectValidationPasses"
-import { validateSerializedProjectYaml } from "./serializedYamlValidation"
-import type { ValidationRulesSnapshot } from "../validation/rulesSnapshot"
+import { collectBoundaryReferenceFacts } from "./boundaryReferences"
+import { createFinalBoundaryReferences } from "./finalBoundaryReferences"
+import { buildFinalImportYamlUpdate } from "./finalYamlUpdate"
+import { collectFinalOwnerFactValues } from "./ownerFacts"
+import { buildValidationOwnerMetadata } from "../validation/projectValidationPasses"
+import { objectTargetForProjectFile } from "../validation/addressableMetadataTargets"
+import { validationOwnerRef } from "../validation/dataPath/validationOwnerRef"
+import { currentValidationRegistrySet } from "../validation/validationExecutionContext"
+import type { ValidationRegistrySet } from "../validation/validationRegistrySet"
+import { analyzeDependentYamlItem } from "@nkdk/runtime/rule-kit"
+import { dependentPendingReference } from "../validation/yamlFactExtractor"
+import { yamlDiagnosticLocationAtPath } from "../validation/yamlLocations"
+import { collectAddressableBoundaryRequiredCheck } from "../validation/addressableRequired"
+import { toDataPathPolicyInput } from "../validation/dataPath/policies"
+import { currentOperationRegistrySet } from "../operations/operationExecutionContext"
+import type { PropertyStateCapabilityRegistry } from "../ruleRuntime/definition"
 import {
   createProjectStateFileUpdateBatch,
   projectStateFieldEntries,
-  projectStateFormEntries,
   projectStateOwnerFacts,
   projectStatePendingCheck,
   projectStateTargetEntry,
   type ProjectStateYamlFileUpdate,
 } from "../projectState/fileUpdate"
 import { createProjectStateOwnerMetadataCache } from "../validation/projectStateDependencyValidation"
-import {
-  createComposedProjectStateDependencyValidator,
-  openProjectStateReadSession,
-} from "../composition/projectState"
+import { createComposedProjectStateDependencyValidator, openProjectStateReadSession } from "../composition/projectState"
 import { resolveProjectPath } from "../projectDefinition/path"
 import { classifyMetadataProjectPath, projectStateFileBackedTargets } from "../projectDefinition/resources"
 import type { ProjectStateImportFinalFileStateBatch, ProjectStateImportIndexContribution } from "../projectState/importSession"
-import type { ProjectStateQueryPort } from "../projectState/contracts"
 import { createProjectStateFragmentWriter } from "../projectState/binary/fragment"
 import {
   extractImportValidationContributionFromFacts,
@@ -67,16 +76,30 @@ import {
   ImportXmlInputError,
   prepareImportYamlFromDocuments,
   readImportXmlDocuments,
+  resolveAssignmentRule,
   type PreparedImportYaml,
 } from "./prepareYaml"
-import { prepareImportFacts, type PreparedImportFacts } from "./prepareFacts"
+import {
+  finalizeDeferredPropertyFacts,
+  prepareImportFacts,
+  type PreparedImportFacts,
+} from "./prepareFacts"
+import {
+  propertyFactsWithReconstructionValues,
+  type DirectImportPropertyFact,
+} from "./propertyFacts"
+import { baseFormProjectionSourceFromFacts } from "./baseFormProjectionFacts"
+import { applyPropertyFactChanges } from "./propertyFactChanges"
+import {
+  prepareImportDependencies,
+  type ImportDependencyFacts,
+} from "./preparedDependencies"
 import type {
   ImportAssignment,
   ImportControlCompositionEntry,
   ImportDiagnostic,
   ImportFirstPassResult,
   ImportIssueDecision,
-  ImportProjectIssueDecision,
   ImportResultFile,
   ImportSecondPassResult,
   ImportWorkerCommand,
@@ -93,31 +116,45 @@ import {
   type WritableSerializedImportYaml,
 } from "./writeOutput"
 import { createImportBinaryResult } from "./binaryResult"
+import { createImportReconstructionFactsWriter } from "../projectState/binary/reconstructionFacts"
 import type { MetadataWorkerOperationRegistry } from "../workerPool/operationRegistry"
 import { prepareYamlFiles } from "../project/prepareYamlFiles"
-import { isRedundantClientApplicationBaseForm } from "../forms/clientApplicationForm/baseFormNecessity"
 import type { ClientApplicationFormYAML } from "../forms/clientApplicationForm/types"
-import { normalizeImportedDependentItems } from "./dependentItems"
-import { collectFormDataPathOccurrencesFromYAML } from "../validation/dataPath/formYamlTraversal"
-import { validatePendingChecks, type ValidationPendingCheck } from "../validation/projectValidationPendingChecks"
-import { finalizeImportedFormDataPathCompatibility } from "../forms/clientApplicationForm/importDataPathCompatibility"
-import { buildProjectStateYamlFileUpdate } from "../project/projectStateYamlUpdate"
+import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
+import { equalClientApplicationBaseFormSourceProjections, createClientApplicationBaseFormProjectionSource } from "../forms/clientApplicationForm/baseFormProjection"
+import { yamlBaseFormProjectionSource } from "../forms/clientApplicationForm/baseFormProjectionSource"
+import { validateClientApplicationBaseFormDataPathOccurrences } from "../forms/clientApplicationForm/borrowedFormValidation"
+import type { ValidationPendingCheck } from "../validation/projectValidationPendingChecks"
+import { validateLocalImportSemantics, validateImportPendingChecks, validationIssueFromDiagnostic } from "./localValidation"
+import {
+  importedFormDataPathCompatibilityChangesFromOccurrences,
+} from "../forms/clientApplicationForm/importDataPathCompatibility"
+import { readPrimaryDataPath } from "../validation/dataPath/formYamlTraversal"
 import type { CompiledMetadataResourceTopology } from "../resourceTopology/core/types"
-import { importedClientApplicationForm } from "../forms/clientApplicationForm/formDataPathMetadata"
-import { getProjectReferenceValueContributor } from "../validation/projectReferenceIndexRegistry"
-import { resolveImportedMetadataTargetStatus } from "./metadataTargetLookup"
-import { executeImportControlExport } from "./controlExport"
-import type { XmlAnomalyProofAudit } from "./anomalyProof"
+import {
+  importedClientApplicationForm,
+  clientApplicationFormYamlPath,
+} from "../forms/clientApplicationForm/formDataPathMetadata"
+import { clientApplicationFormDataPathProjection, inferClientApplicationFormTableDataPaths } from "../forms/clientApplicationForm/formDataPathProjection"
+import { createFormDataPathIndexFromYAML } from "../validation/dataPath/formYamlIndex"
+import { collectBoundaryFormDataPaths, collectFormDataPathOccurrencesFromFacts } from "./formDataPathOccurrences"
+import { collectFormDataPathPreparationFromFacts, selectFormDataPathPreparationFacts } from "./formDataPathPreparation"
+import { collectImportedFormDataPathChanges, prepareFormDataPathExportValue, prepareFormDataPathContext, prepareStandaloneFormDataPaths } from "../forms/clientApplicationForm/formDataPathContext"
+import { createImportExportContext } from "./importExportContext"
+import {
+  portableFirstPassIssueDecision,
+  normalizeImportedIssueDecisionPath,
+  selectImportedIssueDecisionsForBoundary,
+  selectReadyImportedIssueDecisions,
+} from "./semanticBoundary"
 import type { MetadataXmlPrepareComposition } from "../resourceTopology/adapters/capabilities"
-import type { BaseFormSourceResult } from "../fullSyncToXml/baseFormSource"
 import type { PreparedYamlFile } from "../project/preparedYamlProject"
 import { classifyImportedIssues } from "./classifyImportedIssues"
-import { applyImportedIssueDecisions } from "./applyImportedIssueDecisions"
-import type { ValidationIssue, ValidationIssueTarget } from "@nkdk/runtime"
-import { currentRuleRegistrySet } from "@nkdk/runtime/rule-kit"
+import type { ValidationIssueTarget } from "@nkdk/runtime"
+import { currentRuleRegistrySet, type RuleRegistrySet } from "@nkdk/runtime/rule-kit"
 import { traverseMetadataRuleYaml } from "../validation/metadataRuleYamlTraversal"
 import type { XmlComponentExportProfile } from "../project/xmlReconstructionProfile"
-import { createPackedXmlAssignmentStore } from "./packedXmlAssignment"
+import { createRegisteredMetadataRuleValidator, type MetadataRuleValidator } from "../validation/metadataRuleValidator"
 
 declare module "../workerPool/types" {
   interface MetadataWorkerOperationTypeMap {
@@ -134,11 +171,9 @@ export function registerImportWorkerOperation(
   const runner = createImportWorkerCommandRunner()
   registry.register(
     "import",
-    async (operation, state) => ({
+    async (operation) => ({
       kind: "importResult",
-      result: await runner.run(operation.command, {
-        persistentValidationState: { schemaCache: state.schemaCache, rulesSnapshot: state.rulesSnapshot },
-      }),
+      result: await runner.run(operation.command),
     }),
     async () => { await runner.run({ kind: "dispose" }) },
   )
@@ -154,9 +189,6 @@ interface InitializedImportWorkerState {
   topology: CompiledMetadataResourceTopology
   validationComponent: ValidationProjectComponent
   projectFileProjector: ReturnType<typeof createValidationProjectAssignmentFileProjector>
-  schemaCache: ValidationSchemaCache
-  rulesSnapshot: ValidationRulesSnapshot
-  configurationIndexDescriptor?: import("@nkdk/runtime").ConfigurationIndexStoreDescriptor
   baseConfigurationIndexDescriptor?: import("@nkdk/runtime").ConfigurationIndexStoreDescriptor
 }
 
@@ -167,16 +199,22 @@ interface DeferredImportYaml {
   logicalAddress: string
   yaml: unknown
   annotations: XmlAnomalyAnnotations
-  proofAudit?: XmlAnomalyProofAudit
   rule: PreparedImportYaml["rule"]
   ownerContext: PreparedImportYaml["ownerContext"]
-  formDataPathIndex: PreparedImportYaml["localIndexes"]["metadata"]["formDataPathIndex"]
   deferred: PreparedImportYaml["deferred"]
   dependentDeferred: PreparedImportYaml["dependentDeferred"]
   dependentOwner: PreparedImportYaml["dependentOwner"]
   validationFile: ValidationProjectFile
-  configurationFragment?: ConfigurationIndexBlockFragment
-  baseFormCandidate?: NonNullable<PreparedImportYaml["baseFormCandidate"]>
+  configurationFragment: ConfigurationIndexBlockFragment
+  baseFormCandidate?: NonNullable<PreparedImportYaml["baseFormCandidate"]> & {
+    finalState?: { readonly index: ProjectStateImportIndexContribution; readonly final: ProjectStateImportFinalFileStateBatch }
+  }
+  localProofCompleted?: true
+  earlyIssueDecisions: readonly ImportIssueDecision[]
+  finalState: {
+    readonly index: ProjectStateImportIndexContribution
+    readonly final: ProjectStateImportFinalFileStateBatch
+  }
   output?: PreparedImportOutput
 }
 
@@ -195,22 +233,15 @@ interface PreparedSerializedYaml {
 interface ActiveSecondPass {
   readonly readSession: ReturnType<typeof openProjectStateReadSession>
   readonly ownerMetadataCache: OwnerMetadataCache
-  readonly configurationStore?: ReturnType<typeof openConfigurationIndexStore>
   readonly baseConfigurationStore?: ReturnType<typeof openConfigurationIndexStore>
   readonly composition: MetadataXmlPrepareComposition
-  readonly issueDecisionsByProjectPath: ReadonlyMap<string, readonly ImportIssueDecision[]>
   readonly exportProfile?: XmlComponentExportProfile
+  readonly metadataRuleValidator: MetadataRuleValidator
 }
 
 export interface ImportWorkerCommandRunner {
   readonly run: (
     command: ImportWorkerCommand,
-    options?: {
-      persistentValidationState?: {
-        schemaCache: ValidationSchemaCache
-        rulesSnapshot: ValidationRulesSnapshot
-      }
-    },
   ) => Promise<ImportWorkerCommandResult>
   readonly entryPoint: (command: ImportWorkerCommand) => Promise<ImportWorkerCommandResult>
   readonly stateForTests: () => {
@@ -219,11 +250,8 @@ export interface ImportWorkerCommandRunner {
     workerIndex?: number
     outputDir?: string
     preparedYamlIds: string[]
-    retainedProofAuditIds: string[]
   }
   readonly resetForTests: () => void
-  readonly setSchemaCacheForTests: (schemaCache: ValidationSchemaCache | undefined) => void
-  readonly setControlExportForTests: (controlExport: typeof executeImportControlExport | undefined) => void
 }
 
 export function shouldReadCurrentConfigurationYaml(params: {
@@ -238,21 +266,25 @@ export function shouldReadCurrentConfigurationYaml(params: {
 
 export function createImportWorkerCommandRunner(): ImportWorkerCommandRunner {
   let initializedState: InitializedImportWorkerState | undefined
-  let schemaCacheForTests: ValidationSchemaCache | undefined
-  let controlExportForTests: typeof executeImportControlExport | undefined
   const preparedYaml = new Map<string, DeferredImportYaml>()
-  let packedProfiler: ValidationProfiler | undefined
-  const packedStore = createPackedXmlAssignmentStore({ profiler: {
-    measure: (step, substep, params, action) => packedProfiler?.measure(step, substep, params, action) ?? action(),
-    measureAsync: (step, substep, params, action) => packedProfiler?.measureAsync(step, substep, params, action) ?? action(),
-    record: (step, substep, params) => packedProfiler?.record(step, substep, params),
-    checkpoint: (step, substep, params) => {
-      if (isImportMemoryProfilingEnabled()) packedProfiler?.checkpoint(step, substep, params)
-    },
-    records: () => packedProfiler?.records() ?? [],
-    flush: () => packedProfiler?.flush(),
-  } })
   const pendingAssignmentIds = new Set<string>()
+  const dependencyFacts = new Map<string, {
+    readonly configurationFragment: ConfigurationIndexBlockFragment
+    readonly properties: ImportDependencyFacts
+    readonly uniqueNameIssues?: PreparedImportFacts["uniqueNameIssues"]
+    readonly baseFormProperties?: ImportDependencyFacts
+    readonly formDataPathIndex: PreparedImportFacts["localIndexes"]["metadata"]["formDataPathIndex"]
+    readonly formSemanticFacts?: readonly DirectImportPropertyFact[]
+    readonly baseFormSemanticFacts?: readonly DirectImportPropertyFact[]
+    readonly baseFormDataPathIndex?: PreparedImportFacts["baseFormDataPathIndex"]
+    readonly deferred: PreparedImportFacts["deferred"]
+    readonly baseFormDeferred?: NonNullable<PreparedImportFacts["baseFormDeferred"]>
+    readonly validation: {
+      readonly final: ProjectStateImportFinalFileStateBatch
+      readonly pendingChecks: readonly ValidationPendingCheck[]
+      readonly structuredDocuments: ProjectStateImportIndexContribution["structuredDocuments"]
+    }
+  }>()
   const assignedImports = new Map<string, ImportAssignment>()
   let activeSecondPass: ActiveSecondPass | undefined
   let firstPassAccumulator: FirstPassAccumulator | undefined
@@ -261,7 +293,7 @@ export function createImportWorkerCommandRunner(): ImportWorkerCommandRunner {
 interface FirstPassAccumulator {
   readonly diagnostics: ImportDiagnostic[]
   readonly files: ImportResultFile[]
-  readonly configurationFragments: ConfigurationIndexBlockFragment[]
+  readonly reconstructionFacts: ReturnType<typeof createImportReconstructionFactsWriter>
   readonly fragmentWriter: ReturnType<typeof createProjectStateFragmentWriter>
   readonly profiler: ValidationProfiler
   stateEntries: number
@@ -279,18 +311,12 @@ interface SecondPassAccumulator {
 
 async function runImportWorkerCommand(
   command: ImportWorkerCommand,
-  options: {
-    persistentValidationState?: {
-      schemaCache: ValidationSchemaCache
-      rulesSnapshot: ValidationRulesSnapshot
-    }
-  } = {},
 ): Promise<ImportWorkerCommandResult> {
   if (command.kind === "initialize") {
     await endSecondPass()
     preparedYaml.clear()
-    packedStore.clear()
     pendingAssignmentIds.clear()
+    dependencyFacts.clear()
     assignedImports.clear()
     firstPassAccumulator?.fragmentWriter.discard()
     const projectDir = command.projectDir ?? command.outputDir
@@ -310,12 +336,6 @@ async function runImportWorkerCommand(
       topology: validationComponent.topology,
       validationComponent,
       projectFileProjector: createValidationProjectAssignmentFileProjector(projectDir, validationComponent),
-      schemaCache: options.persistentValidationState?.schemaCache
-        ?? schemaCacheForTests
-        ?? createValidationSchemaCache(context),
-      rulesSnapshot: options.persistentValidationState?.rulesSnapshot
-        ?? createValidationRulesSnapshot(context, validationComponent.topology),
-      ...(command.configurationIndex === undefined ? {} : { configurationIndexDescriptor: command.configurationIndex }),
       ...(command.baseConfigurationIndex === undefined
         ? {}
         : { baseConfigurationIndexDescriptor: command.baseConfigurationIndex }),
@@ -343,7 +363,7 @@ async function runImportWorkerCommand(
     const encoded = encodeImportBinaryResult(accumulator.profiler, {
       diagnostics: result.diagnostics,
       files: result.files,
-      configurationFragments: result.configurationFragments,
+      reconstructionFactsBuffer: result.reconstructionFactsBuffer,
       ...(result.stateFragment === undefined ? {} : { stateFragment: result.stateFragment }),
     })
     accumulator.profiler.record(
@@ -368,7 +388,6 @@ async function runImportWorkerCommand(
       requireInitializedState(),
       command.composition,
       command.exportProfile,
-      command.issueDecisions,
     )
     secondPassAccumulator?.fragmentWriter.discard()
     secondPassAccumulator = createSecondPassAccumulator(requireInitializedState().workerIndex)
@@ -383,17 +402,16 @@ async function runImportWorkerCommand(
         accumulator.profiler.checkpoint(
           "Подготовка импорта конфигурации",
           `Начало задания второго прохода: ${assignmentId}`,
-          { items: packedStore.stats().assignments, bytes: packedStore.stats().bytes },
+          { items: pendingAssignmentIds.size },
         )
       }
       await processSecondPass(
         assignmentId,
         state,
         accumulator,
-        controlExportForTests ?? executeImportControlExport,
       )
     }
-    checkpointRetainedSecondPass(accumulator.profiler)
+    checkpointPendingSecondPass(accumulator.profiler)
     return finishImportWorkerBatch(accumulator, state.workerIndex)
   }
 
@@ -405,7 +423,7 @@ async function runImportWorkerCommand(
     await endSecondPass()
     const unfinished = pendingAssignmentIds.size
     if (unfinished > 0) {
-      throw new Error(`Второй проход XML-import не обработал ${unfinished} packed XML-заданий`)
+      throw new Error(`Второй проход XML-import не обработал ${unfinished} XML-заданий`)
     }
     return undefined
   }
@@ -423,7 +441,6 @@ async function runImportWorkerCommand(
       command.assignmentId,
       requireInitializedState(),
       accumulator,
-      controlExportForTests ?? executeImportControlExport,
     )
     return finishSecondPass(accumulator)
   }
@@ -437,10 +454,8 @@ async function processSecondPass(
   assignmentId: string,
   state: InitializedImportWorkerState,
   accumulator: SecondPassAccumulator,
-  controlExport: typeof executeImportControlExport,
 ): Promise<void> {
   const profiler = accumulator.profiler
-  packedProfiler = profiler
   profiler.record("Подготовка импорта конфигурации", "Задания второго прохода", {
     items: 1,
     timeMs: 0,
@@ -453,19 +468,224 @@ async function processSecondPass(
   }
   let prepared: DeferredImportYaml | undefined
   try {
-    const inputs = shouldRereadXmlOnSecondPass()
-      ? await readImportXmlDocuments({ assignment, profiler, profilePass: "second" })
-      : packedStore.take(assignmentId)
+    const inputs = await readImportXmlDocuments({ assignment, profiler, profilePass: "second" })
     pendingAssignmentIds.delete(assignmentId)
     const collector = createConfigurationIndexCollector()
-    const imported = await prepareImportYamlFromDocuments({
-      assignment,
+    const ready = dependencyFacts.get(assignmentId)
+    if (ready === undefined) throw new Error(`Не подготовлены зависимости задания ${assignmentId}`)
+    const localValidation = profiler.measure(
+      "Подготовка импорта конфигурации",
+      "Локальная проверка зависимостей первого прохода",
+      { items: 1 },
+      () => classifyImportedIssues({
+        issues: validateLocalImportSemantics({
+          validator: createComposedProjectStateDependencyValidator(),
+          ...ready.validation,
+          pendingChecks: ready.validation.pendingChecks.filter(check => check.kind !== "dataPath"),
+          projectDir: state.projectDir,
+          queryPort: secondPass.readSession,
+        }),
+        requiresImportant: () => false,
+      }),
+    )
+    if (localValidation.fatal.length > 0) {
+      throw new Error(`Локальная проверка импорта завершилась внутренней ошибкой: ${localValidation.fatal.map(({ code }) => code).join(", ")}`)
+    }
+    const firstPassDecisions = localValidation.decisions
+    const uniqueNameDecisions = classifyImportedIssues({
+      issues: ready.uniqueNameIssues ?? [],
+      requiresImportant: () => false,
+    }).decisions
+    const propertyStates = currentOperationRegistrySet<{ readonly propertyStates: PropertyStateCapabilityRegistry }>()?.propertyStates
+    const importContext = secondPassExportContext({
       context: state.context,
-      collector,
-      inputs,
-      profiler,
-      topology: state.topology,
+      ownerMetadataCache: secondPass.ownerMetadataCache,
+      targetProjectPath: assignment.targetProjectPath,
+      warnings: accumulator.warnings,
     })
+    if (ready.formDataPathIndex !== undefined) {
+      importContext.importFromYAML = {
+        ...importContext.importFromYAML,
+        formDataPathIndex: ready.formDataPathIndex,
+      }
+    }
+    const initialConfigurationBlocks = new Map([[assignment.targetProjectPath, ready.configurationFragment]])
+    const initialConfigurationIndex = createLocalConfigurationIndexReader(initialConfigurationBlocks)
+    const proofIndexCollector = createConfigurationIndexCollector()
+    const controlContext = createImportExportContext(importContext, requireSecondPassExportProfile())
+    const localRoundTripContext = {
+      ...controlContext,
+      exportToXML: {
+        ...controlContext.exportToXML,
+        configurationIndex: createConfigurationIndexExportRuntime({
+          source: initialConfigurationIndex,
+          collector: proofIndexCollector,
+          targetProjectPath: assignment.targetProjectPath,
+          logicalAddress: assignment.logicalAddress,
+          ...(importContext.importFromYAML?.referenceRemap === undefined ? {} : {
+            referencePathByCurrentPath: importContext.importFromYAML.referenceRemap.referencePathByCurrentPath,
+          }),
+        }),
+      },
+    }
+    const execution = currentRuleRegistrySet<{ execution: import("@nkdk/runtime/rule-kit").CompiledPropertyRuleExecution }>()?.execution
+    if (execution === undefined) throw new Error("Не задан общий исполнитель rules для локального proof")
+    const assignmentRule = resolveAssignmentRule(
+      assignment,
+      state.context.fromXML.componentKind,
+      state.topology,
+    )
+    const hasBaseFormCandidate = containsBaseFormCandidate(inputs)
+    const currentConfigurationYAMLBeforeProof = shouldReadCurrentConfigurationYaml({
+      componentPath: state.componentPath,
+      rule: assignmentRule,
+      hasBaseFormCandidate,
+    })
+      ? await readCurrentConfigurationFormYaml({
+          logicalAddress: assignment.logicalAddress,
+          fallbackProjectPath: assignment.targetProjectPath,
+          role: assignment.role === "fileItem" ? "form" : "properties",
+          rule: assignmentRule,
+          owner: {
+            dir: assignment.targetProjectPath.split("/", 1)[0] ?? "",
+            name: assignment.owner?.name ?? assignment.itemName,
+          },
+          state,
+        })
+      : undefined
+    const currentConfigurationFormValue = currentConfigurationYAMLBeforeProof === undefined
+      ? undefined
+      : importedClientApplicationForm({
+          yaml: currentConfigurationYAMLBeforeProof.data,
+          rule: assignmentRule,
+        })?.yaml
+    const currentConfigurationFormYAML = currentConfigurationFormValue === undefined
+      ? undefined
+      : clientApplicationFormYaml(currentConfigurationFormValue, assignment.targetProjectPath)
+    const currentConfigurationForm = currentConfigurationFormYAML === undefined
+      ? undefined : prepareStandaloneFormDataPaths({
+          yaml: currentConfigurationFormYAML, ownerCache: secondPass.ownerMetadataCache,
+        })
+    const finalizedFormFacts = ready.formSemanticFacts === undefined
+      ? undefined
+      : finalizeDeferredPropertyFacts({
+          facts: ready.formSemanticFacts,
+          deferred: ready.deferred,
+          rootRule: assignmentRule,
+          context: importContext,
+          formDataPathIndex: ready.formDataPathIndex,
+          execution,
+        })
+    const formYamlPath = clientApplicationFormYamlPath(assignmentRule)
+    const directFormContext = formYamlPath !== undefined
+      && (!hasBaseFormCandidate || currentConfigurationFormYAML === undefined)
+      && ready.formDataPathIndex !== undefined
+    const compatibleFormFacts = finalizedFormFacts !== undefined && ready.formSemanticFacts !== undefined
+      && ready.formDataPathIndex !== undefined
+      ? prepareCompatibleFormFacts({
+          facts: finalizedFormFacts, original: propertyFactsWithReconstructionValues(ready.formSemanticFacts),
+          index: ready.formDataPathIndex, ownerCache: secondPass.ownerMetadataCache,
+        })
+      : finalizedFormFacts
+    const baseFormDataPathIndex = ready.baseFormDataPathIndex
+    const baseFormAttributeNames = new Set(baseFormDataPathIndex?.roots.keys())
+    const finalizedBaseFormFacts = ready.baseFormSemanticFacts === undefined
+      ? undefined
+      : finalizeDeferredPropertyFacts({
+          facts: ready.baseFormSemanticFacts,
+          deferred: ready.baseFormDeferred ?? [],
+          rootRule: ClientApplicationFormRules,
+          context: importContext,
+          formDataPathIndex: baseFormDataPathIndex,
+          execution,
+        })
+    const compatibleBaseFormFacts = finalizedBaseFormFacts === undefined
+      || ready.baseFormSemanticFacts === undefined
+      ? undefined
+      : baseFormDataPathIndex === undefined ? finalizedBaseFormFacts : prepareCompatibleFormFacts({
+          facts: finalizedBaseFormFacts, original: propertyFactsWithReconstructionValues(ready.baseFormSemanticFacts),
+          index: baseFormDataPathIndex, ownerCache: secondPass.ownerMetadataCache,
+        })
+    const basePreparation = compatibleBaseFormFacts === undefined || baseFormDataPathIndex === undefined
+      ? undefined : collectFormDataPathPreparationFromFacts({ facts: compatibleBaseFormFacts, index: baseFormDataPathIndex })
+    const directFormProofDataPathContext = directFormContext && compatibleFormFacts !== undefined
+      ? prepareFormDataPathContext({
+          preparation: collectFormDataPathPreparationFromFacts({
+            facts: compatibleFormFacts, index: ready.formDataPathIndex!, yamlPathPrefix: formYamlPath,
+          }),
+          currentConfigurationForm,
+          savedBaseElementNames: basePreparation?.collected.elementsByName.keys(),
+          ownerCache: secondPass.ownerMetadataCache,
+        })
+      : undefined
+    const savedBaseSource = compatibleBaseFormFacts === undefined || currentConfigurationFormYAML === undefined ? undefined
+      : baseFormProjectionSourceFromFacts(basePreparation === undefined ? compatibleBaseFormFacts : finalizeProjectionFormFacts({
+          facts: compatibleBaseFormFacts, preparation: basePreparation,
+          currentConfigurationForm, ownerCache: secondPass.ownerMetadataCache,
+        }).facts)
+    const projectedFormFacts = compatibleFormFacts === undefined || directFormProofDataPathContext !== undefined
+      || ready.formDataPathIndex === undefined
+      ? undefined
+      : finalizeProjectionFormFacts({
+          facts: compatibleFormFacts,
+          preparation: collectFormDataPathPreparationFromFacts({
+            facts: compatibleFormFacts, index: ready.formDataPathIndex, yamlPathPrefix: formYamlPath,
+          }),
+          yamlPathPrefix: formYamlPath, currentConfigurationForm,
+          savedBaseElementNames: basePreparation?.collected.elementsByName.keys(),
+          ownerCache: secondPass.ownerMetadataCache,
+        })
+    const formProofDataPathContext = directFormProofDataPathContext ?? projectedFormFacts?.context
+    if (formProofDataPathContext !== undefined && supportsMetadataItemImportedYamlFinalization(assignmentRule)) {
+      for (const change of collectImportedFormDataPathChanges(formProofDataPathContext)) {
+        ready.properties.finalProperties.set(
+          [...(formYamlPath ?? []), ...change.yamlPath.slice(0, -1)],
+          "dataPath",
+          { present: change.kind === "set", value: change.kind === "set" ? change.value : undefined,
+            ...(change.kind === "set" ? { appendToYaml: true } : {}) },
+        )
+      }
+    }
+    for (const element of formProofDataPathContext?.elementsByName.values() ?? []) {
+      const path = [...(formYamlPath ?? []), ...element.yamlPath]
+      const final = ready.properties.finalProperties.get(path, "dataPath")
+      const exported = prepareFormDataPathExportValue(final === undefined ? element : {
+        ...element, present: final.present, value: final.value,
+      })
+      if (exported !== undefined) ready.properties.exportProperties?.set(path, "dataPath", exported)
+    }
+    const formSource = compatibleFormFacts === undefined || directFormProofDataPathContext !== undefined || formYamlPath === undefined
+      ? undefined
+      : baseFormProjectionSourceFromFacts(projectedFormFacts?.facts ?? compatibleFormFacts, formYamlPath)
+    const currentSource = currentConfigurationFormYAML === undefined
+      ? undefined : yamlBaseFormProjectionSource(currentConfigurationFormYAML)
+    const baseFormSource = currentSource !== undefined
+      && formSource !== undefined
+      && savedBaseSource !== undefined
+      && equalClientApplicationBaseFormSourceProjections({
+        leftBase: currentSource,
+        extension: formSource,
+        rightBase: savedBaseSource,
+        rule: ClientApplicationFormRules,
+      })
+      ? "projected" as const
+      : "saved" as const
+    const baseFormProofSource = baseFormSource === "projected"
+      ? createClientApplicationBaseFormProjectionSource({
+          baseYaml: currentSource!,
+          extensionYaml: formSource!,
+          rule: ClientApplicationFormRules,
+        })
+      : undefined
+    let earlyIssueDecisions: readonly ImportIssueDecision[] = []
+    const finalBoundaryReferences = createFinalBoundaryReferences()
+    const baseBoundaryReferences = createFinalBoundaryReferences()
+    const pendingFirstPassDecisions = new Set(
+      [
+        ...firstPassDecisions.flatMap((decision) => portableFirstPassIssueDecision(decision) ?? []),
+        ...uniqueNameDecisions,
+      ],
+    )
     const validationFile = state.projectFileProjector({
       projectPath: assignment.targetProjectPath,
       topologyAddress: assignment.topologyAddress,
@@ -473,6 +693,284 @@ async function processSecondPass(
     if (validationFile === undefined) {
       throw new Error(`Не найден узел topology XML-import: ${assignment.topologyAddress.nodeId}`)
     }
+    const borrowedExtensionFile = isBorrowedExtensionFile(validationFile)
+    const imported = await prepareImportYamlFromDocuments({
+      assignment,
+      context: importContext,
+      dependencies: prepareImportDependencies(ready.properties, {
+        definedTypeLookup: (name) => {
+          const result = secondPass.ownerMetadataCache.get({ kind: "ОпределяемыйТип", name })
+          if (result.status === "ok") return { status: "ok", type: result.owner.facts.type }
+          const reason = result.diagnostics.map(({ message }) => message).join("; ")
+          return { status: "unresolved", reason: reason || `не найден определяемый тип ${name}` }
+        },
+      }, execution),
+      ...(ready.baseFormProperties === undefined
+        ? {}
+        : { baseFormDependencies: prepareImportDependencies(ready.baseFormProperties, {}, execution) }),
+      ...(formProofDataPathContext === undefined ? {} : { formProofDataPathContext }),
+      ...(currentConfigurationFormYAML === undefined
+        ? {}
+        : { currentConfigurationFormYaml: currentConfigurationFormYAML }),
+      baseFormSource,
+      ...(baseFormProofSource === undefined ? {} : { baseFormProofSource }),
+      collector,
+      inputs,
+      profiler,
+      topology: state.topology,
+      localRoundTrip: {
+        attemptParticipant: finalBoundaryReferences,
+        execution,
+        context: localRoundTripContext,
+        decisions: firstPassDecisions,
+          placeCollectionItem: (parent, key, yamlPath, annotations, sourceYamlPath) => {
+            finalBoundaryReferences.place(parent, key, sourceYamlPath)
+            for (const decision of uniqueNameDecisions) {
+              if (!sameYamlPath(decision.target.path, yamlPath)) continue
+              annotations.set(parent, key, { kind: decision.kind, occurrence: 1, target: "value" })
+              pendingFirstPassDecisions.delete(decision)
+              earlyIssueDecisions = mergeImportedIssueDecisions([...earlyIssueDecisions, decision])
+            }
+          },
+        baseFormAttemptParticipant: baseBoundaryReferences,
+        placeBaseFormCollectionItem: (parent, key, _path, _annotations, sourceYamlPath) => baseBoundaryReferences.place(parent, key, sourceYamlPath),
+        selectBaseFormDecisions: (yaml, rule, yamlPath, root, annotations, itemName, _context, namedYamlPath, _logicalAddress, namedCollectionItem) => {
+          const localizedTextPaths: (readonly (string | number)[])[] = []
+          const issues = secondPass.metadataRuleValidator.validateBoundary({
+            name: itemName,
+            yaml,
+            rule,
+            yamlPath,
+            annotations,
+            onLocalizedTextProperty: path => localizedTextPaths.push(path),
+          })
+          const formIndex = root ? createFormDataPathIndexFromYAML(yaml, clientApplicationFormDataPathProjection,
+            baseBoundaryReferences.tabularElements(yaml, annotations)) : undefined
+          const owner = { kind: validationFile.owner.dir, name: validationFile.owner.name }
+          const checks = baseFormDataPathIndex === undefined ? [] : collectImportBoundaryFormChecks({
+            execution, rule, yaml, yamlPath, annotations, owner,
+            index: baseFormDataPathIndex, filePath: assignment.targetProjectPath,
+          })
+          baseBoundaryReferences.accept({ yaml, sourcePath: yamlPath, finalPath: namedYamlPath?.() ?? yamlPath,
+            references: [], checks, localizedTextPaths,
+            ...(formIndex === undefined ? {} : { formIndex, formOwner: owner }),
+            ...(namedCollectionItem && itemName !== undefined && "enterpriseField" in rule && "enterpriseFieldType" in rule
+              ? { formElement: { name: itemName, primaryDataPath: readPrimaryDataPath(yaml, rule) } } : {}),
+            ...(clientApplicationFormDataPathProjection.tabularElementItemTypes.some(type => type === rule.itemType)
+              && itemName !== undefined ? { table: { name: itemName, itemType: rule.itemType,
+                primaryDataPath: { value: yaml["ПутьКДанным"] } },
+                ...(typeof yaml["ПутьКДанным"] === "string" ? { tableDataPath: yaml["ПутьКДанным"] } : {}),
+              } : {}),
+          })
+          const local = classifyImportedIssues({
+            issues,
+            requiresImportant: (target) => requiresImportantForImportedTarget(
+              { yaml, rule },
+              relativeValidationTarget(target, yamlPath),
+            ),
+          }).decisions.map((decision) => ({
+            ...decision,
+            target: relativeValidationTarget(decision.target, yamlPath),
+          }))
+          const baseDataPaths = classifyImportedIssues({
+            issues: validateClientApplicationBaseFormDataPathOccurrences({
+              attributes: baseFormAttributeNames,
+              entries: checks.flatMap(check => check.kind === "dataPath"
+                ? [{ componentKind: "dataPath", name: check.value, yamlPath: check.yamlPath }] : []),
+              filePath: assignment.targetProjectPath,
+            }).map(validationIssueFromDiagnostic),
+            requiresImportant: target => requiresImportantForImportedTarget({ yaml, rule }, relativeValidationTarget(target, yamlPath)),
+          }).decisions.map(decision => ({ ...decision, target: relativeValidationTarget(decision.target, yamlPath) }))
+          return mergeImportedIssueDecisions([...local, ...baseDataPaths])
+        },
+        selectDecisions: (yaml, rule, yamlPath, root, annotations, itemName, boundaryContext, namedYamlPath, logicalAddressSegment, namedCollectionItem) => {
+          const boundaryFirstPass = selectImportedIssueDecisionsForBoundary({
+                data: yaml,
+                yamlPath,
+                decisions: [...pendingFirstPassDecisions]
+                  .map((decision) => root ? normalizeImportedIssueDecisionPath(yaml, decision) : decision),
+              })
+          const localizedTextPaths: (readonly (string | number)[])[] = []
+          const localIssues = secondPass.metadataRuleValidator.validateBoundary({
+                deferRequired: borrowedExtensionFile && (root || rule.externalMetadata !== undefined),
+                name: itemName,
+                yaml,
+                rule,
+                yamlPath,
+                annotations,
+                onLocalizedTextProperty: path => localizedTextPaths.push(path),
+              })
+          const boundarySource = boundaryContext !== undefined && "fromXML" in boundaryContext
+            ? boundaryContext.fromXML : importContext.fromXML
+          const borrowedBoundary = typeof boundarySource === "object" && boundarySource !== null
+            && "currentXMLDefaultVariant" in boundarySource && boundarySource.currentXMLDefaultVariant === "adopted"
+          const referenceFacts = collectBoundaryReferenceFacts({
+            context: boundaryContext ?? importContext, execution, rule, name: itemName,
+            yaml, yamlPath, annotations, filePath: assignment.targetProjectPath,
+            ...(borrowedBoundary ? { propertyStateCapability: propertyStates?.item(
+              rule.itemType, importContext.fromXML.propertyStateCompatibilityMode,
+            ) } : {}),
+          })
+          const dependentFacts = ready.properties.items.get(yamlPath, rule.itemType)
+          const dependent = dependentFacts === undefined ? undefined : analyzeDependentYamlItem({
+            itemType: rule.itemType, itemName, item: yaml, itemYamlPath: yamlPath,
+            rootYaml: dependentFacts.root, rootRule: ready.properties.rule, owner: ready.properties.owner,
+            filePath: assignment.targetProjectPath, parsed: parsedYamlFromKnownData("", yaml, annotations),
+          })
+          const references = [...referenceFacts.references, ...(dependent?.references ?? []).map(reference => ({
+            ...dependentPendingReference(reference), filePath: assignment.targetProjectPath,
+          }))]
+          const addressSegment = root ? validationFile.metadataTarget?.canonical
+            : rule.externalMetadata === undefined || itemName === undefined ? undefined
+            : `${rule.externalMetadata.segment}.${itemName}`
+          const required = !state.componentPath.startsWith("cfe/") || addressSegment === undefined ? undefined
+            : collectAddressableBoundaryRequiredCheck({ yaml, rule, yamlPath, canonicalTarget: "",
+              filePath: assignment.targetProjectPath, parsed: parsedYamlFromKnownData("", yaml, annotations) })
+          const namedPath = namedYamlPath?.() ?? yamlPath
+          const tables = root && validationFile.kind === "form" ? finalBoundaryReferences.tabularElements(yaml, annotations) : undefined
+          if (tables !== undefined && validationFile.componentPath === "cf") inferClientApplicationFormTableDataPaths(yaml, tables)
+          const formIndex = tables === undefined ? undefined : createFormDataPathIndexFromYAML(yaml, clientApplicationFormDataPathProjection, tables)
+          const ownerFacts = root && validationFile.kind !== "form" ? collectFinalOwnerFactValues({ execution, rule, yaml, annotations }) : undefined
+          const ownerMetadata = ownerFacts === undefined ? undefined : buildValidationOwnerMetadata({
+            file: validationFile, facts: ownerFacts, runtime: currentValidationRegistrySet<ValidationRegistrySet>(),
+            ref: validationOwnerRef({ fallback: { kind: validationFile.owner.dir, name: validationFile.owner.name },
+              itemType: rule.itemType, objectTarget: objectTargetForProjectFile(validationFile),
+            }),
+          })
+          const paths: ValidationPendingCheck[] = validationFile.kind !== "form" || ready.formDataPathIndex === undefined ? []
+            : collectImportBoundaryFormChecks({ execution, rule, yaml, yamlPath, annotations,
+              owner: { kind: validationFile.owner.dir, name: validationFile.owner.name },
+              index: ready.formDataPathIndex, filePath: assignment.targetProjectPath,
+            })
+          const checks = [...paths, ...(required === undefined ? [] : [required]),
+            ...(dependent?.projectChecks ?? []).map(check => ({ ...check, location: yamlDiagnosticLocationAtPath({
+              filePath: assignment.targetProjectPath, parsed: parsedYamlFromKnownData("", yaml, annotations), path: check.yamlPath,
+            }) }))]
+          finalBoundaryReferences.accept({ yaml, sourcePath: yamlPath, finalPath: namedPath, references,
+            addressSegment,
+            ...(ownerFacts === undefined ? {} : { ownerFacts, ownerMetadata }),
+            ...(formIndex === undefined ? {} : { formIndex, formOwner: { kind: validationFile.owner.dir, name: validationFile.owner.name } }),
+            ...(validationFile.kind === "form" && namedCollectionItem && itemName !== undefined && "enterpriseField" in rule && "enterpriseFieldType" in rule
+              ? { formElement: { name: itemName, primaryDataPath: readPrimaryDataPath(yaml, rule) } } : {}),
+            localizedTextPaths,
+            ...(validationFile.kind !== "form" && validationFile.kind !== "configuration"
+              && validationFile.logicalAddress !== undefined && (root || logicalAddressSegment !== undefined)
+              ? { logicalTarget: { segment: root ? validationFile.logicalAddress : logicalAddressSegment!, filePath: validationFile.projectPath } } : {}),
+            ...(validationFile.kind !== "form" && validationFile.kind !== "configuration"
+              && (root || rule.externalMetadata?.placement === "ownedEntry") && addressSegment !== undefined
+              ? { objectTarget: { segment: addressSegment, filePath: validationFile.absolutePath,
+                ...(typeof yaml["Тип"] === "string" ? { type: yaml["Тип"] } : {}),
+              } } : {}),
+            ...(clientApplicationFormDataPathProjection.tabularElementItemTypes.some(type => type === rule.itemType)
+              && typeof yaml["ПутьКДанным"] === "string" ? { tableDataPath: yaml["ПутьКДанным"] } : {}),
+            ...(clientApplicationFormDataPathProjection.tabularElementItemTypes.some(type => type === rule.itemType)
+              && itemName !== undefined ? { table: { name: itemName, itemType: rule.itemType,
+                primaryDataPath: { value: yaml["ПутьКДанным"] } } } : {}),
+            checks,
+          })
+          const referenceIssues = [...referenceFacts.issues,
+            ...validateImportPendingChecks(checks.map(check =>
+              check.kind === "dataPath" && formProofDataPathContext !== undefined
+                ? { ...check, index: formProofDataPathContext.localIndex } : check), secondPass.ownerMetadataCache)
+              .filter(({ severity }) => severity === "error").map(validationIssueFromDiagnostic),
+            ...(references.length === 0 ? [] :
+            createComposedProjectStateDependencyValidator().validateReferences({
+              checks: references.map((reference, index) => ({
+                requestId: `local-boundary:${index}`, componentPath: state.componentPath, reference,
+              })),
+              projectDir: state.projectDir, queryPort: secondPass.readSession,
+            }).diagnostics.filter(({ severity }) => severity === "error").map(validationIssueFromDiagnostic))]
+          const referenceDecisions = classifyImportedIssues({
+            issues: referenceIssues,
+            requiresImportant: target => requiresImportantForImportedTarget({ yaml, rule }, relativeValidationTarget(target, yamlPath)),
+          }).decisions
+          const localGlobal = selectReadyImportedIssueDecisions({
+            data: yaml,
+            diagnostics: accumulator.warnings,
+            confirmedDecisions: referenceDecisions,
+            decisions: classifyImportedIssues({
+              issues: [...localIssues, ...referenceIssues],
+              requiresImportant: (target) => requiresImportantForImportedTarget(
+                { yaml, rule },
+                relativeValidationTarget(target, yamlPath),
+              ),
+            }).decisions,
+          })
+          const local = localGlobal.map((decision) => ({
+            ...decision,
+            target: relativeValidationTarget(decision.target, yamlPath),
+          }))
+          const readySources = new Set(selectReadyImportedIssueDecisions({
+            data: yaml,
+            decisions: boundaryFirstPass.map(({ local }) => local),
+            diagnostics: accumulator.warnings,
+            confirmedDecisions: referenceDecisions,
+          }).map((decision) => validationIssueTargetKey(decision.target)))
+          const selectedFirstPass = boundaryFirstPass.filter(({ local }) =>
+            readySources.has(validationIssueTargetKey(local.target)))
+          for (const { source } of selectedFirstPass) pendingFirstPassDecisions.delete(source)
+          if (root) pendingFirstPassDecisions.clear()
+          const firstPassDecisions = selectedFirstPass.map(({ local }) =>
+            requiresImportantForImportedTarget({ yaml, rule }, local.target)
+              ? { ...local, kind: "important" as const }
+              : local)
+          const readyDecisions = mergeImportedIssueDecisions([
+            ...firstPassDecisions,
+            ...local,
+          ])
+          earlyIssueDecisions = mergeImportedIssueDecisions([
+            ...earlyIssueDecisions,
+            ...selectedFirstPass.map(({ source }, index) => ({
+              ...source,
+              kind: firstPassDecisions[index]?.kind ?? source.kind,
+            })),
+            ...localGlobal,
+          ])
+          return readyDecisions
+        },
+        finalizeRootYaml: (yaml, _rule, annotations, _savedBaseYAML, importedBaseFormCandidate) => {
+          if (baseFormSource === "projected" && importedBaseFormCandidate !== undefined) {
+            const appended = appendProjectedBaseFormRawAnnotationsBeforeProof({
+              candidate: importedBaseFormCandidate,
+              yaml,
+              annotations,
+              currentYaml: currentConfigurationYAMLBeforeProof!.data,
+              currentAnnotations: currentConfigurationYAMLBeforeProof!.annotations,
+            })
+            if (!appended) {
+              throw new Error("Не удалось перенести локальные аномалии избыточной BaseForm")
+            }
+          }
+          earlyIssueDecisions = mergeImportedIssueDecisions(
+            earlyIssueDecisions.map((decision) => normalizeImportedIssueDecisionPath(yaml, decision)),
+          )
+        },
+      },
+    })
+    const finalReferences = finalBoundaryReferences.finish(imported.yaml as Record<string, unknown>, imported.annotations)
+    const finalState = splitImportYamlUpdate(buildFinalImportYamlUpdate({
+        projectDir: state.projectDir, file: validationFile, context: state.context,
+        yaml: imported.yaml, facts: finalReferences,
+        localValidation: { contributedFacts: true, diagnostics: [], schemaDiagnostics: [] },
+        fileBackedTargets: importFileBackedTargets(state, assignment.targetProjectPath),
+      }), 0n)
+    const finalBaseFormCandidate = imported.baseFormCandidate === undefined
+      ? undefined
+      : imported.baseFormCandidate.source === baseFormSource
+        ? imported.baseFormCandidate
+        : { ...imported.baseFormCandidate, source: baseFormSource }
+    const baseFinalFacts = finalBaseFormCandidate === undefined ? undefined : baseBoundaryReferences.finish(
+      finalBaseFormCandidate.yaml as Record<string, unknown>, finalBaseFormCandidate.annotations,
+    )
+    const baseValidationFile = finalBaseFormCandidate === undefined ? undefined : resolveValidationProjectFile(
+      state.projectDir, finalBaseFormCandidate.targetProjectPath, state.validationComponent,
+    )
+    const baseFinalState = baseFinalFacts === undefined || baseValidationFile === undefined ? undefined
+      : splitImportYamlUpdate(buildFinalImportYamlUpdate({
+          projectDir: state.projectDir, file: baseValidationFile, context: state.context,
+          yaml: finalBaseFormCandidate!.yaml, facts: baseFinalFacts, isolated: true,
+          localValidation: { contributedFacts: true, diagnostics: [], schemaDiagnostics: [] }, fileBackedTargets: [],
+        }), 0n)
     prepared = {
       diagnosticAssignment: {
         targetProjectPath: assignment.targetProjectPath,
@@ -483,51 +981,24 @@ async function processSecondPass(
       logicalAddress: assignment.logicalAddress,
       yaml: imported.yaml,
       annotations: imported.annotations,
-      proofAudit: imported.proofAudit,
       rule: imported.rule,
       ownerContext: imported.ownerContext,
-      formDataPathIndex: imported.localIndexes.metadata.formDataPathIndex,
       deferred: imported.deferred,
       dependentDeferred: imported.dependentDeferred,
       dependentOwner: imported.dependentOwner,
+      earlyIssueDecisions,
+      finalState,
       validationFile,
-      configurationFragment: collector.fragment(assignment.targetProjectPath),
-      ...(imported.baseFormCandidate === undefined ? {} : { baseFormCandidate: imported.baseFormCandidate }),
+      configurationFragment: ready.configurationFragment,
+      ...(finalBaseFormCandidate === undefined ? {} : { baseFormCandidate: { ...finalBaseFormCandidate, finalState: baseFinalState } }),
+      ...(imported.localProofCompleted === true ? { localProofCompleted: true } : {}),
     }
     preparedYaml.set(assignmentId, prepared)
-      const configurationBlocks = secondPass.configurationStore === undefined
-        ? new Map(
-            prepared.configurationFragment === undefined
-              ? []
-              : [[prepared.targetProjectPath, prepared.configurationFragment]],
-          )
-        : secondPass.configurationStore.getBlocks([prepared.targetProjectPath])
-      // Основа импортируется во втором проходе и ещё отсутствует в снимке первого.
-      const configurationIndex = createLocalConfigurationIndexReader(new Map([
-        ...configurationBlocks,
-        ...(prepared.baseFormCandidate === undefined
-          ? []
-          : [[prepared.baseFormCandidate.targetProjectPath, prepared.baseFormCandidate.configurationFragment] as const]),
-      ]))
-      const baseConfigurationIndex = secondPass.baseConfigurationStore === undefined
-        || prepared.baseFormCandidate === undefined
-        ? undefined
-        : createLocalConfigurationIndexReader(secondPass.baseConfigurationStore.getBlocks([
-            prepared.baseFormCandidate.baseProjectPath,
-            prepared.baseFormCandidate.targetProjectPath,
-          ]))
       const output = await prepareYamlForFinalPass(
         prepared,
-        secondPass.ownerMetadataCache,
-        secondPass.readSession,
         state,
-        accumulator.warnings,
         profiler,
-        controlExport,
-        configurationIndex,
-        baseConfigurationIndex,
       )
-      prepared.proofAudit = undefined
       const main = await writeMainImportYaml({ serialized: output.main.serialized, profiler })
       accumulator.files.push(main.file)
       if (output.base !== undefined) {
@@ -546,14 +1017,160 @@ async function processSecondPass(
     )
   } finally {
     preparedYaml.delete(assignmentId)
-    packedStore.release(assignmentId)
     pendingAssignmentIds.delete(assignmentId)
+    dependencyFacts.delete(assignmentId)
   }
 
   profiler.record("Подготовка импорта конфигурации", "Формирование worker списка файлов результата импорта", {
     items: prepared === undefined ? 0 : 1,
     timeMs: 0,
   })
+}
+
+function appendProjectedBaseFormRawAnnotationsBeforeProof(params: {
+  readonly candidate: NonNullable<PreparedImportYaml["baseFormCandidate"]>
+  readonly yaml: unknown
+  readonly annotations: import("@nkdk/runtime").XmlAnomalyAnnotationTable
+  readonly currentYaml: unknown
+  readonly currentAnnotations: XmlAnomalyAnnotations
+}): boolean {
+  if (!isYamlRecord(params.candidate.yaml) || !isYamlRecord(params.yaml) || !isYamlRecord(params.currentYaml)) {
+    return false
+  }
+  const currentRoot = params.currentAnnotations.root()
+  const candidateRoot = params.candidate.annotations.root()
+  if (!isDeepStrictEqual(candidateRoot, currentRoot)) return false
+  const basePaths = yamlObjectPaths(params.candidate.yaml)
+  const entries = [...params.candidate.annotations.entries()]
+  const portable = entries.filter(({ parent, key, annotation }) => {
+    if (parent === undefined || key === undefined) return false
+    const path = basePaths.get(parent)
+    const currentParent = path === undefined ? undefined : yamlValueAtPath(params.currentYaml, path)
+    const currentAnnotation = currentParent !== null && currentParent !== undefined && typeof currentParent === "object"
+      ? annotation.target === "key" && typeof key === "string"
+        ? params.currentAnnotations.keyAt(currentParent, key)
+        : params.currentAnnotations.at(currentParent, key)
+      : undefined
+    return !isDeepStrictEqual(annotation, currentAnnotation)
+  })
+  if (portable.some(({ key, annotation }) =>
+    typeof key !== "string"
+    || annotation.kind !== "raw"
+    || annotation.target !== "value"
+    || annotation.xml === undefined
+  )) return false
+
+  const rawEntries: { path: string; xml: XmlRawValue }[] = []
+  for (const { key, annotation } of portable) {
+    if (typeof key !== "string" || annotation.xml === undefined) return false
+    const annotatedKey = params.candidate.annotations.keyAt(params.candidate.yaml, key)?.logicalKey
+    const logicalKey = typeof annotatedKey === "string" ? annotatedKey : key
+    const relativePath = logicalKey === "@Form"
+      ? ""
+      : logicalKey.startsWith("@Form\\")
+        ? logicalKey.slice("@Form\\".length)
+        : logicalKey
+    const path = relativePath.length === 0
+      ? "@Form\\BaseForm"
+      : `@Form\\BaseForm\\${relativePath}`
+    rawEntries.push({ path, xml: structuredClone(annotation.xml) })
+  }
+  const coalesced = coalesceXmlRawPaths(rawEntries)
+  if (coalesced === undefined) return false
+  for (const { path, xml } of coalesced) {
+    appendXmlAnnotatedMappingEntry<unknown>(params.yaml, params.annotations, {
+      logicalKey: path,
+      value: undefined,
+      valueAnnotation: {
+        kind: "raw",
+        occurrence: 1,
+        xml,
+        hasSemanticValue: false,
+      },
+    })
+  }
+  return true
+}
+
+function coalesceXmlRawPaths(
+  entries: readonly { readonly path: string; readonly xml: XmlRawValue }[],
+): { path: string; xml: XmlRawValue }[] | undefined {
+  const result: { path: string; xml: XmlRawValue }[] = []
+  for (const entry of [...entries].sort((left, right) => rawPathDepth(left.path) - rawPathDepth(right.path))) {
+    const ancestor = result
+      .filter(({ path }) => entry.path.startsWith(`${path}\\`))
+      .sort((left, right) => rawPathDepth(right.path) - rawPathDepth(left.path))[0]
+    if (ancestor === undefined) {
+      result.push({ ...entry })
+      continue
+    }
+    const relative = entry.path.slice(ancestor.path.length + 1).split("\\")
+    if (!mergeXmlRawDescendant(ancestor.xml, relative, entry.xml)) return undefined
+  }
+  return result
+}
+
+function rawPathDepth(path: string): number {
+  return path.split("\\").length
+}
+
+function mergeXmlRawDescendant(
+  root: XmlRawValue,
+  path: readonly string[],
+  value: XmlRawValue,
+): boolean {
+  if (!isYamlRecord(root) || path.length === 0) return false
+  let parent: Record<string, unknown> = root
+  for (const segment of path.slice(0, -1)) {
+    const current = parent[segment]
+    if (current === undefined) {
+      const created: Record<string, unknown> = {}
+      parent[segment] = created
+      parent = created
+    } else if (isYamlRecord(current)) {
+      parent = current
+    } else {
+      return false
+    }
+  }
+  const key = path.at(-1)!
+  const current = parent[key]
+  if (current !== undefined && !isDeepStrictEqual(current, value)) return false
+  parent[key] = value
+  return true
+}
+
+function isYamlRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value)
+}
+
+function yamlObjectPaths(root: object): Map<object, readonly (string | number)[]> {
+  const result = new Map<object, readonly (string | number)[]>()
+  const visit = (value: unknown, path: readonly (string | number)[]): void => {
+    if (value === null || typeof value !== "object" || result.has(value)) return
+    result.set(value, path)
+    if (Array.isArray(value)) {
+      value.forEach((child, index) => visit(child, [...path, index]))
+      return
+    }
+    for (const [key, child] of Object.entries(value)) visit(child, [...path, key])
+  }
+  visit(root, [])
+  return result
+}
+
+function yamlValueAtPath(root: unknown, path: readonly (string | number)[]): unknown {
+  let current = root
+  for (const segment of path) {
+    if (typeof segment === "number") {
+      if (!Array.isArray(current)) return undefined
+      current = current[segment]
+      continue
+    }
+    if (!isYamlRecord(current)) return undefined
+    current = current[segment]
+  }
+  return current
 }
 
 function createSecondPassAccumulator(workerIndex: number, profiler = createImportWorkerProfiler(workerIndex)): SecondPassAccumulator {
@@ -568,25 +1185,17 @@ function createSecondPassAccumulator(workerIndex: number, profiler = createImpor
   }
 }
 
-function checkpointRetainedSecondPass(profiler: ValidationProfiler): void {
+function checkpointPendingSecondPass(profiler: ValidationProfiler): void {
   if (!isImportMemoryProfilingEnabled()) return
-  const retained = packedStore.stats()
   profiler.checkpoint(
     "Подготовка импорта конфигурации",
-    "Удерживаемый packed XML",
-    {
-      items: retained.assignments,
-      bytes: retained.bytes,
-    },
+    "Задания, ожидающие второго прохода",
+    { items: pendingAssignmentIds.size },
   )
 }
 
 function isImportMemoryProfilingEnabled(): boolean {
   return process.env["NKDK_PROFILE_MEMORY"] === "1"
-}
-
-function shouldRereadXmlOnSecondPass(): boolean {
-  return process.env["NKDK_IMPORT_XML_STRATEGY"] === "reread"
 }
 
 function finishImportWorkerBatch(accumulator: SecondPassAccumulator, workerIndex: number) {
@@ -605,6 +1214,7 @@ function finishSecondPass(accumulator: SecondPassAccumulator, flushProfile = tru
   return {
     kind: "secondPassResult",
     warnings: accumulator.warnings,
+    configurationFragments: accumulator.configurationFragments,
     ...finishImportPass(accumulator, flushProfile),
   }
 }
@@ -614,13 +1224,9 @@ function beginSecondPass(
   state: InitializedImportWorkerState,
   controlComposition?: readonly ImportControlCompositionEntry[],
   exportProfile?: XmlComponentExportProfile,
-  issueDecisions: readonly ImportProjectIssueDecision[] = [],
 ): void {
   if (activeSecondPass !== undefined) throw new Error("Второй проход XML-import worker уже начат")
   const readSession = openProjectStateReadSession(readToken)
-  const configurationStore = state.configurationIndexDescriptor === undefined
-    ? undefined
-    : openConfigurationIndexStore(state.configurationIndexDescriptor, "readOnly")
   const baseConfigurationStore = state.baseConfigurationIndexDescriptor === undefined
     ? undefined
     : openConfigurationIndexStore(state.baseConfigurationIndexDescriptor, "readOnly")
@@ -631,26 +1237,16 @@ function beginSecondPass(
       componentPath: state.componentPath,
       queryPort: readSession,
     }),
-    ...(configurationStore === undefined ? {} : { configurationStore }),
     ...(baseConfigurationStore === undefined ? {} : { baseConfigurationStore }),
     composition: importControlComposition(
       controlComposition ?? [...assignedImports.values()].map(importControlCompositionEntry),
     ),
-    issueDecisionsByProjectPath: groupIssueDecisionsByProjectPath(issueDecisions),
+    metadataRuleValidator: createRegisteredMetadataRuleValidator({
+      context: state.context,
+      rules: requireCurrentRuleRegistrySet(),
+    }),
     ...(exportProfile === undefined ? {} : { exportProfile }),
   }
-}
-
-function groupIssueDecisionsByProjectPath(
-  entries: readonly ImportProjectIssueDecision[],
-): ReadonlyMap<string, readonly ImportIssueDecision[]> {
-  const result = new Map<string, ImportIssueDecision[]>()
-  for (const { targetProjectPath, decision } of entries) {
-    const decisions = result.get(targetProjectPath) ?? []
-    decisions.push(decision)
-    result.set(targetProjectPath, decisions)
-  }
-  return result
 }
 
 function requiresImportantForImportedTarget(
@@ -682,8 +1278,42 @@ function requiresImportantForImportedTarget(
   }>()?.xmlAnomalies.requiresImportant(location) ?? false
 }
 
+function mergeImportedIssueDecisions(
+  decisions: readonly ImportIssueDecision[],
+): readonly ImportIssueDecision[] {
+  const merged = new Map<string, { kind: ImportIssueDecision["kind"]; target: ValidationIssueTarget; codes: Set<string> }>()
+  for (const decision of decisions) {
+    const key = JSON.stringify(decision.target)
+    const current = merged.get(key) ?? { kind: decision.kind, target: decision.target, codes: new Set<string>() }
+    if (decision.kind === "important") current.kind = "important"
+    for (const code of decision.issueCodes) current.codes.add(code)
+    merged.set(key, current)
+  }
+  return [...merged.values()].map(({ kind, target, codes }) => ({
+    kind,
+    target,
+    issueCodes: [...codes].sort(),
+  }))
+}
+
 function sameYamlPath(left: readonly (string | number)[], right: readonly (string | number)[]): boolean {
   return left.length === right.length && left.every((value, index) => value === right[index])
+}
+
+function relativeValidationTarget(
+  target: ValidationIssueTarget,
+  prefix: readonly (string | number)[],
+): ValidationIssueTarget {
+  if (!sameYamlPath(target.path.slice(0, prefix.length), prefix)) {
+    throw new Error(`Цель смысловой проверки находится вне текущей YAML-границы: ${validationIssueTargetKey(target)}`)
+  }
+  return { ...target, path: target.path.slice(prefix.length) }
+}
+
+function requireCurrentRuleRegistrySet(): RuleRegistrySet {
+  const rules = currentRuleRegistrySet<RuleRegistrySet>()
+  if (rules === undefined) throw new Error("Не задан execution context metadata rules")
+  return rules
 }
 
 function applyImportedDecisionsToFinalState(
@@ -701,6 +1331,21 @@ function applyImportedDecisionsToFinalState(
     if (update.kind !== "yaml") return update
     return {
       ...update,
+      localValidation: {
+        ...update.localValidation,
+        diagnostics: update.localValidation.diagnostics.filter((diagnostic) =>
+          !taggedPaths.some((path) => sameYamlPath(
+            path,
+            validationIssuePathFromPointer(diagnostic.path ?? ""),
+          )),
+        ),
+        schemaDiagnostics: update.localValidation.schemaDiagnostics.filter((diagnostic) =>
+          !taggedPaths.some((path) => sameYamlPath(
+            path,
+            validationIssuePathFromPointer(diagnostic.path ?? ""),
+          )),
+        ),
+      },
       pendingReferences: update.pendingReferences.map((reference) =>
         taggedPaths.some((path) => sameYamlPath(path, reference.yamlPath))
           ? { ...reference, xmlAnomaly: "accepted" as const }
@@ -712,281 +1357,35 @@ function applyImportedDecisionsToFinalState(
           : check),
     }
   })
-  const hashBytes = new Uint8Array(8)
-  new DataView(hashBytes.buffer).setBigUint64(0, hash, false)
-  return { updates, hashBytes }
+  return { updates, hashBytes: projectStateHashBytes(hash) }
 }
 
 async function endSecondPass(): Promise<void> {
   activeSecondPass?.readSession.close()
-  await activeSecondPass?.configurationStore?.close()
   await activeSecondPass?.baseConfigurationStore?.close()
   activeSecondPass = undefined
 }
 
 async function prepareYamlForFinalPass(
   prepared: DeferredImportYaml,
-  ownerMetadataCache: OwnerMetadataCache,
-  readSession: ActiveSecondPass["readSession"],
   state: InitializedImportWorkerState,
-  warnings: ImportDiagnostic[],
   profiler: ValidationProfiler,
-  controlExport: typeof executeImportControlExport,
-  configurationIndex: ReturnType<typeof createLocalConfigurationIndexReader>,
-  baseConfigurationIndex?: ReturnType<typeof createLocalConfigurationIndexReader>,
 ): Promise<{
   main: PreparedSerializedYaml
   base?: PreparedSerializedYaml
   configurationFragments: ConfigurationIndexBlockFragment[]
 }> {
-  const proofAudit = prepared.proofAudit
-  if (proofAudit === undefined) {
-    throw new Error(`Карта исходного XML уже освобождена: ${prepared.targetProjectPath}`)
+  if (prepared.localProofCompleted === true && prepared.deferred.length > 0) {
+    throw new Error(`Локальный proof оставил ${prepared.deferred.length} отложенных YAML-значений: ${prepared.targetProjectPath}`)
   }
-  const contextWithOwners = profiler.measure(
-    "Подготовка импорта конфигурации",
-    "Подготовка контекста YAML",
-    { items: 1 },
-    () => {
-      const context = secondPassExportContext({
-        context: state.context,
-        ownerMetadataCache,
-        targetProjectPath: prepared.targetProjectPath,
-        warnings,
-      })
-      return withExportMetadataTargetOwners(context, prepared.ownerContext)
-    }
-  )
-  const originalFormDataPaths = collectImportedFormDataPaths(prepared.yaml, prepared.rule)
-  profiler.measure(
-    "Подготовка импорта конфигурации",
-    "Уточнение отложенных значений YAML",
-    { items: prepared.deferred.length },
-    () =>
-      finalizeImportedYamlValues({
-        yaml: prepared.yaml,
-        rootRule: prepared.rule,
-        deferred: prepared.deferred,
-        context: contextWithOwners,
-        formDataPathIndex: prepared.formDataPathIndex,
-      })
-  )
-  finalizeImportedFormDataPaths({
-    yaml: prepared.yaml,
-    rule: prepared.rule,
-    originalOccurrences: originalFormDataPaths,
-    formDataPathIndex: prepared.formDataPathIndex,
-    ownerMetadataCache,
-  })
-  const currentConfigurationYAML = shouldReadCurrentConfigurationYaml({
-    componentPath: state.componentPath,
-    rule: prepared.rule,
-    hasBaseFormCandidate: prepared.baseFormCandidate !== undefined,
-  })
-    ? await readCurrentConfigurationFormYaml({
-        logicalAddress: prepared.logicalAddress,
-        fallbackProjectPath: prepared.baseFormCandidate?.baseProjectPath ?? prepared.targetProjectPath,
-        role: prepared.assignment.role === "fileItem" ? "form" : "properties",
-        rule: prepared.rule,
-        owner: prepared.dependentOwner,
-        state,
-      })
-    : undefined
-  const currentConfigurationData = currentConfigurationYAML?.data
   const preparedBaseFormCandidate = prepared.baseFormCandidate === undefined
     ? undefined
     : prepareBaseFormCandidate({
         candidate: prepared.baseFormCandidate,
-        ownerRule: prepared.rule,
-        extensionYaml: prepared.yaml,
-        currentConfigurationYAML: currentConfigurationData,
-        contextWithOwners: withoutDataPathDiagnosticSink(contextWithOwners),
-        ownerMetadataCache,
       })
-  const controlBaseFormSource = createControlBaseFormSource({
-    importedBaseForm: prepared.baseFormCandidate,
-    savedBaseForm: preparedBaseFormCandidate,
-    currentConfigurationYAML,
-  })
-  profiler.measure(
-    "Подготовка импорта конфигурации",
-    "Уточнение отложенных зависимых значений YAML",
-    { items: prepared.dependentDeferred.length },
-    () => normalizeImportedDependentItems({
-      yaml: prepared.yaml,
-      rule: prepared.rule,
-      candidates: prepared.dependentDeferred,
-      owner: prepared.dependentOwner,
-      definedTypeLookup: (name) => {
-        const result = ownerMetadataCache.get({ kind: "ОпределяемыйТип", name })
-        if (result.status === "ok") return { status: "ok", type: result.owner.facts.type }
-        const reason = result.diagnostics.map(({ message }) => message).join("; ")
-        return { status: "unresolved", reason: reason || `не найден определяемый тип ${name}` }
-      },
-      metadataTargetLookup: (canonical) => resolveImportedMetadataTargetStatus({
-        canonical,
-        componentPath: state.componentPath,
-        projectDir: state.projectDir,
-        queryPort: readSession,
-        getContributor: getProjectReferenceValueContributor,
-      }),
-      preserveRawXML: false,
-    })
-  )
-  profiler.measure(
-    "Подготовка импорта конфигурации",
-    "Уточнение импортированного metadata-item",
-    { items: 1 },
-    () => {
-      finalizeMetadataItemImportedYaml({
-        yaml: prepared.yaml,
-        rule: prepared.rule,
-        ownerMetadataCache,
-        annotations: prepared.annotations,
-        ...(currentConfigurationData === undefined ? {} : { currentConfigurationYAML: currentConfigurationData }),
-        ...(preparedBaseFormCandidate === undefined
-          ? {}
-          : { savedBaseYAML: preparedBaseFormCandidate.yaml }),
-      })
-    }
-  )
-  const validateAndApplyImportedIssues = (includeSerializedIssues = true) => {
-    let serialized = serializePreparedYaml(
-      prepared.targetProjectPath,
-      prepared.yaml,
-      state,
-      profiler,
-      prepared.annotations,
-    )
-    let validated = measureSerializedImportYamlValidation(prepared, serialized, state, profiler)
-    const semanticIssues = validateFinalImportSemantics({
-      index: validated.index,
-      final: validated.final,
-      projectDir: state.projectDir,
-      readSession,
-      pendingChecks: validated.pendingChecks,
-    })
-    const classified = classifyImportedIssues({
-      issues: [...(includeSerializedIssues ? validated.issues : []), ...semanticIssues],
-      requiresImportant: (target) => requiresImportantForImportedTarget(prepared, target),
-    })
-    if (classified.fatal.length > 0) {
-      throw new Error(`Валидация импортированного YAML завершилась внутренней ошибкой: ${classified.fatal
-        .map(({ code }) => code).join(", ")}`)
-    }
-    if (classified.decisions.length > 0) {
-      applyImportedIssueDecisions({
-        data: prepared.yaml,
-        annotations: prepared.annotations,
-        decisions: classified.decisions,
-      })
-      serialized = serializePreparedYaml(
-        prepared.targetProjectPath,
-        prepared.yaml,
-        state,
-        profiler,
-        prepared.annotations,
-      )
-      validated = measureSerializedImportYamlValidation(prepared, serialized, state, profiler)
-    }
-    return { serialized, validated, semanticIssues, decisions: classified.decisions }
-  }
-  const materializedFormDataPaths = collectImportedFormDataPaths(prepared.yaml, prepared.rule)
-  const hasMaterializedFormDataPath = materializedFormDataPaths.some((current) =>
-    !originalFormDataPaths.some((original) => sameYamlPath(original.yamlPath, current.yamlPath))
-  )
-  const initialValidation = hasMaterializedFormDataPath
-    ? validateAndApplyImportedIssues(false)
-    : { semanticIssues: [], decisions: [] }
-  const proof = await profiler.measureAsync(
-    "Подготовка импорта конфигурации",
-    "Контрольный экспорт XML",
-    { items: 1 },
-    () => controlExport({
-      assignment: prepared.assignment,
-      data: prepared.yaml,
-      annotations: snapshotXmlAnomalyAnnotations(prepared.yaml, prepared.annotations),
-      audit: proofAudit,
-      rule: prepared.rule,
-      topology: state.topology,
-      context: { ...contextWithOwners, fromXML: state.context.fromXML },
-      exportProfile: requireSecondPassExportProfile(),
-      index: configurationIndex,
-      ...(baseConfigurationIndex === undefined ? {} : { baseConfigurationIndex }),
-      ...(controlBaseFormSource === undefined ? {} : { baseFormSource: controlBaseFormSource }),
-      composition: activeSecondPass?.composition ?? { children: () => [] },
-      profilePropertyTypes: process.env["NKDK_PROFILE"] === "1",
-      profile(event) {
-        profiler.record(
-          "Подготовка импорта конфигурации",
-          event.mode === "direct"
-            ? "Контрольный XML без сериализации"
-            : "Контрольный XML с сериализацией",
-          { items: 1, timeMs: 0 },
-        )
-        profiler.record("Подготовка импорта конфигурации", "toXML: построение объекта", {
-          items: 1,
-          timeMs: event.toXmlObjectMs,
-        })
-        profiler.record("Подготовка импорта конфигурации", "toXML: финализация deferred", {
-          items: 1,
-          timeMs: event.toXmlFinalizeMs,
-        })
-        profiler.record("Подготовка импорта конфигурации", "Контрольный XML: прямой hash", {
-          items: 1,
-          timeMs: event.directHashMs,
-        })
-        profiler.record("Подготовка импорта конфигурации", "Контрольный XML: дерево расхождения", {
-          items: 1,
-          timeMs: event.mismatchDocumentMs,
-        })
-        profiler.record("Подготовка импорта конфигурации", "Доказательство XML-аномалий", {
-          items: 1,
-          timeMs: event.anomalyProofMs,
-        })
-        for (const propertyType of event.propertyTypes) {
-          profiler.record("toXML PropertyRule exclusive", propertyType.propertyType, {
-            items: propertyType.propertyCount,
-            timeMs: propertyType.exclusiveMs,
-          })
-          profiler.record("toXML PropertyRule inclusive", propertyType.propertyType, {
-            items: propertyType.propertyCount,
-            timeMs: propertyType.inclusiveMs,
-          })
-        }
-        for (const propertyType of event.fusedAtomicTypes) {
-          profiler.record("toXML fused atomic", propertyType.propertyType, {
-            items: propertyType.count,
-            timeMs: propertyType.timeMs,
-          })
-        }
-      },
-    }),
-  )
-  prepared.yaml = proof.data
-  prepared.annotations = restoreXmlAnomalyAnnotations(proof.data, proof.annotations)
-  for (const warning of proof.warnings) {
-    warnings.push({
-      severity: "warning",
-      code: "xml_raw_scope_too_broad",
-      message: "Непредметное XML-отличие сохранено на более широкой границе",
-      targetProjectPath: prepared.targetProjectPath,
-      sourcePath: warning.sourcePath,
-      value: JSON.stringify({
-        xmlPath: warning.xmlPath,
-        yamlPath: warning.yamlPath,
-        ...(warning.nearestYamlPath === undefined
-          ? {}
-          : { nearestYamlPath: warning.nearestYamlPath }),
-        reason: warning.reason,
-        rawBytes: warning.rawBytes,
-      }),
-    })
-  }
-  const finalValidation = validateAndApplyImportedIssues()
-  const { serialized, validated } = finalValidation
-  const semanticIssues = [...initialValidation.semanticIssues, ...finalValidation.semanticIssues]
-  const decisions = [...initialValidation.decisions, ...finalValidation.decisions]
+  const serialized = serializePreparedYaml(prepared.targetProjectPath, prepared.yaml, state, profiler, prepared.annotations)
+  const validated = prepared.finalState
+  const decisions = prepared.earlyIssueDecisions
   const baseForm = preparedBaseFormCandidate === undefined
     ? undefined
     : prepareSerializedBaseFormCandidate({
@@ -1005,29 +1404,31 @@ async function prepareYamlForFinalPass(
   return {
     main: {
       serialized: retainWritableYaml(serialized),
-      index: withPreparedFormIndexFallback(prepared, validated.index),
-      final: semanticIssues.length === 0
-        ? validated.final
+      index: validated.index,
+      final: decisions.length === 0
+        ? withImportFinalHash(validated.final, serialized.localHash)
         : applyImportedDecisionsToFinalState(validated.final, decisions, serialized.localHash),
     },
     ...(baseForm === undefined ? {} : { base: baseForm }),
-    configurationFragments:
-      baseFormConfigurationFragment === undefined ? [] : [baseFormConfigurationFragment],
+    configurationFragments: [prepared.configurationFragment,
+      ...(baseFormConfigurationFragment === undefined ? [] : [baseFormConfigurationFragment])],
   }
 }
 
-function withPreparedFormIndexFallback(
-  prepared: Pick<DeferredImportYaml, "dependentOwner" | "formDataPathIndex">,
-  index: ProjectStateImportIndexContribution,
-): ProjectStateImportIndexContribution {
-  if (index.forms.length > 0 || prepared.formDataPathIndex === undefined) return index
-  return {
-    ...index,
-    forms: projectStateFormEntries({
-      owner: { kind: prepared.dependentOwner.dir, name: prepared.dependentOwner.name },
-      index: prepared.formDataPathIndex,
-    }),
+function withImportFinalHash(
+  final: ProjectStateImportFinalFileStateBatch,
+  hash: bigint,
+): ProjectStateImportFinalFileStateBatch {
+  if (final.updates.length !== 1) {
+    throw new Error("Окончательное состояние одного YAML должно содержать ровно одно обновление")
   }
+  return { ...final, hashBytes: projectStateHashBytes(hash) }
+}
+
+function projectStateHashBytes(hash: bigint): Uint8Array {
+  const hashBytes = new Uint8Array(8)
+  new DataView(hashBytes.buffer).setBigUint64(0, hash, false)
+  return hashBytes
 }
 
 function requireSecondPassExportProfile(): XmlComponentExportProfile {
@@ -1049,101 +1450,15 @@ function retargetNonEmptyConfigurationFragment(
   }
 }
 
-function createControlBaseFormSource(params: {
-  readonly importedBaseForm: DeferredImportYaml["baseFormCandidate"]
-  readonly savedBaseForm: DeferredImportYaml["baseFormCandidate"]
-  readonly currentConfigurationYAML: PreparedYamlFile | undefined
-}): BaseFormSourceResult | undefined {
-  if (params.importedBaseForm === undefined || params.currentConfigurationYAML === undefined) return undefined
-  const currentConfigurationForm = {
-    projectPath: params.importedBaseForm.baseProjectPath,
-    prepared: params.currentConfigurationYAML,
-  }
-  if (params.savedBaseForm === undefined) {
-    return {
-      kind: "projected",
-      baseForm: currentConfigurationForm,
-      currentConfigurationForm,
-    }
-  }
-  return {
-    kind: "saved",
-    baseForm: {
-      projectPath: params.savedBaseForm.targetProjectPath,
-      prepared: controlBaseFormPreparedYaml({
-        projectPath: params.savedBaseForm.targetProjectPath,
-        data: params.savedBaseForm.yaml,
-        annotations: params.savedBaseForm.annotations,
-        owner: params.savedBaseForm.owner,
-      }),
-    },
-    currentConfigurationForm,
-  }
-}
-
-function controlBaseFormPreparedYaml(params: {
-  readonly projectPath: string
-  readonly data: unknown
-  readonly annotations: XmlAnomalyAnnotations
-  readonly owner: { readonly dir: string; readonly name: string }
-}): PreparedYamlFile {
-  return {
-    projectPath: params.projectPath,
-    filePath: params.projectPath,
-    role: "form",
-    owner: params.owner,
-    data: params.data,
-    annotations: params.annotations,
-    syntaxDiagnostics: [],
-  }
-}
-
 function prepareBaseFormCandidate(params: {
   candidate: NonNullable<DeferredImportYaml["baseFormCandidate"]>
-  ownerRule: DeferredImportYaml["rule"]
-  extensionYaml: unknown
-  currentConfigurationYAML: unknown
-  contextWithOwners: ConfigurationContext
-  ownerMetadataCache: OwnerMetadataCache
 }): NonNullable<DeferredImportYaml["baseFormCandidate"]> | undefined {
-  if (params.currentConfigurationYAML === undefined) {
-    throw new Error(`Не найдена текущая форма cf для ${params.candidate.baseProjectPath}`)
+  if (params.candidate.deferred.length > 0) {
+    throw new Error(`Локальный proof основы оставил ${params.candidate.deferred.length} отложенных YAML-значений: ${params.candidate.targetProjectPath}`)
   }
-  const originalFormDataPaths = collectImportedFormDataPaths(params.candidate.yaml, params.candidate.rule)
-  finalizeImportedYamlValues({
-    yaml: params.candidate.yaml,
-    rootRule: params.candidate.rule,
-    deferred: params.candidate.deferred,
-    context: params.contextWithOwners,
-    formDataPathIndex: params.candidate.localIndexes.metadata.formDataPathIndex,
-  })
-  finalizeImportedFormDataPaths({
-    yaml: params.candidate.yaml,
-    rule: params.candidate.rule,
-    originalOccurrences: originalFormDataPaths,
-    formDataPathIndex: params.candidate.localIndexes.metadata.formDataPathIndex,
-    ownerMetadataCache: params.ownerMetadataCache,
-  })
-  const currentForm = importedClientApplicationForm({
-    yaml: params.currentConfigurationYAML,
-    rule: params.ownerRule,
-  })
-  const extensionForm = importedClientApplicationForm({
-    yaml: params.extensionYaml,
-    rule: params.ownerRule,
-  })
-  if (currentForm === undefined || extensionForm === undefined) {
-    throw new Error(`Не найдены данные формы для ${params.candidate.baseProjectPath}`)
-  }
-  return isRedundantClientApplicationBaseForm({
-    currentConfigurationYaml: clientApplicationFormYaml(currentForm.yaml, params.candidate.baseProjectPath),
-    extensionYaml: clientApplicationFormYaml(extensionForm.yaml, params.candidate.targetProjectPath),
-    savedBaseYaml: clientApplicationFormYaml(params.candidate.yaml, params.candidate.targetProjectPath),
-    rule: params.candidate.rule,
-  })
-    ? undefined
-    : params.candidate
+  return params.candidate.source === "projected" ? undefined : params.candidate
 }
+
 
 function prepareSerializedBaseFormCandidate(params: {
   candidate: NonNullable<DeferredImportYaml["baseFormCandidate"]>
@@ -1157,56 +1472,68 @@ function prepareSerializedBaseFormCandidate(params: {
     params.profiler,
     params.candidate.annotations,
   )
-  const validationFile = resolveValidationProjectFile(
-    params.state.projectDir,
-    params.candidate.targetProjectPath,
-    params.state.validationComponent,
-  )
-  if (validationFile === undefined) {
-    throw new Error(`Не удалось подготовить описание YAML import: ${params.candidate.targetProjectPath}`)
-  }
-  const validated = measureSerializedImportYamlValidation(
-    { targetProjectPath: params.candidate.targetProjectPath, validationFile },
-    serialized,
-    params.state,
-    params.profiler,
-    "isolated",
-  )
+  const validated = params.candidate.finalState
+  if (validated === undefined) throw new Error(`Не собраны окончательные факты основы: ${params.candidate.targetProjectPath}`)
   return {
     serialized: retainWritableYaml(serialized),
     index: validated.index,
-    final: validated.final,
+    final: withImportFinalHash(validated.final, serialized.localHash),
   }
 }
 
-function collectImportedFormDataPaths(yaml: unknown, rule: PreparedImportYaml["rule"]) {
-  const form = importedClientApplicationForm({ yaml, rule })
-  return form === undefined
-    ? []
-    : collectFormDataPathOccurrencesFromYAML(form)
-}
-
-function finalizeImportedFormDataPaths(params: {
-  yaml: unknown
-  rule: PreparedImportYaml["rule"]
-  originalOccurrences: ReturnType<typeof collectImportedFormDataPaths>
-  formDataPathIndex: DeferredImportYaml["formDataPathIndex"]
-  ownerMetadataCache: OwnerMetadataCache
-}): void {
-  const form = importedClientApplicationForm({ yaml: params.yaml, rule: params.rule })
-  if (form === undefined || params.formDataPathIndex === undefined || params.originalOccurrences.length === 0) return
-  finalizeImportedFormDataPathCompatibility({
-    yaml: form.yaml,
-    originalOccurrences: params.originalOccurrences,
-    index: params.formDataPathIndex,
-    ownerCache: params.ownerMetadataCache,
+function collectImportBoundaryFormChecks(params: Parameters<typeof collectBoundaryFormDataPaths>[0] & {
+  readonly annotations: XmlAnomalyAnnotations
+  readonly owner: { readonly kind: string; readonly name: string }
+  readonly index: NonNullable<PreparedImportYaml["localIndexes"]["metadata"]["formDataPathIndex"]>
+  readonly filePath: string
+}): ValidationPendingCheck[] {
+  return collectBoundaryFormDataPaths(params).map(occurrence => {
+    const { rule: property, ...pathFact } = occurrence
+    return { ...pathFact, kind: "dataPath", policy: "formDataPath", owner: params.owner, index: params.index,
+      policyInput: toDataPathPolicyInput(property), location: yamlDiagnosticLocationAtPath({
+        filePath: params.filePath, parsed: parsedYamlFromKnownData("", params.yaml, params.annotations), path: occurrence.yamlPath,
+      }),
+    }
   })
 }
 
-function withoutDataPathDiagnosticSink(context: ConfigurationContext): ConfigurationContext {
-  if (context.exportToYAML === undefined) return context
-  const { dataPathDiagnosticSink: _sink, ...exportToYAML } = context.exportToYAML
-  return { ...context, exportToYAML }
+function prepareCompatibleFormFacts(params: {
+  facts: readonly DirectImportPropertyFact[]
+  original: readonly DirectImportPropertyFact[]
+  index: NonNullable<PreparedImportFacts["localIndexes"]["metadata"]["formDataPathIndex"]>
+  ownerCache: OwnerMetadataCache
+}) {
+  return applyPropertyFactChanges(params.facts, importedFormDataPathCompatibilityChangesFromOccurrences({
+    finalizedOccurrences: collectFormDataPathOccurrencesFromFacts({ facts: params.facts, projection: clientApplicationFormDataPathProjection }),
+    originalOccurrences: collectFormDataPathOccurrencesFromFacts({
+      facts: params.original, projection: clientApplicationFormDataPathProjection,
+    }),
+    index: params.index, ownerCache: params.ownerCache,
+  }).map(({ occurrence, value }) => ({ yamlPath: occurrence.yamlPath, kind: "set", value })))
+}
+
+function finalizeProjectionFormFacts(params: {
+  facts: readonly DirectImportPropertyFact[]
+  preparation: Parameters<typeof prepareFormDataPathContext>[0]["preparation"]
+  currentConfigurationForm?: ReturnType<typeof prepareStandaloneFormDataPaths>
+  savedBaseElementNames?: Iterable<string>
+  yamlPathPrefix?: readonly (string | number)[]
+  ownerCache: OwnerMetadataCache
+}) {
+  const context = prepareFormDataPathContext({
+    preparation: params.preparation, currentConfigurationForm: params.currentConfigurationForm,
+    savedBaseElementNames: params.savedBaseElementNames, ownerCache: params.ownerCache,
+  })
+  const changes = collectImportedFormDataPathChanges(context).map(change => ({
+    ...change, yamlPath: [...(params.yamlPathPrefix ?? []), ...change.yamlPath],
+  }))
+  return {
+    context,
+    facts: prepareCompatibleFormFacts({
+      facts: applyPropertyFactChanges(params.facts, changes), original: params.facts,
+      index: params.preparation.index, ownerCache: params.ownerCache,
+    }),
+  }
 }
 
 function clientApplicationFormYaml(value: unknown, projectPath: string): ClientApplicationFormYAML {
@@ -1265,7 +1592,7 @@ function secondPassExportContext(params: {
   ownerMetadataCache: OwnerMetadataCache
   targetProjectPath: string
   warnings: ImportDiagnostic[]
-}): ConfigurationContext {
+}): XmlImportConfigurationContext {
   const { projectDir: _projectDir, ...baseExportContext } = params.context.exportToYAML ?? { toTyped: false }
   return {
     ...params.context,
@@ -1303,17 +1630,24 @@ async function importWorkerEntryPoint(command: ImportWorkerCommand): Promise<Imp
       : result
 }
 
+function containsBaseFormCandidate(inputs: Awaited<ReturnType<typeof readImportXmlDocuments>>): boolean {
+  return inputs.some(({ input, document }) => {
+    if (input.role === "metadata") return false
+    const forms = document.roots.filter(node => node.name === "Form")
+    return forms.length === 1 && xmlElementChildren(forms[0]!, "BaseForm").length > 0
+  })
+}
+
 async function processFirstPass(
   assignments: readonly ImportAssignment[],
   state: InitializedImportWorkerState,
   accumulator: FirstPassAccumulator,
 ): Promise<void> {
   const profiler = accumulator.profiler
-  packedProfiler = profiler
   for (const assignment of assignments) {
     assignedImports.set(assignment.id, assignment)
     const collector = createConfigurationIndexCollector()
-    let packed = false
+    let readyForSecondPass = false
     try {
       const inputs = await readImportXmlDocuments({ assignment, profiler, profilePass: "first" })
       const prepared = await prepareImportFacts({
@@ -1323,6 +1657,7 @@ async function processFirstPass(
         inputs,
         profiler,
         topology: state.topology,
+        execution: currentRuleRegistrySet<{ execution: import("@nkdk/runtime/rule-kit").CompiledPropertyRuleExecution }>()?.execution,
       })
       const fragment = prepared.configurationFragment
       const validationFile = profiler.measure(
@@ -1388,32 +1723,69 @@ async function processFirstPass(
         const indexContribution = importIndexContribution(prepared, validationContribution, state)
         accumulator.fragmentWriter.appendImportIndex(indexContribution)
         accumulator.stateEntries += 1
-        accumulator.fragmentWriter.appendImportFinal(
-          provisionalImportFinalContribution(prepared, validationContribution, state),
-        )
-        if (!shouldRereadXmlOnSecondPass()) packedStore.put(assignment.id, inputs)
+        const provisional = provisionalImportFinalContribution(prepared, validationContribution, state)
+        accumulator.fragmentWriter.appendImportFinal({
+          ...provisional,
+          updates: provisional.updates.map(update => update.kind !== "yaml" ? update : {
+            ...update, pendingReferences: [], pendingChecks: [],
+          }),
+        })
         pendingAssignmentIds.add(assignment.id)
-        packed = true
+        const needsBaseProjection = containsBaseFormCandidate(inputs) && shouldReadCurrentConfigurationYaml({
+          componentPath: state.componentPath, rule: prepared.rule, hasBaseFormCandidate: true,
+        })
+        const retainFormFacts = (facts: readonly DirectImportPropertyFact[] | undefined) =>
+          facts === undefined || needsBaseProjection || clientApplicationFormYamlPath(prepared.rule) === undefined
+            ? facts : selectFormDataPathPreparationFacts(facts)
+        const formSemanticFacts = retainFormFacts(prepared.formSemanticFacts)
+        const baseFormSemanticFacts = retainFormFacts(prepared.baseFormSemanticFacts)
+        const formFactPaths = new Set(formSemanticFacts?.map(fact => yamlPathToPointer(fact.yamlPath)))
+        const baseFormFactPaths = new Set(baseFormSemanticFacts?.map(fact => yamlPathToPointer(fact.yamlPath)))
+        dependencyFacts.set(assignment.id, {
+          configurationFragment: fragment,
+          properties: prepared.dependencies,
+          ...(prepared.uniqueNameIssues === undefined ? {} : { uniqueNameIssues: prepared.uniqueNameIssues }),
+          validation: {
+            final: provisional,
+            pendingChecks: prepared.pendingChecks.filter(({ kind }) => kind === "dataPath"),
+            structuredDocuments: indexContribution.structuredDocuments,
+          },
+          ...(prepared.baseFormDependencies === undefined
+            ? {}
+            : { baseFormProperties: prepared.baseFormDependencies }),
+          formDataPathIndex: prepared.localIndexes.metadata.formDataPathIndex,
+          deferred: prepared.deferred.filter(value => formFactPaths.has(yamlPathToPointer(value.valuePath))),
+          ...(formSemanticFacts === undefined
+            ? {}
+            : { formSemanticFacts }),
+          ...(baseFormSemanticFacts === undefined
+            ? {}
+            : { baseFormSemanticFacts }),
+          ...(prepared.baseFormDataPathIndex === undefined
+            ? {}
+            : { baseFormDataPathIndex: prepared.baseFormDataPathIndex }),
+          ...(prepared.baseFormDeferred === undefined
+            ? {}
+            : { baseFormDeferred: prepared.baseFormDeferred.filter(value => baseFormFactPaths.has(yamlPathToPointer(value.valuePath))) }),
+        })
+        readyForSecondPass = true
         accumulator.files.push(...assignmentFiles)
       } catch (caught) {
         accumulator.diagnostics.push(importAssignmentDiagnostic(assignment, caught, "xml_import_yaml_failed"))
         continue
       }
-      accumulator.configurationFragments.push(fragment)
+      accumulator.reconstructionFacts.append(fragment)
     } catch (caught) {
       accumulator.diagnostics.push(importAssignmentDiagnostic(assignment, caught))
     } finally {
-      if (!packed) {
-        packedStore.release(assignment.id)
+      if (!readyForSecondPass) {
         pendingAssignmentIds.delete(assignment.id)
       }
     }
   }
 
-  const retained = packedStore.stats()
   profiler.record("Подготовка импорта конфигурации", "XML-задания, ожидающие второго прохода", {
     items: pendingAssignmentIds.size,
-    bytes: retained.bytes,
     timeMs: 0,
   })
 }
@@ -1422,7 +1794,7 @@ function createFirstPassAccumulator(workerIndex: number, profiler = createImport
   return {
     diagnostics: [],
     files: [],
-    configurationFragments: [],
+    reconstructionFacts: createImportReconstructionFactsWriter(),
     fragmentWriter: createProjectStateFragmentWriter(),
     profiler,
     stateEntries: 0,
@@ -1442,6 +1814,7 @@ function requireSecondPassAccumulator(): SecondPassAccumulator {
 function finishFirstPass(accumulator: FirstPassAccumulator, flushProfile = true): ImportFirstPassResult {
   return {
     kind: "firstPassResult",
+    reconstructionFactsBuffer: accumulator.reconstructionFacts.finish(),
     ...finishImportPass(accumulator, flushProfile),
   }
 }
@@ -1454,7 +1827,6 @@ function finishImportPass(
   return {
     diagnostics: accumulator.diagnostics,
     files: accumulator.files,
-    configurationFragments: accumulator.configurationFragments,
     ...(accumulator.stateEntries === 0
       ? (accumulator.fragmentWriter.discard(), {})
       : { stateFragment: accumulator.fragmentWriter.finish() }),
@@ -1529,92 +1901,6 @@ function retainWritableYaml(serialized: SerializedImportYaml): WritableSerialize
   }
 }
 
-interface SerializedImportYamlValidation {
-  readonly index: ProjectStateImportIndexContribution
-  readonly final: ProjectStateImportFinalFileStateBatch
-  readonly issues: readonly ValidationIssue[]
-  readonly pendingChecks: readonly ValidationPendingCheck[]
-}
-
-function validateSerializedImportYaml(
-  prepared: Pick<DeferredImportYaml, "targetProjectPath" | "validationFile">,
-  serialized: SerializedImportYaml,
-  state: InitializedImportWorkerState,
-  profiler: ValidationProfiler,
-  indexContribution: "shared" | "isolated" = "shared",
-): SerializedImportYamlValidation {
-  const file = prepared.validationFile
-  const first = profiler.measure(
-    "Локальная валидация готового YAML",
-    "Подготовка снимка и локальная проверка",
-    { items: 1 },
-    () => validateSerializedProjectYaml({
-      projectDir: state.projectDir,
-      file,
-      document: serialized,
-      context: state.context,
-      schemaCache: state.schemaCache,
-      rulesSnapshot: state.rulesSnapshot,
-    }),
-  )
-  if (first.profile !== undefined) {
-    profiler.record("Локальная валидация готового YAML", "Ядро локальной проверки", {
-      items: 1,
-      timeMs: first.profile.totalMs,
-    })
-    profiler.record("Ядро локальной проверки", "Проверка JSON Schema", {
-      items: 1,
-      timeMs: first.profile.schemaMs,
-    })
-    profiler.record("Ядро локальной проверки", "Дополнительные валидаторы", {
-      items: 1,
-      timeMs: first.profile.validatorsMs,
-    })
-    profiler.record("Ядро локальной проверки", "Проверка equal-name", {
-      items: 1,
-      timeMs: first.profile.equalNameMs,
-    })
-    profiler.record("Ядро локальной проверки", "Извлечение YAML-фактов", {
-      items: 1,
-      timeMs: first.profile.yamlFactsMs,
-    })
-    profiler.record("Ядро локальной проверки", "Построение индексов", {
-      items: 1,
-      timeMs: first.profile.fieldIndexMs
-        + first.profile.objectIndexMs
-        + first.profile.memberIndexMs
-        + first.profile.valueIndexMs,
-    })
-    for (const [substep, value] of Object.entries(first.profile.localValueValidationProfile)) {
-      profiler.record("Ядро локальной проверки", substep, value)
-    }
-  }
-  const full = profiler.measure(
-    "Локальная валидация готового YAML",
-    "Преобразование результата в состояние проекта",
-    { items: 1 },
-    () => buildProjectStateYamlFileUpdate({
-      projectDir: state.projectDir,
-      descriptor: {
-        componentPath: file.componentPath,
-        componentDir: file.componentDir,
-        rootProjectPath: file.rootProjectPath,
-        projectPath: file.projectPath,
-        role: file.kind,
-        ...(indexContribution === "isolated" ? { indexContribution: "isolated" as const } : {}),
-      },
-      firstPass: first,
-      fileBackedTargets: importFileBackedTargets(state, prepared.targetProjectPath),
-    }),
-  )
-  return {
-    ...splitImportYamlUpdate(full, serialized.localHash),
-    issues: first.issues,
-    pendingChecks: first.state.kind === "form" || first.state.kind === "properties"
-      ? first.state.pendingChecks
-      : [],
-  }
-}
 
 function importFileBackedTargets(
   state: InitializedImportWorkerState,
@@ -1629,203 +1915,6 @@ function importFileBackedTargets(
   return projectStateFileBackedTargets(state.componentPath, resource.fileBackedTargets)
 }
 
-function validateFinalImportSemantics(params: {
-  readonly index: ProjectStateImportIndexContribution
-  readonly final: ProjectStateImportFinalFileStateBatch
-  readonly projectDir: string
-  readonly readSession: ActiveSecondPass["readSession"]
-  readonly pendingChecks: readonly ValidationPendingCheck[]
-}): ValidationIssue[] {
-  if (params.final.updates.length !== 1) {
-    throw new Error("Окончательное состояние одного YAML должно содержать ровно одно обновление")
-  }
-  const update = params.final.updates[0]!
-  if (update.kind !== "yaml") return []
-  const validator = createComposedProjectStateDependencyValidator()
-  const componentPath = update.componentPath
-  const projectPath = update.projectPath
-  const queryPort = withCurrentImportIndex(params.readSession, params.index)
-  const ownerMetadataCache = createProjectStateOwnerMetadataCache({
-    projectDir: params.projectDir,
-    componentPath,
-    queryPort,
-  })
-  const references = update.pendingReferences.map((reference, index) => ({
-    requestId: `import-reference:${index}`,
-    componentPath,
-    reference: { ...reference, filePath: projectPath },
-  }))
-  const dependencies = update.pendingChecks.flatMap((check, index) =>
-    check.kind === "addressableRequired" || check.kind === "referenceCoverage" || check.kind === "dataPath"
-      ? []
-      : [{ requestId: `import-dependency:${index}`, componentPath, projectPath, check }]
-  )
-  const addressableRequired = update.pendingChecks.flatMap((check, index) =>
-    check.kind === "addressableRequired"
-      ? [{ requestId: `import-required:${index}`, componentPath, projectPath, check }]
-      : []
-  )
-  const referenceCoverage = update.pendingChecks.flatMap((check, index) =>
-    check.kind === "referenceCoverage"
-      ? [{ requestId: `import-coverage:${index}`, componentPath, projectPath, check }]
-      : []
-  )
-  const dataPathChecks = params.pendingChecks.filter(
-    (check): check is Extract<ValidationPendingCheck, { kind: "dataPath" }> => check.kind === "dataPath",
-  )
-  const owners = dataPathChecks.map((check, index) => ({
-    requestId: `owner:import-data-path:${index}`,
-    componentPath,
-    owner: check.owner,
-  }))
-  const dataPathValidation = validatePendingChecks({
-    ownerCache: ownerMetadataCache,
-    checks: dataPathChecks,
-  })
-  const diagnostics = [
-    ...dataPathValidation.diagnostics,
-    ...validator.validateReferences({
-      checks: references,
-      projectDir: params.projectDir,
-      queryPort,
-    }).diagnostics,
-    ...validator.validateOwners({
-      checks: owners,
-      projectDir: params.projectDir,
-      queryPort,
-    }),
-    ...validator.validateDependencies({
-      checks: dependencies,
-      projectDir: params.projectDir,
-      queryPort,
-    }).diagnostics,
-    ...validator.validateAddressableRequired({
-      checks: addressableRequired,
-      projectDir: params.projectDir,
-      queryPort,
-    }),
-    ...validator.validateReferenceCoverage({
-      checks: referenceCoverage,
-      projectDir: params.projectDir,
-      queryPort,
-    }),
-    ...validator.validateStructuredDocuments({
-      facts: (params.index.structuredDocuments ?? []).map((entry) => ({ componentPath, projectPath, entry })),
-      projectDir: params.projectDir,
-      queryPort,
-    }),
-  ]
-  return diagnostics
-    .filter(({ severity }) => severity === "error")
-    .map((diagnostic) => ({
-      code: importDiagnosticCode(diagnostic),
-      kind: importDiagnosticKind(diagnostic.source),
-      target: importDiagnosticTarget(diagnostic.path),
-      params: { message: diagnostic.message },
-    }))
-}
-
-function importDiagnosticCode(diagnostic: { readonly source: string; readonly code?: unknown }): string {
-  return typeof diagnostic.code === "string" ? diagnostic.code : `diagnostic.${diagnostic.source}`
-}
-
-function importDiagnosticKind(source: string): ValidationIssue["kind"] {
-  return source === "syntax" || source === "external-file" ? "infrastructure" : "semantic"
-}
-
-function importDiagnosticTarget(path: string | undefined): ValidationIssue["target"] {
-  return { kind: "path", path: validationIssuePathFromPointer(path ?? "") }
-}
-
-function withCurrentImportIndex(
-  readSession: ActiveSecondPass["readSession"],
-  index: ProjectStateImportIndexContribution,
-): ProjectStateQueryPort {
-  return {
-    ...readSession,
-    resolveTargets(requests) {
-      const stored = readSession.resolveTargets(requests)
-      return stored.map((result, requestIndex) => {
-        if (result.status !== "missing") return result
-        const request = requests[requestIndex]!
-        const matches = index.targets.filter(({ canonical }) => canonical === request.canonicalTarget)
-        if (matches.length === 0) return result
-        if (matches.length > 1) return { requestId: request.requestId, status: "ambiguous" }
-        return {
-          requestId: request.requestId,
-          status: "found",
-          target: matches[0]!,
-          source: { projectPath: index.projectPath, componentPath: index.componentPath },
-        }
-      })
-    },
-    readOwners(requests) {
-      const stored = readSession.readOwners(requests)
-      return stored.map((result, requestIndex) => {
-        const request = requests[requestIndex]!
-        const owners = index.owners.filter(({ owner }) => sameValidationOwnerRef(owner, request.owner))
-        if (owners.length === 0) return result
-        if (owners.length > 1) return { requestId: request.requestId, status: "ambiguous" }
-        return { requestId: request.requestId, status: "found", facts: owners[0]!.facts }
-      })
-    },
-    readDependencyInputs(requests) {
-      const stored = readSession.readDependencyInputs(requests)
-      return stored.map((result, requestIndex) => {
-        const request = requests[requestIndex]!
-        if (request.projectPath !== index.projectPath) return result
-        if (result.status === "found") {
-          return { ...result, input: { ...result.input, forms: index.forms } }
-        }
-        const check = request.check
-        if (check.kind !== "dataPath") return result
-        const owners = index.owners.filter(({ owner }) => sameValidationOwnerRef(owner, check.owner))
-        if (owners.length === 0) return result
-        return {
-          requestId: request.requestId,
-          status: "found",
-          input: {
-            owners,
-            fields: index.fields.filter(({ owner }) => sameValidationOwnerRef(owner, check.owner)),
-            forms: index.forms,
-          },
-        }
-      })
-    },
-    readDependencyOwnerInputs(requests) {
-      const stored = readSession.readDependencyOwnerInputs(requests)
-      return stored.map((result, requestIndex) => {
-        const request = requests[requestIndex]!
-        const owner = index.owners.find((entry) => sameValidationOwnerRef(entry.owner, request.owner))
-        if (owner === undefined) return result
-        return {
-          requestId: request.requestId,
-          status: "found",
-          input: {
-            owner: owner.owner,
-            facts: owner.facts,
-            fields: index.fields.filter((entry) => sameValidationOwnerRef(entry.owner, request.owner)),
-          },
-        }
-      })
-    },
-  }
-}
-
-function measureSerializedImportYamlValidation(
-  prepared: Pick<DeferredImportYaml, "targetProjectPath" | "validationFile">,
-  serialized: SerializedImportYaml,
-  state: InitializedImportWorkerState,
-  profiler: ValidationProfiler,
-  indexContribution: "shared" | "isolated" = "shared",
-): SerializedImportYamlValidation {
-  return profiler.measure(
-    "Подготовка импорта конфигурации",
-    "Локальная валидация готового YAML",
-    { items: 1 },
-    () => validateSerializedImportYaml(prepared, serialized, state, profiler, indexContribution),
-  )
-}
 
 function splitImportYamlUpdate(
   update: ProjectStateYamlFileUpdate,
@@ -1850,6 +1939,7 @@ function splitImportYamlUpdate(
     pendingChecks,
     dependencies,
     localValidation,
+    validationContextDependencies,
   } = update
   const batch = createProjectStateFileUpdateBatch([{ update, hash }])
   return {
@@ -1862,14 +1952,16 @@ function splitImportYamlUpdate(
       ...(structuredDocuments === undefined ? {} : { structuredDocuments }),
     },
     final: {
-      updates: [{ ...identity, kind: "yaml", localValidation, pendingReferences, pendingChecks, dependencies }],
+      updates: [{ ...identity, kind: "yaml", localValidation, pendingReferences, pendingChecks, dependencies,
+        ...(validationContextDependencies === undefined ? {} : { validationContextDependencies }),
+      }],
       hashBytes: batch.hashBytes,
     },
   }
 }
 
 function importIndexContribution(
-  prepared: PreparedImportYaml | PreparedImportFacts,
+  prepared: PreparedImportFacts,
   contribution: ImportValidationContribution,
   state: InitializedImportWorkerState,
 ): ProjectStateImportIndexContribution {
@@ -1879,7 +1971,6 @@ function importIndexContribution(
     prepared.assignment.role === "fileItem" ? "form" : "properties",
   )
   const validation = contribution.validationContribution
-  const formValidation = "formValidation" in prepared ? prepared.formValidation : undefined
   return {
     ...identity,
     targets: mergeImportTargetEntries([
@@ -1897,12 +1988,9 @@ function importIndexContribution(
     ]),
     owners: validation.objectRecords.flatMap(projectStateOwnerFacts),
     fields: validation.objectRecords.flatMap(projectStateFieldEntries),
-    forms: formValidation === undefined
-      ? []
-      : projectStateFormEntries({
-          owner: formValidation.owner,
-          index: formValidation.index,
-        }),
+    // Пути этого файла проверяет его воркер по локальному formDataPathIndex.
+    // Полная проекция будет записана с окончательным состоянием YAML.
+    forms: [],
   }
 }
 
@@ -2001,8 +2089,8 @@ function clearWorkerState(): void {
   firstPassAccumulator = undefined
   secondPassAccumulator?.fragmentWriter.discard()
   secondPassAccumulator = undefined
-  packedStore.clear()
   pendingAssignmentIds.clear()
+  dependencyFacts.clear()
   preparedYaml.clear()
   assignedImports.clear()
   initializedState = undefined
@@ -2014,7 +2102,6 @@ function workerStateForTests(): {
   workerIndex?: number
   outputDir?: string
   preparedYamlIds: string[]
-  retainedProofAuditIds: string[]
 } {
   return {
     initialized: initializedState !== undefined,
@@ -2026,12 +2113,6 @@ function workerStateForTests(): {
           outputDir: initializedState.outputDir,
         }),
     preparedYamlIds: [...new Set([...preparedYaml.keys(), ...pendingAssignmentIds])],
-    retainedProofAuditIds: [...new Set([
-      ...pendingAssignmentIds,
-      ...[...preparedYaml]
-      .filter(([, prepared]) => prepared.proofAudit !== undefined)
-      .map(([assignmentId]) => assignmentId),
-    ])],
   }
 }
 
@@ -2039,20 +2120,10 @@ function resetImportWorkerStateForTests(): void {
   const secondPass = activeSecondPass
   activeSecondPass = undefined
   secondPass?.readSession.close()
-  void secondPass?.configurationStore?.close()
   void secondPass?.baseConfigurationStore?.close()
   clearWorkerState()
 }
 
-function setImportWorkerSchemaCacheForTests(schemaCache: ValidationSchemaCache | undefined): void {
-  schemaCacheForTests = schemaCache
-}
-
-function setImportWorkerControlExportForTests(
-  controlExport: typeof executeImportControlExport | undefined,
-): void {
-  controlExportForTests = controlExport
-}
 
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error)
@@ -2063,15 +2134,13 @@ return {
   entryPoint: importWorkerEntryPoint,
   stateForTests: workerStateForTests,
   resetForTests: resetImportWorkerStateForTests,
-  setSchemaCacheForTests: setImportWorkerSchemaCacheForTests,
-  setControlExportForTests: setImportWorkerControlExportForTests,
 }
 }
 
 export function createImportFirstPassTransferable(result: ImportFirstPassResult) {
   return {
     get [transferableSymbol]() {
-      return Object.values(result.stateFragment?.buffers ?? {})
+      return [result.reconstructionFactsBuffer, ...Object.values(result.stateFragment?.buffers ?? {})]
     },
     get [valueSymbol]() {
       return result

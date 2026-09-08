@@ -1,4 +1,4 @@
-import { ConfigurationContextFromXML } from "@nkdk/runtime"
+import { ConfigurationContextFromXML, isXmlElementNode, xmlAttributeValue, xmlElementChildren, xmlTextValue, type XmlElementNode } from "@nkdk/runtime"
 import { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import {
   withConfigurationIndexYamlCollectionItemContext,
@@ -15,10 +15,11 @@ export const asDcscorItemArray = <T>(x: T | T[] | undefined): T[] => {
 }
 
 const normalizeDcscorItemsInput = (
-  xml: SettingsParameterValueCollectionXML | ParameterValueXML[] | ParameterValueXML | undefined
-): ParameterValueXML[] => {
+  xml: SettingsParameterValueCollectionXML | ParameterValueXML[] | ParameterValueXML | XmlElementNode | XmlElementNode[] | undefined
+): (ParameterValueXML | XmlElementNode)[] => {
   if (xml === undefined) return []
   if (Array.isArray(xml)) return xml
+  if (isXmlElementNode(xml)) return xml.name === "dcscor:item" ? [xml] : xmlElementChildren(xml, "dcscor:item")
   if ("dcscor:item" in (xml as object)) {
     return asDcscorItemArray((xml as SettingsParameterValueCollectionXML)["dcscor:item"])
   }
@@ -30,7 +31,7 @@ export const importSettingsParameterValueDcscorItemsFromXML = (params: {
   context: ConfigurationContextFromXML
   ruleSet: SettingsParameterValueRuleSet
   /** Корень `{ dcscor:item }` или уже массив элементов (как из `getXMLValue` при `xmlParents`). */
-  xml: SettingsParameterValueCollectionXML | ParameterValueXML[] | undefined
+  xml: SettingsParameterValueCollectionXML | ParameterValueXML[] | XmlElementNode | XmlElementNode[] | undefined
   /** Если true — элементы без правила в наборе пропускаются (оформление полей). */
   skipUnknownParameters: boolean
   execution?: PropertyRuleExecution
@@ -39,9 +40,13 @@ export const importSettingsParameterValueDcscorItemsFromXML = (params: {
 
   const items = normalizeDcscorItemsInput(xml)
   const parameters: Record<string, SettingsParameterValue> = {}
+  let parameterCount = 0
 
   for (const itemXml of items) {
-    const parameterName = itemXml["dcscor:parameter"]
+    const parameterNode = isXmlElementNode(itemXml) ? xmlElementChildren(itemXml, "dcscor:parameter")[0] : undefined
+    const parameterName = isXmlElementNode(itemXml)
+      ? parameterNode === undefined ? undefined : xmlTextValue(parameterNode)
+      : itemXml["dcscor:parameter"]
     if (typeof parameterName !== "string") continue
 
     const itemRule = getSettingsParameterValueRuleForParameter(ruleSet, parameterName)
@@ -51,10 +56,11 @@ export const importSettingsParameterValueDcscorItemsFromXML = (params: {
     }
 
     const itemContext = withConfigurationIndexYamlCollectionItemContext(context, {
-      index: Object.keys(parameters).length,
+      index: parameterCount,
       yamlKey: parameterName,
     })
-    const nilValue = Object.prototype.hasOwnProperty.call(itemXml, "dcscor:value") &&
+    const nilValue = isXmlElementNode(itemXml) ? xmlElementChildren(itemXml, "dcscor:value").some(isXsiNil)
+      : Object.prototype.hasOwnProperty.call(itemXml, "dcscor:value") &&
       (itemXml["dcscor:value"] === undefined ||
         asDcscorItemArray(itemXml["dcscor:value"]).some(isXsiNil))
 
@@ -65,22 +71,23 @@ export const importSettingsParameterValueDcscorItemsFromXML = (params: {
     }) as SettingsParameterValue | undefined
 
     if (value !== undefined) {
+      const alreadyPresent = Object.prototype.hasOwnProperty.call(parameters, parameterName)
       parameters[parameterName] = nilValue ? { ...value, xmlNil: true } : value
+      if (!alreadyPresent && Object.prototype.hasOwnProperty.call(parameters, parameterName)) parameterCount++
     }
   }
 
-  return Object.keys(parameters).length > 0 ? parameters : undefined
+  return parameterCount > 0 ? parameters : undefined
 }
 
 export const exportSettingsParameterValueDcscorItemsToXML = (params: {
   context: ConfigurationContextWithExportToXML
   ruleSet: SettingsParameterValueRuleSet
   parameters: Record<string, SettingsParameterValue>
-  referenceParameters?: Record<string, SettingsParameterValue>
   /** Если задан — только эти имена и в этом порядке (например оформление полей). */
   orderedParameterNames?: string[]
 }): SettingsParameterValueCollectionXML | undefined => {
-  const { context, ruleSet, parameters, referenceParameters, orderedParameterNames } = params
+  const { context, ruleSet, parameters, orderedParameterNames } = params
 
   const names =
     orderedParameterNames !== undefined
@@ -96,13 +103,11 @@ export const exportSettingsParameterValueDcscorItemsToXML = (params: {
     const itemRule = getSettingsParameterValueRuleForParameter(ruleSet, parameterName)
     if (itemRule === undefined) continue
 
-    const referenceField = referenceParameters?.[parameterName]
     const { xmlNil, ...fieldWithoutNil } = fieldValue
     const itemXml = callAtomicToXML({
       context,
       rule: itemRule,
       value: fieldWithoutNil,
-      referenceValue: referenceField,
     })
     if (itemXml !== undefined) {
       items.push(xmlNil === true
@@ -133,6 +138,7 @@ function insertNilValueBeforeSettingsExtension(item: ParameterValueXML): Paramet
 }
 
 function isXsiNil(value: unknown): boolean {
+  if (isXmlElementNode(value)) return xmlAttributeValue(value, "xsi:nil") === "true"
   return typeof value === "object" && value !== null && !Array.isArray(value) &&
     ((value as Record<string, unknown>)["_xsi:nil"] === true ||
       (value as Record<string, unknown>)["_xsi:nil"] === "true")

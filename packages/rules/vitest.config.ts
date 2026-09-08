@@ -25,6 +25,7 @@ const coreMetadataTests = [
 const unitDependencyGuard = resolve(__dirname, "../../scripts/vitest/forbid-unit-external-dependencies")
 const lightweightSetup = resolve(__dirname, "./tests/setupTests")
 const metadataTestRunner = resolve(__dirname, "./tests/metadataTestRunner")
+const profileSeed = process.env["NKDK_TEST_PROFILE_SEED"]
 const integrationTests = ["**/*.integration.test.ts"]
 const nativeLmdbIntegrationTests = [
   "metadata/fullSyncToXml/worker.integration.test.ts",
@@ -54,6 +55,9 @@ export default defineConfig({
     globals: true,
     watch: false,
     maxWorkers: 1,
+    // CLI --sequence.* заменяет sequence у проектов вместе с groupOrder.
+    // Настройка в конфигурации сохраняет группы и повторное использование worker.
+    ...(profileSeed === undefined ? {} : { sequence: { shuffle: true, seed: Number(profileSeed) } }),
     // Source-mode worker tests запускают TypeScript через tsx; холодный запуск worker
     // на CI заметно дольше обычного модульного теста.
     testTimeout: 120_000,

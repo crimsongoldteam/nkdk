@@ -2,10 +2,10 @@ import { describe, expect, it } from "vitest"
 import { borderTestCases } from "./__fixtures__/data"
 import { mockContext, mockContextFromXML, mockRule } from "../../../tests/mockContext"
 import { xmlExport } from "@nkdk/runtime"
-import { importContentFromXML } from "@nkdk/runtime"
+import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"
 import { importBorderFromXML } from "./fromXML"
 import { exportBorderToXML } from "./toXML"
-import { Border, BorderXML } from "./types"
+import { Border } from "./types"
 
 describe("exportBorderToXML", () => {
   it("should export border by ref", () => {
@@ -44,8 +44,8 @@ describe("exportBorderToXML", () => {
     const fixture = borderTestCases.find((testCase) => testCase.name === "border by style ref")
     expect(fixture?.xml).toBeDefined()
 
-    const xml = importContentFromXML<{ Border: BorderXML }>(fixture!.xml!)
-    const imported = importBorderFromXML(mockContextFromXML(), mockRule, xml.Border)
+    const xml = parseStructuralXMLWithoutCompatibility(fixture!.xml!)
+    const imported = importBorderFromXML(mockContextFromXML(), mockRule, xml)
     const exported = exportBorderToXML(mockContext, mockRule, imported)
     const resultXml = xmlExport({ Border: exported }, false)
 
@@ -57,8 +57,8 @@ describe("exportBorderToXML", () => {
 	<v8ui:style xsi:type="v8ui:ControlBorderType">Indented</v8ui:style>
 </Border>`
 
-    const xml = importContentFromXML<{ Border: BorderXML }>(originalXml)
-    const imported = importBorderFromXML(mockContextFromXML(), mockRule, xml.Border)
+    const xml = parseStructuralXMLWithoutCompatibility(originalXml)
+    const imported = importBorderFromXML(mockContextFromXML(), mockRule, xml)
     const exported = exportBorderToXML(mockContext, mockRule, imported)
     const resultXml = xmlExport({ Border: exported }, false)
 

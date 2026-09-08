@@ -39,7 +39,7 @@ export const analyzeRecalculationDimensionLinks: DependentYamlItemHandler = (par
     for (const { owner } of links) allOwners.add(owner)
   }
 
-  const currentLinks = linksByDimension.get(params.itemName ?? "") ?? []
+  const currentLinks = leadingRegisterLinks(params, params.item)
   const currentOwners = new Set(currentLinks.map(({ owner }) => owner))
   const diagnostics = [...allOwners]
     .filter((owner) => !currentOwners.has(owner))

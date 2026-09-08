@@ -49,6 +49,7 @@ describe("writeFullXmlSyncAssignment", () => {
   ) {
     const context = mockContextToXML()
     const prepared = prepareFullXmlSyncAssignment({
+      profilePropertyTypes: false,
       assignment,
       preparedYamlFile,
       context,
@@ -84,6 +85,7 @@ describe("writeFullXmlSyncAssignment", () => {
     const assignment = dataProcessorAssignment(projectDir)
     const context = mockContextToXML()
     const preparedAssignment = prepareFullXmlSyncAssignment({
+      profilePropertyTypes: false,
       assignment,
       preparedYamlFile: prepared.yamlFiles[0]!,
       context,

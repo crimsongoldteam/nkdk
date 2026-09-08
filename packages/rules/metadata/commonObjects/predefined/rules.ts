@@ -39,7 +39,7 @@ export const PredefinedRules = {
     xmlRoot: xmlRootRule({
       container: "PredefinedData",
       rootAttributes: predefinedRootAttributes,
-      forReferenceOnly: true,
+      xmlOnly: true,
       isFileRoot: true,
     }),
     items: predefinedItemCollectionRule({

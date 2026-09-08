@@ -34,6 +34,28 @@ export type FormYAMLCollectionItemRuleResolver = (params: {
   propertyRule: PropertyRule
 }) => MetadataItemRule | undefined
 
+export function describeFormDataPath(params: {
+  rule: DataPathPropertyRule
+  value: unknown
+  yamlPath: YamlPath
+  itemType: string
+  hasValuesPicture?: boolean
+  hasMultipleValuesExtendedEdit?: boolean
+  tableContext?: TableContext
+}): Omit<FormDataPathOccurrence, "setValue"> | undefined {
+  if (typeof params.value !== "string" || params.value.trim().length === 0) return undefined
+  return {
+    rule: params.rule,
+    value: params.value,
+    yamlPath: params.yamlPath,
+    nameMode: "yaml",
+    ...(isElementType(params.itemType) ? { elementType: params.itemType } : {}),
+    ...(params.hasValuesPicture === true ? { hasValuesPicture: true } : {}),
+    ...(params.hasMultipleValuesExtendedEdit === true ? { hasMultipleValuesExtendedEdit: true } : {}),
+    ...(params.tableContext !== undefined && params.rule.yaml === "ПутьКДанным" ? { tableContext: params.tableContext } : {}),
+  }
+}
+
 export function collectFormDataPathOccurrencesFromYAML(params: {
   yaml: unknown
   rule: MetadataItemRule
@@ -81,25 +103,20 @@ function collectItem(params: {
   for (const propertyRule of Object.values(params.rule.properties)) {
     if (typeof propertyRule.yaml !== "string") continue
     const rawValue = record[propertyRule.yaml]
-    if (isDataPathRule(propertyRule) && typeof rawValue === "string") {
-      const value = rawValue
-      if (value.trim().length === 0) continue
+    if (isDataPathRule(propertyRule)) {
+      const occurrence = describeFormDataPath({
+        rule: propertyRule, value: rawValue, yamlPath: [...params.yamlPath, propertyRule.yaml],
+        itemType: params.rule.itemType,
+        hasValuesPicture: hasYamlProperty(record, params.rule, "valuesPicture"),
+        hasMultipleValuesExtendedEdit: isYamlTrue(readYamlProperty(record, params.rule, "multipleValuesExtendedEdit")),
+        tableContext: params.tableContext,
+      })
+      if (occurrence === undefined) continue
       occurrences.push({
-        rule: propertyRule,
-        value,
+        ...occurrence,
         setValue: (nextValue) => {
           record[propertyRule.yaml as string] = nextValue
         },
-        yamlPath: [...params.yamlPath, propertyRule.yaml],
-        nameMode: "yaml",
-        ...(isElementType(params.rule.itemType) ? { elementType: params.rule.itemType } : {}),
-        ...(hasYamlProperty(record, params.rule, "valuesPicture") ? { hasValuesPicture: true } : {}),
-        ...(isYamlTrue(readYamlProperty(record, params.rule, "multipleValuesExtendedEdit"))
-          ? { hasMultipleValuesExtendedEdit: true }
-          : {}),
-        ...(params.tableContext !== undefined && propertyRule.yaml === "ПутьКДанным"
-          ? { tableContext: params.tableContext }
-          : {}),
       })
     }
   }
@@ -164,6 +181,9 @@ function collectNested(params: {
   const entries =
     descriptor.yamlShape === "record" ? Object.entries(asRecord(params.yaml) ?? {}) : arrayEntries(params.yaml)
   return entries.flatMap(([name, yaml], index) => {
+    // Pure raw nodes have no semantic object and therefore declare no data paths.
+    // Shape validation is performed independently of this facts projection.
+    if (asRecord(yaml) === undefined) return []
     const stringName = typeof name === "string" ? name : undefined
     const itemRule =
       params.resolveCollectionItemRule?.({ yaml, name: stringName, propertyRule: params.propertyRule }) ??
@@ -187,19 +207,29 @@ function collectNested(params: {
   })
 }
 
-function readPrimaryDataPath(
+export function readPrimaryDataPath(
   record: Record<string, unknown>,
   rule: MetadataItemRule
 ): FormYAMLElementVisit["primaryDataPath"] {
-  const dataPathRule = Object.values(rule.properties).find(
-    (propertyRule) => isDataPathRule(propertyRule) && propertyRule.yaml === "ПутьКДанным"
-  )
+  const dataPathRule = primaryFormDataPathRule(rule)
   if (dataPathRule === undefined || typeof dataPathRule.yaml !== "string") return undefined
   return {
     yamlKey: dataPathRule.yaml,
     present: Object.prototype.hasOwnProperty.call(record, dataPathRule.yaml),
     value: record[dataPathRule.yaml],
   }
+}
+
+const primaryDataPathRules = new WeakMap<MetadataItemRule, DataPathPropertyRule | null>()
+
+export function primaryFormDataPathRule(rule: MetadataItemRule): DataPathPropertyRule | undefined {
+  const cached = primaryDataPathRules.get(rule)
+  if (cached !== undefined) return cached ?? undefined
+  const selected = Object.values(rule.properties).find(
+    (propertyRule): propertyRule is DataPathPropertyRule => isDataPathRule(propertyRule) && propertyRule.yaml === "ПутьКДанным",
+  )
+  primaryDataPathRules.set(rule, selected ?? null)
+  return selected
 }
 
 function arrayEntries(value: unknown): Array<[number, unknown]> {
@@ -216,7 +246,7 @@ function hasYamlProperty(record: Record<string, unknown>, rule: MetadataItemRule
   return typeof yamlKey === "string" && Object.prototype.hasOwnProperty.call(record, yamlKey)
 }
 
-function isDataPathRule(rule: PropertyRule): rule is DataPathPropertyRule {
+export function isDataPathRule(rule: PropertyRule): rule is DataPathPropertyRule {
   return rule.type === "DataPath"
 }
 

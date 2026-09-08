@@ -10,6 +10,10 @@ import { importI8nTextFromYAML } from "./fromYAML"
 import { I8nTextPropertyRule } from "./types"
 import { importLocalizedItems,localizedItemOccurrences } from "./anomalies"
 
+const importI8nTextFromYAMLAtRuntimeBoundary: (
+  params: Parameters<typeof importI8nTextFromYAML>[0] & { readonly source?: unknown }
+) => ReturnType<typeof importI8nTextFromYAML> = importI8nTextFromYAML
+
 const multilingualContext = {
   ...mockContext,
   languages: createConfigurationLanguages({ default: "ru", registered: ["ru", "en"] }),
@@ -18,7 +22,7 @@ const multilingualContext = {
 describe("importI8nTextFromYAML", () => {
   describe("importI8nTextFromYAML", () => {
     it.each(i8nTextFixtures)("should import: $name", (fixture) => {
-      const result = importI8nTextFromYAML({ context: mockContext, rule: mockRule, value: fixture.fullYAML })
+      const result = importI8nTextFromYAMLAtRuntimeBoundary({ context: mockContext, rule: mockRule, value: fixture.fullYAML })
       expect(result).toEqual(fixture.text)
     })
 
@@ -30,7 +34,7 @@ describe("importI8nTextFromYAML", () => {
         "!xml/invalid/2 ru: Последний",
       ].join("\n"))
 
-      const result = importI8nTextFromYAML({
+      const result = importI8nTextFromYAMLAtRuntimeBoundary({
         context: multilingualContext,
         rule: mockRule,
         value: parsed.data,
@@ -47,21 +51,28 @@ describe("importI8nTextFromYAML", () => {
     })
   })
 
-  describe("importI8nTextCombinedFromYAML", () => {
-    it.each(i8nTextFixtures)("should import combined: $name", (fixture) => {
-      const result = importI8nTextFromYAML({
+  describe("игнорирование старого источника", () => {
+    it.each(i8nTextFixtures)("читает полный YAML: $name", (fixture) => {
+      const result = importI8nTextFromYAMLAtRuntimeBoundary({
         context: mockContext,
         rule: mockRule,
-        value: fixture.otherLanguagesYAML,
+        value: fixture.fullYAML,
         source: fixture.textFromStructure,
       })
 
       expect(result).toEqual(fixture.text)
     })
 
+    it("не восстанавливает отсутствующий текст из source", () => {
+      expect(importI8nTextFromYAMLAtRuntimeBoundary({
+        context: mockContext, rule: mockRule, value: undefined,
+        source: { items: { ru: "Старый текст" } },
+      })).toBeUndefined()
+    })
+
     it("preserves YAML order before source-only languages", () => {
       const value = parseMetadataYaml(": Leading\nru: Override").data as Record<string, string>
-      const result = importI8nTextFromYAML({
+      const result = importI8nTextFromYAMLAtRuntimeBoundary({
         context: mockContext,
         rule: mockRule,
         value,
@@ -72,7 +83,7 @@ describe("importI8nTextFromYAML", () => {
     })
 
     it("replaces source occurrence metadata with an explicit scalar value", () => {
-      const result = importI8nTextFromYAML({
+      const result = importI8nTextFromYAMLAtRuntimeBoundary({
         context: mockContext,
         rule: mockRule,
         value: "Новый синоним",
@@ -94,7 +105,7 @@ describe("importI8nTextFromYAML", () => {
     it("imports explicit empty text without a default-language item", () => {
       const rule: I8nTextPropertyRule = { type: "I8nText", excludeIfEqualNameYAML: true }
 
-      const result = importI8nTextFromYAML({
+      const result = importI8nTextFromYAMLAtRuntimeBoundary({
         context: mockContext,
         rule,
         name: "ОценкаОтправлена",
@@ -107,7 +118,7 @@ describe("importI8nTextFromYAML", () => {
     it("restores an omitted default-language synonym from the name", () => {
       const rule: I8nTextPropertyRule = { type: "I8nText", excludeIfEqualNameYAML: true }
 
-      const result = importI8nTextFromYAML({
+      const result = importI8nTextFromYAMLAtRuntimeBoundary({
         context: mockContext,
         rule,
         name: "РегистрБухгалтерииПоУмолчанию",
@@ -125,7 +136,7 @@ describe("importI8nTextFromYAML", () => {
     it("restores default language from the name and preserves non-default languages", () => {
       const rule: I8nTextPropertyRule = { type: "I8nText", excludeIfEqualNameYAML: true }
 
-      const result = importI8nTextFromYAML({
+      const result = importI8nTextFromYAMLAtRuntimeBoundary({
         context: mockContext,
         rule,
         name: "ОценкаОтправлена",
@@ -140,10 +151,10 @@ describe("importI8nTextFromYAML", () => {
       })
     })
 
-    it("does not restore default language from the name when source does not contain it", () => {
+    it("восстанавливает язык из имени независимо от старого источника", () => {
       const rule: I8nTextPropertyRule = { type: "I8nText", excludeIfEqualNameYAML: true }
 
-      const result = importI8nTextFromYAML({
+      const result = importI8nTextFromYAMLAtRuntimeBoundary({
         context: mockContext,
         rule,
         name: "ОценкаОтправлена",
@@ -153,6 +164,7 @@ describe("importI8nTextFromYAML", () => {
 
       expect(result).toEqual({
         items: {
+          ru: "Оценка отправлена",
           en: "Оценка отправлена",
         },
       })
@@ -162,7 +174,7 @@ describe("importI8nTextFromYAML", () => {
       const parsed = parseMetadataYaml('ru: ""\nen: Dont exit')
       const value = parsed.data as Record<string, string>
 
-      const result = importI8nTextFromYAML({
+      const result = importI8nTextFromYAMLAtRuntimeBoundary({
         context: multilingualContext,
         rule: { type: "I8nText", excludeIfEqualNameYAML: true },
         name: "НеВыходить",

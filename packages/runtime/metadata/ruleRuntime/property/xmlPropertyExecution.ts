@@ -1,0 +1,1455 @@
+import { asExplicitYAMLStringIfMarked } from "../../../yaml/explicitString"
+import { capitalize } from "../../../helpers/capitalize"
+import {
+  getConfigurationIndexXmlNodeLogicalAddress,
+  withConfigurationIndexExportPropertyContext,
+} from "../../configurationIndex/referenceView"
+import type { MetadataTargetOwner } from "../metadataTarget"
+import { ExecutionPath } from "./executionPath"
+import type {
+  ConfigurationContext,
+  ConfigurationContextFromXML,
+  ConfigurationContextWithExportToXML,
+  XMLDefaultVariant,
+} from "../../context/types"
+import {
+  isTypeOwnedMetadataTargetUnavailable,
+  metadataTargetOwnerForProperty,
+  metadataTargetOwnerFromRule,
+} from "./metadataTargetString"
+import {
+  cloneMetadataTargetValue,
+  importMetadataTargetOccurrencesFromYAML,
+  type MetadataTargetOccurrencesFunction,
+} from "./metadataTargetOccurrences"
+import { convertMetadataItemFromYAMLToXML } from "../metadataItem/fromYAMLToXML"
+import { convertMetadataCollectionFromYAMLToXML } from "../metadataCollection/fromYAMLToXML"
+import { toYAMLImportError, withYAMLImportDiagnostics } from "../yamlImportError"
+import type {
+  ExportToXMLFunction,
+  ExportToXMLFunctionNew,
+  ConfigurationIndexValueFromXMLDescriptor,
+  importFromYAMLFunction,
+  ImportFromYAMLFunctionNew,
+  PropertyRuleExecution,
+} from "./fn"
+import { applyAutoRequiredXMLParents, collectAutoRequiredXMLParentRoot, getOrderedKeysToXML } from "./helpers"
+import { getYAMLToXMLPlan, type YAMLToXMLPlannedProperty } from "./fromYAMLToXMLPlan"
+import type {
+  YAMLPropertySource,
+  YAMLToXMLOutputRequest,
+  YAMLToXMLResult,
+  YAMLToXMLItemConversionParams,
+  YAMLToXMLNestedRule,
+} from "./fromYAMLToXMLTypes"
+import { copyXmlAnomalyAnnotationsDeep } from "../../../yaml/xmlAnomalyAnnotations"
+import { copyYAMLRuntimeMetadata } from "../../../yaml/runtimeMetadata"
+import { assertRequiredConfigurationIdentity } from "./requiredIdentity"
+import { getTypeRule } from "./typeRuleRegistry"
+import type { MetadataItemRule, PropertyRule } from "./types"
+import { readExternalFile } from "./externalFile"
+import type { DeferredValuePath } from "./deferredObjectValues"
+import { copyXmlAnomalyExportClaim, readXmlAnomalyRawCollectionItems } from "../xmlAnomaly/exportClaim"
+import { currentPropertyRuleRegistrySet } from "./propertyRuleExecutionContext"
+import { yamlScalarTagAt } from "../../../yaml/scalarTags"
+import { assertYAMLScalarTagAllowed } from "./yamlScalarTagPolicy"
+import { beginPropertyTypeProfile, finishPropertyTypeProfile } from "./propertyTypeProfile"
+import {
+  canUseAtomicFromYAMLToXML,
+  resolveAtomicConversion,
+} from "./atomicConversion"
+import type { CompiledProperty, CompiledPropertyRuleExecution } from "./compiledPropertyPlan"
+import { orderXmlPropertyOutput } from "./xmlPropertyOutputOrder"
+
+export interface ConvertPropertiesFromYAMLToXMLParams extends YAMLToXMLItemConversionParams {
+  readonly execution?: CompiledPropertyRuleExecution
+}
+
+export interface AtomicFromYAMLParams {
+  readonly handler?: importFromYAMLFunction | ImportFromYAMLFunctionNew
+  readonly compiled?: CompiledProperty
+  readonly execution?: PropertyRuleExecution
+  readonly context: ConfigurationContext
+  readonly rule: PropertyRule
+  readonly value: unknown
+  readonly yaml?: unknown
+  readonly annotations?: import("../../../yaml/xmlAnomalyAnnotations").XmlAnomalyAnnotations
+  readonly name?: string
+  readonly owner?: MetadataTargetOwner
+  readonly restoreExcludedEqualName?: boolean
+}
+
+export interface AtomicToXMLParams {
+  readonly handler?: ExportToXMLFunction | ExportToXMLFunctionNew
+  readonly compiled?: CompiledProperty
+  readonly execution?: PropertyRuleExecution
+  readonly context: ConfigurationContextWithExportToXML
+  readonly rule: PropertyRule
+  readonly value: unknown
+  readonly source?: YAMLPropertySource
+  readonly propertyKey?: string
+  readonly sourceHasProperty?: boolean
+}
+
+interface MutableOutput {
+  readonly request: YAMLToXMLOutputRequest
+  readonly xml: Record<string, unknown>
+  readonly deferred: DeferredValuePath[]
+  readonly observer?: XMLPropertyExecutionObserver
+}
+
+interface IndexedIdentityProperty {
+  readonly exists: boolean
+  readonly key?: string
+  readonly value?: unknown
+}
+
+export function createYAMLPropertySource(params: {
+  yaml: unknown
+  rule: MetadataItemRule
+  itemName?: string
+  propertyValues?: ReadonlyMap<string, unknown>
+  context?: ConfigurationContext
+}): YAMLPropertySource {
+  const yaml = asRecord(params.yaml)
+  const externalValues = new Map<string, unknown>()
+  const externalValue = (propertyKey: string): unknown => {
+    if (externalValues.has(propertyKey)) return externalValues.get(propertyKey)
+    const propertyRule = params.rule.properties[propertyKey]
+    const formDir = params.context?.importFromYAML?.formDir
+    const parentName = params.itemName ?? params.context?.importFromYAML?.parent?.name
+    const value =
+      propertyRule?.externalFile !== undefined && formDir !== undefined && parentName !== undefined
+        ? readExternalFile(propertyRule.externalFile, parentName, formDir)
+        : undefined
+    externalValues.set(propertyKey, value)
+    return value
+  }
+  return {
+    itemName: params.itemName,
+    has(propertyKey) {
+      if (params.propertyValues?.has(propertyKey)) return true
+      const yamlKey = params.rule.properties[propertyKey]?.yaml
+      return (
+        (typeof yamlKey === "string" && yaml !== undefined && Object.prototype.hasOwnProperty.call(yaml, yamlKey)) ||
+        externalValue(propertyKey) !== undefined
+      )
+    },
+    raw(propertyKey) {
+      if (params.propertyValues?.has(propertyKey)) return params.propertyValues.get(propertyKey)
+      const yamlKey = params.rule.properties[propertyKey]?.yaml
+      if (typeof yamlKey === "string" && yaml !== undefined && Object.prototype.hasOwnProperty.call(yaml, yamlKey)) {
+        return yaml[yamlKey]
+      }
+      return externalValue(propertyKey)
+    },
+    yamlKey(propertyKey) {
+      return params.rule.properties[propertyKey]?.yaml
+    },
+  }
+}
+
+export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAMLToXMLParams): YAMLToXMLResult {
+  const item = createXMLPropertyExecution(params)
+  return item.finish()
+}
+
+type PlannedXMLProperty = YAMLToXMLPlannedProperty | CompiledProperty
+
+export function prepareNestedXMLPropertyContext(params: {
+  readonly context: ConfigurationContextWithExportToXML
+  readonly ownerRule: MetadataItemRule
+  readonly ownerName?: string
+  readonly property: PlannedXMLProperty
+  readonly nestedRule: Exclude<YAMLToXMLNestedRule, { kind: "externalFile" }>
+}) {
+  const { context, ownerRule, ownerName, property, nestedRule } = params
+  const childCollection = ownerRule.childCollections?.find(collection => collection.propertyKey === property.propertyKey)
+  const effectiveNestedRule = nestedRule.kind === "collection"
+    ? { ...nestedRule, itemRule: childCollection?.itemRule ?? nestedRule.itemRule }
+    : nestedRule.kind === "item"
+      ? { ...nestedRule, itemRule: nestedRule.itemRuleFromProperty?.(property.propertyRule) ?? nestedRule.itemRule }
+      : nestedRule
+  const propertyContext = withConfigurationIndexExportPropertyContext(
+    context, property.yamlKey ?? property.propertyKey,
+    childCollection?.configurationIndexUidSegment ?? property.propertyRule.configurationIndexUidSegment ?? property.propertyRule.operationTarget?.migrationSegment,
+    {
+      propertyKey: property.propertyKey,
+      configurationIndexAddressing: property.propertyRule.configurationIndexAddressing
+        ?? ("configurationIndexAddressing" in effectiveNestedRule ? effectiveNestedRule.configurationIndexAddressing : undefined),
+    },
+  )
+  return {
+    rule: effectiveNestedRule,
+    context: effectiveNestedRule.kind === "item" && effectiveNestedRule.resolveContext !== undefined
+      ? effectiveNestedRule.resolveContext({ context: propertyContext, name: ownerName, propertyRule: property.propertyRule })
+      : propertyContext,
+  }
+}
+
+/** Локальный потребитель общей политики; поздние предметные hooks ещё не выполнены. */
+export interface XMLPropertyExecutionObserver {
+  prepareNestedProperty?(params: Parameters<typeof prepareNestedXMLPropertyContext>[0]): ReturnType<typeof prepareNestedXMLPropertyContext>
+  /** До подготовки оболочки: закрытый ребёнок возвращает окончательный вклад. */
+  reuseNested?(params: YAMLToXMLItemConversionParams): YAMLToXMLResult | undefined
+  enterNested?(params: YAMLToXMLItemConversionParams): XMLPropertyExecutionObserver | undefined
+  write(event: {
+    readonly outputKey: string
+    readonly property: PlannedXMLProperty
+    readonly path: readonly string[]
+    readonly value: unknown
+  }): { readonly retainedValue: unknown } | void
+  complete(property: PlannedXMLProperty): void
+  finish?(result: YAMLToXMLResult): YAMLToXMLResult | void
+}
+
+export interface XMLPropertyExecution {
+  readonly properties: readonly PlannedXMLProperty[]
+  execute(property: PlannedXMLProperty): void
+  finish(): YAMLToXMLResult
+}
+
+export function prepareSingletonXMLContext(params: {
+  readonly context: ConfigurationContextWithExportToXML
+  readonly descriptor: Extract<YAMLToXMLNestedRule, { kind: "item" }>
+  readonly yaml: unknown
+  readonly ownerName?: string
+  readonly propertyRule: PropertyRule
+}) {
+  const { context, descriptor, yaml, ownerName, propertyRule } = params
+  const itemName = descriptor.resolveItemName?.({ context, yaml, ownerName, propertyRule })
+  const prepared = descriptor.resolveItemContext?.({ context, name: ownerName, itemName, propertyRule }) ?? context
+  assertRequiredConfigurationIdentity({ context: prepared, kind: descriptor.requiredIdentity })
+  return { context: prepared, itemName }
+}
+
+export function createXMLPropertyExecution(
+  params: ConvertPropertiesFromYAMLToXMLParams,
+  propertySource?: YAMLPropertySource,
+  observer?: XMLPropertyExecutionObserver,
+): XMLPropertyExecution {
+  const path = params.pathCursor ?? ExecutionPath.from(params.rulePath ?? [params.rule.itemType])
+  const deferredPath = params.deferredPathCursor ?? ExecutionPath.from(params.deferredRulePath ?? [])
+  const topLevelStartedAt = params.profile !== undefined && params.rulePath === undefined && params.pathCursor === undefined
+    ? performance.now()
+    : undefined
+  const typeRule = <Operation extends import("./fn").TypeRulesOperations>(
+    type: PropertyRule["type"],
+    operation: Operation,
+  ) => params.execution === undefined
+    ? getTypeRule(type, operation)
+    : params.execution.getTypeRule(type, operation)
+  const convertNestedProperties = (
+    nestedParams: Omit<ConvertPropertiesFromYAMLToXMLParams, "execution">,
+  ) => createXMLPropertyExecution({
+    ...nestedParams,
+    execution: params.execution,
+  }, undefined, observer?.enterNested?.(nestedParams)).finish()
+  const convertNestedItem: typeof convertMetadataItemFromYAMLToXML = (nestedParams) =>
+    observer?.reuseNested?.(nestedParams) ?? convertMetadataItemFromYAMLToXML(nestedParams)
+  const yaml = asRecord(params.yaml)
+  const propertyValues = params.propertyValues instanceof Map
+    ? params.propertyValues
+    : new Map(params.propertyValues)
+  const source = propertySource ?? createYAMLPropertySource({
+    yaml,
+    rule: params.rule,
+    itemName: params.sourceItemName ?? params.name,
+    propertyValues,
+    context: params.context,
+  })
+  const outputs: MutableOutput[] = params.outputs.map((request) => ({ request, xml: {}, deferred: [], observer }))
+  const autoRequiredXMLParentRoots = new Set<string>()
+  const externalWrites = [] as import("./fromYAMLToXMLTypes").YAMLToXMLExternalWrite[]
+  const owner = metadataTargetOwnerFromRule({
+    itemRule: params.rule,
+    name: params.name ?? params.sourceItemName,
+    context: params.context,
+    execution: params.execution,
+  })
+  const planningStartedAt = params.profile === undefined ? undefined : performance.now()
+  const propertyPlan = params.execution?.propertyPlan(params.rule)
+  const namePropertyKey = params.namePropertyKey ?? "name"
+  let orderedProperties: readonly (YAMLToXMLPlannedProperty | CompiledProperty)[] =
+    propertyPlan?.yamlToXMLOrder ?? legacyYAMLToXMLProperties(params.rule)
+  const sparse = propertyPlan !== undefined && propertySource === undefined && params.externalWriteFactory === undefined
+  if (params.externalWriteFactory !== undefined) {
+    const allProperties = propertyPlan?.properties ?? getYAMLToXMLPlan(params.rule).properties
+    const orderedPropertyKeys = new Set(orderedProperties.map(({ propertyKey }) => propertyKey))
+    orderedProperties = [
+      ...orderedProperties,
+      ...allProperties.filter(({ propertyKey }) => !orderedPropertyKeys.has(propertyKey)),
+    ]
+  }
+  if (params.profile !== undefined && planningStartedAt !== undefined) {
+    params.profile.planningMs += performance.now() - planningStartedAt
+  }
+
+  const executed = new Set<string>()
+  const selectProperties = () => sparse
+    ? propertyPlan.selectedYAMLExportOrder(yaml, (function* () {
+      yield* propertyValues.keys()
+      yield* executed
+    })(), params.name === undefined ? undefined : namePropertyKey)
+    : orderedProperties
+  let executionPosition = 0
+  let requiresOutputOrdering = false
+  let completed: YAMLToXMLResult | undefined
+  let failure: { readonly error: unknown } | undefined
+  const executeProperty = (planned: PlannedXMLProperty): void => {
+    const propertyKey = planned.propertyKey
+    const compiled = "operations" in planned ? planned : undefined
+    const sourceHasProperty = source.has(propertyKey)
+    if (
+      compiled?.missingYAMLStrategy === "skip"
+      && !sourceHasProperty
+      && !(propertyKey === namePropertyKey && params.name !== undefined)
+      && params.externalWriteFactory === undefined
+    ) return
+    const propertyProfileFrame = beginPropertyTypeProfile(params.profile, planned.propertyRule.type)
+    try {
+    if (params.profile !== undefined) {
+      params.profile.propertyCount++
+      params.profile.propertyPaths.push(formatRulePath(path.child(propertyKey).toArray()))
+    }
+    const matchingOutputs = outputs.filter(({ request }) => matchesOutputTag(planned.propertyRule, request))
+    const propertyContext = matchingOutputs[0]?.request.context ?? params.context
+    const hasXMLDefault = hasExplicitXMLDefault(propertyContext, planned.propertyRule, planned.propertyKey, source)
+    const exportHandler = compiled === undefined
+      ? typeRule(planned.propertyRule.type, "exportToXML")
+      : compiled.operations.exportToXML
+    const nestedRule = compiled === undefined
+      ? typeRule(planned.propertyRule.type, "yamlToXMLNestedRule")
+      : compiled.operations.yamlToXMLNestedRule
+    const requiresEvaluation = compiled === undefined
+      ? requiresYAMLToXMLEvaluation(planned.propertyRule)
+      : compiled.flags.requiresYAMLToXMLEvaluation
+    const reserveNestedItemWhenAbsent = compiled === undefined
+      ? typeRule(planned.propertyRule.type, "nestedItemIdentity")?.reserveWhenAbsent === true
+      : compiled.flags.reserveNestedItemWhenAbsent
+    const references = matchingOutputs.map(({ request }) =>
+      readIndexedIdentityProperty({
+        context: request.context ?? propertyContext,
+        planned,
+        execution: params.execution,
+        identityDescriptor: compiled?.operations.configurationIndexValueFromXML,
+        identityDescriptorResolved: compiled !== undefined,
+      })
+    )
+    if (params.externalWriteFactory !== undefined) {
+      externalWrites.push(
+        ...params.externalWriteFactory({
+          context: propertyContext,
+          yaml,
+          source,
+          name: params.name,
+          propertyKey,
+          propertyRule: planned.propertyRule,
+        })
+      )
+    }
+    if (!isYAMLPropertyExportEnabled({ source, planned, context: propertyContext })) return
+    if (
+      resolveXMLDefaultVariant(propertyContext) === "adopted" &&
+      !sourceHasProperty &&
+      planned.propertyRule.exportNilValue === true &&
+      references.every((reference) => !reference.exists)
+    ) {
+      return
+    }
+    if (
+      params.sparseYAML === true &&
+      !reserveNestedItemWhenAbsent &&
+      propertyKey !== namePropertyKey &&
+      !sourceHasProperty &&
+      !references.some((reference) => reference.exists) && !requiresEvaluation &&
+      (!hasXMLDefault || params.omitDefaultsForSparseYAML === true)
+    ) {
+      return
+    }
+    if (matchingOutputs.length === 0) return
+
+    if (isYAMLPropertyExportEnabled({ source, planned, context: propertyContext })) {
+      collectAutoRequiredXMLParentRoot(planned.propertyRule, autoRequiredXMLParentRoots)
+    }
+
+
+    if (
+      !reserveNestedItemWhenAbsent &&
+      !shouldConvertYAMLProperty({ source, planned, context: propertyContext })
+    ) return
+
+    if (
+      resolveXMLDefaultVariant(propertyContext) === "indexed" &&
+      !reserveNestedItemWhenAbsent &&
+      planned.propertyRule.yaml !== undefined &&
+      planned.propertyRule.toYAML !== false &&
+      planned.propertyRule.excludeIfEqualNameYAML !== true &&
+      !sourceHasProperty &&
+      !(planned.propertyKey === namePropertyKey && params.name !== undefined) &&
+      !requiresEvaluation &&
+      !hasXMLDefault &&
+      references.every((reference) => !reference.exists)
+    ) {
+      return
+    }
+
+    if (
+      !usesOrdinaryXMLDefaults(propertyContext) &&
+      !reserveNestedItemWhenAbsent &&
+      !hasXMLDefault &&
+      !requiresEvaluation &&
+      !sourceHasProperty &&
+      !(planned.propertyKey === namePropertyKey && params.name !== undefined) &&
+      references.every((reference) => !reference.exists) &&
+      (Object.prototype.hasOwnProperty.call(planned.propertyRule, "defaultValueXML") ||
+        Object.prototype.hasOwnProperty.call(planned.propertyRule, "defaultValueXMLRaw") ||
+        Object.prototype.hasOwnProperty.call(planned.propertyRule, "defaultValueXMLEmpty"))
+    ) {
+      return
+    }
+
+    if (nestedRule !== undefined && nestedRule.kind !== "externalFile") {
+      const prepareItemOutput = compiled === undefined
+        ? typeRule(planned.propertyRule.type, "prepareXMLItemOutput")
+        : compiled.operations.prepareXMLItemOutput
+      const nestedProperty = (observer?.prepareNestedProperty ?? prepareNestedXMLPropertyContext)({
+        context: propertyContext, ownerRule: params.rule, ownerName: params.name, property: planned, nestedRule,
+      })
+      const effectiveNestedRule = nestedProperty.rule
+      const scalarTag = typeof planned.yamlKey === "string" && yaml !== undefined
+        ? yamlScalarTagAt(yaml, planned.yamlKey)
+        : undefined
+      const scalarTagPolicy = compiled === undefined
+        ? typeRule(planned.propertyRule.type, "yamlScalarTagPolicy")
+        : compiled.operations.yamlScalarTagPolicy
+      assertYAMLScalarTagAllowed({ tag: scalarTag, policy: scalarTagPolicy })
+      const nestedContext = nestedProperty.context
+      const sourceNestedYAML =
+        planned.propertyKey === namePropertyKey && params.name !== undefined && !sourceHasProperty
+          ? params.name
+          : source.raw(propertyKey)
+      const hasNestedDefault = hasExplicitXMLDefault(propertyContext, planned.propertyRule, planned.propertyKey, source)
+      const nestedYAML =
+        sourceNestedYAML === undefined
+          ? effectiveNestedRule.kind === "collection" &&
+            (scalarTag !== undefined || hasNestedDefault || planned.propertyRule.evaluateWhenYAMLMissing === true)
+            ? {}
+            : effectiveNestedRule.kind === "item" &&
+            (reserveNestedItemWhenAbsent ||
+              planned.propertyRule.evaluateWhenYAMLMissing === true ||
+              references.some((reference) => reference.exists && reference.value === undefined) ||
+              nestedContext.exportToXML.configurationIndex?.identity(
+                "xmlId",
+                getConfigurationIndexXmlNodeLogicalAddress(nestedContext)
+              ) !== undefined)
+            ? {}
+            : undefined
+          : sourceNestedYAML
+      if (nestedYAML === undefined && !references.some((reference) => reference.exists)) {
+        return
+      }
+      if (nestedYAML === undefined) {
+        matchingOutputs.forEach((output, index) => {
+          const reference = references[index]!
+          if (reference.exists)
+            writeXMLValue({ context: propertyContext, output, planned, value: reference.value, reference })
+        })
+        return
+      }
+      const nestedOutputs = matchingOutputs.map(output => ({
+        key: output.request.key,
+      }))
+      const normalizedNestedYAML =
+        effectiveNestedRule.kind === "item" && effectiveNestedRule.normalizeYAML !== undefined
+          ? effectiveNestedRule.normalizeYAML({
+              yaml: nestedYAML,
+              annotations: params.annotations,
+              name: params.name,
+              propertyRule: planned.propertyRule,
+            })
+          : nestedYAML
+      if (normalizedNestedYAML !== nestedYAML && isRecord(nestedYAML) && isRecord(normalizedNestedYAML)) {
+        copyYAMLRuntimeMetadata(nestedYAML, normalizedNestedYAML)
+      }
+      copyXmlAnomalyAnnotationsDeep(params.annotations, nestedYAML, normalizedNestedYAML)
+      let preparedSingleton: ReturnType<typeof prepareSingletonXMLContext> | undefined
+      const singleton = () => preparedSingleton ??= effectiveNestedRule.kind === "item"
+        ? prepareSingletonXMLContext({
+          context: nestedContext, descriptor: effectiveNestedRule, yaml: normalizedNestedYAML,
+          ownerName: params.name, propertyRule: planned.propertyRule,
+        }) : { context: nestedContext, itemName: undefined }
+      const hasRawCollectionItems =
+        effectiveNestedRule.kind === "collection" &&
+        readXmlAnomalyRawCollectionItems(nestedYAML).length > 0
+      if (
+        effectiveNestedRule.kind === "collection" &&
+        Array.isArray(nestedYAML) &&
+        nestedYAML.length === 0 &&
+        !hasRawCollectionItems &&
+        Object.prototype.hasOwnProperty.call(planned.propertyRule, "defaultValueXMLRaw")
+      ) {
+        matchingOutputs.forEach((output, index) =>
+          writeXMLValue({ context: propertyContext, output, planned, value: [], reference: references[index]! })
+        )
+        return
+      }
+      if (
+        effectiveNestedRule.kind === "collection" &&
+        Array.isArray(nestedYAML) &&
+        nestedYAML.length === 0 &&
+        !hasRawCollectionItems &&
+        !hasNestedDefault
+      ) {
+        return
+      }
+      const nested =
+        effectiveNestedRule.kind === "collection"
+          ? convertMetadataCollectionFromYAMLToXML({
+              convertItem: convertNestedItem,
+              convertProperties: convertNestedProperties,
+              prepareItemOutput,
+              context: nestedContext,
+              yaml: nestedYAML,
+              annotations: params.annotations,
+              descriptor: effectiveNestedRule,
+              propertyRule: planned.propertyRule,
+              source,
+              outputs: nestedOutputs,
+              ...(scalarTag === "xml/standard-attributes" ? { materializeCanonicalItems: true as const } : {}),
+              externalWriteFactory: params.externalWriteFactory,
+              profile: params.profile,
+              pathCursor: path.child(propertyKey),
+              deferredPathCursor: deferredPath.child({ propertyKey }),
+            })
+          : convertNestedItem({
+              convertProperties: convertNestedProperties,
+              prepareOutput: prepareItemOutput,
+              propertyRule: planned.propertyRule,
+              context: nestedContext,
+              prepareContext: () => singleton().context,
+              yaml: normalizedNestedYAML,
+              annotations: params.annotations,
+              rule:
+                effectiveNestedRule.kind === "item"
+                  ? effectiveNestedRule.itemRule
+                  : effectiveNestedRule.resolveItemRule({ yaml: asRecord(nestedYAML) ?? {}, name: params.name ?? "" }),
+              name:
+                effectiveNestedRule.kind === "item" && effectiveNestedRule.injectOwnerName === true
+                  ? params.name
+                  : undefined,
+              get sourceItemName() { return singleton().itemName ?? params.name },
+              outputs: nestedOutputs,
+              sparseYAML: effectiveNestedRule.kind === "item" ? effectiveNestedRule.sparseYAML : undefined,
+              externalWriteFactory: params.externalWriteFactory,
+              ownerYAML: { itemType: params.rule.itemType },
+              profile: params.profile,
+              pathCursor: path.child(propertyKey),
+              deferredPathCursor: deferredPath.child({ propertyKey }),
+            })
+      if (effectiveNestedRule.kind !== "collection" && params.profile !== undefined) params.profile.nestedItemCount++
+      externalWrites.push(...nested.externalWrites)
+      matchingOutputs.forEach((output, index) => {
+        if (effectiveNestedRule.kind === "collection" && !nested.outputs.has(output.request.key)) return
+        const reference = references[index]!
+        let value: unknown = nested.outputs.get(output.request.key)
+        if (effectiveNestedRule.kind === "item") {
+          copyXmlAnomalyExportClaim(normalizedNestedYAML, value)
+        }
+        if (
+          effectiveNestedRule.kind === "collection" &&
+          effectiveNestedRule.xmlElement !== undefined &&
+          planned.propertyRule.xml === effectiveNestedRule.xmlElement &&
+          isRecord(value)
+        ) {
+          value = value[effectiveNestedRule.xmlElement]
+        }
+        if (
+          effectiveNestedRule.kind === "collection" &&
+          effectiveNestedRule.xmlElement !== undefined &&
+          isEmptyCollectionOutput(value, effectiveNestedRule.xmlElement) &&
+          reference.exists &&
+          Object.prototype.hasOwnProperty.call(planned.propertyRule, "defaultValueXMLEmpty")
+        ) {
+          value = {}
+        }
+        const valuePath = writeXMLValue({ context: propertyContext, output, planned, value, reference })
+        if (valuePath !== undefined) {
+          for (const deferred of nested.deferredByOutput.get(output.request.key) ?? []) {
+            output.deferred.push({ ...deferred, valuePath: [...valuePath, ...deferred.valuePath] })
+          }
+        }
+      })
+      return
+    }
+
+    const yamlKey = planned.yamlKey
+    const hasYAMLValue =
+      yamlKey !== undefined && yaml !== undefined && Object.prototype.hasOwnProperty.call(yaml, yamlKey)
+    const rawSourceValue =
+      planned.propertyKey === namePropertyKey && params.name !== undefined && !sourceHasProperty
+        ? params.name
+        : propertyValues.has(propertyKey)
+          ? source.raw(propertyKey)
+          : hasYAMLValue
+            ? restoreExplicitYAMLString({ yaml, yamlKey, rule: planned.propertyRule })
+            : source.raw(propertyKey)
+    const sourceValue =
+      !sourceHasProperty && Object.prototype.hasOwnProperty.call(planned.propertyRule, "implicitValueXML")
+        ? resolveImplicitValueYAML({
+            context: propertyContext,
+            rule: planned.propertyRule,
+            yaml,
+            name: params.name,
+          })
+        : rawSourceValue
+    const diagnosticContext = withYAMLImportDiagnostics(propertyContext, {
+      propertyPath: [yamlKey ?? propertyKey],
+      ...(yamlKey === undefined ? {} : { yamlPath: [yamlKey] }),
+    }) as ConfigurationContextWithExportToXML
+    let imported: unknown
+    try {
+      if (sourceHasProperty && isTypeOwnedMetadataTargetUnavailable({
+        rule: planned.propertyRule,
+        siblingValue: (siblingPropertyKey) => source.raw(siblingPropertyKey),
+      })) {
+        throw new Error(
+          `${planned.propertyRule.yaml ?? propertyKey} недоступна: тип должен содержать единственный тип`,
+        )
+      }
+      const atomicConversion = compiled === undefined
+        ? typeRule(planned.propertyRule.type, "compileAtomicConversion")?.({ rule: planned.propertyRule })
+        : compiled.atomicConversion
+      const atomicFromXMLToYAMLEligible = compiled === undefined
+        ? atomicConversion !== undefined
+          && typeRule(planned.propertyRule.type, "importFromXMLToYAML") === undefined
+          && typeRule(planned.propertyRule.type, "resolveNestedImportXMLSources") === undefined
+        : compiled.flags.atomicFromXMLToYAMLEligible
+      const atomicFromYAMLToXMLEligible = compiled === undefined
+        ? atomicConversion !== undefined
+          && typeRule(planned.propertyRule.type, "yamlToXMLNestedRule") === undefined
+        : compiled.flags.atomicFromYAMLToXMLEligible
+      const atomicReferences = references.map((reference) =>
+        !sourceHasProperty && planned.propertyRule.exportNilValue === true
+          ? undefined
+          : reference.exists
+              ? atomicConversion?.fromXMLToYAML !== undefined
+                && atomicFromXMLToYAMLEligible
+                ? atomicConversion.fromXMLToYAML({
+                    context: {
+                      ...diagnosticContext,
+                      fromXML: { },
+                    } as ConfigurationContextFromXML,
+                    value: reference.value,
+                  }).metadataValue
+                : callAtomicFromXML({
+                    context: diagnosticContext,
+                    rule: planned.propertyRule,
+                    value: reference.value,
+                    name: params.name,
+                    execution: params.execution,
+                    compiled,
+                  })
+            : undefined
+      )
+      const importParams: AtomicFromYAMLParams = {
+        handler: compiled === undefined
+          ? typeRule(planned.propertyRule.type, "importFromYAML")
+          : compiled.operations.importFromYAML,
+        compiled,
+        execution: params.execution,
+        context: diagnosticContext,
+        rule: planned.propertyRule,
+        value: sourceValue === undefined ? atomicReferences[0] : sourceValue,
+        yaml,
+        annotations: params.annotations,
+        name: params.name,
+        owner: metadataTargetOwnerForProperty({
+          rule: planned.propertyRule,
+          siblingValue: (siblingPropertyKey) => source.raw(siblingPropertyKey),
+          owner,
+        }),
+        restoreExcludedEqualName:
+          !sourceHasProperty &&
+          planned.propertyRule.excludeIfEqualNameYAML === true &&
+          params.name !== undefined &&
+          resolveXMLDefaultVariant(propertyContext) !== "adopted",
+      }
+      const scalarTag = typeof planned.propertyRule.yaml === "string"
+        ? yamlScalarTagAt(yaml, planned.propertyRule.yaml)
+        : undefined
+      const scalarTagPolicy = compiled === undefined
+        ? typeRule(planned.propertyRule.type, "yamlScalarTagPolicy")
+        : compiled.operations.yamlScalarTagPolicy
+      assertYAMLScalarTagAllowed({ tag: scalarTag, policy: scalarTagPolicy })
+      let fusedRepresentationValue: unknown
+      let usedFusedAtomic = false
+      const atomicInvocation = atomicConversion === undefined
+        ? undefined
+        : {
+            conversion: atomicConversion,
+            staticallyEligible: atomicFromYAMLToXMLEligible,
+          }
+      if (atomicInvocation !== undefined && canUseAtomicFromYAMLToXML(atomicInvocation)) {
+        const startedAt = params.profile?.propertyTypeProfiling === true
+          ? performance.now()
+          : undefined
+        const occurrenceHandler = compiled === undefined
+          ? typeRule(planned.propertyRule.type, "metadataTargetOccurrences")
+          : compiled.operations.metadataTargetOccurrences
+        const atomicInputValue = occurrenceHandler === undefined
+          ? sourceValue
+          : importMetadataTargetsFromYAML({
+              value: sourceValue,
+              handler: occurrenceHandler,
+              rule: planned.propertyRule,
+              owner: importParams.owner,
+              yaml,
+              annotations: params.annotations,
+            })
+        const fused = atomicInvocation.conversion.fromYAMLToXML({
+          context: diagnosticContext,
+          value: atomicInputValue,
+        })
+        imported = fused.metadataValue ?? atomicReferences[0]
+        if (imported === undefined) {
+          imported = defaultValue({
+            context: diagnosticContext,
+            rule: planned.propertyRule,
+            yaml,
+            name: params.name,
+            operation: "importFromYAML",
+          })
+        }
+        fusedRepresentationValue = imported === fused.metadataValue
+          ? fused.representationValue
+          : atomicInvocation.conversion.fromYAMLToXML({
+              context: diagnosticContext,
+              value: imported,
+            }).representationValue
+        usedFusedAtomic = true
+        recordFusedYAMLToXML(params.profile, planned.propertyRule.type, startedAt)
+      }
+      if (!usedFusedAtomic) {
+        imported = callAtomicFromYAML(importParams)
+        if (params.profile !== undefined) params.profile.atomicFromYAMLCount++
+      }
+
+      matchingOutputs.forEach((output, index) => {
+        const reference = references[index]!
+        const outputContext = withConfigurationIndexExportPropertyContext(
+          output.request.context ?? propertyContext,
+          planned.yamlKey ?? planned.propertyKey,
+          planned.propertyRule.configurationIndexUidSegment ?? planned.propertyRule.operationTarget?.migrationSegment,
+          {
+            propertyKey: planned.propertyKey,
+            configurationIndexAddressing: planned.propertyRule.configurationIndexAddressing,
+          }
+        )
+        const exported = usedFusedAtomic
+          ? atomicRepresentationToXML({
+              context: outputContext,
+              rule: planned.propertyRule,
+              metadataValue: imported,
+              representationValue: fusedRepresentationValue,
+              source,
+              propertyKey,
+              sourceHasProperty,
+            })
+          : callAtomicToXML({
+          handler: exportHandler,
+          compiled,
+          execution: params.execution,
+          context: outputContext,
+          rule: planned.propertyRule,
+          value: imported,
+          source,
+          propertyKey,
+          sourceHasProperty,
+          })
+        if (params.profile !== undefined && !usedFusedAtomic) params.profile.atomicToXMLCount++
+        const valuePath = writeXMLValue({ context: outputContext, output, planned, value: exported, reference })
+        const finalizeExportedXML = compiled === undefined
+          ? typeRule(planned.propertyRule.type, "finalizeExportedXML")
+          : compiled.operations.finalizeExportedXML
+        if (valuePath !== undefined && finalizeExportedXML !== undefined) {
+          output.deferred.push({
+            valuePath,
+            rulePath: deferredPath.child({ propertyKey }).toArray(),
+          })
+        }
+      })
+    } catch (error) {
+      throw toYAMLImportError(error, diagnosticContext)
+    }
+    } finally {
+      finishPropertyTypeProfile(params.profile, propertyProfileFrame, "YAML → XML")
+    }
+  }
+
+  const execute = (planned: PlannedXMLProperty): void => {
+    if (failure !== undefined) throw failure.error
+    if (completed !== undefined) throw new Error("Экспорт свойств item уже завершён")
+    if (executed.has(planned.propertyKey)) return
+    executed.add(planned.propertyKey)
+    if (orderedProperties[executionPosition++]?.propertyKey !== planned.propertyKey) requiresOutputOrdering = true
+    try {
+      executeProperty(planned)
+      observer?.complete(planned)
+    } catch (error) {
+      failure = { error }
+      throw error
+    }
+  }
+
+  const finish = (): YAMLToXMLResult => {
+    if (failure !== undefined) throw failure.error
+    if (completed !== undefined) return completed
+    try {
+    orderedProperties = selectProperties()
+    for (const property of orderedProperties) execute(property)
+    for (const output of outputs) {
+      if (requiresOutputOrdering) orderXmlPropertyOutput(output.xml, orderedProperties)
+      applyAutoRequiredXMLParents(output.xml, autoRequiredXMLParentRoots)
+    }
+    const outputMap = new Map(outputs.map(({ request, xml }) => [request.key, xml]))
+    if (yaml !== undefined) {
+      const augmenterRegistry = params.execution ?? currentPropertyRuleRegistrySet<{
+        augmentMetadataItemYamlToXml(value: {
+          readonly context: ConfigurationContextWithExportToXML
+          readonly rule: MetadataItemRule
+          readonly yaml: Readonly<Record<string, unknown>>
+          readonly outputs: ReadonlyMap<string, Record<string, unknown>>
+        }): void
+      }>()
+      augmenterRegistry?.augmentMetadataItemYamlToXml({
+        context: params.context,
+        rule: params.rule,
+        yaml,
+        outputs: outputMap,
+      })
+    }
+    if (params.profile !== undefined && topLevelStartedAt !== undefined) {
+      params.profile.propertyConversionMs += performance.now() - topLevelStartedAt
+    }
+    completed = {
+      outputs: outputMap,
+      deferredByOutput: new Map(outputs.map(({ request, deferred }) => [request.key, deferred])),
+      externalWrites,
+    }
+    completed = observer?.finish?.(completed) ?? completed
+    return completed
+    } catch (error) {
+      failure = { error }
+      throw error
+    }
+  }
+  return { get properties() { return selectProperties() }, execute, finish }
+}
+
+function atomicRepresentationToXML(params: {
+  readonly context: ConfigurationContextWithExportToXML
+  readonly rule: PropertyRule
+  readonly metadataValue: unknown
+  readonly representationValue: unknown
+  readonly source?: YAMLPropertySource
+  readonly propertyKey?: string
+  readonly sourceHasProperty?: boolean
+}): unknown {
+  const { context, rule, metadataValue, representationValue, source, propertyKey } = params
+  if (
+    Object.prototype.hasOwnProperty.call(rule, "implicitValueXML")
+    && metadataValue === rule.implicitValueXML
+  ) return undefined
+  const forcedXMLDefault = explicitYAMLDefaultXML({
+    context,
+    rule,
+    source,
+    propertyKey,
+    sourceHasProperty: params.sourceHasProperty,
+  })
+  if (forcedXMLDefault.exists) return wrapWithNamespace(rule, forcedXMLDefault.value)
+  if (isDefaultValue(metadataValue, rule.defaultValue)) {
+    if (shouldCreateRawParent(metadataValue, rule)) return metadataValue
+    if (Object.prototype.hasOwnProperty.call(rule, "defaultValueXMLRaw")) return rule.defaultValueXMLRaw
+    const xmlDefault = resolveXMLDefault(context, rule, propertyKey, source)
+    return xmlDefault.exists ? wrapWithNamespace(rule, xmlDefault.value) : undefined
+  }
+  return wrapWithNamespace(rule, representationValue)
+}
+
+function recordFusedYAMLToXML(
+  profile: import("./fromYAMLToXMLTypes").YAMLToXMLProfile | undefined,
+  propertyType: string,
+  startedAt: number | undefined,
+): void {
+  if (profile === undefined) return
+  profile.fusedAtomicCount++
+  const elapsedMs = startedAt === undefined ? 0 : performance.now() - startedAt
+  const current = profile.fusedAtomicByType.get(propertyType)
+  if (current === undefined) profile.fusedAtomicByType.set(propertyType, { count: 1, timeMs: elapsedMs })
+  else {
+    current.count++
+    current.timeMs += elapsedMs
+  }
+}
+
+function legacyYAMLToXMLProperties(rule: MetadataItemRule): readonly YAMLToXMLPlannedProperty[] {
+  const planByKey = new Map(
+    getYAMLToXMLPlan(rule).properties.map((planned) => [planned.propertyKey, planned]),
+  )
+  return getOrderedKeysToXML({ rule })
+    .map((propertyKey) => planByKey.get(propertyKey))
+    .filter((planned): planned is YAMLToXMLPlannedProperty => planned !== undefined)
+}
+
+function formatRulePath(path: readonly (string | number)[]): string {
+  return path.map(String).join("/")
+}
+
+function callAtomicFromXML(params: {
+  context: ConfigurationContext
+  rule: PropertyRule
+  value: unknown
+  name?: string
+  execution?: PropertyRuleExecution
+  compiled?: CompiledProperty
+}): unknown {
+  const atomicConversion = resolveAtomicConversion({
+    rule: params.rule,
+    execution: params.execution,
+    compiled: params.compiled,
+    getTypeRule,
+  })
+  if (atomicConversion !== undefined) {
+    return atomicConversion.fromXMLToYAML({
+      context: params.context,
+      value: params.value,
+    }).metadataValue
+  }
+  const handler = params.compiled === undefined
+    ? params.execution === undefined
+      ? getTypeRule(params.rule.type, "importFromXML")
+      : params.execution.getTypeRule(params.rule.type, "importFromXML")
+    : params.compiled.operations.importFromXML
+  if (handler === undefined) return params.value
+  return handler({ ...params.context, fromXML: { } }, params.rule, params.value, params.name)
+}
+
+export function callAtomicFromYAML(params: AtomicFromYAMLParams): unknown {
+  const { context, rule, value, yaml, annotations, name, owner } = params
+  const scalarTag = typeof rule.yaml === "string"
+    ? yamlScalarTagAt(yaml, rule.yaml)
+    : undefined
+  const scalarTagPolicy = params.compiled === undefined
+    ? params.execution === undefined
+      ? getTypeRule(rule.type, "yamlScalarTagPolicy")
+      : params.execution.getTypeRule(rule.type, "yamlScalarTagPolicy")
+    : params.compiled.operations.yamlScalarTagPolicy
+  assertYAMLScalarTagAllowed({ tag: scalarTag, policy: scalarTagPolicy })
+  const handler = params.compiled === undefined
+    ? params.handler ?? (params.execution === undefined
+      ? getTypeRule(rule.type, "importFromYAML")
+      : params.execution.getTypeRule(rule.type, "importFromYAML"))
+    : params.compiled.operations.importFromYAML
+  const occurrenceHandler = params.compiled === undefined
+    ? params.execution === undefined
+      ? getTypeRule(rule.type, "metadataTargetOccurrences")
+      : params.execution.getTypeRule(rule.type, "metadataTargetOccurrences")
+    : params.compiled.operations.metadataTargetOccurrences
+  const importedValue = occurrenceHandler === undefined
+    ? value
+    : importMetadataTargetsFromYAML({
+        value,
+        handler: occurrenceHandler,
+        rule,
+        owner,
+        yaml,
+        annotations,
+      })
+  const atomicConversion = resolveAtomicConversion({
+    rule,
+    execution: params.execution,
+    compiled: params.compiled,
+    getTypeRule,
+  })
+  if (atomicConversion !== undefined) {
+    const atomicValue = params.restoreExcludedEqualName === true && importedValue === undefined
+      ? name
+      : importedValue
+    const imported = atomicConversion.fromYAMLToXML({
+      context,
+      value: atomicValue,
+    }).metadataValue
+    return imported === undefined
+      ? defaultValue({ context, rule, yaml, name, operation: "importFromYAML" })
+      : imported
+  }
+  if (handler === undefined) {
+    return importedValue ?? defaultValue({ context, rule, yaml, name, operation: "importFromYAML" })
+  }
+
+  const imported =
+    handler.length === 1
+      ? (handler as ImportFromYAMLFunctionNew)({
+          context,
+          rule,
+          value: importedValue,
+          yaml,
+          annotations,
+          name,
+          owner,
+          restoreExcludedEqualName: params.restoreExcludedEqualName,
+        })
+      : (handler as importFromYAMLFunction)(context, rule, importedValue)
+  if (imported === null && (
+    rule.type === "MetadataDcsMetadataValue" || (rule.preserveEmptyXML === true && value === undefined)
+  )) return null
+  return imported ?? defaultValue({ context, rule, yaml, name, operation: "importFromYAML" })
+}
+
+function importMetadataTargetsFromYAML(params: {
+  value: unknown
+  handler: MetadataTargetOccurrencesFunction
+  rule: PropertyRule
+  owner?: MetadataTargetOwner
+  yaml?: unknown
+  annotations?: import("../../../yaml/xmlAnomalyAnnotations").XmlAnomalyAnnotations
+}): unknown {
+  const prepared = cloneMetadataTargetValue(params.value)
+  const occurrences = params.handler({
+    value: prepared,
+    representation: "yaml",
+    yamlPath: typeof params.rule.yaml === "string" ? [params.rule.yaml] : [],
+    propRule: params.rule,
+    owner: params.owner,
+  })
+  return importMetadataTargetOccurrencesFromYAML({
+    value: prepared,
+    occurrences,
+    owner: params.owner,
+    yaml: params.yaml,
+    annotations: params.annotations,
+  })
+}
+
+export function callAtomicToXML(params: AtomicToXMLParams): unknown {
+  const { context, rule, value, source, propertyKey } = params
+  if (Object.prototype.hasOwnProperty.call(rule, "implicitValueXML") && value === rule.implicitValueXML) {
+    return undefined
+  }
+  const atomicConversion = resolveAtomicConversion({
+    rule,
+    execution: params.execution,
+    compiled: params.compiled,
+    getTypeRule,
+  })
+  if (atomicConversion !== undefined) {
+    const converted = atomicConversion.fromYAMLToXML({ context, value })
+    return atomicRepresentationToXML({
+      context,
+      rule,
+      metadataValue: converted.metadataValue,
+      representationValue: converted.representationValue,
+      source: params.source,
+      propertyKey: params.propertyKey,
+      sourceHasProperty: params.sourceHasProperty,
+    })
+  }
+  const handler = params.compiled === undefined
+    ? params.handler ?? (params.execution === undefined
+      ? getTypeRule(rule.type, "exportToXML")
+      : params.execution.getTypeRule(rule.type, "exportToXML"))
+    : params.compiled.operations.exportToXML
+  const hasRaw = Object.prototype.hasOwnProperty.call(rule, "defaultValueXMLRaw")
+  const forcedXMLDefault = explicitYAMLDefaultXML({
+    context,
+    rule,
+    source,
+    propertyKey,
+    sourceHasProperty: params.sourceHasProperty,
+  })
+  const xmlDefault = resolveXMLDefault(context, rule, propertyKey, source)
+  if (handler === undefined) {
+    if (forcedXMLDefault.exists) return wrapWithNamespace(rule, forcedXMLDefault.value)
+    if (isDefaultValue(value, rule.defaultValue)) {
+      if (shouldCreateRawParent(value, rule)) return value
+      return hasRaw ? rule.defaultValueXMLRaw : xmlDefault.exists ? xmlDefault.value : undefined
+    }
+    return wrapWithNamespace(rule, value)
+  }
+
+  const exportValue = (nextValue: unknown): unknown =>
+    handler.length === 1
+      ? (handler as ExportToXMLFunctionNew)({
+          context,
+          rule,
+          value: nextValue,
+          source,
+          propertyKey,
+        })
+      : (handler as ExportToXMLFunction)(context, rule, nextValue)
+  if (forcedXMLDefault.exists) {
+    return wrapWithNamespace(rule, exportValue(forcedXMLDefault.value))
+  }
+  const exported = exportValue(value)
+  if (
+    isDefaultValue(exported, rule.defaultValue) ||
+    (exported === undefined && isDefaultValue(value, rule.defaultValue))
+  ) {
+    if (shouldCreateRawParent(value, rule)) return value
+    if (hasRaw) return rule.defaultValueXMLRaw
+    return xmlDefault.exists ? wrapWithNamespace(rule, exportValue(xmlDefault.value)) : undefined
+  }
+  return wrapWithNamespace(rule, exported)
+}
+
+function explicitYAMLDefaultXML(params: {
+  readonly context: ConfigurationContextWithExportToXML
+  readonly rule: PropertyRule
+  readonly source?: YAMLPropertySource
+  readonly propertyKey?: string
+  readonly sourceHasProperty?: boolean
+}): { readonly exists: boolean; readonly value: unknown } {
+  const sourceHasProperty = params.sourceHasProperty
+    ?? (params.source !== undefined && params.propertyKey !== undefined && params.source.has(params.propertyKey))
+  if (params.source === undefined || params.propertyKey === undefined || !sourceHasProperty) {
+    return { exists: false, value: undefined }
+  }
+  const rawValue = params.source.raw(params.propertyKey)
+  if (rawValue !== null && rawValue !== undefined && !(isRecord(rawValue) && Object.keys(rawValue).length === 0)) {
+    return { exists: false, value: undefined }
+  }
+  if (
+    resolveXMLDefaultVariant(params.context) === "adopted" &&
+    Object.prototype.hasOwnProperty.call(params.rule, "defaultValueAdoptedXML")
+  ) {
+    return { exists: true, value: params.rule.defaultValueAdoptedXML }
+  }
+  return Object.prototype.hasOwnProperty.call(params.rule, "defaultValueXML")
+    ? { exists: true, value: params.rule.defaultValueXML }
+    : { exists: false, value: undefined }
+}
+
+function shouldConvertYAMLProperty(params: {
+  source: YAMLPropertySource
+  planned: YAMLToXMLPlannedProperty
+  context: ConfigurationContextWithExportToXML
+}): boolean {
+  return isYAMLPropertyExportEnabled(params)
+}
+
+function isYAMLPropertyExportEnabled(params: {
+  source: YAMLPropertySource
+  planned: YAMLToXMLPlannedProperty
+  context: ConfigurationContextWithExportToXML
+}): boolean {
+  const { source, planned, context } = params
+  const rule = planned.propertyRule
+  if (rule.runtimeOnly || rule.syncExternalOnly || rule.filePath !== undefined || rule.toXML === false) return false
+  return typeof rule.toXML !== "function" || rule.toXML(source, context)
+}
+
+function requiresYAMLToXMLEvaluation(rule: PropertyRule): boolean {
+  return (
+    typeof rule.toXML === "function" ||
+    rule.evaluateWhenYAMLMissing === true ||
+    rule.exportNilValue === true ||
+    Object.prototype.hasOwnProperty.call(rule, "implicitValueXML")
+  )
+}
+
+function matchesOutputTag(rule: PropertyRule, output: YAMLToXMLOutputRequest): boolean {
+  return output.tags === undefined || (rule.tag !== undefined && output.tags.includes(rule.tag))
+}
+
+function readIndexedIdentityProperty(params: {
+  context: ConfigurationContextWithExportToXML
+  planned: YAMLToXMLPlannedProperty
+  execution?: PropertyRuleExecution
+  identityDescriptor?: ConfigurationIndexValueFromXMLDescriptor
+  identityDescriptorResolved?: boolean
+}): IndexedIdentityProperty {
+  return indexedIdentityFromConfigurationIndex(
+    params.context,
+    params.planned,
+    params.execution,
+    params.identityDescriptor,
+    params.identityDescriptorResolved,
+  )
+}
+
+function indexedIdentityFromConfigurationIndex(
+  context: ConfigurationContextWithExportToXML,
+  planned: YAMLToXMLPlannedProperty,
+  execution?: PropertyRuleExecution,
+  identityDescriptor?: ConfigurationIndexValueFromXMLDescriptor,
+  identityDescriptorResolved?: boolean,
+): IndexedIdentityProperty {
+  const identity = readIdentityFromConfigurationIndex(
+    context,
+    planned,
+    execution,
+    identityDescriptor,
+    identityDescriptorResolved,
+  )
+  if (identity !== undefined) return identity
+  return { exists: false }
+}
+
+function readIdentityFromConfigurationIndex(
+  context: ConfigurationContextWithExportToXML,
+  planned: YAMLToXMLPlannedProperty,
+  execution?: PropertyRuleExecution,
+  identityDescriptor?: ConfigurationIndexValueFromXMLDescriptor,
+  identityDescriptorResolved?: boolean,
+): IndexedIdentityProperty | undefined {
+  if ((planned.propertyRule.xmlParents?.length ?? 0) > 0) return undefined
+  const xmlKey = planned.propertyRule.xml ?? planned.xmlPath.at(-1)
+  const runtime = context.exportToXML.configurationIndex
+  if (runtime === undefined || (xmlKey !== "_uuid" && xmlKey !== "_id")) return undefined
+  const kind =
+    xmlKey === "_uuid"
+      ? "uuid"
+      : (identityDescriptorResolved === true
+          ? identityDescriptor
+          : execution === undefined
+            ? getTypeRule(planned.propertyRule.type, "configurationIndexValueFromXML")
+            : execution.getTypeRule(planned.propertyRule.type, "configurationIndexValueFromXML"))
+          ?.identityKind === "uuid"
+          ? "uuid"
+          : "xmlId"
+  const value = runtime.identity(kind)
+  if (value === undefined) return undefined
+  runtime.collector.setIdentity(runtime.logicalAddress, kind, value)
+  return { exists: true, key: xmlKey, value }
+}
+
+function writeXMLValue(params: {
+  context: ConfigurationContextWithExportToXML
+  output: MutableOutput
+  planned: YAMLToXMLPlannedProperty
+  value: unknown
+  reference: IndexedIdentityProperty
+}): readonly string[] | undefined {
+  const { output, planned, reference } = params
+  const rule = planned.propertyRule
+  const usesEmptyReferenceFallback =
+    params.value === undefined &&
+    reference.exists &&
+    planned.propertyRule.preserveEmptyXML !== true &&
+    !Object.prototype.hasOwnProperty.call(rule, "implicitValueXML")
+  const rawValue = usesEmptyReferenceFallback ? {} : params.value
+  const value = wrapWithNamespace(rule, rawValue)
+  if (value === undefined) return undefined
+  if (Array.isArray(value) && value.length === 0) {
+    if (rule.xmlParents !== undefined && Object.prototype.hasOwnProperty.call(rule, "defaultValueXMLRaw")) {
+      const canonical = rule.xml ?? capitalize(planned.propertyKey)
+      const rawPath = isRecord(rule.defaultValueXMLRaw) ? rule.xmlParents : [...rule.xmlParents, canonical]
+      emitXMLValue(output, planned, rawPath, rule.defaultValueXMLRaw)
+    } else if (reference.exists && Object.prototype.hasOwnProperty.call(rule, "defaultValueXMLEmpty")) {
+      const canonical = rule.xml ?? capitalize(planned.propertyKey)
+      emitXMLValue(output, planned, [...(rule.xmlParents ?? []), canonical], {})
+    }
+    return undefined
+  }
+
+  const xmlKey = rule.xml ?? capitalize(planned.propertyKey)
+  const valuePath = [...(rule.xmlParents ?? []), xmlKey]
+  if (usesEmptyReferenceFallback && valueAtPath(output.xml, valuePath) !== undefined) {
+    return undefined
+  }
+  emitXMLValue(output, planned, valuePath, value)
+  return valuePath
+}
+
+function emitXMLValue(output: MutableOutput, property: PlannedXMLProperty, path: readonly string[], value: unknown): void {
+  const routed = output.request.itemPreparation?.routeProperty?.({
+    propertyKey: property.propertyKey,
+    path,
+    value,
+  }) ?? { path, value }
+  const consumed = output.observer?.write({
+    outputKey: output.request.key,
+    property,
+    path: routed.path,
+    value: routed.value,
+  })
+  setAtPath(
+    output.xml,
+    routed.path,
+    consumed === undefined ? routed.value : consumed.retainedValue,
+    routed.append === true,
+  )
+}
+
+function isEmptyCollectionOutput(value: unknown, xmlElement: string): boolean {
+  if (!isRecord(value) || Object.keys(value).length !== 1) return false
+  const items = value[xmlElement]
+  return Array.isArray(items) && items.length === 0
+}
+
+function setAtPath(target: Record<string, unknown>, path: readonly string[], value: unknown, append = false): void {
+  if (path.length === 0) return
+  let current = target
+  for (const segment of path.slice(0, -1)) {
+    const nested = current[segment]
+    if (!isRecord(nested)) current[segment] = {}
+    current = current[segment] as Record<string, unknown>
+  }
+  const key = path.at(-1)!
+  if (!append) {
+    current[key] = value
+    return
+  }
+  const previous = current[key]
+  current[key] = previous === undefined
+    ? [value]
+    : Array.isArray(previous) ? [...previous, value] : [previous, value]
+}
+
+function valueAtPath(target: Record<string, unknown>, path: readonly string[]): unknown {
+  let current: unknown = target
+  for (const segment of path) {
+    if (!isRecord(current)) return undefined
+    current = current[segment]
+  }
+  return current
+}
+
+function restoreExplicitYAMLString(params: {
+  yaml: Record<string, unknown> | undefined
+  yamlKey: string | undefined
+  rule: PropertyRule
+}): unknown {
+  const { yaml, yamlKey, rule } = params
+  if (yaml === undefined || yamlKey === undefined) return undefined
+  const value = yaml[yamlKey]
+  const restoresExplicitString =
+    rule.type === "MetadataValue" ||
+    rule.type === "FilterItemPresentationValue" ||
+    (rule.type === "SettingsParameterValue" &&
+      ["DesignTimeValue", "Primitive", "Field"].includes(rule.valueType as string))
+  return restoresExplicitString ? asExplicitYAMLStringIfMarked(yaml, yamlKey, value) : value
+}
+
+function defaultValue(params: {
+  context: ConfigurationContext
+  rule: PropertyRule
+  yaml?: unknown
+  name?: string
+  operation: "importFromYAML"
+}): unknown {
+  return typeof params.rule.defaultValue === "function" ? params.rule.defaultValue(params) : params.rule.defaultValue
+}
+
+function resolveImplicitValueYAML(params: {
+  context: ConfigurationContext
+  rule: PropertyRule
+  yaml?: unknown
+  name?: string
+}): unknown {
+  const value = params.rule.implicitValueYAML
+  return typeof value === "function" ? value({ ...params, operation: "importFromYAML" }) : value
+}
+
+function isDefaultValue(value: unknown, expected: unknown): boolean {
+  return (
+    value === expected ||
+    (Array.isArray(value) && Array.isArray(expected) && value.length === 0 && expected.length === 0)
+  )
+}
+
+function shouldCreateRawParent(value: unknown, rule: PropertyRule): boolean {
+  return (
+    Array.isArray(value) && value.length === 0 && rule.xmlParents !== undefined && isRecord(rule.defaultValueXMLRaw)
+  )
+}
+
+function hasExplicitXMLDefault(
+  context: ConfigurationContextWithExportToXML,
+  rule: PropertyRule,
+  propertyKey?: string,
+  source?: YAMLPropertySource,
+): boolean {
+  return (
+    resolveXMLDefault(context, rule, propertyKey, source).exists ||
+    (usesOrdinaryXMLDefaults(context, propertyKey, rule, source) &&
+      (Object.prototype.hasOwnProperty.call(rule, "defaultValueXMLRaw") ||
+        Object.prototype.hasOwnProperty.call(rule, "defaultValueXMLEmpty")))
+  )
+}
+
+function usesOrdinaryXMLDefaults(
+  context: ConfigurationContextWithExportToXML,
+  _propertyKey?: string,
+  rule?: PropertyRule,
+  source?: YAMLPropertySource,
+): boolean {
+  return resolveXMLDefaultVariant(context) !== "adopted" || subjectRequiresXML(rule, source, context)
+}
+
+function resolveXMLDefault(
+  context: ConfigurationContextWithExportToXML,
+  rule: PropertyRule,
+  _propertyKey?: string,
+  source?: YAMLPropertySource,
+): { readonly exists: boolean; readonly value: unknown } {
+  const variant = resolveXMLDefaultVariant(context)
+  if (variant === "adopted") {
+    if (Object.prototype.hasOwnProperty.call(rule, "defaultValueAdoptedXML")) {
+      return { exists: true, value: rule.defaultValueAdoptedXML }
+    }
+    if (!subjectRequiresXML(rule, source, context)) return { exists: false, value: undefined }
+  }
+  return Object.prototype.hasOwnProperty.call(rule, "defaultValueXML")
+    ? { exists: true, value: rule.defaultValueXML }
+    : { exists: false, value: undefined }
+}
+
+function subjectRequiresXML(
+  rule: PropertyRule | undefined,
+  source: YAMLPropertySource | undefined,
+  context: ConfigurationContextWithExportToXML,
+): boolean {
+  return source !== undefined && typeof rule?.toXML === "function" && rule.toXML(source, context)
+}
+
+export interface XMLDefaultVariantContext {
+  readonly exportToXML: {
+    readonly configurationIndex?: { readonly logicalAddress: string }
+    readonly xmlDefaultVariantByLogicalAddress?: Readonly<Record<string, XMLDefaultVariant>>
+  }
+}
+
+export function resolveXMLDefaultVariant(
+  context: XMLDefaultVariantContext
+): XMLDefaultVariant | undefined {
+  const variants = context.exportToXML?.xmlDefaultVariantByLogicalAddress
+  let logicalAddress = context.exportToXML?.configurationIndex?.logicalAddress
+  while (logicalAddress !== undefined) {
+    const variant = variants?.[logicalAddress]
+    if (variant !== undefined) return variant
+    const separator = logicalAddress.lastIndexOf(".")
+    if (separator < 0) return undefined
+    logicalAddress = logicalAddress.slice(0, separator)
+  }
+  return undefined
+}
+
+function wrapWithNamespace(rule: PropertyRule, value: unknown): unknown {
+  if (value === undefined || value === null || rule.xmlNamespace === undefined) return value
+  if (isRecord(value)) {
+    return "#text" in value && !("_xmlns" in value) ? { ...value, _xmlns: rule.xmlNamespace } : value
+  }
+  if (typeof value === "object") return value
+  return { "#text": value, _xmlns: rule.xmlNamespace }
+}
+
+function asRecord(value: unknown): Record<string, unknown> | undefined {
+  return isRecord(value) ? value : undefined
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value)
+}

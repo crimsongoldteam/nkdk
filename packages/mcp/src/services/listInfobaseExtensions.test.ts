@@ -16,6 +16,16 @@ const extension = {
 }
 
 describe("list infobase extensions service", () => {
+  it("возвращает ошибку настроек, если в проекте только workerCount", async () => {
+    const fixture = createFixture()
+    fixture.dependencies.readSettings = async projectDir => ({
+      status: "ready", projectDir, settingsPath: "/project/.nkdk/project.yaml", settings: { workerCount: 6 },
+    })
+    expect(await listInfobaseExtensions({ projectDir: "/project" }, fixture.dependencies))
+      .toMatchObject({ ok: false, code: "invalid_project_settings" })
+    expect(fixture.managerParams).toEqual([])
+  })
+
   it("passes validated project settings and the operation mode to the manager", async () => {
     const fixture = createFixture()
     const controller = new AbortController()

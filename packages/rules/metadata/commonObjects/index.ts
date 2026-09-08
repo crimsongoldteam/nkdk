@@ -212,6 +212,7 @@ import "./metadataField/toXML"
 import "./metadataField/toYAML"
 
 import "./metadataPath/fromYAML"
+import "./metadataPath/fromXML"
 import "./metadataPath/toJSONSchema"
 import "./metadataPath/toYAML"
 import "./metadataTargets/validationHandlers"

@@ -1,3 +1,5 @@
+import { ExecutionPath } from "@nkdk/runtime/rule-kit"
+import { createTestImportTraversal } from "../../../tests/importTraversal"
 import { describe, expect, it } from "vitest"
 import "../../../tests/metadataExecutionContext"
 import { mockContextFromXML, mockXmlImportContext } from "../../../tests/mockContext"
@@ -28,6 +30,49 @@ import {
 } from "../../../tests/xmlImportAttempt"
 
 describe("importMetadataItemFromXMLToYAML", () => {
+  it("передаёт структурный вложенный item без промежуточного значения", () => {
+    const type = "StructuralNestedItem" as PropertyRuleType
+    registerMetadataItemRule({ propertyType: type, itemRule: {
+      itemType: "StructuralChild", properties: { name: { type: "string", xml: "Name", yaml: "Имя" } },
+    } as MetadataItemRule })
+    const root = parseXmlDocumentWithSaxes("<Root><Child><Name>Пример</Name></Child></Root>").roots[0]!
+    const child = root.content.find(node => node.type === "element")!
+    Object.defineProperty(child, "compatibilityValue", { get() { throw new Error("Вложенному item не нужна копия") } })
+    expect(importMetadataItemFromXMLToYAML({
+      context: mockContextFromXML(), xml: root,
+      rule: { itemType: "StructuralParent", properties: { child: { type, xml: "Child", yaml: "Ребёнок" } } } as MetadataItemRule,
+      traversal: { pathCursor: ExecutionPath.from<string | number>([]), rulePath: [], collector: createLocalIndexesCollector() },
+    })).toEqual({ Ребёнок: { Имя: "Пример" } })
+  })
+
+  it.each([false, true])("импортирует структурный объект без промежуточного XML, аудит: %s", (audited) => {
+    const node = parseXmlDocumentWithSaxes("<Root><Name>Пример</Name></Root>").roots[0]!
+    Object.defineProperty(node, "compatibilityValue", { get() { throw new Error("intermediate XML read") } })
+    const augmenter = `test-structural-source-${audited}`
+    registerMetadataItemXmlImportAugmenter(augmenter, {
+      yamlDependencies: () => [],
+      resolveCurrentXMLDefaultVariant({ source }) {
+        expect(source).toBe(node)
+        return "full"
+      },
+      augment({ source }) { expect(source).toBe(node) },
+    })
+    const context = mockXmlImportContext()
+    context.fromXML.metadataItemAugmenter = augmenter
+    const annotations = createXmlAnomalyAnnotations()
+    const yaml = importMetadataItemFromXMLToYAML({
+      context,
+      rule: { itemType: "StructuralItem", properties: { name: { type: "string", xml: "Name", yaml: "Имя" } } } as MetadataItemRule,
+      xml: node,
+      traversal: {
+        pathCursor: ExecutionPath.from<string | number>([]), rulePath: [], collector: createLocalIndexesCollector(), annotations,
+        ...(audited ? { audit: createXmlImportAuditSession([node]) } : {}),
+      },
+    })
+    expect(yaml).toEqual({ Имя: "Пример" })
+    expect(annotations.entries()).toEqual([])
+  })
+
   it("назначает !xml/uuid metadata-ссылке после присоединения свойства к YAML", () => {
     const uuid = "a786340b-1ca9-48ee-8517-6bd389390bcc"
     const annotations = createXmlAnomalyAnnotations()
@@ -69,6 +114,7 @@ describe("importMetadataItemFromXMLToYAML", () => {
       return value
     })
     registerMetadataItemXmlImportAugmenter("test-current-xml-default-variant", {
+      yamlDependencies: () => [],
       resolveCurrentXMLDefaultVariant: ({ rule }) => {
         if (rule.itemType === "TestVariantParent") return "full"
         if (rule.itemType === "TestVariantAdoptedChild") return "adopted"
@@ -132,7 +178,7 @@ describe("importMetadataItemFromXMLToYAML", () => {
         Sibling: { Probe: "Sibling" },
       },
       traversal: {
-        yamlPath: [],
+        pathCursor: ExecutionPath.from<string | number>([]),
         rulePath: [],
         collector: createLocalIndexesCollector(),
       },
@@ -400,7 +446,7 @@ describe("importMetadataItemFromXMLToYAML", () => {
     const attributeRule = {
       itemType: "Task4NestedAttribute",
       properties: {
-        uuid: { type: "UUID", xml: "_uuid", forReferenceOnly: true },
+        uuid: { type: "UUID", xml: "_uuid", xmlOnly: true },
         name: { type: "string", xml: "Name", yaml: "Имя", xmlParents: ["Properties"] },
         type: { type: "string", xml: "Type", yaml: "Тип", xmlParents: ["Properties"] },
         format: { type: "string", xml: "Format", yaml: "Формат", xmlParents: ["Properties"] },
@@ -503,13 +549,7 @@ function importAuditedMetadataItem(
     context: { ...mockContextFromXML(), exportToYAML: { toTyped: true } },
     rule,
     xml: root,
-    traversal: {
-      yamlPath: [],
-      rulePath: [],
-      collector: createLocalIndexesCollector(),
-      audit,
-      annotations,
-    },
+    traversal: createTestImportTraversal({ audit, annotations }),
   }) as Record<string, unknown>
   return { yaml, annotations }
 }
@@ -536,6 +576,6 @@ function runMetadataItemRule(
       context: extensionContext,
       rule,
       xml,
-      traversal: { yamlPath: [], rulePath: [], collector },
+      traversal: { pathCursor: ExecutionPath.from<string | number>([]), rulePath: [], collector },
     }))
 }

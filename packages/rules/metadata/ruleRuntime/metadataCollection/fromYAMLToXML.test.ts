@@ -4,6 +4,7 @@ import { createConfigurationIndexCollector } from "@nkdk/runtime"
 import { createConfigurationIndexExportRuntime } from "@nkdk/runtime"
 import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import { parseMetadataYaml } from "@nkdk/runtime"
+import { xmlExport, isXmlElementNode } from "@nkdk/runtime"
 import { yamlScalarTagAt } from "@nkdk/runtime"
 import type { YAMLToXMLNestedRule } from "../property/fromYAMLToXMLTypes"
 import type { MetadataItemRule, PropertyRule } from "../property/types"
@@ -28,7 +29,127 @@ const nestedRule = {
   },
 } as const satisfies MetadataItemRule
 
+function collectReferences(received: unknown[][]): typeof convertMetadataItemFromYAMLToXML {
+  return ({ outputs }) => {
+    received.push(outputs.map(output => "referenceXML" in output ? output.referenceXML : undefined))
+    return { outputs: new Map(outputs.map(({ key }) => [key, {}])), deferredByOutput: new Map(), externalWrites: [] }
+  }
+}
+
 describe("convertMetadataCollectionFromYAMLToXML", () => {
+  it("выбирает общее правило коллекции один раз", () => {
+    let resolutions = 0
+    const alternateRule: MetadataItemRule = {
+      itemType: "AlternateValue",
+      properties: { value: { type: "string", yaml: "Значение", xml: "Special" } },
+    }
+    const result = convertMetadataCollectionFromYAMLToXML({
+      convertItem: convertMetadataItemFromYAMLToXML,
+      convertProperties: convertPropertiesFromYAMLToXML,
+      context: context(),
+      yaml: [{ Значение: "a" }, { Значение: "b" }, { Значение: "c" }],
+      propertyRule: { type: "string" },
+      descriptor: {
+        kind: "collection", itemRule: nestedRule, yamlShape: "array", xmlElement: "Item",
+        itemRuleFromProperty: () => { resolutions++; return alternateRule },
+      },
+      outputs: [{ key: "owner" }],
+    })
+    expect(result.outputs.get("owner")).toEqual({ Item: [{ Special: "a" }, { Special: "b" }, { Special: "c" }] })
+    expect(resolutions).toBe(1)
+  })
+
+  it("передаёт raw-элемент выходу без потери смешанного порядка", () => {
+    const parsed = parseMetadataYaml([
+      "Узел: !xml/raw",
+      "  $xml:",
+      '    _id: "7"',
+      '    "#text": [до, после]',
+      '    Child: [первый, второй]',
+      '    "#order": ["#text", Child, "#text", Child]',
+    ].join("\n"))
+    const result = convertMetadataCollectionFromYAMLToXML({
+      convertItem: convertMetadataItemFromYAMLToXML,
+      convertProperties: convertPropertiesFromYAMLToXML,
+      context: context(), yaml: parsed.data, annotations: parsed.annotations,
+      descriptor: { kind: "collection", itemRule: nestedRule, yamlShape: "record", xmlElement: "Item" },
+      outputs: [{ key: "owner" }],
+    })
+    const xml = result.outputs.get("owner")!
+    expect(xmlExport(xml, false)).toBe('<Item id="7">до<Child>первый</Child>после<Child>второй</Child></Item>')
+    expect(Array.isArray(xml.Item) && isXmlElementNode(xml.Item[0])).toBe(true)
+  })
+
+  it.each([10, 100])("не подготавливает reference коллекции для %i элементов", (size) => {
+    let reads = 0
+    const items = Array.from({ length: size }, (_, index) => ({ Code: String(index), Unknown: index }))
+    const received: unknown[][] = []
+    convertMetadataCollectionFromYAMLToXML({
+      convertItem: collectReferences(received),
+      convertProperties: convertPropertiesFromYAMLToXML,
+      context: context(),
+      yaml: items.map(({ Code }) => ({ Код: Code })).reverse(),
+      descriptor: {
+        kind: "collection", itemRule: nestedRule, yamlShape: "array", xmlElement: "Item",
+      },
+      outputs: [{ key: "owner", ...{ referenceXML: { get Item() { reads++; return items } } } }],
+    })
+    expect(received).toEqual(items.map(() => [undefined]))
+    expect(reads).toBe(0)
+  })
+
+  it.each(["code", "name"] as const)("не читает reference для ключа %s", (key) => {
+    let reads = 0
+    const items = Array.from({ length: 20 }, (_, index) => ({
+      get Code() { reads++; return String(index) },
+      get Name() { reads++; return String(index) },
+    }))
+    const received: unknown[][] = []
+    convertMetadataCollectionFromYAMLToXML({
+      convertItem: collectReferences(received),
+      convertProperties: convertPropertiesFromYAMLToXML,
+      context: context(),
+      yaml: key === "code" ? items.map((_, index) => ({ Код: String(index) }))
+        : Object.fromEntries(items.map((_, index) => [String(index), {}])),
+      descriptor: {
+        kind: "collection", itemRule: nestedRule, xmlElement: "Item",
+        yamlShape: key === "code" ? "array" : "record", keyField: key,
+      },
+      outputs: [{ key: "owner", ...{ referenceXML: { Item: [...items, { Code: "0", Name: "0" }] } } }],
+    })
+    expect(received).toEqual(items.map(() => [undefined]))
+    expect(reads).toBe(0)
+  })
+
+  it("не передаёт reference различным правилам и выходам полиморфной коллекции", () => {
+    const alternateRule: MetadataItemRule = { ...nestedRule, itemType: "AlternateAttribute" }
+    const references = [
+      { Left: { Code: "duplicate" }, Right: { Code: "duplicate" } },
+      { Left: { Code: "duplicate" }, Right: { Code: "unique" } },
+      { Left: { Code: "duplicate" }, Right: { Code: "other" } },
+    ]
+    const received: unknown[][] = []
+    convertMetadataCollectionFromYAMLToXML({
+      convertItem: collectReferences(received),
+      convertProperties: convertPropertiesFromYAMLToXML,
+      context: context(),
+      yaml: [{ Код: "duplicate" }, { Код: "unique" }, { Код: "missing" }],
+      descriptor: {
+        kind: "collection", itemRule: nestedRule, yamlShape: "array", xmlElement: "Item",
+        resolveItemRule: ({ index }) => index === 0 ? nestedRule : alternateRule,
+      },
+      outputs: [
+        { key: "owner", ...{ referenceXML: { Item: references } } },
+        { key: "external", ...{ referenceXML: { Item: [references[1]] } } },
+      ],
+    })
+    expect(received).toEqual([
+      [undefined, undefined],
+      [undefined, undefined],
+      [undefined, undefined],
+    ])
+  })
+
   it("переносит nested XML-аннотации на новый mapping normalizeItemYAML", () => {
     const parsed = parseMetadataYaml([
       "Код:",
@@ -174,7 +295,7 @@ describe("convertMetadataCollectionFromYAMLToXML", () => {
     })
   })
 
-  it("сопоставляет элементы YAML-массива с сырым reference XML по keyField", () => {
+  it("строит элементы YAML-массива без переноса сырых свойств reference", () => {
     const descriptor = {
       kind: "collection",
       itemRule: nestedRule,
@@ -195,20 +316,20 @@ describe("convertMetadataCollectionFromYAMLToXML", () => {
       outputs: [
         {
           key: "owner",
-          referenceXML: {
+          ...{ referenceXML: {
             Item: [
               { Code: "B", Unknown: "для B" },
               { Code: "A", Unknown: "для A" },
             ],
-          },
+          } },
         },
       ],
     })
 
     expect(result.outputs.get("owner")).toEqual({
       Item: [
-        { Code: "A", Value: "новое A", Unknown: "для A" },
-        { Code: "B", Value: "новое B", Unknown: "для B" },
+        { Code: "A", Value: "новое A" },
+        { Code: "B", Value: "новое B" },
       ],
     })
   })

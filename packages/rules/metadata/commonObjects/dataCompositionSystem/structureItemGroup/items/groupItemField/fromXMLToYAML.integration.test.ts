@@ -1,12 +1,15 @@
+import { ExecutionPath } from "@nkdk/runtime/rule-kit"
 import {
   createXmlAnomalyAnnotations,
   createXmlImportAuditSession,
   parseXmlDocumentWithSaxes,
+  parseMetadataYaml,
 } from "@nkdk/runtime"
 import { describe, expect, it } from "vitest"
 
 import {
   testPropertyFixtureThroughYAML,
+  testPropertiesYamlRoundTrip,
   withDirectMetadataExecution,
 } from "../../../../../../tests/directConversion"
 import { mockContextFromXML } from "../../../../../../tests/mockContext"
@@ -34,12 +37,18 @@ describe("GroupItemField XML → YAML", () => {
   })
 
   it("сохраняет компактную строку при импорте адресного XML-узла", () => {
-    const { yaml, annotations } = importAddressedGroupItem(
-      readXMLFixtureAsString(import.meta.url, "dynamicListDefault.xml"),
-    )
+    const sourceXML = `<dcsset:item xsi:type="dcsset:StructureItemGroup"><dcsset:groupItems>${readXMLFixtureAsString(import.meta.url, "dynamicListDefault.xml")}</dcsset:groupItems></dcsset:item>`
+    const result = testPropertiesYamlRoundTrip({
+      sourceXML,
+      rule: { itemType: "GroupItemFieldProbe", properties: {
+        value: { type: "StructureItemGroup", xml: "dcsset:item", yaml: "Значение" },
+      } },
+    })
 
-    expect(yaml).toBe(dynamicListGroupItemFieldDefaultYAML)
-    expect([...annotations.entries()]).toEqual([])
+    expect(parseMetadataYaml(result.yamlText).data).toEqual({ Значение: [dynamicListGroupItemFieldDefaultYAML] })
+    expect(result.yamlText).not.toContain("!xml/")
+    expect(parseXmlDocumentWithSaxes(result.result).roots[0]!.structuralHash)
+      .toBe(parseXmlDocumentWithSaxes(sourceXML).roots[0]!.structuralHash)
   })
 
   it("не сворачивает неизвестное XML-свойство вместе с техническими значениями", () => {
@@ -72,7 +81,7 @@ function importAddressedGroupItem(source: string) {
     rule: { type: "GroupItemField" },
     xml: root,
     traversal: {
-      yamlPath: [],
+      pathCursor: ExecutionPath.from<string | number>([]),
       rulePath: [],
       collector: createLocalIndexesCollector(),
       xmlNodes: [root],

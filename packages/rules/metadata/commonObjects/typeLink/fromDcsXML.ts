@@ -1,51 +1,41 @@
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
-import { ConfigurationContextFromXML } from "@nkdk/runtime"
+import { ConfigurationContextFromXML, isXmlElementNode, xmlElementChildren, type XmlElementNode } from "@nkdk/runtime"
+import { readDcsText } from "../dcsText"
 import { MetadataField } from "../metadataField/types"
 import type { TypeLink, TypeLinkDcsValueRootXML } from "./types"
 
-const textNode = (value: string | { "#text"?: string } | undefined): string => {
-  if (value === undefined) {
-    throw new Error("DCS TypeLink: expected dcscor:field")
-  }
-  if (typeof value === "string") {
-    return value
-  }
-  const t = value["#text"]
-  if (typeof t === "string") {
-    return t
-  }
-  throw new Error("DCS TypeLink: invalid dcscor:field text")
-}
+const textNode = (value: unknown): string =>
+  readDcsText(value, "DCS TypeLink: expected dcscor:field", "DCS TypeLink: invalid dcscor:field text")
 
-const linkItemNumber = (value: number | string | { "#text"?: string } | undefined): number => {
-  if (value === undefined) {
-    throw new Error("DCS TypeLink: expected dcscor:linkItem")
-  }
+const linkItemNumber = (value: number | string | { "#text"?: string } | XmlElementNode | undefined): number => {
   if (typeof value === "number") {
     return value
   }
-  if (typeof value === "string") {
-    return Number(value)
-  }
-  const t = value["#text"]
-  if (typeof t === "string") {
-    return Number(t)
-  }
-  throw new Error("DCS TypeLink: invalid dcscor:linkItem")
+  return Number(readDcsText(value, "DCS TypeLink: expected dcscor:linkItem", "DCS TypeLink: invalid dcscor:linkItem"))
 }
 
 export const importFromDcsXML = (
+  context: ConfigurationContextFromXML,
+  rule: PropertyRule | undefined,
+  xml: TypeLinkDcsValueRootXML | XmlElementNode
+): TypeLink => {
+  const root = isXmlElementNode(xml)
+    ? xml.name === "dcscor:value" ? xml : xmlElementChildren(xml, "dcscor:value")[0]
+    : xml["dcscor:value"]
+  return importTypeLinkDcsPayload(context, rule, root)
+}
+
+export const importTypeLinkDcsPayload = (
   _context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
-  xml: TypeLinkDcsValueRootXML
+  root: TypeLinkDcsValueRootXML["dcscor:value"] | XmlElementNode | undefined,
 ): TypeLink => {
-  const root = xml["dcscor:value"]
   if (!root) {
     throw new Error("DCS TypeLink: missing dcscor:value")
   }
 
-  const dataPath = textNode(root["dcscor:field"]) as MetadataField
-  const linkItem = linkItemNumber(root["dcscor:linkItem"])
+  const dataPath = textNode(isXmlElementNode(root) ? xmlElementChildren(root, "dcscor:field")[0] : root["dcscor:field"]) as MetadataField
+  const linkItem = linkItemNumber(isXmlElementNode(root) ? xmlElementChildren(root, "dcscor:linkItem")[0] : root["dcscor:linkItem"])
 
   return {
     dataPath,

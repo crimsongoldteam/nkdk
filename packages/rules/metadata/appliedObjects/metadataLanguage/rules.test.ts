@@ -17,14 +17,14 @@ describe("MetadataLanguageRules", () => {
         type: "XMLRoot",
         container: "Language",
         rootAttributes: V8_MDCLASSES_ROOT,
-        forReferenceOnly: true,
+        xmlOnly: true,
         toYAML: false,
         fromYAML: false,
       },
       uuid: {
         type: "uuid",
         xml: "_uuid",
-        forReferenceOnly: true,
+        xmlOnly: true,
         xmlParents: [],
       },
       name: {

@@ -1,6 +1,6 @@
 import type { YamlRuleCursor } from "./importYamlTypes"
 
-export function enterNestedYamlRule<T extends YamlRuleCursor>(traversal: T, itemType: string): T {
+export function enterNestedYamlRule<T extends Pick<YamlRuleCursor, "rulePath">>(traversal: T, itemType: string): T {
   const last = traversal.rulePath.at(-1)
   if (last === undefined) return traversal
 

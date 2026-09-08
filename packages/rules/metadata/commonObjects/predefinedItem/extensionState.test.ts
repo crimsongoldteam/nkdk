@@ -1,5 +1,6 @@
 import { markYAMLValueTag, yamlValueTag } from "@nkdk/runtime"
 import { describe, expect, it } from "vitest"
+import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"
 
 import {
   exportPredefinedExtensionState,
@@ -7,6 +8,27 @@ import {
 } from "./extensionState"
 
 describe("режим предопределённого элемента расширения", () => {
+  it.each([
+    ["", undefined],
+    ["<ExtensionState/>", undefined],
+    ["<ExtensionState>AdoptedCheck</ExtensionState>", undefined],
+    ["<ExtensionState>AdoptedNotify</ExtensionState>", "проверять"],
+  ])("читает структурное состояние %s", (content, expected) => {
+    const yaml = { Код: "000000001" }
+    importPredefinedExtensionState(parseStructuralXMLWithoutCompatibility(`<Item>${content}</Item>`), yaml)
+    expect(yamlValueTag(yaml)).toBe(expected)
+  })
+
+  it("отклоняет неизвестное структурное состояние", () => {
+    const xml = parseStructuralXMLWithoutCompatibility("<Item><ExtensionState>Unknown</ExtensionState></Item>")
+    expect(() => importPredefinedExtensionState(xml, {})).toThrow("Неизвестный ExtensionState предопределённого элемента: Unknown")
+  })
+
+  it("не выбирает первое из повторных состояний", () => {
+    const xml = parseStructuralXMLWithoutCompatibility("<Item><ExtensionState>AdoptedCheck</ExtensionState><ExtensionState>AdoptedNotify</ExtensionState></Item>")
+    expect(() => importPredefinedExtensionState(xml, {})).toThrow("Неизвестный ExtensionState")
+  })
+
   it.each([
     ["AdoptedCheck", undefined],
     ["AdoptedNotify", "проверять"],

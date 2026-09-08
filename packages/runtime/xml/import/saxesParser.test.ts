@@ -1,27 +1,32 @@
 import { expect, it } from "vitest"
 import {
-  parseXmlCompatibilityWithRootStructures,
   parseXmlDocumentWithSaxes,
   parseXmlRootStructuresWithSaxes,
-  parseXmlWithSaxes,
 } from "./saxesParser"
+import { xmlAttributeValue, xmlElementChildren, xmlTextValue } from "./document"
 
-it("оставляет прежнее объектное представление доступным без структурных полей", () => {
-  const xml = '<Root b="2" a="1"><Value/><Value>2</Value><Future x="y"/></Root>'
-  const document = parseXmlDocumentWithSaxes(xml)
-  const compatibility = parseXmlWithSaxes(xml)
+it("строит единственное XML-дерево без сохранённого объектного представления", () => {
+  const document = parseXmlDocumentWithSaxes('<Root><ChildItems><A/><B/><A/></ChildItems><Value xsi:nil="true"/></Root>')
+  expect(Object.hasOwn(document, "compatibility")).toBe(false)
+  const pending = [...document.roots]
+  for (const node of pending) {
+    expect(Object.hasOwn(node, "compatibilityValue")).toBe(false)
+    pending.push(...xmlElementChildren(node))
+  }
+  const root = document.roots[0]!
+  expect(xmlElementChildren(xmlElementChildren(root, "ChildItems")[0]!).map(node => node.name)).toEqual(["A", "B", "A"])
+  expect(xmlAttributeValue(xmlElementChildren(root, "Value")[0]!, "xsi:nil")).toBe("true")
+})
 
-  expect(compatibility).toEqual(document.compatibility)
-  expect(compatibility).toEqual({
-    Root: {
-      Value: [undefined, "2"],
-      Future: { _x: "y" },
-      _b: "2",
-      _a: "1",
-    },
-  })
-  expect(compatibility).not.toHaveProperty("roots")
-  expect(compatibility).not.toHaveProperty("sourceLength")
+it("сохраняет Unicode, CDATA и атрибуты после отделения строк от исходника", () => {
+  const xml = '<Корень имя="Имя😀&amp;значение"><Текст>До😀<![CDATA[<&После]]></Текст><?режим имя="Значение😀"?></Корень>'
+  const root = parseXmlDocumentWithSaxes(xml).roots[0]!
+  expect(root.name).toBe("Корень")
+  expect(xmlAttributeValue(root, "имя")).toBe("Имя😀&значение")
+  expect(xmlTextValue(xmlElementChildren(root, "Текст")[0]!)).toBe("До😀<&После")
+  const instruction = root.content.find(node => node.type === "processingInstruction")!
+  expect(instruction).toMatchObject({ target: "режим", body: 'имя="Значение😀"', attributes: [{ name: "имя", value: "Значение😀" }] })
+  expect(xml.slice(root.span.start, root.span.end)).toBe(xml)
 })
 
 it("вычисляет хэши XML-корней без полного адресного дерева", () => {
@@ -32,22 +37,6 @@ it("вычисляет хэши XML-корней без полного адре�
   const document = parseXmlDocumentWithSaxes(xml)
 
   expect(parseXmlRootStructuresWithSaxes(xml)).toEqual({
-    sourceLength: xml.length,
-    roots: document.roots.map(({ path, name, structuralHash, span }) => ({
-      path,
-      name,
-      structuralHash,
-      span,
-    })),
-  })
-})
-
-it("возвращает объектное представление и корневые хэши одним разбором", () => {
-  const xml = '<Root b="2"><Value>text</Value></Root>'
-  const document = parseXmlDocumentWithSaxes(xml)
-
-  expect(parseXmlCompatibilityWithRootStructures(xml)).toEqual({
-    compatibility: document.compatibility,
     sourceLength: xml.length,
     roots: document.roots.map(({ path, name, structuralHash, span }) => ({
       path,

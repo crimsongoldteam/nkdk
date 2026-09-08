@@ -1,7 +1,6 @@
 import { ConfigurationContext } from "@nkdk/runtime"
 import { ImportFromYAMLFunctionNew, PropertyRule, definePropertyTypeRule } from "../../ruleRuntime"
 import { importI8nTextFromYAML } from "../i8nText/fromYAML"
-import { I8nText } from "../i8nText/types"
 import { FormattedI8nText, FormattedI8nTextValueYAML } from "./types"
 
 export const importFormattedI8nTextFromYAML: ImportFromYAMLFunctionNew = (params: {
@@ -9,11 +8,10 @@ export const importFormattedI8nTextFromYAML: ImportFromYAMLFunctionNew = (params
   rule: PropertyRule
   value: FormattedI8nTextValueYAML | undefined
   yaml?: Record<string, any> | undefined
-  source?: I8nText | undefined
   name?: string
   restoreExcludedEqualName?: boolean
 }): FormattedI8nText | undefined => {
-  const { context, rule, value, source, name, restoreExcludedEqualName } = params
+  const { context, rule, value, name, restoreExcludedEqualName } = params
   if (
     value?.Форматированный === "Истина" &&
     !("Текст" in value)
@@ -24,17 +22,12 @@ export const importFormattedI8nTextFromYAML: ImportFromYAMLFunctionNew = (params
     context,
     rule,
     value: value === undefined || !("Текст" in value) ? undefined : value.Текст,
-    source,
     name,
     restoreExcludedEqualName,
   })
   if (textResult === undefined) return undefined
-  const formattedSource = source as FormattedI8nText | undefined
   return {
-    formatted:
-      value === undefined
-        ? (formattedSource?.formatted ?? false)
-        : value.Форматированный === "Истина",
+    formatted: value?.Форматированный === "Истина",
     items: textResult.items,
   }
 }

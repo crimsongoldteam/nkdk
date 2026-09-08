@@ -1,5 +1,10 @@
 import assert from "node:assert/strict"
 import { describe, it } from "node:test"
+import { execFileSync } from "node:child_process"
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises"
+import { tmpdir } from "node:os"
+import { join } from "node:path"
+import { fileURLToPath } from "node:url"
 
 import { findNewDuplicates } from "./check-new-duplicates.mjs"
 import { resolveNodePackageBinary } from "./node-package-binary.mjs"
@@ -92,4 +97,60 @@ describe("resolveNodePackageBinary", () => {
 
     assert.match(binaryPath.replaceAll("\\", "/"), /\/jscpd\/run-jscpd\.js$/)
   })
+})
+
+describe("jscpd: объявления import не являются дублированием логики", () => {
+  const imports = `import Default from "one"
+import type { One, Two, Three } from "two"
+import {
+  Alpha, Beta, Gamma, Delta, Epsilon,
+  Zeta, Eta, Theta, Iota, Kappa,
+} from "three"
+import * as Utilities from "four"
+import "side-effects"
+import { booleanRule } from "./boolean/types"
+import { i8nTextRule } from "./i8nText/types"
+import { moduleRule } from "./module/types"
+import { stringRule } from "./string/types"
+import { xmlRootRule } from "./xmlRoot/types"
+import { systemEnumerationRule } from "./systemEnumerations/types"
+import { V8_MDCLASSES_ROOT } from "./presets"
+import type { MetadataItemRule } from "./rule-kit"
+`
+  const logic = `export async function processItems(items) {
+  const result = []
+  for (const item of items) {
+    const loader = await import(item.module)
+    const value = loader.convert(item.value)
+    if (value === undefined) {
+      throw new Error("Missing converted value")
+    }
+    result.push({ name: item.name, value })
+  }
+  return result.filter(item => item.value !== null)
+}
+`
+
+  for (const [label, source, hasDuplicates] of [
+    ["только статические импорты, включая многострочные", imports, false],
+    ["логика после импортов", imports + logic, true],
+    ["динамический import остаётся исполняемым кодом", logic, true],
+  ]) {
+    it(label, async () => {
+      const directory = await mkdtemp(join(tmpdir(), "nkdk-jscpd-import-test-"))
+      try {
+        await Promise.all(["first.ts", "second.ts"].map(name => writeFile(join(directory, name), source)))
+        execFileSync(process.execPath, [
+          resolveNodePackageBinary("jscpd", import.meta.url), directory,
+          "--config", fileURLToPath(new URL("../.jscpd.json", import.meta.url)),
+          "--reporters", "json", "--output", join(directory, "report"),
+          "--exit-code", "0", "--silent", "--no-tips",
+        ], { stdio: "pipe" })
+        const report = JSON.parse(await readFile(join(directory, "report/jscpd-report.json"), "utf8"))
+        assert.equal(report.duplicates.length > 0, hasDuplicates)
+      } finally {
+        await rm(directory, { recursive: true, force: true })
+      }
+    })
+  }
 })

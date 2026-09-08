@@ -4,7 +4,30 @@ import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { pathToFileURL } from "node:url"
 import test from "node:test"
-import { collectRoundTripStatistics, countXmlTags } from "./round-trip-statistics.mjs"
+import { collectRoundTripStatistics, countXmlTags, countXmlOrder } from "./round-trip-statistics.mjs"
+
+test("считает объявления #order только в XML raw и терминальные поправки", () => {
+  assert.equal(countXmlOrder(`
+# '#order': комментарий
+Строка: '#order'
+Обычное: {'#order': [a]}
+Сырой: &raw !xml/raw
+  $xml:
+    '#order': [a, b, c]
+    Вложенный:
+      "#order": [x]
+  $значение: {'#order': [не_xml]}
+Алиас: *raw
+'@Form\\InputField\\#order': !xml/raw
+  $xml: [a, b]
+'@Form\\Label': !xml/raw
+  $xml: {'#order': [x]}
+ТекстБлока: |
+  '@Form\\#order': !xml/raw
+  '#order': [x]
+`), 4)
+  assert.equal(countXmlOrder("Поле: !xml/raw {$xml: null}\n"), 0)
+})
 
 test("считает физические YAML-теги, включая форму XML и номерные ключи, но не текст и алиасы", () => {
   assert.deepEqual(countXmlTags(`
@@ -57,6 +80,7 @@ test("суммирует YAML-файлы и берёт широкие raw из �
   assert.deepEqual(await collectRoundTripStatistics({ yamlDir, importOutputPath }), {
     tags: { raw: 1, invalid: 0, important: 0, uuid: 0, string: 1, name: 0, "standard-attributes": 0 },
     yamlFiles: 2,
+    order: 0,
     broadRaw: [
       { file: "Конфигурация.yaml", count: 1 },
       { file: "Справочники/Товары.yml", count: 2 },

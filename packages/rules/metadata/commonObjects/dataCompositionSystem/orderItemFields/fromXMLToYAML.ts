@@ -1,4 +1,4 @@
-import { withConfigurationIndexYamlCollectionItemContext } from "@nkdk/runtime"
+import { isXmlElementNode, xmlAttributeValue, xmlElementChildren, withConfigurationIndexYamlCollectionItemContext } from "@nkdk/runtime"
 import { importMetadataItemFromXMLToYAML } from "../../../ruleRuntime/metadataItem/fromXMLToYAML"
 import type { ImportFromXMLToYAMLFunction } from "@nkdk/runtime/rule-kit"
 import { OrderItemFieldRules } from "./rules"
@@ -8,13 +8,16 @@ export const importOrderItemFieldsFromXMLToYAML: ImportFromXMLToYAMLFunction = (
   xml,
   traversal,
 }) => {
-  const source = asRecord(xml)?.["dcsset:item"] ?? xml
+  const source = isXmlElementNode(xml)
+    ? xml.name === "dcsset:item" ? xml : xmlElementChildren(xml, "dcsset:item")
+    : asRecord(xml)?.["dcsset:item"] ?? xml
   const items = Array.isArray(source) ? source : source === undefined ? [] : [source]
   const result = items.flatMap<unknown>((value, index) => {
-    const item = asRecord(value)
+    const item = isXmlElementNode(value) ? value : asRecord(value)
     if (item === undefined) return []
-    if (item["_xsi:type"] === "dcsset:OrderItemAuto") return ["[Авто]"]
-    if (item["_xsi:type"] !== undefined && item["_xsi:type"] !== "dcsset:OrderItemField") return []
+    const xsiType = isXmlElementNode(item) ? xmlAttributeValue(item, "xsi:type") : item["_xsi:type"]
+    if (xsiType === "dcsset:OrderItemAuto") return ["[Авто]"]
+    if (xsiType !== undefined && xsiType !== "dcsset:OrderItemField") return []
 
     const yaml = importMetadataItemFromXMLToYAML({
       context: withConfigurationIndexYamlCollectionItemContext(context, { index, yamlAsArray: true }),
@@ -22,7 +25,7 @@ export const importOrderItemFieldsFromXMLToYAML: ImportFromXMLToYAMLFunction = (
       xml: item,
       traversal: {
         ...traversal,
-        yamlPath: [...traversal.yamlPath, index],
+        pathCursor: traversal.pathCursor.child(index),
       },
     })
     return yaml === undefined ? [] : [yaml]

@@ -6,16 +6,10 @@ import {
   createDirectRoundTripContexts,
   testPropertyFromXMLToYAML,
   testPropertyFromYAMLToXML,
+  testPropertiesYamlRoundTrip,
 } from "../../../../tests/directConversion"
-import {
-  createXmlAnomalyAnnotations,
-  createXmlImportAuditSession,
-  importContentFromXML,
-  parseXmlDocumentWithSaxes,
-  projectXmlAuditRemainder,
-  serializeYAMLDocument,
-  xmlAnnotatedMappingEntries,
-} from "@nkdk/runtime"
+import { createXmlAnomalyAnnotations, createXmlImportAuditSession, parseXmlDocumentWithSaxes, serializeYAMLDocument, xmlAnnotatedMappingEntries } from "@nkdk/runtime"
+import { xmlFixtureValue as importContentFromXML } from "../../../../tests/xmlFixtureValue"
 import { xmlExport } from "@nkdk/runtime"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 
@@ -30,30 +24,21 @@ const rule = {
 
 describe("FormCommands XML → YAML → XML", () => {
   it("не создаёт raw для уже распознанных свойств вложенной команды", () => {
-    const root = parseXmlDocumentWithSaxes(`
-      <Probe>
+    const sourceXML = `
         <Commands>
           <Command name="Да" id="1">
             <Action>Да</Action>
             <CurrentRowUse>DontUse</CurrentRowUse>
           </Command>
         </Commands>
-      </Probe>
-    `).roots[0]!
-    const audit = createXmlImportAuditSession([root])
-    const annotations = createXmlAnomalyAnnotations()
-    const result = testPropertyFromXMLToYAML({ rule, xml: root, audit, annotations })
-    const yaml = result.yaml as Record<string, unknown>
-    projectXmlAuditRemainder({
-      yaml,
-      annotations,
-      audit,
-      root,
-      boundary: { itemType: rule.itemType, yamlPath: [], rulePath: [] },
-    })
+    `
+    const result = testPropertiesYamlRoundTrip({ rule, sourceXML })
 
-    expect(serializeYAMLDocument(yaml, annotations).text).not.toContain("Command\\Action")
-    expect(serializeYAMLDocument(yaml, annotations).text).not.toContain("Command\\CurrentRowUse")
+    expect(result.yamlText).not.toContain("Command\\Action")
+    expect(result.yamlText).not.toContain("Command\\CurrentRowUse")
+    expect(result.yamlText).toContain("Действие: Да")
+    expect(parseXmlDocumentWithSaxes(result.result).roots[0]!.structuralHash)
+      .toBe(parseXmlDocumentWithSaxes(sourceXML).roots[0]!.structuralHash)
   })
 
   it("сохраняет TextPicture и аннотацию языка на исходном audit-узле", () => {

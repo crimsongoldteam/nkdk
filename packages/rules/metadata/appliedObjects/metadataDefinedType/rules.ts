@@ -1,8 +1,7 @@
+import { metadataIdentityProperties } from "../../commonObjects/metadataIdentityProperties"
 import { internalInfoRule } from "../../commonObjects/internalInfo/types"
 import { typeDescriptionRule } from "../../commonObjects/typeDescription/types"
-import { i8nTextRule } from "../../commonObjects/i8nText/types"
 import { stringRule } from "../../commonObjects/string/types"
-import { uuidRule } from "../../commonObjects/uuid/types"
 import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
 import { V8_MDCLASSES_ROOT } from "../../ruleRuntime/appliedObject/presets"
@@ -26,36 +25,16 @@ export const MetadataDefinedTypeRules = {
     xmlRoot: xmlRootRule({
       container: "DefinedType",
       rootAttributes: V8_MDCLASSES_ROOT,
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
     }),
     internalInfo: internalInfoRule({
       xmlParents: [],
-      forReferenceOnly: true,
+      xmlOnly: true,
       items: [{ name: "DefinedType", category: "DefinedType" }],
     }),
-    uuid: uuidRule({
-      xml: "_uuid",
-      forReferenceOnly: true,
-      xmlParents: [],
-    }),
-    name: stringRule({
-      xmlParents: properties,
-      required: true,
-    }),
-    synonym: i8nTextRule({
-      yaml: "Синоним",
-      xmlParents: properties,
-      defaultValueXMLRaw: "",
-      excludeIfEqualNameYAML: true,
-    }),
-    comment: stringRule({
-      yaml: "Комментарий",
-      xmlParents: properties,
-      defaultValueXMLRaw: "",
-      defaultValueAdoptedXML: "",
-    }),
+    ...metadataIdentityProperties,
     type: typeDescriptionRule({
       ownerFactRole: "type",
       yaml: "Тип",

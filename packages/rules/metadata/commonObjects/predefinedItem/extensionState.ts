@@ -1,10 +1,15 @@
-import { markYAMLValueTag, yamlValueTag } from "@nkdk/runtime"
+import { isXmlElementNode, markYAMLValueTag, xmlElementChildren, xmlTextValue, yamlValueTag, type XmlElementNode } from "@nkdk/runtime"
 
 export function importPredefinedExtensionState(
-  source: Readonly<Record<string, unknown>>,
+  source: Readonly<Record<string, unknown>> | XmlElementNode,
   yaml: Record<string, unknown>,
 ): void {
-  const state = source.ExtensionState
+  const states = isXmlElementNode(source) ? xmlElementChildren(source, "ExtensionState") : undefined
+  const stateNode = states?.[0]
+  const state = isXmlElementNode(source)
+    ? states!.length > 1 ? states!.map(node => xmlTextValue(node) || undefined)
+      : stateNode === undefined ? undefined : xmlTextValue(stateNode) || undefined
+    : source.ExtensionState
   if (state === undefined || state === "AdoptedCheck") return
   if (state === "AdoptedNotify") {
     markYAMLValueTag(yaml, "проверять")

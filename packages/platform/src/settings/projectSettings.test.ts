@@ -22,6 +22,14 @@ infobase:
 `))
 
 describe("project settings validation", () => {
+  it("принимает настройки воркеров без подключения к 1С", () => {
+    expect(validateProjectSettings({ workerCount: 6 })).toEqual({ ok: true, settings: { workerCount: 6 } })
+  })
+
+  it.each([0, -1, 1.5, "6", null, Number.MAX_SAFE_INTEGER + 1])("отвергает неверный workerCount %s", workerCount => {
+    expectInvalidSettingsAt({ workerCount }, "workerCount")
+  })
+
   it("applies import defaults", () => {
     expect(settingsWithDefaults).toEqual({
       ok: true,

@@ -4,7 +4,12 @@ import { testExportPropertyToYAML } from "../../../../tests/property/exportPrope
 import { testAtomicFromYAML } from "../../../../tests/property/atomicFromYAML"
 import { testImportPropertyFromXML } from "../../../../tests/property/importPropertyFromXML"
 import { exportToYAML } from "@nkdk/runtime"
+import { xmlFixtureValue as importContentFromXML } from "../../../../tests/xmlFixtureValue"
+import type { SettingsParameterValueXML, SettingsParameterValuePropertyRule } from "./types"
 import { importFromYAML } from "@nkdk/runtime"
+import { parseStructuralXMLWithoutCompatibility } from "../../../../tests/structuralXML"
+import { mockContextFromXML } from "../../../../tests/mockContext"
+import { importParameterValueFromDcsXML } from "./fromXML"
 import {
   nilSettingsParameterValue,
   nilSettingsParameterValueRule,
@@ -13,6 +18,26 @@ import {
 } from "./__fixtures__/data"
 
 describe("importParameterValueFromXML", () => {
+  it.each(["", "<dcscor:value/>"])("does not invent empty settings values: %s", (value) => {
+    const xml = `<dcscor:item xsi:type="dcsset:SettingsParameterValue"><dcscor:parameter/><dcsset:viewMode/><dcsset:userSettingID/><dcsset:userSettingPresentation/>${value}</dcscor:item>`
+    const rule: SettingsParameterValuePropertyRule = { type: "SettingsParameterValue", valueType: "Primitive" }
+    const expected = { parameter: undefined }
+    expect(importParameterValueFromDcsXML(mockContextFromXML(), rule, importContentFromXML<{ "dcscor:item": SettingsParameterValueXML }>(xml)["dcscor:item"])).toEqual(expected)
+    expect(importParameterValueFromDcsXML(mockContextFromXML(), rule, parseStructuralXMLWithoutCompatibility(xml))).toEqual(expected)
+  })
+
+  it("reads structural settings fields and a short presentation", () => {
+    const source = parseStructuralXMLWithoutCompatibility('<dcscor:item xsi:type="dcsset:SettingsParameterValue"><dcscor:parameter>Период</dcscor:parameter><dcsset:viewMode>Normal</dcsset:viewMode><dcsset:userSettingID>id</dcsset:userSettingID><dcsset:userSettingPresentation xsi:type="xs:string">Период с</dcsset:userSettingPresentation></dcscor:item>')
+    expect(importParameterValueFromDcsXML(mockContextFromXML(), { type: "SettingsParameterValue", valueType: "Primitive" }, source)).toEqual({
+      parameter: "Период", viewMode: "Normal", userSettingID: "id", userSettingPresentation: { items: { ru: "Период с" } },
+    })
+  })
+
+  it.each(parameterValueFixtures)("imports structural $title", (fixture) => {
+    const source = parseStructuralXMLWithoutCompatibility(fixture.xml!)
+    expect(importParameterValueFromDcsXML(mockContextFromXML(), fixture.rule, source)).toEqual(fixture.value)
+  })
+
   it.each(parameterValueFixtures)("imports $title", (fixture) => {
     expect(
       testImportPropertyFromXML({
@@ -33,18 +58,15 @@ describe("importParameterValueFromXML", () => {
     ).toEqual(nilSettingsParameterValue)
   })
 
-  it("keeps nil marker only for reference import", () => {
+  it("does not retain a hidden nil marker in either import mode", () => {
     expect(
       testImportPropertyFromXML({
         rule: nilSettingsParameterValueRule,
         xmlRootTag: "dcscor:item",
         xmlString: xmlNilSettingsParameterValue,
-        forReference: true,
+
       })
-    ).toEqual({
-      ...nilSettingsParameterValue,
-      __referenceNilValue: true,
-    })
+    ).toEqual(nilSettingsParameterValue)
   })
 
   it("imports userSettingPresentation xs:string as I8nText", () => {

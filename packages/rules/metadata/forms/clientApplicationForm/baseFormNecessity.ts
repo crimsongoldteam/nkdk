@@ -1,6 +1,5 @@
 import type { MetadataItemRule } from "../../ruleRuntime"
-import { projectClientApplicationBaseForm } from "./baseFormProjection"
-import { equalBaseFormYaml } from "./baseFormYaml"
+import { equalClientApplicationBaseFormProjections } from "./baseFormProjection"
 import type { ClientApplicationFormYAML } from "./types"
 
 export function isRedundantClientApplicationBaseForm(params: {
@@ -9,17 +8,10 @@ export function isRedundantClientApplicationBaseForm(params: {
   readonly savedBaseYaml: ClientApplicationFormYAML
   readonly rule?: MetadataItemRule
 }): boolean {
-  const common = {
+  return equalClientApplicationBaseFormProjections({
+    leftBaseYaml: params.currentConfigurationYaml,
+    rightBaseYaml: params.savedBaseYaml,
     extensionYaml: params.extensionYaml,
     ...(params.rule === undefined ? {} : { rule: params.rule }),
-  }
-  const expected = projectClientApplicationBaseForm({
-    ...common,
-    baseYaml: params.currentConfigurationYaml,
   })
-  const saved = projectClientApplicationBaseForm({
-    ...common,
-    baseYaml: params.savedBaseYaml,
-  })
-  return equalBaseFormYaml(saved.yaml, expected.yaml)
 }

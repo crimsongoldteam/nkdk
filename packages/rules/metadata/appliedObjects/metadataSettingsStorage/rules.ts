@@ -1,10 +1,10 @@
+import { metadataIdentityProperties } from "../../commonObjects/metadataIdentityProperties"
+import { ownerFormLinks } from "../../commonObjects/metadataPath/formLinks"
 import { childFormNamesRule } from "../../commonObjects/childFormNames/types"
 import { childTemplateNamesRule } from "../../commonObjects/childTemplateNames/types"
 import { internalInfoRule } from "../../commonObjects/internalInfo/types"
-import { i8nTextRule } from "../../commonObjects/i8nText/types"
 import { moduleRule } from "../../commonObjects/module/types"
 import { stringRule } from "../../commonObjects/string/types"
-import { uuidRule } from "../../commonObjects/uuid/types"
 import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
 import { V8_MDCLASSES_ROOT } from "../../ruleRuntime/appliedObject/presets"
@@ -34,42 +34,20 @@ export const MetadataSettingsStorageRules = {
     xmlRoot: xmlRootRule({
       container: "SettingsStorage",
       rootAttributes: V8_MDCLASSES_ROOT,
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
     }),
     internalInfo: internalInfoRule({
       xmlParents: [],
-      forReferenceOnly: true,
+      xmlOnly: true,
       items: [{ name: "SettingsStorageManager", category: "Manager" }],
     }),
-    uuid: uuidRule({
-      xml: "_uuid",
-      forReferenceOnly: true,
-      xmlParents: [],
-    }),
-    name: stringRule({
-      xmlParents: properties,
-      required: true,
-    }),
-    defaultSaveForm: stringRule({
-      yaml: "ОсновнаяФормаСохранения",
-      xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
-    synonym: i8nTextRule({
-      yaml: "Синоним",
-      xmlParents: properties,
-      defaultValueXMLRaw: "",
-      excludeIfEqualNameYAML: true,
-    }),
-    comment: stringRule({
-      yaml: "Комментарий",
-      xmlParents: properties,
-      defaultValueXMLRaw: "",
-      defaultValueAdoptedXML: "",
-    }),
+    uuid: metadataIdentityProperties.uuid,
+    name: metadataIdentityProperties.name,
+    defaultSaveForm: ownerFormLinks.defaultSaveForm,
+    synonym: metadataIdentityProperties.synonym,
+    comment: metadataIdentityProperties.comment,
     objectBelonging: systemEnumerationRule({
       yaml: "ПринадлежностьОбъекта",
       typeSE: "ObjectBelonging",
@@ -82,24 +60,9 @@ export const MetadataSettingsStorageRules = {
       yaml: "ОбъектРасширяемойКонфигурации",
       runtimeOnly: true,
     }),
-    defaultLoadForm: stringRule({
-      yaml: "ОсновнаяФормаЗагрузки",
-      xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
-    auxiliarySaveForm: stringRule({
-      yaml: "ВспомогательнаяФормаСохранения",
-      xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
-    auxiliaryLoadForm: stringRule({
-      yaml: "ВспомогательнаяФормаЗагрузки",
-      xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
+    defaultLoadForm: ownerFormLinks.defaultLoadForm,
+    auxiliarySaveForm: ownerFormLinks.auxiliarySaveForm,
+    auxiliaryLoadForm: ownerFormLinks.auxiliaryLoadForm,
     managerModule: moduleRule({
       externalMetadata: { segment: "ManagerModule", placement: "derivedEntry" },
       nkdkPath: "МодульМенеджера.bsl",
@@ -109,14 +72,14 @@ export const MetadataSettingsStorageRules = {
       yaml: "Формы",
       xml: "Form",
       folderName: "Формы",
-      forReferenceOnly: true,
+      xmlOnly: true,
       xmlParents: childObjects,
     }),
     templates: childTemplateNamesRule({
       yaml: "Шаблоны",
       xml: "Template",
       folderName: "Шаблоны",
-      forReferenceOnly: true,
+      xmlOnly: true,
       xmlParents: childObjects,
     }),
   },

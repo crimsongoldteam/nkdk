@@ -1,17 +1,14 @@
 import {
-  createXmlImportAuditSession,
   parseXmlDocumentWithSaxes,
   yamlScalarTagAt,
 } from "@nkdk/runtime"
 import "../../../tests/metadataExecutionContext"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { describe,expect,it } from "vitest"
-import { testPropertyFromXMLToYAML } from "../../../tests/directConversion"
+import { testPropertyFromXMLToYAML, testMetadataItemYamlRoundTrip } from "../../../tests/directConversion"
 import { mockContextFromXML } from "../../../tests/mockContext"
 import { testExportPropertyModelThroughXMLToYAML } from "../../../tests/property/exportPropertyModelThroughXMLToYAML"
-import { createLocalIndexesCollector } from "../../projectDefinition/localIndexes"
 import type { PropertyRule } from "../../ruleRuntime"
-import { importPropertiesFromXMLToYAML } from "../../ruleRuntime/property/fromXMLToYAML"
 import { allYAML } from "./__fixtures__/data"
 import { StandartAttributeNameToYAML } from "./types"
 
@@ -58,7 +55,7 @@ describe("StandardAttributeDescriptions XML → YAML", () => {
     expect(result).toEqual({})
   })
 
-  it("не добавляет транспортный тег при reference-импорте", () => {
+  it("сохраняет отметку стандартной коллекции без отдельного reference-режима", () => {
     const itemRule = {
       itemType: "StandardAttributeReferenceImportProbe",
       properties: {
@@ -69,7 +66,7 @@ describe("StandardAttributeDescriptions XML → YAML", () => {
       },
     } as const satisfies MetadataItemRule
     const imported = testPropertyFromXMLToYAML({
-      context: mockContextFromXML({ forReference: true }),
+      context: mockContextFromXML(),
       rule: itemRule,
       xml: {
         StandardAttributes: {
@@ -78,23 +75,19 @@ describe("StandardAttributeDescriptions XML → YAML", () => {
       },
     }).yaml as Record<string, unknown>
 
-    expect(imported).toEqual({
-      СтандартныеРеквизиты: {
-        ИмяПредопределенныхДанных: {},
-      },
-    })
-    expect(yamlScalarTagAt(imported, "СтандартныеРеквизиты")).toBeUndefined()
+    expect(yamlScalarTagAt(imported, "СтандартныеРеквизиты")).toBe("xml/standard-attributes")
   })
 
   it("помечает полностью стандартную присутствующую коллекцию кратким XML-тегом", () => {
-    const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
-    const root = parseXmlDocumentWithSaxes(DEFAULT_LINE_NUMBER_XML).roots[0]!
-    const audit = createXmlImportAuditSession([root])
-    const yaml = importPropertiesFromXMLToYAML({
-      context,
+    const result = testMetadataItemYamlRoundTrip({
+      sourceXML: DEFAULT_LINE_NUMBER_XML,
       rule: {
         itemType: "StandardAttributeSemanticElisionProbe",
         properties: {
+          root: { type: "XMLRoot", container: "Root", isFileRoot: true, xmlOnly: true, rootAttributes: {
+            "_xmlns:xr": "http://v8.1c.ru/8.3/xcf/readable",
+            "_xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
+          } },
           standardAttributes: {
             ...rule,
             xml: "StandardAttributes",
@@ -102,21 +95,12 @@ describe("StandardAttributeDescriptions XML → YAML", () => {
           },
         },
       } as const satisfies MetadataItemRule,
-      sources: [{ context, xml: root }],
-      yamlPath: [],
-      rulePath: [],
-      collector: createLocalIndexesCollector(),
-      audit,
     })
-    audit.finalize()
 
-    expect(yaml).toHaveProperty("СтандартныеРеквизиты")
-    expect(yamlScalarTagAt(yaml, "СтандартныеРеквизиты")).toBe("xml/standard-attributes")
-    expect(audit.outcomes()
-      .filter(({ node }) => node.path.includes("/StandardAttributes[1]"))
-      .filter(({ state }) => state === "unknown" || state === "ambiguous")
-      .map(({ node, state, boundaries }) => [node.path, state, boundaries]))
-      .toEqual([])
+    expect(result.yamlText).toContain("СтандартныеРеквизиты: !xml/standard-attributes")
+    expect(result.yamlText).not.toContain("!xml/raw")
+    expect(parseXmlDocumentWithSaxes(result.result).roots[0]!.structuralHash)
+      .toBe(parseXmlDocumentWithSaxes(DEFAULT_LINE_NUMBER_XML).roots[0]!.structuralHash)
   })
 
   it("exports multiple.xml directly to YAML", () => {

@@ -6,13 +6,14 @@ import type {
   XmlProcessingInstructionNode,
   XmlTextNode,
 } from "../import/document"
+import { isXmlElementNode } from "../import/document"
 import {
   hashXmlElementStructure,
   normalizeXmlElementContent,
   type XmlStructuralContent,
 } from "../structure/hash"
 import { parseXmlProcessingInstructionAttributes } from "../structure/processingInstruction"
-import { getXmlOrderedChildren, normalizeXmlObjectForExport } from "./exporter"
+import { getXmlOrderedChildren, normalizeXmlChildForExport, normalizeXmlObjectForExport } from "./exporter"
 
 export interface XmlObjectDocumentResult {
   readonly document: XmlDocument
@@ -47,7 +48,6 @@ export function xmlObjectDocument(value: unknown): XmlObjectDocumentResult {
     document: {
       content: roots,
       roots,
-      compatibility: normalized,
       sourceLength: 0,
     },
   }
@@ -87,13 +87,15 @@ function elementNode(
   const content: XmlContentNode[] = []
   let textCount = 0
   const childCounts = new Map<string, number>()
-  for (const descriptor of contentDescriptors(value)) {
+  for (const descriptor of xmlObjectOwnContent(value)) {
     if (descriptor.kind === "text") {
       appendText(descriptor.value)
       continue
     }
-    const childOccurrence = increment(childCounts, descriptor.name)
-    const childPath = `${path}/${descriptor.name}[${childOccurrence}]`
+    const childName = descriptor.name.startsWith("?")
+      ? `?${xmlObjectProcessingInstruction(descriptor.name.slice(1)).target}` : descriptor.name
+    const childOccurrence = increment(childCounts, childName)
+    const childPath = `${path}/${childName}[${childOccurrence}]`
     content.push(descriptor.name.startsWith("?")
       ? processingInstructionNode(descriptor.name.slice(1), descriptor.value, childPath, childOccurrence, allocateId)
       : elementNode(descriptor.name, descriptor.value, childPath, childOccurrence, allocateId))
@@ -108,7 +110,6 @@ function elementNode(
     attributes,
     content: normalizedContent,
     span: syntheticSpan(),
-    compatibilityValue: value,
   }
   return { ...partial, structuralHash: hashXmlElementStructure(partial) }
 
@@ -127,10 +128,11 @@ function elementNode(
 }
 
 function elementStructuralHash(name: string, value: unknown): bigint {
-  const content = contentDescriptors(value).map((descriptor): XmlStructuralContent => {
+  if (isXmlElementNode(value) && value.name === name) return value.structuralHash
+  const content = xmlObjectOwnContent(value).map((descriptor): XmlStructuralContent => {
     if (descriptor.kind === "text") return { type: "text", value: descriptor.value }
     if (descriptor.name.startsWith("?")) {
-      return processingInstructionStructure(descriptor.name.slice(1))
+      return xmlObjectProcessingInstruction(descriptor.name.slice(1))
     }
     return {
       type: "element",
@@ -139,7 +141,7 @@ function elementStructuralHash(name: string, value: unknown): bigint {
   })
   return hashXmlElementStructure({
     name,
-    attributes: structuralAttributes(value),
+    attributes: xmlObjectOwnAttributes(value),
     content: normalizeXmlElementContent(content),
   })
 }
@@ -148,12 +150,19 @@ type XmlObjectContentDescriptor =
   | { readonly kind: "text"; readonly value: string }
   | { readonly kind: "child"; readonly name: string; readonly value: unknown }
 
-function contentDescriptors(value: unknown): XmlObjectContentDescriptor[] {
+export function xmlObjectOwnContent(value: unknown): XmlObjectContentDescriptor[] {
+  if (isXmlElementNode(value)) {
+    return value.content.map(node => node.type === "text"
+      ? { kind: "text", value: node.value }
+      : node.type === "element"
+        ? { kind: "child", name: node.name, value: node }
+        : { kind: "child", name: `?${node.target}${node.body === "" ? "" : ` ${node.body}`}`, value: "" })
+  }
   const children = isRecord(value)
     ? getXmlOrderedChildren(value)
       ?? Object.entries(value)
         .filter(([key]) => key !== "#text" && !key.startsWith("_"))
-        .map(([key, child]) => ({ key, value: child }))
+        .map(([key, child]) => ({ key, value: normalizeXmlChildForExport(key, child) }))
     : []
   const result: XmlObjectContentDescriptor[] = []
   const hasText = isRecord(value)
@@ -187,7 +196,7 @@ function elementAttributes(
 ): XmlAttributeNode[] {
   if (!isRecord(value)) return []
   const counts = new Map<string, number>()
-  return structuralAttributes(value).map(({ name, value: attribute }) => {
+  return xmlObjectOwnAttributes(value).map(({ name, value: attribute }) => {
     const occurrence = increment(counts, name)
     return {
       id: allocateId(),
@@ -200,7 +209,8 @@ function elementAttributes(
   })
 }
 
-function structuralAttributes(value: unknown): { readonly name: string; readonly value: string }[] {
+export function xmlObjectOwnAttributes(value: unknown): readonly { readonly name: string; readonly value: string }[] {
+  if (isXmlElementNode(value)) return value.attributes
   if (!isRecord(value)) return []
   return Object.entries(value).flatMap(([key, attribute]) =>
     key.startsWith("_") ? [{ name: key.slice(1), value: String(attribute) }] : []
@@ -214,19 +224,16 @@ function processingInstructionNode(
   occurrence: number,
   allocateId: () => number,
 ): XmlProcessingInstructionNode {
-  const structure = processingInstructionStructure(target)
-  const attributes = structure.attributes.map(({ name, value }, index) => ({
-    id: allocateId(),
-    name,
-    occurrence: index + 1,
-    path: `${path}/@${name}[${index + 1}]`,
-    span: syntheticSpan(),
-    value,
-  }))
+  const structure = xmlObjectProcessingInstruction(target)
+  const counts = new Map<string, number>()
+  const attributes = structure.attributes.map(({ name, value }) => {
+    const occurrence = increment(counts, name)
+    return { id: allocateId(), name, occurrence, path: `${path}/@${name}[${occurrence}]`, span: syntheticSpan(), value }
+  })
   return {
     type: "processingInstruction",
     id: allocateId(),
-    target,
+    target: structure.target,
     occurrence,
     path,
     body: structure.body,
@@ -235,8 +242,10 @@ function processingInstructionNode(
   }
 }
 
-function processingInstructionStructure(target: string) {
-  const body = ""
+export function xmlObjectProcessingInstruction(instruction: string) {
+  const separator = instruction.search(/\s/u)
+  const target = separator < 0 ? instruction : instruction.slice(0, separator)
+  const body = separator < 0 ? "" : instruction.slice(separator + 1)
   return {
     type: "processingInstruction" as const,
     target,

@@ -13,10 +13,17 @@ import { fullCommandInterface } from "./__fixtures__/full"
 import { importCommandInterfaceFromXML } from "./fromXML"
 import { CommandInterfaceXML } from "./types"
 import { getTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
+import { readFileSync } from "node:fs"
+import { parseStructuralXMLWithoutCompatibility } from "../../../../tests/structuralXML"
 
 const fixturesDir = join(dirname(fileURLToPath(import.meta.url)), "__fixtures__")
 
 describe("importCommandInterfaceFromXML", () => {
+  it("читает полный командный интерфейс из XML-узлов", () => {
+    const root = parseStructuralXMLWithoutCompatibility(readFileSync(join(fixturesDir, "full.xml"), "utf8"))
+    expect(importCommandInterfaceFromXML(mockContextFromXML(), mockRule, root)).toEqual(fullCommandInterface)
+  })
+
   it("не регистрирует общий сбор порядка в снимок", () => {
     expect(getTypeRule("CommandInterface", "collectConfigurationIndexFromXML")).toBeUndefined()
   })

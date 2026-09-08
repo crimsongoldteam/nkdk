@@ -1,3 +1,4 @@
+import { ownerFormLinks } from "../../commonObjects/metadataPath/formLinks"
 import { metadataCommandsRule } from "../metadataAccountingRegister/builders"
 import { childFormNamesRule } from "../../commonObjects/childFormNames/types"
 import { internalInfoRule } from "../../commonObjects/internalInfo/types"
@@ -7,7 +8,7 @@ import { booleanRule } from "../../commonObjects/boolean/types"
 import { i8nTextRule } from "../../commonObjects/i8nText/types"
 import { moduleRule } from "../../commonObjects/module/types"
 import { stringRule } from "../../commonObjects/string/types"
-import { uuidRule } from "../../commonObjects/uuid/types"
+import { metadataIdentityProperties } from "../../commonObjects/metadataIdentityProperties"
 import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
 import { MetadataCommandRules } from "../../commonObjects/metadataCommand/rules"
@@ -43,39 +44,19 @@ export const MetadataFilterCriterionRules = {
     xmlRoot: xmlRootRule({
       container: "FilterCriterion",
       rootAttributes: V8_MDCLASSES_ROOT,
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
     }),
     internalInfo: internalInfoRule({
       xmlParents: [],
-      forReferenceOnly: true,
+      xmlOnly: true,
       items: [
         { name: "FilterCriterionManager", category: "Manager" },
         { name: "FilterCriterionList", category: "List" },
       ],
     }),
-    uuid: uuidRule({
-      xml: "_uuid",
-      forReferenceOnly: true,
-      xmlParents: [],
-    }),
-    name: stringRule({
-      xmlParents: properties,
-      required: true,
-    }),
-    synonym: i8nTextRule({
-      yaml: "Синоним",
-      xmlParents: properties,
-      defaultValueXMLRaw: "",
-      excludeIfEqualNameYAML: true,
-    }),
-    comment: stringRule({
-      yaml: "Комментарий",
-      xmlParents: properties,
-      defaultValueXMLRaw: "",
-      defaultValueAdoptedXML: "",
-    }),
+    ...metadataIdentityProperties,
     objectBelonging: systemEnumerationRule({
       yaml: "ПринадлежностьОбъекта",
       typeSE: "ObjectBelonging",
@@ -112,18 +93,8 @@ export const MetadataFilterCriterionRules = {
       xmlParents: properties,
       defaultValueXMLRaw: "",
     }),
-    defaultForm: stringRule({
-      yaml: "ОсновнаяФорма",
-      xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
-    auxiliaryForm: stringRule({
-      yaml: "ВспомогательнаяФорма",
-      xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
+    defaultForm: ownerFormLinks.defaultForm,
+    auxiliaryForm: { ...ownerFormLinks.auxiliaryForm, yaml: "ВспомогательнаяФорма" },
     managerModule: moduleRule({
       externalMetadata: { segment: "ManagerModule", placement: "derivedEntry" },
       nkdkPath: "МодульМенеджера.bsl",
@@ -153,7 +124,7 @@ export const MetadataFilterCriterionRules = {
       yaml: "Формы",
       xml: "Form",
       folderName: "Формы",
-      forReferenceOnly: true,
+      xmlOnly: true,
       xmlParents: childObjects,
     }),
   },

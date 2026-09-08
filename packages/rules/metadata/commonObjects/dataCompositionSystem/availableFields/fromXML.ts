@@ -1,10 +1,11 @@
-import { ConfigurationContextFromXML } from "@nkdk/runtime"
+import { isEmptyXmlElement, isXmlElementNode, xmlElementChildren, xmlTextValue, type XmlElementNode, type ConfigurationContextFromXML } from "@nkdk/runtime"
 import { withConfigurationIndexYamlCollectionItemContext } from "@nkdk/runtime"
 import { importI8nTextFromXML } from "../../i8nText/fromXML"
 import { PropertyRule, definePropertyTypeRule } from "../../../ruleRuntime"
 import type { AvailableFieldItem, AvailableFieldXML, AvailableFields, AvailableFieldsXML } from "./types"
 
-const getFieldText = (field: AvailableFieldXML["dcsset:field"]): string | undefined => {
+const getFieldText = (field: AvailableFieldXML["dcsset:field"] | XmlElementNode | undefined): string | undefined => {
+  if (isXmlElementNode(field)) return xmlTextValue(field) || undefined
   if (typeof field === "string") return field
   if (field && typeof field === "object" && "#text" in field) {
     const text = field["#text"]
@@ -13,11 +14,10 @@ const getFieldText = (field: AvailableFieldXML["dcsset:field"]): string | undefi
   return undefined
 }
 
-const hasMetadata = (item: AvailableFieldXML): boolean =>
-  item["dcsset:use"] !== undefined ||
-  item["dcsset:title"] !== undefined ||
-  item["dcsset:lwsTitle"] !== undefined ||
-  item["dcsset:viewMode"] !== undefined
+const optionalChild = (node: XmlElementNode, name: string): XmlElementNode | undefined => {
+  const child = xmlElementChildren(node, name)[0]
+  return child !== undefined && !isEmptyXmlElement(child) ? child : undefined
+}
 
 const importBoolean = (value: boolean | string | undefined): boolean | undefined => {
   if (value === undefined) return undefined
@@ -28,31 +28,38 @@ const importBoolean = (value: boolean | string | undefined): boolean | undefined
 const importAvailableFieldsFromXML = (
   context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
-  xml: AvailableFieldsXML | undefined
+  xml: AvailableFieldsXML | XmlElementNode | undefined
 ): AvailableFields | undefined => {
   if (!xml) return undefined
 
-  const items = xml["dcsset:item"]
+  const items = isXmlElementNode(xml) ? xmlElementChildren(xml, "dcsset:item") : xml["dcsset:item"]
   if (!items) return undefined
 
   const fieldItems = Array.isArray(items) ? items : [items]
+  if (fieldItems.length === 1 && isXmlElementNode(fieldItems[0]) && isEmptyXmlElement(fieldItems[0])) return undefined
   const fields = fieldItems
     .map((item, index): AvailableFieldItem | undefined => {
       const itemContext = withConfigurationIndexYamlCollectionItemContext(context, { index, yamlAsArray: true })
-      const field = getFieldText(item["dcsset:field"])
+      const node = isXmlElementNode(item) ? item : undefined
+      if (node !== undefined && isEmptyXmlElement(node)) throw new TypeError("Пустой элемент списка доступных полей")
+      const field = getFieldText(isXmlElementNode(item) ? optionalChild(item, "dcsset:field") : item["dcsset:field"])
       if (!field) return undefined
-      if (!hasMetadata(item)) return field
+      const use = isXmlElementNode(item) ? optionalChild(item, "dcsset:use") : item["dcsset:use"]
+      const title = isXmlElementNode(item) ? optionalChild(item, "dcsset:title") : item["dcsset:title"]
+      const lwsTitle = isXmlElementNode(item) ? optionalChild(item, "dcsset:lwsTitle") : item["dcsset:lwsTitle"]
+      const viewMode = isXmlElementNode(item) ? optionalChild(item, "dcsset:viewMode") : item["dcsset:viewMode"]
+      if (use === undefined && title === undefined && lwsTitle === undefined && viewMode === undefined) return field
 
       return {
         field,
-        ...(item["dcsset:use"] !== undefined ? { use: importBoolean(item["dcsset:use"]) } : {}),
-        ...(item["dcsset:title"] !== undefined
-          ? { title: importI8nTextFromXML(itemContext, { type: "I8nText" }, item["dcsset:title"]) }
+        ...(use !== undefined ? { use: importBoolean(isXmlElementNode(use) ? xmlTextValue(use) : use) } : {}),
+        ...(title !== undefined
+          ? { title: importI8nTextFromXML(itemContext, { type: "I8nText" }, title) }
           : {}),
-        ...(item["dcsset:lwsTitle"] !== undefined
-          ? { lwsTitle: importI8nTextFromXML(itemContext, { type: "I8nText" }, item["dcsset:lwsTitle"]) }
+        ...(lwsTitle !== undefined
+          ? { lwsTitle: importI8nTextFromXML(itemContext, { type: "I8nText" }, lwsTitle) }
           : {}),
-        ...(item["dcsset:viewMode"] !== undefined ? { viewMode: item["dcsset:viewMode"] } : {}),
+        ...(viewMode !== undefined ? { viewMode: isXmlElementNode(viewMode) ? xmlTextValue(viewMode) as AvailableFieldXML["dcsset:viewMode"] : viewMode } : {}),
       }
     })
     .filter((field): field is AvailableFieldItem => field !== undefined)

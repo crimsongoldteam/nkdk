@@ -1,8 +1,10 @@
 import type { ConfigurationContextFromXML, XMLImportObjectVariant } from "../../context/types"
 import type { MetadataItemRule } from "../property/types"
 import { currentPropertyRuleRegistrySet } from "../property/propertyRuleExecutionContext"
+import type { XmlElementNode } from "../../../xml/import/document"
 
 export interface MetadataItemXmlImportAugmenter {
+  yamlDependencies(params: MetadataItemXmlImportVariantParams): readonly string[]
   resolveCurrentXMLDefaultVariant?(params: MetadataItemXmlImportVariantParams): XMLImportObjectVariant | undefined
   augment(params: MetadataItemXmlImportAugmentParams): void
 }
@@ -10,11 +12,13 @@ export interface MetadataItemXmlImportAugmenter {
 export interface MetadataItemXmlImportVariantParams {
   context: ConfigurationContextFromXML
   rule: MetadataItemRule
-  source: Record<string, unknown>
+  source: Record<string, unknown> | XmlElementNode
 }
 
 export interface MetadataItemXmlImportAugmentParams extends MetadataItemXmlImportVariantParams {
   yaml: Record<string, unknown>
+  /** Только новые смысловые объекты; их XML проверяет содержащая граница. */
+  onCreatedItem?(item: { readonly yaml: Record<string, unknown>; readonly rule: MetadataItemRule; readonly yamlPath: readonly (string | number)[] }): void
 }
 
 export interface MetadataItemXmlImportAugmenterContribution {
@@ -23,6 +27,7 @@ export interface MetadataItemXmlImportAugmenterContribution {
 }
 
 export interface MetadataItemXmlImportAugmenterRegistry {
+  yamlDependencies(params: MetadataItemXmlImportVariantParams): readonly string[]
   apply(params: Parameters<typeof applyMetadataItemXmlImportAugmenter>[0]): void
   resolveCurrentXMLDefaultVariant(
     params: MetadataItemXmlImportVariantParams,
@@ -38,6 +43,7 @@ export function createMetadataItemXmlImportAugmenterRegistry(
     instanceAugmenters.set(name, augmenter)
   }
   return {
+    yamlDependencies: (params) => selectedAugmenter(instanceAugmenters, params.context)?.yamlDependencies(params) ?? [],
     apply: (params) => applyFromRegistry(instanceAugmenters, params),
     resolveCurrentXMLDefaultVariant: (params) => resolveFromRegistry(instanceAugmenters, params),
   }
@@ -54,17 +60,20 @@ export function registerMetadataItemXmlImportAugmenter(
   registry.registerMetadataItemXmlImportAugmenter(name, augmenter)
 }
 
-export function applyMetadataItemXmlImportAugmenter(params: {
-  context: ConfigurationContextFromXML
-  rule: MetadataItemRule
-  source: Record<string, unknown>
-  yaml: Record<string, unknown>
-}): void {
+export function applyMetadataItemXmlImportAugmenter(params: MetadataItemXmlImportAugmentParams): void {
   const registry = currentPropertyRuleRegistrySet<{
     applyMetadataItemXmlImportAugmenter(value: typeof params): void
   }>()
   if (registry === undefined) throw new Error("Не задан execution context property rules")
   registry.applyMetadataItemXmlImportAugmenter(params)
+}
+
+export function metadataItemXmlImportYamlDependencies(params: MetadataItemXmlImportVariantParams): readonly string[] {
+  const registry = currentPropertyRuleRegistrySet<{
+    metadataItemXmlImportYamlDependencies(value: MetadataItemXmlImportVariantParams): readonly string[]
+  }>()
+  if (registry === undefined) throw new Error("Не задан execution context property rules")
+  return registry.metadataItemXmlImportYamlDependencies(params)
 }
 
 export function resolveMetadataItemXMLDefaultVariant(

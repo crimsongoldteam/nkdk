@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 import { PropertyRule } from "../../../ruleRuntime"
 import { testAtomicToXML } from "../../../../tests/property/atomicToXML"
 import { testImportPropertyFromXML } from "../../../../tests/property/importPropertyFromXML"
+import { testMetadataItemYamlRoundTrip } from "../../../../tests/directConversion"
 import {
   fixtureFormatLocalString,
   nilSettingsParameterValue,
@@ -21,12 +22,12 @@ describe("exportParameterValueToDcsXML", () => {
     expect(result).toEqual(fixture.xml)
   })
 
-  it("restores nil value from reference when current value is absent", () => {
+  it("does not restore nil value from reference when current value is absent", () => {
     const reference = testImportPropertyFromXML({
       rule: nilSettingsParameterValueRule,
       xmlRootTag: "dcscor:item",
       xmlString: xmlNilSettingsParameterValue,
-      forReference: true,
+
     })
 
     const { result } = testAtomicToXML({
@@ -36,7 +37,22 @@ describe("exportParameterValueToDcsXML", () => {
       referenceMetadata: reference,
     })
 
-    expect(result).toEqual(xmlNilSettingsParameterValue)
+    expect(result).not.toContain("dcscor:value")
+  })
+
+  it.each([
+    xmlNilSettingsParameterValue,
+    xmlNilSettingsParameterValue.replace('xsi:nil="true"', 'xsi:type="v8:LocalStringType"'),
+  ])("preserves empty XML through serialized YAML and ordinary export: %s", (xml) => {
+    const sourceXML = `<Root>\n${xml}\n</Root>`
+    const result = testMetadataItemYamlRoundTrip({ sourceXML, rule: {
+      itemType: "ParameterValueProbe", properties: {
+        root: { type: "XMLRoot", container: "Root", isFileRoot: true, xmlOnly: true, rootAttributes: {} },
+        value: { ...nilSettingsParameterValueRule, xml: "dcscor:item" },
+      },
+    } })
+    expect(result.yamlText).toContain("!xml/raw")
+    expect(result.result.replace(/>\s+</g, "><").replace(/^\ufeff?<\?xml[^>]+>\s*/, "")).toBe(sourceXML.replace(/>\s+</g, "><"))
   })
 
   it("exports explicit value instead of reference nil", () => {
@@ -44,7 +60,7 @@ describe("exportParameterValueToDcsXML", () => {
       rule: nilSettingsParameterValueRule,
       xmlRootTag: "dcscor:item",
       xmlString: xmlNilSettingsParameterValue,
-      forReference: true,
+
     })
 
     const { result } = testAtomicToXML({
@@ -61,7 +77,7 @@ describe("exportParameterValueToDcsXML", () => {
     expect(result).not.toContain('xsi:nil="true"')
   })
 
-  it("restores empty LocalStringType from reference when current value is absent", () => {
+  it("does not restore empty LocalStringType from reference when current value is absent", () => {
     const { result } = testAtomicToXML({
       rule: { type: "SettingsParameterValue", valueType: "DesignTimeValue" },
       value: {
@@ -76,7 +92,7 @@ describe("exportParameterValueToDcsXML", () => {
       },
     })
 
-    expect(result).toContain('<dcscor:value xsi:type="v8:LocalStringType"/>')
+    expect(result).not.toContain("dcscor:value")
   })
 
   it("exports explicit empty xs:string instead of dcscor:Field", () => {
@@ -102,7 +118,7 @@ describe("exportParameterValueToDcsXML", () => {
 	<dcscor:parameter>Период</dcscor:parameter>
 	<dcsset:userSettingPresentation xsi:type="xs:string">по</dcsset:userSettingPresentation>
 </dcscor:item>`,
-      forReference: true,
+
     })
 
     const { result } = testAtomicToXML({
@@ -126,7 +142,7 @@ describe("exportParameterValueToDcsXML", () => {
 	<dcscor:parameter>Период</dcscor:parameter>
 	<dcsset:userSettingPresentation xsi:type="xs:string">по</dcsset:userSettingPresentation>
 </dcscor:item>`,
-      forReference: true,
+
     })
 
     const { result } = testAtomicToXML({

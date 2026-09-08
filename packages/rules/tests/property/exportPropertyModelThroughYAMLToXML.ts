@@ -1,6 +1,6 @@
 import type { ConfigurationContextWithExportToXML, ContextElementToXML } from "@nkdk/runtime"
 import { exportPropertyToYAML } from "../../metadata/ruleRuntime"
-import type { ElementXML, MetadataItemRule, PropertyRule } from "../../metadata/ruleRuntime"
+import type { MetadataItemRule, PropertyRule } from "../../metadata/ruleRuntime"
 import { xmlExport } from "@nkdk/runtime"
 import {
   createDirectRoundTripContexts,
@@ -10,9 +10,10 @@ import {
   withDirectMetadataExecution,
 } from "../directConversion"
 import { mockContext, mockContextToXML } from "../mockContext"
-import { readAndParseXMLFile, readXMLFileAsString } from "../readAndParseXMLFile"
-import { readAndParseXMLFixture, readXMLFixtureAsString } from "../readFixtureXML"
-import { createXmlAnomalyAnnotations, importContentFromXML } from "@nkdk/runtime"
+import { readXMLFileAsString } from "../readAndParseXMLFile"
+import { readXMLFixtureAsString } from "../readFixtureXML"
+import { createXmlAnomalyAnnotations } from "@nkdk/runtime"
+import { readPropertyXML } from "../structuralXML"
 
 type Params = {
   rule: PropertyRule
@@ -51,16 +52,9 @@ export function testExportPropertyModelThroughYAMLToXML(params: Params): {
             : readXMLFileAsString(params.path)
           ).trimEnd()
   const effectiveRootTag = params.xmlRootTag ?? params.rule.xml
-  const referenceRoot =
-    (params.path === undefined && params.xmlString === undefined) || effectiveRootTag === undefined
-      ? undefined
-      : params.xmlString !== undefined
-        ? importContentFromXML<Record<string, ElementXML>>(params.xmlString)
-        : params.importMetaUrl
-          ? readAndParseXMLFixture<Record<string, ElementXML>>(params.importMetaUrl, params.path!)
-          : readAndParseXMLFile<Record<string, ElementXML>>(params.path!)
   const referenceValue =
-    "referenceMetadata" in params ? params.referenceMetadata : referenceRoot?.[effectiveRootTag as string]
+    expectedResult === undefined || effectiveRootTag === undefined ? undefined
+      : readPropertyXML({ xmlString: expectedResult, xmlRootTag: effectiveRootTag })
   const yamlKey = params.rule.yaml ?? "Значение"
   const propertyRule = { ...params.rule, xml: "Value", yaml: yamlKey }
   const importedFromXML =
@@ -111,7 +105,6 @@ export function testExportPropertyModelThroughYAMLToXML(params: Params): {
         forms: [],
         templates: [],
         parentName: "",
-        metadataForNumbering: [],
       },
     },
   }

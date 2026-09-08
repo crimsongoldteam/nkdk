@@ -2,16 +2,46 @@ import { buildObjectFieldIndex } from "../validation/dataPath/objectFields"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
 import { getDataPathOwnerKindByItemType } from "../validation/dataPath/registry"
 import type { OwnerTypeRef } from "../validation/dataPath/types"
-import type { LocalIndexes, MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import type { DirectImportFactsSink, LocalIndexes, MetadataItemRule, OwnerFactRole } from "@nkdk/runtime/rule-kit"
 import type { ParsedMetadataTarget } from "@nkdk/runtime/rule-kit"
 import { validationOwnerRef } from "../validation/dataPath/validationOwnerRef"
 import { ownerFactFromYAML } from "../validation/dataPath/ownerFacts"
+import { selectImportPropertyValues } from "./selectedPropertyFacts"
+import type { CompiledPropertyPlan, CompiledPropertyRuleExecution } from "@nkdk/runtime/rule-kit"
+import type { XmlAnomalyAnnotations } from "@nkdk/runtime"
+
+const finalOwnerPlans = new WeakMap<CompiledPropertyPlan, readonly { readonly key: string; readonly role: OwnerFactRole }[]>()
+
+/** Компактная проекция объявленных свойств владельца; не выполняет rules детей. */
+export function collectFinalOwnerFactValues(params: {
+  readonly execution: CompiledPropertyRuleExecution
+  readonly rule: MetadataItemRule
+  readonly yaml: Record<string, unknown>
+  readonly annotations: XmlAnomalyAnnotations
+}): Partial<Record<OwnerFactRole, unknown>> {
+  const plan = params.execution.propertyPlan(params.rule)
+  let selected = finalOwnerPlans.get(plan)
+  if (selected === undefined) {
+    selected = plan.properties.flatMap(property => property.yamlKey === undefined || property.propertyRule.ownerFactRole === undefined
+      ? [] : [{ key: property.yamlKey, role: property.propertyRule.ownerFactRole }])
+    finalOwnerPlans.set(plan, selected)
+  }
+  const facts: Partial<Record<OwnerFactRole, unknown>> = {}
+  for (const { key, role } of selected) {
+    const fact = ownerFactFromYAML(role, params.yaml[key], params.annotations)
+    if (fact !== undefined) facts[role] = fact
+  }
+  return facts
+}
+
+type ImportPropertyFact = Parameters<DirectImportFactsSink["acceptProperty"]>[0]
 
 export interface ImportOwnerFactsSource {
   readonly rule: MetadataItemRule
   readonly assignment: { readonly itemName: string }
   readonly targetProjectPath: string
   readonly localIndexes: LocalIndexes
+  readonly semanticFacts?: readonly ImportPropertyFact[]
 }
 
 export function extractImportOwnerFacts(
@@ -35,11 +65,28 @@ export function extractImportOwnerFacts(
     filePath: prepared.targetProjectPath,
     fieldIndex: { fields: new Map(), standardAttributeAliases: new Map(), diagnostics: [] },
     ...(prepared.localIndexes.metadata.ownerFacts ?? {}),
-    ...ownerFactsFromYaml(prepared.rule, rawYaml),
+    ...(prepared.semanticFacts === undefined
+      ? ownerFactsFromYaml(prepared.rule, rawYaml)
+      : ownerFactsFromProperties(prepared.rule, prepared.semanticFacts)),
   } as ValidationOwnerFacts
   const fieldIndex = buildObjectFieldIndex({ ref, facts: preliminaryFacts, rule: prepared.rule })
 
   return [{ ...preliminaryFacts, fieldIndex }]
+}
+
+function ownerFactsFromProperties(rule: MetadataItemRule, facts: readonly ImportPropertyFact[]): Record<string, unknown> {
+  const selected = new Map<string, OwnerFactRole>()
+  for (const property of Object.values(rule.properties)) {
+    if (property.ownerFactRole === undefined || typeof property.yaml !== "string") continue
+    selected.set(property.yaml, property.ownerFactRole)
+  }
+  const values = selectImportPropertyValues(facts, selected.keys())
+  const result: Record<string, unknown> = {}
+  for (const [key, role] of selected) {
+    const normalized = ownerFactFromYAML(role, values.get(key))
+    if (normalized !== undefined) result[role] = normalized
+  }
+  return result
 }
 
 function ownerFactsFromYaml(rule: MetadataItemRule, yaml: unknown): Record<string, unknown> {

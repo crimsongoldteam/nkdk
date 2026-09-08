@@ -23,7 +23,7 @@ export const HomePageWorkAreaRules = {
     xmlRoot: xmlRootRule({
       container: "HomePageWorkArea",
       rootAttributes: homePageWorkAreaRootAttributes,
-      forReferenceOnly: true,
+      xmlOnly: true,
       isFileRoot: true,
       toYAML: false,
       fromYAML: false,

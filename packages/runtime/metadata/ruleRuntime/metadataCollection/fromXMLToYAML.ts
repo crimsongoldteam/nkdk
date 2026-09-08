@@ -3,6 +3,7 @@ import { objectRecordOrUndefined } from "../../../helpers/record"
 import { importMetadataItemFromXMLToYAML } from "../metadataItem/fromXMLToYAML"
 import type {
   DeferredValuePathCollector,
+  DirectImportFactsSink,
   DirectImportTraversal,
   ImportedDependentPropertyCollector,
   ImportedDependentPropertyCandidate,
@@ -10,14 +11,15 @@ import type {
   LocalYamlFact,
 } from "../property/importYamlTypes"
 import type { PropertyRuleType } from "../property/registry"
-import type { ConfigurationIndexAddressingMode, ItemXML, MetadataItemRule, PropertyRule } from "../property/types"
+import type { ConfigurationIndexAddressingMode, MetadataItemRule, PropertyRule } from "../property/types"
 import { enterNestedYamlRule } from "../property/yamlRuleCursor"
+import { createMetadataCollectionFrame, type MetadataCollectionItemFrame } from "./frame"
 import { childUid, indexedUid, yamlIndexUid, yamlKeyUid } from "../../configurationIndex/logicalAddress"
 import {
   getConfigurationIndexCollectionContext,
   withConfigurationIndexLogicalAddress,
 } from "../../configurationIndex/collector/context"
-import type { XmlElementNode } from "../../../xml/import/document"
+import { isXmlElementNode, xmlAttributeValue, xmlElementsAtUniquePath, xmlElementChildren, xmlTextValue, type XmlElementNode } from "../../../xml/import/document"
 import {
   arrayLengthXmlImportAttemptAdapter,
   attachXmlImportAttemptAdapter,
@@ -25,6 +27,7 @@ import {
 } from "../xmlAnomaly/attempt"
 import { projectNamedXmlCollectionForImportWithRuntimeKeys } from "../xmlAnomaly/yamlProjection"
 import { markYAMLScalarTag, yamlValueTag } from "../../../yaml/scalarTags"
+import { createDirectImportFactsCollector } from "../property/importYamlTypes"
 
 type MetadataItemCollectionImportOptions = {
   propertyType?: PropertyRuleType
@@ -41,16 +44,14 @@ export type ClassifyNamedCollectionYamlKey = (params: {
 
 function configurationIndexItemContext(params: {
   context: ConfigurationContextFromXML
-  item: ItemXML
+  itemName: string | undefined
   itemRule: MetadataItemRule
-  keyField?: string
   index: number
   options?: MetadataItemCollectionImportOptions
 }): ConfigurationContextFromXML {
-  const { context, item, itemRule, keyField, index, options } = params
+  const { context, itemName, itemRule, index, options } = params
   const collection = getConfigurationIndexCollectionContext(context)
   if (collection === undefined) return context
-  const itemName = itemNameFromXML(item, itemRule, keyField)
   const useYamlPath = collection.yamlPathAddressing === true || options?.configurationIndexAddressing === "yamlPath"
   if (useYamlPath) {
     return withConfigurationIndexLogicalAddress(
@@ -94,104 +95,137 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
   classifyYamlKey?: ClassifyNamedCollectionYamlKey
   traversal: DirectImportTraversal
 }): Record<string, unknown> | Array<Record<string, unknown>> | undefined {
-  const structuralItems = collectionItemNodes(params.traversal.xmlNodes, params.xmlElement)
-  const items: { xml: Record<string, unknown>; node?: XmlElementNode }[] = structuralItems.length === 0
-    ? normalizeCollectionItems(params.xml, params.xmlElement).map((xml) => ({ xml }))
-    : structuralItems.flatMap((node) => {
-        const xml = objectRecordOrUndefined(node.compatibilityValue)
-        return xml === undefined ? [] : [{ xml, node }]
+  const sourceNodes = isXmlElementNode(params.xml) ? [params.xml]
+    : Array.isArray(params.xml) && params.xml.every(isXmlElementNode) ? params.xml
+    : params.traversal.xmlNodes
+  if (params.traversal.audit !== undefined && sourceNodes !== undefined) {
+    for (const source of sourceNodes) {
+      if (source.name === params.xmlElement) continue
+      // Оболочка коллекции известна; атрибуты и содержимое проверяются отдельно.
+      params.traversal.audit.claim(source, {
+        itemType: params.itemRule.itemType,
+        yamlPath: params.traversal.pathCursor.toArray(),
+        rulePath: params.traversal.rulePath,
       })
-  if (items.length === 0) return undefined
-  const sourceItemRule = params.itemRule
-  const itemRule =
-    params.preserveItemPropertyPresence === true
-      ? withPreservedPropertyPresence(sourceItemRule)
-      : sourceItemRule
+    }
+  }
+  const items: Iterable<Record<string, unknown> | XmlElementNode> = sourceNodes === undefined
+    ? normalizeCollectionItems(params.xml, params.xmlElement)
+    : collectionItemNodes(sourceNodes, params.xmlElement)
+  let itemRule = params.itemRule
   const keyField = params.keyField
-  const keyYaml = keyField === undefined ? undefined : (itemRule.properties[keyField]?.yaml ?? keyField)
-  const yamlItems = items.flatMap(({ xml: itemXml, node: itemNode }, index) => {
-    const itemName = itemNameFromXML(itemXml, itemRule, params.keyField)
-    const itemContext = configurationIndexItemContext({
-      context: params.context,
-      item: itemXml,
-      itemRule,
-      keyField: params.keyField,
-      index,
-      options: {
-        propertyType: params.propertyType,
-        configurationIndexUidSegment: params.configurationIndexUidSegment,
-        configurationIndexAddressing: params.configurationIndexAddressing,
-        ...(params.yamlAsArray === true ? { yamlAsArray: true as const } : {}),
-      },
-    })
-    const yamlPath =
-      params.yamlAsArray === true
-        ? [...params.traversal.yamlPath, index]
-        : [...params.traversal.yamlPath, index]
+  let keyYaml: string | undefined
+  let rulePrepared = false
+  const prepareItemRule = () => {
+    if (!rulePrepared) {
+      if (params.preserveItemPropertyPresence === true) itemRule = withPreservedPropertyPresence(itemRule)
+      keyYaml = keyField === undefined ? undefined : (itemRule.properties[keyField]?.yaml ?? keyField)
+      rulePrepared = true
+    }
+    return itemRule
+  }
+  const frame = createMetadataCollectionFrame({
+    descriptor: { kind: "collection", get itemRule() { return prepareItemRule() }, yamlShape: params.yamlAsArray === true ? "array" : "record" },
+    path: params.traversal.pathCursor,
+    prepareContext: item => configurationIndexItemContext({
+      context: params.context, itemName: item.name, itemRule: item.rule, index: item.index,
+      options: params,
+    }),
+  })
+  const importItem = (itemXml: Record<string, unknown> | XmlElementNode, item: MetadataCollectionItemFrame<ConfigurationContextFromXML>) => {
+    const index = item.index
+    const itemNode = isXmlElementNode(itemXml) ? itemXml : undefined
+    const itemName = item.name
+    const itemContext = item.context
+    let materializedPath: readonly (string | number)[] | undefined
+    const yamlPath = () => materializedPath ??= item.path.toArray()
     const bufferedCollector =
       params.yamlAsArray === true || keyYaml === undefined
         ? undefined
-        : createXmlImportBufferedLocalIndexes(params.traversal.collector, yamlPath) ??
-          createBufferedItemCollector(params.traversal.collector, yamlPath)
+        : createXmlImportBufferedLocalIndexes(params.traversal.collector, yamlPath()) ??
+          createBufferedItemCollector(params.traversal.collector, yamlPath())
     const bufferedDeferred =
       bufferedCollector === undefined || params.traversal.deferred === undefined
         ? undefined
-        : createBufferedDeferredCollector(params.traversal.deferred, yamlPath)
+        : createBufferedDeferredCollector(params.traversal.deferred, yamlPath())
     const bufferedDependent =
       bufferedCollector === undefined || params.traversal.dependent === undefined
         ? undefined
-        : createBufferedDependentCollector(params.traversal.dependent, yamlPath)
+        : createBufferedDependentCollector(params.traversal.dependent, yamlPath())
+    const bufferedFacts = params.traversal.facts === undefined
+      ? undefined : createDirectImportFactsCollector()
+    const selectKey = (yaml: Record<string, unknown>) => {
+      const name = itemName ?? String(index)
+      const yamlKey = keyYaml === undefined ? undefined
+        : (params.recordYamlKeyFromYAML?.({ yaml, name, propertyRule: params.rule })
+          ?? (yaml[keyYaml] === undefined ? name : String(yaml[keyYaml])))
+      const keyClassification = yamlKey === undefined ? undefined
+        : params.classifyYamlKey?.({ yaml, name, yamlKey })
+      if (params.yamlAsArray !== true && keyYaml !== undefined) delete yaml[keyYaml]
+      return { name, yamlKey, keyClassification }
+    }
+    let selectedKey: ReturnType<typeof selectKey> | undefined
     const itemYamlValue = importMetadataItemFromXMLToYAML({
       context: itemContext,
       rule: itemRule,
       xml: itemNode ?? itemXml,
       name: itemName,
+      beforeFinish: yaml => { selectedKey = selectKey(yaml) },
       traversal: enterNestedYamlRule(
         {
           ...params.traversal,
-          yamlPath,
+          ...(params.traversal.mode === "facts" ? { produceResult: false } : {}),
+          pathCursor: item.path,
           collector: bufferedCollector?.collector ?? params.traversal.collector,
           deferred: bufferedDeferred?.collector ?? params.traversal.deferred,
           dependent: bufferedDependent?.collector ?? params.traversal.dependent,
+          facts: bufferedFacts ?? params.traversal.facts,
         },
         itemRule.itemType
       ),
     })
-    if (itemYamlValue === undefined) return []
+    const bufferedPropertyFacts = bufferedFacts?.finish() ?? []
+    if (itemYamlValue === undefined && params.traversal.mode !== "facts") return undefined
     const itemYaml = objectRecordOrUndefined(itemYamlValue)
+      ?? (params.traversal.mode === "facts"
+        ? factItemShallowView(bufferedPropertyFacts, yamlPath())
+        : undefined)
     if (itemYaml === undefined) {
       throw new Error(`Элемент коллекции ${itemRule.itemType} должен преобразовываться в YAML-объект`)
     }
-    const name = itemName ?? String(index)
-    const yamlKey =
-      keyYaml === undefined
-        ? undefined
-        : (params.recordYamlKeyFromYAML?.({ yaml: itemYaml, name, propertyRule: params.rule }) ??
-          (itemYaml[keyYaml] === undefined ? name : String(itemYaml[keyYaml])))
+    const { name, yamlKey, keyClassification } = selectedKey ?? selectKey(itemYaml)
     const itemRulePath = enterNestedYamlRule(params.traversal, itemRule.itemType).rulePath
     if (params.yamlAsArray === true) {
       params.traversal.collector.acceptItem({
         itemType: itemRule.itemType,
         ...(itemName === undefined ? {} : { name: itemName }),
-        yamlPath,
+        yamlPath: yamlPath(),
         rulePath: itemRulePath,
       })
     }
-    const keyClassification = yamlKey === undefined
-      ? undefined
-      : params.classifyYamlKey?.({ yaml: itemYaml, name, yamlKey })
-    return [{
+    if (params.yamlAsArray === true) {
+      for (const fact of bufferedPropertyFacts) params.traversal.facts?.acceptProperty(fact)
+    }
+    return {
       yaml: itemYaml,
       name,
       yamlKey,
       keyClassification,
-      sourceYamlPath: yamlPath,
+      sourceYamlPath: yamlPath(),
       itemRulePath,
       bufferedCollector,
       bufferedDeferred,
       bufferedDependent,
+      bufferedPropertyFacts: params.yamlAsArray === true ? [] : bufferedPropertyFacts,
       xmlNode: itemNode,
-    }]
+    }
+  }
+  const yamlItems: NonNullable<ReturnType<typeof importItem>>[] = []
+  frame.visit(items, (value, index) => ({
+    kind: "xml", value, name: itemNameFromXML(value, prepareItemRule(), params.keyField), pathKey: index,
+  }), (item, source) => {
+    const imported = importItem(source, item)
+    if (imported !== undefined) yamlItems.push(imported)
   })
   if (yamlItems.length === 0) return undefined
 
@@ -206,7 +240,6 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
 
   if (keyYaml === undefined) return undefined
   const entries = yamlItems.map(({ yaml, yamlKey, keyClassification }) => {
-    delete yaml[keyYaml]
     return {
       key: yamlKey!,
       value: yaml,
@@ -223,7 +256,8 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
     const runtimeKey = projected.runtimeKeys[index]!
     const tag = yamlValueTag(item.yaml)
     if (tag !== undefined) markYAMLScalarTag(projected.yaml, runtimeKey, tag)
-    const targetYamlPath = [...params.traversal.yamlPath, runtimeKey]
+    const targetYamlPath = params.traversal.pathCursor.child(runtimeKey).toArray()
+    params.traversal.roundTrip?.placeCollectionItem?.(projected.yaml, runtimeKey, targetYamlPath, item.sourceYamlPath)
     params.traversal.audit?.rekeyYamlPath(item.sourceYamlPath, targetYamlPath, item.xmlNode)
     params.traversal.collector.acceptItem({
       itemType: itemRule.itemType,
@@ -234,8 +268,61 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
     item.bufferedCollector?.flush(targetYamlPath)
     item.bufferedDeferred?.flush(targetYamlPath)
     item.bufferedDependent?.flush(targetYamlPath, yamlKey)
+    for (const fact of item.bufferedPropertyFacts) {
+      params.traversal.facts?.acceptProperty({
+        ...fact,
+        yamlPath: [...targetYamlPath, ...fact.yamlPath.slice(item.sourceYamlPath.length)],
+      })
+    }
   }
   return projected.yaml
+}
+
+function factItemShallowView(
+  facts: readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][],
+  itemYamlPath: readonly (string | number)[],
+): Record<string, unknown> {
+  return Object.fromEntries(facts.flatMap((fact) => {
+    if (!isImmediateField(fact.yamlPath, itemYamlPath)) return []
+    const key = fact.yamlPath.at(-1)
+    if (typeof key !== "string") return []
+    const finalFact = fact.propertyKey.startsWith("$container:")
+      || fact.exportedToYAML === true
+    if (!finalFact) return []
+    return [[key, fact.value] as const]
+  }))
+}
+
+function isImmediateField(path: readonly (string | number)[], parent: readonly (string | number)[]): boolean {
+  return path.length === parent.length + 1
+    && parent.every((segment, index) => segment === path[index])
+}
+
+/** Уникальный исходный адрес и единая публикация фактов именованного элемента. */
+export function prepareNamedCollectionImportItem<Execution>(traversal: DirectImportTraversal<Execution>, index: number) {
+  const pathCursor = traversal.pathCursor.child(index), sourceYamlPath = pathCursor.toArray()
+  const indexes = createXmlImportBufferedLocalIndexes(traversal.collector, sourceYamlPath)
+    ?? createBufferedItemCollector(traversal.collector, sourceYamlPath)
+  const deferred = traversal.deferred === undefined ? undefined : createBufferedDeferredCollector(traversal.deferred, sourceYamlPath)
+  const dependent = traversal.dependent === undefined ? undefined : createBufferedDependentCollector(traversal.dependent, sourceYamlPath)
+  const facts = traversal.facts === undefined ? undefined : createDirectImportFactsCollector()
+  return {
+    sourceYamlPath,
+    traversal: { ...traversal, pathCursor, collector: indexes.collector,
+      deferred: deferred?.collector, dependent: dependent?.collector, facts },
+    place(parent: Record<string, unknown>, key: string, name: string, xmlNode?: XmlElementNode) {
+      const target = traversal.pathCursor.child(key).toArray()
+      traversal.roundTrip?.placeCollectionItem?.(parent, key, target, sourceYamlPath)
+      traversal.audit?.rekeyYamlPath(sourceYamlPath, target, xmlNode)
+      indexes.flush(target)
+      deferred?.flush(target)
+      dependent?.flush(target, name)
+      for (const fact of facts?.finish() ?? []) traversal.facts?.acceptProperty({
+        ...fact, yamlPath: [...target, ...fact.yamlPath.slice(sourceYamlPath.length)],
+      })
+      return target
+    },
+  }
 }
 
 function createBufferedDependentCollector(
@@ -333,17 +420,27 @@ function createBufferedItemCollector(parent: LocalIndexesCollector, sourceYamlPa
   }
 }
 
-function collectionItemNodes(
-  sources: readonly XmlElementNode[] | undefined,
+function* collectionItemNodes(
+  sources: readonly XmlElementNode[],
   xmlElement: string,
-): XmlElementNode[] {
-  if (sources === undefined || sources.length === 0) return []
-  if (sources.every(({ name }) => name === xmlElement)) return [...sources]
-  return sources.flatMap((source) =>
-    source.content.filter(
-      (node): node is XmlElementNode => node.type === "element" && node.name === xmlElement,
-    ),
-  )
+): Iterable<XmlElementNode> {
+  const direct = sources.every(({ name }) => name === xmlElement)
+  for (const source of sources) {
+    if (direct) {
+      if (hasItemBody(source)) yield source
+      continue
+    }
+    for (const node of source.content) {
+      if (node.type === "element" && node.name === xmlElement
+        && hasItemBody(node)) {
+        yield node
+      }
+    }
+  }
+}
+
+function hasItemBody(node: XmlElementNode): boolean {
+  return node.attributes.length > 0 || node.content.some(child => child.type !== "text")
 }
 
 function normalizeCollectionItems(xml: unknown, xmlElement: string): Record<string, unknown>[] {
@@ -370,7 +467,20 @@ function normalizeCollectionItems(xml: unknown, xmlElement: string): Record<stri
       })
 }
 
-function itemNameFromXML(xml: Record<string, unknown>, rule: MetadataItemRule, keyField?: string): string | undefined {
+function itemNameFromXML(xml: Record<string, unknown> | XmlElementNode, rule: MetadataItemRule, keyField?: string): string | undefined {
+  if (isXmlElementNode(xml)) {
+    const attributeName = xmlAttributeValue(xml, "name")
+    if (attributeName !== undefined && attributeName.length > 0) return attributeName
+    const nameRule = rule.properties[keyField ?? "name"]
+    if (nameRule === undefined) return undefined
+    const parents = xmlElementsAtUniquePath([xml], [xml.name, ...(nameRule.xmlParents ?? [])])
+    if (parents.length !== 1) return undefined
+    const key = nameRule.xml ?? "Name"
+    if (key.startsWith("_")) return xmlAttributeValue(parents[0]!, key.slice(1)) || undefined
+    const values = xmlElementChildren(parents[0]!, key)
+    if (values.length !== 1 || values[0]!.attributes.length !== 0 || values[0]!.content.some(child => child.type !== "text")) return undefined
+    return xmlTextValue(values[0]!) || undefined
+  }
   if (typeof xml._name === "string" && xml._name.length > 0) return xml._name
 
   const nameRule = rule.properties[keyField ?? "name"]

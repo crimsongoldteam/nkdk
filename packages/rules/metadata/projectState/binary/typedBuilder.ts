@@ -8,7 +8,7 @@ import {
 } from "./factTables"
 import type { ProjectStateFragmentView } from "./fragment"
 import { encodeProjectStateHeader, type ProjectStateSectionDescriptor } from "./format"
-import { BinaryHashSlotRecordView, buildBinaryHashIndex } from "@nkdk/runtime"
+import { BinaryHashSlotRecordView, buildBinaryHashIndex, forEachBinaryHashIndexEntry } from "@nkdk/runtime"
 import {
   ProjectStateDiagnosticRecordView,
   ProjectStateDiagnosticSectionHeaderView,
@@ -35,7 +35,7 @@ import {
   ProjectStateSnapshotView,
   type ProjectStateSharedBuffers,
 } from "./snapshot"
-import { BinaryStringPoolBuilder, packBinaryStringPool, readBinaryString } from "./stringPool"
+import { BinaryStringPoolBuilder, openBinaryStringPool, readBinaryString, readBinaryStringBytes } from "./stringPool"
 
 const NONE = 0xffff_ffff
 
@@ -50,9 +50,8 @@ interface Source {
   readonly fileRecord: (fileId: number) => ProjectStateFileRecord
   readonly stringCount: number
   readonly stringValue: (id: number) => string
-  readonly stringBytes?: (id: number) => Uint8Array
-  readonly stringHash?: (id: number) => bigint
-  readonly baseStrings: boolean
+  readonly stringBytes: (id: number) => Uint8Array<ArrayBufferLike>
+  readonly stringHash: (id: number) => bigint
   fileMap: Int32Array
   stringMap: Uint32Array
   marks: Record<ProjectStateFactTableKind, Uint8Array>
@@ -82,31 +81,26 @@ export function buildTypedProjectStateSnapshot(input: {
   const candidates = selectFiles(sources, new Set(input.deletions))
   candidates.forEach((candidate, fileId) => { candidate.source.fileMap[candidate.sourceFileId] = fileId })
 
-  const strings = new BinaryStringPoolBuilder(baseView?.stringPool())
-  for (const source of sources) {
-    source.stringMap = new Uint32Array(source.stringCount)
-    for (let id = 0; id < source.stringCount; id += 1) {
-      source.stringMap[id] = source.baseStrings
-        ? id
-        : strings.internBytes(source.stringHash!(id), source.stringBytes!(id))
-    }
-  }
+  const strings = new BinaryStringPoolBuilder()
 
   sources.forEach(markReachableRows)
   assignRowIds(sources)
   assignDiagnosticIds(sources)
   const ownerKeyIds = internOwnerKeys(sources, strings)
-  const stringPool = strings.finish()
-  const facts = packFacts(sources)
-  const diagnostics = packDiagnostics(sources)
-  const files = packFiles(candidates)
+  const facts = packFacts(sources, strings)
+  const diagnostics = packDiagnostics(sources, strings)
+  const files = packFiles(candidates, strings)
+  const packedStrings = strings.finishSection()
+  const stringPool = openBinaryStringPool(packedStrings)
   const lookups = packLookups(sources, ownerKeyIds, stringPool)
-  const packedStrings = packBinaryStringPool(stringPool)
   assertProjectStateFactSection({ facts, diagnostics, fileCount: candidates.length, stringCount: stringPool.count })
   return assembleSnapshot({ strings: packedStrings, files, facts, lookups, diagnostics }, candidates.length, stringPool.count)
 }
 
 function sourceFromSnapshot(view: ProjectStateSnapshotView): Source {
+  const pool = view.stringPool()
+  const hashes = new BigUint64Array(pool.count)
+  forEachBinaryHashIndexEntry(pool.lookup, (hash, id) => { hashes[id] = hash })
   return createSource({
     facts: view.buffers.facts,
     diagnostics: view.buffers.diagnostics,
@@ -116,7 +110,8 @@ function sourceFromSnapshot(view: ProjectStateSnapshotView): Source {
     fileRecord: (id) => view.fileRecord(id),
     stringCount: view.stringPool().count,
     stringValue: (id) => view.stringValue(id),
-    baseStrings: true,
+    stringBytes: (id) => readBinaryStringBytes(pool, id),
+    stringHash: (id) => hashes[id],
   })
 }
 
@@ -138,7 +133,6 @@ function sourceFromFragment(fragment: ProjectStateFragmentView): Source {
     stringValue: (id) => fragment.stringValue(id),
     stringBytes: (id) => fragment.stringBytes(id),
     stringHash: (id) => fragment.stringHash(id),
-    baseStrings: false,
   })
 }
 
@@ -147,7 +141,7 @@ function createSource(value: Omit<Source, "fileMap" | "stringMap" | "marks" | "r
   return {
     ...value,
     fileMap: filledMap(value.fileCount),
-    stringMap: new Uint32Array(),
+    stringMap: new Uint32Array(value.stringCount).fill(NONE),
     marks: tableArrays(value.tables, (count) => new Uint8Array(count)),
     rowMaps: tableArrays(value.tables, filledMap),
     diagnosticMarks: new Uint8Array(diagnosticCount),
@@ -284,7 +278,16 @@ function assignDiagnosticIds(sources: readonly Source[]): void {
   }
 }
 
-function packFacts(sources: readonly Source[]): SharedArrayBuffer {
+function mapString(source: Source, id: number, strings: BinaryStringPoolBuilder): number {
+  const mapped = source.stringMap[id]
+  if (mapped === undefined) throw new Error(`Неизвестный идентификатор строки: ${id}`)
+  if (mapped !== NONE) return mapped
+  const next = strings.internBytes(source.stringHash(id), source.stringBytes(id))
+  source.stringMap[id] = next
+  return next
+}
+
+function packFacts(sources: readonly Source[], strings: BinaryStringPoolBuilder): SharedArrayBuffer {
   const counts = new Map(PROJECT_STATE_FACT_TABLE_ORDER.map((kind) => [
     kind,
     sources.reduce((sum, source) => sum + countMarked(source.marks[kind]), 0),
@@ -309,16 +312,16 @@ function packFacts(sources: readonly Source[]): SharedArrayBuffer {
     for (const source of sources) {
       for (let oldId = 0; oldId < source.marks[kind].length; oldId += 1) {
         const newId = source.rowMaps[kind][oldId]
-        if (newId >= 0) codec.encode(remapRow(source, kind, readRow(source, kind, oldId)), view, offsets.get(kind)! + newId * codec.viewLength)
+        if (newId >= 0) codec.encode(remapRow(source, kind, readRow(source, kind, oldId), strings), view, offsets.get(kind)! + newId * codec.viewLength)
       }
     }
   })
   return buffer
 }
 
-function remapRow(source: Source, kind: ProjectStateFactTableKind, original: Record<string, number>): Record<string, number> {
+function remapRow(source: Source, kind: ProjectStateFactTableKind, original: Record<string, number>, strings: BinaryStringPoolBuilder): Record<string, number> {
   const row = { ...original }
-  const string = (...fields: string[]) => fields.forEach((field) => { if (row[field] !== NONE) row[field] = source.stringMap[row[field]] })
+  const string = (...fields: string[]) => fields.forEach((field) => { if (row[field] !== NONE) row[field] = mapString(source, row[field], strings) })
   const file = () => { row.sourceFileId = source.fileMap[row.sourceFileId] }
   const ref = (field: string, table: ProjectStateFactTableKind) => { if (row[field] !== NONE) row[field] = source.rowMaps[table][row[field]] }
   const range = (start: string, count: string, table: ProjectStateFactTableKind) => {
@@ -373,7 +376,7 @@ function countMarked(marks: Uint8Array): number {
   return count
 }
 
-function packDiagnostics(sources: readonly Source[]): SharedArrayBuffer {
+function packDiagnostics(sources: readonly Source[], strings: BinaryStringPoolBuilder): SharedArrayBuffer {
   const count = sources.reduce((sum, source) => sum + countMarked(source.diagnosticMarks), 0)
   const recordsOffset = ProjectStateDiagnosticSectionHeaderView.viewLength
   const buffer = new SharedArrayBuffer(recordsOffset + count * ProjectStateDiagnosticRecordView.viewLength)
@@ -387,15 +390,15 @@ function packDiagnostics(sources: readonly Source[]): SharedArrayBuffer {
       if (newId < 0) continue
       const row = ProjectStateDiagnosticRecordView.decode(inputView, inputHeader.recordsOffset + oldId * ProjectStateDiagnosticRecordView.viewLength)
       ProjectStateDiagnosticRecordView.encode({
-        ...row, sourceFileId: source.fileMap[row.sourceFileId], messageId: source.stringMap[row.messageId],
-        pathId: row.pathId === NONE ? NONE : source.stringMap[row.pathId],
+        ...row, sourceFileId: source.fileMap[row.sourceFileId], messageId: mapString(source, row.messageId, strings),
+        pathId: row.pathId === NONE ? NONE : mapString(source, row.pathId, strings),
       }, view, recordsOffset + newId * ProjectStateDiagnosticRecordView.viewLength)
     }
   }
   return buffer
 }
 
-function packFiles(candidates: readonly FileCandidate[]): SharedArrayBuffer {
+function packFiles(candidates: readonly FileCandidate[], strings: BinaryStringPoolBuilder): SharedArrayBuffer {
   const recordsOffset = ProjectStateFileSectionHeaderView.viewLength
   const buffer = new SharedArrayBuffer(recordsOffset + candidates.length * ProjectStateFileRecordView.viewLength)
   const view = new DataView(buffer)
@@ -403,7 +406,7 @@ function packFiles(candidates: readonly FileCandidate[]): SharedArrayBuffer {
   candidates.forEach(({ source, sourceFileId }, fileId) => {
     const record = source.fileRecord(sourceFileId)
     ProjectStateFileRecordView.encode({
-      ...record, projectPathId: source.stringMap[record.projectPathId], componentPathId: source.stringMap[record.componentPathId],
+      ...record, projectPathId: mapString(source, record.projectPathId, strings), componentPathId: mapString(source, record.componentPathId, strings),
       factsOffset: 0, factsByteLength: 0, diagnosticsOffset: 0, diagnosticsByteLength: 0,
     }, view, recordsOffset + fileId * ProjectStateFileRecordView.viewLength)
   })

@@ -20,13 +20,25 @@ export class FormComponentIndexError extends Error {
 }
 
 export function indexClientApplicationFormComponents(yaml: unknown): ClientApplicationFormComponentIndex {
-  const root = record(yaml)
   return {
     elements: indexElements(yaml),
+    ...indexClientApplicationFormNamedComponents(yaml),
+  }
+}
+
+export function indexClientApplicationFormNamedComponents(yaml: unknown): Omit<ClientApplicationFormComponentIndex, "elements"> {
+  const root = record(yaml)
+  return {
     attributes: indexNamed(root?.Реквизиты, "Реквизиты"),
     commands: indexNamed(root?.Команды, "Команды"),
     parameters: indexNamed(root?.Параметры, "Параметры"),
   }
+}
+
+export function acceptClientApplicationFormElementComponent(result: Map<string, FormComponentEntry>, name: string, path: string): void {
+  if (name.length === 0) throw new FormComponentIndexError("Имя элемента формы не может быть пустым", path)
+  if (result.has(name)) throw new FormComponentIndexError(`Повтор имени элемента «${name}»`, path)
+  result.set(name, { name, path })
 }
 
 function indexElements(yaml: unknown): ReadonlyMap<string, FormComponentEntry> {
@@ -38,9 +50,7 @@ function indexElements(yaml: unknown): ReadonlyMap<string, FormComponentEntry> {
     visitElement({ name, yamlPath, rule }) {
       if (!("enterpriseField" in rule) || !("enterpriseFieldType" in rule)) return
       const path = yamlPath.map(String).join(".")
-      if (name.length === 0) throw new FormComponentIndexError("Имя элемента формы не может быть пустым", path)
-      if (result.has(name)) throw new FormComponentIndexError(`Повтор имени элемента «${name}»`, path)
-      result.set(name, { name, path })
+      acceptClientApplicationFormElementComponent(result, name, path)
     },
   })
   return result

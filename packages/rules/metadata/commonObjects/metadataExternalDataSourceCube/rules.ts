@@ -1,3 +1,4 @@
+import { explicitOwnerFormLinks } from "../metadataPath/formLinks"
 import { getParentFromContext } from "../../context/helpers"
 import { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import { MetadataCommandRules } from "../metadataCommand/rules"
@@ -35,13 +36,13 @@ const cubeProperties = {
     type: "XMLRoot",
     container: "Cube",
     rootAttributes: V8_MDCLASSES_ROOT,
-    forReferenceOnly: true,
+    xmlOnly: true,
     toYAML: false,
     fromYAML: false,
   },
   internalInfo: internalInfoRule({
     xmlParents: root,
-    forReferenceOnly: true,
+    xmlOnly: true,
     toYAML: false,
     fromYAML: false,
     getName: (params: { context: ConfigurationContextWithExportToXML; metadata: { name: string } }) => {
@@ -80,22 +81,8 @@ const cubeProperties = {
     defaultValueXML: false,
     implicitValueYAML: false,
   },
-  defaultRecordForm: {
-    yaml: "ОсновнаяФормаЗаписи",
-    xml: "DefaultRecordForm",
-    type: "string",
-    xmlParents: properties,
-    metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-    defaultValueXMLRaw: "",
-  },
-  defaultListForm: {
-    yaml: "ОсновнаяФормаСписка",
-    xml: "DefaultListForm",
-    type: "string",
-    xmlParents: properties,
-    metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-    defaultValueXMLRaw: "",
-  },
+  defaultRecordForm: explicitOwnerFormLinks.defaultRecordForm,
+  defaultListForm: explicitOwnerFormLinks.defaultListForm,
   recordPresentation: {
     yaml: "ПредставлениеЗаписи",
     xml: "RecordPresentation",
@@ -144,7 +131,7 @@ const cubeProperties = {
     xml: "DimensionTable",
     type: "ChildFileItemNames",
     xmlParents: childObjects,
-    forReferenceOnly: true,
+    xmlOnly: true,
   },
   dimensions: {
     yaml: "Измерения",
@@ -166,7 +153,7 @@ const cubeProperties = {
     type: "ChildFormNames",
     xmlParents: childObjects,
     folderName: "Формы",
-    forReferenceOnly: true,
+    xmlOnly: true,
     toYAML: false,
     fromYAML: false,
   },
@@ -182,7 +169,7 @@ const cubeProperties = {
     type: "ChildTemplateNames",
     xmlParents: childObjects,
     folderName: "Макеты",
-    forReferenceOnly: true,
+    xmlOnly: true,
     toYAML: false,
     fromYAML: false,
   },

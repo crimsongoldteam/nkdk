@@ -1,3 +1,4 @@
+import { metadataIdentityProperties } from "../../commonObjects/metadataIdentityProperties"
 import {
   allowedIncomingShareRequestTypesRule,
   clientApplicationInterfaceRule,
@@ -17,7 +18,6 @@ import { usePurposesRule } from "../../commonObjects/usePurposes/types"
 import { booleanRule } from "../../commonObjects/boolean/types"
 import { i8nTextRule } from "../../commonObjects/i8nText/types"
 import { stringRule } from "../../commonObjects/string/types"
-import { uuidRule } from "../../commonObjects/uuid/types"
 import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
 import "./allowedIncomingShareRequestTypes"
@@ -45,7 +45,7 @@ const configurationInternalInfoContainedObjectClassIds = [
 ]
 export const configurationInternalInfoRule: PropertyRule = internalInfoRule({
   xmlParents: [],
-  forReferenceOnly: true,
+  xmlOnly: true,
   evaluateWhenYAMLMissing: true,
   containedObjectClassIds: configurationInternalInfoContainedObjectClassIds,
 })
@@ -120,7 +120,7 @@ export const MetadataConfigurationRules = {
     xmlRoot: xmlRootRule({
       container: "Configuration",
       rootAttributes: V8_MDCLASSES_ROOT,
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
     }),
@@ -131,11 +131,7 @@ export const MetadataConfigurationRules = {
       fromYAML: false,
       toXML: false,
     }),
-    uuid: uuidRule({
-      xml: "_uuid",
-      forReferenceOnly: true,
-      xmlParents: [],
-    }),
+    uuid: metadataIdentityProperties.uuid,
     internalInfo: configurationInternalInfoRule,
     name: stringRule({
       yaml: "Имя",
@@ -349,7 +345,6 @@ export const MetadataConfigurationRules = {
       xml: "RequiredMobileApplicationPermissions",
       implicitValueYAML: EMPTY_REQUIRED_MOBILE_APPLICATION_PERMISSIONS,
       evaluateWhenYAMLMissing: true,
-      preserveUnknownReferenceXML: false,
       defaultValueXML: EMPTY_REQUIRED_MOBILE_APPLICATION_PERMISSIONS,
       defaultValueXMLRaw: "",
       xmlParents: configurationProperties,
@@ -359,7 +354,6 @@ export const MetadataConfigurationRules = {
       xmlParents: configurationProperties,
       implicitValueYAML: IMPLICIT_USED_MOBILE_APPLICATION_FUNCTIONALITIES,
       evaluateWhenYAMLMissing: true,
-      preserveUnknownReferenceXML: false,
     }),
     standaloneConfigurationRestrictionRoles: metadataItemLinksRule({
       yaml: "РолиОграниченияАвтономнойКонфигурации",
@@ -388,8 +382,9 @@ export const MetadataConfigurationRules = {
       implicitValueYAML: "Normal",
       xmlParents: configurationProperties,
     }),
-    defaultInterface: stringRule({
+    defaultInterface: metadataItemLinkRule({
       yaml: "ОсновнойИнтерфейс",
+      metadataTarget: { kind: "object", roots: ["Interface"] },
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",

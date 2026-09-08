@@ -1,10 +1,7 @@
-import { ConfigurationContextFromXML } from "@nkdk/runtime"
+import { ConfigurationContextFromXML, isXmlElementNode, xmlAttributeValue, xmlElementChildren, xmlTextValue } from "@nkdk/runtime"
 import { definePropertyTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
 import type { EventsPropertyRule, PropertyRule } from "@nkdk/runtime/rule-kit"
-import { eventBindingKey } from "./callType"
 import type { EventCallTypeXML, EventXML, Events, EventsXML } from "./types"
-
-const referenceXmlNames = new WeakMap<object, ReadonlyMap<string, string>>()
 
 const isNonEmptyObject = (value: unknown): value is Record<string, unknown> => {
   return typeof value === "object" && value !== null && !Array.isArray(value) && Object.keys(value as object).length > 0
@@ -18,7 +15,8 @@ export const importEventsFromXML = (
   if (!value || typeof value !== "object") return undefined
 
   const eventsXML = value as EventsXML
-  const events = Array.isArray(eventsXML.Event) ? eventsXML.Event : [eventsXML.Event]
+  const events = isXmlElementNode(value) ? xmlElementChildren(value, "Event")
+    : Array.isArray(eventsXML.Event) ? eventsXML.Event : [eventsXML.Event]
   const parsedEvents = events.flatMap((event) => {
     const parsed = parseEventXML(event)
     return parsed === undefined ? [] : [parsed]
@@ -26,10 +24,8 @@ export const importEventsFromXML = (
   const eventKeys = eventRuleKeys(_rule, parsedEvents)
 
   const result: Events = {}
-  const aliases = new Map<string, string>()
   for (const event of parsedEvents) {
     const key = eventKeys.get(event._name)!
-    const bindingKey = eventBindingKey(key, event._callType)
     const previous = result[key]
 
     if (event._callType === undefined) {
@@ -43,23 +39,19 @@ export const importEventsFromXML = (
       result[key] = handlers
     }
 
-    aliases.set(bindingKey, event._name)
   }
 
   if (!isNonEmptyObject(result)) return undefined
-  referenceXmlNames.set(result, aliases)
   return result
-}
-
-export function getReferenceEventXmlName(value: object, key: string): string | undefined {
-  return referenceXmlNames.get(value)?.get(key)
 }
 
 export const metadataPropertyRule000 = definePropertyTypeRule("Events", "importFromXML", importEventsFromXML)
 
 function parseEventXML(value: unknown): EventXML | undefined {
   if (!value || typeof value !== "object" || Array.isArray(value)) return undefined
-  const { _name: name, _callType: callType, "#text": text } = value as Record<string, unknown>
+  const name = isXmlElementNode(value) ? xmlAttributeValue(value, "name") : (value as Record<string, unknown>)._name
+  const callType = isXmlElementNode(value) ? xmlAttributeValue(value, "callType") : (value as Record<string, unknown>)._callType
+  const text = isXmlElementNode(value) ? xmlTextValue(value) || undefined : (value as Record<string, unknown>)["#text"]
   if (typeof name !== "string" || name.length === 0 || typeof text !== "string") return undefined
   if (callType !== undefined && !isEventCallType(callType)) {
     throw new Error(`Недопустимый callType XML-события ${name}: ${String(callType)}`)

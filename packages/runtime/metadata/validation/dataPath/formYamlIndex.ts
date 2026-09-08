@@ -20,6 +20,22 @@ interface PendingFormAttribute {
   columns: Map<string, FormDataPathColumnSource>
 }
 
+export function formDataPathPropertyKind(
+  fact: Pick<FormDataPathPropertyFact, "rulePath">,
+  projection: FormDataPathMetadataProjection,
+): "tableDataPath" | "attributeType" | "dynamicList" | "additionalColumns" | "columnType" | undefined {
+  const property = fact.rulePath.at(-1)?.propertyKey
+  const ownerType = fact.rulePath.at(-2)?.nestedItemType
+  if (property === projection.tableDataPathPropertyKey && projection.tabularElementItemTypes.includes(ownerType ?? "")) return "tableDataPath"
+  if (ownerType === projection.attributeItemType) {
+    if (property === projection.typePropertyKey) return "attributeType"
+    if (property === projection.dynamicListPropertyKey) return "dynamicList"
+    if (property === projection.additionalColumnsPropertyKey) return "additionalColumns"
+  }
+  if (ownerType === projection.columnItemType && property === projection.typePropertyKey) return "columnType"
+  return undefined
+}
+
 export const arbitraryDataPathTypeInfo: DataPathTypeInfo = {
   kinds: ["any"],
   nextTypes: [],
@@ -149,24 +165,23 @@ export function createFormDataPathMetadataCollector(params: {
   }
 
   const acceptProperty = (fact: FormDataPathPropertyFact): void => {
-    const property = fact.rulePath.at(-1)?.propertyKey
-    const ownerType = fact.rulePath.at(-2)?.nestedItemType
-    if (property === projection.tableDataPathPropertyKey && projection.tabularElementItemTypes.includes(ownerType ?? "")) {
+    const kind = formDataPathPropertyKind(fact, projection)
+    if (kind === undefined) return
+    if (kind === "tableDataPath") {
       const name = stringSegment(fact.yamlPath.at(-2))
       if (name !== undefined && typeof fact.value === "string") {
         index.declareTabularElement({ name, dataPath: fact.value })
       }
       return
     }
-    if (ownerType === projection.attributeItemType) {
+    if (kind !== "columnType") {
       const name = stringSegment(fact.yamlPath.at(-2))
       if (name === undefined) return
-      if (property === projection.typePropertyKey) index.setAttributeType(name, typeDescriptionFromYAML(fact.value))
-      else if (property === projection.dynamicListPropertyKey) index.setDynamicList(name)
-      else if (property === projection.additionalColumnsPropertyKey) index.setAdditionalColumns(fact.value)
+      if (kind === "attributeType") index.setAttributeType(name, typeDescriptionFromYAML(fact.value))
+      else if (kind === "dynamicList") index.setDynamicList(name)
+      else index.setAdditionalColumns(fact.value)
       return
     }
-    if (ownerType !== projection.columnItemType || property !== projection.typePropertyKey) return
     const attributeName = stringSegment(fact.yamlPath.at(-4))
     const columnName = stringSegment(fact.yamlPath.at(-2))
     if (attributeName !== undefined && columnName !== undefined) {

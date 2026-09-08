@@ -123,7 +123,7 @@ export interface PreparedXMLAssignment {
     readonly collector: ConfigurationIndexCollector
     readonly targetProjectPath: string
   }[]
-  readonly profile: YAMLToXMLProfile
+  readonly profile?: YAMLToXMLProfile
 }
 
 export type FullXmlSyncWorkerCommand =

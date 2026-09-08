@@ -14,23 +14,17 @@ const orderedAppearanceParameterNames = Object.keys(AppearanceFieldsRules.proper
 const exportAppearanceToXML = (
   context: ConfigurationContextWithExportToXML,
   _rule: PropertyRule,
-  value: AppearanceFields | undefined,
-  referenceMetadata?: AppearanceFields | undefined
+  value: AppearanceFields | undefined
 ): AppearanceFieldsXML | undefined => {
   if (!value) return undefined
 
   const { itemType: _i, ...fields } = value
   const parameters = fields as Record<string, SettingsParameterValue>
 
-  const ref = referenceMetadata
-  const { itemType: _r, ...refFields } = ref ?? {}
-  const referenceParameters = ref ? (refFields as Record<string, SettingsParameterValue>) : undefined
-
   return exportSettingsParameterValueDcscorItemsToXML({
     context,
     ruleSet: { parameterRules: appearanceParameterRules },
     parameters,
-    referenceParameters,
     orderedParameterNames: orderedAppearanceParameterNames,
   })
 }

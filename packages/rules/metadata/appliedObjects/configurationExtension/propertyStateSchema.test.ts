@@ -38,18 +38,18 @@ const capability: ResolvedPropertyStateItemCapability = {
 }
 
 describe("borrowed property-state schema", () => {
-  it("запрещает пустое собственное поле и разрешает очистку заимствованного plain-поля", () => {
+  it.each(["string", "MetadataItemLink"] as const)("%s: запрещает пустое собственное поле и разрешает очистку заимствованного plain-поля", (type) => {
     const localRule = {
       itemType: "OwnAndBorrowedPlainProperties",
       properties: {
         comment: {
-          type: "string",
+          type,
           yaml: "Комментарий",
           defaultValueXMLRaw: "",
           defaultValueAdoptedXML: "",
         },
         toolTip: {
-          type: "string",
+          type,
           yaml: "Подсказка",
           defaultValueXMLRaw: "",
         },

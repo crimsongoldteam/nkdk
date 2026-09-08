@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest"
-import { createXmlImportAuditSession, parseXmlDocumentWithSaxes } from "@nkdk/runtime"
+import { createXmlImportAuditSession, isXmlElementNode, parseXmlDocumentWithSaxes, xmlTextValue } from "@nkdk/runtime"
 
 import type { MetadataItemRule } from "./types"
 import { getXMLImportPlan, visitXMLImportPlan } from "./xmlImportPlan"
@@ -21,6 +21,36 @@ const rule = {
 } as MetadataItemRule
 
 describe("XML import plan", () => {
+  it("отмечает весь непосредственный текст, прочитанный правилом #text", () => {
+    const root = parseXmlDocumentWithSaxes("<Root>до<Unknown/>после</Root>").roots[0]!
+    const audit = createXmlImportAuditSession([root])
+    const visit = vi.fn()
+    visitXMLImportPlan({
+      plan: getXMLImportPlan({ rule: { itemType: "TextPlan", properties: { value: { type: "string", xml: "#text" } } }, includeAllTags: true }),
+      xml: root, audit, visit,
+    })
+    audit.finalize()
+    expect(visit.mock.calls.map(([match]) => match.xmlValue)).toEqual(["допосле"])
+    expect(audit.outcomes().filter(({ node }) => "type" in node && node.type === "text").map(({ state }) => state)).toEqual(["claimed", "claimed"])
+    expect(audit.outcomes().find(({ node }) => "type" in node && node.type === "element" && node.name === "Unknown")?.state).toBe("unknown")
+  })
+
+  it.each([1, 2])("передаёт %i вложенных узла без объектной копии", (count) => {
+    const root = parseXmlDocumentWithSaxes(`<Root>${'<Item name="x"><Value/></Item>'.repeat(count)}</Root>`).roots[0]!
+    const nodes = root.content.filter(node => node.type === "element")
+    for (const node of nodes) {
+      Object.defineProperty(node, "compatibilityValue", { get() { throw new Error("Вложенный обработчик читает XML сам") } })
+    }
+    const visit = vi.fn()
+    visitXMLImportPlan({
+      plan: getXMLImportPlan({ rule: { itemType: "NestedPlan", properties: { item: { type: "string", xml: "Item" } } }, includeAllTags: true }),
+      xml: root, visit, isRepeatable: () => true,
+    })
+    expect(visit).toHaveBeenCalledOnce()
+    expect(visit.mock.calls[0]![0].xmlNodes).toEqual(nodes)
+    expect(visit.mock.calls[0]![0].xmlValue).toEqual(count === 1 ? nodes[0] : nodes)
+  })
+
   it("visits aliases and nested XML containers once in XML order", () => {
     const visit = vi.fn()
 
@@ -127,7 +157,8 @@ describe("XML import plan", () => {
     audit.finalize()
 
     expect(
-      visit.mock.calls.map(([match]) => [match.propertyKey, match.xmlNode?.path, match.xmlValue]),
+      visit.mock.calls.map(([match]) => [match.propertyKey, match.xmlNode?.path,
+        isXmlElementNode(match.xmlValue) ? xmlTextValue(match.xmlValue) : match.xmlValue]),
     ).toEqual([
       ["knownAttribute", "/Root[1]/@known[1]", "yes"],
       ["name", "/Root[1]/Name[1]", "canonical"],

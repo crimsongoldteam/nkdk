@@ -1,8 +1,4 @@
-import fs from "fs"
-import { join } from "path"
 import { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
-import { importContentFromXML } from "@nkdk/runtime"
-import { xmlExport } from "@nkdk/runtime"
 import { CONFIGURATION_YAML_FILE } from "../../project/constants"
 import type { PreparedYamlFile } from "../../project/preparedYamlProject"
 import { MetadataConfigurationRules } from "./rules"
@@ -17,7 +13,6 @@ import type {
 } from "@nkdk/runtime/rule-kit"
 import { bindDeferredObjectValues, type DeferredObjectValue } from "@nkdk/runtime/rule-kit"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
-import { CONFIGURATION_XML_FILE } from "./constants"
 
 export { CONFIGURATION_XML_FILE } from "./constants"
 export { CONFIGURATION_YAML_FILE }
@@ -43,7 +38,6 @@ export const prepareConfigurationXML = (params: {
   preparedYamlFile: PreparedYamlFile
   rootRule?: MetadataItemRule
   childObjects?: ConfigurationChildObjectsXML
-  referenceXML?: Record<string, unknown>
   externalWriteFactory?: YAMLToXMLExternalWriteFactory
   profile?: YAMLToXMLProfile
 }): {
@@ -64,7 +58,7 @@ export const prepareConfigurationXML = (params: {
     annotations: params.preparedYamlFile.annotations,
     rule: rootRule,
     name: typeof yaml.Имя === "string" ? yaml.Имя : undefined,
-    outputs: [{ key: "configuration", referenceXML: params.referenceXML }],
+    outputs: [{ key: "configuration" }],
     externalWriteFactory: params.externalWriteFactory,
     profile: params.profile,
     rulePath: [rootRule.itemType],
@@ -79,24 +73,3 @@ export const prepareConfigurationXML = (params: {
     externalWrites: converted.externalWrites,
   }
 }
-
-export const writePreparedConfigurationToXML = (params: {
-  context: ConfigurationContextWithExportToXML
-  outputDir: string
-  preparedYamlFile: PreparedYamlFile
-  childObjects?: ConfigurationChildObjectsXML
-  referenceXML?: Record<string, unknown>
-  externalWriteFactory?: YAMLToXMLExternalWriteFactory
-  profile?: YAMLToXMLProfile
-}): readonly YAMLToXMLExternalWrite[] => {
-  const prepared = prepareConfigurationXML(params)
-  fs.mkdirSync(params.outputDir, { recursive: true })
-  fs.writeFileSync(join(params.outputDir, CONFIGURATION_XML_FILE), xmlExport(prepared.xml), "utf-8")
-  return prepared.externalWrites
-}
-
-export const readRawConfigurationXML = (inputDir: string): Record<string, unknown> =>
-  importContentFromXML<Record<string, unknown>>(fs.readFileSync(join(inputDir, CONFIGURATION_XML_FILE), "utf-8"), {
-    preserveXsiNil: true,
-    preserveEmptyElements: true,
-  })

@@ -5,12 +5,13 @@ import {
 } from "../configurationIndex"
 import {
   openConfigurationIndexStore,
-  type ConfigurationIndexStore,
 } from "../configurationIndex/store"
 import { collectComponentLogicalAddresses } from "../project/componentState/logicalAddresses"
 import { readComponentProjectStructure } from "../project/componentState/structure"
 import {
   buildXmlComponentReconstructionProfile,
+  reconstructionProfileIndex,
+  type XmlReconstructionProfileIndex,
   type XmlComponentReconstructionProfile,
 } from "../project/xmlReconstructionProfile"
 import {
@@ -39,7 +40,7 @@ export async function prepareImportXmlReconstructionProfile(params: {
   readonly assignments: readonly ImportAssignment[]
   readonly projectState: Pick<ProjectStateService, "openReadSession">
   readonly projectStateReadToken: ProjectStateReadToken
-  readonly targetIndex: Pick<ConfigurationIndexStore, "getBlocks">
+  readonly targetIndex: XmlReconstructionProfileIndex["index"]
 }, dependencyOverrides: Partial<ImportXmlReconstructionProfileDependencies> = {}): Promise<XmlComponentReconstructionProfile> {
   const dependencies = { ...defaultDependencies, ...dependencyOverrides }
   const projectStateReadSession = params.projectState.openReadSession(
@@ -56,9 +57,7 @@ export async function prepareImportXmlReconstructionProfile(params: {
     })
     const target = {
       logicalAddresses: targetAddresses.map(({ logicalAddress }) => logicalAddress),
-      index: createLocalConfigurationIndexReader(
-        params.targetIndex.getBlocks(uniqueProjectPaths(targetAddresses)),
-      ),
+      index: params.targetIndex,
     }
 
     if (params.address.kind === "configuration") {
@@ -92,9 +91,9 @@ export async function prepareImportXmlReconstructionProfile(params: {
         target,
         base: {
           logicalAddresses: baseAddresses.map(({ logicalAddress }) => logicalAddress),
-          index: createLocalConfigurationIndexReader(
+          index: reconstructionProfileIndex(createLocalConfigurationIndexReader(
             baseIndex.getBlocks(uniqueProjectPaths(baseAddresses)),
-          ),
+          )),
         },
       })
     } finally {

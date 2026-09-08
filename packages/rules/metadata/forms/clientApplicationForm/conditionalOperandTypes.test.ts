@@ -5,20 +5,15 @@ import { inferConditionalOperandType } from "./conditionalOperandTypes"
 
 describe("inferConditionalOperandType", () => {
   it.each([
-    [0, undefined, "decimal"],
-    ["Истина", undefined, "boolean"],
-    ["01.02.2026 03:04:05", undefined, "dateTime"],
-    ["'текст'", undefined, "string"],
-    ["Порядок", undefined, "Order"],
-    ["СписокЗначений", undefined, "ValueListType"],
-    [{ Вариант: "НачалоЭтогоДня" }, undefined, "StandardBeginningDate"],
-    [
-      "Справочник.Номенклатура.ПустаяСсылка",
-      { type: "ref", value: "Catalog.Номенклатура.EmptyRef" },
-      "CatalogRef.*",
-    ],
-  ])("выводит тип константы %j", (value, sourceValue, expected) => {
-    const result = inferConditionalOperandType({ context: mockContext, value, sourceValue: sourceValue as never })
+    [0, "decimal"],
+    ["Истина", "boolean"],
+    ["01.02.2026 03:04:05", "dateTime"],
+    ["'текст'", "string"],
+    ["Порядок", "Order"],
+    ["СписокЗначений", "ValueListType"],
+    [{ Вариант: "НачалоЭтогоДня" }, "StandardBeginningDate"],
+  ])("выводит тип константы %j", (value, expected) => {
+    const result = inferConditionalOperandType({ context: mockContext, value })
     expect(result.kind).toBe("typed")
     if (result.kind !== "typed") return
     expect(normalizeDataPathTerminalType(result.typeInfo)).toMatchObject({

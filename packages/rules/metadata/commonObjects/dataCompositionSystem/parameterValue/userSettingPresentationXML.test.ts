@@ -12,17 +12,18 @@ describe("userSettingPresentation XML helpers", () => {
     ).toEqual({ items: { ru: "Период с" } })
   })
 
-  it("preserves xs:string short form for unchanged reference", () => {
-    const reference = importUserSettingPresentationFromXML(mockContextFromXML({ forReference: true }), {
+  it("imports without hidden XML and exports the short form from its value", () => {
+    const reference = importUserSettingPresentationFromXML(mockContextFromXML(), {
       "_xsi:type": "xs:string",
       "#text": "по",
     })
 
+    expect(Reflect.ownKeys(reference!)).toEqual(["items"])
+
     expect(
       exportUserSettingPresentationToXML({
         context: mockContextToXML(),
-        data: { items: { ru: "по" } },
-        referenceData: reference,
+        data: reference,
       })
     ).toEqual({ "_xsi:type": "xs:string", "#text": "по" })
   })
@@ -37,16 +38,10 @@ describe("userSettingPresentation XML helpers", () => {
   })
 
   it("exports changed single-language value as xs:string", () => {
-    const reference = importUserSettingPresentationFromXML(mockContextFromXML({ forReference: true }), {
-      "_xsi:type": "xs:string",
-      "#text": "по",
-    })
-
     expect(
       exportUserSettingPresentationToXML({
         context: mockContextToXML(),
         data: { items: { ru: "после" } },
-        referenceData: reference,
       })
     ).toEqual({ "_xsi:type": "xs:string", "#text": "после" })
   })

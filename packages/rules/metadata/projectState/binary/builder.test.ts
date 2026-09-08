@@ -3,6 +3,7 @@ import type { ProjectStateFileUpdate } from "../fileUpdate"
 import { buildProjectStateSnapshot } from "./builder"
 import { createProjectStateFragmentWriter, openProjectStateFragment } from "./fragment"
 import { ProjectStateSnapshotView } from "./snapshot"
+import { createTypedProjectStateReader } from "./typedReader"
 import { richYamlUpdate, yamlUpdate } from "./testData"
 
 it("строит новый снимок из прежних файлов, фрагментов и удалений", () => {
@@ -43,6 +44,7 @@ it("каскадно удаляет все типизированные вкла
   expect(view.fileCount).toBe(0)
   expect(view.factTableRanges().every(({ records }) => records === 0)).toBe(true)
   expect(view.diagnosticCount).toBe(0)
+  expect(view.stringPool().count).toBe(0)
   expect(view.lookupTarget("cf", "Catalog.A")).toEqual([])
 })
 
@@ -65,9 +67,19 @@ it("не оставляет связанные строки таблиц уда�
   expect(actual.diagnosticCount).toBe(expected.diagnosticCount)
   expect(actual.lookupTarget("cf", "Catalog.A")).toEqual([])
   expect(actual.lookupTarget("cf", "Catalog.B")).toHaveLength(1)
+  const actualReader = createTypedProjectStateReader(actual)
+  const expectedReader = createTypedProjectStateReader(expected)
+  expect(actualReader.yamlFacts(0)).toEqual(expectedReader.yamlFacts(0))
+  expect(actualReader.yamlFacts(0)).toMatchObject({
+    owners: [{ owner: { kind: "Справочник", name: "Catalog.B" } }],
+    pendingReferences: [{ canonical: "Catalog.Товары" }],
+    fields: [{ name: "Код" }, { name: "Описание" }, { name: "Артикул" }],
+  })
+  expect(findString(actual, "Ошибка")).toBeUndefined()
+  expect(findString(actual, "Ошибка Б")).toBeDefined()
 })
 
-it("сохраняет идентификаторы прежних строк при обновлении, но не переносит их в холодную сборку", () => {
+it("удаляет неиспользуемые строки нового снимка, не изменяя старого читателя", () => {
   const base = buildProjectStateSnapshot({
     fragments: [fragment(yamlUpdate("cf/a.yaml", "cf", "Catalog.Старая"), 1n)],
     deletions: [],
@@ -84,8 +96,43 @@ it("сохраняет идентификаторы прежних строк п
     deletions: [],
   }))
 
-  expect(updatedView.stringValue(oldStringId!)).toBe("Catalog.Старая")
+  expect(findString(updatedView, "Catalog.Старая")).toBeUndefined()
+  expect(findString(updatedView, "Catalog.Новая")).toBeDefined()
+  expect(oldView.stringValue(oldStringId!)).toBe("Catalog.Старая")
   expect(findString(coldView, "Catalog.Старая")).toBeUndefined()
+})
+
+it("не переносит строки замещённого фрагмента и сохраняет общие живые строки", () => {
+  const base = buildProjectStateSnapshot({
+    fragments: [fragment(yamlUpdate("cf/b.yaml", "cf", "Catalog.Общая"), 1n)], deletions: [],
+  })
+  const view = new ProjectStateSnapshotView(buildProjectStateSnapshot({
+    base,
+    fragments: [
+      fragment(yamlUpdate("cf/a.yaml", "cf", "Catalog.Заменённая"), 2n),
+      fragment(yamlUpdate("cf/a.yaml", "cf", "Catalog.Общая"), 3n),
+    ], deletions: [],
+  }))
+  expect(findString(view, "Catalog.Заменённая")).toBeUndefined()
+  expect(view.lookupTarget("cf", "Catalog.Общая")).toHaveLength(2)
+})
+
+it("не накапливает строки предыдущих версий при повторных заменах файла", () => {
+  let snapshot = buildProjectStateSnapshot({ fragments: [], deletions: [] })
+  let previousCount: number | undefined
+  for (let version = 0; version < 8; version++) {
+    snapshot = buildProjectStateSnapshot({
+      base: snapshot, fragments: [fragment(yamlUpdate("cf/a.yaml", "cf", `Catalog.Версия${version}`), BigInt(version))],
+      deletions: [],
+    })
+    const view = new ProjectStateSnapshotView(snapshot)
+    expect(view.lookupTarget("cf", `Catalog.Версия${version}`)).toHaveLength(1)
+    if (previousCount !== undefined) {
+      expect(view.stringPool().count).toBe(previousCount)
+      expect(findString(view, `Catalog.Версия${version - 1}`)).toBeUndefined()
+    }
+    previousCount = view.stringPool().count
+  }
 })
 
 it("собирает снимок только из двоичных таблиц фрагмента", () => {

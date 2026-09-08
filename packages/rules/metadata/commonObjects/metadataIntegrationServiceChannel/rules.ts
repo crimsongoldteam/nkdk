@@ -23,7 +23,7 @@ export const MetadataIntegrationServiceChannelRules = {
   properties: {
     uuid: uuidPropertyRule,
     internalInfo: internalInfoRule({
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
       getName: (params: { context: ConfigurationContextWithExportToXML; metadata: { name: string } }) => {

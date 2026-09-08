@@ -3,18 +3,19 @@ import { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import { PropertyRule, TableAdditionalSourcePropertyRule, definePropertyTypeRule } from "../../../ruleRuntime"
 import { TableAdditionalSourceXML } from "./types"
 
-const exportTableAdditionalSourceToXML = (
+export const exportTableAdditionalSourceToXML = (
   context: ConfigurationContextWithExportToXML,
   rule: PropertyRule,
   value: string | undefined
 ): TableAdditionalSourceXML | undefined => {
   const ruleNarrow = rule as TableAdditionalSourcePropertyRule
 
-  if (!ruleNarrow.forSingleElement) {
-    if (!value) {
-      return undefined
-    }
+  if (value) {
     return { Item: value, Type: ruleNarrow.additionalSourceType }
+  }
+
+  if (!ruleNarrow.forSingleElement) {
+    return undefined
   }
 
   const parent = getParentFromContext(context, ["Table", "PDFDocumentField"])

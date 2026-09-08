@@ -7,8 +7,7 @@ import { applySystemEnumerationXMLAlias } from "./xmlAliases"
 export function exportSystemEnumerationToXML(
   _context: ConfigurationContextWithExportToXML,
   rule: PropertyRule,
-  value: string | undefined,
-  _referenceValue?: string
+  value: string | undefined
 ): string | undefined {
   if (value === undefined) return undefined
   const systemEnumerationRule = rule as SE.SystemEnumerationPropertyRule

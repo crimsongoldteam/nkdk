@@ -7,6 +7,56 @@ import { markYAMLScalarTag, markYAMLValueTag, yamlScalarTagAt, yamlValueTag } fr
 import { createXmlAnomalyAnnotations } from "./xmlAnomalyAnnotations"
 
 describe("YAML runtime metadata", () => {
+  it.each([false, true])("не обходит неизменённый объект при переносе метаданных; таблица: %s", (withAnnotations) => {
+    let enumerations = 0
+    const shared = new Proxy({ Значение: "001" }, {
+      ownKeys(target) { enumerations++; return Reflect.ownKeys(target) },
+    })
+    markYAMLScalarTag(shared, "Значение", "проверять")
+    const annotations = createXmlAnomalyAnnotations()
+    annotations.set(shared, "Значение", { kind: "invalid", target: "value", occurrence: 1 })
+    const tables = withAnnotations ? { sourceAnnotations: annotations, targetAnnotations: annotations } : {}
+
+    copyYAMLRuntimeMetadata(shared, shared)
+    copyYAMLRuntimeMetadataDeep({ source: shared, target: shared, ...tables })
+    copyYAMLRuntimeMetadataDeep({ source: { Вложенное: shared }, target: { Вложенное: shared }, ...tables })
+
+    expect(enumerations).toBe(0)
+    expect(yamlScalarTagAt(shared, "Значение")).toBe("проверять")
+    expect(annotations.at(shared, "Значение")).toEqual({ kind: "invalid", target: "value", occurrence: 1 })
+  })
+
+  it("переносит аннотации между разными таблицами для того же объекта", () => {
+    const parsed = parseMetadataYaml("Вложенное:\n  Значение: !xml/invalid text")
+    const targetAnnotations = createXmlAnomalyAnnotations()
+    copyYAMLRuntimeMetadataDeep({
+      source: parsed.data, target: parsed.data,
+      sourceAnnotations: parsed.annotations, targetAnnotations,
+    })
+    const value = parsed.data as { Вложенное: { Значение: string } }
+    expect(targetAnnotations.at(value.Вложенное, "Значение")).toMatchObject({ kind: "invalid", target: "value" })
+  })
+
+  it("переносит аннотации по адресам без перечисления общей таблицы", () => {
+    const source = { Вложенное: { Ключ: "text" } }
+    const annotations = createXmlAnomalyAnnotations()
+    annotations.set(source.Вложенное, "Ключ", { kind: "important", target: "value", occurrence: 1 })
+    annotations.setKey(source.Вложенное, "Ключ", { kind: "invalid", target: "key", occurrence: 1 })
+    const target = structuredClone(source)
+    const targetAnnotations = createXmlAnomalyAnnotations()
+    let enumerations = 0
+    const entries = annotations.entries.bind(annotations)
+    annotations.entries = () => { enumerations++; return entries() }
+
+    copyYAMLRuntimeMetadataDeep({
+      source, target, sourceAnnotations: annotations, targetAnnotations,
+    })
+
+    expect(targetAnnotations.at(target.Вложенное, "Ключ")).toMatchObject({ kind: "important", target: "value" })
+    expect(targetAnnotations.keyAt(target.Вложенное, "Ключ")).toMatchObject({ kind: "invalid", target: "key" })
+    expect(enumerations).toBe(0)
+  })
+
   it("клонирует объект со всеми служебными метаданными", () => {
     const marker = Symbol("marker")
     const source = { Первое: "001", Второе: true }

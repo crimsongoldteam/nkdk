@@ -50,18 +50,25 @@ const repeatedLanguageItems = [
 ]
 
 describe("I8nText XML → YAML", () => {
-  it("использует общий адресный ряд для разнесённых дублей языка", () => {
+  it.each([false, true])("использует общий адресный ряд для разнесённых дублей языка; структурный XML: %s", (structural) => {
     const annotations = createXmlAnomalyAnnotations()
+    const root = structural ? parseXmlDocumentWithSaxes(`<Root><Title>${repeatedLanguageItems.map(item =>
+      `<v8:item><v8:lang>${item["v8:lang"]}</v8:lang><v8:content>${item["v8:content"]}</v8:content></v8:item>`
+    ).join("")}</Title></Root>`).roots[0]! : undefined
+    const audit = root === undefined ? undefined : createXmlImportAuditSession([root])
     const { yaml } = testPropertyFromXMLToYAML({
       rule,
       context,
       annotations,
-      xml: {
+      audit,
+      xml: root ?? {
         Title: {
           "v8:item": repeatedLanguageItems,
         },
       },
     })
+    audit?.finalize()
+    expect(audit?.outcomes().filter(({ state }) => state !== "claimed") ?? []).toEqual([])
     const data = yaml as { Заголовок: Record<string, unknown> }
 
     expect(xmlAnnotatedMappingEntries(data.Заголовок, annotations)).toEqual([
@@ -244,9 +251,7 @@ describe("I8nText XML → YAML", () => {
       },
     } as const satisfies MetadataItemRule
 
-    const xml = parseXmlDocumentWithSaxes("<Root><Title/></Root>", {
-      preserveEmptyElements: true,
-    }).roots[0]!
+    const xml = parseXmlDocumentWithSaxes("<Root><Title/></Root>").roots[0]!
     const audit = createXmlImportAuditSession([xml])
     const { yaml } = testPropertyFromXMLToYAML({
       rule: emptyFoldedRule,
@@ -266,7 +271,6 @@ describe("I8nText XML → YAML", () => {
       rule: emptyFoldedRule,
       yaml,
       name: "БизнесПроцесс1",
-      referenceXML: xml.compatibilityValue,
     }).xml).toEqual({ Title: {} })
     expect(testPropertyFromYAMLToXML({
       rule: emptyFoldedRule,

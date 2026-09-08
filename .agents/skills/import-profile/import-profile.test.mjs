@@ -1,15 +1,77 @@
 import assert from "node:assert/strict"
 import test, { mock } from "node:test"
+import { readFileSync, rmSync } from "node:fs"
 import {
   isSummaryProfileStep,
+  parseProfileSteps,
   runProfile,
-  summarizeControlExport,
+  summarizeLocalProof,
   summarizeFromXmlPropertyTypes,
   summarizeFusedAtomicTypes,
   summarizeImportSteps,
   summarizeToXmlPropertyTypes,
   usage,
 } from "./import-profile.mjs"
+
+const withoutLogFiles = {
+  createLogDirectory: () => "/profile-logs",
+  writeRunLog: (directory, run) => `${directory}/run-${run}.stderr.log`,
+}
+
+test("сохраняет исходные журналы каждого прогона отдельно от JSON-сводки", async () => {
+  const logs = ["первый\nнеизвестная строка\n", "второй\r\nисходная строка 😀\n"]
+  let index = 0
+  const session = {
+    takeStderr: () => logs[index++],
+    close: async () => undefined,
+  }
+  let result
+  try {
+    result = await runProfile({ xmlDir: "/xml", yamlDir: "/yaml", runs: 2 }, {
+      buildMcp: () => {},
+      createSession: async () => session,
+      callToCompletion: async () => ({ result: { isError: false }, payload: { ok: true, succeeded: 1 } }),
+      now: () => 0,
+      clearOutput: () => {},
+      createProject: () => "/project",
+    })
+    assert.equal(typeof result.logsDir, "string")
+    assert.deepEqual(result.runs.map(({ stderrPath }) => readFileSync(stderrPath, "utf8")), logs)
+    assert.notEqual(result.runs[0].stderrPath, result.runs[1].stderrPath)
+    assert.ok(!JSON.stringify(result).includes("неизвестная строка"))
+  } finally {
+    if (result?.logsDir !== undefined) rmSync(result.logsDir, { recursive: true, force: true })
+  }
+})
+
+for (const interrupted of [false, true]) {
+  test(`сохраняет журнал неуспешного прогона (прерывание: ${interrupted})`, async () => {
+    const cause = new Error("Соединение прервано")
+    const writeRunLog = mock.fn(withoutLogFiles.writeRunLog)
+    const session = { takeStderr: () => "исходная диагностика\n", close: mock.fn(async () => {}) }
+    await assert.rejects(runProfile({ xmlDir: "/xml", yamlDir: "/yaml", runs: 1 }, {
+      ...withoutLogFiles,
+      writeRunLog,
+      buildMcp: () => {},
+      createSession: async () => session,
+      callToCompletion: async () => {
+        if (interrupted) throw cause
+        return { result: { isError: true }, payload: { ok: false } }
+      },
+      now: () => 0,
+      clearOutput: () => {},
+      createProject: () => "/project",
+    }), (error) => {
+      assert.match(error.message, /\/profile-logs\/run-1\.stderr\.log/u)
+      if (interrupted) assert.equal(error.cause, cause)
+      return true
+    })
+    assert.deepEqual(writeRunLog.mock.calls.map(({ arguments: args }) => args), [
+      ["/profile-logs", 1, "исходная диагностика\n"],
+    ])
+    assert.equal(session.close.mock.callCount(), 1)
+  })
+}
 
 test("справка позволяет явно задать число worker", () => {
   assert.match(usage(), /--concurrency N/u)
@@ -29,6 +91,7 @@ test("без явного параметра оставляет выбор чи�
   await runProfile(
     { xmlDir: "/xml", yamlDir: "/yaml", runs: 1 },
     {
+      ...withoutLogFiles,
       buildMcp: mock.fn(),
       createSession: mock.fn(async () => session),
       now: mock.fn(() => 0),
@@ -44,11 +107,11 @@ test("без явного параметра оставляет выбор чи�
 test("сводит этапы импорта и двоичной выдачи в стабильные поля", () => {
   const steps = [
     main("Первый проход worker", 11),
-    main("Фиксация рабочего индекса", 12),
+    main("Фиксация общего индекса", 12),
     main("Второй проход worker", 13),
     main("Копирование внешних файлов XML-выгрузки", 14),
     main("Построение окончательного состояния", 15),
-    main("Полная проверка зависимостей", 16),
+    worker("Локальная проверка зависимостей первого прохода", 16),
     main("Публикация состояния проекта", 17),
     main("Сохранение состояния проекта", 18),
     worker("Двоичное кодирование результата", 19, 1_024),
@@ -57,16 +120,7 @@ test("сводит этапы импорта и двоичной выдачи в
     worker("Чтение XML второго прохода", 5, 2_048),
     worker("Парсинг XML второго прохода", 7, 2_048),
     worker("Извлечение фактов XML", 11),
-    worker("MessagePack pack", 12),
-    worker("MessagePack unpack", 13),
-    worker("Packed XML store write", 14),
-    worker("Packed XML store read", 15),
-    worker("Packed XML bytes", 0, 4_096),
-    worker("toXML: построение объекта", 14),
-    worker("toXML: финализация deferred", 15),
-    worker("Контрольный XML: прямой hash", 16),
-    worker("Контрольный XML: дерево расхождения", 17),
-    worker("Доказательство XML-аномалий", 18),
+    worker("Локальный XML proof", 18),
     main("Передача двоичного результата", 20, 1_024),
     main("Подготовка начала diagnostics", 21),
     main("Запись полного отчёта diagnostics", 22, 2_048),
@@ -75,11 +129,11 @@ test("сводит этапы импорта и двоичной выдачи в
 
   assert.deepEqual(summarizeImportSteps(steps, 300), {
     firstPassMs: 11,
-    workingIndexMs: 12,
+    sharedIndexMs: 12,
     secondPassMs: 13,
     externalFilesMs: 14,
     finalBuildMs: 15,
-    dependencyValidationMs: 16,
+    localDependencyValidationMs: 16,
     publicationMs: 17,
     saveMs: 18,
     workerBinaryEncodeMs: 19,
@@ -92,23 +146,14 @@ test("сводит этапы импорта и двоичной выдачи в
     secondPassXmlReadMs: 5,
     secondPassXmlParseMs: 7,
     factsOnlyMs: 11,
-    messagePackMs: 12,
-    messageUnpackMs: 13,
-    packedStoreWriteMs: 14,
-    packedStoreReadMs: 15,
-    packedBytes: 4_096,
-    toXmlObjectMs: 14,
-    toXmlFinalizeMs: 15,
-    directHashMs: 16,
-    mismatchDocumentMs: 17,
-    anomalyProofMs: 18,
+    localProofMs: 18,
     diagnosticPreviewMs: 21,
     diagnosticReportMs: 22,
     diagnosticReportBytes: 2_048,
     mcpStructuredMs: 23,
     mcpStructuredBytes: 4_096,
-    measuredMainMs: 182,
-    mcpOverheadMs: 118,
+    measuredMainMs: 166,
+    mcpOverheadMs: 134,
     responseMs: 300,
   })
 })
@@ -118,18 +163,53 @@ test("пропускает профильные записи без строко
   assert.equal(isSummaryProfileStep({ substep: null }), false)
 })
 
-test("сводит режим контрольного XML и распределение второго прохода", () => {
+test("разбирает числовые метрики, не превращая имена правил в числа", () => {
+  const names = ["GroupChildItems", "TableChildItems", "123"]
+  const steps = parseProfileSteps(names.map((name) =>
+    `[nkdk-profile-step] operation="123" scope=worker worker=0 step="XML в YAML PropertyRule exclusive" substep="${name}" items=3 bytes=1024 time=12.5ms rssPeak=42MiB custom=123`
+  ).join("\n"))
+
+  assert.deepEqual(steps.map((step) => step.substep), names)
+  for (const step of steps) {
+    assert.equal(step.operation, "123")
+    assert.equal(step.worker, 0)
+    assert.equal(step.items, 3)
+    assert.equal(step.bytes, 1024)
+    assert.equal(step.time, 12.5)
+    assert.equal(step.rssPeak, 42)
+    assert.equal(step.custom, "123")
+  }
+  assert.deepEqual(summarizeFromXmlPropertyTypes(steps).map((row) => row.propertyType), names)
+})
+
+test("не включает повреждённые числовые метрики в суммы времени", () => {
+  const steps = parseProfileSteps(["12.5ms", "brokenms", "1MiB", "Infinity", ""].map((time) =>
+    `[nkdk-profile-step] scope=main step="Импорт" substep="Первый проход worker" time="${time}"`
+  ).join("\n"))
+
+  assert.deepEqual(steps.map((step) => step.time), [12.5, "brokenms", "1MiB", "Infinity", ""])
+  const summary = summarizeImportSteps(steps, 20)
+  assert.equal(summary.firstPassMs, 12.5)
+  assert.equal(summary.measuredMainMs, 12.5)
+  assert.equal(summary.mcpOverheadMs, 7.5)
+  const [property] = summarizeFromXmlPropertyTypes(steps.map((step) => ({
+    ...step, scope: "worker", worker: 0, items: 1,
+    step: "XML в YAML PropertyRule exclusive", substep: "GroupChildItems",
+  })))
+  assert.equal(property.exclusiveWorkerMs, 12.5)
+  assert.equal(property.exclusiveCriticalMs, 12.5)
+})
+
+test("сводит число локально проверенных границ и распределение второго прохода", () => {
   const steps = [
-    { scope: "worker", worker: 0, substep: "Контрольный XML без сериализации", items: 3 },
-    { scope: "worker", worker: 1, substep: "Контрольный XML с сериализацией", items: 2 },
+    { scope: "worker", worker: 0, substep: "Локальный XML proof", items: 30 },
+    { scope: "worker", worker: 1, substep: "Локальный XML proof", items: 20 },
     { scope: "worker", worker: 0, substep: "Задания второго прохода", items: 3 },
     { scope: "worker", worker: 1, substep: "Задания второго прохода", items: 2 },
   ]
 
-  assert.deepEqual(summarizeControlExport(steps), {
-    direct: 3,
-    serialized: 2,
-    detailedRereads: 0,
+  assert.deepEqual(summarizeLocalProof(steps), {
+    boundaries: 50,
     assignmentsByWorker: [3, 2],
   })
 })
@@ -238,6 +318,7 @@ test("собирает MCP до замера и переиспользует о�
   const result = await runProfile(
     { xmlDir: "/xml", yamlDir: "/yaml", runs: 2, concurrency: 4 },
     {
+      ...withoutLogFiles,
       buildMcp,
       createSession,
       now: () => clock,
@@ -286,6 +367,7 @@ test("измеряет terminal результат через общий MCP wai
   const result = await runProfile(
     { xmlDir: "/xml", yamlDir: "/yaml", runs: 1, signal: controller.signal },
     {
+      ...withoutLogFiles,
       buildMcp: mock.fn(),
       createSession: mock.fn(async () => session),
       callToCompletion,
@@ -317,6 +399,7 @@ test("сохраняет упорядоченные checkpoints памяти о�
   const result = await runProfile(
     { xmlDir: "/xml", yamlDir: "/yaml", runs: 1 },
     {
+      ...withoutLogFiles,
       buildMcp: mock.fn(),
       createSession: mock.fn(async () => session),
       now: mock.fn(() => 0),

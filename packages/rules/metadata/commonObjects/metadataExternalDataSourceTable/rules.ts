@@ -1,3 +1,5 @@
+import { explicitOwnerFormLinks } from "../metadataPath/formLinks"
+import { externalDataSourceObjectPresentationProperties } from "./fragments"
 import { getParentFromContext } from "../../context/helpers"
 import { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import { MetadataCommandRules } from "../metadataCommand/rules"
@@ -33,13 +35,13 @@ const tableProperties = {
     type: "XMLRoot",
     container: "Table",
     rootAttributes: V8_MDCLASSES_ROOT,
-    forReferenceOnly: true,
+    xmlOnly: true,
     toYAML: false,
     fromYAML: false,
   },
   internalInfo: internalInfoRule({
     xmlParents: root,
-    forReferenceOnly: true,
+    xmlOnly: true,
     toYAML: false,
     fromYAML: false,
     getName: (params: { context: ConfigurationContextWithExportToXML; metadata: { name: string } }) => {
@@ -187,52 +189,11 @@ const tableProperties = {
     defaultValueXML: "Auto",
     implicitValueYAML: "Auto",
   },
-  defaultObjectForm: {
-    yaml: "ОсновнаяФормаОбъекта",
-    xml: "DefaultObjectForm",
-    type: "string",
-    xmlParents: properties,
-    metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-    defaultValueXMLRaw: "",
-  },
-  defaultRecordForm: {
-    yaml: "ОсновнаяФормаЗаписи",
-    xml: "DefaultRecordForm",
-    type: "string",
-    xmlParents: properties,
-    metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-    defaultValueXMLRaw: "",
-  },
-  defaultListForm: {
-    yaml: "ОсновнаяФормаСписка",
-    xml: "DefaultListForm",
-    type: "string",
-    xmlParents: properties,
-    metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-    defaultValueXMLRaw: "",
-  },
-  defaultChoiceForm: {
-    yaml: "ОсновнаяФормаВыбора",
-    xml: "DefaultChoiceForm",
-    type: "string",
-    xmlParents: properties,
-    metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-    defaultValueXMLRaw: "",
-  },
-  objectPresentation: {
-    yaml: "ПредставлениеОбъекта",
-    xml: "ObjectPresentation",
-    type: "I8nText",
-    xmlParents: properties,
-    defaultValueXMLRaw: "",
-  },
-  extendedObjectPresentation: {
-    yaml: "РасширенноеПредставлениеОбъекта",
-    xml: "ExtendedObjectPresentation",
-    type: "I8nText",
-    xmlParents: properties,
-    defaultValueXMLRaw: "",
-  },
+  defaultObjectForm: explicitOwnerFormLinks.defaultObjectForm,
+  defaultRecordForm: explicitOwnerFormLinks.defaultRecordForm,
+  defaultListForm: explicitOwnerFormLinks.defaultListForm,
+  defaultChoiceForm: explicitOwnerFormLinks.defaultChoiceForm,
+  ...externalDataSourceObjectPresentationProperties,
   recordPresentation: {
     yaml: "ПредставлениеЗаписи",
     xml: "RecordPresentation",
@@ -347,7 +308,7 @@ const tableProperties = {
     type: "ChildFormNames",
     xmlParents: childObjects,
     folderName: "Формы",
-    forReferenceOnly: true,
+    xmlOnly: true,
     toYAML: false,
     fromYAML: false,
   },
@@ -363,7 +324,7 @@ const tableProperties = {
     type: "ChildTemplateNames",
     xmlParents: childObjects,
     folderName: "Макеты",
-    forReferenceOnly: true,
+    xmlOnly: true,
     toYAML: false,
     fromYAML: false,
   },

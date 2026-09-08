@@ -1,33 +1,31 @@
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import type { ControlBorderType } from "../../systemEnumerations/types"
-import { ConfigurationContext } from "@nkdk/runtime"
-import type { Border, BorderXML } from "./types"
+import { ConfigurationContext, isEmptyXmlElement, xmlAttributeValue, xmlElementChildren, xmlTextValue, type XmlElementNode } from "@nkdk/runtime"
+import type { Border } from "./types"
 
 export const importBorderFromXML = (
   _context: ConfigurationContext,
   _rule: PropertyRule | undefined,
-  xml: BorderXML | { Border: BorderXML } | undefined
+  xml: XmlElementNode | undefined
 ): Border | undefined => {
   if (!xml) return undefined
 
-  const node: BorderXML = ("Border" in (xml as any) ? (xml as any).Border : xml) as BorderXML
+  const node = xmlElementChildren(xml, "Border")[0] ?? xml
+  if (isEmptyXmlElement(node)) return undefined
 
-  const style = node["v8ui:style"]
-  const controlBorderType: ControlBorderType | undefined =
-    typeof style === "string"
-      ? (style as ControlBorderType)
-      : style && typeof style === "object"
-        ? (style["#text"] as ControlBorderType | undefined)
-        : undefined
+  const style = xmlElementChildren(node, "v8ui:style")[0]
+  const controlBorderType = style === undefined ? undefined : (xmlTextValue(style) || undefined) as ControlBorderType | undefined
 
   const result: Border = {}
 
-  if (node._ref !== undefined) {
-    result.ref = node._ref.startsWith("style:") ? node._ref.slice("style:".length) : node._ref
+  const ref = xmlAttributeValue(node, "ref")
+  const width = xmlAttributeValue(node, "width")
+  if (ref !== undefined) {
+    result.ref = ref.startsWith("style:") ? ref.slice("style:".length) : ref
   }
-  if (node._width !== undefined) {
-    result.width = Number(node._width)
+  if (width !== undefined) {
+    result.width = Number(width)
   }
   if (controlBorderType !== undefined) {
     result.controlBorderType = controlBorderType

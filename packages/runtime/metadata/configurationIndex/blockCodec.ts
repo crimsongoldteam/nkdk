@@ -109,6 +109,9 @@ function validateEntity(entity: ConfigurationIndexBlockEntity): void {
     if (entity.children.length === 0) throw new Error("children не может быть пустым")
     assertU32(entity.children.length, "Количество children")
     for (const child of entity.children) {
+      if (Object.keys(child).some((key) => key !== "xmlName" && key !== "name")) {
+        throw new Error("Неизвестное поле children")
+      }
       validateString(child.xmlName, "children.xmlName")
       validateString(child.name, "children.name")
     }

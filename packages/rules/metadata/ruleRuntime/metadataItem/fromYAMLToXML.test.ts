@@ -6,7 +6,7 @@ import "../../commonObjects/i8nText/toXML"
 import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import { parseMetadataYaml } from "@nkdk/runtime"
 import type { MetadataItemRule } from "../property/types"
-import { convertMetadataItemFromYAMLToXML } from "./fromYAMLToXML"
+import { convertMetadataItemFromYAMLToXML, prepareMetadataItemXMLExecution } from "./fromYAMLToXML"
 import { convertPropertiesFromYAMLToXML } from "../property/fromYAMLToXML"
 import { registerTypeRule } from "../property/typeRuleRegistry"
 import { registerMetadataItemCollectionRule } from "../metadataCollection/ruleFactory"
@@ -29,6 +29,70 @@ const itemRule = {
 } as const satisfies MetadataItemRule
 
 describe("convertMetadataItemFromYAMLToXML", () => {
+  it("отделяет подготовку item от исполнения и повторно не готовит оболочку при закрытии", () => {
+    let preparations = 0
+    const prepared = prepareMetadataItemXMLExecution({
+      context: context(), name: "Первый", yaml: { Значение: "готово" }, outputs: [{ key: "owner" }],
+      rule: { ...itemRule, properties: {
+        root: { type: "XMLRoot", container: "Entry", isFileRoot: true, xmlOnly: true,
+          rootAttributes: () => { preparations++; return { _xmlns: "urn:entry" } } },
+        ...itemRule.properties,
+      } },
+    })
+    expect(preparations).toBe(1)
+    expect(prepared.properties.context.importFromYAML?.parent?.name).toBe("Первый")
+    expect(prepared.properties.outputs[0]?.xmlEnvelope?.path).toEqual(["Entry"])
+    const converted = convertPropertiesFromYAMLToXML(prepared.properties)
+    expect(prepared.finish(converted).outputs.get("owner")).toEqual({
+      Entry: { _xmlns: "urn:entry", Name: "Первый", Value: "готово" },
+    })
+    expect(preparations).toBe(1)
+  })
+
+  it.each([
+    { isFileRoot: false, path: ["MetaDataObject", "Entry"] },
+    { isFileRoot: true, path: ["Entry"] },
+  ])("готовит XML-оболочку до свойств, fileRoot=$isFileRoot", ({ isFileRoot, path }) => {
+    let preparations = 0
+    const rule = {
+      itemType: "TestPreparedXMLRoot",
+      xsiType: "EntryType",
+      properties: {
+        root: {
+          type: "XMLRoot",
+          container: "Entry",
+          isFileRoot,
+          xmlOnly: true,
+          rootAttributes: () => {
+            preparations++
+            return { _xmlns: "urn:entry" }
+          },
+        },
+        value: { type: "string", yaml: "Значение", xml: "Value" },
+      },
+    } as const satisfies MetadataItemRule
+    const result = convertMetadataItemFromYAMLToXML({
+      context: context(),
+      rule,
+      yaml: { Значение: "готово" },
+      outputs: [{ key: "main" }],
+      convertProperties(params) {
+        expect(preparations).toBe(1)
+        expect(params.outputs[0]?.xmlEnvelope).toEqual({
+          path,
+          rootAttributes: { _xmlns: "urn:entry" },
+          bodyAttributes: { "_xsi:type": "EntryType" },
+        })
+        return convertPropertiesFromYAMLToXML(params)
+      },
+    })
+
+    expect(preparations).toBe(1)
+    expect(result.outputs.get("main")).toEqual(isFileRoot
+      ? { Entry: { _xmlns: "urn:entry", "_xsi:type": "EntryType", Value: "готово" } }
+      : { MetaDataObject: { _xmlns: "urn:entry", Entry: { "_xsi:type": "EntryType", Value: "готово" } } })
+  })
+
   it("передаёт XML-аннотации вложенной именованной коллекции", () => {
     const collectionType = "TestAnnotatedNestedCollection" as PropertyRuleType
     registerMetadataItemCollectionRule({
@@ -92,6 +156,20 @@ describe("convertMetadataItemFromYAMLToXML", () => {
         outputs: [{ key: "owner" }],
       })
     ).toThrow("MetadataAttribute: ожидался YAML-объект")
+  })
+
+  it("допускает скалярное представление разреженного metadata item", () => {
+    const result = convertMetadataItemFromYAMLToXML({
+      convertProperties: convertPropertiesFromYAMLToXML,
+      context: context(),
+      yaml: "tag",
+      sparseYAML: true,
+      rule: itemRule,
+      name: "Первый",
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({ Name: "Первый" })
   })
 
   it("формирует metadata-item из YAML и имени записи без модели", () => {
@@ -158,7 +236,7 @@ describe("convertMetadataItemFromYAMLToXML", () => {
     expect(result).toEqual({ ListSettings: {} })
   })
 
-  it("deeply preserves unknown nested reference XML while generated fields take precedence", () => {
+  it("не копирует неизвестные узлы и порядок из reference XML", () => {
     const rule = recalculationRule()
     const result = convert(
       rule,
@@ -170,12 +248,7 @@ describe("convertMetadataItemFromYAMLToXML", () => {
       }
     )
 
-    expect(result).toMatchObject({
-      Properties: { Name: "НовоеИмя", UnknownProperty: "keep" },
-      ChildObjects: { Dimension: "generated", UnknownChild: "keep-child" },
-      UnknownRoot: "keep-root",
-    })
-    expect((result.Properties as Record<string, unknown>).Use).toBeUndefined()
+    expect(result).toEqual(convert(rule, { Имя: "НовоеИмя", Использование: "Истина", Измерение: "generated" }))
   })
 
   it("keeps generated rule xsi:type over reference raw xsi:type", () => {
@@ -197,7 +270,7 @@ describe("convertMetadataItemFromYAMLToXML", () => {
           type: "XMLRoot",
           container: "Recalculation",
           rootAttributes: { _xmlns: "http://v8.1c.ru/8.3/MDClasses" },
-          forReferenceOnly: true,
+          xmlOnly: true,
         },
         name: { yaml: "Имя", xml: "Name", type: "string", xmlParents: ["Properties"] },
       },
@@ -219,13 +292,12 @@ describe("convertMetadataItemFromYAMLToXML", () => {
         Recalculation: {
           "_xsi:type": "GeneratedType",
           Properties: { Name: "Имя" },
-          UnknownRoot: "keep-root",
         },
       },
     })
   })
 
-  it("preserves unknown nested reference XML inside a generated object property", () => {
+  it("не копирует неизвестный вложенный XML внутрь построенного свойства", () => {
     const result = convert(
       recalculationRule(),
       { Имя: "Имя", Синоним: "НовыйСиноним" },
@@ -243,10 +315,10 @@ describe("convertMetadataItemFromYAMLToXML", () => {
       Properties: {
         Synonym: {
           "v8:item": [{ "v8:lang": "ru", "v8:content": "НовыйСиноним" }],
-          UnknownNested: "keep-nested",
         },
       },
     })
+    expect((result.Properties as Record<string, unknown>).Synonym).not.toHaveProperty("UnknownNested")
   })
 
   it("exports nested generated fields when they are not XML defaults", () => {
@@ -254,7 +326,7 @@ describe("convertMetadataItemFromYAMLToXML", () => {
       Properties: { Name: "Имя" },
     })
 
-    expect(result).toEqual({ Properties: { Name: "Имя", Use: false } })
+    expect(result).toEqual({ Properties: { Name: "Имя", Use: false }, ChildObjects: {} })
   })
 
   it("removes reference keys when generated nested field is undefined", () => {
@@ -273,11 +345,12 @@ describe("convertMetadataItemFromYAMLToXML", () => {
     })
 
     expect(result).toEqual({
-      Properties: { Name: "Имя", Raw: { UnknownNested: "keep-nested" } },
+      Properties: { Name: "Имя", Use: true, Raw: { GeneratedUndefined: undefined } },
+      ChildObjects: {},
     })
   })
 
-  it("нормализует yamlInline, оборачивает XMLRoot и сохраняет неизвестный XML", () => {
+  it.each([false, true])("нормализует yamlInline без повторной обёртки mapping: imported=%s", (imported) => {
     const rule = {
       itemType: "CatalogAttribute",
       xsiType: "GeneratedType",
@@ -286,36 +359,37 @@ describe("convertMetadataItemFromYAMLToXML", () => {
           type: "XMLRoot",
           container: "Attribute",
           rootAttributes: { _xmlns: "generated" },
-          forReferenceOnly: true,
+          xmlOnly: true,
         },
         value: { type: "string", yaml: "Значение", xml: "Value", yamlInline: true },
       },
     } as const satisfies MetadataItemRule
-    const result = convertMetadataItemFromYAMLToXML({
-      convertProperties: convertPropertiesFromYAMLToXML,
+    const importedProperties = { Значение: "новое" }
+    const prepared = prepareMetadataItemXMLExecution({
       context: context(),
       yaml: "новое",
       rule,
       outputs: [
         {
           key: "owner",
-          referenceXML: {
+          ...{ referenceXML: {
             MetaDataObject: {
               _xmlns: "reference",
               Attribute: { Value: "старое", Unknown: "сохранить" },
             },
-          },
+          } },
         },
       ],
-    })
+    }, imported ? importedProperties : undefined)
+    if (imported) expect(prepared.properties.yaml).toBe(importedProperties)
+    const result = prepared.finish(convertPropertiesFromYAMLToXML(prepared.properties))
 
     expect(result.outputs.get("owner")).toEqual({
       MetaDataObject: {
-        _xmlns: "reference",
+        _xmlns: "generated",
         Attribute: {
           "_xsi:type": "GeneratedType",
           Value: "новое",
-          Unknown: "сохранить",
         },
       },
     })
@@ -332,7 +406,7 @@ describe("convertMetadataItemFromYAMLToXML", () => {
           type: "XMLRoot",
           container: "TestRoot",
           rootAttributes: {},
-          forReferenceOnly: true,
+          xmlOnly: true,
         },
         value: { type: deferredType, yaml: "Значение", xml: "Value", xmlParents: ["Properties"] },
       },
@@ -384,7 +458,7 @@ function convert(rule: MetadataItemRule, yaml: unknown, referenceXML?: unknown):
     context: context(),
     yaml,
     rule,
-    outputs: [{ key: "owner", referenceXML }],
+    outputs: [{ key: "owner", ...{ referenceXML } }],
   })
   return result.outputs.get("owner") ?? {}
 }

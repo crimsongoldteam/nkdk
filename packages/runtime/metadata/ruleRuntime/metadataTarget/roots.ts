@@ -36,6 +36,7 @@ export const rootToYAML = {
   IntegrationService: "СервисИнтеграции",
   Language: "Язык",
   Style: "Стиль",
+  Interface: "Интерфейс",
   StyleItem: "ЭлементСтиля",
   FunctionalOption: "ФункциональнаяОпция",
   FunctionalOptionsParameter: "ПараметрФункциональныхОпций",

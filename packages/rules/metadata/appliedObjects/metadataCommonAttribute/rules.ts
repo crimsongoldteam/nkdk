@@ -1,3 +1,5 @@
+import { metadataIdentityProperties } from "../../commonObjects/metadataIdentityProperties"
+import { metadataItemLinkRule } from "../../commonObjects/metadataPath/types"
 import { commonAttributeContentRule } from "../../commonObjects/commonAttributeContent/types"
 import { minMaxValueRule } from "../../commonObjects/minMaxValue/types"
 import { typeDescriptionRule } from "../../commonObjects/typeDescription/types"
@@ -8,7 +10,6 @@ import { booleanRule } from "../../commonObjects/boolean/types"
 import { i8nTextRule } from "../../commonObjects/i8nText/types"
 import { metadataValueRule } from "../../commonObjects/metadataValue/types"
 import { stringRule } from "../../commonObjects/string/types"
-import { uuidRule } from "../../commonObjects/uuid/types"
 import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
 import { V8_MDCLASSES_ROOT } from "../../ruleRuntime/appliedObject/presets"
@@ -65,31 +66,11 @@ export const MetadataCommonAttributeRules = {
     xmlRoot: xmlRootRule({
       container: "CommonAttribute",
       rootAttributes: V8_MDCLASSES_ROOT,
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
     }),
-    uuid: uuidRule({
-      xml: "_uuid",
-      forReferenceOnly: true,
-      xmlParents: [],
-    }),
-    name: stringRule({
-      xmlParents: properties,
-      required: true,
-    }),
-    synonym: i8nTextRule({
-      yaml: "Синоним",
-      xmlParents: properties,
-      defaultValueXMLRaw: "",
-      excludeIfEqualNameYAML: true,
-    }),
-    comment: stringRule({
-      yaml: "Комментарий",
-      xmlParents: properties,
-      defaultValueXMLRaw: "",
-      defaultValueAdoptedXML: "",
-    }),
+    ...metadataIdentityProperties,
     type: typeDescriptionRule({
       ownerFactRole: "type",
       yaml: "Тип",
@@ -163,7 +144,6 @@ export const MetadataCommonAttributeRules = {
       xmlParents: properties,
       defaultValueXMLRaw: { "_xsi:type": "xs:string" },
       exportNilValue: true,
-      preserveUnknownReferenceXML: false,
     }),
     fillChecking: systemEnumerationRule({
       yaml: "ПроверкаЗаполнения",
@@ -203,7 +183,7 @@ export const MetadataCommonAttributeRules = {
       implicitValueYAML: "Auto",
       xmlParents: properties,
     }),
-    choiceForm: stringRule({
+    choiceForm: metadataItemLinkRule({
       yaml: "ФормаВыбора",
       xmlParents: properties,
       metadataTarget: { kind: "member", owner: "type", typeProperty: "type", memberKinds: ["Form"] },

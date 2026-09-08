@@ -1,3 +1,4 @@
+import { metadataItemLinkRule } from "../metadataPath/types"
 import { splitPascalCase } from "../../helpers/canConvertToPascalCase"
 import {
   type MetadataRulePropertyShape,
@@ -230,7 +231,6 @@ export const attributeFillFragment = metadataRuleFragment(
       xmlParents: propertiesParents,
       defaultValueXMLRaw: { "_xsi:nil": true },
       exportNilValue: true,
-      preserveUnknownReferenceXML: false,
     },
   } as const satisfies Record<string, MetadataRulePropertyShape>
 )
@@ -298,14 +298,13 @@ export const attributeChoiceFragment = metadataRuleFragment(
       implicitValueYAML: "Auto",
       xmlParents: propertiesParents,
     },
-    choiceForm: {
+    choiceForm: metadataItemLinkRule({
       yaml: "ФормаВыбора",
       xml: "ChoiceForm",
-      type: "string",
       metadataTarget: { kind: "member", owner: "type", typeProperty: "type", memberKinds: ["Form"] },
       xmlParents: propertiesParents,
       defaultValueXMLRaw: "",
-    },
+    }),
     linkByType: {
       yaml: "СвязьПоТипу",
       xml: "LinkByType",
@@ -389,10 +388,9 @@ export const attributeBinaryStorageUseFragment = metadataRuleFragment(["binaryDa
 export const attributeBinaryStorageUseFieldFragment = metadataRuleFragment(
   ["binaryDataStorageLocationUseField"],
   {
-    binaryDataStorageLocationUseField: {
+    binaryDataStorageLocationUseField: metadataItemLinkRule({
       yaml: "ПолеИспользованияХраненияВХранилищеДвоичныхДанных",
       xml: "BinaryDataStorageLocationUseField",
-      type: "string",
       xmlParents: propertiesParents,
       metadataTarget: {
         kind: "member",
@@ -400,7 +398,7 @@ export const attributeBinaryStorageUseFieldFragment = metadataRuleFragment(
         memberKinds: ["Attribute"],
         filters: [{ kind: "directMember" }, { kind: "hasType", type: "boolean" }],
       },
-    },
+    }),
   } as const satisfies Record<string, MetadataRulePropertyShape>
 )
 
@@ -409,7 +407,7 @@ export const attributeUuidFragment = metadataRuleFragment(["uuid"], {
     type: "uuid",
     xml: "_uuid",
     evaluateWhenYAMLMissing: true,
-    forReferenceOnly: true,
+    xmlOnly: true,
     toYAML: false,
     fromYAML: false,
   },

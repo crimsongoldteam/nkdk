@@ -1,13 +1,13 @@
 import fs from "node:fs"
 import { describe, expect, it } from "vitest"
 import { createDirectRoundTripContexts, testMetadataItemFromXMLToYAML, testMetadataItemFromYAMLToXML } from "../../../../tests/directConversion"
-import { importContentFromXML } from "@nkdk/runtime"
+import { parseStructuralXMLWithoutCompatibility } from "../../../../tests/structuralXML"
 import { withConfigurationIndexFormElementRootLogicalAddress } from "@nkdk/runtime"
 import { CalendarFieldRules } from "./rules"
 
 describe("CalendarField rules", () => {
   it("сохраняет путь к данным в YAML и восстанавливает его без reference XML", () => {
-    const parsed = importContentFromXML<{ CalendarField: Record<string, unknown> }>(
+    const parsed = parseStructuralXMLWithoutCompatibility(
       fs.readFileSync(new URL("./__fixtures__/full.xml", import.meta.url), "utf8")
     )
     const formLogicalAddress = "ОбщаяФорма.Календарь"
@@ -15,7 +15,7 @@ describe("CalendarField rules", () => {
     const contexts = createDirectRoundTripContexts({ logicalAddress })
     const imported = testMetadataItemFromXMLToYAML({
       rule: CalendarFieldRules,
-      xml: parsed.CalendarField,
+      xml: parsed,
       name: "ПолеКалендаря",
       context: withConfigurationIndexFormElementRootLogicalAddress(contexts.importContext, formLogicalAddress),
     })

@@ -16,11 +16,6 @@ export interface StringOrNumberPropertyRule extends BasePropertyRule {
   type: "StringOrNumber"
 }
 
-export type StringOrNumberReference = {
-  value: StringOrNumber
-  xsiType?: string
-}
-
 export interface StringOrNumberWidePropertyRule extends WidePropertyRuleBase {
   type: "StringOrNumber"
 }

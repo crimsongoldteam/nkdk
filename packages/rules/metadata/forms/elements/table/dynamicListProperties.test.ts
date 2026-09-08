@@ -30,7 +30,7 @@ describe("RowFilter таблицы формы", () => {
       version: "2.20",
       importFromYAML: { resolveTableSourceProfile: () => profile },
       exportToXML: { version: "2.20", itemsTree: [], context: {
-        metadataForNumbering: [], forms: [], templates: [], parentName: "",
+        forms: [], templates: [], parentName: "",
       } },
     } as ConfigurationContextWithExportToXML
 

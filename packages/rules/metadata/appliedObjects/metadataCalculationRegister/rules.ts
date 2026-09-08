@@ -1,3 +1,5 @@
+import { metadataIdentityProperties } from "../../commonObjects/metadataIdentityProperties"
+import { ownerFormLinks } from "../../commonObjects/metadataPath/formLinks"
 import {
   additionalIndexRule,
   metadataCommandsRule,
@@ -91,13 +93,13 @@ export const MetadataCalculationRegisterRules = {
     xmlRoot: xmlRootRule({
       container: "CalculationRegister",
       rootAttributes: V8_MDCLASSES_ROOT,
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
     }),
     internalInfo: internalInfoRule({
       xmlParents: [],
-      forReferenceOnly: true,
+      xmlOnly: true,
       items: [
         { name: "CalculationRegisterRecord", category: "Record" },
         { name: "CalculationRegisterManager", category: "Manager" },
@@ -108,42 +110,22 @@ export const MetadataCalculationRegisterRules = {
         { name: "RecalculationsManager", category: "Recalcs" },
       ],
     }),
-    uuid: uuidRule({ xml: "_uuid", forReferenceOnly: true, xmlParents: [] }),
     name: stringRule({
       xmlParents: properties,
       required: true,
       defaultValue: ({ name }: { name?: string }) => name,
     }),
-    synonym: i8nTextRule({
-      yaml: "Синоним",
-      xmlParents: properties,
-      defaultValueXMLRaw: "",
-      excludeIfEqualNameYAML: true,
-    }),
-    comment: stringRule({
-      yaml: "Комментарий",
-      xmlParents: properties,
-      defaultValueXMLRaw: "",
-      defaultValueAdoptedXML: "",
-    }),
+    synonym: metadataIdentityProperties.synonym,
+    comment: metadataIdentityProperties.comment,
     useStandardCommands: booleanRule({
       yaml: "ИспользоватьСтандартныеКоманды",
       defaultValueXML: true,
       implicitValueYAML: true,
       xmlParents: properties,
     }),
-    defaultListForm: stringRule({
-      yaml: "ОсновнаяФормаСписка",
-      xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
-    auxiliaryListForm: stringRule({
-      yaml: "ДополнительнаяФормаСписка",
-      xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
+    uuid: uuidRule({ xml: "_uuid", xmlOnly: true, xmlParents: [] }),
+    defaultListForm: ownerFormLinks.defaultListForm,
+    auxiliaryListForm: ownerFormLinks.auxiliaryListForm,
     periodicity: systemEnumerationRule({
       yaml: "Периодичность",
       typeSE: "CalculationRegisterPeriodicity",
@@ -227,14 +209,14 @@ export const MetadataCalculationRegisterRules = {
       xml: "Recalculation",
       xmlParents: childObjects,
       folderName: "Перерасчеты",
-      forReferenceOnly: true,
+      xmlOnly: true,
     }),
     forms: childFormNamesRule({
       yaml: "Формы",
       xml: "Form",
       xmlParents: childObjects,
       folderName: "Формы",
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
     }),
@@ -243,7 +225,7 @@ export const MetadataCalculationRegisterRules = {
       xml: "Template",
       xmlParents: childObjects,
       folderName: "Макеты",
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
     }),

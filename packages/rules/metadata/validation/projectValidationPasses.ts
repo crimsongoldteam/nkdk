@@ -455,7 +455,7 @@ function validationSchemaVariant(file: ValidationProjectFile): ValidationSchemaV
     : "full"
 }
 
-function isBorrowedExtensionFile(file: ValidationProjectFile): boolean {
+export function isBorrowedExtensionFile(file: ValidationProjectFile): boolean {
   if (!file.componentPath.startsWith("cfe/") || file.metadataTarget === undefined) return false
   const projectRoot = resolve(file.componentDir, "..", "..")
   return fs.existsSync(resolve(projectRoot, "cf", ...file.projectPath.split("/")))
@@ -477,6 +477,7 @@ export function collectBorrowedExtensionLogicalAddresses(
     logicalAddress,
     ...collectAddressableMetadataLogicalAddresses({
       yaml: entry.parsed.data,
+      annotations: entry.parsed.annotations,
       rule: file.itemRule,
       logicalAddress,
       filePath: file.projectPath,
@@ -618,27 +619,9 @@ export function extractProjectValidationFileFacts(params: {
       ? {}
       : { objectTarget: yamlFacts.objectIndexEntries[0].target }),
   })
-  const measuredOwner = measureValidationPhase(() => {
-    const compactOwnerFacts = yamlFacts.localIndexes?.metadata.ownerFacts ?? {}
-    const ownerFactsWithoutIndex = {
-      ref: ownerRef,
-      filePath: params.file.absolutePath,
-      fieldIndex: emptyObjectFieldIndex(),
-      ...compactOwnerFacts,
-    } as ValidationOwnerFacts
-    const ownerWithoutIndex = {
-      ref: ownerRef,
-      filePath: params.file.absolutePath,
-      facts: ownerFactsWithoutIndex,
-      rule: params.file.itemRule,
-      spec: params.file.owner.spec,
-    }
-    const fieldIndex = params.runtime?.buildObjectFieldIndex(ownerWithoutIndex)
-      ?? buildObjectFieldIndex(ownerWithoutIndex)
-    const ownerFacts: ValidationOwnerFacts = { ...ownerFactsWithoutIndex, fieldIndex }
-    const owner: OwnerMetadata = { ...ownerWithoutIndex, facts: ownerFacts, fieldIndex }
-    return { fieldIndex, ownerFacts, owner }
-  })
+  const measuredOwner = measureValidationPhase(() => buildValidationOwnerMetadata({
+    file: params.file, ref: ownerRef, facts: yamlFacts.localIndexes?.metadata.ownerFacts ?? {}, runtime: params.runtime,
+  }))
   const measuredMemberIndex = measureValidationPhase(() =>
     buildMemberIndexEntries({
       projectDir: params.projectDir,
@@ -669,6 +652,7 @@ export function extractProjectValidationFileFacts(params: {
             { logicalAddress: params.file.logicalAddress, sourceProjectPath: params.file.projectPath },
             ...collectAddressableMetadataLogicalAddresses({
               yaml: parsed.data,
+              annotations: parsed.annotations,
               rule: params.file.itemRule,
               logicalAddress: params.file.logicalAddress,
               filePath: params.file.projectPath,
@@ -1028,14 +1012,15 @@ function validateProjectPropertiesFirstPass(
     }
   }
 
-  const equalNameValidationName =
-    params.file.kind === "configuration" ? rootStringProperty(parsed.data, "Имя") : params.file.owner.name
+  const currentObject = objectTargetForProjectFile(params.file)
+  const equalNameValidationName = params.file.kind === "configuration" ? rootStringProperty(parsed.data, "Имя")
+    : currentObject?.segments?.at(-1)?.objectName ?? currentObject?.objectName ?? params.file.owner.name
   const equalNameStartedAt = performance.now()
   let localizedTextProperties = 0
   const equalNameDiagnostics = validateMetadataRuleYamlProperties({
     filePath: params.file.absolutePath,
     parsed,
-    rule: params.file.owner.spec.rule,
+    rule: params.file.itemRule,
     context: params.context,
     name: equalNameValidationName,
     onLocalizedTextProperty: () => { localizedTextProperties += 1 },
@@ -1182,7 +1167,7 @@ function applyXmlAnomalyStatesToFacts(
   }
 }
 
-function languageValidationDependency(
+export function languageValidationDependency(
   localizedTextProperties: number,
   context: ConfigurationContext,
 ): Pick<ProjectValidationFirstPassResult, "validationContextDependencies"> {
@@ -1264,7 +1249,26 @@ function validationFirstPassProfileKey(file: ValidationProjectFile): string {
   return `properties:${file.owner.dir}`
 }
 
-function buildMemberIndexEntries(params: {
+export function buildValidationOwnerMetadata(params: {
+  readonly file: ValidationProjectFile
+  readonly ref: OwnerMetadata["ref"]
+  readonly facts: Record<string, unknown>
+  readonly runtime?: ValidationRegistrySet
+}) {
+  const ownerFactsWithoutIndex = {
+    ref: params.ref, filePath: params.file.absolutePath, fieldIndex: emptyObjectFieldIndex(), ...params.facts,
+  } as ValidationOwnerFacts
+  const ownerWithoutIndex = {
+    ref: params.ref, filePath: params.file.absolutePath, facts: ownerFactsWithoutIndex,
+    rule: params.file.itemRule, spec: params.file.owner.spec,
+  }
+  const fieldIndex = params.runtime?.buildObjectFieldIndex(ownerWithoutIndex) ?? buildObjectFieldIndex(ownerWithoutIndex)
+  const ownerFacts: ValidationOwnerFacts = { ...ownerFactsWithoutIndex, fieldIndex }
+  const owner: OwnerMetadata = { ...ownerWithoutIndex, facts: ownerFacts, fieldIndex }
+  return { fieldIndex, ownerFacts, owner }
+}
+
+export function buildMemberIndexEntries(params: {
   projectDir: string
   owner: OwnerMetadata
   objectTarget?: Extract<ParsedMetadataTarget, { kind: "object" }>
@@ -1294,12 +1298,13 @@ function buildMemberIndexEntries(params: {
   }
 
   if (params.objectTarget === undefined) return entries
-  for (const contributor of getProjectReferenceMemberIndexContributors()) {
+  for (const { contributor } of getProjectReferenceMemberIndexContributors()) {
     for (const entry of contributor({
       projectDir: params.projectDir,
       owner: params.owner,
       objectTarget: params.objectTarget,
-      rawYaml: params.rawYaml,
+      readProperty: (key) => params.rawYaml !== null && typeof params.rawYaml === "object"
+        ? Reflect.get(params.rawYaml, key) : undefined,
     })) addMemberIndexEntry(entries, seen, entry)
   }
 

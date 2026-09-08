@@ -1,0 +1,36 @@
+import { expect, it } from "vitest"
+import { Utf8StringArena } from "./utf8StringArena"
+
+it("хранит Unicode, пустые строки и повторы без исходных строк", () => {
+  const arena = new Utf8StringArena()
+  expect(arena.intern("")).toBe(0)
+  expect(arena.intern("Товары 🌍")).toBe(1)
+  expect(arena.intern("Товары 🌍")).toBe(1)
+  expect(arena.count).toBe(2)
+  expect(new TextDecoder().decode(arena.bytes(1))).toBe("Товары 🌍")
+  expect(arena.bytes(0).byteLength).toBe(0)
+  for (let i = 0; i < 900; i++) arena.intern(`Поле${i}`)
+  expect(new TextDecoder().decode(arena.bytes(901))).toBe("Поле899")
+  expect(new TextDecoder().decode(arena.bytes(1))).toBe("Товары 🌍")
+  const long = "я".repeat(9000)
+  expect(new TextDecoder().decode(arena.bytes(arena.intern(long)))).toBe(long)
+  arena.clear()
+  expect(arena.count).toBe(0)
+  expect(() => arena.bytes(1)).toThrow()
+  expect(arena.intern("заново")).toBe(0)
+})
+
+it("различает коллизии и удерживает диапазон готового immutable буфера", () => {
+  const arena = new Utf8StringArena()
+  const source = Uint8Array.from([255, 65, 66, 255])
+  expect(arena.internBytes(7n, source.subarray(1, 2))).toBe(0)
+  expect(arena.internBytes(7n, source.subarray(2, 3))).toBe(1)
+  expect(arena.internBytes(7n, Uint8Array.of(65))).toBe(0)
+  expect(arena.bytes(0).buffer).toBe(source.buffer)
+  expect(arena.bytes(0).byteOffset).toBe(1)
+  expect([...arena.bytes(1)]).toEqual([66])
+  expect(arena.hash(1)).toBe(7n)
+  for (const id of [-1, 0.5, NaN, 2]) expect(() => arena.bytes(id)).toThrow()
+  expect(() => arena.internBytes(-1n, source)).toThrow()
+  expect(() => arena.internBytes(1n << 64n, source)).toThrow()
+})

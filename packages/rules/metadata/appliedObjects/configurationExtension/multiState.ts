@@ -1,5 +1,8 @@
 import {
   isPropertyStateYAMLTag,
+  isXmlElementNode,
+  xmlAttributeValue,
+  type XmlElementNode,
   markYAMLScalarTag,
   yamlScalarTagAt,
   type ConfigurationContext,
@@ -28,15 +31,15 @@ export function importMultiStateType(
   rule: PropertyRule | undefined,
   xml: unknown,
 ): TypeDescriptionYAML[] {
-  const source = asRecord(xml)
-  if (source?.["_xsi:type"] !== "xr:ExtendedProperty") {
+  const source = isXmlElementNode(xml) ? xml : undefined
+  const type = source === undefined ? undefined : xmlAttributeValue(source, "xsi:type")
+  if (source === undefined || type !== "xr:ExtendedProperty") {
     throw new Error("MultiState типа должен храниться как xr:ExtendedProperty")
   }
 
   const result: TypeDescriptionYAML[] = []
-  for (const [xmlName, value] of Object.entries(source)) {
-    if (!isMultiStateGroup(xmlName)) continue
-    const imported = importTypeDescriptionFromXML(context, rule, value as TypeDescriptionXML)
+  for (const [xmlName, value] of typeGroups(source)) {
+    const imported = importTypeDescriptionFromXML(context, rule, value)
     const yaml = exportTypeDescriptionToYAML(context, rule, imported)
     const parts = yaml === undefined ? [[]] : Array.isArray(yaml) ? yaml : [yaml]
     for (const part of parts) {
@@ -46,6 +49,16 @@ export function importMultiStateType(
     }
   }
   return result
+}
+
+function* typeGroups(source: XmlElementNode): Iterable<readonly [MultiStateGroup, XmlElementNode | undefined]> {
+  const groups = new Map<MultiStateGroup, XmlElementNode | undefined>()
+  for (const child of source.content) {
+    if (child.type !== "element" || !isMultiStateGroup(child.name)) continue
+    // Повторная группа прежде читалась как массив без описания типа.
+    groups.set(child.name, groups.has(child.name) ? undefined : child)
+  }
+  yield* groups
 }
 
 export function exportMultiStateType(
@@ -101,10 +114,4 @@ function groupTag(group: MultiStateGroup): "проверять" | "изменя�
   if (group === "xr:NotifyValue") return "проверять"
   if (group === "xr:ExtendValue") return "изменять"
   return undefined
-}
-
-function asRecord(value: unknown): Record<string, unknown> | undefined {
-  return value !== null && typeof value === "object" && !Array.isArray(value)
-    ? value as Record<string, unknown>
-    : undefined
 }

@@ -93,14 +93,50 @@ export type DependentStructuralItemHandler = (
   params: DependentStructuralItemParams
 ) => readonly DependentStructuralItemReference[]
 
+export type DependentImportDependencyContext = Pick<DependentItemParams,
+  "itemType" | "itemName" | "itemYamlPath" | "rootRule" | "owner">
+
+export interface DependentImportDependencies {
+  readonly item: readonly string[]
+  readonly root: readonly (string | DependentCollectionSelection)[]
+}
+
+interface DependentCollectionSelection {
+  readonly collection: string
+  readonly properties: readonly string[]
+}
+
+export function dependentRootPropertyKey(selection: string | DependentCollectionSelection): string {
+  return typeof selection === "string" ? selection : selection.collection
+}
+
+function selectDependencyCollection(source: unknown, selection: DependentCollectionSelection): unknown {
+  if (source === null || typeof source !== "object" || Array.isArray(source)) return source
+  return Object.fromEntries(Object.keys(source).map(name => {
+    const child: unknown = Reflect.get(source, name)
+    return [name, child !== null && typeof child === "object" && !Array.isArray(child)
+      ? Object.fromEntries(selection.properties.filter(key => Object.hasOwn(child, key)).map(key => [key, Reflect.get(child, key)]))
+      : child]
+  }))
+}
+
 export interface DependentImportItemHandler {
   readonly propertyKeys: readonly string[]
+  readonly dependencies: DependentImportDependencies
+    | ((context: DependentImportDependencyContext) => DependentImportDependencies)
   shouldRemove(params: DependentItemParams & { readonly candidate: DependentImportedPropertyCandidate }): boolean
   shouldTagXML?(params: DependentItemParams & { readonly candidate: DependentImportedPropertyCandidate }): boolean
   shouldDefer?(params: DependentItemParams & { readonly candidate: DependentImportedPropertyCandidate }): boolean
 }
 
+export interface DependentImportFacts {
+  readonly item: Readonly<Record<string, unknown>>
+  readonly root: Readonly<Record<string, unknown>>
+}
+
 export interface DependentItemRegistryLookup {
+  dependentImportDependencies(context: DependentImportDependencyContext): DependentImportDependencies | undefined
+  prepareDependentImportFacts(params: DependentItemParams): DependentImportFacts | undefined
   analyzeDependentYamlItem(params: DependentYamlItemParams): DependentYamlItemAnalysis
   collectDependentStructuralItemReferences(params: DependentStructuralItemParams): readonly DependentStructuralItemReference[]
   isDependentImportProperty(itemType: string, propertyKey: string): boolean
@@ -113,6 +149,32 @@ export interface DependentItemRegistryLookup {
   shouldDeferImportedDependentProperty(
     params: DependentItemParams & { readonly candidate: DependentImportedPropertyCandidate },
   ): boolean
+}
+
+export function dependentImportDependencies(context: DependentImportDependencyContext): DependentImportDependencies | undefined {
+  return currentPropertyRuleRegistrySet<DependentItemRegistryLookup>()?.dependentImportDependencies(context)
+}
+
+export function selectDependentImportFacts(
+  dependencies: DependentImportDependencies,
+  params: Pick<DependentItemParams, "item" | "rootYaml">,
+): DependentImportFacts {
+  const select = (source: unknown, keys: readonly string[]): Record<string, unknown> => {
+    if (source === null || typeof source !== "object") return {}
+    return Object.fromEntries(keys.filter(key => Object.hasOwn(source, key))
+      .map(key => [key, Reflect.get(source, key)]))
+  }
+  const root = select(params.rootYaml, dependencies.root.map(dependentRootPropertyKey))
+  for (const selection of dependencies.root) {
+    if (typeof selection !== "string" && Object.hasOwn(root, selection.collection)) {
+      root[selection.collection] = selectDependencyCollection(root[selection.collection], selection)
+    }
+  }
+  return { item: select(params.item, dependencies.item), root }
+}
+
+export function prepareDependentImportFacts(params: DependentItemParams): DependentImportFacts | undefined {
+  return currentPropertyRuleRegistrySet<DependentItemRegistryLookup>()?.prepareDependentImportFacts(params)
 }
 
 export function analyzeDependentYamlItem(params: DependentYamlItemParams): DependentYamlItemAnalysis {

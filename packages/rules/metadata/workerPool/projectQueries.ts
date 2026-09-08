@@ -6,7 +6,6 @@ import type {
 import {
   BinaryStringPoolBuilder,
   openBinaryStringPool,
-  packBinaryStringPool,
   readBinaryString,
 } from "../projectState/binary/stringPool"
 import {
@@ -255,7 +254,7 @@ function encodeIndexedReferencesResult(
   const yamlPath = Uint32Array.from(yamlSegments).buffer
   const resolved = Uint32Array.from(resolvedSegments).buffer
   const encodedCollectionNames = Uint32Array.from(collectionNames.map((name) => strings.intern(name))).buffer
-  const packedStrings = packBinaryStringPool(strings.finish())
+  const packedStrings = strings.finishSection()
   const stringBuffer = new ArrayBuffer(packedStrings.byteLength)
   new Uint8Array(stringBuffer).set(new Uint8Array(packedStrings))
   return {

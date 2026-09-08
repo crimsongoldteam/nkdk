@@ -8,8 +8,7 @@ import type { SettingsParameterValueCollection, SettingsParameterValueCollection
 const exportSettingsParameterValueCollectionToXML = (
   context: ConfigurationContextWithExportToXML,
   rule: PropertyRule,
-  value: SettingsParameterValueCollection | undefined,
-  referenceMetadata?: SettingsParameterValueCollection | undefined
+  value: SettingsParameterValueCollection | undefined
 ): SettingsParameterValueCollectionXML | ParameterValueXML | ParameterValueXML[] | undefined => {
   if (!value?.parameters) return undefined
   if (Object.keys(value.parameters).length === 0) return {}
@@ -22,7 +21,6 @@ const exportSettingsParameterValueCollectionToXML = (
       parameterRules: collRule.parameterRules,
     },
     parameters: value.parameters,
-    referenceParameters: referenceMetadata?.parameters,
   })
   if (!wrapped) return undefined
 

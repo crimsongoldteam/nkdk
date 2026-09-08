@@ -36,6 +36,11 @@ const importExplicitValueFromYAML = (
   if (data.Тип === "ВидСчета" && typeof data.Значение === "string") {
     return primitiveValueHandlers.AccountType.fromYAML(context, data.Значение as MetadataValueYAML)
   }
+  if (data.Тип === "ВидСравнения" && typeof data.Значение === "string") {
+    const result = primitiveValueHandlers.ComparisonType.fromYAML(context, data.Значение)
+    if (result === undefined) throw new Error(`Неизвестный ВидСравнения: ${data.Значение}`)
+    return result
+  }
   return undefined
 }
 

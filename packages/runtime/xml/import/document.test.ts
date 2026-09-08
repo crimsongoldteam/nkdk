@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import type { XmlAddressedNode, XmlElementNode } from "./document"
+import { isEmptyXmlElement, isPlainXmlTextElement, isXmlElementNode, xmlAttributeValue, xmlElementChildren, xmlElementsAtUniquePath, xmlTextValue } from "./document"
 import { parseXmlDocumentWithSaxes } from "./saxesParser"
 
 const elementChildren = (element: XmlElementNode): XmlElementNode[] =>
@@ -9,6 +10,51 @@ const sourceOf = (source: string, node: XmlAddressedNode | undefined): string | 
   node === undefined ? undefined : source.slice(node.span.start, node.span.end)
 
 describe("структурный XML-документ", () => {
+  it.each([
+    ["<Root/>", true, true],
+    ["<Root><![CDATA[]]></Root>", true, true],
+    ["<Root> </Root>", false, true],
+    ["<Root>текст</Root>", false, true],
+    ['<Root xsi:type="xs:string"/>', false, false],
+    ["<Root><Child/></Root>", false, false],
+    ["<Root><?keep value?></Root>", false, false],
+  ])("отличает пустой элемент от содержимого: %s", (xml, expected, plainText) => {
+    const root = parseXmlDocumentWithSaxes(xml).roots[0]!
+    Object.defineProperty(root, "compatibilityValue", { get() { throw new Error("Compatibility must not be read") } })
+    expect(isEmptyXmlElement(root)).toBe(expected)
+    expect(isPlainXmlTextElement(root)).toBe(plainText)
+  })
+
+  it("выбирает повторные листья только через однозначных родителей", () => {
+    const roots = parseXmlDocumentWithSaxes('<Root><List><Value>1</Value><Value>2</Value></List></Root>').roots
+    expect(xmlElementsAtUniquePath(roots, ["Root", "List", "Value"]).map(xmlTextValue)).toEqual(["1", "2"])
+    expect(xmlElementsAtUniquePath(roots, ["Root", "Missing", "Value"])).toEqual([])
+    const repeated = parseXmlDocumentWithSaxes('<Root><List><Value>1</Value></List><List><Value>2</Value></List></Root>').roots
+    expect(xmlElementsAtUniquePath(repeated, ["Root", "List", "Value"])).toEqual([])
+  })
+
+  it("читает структуру без представления совместимости", () => {
+    const root = parseXmlDocumentWithSaxes('<Root b="2"><Value/><Value>2</Value></Root>').roots[0]!
+    const structural = root
+    expect(isXmlElementNode(structural)).toBe(true)
+    if (!isXmlElementNode(structural)) throw new Error("Структурный узел не распознан")
+    expect(xmlAttributeValue(structural, "b")).toBe("2")
+    expect(xmlAttributeValue(structural, "missing")).toBeUndefined()
+    expect(xmlElementChildren(structural, "Value").map(xmlTextValue)).toEqual(["", "2"])
+    expect(xmlElementChildren(structural, "Value").map(node => node.occurrence)).toEqual([1, 2])
+  })
+
+  it("читает только непосредственный текст без содержимого детей и PI", () => {
+    const root = parseXmlDocumentWithSaxes('<Root>A<![CDATA[B]]><Child>не включать</Child><?p x?>C</Root>').roots[0]!
+    expect(xmlTextValue(root)).toBe("ABC")
+  })
+
+  it.each([null, {}, { type: "element" }, { type: "element", compatibilityValue: {} }])(
+    "не принимает неполную структуру за XML элемент: %j", value => {
+      expect(isXmlElementNode(value)).toBe(false)
+    },
+  )
+
   it("не считает отступы между элементами содержимым, но сохраняет пробелы конечного значения", () => {
     const formatted = parseXmlDocumentWithSaxes(
       "<Root>\n  <Value>         </Value>\n  <Other>true</Other>\n</Root>"
@@ -31,14 +77,7 @@ describe("структурный XML-документ", () => {
     const root = document.roots[0]
 
     expect(document.sourceLength).toBe(xml.length)
-    expect(document.compatibility).toEqual({
-      Root: {
-        Value: [undefined, "2"],
-        Future: { _x: "y" },
-        _b: "2",
-        _a: "1",
-      },
-    })
+
     expect(root).toBeDefined()
     if (root === undefined) return
 
@@ -71,7 +110,7 @@ describe("структурный XML-документ", () => {
     ])
     expect(children.map(({ name }) => name)).toEqual(["Value", "Value", "Future"])
     expect(children[0]?.content).toEqual([])
-    expect(children[0]?.compatibilityValue).toBeUndefined()
+
     expect(children[1]?.content).toEqual([
       {
         type: "text",
@@ -82,7 +121,7 @@ describe("структурный XML-документ", () => {
         span: { start: 33, end: 34 },
       },
     ])
-    expect(children[1]?.compatibilityValue).toBe("2")
+
     expect(children[2]?.attributes).toEqual([
       {
         id: 8,
@@ -110,7 +149,7 @@ describe("структурный XML-документ", () => {
 
     const [nilValue, textValue, canonical, alias] = elementChildren(root)
     expect(nilValue?.attributes).toMatchObject([{ name: "xsi:nil", value: "true" }])
-    expect(nilValue?.compatibilityValue).toBeUndefined()
+
     expect(textValue?.content).toMatchObject([{ type: "text", value: "ABC" }])
     expect(canonical).toMatchObject({ name: "Canonical", path: "/Root[1]/Canonical[1]" })
     expect(alias).toMatchObject({ name: "Alias", path: "/Root[1]/Alias[1]" })
@@ -257,22 +296,8 @@ describe("структурный XML-документ", () => {
       },
     ])
     expect(document.roots.map(({ id }) => id)).toEqual([3, 6])
-    expect(document.compatibility).toEqual({
-      "?p": [{}, {}, {}],
-      R: undefined,
-      S: undefined,
-    })
-    expect(
-      (document.compatibility as Record<PropertyKey, unknown>)[Symbol.for("metadata")]
-    ).toEqual({
-      childOrder: [
-        { key: "?p", index: 0 },
-        { key: "R", index: 0 },
-        { key: "?p", index: 1 },
-        { key: "S", index: 0 },
-        { key: "?p", index: 2 },
-      ],
-    })
+
+
   })
 
   it("не принимает внутренний <? за начало PI", () => {
@@ -326,10 +351,7 @@ describe("структурный XML-документ", () => {
       path: "/Root[1]",
       span: { start: 40, end: xml.length },
     })
-    expect(document.compatibility).toEqual({
-      "?xml": { _version: "1.0" },
-      Root: undefined,
-    })
+
   })
 
   it("начинает self-closing root после завершающего > комментария", () => {

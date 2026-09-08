@@ -157,22 +157,23 @@ function isRawMapping(value: XmlRawValue | undefined): value is XmlRawMapping {
   return value !== undefined && value !== null && typeof value === "object" && !Array.isArray(value)
 }
 
-function xmlContentOrder(element: XmlElementNode): string[] {
-  const elementsByName = Map.groupBy(
-    element.content.filter((node): node is XmlElementNode => node.type === "element"),
-    ({ name }) => name,
-  )
-  return element.content.map((node) => {
-    if (node.type === "text") return "#text"
-    if (node.type !== "element") return `?${node.target}`
-    const siblings = elementsByName.get(node.name) ?? []
-    if (siblings.length <= 1) return node.name
-    const name = node.attributes.find((attribute) => attribute.name === "name")?.value
-    if (name === undefined) return node.name
-    const unique = siblings.filter((sibling) =>
-      sibling.attributes.some((attribute) => attribute.name === "name" && attribute.value === name)
-    ).length === 1
-    return unique ? `${node.name}:${name}` : node.name
+export function xmlContentOrder(element: XmlElementNode): string[] {
+  const groups = new Map<string, { count: number; names: Map<string, number> }>()
+  const entries = element.content.map((node) => {
+    if (node.type !== "element") return { key: node.type === "text" ? "#text" : `?${node.target}` }
+    let group = groups.get(node.name)
+    if (group === undefined) {
+      group = { count: 0, names: new Map() }
+      groups.set(node.name, group)
+    }
+    group.count++
+    const qualifier = node.attributes.find((attribute) => attribute.name === "name")?.value
+    if (qualifier !== undefined) group.names.set(qualifier, (group.names.get(qualifier) ?? 0) + 1)
+    return { key: node.name, qualifier, group }
+  })
+  return entries.map(({ key, qualifier, group }) => {
+    if (qualifier === undefined || group === undefined || group.count < 2 || group.names.get(qualifier) !== 1) return key
+    return `${key}:${qualifier}`
   })
 }
 

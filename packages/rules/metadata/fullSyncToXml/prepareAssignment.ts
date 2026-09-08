@@ -32,6 +32,7 @@ export function prepareFullXmlSyncAssignment(params: {
   composition: MetadataXmlPrepareComposition
   topology?: CompiledMetadataResourceTopology
   xmlAnomalyRawFallback?: boolean
+  /** Отсутствие параметра отключает сбор профиля; false включает только общие счётчики. */
   profilePropertyTypes?: boolean
 }): PreparedXMLAssignment {
   const indexCollector = createConfigurationIndexCollector()
@@ -70,7 +71,9 @@ export function prepareFullXmlSyncAssignment(params: {
           }),
         },
       }
-  const profile = createYAMLToXMLProfile({ propertyTypes: params.profilePropertyTypes })
+  const profile = params.profilePropertyTypes === undefined
+    ? undefined
+    : createYAMLToXMLProfile({ propertyTypes: params.profilePropertyTypes })
   const preparedTopology = prepareTopologyAssignmentDocuments({
     ...params,
     context,
@@ -95,7 +98,7 @@ export function prepareFullXmlSyncAssignment(params: {
 function prepareTopologyAssignmentDocuments(
   params: Parameters<typeof prepareFullXmlSyncAssignment>[0] & {
     context: ConfigurationContextWithExportToXML
-    profile: ReturnType<typeof createYAMLToXMLProfile>
+    profile?: ReturnType<typeof createYAMLToXMLProfile>
     topology: CompiledMetadataResourceTopology
     baseFormContext?: ConfigurationContextWithExportToXML
   }

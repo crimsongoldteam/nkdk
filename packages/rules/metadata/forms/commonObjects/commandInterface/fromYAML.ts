@@ -3,14 +3,16 @@ import { UserVisibleKeysYAML } from "../../../commonObjects/userVisible/types"
 import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
 import { StandardCommandsGroupFromYAML } from "../../../systemEnumerations/types"
 import type { StandardCommandsGroupYAML } from "../../../systemEnumerations/types"
-import { ConfigurationContext } from "@nkdk/runtime"
+import { ConfigurationContext, type XmlAnomalyAnnotations } from "@nkdk/runtime"
+import type { ImportFromYAMLFunctionNew } from "@nkdk/runtime/rule-kit"
 import { PropertyRule } from "../../elements/calendarField/rules"
 import { CommandInterface, CommandInterfaceItem, CommandInterfaceItemYAML, CommandInterfaceYAML } from "./types"
 
 export const importCommandInterfaceFromYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule,
-  data: CommandInterfaceYAML | undefined
+  data: CommandInterfaceYAML | undefined,
+  annotations?: XmlAnomalyAnnotations,
 ): CommandInterface | undefined => {
   if (!data) return undefined
 
@@ -21,11 +23,11 @@ export const importCommandInterfaceFromYAML = (
   }
 
   if (data.ПанельНавигации && data.ПанельНавигации.length > 0) {
-    result.NavigationPanel = data.ПанельНавигации.map((item) => importCommandInterfaceItemFromYAML(context, item))
+    result.NavigationPanel = data.ПанельНавигации.map((item) => importCommandInterfaceItemFromYAML(context, item, annotations))
   }
 
   if (data.КоманднаяПанель && data.КоманднаяПанель.length > 0) {
-    result.CommandBar = data.КоманднаяПанель.map((item) => importCommandInterfaceItemFromYAML(context, item))
+    result.CommandBar = data.КоманднаяПанель.map((item) => importCommandInterfaceItemFromYAML(context, item, annotations))
   }
 
   return result
@@ -42,7 +44,8 @@ const importCommandGroupFromYAML = (commandGroup: StandardCommandsGroupYAML | st
 
 const importCommandInterfaceItemFromYAML = (
   context: ConfigurationContext,
-  item: CommandInterfaceItemYAML
+  item: CommandInterfaceItemYAML,
+  annotations?: XmlAnomalyAnnotations,
 ): CommandInterfaceItem => {
   const result: CommandInterfaceItem = {
     command: item.Команда,
@@ -71,6 +74,7 @@ const importCommandInterfaceItemFromYAML = (
     rule: { type: "UserVisible", yaml: UserVisibleKeysYAML.Value },
     value: item[UserVisibleKeysYAML.Value],
     yaml: item,
+    annotations,
   })
   if (visible) {
     result.visible = visible
@@ -79,4 +83,7 @@ const importCommandInterfaceItemFromYAML = (
   return result
 }
 
-export const metadataPropertyRule000 = definePropertyTypeRule("CommandInterface", "importFromYAML", importCommandInterfaceFromYAML)
+const importAnnotatedCommandInterfaceFromYAML: ImportFromYAMLFunctionNew = ({ context, rule, value, annotations }) =>
+  importCommandInterfaceFromYAML(context, rule, value, annotations)
+
+export const metadataPropertyRule000 = definePropertyTypeRule("CommandInterface", "importFromYAML", importAnnotatedCommandInterfaceFromYAML)

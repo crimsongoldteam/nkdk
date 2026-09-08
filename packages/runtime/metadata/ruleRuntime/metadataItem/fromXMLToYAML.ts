@@ -12,10 +12,6 @@ import {
 } from "./augmenterRegistry"
 import { isXmlElementNode, type XmlElementNode } from "../../../xml/import/document"
 import { objectRecordOrUndefined } from "../../../helpers/record"
-import {
-  xmlImportCompatibilityContainer,
-  xmlImportNodeForCompatibilityValue,
-} from "../xmlAnomaly/compatibilityView"
 import { projectXmlAuditRemainder } from "../xmlAnomaly/yamlProjection"
 
 type InlineProperty = ReturnType<typeof findInlineProperty>
@@ -30,33 +26,26 @@ export function importMetadataItemFromXMLToYAML(params: {
   traversal: DirectImportTraversal
   propertyXML?: ReadonlyMap<string, unknown>
   propertyXMLNodes?: ReadonlyMap<string, readonly XmlElementNode[]>
+  beforeFinish?: (yaml: Record<string, unknown>) => void
 }): unknown {
   const xmlRoot = Object.values(params.rule.properties).find(
     (propertyRule) => propertyRule.type === "XMLRoot" && typeof propertyRule.container === "string"
   )
-  const traversalRootNode = !isXmlElementNode(params.xml)
-    ? xmlImportNodeForCompatibilityValue(params.xml)
-      ?? findCompatibilityXmlNode(params.traversal.xmlNodes, params.xml)
-    : undefined
-  const rootNodeFromTraversal = traversalRootNode !== undefined
-  const rootNode = isXmlElementNode(params.xml)
-    ? params.xml
-    : rootNodeFromTraversal
-      ? traversalRootNode
-      : undefined
-  const root = objectRecordOrUndefined(rootNode?.compatibilityValue ?? params.xml)
+  const rootNode = isXmlElementNode(params.xml) ? params.xml : undefined
+  const root = rootNode === undefined ? objectRecordOrUndefined(params.xml) : undefined
   const sourceNode = rootNode === undefined
     ? undefined
-    : xmlRoot === undefined
+    : xmlRoot === undefined || rootNode.name === xmlRoot.container
       ? rootNode
       : rootNode.content.find(
           (node): node is XmlElementNode =>
             node.type === "element" && node.name === xmlRoot.container,
         )
-  const sourceValue = sourceNode?.compatibilityValue ?? (
-    xmlRoot === undefined ? root : root?.[xmlRoot.container]
-  )
-  const source = objectRecordOrUndefined(sourceValue)
+  const source = sourceNode === undefined
+    ? objectRecordOrUndefined(xmlRoot === undefined ? root : root?.[xmlRoot.container])
+    : sourceNode.attributes.length > 0 || sourceNode.content.some(node => node.type !== "text")
+      ? sourceNode
+      : undefined
   if (source === undefined) return undefined
   const inline = findInlinePropertyCached(params.rule)
   claimKnownXsiType({
@@ -74,17 +63,12 @@ export function importMetadataItemFromXMLToYAML(params: {
         value: Parameters<MetadataItemXmlImportAugmenter["augment"]>[0],
       ): void
     }>()
-  const augmenterSource = sourceNode === undefined
-    ? source
-    : objectRecordOrUndefined(xmlImportCompatibilityContainer({
-        node: sourceNode,
-        audit: params.traversal.audit,
-        boundary: {
-          itemType: params.rule.itemType,
-          yamlPath: params.traversal.yamlPath,
-          rulePath: params.traversal.rulePath,
-        },
-      })) ?? source
+  const augmenterSource = !("metadataItemAugmenter" in params.context.fromXML)
+    || typeof params.context.fromXML.metadataItemAugmenter !== "string"
+    ? {}
+    : sourceNode === undefined
+    ? objectRecordOrUndefined(source) ?? {}
+    : sourceNode
   const resolvedVariant = augmenterRegistry?.resolveMetadataItemXMLDefaultVariant({
     context: params.context,
     rule: params.rule,
@@ -98,19 +82,22 @@ export function importMetadataItemFromXMLToYAML(params: {
     sources: [{
       context,
       xml: sourceNode ?? source,
+      ...(xmlRoot === undefined || rootNode === undefined ? {} : { envelopeSource: rootNode }),
       claimAuditRoot: shouldClaimAuditRoot({
-        rootNodeFromTraversal,
+        rootNodeFromTraversal: rootNode !== undefined && params.traversal.xmlNodes?.includes(rootNode) === true,
         sourceNode,
         rootNode,
         audit: params.traversal.audit,
       }),
     }],
     itemName: params.name,
-    yamlPath: params.traversal.yamlPath,
+    pathCursor: params.traversal.pathCursor,
     rulePath: enterNestedYamlRule(params.traversal, params.rule.itemType).rulePath,
     collector: params.traversal.collector,
     deferred: params.traversal.deferred,
     dependent: params.traversal.dependent,
+    dependencies: params.traversal.dependencies,
+    roundTrip: params.traversal.roundTrip,
     audit: params.traversal.audit,
     annotations: params.traversal.annotations,
     mode: params.traversal.mode,
@@ -120,14 +107,23 @@ export function importMetadataItemFromXMLToYAML(params: {
     propertyXML: params.propertyXML,
     propertyXMLNodes: params.propertyXMLNodes,
     execution: propertyExecutionFromTraversal(params.traversal),
+    beforeFinish: (yaml) => {
+      augmenterRegistry?.applyMetadataItemXmlImportAugmenter({
+        context,
+        rule: params.rule,
+        source: augmenterSource,
+        yaml,
+        ...(params.traversal.roundTrip?.finalizeCreatedItem === undefined ? {} : {
+          onCreatedItem: (item: { readonly yaml: Record<string, unknown>; readonly rule: MetadataItemRule; readonly yamlPath: readonly (string | number)[] }) =>
+            params.traversal.roundTrip!.finalizeCreatedItem!({
+              ...item, context, yamlPath: [...params.traversal.pathCursor.toArray(), ...item.yamlPath],
+            }),
+        }),
+      })
+      params.beforeFinish?.(yaml)
+    },
   })
   if (yaml !== undefined) {
-    augmenterRegistry?.applyMetadataItemXmlImportAugmenter({
-      context,
-      rule: params.rule,
-      source: augmenterSource,
-      yaml,
-    })
     if (
       sourceNode !== undefined &&
       params.traversal.audit !== undefined &&
@@ -141,7 +137,7 @@ export function importMetadataItemFromXMLToYAML(params: {
         root: sourceNode,
         boundary: {
           itemType: params.rule.itemType,
-          yamlPath: params.traversal.yamlPath,
+          yamlPath: params.traversal.pathCursor.toArray(),
           rulePath: params.traversal.rulePath,
         },
       })
@@ -178,7 +174,7 @@ function claimKnownXsiType(params: {
   if (attribute === undefined) return
   params.traversal.audit.claim(attribute, {
     itemType: params.rule.itemType,
-    yamlPath: params.traversal.yamlPath,
+    yamlPath: params.traversal.pathCursor.toArray(),
     rulePath: params.traversal.rulePath,
   })
 }
@@ -211,20 +207,4 @@ function contextWithItemParent(
       metadataItemTypes: [...(context.exportToYAML.metadataItemTypes ?? []), itemType],
     },
   }
-}
-
-function findCompatibilityXmlNode(
-  roots: readonly XmlElementNode[] | undefined,
-  value: unknown,
-): XmlElementNode | undefined {
-  if (roots === undefined || value === null || typeof value !== "object") return undefined
-  const pending = [...roots]
-  while (pending.length > 0) {
-    const current = pending.pop()!
-    if (current.compatibilityValue === value) return current
-    for (const child of current.content) {
-      if (child.type === "element") pending.push(child)
-    }
-  }
-  return undefined
 }

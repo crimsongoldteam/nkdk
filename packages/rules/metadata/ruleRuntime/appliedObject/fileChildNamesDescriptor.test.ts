@@ -13,7 +13,7 @@ describe("fileChildNamesDescriptor", () => {
         type: "ChildFormNames",
         xml: "Form",
         folderName: "Формы",
-        forReferenceOnly: true,
+        xmlOnly: true,
       },
     })
 
@@ -36,7 +36,7 @@ describe("fileChildNamesDescriptor", () => {
         type: "ChildTemplateNames",
         xml: "Template",
         folderName: "Макеты",
-        forReferenceOnly: true,
+        xmlOnly: true,
       },
     })
 

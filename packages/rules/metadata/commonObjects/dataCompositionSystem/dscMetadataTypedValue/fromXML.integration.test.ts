@@ -1,16 +1,14 @@
 import { describe, expect, it } from "vitest"
 import {
-  createXmlAnomalyAnnotations,
-  createXmlImportAuditSession,
-  parseXmlDocumentWithSaxes,
-  projectXmlAuditRemainder,
-  snapshotXmlAnomalyAnnotations,
+  parseMetadataYaml,
 } from "@nkdk/runtime"
 import { PropertyRule } from "../../../ruleRuntime"
-import { testPropertyFromXMLToYAML } from "../../../../tests/directConversion"
+import { testPropertiesYamlRoundTrip } from "../../../../tests/directConversion"
 import { testImportPropertyFromXML } from "../../../../tests/property/importPropertyFromXML"
 import { dcsMetadataTypedValueFixtures, emptyValueListTypedValue } from "./__fixtures__/data"
-import { metadataPropertyRule001 } from "./fromXML"
+import { importDcsMetadataTypedValueFromXML, metadataPropertyRule001 } from "./fromXML"
+import { parseStructuralXMLWithoutCompatibility } from "../../../../tests/structuralXML"
+import { mockContextFromXML } from "../../../../tests/mockContext"
 
 const rule: PropertyRule = {
   type: "DcsMetadataTypedValue" as any,
@@ -18,6 +16,27 @@ const rule: PropertyRule = {
 }
 
 describe("import DcsMetadataTypedValue from XML", () => {
+  it.each([
+    '<value xsi:nil="true"/>',
+    '<value xmlns:t="http://v8.1c.ru/8.2/data/types" xsi:type="v8:Type">t:Undefined</value>',
+  ])("не сохраняет XML отсутствующего значения: %s", xml => {
+    expect(importDcsMetadataTypedValueFromXML(mockContextFromXML(), { type: "DcsMetadataTypedValue" },
+      parseStructuralXMLWithoutCompatibility(xml))).toBeUndefined()
+  })
+
+  it("проверяет структурный пустой список значений", () => {
+    const xml = '<value xsi:type="v8:ValueListType"><v8:valueType/><v8:lastId xsi:type="xs:decimal">-1</v8:lastId></value>'
+    expect(importDcsMetadataTypedValueFromXML(mockContextFromXML(), { type: "DcsMetadataTypedValue" },
+      parseStructuralXMLWithoutCompatibility(xml))).toEqual(emptyValueListTypedValue)
+    expect(() => importDcsMetadataTypedValueFromXML(mockContextFromXML(), { type: "DcsMetadataTypedValue" },
+      parseStructuralXMLWithoutCompatibility(xml.replace('</value>', '<v8:item/></value>')))).toThrow("non-empty")
+  })
+
+  it.each(dcsMetadataTypedValueFixtures)("читает структурное значение $name", fixture => {
+    expect(importDcsMetadataTypedValueFromXML(mockContextFromXML(), { type: "DcsMetadataTypedValue" },
+      parseStructuralXMLWithoutCompatibility(fixture.XML))).toEqual(fixture.model)
+  })
+
   it("объявляет повторные XML-узлы одним значением", () => {
     expect(metadataPropertyRule001.handler.repeatedXMLNodes).toBe(true)
   })
@@ -44,42 +63,24 @@ describe("import DcsMetadataTypedValue from XML", () => {
   })
 
   it("считает канонический тип вложенного варианта частью смыслового значения", () => {
-    const document = parseXmlDocumentWithSaxes(`
-      <Probe>
+    const sourceXML = `
         <value xsi:type="v8:StandardBeginningDate">
           <v8:variant xsi:type="v8:StandardBeginningDateVariant">BeginningOfThisDay</v8:variant>
         </value>
-      </Probe>
-    `)
-    const root = document.roots[0]!
-    const audit = createXmlImportAuditSession([root])
-    const annotations = createXmlAnomalyAnnotations()
-    const result = testPropertyFromXMLToYAML({
+    `
+    const result = testPropertiesYamlRoundTrip({
       rule: {
         itemType: "DcsMetadataTypedValueProbe",
         properties: {
           value: { type: "DcsMetadataTypedValue", yaml: "Значение", xml: "value" },
         },
       },
-      xml: root,
-      audit,
-      annotations,
+      sourceXML,
     })
-    const yaml = result.yaml
-    if (!isRecord(yaml)) {
-      throw new Error("Ожидался YAML типизированного значения")
-    }
-    projectXmlAuditRemainder({
-      yaml,
-      annotations,
-      audit,
-      root,
-      boundary: { itemType: "DcsMetadataTypedValueProbe", yamlPath: [], rulePath: [] },
-    })
-    audit.finalize()
 
-    expect(yaml).toEqual({ Значение: { Вариант: "НачалоЭтогоДня" } })
-    expect(snapshotXmlAnomalyAnnotations(yaml, annotations).entries).toEqual([])
+    expect(parseMetadataYaml(result.yamlText).data).toEqual({ Значение: { Вариант: "НачалоЭтогоДня" } })
+    expect(result.yamlText).not.toContain("!xml/")
+    expect(result.result).toContain('<v8:variant xsi:type="v8:StandardBeginningDateVariant">BeginningOfThisDay</v8:variant>')
   })
 
   it("imports v8 Type Undefined as missing value", () => {
@@ -129,21 +130,6 @@ describe("import DcsMetadataTypedValue from XML", () => {
     ])
   })
 
-  it("imports reference v8 Type Undefined as raw XML", () => {
-    const result = testImportPropertyFromXML({
-      rule,
-      xmlRootTag: "value",
-      xmlString: '<value xmlns:d8p1="http://v8.1c.ru/8.2/data/types" xsi:type="v8:Type">d8p1:Undefined</value>',
-      forReference: true,
-    })
-
-    expect(result).toEqual({
-      "_xmlns:d8p1": "http://v8.1c.ru/8.2/data/types",
-      "_xsi:type": "v8:Type",
-      "#text": "d8p1:Undefined",
-    })
-  })
-
   it("rejects non-empty ValueListType", () => {
     expect(() =>
       testImportPropertyFromXML({
@@ -160,7 +146,3 @@ describe("import DcsMetadataTypedValue from XML", () => {
     ).toThrow("DcsMetadataTypedValue XML: unsupported non-empty v8:ValueListType")
   })
 })
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === "object" && !Array.isArray(value)
-}

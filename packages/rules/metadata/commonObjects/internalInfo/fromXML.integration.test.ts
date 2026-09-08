@@ -7,11 +7,12 @@ import {
   testPropertyFromXMLToYAML,
   testPropertyFromYAMLToXML,
 } from "../../../tests/directConversion"
+import { createYAMLPropertySource } from "../../ruleRuntime/property/fromYAMLToXML"
 import { mockContextFromXML, mockContextToXML } from "../../../tests/mockContext"
 import { withConfigurationIndexCollector } from "@nkdk/runtime"
 import { createConfigurationIndexCollector } from "@nkdk/runtime"
 import { xmlExport } from "@nkdk/runtime"
-import { importContentFromXML } from "@nkdk/runtime"
+import { xmlFixtureValue as importContentFromXML } from "../../../tests/xmlFixtureValue"
 import { createLocalIndexesCollector } from "../../projectDefinition/localIndexes"
 import { importPropertiesFromXMLToYAML } from "../../ruleRuntime/property/fromXMLToYAML"
 import { MetadataItemRule, PropertyRule } from "../../ruleRuntime"
@@ -19,21 +20,26 @@ import { importInternalInfoFromXML } from "./fromXML"
 import { exportInternalInfoToXML } from "./toXML"
 import { InternalInfoRootXML, internalInfoRule } from "./types"
 import { collectInternalInfoConfigurationIndexFromXML } from "./configurationIndex"
+import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"
+
+const exportInternalInfoToXMLAtRuntimeBoundary: (
+  params: Parameters<typeof exportInternalInfoToXML>[0] & { readonly referenceMetadata?: unknown }
+) => ReturnType<typeof exportInternalInfoToXML> = exportInternalInfoToXML
 
 const rule: PropertyRule = {
   type: "InternalInfo",
-  forReferenceOnly: true,
+  xmlOnly: true,
   items: [{ name: "ExchangePlanRef", category: "Ref" }],
 }
 
 const containedObjectsRule: PropertyRule = {
   type: "InternalInfo",
-  forReferenceOnly: true,
+  xmlOnly: true,
 }
 
 const generatedContainedObjectsRule: PropertyRule = {
   type: "InternalInfo",
-  forReferenceOnly: true,
+  xmlOnly: true,
   containedObjectClassIds: ["00000000-0000-0000-0000-000000000101", "00000000-0000-0000-0000-000000000102"],
 }
 
@@ -69,7 +75,7 @@ const xmlWithContainedObject = `
 
 const importFixture = () => {
   const parsed = importContentFromXML<{ InternalInfo: InternalInfoRootXML }>(xml)
-  return importInternalInfoFromXML(mockContextFromXML({ forReference: true }), rule, parsed.InternalInfo)
+  return importInternalInfoFromXML(mockContextFromXML(), rule, parsed.InternalInfo)
 }
 
 const fixturesDir = join(dirname(fileURLToPath(import.meta.url)), "__fixtures__")
@@ -78,20 +84,40 @@ const importContainedObjectsFixture = () => {
   const source = readFileSync(join(fixturesDir, "containedObjects.xml"), "utf8")
   const parsed = importContentFromXML<{ InternalInfo: InternalInfoRootXML }>(source)
   return importInternalInfoFromXML(
-    mockContextFromXML({ forReference: true }),
+    mockContextFromXML(),
     containedObjectsRule,
     parsed.InternalInfo
   )
 }
 
 describe("importInternalInfoFromXML", () => {
+  it("reads structural identities without compatibility XML", () => {
+    const parsed = importContentFromXML<{ InternalInfo: InternalInfoRootXML }>(xmlWithContainedObject).InternalInfo
+    const node = parseStructuralXMLWithoutCompatibility(xmlWithContainedObject)
+    expect(importInternalInfoFromXML(mockContextFromXML(), completeRule, node)).toEqual(
+      importInternalInfoFromXML(mockContextFromXML(), completeRule, parsed),
+    )
+  })
+
+  it("collects the same identities directly from XML nodes", () => {
+    const collect = (xml: unknown) => {
+      const contexts = createDirectRoundTripContexts({ logicalAddress: "Справочник.Товары", targetProjectPath: "Справочник/Товары/Свойства.yaml" })
+      collectInternalInfoConfigurationIndexFromXML({ context: contexts.importContext, rule: completeRule, xml, propertyKey: "internalInfo" })
+      return contexts.importContext.fromXML.configurationIndex?.collector.fragment("Справочник/Товары/Свойства.yaml").entities
+    }
+    const parsed = importContentFromXML<{ InternalInfo: InternalInfoRootXML }>(xmlWithContainedObject).InternalInfo
+    const expected = collect(parsed)
+    expect(expected).toHaveLength(4)
+    expect(collect(parseStructuralXMLWithoutCompatibility(xmlWithContainedObject))).toEqual(expected)
+  })
+
   it("создаёт пустой InternalInfo для правила без вычисляемых UUID", () => {
-    expect(exportInternalInfoToXML({
+    expect(exportInternalInfoToXMLAtRuntimeBoundary({
       context: mockContextToXML(),
       rule: containedObjectsRule,
       value: undefined,
       referenceMetadata: undefined,
-      metadataItem: { itemType: "MetadataConfiguration" as never },
+      source: createYAMLPropertySource({ yaml: {}, rule: { itemType: "MetadataConfiguration", properties: {} } }),
     })).toEqual({})
   })
 
@@ -147,7 +173,7 @@ describe("importInternalInfoFromXML", () => {
 
     expect(() => collectInternalInfoConfigurationIndexFromXML({
       context: contexts.importContext,
-      rule: internalInfoRule({ xml: "InternalInfo", xmlParents: [], forReferenceOnly: true, items: [] }),
+      rule: internalInfoRule({ xml: "InternalInfo", xmlParents: [], xmlOnly: true, items: [] }),
       xml: undefined,
       propertyKey: "internalInfo",
     })).not.toThrow()
@@ -160,7 +186,7 @@ describe("importInternalInfoFromXML", () => {
           internalInfo: internalInfoRule({
             xml: "InternalInfo",
             xmlParents: [],
-            forReferenceOnly: true,
+            xmlOnly: true,
             items: [],
           }),
         },
@@ -192,12 +218,12 @@ describe("importInternalInfoFromXML", () => {
       collector: createLocalIndexesCollector(),
     })
 
-    const exported = exportInternalInfoToXML({
+    const exported = exportInternalInfoToXMLAtRuntimeBoundary({
       context: contexts.exportContext(),
       rule: completeRule,
       value: undefined,
       referenceMetadata: undefined,
-      metadataItem: { itemType: "MetadataCatalog" as never, name: "Товары" },
+      source: createYAMLPropertySource({ yaml: {}, rule: { itemType: "MetadataCatalog", properties: {} }, itemName: "Товары" }),
     })
 
     expect(exported).toMatchObject({
@@ -220,7 +246,7 @@ describe("importInternalInfoFromXML", () => {
   it("creates distinct deterministic UUIDs for a new InternalInfo", () => {
     const newRule: PropertyRule = {
       type: "InternalInfo",
-      forReferenceOnly: true,
+      xmlOnly: true,
       thisNode: true,
       items: [
         { name: "CatalogRef", category: "Ref" },
@@ -232,12 +258,12 @@ describe("importInternalInfoFromXML", () => {
       ],
     }
     const exportNew = () =>
-      exportInternalInfoToXML({
+      exportInternalInfoToXMLAtRuntimeBoundary({
         context: createDirectRoundTripContexts({ logicalAddress: "Справочник.Новый" }).exportContext(),
         rule: newRule,
         value: undefined,
         referenceMetadata: undefined,
-        metadataItem: { itemType: "MetadataCatalog" as never, name: "Новый" },
+        source: createYAMLPropertySource({ yaml: {}, rule: { itemType: "MetadataCatalog", properties: {} }, itemName: "Новый" }),
       })
 
     const first = exportNew()
@@ -326,17 +352,17 @@ describe("importInternalInfoFromXML", () => {
 
   it("round-trips ThisNode with GeneratedType", () => {
     const imported = importFixture()
-    const exported = exportInternalInfoToXML({
+    const exported = exportInternalInfoToXMLAtRuntimeBoundary({
       context: mockContextToXML(),
       rule: ruleWithThisNode,
       value: imported,
       referenceMetadata: imported,
-      metadataItem: { itemType: "MetadataExchangePlan" as never },
+      source: createYAMLPropertySource({ yaml: {}, rule: { itemType: "MetadataExchangePlan", properties: {} } }),
     })
     const exportedXML = xmlExport({ InternalInfo: exported }, false)
     const reparsed = importContentFromXML<{ InternalInfo: InternalInfoRootXML }>(exportedXML)
 
-    expect(importInternalInfoFromXML(mockContextFromXML({ forReference: true }), rule, reparsed.InternalInfo)).toEqual(
+    expect(importInternalInfoFromXML(mockContextFromXML(), rule, reparsed.InternalInfo)).toEqual(
       imported
     )
   })
@@ -358,28 +384,28 @@ describe("importInternalInfoFromXML", () => {
 
   it("round-trips ContainedObject items from model data", () => {
     const imported = importContainedObjectsFixture()
-    const exported = exportInternalInfoToXML({
+    const exported = exportInternalInfoToXMLAtRuntimeBoundary({
       context: mockContextToXML(),
       rule: containedObjectsRule,
       value: imported,
       referenceMetadata: undefined,
-      metadataItem: { itemType: "MetadataConfiguration" as never },
+      source: createYAMLPropertySource({ yaml: {}, rule: { itemType: "MetadataConfiguration", properties: {} } }),
     })
     const exportedXML = xmlExport({ InternalInfo: exported }, false)
     const reparsed = importContentFromXML<{ InternalInfo: InternalInfoRootXML }>(exportedXML)
 
     expect(
-      importInternalInfoFromXML(mockContextFromXML({ forReference: true }), containedObjectsRule, reparsed.InternalInfo)
+      importInternalInfoFromXML(mockContextFromXML(), containedObjectsRule, reparsed.InternalInfo)
     ).toEqual(imported)
   })
 
   it("generates declared ContainedObject items without model or reference data", () => {
-    const exported = exportInternalInfoToXML({
+    const exported = exportInternalInfoToXMLAtRuntimeBoundary({
       context: mockContextToXML(),
       rule: generatedContainedObjectsRule,
       value: undefined,
       referenceMetadata: undefined,
-      metadataItem: { itemType: "MetadataConfiguration" as never },
+      source: createYAMLPropertySource({ yaml: {}, rule: { itemType: "MetadataConfiguration", properties: {} } }),
     })
 
     expect(exported["xr:ContainedObject"]).toEqual([
@@ -394,14 +420,14 @@ describe("importInternalInfoFromXML", () => {
     ])
   })
 
-  it("uses existing ContainedObject ObjectId for declared ClassId", () => {
+  it("uses current ContainedObject ObjectId for declared ClassId", () => {
     const imported = importContainedObjectsFixture()
-    const exported = exportInternalInfoToXML({
+    const exported = exportInternalInfoToXMLAtRuntimeBoundary({
       context: mockContextToXML(),
       rule: generatedContainedObjectsRule,
-      value: undefined,
-      referenceMetadata: imported,
-      metadataItem: { itemType: "MetadataConfiguration" as never },
+      value: imported,
+      referenceMetadata: { containedObjects: [{ classId: "00000000-0000-0000-0000-000000000101", objectId: "stale" }] },
+      source: createYAMLPropertySource({ yaml: {}, rule: { itemType: "MetadataConfiguration", properties: {} } }),
     })
 
     expect(exported["xr:ContainedObject"]).toEqual([
@@ -416,8 +442,8 @@ describe("importInternalInfoFromXML", () => {
     ])
   })
 
-  it("prefers reference ThisNode when exporting", () => {
-    const exported = exportInternalInfoToXML({
+  it("uses current ThisNode and generated identities instead of reference", () => {
+    const exported = exportInternalInfoToXMLAtRuntimeBoundary({
       context: mockContextToXML(),
       rule: ruleWithThisNode,
       value: {
@@ -429,19 +455,32 @@ describe("importInternalInfoFromXML", () => {
       },
       referenceMetadata: {
         ExchangePlanRef: {
-          typeId: "00000000-0000-0000-0000-000000000001",
-          valueId: "00000000-0000-0000-0000-000000000003",
+          typeId: "stale-type",
+          valueId: "stale-value",
         },
         thisNode: "ref",
       },
-      metadataItem: { itemType: "MetadataExchangePlan" as never },
+      source: createYAMLPropertySource({ yaml: {}, rule: { itemType: "MetadataExchangePlan", properties: {} } }),
     })
 
-    expect(exported["xr:ThisNode"]).toBe("ref")
+    expect(exported["xr:ThisNode"]).toBe("new")
+    expect(exported["xr:GeneratedType"]).toEqual([{
+      _name: "ExchangePlanRef.", _category: "Ref",
+      "xr:TypeId": "00000000-0000-0000-0000-000000000001",
+      "xr:ValueId": "00000000-0000-0000-0000-000000000003",
+    }])
+  })
+
+  it("does not resurrect undeclared contained objects from reference", () => {
+    const exported = exportInternalInfoToXMLAtRuntimeBoundary({
+      context: mockContextToXML(), rule: containedObjectsRule,
+      value: undefined, referenceMetadata: importContainedObjectsFixture(),
+    })
+    expect(exported).toEqual({})
   })
 
   it("generates ThisNode when rule opts in and no model or reference value exists", () => {
-    const exported = exportInternalInfoToXML({
+    const exported = exportInternalInfoToXMLAtRuntimeBoundary({
       context: mockContextToXML(),
       rule: ruleWithThisNode,
       value: {
@@ -451,14 +490,14 @@ describe("importInternalInfoFromXML", () => {
         },
       },
       referenceMetadata: undefined,
-      metadataItem: { itemType: "MetadataExchangePlan" as never },
+      source: createYAMLPropertySource({ yaml: {}, rule: { itemType: "MetadataExchangePlan", properties: {} } }),
     })
 
     expect(exported["xr:ThisNode"]).toBe("11111111-1111-4111-8111-111111111111")
   })
 
   it("does not export ThisNode without rule opt-in", () => {
-    const exported = exportInternalInfoToXML({
+    const exported = exportInternalInfoToXMLAtRuntimeBoundary({
       context: mockContextToXML(),
       rule,
       value: {
@@ -475,7 +514,7 @@ describe("importInternalInfoFromXML", () => {
         },
         thisNode: "ref",
       },
-      metadataItem: { itemType: "MetadataExchangePlan" as never },
+      source: createYAMLPropertySource({ yaml: {}, rule: { itemType: "MetadataExchangePlan", properties: {} } }),
     })
 
     expect(exported).not.toHaveProperty("xr:ThisNode")

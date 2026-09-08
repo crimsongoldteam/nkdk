@@ -55,6 +55,7 @@ export interface MetadataOperationValidationFailed {
 
 export interface RenameMetadataItemParams {
   projectDir: string
+  concurrency?: number
   componentPath?: string
   path: string
   newName: string
@@ -66,6 +67,7 @@ export interface RenameMetadataItemParams {
 
 export interface FindMetadataReferencesParams {
   projectDir: string
+  concurrency?: number
   componentPath?: string
   path: string
   ignoreValidationErrors?: boolean

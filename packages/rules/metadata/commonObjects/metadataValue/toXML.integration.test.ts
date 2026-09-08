@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest"
-import { MetadataCommonAttributeRules } from "../../appliedObjects/metadataCommonAttribute/rules"
 import { metadataValueFixtures } from "./__fixtures__/data"
 import { MetadataPrimitiveValueHandler, primitiveValueHandlers } from "./handlers"
 import { MetadataPrimitiveValueType } from "./types"
 import { mockContext, mockContextToXML } from "../../../tests/mockContext"
 import { testAtomicToXML } from "../../../tests/property/atomicToXML"
+import { testPropertyYamlRoundTrip } from "../../../tests/directConversion"
 import { xmlExport } from "@nkdk/runtime"
 import { exportMetadataValueToXML } from "./toXML"
 import { createYAMLPropertySource } from "../../ruleRuntime/property/fromYAMLToXML"
@@ -62,40 +62,49 @@ describe("exportMetadataValueToXML", () => {
     expect(result).toEqual('<Value xsi:type="ent:AccountType">ActivePassive</Value>')
   })
 
-  it("preserves reference xsi:nil outside FillValue", () => {
-    const xmlData = exportMetadataValueToXML({
-      context: mockContext,
+  it("does not restore reference xsi:nil outside FillValue", () => {
+    const { result } = testAtomicToXML({
       rule: { type: "MetadataValue", valueType: ["string"] },
       value: undefined,
       referenceMetadata: { "_xsi:nil": true },
+      xmlRootTag: "Value",
     })
 
-    expect(xmlExport({ Value: xmlData }, false)).toBe('<Value xsi:nil="true"/>')
+    expect(result).toBe('<Value xsi:type="xs:string"/>')
   })
 
-  it("preserves reference xsi:type for missing value", () => {
-    const xmlData = exportMetadataValueToXML({
-      context: mockContext,
+  it("does not restore reference xsi:type for missing value", () => {
+    const { result } = testAtomicToXML({
       rule: { type: "MetadataValue" },
       value: undefined,
       referenceMetadata: { "_xsi:type": "v8:TypeDescription" },
+      xmlRootTag: "Value",
     })
 
-    expect(xmlExport({ Value: xmlData }, false)).toBe('<Value xsi:type="v8:TypeDescription"/>')
+    expect(result).toBe("")
   })
 
-  it("prefers reference xsi:type over rule valueType for missing value", () => {
-    const xmlData = exportMetadataValueToXML({
-      context: mockContext,
+  it("uses the rule valueType rather than reference xsi:type for missing value", () => {
+    const { result } = testAtomicToXML({
       rule: { type: "MetadataValue", valueType: ["string"] },
       value: undefined,
       referenceMetadata: { "_xsi:type": "v8:TypeDescription" },
+      xmlRootTag: "Value",
     })
 
-    expect(xmlExport({ Value: xmlData }, false)).toBe('<Value xsi:type="v8:TypeDescription"/>')
+    expect(result).toBe('<Value xsi:type="xs:string"/>')
   })
 
-  it("ignores reference xsi:type for canonical non-string FillValue", () => {
+  it.each(['xsi:nil="true"', 'xsi:type="v8:TypeDescription"'])("preserves empty %s through serialized YAML", (attributes) => {
+    const sourceXML = `<Root><Value ${attributes}/></Root>`
+    const result = testPropertyYamlRoundTrip({ sourceXML, rule: {
+      type: "MetadataValue", xml: "Value", yaml: "Значение",
+    } })
+    expect(result.yamlText).toContain("!xml/raw")
+    expect(result.result.replace(/>\s+</g, "><").replace(/^\ufeff?<\?xml[^>]+>\s*/, "")).toBe(sourceXML)
+  })
+
+  it("exports canonical non-string FillValue without a previous XML value", () => {
     const source = createYAMLPropertySource({
       yaml: { Тип: "Булево" },
       rule: {
@@ -109,33 +118,18 @@ describe("exportMetadataValueToXML", () => {
       value: undefined,
       propertyKey: "fillValue",
       source,
-      referenceMetadata: { "_xsi:type": "v8:TypeDescription" },
     })
 
     expect(xmlExport({ FillValue: xmlData }, false)).toBe('<FillValue xsi:nil="true"/>')
   })
 
-  it("exports reference-only xsi:nil when passed as value", () => {
-    const { result } = testAtomicToXML({
-      rule: MetadataCommonAttributeRules.properties.fillValue,
-      value: { "_xsi:nil": true },
-      referenceMetadata: { "_xsi:nil": true },
-      xmlRootTag: "FillValue",
-    })
-
-    expect(result).toBe('<FillValue xsi:nil="true"/>')
-  })
-
-  it("preserves parsed reference xsi:nil when passed as value", () => {
-    const { result } = testAtomicToXML({
-      rule: MetadataCommonAttributeRules.properties.fillValue,
-      value: { "_xsi:nil": "true" },
-      referenceMetadata: { "_xsi:nil": "true" },
-      xmlRootTag: "FillValue",
-    })
-
-    expect(result).toBe('<FillValue xsi:nil="true"/>')
-  })
+  it.each([{ "_xsi:nil": true }, { "_xsi:nil": "true" }, { "_xsi:type": "v8:Null" }])(
+    "does not accept XML-shaped objects as semantic values: %j", (value) => {
+      expect(() => testAtomicToXML({
+        rule: { type: "MetadataValue" }, value, xmlRootTag: "Value",
+      })).toThrow("неподдерживаемый тип")
+    },
+  )
 
   it("reports missing primitive toXML handler", () => {
     const handlers = primitiveValueHandlers as Partial<

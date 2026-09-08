@@ -2,7 +2,6 @@ import { functionalOptionsPropertyRule } from "../../../commonObjects/functional
 import { pictureRule } from "../../../commonObjects/picture/types"
 import { associatedTableRule } from "../../../commonObjects/metadataValue/types"
 import { userVisibleRule } from "../../../commonObjects/userVisible/types"
-import { elementIdRule } from "../elementId/types"
 import { booleanRule } from "../../../commonObjects/boolean/types"
 import { i8nTextRule } from "../../../commonObjects/i8nText/types"
 import { stringRule } from "../../../commonObjects/string/types"
@@ -27,9 +26,9 @@ export const FormCommandRules = {
     "id",
   ],
   properties: {
-    id: elementIdRule({
+    id: stringRule({
       xml: "_id",
-      forReferenceOnly: true,
+      xmlOnly: true,
     }),
     name: stringRule({
       xml: "_name",

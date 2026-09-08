@@ -4,7 +4,8 @@ import { describe, expect, it } from "vitest"
 import { importPropertyFromXML } from "../../../ruleRuntime"
 import { mockContextFromXML } from "../../../../tests/mockContext"
 import { readAndParseXMLFile } from "../../../../tests/readAndParseXMLFile"
-import { createXmlImportAuditSession, importContentFromXML, parseXmlDocumentWithSaxes } from "@nkdk/runtime"
+import { serializeYAMLDocument, parseXmlDocumentWithSaxes } from "@nkdk/runtime"
+import { xmlFixtureValue as importContentFromXML } from "../../../../tests/xmlFixtureValue"
 import {
   nilAndBooleanAvailableValues,
   stringAvailableValues,
@@ -13,13 +14,35 @@ import {
 import "../index"
 import { createPropertyRuleExecutor, createRuleRegistrySet } from "@nkdk/runtime/rule-kit"
 import { metadataRules } from "../../../composition/metadataRules"
-import { testPropertyFromXMLToYAML } from "../../../../tests/directConversion"
+import { testPropertiesYamlRoundTrip } from "../../../../tests/directConversion"
+import { parseStructuralXMLWithoutCompatibility } from "../../../../tests/structuralXML"
+import { readXMLFixtureAsString } from "../../../../tests/readFixtureXML"
+import { xmlElementChildren } from "@nkdk/runtime"
+import { importDcsAvailableValuesFromXML } from "./fromXML"
 
 const fixturesDir = join(dirname(fileURLToPath(import.meta.url)), "__fixtures__")
 const rule = { type: "DcsAvailableValues", xml: "dcssch:availableValue" } as const
 const execution = createPropertyRuleExecutor(createRuleRegistrySet(metadataRules).property)
 
 describe("import DcsAvailableValues from XML", () => {
+  it.each([
+    ["<dcssch:availableValue/>", undefined],
+    ["<dcssch:availableValue><dcssch:value/></dcssch:availableValue>", [{ itemType: "DcsAvailableValue" }]],
+    ['<dcssch:availableValue><dcssch:value xsi:type="xs:string"/></dcssch:availableValue>', [{ itemType: "DcsAvailableValue", value: { type: "string", value: "" } }]],
+  ])("preserves empty available values: %s", (xml, expected) => {
+    const legacy = importContentFromXML<{ "dcssch:availableValue": unknown }>(xml)["dcssch:availableValue"]
+    expect(importDcsAvailableValuesFromXML(mockContextFromXML(), rule, legacy)).toEqual(expected)
+    expect(importDcsAvailableValuesFromXML(mockContextFromXML(), rule, parseStructuralXMLWithoutCompatibility(xml))).toEqual(expected)
+  })
+
+  it.each([
+    ["strings.xml", stringAvailableValues],
+    ["nilAndBoolean.xml", nilAndBooleanAvailableValues],
+  ] as const)("imports nodes without XML wrappers: %s", (path, expected) => {
+    const root = parseStructuralXMLWithoutCompatibility(readXMLFixtureAsString(import.meta.url, path))
+    expect(importDcsAvailableValuesFromXML(mockContextFromXML(), rule, xmlElementChildren(root))).toEqual(expected)
+  })
+
   it("imports string values and presentations", () => {
     const xml = readAndParseXMLFile<{ root: { "dcssch:availableValue": unknown } }>("strings.xml", fixturesDir)
     const result = importPropertyFromXML({
@@ -66,8 +89,8 @@ describe("import DcsAvailableValues from XML", () => {
     expect(result).toEqual(nilAndBooleanAvailableValues)
   })
 
-  it("imports every repeated structural XML node without audit remainder", () => {
-    const document = parseXmlDocumentWithSaxes(`<Root>
+  it("сохраняет повторные XML-узлы через YAML без лишних аномалий", () => {
+    const sourceXML = `
 	<dcssch:availableValue>
 		<dcssch:value xsi:type="xs:string">Выставлен</dcssch:value>
 		<dcssch:presentation xsi:type="v8:LocalStringType">
@@ -80,11 +103,9 @@ describe("import DcsAvailableValues from XML", () => {
 			<v8:item><v8:lang>ru</v8:lang><v8:content>Аннулирован</v8:content></v8:item>
 		</dcssch:presentation>
 	</dcssch:availableValue>
-</Root>`)
-    const root = document.roots[0]!
-    const audit = createXmlImportAuditSession([root])
+`
 
-    const result = testPropertyFromXMLToYAML({
+    const result = testPropertiesYamlRoundTrip({
       rule: {
         itemType: "DcsAvailableValuesProbe",
         properties: {
@@ -95,11 +116,12 @@ describe("import DcsAvailableValues from XML", () => {
           },
         },
       },
-      xml: root,
-      audit,
+      sourceXML,
     })
 
-    expect(result.yaml).toEqual({ ДоступныеЗначения: stringAvailableValuesYAML })
-    expect([...new Set(audit.outcomes().map(({ state }) => state))]).toEqual(["claimed"])
+    expect(result.yamlText).toBe(serializeYAMLDocument({ ДоступныеЗначения: stringAvailableValuesYAML }).text)
+    expect(result.yamlText).not.toContain("!xml/")
+    expect(parseXmlDocumentWithSaxes(`<Root>${result.result}</Root>`).roots[0]!.structuralHash)
+      .toEqual(parseXmlDocumentWithSaxes(`<Root>${sourceXML}</Root>`).roots[0]!.structuralHash)
   })
 })

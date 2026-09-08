@@ -16,4 +16,8 @@
 		<Metadata>Catalog.СправочникПолный</Metadata>
 		<AutoRecord>Deny</AutoRecord>
 	</Item>
+	<Item>
+		<Metadata>CalculationRegister.РегистрРасчетаВсеСвойства.Recalculation.ПерерасчетВсеСвойства</Metadata>
+		<AutoRecord>Allow</AutoRecord>
+	</Item>
 </ExchangePlanContent>

@@ -6,11 +6,40 @@ import {
   assertProjectStateFileUpdateBatch,
   createProjectStateFileUpdateBatch,
   isolateProjectStateYamlUpdate,
+  toProjectStateFileUpdateFromFacts,
   type ProjectStateFileUpdate,
   type ProjectStateFileUpdateBatch,
 } from "./fileUpdate"
 
 describe("ProjectStateFileUpdateBatch", () => {
+  it("принимает ограничение ссылки на уже поддерживаемый перерасчёт", () => {
+    const update = { ...yamlUpdate("cf/Свойства.yaml"), pendingReferences: [{
+      yamlPath: ["Состав", 0, "Метаданные"], canonical: "CalculationRegister.Расчеты",
+      target: { kind: "object" as const, root: "CalculationRegister" as const, objectName: "Расчеты" },
+      constraint: { kind: "object" as const, allowedObjectPaths: [["CalculationRegister", "Recalculation"] as const] },
+    }] }
+    expect(() => createProjectStateFileUpdateBatch([{ update, hash: 0n }])).not.toThrow()
+    const invalid = { ...update, pendingReferences: [{ ...update.pendingReferences[0],
+      constraint: { kind: "object", allowedObjectPaths: [["CalculationRegister", "Unknown"]] },
+    }] }
+    expect(() => assertProjectStateFileUpdateBatch({ updates: [invalid], hashBytes: new Uint8Array(8) })).toThrow()
+  })
+  it("собирает состояние из окончательных фактов без результата повторной валидации", () => {
+    const update = toProjectStateFileUpdateFromFacts({
+      contributedFacts: true, diagnostics: [], schemaDiagnostics: [],
+      objectRecords: [], objectIndexEntries: [], memberIndexEntries: [], valueIndexEntries: [],
+      logicalAddresses: [{ logicalAddress: "Catalog.Товары", sourceProjectPath: "Свойства.yaml" }],
+      pendingReferences: [{ filePath: "Свойства.yaml", yamlPath: ["Ссылка"],
+        canonical: "Catalog.Другой", target: { kind: "object", root: "Catalog", objectName: "Другой" },
+        constraint: { kind: "object", roots: ["Catalog"] }, xmlAnomaly: "accepted" }],
+      pendingChecks: [], dependencies: ["Catalog.Другой", "Catalog.Другой"],
+    }, { projectPath: "cf/Свойства.yaml", componentPath: "cf", resourceKind: "yaml", yamlRole: "properties" })
+    expect(update.targets).toEqual([{ kind: "object", canonical: "Catalog.Товары" }])
+    expect(update.pendingReferences).toEqual([expect.objectContaining({ xmlAnomaly: "accepted" })])
+    expect(update.pendingReferences[0]).not.toHaveProperty("filePath")
+    expect(update.dependencies).toEqual(["Catalog.Другой"])
+    expect(update).not.toHaveProperty("state")
+  })
   it("оставляет у изолированного YAML только локальные schema diagnostics", () => {
     const schemaDiagnostic = {
       line: 1,

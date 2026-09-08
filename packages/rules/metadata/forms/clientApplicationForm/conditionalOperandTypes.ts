@@ -27,7 +27,6 @@ const referenceTypeByRoot: Readonly<Record<string, string>> = {
 export function inferConditionalOperandType(params: {
   context: ConfigurationContext
   value: unknown
-  sourceValue?: DcsMetadataTypedValue
 }): ConditionalOperandType {
   let imported: DcsMetadataTypedValue | (DcsMetadataTypedValue | undefined)[] | undefined
   try {
@@ -35,7 +34,6 @@ export function inferConditionalOperandType(params: {
       params.context,
       { type: "DcsMetadataTypedValue" },
       params.value as DcsMetadataTypedValueYAML,
-      params.sourceValue,
     )
   } catch {
     return { kind: "unknown" }

@@ -37,14 +37,14 @@ describe("partial sync matrix", () => {
     expect(new Set(rootObjectDeclarations.map(({ itemType }) => itemType))).toEqual(
       new Set(TopLevelMetadataItemRules.map(({ itemType }) => itemType)),
     )
-    expect(rootObjectDeclarations).toHaveLength(47)
+    expect(rootObjectDeclarations).toHaveLength(48)
   })
 
   it("changes the comment of every created root object", () => {
     expect(rootPropertyOperations.map(({ targetKey }) => targetKey).toSorted()).toEqual(
       rootObjectDeclarations.map(({ key }) => key).toSorted(),
     )
-    expect(rootPropertyOperations).toHaveLength(47)
+    expect(rootPropertyOperations).toHaveLength(48)
     for (const operation of rootPropertyOperations) {
       expect(operation.changes, operation.key).toHaveLength(1)
       expect(operation.changes[0]?.before, operation.key).toContain(
@@ -105,7 +105,7 @@ describe("partial sync matrix", () => {
       ["roots:create:bulk:1", 12],
       ["roots:create:bulk:2", 12],
       ["roots:create:bulk:3", 12],
-      ["roots:create:bulk:4", 10],
+      ["roots:create:bulk:4", 11],
     ])
   })
 

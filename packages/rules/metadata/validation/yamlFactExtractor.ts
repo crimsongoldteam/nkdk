@@ -55,6 +55,7 @@ import {
 } from "./structuralReferences"
 import { validateRuleYAMLObjectProperties } from "./excludeIfEqualNameYAML"
 import { diagnosticAtYamlPath, yamlDiagnosticLocationAtPath } from "./yamlLocations"
+import { collectUniqueNameConflicts, uniqueNameConflictMessage } from "./uniqueNameConflicts"
 import type { Diagnostic } from "./types"
 import { createLocalIndexesCollector } from "../projectDefinition/localIndexes"
 import type { LocalIndexesCollector } from "../projectDefinition/localIndexes"
@@ -260,6 +261,7 @@ export function extractValidationYamlFacts(params: {
         },
         ...collectAddressableMetadataObjectEntries({
           yaml: params.parsed.data,
+          annotations: params.parsed.annotations,
           rule: params.file.itemRule,
           canonicalTarget: projectObjectIndexKey(objectTarget),
           filePath: params.file.absolutePath,
@@ -353,7 +355,7 @@ function collectConfigurationExtensionDocuments(params: {
         || propertyRule.type !== formAdapter.formRule.itemType
       ) return
       documents.push(...formStructureProjection({
-        components: formAdapter.collectStructuredComponents(yaml, params.owner),
+        components: formAdapter.collectStructuredComponents(yaml, params.owner, params.parsed.annotations),
         representation: "working",
         logicalAddress: state.logicalAddress,
         workingProjectPath: params.workingProjectPath,
@@ -424,7 +426,7 @@ function collectConfigurationExtensionDocuments(params: {
   return documents
 }
 
-function pendingReferencePropertyStateMode(
+export function pendingReferencePropertyStateMode(
   yamlPath: readonly (string | number)[],
   documents: readonly ProjectStateStructuredDocumentEntry[],
   rule: MetadataItemRule,
@@ -591,43 +593,20 @@ function collectUniqueNameScopeDiagnostics(
 ): Diagnostic[] {
   if (spec.uniqueNameScopes.length === 0) return []
 
-  const diagnostics: Diagnostic[] = []
   const data = asRecord(parsed.data)
   if (data === undefined) return []
-
-  for (const scope of spec.uniqueNameScopes) {
-    const seen = new Map<string, string>()
-
-    for (const collection of scope.collections) {
-      const collectionYamlPath = yamlPathByModelKey(spec, collection)
-      if (collectionYamlPath === undefined) continue
-      const collectionValue = valueAtPath(data, collectionYamlPath)
-      const collectionRecord = asRecord(collectionValue)
-      if (collectionRecord === undefined) continue
-
-      for (const name of Object.keys(collectionRecord)) {
-        const previousCollectionYaml = seen.get(name)
-        const collectionYaml = collectionYamlPath.join("/")
-        if (previousCollectionYaml === undefined) {
-          seen.set(name, collectionYaml)
-          continue
-        }
-
-        diagnostics.push(
-          diagnosticAtYamlPath({
-            filePath: file.absolutePath,
-            parsed,
-            path: [...collectionYamlPath, name],
-            severity: "error",
-            source: "structure",
-            message: `Имя "${name}" должно быть уникальным в коллекциях ${previousCollectionYaml}, ${collectionYaml}`,
-          })
-        )
-      }
-    }
-  }
-
-  return diagnostics
+  return collectUniqueNameConflicts({
+    scopes: spec.uniqueNameScopes,
+    collectionPath: key => yamlPathByModelKey(spec, key),
+    names: path => Object.keys(asRecord(valueAtPath(data, path)) ?? {}),
+  }).map(conflict => diagnosticAtYamlPath({
+    filePath: file.absolutePath,
+    parsed,
+    path: [...conflict.collectionPath, conflict.name],
+    severity: "error",
+    source: "structure",
+    message: uniqueNameConflictMessage(conflict),
+  }))
 }
 
 function yamlPathByModelKey(
@@ -693,7 +672,6 @@ function collectPendingReferences(params: {
   const references: PendingMetadataTargetReference[] = []
   for (const property of params.properties) {
     const yamlPath = [...params.yamlPath, ...property.yamlPath]
-    const hasAnomaly = hasXmlAnomalyAtPath(params.rootYaml, params.parsed, yamlPath)
     if (hasRawXmlAnomalyAtPath(params.rootYaml, params.parsed, yamlPath)) continue
     const sourceValue = valueAtLogicalPath(record, property.yamlPath, params.parsed)
     if (sourceValue === undefined) continue
@@ -708,7 +686,7 @@ function collectPendingReferences(params: {
       },
     ]
     if (property.type !== undefined) {
-      if (params.validationDiagnostics && !hasAnomaly) {
+      if (params.validationDiagnostics) {
         collectLocalValueValidation({
           filePath: params.filePath,
           parsed: params.parsed,
@@ -922,7 +900,7 @@ function collectNestedValue(
   return references
 }
 
-function dependentPendingReference(
+export function dependentPendingReference(
   reference: DependentReferenceCandidate,
 ): Omit<PendingMetadataTargetReference, "filePath"> {
   return reference as Omit<PendingMetadataTargetReference, "filePath">
@@ -1188,12 +1166,16 @@ function extractFormYamlFacts(
   }) => reference)
   let localizedTextProperties = 0
   const localizedTextDiagnostics: Diagnostic[] = []
+  const localValueDiagnostics: Diagnostic[] = []
+  const localValueValidationProfile: LocalValueValidationProfile = {}
   traverseMetadataRuleYaml<{ readonly name: string | undefined }>({
     yaml: data,
     rule: adapter.formRule,
     initialState: { name: file.formName },
     onObject: ({ yaml, rule, yamlPath, state }) => {
       if (hasRawXmlAnomalyAtPath(data, parsed, yamlPath)) return
+      const yamlRecord = asRecord(yaml)
+      if (yamlRecord === undefined) return
       localizedTextDiagnostics.push(...validateRuleYAMLObjectProperties({
         filePath: file.absolutePath,
         parsed,
@@ -1204,6 +1186,22 @@ function extractFormYamlFacts(
         yamlPath,
         onLocalizedTextProperty: () => { localizedTextProperties += 1 },
       }))
+      for (const property of Object.values(rule.properties)) {
+        if (typeof property.yaml !== "string" || !Object.prototype.hasOwnProperty.call(yaml, property.yaml)) continue
+        const propertyPath = [...yamlPath, property.yaml]
+        if (hasRawXmlAnomalyAtPath(data, parsed, propertyPath)) continue
+        collectLocalValueValidation({
+          filePath: file.absolutePath,
+          parsed,
+          owner: file.owner,
+          type: property.type,
+          value: yamlRecord[property.yaml],
+          yamlPath: propertyPath,
+          diagnostics: localValueDiagnostics,
+          profile: localValueValidationProfile,
+          runtime,
+        })
+      }
     },
     enterCollectionItem: ({ itemName }) => ({ name: itemName }),
   })
@@ -1214,11 +1212,12 @@ function extractFormYamlFacts(
     structuredComponents: adapter.collectStructuredComponents(parsed.data, {
       kind: file.owner.dir,
       name: file.owner.name,
-    }),
+    }, parsed.annotations),
     pendingReferences,
     pendingChecks: collected.pendingChecks,
     localizedTextProperties,
     localValueValidationProfile: {
+      ...localValueValidationProfile,
       [adapter.elementNamesProfileSubstep]: {
         items: 1,
         timeMs: collected.formElementNamesMs,
@@ -1226,6 +1225,7 @@ function extractFormYamlFacts(
     },
     diagnostics: [
       ...localizedTextDiagnostics,
+      ...localValueDiagnostics,
       ...collected.formElementNameDiagnostics,
       ...index.duplicateDiagnostics,
     ],
@@ -1534,14 +1534,6 @@ function valueAtPath(value: Record<string, unknown>, path: readonly (string | nu
     current = (current as Record<string | number, unknown>)[segment]
   }
   return current
-}
-
-function hasXmlAnomalyAtPath(
-  root: unknown,
-  parsed: ParsedYaml,
-  path: readonly (string | number)[],
-): boolean {
-  return hasXmlAnnotationAtPath(root, parsed, path, () => true)
 }
 
 function hasRawXmlAnomalyAtPath(

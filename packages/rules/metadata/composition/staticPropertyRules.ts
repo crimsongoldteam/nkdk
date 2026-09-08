@@ -1,4 +1,7 @@
 import { metadataPropertyRule000 as rule0 } from "../appliedObjects/configuration/allowedIncomingShareRequestTypes"
+import { metadataPropertyRule063 as inputByStringTargetOccurrences } from "../commonObjects/metadataTargets/validationHandlers"
+import { metadataPropertyRule000 as dataPathFromXML } from "../commonObjects/metadataPath/fromXML"
+import { metadataPropertyRule000 as commandNameFromXML } from "../forms/commonObjects/commandName/fromXML"
 import { metadataPropertyRule001 as rule1 } from "../appliedObjects/configuration/allowedIncomingShareRequestTypes"
 import { metadataPropertyRule002 as rule2 } from "../appliedObjects/configuration/allowedIncomingShareRequestTypes"
 import { metadataPropertyRule003 as rule3 } from "../appliedObjects/configuration/allowedIncomingShareRequestTypes"
@@ -70,6 +73,7 @@ import { metadataPropertyRule001 as rule72 } from "../commonObjects/dataComposit
 import { metadataPropertyRule000 as rule73 } from "../commonObjects/dataCompositionSystem/appearanceFields/fromYAML"
 import { metadataPropertyRule000 as rule74 } from "../commonObjects/dataCompositionSystem/appearanceFields/rules"
 import { metadataPropertyRule001 as rule75 } from "../commonObjects/dataCompositionSystem/appearanceFields/rules"
+import { metadataPropertyRule002 as appearanceFieldsOutputPreparation } from "../commonObjects/dataCompositionSystem/appearanceFields/rules"
 import { metadataPropertyRule000 as rule76 } from "../commonObjects/dataCompositionSystem/appearanceFields/toXML"
 import { metadataPropertyRule000 as rule77 } from "../commonObjects/dataCompositionSystem/availableFields/fromXML"
 import { metadataPropertyRule000 as rule78 } from "../commonObjects/dataCompositionSystem/availableFields/fromYAML"
@@ -92,6 +96,7 @@ import { metadataPropertyRule000 as rule93 } from "../commonObjects/dataComposit
 import { metadataPropertyRule000 as dcsLocalStringYamlTagPolicy } from "../commonObjects/dataCompositionSystem/dcsLocalStringType/yamlScalarTagPolicy"
 import { metadataPropertyRule000 as rule94 } from "../commonObjects/dataCompositionSystem/dcsMetadataValue/fromXML"
 import { metadataPropertyRule001 as rule95 } from "../commonObjects/dataCompositionSystem/dcsMetadataValue/fromXML"
+import { metadataPropertyRule002 as rule431 } from "../commonObjects/dataCompositionSystem/dcsMetadataValue/fromXML"
 import { metadataPropertyRule000 as rule96 } from "../commonObjects/dataCompositionSystem/dcsMetadataValue/fromYAML"
 import { metadataPropertyRule000 as rule97 } from "../commonObjects/dataCompositionSystem/dcsMetadataValue/toYAML"
 import { metadataPropertyRule000 as rule98 } from "../commonObjects/dataCompositionSystem/parameterValue/fromYAML"
@@ -371,7 +376,6 @@ import { metadataPropertyRule000 as rule340 } from "../forms/commonObjects/comma
 import { metadataPropertyRule000 as rule341 } from "../forms/commonObjects/commandName/toEnterprise"
 import { metadataPropertyRule000 as rule342 } from "../forms/commonObjects/commandName/toJSONSchema"
 import { metadataPropertyRule000 as rule343 } from "../forms/commonObjects/commandSet/toJSONSchema"
-import { metadataPropertyRule000 as rule344 } from "../forms/commonObjects/elementId/toXML"
 import { metadataPropertyRule000 as rule345 } from "../forms/commonObjects/event/fromXML"
 import { metadataPropertyRule000 as rule346 } from "../forms/commonObjects/event/fromYAML"
 import { metadataPropertyRule000 as rule347 } from "../forms/commonObjects/event/toJSONSchema"
@@ -413,6 +417,7 @@ import { metadataPropertyRule001 as rule391 } from "../forms/elements/popup/exte
 import { metadataPropertyRule002 as rule392 } from "../forms/elements/popup/extendedTooltip"
 import { metadataPropertyRule003 as rule393 } from "../forms/elements/popup/extendedTooltip"
 import { metadataPropertyRule004 as rule394 } from "../forms/elements/popup/extendedTooltip"
+import { metadataPropertyRule005 as popupTooltipOutput } from "../forms/elements/popup/extendedTooltip"
 import { metadataPropertyRule000 as rule395 } from "../commonObjects/formattedI8nText/toXML"
 import { metadataPropertyRule000 as rule396 } from "../commonObjects/i8nText/toXML"
 
@@ -489,6 +494,7 @@ export const staticPropertyTypes = propertyTypesFromContributions([
   rule73,
   rule74,
   rule75,
+  appearanceFieldsOutputPreparation,
   rule76,
   rule77,
   rule78,
@@ -756,7 +762,6 @@ export const staticPropertyTypes = propertyTypesFromContributions([
   rule341,
   rule342,
   rule343,
-  rule344,
   rule345,
   rule346,
   rule347,
@@ -802,6 +807,7 @@ export const staticPropertyTypes = propertyTypesFromContributions([
   rule392,
   rule393,
   rule394,
+  popupTooltipOutput,
   rule395,
   rule396,
   rule397,
@@ -836,4 +842,8 @@ export const staticPropertyTypes = propertyTypesFromContributions([
   rule428,
   rule429,
   rule430,
+  rule431,
+  dataPathFromXML,
+  commandNameFromXML,
+  inputByStringTargetOccurrences,
 ])

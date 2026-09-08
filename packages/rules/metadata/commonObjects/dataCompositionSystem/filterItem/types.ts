@@ -5,10 +5,6 @@ import { YAMLTypeByRule } from "../../../ruleRuntime/metadataItem/yaml"
 import { importFilterItemFromXMLToYAML } from "./fromXMLToYAML"
 import { FilterItemComparisonRules, FilterItemGroupRules } from "./rules"
 import { exportFilterItemToJSONSchema } from "./toJSONSchema"
-import {
-  DataCompositionComparisonTypeFromYAML,
-  DataCompositionFilterItemsGroupTypeFromYAML,
-} from "../../../systemEnumerations/types"
 import "./typedValues"
 
 export type FilterItemComparison = FormTypeByRule<typeof FilterItemComparisonRules>
@@ -20,39 +16,6 @@ export type FilterItemGroupYAML = YAMLTypeByRule<typeof FilterItemGroupRules>
 export type FilterItem = (FilterItemComparison | FilterItemGroup)[]
 export type FilterItemYAML = (FilterItemComparisonYAML | FilterItemGroupYAML)[]
 
-const referenceIdentity = {
-  fromYAML: ({ yaml }: { yaml: unknown }): string | undefined => {
-    if (!isRecord(yaml)) return undefined
-    if (typeof yaml.ТипГруппы === "string") {
-      const groupType =
-        DataCompositionFilterItemsGroupTypeFromYAML[
-          yaml.ТипГруппы as keyof typeof DataCompositionFilterItemsGroupTypeFromYAML
-        ]
-      return groupType === undefined ? undefined : `group:${groupType}`
-    }
-    const left = typeof yaml.ЛевоеЗначение === "string" ? yaml.ЛевоеЗначение.replace(/^\./, "") : undefined
-    if (left === undefined) return undefined
-    const comparison =
-      yaml.ВидСравнения === undefined
-        ? "Equal"
-        : (DataCompositionComparisonTypeFromYAML[
-            yaml.ВидСравнения as keyof typeof DataCompositionComparisonTypeFromYAML
-          ] ?? String(yaml.ВидСравнения))
-    return `comparison:${left}:${comparison}`
-  },
-  fromXML: ({ xml }: { xml: Record<string, unknown> }): string | undefined => {
-    if (xml["_xsi:type"] === "dcsset:FilterItemGroup") {
-      const groupType = textValue(xml["dcsset:groupType"])
-      return groupType === undefined ? undefined : `group:${groupType}`
-    }
-    if (xml["_xsi:type"] !== "dcsset:FilterItemComparison") return undefined
-    const left = textValue(xml["dcsset:left"])?.replace(/^\./, "")
-    if (left === undefined) return undefined
-    const comparison = textValue(xml["dcsset:comparisonType"]) ?? "Equal"
-    return `comparison:${left}:${comparison}`
-  },
-}
-
 export const metadataRuleLayer000 = defineMetadataItemCollectionRule({
   propertyType: "FilterItem",
   itemRule: FilterItemComparisonRules,
@@ -63,7 +26,6 @@ export const metadataRuleLayer000 = defineMetadataItemCollectionRule({
   configurationIndexAddressing: "yamlPath",
   schemaName: "FilterItem",
   schemaShape: "schema",
-  referenceIdentity,
 })
 
 export const metadataPropertyRule000 = definePropertyTypeRule("FilterItem", "yamlToXMLNestedRule", {
@@ -75,15 +37,5 @@ export const metadataPropertyRule000 = definePropertyTypeRule("FilterItem", "yam
       : FilterItemComparisonRules,
   yamlShape: "array",
   xmlElement: "dcsset:item",
-  referenceIdentity,
   configurationIndexAddressing: "yamlPath",
 })
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === "object" && !Array.isArray(value)
-}
-
-function textValue(value: unknown): string | undefined {
-  if (typeof value === "string") return value
-  return isRecord(value) && typeof value["#text"] === "string" ? value["#text"] : undefined
-}

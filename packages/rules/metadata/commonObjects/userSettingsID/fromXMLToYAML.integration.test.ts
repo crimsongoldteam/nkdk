@@ -21,28 +21,20 @@ const rule = {
 const readValue = (fixture: "full.xml" | "empty.xml") =>
   readAndParseXMLFixture<Record<string, unknown>>(import.meta.url, fixture)["dcsset:userSettingID"]
 
-const convert = (fixture: "full.xml" | "empty.xml", forReference: boolean) =>
+const convert = (fixture: "full.xml" | "empty.xml") =>
   testPropertyFromXMLToYAML({
     rule,
     xml: { UserSettingsID: readValue(fixture) },
-    context: mockContextFromXML({ forReference }),
+    context: mockContextFromXML(),
   }).yaml
 
 describe("UserSettingsID XML → YAML", () => {
-  it("imports full.xml when not for reference", () => {
-    expect(convert("full.xml", false)).toEqual({ ИдентификаторНастройки: fixtureUserSettingsIDRefFull })
+  it("imports full.xml", () => {
+    expect(convert("full.xml")).toEqual({ ИдентификаторНастройки: fixtureUserSettingsIDRefFull })
   })
 
-  it("imports empty.xml when not for reference", () => {
-    expect(convert("empty.xml", false)).toEqual({})
-  })
-
-  it("imports full.xml for reference", () => {
-    expect(convert("full.xml", true)).toEqual({ ИдентификаторНастройки: fixtureUserSettingsIDRefFull })
-  })
-
-  it("imports empty.xml for reference", () => {
-    expect(convert("empty.xml", true)).toEqual({})
+  it("imports empty.xml", () => {
+    expect(convert("empty.xml")).toEqual({})
   })
 
   it("хранит исходный идентификатор настройки в YAML и не дублирует его в индексе", () => {

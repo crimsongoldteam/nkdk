@@ -1,12 +1,12 @@
 import fs from "fs"
 import { join } from "path"
 import { ConfigurationContextFromXML, ExternalFileEntry } from "@nkdk/runtime"
-import { importContentFromXML } from "@nkdk/runtime"
+import { parseXmlDocumentWithSaxes, type XmlElementNode } from "@nkdk/runtime"
 import { exportToYAML } from "@nkdk/runtime"
 import { copyFormItemExternalFilesFromXML } from "./externalItemFiles"
 import { copyExistingRawFile, copyRawDirectoryFiles } from "./externalRawFiles"
-import { ClientApplicationFormXML, FormMetadataXML } from "./types"
 import { importClientApplicationFormFromXMLToYAML } from "./fromXMLToYAML"
+import { formTypeFromMetadataXML } from "./metadataXML"
 import { childUid } from "@nkdk/runtime"
 import {
   getConfigurationIndexCollectionContext,
@@ -28,8 +28,10 @@ export const convertFormFromXML = async (params: {
 
   const metadataPath = join(inputDir, `${formName}.xml`)
   const metadataXML = await fs.promises.readFile(metadataPath, "utf-8")
+  const parsedMetadata = parseXmlDocumentWithSaxes(metadataXML).roots.find(node => node.name === "MetaDataObject")
+  if (parsedMetadata === undefined) throw new Error(`Не найден MetaDataObject: ${metadataPath}`)
 
-  const { formXML, hasFormBin } = await readFormBodyFromXML({ inputDir, formName, metadataXML })
+  const { formXML, hasFormBin } = await readFormBodyFromXML({ inputDir, formName, metadataXML: parsedMetadata })
   const collection = getConfigurationIndexCollectionContext(context)
   const formContext =
     collection === undefined
@@ -38,13 +40,12 @@ export const convertFormFromXML = async (params: {
   const parsedForm =
     formXML === undefined
       ? undefined
-      : importContentFromXML<{ Form: ClientApplicationFormXML }>(formXML, { preserveXsiNil: true }).Form
-  const parsedMetadata = importContentFromXML<{ MetaDataObject: FormMetadataXML }>(metadataXML)
+      : parseXmlDocumentWithSaxes(formXML).roots.find(node => node.name === "Form")
   const direct = importClientApplicationFormFromXMLToYAML({
     context: formContext,
     formName,
     formXML: parsedForm,
-    metadataXML: parsedMetadata.MetaDataObject,
+    metadataXML: parsedMetadata,
   })
   const yaml = direct.yaml === undefined ? undefined : exportToYAML(direct.yaml)
   const externalFiles = direct.generatedFiles
@@ -86,12 +87,12 @@ const writeFormToYAML = async (params: {
 const readFormBodyFromXML = async (params: {
   inputDir: string
   formName: string
-  metadataXML: string
+  metadataXML: XmlElementNode
 }): Promise<{ formXML: string | undefined; hasFormBin: boolean }> => {
   const { inputDir, formName, metadataXML } = params
   const formPath = join(inputDir, formName, "Ext", "Form.xml")
   const formBinPath = join(inputDir, formName, "Ext", "Form.bin")
-  const isOrdinaryForm = getFormTypeFromMetadataXML(metadataXML) === "Ordinary"
+  const isOrdinaryForm = formTypeFromMetadataXML(metadataXML) === "Ordinary"
 
   try {
     return { formXML: await fs.promises.readFile(formPath, "utf-8"), hasFormBin: fs.existsSync(formBinPath) }
@@ -123,8 +124,3 @@ const copyFormHelpFilesFromXML = async (params: {
 
 const isMissingFileError = (error: unknown): error is NodeJS.ErrnoException =>
   error instanceof Error && "code" in error && error.code === "ENOENT"
-
-const getFormTypeFromMetadataXML = (metadataXML: string): string | undefined => {
-  const parsedMetadata = importContentFromXML<{ MetaDataObject: FormMetadataXML }>(metadataXML)
-  return parsedMetadata.MetaDataObject.Form.Properties.FormType
-}

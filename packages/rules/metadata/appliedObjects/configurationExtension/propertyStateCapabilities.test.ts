@@ -4,6 +4,16 @@ import type { PropertyStateCapabilityContribution } from "../../ruleRuntime/defi
 import { createPropertyStateCapabilityRegistry } from "./propertyStateCapabilities"
 
 describe("PropertyState capability registry", () => {
+  it("переиспользует описание только внутри реестра и выбранного режима", () => {
+    const contributions: PropertyStateCapabilityContribution[] = [{ kind: "propertyStateCapability", id: "cached",
+      item: { itemType: "Cached", profiles: [], properties: { value: { availability: "borrowed", modes: ["control"] } } } }]
+    const first = createPropertyStateCapabilityRegistry(contributions)
+    const second = createPropertyStateCapabilityRegistry(contributions)
+    const current = first.item("Cached")
+    expect(first.item("Cached", "Версия8_3_27")).toBe(current)
+    expect(first.item("Cached", "Версия8_3_18")).not.toBe(current)
+    expect(second.item("Cached")).not.toBe(current)
+  })
   it("накладывает профили, отличие вида и подходящие версионные дельты", () => {
     const contributions: PropertyStateCapabilityContribution[] = [
       {

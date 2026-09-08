@@ -1,8 +1,11 @@
 import { describe,expect,it } from "vitest"
 
-import { exportToYAML,importContentFromXML } from "@nkdk/runtime"
-import { readAppliedObjectFixture,testMetadataItemFromXMLToYAML } from "../../../tests/directConversion"
+import { exportToYAML } from "@nkdk/runtime"
+import { xmlFixtureValue as importContentFromXML } from "../../../tests/xmlFixtureValue"
+import { createDirectRoundTripContexts,readAppliedObjectFixture,testMetadataItemFromXMLToYAML } from "../../../tests/directConversion"
 import { ClientApplicationInterfaceRules } from "./rules"
+import { readXMLFixtureAsString } from "../../../tests/readFixtureXML"
+import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"
 
 import "./register"
 
@@ -12,6 +15,21 @@ const convert = (fixture: string) => {
 }
 
 describe("ClientApplicationInterface XML → YAML", () => {
+  it.each(["ClientApplicationInterface.xml", "UnknownPanel.xml", "MixedOrder.xml", "NamedStandardPanel.xml"])("читает структурный интерфейс %s", (fixture) => {
+    const xml = parseStructuralXMLWithoutCompatibility(readXMLFixtureAsString(import.meta.url, fixture))
+    const snapshot = (source: unknown) => {
+      const contexts = createDirectRoundTripContexts()
+      const imported = testMetadataItemFromXMLToYAML({ rule: ClientApplicationInterfaceRules, xml: source, context: contexts.importContext })
+      return { yaml: imported.yaml, entities: contexts.importContext.fromXML.configurationIndex?.collector.fragment("Тест.yaml").entities }
+    }
+    expect(snapshot(xml)).toEqual(snapshot(readAppliedObjectFixture(import.meta.url, fixture)))
+  })
+
+  it("не создаёт панель или группу из пустого нетипизированного элемента", () => {
+    const text = '<ClientApplicationInterface><top><panel/><group/><panel id="p"><uuid>00000000-0000-0000-0000-000000000000</uuid></panel></top></ClientApplicationInterface>'
+    const yaml = testMetadataItemFromXMLToYAML({ rule: ClientApplicationInterfaceRules, xml: parseStructuralXMLWithoutCompatibility(text) }).yaml
+    expect(yaml).toEqual(convertXML(text))
+  })
 
   it("imports sections, panels, groups and panel definitions", () => {
     const result = convert("ClientApplicationInterface.xml")

@@ -1,12 +1,11 @@
 import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
-import { ConfigurationContextFromXML } from "@nkdk/runtime"
+import { ConfigurationContextFromXML, isXmlElementNode, xmlAttributeValue, xmlTextValue, type XmlElementNode } from "@nkdk/runtime"
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { DcsMetadataTypedValueRegistry, DcsMetadataTypedValueTypeFromXML } from "./rules"
 import {
   DcsMetadataTypedValueNilXML,
   DcsMetadataTypedValuePropertyRule,
-  DcsMetadataTypedValueReference,
-  DcsMetadataTypedValueReferenceOrNil,
+  DcsMetadataTypedValue,
   DcsMetadataTypedValueUndefinedTypeXML,
   DcsMetadataTypedValueXML,
 } from "./types"
@@ -41,11 +40,22 @@ const isNilXML = (xml: DcsMetadataTypedValueXML | undefined): xml is DcsMetadata
 const importSingle = (
   context: ConfigurationContextFromXML,
   rule: DcsMetadataTypedValuePropertyRule,
-  xml: DcsMetadataTypedValueXML | undefined
-): DcsMetadataTypedValueReferenceOrNil => {
+  xml: DcsMetadataTypedValueXML | XmlElementNode | undefined
+): DcsMetadataTypedValue | undefined => {
+  if (isXmlElementNode(xml)) {
+    if (xmlAttributeValue(xml, "xsi:nil") === "true") return undefined
+    const xsiType = xmlAttributeValue(xml, "xsi:type")
+    if (xsiType === "v8:Type") {
+      const [prefix, name, extra] = xmlTextValue(xml).split(":")
+      if (prefix && name === "Undefined" && extra === undefined
+        && xmlAttributeValue(xml, `xmlns:${prefix}`) === DATA_TYPES_NAMESPACE) return undefined
+    }
+    const type = DcsMetadataTypedValueTypeFromXML(xsiType)
+    return DcsMetadataTypedValueRegistry[type].fromXML({ context, rule, xml })
+  }
   if (isNilXML(xml)) return undefined
   if (isUndefinedTypeXML(xml)) {
-    return context.fromXML.forReference ? xml : undefined
+    return undefined
   }
 
   const type = DcsMetadataTypedValueTypeFromXML(xml["_xsi:type"])
@@ -55,8 +65,8 @@ const importSingle = (
 export const importDcsMetadataTypedValueFromXML = (
   context: ConfigurationContextFromXML,
   rule: DcsMetadataTypedValuePropertyRule,
-  xml: DcsMetadataTypedValueXML | (DcsMetadataTypedValueXML | undefined)[] | undefined
-): DcsMetadataTypedValueReference | DcsMetadataTypedValueReferenceOrNil[] | undefined => {
+  xml: DcsMetadataTypedValueXML | XmlElementNode | (DcsMetadataTypedValueXML | XmlElementNode | undefined)[] | undefined
+): DcsMetadataTypedValue | (DcsMetadataTypedValue | undefined)[] | undefined => {
   if (xml === undefined) return undefined
   if (Array.isArray(xml)) {
     const items = xml.map((item) => importSingle(context, rule, item))
@@ -69,7 +79,7 @@ const importDcsMetadataTypedValueFromXMLForRule = (
   context: ConfigurationContextFromXML,
   rule: PropertyRule,
   value: unknown
-): DcsMetadataTypedValueReference | DcsMetadataTypedValueReferenceOrNil[] | undefined =>
+): DcsMetadataTypedValue | (DcsMetadataTypedValue | undefined)[] | undefined =>
   importDcsMetadataTypedValueFromXML(
     context,
     rule as DcsMetadataTypedValuePropertyRule,

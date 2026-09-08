@@ -5,8 +5,9 @@ import {
   serializeDirectXML,
   testMetadataItemFromXMLToYAML,
   testMetadataItemFromYAMLToXML,
+  testMetadataItemYamlRoundTrip,
 } from "../../../tests/directConversion"
-import { importContentFromXML } from "@nkdk/runtime"
+import { xmlFixtureValue as importContentFromXML } from "../../../tests/xmlFixtureValue"
 import { HomePageWorkAreaRules } from "./rules"
 import type { HomePageWorkAreaYAML } from "./types"
 
@@ -66,27 +67,19 @@ const exportYAML = (value: HomePageWorkAreaYAML, referenceXML?: unknown): string
   )
 
 const roundTrip = (xmlString: string, mutate?: (value: HomePageWorkAreaYAML) => void): string => {
-  const referenceXML = importContentFromXML(xmlString)
-  const contexts = createDirectRoundTripContexts()
-  const imported = testMetadataItemFromXMLToYAML({
-    rule: HomePageWorkAreaRules,
-    xml: referenceXML,
-    context: contexts.importContext,
-  }).yaml as HomePageWorkAreaYAML
-  mutate?.(imported)
-  return normalizeXML(
-    serializeDirectXML(
-      testMetadataItemFromYAMLToXML({
-        rule: HomePageWorkAreaRules,
-        yaml: imported,
-        referenceXML,
-        context: contexts.exportContext(),
-      }).xml
-    )
-  )
+  return normalizeXML(testMetadataItemYamlRoundTrip({
+    rule: HomePageWorkAreaRules, sourceXML: xmlString,
+    mutate: (value) => mutate?.(value as HomePageWorkAreaYAML),
+  }).result)
 }
 
 describe("HomePageWorkArea YAML → XML", () => {
+  it("does not restore XML details absent from YAML from a reference", () => {
+    const referenceXML = importContentFromXML(HOME_PAGE_WORK_AREA_XML.replace(
+      "<Item>", '<Item customAttribute="must-not-return">'
+    ))
+    expect(exportYAML(yaml, referenceXML)).not.toContain("must-not-return")
+  })
   it("accepts short role names in item visibility", () => {
     const result = exportYAML(yaml)
     expect(result).toContain('<xr:Value name="Role.Администратор">false</xr:Value>')
@@ -155,10 +148,15 @@ describe("HomePageWorkArea YAML → XML", () => {
         '<xr:Value name="Role.Администратор" customRole="keep"><Extra>role</Extra>false</xr:Value><UnknownVisibility>keep visibility</UnknownVisibility>'
       )
       .replace("</Visibility>", "</Visibility><UnknownItemChild>keep item</UnknownItemChild>")
-    const result = roundTrip(xml, (value) => {
-      value.ЛеваяКолонка![0].Высота = 10
-      value.ЛеваяКолонка![0].Видимость!.Роли!.Администратор = "Истина"
+    const converted = testMetadataItemYamlRoundTrip({
+      rule: HomePageWorkAreaRules, sourceXML: xml,
+      mutate: (yaml) => {
+        const value = yaml as HomePageWorkAreaYAML
+        value.ЛеваяКолонка![0].Высота = 10
+        value.ЛеваяКолонка![0].Видимость!.Роли!.Администратор = "Истина"
+      },
     })
+    const result = converted.result
 
     expect(result).toContain('customAttribute="keep"')
     expect(result).toContain("<UnknownItemChild>keep item</UnknownItemChild>")
@@ -167,10 +165,13 @@ describe("HomePageWorkArea YAML → XML", () => {
     expect(result).toContain('customRole="keep"')
     expect(result).toContain("<Extra>role</Extra>")
     expect(result).toContain("<Height>10</Height>")
-    expect(result).toContain("true")
+    expect(result).not.toContain("<Height>100</Height>")
+    expect(result).toMatch(/<xr:Value name="Role.Администратор" customRole="keep">[\s\S]*?<Extra>role<\/Extra>\s*true<\/xr:Value>/)
+    expect(converted.yamlText).toContain("!xml/raw")
+    expect(converted.yamlText).not.toContain("!xml/invalid")
   })
 
-  it("preserves reference Column kind when YAML does not force another kind", () => {
+  it("preserves Column kind through serialized YAML", () => {
     const xml = HOME_PAGE_WORK_AREA_XML.replace("TwoColumnsVariableWidth", "OneColumn")
       .replace(/<LeftColumn>[\s\S]*?<\/LeftColumn>/, `<Column>
 		<Item>

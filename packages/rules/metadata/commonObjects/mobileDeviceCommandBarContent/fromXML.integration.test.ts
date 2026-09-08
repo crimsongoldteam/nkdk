@@ -1,11 +1,19 @@
 import { describe, expect, it } from "vitest"
-import { readAndParseXMLFixture } from "../../../tests/readFixtureXML"
+import { readAndParseXMLFixture, readXMLFixtureAsString } from "../../../tests/readFixtureXML"
+import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"
 import { mockContextFromXML, mockRule } from "../../../tests/mockContext"
 import { fullMobileDeviceCommandBarContent, twoItemsMobileDeviceCommandBarContent } from "./__fixtures__/data"
 import { importMobileDeviceCommandBarContentFromXML } from "./fromXML"
 import { MobileDeviceCommandBarContentXML } from "./types"
 
 describe("importMobileDeviceCommandBarContentFromXML", () => {
+  it.each([
+    ["full.xml", fullMobileDeviceCommandBarContent],
+    ["twoItems.xml", twoItemsMobileDeviceCommandBarContent],
+  ])("reads structural mobile commands: %s", (file, expected) => {
+    expect(importMobileDeviceCommandBarContentFromXML(mockContextFromXML(), mockRule, parseStructuralXMLWithoutCompatibility(readXMLFixtureAsString(import.meta.url, file)))).toEqual(expected)
+  })
+
   it("returns undefined for undefined input", () => {
     const result = importMobileDeviceCommandBarContentFromXML(mockContextFromXML(), mockRule, undefined)
     expect(result).toBeUndefined()

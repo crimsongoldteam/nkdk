@@ -1,6 +1,5 @@
 import {
   parseMetadataYaml,
-  parseXmlDocumentWithSaxes,
   xmlAnnotatedMappingEntries,
 } from "@nkdk/runtime"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
@@ -38,7 +37,7 @@ describe("XML-аномалии неизвестных и повторных св
       context: mockContextToXML(),
     })
 
-    expect(parseXmlDocumentWithSaxes(xml).compatibility).toMatchObject({
+    expect(xmlFixtureValue(xml)).toMatchObject({
       Root: {
         Properties: {
           Value: "01",
@@ -83,3 +82,4 @@ function prepare(yaml: string) {
     runtime: { requiresImportant: () => false },
   })
 }
+import { xmlFixtureValue } from "../../tests/xmlFixtureValue"

@@ -114,7 +114,7 @@ export const IMPORT_CONTEXT = {
   languages: e2eLanguages,
   version: "2.20",
   exportToYAML: { toTyped: false },
-  fromXML: { forReference: false },
+  fromXML: { },
 } as const
 
 export const SYNC_CONTEXT = {

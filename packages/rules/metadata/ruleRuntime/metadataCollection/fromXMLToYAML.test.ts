@@ -1,16 +1,20 @@
-import { beforeAll, describe, expect, it } from "vitest"
+import { beforeAll, describe, expect, it, vi } from "vitest"
+import { createTestImportTraversal } from "../../../tests/importTraversal"
 import { mockContextFromXML } from "../../../tests/mockContext"
 import {
   createConfigurationIndexCollector,
   createXmlAnomalyAnnotations,
   createXmlImportAuditSession,
   parseXmlDocumentWithSaxes,
+  isXmlElementNode,
+  xmlTextValue,
   serializeYAMLDocument,
   withConfigurationIndexCollector,
   xmlAnnotatedMappingEntries,
 } from "@nkdk/runtime"
 import { createLocalIndexesCollector } from "../../projectDefinition/localIndexes"
 import {
+  createDirectImportFactsCollector,
   createDeferredValuePathCollector,
   createImportedDependentPropertyCollector,
 } from "../property/importYamlTypes"
@@ -20,6 +24,8 @@ import { registerTypeRule } from "../property/typeRuleRegistry"
 import type { MetadataItemRule } from "../property/types"
 import { importMetadataItemFromXMLToYAML } from "../metadataItem/fromXMLToYAML"
 import { registerMetadataItemCollectionRule } from "./ruleFactory"
+import { importMetadataItemCollectionFromXMLToYAML } from "./fromXMLToYAML"
+import { ExecutionPath } from "@nkdk/runtime/rule-kit"
 import {
   captureTestXmlImport,
   createFailingXmlImportAttempt,
@@ -30,12 +36,49 @@ import {
 const itemRule = {
   itemType: "TestItem",
   properties: {
-    uuid: { type: "string", xml: "_uuid", forReferenceOnly: true },
+    uuid: { type: "string", xml: "_uuid", xmlOnly: true },
     name: { type: "string", xml: "Name", yaml: "Имя" },
     value: { type: "string", xml: "Value", yaml: "Значение" },
     path: { type: "TestDeferred" as PropertyRuleType, xml: "Path", yaml: "Путь" },
   },
 } as MetadataItemRule
+
+it("не материализует пути элементов без YAML и сохраняемых фактов", () => {
+  const root = parseXmlDocumentWithSaxes(`<Items>${"<Item><Content/></Item>".repeat(128)}</Items>`).roots[0]!
+  const materialize = vi.spyOn(ExecutionPath.prototype, "toArray")
+  try {
+    const yaml = importMetadataItemCollectionFromXMLToYAML({
+      context: mockContextFromXML(),
+      rule: { type: "TestArrayCollection" as PropertyRuleType, xml: "Item", yaml: "Элементы" },
+      xml: root, itemRule: { itemType: "EmptyEnvelope", properties: {
+        content: { type: "XMLRoot", container: "Content" },
+      } }, xmlElement: "Item", yamlAsArray: true,
+      traversal: { pathCursor: ExecutionPath.from<string | number>([]), rulePath: [], collector: createLocalIndexesCollector() },
+    })
+    expect(yaml).toBeUndefined()
+    expect(materialize).not.toHaveBeenCalled()
+  } finally { materialize.mockRestore() }
+})
+
+it("возвращает окончательное значение именованного элемента до закрытия его границы", () => {
+  const root = parseXmlDocumentWithSaxes("<Item><Name>Первый</Name><Value>a</Value></Item>").roots[0]!
+  let completed: Record<string, unknown> | undefined
+  const yaml = importMetadataItemCollectionFromXMLToYAML({
+    context: mockContextFromXML(),
+    rule: { type: "TestRecordCollection" as PropertyRuleType, xml: "Item", yaml: "Элементы" },
+    xml: root, itemRule, xmlElement: "Item", keyField: "name",
+    traversal: {
+      pathCursor: ExecutionPath.from<string | number>([]), rulePath: [], collector: createLocalIndexesCollector(),
+      roundTrip: { open({ yaml }) { return {
+        ready() {},
+        finish() { completed = yaml; Object.freeze(yaml) },
+      } } },
+    },
+  })
+  expect(completed).toEqual({ Значение: "a" })
+  expect(yaml).toEqual({ Первый: { Значение: "a" } })
+  expect((yaml as Record<string, unknown>).Первый).toBe(completed)
+})
 
 beforeAll(() => {
 registerTypeRule("TestDeferred" as PropertyRuleType, "finalizeImportedYAML", ({ value }) => value)
@@ -102,6 +145,112 @@ registerMetadataItemCollectionRule({
 })
 
 describe("importMetadataItemCollectionFromXMLToYAML", () => {
+  it("не подготавливает вложенное правило для пустой коллекции", () => {
+    let reads = 0
+    const yaml = importMetadataItemCollectionFromXMLToYAML({
+      context: mockContextFromXML(),
+      rule: { type: "TestRecordCollection" as PropertyRuleType },
+      xml: parseXmlDocumentWithSaxes("<Items/>").roots[0],
+      itemRule: { itemType: itemRule.itemType, get properties() { reads++; return itemRule.properties } },
+      xmlElement: "Item", keyField: "name",
+      traversal: { pathCursor: ExecutionPath.from<string | number>([]), rulePath: [], collector: createLocalIndexesCollector() },
+    })
+    expect(yaml).toBeUndefined()
+    expect(reads).toBe(0)
+  })
+
+  it("передаёт факты готового элемента массива до обработки следующего", () => {
+    const facts = createDirectImportFactsCollector()
+    const roots = parseXmlDocumentWithSaxes("<Item><Value>a</Value></Item><Item><Value>b</Value></Item>").roots
+    const content = roots[1]!.content[0]!
+    let secondReadBeforeFirst = false
+    Object.defineProperty(roots[1]!.content, 0, { get() {
+      secondReadBeforeFirst ||= !facts.finish().some(fact => fact.propertyKey === "value" && fact.value === "a")
+      return content
+    } })
+    let firstPublished = false
+    const valueType = "TestStreamingArrayValue" as PropertyRuleType
+    registerTypeRule(valueType, "importFromXML", (_context, _rule, value) => {
+      const text = isXmlElementNode(value) ? xmlTextValue(value) : value
+      if (text === "b") firstPublished = facts.finish().some(fact => fact.propertyKey === "value" && fact.value === "a")
+      return text
+    })
+    registerTypeRule(valueType, "exportToYAML", ({ value }: { value: unknown }) => value)
+    const result = importMetadataItemCollectionFromXMLToYAML({
+      context: mockContextFromXML(),
+      rule: { type: "TestArrayCollection" as PropertyRuleType, xml: "Item", yaml: "Элементы" },
+      xml: roots,
+      itemRule: { itemType: "StreamingArrayItem", properties: { value: { type: valueType, xml: "Value", yaml: "Значение" } } },
+      xmlElement: "Item", yamlAsArray: true,
+      traversal: { mode: "facts", facts, pathCursor: ExecutionPath.from<string | number>(["Элементы"]), rulePath: [], collector: createLocalIndexesCollector() },
+    })
+    expect(result).toEqual([{ Значение: "a" }, { Значение: "b" }])
+    // Совпадающее исходное и окончательное значение хранится одним фактом.
+    expect(facts.finish().map(({ propertyKey, yamlPath, value }) => ({ propertyKey, yamlPath, value }))).toEqual([
+      { propertyKey: "value", yamlPath: ["Элементы", 0, "Значение"], value: "a" },
+      { propertyKey: "value", yamlPath: ["Элементы", 1, "Значение"], value: "b" },
+    ])
+    expect(firstPublished).toBe(true)
+    expect(secondReadBeforeFirst).toBe(false)
+  })
+
+  it("выбирает ключи по фактам непосредственных полей без JSON-копий путей", () => {
+    const document = parseXmlDocumentWithSaxes("<Item><Name>Первый</Name><Value>a</Value></Item><Item><Name>Второй</Name><Value>b</Value></Item>")
+    const facts = createDirectImportFactsCollector()
+    const stringify = vi.spyOn(JSON, "stringify")
+    try {
+      const yaml = importMetadataItemCollectionFromXMLToYAML({
+        context: mockContextFromXML(),
+        rule: { type: "TestRecordCollection" as PropertyRuleType, xml: "Item", yaml: "Элементы" },
+        xml: document.roots, itemRule, xmlElement: "Item", keyField: "name",
+        recordYamlKeyFromYAML: ({ yaml, name }) => `${name}-${yaml.Значение}`,
+        traversal: { mode: "facts", facts, pathCursor: ExecutionPath.from<string | number>([]), rulePath: [], collector: createLocalIndexesCollector() },
+      })
+      expect(yaml).toEqual({ "Первый-a": { Значение: "a" }, "Второй-b": { Значение: "b" } })
+      expect(facts.finish()).toContainEqual(expect.objectContaining({ yamlPath: ["Второй-b", "Значение"], value: "b" }))
+      expect(stringify.mock.calls.filter(([value]) => Array.isArray(value) && Array.isArray(value[0]) && (value[1] === "name" || value[1] === "value"))).toEqual([])
+    } finally {
+      stringify.mockRestore()
+    }
+  })
+
+  it("использует уже прочитанное имя элемента для адреса индекса", () => {
+    const document = parseXmlDocumentWithSaxes('<Item name="Первый" uuid="11111111-1111-1111-1111-111111111111"><Value>a</Value></Item>')
+    const attribute = document.roots[0]!.attributes.find(attribute => attribute.name === "name")!
+    let reads = 0
+    Object.defineProperty(attribute, "value", { get() { reads++; return "Первый" } })
+    const index = createConfigurationIndexCollector()
+    const yaml = importMetadataItemCollectionFromXMLToYAML({
+      context: withConfigurationIndexCollector(mockContextFromXML(), index, "Владелец.A"),
+      rule: { type: "TestRecordCollection" as PropertyRuleType, xml: "Item", yaml: "Элементы" },
+      xml: document.roots[0], itemRule, xmlElement: "Item", keyField: "name",
+      traversal: { pathCursor: ExecutionPath.from<string | number>([]), rulePath: [], collector: createLocalIndexesCollector() },
+    })
+    expect(yaml).toEqual({ Первый: { Значение: "a" } })
+    expect(index.fragment("test.yaml").entities).toContainEqual(expect.objectContaining({
+      logicalAddress: "Владелец.A.TestItem.Первый", uuid: "11111111-1111-1111-1111-111111111111",
+    }))
+    // Коллекция и собственные implicit-правила читают имя; адрес индекса использует готовое значение.
+    expect(reads).toBe(2)
+  })
+
+  it("читает имена структурных элементов без промежуточных объектов", () => {
+    const document = parseXmlDocumentWithSaxes("<Item><Name>Первый</Name><Value>a</Value></Item><Item><Name>Второй</Name><Value>b</Value></Item>")
+    for (const node of document.roots) {
+      Object.defineProperty(node, "compatibilityValue", { get() { throw new Error("intermediate collection item") } })
+    }
+    const yaml = importMetadataItemCollectionFromXMLToYAML({
+      context: mockContextFromXML(),
+      rule: { type: "TestRecordCollection" as PropertyRuleType, xml: "Item", yaml: "Элементы" },
+      xml: undefined,
+      itemRule,
+      xmlElement: "Item",
+      keyField: "name",
+      traversal: { pathCursor: ExecutionPath.from<string | number>([]), rulePath: [], xmlNodes: document.roots, collector: createLocalIndexesCollector() },
+    })
+    expect(yaml).toEqual({ Первый: { Значение: "a" }, Второй: { Значение: "b" } })
+  })
+
   it("помечает первый и следующий элементы с невалидным повторным именем", () => {
     const annotations = createXmlAnomalyAnnotations()
     const { yaml } = importTestRecordCollection(
@@ -219,13 +368,7 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
         },
       } as MetadataItemRule,
       xml: root,
-      traversal: {
-        yamlPath: [],
-        rulePath: [],
-        collector: createLocalIndexesCollector(),
-        audit,
-        annotations,
-      },
+      traversal: createTestImportTraversal({ audit, annotations }),
     }) as Record<string, unknown>
 
     expect(yaml).toEqual({
@@ -242,12 +385,12 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
     const failedType = "TestNestedBufferedFailure" as PropertyRuleType
     const collectionType = "TestNestedBufferedCollection" as PropertyRuleType
     registerTypeRule(failedType, "importFromXMLToYAML", ({ traversal }) => {
-      traversal.deferred?.accept({ valuePath: traversal.yamlPath, rulePath: traversal.rulePath })
+      traversal.deferred?.accept({ valuePath: traversal.pathCursor.toArray(), rulePath: traversal.rulePath })
       traversal.dependent?.accept({
         itemType: "TestNestedBufferedItem",
         itemYamlPath: ["Элементы", "Первый"],
         propertyKey: "broken",
-        yamlPath: traversal.yamlPath,
+        yamlPath: traversal.pathCursor.toArray(),
         xmlValue: "broken",
         presentInXML: true,
       })
@@ -327,8 +470,10 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
     const valueType = `TestNestedCollectionInfrastructureValue${phase}` as PropertyRuleType
     const collectionType = `TestNestedCollectionInfrastructure${phase}` as PropertyRuleType
     if (phase === "rollback") {
-      registerTypeRule(valueType, "importFromXMLToYAML", () => {
-        throw new Error("nested collection conversion failed")
+      registerTypeRule(valueType, "importFromXMLToYAML", ({ xml }) => {
+        const value = isXmlElementNode(xml) ? xmlTextValue(xml) : xml
+        if (value === "failure") throw new Error("nested collection conversion failed")
+        return value
       })
     }
     registerMetadataItemCollectionRule({
@@ -349,13 +494,14 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
     const { collector, cause } = createFailingXmlImportAttempt({
       phase,
       causeMessage: `${phase} nested collection infrastructure failed`,
-      targetAttempt: 2,
+      targetAttempt: 3,
     })
     const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
     const root = parseXmlDocumentWithSaxes(
-      "<Root><Item><Value>value</Value></Item></Root>",
+      "<Root><Item><Value>value</Value></Item><Item><Value>failure</Value></Item></Root>",
     ).roots[0]!
     const audit = createXmlImportAuditSession([root])
+    const facts = createDirectImportFactsCollector()
 
     const thrown = captureTestXmlImport({
       context,
@@ -368,9 +514,12 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
       } as MetadataItemRule,
       collector,
       audit,
+      facts,
+      mode: "facts",
     })
 
     expectXmlImportInfrastructureFailure({ thrown, phase, cause, audit })
+    expect(facts.finish()).toEqual([])
   })
 
   it("публикует готовые local facts с финальным YAML-ключом один раз", () => {
@@ -556,12 +705,12 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
     runDirectRule(
       "TestIndexedRecordCollection",
       xml,
-      withConfigurationIndexCollector(mockContextFromXML({ forReference: true }), recordCollector, "Владелец.A")
+      withConfigurationIndexCollector(mockContextFromXML(), recordCollector, "Владелец.A")
     )
     runDirectRule(
       "TestIndexedArrayCollection",
       xml,
-      withConfigurationIndexCollector(mockContextFromXML({ forReference: true }), arrayCollector, "Владелец.A")
+      withConfigurationIndexCollector(mockContextFromXML(), arrayCollector, "Владелец.A")
     )
 
     expect(recordCollector.fragment("test.yaml").entities).toEqual(
@@ -605,7 +754,7 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
     runDirectRule(
       "TestKeyedArrayCollection",
       xml,
-      withConfigurationIndexCollector(mockContextFromXML({ forReference: true }), indexCollector, "Владелец.A")
+      withConfigurationIndexCollector(mockContextFromXML(), indexCollector, "Владелец.A")
     )
 
     expect(indexCollector.fragment("test.yaml").entities).toContainEqual({
@@ -654,7 +803,7 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
   it("завершает прямой импорт ошибкой, если адресуемый элемент коллекции не имеет имени", () => {
     const indexCollector = createConfigurationIndexCollector()
     const context = withConfigurationIndexCollector(
-      mockContextFromXML({ forReference: true }),
+      mockContextFromXML(),
       indexCollector,
       "Владелец.A"
     )
@@ -760,13 +909,7 @@ function importRawRecordCollection(params: {
       },
     } as MetadataItemRule,
     xml: root,
-    traversal: {
-      yamlPath: [],
-      rulePath: [],
-      collector: createLocalIndexesCollector(),
-      audit,
-      annotations,
-    },
+    traversal: createTestImportTraversal({ audit, annotations }),
   }) as Record<string, unknown>
   return { items: yaml.Элементы as Record<string, unknown>, annotations, audit }
 }

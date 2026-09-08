@@ -1,41 +1,41 @@
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
-import { ConfigurationContextFromXML } from "@nkdk/runtime"
+import { ConfigurationContextFromXML, isXmlElementNode, xmlElementChildren, type XmlElementNode } from "@nkdk/runtime"
+import { readDcsText } from "../dcsText"
 import { importMetadataValueFromXML } from "../metadataValue/fromXML"
 import { ChoiceParameter, ChoiceParameterDcsItemXML, ChoiceParameterDcsValueRootXML } from "./types"
 
-const textNode = (value: string | { "#text"?: string } | undefined): string => {
-  if (value === undefined) {
-    throw new Error("DCS ChoiceParameter: expected dcscor:choiceParameter")
-  }
-  if (typeof value === "string") {
-    return value
-  }
-  const t = value["#text"]
-  if (typeof t === "string") {
-    return t
-  }
-  throw new Error("DCS ChoiceParameter: invalid choiceParameter text")
-}
+const textNode = (value: unknown): string =>
+  readDcsText(value, "DCS ChoiceParameter: expected dcscor:choiceParameter", "DCS ChoiceParameter: invalid choiceParameter text")
 
 export const importChoiceParameterFromDcsXML = (
   context: ConfigurationContextFromXML,
-  _rule: PropertyRule | undefined,
-  xml: ChoiceParameterDcsValueRootXML
+  rule: PropertyRule | undefined,
+  xml: ChoiceParameterDcsValueRootXML | XmlElementNode
 ): ChoiceParameter => {
-  const root = xml["dcscor:value"]
+  const root = isXmlElementNode(xml)
+    ? xml.name === "dcscor:value" ? xml : xmlElementChildren(xml, "dcscor:value")[0]
+    : xml["dcscor:value"]
+  return importChoiceParameterDcsPayload(context, rule, root)
+}
+
+export const importChoiceParameterDcsPayload = (
+  context: ConfigurationContextFromXML,
+  _rule: PropertyRule | undefined,
+  root: ChoiceParameterDcsValueRootXML["dcscor:value"] | XmlElementNode | undefined,
+): ChoiceParameter => {
   if (!root) {
     throw new Error("DCS ChoiceParameter: missing dcscor:value")
   }
 
-  const rawItem = root["dcscor:item"]
-  const item: ChoiceParameterDcsItemXML | undefined = Array.isArray(rawItem) ? rawItem[0] : rawItem
+  const rawItem = isXmlElementNode(root) ? xmlElementChildren(root, "dcscor:item") : root["dcscor:item"]
+  const item: ChoiceParameterDcsItemXML | XmlElementNode | undefined = Array.isArray(rawItem) ? rawItem[0] : rawItem
 
   if (!item) {
     throw new Error("DCS ChoiceParameter: missing dcscor:item")
   }
 
-  const name = textNode(item["dcscor:choiceParameter"])
-  const valueXml = item["dcscor:value"]
+  const name = textNode(isXmlElementNode(item) ? xmlElementChildren(item, "dcscor:choiceParameter")[0] : item["dcscor:choiceParameter"])
+  const valueXml = isXmlElementNode(item) ? xmlElementChildren(item, "dcscor:value")[0] : item["dcscor:value"]
 
   const value =
     valueXml !== undefined

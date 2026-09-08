@@ -2,10 +2,32 @@ import { markYAMLScalarTag, parseMetadataYaml, yamlScalarTagAt } from "@nkdk/run
 import { describe,expect,it } from "vitest"
 import "../../../tests/metadataExecutionContext"
 import { InputFieldRules } from "../elements/inputField/rules"
-import { projectClientApplicationBaseForm } from "./baseFormProjection"
+import { createClientApplicationBaseFormProjectionSource, projectClientApplicationBaseForm } from "./baseFormProjection"
+import { yamlBaseFormProjectionSource } from "./baseFormProjectionSource"
 import type { ClientApplicationFormYAML } from "./types"
 
 describe("client application BaseForm projection", () => {
+
+  it("готовит отдельное поле основы без чтения свойств соседнего элемента", () => {
+    const base = yamlBaseFormProjectionSource({
+      Элементы: {
+        Первое: { Вид: "ПолеВвода", Ширина: 22, Высота: 7 },
+        Второе: { Вид: "ПолеВвода", get Ширина() { throw new Error("Не запрошенный сосед") } },
+      },
+    })
+    const extension = yamlBaseFormProjectionSource({
+      Элементы: {
+        Первое: { Вид: "ПолеВвода", Ширина: 30 },
+        Второе: { Вид: "ПолеВвода", Ширина: 40 },
+      },
+    })
+    const source = createClientApplicationBaseFormProjectionSource({ baseYaml: base, extensionYaml: extension })
+    const field = source.child("Элементы")!.child("Первое")!
+    expect(field.keys()).toEqual(["Вид", "Ширина"])
+    expect(field.read("Ширина")).toBe(22)
+    expect(field.has("Высота")).toBe(false)
+    expect(source.child("Элементы")!.keys()).toEqual(["Первое", "Второе"])
+  })
 
   it("сохраняет все метаданные согласованных вложенных значений", () => {
     const source = [

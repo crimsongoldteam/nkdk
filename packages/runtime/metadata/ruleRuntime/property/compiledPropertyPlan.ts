@@ -5,10 +5,13 @@ import type { TypeRulesOperations } from "./ruleContracts"
 import type { MetadataItemRule, PropertyRule } from "./types"
 import {
   compileXMLImportPlanFromEntries,
+  needsAbsentXMLImport,
   type XMLImportPlan,
   type XMLImportPlanEntry,
 } from "./xmlImportPlan"
 import type { CompiledAtomicConversion } from "./atomicConversion"
+import { compileYamlPropertyOrder } from "./yamlPropertyOrder"
+import { XMLImportViews } from "./xmlImportViews"
 
 export const compiledPropertyOperationNames = [
   "importFromXML",
@@ -28,6 +31,7 @@ export const compiledPropertyOperationNames = [
   "requiresImportedYAMLFinalization",
   "finalizeExportedXML",
   "yamlToXMLNestedRule",
+  "prepareXMLItemOutput",
   "yamlScalarTagPolicy",
   "compileAtomicConversion",
 ] as const satisfies readonly TypeRulesOperations[]
@@ -67,8 +71,12 @@ export interface CompiledPropertyPlan {
   readonly rule: MetadataItemRule
   readonly registryRevision: number
   readonly properties: readonly CompiledProperty[]
+  readonly missingXMLProperties: readonly CompiledProperty[]
   readonly propertiesByKey: ReadonlyMap<string, CompiledProperty>
   readonly yamlToXMLOrder: readonly CompiledProperty[]
+  emptyYAMLExportOrder(namePropertyKey?: string): readonly CompiledProperty[]
+  selectedYAMLExportOrder(yaml: Readonly<Record<string, unknown>> | undefined, keys: Iterable<string>, namePropertyKey?: string): readonly CompiledProperty[]
+  readonly yamlOrder: readonly string[]
   xmlImportView(params: {
     readonly tags?: readonly string[]
     readonly includeAllTags: boolean
@@ -96,32 +104,75 @@ export function compilePropertyPlan(params: CompilePropertyPlanParams): Compiled
     ),
   )
   const propertiesByKey = new Map(properties.map((property) => [property.propertyKey, property]))
+  const missingXMLProperties = Object.freeze(properties.filter(({ propertyRule }) => needsAbsentXMLImport(propertyRule)))
   const yamlToXMLOrder = Object.freeze(
     getOrderedKeysToXML({ rule: params.rule })
       .map((propertyKey) => propertiesByKey.get(propertyKey))
       .filter((property): property is CompiledProperty => property !== undefined),
   )
-  const xmlViews = new Map<string, XMLImportPlan<CompiledProperty>>()
+  const xmlViews = new XMLImportViews(viewParams => compileXMLImportPlanFromEntries({
+    rule: params.rule, entries: properties, missingXMLProperties, ...viewParams,
+  }))
+  const emptyYAMLOrders = new Map<string | undefined, readonly CompiledProperty[]>()
+  const exportPositions = new Map(yamlToXMLOrder.map((property, index) => [property.propertyKey, index]))
+  const yamlPositions = new Map<string, number[]>()
+  for (const [index, property] of yamlToXMLOrder.entries()) {
+    if (property.yamlKey === undefined) continue
+    const positions = yamlPositions.get(property.yamlKey) ?? []
+    positions.push(index)
+    yamlPositions.set(property.yamlKey, positions)
+  }
 
   const plan: CompiledPropertyPlan = {
     rule: params.rule,
     registryRevision: params.registryRevision,
     properties,
+    missingXMLProperties,
     propertiesByKey,
     yamlToXMLOrder,
-    xmlImportView(viewParams) {
-      const key = viewParams.includeAllTags
-        ? "*"
-        : JSON.stringify([...(viewParams.tags ?? [])].sort())
-      const cached = xmlViews.get(key)
+    emptyYAMLExportOrder(namePropertyKey) {
+      const cached = emptyYAMLOrders.get(namePropertyKey)
       if (cached !== undefined) return cached
-      const view = compileXMLImportPlanFromEntries({
-        rule: params.rule,
-        entries: properties,
-        ...viewParams,
-      })
-      xmlViews.set(key, view)
-      return view
+      const order = Object.freeze(yamlToXMLOrder.filter(property =>
+        property.missingYAMLStrategy !== "skip"
+        || property.propertyKey === namePropertyKey
+        || property.propertyRule.externalFile !== undefined,
+      ))
+      emptyYAMLOrders.set(namePropertyKey, order)
+      return order
+    },
+    selectedYAMLExportOrder(yaml, keys, namePropertyKey) {
+      const absent = plan.emptyYAMLExportOrder(namePropertyKey)
+      let selected: Uint32Array | undefined
+      const include = (position: number) => {
+        selected ??= new Uint32Array(Math.ceil(yamlToXMLOrder.length / 32))
+        selected[position >>> 5] |= 1 << (position & 31)
+      }
+      for (const key of Object.keys(yaml ?? {})) {
+        for (const position of yamlPositions.get(key) ?? []) include(position)
+      }
+      for (const key of keys) {
+        const position = exportPositions.get(key)
+        if (position !== undefined) include(position)
+      }
+      if (selected === undefined) return absent
+      for (const property of absent) include(exportPositions.get(property.propertyKey)!)
+      const result: CompiledProperty[] = []
+      for (let word = 0; word < selected.length; word++) {
+        let bits = selected[word]!
+        while (bits !== 0) {
+          const bit = 31 - Math.clz32(bits & -bits)
+          result.push(yamlToXMLOrder[word * 32 + bit]!)
+          bits &= bits - 1
+        }
+      }
+      return result
+    },
+    yamlOrder: compileYamlPropertyOrder(properties.flatMap(property =>
+      property.yamlKey === undefined ? [] : [property.yamlKey],
+    )),
+    xmlImportView(viewParams) {
+      return xmlViews.get(viewParams)
     },
   }
   return Object.freeze(plan)
@@ -144,7 +195,8 @@ function compileProperty(
   const repeatableXMLNodes = nestedRule?.kind === "collection"
     || operations.fileChildNamesDescriptor !== undefined
     || xmlImportBehavior?.repeatedXMLNodes === true
-  const nestedItemsOwnXMLNode = nestedRule?.kind === "collection" && (
+  const nestedItemsOwnXMLNode = nestedRule?.kind === "item" && operations.nestedItemRule !== undefined
+    || nestedRule?.kind === "collection" && (
     nestedRule.xmlElement === canonicalXMLKey
     || xmlImportBehavior?.nestedItemsOwnXMLChildren === true
   )

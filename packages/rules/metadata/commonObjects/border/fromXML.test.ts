@@ -1,17 +1,30 @@
 import { describe, expect, it } from "vitest"
 import { borderTestCases } from "./__fixtures__/data"
 import { mockContextFromXML, mockRule } from "../../../tests/mockContext"
-import { importContentFromXML } from "@nkdk/runtime"
 import { importBorderFromXML } from "./fromXML"
-import { Border, BorderXML } from "./types"
+import { Border } from "./types"
+import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"
 
 describe("importBorderFromXML", () => {
+  it.each(borderTestCases.filter(test => test.xml !== undefined))("imports structural $name", ({ xml, border }) => {
+    expect(importBorderFromXML(mockContextFromXML(), mockRule, parseStructuralXMLWithoutCompatibility(xml!))).toEqual(border)
+  })
+
+  it.each([
+    ["<Border/>", undefined],
+    ["<Border><?keep value?></Border>", {}],
+    ['<Border xsi:type="v8ui:Border"/>', {}],
+    ['<Root><Border width="2"><v8ui:style>Indented</v8ui:style></Border></Root>', { width: 2, controlBorderType: "Indented" }],
+  ])("preserves structural border presence: %s", (xml, expected) => {
+    expect(importBorderFromXML(mockContextFromXML(), mockRule, parseStructuralXMLWithoutCompatibility(xml))).toEqual(expected)
+  })
+
   it("should import Border by ref", () => {
     const fixture = borderTestCases.find((testCase) => testCase.name === "border by style ref")
     expect(fixture?.xml).toBeDefined()
 
-    const xml = importContentFromXML<{ Border: BorderXML }>(fixture!.xml!)
-    const result = importBorderFromXML(mockContextFromXML(), mockRule, xml.Border)
+    const xml = parseStructuralXMLWithoutCompatibility(fixture!.xml!)
+    const result = importBorderFromXML(mockContextFromXML(), mockRule, xml)
 
     expect(result).toEqual(fixture!.border)
   })
@@ -26,9 +39,9 @@ describe("importBorderFromXML", () => {
       controlBorderType: "Indented",
     }
 
-    const xml = importContentFromXML<{ Border: BorderXML }>(mockXml)
+    const xml = parseStructuralXMLWithoutCompatibility(mockXml)
 
-    const result = importBorderFromXML(mockContextFromXML(), mockRule, xml.Border)
+    const result = importBorderFromXML(mockContextFromXML(), mockRule, xml)
 
     expect(result).toEqual(expected)
   })

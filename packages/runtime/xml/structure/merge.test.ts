@@ -5,9 +5,28 @@ import { xmlExport } from "../export/exporter"
 import { mergeXmlRawFragments, type XmlRawMergeBoundary } from "./merge"
 
 const roots = (xml: string): readonly XmlElementNode[] =>
-  parseXmlDocumentWithSaxes(xml, { preserveXsiNil: true }).roots
+  parseXmlDocumentWithSaxes(xml).roots
 
 describe("mergeXmlRawFragments", () => {
+  it.each([
+    { patch: { _mode: "new" }, expected: '\t\t<Child id="1" extra="kept"/>\n\t\t<Other/>' },
+    { patch: { _mode: "new", "#order": ["Other", "Child"] }, expected: '\t\t<Other/>\n\t\t<Child id="1" extra="kept"/>' },
+  ])("сохраняет терминал ребёнка при поправке оболочки родителя: $patch", ({ patch, expected }) => {
+    const merged = mergeXmlRawFragments(roots('<Root><Value mode="old"><Child id="1"/><Other/></Value></Root>'), [
+      { path: "Value", value: patch, hasSemanticValue: true, suppressOrdinaryOutput: false },
+      { path: "Value\\Child\\#attributes", value: { _extra: "kept" }, suppressOrdinaryOutput: false },
+    ])
+    expect(xmlExport(merged, false)).toBe(`<Root>\n\t<Value mode="new">\n${expected}\n\t</Value>\n</Root>`)
+  })
+
+  it("совмещает поправку собственных значений с порядком атрибутов той же границы", () => {
+    const merged = mergeXmlRawFragments(roots('<Root><Value b="2" a="wrong">wrong</Value></Root>'), [
+      { path: "Value\\#attributes", value: { "#order": ["_a", "_b"] }, suppressOrdinaryOutput: false },
+      { path: "Value", value: { _a: "1", "#text": "right" }, hasSemanticValue: true, suppressOrdinaryOutput: false },
+    ])
+    expect(xmlExport(merged, false)).toBe('<Root>\n\t<Value a="1" b="2">right</Value>\n</Root>')
+  })
+
   it("recursively applies an XML patch without replacing the semantic boundary", () => {
     const ordinary = roots(
       '<Root><Value mode="old"><Known>kept</Known><Changed>old</Changed><Removed>gone</Removed></Value></Root>',
@@ -133,6 +152,27 @@ describe("mergeXmlRawFragments", () => {
       "\t</Items>",
       "</Root>",
     ].join("\n"))
+  })
+
+  it("последовательно добавляет несколько новых физических вхождений", () => {
+    const merged = mergeXmlRawFragments(roots("<Root><Items><Value>first</Value></Items></Root>"), [
+      {
+        path: "Items\\Value",
+        occurrencePath: [null, 2],
+        value: "second",
+        suppressOrdinaryOutput: true,
+      },
+      {
+        path: "Items\\Value",
+        occurrencePath: [null, 3],
+        value: "third",
+        suppressOrdinaryOutput: true,
+      },
+    ])
+
+    expect(xmlExport(merged, false)).toContain(
+      "<Items>\n\t\t<Value>first</Value>\n\t\t<Value>second</Value>\n\t\t<Value>third</Value>\n\t</Items>",
+    )
   })
 
   it("восстанавливает точный текст оболочки при вставке отсутствующего raw-ребёнка", () => {

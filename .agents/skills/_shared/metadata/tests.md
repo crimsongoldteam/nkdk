@@ -37,20 +37,12 @@ Round-trip — это тест `import → export → сравнение с ис
 
 На уровне **parsed object** (распарсить оба YAML и сравнить через `toEqual`). Форматирование YAML (порядок ключей, отступы, кавычки, флоу vs блок) не семантично — сравнивать строкой бессмысленно.
 
-### Поля с `forReferenceOnly: true` (uuid и прочее)
+### Поля с `xmlOnly: true` (uuid и прочее)
 
-Для корректного round-trip технических полей (`uuid`, внутренние идентификаторы) нужен **двойной импорт**:
-
-1. **Обычный** импорт (`mockContextFromXML()`) — попадает в TS-фикстуру и используется в `expect(result).toEqual(<fixtureName>)`. Поля с `forReferenceOnly: true` в этом импорте **пропускаются** — uuid в модель не попадает.
-2. **Reference** импорт (`mockContextFromXML({ forReference: true })`) — `forReferenceOnly`-поля попадают. Результат передаётся в экспорт как `referenceMetadata` / `referenceData`, откуда uuid берётся при сериализации.
-
-`testExportPropertyToXML` делает двойной импорт автоматически, если передан `xmlRootTag` и `path`. Если пишешь собственный round-trip (для top-level applied object без `testExportPropertyToXML`) — делай двойной импорт руками:
-
-```typescript
-const data = importPropertyFromXML({ context: mockContextFromXML(),                     rule, value: xml })
-const ref  = importPropertyFromXML({ context: mockContextFromXML({ forReference: true }), rule, value: xml })
-const xmlData = exportMetadataItemToXML({ context: mockContextToXML(), data, referenceData: ref, rule: ... })
-```
+Такие свойства не входят в смысловую модель и YAML. Проверяй их через публичный
+путь импорта: первый проход сохраняет компактные факты и индексы, второй сразу
+восстанавливает и сравнивает XML. Не создавай для теста отдельную reference-модель
+и не копируй исходное XML-поддерево в экспорт.
 
 TS-фикстура остаётся **без** `uuid` — см. [fixtures-data.md](fixtures-data.md).
 

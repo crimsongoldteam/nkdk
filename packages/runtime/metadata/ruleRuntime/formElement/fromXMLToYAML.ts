@@ -20,33 +20,55 @@ import {
 } from "./singletonName"
 import { CollectableElementTypeToYAML, type CollectableElementType, type ElementRule, type ElementXML } from "./types"
 import { currentRuleRegistrySet } from "../ruleRegistryExecutionContext"
-import { copyYAMLRuntimeMetadata } from "../../../yaml/runtimeMetadata"
+import { arrangeProperties } from "../../../helpers/arrangeProperties"
+import { formElementTreeRule } from "./treeRule"
+import { isXmlElementNode, xmlAttributeValue, type XmlElementNode } from "../../../xml/import/document"
 
 export function importFormElementFromXMLToYAML(params: {
   context: ConfigurationContextFromXML
   rule: ElementRule & { itemType: CollectableElementType }
-  xml: ElementXML
+  xml: ElementXML | XmlElementNode
   name: string
   traversal: DirectImportTraversal
 }): Record<string, unknown> {
-  const properties = importFormElementPropertiesFromXMLToYAML(params) ?? {}
-  const result = {
-    Вид: currentRuleRegistrySet<{ formElementKinds: ReadonlyMap<string, string> }>()
-      ?.formElementKinds.get(params.rule.itemType) ?? CollectableElementTypeToYAML[params.rule.itemType],
-    ...properties,
-  }
-  copyYAMLRuntimeMetadata(properties, result)
-  return result
+  const kind = currentRuleRegistrySet<{ formElementKinds: ReadonlyMap<string, string> }>()
+    ?.formElementKinds.get(params.rule.itemType) ?? CollectableElementTypeToYAML[params.rule.itemType]
+  params.traversal.facts?.acceptProperty({
+    itemType: params.rule.itemType,
+    itemRule: params.rule,
+    propertyKey: "$formElementKind",
+    yamlPath: params.traversal.pathCursor.child("Вид").toArray(),
+    value: kind,
+  })
+  const initialYAML = { Вид: kind }
+  return importFormElementPropertiesFromXMLToYAML({
+    ...params, rule: formElementTreeRule(params.rule), initialYAML,
+    beforeFinish: arrangeFormElementProperties,
+  }) ?? initialYAML
+}
+
+function arrangeFormElementProperties(result: Record<string, unknown>): void {
+  const keys = Object.keys(result)
+  arrangeProperties(result, keys, [
+    "Вид",
+    ...keys.filter(key => key !== "Вид" && key !== "ТипКнопки"),
+    ...(Object.prototype.hasOwnProperty.call(result, "ТипКнопки") ? ["ТипКнопки"] : []),
+  ])
 }
 
 export function importFormElementPropertiesFromXMLToYAML(params: {
   context: ConfigurationContextFromXML
   rule: ElementRule & { itemType: CollectableElementType }
-  xml: ElementXML
+  xml: ElementXML | XmlElementNode
   name: string
   traversal: DirectImportTraversal
+  initialYAML?: Record<string, unknown>
+  beforeFinish?: (yaml: Record<string, unknown>) => void
 }): Record<string, unknown> | undefined {
   return importPropertiesFromXMLToYAML({
+    ...params.traversal,
+    initialYAML: params.initialYAML,
+    beforeFinish: params.beforeFinish,
     context: params.context,
     rule: params.rule,
     sources: [{
@@ -56,17 +78,7 @@ export function importFormElementPropertiesFromXMLToYAML(params: {
         : params.xml,
     }],
     itemName: params.name,
-    yamlPath: params.traversal.yamlPath,
     rulePath: enterNestedYamlRule(params.traversal, params.rule.itemType).rulePath,
-    collector: params.traversal.collector,
-    deferred: params.traversal.deferred,
-    dependent: params.traversal.dependent,
-    audit: params.traversal.audit,
-    annotations: params.traversal.annotations,
-    mode: params.traversal.mode,
-    facts: params.traversal.facts,
-    produceResult: params.traversal.produceResult,
-    profile: params.traversal.profile,
     execution: propertyExecutionFromTraversal(params.traversal),
   })
 }
@@ -74,7 +86,7 @@ export function importFormElementPropertiesFromXMLToYAML(params: {
 export function importSingleFormElementFromXMLToYAML(params: {
   context: ConfigurationContextFromXML
   rule: ElementRule
-  xml: ElementXML | undefined
+  xml: ElementXML | XmlElementNode | undefined
   ownerXmlName?: string
   nameStyle?: SingletonNameStyle
   directId?: string
@@ -103,7 +115,9 @@ export function importSingleFormElementFromXMLToYAML(params: {
     nameStyle: params.nameStyle,
     variant: inheritedNameVariant,
   })
-  const xmlName = typeof params.xml._name === "string" ? params.xml._name : undefined
+  const xmlName = isXmlElementNode(params.xml)
+    ? xmlAttributeValue(params.xml, "name")
+    : typeof params.xml._name === "string" ? params.xml._name : undefined
   const nameVariant = getSingletonNameVariant({
     xmlName,
     ownerXmlName: params.ownerXmlName,
@@ -112,35 +126,39 @@ export function importSingleFormElementFromXMLToYAML(params: {
   const itemContext = withSingletonNameVariantFromXML(context, nameVariant)
 
   if (params.directId === undefined) {
-    collectConfigurationIndexIdentityFromXML({ context: itemContext, sourceXmlKey: "_id", xmlValue: params.xml._id })
+    collectConfigurationIndexIdentityFromXML({
+      context: itemContext, sourceXmlKey: "_id",
+      xmlValue: isXmlElementNode(params.xml) ? xmlAttributeValue(params.xml, "id") : params.xml._id,
+    })
   }
+  const initialYAML = {}
+  attachExplicitSingletonName({ yaml: initialYAML, xmlName, generatedName, nameStyle: params.nameStyle })
+  const explicitName = Object.prototype.hasOwnProperty.call(initialYAML, "Имя")
   const yaml = (
     importPropertiesFromXMLToYAML({
+      ...params.traversal,
+      initialYAML,
+      beforeFinish: explicitName ? arrangeExplicitSingletonName : undefined,
       context: itemContext,
       rule: params.rule,
       sources: [{
         context: itemContext,
-        xml: params.nameStyle?.explicitXMLName === true
+        xml: params.traversal.xmlNodes?.[0] ?? (!isXmlElementNode(params.xml) && params.nameStyle?.explicitXMLName === true
           ? withoutImportableXMLName(params.xml)
-          : params.xml,
+          : params.xml),
       }],
       itemName: xmlName ?? canonicalName,
-      yamlPath: params.traversal.yamlPath,
       rulePath: enterNestedYamlRule(params.traversal, params.rule.itemType).rulePath,
-      collector: params.traversal.collector,
-      deferred: params.traversal.deferred,
-      dependent: params.traversal.dependent,
-      audit: params.traversal.audit,
-      annotations: params.traversal.annotations,
-      mode: params.traversal.mode,
-      facts: params.traversal.facts,
-      produceResult: params.traversal.produceResult,
-      profile: params.traversal.profile,
+      produceResult: params.traversal.mode === "facts" ? false : params.traversal.produceResult,
       execution: propertyExecutionFromTraversal(params.traversal),
-    }) ?? {}
+    }) ?? initialYAML
   )
-  attachExplicitSingletonName({ yaml, xmlName, generatedName, nameStyle: params.nameStyle })
   return yaml
+}
+
+function arrangeExplicitSingletonName(yaml: Record<string, unknown>): void {
+  const keys = Object.keys(yaml)
+  arrangeProperties(yaml, keys, [...keys.filter(key => key !== "Имя"), "Имя"])
 }
 
 function withoutImportableXMLName(xml: ElementXML): ElementXML {

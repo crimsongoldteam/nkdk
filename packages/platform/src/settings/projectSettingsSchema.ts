@@ -25,6 +25,8 @@ const importSchema = z.strictObject({
 }).describe("Настройки импорта конфигурации")
 
 export const projectSettingsStructuralSchema = z.strictObject({
+  workerCount: z.number().int().positive().max(Number.MAX_SAFE_INTEGER).optional()
+    .describe("Число воркеров метаданных; без поля используется автоматический расчёт"),
   infobase: z.strictObject({
     connectionString: requiredString("Строка подключения 1С к файловой или клиент-серверной информационной базе"),
     user: safeString("Пользователь информационной базы; поле не нужно при авторизации ОС").optional(),
@@ -33,12 +35,13 @@ export const projectSettingsStructuralSchema = z.strictObject({
       .describe("Время простоя сохраняемого подключения в секундах"),
     database: databaseSchema.optional(),
     operations: z.strictObject({ import: importSchema }),
-  }),
+  }).optional(),
 })
 
 export const PROJECT_SETTINGS_SCHEMA_URI = "nkdk://project-settings/schema/v1"
 
 export const projectSettingsExamples = [
+  { workerCount: 6 },
   {
     infobase: {
       connectionString: 'File="/bases/demo";',

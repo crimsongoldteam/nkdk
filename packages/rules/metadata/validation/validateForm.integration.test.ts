@@ -44,6 +44,26 @@ describe("validateForm", () => {
       ],
     })
 
+    expect(runValidateFormFirstPass(project).diagnostics).toEqual([])
+    expect(runValidateForm(project)).toEqual([])
+  })
+
+  it("считает invalid дополнительного одиночного типа колонки обоснованным", () => {
+    const project = createProject({
+      form: [
+        "Реквизиты:",
+        "  Таблица:",
+        "    Тип: ТаблицаЗначений",
+        "    Колонки:",
+        "      Участник:",
+        "        Тип:",
+        "          - ЗадачаСсылка.ЗадачаИсполнителя",
+        "          - Строка",
+        "          - !xml/invalid УникальныйИдентификатор",
+      ],
+    })
+
+    expect(runValidateFormFirstPass(project).diagnostics).toEqual([])
     expect(runValidateForm(project)).toEqual([])
   })
 

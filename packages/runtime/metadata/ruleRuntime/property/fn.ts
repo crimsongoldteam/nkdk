@@ -23,8 +23,8 @@ import type {
   RequiresImportedYAMLFinalizationFunction,
   ResolveNestedImportXMLSourcesFunction,
 } from "./importYamlTypes"
-import type { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
-import type { YAMLToXMLNestedRule } from "./fromYAMLToXMLTypes"
+import type { MetadataItemRule, PropertyRule } from "./types"
+import type { PrepareXMLItemOutputFunction, YAMLToXMLNestedRule } from "./fromYAMLToXMLTypes"
 import type { YAMLPropertySource } from "./fromYAMLToXMLTypes"
 import type { TypeRulesOperations } from "./ruleContracts"
 import type { RegisteredSystemEnumeration } from "./systemEnumerationRegistry"
@@ -39,18 +39,14 @@ export type { TypeRulesOperations, YAMLToXMLCondition } from "./ruleContracts"
 export type ExportToXMLFunction = (
   context: ConfigurationContextWithExportToXML,
   rule: PropertyRule,
-  value: any,
-  referenceValue?: any
+  value: any
 ) => any | undefined
 
-export type ExportToXMLFunctionNew = <T extends MetadataItem>(params: {
+export type ExportToXMLFunctionNew = (params: {
   context: ConfigurationContextWithExportToXML
   rule: PropertyRule
   source?: YAMLPropertySource
   propertyKey?: string
-  /** @deprecated Удаляется вместе со старой общей XML-оркестрацией. */
-  metadataItem?: T
-  referenceMetadata?: any
   value: any
 }) => any | undefined
 
@@ -100,6 +96,17 @@ export interface PropertyRuleExecution {
     readonly schema: TSchema
   }): string | undefined
   isDependentImportProperty(itemType: string, propertyKey: string): boolean
+  dependentImportDependencies(
+    context: import("./dependentItemRegistry").DependentImportDependencyContext,
+  ): import("./dependentItemRegistry").DependentImportDependencies | undefined
+  prepareDependentImportFacts(
+    params: import("./dependentItemRegistry").DependentItemParams,
+  ): import("./dependentItemRegistry").DependentImportFacts | undefined
+  shouldRemoveImportedDependentProperty(
+    params: import("./dependentItemRegistry").DependentItemParams & {
+      readonly candidate: import("./dependentItemRegistry").DependentImportedPropertyCandidate
+    },
+  ): boolean
   getMetadataTargetOwnerResolver(
     itemType: string,
   ): MetadataTargetOwnerResolver | undefined
@@ -110,7 +117,6 @@ export type ImportFromYAMLFunctionNew = (params: {
   rule: PropertyRule
   yaml?: any
   annotations?: XmlAnomalyAnnotations
-  source?: any
   value: any
   name?: string
   owner?: MetadataTargetOwner
@@ -120,8 +126,7 @@ export type ImportFromYAMLFunctionNew = (params: {
 export type importFromYAMLFunction = (
   context: ConfigurationContext,
   rule: PropertyRule,
-  value: any | undefined,
-  source?: any
+  value: any | undefined
 ) => any | undefined
 
 export type ExportToYAMLFunction = (
@@ -136,6 +141,7 @@ export type ExportToYAMLFunctionNew = (params: {
   value: any
   name?: string
   owner?: MetadataTargetOwner
+  annotations?: XmlAnomalyAnnotations
 }) => any | undefined
 
 export type ExportToEnterpriseFunction = (params: {
@@ -321,6 +327,7 @@ export interface TypeRule {
   finalizeExportedXML?: FinalizeExportedXMLFunction
   collectLocalFactsFromYAML?: CollectLocalFactsFromYAMLFunction
   yamlToXMLNestedRule?: YAMLToXMLNestedRule
+  prepareXMLItemOutput?: PrepareXMLItemOutputFunction
   yamlScalarTagPolicy?: YAMLScalarTagPolicy
   compileAtomicConversion?: CompileAtomicConversionFunction
 }
@@ -385,6 +392,8 @@ export type importExportFunction<O extends TypeRulesOperations> = O extends "imp
                                                   ? CollectLocalFactsFromYAMLFunction | undefined
                                                   : O extends "yamlToXMLNestedRule"
                                                     ? YAMLToXMLNestedRule | undefined
+                                                  : O extends "prepareXMLItemOutput"
+                                                    ? PrepareXMLItemOutputFunction | undefined
                                                   : O extends "yamlScalarTagPolicy"
                                                     ? YAMLScalarTagPolicy | undefined
                                                     : O extends "compileAtomicConversion"

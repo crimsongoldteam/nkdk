@@ -1,31 +1,44 @@
 import { importNumberFromXML } from "../number/fromXML"
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
-import { ConfigurationContext } from "@nkdk/runtime"
-import { getTypePrefix, removeTypePrefix } from "./helper"
+import { ConfigurationContext, isEmptyXmlElement, xmlAttributeValue, xmlElementChildren, xmlTextValue, type XmlElementNode } from "@nkdk/runtime"
+import { getTypePrefix, removeTypePrefix, getTypeDescriptionRuleOrSystemEnumeration } from "./helper"
 import {
-  TYPE_DESCRIPTION_SOURCE_TYPES,
   TypeDescription,
-  TypeDescriptionSourceTypes,
-  TypeDescriptionXML,
-  TypeDescriptionXMLType,
 } from "./types"
 import { normalizeImportedTypeDescriptionName } from "./xmlTypeNames"
+
+type SourceTypes = readonly XmlElementNode[]
 
 export const importTypeDescriptionFromXML = (
   _context: ConfigurationContext,
   _rule: PropertyRule | undefined,
-  xml: TypeDescriptionXML | undefined
+  xml: XmlElementNode | undefined
 ): TypeDescription | undefined => {
-  if (!xml) return undefined
+  if (xml === undefined) return undefined
 
-  const typeXML = xml["v8:Type"]
-  const typeSetXML = xml["v8:TypeSet"]
-  const types = extractTypesFromValues(typeXML, typeSetXML)
-  const typeId = getTypeIds(xml["v8:TypeId"])
-  const stringQualifiers = getStringQualifiers(_context, xml["v8:StringQualifiers"])
-  const numberQualifiers = getNumberQualifiers(_context, xml["v8:NumberQualifiers"])
-  const dateQualifiers = getDateQualifiers(xml["v8:DateQualifiers"])
+  const typeXML: XmlElementNode[] = []
+  const typeSetXML: XmlElementNode[] = []
+  const typeIdsXML: XmlElementNode[] = []
+  let stringXML: XmlElementNode | undefined
+  let numberXML: XmlElementNode | undefined
+  let dateXML: XmlElementNode | undefined
+  for (const child of xml.content) {
+    if (child.type !== "element") continue
+    switch (child.name) {
+      case "v8:Type": typeXML.push(child); break
+      case "v8:TypeSet": typeSetXML.push(child); break
+      case "v8:TypeId": typeIdsXML.push(child); break
+      case "v8:StringQualifiers": stringXML ??= child; break
+      case "v8:NumberQualifiers": numberXML ??= child; break
+      case "v8:DateQualifiers": dateXML ??= child; break
+    }
+  }
+  const types = [...getTypes(typeXML), ...getTypes(typeSetXML)]
+  const typeId = getTypeIds(typeIdsXML)
+  const stringQualifiers = getStringQualifiers(_context, stringXML)
+  const numberQualifiers = getNumberQualifiers(_context, numberXML)
+  const dateQualifiers = getDateQualifiers(dateXML)
 
   const result: TypeDescription = {
     type: types,
@@ -36,107 +49,61 @@ export const importTypeDescriptionFromXML = (
   }
 
   if (result.type.length === 0 && result.typeId === undefined) return undefined
-  const sourceTypes = extractSourceTypes(typeXML, typeSetXML)
-  if (Object.keys(sourceTypes).length > 0) {
-    Object.defineProperty(result, TYPE_DESCRIPTION_SOURCE_TYPES, {
-      value: sourceTypes,
-      enumerable: false,
-    })
-  }
 
   return result
 }
 
-export const extractTypes = (item: TypeDescriptionXML): string[] => {
-  return extractTypesFromValues(item["v8:Type"], item["v8:TypeSet"])
+const getTypes = (types: SourceTypes): string[] => {
+  if (types.length === 1 && isEmptyXmlElement(types[0]!)) return []
+  return types.map(getType)
 }
 
-const extractTypesFromValues = (
-  typeXML: TypeDescriptionXML["v8:Type"],
-  typeSetXML: TypeDescriptionXML["v8:TypeSet"]
-): string[] => {
-  const type = getTypes(typeXML)
-  const typeSet = getTypes(typeSetXML)
-
+const getTypeIds = (nodes: SourceTypes): string[] | undefined => {
   const result: string[] = []
-  if (type !== undefined) result.push(...type)
-  if (typeSet !== undefined) result.push(...typeSet)
-
-  return result
-}
-
-export const getTypes = (type: TypeDescriptionXMLType | TypeDescriptionXMLType[] | undefined): string[] | undefined => {
-  if (type === undefined) return undefined
-
-  let typeArray = Array.isArray(type) ? type : [type]
-
-  return typeArray.map((typeItem) => getType(typeItem))
-}
-
-const extractSourceTypes = (
-  typeXML: TypeDescriptionXML["v8:Type"],
-  typeSetXML: TypeDescriptionXML["v8:TypeSet"]
-): TypeDescriptionSourceTypes => {
-  const result: TypeDescriptionSourceTypes = {}
-  for (const type of toTypeArray(typeXML)) setSourceType(result, type)
-  for (const type of toTypeArray(typeSetXML)) setSourceType(result, type)
-
-  return result
-}
-
-const toTypeArray = (type: TypeDescriptionXMLType | TypeDescriptionXMLType[] | undefined): TypeDescriptionXMLType[] => {
-  if (type === undefined) return []
-  return Array.isArray(type) ? type : [type]
-}
-
-const setSourceType = (sourceTypes: TypeDescriptionSourceTypes, type: TypeDescriptionXMLType): void => {
-  const value = getTypeText(type)
-  if (value === undefined) return
-
-  const semanticType = removeTypePrefix(value)
-  const namespace = getTypeNamespace(type, value)
-  sourceTypes[semanticType] = {
-    value,
-    ...(namespace !== undefined ? { namespace } : undefined),
+  for (const node of nodes) {
+    if (node.attributes.length > 0 || node.content.some(child => child.type !== "text")) continue
+    const value = xmlTextValue(node)
+    if (value.trim() !== "") result.push(value)
   }
+  return result.length > 0 ? result : undefined
 }
 
-const getTypeIds = (typeId: TypeDescriptionXML["v8:TypeId"] | unknown): string[] | undefined => {
-  if (typeId === undefined) return undefined
-
-  const typeIds = Array.isArray(typeId) ? typeId : [typeId]
-  const nonEmptyTypeIds = typeIds.filter((item): item is string => typeof item === "string" && item.trim() !== "")
-
-  return nonEmptyTypeIds.length > 0 ? nonEmptyTypeIds : undefined
+const getType = (type: XmlElementNode): string => {
+  const text = xmlTextValue(type)
+  if (text === "") throw new Error("Type is undefined")
+  const semanticType = normalizeImportedTypeDescriptionName(removeTypePrefix(text))
+  const prefix = getTypePrefix(text)
+  validateSourceTypePrefix(semanticType, text, prefix === undefined ? undefined : xmlAttributeValue(type, `xmlns:${prefix}`))
+  return semanticType
 }
 
-export const getType = (type: TypeDescriptionXMLType): string => {
-  const text = getTypeText(type)
-
-  if (text === undefined) throw new Error("Type is undefined")
-
-  return normalizeImportedTypeDescriptionName(removeTypePrefix(text))
-}
-
-const getTypeText = (type: TypeDescriptionXMLType): string | undefined =>
-  typeof type === "string" ? type : type["#text"]
-
-const getTypeNamespace = (type: TypeDescriptionXMLType, value: string): string | undefined => {
-  if (typeof type === "string") return undefined
-
-  const prefix = getTypePrefix(value)
-  if (prefix === undefined) return undefined
-
-  const namespaces: Record<`_xmlns:${string}`, string> = type
-  return namespaces[`_xmlns:${prefix}`]
+function validateSourceTypePrefix(type: string, text: string, namespace: string | undefined): void {
+  const prefix = getTypePrefix(text)
+  if (prefix === undefined) return
+  const separator = type.indexOf(".")
+  const rule = getTypeDescriptionRuleOrSystemEnumeration(separator === -1 ? type : type.slice(0, separator))
+  if (rule === undefined) return
+  const expectedNamespace = rule.prefix === "cfg"
+    ? "http://v8.1c.ru/8.1/data/enterprise/current-config"
+    : rule.namespace
+  if (prefix === rule.prefix && (namespace === undefined || expectedNamespace === undefined || namespace === expectedNamespace)) return
+  const generated = /^d(\d+)p1$/.exec(prefix)
+  if (generated !== null && namespace === expectedNamespace
+    && (rule.prefix === "cfg" ? Number(generated[1]) % 2 === 0 : rule.namespace !== undefined && Number(generated[1]) % 2 === 1)) return
+  throw new Error(`Тип ${type}: несовместимый XML-префикс ${prefix}`)
 }
 
 const importQualifierNumber = (context: ConfigurationContext, value: number | string | undefined): number | undefined =>
   importNumberFromXML(context, undefined, value)
 
+const qualifierText = (node: XmlElementNode, name: string): string | undefined => {
+  const child = xmlElementChildren(node, name)[0]
+  return child === undefined ? undefined : xmlTextValue(child)
+}
+
 function getStringQualifiers(
   context: ConfigurationContext,
-  xml?: TypeDescriptionXML["v8:StringQualifiers"]
+  xml?: XmlElementNode
 ):
   | {
       length: number
@@ -145,12 +112,12 @@ function getStringQualifiers(
   | undefined {
   if (xml === undefined) return undefined
 
-  const length = importQualifierNumber(context, xml["v8:Length"])
+  const length = importQualifierNumber(context, qualifierText(xml, "v8:Length"))
   if (length === undefined) return undefined
 
   const result = {
     length,
-    allowedLength: xml["v8:AllowedLength"],
+    allowedLength: qualifierText(xml, "v8:AllowedLength") as "Variable" | "Fixed",
   }
 
   // Возвращаем undefined для дефолтных значений
@@ -161,17 +128,17 @@ function getStringQualifiers(
   return result
 }
 
-function getNumberQualifiers(context: ConfigurationContext, xml?: TypeDescriptionXML["v8:NumberQualifiers"]) {
+function getNumberQualifiers(context: ConfigurationContext, xml?: XmlElementNode) {
   if (!xml) return undefined
 
-  const digits = importQualifierNumber(context, xml["v8:Digits"])
-  const fractionDigits = importQualifierNumber(context, xml["v8:FractionDigits"])
+  const digits = importQualifierNumber(context, qualifierText(xml, "v8:Digits"))
+  const fractionDigits = importQualifierNumber(context, qualifierText(xml, "v8:FractionDigits"))
   if (digits === undefined || fractionDigits === undefined) return undefined
 
   const result = {
     digits,
     fractionDigits,
-    allowedSign: xml["v8:AllowedSign"],
+    allowedSign: qualifierText(xml, "v8:AllowedSign") as "Any" | "Nonnegative",
   }
 
   // Возвращаем undefined для дефолтных значений
@@ -182,11 +149,11 @@ function getNumberQualifiers(context: ConfigurationContext, xml?: TypeDescriptio
   return result
 }
 
-function getDateQualifiers(xml?: TypeDescriptionXML["v8:DateQualifiers"]) {
+function getDateQualifiers(xml?: XmlElementNode) {
   if (!xml) return undefined
 
   return {
-    dateFractions: xml["v8:DateFractions"],
+    dateFractions: qualifierText(xml, "v8:DateFractions") as "Date" | "Time" | "DateTime" | undefined,
   }
 }
 

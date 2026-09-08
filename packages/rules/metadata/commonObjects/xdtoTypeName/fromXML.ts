@@ -1,4 +1,4 @@
-import { ConfigurationContextFromXML } from "@nkdk/runtime"
+import { ConfigurationContextFromXML, isXmlElementNode, xmlAttributeValue, xmlTextValue, type XmlElementNode } from "@nkdk/runtime"
 import { PropertyRule, definePropertyTypeRule } from "../../ruleRuntime"
 import { XDTOTypeName } from "./types"
 
@@ -61,9 +61,15 @@ const fromQName = (text: string, namespace: string | undefined): XDTOTypeName =>
 export const importXDTOTypeNameFromXML = (
   _context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
-  value: string | number | XDTOTypeNameXMLObject | undefined
+  value: string | number | XDTOTypeNameXMLObject | XmlElementNode | undefined
 ): XDTOTypeName | undefined => {
   if (value === undefined) return undefined
+  if (isXmlElementNode(value)) {
+    const text = xmlTextValue(value)
+    if (text === "") return undefined
+    const { prefix } = splitQName(text)
+    return fromQName(text, xmlAttributeValue(value, `xmlns:${prefix}`))
+  }
 
   if (isXDTOTypeNameXMLObject(value)) {
     const text = value["#text"]?.toString()

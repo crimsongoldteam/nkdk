@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, symlinkSync } from "node:fs"
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, symlinkSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
@@ -86,6 +86,12 @@ const defaultDependencies = {
   now: () => performance.now(),
   clearOutput: clearDirectory,
   createProject: createProfileProject,
+  createLogDirectory: () => mkdtempSync(join(tmpdir(), "nkdk-import-profile-logs-")),
+  writeRunLog: (directory, run, stderr) => {
+    const path = join(directory, `run-${run}.stderr.log`)
+    writeFileSync(path, stderr, { encoding: "utf8", flag: "wx" })
+    return path
+  },
 }
 
 export async function runProfile(options, overrides = {}) {
@@ -93,6 +99,7 @@ export async function runProfile(options, overrides = {}) {
   const runs = []
   const allSteps = []
   dependencies.buildMcp()
+  const logsDir = dependencies.createLogDirectory()
   const session = await dependencies.createSession({
     serverMode: "compiled",
     env: { ...process.env, NKDK_PROFILE: "1" },
@@ -103,15 +110,23 @@ export async function runProfile(options, overrides = {}) {
       dependencies.clearOutput(options.yamlDir)
       const projectDir = dependencies.createProject(options.yamlDir)
       const started = dependencies.now()
-      const { result, payload } = await dependencies.callToCompletion(session, "nkdk.import_from_xml", {
-        xmlDir: options.xmlDir,
-        projectDir,
-        componentPath: "cf",
-        ...(options.concurrency === undefined ? {} : { concurrency: options.concurrency }),
-        allowWrite: true,
-      }, { signal: options.signal })
+      let completed
+      try {
+        completed = await dependencies.callToCompletion(session, "nkdk.import_from_xml", {
+          xmlDir: options.xmlDir,
+          projectDir,
+          componentPath: "cf",
+          ...(options.concurrency === undefined ? {} : { concurrency: options.concurrency }),
+          allowWrite: true,
+        }, { signal: options.signal })
+      } catch (cause) {
+        const stderrPath = dependencies.writeRunLog(logsDir, run, session.takeStderr())
+        throw new Error(`Импорт: прогон ${run} прерван; журнал: ${stderrPath}`, { cause })
+      }
+      const { result, payload } = completed
       const elapsedMs = Math.round(dependencies.now() - started)
       const stderr = session.takeStderr()
+      const stderrPath = dependencies.writeRunLog(logsDir, run, stderr)
       const steps = parseProfileSteps(stderr)
       for (const step of steps) allSteps.push(step)
       const summary = parseImportSummary(payload)
@@ -120,6 +135,7 @@ export async function runProfile(options, overrides = {}) {
       runs.push({
         run,
         elapsedMs,
+        stderrPath,
         exitCode: result.isError ? 1 : 0,
         succeeded: summary.succeeded,
         errors: summary.errors,
@@ -127,7 +143,7 @@ export async function runProfile(options, overrides = {}) {
         truncated: payload?.truncated,
         report,
         workerPoolSize: workerPoolSize(steps),
-        controlExport: summarizeControlExport(steps),
+        localProof: summarizeLocalProof(steps),
         phases: summarizeImportSteps(steps, elapsedMs),
         fromXmlPropertyTypes: summarizeFromXmlPropertyTypes(steps),
         toXmlPropertyTypes: summarizeToXmlPropertyTypes(steps),
@@ -137,7 +153,7 @@ export async function runProfile(options, overrides = {}) {
 
       if (result.isError || operationFailed(payload)) {
         const details = [formatFailurePayload(payload), stderr.trim()].filter(Boolean).join("\n")
-        throw new Error(`Импорт: прогон ${run} завершился ошибкой${details.length === 0 ? "" : `\n${details}`}`)
+        throw new Error(`Импорт: прогон ${run} завершился ошибкой; журнал: ${stderrPath}${details.length === 0 ? "" : `\n${details}`}`)
       }
     }
   } finally {
@@ -149,6 +165,7 @@ export async function runProfile(options, overrides = {}) {
     mode: "compiled-mcp-stdio",
     xmlDir: options.xmlDir,
     yamlDir: options.yamlDir,
+    logsDir,
     runs,
     coldMs: runs[0]?.elapsedMs,
     warmAvgMs: average(warm),
@@ -156,7 +173,7 @@ export async function runProfile(options, overrides = {}) {
     warmMaxMs: warm.length === 0 ? undefined : Math.max(...warm),
     peakRssMiB: max(allSteps.map((step) => step.rssPeak).filter((value) => value !== undefined)),
     peakHeapMiB: max(allSteps.map((step) => step.heapPeak).filter((value) => value !== undefined)),
-    controlExport: summarizeControlExport(allSteps),
+    localProof: summarizeLocalProof(allSteps),
     memoryCheckpoints: allSteps.filter(isMemoryCheckpointStep),
     profileRows: aggregateRows(allSteps.filter((step) =>
       isSummaryProfileStep(step) && !isMemoryCheckpointStep(step)
@@ -191,11 +208,10 @@ function createProfileProject(yamlDir) {
 export function summarizeImportSteps(steps, elapsedMs) {
   const names = {
     firstPassMs: "Первый проход worker",
-    workingIndexMs: "Фиксация рабочего индекса",
+    sharedIndexMs: "Фиксация общего индекса",
     secondPassMs: "Второй проход worker",
     externalFilesMs: "Копирование внешних файлов XML-выгрузки",
     finalBuildMs: "Построение окончательного состояния",
-    dependencyValidationMs: "Полная проверка зависимостей",
     publicationMs: "Публикация состояния проекта",
     saveMs: "Сохранение состояния проекта",
   }
@@ -223,16 +239,8 @@ export function summarizeImportSteps(steps, elapsedMs) {
     ["secondPassXmlReadMs", sum(records("Чтение XML второго прохода", "worker"), "time")],
     ["secondPassXmlParseMs", sum(records("Парсинг XML второго прохода", "worker"), "time")],
     ["factsOnlyMs", sum(records("Извлечение фактов XML", "worker"), "time")],
-    ["messagePackMs", sum(records("MessagePack pack", "worker"), "time")],
-    ["messageUnpackMs", sum(records("MessagePack unpack", "worker"), "time")],
-    ["packedStoreWriteMs", sum(records("Packed XML store write", "worker"), "time")],
-    ["packedStoreReadMs", sum(records("Packed XML store read", "worker"), "time")],
-    ["packedBytes", sum(records("Packed XML bytes", "worker"), "bytes")],
-    ["toXmlObjectMs", sum(records("toXML: построение объекта", "worker"), "time")],
-    ["toXmlFinalizeMs", sum(records("toXML: финализация deferred", "worker"), "time")],
-    ["directHashMs", sum(records("Контрольный XML: прямой hash", "worker"), "time")],
-    ["mismatchDocumentMs", sum(records("Контрольный XML: дерево расхождения", "worker"), "time")],
-    ["anomalyProofMs", sum(records("Доказательство XML-аномалий", "worker"), "time")],
+    ["localProofMs", sum(records("Локальный XML proof", "worker"), "time")],
+    ["localDependencyValidationMs", sum(records("Локальная проверка зависимостей первого прохода", "worker"), "time")],
     ["diagnosticPreviewMs", sum(records("Подготовка начала diagnostics", "main"), "time")],
     ["diagnosticReportMs", sum(records("Запись полного отчёта diagnostics", "main"), "time")],
     ["diagnosticReportBytes", sum(records("Запись полного отчёта diagnostics", "main"), "bytes")],
@@ -241,11 +249,10 @@ export function summarizeImportSteps(steps, elapsedMs) {
   ])
   const measuredMainMs = sumFields(phases, [
     "firstPassMs",
-    "workingIndexMs",
+    "sharedIndexMs",
     "secondPassMs",
     "externalFilesMs",
     "finalBuildMs",
-    "dependencyValidationMs",
     "publicationMs",
     "saveMs",
     "diagnosticPreviewMs",
@@ -260,16 +267,14 @@ export function summarizeImportSteps(steps, elapsedMs) {
   }
 }
 
-export function summarizeControlExport(steps) {
+export function summarizeLocalProof(steps) {
   const itemCount = (substep) => sum(
     steps.filter((step) => step.substep === substep),
     "items",
   )
   const workers = workerPoolSize(steps)
   return {
-    direct: itemCount("Контрольный XML без сериализации"),
-    serialized: itemCount("Контрольный XML с сериализацией"),
-    detailedRereads: 0,
+    boundaries: itemCount("Локальный XML proof"),
     assignmentsByWorker: Array.from({ length: workers }, (_unused, worker) =>
       sum(steps.filter((step) => step.worker === worker && step.substep === "Задания второго прохода"), "items")
     ),
@@ -380,6 +385,11 @@ function workerPoolSize(steps) {
   return workers.length === 0 ? 0 : max(workers) + 1
 }
 
+const profileNumericUnits = new Map([
+  ["worker", ""], ["items", ""], ["bytes", ""], ["time", "ms"],
+  ...["rssStart", "rssEnd", "rssPeak", "heapStart", "heapEnd", "heapPeak"].map((key) => [key, "MiB"]),
+])
+
 function parseProfileLine(line) {
   const result = {}
   for (const token of tokenizeProfileLine(line).slice(1)) {
@@ -388,20 +398,13 @@ function parseProfileLine(line) {
     const key = token.slice(0, eq)
     const rawValue = token.slice(eq + 1)
     const value = parseProfileValue(rawValue)
-    if (typeof value !== "string") {
-      result[key] = value
-      continue
-    }
-    if (value.endsWith("ms")) {
-      result[key] = Number(value.slice(0, -"ms".length))
-      continue
-    }
-    if (value.endsWith("MiB")) {
-      result[key] = Number(value.slice(0, -"MiB".length))
-      continue
-    }
-    const number = Number(value)
-    result[key] = Number.isNaN(number) ? value : number
+    result[key] = value
+    const unit = profileNumericUnits.get(key)
+    if (unit === undefined || typeof value !== "string") continue
+    const match = /^(-?(?:\d+(?:\.\d+)?|\.\d+))(ms|MiB)?$/u.exec(value)
+    if (match === null || (match[2] !== undefined && match[2] !== unit)) continue
+    const number = Number(match[1])
+    if (Number.isFinite(number)) result[key] = number
   }
   return result
 }
@@ -453,6 +456,7 @@ function printResult(result, options) {
   console.log("Import profile: compiled MCP stdio")
   console.log(`XML-каталог: ${result.xmlDir}`)
   console.log(`YAML-каталог: ${result.yamlDir}`)
+  console.log(`Исходные журналы: ${result.logsDir}`)
   console.log(`Воркеры: ${lastRun?.workerPoolSize ?? "unknown"}`)
   console.log(`Cold: ${formatMs(result.coldMs)}`)
   console.log(
@@ -609,7 +613,7 @@ function toTableRow(name, records) {
 function aggregateWorkerValues(records, field, mode) {
   const byWorker = new Map()
   for (const record of records) {
-    if (record.worker === undefined || record[field] === undefined) continue
+    if (!Number.isFinite(record.worker) || !Number.isFinite(record[field])) continue
     const current = byWorker.get(record.worker)
     byWorker.set(record.worker, mode === "max" ? Math.max(current ?? record[field], record[field]) : (current ?? 0) + record[field])
   }
@@ -659,7 +663,7 @@ function average(values) {
 }
 
 function sum(records, field) {
-  return records.reduce((total, record) => total + (record[field] ?? 0), 0)
+  return records.reduce((total, record) => total + (Number.isFinite(record[field]) ? record[field] : 0), 0)
 }
 
 function sumFields(record, fields) {

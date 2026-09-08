@@ -10,11 +10,6 @@ import {
 interface YAMLRuntimeAnnotationReader<TAnnotation extends { readonly target: string }> {
   at(parent: object, key: string | number): TAnnotation | undefined
   keyAt(parent: object, runtimeKey: string): TAnnotation | undefined
-  entries(): Iterable<{
-    readonly parent: object | undefined
-    readonly key: string | number | undefined
-    readonly annotation: TAnnotation
-  }>
 }
 
 interface YAMLRuntimeAnnotationWriter<TAnnotation extends { readonly target: string }> {
@@ -27,6 +22,7 @@ export function copyYAMLRuntimeMetadata(
   target: object,
   keys?: ReadonlySet<YAMLScalarTagKey>,
 ): void {
+  if (source === target) return
   copySymbolProperties(source, target)
   copyYAMLScalarTags(source, target, keys)
   copyYAMLValueTag(source, target)
@@ -50,9 +46,12 @@ export function copyYAMLRuntimeMetadataDeep<TAnnotation extends { readonly targe
     throw new Error("Для переноса XML-аннотаций нужны исходная и целевая таблицы")
   }
   if (!isObject(params.source) || !isObject(params.target)) return
+  const sameAnnotations = Object.is(params.sourceAnnotations, params.targetAnnotations)
+  if (params.source === params.target && sameAnnotations) return
   const copied = new WeakMap<object, WeakSet<object>>()
 
   const visit = (source: object, target: object): void => {
+    if (source === target && sameAnnotations) return
     const targets = copied.get(source) ?? new WeakSet<object>()
     if (targets.has(target)) return
     targets.add(target)
@@ -121,13 +120,12 @@ function copyXmlAnnotationsForKeys<TAnnotation extends { readonly target: string
   targetAnnotations: YAMLRuntimeAnnotationWriter<TAnnotation> | undefined,
 ): void {
   if (sourceAnnotations === undefined || targetAnnotations === undefined) return
-  for (const entry of sourceAnnotations.entries()) {
-    if (entry.parent !== source || entry.key === undefined || !keys.has(entry.key)) continue
-    if (entry.annotation.target === "key" && typeof entry.key === "string") {
-      targetAnnotations.setKey(target, entry.key, entry.annotation)
-    } else if (entry.annotation.target === "value") {
-      targetAnnotations.set(target, entry.key, entry.annotation)
-    }
+  for (const key of keys) {
+    const valueAnnotation = sourceAnnotations.at(source, key)
+    if (valueAnnotation?.target === "value") targetAnnotations.set(target, key, valueAnnotation)
+    if (typeof key !== "string") continue
+    const keyAnnotation = sourceAnnotations.keyAt(source, key)
+    if (keyAnnotation?.target === "key") targetAnnotations.setKey(target, key, keyAnnotation)
   }
 }
 

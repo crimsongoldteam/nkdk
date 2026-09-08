@@ -1,4 +1,5 @@
 import { metadataRuleLayer000 as contribution0 } from "../appliedObjects/metadataAccountingRegister/types"
+import { metadataRuleLayer000 as interfaceContribution } from "../appliedObjects/metadataInterface/types"
 import { metadataRuleLayer000 as contribution1 } from "../appliedObjects/metadataAccumulationRegister/types"
 import { metadataRuleLayer000 as contribution2 } from "../appliedObjects/metadataBot/types"
 import { metadataRuleLayer000 as contribution3 } from "../appliedObjects/metadataBusinessProcess/types"
@@ -139,6 +140,7 @@ import { metadataPropertyRule007 as contribution113 } from "../commonObjects/cli
 import { metadataPropertyRule008 as contribution114 } from "../commonObjects/clientApplicationInterface/register"
 import { metadataPropertyRule009 as contribution115 } from "../commonObjects/clientApplicationInterface/register"
 import { metadataPropertyRule010 as clientApplicationInterfacePresenceContribution } from "../commonObjects/clientApplicationInterface/register"
+import { metadataPropertyRule011 as clientApplicationInterfaceItemsContribution, metadataPropertyRule012 as clientApplicationInterfacePanelDefsContribution } from "../commonObjects/clientApplicationInterface/register"
 import { metadataPropertyRule001 as contribution116 } from "../commonObjects/dataCompositionSystem/conditionalAppearance/types"
 import { metadataPropertyRule001 as contribution117 } from "../commonObjects/dataCompositionSystem/structureItemGroup/types"
 import { metadataPropertyRule002 as contribution118 } from "../commonObjects/dataCompositionSystem/structureItemGroup/types"
@@ -192,6 +194,8 @@ import { metadataPropertyRule031 as rootCommandInterfacePresenceContribution } f
 import { metadataPropertyRule000 as contribution164 } from "../forms/commonObjects/formAttribute/fromXMLToYAML"
 import { metadataPropertyRule001 as contribution165 } from "../forms/commonObjects/formAttribute/fromXMLToYAML"
 import { metadataPropertyRule002 as contribution166 } from "../forms/commonObjects/formAttribute/fromXMLToYAML"
+import { metadataPropertyRule004 as formAttributeColumnsImport } from "../forms/commonObjects/formAttribute/fromXMLToYAML"
+import { metadataPropertyRule005 as formAttributeAdditionalColumnsImport } from "../forms/commonObjects/formAttribute/fromXMLToYAML"
 import { metadataPropertyRule000 as contribution167 } from "../forms/commonObjects/formAttribute/toJSONSchema"
 import { metadataPropertyRule001 as contribution168 } from "../forms/commonObjects/formAttribute/toJSONSchema"
 
@@ -265,6 +269,8 @@ const factoryPropertyRules = defineMetadataRules({
   contribution114,
   contribution115,
   clientApplicationInterfacePresenceContribution,
+  clientApplicationInterfaceItemsContribution,
+  clientApplicationInterfacePanelDefsContribution,
   contribution116,
   contribution117,
   contribution118,
@@ -318,6 +324,8 @@ const factoryPropertyRules = defineMetadataRules({
   contribution164,
   contribution165,
   contribution166,
+  formAttributeColumnsImport,
+  formAttributeAdditionalColumnsImport,
   contribution167,
   contribution168,
   latePropertyContribution000,
@@ -396,6 +404,7 @@ const factoryPropertyRules = defineMetadataRules({
 })
 
 export const staticFactoryRules = composeMetadataRules(
+  interfaceContribution,
   contribution0,
   contribution1,
   contribution2,

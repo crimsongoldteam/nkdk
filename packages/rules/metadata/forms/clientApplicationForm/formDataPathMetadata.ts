@@ -23,19 +23,19 @@ export function importedClientApplicationForm(params: {
   yaml: unknown
   rule: MetadataItemRule
 }): { yaml: unknown; rule: typeof ClientApplicationFormRules } | undefined {
-  if (params.rule.itemType === ClientApplicationFormRules.itemType) {
+  const path = clientApplicationFormYamlPath(params.rule)
+  if (path === undefined) return undefined
+  if (path.length === 0) {
     return { yaml: params.yaml, rule: ClientApplicationFormRules }
   }
   if (params.yaml === null || typeof params.yaml !== "object" || Array.isArray(params.yaml)) return undefined
+  return { yaml: Reflect.get(params.yaml, path[0]!), rule: ClientApplicationFormRules }
+}
 
-  for (const property of Object.values(params.rule.properties)) {
-    if (property.type !== "ClientApplicationForm" || property.yaml === undefined) continue
-    return {
-      yaml: (params.yaml as Record<string, unknown>)[property.yaml],
-      rule: ClientApplicationFormRules,
-    }
-  }
-  return undefined
+export function clientApplicationFormYamlPath(rule: MetadataItemRule): readonly string[] | undefined {
+  if (rule.itemType === ClientApplicationFormRules.itemType) return []
+  const property = Object.values(rule.properties).find(property => property.type === "ClientApplicationForm" && property.yaml !== undefined)
+  return property?.yaml === undefined ? undefined : [property.yaml]
 }
 
 export function createImportedFormDataPathIndex(params: {

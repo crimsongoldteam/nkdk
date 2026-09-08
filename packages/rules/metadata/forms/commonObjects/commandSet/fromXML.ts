@@ -1,16 +1,16 @@
 import { PropertyRule } from "../../elements/calendarField/rules"
 import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
-import { ConfigurationContext } from "@nkdk/runtime"
+import { ConfigurationContext, isXmlElementNode, xmlElementChildren, xmlTextValue, type XmlElementNode } from "@nkdk/runtime"
 import { CommandSet, CommandSetXML } from "./types"
 
 export const importCommandSetFromXML = (
   _context: ConfigurationContext,
   _rule: PropertyRule | undefined,
-  xml: CommandSetXML | undefined
+  xml: CommandSetXML | XmlElementNode | undefined
 ): CommandSet | undefined => {
   if (!xml) return undefined
 
-  const excludedCommands = xml.ExcludedCommand
+  const excludedCommands = isXmlElementNode(xml) ? xmlElementChildren(xml, "ExcludedCommand").map(xmlTextValue) : xml.ExcludedCommand
   if (excludedCommands === undefined) return undefined
 
   const result: CommandSet = []

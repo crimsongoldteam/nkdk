@@ -6,6 +6,7 @@ import type {
   ProjectStatePendingDependencyCheck,
   ProjectStatePendingReference,
   ProjectStateTargetEntry,
+  ProjectStateValidationContextDependency,
 } from "./fileUpdate"
 export type { ProjectStateImportIndexContribution } from "./fileUpdate"
 import type { ProjectStateRefreshResult } from "./refresh"
@@ -21,8 +22,6 @@ import {
 } from "./fileUpdateValidation"
 import {
   createMetadataDiagnosticCollection,
-  validationIssuePathFromPointer,
-  type ValidationIssue,
 } from "@nkdk/runtime"
 import {
   createPreparedImportStore,
@@ -38,10 +37,8 @@ export interface ProjectStateImportParams {
 }
 
 export type ProjectStateImportProfilePhase =
-  | "workingIndex"
-  | "semanticIndex"
+  | "sharedIndex"
   | "finalBuild"
-  | "dependencyValidation"
   | "save"
   | "publication"
 
@@ -63,6 +60,7 @@ export type ProjectStateImportFinalFileState =
       readonly pendingReferences: readonly ProjectStatePendingReference[]
       readonly pendingChecks: readonly ProjectStatePendingDependencyCheck[]
       readonly dependencies: readonly string[]
+      readonly validationContextDependencies?: readonly ProjectStateValidationContextDependency[]
     })
 
 export interface ProjectStateImportFinalFileStateBatch {
@@ -74,19 +72,13 @@ export interface ProjectStateImportSession {
   preparedImportStore(): Promise<PreparedImportStore>
   writeStateFragment(fragment: ProjectStateFragment): Promise<void>
   replaceFinalHashes(files: readonly { readonly projectPath: string; readonly hash: bigint }[]): Promise<void>
-  commitWorkingIndex(): Promise<ProjectStateReadToken>
-  commitSemanticIndex(): Promise<ProjectStateReadToken>
-  collectSemanticValidationIssues(): Promise<readonly ProjectStateImportValidationIssue[]>
+  commitSharedIndex(): Promise<ProjectStateReadToken>
   /** Выдаёт отдельный одноразовый token следующему worker после фиксации индекса. */
   createReadToken(): Promise<ProjectStateReadToken>
   finalize(beforeCheckpoint?: () => Promise<void>): Promise<ProjectStateRefreshResult>
   abort(cause: unknown): Promise<void>
 }
 
-export interface ProjectStateImportValidationIssue {
-  readonly projectPath: string
-  readonly issue: ValidationIssue
-}
 
 export interface CreateProjectStateImportSessionParams extends ProjectStateImportParams {
   readonly writer: ProjectStateWriterHandle
@@ -103,9 +95,7 @@ export async function createProjectStateImportSession(
   await params.writer.clearImportOutput(params.output.componentPaths)
   let phase:
     | "working"
-    | "committingWorking"
-    | "semantic"
-    | "committingSemantic"
+    | "committingShared"
     | "final"
     | "finalizing"
     | "done" = "working"
@@ -113,6 +103,8 @@ export async function createProjectStateImportSession(
   let finalWrites = Promise.resolve()
   const activeWrites = new Set<Promise<void>>()
   let preparedStorePromise: Promise<PreparedImportStore> | undefined
+  let sharedCommit: Promise<ProjectStateReadToken> | undefined
+  let abortCause: unknown
 
   async function closePreparedStore(): Promise<void> {
     if (preparedStorePromise === undefined) return
@@ -140,13 +132,13 @@ export async function createProjectStateImportSession(
   }
 
   function startWrite(
-    expectedPhase: "working" | "semantic",
+    expectedPhase: "working",
     rejectedMessage: string,
     write: () => Promise<void>,
   ): Promise<void> {
     if (phase !== expectedPhase) return Promise.reject(new Error(rejectedMessage))
     return trackWrite(Promise.resolve().then(async () => {
-      if (phase !== expectedPhase) throw new Error(rejectedMessage)
+      if (phase !== expectedPhase && phase !== "committingShared") throw new Error(rejectedMessage)
       await write()
     }))
   }
@@ -161,14 +153,22 @@ export async function createProjectStateImportSession(
     return trackWrite(queued)
   }
 
-  async function commitIndex(profilePhase: "workingIndex" | "semanticIndex"): Promise<ProjectStateReadToken> {
-    return measurePhase(profilePhase, async () => {
+  async function commitIndex(): Promise<ProjectStateReadToken> {
+    return measurePhase("sharedIndex", async () => {
       await Promise.all([...activeWrites])
+      assertCommitActive()
       await params.writer.commitUpdate()
+      assertCommitActive()
       const committed = await params.writer.createReadToken()
+      assertCommitActive()
       await params.writer.beginUpdate(params.projectDir, params.signal)
+      assertCommitActive()
       return committed
     })
+  }
+
+  function assertCommitActive(): void {
+    if (phase !== "committingShared") throw abortCause ?? new Error("Фиксация общего индекса отменена")
   }
 
   return {
@@ -191,10 +191,6 @@ export async function createProjectStateImportSession(
       }
       for (let id = 0; id < checked.fileCount; id += 1) {
         changedPaths.add(checked.stringValue(checked.fileRecord(id).projectPathId))
-      }
-      if (phase === "semantic") {
-        await startWrite("semantic", "Смысловая фаза import уже завершена", () => params.writer.writeFragment(fragment))
-        return
       }
       await startFinalWrite(() => params.writer.writeFragment(fragment))
     },
@@ -224,48 +220,21 @@ export async function createProjectStateImportSession(
         await params.writer.writeFragment(writer.finish())
       })
     },
-    async commitWorkingIndex() {
+    async commitSharedIndex() {
       if (phase !== "working") throw new Error("Рабочий индекс import уже зафиксирован")
-      phase = "committingWorking"
-      const token = await commitIndex("workingIndex")
-      phase = "semantic"
-      return token
-    },
-    async commitSemanticIndex() {
-      if (phase !== "semantic") throw new Error("Смысловой индекс import нельзя зафиксировать сейчас")
-      phase = "committingSemantic"
-      const token = await commitIndex("semanticIndex")
-      phase = "final"
-      return token
-    },
-    async collectSemanticValidationIssues() {
-      if (phase !== "final") {
-        throw new Error("Ошибки смыслового индекса доступны только после его фиксации")
-      }
-      const batches = await params.writer.validateDependencyDiagnosticBatches()
-      const diagnostics = createMetadataDiagnosticCollection(batches)
+      phase = "committingShared"
+      sharedCommit = commitIndex()
       try {
-        return [...diagnostics]
-          .filter(({ severity }) => severity === "error")
-          .map((diagnostic) => ({
-            projectPath: importTargetProjectPath(diagnostic.filePath, params.output.componentPaths),
-            issue: {
-              code: diagnostic.code ?? `diagnostic.${diagnostic.source}`,
-              kind: diagnostic.source === "syntax" || diagnostic.source === "external-file"
-                ? "infrastructure" as const
-                : "semantic" as const,
-              target: {
-                kind: "path" as const,
-                path: validationIssuePathFromPointer(diagnostic.path ?? ""),
-              },
-            },
-          }))
+        const token = await sharedCommit
+        assertCommitActive()
+        phase = "final"
+        return token
       } finally {
-        diagnostics.release()
+        sharedCommit = undefined
       }
     },
     async createReadToken() {
-      if (phase !== "semantic" && phase !== "final") {
+      if (phase !== "final") {
         throw new Error("Индекс import ещё не зафиксирован")
       }
       return params.writer.createReadToken()
@@ -277,16 +246,12 @@ export async function createProjectStateImportSession(
         await finalWrites
         return params.writer.readLocalDiagnosticBatches()
       })
-      const dependencyDiagnostics = await measurePhase(
-        "dependencyValidation",
-        () => params.writer.validateDependencyDiagnosticBatches(),
-      )
       await beforeCheckpoint?.()
       await closePreparedStore()
       const readToken = await params.writer.createReadToken()
       await measurePhase("save", () => params.writer.commitAndScheduleCheckpoint())
       const result: ProjectStateRefreshResult = {
-        diagnostics: createMetadataDiagnosticCollection([...localDiagnostics, ...dependencyDiagnostics]),
+        diagnostics: createMetadataDiagnosticCollection(localDiagnostics),
         readToken,
         stats: { hashedFiles: changedPaths.size, parsedYamlFiles: 0, changedFiles: changedPaths.size, deletedFiles: 0 },
       }
@@ -296,9 +261,13 @@ export async function createProjectStateImportSession(
     },
     async abort(cause) {
       if (phase === "done") return
+      abortCause = cause
       phase = "done"
       const failures: unknown[] = [cause]
-      const activeWriteResults = await Promise.allSettled([...activeWrites])
+      const activeWriteResults = await Promise.allSettled([
+        ...activeWrites,
+        ...(sharedCommit === undefined ? [] : [sharedCommit]),
+      ])
       for (const result of activeWriteResults) {
         if (result.status === "rejected" && result.reason !== cause) {
           failures.push(...flattenFailures(result.reason))
@@ -324,23 +293,6 @@ export async function createProjectStateImportSession(
   }
 }
 
-function importTargetProjectPath(
-  diagnosticFilePath: string,
-  componentPaths: readonly string[],
-): string {
-  const normalized = diagnosticFilePath.replaceAll("\\", "/")
-  const candidates = [...componentPaths]
-    .map((componentPath) => componentPath.replaceAll("\\", "/").replace(/^\/+|\/+$/gu, ""))
-    .filter((componentPath) => componentPath.length > 0)
-    .sort((left, right) => right.length - left.length)
-  for (const componentPath of candidates) {
-    if (normalized.startsWith(`${componentPath}/`)) return normalized.slice(componentPath.length + 1)
-    const marker = `/${componentPath}/`
-    const markerIndex = normalized.lastIndexOf(marker)
-    if (markerIndex >= 0) return normalized.slice(markerIndex + marker.length)
-  }
-  return normalized
-}
 
 function flattenFailures(caught: unknown): unknown[] {
   return caught instanceof AggregateError

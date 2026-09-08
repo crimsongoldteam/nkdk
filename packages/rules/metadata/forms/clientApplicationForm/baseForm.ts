@@ -22,7 +22,6 @@ export function buildClientApplicationBaseForm(params: {
   readonly extensionYaml?: ClientApplicationFormYAML
   readonly extensionAnnotations?: XmlAnomalyAnnotations
   readonly currentConfigurationFormYaml?: ClientApplicationFormYAML
-  readonly referenceFormXML?: ClientApplicationFormXML
   readonly formName: string
   readonly rule?: MetadataItemRule
   readonly xmlIdSession?: FormXmlIdAssignmentSession
@@ -50,7 +49,6 @@ function buildProjectedClientApplicationBaseForm(params: {
   readonly extensionYaml: ClientApplicationFormYAML
   readonly extensionAnnotations?: XmlAnomalyAnnotations
   readonly currentConfigurationFormYaml?: ClientApplicationFormYAML
-  readonly referenceFormXML?: ClientApplicationFormXML
   readonly formName: string
   readonly rule?: MetadataItemRule
   readonly xmlIdSession?: FormXmlIdAssignmentSession
@@ -88,7 +86,6 @@ function buildProjectedClientApplicationBaseForm(params: {
     currentConfigurationFormYaml:
       params.currentConfigurationFormYaml ?? params.baseYaml,
     name: params.formName,
-    referenceFormXML: params.referenceFormXML,
     rule,
     xmlIdSession: params.xmlIdSession,
   }).formXML
@@ -102,7 +99,6 @@ function buildSavedClientApplicationBaseForm(params: {
   readonly baseYaml: ClientApplicationFormYAML
   readonly baseAnnotations?: XmlAnomalyAnnotations
   readonly currentConfigurationFormYaml?: ClientApplicationFormYAML
-  readonly referenceFormXML?: ClientApplicationFormXML
   readonly formName: string
   readonly rule?: MetadataItemRule
   readonly xmlIdSession?: FormXmlIdAssignmentSession
@@ -116,7 +112,6 @@ function buildSavedClientApplicationBaseForm(params: {
       ? {}
       : { currentConfigurationFormYaml: params.currentConfigurationFormYaml }),
     name: params.formName,
-    referenceFormXML: params.referenceFormXML,
     rule: params.rule ?? ClientApplicationFormRules,
     xmlIdSession: params.xmlIdSession,
   }).formXML

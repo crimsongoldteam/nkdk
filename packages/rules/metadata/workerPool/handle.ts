@@ -216,6 +216,10 @@ function assertWorkerIndex(workerIndex: number, concurrency: number): void {
 }
 
 function createPiscinaLine(workerUrl?: URL): MetadataWorkerLine {
+  return new Piscina(createMetadataWorkerPoolOptions(workerUrl))
+}
+
+export function createMetadataWorkerPoolOptions(workerUrl?: URL) {
   const currentFile = fileURLToPath(import.meta.url)
   const workerFile = workerUrl === undefined
     ? currentFile.endsWith(".ts")
@@ -223,15 +227,10 @@ function createPiscinaLine(workerUrl?: URL): MetadataWorkerLine {
       : join(dirname(currentFile), "worker.js")
     : fileURLToPath(workerUrl)
   const execArgv = workerFile.endsWith(".ts") ? sourceWorkerExecArgv() : []
-  const piscina = new Piscina({
+  return {
     filename: workerFile,
     minThreads: 1,
     maxThreads: 1,
     execArgv,
-    // Операционные линии долго удерживают смысловое состояние между
-    // проходами. Ограниченная куча не даёт временным XML/YAML-деревьям
-    // расширить каждую линию почти до общего лимита процесса.
-    resourceLimits: { maxOldGenerationSizeMb: 768 },
-  })
-  return piscina
+  }
 }

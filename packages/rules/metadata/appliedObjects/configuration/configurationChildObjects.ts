@@ -1,6 +1,9 @@
 import {
   getConfigurationIndexCollectionContext,
   getConfigurationIndexCollectionXmlNodeLogicalAddress,
+  isXmlElementNode,
+  xmlElementChildren,
+  xmlTextValue,
 } from "@nkdk/runtime"
 import type { ConfigurationIndexChild, ConfigurationIndexExportRuntime } from "@nkdk/runtime"
 import { childrenToPersist, mergeSavedChildren } from "../../commonObjects/omittedChildren"
@@ -119,6 +122,9 @@ function buildChildObjects(items: readonly ConfigurationIndexChild[]): Configura
 }
 
 function flattenChildObjects(xml: object): ConfigurationIndexChild[] {
+  if (isXmlElementNode(xml)) {
+    return xmlElementChildren(xml).map(child => ({ xmlName: child.name, name: xmlTextValue(child) }))
+  }
   const childOrder = getXMLChildOrder(xml)
   if (childOrder !== undefined) {
     const namesByXmlName = new Map<string, readonly string[]>()

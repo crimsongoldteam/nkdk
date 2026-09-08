@@ -38,11 +38,6 @@ const hasSettingsParameterValueWrapperKey = (x: Record<string, unknown>): boolea
 const isExpandedSettingsParameterValueShape = (x: unknown): x is Record<string, unknown> =>
   isYamlObject(x) && (hasSettingsParameterValueWrapperKey(x) || ("Значение" in x && !isExplicitDcsValueYAML(x)))
 
-const normalizeSourceValues = (value: ParameterValue["value"] | undefined): MetadataDcsMetadataValue[] => {
-  if (value === undefined) return []
-  return Array.isArray(value) ? (value as MetadataDcsMetadataValue[]) : [value]
-}
-
 const appendImportedValue = (
   target: MetadataDcsMetadataValue[],
   value: MetadataDcsMetadataValue | null | undefined
@@ -122,7 +117,6 @@ export const importParameterValueFromYAML = (
   context: ConfigurationContext,
   rule: SettingsParameterValuePropertyRule,
   yaml: ParameterValueYAML | SettingsParameterValueYAML | LegacyParameterValueYAML | LegacySettingsParameterValueYAML,
-  sourceValue?: ParameterValue | SettingsParameterValue
 ): ParameterValue | SettingsParameterValue | undefined => {
   if (yaml === undefined) {
     return undefined
@@ -168,24 +162,14 @@ export const importParameterValueFromYAML = (
       : rawValueBase
   const isDcsAutoColorYAML = rule.valueType === "Color" && rawValue === "Авто"
   const rawList = isDcsAutoColorYAML ? [] : normalizeRawValues(dcsRule.valueType, rawValue)
-  const sourceValues = normalizeSourceValues(sourceValue?.value)
   const valueParts: MetadataDcsMetadataValue[] = []
   rawList.forEach((v, index) => {
     const valueToImport = Array.isArray(rawValue) ? restoreExplicitRawValue(rawValue, index, v) : v
     appendImportedValue(
       valueParts,
-      importDcsMetadataValueFromYAML(context, dcsRule, valueToImport as never, sourceValues[index] ?? undefined)
+      importDcsMetadataValueFromYAML(context, dcsRule, valueToImport as never)
     )
   })
-  if (!isDcsAutoColorYAML && rawList.length === 0 && sourceValue?.value !== undefined) {
-    const sourceOnlyValues = normalizeSourceValues(sourceValue.value)
-    sourceOnlyValues.forEach((sourceOnlyValue) => {
-      appendImportedValue(
-        valueParts,
-        importDcsMetadataValueFromYAML(context, dcsRule, undefined, sourceOnlyValue ?? undefined)
-      )
-    })
-  }
 
   const value: ParameterValue["value"] =
     valueParts.length === 0 ? undefined : valueParts.length === 1 ? valueParts[0] : valueParts
@@ -241,13 +225,11 @@ const importSettingsParameterValueFromYAMLForRule = (
   context: ConfigurationContext,
   rule: PropertyRule,
   value: unknown,
-  sourceValue?: unknown
 ) =>
   importParameterValueFromYAML(
     context,
     rule as unknown as SettingsParameterValuePropertyRule,
     value as SettingsParameterValueYAML,
-    sourceValue as ParameterValue | SettingsParameterValue | undefined
   )
 
 export const metadataPropertyRule000 = definePropertyTypeRule("SettingsParameterValue", "importFromYAML", importSettingsParameterValueFromYAMLForRule)

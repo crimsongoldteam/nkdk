@@ -39,6 +39,7 @@ import "./childItems/toJSONSchema"
 import "./dataPath/toEnterprise"
 
 import "./commandName/toEnterprise"
+import "./commandName/fromXML"
 import "./commandName/toJSONSchema"
 
 import "./event/fromXML"
@@ -54,5 +55,3 @@ import "./ganttChart/types"
 import "./ganttChartFieldTable/types"
 import "./planner/types"
 import "./spreadsheetDocument/types"
-
-import "./elementId/toXML"

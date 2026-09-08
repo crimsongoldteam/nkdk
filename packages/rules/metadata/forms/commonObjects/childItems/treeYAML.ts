@@ -1,5 +1,4 @@
 import { CollectableElementType } from "../../../ruleRuntime"
-import { cloneYAMLContainer } from "@nkdk/runtime"
 
 export const childItemsTreePropertyTypes = [
   "GroupChildItems",
@@ -64,18 +63,6 @@ export const getChildItemTypesByPropertyType = (
 
 export const getTreeNodeJSONSchemaPropertyAliases = (itemType: string): Record<string, string> => {
   return isButtonElementType(itemType) ? { Вид: "ТипКнопки" } : {}
-}
-
-export const moveButtonTypeToTreeYAML = (params: {
-  itemType: CollectableElementType
-  yaml: Record<string, unknown> | undefined
-}): Record<string, unknown> => {
-  const result = params.yaml === undefined ? {} : cloneYAMLContainer(params.yaml)
-  if (isButtonElementType(params.itemType) && result.Вид !== undefined) {
-    result.ТипКнопки = result.Вид
-    delete result.Вид
-  }
-  return result
 }
 
 const isButtonElementType = (itemType: string): itemType is "Button" | "CommandBarButton" => {

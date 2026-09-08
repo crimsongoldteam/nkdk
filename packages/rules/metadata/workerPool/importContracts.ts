@@ -46,11 +46,6 @@ export interface ImportIssueDecision {
   readonly issueCodes: readonly string[]
 }
 
-export interface ImportProjectIssueDecision {
-  readonly targetProjectPath: string
-  readonly decision: ImportIssueDecision
-}
-
 export function importControlCompositionEntry(
   assignment: ImportAssignment,
 ): ImportControlCompositionEntry {
@@ -112,7 +107,6 @@ export type ImportWorkerCommand =
       outputDir: string
       projectDir?: string
       componentPath?: string
-      configurationIndex?: ConfigurationIndexStoreDescriptor
       baseConfigurationIndex?: ConfigurationIndexStoreDescriptor
     }
   | { kind: "firstPass"; assignments: ImportAssignment[] }
@@ -123,7 +117,6 @@ export type ImportWorkerCommand =
       readToken: ProjectStateReadToken
       composition?: readonly ImportControlCompositionEntry[]
       exportProfile: XmlComponentExportProfile
-      issueDecisions?: readonly ImportProjectIssueDecision[]
     }
   | { kind: "secondPass"; assignmentId: string }
   | { kind: "secondPassBatch"; assignmentIds: string[] }
@@ -135,7 +128,7 @@ export interface ImportFirstPassResult {
   kind: "firstPassResult"
   diagnostics: ImportDiagnostic[]
   files: ImportResultFile[]
-  configurationFragments: ConfigurationIndexBlockFragment[]
+  reconstructionFactsBuffer: ArrayBuffer
   stateFragment?: ProjectStateFragment
 }
 

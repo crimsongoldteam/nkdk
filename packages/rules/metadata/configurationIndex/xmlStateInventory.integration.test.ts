@@ -31,8 +31,8 @@ describe("тонкое содержимое снимка конфигураци�
     const rule = {
       itemType: "Document",
       properties: {
-        uuid: { type: "string", xml: "_uuid", forReferenceOnly: true },
-        id: { type: "string", xml: "_id", forReferenceOnly: true },
+        uuid: { type: "string", xml: "_uuid", xmlOnly: true },
+        id: { type: "string", xml: "_id", xmlOnly: true },
         name: { type: "string", xml: "_name" },
         comment: {
           type: "string",
@@ -54,7 +54,6 @@ describe("тонкое содержимое снимка конфигураци�
           yaml: "Длина",
           defaultValueXML: 25,
           implicitValueYAML: 30,
-          omitNonImplicitReferenceXMLWhenYAMLMissing: true,
         },
       },
     } as const satisfies MetadataItemRule

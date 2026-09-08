@@ -2,7 +2,7 @@ import { uuidRule } from "./types"
 
 export const uuidPropertyRule = uuidRule({
   xml: "_uuid",
-  forReferenceOnly: true,
+  xmlOnly: true,
   toYAML: false,
   fromYAML: false,
 })

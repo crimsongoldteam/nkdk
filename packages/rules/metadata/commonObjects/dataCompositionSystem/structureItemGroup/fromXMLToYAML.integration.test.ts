@@ -1,9 +1,8 @@
+import { ExecutionPath } from "@nkdk/runtime/rule-kit"
 import {
-  createXmlAnomalyAnnotations,
-  createXmlImportAuditSession,
+  parseMetadataYaml,
   parseXmlDocumentWithSaxes,
-  projectXmlAuditRemainder,
-  snapshotXmlAnomalyAnnotations,
+  xmlElementChildren,
 } from "@nkdk/runtime"
 import { describe, expect, it } from "vitest"
 
@@ -11,12 +10,30 @@ import "./types"
 
 import {
   testPropertyFixtureThroughYAML,
-  testPropertyFromXMLToYAML,
+  testPropertiesYamlRoundTrip,
 } from "../../../../tests/directConversion"
 import { readXMLFixtureAsString } from "../../../../tests/readFixtureXML"
 import { fixtureDynamicListStructureItemGroupYAML } from "./__fixtures__/data"
+import { mockContextFromXML } from "../../../../tests/mockContext"
+import { createLocalIndexesCollector } from "../../../projectDefinition/localIndexes"
+import { importStructureItemGroupFromXMLToYAML } from "./fromXMLToYAML"
 
 describe("StructureItemGroup XML → YAML", () => {
+  it("обходит вложенные группы и элементы без compatibility-объектов", () => {
+    const root = parseXmlDocumentWithSaxes(readXMLFixtureAsString(import.meta.url, "dynamicList.xml")).roots[0]!
+    const nodes = [root]
+    for (const node of nodes) {
+      nodes.push(...xmlElementChildren(node))
+      if (node.name === "dcsset:item" || node.name === "dcsset:groupItems") {
+        Object.defineProperty(node, "compatibilityValue", { get() { throw new Error("Не читать compatibility группировки") } })
+      }
+    }
+    expect(importStructureItemGroupFromXMLToYAML({
+      context: mockContextFromXML(), rule: { type: "StructureItemGroup" }, xml: undefined,
+      traversal: { pathCursor: ExecutionPath.from<string | number>([]), rulePath: [], collector: createLocalIndexesCollector(), xmlNodes: [root] },
+    })).toEqual(fixtureDynamicListStructureItemGroupYAML)
+  })
+
   it("imports dynamicList.xml as flat YAML", () => {
     const result = testPropertyFixtureThroughYAML({
       propertyType: "StructureItemGroup",
@@ -29,14 +46,8 @@ describe("StructureItemGroup XML → YAML", () => {
   })
 
   it("привязывает аномалии вложенных групп к доступным значениям YAML", () => {
-    const document = parseXmlDocumentWithSaxes(
-      `<Probe>${readXMLFixtureAsString(import.meta.url, "dynamicList.xml")}</Probe>`,
-      { preserveXsiNil: true },
-    )
-    const root = document.roots[0]!
-    const audit = createXmlImportAuditSession([root])
-    const annotations = createXmlAnomalyAnnotations()
-    const result = testPropertyFromXMLToYAML({
+    const sourceXML = readXMLFixtureAsString(import.meta.url, "dynamicList.xml")
+    const result = testPropertiesYamlRoundTrip({
       rule: {
         itemType: "StructureItemGroupProbe",
         properties: {
@@ -47,36 +58,17 @@ describe("StructureItemGroup XML → YAML", () => {
           },
         },
       },
-      xml: root,
-      audit,
-      annotations,
+      sourceXML,
     })
 
-    expect(result.yaml).toMatchObject({
+    expect(parseMetadataYaml(result.yamlText).data).toMatchObject({
       Значение: [
         "Наименование",
         "[Авто]",
         { Поле: "ПометкаУдаления", Использование: "Ложь" },
       ],
     })
-    const yaml = result.yaml
-    if (!isRecord(yaml)) throw new Error("Ожидался YAML группировки")
-    projectXmlAuditRemainder({
-      yaml,
-      annotations,
-      audit,
-      root,
-      boundary: {
-        itemType: "StructureItemGroupProbe",
-        yamlPath: [],
-        rulePath: [],
-      },
-    })
-    audit.finalize()
-    expect(() => snapshotXmlAnomalyAnnotations(yaml, annotations)).not.toThrow()
+    expect(parseXmlDocumentWithSaxes(result.result).roots[0]!.structuralHash)
+      .toBe(parseXmlDocumentWithSaxes(sourceXML).roots[0]!.structuralHash)
   })
 })
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === "object" && !Array.isArray(value)
-}

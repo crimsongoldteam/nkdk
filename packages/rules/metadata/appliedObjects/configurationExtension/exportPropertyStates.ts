@@ -324,7 +324,7 @@ function writePropertyStates(
 ): void {
   const parents = rule.itemType === "ClientApplicationForm" ? ["Form", "InternalInfo"] : ["InternalInfo"]
   const serviceParents = rule.itemType === "ClientApplicationForm" ? ["Form", "Properties"] : ["Properties"]
-  const output = findMetadataOutput(outputs, serviceParents) ?? outputs.values().next().value
+  const output = findMetadataOutput(outputs, serviceParents)
   if (output === undefined) return
   recordAt(output, parents)["xr:PropertyState"] = [...states]
 }
@@ -335,7 +335,7 @@ function ensureInternalInfo(
 ): void {
   const parents = rule.itemType === "ClientApplicationForm" ? ["Form", "InternalInfo"] : ["InternalInfo"]
   const serviceParents = rule.itemType === "ClientApplicationForm" ? ["Form", "Properties"] : ["Properties"]
-  const output = findMetadataOutput(outputs, serviceParents) ?? outputs.values().next().value
+  const output = findMetadataOutput(outputs, serviceParents)
   if (output !== undefined) recordAt(output, parents)
 }
 
@@ -345,6 +345,12 @@ function findMetadataOutput(
 ): Record<string, unknown> | undefined {
   for (const output of outputs.values()) {
     if (recordAtIfPresent(output, parents) !== undefined) return output
+  }
+  // У вложенного тела формы есть один form-выход, а у корня — отдельный
+  // metadata-выход. Он может быть ещё пуст до записи служебных свойств.
+  if (parents[0] === "Form") {
+    if (outputs.size === 1) return undefined
+    return outputs.get("metadata") ?? outputs.get("source-1") ?? [...outputs.values()].at(-1)
   }
   return outputs.values().next().value
 }

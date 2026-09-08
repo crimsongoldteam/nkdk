@@ -3,12 +3,37 @@ import { describe, expect, it } from "vitest"
 import {
   arrayLengthXmlImportAttemptAdapter,
   attachXmlImportAttemptAdapter,
+  attachXmlImportAttemptParticipants,
+  createXmlImportUndoLog,
   createXmlImportAttemptJournal,
   XmlImportAttemptInfrastructureError,
   type XmlImportAttemptPhase,
 } from "./attempt"
 
 describe("XML import attempt journal", () => {
+  it("откатывает составной undo после commit другого участника с ошибкой", () => {
+    const undo = createXmlImportUndoLog(), combined = {}, failing = {}
+    attachXmlImportAttemptParticipants(combined, [undo])
+    attachXmlImportAttemptAdapter(failing, { begin() {}, commit() { throw new Error("commit") }, rollback() {} })
+    const attempt = createXmlImportAttemptJournal([failing, combined]).begin()
+    let value = "исходное"
+    undo.remember(() => { value = "исходное" })
+    value = "изменённое"
+    expect(() => attempt.commit()).toThrow("commit")
+    expect(value).toBe("исходное")
+    expect(() => undo.assertIdle()).not.toThrow()
+  })
+  it("внешняя отмена включает изменения подтверждённой вложенной попытки", () => {
+    const undo = createXmlImportUndoLog(), journal = createXmlImportAttemptJournal([undo])
+    const outer = journal.begin(), values: number[] = []
+    undo.remember(() => { values.length = 0 }); values.push(1)
+    const inner = journal.begin()
+    undo.remember(() => { values.length = 1 }); values.push(2)
+    inner.commit()
+    outer.rollback()
+    expect(values).toEqual([])
+    expect(() => undo.assertIdle()).not.toThrow()
+  })
   it.each<XmlImportAttemptPhase>([
     "begin",
     "prepare",

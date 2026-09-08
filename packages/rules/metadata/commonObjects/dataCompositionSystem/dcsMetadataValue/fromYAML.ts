@@ -2,7 +2,7 @@ import { importColorFromYAML } from "../../color/fromYAML"
 import { importFontFromYAML } from "../../font/fromYAML"
 import { importFormattedI8nTextFromYAML } from "../../formattedI8nText/fromYAML"
 import { importI8nTextFromYAML } from "../../i8nText/fromYAML"
-import { I8nText, I8nTextYAML } from "../../i8nText/types"
+import { I8nTextYAML } from "../../i8nText/types"
 import { importMetadataFieldFromYAML } from "../../metadataField/fromYAML"
 import { importMetadataValueStringFromYAML } from "../../metadataPath/fromYAML"
 import { MetadataFieldTypeFromYAML, MetadataTypeFromYAML } from "../../metadataPath/types"
@@ -33,16 +33,6 @@ const isEnterpriseDesignTimeValue = (value: unknown): value is string =>
   typeof value === "string" &&
   value.includes(".") &&
   (value.split(".")[0] in MetadataFieldTypeFromYAML || value.split(".")[0] in MetadataTypeFromYAML)
-
-const isExplicitEmptyLocalStringType = (value: unknown): value is I8nText => {
-  if (typeof value !== "object" || value === null || Array.isArray(value)) return false
-
-  const keys = Object.keys(value)
-  if (keys.length !== 1 || keys[0] !== "items") return false
-
-  const items = (value as { items?: unknown }).items
-  return typeof items === "object" && items !== null && !Array.isArray(items) && Object.keys(items).length === 0
-}
 
 const hasExplicitTextType = (data: unknown): data is Record<string, unknown> =>
   typeof data === "object" && data !== null && !Array.isArray(data) && "Тип" in data
@@ -119,33 +109,6 @@ const isExplicitPrimitiveStringValueYAML = (
 const isDateTimeYAML = (data: unknown): data is string =>
   typeof data === "string" && /^\d{2}\.\d{2}\.\d{4}(\s+\d{2}:\d{2}:\d{2})?$/.test(data)
 
-const importPrimitiveMatchingSourceType = (
-  context: ConfigurationContext,
-  data: unknown,
-  sourceValue: MetadataDcsMetadataValue | undefined
-): MetadataDcsMetadataValue | undefined => {
-  if (
-    sourceValue === null ||
-    typeof sourceValue !== "object" ||
-    Array.isArray(sourceValue) ||
-    typeof (sourceValue as { type?: unknown }).type !== "string"
-  ) {
-    return undefined
-  }
-  const imported = importMetadataValueFromYAML(context, undefined, data as never) as
-    | MetadataDcsMetadataValue
-    | undefined
-  if (
-    imported === null ||
-    typeof imported !== "object" ||
-    Array.isArray(imported) ||
-    (imported as { type?: unknown }).type !== (sourceValue as { type: string }).type
-  ) {
-    return undefined
-  }
-  return imported
-}
-
 const importDcsSystemEnumerationValueFromYAML = (
   context: ConfigurationContext,
   data: MetadataDcsSystemEnumerationValueYAML
@@ -168,11 +131,7 @@ export const importDcsMetadataValueFromYAML = (
   context: ConfigurationContext,
   rule: DcsMetadataValuePropertyRule,
   data: MetadataDcsMetadataValueYAML | undefined,
-  sourceValue?: MetadataDcsMetadataValue
 ): MetadataDcsMetadataValue | null | undefined => {
-  if (data === undefined && rule.valueType === "DesignTimeValue" && isExplicitEmptyLocalStringType(sourceValue)) {
-    return sourceValue
-  }
   if (data === undefined) return undefined
   if (data === null) return null
   if (rule.valueType === "Field" && isExplicitPrimitiveStringValueYAML(data)) {
@@ -188,8 +147,6 @@ export const importDcsMetadataValueFromYAML = (
     case "Color":
       return importColorFromYAML(context, undefined, data as any)!
     case "Field": {
-      const sourceTypedPrimitive = importPrimitiveMatchingSourceType(context, data, sourceValue)
-      if (sourceTypedPrimitive !== undefined) return sourceTypedPrimitive
       const metadataValuePath =
         typeof data === "string" && !data.startsWith(".")
           ? importMetadataValueStringFromYAML(context, undefined, data)
@@ -265,13 +222,11 @@ const importDcsMetadataValueFromYAMLForRule = (
   context: ConfigurationContext,
   rule: PropertyRule,
   value: unknown,
-  sourceValue?: unknown
 ): MetadataDcsMetadataValue | undefined =>
   importDcsMetadataValueFromYAML(
     context,
     rule as DcsMetadataValuePropertyRule,
     value as MetadataDcsMetadataValueYAML,
-    sourceValue as MetadataDcsMetadataValue | undefined
   ) as MetadataDcsMetadataValue | undefined
 
 export const metadataPropertyRule000 = definePropertyTypeRule("MetadataDcsMetadataValue", "importFromYAML", importDcsMetadataValueFromYAMLForRule)

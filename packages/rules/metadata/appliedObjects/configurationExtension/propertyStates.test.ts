@@ -1,11 +1,17 @@
+import { ExecutionPath } from "@nkdk/runtime/rule-kit"
 import { describe, expect, it } from "vitest"
 import "../../../tests/metadataExecutionContext"
 import { mockContextFromXML } from "../../../tests/mockContext"
+import { parseStructuralXMLWithoutCompatibility, xmlElementFromTestValue } from "../../../tests/structuralXML"
 import {
   createConfigurationIndexCollector,
   withConfigurationIndexCollector,
 } from "@nkdk/runtime"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import { createRuleRegistrySet } from "@nkdk/runtime/rule-kit"
+import { importMetadataItemFromXMLToYAML } from "../../ruleRuntime/metadataItem/fromXMLToYAML"
+import { createLocalIndexesCollector } from "../../projectDefinition/localIndexes"
+import { metadataRules } from "../../composition/metadataRules"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
 import { configurationExtensionPropertyStatesAugmenter } from "./propertyStates"
 import { yamlScalarTagAt } from "@nkdk/runtime"
@@ -24,6 +30,105 @@ import { MetadataWebServiceOperationRules } from "../../commonObjects/metadataWe
 import { directPropertyRuleExecution, testMetadataItemFromXMLToYAML } from "../../../tests/directConversion"
 
 describe("configuration extension PropertyState augmenter", () => {
+  it("после подготовки не перебирает отсутствующие свойства пустого объекта", () => {
+    let reads = 0
+    const rule = { ...MetadataCatalogRules, properties: new Proxy(MetadataCatalogRules.properties, {
+      get(target, key, receiver) { reads++; return Reflect.get(target, key, receiver) },
+    }) }
+    const params = { rule, context: extensionContext(), source: parseStructuralXMLWithoutCompatibility(
+      "<Catalog><Properties><ObjectBelonging>Adopted</ObjectBelonging></Properties></Catalog>",
+    ) }
+    withOperationRegistrySet({ propertyStates: createPropertyStateCapabilityRegistry(configurationExtensionPropertyStateCapabilities) }, () => {
+      configurationExtensionPropertyStatesAugmenter.yamlDependencies(params)
+      configurationExtensionPropertyStatesAugmenter.augment({ ...params, yaml: {} })
+      reads = 0
+      configurationExtensionPropertyStatesAugmenter.yamlDependencies(params)
+      configurationExtensionPropertyStatesAugmenter.augment({ ...params, yaml: {} })
+      expect(reads).toBeLessThan(10)
+    })
+  })
+  it("получает XML-узел из скомпилированного импорта объекта без compatibility", () => {
+    const rule: MetadataItemRule = {
+      itemType: "StructuralAugmenterProbe",
+      properties: {
+        objectBelonging: { type: "string", xmlParents: ["Properties"], xml: "ObjectBelonging", runtimeOnly: true },
+        value: { type: "string", xmlParents: ["Properties"], xml: "Value", yaml: "Значение" },
+      },
+    }
+    const yaml = importMetadataItemFromXMLToYAML({
+      context: extensionContext(), rule,
+      xml: parseStructuralXMLWithoutCompatibility("<Object><Properties><ObjectBelonging>Adopted</ObjectBelonging><Value>Текст</Value></Properties></Object>"),
+      traversal: { pathCursor: ExecutionPath.from<string | number>([]), rulePath: [], collector: createLocalIndexesCollector(), execution: createRuleRegistrySet(metadataRules).execution },
+    })
+    expect(yaml).toEqual({ Значение: "Текст", ОбъектРасширяемойКонфигурации: {} })
+  })
+
+  it("определяет принадлежность по структурному XML формы", () => {
+    const source = parseStructuralXMLWithoutCompatibility("<Form><Properties><ObjectBelonging>Adopted</ObjectBelonging></Properties></Form>")
+    expect(configurationExtensionPropertyStatesAugmenter.resolveCurrentXMLDefaultVariant!({
+      context: ownExtensionContext(), rule: ClientApplicationFormRules, source,
+    })).toBe("adopted")
+  })
+
+  it("читает MultiState и его зависимости без XML-объекта", () => {
+    const source = parseStructuralXMLWithoutCompatibility(`<Attribute>
+      <InternalInfo><xr:PropertyState><xr:Property>Type</xr:Property><xr:State>MultiState</xr:State></xr:PropertyState></InternalInfo>
+      <Properties><Type xsi:type="xr:ExtendedProperty"><xr:CheckValue xsi:type="v8:TypeDescription"/><xr:ExtendValue xsi:type="v8:TypeDescription"><v8:Type>xs:boolean</v8:Type></xr:ExtendValue></Type></Properties>
+    </Attribute>`)
+    const yaml: Record<string, unknown> = {}
+    withOperationRegistrySet({
+      propertyStates: createPropertyStateCapabilityRegistry(configurationExtensionPropertyStateCapabilities),
+    }, () => {
+      const params = { context: extensionContext(), rule: MetadataAttributeRules, source }
+      expect(configurationExtensionPropertyStatesAugmenter.yamlDependencies(params)).toContain("Тип")
+      configurationExtensionPropertyStatesAugmenter.augment({ ...params, yaml })
+    })
+    expect(yaml.Тип).toEqual([[], "Булево"])
+    expect(yamlScalarTagAt(yaml.Тип, 1)).toBe("изменять")
+  })
+
+  it("отличает присутствующий пустой синоним от отсутствующего", () => {
+    withOperationRegistrySet({
+      propertyStates: createPropertyStateCapabilityRegistry([
+        definePropertyStateItemCapabilities(ClientApplicationFormRules, { properties: {
+          synonym: { availability: "borrowed", modes: ["control"], representation: "tagged" },
+        } }),
+      ]),
+    }, () => {
+      for (const present of [false, true]) {
+        const source = parseStructuralXMLWithoutCompatibility(`<Form><Properties>${present ? "<Synonym/>" : ""}</Properties></Form>`)
+        const fields = configurationExtensionPropertyStatesAugmenter.yamlDependencies({ context: extensionContext(), rule: ClientApplicationFormRules, source })
+        expect(fields.includes("Синоним")).toBe(present)
+      }
+    })
+  })
+
+  it("отклоняет структурный PropertyState у full-объекта", () => {
+    const source = parseStructuralXMLWithoutCompatibility("<Catalog><InternalInfo><xr:PropertyState><xr:Property>Name</xr:Property><xr:State>Notify</xr:State></xr:PropertyState></InternalInfo></Catalog>")
+    expect(() => configurationExtensionPropertyStatesAugmenter.augment({
+      context: ownExtensionContext(), rule: MetadataCatalogRules, source, yaml: {},
+    })).toThrow("PropertyState недопустим для full MetadataCatalog")
+  })
+
+  it("не запрашивает содержимое элементов формы ради состояний метаданных", () => {
+    const fields = withOperationRegistrySet({
+      propertyStates: createPropertyStateCapabilityRegistry([
+        definePropertyStateItemCapabilities(ClientApplicationFormRules, { properties: {
+          synonym: { availability: "borrowed", modes: ["control"], representation: "tagged" },
+          childItems: { availability: "own", modes: [] },
+          attributes: { availability: "own", modes: [] },
+          commands: { availability: "own", modes: [] },
+          parameters: { availability: "own", modes: [] },
+        } }),
+      ]),
+    }, () => configurationExtensionPropertyStatesAugmenter.yamlDependencies({
+      context: extensionContext(), rule: ClientApplicationFormRules,
+      source: { Properties: { Synonym: {} } },
+    }))
+    expect(fields).toContain("Синоним")
+    for (const field of ["Элементы", "Реквизиты", "Команды", "Параметры"]) expect(fields).not.toContain(field)
+  })
+
   it("определяет вариант только у правила с объявленной принадлежностью", () => {
     const ruleWithOwnership = {
       itemType: "OwnershipProbe",
@@ -157,7 +262,7 @@ describe("configuration extension PropertyState augmenter", () => {
     expect(yaml).toEqual({ Включено: undefined })
   })
 
-  it("не переносит forReferenceOnly-свойство через PropertyState capability", () => {
+  it("не переносит xmlOnly-свойство через PropertyState capability", () => {
     const rule = {
       itemType: "ReferenceOnlyProbe",
       properties: {
@@ -167,7 +272,7 @@ describe("configuration extension PropertyState augmenter", () => {
           xml: "DefaultForm",
           xmlParents: ["Properties"],
           defaultValueAdoptedXML: "",
-          forReferenceOnly: true,
+          xmlOnly: true,
         },
       },
     } as const satisfies MetadataItemRule
@@ -194,6 +299,7 @@ describe("configuration extension PropertyState augmenter", () => {
   it.each([
     ["synonym", "Синоним", "Synonym", undefined, ""],
     ["defaultListForm", "ОсновнаяФормаСписка", "DefaultListForm", undefined, ""],
+    ["defaultForm", "ОсновнаяФорма", "DefaultForm", "MetadataItemLink", ""],
     ["objectPresentation", "ПредставлениеОбъекта", "ObjectPresentation", undefined, ""],
     ["owners", "Владельцы", "Owners", "MetadataObjectRefCollection", []],
     ["content", "Содержимое", "Content", "MetadataItemLinks", []],
@@ -619,7 +725,7 @@ describe("configuration extension PropertyState augmenter", () => {
           type: { type: "TypeDescription", yaml: "Тип", xml: "Type", xmlParents: ["Properties"] },
         },
       } as MetadataItemRule,
-      source: {
+      source: xmlElementFromTestValue("Attribute", {
         ...propertyStates(["Type", "MultiState"]),
         Properties: {
           Type: {
@@ -628,7 +734,7 @@ describe("configuration extension PropertyState augmenter", () => {
             "xr:ExtendValue": { "_xsi:type": "v8:TypeDescription", "v8:Type": "xs:boolean" },
           },
         },
-      },
+      }),
       yaml,
     })
 

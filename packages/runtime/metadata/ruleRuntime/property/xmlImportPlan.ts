@@ -1,16 +1,13 @@
 import { capitalize } from "../../../helpers/capitalize"
-import type { XmlAttributeNode, XmlElementNode } from "../../../xml/import/document"
+import { isXmlElementNode, isPlainXmlTextElement, xmlTextValue, xmlElementChildren as elementChildren, type XmlAttributeNode, type XmlElementNode, type XmlTextNode } from "../../../xml/import/document"
 
 import { shouldProcessProperty } from "./helpers"
+import { XMLImportViews } from "./xmlImportViews"
 import type { MetadataItemRule, PropertyRule } from "./types"
 import type {
   XmlImportAuditBoundary,
   XmlImportAuditSession,
 } from "../xmlAnomaly/importAudit"
-import {
-  xmlImportCompatibilityValue,
-  xmlImportCompatibilityValues,
-} from "../xmlAnomaly/compatibilityView"
 
 export interface XMLImportPlanEntry {
   propertyKey: string
@@ -22,8 +19,10 @@ export interface XMLImportMatch extends XMLImportPlanEntry {
   sourceXMLKey: string
   xmlPath: readonly string[]
   xmlValue: unknown
-  xmlNode?: XmlElementNode | XmlAttributeNode
-  xmlNodes?: readonly (XmlElementNode | XmlAttributeNode)[]
+  xmlNode?: XmlElementNode | XmlAttributeNode | XmlTextNode
+  /** Непосредственный владелец структурного узла; не вычисляется поиском по пути. */
+  xmlOwnerNode?: XmlElementNode
+  xmlNodes?: readonly (XmlElementNode | XmlAttributeNode | XmlTextNode)[]
   ambiguousXMLKey: boolean
 }
 
@@ -42,15 +41,12 @@ interface CompiledXMLImportPlan<Entry extends XMLImportPlanEntry = XMLImportPlan
   readonly root: XMLImportPlanNode
 }
 
-const cache = new WeakMap<MetadataItemRule, Map<string, CompiledXMLImportPlan>>()
+const cache = new WeakMap<MetadataItemRule, XMLImportViews<CompiledXMLImportPlan>>()
 
 const createNode = (): XMLImportPlanNode => ({
   entriesByXMLKey: new Map(),
   childrenByXMLKey: new Map(),
 })
-
-const getCacheKey = (params: { tags?: readonly string[]; includeAllTags: boolean }): string =>
-  params.includeAllTags ? "*" : JSON.stringify([...(params.tags ?? [])].sort())
 
 const matchesSource = (params: {
   propertyRule: PropertyRule
@@ -80,10 +76,13 @@ const compileXMLImportPlan = <Entry extends XMLImportPlanEntry = XMLImportPlanEn
   tags?: readonly string[]
   includeAllTags: boolean
   entries?: readonly Entry[]
+  missingXMLProperties?: readonly Entry[]
 }): CompiledXMLImportPlan<Entry> => {
   const root = createNode()
   const defaults: Entry[] = []
   const entriesByPropertyKey = new Map<string, Entry>()
+  const missingKeys = params.missingXMLProperties === undefined
+    ? undefined : new Set(params.missingXMLProperties.map(({ propertyKey }) => propertyKey))
 
   const sourceEntries = params.entries ?? Object.entries(params.rule.properties).map(
     ([propertyKey, propertyRule]) => ({
@@ -103,10 +102,7 @@ const compileXMLImportPlan = <Entry extends XMLImportPlanEntry = XMLImportPlanEn
 
     if (propertyRule.filePath !== undefined) continue
 
-    const needsAbsentXMLImport =
-      Object.prototype.hasOwnProperty.call(propertyRule, "defaultValue") ||
-      Object.prototype.hasOwnProperty.call(propertyRule, "implicitValueXML")
-    if (needsAbsentXMLImport && shouldProcessProperty({ rule: propertyRule, operation: "importFromXML" })) {
+    if (missingKeys?.has(propertyKey) ?? needsAbsentXMLImport(propertyRule)) {
       defaults.push(entry)
     }
 
@@ -132,9 +128,16 @@ const compileXMLImportPlan = <Entry extends XMLImportPlanEntry = XMLImportPlanEn
 export const compileXMLImportPlanFromEntries = <Entry extends XMLImportPlanEntry>(params: {
   rule: MetadataItemRule
   entries: readonly Entry[]
+  missingXMLProperties?: readonly Entry[]
   tags?: readonly string[]
   includeAllTags: boolean
 }): XMLImportPlan<Entry> => compileXMLImportPlan(params)
+
+export function needsAbsentXMLImport(rule: PropertyRule): boolean {
+  return !rule.runtimeOnly && !rule.syncExternalOnly && rule.filePath === undefined
+    && (Object.hasOwn(rule, "defaultValue") || Object.hasOwn(rule, "implicitValueXML"))
+    && shouldProcessProperty({ rule, operation: "importFromXML" })
+}
 
 export const getXMLImportPlan = (params: {
   rule: MetadataItemRule
@@ -143,17 +146,11 @@ export const getXMLImportPlan = (params: {
 }): XMLImportPlan => {
   let plansBySource = cache.get(params.rule)
   if (plansBySource === undefined) {
-    plansBySource = new Map()
+    const rule = params.rule
+    plansBySource = new XMLImportViews(filter => compileXMLImportPlan({ rule, ...filter }))
     cache.set(params.rule, plansBySource)
   }
-
-  const cacheKey = getCacheKey(params)
-  const cached = plansBySource.get(cacheKey)
-  if (cached !== undefined) return cached
-
-  const compiled = compileXMLImportPlan(params)
-  plansBySource.set(cacheKey, compiled)
-  return compiled
+  return plansBySource.get(params)
 }
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -195,7 +192,6 @@ export const visitXMLImportPlan = (params: {
   auditItemBoundary?: XmlImportAuditBoundary
   auditBoundary?(entry: XMLImportPlanEntry): XmlImportAuditBoundary
   isRepeatable?(entry: XMLImportPlanEntry): boolean
-  nestedItemsOwnNode?(entry: XMLImportPlanEntry): boolean
   claimRoot?: boolean
   visit(match: XMLImportMatch): void
 }): void => {
@@ -208,7 +204,6 @@ export const visitXMLImportPlan = (params: {
       auditItemBoundary: params.auditItemBoundary,
       auditBoundary: params.auditBoundary,
       isRepeatable: params.isRepeatable,
-      nestedItemsOwnNode: params.nestedItemsOwnNode,
       claimRoot: params.claimRoot,
       visit: params.visit,
     })
@@ -221,7 +216,8 @@ interface StructuralCandidate {
   readonly entry: XMLImportPlanEntry
   readonly sourceXMLKey: string
   readonly xmlPath: readonly string[]
-  readonly xmlNode: XmlElementNode | XmlAttributeNode
+  readonly xmlNode: XmlElementNode | XmlAttributeNode | XmlTextNode
+  readonly xmlOwnerNode: XmlElementNode
   readonly entriesAtNode: readonly XMLImportPlanEntry[]
 }
 
@@ -232,7 +228,6 @@ function visitStructuralXMLImportPlan(params: {
   readonly auditItemBoundary?: XmlImportAuditBoundary
   readonly auditBoundary?: (entry: XMLImportPlanEntry) => XmlImportAuditBoundary
   readonly isRepeatable?: (entry: XMLImportPlanEntry) => boolean
-  readonly nestedItemsOwnNode?: (entry: XMLImportPlanEntry) => boolean
   readonly claimRoot?: boolean
   readonly visit: (match: XMLImportMatch) => void
 }): void {
@@ -290,34 +285,39 @@ function visitStructuralXMLImportPlan(params: {
     const selection = selected.get(candidate)
     if (selection === undefined) continue
     const selectedCandidates = selection.candidates
-    const compatibilityAudit = selection.repeatable && params.nestedItemsOwnNode?.(candidate.entry) === true
-      ? undefined
-      : params.audit
     const selectedElements = selectedCandidates.flatMap(({ xmlNode }) =>
-      "type" in xmlNode ? [xmlNode] : [],
+      isXmlElementNode(xmlNode) ? [xmlNode] : [],
     )
+    const structuralValue = selectedElements.length === selectedCandidates.length
+    if (!structuralValue && params.audit !== undefined) {
+      const boundary = boundaryForEntry(candidate.entry)
+      for (const { xmlNode } of selectedCandidates) params.audit.claim(xmlNode, boundary)
+    }
+    if (structuralValue && params.audit !== undefined) {
+      const boundary = boundaryForEntry(candidate.entry)
+      for (const node of selectedElements) {
+        if (!isPlainXmlTextElement(node)) continue
+        params.audit.claim(node, boundary)
+        for (const child of node.content) params.audit.claim(child, boundary)
+      }
+    }
+    if (params.audit !== undefined && "type" in candidate.xmlNode && candidate.xmlNode.type === "text") {
+      const boundary = boundaryForEntry(candidate.entry)
+      for (const child of candidate.xmlOwnerNode.content) {
+        if (child.type === "text") params.audit.claim(child, boundary)
+      }
+    }
     params.visit({
       ...candidate.entry,
       sourceXMLKey: candidate.sourceXMLKey,
       xmlPath: candidate.xmlPath,
-      xmlValue: selection.repeatable && selectedCandidates.length > 1
-        ? xmlImportCompatibilityValues({
-            nodes: selectedElements,
-            audit: compatibilityAudit,
-            boundary: boundaryForEntry(candidate.entry),
-          })
-        : selectedCandidates.length === 1
-          ? xmlImportCompatibilityValue({
-              node: candidate.xmlNode,
-              audit: compatibilityAudit,
-              boundary: boundaryForEntry(candidate.entry),
-            })
-          : selectedCandidates.map(({ entry, xmlNode }) => xmlImportCompatibilityValue({
-              node: xmlNode,
-              audit: compatibilityAudit,
-              boundary: boundaryForEntry(entry),
-            })),
+      xmlValue: "type" in candidate.xmlNode && candidate.xmlNode.type === "text"
+        ? xmlTextValue(candidate.xmlOwnerNode)
+        : structuralValue
+        ? selectedElements.length === 1 ? selectedElements[0] : selectedElements
+        : "value" in candidate.xmlNode ? candidate.xmlNode.value : undefined,
       xmlNode: candidate.xmlNode,
+      xmlOwnerNode: candidate.xmlOwnerNode,
       xmlNodes: selectedCandidates.map(({ xmlNode }) => xmlNode),
       ambiguousXMLKey:
         candidate.entriesAtNode.length > 1 ||
@@ -337,10 +337,14 @@ function collectStructuralCandidates(params: {
   readonly candidates: StructuralCandidate[]
 }): void {
   for (const attribute of params.xml.attributes) {
-    appendStructuralCandidates(params, `_${attribute.name}`, attribute)
+    appendStructuralCandidates(params, `_${attribute.name}`, attribute, params.xml)
+  }
+  if (params.node.entriesByXMLKey.has("#text")) {
+    const text = params.xml.content.find((child): child is XmlTextNode => child.type === "text" && child.value !== "")
+    if (text !== undefined) appendStructuralCandidates(params, "#text", text, params.xml)
   }
   for (const child of elementChildren(params.xml)) {
-    const hasEntries = appendStructuralCandidates(params, child.name, child)
+    const hasEntries = appendStructuralCandidates(params, child.name, child, params.xml)
     const childPlan = params.node.childrenByXMLKey.get(child.name)
     if (childPlan === undefined) continue
     if (!hasEntries) params.audit?.claim(child, params.itemBoundary)
@@ -360,7 +364,8 @@ function appendStructuralCandidates(
     readonly candidates: StructuralCandidate[]
   },
   sourceXMLKey: string,
-  xmlNode: XmlElementNode | XmlAttributeNode,
+  xmlNode: XmlElementNode | XmlAttributeNode | XmlTextNode,
+  xmlOwnerNode: XmlElementNode,
 ): boolean {
   const entriesAtNode = params.node.entriesByXMLKey.get(sourceXMLKey) ?? []
   for (const entry of entriesAtNode) {
@@ -369,6 +374,7 @@ function appendStructuralCandidates(
       sourceXMLKey,
       xmlPath: [...params.xmlPath, sourceXMLKey],
       xmlNode,
+      xmlOwnerNode,
       entriesAtNode,
     })
   }
@@ -415,16 +421,4 @@ function defaultPropertyBoundary(
   { propertyKey, rule }: XMLImportPlanEntry,
 ): XmlImportAuditBoundary {
   return { itemType, propertyKey, propertyType: rule.type }
-}
-
-function elementChildren(node: XmlElementNode): XmlElementNode[] {
-  return node.content.filter((child): child is XmlElementNode => child.type === "element")
-}
-
-function isXmlElementNode(value: unknown): value is XmlElementNode {
-  return value !== null &&
-    typeof value === "object" &&
-    "type" in value &&
-    value.type === "element" &&
-    "compatibilityValue" in value
 }

@@ -1,9 +1,10 @@
 import type { ConfigurationContextFromXML } from "@nkdk/runtime"
+import { isXmlElementNode, xmlAttributeValue, xmlTextValue, type XmlElementNode } from "@nkdk/runtime"
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import type { MinMaxValueModel, MinMaxValueXsiType } from "./types"
 
-type MinMaxValueXML = number | string | { "#text"?: number | string; "_xsi:type"?: string } | undefined
+type MinMaxValueXML = number | string | { "#text"?: number | string; "_xsi:type"?: string } | XmlElementNode | undefined
 type RuleWithTypedXML = PropertyRule & { typedXML?: unknown }
 
 export const importMinMaxValueFromXML = (
@@ -15,7 +16,7 @@ export const importMinMaxValueFromXML = (
   if (rawValue === undefined || rawValue === "") return undefined
 
   const text = String(rawValue)
-  const xsiType = typeof value === "object" && value !== null ? value["_xsi:type"] : undefined
+  const xsiType = isXmlElementNode(value) ? xmlAttributeValue(value, "xsi:type") : typeof value === "object" && value !== null ? value["_xsi:type"] : undefined
   const number = Number(text.replace(",", "."))
   const canonicalXsiType = getRuleMinMaxValueXsiType(rule) ?? "xs:decimal"
 
@@ -29,6 +30,7 @@ export const importMinMaxValueFromXML = (
 }
 
 function getMinMaxValueText(value: MinMaxValueXML): number | string | undefined {
+  if (isXmlElementNode(value)) return xmlTextValue(value)
   if (typeof value === "object" && value !== null) return value["#text"]
   return typeof value === "number" || typeof value === "string" ? value : undefined
 }

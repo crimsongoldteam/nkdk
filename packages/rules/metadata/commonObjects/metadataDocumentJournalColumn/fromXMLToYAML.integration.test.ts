@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest"
 
-import { readAppliedObjectFixture, testPropertyFromXMLToYAML } from "../../../tests/directConversion"
+import { testPropertyFromXMLToYAML } from "../../../tests/directConversion"
+import { readPropertyXML } from "../../../tests/structuralXML"
+import { readXMLFixtureAsString } from "../../../tests/readFixtureXML"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { columnsYAML } from "./__fixtures__/data"
 
@@ -15,13 +17,13 @@ const rule = {
 
 describe("MetadataDocumentJournalColumns XML → YAML", () => {
   it("imports document journal columns", () => {
-    const xml = readAppliedObjectFixture(import.meta.url, "columns.xml")
+    const xml = readPropertyXML({ xmlString: readXMLFixtureAsString(import.meta.url, "columns.xml") })
 
     expect(testPropertyFromXMLToYAML({ rule, xml: { Columns: xml } }).yaml).toEqual({ Графы: columnsYAML })
   })
 
   it("exports collection as YAML map keyed by name", () => {
-    const xml = readAppliedObjectFixture(import.meta.url, "columns.xml")
+    const xml = readPropertyXML({ xmlString: readXMLFixtureAsString(import.meta.url, "columns.xml") })
     const yaml = testPropertyFromXMLToYAML({ rule, xml: { Columns: xml } }).yaml as Record<string, unknown>
 
     expect(yaml.Графы).toEqual(columnsYAML)

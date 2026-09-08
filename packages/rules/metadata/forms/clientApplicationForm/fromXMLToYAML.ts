@@ -17,6 +17,8 @@ import {
   type DirectImportResult,
   type DirectImportFactsSink,
   type DirectImportMode,
+  type DirectImportRoundTripExecution,
+  type PreparedImportDependencies,
   type DirectImportXMLSource,
   type LocalIndexesCollector,
 } from "@nkdk/runtime/rule-kit"
@@ -26,29 +28,38 @@ import type { ClientApplicationFormXML, FormMetadataXML } from "./types"
 import { createClientApplicationFormImportSources } from "./xmlImportSources"
 import type { MetadataItemRule } from "../../ruleRuntime"
 import { createFormDataPathIndexFromYAML } from "./formDataPathMetadata"
+import { formMetadataSource, formTypeFromMetadataXML } from "./metadataXML"
 
-export function importClientApplicationFormFromXMLToYAML(params: {
+interface FormImportExecutionOptions {
+  dependencies?: PreparedImportDependencies
   context: Parameters<typeof importPropertiesFromXMLToYAML>[0]["context"]
   formName: string
-  formXML?: ClientApplicationFormXML
-  metadataXML: FormMetadataXML
-  formXMLNode?: XmlElementNode
-  metadataXMLNode?: XmlElementNode
   audit?: XmlImportAuditSession
   annotations?: XmlAnomalyAnnotationTable
   profile?: DirectImportProfile
   rule?: MetadataItemRule
   mode?: DirectImportMode
+  produceResult?: boolean
   facts?: DirectImportFactsSink
+  roundTrip?: DirectImportRoundTripExecution
+  beforeFinish?: (yaml: Record<string, unknown>) => void
+}
+
+export function importClientApplicationFormFromXMLToYAML(params: FormImportExecutionOptions & {
+  formXML?: ClientApplicationFormXML | XmlElementNode
+  metadataXML: FormMetadataXML | XmlElementNode
+  formXMLNode?: XmlElementNode
+  metadataXMLNode?: XmlElementNode
 }): DirectImportResult {
   const rule = params.rule ?? ClientApplicationFormRules
-  if (params.formXML === undefined && params.metadataXML.Form.Properties.FormType !== "Ordinary") {
+  const formXML = params.formXMLNode ?? params.formXML
+  const metadataXML = params.metadataXMLNode ?? params.metadataXML
+  if (formXML === undefined && formTypeFromMetadataXML(metadataXML) !== "Ordinary") {
     throw new Error(`Не найден Form.xml для управляемой формы ${params.formName}`)
   }
-
   const localIndexesCollector = createLocalIndexesCollector()
-  const deferred = params.mode === "facts" ? undefined : createDeferredValuePathCollector()
-  const augmenterSource = { ...params.metadataXML.Form }
+  const deferred = createDeferredValuePathCollector()
+  const augmenterSource = formMetadataSource(metadataXML) ?? {}
   const context = withResolvedXMLImportObjectVariant(
     params.context,
     resolveMetadataItemXMLDefaultVariant({
@@ -63,29 +74,31 @@ export function importClientApplicationFormFromXMLToYAML(params: {
     formName: params.formName,
     collector: localIndexesCollector,
     deferred,
-    audit: params.audit,
-    annotations: params.annotations,
-    profile: params.profile,
-    mode: params.mode,
-    facts: params.facts,
+    ...formImportExecutionOptions(params),
+    beforeFinish: (yaml) => {
+      applyMetadataItemXmlImportAugmenter({
+        context,
+        rule,
+        source: augmenterSource,
+        yaml,
+      })
+      if (context.fromXML.currentXMLDefaultVariant === "adopted" && yaml.РасширенноеПредставление === "") {
+        movePropertyLast(yaml, "РасширенноеПредставление")
+      }
+      params.beforeFinish?.(yaml)
+    },
     createSources: (context) => createClientApplicationFormImportSources({
       context,
-      formXML: params.formXMLNode ?? params.formXML,
-      metadataXML: params.metadataXMLNode ?? params.metadataXML,
+      formXML,
+      metadataXML,
     }),
   })
   const yaml = imported.yaml
-  if (yaml !== undefined) {
-    applyMetadataItemXmlImportAugmenter({
-      context: imported.context,
-      rule,
-      source: augmenterSource,
-      yaml,
-    })
-  }
 
   const localIndexes = localIndexesCollector.finish()
-  if (params.mode !== "facts") localIndexes.metadata.formDataPathIndex = createFormDataPathIndexFromYAML(yaml)
+  if (params.mode !== "facts" && params.roundTrip === undefined) {
+    localIndexes.metadata.formDataPathIndex = createFormDataPathIndexFromYAML(yaml)
+  }
   return {
     yaml,
     localIndexes,
@@ -94,18 +107,18 @@ export function importClientApplicationFormFromXMLToYAML(params: {
   }
 }
 
-export function importClientApplicationFormBodyFromXML(params: {
-  context: Parameters<typeof importPropertiesFromXMLToYAML>[0]["context"]
-  formName: string
-  formXML: ClientApplicationFormXML
+function movePropertyLast(value: Record<string, unknown>, key: string): void {
+  if (Object.keys(value).at(-1) === key) return
+  const descriptor = Object.getOwnPropertyDescriptor(value, key)
+  if (descriptor === undefined) return
+  if (!Reflect.deleteProperty(value, key)) throw new Error(`Нельзя переместить свойство ${key}`)
+  Object.defineProperty(value, key, descriptor)
+}
+
+export function importClientApplicationFormBodyFromXML(params: FormImportExecutionOptions & {
+  formXML: ClientApplicationFormXML | XmlElementNode
   collector: LocalIndexesCollector
   deferred?: DeferredValuePathCollector
-  audit?: XmlImportAuditSession
-  annotations?: XmlAnomalyAnnotationTable
-  profile?: DirectImportProfile
-  rule?: MetadataItemRule
-  mode?: DirectImportMode
-  facts?: DirectImportFactsSink
 }): { yaml: Record<string, unknown> | undefined; generatedFiles: ExternalFileEntry[] } {
   const { context: _context, ...result } = importClientApplicationFormSources({
     ...params,
@@ -119,17 +132,10 @@ export function importClientApplicationFormBodyFromXML(params: {
   return result
 }
 
-function importClientApplicationFormSources(params: {
-  context: Parameters<typeof importPropertiesFromXMLToYAML>[0]["context"]
-  formName: string
+function importClientApplicationFormSources(params: Omit<FormImportExecutionOptions, "rule"> & {
   rule: MetadataItemRule
   collector: LocalIndexesCollector
   deferred?: DeferredValuePathCollector
-  audit?: XmlImportAuditSession
-  annotations?: XmlAnomalyAnnotationTable
-  profile?: DirectImportProfile
-  mode?: DirectImportMode
-  facts?: DirectImportFactsSink
   createSources(context: Parameters<typeof importPropertiesFromXMLToYAML>[0]["context"]): DirectImportXMLSource[]
 }): {
   yaml: Record<string, unknown> | undefined
@@ -157,13 +163,23 @@ function importClientApplicationFormSources(params: {
       rulePath: [],
       collector: params.collector,
       deferred: params.deferred,
-      audit: params.audit,
-      annotations: params.annotations,
-      profile: params.profile,
-      mode: params.mode,
-      facts: params.facts,
+      ...formImportExecutionOptions(params),
     }),
     generatedFiles,
     context,
+  }
+}
+
+function formImportExecutionOptions(params: FormImportExecutionOptions) {
+  return {
+    audit: params.audit,
+    annotations: params.annotations,
+    profile: params.profile,
+    mode: params.mode,
+    produceResult: params.produceResult,
+    facts: params.facts,
+    dependencies: params.dependencies,
+    roundTrip: params.roundTrip,
+    beforeFinish: params.beforeFinish,
   }
 }

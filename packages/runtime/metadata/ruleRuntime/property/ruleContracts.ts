@@ -49,5 +49,6 @@ export type TypeRulesOperations =
   | "finalizeExportedXML"
   | "collectLocalFactsFromYAML"
   | "yamlToXMLNestedRule"
+  | "prepareXMLItemOutput"
   | "yamlScalarTagPolicy"
   | "compileAtomicConversion"

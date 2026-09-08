@@ -12,7 +12,7 @@ import { toolError, toolSuccess, type ToolPayload } from "../contracts/common"
 import type { ImportFromInfobaseInput } from "../contracts/importFromInfobase"
 import { assertImportTargetEmpty, resolveComponent } from "./componentResolver"
 import { getPlatformSessionManager } from "./platformSessionHandle"
-import { projectSettingsFailure } from "./projectSettingsFailure"
+import { hasInfobaseSettings, projectSettingsFailure } from "./projectSettingsFailure"
 import { temporaryDirectoryFileSystem } from "./temporaryDirectory"
 import { defaultMcpConfigurationLanguages } from "../configurationContext"
 
@@ -64,7 +64,7 @@ export async function importFromInfobase(
   let temporaryDirectory: string | undefined
   try {
     const settingsRead = await dependencies.readSettings(input.projectDir)
-    if (settingsRead.status !== "ready") return projectSettingsFailure(settingsRead)!
+    if (!hasInfobaseSettings(settingsRead)) return projectSettingsFailure(settingsRead)!
 
     const requestedComponentPath = input.componentPath ?? "cf"
     const component = dependencies.resolveTarget({
@@ -106,7 +106,7 @@ export async function importFromInfobase(
         languages: defaultMcpConfigurationLanguages,
         version: "2.20",
         exportToYAML: { toTyped: false },
-        fromXML: { forReference: false },
+        fromXML: { },
       },
       inputDir: xmlDirectory,
       projectDir: component.projectDir,

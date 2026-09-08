@@ -3,25 +3,27 @@ import { UserVisibleKeysYAML } from "../../../commonObjects/userVisible/types"
 import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
 import { StandardCommandsGroupToYAML } from "../../../systemEnumerations/types"
 import type { StandardCommandsGroup } from "../../../systemEnumerations/types"
-import { ConfigurationContext } from "@nkdk/runtime"
+import { ConfigurationContext, type XmlAnomalyAnnotations } from "@nkdk/runtime"
+import type { ExportToYAMLFunctionNew } from "@nkdk/runtime/rule-kit"
 import { PropertyRule } from "../../elements/calendarField/rules"
 import { CommandInterface, CommandInterfaceItem, CommandInterfaceItemYAML, CommandInterfaceYAML } from "./types"
 
 export const exportCommandInterfaceToYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule,
-  data: CommandInterface | undefined
+  data: CommandInterface | undefined,
+  annotations?: XmlAnomalyAnnotations,
 ): CommandInterfaceYAML | undefined => {
   if (!data) return undefined
 
   const result: CommandInterfaceYAML = {}
 
   if (data.NavigationPanel && data.NavigationPanel.length > 0) {
-    result.ПанельНавигации = data.NavigationPanel.map((item) => exportCommandInterfaceItemToYAML(context, item))
+    result.ПанельНавигации = data.NavigationPanel.map((item) => exportCommandInterfaceItemToYAML(context, item, annotations))
   }
 
   if (data.CommandBar && data.CommandBar.length > 0) {
-    result.КоманднаяПанель = data.CommandBar.map((item) => exportCommandInterfaceItemToYAML(context, item))
+    result.КоманднаяПанель = data.CommandBar.map((item) => exportCommandInterfaceItemToYAML(context, item, annotations))
   }
 
   if (Object.keys(result).length === 0) return undefined
@@ -40,7 +42,8 @@ const exportCommandGroupToYAML = (commandGroup: StandardCommandsGroup | string):
 
 const exportCommandInterfaceItemToYAML = (
   context: ConfigurationContext,
-  item: CommandInterfaceItem
+  item: CommandInterfaceItem,
+  annotations?: XmlAnomalyAnnotations,
 ): CommandInterfaceItemYAML => {
   const result: CommandInterfaceItemYAML = {
     Команда: item.command,
@@ -67,7 +70,8 @@ const exportCommandInterfaceItemToYAML = (
     const visibleYAML = exportUserVisibleToYAML(
       context,
       { type: "UserVisible", yaml: UserVisibleKeysYAML.Value },
-      item.visible
+      item.visible,
+      annotations,
     )
     if (visibleYAML) {
       Object.assign(result, visibleYAML)
@@ -77,4 +81,7 @@ const exportCommandInterfaceItemToYAML = (
   return result
 }
 
-export const metadataPropertyRule000 = definePropertyTypeRule("CommandInterface", "exportToYAML", exportCommandInterfaceToYAML)
+const exportAnnotatedCommandInterfaceToYAML: ExportToYAMLFunctionNew = ({ context, rule, value, annotations }) =>
+  exportCommandInterfaceToYAML(context, rule, value, annotations)
+
+export const metadataPropertyRule000 = definePropertyTypeRule("CommandInterface", "exportToYAML", exportAnnotatedCommandInterfaceToYAML)

@@ -32,8 +32,7 @@ describe("prepared import store", () => {
     await reader.close()
 
     const directory = store.descriptor().directory
-    await session.commitWorkingIndex()
-    await session.commitSemanticIndex()
+    await session.commitSharedIndex()
     await session.finalize()
     expect(fs.existsSync(directory)).toBe(false)
     await state.close()

@@ -26,13 +26,11 @@ if (!xmlPathRel || !wrapperTag || !xmlRootTag || !ruleJson) {
 const xmlInner = readFileSync(join(coreRoot, xmlPathRel), "utf-8")
 const xmlString = `<${wrapperTag}>${xmlInner}</${wrapperTag}>`
 const rule = JSON.parse(ruleJson) as PropertyRule
-const forReference = process.env.NKDK_METADATA_PRINT_FOR_REFERENCE === "true"
 
 const result = testImportPropertyFromXML({
   rule,
   xmlString,
   xmlRootTag,
-  forReference,
 })
 
 // eslint-disable-next-line no-console

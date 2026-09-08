@@ -15,6 +15,7 @@ import type { MetadataTargetOwner } from "../metadataTarget/types"
 import { isTaggedYAMLScalar, markYAMLScalarTag } from "../../../yaml/scalarTags"
 import type { CompiledProperty } from "./compiledPropertyPlan"
 import { resolveAtomicConversion } from "./atomicConversion"
+import type { XmlAnomalyAnnotations } from "../../../yaml/xmlAnomalyAnnotations"
 
 export const exportPropertyToYAML = (params: {
   context: ConfigurationContext
@@ -45,6 +46,7 @@ export function exportPropertyValueToYAML(params: {
   execution?: PropertyRuleExecution
   compiled?: CompiledProperty
   preserveImplicitValue?: boolean
+  annotations?: XmlAnomalyAnnotations
 }): unknown {
   return exportPropertyMetadataTargetsToYAML(
     params,
@@ -61,6 +63,7 @@ export function exportPropertyValueBeforeMetadataTargetsToYAML(params: {
   execution?: PropertyRuleExecution
   compiled?: CompiledProperty
   preserveImplicitValue?: boolean
+  annotations?: XmlAnomalyAnnotations
 }): unknown {
   const { context, rule, value, name } = params
 
@@ -98,6 +101,7 @@ export function exportPropertyValueBeforeMetadataTargetsToYAML(params: {
       value,
       name: name,
       owner: params.owner,
+      annotations: params.annotations,
     })
     return typedValue
   }
@@ -125,7 +129,7 @@ export function projectPropertyMetadataTargetsToYAML(
   if (handler === undefined) {
     return { value, uuidOccurrences: [] }
   }
-  const prepared = cloneMetadataTargetValue(value)
+  const prepared = cloneMetadataTargetValue(value, params.annotations)
   const occurrences = handler({
     value: prepared,
     representation: "yaml",

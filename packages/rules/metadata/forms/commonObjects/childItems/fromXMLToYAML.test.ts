@@ -1,14 +1,61 @@
+import { ExecutionPath } from "@nkdk/runtime/rule-kit"
 import {
 createConfigurationIndexCollector,withConfigurationIndexCollector,
-withConfigurationIndexFormElementRootLogicalAddress
+withConfigurationIndexFormElementRootLogicalAddress, parseXmlDocumentWithSaxes
 } from "@nkdk/runtime"
 import { describe,expect,it } from "vitest"
 import { mockContextFromXML } from "../../../../tests/mockContext"
 import { createLocalIndexesCollector } from "../../../projectDefinition/localIndexes"
 import "../../elements"
 import { importChildItemsFromXMLToYAML } from "./fromXMLToYAML"
+import { createDirectImportFactsCollector } from "@nkdk/runtime/rule-kit"
 
 describe("importChildItemsFromXMLToYAML", () => {
+  it("не собирает значения дочерних YAML-объектов повторно в режиме фактов", () => {
+    const facts = createDirectImportFactsCollector()
+    const xml = parseXmlDocumentWithSaxes('<ChildItems><Button name="ОК"><Type>UsualButton</Type><Width>20</Width></Button></ChildItems>').roots[0]!
+    const result = importChildItemsFromXMLToYAML({
+      context: mockContextFromXML(),
+      rule: { type: "GroupChildItems", yaml: "Элементы" },
+      xml,
+      traversal: {
+        mode: "facts", produceResult: true, facts,
+        pathCursor: ExecutionPath.from<string | number>(["Элементы"]), rulePath: [{ propertyKey: "childItems" }],
+        collector: createLocalIndexesCollector(),
+      },
+    })
+
+    expect(result).toEqual({ ОК: { Вид: "Кнопка" } })
+    expect(facts.finish()).toEqual(expect.arrayContaining([
+      expect.objectContaining({ yamlPath: ["Элементы", "ОК", "Ширина"], value: 20 }),
+      expect.objectContaining({ yamlPath: ["Элементы", "ОК", "ТипКнопки"], value: "ОбычнаяКнопка" }),
+    ]))
+  })
+
+  it("проверяет уже окончательные Вид и ТипКнопки, не заменяя возвращённый item", () => {
+    let closed: Record<string, unknown> | undefined
+    const yaml = importChildItemsFromXMLToYAML({
+      context: mockContextFromXML(),
+      rule: { type: "GroupChildItems", yaml: "Элементы" },
+      xml: parseXmlDocumentWithSaxes('<ChildItems><Button name="Изменить"><Type>Hyperlink</Type><Width>20</Width></Button></ChildItems>').roots[0],
+      traversal: {
+        pathCursor: ExecutionPath.from<string | number>(["Элементы"]), rulePath: [{ propertyKey: "childItems" }], collector: createLocalIndexesCollector(),
+        roundTrip: { open({ yaml }) { return {
+          ready({ propertyKey }) {
+            if (propertyKey === "type") expect(yaml).toMatchObject({ Вид: "Кнопка", ТипКнопки: "Гиперссылка" })
+          },
+          finish() {
+            closed = yaml
+            expect(Object.keys(yaml)).toEqual(["Вид", "Ширина", "ТипКнопки"])
+            Object.freeze(yaml)
+          },
+        } } },
+      },
+    })
+    expect(yaml).toEqual({ Изменить: { Вид: "Кнопка", Ширина: 20, ТипКнопки: "Гиперссылка" } })
+    expect((yaml as Record<string, unknown>).Изменить).toBe(closed)
+  })
+
   it("строит YAML и плоские адреса обычного и single-элементов", () => {
     const configurationIndex = createConfigurationIndexCollector()
     const context = withConfigurationIndexFormElementRootLogicalAddress(
@@ -20,19 +67,9 @@ describe("importChildItemsFromXMLToYAML", () => {
     const yaml = importChildItemsFromXMLToYAML({
       context,
       rule: { type: "GroupChildItems", yaml: "Элементы" },
-      xml: [
-        {
-          InputField: {
-            _name: "Поле",
-            _id: "1",
-            DataPath: "Объект.Наименование",
-            ContextMenu: { _name: "ПолеКонтекстноеМеню", _id: "2" },
-            ExtendedTooltip: { _name: "ПолеРасширеннаяПодсказка", _id: "3" },
-          },
-        },
-      ],
+      xml: parseXmlDocumentWithSaxes('<ChildItems><InputField name="Поле" id="1"><DataPath>Объект.Наименование</DataPath><ContextMenu name="ПолеКонтекстноеМеню" id="2"/><ExtendedTooltip name="ПолеРасширеннаяПодсказка" id="3"/></InputField></ChildItems>').roots[0],
       traversal: {
-        yamlPath: ["Элементы"],
+        pathCursor: ExecutionPath.from<string | number>(["Элементы"]),
         rulePath: [{ propertyKey: "childItems" }],
         collector: localIndexes,
       },
@@ -73,42 +110,33 @@ describe("importChildItemsFromXMLToYAML", () => {
   })
 
   it("не смешивает вид кнопки с видом элемента", () => {
-    const yaml = importChildItemsFromXMLToYAML({
-      context: mockContextFromXML(),
-      rule: { type: "GroupChildItems", yaml: "Элементы" },
-      xml: {
-        Button: {
-          _name: "Изменить",
-          Type: "Hyperlink",
-        },
-      },
-      traversal: {
-        yamlPath: ["Элементы"],
-        rulePath: [{ propertyKey: "childItems" }],
-        collector: createLocalIndexesCollector(),
-      },
-    })
+      const yaml = importGroupChildren('<Button name="Изменить"><Type>Hyperlink</Type></Button><Button name="ОК"><Type>UsualButton</Type></Button>')
 
-    expect(yaml).toEqual({
-      Изменить: {
-        Вид: "Кнопка",
-        ТипКнопки: "Гиперссылка",
-      },
-    })
+      expect(yaml).toEqual({
+        Изменить: {
+          Вид: "Кнопка",
+          ТипКнопки: "Гиперссылка",
+        },
+        ОК: { Вид: "Кнопка", ТипКнопки: "ОбычнаяКнопка" },
+      })
   })
 
   it("записывает обязательный тип обычной кнопки отдельно от вида элемента", () => {
-    const yaml = importChildItemsFromXMLToYAML({
-      context: mockContextFromXML(),
-      rule: { type: "GroupChildItems", yaml: "Элементы" },
-      xml: { Button: { _name: "ОК", Type: "UsualButton" } },
-      traversal: {
-        yamlPath: ["Элементы"],
-        rulePath: [{ propertyKey: "childItems" }],
-        collector: createLocalIndexesCollector(),
-      },
-    })
+    const yaml = importGroupChildren('<Button name="ОК"><Type>UsualButton</Type></Button>')
 
     expect(yaml).toEqual({ ОК: { Вид: "Кнопка", ТипКнопки: "ОбычнаяКнопка" } })
   })
 })
+
+function importGroupChildren(body: string) {
+  return importChildItemsFromXMLToYAML({
+    context: mockContextFromXML(),
+    rule: { type: "GroupChildItems", yaml: "Элементы" },
+    xml: parseXmlDocumentWithSaxes(`<ChildItems>${body}</ChildItems>`).roots[0],
+    traversal: {
+      pathCursor: ExecutionPath.from<string | number>(["Элементы"]),
+      rulePath: [{ propertyKey: "childItems" }],
+      collector: createLocalIndexesCollector(),
+    },
+  })
+}

@@ -23,6 +23,19 @@ export type * from "./contracts/fileUpdate"
 const HASH_BYTE_LENGTH = PROJECT_STATE_HASH_BYTE_LENGTH
 const MAX_HASH = (1n << 64n) - 1n
 
+export type ProjectStateYamlFacts = Pick<ProjectValidationFirstPassResult,
+  "contributedFacts" | "diagnostics" | "schemaDiagnostics" | "objectRecords"
+  | "objectIndexEntries" | "memberIndexEntries" | "valueIndexEntries"
+  | "logicalAddresses" | "pendingReferences" | "dependencies" | "form"
+  | "validationContextDependencies" | "structuredComponents" | "structuredDocuments"
+> & { readonly pendingChecks: readonly ValidationPendingCheck[] }
+
+/** Адаптер обычной YAML-валидации к общему договору окончательных фактов. */
+export function projectStateYamlFactsFromValidation(result: ProjectValidationFirstPassResult): ProjectStateYamlFacts {
+  const { state, issues: _issues, profile: _profile, ...facts } = result
+  return { ...facts, pendingChecks: state.kind === "form" || state.kind === "properties" ? state.pendingChecks : [] }
+}
+
 export function createProjectStateFileUpdateBatch(
   entries: readonly ProjectStateFileUpdateBatchEntry[]
 ): ProjectStateFileUpdateBatch {
@@ -53,6 +66,17 @@ export function toProjectStateFileUpdate(
   fileBackedTargets: readonly ProjectStateTargetEntry[] = [],
   structuredDocuments: readonly ProjectStateStructuredDocumentEntry[] = [],
 ): ProjectStateYamlFileUpdate {
+  return toProjectStateFileUpdateFromFacts(
+    projectStateYamlFactsFromValidation(firstPassResult), identity, fileBackedTargets, structuredDocuments,
+  )
+}
+
+export function toProjectStateFileUpdateFromFacts(
+  facts: ProjectStateYamlFacts,
+  identity: ProjectStateFileIdentity,
+  fileBackedTargets: readonly ProjectStateTargetEntry[] = [],
+  structuredDocuments: readonly ProjectStateStructuredDocumentEntry[] = [],
+): ProjectStateYamlFileUpdate {
   if (identity.resourceKind !== "yaml" || identity.yamlRole === undefined) {
     throw new Error("Результат первого прохода можно связать только с YAML-файлом")
   }
@@ -61,35 +85,32 @@ export function toProjectStateFileUpdate(
     ...identity,
     kind: "yaml",
     localValidation: {
-      contributedFacts: firstPassResult.contributedFacts,
-      diagnostics: firstPassResult.diagnostics.map(withoutDiagnosticFilePath),
-      schemaDiagnostics: firstPassResult.schemaDiagnostics.map(withoutDiagnosticFilePath),
+      contributedFacts: facts.contributedFacts,
+      diagnostics: facts.diagnostics.map(withoutDiagnosticFilePath),
+      schemaDiagnostics: facts.schemaDiagnostics.map(withoutDiagnosticFilePath),
     },
     targets: [
-      ...firstPassResult.objectIndexEntries.map((entry) => projectStateTargetEntry("object", entry)),
-      ...firstPassResult.memberIndexEntries.map((entry) => projectStateTargetEntry("member", entry)),
-      ...firstPassResult.valueIndexEntries.map((entry) => projectStateTargetEntry("value", entry)),
-      ...logicalAddressTargetEntries(firstPassResult),
+      ...facts.objectIndexEntries.map((entry) => projectStateTargetEntry("object", entry)),
+      ...facts.memberIndexEntries.map((entry) => projectStateTargetEntry("member", entry)),
+      ...facts.valueIndexEntries.map((entry) => projectStateTargetEntry("value", entry)),
+      ...logicalAddressTargetEntries(facts),
       ...fileBackedTargets,
     ],
-    pendingReferences: firstPassResult.pendingReferences.map(({ filePath: _filePath, ...reference }) => reference),
-    owners: firstPassResult.objectRecords.flatMap(projectStateOwnerFacts),
-    fields: firstPassResult.objectRecords.flatMap(projectStateFieldEntries),
-    forms: projectStateFormEntries(firstPassResult.form),
-    pendingChecks:
-      firstPassResult.state.kind === "form" || firstPassResult.state.kind === "properties"
-        ? firstPassResult.state.pendingChecks.map(projectStatePendingCheck)
-        : [],
-    dependencies: [...new Set(firstPassResult.dependencies ?? [])],
-    ...(firstPassResult.validationContextDependencies === undefined
+    pendingReferences: facts.pendingReferences.map(({ filePath: _filePath, ...reference }) => reference),
+    owners: facts.objectRecords.flatMap(projectStateOwnerFacts),
+    fields: facts.objectRecords.flatMap(projectStateFieldEntries),
+    forms: projectStateFormEntries(facts.form),
+    pendingChecks: facts.pendingChecks.map(projectStatePendingCheck),
+    dependencies: [...new Set(facts.dependencies ?? [])],
+    ...(facts.validationContextDependencies === undefined
       ? {}
-      : { validationContextDependencies: firstPassResult.validationContextDependencies }),
+      : { validationContextDependencies: facts.validationContextDependencies }),
     ...(structuredDocuments.length === 0 ? {} : { structuredDocuments }),
   }
 }
 
 function logicalAddressTargetEntries(
-  result: ProjectValidationFirstPassResult,
+  result: ProjectStateYamlFacts,
 ): ProjectStateTargetEntry[] {
   const indexed = new Set([
     ...result.objectIndexEntries,
@@ -133,13 +154,13 @@ function withoutDiagnosticFilePath({ filePath: _filePath, ...diagnostic }: Diagn
   return diagnostic
 }
 
-export function projectStateOwnerFacts(record: ValidationObjectRecord): ProjectStateOwnerFact[] {
+export function projectStateOwnerFacts(record: Pick<ValidationObjectRecord, "ownerFacts">): ProjectStateOwnerFact[] {
   if (record.ownerFacts === undefined) return []
   const { ref, filePath: _filePath, fieldIndex: _fieldIndex, ...facts } = record.ownerFacts
   return [{ owner: ref, facts }]
 }
 
-export function projectStateFieldEntries(record: ValidationObjectRecord): ProjectStateFieldEntry[] {
+export function projectStateFieldEntries(record: Pick<ValidationObjectRecord, "ownerRef" | "ownerFacts" | "fieldIndex">): ProjectStateFieldEntry[] {
   const owner = record.ownerRef ?? record.ownerFacts?.ref
   const index = record.fieldIndex ?? record.ownerFacts?.fieldIndex
   if (owner === undefined || index === undefined) return []

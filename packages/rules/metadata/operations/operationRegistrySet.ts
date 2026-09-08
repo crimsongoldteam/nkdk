@@ -7,7 +7,7 @@ import type {
 } from "../ruleRuntime/definition"
 import type { MetadataComponentDescriptor } from "../components/descriptor"
 import type { MetadataImportComponentDescriptor } from "../ruleRuntime/definition"
-import type { ComponentAddress } from "@nkdk/runtime"
+import type { ComponentAddress, XmlElementNode } from "@nkdk/runtime"
 import type { FullXmlSyncComponentProfile } from "../fullSyncToXml/componentProfile"
 import type {
   MetadataExternalTransferCapability,
@@ -57,7 +57,7 @@ export interface OperationRegistrySet {
   readonly imports: {
     register(descriptor: MetadataImportComponentDescriptor): void
     resolve(
-      root: Readonly<Record<string, unknown>>,
+      root: XmlElementNode,
     ): MetadataImportComponentDescriptor
     get(kind: string): MetadataImportComponentDescriptor
   }

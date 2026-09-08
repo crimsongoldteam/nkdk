@@ -9,13 +9,19 @@ import { parseXmlDocumentWithSaxes } from "../../../xml/import/saxesParser"
 import type { XmlElementNode } from "../../../xml/import/document"
 import { xmlExport } from "../../../xml/export/exporter"
 import { decodeXmlRawValue } from "../../../xml/structure/rawCodec"
+import { mergeXmlRawFragments } from "../../../xml/structure/merge"
+import { createLocalXmlProof } from "./localProof"
 import {
   createXmlImportAuditSession,
   type XmlImportAuditBoundary,
 } from "./importAudit"
 import {
   projectNamedXmlCollection,
+  projectXmlAuditOwnRemainder,
   projectXmlAuditRemainder,
+  projectLocalXmlOrder,
+  projectLocalXmlOwnValues,
+  annotateXmlRawValue,
 } from "./yamlProjection"
 
 const boundary: XmlImportAuditBoundary = {
@@ -31,6 +37,134 @@ const knownBoundary: XmlImportAuditBoundary = {
 }
 
 describe("YAML-проекция XML-аномалий", () => {
+  it("собирает атрибуты и порядок одного узла в одну поправку", () => {
+    const root = parseXmlDocumentWithSaxes('<Value custom="keep"><Extra/>false</Value>').roots[0]!
+    const yaml: Record<string, unknown> = {}
+    const annotations = createXmlAnomalyAnnotations()
+    projectLocalXmlOwnValues({
+      yaml, annotations, root, path: ["Value"], differences: [
+        { kind: "presence", path: root.attributes[0]!.path, ownerPath: root.path },
+        { kind: "order", path: `${root.path}/#order`, ownerPath: root.path },
+      ],
+    })
+    expect(Object.keys(yaml)).toEqual(["Value"])
+    expect(annotations.at(yaml, "Value")?.xml).toEqual({ _custom: "keep", "#order": ["Extra", "#text"] })
+    expect(annotations.keyAt(yaml, "Value")).toBeUndefined()
+  })
+  it("не заменяет локальным raw независимую UUID-аннотацию", () => {
+    const yaml = { Ссылка: "67a752f4-43ae-4a32-977e-457414278800" }
+    const annotations = createXmlAnomalyAnnotations()
+    annotations.set(yaml, "Ссылка", { kind: "uuid", target: "value", occurrence: 1 })
+    expect(() => annotateXmlRawValue({ parent: yaml, key: "Ссылка", annotations, xml: {}, hasSemanticValue: true })).toThrow(/UUID/)
+    expect(annotations.at(yaml, "Ссылка")).toEqual({ kind: "uuid", target: "value", occurrence: 1 })
+  })
+
+  it("восстанавливает порядок уже проверенных атрибутов без сохранения их значений в raw", () => {
+    const root = parseXmlDocumentWithSaxes('<Root id="1" name="A"/>').roots[0]!
+    const yaml: Record<string, unknown> = {}
+    const annotations = createXmlAnomalyAnnotations()
+    let comparisons = 0
+    const proof = createLocalXmlProof({ onValue: () => comparisons++ })
+    const id = proof.checkValue(root.attributes[0]!, "1")
+    const name = proof.checkValue(root.attributes[1]!, "A")
+    proof.check(root, { name: "Root", attributes: [{ name: "name", ...name }, { name: "id", ...id }] }, (differences) => {
+      projectLocalXmlOrder({ yaml, annotations, root, differences, path: ["Properties"] })
+    })
+    expect(comparisons).toBe(2)
+    const annotation = annotations.at(yaml, "Properties\\#attributes")
+    expect(annotation).toMatchObject({ kind: "raw", hasSemanticValue: false, xml: { "#order": ["_id", "_name"] } })
+    if (annotation?.kind !== "raw") throw new Error("Expected raw attributes order")
+    const ordinary = parseXmlDocumentWithSaxes('<Document><Properties name="A" id="1"/></Document>').roots
+    const merged = mergeXmlRawFragments(ordinary, [{
+      path: "Properties\\#attributes", value: annotation.xml, suppressOrdinaryOutput: false,
+    }])
+    expect(xmlExport(merged, false)).toBe('<Document>\n\t<Properties id="1" name="A"/>\n</Document>')
+  })
+
+  it.each([
+    { order: ["A", "Title", "B"], anomaly: false },
+    { order: ["A", "B", "Title"], anomaly: true },
+  ])("оформляет порядок $order только при расхождении, не сохраняя значения детей", ({ order, anomaly }) => {
+    const root = parseXmlDocumentWithSaxes('<Root><A>1</A><Title>text</Title><B>2</B></Root>').roots[0]!
+    const yaml: Record<string, unknown> = { Заголовок: "text" }
+    const annotations = createXmlAnomalyAnnotations()
+    let comparisons = 0
+    const proof = createLocalXmlProof({ onValue: () => comparisons++ })
+    const children = [
+      proof.check(child(root, "A"), { name: "A", content: [{ type: "text", value: "1" }] }),
+      proof.check(child(root, "Title"), { name: "Title", content: [{ type: "text", value: "text" }] }),
+      proof.check(child(root, "B"), { name: "B", content: [{ type: "text", value: "2" }] }),
+    ]
+    proof.check(root, { name: "Root", content: order.map((name) => children.find((item) => item.name === name)!) }, (differences) => {
+      projectLocalXmlOrder({ yaml, annotations, root, differences })
+    })
+
+    expect(comparisons).toBe(3)
+    expect(yaml.Заголовок).toBe("text")
+    if (!anomaly) {
+      expect(yaml).toEqual({ Заголовок: "text" })
+      expect(Array.from(annotations.entries())).toEqual([])
+      return
+    }
+    expect(yaml).toEqual({ Заголовок: "text", "#order": undefined })
+    expect(annotations.at(yaml, "#order")).toEqual({
+      kind: "raw", occurrence: 1, target: "value", hasSemanticValue: false, xml: ["A", "Title", "B"],
+    })
+    const orderAnnotation = annotations.at(yaml, "#order")
+    if (orderAnnotation?.kind !== "raw") throw new Error("Expected raw order")
+    // Merge принимает пути относительно документной оболочки, не самого item.
+    const ordinary = parseXmlDocumentWithSaxes('<Document><Root><A>1</A><B>2</B><Title>text</Title></Root></Document>').roots
+    const merged = mergeXmlRawFragments(ordinary, [{
+      path: "Root\\#order", value: orderAnnotation.xml, suppressOrdinaryOutput: false,
+    }])
+    expect(xmlExport(merged, false)).toBe('<Document>\n\t<Root>\n\t\t<A>1</A>\n\t\t<Title>text</Title>\n\t\t<B>2</B>\n\t</Root>\n</Document>')
+  })
+
+  it("сохраняет порядок вложенного XML-контейнера в его локальной raw-поправке", () => {
+    const root = parseXmlDocumentWithSaxes("<Properties><A/><B/></Properties>").roots[0]!
+    const yaml: Record<string, unknown> = {}
+    const annotations = createXmlAnomalyAnnotations()
+
+    projectLocalXmlOrder({
+      yaml,
+      annotations,
+      root,
+      path: ["Properties"],
+      differences: [{ kind: "order", path: `${root.path}/#order`, ownerPath: root.path }],
+    })
+
+    expect(annotations.at(yaml, "Properties")?.xml).toEqual({ "#order": ["A", "B"] })
+  })
+
+  it("оформляет только остаток текущего XML-узла без обхода известного ребёнка и преждевременного order", () => {
+    const root = parseXmlDocumentWithSaxes(
+      '<Root><Known><FutureChild>inside</FutureChild></Known><Future>outside</Future></Root>',
+    ).roots[0]!
+    const known = child(root, "Known")
+    const futureChild = child(known, "FutureChild")
+    const audit = createXmlImportAuditSession([root])
+    audit.claim(root, boundary)
+    audit.claim(known, knownBoundary)
+    const annotations = createXmlAnomalyAnnotations()
+    const yaml: Record<string, unknown> = { Известное: {} }
+    const inspected: string[] = []
+    const getOutcome = audit.getOutcome
+    audit.getOutcome = (node) => {
+      inspected.push(node.path)
+      return getOutcome(node)
+    }
+
+    projectXmlAuditOwnRemainder({ yaml, annotations, audit, root, boundary })
+
+    expect(yaml).toEqual({ Известное: {}, Future: undefined })
+    expect(annotations.at(yaml, "Future")).toEqual({
+      kind: "raw", occurrence: 1, target: "value", hasSemanticValue: false, xml: "outside",
+    })
+    expect(inspected).not.toContain(futureChild.path)
+    expect(getOutcome(futureChild).state).toBe("unclaimed")
+    expect(serializeYAMLDocument(yaml, annotations).text).not.toContain("#order")
+  })
+
   it("сохраняет повторные ключи именованной коллекции в XML-порядке", () => {
     const annotations = createXmlAnomalyAnnotations()
 

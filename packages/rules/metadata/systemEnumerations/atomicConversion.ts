@@ -5,6 +5,7 @@ import type {
 import { definePropertyTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
 import * as SE from "./types"
 import { systemEnumerationXMLAliases } from "./xmlAliases"
+import { readSystemEnumerationXMLText } from "./xmlValue"
 
 type EnumerationTables = Record<string, Readonly<Record<string, string>> | undefined>
 type XMLAliases = Record<string, {
@@ -28,11 +29,8 @@ export const compileSystemEnumerationAtomicConversion: CompileAtomicConversionFu
 
   return Object.freeze({
     fromXMLToYAML: ({ value }) => {
-      if (value === undefined) return empty
-      const raw = typeof value === "object" && value !== null
-        ? (value as Record<string, unknown>)["#text"]
-        : value
-      if (typeof raw !== "string") return empty
+      const raw = readSystemEnumerationXMLText(value)
+      if (raw === undefined) return empty
       const metadataValue = fromXMLAlias?.[raw] ?? raw
       return {
         metadataValue,

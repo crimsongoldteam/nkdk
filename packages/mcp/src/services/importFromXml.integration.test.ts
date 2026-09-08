@@ -12,7 +12,7 @@ const importContext = {
   languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' },
   version: "2.20" as const,
   exportToYAML: { toTyped: false as const },
-  fromXML: { forReference: false as const },
+  fromXML: {},
 }
 
 describe("importFromXml service", () => {

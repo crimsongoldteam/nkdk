@@ -20,7 +20,7 @@ export const commonRegisterFieldProperties = {
     type: "uuid",
     xml: "_uuid",
     evaluateWhenYAMLMissing: true,
-    forReferenceOnly: true,
+    xmlOnly: true,
     toYAML: false,
     fromYAML: false,
   },

@@ -288,14 +288,33 @@ function baseDataPathDiagnostics(params: {
   readonly facts: readonly ProjectStateStructuredDocumentFact[]
   readonly filePath: string
 }): readonly Diagnostic[] {
-  const attributes = new Set(params.facts
-    .filter(({ entry }) => entry.componentKind === "attribute")
-    .map(({ entry }) => entry.name))
-  return params.facts
-    .filter(({ entry }) => entry.componentKind === "dataPath")
-    .flatMap(({ entry }) => {
-      const root = entry.name.trim().split(".")[0]
-      if (root === undefined || attributes.has(root) || root === "Элементы" || root === "ТекущиеДанные") return []
+  return validateClientApplicationBaseFormDataPaths({
+    entries: params.facts.map(({ entry }) => entry),
+    filePath: params.filePath,
+  })
+}
+
+export function validateClientApplicationBaseFormDataPaths(params: {
+  readonly entries: readonly Pick<ProjectStateStructuredDocumentEntry, "componentKind" | "name" | "yamlPath">[]
+  readonly filePath: string
+}): readonly Diagnostic[] {
+  const attributes = new Set(params.entries
+    .filter(({ componentKind }) => componentKind === "attribute")
+    .map(({ name }) => name))
+  return validateClientApplicationBaseFormDataPathOccurrences({ ...params, attributes })
+}
+
+export function validateClientApplicationBaseFormDataPathOccurrences(params: {
+  readonly attributes: ReadonlySet<string>
+  readonly entries: readonly Pick<ProjectStateStructuredDocumentEntry, "componentKind" | "name" | "yamlPath">[]
+  readonly filePath: string
+}): readonly Diagnostic[] {
+  return params.entries
+    .filter(({ componentKind }) => componentKind === "dataPath")
+    .flatMap((entry) => {
+      const sourceRoot = entry.name.trim().split(".")[0]
+      const root = sourceRoot?.replace(/\[\d+\]$/, "")
+      if (root === undefined || params.attributes.has(root) || root === "Элементы" || root === "ТекущиеДанные") return []
       return [{
         filePath: params.filePath,
         line: 1,

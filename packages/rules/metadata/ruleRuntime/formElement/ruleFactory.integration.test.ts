@@ -1,3 +1,4 @@
+import { ExecutionPath } from "@nkdk/runtime/rule-kit"
 import { describe, expect, it } from "vitest"
 
 import {
@@ -11,12 +12,12 @@ import {
   markXmlAnomalyExportClaim,
   parseXmlDocumentWithSaxes,
   readXmlAnomalyExportClaim,
+  yamlScalarTagAt,
 } from "@nkdk/runtime"
 import { createImportedDependentPropertyCollector } from "../property/importYamlTypes"
 import type { MetadataItemRule } from "../property/types"
 import type { ElementRule } from "./types"
 import {
-  createFormElementCollectionNestedRule,
   defineElementAsType,
   defineElementRule,
   getElementRule,
@@ -30,6 +31,7 @@ import {
   importSingleFormElementFromXMLToYAML,
 } from "./fromXMLToYAML"
 import type { ElementXML } from "./types"
+import { createDirectImportFactsCollector, prepareFormElementOutput } from "@nkdk/runtime/rule-kit"
 
 import "../../forms/elements/index"
 
@@ -50,6 +52,56 @@ const singletonElementProbeRule = {
 } as const satisfies MetadataItemRule
 
 describe("одиночный элемент формы", () => {
+  it("в первом проходе сохраняет факты singleton без второй копии его свойств", () => {
+    const registries = createRuleRegistrySet(metadataRules)
+    const rule = withRuleRegistrySet(registries, () => getElementRule("ExtendedTooltip"))
+    const xml = parseXmlDocumentWithSaxes('<ExtendedTooltip name="ОсобаяПодсказка" id="2"><Width>20</Width></ExtendedTooltip>').roots[0]!
+    const facts = createDirectImportFactsCollector()
+    const yaml = importSingleFormElementFromXMLToYAML({
+      context: singletonElementContexts().importContext,
+      rule, xml, ownerXmlName: "Кнопка",
+      nameStyle: { canonicalSuffix: "РасширеннаяПодсказка", referenceSuffixes: ["РасширеннаяПодсказка"], canonicalNameMode: "ownerSuffix", explicitXMLName: true },
+      traversal: {
+        mode: "facts", produceResult: true, facts,
+        pathCursor: ExecutionPath.from<string | number>([]), rulePath: [], collector: createLocalIndexesCollector(), execution: registries.execution,
+      },
+    })
+
+    expect(yaml).toEqual({ Имя: "ОсобаяПодсказка" })
+    expect(yamlScalarTagAt(yaml, "Имя")).toBe("xml/name")
+    expect(facts.finish()).toContainEqual(expect.objectContaining({ yamlPath: ["Ширина"], value: 20 }))
+  })
+
+  it.each([false, true])("готовит явное имя singleton до открытия локальной проверки; структурный XML: %s", (structural) => {
+    const registries = createRuleRegistrySet(metadataRules)
+    const rule = withRuleRegistrySet(registries, () => getElementRule("ExtendedTooltip"))
+    const xml = structural
+      ? parseXmlDocumentWithSaxes('<ExtendedTooltip name="ОсобаяПодсказка" id="2"><Width>20</Width></ExtendedTooltip>').roots[0]!
+      : { _name: "ОсобаяПодсказка", _id: "2", Width: "20" }
+    if (structural) Object.defineProperty(xml, "compatibilityValue", { get() { throw new Error("Одиночному элементу не нужна копия") } })
+    let opened: Record<string, unknown> | undefined
+    const yaml = importSingleFormElementFromXMLToYAML({
+      context: singletonElementContexts().importContext,
+      rule, xml, ownerXmlName: "Кнопка",
+      nameStyle: { canonicalSuffix: "РасширеннаяПодсказка", referenceSuffixes: ["РасширеннаяПодсказка"], canonicalNameMode: "ownerSuffix", explicitXMLName: true },
+      traversal: {
+        pathCursor: ExecutionPath.from<string | number>([]), rulePath: [], collector: createLocalIndexesCollector(), execution: registries.execution,
+        roundTrip: { open({ yaml }) {
+          opened = yaml
+          expect(yaml.Имя).toBe("ОсобаяПодсказка")
+          expect(yamlScalarTagAt(yaml, "Имя")).toBe("xml/name")
+          return { ready() {}, finish() {
+            expect(yaml.Имя).toBe("ОсобаяПодсказка")
+            expect(Object.keys(yaml)).toEqual(["Ширина", "Имя"])
+            Object.freeze(yaml)
+          } }
+        } },
+      },
+    })
+    expect(yaml).toBe(opened)
+    expect(yaml).toEqual({ Ширина: 20, Имя: "ОсобаяПодсказка" })
+  })
+
   it.each(["обычный", "singleton"] as const)(
     "передаёт полный DirectImportTraversal во вложенные свойства: %s",
     (mode) => {
@@ -78,7 +130,7 @@ describe("одиночный элемент формы", () => {
         },
       } as const satisfies ElementRule
       const traversal = {
-        yamlPath: [],
+        pathCursor: ExecutionPath.from<string | number>([]),
         rulePath: [],
         collector: createLocalIndexesCollector(),
         dependent,
@@ -152,7 +204,7 @@ describe("одиночный элемент формы", () => {
     expect(definition.formElements.ExtendedTooltip).toBe(elementRule)
   })
 
-  it("восстанавливает имя и id перед остальными XML-атрибутами без reference XML", () => {
+  it.each([false, true])("восстанавливает имя и id перед остальными XML-атрибутами; структурный XML: %s", (structural) => {
     const contexts = singletonElementContexts()
     const source = {
       ExtendedTooltip: {
@@ -165,7 +217,9 @@ describe("одиночный элемент формы", () => {
     const imported = testPropertyFromXMLToYAML({
       context: contexts.importContext,
       rule: singletonElementProbeRule,
-      xml: source,
+      xml: structural
+        ? parseXmlDocumentWithSaxes('<Root><ExtendedTooltip name="КнопкаРасширеннаяПодсказка" id="2" DisplayImportance="VeryHigh"/></Root>').roots[0]!
+        : source,
       name: "Кнопка",
     })
     const exported = testPropertyFromYAMLToXML({
@@ -180,6 +234,7 @@ describe("одиночный элемент формы", () => {
       "_id",
       "_DisplayImportance",
     ])
+    expect(exported.xml.ExtendedTooltip).toMatchObject({ _name: "КнопкаРасширеннаяПодсказка", _id: "2" })
   })
 
   it("сохраняет export claim одиночного элемента при добавлении имени и id", () => {
@@ -197,7 +252,7 @@ describe("одиночный элемент формы", () => {
     expect(readXmlAnomalyExportClaim(exported.xml.ExtendedTooltip)).toBe("item-1")
   })
 
-  it("сохраняет export claim элемента коллекции при добавлении имени и id", () => {
+  it("оборачивает готовый элемент коллекции без чтения его XML и потери claim", () => {
     const contexts = createDirectRoundTripContexts({
       logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента.Элемент.Кнопка",
       targetProjectPath: "Форма.yaml",
@@ -208,26 +263,19 @@ describe("одиночный элемент формы", () => {
       enterpriseFieldType: "FormButtonType.UsualButton",
       properties: {},
     } as const satisfies ElementRule
-    const descriptor = createFormElementCollectionNestedRule({
-      elementRules: { Button: elementRule },
-      elementKinds: { Button: "Кнопка" },
-      allowedTypes: ["Button"],
-    })
-    const xml = {}
+    const xml = new Proxy({}, { ownKeys() { throw new Error("Нельзя обходить готового ребёнка") } })
     markXmlAnomalyExportClaim(xml, "item-2")
 
-    const mapped = descriptor.mapItemOutput!({
-      xml,
+    const preparation = prepareFormElementOutput({
+      context: contexts.exportContext(),
       yaml: { Вид: "Кнопка" },
       name: "Кнопка",
-      index: 0,
       itemRule: elementRule,
       propertyRule: undefined,
-      context: contexts.exportContext(),
-      collectionYAML: {},
-      referenceXML: undefined,
-    }) as Record<string, unknown>
+    })
+    const mapped = preparation.wrap!(xml) as Record<string, unknown>
 
     expect(readXmlAnomalyExportClaim(mapped.Button)).toBe("item-2")
+    expect(mapped.Button).toBe(xml)
   })
 })

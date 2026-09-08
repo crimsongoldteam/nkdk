@@ -1,10 +1,48 @@
 import { describe, expect, it } from "vitest"
 import { metadataValueFixtures } from "./__fixtures__/data"
 import { mockContextFromXML } from "../../../tests/mockContext"
-import { importContentFromXML } from "@nkdk/runtime"
+import { parseXmlDocumentWithSaxes, xmlElementChildren } from "@nkdk/runtime"
+import { xmlFixtureValue as importContentFromXML } from "../../../tests/xmlFixtureValue"
 import { importMetadataValueFromXML } from "./fromXML"
 
 describe("importMetadataValueFromXML", () => {
+  it.each([
+    ['<Value/>', undefined],
+    ['<Value><![CDATA[]]></Value>', undefined],
+    ['<Value xsi:nil="true"/>', undefined],
+    ['<Value xsi:type="xs:string"/>', { type: "string", value: "" }],
+    ['<Value xsi:type="xs:decimal"><![CDATA[]]></Value>', undefined],
+    ['<Value xsi:type="xs:dateTime"><![CDATA[]]></Value>', undefined],
+    ['<Value xsi:type="v8:TypeDescription"/>', undefined],
+    ['<Value xsi:type="v8:TypeDescription"><![CDATA[]]></Value>', undefined],
+    ['<Value xsi:type="v8:FixedArray"/>', { type: "fixedArray", value: [undefined] }],
+    ['<Value xsi:type="v8:FixedArray"><v8:Value xsi:nil="true"/></Value>', { type: "fixedArray", value: [undefined] }],
+    ['<Value xsi:type="v8:FixedArray"><v8:Value/></Value>', { type: "fixedArray", value: [undefined] }],
+  ])("preserves empty structural value %s", (xml, expected) => {
+    const node = parseXmlDocumentWithSaxes(xml).roots[0]!
+    const context = mockContextFromXML()
+    expect(importMetadataValueFromXML({ context, rule: undefined, value: node })).toEqual(expected)
+  })
+
+  it.each([
+    '<Value xsi:type="v8:TypeDescription">unexpected</Value>',
+    '<Value xsi:type="v8:TypeDescription"><Foo>bar</Foo></Value>',
+  ])("rejects unrecognized structural content %s", (xml) => {
+    const value = parseXmlDocumentWithSaxes(xml).roots[0]!
+    expect(() => importMetadataValueFromXML({ context: mockContextFromXML(), rule: undefined, value }))
+      .toThrow("MetadataValue: не распознан тип: v8:TypeDescription")
+  })
+
+  it.each(metadataValueFixtures)("imports structural $name", (fixture) => {
+    const node = parseXmlDocumentWithSaxes(fixture.XML).roots[0]!
+    const nodes = [node]
+    for (const current of nodes) {
+      nodes.push(...xmlElementChildren(current))
+      Object.defineProperty(current, "compatibilityValue", { get() { throw new Error("Compatibility XML must not be read") } })
+    }
+    expect(importMetadataValueFromXML({ context: mockContextFromXML(), rule: fixture.rule, value: node })).toEqual(fixture.internal)
+  })
+
   const parseValue = (xml: string): any => {
     const wrapped = `<root>${xml}</root>`
     const parsed = importContentFromXML<{ root: { Value: any } }>(wrapped)
@@ -76,26 +114,26 @@ describe("importMetadataValueFromXML", () => {
     expect(result).toBeUndefined()
   })
 
-  it("keeps xsi:nil for reference import", () => {
+  it("does not keep xsi:nil as a hidden semantic value", () => {
     const xmlValue = parseValue('<Value xsi:nil="true"/>') ?? { "_xsi:nil": true }
     const result = importMetadataValueFromXML({
-      context: mockContextFromXML({ forReference: true }),
+      context: mockContextFromXML(),
       rule: undefined,
       value: xmlValue,
     })
 
-    expect(result).toEqual({ "_xsi:nil": true })
+    expect(result).toBeUndefined()
   })
 
-  it("keeps unknown xsi:type for reference import", () => {
+  it("does not keep an empty unknown xsi:type as a hidden semantic value", () => {
     const xmlValue = parseValue('<Value xsi:type="v8:TypeDescription"/>')
     const result = importMetadataValueFromXML({
-      context: mockContextFromXML({ forReference: true }),
+      context: mockContextFromXML(),
       rule: undefined,
       value: xmlValue,
     })
 
-    expect(result).toEqual({ "_xsi:type": "v8:TypeDescription" })
+    expect(result).toBeUndefined()
   })
 
   it("throws on unknown xsi:type with text outside reference import", () => {

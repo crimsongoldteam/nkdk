@@ -36,9 +36,7 @@ const collectionRule = defineMetadataItemCollectionRule({
         {},
     )
   },
-  preserveReferenceItems: true,
   sparseItems: true,
-  omitDefaultsForSparseItems: true,
   omitEmptyOutput: true,
   recordYamlKeyFromYAML: ({ name, propertyRule }) => buildYamlName(propertyRule)(name),
   fromXMLToYAML: importStandardAttributeDescriptionsFromXMLToYAML,

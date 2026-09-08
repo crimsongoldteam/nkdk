@@ -4,6 +4,7 @@ import { join } from "node:path"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import "../../tests/metadataExecutionContext"
 import { mockContextFromXML } from "../../tests/mockContext"
+import { createImportReconstructionFactsWriter } from "../projectState/binary/reconstructionFacts"
 import {
   configurationIndexStoreDescriptor,
   encodeConfigurationBlockFragments,
@@ -201,15 +202,17 @@ describe("configuration XML import coordinator", () => {
     expect(fragmentBatches).toEqual([fragmentData])
   })
 
-  it("не запускает смысловую проверку в первом проходе", async () => {
+  it("не запускает централизованную проверку локальных запросов между проходами", async () => {
+    const calls: string[] = []
     const semanticValidationCalls: number[] = []
     const result = await importConfigurationFromXml(
       createParams("configuration"),
-      fakeDependencies({ calls: [], semanticValidationCalls }),
+      fakeDependencies({ calls, semanticValidationCalls }),
     )
 
     expect(result.failed).toEqual([])
     expect(semanticValidationCalls).toEqual([])
+    expect(calls.indexOf("firstPass")).toBeLessThan(calls.indexOf("secondPass"))
   })
 
   it("builds the XML language registry before worker initialization", async () => {
@@ -626,9 +629,11 @@ describe("configuration XML import coordinator", () => {
       async runFirstPass(_assignments, sink) {
         activeSinks.push(
           sink!.writeFirstPassState({
+            reconstructionFactsBuffer: createImportReconstructionFactsWriter().finish(),
             stateFragment: indexStateFragment("cf/first.yaml"),
           }),
           sink!.writeFirstPassState({
+            reconstructionFactsBuffer: createImportReconstructionFactsWriter().finish(),
             stateFragment: indexStateFragment("cf/second.yaml"),
           }),
         )
@@ -688,8 +693,7 @@ describe("configuration XML import coordinator", () => {
     const primary = new Error("checkpoint failed")
     const cleanup = new Error("discard failed")
     params.projectState = projectStateWithImportSession({
-      async commitWorkingIndex() { return new Uint8Array([1]) as never },
-      async commitSemanticIndex() { return new Uint8Array([2]) as never },
+      async commitSharedIndex() { return new Uint8Array([1]) as never },
       async finalize(beforeCheckpoint) {
         await beforeCheckpoint?.()
         throw new AggregateError([primary, cleanup], primary.message)
@@ -811,9 +815,8 @@ describe("configuration XML import coordinator", () => {
     ).toBe(true)
     expect(lines.some((line) => line.includes('substep="Перенос результата импорта в проект"'))).toBe(false)
     for (const substep of [
-      "Фиксация рабочего индекса",
+      "Фиксация общего индекса",
       "Построение окончательного состояния",
-      "Полная проверка зависимостей",
       "Сохранение состояния проекта",
       "Публикация состояния проекта",
     ]) {
@@ -940,14 +943,18 @@ function fakeDependencies(params: {
         async runFirstPass(_assignments, sink) {
           call("firstPass")
           if (params.bufferedFragments === true) {
+            const writer = createImportReconstructionFactsWriter()
+            for (const fragment of fragmentData) writer.append(fragment)
             await sink?.writeFirstPassState({
-              configurationFragmentBuffer: encodeConfigurationBlockFragments(fragmentData),
+              reconstructionFactsBuffer: writer.finish(),
               stateFragment: finalStateFragment(stateBatch(firstPassFiles, 1, selectedComponentPath)),
             })
           } else {
             for (let index = 0; index < fragmentData.length; index += 1) {
+              const writer = createImportReconstructionFactsWriter()
+              writer.append(fragmentData[index]!)
               await sink?.writeFirstPassState({
-                configurationFragment: fragmentData[index],
+                reconstructionFactsBuffer: writer.finish(),
                 ...(index === 0
                   ? { stateFragment: finalStateFragment(stateBatch(firstPassFiles, 1, selectedComponentPath)) }
                   : {}),
@@ -968,6 +975,7 @@ function fakeDependencies(params: {
           fs.mkdirSync(componentDir, { recursive: true })
           fs.writeFileSync(join(componentDir, "Конфигурация.yaml"), "Имя: Конфигурация\n")
           await sink?.writeSecondPassState({
+            configurationFragmentBuffer: encodeConfigurationBlockFragments(fragmentData),
             stateFragment: finalStateFragment(stateBatch(secondPassFiles, 3, selectedComponentPath)),
           })
           return {
@@ -1042,8 +1050,9 @@ function memoryCandidateStore(
     hasBlock: (projectPath) => blocks.has(projectPath),
     hasPending: () => false,
     mergeBlockFragments(fragments) {
-      fragmentBatches?.push([...fragments])
-      for (const fragment of fragments) mergeFragment(fragment)
+      const batch = [...fragments]
+      fragmentBatches?.push(batch)
+      for (const fragment of batch) mergeFragment(fragment)
     },
     replaceHashes(value) { hashes = [...value] },
     copyActiveBlocksFrom() {},
@@ -1143,16 +1152,15 @@ function fakeProjectState(
       const preparedStore = memoryPreparedImportStore()
       return {
         async preparedImportStore() { return preparedStore },
-        async commitWorkingIndex() {
-          importParams.profile?.onPhase?.({ phase: "workingIndex", elapsedMs: 1 })
-          return readToken()
-        },
-        async commitSemanticIndex() {
-          importParams.profile?.onPhase?.({ phase: "semanticIndex", elapsedMs: 1 })
+        async commitSharedIndex() {
+          importParams.profile?.onPhase?.({ phase: "sharedIndex", elapsedMs: 1 })
           return readToken()
         },
         async collectSemanticValidationIssues() {
-          semanticValidationCalls?.push(1)
+          if (semanticValidationCalls !== undefined) {
+            semanticValidationCalls.push(1)
+            calls.push("semanticValidation")
+          }
           return []
         },
         async createReadToken() { return readToken() },
@@ -1164,7 +1172,6 @@ function fakeProjectState(
         async replaceFinalHashes(files) { replacedFinalHashes?.push(files) },
         async finalize(beforeCheckpoint) {
           importParams.profile?.onPhase?.({ phase: "finalBuild", elapsedMs: 1 })
-          importParams.profile?.onPhase?.({ phase: "dependencyValidation", elapsedMs: 1 })
           await beforeCheckpoint?.()
           importParams.profile?.onPhase?.({ phase: "save", elapsedMs: 1 })
           importParams.profile?.onPhase?.({ phase: "publication", elapsedMs: 1 })
@@ -1218,9 +1225,7 @@ function projectStateWithImportSession(
     async preparedImportStore() { return memoryPreparedImportStore() },
     async writeStateFragment() {},
     async replaceFinalHashes() {},
-    commitWorkingIndex: unexpected,
-    commitSemanticIndex: unexpected,
-    async collectSemanticValidationIssues() { return [] },
+    commitSharedIndex: unexpected,
     createReadToken: unexpected,
     finalize: unexpected,
     async abort() {},

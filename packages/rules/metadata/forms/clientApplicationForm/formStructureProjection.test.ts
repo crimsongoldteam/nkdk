@@ -1,9 +1,13 @@
 import { describe, expect, it } from "vitest"
+import { createXmlAnomalyAnnotations } from "@nkdk/runtime"
 import "../../../tests/metadataExecutionContext"
 import {
   collectClientApplicationFormStructure,
+  projectPreparedClientApplicationFormStructure,
   projectClientApplicationFormStructure,
 } from "./formStructureProjection"
+import { indexClientApplicationFormComponents } from "./formComponentIndex"
+import { collectClientApplicationFormDataPathPreparation } from "./formDataPathContext"
 
 describe("проекция структуры формы", () => {
   const yaml = {
@@ -11,7 +15,15 @@ describe("проекция структуры формы", () => {
     Реквизиты: { Объект: { ОсновнойРеквизит: "Истина" } },
     Команды: { Записать: {} },
     Параметры: { Режим: {} },
-  }
+  } as const
+
+  it("использует готовые сведения элементов и путей для той же структуры", () => {
+    const preparation = collectClientApplicationFormDataPathPreparation({ yaml })
+    expect(projectPreparedClientApplicationFormStructure({
+      yaml, index: indexClientApplicationFormComponents(yaml),
+      elementsByName: preparation.collected.elementsByName, occurrences: preparation.collected.occurrences,
+    })).toEqual(collectClientApplicationFormStructure(yaml))
+  })
 
   it("собирает все категории с YAML-путями", () => {
     const components = collectClientApplicationFormStructure(yaml)
@@ -65,6 +77,16 @@ describe("проекция структуры формы", () => {
         }),
       },
     ]))
+  })
+
+  it("не передаёт принятую invalid-аннотацию пути в межфайловую проверку", () => {
+    const field = { Вид: "ПолеВвода", ПутьКДанным: "Таблица[4].Реквизит" }
+    const form = { Элементы: { Поле: field } }
+    const annotations = createXmlAnomalyAnnotations()
+    annotations.set(field, "ПутьКДанным", { kind: "invalid", occurrence: 1, target: "value" })
+
+    expect(collectClientApplicationFormStructure(form, undefined, annotations))
+      .not.toContainEqual(expect.objectContaining({ componentKind: "dataPath" }))
   })
 
   it("добавляет роль и topology-адрес документа", () => {

@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest"
 
 import { testMetadataItemFromXMLToYAML } from "../../../tests/directConversion"
-import { importContentFromXML } from "@nkdk/runtime"
+import { xmlFixtureValue as importContentFromXML } from "../../../tests/xmlFixtureValue"
 import { HomePageWorkAreaRules } from "./rules"
+import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"
 
 import "./register"
 
@@ -57,6 +58,13 @@ const convert = (xml = HOME_PAGE_WORK_AREA_XML) =>
   }).yaml
 
 describe("HomePageWorkArea XML → YAML", () => {
+  it("читает шаблон и колонки прямо из XML-узлов", () => {
+    expect(testMetadataItemFromXMLToYAML({
+      rule: HomePageWorkAreaRules,
+      xml: parseStructuralXMLWithoutCompatibility(HOME_PAGE_WORK_AREA_XML),
+    }).yaml).toEqual(expectedYAML)
+  })
+
   it("imports working area template, columns, items and visibility", () => {
     expect(convert()).toEqual(expectedYAML)
   })

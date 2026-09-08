@@ -11,8 +11,10 @@ import type {
 import type { MetadataItemRule, PropertyRule } from "./types"
 import type { DeferredValuePath } from "./deferredObjectValues"
 import type { XmlElementNode } from "../../../xml/import/document"
-import type { XmlImportAuditSession } from "../xmlAnomaly/importAudit"
+import type { XmlImportAuditSession, XmlImportAuditedNode } from "../xmlAnomaly/importAudit"
 import type { XmlAnomalyAnnotationTable } from "../../../yaml/xmlAnomalyAnnotations"
+import type { YAMLScalarTag } from "../../../yaml/scalarTags"
+import type { ExecutionPath } from "./executionPath"
 import {
   arrayLengthXmlImportAttemptAdapter,
   attachXmlImportAttemptAdapter,
@@ -22,13 +24,46 @@ export type { DeferredValuePath } from "./deferredObjectValues"
 
 export type DirectImportMode = "yaml" | "facts"
 
+export interface DirectImportPropertyFact {
+  readonly itemType: string
+  readonly itemRule?: MetadataItemRule
+  readonly propertyKey: string
+  readonly yamlPath: YamlPath
+  /** Адрес во время XML-обхода, до именования элементов коллекций. */
+  readonly sourceYamlPath?: YamlPath
+  readonly value: unknown
+  /** Значение уже прошло формирование YAML-проекции, а не только XML-преобразование. */
+  readonly exportedToYAML?: true
+  readonly scalarTag?: YAMLScalarTag
+  /** Было ли свойство физически представлено в исходном XML. */
+  readonly presentInXML?: boolean
+  /** Исходное смысловое XML-значение для локальной проверки опущенного default. */
+  readonly reconstructionValue?: unknown
+}
+
 export interface DirectImportFactsSink {
-  acceptProperty(fact: {
-    readonly itemType: string
-    readonly propertyKey: string
-    readonly yamlPath: YamlPath
-    readonly value: unknown
-  }): void
+  acceptProperty(fact: DirectImportPropertyFact): void
+}
+
+export function createDirectImportFactsCollector(select?: (fact: DirectImportPropertyFact) => boolean): DirectImportFactsSink & {
+  finish(): readonly Parameters<DirectImportFactsSink["acceptProperty"]>[0][]
+} {
+  const facts: Parameters<DirectImportFactsSink["acceptProperty"]>[0][] = []
+  const collector = {
+    acceptProperty(fact: Parameters<DirectImportFactsSink["acceptProperty"]>[0]) {
+      if (select !== undefined && !select(fact)) return
+      const yamlPath = [...fact.yamlPath]
+      const source = fact.sourceYamlPath
+      const sourceYamlPath = source === undefined
+        || (source.length === yamlPath.length && source.every((segment, index) => segment === yamlPath[index]))
+        ? yamlPath
+        : [...source]
+      facts.push({ ...fact, yamlPath, sourceYamlPath })
+    },
+    finish: () => facts,
+  }
+  attachXmlImportAttemptAdapter(collector, arrayLengthXmlImportAttemptAdapter([facts]))
+  return collector
 }
 
 export interface DirectImportTraversal<Execution = unknown> {
@@ -36,15 +71,81 @@ export interface DirectImportTraversal<Execution = unknown> {
   facts?: DirectImportFactsSink
   produceResult?: boolean
   execution?: Execution
-  yamlPath: YamlPath
+  pathCursor: ExecutionPath<string | number>
   rulePath: readonly DeferredRulePathSegment[]
   collector: LocalIndexesCollector
   deferred?: DeferredValuePathCollector
   dependent?: ImportedDependentPropertyCollector
+  dependencies?: PreparedImportDependencies
+  roundTrip?: DirectImportRoundTripExecution
   audit?: XmlImportAuditSession
   annotations?: XmlAnomalyAnnotationTable
   xmlNodes?: readonly XmlElementNode[]
   profile?: DirectImportProfile
+}
+
+export interface DirectImportXMLPropertyBinding {
+  readonly propertyKey: string
+  readonly node?: XmlImportAuditedNode
+  readonly nodes?: readonly XmlElementNode[]
+  readonly owner?: XmlElementNode
+  readonly presentInXML: boolean
+  /** Значение текущего преобразования, записываемое во внешний файл, а не в YAML. */
+  readonly externalValue?: unknown
+  readonly xmlPath?: readonly string[]
+  /** Смысловое значение намеренно исключено решением зависимостей первого прохода. */
+  readonly semanticOmitted?: true
+  /** XML поддерево уже полностью перенесено в предметный индекс и не имеет YAML-значения. */
+  readonly structurallyClaimed?: true
+}
+
+/** Внутренний порт второго прохода. Первый проход фактов его не открывает. */
+export interface DirectImportRoundTripExecution {
+  readonly attemptParticipant?: object
+  finalizeCreatedItem?(item: {
+    readonly yaml: Record<string, unknown>
+    readonly rule: MetadataItemRule
+    readonly yamlPath: YamlPath
+    readonly context: ConfigurationContextFromXML
+  }): void
+  /** Родительская граница: элемент уже включён в именованную коллекцию. */
+  placeCollectionItem?(parent: Record<string, unknown>, key: string, yamlPath: YamlPath, sourceYamlPath?: YamlPath): void
+  /** Совместимость границы с локальным proof; неподдержанная вложенность проверяется владельцем. */
+  accepts?(sources: readonly DirectImportXMLSource[]): boolean
+  open(params: {
+    readonly context: ConfigurationContextFromXML
+    readonly rule: MetadataItemRule
+    readonly yaml: Record<string, unknown>
+    readonly sources: readonly DirectImportXMLSource[]
+    readonly itemName?: string
+    readonly yamlPath: YamlPath
+    readonly rulePath: readonly DeferredRulePathSegment[]
+    readonly dependencies?: PreparedImportDependencies
+  }): {
+    /** В том числе свойство без результата импорта: его XML-default ещё может сработать. */
+    bind?(params: DirectImportXMLPropertyBinding): void
+    ready(params: DirectImportXMLPropertyBinding): void
+    finish(): void
+  }
+}
+
+export interface PreparedImportDependencies {
+  /** Ключи свойств, добавлявшихся финализатором в конец смыслового YAML. */
+  appendedYamlKeys?(itemYamlPath: YamlPath): ReadonlySet<string> | undefined
+  /** Рабочие значения обычного экспорта, не подменяющие итоговый YAML. */
+  exportPropertyValues?(itemYamlPath: YamlPath): Iterable<readonly [string, unknown]>
+  propertyKeys?(itemYamlPath: YamlPath): Iterable<string>
+  /** Только подготовленные значения для обратного преобразования. */
+  proofPropertyKeys(itemYamlPath: YamlPath): Iterable<string>
+  itemFacts?(itemYamlPath: YamlPath, itemType: string): import("./dependentItemRegistry").DependentImportFacts | undefined
+  shouldOmit(candidate: ImportedDependentPropertyCandidate, values: Record<string, unknown>): boolean
+  /** Полное решение первого прохода; отсутствующее свойство возвращает value: undefined. */
+  propertyValue?(itemYamlPath: YamlPath, propertyKey: string): {
+    readonly value: unknown
+    /** Окончательное решение первого прохода для самого свойства. */
+    readonly present?: boolean
+    readonly scalarTag?: YAMLScalarTag
+  }
 }
 
 export interface ImportedDependentPropertyCandidate {
@@ -108,6 +209,8 @@ export function createDeferredValuePathCollector(): DeferredValuePathCollector {
 export interface DirectImportXMLSource {
   context: ConfigurationContextFromXML
   xml: Record<string, unknown> | XmlElementNode
+  /** Исходный корень XMLRoot; тело item может находиться внутри него. */
+  envelopeSource?: XmlElementNode
   tags?: string[]
   claimAuditRoot?: boolean
 }

@@ -1,13 +1,13 @@
+import { metadataObjectBelongingProperties } from "../../commonObjects/metadataObjectBelongingProperties"
+import { metadataIdentityProperties } from "../../commonObjects/metadataIdentityProperties"
 import { metadataWebServiceOperationsRule } from "./builders"
 import { xDTOPackagesRule } from "../../commonObjects/xDTOPackages/types"
-import { i8nTextRule } from "../../commonObjects/i8nText/types"
 import { moduleRule } from "../../commonObjects/module/types"
 import { numberRule } from "../../commonObjects/number/types"
 import { stringRule } from "../../commonObjects/string/types"
-import { uuidRule } from "../../commonObjects/uuid/types"
 import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
-import { V8_MDCLASSES_ROOT } from "../../ruleRuntime/appliedObject/presets"
+import { V8_MDCLASSES_XML_ROOT } from "../../ruleRuntime/appliedObject/presets"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 const properties = ["Properties"]
 const childObjects = ["ChildObjects"]
@@ -32,37 +32,17 @@ export const MetadataWebServiceRules = {
   properties: {
     xmlRoot: xmlRootRule({
       container: "WebService",
-      rootAttributes: V8_MDCLASSES_ROOT,
-      forReferenceOnly: true,
-      toYAML: false,
-      fromYAML: false,
+      ...V8_MDCLASSES_XML_ROOT,
     }),
-    uuid: uuidRule({
-      xml: "_uuid",
-      forReferenceOnly: true,
-      xmlParents: [],
-    }),
-    name: stringRule({
-      xmlParents: properties,
-      required: true,
+    ...metadataIdentityProperties,
+    name: {
+      ...metadataIdentityProperties.name,
       defaultValue: ({ name }: { name?: string }) => name,
-    }),
+    },
     namespace: stringRule({
       yaml: "ПространствоИмен",
       xml: "Namespace",
       xmlParents: properties,
-    }),
-    synonym: i8nTextRule({
-      yaml: "Синоним",
-      xmlParents: properties,
-      defaultValueXMLRaw: "",
-      excludeIfEqualNameYAML: true,
-    }),
-    comment: stringRule({
-      yaml: "Комментарий",
-      xmlParents: properties,
-      defaultValueXMLRaw: "",
-      defaultValueAdoptedXML: "",
     }),
     xdtoPackages: xDTOPackagesRule({
       yaml: "ПакетыXDTO",
@@ -78,15 +58,7 @@ export const MetadataWebServiceRules = {
       defaultValueXML: "AutoUse",
       implicitValueYAML: "AutoUse",
     }),
-    objectBelonging: systemEnumerationRule({
-      yaml: "ПринадлежностьОбъекта",
-      xml: "ObjectBelonging",
-      typeSE: "ObjectBelonging",
-      xmlParents: properties,
-      toYAML: false,
-      fromYAML: false,
-      implicitValueYAML: "Native",
-    }),
+    objectBelonging: metadataObjectBelongingProperties.objectBelonging,
     sessionMaxAge: numberRule({
       yaml: "ВремяЖизниСеанса",
       xml: "SessionMaxAge",
@@ -99,11 +71,7 @@ export const MetadataWebServiceRules = {
       xml: "DescriptorFileName",
       xmlParents: properties,
     }),
-    extendedConfigurationObject: stringRule({
-      xml: "ExtendedConfigurationObject",
-      xmlParents: properties,
-      runtimeOnly: true,
-    }),
+    extendedConfigurationObject: metadataObjectBelongingProperties.extendedConfigurationObject,
     operations: metadataWebServiceOperationsRule({
       yaml: "Операции",
       xml: "Operation",

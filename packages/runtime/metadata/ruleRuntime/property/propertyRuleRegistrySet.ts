@@ -2,7 +2,8 @@ import type {
   MetadataRulesDefinition,
   PropertyTypeDefinition,
 } from "../definition"
-import type { DependentItemRegistryLookup } from "./dependentItemRegistry"
+import type { DependentItemRegistryLookup, DependentImportDependencyContext } from "./dependentItemRegistry"
+import { selectDependentImportFacts } from "./dependentItemRegistry"
 import type {
   CollectionItemRule,
   importExportFunction,
@@ -80,6 +81,7 @@ export interface PropertyRuleRegistrySet extends DependentItemRegistryLookup {
     params: MetadataItemXmlImportVariantParams,
   ): XMLImportObjectVariant | undefined
   applyMetadataItemXmlImportAugmenter(params: Parameters<MetadataItemXmlImportAugmenter["augment"]>[0]): void
+  metadataItemXmlImportYamlDependencies(params: MetadataItemXmlImportVariantParams): readonly string[]
   registerMetadataItemYamlToXmlAugmenter(componentKind: string, augmenter: MetadataItemYamlToXmlAugmenter): void
   augmentMetadataItemYamlToXml(params: Omit<Parameters<MetadataItemYamlToXmlAugmenter["augment"]>[0], "logicalAddress">): void
   registerImportedYamlFinalizer(itemType: string, finalizer: MetadataImportedYamlFinalizer): void
@@ -141,6 +143,13 @@ export function createPropertyRuleRegistrySet(
     Object.entries(definition.metadataTargetOwners),
   )
   const dependentItems = new Map(Object.entries(definition.dependentItems))
+  const dependentImportDependencies = (context: DependentImportDependencyContext) => {
+    const declaration = dependentItems.get(context.itemType)?.imported?.dependencies
+    return typeof declaration === "function" ? declaration({
+      itemType: context.itemType, itemName: context.itemName, itemYamlPath: context.itemYamlPath,
+      rootRule: context.rootRule, owner: context.owner,
+    }) : declaration
+  }
   const xmlImportAugmenters = new Map<string, MetadataItemXmlImportAugmenter>()
   const yamlToXmlAugmenters = new Map<string, MetadataItemYamlToXmlAugmenter>()
   const importedYamlFinalizers = new Map<string, MetadataImportedYamlFinalizer>()
@@ -181,6 +190,9 @@ export function createPropertyRuleRegistrySet(
     },
     applyMetadataItemXmlImportAugmenter(params) {
       selectedXmlImportAugmenter(xmlImportAugmenters, params.context)?.augment(params)
+    },
+    metadataItemXmlImportYamlDependencies(params) {
+      return selectedXmlImportAugmenter(xmlImportAugmenters, params.context)?.yamlDependencies(params) ?? []
     },
     registerMetadataItemYamlToXmlAugmenter(componentKind, augmenter) {
       if (yamlToXmlAugmenters.has(componentKind)) {
@@ -258,6 +270,11 @@ export function createPropertyRuleRegistrySet(
         dependentItems.get(params.itemType)?.imported?.shouldRemove(params) ===
         true
       )
+    },
+    dependentImportDependencies,
+    prepareDependentImportFacts(params) {
+      const dependencies = dependentImportDependencies(params)
+      return dependencies === undefined ? undefined : selectDependentImportFacts(dependencies, params)
     },
     shouldTagImportedDependentProperty(params) {
       return (

@@ -1,44 +1,63 @@
-import { capitalize, markYAMLScalarTag, yamlScalarTagAt } from "@nkdk/runtime"
+import { capitalize, isEmptyXmlElement, isXmlElementNode, markYAMLScalarTag, yamlScalarTagAt, type XmlElementNode } from "@nkdk/runtime"
 import type { MetadataItemXmlImportAugmenter } from "../../ruleRuntime/metadataItem/augmenterRegistry"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { convertPropertyFromXMLToYAML, getImplicitValueYAML } from "@nkdk/runtime/rule-kit"
 import { currentOperationRegistrySet } from "../../operations/operationExecutionContext"
 import type { PropertyStateCapabilityRegistry, ResolvedPropertyStateItemCapability } from "../../ruleRuntime/definition"
 import { importMultiStateType } from "./multiState"
-import { writePropertyStateSection } from "../../ruleRuntime/property/propertyStateSections"
+import { propertyStateSectionNames, writePropertyStateSection } from "../../ruleRuntime/property/propertyStateSections"
 import { getOwnPropertyImplicitValueYAML } from "../../ruleRuntime/property/propertyStateSchema"
 import {
   EXTENDED_CONFIGURATION_OBJECT_YAML,
   writeExtendedConfigurationObjectYAML,
 } from "./extendedConfigurationObjectYAML"
-import { importConfigurationExtensionCollectionState } from "./collectionStates"
+import { configurationExtensionCollectionYamlDependencies, importConfigurationExtensionCollectionState } from "./collectionStates"
+import { ImportSourceReader, importSourceScalar } from "./importSource"
+import { propertyEntriesByXmlName, propertyStateImportPlan, selectedPropertyStateImports } from "./propertyStateImportPlan"
 
 export const configurationExtensionPropertyStatesAugmenter: MetadataItemXmlImportAugmenter = {
+  yamlDependencies({ context, rule, source }) {
+    const reader = new ImportSourceReader()
+    const names = new Set([...propertyStateSectionNames, ...configurationExtensionCollectionYamlDependencies(rule)])
+    const item = propertyStateRegistry()?.item(rule.itemType, context.fromXML.propertyStateCompatibilityMode)
+    const borrowed = context.fromXML.currentXMLDefaultVariant === "adopted"
+    for (const state of propertyStates(reader, source)) {
+      if (typeof state.property !== "string") continue
+      const key = propertyKeyForState(rule, item, state.property)
+      const property = key === undefined ? undefined : rule.properties[key]
+      if (typeof property?.yaml === "string" && item?.properties[key!]?.representation !== "section") names.add(property.yaml)
+    }
+    for (const [{ propertyRule }] of selectedPropertyStateImports(propertyStateImportPlan(rule, item), reader, source, borrowed)) {
+      names.add(propertyRule.yaml!)
+    }
+    return [...names]
+  },
   resolveCurrentXMLDefaultVariant({ rule, source }) {
     if (rule.properties.objectBelonging === undefined) return undefined
-    return extensionServiceProperties(source, rule)?.objectBelonging === "Adopted"
+    return extensionServiceProperties(new ImportSourceReader(), source, rule)?.objectBelonging === "Adopted"
       ? "adopted"
       : "full"
   },
-  augment({ context, rule, source, yaml }): void {
-    importConfigurationExtensionCollectionState({ context, rule, source, yaml })
-    const serviceProperties = extensionServiceProperties(source, rule)
+  augment({ context, rule, source, yaml, onCreatedItem }): void {
+    const reader = new ImportSourceReader()
+    importConfigurationExtensionCollectionState({ context, rule, source, yaml, onCreatedItem })
+    const serviceProperties = extensionServiceProperties(reader, source, rule)
     const compatibilityMode = context.fromXML.propertyStateCompatibilityMode
     if (context.fromXML.currentXMLDefaultVariant !== "adopted") {
       if (serviceProperties?.hasExtendedConfigurationObject === true) {
         throw new Error(`ExtendedConfigurationObject недопустим для full ${rule.itemType}`)
       }
-      const states = propertyStates(source)
+      const states = propertyStates(reader, source)
       if (states.length > 0) {
         throw new Error(`PropertyState недопустим для full ${rule.itemType}`)
       }
-      importPresentProperties({ context, rule, source, yaml, compatibilityMode })
+      importPresentProperties({ context, rule, source, yaml, compatibilityMode, reader })
       return
     }
     let extendedConfigurationObjectNotify = false
-    for (const propertyState of propertyStates(source)) {
-      const property = propertyState["xr:Property"]
-      const state = propertyState["xr:State"]
+    for (const propertyState of propertyStates(reader, source)) {
+      const property = propertyState.property
+      const state = propertyState.state
       if (typeof property !== "string" || typeof state !== "string") continue
       const registry = propertyStateRegistry()
       const item = registry?.item(rule.itemType, compatibilityMode)
@@ -80,7 +99,7 @@ export const configurationExtensionPropertyStatesAugmenter: MetadataItemXmlImpor
           throw new Error(`Не задано YAML-свойство PropertyState ${rule.itemType}.${property}`)
         }
         if (mode === "multi") {
-          const xmlValue = valueAtImportXmlPath(source, rule, [...(propertyRule.xmlParents ?? []), property])
+          const xmlValue = valueAtImportXmlPath(reader, source, rule, [...(propertyRule.xmlParents ?? []), property])
           yaml[propertyRule.yaml] = importMultiStateType(context, propertyRule, xmlValue)
           continue
         }
@@ -88,12 +107,12 @@ export const configurationExtensionPropertyStatesAugmenter: MetadataItemXmlImpor
       if (yamlName === undefined) {
         throw new Error(`Не задано YAML-свойство PropertyState ${rule.itemType}.${property}`)
       }
-      ensurePropertyYamlValue({ context, rule, source, yaml, xmlProperty: property, yamlName })
+      ensurePropertyYamlValue({ context, rule, source, yaml, xmlProperty: property, yamlName, reader })
       if (capability.representation === "plain") continue
       compactTaggedDefault(yaml, yamlName, propertyRule)
       markPropertyState(yaml, yamlName, mode === "notify" ? "проверять" : "изменять")
     }
-    importPresentProperties({ context, rule, source, yaml, compatibilityMode })
+    importPresentProperties({ context, rule, source, yaml, compatibilityMode, reader })
     if (supportsAdoptionServiceProperties(rule) && (
       rule.itemType === "MetadataConfigurationExtension" ||
       serviceProperties?.objectBelonging === "Adopted"
@@ -134,24 +153,23 @@ function propertyKeyForState(
   item: ResolvedPropertyStateItemCapability | undefined,
   xmlProperty: string,
 ): string | undefined {
-  return propertyKeyByXmlName(rule, xmlProperty) ?? Object.keys(item?.properties ?? {}).find(
-    (propertyKey) => capitalize(propertyKey) === xmlProperty,
-  )
+  return propertyStateImportPlan(rule, item).stateKeys.get(xmlProperty)
 }
 
 function importPresentProperties(params: {
+  readonly reader: ImportSourceReader
   readonly context: Parameters<typeof convertPropertyFromXMLToYAML>[0]["context"]
   readonly rule: MetadataItemRule
-  readonly source: Record<string, unknown>
+  readonly source: Record<string, unknown> | XmlElementNode
   readonly yaml: Record<string, unknown>
   readonly compatibilityMode?: string
 }): void {
   const borrowed = params.context.fromXML.currentXMLDefaultVariant === "adopted"
   const item = propertyStateRegistry()?.item(params.rule.itemType, params.compatibilityMode)
-  for (const [propertyKey, capability] of Object.entries(item?.properties ?? {})) {
-    const propertyRule = params.rule.properties[propertyKey]
-    if (propertyRule === undefined || typeof propertyRule.yaml !== "string") continue
-    if (propertyRule.forReferenceOnly === true) continue
+  for (const [{ propertyKey, propertyRule, capability }, xmlValue] of selectedPropertyStateImports(
+    propertyStateImportPlan(params.rule, item), params.reader, params.source, borrowed,
+  )) {
+    if (typeof propertyRule.yaml !== "string") continue
     if (
       !borrowed &&
       propertyRule.metadataTarget !== undefined &&
@@ -175,9 +193,6 @@ function importPresentProperties(params: {
     }
     if (!borrowed) continue
     const xmlProperty = propertyRule.xml ?? capitalize(propertyKey)
-    const owner = asRecord(valueAtImportXmlPath(params.source, params.rule, propertyRule.xmlParents ?? []))
-    if (owner === undefined || !Object.prototype.hasOwnProperty.call(owner, xmlProperty)) continue
-    const xmlValue = owner[xmlProperty]
     if (
       capability.modes.includes("control") &&
       yamlScalarTagAt(params.yaml, propertyRule.yaml) === undefined &&
@@ -186,10 +201,11 @@ function importPresentProperties(params: {
       params.yaml[propertyRule.yaml] = undefined
       continue
     }
-    if (xmlValue !== undefined && xmlValue !== "" && !isEmptyRecord(xmlValue)) continue
+    if (isXmlElementNode(xmlValue) ? !isEmptyXmlElement(xmlValue) : xmlValue !== undefined && xmlValue !== "" && !isEmptyRecord(xmlValue)) continue
     const emptyValue = emptyPlainYAMLValue(propertyRule.type)
     if (emptyValue === undefined) continue
     ensurePropertyYamlValue({
+      reader: params.reader,
       context: params.context,
       rule: params.rule,
       source: params.source,
@@ -233,25 +249,26 @@ function emptyPlainYAMLValue(type: MetadataItemRule["properties"][string]["type"
     type === "XDTOPackages"
   ) return []
   if (type === "TypeDescription") return []
-  if (type === "string" || type === "I8nText" || type === "Picture") return ""
+  if (type === "string" || type === "I8nText" || type === "Picture" || type === "MetadataItemLink") return ""
   return undefined
 }
 
 function extensionServiceProperties(
-  source: Record<string, unknown>,
+  reader: ImportSourceReader,
+  source: Record<string, unknown> | XmlElementNode,
   rule: MetadataItemRule,
 ): { readonly objectBelonging: unknown; readonly hasExtendedConfigurationObject: boolean } | undefined {
   const extendedRule = rule.properties.extendedConfigurationObject
   const objectBelongingRule = rule.properties.objectBelonging
   const parents = extendedRule?.xmlParents ?? objectBelongingRule?.xmlParents ??
     (rule.itemType === "ClientApplicationForm" ? ["Form", "Properties"] : ["Properties"])
-  const properties = asRecord(valueAtImportXmlPath(source, rule, parents))
+  const properties = valueAtImportXmlPath(reader, source, rule, parents)
   if (properties === undefined) return undefined
   const objectBelongingXML = objectBelongingRule?.xml ?? "ObjectBelonging"
   const extendedConfigurationObjectXML = extendedRule?.xml ?? "ExtendedConfigurationObject"
   return {
-    objectBelonging: properties[objectBelongingXML],
-    hasExtendedConfigurationObject: Object.prototype.hasOwnProperty.call(
+    objectBelonging: importSourceScalar(reader.property(properties, objectBelongingXML)),
+    hasExtendedConfigurationObject: reader.hasProperty(
       properties,
       extendedConfigurationObjectXML,
     ),
@@ -264,9 +281,10 @@ function supportsAdoptionServiceProperties(rule: MetadataItemRule): boolean {
 }
 
 function ensurePropertyYamlValue(params: {
+  readonly reader: ImportSourceReader
   readonly context: Parameters<typeof convertPropertyFromXMLToYAML>[0]["context"]
   readonly rule: MetadataItemRule
-  readonly source: Record<string, unknown>
+  readonly source: Record<string, unknown> | XmlElementNode
   readonly yaml: Record<string, unknown>
   readonly xmlProperty: string
   readonly yamlName: string
@@ -288,6 +306,7 @@ function ensurePropertyYamlValue(params: {
     return
   }
   const xmlValue = valueAtImportXmlPath(
+    params.reader,
     params.source,
     params.rule,
     [...(propertyRule.xmlParents ?? []), params.xmlProperty],
@@ -304,40 +323,35 @@ function ensurePropertyYamlValue(params: {
     ?? {}
 }
 
-function propertyKeyByXmlName(rule: MetadataItemRule, xmlProperty: string): string | undefined {
-  return propertyEntryByXmlName(rule, xmlProperty)?.[0]
-}
-
 function propertyEntryByXmlName(
   rule: MetadataItemRule,
   xmlProperty: string,
 ): [string, MetadataItemRule["properties"][string]] | undefined {
-  return Object.entries(rule.properties).find(([propertyKey, propertyRule]) =>
-    (propertyRule.xml ?? capitalize(propertyKey)) === xmlProperty)
+  return propertyEntriesByXmlName(rule).get(xmlProperty)
 }
 
 function propertyStateRegistry(): PropertyStateCapabilityRegistry | undefined {
   return currentOperationRegistrySet<{ readonly propertyStates: PropertyStateCapabilityRegistry }>()?.propertyStates
 }
 
-function propertyStates(source: Record<string, unknown>): Record<string, unknown>[] {
-  const internalInfo = asRecord(source["InternalInfo"])
-  const value = internalInfo?.["xr:PropertyState"]
+function propertyStates(reader: ImportSourceReader, source: Record<string, unknown> | XmlElementNode): { property: unknown; state: unknown }[] {
+  const internalInfo = reader.property(source, "InternalInfo")
+  const value = reader.property(internalInfo, "xr:PropertyState")
   const values = Array.isArray(value) ? value : value === undefined ? [] : [value]
   return values.flatMap((entry) => {
-    const record = asRecord(entry)
-    return record === undefined ? [] : [record]
+    const record = isXmlElementNode(entry)
+      ? entry.attributes.length > 0 || entry.content.some(child => child.type !== "text") ? entry : undefined
+      : asRecord(entry)
+    return record === undefined ? [] : [{
+      property: importSourceScalar(reader.property(record, "xr:Property")),
+      state: importSourceScalar(reader.property(record, "xr:State")),
+    }]
   })
 }
 
 function propertyYamlName(rule: MetadataItemRule, xmlProperty: string): string | undefined {
   if (xmlProperty === "ExtendedConfigurationObject") return EXTENDED_CONFIGURATION_OBJECT_YAML
-  for (const [propertyKey, propertyRule] of Object.entries(rule.properties)) {
-    if ((propertyRule.xml ?? capitalize(propertyKey)) === xmlProperty && typeof propertyRule.yaml === "string") {
-      return propertyRule.yaml
-    }
-  }
-  return undefined
+  return propertyEntryByXmlName(rule, xmlProperty)?.[1].yaml
 }
 
 function markPropertyState(
@@ -360,16 +374,17 @@ function isEmptyRecord(value: unknown): value is Record<string, never> {
   return record !== undefined && Object.keys(record).length === 0
 }
 
-function valueAtXmlPath(source: Record<string, unknown>, path: readonly string[]): unknown {
+function valueAtXmlPath(reader: ImportSourceReader, source: Record<string, unknown> | XmlElementNode, path: readonly string[]): unknown {
   let current: unknown = source
-  for (const segment of path) current = asRecord(current)?.[segment]
+  for (const segment of path) current = reader.property(current, segment)
   return current
 }
 
 function valueAtImportXmlPath(
-  source: Record<string, unknown>,
+  reader: ImportSourceReader,
+  source: Record<string, unknown> | XmlElementNode,
   rule: MetadataItemRule,
   path: readonly string[],
 ): unknown {
-  return valueAtXmlPath(source, rule.itemType === "ClientApplicationForm" && path[0] === "Form" ? path.slice(1) : path)
+  return valueAtXmlPath(reader, source, rule.itemType === "ClientApplicationForm" && path[0] === "Form" ? path.slice(1) : path)
 }

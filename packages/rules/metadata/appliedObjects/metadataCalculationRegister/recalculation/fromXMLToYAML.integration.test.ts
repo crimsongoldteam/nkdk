@@ -5,6 +5,7 @@ import {
   testMetadataItemFromXMLToYAML,
 } from "../../../../tests/directConversion"
 import { RecalculationRules } from "./rules"
+import { xmlElementFromTestValue } from "../../../../tests/structuralXML"
 import { metadataRules } from "../../../composition/metadataRules"
 import {
   createMetadataExecutionRegistrySets,
@@ -50,7 +51,7 @@ describe("Recalculation XML → YAML", () => {
       testMetadataItemFromXMLToYAML({
       rule: RecalculationRules,
       context,
-      xml: {
+      xml: xmlElementFromTestValue("MetaDataObject", {
         Recalculation: {
           Properties: {
             Name: "ПерерасчетВсеСвойства",
@@ -87,12 +88,11 @@ describe("Recalculation XML → YAML", () => {
             },
           },
         },
-      },
+      }),
       }).yaml)
 
     expect(result).toEqual({
       Синоним: "",
-      Комментарий: "",
       Измерения: {
         ИзмерениеПерерасчетаВсеСвойства: {
           Синоним: "Синоним",

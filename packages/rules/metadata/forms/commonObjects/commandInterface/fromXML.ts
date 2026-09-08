@@ -1,4 +1,4 @@
-import { ConfigurationContextFromXML } from "@nkdk/runtime"
+import { ConfigurationContextFromXML, isXmlElementNode, isEmptyXmlElement, xmlElementChildren, xmlTextValue, type XmlElementNode } from "@nkdk/runtime"
 import { importBooleanFromXML } from "../../../commonObjects/boolean/fromXML"
 import { importNumberFromXML } from "../../../commonObjects/number/fromXML"
 import { importUserVisibleFromXML } from "../../../commonObjects/userVisible/fromXML"
@@ -9,14 +9,23 @@ import { CommandInterface, CommandInterfaceItem, CommandInterfaceItemXML, Comman
 export const importCommandInterfaceFromXML = (
   context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
-  xml: CommandInterfaceXML | undefined
+  xml: CommandInterfaceXML | XmlElementNode | undefined
 ): CommandInterface | undefined => {
   if (!xml) return undefined
+  if (isXmlElementNode(xml) && isEmptyXmlElement(xml)) return undefined
 
   const result: CommandInterface = {
     NavigationPanel: [],
     CommandBar: [],
     itemType: "CommandInterface",
+  }
+
+  if (isXmlElementNode(xml)) {
+    for (const key of ["NavigationPanel", "CommandBar"] as const) {
+      const panel = xmlElementChildren(xml, key)[0]
+      if (panel !== undefined) result[key] = xmlElementChildren(panel, "Item").map(item => importCommandInterfaceItemFromXML(context, item))
+    }
+    return result
   }
 
   if (xml.NavigationPanel?.Item) {
@@ -34,23 +43,26 @@ export const importCommandInterfaceFromXML = (
 
 const importCommandInterfaceItemFromXML = (
   context: ConfigurationContextFromXML,
-  item: CommandInterfaceItemXML
+  item: CommandInterfaceItemXML | XmlElementNode
 ): CommandInterfaceItem => {
+  const child = (name: string) => isXmlElementNode(item) ? xmlElementChildren(item, name)[0] : undefined
+  const text = (name: string) => { const node = child(name); return node === undefined ? undefined : xmlTextValue(node) || undefined }
   const values: Partial<CommandInterfaceItem> = {
-    command: String(item.Command),
-    type: item.Type,
-    attribute: item.Attribute,
-    index: importNumberFromXML(context, undefined, item.Index),
-    commandGroup: item.CommandGroup,
+    command: String(isXmlElementNode(item) ? text("Command") : item.Command),
+    type: isXmlElementNode(item) ? text("Type") : item.Type,
+    attribute: isXmlElementNode(item) ? text("Attribute") : item.Attribute,
+    index: importNumberFromXML(context, undefined, isXmlElementNode(item) ? child("Index") : item.Index),
+    commandGroup: isXmlElementNode(item) ? text("CommandGroup") : item.CommandGroup,
   }
 
-  const defaultVisible = importBooleanFromXML(context, undefined, item.DefaultVisible)
+  const defaultVisible = importBooleanFromXML(context, undefined, isXmlElementNode(item) ? child("DefaultVisible") : item.DefaultVisible)
   if (defaultVisible === false) {
     values.defaultVisible = false
   }
 
-  if (item.Visible) {
-    const visible = importUserVisibleFromXML(context, undefined, item.Visible)
+  const visibleXML = isXmlElementNode(item) ? child("Visible") : item.Visible
+  if (visibleXML) {
+    const visible = importUserVisibleFromXML(context, undefined, visibleXML)
     if (visible) {
       values.visible = visible
     }

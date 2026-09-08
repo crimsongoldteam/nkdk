@@ -63,14 +63,9 @@ export const metadataPropertyRule000 = definePropertyTypeRule("AppearanceFields"
   itemRule: AppearanceFieldsRules,
   sparseYAML: true,
   normalizeYAML: ({ yaml }) => normalizeAppearanceFieldsStringYAML(yaml),
-  transformOutput: ({ xml }) => {
-    const items = Object.keys(AppearanceFieldsRules.properties).flatMap((name) => {
-      const value = xml[name]
-      return value !== null && typeof value === "object" && !Array.isArray(value)
-        ? [value as Record<string, unknown>]
-        : []
-    })
-    return items.length === 0 ? {} : { "dcscor:item": items }
-  },
 })
 export const metadataPropertyRule001 = definePropertyTypeRule("AppearanceFields", "xmlImportPropertyBehavior", { presenceAffectsExport: true })
+export const metadataPropertyRule002 = definePropertyTypeRule("AppearanceFields", "prepareXMLItemOutput", () => ({
+  attributes: (own) => own,
+  routeProperty: ({ value }) => ({ path: ["dcscor:item"], value, append: true }),
+}))

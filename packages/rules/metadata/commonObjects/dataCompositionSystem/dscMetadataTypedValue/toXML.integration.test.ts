@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "../../../ruleRuntime"
 import { testAtomicToXML } from "../../../../tests/property/atomicToXML"
+import { testPropertyYamlRoundTrip } from "../../../../tests/directConversion"
 import { dcsMetadataTypedValueFixtures, emptyValueListTypedValue } from "./__fixtures__/data"
 
 const rule: PropertyRule = {
@@ -47,7 +48,7 @@ describe("export DcsMetadataTypedValue to XML", () => {
     expect(result).toEqual('<value xsi:type="xr:DesignTimeRef">Catalog.Организации.EmptyRef</value>')
   })
 
-  it("exports missing value from reference v8 Type Undefined", () => {
+  it("does not restore missing value from reference v8 Type Undefined", () => {
     const { result } = testAtomicToXML({
       rule,
       value: undefined,
@@ -55,39 +56,19 @@ describe("export DcsMetadataTypedValue to XML", () => {
       xmlRootTag: "value",
     })
 
-    expect(result).toEqual(
-      '<value xmlns:d8p1="http://v8.1c.ru/8.2/data/types" xsi:type="v8:Type">d8p1:Undefined</value>'
-    )
+    expect(result).toEqual("")
   })
 
-  it("exports reference-only v8 Type Undefined when passed as value", () => {
-    const { result } = testAtomicToXML({
-      rule,
-      value: undefinedTypeReferenceValue,
-      referenceMetadata: undefinedTypeReferenceValue,
-      xmlRootTag: "value",
-    })
-
-    expect(result).toEqual(
-      '<value xmlns:d8p1="http://v8.1c.ru/8.2/data/types" xsi:type="v8:Type">d8p1:Undefined</value>'
-    )
+  it.each(["", '<value xsi:type="xs:string">x</value>'])("preserves v8 Type Undefined through YAML: %s", (prefix) => {
+    const sourceXML = `<Root>${prefix}<value xmlns:d8p1="http://v8.1c.ru/8.2/data/types" xsi:type="v8:Type">d8p1:Undefined</value></Root>`
+    const result = testPropertyYamlRoundTrip({ sourceXML, rule: {
+      type: "DcsMetadataTypedValue", xml: "value", yaml: "Значение",
+    } })
+    expect(result.yamlText).toContain("!xml/raw")
+    expect(result.result.replace(/>\s+</g, "><").replace(/^\ufeff?<\?xml[^>]+>\s*/, "")).toBe(sourceXML)
   })
 
-  it("exports reference-only v8 Type Undefined inside value array", () => {
-    const { result } = testAtomicToXML({
-      rule,
-      value: [{ type: "string", value: "x" }, undefinedTypeReferenceValue],
-      referenceMetadata: [{ type: "string", value: "x" }, undefinedTypeReferenceValue],
-      xmlRootTag: "value",
-    })
-
-    expect(result).toEqual(
-      '<value xsi:type="xs:string">x</value>\n' +
-        '<value xmlns:d8p1="http://v8.1c.ru/8.2/data/types" xsi:type="v8:Type">d8p1:Undefined</value>'
-    )
-  })
-
-  it("exports missing array item as xsi:nil only when reference slot is missing too", () => {
+  it("does not invent xsi:nil from a missing reference array slot", () => {
     const { result } = testAtomicToXML({
       rule,
       value: [{ type: "string", value: "x" }, undefined, { type: "string", value: "y" }],
@@ -96,7 +77,7 @@ describe("export DcsMetadataTypedValue to XML", () => {
     })
 
     expect(result).toEqual(
-      '<value xsi:type="xs:string">x</value>\n<value xsi:nil="true"/>\n<value xsi:type="xs:string">y</value>'
+      '<value xsi:type="xs:string">x</value>\n<value xsi:type="xs:string">y</value>'
     )
   })
 
@@ -111,9 +92,8 @@ describe("export DcsMetadataTypedValue to XML", () => {
     expect(result).toEqual('<value xsi:type="xs:string">x</value>')
   })
 
-  it("does not export invalid reference v8 Type value", () => {
-    expect(() =>
-      testAtomicToXML({
+  it("ignores invalid reference v8 Type value", () => {
+    expect(testAtomicToXML({
         rule,
         value: undefined,
         referenceMetadata: {
@@ -121,8 +101,7 @@ describe("export DcsMetadataTypedValue to XML", () => {
           "#text": "d8p1:String",
         },
         xmlRootTag: "value",
-      })
-    ).toThrow("DcsMetadataTypedValue XML: unsupported reference v8:Type")
+      }).result).toBe("")
   })
 
   it("reports missing toXML handler for unknown runtime typed value", () => {
@@ -145,7 +124,7 @@ describe("export DcsMetadataTypedValue to XML", () => {
       xmlRootTag: "value",
     })
 
-    expect(result).toEqual("<value/>")
+    expect(result).toEqual("")
   })
 
   it("exports beginning date as xs:dateTime", () => {

@@ -8,7 +8,7 @@ import {
 import { toolError, toolSuccess, type ToolErrorCode, type ToolPayload } from "../contracts/common"
 import type { ListInfobaseExtensionsInput } from "../contracts/listInfobaseExtensions"
 import { getPlatformSessionManager } from "./platformSessionHandle"
-import { projectSettingsFailure } from "./projectSettingsFailure"
+import { hasInfobaseSettings, projectSettingsFailure } from "./projectSettingsFailure"
 
 export interface ListInfobaseExtensionsDependencies {
   readSettings: typeof readProjectSettings
@@ -29,7 +29,7 @@ export async function listInfobaseExtensions(
   const dependencies = providedDependencies ?? defaultDependencies()
   try {
     const settingsRead = await dependencies.readSettings(input.projectDir)
-    if (settingsRead.status !== "ready") return projectSettingsFailure(settingsRead)!
+    if (!hasInfobaseSettings(settingsRead)) return projectSettingsFailure(settingsRead)!
     const { operations, ...connectionSettings } = settingsRead.settings.infobase
     return toolSuccess(await dependencies.platformManager.listExtensions({
       projectDir: settingsRead.projectDir,

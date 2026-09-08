@@ -1,3 +1,4 @@
+import { metadataObjectBelongingProperties } from "../../../commonObjects/metadataObjectBelongingProperties"
 import { internalInfoRule } from "../../../commonObjects/internalInfo/types"
 import { i8nTextRule } from "../../../commonObjects/i8nText/types"
 import { moduleRule } from "../../../commonObjects/module/types"
@@ -31,13 +32,13 @@ export const RecalculationRules = {
     xmlRoot: xmlRootRule({
       container: "Recalculation",
       rootAttributes: V8_MDCLASSES_ROOT,
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
     }),
     internalInfo: internalInfoRule({
       xmlParents: [],
-      forReferenceOnly: true,
+      xmlOnly: true,
       items: [
         { name: "RecalculationRecord", category: "Record" },
         { name: "RecalculationManager", category: "Manager" },
@@ -51,7 +52,7 @@ export const RecalculationRules = {
         return [parent.name, metadata.name].filter(Boolean).join(".")
       },
     }),
-    uuid: uuidRule({ xml: "_uuid", forReferenceOnly: true, xmlParents: [] }),
+    uuid: uuidRule({ xml: "_uuid", xmlOnly: true, xmlParents: [] }),
     name: stringRule({ xml: "Name", required: true, xmlParents: properties }),
     synonym: i8nTextRule({
       yaml: "Синоним",
@@ -84,20 +85,8 @@ export const RecalculationRules = {
       defaultValue: [],
       defaultValueXMLRaw: {},
     },
-    objectBelonging: systemEnumerationRule({
-      yaml: "ПринадлежностьОбъекта",
-      xml: "ObjectBelonging",
-      typeSE: "ObjectBelonging",
-      xmlParents: properties,
-      toYAML: false,
-      fromYAML: false,
-      implicitValueYAML: "Native",
-    }),
-    extendedConfigurationObject: stringRule({
-      xml: "ExtendedConfigurationObject",
-      xmlParents: properties,
-      runtimeOnly: true,
-    }),
+    objectBelonging: metadataObjectBelongingProperties.objectBelonging,
+    extendedConfigurationObject: metadataObjectBelongingProperties.extendedConfigurationObject,
     recordSetModule: moduleRule({
       nkdkPath: "МодульНабораЗаписей.bsl",
       xmlPath: "Ext/RecordSetModule.bsl",

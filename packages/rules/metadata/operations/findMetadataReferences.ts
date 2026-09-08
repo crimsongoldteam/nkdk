@@ -19,7 +19,7 @@ export async function findMetadataReferences(
   params: FindMetadataReferencesParams,
   rules?: MetadataOperationRules,
 ): Promise<MetadataOperationResult> {
-  const refreshed = await params.projectState.refreshAndValidate({ projectDir: params.projectDir })
+  const refreshed = await params.projectState.refreshAndValidate({ projectDir: params.projectDir, concurrency: params.concurrency })
   const diagnostics = [...refreshed.diagnostics]
   refreshed.diagnostics.release()
   if (hasMetadataOperationErrors(diagnostics) && params.ignoreValidationErrors !== true) {

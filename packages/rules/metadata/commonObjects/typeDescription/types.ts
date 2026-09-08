@@ -753,12 +753,6 @@ export type PrimitiveType = keyof typeof PrimitiveTypeToYAML
 export type PrimitiveTypeYAML = (typeof PrimitiveTypeToYAML)[keyof typeof PrimitiveTypeToYAML]
 
 export type TypeDescriptionType = string
-export type TypeDescriptionSourceType = {
-  value: string
-  namespace?: string
-}
-export type TypeDescriptionSourceTypes = Partial<Record<TypeDescriptionType, TypeDescriptionSourceType>>
-export const TYPE_DESCRIPTION_SOURCE_TYPES = Symbol("typeDescriptionSourceTypes")
 
 export interface TypeDescription {
   type: TypeDescriptionType[]
@@ -766,7 +760,6 @@ export interface TypeDescription {
   stringQualifiers?: TypeDescriptionStringQualifiers
   numberQualifiers?: TypeDescriptionNumberQualifiers
   dateQualifiers?: TypeDescriptionDateQualifiers
-  [TYPE_DESCRIPTION_SOURCE_TYPES]?: TypeDescriptionSourceTypes
 }
 
 export const TypeDescriptionJSONSchema = Type.Union([

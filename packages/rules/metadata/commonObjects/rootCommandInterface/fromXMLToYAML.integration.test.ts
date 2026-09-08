@@ -6,13 +6,21 @@ import {
   testMetadataItemFromXMLToYAML,
   testPropertyFromXMLToYAML,
 } from "../../../tests/directConversion"
-import { importContentFromXML } from "@nkdk/runtime"
+import { xmlFixtureValue as importContentFromXML } from "../../../tests/xmlFixtureValue"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { RootCommandInterfaceRules } from "./rules"
+import { readFileSync } from "node:fs"
+import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"
 
 import "./register"
 
 describe("RootCommandInterface XML → YAML", () => {
+  it.each(["CommandInterface.xml", "MainSectionCommandInterface.xml", "SubsystemCommandInterface.xml"])(
+    "читает интерфейс из узлов без потери значений: %s", (fixture) => {
+      const root = parseStructuralXMLWithoutCompatibility(readFileSync(new URL(`./__fixtures__/${fixture}`, import.meta.url), "utf8"))
+      expect(testMetadataItemFromXMLToYAML({ rule: RootCommandInterfaceRules, xml: root }).yaml).toEqual(convert(fixture))
+    },
+  )
   it("imports root subsystem visibility and order", () => {
     const yaml = convert("CommandInterface.xml")
     expect(yaml).toMatchObject({

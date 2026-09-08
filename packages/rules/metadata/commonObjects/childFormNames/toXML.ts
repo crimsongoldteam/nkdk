@@ -3,7 +3,7 @@ import { orderAndPersistNamedChildren } from "../omittedChildren"
 
 /** Экспортирует список имён форм с сохранённым порядком актуальных элементов. */
 export const exportChildFormNamesToXML: ExportToXMLFunctionNew = (params): string[] | undefined => {
-  const { context, value, referenceMetadata } = params
+  const { context, value } = params
   const runtime = context.exportToXML.configurationIndex
   const saved = runtime?.children()
 
@@ -16,11 +16,7 @@ export const exportChildFormNamesToXML: ExportToXMLFunctionNew = (params): strin
   }
   if (names === undefined || names.length === 0) return undefined
 
-  const referenceNames = Array.isArray(referenceMetadata)
-    ? referenceMetadata.filter((name): name is string => typeof name === "string")
-    : undefined
-  const referenceChildren = referenceNames?.map((name) => ({ xmlName: "Form", name }))
-  return orderAndPersistNamedChildren({ xmlName: "Form", names, saved: saved ?? referenceChildren, runtime })
+  return orderAndPersistNamedChildren({ xmlName: "Form", names, saved, runtime })
 }
 
 export const metadataPropertyRule000 = definePropertyTypeRule("ChildFormNames", "exportToXML", exportChildFormNamesToXML)

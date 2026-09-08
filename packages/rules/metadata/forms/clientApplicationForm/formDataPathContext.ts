@@ -9,6 +9,8 @@ import type { OwnerMetadataCache } from "../../validation/dataPath/ownerCache"
 import { getDataPathOwnerKind, standardMemberYamlToInternal } from "../../validation/dataPath/registry"
 import {
   collectFormDataPathOccurrencesFromYAML,
+  primaryFormDataPathRule,
+  type FormYAMLElementVisit,
   type FormYAMLItemVisitor,
 } from "../../validation/dataPath/formYamlTraversal"
 import type { ClientApplicationFormYAML } from "./types"
@@ -37,14 +39,20 @@ export interface FormElementDataPathState {
 
 export interface FormDataPathContext {
   readonly index: FormDataPathIndex
+  /** Собственные объявления до объединения с cf; нужны локальной проверке YAML. */
+  readonly localIndex: FormDataPathIndex
   readonly elementsByName: ReadonlyMap<string, FormElementDataPathState>
   readonly effectiveMainAttribute?: string
 }
 
-export interface ClientApplicationFormDataPathPreparation {
-  readonly collected: CollectedForm
+export interface FormDataPathPreparation {
+  readonly collected: Pick<CollectedForm, "elementsByName">
   readonly index: FormDataPathIndex
   readonly effectiveMainAttribute?: string
+}
+
+export interface ClientApplicationFormDataPathPreparation extends FormDataPathPreparation {
+  readonly collected: CollectedForm
 }
 
 export function collectClientApplicationFormDataPathPreparation(params: {
@@ -66,18 +74,28 @@ export function compactImportedFormDataPaths(params: {
   readonly yaml: ClientApplicationFormYAML
   readonly context: FormDataPathContext
 }): void {
-  for (const element of params.context.elementsByName.values()) {
+  visitCompactedImportedFormDataPaths(params.context, (element, value) => {
+    const yaml = recordAtPath(params.yaml, element.yamlPath)
+    if (value === undefined) delete yaml["ПутьКДанным"]
+    else yaml["ПутьКДанным"] = value
+  })
+}
+
+function visitCompactedImportedFormDataPaths(
+  context: FormDataPathContext,
+  accept: (element: FormElementDataPathState, value: string | undefined) => void,
+): void {
+  for (const element of context.elementsByName.values()) {
     if (
       element.origin !== "own"
       || element.candidateInternal === undefined
       || element.compactImplicitDataPath === false
       || element.candidateRootOrigin === "inherited"
     ) continue
-    const yaml = recordAtPath(params.yaml, element.yamlPath)
     if (!element.present) {
-      yaml["ПутьКДанным"] = ""
+      accept(element, "")
     } else if (element.valueInternal === element.candidateInternal) {
-      delete yaml["ПутьКДанным"]
+      accept(element, undefined)
     }
   }
 }
@@ -125,22 +143,26 @@ export function requiresImportedFormDataPathCompaction(
   return false
 }
 
+/** Рабочее значение для экспорта; окончательный смысловой YAML не меняется. */
+export function prepareFormDataPathExportValue(
+  element: Pick<FormElementDataPathState, "origin" | "present" | "value" | "candidateYaml">,
+): { readonly value: string | undefined } | undefined {
+  if (element.origin !== "own") return undefined
+  if (element.present) return element.value === "" ? { value: undefined } : undefined
+  return element.candidateYaml === undefined ? undefined : { value: element.candidateYaml }
+}
+
 export function materializeImplicitFormDataPaths(
   yaml: ClientApplicationFormYAML,
   context: FormDataPathContext
 ): ClientApplicationFormYAML {
   const changes: MaterializedDataPathChange[] = []
   for (const element of context.elementsByName.values()) {
-    if (element.origin !== "own") continue
-    if (element.present) {
-      if (element.value === "") {
-        changes.push({ yamlPath: element.yamlPath, kind: "delete" })
-      }
-      continue
-    }
-    if (element.candidateYaml !== undefined) {
-      changes.push({ yamlPath: element.yamlPath, kind: "set", value: element.candidateYaml })
-    }
+    const prepared = prepareFormDataPathExportValue(element)
+    if (prepared === undefined) continue
+    changes.push(prepared.value === undefined
+      ? { yamlPath: element.yamlPath, kind: "delete" }
+      : { yamlPath: element.yamlPath, kind: "set", value: prepared.value })
   }
   if (changes.length === 0) return yaml
 
@@ -159,7 +181,19 @@ export function materializeInheritedRootFormDataPaths(params: {
   readonly context: FormDataPathContext
 }): readonly MaterializedInheritedDataPath[] {
   const materialized: MaterializedInheritedDataPath[] = []
-  for (const element of params.context.elementsByName.values()) {
+  visitInheritedRootFormDataPaths(params.context, (element, value) => {
+    const parent = recordAtPath(params.yaml, element.yamlPath)
+    parent["ПутьКДанным"] = value
+    materialized.push({ parent, key: "ПутьКДанным" })
+  })
+  return materialized
+}
+
+function visitInheritedRootFormDataPaths(
+  context: FormDataPathContext,
+  accept: (element: FormElementDataPathState, value: string) => void,
+): void {
+  for (const element of context.elementsByName.values()) {
     const inheritedFromCurrentForm =
       element.origin === "borrowed" && element.presentInCurrentConfiguration === true
     const missingOrEmptyPath =
@@ -173,11 +207,19 @@ export function materializeInheritedRootFormDataPaths(params: {
       || element.candidateYaml === undefined
       || inheritedFromCurrentForm
     ) continue
-    const parent = recordAtPath(params.yaml, element.yamlPath)
-    parent["ПутьКДанным"] = element.candidateYaml
-    materialized.push({ parent, key: "ПутьКДанным" })
+    accept(element, element.candidateYaml)
   }
-  return materialized
+}
+
+export function collectImportedFormDataPathChanges(context: FormDataPathContext): readonly MaterializedDataPathChange[] {
+  const changes: MaterializedDataPathChange[] = []
+  const accept = (element: FormElementDataPathState, value: string | undefined) => {
+    const yamlPath = [...element.yamlPath, "ПутьКДанным"]
+    changes.push(value === undefined ? { yamlPath, kind: "delete" } : { yamlPath, kind: "set", value })
+  }
+  visitCompactedImportedFormDataPaths(context, accept)
+  visitInheritedRootFormDataPaths(context, accept)
+  return changes
 }
 
 export interface MaterializedInheritedDataPath {
@@ -198,24 +240,30 @@ export function prepareFormDataPathContextFromYAML(params: {
   readonly preparation?: ClientApplicationFormDataPathPreparation
 }): FormDataPathContext {
   const rule = params.rule ?? ClientApplicationFormRules
-  const currentConfigurationForm =
-    params.currentConfigurationFormYaml === undefined
-      ? undefined
-      : prepareStandaloneForm({
-          yaml: params.currentConfigurationFormYaml,
-          ownerCache: params.ownerCache,
-          rule,
-        })
-  const borrowedNames = new Set(currentConfigurationForm?.elementsByName.keys() ?? [])
-  if (params.savedBaseFormYaml !== undefined) {
-    collectFormElements(params.savedBaseFormYaml, rule).elementsByName.forEach((_value, name) => borrowedNames.add(name))
-  }
-  const preparation = params.preparation ?? collectClientApplicationFormDataPathPreparation({
-    yaml: params.yaml,
-    rule,
+  return prepareFormDataPathContext({
+    preparation: params.preparation ?? collectClientApplicationFormDataPathPreparation({ yaml: params.yaml, rule }),
+    currentConfigurationForm: params.currentConfigurationFormYaml === undefined
+      ? undefined : prepareStandaloneFormDataPaths({
+          yaml: params.currentConfigurationFormYaml, ownerCache: params.ownerCache, rule,
+        }),
+    savedBaseElementNames: params.savedBaseFormYaml === undefined
+      ? undefined : collectFormElements(params.savedBaseFormYaml, rule).elementsByName.keys(),
+    ownerCache: params.ownerCache,
   })
+}
+
+export function prepareFormDataPathContext(params: {
+  readonly preparation: FormDataPathPreparation
+  readonly currentConfigurationForm?: PreparedForm
+  readonly savedBaseElementNames?: Iterable<string>
+  readonly ownerCache: OwnerMetadataCache
+}): FormDataPathContext {
+  const currentConfigurationForm = params.currentConfigurationForm
+  const borrowedNames = new Set(currentConfigurationForm?.elementsByName.keys() ?? [])
+  for (const name of params.savedBaseElementNames ?? []) borrowedNames.add(name)
+  const preparation = params.preparation
   const collected = preparation.collected
-  const ownIndex = preparation.index
+  const ownIndex = withFinalTabularElementDataPaths(preparation)
   const index = mergeFormDataPathIndexes(ownIndex, currentConfigurationForm?.index)
   const effectiveMainAttribute =
     preparation.effectiveMainAttribute ?? currentConfigurationForm?.effectiveMainAttribute
@@ -235,14 +283,30 @@ export function prepareFormDataPathContextFromYAML(params: {
 
   return {
     index: effectiveIndex,
+    localIndex: ownIndex,
     elementsByName: prepared.elementsByName,
     ...(effectiveMainAttribute === undefined ? {} : { effectiveMainAttribute }),
   }
 }
 
+function withFinalTabularElementDataPaths(preparation: FormDataPathPreparation): FormDataPathIndex {
+  let updated: Map<string, FormDataPathTabularElementDeclaration> | undefined
+  for (const [name, element] of preparation.collected.elementsByName) {
+    if (element.itemType !== "Table") continue
+    const existing = preparation.index.tabularElementsByName.get(name)
+    if (existing === undefined) continue
+    const dataPath = element.present && typeof element.value === "string" && element.value.trim().length > 0
+      ? element.value : undefined
+    if (existing.dataPath === dataPath) continue
+    updated ??= new Map(preparation.index.tabularElementsByName)
+    updated.set(name, { kind: "tabularFormElement", ...(dataPath === undefined ? {} : { dataPath }) })
+  }
+  return updated === undefined ? preparation.index : { ...preparation.index, tabularElementsByName: updated }
+}
+
 function withEffectiveTabularElementDataPaths(params: {
   index: FormDataPathIndex
-  collected: CollectedForm
+  collected: FormDataPathPreparation["collected"]
   prepared: PreparedForm
 }): FormDataPathIndex {
   const tabularElementsByName = new Map(params.index.tabularElementsByName)
@@ -304,12 +368,12 @@ interface PendingElement {
   effective?: ResolvedPath
 }
 
-function prepareStandaloneForm(params: {
+export function prepareStandaloneFormDataPaths(params: {
   yaml: ClientApplicationFormYAML
   ownerCache: OwnerMetadataCache
-  rule: MetadataItemRule
+  rule?: MetadataItemRule
 }): PreparedForm {
-  const collected = collectFormElements(params.yaml, params.rule)
+  const collected = collectFormElements(params.yaml, params.rule ?? ClientApplicationFormRules)
   const index = createFormDataPathIndexFromYAML(params.yaml, collected.tabularElementsByName)
   return prepareCollectedForm({
     collected,
@@ -321,7 +385,7 @@ function prepareStandaloneForm(params: {
 }
 
 function prepareCollectedForm(params: {
-  collected: CollectedForm
+  collected: FormDataPathPreparation["collected"]
   index: FormDataPathIndex
   ownerCache: OwnerMetadataCache
   effectiveMainAttribute?: string
@@ -510,25 +574,22 @@ function collectFormElements(
     resolveCollectionItemRule: resolveClientApplicationFormCollectionItemRule,
     visitElement: (visit) => {
       acceptFormTabularElementVisit(tabularElementsByName, visit)
-      const dataPath = visit.primaryDataPath
-      if (dataPath === undefined) return
-      const dataPathRule = Object.values(visit.rule.properties).find(
-        (propertyRule): propertyRule is DataPathPropertyRule =>
-          propertyRule.type === "DataPath" && propertyRule.yaml === dataPath.yamlKey
-      )
-      if (dataPathRule === undefined) return
-      elementsByName.set(visit.name, {
-        name: visit.name,
-        itemType: visit.itemType,
-        dataPathRule,
-        yamlPath: visit.yamlPath,
-        present: dataPath?.present ?? false,
-        value: dataPath?.value,
-        ...(visit.tableOwner === undefined ? {} : { tableOwnerName: visit.tableOwner.name }),
-      })
+      const element = describeFormElementDataPath(visit)
+      if (element !== undefined) elementsByName.set(visit.name, element)
     },
   })
   return { elementsByName, tabularElementsByName, occurrences }
+}
+
+export function describeFormElementDataPath(visit: Omit<FormYAMLElementVisit, "yaml">): CollectedFormElement | undefined {
+  const dataPath = visit.primaryDataPath
+  const dataPathRule = primaryFormDataPathRule(visit.rule)
+  if (dataPath === undefined || dataPathRule === undefined) return undefined
+  return {
+    name: visit.name, itemType: visit.itemType, dataPathRule, yamlPath: visit.yamlPath,
+    present: dataPath.present, value: dataPath.value,
+    ...(visit.tableOwner === undefined ? {} : { tableOwnerName: visit.tableOwner.name }),
+  }
 }
 
 function mergeFormDataPathIndexes(

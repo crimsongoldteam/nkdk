@@ -4,12 +4,47 @@ export type { YAMLPropertySource } from "./ruleContracts"
 import type { DeferredRulePathSegment, YamlRuleCursor } from "./importYamlTypes"
 import type { DeferredValuePath } from "./deferredObjectValues"
 import type { XmlAnomalyAnnotations } from "../../../yaml/xmlAnomalyAnnotations"
+import type { ExecutionPath } from "./executionPath"
 
 export interface YAMLToXMLOutputRequest {
   readonly key: string
   readonly tags?: readonly string[]
-  readonly referenceXML?: unknown
   readonly context?: import("../../context/types").ConfigurationContextWithExportToXML
+  /** Подготовленная оболочка текущего item; без значений дочерних свойств. */
+  readonly xmlEnvelope?: XMLItemEnvelope
+  readonly itemPreparation?: XMLItemOutputPreparation
+}
+
+/** Предметное решение для собственных атрибутов, без доступа к XML детей. */
+export interface XMLItemOutputPreparation {
+  readonly attributes: (own: Readonly<Record<string, unknown>>) => Readonly<Record<string, unknown>>
+  /** Направляет готовый вклад одного свойства до передачи потребителю. */
+  readonly routeProperty?: (params: {
+    readonly propertyKey: string
+    readonly path: readonly string[]
+    readonly value: unknown
+  }) => {
+    readonly path: readonly string[]
+    readonly value: unknown
+    readonly append?: true
+  }
+  readonly initialize?: (body: object) => void
+  /** Добавляет только внешнюю оболочку item, не обходя его детей. */
+  readonly wrap?: (body: Record<string, unknown>) => Record<string, unknown>
+}
+
+export type PrepareXMLItemOutputFunction = (params: {
+  readonly context: import("../../context/types").ConfigurationContextWithExportToXML
+  readonly yaml: unknown
+  readonly itemRule: MetadataItemRule
+  readonly name?: string
+  readonly propertyRule?: PropertyRule
+}) => XMLItemOutputPreparation
+
+export interface XMLItemEnvelope {
+  readonly path: readonly string[]
+  readonly rootAttributes: Readonly<Record<string, string>>
+  readonly bodyAttributes: Readonly<Record<string, string>>
 }
 
 export type YAMLToXMLExternalWrite =
@@ -24,7 +59,6 @@ export type YAMLToXMLExternalWriteFactory = (params: {
   readonly name: string | undefined
   readonly propertyKey: string
   readonly propertyRule: PropertyRule
-  readonly referenceValue: unknown
 }) => readonly YAMLToXMLExternalWrite[]
 
 export interface YAMLToXMLResult {
@@ -57,8 +91,19 @@ export interface YAMLToXMLPropertyTypeProfile {
   exclusiveMs: number
 }
 
-export interface YAMLToXMLItemConversionParams {
+export interface YAMLToXMLExecutionParams {
+  readonly externalWriteFactory?: YAMLToXMLExternalWriteFactory
+  readonly profile?: YAMLToXMLProfile
+  readonly rulePath?: readonly (string | number)[]
+  readonly pathCursor?: ExecutionPath<string | number>
+  readonly deferredRulePath?: readonly DeferredRulePathSegment[]
+  readonly deferredPathCursor?: ExecutionPath<DeferredRulePathSegment>
+}
+
+export interface YAMLToXMLItemConversionParams extends YAMLToXMLExecutionParams {
   readonly context: import("../../context/types").ConfigurationContextWithExportToXML
+  /** Исполняется только для нового item; закрытый proof-вклад пропускает подготовку. */
+  readonly prepareContext?: () => import("../../context/types").ConfigurationContextWithExportToXML
   readonly yaml: unknown
   readonly annotations?: XmlAnomalyAnnotations
   readonly rule: MetadataItemRule
@@ -69,10 +114,6 @@ export interface YAMLToXMLItemConversionParams {
   readonly propertyValues?: ReadonlyMap<string, unknown>
   readonly sparseYAML?: true
   readonly omitDefaultsForSparseYAML?: true
-  readonly externalWriteFactory?: YAMLToXMLExternalWriteFactory
-  readonly profile?: YAMLToXMLProfile
-  readonly rulePath?: readonly (string | number)[]
-  readonly deferredRulePath?: readonly DeferredRulePathSegment[]
 }
 
 export const createYAMLToXMLProfile = (options: { readonly propertyTypes?: boolean } = {}): YAMLToXMLProfile => ({
@@ -112,7 +153,6 @@ export type YAMLToXMLNestedRule =
         baseYAMLContext?: import("../../context/types").ConfigurationContextWithExportToXML
         baseConfigurationIndex?: import("../../configurationIndex/localReader").LocalConfigurationIndexReader
         name: string
-        referenceXML: Record<string, unknown> | undefined
       }) => Record<string, unknown> | undefined
     }
   | {
@@ -147,19 +187,11 @@ export type YAMLToXMLNestedRule =
         itemName: string | undefined
         propertyRule: PropertyRule
       }) => import("../../context/types").ConfigurationContextWithExportToXML
-      readonly transformOutput?: (params: {
-        context: import("../../context/types").ConfigurationContextWithExportToXML
-        xml: Record<string, unknown>
-        yaml: unknown
-        referenceXML: Record<string, unknown> | undefined
-        propertyRule: PropertyRule
-        source: YAMLPropertySource
-        itemName: string | undefined
-      }) => unknown
     }
   | {
       readonly kind: "collection"
       readonly itemRule: MetadataItemRule
+      readonly resolveXMLItemRule?: (node: import("../../../xml/import/document").XmlElementNode) => MetadataItemRule
       /** Идентификатор каждого элемента обязателен в режиме существующих identity. */
       readonly requiredIdentity?: "xmlId"
       readonly itemRuleFromProperty?: (propertyRule: PropertyRule) => MetadataItemRule | undefined
@@ -178,28 +210,14 @@ export type YAMLToXMLNestedRule =
         propertyRule: PropertyRule | undefined
       }) => import("../../context/types").ConfigurationContextWithExportToXML
       readonly normalizeItemYAML?: (params: {
+        itemRule: MetadataItemRule
         yaml: unknown
         annotations?: XmlAnomalyAnnotations
         name: string | undefined
         index: number
         propertyRule: PropertyRule | undefined
       }) => unknown
-      readonly referenceIdentity?: {
-        fromYAML(params: { yaml: unknown; name: string | undefined; itemRule: MetadataItemRule }): string | undefined
-        fromXML(params: { xml: Record<string, unknown>; itemRule: MetadataItemRule }): string | undefined
-      }
-      readonly mapItemOutput?: (params: {
-        xml: Record<string, unknown>
-        yaml: unknown
-        name: string | undefined
-        index: number
-        itemRule: MetadataItemRule
-        propertyRule: PropertyRule | undefined
-        context: import("../../context/types").ConfigurationContextWithExportToXML
-        collectionYAML: unknown
-        referenceXML: Record<string, unknown> | undefined
-      }) => unknown
-      readonly unwrapReferenceItem?: (params: {
+      readonly unwrapXMLItem?: (params: {
         xml: Record<string, unknown>
         itemRule: MetadataItemRule
       }) => Record<string, unknown> | undefined
@@ -217,15 +235,7 @@ export type YAMLToXMLNestedRule =
         source: YAMLPropertySource
         propertyRule: PropertyRule
       }) => readonly string[]
-      readonly preserveReferenceItems?: true
       readonly sparseItems?: true
-      readonly omitDefaultsForSparseItems?: true
-      readonly omitDefaultsForSparseItem?: (params: {
-        yaml: unknown
-        name: string | undefined
-        referenceXML: Record<string, unknown> | undefined
-        propertyRule: PropertyRule | undefined
-      }) => boolean
       readonly omitEmptyOutput?: true
       readonly configurationIndexUidSegment?: string
       readonly configurationIndexAddressing?: ConfigurationIndexAddressingMode

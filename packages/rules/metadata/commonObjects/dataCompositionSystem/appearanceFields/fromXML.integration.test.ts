@@ -3,12 +3,26 @@ import { PropertyRule } from "../../../ruleRuntime"
 import { testImportPropertyFromXML } from "../../../../tests/property/importPropertyFromXML"
 import { fixtureAppearanceFields } from "./__fixtures__/data"
 import "./types"
+import { metadataPropertyRule000 } from "./fromXML"
+import { mockContextFromXML } from "../../../../tests/mockContext"
+import { readXMLFixtureAsString } from "../../../../tests/readFixtureXML"
+import { parseStructuralXMLWithoutCompatibility } from "../../../../tests/structuralXML"
 
 const rule: PropertyRule = {
   type: "AppearanceFields",
 }
 
 describe("import Appearance from XML", () => {
+  it("imports structural appearance without intermediate XML", () => {
+    const source = parseStructuralXMLWithoutCompatibility(readXMLFixtureAsString(import.meta.url, "appearance.xml"))
+    expect(metadataPropertyRule000.handler(mockContextFromXML(), rule, source)).toEqual(fixtureAppearanceFields)
+  })
+
+  it("preserves structural nil for a string appearance parameter", () => {
+    const source = parseStructuralXMLWithoutCompatibility('<appearance><dcscor:item><dcscor:parameter>Текст</dcscor:parameter><dcscor:value xsi:nil="true"/></dcscor:item></appearance>')
+    expect(metadataPropertyRule000.handler(mockContextFromXML(), rule, source)).toMatchObject({ Текст: { value: null } })
+  })
+
   it("should import appearance.xml", () => {
     const result = testImportPropertyFromXML({
       rule,

@@ -1,12 +1,37 @@
 import { createXmlAnomalyAnnotations } from "@nkdk/runtime"
+import "../../tests/metadataExecutionContext"
 import { describe, expect, it } from "vitest"
 import { MetadataCatalogRules } from "../appliedObjects/metadataCatalog/rules"
 import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
 import type { PreparedImportYaml } from "./prepareYaml"
-import { extractImportOwnerFacts } from "./ownerFacts"
+import { collectFinalOwnerFactValues, extractImportOwnerFacts } from "./ownerFacts"
+import { createRuleRegistrySet } from "@nkdk/runtime/rule-kit"
+import { metadataRules } from "../composition/metadataRules"
 import type { ImportAssignment } from "./types"
 
 describe("extractImportOwnerFacts", () => {
+  it("нормализует только объявленные свойства владельца, не читая постороннее содержимое", () => {
+    const yaml = { Реквизиты: { ИНН: { get Комментарий(): never { throw new Error("child content read") } } },
+      get Комментарий(): never { throw new Error("unselected root value") },
+    }
+    const facts = collectFinalOwnerFactValues({ rule: MetadataCatalogRules, yaml,
+      execution: createRuleRegistrySet(metadataRules).execution, annotations: createXmlAnomalyAnnotations() })
+    expect(facts.attributes).toEqual([{ name: "ИНН" }])
+    expect(facts.owners).toEqual([])
+  })
+  it("читает только выбранные факты владельца без YAML-представления", () => {
+    const prepared = {
+      ...preparedYaml({ assignment: catalogAssignment(), rule: MetadataCatalogRules, ownerFacts: {} }),
+      semanticFacts: [
+        { itemType: "MetadataCatalog", propertyKey: "owners", yamlPath: ["Владельцы", 0], value: "Справочник.Владелец" },
+        { itemType: "MetadataCatalog", propertyKey: "comment", yamlPath: ["Комментарий"], get value(): never { throw new Error("unselected value") } },
+      ],
+    }
+    const yaml = { get Владельцы(): never { throw new Error("whole YAML read") } }
+    const facts = extractImportOwnerFacts(prepared, undefined, yaml)
+    expect(facts[0]?.owners).toEqual(["Catalog.Владелец"])
+  })
+
   it("reuses ValidationOwnerFacts and ObjectFieldIndex for an imported owner", () => {
     const prepared = preparedYaml({
       assignment: catalogAssignment(),
@@ -70,7 +95,6 @@ function preparedYaml(params: {
     targetProjectPath: params.assignment.targetProjectPath,
     yaml: {},
     annotations: createXmlAnomalyAnnotations(),
-    proofAudit: { sources: [], boundaries: [] },
     ownerContext: [],
     localIndexes: { metadata: { events: [], ownerFacts: params.ownerFacts } },
     deferred: [],

@@ -18,16 +18,23 @@ const collectFormTabularElementsFromYAML = (
     resolveCollectionItemRule: resolveClientApplicationFormCollectionItemRule,
   })
   if (options?.inferImplicitDataPaths === true) {
-    const mainAttribute = findMainAttributeName(asRecord(yaml)?.["Реквизиты"])
-    if (mainAttribute !== undefined) {
-      for (const [name, declaration] of result) {
-        if (declaration.dataPath === undefined) {
-          result.set(name, { kind: "tabularFormElement", dataPath: `${mainAttribute}.${name}` })
-        }
+    inferClientApplicationFormTableDataPaths(yaml, result)
+  }
+  return result
+}
+
+export function inferClientApplicationFormTableDataPaths(
+  yaml: unknown,
+  result: Map<string, FormDataPathTabularElementDeclaration>,
+): void {
+  const mainAttribute = findMainAttributeName(asRecord(yaml)?.["Реквизиты"])
+  if (mainAttribute !== undefined) {
+    for (const [name, declaration] of result) {
+      if (declaration.dataPath === undefined) {
+        result.set(name, { kind: "tabularFormElement", dataPath: `${mainAttribute}.${name}` })
       }
     }
   }
-  return result
 }
 
 export const resolveClientApplicationFormCollectionItemRule = (params: {

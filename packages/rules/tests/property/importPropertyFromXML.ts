@@ -1,10 +1,8 @@
-import type { ElementXML, PropertyRule } from "../../metadata/ruleRuntime"
-import { importContentFromXML } from "@nkdk/runtime"
+import type { PropertyRule } from "../../metadata/ruleRuntime"
 import { createPropertyRuleExecutor, createRuleRegistrySet } from "@nkdk/runtime/rule-kit"
 import { metadataRules } from "../../metadata/composition/metadataRules"
 import { mockContextFromXML } from "../mockContext"
-import { readAndParseXMLFile } from "../readAndParseXMLFile"
-import { testFixturesDir } from "../testFixturesDir"
+import { readPropertyXML } from "../structuralXML"
 
 const propertyRules = createPropertyRuleExecutor(createRuleRegistrySet(metadataRules).property)
 
@@ -13,11 +11,9 @@ export const testImportPropertyFromXML = (
     rule: PropertyRule
     /**
      * Корневой тег, под которым находятся данные в XML.
-     * Если не указан — весь распарсенный XML передаётся напрямую в `importPropertyFromXML`.
+     * Если не указан — передаются корневые узлы документа.
      */
     xmlRootTag?: string
-    /** Передаётся в `mockContextFromXML({ forReference })` (по умолчанию false). */
-    forReference?: boolean
   } & (
     | {
         path: string
@@ -28,20 +24,13 @@ export const testImportPropertyFromXML = (
       }
   )
 ): unknown => {
-  const { rule, xmlRootTag, forReference } = params
+  const { rule, xmlRootTag } = params
 
-  const referenceXMLData =
-    "xmlString" in params
-      ? importContentFromXML<{ [key: string]: ElementXML }>(params.xmlString)
-      : readAndParseXMLFile<{ [key: string]: ElementXML }>(
-          params.path,
-          params.importMetaUrl !== undefined ? testFixturesDir(params.importMetaUrl) : undefined
-        )
-  const referenceXML = xmlRootTag !== undefined ? referenceXMLData[xmlRootTag] : referenceXMLData
+  const value = readPropertyXML({ ...params, xmlRootTag })
 
   return propertyRules.fromXML({
-    context: mockContextFromXML({ forReference: forReference ?? false }),
+    context: mockContextFromXML(),
     rule,
-    value: referenceXML,
+    value,
   })
 }

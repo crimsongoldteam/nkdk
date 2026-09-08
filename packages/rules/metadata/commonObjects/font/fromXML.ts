@@ -1,35 +1,40 @@
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import * as SE from "../../systemEnumerations/types"
-import { ConfigurationContext } from "@nkdk/runtime"
+import { ConfigurationContext, isEmptyXmlElement, xmlAttributeValue, type XmlElementNode } from "@nkdk/runtime"
 import { importBooleanFromXML } from "../boolean/fromXML"
 import { PrefixedFontsFromXML, type Font, type FontXML, type PrefixedFontsXML } from "./types"
 
 export const importFontFromXML = (
   _context: ConfigurationContext,
   _rule: PropertyRule | undefined,
-  xml: FontXML | undefined
+  xml: XmlElementNode | undefined
 ): Font | undefined => {
   if (!xml) return undefined
+  if (isEmptyXmlElement(xml)) return undefined
 
-  const result: any = {}
-  result.kind = xml._kind as SE.FontType
+  const attribute = (key: keyof FontXML): string | undefined => xmlAttributeValue(xml, key.slice(1))
+  const result: Font = { kind: attribute("_kind") as SE.FontType }
 
-  if (xml._ref !== undefined) {
-    const xmlRef = xml._ref
+  const xmlRef = attribute("_ref")
+  if (xmlRef !== undefined) {
     result.ref = normalizeFontRefFromXML(result.kind, PrefixedFontsFromXML[xmlRef as PrefixedFontsXML] ?? xmlRef)
     if (isRawFontRefFromXML(result.kind, xmlRef)) result.rawRef = true
   }
 
-  if (xml._faceName !== undefined) result.faceName = xml._faceName
-  if (xml._height !== undefined) result.height = Number(xml._height)
-  if (xml._bold !== undefined) result.bold = importBooleanFromXML(_context, undefined, xml._bold)
-  if (xml._italic !== undefined) result.italic = importBooleanFromXML(_context, undefined, xml._italic)
-  if (xml._underline !== undefined) result.underline = importBooleanFromXML(_context, undefined, xml._underline)
-  if (xml._strikeout !== undefined) result.strikeout = importBooleanFromXML(_context, undefined, xml._strikeout)
-  if (xml._scale !== undefined) result.scale = Number(xml._scale)
+  const faceName = attribute("_faceName")
+  if (faceName !== undefined) result.faceName = faceName
+  for (const key of ["height", "scale"] as const) {
+    const value = attribute(`_${key}`)
+    if (value !== undefined) result[key] = Number(value)
+  }
+  for (const key of ["bold", "italic", "underline", "strikeout"] as const) {
+    const value = attribute(`_${key}`)
+    if (value !== undefined) result[key] = importBooleanFromXML(_context, undefined,
+      typeof value === "boolean" || value === "true" || value === "false" ? value : undefined)
+  }
 
-  return result as Font
+  return result
 }
 
 function normalizeFontRefFromXML(kind: SE.FontType, ref: string): string {

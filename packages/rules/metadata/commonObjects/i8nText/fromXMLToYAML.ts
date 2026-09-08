@@ -1,4 +1,4 @@
-import { projectNamedXmlCollectionForImport, yamlMappingKeys } from "@nkdk/runtime"
+import { projectNamedXmlCollectionForImport, yamlMappingKeys, xmlElementChildren, type XmlElementNode, type XmlImportAuditSession } from "@nkdk/runtime"
 import {
   importPropertyFromXML,
   type ImportFromXMLToYAMLFunction,
@@ -9,7 +9,6 @@ import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegis
 import { localizedItemOccurrences } from "./anomalies"
 import { importI8nTextFromXML } from "./fromXML"
 import { exportI8nTextToYAML } from "./toYAML"
-import type { I8nTextXML } from "./types"
 
 export const importI8nTextFromXMLToYAML: ImportFromXMLToYAMLFunction = ({
   context,
@@ -18,10 +17,12 @@ export const importI8nTextFromXMLToYAML: ImportFromXMLToYAMLFunction = ({
   name,
   traversal,
 }) => {
+  const source = traversal.xmlNodes?.[0]
+  if (source !== undefined) claimLocalizedXML(source, traversal.audit)
   const imported = importPropertyFromXML({
     context,
     rule,
-    value: xml as I8nTextXML | "" | undefined,
+    value: source ?? xml,
     name,
     execution: traversal.execution as PropertyRuleExecution | undefined,
   }) as ReturnType<typeof importI8nTextFromXML>
@@ -47,6 +48,24 @@ export const importI8nTextFromXMLToYAML: ImportFromXMLToYAMLFunction = ({
     annotations: traversal.annotations,
     ...(traversal.mode === "facts" ? { ephemeral: true as const } : {}),
   })
+}
+
+function claimLocalizedXML(root: XmlElementNode, audit: XmlImportAuditSession | undefined): void {
+  if (audit === undefined) return
+  const boundaries = audit.getOutcome(root).boundaries
+  if (boundaries.length !== 1) return
+  const boundary = boundaries[0]!
+  for (const item of xmlElementChildren(root, "v8:item")) {
+    audit.claim(item, boundary)
+    for (const name of ["v8:lang", "v8:content"]) {
+      const value = xmlElementChildren(item, name)[0]
+      if (value === undefined) continue
+      audit.claim(value, boundary)
+      for (const child of value.content) {
+        if (child.type === "text") audit.claim(child, boundary)
+      }
+    }
+  }
 }
 
 function projectedOccurrences(

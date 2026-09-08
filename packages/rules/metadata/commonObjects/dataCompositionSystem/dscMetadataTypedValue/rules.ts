@@ -2,6 +2,12 @@ import {
   ConfigurationContext,
   ConfigurationContextFromXML,
   ConfigurationContextWithExportToXML,
+  isXmlElementNode,
+  isEmptyXmlElement,
+  xmlAttributeValue,
+  xmlElementChildren,
+  xmlTextValue,
+  type XmlElementNode,
 } from "@nkdk/runtime"
 import { importMetadataFieldStringFromYAML, importMetadataValueStringFromYAML } from "../../metadataPath/fromYAML"
 import { exportMetadataFieldStringToYAML, exportMetadataValueStringToYAML } from "../../metadataPath/toYAML"
@@ -122,7 +128,7 @@ export const DcsMetadataTypedValueRegistry: Record<DcsMetadataTypedValue["type"]
     }),
     fromXML: ({ xml }) => ({
       type: "StandardBeginningDate",
-      value: importStandartBeginningDateFromXML(xml as StandartBeginningDateXML)!,
+      value: importStandartBeginningDateFromXML(isXmlElementNode(xml) ? xml : xml as StandartBeginningDateXML)!,
     }),
     toYAML: ({ item }) => exportStandartBeginningDateToYAML(getStandardBeginningDateValue(item))!,
     toXML: ({ item }) =>
@@ -184,7 +190,7 @@ export type DcsMetadataTypedValueRegistryItem = {
   fromXML: (params: {
     context: ConfigurationContextFromXML
     rule: DcsMetadataTypedValuePropertyRule
-    xml: DcsMetadataTypedValueXML
+    xml: DcsMetadataTypedValueXML | XmlElementNode
   }) => DcsMetadataTypedValue
   toYAML: (params: {
     context: ConfigurationContext
@@ -198,7 +204,8 @@ export type DcsMetadataTypedValueRegistryItem = {
   }) => DcsMetadataTypedValueXML
 }
 
-const xmlText = (xml: DcsMetadataTypedValueXML): string => {
+const xmlText = (xml: DcsMetadataTypedValueXML | XmlElementNode): string => {
+  if (isXmlElementNode(xml)) return xmlTextValue(xml)
   if ("#text" in xml) return xml["#text"] ?? ""
   return ""
 }
@@ -208,7 +215,18 @@ const isEmptyRecord = (value: unknown): boolean =>
 
 const isEmptyValueType = (value: unknown): boolean => value === undefined || isEmptyRecord(value)
 
-const assertEmptyValueListXML = (xml: DcsMetadataTypedValueXML): void => {
+const assertEmptyValueListXML = (xml: DcsMetadataTypedValueXML | XmlElementNode): void => {
+  if (isXmlElementNode(xml)) {
+    const valueTypes = xmlElementChildren(xml, "v8:valueType")
+    const lastIds = xmlElementChildren(xml, "v8:lastId")
+    if (valueTypes.length > 1 || valueTypes.some(node => !isEmptyXmlElement(node))
+      || lastIds.length !== 1 || xmlTextValue(lastIds[0]!) !== "-1"
+      || xmlAttributeValue(lastIds[0]!, "xsi:type") !== "xs:decimal"
+      || xmlElementChildren(xml).some(node => node.name === "v8:item" || node.name === "v8:availableValues")) {
+      throw new Error("DcsMetadataTypedValue XML: unsupported non-empty v8:ValueListType")
+    }
+    return
+  }
   const raw = xml as Record<string, unknown>
   const valueType = raw["v8:valueType"]
   const lastId = raw["v8:lastId"]
@@ -286,7 +304,7 @@ const importPrimitiveFromYAML = (
 
 const importPrimitiveFromXML = (
   context: ConfigurationContextFromXML,
-  xml: DcsMetadataTypedValueXML,
+  xml: DcsMetadataTypedValueXML | XmlElementNode,
   type: PrimitiveDcsType
 ): Extract<DcsMetadataTypedValue, { type: PrimitiveDcsType }> => {
   const rule: MetadataValueRule = { type: "MetadataValue", valueType: [type] }

@@ -364,6 +364,8 @@
 			<Bot>БотВсеСвойства</Bot>
 			<Bot>БотПоУмолчанию</Bot>
 			<CommonCommand>КомандаСДанными</CommonCommand>
+			<CommonCommand>ОбщаяКомандаПоУмолчанию</CommonCommand>
+			<CommonCommand>ОбщаяКомандаВсеСвойства</CommonCommand>
 			<CommandGroup>ГруппаКомандВсеСвойства</CommandGroup>
 			<CommandGroup>ГруппаКомандПоУмолчанию</CommandGroup>
 			<Constant>Константа1</Constant>

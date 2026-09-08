@@ -20,7 +20,7 @@ import type { SyncToInfobaseInput } from "../contracts/syncToInfobase"
 import { resolveComponent, type ResolveComponentResult } from "./componentResolver"
 import { defaultMcpConfigurationLanguages } from "../configurationContext"
 import { getPlatformSessionManager } from "./platformSessionHandle"
-import { projectSettingsFailure } from "./projectSettingsFailure"
+import { hasInfobaseSettings, projectSettingsFailure, type InfobaseSettingsReadResult } from "./projectSettingsFailure"
 import { projectStateHandle } from "./projectStateHandle"
 import { temporaryDirectoryFileSystem } from "./temporaryDirectory"
 
@@ -97,7 +97,7 @@ export async function syncToInfobase(
   try {
     const dependencies = providedDependencies ?? await defaultDependencies()
     const settingsRead = await dependencies.readSettings(input.projectDir)
-    if (settingsRead.status !== "ready") return projectSettingsFailure(settingsRead)!
+    if (!hasInfobaseSettings(settingsRead)) return projectSettingsFailure(settingsRead)!
     return enqueueProjectSync(settingsRead.projectDir, () =>
       syncToInfobaseExclusive(input, dependencies, settingsRead, signal))
   } catch {
@@ -108,7 +108,7 @@ export async function syncToInfobase(
 async function syncToInfobaseExclusive(
   input: SyncToInfobaseInput,
   dependencies: SyncToInfobaseDependencies,
-  settingsRead: Extract<Awaited<ReturnType<typeof readProjectSettings>>, { status: "ready" }>,
+  settingsRead: InfobaseSettingsReadResult,
   signal?: AbortSignal,
 ): Promise<SyncToInfobasePayload> {
   try {

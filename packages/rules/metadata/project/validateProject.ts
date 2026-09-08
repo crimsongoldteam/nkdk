@@ -56,7 +56,7 @@ export async function validateProject(
   }
 }
 
-function normalizeValidationConcurrency(value: number | undefined): number {
+export function normalizeValidationConcurrency(value: number | undefined): number {
   if (value !== undefined) {
     if (!Number.isInteger(value) || value < 1) throw new Error("validation concurrency must be a positive integer")
     return value

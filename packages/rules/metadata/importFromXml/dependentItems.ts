@@ -82,7 +82,7 @@ function dependentParamsForCandidate(
   }
 }
 
-function recordAtPath(root: unknown, path: readonly (string | number)[]): Record<string, unknown> | undefined {
+export function recordAtPath(root: unknown, path: readonly (string | number)[]): Record<string, unknown> | undefined {
   let value = root
   for (const segment of path) {
     if (value === null || typeof value !== "object") return undefined

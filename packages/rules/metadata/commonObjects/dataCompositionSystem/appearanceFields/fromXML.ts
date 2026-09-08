@@ -1,4 +1,4 @@
-import { ConfigurationContextFromXML } from "@nkdk/runtime"
+import { ConfigurationContextFromXML, isXmlElementNode, xmlAttributeValue, xmlElementChildren, xmlTextValue, type XmlElementNode } from "@nkdk/runtime"
 import { PropertyRule, definePropertyTypeRule } from "../../../ruleRuntime"
 import type { PropertyRuleExecution } from "@nkdk/runtime/rule-kit"
 import { exportPropertyValueToYAML } from "../../../ruleRuntime/property/toYAML"
@@ -66,15 +66,23 @@ const exportAppearanceStringParameter = (value: SettingsParameterValue, exported
 }
 
 const restoreAppearanceStringNilValues = (
-  xml: AppearanceFieldsXML | undefined,
+  xml: AppearanceFieldsXML | XmlElementNode | undefined,
   parameters: Record<string, SettingsParameterValue>
 ): void => {
-  for (const item of asArray(xml?.["dcscor:item"])) {
+  const items = isXmlElementNode(xml) ? xmlElementChildren(xml, "dcscor:item") : asArray(xml?.["dcscor:item"])
+  for (const item of items) {
     const record = asRecord(item)
-    const parameter = record?.["dcscor:parameter"]
+    const parameterNode = isXmlElementNode(item) ? xmlElementChildren(item, "dcscor:parameter")[0] : undefined
+    const parameter = isXmlElementNode(item)
+      ? parameterNode === undefined ? undefined : xmlTextValue(parameterNode)
+      : record?.["dcscor:parameter"]
     if (typeof parameter !== "string" || !appearanceStringPropertyKeys.has(parameter)) continue
     const value = asRecord(record?.["dcscor:value"])
-    if (value?.["_xsi:nil"] === true || value?.["_xsi:nil"] === "true") {
+    const valueNodes = isXmlElementNode(item) ? xmlElementChildren(item, "dcscor:value") : undefined
+    const nil = valueNodes === undefined
+      ? value?.["_xsi:nil"] === true || value?.["_xsi:nil"] === "true"
+      : valueNodes.length === 1 && xmlAttributeValue(valueNodes[0]!, "xsi:nil") === "true"
+    if (nil) {
       const imported = parameters[parameter]
       if (imported !== undefined) parameters[parameter] = { ...imported, value: null }
     }
@@ -84,7 +92,7 @@ const restoreAppearanceStringNilValues = (
 const importAppearanceFromXML = (
   context: ConfigurationContextFromXML,
   _rule: PropertyRule,
-  xml: AppearanceFieldsXML | undefined,
+  xml: AppearanceFieldsXML | XmlElementNode | undefined,
   _ownerXmlName?: string,
   execution?: PropertyRuleExecution,
 ): AppearanceFields | undefined => {
@@ -107,7 +115,7 @@ const importAppearanceFromXML = (
 
 export const metadataPropertyRule000 = definePropertyTypeRule("AppearanceFields", "importFromXML", importAppearanceFromXML)
 export const metadataPropertyRule001 = definePropertyTypeRule("AppearanceFields", "importFromXMLToYAML", ({ context, rule, xml }) => {
-  const imported = importAppearanceFromXML(context, rule, xml as AppearanceFieldsXML | undefined)
+  const imported = importAppearanceFromXML(context, rule, xml as AppearanceFieldsXML | XmlElementNode | undefined)
   if (imported === undefined) return undefined
   const yaml: Record<string, unknown> = {}
   for (const [key, value] of Object.entries(imported)) {

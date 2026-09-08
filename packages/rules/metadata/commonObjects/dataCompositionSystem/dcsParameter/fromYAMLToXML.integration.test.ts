@@ -1,12 +1,12 @@
 import { explicitYAMLString } from "@nkdk/runtime"
 import { describe,expect,it } from "vitest"
 import { testExportPropertyModelThroughYAMLToXML } from "../../../../tests/property/exportPropertyModelThroughYAMLToXML"
+import { testPropertiesYamlRoundTrip } from "../../../../tests/directConversion"
+import { readXMLFixtureAsString } from "../../../../tests/readFixtureXML"
 import { PropertyRule } from "../../../ruleRuntime"
 import {
 explicitNullValueDCSParameters,
 explicitNullValueDCSParametersYAML,
-fullDCSParameters,
-fullDCSParametersYAML,
 minimalDCSParameters,
 minimalDCSParametersYAML,
 } from "./__fixtures__/data"
@@ -56,15 +56,14 @@ describe("export DCSParameter to XML", () => {
   })
 
   it("exports full.xml", () => {
-    const { expectedResult, result } = testExportPropertyModelThroughYAMLToXML({
-      rule,
-      value: fullDCSParameters,
-      yaml: fullDCSParametersYAML,
-      xmlRootTag: "Settings",
-      path: "full.xml",
-      importMetaUrl: import.meta.url,
+    const { result, expected } = testPropertiesYamlRoundTrip({
+      sourceXML: readXMLFixtureAsString(import.meta.url, "full.xml"),
+      rule: {
+        itemType: "DCSParametersProbe",
+        properties: { value: { ...rule, xml: "Settings", yaml: "Параметры" } },
+      },
     })
-    expect(result).toEqual(expectedResult)
+    expect(result).toEqual(expected)
   })
 
   it("exports inferred system enumeration to XML", () => {
@@ -103,6 +102,7 @@ describe("export DCSParameter to XML", () => {
     const xmlString = `<Settings>
 	<Parameter>
 		<dcssch:name>Параметр1</dcssch:name>
+		<dcssch:useRestriction>false</dcssch:useRestriction>
 		<dcssch:inputParameters>
 			<dcscor:item>
 				<dcscor:parameter>Маска</dcscor:parameter>

@@ -9,7 +9,7 @@ import {
 import { importTypeDescriptionFromXML } from "../../../commonObjects/typeDescription/fromXML"
 import { exportTypeDescriptionToXML } from "../../../commonObjects/typeDescription/toXML"
 import type { TypeDescription, TypeDescriptionXMLWithAttribute } from "../../../commonObjects/typeDescription/types"
-import type { ConfigurationContext } from "@nkdk/runtime"
+import { isXmlElementNode, xmlAttributeValue, type ConfigurationContext, type XmlElementNode } from "@nkdk/runtime"
 import { definePropertyTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 
@@ -25,9 +25,6 @@ type ButtonParameterXML =
       "#text"?: string
     })
 
-const isTypeDescriptionParameterXML = (xml: ButtonParameterXML | undefined): xml is TypeDescriptionXMLWithAttribute =>
-  typeof xml === "object" && xml?.["_xsi:type"] === "v8:TypeDescription"
-
 const isTypeDescriptionParameter = (
   value: ButtonParameter | undefined
 ): value is { typeDescription: TypeDescription } =>
@@ -36,11 +33,11 @@ const isTypeDescriptionParameter = (
 export const importButtonParameterFromXML = (
   context: ConfigurationContext,
   rule: PropertyRule | undefined,
-  xml: ButtonParameterXML | undefined
+  xml: XmlElementNode | string | undefined
 ): ButtonParameter | undefined => {
   if (xml === undefined) return undefined
 
-  if (isTypeDescriptionParameterXML(xml)) {
+  if (isXmlElementNode(xml) && xmlAttributeValue(xml, "xsi:type") === "v8:TypeDescription") {
     const typeDescription = importTypeDescriptionFromXML(context, rule, xml)
     return typeDescription === undefined ? undefined : { typeDescription }
   }

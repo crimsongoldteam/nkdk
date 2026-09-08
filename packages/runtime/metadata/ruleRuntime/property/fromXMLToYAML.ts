@@ -1,9 +1,6 @@
 import { performance } from "node:perf_hooks"
-import {
-  collectConfigurationIndexIdentityFromXML,
-  collectConfigurationIndexImportedValue,
-  collectConfigurationIndexPropertyFromXML,
-} from "../../configurationIndex/collector/collectProperty"
+import { ExecutionPath } from "./executionPath"
+import { collectConfigurationIndexIdentityFromXML } from "../../configurationIndex/collector/collectProperty"
 import {
   getConfigurationIndexCollectionContext,
   getConfigurationIndexCollectionXmlNodeLogicalAddress,
@@ -17,6 +14,7 @@ import type {
   DeferredRulePathSegment,
   DirectImportProfile,
   DirectImportTraversal,
+  DirectImportPropertyFact,
   DirectImportXMLSource,
   ImportedDependentPropertyCollector,
 } from "./importYamlTypes"
@@ -37,7 +35,7 @@ import {
 import { getTypeRule } from "./typeRuleRegistry"
 import type { MetadataItemRule, PropertyRule } from "./types"
 import { getXMLImportPlan, visitXMLImportPlan, type XMLImportPlanEntry } from "./xmlImportPlan"
-import { sortYamlRuleProperties } from "./yamlPropertyOrder"
+import { getYamlRulePropertyOrder, orderYamlRuleProperties } from "./yamlPropertyOrder"
 import { enterNestedYamlRule } from "./yamlRuleCursor"
 import type { LocalIndexesCollector } from "../../projectDefinition/localIndexes"
 import type { YamlPath } from "../../diagnostics/types"
@@ -45,7 +43,7 @@ import type { DeferredValuePathCollector } from "./importYamlTypes"
 import { copyYAMLRuntimeMetadata } from "../../../yaml/runtimeMetadata"
 import { isDependentImportProperty } from "./dependentItemRegistry"
 import type { PropertyRuleExecution } from "./fn"
-import type { XmlElementNode } from "../../../xml/import/document"
+import { isXmlElementNode, isEmptyXmlElement, xmlAttributeValue, type XmlElementNode } from "../../../xml/import/document"
 import type {
   XmlImportAuditBoundary,
   XmlImportAuditedNode,
@@ -55,12 +53,17 @@ import {
   createXmlImportAttemptJournal,
   XmlImportAttemptInfrastructureError,
 } from "../xmlAnomaly/attempt"
-import type { XmlAnomalyAnnotationTable } from "../../../yaml/xmlAnomalyAnnotations"
+import {
+  copyXmlAnomalyAnnotationsDeep,
+  type XmlAnomalyAnnotationTable,
+} from "../../../yaml/xmlAnomalyAnnotations"
 import { encodeXmlRawElement } from "../../../xml/structure/rawCodec"
 import { beginPropertyTypeProfile, finishPropertyTypeProfile } from "./propertyTypeProfile"
 import type { CompiledProperty, CompiledPropertyRuleExecution } from "./compiledPropertyPlan"
 import { canUseAtomicFromXMLToYAML } from "./atomicConversion"
 import { assignMetadataTargetUuidAnnotations } from "./metadataTargetOccurrences"
+import { markYAMLScalarTag, yamlValueTag } from "../../../yaml/scalarTags"
+import { acceptNestedPropertyFactLeaves } from "./importFactLeaves"
 
 export class DirectImportConversionError extends Error {
   constructor(
@@ -82,27 +85,31 @@ export function importPropertiesFromXMLToYAML(params: {
   rule: MetadataItemRule
   sources: readonly DirectImportXMLSource[]
   itemName?: string
-  yamlPath: YamlPath
+  yamlPath?: YamlPath
+  pathCursor?: ExecutionPath<string | number>
   rulePath: readonly DeferredRulePathSegment[]
   collector: LocalIndexesCollector
   deferred?: DeferredValuePathCollector
   dependent?: ImportedDependentPropertyCollector
+  dependencies?: DirectImportTraversal["dependencies"]
+  roundTrip?: DirectImportTraversal["roundTrip"]
   profile?: DirectImportProfile
   propertyXML?: ReadonlyMap<string, unknown>
   propertyXMLNodes?: ReadonlyMap<string, readonly XmlElementNode[]>
   execution?: CompiledPropertyRuleExecution
+  beforeFinish?: (yaml: Record<string, unknown>) => void
   audit?: XmlImportAuditSession
   annotations?: XmlAnomalyAnnotationTable
   mode?: DirectImportTraversal["mode"]
   facts?: DirectImportTraversal["facts"]
   produceResult?: boolean
+  initialYAML?: Record<string, unknown>
 }): Record<string, unknown> | undefined {
   const {
     context,
     rule,
     sources,
     itemName,
-    yamlPath,
     rulePath,
     collector,
     deferred,
@@ -110,6 +117,9 @@ export function importPropertiesFromXMLToYAML(params: {
     propertyXMLNodes,
   } = params
   if (sources.length === 0) return undefined
+  const pathCursor = params.pathCursor ?? ExecutionPath.from(params.yamlPath ?? [])
+  let materializedPath: YamlPath | undefined
+  const yamlPath = () => materializedPath ??= pathCursor.toArray()
   const typeRule = <Operation extends import("./fn").TypeRulesOperations>(
     type: import("./types").PropertyRule["type"],
     operation: Operation,
@@ -119,7 +129,12 @@ export function importPropertiesFromXMLToYAML(params: {
   const selectedAmbiguousBoundaries = new Map<XmlElementNode, XmlImportAuditBoundary[]>()
 
   const retainResult = params.mode !== "facts" || params.produceResult === true
-  const result: Record<string, unknown> | undefined = retainResult ? {} : undefined
+  const result: Record<string, unknown> | undefined = retainResult ? params.initialYAML ?? {} : undefined
+  const roundTrip = result === undefined || params.mode === "facts" || params.roundTrip === undefined
+    || params.roundTrip.accepts?.(sources) === false
+    ? undefined : runRoundTripStep("open", () => params.roundTrip?.open({
+    context, rule, yaml: result, sources, itemName, yamlPath: yamlPath(), rulePath, dependencies: params.dependencies,
+  }))
   const retainedSiblingValues = new Map<string, unknown>()
   const retainedSiblingYamlKeys = metadataTargetSiblingYamlKeys(rule)
   const owner = metadataTargetOwnerFromRule({
@@ -128,20 +143,18 @@ export function importPropertiesFromXMLToYAML(params: {
     context,
     execution: params.execution,
   })
-  const forReference = context.fromXML.forReference
   const importedExternalProperties = new Set<string>()
   const includeAllTags = sources.length === 1 && sources[0]?.tags === undefined
+  const compiledPlan = params.execution?.propertyPlan(rule)
   const sourceStates = sources.map((source) => {
     const planningStartedAt = performance.now()
-    const plan = params.execution === undefined
+    const plan = compiledPlan === undefined
       ? getXMLImportPlan({ rule, tags: source.tags, includeAllTags })
-      : params.execution.propertyPlan(rule).xmlImportView({ tags: source.tags, includeAllTags })
+      : compiledPlan.xmlImportView({ tags: source.tags, includeAllTags })
     addProfileTime(params.profile, "planningMs", planningStartedAt)
     const indexCollection = getConfigurationIndexCollectionContext(source.context)
     const xmlNode = isXmlElementNode(source.xml) ? source.xml : undefined
-    const xml = xmlNode === undefined
-      ? source.xml as Record<string, unknown>
-      : compatibilityRecord(xmlNode.compatibilityValue)
+    const xml = source.xml
     return {
       source,
       xml,
@@ -175,10 +188,11 @@ export function importPropertiesFromXMLToYAML(params: {
     xmlPath: readonly string[] | undefined
     sourceXMLValue: unknown
     xmlNode?: XmlImportAuditedNode
+    xmlOwnerNode?: XmlElementNode
     xmlNodes?: readonly XmlElementNode[]
     presentInXML: boolean
     ambiguousXMLKey: boolean
-  }): void => {
+  }): { readonly proofReady: boolean; readonly structurallyClaimed: boolean; readonly semanticOmitted: boolean; readonly externalValue?: unknown } => {
     if (params.profile !== undefined) params.profile.propertyCount++
     const {
       sourceState,
@@ -195,13 +209,16 @@ export function importPropertiesFromXMLToYAML(params: {
     const compiled = "operations" in entry ? entry as CompiledProperty : undefined
     const { source, indexCollection, ownerXmlName } = sourceState
     const { context: sourceContext } = source
-    const propertyYamlPath = [...yamlPath, propertyRule.yaml ?? key]
+    const propertyPathCursor = propertyRule.yamlInline === true
+      ? pathCursor : pathCursor.child(propertyRule.yaml ?? key)
+    let materializedPropertyPath: YamlPath | undefined
+    const propertyYamlPath = () => materializedPropertyPath ??= propertyPathCursor.toArray()
     const propertyRulePath = [...rulePath, { propertyKey: key }]
     const boundary: XmlImportAuditBoundary = {
       itemType: rule.itemType,
       propertyKey: key,
       propertyType: propertyRule.type,
-      yamlPath: propertyYamlPath,
+      get yamlPath() { return propertyYamlPath() },
       rulePath: propertyRulePath,
     }
     const attempt = createXmlImportAttemptJournal([
@@ -209,8 +226,15 @@ export function importPropertiesFromXMLToYAML(params: {
       collector,
       deferred,
       params.dependent,
+      params.facts,
+      params.roundTrip?.attemptParticipant,
     ]).begin()
     let discardAttempt = false
+    let proofReady = false
+    let externalValue: unknown
+    let structurallyClaimed = false
+    const preparedPropertyDecision = params.dependencies?.propertyValue?.(yamlPath(), key)
+    let semanticOmitted = preparedPropertyDecision?.present === false
     try {
       const run = (): void => {
         const dependentImportProperty = compiled === undefined
@@ -263,28 +287,35 @@ export function importPropertiesFromXMLToYAML(params: {
           )
           addProfileTime(params.profile, "configurationIndexMs", indexStartedAt)
         }
+        if (
+          presentInXML
+          && isXmlElementNode(xmlNode)
+          && collectConfigurationIndex !== undefined
+          && propertyRule.toYAML === false
+          && propertyRule.toXML === false
+        ) {
+          structurallyClaimed = true
+        }
 
-        if (!forReference && propertyRule.forReferenceOnly === true) {
-          collectConfigurationIndexPropertyFromXML({
-            context: sourceContext,
-            logicalAddress:
-              indexCollection === undefined
-                ? undefined
-                : configurationIndexPropertyXmlStateUid(
-                    indexCollection.logicalAddress,
-                    key,
-                    propertyRule.yaml,
-                    indexCollection.yamlPathAddressing === true ||
-                      propertyRule.configurationIndexAddressing === "yamlPath"
-                  ),
-            propertyKey: key,
-            xmlValue: sourceXMLValue,
-            presentInXML,
-            rule: propertyRule,
-            descriptor: compiled === undefined
-              ? typeRule(propertyRule.type, "configurationIndexValueFromXML")
-              : compiled.operations.configurationIndexValueFromXML,
-          })
+        if (
+          params.mode === "facts" && params.facts !== undefined
+          && (propertyRule.xmlOnly === true
+            || propertyRule.fromXML === false && propertyRule.toXML !== false && presentInXML)
+        ) {
+            acceptReconstructionPropertyFact({
+              facts: params.facts, sourceContext, propertyRule, propertyKey: key,
+              configurationIndexUidSegment, nestedConfigurationIndexAddressing,
+              sourceXMLValue, ownerXmlName, execution: params.execution, compiled,
+              itemRule: rule, yamlPath: propertyYamlPath(), presentInXML,
+            })
+        }
+        if (propertyRule.xmlOnly === true) {
+          // Смысловой YAML это свойство не получает, но локальный proof выполняет
+          // штатный экспорт с компактным значением первого прохода.
+          structurallyClaimed = presentInXML
+            && isXmlElementNode(xmlNode)
+            && collectConfigurationIndex !== undefined
+          proofReady = roundTrip !== undefined && presentInXML
           return
         }
         if (
@@ -303,48 +334,17 @@ export function importPropertiesFromXMLToYAML(params: {
         if (xmlValue === undefined && propertyRule.type === "MetadataValue" && presentInXML) {
           xmlValue = { "_xsi:nil": true }
         }
-        const propertyLogicalAddress =
-          indexCollection === undefined
-            ? undefined
-            : configurationIndexPropertyXmlStateUid(
-                indexCollection.logicalAddress,
-                key,
-                propertyRule.yaml,
-                indexCollection.yamlPathAddressing === true || propertyRule.configurationIndexAddressing === "yamlPath"
-              )
-        if (sourceXMLKey !== undefined && !dependentImportProperty) {
-          const indexStartedAt = performance.now()
-          const nestedItemRule = compiled === undefined
-            ? typeRule(propertyRule.type, "nestedItemRule")
-            : compiled.operations.nestedItemRule
-          collectConfigurationIndexPropertyFromXML({
-            context: sourceContext,
-            logicalAddress: propertyLogicalAddress,
-            propertyKey: key,
-            xmlValue,
-            presentInXML:
-              presentInXML && nestedItemXMLTypeMatches(
-                nestedItemRule !== undefined && "itemRule" in nestedItemRule
-                  ? nestedItemRule.itemRule.xsiType
-                  : undefined,
-                xmlValue,
-              ),
-            rule: propertyRule,
-            descriptor: compiled === undefined
-              ? typeRule(propertyRule.type, "configurationIndexValueFromXML")
-              : compiled.operations.configurationIndexValueFromXML,
-          })
-          addProfileTime(params.profile, "configurationIndexMs", indexStartedAt)
-        }
-
         const shouldImportProperty = shouldProcessProperty({
           rule: propertyRule,
           operation: "importFromXML",
         })
-        const shouldImportForReference = forReference && propertyRule.fromXML === false && presentInXML
+        const shouldImportForLocalProof = roundTrip !== undefined
+          && propertyRule.fromXML === false
+          && propertyRule.toXML !== false
+          && presentInXML
         if (
           !shouldImportProperty &&
-          !shouldImportForReference &&
+          !shouldImportForLocalProof &&
           propertyXML?.has(key) !== true
         ) {
           if (
@@ -353,12 +353,16 @@ export function importPropertiesFromXMLToYAML(params: {
             isXmlElementNode(xmlNode)
           ) {
             params.audit?.claimStructuralSubtree(xmlNode, boundary)
+            structurallyClaimed = collectConfigurationIndex !== undefined
           }
           return
         }
+        proofReady = true
 
         const hasExplicitXMLKeyWithEmptyDefault = "defaultValueXMLEmpty" in propertyRule && presentInXML
-        const hasRawEmptyXML = hasExplicitXMLKeyWithEmptyDefault && (xmlValue === undefined || xmlValue === "")
+        const emptyXML = xmlValue === undefined || xmlValue === "" || isXmlElementNode(xmlValue) && isEmptyXmlElement(xmlValue)
+        const hasRawEmptyXML = hasExplicitXMLKeyWithEmptyDefault && emptyXML
+        let pendingScalarFact: DirectImportPropertyFact | undefined
         try {
           const direct = compiled === undefined
             ? typeRule(propertyRule.type, "importFromXMLToYAML")
@@ -368,7 +372,7 @@ export function importPropertiesFromXMLToYAML(params: {
             : compiled.operations.resolveNestedImportXMLSources
           const convertedDirectly = resolveNestedSources !== undefined || direct !== undefined
           const explicitEmptyValue =
-            presentInXML && (xmlValue === undefined || xmlValue === "")
+            presentInXML && emptyXML
               ? (compiled === undefined
                   ? typeRule(propertyRule.type, "xmlImportPropertyBehavior")
                   : compiled.operations.xmlImportPropertyBehavior)?.explicitEmptyValue?.({
@@ -379,11 +383,13 @@ export function importPropertiesFromXMLToYAML(params: {
             ...(params.mode === undefined ? {} : { mode: params.mode }),
             ...(params.facts === undefined ? {} : { facts: params.facts }),
             ...(params.mode === "facts" ? { produceResult: true } : {}),
-            yamlPath: propertyYamlPath,
+            pathCursor: propertyPathCursor,
             rulePath: propertyRulePath,
             collector,
             deferred,
             dependent: params.dependent,
+            dependencies: params.dependencies,
+            roundTrip: params.roundTrip,
             audit: params.audit,
             annotations: params.annotations,
             xmlNodes,
@@ -431,18 +437,20 @@ export function importPropertiesFromXMLToYAML(params: {
                     traversal: nestedTraversal,
                   }),
                   itemName,
-                  yamlPath: nestedTraversal.yamlPath,
+                  pathCursor: nestedTraversal.pathCursor,
                   rulePath: nestedTraversal.rulePath,
                   collector,
                   deferred,
                   dependent: params.dependent,
+                  dependencies: params.dependencies,
+                  roundTrip: params.roundTrip,
                   audit: params.audit,
                   annotations: params.annotations,
                   profile: params.profile,
                   execution: params.execution,
                   mode: params.mode,
                   facts: params.facts,
-                  produceResult: true,
+                  produceResult: params.mode !== "facts",
                 }),
               { configurationIndexAddressing: nestedConfigurationIndexAddressing }
             )
@@ -521,6 +529,20 @@ export function importPropertiesFromXMLToYAML(params: {
             )
             addDirectImportProfile(params.profile, propertyRule.type, startedAt)
           }
+          if (
+            params.mode === "facts"
+            && convertedDirectly
+            && propertyRule.filePath !== undefined
+            && importedValue === undefined
+          ) {
+            collector.acceptProperty({
+              yamlPath: propertyYamlPath(),
+              rulePath: propertyRulePath,
+              rule: propertyRule,
+              value: {},
+              ...(owner === undefined ? {} : { metadataTargetOwner: owner }),
+            })
+          }
           const claimedCanonicalRawDefault = claimCanonicalRawDefault({
             audit: params.audit,
             boundary,
@@ -537,18 +559,17 @@ export function importPropertiesFromXMLToYAML(params: {
             importedValue === undefined &&
             presentInXML &&
             propertyRule.itemRule !== undefined &&
-            (compiled === undefined
-              ? typeRule(propertyRule.type, "xmlImportPropertyBehavior")
-              : compiled.operations.xmlImportPropertyBehavior)?.presenceAffectsExport === true
+              (compiled === undefined
+                ? typeRule(propertyRule.type, "xmlImportPropertyBehavior")
+                : compiled.operations.xmlImportPropertyBehavior)?.presenceAffectsExport === true
               ? {}
               : undefined
           const clearedMetadataTarget =
-            !forReference &&
             sourceContext.fromXML.propertyStateCompatibilityMode !== undefined &&
             isScalarMetadataTarget(propertyRule) &&
             importedValue === undefined &&
             presentInXML &&
-            (xmlValue === undefined || xmlValue === "")
+            emptyXML
           const rawValue =
             clearedMetadataTarget
               ? null
@@ -560,7 +581,7 @@ export function importPropertiesFromXMLToYAML(params: {
           const preserveExplicitDefault =
             propertyRule.preserveExplicitDefaultXML === true && presentInXML && rawValue === propertyRule.defaultValueXML
           const cleanValue =
-            !convertedDirectly && !forReference && rawValue === propertyRule.defaultValueXML && !preserveExplicitDefault
+            !convertedDirectly && rawValue === propertyRule.defaultValueXML && !preserveExplicitDefault
               ? undefined
               : rawValue
           const defaultStartedAt = performance.now()
@@ -571,7 +592,7 @@ export function importPropertiesFromXMLToYAML(params: {
             Array.isArray(propertyRule.defaultValue) &&
             propertyRule.defaultValue.length === 0 &&
             Array.isArray(propertyRule.defaultValueXMLEmpty)
-          const value = forReference || (convertedDirectly && !restoresExplicitEmptyInlineCollection)
+          const value = convertedDirectly && !restoresExplicitEmptyInlineCollection
             ? cleanValue
             : getValueOrDefault({
                 context: sourceContext,
@@ -610,26 +631,16 @@ export function importPropertiesFromXMLToYAML(params: {
           }
           addProfileTime(params.profile, "defaultMs", defaultStartedAt)
 
-          if (value !== undefined && !dependentImportProperty) {
-            const indexStartedAt = performance.now()
-            collectConfigurationIndexImportedValue({
-              context: sourceContext,
-              logicalAddress: propertyLogicalAddress,
-              propertyKey: key,
-              importedValue: value,
-            })
-            addProfileTime(params.profile, "configurationIndexMs", indexStartedAt)
-          }
-
           const exportStartedAt = performance.now()
+          const siblingValue = (propertyKey: string): unknown => {
+            const prepared = params.dependencies?.propertyValue?.(yamlPath(), propertyKey)
+            if (prepared !== undefined) return prepared.value
+            const siblingYaml = rule.properties[propertyKey]?.yaml
+            return siblingYaml === undefined ? undefined : result?.[siblingYaml] ?? retainedSiblingValues.get(siblingYaml)
+          }
           const propertyOwner = metadataTargetOwnerForProperty({
             rule: propertyRule,
-            siblingValue: (propertyKey) => {
-              const siblingYaml = rule.properties[propertyKey]?.yaml
-              return siblingYaml === undefined
-                ? undefined
-                : result?.[siblingYaml] ?? retainedSiblingValues.get(siblingYaml)
-            },
+            siblingValue,
             owner,
           })
           const yamlValueBeforeMetadataTargets = clearedMetadataTarget
@@ -646,6 +657,7 @@ export function importPropertiesFromXMLToYAML(params: {
                 execution: params.execution,
                 compiled,
                 preserveImplicitValue: preserveExplicitDefault,
+                annotations: params.annotations,
               })
             : value
           const yamlProjection = !convertedDirectly
@@ -658,16 +670,85 @@ export function importPropertiesFromXMLToYAML(params: {
                 execution: params.execution,
                 compiled,
                 preserveImplicitValue: preserveExplicitDefault,
+                annotations: params.annotations,
               }, yamlValueBeforeMetadataTargets)
             : { value: yamlValueBeforeMetadataTargets, uuidOccurrences: [] }
           const yamlValue = yamlProjection.value
-          const exportedYamlValue = yamlValue
-          params.facts?.acceptProperty({
-            itemType: rule.itemType,
-            propertyKey: key,
-            yamlPath: propertyYamlPath,
-            value: exportedYamlValue,
-          })
+          const finalize = compiled === undefined
+            ? typeRule(propertyRule.type, "finalizeImportedYAML")
+            : compiled.operations.finalizeImportedYAML
+          const requiresFinalization = compiled === undefined
+            ? typeRule(propertyRule.type, "requiresImportedYAMLFinalization")
+            : compiled.operations.requiresImportedYAMLFinalization
+          const shouldFinalize = finalize !== undefined
+            && (requiresFinalization === undefined || requiresFinalization({ value: yamlValue }))
+          const convertedYamlValue = params.dependencies !== undefined && shouldFinalize
+            ? finalize({
+                context: sourceContext,
+                rule: propertyRule,
+                value: yamlValue,
+                ...(sourceContext.importFromYAML?.formDataPathIndex === undefined
+                  ? {}
+                  : { formDataPathIndex: sourceContext.importFromYAML.formDataPathIndex }),
+              })
+            : yamlValue
+          const preparedProperty = preparedPropertyDecision
+          if (preparedProperty?.value !== undefined && preparedProperty.value !== convertedYamlValue) {
+            copyXmlAnomalyAnnotationsDeep(params.annotations, convertedYamlValue, preparedProperty.value)
+          }
+          const exportedYamlValue = preparedProperty?.present === true
+            ? preparedProperty.value
+            : preparedProperty?.present === false
+              ? undefined
+              : convertedYamlValue
+          if (propertyRule.externalFile !== undefined) externalValue = exportedYamlValue
+          if (
+            claimedCanonicalRawDefault
+            && exportedYamlValue === undefined
+            && isXmlElementNode(xmlNode)
+            && xmlNode.attributes.length === 0
+            && xmlNode.content.length === 0
+          ) {
+            structurallyClaimed = true
+            proofReady = false
+          }
+          if (params.mode === "facts" && exportedYamlValue !== null && typeof exportedYamlValue === "object") {
+            if (
+              propertyRule.externalFile
+              || propertyRule.derivedFrom?.externalFile
+              || !canExportPropertyToYAML({ context: sourceContext, rule: propertyRule })
+            ) {
+              acceptNestedPropertyFactLeaves({
+                facts: params.facts,
+                itemType: rule.itemType,
+                itemRule: rule,
+                propertyKey: key,
+                yamlPath: propertyYamlPath(),
+                value: exportedYamlValue,
+                presentInXML,
+                retainContainers: false,
+              })
+            }
+          } else if (params.facts !== undefined) {
+            const fact: DirectImportPropertyFact = {
+                itemType: rule.itemType,
+                itemRule: rule,
+                propertyKey: key,
+                yamlPath: propertyYamlPath(),
+                value: exportedYamlValue,
+                ...(yamlValueTag(exportedYamlValue) === undefined
+                  ? {}
+                  : { scalarTag: yamlValueTag(exportedYamlValue) }),
+                presentInXML,
+                ...(cleanValue === undefined
+                && importedValue !== undefined
+                ? { reconstructionValue: importedValue }
+                : {}),
+            }
+            if (params.mode === "facts") pendingScalarFact = fact
+            else params.facts?.acceptProperty(fact)
+          }
+          if (shouldImportForLocalProof && !shouldImportProperty) return
           if (!convertedDirectly && !usesFusedRepresentation) {
             const profile = params.profile
             if (profile !== undefined) profile.yamlExportMs += performance.now() - exportStartedAt
@@ -709,14 +790,27 @@ export function importPropertiesFromXMLToYAML(params: {
             !canExportPropertyToYAML({ context: sourceContext, rule: propertyRule })
           ) return
           const outputStartedAt = performance.now()
-          const exportedValues = getExportToYAMLResult(
-            propertyRule,
-            propertyRule.yaml!,
-            exportedYamlValue,
-            value,
-            params.execution,
-            compiled,
-          )
+          const exportedValues = preparedProperty?.present === true && typeof propertyRule.yaml === "string"
+            ? { [propertyRule.yaml]: exportedYamlValue }
+            : getExportToYAMLResult(
+                propertyRule,
+                propertyRule.yaml!,
+                exportedYamlValue,
+                value,
+                params.execution,
+                compiled,
+              )
+          if (
+            exportedValues !== undefined &&
+            preparedProperty?.scalarTag !== undefined &&
+            typeof propertyRule.yaml === "string"
+          ) {
+            markYAMLScalarTag(exportedValues, propertyRule.yaml, preparedProperty.scalarTag)
+          }
+          if (exportedValues !== undefined && params.dependencies?.propertyValue !== undefined
+            && propertyRule.yaml !== undefined && isTypeOwnedMetadataTargetUnavailable({ rule: propertyRule, siblingValue })) {
+            delete exportedValues[propertyRule.yaml]
+          }
           const emptyDirectValue = convertedDirectly && (
             exportedYamlValue === undefined || isEmptySemanticContainer(exportedYamlValue)
           )
@@ -737,6 +831,36 @@ export function importPropertiesFromXMLToYAML(params: {
             }
             return
           }
+          if (params.mode === "facts") {
+            for (const [yamlKey, exportedValue] of Object.entries(exportedValues)) {
+              if (
+                pendingScalarFact !== undefined
+                && !Object.hasOwn(pendingScalarFact, "reconstructionValue")
+                && propertyPathCursor.length === pathCursor.length + 1
+                && propertyPathCursor.last === yamlKey
+                && Object.is(exportedValue, exportedYamlValue)
+              ) {
+                params.facts?.acceptProperty({ ...pendingScalarFact, exportedToYAML: true })
+                pendingScalarFact = undefined
+                continue
+              }
+              if (pendingScalarFact !== undefined) {
+                params.facts?.acceptProperty(pendingScalarFact)
+                pendingScalarFact = undefined
+              }
+              acceptNestedPropertyFactLeaves({
+                facts: params.facts,
+                itemType: rule.itemType,
+                itemRule: rule,
+                propertyKey: key,
+                yamlPath: pathCursor.child(yamlKey).toArray(),
+                value: exportedValue,
+                presentInXML,
+                retainContainers: true,
+                exportedToYAML: true,
+              })
+            }
+          }
           if (
             ambiguousXMLKey
             && isXmlElementNode(xmlNode)
@@ -747,39 +871,49 @@ export function importPropertiesFromXMLToYAML(params: {
             else selected.push(boundary)
           }
           if (dependentImportProperty) {
-            params.dependent?.accept({
+            const propertyLogicalAddress = indexCollection === undefined
+              ? undefined
+              : configurationIndexPropertyXmlStateUid(
+                  indexCollection.logicalAddress,
+                  key,
+                  propertyRule.yaml,
+                  indexCollection.yamlPathAddressing === true || propertyRule.configurationIndexAddressing === "yamlPath",
+                )
+            const candidate = {
               itemType: rule.itemType,
               ...(itemName === undefined ? {} : { itemName }),
-              itemYamlPath: yamlPath,
+              itemYamlPath: yamlPath(),
               propertyKey: key,
-              yamlPath: propertyYamlPath,
+              yamlPath: propertyYamlPath(),
               ...(propertyLogicalAddress === undefined ? {} : { logicalAddress: propertyLogicalAddress }),
               xmlValue: sourceXMLValue,
               presentInXML,
-            })
+            }
+            if (params.dependencies !== undefined) {
+              if (params.dependencies.shouldOmit(candidate, exportedValues)) {
+                semanticOmitted = true
+                return
+              }
+            } else {
+              params.dependent?.accept(candidate)
+            }
           }
           const profile = params.profile
           if (profile !== undefined) profile.exportedCount++
           addProfileTime(params.profile, "outputMs", outputStartedAt)
           const collectorStartedAt = performance.now()
           collector.acceptProperty({
-            yamlPath: propertyYamlPath,
+            yamlPath: propertyYamlPath(),
             rulePath: propertyRulePath,
             rule: propertyRule,
             value: exportedYamlValue,
             ...(owner === undefined ? {} : { metadataTargetOwner: owner }),
           })
-          const finalize = compiled === undefined
-            ? typeRule(propertyRule.type, "finalizeImportedYAML")
-            : compiled.operations.finalizeImportedYAML
-          const requiresFinalization = compiled === undefined
-            ? typeRule(propertyRule.type, "requiresImportedYAMLFinalization")
-            : compiled.operations.requiresImportedYAMLFinalization
           if (
-            finalize !== undefined &&
-            (requiresFinalization === undefined || requiresFinalization({ value: yamlValue }))
+            params.dependencies === undefined &&
+            shouldFinalize
           ) {
-            deferred?.accept({ valuePath: propertyYamlPath, rulePath: propertyRulePath })
+            deferred?.accept({ valuePath: propertyYamlPath(), rulePath: propertyRulePath })
           }
           for (const [yamlKey, exportedValue] of Object.entries(exportedValues)) {
             if (retainedSiblingYamlKeys.has(yamlKey)) retainedSiblingValues.set(yamlKey, exportedValue)
@@ -797,8 +931,10 @@ export function importPropertiesFromXMLToYAML(params: {
           }
           addProfileTime(params.profile, "collectorMs", collectorStartedAt)
         } catch (cause) {
-          if (cause instanceof XmlImportAttemptInfrastructureError) throw cause
-          throw new DirectImportConversionError(propertyYamlPath, propertyRulePath, xmlPath, cause)
+          if (cause instanceof XmlImportAttemptInfrastructureError || cause instanceof DirectImportRoundTripError) throw cause
+          throw new DirectImportConversionError(propertyYamlPath(), propertyRulePath, xmlPath, cause)
+        } finally {
+          if (pendingScalarFact !== undefined) params.facts?.acceptProperty(pendingScalarFact)
         }
       }
       run()
@@ -814,21 +950,44 @@ export function importPropertiesFromXMLToYAML(params: {
         params.audit !== undefined
       ) {
         params.audit.rawCandidate(xmlNode, boundary, cause)
-        return
+        return { proofReady: false, structurallyClaimed: false, semanticOmitted: false }
       }
       throw cause
     }
     if (discardAttempt) {
       attempt.rollback()
-      return
+      return { proofReady: false, structurallyClaimed: false, semanticOmitted: false }
     }
     attempt.commit()
+    return { proofReady, structurallyClaimed, semanticOmitted, externalValue }
   }
 
   const importMatch = (match: Parameters<typeof importMatchUnprofiled>[0]): void => {
     const frame = beginPropertyTypeProfile(params.profile, match.entry.rule.type)
     try {
-      importMatchUnprofiled(match)
+      const imported = importMatchUnprofiled(match)
+      if (roundTrip !== undefined) {
+        const canonicalParent = match.presentInXML
+          ? undefined
+          : canonicalRawDefaultParent(match.sourceState.xmlNode, match.entry.rule)
+        const binding = {
+          propertyKey: match.entry.propertyKey,
+          externalValue: imported.externalValue,
+          node: canonicalParent?.node ?? match.xmlNode,
+          presentInXML: canonicalParent !== undefined || match.presentInXML,
+          xmlPath: canonicalParent?.path ?? match.xmlPath,
+          ...(match.xmlNodes === undefined ? {} : { nodes: match.xmlNodes }),
+          ...(match.xmlOwnerNode === undefined ? {} : { owner: match.xmlOwnerNode }),
+          ...(imported.semanticOmitted ? { semanticOmitted: true as const } : {}),
+          ...(imported.structurallyClaimed || canonicalParent !== undefined
+            ? { structurallyClaimed: true as const }
+            : {}),
+        }
+        runRoundTripStep("bind", () => roundTrip.bind?.(binding))
+        if (imported.proofReady && canonicalParent === undefined) {
+          runRoundTripStep("ready", () => roundTrip.ready(binding))
+        }
+      }
     } finally {
       finishPropertyTypeProfile(params.profile, frame, "XML → YAML")
     }
@@ -847,6 +1006,7 @@ export function importPropertiesFromXMLToYAML(params: {
       xmlPath: undefined,
       sourceXMLValue: undefined,
       xmlNode: undefined,
+      xmlOwnerNode: undefined,
       xmlNodes: undefined,
       presentInXML: false,
       ambiguousXMLKey: false,
@@ -863,14 +1023,14 @@ export function importPropertiesFromXMLToYAML(params: {
       audit: params.audit,
       auditItemBoundary: {
         itemType: rule.itemType,
-        yamlPath,
+        get yamlPath() { return yamlPath() },
         rulePath,
       },
       auditBoundary: ({ propertyKey, rule: propertyRule }) => ({
         itemType: rule.itemType,
         propertyKey,
         propertyType: propertyRule.type,
-        yamlPath: [...yamlPath, propertyRule.yaml ?? propertyKey],
+        yamlPath: pathCursor.child(propertyRule.yaml ?? propertyKey).toArray(),
         rulePath: [...rulePath, { propertyKey }],
       }),
       isRepeatable: (entry) => {
@@ -879,15 +1039,6 @@ export function importPropertiesFromXMLToYAML(params: {
         return typeRule(propertyRule.type, "yamlToXMLNestedRule")?.kind === "collection"
           || typeRule(propertyRule.type, "fileChildNamesDescriptor") !== undefined
           || typeRule(propertyRule.type, "xmlImportPropertyBehavior")?.repeatedXMLNodes === true
-      },
-      nestedItemsOwnNode: (entry) => {
-        if ("flags" in entry) return (entry as CompiledProperty).flags.nestedItemsOwnXMLNode
-        const { canonicalXMLKey, rule: propertyRule } = entry
-        const nestedRule = typeRule(propertyRule.type, "yamlToXMLNestedRule")
-        return nestedRule?.kind === "collection" && (
-          nestedRule.xmlElement === canonicalXMLKey
-          || typeRule(propertyRule.type, "xmlImportPropertyBehavior")?.nestedItemsOwnXMLChildren === true
-        )
       },
       claimRoot: sourceState.source.claimAuditRoot,
       visit(match) {
@@ -900,6 +1051,7 @@ export function importPropertiesFromXMLToYAML(params: {
           xmlPath: match.xmlPath,
           sourceXMLValue: match.xmlValue,
           xmlNode: match.xmlNode,
+          xmlOwnerNode: match.xmlOwnerNode,
           xmlNodes: match.xmlNodes?.filter(
             (node): node is XmlElementNode => "type" in node && node.type === "element",
           ),
@@ -955,12 +1107,85 @@ export function importPropertiesFromXMLToYAML(params: {
       if (sourceState.foundPropertyKeys.has(entry.propertyKey)) continue
       conversionMs += importMissingEntry(sourceState, entry)
     }
+    for (const key of params.dependencies?.propertyKeys?.(yamlPath()) ?? []) {
+      if (sourceState.foundPropertyKeys.has(key)) continue
+      const entry = sourceState.plan.entriesByPropertyKey.get(key)
+      if (entry !== undefined) conversionMs += importMissingEntry(sourceState, entry)
+    }
     addProfileDuration(params.profile, "xmlTraversalMs", performance.now() - traversalStartedAt - conversionMs)
   }
 
   if (result === undefined) return undefined
-  normalizeTypeOwnedMetadataTargets({ result, rule })
-  return sortYamlRuleProperties(result)
+  if (params.dependencies?.propertyValue === undefined) normalizeTypeOwnedMetadataTargets({ result, rule })
+  const appendedPropertyKeys = params.dependencies?.appendedYamlKeys?.(yamlPath())
+  const orderedResult = orderYamlRuleProperties(
+    result,
+    compiledPlan?.yamlOrder ?? getYamlRulePropertyOrder(rule),
+    params.annotations,
+    appendedPropertyKeys === undefined ? undefined : new Set([...appendedPropertyKeys].flatMap(key => {
+      const yamlKey = rule.properties[key]?.yaml
+      return yamlKey === undefined ? [] : [yamlKey]
+    })),
+  )
+  params.beforeFinish?.(orderedResult)
+  if (roundTrip !== undefined) runRoundTripStep("finish", () => roundTrip.finish())
+  return orderedResult
+}
+
+function acceptReconstructionPropertyFact(params: {
+  readonly facts: NonNullable<DirectImportTraversal["facts"]>
+  readonly sourceContext: ConfigurationContextFromXML
+  readonly propertyRule: PropertyRule
+  readonly propertyKey: string
+  readonly configurationIndexUidSegment: string | undefined
+  readonly nestedConfigurationIndexAddressing: PropertyRule["configurationIndexAddressing"]
+  readonly sourceXMLValue: unknown
+  readonly ownerXmlName: string | undefined
+  readonly execution: CompiledPropertyRuleExecution | undefined
+  readonly compiled: CompiledProperty | undefined
+  readonly itemRule: MetadataItemRule
+  readonly yamlPath: YamlPath
+  readonly presentInXML: boolean
+}): void {
+  const value = runWithConfigurationIndexPropertyContext(
+    params.sourceContext,
+    params.propertyRule.yaml ?? params.propertyKey,
+    params.configurationIndexUidSegment,
+    (propertyContext) => importPropertyFromXML({
+      context: propertyContext,
+      rule: params.propertyRule,
+      value: params.sourceXMLValue,
+      name: params.propertyKey,
+      ownerXmlName: params.ownerXmlName,
+      execution: params.execution,
+      compiled: params.compiled,
+    }),
+    { configurationIndexAddressing: params.nestedConfigurationIndexAddressing },
+  )
+  params.facts.acceptProperty({
+    itemType: params.itemRule.itemType,
+    itemRule: params.itemRule,
+    propertyKey: params.propertyKey,
+    yamlPath: params.yamlPath,
+    value,
+    presentInXML: params.presentInXML,
+  })
+}
+
+class DirectImportRoundTripError extends Error {
+  constructor(phase: string, cause: unknown) {
+    super(`Ошибка локальной проверки XML (${phase}): ${cause instanceof Error ? cause.message : String(cause)}`, { cause })
+    this.name = "DirectImportRoundTripError"
+  }
+}
+
+function runRoundTripStep<T>(phase: "open" | "bind" | "ready" | "finish", run: () => T): T {
+  try {
+    return run()
+  } catch (cause) {
+    if (cause instanceof DirectImportRoundTripError) throw cause
+    throw new DirectImportRoundTripError(phase, cause)
+  }
 }
 
 function metadataTargetSiblingYamlKeys(rule: MetadataItemRule): ReadonlySet<string> {
@@ -982,13 +1207,35 @@ function claimCanonicalRawDefault(params: {
   rule: PropertyRule
 }): boolean {
   if (
-    params.audit === undefined
-    || !isXmlElementNode(params.node)
+    !isXmlElementNode(params.node)
     || !Object.prototype.hasOwnProperty.call(params.rule, "defaultValueXMLRaw")
     || !sameCanonicalXmlValue(encodeXmlRawElement(params.node), params.rule.defaultValueXMLRaw)
   ) return false
-  claimAuditedSubtree(params.audit, params.node, params.boundary)
+  if (params.audit !== undefined) claimAuditedSubtree(params.audit, params.node, params.boundary)
   return true
+}
+
+function canonicalRawDefaultParent(
+  root: XmlImportAuditedNode | undefined,
+  rule: PropertyRule,
+): { readonly node: XmlElementNode; readonly path: readonly string[] } | undefined {
+  if (
+    !isXmlElementNode(root)
+    || !Object.prototype.hasOwnProperty.call(rule, "defaultValueXMLRaw")
+    || rule.xmlParents === undefined
+    || rule.xmlParents.length === 0
+  ) return undefined
+  let node = root
+  for (const name of rule.xmlParents) {
+    const matches = node.content.filter(
+      (child): child is XmlElementNode => child.type === "element" && child.name === name,
+    )
+    if (matches.length !== 1) return undefined
+    node = matches[0]!
+  }
+  return sameCanonicalXmlValue(encodeXmlRawElement(node), rule.defaultValueXMLRaw)
+    ? { node, path: rule.xmlParents }
+    : undefined
 }
 
 function claimAuditedSubtree(
@@ -1070,29 +1317,9 @@ function isScalarMetadataTarget(rule: PropertyRule): boolean {
     (rule.type === "string" || rule.type === "MetadataItemLink" || rule.type === "MetadataField")
 }
 
-function nestedItemXMLTypeMatches(expectedXsiType: string | undefined, xmlValue: unknown): boolean {
-  if (expectedXsiType === undefined) return true
-  if (xmlValue === null || typeof xmlValue !== "object" || Array.isArray(xmlValue)) return false
-  const actualXsiType = (xmlValue as Record<string, unknown>)["_xsi:type"]
-  return actualXsiType === expectedXsiType
-}
-
-function getOwnerXmlName(xml: Record<string, unknown>): string | undefined {
+function getOwnerXmlName(xml: DirectImportXMLSource["xml"]): string | undefined {
+  if (isXmlElementNode(xml)) return xmlAttributeValue(xml, "name")
   return typeof xml._name === "string" ? xml._name : undefined
-}
-
-function compatibilityRecord(value: unknown): Record<string, unknown> {
-  return value !== null && typeof value === "object" && !Array.isArray(value)
-    ? value as Record<string, unknown>
-    : {}
-}
-
-function isXmlElementNode(value: unknown): value is XmlElementNode {
-  return value !== null &&
-    typeof value === "object" &&
-    "type" in value &&
-    value.type === "element" &&
-    "compatibilityValue" in value
 }
 
 function isEmptySemanticContainer(value: unknown): boolean {

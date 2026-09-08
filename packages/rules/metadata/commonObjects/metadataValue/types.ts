@@ -8,6 +8,7 @@ import type { Static } from "typebox"
 import { definePropertyRule, type ExactRuleParams } from "../ruleBuilder"
 import { BasePropertyRule } from "../../ruleRuntime"
 import type { ExplicitYAMLString } from "@nkdk/runtime"
+import { ComparisonTypeToYAML } from "../../systemEnumerations/types"
 import { I8nText, I8nTextJSONSchema, I8nTextXML, I8nTextYAML } from "../i8nText/types"
 import {
   StandardPeriod,
@@ -30,6 +31,7 @@ export const MetadataValueTypeToXML = {
   uuid: "v8:UUID",
   valueList: "xr:ValueList",
   DataCompositionComparisonType: "dcsset:DataCompositionComparisonType",
+  ComparisonType: "ent:ComparisonType",
   AccountType: "ent:AccountType",
   fixedArray: "v8:FixedArray",
   formChoiceListDesTimeValue: "FormChoiceListDesTimeValue",
@@ -47,6 +49,7 @@ export type MetadataValueTypeToXMLTypes = [
   ["typeRef", string],
   ["uuid", string],
   ["DataCompositionComparisonType", string],
+  ["ComparisonType", string],
   ["AccountType", string],
   // ["fixedArray", string[] | number[] | boolean[]],
   // ["formChoiceListDesTimeValue", { presentation: I8nText; value: MetadataValue }],
@@ -74,6 +77,7 @@ export type MetadataPrimitiveValueType =
   | "typeRef"
   | "uuid"
   | "DataCompositionComparisonType"
+  | "ComparisonType"
   | "AccountType"
 
 type MetadataValueTypeToXMLTypesTuple = MetadataValueTypeToXMLTypes[number]
@@ -204,6 +208,12 @@ export type MetadataExplicitDataCompositionComparisonTypeYAML = Static<
   typeof MetadataExplicitDataCompositionComparisonTypeYAMLJSONSchema
 >
 
+export const MetadataExplicitComparisonTypeYAMLJSONSchema = Type.Object({
+  Тип: Type.Literal("ВидСравнения"),
+  Значение: Type.Union(Object.values(ComparisonTypeToYAML).map(value => Type.Literal(value))),
+}, { additionalProperties: false })
+export type MetadataExplicitComparisonTypeYAML = Static<typeof MetadataExplicitComparisonTypeYAMLJSONSchema>
+
 export const MetadataExplicitAccountTypeYAMLJSONSchema = Type.Object({
   Тип: Type.Literal("ВидСчета"),
   Значение: Type.String(),
@@ -216,6 +226,7 @@ export const MetadataValueJSONSchema = Type.Cyclic(
       MetadataSingleValueJSONSchema,
       MetadataFixedArrayValueJSONSchema,
       MetadataExplicitDataCompositionComparisonTypeYAMLJSONSchema,
+      MetadataExplicitComparisonTypeYAMLJSONSchema,
       MetadataExplicitAccountTypeYAMLJSONSchema,
       StandardPeriodYAMLJSONSchema,
       Type.Object(
@@ -239,6 +250,7 @@ export const MetadataValueJSONSchema = Type.Cyclic(
 const MetadataFormChoiceListValueValueJSONSchema = Type.Union([
   MetadataValueJSONSchema,
   MetadataExplicitDataCompositionComparisonTypeYAMLJSONSchema,
+  MetadataExplicitComparisonTypeYAMLJSONSchema,
   MetadataExplicitAccountTypeYAMLJSONSchema,
 ])
 
@@ -260,6 +272,7 @@ export const MetadataFormChoiceListComplexValueJSONSchema = Type.Union([
 export type MetadataFormChoiceListValueValueYAML =
   | MetadataValueYAML
   | MetadataExplicitDataCompositionComparisonTypeYAML
+  | MetadataExplicitComparisonTypeYAML
   | MetadataExplicitAccountTypeYAML
 
 export type MetadataFormChoiceListComplexValueYAML = {
@@ -274,6 +287,7 @@ export type MetadataValueYAML =
   | MetadataSingleValueYAML
   | MetadataFixedArrayValueYAML
   | MetadataExplicitDataCompositionComparisonTypeYAML
+  | MetadataExplicitComparisonTypeYAML
   | MetadataExplicitAccountTypeYAML
   | StandardPeriodYAML
   | MetadataFormChoiceListComplexValueYAML

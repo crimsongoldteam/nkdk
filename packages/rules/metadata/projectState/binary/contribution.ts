@@ -13,7 +13,7 @@ import {
   assertProjectStateImportIndexContribution,
   assertProjectStatePortableData,
 } from "../fileUpdateValidation"
-import { BinaryStringPoolBuilder, openBinaryStringPool, packBinaryStringPool, readBinaryString } from "./stringPool"
+import { BinaryStringPoolBuilder, openBinaryStringPool, readBinaryString } from "./stringPool"
 import { decodeBinaryValue, encodeBinaryValue } from "./valueCodec"
 import type { ProjectStateEncodedFileUpdateBatch } from "../contracts/fileUpdate"
 export type { ProjectStateEncodedFileUpdateBatch } from "../contracts/fileUpdate"
@@ -105,13 +105,13 @@ export function encodeProjectStateFileUpdateBatch(
 ): ProjectStateEncodedFileUpdateBatch {
   assertProjectStateFileUpdateBatch(batch)
   const strings = new BinaryStringPoolBuilder()
-  const payloads = batch.updates.map((update) => {
-    strings.intern(update.projectPath)
-    strings.intern(update.componentPath)
+  const identities = new Uint32Array(batch.updates.length * 2)
+  const payloads = batch.updates.map((update, index) => {
+    identities[index * 2] = strings.intern(update.projectPath)
+    identities[index * 2 + 1] = strings.intern(update.componentPath)
     return encodeBinaryValue(update, strings)
   })
-  const pool = strings.finish()
-  const packedStrings = packBinaryStringPool(pool)
+  const packedStrings = strings.finishSection()
   const { bytes, view, recordsOffset, payloadOffset } = createPayloadEnvelope({
     magic: MAGIC,
     count: batch.updates.length,
@@ -124,8 +124,8 @@ export function encodeProjectStateFileUpdateBatch(
   let nextPayloadOffset = payloadOffset
   batch.updates.forEach((update, index) => {
     const offset = recordsOffset + index * RECORD_BYTES
-    view.setUint32(offset, strings.intern(update.projectPath), true)
-    view.setUint32(offset + 4, strings.intern(update.componentPath), true)
+    view.setUint32(offset, identities[index * 2]!, true)
+    view.setUint32(offset + 4, identities[index * 2 + 1]!, true)
     view.setBigUint64(offset + 8, hashView.getBigUint64(index * 8, false), true)
     view.setUint32(offset + 16, nextPayloadOffset, true)
     view.setUint32(offset + 20, payloads[index]!.byteLength, true)
@@ -143,7 +143,7 @@ function encodeImportBatch(
 ): { readonly bytes: Uint8Array<ArrayBuffer> } {
   const strings = new BinaryStringPoolBuilder()
   const payloads = values.map((value) => encodeBinaryValue(value, strings))
-  const packedStrings = packBinaryStringPool(strings.finish())
+  const packedStrings = strings.finishSection()
   const { bytes, view, recordsOffset, payloadOffset } = createPayloadEnvelope({
     magic,
     count: values.length,

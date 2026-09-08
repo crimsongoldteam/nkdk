@@ -29,7 +29,7 @@ export const RootCommandInterfaceRules = {
     xmlRoot: xmlRootRule({
       container: "CommandInterface",
       rootAttributes: commandInterfaceRootAttributes,
-      forReferenceOnly: true,
+      xmlOnly: true,
       isFileRoot: true,
       toYAML: false,
       fromYAML: false,

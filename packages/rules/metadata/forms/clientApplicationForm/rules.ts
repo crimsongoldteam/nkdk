@@ -493,7 +493,7 @@ export const ClientApplicationFormRules = {
     // #region Metadata
     uuid: stringRule({
       xml: "_uuid",
-      forReferenceOnly: true,
+      xmlOnly: true,
       tag: FormRulesTags.Metadata,
       xmlParents: ["Form"],
     }),

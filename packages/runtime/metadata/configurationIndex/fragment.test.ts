@@ -6,6 +6,7 @@ import {
   mergeConfigurationIndexFragments,
 } from "./fragment"
 import type { ConfigurationIndexBlockFragment } from "./types"
+import { decodeBlockV1 } from "./blockCodec"
 
 const UUID = "00000000-0000-4000-8000-000000000001"
 
@@ -66,15 +67,66 @@ describe("configuration index worker fragments", () => {
     expect(builder.metrics()).toEqual({ projectPaths: 0, entities: 0, retainedInputFragments: 0 })
   })
 
-  it("rejects unknown and empty entity fields", () => {
+  it("передаёт блок напрямую в двоичном формате без JSON-конверта", () => {
     const buffer = encoded("А.yaml", { logicalAddress: "Объект", xmlId: "1" })
-    const envelope = JSON.parse(new TextDecoder().decode(buffer)) as {
-      fragments: Array<{ entities: Array<Record<string, unknown>> }>
+    expect(new TextDecoder().decode(new Uint8Array(buffer, 0, 8))).toBe("NKDKCIF7")
+    const header = new DataView(buffer)
+    expect(header.getUint32(8, true)).toBe(1)
+    const pathLength = header.getUint32(12, true)
+    const blockLength = header.getUint32(16 + pathLength, true)
+    expect(decodeBlockV1(new Uint8Array(buffer, 20 + pathLength, blockLength)))
+      .toEqual({ entities: [{ logicalAddress: "Объект", xmlId: "1" }] })
+  })
+
+  it("отклоняет пустую entity до передачи", () => {
+    expect(() => encoded("А.yaml", { logicalAddress: "Объект" })).toThrow("не содержит данных")
+  })
+
+  it("не принимает старый текстовый конверт", () => {
+    expect(() => decodeConfigurationBlockFragments(encodeEnvelope({
+      magic: "NKDKCIF6", version: 6, fragments: [],
+    }))).toThrow("Некорректный буфер")
+  })
+
+  it("проверяет усечённые и лишние байты", () => {
+    const buffer = encoded("А.yaml", { logicalAddress: "Объект", xmlId: "1" })
+    for (let length = 0; length < buffer.byteLength; length++) {
+      expect(() => decodeConfigurationBlockFragments(buffer.slice(0, length))).toThrow("Некорректный буфер")
     }
-    envelope.fragments[0]!.entities[0] = { logicalAddress: "Объект", xmlName: "Старое" }
-    expect(() => decodeConfigurationBlockFragments(encodeEnvelope(envelope))).toThrow("неизвестное поле")
-    envelope.fragments[0]!.entities[0] = { logicalAddress: "Объект" }
-    expect(() => decodeConfigurationBlockFragments(encodeEnvelope(envelope))).toThrow("не содержит данных")
+    const extra = new Uint8Array(buffer.byteLength + 1)
+    extra.set(new Uint8Array(buffer))
+    expect(() => decodeConfigurationBlockFragments(extra.buffer)).toThrow("Некорректный буфер")
+  })
+
+  it("проверяет длины без выделения памяти по недоверенному числу", () => {
+    const buffer = encoded("А.yaml", { logicalAddress: "Объект", xmlId: "1" })
+    new DataView(buffer).setUint32(12, 0xffffffff, true)
+    expect(() => decodeConfigurationBlockFragments(buffer)).toThrow("Некорректный буфер")
+  })
+
+  it("не позволяет завершить builder после повреждённой передачи", () => {
+    const builder = createConfigurationIndexFragmentBuilder()
+    const valid = encoded("А.yaml", { logicalAddress: "Объект", xmlId: "1" })
+    const invalid = new Uint8Array(valid.byteLength + 1)
+    invalid.set(new Uint8Array(valid))
+    expect(() => builder.addEncoded(invalid.buffer)).toThrow("Некорректный буфер")
+    expect(builder.metrics()).toEqual({ projectPaths: 0, entities: 0, retainedInputFragments: 0 })
+    expect(() => builder.finish()).toThrow("завершён")
+  })
+
+  it("отклоняет неизвестные поля до кодирования", () => {
+    const extraEntity = { logicalAddress: "Объект", xmlId: "1", obsolete: true }
+    expect(() => encoded("А.yaml", extraEntity)).toThrow("Неизвестное поле")
+    const child = { xmlName: "Form", name: "Форма", obsolete: true }
+    expect(() => encoded("А.yaml", { logicalAddress: "Объект", children: [child] }))
+      .toThrow("Неизвестное поле")
+  })
+
+  it("сохраняет Unicode и XML-текст без промежуточного строкового конверта", () => {
+    const value = [{ targetProjectPath: "Формы/😀.yaml", entities: [{
+      logicalAddress: "Форма.Ёж", xmlValue: '<Text>\ufeffЁж &amp; "😀"</Text>',
+    }] }]
+    expect(decodeConfigurationBlockFragments(encodeConfigurationBlockFragments(value))).toEqual(value)
   })
 })
 

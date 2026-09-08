@@ -1,4 +1,4 @@
-import { ConfigurationContextFromXML } from "@nkdk/runtime"
+import { isEmptyXmlElement, isXmlElementNode, xmlElementChildren, type ConfigurationContextFromXML } from "@nkdk/runtime"
 import { importPropertyFromXML } from "../../../../../ruleRuntime/property/fromXML"
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../../../../ruleRuntime/property/typeRuleRegistry"
@@ -11,6 +11,14 @@ export const importGroupItemAutoFromXML = (
   xml: unknown
 ): GroupItemAuto | undefined => {
   if (!xml || typeof xml !== "object") return undefined
+  if (isXmlElementNode(xml)) {
+    if (isEmptyXmlElement(xml) ||
+      (xml.attributes.length === 0 && xml.content.every(child => child.type === "text"))) return undefined
+    return {
+      itemType: "GroupItemAuto",
+      use: importPropertyFromXML({ context, rule: GroupItemAutoRules.properties.use, value: xmlElementChildren(xml, "dcsset:use")[0] }),
+    } as GroupItemAuto
+  }
   const source = xml as Record<string, unknown>
   return {
     itemType: "GroupItemAuto",

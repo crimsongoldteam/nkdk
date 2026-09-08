@@ -1,6 +1,8 @@
 import { Type, TSchema } from "typebox"
 import { Value } from "typebox/value"
 import { TypeDescriptionAllowedType, TypeDescriptionAllowedTypes } from "./types"
+import { diagnosticAtYamlPath, type XmlAnomalyAnnotations } from "@nkdk/runtime"
+import type { LocalYamlValueValidationParams } from "@nkdk/runtime/rule-kit"
 
 export const METADATA_NAME_YAML_PATTERN = "[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*"
 
@@ -155,18 +157,25 @@ const buildBranches = (allowedTypes: TypeDescriptionAllowedTypes): TypeDescripti
   return branches
 }
 
-export const buildTypeDescriptionJSONSchema = (allowedTypes: TypeDescriptionAllowedTypes): TSchema => {
+export const buildTypeDescriptionJSONSchema = (
+  allowedTypes: TypeDescriptionAllowedTypes,
+  validateCompositionSeparately = false,
+): TSchema => {
   const branches = buildBranches(allowedTypes)
   const singleBranches = branches.map((branch) => branch.schema)
   const compositeBranches = branches.filter((branch) => !branch.singleOnly).map((branch) => branch.schema)
   const singleSchema = createUnion(singleBranches, "Одиночный тип")
 
-  if (compositeBranches.length === 0) {
+  const compositionBranches = validateCompositionSeparately
+    ? [Type.Array(singleSchema, { minItems: 2, uniqueItems: true })]
+    : []
+  if (compositeBranches.length === 0 && compositionBranches.length === 0) {
     return singleSchema
   }
 
   return Type.Union([
     singleSchema,
+    ...compositionBranches,
     Type.Array(createUnion(compositeBranches, "Элемент составного типа"), {
       description: "Составной тип",
       minItems: 1,
@@ -175,11 +184,49 @@ export const buildTypeDescriptionJSONSchema = (allowedTypes: TypeDescriptionAllo
   ])
 }
 
+const singleOnlySchemas = [...Object.values(primitiveBranches), ...Object.values(concreteObjectBranches)]
+  .flatMap(factory => factory()).filter(branch => branch.singleOnly).map(branch => branch.schema)
+
+/** Each rejected addition leaves the preceding accepted composition unchanged. */
+export function incompatibleTypeDescriptionIndices(value: unknown): number[] {
+  if (!Array.isArray(value)) return []
+  const indices: number[] = []
+  let singleOnly = false
+  value.forEach((item, index) => {
+    const itemSingleOnly = singleOnlySchemas.some(schema => Value.Check(schema, item))
+    if (index > 0 && (singleOnly || itemSingleOnly)) {
+      indices.push(index)
+    } else {
+      singleOnly = itemSingleOnly
+    }
+  })
+  return indices
+}
+
+export function validateTypeDescriptionComposition(params: LocalYamlValueValidationParams) {
+  return incompatibleTypeDescriptionIndices(params.value).map(index => diagnosticAtYamlPath({
+    filePath: params.filePath,
+    parsed: params.parsed,
+    path: [...params.yamlPath, index],
+    severity: "error",
+    source: "structure",
+    message: "Дополнительный тип нарушает ограничение одиночного типа",
+  }))
+}
+
 export const assertTypeDescriptionYAMLAllowed = (params: {
   value: unknown
   allowedTypes: TypeDescriptionAllowedTypes
+  annotations?: XmlAnomalyAnnotations
 }): void => {
   const schema = buildTypeDescriptionJSONSchema(params.allowedTypes)
+
+  const values = params.value
+  if (Array.isArray(values) && values.length > 1 && new Set(values).size === values.length) {
+    const incompatible = new Set(incompatibleTypeDescriptionIndices(values))
+    if (values.every((value, index) => Value.Check(schema, value)
+      && (params.annotations?.at(values, index)?.kind === "invalid") === incompatible.has(index))) return
+  }
 
   if (!Value.Check(schema, params.value)) {
     throw new Error("TypeDescription YAML value is not allowed by rule.allowedTypes")

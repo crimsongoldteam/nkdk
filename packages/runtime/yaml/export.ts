@@ -34,6 +34,11 @@ export interface SerializedYAMLDocument {
   readonly annotations: XmlAnomalyAnnotations
 }
 
+export interface PreparedYAMLDocumentData {
+  readonly data: unknown
+  readonly annotations: XmlAnomalyAnnotations
+}
+
 interface PreparedYAMLNode {
   readonly dumpValue: unknown
   readonly data: unknown
@@ -265,6 +270,27 @@ export function serializeYAMLDocument(
   return { text, data: prepared.data, annotations: serializedAnnotations }
 }
 
+/** Возвращает смысловое дерево сериализатора без построения текста YAML. */
+export function prepareYAMLDocumentData(
+  source: unknown,
+  annotations: XmlAnomalyAnnotations = createXmlAnomalyAnnotations(),
+): PreparedYAMLDocumentData {
+  const dataAnnotations = createXmlAnomalyAnnotations()
+  if (annotations.root() !== undefined) dataAnnotations.setRoot(annotations.root()!)
+  if (annotations.root()?.kind === "raw" && source === undefined) {
+    return { data: undefined, annotations: dataAnnotations }
+  }
+  const prepared = prepareForDump(
+    source,
+    new Map(),
+    new Set(),
+    annotations,
+    createXmlAnomalyAnnotations(),
+    dataAnnotations,
+  )
+  return { data: prepared.data, annotations: dataAnnotations }
+}
+
 function applyXmlAnomalyAnnotationsToAST(
   documents: Document[],
   source: unknown,
@@ -303,6 +329,10 @@ function applyXmlAnomalyAnnotationsToNode(
     if (keyAnnotation !== undefined) {
       item.key.value = keyAnnotation.logicalKey ?? runtimeKey
       applyXmlAnomalyTag(item.key, keyAnnotation)
+      if (item.key.value === "") {
+        item.key.style.singleQuoted = true
+        item.key.style.doubleQuoted = false
+      }
     }
     const valueAnnotation = annotations.at(source, runtimeKey)
     if (valueAnnotation !== undefined) applyXmlAnomalyTag(item.value, valueAnnotation, semanticData[runtimeKey])

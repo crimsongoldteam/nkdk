@@ -9,6 +9,7 @@ import type { FullXmlSyncComponentProfile } from "../fullSyncToXml/componentProf
 import { mockContextFromXML } from "../../tests/mockContext"
 import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import { createConfigurationIndexCollector } from "@nkdk/runtime"
+import { parseXmlDocumentWithSaxes } from "@nkdk/runtime"
 import { createConfigurationIndexExportRuntime } from "@nkdk/runtime"
 import { createPropertyStateCapabilityRegistry } from "../appliedObjects/configurationExtension/propertyStateCapabilities"
 import { testConfigurationIndexReader } from "../../tests/configurationIndex"
@@ -59,7 +60,7 @@ it("resolves an XML import descriptor from its own registry", () => {
       imports: [
         {
           kind: "configuration",
-          detect: (root) => root.kind === "configuration",
+          detect: (root) => root.name === "configuration",
           resolveRoot: () => ({
             address: { kind: "configuration" as const },
             itemName: "configuration",
@@ -69,7 +70,7 @@ it("resolves an XML import descriptor from its own registry", () => {
     }),
   )
 
-  expect(registries.imports.resolve({ kind: "configuration" }).kind).toBe(
+  expect(registries.imports.resolve(parseXmlDocumentWithSaxes("<configuration/>").roots[0]!).kind).toBe(
     "configuration",
   )
 })
@@ -99,7 +100,7 @@ it("owns XML import and YAML-to-XML augmenters from its rules", () => {
   const registries = createOperationRegistrySet(defineMetadataRules({
     ...emptyMetadataRules,
     operations: [
-      { kind: "xmlImportAugmenter", name: "sample", augmenter: { augment: ({ yaml }) => { yaml.imported = true } } },
+      { kind: "xmlImportAugmenter", name: "sample", augmenter: { yamlDependencies: () => [], augment: ({ yaml }) => { yaml.imported = true } } },
       { kind: "yamlToXmlAugmenter", componentKind: "sample", augmenter: { augment: ({ outputs }) => { outputs.get("metadata")!.exported = true } } },
     ],
   }))

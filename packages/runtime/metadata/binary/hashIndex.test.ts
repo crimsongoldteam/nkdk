@@ -4,7 +4,19 @@ import {
   buildBinaryHashIndex,
   findBinaryHashIndex,
   openBinaryHashIndex,
+  writeBinaryHashIndex,
 } from "./hashIndex"
+
+it("записывает слоты непосредственно в выделенный раздел", () => {
+  const slots = new SharedArrayBuffer(72)
+  new Uint8Array(slots).fill(255)
+  const index = { slots, byteOffset: 4, size: 2, capacity: 4 }
+  writeBinaryHashIndex(index, id => ({ hash: 7n, recordId: id + 3 }))
+  expect(findBinaryHashIndex(index, 7n, id => id === 4)).toBe(4)
+  expect(findBinaryHashIndex(index, 8n, () => true)).toBeUndefined()
+  expect([...new Uint8Array(slots, 0, 4)]).toEqual([255, 255, 255, 255])
+  expect([...new Uint8Array(slots, 68, 4)]).toEqual([255, 255, 255, 255])
+})
 
 it("не принимает коллизию за совпадение ключа", () => {
   const index = buildBinaryHashIndex(

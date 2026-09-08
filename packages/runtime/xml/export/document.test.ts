@@ -4,6 +4,26 @@ import { XML_ORDERED_CHILDREN, xmlExport } from "./exporter"
 import { xmlObjectDocument } from "./document"
 
 describe("xmlObjectDocument", () => {
+  it("не удерживает исходный XML-объект через поля совместимости", () => {
+    const { document } = xmlObjectDocument({ Root: { _id: "1", Child: [{ _name: "a" }, "text"] } })
+    expect(Reflect.get(document, "compatibility") ?? {}).toEqual({})
+    const pending = [...document.roots]
+    for (const node of pending) {
+      expect(Reflect.get(node, "compatibilityValue")).toBeUndefined()
+      for (const child of node.content) if (child.type === "element") pending.push(child)
+    }
+    expect(xmlExport(document.roots, false)).toBe('<Root id="1">\n\t<Child name="a"/>\n\t<Child>text</Child>\n</Root>')
+  })
+
+  it("строит доказательство структурного фрагмента с тем же порядком, текстом и PI", () => {
+    const node = parseXmlDocumentWithSaxes('<Fragment attr="v">до<A/><?future mode="x" other="y" mode="z"?>после<A>2</A></Fragment>').roots[0]!
+    Object.defineProperty(node, "compatibilityValue", { get() { throw new Error("Старый XML-объект не нужен") } })
+    const value = { Root: { Fragment: node, Tail: "ok" } }
+    expect(normalize(xmlObjectDocument(value).document.roots)).toEqual(
+      normalize(parseXmlDocumentWithSaxes(xmlExport(value, false)).roots),
+    )
+  })
+
   it.each([
     ["атрибуты, текст и пустой элемент", { Root: { _id: "1", Text: "value", Empty: "" } }],
     ["повторные дети", { Root: { Item: [{ "#text": "one" }, { "#text": "two" }] } }],
@@ -14,10 +34,7 @@ describe("xmlObjectDocument", () => {
     ["смешанный текст", { Root: { "#text": "prefix", Child: "value" } }],
   ])("строит то же адресное дерево без строки: %s", (_name, value) => {
     expect(normalize(xmlObjectDocument(value).document.roots)).toEqual(
-      normalize(parseXmlDocumentWithSaxes(xmlExport(value, false), {
-        preserveXsiNil: true,
-        preserveEmptyElements: true,
-      }).roots),
+      normalize(parseXmlDocumentWithSaxes(xmlExport(value, false)).roots),
     )
   })
 

@@ -17,7 +17,7 @@ export interface ChildTemplateNamesPropertyRule extends BasePropertyRule {
   xml: string
   /** Имя папки на диске, например "Макеты" */
   folderName: string
-  forReferenceOnly: true
+  xmlOnly: true
 }
 
 export interface ChildTemplateNamesWidePropertyRule extends WidePropertyRuleBase {

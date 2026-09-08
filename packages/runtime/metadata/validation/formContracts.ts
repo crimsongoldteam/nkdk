@@ -4,6 +4,7 @@ import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
 import type { Diagnostic } from "./types"
 import type { YamlPath } from "./yamlLocations"
 import type { ElementType } from "../ruleRuntime/formElement/types"
+import type { XmlAnomalyAnnotations } from "../../yaml/xmlAnomalyAnnotations"
 
 export interface FormAttributeColumnView {
   readonly name: string
@@ -50,6 +51,7 @@ export interface FormValidationAdapter {
   createElementNameCollector(params: { filePath: string; parsed: ParsedYaml }): FormElementNameCollectorView
   collectStructuredComponents(
     yaml: unknown,
-    owner?: { readonly kind: string; readonly name: string }
+    owner?: { readonly kind: string; readonly name: string },
+    annotations?: XmlAnomalyAnnotations,
   ): readonly FormStructuredComponent[]
 }

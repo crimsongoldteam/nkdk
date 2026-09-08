@@ -10,6 +10,7 @@ import { describe, expect, it, vi } from "vitest"
 import type { ComponentProjectStructure } from "../project/componentState/types"
 import type { ImportAssignment } from "./types"
 import { prepareImportXmlReconstructionProfile } from "./reconstructionProfile"
+import { createImportReconstructionFactsWriter, openImportReconstructionFacts } from "../projectState/binary/reconstructionFacts"
 
 const BASE_CONFIGURATION_UUID = "11111111-1111-4111-8111-111111111111"
 const BASE_CATALOG_UUID = "22222222-2222-4222-8222-222222222222"
@@ -201,7 +202,9 @@ function baseBlocks(): ReadonlyMap<string, ConfigurationIndexBlock> {
 }
 
 function targetIndex(blocks: ReadonlyMap<string, ConfigurationIndexBlock>) {
-  return { getBlocks: vi.fn(() => blocks) }
+  const writer = createImportReconstructionFactsWriter()
+  for (const [targetProjectPath, block] of blocks) writer.append({ targetProjectPath, entities: block.entities })
+  return openImportReconstructionFacts(writer.finish())
 }
 
 function indexStore(

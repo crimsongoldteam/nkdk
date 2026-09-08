@@ -56,6 +56,16 @@ describe("createConfigurationLanguages", () => {
 })
 
 describe("сборщики реестра языков", () => {
+  it("не использует объектное представление XML для чтения языков", async () => {
+    const root = await mkdtemp(join(tmpdir(), "nkdk-language-structural-"))
+    try {
+      await writeXmlConfiguration(root, "Language.Русский", ["Русский"], { Русский: "ru" })
+      expect(await loadConfigurationLanguagesFromXML(root)).toMatchObject({ default: "ru", registered: ["ru"] })
+    } finally {
+      await rm(root, { recursive: true, force: true })
+    }
+  })
+
   it("строят одинаковый реестр из XML и YAML", async () => {
     const root = await mkdtemp(join(tmpdir(), "nkdk-language-registry-"))
     const xmlDir = join(root, "xml")

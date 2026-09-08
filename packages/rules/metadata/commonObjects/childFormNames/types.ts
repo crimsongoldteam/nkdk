@@ -21,7 +21,7 @@ export interface ChildFormNamesPropertyRule extends BasePropertyRule {
   folderName: string
   /** Правило содержимого вложенной формы. */
   itemRule?: MetadataItemRule
-  forReferenceOnly: true
+  xmlOnly: true
 }
 
 export interface ChildFormNamesWidePropertyRule extends WidePropertyRuleBase {

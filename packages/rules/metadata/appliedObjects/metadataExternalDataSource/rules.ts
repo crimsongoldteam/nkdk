@@ -1,9 +1,8 @@
+import { metadataObjectBelongingProperties } from "../../commonObjects/metadataObjectBelongingProperties"
 import { metadataExternalDataSourceFunctionsRule } from "./builders"
 import { childFileItemNamesRule } from "../../commonObjects/childFileItemNames/types"
 import { internalInfoRule } from "../../commonObjects/internalInfo/types"
-import { i8nTextRule } from "../../commonObjects/i8nText/types"
-import { stringRule } from "../../commonObjects/string/types"
-import { uuidRule } from "../../commonObjects/uuid/types"
+import { metadataIdentityProperties } from "../../commonObjects/metadataIdentityProperties"
 import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
 import { V8_MDCLASSES_ROOT } from "../../ruleRuntime/appliedObject/presets"
@@ -39,13 +38,13 @@ export const MetadataExternalDataSourceRules = {
     xmlRoot: xmlRootRule({
       container: "ExternalDataSource",
       rootAttributes: V8_MDCLASSES_ROOT,
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
     }),
     internalInfo: internalInfoRule({
       xmlParents: [],
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
       items: [
@@ -54,27 +53,7 @@ export const MetadataExternalDataSourceRules = {
         { name: "ExternalDataSourceCubesManager", category: "CubesManager" },
       ],
     }),
-    uuid: uuidRule({
-      xml: "_uuid",
-      forReferenceOnly: true,
-      xmlParents: [],
-    }),
-    name: stringRule({
-      xmlParents: properties,
-      required: true,
-    }),
-    synonym: i8nTextRule({
-      yaml: "Синоним",
-      xmlParents: properties,
-      defaultValueXMLRaw: "",
-      excludeIfEqualNameYAML: true,
-    }),
-    comment: stringRule({
-      yaml: "Комментарий",
-      xmlParents: properties,
-      defaultValueXMLRaw: "",
-      defaultValueAdoptedXML: "",
-    }),
+    ...metadataIdentityProperties,
     dataLockControlMode: systemEnumerationRule({
       yaml: "РежимУправленияБлокировкойДанных",
       xml: "DataLockControlMode",
@@ -87,13 +66,13 @@ export const MetadataExternalDataSourceRules = {
       yaml: "Таблицы",
       xml: "Table",
       xmlParents: childObjects,
-      forReferenceOnly: true,
+      xmlOnly: true,
     }),
     cubes: childFileItemNamesRule({
       yaml: "Кубы",
       xml: "Cube",
       xmlParents: childObjects,
-      forReferenceOnly: true,
+      xmlOnly: true,
     }),
     functions: metadataExternalDataSourceFunctionsRule({
       yaml: "Функции",
@@ -109,11 +88,7 @@ export const MetadataExternalDataSourceRules = {
       toYAML: false,
       fromYAML: false,
     }),
-    extendedConfigurationObject: stringRule({
-      xml: "ExtendedConfigurationObject",
-      xmlParents: properties,
-      runtimeOnly: true,
-    }),
+    extendedConfigurationObject: metadataObjectBelongingProperties.extendedConfigurationObject,
   },
   childCollections: [
     {

@@ -1,5 +1,5 @@
-import { SaxesParser, type SaxesStartTagPlain, type SaxesTagPlain, type XMLDecl } from "saxes"
-import type { ImportContentFromXMLOptions } from "./contracts"
+import { SaxesParser, type SaxesStartTagPlain, type SaxesTagPlain } from "saxes"
+import { Buffer } from "node:buffer"
 import type {
   XmlAttributeNode,
   XmlDocument,
@@ -16,7 +16,6 @@ import {
 } from "../structure/hash"
 import { parseXmlProcessingInstructionAttributes } from "../structure/processingInstruction"
 
-const XML_METADATA = Symbol.for("metadata")
 const UNSAFE_NAMES = new Set([
   "__proto__",
   "constructor",
@@ -30,16 +29,9 @@ const UNSAFE_NAMES = new Set([
   "__lookupSetter__",
 ])
 
-type XmlContainer = Record<string, unknown> | Array<Record<string, unknown>>
-
 interface ElementFrame {
   name: string
-  attributes: Record<string, string>
-  text: string
-  children: Record<string, unknown>
   childCounts: Record<string, number>
-  childOrder: Array<{ key: string; index: number }>
-  orderedChildren: Array<Record<string, unknown>> | undefined
   structural: MutableXmlDocument | MutableXmlElementNode
 }
 
@@ -69,23 +61,11 @@ const createFrame = (
   structural: MutableXmlDocument | MutableXmlElementNode
 ): ElementFrame => ({
   name,
-  attributes: {},
-  text: "",
-  children: {},
   childCounts: {},
-  childOrder: [],
-  orderedChildren: name === "ChildItems" ? [] : undefined,
   structural,
 })
 
-export function parseXmlWithSaxes<T>(data: string, options: ImportContentFromXMLOptions = {}): T {
-  return parseXmlDocumentWithSaxes(data, options).compatibility as T
-}
-
-export function parseXmlDocumentWithSaxes(
-  data: string,
-  options: ImportContentFromXMLOptions = {}
-): XmlDocument {
+export function parseXmlDocumentWithSaxes(data: string): XmlDocument {
   const documentStructure: MutableXmlDocument = {
     kind: "document",
     path: "",
@@ -105,20 +85,20 @@ export function parseXmlDocumentWithSaxes(
   }
   const parser = new SaxesParser({ xmlns: false, fragment: !hasXmlDeclaration(data) })
 
-  parser.on("xmldecl", (declaration) => {
-    if (data.startsWith("\uFEFF")) document.text = "\uFEFF"
-    appendDeclaration(document, declaration)
+  parser.on("xmldecl", () => {
     advanceContentBoundary(document, parser.position, true)
   })
   parser.on("opentagstart", (tag: SaxesStartTagPlain) => {
+    const name = ownXmlString(tag.name)
     const parent = requireElementParent(stack, tag.name)
     const occurrence = (parent.childCounts[tag.name] ?? 0) + 1
+    parent.childCounts[tag.name] = occurrence
     const parentPath = parent.structural.path
     stack.push(
-      createFrame(tag.name, {
+      createFrame(name, {
         kind: "element",
         id: allocateNodeId(),
-        name: tag.name,
+        name,
         occurrence,
         path: `${parentPath}/${tag.name}[${occurrence}]`,
         attributes: [],
@@ -131,6 +111,8 @@ export function parseXmlDocumentWithSaxes(
     )
   })
   parser.on("attribute", ({ name, value }) => {
+    name = ownXmlString(name)
+    value = ownXmlString(value)
     const frame = stack.at(-1)
     const structural = frame?.structural
     if (frame === undefined || structural?.kind !== "element") {
@@ -156,7 +138,6 @@ export function parseXmlDocumentWithSaxes(
     ) {
       throw new Error("Несогласованный открывающий XML-тег")
     }
-    frame.attributes = tag.attributes
     frame.structural.nextContentStart = parser.position
   })
   parser.on("text", (text) => {
@@ -188,14 +169,13 @@ export function parseXmlDocumentWithSaxes(
     if (frame !== undefined) advanceContentBoundary(frame, parser.position, true)
   })
   parser.on("processinginstruction", ({ target, body }) => {
-    const attributes: Record<string, string> = {}
-    for (const { name, value } of parseXmlProcessingInstructionAttributes(body)) {
-      attributes[`_${name}`] = value
-    }
+    target = ownXmlString(target)
+    body = ownXmlString(body)
     const parent = stack.at(-1)
     if (parent === undefined) throw new Error("XML PI вне документа")
     const key = `?${target}`
     const occurrence = (parent.childCounts[key] ?? 0) + 1
+    parent.childCounts[key] = occurrence
     const span = {
       start: parent.structural.nextContentStart,
       end: parser.position,
@@ -217,7 +197,6 @@ export function parseXmlDocumentWithSaxes(
         allocateNodeId
       ),
     }
-    appendChild(parent, `?${target}`, attributes)
     parent.structural.content.push(node)
     parent.structural.nextContentStart = span.end
   })
@@ -225,9 +204,7 @@ export function parseXmlDocumentWithSaxes(
     const frame = stack.pop()
     const parent = stack.at(-1)
     if (frame === undefined || parent === undefined) throw new Error("Несогласованный стек XML")
-    const compatibilityValue = finalizeFrame(frame, options)
-    const node = finalizeElement(frame, compatibilityValue, parser.position)
-    appendChild(parent, frame.name, compatibilityValue)
+    const node = finalizeElement(frame, parser.position)
     if (parent.structural.kind === "document") roots.push(node)
     parent.structural.content.push(node)
     parent.structural.nextContentStart = node.span.end
@@ -237,14 +214,9 @@ export function parseXmlDocumentWithSaxes(
   })
   parser.write(data).close()
 
-  const compatibility = finalizeFrame(document, {
-    ...options,
-    preserveEmptyElements: true,
-  }) as Readonly<Record<string, unknown>>
   return {
     content: documentStructure.content,
     roots,
-    compatibility,
     sourceLength: data.length,
   }
 }
@@ -254,27 +226,6 @@ export interface XmlRootStructure {
   readonly name: string
   readonly structuralHash: bigint
   readonly span: XmlSourceSpan
-}
-
-export function parseXmlCompatibilityWithRootStructures(
-  data: string,
-  options: ImportContentFromXMLOptions = {},
-): {
-  readonly compatibility: Readonly<Record<string, unknown>>
-  readonly roots: readonly XmlRootStructure[]
-  readonly sourceLength: number
-} {
-  const document = parseXmlDocumentWithSaxes(data, options)
-  return {
-    compatibility: document.compatibility,
-    roots: document.roots.map(({ path, name, structuralHash, span }) => ({
-      path,
-      name,
-      structuralHash,
-      span,
-    })),
-    sourceLength: document.sourceLength,
-  }
 }
 
 interface RootStructureFrame {
@@ -392,7 +343,7 @@ export function parseXmlRootStructuresWithSaxes(data: string): {
     parent.nextContentStart = parser.position
     if (parent === document) roots.push({
       path: frame.path,
-      name: frame.name,
+      name: ownXmlString(frame.name),
       structuralHash,
       span,
     })
@@ -408,7 +359,7 @@ function appendText(
   span: XmlSourceSpan,
   allocateNodeId: () => number
 ): void {
-  if (frame.structural.kind === "element") frame.text += text
+  text = ownXmlString(text)
   const { content } = frame.structural
   const previous = content.at(-1)
   if (previous?.type === "text" && frame.structural.canMergeText) {
@@ -435,7 +386,6 @@ function appendText(
 
 function finalizeElement(
   frame: ElementFrame,
-  compatibilityValue: unknown,
   end: number
 ): XmlElementNode {
   const structural = frame.structural
@@ -453,76 +403,9 @@ function finalizeElement(
     attributes,
     content,
     span: { start: spanStart, end },
-    compatibilityValue,
   }
   return { ...partial, structuralHash: hashXmlElementStructure(partial) }
 }
-
-function appendDeclaration(document: ElementFrame, declaration: XMLDecl): void {
-  const value: Record<string, string> = {}
-  if (declaration.version !== undefined) value._version = declaration.version
-  if (declaration.encoding !== undefined) value._encoding = declaration.encoding
-  if (declaration.standalone !== undefined) value._standalone = declaration.standalone
-  appendChild(document, "?xml", value)
-}
-
-function appendChild(parent: ElementFrame, name: string, value: unknown): void {
-  const index = parent.childCounts[name] ?? 0
-  parent.childCounts[name] = index + 1
-
-  if (parent.orderedChildren !== undefined) {
-    parent.orderedChildren.push({ [name]: value })
-    return
-  }
-
-  parent.childOrder.push({ key: name, index })
-  if (!Object.prototype.hasOwnProperty.call(parent.children, name)) {
-    parent.children[name] = value
-    return
-  }
-
-  const previous = parent.children[name]
-  if (Array.isArray(previous)) previous.push(value)
-  else parent.children[name] = [previous, value]
-}
-
-function finalizeFrame(frame: ElementFrame, options: ImportContentFromXMLOptions): unknown {
-  const container: XmlContainer = frame.orderedChildren ?? frame.children
-  const properties = containerProperties(container)
-  let assignedAttributesCount = 0
-  for (const [name, attributeValue] of Object.entries(frame.attributes)) {
-    if (name === "xsi:nil" && options.preserveXsiNil !== true) continue
-    properties[`_${name}`] = attributeValue
-    assignedAttributesCount += 1
-  }
-  if (frame.text.length > 0) properties["#text"] = frame.text
-
-  const keys = Object.keys(container)
-  if (
-    !Array.isArray(container) &&
-    assignedAttributesCount === 0 &&
-    keys.length === 1 &&
-    properties["#text"] !== undefined
-  ) {
-    return properties["#text"]
-  }
-  if (
-    keys.length === 0 &&
-    frame.name !== "" &&
-    options.preserveEmptyElements !== true &&
-    !options.preserveEmptyElementNames?.includes(frame.name)
-  ) return undefined
-  if (frame.orderedChildren === undefined && frame.childOrder.length > 0) {
-    Object.defineProperty(container, XML_METADATA, {
-      value: { childOrder: frame.childOrder },
-      enumerable: false,
-    })
-  }
-  return container
-}
-
-const containerProperties = (container: XmlContainer): Record<PropertyKey, unknown> =>
-  container as unknown as Record<PropertyKey, unknown>
 
 function assertSafeName(name: string): void {
   if (UNSAFE_NAMES.has(name)) throw new Error(`Небезопасное имя XML-элемента: ${name}`)
@@ -579,12 +462,18 @@ function createProcessingInstructionAttributes(
     const start = rawBodyStart + parsed.start
     attributes.push({
       id: allocateNodeId(),
-      name: parsed.name,
+      name: ownXmlString(parsed.name),
       occurrence: parsed.occurrence,
       path: `${parentPath}/@${parsed.name}[${parsed.occurrence}]`,
-      value: parsed.value,
+      value: ownXmlString(parsed.value),
       span: { start, end: rawBodyStart + parsed.end },
     })
   }
   return attributes
+}
+
+/** Короткий срез saxes не должен удерживать исходный XML после освобождения дерева. */
+function ownXmlString(value: string): string {
+  // Копируем кодовые единицы без нормализации Unicode и без сохранения буфера.
+  return value.length === 0 ? value : Buffer.from(value, "utf16le").toString("utf16le")
 }

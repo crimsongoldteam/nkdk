@@ -1,5 +1,5 @@
+import { metadataItemLinkRule } from "../metadataPath/types"
 import { metadataValueRule } from "../metadataValue/types"
-import { stringRule } from "../string/types"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 export const CharacteristicsDescriptionRules = {
   itemType: "CharacteristicsDescription",
@@ -18,13 +18,13 @@ export const CharacteristicsDescriptionRules = {
     "characteristicValues",
   ],
   properties: {
-    characteristicTypes: stringRule({
+    characteristicTypes: metadataItemLinkRule({
       yaml: "ВидыХарактеристик",
       xml: "_from",
       xmlParents: ["xr:CharacteristicTypes"],
       metadataTarget: { kind: "dataTable", validation: "translateOnly" },
     }),
-    keyField: stringRule({
+    keyField: metadataItemLinkRule({
       yaml: "ПолеКлюча",
       xml: "xr:KeyField",
       xmlParents: ["xr:CharacteristicTypes"],
@@ -35,7 +35,7 @@ export const CharacteristicsDescriptionRules = {
         validation: "translateOnly",
       },
     }),
-    typesFilterField: stringRule({
+    typesFilterField: metadataItemLinkRule({
       yaml: "ПолеОтбораВидов",
       xml: "xr:TypesFilterField",
       xmlParents: ["xr:CharacteristicTypes"],
@@ -53,7 +53,7 @@ export const CharacteristicsDescriptionRules = {
       valueType: ["string", "ref", "boolean"],
       exportNilValue: true,
     }),
-    dataPathField: stringRule({
+    dataPathField: metadataItemLinkRule({
       yaml: "ПолеПутиКДанным",
       xml: "xr:DataPathField",
       xmlParents: ["xr:CharacteristicTypes"],
@@ -64,7 +64,7 @@ export const CharacteristicsDescriptionRules = {
         validation: "translateOnly",
       },
     }),
-    multipleValuesUseField: stringRule({
+    multipleValuesUseField: metadataItemLinkRule({
       yaml: "ПолеИспользованияМножественныхЗначений",
       xml: "xr:MultipleValuesUseField",
       xmlParents: ["xr:CharacteristicTypes"],
@@ -75,13 +75,13 @@ export const CharacteristicsDescriptionRules = {
         validation: "translateOnly",
       },
     }),
-    characteristicValues: stringRule({
+    characteristicValues: metadataItemLinkRule({
       yaml: "ЗначенияХарактеристик",
       xml: "_from",
       xmlParents: ["xr:CharacteristicValues"],
       metadataTarget: { kind: "dataTable", validation: "translateOnly" },
     }),
-    objectField: stringRule({
+    objectField: metadataItemLinkRule({
       yaml: "ПолеОбъекта",
       xml: "xr:ObjectField",
       xmlParents: ["xr:CharacteristicValues"],
@@ -92,7 +92,7 @@ export const CharacteristicsDescriptionRules = {
         validation: "translateOnly",
       },
     }),
-    typeField: stringRule({
+    typeField: metadataItemLinkRule({
       yaml: "ПолеВида",
       xml: "xr:TypeField",
       xmlParents: ["xr:CharacteristicValues"],
@@ -103,7 +103,7 @@ export const CharacteristicsDescriptionRules = {
         validation: "translateOnly",
       },
     }),
-    valueField: stringRule({
+    valueField: metadataItemLinkRule({
       yaml: "ПолеЗначения",
       xml: "xr:ValueField",
       xmlParents: ["xr:CharacteristicValues"],
@@ -114,7 +114,7 @@ export const CharacteristicsDescriptionRules = {
         validation: "translateOnly",
       },
     }),
-    multipleValuesKeyField: stringRule({
+    multipleValuesKeyField: metadataItemLinkRule({
       yaml: "ПолеКлючаМножественныхЗначений",
       xml: "xr:MultipleValuesKeyField",
       xmlParents: ["xr:CharacteristicValues"],
@@ -125,7 +125,7 @@ export const CharacteristicsDescriptionRules = {
         validation: "translateOnly",
       },
     }),
-    multipleValuesOrderField: stringRule({
+    multipleValuesOrderField: metadataItemLinkRule({
       yaml: "ПолеПорядкаМножественныхЗначений",
       xml: "xr:MultipleValuesOrderField",
       xmlParents: ["xr:CharacteristicValues"],

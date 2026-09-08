@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 import { mockContextFromXML, mockRule } from "../../../tests/mockContext"
 import { importStyleItemValueFromXML } from "./fromXML"
 import { StyleItemValueXML } from "./types"
+import { parseStructuralXMLWithoutCompatibility, xmlElementFromTestValue } from "../../../tests/structuralXML"
 
 const fontXML: StyleItemValueXML = {
   "_xsi:type": "v8ui:Font",
@@ -30,6 +31,15 @@ const borderXML: StyleItemValueXML = {
 }
 
 describe("importStyleItemValueFromXML", () => {
+  it.each([
+    ["<Value/>", undefined],
+    ['<Value xsi:type="v8ui:Font" faceName="Arial" height="12"/>', { type: "Font", value: { faceName: "Arial", height: 12 } }],
+    ['<Value xsi:type="v8ui:Color">#8A31E2</Value>', { type: "Color", value: { type: "Absolute", value: "#8A31E2" } }],
+    ['<Value xsi:type="v8ui:Border" width="5"><v8ui:style>Overline</v8ui:style></Value>', { type: "Border", value: { width: 5, controlBorderType: "Overline" } }],
+  ])("dispatches structural style values: %s", (xml, expected) => {
+    expect(importStyleItemValueFromXML(mockContextFromXML(), mockRule, parseStructuralXMLWithoutCompatibility(xml))).toEqual(expected)
+  })
+
   it("should return undefined for undefined input", () => {
     const result = importStyleItemValueFromXML(mockContextFromXML(), mockRule, undefined)
 
@@ -37,7 +47,7 @@ describe("importStyleItemValueFromXML", () => {
   })
 
   it("should import font style item value from XML", () => {
-    const result = importStyleItemValueFromXML(mockContextFromXML(), mockRule, fontXML)
+    const result = importStyleItemValueFromXML(mockContextFromXML(), mockRule, xmlElementFromTestValue("Value", fontXML))
 
     expect(result).toEqual({
       type: "Font",
@@ -55,7 +65,7 @@ describe("importStyleItemValueFromXML", () => {
   })
 
   it("should import color style item value from XML", () => {
-    const result = importStyleItemValueFromXML(mockContextFromXML(), mockRule, colorXML)
+    const result = importStyleItemValueFromXML(mockContextFromXML(), mockRule, xmlElementFromTestValue("Value", colorXML))
 
     expect(result).toEqual({
       type: "Color",
@@ -64,7 +74,7 @@ describe("importStyleItemValueFromXML", () => {
   })
 
   it("should import border style item value from XML", () => {
-    const result = importStyleItemValueFromXML(mockContextFromXML(), mockRule, borderXML)
+    const result = importStyleItemValueFromXML(mockContextFromXML(), mockRule, xmlElementFromTestValue("Value", borderXML))
 
     expect(result).toEqual({
       type: "Border",

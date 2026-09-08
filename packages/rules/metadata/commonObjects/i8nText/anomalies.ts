@@ -17,14 +17,19 @@ export function importLocalizedItems(params: {
   context: ConfigurationContext
   items: readonly I8nTextLanguageXML[]
 }): Record<string, string> {
-  const { items } = params
+  return importLocalizedOccurrences((function* () {
+    for (const item of params.items) {
+      yield { language: localizedLanguage(item), content: localizedContent(item) }
+    }
+  })())
+}
+
+export function importLocalizedOccurrences(items: Iterable<LocalizedItemOccurrence>): Record<string, string> {
   const result: Record<string, string> = {}
   const seen = new Set<string>()
   const occurrences: LocalizedItemOccurrence[] = []
 
-  for (const item of items) {
-    const language = localizedLanguage(item)
-    const content = localizedContent(item)
+  for (const { language, content } of items) {
     occurrences.push({ language, content })
     if (seen.has(language)) continue
     setLocalizedValue(result, language, content)

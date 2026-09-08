@@ -1,6 +1,7 @@
 import { getTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
 import type { MetadataItemRule, PropertyRule } from "../ruleRuntime/property/types"
 import type { YamlPath } from "./yamlLocations"
+import type { XmlAnomalyAnnotations } from "@nkdk/runtime"
 
 export interface MetadataRuleYamlObject<State> {
   readonly yaml: unknown
@@ -29,12 +30,15 @@ interface MetadataRuleYamlCallbacks<State> {
   readonly onExternalFile?: (external: MetadataRuleYamlExternalFile<State>) => void
 }
 
-interface MetadataRuleYamlContext<State> extends MetadataRuleYamlObject<State>, MetadataRuleYamlCallbacks<State> {}
+interface MetadataRuleYamlContext<State> extends MetadataRuleYamlObject<State>, MetadataRuleYamlCallbacks<State> {
+  readonly annotations?: XmlAnomalyAnnotations
+}
 
 export function traverseMetadataRuleYaml<State>(params: {
   readonly yaml: unknown
   readonly rule: MetadataItemRule
   readonly initialState: State
+  readonly annotations?: XmlAnomalyAnnotations
 } & MetadataRuleYamlCallbacks<State>): void {
   visitObject({ ...params, yamlPath: [], state: params.initialState })
 }
@@ -95,6 +99,7 @@ function visitNested<State>(params: MetadataRuleYamlContext<State> & {
   const fallbackRule = nested.itemRuleFromProperty?.(params.propertyRule) ?? nested.itemRule
   if (Array.isArray(params.yaml)) {
     params.yaml.forEach((item, index) => {
+      if (asRecord(item) === undefined) return
       const rule = nested.resolveItemRule?.({
         yaml: item,
         name: undefined,
@@ -118,9 +123,11 @@ function visitNested<State>(params: MetadataRuleYamlContext<State> & {
   if (record === undefined) return
   let index = 0
   for (const [yamlKey, item] of Object.entries(record)) {
-    const itemName = nested.nameFromYAMLKeyForProperty?.({ yamlKey, propertyRule: params.propertyRule })
-      ?? nested.nameFromYAMLKey?.(yamlKey)
-      ?? yamlKey
+    if (asRecord(item) === undefined) { index += 1; continue }
+    const logicalKey = params.annotations?.keyAt(record, yamlKey)?.logicalKey ?? yamlKey
+    const itemName = nested.nameFromYAMLKeyForProperty?.({ yamlKey: logicalKey, propertyRule: params.propertyRule })
+      ?? nested.nameFromYAMLKey?.(logicalKey)
+      ?? logicalKey
     const rule = nested.resolveItemRule?.({
       yaml: item,
       name: itemName,

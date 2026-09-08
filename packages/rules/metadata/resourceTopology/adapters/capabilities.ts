@@ -60,7 +60,7 @@ export interface MetadataXmlPrepareCapability {
     readonly outputs: readonly MetadataXmlPrepareOutput[]
     readonly index: LocalConfigurationIndexReader
     readonly composition: MetadataXmlPrepareComposition
-    readonly profile: YAMLToXMLProfile
+    readonly profile?: YAMLToXMLProfile
   }) => readonly PreparedMetadataXmlDocument[]
 }
 

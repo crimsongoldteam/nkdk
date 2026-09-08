@@ -18,6 +18,7 @@ import type { Table, TablePartialYAML } from "../../elements/table/types"
 import { exportElementToJSONSchema } from "../../../ruleRuntime/formElement/toJSONSchema"
 import { importSingleFormElementFromXMLToYAML } from "../../elements/ruleRuntime/fromXMLToYAML"
 import { createSingletonElementYAMLToXMLNestedRule } from "../../elements/ruleRuntime/ruleFactory"
+import { createSingletonElementOutputPreparation } from "@nkdk/runtime/rule-kit"
 import {
   type SingletonNameStyle,
 } from "../../../ruleRuntime/formElement/singletonName"
@@ -37,21 +38,18 @@ const GanttChartFieldTableRules = {
       ...TableRules.properties.searchControl,
       toXML: (source: YAMLPropertySource, context?: ConfigurationContextWithExportToXML) =>
         source.has("searchControl") || hasSingletonIdentity(context, "УправлениеПоиском"),
-      preserveUnknownReferenceXML: false,
       evaluateWhenYAMLMissing: true,
     },
     searchStringRepresentation: {
       ...TableRules.properties.searchStringRepresentation,
       toXML: (source: YAMLPropertySource, context?: ConfigurationContextWithExportToXML) =>
         source.has("searchStringRepresentation") || hasSingletonIdentity(context, "СтрокаПоиска"),
-      preserveUnknownReferenceXML: false,
       evaluateWhenYAMLMissing: true,
     },
     viewStatusRepresentation: {
       ...TableRules.properties.viewStatusRepresentation,
       toXML: (source: YAMLPropertySource, context?: ConfigurationContextWithExportToXML) =>
         source.has("viewStatusRepresentation") || hasSingletonIdentity(context, "СостояниеПросмотра"),
-      preserveUnknownReferenceXML: false,
       evaluateWhenYAMLMissing: true,
     },
   },
@@ -121,6 +119,9 @@ export const metadataPropertyRule003 = definePropertyTypeRule(
   })
 )
 export const metadataPropertyRule004 = definePropertyTypeRule("GanttChartFieldTable", "exportToJSONSchema", exportGanttChartFieldTableToJSONSchema)
+export const metadataPropertyRule005 = definePropertyTypeRule(
+  "GanttChartFieldTable", "prepareXMLItemOutput", createSingletonElementOutputPreparation(),
+)
 
 export interface GanttChartFieldTableWidePropertyRule extends WidePropertyRuleBase {
   type: "GanttChartFieldTable"

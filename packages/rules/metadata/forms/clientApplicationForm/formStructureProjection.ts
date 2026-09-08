@@ -1,9 +1,10 @@
 import type { ProjectStateStructuredDocumentEntry } from "../../projectState/fileUpdate"
 import type { FormStructuredComponent } from "../../validation/formContracts"
-import { indexClientApplicationFormComponents } from "./formComponentIndex"
+import { indexClientApplicationFormComponents, type ClientApplicationFormComponentIndex } from "./formComponentIndex"
 import { collectClientApplicationFormDataPathPreparation } from "./formDataPathContext"
 import { serializeClientApplicationFormSemanticPayload } from "./formSemanticPayload"
 import type { ClientApplicationFormYAML } from "./types"
+import type { XmlAnomalyAnnotations } from "@nkdk/runtime"
 
 export interface FormElementDataPathPayloadV1 {
   readonly version: 1
@@ -21,9 +22,30 @@ export interface FormDataPathPayloadV1 {
 
 export function collectClientApplicationFormStructure(
   yaml: unknown,
-  owner?: { readonly kind: string; readonly name: string }
+  owner?: { readonly kind: string; readonly name: string },
+  annotations?: XmlAnomalyAnnotations,
 ): readonly FormStructuredComponent[] {
   const index = indexClientApplicationFormComponents(yaml)
+  const preparation = collectClientApplicationFormDataPathPreparation({
+    yaml: yaml as ClientApplicationFormYAML,
+  })
+  return projectPreparedClientApplicationFormStructure({ yaml, index,
+    elementsByName: preparation.collected.elementsByName, occurrences: preparation.collected.occurrences,
+    owner, annotations,
+  })
+}
+
+export function projectPreparedClientApplicationFormStructure(params: {
+  readonly yaml: unknown
+  readonly index: ClientApplicationFormComponentIndex
+  readonly elementsByName: ReadonlyMap<string, {
+    readonly present: boolean; readonly value: unknown; readonly tableOwnerName?: string
+  }>
+  readonly occurrences: readonly { readonly yamlPath: readonly (string | number)[]; readonly value: string }[]
+  readonly owner?: { readonly kind: string; readonly name: string }
+  readonly annotations?: XmlAnomalyAnnotations
+}): readonly FormStructuredComponent[] {
+  const { yaml, index, owner, annotations } = params
   const components = ([
     ["element", index.elements],
     ["attribute", index.attributes],
@@ -36,10 +58,7 @@ export function collectClientApplicationFormStructure(
       yamlPath: path.split("."),
     }))
   )
-  const preparation = collectClientApplicationFormDataPathPreparation({
-    yaml: yaml as ClientApplicationFormYAML,
-  })
-  const elements = new Map(preparation.collected.elementsByName)
+  const elements = params.elementsByName
   const withPayload = components.map((component) => {
     if (component.componentKind !== "element") return component
     const element = elements.get(component.name)
@@ -58,25 +77,44 @@ export function collectClientApplicationFormStructure(
     }
     return { ...component, payload: JSON.stringify(payload) }
   })
-  const dataPaths = preparation.collected.occurrences.map((occurrence) => {
-    const payload: FormDataPathPayloadV1 = {
-      version: 1,
-      mode: "explicit",
-      ...(owner === undefined ? {} : { owner }),
-    }
-    return {
-      componentKind: "dataPath",
-      name: occurrence.value,
-      yamlPath: occurrence.yamlPath,
-      payload: JSON.stringify(payload),
-    }
-  })
+  const dataPaths = params.occurrences
+    .filter((occurrence) => !hasInvalidAnnotation(yaml, occurrence.yamlPath, annotations))
+    .map((occurrence) => {
+      const payload: FormDataPathPayloadV1 = {
+        version: 1,
+        mode: "explicit",
+        ...(owner === undefined ? {} : { owner }),
+      }
+      return {
+        componentKind: "dataPath",
+        name: occurrence.value,
+        yamlPath: occurrence.yamlPath,
+        payload: JSON.stringify(payload),
+      }
+    })
   return [{
     componentKind: "document",
     name: "",
     yamlPath: [],
     payload: serializeClientApplicationFormSemanticPayload(yaml),
   }, ...withPayload, ...dataPaths, ...mainAttributeComponents(yaml)]
+}
+
+function hasInvalidAnnotation(
+  root: unknown,
+  path: readonly (string | number)[],
+  annotations: XmlAnomalyAnnotations | undefined,
+): boolean {
+  if (annotations === undefined || path.length === 0) return false
+  let parent = root
+  for (const segment of path.slice(0, -1)) {
+    if (parent === null || typeof parent !== "object") return false
+    parent = (parent as Record<string | number, unknown>)[segment]
+  }
+  if (parent === null || typeof parent !== "object") return false
+  const annotation = annotations.at(parent, path.at(-1)!)
+  return annotation?.kind === "invalid"
+    || (annotation?.kind === "raw" && annotation.semantic?.kind === "invalid")
 }
 
 function mainAttributeComponents(yaml: unknown): FormStructuredComponent[] {

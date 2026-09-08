@@ -19,8 +19,6 @@ export const prepareFormXML = (params: {
   preparedYamlFile: PreparedYamlFile
   formName: string
   currentXMLPath?: string
-  referenceFormXML?: ClientApplicationFormXML
-  referenceMetadataXML?: FormMetadataXML
   xmlManifest?: XmlWriteManifest
   profile?: import("../../ruleRuntime/property/fromYAMLToXMLTypes").YAMLToXMLProfile
   baseFormPreparedYamlFile?: PreparedYamlFile
@@ -49,16 +47,12 @@ export const prepareFormXML = (params: {
     context: contextWithFormDir,
     formName: params.formName,
   })
-  const xmlIdSession = createFormXmlIdAssignmentSession({
-    references: [params.referenceFormXML],
-  })
+  const xmlIdSession = createFormXmlIdAssignmentSession()
   const converted = convertClientApplicationFormFromYAMLToXML({
     context: contextWithFormExternalMetadata,
     yaml: yamlObj,
     annotations: params.preparedYamlFile.annotations,
     name: params.formName,
-    referenceFormXML: params.referenceFormXML,
-    referenceMetadataXML: params.referenceMetadataXML,
     xmlIdSession,
     ...(params.currentConfigurationFormPreparedYamlFile === undefined
       ? {}
@@ -87,7 +81,6 @@ export const prepareFormXML = (params: {
                 }
               : {}),
             formName: params.formName,
-            referenceFormXML: params.referenceFormXML?.BaseForm as ClientApplicationFormXML | undefined,
             rule,
             xmlIdSession,
           }),
@@ -149,8 +142,6 @@ export const writePreparedFormToXML = async (params: {
   formName: string
   outputDir: string
   currentXMLPath?: string
-  referenceFormXML?: ClientApplicationFormXML
-  referenceMetadataXML?: FormMetadataXML
   xmlManifest?: XmlWriteManifest
   profile?: import("../../ruleRuntime/property/fromYAMLToXMLTypes").YAMLToXMLProfile
   rule?: MetadataItemRule
@@ -219,9 +210,7 @@ const createFormScopedContext = (params: {
       ...context.exportToXML,
       context: {
         ...exportContext,
-        metadataForNumbering: [],
         currentXMLPath: currentXMLPath ?? exportContext.currentXMLPath,
-        propertiesItemXmlStack: [],
       },
     },
   }

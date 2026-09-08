@@ -1,6 +1,9 @@
 import {
-parseWithJsYaml
+parseWithJsYaml,
+parseMetadataYaml,
+type XmlAnomalyAnnotations,
 } from "@nkdk/runtime"
+import * as compiledRules from "@nkdk/runtime/rule-kit"
 import {
 configurationIndexStoreDescriptor,
 openConfigurationIndexStore,
@@ -9,16 +12,31 @@ import fs from "node:fs"
 import os from "node:os"
 import { dirname,join } from "node:path"
 import { fileURLToPath } from "node:url"
-import { afterAll,beforeAll,describe,expect,it } from "vitest"
+import { afterAll,beforeAll,describe,expect,it,vi } from "vitest"
 import { mockContextFromXML } from "../../tests/mockContext"
 import "../../tests/metadataExecutionContext"
 import { createPreparedYamlWorkerThreadPoolFactory } from "../../tests/preparedYamlWorkerTestPool"
 import {
 createImportProjectStateTestService,
 createXmlImportWorkerTestPool,
+createInspectableXmlImportWorkerTestPool,
 } from "../../tests/xmlImportWorkerTestPool"
 import { createPreparedYamlProjectWorkerPool } from "../project/preparedYamlProjectWorkerPool"
 import { importConfigurationFromXml } from "./importConfiguration"
+import { withoutUnsupportedConfigurationExtensionPropertyStates } from "./configurationExtensionFixtureSupport"
+import * as formProofContexts from "../forms/clientApplicationForm/convertYAMLToXML"
+import * as formDataPathContexts from "../forms/clientApplicationForm/formDataPathContext"
+import * as boundaryReferences from "./boundaryReferences"
+import * as serializedValidation from "./serializedYamlValidation"
+import { projectStateFormEntries } from "../projectState/fileUpdate"
+import { observeFinalImportYamlFacts } from "../../tests/finalImportValidationProbe"
+import type { ProjectStateStructuredDocumentEntry } from "../projectState/fileUpdate"
+import type { PendingMetadataTargetReference } from "../validation/projectReferenceIndex"
+import type { ValidationPendingCheck } from "../validation/projectValidationPendingChecks"
+import { projectStatePendingCheck } from "../projectState/fileUpdate"
+import { ProjectStateSnapshotView } from "../projectState/binary/snapshot"
+import { createTypedProjectStateReader } from "../projectState/binary/typedReader"
+import { buildProjectStateYamlFileUpdate } from "../project/projectStateYamlUpdate"
 
 const fixtureDir = join(dirname(fileURLToPath(import.meta.url)), "__fixtures__", "configurationExtension")
 const ownExchangePlanFixtureDir = join(
@@ -35,9 +53,11 @@ const commonFormFixtureDir = join(
 )
 const languageFixtureDir = join(import.meta.dirname, "../appliedObjects/metadataLanguage/__fixtures__")
 const borrowedCommandBarButtonName = "ОбщаяПанельнаяКнопка"
+const baseFormUuid = "4e9b2646-e73a-4c98-ad43-19ac74b24770"
 const temporaryRoot = fs.mkdtempSync(join(os.tmpdir(), "nkdk-extension-import-"))
 let temporaryDirectoryIndex = 0
 const xmlImportWorkerPoolHandle = createXmlImportWorkerTestPool()
+const multipleWorkers = createInspectableXmlImportWorkerTestPool(3)
 const preparedYamlWorkerFactory = createPreparedYamlWorkerThreadPoolFactory()
 const projectState = createImportProjectStateTestService({
   createPool: (concurrency) => createPreparedYamlProjectWorkerPool({
@@ -46,18 +66,170 @@ const projectState = createImportProjectStateTestService({
   }),
 })
 let importedExtension: Awaited<ReturnType<typeof importExtension>>
+let multipleWorkerExtension: Awaited<ReturnType<typeof importExtension>>
+let singleWorkerYaml: Record<string, string>
+let multipleWorkerYaml: Record<string, string>
+let rebuiltFormProofContexts = 0
+let preparedFormProofContexts = 0
+let reusedCurrentFormContext = false
+let importedReferenceModes: { canonical: string; mode: string | undefined }[] = []
+let ownChildHasPropertyState: boolean[] = []
+const referenceComparisons: { expected: readonly PendingMetadataTargetReference[]; actual: readonly PendingMetadataTargetReference[] }[] = []
+const checkComparisons: { expected: readonly ValidationPendingCheck[]; actual: readonly ValidationPendingCheck[] }[] = []
 
 afterAll(async () => {
   await Promise.all([
     xmlImportWorkerPoolHandle.close(),
+    multipleWorkers.handle.close(),
     projectState.close(),
   ])
   await fs.promises.rm(temporaryRoot, { recursive: true, force: true })
 })
 
 describe("configuration extension XML import", () => {
+  it("сохраняет окончательные проверки расширения без повторного сбора по YAML", () => {
+    expect(checkComparisons.length).toBeGreaterThan(0)
+    const values = (checks: readonly ValidationPendingCheck[]) => checks.map(projectStatePendingCheck)
+      .sort((left, right) => JSON.stringify(left.yamlPath).localeCompare(JSON.stringify(right.yamlPath)))
+    for (const { expected, actual } of checkComparisons) expect(values(actual)).toEqual(values(expected))
+  })
   beforeAll(async () => {
-    importedExtension = await importExtension()
+    const serialized = vi.spyOn(serializedValidation, "validateSerializedProjectYaml")
+    const compile = compiledRules.createCompiledRuleExecution
+    const annotationByYaml = new WeakMap<object, XmlAnomalyAnnotations>()
+    let annotatedBeforeExport = 0
+    const proof = vi.spyOn(compiledRules, "createCompiledRuleExecution").mockImplementation(params => compile({
+      ...params,
+      prepare(item) {
+        const prepared = params.prepare(item)
+        if (prepared.annotations !== undefined) annotationByYaml.set(item.yaml, prepared.annotations)
+        return prepared
+      },
+      beforeFinish(item) {
+        params.beforeFinish?.(item)
+        if (item.yaml.ПутьКДанным !== "НеОбъявленное.Поле") return
+        expect(item.yamlPath.length).toBeGreaterThan(0)
+        expect(annotationByYaml.get(item.yaml)?.at(item.yaml, "ПутьКДанным")?.kind).toBe("invalid")
+        annotatedBeforeExport++
+      },
+    }))
+    const rebuild = vi.spyOn(formProofContexts, "prepareClientApplicationFormProofContexts")
+    const prepared = vi.spyOn(formProofContexts, "prepareClientApplicationFormProofContextsFromPrepared")
+    const paths = vi.spyOn(formDataPathContexts, "prepareFormDataPathContext")
+    const references = vi.spyOn(boundaryReferences, "collectBoundaryReferenceFacts")
+    const metadataDocumentsByFile = new Map<string, readonly ProjectStateStructuredDocumentEntry[]>()
+    const observation = observeFinalImportYamlFacts(({ params: validationParams, expected: finalExpected, update }) => {
+        if (validationParams.isolated === true) {
+          const file = validationParams.file
+          expect(update).toEqual(buildProjectStateYamlFileUpdate({
+            projectDir: validationParams.projectDir, firstPass: finalExpected,
+            descriptor: { componentPath: file.componentPath, componentDir: file.componentDir,
+              rootProjectPath: file.rootProjectPath, projectPath: file.projectPath, role: file.kind, indexContribution: "isolated" },
+          }))
+        }
+        const actual = validationParams.facts
+        if (validationParams!.file.kind !== "form") expect(finalExpected.dependencies).toEqual([])
+        const { ref: _ref, filePath: _filePath, fieldIndex: _fieldIndex, ...ownerValues } = finalExpected.objectRecords[0]?.ownerFacts ?? {}
+        expect(actual.ownerFacts ?? {}).toEqual(ownerValues)
+        if (validationParams!.file.kind !== "form") {
+          metadataDocumentsByFile.set(validationParams!.file.rootProjectPath, finalExpected.structuredDocuments ?? [])
+        }
+        const components = (values: typeof finalExpected.structuredComponents) => [...(values ?? [])]
+          .sort((a, b) => JSON.stringify([a.componentKind, a.name, a.yamlPath]).localeCompare(JSON.stringify([b.componentKind, b.name, b.yamlPath])))
+        expect(components(actual.structuredComponents)).toEqual(components(finalExpected.structuredComponents))
+        expect(actual.localizedTextProperties > 0).toBe(finalExpected.validationContextDependencies !== undefined)
+        expect(projectStateFormEntries(actual.formIndex === undefined ? undefined : {
+          owner: { kind: validationParams!.file.owner.dir, name: validationParams!.file.owner.name }, index: actual.formIndex,
+        })).toEqual(projectStateFormEntries(finalExpected.form))
+        const objects = (entries: typeof finalExpected.objectIndexEntries) => [...entries].sort((a, b) => a.canonical.localeCompare(b.canonical))
+        expect(objects(actual.objectIndexEntries)).toEqual(objects(finalExpected.objectIndexEntries))
+        const addresses = (entries: typeof finalExpected.logicalAddresses) => [...(entries ?? [])].sort((a, b) => a.logicalAddress.localeCompare(b.logicalAddress))
+        expect(addresses(actual.logicalAddresses)).toEqual(addresses(finalExpected.logicalAddresses))
+        const expectedChecks = finalExpected.state.kind === "form" || finalExpected.state.kind === "properties"
+          ? finalExpected.state.pendingChecks : []
+        referenceComparisons.push({ expected: finalExpected.pendingReferences, actual: actual.references })
+        checkComparisons.push({ expected: expectedChecks, actual: actual.checks })
+    })
+    try {
+      importedExtension = await importExtension()
+      expect(serialized).not.toHaveBeenCalled()
+      expect(annotatedBeforeExport).toBeGreaterThan(0)
+      const snapshot = new ProjectStateSnapshotView((await projectState.createReadToken(importedExtension.projectDir)).buffers)
+      const reader = createTypedProjectStateReader(snapshot)
+      expect([...metadataDocumentsByFile.keys()].some(path => path.startsWith("cf/"))).toBe(true)
+      expect([...metadataDocumentsByFile.keys()].some(path => path.startsWith("cfe/"))).toBe(true)
+      for (const [path, documents] of metadataDocumentsByFile) {
+        const fileId = snapshot.findFile(path)
+        expect(fileId, path).toBeDefined()
+        const ordered = (values: typeof documents) => [...values].sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)))
+        expect(ordered(reader.structuredDocuments(fileId!)), path).toEqual(ordered(documents))
+      }
+      importedReferenceModes = references.mock.results.flatMap(result => result.type === "return"
+        ? result.value.references.map(reference => ({ canonical: reference.canonical, mode: reference.propertyStateMode })) : [])
+      ownChildHasPropertyState = references.mock.calls.filter(([input]) => input.name === "СобственныйРеквизит")
+        .map(([input]) => input.propertyStateCapability !== undefined)
+      rebuiltFormProofContexts = rebuild.mock.calls.filter(([, params]) => params?.yaml !== undefined).length
+      preparedFormProofContexts = prepared.mock.calls.filter(([, context]) => context !== undefined).length
+      const seen = new Set<object>()
+      reusedCurrentFormContext = paths.mock.calls.some(([{ currentConfigurationForm }]) => {
+        if (currentConfigurationForm === undefined) return false
+        if (seen.has(currentConfigurationForm)) return true
+        seen.add(currentConfigurationForm)
+        return false
+      })
+    } finally {
+      serialized.mockRestore()
+      proof.mockRestore()
+      rebuild.mockRestore()
+      prepared.mockRestore()
+      paths.mockRestore()
+      references.mockRestore()
+      observation.restore()
+    }
+    multipleWorkerExtension = await importExtension(multipleWorkers.handle, 3)
+    const yamlFiles = (imported: typeof importedExtension) => Object.fromEntries(imported.snapshot.hashes
+      .filter(({ projectPath }) => projectPath.endsWith(".yaml"))
+      .map(({ projectPath }) => [projectPath, readText(join(imported.projectDir, imported.result.componentPath!), projectPath)]))
+    singleWorkerYaml = yamlFiles(importedExtension)
+    multipleWorkerYaml = yamlFiles(multipleWorkerExtension)
+  })
+
+  it("передаёт режимы заимствованных ссылок непосредственно из локального импорта", () => {
+    expect(importedReferenceModes).toContainEqual({
+      canonical: "Catalog.СправочникПолный.Form.ФормаОтчета", mode: "extend",
+    })
+    expect(ownChildHasPropertyState).toEqual([false])
+  })
+
+  it("сохраняет полный список ссылок по сравнению с независимым обходом", () => {
+    const normalized = (references: readonly PendingMetadataTargetReference[]) => references.map(reference => ({
+      canonical: reference.canonical, yamlPath: reference.yamlPath,
+    })).sort((left, right) => JSON.stringify(left).localeCompare(JSON.stringify(right)))
+    expect(referenceComparisons.length).toBeGreaterThan(0)
+    const additions: ReturnType<typeof normalized> = []
+    for (const { expected, actual } of referenceComparisons) {
+      const previous = normalized(expected)
+      const next = normalized(actual)
+      expect(next).toEqual(expect.arrayContaining(previous))
+      additions.push(...next.filter(value => !previous.some(entry => JSON.stringify(entry) === JSON.stringify(value))))
+    }
+    expect(additions).toEqual([{ canonical: "Catalog.ПроектныеЗадачи", yamlPath: ["Состав", 0, "Метаданные"] }])
+  })
+
+  it("сохраняет YAML и диагностику формы с основой при одном и трёх владельцах заданий", () => {
+    expect(multipleWorkerYaml).toEqual(singleWorkerYaml)
+    expect(multipleWorkerExtension.result.failed).toEqual([])
+    expect(multipleWorkerExtension.result.warnings).toEqual(importedExtension.result.warnings)
+    expect(multipleWorkerExtension.result.succeeded).toBe(importedExtension.result.succeeded)
+    const assigned = [0, 1, 2].map(index => multipleWorkers.commands(index)
+      .flatMap(command => command.kind === "firstPassBatch" ? command.assignments : []))
+    expect(assigned.filter(assignments => assignments.length > 0)).toHaveLength(3)
+  })
+
+  it("использует готовый контекст путей для сверки формы и основы, не восстанавливая его через YAML", () => {
+    expect(preparedFormProofContexts).toBeGreaterThan(0)
+    expect(rebuiltFormProofContexts).toBe(0)
+    expect(reusedCurrentFormContext).toBe(true)
   })
 
   it("сохраняет структуру расширения и локализует импортированные аномалии", () => {
@@ -125,12 +297,13 @@ describe("configuration extension XML import", () => {
     expect((formWithoutBase as { Элементы: Record<string, { ПутьКДанным?: unknown }> }).Элементы.СобственноеПоле)
       .toMatchObject({ ПутьКДанным: "БазовыйОбъект.СобственноеПоле" })
     expect(formWithoutBaseText)
-      .toContain("ПутьКДанным: !xml/invalid БазовыйОбъект.СобственноеПоле")
+      .toMatch(/ПутьКДанным: !xml\/raw\n\s+\$значение: !xml\/invalid БазовыйОбъект\.СобственноеПоле\n\s+\$xml: null/u)
     expect(formWithoutBaseText)
-      .toContain("ПутьКДанным: !xml/invalid БазовыйОбъект.Код")
+      .toMatch(/ПутьКДанным: !xml\/raw\n\s+\$значение: !xml\/invalid БазовыйОбъект\.Код\n\s+\$xml: null/u)
     expect(formWithoutBaseText)
-      .toContain("ПутьКДанным: !xml/invalid БазовыйОбъект.НеизвестнаяТаблица.Колонка")
-    expect(formWithoutBaseText).not.toContain("!xml/raw")
+      .toMatch(/ПутьКДанным: !xml\/raw\n\s+\$значение: !xml\/invalid БазовыйОбъект\.НеизвестнаяТаблица\.Колонка\n\s+\$xml: null/u)
+    expect(formWithoutBaseText).toContain('"@Form\\\\UnknownProperty": !xml/raw')
+    expect(formWithoutBaseText).toContain("Form\\Properties\\UnknownProperty: !xml/raw")
     expect((formWithoutBase as { Элементы: Record<string, { ПутьКДанным?: unknown }> }).Элементы.Код)
       .toMatchObject({ ПутьКДанным: "БазовыйОбъект.Код" })
     expect(fs.existsSync(join(
@@ -163,14 +336,23 @@ describe("configuration extension XML import", () => {
       projectDir,
       "cfe/РасширениеКонтроль/ОбщаяФорма/ОбщаяРавнаяОснова/БазоваяФорма.yaml",
     ))).toBe(false)
+    expect(readText(
+      projectDir,
+      "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Формы/ФормаРавнаяОснова/Форма.yaml",
+    )).toEqual(expect.stringContaining('"@Form\\\\BaseForm\\\\Future": !xml/raw'))
+    expect(readText(
+      projectDir,
+      "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Формы/ФормаРавнаяОснова/Форма.yaml",
+    )).toContain('"@Form\\\\BaseForm\\\\AutoCommandBar\\\\FutureNested": !xml/raw')
   })
 
   it("помечает путь элемента только из исторической основы", () => {
     const { historicalFormText, historicalBaseFormText } = importedExtension
 
     expect(historicalFormText)
-      .toContain("ПутьКДанным: !xml/invalid БазовыйОбъект.ИсторическоеПоле")
-    expect(historicalFormText).not.toContain("!xml/raw")
+      .toMatch(/ПутьКДанным: !xml\/raw\n\s+\$значение: !xml\/invalid БазовыйОбъект\.ИсторическоеПоле\n\s+\$xml: null/u)
+    expect(historicalFormText).toContain('"@Form\\\\UnknownProperty": !xml/raw')
+    expect(historicalFormText).not.toContain('"@Form\\\\BaseForm')
     expect(historicalBaseFormText).toContain("ИсторическоеПоле:")
   })
 
@@ -181,13 +363,22 @@ describe("configuration extension XML import", () => {
     expect(exchangePlan).toMatchObject({
       Состав: [{ Метаданные: "Справочник.ПроектныеЗадачи", Авторегистрация: "Запретить" }],
     })
+    const parsed = parseMetadataYaml(readText(importedExtension.projectDir,
+      "cfe/РасширениеКонтроль/ПланОбмена/дкз_ОбменТипы/Свойства.yaml"))
+    expect(parsed.annotations.at(parsed.data as object, "@")?.xml).toEqual({
+      "_xmlns:app": null, "_xmlns:cfg": null, "_xmlns:cmi": null,
+      "_xmlns:ent": null, "_xmlns:lf": null, "_xmlns:style": null,
+      "_xmlns:sys": null, "_xmlns:v8ui": null, "_xmlns:web": null,
+      "_xmlns:win": null, "_xmlns:xen": null, "_xmlns:xpr": null,
+    })
+    expect(parsed.annotations.at(parsed.data as object, "@\\#attributes")).toBeUndefined()
   })
 
 })
 
-async function importExtension() {
+async function importExtension(pool = xmlImportWorkerPoolHandle, concurrency = 1) {
   const projectDir = temporaryDirectory()
-  await importBaseConfiguration(projectDir)
+  await importBaseConfiguration(projectDir, pool, concurrency)
   const inputDir = temporaryDirectory()
   fs.cpSync(fixtureDir, inputDir, { recursive: true })
   fs.cpSync(
@@ -203,10 +394,21 @@ async function importExtension() {
     removeUnknownPropertyStates(join(inputDir, ...relativePath.split("/")))
   }
   replaceExactlyOnce(
+    join(inputDir, "Catalogs", "СправочникПолный.xml"),
+    "\n\t\t</Properties>\n",
+    "\n\t\t\t<DefaultObjectForm>Catalog.СправочникПолный.Form.ФормаОтчета</DefaultObjectForm>\n\t\t</Properties>\n",
+  )
+  replaceExactlyOnce(
+    join(inputDir, "Catalogs", "СправочникПолный", "Forms", "ФормаОтчета.xml"),
+    "88888888-8888-4888-8888-888888888888",
+    baseFormUuid,
+  )
+  replaceExactlyOnce(
     join(inputDir, "Catalogs", "СправочникПолный", "Forms", "ФормаОтчета", "Ext", "Form.xml"),
     "\t\t\t\t<Width>99</Width>",
     [
       "\t\t\t\t<Width>99</Width>",
+      "\t\t\t\t<DataPath>НеОбъявленное.Поле</DataPath>",
       "\t\t\t\t<ToolTip>",
       "\t\t\t\t\t<v8:item>",
       "\t\t\t\t\t\t<v8:lang>de</v8:lang>",
@@ -323,9 +525,9 @@ async function importExtension() {
     context: mockContextFromXML(),
     inputDir,
     projectDir,
-    concurrency: 1,
+    concurrency,
     operationId: "configuration-extension-e2e",
-    xmlImportWorkerPoolHandle,
+    xmlImportWorkerPoolHandle: pool,
     projectState,
   })
   const importedFormPath = join(
@@ -437,7 +639,7 @@ function textBetween(source: string, startMarker: string, endMarker: string): st
   return source.slice(start, end)
 }
 
-async function importBaseConfiguration(projectDir: string): Promise<void> {
+async function importBaseConfiguration(projectDir: string, pool = xmlImportWorkerPoolHandle, concurrency = 1): Promise<void> {
   const inputDir = temporaryDirectory()
   const configurationPath = join(inputDir, "Configuration.xml")
   fs.copyFileSync(join(configurationFixtureDir, "minimal.xml"), configurationPath)
@@ -535,9 +737,9 @@ async function importBaseConfiguration(projectDir: string): Promise<void> {
     context: mockContextFromXML(),
     inputDir,
     projectDir,
-    concurrency: 1,
+    concurrency,
     operationId: "configuration-base-e2e",
-    xmlImportWorkerPoolHandle,
+    xmlImportWorkerPoolHandle: pool,
     projectState,
   })
   expect(result.failed).toEqual([])
@@ -571,11 +773,6 @@ function addFormWithoutBase(inputDir: string): void {
     targetMetadataPath,
     "77777777-7777-4777-8777-777777777777",
     "99999999-9999-4999-8999-999999999999",
-  )
-  replaceExactlyOnce(
-    targetMetadataPath,
-    "88888888-8888-4888-8888-888888888888",
-    "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
   )
   replaceExactlyOnce(targetMetadataPath, "<Name>ФормаОтчета</Name>", "<Name>ФормаБезОсновы</Name>")
   const targetFormPath = join(targetFormDir, "Ext", "Form.xml")
@@ -623,20 +820,18 @@ function addFormWithRedundantBase(inputDir: string): void {
     "99999999-9999-4999-8999-999999999999",
     "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
   )
-  replaceExactlyOnce(
-    targetMetadataPath,
-    "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
-    "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
-  )
   replaceExactlyOnce(targetMetadataPath, "<Name>ФормаБезОсновы</Name>", "<Name>ФормаРавнаяОснова</Name>")
 
   const targetFormPath = join(targetFormDir, "Ext", "Form.xml")
   addFormEvent(targetFormPath)
   const baseForm = [
     "\t<BaseForm version=\"2.20\">",
-    "\t\t<AutoCommandBar name=\"ФормаКоманднаяПанель\" id=\"-1\"/>",
+    "\t\t<AutoCommandBar name=\"ФормаКоманднаяПанель\" id=\"-1\">",
+    "\t\t\t<FutureNested>keep</FutureNested>",
+    "\t\t</AutoCommandBar>",
     ...formEventXml("\t\t"),
     ...baseFormAttributesXml().map((line) => `\t${line}`),
+    "\t\t<Future>keep</Future>",
     "\t</BaseForm>",
   ].join("\n")
   replaceExactlyOnce(targetFormPath, "</Form>", `${baseForm}\n</Form>`)
@@ -668,11 +863,6 @@ function addFormWithHistoricalElement(inputDir: string): void {
     targetMetadataPath,
     "99999999-9999-4999-8999-999999999999",
     "12121212-1212-4121-8121-121212121212",
-  )
-  replaceExactlyOnce(
-    targetMetadataPath,
-    "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
-    "13131313-1313-4131-8131-131313131313",
   )
   replaceExactlyOnce(
     targetMetadataPath,
@@ -827,14 +1017,7 @@ function replaceAllInFile(path: string, source: string, replacement: string): vo
 
 function removeUnknownPropertyStates(path: string): void {
   const content = fs.readFileSync(path, "utf8")
-  const withoutFutureState = content.replace(
-    /\s*<xr:PropertyState>\s*<xr:Property>[^<]+<\/xr:Property>\s*<xr:State>FutureState<\/xr:State>\s*<\/xr:PropertyState>/gu,
-    "",
-  )
-  fs.writeFileSync(path, withoutFutureState.replace(
-    /\s*<xr:PropertyState>\s*<xr:Property>UnknownProperty<\/xr:Property>\s*<xr:State>[^<]+<\/xr:State>\s*<\/xr:PropertyState>/gu,
-    "",
-  ))
+  fs.writeFileSync(path, withoutUnsupportedConfigurationExtensionPropertyStates(content))
 }
 
 function temporaryDirectory(): string {

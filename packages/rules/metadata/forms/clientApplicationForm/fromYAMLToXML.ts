@@ -3,7 +3,7 @@ import "../../commonObjects"
 import { buildClientApplicationBaseForm } from "./baseForm"
 import { convertClientApplicationFormYAMLToXMLCore } from "./convertYAMLToXML"
 import { ClientApplicationFormRules } from "./rules"
-import type { ClientApplicationFormXML, ClientApplicationFormYAML } from "./types"
+import type { ClientApplicationFormYAML } from "./types"
 import type { SelectedBaseYAMLInput } from "@nkdk/runtime/rule-kit"
 import type { YAMLToXMLNestedRule } from "@nkdk/runtime/rule-kit"
 import { createFormXmlIdAssignmentSession } from "./formXmlIdAssignment"
@@ -29,7 +29,6 @@ export const clientApplicationFormYamlToXmlNestedRule: Extract<
     baseYAMLContext,
     baseConfigurationIndex,
     name,
-    referenceXML,
   }) => {
     const rule = ClientApplicationFormRules
     const extensionYaml = (yaml ?? {}) as ClientApplicationFormYAML
@@ -37,10 +36,7 @@ export const clientApplicationFormYamlToXmlNestedRule: Extract<
     if (extensionYaml.ТипФормы === "Обычная" || owner.ТипФормы === "Обычная") return undefined
     const selectedBase = selectedBaseYAMLInput(baseYAML)
     const baseFormYAML = selectedBase?.baseFormYAML ?? baseYAML
-    const referenceForm = referenceXML?.Form as ClientApplicationFormXML | undefined
-    const xmlIdSession = createFormXmlIdAssignmentSession({
-      references: [referenceForm],
-    })
+    const xmlIdSession = createFormXmlIdAssignmentSession()
     const baseFormXML =
       baseFormYAML === undefined
         ? undefined
@@ -61,7 +57,6 @@ export const clientApplicationFormYamlToXmlNestedRule: Extract<
                 }
             ),
             formName: name,
-            referenceFormXML: referenceForm?.BaseForm as ClientApplicationFormXML | undefined,
             rule,
             xmlIdSession,
           })
@@ -70,7 +65,6 @@ export const clientApplicationFormYamlToXmlNestedRule: Extract<
         context,
         yaml: extensionYaml,
         name,
-        referenceFormXML: referenceForm,
         ...(baseFormXML === undefined ? {} : { baseFormXML }),
         ...(selectedBase === undefined
           ? baseYAMLContext === undefined && baseFormYAML !== undefined

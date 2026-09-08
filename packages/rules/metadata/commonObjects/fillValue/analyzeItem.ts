@@ -3,6 +3,8 @@ import type { MetadataItemRule, PropertyRule } from "@nkdk/runtime/rule-kit"
 import type { ParsedYaml } from "@nkdk/runtime"
 import type {
   DependentItemParams,
+  DependentImportDependencies,
+  DependentImportDependencyContext,
   DependentYamlItemAnalysis,
   DependentYamlItemParams,
 } from "../../ruleRuntime/property/dependentItemRegistry"
@@ -242,6 +244,24 @@ export function classifyStandardAttributeFillValue(
   const declaration = getStandardMembers(params.owner.dir).find((member) => member.names.yaml === params.itemName)
   if (declaration === undefined) return { kind: "notSpecified" }
   return classifyStandardMemberFillValue({ declaration, value, ownerProperties: ownerProperties(params) })
+}
+
+export function fillValueDependencies(params: DependentImportDependencyContext): DependentImportDependencies {
+  if (params.itemType !== "StandardAttributeDescription") {
+    return { item: [typeYamlKey], root: [] }
+  }
+  const declaration = getStandardMembers(params.owner.dir).find((member) => member.names.yaml === params.itemName)
+  const policy = declaration?.fillValue
+  const keys = policy?.policy === "codeFromOwner"
+    ? [policy.typeProperty, policy.lengthProperty, policy.allowedLengthProperty]
+    : policy?.policy === "stringFromOwner"
+      ? [policy.lengthProperty]
+      : policy?.policy === "ownerReference" ? [policy.ownersProperty] : []
+  const root = keys.flatMap(key => {
+    const property = dependentRootRule(params.rootRule).properties[key]
+    return property?.yaml === undefined ? [] : [property.yaml]
+  })
+  return { item: [], root }
 }
 
 function withValueReference(

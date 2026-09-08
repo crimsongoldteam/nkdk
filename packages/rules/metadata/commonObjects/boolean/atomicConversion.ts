@@ -3,6 +3,7 @@ import type {
   CompiledAtomicConversion,
 } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { readBooleanXML } from "./xmlValue"
 
 const xmlTrue = Object.freeze({ metadataValue: true, representationValue: "Истина" })
 const xmlFalse = Object.freeze({ metadataValue: false, representationValue: "Ложь" })
@@ -12,12 +13,10 @@ const empty = Object.freeze({ metadataValue: undefined, representationValue: und
 
 const booleanAtomicConversion: CompiledAtomicConversion = Object.freeze({
   fromXMLToYAML: ({ value }: { readonly value: unknown }) => {
-    const raw = typeof value === "object" && value !== null
-      ? (value as Record<string, unknown>)["#text"]
-      : value
-    return raw === "true" || raw === true
+    const raw = readBooleanXML(value)
+    return raw === true
       ? xmlTrue
-      : raw === "false" || raw === false
+      : raw === false
         ? xmlFalse
         : empty
   },

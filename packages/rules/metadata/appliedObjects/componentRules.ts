@@ -6,6 +6,7 @@ import { configurationFullXmlSyncProfile } from "../fullSyncToXml/profiles/confi
 import { configurationExtensionFullXmlSyncProfile } from "../fullSyncToXml/profiles/configurationExtension"
 import { resolveXmlImportRootItemName } from "../importFromXml/componentDescriptor"
 import type { FullXmlSyncComponentProfile } from "../fullSyncToXml/componentProfile"
+import { xmlElementChildren, type XmlElementNode } from "@nkdk/runtime"
 
 export const appliedObjectComponentRules = defineMetadataRules({
   ...emptyMetadataRules,
@@ -23,13 +24,7 @@ export const appliedObjectComponentRules = defineMetadataRules({
     {
       kind: "configuration",
       detect(root) {
-        const configuration = root["Configuration"]
-        if (!isRecord(configuration)) return false
-        const properties = configuration["Properties"]
-        return (
-          !isRecord(properties) ||
-          !("ConfigurationExtensionPurpose" in properties)
-        )
+        return configurationExtensionFlag(root) === false
       },
       resolveRoot(root) {
         return {
@@ -41,13 +36,7 @@ export const appliedObjectComponentRules = defineMetadataRules({
     {
       kind: "configurationExtension",
       detect(root) {
-        const configuration = root["Configuration"]
-        if (!isRecord(configuration)) return false
-        const properties = configuration["Properties"]
-        return (
-          isRecord(properties) &&
-          "ConfigurationExtensionPurpose" in properties
-        )
+        return configurationExtensionFlag(root) === true
       },
       resolveRoot(root) {
         const itemName = resolveXmlImportRootItemName(root)
@@ -66,6 +55,9 @@ export const appliedObjectComponentRules = defineMetadataRules({
   ] as const satisfies readonly FullXmlSyncComponentProfile[],
 })
 
-function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
-  return typeof value === "object" && value !== null && !Array.isArray(value)
+function configurationExtensionFlag(root: XmlElementNode): boolean | undefined {
+  const configurations = xmlElementChildren(root, "Configuration")
+  if (configurations.length !== 1) return undefined
+  const properties = xmlElementChildren(configurations[0]!, "Properties")
+  return properties.length === 1 && xmlElementChildren(properties[0]!, "ConfigurationExtensionPurpose").length > 0
 }

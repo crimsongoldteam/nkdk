@@ -1,3 +1,5 @@
+import { metadataIdentityProperties } from "../../commonObjects/metadataIdentityProperties"
+import { ownerFormLinks } from "../../commonObjects/metadataPath/formLinks"
 import { additionalIndexRule, metadataCommandsRule } from "../metadataAccountingRegister/builders"
 import {
   metadataTaskAddressingAttributesRule,
@@ -10,14 +12,13 @@ import { childTemplateNamesRule } from "../../commonObjects/childTemplateNames/t
 import { helpRule } from "../../commonObjects/help/types"
 import { internalInfoRule } from "../../commonObjects/internalInfo/types"
 import { metadataFieldsRule } from "../../commonObjects/metadataField/types"
-import { metadataItemLinksRule } from "../../commonObjects/metadataPath/types"
+import { metadataItemLinkRule, metadataItemLinksRule } from "../../commonObjects/metadataPath/types"
 import { standardAttributeDescriptionsRule } from "../../commonObjects/standardAttributeDescription/builders"
 import { booleanRule } from "../../commonObjects/boolean/types"
 import { i8nTextRule } from "../../commonObjects/i8nText/types"
 import { moduleRule } from "../../commonObjects/module/types"
 import { numberRule } from "../../commonObjects/number/types"
 import { stringRule } from "../../commonObjects/string/types"
-import { uuidRule } from "../../commonObjects/uuid/types"
 import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
 import { V8_MDCLASSES_ROOT } from "../../ruleRuntime/appliedObject/presets"
@@ -104,13 +105,13 @@ export const MetadataTaskRules = {
     xmlRoot: xmlRootRule({
       container: "Task",
       rootAttributes: V8_MDCLASSES_ROOT,
-      forReferenceOnly: true,
+      xmlOnly: true,
       toYAML: false,
       fromYAML: false,
     }),
     internalInfo: internalInfoRule({
       xmlParents: [],
-      forReferenceOnly: true,
+      xmlOnly: true,
       items: [
         { name: "TaskObject", category: "Object" },
         { name: "TaskRef", category: "Ref" },
@@ -119,28 +120,14 @@ export const MetadataTaskRules = {
         { name: "TaskManager", category: "Manager" },
       ],
     }),
-    uuid: uuidRule({
-      xml: "_uuid",
-      forReferenceOnly: true,
-      xmlParents: [],
-    }),
+    uuid: metadataIdentityProperties.uuid,
     name: stringRule({
       xmlParents: properties,
       required: true,
       defaultValue: ({ name }: { name?: string }) => name,
     }),
-    synonym: i8nTextRule({
-      yaml: "Синоним",
-      xmlParents: properties,
-      defaultValueXMLRaw: "",
-      excludeIfEqualNameYAML: true,
-    }),
-    comment: stringRule({
-      yaml: "Комментарий",
-      xmlParents: properties,
-      defaultValueXMLRaw: "",
-      defaultValueAdoptedXML: "",
-    }),
+    synonym: metadataIdentityProperties.synonym,
+    comment: metadataIdentityProperties.comment,
     useStandardCommands: booleanRule({
       yaml: "ИспользоватьСтандартныеКоманды",
       defaultValueXML: true,
@@ -187,7 +174,7 @@ export const MetadataTaskRules = {
       implicitValueYAML: 25,
       xmlParents: properties,
     }),
-    addressing: stringRule({
+    addressing: metadataItemLinkRule({
       yaml: "Адресация",
       xmlParents: properties,
       metadataTarget: { kind: "object", roots: ["InformationRegister"] },
@@ -198,7 +185,7 @@ export const MetadataTaskRules = {
       xmlParents: properties,
       defaultValueXMLRaw: "",
     }),
-    currentPerformer: stringRule({
+    currentPerformer: metadataItemLinkRule({
       yaml: "ТекущийИсполнитель",
       xmlParents: properties,
       metadataTarget: { kind: "object", roots: ["SessionParameter"] },
@@ -270,42 +257,12 @@ export const MetadataTaskRules = {
       implicitValueYAML: "DontUse",
       xmlParents: properties,
     }),
-    defaultObjectForm: stringRule({
-      yaml: "ОсновнаяФормаОбъекта",
-      xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
-    defaultListForm: stringRule({
-      yaml: "ОсновнаяФормаСписка",
-      xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
-    defaultChoiceForm: stringRule({
-      yaml: "ОсновнаяФормаВыбора",
-      xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
-    auxiliaryObjectForm: stringRule({
-      yaml: "ДополнительнаяФормаОбъекта",
-      xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
-    auxiliaryListForm: stringRule({
-      yaml: "ДополнительнаяФормаСписка",
-      xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
-    auxiliaryChoiceForm: stringRule({
-      yaml: "ДополнительнаяФормаВыбора",
-      xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
-    }),
+    defaultObjectForm: ownerFormLinks.defaultObjectForm,
+    defaultListForm: ownerFormLinks.defaultListForm,
+    defaultChoiceForm: ownerFormLinks.defaultChoiceForm,
+    auxiliaryObjectForm: ownerFormLinks.auxiliaryObjectForm,
+    auxiliaryListForm: ownerFormLinks.auxiliaryListForm,
+    auxiliaryChoiceForm: ownerFormLinks.auxiliaryChoiceForm,
     choiceHistoryOnInput: systemEnumerationRule({
       yaml: "ИсторияВыбораПриВводе",
       typeSE: "ChoiceHistoryOnInput",
@@ -409,14 +366,14 @@ export const MetadataTaskRules = {
       xml: "Form",
       xmlParents: childObjects,
       folderName: "Формы",
-      forReferenceOnly: true,
+      xmlOnly: true,
     }),
     templates: childTemplateNamesRule({
       yaml: "Макеты",
       xml: "Template",
       xmlParents: childObjects,
       folderName: "Макеты",
-      forReferenceOnly: true,
+      xmlOnly: true,
     }),
     addressingAttributes: metadataTaskAddressingAttributesRule({
       yaml: "РеквизитыАдресации",

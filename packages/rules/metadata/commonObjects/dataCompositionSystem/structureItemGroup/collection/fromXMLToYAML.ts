@@ -3,7 +3,7 @@ import { getTypeRule, definePropertyTypeRule } from "../../../../ruleRuntime/pro
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { GroupItemAutoRules } from "../items/groupItemAuto/rules"
 import { GroupItemFieldRules } from "../items/groupItemField/rules"
-import { withConfigurationIndexYamlCollectionItemContext } from "@nkdk/runtime"
+import { isXmlElementNode, xmlAttributeValue, withConfigurationIndexYamlCollectionItemContext } from "@nkdk/runtime"
 
 const itemRules = [GroupItemAutoRules, GroupItemFieldRules] as const
 
@@ -15,7 +15,7 @@ export const importStructureItemGroupCollectionFromXMLToYAML: ImportFromXMLToYAM
 }) => {
   const result: unknown[] = []
   const itemNodes = traversal.xmlNodes
-  const items = itemNodes?.map(({ compatibilityValue }) => compatibilityValue) ?? asArray(xml)
+  const items = itemNodes ?? asArray(xml)
   for (const [index, item] of items.entries()) {
     const rule = findItemRule(item)
     if (rule === undefined) continue
@@ -30,7 +30,7 @@ export const importStructureItemGroupCollectionFromXMLToYAML: ImportFromXMLToYAM
       name,
       traversal: {
         ...itemTraversal,
-        yamlPath: [...traversal.yamlPath, index],
+        pathCursor: traversal.pathCursor.child(index),
         ...(itemNode === undefined ? {} : { xmlNodes: [itemNode] }),
       },
     })
@@ -41,7 +41,7 @@ export const importStructureItemGroupCollectionFromXMLToYAML: ImportFromXMLToYAM
 
 function findItemRule(xml: unknown): MetadataItemRule | undefined {
   if (xml === null || typeof xml !== "object" || Array.isArray(xml)) return undefined
-  const xsiType = (xml as Record<string, unknown>)["_xsi:type"]
+  const xsiType = isXmlElementNode(xml) ? xmlAttributeValue(xml, "xsi:type") : (xml as Record<string, unknown>)["_xsi:type"]
   return itemRules.find((rule) => rule.xsiType === xsiType)
 }
 

@@ -1,6 +1,6 @@
 import { CollectableElementTypeToYAML } from "../ruleRuntime/formElement/types"
 import type { MetadataProjectResourceKind } from "../projectDefinition/resources"
-import { memberKindToYAML, rootToYAML } from "@nkdk/runtime/rule-kit"
+import { memberKindToYAML, objectPathKindToYAML, rootToYAML } from "@nkdk/runtime/rule-kit"
 import type { ProjectStateFileUpdateBatch, ProjectStateImportIndexContribution } from "./contracts/fileUpdate"
 import { currentRuleRegistrySet } from "@nkdk/runtime/rule-kit"
 import { parseProjectPath } from "../projectDefinition/path"
@@ -43,6 +43,7 @@ export function assertProjectStateImportFinalFileState(value: unknown, path: str
     "pendingReferences",
     "pendingChecks",
     "dependencies",
+    "validationContextDependencies",
   ], path)
   assertProjectStateFileUpdate({
     ...update,
@@ -247,7 +248,7 @@ function assertReferenceDetails(value: unknown, path: string): void {
 
 const METADATA_ROOT_NAMES = Object.keys(rootToYAML)
 const METADATA_MEMBER_KINDS = Object.keys(memberKindToYAML)
-const METADATA_OBJECT_PATH_KINDS = ["Table", "Cube", "DimensionTable", "Function"]
+const METADATA_OBJECT_PATH_KINDS = Object.keys(objectPathKindToYAML)
 const DATA_PATH_VALUE_KINDS = [
   "unknown",
   "any",

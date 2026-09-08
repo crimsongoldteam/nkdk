@@ -26,7 +26,6 @@ export const prepareAppliedObjectOwnerXML = (params: {
   context: ConfigurationContextWithExportToXML
   name: string
   preparedYamlFile: PreparedYamlFile
-  referenceXML?: Record<string, unknown>
   fileChildNames?: { forms?: readonly string[]; templates?: readonly string[] }
   compositionPropertyValues?: ReadonlyMap<string, unknown>
   profile?: import("../property/fromYAMLToXMLTypes").YAMLToXMLProfile
@@ -60,7 +59,6 @@ export const prepareAppliedObjectOwnerXML = (params: {
         forms: [...(params.fileChildNames?.forms ?? [])],
         templates: [...(params.fileChildNames?.templates ?? [])],
         parentName: params.name,
-        metadataForNumbering: contextWithFormDir.exportToXML.context?.metadataForNumbering ?? [],
       },
     },
   }
@@ -86,7 +84,7 @@ export const prepareAppliedObjectOwnerXML = (params: {
     yaml: yamlObj,
     annotations: params.preparedYamlFile.annotations,
     name: params.name,
-    outputs: [{ key: "owner", referenceXML: params.referenceXML }],
+    outputs: [{ key: "owner" }],
     propertyValues,
     profile: params.profile,
     rulePath: [params.rule.itemType],
@@ -397,7 +395,6 @@ const externalFilePropertyPrepareCapabilityRules = defineMetadataXmlPrepareCapab
               }
             : {}),
         name: itemName,
-        referenceXML: undefined,
         ...(baseConfigurationIndex === undefined
           ? {}
           : { baseConfigurationIndex }),
@@ -508,7 +505,6 @@ export const writePreparedAppliedObjectOwnerToXML = async (params: {
   name: string
   outputPath: string
   preparedYamlFile: PreparedYamlFile
-  referenceXML?: Record<string, unknown>
   fileChildNames?: { forms?: readonly string[]; templates?: readonly string[] }
   profile?: import("../property/fromYAMLToXMLTypes").YAMLToXMLProfile
 }): Promise<void> => {

@@ -105,6 +105,7 @@ describe.sequential("metadata project E2E", () => {
     ), "utf8")
     expect(valueListYaml).not.toContain("Форма: !xml/raw")
     expect(valueListYaml).toContain('"@Form\\\\ТипЗначения": !xml/raw')
+    expect(valueListYaml).not.toMatch(/^\s+ТипЗначения: !xml\/raw$/mu)
     expect(valueListYaml).toContain("$xml: null")
     const anomalies = await collectXmlAnomalyLocations(baseline.projectDir)
     expect(anomalies.invalid).toEqual(EXPECTED_XML_INVALID_LOCATIONS)

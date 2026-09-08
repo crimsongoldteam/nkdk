@@ -5,14 +5,15 @@ import { constrainedMemory } from "node:process"
 import {
   componentPath,
   configurationIndexStoreDescriptor,
-  decodeConfigurationBlockFragments,
+  iterateConfigurationBlockFragments,
   hashConfigurationProjectFileList,
   type ComponentAddress,
   type ConfigurationProjectFile,
   type ConfigurationIndexBlockFragment,
 } from "../configurationIndex"
 import type { ConfigurationIndexCandidateStore } from "../configurationIndex/store"
-import type { ConfigurationContextFromXML } from "@nkdk/runtime"
+import type { ConfigurationContextFromXML, WorkerCountSource, XmlElementNode } from "@nkdk/runtime"
+import { xmlElementChildren, xmlTextValue } from "@nkdk/runtime"
 import { createOperationProfiler } from "../validation/profile"
 import {
   createPreparedYamlProjectWorkerPool,
@@ -53,6 +54,7 @@ import {
   type XmlImportWorkerPoolHandle,
 } from "./workerPool"
 import { prepareImportXmlReconstructionProfile } from "./reconstructionProfile"
+import { createImportReconstructionFactsWriter, openImportReconstructionFacts, type ImportReconstructionFacts } from "../projectState/binary/reconstructionFacts"
 import { configurationExtensionTypeDescriptionXMLNameByCompatibilityMode } from "../appliedObjects/configurationExtension/typeDescriptionPolicy"
 import type { XmlComponentExportProfile } from "../project/xmlReconstructionProfile"
 
@@ -70,6 +72,7 @@ export interface ImportConfigurationFromXmlParams {
   projectDir: string
   requestedComponentPath?: string
   concurrency?: number
+  workerCountSource?: WorkerCountSource
   copyExternalConcurrency?: number
   externalFileTransfer?: ExternalFileTransfer
   hashConcurrency?: number
@@ -81,7 +84,7 @@ export interface ImportConfigurationFromXmlParams {
 }
 
 export interface ImportCoordinatorDependencies {
-  resolveComponent?(root: Record<string, unknown>): XmlImportComponentDescriptor
+  resolveComponent?(root: XmlElementNode): XmlImportComponentDescriptor
   assertNoPending?(projectDir: string, componentPath: string): void | Promise<void>
   createWorkerPool?(params: { concurrency: number }): XmlImportWorkerPool
   loadLanguagesFromXML?(xmlDir: string): ReturnType<typeof loadConfigurationLanguagesFromXML>
@@ -226,7 +229,9 @@ export async function importConfigurationFromXml(
       ? withPropertyStateCompatibilityMode(operationContext, root)
       : operationContext
 
-    const concurrency = normalizeConcurrency(params.concurrency)
+    const concurrency = normalizeXmlImportConcurrency(params.concurrency)
+    const workerCountSource = params.workerCountSource ?? (params.concurrency === undefined ? "automatic" : "operation")
+    profiler.record("Подготовка импорта конфигурации", `Число воркеров: ${workerCountSource}`, { items: concurrency, timeMs: 0 })
     if (descriptor.baseAddress !== undefined) {
       await projectState.refreshAndValidate({
         projectDir: params.projectDir,
@@ -253,8 +258,8 @@ export async function importConfigurationFromXml(
       operationId,
       purpose: "import",
     })
-    const stateSink = createImportStateSink(importSession, indexCandidate)
-    const configurationIndexDescriptor = indexCandidate.descriptor()
+    const sharedReconstructionFacts: ImportReconstructionFacts[] = []
+    const stateSink = createImportStateSink(importSession, indexCandidate, sharedReconstructionFacts)
     if (params.xmlImportWorkerPoolHandle !== undefined) {
       pool = params.xmlImportWorkerPoolHandle.createOperationPool()
     } else if (deps.createWorkerPool !== undefined) {
@@ -297,7 +302,6 @@ export async function importConfigurationFromXml(
           ...(descriptor.metadataItemAugmenter === undefined
             ? {}
             : { metadataItemAugmenter: descriptor.metadataItemAugmenter }),
-          configurationIndex: configurationIndexDescriptor,
           ...(address.kind === "configurationExtension"
             ? {
                 baseConfigurationIndex: configurationIndexStoreDescriptor(
@@ -324,8 +328,12 @@ export async function importConfigurationFromXml(
       context: operationContext,
       files: discovered.snapshotFiles ?? [],
     })
-    if (snapshotFragments.length > 0) indexCandidate.mergeBlockFragments(snapshotFragments)
-    await importSession.commitWorkingIndex()
+    if (snapshotFragments.length > 0) {
+      indexCandidate.mergeBlockFragments(snapshotFragments)
+      const snapshotFacts = createImportReconstructionFactsWriter()
+      for (const fragment of snapshotFragments) snapshotFacts.append(fragment)
+      sharedReconstructionFacts.push(openImportReconstructionFacts(snapshotFacts.finish()))
+    }
     const externalSemanticState = externalFileSemanticStateBatch(
       validationComponent,
       discovered.assignments.flatMap(({ externalFiles }) => externalFiles),
@@ -335,7 +343,7 @@ export async function importConfigurationFromXml(
       externalWriter.appendImportFinal(externalSemanticState)
       await importSession.writeStateFragment(externalWriter.finish())
     }
-    const semanticReadToken = await importSession.commitSemanticIndex()
+    const semanticReadToken = await importSession.commitSharedIndex()
     const reconstructionProfile = await profiler.measureAsync(
       "Подготовка импорта конфигурации",
       "Подготовка профиля восстановления XML компонента",
@@ -346,9 +354,10 @@ export async function importConfigurationFromXml(
         assignments: discovered.assignments,
         projectState,
         projectStateReadToken: semanticReadToken,
-        targetIndex: indexCandidate!,
+        targetIndex: { *entities() { for (const facts of sharedReconstructionFacts) yield* facts.entities() } },
       }),
     )
+    sharedReconstructionFacts.length = 0
     const exportProfile: XmlComponentExportProfile = {
       ...reconstructionProfile,
       ...(address.kind !== "configurationExtension"
@@ -492,7 +501,7 @@ export async function importConfigurationFromXml(
 
 function withPropertyStateCompatibilityMode(
   context: ImportConfigurationFromXmlParams["context"],
-  root: Record<string, unknown>,
+  root: XmlElementNode,
 ): ImportConfigurationFromXmlParams["context"] {
   const mode = findPropertyStateCompatibilityMode(root)
   return typeof mode === "string"
@@ -500,36 +509,19 @@ function withPropertyStateCompatibilityMode(
     : context
 }
 
-function findPropertyStateCompatibilityMode(value: unknown): string | undefined {
-  if (typeof value !== "object" || value === null) return undefined
-  if (Array.isArray(value)) {
-    for (const item of value) {
-      const mode = findPropertyStateCompatibilityMode(item)
-      if (mode !== undefined) return mode
-    }
-    return undefined
-  }
-  const record = value as Record<string, unknown>
-  const properties = record.Properties
-  if (typeof properties === "object" && properties !== null && !Array.isArray(properties)) {
-    const mode = (properties as Record<string, unknown>).ConfigurationExtensionCompatibilityMode
-    if (typeof mode === "string") return mode
-  }
-  for (const item of Object.values(record)) {
-    const mode = findPropertyStateCompatibilityMode(item)
-    if (mode !== undefined) return mode
-  }
-  return undefined
+function findPropertyStateCompatibilityMode(root: XmlElementNode): string | undefined {
+  const configuration = xmlElementChildren(root, "Configuration")[0]
+  const properties = configuration === undefined ? undefined : xmlElementChildren(configuration, "Properties")[0]
+  const mode = properties === undefined ? undefined : xmlElementChildren(properties, "ConfigurationExtensionCompatibilityMode")[0]
+  return mode === undefined ? undefined : xmlTextValue(mode)
 }
 
 function importStatePhaseName(
   phase: import("../projectState/importSession").ProjectStateImportProfilePhase,
 ): string {
   return {
-    workingIndex: "Фиксация рабочего индекса",
-    semanticIndex: "Фиксация смыслового индекса",
+    sharedIndex: "Фиксация общего индекса",
     finalBuild: "Построение окончательного состояния",
-    dependencyValidation: "Полная проверка зависимостей",
     save: "Сохранение состояния проекта",
     publication: "Публикация состояния проекта",
   }[phase]
@@ -559,18 +551,23 @@ function flattenFailures(caught: unknown): unknown[] {
 function createImportStateSink(
   session: ProjectStateImportSession,
   candidate: ConfigurationIndexCandidateStore,
+  sharedReconstructionFacts: ImportReconstructionFacts[],
 ): XmlImportStateSink {
   const writeState = async (batch: Parameters<XmlImportStateSink["writeFirstPassState"]>[0]): Promise<void> => {
     if (batch.configurationFragment !== undefined) candidate.mergeBlockFragments([batch.configurationFragment])
     if (batch.configurationFragmentBuffer !== undefined) {
-      candidate.mergeBlockFragments(decodeConfigurationBlockFragments(batch.configurationFragmentBuffer))
+      candidate.mergeBlockFragments(iterateConfigurationBlockFragments(batch.configurationFragmentBuffer))
     }
     if (batch.stateFragment !== undefined) {
       await session.writeStateFragment(batch.stateFragment)
     }
   }
   return {
-    writeFirstPassState: writeState,
+    async writeFirstPassState(batch) {
+      if (batch.reconstructionFactsBuffer === undefined) throw new Error("Первый проход не передал общие факты восстановления")
+      sharedReconstructionFacts.push(openImportReconstructionFacts(batch.reconstructionFactsBuffer))
+      if (batch.stateFragment !== undefined) await session.writeStateFragment(batch.stateFragment)
+    },
     writeSecondPassState: writeState,
   }
 }
@@ -716,7 +713,7 @@ function operationDiagnostic(caught: unknown): ImportDiagnostic {
   }
 }
 
-function normalizeConcurrency(value: number | undefined): number {
+export function normalizeXmlImportConcurrency(value: number | undefined): number {
   if (value !== undefined) {
     if (!Number.isSafeInteger(value) || value < 1) {
       throw new Error("Степень параллелизма XML-import должна быть положительным целым числом")

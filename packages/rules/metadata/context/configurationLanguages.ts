@@ -2,36 +2,35 @@ import { readdir, readFile } from "node:fs/promises"
 import { join } from "node:path"
 import {
   createConfigurationLanguages,
-  importContentFromXML,
+  parseXmlDocumentWithSaxes,
+  xmlElementsAtUniquePath,
+  xmlTextValue,
   parseMetadataYamlData,
   type ConfigurationLanguages,
+  type XmlElementNode,
 } from "@nkdk/runtime"
 
 export async function loadConfigurationLanguagesFromXML(
   xmlDir: string,
 ): Promise<ConfigurationLanguages> {
   const configurationPath = join(xmlDir, "Configuration.xml")
-  const configuration = asRecord(
-    asRecord(importContentFromXML<Record<string, unknown>>(
-      await readText(configurationPath),
-    ).MetaDataObject)?.Configuration,
-  )
-  const properties = asRecord(configuration?.Properties)
-  const childObjects = asRecord(configuration?.ChildObjects)
-  const defaultName = languageObjectName(requireString(
-    properties?.DefaultLanguage,
+  const roots = parseXmlDocumentWithSaxes(await readText(configurationPath)).roots
+  const defaultName = languageObjectName(requireXmlString(
+    xmlElementsAtUniquePath(roots, ["MetaDataObject", "Configuration", "Properties", "DefaultLanguage"]),
     configurationPath,
     "DefaultLanguage",
   ))
-  const names = stringList(childObjects?.Language, configurationPath, "ChildObjects/Language")
+  const names = xmlElementsAtUniquePath(roots, ["MetaDataObject", "Configuration", "ChildObjects", "Language"])
+    .map(node => requireXmlString([node], configurationPath, "ChildObjects/Language"))
   assertDefaultObjectExactlyOnce(defaultName, names, configurationPath)
 
   const codes = await Promise.all(names.map(async (name) => {
     const filePath = join(xmlDir, "Languages", `${name}.xml`)
-    const language = asRecord(
-      asRecord(importContentFromXML<Record<string, unknown>>(await readText(filePath)).MetaDataObject)?.Language,
+    const language = parseXmlDocumentWithSaxes(await readText(filePath)).roots
+    const code = requireXmlString(
+      xmlElementsAtUniquePath(language, ["MetaDataObject", "Language", "Properties", "LanguageCode"]),
+      filePath, "LanguageCode",
     )
-    const code = requireString(asRecord(language?.Properties)?.LanguageCode, filePath, "LanguageCode")
     return { name, code, filePath }
   }))
   return buildRegistry(defaultName, codes)
@@ -123,9 +122,11 @@ function languageObjectName(value: string): string {
   return value.replace(/^(?:Language|Язык)\./u, "")
 }
 
-function stringList(value: unknown, filePath: string, field: string): string[] {
-  const values = Array.isArray(value) ? value : value === undefined ? [] : [value]
-  return values.map((item) => requireString(item, filePath, field))
+function requireXmlString(nodes: readonly XmlElementNode[], filePath: string, field: string): string {
+  const node = nodes.length === 1 ? nodes[0] : undefined
+  const value = node === undefined || node.attributes.length > 0 || node.content.some(child => child.type !== "text")
+    ? undefined : xmlTextValue(node)
+  return requireString(value, filePath, field)
 }
 
 function requireString(value: unknown, filePath: string, field: string): string {

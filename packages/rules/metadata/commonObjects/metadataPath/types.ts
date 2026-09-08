@@ -280,12 +280,18 @@ export interface MetadataItemLinksWidePropertyRule extends WidePropertyRuleBase 
 
 export type MetadataItemLinksRuleParams = Omit<MetadataItemLinksWidePropertyRule, "type">
 
+type MetadataLinkRuleResult<Type extends string, Params> = Readonly<
+  { type: Type } & Params & {
+    metadataTarget: Params extends { readonly metadataTarget: infer Target }
+      ? Target
+      : { readonly kind: "object" }
+  }
+>
+
 export function metadataItemLinksRule<const Params extends MetadataItemLinksRuleParams>(
   params: WideExactRuleParams<MetadataItemLinksRuleParams, Params>
-): Readonly<{
-  type: "MetadataItemLinks"
-  metadataTarget: { readonly kind: "object" }
-} & Params> {
+): MetadataLinkRuleResult<"MetadataItemLinks", Params>
+export function metadataItemLinksRule(params: MetadataItemLinksRuleParams) {
   return defineWidePropertyRule("MetadataItemLinks", {
     metadataTarget: { kind: "object" },
     ...params,
@@ -297,12 +303,15 @@ export interface MetadataItemLinkWidePropertyRule extends WidePropertyRuleBase {
 
 export type MetadataItemLinkRuleParams = Omit<MetadataItemLinkWidePropertyRule, "type">
 
+/** Ссылка на форму текущего владельца либо общую форму. */
+export const ownerFormMetadataTarget = {
+  kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"],
+} as const
+
 export function metadataItemLinkRule<const Params extends MetadataItemLinkRuleParams>(
   params: WideExactRuleParams<MetadataItemLinkRuleParams, Params>
-): Readonly<{
-  type: "MetadataItemLink"
-  metadataTarget: { readonly kind: "object" }
-} & Params> {
+): MetadataLinkRuleResult<"MetadataItemLink", Params>
+export function metadataItemLinkRule(params: MetadataItemLinkRuleParams) {
   return defineWidePropertyRule("MetadataItemLink", {
     metadataTarget: { kind: "object" },
     ...params,

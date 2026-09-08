@@ -18,7 +18,6 @@ import type {
   ImportAssignment,
   ImportControlCompositionEntry,
   ImportDiagnostic,
-  ImportProjectIssueDecision,
   ImportResultFile,
   ImportWorkerCommand,
   ImportWorkerCommandResult,
@@ -40,7 +39,6 @@ export interface XmlImportWorkerPool {
     componentPath?: string
     componentKind: string
     metadataItemAugmenter?: string
-    configurationIndex?: ConfigurationIndexStoreDescriptor
     baseConfigurationIndex?: ConfigurationIndexStoreDescriptor
   }): Promise<void>
   runFirstPass(
@@ -51,7 +49,6 @@ export interface XmlImportWorkerPool {
     readTokens: readonly ProjectStateReadToken[],
     exportProfile: XmlComponentExportProfile,
     sink?: XmlImportStateSink,
-    issueDecisions?: readonly ImportProjectIssueDecision[],
   ): Promise<XmlImportSecondPassPoolResult>
   workerCount(): number
   close(): Promise<void>
@@ -89,6 +86,7 @@ export interface ImportResultFileCollection extends Iterable<ImportResultFile> {
 }
 
 export interface XmlImportStateBatch {
+  readonly reconstructionFactsBuffer?: ArrayBuffer
   readonly configurationFragment?: ConfigurationIndexBlockFragment
   readonly configurationFragmentBuffer?: ArrayBuffer
   readonly stateFragment?: ProjectStateFragment
@@ -247,7 +245,6 @@ function createXmlImportOperationPool(params: {
         componentPath?: string
         componentKind: string
         metadataItemAugmenter?: string
-        configurationIndex?: ConfigurationIndexStoreDescriptor
         baseConfigurationIndex?: ConfigurationIndexStoreDescriptor
       }
     | undefined
@@ -263,7 +260,6 @@ function createXmlImportOperationPool(params: {
     readTokens: readonly ProjectStateReadToken[],
     sink: XmlImportStateSink,
     exportProfile: XmlComponentExportProfile,
-    issueDecisions: readonly ImportProjectIssueDecision[] = [],
   ): Promise<XmlImportSecondPassPoolResult> {
     if (readTokens.length !== activeWorkerIndexes.length) {
       throw new Error(`Второму проходу import требуется ${activeWorkerIndexes.length} отдельных read token`)
@@ -282,7 +278,7 @@ function createXmlImportOperationPool(params: {
         fileViewsByWorker[workerIndex] = fileViews
         assertProducerActive("secondPassRunning")
         const beginCommand = secondPassBeginCommand(
-          readTokens[activeIndex]!, controlComposition, exportProfile, issueDecisions,
+          readTokens[activeIndex]!, controlComposition, exportProfile,
         )
         const beginResponse = await runCommand(workerIndex, beginCommand)
         if (beginResponse !== undefined) {
@@ -365,9 +361,6 @@ function createXmlImportOperationPool(params: {
             outputDir: initialized.outputDir,
             projectDir: initialized.projectDir,
             componentPath: initialized.componentPath,
-            ...(initialized.configurationIndex === undefined
-              ? {}
-              : { configurationIndex: initialized.configurationIndex }),
             ...(initialized.baseConfigurationIndex === undefined
               ? {}
               : { baseConfigurationIndex: initialized.baseConfigurationIndex }),
@@ -385,7 +378,9 @@ function createXmlImportOperationPool(params: {
             const batch = openProfiledImportBinaryResult(response, transferProfiler)
             diagnosticViews.push(batch.diagnostics)
             fileViews.push(batch.files)
-            if (batch.configurationFragmentBuffer !== undefined || batch.stateFragment !== undefined) {
+            if (batch.reconstructionFactsBuffer === undefined) throw new Error("Первый проход не вернул общие факты восстановления")
+            if (batch.configurationFragmentBuffer !== undefined) throw new Error("Первый проход не должен передавать полный блок восстановления")
+            {
               await stateQueue.run(() => transferProfiler.measureAsync(
                 "Подготовка импорта конфигурации",
                 "Применение состояния пачки первого прохода",
@@ -393,9 +388,7 @@ function createXmlImportOperationPool(params: {
                 () => {
                   assertProducerActive("firstPassRunning")
                   return sink.writeFirstPassState({
-                    ...(batch.configurationFragmentBuffer === undefined
-                      ? {}
-                      : { configurationFragmentBuffer: batch.configurationFragmentBuffer }),
+                    reconstructionFactsBuffer: batch.reconstructionFactsBuffer,
                     ...(batch.stateFragment === undefined ? {} : { stateFragment: batch.stateFragment }),
                   })
                 },
@@ -418,11 +411,11 @@ function createXmlImportOperationPool(params: {
       }
     },
 
-    async runSecondPass(readTokens, exportProfile, sink = noopStateSink, issueDecisions = []) {
+    async runSecondPass(readTokens, exportProfile, sink = noopStateSink) {
       assertUsable(phase, fatalError)
       if (phase === "firstPassErrors") throw new Error("Первый проход import завершён с ошибками")
       if (phase !== "firstPassReady") throw new Error("Первый проход import не завершён успешно")
-      return runFollowingPass(readTokens, sink, exportProfile, issueDecisions)
+      return runFollowingPass(readTokens, sink, exportProfile)
     },
     workerCount() {
       return activeWorkerIndexes.length
@@ -686,12 +679,11 @@ function secondPassBeginCommand(
   readToken: ProjectStateReadToken,
   composition: readonly ImportControlCompositionEntry[],
   exportProfile: XmlComponentExportProfile | undefined,
-  issueDecisions: readonly ImportProjectIssueDecision[],
 ): Extract<ImportWorkerCommand, { kind: "beginSecondPass" }> {
   if (exportProfile === undefined) {
     throw new Error("Второй проход import не получил профиль восстановления XML")
   }
-  return { kind: "beginSecondPass", readToken, composition, exportProfile, issueDecisions }
+  return { kind: "beginSecondPass", readToken, composition, exportProfile }
 }
 
 function normalizeConcurrency(concurrency: number): number {
@@ -712,7 +704,6 @@ export function createXmlImportWorkerPoolOptions() {
     minThreads: 1,
     maxThreads: 1,
     execArgv,
-    resourceLimits: { maxOldGenerationSizeMb: 512 },
   }
 }
 

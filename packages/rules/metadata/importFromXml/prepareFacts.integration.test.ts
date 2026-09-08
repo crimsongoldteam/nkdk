@@ -1,5 +1,8 @@
 import {
   createConfigurationIndexCollector,
+  isExplicitYAMLString,
+  isXmlElementNode,
+  xmlElementChildren,
   parseMetadataYaml,
   parseXmlDocumentWithSaxes,
   serializeYAMLDocument,
@@ -7,7 +10,7 @@ import {
 } from "@nkdk/runtime"
 import fs from "node:fs"
 import { join } from "node:path"
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 import "../../tests/metadataExecutionContext"
 import { mockXmlImportContext } from "../../tests/mockContext"
 import { MetadataCatalogRules } from "../appliedObjects/metadataCatalog/rules"
@@ -20,15 +23,47 @@ import { createValidationProjectComponent } from "../validation/projectComponent
 import { extractProjectValidationFileFacts } from "../validation/projectValidationPasses"
 import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import { prepareImportFacts } from "./prepareFacts"
-import { prepareImportYaml } from "./prepareYaml"
+import { prepareImportYaml, prepareImportYamlFromDocuments } from "./prepareYaml"
+import { prepareImportDependencies } from "./preparedDependencies"
+import { registerMetadataItemXmlImportAugmenter } from "../ruleRuntime/metadataItem/augmenterRegistry"
+import { materializeImportPropertyFacts } from "../../tests/importPropertyFacts"
+import { propertyFactsWithReconstructionValues } from "./propertyFacts"
+import * as propertyFactsView from "./baseFormProjectionFacts"
+import * as addressableMetadataTargets from "../validation/addressableMetadataTargets"
+import * as formDataPathMetadata from "../forms/clientApplicationForm/formDataPathMetadata"
+import { clientApplicationFormDataPathProjection, resolveClientApplicationFormCollectionItemRule } from "../forms/clientApplicationForm/formDataPathProjection"
+import { collectFormDataPathOccurrencesFromYAML } from "../validation/dataPath/formYamlTraversal"
+import * as formYamlTraversal from "../validation/dataPath/formYamlTraversal"
+import { collectFormDataPathOccurrencesFromFacts } from "./formDataPathOccurrences"
+import { collectFormDataPathPreparationFromFacts } from "./formDataPathPreparation"
+import { collectClientApplicationFormDataPathPreparation } from "../forms/clientApplicationForm/formDataPathContext"
 import type { ImportAssignment } from "./types"
 import {
   extractImportValidationContribution,
   extractImportValidationContributionFromFacts,
 } from "./validationContribution"
+import { withoutUnsupportedConfigurationExtensionPropertyStates } from "./configurationExtensionFixtureSupport"
+import { prepareProofYaml } from "../../tests/prepareProofYaml"
 
 const configurationFixturesDir = join(import.meta.dirname, "../appliedObjects/configuration/__fixtures__")
 const metadataPath = join(configurationFixturesDir, "syncConfiguration/xml/Catalogs/Контрагенты.xml")
+
+it("первый проход находит одинаковые имена реквизита и табличной части", async () => {
+  const assignment = catalogAssignment()
+  const input = assignment.xmlFiles[0]!
+  const document = parseXmlDocumentWithSaxes(`<MetaDataObject><Catalog>
+    <Properties><Name>Контрагенты</Name></Properties><ChildObjects>
+    <Attribute><Properties><Name>ОбщееИмя</Name></Properties></Attribute>
+    <TabularSection><Properties><Name>ОбщееИмя</Name></Properties></TabularSection>
+    </ChildObjects></Catalog></MetaDataObject>`)
+  const facts = await prepareImportFacts({
+    assignment, inputs: [{ input, document }], context: mockXmlImportContext(),
+    collector: createConfigurationIndexCollector(),
+  })
+  expect(facts.uniqueNameIssues).toEqual([expect.objectContaining({
+    target: { kind: "path", path: ["ТабличныеЧасти", "ОбщееИмя"] },
+  })])
+})
 const commonFormFixtureDir = join(import.meta.dirname, "../appliedObjects/metadataCommonForm/__fixtures__/sync/xml")
 const extensionFixtureDir = join(import.meta.dirname, "__fixtures__/configurationExtension")
 const fullCatalogFixture = join(import.meta.dirname, "../appliedObjects/metadataCatalog/__fixtures__/full.xml")
@@ -36,6 +71,222 @@ const e2eAllExtensionDir = join(import.meta.dirname, "../../../../e2e/fixtures/x
 const e2eConfigurationDir = join(import.meta.dirname, "../../../../e2e/fixtures/xml/cf")
 
 describe("prepareImportFacts", () => {
+  it("не сохраняет оформление элементов обычной формы между проходами", async () => {
+    const assignment = reportVariantFormAssignment()
+    const inputs = parseAssignmentInputs(assignment, true)
+    const context = mockXmlImportContext()
+    const facts = await prepareImportFacts({ assignment, inputs, context, collector: createConfigurationIndexCollector() })
+    expect(facts.semanticFacts.some(fact => fact.propertyKey === "width" && fact.value === 50)).toBe(false)
+    expect(facts.pendingChecks.some(check => check.kind === "dataPath")).toBe(true)
+    const prepared = await prepareProofYaml(assignment, inputs, context, facts)
+    expect(serializeYAMLDocument(prepared.yaml, prepared.annotations).text).toContain("Ширина: 50")
+    expect(prepared.yaml).toMatchObject({ КоманднаяПанель: { ГоризонтальноеПоложение: "Право" } })
+  })
+  it("проверяет основу формы без повторного объектного аудита XML", async () => {
+    const assignment = managedFormAssignment()
+    const inputs = parseAssignmentInputs(assignment, true)
+    const context = extensionContext()
+    const facts = await prepareImportFacts({ assignment, inputs, context, collector: createConfigurationIndexCollector() })
+    const nodes = inputs.flatMap(({ document }) => document.roots)
+    for (const node of nodes) {
+      nodes.push(...xmlElementChildren(node))
+      Object.defineProperty(node, "compatibilityValue", { get() { throw new Error("Основа не должна читать XML-объект") } })
+    }
+    const prepared = await prepareProofYaml(assignment, inputs, context, facts)
+    expect(prepared.baseFormCandidate?.yaml).toMatchObject({
+      Реквизиты: { БазовыйРеквизитФормы: { Тип: "Дата" } },
+      Элементы: { БазовоеПоле: { Вид: "ПолеВвода", Ширина: 99 } },
+    })
+    expect(prepared.baseFormCandidate?.localProofReceipt).toBeDefined()
+  })
+
+  it("не сохраняет XML-узлы в фактах полной формы", async () => {
+    const formRoot = join(e2eConfigurationDir, "BusinessProcesses/БизнесПроцессВсеСвойства/Forms/ФормаВыбора")
+    const assignment = assignmentForProjectPath({
+      id: "full-form-values", targetProjectPath: "БизнесПроцесс/БизнесПроцессВсеСвойства/Формы/ФормаВыбора/Форма.yaml",
+      itemType: "ClientApplicationForm", itemName: "ФормаВыбора", logicalAddress: "БизнесПроцесс.БизнесПроцессВсеСвойства.Форма.ФормаВыбора",
+      owner: { itemType: "MetadataBusinessProcess", name: "БизнесПроцессВсеСвойства", logicalAddress: "БизнесПроцесс.БизнесПроцессВсеСвойства" },
+      xmlFiles: [{ role: "metadata", sourcePath: `${formRoot}.xml` }, { role: "body", sourcePath: join(formRoot, "Ext/Form.xml") }],
+    })
+    const inputs = parseAssignmentInputs(assignment, true)
+    const context = mockXmlImportContext()
+    const facts = await prepareImportFacts({ assignment, inputs, context, collector: createConfigurationIndexCollector() })
+    const nodes: string[] = []
+    const inspect = (value: unknown): void => {
+      if (isXmlElementNode(value)) { nodes.push(value.path); return }
+      if (value !== null && typeof value === "object") for (const child of Object.values(value)) inspect(child)
+    }
+    inspect(facts.semanticFacts)
+    expect(nodes).toEqual([])
+    const prepared = await prepareProofYaml(assignment, inputs, context, facts)
+    inspect(prepared.yaml)
+    expect(nodes).toEqual([])
+  })
+
+  it.each([
+    ["MetadataExchangePlan", "ПланОбмена", "ExchangePlans", "ПланОбменаВсеСвойства", "Content.xml", true],
+    ["MetadataChartOfAccounts", "ПланСчетов", "ChartsOfAccounts", "ПланСчетовВсеСвойства", "Predefined.xml", false],
+    ["MetadataAccumulationRegister", "РегистрНакопления", "AccumulationRegisters", "РегистрНакопленияВсеСвойстваОбороты", "Aggregates.xml", false],
+  ] as const)("проверяет внешние XML без новых raw: %s", async (itemType, kind, folder, name, file, extension) => {
+    const directory = extension ? e2eAllExtensionDir : e2eConfigurationDir
+    const assignment = assignmentForProjectPath({
+      id: "external-proof", targetProjectPath: `${kind}/${name}/Свойства.yaml`,
+      itemType, itemName: name, logicalAddress: `${kind}.${name}`, owner: undefined,
+      xmlFiles: [
+        { role: "metadata", sourcePath: join(directory, `${folder}/${name}.xml`) },
+        { role: "property", sourcePath: join(directory, `${folder}/${name}/Ext/${file}`) },
+      ],
+    })
+    const inputs = parseAssignmentInputs(assignment, true)
+    const context = extension ? extensionContext() : mockXmlImportContext()
+    const facts = await prepareImportFacts({ assignment, inputs, context, collector: createConfigurationIndexCollector() })
+    const result = await prepareProofYaml(assignment, inputs, context, facts)
+    if (result.yaml === null || typeof result.yaml !== "object") throw new Error("Ожидался YAML объекта")
+    const externalKey = extension ? "Состав" : itemType === "MetadataChartOfAccounts" ? "Предопределенные" : "Агрегаты"
+    const external = Object.entries(result.yaml).find(([key]) => key === externalKey)?.[1]
+    if (extension) expect(external).toHaveLength(7)
+    expect(external).toBeDefined()
+    expect(serializeYAMLDocument(external, result.annotations).text).not.toContain("!xml/raw")
+  })
+
+  it.each([catalogAssignment, managedFormAssignment, commonFormAssignment, extensionReportVariantFormAssignment])("готовит оба прохода без объекта документа: %s", async (createAssignment) => {
+    const assignment = createAssignment()
+    const inputs = parseAssignmentInputs(assignment, true)
+    const options = { assignment, inputs, context: extensionContext(), topology: compileRegisteredMetadataResourceTopology() }
+    const expectedFacts = await prepareImportFacts({ ...options, collector: createConfigurationIndexCollector() })
+    const expectedYaml = await prepareImportYamlFromDocuments({ ...options, collector: createConfigurationIndexCollector() })
+    for (const { document } of inputs) {
+      Object.defineProperty(document, "compatibility", { get() { throw new Error("Document compatibility must not be read") } })
+    }
+    const facts = await prepareImportFacts({ ...options, collector: createConfigurationIndexCollector() })
+    const yaml = await prepareImportYamlFromDocuments({ ...options, collector: createConfigurationIndexCollector() })
+    const values = (result: typeof facts) => result.semanticFacts.map(({ yamlPath, value, scalarTag }) => ({ yamlPath, value, scalarTag }))
+    expect(values(facts)).toEqual(values(expectedFacts))
+    expect(yaml.yaml).toEqual(expectedYaml.yaml)
+    expect(yaml.baseFormCandidate?.yaml).toEqual(expectedYaml.baseFormCandidate?.yaml)
+  })
+
+  it("сохраняет изменение выбранного объекта дополнением на месте", async () => {
+    registerMetadataItemXmlImportAugmenter("append-selected-purpose", {
+      yamlDependencies: () => ["Элементы"],
+      augment({ rule, yaml }) {
+        if (rule.itemType !== "ClientApplicationForm") return
+        const elements = yaml.Элементы
+        if (typeof elements !== "object" || elements === null) throw new Error("Ожидался выбранный объект")
+        Object.assign(elements, { ТестовоеПоле: "ДополнительноеЗначение" })
+      },
+    })
+    const assignment = reportVariantFormAssignment()
+    const context = mockXmlImportContext()
+    const prepared = await prepareImportFacts({
+      assignment, context: { ...context, fromXML: { ...context.fromXML, metadataItemAugmenter: "append-selected-purpose" } },
+      collector: createConfigurationIndexCollector(), inputs: parseAssignmentInputs(assignment, true),
+    })
+    expect(prepared.semanticFacts.some(fact => fact.value === "ДополнительноеЗначение")).toBe(true)
+  })
+
+  it("не обходит YAML формы для подготовки запросов проверки путей", async () => {
+    const fromYaml = vi.spyOn(formYamlTraversal, "collectFormDataPathOccurrencesFromYAML")
+    try {
+      const assignment = reportVariantFormAssignment()
+      const facts = await prepareImportFacts({
+        assignment, context: extensionContext(), collector: createConfigurationIndexCollector(),
+        inputs: parseAssignmentInputs(assignment, true),
+      })
+      expect(facts.pendingChecks.some(({ kind }) => kind === "dataPath")).toBe(true)
+      expect(fromYaml).not.toHaveBeenCalled()
+    } finally {
+      fromYaml.mockRestore()
+    }
+  })
+
+  it.each([managedFormAssignment, reportVariantFormAssignment, extensionReportVariantFormAssignment])("получает прежние запросы проверки путей из фактов: %s", async (createAssignment) => {
+    const assignment = createAssignment()
+    const facts = await prepareImportFacts({
+      assignment, context: extensionContext(), collector: createConfigurationIndexCollector(),
+      inputs: parseAssignmentInputs(assignment, true),
+    })
+    const expected = collectFormDataPathOccurrencesFromYAML({
+      yaml: materializeImportPropertyFacts(facts.semanticFacts), rule: facts.rule,
+      resolveCollectionItemRule: resolveClientApplicationFormCollectionItemRule,
+    }).map(({ setValue: _setValue, ...occurrence }) => occurrence)
+    expect(collectFormDataPathOccurrencesFromFacts({
+      facts: facts.semanticFacts, projection: clientApplicationFormDataPathProjection,
+    })).toEqual(expected)
+    const preparation = collectFormDataPathPreparationFromFacts({
+      facts: facts.semanticFacts, index: facts.localIndexes.metadata.formDataPathIndex!,
+    })
+    const yamlPreparation = collectClientApplicationFormDataPathPreparation({
+      yaml: materializeImportPropertyFacts(facts.semanticFacts), rule: facts.rule,
+    })
+    expect(preparation.collected.elementsByName).toEqual(yamlPreparation.collected.elementsByName)
+    expect(preparation.effectiveMainAttribute).toBe(yamlPreparation.effectiveMainAttribute)
+  })
+
+  it("готовит отдельный индекс путей основы по её фактам", async () => {
+    const assignment = extensionReportVariantFormAssignment()
+    const facts = await prepareImportFacts({
+      assignment, context: extensionContext(), collector: createConfigurationIndexCollector(),
+      inputs: parseAssignmentInputs(assignment, true),
+    })
+    expect(facts.baseFormDataPathIndex).toBeDefined()
+    const expected = formDataPathMetadata.createImportedFormDataPathIndex({
+      yaml: materializeImportPropertyFacts(propertyFactsWithReconstructionValues(facts.baseFormSemanticFacts!)),
+      rule: facts.rule,
+    })
+    expect(formDataPathSnapshot(facts.baseFormDataPathIndex)).toEqual(formDataPathSnapshot(expected))
+  })
+
+  it("не создаёт YAML-представление основы ради выбранных зависимостей", async () => {
+    const view = vi.spyOn(propertyFactsView, "baseFormProjectionSourceFromFacts")
+    try {
+      const assignment = extensionReportVariantFormAssignment()
+      const facts = await prepareImportFacts({
+        assignment, context: extensionContext(), collector: createConfigurationIndexCollector(),
+        inputs: parseAssignmentInputs(assignment, true),
+      })
+      expect(facts.baseFormSemanticFacts?.length).toBeGreaterThan(0)
+      expect(facts.baseFormDependencies).toBeDefined()
+      expect(view).not.toHaveBeenCalled()
+    } finally {
+      view.mockRestore()
+    }
+  })
+
+  it("не создаёт дополнительные факты формы без выбранного XML-дополнения", async () => {
+    const assignment = managedFormAssignment()
+    const facts = await prepareImportFacts({
+      assignment, context: mockXmlImportContext(), collector: createConfigurationIndexCollector(),
+      inputs: parseAssignmentInputs(assignment, true),
+    })
+    expect(facts.semanticFacts.filter(fact => fact.propertyKey.startsWith("$augment:")).map(fact => fact.yamlPath)).toEqual([])
+    expect(facts.localIndexes.metadata.formDataPathIndex).toBeDefined()
+  })
+
+  it.each([
+    { name: "обычный", synonym: "Контрагенты справочник" },
+    { name: "большой независимый текст", synonym: "Я".repeat(131_072) },
+  ])("не хранит независимый синоним справочника: $name", async ({ synonym }) => {
+    const view = vi.spyOn(propertyFactsView, "baseFormProjectionSourceFromFacts")
+    try {
+      const assignment = catalogAssignment()
+      const context = mockXmlImportContext()
+      const inputs = assignment.xmlFiles.map(input => ({ input, document: parseXmlDocumentWithSaxes(
+        fs.readFileSync(input.sourcePath, "utf8").replace("Контрагенты справочник", synonym),
+      ) }))
+      const facts = await prepareImportFacts({
+        assignment, context, collector: createConfigurationIndexCollector(), inputs,
+      })
+      expect(view).not.toHaveBeenCalled()
+      expect(facts.semanticFacts.some(fact => fact.value === synonym)).toBe(false)
+      expect(facts.localIndexes.metadata.formDataPathIndex).toBeUndefined()
+      const prepared = await prepareProofYaml(assignment, inputs, context, facts)
+      expect(prepared.yaml).toMatchObject({ Синоним: synonym })
+    } finally {
+      view.mockRestore()
+    }
+  })
+
   it("даёт тот же configuration и dependency вклад без assignment-level YAML", async () => {
     const assignment = catalogAssignment()
     const { facts, legacy, legacyCollector } = await preparePair(assignment, mockXmlImportContext())
@@ -56,6 +307,75 @@ describe("prepareImportFacts", () => {
     expect(facts).not.toHaveProperty("yaml")
     expect(facts).not.toHaveProperty("annotations")
     expect(facts).not.toHaveProperty("proofAudit")
+    expect(facts).not.toHaveProperty("reconstructionFacts")
+  })
+
+  it("не удерживает составные YAML-поддеревья в фактах первого прохода", async () => {
+    const assignment = managedFormAssignment()
+    const facts = await prepareImportFacts({
+      assignment,
+      context: extensionContext(),
+      collector: createConfigurationIndexCollector(),
+      inputs: parseAssignmentInputs(assignment, true),
+    })
+
+    expect(facts.semanticFacts.filter(({ value }) => containsYamlContainer(value))).toEqual([])
+    expect((facts.baseFormSemanticFacts ?? []).filter(({ value }) => containsYamlContainer(value))).toEqual([])
+  })
+
+  it("строит индекс путей формы без чтения полного YAML", async () => {
+    const assignment = managedFormAssignment()
+    const fromYaml = vi.spyOn(formDataPathMetadata, "createImportedFormDataPathIndex")
+    try {
+      const facts = await prepareImportFacts({
+        assignment, context: extensionContext(), collector: createConfigurationIndexCollector(),
+        inputs: parseAssignmentInputs(assignment, true),
+      })
+      expect(facts.localIndexes.metadata.formDataPathIndex).toBeDefined()
+      expect(fromYaml).not.toHaveBeenCalled()
+    } finally {
+      fromYaml.mockRestore()
+    }
+  })
+
+  it("не материализует отсутствующие составные значения BaseForm", async () => {
+    const assignment = extensionReportVariantFormAssignment()
+    const context = extensionContext()
+    const facts = await prepareImportFacts({
+      assignment,
+      context,
+      collector: createConfigurationIndexCollector(),
+      inputs: parseAssignmentInputs(assignment, true),
+    })
+    const source = facts.baseFormSemanticFacts ?? []
+    const yaml = materializeImportPropertyFacts(source)
+
+    expect(JSON.stringify(yaml)).not.toContain('"КонтекстноеМеню":{}')
+    expect(JSON.stringify(yaml)).not.toContain('"Заголовок":{"Заголовок"')
+  })
+
+  it("восстанавливает все листья принятого составного свойства во втором проходе", async () => {
+    const assignment = styleItemAssignment()
+    const inputs = parseAssignmentInputs(assignment)
+    const context = mockXmlImportContext()
+    const facts = await prepareImportFacts({
+      assignment,
+      context,
+      collector: createConfigurationIndexCollector(),
+      inputs,
+    })
+    const prepared = await prepareImportYamlFromDocuments({
+      assignment,
+      context,
+      collector: createConfigurationIndexCollector(),
+      inputs,
+      dependencies: prepareImportDependencies(facts.dependencies),
+    })
+
+    expect(prepared.yaml).toMatchObject({
+      Тип: "Цвет",
+      Значение: { Вид: "Цвет", Значение: "#8A31E2" },
+    })
   })
 
   it.each([
@@ -98,7 +418,17 @@ describe("prepareImportFacts", () => {
     const { facts, legacy } = await preparePair(assignment, mockXmlImportContext())
     const file = validationFileForAssignment(assignment)
     const expected = extractImportValidationContribution({ prepared: legacy, projectDir: "/project", file })
-    const actual = extractImportValidationContributionFromFacts({ prepared: facts, projectDir: "/project", file })
+    const traversal = vi.spyOn(addressableMetadataTargets, "collectAddressableMetadataLogicalAddresses")
+    const yamlView = vi.spyOn(propertyFactsView, "baseFormProjectionSourceFromFacts")
+    let actual: ReturnType<typeof extractImportValidationContributionFromFacts>
+    try {
+      actual = extractImportValidationContributionFromFacts({ prepared: facts, projectDir: "/project", file })
+      expect(traversal).not.toHaveBeenCalled()
+      expect(yamlView).not.toHaveBeenCalled()
+    } finally {
+      traversal.mockRestore()
+      yamlView.mockRestore()
+    }
 
     expect(expected.validationContribution.logicalAddresses.length).toBeGreaterThan(0)
     expect(actual).toEqual(expected)
@@ -137,7 +467,7 @@ describe("prepareImportFacts", () => {
       collector: createConfigurationIndexCollector(),
       inputs: [{
         input: assignment.xmlFiles[0]!,
-        document: parseXmlDocumentWithSaxes(xml, { preserveXsiNil: true }),
+        document: parseXmlDocumentWithSaxes(xml),
       }],
     })).resolves.toMatchObject({ targetProjectPath: assignment.targetProjectPath })
   })
@@ -151,7 +481,7 @@ describe("prepareImportFacts", () => {
       inputs: parseAssignmentInputs(assignment),
     })
 
-    expect(facts.formValidation?.pendingChecks).toEqual(expect.arrayContaining([
+    expect(facts.pendingChecks).toEqual(expect.arrayContaining([
       expect.objectContaining({
         kind: "dataPath",
         yamlPath: ["Элементы", "ПолеВвода1", "ПутьКДанным"],
@@ -159,18 +489,41 @@ describe("prepareImportFacts", () => {
       }),
     ]))
     expect(facts).not.toHaveProperty("yaml")
+    expect(facts).not.toHaveProperty("formValidation")
   })
 
   it("строит индекс путей формы напрямую из принятых фактов", async () => {
     const assignment = managedFormAssignment()
     const { facts, legacy } = await preparePair(assignment, extensionContext())
 
-    expect(formDataPathSnapshot(facts.formValidation?.index)).toEqual(
-      formDataPathSnapshot(legacy.localIndexes.metadata.formDataPathIndex),
-    )
     expect(formDataPathSnapshot(facts.localIndexes.metadata.formDataPathIndex)).toEqual(
       formDataPathSnapshot(legacy.localIndexes.metadata.formDataPathIndex),
     )
+  })
+
+  it.each(["attributes-first", "items-first"])("завершает CurrentData без очереди финализации: %s", async (order) => {
+    const assignment = managedFormAssignment()
+    const attributes = `<Attributes><Attribute name="Строки" id="1"><Type><v8:Type>v8:ValueTable</v8:Type></Type><Columns><Column name="Значение" id="1"><Type><v8:Type>xs:string</v8:Type></Type></Column></Columns></Attribute></Attributes>`
+    const items = `<ChildItems><Table name="Строки" id="1"><DataPath>Строки</DataPath></Table><InputField name="Поле" id="2"><DataPath>Items.Строки.CurrentData.Значение</DataPath></InputField></ChildItems>`
+    const inputs = parseAssignmentInputs(assignment).map((input) => input.input.role !== "body" ? input : {
+      input: input.input,
+      document: parseXmlDocumentWithSaxes(`<Form xmlns:v8="http://v8.1c.ru/8.1/data/core">${order === "attributes-first" ? attributes + items : items + attributes}</Form>`),
+    })
+    const context = mockXmlImportContext()
+    const facts = await prepareImportFacts({ assignment, context, inputs, collector: createConfigurationIndexCollector() })
+    const result = await prepareImportYamlFromDocuments({
+      assignment, inputs, collector: createConfigurationIndexCollector(),
+      dependencies: prepareImportDependencies(facts.dependencies),
+      context: {
+        ...context,
+        importFromYAML: { formDataPathIndex: facts.localIndexes.metadata.formDataPathIndex },
+        exportToYAML: { toTyped: false, ownerMetadataCache: {
+          listRefs: () => [], get: () => ({ status: "not-found", diagnostics: [] }),
+        } },
+      },
+    })
+    expect(JSON.stringify(result.yaml)).toContain("Элементы.Строки.ТекущиеДанные.Значение")
+    expect(result.deferred).toEqual([])
   })
 
   it("не применяет standalone-проверки клиентской формы к MetadataCommonForm", async () => {
@@ -195,7 +548,7 @@ describe("prepareImportFacts", () => {
       projectDir: "/project",
       file,
     }))
-    expect(facts.formValidation).toBeUndefined()
+    expect(facts).not.toHaveProperty("formValidation")
   })
 
   it("сохраняет validation-вклад общей формы расширения", async () => {
@@ -279,7 +632,66 @@ describe("prepareImportFacts", () => {
       expect.objectContaining({ constraint: expect.objectContaining({ validation: "translateOnly" }) }),
     )
   })
+
+  it("готовит исходное значение default, очищенного у заимствованного объекта", async () => {
+    const assignment = assignmentForProjectPath({
+      id: "adopted-catalog",
+      targetProjectPath: "Справочник/СправочникСПредопределенными/Свойства.yaml",
+      itemType: "MetadataCatalog",
+      itemName: "СправочникСПредопределенными",
+      logicalAddress: "Справочник.СправочникСПредопределенными",
+      owner: undefined,
+      xmlFiles: [{
+        role: "metadata",
+        sourcePath: join(e2eAllExtensionDir, "Catalogs/СправочникСПредопределенными.xml"),
+      }],
+    })
+    const facts = await prepareImportFacts({
+      assignment,
+      context: extensionContext(),
+      collector: createConfigurationIndexCollector(),
+      inputs: parseAssignmentInputs(assignment),
+    })
+
+    expect(facts.semanticFacts).not.toContainEqual(expect.objectContaining({ yamlPath: ["ДлинаКода"] }))
+    expect(prepareImportDependencies(facts.dependencies).propertyValue?.([], "codeLength"))
+      .toEqual({ value: 9 })
+  })
+
+  it("включает предопределённые значения в общий индекс первого прохода", async () => {
+    const assignment = assignmentForProjectPath({
+      id: "catalog-predefined-facts",
+      targetProjectPath: "Справочник/СправочникСПредопределенными/Свойства.yaml",
+      itemType: "MetadataCatalog",
+      itemName: "СправочникСПредопределенными",
+      logicalAddress: "Справочник.СправочникСПредопределенными",
+      owner: undefined,
+      xmlFiles: [
+        { role: "metadata", sourcePath: join(e2eConfigurationDir, "Catalogs/СправочникСПредопределенными.xml") },
+        { role: "property", sourcePath: join(e2eConfigurationDir, "Catalogs/СправочникСПредопределенными/Ext/Predefined.xml") },
+      ],
+    })
+    const facts = await prepareImportFacts({
+      assignment,
+      context: mockXmlImportContext(),
+      collector: createConfigurationIndexCollector(),
+      inputs: parseAssignmentInputs(assignment),
+    })
+    const contribution = extractImportValidationContributionFromFacts({
+      prepared: facts,
+      projectDir: "/project",
+      file: validationFileForAssignment(assignment),
+    })
+    expect(contribution.validationContribution.objectRecords[0]?.ownerFacts?.predefined)
+      .toContainEqual(expect.objectContaining({ name: "Предопределенный1" }))
+  })
 })
+
+function containsYamlContainer(value: unknown): boolean {
+  if (isExplicitYAMLString(value)) return false
+  if (Array.isArray(value)) return value.some(containsYamlContainer)
+  return value !== null && typeof value === "object" && Object.keys(value).length > 0
+}
 
 function catalogAssignment(): ImportAssignment {
   const targetProjectPath = "Справочник/Контрагенты/Свойства.yaml"
@@ -297,6 +709,21 @@ function catalogAssignment(): ImportAssignment {
     xmlFiles: [{ role: "metadata", sourcePath: metadataPath }],
     externalFiles: [],
   }
+}
+
+function styleItemAssignment(): ImportAssignment {
+  return assignmentForProjectPath({
+    id: "style-item",
+    targetProjectPath: "ЭлементСтиля/ЭлементСтиляЦвет.yaml",
+    itemType: "MetadataStyleItem",
+    itemName: "ЭлементСтиляЦвет",
+    logicalAddress: "ЭлементСтиля.ЭлементСтиляЦвет",
+    owner: undefined,
+    xmlFiles: [{
+      role: "metadata",
+      sourcePath: join(e2eConfigurationDir, "StyleItems/ЭлементСтиляЦвет.xml"),
+    }],
+  })
 }
 
 function configurationAssignment(
@@ -487,11 +914,19 @@ function functionalOptionAssignment(): ImportAssignment {
 }
 
 function reportVariantFormAssignment(): ImportAssignment {
+  return reportVariantFormAssignmentFrom(e2eConfigurationDir, "report-variant-form")
+}
+
+function extensionReportVariantFormAssignment(): ImportAssignment {
+  return reportVariantFormAssignmentFrom(e2eAllExtensionDir, "extension-report-variant-form")
+}
+
+function reportVariantFormAssignmentFrom(rootDir: string, id: string): ImportAssignment {
   const ownerName = "ОтчетВсеСвойства"
   const itemName = "ФормаВарианта"
-  const formRoot = join(e2eConfigurationDir, `Reports/${ownerName}/Forms/${itemName}`)
+  const formRoot = join(rootDir, `Reports/${ownerName}/Forms/${itemName}`)
   return assignmentForProjectPath({
-    id: "report-variant-form",
+    id,
     targetProjectPath: `Отчет/${ownerName}/Формы/${itemName}/Форма.yaml`,
     itemType: "ClientApplicationForm",
     itemName,
@@ -544,18 +979,21 @@ async function preparePair(
   context: XmlImportConfigurationContext,
 ) {
   const legacyCollector = createConfigurationIndexCollector()
-  const legacy = await prepareImportYaml({
-    assignment,
-    context,
-    collector: legacyCollector,
-    proofDetail: "roots",
-  })
+  const sanitizeExtensionStates = context.fromXML.metadataItemAugmenter === "configurationExtension"
+  const legacy = sanitizeExtensionStates
+    ? await prepareImportYamlFromDocuments({
+        assignment,
+        context,
+        collector: legacyCollector,
+        inputs: parseAssignmentInputs(assignment, true),
+      })
+    : await prepareImportYaml({ assignment, context, collector: legacyCollector })
   const factsCollector = createConfigurationIndexCollector()
   const facts = await prepareImportFacts({
     assignment,
     context,
     collector: factsCollector,
-    inputs: parseAssignmentInputs(assignment),
+    inputs: parseAssignmentInputs(assignment, sanitizeExtensionStates),
   })
   return { facts, factsCollector, legacy, legacyCollector }
 }
@@ -575,13 +1013,13 @@ async function expectProjectedValidationPair(
   return { actual, facts, legacy }
 }
 
-function parseAssignmentInputs(assignment: ImportAssignment) {
+function parseAssignmentInputs(assignment: ImportAssignment, sanitizeExtensionStates = false) {
   return assignment.xmlFiles.map((input) => ({
     input,
-    document: parseXmlDocumentWithSaxes(fs.readFileSync(input.sourcePath, "utf8"), {
-      preserveXsiNil: true,
-      preserveEmptyElementNames: ["AdditionalFields"],
-    }),
+    document: parseXmlDocumentWithSaxes(
+      sanitizeExtensionStates
+        ? withoutUnsupportedConfigurationExtensionPropertyStates(fs.readFileSync(input.sourcePath, "utf8"))
+        : fs.readFileSync(input.sourcePath, "utf8")),
   }))
 }
 
@@ -589,7 +1027,11 @@ function extensionContext() {
   const context = mockXmlImportContext()
   return {
     ...context,
-    fromXML: { ...context.fromXML, componentKind: "configurationExtension" as const },
+    fromXML: {
+      ...context.fromXML,
+      componentKind: "configurationExtension" as const,
+      metadataItemAugmenter: "configurationExtension",
+    },
   }
 }
 

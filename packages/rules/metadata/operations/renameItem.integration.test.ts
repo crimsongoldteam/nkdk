@@ -11,6 +11,7 @@ import type { ProjectStateService } from "../projectState/service"
 import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
 import type { Diagnostic } from "../validation/types"
 import { renameMetadataItem } from "./renameItem"
+import { findMetadataReferences } from "./findMetadataReferences"
 import {
 completeOperationProjectState,
 createOperationTestProjectHarness,
@@ -160,6 +161,26 @@ describe("renameMetadataItem", { timeout: 30_000 }, () => {
     expect(readFileSync(formPath, "utf-8")).toContain(
       "ОсновнаяТаблица: РегистрРасчета.Начисления.БазаНоваяБаза",
     )
+  })
+
+  it("находит и переименовывает ОсновнойИнтерфейс, не переписывая непрозрачный bin", async () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Интерфейс/Полный/Свойства.yaml", "{}")
+    writeProjectFile(projectDir, "Интерфейс/Полный/Interface.bin", "Interface.Полный")
+    const configuration = writeProjectFile(projectDir, "Конфигурация.yaml", "ОсновнойИнтерфейс: Полный")
+    harness.setIndex({
+      targetProjectPath: "cf/Интерфейс/Полный/Свойства.yaml",
+      references: [operationMetadataReference("cf/Конфигурация.yaml", ["ОсновнойИнтерфейс"], "Interface.Полный")],
+    })
+    const registries = createMetadataExecutionRegistrySets(metadataRules)
+    await withMetadataExecutionRegistrySets(registries, async () => {
+      expect(await findMetadataReferences({ projectDir, path: "Интерфейс.Полный", projectState, ignoreValidationErrors: true }, registries.rules))
+        .toMatchObject({ code: "references_found", blockedReferences: [{ value: "Interface.Полный" }] })
+      expect(await renameMetadataItem({ projectDir, path: "Интерфейс.Полный", newName: "Новый", allowWrite: true, projectState, ignoreValidationErrors: true }, registries.rules))
+        .toMatchObject({ ok: true, rewrittenReferences: [{ from: "Interface.Полный", to: "Interface.Новый" }] })
+    })
+    expect(readFileSync(configuration, "utf8")).toContain("ОсновнойИнтерфейс: Новый")
+    expect(readFileSync(join(projectDir, "cf/Интерфейс/Новый/Interface.bin"), "utf8").trim()).toBe("Interface.Полный")
   })
 
   it("пакетно переписывает много индексированных ссылок одного YAML", async () => {

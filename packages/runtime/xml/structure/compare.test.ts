@@ -5,12 +5,35 @@ import {
   compareXmlStructureDifferences,
   compareXmlStructures,
   createXmlElementPatch,
+  xmlContentOrder,
 } from "./compare"
 
 const roots = (xml: string): readonly XmlElementNode[] =>
-  parseXmlDocumentWithSaxes(xml, { preserveXsiNil: true }).roots
+  parseXmlDocumentWithSaxes(xml).roots
 
 describe("compareXmlStructures", () => {
+  it.each([8, 128])("строит порядок %i именованных siblings без попарного чтения атрибутов", (count) => {
+    const root = roots(`<Root>${Array.from({ length: count }, (_, index) => `<Item name="Name${index}"/>`).join("")}</Root>`)[0]!
+    let attributeReads = 0
+    const observed = {
+      ...root,
+      content: root.content.map((node) => {
+        if (node.type !== "element") throw new Error("Expected Item")
+        return {
+          ...node,
+          get attributes() {
+            attributeReads++
+            return node.attributes
+          },
+        }
+      }),
+    }
+    const order = xmlContentOrder(observed)
+    expect(order).toHaveLength(count)
+    expect(order.slice(0, 2)).toEqual(["Item:Name0", "Item:Name1"])
+    expect(attributeReads).toBeLessThanOrEqual(count)
+  })
+
   it("describes the changed attribute of the exact repeated element", () => {
     const expected = roots('<Root><Item name="first"/><Item name="expected"/></Root>')
     const actual = roots('<Root><Item name="first"/><Item name="actual"/></Root>')

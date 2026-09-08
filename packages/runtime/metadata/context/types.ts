@@ -1,5 +1,5 @@
 import type { TSchema } from "typebox"
-import type { MetadataItemType, ToMetadata } from "../ruleRuntime/metadataItem/registry"
+import type { MetadataItemType } from "../ruleRuntime/metadataItem/registry"
 import type { ExternalMetadataCollector, ExternalMetadataItemRule } from "../ruleRuntime/externalMetadata/types"
 import type { MetadataTargetOwner } from "../ruleRuntime/metadataTarget/types"
 import type { PropertyRuleType } from "../ruleRuntime/property/registry"
@@ -131,7 +131,6 @@ type MetadataContextType<Name extends PropertyKey> = Name extends keyof Metadata
   : never
 
 type FormElementType = MetadataContextType<"formElementType">
-type FormElementXML = MetadataContextType<"formElementXML">
 
 export interface JSONSchemaExportContext {
   mode: JSONSchemaExportMode
@@ -187,13 +186,6 @@ export interface XmlImportConfigurationContext extends ConfigurationContextFromX
 export type XMLDefaultVariant = "full" | "adopted" | "indexed"
 export type XMLImportObjectVariant = Extract<XMLDefaultVariant, "full" | "adopted">
 
-type ToXMLContextElement<Type extends MetadataItemType> = {
-  element: ToMetadata<Type> | undefined
-  referenceElement?: ToMetadata<Type> | undefined
-  xmlElement: FormElementXML
-  numberingScope?: unknown
-}
-
 export interface ToXMLConfigurationContext {
   /** Запрещает создавать заново идентификаторы, объявленные nested rule обязательными. */
   readonly requireExistingConfigurationIdentities?: true
@@ -208,17 +200,11 @@ export interface ToXMLConfigurationContext {
     forms: string[]
     templates: string[]
     parentName: string
-    metadataForNumbering: ToXMLContextElement<
-      FormElementType | "FormAttributeColumn" | "FormAttribute" | "FormCommand"
-    >[]
     currentXMLPath?: string
-    /** Стек текущего ItemXML для ElementId и нумерации _id. */
-    propertiesItemXmlStack?: Record<string, unknown>[]
   }
 }
 
 export interface FromXMLConfigurationContext {
-  forReference: boolean
   /** Абсолютный путь текущего XML-источника для предметных известных аномалий. */
   currentXMLPath?: string
   /** Режим, ограничивающий доступные состояния свойств импортируемого компонента. */

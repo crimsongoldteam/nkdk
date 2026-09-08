@@ -4,6 +4,7 @@ import {
   getConfigurationIndexCollectionContext,
   getConfigurationIndexCollectionXmlNodeLogicalAddress,
   type ConfigurationContextFromXML,
+  type XmlElementNode,
 } from "@nkdk/runtime"
 
 import {
@@ -23,19 +24,25 @@ import {
   childrenToPersist,
   mergeSavedChildren,
 } from "../../commonObjects/omittedChildren"
+import { importSourceProperty, importSourceScalar } from "./importSource"
+
+export function configurationExtensionCollectionYamlDependencies(rule: MetadataItemRule): readonly string[] {
+  return rule.itemType === "ExchangePlanContent" ? ["items", "extensionProperties"] : []
+}
 
 export function importConfigurationExtensionCollectionState(params: {
   readonly context: ConfigurationContextFromXML
   readonly rule: MetadataItemRule
-  readonly source: Record<string, unknown>
+  readonly source: Record<string, unknown> | XmlElementNode
   readonly yaml: Record<string, unknown>
+  readonly onCreatedItem?: import("@nkdk/runtime/rule-kit").MetadataItemXmlImportAugmentParams["onCreatedItem"]
 }): void {
   const borrowed = params.context.fromXML.currentXMLDefaultVariant === "adopted"
   if (params.rule.itemType === "ExchangePlanContent") {
     const items = arrayOfRecords(params.yaml.items)
     persistExchangePlanItemOrder(params.context, items)
     if (!borrowed) {
-      if (params.source.ExtensionProperty !== undefined || params.yaml.extensionProperties !== undefined) {
+      if (importSourceScalar(importSourceProperty(params.source, "ExtensionProperty")) !== undefined || params.yaml.extensionProperties !== undefined) {
         throw new Error("ExtensionProperty недопустим для full ExchangePlanContent")
       }
       return
@@ -44,13 +51,15 @@ export function importConfigurationExtensionCollectionState(params: {
       metadata: requiredString(item.metadata, "Metadata"),
       state: requiredState(item.state),
     }))
-    params.yaml.items = joinExchangePlanExtensionContent(items, states)
+    params.yaml.items = joinExchangePlanExtensionContent(items, states, (yaml, index) => {
+      params.onCreatedItem?.({ yaml, rule: ExchangePlanContentItemRules, yamlPath: [index] })
+    })
     delete params.yaml.extensionProperties
     return
   }
   if (params.rule.properties.extensionState === undefined) return
   if (!borrowed) {
-    if (params.source.ExtensionState !== undefined) {
+    if (importSourceScalar(importSourceProperty(params.source, "ExtensionState")) !== undefined) {
       throw new Error(`ExtensionState недопустим для full ${params.rule.itemType}`)
     }
     return
