@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { importContentFromXML } from "@nkdk/runtime"
+import { xmlFixtureValue as importContentFromXML } from "../../../tests/xmlFixtureValue"
 import { mockContextFromXML, mockRule } from "../../../tests/mockContext"
 import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"
 import { importXDTOPackagesFromXML } from "./fromXML"

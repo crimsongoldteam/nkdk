@@ -258,7 +258,7 @@ describe("importPropertiesFromXMLToYAML", () => {
 
 
   it("читает свойства структурного родителя без compatibilityValue", () => {
-    const { compatibilityValue: _compatibility, ...root } = parseXmlDocumentWithSaxes('<Root name="Владелец"><Value>текст</Value></Root>').roots[0]!
+    const root = parseXmlDocumentWithSaxes('<Root name="Владелец"><Value>текст</Value></Root>').roots[0]!
     const context = mockContextFromXML()
     const yaml = importPropertiesWithSources({
       execution: createRuleRegistrySet(metadataRules).execution,
@@ -2266,7 +2266,7 @@ describe("importPropertiesFromXMLToYAML", () => {
       "<Root><ChoiceParameters>",
       '<app:item name="Отбор.Ссылка"><app:value xsi:nil="true"/></app:item>',
       "</ChoiceParameters></Root>",
-    ].join("" ), { preserveXsiNil: true }).roots[0]!
+    ].join("" )).roots[0]!
     const annotations = createXmlAnomalyAnnotations()
     const audit = createXmlImportAuditSession([root])
 

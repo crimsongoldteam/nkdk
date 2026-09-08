@@ -572,7 +572,6 @@ function materializeElement(
     attributes,
     content,
     span: { start: 0, end: 0 },
-    compatibilityValue: undefined,
   }
   return { ...partial, structuralHash: hashXmlElementStructure(partial) }
 }

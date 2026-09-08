@@ -2,7 +2,8 @@ import fs from "fs"
 import { fileURLToPath } from "url"
 import { beforeAll,describe,expect,it } from "vitest"
 
-import { importContentFromXML,xmlExport } from "@nkdk/runtime"
+import { xmlExport } from "@nkdk/runtime"
+import { xmlFixtureValue as importContentFromXML } from "../../../../tests/xmlFixtureValue"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import {
 createDirectRoundTripContexts,

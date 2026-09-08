@@ -7,7 +7,7 @@ import { readAndParseXMLFixture, readXMLFixtureAsString } from "../../../tests/r
 import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"
 import { importChoiceParameterLinksFromXML } from "./fromXML"
 import { ChoiceParameterLinksXML } from "./types"
-import { importContentFromXML } from "@nkdk/runtime"
+import { xmlFixtureValue as importContentFromXML } from "../../../tests/xmlFixtureValue"
 
 describe("importChoiceParameterLinksFromXML", () => {
   it("keeps empty name and value-change fields absent", () => {

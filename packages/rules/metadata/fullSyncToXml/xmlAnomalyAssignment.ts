@@ -164,10 +164,7 @@ export function buildPreparedAssignmentControlDocument(params: {
     document: () => {
       const startedAt = performance.now()
       try {
-        return parseXmlDocumentWithSaxes(materialized, {
-          preserveXsiNil: true,
-          preserveEmptyElements: true,
-        })
+        return parseXmlDocumentWithSaxes(materialized)
       } finally {
         if (params.profile !== undefined) params.profile.mismatchDocumentMs += performance.now() - startedAt
       }
@@ -206,10 +203,7 @@ function serializePreparedAssignmentXml(
   if (rawBoundaries.length === 0) return xmlExport(xml)
 
   const resolvedBoundaries = resolveExportClaimBoundaries(xml, rawBoundaries)
-  let ordinary = parseXmlDocumentWithSaxes(xmlExport(xml, false), {
-    preserveXsiNil: true,
-    preserveEmptyElements: true,
-  }).roots
+  let ordinary = parseXmlDocumentWithSaxes(xmlExport(xml, false)).roots
   const documentRootBoundaries = resolvedBoundaries.filter(({ documentRootName }) => documentRootName !== undefined)
   if (documentRootBoundaries.length > 1) {
     throw new Error("Один XML-документ не может содержать несколько raw-границ корня")
@@ -1067,10 +1061,7 @@ function resolveExportClaimBoundaries(
 
   const probe = cloneXmlObject(xml)
   injectExportClaimAttributes(probe)
-  const roots = parseXmlDocumentWithSaxes(xmlExport(probe, false), {
-    preserveXsiNil: true,
-    preserveEmptyElements: true,
-  }).roots
+  const roots = parseXmlDocumentWithSaxes(xmlExport(probe, false)).roots
   const paths = collectExportClaimPaths(roots)
 
   return boundaries.map((boundary) => {

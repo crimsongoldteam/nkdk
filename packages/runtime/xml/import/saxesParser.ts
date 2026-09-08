@@ -1,6 +1,5 @@
-import { SaxesParser, type SaxesStartTagPlain, type SaxesTagPlain, type XMLDecl } from "saxes"
+import { SaxesParser, type SaxesStartTagPlain, type SaxesTagPlain } from "saxes"
 import { Buffer } from "node:buffer"
-import type { ImportContentFromXMLOptions } from "./contracts"
 import type {
   XmlAttributeNode,
   XmlDocument,
@@ -17,7 +16,6 @@ import {
 } from "../structure/hash"
 import { parseXmlProcessingInstructionAttributes } from "../structure/processingInstruction"
 
-const XML_METADATA = Symbol.for("metadata")
 const UNSAFE_NAMES = new Set([
   "__proto__",
   "constructor",
@@ -31,16 +29,9 @@ const UNSAFE_NAMES = new Set([
   "__lookupSetter__",
 ])
 
-type XmlContainer = Record<string, unknown> | Array<Record<string, unknown>>
-
 interface ElementFrame {
   name: string
-  attributes: Record<string, string>
-  text: string
-  children: Record<string, unknown>
   childCounts: Record<string, number>
-  childOrder: Array<{ key: string; index: number }>
-  orderedChildren: Array<Record<string, unknown>> | undefined
   structural: MutableXmlDocument | MutableXmlElementNode
 }
 
@@ -70,19 +61,11 @@ const createFrame = (
   structural: MutableXmlDocument | MutableXmlElementNode
 ): ElementFrame => ({
   name,
-  attributes: {},
-  text: "",
-  children: {},
   childCounts: {},
-  childOrder: [],
-  orderedChildren: name === "ChildItems" ? [] : undefined,
   structural,
 })
 
-export function parseXmlDocumentWithSaxes(
-  data: string,
-  options: ImportContentFromXMLOptions = {}
-): XmlDocument {
+export function parseXmlDocumentWithSaxes(data: string): XmlDocument {
   const documentStructure: MutableXmlDocument = {
     kind: "document",
     path: "",
@@ -102,15 +85,14 @@ export function parseXmlDocumentWithSaxes(
   }
   const parser = new SaxesParser({ xmlns: false, fragment: !hasXmlDeclaration(data) })
 
-  parser.on("xmldecl", (declaration) => {
-    if (data.startsWith("\uFEFF")) document.text = "\uFEFF"
-    appendDeclaration(document, declaration)
+  parser.on("xmldecl", () => {
     advanceContentBoundary(document, parser.position, true)
   })
   parser.on("opentagstart", (tag: SaxesStartTagPlain) => {
     const name = ownXmlString(tag.name)
     const parent = requireElementParent(stack, tag.name)
     const occurrence = (parent.childCounts[tag.name] ?? 0) + 1
+    parent.childCounts[tag.name] = occurrence
     const parentPath = parent.structural.path
     stack.push(
       createFrame(name, {
@@ -136,7 +118,6 @@ export function parseXmlDocumentWithSaxes(
     if (frame === undefined || structural?.kind !== "element") {
       throw new Error("XML-атрибут вне элемента")
     }
-    Object.defineProperty(frame.attributes, name, { value, enumerable: true, configurable: true, writable: true })
     const occurrence =
       structural.attributes.filter((attribute) => attribute.name === name).length + 1
     structural.attributes.push({
@@ -190,14 +171,11 @@ export function parseXmlDocumentWithSaxes(
   parser.on("processinginstruction", ({ target, body }) => {
     target = ownXmlString(target)
     body = ownXmlString(body)
-    const attributes: Record<string, string> = {}
-    for (const { name, value } of parseXmlProcessingInstructionAttributes(body)) {
-      attributes[`_${name}`] = value
-    }
     const parent = stack.at(-1)
     if (parent === undefined) throw new Error("XML PI вне документа")
     const key = `?${target}`
     const occurrence = (parent.childCounts[key] ?? 0) + 1
+    parent.childCounts[key] = occurrence
     const span = {
       start: parent.structural.nextContentStart,
       end: parser.position,
@@ -219,7 +197,6 @@ export function parseXmlDocumentWithSaxes(
         allocateNodeId
       ),
     }
-    appendChild(parent, `?${target}`, attributes)
     parent.structural.content.push(node)
     parent.structural.nextContentStart = span.end
   })
@@ -227,9 +204,7 @@ export function parseXmlDocumentWithSaxes(
     const frame = stack.pop()
     const parent = stack.at(-1)
     if (frame === undefined || parent === undefined) throw new Error("Несогласованный стек XML")
-    const compatibilityValue = finalizeFrame(frame, options)
-    const node = finalizeElement(frame, compatibilityValue, parser.position)
-    appendChild(parent, frame.name, compatibilityValue)
+    const node = finalizeElement(frame, parser.position)
     if (parent.structural.kind === "document") roots.push(node)
     parent.structural.content.push(node)
     parent.structural.nextContentStart = node.span.end
@@ -239,14 +214,9 @@ export function parseXmlDocumentWithSaxes(
   })
   parser.write(data).close()
 
-  const compatibility = finalizeFrame(document, {
-    ...options,
-    preserveEmptyElements: true,
-  }) as Readonly<Record<string, unknown>>
   return {
     content: documentStructure.content,
     roots,
-    compatibility,
     sourceLength: data.length,
   }
 }
@@ -390,7 +360,6 @@ function appendText(
   allocateNodeId: () => number
 ): void {
   text = ownXmlString(text)
-  if (frame.structural.kind === "element") frame.text += text
   const { content } = frame.structural
   const previous = content.at(-1)
   if (previous?.type === "text" && frame.structural.canMergeText) {
@@ -417,7 +386,6 @@ function appendText(
 
 function finalizeElement(
   frame: ElementFrame,
-  compatibilityValue: unknown,
   end: number
 ): XmlElementNode {
   const structural = frame.structural
@@ -435,76 +403,9 @@ function finalizeElement(
     attributes,
     content,
     span: { start: spanStart, end },
-    compatibilityValue,
   }
   return { ...partial, structuralHash: hashXmlElementStructure(partial) }
 }
-
-function appendDeclaration(document: ElementFrame, declaration: XMLDecl): void {
-  const value: Record<string, string> = {}
-  if (declaration.version !== undefined) value._version = ownXmlString(declaration.version)
-  if (declaration.encoding !== undefined) value._encoding = ownXmlString(declaration.encoding)
-  if (declaration.standalone !== undefined) value._standalone = ownXmlString(declaration.standalone)
-  appendChild(document, "?xml", value)
-}
-
-function appendChild(parent: ElementFrame, name: string, value: unknown): void {
-  const index = parent.childCounts[name] ?? 0
-  parent.childCounts[name] = index + 1
-
-  if (parent.orderedChildren !== undefined) {
-    parent.orderedChildren.push({ [name]: value })
-    return
-  }
-
-  parent.childOrder.push({ key: name, index })
-  if (!Object.prototype.hasOwnProperty.call(parent.children, name)) {
-    parent.children[name] = value
-    return
-  }
-
-  const previous = parent.children[name]
-  if (Array.isArray(previous)) previous.push(value)
-  else parent.children[name] = [previous, value]
-}
-
-function finalizeFrame(frame: ElementFrame, options: ImportContentFromXMLOptions): unknown {
-  const container: XmlContainer = frame.orderedChildren ?? frame.children
-  const properties = containerProperties(container)
-  let assignedAttributesCount = 0
-  for (const [name, attributeValue] of Object.entries(frame.attributes)) {
-    if (name === "xsi:nil" && options.preserveXsiNil !== true) continue
-    properties[`_${name}`] = attributeValue
-    assignedAttributesCount += 1
-  }
-  if (frame.text.length > 0) properties["#text"] = frame.text
-
-  const keys = Object.keys(container)
-  if (
-    !Array.isArray(container) &&
-    assignedAttributesCount === 0 &&
-    keys.length === 1 &&
-    properties["#text"] !== undefined
-  ) {
-    return properties["#text"]
-  }
-  if (
-    keys.length === 0 &&
-    frame.name !== "" &&
-    options.preserveEmptyElements !== true &&
-    !options.preserveEmptyElementNames?.includes(frame.name)
-  ) return undefined
-  if (frame.orderedChildren === undefined && frame.childOrder.length > 0) {
-    Object.defineProperty(container, XML_METADATA, {
-      value: { childOrder: frame.childOrder },
-      enumerable: false,
-    })
-  }
-  return container
-}
-
-const containerProperties = (container: XmlContainer): Record<PropertyKey, unknown> =>
-  container as unknown as Record<PropertyKey, unknown>
 
 function assertSafeName(name: string): void {
   if (UNSAFE_NAMES.has(name)) throw new Error(`Небезопасное имя XML-элемента: ${name}`)

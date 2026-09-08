@@ -442,7 +442,7 @@ describe("prepareImportFacts", () => {
       collector: createConfigurationIndexCollector(),
       inputs: [{
         input: assignment.xmlFiles[0]!,
-        document: parseXmlDocumentWithSaxes(xml, { preserveXsiNil: true }),
+        document: parseXmlDocumentWithSaxes(xml),
       }],
     })).resolves.toMatchObject({ targetProjectPath: assignment.targetProjectPath })
   })
@@ -994,10 +994,7 @@ function parseAssignmentInputs(assignment: ImportAssignment, sanitizeExtensionSt
     document: parseXmlDocumentWithSaxes(
       sanitizeExtensionStates
         ? withoutUnsupportedConfigurationExtensionPropertyStates(fs.readFileSync(input.sourcePath, "utf8"))
-        : fs.readFileSync(input.sourcePath, "utf8"), {
-      preserveXsiNil: true,
-      preserveEmptyElementNames: ["AdditionalFields"],
-      }),
+        : fs.readFileSync(input.sourcePath, "utf8")),
   }))
 }
 

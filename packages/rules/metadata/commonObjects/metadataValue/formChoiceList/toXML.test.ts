@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { mockContext, mockContextFromXML } from "../../../../tests/mockContext"
 import { xmlExport } from "@nkdk/runtime"
-import { importContentFromXML } from "@nkdk/runtime"
+import { xmlFixtureValue as importContentFromXML } from "../../../../tests/xmlFixtureValue"
 import {
   withMultiLangPresentation,
   withNumericPresentation,

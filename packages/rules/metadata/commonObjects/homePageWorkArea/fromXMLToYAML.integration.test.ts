@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 
 import { testMetadataItemFromXMLToYAML } from "../../../tests/directConversion"
-import { importContentFromXML } from "@nkdk/runtime"
+import { xmlFixtureValue as importContentFromXML } from "../../../tests/xmlFixtureValue"
 import { HomePageWorkAreaRules } from "./rules"
 import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"
 

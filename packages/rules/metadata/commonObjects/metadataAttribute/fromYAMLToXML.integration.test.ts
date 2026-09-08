@@ -1,6 +1,6 @@
 import { beforeAll,describe,expect,it } from "vitest"
 
-import { importContentFromXML } from "@nkdk/runtime"
+import { xmlFixtureValue as importContentFromXML } from "../../../tests/xmlFixtureValue"
 import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"
 import { type MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import {

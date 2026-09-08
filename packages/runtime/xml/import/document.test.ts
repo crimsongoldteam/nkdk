@@ -35,7 +35,7 @@ describe("структурный XML-документ", () => {
 
   it("читает структуру без представления совместимости", () => {
     const root = parseXmlDocumentWithSaxes('<Root b="2"><Value/><Value>2</Value></Root>').roots[0]!
-    const { compatibilityValue: _compatibility, ...structural } = root
+    const structural = root
     expect(isXmlElementNode(structural)).toBe(true)
     if (!isXmlElementNode(structural)) throw new Error("Структурный узел не распознан")
     expect(xmlAttributeValue(structural, "b")).toBe("2")
@@ -77,14 +77,7 @@ describe("структурный XML-документ", () => {
     const root = document.roots[0]
 
     expect(document.sourceLength).toBe(xml.length)
-    expect(document.compatibility).toEqual({
-      Root: {
-        Value: [undefined, "2"],
-        Future: { _x: "y" },
-        _b: "2",
-        _a: "1",
-      },
-    })
+
     expect(root).toBeDefined()
     if (root === undefined) return
 
@@ -117,7 +110,7 @@ describe("структурный XML-документ", () => {
     ])
     expect(children.map(({ name }) => name)).toEqual(["Value", "Value", "Future"])
     expect(children[0]?.content).toEqual([])
-    expect(children[0]?.compatibilityValue).toBeUndefined()
+
     expect(children[1]?.content).toEqual([
       {
         type: "text",
@@ -128,7 +121,7 @@ describe("структурный XML-документ", () => {
         span: { start: 33, end: 34 },
       },
     ])
-    expect(children[1]?.compatibilityValue).toBe("2")
+
     expect(children[2]?.attributes).toEqual([
       {
         id: 8,
@@ -156,7 +149,7 @@ describe("структурный XML-документ", () => {
 
     const [nilValue, textValue, canonical, alias] = elementChildren(root)
     expect(nilValue?.attributes).toMatchObject([{ name: "xsi:nil", value: "true" }])
-    expect(nilValue?.compatibilityValue).toBeUndefined()
+
     expect(textValue?.content).toMatchObject([{ type: "text", value: "ABC" }])
     expect(canonical).toMatchObject({ name: "Canonical", path: "/Root[1]/Canonical[1]" })
     expect(alias).toMatchObject({ name: "Alias", path: "/Root[1]/Alias[1]" })
@@ -303,22 +296,8 @@ describe("структурный XML-документ", () => {
       },
     ])
     expect(document.roots.map(({ id }) => id)).toEqual([3, 6])
-    expect(document.compatibility).toEqual({
-      "?p": [{}, {}, {}],
-      R: undefined,
-      S: undefined,
-    })
-    expect(
-      (document.compatibility as Record<PropertyKey, unknown>)[Symbol.for("metadata")]
-    ).toEqual({
-      childOrder: [
-        { key: "?p", index: 0 },
-        { key: "R", index: 0 },
-        { key: "?p", index: 1 },
-        { key: "S", index: 0 },
-        { key: "?p", index: 2 },
-      ],
-    })
+
+
   })
 
   it("не принимает внутренний <? за начало PI", () => {
@@ -372,10 +351,7 @@ describe("структурный XML-документ", () => {
       path: "/Root[1]",
       span: { start: 40, end: xml.length },
     })
-    expect(document.compatibility).toEqual({
-      "?xml": { _version: "1.0" },
-      Root: undefined,
-    })
+
   })
 
   it("начинает self-closing root после завершающего > комментария", () => {

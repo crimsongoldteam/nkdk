@@ -8,11 +8,8 @@ import {
   testPropertyFromYAMLToXML,
 } from "../../../tests/directConversion"
 import { mockContextToXML } from "../../../tests/mockContext"
-import {
-  createConfigurationIndexCollector,
-  createConfigurationIndexExportRuntime,
-  importContentFromXML,
-} from "@nkdk/runtime"
+import { createConfigurationIndexCollector, createConfigurationIndexExportRuntime } from "@nkdk/runtime"
+import { xmlFixtureValue as importContentFromXML } from "../../../tests/xmlFixtureValue"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { testConfigurationIndexReader } from "../../../tests/configurationIndex"
 import { expectFinishedRuleOrder } from "../metadataRuleTestHelpers"

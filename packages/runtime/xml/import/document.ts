@@ -37,13 +37,11 @@ export interface XmlElementNode extends XmlAddressedNode {
   readonly attributes: readonly XmlAttributeNode[]
   readonly content: readonly XmlContentNode[]
   readonly structuralHash: bigint
-  readonly compatibilityValue: unknown
 }
 
 export interface XmlDocument {
   readonly content: readonly XmlDocumentContentNode[]
   readonly roots: readonly XmlElementNode[]
-  readonly compatibility: Readonly<Record<string, unknown>>
   readonly sourceLength: number
 }
 

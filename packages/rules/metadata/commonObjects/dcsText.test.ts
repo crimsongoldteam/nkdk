@@ -15,7 +15,6 @@ describe("readDcsText", () => {
 
   it.each(["<Value/>", "<Value><![CDATA[]]></Value>"])("reports missing text for an empty element: %s", (xml) => {
     const document = parseXmlDocumentWithSaxes(xml)
-    expect(() => readDcsText(document.compatibility.Value, "missing", "invalid")).toThrow("missing")
     expect(() => readDcsText(document.roots[0], "missing", "invalid")).toThrow("missing")
   })
 

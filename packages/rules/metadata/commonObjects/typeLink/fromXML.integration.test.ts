@@ -6,7 +6,7 @@ import { readXMLFixtureAsString } from "../../../tests/readFixtureXML"
 import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"
 import { mockContextFromXML } from "../../../tests/mockContext"
 import { importTypeLinkFromXML } from "./fromXML"
-import { importContentFromXML } from "@nkdk/runtime"
+import { xmlFixtureValue as importContentFromXML } from "../../../tests/xmlFixtureValue"
 import type { TypeLinkXML } from "./types"
 
 const rule: PropertyRule = {

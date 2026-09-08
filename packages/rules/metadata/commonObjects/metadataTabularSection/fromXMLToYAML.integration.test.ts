@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 
 import { testPropertyFixtureThroughYAML, testPropertyFromXMLToYAML } from "../../../tests/directConversion"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
-import { importContentFromXML } from "@nkdk/runtime"
+import { xmlFixtureValue as importContentFromXML } from "../../../tests/xmlFixtureValue"
 
 import "../../appliedObjects/metadataCatalog/childRules"
 

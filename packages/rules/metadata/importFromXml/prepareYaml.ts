@@ -774,10 +774,7 @@ async function readAndParseAssignmentXml(
 }
 
 function parseAssignmentXml(content: string): Omit<ParsedImportXmlInput, "input"> {
-  const document = parseXmlDocumentWithSaxes(content, {
-    preserveXsiNil: true,
-    preserveEmptyElementNames: ["AdditionalFields"],
-  })
+  const document = parseXmlDocumentWithSaxes(content)
   return { document, roots: document.roots }
 }
 

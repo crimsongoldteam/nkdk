@@ -1,4 +1,5 @@
-import { importContentFromXML, xmlElementChildren } from "@nkdk/runtime"
+import { xmlElementChildren } from "@nkdk/runtime"
+import { xmlFixtureValue as importContentFromXML } from "../../tests/xmlFixtureValue"
 import { describe, expect, it } from "vitest"
 import { createDirectRoundTripContexts } from "../../tests/directConversion"
 import { mockContextFromXML, mockRule } from "../../tests/mockContext"

@@ -1044,7 +1044,6 @@ export function importPropertiesFromXMLToYAML(params: {
           || typeRule(propertyRule.type, "fileChildNamesDescriptor") !== undefined
           || typeRule(propertyRule.type, "xmlImportPropertyBehavior")?.repeatedXMLNodes === true
       },
-      useStructuralXMLValue: () => true,
       claimRoot: sourceState.source.claimAuditRoot,
       visit(match) {
         sourceState.foundPropertyKeys.add(match.propertyKey)

@@ -244,8 +244,7 @@ describe("decodeXmlRawValue", () => {
 
   it("readdresses processing instruction pseudo-attributes per name", () => {
     const roots = parseXmlDocumentWithSaxes(
-      '<Root><?legacy a="1" z="2" a="3"?></Root>',
-      { preserveXsiNil: true }
+      '<Root><?legacy a="1" z="2" a="3"?></Root>'
     ).roots
     const instruction = readdressXmlElementNodes(roots)[0]?.content[0]
 

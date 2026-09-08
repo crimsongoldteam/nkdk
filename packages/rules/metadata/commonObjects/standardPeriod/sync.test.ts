@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { importContentFromXML, parseXmlDocumentWithSaxes } from "@nkdk/runtime"
+import { parseXmlDocumentWithSaxes } from "@nkdk/runtime"
+import { xmlFixtureValue as importContentFromXML } from "../../../tests/xmlFixtureValue"
 import type { StandardPeriodXML } from "./types"
 import { mockContext } from "../../../tests/mockContext"
 import { importStandardPeriodFromXML } from "./fromXML"

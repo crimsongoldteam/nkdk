@@ -11,7 +11,6 @@ import { convertFormFromXML } from "./convertFromXML"
 describe("structural form file import", () => {
   it("parses metadata and body once without the legacy parser", async () => {
     const directory = await mkdtemp(join(tmpdir(), "nkdk-structural-form-"))
-    const legacy = vi.spyOn(runtime, "importContentFromXML").mockImplementation(() => { throw new Error("Legacy parser must not be used") })
     const parser = vi.spyOn(runtime, "parseXmlDocumentWithSaxes")
     try {
       const inputDir = join(directory, "input")
@@ -23,10 +22,8 @@ describe("structural form file import", () => {
       expect(await readFile(join(outputDir, "Формы", "Форма", "Форма.yaml"), "utf8"))
         .toContain("НазначенияИспользования: ПлатформаИМобильноеПриложение")
       expect(parser).toHaveBeenCalledTimes(2)
-      expect(legacy).not.toHaveBeenCalled()
     } finally {
       parser.mockRestore()
-      legacy.mockRestore()
       await rm(directory, { recursive: true, force: true })
     }
   })

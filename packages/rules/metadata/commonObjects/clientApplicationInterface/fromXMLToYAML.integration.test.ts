@@ -1,6 +1,7 @@
 import { describe,expect,it } from "vitest"
 
-import { exportToYAML,importContentFromXML } from "@nkdk/runtime"
+import { exportToYAML } from "@nkdk/runtime"
+import { xmlFixtureValue as importContentFromXML } from "../../../tests/xmlFixtureValue"
 import { createDirectRoundTripContexts,readAppliedObjectFixture,testMetadataItemFromXMLToYAML } from "../../../tests/directConversion"
 import { ClientApplicationInterfaceRules } from "./rules"
 import { readXMLFixtureAsString } from "../../../tests/readFixtureXML"

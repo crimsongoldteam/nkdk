@@ -8,14 +8,8 @@ import {
   testPropertyFromYAMLToXML,
   testPropertiesYamlRoundTrip,
 } from "../../../../tests/directConversion"
-import {
-  createXmlAnomalyAnnotations,
-  createXmlImportAuditSession,
-  importContentFromXML,
-  parseXmlDocumentWithSaxes,
-  serializeYAMLDocument,
-  xmlAnnotatedMappingEntries,
-} from "@nkdk/runtime"
+import { createXmlAnomalyAnnotations, createXmlImportAuditSession, parseXmlDocumentWithSaxes, serializeYAMLDocument, xmlAnnotatedMappingEntries } from "@nkdk/runtime"
+import { xmlFixtureValue as importContentFromXML } from "../../../../tests/xmlFixtureValue"
 import { xmlExport } from "@nkdk/runtime"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 

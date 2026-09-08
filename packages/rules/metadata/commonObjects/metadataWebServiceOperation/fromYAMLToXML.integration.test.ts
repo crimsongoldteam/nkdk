@@ -6,7 +6,7 @@ import {
   testPropertyFromYAMLToXML,
 } from "../../../tests/directConversion"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
-import { importContentFromXML } from "@nkdk/runtime"
+import { xmlFixtureValue as importContentFromXML } from "../../../tests/xmlFixtureValue"
 
 import "./register"
 

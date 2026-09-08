@@ -8,7 +8,8 @@ import {
   testMetadataItemFromYAMLToXML,
   testPropertyFromXMLToYAML,
 } from "../../../tests/directConversion"
-import { createXmlAnomalyAnnotations, importContentFromXML, parseMetadataYaml, serializeYAMLDocument } from "@nkdk/runtime"
+import { createXmlAnomalyAnnotations, parseMetadataYaml, serializeYAMLDocument } from "@nkdk/runtime"
+import { xmlFixtureValue as importContentFromXML } from "../../../tests/xmlFixtureValue"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { RootCommandInterfaceRules } from "./rules"
 import type { RootCommandInterfaceYAML } from "./types"

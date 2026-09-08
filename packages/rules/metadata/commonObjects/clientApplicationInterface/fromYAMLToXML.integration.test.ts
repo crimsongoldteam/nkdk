@@ -1,6 +1,6 @@
 import { describe,expect,it } from "vitest"
 
-import { importContentFromXML } from "@nkdk/runtime"
+import { xmlFixtureValue as importContentFromXML } from "../../../tests/xmlFixtureValue"
 import {
 createDirectRoundTripContexts,
 readAppliedObjectFixture,

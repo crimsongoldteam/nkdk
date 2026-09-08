@@ -9,12 +9,8 @@ import {
   testMetadataItemFromYAMLToXML,
   testMetadataItemYamlRoundTrip,
 } from "../../../../tests/directConversion"
-import {
-  importContentFromXML,
-  parseXmlDocumentWithSaxes,
-  withConfigurationIndexFormElementRootLogicalAddress,
-  xmlExport,
-} from "@nkdk/runtime"
+import { parseXmlDocumentWithSaxes, withConfigurationIndexFormElementRootLogicalAddress, xmlExport } from "@nkdk/runtime"
+import { xmlFixtureValue as importContentFromXML } from "../../../../tests/xmlFixtureValue"
 import type { CollectableElementType } from "../../../ruleRuntime/formElement/types"
 import { createSingletonElementOutputPreparation, importSingleFormElementFromXMLToYAML } from "@nkdk/runtime/rule-kit"
 import { createFormDataPathIndexFromYAML } from "../../clientApplicationForm/formDataPathMetadata"
@@ -69,7 +65,7 @@ describe("элементы формы XML → YAML → XML", () => {
     })
     const yaml = testMetadataItemFromXMLToYAML({
       rule,
-      xml: parseXmlDocumentWithSaxes(fs.readFileSync(fixture, "utf8"), { preserveXsiNil: true }).roots[0],
+      xml: parseXmlDocumentWithSaxes(fs.readFileSync(fixture, "utf8")).roots[0],
       name,
       context: withConfigurationIndexFormElementRootLogicalAddress(contexts.importContext, formLogicalAddress),
     }).yaml

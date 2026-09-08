@@ -8,10 +8,6 @@ import type {
   XmlImportAuditBoundary,
   XmlImportAuditSession,
 } from "../xmlAnomaly/importAudit"
-import {
-  xmlImportCompatibilityValue,
-  xmlImportCompatibilityValues,
-} from "../xmlAnomaly/compatibilityView"
 
 export interface XMLImportPlanEntry {
   propertyKey: string
@@ -196,7 +192,6 @@ export const visitXMLImportPlan = (params: {
   auditItemBoundary?: XmlImportAuditBoundary
   auditBoundary?(entry: XMLImportPlanEntry): XmlImportAuditBoundary
   isRepeatable?(entry: XMLImportPlanEntry): boolean
-  useStructuralXMLValue?(entry: XMLImportPlanEntry, node: XmlElementNode): boolean
   claimRoot?: boolean
   visit(match: XMLImportMatch): void
 }): void => {
@@ -209,7 +204,6 @@ export const visitXMLImportPlan = (params: {
       auditItemBoundary: params.auditItemBoundary,
       auditBoundary: params.auditBoundary,
       isRepeatable: params.isRepeatable,
-      useStructuralXMLValue: params.useStructuralXMLValue,
       claimRoot: params.claimRoot,
       visit: params.visit,
     })
@@ -234,7 +228,6 @@ function visitStructuralXMLImportPlan(params: {
   readonly auditItemBoundary?: XmlImportAuditBoundary
   readonly auditBoundary?: (entry: XMLImportPlanEntry) => XmlImportAuditBoundary
   readonly isRepeatable?: (entry: XMLImportPlanEntry) => boolean
-  readonly useStructuralXMLValue?: (entry: XMLImportPlanEntry, node: XmlElementNode) => boolean
   readonly claimRoot?: boolean
   readonly visit: (match: XMLImportMatch) => void
 }): void {
@@ -296,7 +289,10 @@ function visitStructuralXMLImportPlan(params: {
       isXmlElementNode(xmlNode) ? [xmlNode] : [],
     )
     const structuralValue = selectedElements.length === selectedCandidates.length
-      && selectedElements.every(node => params.useStructuralXMLValue?.(candidate.entry, node) === true)
+    if (!structuralValue && params.audit !== undefined) {
+      const boundary = boundaryForEntry(candidate.entry)
+      for (const { xmlNode } of selectedCandidates) params.audit.claim(xmlNode, boundary)
+    }
     if (structuralValue && params.audit !== undefined) {
       const boundary = boundaryForEntry(candidate.entry)
       for (const node of selectedElements) {
@@ -319,23 +315,7 @@ function visitStructuralXMLImportPlan(params: {
         ? xmlTextValue(candidate.xmlOwnerNode)
         : structuralValue
         ? selectedElements.length === 1 ? selectedElements[0] : selectedElements
-        : selection.repeatable && selectedCandidates.length > 1
-        ? xmlImportCompatibilityValues({
-            nodes: selectedElements,
-            audit: params.audit,
-            boundary: boundaryForEntry(candidate.entry),
-          })
-        : selectedCandidates.length === 1
-          ? xmlImportCompatibilityValue({
-              node: candidate.xmlNode,
-              audit: params.audit,
-              boundary: boundaryForEntry(candidate.entry),
-            })
-          : selectedCandidates.map(({ entry, xmlNode }) => xmlImportCompatibilityValue({
-              node: xmlNode,
-              audit: params.audit,
-              boundary: boundaryForEntry(entry),
-            })),
+        : "value" in candidate.xmlNode ? candidate.xmlNode.value : undefined,
       xmlNode: candidate.xmlNode,
       xmlOwnerNode: candidate.xmlOwnerNode,
       xmlNodes: selectedCandidates.map(({ xmlNode }) => xmlNode),

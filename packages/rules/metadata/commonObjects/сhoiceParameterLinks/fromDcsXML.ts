@@ -1,6 +1,6 @@
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import * as SE from "../../systemEnumerations/types"
-import { claimCanonicalXmlImportAttribute, ConfigurationContextFromXML, isXmlElementNode, xmlElementChildren, xmlTextValue, type XmlElementNode } from "@nkdk/runtime"
+import { ConfigurationContextFromXML, isXmlElementNode, xmlElementChildren, xmlTextValue, type XmlElementNode } from "@nkdk/runtime"
 import { readDcsText } from "../dcsText"
 import {
   ChoiceParameterLink,
@@ -23,11 +23,6 @@ const optionalMode = (mode: ChoiceParameterLinkDcsItemXML["dcscor:mode"] | XmlEl
     return mode.content.some(node => node.type === "text") || mode.content.length === 0 && mode.attributes.length === 0
       ? xmlTextValue(mode) as SE.LinkedValueChangeMode : undefined
   }
-  claimCanonicalXmlImportAttribute({
-    value: mode,
-    name: "xsi:type",
-    expectedValue: "ent:LinkedValueChangeMode",
-  })
   return mode["#text"] as SE.LinkedValueChangeMode | undefined
 }
 

@@ -1,8 +1,5 @@
-import {
-createConfigurationLanguages,
-importContentFromXML,
-parseXmlDocumentWithSaxes
-} from "@nkdk/runtime"
+import { createConfigurationLanguages, parseXmlDocumentWithSaxes } from "@nkdk/runtime"
+import { xmlFixtureValue as importContentFromXML } from "../../../tests/xmlFixtureValue"
 import { describe,expect,it } from "vitest"
 import { mockContextFromXML,mockRule } from "../../../tests/mockContext"
 import { getTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"

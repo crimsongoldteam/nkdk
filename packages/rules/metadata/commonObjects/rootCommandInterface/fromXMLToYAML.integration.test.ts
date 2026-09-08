@@ -6,7 +6,7 @@ import {
   testMetadataItemFromXMLToYAML,
   testPropertyFromXMLToYAML,
 } from "../../../tests/directConversion"
-import { importContentFromXML } from "@nkdk/runtime"
+import { xmlFixtureValue as importContentFromXML } from "../../../tests/xmlFixtureValue"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { RootCommandInterfaceRules } from "./rules"
 import { readFileSync } from "node:fs"

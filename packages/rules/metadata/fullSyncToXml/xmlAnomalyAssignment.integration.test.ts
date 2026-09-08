@@ -367,7 +367,7 @@ describe("единое восстановление XML-аномалий assignm
       },
       context: mockContextToXML(),
     })
-    const root = parseXmlDocumentWithSaxes(xml).compatibility.Root as Record<string, unknown>
+    const root = xmlFixtureValue<{ Root: Record<string, unknown> }>(xml).Root
 
     expect(root).toMatchObject({
       Expanded: "01",
@@ -633,7 +633,7 @@ describe("единое восстановление XML-аномалий assignm
       },
       context: mockContextToXML(),
     })
-    const root = parseXmlDocumentWithSaxes(xml).compatibility.Root as Record<string, unknown>
+    const root = xmlFixtureValue<{ Root: Record<string, unknown> }>(xml).Root
     const items = (root.Items as Record<string, unknown>).Item as Array<Record<string, unknown>>
 
     expect(items.map(({ Name, Value }) => ({ Name, Value }))).toEqual([
@@ -1633,3 +1633,4 @@ function exportCollectionOwner(prepared: ReturnType<typeof prepareAnomalies>) {
     }).outputs.get("owner")),
   )
 }
+import { xmlFixtureValue } from "../../tests/xmlFixtureValue"

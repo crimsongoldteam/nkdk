@@ -7,7 +7,7 @@ import {
   testMetadataItemFromYAMLToXML,
   testMetadataItemYamlRoundTrip,
 } from "../../../tests/directConversion"
-import { importContentFromXML } from "@nkdk/runtime"
+import { xmlFixtureValue as importContentFromXML } from "../../../tests/xmlFixtureValue"
 import { HomePageWorkAreaRules } from "./rules"
 import type { HomePageWorkAreaYAML } from "./types"
 

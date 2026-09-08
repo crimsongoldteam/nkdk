@@ -18,7 +18,7 @@ describe("export CalculatedFieldOrderExpression to YAML", () => {
         <dcssch:orderExpression><expression>Дата</expression><orderType>Asc</orderType><autoOrder>false</autoOrder></dcssch:orderExpression>
         <dcssch:orderExpression><expression>Номер</expression><orderType>Desc</orderType><autoOrder>true</autoOrder></dcssch:orderExpression>
       </Probe>
-    `, { preserveXsiNil: true })
+    `)
     const root = document.roots[0]!
     const audit = createXmlImportAuditSession([root])
     const annotations = createXmlAnomalyAnnotations()

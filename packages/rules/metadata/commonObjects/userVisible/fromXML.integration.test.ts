@@ -7,7 +7,7 @@ import { importUserVisibleFromXML } from "./fromXML"
 import { UserVisible,UserVisibleXML } from "./types"
 import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"
 import { readXMLFixtureAsString } from "../../../tests/readFixtureXML"
-import { importContentFromXML } from "@nkdk/runtime"
+import { xmlFixtureValue as importContentFromXML } from "../../../tests/xmlFixtureValue"
 
 describe("importUserVisibleFromXML", () => {
   it("does not invent a role from a value without attributes", () => {

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { importContentFromXML, parseXmlDocumentWithSaxes } from "@nkdk/runtime"
+import { parseXmlDocumentWithSaxes } from "@nkdk/runtime"
+import { xmlFixtureValue as importContentFromXML } from "../../tests/xmlFixtureValue"
 import { mockContextFromXML } from "../../tests/mockContext"
 import { readAndParseXMLFixture } from "../../tests/readFixtureXML"
 import { SystemEnumerationDcsValueRootXML } from "./dcsTypes"

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { readAndParseXMLFixture, readXMLFixtureAsString } from "../../../tests/readFixtureXML"
 import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"
-import { importContentFromXML } from "@nkdk/runtime"
+import { xmlFixtureValue as importContentFromXML } from "../../../tests/xmlFixtureValue"
 import { fullStandartBeginningDate } from "./__fixtures__/data"
 import { importStandartBeginningDateFromXML } from "./fromXML"
 import type { StandartBeginningDateXML } from "./types"

@@ -12,7 +12,6 @@ import {
 } from "./augmenterRegistry"
 import { isXmlElementNode, type XmlElementNode } from "../../../xml/import/document"
 import { objectRecordOrUndefined } from "../../../helpers/record"
-import { xmlImportNodeForCompatibilityValue } from "../xmlAnomaly/compatibilityView"
 import { projectXmlAuditRemainder } from "../xmlAnomaly/yamlProjection"
 
 type InlineProperty = ReturnType<typeof findInlineProperty>
@@ -31,16 +30,7 @@ export function importMetadataItemFromXMLToYAML(params: {
   const xmlRoot = Object.values(params.rule.properties).find(
     (propertyRule) => propertyRule.type === "XMLRoot" && typeof propertyRule.container === "string"
   )
-  const traversalRootNode = !isXmlElementNode(params.xml)
-    ? xmlImportNodeForCompatibilityValue(params.xml)
-      ?? findCompatibilityXmlNode(params.traversal.xmlNodes, params.xml)
-    : undefined
-  const rootNodeFromTraversal = traversalRootNode !== undefined
-  const rootNode = isXmlElementNode(params.xml)
-    ? params.xml
-    : rootNodeFromTraversal
-      ? traversalRootNode
-      : undefined
+  const rootNode = isXmlElementNode(params.xml) ? params.xml : undefined
   const root = rootNode === undefined ? objectRecordOrUndefined(params.xml) : undefined
   const sourceNode = rootNode === undefined
     ? undefined
@@ -93,8 +83,7 @@ export function importMetadataItemFromXMLToYAML(params: {
       xml: sourceNode ?? source,
       ...(xmlRoot === undefined || rootNode === undefined ? {} : { envelopeSource: rootNode }),
       claimAuditRoot: shouldClaimAuditRoot({
-        rootNodeFromTraversal: rootNodeFromTraversal
-          || rootNode !== undefined && params.traversal.xmlNodes?.includes(rootNode) === true,
+        rootNodeFromTraversal: rootNode !== undefined && params.traversal.xmlNodes?.includes(rootNode) === true,
         sourceNode,
         rootNode,
         audit: params.traversal.audit,
@@ -210,20 +199,4 @@ function contextWithItemParent(
       metadataItemTypes: [...(context.exportToYAML.metadataItemTypes ?? []), itemType],
     },
   }
-}
-
-function findCompatibilityXmlNode(
-  roots: readonly XmlElementNode[] | undefined,
-  value: unknown,
-): XmlElementNode | undefined {
-  if (roots === undefined || value === null || typeof value !== "object") return undefined
-  const pending = [...roots]
-  while (pending.length > 0) {
-    const current = pending.pop()!
-    if (current.compatibilityValue === value) return current
-    for (const child of current.content) {
-      if (child.type === "element") pending.push(child)
-    }
-  }
-  return undefined
 }

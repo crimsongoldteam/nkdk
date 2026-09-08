@@ -1,7 +1,8 @@
 import { xmlElementFromTestValue } from "../../../tests/structuralXML"
 import { describe,expect,it } from "vitest"
 
-import { importContentFromXML,markYAMLValueTag,parseMetadataYaml,yamlScalarTagAt } from "@nkdk/runtime"
+import { markYAMLValueTag, parseMetadataYaml, yamlScalarTagAt } from "@nkdk/runtime"
+import { xmlFixtureValue as importContentFromXML } from "../../../tests/xmlFixtureValue"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import {
 createDirectRoundTripContexts,

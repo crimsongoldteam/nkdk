@@ -6,7 +6,7 @@ import { importChoiceListFromXML } from "./fromXML"
 import { ChoiceListXML } from "./types"
 import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"
 import { readXMLFixtureAsString } from "../../../tests/readFixtureXML"
-import { importContentFromXML } from "@nkdk/runtime"
+import { xmlFixtureValue as importContentFromXML } from "../../../tests/xmlFixtureValue"
 
 describe("importChoiceListFromXML", () => {
   it("rejects empty entries among repeated choices", () => {

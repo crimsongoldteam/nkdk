@@ -40,7 +40,7 @@ export const convertFormFromXML = async (params: {
   const parsedForm =
     formXML === undefined
       ? undefined
-      : parseXmlDocumentWithSaxes(formXML, { preserveXsiNil: true }).roots.find(node => node.name === "Form")
+      : parseXmlDocumentWithSaxes(formXML).roots.find(node => node.name === "Form")
   const direct = importClientApplicationFormFromXMLToYAML({
     context: formContext,
     formName,

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest"
-import { createXmlImportAuditSession, parseXmlDocumentWithSaxes } from "@nkdk/runtime"
+import { createXmlImportAuditSession, isXmlElementNode, parseXmlDocumentWithSaxes, xmlTextValue } from "@nkdk/runtime"
 
 import type { MetadataItemRule } from "./types"
 import { getXMLImportPlan, visitXMLImportPlan } from "./xmlImportPlan"
@@ -44,7 +44,7 @@ describe("XML import plan", () => {
     const visit = vi.fn()
     visitXMLImportPlan({
       plan: getXMLImportPlan({ rule: { itemType: "NestedPlan", properties: { item: { type: "string", xml: "Item" } } }, includeAllTags: true }),
-      xml: root, visit, isRepeatable: () => true, useStructuralXMLValue: () => true,
+      xml: root, visit, isRepeatable: () => true,
     })
     expect(visit).toHaveBeenCalledOnce()
     expect(visit.mock.calls[0]![0].xmlNodes).toEqual(nodes)
@@ -157,7 +157,8 @@ describe("XML import plan", () => {
     audit.finalize()
 
     expect(
-      visit.mock.calls.map(([match]) => [match.propertyKey, match.xmlNode?.path, match.xmlValue]),
+      visit.mock.calls.map(([match]) => [match.propertyKey, match.xmlNode?.path,
+        isXmlElementNode(match.xmlValue) ? xmlTextValue(match.xmlValue) : match.xmlValue]),
     ).toEqual([
       ["knownAttribute", "/Root[1]/@known[1]", "yes"],
       ["name", "/Root[1]/Name[1]", "canonical"],

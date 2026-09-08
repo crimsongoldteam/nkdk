@@ -65,7 +65,7 @@ function importStructuredFormAttributes(
   execution?: ReturnType<typeof createRuleRegistrySet>["execution"],
   context?: ReturnType<typeof createDirectRoundTripContexts>["importContext"],
 ) {
-  const document = parseXmlDocumentWithSaxes(xml, { preserveXsiNil: true })
+  const document = parseXmlDocumentWithSaxes(xml)
   const root = document.roots[0]!
   const audit = createXmlImportAuditSession([root])
   const annotations = createXmlAnomalyAnnotations()

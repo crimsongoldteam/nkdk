@@ -34,10 +34,7 @@ describe("xmlObjectDocument", () => {
     ["смешанный текст", { Root: { "#text": "prefix", Child: "value" } }],
   ])("строит то же адресное дерево без строки: %s", (_name, value) => {
     expect(normalize(xmlObjectDocument(value).document.roots)).toEqual(
-      normalize(parseXmlDocumentWithSaxes(xmlExport(value, false), {
-        preserveXsiNil: true,
-        preserveEmptyElements: true,
-      }).roots),
+      normalize(parseXmlDocumentWithSaxes(xmlExport(value, false)).roots),
     )
   })
 

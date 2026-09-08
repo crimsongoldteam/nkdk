@@ -53,7 +53,7 @@ describe("export FilterItem to YAML", () => {
           </dcsset:item>
         </dcsset:item>
       </Probe>
-    `, { preserveXsiNil: true })
+    `)
     const root = document.roots[0]!
     const audit = createXmlImportAuditSession([root])
     const annotations = createXmlAnomalyAnnotations()

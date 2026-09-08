@@ -5,7 +5,7 @@ import { xmlExport } from "../export/exporter"
 import { mergeXmlRawFragments, type XmlRawMergeBoundary } from "./merge"
 
 const roots = (xml: string): readonly XmlElementNode[] =>
-  parseXmlDocumentWithSaxes(xml, { preserveXsiNil: true }).roots
+  parseXmlDocumentWithSaxes(xml).roots
 
 describe("mergeXmlRawFragments", () => {
   it.each([

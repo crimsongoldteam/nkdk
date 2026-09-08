@@ -5,6 +5,19 @@ import {
 } from "./saxesParser"
 import { xmlAttributeValue, xmlElementChildren, xmlTextValue } from "./document"
 
+it("строит единственное XML-дерево без сохранённого объектного представления", () => {
+  const document = parseXmlDocumentWithSaxes('<Root><ChildItems><A/><B/><A/></ChildItems><Value xsi:nil="true"/></Root>')
+  expect(Object.hasOwn(document, "compatibility")).toBe(false)
+  const pending = [...document.roots]
+  for (const node of pending) {
+    expect(Object.hasOwn(node, "compatibilityValue")).toBe(false)
+    pending.push(...xmlElementChildren(node))
+  }
+  const root = document.roots[0]!
+  expect(xmlElementChildren(xmlElementChildren(root, "ChildItems")[0]!).map(node => node.name)).toEqual(["A", "B", "A"])
+  expect(xmlAttributeValue(xmlElementChildren(root, "Value")[0]!, "xsi:nil")).toBe("true")
+})
+
 it("сохраняет Unicode, CDATA и атрибуты после отделения строк от исходника", () => {
   const xml = '<Корень имя="Имя😀&amp;значение"><Текст>До😀<![CDATA[<&После]]></Текст><?режим имя="Значение😀"?></Корень>'
   const root = parseXmlDocumentWithSaxes(xml).roots[0]!

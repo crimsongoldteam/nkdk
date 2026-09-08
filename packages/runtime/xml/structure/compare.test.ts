@@ -9,7 +9,7 @@ import {
 } from "./compare"
 
 const roots = (xml: string): readonly XmlElementNode[] =>
-  parseXmlDocumentWithSaxes(xml, { preserveXsiNil: true }).roots
+  parseXmlDocumentWithSaxes(xml).roots
 
 describe("compareXmlStructures", () => {
   it.each([8, 128])("строит порядок %i именованных siblings без попарного чтения атрибутов", (count) => {

@@ -69,16 +69,15 @@ const cases: readonly {
 
 describe("структурные входы специализированных коллекций", () => {
   it.each([
-    "", "<Type/>",
-    "<Type><v8:Type>v8:ValueListType</v8:Type></Type>",
-    "<Type><v8:Type> v8:ValueListType </v8:Type></Type>",
-    "<Type><v8:Type>v8:ValueListType</v8:Type><v8:Type>xs:string</v8:Type></Type>",
-    '<Type><v8:Type future="x">v8:ValueListType</v8:Type></Type>',
-    "<Type><v8:Type><!--comment-->v8:ValueListType</v8:Type></Type>",
-    "<Type><v8:Type>v8:ValueListType</v8:Type></Type><Type/>",
-  ])("распознаёт единственный тип списка как прежний вход: %s", (xml) => {
+    ["", false], ["<Type/>", false],
+    ["<Type><v8:Type>v8:ValueListType</v8:Type></Type>", true],
+    ["<Type><v8:Type> v8:ValueListType </v8:Type></Type>", false],
+    ["<Type><v8:Type>v8:ValueListType</v8:Type><v8:Type>xs:string</v8:Type></Type>", false],
+    ['<Type><v8:Type future="x">v8:ValueListType</v8:Type></Type>', false],
+    ["<Type><v8:Type><!--comment-->v8:ValueListType</v8:Type></Type>", true],
+    ["<Type><v8:Type>v8:ValueListType</v8:Type></Type><Type/>", false],
+  ] as const)("распознаёт единственный тип списка: %s", (xml, expected) => {
     const root = parseXmlDocumentWithSaxes(`<Attribute>${xml}</Attribute>`).roots[0]!
-    const expected = hasSoleValueListType(root.compatibilityValue)
     const nodes = [root]
     for (const node of nodes) {
       nodes.push(...xmlElementChildren(node))

@@ -205,7 +205,7 @@ describe("fill value XML import", () => {
       collector: createConfigurationIndexCollector(),
       inputs: [{
         input: currentAssignment.xmlFiles[0]!,
-        document: parseXmlDocumentWithSaxes(fs.readFileSync(sourcePath, "utf8"), { preserveXsiNil: true }),
+        document: parseXmlDocumentWithSaxes(fs.readFileSync(sourcePath, "utf8")),
       }],
     })
     const expected = legacyFacts.pendingChecks.map(withoutLocation)

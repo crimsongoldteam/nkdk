@@ -113,7 +113,7 @@ describe("xmlExport", () => {
     const source =
       '<Root><Container><Mixed flag="a&amp;b">left $&amp; &amp; <?future mode="x"?>' +
       '<Nested>n<Inner/>m</Nested> </Mixed></Container><Ordinary><A/><B/></Ordinary></Root>'
-    const document = parseXmlDocumentWithSaxes(source, { preserveXsiNil: true })
+    const document = parseXmlDocumentWithSaxes(source)
 
     const xml = xmlExport(document.roots, false)
 
@@ -128,7 +128,7 @@ describe("xmlExport", () => {
       "\t</Ordinary>",
       "</Root>",
     ].join("\n"))
-    const roundTripped = parseXmlDocumentWithSaxes(xml, { preserveXsiNil: true })
+    const roundTripped = parseXmlDocumentWithSaxes(xml)
     expect(roundTripped.roots[0]?.content.filter((node) => node.type !== "text").map(
       (node) => node.type === "element" ? node.name : `?${node.target}`,
     )).toEqual(["Container", "Ordinary"])
@@ -177,12 +177,10 @@ describe("xmlExport", () => {
   it("round-trips the authoritative processing instruction body", () => {
     const source =
       '<Root><Before/><?legacy alpha a="1" z="2" a="3" &amp;?><After/></Root>'
-    const document = parseXmlDocumentWithSaxes(source, { preserveXsiNil: true })
+    const document = parseXmlDocumentWithSaxes(source)
 
     const xml = xmlExport(document.roots, false)
-    const roundTrippedRoot = parseXmlDocumentWithSaxes(xml, {
-      preserveXsiNil: true,
-    }).roots[0]
+    const roundTrippedRoot = parseXmlDocumentWithSaxes(xml).roots[0]
     const instruction = roundTrippedRoot?.content.find(
       (node) => node.type === "processingInstruction"
     )
@@ -221,7 +219,7 @@ describe("xmlExport", () => {
     attributes,
   }) => {
     const source = `<Root><?p ${body}?></Root>`
-    const document = parseXmlDocumentWithSaxes(source, { preserveXsiNil: true })
+    const document = parseXmlDocumentWithSaxes(source)
     const instruction = document.roots[0]?.content.find(
       (node) => node.type === "processingInstruction"
     )
@@ -229,9 +227,7 @@ describe("xmlExport", () => {
     expect(instruction).toMatchObject({ body, attributes })
 
     const xml = xmlExport(document.roots, false)
-    const roundTrippedInstruction = parseXmlDocumentWithSaxes(xml, {
-      preserveXsiNil: true,
-    }).roots[0]?.content.find((node) => node.type === "processingInstruction")
+    const roundTrippedInstruction = parseXmlDocumentWithSaxes(xml).roots[0]?.content.find((node) => node.type === "processingInstruction")
 
     expect(xml).toContain(`<?p ${body}?>`)
     expect(roundTrippedInstruction).toMatchObject({ body, attributes })
@@ -239,12 +235,10 @@ describe("xmlExport", () => {
 
   it("escapes normalized XML attribute whitespace as character references", () => {
     const source = '<Root value="line&#xA;carriage&#xD;tab&#x9;end"/>'
-    const document = parseXmlDocumentWithSaxes(source, { preserveXsiNil: true })
+    const document = parseXmlDocumentWithSaxes(source)
 
     const xml = xmlExport(document.roots, false)
-    const roundTripped = parseXmlDocumentWithSaxes(xml, {
-      preserveXsiNil: true,
-    }).roots[0]?.attributes[0]
+    const roundTripped = parseXmlDocumentWithSaxes(xml).roots[0]?.attributes[0]
 
     expect(xml).toBe(source)
     expect(roundTripped?.value).toBe("line\ncarriage\rtab\tend")
@@ -256,8 +250,7 @@ describe("xmlExport", () => {
     ["alpha\u0000omega", /XML/],
   ])("rejects a processing instruction body that cannot round-trip: %s", (body, message) => {
     const document = parseXmlDocumentWithSaxes(
-      '<Root><?legacy a="1"?></Root>',
-      { preserveXsiNil: true }
+      '<Root><?legacy a="1"?></Root>'
     )
     const roots = document.roots.map((root) => ({
       ...root,

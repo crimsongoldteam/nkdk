@@ -1,12 +1,6 @@
 import { describe, expect, it } from "vitest"
-import {
-  createConfigurationIndexCollector,
-  createConfigurationIndexExportRuntime,
-  createLocalConfigurationIndexReader,
-  importContentFromXML,
-  withConfigurationIndexCollector,
-  xmlExport,
-} from "@nkdk/runtime"
+import { createConfigurationIndexCollector, createConfigurationIndexExportRuntime, createLocalConfigurationIndexReader, withConfigurationIndexCollector, xmlExport } from "@nkdk/runtime"
+import { xmlFixtureValue as importContentFromXML } from "../../../tests/xmlFixtureValue"
 import type { ConfigurationIndexChild } from "@nkdk/runtime"
 import type { XmlElementNode } from "@nkdk/runtime"
 import { parseStructuralXMLWithoutCompatibility } from "../../../tests/structuralXML"

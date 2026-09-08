@@ -12,7 +12,7 @@ import { mockContextFromXML, mockContextToXML } from "../../../tests/mockContext
 import { withConfigurationIndexCollector } from "@nkdk/runtime"
 import { createConfigurationIndexCollector } from "@nkdk/runtime"
 import { xmlExport } from "@nkdk/runtime"
-import { importContentFromXML } from "@nkdk/runtime"
+import { xmlFixtureValue as importContentFromXML } from "../../../tests/xmlFixtureValue"
 import { createLocalIndexesCollector } from "../../projectDefinition/localIndexes"
 import { importPropertiesFromXMLToYAML } from "../../ruleRuntime/property/fromXMLToYAML"
 import { MetadataItemRule, PropertyRule } from "../../ruleRuntime"

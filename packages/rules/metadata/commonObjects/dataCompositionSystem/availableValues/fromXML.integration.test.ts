@@ -4,7 +4,8 @@ import { describe, expect, it } from "vitest"
 import { importPropertyFromXML } from "../../../ruleRuntime"
 import { mockContextFromXML } from "../../../../tests/mockContext"
 import { readAndParseXMLFile } from "../../../../tests/readAndParseXMLFile"
-import { serializeYAMLDocument, importContentFromXML, parseXmlDocumentWithSaxes } from "@nkdk/runtime"
+import { serializeYAMLDocument, parseXmlDocumentWithSaxes } from "@nkdk/runtime"
+import { xmlFixtureValue as importContentFromXML } from "../../../../tests/xmlFixtureValue"
 import {
   nilAndBooleanAvailableValues,
   stringAvailableValues,

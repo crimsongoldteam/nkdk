@@ -5,7 +5,7 @@ import { testFixturesDir } from "./testFixturesDir"
 /** Строит исходный XML для тестов с программно заданными значениями. */
 export function xmlElementFromTestValue(name: string, value: unknown): XmlElementNode {
   if (isXmlElementNode(value)) return value
-  const root = parseXmlDocumentWithSaxes(xmlExport({ [name]: value }), { preserveXsiNil: true }).roots[0]
+  const root = parseXmlDocumentWithSaxes(xmlExport({ [name]: value })).roots[0]
   if (root === undefined) throw new Error("Тестовое значение должно создавать XML-элемент")
   return root
 }
