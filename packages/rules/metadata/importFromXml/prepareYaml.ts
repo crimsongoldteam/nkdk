@@ -3,7 +3,6 @@ import {
   createXmlAnomalyAnnotations,
   createXmlImportAuditSession,
   createLocalXmlProof,
-  copyYAMLRuntimeMetadata,
   parseXmlDocumentWithSaxes,
   isEmptyXmlElement,
   type XmlAnomalyAnnotationTable,
@@ -55,7 +54,7 @@ import {
   partitionImportedDependentItems,
 } from "./dependentItems"
 import { createImportedFormDataPathIndex } from "../forms/clientApplicationForm/formDataPathMetadata"
-import { importedYamlValueAtPath } from "./yamlPathValue"
+import { createBaseFormProofPreparation } from "./baseFormProofPreparation"
 
 export interface PreparedImportYaml {
   assignment: ImportAssignment
@@ -465,6 +464,8 @@ function importAssignmentBaseFormCandidate(params: {
   const annotations = createXmlAnomalyAnnotations()
   // Локальное сравнение уже находит остаток XML; второй аудит чтений не нужен.
   const audit = params.localRoundTrip === undefined ? createXmlImportAuditSession([baseFormNode]) : undefined
+  const prepareProof = params.proofYaml === undefined
+    ? undefined : createBaseFormProofPreparation(params.proofYaml, annotations)
   const localRoundTrip = params.localRoundTrip === undefined ? undefined : createImportLocalRoundTrip({
     execution: params.localRoundTrip.execution,
     context: params.localRoundTrip.context,
@@ -475,7 +476,7 @@ function importAssignmentBaseFormCandidate(params: {
     annotations,
     profiler: params.profiler,
     isDocumentRoot: (candidate) => candidate === companion.rule,
-    ...(params.proofYaml === undefined
+    ...(prepareProof === undefined
       ? {}
       : {
           prepareYamlForProof: (
@@ -483,8 +484,7 @@ function importAssignmentBaseFormCandidate(params: {
             _rule: MetadataItemRule,
             yamlPath: readonly (string | number)[],
           ) => {
-            const proofValue = importedYamlValueAtPath(params.proofYaml, yamlPath)
-            if (isRecord(proofValue)) replaceYamlRoot(yaml, proofValue, annotations)
+            prepareProof(yaml, yamlPath)
           },
         }),
     prepareRootRawPathPrefix: ({ source }) => source === baseFormNode ? [] : undefined,
@@ -525,64 +525,6 @@ function importAssignmentBaseFormCandidate(params: {
     configurationFragment: baseForm.configurationIndexCollector.fragment(companion.targetProjectPath),
     ...(localProofReceipt === undefined ? {} : { localProofReceipt }),
   }
-}
-
-function replaceYamlRoot(
-  target: Record<string, unknown>,
-  source: Record<string, unknown>,
-  annotations: XmlAnomalyAnnotationTable,
-): void {
-  replaceYamlMapping(target, source, annotations)
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === "object" && !Array.isArray(value)
-}
-
-function replaceYamlMapping(
-  target: Record<string, unknown>,
-  source: Record<string, unknown>,
-  annotations: XmlAnomalyAnnotationTable,
-): void {
-  for (const key of Object.keys(target)) {
-    if (
-      !Object.prototype.hasOwnProperty.call(source, key)
-      && annotations.at(target, key)?.kind !== "raw"
-    ) delete target[key]
-  }
-  for (const [key, sourceValue] of Object.entries(source)) {
-    const targetValue = target[key]
-    if (isRecord(targetValue) && isRecord(sourceValue)) {
-      replaceYamlMapping(targetValue, sourceValue, annotations)
-      continue
-    }
-    if (Array.isArray(targetValue) && Array.isArray(sourceValue)) {
-      replaceYamlArray(targetValue, sourceValue, annotations)
-      continue
-    }
-    target[key] = sourceValue
-  }
-  copyYAMLRuntimeMetadata(source, target)
-}
-
-function replaceYamlArray(
-  target: unknown[],
-  source: readonly unknown[],
-  annotations: XmlAnomalyAnnotationTable,
-): void {
-  target.length = source.length
-  for (let index = 0; index < source.length; index++) {
-    const sourceValue = source[index]
-    const targetValue = target[index]
-    if (isRecord(targetValue) && isRecord(sourceValue)) {
-      replaceYamlMapping(targetValue, sourceValue, annotations)
-    } else if (Array.isArray(targetValue) && Array.isArray(sourceValue)) {
-      replaceYamlArray(targetValue, sourceValue, annotations)
-    } else {
-      target[index] = sourceValue
-    }
-  }
-  copyYAMLRuntimeMetadata(source, target)
 }
 
 function withBaseFormReceipt(
