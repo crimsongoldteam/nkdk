@@ -7,6 +7,7 @@ import type { MetadataItemRule } from "./types"
 import { prepareMetadataItemXMLExecution } from "../metadataItem/fromYAMLToXML"
 import { prepareMetadataCollectionItemXMLContext } from "../metadataCollection/fromYAMLToXML"
 import { withPreparedXMLDependencyFacts } from "./preparedXMLDependencies"
+import { ExecutionPath } from "./executionPath"
 
 type ImportItem = Parameters<DirectImportRoundTripExecution["open"]>[0]
 type InlineSelector = string | number | undefined
@@ -180,11 +181,12 @@ export function createCompiledRuleExecution(params: {
             if (entry.rule !== nested.rule) throw new Error(`Правило закрытого XML item ${entry.rule.itemType} не совпадает с правилом родителя ${nested.rule.itemType}`)
             return transport(entry.result)
           }
-          const deferredKeys = nested.deferredRulePath?.map(({ propertyKey }) => propertyKey) ?? []
-          const key = deferredKeys.findLast(candidate => frame.inline.has(candidate)) ?? deferredKeys.at(-1)
+          const deferredPath = nested.deferredPathCursor ?? ExecutionPath.from(nested.deferredRulePath ?? [])
+          const key = (deferredPath.findLast(({ propertyKey }) => frame.inline.has(propertyKey))
+            ?? deferredPath.last)?.propertyKey
           const bindings = key === undefined ? undefined : frame.inline.get(key)
           const collection = key === undefined ? false : plan.propertiesByKey.get(key)?.operations.yamlToXMLNestedRule?.kind === "collection"
-          const selector = collection ? nested.name ?? nested.rulePath?.at(-1) : undefined
+          const selector = collection ? nested.name ?? nested.pathCursor?.last ?? nested.rulePath?.at(-1) : undefined
           const queue = bindings?.get(selector)
           const queuedKey = queue?.keys[queue.next]
           // Нормализация YAML может добавить промежуточный item другого вида.

@@ -11,6 +11,7 @@ import { recordCurrentExternalMetadataUuid } from "../externalMetadata/record"
 import type { DeferredRulePathSegment } from "../property/importYamlTypes"
 import { bindDeferredObjectValues } from "../property/deferredObjectValues"
 import { applyXMLItemOwnOutput } from "./ownOutput"
+import { ExecutionPath } from "../property/executionPath"
 
 export interface ConvertMetadataItemFromYAMLToXMLParams
   extends YAMLToXMLItemConversionParams {
@@ -52,7 +53,7 @@ export function prepareMetadataItemXMLExecution(
     && !isRecord(params.yaml)
     && params.sparseYAML !== true
   ) {
-    const rulePath = params.rulePath ?? []
+    const rulePath = params.pathCursor?.toArray() ?? params.rulePath ?? []
     const path = rulePath.length === 0 ? params.rule.itemType : rulePath.join(".")
     throw new Error(`${params.rule.itemType}: ожидался YAML-объект; путь rules: ${path}`)
   }
@@ -92,7 +93,9 @@ export function prepareMetadataItemXMLExecution(
     externalWriteFactory: params.externalWriteFactory,
     profile: params.profile,
     rulePath: params.rulePath,
-    deferredRulePath: enterDeferredNestedRule(params.deferredRulePath ?? [], params.rule.itemType),
+    pathCursor: params.pathCursor,
+    deferredPathCursor: enterDeferredNestedRule(
+      params.deferredPathCursor ?? ExecutionPath.from(params.deferredRulePath ?? []), params.rule.itemType),
   }
   const finish = (converted: YAMLToXMLResult): YAMLToXMLResult => {
     const outputs = new Map<string, Record<string, unknown>>()
@@ -128,12 +131,12 @@ export function prepareMetadataItemXMLExecution(
 }
 
 function enterDeferredNestedRule(
-  path: readonly DeferredRulePathSegment[],
+  path: ExecutionPath<DeferredRulePathSegment>,
   itemType: string
-): readonly DeferredRulePathSegment[] {
-  const last = path.at(-1)
+): ExecutionPath<DeferredRulePathSegment> {
+  const last = path.last
   if (last === undefined) return path
-  return [...path.slice(0, -1), { ...last, nestedItemType: itemType }]
+  return path.withLast({ ...last, nestedItemType: itemType })
 }
 
 function readMetadataItemUuid(

@@ -13,6 +13,8 @@ import type {
 import type { PropertyRuleType } from "../property/registry"
 import type { ConfigurationIndexAddressingMode, MetadataItemRule, PropertyRule } from "../property/types"
 import { enterNestedYamlRule } from "../property/yamlRuleCursor"
+import { ExecutionPath } from "../property/executionPath"
+import { createMetadataCollectionFrame, type MetadataCollectionItemFrame } from "./frame"
 import { childUid, indexedUid, yamlIndexUid, yamlKeyUid } from "../../configurationIndex/logicalAddress"
 import {
   getConfigurationIndexCollectionContext,
@@ -111,35 +113,32 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
   const items: Iterable<Record<string, unknown> | XmlElementNode> = sourceNodes === undefined
     ? normalizeCollectionItems(params.xml, params.xmlElement)
     : collectionItemNodes(sourceNodes, params.xmlElement)
-  const iterator = items[Symbol.iterator]()
-  let next = iterator.next()
-  if (next.done) return undefined
-  const sourceItemRule = params.itemRule
-  const itemRule =
-    params.preserveItemPropertyPresence === true
-      ? withPreservedPropertyPresence(sourceItemRule)
-      : sourceItemRule
+  let itemRule = params.itemRule
   const keyField = params.keyField
-  const keyYaml = keyField === undefined ? undefined : (itemRule.properties[keyField]?.yaml ?? keyField)
-  const importItem = (itemXml: Record<string, unknown> | XmlElementNode, index: number) => {
+  let keyYaml: string | undefined
+  let rulePrepared = false
+  const prepareItemRule = () => {
+    if (!rulePrepared) {
+      if (params.preserveItemPropertyPresence === true) itemRule = withPreservedPropertyPresence(itemRule)
+      keyYaml = keyField === undefined ? undefined : (itemRule.properties[keyField]?.yaml ?? keyField)
+      rulePrepared = true
+    }
+    return itemRule
+  }
+  const frame = createMetadataCollectionFrame({
+    descriptor: { kind: "collection", get itemRule() { return prepareItemRule() }, yamlShape: params.yamlAsArray === true ? "array" : "record" },
+    path: ExecutionPath.from(params.traversal.yamlPath),
+    prepareContext: item => configurationIndexItemContext({
+      context: params.context, itemName: item.name, itemRule: item.rule, index: item.index,
+      options: params,
+    }),
+  })
+  const importItem = (itemXml: Record<string, unknown> | XmlElementNode, item: MetadataCollectionItemFrame<ConfigurationContextFromXML>) => {
+    const index = item.index
     const itemNode = isXmlElementNode(itemXml) ? itemXml : undefined
-    const itemName = itemNameFromXML(itemXml, itemRule, params.keyField)
-    const itemContext = configurationIndexItemContext({
-      context: params.context,
-      itemName,
-      itemRule,
-      index,
-      options: {
-        propertyType: params.propertyType,
-        configurationIndexUidSegment: params.configurationIndexUidSegment,
-        configurationIndexAddressing: params.configurationIndexAddressing,
-        ...(params.yamlAsArray === true ? { yamlAsArray: true as const } : {}),
-      },
-    })
-    const yamlPath =
-      params.yamlAsArray === true
-        ? [...params.traversal.yamlPath, index]
-        : [...params.traversal.yamlPath, index]
+    const itemName = item.name
+    const itemContext = item.context
+    const yamlPath = item.path.toArray()
     const bufferedCollector =
       params.yamlAsArray === true || keyYaml === undefined
         ? undefined
@@ -222,12 +221,12 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
     }
   }
   const yamlItems: NonNullable<ReturnType<typeof importItem>>[] = []
-  let itemIndex = 0
-  while (!next.done) {
-    const imported = importItem(next.value, itemIndex++)
+  frame.visit(items, (value, index) => ({
+    kind: "xml", value, name: itemNameFromXML(value, prepareItemRule(), params.keyField), pathKey: index,
+  }), (item, source) => {
+    const imported = importItem(source, item)
     if (imported !== undefined) yamlItems.push(imported)
-    next = iterator.next()
-  }
+  })
   if (yamlItems.length === 0) return undefined
 
   if (params.yamlAsArray === true) {

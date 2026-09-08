@@ -5,6 +5,7 @@ import {
   withConfigurationIndexExportPropertyContext,
 } from "../../configurationIndex/referenceView"
 import type { MetadataTargetOwner } from "../metadataTarget"
+import { ExecutionPath } from "./executionPath"
 import type {
   ConfigurationContext,
   ConfigurationContextFromXML,
@@ -227,7 +228,9 @@ export function createXMLPropertyExecution(
   propertySource?: YAMLPropertySource,
   observer?: XMLPropertyExecutionObserver,
 ): XMLPropertyExecution {
-  const topLevelStartedAt = params.profile !== undefined && params.rulePath === undefined
+  const path = params.pathCursor ?? ExecutionPath.from(params.rulePath ?? [params.rule.itemType])
+  const deferredPath = params.deferredPathCursor ?? ExecutionPath.from(params.deferredRulePath ?? [])
+  const topLevelStartedAt = params.profile !== undefined && params.rulePath === undefined && params.pathCursor === undefined
     ? performance.now()
     : undefined
   const typeRule = <Operation extends import("./fn").TypeRulesOperations>(
@@ -310,7 +313,7 @@ export function createXMLPropertyExecution(
     try {
     if (params.profile !== undefined) {
       params.profile.propertyCount++
-      params.profile.propertyPaths.push(formatRulePath([...(params.rulePath ?? [params.rule.itemType]), propertyKey]))
+      params.profile.propertyPaths.push(formatRulePath(path.child(propertyKey).toArray()))
     }
     const matchingOutputs = outputs.filter(({ request }) => matchesOutputTag(planned.propertyRule, request))
     const propertyContext = matchingOutputs[0]?.request.context ?? params.context
@@ -519,8 +522,8 @@ export function createXMLPropertyExecution(
               ...(scalarTag === "xml/standard-attributes" ? { materializeCanonicalItems: true as const } : {}),
               externalWriteFactory: params.externalWriteFactory,
               profile: params.profile,
-              rulePath: [...(params.rulePath ?? [params.rule.itemType]), propertyKey],
-              deferredRulePath: [...(params.deferredRulePath ?? []), { propertyKey }],
+              pathCursor: path.child(propertyKey),
+              deferredPathCursor: deferredPath.child({ propertyKey }),
             })
           : convertNestedItem({
               convertProperties: convertNestedProperties,
@@ -544,8 +547,8 @@ export function createXMLPropertyExecution(
               externalWriteFactory: params.externalWriteFactory,
               ownerYAML: { itemType: params.rule.itemType },
               profile: params.profile,
-              rulePath: [...(params.rulePath ?? [params.rule.itemType]), propertyKey],
-              deferredRulePath: [...(params.deferredRulePath ?? []), { propertyKey }],
+              pathCursor: path.child(propertyKey),
+              deferredPathCursor: deferredPath.child({ propertyKey }),
             })
       if (effectiveNestedRule.kind !== "collection" && params.profile !== undefined) params.profile.nestedItemCount++
       externalWrites.push(...nested.externalWrites)
@@ -775,7 +778,7 @@ export function createXMLPropertyExecution(
         if (valuePath !== undefined && finalizeExportedXML !== undefined) {
           output.deferred.push({
             valuePath,
-            rulePath: [...(params.deferredRulePath ?? []), { propertyKey }],
+            rulePath: deferredPath.child({ propertyKey }).toArray(),
           })
         }
       })

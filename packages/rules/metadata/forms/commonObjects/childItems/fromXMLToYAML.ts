@@ -18,6 +18,7 @@ import type {
   ElementType,
 } from "../../../ruleRuntime/formElement/types"
 import type { ImportFromXMLToYAMLFunction } from "@nkdk/runtime/rule-kit"
+import { createMetadataCollectionFrame, ExecutionPath } from "@nkdk/runtime/rule-kit"
 import {
   definePropertyTypeRule,
   propertyTypesFromContributions,
@@ -56,7 +57,6 @@ export const importChildItemsFromXMLToYAML: ImportFromXMLToYAMLFunction = ({ con
   const roots = traversal.xmlNodes ?? (isXmlElementNode(xml) ? [xml] : undefined)
   if (roots === undefined) throw new Error("Для импорта элементов формы нужен структурный XML-узел")
   const result: Record<string, unknown> = {}
-  const occurrences = new Map<string, number>()
   const descriptor = getTypeRule(rule.type, "yamlToXMLNestedRule")
   if (descriptor?.kind !== "collection" || descriptor.resolveXMLItemRule === undefined) {
     throw new Error(`Для коллекции ${rule.type} не определены XML-маршруты`)
@@ -64,19 +64,33 @@ export const importChildItemsFromXMLToYAML: ImportFromXMLToYAMLFunction = ({ con
   const collection = getConfigurationIndexCollectionContext(context)
   const parentItemType = traversal.rulePath.findLast(segment => segment.nestedItemType !== undefined)?.nestedItemType
   const contextMenuItems = rule.type === "CommandBarChildItems" && parentItemType === "ContextMenu"
+  const path = ExecutionPath.from(traversal.yamlPath)
+  const frame = createMetadataCollectionFrame({
+    descriptor, propertyRule: rule, path,
+    prepareContext(item) {
+      const logicalAddress = collection === undefined || item.name === undefined
+        ? undefined : getConfigurationIndexFormElementLogicalAddress(collection, item.name)
+      if (logicalAddress === undefined) return context
+      if (item.source.kind !== "xml" || !isXmlElementNode(item.source.value)) throw new Error("Ожидался XML-элемент формы")
+      const id = xmlAttributeValue(item.source.value, "id")
+      if (id !== undefined) collection?.collector.setIdentity(logicalAddress, "xmlId", id)
+      return withConfigurationIndexLogicalAddress(context, logicalAddress)
+    },
+  })
 
-  for (const itemXmlNode of childElements(roots)) {
-    const itemRule = descriptor.resolveXMLItemRule(itemXmlNode) as ElementRule & { itemType: CollectableElementType }
+  frame.visit(childElements(roots), node => ({
+    kind: "xml", value: node, name: xmlAttributeValue(node, "name"), occurrence: formChildItemOccurrence(node),
+  }), (item, itemXmlNode) => {
+    const itemRule = item.rule as ElementRule & { itemType: CollectableElementType }
     const itemType = itemRule.itemType
-    const itemName = xmlAttributeValue(itemXmlNode, "name")
+    const itemName = item.name
     if (typeof itemName !== "string" || itemName.length === 0) {
       throw new Error("У элемента формы отсутствует name")
     }
-    const occurrence = formChildItemOccurrence(itemXmlNode) ?? occurrences.get(itemName) ?? 0
-    occurrences.set(itemName, occurrence + 1)
+    const occurrence = item.occurrence
     const misplacedPicture = contextMenuItems && itemType === "PictureField"
     if (occurrence > 0 || misplacedPicture) {
-      if (traversal.mode === "facts") continue
+      if (traversal.mode === "facts") return
       const node = itemXmlNode
       if (traversal.annotations === undefined) {
         throw new Error("Для сохранения аномального элемента формы нужны XML-узел и таблица аннотаций")
@@ -87,33 +101,24 @@ export const importChildItemsFromXMLToYAML: ImportFromXMLToYAMLFunction = ({ con
         ...(occurrence === 0 ? {} : { keyAnnotation: { kind: "invalid" as const, occurrence } }),
         valueAnnotation: { kind: "raw", occurrence: 1, xml: encodeXmlRawElement(node, ""), hasSemanticValue: false },
       })
-      const boundary = { itemType, yamlPath: [...traversal.yamlPath, key], rulePath: traversal.rulePath }
+      const boundary = { itemType, yamlPath: path.child(key).toArray(), rulePath: traversal.rulePath }
       traversal.audit?.claim(node, boundary)
       traversal.audit?.claimStructuralSubtree(node, boundary)
-      continue
+      return
     }
-    const logicalAddress =
-      collection === undefined ? undefined : getConfigurationIndexFormElementLogicalAddress(collection, itemName)
-    const itemContext =
-      logicalAddress === undefined ? context : withConfigurationIndexLogicalAddress(context, logicalAddress)
-    const id = xmlAttributeValue(itemXmlNode, "id")
-    if (logicalAddress !== undefined && typeof id === "string") {
-      collection?.collector.setIdentity(logicalAddress, "xmlId", id)
-    }
-
     result[itemName] = importFormElementFromXMLToYAML({
-      context: itemContext,
+      context: item.context,
       rule: itemRule,
       xml: itemXmlNode,
       name: itemName,
       traversal: {
         ...traversal,
         ...(traversal.mode === "facts" ? { produceResult: false } : {}),
-        yamlPath: [...traversal.yamlPath, itemName],
+        yamlPath: item.path.toArray(),
         xmlNodes: [itemXmlNode],
       },
     })
-  }
+  })
 
   return Object.keys(result).length === 0 ? undefined : result
 }

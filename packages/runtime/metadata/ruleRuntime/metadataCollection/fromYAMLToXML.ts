@@ -4,11 +4,10 @@ import type { ConfigurationContextWithExportToXML } from "../../context/types"
 import { convertMetadataItemFromYAMLToXML } from "../metadataItem/fromYAMLToXML"
 import type {
   YAMLToXMLNestedRule,
-  YAMLToXMLExternalWriteFactory,
+  YAMLToXMLExecutionParams,
   YAMLToXMLExternalWrite,
   YAMLToXMLOutputRequest,
   YAMLToXMLResult,
-  YAMLToXMLProfile,
   PrepareXMLItemOutputFunction,
 } from "../property/fromYAMLToXMLTypes"
 import { copyXmlAnomalyAnnotationsDeep } from "../../../yaml/xmlAnomalyAnnotations"
@@ -16,9 +15,10 @@ import { copyYAMLRuntimeMetadata } from "../../../yaml/runtimeMetadata"
 import { yamlMappingEntries } from "../../../yaml/mappingTags"
 import { markYAMLValueTag, yamlScalarTagAt } from "../../../yaml/scalarTags"
 import type { MetadataItemRule, PropertyRule } from "../property/types"
+import { ExecutionPath } from "../property/executionPath"
+import { createMetadataCollectionFrame } from "./frame"
 import type { YAMLPropertySource } from "../property/fromYAMLToXMLTypes"
 import { getChildContextToXML } from "../../context/childContext"
-import type { DeferredRulePathSegment } from "../property/importYamlTypes"
 import type { DeferredValuePath } from "../property/deferredObjectValues"
 import { assertRequiredConfigurationIdentity } from "../property/requiredIdentity"
 import type { XmlAnomalyAnnotations } from "../../../yaml/xmlAnomalyAnnotations"
@@ -42,7 +42,7 @@ interface CollectionEntry {
   readonly rawXml?: XmlRawValue
 }
 
-export interface ConvertMetadataCollectionFromYAMLToXMLParams {
+export interface ConvertMetadataCollectionFromYAMLToXMLParams extends YAMLToXMLExecutionParams {
   readonly convertItem: typeof convertMetadataItemFromYAMLToXML
   readonly convertProperties: Parameters<typeof convertMetadataItemFromYAMLToXML>[0]["convertProperties"]
   readonly context: ConfigurationContextWithExportToXML
@@ -54,10 +54,6 @@ export interface ConvertMetadataCollectionFromYAMLToXMLParams {
   readonly outputs: readonly YAMLToXMLOutputRequest[]
   readonly prepareItemOutput?: PrepareXMLItemOutputFunction
   readonly materializeCanonicalItems?: true
-  readonly externalWriteFactory?: YAMLToXMLExternalWriteFactory
-  readonly profile?: YAMLToXMLProfile
-  readonly rulePath?: readonly (string | number)[]
-  readonly deferredRulePath?: readonly DeferredRulePathSegment[]
 }
 
 export function convertMetadataCollectionFromYAMLToXML(
@@ -73,9 +69,16 @@ export function convertMetadataCollectionFromYAMLToXML(
   const outputItems = new Map(params.outputs.map(({ key }) => [key, [] as unknown[]]))
   const deferredByOutput = new Map(params.outputs.map(({ key }) => [key, [] as DeferredValuePath[]]))
   const externalWrites: YAMLToXMLExternalWrite[] = []
-  let defaultItemRule: MetadataItemRule | undefined
+  const path = params.pathCursor ?? ExecutionPath.from(params.rulePath ?? [params.descriptor.itemRule.itemType])
+  const frame = createMetadataCollectionFrame({
+    descriptor: params.descriptor, propertyRule: params.propertyRule, annotations: params.annotations, path,
+    prepareContext: item => prepareMetadataCollectionItemXMLContext({
+      context: params.context, descriptor: params.descriptor, yaml: item.value,
+      name: item.name, index: item.index, itemRule: item.rule, propertyRule: params.propertyRule,
+    }),
+  })
 
-  entries.forEach(({ yaml, name, rawXml }, index) => {
+  frame.visit(entries, ({ yaml, name }) => ({ kind: "yaml", value: yaml, name }), (item, { yaml, name, rawXml }) => {
     if (params.profile !== undefined) params.profile.nestedItemCount++
     if (rawXml !== undefined) {
       const elementName = params.descriptor.xmlElement ?? name ?? params.descriptor.itemRule.itemType
@@ -104,20 +107,8 @@ export function convertMetadataCollectionFromYAMLToXML(
       }
       return
     }
-    defaultItemRule ??=
-      (params.propertyRule === undefined ? undefined : params.descriptor.itemRuleFromProperty?.(params.propertyRule)) ??
-      params.descriptor.itemRule
-    const itemRule =
-      params.descriptor.resolveItemRule?.({ yaml, name, index, propertyRule: params.propertyRule }) ?? defaultItemRule
-    const normalizedYAML =
-      params.descriptor.normalizeItemYAML?.({
-        itemRule,
-        yaml,
-        annotations: params.annotations,
-        name,
-        index,
-        propertyRule: params.propertyRule,
-      }) ?? yaml
+    const itemRule = item.rule
+    const normalizedYAML = item.value
     if (
       yaml !== null && typeof yaml === "object"
       && normalizedYAML !== null && typeof normalizedYAML === "object"
@@ -126,18 +117,13 @@ export function convertMetadataCollectionFromYAMLToXML(
     }
     copyXmlAnomalyAnnotationsDeep(params.annotations, yaml, normalizedYAML)
     copyXmlAnomalyExportClaim(yaml, normalizedYAML)
-    let preparedContext: ConfigurationContextWithExportToXML | undefined
-    const prepareContext = () => preparedContext ??= prepareMetadataCollectionItemXMLContext({
-      context: params.context, descriptor: params.descriptor, yaml: normalizedYAML,
-      name, index, itemRule, propertyRule: params.propertyRule,
-    })
     const itemOutputs = params.outputs.map(({ key }) => ({ key }))
     const converted = params.convertItem({
       convertProperties: params.convertProperties,
       prepareOutput: params.prepareItemOutput,
       propertyRule: params.propertyRule,
       context: params.context,
-      prepareContext,
+      prepareContext: () => item.context,
       yaml: normalizedYAML,
       annotations: params.annotations,
       rule: itemRule,
@@ -147,8 +133,9 @@ export function convertMetadataCollectionFromYAMLToXML(
       sparseYAML: params.descriptor.sparseItems,
       externalWriteFactory: params.externalWriteFactory,
       profile: params.profile,
-      rulePath: [...(params.rulePath ?? [params.descriptor.itemRule.itemType]), name ?? index],
+      pathCursor: item.path,
       deferredRulePath: params.deferredRulePath,
+      deferredPathCursor: params.deferredPathCursor,
     })
     for (const output of itemOutputs) {
       const xml = converted.outputs.get(output.key) ?? {}

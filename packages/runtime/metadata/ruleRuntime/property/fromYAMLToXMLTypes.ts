@@ -4,6 +4,7 @@ export type { YAMLPropertySource } from "./ruleContracts"
 import type { DeferredRulePathSegment, YamlRuleCursor } from "./importYamlTypes"
 import type { DeferredValuePath } from "./deferredObjectValues"
 import type { XmlAnomalyAnnotations } from "../../../yaml/xmlAnomalyAnnotations"
+import type { ExecutionPath } from "./executionPath"
 
 export interface YAMLToXMLOutputRequest {
   readonly key: string
@@ -90,7 +91,16 @@ export interface YAMLToXMLPropertyTypeProfile {
   exclusiveMs: number
 }
 
-export interface YAMLToXMLItemConversionParams {
+export interface YAMLToXMLExecutionParams {
+  readonly externalWriteFactory?: YAMLToXMLExternalWriteFactory
+  readonly profile?: YAMLToXMLProfile
+  readonly rulePath?: readonly (string | number)[]
+  readonly pathCursor?: ExecutionPath<string | number>
+  readonly deferredRulePath?: readonly DeferredRulePathSegment[]
+  readonly deferredPathCursor?: ExecutionPath<DeferredRulePathSegment>
+}
+
+export interface YAMLToXMLItemConversionParams extends YAMLToXMLExecutionParams {
   readonly context: import("../../context/types").ConfigurationContextWithExportToXML
   /** Исполняется только для нового item; закрытый proof-вклад пропускает подготовку. */
   readonly prepareContext?: () => import("../../context/types").ConfigurationContextWithExportToXML
@@ -104,10 +114,6 @@ export interface YAMLToXMLItemConversionParams {
   readonly propertyValues?: ReadonlyMap<string, unknown>
   readonly sparseYAML?: true
   readonly omitDefaultsForSparseYAML?: true
-  readonly externalWriteFactory?: YAMLToXMLExternalWriteFactory
-  readonly profile?: YAMLToXMLProfile
-  readonly rulePath?: readonly (string | number)[]
-  readonly deferredRulePath?: readonly DeferredRulePathSegment[]
 }
 
 export const createYAMLToXMLProfile = (options: { readonly propertyTypes?: boolean } = {}): YAMLToXMLProfile => ({
