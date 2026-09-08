@@ -168,6 +168,25 @@ const anomalyRegistries = createRuleRegistrySet(composeMetadataRules(
 ))
 
 describe("единое восстановление XML-аномалий assignment", () => {
+  it("привязывает явный XML-путь к общему узлу нескольких YAML-свойств", () => {
+    const sharedRule = {
+      itemType: "SharedXmlNode",
+      properties: {
+        first: { type: "string", yaml: "Первое", xml: "Shared" },
+        second: { type: "string", yaml: "Второе", xml: "Shared" },
+      },
+    } as const satisfies MetadataItemRule
+    const prepared = prepareTestXmlAnomalyAssignment({
+      parsed: parseMetadataYaml('Shared: !xml/raw\n  $xml: {}'),
+      rootRule: sharedRule,
+    })
+    expect(prepared.rawBoundaries).toMatchObject([{ path: "Shared", value: {} }])
+    const xml = buildPreparedAssignmentXml({
+      context: mockContextToXML(),
+      document: { targetXmlPath: "Root.xml", xml: { Root: {} }, deferred: [], rootRule: sharedRule, rawBoundaries: prepared.rawBoundaries },
+    })
+    expect(xml).toContain("<Shared/>")
+  })
   it("считает структуру обычного документа напрямую и создаёт XML только по запросу", () => {
     resetXmlObjectDocumentBuildCountForTests()
     const document = {

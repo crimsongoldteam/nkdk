@@ -777,7 +777,7 @@ function rawBoundary(params: {
     ? undefined
     : explicitRawSiblingOrder(params.ownerYaml, params.annotations, rawPath.slice(0, -1), ownerTag)
       ?? rawSiblingOrder(params.ownerYaml, params.rule, params.logicalKey)
-      ?? (property === undefined ? undefined : propertySiblingOrder(params.rule, property))
+      ?? (params.property === undefined ? undefined : propertySiblingOrder(params.rule, params.property))
   const rawTargetsExistingOccurrence = repeatedElementName !== undefined
     && siblingOrder !== undefined
     && siblingOrder.filter((name) => name === repeatedElementName).length <= ordinaryOccurrences
@@ -857,6 +857,9 @@ function propertyAtPublicRawPath(
     sameStringPath(property.xmlPath, path.segments)
   )
   if (matches.length > 1) {
+    if (matches.every(({ propertyRule }) =>
+      propertyRule.filePath === undefined && propertyRule.tag === undefined
+    )) return undefined
     throw new Error(`XML-путь ${rule.itemType}.${path.segments.join("\\")} соответствует нескольким PropertyRule`)
   }
   return matches[0]

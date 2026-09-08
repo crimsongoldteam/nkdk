@@ -6,6 +6,7 @@ import { importContentFromXML,xmlExport } from "@nkdk/runtime"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import {
 createDirectRoundTripContexts,
+testPropertiesYamlRoundTrip,
 directPropertyRuleExecution,
 testPropertyFromXMLToYAML,
 testPropertyFromYAMLToXML,
@@ -47,26 +48,8 @@ describe("DynamicList XML → YAML → XML", () => {
 
   it.each(fixtures)("сохраняет %s", (fixture) => {
     const expected = fs.readFileSync(fileURLToPath(new URL(`__fixtures__/${fixture}`, import.meta.url)), "utf8")
-    const parsed = importContentFromXML<Record<string, unknown>>(expected, {
-      preserveEmptyElements: true,
-      preserveXsiNil: true,
-    })
-    const contexts = createDirectRoundTripContexts({
-      logicalAddress: "Справочник.Товары.Форма.ФормаСписка.Атрибут.Список",
-    })
-    const yaml = testPropertyFromXMLToYAML({
-      rule,
-      xml: parsed,
-      context: contexts.importContext,
-    }).yaml
-    const { xml } = testPropertyFromYAMLToXML({
-      rule,
-      yaml,
-      referenceXML: parsed,
-      context: contexts.exportContext(),
-    })
-
-    expect(withoutDeclaration(xmlExport(xml, false))).toBe(expected.trim())
+    const result = testPropertiesYamlRoundTrip({ sourceXML: expected, rule })
+    expect(result.result).toBe(expected.trim())
   })
 
   it.each(["minimal.xml", "emptyListSettings.xml"] as const)(

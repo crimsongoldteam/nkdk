@@ -281,7 +281,6 @@ export function createXMLPropertyExecution(
     && propertyValues.size === 0
     && (yaml === undefined || Object.getOwnPropertyNames(yaml).length === 0)
     && params.externalWriteFactory === undefined
-    && params.outputs.every(output => output.referenceXML === undefined)
   ) {
     orderedProperties = propertyPlan.emptyYAMLExportOrder(params.name === undefined ? undefined : namePropertyKey)
   }
@@ -311,7 +310,6 @@ export function createXMLPropertyExecution(
       && !sourceHasProperty
       && !(propertyKey === namePropertyKey && params.name !== undefined)
       && params.externalWriteFactory === undefined
-      && params.outputs.every((output) => output.referenceXML === undefined)
     ) return
     const propertyProfileFrame = beginPropertyTypeProfile(params.profile, planned.propertyRule.type)
     try {
@@ -337,7 +335,6 @@ export function createXMLPropertyExecution(
     const references = matchingOutputs.map(({ request }) =>
       readReferenceProperty({
         context: request.context ?? propertyContext,
-        referenceXML: request.referenceXML,
         planned,
         execution: params.execution,
         identityDescriptor: compiled?.operations.configurationIndexValueFromXML,
@@ -389,17 +386,6 @@ export function createXMLPropertyExecution(
       collectAutoRequiredXMLParentRoot(planned.propertyRule, autoRequiredXMLParentRoots)
     }
 
-    if (
-      !sourceHasProperty &&
-      !reserveNestedItemWhenAbsent &&
-      !(planned.propertyKey === namePropertyKey && params.name !== undefined) &&
-      matchingOutputs.every((output) => output.request.referenceXML !== undefined) &&
-      references.every((reference) => !reference.exists) &&
-      !requiresEvaluation &&
-      !hasXMLDefault
-    ) {
-      return
-    }
 
     if (
       !sourceHasProperty &&
@@ -533,8 +519,7 @@ export function createXMLPropertyExecution(
       const nestedYAML =
         sourceNestedYAML === undefined
           ? effectiveNestedRule.kind === "collection" &&
-            (scalarTag !== undefined || hasNestedDefault || planned.propertyRule.evaluateWhenYAMLMissing === true) &&
-            matchingOutputs.every((output) => output.request.referenceXML === undefined)
+            (scalarTag !== undefined || hasNestedDefault || planned.propertyRule.evaluateWhenYAMLMissing === true)
             ? {}
             : effectiveNestedRule.kind === "item" &&
             (reserveNestedItemWhenAbsent ||
@@ -1298,38 +1283,11 @@ function matchesOutputTag(rule: PropertyRule, output: YAMLToXMLOutputRequest): b
 
 function readReferenceProperty(params: {
   context: ConfigurationContextWithExportToXML
-  referenceXML: unknown
   planned: YAMLToXMLPlannedProperty
   execution?: PropertyRuleExecution
   identityDescriptor?: ConfigurationIndexValueFromXMLDescriptor
   identityDescriptorResolved?: boolean
 }): ReferenceProperty {
-  let current: unknown = params.referenceXML
-  for (const parent of params.planned.propertyRule.xmlParents ?? []) {
-    if (!isRecord(current)) {
-      return referenceFromConfigurationIndex(
-        params.context,
-        params.planned,
-        params.execution,
-        params.identityDescriptor,
-        params.identityDescriptorResolved,
-      )
-    }
-    current = current[parent]
-  }
-  if (isRecord(current)) {
-    const canonical = params.planned.propertyRule.xml ?? capitalize(params.planned.propertyKey)
-    const candidates = [canonical, ...(params.planned.propertyRule.xmlAliases ?? [])]
-    for (const key of candidates) {
-      if (Object.prototype.hasOwnProperty.call(current, key)) {
-        return {
-          exists: true,
-          key,
-          value: current[key],
-        }
-      }
-    }
-  }
   return referenceFromConfigurationIndex(
     params.context,
     params.planned,

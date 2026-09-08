@@ -207,6 +207,27 @@ describe("ClientApplicationInterface YAML → XML", () => {
 \t\t</panel>`)
   })
 
+  it("различает повторные панели в снимке и восстанавливает вложенную панель", () => {
+    const uuid = "cbab57f2-a0f3-4f0a-89ea-4cb19570ab75"
+    const source = interfaceXML(`<top>
+      <panel id="first"><uuid>${uuid}</uuid></panel>
+      <panel id="second"><uuid>${uuid}</uuid></panel>
+      <group id="group"><panel id="nested"><uuid>${uuid}</uuid></panel></group>
+    </top>`)
+    const result = convertYAML({ Верх: [
+      { Панель: "ПанельРазделов" },
+      { Панель: "ПанельОткрытых" },
+      { Панель: "ПанельОткрытых" },
+      { Группа: { Элементы: [{ Панель: "ПанельОткрытых" }] } },
+    ] }, source)
+    for (const id of ["first", "second"]) {
+      expect(result).toContain(`<panel id="${id}">\n\t\t\t<uuid>${uuid}</uuid>`)
+      expect(result.match(new RegExp(`id="${id}"`, "g"))).toHaveLength(1)
+    }
+    expect(result).toContain('<group id="group">')
+    expect(result).toContain(`<panel id="nested">\n\t\t\t\t<uuid>${uuid}</uuid>`)
+  })
+
   it("does not move existing group id to a new empty group inserted before it", () => {
     const referenceXml = interfaceXML(`<top>
 \t\t<panel id="anchor-panel">
@@ -270,10 +291,18 @@ function roundTripXML(xml: string): string {
 
 function convertYAML(yaml: unknown, reference?: string): string {
   const referenceXML = reference === undefined ? undefined : importContentFromXML<Record<string, unknown>>(reference)
+  const contexts = createDirectRoundTripContexts()
+  if (referenceXML !== undefined) {
+    testMetadataItemFromXMLToYAML({
+      context: contexts.importContext,
+      rule: ClientApplicationInterfaceRules,
+      xml: referenceXML,
+    })
+  }
   const result = testMetadataItemFromYAMLToXML({
+    context: contexts.exportContext(),
     rule: ClientApplicationInterfaceRules,
     yaml,
-    referenceXML,
   })
   return normalizeXML(serializeDirectXML(result.xml))
 }

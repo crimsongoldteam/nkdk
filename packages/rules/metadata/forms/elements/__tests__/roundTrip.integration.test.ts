@@ -7,6 +7,7 @@ import {
   createDirectRoundTripContexts,
   testMetadataItemFromXMLToYAML,
   testMetadataItemFromYAMLToXML,
+  testMetadataItemYamlRoundTrip,
 } from "../../../../tests/directConversion"
 import {
   importContentFromXML,
@@ -15,7 +16,7 @@ import {
   xmlExport,
 } from "@nkdk/runtime"
 import type { CollectableElementType } from "../../../ruleRuntime/formElement/types"
-import { withKnownXMLDefaults } from "../../../../tests/knownXMLDefaults"
+import { createSingletonElementOutputPreparation, importSingleFormElementFromXMLToYAML } from "@nkdk/runtime/rule-kit"
 import { createFormDataPathIndexFromYAML } from "../../clientApplicationForm/formDataPathMetadata"
 import { TableInputFieldRules } from "../inputField/rules"
 import { getElementRule } from "../ruleRuntime/ruleFactory"
@@ -23,13 +24,6 @@ import { getElementRule } from "../ruleRuntime/ruleFactory"
 import "../index"
 
 const elementsDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
-const excludedFixtures = new Set([
-  // Точный xsi:type MinMaxValue сохраняет общий контрольный экспорт через !xml/raw;
-  // прямой round-trip элементов не запускает этот механизм. Обоснование:
-  // docs/superpowers/specs/2026-08-29-min-max-value-xml-representation-design.md.
-  path.join(elementsDir, "inputField", "__fixtures__", "minMaxStringType.xml"),
-  path.join(elementsDir, "table", "__fixtures__", "nonCanonicalSingletonNames.xml"),
-])
 const fixtures = fs
   .readdirSync(elementsDir, { withFileTypes: true })
   .filter((entry) => entry.isDirectory())
@@ -41,7 +35,6 @@ const fixtures = fs
       .filter((name) => name.endsWith(".xml"))
       .map((name) => path.join(fixtureDir, name))
   })
-  .filter((fixture) => !excludedFixtures.has(fixture))
 
 describe("элементы формы XML → YAML → XML", () => {
   it("выгружает фиксацию табличного поля перед гиперссылкой ячейки", () => {
@@ -94,19 +87,29 @@ describe("элементы формы XML → YAML → XML", () => {
       : directExportContext
     const configurationIndex = exportContext.exportToXML.configurationIndex
     if (configurationIndex === undefined) throw new Error("Не создан runtime индекса конфигурации")
-    const result = testMetadataItemFromYAMLToXML({
-      rule,
-      yaml,
+    const result = testMetadataItemYamlRoundTrip({
+      rule: { ...rule, properties: {
+        fixtureRoot: { type: "XMLRoot", container: xmlTag, isFileRoot: true, xmlOnly: true, rootAttributes: {} },
+        ...rule.properties,
+      } },
+      sourceXML: fs.readFileSync(fixture, "utf8"),
+      prepareOutput: createSingletonElementOutputPreparation(),
+      importItem: ({ context, xml, traversal }) => importSingleFormElementFromXMLToYAML({
+        context, xml, traversal, rule, ownerXmlName: name,
+      }),
       name,
-      referenceXML: xml,
-      context: {
-        ...exportContext,
-        exportToXML: {
-          ...exportContext.exportToXML,
-          configurationIndex: configurationIndex.withFormElementRootLogicalAddress(formLogicalAddress),
+      context: exportContext,
+      contexts: {
+        importContext: withConfigurationIndexFormElementRootLogicalAddress(contexts.importContext, formLogicalAddress),
+        exportContext(base) {
+          const prepared = contexts.exportContext(base)
+          return { ...prepared, exportToXML: {
+            ...prepared.exportToXML,
+            configurationIndex: prepared.exportToXML.configurationIndex!.withFormElementRootLogicalAddress(formLogicalAddress),
+          } }
         },
       },
-    }).xml
+    })
 
     if (typeof xml.DataPath === "string" && rule.properties.dataPath?.yaml !== undefined) {
       expect(yaml).toMatchObject({ [rule.properties.dataPath.yaml]: xml.DataPath })
@@ -125,38 +128,11 @@ describe("элементы формы XML → YAML → XML", () => {
       expect(withoutReference.DataPath).toBe(xml.DataPath)
     }
 
-    const actualXML = withoutDeclaration(xmlExport({ [xmlTag]: result }, false))
-    const expectedXML = withCanonicalSystemEnumerationAliases(withKnownXMLDefaults(
-      fs.readFileSync(fixture, "utf8").trim(),
-      { includeCheckBoxType: false },
-    ))
-    if (expectedXML.includes("<Table")) {
-      expect(withoutComputedTableServiceNodes(importContentFromXML(actualXML, { preserveXsiNil: true }))).toEqual(
-        withoutComputedTableServiceNodes(importContentFromXML(expectedXML, { preserveXsiNil: true }))
-      )
-    } else {
-      expect(actualXML).toBe(expectedXML)
-    }
+    const actualXML = withoutDeclaration(result.result)
+    const expectedXML = withoutDeclaration(fs.readFileSync(fixture, "utf8"))
+    expect(actualXML).toBe(expectedXML)
   })
 })
-
-function withoutComputedTableServiceNodes<T>(value: T): T {
-  if (Array.isArray(value)) return value.map(withoutComputedTableServiceNodes) as T
-  if (typeof value !== "object" || value === null) return value
-
-  const source = value as Record<string, unknown>
-  const result = Object.fromEntries(
-    Object.entries(source)
-      .filter(([key]) => key !== "Period" && key !== "TopLevelParent" && key !== "RowFilter")
-      .map(([key, nested]) => [
-        key,
-        key === "#text" && typeof nested === "string" && nested.trim().length === 0
-          ? ""
-          : withoutComputedTableServiceNodes(nested),
-      ])
-  )
-  return result as T
-}
 
 function resolveItemType(xmlTag: string, fixtureName: string, xml: Record<string, unknown>): CollectableElementType {
   if (
@@ -180,16 +156,4 @@ function withoutDeclaration(xml: string): string {
 
 function isDynamicListTableFixture(fixture: string): boolean {
   return path.basename(fixture) === "dynamicList.xml" && path.basename(path.dirname(path.dirname(fixture))) === "table"
-}
-
-function withCanonicalSystemEnumerationAliases(xml: string): string {
-  return xml
-    .replace(
-      "<RadioButtonType>RadioButton</RadioButtonType>",
-      "<RadioButtonType>RadioButtons</RadioButtonType>",
-    )
-    .replace(
-      "<CheckBoxType>Switch</CheckBoxType>",
-      "<CheckBoxType>Switcher</CheckBoxType>",
-    )
 }

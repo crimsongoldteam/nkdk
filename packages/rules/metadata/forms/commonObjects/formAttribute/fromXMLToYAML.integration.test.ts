@@ -16,6 +16,7 @@ xmlExport
 import { createRuleRegistrySet, createLocalIndexesCollector, createImportedDependentPropertyCollector, createDirectImportFactsCollector, createCompiledRuleExecution, createAnnotatedLocalXmlBodyConsumer, importPropertiesFromXMLToYAML, withRuleRegistrySet, type MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import {
 createDirectRoundTripContexts,
+testPropertiesYamlRoundTrip,
 testPropertyFromXMLToYAML,
 testPropertyFromYAMLToXML,
 } from "../../../../tests/directConversion"
@@ -708,6 +709,7 @@ function attributeDependencies(
 
 function roundTripFixture(fixture: string, withReference: boolean): { expected: string; result: string } {
   const expected = readFormAttributeFixture(fixture)
+  if (withReference) return testPropertiesYamlRoundTrip({ sourceXML: expected, rule })
   const parsed = importContentFromXML<Record<string, unknown>>(expected, {
     preserveEmptyElements: true,
     preserveXsiNil: true,

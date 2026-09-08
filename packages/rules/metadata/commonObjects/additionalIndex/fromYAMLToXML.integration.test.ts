@@ -2,10 +2,10 @@ import { describe,expect,it } from "vitest"
 
 import {
 createDirectRoundTripContexts,
-readAppliedObjectFixture,
 serializeDirectXML,
 testMetadataItemFromXMLToYAML,
 testMetadataItemFromYAMLToXML,
+testMetadataItemYamlRoundTrip,
 } from "../../../tests/directConversion"
 import { readXMLFixtureAsString } from "../../../tests/readFixtureXML"
 import { AdditionalIndexRules } from "./rules"
@@ -23,10 +23,9 @@ const yaml = [
 
 describe("AdditionalIndex YAML → XML", () => {
   it("round-trip from full.xml", () => {
-    const referenceXML = readAppliedObjectFixture(import.meta.url, "full.xml")
-    const result = testMetadataItemFromYAMLToXML({ rule: AdditionalIndexRules, yaml, referenceXML })
-
-    expect(serializeDirectXML(result.xml)).toBe(readXMLFixtureAsString(import.meta.url, "full.xml"))
+    const sourceXML = readXMLFixtureAsString(import.meta.url, "full.xml")
+    const result = testMetadataItemYamlRoundTrip({ rule: AdditionalIndexRules, sourceXML })
+    expect(result.result).toBe(sourceXML)
   })
 
   it("inline-array парсится в items без обёртки", () => {

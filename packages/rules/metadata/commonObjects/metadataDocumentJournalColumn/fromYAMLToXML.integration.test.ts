@@ -1,9 +1,8 @@
 import { describe, expect, it } from "vitest"
 
 import {
-  readAppliedObjectFixture,
-  serializeDirectXML,
   testPropertyFromYAMLToXML,
+  testPropertiesYamlRoundTrip,
 } from "../../../tests/directConversion"
 import { readXMLFixtureAsString } from "../../../tests/readFixtureXML"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
@@ -32,16 +31,13 @@ describe("MetadataDocumentJournalColumns YAML → XML", () => {
   })
 
   it("round-trips document journal columns", () => {
-    const fixture = readAppliedObjectFixture(import.meta.url, "columns.xml")
-    const result = testPropertyFromYAMLToXML({
-      rule,
-      yaml: { Графы: columnsYAML },
-      referenceXML: { Columns: fixture },
+    const sourceXML = readXMLFixtureAsString(import.meta.url, "columns.xml")
+    const result = testPropertiesYamlRoundTrip({
+      rule: { ...rule, properties: { columns: { ...rule.properties.columns!, xml: "Column" } } },
+      sourceXML,
     })
 
-    expect(normalizeXML(serializeDirectXML(result.xml.Columns as Record<string, unknown>))).toBe(
-      normalizeXML(readXMLFixtureAsString(import.meta.url, "columns.xml"))
-    )
+    expect(normalizeXML(result.result)).toBe(normalizeXML(sourceXML))
   })
 })
 

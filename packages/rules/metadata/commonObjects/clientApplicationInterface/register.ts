@@ -117,6 +117,21 @@ const propertyAddress = (
 
 const itemAddress = (base: string, index: number): string => indexedUid(base, "Элемент", index)
 
+function* indexedInterfaceItems(base: string, items: ClientApplicationInterfaceItems) {
+  const occurrences = new Map<string, number>()
+  for (const [index, item] of items.entries()) {
+    if (item.kind === "panel" && item.uuid === undefined && item.name === undefined) {
+      yield { item, address: itemAddress(base, index) }
+      continue
+    }
+    const uuid = item.kind === "panel" ? item.uuid ?? "" : ""
+    const key = item.kind === "panel" ? `Панель:${uuid.length}:${uuid}:${item.name ?? ""}` : "Группа"
+    const occurrence = occurrences.get(key) ?? 0
+    occurrences.set(key, occurrence + 1)
+    yield { item, address: indexedUid(base, key, occurrence) }
+  }
+}
+
 const collectItemConfigurationIndex = (
   context: ConfigurationContextFromXML,
   item: ClientApplicationInterfaceItem,
@@ -126,8 +141,8 @@ const collectItemConfigurationIndex = (
   if (collection === undefined) return
   if (item.id !== undefined) collection.collector.setIdentity(address, "xmlId", item.id)
   if (item.kind !== "group") return
-  for (const [index, child] of (item.items ?? []).entries()) {
-    collectItemConfigurationIndex(context, child, itemAddress(address, index))
+  for (const child of indexedInterfaceItems(address, item.items ?? [])) {
+    collectItemConfigurationIndex(context, child.item, child.address)
   }
 }
 
@@ -143,8 +158,8 @@ const collectClientApplicationInterfaceConfigurationIndex = (
     const items = sections[key]
     if (items === undefined) continue
     const address = propertyAddress(collection, key)
-    for (const [index, item] of items.entries()) {
-      collectItemConfigurationIndex(context, item, itemAddress(address, index))
+    for (const entry of indexedInterfaceItems(address, items)) {
+      collectItemConfigurationIndex(context, entry.item, entry.address)
     }
   }
 
@@ -598,8 +613,8 @@ const restoreItemConfigurationIndex = (
     runtime.collector.setIdentity(address, "xmlId", id)
   }
   if (item.kind !== "group") return
-  for (const [index, child] of (item.items ?? []).entries()) {
-    restoreItemConfigurationIndex(context, child, itemAddress(address, index))
+  for (const child of indexedInterfaceItems(address, item.items ?? [])) {
+    restoreItemConfigurationIndex(context, child.item, child.address)
   }
 }
 
@@ -614,8 +629,8 @@ const restoreItemsConfigurationIndex = (
     configurationIndexAddressing: rule.configurationIndexAddressing,
   })
   const address = propertyRuntime.xmlNodeLogicalAddress ?? propertyRuntime.logicalAddress
-  for (const [index, item] of items.entries()) {
-    restoreItemConfigurationIndex(context, item, itemAddress(address, index))
+  for (const entry of indexedInterfaceItems(address, items)) {
+    restoreItemConfigurationIndex(context, entry.item, entry.address)
   }
   return items
 }

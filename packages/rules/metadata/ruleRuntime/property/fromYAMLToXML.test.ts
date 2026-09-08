@@ -1581,7 +1581,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
     ).not.toMatch(/order|present/)
   })
 
-  it("пишет канонический XML-ключ при копировании reference", () => {
+  it("не копирует XML-алиас из reference при отсутствии YAML", () => {
     const referenceValue = { "_xsi:nil": true }
     const result = convertPropertiesFromYAMLToXML({
       context: context(),
@@ -1597,7 +1597,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
       outputs: [{ key: "owner", referenceXML: { LegacyValue: referenceValue } }],
     })
 
-    expect(result.outputs.get("owner")).toEqual({ CanonicalValue: referenceValue })
+    expect(result.outputs.get("owner")).toEqual({})
   })
 
   it("восстанавливает канонический xsi:nil по exportNilValue без reference XML", () => {
@@ -1618,7 +1618,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(result.outputs.get("owner")).toEqual({ Value: { "_xsi:nil": true } })
   })
 
-  it("сохраняет reference XML для свойства без YAML-представления", () => {
+  it("использует default правила вместо reference для свойства без YAML", () => {
     const result = convertPropertiesFromYAMLToXML({
       context: context(),
       yaml: {},
@@ -1628,10 +1628,10 @@ describe("convertPropertiesFromYAMLToXML", () => {
       outputs: [{ key: "owner", referenceXML: { FormType: "Ordinary" } }],
     })
 
-    expect(result.outputs.get("owner")).toEqual({ FormType: "Ordinary" })
+    expect(result.outputs.get("owner")).toEqual({ FormType: "Managed" })
   })
 
-  it("сохраняет reference XML, когда YAML-свойство не задано", () => {
+  it("не восстанавливает отсутствующее YAML-свойство из reference", () => {
     const result = convertPropertiesFromYAMLToXML({
       context: context(),
       yaml: {},
@@ -1641,7 +1641,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
       outputs: [{ key: "owner", referenceXML: { Value: "исходное" } }],
     })
 
-    expect(result.outputs.get("owner")).toEqual({ Value: "исходное" })
+    expect(result.outputs.get("owner")).toEqual({})
   })
 
   it("does not use reference XML when the property disables reference preservation", () => {
@@ -1662,7 +1662,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(result.outputs.get("owner")).toEqual({})
   })
 
-  it("сохраняет reference XML для отключённого общего экспорта", () => {
+  it("не копирует reference при отключённом экспорте", () => {
     const result = convertPropertiesFromYAMLToXML({
       context: context(),
       yaml: {},
@@ -1672,7 +1672,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
       outputs: [{ key: "owner", referenceXML: { Value: {} } }],
     })
 
-    expect(result.outputs.get("owner")).toEqual({ Value: {} })
+    expect(result.outputs.get("owner")).toEqual({})
   })
 
   it("сохраняет декларативный порядок свойств отдельно для каждого XML-файла", () => {
@@ -1722,7 +1722,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(result.outputs.get("owner")).toEqual({ Value: "" })
   })
 
-  it("передаёт массив reference XML во вложенную коллекцию", () => {
+  it("не восстанавливает поля вложенной коллекции из reference", () => {
     registerTypeRule("NestedReferenceCollection" as never, "yamlToXMLNestedRule", {
       kind: "collection",
       itemRule: testRule({
@@ -1741,10 +1741,10 @@ describe("convertPropertiesFromYAMLToXML", () => {
       outputs: [{ key: "owner", referenceXML: { Items: [{ Name: "Первый", Retained: "да" }] } }],
     })
 
-    expect(result.outputs.get("owner")).toEqual({ Items: [{ Name: "Первый", Retained: "да" }] })
+    expect(result.outputs.get("owner")).toEqual({ Items: [{ Name: "Первый" }] })
   })
 
-  it("сохраняет пустой XML-контейнер коллекции из reference", () => {
+  it("не восстанавливает пустой XML-контейнер коллекции из reference", () => {
     registerTypeRule("EmptyReferenceCollection" as never, "yamlToXMLNestedRule", {
       kind: "collection",
       itemRule: testRule({ name: { type: "string", xml: "Name" } }),
@@ -1765,10 +1765,10 @@ describe("convertPropertiesFromYAMLToXML", () => {
       outputs: [{ key: "owner", referenceXML: { Items: undefined } }],
     })
 
-    expect(result.outputs.get("owner")).toEqual({ Items: {} })
+    expect(result.outputs.get("owner")).toEqual({})
   })
 
-  it("сохраняет пустой корневой XML-контейнер коллекции из reference", () => {
+  it.each([undefined, { Items: undefined }])("строит пустую коллекцию по rules независимо от reference: %j", referenceXML => {
     registerTypeRule("EmptyRootReferenceCollection" as never, "yamlToXMLNestedRule", {
       kind: "collection",
       itemRule: testRule({ name: { type: "string", xml: "Name" } }),
@@ -1786,10 +1786,10 @@ describe("convertPropertiesFromYAMLToXML", () => {
           defaultValueXMLEmpty: [],
         },
       }),
-      outputs: [{ key: "owner", referenceXML: { Items: undefined } }],
+      outputs: [{ key: "owner", referenceXML }],
     })
 
-    expect(result.outputs.get("owner")).toEqual({ Items: {} })
+    expect(result.outputs.get("owner")).toEqual({ Items: { Item: [] } })
   })
 
   it("не добавляет отсутствующее YAML-свойство в существующий reference XML", () => {

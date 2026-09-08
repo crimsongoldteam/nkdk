@@ -85,6 +85,7 @@ export function createAnnotatedLocalXmlBodyConsumer(params: Omit<
           ? params.rawPathPrefix === undefined
             || params.rawPathPrefix.length === 0
             || source.name === "Form"
+            || params.rawPathPrefix.at(-1) === `@${source.name}`
             || params.rawPathPrefix.at(-1) === source.name
             ? params.rawPathPrefix ?? []
             : [...params.rawPathPrefix, source.name]

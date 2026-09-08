@@ -31,12 +31,9 @@ describe("MetadataWebServiceOperations YAML → XML", () => {
     expect(xml).toContain(">d8p1:Customer</XDTOValueType>")
   })
 
-  it("exports XDTO type namespace declarations from expanded names", () => {
-    const result = roundTrip()
-    expect(result).toContain(
-      '<XDTOReturningValueType xmlns:d6p1="http://example.org/schema">d6p1:CustomerResponse</XDTOReturningValueType>'
-    )
-    expect(result).toContain('<XDTOValueType xmlns:d8p1="http://example.org/schema">d8p1:Customer</XDTOValueType>')
+  it("сохраняет исходные пространства имён XDTO через YAML", () => {
+    const { result, expected } = fixtureResult()
+    expect(result).toEqual(expected)
   })
 
   it("exports changed XDTO type names without reference namespace declarations", () => {
@@ -106,8 +103,6 @@ function fixtureResult(yaml?: unknown) {
     yaml,
   })
 }
-
-const roundTrip = (): string => fixtureResult().result
 
 function exportYAML(value: unknown, referenceXML?: unknown): string {
   return serializeDirectXML(
