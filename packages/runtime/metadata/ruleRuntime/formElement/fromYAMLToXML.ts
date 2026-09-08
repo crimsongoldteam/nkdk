@@ -8,6 +8,7 @@ import { getChildContextToXML } from "../../context/childContext"
 import { copyYAMLRuntimeMetadata } from "../../../yaml/runtimeMetadata"
 import type { YAMLToXMLNestedRule } from "../property/fromYAMLToXMLTypes"
 import { formElementTreeRule } from "./treeRule"
+import type { XmlElementNode } from "../../../xml/import/document"
 
 type FormElementCollectionNestedRule = Extract<YAMLToXMLNestedRule, { kind: "collection" }>
 
@@ -15,22 +16,38 @@ export function createFormElementCollectionNestedRule(params: {
   readonly elementRules: Readonly<Record<string, MetadataItemRule>>
   readonly elementKinds: Readonly<Record<string, string>>
   readonly allowedTypes: readonly string[]
+  readonly resolveXMLItemType?: (node: XmlElementNode) => string
 }): FormElementCollectionNestedRule {
-  const fallbackRule = requireDefinedElementRule(params, params.allowedTypes[0])
+  const routes = new Map<string, MetadataItemRule>()
+  const byKind = new Map<string, MetadataItemRule>()
+  const route = (itemType: string | undefined) => {
+    const existing = itemType === undefined ? undefined : routes.get(itemType)
+    if (existing !== undefined) return existing
+    const rule = requireDefinedElementRule(params, itemType)
+    routes.set(itemType!, rule)
+    return rule
+  }
+  for (const itemType of params.allowedTypes) {
+    const rule = route(itemType)
+    const kind = params.elementKinds[itemType]
+    if (kind !== undefined && !byKind.has(kind)) byKind.set(kind, rule)
+  }
+  const fallbackRule = route(params.allowedTypes[0])
   const resolve = (yaml: unknown, name: string | undefined) => {
     const node = asNode(yaml, name)
     const kind = node.Вид
     if (typeof kind !== "string") throw new Error(`Элемент "${name ?? ""}": обязательное поле "Вид" не задано`)
-    const itemType = params.allowedTypes.find((candidate) => params.elementKinds[candidate] === kind)
-    if (itemType === undefined) throw new Error(`Элемент "${name ?? ""}": неизвестный Вид "${kind}"`)
-    return requireDefinedElementRule(params, itemType)
+    const rule = byKind.get(kind)
+    if (rule === undefined) throw new Error(`Элемент "${name ?? ""}": неизвестный Вид "${kind}"`)
+    return rule
   }
   return {
     kind: "collection",
     itemRule: fallbackRule,
     requiredIdentity: "xmlId",
+    resolveXMLItemRule: node => route(params.resolveXMLItemType?.(node) ?? node.name),
     resolveItemRule: ({ yaml, name }) => resolve(yaml, name),
-    normalizeItemYAML: ({ yaml, name }) => normalizeDefinedFormElementYAML(yaml, name, resolve(yaml, name)),
+    normalizeItemYAML: ({ yaml, name, itemRule }) => normalizeDefinedFormElementYAML(yaml, name, itemRule),
     resolveItemContext: ({ context, name, itemRule }) => {
       const logicalAddress = name === undefined ? undefined : configurationIndexExportFormElementLogicalAddress(context, name)
       const indexedContext = logicalAddress === undefined ? context : withConfigurationIndexExportLogicalAddress(context, logicalAddress)

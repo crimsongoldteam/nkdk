@@ -10,7 +10,7 @@ import { emptyMetadataRules } from "../../ruleRuntime/definition/testSupport"
 import { childItemsTreePropertyTypes, getChildItemTypesByPropertyType } from "../commonObjects/childItems/treeYAML"
 import { formElementTypeToYAML } from "./formElementCatalog"
 import { formElementRules } from "./metadataRules"
-import { metadataRuleLayer000 as childItemsImportRules } from "../commonObjects/childItems/fromXMLToYAML"
+import { metadataRuleLayer000 as childItemsImportRules, resolveItemTypeFromXMLTag } from "../commonObjects/childItems/fromXMLToYAML"
 
 const childItemsYamlRules = defineMetadataRules({
   ...emptyMetadataRules,
@@ -23,6 +23,7 @@ const childItemsYamlRules = defineMetadataRules({
           elementRules: formElementRules.formElements,
           elementKinds: formElementTypeToYAML,
           allowedTypes: getChildItemTypesByPropertyType(propertyType),
+          resolveXMLItemType: node => resolveItemTypeFromXMLTag({ type: propertyType }, node.name, node),
         }),
       ),
       definePropertyTypeRule(propertyType, "prepareXMLItemOutput", prepareFormElementOutput),

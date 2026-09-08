@@ -185,6 +185,7 @@ export type YAMLToXMLNestedRule =
   | {
       readonly kind: "collection"
       readonly itemRule: MetadataItemRule
+      readonly resolveXMLItemRule?: (node: import("../../../xml/import/document").XmlElementNode) => MetadataItemRule
       /** Идентификатор каждого элемента обязателен в режиме существующих identity. */
       readonly requiredIdentity?: "xmlId"
       readonly itemRuleFromProperty?: (propertyRule: PropertyRule) => MetadataItemRule | undefined
@@ -203,6 +204,7 @@ export type YAMLToXMLNestedRule =
         propertyRule: PropertyRule | undefined
       }) => import("../../context/types").ConfigurationContextWithExportToXML
       readonly normalizeItemYAML?: (params: {
+        itemRule: MetadataItemRule
         yaml: unknown
         annotations?: XmlAnomalyAnnotations
         name: string | undefined

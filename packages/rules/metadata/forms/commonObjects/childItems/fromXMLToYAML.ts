@@ -11,6 +11,7 @@ import {
   encodeXmlRawElement,
 } from "@nkdk/runtime"
 import { getElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
+import { getTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
 import type {
   CollectableElementType,
   ElementRule,
@@ -37,7 +38,7 @@ const tableXMLTagToItemType: Readonly<Record<string, TableChildItem["itemType"]>
   PictureField: "TablePictureField",
 }
 
-const resolveItemTypeFromXMLTag = (rule: PropertyRule, xmlTag: string, xmlValue: XmlElementNode): string => {
+export const resolveItemTypeFromXMLTag = (rule: PropertyRule, xmlTag: string, xmlValue: XmlElementNode): string => {
   if (rule.type === "CommandBarChildItems" && xmlTag === "Button") {
     let type: unknown
     const types = xmlElementChildren(xmlValue, "Type")
@@ -56,13 +57,17 @@ export const importChildItemsFromXMLToYAML: ImportFromXMLToYAMLFunction = ({ con
   if (roots === undefined) throw new Error("Для импорта элементов формы нужен структурный XML-узел")
   const result: Record<string, unknown> = {}
   const occurrences = new Map<string, number>()
-  const routes = new Map<CollectableElementType, ElementRule & { itemType: CollectableElementType }>()
+  const descriptor = getTypeRule(rule.type, "yamlToXMLNestedRule")
+  if (descriptor?.kind !== "collection" || descriptor.resolveXMLItemRule === undefined) {
+    throw new Error(`Для коллекции ${rule.type} не определены XML-маршруты`)
+  }
   const collection = getConfigurationIndexCollectionContext(context)
   const parentItemType = traversal.rulePath.findLast(segment => segment.nestedItemType !== undefined)?.nestedItemType
   const contextMenuItems = rule.type === "CommandBarChildItems" && parentItemType === "ContextMenu"
 
   for (const itemXmlNode of childElements(roots)) {
-    const itemType = resolveItemTypeFromXMLTag(rule, itemXmlNode.name, itemXmlNode) as CollectableElementType
+    const itemRule = descriptor.resolveXMLItemRule(itemXmlNode) as ElementRule & { itemType: CollectableElementType }
+    const itemType = itemRule.itemType
     const itemName = xmlAttributeValue(itemXmlNode, "name")
     if (typeof itemName !== "string" || itemName.length === 0) {
       throw new Error("У элемента формы отсутствует name")
@@ -96,11 +101,6 @@ export const importChildItemsFromXMLToYAML: ImportFromXMLToYAMLFunction = ({ con
       collection?.collector.setIdentity(logicalAddress, "xmlId", id)
     }
 
-    let itemRule = routes.get(itemType)
-    if (itemRule === undefined) {
-      itemRule = getElementRule(itemType) as ElementRule & { itemType: CollectableElementType }
-      routes.set(itemType, itemRule)
-    }
     result[itemName] = importFormElementFromXMLToYAML({
       context: itemContext,
       rule: itemRule,

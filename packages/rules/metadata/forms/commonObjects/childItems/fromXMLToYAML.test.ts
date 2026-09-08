@@ -2,8 +2,7 @@ import {
 createConfigurationIndexCollector,withConfigurationIndexCollector,
 withConfigurationIndexFormElementRootLogicalAddress, parseXmlDocumentWithSaxes
 } from "@nkdk/runtime"
-import { describe,expect,it,vi } from "vitest"
-import * as elementRules from "../../../ruleRuntime/formElement/ruleFactory"
+import { describe,expect,it } from "vitest"
 import { mockContextFromXML } from "../../../../tests/mockContext"
 import { createLocalIndexesCollector } from "../../../projectDefinition/localIndexes"
 import "../../elements"
@@ -110,8 +109,6 @@ describe("importChildItemsFromXMLToYAML", () => {
   })
 
   it("не смешивает вид кнопки с видом элемента", () => {
-    const lookup = vi.spyOn(elementRules, "getElementRule")
-    try {
       const yaml = importChildItemsFromXMLToYAML({
         context: mockContextFromXML(),
         rule: { type: "GroupChildItems", yaml: "Элементы" },
@@ -130,10 +127,6 @@ describe("importChildItemsFromXMLToYAML", () => {
         },
         ОК: { Вид: "Кнопка", ТипКнопки: "ОбычнаяКнопка" },
       })
-      expect(lookup.mock.calls.filter(([itemType]) => itemType === "Button")).toHaveLength(1)
-    } finally {
-      lookup.mockRestore()
-    }
   })
 
   it("записывает обязательный тип обычной кнопки отдельно от вида элемента", () => {

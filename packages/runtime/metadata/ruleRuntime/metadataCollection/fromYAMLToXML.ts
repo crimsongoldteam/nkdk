@@ -111,6 +111,7 @@ export function convertMetadataCollectionFromYAMLToXML(
       params.descriptor.resolveItemRule?.({ yaml, name, index, propertyRule: params.propertyRule }) ?? defaultItemRule
     const normalizedYAML =
       params.descriptor.normalizeItemYAML?.({
+        itemRule,
         yaml,
         annotations: params.annotations,
         name,
