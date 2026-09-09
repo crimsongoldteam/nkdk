@@ -1,0 +1,1479 @@
+{
+  "version": 1,
+  "scope": "Atomic conversion observations only. No owner defaults, validation, reference, or anomaly proof. Differences are not authorized data loss.",
+  "source": [
+    {
+      "path": "packages/rules/metadata/commonObjects/i8nText/fromXML.ts",
+      "sha256": "2aa4491e92a0f1b88771a0b3204a2d7f4cf37cbf199bed3f9cbf6fb0199ca158"
+    },
+    {
+      "path": "packages/rules/metadata/commonObjects/i8nText/fromYAML.ts",
+      "sha256": "e42abb15997439fed78acf1d246170a916f230423eb8a8dad1e9858a91d478e5"
+    },
+    {
+      "path": "packages/rules/metadata/commonObjects/i8nText/toXML.ts",
+      "sha256": "63183447f7ed3b868516982d87d86d42b51bf31b786ee49aa6aaf78ac9b69499"
+    },
+    {
+      "path": "packages/rules/metadata/commonObjects/i8nText/toYAML.ts",
+      "sha256": "13943426659cfaca76179a30171e2c534b3f4b726a3df3da396363d94a69c6e5"
+    }
+  ],
+  "profiles": [
+    {
+      "parameters": {
+        "preserveEmptyXML": false,
+        "excludeIfEqualNameYAML": false,
+        "skipEmptyToXML": false,
+        "typedXML": false
+      },
+      "examples": [
+        {
+          "inputXML": {
+            "state": "absent"
+          },
+          "yaml": {
+            "state": "absent"
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          }
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title/>"
+          },
+          "yaml": {
+            "state": "absent"
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          }
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title><v8:item><v8:lang>ru</v8:lang><v8:content/></v8:item></Title>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "present",
+            "value": "<Title>\n\t<v8:item>\n\t\t<v8:lang>ru</v8:lang>\n\t\t<v8:content/>\n\t</v8:item>\n</Title>"
+          }
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title xsi:type=\"v8:LocalStringType\"/>"
+          },
+          "yaml": {
+            "state": "absent"
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          },
+          "formRecovery": "Not evaluated. No raw registration or lossless claim."
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title xsi:nil=\"true\"/>"
+          },
+          "yaml": {
+            "state": "absent"
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          },
+          "formRecovery": "Not evaluated. No raw registration or lossless claim."
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title xsi:type=\"v8:LocalStringType\"><v8:item><v8:lang>ru</v8:lang><v8:content>Текст</v8:content></v8:item></Title>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": "Текст"
+          },
+          "ordinaryRestoredXML": {
+            "state": "present",
+            "value": "<Title>\n\t<v8:item>\n\t\t<v8:lang>ru</v8:lang>\n\t\t<v8:content>Текст</v8:content>\n\t</v8:item>\n</Title>"
+          },
+          "formRecovery": "Not evaluated. No raw registration or lossless claim."
+        }
+      ]
+    },
+    {
+      "parameters": {
+        "preserveEmptyXML": true,
+        "excludeIfEqualNameYAML": false,
+        "skipEmptyToXML": false,
+        "typedXML": false
+      },
+      "examples": [
+        {
+          "inputXML": {
+            "state": "absent"
+          },
+          "yaml": {
+            "state": "absent"
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          }
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title/>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "present",
+            "value": "<Title/>"
+          }
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title><v8:item><v8:lang>ru</v8:lang><v8:content/></v8:item></Title>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "present",
+            "value": "<Title/>"
+          }
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title xsi:type=\"v8:LocalStringType\"/>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "present",
+            "value": "<Title/>"
+          },
+          "formRecovery": "Not evaluated. No raw registration or lossless claim."
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title xsi:nil=\"true\"/>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "present",
+            "value": "<Title/>"
+          },
+          "formRecovery": "Not evaluated. No raw registration or lossless claim."
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title xsi:type=\"v8:LocalStringType\"><v8:item><v8:lang>ru</v8:lang><v8:content>Текст</v8:content></v8:item></Title>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": "Текст"
+          },
+          "ordinaryRestoredXML": {
+            "state": "present",
+            "value": "<Title>\n\t<v8:item>\n\t\t<v8:lang>ru</v8:lang>\n\t\t<v8:content>Текст</v8:content>\n\t</v8:item>\n</Title>"
+          },
+          "formRecovery": "Not evaluated. No raw registration or lossless claim."
+        }
+      ]
+    },
+    {
+      "parameters": {
+        "preserveEmptyXML": false,
+        "excludeIfEqualNameYAML": true,
+        "skipEmptyToXML": false,
+        "typedXML": false
+      },
+      "examples": [
+        {
+          "inputXML": {
+            "state": "absent"
+          },
+          "yaml": {
+            "state": "absent"
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          }
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title/>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "present",
+            "value": "<Title/>"
+          }
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title><v8:item><v8:lang>ru</v8:lang><v8:content/></v8:item></Title>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "present",
+            "value": "<Title/>"
+          }
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title xsi:type=\"v8:LocalStringType\"/>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "present",
+            "value": "<Title/>"
+          },
+          "formRecovery": "Not evaluated. No raw registration or lossless claim."
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title xsi:nil=\"true\"/>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "present",
+            "value": "<Title/>"
+          },
+          "formRecovery": "Not evaluated. No raw registration or lossless claim."
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title xsi:type=\"v8:LocalStringType\"><v8:item><v8:lang>ru</v8:lang><v8:content>Текст</v8:content></v8:item></Title>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": "Текст"
+          },
+          "ordinaryRestoredXML": {
+            "state": "present",
+            "value": "<Title>\n\t<v8:item>\n\t\t<v8:lang>ru</v8:lang>\n\t\t<v8:content>Текст</v8:content>\n\t</v8:item>\n</Title>"
+          },
+          "formRecovery": "Not evaluated. No raw registration or lossless claim."
+        }
+      ]
+    },
+    {
+      "parameters": {
+        "preserveEmptyXML": true,
+        "excludeIfEqualNameYAML": true,
+        "skipEmptyToXML": false,
+        "typedXML": false
+      },
+      "examples": [
+        {
+          "inputXML": {
+            "state": "absent"
+          },
+          "yaml": {
+            "state": "absent"
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          }
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title/>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "present",
+            "value": "<Title/>"
+          }
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title><v8:item><v8:lang>ru</v8:lang><v8:content/></v8:item></Title>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "present",
+            "value": "<Title/>"
+          }
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title xsi:type=\"v8:LocalStringType\"/>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "present",
+            "value": "<Title/>"
+          },
+          "formRecovery": "Not evaluated. No raw registration or lossless claim."
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title xsi:nil=\"true\"/>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "present",
+            "value": "<Title/>"
+          },
+          "formRecovery": "Not evaluated. No raw registration or lossless claim."
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title xsi:type=\"v8:LocalStringType\"><v8:item><v8:lang>ru</v8:lang><v8:content>Текст</v8:content></v8:item></Title>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": "Текст"
+          },
+          "ordinaryRestoredXML": {
+            "state": "present",
+            "value": "<Title>\n\t<v8:item>\n\t\t<v8:lang>ru</v8:lang>\n\t\t<v8:content>Текст</v8:content>\n\t</v8:item>\n</Title>"
+          },
+          "formRecovery": "Not evaluated. No raw registration or lossless claim."
+        }
+      ]
+    },
+    {
+      "parameters": {
+        "preserveEmptyXML": false,
+        "excludeIfEqualNameYAML": false,
+        "skipEmptyToXML": true,
+        "typedXML": false
+      },
+      "examples": [
+        {
+          "inputXML": {
+            "state": "absent"
+          },
+          "yaml": {
+            "state": "absent"
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          }
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title/>"
+          },
+          "yaml": {
+            "state": "absent"
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          }
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title><v8:item><v8:lang>ru</v8:lang><v8:content/></v8:item></Title>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          }
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title xsi:type=\"v8:LocalStringType\"/>"
+          },
+          "yaml": {
+            "state": "absent"
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          },
+          "formRecovery": "Not evaluated. No raw registration or lossless claim."
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title xsi:nil=\"true\"/>"
+          },
+          "yaml": {
+            "state": "absent"
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          },
+          "formRecovery": "Not evaluated. No raw registration or lossless claim."
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title xsi:type=\"v8:LocalStringType\"><v8:item><v8:lang>ru</v8:lang><v8:content>Текст</v8:content></v8:item></Title>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": "Текст"
+          },
+          "ordinaryRestoredXML": {
+            "state": "present",
+            "value": "<Title>\n\t<v8:item>\n\t\t<v8:lang>ru</v8:lang>\n\t\t<v8:content>Текст</v8:content>\n\t</v8:item>\n</Title>"
+          },
+          "formRecovery": "Not evaluated. No raw registration or lossless claim."
+        }
+      ]
+    },
+    {
+      "parameters": {
+        "preserveEmptyXML": true,
+        "excludeIfEqualNameYAML": false,
+        "skipEmptyToXML": true,
+        "typedXML": false
+      },
+      "examples": [
+        {
+          "inputXML": {
+            "state": "absent"
+          },
+          "yaml": {
+            "state": "absent"
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          }
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title/>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          }
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title><v8:item><v8:lang>ru</v8:lang><v8:content/></v8:item></Title>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          }
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title xsi:type=\"v8:LocalStringType\"/>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          },
+          "formRecovery": "Not evaluated. No raw registration or lossless claim."
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title xsi:nil=\"true\"/>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          },
+          "formRecovery": "Not evaluated. No raw registration or lossless claim."
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title xsi:type=\"v8:LocalStringType\"><v8:item><v8:lang>ru</v8:lang><v8:content>Текст</v8:content></v8:item></Title>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": "Текст"
+          },
+          "ordinaryRestoredXML": {
+            "state": "present",
+            "value": "<Title>\n\t<v8:item>\n\t\t<v8:lang>ru</v8:lang>\n\t\t<v8:content>Текст</v8:content>\n\t</v8:item>\n</Title>"
+          },
+          "formRecovery": "Not evaluated. No raw registration or lossless claim."
+        }
+      ]
+    },
+    {
+      "parameters": {
+        "preserveEmptyXML": false,
+        "excludeIfEqualNameYAML": true,
+        "skipEmptyToXML": true,
+        "typedXML": false
+      },
+      "examples": [
+        {
+          "inputXML": {
+            "state": "absent"
+          },
+          "yaml": {
+            "state": "absent"
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          }
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title/>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          }
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title><v8:item><v8:lang>ru</v8:lang><v8:content/></v8:item></Title>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          }
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title xsi:type=\"v8:LocalStringType\"/>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          },
+          "formRecovery": "Not evaluated. No raw registration or lossless claim."
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title xsi:nil=\"true\"/>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          },
+          "formRecovery": "Not evaluated. No raw registration or lossless claim."
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title xsi:type=\"v8:LocalStringType\"><v8:item><v8:lang>ru</v8:lang><v8:content>Текст</v8:content></v8:item></Title>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": "Текст"
+          },
+          "ordinaryRestoredXML": {
+            "state": "present",
+            "value": "<Title>\n\t<v8:item>\n\t\t<v8:lang>ru</v8:lang>\n\t\t<v8:content>Текст</v8:content>\n\t</v8:item>\n</Title>"
+          },
+          "formRecovery": "Not evaluated. No raw registration or lossless claim."
+        }
+      ]
+    },
+    {
+      "parameters": {
+        "preserveEmptyXML": true,
+        "excludeIfEqualNameYAML": true,
+        "skipEmptyToXML": true,
+        "typedXML": false
+      },
+      "examples": [
+        {
+          "inputXML": {
+            "state": "absent"
+          },
+          "yaml": {
+            "state": "absent"
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          }
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title/>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          }
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title><v8:item><v8:lang>ru</v8:lang><v8:content/></v8:item></Title>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          }
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title xsi:type=\"v8:LocalStringType\"/>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          },
+          "formRecovery": "Not evaluated. No raw registration or lossless claim."
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title xsi:nil=\"true\"/>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          },
+          "formRecovery": "Not evaluated. No raw registration or lossless claim."
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title xsi:type=\"v8:LocalStringType\"><v8:item><v8:lang>ru</v8:lang><v8:content>Текст</v8:content></v8:item></Title>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": "Текст"
+          },
+          "ordinaryRestoredXML": {
+            "state": "present",
+            "value": "<Title>\n\t<v8:item>\n\t\t<v8:lang>ru</v8:lang>\n\t\t<v8:content>Текст</v8:content>\n\t</v8:item>\n</Title>"
+          },
+          "formRecovery": "Not evaluated. No raw registration or lossless claim."
+        }
+      ]
+    },
+    {
+      "parameters": {
+        "preserveEmptyXML": false,
+        "excludeIfEqualNameYAML": false,
+        "skipEmptyToXML": false,
+        "typedXML": true
+      },
+      "examples": [
+        {
+          "inputXML": {
+            "state": "absent"
+          },
+          "yaml": {
+            "state": "absent"
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          }
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title/>"
+          },
+          "yaml": {
+            "state": "absent"
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          }
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title><v8:item><v8:lang>ru</v8:lang><v8:content/></v8:item></Title>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "present",
+            "value": "<Title xsi:type=\"v8:LocalStringType\">\n\t<v8:item>\n\t\t<v8:lang>ru</v8:lang>\n\t\t<v8:content/>\n\t</v8:item>\n</Title>"
+          }
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title xsi:type=\"v8:LocalStringType\"/>"
+          },
+          "yaml": {
+            "state": "absent"
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          },
+          "formRecovery": "Not evaluated. No raw registration or lossless claim."
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title xsi:nil=\"true\"/>"
+          },
+          "yaml": {
+            "state": "absent"
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          },
+          "formRecovery": "Not evaluated. No raw registration or lossless claim."
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title xsi:type=\"v8:LocalStringType\"><v8:item><v8:lang>ru</v8:lang><v8:content>Текст</v8:content></v8:item></Title>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": "Текст"
+          },
+          "ordinaryRestoredXML": {
+            "state": "present",
+            "value": "<Title xsi:type=\"v8:LocalStringType\">\n\t<v8:item>\n\t\t<v8:lang>ru</v8:lang>\n\t\t<v8:content>Текст</v8:content>\n\t</v8:item>\n</Title>"
+          },
+          "formRecovery": "Not evaluated. No raw registration or lossless claim."
+        }
+      ]
+    },
+    {
+      "parameters": {
+        "preserveEmptyXML": true,
+        "excludeIfEqualNameYAML": false,
+        "skipEmptyToXML": false,
+        "typedXML": true
+      },
+      "examples": [
+        {
+          "inputXML": {
+            "state": "absent"
+          },
+          "yaml": {
+            "state": "absent"
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          }
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title/>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "present",
+            "value": "<Title/>"
+          }
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title><v8:item><v8:lang>ru</v8:lang><v8:content/></v8:item></Title>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "present",
+            "value": "<Title/>"
+          }
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title xsi:type=\"v8:LocalStringType\"/>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "present",
+            "value": "<Title/>"
+          },
+          "formRecovery": "Not evaluated. No raw registration or lossless claim."
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title xsi:nil=\"true\"/>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "present",
+            "value": "<Title/>"
+          },
+          "formRecovery": "Not evaluated. No raw registration or lossless claim."
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title xsi:type=\"v8:LocalStringType\"><v8:item><v8:lang>ru</v8:lang><v8:content>Текст</v8:content></v8:item></Title>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": "Текст"
+          },
+          "ordinaryRestoredXML": {
+            "state": "present",
+            "value": "<Title xsi:type=\"v8:LocalStringType\">\n\t<v8:item>\n\t\t<v8:lang>ru</v8:lang>\n\t\t<v8:content>Текст</v8:content>\n\t</v8:item>\n</Title>"
+          },
+          "formRecovery": "Not evaluated. No raw registration or lossless claim."
+        }
+      ]
+    },
+    {
+      "parameters": {
+        "preserveEmptyXML": false,
+        "excludeIfEqualNameYAML": true,
+        "skipEmptyToXML": false,
+        "typedXML": true
+      },
+      "examples": [
+        {
+          "inputXML": {
+            "state": "absent"
+          },
+          "yaml": {
+            "state": "absent"
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          }
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title/>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "present",
+            "value": "<Title/>"
+          }
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title><v8:item><v8:lang>ru</v8:lang><v8:content/></v8:item></Title>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "present",
+            "value": "<Title/>"
+          }
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title xsi:type=\"v8:LocalStringType\"/>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "present",
+            "value": "<Title/>"
+          },
+          "formRecovery": "Not evaluated. No raw registration or lossless claim."
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title xsi:nil=\"true\"/>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "present",
+            "value": "<Title/>"
+          },
+          "formRecovery": "Not evaluated. No raw registration or lossless claim."
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title xsi:type=\"v8:LocalStringType\"><v8:item><v8:lang>ru</v8:lang><v8:content>Текст</v8:content></v8:item></Title>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": "Текст"
+          },
+          "ordinaryRestoredXML": {
+            "state": "present",
+            "value": "<Title xsi:type=\"v8:LocalStringType\">\n\t<v8:item>\n\t\t<v8:lang>ru</v8:lang>\n\t\t<v8:content>Текст</v8:content>\n\t</v8:item>\n</Title>"
+          },
+          "formRecovery": "Not evaluated. No raw registration or lossless claim."
+        }
+      ]
+    },
+    {
+      "parameters": {
+        "preserveEmptyXML": true,
+        "excludeIfEqualNameYAML": true,
+        "skipEmptyToXML": false,
+        "typedXML": true
+      },
+      "examples": [
+        {
+          "inputXML": {
+            "state": "absent"
+          },
+          "yaml": {
+            "state": "absent"
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          }
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title/>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "present",
+            "value": "<Title/>"
+          }
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title><v8:item><v8:lang>ru</v8:lang><v8:content/></v8:item></Title>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "present",
+            "value": "<Title/>"
+          }
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title xsi:type=\"v8:LocalStringType\"/>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "present",
+            "value": "<Title/>"
+          },
+          "formRecovery": "Not evaluated. No raw registration or lossless claim."
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title xsi:nil=\"true\"/>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "present",
+            "value": "<Title/>"
+          },
+          "formRecovery": "Not evaluated. No raw registration or lossless claim."
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title xsi:type=\"v8:LocalStringType\"><v8:item><v8:lang>ru</v8:lang><v8:content>Текст</v8:content></v8:item></Title>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": "Текст"
+          },
+          "ordinaryRestoredXML": {
+            "state": "present",
+            "value": "<Title xsi:type=\"v8:LocalStringType\">\n\t<v8:item>\n\t\t<v8:lang>ru</v8:lang>\n\t\t<v8:content>Текст</v8:content>\n\t</v8:item>\n</Title>"
+          },
+          "formRecovery": "Not evaluated. No raw registration or lossless claim."
+        }
+      ]
+    },
+    {
+      "parameters": {
+        "preserveEmptyXML": false,
+        "excludeIfEqualNameYAML": false,
+        "skipEmptyToXML": true,
+        "typedXML": true
+      },
+      "examples": [
+        {
+          "inputXML": {
+            "state": "absent"
+          },
+          "yaml": {
+            "state": "absent"
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          }
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title/>"
+          },
+          "yaml": {
+            "state": "absent"
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          }
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title><v8:item><v8:lang>ru</v8:lang><v8:content/></v8:item></Title>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          }
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title xsi:type=\"v8:LocalStringType\"/>"
+          },
+          "yaml": {
+            "state": "absent"
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          },
+          "formRecovery": "Not evaluated. No raw registration or lossless claim."
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title xsi:nil=\"true\"/>"
+          },
+          "yaml": {
+            "state": "absent"
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          },
+          "formRecovery": "Not evaluated. No raw registration or lossless claim."
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title xsi:type=\"v8:LocalStringType\"><v8:item><v8:lang>ru</v8:lang><v8:content>Текст</v8:content></v8:item></Title>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": "Текст"
+          },
+          "ordinaryRestoredXML": {
+            "state": "present",
+            "value": "<Title xsi:type=\"v8:LocalStringType\">\n\t<v8:item>\n\t\t<v8:lang>ru</v8:lang>\n\t\t<v8:content>Текст</v8:content>\n\t</v8:item>\n</Title>"
+          },
+          "formRecovery": "Not evaluated. No raw registration or lossless claim."
+        }
+      ]
+    },
+    {
+      "parameters": {
+        "preserveEmptyXML": true,
+        "excludeIfEqualNameYAML": false,
+        "skipEmptyToXML": true,
+        "typedXML": true
+      },
+      "examples": [
+        {
+          "inputXML": {
+            "state": "absent"
+          },
+          "yaml": {
+            "state": "absent"
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          }
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title/>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          }
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title><v8:item><v8:lang>ru</v8:lang><v8:content/></v8:item></Title>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          }
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title xsi:type=\"v8:LocalStringType\"/>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          },
+          "formRecovery": "Not evaluated. No raw registration or lossless claim."
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title xsi:nil=\"true\"/>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          },
+          "formRecovery": "Not evaluated. No raw registration or lossless claim."
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title xsi:type=\"v8:LocalStringType\"><v8:item><v8:lang>ru</v8:lang><v8:content>Текст</v8:content></v8:item></Title>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": "Текст"
+          },
+          "ordinaryRestoredXML": {
+            "state": "present",
+            "value": "<Title xsi:type=\"v8:LocalStringType\">\n\t<v8:item>\n\t\t<v8:lang>ru</v8:lang>\n\t\t<v8:content>Текст</v8:content>\n\t</v8:item>\n</Title>"
+          },
+          "formRecovery": "Not evaluated. No raw registration or lossless claim."
+        }
+      ]
+    },
+    {
+      "parameters": {
+        "preserveEmptyXML": false,
+        "excludeIfEqualNameYAML": true,
+        "skipEmptyToXML": true,
+        "typedXML": true
+      },
+      "examples": [
+        {
+          "inputXML": {
+            "state": "absent"
+          },
+          "yaml": {
+            "state": "absent"
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          }
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title/>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          }
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title><v8:item><v8:lang>ru</v8:lang><v8:content/></v8:item></Title>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          }
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title xsi:type=\"v8:LocalStringType\"/>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          },
+          "formRecovery": "Not evaluated. No raw registration or lossless claim."
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title xsi:nil=\"true\"/>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          },
+          "formRecovery": "Not evaluated. No raw registration or lossless claim."
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title xsi:type=\"v8:LocalStringType\"><v8:item><v8:lang>ru</v8:lang><v8:content>Текст</v8:content></v8:item></Title>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": "Текст"
+          },
+          "ordinaryRestoredXML": {
+            "state": "present",
+            "value": "<Title xsi:type=\"v8:LocalStringType\">\n\t<v8:item>\n\t\t<v8:lang>ru</v8:lang>\n\t\t<v8:content>Текст</v8:content>\n\t</v8:item>\n</Title>"
+          },
+          "formRecovery": "Not evaluated. No raw registration or lossless claim."
+        }
+      ]
+    },
+    {
+      "parameters": {
+        "preserveEmptyXML": true,
+        "excludeIfEqualNameYAML": true,
+        "skipEmptyToXML": true,
+        "typedXML": true
+      },
+      "examples": [
+        {
+          "inputXML": {
+            "state": "absent"
+          },
+          "yaml": {
+            "state": "absent"
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          }
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title/>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          }
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title><v8:item><v8:lang>ru</v8:lang><v8:content/></v8:item></Title>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          }
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title xsi:type=\"v8:LocalStringType\"/>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          },
+          "formRecovery": "Not evaluated. No raw registration or lossless claim."
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title xsi:nil=\"true\"/>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": ""
+          },
+          "ordinaryRestoredXML": {
+            "state": "absent"
+          },
+          "formRecovery": "Not evaluated. No raw registration or lossless claim."
+        },
+        {
+          "inputXML": {
+            "state": "present",
+            "value": "<Title xsi:type=\"v8:LocalStringType\"><v8:item><v8:lang>ru</v8:lang><v8:content>Текст</v8:content></v8:item></Title>"
+          },
+          "yaml": {
+            "state": "present",
+            "value": "Текст"
+          },
+          "ordinaryRestoredXML": {
+            "state": "present",
+            "value": "<Title xsi:type=\"v8:LocalStringType\">\n\t<v8:item>\n\t\t<v8:lang>ru</v8:lang>\n\t\t<v8:content>Текст</v8:content>\n\t</v8:item>\n</Title>"
+          },
+          "formRecovery": "Not evaluated. No raw registration or lossless claim."
+        }
+      ]
+    }
+  ],
+  "verification": "96 observations executed against TypeScript; declarative equivalents and anomaly proof pending"
+}

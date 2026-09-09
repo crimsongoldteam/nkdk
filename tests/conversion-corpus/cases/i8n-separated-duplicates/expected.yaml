@@ -1,0 +1,5 @@
+Заголовок:
+  ru: Первый
+  en: Text
+  !xml/invalid ru: Второй
+  !xml/invalid/2 ru: Третий

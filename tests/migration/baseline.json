@@ -1,0 +1,1454 @@
+{
+  "version": 1,
+  "worktreeCommit": "9f9b8612607c30b39c5f65db69ee57b739be94b3",
+  "contractCommit": "2af2f299ed8241eac78d4db46b4a8421efe2f8f7",
+  "experimentCommit": "4e1a2818879434c57cd93e4616f875fd9479dfc9",
+  "experimentBaselineCommit": "4cee8962adf823ac590ad3f0ce47f972b2c852a9",
+  "toolchainObserved": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+  "performanceScope": "e2e-only",
+  "corpusAudit": [
+    {
+      "id": "document-minimal",
+      "status": "provenance-verified",
+      "files": [
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataDocument/__fixtures__/minimal.xml",
+          "sha256": "d978ffd411f7d69806fb073a93a9ae2673dd4100f2c1319b8cc69a851cc29f08"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/document-minimal/input.yaml",
+          "sha256": "53d48b96c91118767efc9bd753ebf49b892575484c820bfd3645ecb33c78bc42"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/document-minimal/context.json",
+          "sha256": "05e9abd05f8994a53f03303db032e41b836f403c85ab4a40aead2d13a91586bc"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/document-minimal/expected.yaml",
+          "sha256": "4693f55d0fecad1e235f2e307e878f4c69cf1cdfdbec755a97042b24729e3ed9"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/document-minimal/expected.xml",
+          "sha256": "d978ffd411f7d69806fb073a93a9ae2673dd4100f2c1319b8cc69a851cc29f08"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataDocument/__fixtures__/minimal.ts",
+          "sha256": "e5d1475ad78d7da41b541761e587c045d0d777d4a9376a674b9c26d1aee1dbbb"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataDocument/fromXMLToYAML.integration.test.ts",
+          "sha256": "fdf032e289ad3ea8fa9743a15f648f5a4c61813260268bf1d349259e004ef167"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataDocument/fromYAMLToXML.integration.test.ts",
+          "sha256": "5bae328db747875b1ad791b0c83df3469920ca0bf488ece9e037f34dbbf21f8c"
+        },
+        {
+          "path": "packages/rules/tests/directConversion.ts",
+          "sha256": "af5ed821e8315d92af149ed1cc7f7f0faa354b325f767b22103fc1e97304a127"
+        }
+      ],
+      "conflicts": [],
+      "semanticReview": "pending"
+    },
+    {
+      "id": "document-full",
+      "status": "provenance-verified",
+      "files": [
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataDocument/__fixtures__/full.xml",
+          "sha256": "80e84837ba5b7e3073e6cdbb39dff1e6b8cda5edd7396edaca0d482c5814c49b"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/document-full/input.yaml",
+          "sha256": "386c3f91a1dad90453077b59e13d86c3f32d2de947bc9b5c8a788c70e3b24de8"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/document-full/context.json",
+          "sha256": "e175c2e7d8aea3f92f6b9448ff8e757d2fc557a73c33cf4600eaf90babfa04be"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/document-full/expected.yaml",
+          "sha256": "f5f4d7728cb806845d333149ab6c47baa800260ba0220d256b54da7cb6cd74a7"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/document-full/expected.xml",
+          "sha256": "80e84837ba5b7e3073e6cdbb39dff1e6b8cda5edd7396edaca0d482c5814c49b"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataDocument/__fixtures__/full.ts",
+          "sha256": "85379317d8d689f75ba8301e4778f8e4efe8841e583dceac3dc80e6e680699e6"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataDocument/fromXMLToYAML.integration.test.ts",
+          "sha256": "fdf032e289ad3ea8fa9743a15f648f5a4c61813260268bf1d349259e004ef167"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataDocument/fromYAMLToXML.integration.test.ts",
+          "sha256": "5bae328db747875b1ad791b0c83df3469920ca0bf488ece9e037f34dbbf21f8c"
+        },
+        {
+          "path": "packages/rules/tests/directConversion.ts",
+          "sha256": "af5ed821e8315d92af149ed1cc7f7f0faa354b325f767b22103fc1e97304a127"
+        }
+      ],
+      "conflicts": [],
+      "semanticReview": "pending"
+    },
+    {
+      "id": "boolean-true",
+      "status": "provenance-verified",
+      "files": [
+        {
+          "path": "tests/conversion-corpus/cases/boolean-true/input.xml",
+          "sha256": "5e25587167e5ae42e2d54faad812c396a52deb6f43f14ea68ea3ea6b3a82fc3e"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/boolean-true/expected.yaml",
+          "sha256": "c57a41d98e23ad5fc35001b8543fac4c91bd1b0c265f0056b294ce95869cdda6"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/boolean-true/context.json",
+          "sha256": "dd4e73d4f26ae0e15735ce064601fdf5d3a885b336751c0d240780ab85844442"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/boolean-true/expected.yaml",
+          "sha256": "c57a41d98e23ad5fc35001b8543fac4c91bd1b0c265f0056b294ce95869cdda6"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/boolean-true/input.xml",
+          "sha256": "5e25587167e5ae42e2d54faad812c396a52deb6f43f14ea68ea3ea6b3a82fc3e"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/boolean/atomicConversion.test.ts",
+          "sha256": "9545e28ab63a3310aaf86ffb984c0cb663272dd5f27dfd50852613a257c27267"
+        },
+        {
+          "path": "packages/rules/tests/directConversion.ts",
+          "sha256": "af5ed821e8315d92af149ed1cc7f7f0faa354b325f767b22103fc1e97304a127"
+        }
+      ],
+      "conflicts": [],
+      "semanticReview": "pending"
+    },
+    {
+      "id": "boolean-false",
+      "status": "provenance-verified",
+      "files": [
+        {
+          "path": "tests/conversion-corpus/cases/boolean-false/input.xml",
+          "sha256": "db4fa455014cbf972056715ade23dffe7988fc06050cb32636909931f650c78b"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/boolean-false/expected.yaml",
+          "sha256": "a885f2dbe4763255edfec0823adfc0a81cf6dbb50d38b5215509be70653870a7"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/boolean-false/context.json",
+          "sha256": "dd4e73d4f26ae0e15735ce064601fdf5d3a885b336751c0d240780ab85844442"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/boolean-false/expected.yaml",
+          "sha256": "a885f2dbe4763255edfec0823adfc0a81cf6dbb50d38b5215509be70653870a7"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/boolean-false/input.xml",
+          "sha256": "db4fa455014cbf972056715ade23dffe7988fc06050cb32636909931f650c78b"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/boolean/atomicConversion.test.ts",
+          "sha256": "9545e28ab63a3310aaf86ffb984c0cb663272dd5f27dfd50852613a257c27267"
+        },
+        {
+          "path": "packages/rules/tests/directConversion.ts",
+          "sha256": "af5ed821e8315d92af149ed1cc7f7f0faa354b325f767b22103fc1e97304a127"
+        }
+      ],
+      "conflicts": [],
+      "semanticReview": "pending"
+    },
+    {
+      "id": "enum-switcher",
+      "status": "provenance-verified",
+      "files": [
+        {
+          "path": "tests/conversion-corpus/cases/enum-switcher/input.xml",
+          "sha256": "dfae007194b9f98790c495f506c7bc0b999da3aaa7425ee59431caa07f92d06d"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/enum-switcher/expected.yaml",
+          "sha256": "5a18ffa672df4ec417dd077775a4cdca425fd5340b6676ef36da9963f5737fad"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/enum-switcher/context.json",
+          "sha256": "524aab70edab29c2c479400e650a72a30434f8475de90fe5a2b4de4fda3343a0"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/enum-switcher/expected.yaml",
+          "sha256": "5a18ffa672df4ec417dd077775a4cdca425fd5340b6676ef36da9963f5737fad"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/enum-switcher/input.xml",
+          "sha256": "dfae007194b9f98790c495f506c7bc0b999da3aaa7425ee59431caa07f92d06d"
+        },
+        {
+          "path": "packages/rules/metadata/systemEnumerations/atomicConversion.test.ts",
+          "sha256": "fc366eedc2f4bb90d81aec5c2c96997e80f0321899a43f0a8368886432e03175"
+        },
+        {
+          "path": "packages/rules/tests/directConversion.ts",
+          "sha256": "af5ed821e8315d92af149ed1cc7f7f0faa354b325f767b22103fc1e97304a127"
+        }
+      ],
+      "conflicts": [],
+      "semanticReview": "pending"
+    },
+    {
+      "id": "style-color",
+      "status": "provenance-verified",
+      "files": [
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataStyleItem/__fixtures__/color.xml",
+          "sha256": "ecfcc084de3c03a71fe279595e185ee3ec04f9dc4c31afafae16b32fa7038e4c"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/style-color/input.yaml",
+          "sha256": "af693993892071a2444e8f156218dcca7af4f553aa74a6e80c95c22d0dbc3d6e"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/style-color/context.json",
+          "sha256": "969264f4b8a58ecee45f6848c6ff326041db59752fb1f632ba6346bc4873544e"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/style-color/expected.yaml",
+          "sha256": "af693993892071a2444e8f156218dcca7af4f553aa74a6e80c95c22d0dbc3d6e"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/style-color/expected.xml",
+          "sha256": "ecfcc084de3c03a71fe279595e185ee3ec04f9dc4c31afafae16b32fa7038e4c"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataStyleItem/__fixtures__/color.ts",
+          "sha256": "a01e8306b861252a16ca5cff9ff8da8d3447fb58778b62b3cb13bc667eaea018"
+        },
+        {
+          "path": "packages/rules/metadata/ruleRuntime/property/canonicalXMLDefaults.test.ts",
+          "sha256": "799b8533ad6f1231d52adba7b58f7fb4bed85a17e3434096664371b1d1a12030"
+        },
+        {
+          "path": "packages/rules/tests/directConversion.ts",
+          "sha256": "af5ed821e8315d92af149ed1cc7f7f0faa354b325f767b22103fc1e97304a127"
+        }
+      ],
+      "conflicts": [],
+      "semanticReview": "pending"
+    },
+    {
+      "id": "style-font",
+      "status": "provenance-verified",
+      "files": [
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataStyleItem/__fixtures__/font.xml",
+          "sha256": "8328df281c0ad25d9979593acdd5a920180a490c1e080c1e09460746e8951940"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/style-font/input.yaml",
+          "sha256": "75a176242117a15e78d763ab5d73b87fbf41e8d33cccc26f36547a86b8ff90cb"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/style-font/context.json",
+          "sha256": "c078470e705dec8e0e8cdbabe1639360943693fc2dd4fb7b7e3461b78e47c13d"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/style-font/expected.yaml",
+          "sha256": "b4ba1954053a3adc2fa61ed7c241fe23c7ebd4347f19f3b6b72368db6a3dbe07"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/style-font/expected.xml",
+          "sha256": "8328df281c0ad25d9979593acdd5a920180a490c1e080c1e09460746e8951940"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataStyleItem/__fixtures__/font.ts",
+          "sha256": "1bc900883896c9f0cab9f23a213cecb5d9411525b7f845963451643603aa1f90"
+        },
+        {
+          "path": "packages/rules/metadata/ruleRuntime/property/canonicalXMLDefaults.test.ts",
+          "sha256": "799b8533ad6f1231d52adba7b58f7fb4bed85a17e3434096664371b1d1a12030"
+        },
+        {
+          "path": "packages/rules/tests/directConversion.ts",
+          "sha256": "af5ed821e8315d92af149ed1cc7f7f0faa354b325f767b22103fc1e97304a127"
+        }
+      ],
+      "conflicts": [],
+      "semanticReview": "pending"
+    },
+    {
+      "id": "style-border",
+      "status": "provenance-verified",
+      "files": [
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataStyleItem/__fixtures__/border.xml",
+          "sha256": "14fdf54ac0352055e4316ae382f153aff4c1973bbe28b38e70415b2fefa4ad4f"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/style-border/input.yaml",
+          "sha256": "5282b71cdc48ad5e804f5625230315760878fad15efc8cd71376c1e14a10521d"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/style-border/context.json",
+          "sha256": "5e1921149d45d4f0c64c44b00a55fe33421db33de6d2533282ea7e7416729dd6"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/style-border/expected.yaml",
+          "sha256": "5282b71cdc48ad5e804f5625230315760878fad15efc8cd71376c1e14a10521d"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/style-border/expected.xml",
+          "sha256": "14fdf54ac0352055e4316ae382f153aff4c1973bbe28b38e70415b2fefa4ad4f"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataStyleItem/__fixtures__/border.ts",
+          "sha256": "f0b0e77b518ae2732b26a54a4ce8063830bcd929ab636a28b7a5cff0f607715d"
+        },
+        {
+          "path": "packages/rules/metadata/ruleRuntime/property/canonicalXMLDefaults.test.ts",
+          "sha256": "799b8533ad6f1231d52adba7b58f7fb4bed85a17e3434096664371b1d1a12030"
+        },
+        {
+          "path": "packages/rules/tests/directConversion.ts",
+          "sha256": "af5ed821e8315d92af149ed1cc7f7f0faa354b325f767b22103fc1e97304a127"
+        }
+      ],
+      "conflicts": [],
+      "semanticReview": "pending"
+    },
+    {
+      "id": "xml-scalar-attributes",
+      "status": "provenance-verified",
+      "files": [
+        {
+          "path": "tests/conversion-corpus/cases/xml-scalar-attributes/input.yaml",
+          "sha256": "7d7fd56b86819811b679f917b48d66e0369384416a4fb602122060dad675f984"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-scalar-attributes/input.xml",
+          "sha256": "e3a0fc758d92edc6a1c131a824467b1c419bb9f8ab673ab767b1a418213985cf"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-scalar-attributes/context.json",
+          "sha256": "cf8046808edfa8367fd54c6af2ed85d6eda81b3b266fd2dc47060b10ca94ce9a"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-scalar-attributes/expected.xml",
+          "sha256": "e3a0fc758d92edc6a1c131a824467b1c419bb9f8ab673ab767b1a418213985cf"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-scalar-attributes/input.yaml",
+          "sha256": "7d7fd56b86819811b679f917b48d66e0369384416a4fb602122060dad675f984"
+        },
+        {
+          "path": "packages/runtime/metadata/ruleRuntime/xmlAnomaly/localScalarBoundary.test.ts",
+          "sha256": "1ea7842642dd9f6ba6551e2ac18c4818a461b32d82eb6ade75041ae313328b7b"
+        },
+        {
+          "path": "packages/runtime/yaml/xmlAnomalyAnnotations.test.ts",
+          "sha256": "22a67a7a9433a54f7e14211dbde0676a7d1c81cbb22f085d4bddd897d87db5f1"
+        }
+      ],
+      "conflicts": [],
+      "semanticReview": "pending"
+    },
+    {
+      "id": "xml-scalar-edited",
+      "status": "provenance-verified",
+      "files": [
+        {
+          "path": "tests/conversion-corpus/cases/xml-scalar-edited/input.yaml",
+          "sha256": "e27254e534e0d10dc6f6669371fa5dd431fdd7e8b38020c86c5164a0bdb353a4"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-scalar-edited/context.json",
+          "sha256": "fca88b265ed843e03cd4a408c4dff9bc5a8b34114cb6dcbf14f0fca9095cbc29"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-scalar-edited/expected.xml",
+          "sha256": "a6ce5c9bb3d76aeb47247669e87222744443d933094ff0ee7ef051aa827d7a9b"
+        },
+        {
+          "path": "packages/runtime/metadata/ruleRuntime/xmlAnomaly/localScalarBoundary.test.ts",
+          "sha256": "1ea7842642dd9f6ba6551e2ac18c4818a461b32d82eb6ade75041ae313328b7b"
+        },
+        {
+          "path": "packages/runtime/yaml/xmlAnomalyAnnotations.test.ts",
+          "sha256": "22a67a7a9433a54f7e14211dbde0676a7d1c81cbb22f085d4bddd897d87db5f1"
+        }
+      ],
+      "conflicts": [],
+      "semanticReview": "pending"
+    },
+    {
+      "id": "xml-scalar-annotation-removed",
+      "status": "provenance-verified",
+      "files": [
+        {
+          "path": "tests/conversion-corpus/cases/xml-scalar-annotation-removed/input.yaml",
+          "sha256": "34d9328a9f1f252f92689052a3e511e501de46b2d1f92d335cf66a86be02ac45"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-scalar-annotation-removed/context.json",
+          "sha256": "2f023faa61c374b984f02d4ed807f9f8d02ccbb36c2746bc5d4fd383646cc87d"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-scalar-annotation-removed/expected.xml",
+          "sha256": "0ca97160dcf9883103b3248a50a76fd9098bd6ba97f293cd4c06888cb7052888"
+        },
+        {
+          "path": "packages/runtime/metadata/ruleRuntime/xmlAnomaly/localScalarBoundary.test.ts",
+          "sha256": "1ea7842642dd9f6ba6551e2ac18c4818a461b32d82eb6ade75041ae313328b7b"
+        },
+        {
+          "path": "packages/runtime/yaml/xmlAnomalyAnnotations.test.ts",
+          "sha256": "22a67a7a9433a54f7e14211dbde0676a7d1c81cbb22f085d4bddd897d87db5f1"
+        }
+      ],
+      "conflicts": [],
+      "semanticReview": "pending"
+    },
+    {
+      "id": "table-dynamic-list",
+      "status": "provenance-verified",
+      "files": [
+        {
+          "path": "tests/conversion-corpus/cases/table-dynamic-list/input.yaml",
+          "sha256": "b5efa31f4fd6f1168c42997f3f54b9432b7ff40974255929eaecb43e5bf6375c"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/table-dynamic-list/context.json",
+          "sha256": "36cf1cf4a22a746f7d1e5b87bf29d77456df9e45f4ce7b6bd70beb6fd9ffac4c"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/table-dynamic-list/expected.xml",
+          "sha256": "a555f991d144baa545f5d22f96e190896e439ce020b63cb2af741bf0a84fdbb4"
+        },
+        {
+          "path": "packages/rules/metadata/forms/clientApplicationForm/fromYAMLToXML.integration.test.ts",
+          "sha256": "ac0bf4bde72e58721743bd558cc05b2fa06297186a6a55bc46ff87729831a667"
+        }
+      ],
+      "conflicts": [],
+      "semanticReview": "pending"
+    },
+    {
+      "id": "table-value-table",
+      "status": "provenance-verified",
+      "files": [
+        {
+          "path": "tests/conversion-corpus/cases/table-value-table/input.yaml",
+          "sha256": "711235515d7ad1dc58af3a89d75c3dafb0271b144142becf546ba21fec193b04"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/table-value-table/context.json",
+          "sha256": "36cf1cf4a22a746f7d1e5b87bf29d77456df9e45f4ce7b6bd70beb6fd9ffac4c"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/table-value-table/expected.xml",
+          "sha256": "52899f00ffb4dba42a5ef1b58a4f657f7ff401d2dc38a213cfe485056661621b"
+        },
+        {
+          "path": "packages/rules/metadata/forms/clientApplicationForm/fromYAMLToXML.integration.test.ts",
+          "sha256": "ac0bf4bde72e58721743bd558cc05b2fa06297186a6a55bc46ff87729831a667"
+        }
+      ],
+      "conflicts": [],
+      "semanticReview": "pending"
+    },
+    {
+      "id": "table-nested-list",
+      "status": "provenance-verified",
+      "files": [
+        {
+          "path": "tests/conversion-corpus/cases/table-nested-list/input.yaml",
+          "sha256": "57bc461885a00da15a74b4d45fa2beb35f743605567a1970f07047205df7a81c"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/table-nested-list/context.json",
+          "sha256": "36cf1cf4a22a746f7d1e5b87bf29d77456df9e45f4ce7b6bd70beb6fd9ffac4c"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/table-nested-list/expected.xml",
+          "sha256": "42c9323dda8926a0a2c4c3e963a3a2405216d6a29a745e03562193835c3e837c"
+        },
+        {
+          "path": "packages/rules/metadata/forms/clientApplicationForm/fromYAMLToXML.integration.test.ts",
+          "sha256": "ac0bf4bde72e58721743bd558cc05b2fa06297186a6a55bc46ff87729831a667"
+        }
+      ],
+      "conflicts": [],
+      "semanticReview": "pending"
+    },
+    {
+      "id": "base-form-projection",
+      "status": "provenance-verified",
+      "files": [
+        {
+          "path": "tests/conversion-corpus/cases/base-form-projection/input.yaml",
+          "sha256": "c099dfe88b0b358d885d641ae576af039158406f7d6a0cc90454e64658babae2"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/base-form-projection/context.json",
+          "sha256": "66aa9baa4a738550c45da9fd47c0fd22c0b3ff0771614c820dcc64e248c9bf0e"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/base-form-projection/expected.xml",
+          "sha256": "84e0cd3da63af0a441c526cae3f027ffc24d25f13b5bc2c0a608dd62a36fad3f"
+        },
+        {
+          "path": "packages/rules/metadata/forms/clientApplicationForm/baseForm.test.ts",
+          "sha256": "bcbdb358ce02a40d0a49355107deaa7da461cfaca7a265c2281404d79f0cfda4"
+        }
+      ],
+      "conflicts": [],
+      "semanticReview": "pending"
+    },
+    {
+      "id": "fill-value-string",
+      "status": "provenance-verified",
+      "files": [
+        {
+          "path": "tests/conversion-corpus/cases/fill-value-string/input.xml",
+          "sha256": "57d5a9a4990162b55cc2beec363a017e20e684aef8cd6dae4bf8a2ccb7119d6c"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/fill-value-string/expected.yaml",
+          "sha256": "480e381ea6a273eb85e343c84fe552f37a895e9bd97d298396a36974be474a43"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/fill-value-string/context.json",
+          "sha256": "e175c2e7d8aea3f92f6b9448ff8e757d2fc557a73c33cf4600eaf90babfa04be"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/fill-value-string/expected.xml",
+          "sha256": "57d5a9a4990162b55cc2beec363a017e20e684aef8cd6dae4bf8a2ccb7119d6c"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/fill-value-string/expected.yaml",
+          "sha256": "480e381ea6a273eb85e343c84fe552f37a895e9bd97d298396a36974be474a43"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/fillValue/classify.test.ts",
+          "sha256": "8802c9aab5951daf1a11410abc343019dfa42aff10b57f6e4ee7fdd4a9d5f191"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataDocument/__fixtures__/full.ts",
+          "sha256": "85379317d8d689f75ba8301e4778f8e4efe8841e583dceac3dc80e6e680699e6"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataDocument/__fixtures__/full.xml",
+          "sha256": "80e84837ba5b7e3073e6cdbb39dff1e6b8cda5edd7396edaca0d482c5814c49b"
+        }
+      ],
+      "conflicts": [],
+      "semanticReview": "pending"
+    },
+    {
+      "id": "command-module-export",
+      "status": "provenance-verified",
+      "files": [
+        {
+          "path": "tests/conversion-corpus/cases/document-full/input.yaml",
+          "sha256": "386c3f91a1dad90453077b59e13d86c3f32d2de947bc9b5c8a788c70e3b24de8"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/command-module-export/module.bsl",
+          "sha256": "35c45d98c717353f16204b5f9e8aecc5cd91f84b98a8ec78ac5793896f98e701"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/command-module-export/context.json",
+          "sha256": "603048c735c967a1716574d064b51df67835561eafbf5e475f5aac9dbee7845a"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/document-full/expected.yaml",
+          "sha256": "f5f4d7728cb806845d333149ab6c47baa800260ba0220d256b54da7cb6cd74a7"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/document-full/expected.xml",
+          "sha256": "80e84837ba5b7e3073e6cdbb39dff1e6b8cda5edd7396edaca0d482c5814c49b"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataDocument/__fixtures__/full.ts",
+          "sha256": "85379317d8d689f75ba8301e4778f8e4efe8841e583dceac3dc80e6e680699e6"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataDocument/fromXMLToYAML.integration.test.ts",
+          "sha256": "fdf032e289ad3ea8fa9743a15f648f5a4c61813260268bf1d349259e004ef167"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataDocument/fromYAMLToXML.integration.test.ts",
+          "sha256": "5bae328db747875b1ad791b0c83df3469920ca0bf488ece9e037f34dbbf21f8c"
+        },
+        {
+          "path": "packages/rules/tests/directConversion.ts",
+          "sha256": "af5ed821e8315d92af149ed1cc7f7f0faa354b325f767b22103fc1e97304a127"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/metadataCommand/rules.ts",
+          "sha256": "0f4a3e8b81d62230df943590bf6022b4f63316b4b0e320032e0dfd6077fa6ea6"
+        },
+        {
+          "path": "packages/rules/metadata/project/syncStateFiles.integration.test.ts",
+          "sha256": "239a625767e5d5a1d30c4594caf51de3c269f00d0f5d958fc70d434c85b49dbf"
+        },
+        {
+          "path": "packages/rules/metadata/importFromXml/transfer.test.ts",
+          "sha256": "868bedb7e1321fce3e3d987a9d8e663be8909974f13651faaf8f06995f0106cd"
+        },
+        {
+          "path": "packages/rules/metadata/fullSyncToXml/transferExternalFiles.integration.test.ts",
+          "sha256": "c57ddb3ed96d425e41495b7c9b46a5d82ffb3cbe49fb57ecaa16d5a57dc0a14e"
+        }
+      ],
+      "conflicts": [],
+      "semanticReview": "pending"
+    },
+    {
+      "id": "command-module-import",
+      "status": "provenance-verified",
+      "files": [
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataDocument/__fixtures__/full.xml",
+          "sha256": "80e84837ba5b7e3073e6cdbb39dff1e6b8cda5edd7396edaca0d482c5814c49b"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/command-module-export/module.bsl",
+          "sha256": "35c45d98c717353f16204b5f9e8aecc5cd91f84b98a8ec78ac5793896f98e701"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/command-module-import/context.json",
+          "sha256": "603048c735c967a1716574d064b51df67835561eafbf5e475f5aac9dbee7845a"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/document-full/expected.yaml",
+          "sha256": "f5f4d7728cb806845d333149ab6c47baa800260ba0220d256b54da7cb6cd74a7"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/document-full/expected.xml",
+          "sha256": "80e84837ba5b7e3073e6cdbb39dff1e6b8cda5edd7396edaca0d482c5814c49b"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataDocument/__fixtures__/full.ts",
+          "sha256": "85379317d8d689f75ba8301e4778f8e4efe8841e583dceac3dc80e6e680699e6"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataDocument/fromXMLToYAML.integration.test.ts",
+          "sha256": "fdf032e289ad3ea8fa9743a15f648f5a4c61813260268bf1d349259e004ef167"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataDocument/fromYAMLToXML.integration.test.ts",
+          "sha256": "5bae328db747875b1ad791b0c83df3469920ca0bf488ece9e037f34dbbf21f8c"
+        },
+        {
+          "path": "packages/rules/tests/directConversion.ts",
+          "sha256": "af5ed821e8315d92af149ed1cc7f7f0faa354b325f767b22103fc1e97304a127"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/metadataCommand/rules.ts",
+          "sha256": "0f4a3e8b81d62230df943590bf6022b4f63316b4b0e320032e0dfd6077fa6ea6"
+        },
+        {
+          "path": "packages/rules/metadata/project/syncStateFiles.integration.test.ts",
+          "sha256": "239a625767e5d5a1d30c4594caf51de3c269f00d0f5d958fc70d434c85b49dbf"
+        },
+        {
+          "path": "packages/rules/metadata/importFromXml/transfer.test.ts",
+          "sha256": "868bedb7e1321fce3e3d987a9d8e663be8909974f13651faaf8f06995f0106cd"
+        },
+        {
+          "path": "packages/rules/metadata/fullSyncToXml/transferExternalFiles.integration.test.ts",
+          "sha256": "c57ddb3ed96d425e41495b7c9b46a5d82ffb3cbe49fb57ecaa16d5a57dc0a14e"
+        }
+      ],
+      "conflicts": [],
+      "semanticReview": "pending"
+    },
+    {
+      "id": "command-invalid-scalar",
+      "status": "provenance-verified",
+      "files": [
+        {
+          "path": "tests/conversion-corpus/cases/command-invalid-scalar/input.yaml",
+          "sha256": "5ec40f2843bdaa3fcb3207fe0d43e44ac962bfc63bfd17a287769fa5d015dec4"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/command-invalid-scalar/context.json",
+          "sha256": "0c67674cf9dccf3ace324d5fd627368ebc021d4707147857816b3eb7a0c97ee2"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/command-invalid-scalar/diagnostics.json",
+          "sha256": "03af24e4075291e1df3c00b6999cb067e08a1b030e752513e1675ce05f2e2531"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataCommand/fromYAMLToXML.integration.test.ts",
+          "sha256": "6b25223278b09089c6b6745e80b7eb8d497c0dee9b3b7f965b6b717257a256af"
+        }
+      ],
+      "conflicts": [],
+      "semanticReview": "pending"
+    },
+    {
+      "id": "style-adopted-unchanged",
+      "status": "provenance-verified",
+      "files": [
+        {
+          "path": "tests/conversion-corpus/cases/style-adopted-unchanged/input.yaml",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/style-adopted-unchanged/context.json",
+          "sha256": "91e79eb6fb333bc07dada685351ffd21296e9546ba54ff6410d04a1ff2fa5b29"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/style-adopted-unchanged/expected.xml",
+          "sha256": "092b53401b5b2076ee34408c0985492363b4ce4900c55b2164a53d7b18874658"
+        },
+        {
+          "path": "packages/rules/metadata/ruleRuntime/property/canonicalXMLDefaults.test.ts",
+          "sha256": "799b8533ad6f1231d52adba7b58f7fb4bed85a17e3434096664371b1d1a12030"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataStyleItem/__fixtures__/font.ts",
+          "sha256": "1bc900883896c9f0cab9f23a213cecb5d9411525b7f845963451643603aa1f90"
+        },
+        {
+          "path": "packages/rules/tests/directConversion.ts",
+          "sha256": "af5ed821e8315d92af149ed1cc7f7f0faa354b325f767b22103fc1e97304a127"
+        }
+      ],
+      "conflicts": [],
+      "semanticReview": "pending"
+    },
+    {
+      "id": "style-adopted-value",
+      "status": "provenance-verified",
+      "files": [
+        {
+          "path": "tests/conversion-corpus/cases/style-adopted-value/input.yaml",
+          "sha256": "6f7a2f3e3635648f95876f0ad3ebe5a6a4e0d9ffea6c17f2f9f7a3ff55afbe0c"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/style-adopted-value/context.json",
+          "sha256": "91e79eb6fb333bc07dada685351ffd21296e9546ba54ff6410d04a1ff2fa5b29"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/style-adopted-value/expected.xml",
+          "sha256": "287e54cbc69704f3fadf04e6fe0395c39b8d925d5448eeb890cc15540fda348c"
+        },
+        {
+          "path": "packages/rules/metadata/ruleRuntime/property/canonicalXMLDefaults.test.ts",
+          "sha256": "799b8533ad6f1231d52adba7b58f7fb4bed85a17e3434096664371b1d1a12030"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataStyleItem/__fixtures__/font.ts",
+          "sha256": "1bc900883896c9f0cab9f23a213cecb5d9411525b7f845963451643603aa1f90"
+        },
+        {
+          "path": "packages/rules/tests/directConversion.ts",
+          "sha256": "af5ed821e8315d92af149ed1cc7f7f0faa354b325f767b22103fc1e97304a127"
+        }
+      ],
+      "conflicts": [],
+      "semanticReview": "pending"
+    },
+    {
+      "id": "xml-elided-boolean",
+      "status": "provenance-verified",
+      "files": [
+        {
+          "path": "tests/conversion-corpus/cases/xml-elided-boolean/input.xml",
+          "sha256": "24fd932875c67c561e12507e11d8759fc89f217e501bdc60ea47a16edb06692a"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-elided-boolean/expected.yaml",
+          "sha256": "a392ae60bd0986545db83753e151a9ea6ad96c99034ec0a6d15b1bd2ab7041a2"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-elided-boolean/context.json",
+          "sha256": "dd4e73d4f26ae0e15735ce064601fdf5d3a885b336751c0d240780ab85844442"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-elided-boolean/expected.yaml",
+          "sha256": "a392ae60bd0986545db83753e151a9ea6ad96c99034ec0a6d15b1bd2ab7041a2"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-elided-boolean/input.xml",
+          "sha256": "24fd932875c67c561e12507e11d8759fc89f217e501bdc60ea47a16edb06692a"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/boolean/atomicConversion.test.ts",
+          "sha256": "9545e28ab63a3310aaf86ffb984c0cb663272dd5f27dfd50852613a257c27267"
+        },
+        {
+          "path": "packages/runtime/metadata/ruleRuntime/xmlAnomaly/localScalarBoundary.test.ts",
+          "sha256": "1ea7842642dd9f6ba6551e2ac18c4818a461b32d82eb6ade75041ae313328b7b"
+        }
+      ],
+      "conflicts": [],
+      "semanticReview": "pending"
+    },
+    {
+      "id": "xml-elided-empty",
+      "status": "provenance-verified",
+      "files": [
+        {
+          "path": "tests/conversion-corpus/cases/xml-elided-empty/input.xml",
+          "sha256": "86b1d0a7e47a1642ee724974781183e399ac7543ae74773a6d70b40b5245d011"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-elided-empty/expected.yaml",
+          "sha256": "427c0d83ab3fcc66d55ab97572c985aa69b46c176b0b6aa70941ff97a6c13814"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-elided-empty/context.json",
+          "sha256": "dd4e73d4f26ae0e15735ce064601fdf5d3a885b336751c0d240780ab85844442"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-elided-empty/expected.yaml",
+          "sha256": "427c0d83ab3fcc66d55ab97572c985aa69b46c176b0b6aa70941ff97a6c13814"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-elided-empty/input.xml",
+          "sha256": "86b1d0a7e47a1642ee724974781183e399ac7543ae74773a6d70b40b5245d011"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/boolean/atomicConversion.test.ts",
+          "sha256": "9545e28ab63a3310aaf86ffb984c0cb663272dd5f27dfd50852613a257c27267"
+        },
+        {
+          "path": "packages/runtime/metadata/ruleRuntime/xmlAnomaly/localScalarBoundary.test.ts",
+          "sha256": "1ea7842642dd9f6ba6551e2ac18c4818a461b32d82eb6ade75041ae313328b7b"
+        }
+      ],
+      "conflicts": [],
+      "semanticReview": "pending"
+    },
+    {
+      "id": "xml-elided-attributes",
+      "status": "provenance-verified",
+      "files": [
+        {
+          "path": "tests/conversion-corpus/cases/xml-elided-attributes/input.xml",
+          "sha256": "cd59bf6f32600f3eeb71c420ecb1813248462c834ed98b73fc2185e9528d44d9"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-elided-attributes/expected.yaml",
+          "sha256": "5156637fef4684a06c8723b1b0e96a21a3a9f4513d87f4b52960c82317399a04"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-elided-attributes/context.json",
+          "sha256": "dd4e73d4f26ae0e15735ce064601fdf5d3a885b336751c0d240780ab85844442"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-elided-attributes/expected.yaml",
+          "sha256": "5156637fef4684a06c8723b1b0e96a21a3a9f4513d87f4b52960c82317399a04"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-elided-attributes/input.xml",
+          "sha256": "cd59bf6f32600f3eeb71c420ecb1813248462c834ed98b73fc2185e9528d44d9"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/boolean/atomicConversion.test.ts",
+          "sha256": "9545e28ab63a3310aaf86ffb984c0cb663272dd5f27dfd50852613a257c27267"
+        },
+        {
+          "path": "packages/runtime/metadata/ruleRuntime/xmlAnomaly/localScalarBoundary.test.ts",
+          "sha256": "1ea7842642dd9f6ba6551e2ac18c4818a461b32d82eb6ade75041ae313328b7b"
+        }
+      ],
+      "conflicts": [],
+      "semanticReview": "pending"
+    },
+    {
+      "id": "xml-elided-removed",
+      "status": "provenance-verified",
+      "files": [
+        {
+          "path": "tests/conversion-corpus/cases/xml-elided-removed/input.yaml",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-elided-removed/context.json",
+          "sha256": "dd4e73d4f26ae0e15735ce064601fdf5d3a885b336751c0d240780ab85844442"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-elided-removed/expected.xml",
+          "sha256": "9f74ed5bb411034d5b848fe2b09b04879cf47ea3cc371207008e0b48b506f511"
+        },
+        {
+          "path": "packages/runtime/metadata/ruleRuntime/xmlAnomaly/localScalarBoundary.test.ts",
+          "sha256": "1ea7842642dd9f6ba6551e2ac18c4818a461b32d82eb6ade75041ae313328b7b"
+        },
+        {
+          "path": "packages/runtime/xml/structure/rawCodec.ts",
+          "sha256": "f9757efc33f0826fb2b172735ac3634a6051a1e73cf030994b3b0d9b8975b953"
+        }
+      ],
+      "conflicts": [],
+      "semanticReview": "pending"
+    },
+    {
+      "id": "xml-explicit-absence",
+      "status": "provenance-verified",
+      "files": [
+        {
+          "path": "tests/conversion-corpus/cases/xml-explicit-absence/input.yaml",
+          "sha256": "5a79936dce2658913d15ae63f60c1f462423a88627f99d2bb181a0a90cb7ec3b"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-explicit-absence/context.json",
+          "sha256": "dd4e73d4f26ae0e15735ce064601fdf5d3a885b336751c0d240780ab85844442"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-explicit-absence/expected.xml",
+          "sha256": "9f74ed5bb411034d5b848fe2b09b04879cf47ea3cc371207008e0b48b506f511"
+        },
+        {
+          "path": "packages/runtime/metadata/ruleRuntime/xmlAnomaly/localScalarBoundary.test.ts",
+          "sha256": "1ea7842642dd9f6ba6551e2ac18c4818a461b32d82eb6ade75041ae313328b7b"
+        },
+        {
+          "path": "packages/runtime/xml/structure/rawCodec.ts",
+          "sha256": "f9757efc33f0826fb2b172735ac3634a6051a1e73cf030994b3b0d9b8975b953"
+        }
+      ],
+      "conflicts": [],
+      "semanticReview": "pending"
+    },
+    {
+      "id": "xml-explicit-absence-semantic",
+      "status": "provenance-verified",
+      "files": [
+        {
+          "path": "tests/conversion-corpus/cases/xml-explicit-absence-semantic/input.yaml",
+          "sha256": "15246f7841c33bfe1d07aa10b0faae5f4969a0b61cca10a71cff4abe4903456b"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-explicit-absence-semantic/context.json",
+          "sha256": "dd4e73d4f26ae0e15735ce064601fdf5d3a885b336751c0d240780ab85844442"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-explicit-absence-semantic/expected.xml",
+          "sha256": "9f74ed5bb411034d5b848fe2b09b04879cf47ea3cc371207008e0b48b506f511"
+        },
+        {
+          "path": "packages/runtime/metadata/ruleRuntime/xmlAnomaly/localScalarBoundary.test.ts",
+          "sha256": "1ea7842642dd9f6ba6551e2ac18c4818a461b32d82eb6ade75041ae313328b7b"
+        },
+        {
+          "path": "packages/runtime/xml/structure/rawCodec.ts",
+          "sha256": "f9757efc33f0826fb2b172735ac3634a6051a1e73cf030994b3b0d9b8975b953"
+        }
+      ],
+      "conflicts": [],
+      "semanticReview": "pending"
+    },
+    {
+      "id": "xml-unknown-nested",
+      "status": "provenance-verified",
+      "files": [
+        {
+          "path": "tests/conversion-corpus/cases/xml-unknown-nested/input.xml",
+          "sha256": "7b535a314e5b9ce9b9ffaa6a25712f9cb3164b33f1365d6e3702b23b4bb809c0"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-unknown-nested/input.yaml",
+          "sha256": "f97acb7093e4fb7c33959031c5d07ad36c96cbadeb8d57f655968431185006dc"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-unknown-nested/context.json",
+          "sha256": "dd4e73d4f26ae0e15735ce064601fdf5d3a885b336751c0d240780ab85844442"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-unknown-nested/expected.yaml",
+          "sha256": "f97acb7093e4fb7c33959031c5d07ad36c96cbadeb8d57f655968431185006dc"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-unknown-nested/expected.xml",
+          "sha256": "7b535a314e5b9ce9b9ffaa6a25712f9cb3164b33f1365d6e3702b23b4bb809c0"
+        },
+        {
+          "path": "packages/runtime/metadata/ruleRuntime/xmlAnomaly/yamlProjection.test.ts",
+          "sha256": "e4b4bb997b5b9e757c00545f89a5b6e5eecbef78e76b00475b8190c23dd593fb"
+        },
+        {
+          "path": "packages/runtime/xml/structure/rawCodec.ts",
+          "sha256": "f9757efc33f0826fb2b172735ac3634a6051a1e73cf030994b3b0d9b8975b953"
+        }
+      ],
+      "conflicts": [],
+      "semanticReview": "pending"
+    },
+    {
+      "id": "xml-unknown-repeated",
+      "status": "provenance-verified",
+      "files": [
+        {
+          "path": "tests/conversion-corpus/cases/xml-unknown-repeated/input.xml",
+          "sha256": "3f75701a5f67483178e29bec750955cab40af9f96a2549773abe25f0083c53ec"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-unknown-repeated/input.yaml",
+          "sha256": "65a00fdf643059916fa25c2e657bab6fd15cf105bff67d05f146d4c56d91e9de"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-unknown-repeated/context.json",
+          "sha256": "dd4e73d4f26ae0e15735ce064601fdf5d3a885b336751c0d240780ab85844442"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-unknown-repeated/expected.yaml",
+          "sha256": "65a00fdf643059916fa25c2e657bab6fd15cf105bff67d05f146d4c56d91e9de"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-unknown-repeated/expected.xml",
+          "sha256": "3f75701a5f67483178e29bec750955cab40af9f96a2549773abe25f0083c53ec"
+        },
+        {
+          "path": "packages/runtime/metadata/ruleRuntime/xmlAnomaly/yamlProjection.test.ts",
+          "sha256": "e4b4bb997b5b9e757c00545f89a5b6e5eecbef78e76b00475b8190c23dd593fb"
+        },
+        {
+          "path": "packages/runtime/xml/structure/rawCodec.ts",
+          "sha256": "f9757efc33f0826fb2b172735ac3634a6051a1e73cf030994b3b0d9b8975b953"
+        }
+      ],
+      "conflicts": [],
+      "semanticReview": "pending"
+    },
+    {
+      "id": "xml-unknown-mixed",
+      "status": "provenance-verified",
+      "files": [
+        {
+          "path": "tests/conversion-corpus/cases/xml-unknown-mixed/input.xml",
+          "sha256": "f7f9097a67d7fc333418c7cae037b7ff79fa41085a6420e5f1a642be0b9add42"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-unknown-mixed/input.yaml",
+          "sha256": "80040875ae935cd88f94836e1e4ba4e70a66b286b5b990fd592840d601e2bb17"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-unknown-mixed/context.json",
+          "sha256": "dd4e73d4f26ae0e15735ce064601fdf5d3a885b336751c0d240780ab85844442"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-unknown-mixed/expected.yaml",
+          "sha256": "80040875ae935cd88f94836e1e4ba4e70a66b286b5b990fd592840d601e2bb17"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-unknown-mixed/expected.xml",
+          "sha256": "f7f9097a67d7fc333418c7cae037b7ff79fa41085a6420e5f1a642be0b9add42"
+        },
+        {
+          "path": "packages/runtime/metadata/ruleRuntime/xmlAnomaly/yamlProjection.test.ts",
+          "sha256": "e4b4bb997b5b9e757c00545f89a5b6e5eecbef78e76b00475b8190c23dd593fb"
+        },
+        {
+          "path": "packages/runtime/xml/structure/rawCodec.ts",
+          "sha256": "f9757efc33f0826fb2b172735ac3634a6051a1e73cf030994b3b0d9b8975b953"
+        }
+      ],
+      "conflicts": [],
+      "semanticReview": "pending"
+    },
+    {
+      "id": "xml-root-attributes",
+      "status": "provenance-verified",
+      "files": [
+        {
+          "path": "tests/conversion-corpus/cases/xml-root-attributes/input.xml",
+          "sha256": "0fc7dc2d3a7e4f46a6e5db57f2b563ef9a9128d6442c09c5c7a735af478f9f36"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-root-attributes/input.yaml",
+          "sha256": "5c76deb13d6e46c9946e72677e55808e3a4b69ff9aa3f1ef5635d832b29d69b2"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-root-attributes/context.json",
+          "sha256": "dd4e73d4f26ae0e15735ce064601fdf5d3a885b336751c0d240780ab85844442"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-root-attributes/expected.yaml",
+          "sha256": "5c76deb13d6e46c9946e72677e55808e3a4b69ff9aa3f1ef5635d832b29d69b2"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-root-attributes/expected.xml",
+          "sha256": "0fc7dc2d3a7e4f46a6e5db57f2b563ef9a9128d6442c09c5c7a735af478f9f36"
+        },
+        {
+          "path": "packages/runtime/metadata/ruleRuntime/xmlAnomaly/yamlProjection.test.ts",
+          "sha256": "e4b4bb997b5b9e757c00545f89a5b6e5eecbef78e76b00475b8190c23dd593fb"
+        },
+        {
+          "path": "packages/runtime/xml/structure/rawCodec.ts",
+          "sha256": "f9757efc33f0826fb2b172735ac3634a6051a1e73cf030994b3b0d9b8975b953"
+        }
+      ],
+      "conflicts": [],
+      "semanticReview": "pending"
+    },
+    {
+      "id": "xml-invalid-integer",
+      "status": "provenance-verified",
+      "files": [
+        {
+          "path": "tests/conversion-corpus/cases/xml-invalid-integer/input.xml",
+          "sha256": "d2db466a3c9d58ea72820bfe111898939191db386830c6da07a7816a0a7c521b"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-invalid-integer/input.yaml",
+          "sha256": "6d84aefb7f8d961491d7697b861057a99b5f25dde48e67329d02023525499ae0"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-invalid-integer/context.json",
+          "sha256": "11999518f98d879ed1d3436c2422e0b45eddff397c3fe7d73895f637daa439bb"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-invalid-integer/expected.yaml",
+          "sha256": "6d84aefb7f8d961491d7697b861057a99b5f25dde48e67329d02023525499ae0"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-invalid-integer/expected.xml",
+          "sha256": "d2db466a3c9d58ea72820bfe111898939191db386830c6da07a7816a0a7c521b"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/number/toJSONSchema.test.ts",
+          "sha256": "6f5b99960ee06c3c6539b681ec4de2c9bfcff9309dd05523f4ccc73de8f2f7f8"
+        },
+        {
+          "path": "packages/rules/metadata/importFromXml/applyImportedIssueDecisions.test.ts",
+          "sha256": "2ee44ca3e1d0b22a5c51a9eca6cdaa208560a0f0cdee36417a9ad0f280d8a56e"
+        },
+        {
+          "path": "packages/runtime/metadata/ruleRuntime/xmlAnomaly/localProof.test.ts",
+          "sha256": "950d704809fe5ab88c99a5abbfdcaa2daa0c0694d654f1e727ba0c4bc734672a"
+        }
+      ],
+      "conflicts": [],
+      "semanticReview": "pending"
+    },
+    {
+      "id": "xml-invalid-integer-raw",
+      "status": "provenance-verified",
+      "files": [
+        {
+          "path": "tests/conversion-corpus/cases/xml-invalid-integer-raw/input.xml",
+          "sha256": "88ab51c4e95411031f8ef982bc820bbb2ca578fc54a6ae61878e215c289f27ef"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-invalid-integer-raw/input.yaml",
+          "sha256": "ce861a588262668d368daee5ba52383448affc11f5374da29850169a5311c234"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-invalid-integer-raw/context.json",
+          "sha256": "11999518f98d879ed1d3436c2422e0b45eddff397c3fe7d73895f637daa439bb"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-invalid-integer-raw/expected.yaml",
+          "sha256": "ce861a588262668d368daee5ba52383448affc11f5374da29850169a5311c234"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/xml-invalid-integer-raw/expected.xml",
+          "sha256": "88ab51c4e95411031f8ef982bc820bbb2ca578fc54a6ae61878e215c289f27ef"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/number/toJSONSchema.test.ts",
+          "sha256": "6f5b99960ee06c3c6539b681ec4de2c9bfcff9309dd05523f4ccc73de8f2f7f8"
+        },
+        {
+          "path": "packages/rules/metadata/importFromXml/applyImportedIssueDecisions.test.ts",
+          "sha256": "2ee44ca3e1d0b22a5c51a9eca6cdaa208560a0f0cdee36417a9ad0f280d8a56e"
+        },
+        {
+          "path": "packages/runtime/metadata/ruleRuntime/xmlAnomaly/localProof.test.ts",
+          "sha256": "950d704809fe5ab88c99a5abbfdcaa2daa0c0694d654f1e727ba0c4bc734672a"
+        }
+      ],
+      "conflicts": [],
+      "semanticReview": "pending"
+    },
+    {
+      "id": "yaml-invalid-removed",
+      "status": "provenance-verified",
+      "files": [
+        {
+          "path": "tests/conversion-corpus/cases/yaml-invalid-removed/input.yaml",
+          "sha256": "30b5e4425299d7583731aeb6f39f084559fdb0639e6a1772556bfacbbb080d74"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/yaml-invalid-removed/context.json",
+          "sha256": "11999518f98d879ed1d3436c2422e0b45eddff397c3fe7d73895f637daa439bb"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/yaml-invalid-removed/diagnostics.json",
+          "sha256": "261cce9c4fab7a1aacbe46a25fba889dfe3607b85e22404d3d254e48b1ea5fa2"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/number/toJSONSchema.test.ts",
+          "sha256": "6f5b99960ee06c3c6539b681ec4de2c9bfcff9309dd05523f4ccc73de8f2f7f8"
+        },
+        {
+          "path": "packages/rules/metadata/importFromXml/classifyImportedIssues.test.ts",
+          "sha256": "ed19ce1f804affb2e7f65b0f676b38cde957f505e1eb456319d5f111291513fd"
+        }
+      ],
+      "conflicts": [],
+      "semanticReview": "pending"
+    },
+    {
+      "id": "yaml-invalid-removed-with-raw",
+      "status": "provenance-verified",
+      "files": [
+        {
+          "path": "tests/conversion-corpus/cases/yaml-invalid-removed-with-raw/input.yaml",
+          "sha256": "f605a4e35a140fc930174fb0cc84812da8be95e95d48968cca5edacda6ee1e73"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/yaml-invalid-removed-with-raw/context.json",
+          "sha256": "11999518f98d879ed1d3436c2422e0b45eddff397c3fe7d73895f637daa439bb"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/yaml-invalid-removed-with-raw/diagnostics.json",
+          "sha256": "261cce9c4fab7a1aacbe46a25fba889dfe3607b85e22404d3d254e48b1ea5fa2"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/number/toJSONSchema.test.ts",
+          "sha256": "6f5b99960ee06c3c6539b681ec4de2c9bfcff9309dd05523f4ccc73de8f2f7f8"
+        },
+        {
+          "path": "packages/rules/metadata/importFromXml/classifyImportedIssues.test.ts",
+          "sha256": "ed19ce1f804affb2e7f65b0f676b38cde957f505e1eb456319d5f111291513fd"
+        }
+      ],
+      "conflicts": [],
+      "semanticReview": "pending"
+    },
+    {
+      "id": "fill-fragment-date-initial",
+      "status": "provenance-verified",
+      "files": [
+        {
+          "path": "tests/conversion-corpus/cases/fill-fragment-date-initial/input.xml",
+          "sha256": "c5c0766fa7979f35dfd6be48877c2961a6c9464f9d2242553eb8b7ec30614245"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/fill-fragment-date-initial/input.yaml",
+          "sha256": "f98c2142e95ec2c6a455c2d347ecebce750b95583be4c60831b737fd9473ee22"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/fill-fragment-date-initial/context.json",
+          "sha256": "0da80f756c0208a52f624bf7f3840bc99224b7bc93861d14ffaedc18c945f3b7"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/fill-fragment-date-initial/expected.xml",
+          "sha256": "c5c0766fa7979f35dfd6be48877c2961a6c9464f9d2242553eb8b7ec30614245"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/fill-fragment-date-initial/expected.yaml",
+          "sha256": "f98c2142e95ec2c6a455c2d347ecebce750b95583be4c60831b737fd9473ee22"
+        },
+        {
+          "path": "packages/runtime/metadata/ruleRuntime/property/fillValueSemantics.ts",
+          "sha256": "3a6a9f767f377c0d6158a91a59016b292df710f3d5bff13bf3e903131308e935"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/standardAttributeDescription/rules.ts",
+          "sha256": "a4707c4dd60c17cc173ac20c3cbc5555aaaefca303aa365478465d0f56bf13ac"
+        }
+      ],
+      "conflicts": [],
+      "semanticReview": "pending"
+    },
+    {
+      "id": "fill-fragment-attribute-string",
+      "status": "provenance-verified",
+      "files": [
+        {
+          "path": "tests/conversion-corpus/cases/fill-fragment-attribute-string/input.xml",
+          "sha256": "a3fbf293cd46826f7e147fb2bef8b6d4eaa96d0468c0f2bbf57f27e856ec3ce3"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/fill-fragment-attribute-string/input.yaml",
+          "sha256": "c33a6e670fffaed43d5f6040142f517982f0a59d654726811b300efc4ea1dd5c"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/fill-fragment-attribute-string/context.json",
+          "sha256": "447e546972b81fbf0a677f106021e11c465f2650d78dfa17357c9a0577fde025"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/fill-fragment-attribute-string/expected.xml",
+          "sha256": "a3fbf293cd46826f7e147fb2bef8b6d4eaa96d0468c0f2bbf57f27e856ec3ce3"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/fill-fragment-attribute-string/expected.yaml",
+          "sha256": "c33a6e670fffaed43d5f6040142f517982f0a59d654726811b300efc4ea1dd5c"
+        },
+        {
+          "path": "packages/runtime/metadata/ruleRuntime/property/fillValueSemantics.ts",
+          "sha256": "3a6a9f767f377c0d6158a91a59016b292df710f3d5bff13bf3e903131308e935"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/standardAttributeDescription/rules.ts",
+          "sha256": "a4707c4dd60c17cc173ac20c3cbc5555aaaefca303aa365478465d0f56bf13ac"
+        }
+      ],
+      "conflicts": [],
+      "semanticReview": "pending"
+    },
+    {
+      "id": "fill-fragment-code-invalid",
+      "status": "provenance-verified",
+      "files": [
+        {
+          "path": "tests/conversion-corpus/cases/fill-fragment-code-invalid/input.xml",
+          "sha256": "18b101efbb2cd8a9debc4f181780ca8541b1992152f222c2955677f32b4d1824"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/fill-fragment-code-invalid/input.yaml",
+          "sha256": "fdf6bfbea92291659cabe4795252848d866402294c5c84eddba92d838df0a380"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/fill-fragment-code-invalid/context.json",
+          "sha256": "eb896b06998eb670f1484a2e4d8f2f5415a3f6fedc6fce72a1dc2826850775bf"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/fill-fragment-code-invalid/expected.xml",
+          "sha256": "18b101efbb2cd8a9debc4f181780ca8541b1992152f222c2955677f32b4d1824"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/fill-fragment-code-invalid/expected.yaml",
+          "sha256": "fdf6bfbea92291659cabe4795252848d866402294c5c84eddba92d838df0a380"
+        },
+        {
+          "path": "packages/runtime/metadata/ruleRuntime/property/fillValueSemantics.ts",
+          "sha256": "3a6a9f767f377c0d6158a91a59016b292df710f3d5bff13bf3e903131308e935"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/standardAttributeDescription/rules.ts",
+          "sha256": "a4707c4dd60c17cc173ac20c3cbc5555aaaefca303aa365478465d0f56bf13ac"
+        }
+      ],
+      "conflicts": [],
+      "semanticReview": "pending"
+    },
+    {
+      "id": "fill-fragment-code-unaccepted",
+      "status": "provenance-verified",
+      "files": [
+        {
+          "path": "tests/conversion-corpus/cases/fill-fragment-code-unaccepted/input.yaml",
+          "sha256": "c33a6e670fffaed43d5f6040142f517982f0a59d654726811b300efc4ea1dd5c"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/fill-fragment-code-unaccepted/context.json",
+          "sha256": "eb896b06998eb670f1484a2e4d8f2f5415a3f6fedc6fce72a1dc2826850775bf"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/fill-fragment-code-unaccepted/diagnostics.json",
+          "sha256": "1523ce1d1580a18f825a160cb2e9a0a41f2c3b7e69b3e10bae8a53bb55511a51"
+        },
+        {
+          "path": "packages/runtime/metadata/ruleRuntime/property/fillValueSemantics.ts",
+          "sha256": "3a6a9f767f377c0d6158a91a59016b292df710f3d5bff13bf3e903131308e935"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/standardAttributeDescription/rules.ts",
+          "sha256": "a4707c4dd60c17cc173ac20c3cbc5555aaaefca303aa365478465d0f56bf13ac"
+        }
+      ],
+      "conflicts": [],
+      "semanticReview": "pending"
+    },
+    {
+      "id": "fill-fragment-owner-cf",
+      "status": "provenance-verified",
+      "files": [
+        {
+          "path": "tests/conversion-corpus/cases/fill-fragment-owner-cf/input.xml",
+          "sha256": "aeee6eff3511731bd774f0d537432c88f89c4bdf9c7f3f8a1015b1d40d6ddf66"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/fill-fragment-owner-cf/input.yaml",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/fill-fragment-owner-cf/context.json",
+          "sha256": "e6e0c8e60322fb97b738916458f481d361715e419a9bd9e1cc524424b22a8e0e"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/fill-fragment-owner-cf/expected.xml",
+          "sha256": "aeee6eff3511731bd774f0d537432c88f89c4bdf9c7f3f8a1015b1d40d6ddf66"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/fill-fragment-owner-cf/expected.yaml",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "packages/runtime/metadata/ruleRuntime/property/fillValueSemantics.ts",
+          "sha256": "3a6a9f767f377c0d6158a91a59016b292df710f3d5bff13bf3e903131308e935"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/standardAttributeDescription/rules.ts",
+          "sha256": "a4707c4dd60c17cc173ac20c3cbc5555aaaefca303aa365478465d0f56bf13ac"
+        }
+      ],
+      "conflicts": [],
+      "semanticReview": "pending"
+    },
+    {
+      "id": "fill-fragment-owner-cfe",
+      "status": "provenance-verified",
+      "files": [
+        {
+          "path": "tests/conversion-corpus/cases/fill-fragment-owner-cfe/input.xml",
+          "sha256": "aeee6eff3511731bd774f0d537432c88f89c4bdf9c7f3f8a1015b1d40d6ddf66"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/fill-fragment-owner-cfe/input.yaml",
+          "sha256": "54cbc1a71ded3c636840cc0040f6c8dbc7070a87795bc4f0ae46c6079e00e281"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/fill-fragment-owner-cfe/context.json",
+          "sha256": "ee7c0a0891446b7f6685b07f1a9f383424d4b624f26e9c710c077b7dd12937fb"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/fill-fragment-owner-cfe/expected.xml",
+          "sha256": "aeee6eff3511731bd774f0d537432c88f89c4bdf9c7f3f8a1015b1d40d6ddf66"
+        },
+        {
+          "path": "tests/conversion-corpus/cases/fill-fragment-owner-cfe/expected.yaml",
+          "sha256": "54cbc1a71ded3c636840cc0040f6c8dbc7070a87795bc4f0ae46c6079e00e281"
+        },
+        {
+          "path": "packages/runtime/metadata/ruleRuntime/property/fillValueSemantics.ts",
+          "sha256": "3a6a9f767f377c0d6158a91a59016b292df710f3d5bff13bf3e903131308e935"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/standardAttributeDescription/rules.ts",
+          "sha256": "a4707c4dd60c17cc173ac20c3cbc5555aaaefca303aa365478465d0f56bf13ac"
+        }
+      ],
+      "conflicts": [],
+      "semanticReview": "pending"
+    }
+  ],
+  "knownBaselineFailures": [
+    {
+      "test": "packages/rules/metadata/commonObjects/i8nText/toXML.integration.test.ts",
+      "case": "typedXML / выгружает v8:LocalStringType с xsi:type",
+      "observed": "testAtomicToXML returns internal items model because no execution registry is active",
+      "cause": "registerCommonObjects is a no-op; callAtomicToXML falls back to input value when getTypeRule has no contextual registry",
+      "confirmed": "Direct invocation without registry reproduces fallback; withMetadataExecutionRegistrySets(createMetadataExecutionRegistrySets(metadataRules), callback) returns expected xsi:type and v8:item",
+      "contract": "Original typed.xml fixture retained; no change in intended public output",
+      "resolution": "Comparison adapters must explicitly supply execution registry. Existing TypeScript helper has not been changed."
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "entry": "migration.formatted-i8n-probe",
+  "defaultLanguage": "ru",
+  "profile": "ordinary",
+  "boundary": "property"
+}

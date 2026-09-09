@@ -1,0 +1,149 @@
+{
+  "version": 1,
+  "scope": "Exact boundary acceptance only; fixture.* codes are test inputs, not public diagnostic codes",
+  "source": [
+    {
+      "path": "packages/runtime/metadata/validation/validateFile.ts",
+      "sha256": "47b8d6ae0e3244f86ffacb95016551f6acc31d630fb874775c2be7d5cc1f6f4e"
+    },
+    {
+      "path": "packages/runtime/metadata/validation/xmlAnomalyBoundary.ts",
+      "sha256": "3ff0156d5b7b48898c5f3e56dda42b2b2f11c9fdeb9c167316205c90db057851"
+    }
+  ],
+  "yaml": "Заголовок: !xml/invalid\n  !xml/invalid de: Text\n  ru: Текст",
+  "cases": [
+    {
+      "id": "map-and-key-errors",
+      "issues": [
+        {
+          "code": "fixture.order",
+          "kind": "semantic",
+          "target": {
+            "kind": "path",
+            "path": [
+              "Заголовок"
+            ]
+          }
+        },
+        {
+          "code": "fixture.language",
+          "kind": "semantic",
+          "target": {
+            "kind": "path",
+            "path": [
+              "Заголовок",
+              "de"
+            ]
+          }
+        }
+      ],
+      "expectedIssues": [],
+      "expectedBoundaries": [
+        {
+          "annotation": "invalid",
+          "target": {
+            "kind": "path",
+            "path": [
+              "Заголовок"
+            ]
+          },
+          "state": "accepted"
+        },
+        {
+          "annotation": "invalid",
+          "target": {
+            "kind": "path",
+            "path": [
+              "Заголовок",
+              "de"
+            ]
+          },
+          "state": "accepted"
+        }
+      ]
+    },
+    {
+      "id": "map-tag-cannot-accept-key-error",
+      "issues": [
+        {
+          "code": "fixture.language",
+          "kind": "semantic",
+          "target": {
+            "kind": "path",
+            "path": [
+              "Заголовок",
+              "de"
+            ]
+          }
+        }
+      ],
+      "expectedIssues": [
+        {
+          "code": "xml/anomaly-tag-unnecessary",
+          "kind": "semantic",
+          "target": {
+            "kind": "path",
+            "path": [
+              "Заголовок"
+            ]
+          }
+        }
+      ],
+      "expectedBoundaries": [
+        {
+          "annotation": "invalid",
+          "target": {
+            "kind": "path",
+            "path": [
+              "Заголовок",
+              "de"
+            ]
+          },
+          "state": "accepted"
+        }
+      ]
+    },
+    {
+      "id": "key-tag-cannot-accept-map-error",
+      "issues": [
+        {
+          "code": "fixture.order",
+          "kind": "semantic",
+          "target": {
+            "kind": "path",
+            "path": [
+              "Заголовок"
+            ]
+          }
+        }
+      ],
+      "expectedIssues": [
+        {
+          "code": "xml/anomaly-tag-unnecessary",
+          "kind": "semantic",
+          "target": {
+            "kind": "path",
+            "path": [
+              "Заголовок",
+              "de"
+            ]
+          }
+        }
+      ],
+      "expectedBoundaries": [
+        {
+          "annotation": "invalid",
+          "target": {
+            "kind": "path",
+            "path": [
+              "Заголовок"
+            ]
+          },
+          "state": "accepted"
+        }
+      ]
+    }
+  ],
+  "verification": "3 cases executed against TypeScript; Rust pending"
+}

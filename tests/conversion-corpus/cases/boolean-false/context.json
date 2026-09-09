@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "entry": "pilot.boolean",
+  "root": "Root",
+  "valueRule": {
+    "type": "boolean",
+    "xml": "Value",
+    "yaml": "Значение"
+  },
+  "xmlVersion": "2.20",
+  "languages": {
+    "default": "ru",
+    "registered": [
+      "ru",
+      "en"
+    ]
+  }
+}

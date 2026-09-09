@@ -1,0 +1,7 @@
+{
+  "entry": "migration.number-probe",
+  "parameters": {
+    "typedXML": true
+  },
+  "boundary": "scalar-value"
+}

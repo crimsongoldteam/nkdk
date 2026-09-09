@@ -1,0 +1,69 @@
+{
+  "version": 1,
+  "sourceRevision": "4e1a2818879434c57cd93e4616f875fd9479dfc9",
+  "entries": [
+    {
+      "path": "rust/Cargo.toml",
+      "sha256": "a8214b065cab01249b7d835077bff0a16d4f0adb9ba0bfd99a840e8129e4f0ac",
+      "decision": "rewrite",
+      "reason": "Старый workspace требует Rust 1.98 и содержит предметные crates старого эксперимента; текущий rustc 1.97.1.",
+      "copied": false
+    },
+    {
+      "path": "rust/crates/rule-compiler/src/prepared.rs",
+      "sha256": "abdaae44754f30ef5ce131cc45ad3f42ea2b1c7421d22aa244fb94b8584bcda2",
+      "decision": "exclude",
+      "reason": "Генератор вызывает зарегистрированные Rust-функции; новый договор запрещает предметные callbacks.",
+      "copied": false
+    },
+    {
+      "path": "rust/crates/conversion-core/src/proof.rs",
+      "sha256": "f9029b3df82146c4d1b8e8466830883cd77f048fbaece96ffee6a019999098ad",
+      "decision": "reuse-mechanism",
+      "reason": "Закрытый BoundaryReceipt и сравнение независимого экспорта полезны; переносить после адаптации старых ConvertedScalar/FinalizedValue и проверки зависимостей.",
+      "copied": false
+    },
+    {
+      "path": "tests/conversion-corpus/cases/boolean-true/context.json",
+      "sha256": "dd4e73d4f26ae0e15735ce064601fdf5d3a885b336751c0d240780ab85844442",
+      "decision": "reuse-test",
+      "reason": "Булевы ожидания независимо подтверждены atomicConversion.test.ts; источник скопирован без изменений.",
+      "copied": true
+    },
+    {
+      "path": "tests/conversion-corpus/cases/boolean-true/expected.yaml",
+      "sha256": "c57a41d98e23ad5fc35001b8543fac4c91bd1b0c265f0056b294ce95869cdda6",
+      "decision": "reuse-test",
+      "reason": "Булевы ожидания независимо подтверждены atomicConversion.test.ts; источник скопирован без изменений.",
+      "copied": true
+    },
+    {
+      "path": "tests/conversion-corpus/cases/boolean-true/input.xml",
+      "sha256": "5e25587167e5ae42e2d54faad812c396a52deb6f43f14ea68ea3ea6b3a82fc3e",
+      "decision": "reuse-test",
+      "reason": "Булевы ожидания независимо подтверждены atomicConversion.test.ts; источник скопирован без изменений.",
+      "copied": true
+    },
+    {
+      "path": "tests/conversion-corpus/cases/boolean-false/context.json",
+      "sha256": "dd4e73d4f26ae0e15735ce064601fdf5d3a885b336751c0d240780ab85844442",
+      "decision": "reuse-test",
+      "reason": "Булевы ожидания независимо подтверждены atomicConversion.test.ts; источник скопирован без изменений.",
+      "copied": true
+    },
+    {
+      "path": "tests/conversion-corpus/cases/boolean-false/expected.yaml",
+      "sha256": "a885f2dbe4763255edfec0823adfc0a81cf6dbb50d38b5215509be70653870a7",
+      "decision": "reuse-test",
+      "reason": "Булевы ожидания независимо подтверждены atomicConversion.test.ts; источник скопирован без изменений.",
+      "copied": true
+    },
+    {
+      "path": "tests/conversion-corpus/cases/boolean-false/input.xml",
+      "sha256": "db4fa455014cbf972056715ade23dffe7988fc06050cb32636909931f650c78b",
+      "decision": "reuse-test",
+      "reason": "Булевы ожидания независимо подтверждены atomicConversion.test.ts; источник скопирован без изменений.",
+      "copied": true
+    }
+  ]
+}

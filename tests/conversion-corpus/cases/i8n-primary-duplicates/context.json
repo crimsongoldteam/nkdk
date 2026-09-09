@@ -1,0 +1,11 @@
+{
+  "entry": "migration.i8n-text-probe",
+  "defaultLanguage": "ru",
+  "registeredLanguages": [
+    "ru",
+    "en"
+  ],
+  "profile": "ordinary",
+  "boundary": "property",
+  "reference": false
+}

@@ -1,0 +1,5 @@
+{
+  "entry": "migration.string-probe",
+  "parameters": {},
+  "boundary": "scalar-value"
+}

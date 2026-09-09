@@ -1,0 +1,581 @@
+{
+  "version": 1,
+  "baselineCommit": "2af2f299ed8241eac78d4db46b4a8421efe2f8f7",
+  "cases": [
+    {
+      "id": "boolean-true",
+      "group": "boolean-enum",
+      "capabilities": [
+        "boolean-scalar",
+        "local-xml-boundary"
+      ],
+      "inputs": {
+        "xml": {
+          "path": "tests/conversion-corpus/cases/boolean-true/input.xml",
+          "sha256": "5e25587167e5ae42e2d54faad812c396a52deb6f43f14ea68ea3ea6b3a82fc3e"
+        },
+        "yaml": {
+          "path": "tests/conversion-corpus/cases/boolean-true/expected.yaml",
+          "sha256": "c57a41d98e23ad5fc35001b8543fac4c91bd1b0c265f0056b294ce95869cdda6"
+        }
+      },
+      "context": "tests/conversion-corpus/cases/boolean-true/context.json",
+      "directions": [
+        "xml-to-yaml",
+        "yaml-to-xml",
+        "round-trip"
+      ],
+      "outcome": "success",
+      "expectations": {
+        "yaml": "tests/conversion-corpus/cases/boolean-true/expected.yaml",
+        "xml": "tests/conversion-corpus/cases/boolean-true/input.xml"
+      },
+      "comparison": {
+        "yaml": "exact",
+        "xml": "exact",
+        "exceptions": []
+      },
+      "evidence": [
+        "packages/rules/metadata/commonObjects/boolean/atomicConversion.test.ts",
+        "packages/rules/tests/directConversion.ts"
+      ]
+    },
+    {
+      "id": "boolean-false",
+      "group": "boolean-enum",
+      "capabilities": [
+        "boolean-scalar",
+        "local-xml-boundary"
+      ],
+      "inputs": {
+        "xml": {
+          "path": "tests/conversion-corpus/cases/boolean-false/input.xml",
+          "sha256": "db4fa455014cbf972056715ade23dffe7988fc06050cb32636909931f650c78b"
+        },
+        "yaml": {
+          "path": "tests/conversion-corpus/cases/boolean-false/expected.yaml",
+          "sha256": "a885f2dbe4763255edfec0823adfc0a81cf6dbb50d38b5215509be70653870a7"
+        }
+      },
+      "context": "tests/conversion-corpus/cases/boolean-false/context.json",
+      "directions": [
+        "xml-to-yaml",
+        "yaml-to-xml",
+        "round-trip"
+      ],
+      "outcome": "success",
+      "expectations": {
+        "yaml": "tests/conversion-corpus/cases/boolean-false/expected.yaml",
+        "xml": "tests/conversion-corpus/cases/boolean-false/input.xml"
+      },
+      "comparison": {
+        "yaml": "exact",
+        "xml": "exact",
+        "exceptions": []
+      },
+      "evidence": [
+        "packages/rules/metadata/commonObjects/boolean/atomicConversion.test.ts",
+        "packages/rules/tests/directConversion.ts"
+      ]
+    },
+    {
+      "id": "i8n-separated-duplicates",
+      "group": "i8n-text",
+      "capabilities": [
+        "physical-occurrences",
+        "existing-invalid-policy"
+      ],
+      "inputs": {
+        "xml": {
+          "path": "tests/conversion-corpus/cases/i8n-separated-duplicates/input.xml",
+          "sha256": "30dade5a94391375651236336659a22918f2a997a8d0bcdf875ab2cde98addf8"
+        },
+        "yaml": {
+          "path": "tests/conversion-corpus/cases/i8n-separated-duplicates/expected.yaml",
+          "sha256": "139ab50e1d25e8875e9429cfbc7049764c608653af18b6fc3365264c82f8bf67"
+        }
+      },
+      "context": "tests/conversion-corpus/cases/i8n-separated-duplicates/context.json",
+      "directions": [
+        "xml-to-yaml",
+        "yaml-to-xml",
+        "round-trip"
+      ],
+      "outcome": "success",
+      "expectations": {
+        "yaml": "tests/conversion-corpus/cases/i8n-separated-duplicates/expected.yaml",
+        "xml": "tests/conversion-corpus/cases/i8n-separated-duplicates/input.xml"
+      },
+      "comparison": {
+        "yaml": "exact",
+        "xml": "structural",
+        "exceptions": []
+      },
+      "evidence": [
+        "packages/rules/metadata/commonObjects/i8nText/fromXMLToYAML.integration.test.ts"
+      ],
+      "scope": "property-contract; not full project import",
+      "verification": "source-reviewed; Rust execution pending",
+      "xmlInputKind": "legacy-test-fragment",
+      "namespaceResolution": "pending explicit harness bindings before compiler execution",
+      "evidenceHashes": {
+        "packages/rules/metadata/commonObjects/i8nText/fromXMLToYAML.integration.test.ts": "92be3f157e74ff481d9299c3918543b5d1e8f1ad6106489ddb52f36f62bf8011"
+      }
+    },
+    {
+      "id": "i8n-unknown-duplicates",
+      "group": "i8n-text",
+      "capabilities": [
+        "physical-occurrences",
+        "existing-invalid-policy"
+      ],
+      "inputs": {
+        "xml": {
+          "path": "tests/conversion-corpus/cases/i8n-unknown-duplicates/input.xml",
+          "sha256": "700dc4b6296a747338773fcbe385f38e7375f7424f7809a57e45e56514e4e865"
+        },
+        "yaml": {
+          "path": "tests/conversion-corpus/cases/i8n-unknown-duplicates/expected.yaml",
+          "sha256": "32aa25670364081d0565b4d4b86a982ae4271886fc6519c24185b70ec4bd4a9d"
+        }
+      },
+      "context": "tests/conversion-corpus/cases/i8n-unknown-duplicates/context.json",
+      "directions": [
+        "xml-to-yaml",
+        "yaml-to-xml",
+        "round-trip"
+      ],
+      "outcome": "success",
+      "expectations": {
+        "yaml": "tests/conversion-corpus/cases/i8n-unknown-duplicates/expected.yaml",
+        "xml": "tests/conversion-corpus/cases/i8n-unknown-duplicates/input.xml"
+      },
+      "comparison": {
+        "yaml": "exact",
+        "xml": "structural",
+        "exceptions": []
+      },
+      "evidence": [
+        "packages/rules/metadata/commonObjects/i8nText/fromXMLToYAML.integration.test.ts"
+      ],
+      "scope": "property-contract; not full project import",
+      "verification": "source-reviewed; Rust execution pending",
+      "xmlInputKind": "legacy-test-fragment",
+      "namespaceResolution": "pending explicit harness bindings before compiler execution",
+      "evidenceHashes": {
+        "packages/rules/metadata/commonObjects/i8nText/fromXMLToYAML.integration.test.ts": "92be3f157e74ff481d9299c3918543b5d1e8f1ad6106489ddb52f36f62bf8011"
+      }
+    },
+    {
+      "id": "i8n-service-empty-code",
+      "group": "i8n-text",
+      "capabilities": [
+        "physical-occurrences",
+        "existing-invalid-policy"
+      ],
+      "inputs": {
+        "xml": {
+          "path": "tests/conversion-corpus/cases/i8n-service-empty-code/input.xml",
+          "sha256": "7b69b4a32f723357e4a61e7cf10cafa37f69e81eb841247adda0e5c58f183112"
+        },
+        "yaml": {
+          "path": "tests/conversion-corpus/cases/i8n-service-empty-code/expected.yaml",
+          "sha256": "7c8882c1ab12bfa840e4740aeefa5d3f0f883a2bd983d928d4ac55f99fe591c3"
+        }
+      },
+      "context": "tests/conversion-corpus/cases/i8n-service-empty-code/context.json",
+      "directions": [
+        "xml-to-yaml",
+        "yaml-to-xml",
+        "round-trip"
+      ],
+      "outcome": "success",
+      "expectations": {
+        "yaml": "tests/conversion-corpus/cases/i8n-service-empty-code/expected.yaml",
+        "xml": "tests/conversion-corpus/cases/i8n-service-empty-code/input.xml"
+      },
+      "comparison": {
+        "yaml": "exact",
+        "xml": "structural",
+        "exceptions": []
+      },
+      "evidence": [
+        "packages/rules/metadata/commonObjects/i8nText/fromXMLToYAML.integration.test.ts"
+      ],
+      "scope": "property-contract; not full project import",
+      "verification": "source-reviewed; Rust execution pending",
+      "xmlInputKind": "legacy-test-fragment",
+      "namespaceResolution": "pending explicit harness bindings before compiler execution",
+      "evidenceHashes": {
+        "packages/rules/metadata/commonObjects/i8nText/fromXMLToYAML.integration.test.ts": "92be3f157e74ff481d9299c3918543b5d1e8f1ad6106489ddb52f36f62bf8011"
+      }
+    },
+    {
+      "id": "i8n-primary-duplicates",
+      "group": "i8n-text",
+      "capabilities": [
+        "physical-occurrences",
+        "existing-invalid-policy"
+      ],
+      "inputs": {
+        "xml": {
+          "path": "tests/conversion-corpus/cases/i8n-primary-duplicates/input.xml",
+          "sha256": "f61a0fc406a290f924c7766b762063adab46ef9fa0e27746ef929f3e92d563e0"
+        },
+        "yaml": {
+          "path": "tests/conversion-corpus/cases/i8n-primary-duplicates/expected.yaml",
+          "sha256": "b6661d65a6f454b87dacefc10291a8c5ef67d0208e4afcef2f899dbe0027eff2"
+        }
+      },
+      "context": "tests/conversion-corpus/cases/i8n-primary-duplicates/context.json",
+      "directions": [
+        "xml-to-yaml",
+        "yaml-to-xml",
+        "round-trip"
+      ],
+      "outcome": "success",
+      "expectations": {
+        "yaml": "tests/conversion-corpus/cases/i8n-primary-duplicates/expected.yaml",
+        "xml": "tests/conversion-corpus/cases/i8n-primary-duplicates/input.xml"
+      },
+      "comparison": {
+        "yaml": "exact",
+        "xml": "structural",
+        "exceptions": []
+      },
+      "evidence": [
+        "packages/rules/metadata/commonObjects/i8nText/fromXMLToYAML.integration.test.ts"
+      ],
+      "scope": "property-contract; not full project import",
+      "verification": "source-reviewed; Rust execution pending",
+      "xmlInputKind": "legacy-test-fragment",
+      "namespaceResolution": "pending explicit harness bindings before compiler execution",
+      "evidenceHashes": {
+        "packages/rules/metadata/commonObjects/i8nText/fromXMLToYAML.integration.test.ts": "92be3f157e74ff481d9299c3918543b5d1e8f1ad6106489ddb52f36f62bf8011"
+      }
+    },
+    {
+      "id": "string-exact-spaces",
+      "group": "scalar",
+      "inputs": {
+        "xml": {
+          "path": "tests/conversion-corpus/cases/string-exact-spaces/input.xml",
+          "sha256": "c3dbac1b151d22a8a90101ce6c4db188ce7262c51e3e808c6d767b25ecd6ff7d"
+        },
+        "yaml": {
+          "path": "tests/conversion-corpus/cases/string-exact-spaces/expected.yaml",
+          "sha256": "35e97d005d2e40441b20c4b38b19c72c8ae1b94cf788ef415d177ded763aba18"
+        }
+      },
+      "context": "tests/conversion-corpus/cases/string-exact-spaces/context.json",
+      "directions": [
+        "xml-to-yaml",
+        "yaml-to-xml",
+        "round-trip"
+      ],
+      "outcome": "success",
+      "expectations": {
+        "xml": "tests/conversion-corpus/cases/string-exact-spaces/input.xml",
+        "yaml": "tests/conversion-corpus/cases/string-exact-spaces/expected.yaml"
+      },
+      "comparison": {
+        "xml": "structural",
+        "yaml": "exact",
+        "exceptions": []
+      },
+      "evidence": [
+        "packages/rules/metadata/commonObjects/string/xmlValue.ts",
+        "packages/runtime/xml/import/document.test.ts"
+      ],
+      "evidenceHashes": {
+        "packages/rules/metadata/commonObjects/string/xmlValue.ts": "cc659b6749f8b27d1f6b902f116f89d7c9d64c3ec8edf63880b2700fa903b3db",
+        "packages/runtime/xml/import/document.test.ts": "9dc54a76556c13ea1f879dbc1cbc42f03666f6ccbf64946c2ee6325fbef5f966"
+      },
+      "scope": "scalar-value; not full project import",
+      "verification": "source-reviewed; Rust execution pending",
+      "xmlInputKind": "legacy-test-fragment"
+    },
+    {
+      "id": "number-typed-decimal",
+      "group": "scalar",
+      "inputs": {
+        "xml": {
+          "path": "tests/conversion-corpus/cases/number-typed-decimal/input.xml",
+          "sha256": "cacfcc1d9fa715112fc9afbb32c284e31e79c26dc01e0b7a1cb35db85353ae0a"
+        },
+        "yaml": {
+          "path": "tests/conversion-corpus/cases/number-typed-decimal/expected.yaml",
+          "sha256": "73475cb40a568e8da8a045ced110137e159f890ac4da883b6b17dc651b3a8049"
+        }
+      },
+      "context": "tests/conversion-corpus/cases/number-typed-decimal/context.json",
+      "directions": [
+        "xml-to-yaml",
+        "yaml-to-xml",
+        "round-trip"
+      ],
+      "outcome": "success",
+      "expectations": {
+        "xml": "tests/conversion-corpus/cases/number-typed-decimal/input.xml",
+        "yaml": "tests/conversion-corpus/cases/number-typed-decimal/expected.yaml"
+      },
+      "comparison": {
+        "xml": "structural",
+        "yaml": "exact",
+        "exceptions": []
+      },
+      "evidence": [
+        "packages/rules/metadata/commonObjects/number/atomicConversion.test.ts",
+        "packages/rules/metadata/commonObjects/number/toXML.ts"
+      ],
+      "evidenceHashes": {
+        "packages/rules/metadata/commonObjects/number/atomicConversion.test.ts": "4295b0eb15cb734b1c89400547e669dd5436f0fdbad891a2790a313b69e3959d",
+        "packages/rules/metadata/commonObjects/number/toXML.ts": "9ef5fadf367bd66a1d74afa731621756e249463ed6cf9d42cbefec515be6ca24"
+      },
+      "scope": "scalar-value; not full project import",
+      "verification": "source-reviewed; Rust execution pending",
+      "xmlInputKind": "legacy-test-fragment"
+    },
+    {
+      "id": "formatted-i8n-without-text",
+      "group": "i8n-text",
+      "inputs": {
+        "xml": {
+          "path": "tests/conversion-corpus/cases/formatted-i8n-without-text/input.xml",
+          "sha256": "4064453ad435c32269d0eef1f95e171078b2736c0670c5945f6c850be4f7b8c6"
+        },
+        "yaml": {
+          "path": "tests/conversion-corpus/cases/formatted-i8n-without-text/expected.yaml",
+          "sha256": "167fdf9c114cdcf42e0a6f97428df353e7e7e658f9a8c5a424c0a92e0c0c8f89"
+        }
+      },
+      "context": "tests/conversion-corpus/cases/formatted-i8n-without-text/context.json",
+      "directions": [
+        "xml-to-yaml",
+        "yaml-to-xml",
+        "round-trip"
+      ],
+      "outcome": "success",
+      "expectations": {
+        "xml": "tests/conversion-corpus/cases/formatted-i8n-without-text/input.xml",
+        "yaml": "tests/conversion-corpus/cases/formatted-i8n-without-text/expected.yaml"
+      },
+      "comparison": {
+        "xml": "exact",
+        "yaml": "exact",
+        "exceptions": []
+      },
+      "scope": "property converters; public project validation is separate",
+      "verification": "Both directions executed against TypeScript; Rust pending",
+      "evidence": [
+        "packages/rules/metadata/commonObjects/formattedI8nText/fromXML.ts",
+        "packages/rules/metadata/commonObjects/formattedI8nText/fromYAML.ts",
+        "packages/rules/metadata/commonObjects/formattedI8nText/toXML.ts",
+        "packages/rules/metadata/commonObjects/formattedI8nText/toYAML.ts"
+      ],
+      "evidenceHashes": {
+        "packages/rules/metadata/commonObjects/formattedI8nText/fromXML.ts": "59055db814e6056cef77fbda2fa31bb2977c58d2fe93489bafcfde237868aad2",
+        "packages/rules/metadata/commonObjects/formattedI8nText/fromYAML.ts": "922bf54d1d20141f22c9905e9d7af48bb2f2184000cbc30cecceb7fdbec5be21",
+        "packages/rules/metadata/commonObjects/formattedI8nText/toXML.ts": "43ff3d7a7319bf31c3ad6e1e08952b7a304567b666fee3f0dc2dec8e7ce8b27a",
+        "packages/rules/metadata/commonObjects/formattedI8nText/toYAML.ts": "9101d88e22cda94b255103e6ef86aae69b93e3bd6699c08f2ba37539eeb81b7e"
+      }
+    }
+  ],
+  "pendingImport": [
+    {
+      "id": "document-minimal",
+      "status": "provenance-verified",
+      "semanticReview": "pending"
+    },
+    {
+      "id": "document-full",
+      "status": "provenance-verified",
+      "semanticReview": "pending"
+    },
+    {
+      "id": "enum-switcher",
+      "status": "provenance-verified",
+      "semanticReview": "pending"
+    },
+    {
+      "id": "style-color",
+      "status": "provenance-verified",
+      "semanticReview": "pending"
+    },
+    {
+      "id": "style-font",
+      "status": "provenance-verified",
+      "semanticReview": "pending"
+    },
+    {
+      "id": "style-border",
+      "status": "provenance-verified",
+      "semanticReview": "pending"
+    },
+    {
+      "id": "xml-scalar-attributes",
+      "status": "provenance-verified",
+      "semanticReview": "pending"
+    },
+    {
+      "id": "xml-scalar-edited",
+      "status": "provenance-verified",
+      "semanticReview": "pending"
+    },
+    {
+      "id": "xml-scalar-annotation-removed",
+      "status": "provenance-verified",
+      "semanticReview": "pending"
+    },
+    {
+      "id": "table-dynamic-list",
+      "status": "provenance-verified",
+      "semanticReview": "pending"
+    },
+    {
+      "id": "table-value-table",
+      "status": "provenance-verified",
+      "semanticReview": "pending"
+    },
+    {
+      "id": "table-nested-list",
+      "status": "provenance-verified",
+      "semanticReview": "pending"
+    },
+    {
+      "id": "base-form-projection",
+      "status": "provenance-verified",
+      "semanticReview": "pending"
+    },
+    {
+      "id": "fill-value-string",
+      "status": "provenance-verified",
+      "semanticReview": "pending"
+    },
+    {
+      "id": "command-module-export",
+      "status": "provenance-verified",
+      "semanticReview": "pending"
+    },
+    {
+      "id": "command-module-import",
+      "status": "provenance-verified",
+      "semanticReview": "pending"
+    },
+    {
+      "id": "command-invalid-scalar",
+      "status": "provenance-verified",
+      "semanticReview": "pending"
+    },
+    {
+      "id": "style-adopted-unchanged",
+      "status": "provenance-verified",
+      "semanticReview": "pending"
+    },
+    {
+      "id": "style-adopted-value",
+      "status": "provenance-verified",
+      "semanticReview": "pending"
+    },
+    {
+      "id": "xml-elided-boolean",
+      "status": "provenance-verified",
+      "semanticReview": "pending"
+    },
+    {
+      "id": "xml-elided-empty",
+      "status": "provenance-verified",
+      "semanticReview": "pending"
+    },
+    {
+      "id": "xml-elided-attributes",
+      "status": "provenance-verified",
+      "semanticReview": "pending"
+    },
+    {
+      "id": "xml-elided-removed",
+      "status": "provenance-verified",
+      "semanticReview": "pending"
+    },
+    {
+      "id": "xml-explicit-absence",
+      "status": "provenance-verified",
+      "semanticReview": "pending"
+    },
+    {
+      "id": "xml-explicit-absence-semantic",
+      "status": "provenance-verified",
+      "semanticReview": "pending"
+    },
+    {
+      "id": "xml-unknown-nested",
+      "status": "provenance-verified",
+      "semanticReview": "pending"
+    },
+    {
+      "id": "xml-unknown-repeated",
+      "status": "provenance-verified",
+      "semanticReview": "pending"
+    },
+    {
+      "id": "xml-unknown-mixed",
+      "status": "provenance-verified",
+      "semanticReview": "pending"
+    },
+    {
+      "id": "xml-root-attributes",
+      "status": "provenance-verified",
+      "semanticReview": "pending"
+    },
+    {
+      "id": "xml-invalid-integer",
+      "status": "provenance-verified",
+      "semanticReview": "pending"
+    },
+    {
+      "id": "xml-invalid-integer-raw",
+      "status": "provenance-verified",
+      "semanticReview": "pending"
+    },
+    {
+      "id": "yaml-invalid-removed",
+      "status": "provenance-verified",
+      "semanticReview": "pending"
+    },
+    {
+      "id": "yaml-invalid-removed-with-raw",
+      "status": "provenance-verified",
+      "semanticReview": "pending"
+    },
+    {
+      "id": "fill-fragment-date-initial",
+      "status": "provenance-verified",
+      "semanticReview": "pending"
+    },
+    {
+      "id": "fill-fragment-attribute-string",
+      "status": "provenance-verified",
+      "semanticReview": "pending"
+    },
+    {
+      "id": "fill-fragment-code-invalid",
+      "status": "provenance-verified",
+      "semanticReview": "pending"
+    },
+    {
+      "id": "fill-fragment-code-unaccepted",
+      "status": "provenance-verified",
+      "semanticReview": "pending"
+    },
+    {
+      "id": "fill-fragment-owner-cf",
+      "status": "provenance-verified",
+      "semanticReview": "pending"
+    },
+    {
+      "id": "fill-fragment-owner-cfe",
+      "status": "provenance-verified",
+      "semanticReview": "pending"
+    }
+  ]
+}

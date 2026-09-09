@@ -1,0 +1,94 @@
+{
+  "version": 1,
+  "source": {
+    "path": "packages/runtime/metadata/helpers/canConvertToPascalCase.ts",
+    "sha256": "d13839e41c61a1c9543bcc88c9318356a6931ad156bede3bcb83cae571d25107"
+  },
+  "verification": "Executed against current TypeScript",
+  "cases": [
+    {
+      "input": "TestTest",
+      "expected": {
+        "state": "present",
+        "text": "Test test"
+      }
+    },
+    {
+      "input": "BackInUSSR",
+      "expected": {
+        "state": "present",
+        "text": "Back in USSR"
+      }
+    },
+    {
+      "input": "ИсторияКПП",
+      "expected": {
+        "state": "present",
+        "text": "История КПП"
+      }
+    },
+    {
+      "input": "XMLParser",
+      "expected": {
+        "state": "present",
+        "text": "XMLParser"
+      }
+    },
+    {
+      "input": "Version12Number",
+      "expected": {
+        "state": "present",
+        "text": "Version 12 number"
+      }
+    },
+    {
+      "input": "Version12a",
+      "expected": {
+        "state": "present",
+        "text": "Version12a"
+      }
+    },
+    {
+      "input": "ÉcoleTest",
+      "expected": {
+        "state": "present",
+        "text": "cole test"
+      }
+    },
+    {
+      "input": "ИмяЁж",
+      "expected": {
+        "state": "present",
+        "text": "Имя ёж"
+      }
+    },
+    {
+      "input": "Имя_Тест",
+      "expected": {
+        "state": "present",
+        "text": "Имя тест"
+      }
+    },
+    {
+      "input": "😀Тест",
+      "expected": {
+        "state": "present",
+        "text": "Тест"
+      }
+    },
+    {
+      "input": "",
+      "expected": {
+        "state": "present",
+        "text": ""
+      }
+    },
+    {
+      "input": "!!!",
+      "expected": {
+        "state": "absent"
+      },
+      "note": "Existing function returns undefined despite its string signature; do not silently convert to empty text. Verify reachability in owner contracts."
+    }
+  ]
+}

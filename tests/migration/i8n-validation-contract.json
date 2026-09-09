@@ -1,0 +1,126 @@
+{
+  "version": 1,
+  "scope": "localized semantic constraints only; structural schema and accepted-annotation suppression are separate",
+  "source": {
+    "path": "packages/runtime/metadata/validation/localizedTextYAML.ts",
+    "sha256": "037dba7b00cb9b15ce9dfadee08f59cfcb8d0d95e2db6a68e1c39350dd93e781"
+  },
+  "cases": [
+    {
+      "id": "unknown-language",
+      "yaml": "Заголовок:\n  ru: Текст\n  de: Text",
+      "inputs": {
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ],
+        "foldable": false
+      },
+      "expectedIssues": [
+        {
+          "path": [
+            "Заголовок",
+            "de"
+          ],
+          "message": "Незарегистрированный язык de"
+        }
+      ]
+    },
+    {
+      "id": "noncanonical-order",
+      "yaml": "Заголовок:\n  en: Text\n  ru: Текст",
+      "inputs": {
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ],
+        "foldable": false
+      },
+      "expectedIssues": [
+        {
+          "path": [
+            "Заголовок"
+          ],
+          "message": "Неканонический порядок языков локализованного текста"
+        }
+      ]
+    },
+    {
+      "id": "late-marker",
+      "yaml": "Заголовок:\n  en: Text\n  ru: \"\"",
+      "inputs": {
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ],
+        "foldable": true
+      },
+      "expectedIssues": [
+        {
+          "path": [
+            "Заголовок"
+          ],
+          "message": "Неканонический порядок языков локализованного текста"
+        },
+        {
+          "path": [
+            "Заголовок",
+            "ru"
+          ],
+          "message": "Маркер отсутствующего основного языка должен быть первым"
+        }
+      ]
+    },
+    {
+      "id": "empty-ordinary",
+      "yaml": "Заголовок:\n  ru: \"\"",
+      "inputs": {
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ],
+        "foldable": false
+      },
+      "expectedIssues": [
+        {
+          "path": [
+            "Заголовок",
+            "ru"
+          ],
+          "message": "Пустое значение языка не представляет XML-текст"
+        }
+      ]
+    },
+    {
+      "id": "service-disables-semantic-block",
+      "yaml": "Заголовок:\n  de: Text\n  ru: \"\"\n  \"#\": Service",
+      "inputs": {
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ],
+        "foldable": false
+      },
+      "expectedIssues": []
+    },
+    {
+      "id": "empty-code-disables-semantic-block",
+      "yaml": "Заголовок:\n  de: Text\n  ru: \"\"\n  \"\": Service",
+      "inputs": {
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ],
+        "foldable": false
+      },
+      "expectedIssues": []
+    }
+  ],
+  "verification": "6 cases executed against current TypeScript; Rust execution pending"
+}
