@@ -1,3 +1,4 @@
+import { userVisibleRoleTarget } from "../../../commonObjects/userVisible/metadataTargetOccurrences"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 
 /** Поля, связанные с таблицей/колонкой: есть не у всех элементов формы (напр. нет у PDFDocumentField). */
@@ -202,6 +203,7 @@ export const formFieldCommonProperties = {
   userVisible: {
     yaml: "Использование",
     type: "UserVisible",
+    metadataTarget: userVisibleRoleTarget,
     toEnterprise: false,
   },
 } as const satisfies MetadataItemRule["properties"]

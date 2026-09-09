@@ -1,6 +1,7 @@
 import { Type } from "typebox"
 import {
   compileValidationSchema,
+  hasUuidAnnotationAtPath,
   parsedYamlFromKnownData,
   validateRuleYAMLObjectProperties,
   validationIssuePathFromPointer,
@@ -300,7 +301,8 @@ function validateObject(params: {
       errors.filter(isLocalPropertyError).flatMap((error) =>
         filterKnownAdditionalProperties(error, params.rule, params.isKnownProperty)),
       params.yamlPath,
-    ).filter(issue => !(nameKey !== undefined && issue.target.kind === "missing" && issue.target.path.at(-1) === nameKey)))
+    ).filter(issue => !hasUuidAnnotationAtPath(issue.target.path.slice(params.yamlPath.length), params.yaml, params.annotations))
+      .filter(issue => !(nameKey !== undefined && issue.target.kind === "missing" && issue.target.path.at(-1) === nameKey)))
   }
   const { rulesByYamlKey, requiredYamlKeys } = params.boundaryPlanFor(params.rule)
   const occurrences = new Map<string, number>()
@@ -357,6 +359,7 @@ function validateObject(params: {
     const localErrors = errors.filter((error) =>
       isLocalPropertyError(error) || error.keyword === "anyOf" || error.keyword === "oneOf")
     const localIssues = typeboxErrorsToValidationIssues(localErrors, targetPath)
+      .filter(issue => !hasUuidAnnotationAtPath(issue.target.path.slice(params.yamlPath.length), params.yaml, params.annotations))
     params.issues.push(...(occurrence === 0
       ? localIssues
       : localIssues.map((issue) => ({

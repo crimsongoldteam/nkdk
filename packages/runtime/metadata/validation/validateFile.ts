@@ -99,7 +99,7 @@ export function validateParsedFileWithIssues(
   })
 }
 
-function hasUuidAnnotationAtPath(
+export function hasUuidAnnotationAtPath(
   path: readonly (string | number)[],
   root: unknown,
   annotations: ParsedYaml["annotations"],

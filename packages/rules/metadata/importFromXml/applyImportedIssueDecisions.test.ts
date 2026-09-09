@@ -147,3 +147,12 @@ describe("применение решений об XML-аномалиях", () =
     )
   })
 })
+
+it("помечает первое вхождение ошибочной ссылки в ключе, сохраняя значение", () => {
+  const parsed = parseMetadataYaml("Роли:\n  НетРоли: Ложь")
+  applyImportedIssueDecisions({
+    data: parsed.data, annotations: parsed.annotations,
+    decisions: [{ kind: "invalid", target: { kind: "occurrence", path: ["Роли", "НетРоли"], occurrence: 1 }, issueCodes: ["diagnostic.reference"] }],
+  })
+  expect(serializeYAMLDocument(parsed.data, parsed.annotations).text).toBe("Роли:\n  !xml/invalid НетРоли: Ложь")
+})

@@ -1,3 +1,4 @@
+import { userVisibleRoleTarget } from "../../../commonObjects/userVisible/metadataTargetOccurrences"
 import { stringRule } from "../../../commonObjects/string/types"
 import { defineElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
@@ -14,6 +15,7 @@ export const commonButtonProperties = {
   userVisible: {
     yaml: "Использование",
     type: "UserVisible",
+    metadataTarget: userVisibleRoleTarget,
     toEnterprise: false,
   },
   titleHeight: { yaml: "ВысотаЗаголовка", type: "number", implicitValueYAML: 0 },

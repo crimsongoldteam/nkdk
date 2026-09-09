@@ -8,6 +8,8 @@ import os from "node:os"
 import { join } from "node:path"
 import { afterEach,describe,expect,it,vi } from "vitest"
 import "../../tests/metadataExecutionContext"
+import { directPropertyRuleExecution } from "../../tests/directConversion"
+import { mockContextToXML } from "../../tests/mockContext"
 import { mockXmlImportContext } from "../../tests/mockContext"
 import {
 ClientApplicationFormRules,
@@ -20,6 +22,8 @@ import { createOperationProfiler } from "../validation/profile"
 import { discoverXmlImport } from "./discovery"
 import {
 prepareImportYaml,
+prepareImportYamlFromDocuments,
+readImportXmlDocuments,
 registeredImportRuleLookupCountForTests,
 resetRegisteredImportRuleLookupCountForTests,
 resolveAssignmentRule,
@@ -683,10 +687,12 @@ describe("prepareImportYaml", () => {
         externalFiles: [],
       }
 
-      const prepared = await prepareImportYaml({
+      const prepared = await prepareImportYamlFromDocuments({
+        inputs: await readImportXmlDocuments({ assignment, profilePass: "second" }),
         assignment,
         context: mockXmlImportContext(),
         collector: createConfigurationIndexCollector(),
+        localRoundTrip: { execution: directPropertyRuleExecution, context: mockContextToXML(), decisions: [] },
       })
 
       expect(prepared.yaml).toEqual({ ТипФормы: "Обычная" })

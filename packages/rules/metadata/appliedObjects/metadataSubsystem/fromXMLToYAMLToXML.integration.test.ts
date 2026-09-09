@@ -1,6 +1,6 @@
 import { parseMetadataYaml } from "@nkdk/runtime"
 import { describe, expect, it } from "vitest"
-import { testPropertyFromXMLToYAML, testPropertyFromYAMLToXML } from "../../../tests/directConversion"
+import { testPropertyFromXMLToYAML, testPropertyFromYAMLToXML, testPropertyYamlRoundTrip, normalizeDirectRoundTripXML } from "../../../tests/directConversion"
 import type { MetadataItemRule } from "../../ruleRuntime"
 import { MetadataSubsystemRules } from "./rules"
 import { xmlElementFromTestValue } from "../../../tests/structuralXML"
@@ -103,4 +103,21 @@ describe("MetadataSubsystem: единое преобразование сост�
       yaml: { Состав: [uuid] },
     })).toThrow("UUID metadata-ссылки требует !xml/uuid")
   })
+})
+
+ it("сохраняет пустой элемент состава между ссылками", () => {
+   const result = testPropertyYamlRoundTrip({
+     rule: MetadataSubsystemRules.properties.content,
+     sourceXML: '<Root xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><Properties><Content><xr:Item xsi:type="xr:MDObjectRef">Report.First</xr:Item><xr:Item xsi:type="xr:MDObjectRef"/><xr:Item xsi:type="xr:MDObjectRef">Report.Last</xr:Item></Content></Properties></Root>',
+   })
+   expect(normalizeDirectRoundTripXML(result.result).replace(/>\s*</g, "><")).toBe(result.expected.replace(/>\s*</g, "><"))
+ })
+
+it("сохраняет UUID состава при полном round-trip через текст YAML", () => {
+  const result = testPropertyYamlRoundTrip({
+    rule: MetadataSubsystemRules.properties.content,
+    sourceXML: '<Root xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><Properties><Content><xr:Item xsi:type="xr:MDObjectRef">a786340b-1ca9-48ee-8517-6bd389390bcc</xr:Item></Content></Properties></Root>',
+  })
+  expect(result.yamlText).toContain("!xml/uuid")
+  expect(normalizeDirectRoundTripXML(result.result).replace(/>\s*</g, "><")).toBe(result.expected.replace(/>\s*</g, "><"))
 })

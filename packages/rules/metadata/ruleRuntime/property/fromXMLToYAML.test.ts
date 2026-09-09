@@ -44,6 +44,7 @@ import { MetadataDocumentNumeratorRules } from "../../appliedObjects/metadataDoc
 import { MetadataTaskRules } from "../../appliedObjects/metadataTask/rules"
 import { MetadataSubsystemRules } from "../../appliedObjects/metadataSubsystem/rules"
 import { MetadataWebServiceRules } from "../../appliedObjects/metadataWebService/rules"
+import { FormAttributeAdditionalColumnRules } from "../../forms/commonObjects/formAttribute/rules"
 import { InputFieldRules } from "../../forms/elements/inputField/rules"
 import { ExtendedTooltipRules } from "../../forms/elements/extendedTooltip/rules"
 import { ContextMenuRules } from "../../forms/elements/contextMenu/rules"
@@ -1529,6 +1530,21 @@ describe("importPropertiesFromXMLToYAML", () => {
         collector: createLocalIndexesCollector(),
       }),
     ).toEqual({})
+  })
+
+  it.each([false, true])("сохраняет путь коллекции в фактах с yamlInline=%s", (yamlInline) => {
+    const rules = createRuleRegistrySet(metadataRules)
+    const facts = collectPropertyFacts({
+      execution: rules.execution,
+      context: mockContextFromXML(),
+      rule: { ...FormAttributeAdditionalColumnRules, properties: {
+        ...FormAttributeAdditionalColumnRules.properties,
+        columns: { ...FormAttributeAdditionalColumnRules.properties.columns, yamlInline: yamlInline ? true : undefined },
+      } },
+      root: parseXmlDocumentWithSaxes('<AdditionalColumns xmlns:v8="http://v8.1c.ru/8.1/data/core" table="Строки"><Column name="Тип" id="1"><Type><v8:Type>xs:string</v8:Type></Type></Column></AdditionalColumns>').roots[0]!,
+    })
+    const columns = { Тип: { id: "1", name: "Тип", Заголовок: "", Тип: "Строка" } }
+    expect(materializeImportPropertyFacts(facts)).toEqual({ table: "Строки", ...(yamlInline ? columns : { Колонки: columns }) })
   })
 
   it("restores an explicit empty inline collection after direct conversion", () => {

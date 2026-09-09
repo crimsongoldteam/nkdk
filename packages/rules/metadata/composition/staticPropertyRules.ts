@@ -1,3 +1,4 @@
+import { commandVisibilityRoleOccurrencesRule, commandVisibilityRoleReferencesRule, commandVisibilityRoleStructuralReferencesRule, subsystemVisibilityRoleOccurrencesRule, subsystemVisibilityRoleReferencesRule, subsystemVisibilityRoleStructuralReferencesRule } from "../commonObjects/metadataTargets/validationHandlers"
 import { metadataPropertyRule000 as rule0 } from "../appliedObjects/configuration/allowedIncomingShareRequestTypes"
 import { metadataPropertyRule063 as inputByStringTargetOccurrences } from "../commonObjects/metadataTargets/validationHandlers"
 import { metadataPropertyRule000 as dataPathFromXML } from "../commonObjects/metadataPath/fromXML"
@@ -846,4 +847,11 @@ export const staticPropertyTypes = propertyTypesFromContributions([
   dataPathFromXML,
   commandNameFromXML,
   inputByStringTargetOccurrences,
+  commandVisibilityRoleOccurrencesRule,
+  commandVisibilityRoleReferencesRule,
+  commandVisibilityRoleStructuralReferencesRule,
+  subsystemVisibilityRoleOccurrencesRule,
+  subsystemVisibilityRoleReferencesRule,
+  subsystemVisibilityRoleStructuralReferencesRule,
+
 ])

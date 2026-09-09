@@ -1,3 +1,4 @@
+import { userVisibleRoleTarget } from "../../../commonObjects/userVisible/metadataTargetOccurrences"
 import { tableAdditionalSourceRule } from "../../commonObjects/tableAdditionalSource/types"
 import { stringRule } from "../../../commonObjects/string/types"
 import { getParentFromContext } from "../../../context/helpers"
@@ -68,6 +69,7 @@ const commonProperties = {
   userVisible: {
     yaml: "Использование",
     type: "UserVisible",
+    metadataTarget: userVisibleRoleTarget,
   },
   verticalAlignInGroup: {
     yaml: "ВертикальноеПоложениеВГруппе",

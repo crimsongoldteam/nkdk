@@ -74,8 +74,9 @@ function applyOccurrenceDecision(
   }
   const runtimeKey = Object.keys(parent).find((key) => {
     const annotation = annotations.keyAt(parent, key)
-    return annotation?.logicalKey === logicalKey
-      && annotation.occurrence === target.occurrence
+    return annotation === undefined
+      ? key === logicalKey && target.occurrence === 1
+      : (annotation.logicalKey ?? key) === logicalKey && annotation.occurrence === target.occurrence
   })
   if (runtimeKey === undefined) {
     throw new Error(`Не найден повтор ${target.occurrence} ключа /${target.path.join("/")} для ${issueCodes.join(", ")}`)

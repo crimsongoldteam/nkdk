@@ -749,6 +749,7 @@ function collectPendingReferences(params: {
       })
       references.push(
         ...collectTargetValues({
+          runtime: params.runtime,
           filePath: params.filePath,
           parsed: params.parsed,
           owner: propertyOwner,
@@ -933,6 +934,33 @@ function collectTargetValues(params: {
     return reference === undefined ? [] : [reference]
   }
 
+  const collect = params.type === undefined ? undefined
+    : params.runtime?.rules.execution.getTypeRule(params.type, "metadataTargetOccurrences")
+      ?? getTypeRule(params.type, "metadataTargetOccurrences")
+  if (collect !== undefined && typeof params.value === "object" && params.value !== null) {
+    return collect({
+      value: params.value,
+      representation: "yaml",
+      yamlPath: params.yamlPath,
+      propRule: { type: params.type as PropertyRule["type"], metadataTarget: params.constraint },
+      owner: params.owner,
+    }).flatMap(occurrence => {
+      const location = occurrence.location
+      const mapping = location.kind === "key"
+        ? valueAtLogicalPath(params.parsed.data, location.path, params.parsed) : undefined
+      const value = location.kind === "key" && typeof mapping === "object" && mapping !== null
+        ? params.parsed.annotations.keyAt(mapping, location.key)?.logicalKey ?? occurrence.representation.canonical
+        : occurrence.representation.canonical
+      if (value === "" || isMetadataTargetUuid(value)) return []
+      const reference = pendingReferenceFromYamlValue({
+        ...params, value, constraint: occurrence.constraint,
+        yamlPath: location.kind === "key" ? [...location.path, value] : location.path,
+        annotationKind: occurrence.location.kind,
+      })
+      return reference === undefined ? [] : [reference]
+    })
+  }
+
   if (Array.isArray(params.value)) {
     return params.value.flatMap((item, index) =>
       collectTargetValues({
@@ -1085,6 +1113,7 @@ function pendingReferenceFromYamlValue(params: {
   constraint: PendingMetadataTargetReference["constraint"]
   yamlPath: readonly (string | number)[]
   diagnostics: Diagnostic[]
+  annotationKind?: "key" | "value"
   validationDiagnostics: boolean
 }): PendingMetadataTargetReference | undefined {
   const parsed = parseMetadataTargetFromYAML({
@@ -1113,7 +1142,7 @@ function pendingReferenceFromYamlValue(params: {
     canonical: targetKey(parsed.target),
     target: parsed.target,
     constraint: params.constraint,
-    ...(hasSemanticXmlAnomalyAtExactPath(params.parsed.data, params.parsed, params.yamlPath)
+    ...(hasSemanticXmlAnomalyAtExactPath(params.parsed.data, params.parsed, params.yamlPath, params.annotationKind)
       ? { xmlAnomaly: "pending" as const }
       : {}),
   }
@@ -1548,6 +1577,7 @@ function hasSemanticXmlAnomalyAtExactPath(
   root: unknown,
   parsed: ParsedYaml,
   path: readonly (string | number)[],
+  annotationKind: "key" | "value" = "value",
 ): boolean {
   if (path.length === 0) {
     const annotation = parsed.annotations.root()
@@ -1561,7 +1591,9 @@ function hasSemanticXmlAnomalyAtExactPath(
   }
   if (typeof parent !== "object" || parent === null) return false
   const runtimeSegment = runtimePathSegment(parent, path.at(-1)!, parsed)
-  const annotation = parsed.annotations.at(parent, runtimeSegment)
+  const annotation = annotationKind === "key" && typeof runtimeSegment === "string"
+    ? parsed.annotations.keyAt(parent, runtimeSegment)
+    : parsed.annotations.at(parent, runtimeSegment)
   const semantic = annotation?.kind === "raw" ? annotation.semantic : annotation
   return semantic?.kind === "invalid" || semantic?.kind === "important"
 }
@@ -1590,7 +1622,7 @@ function hasXmlAnnotationAtPath(
 }
 
 function valueAtLogicalPath(
-  value: Record<string, unknown>,
+  value: unknown,
   path: readonly (string | number)[],
   parsed: ParsedYaml,
 ): unknown {
@@ -1631,6 +1663,7 @@ function projectWithoutRawDescendants(value: unknown, parsed: ParsedYaml): unkno
     for (let index = 0; index < value.length; index += 1) {
       if (parsed.annotations.at(value, index)?.kind === "raw") {
         changed = true
+        projected.push(undefined)
         continue
       }
       const child = projectWithoutRawDescendants(value[index], parsed)

@@ -853,7 +853,8 @@ export function importPropertiesFromXMLToYAML(params: {
                 itemType: rule.itemType,
                 itemRule: rule,
                 propertyKey: key,
-                yamlPath: pathCursor.child(yamlKey).toArray(),
+                yamlPath: propertyRule.yamlInline === true && yamlKey === (propertyRule.yaml ?? key)
+                  ? propertyYamlPath() : pathCursor.child(yamlKey).toArray(),
                 value: exportedValue,
                 presentInXML,
                 retainContainers: true,
