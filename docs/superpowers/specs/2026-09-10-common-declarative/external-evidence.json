@@ -1,0 +1,16 @@
+{
+  "files": [
+    {"path": ".agents/architecture.md", "sha256": "a75319c20f6b22917ac8919ac63220fbd0aa8ce544dc7b2bbb3298cb20f13641", "scope": "Связанный договор/место сборки, не полный аудит внешнего модуля"},
+    {"path": ".agents/restrictions.md", "sha256": "2e2685d6e41e42e6181825a8cc760aa24fd8211bcf9b1d90d5b46093304d7f43", "scope": "Связанный договор/место сборки, не полный аудит внешнего модуля"},
+    {"path": ".agents/xml-anomalies.md", "sha256": "443e5162edc367fa5019d5dd6557965c56dc44c71db62c4e14cb37ceb1f2c8ea", "scope": "Связанный договор/место сборки, не полный аудит внешнего модуля"},
+    {"path": ".agents/testing.md", "sha256": "613155a6485a00911463617513be16901d6c7e807d16d9f43037d93c3b9d4627", "scope": "Связанный договор/место сборки, не полный аудит внешнего модуля"},
+    {"path": "packages/runtime/metadata/ruleRuntime/property/fillValueSemantics.ts", "sha256": "3a6a9f767f377c0d6158a91a59016b292df710f3d5bff13bf3e903131308e935", "scope": "Связанный договор/место сборки, не полный аудит внешнего модуля"},
+    {"path": "packages/rules/metadata/ruleRuntime/property/fillValueSemantics.ts", "sha256": "a120796450ed9b447c01100bd364e11186c49191d5bc38ff21897372b1b64034", "scope": "Связанный договор/место сборки, не полный аудит внешнего модуля"},
+    {"path": "packages/rules/metadata/validation/projectValidationPendingChecks.ts", "sha256": "43c13360b952cb39a0506066409cc16cc3c5d256622677f08e69ae8c93bf6a02", "scope": "Связанный договор/место сборки, не полный аудит внешнего модуля"},
+    {"path": "packages/rules/metadata/validation/projectStateDependencyValidation.ts", "sha256": "e30a7c9840324b26d1074881fb3fbe2a0e27369cf960fb7fee7fe1552ada2afd", "scope": "Связанный договор/место сборки, не полный аудит внешнего модуля"},
+    {"path": "packages/rules/metadata/helpers/synonymHelpers.ts", "sha256": "80c7b0140d7d7b216659a4bc7096ce6b3e1a9e07f58279532be821ac78bc1f1c", "scope": "Связанный договор/место сборки, не полный аудит внешнего модуля"},
+    {"path": "packages/rules/metadata/validation/projectReferenceIndexRegistry.ts", "sha256": "6d0f621d85e42edded484489ee4a3cb4119aa18720218de781da5fa934b00c4f", "scope": "Связанный договор/место сборки, не полный аудит внешнего модуля"},
+    {"path": "packages/rules/metadata/composition/metadataRules.ts", "sha256": "0724ea1e0899fd710c619cd2aac7ee9281355cef6a07e54214b45b56c0e7ff37", "scope": "Связанный договор/место сборки, не полный аудит внешнего модуля"},
+    {"path": "packages/runtime/metadata/validation/localizedTextYAML.ts", "sha256": "037dba7b00cb9b15ce9dfadee08f59cfcb8d0d95e2db6a68e1c39350dd93e781", "scope": "Проверка языка, пустоты и порядка; ранний выход для карты со служебным кодом, сравнение UTF-16"}
+  ]
+}
