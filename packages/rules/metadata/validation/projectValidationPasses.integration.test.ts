@@ -728,6 +728,27 @@ describe("validateProjectFileFirstPass references", () => {
     expect(validationErrors(first)).toContainEqual(expect.objectContaining({ message }))
   })
 
+  it.each([
+    ["ВидимостьКоманд", false],
+    ["ВидимостьПодсистем", false],
+    ["ВидимостьКоманд", true],
+  ] as const)("использует общий договор ссылок для ролей %s (raw перед ссылкой: %s)", (section, rawBefore) => {
+    const entries = section === "ВидимостьКоманд"
+      ? [...(rawBefore ? ["    - !xml/raw", "      $xml: { _name: future }"] : []), "    - Команда: '0'", "      Роли:"]
+      : ["    'Subsystem.Test':", "      Роли:"]
+    const first = validateAppliedObject("Подсистема/Тест/Свойства.yaml", [
+      "КомандныйИнтерфейс:", `  ${section}:`, ...entries,
+      "        ОтсутствующаяРоль: Ложь",
+      "        !xml/invalid ДругаяОтсутствующаяРоль: Ложь",
+      "        !xml/uuid 9d880188-a12a-416a-b72e-e6ae69db4390: Истина",
+    ].join("\n"))
+    expect(first.schemaDiagnostics).toEqual([])
+    expect(first.pendingReferences).toContainEqual(expect.objectContaining({ canonical: "Role.ОтсутствующаяРоль" }))
+    expect(first.pendingReferences).toContainEqual(expect.objectContaining({ canonical: "Role.ДругаяОтсутствующаяРоль", xmlAnomaly: "pending" }))
+    expect(first.diagnostics).toEqual([])
+    expect(first.pendingReferences.some(reference => reference.canonical.includes("9d880188"))).toBe(false)
+  })
+
   it("validates common form body through the shared form schema", () => {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
     tempDirs.push(projectDir)

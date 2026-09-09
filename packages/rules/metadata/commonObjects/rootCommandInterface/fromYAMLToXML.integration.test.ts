@@ -64,6 +64,19 @@ describe("RootCommandInterface YAML → XML", () => {
     expect(result).toContain("<Placement>Manual</Placement>")
   })
 
+  it.each(["CommandsVisibility", "SubsystemsVisibility"])("сохраняет UUID роли и соседнее имя через YAML: %s", (section) => {
+    const item = section === "CommandsVisibility" ? "Command" : "Subsystem"
+    const result = testMetadataItemYamlRoundTrip({
+      rule: RootCommandInterfaceRules,
+      sourceXML: `<CommandInterface xmlns="http://v8.1c.ru/8.3/xcf/extrnprops" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" version="2.20"><${section}><${item} name="0"><Visibility><xr:Value name="${OPAQUE_UUID}">false</xr:Value><xr:Value name="Role.Администратор">true</xr:Value></Visibility></${item}></${section}></CommandInterface>`,
+    })
+    expect(result.yamlText).toContain(`!xml/uuid ${OPAQUE_UUID}: Ложь`)
+    expect(result.yamlText).not.toMatch(/^\s*\?/m)
+    expect(result.yamlText).toContain("Администратор: Истина")
+    expect(result.result).toContain(`<xr:Value name="${OPAQUE_UUID}">false</xr:Value>`)
+    expect(result.result).toContain('<xr:Value name="Role.Администратор">true</xr:Value>')
+  })
+
   it("rejects prefixed and opaque role visibility keys", () => {
     expect(() => convertYAML({ ВидимостьПодсистем: { "Subsystem.X": { Роли: { "Роль.Администратор": "Ложь" } } } })).toThrow(
       "Ожидалось имя объекта без корня, потому что корень задан правилом"

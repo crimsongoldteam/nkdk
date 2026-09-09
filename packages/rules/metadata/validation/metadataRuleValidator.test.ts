@@ -171,3 +171,25 @@ Properties\\Future: !xml/raw
     expect(shared.compilations()).toBe(2)
   })
 })
+
+it.each([false, true])("учитывает uuid при проверке ссылок схемой (массив: %s)", (sequence) => {
+  const linkSchema = Type.Union([Type.String({ pattern: "^Справочник\\." }), Type.Literal("")])
+  const valueSchema = sequence ? Type.Array(linkSchema) : linkSchema
+  const rule: MetadataItemRule = { itemType: "ReferenceOwner", properties: {
+    reference: { type: "string", yaml: "Ссылка" },
+    other: { type: "string", yaml: "Обычная" },
+  } }
+  const parsed = parseMetadataYaml([
+    sequence ? "Ссылка:\n  - !xml/uuid 3062c54f-92ed-42c5-b62f-1c0e685cfe75\n  - 3062c54f-92ed-42c5-b62f-1c0e685cfe75" : "Ссылка: !xml/uuid 3062c54f-92ed-42c5-b62f-1c0e685cfe75",
+    "Обычная: 3062c54f-92ed-42c5-b62f-1c0e685cfe75",
+  ].join("\n"))
+  const validation = createMetadataRuleValidator({
+    propertyValidator: property => compileValidationSchema({}, property.yaml === "Ссылка" ? valueSchema : linkSchema),
+    objectValidator: () => compileValidationSchema({}, Type.Object({ Ссылка: valueSchema, Обычная: linkSchema })),
+  })
+  const input = { rule, yaml: parsed.data, annotations: parsed.annotations }
+  const issues = validation.validateBoundary({ ...input, yamlPath: ["Форма"] })
+  const expectedPaths = ["Обычная", ...(sequence ? ["Ссылка/1"] : [])].sort()
+  expect([...new Set(issues.map(issue => issue.target.path.slice(1).join("/")))].sort()).toEqual(expectedPaths)
+  expect([...new Set(validation.validate(input).map(issue => issue.target.path.join("/")))].sort()).toEqual(expectedPaths)
+})

@@ -90,7 +90,7 @@ export const normalizeXmlObjectForExport = (value: unknown): unknown => {
   const normalizedValue: Record<PropertyKey, unknown> = Object.fromEntries(
     Object.entries(value).map(([key, childValue]) => [
       key,
-      normalizeXmlChildForExport(key, normalizeXmlObjectForExport(childValue)),
+      normalizeXmlChildForExport(key, normalizeXmlObjectForExport(key === "#text" && childValue === null ? "" : childValue)),
     ])
   )
 
@@ -117,7 +117,7 @@ const objectToPreserveOrderChildren = (value: Record<string, unknown>): unknown[
     Object.entries(value).filter(([key]) => key !== "#text" && !key.startsWith("_"))
 
   const children: unknown[] = []
-  if (value["#text"] !== undefined) {
+  if (value["#text"] !== undefined && value["#text"] !== null) {
     children.push({ "#text": value["#text"] })
   }
   for (const [key, childValue] of entries) {

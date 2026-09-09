@@ -1,3 +1,4 @@
+import { collectCommandVisibilityRoleOccurrences, collectSubsystemVisibilityRoleOccurrences } from "../rootCommandInterface/metadataTargetOccurrences"
 import type {
   CollectMetadataTargetReferencesFunction,
   MetadataTargetOccurrence,
@@ -601,3 +602,15 @@ export const metadataPropertyRule060 = definePropertyTypeRule("Color", "metadata
 export const metadataPropertyRule061 = definePropertyTypeRule("Font", "metadataTargetOccurrences", collectFontTargetOccurrences)
 export const metadataPropertyRule062 = definePropertyTypeRule("Border", "metadataTargetOccurrences", collectBorderTargetOccurrences)
 export const metadataPropertyRule063 = definePropertyTypeRule("InputByStringFields", "metadataTargetOccurrences", collectListMetadataTargetOccurrences)
+
+export const commandVisibilityRoleOccurrencesRule = definePropertyTypeRule("CommandInterfaceVisibilityMap", "metadataTargetOccurrences", collectCommandVisibilityRoleOccurrences)
+
+export const commandVisibilityRoleReferencesRule = definePropertyTypeRule("CommandInterfaceVisibilityMap", "collectMetadataTargetReferences", collectedReferencesFromOccurrences(collectCommandVisibilityRoleOccurrences))
+
+export const commandVisibilityRoleStructuralReferencesRule = definePropertyTypeRule("CommandInterfaceVisibilityMap", "structuralReferences", structuralReferencesFromOccurrences(collectCommandVisibilityRoleOccurrences))
+
+export const subsystemVisibilityRoleOccurrencesRule = definePropertyTypeRule("CommandInterfaceSubsystemsVisibilityMap", "metadataTargetOccurrences", collectSubsystemVisibilityRoleOccurrences)
+
+export const subsystemVisibilityRoleReferencesRule = definePropertyTypeRule("CommandInterfaceSubsystemsVisibilityMap", "collectMetadataTargetReferences", collectedReferencesFromOccurrences(collectSubsystemVisibilityRoleOccurrences))
+
+export const subsystemVisibilityRoleStructuralReferencesRule = definePropertyTypeRule("CommandInterfaceSubsystemsVisibilityMap", "structuralReferences", structuralReferencesFromOccurrences(collectSubsystemVisibilityRoleOccurrences))

@@ -37,6 +37,7 @@ export const RootCommandInterfaceRules = {
     commandsVisibility: commandInterfaceVisibilityMapRule({
       yaml: "ВидимостьКоманд",
       xml: "CommandsVisibility",
+      metadataTarget: { kind: "object", roots: ["Role"] },
     }),
     commandsPlacement: commandInterfacePlacementMapRule({
       yaml: "РазмещениеКоманд",
@@ -49,6 +50,7 @@ export const RootCommandInterfaceRules = {
     subsystemsVisibility: commandInterfaceSubsystemsVisibilityMapRule({
       yaml: "ВидимостьПодсистем",
       xml: "SubsystemsVisibility",
+      metadataTarget: { kind: "object", roots: ["Role"] },
     }),
     subsystemsOrder: commandInterfaceSubsystemsOrderRule({
       yaml: "ПорядокПодсистем",

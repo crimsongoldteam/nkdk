@@ -72,10 +72,6 @@ const standardCommandGroupFromYAML = {
   ПанельДействийСервис: "ActionsPanelTools",
 } as const
 
-const roleNameRule = {
-  type: "MetadataItemLink",
-  metadataTarget: { kind: "object", roots: ["Role"] },
-} as const satisfies PropertyRule
 const commandReferenceRule = {
   type: "MetadataItemLink",
   metadataTarget: { kind: "member", owner: "explicit", memberKinds: ["Command"] },
@@ -204,8 +200,7 @@ const importVisibilityFromYAMLValue = (
   if (entry.Роли !== undefined) {
     const roles: Record<string, boolean> = {}
     for (const [roleName, roleVisibility] of Object.entries(entry.Роли)) {
-      const importedRoleName =
-        importMetadataItemLinkFromYAML(context, roleNameRule, roleName)
+      const importedRoleName = roleName
       const importedValue = importBooleanFromYAML(context, undefined, roleVisibility)
       if (importedRoleName !== undefined && importedValue !== undefined) roles[importedRoleName] = importedValue
     }
@@ -242,8 +237,7 @@ const exportVisibilityToYAMLValue = (
   if (visibility.roles !== undefined) {
     const roles: Record<string, "Истина" | "Ложь"> = {}
     for (const [roleName, roleVisibility] of Object.entries(visibility.roles)) {
-      const exportedRoleName =
-        exportMetadataItemLinkToYAML(context, roleNameRule, roleName)
+      const exportedRoleName = roleName
       const exportedValue = exportBooleanToYAML(context, undefined, roleVisibility)
       if (exportedRoleName !== undefined && exportedValue !== undefined) roles[exportedRoleName] = exportedValue
     }

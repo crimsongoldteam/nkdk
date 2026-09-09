@@ -531,6 +531,7 @@ export function testMetadataItemYamlRoundTrip(params: {
     context,
     name,
     propertyValues,
+    annotations: prepared.preparedYamlFile.annotations,
     prepareOutput: params.prepareOutput,
     ownerYAML: params.ownerYAML,
   })
