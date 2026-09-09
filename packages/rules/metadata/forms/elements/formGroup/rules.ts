@@ -1,3 +1,4 @@
+import { userVisibleRoleTarget } from "../../../commonObjects/userVisible/metadataTargetOccurrences"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 
 export const formGroupCommonProperties = {
@@ -74,6 +75,7 @@ export const formGroupCommonProperties = {
   userVisible: {
     yaml: "Использование",
     type: "UserVisible",
+    metadataTarget: userVisibleRoleTarget,
     toEnterprise: false,
   },
   verticalAlignInGroup: {

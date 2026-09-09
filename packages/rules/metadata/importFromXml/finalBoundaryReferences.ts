@@ -9,14 +9,14 @@ type FinalOwnerMetadata = ReturnType<typeof buildValidationOwnerMetadata>
 import type { ValidationPendingCheck } from "../validation/projectValidationPendingChecks"
 import { parsedYamlFromKnownData } from "@nkdk/runtime"
 import { yamlDiagnosticLocationAtPath } from "../validation/yamlLocations"
-import { referenceAnnotationState } from "./boundaryReferences"
+import { referenceAnnotationState, type ImportBoundaryReference } from "./boundaryReferences"
 import { importedYamlValueAtPath } from "./yamlPathValue"
 import { acceptFormTabularElementVisit, type FormTabularElementVisit, type FormDataPathTabularElementDeclaration, type FormDataPathIndex } from "@nkdk/runtime/rule-kit"
 import { acceptClientApplicationFormElementComponent, indexClientApplicationFormNamedComponents, type FormComponentEntry } from "../forms/clientApplicationForm/formComponentIndex"
 import { projectPreparedClientApplicationFormStructure } from "../forms/clientApplicationForm/formStructureProjection"
 
 interface BoundaryFacts {
-  readonly references: readonly PendingMetadataTargetReference[]
+  readonly references: readonly ImportBoundaryReference[]
   readonly checks?: readonly ValidationPendingCheck[]
   readonly objectTarget?: { readonly segment: string; readonly filePath: string; readonly type?: string }
   readonly logicalTarget?: { readonly segment: string; readonly filePath: string }
@@ -224,9 +224,9 @@ export function createFinalBoundaryReferences() {
           }
           for (const source of boundary.references) {
             const reference = { ...source, yamlPath: resolvePath(source.yamlPath) }
-            const state = referenceAnnotationState({ yaml: root, yamlPath: [], annotations }, reference.yamlPath)
+            const state = referenceAnnotationState({ yaml: root, yamlPath: [], annotations }, reference.yamlPath, reference.annotationKind)
             if (state === "raw" || importedYamlValueAtPath(root, reference.yamlPath) === undefined) continue
-            const { xmlAnomaly: _previousState, ...value } = reference
+            const { xmlAnomaly: _previousState, annotationKind: _annotationKind, ...value } = reference
             result.push(state === "pending" ? { ...value, xmlAnomaly: "pending" } : value)
             dependencies.add(value.canonical)
           }

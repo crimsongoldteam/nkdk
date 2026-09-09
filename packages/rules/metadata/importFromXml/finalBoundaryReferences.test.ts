@@ -298,3 +298,18 @@ it("использует окончательный путь родительс�
   expect(collector.finish({ Элементы: { Таблица: table } }, createXmlAnomalyAnnotations()).checks[0])
     .toMatchObject({ tableContext: { dataPath: "Объект.Таблица" } })
 })
+
+it("сохраняет аномалию ссылки в ключе при завершении импорта", () => {
+  const yaml = { Роли: { НетРоли: false } }
+  const annotations = createXmlAnomalyAnnotations()
+  const collector = createFinalBoundaryReferences()
+  collector.accept({ yaml, sourcePath: [], finalPath: [], references: [{
+    filePath: "Форма.yaml", yamlPath: ["Роли", "НетРоли"], canonical: "Role.НетРоли",
+    target: { kind: "object", root: "Role", objectName: "НетРоли" },
+    constraint: { kind: "object", roots: ["Role"] }, annotationKind: "key",
+  }] })
+  annotations.setKey(yaml.Роли, "НетРоли", { kind: "invalid", target: "key", occurrence: 1 })
+  expect(collector.finish(yaml, annotations).references).toEqual([expect.objectContaining({
+    canonical: "Role.НетРоли", xmlAnomaly: "pending", yamlPath: ["Роли", "НетРоли"],
+  })])
+})

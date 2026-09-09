@@ -1,3 +1,4 @@
+import { RootCommandInterfaceRules } from "../commonObjects/rootCommandInterface/rules"
 import { expect, it } from "vitest"
 import { createXmlAnomalyAnnotations, parseMetadataYaml } from "@nkdk/runtime"
 import { createRuleRegistrySet } from "@nkdk/runtime/rule-kit"
@@ -139,4 +140,16 @@ it("наследует владельца короткой ссылки из к�
     annotations: createXmlAnomalyAnnotations(),
   })
   expect(references.map(reference => reference.canonical)).toEqual(["Catalog.Товары.Form.Выбор"])
+})
+
+it("сохраняет именованные ссылки в ключах ролей, исключая UUID", () => {
+  const parsed = parseMetadataYaml("ВидимостьКоманд:\n  - Команда: '0'\n    Роли:\n      Администратор: Ложь\n      !xml/invalid НетРоли: Истина\n      !xml/uuid 26b79d3a-475f-4df9-91ea-fc6bc714a521: Ложь")
+  const facts = collectBoundaryReferenceFacts({
+    context: mockContextFromXML(), execution, rule: RootCommandInterfaceRules,
+    yaml: parsed.data as Record<string, unknown>, yamlPath: [],
+    filePath: "Свойства.yaml", annotations: parsed.annotations,
+  })
+  expect(facts.references.map(reference => [reference.canonical, reference.xmlAnomaly])).toEqual([
+    ["Role.Администратор", undefined], ["Role.НетРоли", "pending"],
+  ])
 })

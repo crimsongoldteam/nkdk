@@ -1,3 +1,4 @@
+import { userVisibleRoleTarget } from "../../../commonObjects/userVisible/metadataTargetOccurrences"
 import { defineElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { ElementRule } from "../../../ruleRuntime/formElement/types"
@@ -401,6 +402,7 @@ export const TableRules = {
     userVisible: {
       yaml: "Использование",
       type: "UserVisible",
+      metadataTarget: userVisibleRoleTarget,
       toEnterprise: false,
     },
     verticalAlignInGroup: {

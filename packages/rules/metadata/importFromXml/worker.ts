@@ -879,7 +879,14 @@ async function processSecondPass(
                 requestId: `local-boundary:${index}`, componentPath: state.componentPath, reference,
               })),
               projectDir: state.projectDir, queryPort: secondPass.readSession,
-            }).diagnostics.filter(({ severity }) => severity === "error").map(validationIssueFromDiagnostic))]
+            }).diagnostics.filter(({ severity }) => severity === "error").map(diagnostic => {
+              const issue = validationIssueFromDiagnostic(diagnostic)
+              const keyReference = referenceFacts.references.find(reference =>
+                reference.annotationKind === "key" && sameYamlPath(reference.yamlPath, issue.target.path))
+              return keyReference === undefined ? issue : {
+                ...issue, target: { kind: "occurrence" as const, path: issue.target.path, occurrence: 1 },
+              }
+            }))]
           const referenceDecisions = classifyImportedIssues({
             issues: referenceIssues,
             requiresImportant: target => requiresImportantForImportedTarget({ yaml, rule }, relativeValidationTarget(target, yamlPath)),
