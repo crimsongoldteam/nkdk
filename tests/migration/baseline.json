@@ -1450,5 +1450,32 @@
       "contract": "Original typed.xml fixture retained; no change in intended public output",
       "resolution": "Comparison adapters must explicitly supply execution registry. Existing TypeScript helper has not been changed."
     }
-  ]
+  ],
+  "performanceInputs": {
+    "scope": "e2e-only",
+    "fingerprintAlgorithm": "sort tracked repository paths lexicographically; feed each UTF-8 path byte length as u64 big-endian, path bytes, then SHA256(file bytes)",
+    "sets": [
+      {
+        "path": "e2e/fixtures/xml",
+        "trackedFiles": 1417,
+        "bytes": 7997914,
+        "sha256": "b32ea654a5baecb2218a71c3b495eaf9866a97b4a2910e5e25e558c8ebba556c",
+        "gitTree": "90913ca2035aa6cec84ea66820a3e2f6ab4ffc7a"
+      },
+      {
+        "path": "e2e/fixtures/nkdk",
+        "trackedFiles": 1116,
+        "bytes": 3442471,
+        "sha256": "1494d33cb90b305a5025cd8db48140b5670ef9a6eaf6b6fc0b6faed5ebfc80ac",
+        "gitTree": "9e0b44bb4961c7822be49cf814c99e57cfa0b259"
+      }
+    ],
+    "measurementStatus": "not run"
+  },
+  "selectedToolchain": {
+    "rustc": "1.98.1 (48a229cea 2026-09-01)",
+    "cargo": "1.98.1 (797e8a9bc 2026-08-05)",
+    "status": "Installed and verified using explicit +1.98.1; workspace pin to be created in A2",
+    "reason": "Matches donor minimum Rust 1.98; default stable 1.97.1 does not select this version automatically"
+  }
 }

@@ -3,5 +3,9 @@
   "parameters": {
     "typedXML": true
   },
-  "boundary": "scalar-value"
+  "boundary": "scalar-value",
+  "xmlFragmentNamespaces": {
+    "xs": "http://www.w3.org/2001/XMLSchema",
+    "xsi": "http://www.w3.org/2001/XMLSchema-instance"
+  }
 }

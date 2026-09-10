@@ -117,7 +117,7 @@
       "scope": "property-contract; not full project import",
       "verification": "source-reviewed; Rust execution pending",
       "xmlInputKind": "legacy-test-fragment",
-      "namespaceResolution": "pending explicit harness bindings before compiler execution",
+      "namespaceResolution": "Explicit xmlFragmentNamespaces supplied by corpus adapter; original fragment bytes remain unchanged",
       "evidenceHashes": {
         "packages/rules/metadata/commonObjects/i8nText/fromXMLToYAML.integration.test.ts": "92be3f157e74ff481d9299c3918543b5d1e8f1ad6106489ddb52f36f62bf8011"
       }
@@ -161,7 +161,7 @@
       "scope": "property-contract; not full project import",
       "verification": "source-reviewed; Rust execution pending",
       "xmlInputKind": "legacy-test-fragment",
-      "namespaceResolution": "pending explicit harness bindings before compiler execution",
+      "namespaceResolution": "Explicit xmlFragmentNamespaces supplied by corpus adapter; original fragment bytes remain unchanged",
       "evidenceHashes": {
         "packages/rules/metadata/commonObjects/i8nText/fromXMLToYAML.integration.test.ts": "92be3f157e74ff481d9299c3918543b5d1e8f1ad6106489ddb52f36f62bf8011"
       }
@@ -205,7 +205,7 @@
       "scope": "property-contract; not full project import",
       "verification": "source-reviewed; Rust execution pending",
       "xmlInputKind": "legacy-test-fragment",
-      "namespaceResolution": "pending explicit harness bindings before compiler execution",
+      "namespaceResolution": "Explicit xmlFragmentNamespaces supplied by corpus adapter; original fragment bytes remain unchanged",
       "evidenceHashes": {
         "packages/rules/metadata/commonObjects/i8nText/fromXMLToYAML.integration.test.ts": "92be3f157e74ff481d9299c3918543b5d1e8f1ad6106489ddb52f36f62bf8011"
       }
@@ -249,7 +249,7 @@
       "scope": "property-contract; not full project import",
       "verification": "source-reviewed; Rust execution pending",
       "xmlInputKind": "legacy-test-fragment",
-      "namespaceResolution": "pending explicit harness bindings before compiler execution",
+      "namespaceResolution": "Explicit xmlFragmentNamespaces supplied by corpus adapter; original fragment bytes remain unchanged",
       "evidenceHashes": {
         "packages/rules/metadata/commonObjects/i8nText/fromXMLToYAML.integration.test.ts": "92be3f157e74ff481d9299c3918543b5d1e8f1ad6106489ddb52f36f62bf8011"
       }
@@ -334,7 +334,8 @@
       },
       "scope": "scalar-value; not full project import",
       "verification": "source-reviewed; Rust execution pending",
-      "xmlInputKind": "legacy-test-fragment"
+      "xmlInputKind": "legacy-test-fragment",
+      "namespaceResolution": "Explicit xmlFragmentNamespaces supplied by corpus adapter; original fragment bytes remain unchanged"
     },
     {
       "id": "formatted-i8n-without-text",
@@ -379,6 +380,69 @@
         "packages/rules/metadata/commonObjects/formattedI8nText/toXML.ts": "43ff3d7a7319bf31c3ad6e1e08952b7a304567b666fee3f0dc2dec8e7ce8b27a",
         "packages/rules/metadata/commonObjects/formattedI8nText/toYAML.ts": "9101d88e22cda94b255103e6ef86aae69b93e3bd6699c08f2ba37539eeb81b7e"
       }
+    },
+    {
+      "id": "xml-scalar-attributes",
+      "group": "xml-anomalies",
+      "capabilities": [
+        "local-xml-boundary",
+        "yaml-annotation-persistence"
+      ],
+      "inputs": {
+        "yaml": {
+          "path": "tests/conversion-corpus/cases/xml-scalar-attributes/input.yaml",
+          "sha256": "7d7fd56b86819811b679f917b48d66e0369384416a4fb602122060dad675f984"
+        },
+        "xml": {
+          "path": "tests/conversion-corpus/cases/xml-scalar-attributes/input.xml",
+          "sha256": "e3a0fc758d92edc6a1c131a824467b1c419bb9f8ab673ab767b1a418213985cf"
+        }
+      },
+      "context": "tests/conversion-corpus/cases/xml-scalar-attributes/context.json",
+      "directions": [
+        "xml-to-yaml",
+        "yaml-to-xml",
+        "round-trip"
+      ],
+      "outcome": "success",
+      "expectations": {
+        "xml": "tests/conversion-corpus/cases/xml-scalar-attributes/expected.xml",
+        "yaml": "tests/conversion-corpus/cases/xml-scalar-attributes/input.yaml"
+      },
+      "comparison": {
+        "yaml": "exact",
+        "xml": "exact",
+        "exceptions": []
+      },
+      "evidence": [
+        "packages/runtime/metadata/ruleRuntime/xmlAnomaly/localScalarBoundary.test.ts",
+        "packages/runtime/yaml/xmlAnomalyAnnotations.test.ts"
+      ],
+      "verification": "Source-reviewed existing scalar raw case; execution in new adapter pending"
+    },
+    {
+      "id": "unknown-yaml-property",
+      "group": "validation",
+      "inputs": {
+        "yaml": {
+          "path": "tests/conversion-corpus/cases/unknown-yaml-property/input.yaml",
+          "sha256": "8e184a6648d3d7eb47677747a11cb2e002e65266412d68bddfebf8f71cae7673"
+        }
+      },
+      "context": "tests/conversion-corpus/cases/unknown-yaml-property/context.json",
+      "directions": [
+        "yaml-validation"
+      ],
+      "outcome": "failure",
+      "expectations": {
+        "diagnostics": "tests/conversion-corpus/cases/unknown-yaml-property/diagnostics.json"
+      },
+      "evidence": [
+        "packages/runtime/metadata/validation/validateFile.ts",
+        "packages/runtime/metadata/validation/validateFile.test.ts"
+      ],
+      "scope": "closed object schema; no metadata resolver",
+      "verification": "TypeScript diagnostic observed; Rust pending"
     }
   ],
   "pendingImport": [
@@ -409,11 +473,6 @@
     },
     {
       "id": "style-border",
-      "status": "provenance-verified",
-      "semanticReview": "pending"
-    },
-    {
-      "id": "xml-scalar-attributes",
       "status": "provenance-verified",
       "semanticReview": "pending"
     },

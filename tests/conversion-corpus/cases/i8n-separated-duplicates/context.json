@@ -7,5 +7,8 @@
   ],
   "profile": "ordinary",
   "boundary": "property",
-  "reference": false
+  "reference": false,
+  "xmlFragmentNamespaces": {
+    "v8": "http://v8.1c.ru/8.1/data/core"
+  }
 }

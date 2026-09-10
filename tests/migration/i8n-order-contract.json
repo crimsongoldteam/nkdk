@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "defaultLanguage": "ru",
+  "source": {
+    "path": "packages/runtime/metadata/validation/localizedTextYAML.ts",
+    "sha256": "037dba7b00cb9b15ce9dfadee08f59cfcb8d0d95e2db6a68e1c39350dd93e781"
+  },
+  "cases": [
+    {
+      "codes": [],
+      "expected": true
+    },
+    {
+      "codes": [
+        "ru",
+        "de",
+        "en"
+      ],
+      "expected": true
+    },
+    {
+      "codes": [
+        "ru",
+        "en",
+        "de"
+      ],
+      "expected": false
+    },
+    {
+      "codes": [
+        "en",
+        "ru"
+      ],
+      "expected": false
+    },
+    {
+      "codes": [
+        "ru",
+        "en",
+        "ru",
+        "en"
+      ],
+      "expected": true
+    },
+    {
+      "codes": [
+        "de",
+        "en",
+        "de"
+      ],
+      "expected": true
+    },
+    {
+      "codes": [
+        "en",
+        "de",
+        "en"
+      ],
+      "expected": false
+    },
+    {
+      "codes": [
+        "𐀀",
+        ""
+      ],
+      "expected": true
+    },
+    {
+      "codes": [
+        "",
+        "𐀀"
+      ],
+      "expected": false
+    }
+  ],
+  "verification": "9 independent expectations match TypeScript and one-pass order check; Rust pending"
+}

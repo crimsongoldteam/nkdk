@@ -1,0 +1,50 @@
+format: nkdk-declarations/1
+kind: value
+id: common.i8n-text
+
+namespaces:
+  v8: "http://v8.1c.ru/8.1/data/core"
+
+inputs:
+  defaultLanguage:
+    type: {kind: scalar, scalar: text}
+
+types:
+  translation:
+    kind: record
+    fields:
+      - name: language
+        type: {kind: scalar, scalar: text}
+      - name: content
+        type: {kind: scalar, scalar: text}
+
+value:
+  kind: sequence
+  item: {local: translation}
+
+representations:
+  xml:
+    kind: element-sequence
+    path: [v8:item]
+    item:
+      kind: record
+      fields:
+        - field: language
+          path: [v8:lang]
+        - field: content
+          path: [v8:content]
+  yaml:
+    kind: keyed-mapping
+    key: language
+    value: content
+    shorthand:
+      - id: primary-language-string
+        representation:
+          kind: scalar
+          scalar: text
+          capture: text
+        denotes:
+          sequence:
+            - record:
+                language: {input: defaultLanguage}
+                content: {capture: text}

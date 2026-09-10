@@ -1,0 +1,10 @@
+[package]
+name = "nkdk-rule-compiler"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+
+[dependencies]
+nkdk-rule-model.workspace = true
+yaml-rust2.workspace = true

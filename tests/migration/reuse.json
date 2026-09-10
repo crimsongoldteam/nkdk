@@ -64,6 +64,34 @@
       "decision": "reuse-test",
       "reason": "Булевы ожидания независимо подтверждены atomicConversion.test.ts; источник скопирован без изменений.",
       "copied": true
+    },
+    {
+      "path": "tests/conversion-corpus/cases/xml-scalar-attributes/context.json",
+      "sha256": "cf8046808edfa8367fd54c6af2ed85d6eda81b3b266fd2dc47060b10ca94ce9a",
+      "decision": "reuse-test",
+      "reason": "Existing scalar raw contract; copied tracked donor bytes without changes.",
+      "copied": true
+    },
+    {
+      "path": "tests/conversion-corpus/cases/xml-scalar-attributes/expected.xml",
+      "sha256": "e3a0fc758d92edc6a1c131a824467b1c419bb9f8ab673ab767b1a418213985cf",
+      "decision": "reuse-test",
+      "reason": "Existing scalar raw contract; copied tracked donor bytes without changes.",
+      "copied": true
+    },
+    {
+      "path": "tests/conversion-corpus/cases/xml-scalar-attributes/input.xml",
+      "sha256": "e3a0fc758d92edc6a1c131a824467b1c419bb9f8ab673ab767b1a418213985cf",
+      "decision": "reuse-test",
+      "reason": "Existing scalar raw contract; copied tracked donor bytes without changes.",
+      "copied": true
+    },
+    {
+      "path": "tests/conversion-corpus/cases/xml-scalar-attributes/input.yaml",
+      "sha256": "7d7fd56b86819811b679f917b48d66e0369384416a4fb602122060dad675f984",
+      "decision": "reuse-test",
+      "reason": "Existing scalar raw contract; copied tracked donor bytes without changes.",
+      "copied": true
     }
   ]
 }

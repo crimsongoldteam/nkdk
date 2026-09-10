@@ -1,0 +1,92 @@
+{
+  "version": 1,
+  "source": [
+    {
+      "path": "packages/rules/metadata/commonObjects/i8nText/helper.ts",
+      "sha256": "17424d04fe29d7cfe769b0ab20184e3607ed05979647ba7fbe8635508c7ea97a"
+    },
+    {
+      "path": "packages/rules/metadata/commonObjects/i8nText/anomalies.ts",
+      "sha256": "a89e65620671c9aef0fcb24e60353935b13c8e309a0db1d1a612321f02450fc7"
+    },
+    {
+      "path": "packages/rules/metadata/commonObjects/i8nText/toXML.ts",
+      "sha256": "63183447f7ed3b868516982d87d86d42b51bf31b786ee49aa6aaf78ac9b69499"
+    }
+  ],
+  "cases": [
+    {
+      "items": [
+        {
+          "language": "ru",
+          "content": ""
+        },
+        {
+          "language": "ru",
+          "content": "Второй"
+        }
+      ],
+      "isEmpty": true,
+      "skipEmptyOutput": {
+        "state": "absent"
+      }
+    },
+    {
+      "items": [
+        {
+          "language": "ru",
+          "content": "Первый"
+        },
+        {
+          "language": "ru",
+          "content": ""
+        }
+      ],
+      "isEmpty": false,
+      "skipEmptyOutput": {
+        "state": "present",
+        "items": [
+          {
+            "language": "ru",
+            "content": "Первый"
+          },
+          {
+            "language": "ru",
+            "content": ""
+          }
+        ]
+      }
+    }
+  ],
+  "scope": "Atomic empty predicate and XML exporter only; full anomaly restoration remains unverified",
+  "verification": "Executed against current TypeScript; not an authorization to lose repeated content",
+  "fullRoundTrip": {
+    "status": "failed-in-current-typescript",
+    "sourceXML": "<Root><Title><v8:item><v8:lang>ru</v8:lang><v8:content/></v8:item><v8:item><v8:lang>ru</v8:lang><v8:content>Второй</v8:content></v8:item></Title></Root>",
+    "rule": {
+      "type": "I8nText",
+      "xml": "Title",
+      "yaml": "Заголовок",
+      "skipEmptyToXML": true
+    },
+    "entry": "testPropertyYamlRoundTrip in packages/rules/tests/directConversion.ts",
+    "error": "Не найдено вхождение 2 XML-сегмента Title; raw-границы [Title]",
+    "decision": "Approved by user: fix in Rust and preserve both physical occurrences; do not repair TypeScript oracle first"
+  },
+  "rustContract": {
+    "status": "approved-not-implemented",
+    "expectedItems": [
+      {
+        "language": "ru",
+        "content": ""
+      },
+      {
+        "language": "ru",
+        "content": "Второй"
+      }
+    ],
+    "skipEmptyToXMLMustNotDropNonemptyOccurrences": true,
+    "proofMustRestoreBothOccurrences": true,
+    "newRawPolicyAuthorized": false
+  }
+}

@@ -1,0 +1,11 @@
+[
+  {
+    "filePath": "unknown-property.yaml",
+    "line": 2,
+    "col": 14,
+    "message": "must not have additional properties",
+    "severity": "error",
+    "source": "structure",
+    "path": "/Неизвестное"
+  }
+]

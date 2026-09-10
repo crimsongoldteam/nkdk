@@ -1,0 +1,16 @@
+{
+  "entry": "migration.closed-string-object",
+  "filePath": "unknown-property.yaml",
+  "schemaContract": {
+    "type": "object",
+    "properties": {
+      "Значение": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "Значение"
+    ],
+    "additionalProperties": false
+  }
+}
