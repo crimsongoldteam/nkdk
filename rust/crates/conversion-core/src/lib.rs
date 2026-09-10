@@ -1,6 +1,8 @@
 pub mod annotations;
+pub mod calendar;
 pub mod decimal;
 pub mod inputs;
+pub mod pattern;
 pub use inputs::{InputType, InputValue, PreparedInputs};
 pub mod position;
 pub use position::Position;

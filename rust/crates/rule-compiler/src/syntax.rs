@@ -252,7 +252,22 @@ pub fn decode(path: &str, events: Vec<(Event, Marker)>) -> Result<Module, Diagno
         ));
     }
     let value = root.field(path, fields, "value")?;
-    let definition = type_definition(path, value)?;
+    let root_pattern = match &value.shape {
+        Shape::Mapping(fields) => optional_field(fields, "pattern"),
+        _ => None,
+    };
+    let definition = if root_pattern.is_some() {
+        let fields = value.mapping(path, &["kind", "scalar", "pattern"])?;
+        value
+            .field(path, fields, "kind")?
+            .literal(path, "scalar", "pattern_requires_text")?;
+        value
+            .field(path, fields, "scalar")?
+            .literal(path, "text", "pattern_requires_text")?;
+        TypeDefinition::Scalar(ScalarType::Text)
+    } else {
+        type_definition(path, value)?
+    };
     if kind != ModuleKind::Value && !matches!(definition, TypeDefinition::Record(_)) {
         return Err(error(
             path,
@@ -268,21 +283,79 @@ pub fn decode(path: &str, events: Vec<(Event, Marker)>) -> Result<Module, Diagno
     let yaml = representations.field(path, rep_fields, "yaml")?;
     let (xml_rep, yaml_rep) = match &definition {
         TypeDefinition::Scalar(ScalarType::Text) => {
-            let xml_fields = xml.mapping(path, &["kind"])?;
-            xml.field(path, xml_fields, "kind")?.literal(
-                path,
-                "text",
-                "unsupported_representation",
-            )?;
-            let yaml_fields = yaml.mapping(path, &["kind", "scalar"])?;
-            yaml.field(path, yaml_fields, "kind")?.literal(
-                path,
-                "scalar",
-                "unsupported_representation",
-            )?;
-            yaml.field(path, yaml_fields, "scalar")?
-                .literal(path, "text", "unsupported_scalar")?;
-            (XmlRepresentation::Text, YamlRepresentation::Text)
+            let xml_fields = xml.mapping(path, &["kind", "format", "zone"])?;
+            if xml.field(path, xml_fields, "kind")?.text(path)? == "calendar" {
+                xml.field(path, xml_fields, "format")?.literal(
+                    path,
+                    "iso",
+                    "unsupported_calendar_format",
+                )?;
+                xml.field(path, xml_fields, "zone")?.literal(
+                    path,
+                    "written",
+                    "unsupported_calendar_zone",
+                )?;
+                let fields = yaml.mapping(path, &["kind", "format", "precision", "zeroTime"])?;
+                yaml.field(path, fields, "kind")?.literal(
+                    path,
+                    "calendar",
+                    "unsupported_representation",
+                )?;
+                yaml.field(path, fields, "format")?.literal(
+                    path,
+                    "day-month-year",
+                    "unsupported_calendar_format",
+                )?;
+                let precision = yaml.field(path, fields, "precision")?;
+                let seconds = match precision.text(path)? {
+                    "seconds" => true,
+                    "minutes" => false,
+                    _ => {
+                        return Err(error(
+                            path,
+                            precision.mark,
+                            "unsupported_calendar_precision",
+                            "Expected minutes or seconds",
+                        ));
+                    }
+                };
+                let zero = yaml.field(path, fields, "zeroTime")?;
+                let omit_zero = match zero.text(path)? {
+                    "omit" => true,
+                    "keep" => false,
+                    _ => {
+                        return Err(error(
+                            path,
+                            zero.mark,
+                            "unsupported_calendar_zero",
+                            "Expected omit or keep",
+                        ));
+                    }
+                };
+                (
+                    XmlRepresentation::Calendar,
+                    YamlRepresentation::Calendar { seconds, omit_zero },
+                )
+            } else {
+                xml.mapping(path, &["kind"])?;
+                xml.field(path, xml_fields, "kind")?.literal(
+                    path,
+                    "text",
+                    "unsupported_representation",
+                )?;
+                let yaml_fields = yaml.mapping(path, &["kind", "scalar"])?;
+                yaml.field(path, yaml_fields, "kind")?.literal(
+                    path,
+                    "scalar",
+                    "unsupported_representation",
+                )?;
+                yaml.field(path, yaml_fields, "scalar")?.literal(
+                    path,
+                    "text",
+                    "unsupported_scalar",
+                )?;
+                (XmlRepresentation::Text, YamlRepresentation::Text)
+            }
         }
         TypeDefinition::Scalar(ScalarType::Decimal) => {
             let fields = xml.mapping(path, &["kind"])?;
@@ -340,6 +413,37 @@ pub fn decode(path: &str, events: Vec<(Event, Marker)>) -> Result<Module, Diagno
             "Composition requires fragment or object",
         ));
     }
+    let mut constraints = constraints(path, fields)?;
+    if let Some(pattern) = root_pattern {
+        let source = location(path, pattern);
+        constraints.push(Constraint {
+            id: "value.pattern".into(),
+            applies_to: vec![ValidationPhase::XmlImport, ValidationPhase::YamlValidation],
+            when: None,
+            for_each: None,
+            forms: vec![],
+            assertion: Expression {
+                kind: ExpressionKind::Matches {
+                    value: Box::new(Expression {
+                        kind: ExpressionKind::SelfValue,
+                        source: source.clone(),
+                    }),
+                    pattern: pattern.text(path)?.into(),
+                },
+                source: source.clone(),
+            },
+            diagnostic: DiagnosticDefinition {
+                code: Some("value.pattern".into()),
+                source: None,
+                severity: Severity::Error,
+                at: DiagnosticTarget::SelfValue,
+                message: MessageDefinition::Text(
+                    "Value does not match the declared text pattern".into(),
+                ),
+            },
+            source,
+        });
+    }
     Ok(Module {
         source: location(path, id_node),
         kind,
@@ -352,7 +456,7 @@ pub fn decode(path: &str, events: Vec<(Event, Marker)>) -> Result<Module, Diagno
         parameters: parameters(path, fields)?,
         presence: presence(path, fields)?,
         normalization: normalization(path, fields)?,
-        constraints: constraints(path, fields)?,
+        constraints,
         compose,
         value: definition,
         representations: Representations {

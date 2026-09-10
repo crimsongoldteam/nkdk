@@ -52,6 +52,13 @@ fn boolean_absence_is_distinct_from_false_and_invalid_tokens() {
     ] {
         assert!(!validate_file(entry, yaml.as_bytes(), &inputs).is_empty());
     }
+    nkdk_compiled_rules::verify_candidate(
+        entry,
+        b"<Root><Value/></Root>",
+        "Value: !xml/raw\n  $xml: null".as_bytes(),
+        &inputs,
+    )
+    .unwrap();
     for xml in [
         "<Root><Value/></Root>",
         "<Root><Value>0</Value></Root>",
@@ -69,6 +76,14 @@ fn boolean_absence_is_distinct_from_false_and_invalid_tokens() {
 fn scalar_anomalies_preserve_lexemes_and_neighbouring_values() {
     let inputs = PreparedInputs::default();
     for (entry, xml) in [
+        (
+            "test.scalar-owner",
+            "<Root><Server><Unexpected flag=\"x\">one</Unexpected><Unexpected>two</Unexpected></Server><Description>unchanged</Description></Root>",
+        ),
+        (
+            "migration.metadata-name",
+            "<Root><Name><Unexpected>text</Unexpected></Name></Root>",
+        ),
         ("test.decimal-owner", "<Root><Amount>NaN</Amount></Root>"),
         (
             "test.decimal-owner",
@@ -93,6 +108,9 @@ fn scalar_anomalies_preserve_lexemes_and_neighbouring_values() {
         let result = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
         let yaml = String::from_utf8_lossy(&result.bytes);
         assert!(yaml.contains("!xml/raw"));
+        if xml.contains("<Unexpected") {
+            assert!(!yaml.contains("$значение:"), "{yaml}");
+        }
         if xml.contains("extra=") {
             assert!(yaml.contains("$значение: unchanged"), "{yaml}");
         }
@@ -125,4 +143,91 @@ fn scalar_constraints_infer_annotations_without_duplicate_rules() {
         )
         .is_empty()
     );
+}
+
+#[test]
+fn declared_scalar_xml_types_keep_text_and_exact_numbers() {
+    let inputs = PreparedInputs::default();
+    for (entry, kind, value, expected) in [
+        (
+            "migration.typed-number",
+            "decimal",
+            "9007199254740993",
+            "Сумма: 9007199254740993",
+        ),
+        ("migration.typed-string", "string", "001", "Сумма: \"001\""),
+    ] {
+        let entry = entry_id(entry).unwrap();
+        let xml = format!(
+            "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Amount xsi:type=\"xs:{kind}\">{value}</Amount></Root>"
+        );
+        let converted = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+        assert_eq!(String::from_utf8_lossy(&converted.bytes), expected);
+        assert!(validate_file(entry, &converted.bytes, &inputs).is_empty());
+        nkdk_compiled_rules::verify_candidate(entry, xml.as_bytes(), &converted.bytes, &inputs)
+            .unwrap();
+    }
+}
+
+#[test]
+fn omitted_scalar_defaults_do_not_erase_absence_or_empty_xml() {
+    let inputs = PreparedInputs::default();
+    let entry = entry_id("migration.scalar-defaults").unwrap();
+    let normal = b"<Root><Enabled>false</Enabled><Text/><Amount>0</Amount></Root>";
+    let converted = convert_file(entry, Direction::XmlToYaml, normal, &inputs).unwrap();
+    assert!(converted.bytes.is_empty());
+    nkdk_compiled_rules::verify_candidate(entry, normal, &converted.bytes, &inputs).unwrap();
+    for original in [
+        "<Root/>",
+        "<Root><Enabled/><Text/><Amount/></Root>",
+        "<Root><Enabled>wrong</Enabled><Text/><Amount>NaN</Amount></Root>",
+        "<Root><Enabled>false</Enabled><Text/><Amount>-0.00</Amount></Root>",
+    ] {
+        let converted =
+            convert_file(entry, Direction::XmlToYaml, original.as_bytes(), &inputs).unwrap();
+        assert!(String::from_utf8_lossy(&converted.bytes).contains("!xml/raw"));
+        if original.contains("-0.00") {
+            assert!(String::from_utf8_lossy(&converted.bytes).contains("$значение: 0"));
+        }
+
+        assert!(validate_file(entry, &converted.bytes, &inputs).is_empty());
+        nkdk_compiled_rules::verify_candidate(
+            entry,
+            original.as_bytes(),
+            &converted.bytes,
+            &inputs,
+        )
+        .unwrap();
+    }
+    let typed = entry_id("migration.scalar-typed-defaults").unwrap();
+    let result = convert_file(typed, Direction::XmlToYaml, normal, &inputs).unwrap();
+    nkdk_compiled_rules::verify_candidate(typed, normal, &result.bytes, &inputs).unwrap();
+    for yaml in ["Enabled: Ложь", "Text: \"\"", "Amount: 0"] {
+        assert!(!validate_file(entry, yaml.as_bytes(), &inputs).is_empty());
+    }
+}
+
+#[test]
+fn metadata_name_uses_the_common_pattern_for_validation_and_anomalies() {
+    let entry = entry_id("migration.metadata-name").unwrap();
+    let inputs = PreparedInputs::default();
+    for (name, valid) in [
+        ("ИмяЁ_1", true),
+        ("_name", true),
+        ("1Имя", false),
+        ("Имя-с-дефисом", false),
+        ("Name\n", false),
+        ("", false),
+    ] {
+        let original = format!("<Root><Name>{name}</Name></Root>");
+        let result =
+            convert_file(entry, Direction::XmlToYaml, original.as_bytes(), &inputs).unwrap();
+        assert_eq!(
+            String::from_utf8_lossy(&result.bytes).contains("!xml/invalid"),
+            !valid
+        );
+        assert!(validate_file(entry, &result.bytes, &inputs).is_empty());
+        nkdk_compiled_rules::verify_candidate(entry, original.as_bytes(), &result.bytes, &inputs)
+            .unwrap();
+    }
 }

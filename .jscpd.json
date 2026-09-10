@@ -2,7 +2,12 @@
   "minLines": 5,
   "minTokens": 50,
   "mode": "mild",
-  "format": ["typescript", "tsx", "javascript"],
+  "format": [
+    "typescript",
+    "tsx",
+    "javascript",
+    "rust"
+  ],
   "ignorePattern": [
     "(?m)^[ \\t]*import[ \\t]+(?:type[ \\t]+)?(?:[A-Za-z_$][\\w$]*[ \\t\\r\\n]*(?:,[ \\t\\r\\n]*)?)?(?:\\{[^}]*\\}|\\*[ \\t\\r\\n]+as[ \\t]+[A-Za-z_$][\\w$]*)?[ \\t\\r\\n]*from[ \\t\\r\\n]*(?:\"[^\"\\r\\n]*\"|'[^'\\r\\n]*')[ \\t]*;?",
     "(?m)^[ \\t]*import[ \\t]*(?:\"[^\"\\r\\n]*\"|'[^'\\r\\n]*')[ \\t]*;?"
@@ -17,7 +22,10 @@
     "**/*.generated.*",
     "**/*.gen.*",
     "**/__fixtures__/**",
-    "**/*.snap"
+    "**/*.snap",
+    "**/target/**"
   ],
-  "reporters": ["json"]
+  "reporters": [
+    "json"
+  ]
 }

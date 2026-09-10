@@ -8,6 +8,7 @@ mod patterns;
 mod presence;
 mod record;
 pub(crate) mod scalar;
+pub(crate) mod scalar_presence;
 pub(crate) mod shorthand;
 mod source_map;
 mod text;
@@ -121,10 +122,10 @@ fn unsupported(entry: &LinkedEntry, message: &str) -> Diagnostic {
 }
 fn plain(entry: &LinkedEntry) -> Result<(), Diagnostic> {
     plain_shape(entry)?;
-    if !entry.constraints.is_empty() || !entry.inputs.is_empty() {
+    if !entry.inputs.is_empty() {
         return Err(unsupported(
             entry,
-            "Referenced scalar constraints are not generated yet",
+            "Referenced scalar inputs require specialization",
         ));
     }
     Ok(())

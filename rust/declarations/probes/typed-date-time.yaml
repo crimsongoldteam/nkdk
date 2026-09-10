@@ -1,0 +1,17 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.typed-date-time
+imports: {number: common.typed-date-time}
+value:
+  kind: record
+  fields:
+    - {name: amount, type: {use: number}}
+representations:
+  xml:
+    kind: record
+    fields:
+      - {field: amount, path: [Root, Amount]}
+  yaml:
+    kind: mapping
+    fields:
+      - {field: amount, key: Сумма}

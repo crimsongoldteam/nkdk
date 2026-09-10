@@ -21,6 +21,7 @@ pub(super) fn expression(path: &str, value: &Node) -> Result<Expression, Diagnos
         path,
         &[
             "input",
+            "matches",
             "match",
             "present",
             "isNull",
@@ -60,6 +61,13 @@ pub(super) fn expression(path: &str, value: &Node) -> Result<Expression, Diagnos
     }
     let (operator, operand) = &fields[0];
     let kind = match operator.text(path)? {
+        "matches" => {
+            let fields = operand.mapping(path, &["value", "pattern"])?;
+            ExpressionKind::Matches {
+                value: Box::new(expression(path, operand.field(path, fields, "value")?)?),
+                pattern: operand.field(path, fields, "pattern")?.text(path)?.into(),
+            }
+        }
         "present" | "isNull" | "isReady" => ExpressionKind::StateTest {
             predicate: match operator.text(path)? {
                 "present" => StatePredicate::Present,

@@ -15,13 +15,7 @@ fn schema_preserves_conditional_decimal_bounds_and_enum_spellings() {
             include_str!("../../../../tests/declaration-corpus/valid/numeric-bound.yaml"),
         ),
     ];
-    let modules = sources.map(|(path, source)| {
-        parse(SourceFile {
-            path,
-            bytes: source.as_bytes(),
-        })
-        .unwrap()
-    });
+    let modules = sources.map(parse_module);
     let program = link(&modules).unwrap();
     let actual: serde_json::Value =
         serde_json::from_slice(&schema(&program, "test.numeric-bound").unwrap()).unwrap();
@@ -187,4 +181,84 @@ fn scalar_absence_changes_required_fields_without_widening_boolean_values() {
     ] {
         assert_eq!(validator.is_valid(&input), valid, "{input}");
     }
+}
+
+#[test]
+fn scalar_default_schema_accepts_omission_and_rejects_explicit_shortened_values() {
+    let modules = [
+        (
+            "boolean",
+            include_str!("../../../declarations/common/boolean.yaml"),
+        ),
+        (
+            "string",
+            include_str!("../../../declarations/common/string.yaml"),
+        ),
+        (
+            "number",
+            include_str!("../../../declarations/common/number.yaml"),
+        ),
+        (
+            "owner",
+            include_str!("../../../declarations/probes/scalar-defaults.yaml"),
+        ),
+    ]
+    .map(parse_module);
+    let program = link(&modules).unwrap();
+    let schema: serde_json::Value =
+        serde_json::from_slice(&schema(&program, "migration.scalar-defaults").unwrap()).unwrap();
+    let validator = jsonschema::validator_for(&schema).unwrap();
+    for (value, valid) in [
+        (serde_json::json!({}), true),
+        (
+            serde_json::json!({"Enabled":"Истина","Text":"001","Amount":1}),
+            true,
+        ),
+        (serde_json::json!({"Enabled":"Ложь"}), false),
+        (serde_json::json!({"Text":""}), false),
+        (serde_json::json!({"Amount":0}), false),
+    ] {
+        assert_eq!(validator.is_valid(&value), valid, "{value}");
+    }
+}
+
+#[test]
+fn metadata_name_schema_lifts_the_common_pattern_without_a_second_rule() {
+    let modules = [
+        (
+            "common",
+            include_str!("../../../declarations/common/metadata-name.yaml"),
+        ),
+        (
+            "owner",
+            include_str!("../../../declarations/probes/metadata-name.yaml"),
+        ),
+    ]
+    .map(parse_module);
+    let program = link(&modules).unwrap();
+    let value: serde_json::Value =
+        serde_json::from_slice(&schema(&program, "migration.metadata-name").unwrap()).unwrap();
+    let validator = jsonschema::validator_for(&value).unwrap();
+    for (name, valid) in [
+        ("ИмяЁ_1", true),
+        ("_name", true),
+        ("1Имя", false),
+        ("Имя-с-дефисом", false),
+        ("Name\n", false),
+        ("", false),
+    ] {
+        assert_eq!(
+            validator.is_valid(&serde_json::json!({"Имя":name})),
+            valid,
+            "{name:?}"
+        );
+    }
+}
+
+fn parse_module((path, source): (&str, &str)) -> nkdk_rule_model::Module {
+    parse(SourceFile {
+        path,
+        bytes: source.as_bytes(),
+    })
+    .unwrap()
 }

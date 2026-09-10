@@ -12,6 +12,7 @@ mod normalization;
 mod parameters;
 mod patterns;
 mod presence;
+mod scalar_contracts;
 mod shorthands;
 mod text;
 mod type_graph;
@@ -86,9 +87,9 @@ pub fn link(modules: &[Module]) -> Result<Program, Vec<Diagnostic>> {
     }
     if errors.is_empty() {
         xml_ownership::validate(&cache).map_err(|error| vec![error])?;
-        Ok(Program {
-            entries: cache.into_values().collect(),
-        })
+        let mut entries: Vec<_> = cache.into_values().collect();
+        scalar_contracts::lift(&mut entries).map_err(|error| vec![error])?;
+        Ok(Program { entries })
     } else {
         Err(errors)
     }
@@ -451,6 +452,7 @@ fn resolve_xml(
         XmlRepresentation::EnumTable(table) => LinkedXml::EnumTable(table.clone()),
         XmlRepresentation::Decimal => LinkedXml::Decimal,
         XmlRepresentation::Text => LinkedXml::Text,
+        XmlRepresentation::Calendar => LinkedXml::Calendar,
         XmlRepresentation::BooleanTable(table) => LinkedXml::BooleanTable(table.clone()),
         XmlRepresentation::ElementSequence { path, item } => LinkedXml::ElementSequence {
             path: expand_path(module, path, source)?,
@@ -589,7 +591,7 @@ fn validate_xml(
             enumeration::table(variants, table, source)?
         }
         (LinkedType::Scalar(ScalarType::Decimal), LinkedXml::Decimal) => {}
-        (LinkedType::Scalar(ScalarType::Text), LinkedXml::Text) => {}
+        (LinkedType::Scalar(ScalarType::Text), LinkedXml::Text | LinkedXml::Calendar) => {}
         _ => {
             return Err(diagnostic(
                 "unsupported_link_feature",
@@ -686,7 +688,10 @@ fn validate_yaml(
             enumeration::table(variants, table, source)?
         }
         (LinkedType::Scalar(ScalarType::Decimal), YamlRepresentation::Decimal) => {}
-        (LinkedType::Scalar(ScalarType::Text), YamlRepresentation::Text) => {}
+        (
+            LinkedType::Scalar(ScalarType::Text),
+            YamlRepresentation::Text | YamlRepresentation::Calendar { .. },
+        ) => {}
         _ => {
             return Err(diagnostic(
                 "unsupported_link_feature",

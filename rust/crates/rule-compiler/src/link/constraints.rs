@@ -161,6 +161,7 @@ fn resolve_forms(module: &Module, constraint: &Constraint) -> Result<Vec<LinkedF
         available.push(match xml {
             XmlRepresentation::WithAttributes { .. } => unreachable!(),
             XmlRepresentation::Text
+            | XmlRepresentation::Calendar
             | XmlRepresentation::BooleanTable(_)
             | XmlRepresentation::Decimal
             | XmlRepresentation::EnumTable(_) => ("text", LinkedForm::XmlText),
@@ -176,6 +177,7 @@ fn resolve_forms(module: &Module, constraint: &Constraint) -> Result<Vec<LinkedF
     {
         let form = match &module.representations.yaml {
             YamlRepresentation::Text
+            | YamlRepresentation::Calendar { .. }
             | YamlRepresentation::BooleanTable(_)
             | YamlRepresentation::Decimal
             | YamlRepresentation::EnumTable(_) => ("scalar", LinkedForm::YamlScalar),

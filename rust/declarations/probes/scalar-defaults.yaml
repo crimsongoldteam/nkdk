@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.scalar-defaults
+imports: {boolean: common.boolean, string: common.string, number: common.exact-decimal}
+value:
+  kind: record
+  fields:
+    - {name: enabled, type: {use: boolean}}
+    - {name: text, type: {use: string}}
+    - {name: amount, type: {use: number}}
+representations:
+  xml:
+    kind: record
+    fields:
+      - {field: enabled, path: [Root, Enabled]}
+      - {field: text, path: [Root, Text]}
+      - {field: amount, path: [Root, Amount]}
+  yaml:
+    kind: mapping
+    fields:
+      - {field: enabled, key: Enabled}
+      - {field: text, key: Text}
+      - {field: amount, key: Amount}
+presence:
+  - target: {field: enabled}
+    xml: {missing: {denotes: {literal: false}}}
+    yaml:
+      missing: {denotes: {literal: false}}
+      omitWhen: {not: {field: enabled}}
+  - target: {field: text}
+    xml: {missing: {denotes: {literal: ""}}}
+    yaml:
+      missing: {denotes: {literal: ""}}
+      omitWhen: {eq: [{field: text}, {literal: ""}]}
+  - target: {field: amount}
+    xml: {missing: {denotes: {literal: 0}}}
+    yaml:
+      missing: {denotes: {literal: 0}}
+      omitWhen: {eq: [{field: amount}, {literal: 0}]}

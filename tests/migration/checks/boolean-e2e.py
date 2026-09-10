@@ -13,6 +13,7 @@ import xml.etree.ElementTree as ET
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--output', type=Path, required=True)
 parser.add_argument('--all-scalars', action='store_true')
+parser.add_argument('--metadata-names', action='store_true')
 args = parser.parse_args()
 root = Path(__file__).resolve().parents[3]
 fixtures = root / 'e2e/fixtures/xml'
@@ -22,6 +23,13 @@ namespace = '{http://v8.1c.ru/8.3/MDClasses}'
 selections = [('CommonModules', 'CommonModule', 'Server', 'boolean'), ('Catalogs', 'Catalog', 'UseStandardCommands', 'boolean')]
 if args.all_scalars:
     selections += [('Catalogs', 'Catalog', 'Name', 'string'), ('Catalogs', 'Catalog', 'CodeLength', 'number')]
+if args.metadata_names:
+    selections = sorted({
+        (source.parent.name, owner.tag.removeprefix(namespace), 'Name', 'metadata-name')
+        for source in fixtures.rglob('*.xml')
+        for owner in ET.parse(source).getroot()
+        if owner.find(f'{namespace}Properties/{namespace}Name') is not None
+    })
 rows = []
 with tempfile.TemporaryDirectory(prefix='nkdk-boolean-e2e-') as temporary:
     directory = Path(temporary)
@@ -51,6 +59,7 @@ with tempfile.TemporaryDirectory(prefix='nkdk-boolean-e2e-') as temporary:
                 'boolean': ('pilot.boolean', 'Value', 'Значение'),
                 'string': ('test.scalar-owner', 'Description', 'Описание'),
                 'number': ('test.decimal-owner', 'Amount', 'Сумма'),
+                'metadata-name': ('migration.metadata-name', 'Name', 'Имя'),
             }[kind]
             if value is not None:
                 ET.SubElement(wrapper, element).text = value.text
@@ -72,6 +81,6 @@ with tempfile.TemporaryDirectory(prefix='nkdk-boolean-e2e-') as temporary:
             assert source.read_bytes() == original
             rows.append({'source': str(source.relative_to(root)), 'sha256': hashlib.sha256(original).hexdigest(), 'property': field, 'kind': kind, 'value': None if value is None else value.text, 'verified': True})
 assert rows, 'Empty selection'
-scope = 'Plain scalar values' if args.all_scalars else 'Plain boolean values'
+scope = 'Metadata names' if args.metadata_names else ('Plain scalar values' if args.all_scalars else 'Plain boolean values')
 args.output.write_text(json.dumps({'scope': scope + '; owner defaults, shortening and full-project conversion are excluded', 'verified': len(rows), 'cases': rows}, ensure_ascii=False, indent=2) + '\n')
 print(f'Verified {len(rows)} {scope}')

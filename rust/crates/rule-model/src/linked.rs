@@ -58,6 +58,7 @@ pub struct ExpandedName {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum LinkedXml {
+    Calendar,
     WithAttributes {
         attributes: Vec<LinkedXmlAttribute>,
         content: Box<LinkedXml>,
@@ -120,6 +121,7 @@ pub struct LinkedParameter {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum LinkedOperator {
+    Matches(String),
     MatchOptional(u32),
     Transform { entry: u32, index: u32 },
     Take(u64),

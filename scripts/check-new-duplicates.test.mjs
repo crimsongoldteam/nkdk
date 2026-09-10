@@ -1,13 +1,24 @@
 import assert from "node:assert/strict"
 import { describe, it } from "node:test"
 import { execFileSync } from "node:child_process"
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises"
+import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { fileURLToPath } from "node:url"
 
 import { findNewDuplicates } from "./check-new-duplicates.mjs"
 import { resolveNodePackageBinary } from "./node-package-binary.mjs"
+
+async function scanDuplicates(directory) {
+execFileSync(process.execPath, [
+          resolveNodePackageBinary("jscpd", import.meta.url), directory,
+          "--config", fileURLToPath(new URL("../.jscpd.json", import.meta.url)),
+          "--reporters", "json", "--output", join(directory, "report"),
+          "--exit-code", "0", "--silent", "--no-tips",
+        ], { stdio: "pipe" })
+        const report = JSON.parse(await readFile(join(directory, "report/jscpd-report.json"), "utf8"))
+  return report
+}
 
 const clone = (fingerprint) => ({
   fingerprint,
@@ -140,14 +151,40 @@ import type { MetadataItemRule } from "./rule-kit"
       const directory = await mkdtemp(join(tmpdir(), "nkdk-jscpd-import-test-"))
       try {
         await Promise.all(["first.ts", "second.ts"].map(name => writeFile(join(directory, name), source)))
-        execFileSync(process.execPath, [
-          resolveNodePackageBinary("jscpd", import.meta.url), directory,
-          "--config", fileURLToPath(new URL("../.jscpd.json", import.meta.url)),
-          "--reporters", "json", "--output", join(directory, "report"),
-          "--exit-code", "0", "--silent", "--no-tips",
-        ], { stdio: "pipe" })
-        const report = JSON.parse(await readFile(join(directory, "report/jscpd-report.json"), "utf8"))
+        const report = await scanDuplicates(directory)
         assert.equal(report.duplicates.length > 0, hasDuplicates)
+      } finally {
+        await rm(directory, { recursive: true, force: true })
+      }
+    })
+  }
+})
+
+// Проверяем настоящий токенизатор Rust и исключения сборки.
+describe("Rust jscpd", () => {
+  for (const [folder, expected] of [["src", true], ["target/debug", false], ["generated", false]]) {
+    it(`Rust: ${folder}`, async () => {
+      const directory = await mkdtemp(join(tmpdir(), "nkdk-jscpd-rust-"))
+      try {
+        const sources = join(directory, folder)
+        await mkdir(sources, { recursive: true })
+        const source = `pub fn convert(values: &[i64]) -> Vec<String> {
+    let mut result = Vec::new();
+    for value in values {
+        if *value > 0 {
+            result.push(format!("positive: {}", value));
+        } else {
+            result.push(format!("other: {}", value));
+        }
+    }
+    result.sort();
+    result.dedup();
+    result
+}
+`
+        await Promise.all(["first.rs", "second.rs"].map(name => writeFile(join(sources, name), source)))
+        const report = await scanDuplicates(directory)
+        assert.equal(report.duplicates.some(clone => clone.format === "rust"), expected)
       } finally {
         await rm(directory, { recursive: true, force: true })
       }

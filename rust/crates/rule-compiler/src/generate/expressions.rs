@@ -189,6 +189,30 @@ impl Expressions<'_> {
                 operator,
                 arguments,
             } => {
+                if let LinkedOperator::Matches(pattern) = operator {
+                    let input = self.lower(&arguments[0])?;
+                    let machine =
+                        regex_automata::dfa::dense::DFA::new(&format!(r"\A(?:{pattern})\z"))
+                            .map_err(|error| unsupported(self.entry, &error.to_string()))?;
+                    let index = self.next_constant;
+                    self.next_constant += 1;
+                    let (little, pad) = machine.to_bytes_little_endian();
+                    let little = &little[pad..];
+                    let (big, pad) = machine.to_bytes_big_endian();
+                    let big = &big[pad..];
+                    writeln!(
+                        self.constants,
+                        "#[repr(align(4))] struct PatternBytes{index}([u8;{}]);",
+                        little.len()
+                    )
+                    .unwrap();
+                    for (endian, bytes) in [("little", little), ("big", big)] {
+                        writeln!(self.constants,"#[cfg(target_endian={endian:?})] static PB{index}:PatternBytes{index}=PatternBytes{index}({bytes:?});").unwrap();
+                    }
+                    writeln!(self.constants,"static P{index}:core::pattern::Pattern=core::pattern::Pattern::new(&PB{index}.0);").unwrap();
+                    self.fallible = true;
+                    return Ok(format!("P{index}.matches({input})?"));
+                }
                 if matches!(&value.value_type, LinkedType::Optional(inner) if **inner==LinkedType::Scalar(ScalarType::Text))
                 {
                     match operator {

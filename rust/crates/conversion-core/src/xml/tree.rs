@@ -40,6 +40,37 @@ fn qualified(name: &Name, namespaces: &[(&str, &str)]) -> Result<String> {
     Ok(format!("{prefix}:{}", name.local))
 }
 impl Tree {
+    /// Materialize the canonical scalar only while applying an XML difference.
+    pub fn scalar(name: Name, text: &str, attributes: &[super::WriteAttribute<'_>]) -> Self {
+        Self {
+            name,
+            text: text.into(),
+            children: Vec::new(),
+            attributes: attributes
+                .iter()
+                .map(|attribute| {
+                    let (text, qname) = match attribute.value {
+                        super::AttributeValue::Text(text) => (text.into(), None),
+                        super::AttributeValue::QName((namespace, local)) => (
+                            format!("{{{namespace}}}{local}"),
+                            Some(Name {
+                                namespace: namespace.into(),
+                                local: local.into(),
+                            }),
+                        ),
+                    };
+                    Attribute {
+                        name: Name {
+                            namespace: attribute.name.0.into(),
+                            local: attribute.name.1.into(),
+                        },
+                        text,
+                        qname,
+                    }
+                })
+                .collect(),
+        }
+    }
     /// Register names from an exceptional subtree without a global namespace table.
     pub fn collect_namespaces<'a>(&'a self, namespaces: &mut Vec<&'a str>) {
         let mut register = |name: &'a Name| {

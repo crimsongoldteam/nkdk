@@ -92,6 +92,7 @@ fn routes(
             }]
         }
         LinkedXml::Text
+        | LinkedXml::Calendar
         | LinkedXml::Decimal
         | LinkedXml::BooleanTable(_)
         | LinkedXml::EnumTable(_) => {
@@ -138,6 +139,7 @@ fn attribute_type(value: &LinkedType, entries: &BTreeMap<u32, LinkedEntry>) -> b
             matches!(
                 entries[id].xml,
                 LinkedXml::Text
+                    | LinkedXml::Calendar
                     | LinkedXml::Decimal
                     | LinkedXml::BooleanTable(_)
                     | LinkedXml::EnumTable(_)

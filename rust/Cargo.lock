@@ -497,6 +497,7 @@ version = "0.1.0"
 dependencies = [
  "nkdk-decimal",
  "quick-xml",
+ "regex-automata",
  "sha2",
  "yaml-rust2",
 ]
@@ -524,6 +525,7 @@ dependencies = [
  "nkdk-conversion-core",
  "nkdk-decimal",
  "nkdk-rule-model",
+ "regex-automata",
  "serde_json",
  "yaml-rust2",
 ]

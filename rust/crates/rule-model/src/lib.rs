@@ -66,6 +66,7 @@ pub struct Representations {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum XmlRepresentation {
+    Calendar,
     WithAttributes {
         attributes: Vec<XmlAttribute>,
         content: Box<XmlRepresentation>,
@@ -83,6 +84,10 @@ pub enum XmlRepresentation {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum YamlRepresentation {
+    Calendar {
+        seconds: bool,
+        omit_zero: bool,
+    },
     KeyedMapping {
         key: String,
         value: String,
@@ -197,6 +202,10 @@ pub struct Expression {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ExpressionKind {
+    Matches {
+        value: Box<Expression>,
+        pattern: String,
+    },
     MatchOptional {
         value: Box<Expression>,
         binding: String,

@@ -2,6 +2,7 @@ use super::*;
 use std::fmt::Write;
 
 pub(super) enum Codec<'a> {
+    Calendar { seconds: bool, omit_zero: bool },
     Text,
     Decimal,
     Boolean(&'a [BooleanLexeme], &'a [BooleanLexeme]),
@@ -23,7 +24,16 @@ impl<'a> Codec<'a> {
                     .find(|entry| entry.id == *id)
                     .expect("linked reference");
                 optional(target)?;
-                match (&target.value, &target.xml, &target.yaml) {
+                let (xml, _) = super::attributes::content(&target.xml);
+                match (&target.value, xml, &target.yaml) {
+                    (
+                        LinkedType::Scalar(ScalarType::Text),
+                        LinkedXml::Calendar,
+                        YamlRepresentation::Calendar { seconds, omit_zero },
+                    ) => Ok(Self::Calendar {
+                        seconds: *seconds,
+                        omit_zero: *omit_zero,
+                    }),
                     (
                         LinkedType::Scalar(ScalarType::Decimal),
                         LinkedXml::Decimal,
@@ -60,6 +70,7 @@ impl<'a> Codec<'a> {
         match self {
             Self::Decimal => "core::decimal::Decimal".into(),
             Self::Text => "String".into(),
+            Self::Calendar { .. } => "core::calendar::Value".into(),
             Self::Boolean(..) => "bool".into(),
             Self::Enumeration(..) => name.into(),
         }
@@ -78,7 +89,7 @@ impl<'a> Codec<'a> {
     }
     fn cases(&self, name: &str, xml_side: bool) -> Vec<(String, String)> {
         match self {
-            Self::Text | Self::Decimal => vec![],
+            Self::Text | Self::Decimal | Self::Calendar { .. } => vec![],
             Self::Boolean(xml, yaml) => (if xml_side { xml } else { yaml })
                 .iter()
                 .map(|item| (item.text.clone(), item.value.to_string()))
@@ -105,6 +116,7 @@ impl<'a> Codec<'a> {
     pub fn meaning(&self, name: &str, index: usize) -> String {
         match self {
             Self::Text => format!("_value.f{index}.as_str()"),
+            Self::Calendar { .. } => format!("&_value.f{index}.xml()"),
             Self::Decimal => format!("&_value.f{index}"),
             Self::Boolean(..) => format!("_value.f{index}"),
             Self::Enumeration(variants, ..) => format!(
@@ -122,6 +134,7 @@ impl<'a> Codec<'a> {
         let reference = format!("_value.f{index}.as_ref().expect(\"guarded scalar\")");
         match self {
             Self::Text => format!("{reference}.as_str()"),
+            Self::Calendar { .. } => format!("&{reference}.xml()"),
             Self::Decimal => reference,
             Self::Boolean(..) => format!("*{reference}"),
             Self::Enumeration(variants, ..) => format!(
@@ -134,10 +147,21 @@ impl<'a> Codec<'a> {
             ),
         }
     }
-    pub fn numeric(&self) -> bool {
-        matches!(self, Self::Decimal)
+    pub fn plain_yaml(&self) -> bool {
+        matches!(self, Self::Decimal | Self::Calendar { .. })
     }
     pub fn read(&self, name: &str, index: usize, key: &str, xml_side: bool) -> String {
+        if let Self::Calendar { seconds, omit_zero } = self {
+            let call = if xml_side {
+                format!("core::calendar::Value::from_xml(&r{index})")
+            } else {
+                format!("core::calendar::Value::from_yaml(&r{index},{seconds},{omit_zero})")
+            };
+            return format!(
+                "let f{index}={call}.map_err(|error|positions[{index}].apply(source,error.field({key:?})))?;\n"
+            );
+        }
+
         if matches!(self, Self::Decimal) {
             return format!(
                 "let f{index} = core::decimal::Decimal::parse_owned(r{index}).map_err(|error| positions[{index}].apply(source, RuntimeDiagnostic::new(\"value.decimal\", error.to_string()).field({key:?})))?;\n"
@@ -166,16 +190,49 @@ impl<'a> Codec<'a> {
         }
         self.write_reference(name, &format!("&value.f{index}"), xml_side)
     }
+    pub fn yaml_representable(&self, name: &str, reference: &str) -> String {
+        if !matches!(self, Self::Boolean(..) | Self::Enumeration(..)) {
+            return "true".into();
+        }
+        let patterns = self
+            .cases(name, false)
+            .into_iter()
+            .map(|(_, value)| value)
+            .collect::<Vec<_>>();
+        if patterns.is_empty() {
+            return "false".into();
+        }
+        format!("matches!({reference}, {})", patterns.join(" | "))
+    }
     pub fn write_reference(&self, name: &str, reference: &str, xml_side: bool) -> String {
+        if let Self::Calendar { seconds, omit_zero } = self {
+            return if xml_side {
+                format!("&({reference}).xml()")
+            } else {
+                format!("&({reference}).yaml({seconds},{omit_zero})")
+            };
+        }
+
         if matches!(self, Self::Decimal) {
             return format!("&({reference}).to_string()");
         }
         if matches!(self, Self::Text) {
             return reference.into();
         }
+        let cases = self.cases(name, xml_side);
+        let count = match self {
+            Self::Boolean(..) => 2,
+            Self::Enumeration(variants, ..) => variants.len(),
+            _ => unreachable!(),
+        };
+        let fallback = if cases.len() < count {
+            "_ => return Err(RuntimeDiagnostic::new(\"value.unrepresented\",\"Scalar has no canonical literal in this representation\")),"
+        } else {
+            ""
+        };
         format!(
-            "match {reference} {{ {} }}",
-            self.cases(name, xml_side)
+            "match {reference} {{ {} {fallback} }}",
+            cases
                 .iter()
                 .map(|(text, value)| format!("{value} => {text:?},"))
                 .collect::<Vec<_>>()
@@ -192,9 +249,12 @@ pub(crate) fn optional(entry: &LinkedEntry) -> Result<bool, Diagnostic> {
         return Ok(false);
     }
     let missing = |value: &Option<LinkedExpression>| {
-        value
-            .as_ref()
-            .is_some_and(|v| matches!(v.kind, LinkedExpressionKind::Absent))
+        value.as_ref().is_some_and(|v| {
+            matches!(
+                v.kind,
+                LinkedExpressionKind::Absent | LinkedExpressionKind::Literal(_)
+            )
+        })
     };
     if entry.presence.len() != 1
         || !entry.presence.iter().all(|p| {
@@ -204,12 +264,11 @@ pub(crate) fn optional(entry: &LinkedEntry) -> Result<bool, Diagnostic> {
                 && p.xml_empty.is_empty()
                 && p.yaml_empty.is_empty()
                 && p.canonical.is_empty()
-                && p.yaml_omit_when.is_none()
         })
     {
         return Err(unsupported(
             entry,
-            "Scalar presence requires explicit reversible absence",
+            "Scalar presence requires constant missing states and ordinary XML",
         ));
     }
     let mut shape = entry.clone();

@@ -1,0 +1,14 @@
+format: nkdk-declarations/1
+kind: value
+id: common.typed-number
+value: {kind: scalar, scalar: number, profile: decimal}
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  xs: http://www.w3.org/2001/XMLSchema
+representations:
+  xml:
+    kind: with-attributes
+    attributes:
+      - {name: xsi:type, value: {qname: xs:decimal}}
+    content: {kind: text}
+  yaml: {kind: scalar, scalar: number}

@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: value
+id: common.typed-date-time
+value: {kind: scalar, scalar: text}
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  xs: http://www.w3.org/2001/XMLSchema
+representations:
+  xml:
+    kind: with-attributes
+    attributes:
+      - {name: xsi:type, value: {qname: xs:dateTime}}
+    content: {kind: calendar, format: iso, zone: written}
+  yaml: {kind: calendar, format: day-month-year, precision: minutes, zeroTime: omit}
+presence:
+  - target: self
+    xml: {missing: {denotes: {absent: true}}}
+    yaml: {missing: {denotes: {absent: true}}}

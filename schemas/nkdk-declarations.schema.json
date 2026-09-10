@@ -211,33 +211,80 @@
       "then": {
         "properties": {
           "representations": {
-            "type": "object",
-            "properties": {
-              "xml": {
-                "$ref": "#/$defs/xmlText"
-              },
-              "yaml": {
+            "oneOf": [
+              {
                 "type": "object",
                 "properties": {
-                  "kind": {
-                    "const": "scalar"
+                  "xml": {
+                    "$ref": "#/$defs/xmlText"
                   },
-                  "scalar": {
-                    "const": "text"
+                  "yaml": {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "const": "scalar"
+                      },
+                      "scalar": {
+                        "const": "text"
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "scalar"
+                    ],
+                    "additionalProperties": false
                   }
                 },
                 "required": [
-                  "kind",
-                  "scalar"
+                  "xml",
+                  "yaml"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "xml": {
+                    "$ref": "#/$defs/xmlCalendar"
+                  },
+                  "yaml": {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "const": "calendar"
+                      },
+                      "format": {
+                        "const": "day-month-year"
+                      },
+                      "precision": {
+                        "enum": [
+                          "minutes",
+                          "seconds"
+                        ]
+                      },
+                      "zeroTime": {
+                        "enum": [
+                          "omit",
+                          "keep"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "format",
+                      "precision",
+                      "zeroTime"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "xml",
+                  "yaml"
                 ],
                 "additionalProperties": false
               }
-            },
-            "required": [
-              "xml",
-              "yaml"
-            ],
-            "additionalProperties": false
+            ]
           }
         }
       }
@@ -636,6 +683,26 @@
         },
         {
           "$ref": "#/$defs/enum"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "scalar"
+            },
+            "scalar": {
+              "const": "text"
+            },
+            "pattern": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "scalar",
+            "pattern"
+          ],
+          "additionalProperties": false
         }
       ]
     },
@@ -1242,6 +1309,31 @@
           },
           "required": [
             "sequence-pattern"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "matches": {
+              "type": "object",
+              "properties": {
+                "value": {
+                  "$ref": "#/$defs/expression"
+                },
+                "pattern": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "value",
+                "pattern"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "matches"
           ],
           "additionalProperties": false
         }
@@ -2370,6 +2462,53 @@
         "result"
       ],
       "additionalProperties": false
+    },
+    "xmlCalendar": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "calendar"
+            },
+            "format": {
+              "const": "iso"
+            },
+            "zone": {
+              "const": "written"
+            }
+          },
+          "required": [
+            "kind",
+            "format",
+            "zone"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "with-attributes"
+            },
+            "attributes": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/attribute"
+              }
+            },
+            "content": {
+              "$ref": "#/$defs/xmlCalendar"
+            }
+          },
+          "required": [
+            "kind",
+            "attributes",
+            "content"
+          ],
+          "additionalProperties": false
+        }
+      ]
     }
   }
 }

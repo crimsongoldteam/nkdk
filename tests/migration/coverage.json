@@ -4873,17 +4873,25 @@
       "path": "packages/rules/metadata/commonObjects/metadataName/types.test.ts",
       "sha256": "780a2bdd40396cfba4a59bec2aa303f4d01d4925a95e164c9f660428fb51ddcb",
       "group": "metadataName",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/metadata-name.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/metadata-name-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/metadataName/types.ts",
       "sha256": "40cafe205b6a4afb18a516c4fa9e2e857d71793abdafd3f44082b571b9ab5b6a",
       "group": "metadataName",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/metadata-name.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/metadata-name-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/metadataObjectBelongingProperties.ts",

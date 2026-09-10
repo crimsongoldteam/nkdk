@@ -43,6 +43,32 @@ pub(super) fn resolve_expression_in(
     scope: &Scope,
 ) -> Result<LinkedExpression, Diagnostic> {
     let (kind, value_type) = match &expression.kind {
+        ExpressionKind::Matches { value, pattern } => {
+            let value = resolve_expression_in(module, value, modules, ids, scope)?;
+            if value.value_type != LinkedType::Scalar(ScalarType::Text) {
+                return Err(diagnostic(
+                    "expression_type_mismatch",
+                    &value.source,
+                    "Text pattern requires text",
+                ));
+            }
+            regex_automata::dfa::dense::DFA::new(&format!(r"\A(?:{pattern})\z")).map_err(
+                |error| {
+                    diagnostic(
+                        "invalid_text_pattern",
+                        &expression.source,
+                        &error.to_string(),
+                    )
+                },
+            )?;
+            (
+                LinkedExpressionKind::Operation {
+                    operator: LinkedOperator::Matches(pattern.clone()),
+                    arguments: vec![value],
+                },
+                LinkedType::Scalar(ScalarType::Boolean),
+            )
+        }
         ExpressionKind::MatchOptional {
             value,
             binding,

@@ -35,7 +35,6 @@ fn unsupported(entry: &LinkedEntry) -> Diagnostic {
 fn plain(entry: &LinkedEntry) -> bool {
     entry.inputs.is_empty()
         && entry.parameters.is_empty()
-        && entry.presence.is_empty()
         && entry.shorthands.is_empty()
         && entry.normalization.is_none()
         && entry.text_transforms.is_empty()
@@ -59,6 +58,21 @@ fn scalar(
             crate::generate::scalar::optional(target).map_err(|_| unsupported(target))?;
             match &target.yaml {
                 YamlRepresentation::Text => Ok(json!({"type":"string"})),
+                YamlRepresentation::Calendar { seconds, omit_zero } => {
+                    let clock = if *seconds {
+                        " ([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]"
+                    } else {
+                        " ([01][0-9]|2[0-3]):[0-5][0-9]"
+                    };
+                    let suffix = if *omit_zero {
+                        format!("({clock})?")
+                    } else {
+                        clock.into()
+                    };
+                    Ok(
+                        json!({"type":"string","pattern":format!("^(0[1-9]|[12][0-9]|3[01])\\.(0[1-9]|1[0-2])\\.[0-9]{{4}}{suffix}$"),"x-nkdk-runtime-validation":true}),
+                    )
+                }
                 YamlRepresentation::Decimal => {
                     Ok(json!({"type":"number", "x-nkdk-number-profile":"decimal"}))
                 }
@@ -131,6 +145,18 @@ impl Context<'_> {
         }
     }
     fn expression(&self, expression: &LinkedExpression) -> Result<Value, Diagnostic> {
+        if let LinkedExpressionKind::Operation {
+            operator: LinkedOperator::Matches(pattern),
+            arguments,
+        } = &expression.kind
+        {
+            let LinkedExpressionKind::Field(index) = arguments[0].kind else {
+                return Err(unsupported(self.entry));
+            };
+            return Ok(
+                json!({"properties":{self.key(index as usize):{"pattern":format!("^(?:{pattern})(?![\\s\\S])")}},"required":[self.key(index as usize)]}),
+            );
+        }
         match &expression.kind {
             LinkedExpressionKind::Literal(ScalarLiteral::Boolean(value)) => Ok(json!(value)),
             LinkedExpressionKind::Field(index) => {
@@ -201,6 +227,7 @@ fn build(program: &Program, entry: &LinkedEntry) -> Result<Value, Diagnostic> {
     if !plain(entry) {
         return Err(unsupported(entry));
     }
+    crate::generate::scalar_presence::validate_owner(entry).map_err(|_| unsupported(entry))?;
     let (LinkedType::Record(fields), YamlRepresentation::Mapping(mappings)) =
         (&entry.value, &entry.yaml)
     else {
@@ -216,14 +243,27 @@ fn build(program: &Program, entry: &LinkedEntry) -> Result<Value, Diagnostic> {
     let mut required = vec![];
     for (index, field) in fields.iter().enumerate() {
         properties.insert(context.key(index).into(), scalar(program, entry, field)?);
-        if !crate::generate::scalar::field_optional(&field.value, program)
-            .map_err(|_| unsupported(entry))?
+        if crate::generate::scalar_presence::rule(entry, index, &field.value, program)
+            .and_then(|presence| presence.yaml_missing.as_ref())
+            .is_none()
+            && !crate::generate::scalar::field_optional(&field.value, program)
+                .map_err(|_| unsupported(entry))?
         {
             required.push(context.key(index));
         }
     }
     let mut result = json!({"$schema":"https://json-schema.org/draft/2020-12/schema", "type":"object", "properties":properties, "required":required, "additionalProperties":false});
     let mut constraints = vec![];
+    for (index, field) in fields.iter().enumerate() {
+        if let Some(expression) =
+            crate::generate::scalar_presence::rule(entry, index, &field.value, program)
+                .and_then(|presence| presence.yaml_omit_when.as_ref())
+        {
+            let mut expression = expression.clone();
+            crate::generate::scalar_presence::replace_self(&mut expression, index);
+            constraints.push(json!({"if":{"required":[context.key(index)]},"then":{"not":context.expression(&expression)?}}));
+        }
+    }
     for constraint in &entry.constraints {
         if constraint.diagnostic.severity != Severity::Error
             || !constraint

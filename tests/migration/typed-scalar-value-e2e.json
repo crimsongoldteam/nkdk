@@ -1,0 +1,3492 @@
+{
+  "scope": "Typed scalar leaf properties; not whole-project conversion or performance",
+  "verified": 498,
+  "cases": [
+    {
+      "source": "e2e/fixtures/xml/cf/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОбороты/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "1333e8f8152edf68cd0f403b6c237b3d12ae90c963ae913cedde54bf1c9c733d",
+      "occurrence": 32,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОбороты.xml",
+      "sha256": "8ccfd7367b0d43ae6abea5f2df41ef7981057bce01f51be2c9a3fa62b5ba946e",
+      "occurrence": 174,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОбороты.xml",
+      "sha256": "8ccfd7367b0d43ae6abea5f2df41ef7981057bce01f51be2c9a3fa62b5ba946e",
+      "occurrence": 469,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОбороты.xml",
+      "sha256": "8ccfd7367b0d43ae6abea5f2df41ef7981057bce01f51be2c9a3fa62b5ba946e",
+      "occurrence": 470,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОбороты.xml",
+      "sha256": "8ccfd7367b0d43ae6abea5f2df41ef7981057bce01f51be2c9a3fa62b5ba946e",
+      "occurrence": 476,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОбороты.xml",
+      "sha256": "8ccfd7367b0d43ae6abea5f2df41ef7981057bce01f51be2c9a3fa62b5ba946e",
+      "occurrence": 480,
+      "type": "xs:dateTime",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОбороты.xml",
+      "sha256": "8ccfd7367b0d43ae6abea5f2df41ef7981057bce01f51be2c9a3fa62b5ba946e",
+      "occurrence": 595,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОбороты.xml",
+      "sha256": "8ccfd7367b0d43ae6abea5f2df41ef7981057bce01f51be2c9a3fa62b5ba946e",
+      "occurrence": 596,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОбороты.xml",
+      "sha256": "8ccfd7367b0d43ae6abea5f2df41ef7981057bce01f51be2c9a3fa62b5ba946e",
+      "occurrence": 679,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОбороты.xml",
+      "sha256": "8ccfd7367b0d43ae6abea5f2df41ef7981057bce01f51be2c9a3fa62b5ba946e",
+      "occurrence": 680,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/AccumulationRegisters/РегистрНакопленияВсеСвойстваОбороты/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "306e78c552d0eb7acfab48513bf6880d2810ca0c7cb0603078dad6f56401dd97",
+      "occurrence": 32,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/AccumulationRegisters/РегистрНакопленияВсеСвойстваОбороты.xml",
+      "sha256": "3df60315edca01ce56335f95a07d45fc9d88d33cb3719b5c023fe71ec0745c90",
+      "occurrence": 188,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/AccumulationRegisters/РегистрНакопленияВсеСвойстваОбороты.xml",
+      "sha256": "3df60315edca01ce56335f95a07d45fc9d88d33cb3719b5c023fe71ec0745c90",
+      "occurrence": 189,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/AccumulationRegisters/РегистрНакопленияВсеСвойстваОбороты.xml",
+      "sha256": "3df60315edca01ce56335f95a07d45fc9d88d33cb3719b5c023fe71ec0745c90",
+      "occurrence": 266,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/AccumulationRegisters/РегистрНакопленияВсеСвойстваОбороты.xml",
+      "sha256": "3df60315edca01ce56335f95a07d45fc9d88d33cb3719b5c023fe71ec0745c90",
+      "occurrence": 267,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/AccumulationRegisters/РегистрНакопленияВсеСвойстваОбороты.xml",
+      "sha256": "3df60315edca01ce56335f95a07d45fc9d88d33cb3719b5c023fe71ec0745c90",
+      "occurrence": 344,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/AccumulationRegisters/РегистрНакопленияВсеСвойстваОбороты.xml",
+      "sha256": "3df60315edca01ce56335f95a07d45fc9d88d33cb3719b5c023fe71ec0745c90",
+      "occurrence": 345,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства/Forms/ФормаВыбора/Ext/Form.xml",
+      "sha256": "ea1b24ce94fc05bc30e724281e4db4b9025bc43f0e1f681802f19964f92d7edb",
+      "occurrence": 32,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства/Forms/ФормаЗадачи/Ext/Form.xml",
+      "sha256": "4944ed18f1999f3e15484116cbc6447facc06593c9c965e99c03127861afba9a",
+      "occurrence": 33,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "ea1b24ce94fc05bc30e724281e4db4b9025bc43f0e1f681802f19964f92d7edb",
+      "occurrence": 32,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства.xml",
+      "sha256": "a03527edc24990a7c2bbb21285d9dd179b7dac8e32848be870967e2b466ec3d6",
+      "occurrence": 307,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства.xml",
+      "sha256": "a03527edc24990a7c2bbb21285d9dd179b7dac8e32848be870967e2b466ec3d6",
+      "occurrence": 308,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства.xml",
+      "sha256": "a03527edc24990a7c2bbb21285d9dd179b7dac8e32848be870967e2b466ec3d6",
+      "occurrence": 316,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства.xml",
+      "sha256": "a03527edc24990a7c2bbb21285d9dd179b7dac8e32848be870967e2b466ec3d6",
+      "occurrence": 320,
+      "type": "xs:dateTime",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства.xml",
+      "sha256": "a03527edc24990a7c2bbb21285d9dd179b7dac8e32848be870967e2b466ec3d6",
+      "occurrence": 389,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства.xml",
+      "sha256": "a03527edc24990a7c2bbb21285d9dd179b7dac8e32848be870967e2b466ec3d6",
+      "occurrence": 426,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства.xml",
+      "sha256": "a03527edc24990a7c2bbb21285d9dd179b7dac8e32848be870967e2b466ec3d6",
+      "occurrence": 561,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства.xml",
+      "sha256": "a03527edc24990a7c2bbb21285d9dd179b7dac8e32848be870967e2b466ec3d6",
+      "occurrence": 562,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства.xml",
+      "sha256": "a03527edc24990a7c2bbb21285d9dd179b7dac8e32848be870967e2b466ec3d6",
+      "occurrence": 568,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства.xml",
+      "sha256": "a03527edc24990a7c2bbb21285d9dd179b7dac8e32848be870967e2b466ec3d6",
+      "occurrence": 572,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CalculationRegisters/РегистрРасчетаВсеСвойства/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "4e91490ee40011fcc8aa2e9801031a8a9c421a0b74d93f2f82e81044b1292952",
+      "occurrence": 32,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CalculationRegisters/РегистрРасчетаВсеСвойства.xml",
+      "sha256": "d304ae507ba211ffc86fb27d5568c6d8861da76b18ac95b5f546cecf43f21ecf",
+      "occurrence": 393,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CalculationRegisters/РегистрРасчетаВсеСвойства.xml",
+      "sha256": "d304ae507ba211ffc86fb27d5568c6d8861da76b18ac95b5f546cecf43f21ecf",
+      "occurrence": 394,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CalculationRegisters/РегистрРасчетаВсеСвойства.xml",
+      "sha256": "d304ae507ba211ffc86fb27d5568c6d8861da76b18ac95b5f546cecf43f21ecf",
+      "occurrence": 471,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CalculationRegisters/РегистрРасчетаВсеСвойства.xml",
+      "sha256": "d304ae507ba211ffc86fb27d5568c6d8861da76b18ac95b5f546cecf43f21ecf",
+      "occurrence": 472,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CalculationRegisters/РегистрРасчетаВсеСвойства.xml",
+      "sha256": "d304ae507ba211ffc86fb27d5568c6d8861da76b18ac95b5f546cecf43f21ecf",
+      "occurrence": 547,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CalculationRegisters/РегистрРасчетаВсеСвойства.xml",
+      "sha256": "d304ae507ba211ffc86fb27d5568c6d8861da76b18ac95b5f546cecf43f21ecf",
+      "occurrence": 548,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CalculationRegisters/РегистрРасчетаВсеСвойства.xml",
+      "sha256": "d304ae507ba211ffc86fb27d5568c6d8861da76b18ac95b5f546cecf43f21ecf",
+      "occurrence": 554,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CalculationRegisters/РегистрРасчетаВсеСвойства.xml",
+      "sha256": "d304ae507ba211ffc86fb27d5568c6d8861da76b18ac95b5f546cecf43f21ecf",
+      "occurrence": 558,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CalculationRegisters/РегистрРасчетаВсеСвойства.xml",
+      "sha256": "d304ae507ba211ffc86fb27d5568c6d8861da76b18ac95b5f546cecf43f21ecf",
+      "occurrence": 562,
+      "type": "xs:dateTime",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникВладелец.xml",
+      "sha256": "c25865f1f70c463f8743596b3254d0749fbc0dbec32e5fd56b9fcfc92508e493",
+      "occurrence": 340,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникВладелец.xml",
+      "sha256": "c25865f1f70c463f8743596b3254d0749fbc0dbec32e5fd56b9fcfc92508e493",
+      "occurrence": 341,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникВладелец.xml",
+      "sha256": "c25865f1f70c463f8743596b3254d0749fbc0dbec32e5fd56b9fcfc92508e493",
+      "occurrence": 349,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникВладелец.xml",
+      "sha256": "c25865f1f70c463f8743596b3254d0749fbc0dbec32e5fd56b9fcfc92508e493",
+      "occurrence": 391,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникВладелец.xml",
+      "sha256": "c25865f1f70c463f8743596b3254d0749fbc0dbec32e5fd56b9fcfc92508e493",
+      "occurrence": 432,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникВладелец.xml",
+      "sha256": "c25865f1f70c463f8743596b3254d0749fbc0dbec32e5fd56b9fcfc92508e493",
+      "occurrence": 433,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникВладелец.xml",
+      "sha256": "c25865f1f70c463f8743596b3254d0749fbc0dbec32e5fd56b9fcfc92508e493",
+      "occurrence": 528,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникВладелец.xml",
+      "sha256": "c25865f1f70c463f8743596b3254d0749fbc0dbec32e5fd56b9fcfc92508e493",
+      "occurrence": 532,
+      "type": "xs:decimal",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникВладелец.xml",
+      "sha256": "c25865f1f70c463f8743596b3254d0749fbc0dbec32e5fd56b9fcfc92508e493",
+      "occurrence": 571,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникВладелец.xml",
+      "sha256": "c25865f1f70c463f8743596b3254d0749fbc0dbec32e5fd56b9fcfc92508e493",
+      "occurrence": 572,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникВладелец.xml",
+      "sha256": "c25865f1f70c463f8743596b3254d0749fbc0dbec32e5fd56b9fcfc92508e493",
+      "occurrence": 621,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникВладелец.xml",
+      "sha256": "c25865f1f70c463f8743596b3254d0749fbc0dbec32e5fd56b9fcfc92508e493",
+      "occurrence": 622,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml",
+      "sha256": "27231ddedad3d68c1c8aa071d611c32f94681c7bc94d6533b22ee9409b0217dd",
+      "occurrence": 204,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml",
+      "sha256": "27231ddedad3d68c1c8aa071d611c32f94681c7bc94d6533b22ee9409b0217dd",
+      "occurrence": 236,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml",
+      "sha256": "27231ddedad3d68c1c8aa071d611c32f94681c7bc94d6533b22ee9409b0217dd",
+      "occurrence": 311,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml",
+      "sha256": "27231ddedad3d68c1c8aa071d611c32f94681c7bc94d6533b22ee9409b0217dd",
+      "occurrence": 444,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml",
+      "sha256": "27231ddedad3d68c1c8aa071d611c32f94681c7bc94d6533b22ee9409b0217dd",
+      "occurrence": 511,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml",
+      "sha256": "27231ddedad3d68c1c8aa071d611c32f94681c7bc94d6533b22ee9409b0217dd",
+      "occurrence": 604,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml",
+      "sha256": "27231ddedad3d68c1c8aa071d611c32f94681c7bc94d6533b22ee9409b0217dd",
+      "occurrence": 605,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникСХарактеристиками.xml",
+      "sha256": "36dbc7844baf9eff30363b9416624b39ebcde4adb52886fba70d84e242978c3e",
+      "occurrence": 115,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникФормаВсеСвойства/Forms/ФормаЭлемента/Ext/Form.xml",
+      "sha256": "55de0aaddba40237cf78c06aff80c4fea30bc746643dcc3eb0f63404bf58b978",
+      "occurrence": 33,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникФормаВсеСвойства/Forms/ФормаЭлемента/Ext/Form.xml",
+      "sha256": "55de0aaddba40237cf78c06aff80c4fea30bc746643dcc3eb0f63404bf58b978",
+      "occurrence": 37,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникФормаВсеСвойства/Forms/ФормаЭлемента/Ext/Form.xml",
+      "sha256": "55de0aaddba40237cf78c06aff80c4fea30bc746643dcc3eb0f63404bf58b978",
+      "occurrence": 114,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства/Forms/ФормаВыбора/Ext/Form.xml",
+      "sha256": "1e7bf9b738b14e977869b2b9bec2353c9c4c0fb0eb16990fb8638fa5a07132d3",
+      "occurrence": 32,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства/Forms/ФормаЗаписи/Ext/Form.xml",
+      "sha256": "7aecbf5a8f9d7c27fa70fc97fd7d45f2e3d5f045ef64b585b34b07d6c65126ad",
+      "occurrence": 33,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "1e7bf9b738b14e977869b2b9bec2353c9c4c0fb0eb16990fb8638fa5a07132d3",
+      "occurrence": 32,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства.xml",
+      "sha256": "fcd73718d1134a63afb433454d4d4d3fb14fb461b80620b33aa9c37f4750acdf",
+      "occurrence": 515,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства.xml",
+      "sha256": "fcd73718d1134a63afb433454d4d4d3fb14fb461b80620b33aa9c37f4750acdf",
+      "occurrence": 516,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства.xml",
+      "sha256": "fcd73718d1134a63afb433454d4d4d3fb14fb461b80620b33aa9c37f4750acdf",
+      "occurrence": 524,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства.xml",
+      "sha256": "fcd73718d1134a63afb433454d4d4d3fb14fb461b80620b33aa9c37f4750acdf",
+      "occurrence": 528,
+      "type": "xs:dateTime",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства.xml",
+      "sha256": "fcd73718d1134a63afb433454d4d4d3fb14fb461b80620b33aa9c37f4750acdf",
+      "occurrence": 597,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства.xml",
+      "sha256": "fcd73718d1134a63afb433454d4d4d3fb14fb461b80620b33aa9c37f4750acdf",
+      "occurrence": 732,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства.xml",
+      "sha256": "fcd73718d1134a63afb433454d4d4d3fb14fb461b80620b33aa9c37f4750acdf",
+      "occurrence": 733,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства.xml",
+      "sha256": "fcd73718d1134a63afb433454d4d4d3fb14fb461b80620b33aa9c37f4750acdf",
+      "occurrence": 739,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства.xml",
+      "sha256": "fcd73718d1134a63afb433454d4d4d3fb14fb461b80620b33aa9c37f4750acdf",
+      "occurrence": 743,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства.xml",
+      "sha256": "fcd73718d1134a63afb433454d4d4d3fb14fb461b80620b33aa9c37f4750acdf",
+      "occurrence": 816,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства.xml",
+      "sha256": "fcd73718d1134a63afb433454d4d4d3fb14fb461b80620b33aa9c37f4750acdf",
+      "occurrence": 817,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства.xml",
+      "sha256": "fcd73718d1134a63afb433454d4d4d3fb14fb461b80620b33aa9c37f4750acdf",
+      "occurrence": 891,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства.xml",
+      "sha256": "fcd73718d1134a63afb433454d4d4d3fb14fb461b80620b33aa9c37f4750acdf",
+      "occurrence": 892,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства/Ext/Predefined.xml",
+      "sha256": "bbf64736033137157df7b5e93ce802cd60d258c36f11345a99c7bb29f2d30fd5",
+      "occurrence": 3,
+      "type": "xs:decimal",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства/Ext/Predefined.xml",
+      "sha256": "bbf64736033137157df7b5e93ce802cd60d258c36f11345a99c7bb29f2d30fd5",
+      "occurrence": 14,
+      "type": "xs:decimal",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства/Ext/Predefined.xml",
+      "sha256": "bbf64736033137157df7b5e93ce802cd60d258c36f11345a99c7bb29f2d30fd5",
+      "occurrence": 19,
+      "type": "xs:decimal",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства/Forms/ФормаВидаРасчета/Ext/Form.xml",
+      "sha256": "348173e19bf45c95db02c7aeef8ed1993c43383d0fdf1955dca437a0f82ed66d",
+      "occurrence": 33,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства/Forms/ФормаВыбора/Ext/Form.xml",
+      "sha256": "4632d78f91584543a3d5859fa58314369de12aa8618bfb960fc4f42ffc66f6c6",
+      "occurrence": 32,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "4632d78f91584543a3d5859fa58314369de12aa8618bfb960fc4f42ffc66f6c6",
+      "occurrence": 32,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства.xml",
+      "sha256": "0b75c93753e1b9bc03c8e9955857140aa466f69c769353c62a59d788bf1997a8",
+      "occurrence": 593,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства.xml",
+      "sha256": "0b75c93753e1b9bc03c8e9955857140aa466f69c769353c62a59d788bf1997a8",
+      "occurrence": 594,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства.xml",
+      "sha256": "0b75c93753e1b9bc03c8e9955857140aa466f69c769353c62a59d788bf1997a8",
+      "occurrence": 602,
+      "type": "xs:dateTime",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства.xml",
+      "sha256": "0b75c93753e1b9bc03c8e9955857140aa466f69c769353c62a59d788bf1997a8",
+      "occurrence": 671,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства.xml",
+      "sha256": "0b75c93753e1b9bc03c8e9955857140aa466f69c769353c62a59d788bf1997a8",
+      "occurrence": 806,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства.xml",
+      "sha256": "0b75c93753e1b9bc03c8e9955857140aa466f69c769353c62a59d788bf1997a8",
+      "occurrence": 807,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства.xml",
+      "sha256": "0b75c93753e1b9bc03c8e9955857140aa466f69c769353c62a59d788bf1997a8",
+      "occurrence": 813,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства.xml",
+      "sha256": "0b75c93753e1b9bc03c8e9955857140aa466f69c769353c62a59d788bf1997a8",
+      "occurrence": 817,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристик1.xml",
+      "sha256": "a368609fdd7673252f5f084e2b5ef5c54e4277bdf7aa95a325dcecacc0be3376",
+      "occurrence": 99,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойства.xml",
+      "sha256": "d54fdc5a4d68f3ae9f685e19cbe0eea9f12c3f7660394e0322cdbf9fd905f779",
+      "occurrence": 300,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойства.xml",
+      "sha256": "d54fdc5a4d68f3ae9f685e19cbe0eea9f12c3f7660394e0322cdbf9fd905f779",
+      "occurrence": 441,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойства.xml",
+      "sha256": "d54fdc5a4d68f3ae9f685e19cbe0eea9f12c3f7660394e0322cdbf9fd905f779",
+      "occurrence": 442,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойства.xml",
+      "sha256": "d54fdc5a4d68f3ae9f685e19cbe0eea9f12c3f7660394e0322cdbf9fd905f779",
+      "occurrence": 448,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonAttributes/ОбщийРеквизитВсеСвойства.xml",
+      "sha256": "6b26b485d8112c23839f23f10b235ae4f31a29c356fb494908a4ab5e0004316a",
+      "occurrence": 31,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonAttributes/ОбщийРеквизитВсеСвойства.xml",
+      "sha256": "6b26b485d8112c23839f23f10b235ae4f31a29c356fb494908a4ab5e0004316a",
+      "occurrence": 32,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonAttributes/ОбщийРеквизитВсеСвойства.xml",
+      "sha256": "6b26b485d8112c23839f23f10b235ae4f31a29c356fb494908a4ab5e0004316a",
+      "occurrence": 34,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonAttributes/ОбщийРеквизитПоУмолчанию.xml",
+      "sha256": "127ef3e751f3a696912ba7dffe7496dffd7e47e794b6db89b2ca47c923e43ffc",
+      "occurrence": 25,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/InputField/Ext/Form.xml",
+      "sha256": "4bab6c2f7d9dfeb072ff4f258f453a910f0db8b80b5f0ada5ee4370b2619b20d",
+      "occurrence": 108,
+      "type": "xs:decimal",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/InputField/Ext/Form.xml",
+      "sha256": "4bab6c2f7d9dfeb072ff4f258f453a910f0db8b80b5f0ada5ee4370b2619b20d",
+      "occurrence": 109,
+      "type": "xs:decimal",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/InputField/Ext/Form.xml",
+      "sha256": "4bab6c2f7d9dfeb072ff4f258f453a910f0db8b80b5f0ada5ee4370b2619b20d",
+      "occurrence": 116,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/InputField/Ext/Form.xml",
+      "sha256": "4bab6c2f7d9dfeb072ff4f258f453a910f0db8b80b5f0ada5ee4370b2619b20d",
+      "occurrence": 120,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/InputField/Ext/Form.xml",
+      "sha256": "4bab6c2f7d9dfeb072ff4f258f453a910f0db8b80b5f0ada5ee4370b2619b20d",
+      "occurrence": 135,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/Pages/Ext/Form.xml",
+      "sha256": "bdf8ccff025cc53c94a599456785963376bbe7644cc457b29bf7802d5f438bf1",
+      "occurrence": 42,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/RadioButtonField/Ext/Form.xml",
+      "sha256": "1f637d4c82a084fa97cc4d70b21869db5b3fe3948db16620a46ef14a23badd1c",
+      "occurrence": 72,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/Table/Ext/Form.xml",
+      "sha256": "92385cea4321b5486e5ca81579c6dc88a677e939b1f5c6c836a908458c153c59",
+      "occurrence": 252,
+      "type": "xs:decimal",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/Table/Ext/Form.xml",
+      "sha256": "92385cea4321b5486e5ca81579c6dc88a677e939b1f5c6c836a908458c153c59",
+      "occurrence": 253,
+      "type": "xs:decimal",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/Table/Ext/Form.xml",
+      "sha256": "92385cea4321b5486e5ca81579c6dc88a677e939b1f5c6c836a908458c153c59",
+      "occurrence": 259,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/Table/Ext/Form.xml",
+      "sha256": "92385cea4321b5486e5ca81579c6dc88a677e939b1f5c6c836a908458c153c59",
+      "occurrence": 274,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/UsualGroup/Ext/Form.xml",
+      "sha256": "86a83dc150561eaf3ebe00b9679c7568858eb711e0010ae812356e87a4edc5b0",
+      "occurrence": 57,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml",
+      "sha256": "7e0bf00f09ca16dd1efd3346c0347efb62b08d6643f65ef79b038bb2a8cdbd31",
+      "occurrence": 123,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml",
+      "sha256": "7e0bf00f09ca16dd1efd3346c0347efb62b08d6643f65ef79b038bb2a8cdbd31",
+      "occurrence": 136,
+      "type": "xs:decimal",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml",
+      "sha256": "7e0bf00f09ca16dd1efd3346c0347efb62b08d6643f65ef79b038bb2a8cdbd31",
+      "occurrence": 144,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml",
+      "sha256": "7e0bf00f09ca16dd1efd3346c0347efb62b08d6643f65ef79b038bb2a8cdbd31",
+      "occurrence": 147,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml",
+      "sha256": "7e0bf00f09ca16dd1efd3346c0347efb62b08d6643f65ef79b038bb2a8cdbd31",
+      "occurrence": 241,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml",
+      "sha256": "7e0bf00f09ca16dd1efd3346c0347efb62b08d6643f65ef79b038bb2a8cdbd31",
+      "occurrence": 246,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml",
+      "sha256": "7e0bf00f09ca16dd1efd3346c0347efb62b08d6643f65ef79b038bb2a8cdbd31",
+      "occurrence": 247,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml",
+      "sha256": "7e0bf00f09ca16dd1efd3346c0347efb62b08d6643f65ef79b038bb2a8cdbd31",
+      "occurrence": 261,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml",
+      "sha256": "7e0bf00f09ca16dd1efd3346c0347efb62b08d6643f65ef79b038bb2a8cdbd31",
+      "occurrence": 273,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml",
+      "sha256": "7e0bf00f09ca16dd1efd3346c0347efb62b08d6643f65ef79b038bb2a8cdbd31",
+      "occurrence": 277,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml",
+      "sha256": "7e0bf00f09ca16dd1efd3346c0347efb62b08d6643f65ef79b038bb2a8cdbd31",
+      "occurrence": 279,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml",
+      "sha256": "7e0bf00f09ca16dd1efd3346c0347efb62b08d6643f65ef79b038bb2a8cdbd31",
+      "occurrence": 286,
+      "type": "xs:dateTime",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml",
+      "sha256": "7e0bf00f09ca16dd1efd3346c0347efb62b08d6643f65ef79b038bb2a8cdbd31",
+      "occurrence": 287,
+      "type": "xs:dateTime",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml",
+      "sha256": "7e0bf00f09ca16dd1efd3346c0347efb62b08d6643f65ef79b038bb2a8cdbd31",
+      "occurrence": 299,
+      "type": "xs:dateTime",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml",
+      "sha256": "7e0bf00f09ca16dd1efd3346c0347efb62b08d6643f65ef79b038bb2a8cdbd31",
+      "occurrence": 300,
+      "type": "xs:dateTime",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml",
+      "sha256": "7e0bf00f09ca16dd1efd3346c0347efb62b08d6643f65ef79b038bb2a8cdbd31",
+      "occurrence": 307,
+      "type": "xs:dateTime",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml",
+      "sha256": "7e0bf00f09ca16dd1efd3346c0347efb62b08d6643f65ef79b038bb2a8cdbd31",
+      "occurrence": 308,
+      "type": "xs:dateTime",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml",
+      "sha256": "7e0bf00f09ca16dd1efd3346c0347efb62b08d6643f65ef79b038bb2a8cdbd31",
+      "occurrence": 366,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml",
+      "sha256": "7e0bf00f09ca16dd1efd3346c0347efb62b08d6643f65ef79b038bb2a8cdbd31",
+      "occurrence": 379,
+      "type": "xs:decimal",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml",
+      "sha256": "7e0bf00f09ca16dd1efd3346c0347efb62b08d6643f65ef79b038bb2a8cdbd31",
+      "occurrence": 387,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml",
+      "sha256": "7e0bf00f09ca16dd1efd3346c0347efb62b08d6643f65ef79b038bb2a8cdbd31",
+      "occurrence": 390,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml",
+      "sha256": "7e0bf00f09ca16dd1efd3346c0347efb62b08d6643f65ef79b038bb2a8cdbd31",
+      "occurrence": 406,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml",
+      "sha256": "7e0bf00f09ca16dd1efd3346c0347efb62b08d6643f65ef79b038bb2a8cdbd31",
+      "occurrence": 407,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml",
+      "sha256": "7e0bf00f09ca16dd1efd3346c0347efb62b08d6643f65ef79b038bb2a8cdbd31",
+      "occurrence": 410,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml",
+      "sha256": "7e0bf00f09ca16dd1efd3346c0347efb62b08d6643f65ef79b038bb2a8cdbd31",
+      "occurrence": 439,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml",
+      "sha256": "7e0bf00f09ca16dd1efd3346c0347efb62b08d6643f65ef79b038bb2a8cdbd31",
+      "occurrence": 443,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml",
+      "sha256": "7e0bf00f09ca16dd1efd3346c0347efb62b08d6643f65ef79b038bb2a8cdbd31",
+      "occurrence": 465,
+      "type": "xs:dateTime",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml",
+      "sha256": "7e0bf00f09ca16dd1efd3346c0347efb62b08d6643f65ef79b038bb2a8cdbd31",
+      "occurrence": 466,
+      "type": "xs:dateTime",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml",
+      "sha256": "7e0bf00f09ca16dd1efd3346c0347efb62b08d6643f65ef79b038bb2a8cdbd31",
+      "occurrence": 473,
+      "type": "xs:dateTime",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml",
+      "sha256": "7e0bf00f09ca16dd1efd3346c0347efb62b08d6643f65ef79b038bb2a8cdbd31",
+      "occurrence": 474,
+      "type": "xs:dateTime",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml",
+      "sha256": "7e0bf00f09ca16dd1efd3346c0347efb62b08d6643f65ef79b038bb2a8cdbd31",
+      "occurrence": 524,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml",
+      "sha256": "7e0bf00f09ca16dd1efd3346c0347efb62b08d6643f65ef79b038bb2a8cdbd31",
+      "occurrence": 525,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml",
+      "sha256": "7e0bf00f09ca16dd1efd3346c0347efb62b08d6643f65ef79b038bb2a8cdbd31",
+      "occurrence": 529,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml",
+      "sha256": "7e0bf00f09ca16dd1efd3346c0347efb62b08d6643f65ef79b038bb2a8cdbd31",
+      "occurrence": 615,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/Команды/Ext/Form.xml",
+      "sha256": "7b472ec4e70726491d892a973ab014418234660d748ff11474500ccdc88b9bd6",
+      "occurrence": 67,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/УсловноеОформление/Ext/Form.xml",
+      "sha256": "fe5469fadefa4512dc7d1f67cea7369cbd5ff1197982be2ab823c440a250a42a",
+      "occurrence": 581,
+      "type": "xs:decimal",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/УсловноеОформление/Ext/Form.xml",
+      "sha256": "fe5469fadefa4512dc7d1f67cea7369cbd5ff1197982be2ab823c440a250a42a",
+      "occurrence": 598,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/УсловноеОформление/Ext/Form.xml",
+      "sha256": "fe5469fadefa4512dc7d1f67cea7369cbd5ff1197982be2ab823c440a250a42a",
+      "occurrence": 663,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/Форма/Ext/Form.xml",
+      "sha256": "148ddd632a2517f477d1d520fef3f61114951477e037fe2f775275e43a641740",
+      "occurrence": 18,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Configuration.xml",
+      "sha256": "a3df63558fbf738275bdf0262521161621d1c0359c5b454ee82f48ab72bba9ac",
+      "occurrence": 198,
+      "type": "xs:decimal",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Constants/КонстантаВсеСвойства.xml",
+      "sha256": "23a19ac05a0c406ed9e8e7a2e77b8296feaefbf586d2fb77c245818e993c77d6",
+      "occurrence": 51,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Constants/КонстантаВсеСвойства.xml",
+      "sha256": "23a19ac05a0c406ed9e8e7a2e77b8296feaefbf586d2fb77c245818e993c77d6",
+      "occurrence": 52,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/DataProcessors/ОбработкаВсеСвойства/Forms/Форма/Ext/Form.xml",
+      "sha256": "028ebab7d2114ecb66104c1582e406f3c23b30bffa12780ed9e1620b13c6d569",
+      "occurrence": 33,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/DataProcessors/ОбработкаВсеСвойства.xml",
+      "sha256": "9a70ce3ab3fda19d59f75df003af943cf930723673ecec29a366017c8ae4867d",
+      "occurrence": 56,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/DataProcessors/ОбработкаВсеСвойства.xml",
+      "sha256": "9a70ce3ab3fda19d59f75df003af943cf930723673ecec29a366017c8ae4867d",
+      "occurrence": 57,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/DataProcessors/ОбработкаВсеСвойства.xml",
+      "sha256": "9a70ce3ab3fda19d59f75df003af943cf930723673ecec29a366017c8ae4867d",
+      "occurrence": 63,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/DataProcessors/ОбработкаВсеСвойства.xml",
+      "sha256": "9a70ce3ab3fda19d59f75df003af943cf930723673ecec29a366017c8ae4867d",
+      "occurrence": 217,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/DataProcessors/ОбработкаВсеСвойства.xml",
+      "sha256": "9a70ce3ab3fda19d59f75df003af943cf930723673ecec29a366017c8ae4867d",
+      "occurrence": 218,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/DataProcessors/ОбработкаВсеСвойства.xml",
+      "sha256": "9a70ce3ab3fda19d59f75df003af943cf930723673ecec29a366017c8ae4867d",
+      "occurrence": 220,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/DataProcessors/ОбработкаВсеСвойства.xml",
+      "sha256": "9a70ce3ab3fda19d59f75df003af943cf930723673ecec29a366017c8ae4867d",
+      "occurrence": 226,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/DocumentJournals/ЖурналДокументовВсеСвойства/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "baa4360c31db78297270266f76417a58f435b3514e2d2ff6b1a3acbcff6df4fc",
+      "occurrence": 32,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства/Forms/ФормаДокументаВсеСвойства/Ext/Form.xml",
+      "sha256": "d8265d2d0222947ab0099aa2617e20124950678ca82312c0791bf4f0c71ce925",
+      "occurrence": 33,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства/Forms/ФормаДокументаВсеСвойства/Ext/Form.xml",
+      "sha256": "d8265d2d0222947ab0099aa2617e20124950678ca82312c0791bf4f0c71ce925",
+      "occurrence": 105,
+      "type": "xs:decimal",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства.xml",
+      "sha256": "346554c79ff22c0239e18eaa00e69bc203b161485dcbd6a482b191871f90b79e",
+      "occurrence": 270,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства.xml",
+      "sha256": "346554c79ff22c0239e18eaa00e69bc203b161485dcbd6a482b191871f90b79e",
+      "occurrence": 307,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства.xml",
+      "sha256": "346554c79ff22c0239e18eaa00e69bc203b161485dcbd6a482b191871f90b79e",
+      "occurrence": 347,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства.xml",
+      "sha256": "346554c79ff22c0239e18eaa00e69bc203b161485dcbd6a482b191871f90b79e",
+      "occurrence": 348,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства.xml",
+      "sha256": "346554c79ff22c0239e18eaa00e69bc203b161485dcbd6a482b191871f90b79e",
+      "occurrence": 454,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства.xml",
+      "sha256": "346554c79ff22c0239e18eaa00e69bc203b161485dcbd6a482b191871f90b79e",
+      "occurrence": 455,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументДругойДляЖурнала.xml",
+      "sha256": "d0e7ad7b6bf2ecaad57f80627c3fc5b8b9749c0ff561c1c5c89d165acaf8b940",
+      "occurrence": 93,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Enums/ПеречислениеВсеСвойства/Forms/ФормаВыбора/Ext/Form.xml",
+      "sha256": "eda195b5350dc1921b77ff936d2a4baf1175f954770ca307da580b795bd6343a",
+      "occurrence": 33,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Enums/ПеречислениеВсеСвойства/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "c115dd8dac0932699003f2d052a7012ba885027ae32fc30c3026bd969c29bcda",
+      "occurrence": 33,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства/Forms/ФормаВыбора/Ext/Form.xml",
+      "sha256": "ba75de6b3270b2f2dba56b998db0dc0bb8dba2690b5ee895fea4c389ae5e4bee",
+      "occurrence": 32,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "ba75de6b3270b2f2dba56b998db0dc0bb8dba2690b5ee895fea4c389ae5e4bee",
+      "occurrence": 32,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства/Forms/ФормаУзла/Ext/Form.xml",
+      "sha256": "f2e2069033831b9bd4d075befd4df09b940bf17f974f01047be9500785c489b0",
+      "occurrence": 33,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства.xml",
+      "sha256": "ea7e9507ee5538c46acb941135ff909df0caefabf86926fdb4969fb063c3002d",
+      "occurrence": 336,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства.xml",
+      "sha256": "ea7e9507ee5538c46acb941135ff909df0caefabf86926fdb4969fb063c3002d",
+      "occurrence": 337,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства.xml",
+      "sha256": "ea7e9507ee5538c46acb941135ff909df0caefabf86926fdb4969fb063c3002d",
+      "occurrence": 345,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства.xml",
+      "sha256": "ea7e9507ee5538c46acb941135ff909df0caefabf86926fdb4969fb063c3002d",
+      "occurrence": 349,
+      "type": "xs:dateTime",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства.xml",
+      "sha256": "ea7e9507ee5538c46acb941135ff909df0caefabf86926fdb4969fb063c3002d",
+      "occurrence": 419,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства.xml",
+      "sha256": "ea7e9507ee5538c46acb941135ff909df0caefabf86926fdb4969fb063c3002d",
+      "occurrence": 530,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства.xml",
+      "sha256": "ea7e9507ee5538c46acb941135ff909df0caefabf86926fdb4969fb063c3002d",
+      "occurrence": 531,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства.xml",
+      "sha256": "ea7e9507ee5538c46acb941135ff909df0caefabf86926fdb4969fb063c3002d",
+      "occurrence": 537,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства.xml",
+      "sha256": "ea7e9507ee5538c46acb941135ff909df0caefabf86926fdb4969fb063c3002d",
+      "occurrence": 541,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства/DimensionTables/ТаблицаИзмеренияВсеСвойства.xml",
+      "sha256": "a7e3de3274b72eb4f7a14f9941323be9396b14a25a7db431af85683881285d52",
+      "occurrence": 85,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства/DimensionTables/ТаблицаИзмеренияВсеСвойства.xml",
+      "sha256": "a7e3de3274b72eb4f7a14f9941323be9396b14a25a7db431af85683881285d52",
+      "occurrence": 86,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства/DimensionTables/ТаблицаИзмеренияВсеСвойства.xml",
+      "sha256": "a7e3de3274b72eb4f7a14f9941323be9396b14a25a7db431af85683881285d52",
+      "occurrence": 123,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства.xml",
+      "sha256": "d28dfd79e7a5a2bdfb5f5cafee33dcc38c55abf6c8d911171ac8199580460be8",
+      "occurrence": 87,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства.xml",
+      "sha256": "d28dfd79e7a5a2bdfb5f5cafee33dcc38c55abf6c8d911171ac8199580460be8",
+      "occurrence": 88,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства.xml",
+      "sha256": "1e2e310995587efd1dd1fcd8349b9878930fb609ba109b31bc6d0d1173c2b102",
+      "occurrence": 108,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства.xml",
+      "sha256": "1e2e310995587efd1dd1fcd8349b9878930fb609ba109b31bc6d0d1173c2b102",
+      "occurrence": 149,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства.xml",
+      "sha256": "1e2e310995587efd1dd1fcd8349b9878930fb609ba109b31bc6d0d1173c2b102",
+      "occurrence": 150,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаМодульНабора.xml",
+      "sha256": "8c331499e999b075f5986fe229016914272d2eb176aba5aad4eeb95a2c4c5205",
+      "occurrence": 93,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаПоУмолчанию.xml",
+      "sha256": "0b34ff717e10e229ef8e80e89b0d8a3db14589a5e929e8a9bd9d0792f292d2eb",
+      "occurrence": 91,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/FilterCriteria/КритерийОтбораВсеСвойства/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "6a6ef9dc55b08d3a5cc6195452422ebf564a105e16a955d5f035be723a114b80",
+      "occurrence": 32,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/ЗначенияХарактеристикОбъектов.xml",
+      "sha256": "4fae65975903dc9033264f5c076b8fdf1d65d31ca2e4c63d5d0b0a9617a58c5e",
+      "occurrence": 294,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведений1.xml",
+      "sha256": "4439455e4cceda094528416b92187f2f23f84c215e22bc0c8581bbcf7a89aca3",
+      "occurrence": 72,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийАдресация.xml",
+      "sha256": "d602e7b19c90a6dca132994ca6bb3efeb6da195ceeb322f679e2a19b3d3bd04a",
+      "occurrence": 78,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийАдресация.xml",
+      "sha256": "d602e7b19c90a6dca132994ca6bb3efeb6da195ceeb322f679e2a19b3d3bd04a",
+      "occurrence": 115,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый/Forms/ФормаЗаписи/Ext/Form.xml",
+      "sha256": "dda64531afe87436db310fb5ba91d7902c5f558feeabb6b7746b8da5082f28e9",
+      "occurrence": 33,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "1292a4d92c4fa1b0df5385234946d70e299d3ad476d807f51559c96400bdfffc",
+      "occurrence": 32,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый.xml",
+      "sha256": "d88e5e7cd186df824284b5108f3554d7ff786d8eb53279cf6549946ba40e6fc5",
+      "occurrence": 216,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый.xml",
+      "sha256": "d88e5e7cd186df824284b5108f3554d7ff786d8eb53279cf6549946ba40e6fc5",
+      "occurrence": 217,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый.xml",
+      "sha256": "d88e5e7cd186df824284b5108f3554d7ff786d8eb53279cf6549946ba40e6fc5",
+      "occurrence": 219,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый.xml",
+      "sha256": "d88e5e7cd186df824284b5108f3554d7ff786d8eb53279cf6549946ba40e6fc5",
+      "occurrence": 301,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый.xml",
+      "sha256": "d88e5e7cd186df824284b5108f3554d7ff786d8eb53279cf6549946ba40e6fc5",
+      "occurrence": 302,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый.xml",
+      "sha256": "d88e5e7cd186df824284b5108f3554d7ff786d8eb53279cf6549946ba40e6fc5",
+      "occurrence": 304,
+      "type": "xs:decimal",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый.xml",
+      "sha256": "d88e5e7cd186df824284b5108f3554d7ff786d8eb53279cf6549946ba40e6fc5",
+      "occurrence": 382,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый.xml",
+      "sha256": "d88e5e7cd186df824284b5108f3554d7ff786d8eb53279cf6549946ba40e6fc5",
+      "occurrence": 383,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый.xml",
+      "sha256": "d88e5e7cd186df824284b5108f3554d7ff786d8eb53279cf6549946ba40e6fc5",
+      "occurrence": 428,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийПоУмолчанию.xml",
+      "sha256": "21e8b23756138813704d6c373c3ae398d1b30bd6e29393ed689965fc7fc437a1",
+      "occurrence": 75,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийПодчиненРегистратору.xml",
+      "sha256": "2af3f843397dabedb94556093d4b5888efd10c2632f59f11a69e521fa8295fc2",
+      "occurrence": 75,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства/Templates/ОсновнаяСхемаКомпоновкиДанных/Ext/Template.xml",
+      "sha256": "c3225e5acd7be07dbd2e4e534bc1bb8ee882baeea2bc6acc00789878bc453711",
+      "occurrence": 22,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства.xml",
+      "sha256": "2c0e6fa906363085def52dc9d23fd62fc76dd2d899229768b22548a0267fddbe",
+      "occurrence": 62,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства.xml",
+      "sha256": "2c0e6fa906363085def52dc9d23fd62fc76dd2d899229768b22548a0267fddbe",
+      "occurrence": 63,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства.xml",
+      "sha256": "2c0e6fa906363085def52dc9d23fd62fc76dd2d899229768b22548a0267fddbe",
+      "occurrence": 69,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства.xml",
+      "sha256": "2c0e6fa906363085def52dc9d23fd62fc76dd2d899229768b22548a0267fddbe",
+      "occurrence": 220,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства.xml",
+      "sha256": "2c0e6fa906363085def52dc9d23fd62fc76dd2d899229768b22548a0267fddbe",
+      "occurrence": 221,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства.xml",
+      "sha256": "2c0e6fa906363085def52dc9d23fd62fc76dd2d899229768b22548a0267fddbe",
+      "occurrence": 223,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства.xml",
+      "sha256": "2c0e6fa906363085def52dc9d23fd62fc76dd2d899229768b22548a0267fddbe",
+      "occurrence": 229,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетСКД/Templates/ОсновнаяСхемаКомпоновкиДанных/Ext/Template.xml",
+      "sha256": "c0c584a922159efb6e8e8baca852d0b6f8ad3cb5139bf6660cd2a6e15184b67c",
+      "occurrence": 13,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства/Forms/ФормаВыбора/Ext/Form.xml",
+      "sha256": "c4056d34c2c3665c62e3e6a93f071713f28c480e4bbfcd9ae4f673918a3c2c37",
+      "occurrence": 32,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства/Forms/ФормаЗадачи/Ext/Form.xml",
+      "sha256": "ddafca19924250f5470500dfca918c5ceb042e7968f667d4732f3b1163cea74f",
+      "occurrence": 33,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "c4056d34c2c3665c62e3e6a93f071713f28c480e4bbfcd9ae4f673918a3c2c37",
+      "occurrence": 32,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства.xml",
+      "sha256": "9c2920177c6974fc6941bd2f9d10d1ed1c0e69efe5a564b67a35daa5abc5f72d",
+      "occurrence": 342,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства.xml",
+      "sha256": "9c2920177c6974fc6941bd2f9d10d1ed1c0e69efe5a564b67a35daa5abc5f72d",
+      "occurrence": 343,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства.xml",
+      "sha256": "9c2920177c6974fc6941bd2f9d10d1ed1c0e69efe5a564b67a35daa5abc5f72d",
+      "occurrence": 351,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства.xml",
+      "sha256": "9c2920177c6974fc6941bd2f9d10d1ed1c0e69efe5a564b67a35daa5abc5f72d",
+      "occurrence": 355,
+      "type": "xs:dateTime",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства.xml",
+      "sha256": "9c2920177c6974fc6941bd2f9d10d1ed1c0e69efe5a564b67a35daa5abc5f72d",
+      "occurrence": 424,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства.xml",
+      "sha256": "9c2920177c6974fc6941bd2f9d10d1ed1c0e69efe5a564b67a35daa5abc5f72d",
+      "occurrence": 559,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства.xml",
+      "sha256": "9c2920177c6974fc6941bd2f9d10d1ed1c0e69efe5a564b67a35daa5abc5f72d",
+      "occurrence": 560,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства.xml",
+      "sha256": "9c2920177c6974fc6941bd2f9d10d1ed1c0e69efe5a564b67a35daa5abc5f72d",
+      "occurrence": 566,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства.xml",
+      "sha256": "9c2920177c6974fc6941bd2f9d10d1ed1c0e69efe5a564b67a35daa5abc5f72d",
+      "occurrence": 570,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства.xml",
+      "sha256": "9c2920177c6974fc6941bd2f9d10d1ed1c0e69efe5a564b67a35daa5abc5f72d",
+      "occurrence": 647,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства.xml",
+      "sha256": "9c2920177c6974fc6941bd2f9d10d1ed1c0e69efe5a564b67a35daa5abc5f72d",
+      "occurrence": 648,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства.xml",
+      "sha256": "9c2920177c6974fc6941bd2f9d10d1ed1c0e69efe5a564b67a35daa5abc5f72d",
+      "occurrence": 656,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства.xml",
+      "sha256": "9c2920177c6974fc6941bd2f9d10d1ed1c0e69efe5a564b67a35daa5abc5f72d",
+      "occurrence": 660,
+      "type": "xs:dateTime",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства.xml",
+      "sha256": "9c2920177c6974fc6941bd2f9d10d1ed1c0e69efe5a564b67a35daa5abc5f72d",
+      "occurrence": 696,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/WebServices/WebСервисВсеСвойства.xml",
+      "sha256": "a6455c22eac16513435e14f8b1bbdc903811ddd467a1715837fe9e466f53d906",
+      "occurrence": 18,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/WebServices/WebСервисВсеСвойства.xml",
+      "sha256": "a6455c22eac16513435e14f8b1bbdc903811ddd467a1715837fe9e466f53d906",
+      "occurrence": 22,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/WebSocketClients/WebSocketКлиентВсеСвойства.xml",
+      "sha256": "5ac842f6190fc03a46bb578b9545011907ef28d41cefdd0ee2ab97c70b4225e3",
+      "occurrence": 19,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/WebSocketClients/WebSocketКлиентВсеСвойства.xml",
+      "sha256": "5ac842f6190fc03a46bb578b9545011907ef28d41cefdd0ee2ab97c70b4225e3",
+      "occurrence": 20,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/WebSocketClients/WebSocketКлиентВсеСвойства.xml",
+      "sha256": "5ac842f6190fc03a46bb578b9545011907ef28d41cefdd0ee2ab97c70b4225e3",
+      "occurrence": 25,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/WebSocketClients/WebSocketКлиентВсеСвойства.xml",
+      "sha256": "5ac842f6190fc03a46bb578b9545011907ef28d41cefdd0ee2ab97c70b4225e3",
+      "occurrence": 26,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОбороты/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "744ee5b8ce31a259fce89601017173a3d2b9ea1a7742d35c89880ee7a91137f2",
+      "occurrence": 32,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОбороты/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "744ee5b8ce31a259fce89601017173a3d2b9ea1a7742d35c89880ee7a91137f2",
+      "occurrence": 189,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОборотыExt/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "b154ae92c559b756e945979b3d557c91118405756d12f767b9d9c6375c9e296f",
+      "occurrence": 32,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОборотыExt.xml",
+      "sha256": "74cdbd86c72cb85061598772d3b4c8cd856f719b17c00d23df96d4bd1225dc4f",
+      "occurrence": 454,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОборотыExt.xml",
+      "sha256": "74cdbd86c72cb85061598772d3b4c8cd856f719b17c00d23df96d4bd1225dc4f",
+      "occurrence": 455,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОборотыExt.xml",
+      "sha256": "74cdbd86c72cb85061598772d3b4c8cd856f719b17c00d23df96d4bd1225dc4f",
+      "occurrence": 461,
+      "type": "xs:dateTime",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОборотыExt.xml",
+      "sha256": "74cdbd86c72cb85061598772d3b4c8cd856f719b17c00d23df96d4bd1225dc4f",
+      "occurrence": 539,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОборотыExt.xml",
+      "sha256": "74cdbd86c72cb85061598772d3b4c8cd856f719b17c00d23df96d4bd1225dc4f",
+      "occurrence": 540,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОборотыExt.xml",
+      "sha256": "74cdbd86c72cb85061598772d3b4c8cd856f719b17c00d23df96d4bd1225dc4f",
+      "occurrence": 623,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОборотыExt.xml",
+      "sha256": "74cdbd86c72cb85061598772d3b4c8cd856f719b17c00d23df96d4bd1225dc4f",
+      "occurrence": 624,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/AccumulationRegisters/РегистрНакопленияВсеСвойстваОбороты/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "744ee5b8ce31a259fce89601017173a3d2b9ea1a7742d35c89880ee7a91137f2",
+      "occurrence": 32,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/AccumulationRegisters/РегистрНакопленияВсеСвойстваОбороты/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "744ee5b8ce31a259fce89601017173a3d2b9ea1a7742d35c89880ee7a91137f2",
+      "occurrence": 189,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/AccumulationRegisters/РегистрНакопленияВсеСвойстваОборотыExt/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "bd42ce43550c17cfd1d96f2f1e2333b5fa4c156a370503911492b927bede4913",
+      "occurrence": 32,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/AccumulationRegisters/РегистрНакопленияВсеСвойстваОборотыExt.xml",
+      "sha256": "d4b59f86e32f9577d966057a8137d9cb3ed273d71b21ea19029c263b01ddcf6d",
+      "occurrence": 185,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/AccumulationRegisters/РегистрНакопленияВсеСвойстваОборотыExt.xml",
+      "sha256": "d4b59f86e32f9577d966057a8137d9cb3ed273d71b21ea19029c263b01ddcf6d",
+      "occurrence": 186,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/AccumulationRegisters/РегистрНакопленияВсеСвойстваОборотыExt.xml",
+      "sha256": "d4b59f86e32f9577d966057a8137d9cb3ed273d71b21ea19029c263b01ddcf6d",
+      "occurrence": 263,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/AccumulationRegisters/РегистрНакопленияВсеСвойстваОборотыExt.xml",
+      "sha256": "d4b59f86e32f9577d966057a8137d9cb3ed273d71b21ea19029c263b01ddcf6d",
+      "occurrence": 264,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/AccumulationRegisters/РегистрНакопленияВсеСвойстваОборотыExt.xml",
+      "sha256": "d4b59f86e32f9577d966057a8137d9cb3ed273d71b21ea19029c263b01ddcf6d",
+      "occurrence": 341,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/AccumulationRegisters/РегистрНакопленияВсеСвойстваОборотыExt.xml",
+      "sha256": "d4b59f86e32f9577d966057a8137d9cb3ed273d71b21ea19029c263b01ddcf6d",
+      "occurrence": 342,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/BusinessProcesses/БизнесПроцессВсеСвойства/Forms/ФормаВыбора/Ext/Form.xml",
+      "sha256": "744ee5b8ce31a259fce89601017173a3d2b9ea1a7742d35c89880ee7a91137f2",
+      "occurrence": 32,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/BusinessProcesses/БизнесПроцессВсеСвойства/Forms/ФормаВыбора/Ext/Form.xml",
+      "sha256": "744ee5b8ce31a259fce89601017173a3d2b9ea1a7742d35c89880ee7a91137f2",
+      "occurrence": 189,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/BusinessProcesses/БизнесПроцессВсеСвойства/Forms/ФормаЗадачи/Ext/Form.xml",
+      "sha256": "6dce5f5a2544b79f4e7f2ee1d2301a2007b8d2f61ee837d0f007f53113ff610f",
+      "occurrence": 33,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/BusinessProcesses/БизнесПроцессВсеСвойства/Forms/ФормаЗадачи/Ext/Form.xml",
+      "sha256": "6dce5f5a2544b79f4e7f2ee1d2301a2007b8d2f61ee837d0f007f53113ff610f",
+      "occurrence": 93,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/BusinessProcesses/БизнесПроцессВсеСвойства/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "744ee5b8ce31a259fce89601017173a3d2b9ea1a7742d35c89880ee7a91137f2",
+      "occurrence": 32,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/BusinessProcesses/БизнесПроцессВсеСвойства/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "744ee5b8ce31a259fce89601017173a3d2b9ea1a7742d35c89880ee7a91137f2",
+      "occurrence": 189,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/BusinessProcesses/БизнесПроцессВсеСвойстваExt/Forms/ФормаВыбора/Ext/Form.xml",
+      "sha256": "5a336f9fb1be2a3d6f3719ea0f793f2fc0ab206e4a8d845163ec656b831595bb",
+      "occurrence": 32,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/BusinessProcesses/БизнесПроцессВсеСвойстваExt/Forms/ФормаЗадачи/Ext/Form.xml",
+      "sha256": "60fea278f6392199379ce62075bd55c282f0b5392c0c1ca08ad1ad68b7a9b920",
+      "occurrence": 33,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/BusinessProcesses/БизнесПроцессВсеСвойстваExt/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "5a336f9fb1be2a3d6f3719ea0f793f2fc0ab206e4a8d845163ec656b831595bb",
+      "occurrence": 32,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/BusinessProcesses/БизнесПроцессВсеСвойстваExt.xml",
+      "sha256": "80673d2d4f16696a071a62273a51c95d1ca745d6b592ff4a78cd6092e2ffe019",
+      "occurrence": 307,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/BusinessProcesses/БизнесПроцессВсеСвойстваExt.xml",
+      "sha256": "80673d2d4f16696a071a62273a51c95d1ca745d6b592ff4a78cd6092e2ffe019",
+      "occurrence": 308,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/BusinessProcesses/БизнесПроцессВсеСвойстваExt.xml",
+      "sha256": "80673d2d4f16696a071a62273a51c95d1ca745d6b592ff4a78cd6092e2ffe019",
+      "occurrence": 316,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/BusinessProcesses/БизнесПроцессВсеСвойстваExt.xml",
+      "sha256": "80673d2d4f16696a071a62273a51c95d1ca745d6b592ff4a78cd6092e2ffe019",
+      "occurrence": 320,
+      "type": "xs:dateTime",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/BusinessProcesses/БизнесПроцессВсеСвойстваExt.xml",
+      "sha256": "80673d2d4f16696a071a62273a51c95d1ca745d6b592ff4a78cd6092e2ffe019",
+      "occurrence": 389,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/BusinessProcesses/БизнесПроцессВсеСвойстваExt.xml",
+      "sha256": "80673d2d4f16696a071a62273a51c95d1ca745d6b592ff4a78cd6092e2ffe019",
+      "occurrence": 426,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/BusinessProcesses/БизнесПроцессВсеСвойстваExt.xml",
+      "sha256": "80673d2d4f16696a071a62273a51c95d1ca745d6b592ff4a78cd6092e2ffe019",
+      "occurrence": 561,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/BusinessProcesses/БизнесПроцессВсеСвойстваExt.xml",
+      "sha256": "80673d2d4f16696a071a62273a51c95d1ca745d6b592ff4a78cd6092e2ffe019",
+      "occurrence": 562,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/BusinessProcesses/БизнесПроцессВсеСвойстваExt.xml",
+      "sha256": "80673d2d4f16696a071a62273a51c95d1ca745d6b592ff4a78cd6092e2ffe019",
+      "occurrence": 568,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/BusinessProcesses/БизнесПроцессВсеСвойстваExt.xml",
+      "sha256": "80673d2d4f16696a071a62273a51c95d1ca745d6b592ff4a78cd6092e2ffe019",
+      "occurrence": 572,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/CalculationRegisters/РегистрРасчетаВсеСвойства/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "744ee5b8ce31a259fce89601017173a3d2b9ea1a7742d35c89880ee7a91137f2",
+      "occurrence": 32,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/CalculationRegisters/РегистрРасчетаВсеСвойства/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "744ee5b8ce31a259fce89601017173a3d2b9ea1a7742d35c89880ee7a91137f2",
+      "occurrence": 189,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/CalculationRegisters/РегистрРасчетаВсеСвойстваExt/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "8532f3e3a917584a9ea700a919247398e3768c5fe47246e0d61393b3f98a4b51",
+      "occurrence": 32,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/CalculationRegisters/РегистрРасчетаВсеСвойстваExt.xml",
+      "sha256": "c11bafd928d25fa427c981f226d4833651b50edea68da23a9442f86c46929b34",
+      "occurrence": 375,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/CalculationRegisters/РегистрРасчетаВсеСвойстваExt.xml",
+      "sha256": "c11bafd928d25fa427c981f226d4833651b50edea68da23a9442f86c46929b34",
+      "occurrence": 376,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/CalculationRegisters/РегистрРасчетаВсеСвойстваExt.xml",
+      "sha256": "c11bafd928d25fa427c981f226d4833651b50edea68da23a9442f86c46929b34",
+      "occurrence": 453,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/CalculationRegisters/РегистрРасчетаВсеСвойстваExt.xml",
+      "sha256": "c11bafd928d25fa427c981f226d4833651b50edea68da23a9442f86c46929b34",
+      "occurrence": 454,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/CalculationRegisters/РегистрРасчетаВсеСвойстваExt.xml",
+      "sha256": "c11bafd928d25fa427c981f226d4833651b50edea68da23a9442f86c46929b34",
+      "occurrence": 529,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/CalculationRegisters/РегистрРасчетаВсеСвойстваExt.xml",
+      "sha256": "c11bafd928d25fa427c981f226d4833651b50edea68da23a9442f86c46929b34",
+      "occurrence": 530,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/CalculationRegisters/РегистрРасчетаВсеСвойстваExt.xml",
+      "sha256": "c11bafd928d25fa427c981f226d4833651b50edea68da23a9442f86c46929b34",
+      "occurrence": 536,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/CalculationRegisters/РегистрРасчетаВсеСвойстваExt.xml",
+      "sha256": "c11bafd928d25fa427c981f226d4833651b50edea68da23a9442f86c46929b34",
+      "occurrence": 540,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/CalculationRegisters/РегистрРасчетаВсеСвойстваExt.xml",
+      "sha256": "c11bafd928d25fa427c981f226d4833651b50edea68da23a9442f86c46929b34",
+      "occurrence": 544,
+      "type": "xs:dateTime",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникВладелецExt.xml",
+      "sha256": "1f16fa107bff75645471e1b8b7dc54b9b6a6e25426531e2305e567fa31ee37d3",
+      "occurrence": 340,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникВладелецExt.xml",
+      "sha256": "1f16fa107bff75645471e1b8b7dc54b9b6a6e25426531e2305e567fa31ee37d3",
+      "occurrence": 341,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникВладелецExt.xml",
+      "sha256": "1f16fa107bff75645471e1b8b7dc54b9b6a6e25426531e2305e567fa31ee37d3",
+      "occurrence": 349,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникВладелецExt.xml",
+      "sha256": "1f16fa107bff75645471e1b8b7dc54b9b6a6e25426531e2305e567fa31ee37d3",
+      "occurrence": 390,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникВладелецExt.xml",
+      "sha256": "1f16fa107bff75645471e1b8b7dc54b9b6a6e25426531e2305e567fa31ee37d3",
+      "occurrence": 431,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникВладелецExt.xml",
+      "sha256": "1f16fa107bff75645471e1b8b7dc54b9b6a6e25426531e2305e567fa31ee37d3",
+      "occurrence": 432,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникВладелецExt.xml",
+      "sha256": "1f16fa107bff75645471e1b8b7dc54b9b6a6e25426531e2305e567fa31ee37d3",
+      "occurrence": 526,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникВладелецExt.xml",
+      "sha256": "1f16fa107bff75645471e1b8b7dc54b9b6a6e25426531e2305e567fa31ee37d3",
+      "occurrence": 530,
+      "type": "xs:decimal",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникВладелецExt.xml",
+      "sha256": "1f16fa107bff75645471e1b8b7dc54b9b6a6e25426531e2305e567fa31ee37d3",
+      "occurrence": 569,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникВладелецExt.xml",
+      "sha256": "1f16fa107bff75645471e1b8b7dc54b9b6a6e25426531e2305e567fa31ee37d3",
+      "occurrence": 570,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникВладелецExt.xml",
+      "sha256": "1f16fa107bff75645471e1b8b7dc54b9b6a6e25426531e2305e567fa31ee37d3",
+      "occurrence": 619,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникВладелецExt.xml",
+      "sha256": "1f16fa107bff75645471e1b8b7dc54b9b6a6e25426531e2305e567fa31ee37d3",
+      "occurrence": 620,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникПолныйExt.xml",
+      "sha256": "d0f5a2010c7e7b8a29cae27a21f48ac071e90d10b78a927d6bd41cf398ec4580",
+      "occurrence": 408,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникПолныйExt.xml",
+      "sha256": "d0f5a2010c7e7b8a29cae27a21f48ac071e90d10b78a927d6bd41cf398ec4580",
+      "occurrence": 475,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникПолныйExt.xml",
+      "sha256": "d0f5a2010c7e7b8a29cae27a21f48ac071e90d10b78a927d6bd41cf398ec4580",
+      "occurrence": 595,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникПолныйExt.xml",
+      "sha256": "d0f5a2010c7e7b8a29cae27a21f48ac071e90d10b78a927d6bd41cf398ec4580",
+      "occurrence": 596,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникФормаВсеСвойства/Forms/ФормаЭлемента/Ext/Form.xml",
+      "sha256": "3a4f34a4c1c2eb2c5d5a8b285398849a7eb19656d1b2b47afc2d0a6e773aedc8",
+      "occurrence": 33,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникФормаВсеСвойства/Forms/ФормаЭлемента/Ext/Form.xml",
+      "sha256": "3a4f34a4c1c2eb2c5d5a8b285398849a7eb19656d1b2b47afc2d0a6e773aedc8",
+      "occurrence": 37,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникФормаВсеСвойства/Forms/ФормаЭлемента/Ext/Form.xml",
+      "sha256": "3a4f34a4c1c2eb2c5d5a8b285398849a7eb19656d1b2b47afc2d0a6e773aedc8",
+      "occurrence": 67,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникФормаВсеСвойства/Forms/ФормаЭлемента/Ext/Form.xml",
+      "sha256": "3a4f34a4c1c2eb2c5d5a8b285398849a7eb19656d1b2b47afc2d0a6e773aedc8",
+      "occurrence": 108,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникФормаВсеСвойства/Forms/ФормаЭлемента/Ext/Form.xml",
+      "sha256": "3a4f34a4c1c2eb2c5d5a8b285398849a7eb19656d1b2b47afc2d0a6e773aedc8",
+      "occurrence": 112,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникФормаВсеСвойства/Forms/ФормаЭлемента/Ext/Form.xml",
+      "sha256": "3a4f34a4c1c2eb2c5d5a8b285398849a7eb19656d1b2b47afc2d0a6e773aedc8",
+      "occurrence": 142,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникФормаВсеСвойстваExt/Forms/ФормаЭлемента/Ext/Form.xml",
+      "sha256": "fd99427746950570ca2f77b46c72d494e47bf9e2d53977fef840e30189cb796c",
+      "occurrence": 33,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникФормаВсеСвойстваExt/Forms/ФормаЭлемента/Ext/Form.xml",
+      "sha256": "fd99427746950570ca2f77b46c72d494e47bf9e2d53977fef840e30189cb796c",
+      "occurrence": 37,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникФормаВсеСвойстваExt/Forms/ФормаЭлемента/Ext/Form.xml",
+      "sha256": "fd99427746950570ca2f77b46c72d494e47bf9e2d53977fef840e30189cb796c",
+      "occurrence": 114,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойства/Forms/ФормаВыбора/Ext/Form.xml",
+      "sha256": "744ee5b8ce31a259fce89601017173a3d2b9ea1a7742d35c89880ee7a91137f2",
+      "occurrence": 32,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойства/Forms/ФормаВыбора/Ext/Form.xml",
+      "sha256": "744ee5b8ce31a259fce89601017173a3d2b9ea1a7742d35c89880ee7a91137f2",
+      "occurrence": 189,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойства/Forms/ФормаЗаписи/Ext/Form.xml",
+      "sha256": "6dce5f5a2544b79f4e7f2ee1d2301a2007b8d2f61ee837d0f007f53113ff610f",
+      "occurrence": 33,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойства/Forms/ФормаЗаписи/Ext/Form.xml",
+      "sha256": "6dce5f5a2544b79f4e7f2ee1d2301a2007b8d2f61ee837d0f007f53113ff610f",
+      "occurrence": 93,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойства/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "744ee5b8ce31a259fce89601017173a3d2b9ea1a7742d35c89880ee7a91137f2",
+      "occurrence": 32,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойства/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "744ee5b8ce31a259fce89601017173a3d2b9ea1a7742d35c89880ee7a91137f2",
+      "occurrence": 189,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойстваExt/Forms/ФормаВыбора/Ext/Form.xml",
+      "sha256": "f7bef66d782e2388f26da78b55870346b9ac2fb9e69f924a04ab4c79a2f9acde",
+      "occurrence": 32,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойстваExt/Forms/ФормаЗаписи/Ext/Form.xml",
+      "sha256": "864525f5e3890d9974231159e68f4a37b5c96ce10d51ad17b70459dfca1443ec",
+      "occurrence": 33,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойстваExt/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "f7bef66d782e2388f26da78b55870346b9ac2fb9e69f924a04ab4c79a2f9acde",
+      "occurrence": 32,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойстваExt.xml",
+      "sha256": "d0f769e38027e7fcb3c9a9370c6397b78f823e5bc86147b24f6e13e2c5368423",
+      "occurrence": 510,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойстваExt.xml",
+      "sha256": "d0f769e38027e7fcb3c9a9370c6397b78f823e5bc86147b24f6e13e2c5368423",
+      "occurrence": 511,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойстваExt.xml",
+      "sha256": "d0f769e38027e7fcb3c9a9370c6397b78f823e5bc86147b24f6e13e2c5368423",
+      "occurrence": 519,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойстваExt.xml",
+      "sha256": "d0f769e38027e7fcb3c9a9370c6397b78f823e5bc86147b24f6e13e2c5368423",
+      "occurrence": 523,
+      "type": "xs:dateTime",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойстваExt.xml",
+      "sha256": "d0f769e38027e7fcb3c9a9370c6397b78f823e5bc86147b24f6e13e2c5368423",
+      "occurrence": 592,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойстваExt.xml",
+      "sha256": "d0f769e38027e7fcb3c9a9370c6397b78f823e5bc86147b24f6e13e2c5368423",
+      "occurrence": 727,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойстваExt.xml",
+      "sha256": "d0f769e38027e7fcb3c9a9370c6397b78f823e5bc86147b24f6e13e2c5368423",
+      "occurrence": 728,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойстваExt.xml",
+      "sha256": "d0f769e38027e7fcb3c9a9370c6397b78f823e5bc86147b24f6e13e2c5368423",
+      "occurrence": 734,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойстваExt.xml",
+      "sha256": "d0f769e38027e7fcb3c9a9370c6397b78f823e5bc86147b24f6e13e2c5368423",
+      "occurrence": 738,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойстваExt.xml",
+      "sha256": "d0f769e38027e7fcb3c9a9370c6397b78f823e5bc86147b24f6e13e2c5368423",
+      "occurrence": 811,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойстваExt.xml",
+      "sha256": "d0f769e38027e7fcb3c9a9370c6397b78f823e5bc86147b24f6e13e2c5368423",
+      "occurrence": 812,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойстваExt.xml",
+      "sha256": "d0f769e38027e7fcb3c9a9370c6397b78f823e5bc86147b24f6e13e2c5368423",
+      "occurrence": 886,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойстваExt.xml",
+      "sha256": "d0f769e38027e7fcb3c9a9370c6397b78f823e5bc86147b24f6e13e2c5368423",
+      "occurrence": 887,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства/Forms/ФормаВидаРасчета/Ext/Form.xml",
+      "sha256": "6dce5f5a2544b79f4e7f2ee1d2301a2007b8d2f61ee837d0f007f53113ff610f",
+      "occurrence": 33,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства/Forms/ФормаВидаРасчета/Ext/Form.xml",
+      "sha256": "6dce5f5a2544b79f4e7f2ee1d2301a2007b8d2f61ee837d0f007f53113ff610f",
+      "occurrence": 93,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства/Forms/ФормаВыбора/Ext/Form.xml",
+      "sha256": "744ee5b8ce31a259fce89601017173a3d2b9ea1a7742d35c89880ee7a91137f2",
+      "occurrence": 32,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства/Forms/ФормаВыбора/Ext/Form.xml",
+      "sha256": "744ee5b8ce31a259fce89601017173a3d2b9ea1a7742d35c89880ee7a91137f2",
+      "occurrence": 189,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "744ee5b8ce31a259fce89601017173a3d2b9ea1a7742d35c89880ee7a91137f2",
+      "occurrence": 32,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "744ee5b8ce31a259fce89601017173a3d2b9ea1a7742d35c89880ee7a91137f2",
+      "occurrence": 189,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCalculationTypes/ПланРасчетаВсеСвойстваExt/Forms/ФормаВидаРасчета/Ext/Form.xml",
+      "sha256": "b413fbe391416e94a4967d527833f18ab49be919f0c2931fdd37b436a689a142",
+      "occurrence": 33,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCalculationTypes/ПланРасчетаВсеСвойстваExt/Forms/ФормаВыбора/Ext/Form.xml",
+      "sha256": "9e446a5a18287fd20170d5110d7ce88162fe9e47f7da67b372a1bc174be61464",
+      "occurrence": 32,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCalculationTypes/ПланРасчетаВсеСвойстваExt/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "9e446a5a18287fd20170d5110d7ce88162fe9e47f7da67b372a1bc174be61464",
+      "occurrence": 32,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCalculationTypes/ПланРасчетаВсеСвойстваExt.xml",
+      "sha256": "bc0057e014964e687fad1fa03dfec7ff26fa621cc8eb80af2fc293d2fd4f19cb",
+      "occurrence": 597,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCalculationTypes/ПланРасчетаВсеСвойстваExt.xml",
+      "sha256": "bc0057e014964e687fad1fa03dfec7ff26fa621cc8eb80af2fc293d2fd4f19cb",
+      "occurrence": 598,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCalculationTypes/ПланРасчетаВсеСвойстваExt.xml",
+      "sha256": "bc0057e014964e687fad1fa03dfec7ff26fa621cc8eb80af2fc293d2fd4f19cb",
+      "occurrence": 606,
+      "type": "xs:dateTime",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCalculationTypes/ПланРасчетаВсеСвойстваExt.xml",
+      "sha256": "bc0057e014964e687fad1fa03dfec7ff26fa621cc8eb80af2fc293d2fd4f19cb",
+      "occurrence": 675,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCalculationTypes/ПланРасчетаВсеСвойстваExt.xml",
+      "sha256": "bc0057e014964e687fad1fa03dfec7ff26fa621cc8eb80af2fc293d2fd4f19cb",
+      "occurrence": 810,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCalculationTypes/ПланРасчетаВсеСвойстваExt.xml",
+      "sha256": "bc0057e014964e687fad1fa03dfec7ff26fa621cc8eb80af2fc293d2fd4f19cb",
+      "occurrence": 811,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCalculationTypes/ПланРасчетаВсеСвойстваExt.xml",
+      "sha256": "bc0057e014964e687fad1fa03dfec7ff26fa621cc8eb80af2fc293d2fd4f19cb",
+      "occurrence": 817,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCalculationTypes/ПланРасчетаВсеСвойстваExt.xml",
+      "sha256": "bc0057e014964e687fad1fa03dfec7ff26fa621cc8eb80af2fc293d2fd4f19cb",
+      "occurrence": 821,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойстваExt.xml",
+      "sha256": "130290821ff067b6c3c7ebb27e52b72dc40e8228c6fddb249cf1d5d1ea396cef",
+      "occurrence": 425,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойстваExt.xml",
+      "sha256": "130290821ff067b6c3c7ebb27e52b72dc40e8228c6fddb249cf1d5d1ea396cef",
+      "occurrence": 426,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойстваExt.xml",
+      "sha256": "130290821ff067b6c3c7ebb27e52b72dc40e8228c6fddb249cf1d5d1ea396cef",
+      "occurrence": 432,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/CommonForms/InputField/Ext/Form.xml",
+      "sha256": "a1e36c452e5bdea528f3ba4c6d2e1d26b26adcc1730af893c73199896105bda0",
+      "occurrence": 104,
+      "type": "xs:decimal",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/CommonForms/InputField/Ext/Form.xml",
+      "sha256": "a1e36c452e5bdea528f3ba4c6d2e1d26b26adcc1730af893c73199896105bda0",
+      "occurrence": 105,
+      "type": "xs:decimal",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/CommonForms/InputField/Ext/Form.xml",
+      "sha256": "a1e36c452e5bdea528f3ba4c6d2e1d26b26adcc1730af893c73199896105bda0",
+      "occurrence": 111,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/CommonForms/InputField/Ext/Form.xml",
+      "sha256": "a1e36c452e5bdea528f3ba4c6d2e1d26b26adcc1730af893c73199896105bda0",
+      "occurrence": 126,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/CommonForms/InputField/Ext/Form.xml",
+      "sha256": "a1e36c452e5bdea528f3ba4c6d2e1d26b26adcc1730af893c73199896105bda0",
+      "occurrence": 440,
+      "type": "xs:decimal",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/CommonForms/InputField/Ext/Form.xml",
+      "sha256": "a1e36c452e5bdea528f3ba4c6d2e1d26b26adcc1730af893c73199896105bda0",
+      "occurrence": 441,
+      "type": "xs:decimal",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/CommonForms/InputField/Ext/Form.xml",
+      "sha256": "a1e36c452e5bdea528f3ba4c6d2e1d26b26adcc1730af893c73199896105bda0",
+      "occurrence": 447,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/CommonForms/InputField/Ext/Form.xml",
+      "sha256": "a1e36c452e5bdea528f3ba4c6d2e1d26b26adcc1730af893c73199896105bda0",
+      "occurrence": 462,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/CommonForms/InputFieldExt/Ext/Form.xml",
+      "sha256": "9de73981f63b91506fff151a0b04132cb7ca27eda281f0815b4fd364c3ca24af",
+      "occurrence": 105,
+      "type": "xs:decimal",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/CommonForms/InputFieldExt/Ext/Form.xml",
+      "sha256": "9de73981f63b91506fff151a0b04132cb7ca27eda281f0815b4fd364c3ca24af",
+      "occurrence": 106,
+      "type": "xs:decimal",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/CommonForms/InputFieldExt/Ext/Form.xml",
+      "sha256": "9de73981f63b91506fff151a0b04132cb7ca27eda281f0815b4fd364c3ca24af",
+      "occurrence": 113,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/CommonForms/InputFieldExt/Ext/Form.xml",
+      "sha256": "9de73981f63b91506fff151a0b04132cb7ca27eda281f0815b4fd364c3ca24af",
+      "occurrence": 117,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/CommonForms/InputFieldExt/Ext/Form.xml",
+      "sha256": "9de73981f63b91506fff151a0b04132cb7ca27eda281f0815b4fd364c3ca24af",
+      "occurrence": 132,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Constants/КонстантаВсеСвойстваExt.xml",
+      "sha256": "fd7124f3ae30131b39077f98b4223ac229d9aa287f50fe30e49da582a308b855",
+      "occurrence": 51,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Constants/КонстантаВсеСвойстваExt.xml",
+      "sha256": "fd7124f3ae30131b39077f98b4223ac229d9aa287f50fe30e49da582a308b855",
+      "occurrence": 52,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/DataProcessors/ОбработкаВсеСвойства/Forms/Форма/Ext/Form.xml",
+      "sha256": "52d9d7e2d5bbb99bed3f6223d1f99aacf3ad2f8864be11d506bb051fee62120f",
+      "occurrence": 33,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/DataProcessors/ОбработкаВсеСвойства/Forms/Форма/Ext/Form.xml",
+      "sha256": "52d9d7e2d5bbb99bed3f6223d1f99aacf3ad2f8864be11d506bb051fee62120f",
+      "occurrence": 91,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/DataProcessors/ОбработкаВсеСвойстваExt/Forms/Форма/Ext/Form.xml",
+      "sha256": "5181eb6c0f7e43fa9c93ccd0242c9cfed6f7dd8ae3f43c69f02bc7523f3283bd",
+      "occurrence": 33,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/DataProcessors/ОбработкаВсеСвойстваExt.xml",
+      "sha256": "20f447da14a75ddc7114148549687a04665e7f996dba35cb4910554cd3b16df9",
+      "occurrence": 56,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/DataProcessors/ОбработкаВсеСвойстваExt.xml",
+      "sha256": "20f447da14a75ddc7114148549687a04665e7f996dba35cb4910554cd3b16df9",
+      "occurrence": 57,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/DataProcessors/ОбработкаВсеСвойстваExt.xml",
+      "sha256": "20f447da14a75ddc7114148549687a04665e7f996dba35cb4910554cd3b16df9",
+      "occurrence": 63,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/DataProcessors/ОбработкаВсеСвойстваExt.xml",
+      "sha256": "20f447da14a75ddc7114148549687a04665e7f996dba35cb4910554cd3b16df9",
+      "occurrence": 214,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/DataProcessors/ОбработкаВсеСвойстваExt.xml",
+      "sha256": "20f447da14a75ddc7114148549687a04665e7f996dba35cb4910554cd3b16df9",
+      "occurrence": 215,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/DataProcessors/ОбработкаВсеСвойстваExt.xml",
+      "sha256": "20f447da14a75ddc7114148549687a04665e7f996dba35cb4910554cd3b16df9",
+      "occurrence": 217,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/DataProcessors/ОбработкаВсеСвойстваExt.xml",
+      "sha256": "20f447da14a75ddc7114148549687a04665e7f996dba35cb4910554cd3b16df9",
+      "occurrence": 223,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/DocumentJournals/ЖурналДокументовВсеСвойства/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "744ee5b8ce31a259fce89601017173a3d2b9ea1a7742d35c89880ee7a91137f2",
+      "occurrence": 32,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/DocumentJournals/ЖурналДокументовВсеСвойства/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "744ee5b8ce31a259fce89601017173a3d2b9ea1a7742d35c89880ee7a91137f2",
+      "occurrence": 189,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/DocumentJournals/ЖурналДокументовВсеСвойстваExt/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "0133cc6169263fe4a9e0d16702b7c72fe09b11a566b38299dc63280684b41109",
+      "occurrence": 32,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Documents/ДокументВсеСвойства/Forms/ФормаДокументаВсеСвойства/Ext/Form.xml",
+      "sha256": "0905ee7a6fcff99eee3371fbc3a084ea5357f333c3c09b86fd48f48a9c68e7d7",
+      "occurrence": 33,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Documents/ДокументВсеСвойства/Forms/ФормаДокументаВсеСвойства/Ext/Form.xml",
+      "sha256": "0905ee7a6fcff99eee3371fbc3a084ea5357f333c3c09b86fd48f48a9c68e7d7",
+      "occurrence": 84,
+      "type": "xs:decimal",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Documents/ДокументВсеСвойства/Forms/ФормаДокументаВсеСвойства/Ext/Form.xml",
+      "sha256": "0905ee7a6fcff99eee3371fbc3a084ea5357f333c3c09b86fd48f48a9c68e7d7",
+      "occurrence": 122,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Documents/ДокументВсеСвойства/Forms/ФормаДокументаВсеСвойства/Ext/Form.xml",
+      "sha256": "0905ee7a6fcff99eee3371fbc3a084ea5357f333c3c09b86fd48f48a9c68e7d7",
+      "occurrence": 158,
+      "type": "xs:decimal",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Documents/ДокументВсеСвойстваExt/Forms/ФормаДокументаВсеСвойства/Ext/Form.xml",
+      "sha256": "5605e901f17efda319a09653a9dd7994f6c01d82112f4aac81cf598344be2b99",
+      "occurrence": 33,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Documents/ДокументВсеСвойстваExt/Forms/ФормаДокументаВсеСвойства/Ext/Form.xml",
+      "sha256": "5605e901f17efda319a09653a9dd7994f6c01d82112f4aac81cf598344be2b99",
+      "occurrence": 105,
+      "type": "xs:decimal",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Documents/ДокументВсеСвойстваExt.xml",
+      "sha256": "dc44cba2816c8da178f7fc72bef06b824593fc9a23ade0676b1144a7e1effe66",
+      "occurrence": 258,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Documents/ДокументВсеСвойстваExt.xml",
+      "sha256": "dc44cba2816c8da178f7fc72bef06b824593fc9a23ade0676b1144a7e1effe66",
+      "occurrence": 295,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Documents/ДокументВсеСвойстваExt.xml",
+      "sha256": "dc44cba2816c8da178f7fc72bef06b824593fc9a23ade0676b1144a7e1effe66",
+      "occurrence": 335,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Documents/ДокументВсеСвойстваExt.xml",
+      "sha256": "dc44cba2816c8da178f7fc72bef06b824593fc9a23ade0676b1144a7e1effe66",
+      "occurrence": 336,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Documents/ДокументВсеСвойстваExt.xml",
+      "sha256": "dc44cba2816c8da178f7fc72bef06b824593fc9a23ade0676b1144a7e1effe66",
+      "occurrence": 468,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Documents/ДокументВсеСвойстваExt.xml",
+      "sha256": "dc44cba2816c8da178f7fc72bef06b824593fc9a23ade0676b1144a7e1effe66",
+      "occurrence": 469,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Documents/ДокументДругойДляЖурналаExt.xml",
+      "sha256": "99b0d9d1277918529b920980587d845ea97262a2fdb069dd0700518aa0c0d872",
+      "occurrence": 224,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Enums/ПеречислениеВсеСвойства/Forms/ФормаВыбора/Ext/Form.xml",
+      "sha256": "efe56d767bbc7bc3aba9d994dbb415cc7e870d1bf691f36c6c46bcd5bf443c12",
+      "occurrence": 33,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Enums/ПеречислениеВсеСвойства/Forms/ФормаВыбора/Ext/Form.xml",
+      "sha256": "efe56d767bbc7bc3aba9d994dbb415cc7e870d1bf691f36c6c46bcd5bf443c12",
+      "occurrence": 149,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Enums/ПеречислениеВсеСвойства/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "1503f48c9c8e3f0d16e7935124f1d6c4bff5fb72aef59a2ad5da18296435df18",
+      "occurrence": 33,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Enums/ПеречислениеВсеСвойства/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "1503f48c9c8e3f0d16e7935124f1d6c4bff5fb72aef59a2ad5da18296435df18",
+      "occurrence": 191,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Enums/ПеречислениеВсеСвойстваExt/Forms/ФормаВыбора/Ext/Form.xml",
+      "sha256": "d433c1ec64bd976ae948c26f6f76661f92ecda59cdf65f88d5b8af957386218f",
+      "occurrence": 33,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Enums/ПеречислениеВсеСвойстваExt/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "e5b3dd00d845a1e5e39bf72010ecb196aac5505e39dfc4bf08c132e7f1254e5e",
+      "occurrence": 33,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExchangePlans/ПланОбменаВсеСвойства/Forms/ФормаВыбора/Ext/Form.xml",
+      "sha256": "744ee5b8ce31a259fce89601017173a3d2b9ea1a7742d35c89880ee7a91137f2",
+      "occurrence": 32,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExchangePlans/ПланОбменаВсеСвойства/Forms/ФормаВыбора/Ext/Form.xml",
+      "sha256": "744ee5b8ce31a259fce89601017173a3d2b9ea1a7742d35c89880ee7a91137f2",
+      "occurrence": 189,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExchangePlans/ПланОбменаВсеСвойства/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "744ee5b8ce31a259fce89601017173a3d2b9ea1a7742d35c89880ee7a91137f2",
+      "occurrence": 32,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExchangePlans/ПланОбменаВсеСвойства/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "744ee5b8ce31a259fce89601017173a3d2b9ea1a7742d35c89880ee7a91137f2",
+      "occurrence": 189,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExchangePlans/ПланОбменаВсеСвойства/Forms/ФормаУзла/Ext/Form.xml",
+      "sha256": "6dce5f5a2544b79f4e7f2ee1d2301a2007b8d2f61ee837d0f007f53113ff610f",
+      "occurrence": 33,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExchangePlans/ПланОбменаВсеСвойства/Forms/ФормаУзла/Ext/Form.xml",
+      "sha256": "6dce5f5a2544b79f4e7f2ee1d2301a2007b8d2f61ee837d0f007f53113ff610f",
+      "occurrence": 93,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExchangePlans/ПланОбменаВсеСвойстваExt/Forms/ФормаВыбора/Ext/Form.xml",
+      "sha256": "e0f0fd2365d5abde29e4169d1083b9ef89e54022be71d40b4899d676ca2d0b01",
+      "occurrence": 32,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExchangePlans/ПланОбменаВсеСвойстваExt/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "e0f0fd2365d5abde29e4169d1083b9ef89e54022be71d40b4899d676ca2d0b01",
+      "occurrence": 32,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExchangePlans/ПланОбменаВсеСвойстваExt/Forms/ФормаУзла/Ext/Form.xml",
+      "sha256": "6e5fec565f721e4cf174fddc8f5b1cf4b2153bd5a284b334bb8de199dcdee2c1",
+      "occurrence": 33,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExchangePlans/ПланОбменаВсеСвойстваExt.xml",
+      "sha256": "a20807181ce270cade440ab6f014efb8f0e81b9a51c0e3172874404788e0d907",
+      "occurrence": 317,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExchangePlans/ПланОбменаВсеСвойстваExt.xml",
+      "sha256": "a20807181ce270cade440ab6f014efb8f0e81b9a51c0e3172874404788e0d907",
+      "occurrence": 318,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExchangePlans/ПланОбменаВсеСвойстваExt.xml",
+      "sha256": "a20807181ce270cade440ab6f014efb8f0e81b9a51c0e3172874404788e0d907",
+      "occurrence": 326,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExchangePlans/ПланОбменаВсеСвойстваExt.xml",
+      "sha256": "a20807181ce270cade440ab6f014efb8f0e81b9a51c0e3172874404788e0d907",
+      "occurrence": 330,
+      "type": "xs:dateTime",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExchangePlans/ПланОбменаВсеСвойстваExt.xml",
+      "sha256": "a20807181ce270cade440ab6f014efb8f0e81b9a51c0e3172874404788e0d907",
+      "occurrence": 399,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExchangePlans/ПланОбменаВсеСвойстваExt.xml",
+      "sha256": "a20807181ce270cade440ab6f014efb8f0e81b9a51c0e3172874404788e0d907",
+      "occurrence": 534,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExchangePlans/ПланОбменаВсеСвойстваExt.xml",
+      "sha256": "a20807181ce270cade440ab6f014efb8f0e81b9a51c0e3172874404788e0d907",
+      "occurrence": 535,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExchangePlans/ПланОбменаВсеСвойстваExt.xml",
+      "sha256": "a20807181ce270cade440ab6f014efb8f0e81b9a51c0e3172874404788e0d907",
+      "occurrence": 541,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExchangePlans/ПланОбменаВсеСвойстваExt.xml",
+      "sha256": "a20807181ce270cade440ab6f014efb8f0e81b9a51c0e3172874404788e0d907",
+      "occurrence": 545,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойстваExt/Cubes/КубВсеСвойства/DimensionTables/ТаблицаИзмеренияВсеСвойства.xml",
+      "sha256": "a415d15dd55f6e664f364daa0bf829c9e590f3bb7eca08ca8c72112c1b428c5f",
+      "occurrence": 85,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойстваExt/Cubes/КубВсеСвойства/DimensionTables/ТаблицаИзмеренияВсеСвойства.xml",
+      "sha256": "a415d15dd55f6e664f364daa0bf829c9e590f3bb7eca08ca8c72112c1b428c5f",
+      "occurrence": 86,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойстваExt/Cubes/КубВсеСвойства/DimensionTables/ТаблицаИзмеренияВсеСвойства.xml",
+      "sha256": "a415d15dd55f6e664f364daa0bf829c9e590f3bb7eca08ca8c72112c1b428c5f",
+      "occurrence": 123,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойстваExt/Cubes/КубВсеСвойства.xml",
+      "sha256": "60ed088f42155d2d93e3245c1fe15d2857e7d7212853c8ec80bbb63cfd393dcd",
+      "occurrence": 87,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойстваExt/Cubes/КубВсеСвойства.xml",
+      "sha256": "60ed088f42155d2d93e3245c1fe15d2857e7d7212853c8ec80bbb63cfd393dcd",
+      "occurrence": 88,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойстваExt/Tables/ТаблицаВсеСвойства.xml",
+      "sha256": "c9e1c6fdde59a8a71163293636f9abbdbb9137fe82da422f0e3e6c600e1ffe0d",
+      "occurrence": 106,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойстваExt/Tables/ТаблицаВсеСвойства.xml",
+      "sha256": "c9e1c6fdde59a8a71163293636f9abbdbb9137fe82da422f0e3e6c600e1ffe0d",
+      "occurrence": 147,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойстваExt/Tables/ТаблицаВсеСвойства.xml",
+      "sha256": "c9e1c6fdde59a8a71163293636f9abbdbb9137fe82da422f0e3e6c600e1ffe0d",
+      "occurrence": 148,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойстваExt/Tables/ТаблицаМодульНабора.xml",
+      "sha256": "539cba49ac7ea5ad2db9e769ad5b6fdd5d14e95bed51e7ba6d4af8436e1ba276",
+      "occurrence": 92,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойстваExt/Tables/ТаблицаПоУмолчанию.xml",
+      "sha256": "cd084afd5dc433418e5220b6677be6ae3529150313dd83fb98db0342f5a56615",
+      "occurrence": 91,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/FilterCriteria/КритерийОтбораВсеСвойства/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "744ee5b8ce31a259fce89601017173a3d2b9ea1a7742d35c89880ee7a91137f2",
+      "occurrence": 32,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/FilterCriteria/КритерийОтбораВсеСвойства/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "744ee5b8ce31a259fce89601017173a3d2b9ea1a7742d35c89880ee7a91137f2",
+      "occurrence": 189,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/FilterCriteria/КритерийОтбораВсеСвойстваExt/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "e516a7055718f98cc96f807a8d1c2db06316ac813a576cc2b2c284fc85de478b",
+      "occurrence": 32,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/InformationRegisters/ЗначенияХарактеристикОбъектовExt.xml",
+      "sha256": "67a9c1db2679a8e8e3a28cbf543375b0d5dfb92f8c27cafb289fc641b4f55067",
+      "occurrence": 331,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/InformationRegisters/РегистрСведенийExt.xml",
+      "sha256": "8bd072795c20d31040e56fcfb0097c4cc1b9753cfa369490b1d8f0fb24f20145",
+      "occurrence": 180,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/InformationRegisters/РегистрСведенийАдресацияExt.xml",
+      "sha256": "0b7743e2a2e8b6a2a1d6a33e4061eb420cd8b5f0d31ff72c0415c52794693a83",
+      "occurrence": 183,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/InformationRegisters/РегистрСведенийАдресацияExt.xml",
+      "sha256": "0b7743e2a2e8b6a2a1d6a33e4061eb420cd8b5f0d31ff72c0415c52794693a83",
+      "occurrence": 220,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый/Forms/ФормаЗаписи/Ext/Form.xml",
+      "sha256": "52d9d7e2d5bbb99bed3f6223d1f99aacf3ad2f8864be11d506bb051fee62120f",
+      "occurrence": 33,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый/Forms/ФормаЗаписи/Ext/Form.xml",
+      "sha256": "52d9d7e2d5bbb99bed3f6223d1f99aacf3ad2f8864be11d506bb051fee62120f",
+      "occurrence": 91,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "744ee5b8ce31a259fce89601017173a3d2b9ea1a7742d35c89880ee7a91137f2",
+      "occurrence": 32,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "744ee5b8ce31a259fce89601017173a3d2b9ea1a7742d35c89880ee7a91137f2",
+      "occurrence": 189,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/InformationRegisters/РегистрСведенийВсеСвойстваНезависимыйExt/Forms/ФормаЗаписи/Ext/Form.xml",
+      "sha256": "c58e1c0f61630cf94ea3befd9140fa895bcd41492e686a4b6a8c0af11a8fe7c8",
+      "occurrence": 33,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/InformationRegisters/РегистрСведенийВсеСвойстваНезависимыйExt/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "378d306203d1765c9418f9f3d09b69dbef17d840017ad400f06f35541195d3fb",
+      "occurrence": 32,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/InformationRegisters/РегистрСведенийВсеСвойстваНезависимыйExt.xml",
+      "sha256": "1e3b15be1bb15d91e4ed22a7af5f0dc09b7b4eb90c708475abf832e6d2f68c11",
+      "occurrence": 204,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/InformationRegisters/РегистрСведенийВсеСвойстваНезависимыйExt.xml",
+      "sha256": "1e3b15be1bb15d91e4ed22a7af5f0dc09b7b4eb90c708475abf832e6d2f68c11",
+      "occurrence": 205,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/InformationRegisters/РегистрСведенийВсеСвойстваНезависимыйExt.xml",
+      "sha256": "1e3b15be1bb15d91e4ed22a7af5f0dc09b7b4eb90c708475abf832e6d2f68c11",
+      "occurrence": 207,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/InformationRegisters/РегистрСведенийВсеСвойстваНезависимыйExt.xml",
+      "sha256": "1e3b15be1bb15d91e4ed22a7af5f0dc09b7b4eb90c708475abf832e6d2f68c11",
+      "occurrence": 288,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/InformationRegisters/РегистрСведенийВсеСвойстваНезависимыйExt.xml",
+      "sha256": "1e3b15be1bb15d91e4ed22a7af5f0dc09b7b4eb90c708475abf832e6d2f68c11",
+      "occurrence": 289,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/InformationRegisters/РегистрСведенийВсеСвойстваНезависимыйExt.xml",
+      "sha256": "1e3b15be1bb15d91e4ed22a7af5f0dc09b7b4eb90c708475abf832e6d2f68c11",
+      "occurrence": 291,
+      "type": "xs:decimal",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/InformationRegisters/РегистрСведенийВсеСвойстваНезависимыйExt.xml",
+      "sha256": "1e3b15be1bb15d91e4ed22a7af5f0dc09b7b4eb90c708475abf832e6d2f68c11",
+      "occurrence": 368,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/InformationRegisters/РегистрСведенийВсеСвойстваНезависимыйExt.xml",
+      "sha256": "1e3b15be1bb15d91e4ed22a7af5f0dc09b7b4eb90c708475abf832e6d2f68c11",
+      "occurrence": 369,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/InformationRegisters/РегистрСведенийВсеСвойстваНезависимыйExt.xml",
+      "sha256": "1e3b15be1bb15d91e4ed22a7af5f0dc09b7b4eb90c708475abf832e6d2f68c11",
+      "occurrence": 414,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/InformationRegisters/РегистрСведенийПоУмолчаниюExt.xml",
+      "sha256": "76246b7bd112b9a663369c1a981e72d6d69fb8bdfb626c8ed682deaeffba718e",
+      "occurrence": 180,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/InformationRegisters/РегистрСведенийПодчиненРегистраторуExt.xml",
+      "sha256": "05a0f1051b73e2362ac7f8d1abfea686f0c8194ce8c211d1ff6c8b5346d37823",
+      "occurrence": 180,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt/Templates/ОсновнаяСхемаКомпоновкиДанных/Ext/Template.xml",
+      "sha256": "c3225e5acd7be07dbd2e4e534bc1bb8ee882baeea2bc6acc00789878bc453711",
+      "occurrence": 22,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt.xml",
+      "sha256": "ba35b75641d1a6a46ea5821b44bfe9ef56655aa7e4752b4b036ed7e633f4b23d",
+      "occurrence": 62,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt.xml",
+      "sha256": "ba35b75641d1a6a46ea5821b44bfe9ef56655aa7e4752b4b036ed7e633f4b23d",
+      "occurrence": 63,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt.xml",
+      "sha256": "ba35b75641d1a6a46ea5821b44bfe9ef56655aa7e4752b4b036ed7e633f4b23d",
+      "occurrence": 69,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt.xml",
+      "sha256": "ba35b75641d1a6a46ea5821b44bfe9ef56655aa7e4752b4b036ed7e633f4b23d",
+      "occurrence": 220,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt.xml",
+      "sha256": "ba35b75641d1a6a46ea5821b44bfe9ef56655aa7e4752b4b036ed7e633f4b23d",
+      "occurrence": 221,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt.xml",
+      "sha256": "ba35b75641d1a6a46ea5821b44bfe9ef56655aa7e4752b4b036ed7e633f4b23d",
+      "occurrence": 223,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt.xml",
+      "sha256": "ba35b75641d1a6a46ea5821b44bfe9ef56655aa7e4752b4b036ed7e633f4b23d",
+      "occurrence": 229,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетСКДExt/Templates/ОсновнаяСхемаКомпоновкиДанных/Ext/Template.xml",
+      "sha256": "c0c584a922159efb6e8e8baca852d0b6f8ad3cb5139bf6660cd2a6e15184b67c",
+      "occurrence": 13,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Tasks/ЗадачаВсеСвойства/Forms/ФормаВыбора/Ext/Form.xml",
+      "sha256": "744ee5b8ce31a259fce89601017173a3d2b9ea1a7742d35c89880ee7a91137f2",
+      "occurrence": 32,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Tasks/ЗадачаВсеСвойства/Forms/ФормаВыбора/Ext/Form.xml",
+      "sha256": "744ee5b8ce31a259fce89601017173a3d2b9ea1a7742d35c89880ee7a91137f2",
+      "occurrence": 189,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Tasks/ЗадачаВсеСвойства/Forms/ФормаЗадачи/Ext/Form.xml",
+      "sha256": "6dce5f5a2544b79f4e7f2ee1d2301a2007b8d2f61ee837d0f007f53113ff610f",
+      "occurrence": 33,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Tasks/ЗадачаВсеСвойства/Forms/ФормаЗадачи/Ext/Form.xml",
+      "sha256": "6dce5f5a2544b79f4e7f2ee1d2301a2007b8d2f61ee837d0f007f53113ff610f",
+      "occurrence": 93,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Tasks/ЗадачаВсеСвойства/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "744ee5b8ce31a259fce89601017173a3d2b9ea1a7742d35c89880ee7a91137f2",
+      "occurrence": 32,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Tasks/ЗадачаВсеСвойства/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "744ee5b8ce31a259fce89601017173a3d2b9ea1a7742d35c89880ee7a91137f2",
+      "occurrence": 189,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Tasks/ЗадачаВсеСвойстваExt/Forms/ФормаВыбора/Ext/Form.xml",
+      "sha256": "67e142c939973f87c7e89225dd09fa206b4e7db89ea4a34e76b050a14b48a679",
+      "occurrence": 32,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Tasks/ЗадачаВсеСвойстваExt/Forms/ФормаЗадачи/Ext/Form.xml",
+      "sha256": "c4749971b5137d9bd4e2e8432509948affabdf52b8aca3103189c65796f44f0c",
+      "occurrence": 33,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Tasks/ЗадачаВсеСвойстваExt/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "67e142c939973f87c7e89225dd09fa206b4e7db89ea4a34e76b050a14b48a679",
+      "occurrence": 32,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Tasks/ЗадачаВсеСвойстваExt.xml",
+      "sha256": "25df146096e8d8fc00f34702ece490a48a9409c450c6e2c94b61b18ea1b3e90a",
+      "occurrence": 334,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Tasks/ЗадачаВсеСвойстваExt.xml",
+      "sha256": "25df146096e8d8fc00f34702ece490a48a9409c450c6e2c94b61b18ea1b3e90a",
+      "occurrence": 335,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Tasks/ЗадачаВсеСвойстваExt.xml",
+      "sha256": "25df146096e8d8fc00f34702ece490a48a9409c450c6e2c94b61b18ea1b3e90a",
+      "occurrence": 343,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Tasks/ЗадачаВсеСвойстваExt.xml",
+      "sha256": "25df146096e8d8fc00f34702ece490a48a9409c450c6e2c94b61b18ea1b3e90a",
+      "occurrence": 347,
+      "type": "xs:dateTime",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Tasks/ЗадачаВсеСвойстваExt.xml",
+      "sha256": "25df146096e8d8fc00f34702ece490a48a9409c450c6e2c94b61b18ea1b3e90a",
+      "occurrence": 416,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Tasks/ЗадачаВсеСвойстваExt.xml",
+      "sha256": "25df146096e8d8fc00f34702ece490a48a9409c450c6e2c94b61b18ea1b3e90a",
+      "occurrence": 551,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Tasks/ЗадачаВсеСвойстваExt.xml",
+      "sha256": "25df146096e8d8fc00f34702ece490a48a9409c450c6e2c94b61b18ea1b3e90a",
+      "occurrence": 552,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Tasks/ЗадачаВсеСвойстваExt.xml",
+      "sha256": "25df146096e8d8fc00f34702ece490a48a9409c450c6e2c94b61b18ea1b3e90a",
+      "occurrence": 558,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Tasks/ЗадачаВсеСвойстваExt.xml",
+      "sha256": "25df146096e8d8fc00f34702ece490a48a9409c450c6e2c94b61b18ea1b3e90a",
+      "occurrence": 562,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Tasks/ЗадачаВсеСвойстваExt.xml",
+      "sha256": "25df146096e8d8fc00f34702ece490a48a9409c450c6e2c94b61b18ea1b3e90a",
+      "occurrence": 639,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Tasks/ЗадачаВсеСвойстваExt.xml",
+      "sha256": "25df146096e8d8fc00f34702ece490a48a9409c450c6e2c94b61b18ea1b3e90a",
+      "occurrence": 640,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Tasks/ЗадачаВсеСвойстваExt.xml",
+      "sha256": "25df146096e8d8fc00f34702ece490a48a9409c450c6e2c94b61b18ea1b3e90a",
+      "occurrence": 648,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Tasks/ЗадачаВсеСвойстваExt.xml",
+      "sha256": "25df146096e8d8fc00f34702ece490a48a9409c450c6e2c94b61b18ea1b3e90a",
+      "occurrence": 652,
+      "type": "xs:dateTime",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Tasks/ЗадачаВсеСвойстваExt.xml",
+      "sha256": "25df146096e8d8fc00f34702ece490a48a9409c450c6e2c94b61b18ea1b3e90a",
+      "occurrence": 688,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/WebServices/WebСервисВсеСвойстваExt.xml",
+      "sha256": "f3cd655b6b02ad778ca5803c886cdab4dc4d7fa1c343d37065d37e73881aea8b",
+      "occurrence": 14,
+      "type": "xs:string",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/WebServices/WebСервисВсеСвойстваExt.xml",
+      "sha256": "f3cd655b6b02ad778ca5803c886cdab4dc4d7fa1c343d37065d37e73881aea8b",
+      "occurrence": 18,
+      "type": "xs:string",
+      "verified": true
+    }
+  ]
+}

@@ -385,7 +385,15 @@ impl<'a> Writer<'a> {
         self.close(true);
     }
     pub fn field(&mut self, path: &[(&'a str, &'a str)], value: &str) {
-        self.container(path);
+        self.field_with_attributes(path, value, &[]);
+    }
+    pub fn field_with_attributes(
+        &mut self,
+        path: &[(&'a str, &'a str)],
+        value: &str,
+        attributes: &[WriteAttribute<'_>],
+    ) {
+        self.container_with_attributes(path, attributes);
         self.output.push_str(&escape(value));
         self.close(false);
     }

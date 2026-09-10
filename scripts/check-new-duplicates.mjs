@@ -7,7 +7,7 @@ import { join, resolve } from "node:path"
 import { pathToFileURL } from "node:url"
 import { resolveNodePackageBinary } from "./node-package-binary.mjs"
 
-const SOURCE_PATHS = ["packages", "scripts"]
+const SOURCE_PATHS = ["packages", "scripts", "rust"]
 
 function normalizeFragment(fragment) {
   return fragment

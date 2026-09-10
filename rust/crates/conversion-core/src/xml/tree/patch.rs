@@ -2,6 +2,9 @@ use super::{Name, Payload, Result, Tree, failure, read, render};
 
 pub struct Patch(Payload);
 impl Patch {
+    pub fn is_null(&self) -> bool {
+        matches!(self.0, Payload::Null)
+    }
     pub fn read(
         source: &[u8],
         namespaces: &[(&str, &str)],

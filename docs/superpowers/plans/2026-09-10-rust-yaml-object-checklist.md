@@ -8,7 +8,7 @@
 - `[ ]` — объект не завершён. Промежуточные результаты учитываются только в журнале.
 - Служебные каталоги включены, чтобы не потерять их обязанности. Для них завершение означает перенос ответственности в общий Rust-механизм, а не обязательное создание отдельной YAML-декларации.
 
-Приняты 2 common-объекта: двусторонние интерфейсы I8nText и FormattedI8nText (XML ↔ YAML, валидация и структурная схема). Enterprise исключён из реализации и условий готовности по решению пользователя. Наличие общего компилятора, синтетического примера или успешного теста отдельного свойства не означает завершение всего объекта. В частности, `common.code-type` — синтетический пример, а не перенесённое системное перечисление.
+Приняты 3 common-объекта: двусторонние интерфейсы I8nText, FormattedI8nText и MetadataName (XML ↔ YAML, валидация и структурная схема). Enterprise исключён из реализации и условий готовности по решению пользователя. Наличие общего компилятора, синтетического примера или успешного теста отдельного свойства не означает завершение всего объекта. В частности, `common.code-type` — синтетический пример, а не перенесённое системное перечисление.
 
 ## Когда ставить галочку
 
@@ -17,7 +17,7 @@
 1. Полный договор выражен YAML-декларацией: оба преобразования, проверки, состояния и возможные аномалии. Нет отдельных предметных функций преобразования на Rust или TS.
 2. Декларация подключена к рабочему Rust-каталогу и используется владельцами объекта; нет вызова TypeScript для его выполнения.
 3. Проверены XML → YAML, YAML → XML, round-trip, ошибки и аномалии, применимые профили и вложенные части на существующих неизменённых XML-фикстурах. Согласованные отличия от TS записаны.
-4. Пройдены необходимые проверки слоя; в строке указаны ссылки на декларацию, проверочные случаи/отчёт и дата приёмки. Машинный реестр покрытия приведён в соответствие.
+4. Пройдены необходимые проверки слоя, включая `pnpm duplicates -- --base <commit>` для TypeScript, JavaScript и Rust; в строке указаны ссылки на декларацию, проверочные случаи/отчёт и дата приёмки. Машинный реестр покрытия приведён в соответствие.
 
 Общая цель 10× по времени и памяти проверяется отдельно на e2e; галочка отдельного объекта её не подтверждает. Окончательное удаление TS относится к заключительному этапу проекта.
 
@@ -29,7 +29,7 @@
 
 | Группа | Записей | Полностью завершено |
 |---|---:|---:|
-| Общие объекты (common) | 90 | 2 |
+| Общие объекты (common) | 90 | 3 |
 | Вложенные части общих объектов | 27 | 0 |
 | Прикладные объекты и их вложенные части | 56 | 0 |
 | Формы, элементы и общие части форм | 66 | 0 |
@@ -85,7 +85,7 @@
 - [ ] [commonObjects/metadataHTTPServiceMethod](../../../packages/rules/metadata/commonObjects/metadataHTTPServiceMethod)
 - [ ] [commonObjects/metadataHTTPServiceURLTemplate](../../../packages/rules/metadata/commonObjects/metadataHTTPServiceURLTemplate)
 - [ ] [commonObjects/metadataIntegrationServiceChannel](../../../packages/rules/metadata/commonObjects/metadataIntegrationServiceChannel)
-- [ ] [commonObjects/metadataName](../../../packages/rules/metadata/commonObjects/metadataName)
+- [x] [commonObjects/metadataName](../../../packages/rules/metadata/commonObjects/metadataName) — 2026-09-10: [декларация](../../../rust/declarations/common/metadata-name.yaml), [773 имени e2e](../../../tests/migration/metadata-name-e2e.json), [проверки аномалий](../../../rust/crates/compiled-rules/tests/scalars.rs), [структурная схема](../../../rust/crates/rule-compiler/tests/schema.rs).
 - [ ] [commonObjects/metadataObjectRefCollection](../../../packages/rules/metadata/commonObjects/metadataObjectRefCollection)
 - [ ] [commonObjects/metadataPath](../../../packages/rules/metadata/commonObjects/metadataPath)
 - [ ] [commonObjects/metadataRef](../../../packages/rules/metadata/commonObjects/metadataRef)
