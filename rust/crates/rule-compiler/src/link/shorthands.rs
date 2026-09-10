@@ -46,6 +46,13 @@ pub(super) fn resolve(
                     ids,
                     &scope,
                 )?;
+                if !patterns::scalar_inverse(&denotes) {
+                    return Err(diagnostic(
+                        "noninvertible_shorthand",
+                        &short.denotes.source,
+                        "Scalar shorthand needs one recoverable structural capture",
+                    ));
+                }
                 (LinkedShorthandRepresentation::ScalarText, denotes)
             }
             ShorthandRepresentation::KeyedMapping { .. } => {

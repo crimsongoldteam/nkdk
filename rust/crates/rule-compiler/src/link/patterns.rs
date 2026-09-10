@@ -235,3 +235,20 @@ fn compatible_fixed_type(actual: &LinkedType, expected: &LinkedType) -> bool {
         _ => expressions::same_type(actual, expected),
     }
 }
+
+pub(super) fn scalar_inverse(value: &LinkedExpression) -> bool {
+    fn count(value: &LinkedExpression) -> Option<usize> {
+        match &value.kind {
+            LinkedExpressionKind::Capture(0) => Some(1),
+            LinkedExpressionKind::Operation {
+                operator: LinkedOperator::Sequence | LinkedOperator::Record(_),
+                arguments,
+            } => arguments.iter().try_fold(0usize, |total, value| {
+                Some(total.saturating_add(count(value)?))
+            }),
+            _ if context_only(value) => Some(0),
+            _ => None,
+        }
+    }
+    count(value) == Some(1)
+}

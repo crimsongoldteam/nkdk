@@ -1814,3 +1814,23 @@ fn integrated_i8n_profile_links_presence_names_patterns_and_typed_xml() {
         nkdk_rule_model::LinkedXml::WithAttributes { .. }
     ));
 }
+
+#[test]
+fn scalar_shorthand_requires_a_recoverable_structural_capture() {
+    let source = include_str!("../../../../tests/declaration-corpus/valid/i8n-text-core.yaml");
+    for replacement in [
+        "{literal: constant}",
+        "{if: {literal: true}, then: {capture: text}, else: {literal: fallback}}",
+    ] {
+        let changed = source.replace("{capture: text}", replacement);
+        let module = parse(SourceFile {
+            path: "reverse.yaml",
+            bytes: changed.as_bytes(),
+        })
+        .unwrap();
+        assert_eq!(
+            link(&[module]).unwrap_err()[0].code,
+            "noninvertible_shorthand"
+        );
+    }
+}
