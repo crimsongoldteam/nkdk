@@ -222,11 +222,14 @@ fn fragment_composition_cycles_are_rejected() {
 
 #[test]
 fn unsupported_behavior_is_not_silently_erased() {
+    let text = include_str!("../../../../tests/declaration-corpus/valid/name-text-transform.yaml")
+        .replace(
+            "{capture: text}",
+            "{transform: {local: name-words, value: {capture: text}}}",
+        );
     let source = parse(SourceFile {
         path: "i8n.yaml",
-        bytes: include_bytes!(
-            "../../../../tests/declaration-corpus/valid/i8n-skip-empty-profile.yaml"
-        ),
+        bytes: text.as_bytes(),
     })
     .unwrap();
     let errors = link(&[source]).unwrap_err();
@@ -460,14 +463,14 @@ fn field_bindings_reject_cycles_independently_of_field_order() {
             let binding_a = if a == "true" {
                 "literal: true".to_owned()
             } else {
-                format!("field: {a}")
+                format!("get: {{of: {{self: true}}, field: {a}}}")
             };
             let mut fields = [
                 format!(
                     "    - name: a\n      type: {{use: boolean, bind: {{enabled: {{{binding_a}}}}}}}\n"
                 ),
                 format!(
-                    "    - name: b\n      type: {{use: boolean, bind: {{enabled: {{field: {b}}}}}}}\n"
+                    "    - name: b\n      type: {{use: boolean, bind: {{enabled: {{not: {{field: {b}}}}}}}}}\n"
                 ),
             ];
             if reverse {
@@ -514,7 +517,7 @@ fn fragment_field_dependencies_follow_fields_after_composition() {
         .replace("applied.common-module", "common.fragment")
         .replace(
             "{use: boolean}",
-            "{use: boolean, bind: {enabled: {field: flag}}}",
+            "{use: boolean, bind: {enabled: {not: {field: flag}}}}",
         )
         .replace(
             "  fields:\n    - name:",
@@ -638,4 +641,289 @@ fn field_types_cannot_reference_fragments_or_implicit_recursive_values() {
             .iter()
             .any(|error| error.code == "recursive_value_type")
     );
+}
+
+#[test]
+fn boolean_binding_expressions_are_typed_before_generation() {
+    let common = format!(
+        "{}\ninputs:\n  enabled: {{type: {{kind: scalar, scalar: boolean}}}}\n",
+        include_str!("fixtures/common.yaml")
+    );
+    for (expression, expected) in [
+        ("{not: {input: active}}", None),
+        ("{and: [{input: active}, {parameter: flag}]}", None),
+        ("{or: [{literal: true}, {literal: false}]}", None),
+        ("{eq: [{input: active}, {literal: true}]}", None),
+        (
+            "{if: {input: active}, then: {literal: true}, else: {literal: false}}",
+            None,
+        ),
+        ("{not: {literal: text}}", Some("expression_type_mismatch")),
+        (
+            "{eq: [{input: active}, {literal: text}]}",
+            Some("expression_type_mismatch"),
+        ),
+        ("{parameter: missing}", Some("unknown_parameter")),
+        (
+            "{if: {input: active}, then: {literal: true}, else: {literal: text}}",
+            Some("expression_type_mismatch"),
+        ),
+    ] {
+        let owner = include_str!("fixtures/owner.yaml").replace(
+            "{use: boolean}",
+            &format!("{{use: boolean, bind: {{enabled: {expression}}}}}"),
+        ) + "\ninputs:\n  active: {type: {kind: scalar, scalar: boolean}}\nparameters:\n  flag: {type: {kind: scalar, scalar: boolean}, default: true}\n";
+        let result = link(&[
+            parse(SourceFile {
+                path: "common.yaml",
+                bytes: common.as_bytes(),
+            })
+            .unwrap(),
+            parse(SourceFile {
+                path: "owner.yaml",
+                bytes: owner.as_bytes(),
+            })
+            .unwrap(),
+        ]);
+        if let Some(code) = expected {
+            assert!(
+                result.unwrap_err().iter().any(|error| error.code == code),
+                "{expression}"
+            );
+        } else {
+            assert!(result.is_ok(), "{expression}: {result:?}");
+        }
+    }
+}
+
+#[test]
+fn constraints_are_linked_with_typed_conditions_and_diagnostic_targets() {
+    for (assertion, target, expected) in [
+        ("{field: server}", "{field: server}", None),
+        (
+            "{literal: text}",
+            "{self: true}",
+            Some("expression_type_mismatch"),
+        ),
+        ("{literal: true}", "{field: absent}", Some("unknown_field")),
+        ("{input: absent}", "{self: true}", Some("unknown_input")),
+    ] {
+        let mut source = modules();
+        let text = format!(
+            "{}\nconstraints:\n  - id: enabled\n    appliesTo: [yaml-validation]\n    assert: {assertion}\n    diagnostic:\n      severity: error\n      at: {target}\n      message: Invalid value\n",
+            include_str!("fixtures/owner.yaml")
+        );
+        source[1] = parse(SourceFile {
+            path: "owner.yaml",
+            bytes: text.as_bytes(),
+        })
+        .unwrap();
+        let result = link(&source);
+        if let Some(code) = expected {
+            assert!(
+                result.unwrap_err().iter().any(|error| error.code == code),
+                "{assertion} {target}"
+            );
+        } else {
+            assert!(result.is_ok(), "{result:?}");
+        }
+    }
+}
+
+#[test]
+fn constraints_can_read_self_and_record_members() {
+    for (expression, accepted) in [
+        ("{get: {of: {self: true}, field: server}}", true),
+        ("{get: {of: {self: true}, field: absent}}", false),
+    ] {
+        let mut source = modules();
+        let owner = format!(
+            "{}\nconstraints:\n  - id: self-check\n    appliesTo: [yaml-validation]\n    assert: {expression}\n    diagnostic:\n      severity: error\n      at: {{self: true}}\n      message: Invalid value\n",
+            include_str!("fixtures/owner.yaml")
+        );
+        source[1] = parse(SourceFile {
+            path: "owner.yaml",
+            bytes: owner.as_bytes(),
+        })
+        .unwrap();
+        let result = link(&source);
+        assert_eq!(result.is_ok(), accepted, "{result:?}");
+    }
+}
+
+#[test]
+fn collection_variables_are_typed_and_lexically_scoped() {
+    let common = format!(
+        "{}\ninputs:\n  enabled: {{type: {{kind: scalar, scalar: boolean}}}}\n",
+        include_str!("fixtures/common.yaml")
+    );
+    for (expression, expected) in [
+        (
+            "{each: {in: {input: flags}, as: flag, where: {var: flag}}}",
+            None,
+        ),
+        (
+            "{exists: {in: {input: flags}, as: flag, where: {var: flag}}}",
+            None,
+        ),
+        ("{var: flag}", Some("unknown_variable")),
+        (
+            "{each: {in: {literal: true}, as: flag, where: {var: flag}}}",
+            Some("expression_type_mismatch"),
+        ),
+        (
+            "{each: {in: {input: flags}, as: flag, where: {literal: text}}}",
+            Some("expression_type_mismatch"),
+        ),
+        (
+            "{and: [{each: {in: {input: flags}, as: flag, where: {var: flag}}}, {var: flag}]}",
+            Some("unknown_variable"),
+        ),
+    ] {
+        let owner = include_str!("fixtures/owner.yaml").replace(
+            "{use: boolean}",
+            &format!("{{use: boolean, bind: {{enabled: {expression}}}}}"),
+        ) + "\ninputs:\n  flags: {type: {kind: sequence, item: {kind: scalar, scalar: boolean}}}\n";
+        let result = link(&[
+            parse(SourceFile {
+                path: "common.yaml",
+                bytes: common.as_bytes(),
+            })
+            .unwrap(),
+            parse(SourceFile {
+                path: "owner.yaml",
+                bytes: owner.as_bytes(),
+            })
+            .unwrap(),
+        ]);
+        if let Some(code) = expected {
+            assert!(
+                result.unwrap_err().iter().any(|error| error.code == code),
+                "{expression}"
+            );
+        } else {
+            assert!(result.is_ok(), "{expression}: {result:?}");
+        }
+    }
+}
+
+#[test]
+fn occurrence_constraints_preserve_scope_and_message_parts() {
+    let mut source = modules();
+    let owner = format!(
+        "{}\ninputs:\n  translations:\n    type:\n      kind: sequence\n      item:\n        kind: record\n        fields:\n          - name: language\n            type: {{kind: scalar, scalar: text}}\nconstraints:\n  - id: language-check\n    appliesTo: [yaml-validation]\n    forEach: {{in: {{input: translations}}, as: translation}}\n    assert: {{eq: [{{get: {{of: {{var: translation}}, field: language}}}}, {{literal: ru}}]}}\n    diagnostic:\n      severity: error\n      at: {{occurrence: translation, field: language}}\n      message:\n        parts: [Invalid, {{get: {{of: {{var: translation}}, field: language}}}}]\n",
+        include_str!("fixtures/owner.yaml")
+    );
+    source[1] = parse(SourceFile {
+        path: "owner.yaml",
+        bytes: owner.as_bytes(),
+    })
+    .unwrap();
+    let result = link(&source);
+    assert!(result.is_ok(), "{result:?}");
+}
+
+#[test]
+fn localized_text_declaration_links_collection_constraints_and_shorthand() {
+    let text = include_str!("../../../../tests/declaration-corpus/valid/i8n-validation-core.yaml");
+    let module = parse(SourceFile {
+        path: "i8n.yaml",
+        bytes: text.as_bytes(),
+    })
+    .unwrap();
+    let result = link(&[module]);
+    assert!(result.is_ok(), "{result:?}");
+    let invalid = text.replace("{capture: text}", "{capture: absent}");
+    let module = parse(SourceFile {
+        path: "i8n.yaml",
+        bytes: invalid.as_bytes(),
+    })
+    .unwrap();
+    assert!(
+        link(&[module])
+            .unwrap_err()
+            .iter()
+            .any(|error| error.code == "unknown_capture")
+    );
+}
+
+#[test]
+fn corrected_skip_empty_condition_links_without_a_domain_callback() {
+    let module = parse(SourceFile {
+        path: "i8n.yaml",
+        bytes: include_bytes!(
+            "../../../../tests/declaration-corpus/valid/i8n-skip-empty-profile.yaml"
+        ),
+    })
+    .unwrap();
+    let result = link(&[module]);
+    assert!(result.is_ok(), "{result:?}");
+}
+
+#[test]
+fn presence_denotations_use_the_target_type_for_empty_sequences() {
+    let text = format!(
+        "{}\nparameters:\n  exclude: {{type: {{kind: scalar, scalar: boolean}}, default: false}}\npresence:\n  - target: self\n    xml:\n      missing: {{denotes: {{absent: true}}}}\n    yaml:\n      missing: {{denotes: {{sequence: []}}}}\n      empty:\n        - form: empty-string\n          denotes:\n            if: {{parameter: exclude}}\n            then: {{sequence: []}}\n            else:\n              sequence:\n                - record:\n                    language: {{input: defaultLanguage}}\n                    content: {{literal: \"\"}}\n      omitWhen: {{parameter: exclude}}\n",
+        include_str!("../../../../tests/declaration-corpus/valid/i8n-text-core.yaml")
+    );
+    let module = parse(SourceFile {
+        path: "i8n.yaml",
+        bytes: text.as_bytes(),
+    })
+    .unwrap();
+    let result = link(&[module]);
+    assert!(result.is_ok(), "{result:?}");
+    let invalid = text.replace("then: {sequence: []}", "then: {literal: false}");
+    let module = parse(SourceFile {
+        path: "invalid.yaml",
+        bytes: invalid.as_bytes(),
+    })
+    .unwrap();
+    assert!(
+        link(&[module])
+            .unwrap_err()
+            .iter()
+            .any(|error| error.code == "expression_type_mismatch")
+    );
+}
+
+#[test]
+fn normalization_requires_static_selection_and_a_nonempty_result() {
+    let original = include_str!("../../../../tests/declaration-corpus/valid/i8n-text-core.yaml");
+    for (condition, value, expected) in [
+        (
+            "{parameter: normalize}",
+            "{sequence: [{record: {language: {input: defaultLanguage}, content: {literal: text}}}]}",
+            None,
+        ),
+        (
+            "{input: dynamicFlag}",
+            "{sequence: [{record: {language: {input: defaultLanguage}, content: {literal: text}}}]}",
+            Some("dynamic_normalization_condition"),
+        ),
+        (
+            "{parameter: normalize}",
+            "{sequence: []}",
+            Some("non_progressing_normalization"),
+        ),
+    ] {
+        let original = original.replace(
+            "inputs:\n",
+            "inputs:\n  dynamicFlag: {type: {kind: scalar, scalar: boolean}}\n",
+        );
+        let text = format!(
+            "{original}\nparameters:\n  normalize: {{type: {{kind: scalar, scalar: boolean}}, default: true}}\nnormalization:\n  when: {condition}\n  from: empty-sequence\n  denotes: {value}\n"
+        );
+        let module = parse(SourceFile {
+            path: "i8n.yaml",
+            bytes: text.as_bytes(),
+        })
+        .unwrap();
+        let result = link(&[module]);
+        if let Some(code) = expected {
+            assert!(result.unwrap_err().iter().any(|error| error.code == code));
+        } else {
+            assert!(result.is_ok(), "{result:?}");
+        }
+    }
 }

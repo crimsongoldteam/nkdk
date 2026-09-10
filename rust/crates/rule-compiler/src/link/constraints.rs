@@ -1,0 +1,163 @@
+use super::*;
+
+pub(super) fn resolve_constraints(
+    module: &Module,
+    modules: &BTreeMap<&str, &Module>,
+    ids: &BTreeMap<&str, u32>,
+) -> Result<Vec<LinkedConstraint>, Diagnostic> {
+    let mut names = BTreeMap::new();
+    module
+        .constraints
+        .iter()
+        .map(|constraint| {
+            if let Some(first) = names.insert(&constraint.id, &constraint.source) {
+                let mut error = diagnostic(
+                    "duplicate_constraint",
+                    &constraint.source,
+                    "Constraint id is repeated",
+                );
+                error.related.push(first.clone());
+                return Err(error);
+            }
+            if !constraint.forms.is_empty() {
+                return Err(diagnostic(
+                    "unsupported_link_feature",
+                    &constraint.source,
+                    "Representation applicability is not linked yet",
+                ));
+            }
+            let mut scope = expressions::Scope::default();
+            let for_each = if let Some(iteration) = &constraint.for_each {
+                let input =
+                    expressions::resolve_expression(module, &iteration.input, modules, ids)?;
+                let LinkedType::Sequence(item) = &input.value_type else {
+                    return Err(diagnostic(
+                        "expression_type_mismatch",
+                        &iteration.source,
+                        "forEach requires a sequence",
+                    ));
+                };
+                scope
+                    .variables
+                    .push((iteration.binding.clone(), *item.clone()));
+                Some(LinkedIteration { input, slot: 0 })
+            } else {
+                None
+            };
+            let resolve = |expression: &Expression| {
+                expressions::resolve_expression_in(module, expression, modules, ids, &scope)
+            };
+            let assertion = resolve(&constraint.assertion)?;
+            expressions::require_boolean(&assertion)?;
+            let when = constraint
+                .when
+                .as_ref()
+                .map(|expression| {
+                    let value = resolve(expression)?;
+                    expressions::require_boolean(&value)?;
+                    Ok(value)
+                })
+                .transpose()?;
+            let at = match &constraint.diagnostic.at {
+                DiagnosticTarget::SelfValue => LinkedDiagnosticTarget::SelfValue,
+                DiagnosticTarget::Field(name) => {
+                    if !module.compose.is_empty() {
+                        return Err(diagnostic(
+                            "unsupported_link_feature",
+                            &constraint.source,
+                            "Composed diagnostic fields are not linked yet",
+                        ));
+                    }
+                    let TypeDefinition::Record(fields) = &module.value else {
+                        return Err(diagnostic(
+                            "unknown_field",
+                            &constraint.source,
+                            "Diagnostic field requires record",
+                        ));
+                    };
+                    let index = fields
+                        .iter()
+                        .position(|field| &field.name == name)
+                        .ok_or_else(|| {
+                            diagnostic(
+                                "unknown_field",
+                                &constraint.source,
+                                "Diagnostic field does not exist",
+                            )
+                        })?;
+                    LinkedDiagnosticTarget::Field(index as u32)
+                }
+                DiagnosticTarget::Occurrence { name, field } => {
+                    let (slot, (_, value_type)) = scope
+                        .variables
+                        .iter()
+                        .enumerate()
+                        .find(|(_, (variable, _))| variable == name)
+                        .ok_or_else(|| {
+                            diagnostic(
+                                "unknown_variable",
+                                &constraint.source,
+                                "Diagnostic occurrence is outside its scope",
+                            )
+                        })?;
+                    let LinkedType::Record(fields) = value_type else {
+                        return Err(diagnostic(
+                            "expression_type_mismatch",
+                            &constraint.source,
+                            "Occurrence field requires a record",
+                        ));
+                    };
+                    let index = fields
+                        .iter()
+                        .position(|item| &item.name == field)
+                        .ok_or_else(|| {
+                            diagnostic(
+                                "unknown_field",
+                                &constraint.source,
+                                "Occurrence member does not exist",
+                            )
+                        })?;
+                    LinkedDiagnosticTarget::Occurrence {
+                        slot: slot as u32,
+                        field: index as u32,
+                    }
+                }
+            };
+            let message = match &constraint.diagnostic.message {
+                MessageDefinition::Text(text) => vec![LinkedMessagePart::Text(text.clone())],
+                MessageDefinition::Parts(parts) => parts
+                    .iter()
+                    .map(|part| match part {
+                        MessagePart::Text(text) => Ok(LinkedMessagePart::Text(text.clone())),
+                        MessagePart::Expression(expression) => {
+                            let value = resolve(expression)?;
+                            if value.value_type != LinkedType::Scalar(ScalarType::Text) {
+                                return Err(diagnostic(
+                                    "expression_type_mismatch",
+                                    &value.source,
+                                    "Message part must produce text",
+                                ));
+                            }
+                            Ok(LinkedMessagePart::Expression(value))
+                        }
+                    })
+                    .collect::<Result<_, Diagnostic>>()?,
+            };
+            Ok(LinkedConstraint {
+                id: constraint.id.clone(),
+                applies_to: constraint.applies_to.clone(),
+                when,
+                assertion,
+                for_each,
+                diagnostic: LinkedDiagnostic {
+                    code: constraint.diagnostic.code.clone(),
+                    source: constraint.diagnostic.source.clone(),
+                    severity: constraint.diagnostic.severity.clone(),
+                    at,
+                    message,
+                },
+                source: constraint.source.clone(),
+            })
+        })
+        .collect()
+}

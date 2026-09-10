@@ -1,6 +1,12 @@
 mod bindings;
+mod constraints;
+mod denotations;
 mod dependencies;
+mod expressions;
+mod normalization;
 mod parameters;
+mod presence;
+mod shorthands;
 mod type_graph;
 use bindings::resolve_bindings;
 use nkdk_rule_model::*;
@@ -40,24 +46,6 @@ pub fn link(modules: &[Module]) -> Result<Program, Vec<Diagnostic>> {
                     "Import violates declaration layer direction",
                 ));
             }
-        }
-        if !module.presence.is_empty()
-            || module.normalization.is_some()
-            || !module.constraints.is_empty()
-        {
-            errors.push(diagnostic(
-                "unsupported_link_feature",
-                &module.source,
-                "Parameterized and behavioral linking is not implemented yet",
-            ));
-        }
-        if matches!(&module.representations.yaml, YamlRepresentation::KeyedMapping { shorthand, .. } if !shorthand.is_empty())
-        {
-            errors.push(diagnostic(
-                "unsupported_link_feature",
-                &module.source,
-                "Shorthand linking is not implemented yet",
-            ));
         }
     }
     if !errors.is_empty() {
@@ -100,6 +88,10 @@ fn build_entry(
     let mut entry = LinkedEntry {
         id,
         field_dependencies: vec![],
+        normalization: normalization::resolve(module, modules, ids)?,
+        presence: presence::resolve(module, modules, ids)?,
+        shorthands: shorthands::resolve(module, modules, ids)?,
+        constraints: constraints::resolve_constraints(module, modules, ids)?,
         parameters: parameters::resolve_parameters(module, modules, ids)?,
         name: module.id.clone(),
         kind: module.kind.clone(),
@@ -133,6 +125,9 @@ fn build_entry(
         yaml: module.representations.yaml.clone(),
         source: module.source.clone(),
     };
+    if let YamlRepresentation::KeyedMapping { shorthand, .. } = &mut entry.yaml {
+        shorthand.clear();
+    }
     if !module.compose.is_empty() {
         if module.kind == ModuleKind::Value {
             return Err(diagnostic(
@@ -169,6 +164,27 @@ fn build_entry(
                     "expected_fragment",
                     &usage.source,
                     "Composition target must be a fragment",
+                ));
+            }
+            if target.normalization.is_some() {
+                return Err(diagnostic(
+                    "unsupported_link_feature",
+                    &usage.source,
+                    "Fragment normalization is not linked yet",
+                ));
+            }
+            if !target.presence.is_empty() {
+                return Err(diagnostic(
+                    "unsupported_link_feature",
+                    &usage.source,
+                    "Fragment presence relocation is not linked yet",
+                ));
+            }
+            if !target.constraints.is_empty() {
+                return Err(diagnostic(
+                    "unsupported_link_feature",
+                    &usage.source,
+                    "Fragment constraint relocation is not linked yet",
                 ));
             }
             if !target.parameters.is_empty() {
@@ -534,6 +550,46 @@ fn validate_yaml(
                     "unrepresented_field",
                     source,
                     "Record field has no YAML representation or restoration",
+                ));
+            }
+        }
+        (LinkedType::Sequence(item), YamlRepresentation::KeyedMapping { key, value, .. }) => {
+            let LinkedType::Record(fields) = item.as_ref() else {
+                return Err(diagnostic(
+                    "expression_type_mismatch",
+                    source,
+                    "Keyed mapping requires record items",
+                ));
+            };
+            let key_field = fields
+                .iter()
+                .find(|field| &field.name == key)
+                .ok_or_else(|| {
+                    diagnostic(
+                        "unknown_representation_field",
+                        source,
+                        "Mapping key field is absent",
+                    )
+                })?;
+            if !fields.iter().any(|field| &field.name == value) {
+                return Err(diagnostic(
+                    "unknown_representation_field",
+                    source,
+                    "Mapping value field is absent",
+                ));
+            }
+            if key == value || fields.len() != 2 {
+                return Err(diagnostic(
+                    "unrepresented_field",
+                    source,
+                    "Keyed mapping must represent each item field exactly once",
+                ));
+            }
+            if key_field.value != LinkedType::Scalar(ScalarType::Text) {
+                return Err(diagnostic(
+                    "expression_type_mismatch",
+                    &key_field.source,
+                    "Mapping key must be text",
                 ));
             }
         }

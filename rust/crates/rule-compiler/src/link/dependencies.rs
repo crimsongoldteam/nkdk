@@ -23,9 +23,7 @@ fn collect(value: &LinkedType, result: &mut BTreeSet<u32>) {
     match value {
         LinkedType::BoundReference { bindings, .. } => {
             for binding in bindings {
-                if let LinkedExpressionKind::Field(index) = binding.value.kind {
-                    result.insert(index);
-                }
+                collect_expression(&binding.value, result);
             }
         }
         LinkedType::Sequence(item) => collect(item, result),
@@ -69,15 +67,44 @@ pub(super) fn shift_fields(value: &mut LinkedType, offset: u32) {
     match value {
         LinkedType::BoundReference { bindings, .. } => {
             for binding in bindings {
-                if let LinkedExpressionKind::Field(index) = &mut binding.value.kind {
-                    *index += offset;
-                }
+                shift_expression(&mut binding.value, offset);
             }
         }
         LinkedType::Sequence(item) => shift_fields(item, offset),
         LinkedType::Record(fields) => {
             for field in fields {
                 shift_fields(&mut field.value, offset);
+            }
+        }
+        _ => {}
+    }
+}
+
+fn collect_expression(value: &LinkedExpression, result: &mut BTreeSet<u32>) {
+    match &value.kind {
+        LinkedExpressionKind::SelfValue => {
+            if let LinkedType::Record(fields) = &value.value_type {
+                result.extend(0..fields.len() as u32);
+            }
+        }
+        LinkedExpressionKind::Field(index) => {
+            result.insert(*index);
+        }
+        LinkedExpressionKind::Operation { arguments, .. } => {
+            for argument in arguments {
+                collect_expression(argument, result);
+            }
+        }
+        _ => {}
+    }
+}
+
+fn shift_expression(value: &mut LinkedExpression, offset: u32) {
+    match &mut value.kind {
+        LinkedExpressionKind::Field(index) => *index += offset,
+        LinkedExpressionKind::Operation { arguments, .. } => {
+            for argument in arguments {
+                shift_expression(argument, offset);
             }
         }
         _ => {}

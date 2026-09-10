@@ -16,6 +16,10 @@ pub struct LinkedEntry {
     pub inputs: Vec<LinkedField>,
     pub parameters: Vec<LinkedParameter>,
     pub field_dependencies: Vec<Vec<u32>>,
+    pub constraints: Vec<LinkedConstraint>,
+    pub shorthands: Vec<LinkedShorthand>,
+    pub presence: Vec<LinkedPresence>,
+    pub normalization: Option<LinkedNormalization>,
     pub xml: LinkedXml,
     pub yaml: YamlRepresentation,
     pub source: SourceLocation,
@@ -23,6 +27,8 @@ pub struct LinkedEntry {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum LinkedType {
+    Absent,
+    Optional(Box<LinkedType>),
     Scalar(ScalarType),
     Record(Vec<LinkedField>),
     Sequence(Box<LinkedType>),
@@ -80,7 +86,16 @@ pub struct LinkedExpression {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum LinkedExpressionKind {
+    Absent,
     Input(u32),
+    Parameter(u32),
+    Variable(u32),
+    Capture(u32),
+    SelfValue,
+    Operation {
+        operator: LinkedOperator,
+        arguments: Vec<LinkedExpression>,
+    },
     Field(u32),
     Literal(ScalarLiteral),
 }
@@ -90,5 +105,98 @@ pub struct LinkedParameter {
     pub name: String,
     pub value_type: LinkedType,
     pub default: Option<ScalarLiteral>,
+    pub source: SourceLocation,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum LinkedOperator {
+    Sequence,
+    Record(Vec<String>),
+    Each(u32),
+    Exists(u32),
+    Get(u32),
+    Not,
+    And,
+    Or,
+    Equal,
+    Conditional,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LinkedConstraint {
+    pub id: String,
+    pub applies_to: Vec<crate::ValidationPhase>,
+    pub when: Option<LinkedExpression>,
+    pub assertion: LinkedExpression,
+    pub for_each: Option<LinkedIteration>,
+    pub diagnostic: LinkedDiagnostic,
+    pub source: SourceLocation,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LinkedDiagnostic {
+    pub code: Option<String>,
+    pub source: Option<String>,
+    pub severity: crate::Severity,
+    pub at: LinkedDiagnosticTarget,
+    pub message: Vec<LinkedMessagePart>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum LinkedDiagnosticTarget {
+    Occurrence { slot: u32, field: u32 },
+    SelfValue,
+    Field(u32),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LinkedIteration {
+    pub input: LinkedExpression,
+    pub slot: u32,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum LinkedMessagePart {
+    Text(String),
+    Expression(LinkedExpression),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LinkedShorthand {
+    pub id: String,
+    pub denotes: LinkedExpression,
+    pub when: Option<LinkedExpression>,
+    pub source: SourceLocation,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LinkedPresence {
+    pub xml_missing: Option<LinkedExpression>,
+    pub yaml_missing: Option<LinkedExpression>,
+    pub xml_empty: Vec<LinkedEmpty>,
+    pub yaml_empty: Vec<LinkedEmpty>,
+    pub yaml_omit_when: Option<LinkedExpression>,
+    pub canonical: Vec<LinkedCanonical>,
+    pub source: SourceLocation,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LinkedCanonical {
+    pub when: Option<LinkedExpression>,
+    pub form: crate::XmlForm,
+    pub source: SourceLocation,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LinkedEmpty {
+    pub form: crate::EmptyKind,
+    pub denotes: LinkedExpression,
+    pub source: SourceLocation,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LinkedNormalization {
+    pub when: LinkedExpression,
+    pub denotes: LinkedExpression,
     pub source: SourceLocation,
 }
