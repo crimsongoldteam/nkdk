@@ -56,6 +56,10 @@ pub struct ExpandedName {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum LinkedXml {
+    WithAttributes {
+        attributes: Vec<LinkedXmlAttribute>,
+        content: Box<LinkedXml>,
+    },
     Text,
     BooleanTable(Vec<BooleanLexeme>),
     Record(Vec<LinkedXmlField>),
@@ -244,4 +248,17 @@ pub enum LinkedShorthandRepresentation {
         absent_keys: Vec<LinkedExpression>,
         key_field: u32,
     },
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LinkedXmlAttribute {
+    pub name: ExpandedName,
+    pub value: LinkedXmlAttributeValue,
+    pub when: Option<LinkedExpression>,
+    pub source: SourceLocation,
+}
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum LinkedXmlAttributeValue {
+    Text(String),
+    QName(ExpandedName),
 }

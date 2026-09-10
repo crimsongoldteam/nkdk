@@ -103,7 +103,8 @@ pub(super) fn resolve(
 
 fn context_only(value: &LinkedExpression) -> bool {
     match &value.kind {
-        LinkedExpressionKind::Input(_)
+        LinkedExpressionKind::Absent
+        | LinkedExpressionKind::Input(_)
         | LinkedExpressionKind::Parameter(_)
         | LinkedExpressionKind::Literal(_) => true,
         LinkedExpressionKind::Operation { arguments, .. } => arguments.iter().all(context_only),

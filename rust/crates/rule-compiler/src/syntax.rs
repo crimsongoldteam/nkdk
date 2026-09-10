@@ -3,6 +3,7 @@ mod expressions;
 mod presence;
 mod shorthands;
 mod text;
+mod xml;
 use constraints::constraints;
 use expressions::{expression, scalar_literal};
 use presence::{normalization, presence};
@@ -262,6 +263,7 @@ pub fn decode(path: &str, events: Vec<(Event, Marker)>) -> Result<Module, Diagno
     let representations = root.field(path, fields, "representations")?;
     let rep_fields = representations.mapping(path, &["xml", "yaml"])?;
     let xml = representations.field(path, rep_fields, "xml")?;
+    let (xml, wrappers) = xml::unwrap(path, xml)?;
     let yaml = representations.field(path, rep_fields, "yaml")?;
     let (xml_rep, yaml_rep) = match &definition {
         TypeDefinition::Scalar(ScalarType::Text) => {
@@ -301,6 +303,7 @@ pub fn decode(path: &str, events: Vec<(Event, Marker)>) -> Result<Module, Diagno
             ));
         }
     };
+    let xml_rep = xml::wrap(xml_rep, wrappers);
     let description = fields
         .iter()
         .find_map(|(key, value)| match &key.shape {
@@ -647,6 +650,17 @@ fn yaml_fields(path: &str, representation: &Node) -> Result<Vec<YamlField>, Diag
 }
 
 fn xml_collection(path: &str, representation: &Node) -> Result<XmlRepresentation, Diagnostic> {
+    let (representation, wrappers) = xml::unwrap(path, representation)?;
+    Ok(xml::wrap(
+        xml_collection_content(path, representation)?,
+        wrappers,
+    ))
+}
+
+fn xml_collection_content(
+    path: &str,
+    representation: &Node,
+) -> Result<XmlRepresentation, Diagnostic> {
     let fields = representation.mapping(path, &["kind", "path", "item", "fields"])?;
     let kind = representation.field(path, fields, "kind")?;
     if kind.text(path)? == "record" {

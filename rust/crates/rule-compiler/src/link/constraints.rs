@@ -154,7 +154,12 @@ pub(super) fn resolve_constraints(
 fn resolve_forms(module: &Module, constraint: &Constraint) -> Result<Vec<LinkedForm>, Diagnostic> {
     let mut available = vec![];
     if constraint.applies_to.contains(&ValidationPhase::XmlImport) {
-        available.push(match &module.representations.xml {
+        let mut xml = &module.representations.xml;
+        while let XmlRepresentation::WithAttributes { content, .. } = xml {
+            xml = content;
+        }
+        available.push(match xml {
+            XmlRepresentation::WithAttributes { .. } => unreachable!(),
             XmlRepresentation::Text | XmlRepresentation::BooleanTable(_) => {
                 ("text", LinkedForm::XmlText)
             }

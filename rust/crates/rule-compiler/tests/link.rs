@@ -1575,6 +1575,30 @@ fn pattern_fixed_parts_retain_optional_text_results() {
     })
     .unwrap();
     let program = link(&[module]).expect("an unavailable fixed text disables the pattern");
+    let guarded = source.replace("{transform: {local: name-words, value: {input: nameText}}}", "{if: {isReady: {input: nameText}}, then: {transform: {local: name-words, value: {input: nameText}}}, else: {absent: true}}");
+    let module = parse(SourceFile {
+        path: "guarded.yaml",
+        bytes: guarded.as_bytes(),
+    })
+    .unwrap();
+    assert!(
+        link(&[module]).is_ok(),
+        "explicit readiness guard must retain absence"
+    );
+
+    let both_optional = guarded.replace(
+        "else: {absent: true}",
+        "else: {transform: {local: name-words, value: {literal: fallback}}}",
+    );
+    let module = parse(SourceFile {
+        path: "both-optional.yaml",
+        bytes: both_optional.as_bytes(),
+    })
+    .unwrap();
+    assert!(
+        link(&[module]).is_ok(),
+        "both optional branches have the same semantic type"
+    );
     let nkdk_rule_model::LinkedExpressionKind::Operation { arguments, .. } =
         &program.entries[0].shorthands[0].denotes.kind
     else {
@@ -1591,4 +1615,76 @@ fn pattern_fixed_parts_retain_optional_text_results() {
             .value,
         nkdk_rule_model::LinkedType::Optional(_)
     ));
+}
+
+#[test]
+fn canonical_xml_attributes_preserve_value_shape_and_expand_qnames() {
+    let source = include_str!("../../../../tests/declaration-corpus/valid/i8n-text-core.yaml");
+    let source = source.replace("namespaces:\n", "namespaces:\n  xsi: http://www.w3.org/2001/XMLSchema-instance\n")
+        .replace("  xml:\n", "  xml:\n    kind: with-attributes\n    attributes:\n      - name: xsi:type\n        value: {qname: v8:LocalStringType}\n        when: {parameter: typedXML}\n    content:\n");
+    let start = source.find("    content:\n").unwrap() + "    content:\n".len();
+    let end = source.find("  yaml:\n").unwrap();
+    let source = format!(
+        "{}{}{}\nparameters:\n  typedXML: {{type: {{kind: scalar, scalar: boolean}}, default: false}}\n",
+        &source[..start],
+        source[start..end]
+            .lines()
+            .map(|line| format!("  {line}\n"))
+            .collect::<String>(),
+        &source[end..]
+    );
+    let module = parse(SourceFile {
+        path: "typed.yaml",
+        bytes: source.as_bytes(),
+    })
+    .expect("canonical wrapper syntax");
+    let program = link(&[module]).expect("canonical wrapper");
+    assert!(matches!(
+        program.entries[0].value,
+        nkdk_rule_model::LinkedType::Sequence(_)
+    ));
+    let nkdk_rule_model::LinkedXml::WithAttributes { attributes, .. } = &program.entries[0].xml
+    else {
+        panic!("attribute wrapper")
+    };
+    assert_eq!(
+        attributes[0].name.namespace,
+        "http://www.w3.org/2001/XMLSchema-instance"
+    );
+    let nkdk_rule_model::LinkedXmlAttributeValue::QName(value) = &attributes[0].value else {
+        panic!("QName value")
+    };
+    assert_eq!(value.namespace, "http://v8.1c.ru/8.1/data/core");
+    assert_eq!(value.local, "LocalStringType");
+
+    for (from, to, code) in [
+        (
+            "{parameter: typedXML}",
+            "{input: defaultLanguage}",
+            "expression_type_mismatch",
+        ),
+        (
+            "v8:LocalStringType",
+            "missing:LocalStringType",
+            "missing_namespace",
+        ),
+        (
+            "{parameter: typedXML}",
+            "{eq: [{input: defaultLanguage}, {literal: ru}]}",
+            "dynamic_attribute_condition",
+        ),
+        (
+            "    content:\n",
+            "      - name: xsi:type\n        value: {text: other}\n    content:\n",
+            "xml_path_collision",
+        ),
+    ] {
+        let changed = source.replace(from, to);
+        let module = parse(SourceFile {
+            path: "typed.yaml",
+            bytes: changed.as_bytes(),
+        })
+        .unwrap();
+        assert_eq!(link(&[module]).unwrap_err()[0].code, code);
+    }
 }

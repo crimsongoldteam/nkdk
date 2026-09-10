@@ -13,6 +13,7 @@ mod presence;
 mod shorthands;
 mod text;
 mod type_graph;
+mod xml_attributes;
 use bindings::resolve_bindings;
 use nkdk_rule_model::*;
 use std::collections::{BTreeMap, BTreeSet};
@@ -144,7 +145,13 @@ fn build_entry(
                 })
             })
             .collect::<Result<_, Diagnostic>>()?,
-        xml: resolve_xml(module, &module.representations.xml, &module.source)?,
+        xml: resolve_xml(
+            module,
+            &module.representations.xml,
+            &module.source,
+            modules,
+            ids,
+        )?,
         yaml: module.representations.yaml.clone(),
         source: module.source.clone(),
     };
@@ -406,13 +413,22 @@ fn resolve_xml(
     module: &Module,
     xml: &XmlRepresentation,
     source: &SourceLocation,
+    modules: &BTreeMap<&str, &Module>,
+    ids: &BTreeMap<&str, u32>,
 ) -> Result<LinkedXml, Diagnostic> {
     Ok(match xml {
+        XmlRepresentation::WithAttributes {
+            attributes,
+            content,
+        } => LinkedXml::WithAttributes {
+            attributes: xml_attributes::resolve(module, attributes, modules, ids)?,
+            content: Box::new(resolve_xml(module, content, source, modules, ids)?),
+        },
         XmlRepresentation::Text => LinkedXml::Text,
         XmlRepresentation::BooleanTable(table) => LinkedXml::BooleanTable(table.clone()),
         XmlRepresentation::ElementSequence { path, item } => LinkedXml::ElementSequence {
             path: expand_path(module, path, source)?,
-            item: Box::new(resolve_xml(module, item, source)?),
+            item: Box::new(resolve_xml(module, item, source, modules, ids)?),
         },
         XmlRepresentation::Record(fields) => LinkedXml::Record(
             fields
@@ -512,6 +528,10 @@ fn validate_xml(
     source: &SourceLocation,
 ) -> Result<(), Diagnostic> {
     match (value, xml) {
+        (_, LinkedXml::WithAttributes { content, .. }) => {
+            xml_attributes::check_ownership(xml)?;
+            validate_xml(value, content, presence, source)?;
+        }
         (LinkedType::Record(fields), LinkedXml::Record(mappings)) => {
             let names: BTreeSet<_> = fields.iter().map(|field| field.name.as_str()).collect();
             let mut covered = BTreeSet::new();

@@ -23,6 +23,7 @@ pub(super) fn resolve_expression_in(
     scope: &Scope,
 ) -> Result<LinkedExpression, Diagnostic> {
     let (kind, value_type) = match &expression.kind {
+        ExpressionKind::Absent => (LinkedExpressionKind::Absent, LinkedType::Absent),
         ExpressionKind::SequencePattern { .. } => {
             return Err(diagnostic(
                 "invalid_pattern_context",
@@ -309,8 +310,14 @@ pub(super) fn resolve_expression_in(
             let then_value = resolve_expression_in(module, then_value, modules, ids, scope)?;
             let else_value = resolve_expression_in(module, else_value, modules, ids, scope)?;
             require_boolean(&condition)?;
-            require_same(&then_value, &else_value)?;
-            let value_type = then_value.value_type.clone();
+            let value_type = conditional_type(&then_value.value_type, &else_value.value_type)
+                .ok_or_else(|| {
+                    diagnostic(
+                        "expression_type_mismatch",
+                        &expression.source,
+                        "Conditional branches have incompatible value types",
+                    )
+                })?;
             (
                 LinkedExpressionKind::Operation {
                     operator: LinkedOperator::Conditional,
@@ -402,7 +409,8 @@ pub(super) fn same_type(left: &LinkedType, right: &LinkedType) -> bool {
     match (left, right) {
         (LinkedType::Scalar(a), LinkedType::Scalar(b)) => a == b,
         (LinkedType::Reference(a), LinkedType::Reference(b)) => a == b,
-        (LinkedType::Sequence(a), LinkedType::Sequence(b)) => same_type(a, b),
+        (LinkedType::Sequence(a), LinkedType::Sequence(b))
+        | (LinkedType::Optional(a), LinkedType::Optional(b)) => same_type(a, b),
         (LinkedType::Record(a), LinkedType::Record(b)) => {
             a.len() == b.len()
                 && a.iter().all(|field| {
@@ -591,4 +599,23 @@ pub(super) fn module_shape(
     }
     visiting.remove(&key);
     Ok(LinkedType::Record(fields))
+}
+
+fn conditional_type(a: &LinkedType, b: &LinkedType) -> Option<LinkedType> {
+    if same_type(a, b) || matches!((a, b), (LinkedType::Absent, LinkedType::Absent)) {
+        return Some(a.clone());
+    }
+    match (a, b) {
+        (LinkedType::Absent, LinkedType::Optional(_)) => Some(b.clone()),
+        (LinkedType::Optional(_), LinkedType::Absent) => Some(a.clone()),
+        (LinkedType::Absent, other) | (other, LinkedType::Absent) => {
+            Some(LinkedType::Optional(Box::new(other.clone())))
+        }
+        (LinkedType::Optional(inner), other) | (other, LinkedType::Optional(inner))
+            if same_type(inner, other) =>
+        {
+            Some(LinkedType::Optional(inner.clone()))
+        }
+        _ => None,
+    }
 }

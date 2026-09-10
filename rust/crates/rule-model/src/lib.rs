@@ -65,6 +65,10 @@ pub struct Representations {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum XmlRepresentation {
+    WithAttributes {
+        attributes: Vec<XmlAttribute>,
+        content: Box<XmlRepresentation>,
+    },
     ElementSequence {
         path: Vec<String>,
         item: Box<XmlRepresentation>,
@@ -402,4 +406,17 @@ pub enum XmlForm {
     EmptyElement,
     Nil,
     Missing,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct XmlAttribute {
+    pub name: String,
+    pub value: XmlAttributeValue,
+    pub when: Option<Expression>,
+    pub source: SourceLocation,
+}
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum XmlAttributeValue {
+    Text(String),
+    QName(String),
 }

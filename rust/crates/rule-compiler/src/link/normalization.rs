@@ -47,7 +47,7 @@ pub(super) fn resolve(
     }))
 }
 
-fn is_static(value: &LinkedExpression) -> bool {
+pub(super) fn is_static(value: &LinkedExpression) -> bool {
     match &value.kind {
         LinkedExpressionKind::Parameter(_) | LinkedExpressionKind::Literal(_) => true,
         LinkedExpressionKind::Operation { arguments, .. } => arguments.iter().all(is_static),
