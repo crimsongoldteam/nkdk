@@ -1,10 +1,11 @@
+use super::scalar::Codec;
 use super::*;
 use std::fmt::Write;
 
 struct Field<'a> {
     path: &'a [ExpandedName],
     key: &'a str,
-    boolean: Option<(&'a [BooleanLexeme], &'a [BooleanLexeme])>,
+    codec: Codec<'a>,
 }
 fn path_code(path: &[ExpandedName]) -> String {
     format!(
@@ -42,45 +43,11 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
             .iter()
             .find(|mapping| mapping.field == field.name)
             .ok_or_else(|| unsupported(entry, "YAML field missing"))?;
-        let boolean = match &field.value {
-            LinkedType::Scalar(ScalarType::Text) => None,
-            LinkedType::Reference(id) => {
-                let target = program
-                    .entries
-                    .iter()
-                    .find(|entry| entry.id == *id)
-                    .expect("linked reference");
-                plain(target)?;
-                match (&target.value, &target.xml, &target.yaml) {
-                    (
-                        LinkedType::Scalar(ScalarType::Text),
-                        LinkedXml::Text,
-                        YamlRepresentation::Text,
-                    ) => None,
-                    (
-                        LinkedType::Scalar(ScalarType::Boolean),
-                        LinkedXml::BooleanTable(xml),
-                        YamlRepresentation::BooleanTable(yaml),
-                    ) => Some((xml.as_slice(), yaml.as_slice())),
-                    _ => {
-                        return Err(unsupported(
-                            target,
-                            "Referenced value is not a supported scalar codec",
-                        ));
-                    }
-                }
-            }
-            _ => {
-                return Err(unsupported(
-                    entry,
-                    "Only text and referenced scalar codecs are generated at this stage",
-                ));
-            }
-        };
+        let codec = Codec::resolve(&field.value, entry, program)?;
         fields.push(Field {
             path: &mapping.path,
             key: &yaml.key,
-            boolean,
+            codec,
         });
     }
     let Some(first) = fields.first() else {
@@ -96,16 +63,16 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
         ));
     }
     let id = entry.id;
-    let mut out = format!("struct V{id} {{\n");
+    let mut out = String::new();
+    for (i, field) in fields.iter().enumerate() {
+        out.push_str(&field.codec.definition(&format!("E{id}F{i}")));
+    }
+    writeln!(out, "struct V{id} {{").unwrap();
     for (i, field) in fields.iter().enumerate() {
         writeln!(
             out,
             "f{i}: {},",
-            if field.boolean.is_some() {
-                "bool"
-            } else {
-                "String"
-            }
+            field.codec.rust_type(&format!("E{id}F{i}"))
         )
         .unwrap();
     }
@@ -144,9 +111,9 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
             }
             out.push_str("if core::xml::is_whitespace(text) { Ok(()) } else { Err(RuntimeDiagnostic::new(\"xml.unexpected-text\", \"Text outside a declared scalar\")) } }, core::xml::Token::End => Ok(()) } })?;\n");
         } else {
-            out.push_str("core::yaml::visit(source, |key, value| { match key.as_str() {\n");
+            out.push_str("core::yaml::visit_scalars(source, |key, value| { match key.as_str() {\n");
             for (i, field) in fields.iter().enumerate() {
-                writeln!(out, "{:?} => {{ r{i} = Some(value); Ok(()) }},", field.key).unwrap();
+                writeln!(out, "{:?} => {{ r{i} = Some(value.{}().map_err(|error| error.field({:?}))?); Ok(()) }},", field.key, field.codec.yaml_input(), field.key).unwrap();
             }
             out.push_str("_ => Err(RuntimeDiagnostic::new(\"yaml.unknown-field\", format!(\"Unknown YAML key: {key}\")).field(key)) } })?;\n");
         }
@@ -157,15 +124,11 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
                 field.key, field.key
             )
             .unwrap();
-            if let Some((xml, yaml)) = field.boolean {
-                writeln!(out, "let f{i} = match r{i}.as_str() {{").unwrap();
-                for item in if xml_side { xml } else { yaml } {
-                    writeln!(out, "{:?} => {},", item.text, item.value).unwrap();
-                }
-                writeln!(out, "_ => return Err(RuntimeDiagnostic::new(\"value.boolean\", \"Unknown boolean literal\").field({:?})), }};", field.key).unwrap();
-            } else {
-                writeln!(out, "core::xml::validate_text(&r{i}).map_err(|error| error.field({:?}))?; let f{i} = r{i};", field.key).unwrap();
-            }
+            out.push_str(
+                &field
+                    .codec
+                    .read(&format!("E{id}F{i}"), i, field.key, xml_side),
+            );
         }
         writeln!(
             out,
@@ -185,10 +148,7 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
         .collect();
     writeln!(out, "fn write_xml_{id}(value: &V{id}) -> Vec<u8> {{ let mut out = core::xml::Writer::new(&{:?});", namespaces.into_iter().collect::<Vec<_>>()).unwrap();
     for (i, field) in fields.iter().enumerate() {
-        let text = match field.boolean {
-            Some((table, _)) => boolean_output(table, i),
-            None => format!("&value.f{i}"),
-        };
+        let text = field.codec.write(&format!("E{id}F{i}"), i, true);
         writeln!(out, "out.field({}, {text});", path_code(field.path)).unwrap();
     }
     out.push_str("out.finish() }\n");
@@ -198,11 +158,13 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
     )
     .unwrap();
     for (i, field) in fields.iter().enumerate() {
-        let text = match field.boolean {
-            Some((_, table)) => boolean_output(table, i),
-            None => format!("&value.f{i}"),
+        let text = field.codec.write(&format!("E{id}F{i}"), i, false);
+        let yaml = if field.codec.numeric() {
+            text
+        } else {
+            format!("&core::yaml::scalar({text})")
         };
-        writeln!(out, "out.push_str(&core::yaml::scalar({:?})); out.push_str(\": \"); out.push_str(&core::yaml::scalar({text})); out.push('\\n');", field.key).unwrap();
+        writeln!(out, "out.push_str(&core::yaml::scalar({:?})); out.push_str(\": \"); out.push_str({yaml}); out.push('\\n');", field.key).unwrap();
     }
     out.push_str("if !out.is_empty() { out.pop(); } out.into_bytes() }\n");
     writeln!(out, "fn verify_{id}(original: &[u8], candidate: &[u8]) -> core::Result<()> {{ let restored = write_xml_{id}(&read_yaml_{id}(candidate)?); core::proof::verify(original, &restored, |path| {{").unwrap();
@@ -218,17 +180,4 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
     }
     out.push_str("}) }\n");
     Ok(out)
-}
-fn boolean_output(table: &[BooleanLexeme], index: usize) -> String {
-    let yes = &table
-        .iter()
-        .find(|item| item.value)
-        .expect("complete boolean table")
-        .text;
-    let no = &table
-        .iter()
-        .find(|item| !item.value)
-        .expect("complete boolean table")
-        .text;
-    format!("if value.f{index} {{ {yes:?} }} else {{ {no:?} }}")
 }

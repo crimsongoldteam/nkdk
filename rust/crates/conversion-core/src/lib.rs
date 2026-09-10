@@ -1,3 +1,4 @@
+pub mod decimal;
 pub mod proof;
 pub mod xml;
 pub mod yaml;

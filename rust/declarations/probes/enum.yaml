@@ -1,0 +1,17 @@
+format: nkdk-declarations/1
+kind: object
+id: test.enum-owner
+imports: {code: common.code-type}
+value:
+  kind: record
+  fields:
+    - {name: codeType, type: {use: code}}
+representations:
+  xml:
+    kind: record
+    fields:
+      - {field: codeType, path: [Root, CodeType]}
+  yaml:
+    kind: mapping
+    fields:
+      - {field: codeType, key: ТипКода}

@@ -1,0 +1,7 @@
+format: nkdk-declarations/1
+kind: value
+id: common.exact-decimal
+value: {kind: scalar, scalar: number, profile: decimal}
+representations:
+  xml: {kind: text}
+  yaml: {kind: scalar, scalar: number}

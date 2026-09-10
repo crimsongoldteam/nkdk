@@ -53,6 +53,7 @@ pub enum ModuleKind {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ScalarType {
+    Decimal,
     Text,
     Boolean,
 }
@@ -76,6 +77,8 @@ pub enum XmlRepresentation {
     Record(Vec<XmlField>),
     Text,
     BooleanTable(Vec<BooleanLexeme>),
+    EnumTable(Vec<EnumLexeme>),
+    Decimal,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -88,6 +91,8 @@ pub enum YamlRepresentation {
     Mapping(Vec<YamlField>),
     Text,
     BooleanTable(Vec<BooleanLexeme>),
+    EnumTable(Vec<EnumLexeme>),
+    Decimal,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -112,6 +117,7 @@ pub struct NamedType {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TypeDefinition {
+    Enum(Vec<EnumVariant>),
     TextTransform(Box<TextTransform>),
     Scalar(ScalarType),
     Record(Vec<TypeField>),
@@ -425,4 +431,17 @@ pub struct XmlAttribute {
 pub enum XmlAttributeValue {
     Text(String),
     QName(String),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct EnumVariant {
+    pub name: String,
+    pub value: String,
+    pub source: SourceLocation,
+}
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct EnumLexeme {
+    pub value: String,
+    pub text: String,
+    pub source: SourceLocation,
 }

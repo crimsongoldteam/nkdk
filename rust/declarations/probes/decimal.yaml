@@ -1,0 +1,17 @@
+format: nkdk-declarations/1
+kind: object
+id: test.decimal-owner
+imports: {number: common.exact-decimal}
+value:
+  kind: record
+  fields:
+    - {name: amount, type: {use: number}}
+representations:
+  xml:
+    kind: record
+    fields:
+      - {field: amount, path: [Root, Amount]}
+  yaml:
+    kind: mapping
+    fields:
+      - {field: amount, key: Сумма}

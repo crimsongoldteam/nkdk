@@ -5,6 +5,7 @@ mod composition;
 mod constraints;
 mod denotations;
 mod dependencies;
+mod enumeration;
 mod expressions;
 mod names;
 mod normalization;
@@ -337,6 +338,10 @@ fn resolve_type(
     visiting: &mut BTreeSet<String>,
 ) -> Result<LinkedType, Diagnostic> {
     Ok(match value {
+        TypeDefinition::Enum(variants) => {
+            enumeration::variants(variants, source)?;
+            LinkedType::Enum(variants.clone())
+        }
         TypeDefinition::Scalar(value) => LinkedType::Scalar(value.clone()),
         TypeDefinition::Sequence(item) => LinkedType::Sequence(Box::new(resolve_type(
             module, item, source, modules, ids, visiting,
@@ -442,6 +447,8 @@ fn resolve_xml(
             attributes: xml_attributes::resolve(module, attributes, modules, ids)?,
             content: Box::new(resolve_xml(module, content, source, modules, ids)?),
         },
+        XmlRepresentation::EnumTable(table) => LinkedXml::EnumTable(table.clone()),
+        XmlRepresentation::Decimal => LinkedXml::Decimal,
         XmlRepresentation::Text => LinkedXml::Text,
         XmlRepresentation::BooleanTable(table) => LinkedXml::BooleanTable(table.clone()),
         XmlRepresentation::ElementSequence { path, item } => LinkedXml::ElementSequence {
@@ -577,6 +584,10 @@ fn validate_xml(
         (LinkedType::Scalar(ScalarType::Boolean), LinkedXml::BooleanTable(table)) => {
             validate_boolean_table(table, source)?
         }
+        (LinkedType::Enum(variants), LinkedXml::EnumTable(table)) => {
+            enumeration::table(variants, table, source)?
+        }
+        (LinkedType::Scalar(ScalarType::Decimal), LinkedXml::Decimal) => {}
         (LinkedType::Scalar(ScalarType::Text), LinkedXml::Text) => {}
         _ => {
             return Err(diagnostic(
@@ -670,6 +681,10 @@ fn validate_yaml(
         (LinkedType::Scalar(ScalarType::Boolean), YamlRepresentation::BooleanTable(table)) => {
             boolean::yaml_table(table, presence, source)?
         }
+        (LinkedType::Enum(variants), YamlRepresentation::EnumTable(table)) => {
+            enumeration::table(variants, table, source)?
+        }
+        (LinkedType::Scalar(ScalarType::Decimal), YamlRepresentation::Decimal) => {}
         (LinkedType::Scalar(ScalarType::Text), YamlRepresentation::Text) => {}
         _ => {
             return Err(diagnostic(

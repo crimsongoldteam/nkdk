@@ -1,0 +1,22 @@
+format: nkdk-declarations/1
+kind: value
+id: common.code-type
+value:
+  kind: enum
+  variants:
+    - {name: numeric, value: Number}
+    - {name: textual, value: String}
+    - {name: automatic, value: Auto}
+representations:
+  xml:
+    kind: text
+    values:
+      - {value: Number, text: Number}
+      - {value: String, text: String}
+      - {value: Auto, text: Auto}
+  yaml:
+    kind: scalar
+    values:
+      - {value: Number, literal: Число}
+      - {value: String, literal: Строка}
+      - {value: Auto, literal: Авто}

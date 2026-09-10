@@ -5,6 +5,11 @@ use std::{fs, process::Command};
 fn generated_rust_executes_both_directions_and_uses_the_imported_table() {
     let common = include_str!("fixtures/common.yaml");
     let owner = "format: nkdk-declarations/1\nkind: object\nid: test.scalar-owner\nimports: {boolean: common.boolean}\nvalue:\n  kind: record\n  fields:\n    - name: server\n      type: {use: boolean}\n    - name: description\n      type: {kind: scalar, scalar: text}\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - {field: server, path: [Root, Server]}\n      - {field: description, path: [Root, Description]}\n  yaml:\n    kind: mapping\n    fields:\n      - {field: server, key: Сервер}\n      - {field: description, key: Описание}\n";
+    let decimal = include_str!("../../../../tests/declaration-corpus/valid/exact-decimal.yaml");
+    let decimal_owner = "format: nkdk-declarations/1\nkind: object\nid: test.decimal-owner\nimports: {number: common.exact-decimal}\nvalue:\n  kind: record\n  fields:\n    - {name: amount, type: {use: number}}\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - {field: amount, path: [Root, Amount]}\n  yaml:\n    kind: mapping\n    fields:\n      - {field: amount, key: Сумма}\n";
+    let enumeration =
+        include_str!("../../../../tests/declaration-corpus/valid/code-type-enum.yaml");
+    let enum_owner = "format: nkdk-declarations/1\nkind: object\nid: test.enum-owner\nimports: {code: common.code-type}\nvalue:\n  kind: record\n  fields:\n    - {name: codeType, type: {use: code}}\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - {field: codeType, path: [Root, CodeType]}\n  yaml:\n    kind: mapping\n    fields:\n      - {field: codeType, key: ТипКода}\n";
     let root = std::env::temp_dir().join(format!(
         "nkdk-generated-{}-{}",
         std::process::id(),
@@ -21,26 +26,70 @@ fn generated_rust_executes_both_directions_and_uses_the_imported_table() {
     fs::write(root.join("Cargo.toml"), format!("[package]\nname = \"generated-contract\"\nversion = \"0.0.0\"\nedition = \"2024\"\n[dependencies]\nnkdk-conversion-core = {{ path = {:?} }}\n[workspace]\n", core)).unwrap();
     for literal in ["Истина", "Да"] {
         let common = common.replace("Истина", literal);
-        let mut modules =
-            [("common.yaml", common.as_str()), ("owner.yaml", owner)].map(|(path, source)| {
-                parse(SourceFile {
-                    path,
-                    bytes: source.as_bytes(),
-                })
-                .unwrap()
-            });
+        let mut modules = [
+            ("common.yaml", common.as_str()),
+            ("owner.yaml", owner),
+            ("enum.yaml", enumeration),
+            ("enum-owner.yaml", enum_owner),
+            ("decimal.yaml", decimal),
+            ("decimal-owner.yaml", decimal_owner),
+        ]
+        .map(|(path, source)| {
+            parse(SourceFile {
+                path,
+                bytes: source.as_bytes(),
+            })
+            .unwrap()
+        });
         let program = link(&modules).unwrap();
         let generated = generate(&program).expect("generate supported record");
         modules.reverse();
         assert_eq!(generated, generate(&link(&modules).unwrap()).unwrap());
-        assert_eq!(generated.dependencies, ["common.yaml", "owner.yaml"]);
+        assert_eq!(
+            generated.dependencies,
+            [
+                "common.yaml",
+                "decimal-owner.yaml",
+                "decimal.yaml",
+                "enum-owner.yaml",
+                "enum.yaml",
+                "owner.yaml"
+            ]
+        );
         for file in generated.files {
             fs::write(root.join("src").join(file.path), file.contents).unwrap();
         }
         let main = r#"
 include!("generated.rs");
 fn main() {
+    let decimal_entry = entry_id("test.decimal-owner").unwrap();
+    for literal in ["9007199254740993", "0.12345678901234567890123456789012345678", "1e+1000000"] {
+        let xml = format!("\u{feff}<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Root>\n\t<Amount>{literal}</Amount>\n</Root>");
+        let yaml = format!("Сумма: {literal}");
+        let inputs = PreparedInputs::default();
+        assert_eq!(convert_file(decimal_entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap().bytes, yaml.as_bytes());
+        assert_eq!(convert_file(decimal_entry, Direction::YamlToXml, yaml.as_bytes(), &inputs).unwrap().bytes, xml.as_bytes());
+        assert!(validate_file(decimal_entry, yaml.as_bytes(), &inputs).is_empty());
+    }
+    for yaml in ["Сумма: \"42\"", "Сумма: .nan", "Сумма: 0x10", "Сумма: null"] {
+        assert!(!validate_file(decimal_entry, yaml.as_bytes(), &PreparedInputs::default()).is_empty());
+    }
+    let enumeration = entry_id("test.enum-owner").unwrap();
+    for (xml_value, yaml_value) in [("Number", "Число"), ("String", "Строка"), ("Auto", "Авто")] {
+        let xml = format!("\u{feff}<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Root>\n\t<CodeType>{xml_value}</CodeType>\n</Root>");
+        let yaml = format!("ТипКода: {yaml_value}");
+        let inputs = PreparedInputs::default();
+        assert_eq!(convert_file(enumeration, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap().bytes, yaml.as_bytes());
+        assert_eq!(convert_file(enumeration, Direction::YamlToXml, yaml.as_bytes(), &inputs).unwrap().bytes, xml.as_bytes());
+        assert!(validate_file(enumeration, yaml.as_bytes(), &inputs).is_empty());
+    }
+    let errors = validate_file(enumeration, "ТипКода: Неизвестно".as_bytes(), &PreparedInputs::default());
+    assert_eq!(errors[0].path, ["ТипКода"]);
     let entry = entry_id("test.scalar-owner").unwrap();
+    let field_source = DECLARATION_FIELDS.iter().find(|field| field.entry == entry.0 && field.name == "server").unwrap();
+    assert_eq!((field_source.value.file, field_source.value.line), ("owner.yaml", 8));
+    assert_eq!((field_source.xml.file, field_source.xml.line), ("owner.yaml", 16));
+    assert_eq!((field_source.yaml.file, field_source.yaml.line), ("owner.yaml", 21));
     let inputs = PreparedInputs::default();
     let xml = "\u{feff}<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Root>\n\t<Server>true</Server>\n\t<Description>  A &amp; B  </Description>\n</Root>";
     let yaml = "Сервер: LITERAL\nОписание: \"  A & B  \"";

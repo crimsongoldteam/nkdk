@@ -160,9 +160,10 @@ fn resolve_forms(module: &Module, constraint: &Constraint) -> Result<Vec<LinkedF
         }
         available.push(match xml {
             XmlRepresentation::WithAttributes { .. } => unreachable!(),
-            XmlRepresentation::Text | XmlRepresentation::BooleanTable(_) => {
-                ("text", LinkedForm::XmlText)
-            }
+            XmlRepresentation::Text
+            | XmlRepresentation::BooleanTable(_)
+            | XmlRepresentation::Decimal
+            | XmlRepresentation::EnumTable(_) => ("text", LinkedForm::XmlText),
             XmlRepresentation::Record(_) => ("record", LinkedForm::XmlRecord),
             XmlRepresentation::ElementSequence { .. } => {
                 ("element-sequence", LinkedForm::XmlElementSequence)
@@ -174,9 +175,10 @@ fn resolve_forms(module: &Module, constraint: &Constraint) -> Result<Vec<LinkedF
         .contains(&ValidationPhase::YamlValidation)
     {
         let form = match &module.representations.yaml {
-            YamlRepresentation::Text | YamlRepresentation::BooleanTable(_) => {
-                ("scalar", LinkedForm::YamlScalar)
-            }
+            YamlRepresentation::Text
+            | YamlRepresentation::BooleanTable(_)
+            | YamlRepresentation::Decimal
+            | YamlRepresentation::EnumTable(_) => ("scalar", LinkedForm::YamlScalar),
             YamlRepresentation::Mapping(_) => ("mapping", LinkedForm::YamlMapping),
             YamlRepresentation::KeyedMapping { shorthand, .. } => {
                 if shorthand.iter().any(|short| {

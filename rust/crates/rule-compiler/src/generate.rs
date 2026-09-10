@@ -1,4 +1,6 @@
 mod record;
+mod scalar;
+mod source_map;
 use nkdk_rule_model::*;
 use std::collections::BTreeSet;
 
@@ -65,15 +67,7 @@ pub fn generate(program: &Program) -> Result<GeneratedSources, Vec<Diagnostic>> 
         ));
     }
     source.push_str("_ => Err(RuntimeDiagnostic::new(\"entry.unknown\", \"Unknown generated entry\")) }; result.map_err(|error| vec![error]) }\n");
-    let mut map =
-        String::from("pub const DECLARATION_SOURCES: &[(u32, &str, usize, usize)] = &[\n");
-    for entry in &program.entries {
-        map.push_str(&format!(
-            "({}, {:?}, {}, {}),\n",
-            entry.id, entry.source.file, entry.source.line, entry.source.column
-        ));
-    }
-    map.push_str("];\n");
+    let map = source_map::generate(program);
     source.push_str("include!(\"source_map.rs\");\n");
     Ok(GeneratedSources {
         files: vec![

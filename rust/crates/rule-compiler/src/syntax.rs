@@ -1,4 +1,5 @@
 mod constraints;
+mod enumeration;
 mod expressions;
 mod presence;
 mod shorthands;
@@ -283,6 +284,24 @@ pub fn decode(path: &str, events: Vec<(Event, Marker)>) -> Result<Module, Diagno
                 .literal(path, "text", "unsupported_scalar")?;
             (XmlRepresentation::Text, YamlRepresentation::Text)
         }
+        TypeDefinition::Scalar(ScalarType::Decimal) => {
+            let fields = xml.mapping(path, &["kind"])?;
+            xml.field(path, fields, "kind")?
+                .literal(path, "text", "unsupported_representation")?;
+            let fields = yaml.mapping(path, &["kind", "scalar"])?;
+            yaml.field(path, fields, "kind")?.literal(
+                path,
+                "scalar",
+                "unsupported_representation",
+            )?;
+            yaml.field(path, fields, "scalar")?
+                .literal(path, "number", "unsupported_scalar")?;
+            (XmlRepresentation::Decimal, YamlRepresentation::Decimal)
+        }
+        TypeDefinition::Enum(_) => (
+            XmlRepresentation::EnumTable(enumeration::table(path, xml, "text", "text")?),
+            YamlRepresentation::EnumTable(enumeration::table(path, yaml, "scalar", "literal")?),
+        ),
         TypeDefinition::Scalar(ScalarType::Boolean) => (
             XmlRepresentation::BooleanTable(boolean_table(path, xml, "text", "text")?),
             YamlRepresentation::BooleanTable(boolean_table(path, yaml, "scalar", "literal")?),
@@ -479,7 +498,8 @@ fn type_definition(path: &str, value: &Node) -> Result<TypeDefinition, Diagnosti
     let fields = value.mapping(
         path,
         &[
-            "kind", "scalar", "fields", "item", "local", "use", "with", "bind",
+            "kind", "scalar", "fields", "item", "local", "use", "with", "bind", "variants",
+            "profile",
         ],
     )?;
     for (key, _) in fields {
@@ -522,10 +542,19 @@ fn type_definition(path: &str, value: &Node) -> Result<TypeDefinition, Diagnosti
     }
     let kind = value.field(path, fields, "kind")?;
     match kind.text(path)? {
+        "enum" => enumeration::variants(path, value),
         "scalar" => {
-            value.mapping(path, &["kind", "scalar"])?;
+            value.mapping(path, &["kind", "scalar", "profile"])?;
             let scalar = value.field(path, fields, "scalar")?;
             let scalar = match scalar.text(path)? {
+                "number" => {
+                    value.field(path, fields, "profile")?.literal(
+                        path,
+                        "decimal",
+                        "unsupported_numeric_profile",
+                    )?;
+                    ScalarType::Decimal
+                }
                 "text" => ScalarType::Text,
                 "boolean" => ScalarType::Boolean,
                 _ => {
@@ -537,6 +566,14 @@ fn type_definition(path: &str, value: &Node) -> Result<TypeDefinition, Diagnosti
                     ));
                 }
             };
+            if scalar != ScalarType::Decimal && optional_field(fields, "profile").is_some() {
+                return Err(error(
+                    path,
+                    value.mark,
+                    "unexpected_profile",
+                    "Only number accepts a numeric profile",
+                ));
+            }
             Ok(TypeDefinition::Scalar(scalar))
         }
         "sequence" => {

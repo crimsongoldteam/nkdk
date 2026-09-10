@@ -8426,19 +8426,29 @@
       "flat YAML mapping",
       "single XML root",
       "candidate re-export proof",
-      "validation through the generated YAML reader"
+      "validation through the generated YAML reader",
+      "total string-valued enum tables",
+      "exact finite decimal profile",
+      "record field and representation source locations"
     ],
     "verifiedCases": [
       "boolean-true",
       "boolean-false",
-      "generated-record-scalars"
+      "generated-record-scalars",
+      "generated-enum-number",
+      "generated-enum-string",
+      "generated-enum-auto",
+      "exact-decimal-integer",
+      "exact-decimal-fraction",
+      "exact-decimal-exponent"
     ],
     "limitations": [
-      "number and enum pending",
       "collections and I8nText pending",
       "anomaly annotations pending",
       "typed inputs pending",
-      "field-level source map and compatible diagnostics pending"
+      "typed XML and numeric physical-form anomalies pending",
+      "compatible diagnostics and collection occurrence addresses pending",
+      "constraints and schemas pending"
     ],
     "productionCatalogMigrated": false
   }

@@ -2000,3 +2000,31 @@ fn boolean_value_can_be_represented_by_reversible_absence_instead_of_a_literal()
         );
     }
 }
+
+#[test]
+fn enum_tables_are_total_and_unambiguous() {
+    let source = include_str!("../../../../tests/declaration-corpus/valid/code-type-enum.yaml");
+    let module = nkdk_rule_compiler::parse(nkdk_rule_compiler::SourceFile {
+        path: "enum.yaml",
+        bytes: source.as_bytes(),
+    })
+    .unwrap();
+    assert!(nkdk_rule_compiler::link(&[module]).is_ok());
+    for source in [
+        source.replace("name: textual", "name: numeric"),
+        source.replace(
+            "name: textual, value: String",
+            "name: textual, value: Number",
+        ),
+        source.replace("literal: Строка", "literal: Число"),
+        source.replace("value: String, text: String", "value: Other, text: String"),
+        source.replace("      - {value: Auto, literal: Авто}\n", ""),
+    ] {
+        let result = nkdk_rule_compiler::parse(nkdk_rule_compiler::SourceFile {
+            path: "enum.yaml",
+            bytes: source.as_bytes(),
+        })
+        .and_then(|module| nkdk_rule_compiler::link(&[module]).map(|_| ()));
+        assert!(result.is_err(), "Ambiguous or incomplete enum accepted");
+    }
+}

@@ -28,6 +28,7 @@ pub struct LinkedEntry {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum LinkedType {
+    Enum(Vec<crate::EnumVariant>),
     Absent,
     Optional(Box<LinkedType>),
     Scalar(ScalarType),
@@ -62,6 +63,8 @@ pub enum LinkedXml {
     },
     Text,
     BooleanTable(Vec<BooleanLexeme>),
+    EnumTable(Vec<crate::EnumLexeme>),
+    Decimal,
     Record(Vec<LinkedXmlField>),
     ElementSequence {
         path: Vec<ExpandedName>,

@@ -996,6 +996,255 @@
         "docs/superpowers/plans/2026-09-10-rust-yaml-foundation.md",
         "packages/rules/tests/directConversion.ts"
       ]
+    },
+    {
+      "id": "generated-enum-number",
+      "group": "generated-enums",
+      "capabilities": [
+        "generated-record",
+        "enum-table",
+        "control-export"
+      ],
+      "inputs": {
+        "xml": {
+          "path": "tests/conversion-corpus/cases/generated-enum-number/input.xml",
+          "sha256": "1bbe07d27a9c418ea64b85a8d8ec1a3a3dc13eef710edf8112b58859c1f4338c"
+        },
+        "yaml": {
+          "path": "tests/conversion-corpus/cases/generated-enum-number/expected.yaml",
+          "sha256": "f7fbdacd9552a8124622b272b7640a48c0cf09c51ba9a36ca887668ec18c5a7a"
+        }
+      },
+      "context": "tests/conversion-corpus/cases/generated-enum-number/context.json",
+      "directions": [
+        "xml-to-yaml",
+        "yaml-to-xml",
+        "round-trip",
+        "yaml-validation"
+      ],
+      "outcome": "success",
+      "expectations": {
+        "xml": "tests/conversion-corpus/cases/generated-enum-number/input.xml",
+        "yaml": "tests/conversion-corpus/cases/generated-enum-number/expected.yaml",
+        "diagnostics": "tests/conversion-corpus/cases/generated-enum-number/diagnostics.json"
+      },
+      "comparison": {
+        "xml": "exact",
+        "yaml": "exact",
+        "exceptions": []
+      },
+      "scope": "Synthetic enum language contract; not production metadata coverage or performance evidence",
+      "evidence": [
+        "docs/superpowers/specs/2026-09-10-declaration-language-design.md",
+        "tests/declaration-corpus/valid/code-type-enum.yaml"
+      ]
+    },
+    {
+      "id": "generated-enum-string",
+      "group": "generated-enums",
+      "capabilities": [
+        "generated-record",
+        "enum-table",
+        "control-export"
+      ],
+      "inputs": {
+        "xml": {
+          "path": "tests/conversion-corpus/cases/generated-enum-string/input.xml",
+          "sha256": "0806029ad719a7cb881ba4ec20e831c8abc9732d6ded8537c3ccef765bd4a2f4"
+        },
+        "yaml": {
+          "path": "tests/conversion-corpus/cases/generated-enum-string/expected.yaml",
+          "sha256": "61ede54ec5ebf1c4b437956f07d256ba04e01a0d40c0c94f72cdc4cab8d8125d"
+        }
+      },
+      "context": "tests/conversion-corpus/cases/generated-enum-string/context.json",
+      "directions": [
+        "xml-to-yaml",
+        "yaml-to-xml",
+        "round-trip",
+        "yaml-validation"
+      ],
+      "outcome": "success",
+      "expectations": {
+        "xml": "tests/conversion-corpus/cases/generated-enum-string/input.xml",
+        "yaml": "tests/conversion-corpus/cases/generated-enum-string/expected.yaml",
+        "diagnostics": "tests/conversion-corpus/cases/generated-enum-string/diagnostics.json"
+      },
+      "comparison": {
+        "xml": "exact",
+        "yaml": "exact",
+        "exceptions": []
+      },
+      "scope": "Synthetic enum language contract; not production metadata coverage or performance evidence",
+      "evidence": [
+        "docs/superpowers/specs/2026-09-10-declaration-language-design.md",
+        "tests/declaration-corpus/valid/code-type-enum.yaml"
+      ]
+    },
+    {
+      "id": "generated-enum-auto",
+      "group": "generated-enums",
+      "capabilities": [
+        "generated-record",
+        "enum-table",
+        "control-export"
+      ],
+      "inputs": {
+        "xml": {
+          "path": "tests/conversion-corpus/cases/generated-enum-auto/input.xml",
+          "sha256": "badccf2bfcdfdcf8f1fe81e53070ce8e542527f551c906ffe4464fb5e4560fcb"
+        },
+        "yaml": {
+          "path": "tests/conversion-corpus/cases/generated-enum-auto/expected.yaml",
+          "sha256": "577b5218e05b9c86f0f10753cb223605e41329f9b4c460ef5a70e768d5bfc497"
+        }
+      },
+      "context": "tests/conversion-corpus/cases/generated-enum-auto/context.json",
+      "directions": [
+        "xml-to-yaml",
+        "yaml-to-xml",
+        "round-trip",
+        "yaml-validation"
+      ],
+      "outcome": "success",
+      "expectations": {
+        "xml": "tests/conversion-corpus/cases/generated-enum-auto/input.xml",
+        "yaml": "tests/conversion-corpus/cases/generated-enum-auto/expected.yaml",
+        "diagnostics": "tests/conversion-corpus/cases/generated-enum-auto/diagnostics.json"
+      },
+      "comparison": {
+        "xml": "exact",
+        "yaml": "exact",
+        "exceptions": []
+      },
+      "scope": "Synthetic enum language contract; not production metadata coverage or performance evidence",
+      "evidence": [
+        "docs/superpowers/specs/2026-09-10-declaration-language-design.md",
+        "tests/declaration-corpus/valid/code-type-enum.yaml"
+      ]
+    },
+    {
+      "id": "exact-decimal-integer",
+      "group": "exact-decimals",
+      "capabilities": [
+        "exact-decimal",
+        "generated-record",
+        "control-export"
+      ],
+      "inputs": {
+        "xml": {
+          "path": "tests/conversion-corpus/cases/exact-decimal-integer/input.xml",
+          "sha256": "b48719cd7ac2feba3efac1e81315038ab305fb61039f91485650bf9e34b040b3"
+        },
+        "yaml": {
+          "path": "tests/conversion-corpus/cases/exact-decimal-integer/expected.yaml",
+          "sha256": "5f6b4b0b35d2b37e6bccaf77ded7b5654189f20ed2f59ef2be8adfb020b3f1f2"
+        }
+      },
+      "context": "tests/conversion-corpus/cases/exact-decimal-integer/context.json",
+      "directions": [
+        "xml-to-yaml",
+        "yaml-to-xml",
+        "round-trip",
+        "yaml-validation"
+      ],
+      "outcome": "success",
+      "expectations": {
+        "xml": "tests/conversion-corpus/cases/exact-decimal-integer/input.xml",
+        "yaml": "tests/conversion-corpus/cases/exact-decimal-integer/expected.yaml",
+        "diagnostics": "tests/conversion-corpus/cases/exact-decimal-integer/diagnostics.json"
+      },
+      "comparison": {
+        "xml": "exact",
+        "yaml": "exact",
+        "exceptions": []
+      },
+      "scope": "User-approved exact decimal semantics; intentionally differs from binary64 TypeScript; not full number/common coverage",
+      "evidence": [
+        "docs/superpowers/specs/2026-09-10-declaration-language-design.md"
+      ]
+    },
+    {
+      "id": "exact-decimal-fraction",
+      "group": "exact-decimals",
+      "capabilities": [
+        "exact-decimal",
+        "generated-record",
+        "control-export"
+      ],
+      "inputs": {
+        "xml": {
+          "path": "tests/conversion-corpus/cases/exact-decimal-fraction/input.xml",
+          "sha256": "4930bff8e80f461bf1072eeb65b8a73df3107cfe00781262403ac25b5f3390ba"
+        },
+        "yaml": {
+          "path": "tests/conversion-corpus/cases/exact-decimal-fraction/expected.yaml",
+          "sha256": "cadf6f32b6bee7d6548216d5f550bd19c7857001c5b6849b4ba2663e19ed185c"
+        }
+      },
+      "context": "tests/conversion-corpus/cases/exact-decimal-fraction/context.json",
+      "directions": [
+        "xml-to-yaml",
+        "yaml-to-xml",
+        "round-trip",
+        "yaml-validation"
+      ],
+      "outcome": "success",
+      "expectations": {
+        "xml": "tests/conversion-corpus/cases/exact-decimal-fraction/input.xml",
+        "yaml": "tests/conversion-corpus/cases/exact-decimal-fraction/expected.yaml",
+        "diagnostics": "tests/conversion-corpus/cases/exact-decimal-fraction/diagnostics.json"
+      },
+      "comparison": {
+        "xml": "exact",
+        "yaml": "exact",
+        "exceptions": []
+      },
+      "scope": "User-approved exact decimal semantics; intentionally differs from binary64 TypeScript; not full number/common coverage",
+      "evidence": [
+        "docs/superpowers/specs/2026-09-10-declaration-language-design.md"
+      ]
+    },
+    {
+      "id": "exact-decimal-exponent",
+      "group": "exact-decimals",
+      "capabilities": [
+        "exact-decimal",
+        "generated-record",
+        "control-export"
+      ],
+      "inputs": {
+        "xml": {
+          "path": "tests/conversion-corpus/cases/exact-decimal-exponent/input.xml",
+          "sha256": "91ff7568a79747329fe64a56a1c42334ff99362f0380ff52e69aa474a4155369"
+        },
+        "yaml": {
+          "path": "tests/conversion-corpus/cases/exact-decimal-exponent/expected.yaml",
+          "sha256": "f0c41a0ccc138b3d4c9f5d4f3c47033a9468d7da18b5cbe2526e8d5e7bc3e9a1"
+        }
+      },
+      "context": "tests/conversion-corpus/cases/exact-decimal-exponent/context.json",
+      "directions": [
+        "xml-to-yaml",
+        "yaml-to-xml",
+        "round-trip",
+        "yaml-validation"
+      ],
+      "outcome": "success",
+      "expectations": {
+        "xml": "tests/conversion-corpus/cases/exact-decimal-exponent/input.xml",
+        "yaml": "tests/conversion-corpus/cases/exact-decimal-exponent/expected.yaml",
+        "diagnostics": "tests/conversion-corpus/cases/exact-decimal-exponent/diagnostics.json"
+      },
+      "comparison": {
+        "xml": "exact",
+        "yaml": "exact",
+        "exceptions": []
+      },
+      "scope": "User-approved exact decimal semantics; intentionally differs from binary64 TypeScript; not full number/common coverage",
+      "evidence": [
+        "docs/superpowers/specs/2026-09-10-declaration-language-design.md"
+      ]
     }
   ],
   "pendingImport": [

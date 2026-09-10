@@ -6,7 +6,37 @@ use yaml_rust2::{
     scanner::{Marker, TScalarStyle},
 };
 
-pub fn visit(source: &[u8], consume: impl FnMut(String, String) -> Result<()>) -> Result<()> {
+pub struct Scalar {
+    text: String,
+    plain: bool,
+}
+impl Scalar {
+    pub fn into_text(self) -> Result<String> {
+        if self.plain && !matches!(Yaml::from_str(&self.text), Yaml::String(_)) {
+            return Err(RuntimeDiagnostic::new(
+                "yaml.expected-text",
+                "Expected a textual scalar",
+            ));
+        }
+        Ok(self.text)
+    }
+    pub fn into_decimal_text(self) -> Result<String> {
+        if !self.plain {
+            return Err(RuntimeDiagnostic::new(
+                "yaml.expected-number",
+                "Expected an unquoted decimal number",
+            ));
+        }
+        Ok(self.text)
+    }
+}
+pub fn visit(source: &[u8], mut consume: impl FnMut(String, String) -> Result<()>) -> Result<()> {
+    visit_scalars(source, |key, value| consume(key, value.into_text()?))
+}
+pub fn visit_scalars(
+    source: &[u8],
+    consume: impl FnMut(String, Scalar) -> Result<()>,
+) -> Result<()> {
     let source = std::str::from_utf8(source)
         .map_err(|e| RuntimeDiagnostic::new("yaml.encoding", e.to_string()))?;
     let mut receiver = Receiver {
@@ -44,7 +74,7 @@ struct Receiver<F> {
     mapping_seen: bool,
     error: Option<RuntimeDiagnostic>,
 }
-impl<F: FnMut(String, String) -> Result<()>> MarkedEventReceiver for Receiver<F> {
+impl<F: FnMut(String, Scalar) -> Result<()>> MarkedEventReceiver for Receiver<F> {
     fn on_event(&mut self, event: Event, mark: Marker) {
         if self.error.is_some() {
             return;
@@ -72,15 +102,22 @@ impl<F: FnMut(String, String) -> Result<()>> MarkedEventReceiver for Receiver<F>
                 None
             }
             Event::Scalar(value, style, 0, None) if self.depth == 1 => {
-                if style == TScalarStyle::Plain
+                if let Some(key) = self.key.take() {
+                    (self.consume)(
+                        key,
+                        Scalar {
+                            text: value,
+                            plain: style == TScalarStyle::Plain,
+                        },
+                    )
+                    .err()
+                } else if style == TScalarStyle::Plain
                     && !matches!(Yaml::from_str(&value), Yaml::String(_))
                 {
                     Some(RuntimeDiagnostic::new(
                         "yaml.expected-text",
                         "Expected a textual scalar",
                     ))
-                } else if let Some(key) = self.key.take() {
-                    (self.consume)(key, value).err()
                 } else if !self.keys.insert(value.clone()) {
                     Some(
                         RuntimeDiagnostic::new(

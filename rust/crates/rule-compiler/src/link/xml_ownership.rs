@@ -91,7 +91,10 @@ fn routes(
                 owns_element: true,
             }]
         }
-        LinkedXml::Text | LinkedXml::BooleanTable(_) => {
+        LinkedXml::Text
+        | LinkedXml::Decimal
+        | LinkedXml::BooleanTable(_)
+        | LinkedXml::EnumTable(_) => {
             vec![Route {
                 path: vec![],
                 attribute: None,
@@ -129,11 +132,15 @@ fn overlaps(a: &Route, b: &Route) -> bool {
 
 fn attribute_type(value: &LinkedType, entries: &BTreeMap<u32, LinkedEntry>) -> bool {
     match value {
-        LinkedType::Scalar(ScalarType::Text | ScalarType::Boolean) => true,
+        LinkedType::Scalar(ScalarType::Text | ScalarType::Boolean | ScalarType::Decimal)
+        | LinkedType::Enum(_) => true,
         LinkedType::Reference(id) | LinkedType::BoundReference { entry: id, .. } => {
             matches!(
                 entries[id].xml,
-                LinkedXml::Text | LinkedXml::BooleanTable(_)
+                LinkedXml::Text
+                    | LinkedXml::Decimal
+                    | LinkedXml::BooleanTable(_)
+                    | LinkedXml::EnumTable(_)
             )
         }
         _ => false,
