@@ -19,13 +19,6 @@ pub(super) fn resolve_constraints(
                 error.related.push(first.clone());
                 return Err(error);
             }
-            if !constraint.forms.is_empty() {
-                return Err(diagnostic(
-                    "unsupported_link_feature",
-                    &constraint.source,
-                    "Representation applicability is not linked yet",
-                ));
-            }
             let mut scope = expressions::Scope::default();
             let for_each = if let Some(iteration) = &constraint.for_each {
                 let input =
@@ -146,6 +139,7 @@ pub(super) fn resolve_constraints(
             Ok(LinkedConstraint {
                 id: constraint.id.clone(),
                 applies_to: constraint.applies_to.clone(),
+                forms: resolve_forms(module, constraint)?,
                 when,
                 assertion,
                 for_each,
@@ -158,6 +152,56 @@ pub(super) fn resolve_constraints(
                 },
                 source: constraint.source.clone(),
             })
+        })
+        .collect()
+}
+
+fn resolve_forms(module: &Module, constraint: &Constraint) -> Result<Vec<LinkedForm>, Diagnostic> {
+    let mut available = vec![];
+    if constraint.applies_to.contains(&ValidationPhase::XmlImport) {
+        available.push(match &module.representations.xml {
+            XmlRepresentation::Text | XmlRepresentation::BooleanTable(_) => {
+                ("text", LinkedForm::XmlText)
+            }
+            XmlRepresentation::Record(_) => ("record", LinkedForm::XmlRecord),
+            XmlRepresentation::ElementSequence { .. } => {
+                ("element-sequence", LinkedForm::XmlElementSequence)
+            }
+        });
+    }
+    if constraint
+        .applies_to
+        .contains(&ValidationPhase::YamlValidation)
+    {
+        let form = match &module.representations.yaml {
+            YamlRepresentation::Text | YamlRepresentation::BooleanTable(_) => {
+                ("scalar", LinkedForm::YamlScalar)
+            }
+            YamlRepresentation::Mapping(_) => ("mapping", LinkedForm::YamlMapping),
+            YamlRepresentation::KeyedMapping { shorthand, .. } => {
+                if !shorthand.is_empty() {
+                    available.push(("scalar", LinkedForm::YamlScalar));
+                }
+                ("keyed-mapping", LinkedForm::YamlKeyedMapping)
+            }
+        };
+        available.push(form);
+    }
+    constraint
+        .forms
+        .iter()
+        .map(|name| {
+            available
+                .iter()
+                .find(|(form, _)| form == name)
+                .map(|(_, form)| form.clone())
+                .ok_or_else(|| {
+                    diagnostic(
+                        "unknown_constraint_form",
+                        &constraint.source,
+                        "Constraint form is absent from its selected representation phases",
+                    )
+                })
         })
         .collect()
 }

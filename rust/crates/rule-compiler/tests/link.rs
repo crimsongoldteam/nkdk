@@ -222,17 +222,17 @@ fn fragment_composition_cycles_are_rejected() {
 
 #[test]
 fn unsupported_behavior_is_not_silently_erased() {
-    let text = include_str!("../../../../tests/declaration-corpus/valid/name-text-transform.yaml")
-        .replace(
-            "{capture: text}",
-            "{transform: {local: name-words, value: {capture: text}}}",
-        );
-    let source = parse(SourceFile {
-        path: "i8n.yaml",
+    let text = format!(
+        "{}\npresence:\n  - target: {{field: server}}\n    xml:\n      canonical: [{{form: ordinary}}]\n",
+        include_str!("fixtures/owner.yaml")
+    );
+    let mut source = modules();
+    source[1] = parse(SourceFile {
+        path: "owner.yaml",
         bytes: text.as_bytes(),
     })
     .unwrap();
-    let errors = link(&[source]).unwrap_err();
+    let errors = link(&source).unwrap_err();
     assert!(
         errors
             .iter()
@@ -925,5 +925,166 @@ fn normalization_requires_static_selection_and_a_nonempty_result() {
         } else {
             assert!(result.is_ok(), "{result:?}");
         }
+    }
+}
+
+#[test]
+fn collection_selection_order_and_state_operators_preserve_types() {
+    let common = format!(
+        "{}\ninputs:\n  enabled: {{type: {{kind: scalar, scalar: boolean}}}}\n",
+        include_str!("fixtures/common.yaml")
+    );
+    for (expression, accepted) in [
+        (
+            "{each: {in: {take: {in: {input: languages}, count: 1}}, as: language, where: {eq: [{var: language}, {literal: ru}]}}}",
+            true,
+        ),
+        (
+            "{each: {in: {firstBy: {in: {input: languages}, as: code, key: {var: code}}}, as: language, where: {eq: [{var: language}, {literal: ru}]}}}",
+            true,
+        ),
+        (
+            "{ordered: {in: {input: languages}, as: code, key: {var: code}, unique: true, first: [{literal: ru}], comparison: utf16}}",
+            true,
+        ),
+        (
+            "{ordered: {in: {input: languages}, as: code, key: {literal: true}, unique: true, first: [], comparison: utf16}}",
+            false,
+        ),
+        ("{present: {input: languages}}", true),
+        ("{isReady: {input: languages}}", true),
+        ("{isNull: {input: languages}}", true),
+    ] {
+        let owner = include_str!("fixtures/owner.yaml").replace(
+            "{use: boolean}",
+            &format!("{{use: boolean, bind: {{enabled: {expression}}}}}"),
+        ) + "\ninputs:\n  languages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}\n";
+        let result = link(&[
+            parse(SourceFile {
+                path: "common.yaml",
+                bytes: common.as_bytes(),
+            })
+            .unwrap(),
+            parse(SourceFile {
+                path: "owner.yaml",
+                bytes: owner.as_bytes(),
+            })
+            .unwrap(),
+        ]);
+        assert_eq!(result.is_ok(), accepted, "{expression}: {result:?}");
+    }
+}
+
+#[test]
+fn text_transform_tables_reject_unknown_symbols_and_ambiguous_case_shifts() {
+    let original =
+        include_str!("../../../../tests/declaration-corpus/valid/name-text-transform.yaml");
+    for (from, to, code) in [
+        ("{class: upper}", "{class: missing}", "unknown_text_class"),
+        (
+            "{flag: abbreviation}",
+            "{flag: missing}",
+            "unknown_text_flag",
+        ),
+        (
+            "set: {abbreviation: false}",
+            "set: {missing: false}",
+            "unknown_text_flag",
+        ),
+        ("offset: 32", "offset: 65535", "invalid_case_shift"),
+        (
+            "- when: {and: [{class: upper}, {tokenEmpty: true}]}",
+            "-",
+            "unreachable_text_transition",
+        ),
+        (
+            "- emit: discard",
+            "- when: {class: lower}\n        emit: discard",
+            "incomplete_text_transform",
+        ),
+        (
+            "from: [1040, 1071]",
+            "from: [65, 90]",
+            "ambiguous_case_shift",
+        ),
+    ] {
+        let text = original.replace(from, to);
+        let module = parse(SourceFile {
+            path: "text.yaml",
+            bytes: text.as_bytes(),
+        })
+        .unwrap();
+        let errors = link(&[module]).unwrap_err();
+        assert!(errors.iter().any(|error| error.code == code), "{errors:?}");
+    }
+}
+
+#[test]
+fn empty_text_class_table_reports_an_error_without_panicking() {
+    let mut module = parse(SourceFile {
+        path: "text.yaml",
+        bytes: include_bytes!(
+            "../../../../tests/declaration-corpus/valid/name-text-transform.yaml"
+        ),
+    })
+    .unwrap();
+    let nkdk_rule_model::TypeDefinition::TextTransform(transform) = &mut module.types[0].definition
+    else {
+        panic!("text transform expected")
+    };
+    transform.classes.clear();
+    transform.transitions.clear();
+    let errors = link(&[module]).unwrap_err();
+    assert!(
+        errors
+            .iter()
+            .any(|error| error.code == "unknown_text_class")
+    );
+}
+
+#[test]
+fn text_transform_calls_resolve_local_tables_and_keep_optional_results() {
+    let original =
+        include_str!("../../../../tests/declaration-corpus/valid/name-text-transform.yaml");
+    for (name, value, accepted) in [
+        ("name-words", "Name", true),
+        ("missing", "Name", false),
+        ("translation", "Name", false),
+        ("name-words", "true", false),
+    ] {
+        let text = format!(
+            "{original}\nconstraints:\n  - id: name-check\n    appliesTo: [yaml-validation]\n    assert: {{present: {{transform: {{local: {name}, value: {{literal: {value}}}}}}}}}\n    diagnostic:\n      severity: error\n      at: {{self: true}}\n      message: Invalid name\n"
+        );
+        let module = parse(SourceFile {
+            path: "text.yaml",
+            bytes: text.as_bytes(),
+        })
+        .unwrap();
+        let result = link(&[module]);
+        assert_eq!(result.is_ok(), accepted, "{result:?}");
+    }
+}
+
+#[test]
+fn constraint_forms_must_exist_in_the_selected_representation_phase() {
+    let original =
+        include_str!("../../../../tests/declaration-corpus/valid/i8n-validation-core.yaml");
+    for (phase, form, accepted) in [
+        ("yaml-validation", "keyed-mapping", true),
+        ("yaml-validation", "scalar", true),
+        ("xml-import", "keyed-mapping", false),
+        ("yaml-validation", "record", false),
+    ] {
+        let text = original.replace(
+            "appliesTo: [xml-import]",
+            &format!("appliesTo: [{phase}]\n    forms: [{form}]"),
+        );
+        let module = parse(SourceFile {
+            path: "i8n.yaml",
+            bytes: text.as_bytes(),
+        })
+        .unwrap();
+        let result = link(&[module]);
+        assert_eq!(result.is_ok(), accepted, "{phase} {form}: {result:?}");
     }
 }

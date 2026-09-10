@@ -1,4 +1,5 @@
 mod bindings;
+mod collections;
 mod constraints;
 mod denotations;
 mod dependencies;
@@ -7,6 +8,7 @@ mod normalization;
 mod parameters;
 mod presence;
 mod shorthands;
+mod text;
 mod type_graph;
 use bindings::resolve_bindings;
 use nkdk_rule_model::*;
@@ -52,6 +54,9 @@ pub fn link(modules: &[Module]) -> Result<Program, Vec<Diagnostic>> {
         return Err(errors);
     }
     type_graph::validate(&indexed)?;
+    for module in indexed.values() {
+        text::validate(module).map_err(|error| vec![error])?;
+    }
     let mut cache = BTreeMap::new();
     for module in indexed.values() {
         if let Err(error) = build_entry(module, &indexed, &ids, &mut BTreeSet::new(), &mut cache) {
@@ -88,6 +93,7 @@ fn build_entry(
     let mut entry = LinkedEntry {
         id,
         field_dependencies: vec![],
+        text_transforms: text::transforms(module),
         normalization: normalization::resolve(module, modules, ids)?,
         presence: presence::resolve(module, modules, ids)?,
         shorthands: shorthands::resolve(module, modules, ids)?,

@@ -20,6 +20,7 @@ pub struct LinkedEntry {
     pub shorthands: Vec<LinkedShorthand>,
     pub presence: Vec<LinkedPresence>,
     pub normalization: Option<LinkedNormalization>,
+    pub text_transforms: Vec<LinkedTextTransform>,
     pub xml: LinkedXml,
     pub yaml: YamlRepresentation,
     pub source: SourceLocation,
@@ -110,6 +111,11 @@ pub struct LinkedParameter {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum LinkedOperator {
+    Transform { entry: u32, index: u32 },
+    Take(u64),
+    FirstBy(u32),
+    Ordered { slot: u32, unique: bool },
+    State(crate::StatePredicate),
     Sequence,
     Record(Vec<String>),
     Each(u32),
@@ -126,6 +132,7 @@ pub enum LinkedOperator {
 pub struct LinkedConstraint {
     pub id: String,
     pub applies_to: Vec<crate::ValidationPhase>,
+    pub forms: Vec<LinkedForm>,
     pub when: Option<LinkedExpression>,
     pub assertion: LinkedExpression,
     pub for_each: Option<LinkedIteration>,
@@ -199,4 +206,21 @@ pub struct LinkedNormalization {
     pub when: LinkedExpression,
     pub denotes: LinkedExpression,
     pub source: SourceLocation,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LinkedTextTransform {
+    pub name: String,
+    pub definition: crate::TextTransform,
+    pub source: SourceLocation,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum LinkedForm {
+    XmlText,
+    XmlRecord,
+    XmlElementSequence,
+    YamlScalar,
+    YamlMapping,
+    YamlKeyedMapping,
 }

@@ -23,6 +23,44 @@ pub(super) fn resolve_expression_in(
     scope: &Scope,
 ) -> Result<LinkedExpression, Diagnostic> {
     let (kind, value_type) = match &expression.kind {
+        ExpressionKind::Transform { local, value } => {
+            let transforms = text::transforms(module);
+            let index = transforms
+                .iter()
+                .position(|item| &item.name == local)
+                .ok_or_else(|| {
+                    diagnostic(
+                        "unknown_text_transform",
+                        &expression.source,
+                        "Local text transform is not declared",
+                    )
+                })?;
+            let value = resolve_expression_in(module, value, modules, ids, scope)?;
+            if value.value_type != LinkedType::Scalar(ScalarType::Text) {
+                return Err(diagnostic(
+                    "expression_type_mismatch",
+                    &value.source,
+                    "Text transform requires text",
+                ));
+            }
+            (
+                LinkedExpressionKind::Operation {
+                    operator: LinkedOperator::Transform {
+                        entry: ids[module.id.as_str()],
+                        index: index as u32,
+                    },
+                    arguments: vec![value],
+                },
+                LinkedType::Optional(Box::new(LinkedType::Scalar(ScalarType::Text))),
+            )
+        }
+
+        ExpressionKind::Take { .. }
+        | ExpressionKind::FirstBy { .. }
+        | ExpressionKind::Ordered { .. }
+        | ExpressionKind::StateTest { .. } => {
+            return collections::resolve(module, expression, modules, ids, scope);
+        }
         ExpressionKind::Capture(name) => {
             let (slot, (_, value_type)) = scope
                 .captures
