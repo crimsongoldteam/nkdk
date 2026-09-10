@@ -69,6 +69,7 @@ pub enum LinkedXml {
 pub struct LinkedXmlField {
     pub field: String,
     pub path: Vec<ExpandedName>,
+    pub attribute: Option<ExpandedName>,
     pub source: SourceLocation,
 }
 

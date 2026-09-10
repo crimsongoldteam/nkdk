@@ -602,7 +602,7 @@ fn xml_fields(path: &str, representation: &Node) -> Result<Vec<XmlField>, Diagno
     representation_fields(path, representation, "record")?
         .iter()
         .map(|item| {
-            let fields = item.mapping(path, &["field", "path"])?;
+            let fields = item.mapping(path, &["field", "path", "attribute"])?;
             let name = item.field(path, fields, "field")?;
             let route = item.field(path, fields, "path")?;
             let Shape::Sequence(segments) = &route.shape else {
@@ -620,6 +620,9 @@ fn xml_fields(path: &str, representation: &Node) -> Result<Vec<XmlField>, Diagno
             Ok(XmlField {
                 field: name.text(path)?.into(),
                 path: segments,
+                attribute: optional_field(fields, "attribute")
+                    .map(|value| value.text(path).map(str::to_owned))
+                    .transpose()?,
                 source: location(path, name),
             })
         })

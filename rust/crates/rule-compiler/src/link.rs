@@ -405,6 +405,21 @@ fn resolve_xml(
                     Ok(LinkedXmlField {
                         field: field.field.clone(),
                         path: expand_path(module, &field.path, &field.source)?,
+                        attribute: field
+                            .attribute
+                            .as_ref()
+                            .map(|name| {
+                                expand_path(module, std::slice::from_ref(name), &field.source).map(
+                                    |mut names| {
+                                        let mut expanded = names.remove(0);
+                                        if !name.contains(':') {
+                                            expanded.namespace.clear();
+                                        }
+                                        expanded
+                                    },
+                                )
+                            })
+                            .transpose()?,
                         source: field.source.clone(),
                     })
                 })
@@ -474,7 +489,7 @@ fn validate_xml(
         (LinkedType::Record(fields), LinkedXml::Record(mappings)) => {
             let names: BTreeSet<_> = fields.iter().map(|field| field.name.as_str()).collect();
             let mut covered = BTreeSet::new();
-            let mut paths: BTreeMap<Vec<(String, String)>, &SourceLocation> = BTreeMap::new();
+            let mut paths: BTreeMap<Vec<(bool, String, String)>, &SourceLocation> = BTreeMap::new();
             for mapping in mappings {
                 if !names.contains(mapping.field.as_str()) {
                     return Err(diagnostic(
@@ -490,11 +505,14 @@ fn validate_xml(
                         "Field has multiple XML mappings",
                     ));
                 }
-                let key: Vec<_> = mapping
+                let mut key: Vec<_> = mapping
                     .path
                     .iter()
-                    .map(|name| (name.namespace.clone(), name.local.clone()))
+                    .map(|name| (false, name.namespace.clone(), name.local.clone()))
                     .collect();
+                if let Some(attribute) = &mapping.attribute {
+                    key.push((true, attribute.namespace.clone(), attribute.local.clone()));
+                }
                 if let Some((_, first)) = paths
                     .iter()
                     .find(|(path, _)| path.starts_with(&key) || key.starts_with(path))

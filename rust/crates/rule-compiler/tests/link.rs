@@ -1298,3 +1298,60 @@ fn omitted_representation_requires_an_explicit_restoration() {
         assert_eq!(result.is_ok(), accepted, "{result:?}");
     }
 }
+
+#[test]
+fn xml_attributes_have_separate_ownership_from_child_elements() {
+    let source = r#"
+format: nkdk-declarations/1
+kind: value
+id: common.attributes
+namespaces: {a: urn:test, b: urn:test}
+value:
+  kind: record
+  fields:
+    - {name: flag, type: {kind: scalar, scalar: text}}
+    - {name: child, type: {kind: scalar, scalar: text}}
+representations:
+  xml:
+    kind: record
+    fields:
+      - {field: flag, path: [], attribute: a:flag}
+      - {field: child, path: [a:flag]}
+  yaml:
+    kind: mapping
+    fields:
+      - {field: flag, key: Flag}
+      - {field: child, key: Child}
+"#;
+    let module = parse(SourceFile {
+        path: "attributes.yaml",
+        bytes: source.as_bytes(),
+    })
+    .unwrap();
+    assert!(link(&[module]).is_ok());
+    let default_namespace = source
+        .replace(
+            "namespaces: {a: urn:test, b: urn:test}",
+            "namespaces: {a: urn:test, b: urn:test, \"\": urn:default}",
+        )
+        .replace("attribute: a:flag", "attribute: flag");
+    let module = parse(SourceFile {
+        path: "attributes.yaml",
+        bytes: default_namespace.as_bytes(),
+    })
+    .unwrap();
+    let program = link(&[module]).unwrap();
+    let nkdk_rule_model::LinkedXml::Record(fields) = &program.entries[0].xml else {
+        panic!("record")
+    };
+    assert_eq!(fields[0].attribute.as_ref().unwrap().namespace, "");
+    let collision = source.replace("path: [a:flag]", "path: [], attribute: b:flag");
+    let module = parse(SourceFile {
+        path: "attributes.yaml",
+        bytes: collision.as_bytes(),
+    })
+    .unwrap();
+    let errors = link(&[module]).unwrap_err();
+    assert_eq!(errors[0].code, "xml_path_collision");
+    assert_eq!(errors[0].related.len(), 1);
+}

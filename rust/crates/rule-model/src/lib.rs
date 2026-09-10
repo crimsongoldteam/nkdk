@@ -142,6 +142,7 @@ pub struct StaticArgument {
 pub struct XmlField {
     pub field: String,
     pub path: Vec<String>,
+    pub attribute: Option<String>,
     pub source: SourceLocation,
 }
 
