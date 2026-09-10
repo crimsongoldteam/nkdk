@@ -1,0 +1,17 @@
+{
+  "entry": "migration.formatted-i8n-text-probe",
+  "defaultLanguage": "ru",
+  "registeredLanguages": [
+    "ru",
+    "en"
+  ],
+  "parameters": {
+    "excludeIfEqualNameYAML": false,
+    "xmlWithDefaultLanguage": false
+  },
+  "boundary": "property",
+  "reference": false,
+  "xmlFragmentNamespaces": {
+    "v8": "http://v8.1c.ru/8.1/data/core"
+  }
+}

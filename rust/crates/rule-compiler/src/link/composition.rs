@@ -12,6 +12,7 @@ pub(super) fn instantiate(
         arguments,
     };
     substitution.value(&mut entry.value)?;
+    substitution.xml(&mut entry.xml)?;
     for rule in &mut entry.presence {
         if let LinkedPresenceTarget::Field(index) = &mut rule.target {
             *index += offset;
@@ -62,6 +63,25 @@ struct Substitution<'a> {
     arguments: &'a [ScalarLiteral],
 }
 impl Substitution<'_> {
+    fn xml(&self, xml: &mut LinkedXml) -> Result<(), Diagnostic> {
+        match xml {
+            LinkedXml::WithAttributes {
+                attributes,
+                content,
+            } => {
+                for attribute in attributes {
+                    if let Some(when) = &mut attribute.when {
+                        self.expression(when)?;
+                    }
+                }
+                self.xml(content)?;
+            }
+            LinkedXml::ElementSequence { item, .. } => self.xml(item)?,
+            _ => {}
+        }
+        Ok(())
+    }
+
     fn value(&self, value: &mut LinkedType) -> Result<(), Diagnostic> {
         match value {
             LinkedType::BoundReference { bindings, .. } => {
@@ -137,5 +157,32 @@ impl Substitution<'_> {
             _ => {}
         }
         Ok(())
+    }
+}
+
+pub(super) fn record_fields(xml: &mut LinkedXml) -> Option<&mut Vec<LinkedXmlField>> {
+    match xml {
+        LinkedXml::WithAttributes { content, .. } => record_fields(content),
+        LinkedXml::Record(fields) => Some(fields),
+        _ => None,
+    }
+}
+
+pub(super) fn take_record(
+    mut xml: LinkedXml,
+) -> Option<(Vec<LinkedXmlField>, Vec<LinkedXmlAttribute>)> {
+    let mut result = vec![];
+    while let LinkedXml::WithAttributes {
+        attributes,
+        content,
+    } = xml
+    {
+        result.extend(attributes);
+        xml = *content;
+    }
+    if let LinkedXml::Record(fields) = xml {
+        Some((fields, result))
+    } else {
+        None
     }
 }

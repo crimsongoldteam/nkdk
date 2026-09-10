@@ -1834,3 +1834,77 @@ fn scalar_shorthand_requires_a_recoverable_structural_capture() {
         );
     }
 }
+
+#[test]
+fn composition_preserves_canonical_attributes_and_substitutes_conditions() {
+    use nkdk_rule_model::{LinkedExpressionKind, LinkedXml, ScalarLiteral};
+    let fragment = r#"format: nkdk-declarations/1
+kind: fragment
+id: common.decorated
+parameters:
+  enabled: {type: {kind: scalar, scalar: boolean}, default: true}
+value: {kind: record, fields: []}
+representations:
+  xml:
+    kind: with-attributes
+    attributes: [{name: fragment, value: {text: yes}, when: {parameter: enabled}}]
+    content: {kind: record, fields: []}
+  yaml: {kind: mapping, fields: []}
+"#;
+    let owner = r#"format: nkdk-declarations/1
+kind: object
+id: applied.decorated
+imports: {body: common.decorated}
+compose: [{use: body, with: {enabled: false}}]
+value: {kind: record, fields: []}
+representations:
+  xml:
+    kind: with-attributes
+    attributes: [{name: owner, value: {text: yes}}]
+    content: {kind: record, fields: []}
+  yaml: {kind: mapping, fields: []}
+"#;
+    let parse_pair = |owner: &str| {
+        [("fragment.yaml", fragment), ("owner.yaml", owner)].map(|(path, text)| {
+            parse(SourceFile {
+                path,
+                bytes: text.as_bytes(),
+            })
+            .unwrap()
+        })
+    };
+    let result = link(&parse_pair(owner)).expect("decorated fragments compose");
+    let entry = result
+        .entries
+        .iter()
+        .find(|entry| entry.name == "applied.decorated")
+        .unwrap();
+    let mut xml = &entry.xml;
+    let mut attributes = vec![];
+    while let LinkedXml::WithAttributes {
+        attributes: current,
+        content,
+    } = xml
+    {
+        attributes.extend(current);
+        xml = content;
+    }
+    assert_eq!(
+        attributes
+            .iter()
+            .map(|attribute| attribute.name.local.as_str())
+            .collect::<Vec<_>>(),
+        ["fragment", "owner"]
+    );
+    assert_eq!(
+        attributes[0].when.as_ref().unwrap().kind,
+        LinkedExpressionKind::Literal(ScalarLiteral::Boolean(false))
+    );
+    assert!(matches!(xml, LinkedXml::Record(fields) if fields.is_empty()));
+    let errors = link(&parse_pair(&owner.replace("name: owner", "name: fragment"))).unwrap_err();
+    assert!(
+        errors
+            .iter()
+            .any(|error| error.code == "xml_path_collision" && !error.related.is_empty())
+    );
+}

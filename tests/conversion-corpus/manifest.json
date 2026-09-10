@@ -718,6 +718,144 @@
         "packages/rules/metadata/helpers/synonymHelpers.ts"
       ],
       "verification": "User-approved reversible-pattern contract; independently authored expectations; Rust execution pending"
+    },
+    {
+      "id": "formatted-i8n-empty-true",
+      "group": "formatted-i8n-text",
+      "capabilities": [
+        "meaningful-xml-attribute",
+        "shared-xml-wrapper",
+        "optional-text"
+      ],
+      "inputs": {
+        "xml": {
+          "path": "tests/conversion-corpus/cases/formatted-i8n-empty-true/input.xml",
+          "sha256": "4064453ad435c32269d0eef1f95e171078b2736c0670c5945f6c850be4f7b8c6"
+        },
+        "yaml": {
+          "path": "tests/conversion-corpus/cases/formatted-i8n-empty-true/expected.yaml",
+          "sha256": "167fdf9c114cdcf42e0a6f97428df353e7e7e658f9a8c5a424c0a92e0c0c8f89"
+        }
+      },
+      "context": "tests/conversion-corpus/cases/formatted-i8n-empty-true/context.json",
+      "directions": [
+        "xml-to-yaml",
+        "yaml-to-xml",
+        "round-trip",
+        "yaml-validation"
+      ],
+      "outcome": "success",
+      "expectations": {
+        "xml": "tests/conversion-corpus/cases/formatted-i8n-empty-true/input.xml",
+        "yaml": "tests/conversion-corpus/cases/formatted-i8n-empty-true/expected.yaml",
+        "diagnostics": "tests/conversion-corpus/cases/formatted-i8n-empty-true/diagnostics.json"
+      },
+      "comparison": {
+        "yaml": "exact",
+        "xml": "structural",
+        "exceptions": []
+      },
+      "scope": "independent property contract; not full project e2e",
+      "xmlInputKind": "independently-authored-fragment",
+      "evidence": [
+        "packages/rules/metadata/commonObjects/formattedI8nText/fromYAML.test.ts",
+        "packages/rules/metadata/commonObjects/formattedI8nText/toYAML.ts",
+        "packages/rules/metadata/commonObjects/formattedI8nText/toXML.ts",
+        "packages/rules/metadata/commonObjects/formattedI8nText/__fixtures__/data.ts"
+      ],
+      "verification": "Source-reviewed independent expectations; Rust execution pending; no new annotation policy"
+    },
+    {
+      "id": "formatted-i8n-primary-true",
+      "group": "formatted-i8n-text",
+      "capabilities": [
+        "meaningful-xml-attribute",
+        "shared-xml-wrapper",
+        "optional-text"
+      ],
+      "inputs": {
+        "xml": {
+          "path": "tests/conversion-corpus/cases/formatted-i8n-primary-true/input.xml",
+          "sha256": "f33361be1d9a3b1b42a22e36315e4735df996bfc18f734f6d5544f7c0f3fbc3b"
+        },
+        "yaml": {
+          "path": "tests/conversion-corpus/cases/formatted-i8n-primary-true/expected.yaml",
+          "sha256": "6644820ea5819ce9b8f1ca806c169e11d0f0a0a198d6f85f68a4e04bf0d65826"
+        }
+      },
+      "context": "tests/conversion-corpus/cases/formatted-i8n-primary-true/context.json",
+      "directions": [
+        "xml-to-yaml",
+        "yaml-to-xml",
+        "round-trip",
+        "yaml-validation"
+      ],
+      "outcome": "success",
+      "expectations": {
+        "xml": "tests/conversion-corpus/cases/formatted-i8n-primary-true/input.xml",
+        "yaml": "tests/conversion-corpus/cases/formatted-i8n-primary-true/expected.yaml",
+        "diagnostics": "tests/conversion-corpus/cases/formatted-i8n-primary-true/diagnostics.json"
+      },
+      "comparison": {
+        "yaml": "exact",
+        "xml": "structural",
+        "exceptions": []
+      },
+      "scope": "independent property contract; not full project e2e",
+      "xmlInputKind": "independently-authored-fragment",
+      "evidence": [
+        "packages/rules/metadata/commonObjects/formattedI8nText/fromYAML.test.ts",
+        "packages/rules/metadata/commonObjects/formattedI8nText/toYAML.ts",
+        "packages/rules/metadata/commonObjects/formattedI8nText/toXML.ts",
+        "packages/rules/metadata/commonObjects/formattedI8nText/__fixtures__/data.ts"
+      ],
+      "verification": "Source-reviewed independent expectations; Rust execution pending; no new annotation policy"
+    },
+    {
+      "id": "formatted-i8n-primary-false",
+      "group": "formatted-i8n-text",
+      "capabilities": [
+        "meaningful-xml-attribute",
+        "shared-xml-wrapper",
+        "optional-text"
+      ],
+      "inputs": {
+        "xml": {
+          "path": "tests/conversion-corpus/cases/formatted-i8n-primary-false/input.xml",
+          "sha256": "b0268aade11fc5185c0e0e7ed25438e0b3f4f415adc872c38c075c74783c2582"
+        },
+        "yaml": {
+          "path": "tests/conversion-corpus/cases/formatted-i8n-primary-false/expected.yaml",
+          "sha256": "615c62bd6754f2f071ecc11a586832c8bef27d5d128232a1cd94ef5bcea54489"
+        }
+      },
+      "context": "tests/conversion-corpus/cases/formatted-i8n-primary-false/context.json",
+      "directions": [
+        "xml-to-yaml",
+        "yaml-to-xml",
+        "round-trip",
+        "yaml-validation"
+      ],
+      "outcome": "success",
+      "expectations": {
+        "xml": "tests/conversion-corpus/cases/formatted-i8n-primary-false/input.xml",
+        "yaml": "tests/conversion-corpus/cases/formatted-i8n-primary-false/expected.yaml",
+        "diagnostics": "tests/conversion-corpus/cases/formatted-i8n-primary-false/diagnostics.json"
+      },
+      "comparison": {
+        "yaml": "exact",
+        "xml": "structural",
+        "exceptions": []
+      },
+      "scope": "independent property contract; not full project e2e",
+      "xmlInputKind": "independently-authored-fragment",
+      "evidence": [
+        "packages/rules/metadata/commonObjects/formattedI8nText/fromYAML.test.ts",
+        "packages/rules/metadata/commonObjects/formattedI8nText/toYAML.ts",
+        "packages/rules/metadata/commonObjects/formattedI8nText/toXML.ts",
+        "packages/rules/metadata/commonObjects/formattedI8nText/__fixtures__/data.ts"
+      ],
+      "verification": "Source-reviewed independent expectations; Rust execution pending; no new annotation policy"
     }
   ],
   "pendingImport": [

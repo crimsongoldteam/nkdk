@@ -168,6 +168,7 @@ fn build_entry(
         }
         let mut included_fields = vec![];
         let mut included_xml = vec![];
+        let mut included_attributes = vec![];
         let mut included_yaml = vec![];
         let mut included_constraints = vec![];
         let mut included_presence = vec![];
@@ -222,9 +223,13 @@ fn build_entry(
             included_presence.extend(fragment.presence);
             let (
                 LinkedType::Record(fields),
-                LinkedXml::Record(xml),
+                Some((xml, attributes)),
                 YamlRepresentation::Mapping(yaml),
-            ) = (fragment.value, fragment.xml, fragment.yaml)
+            ) = (
+                fragment.value,
+                composition::take_record(fragment.xml),
+                fragment.yaml,
+            )
             else {
                 return Err(diagnostic(
                     "unsupported_link_feature",
@@ -234,11 +239,14 @@ fn build_entry(
             };
             included_fields.extend(fields);
             included_xml.extend(xml);
+            included_attributes.extend(attributes);
             included_yaml.extend(yaml);
         }
-        let (LinkedType::Record(fields), LinkedXml::Record(xml), YamlRepresentation::Mapping(yaml)) =
-            (&mut entry.value, &mut entry.xml, &mut entry.yaml)
-        else {
+        let (LinkedType::Record(fields), Some(xml), YamlRepresentation::Mapping(yaml)) = (
+            &mut entry.value,
+            composition::record_fields(&mut entry.xml),
+            &mut entry.yaml,
+        ) else {
             return Err(diagnostic(
                 "unsupported_link_feature",
                 &module.source,
@@ -291,6 +299,13 @@ fn build_entry(
                 error.related.push(first.clone());
                 return Err(error);
             }
+        }
+        if !included_attributes.is_empty() {
+            let content = std::mem::replace(&mut entry.xml, LinkedXml::Text);
+            entry.xml = LinkedXml::WithAttributes {
+                attributes: included_attributes,
+                content: Box::new(content),
+            };
         }
     }
     entry.field_dependencies = dependencies::field_dependencies(&entry.value, &entry.presence)?;
