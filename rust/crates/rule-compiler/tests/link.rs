@@ -564,6 +564,32 @@ fn fragment_field_dependencies_follow_fields_after_composition() {
 
 #[test]
 fn static_parameters_require_matching_arguments_or_defaults() {
+    for (literal, accepted) in [
+        ("9007199254740993", true),
+        ("38.000000000000000000001", true),
+        ("1e1000000", true),
+        ("1e9223372036854775808", false),
+        ("\"42\"", false),
+        ("true", false),
+    ] {
+        let common = format!(
+            "{}\nparameters:\n  maximum:\n    type: {{kind: scalar, scalar: number, profile: decimal}}\n    default: {literal}\n",
+            include_str!("fixtures/common.yaml")
+        );
+        let source = parse(SourceFile {
+            path: "common.yaml",
+            bytes: common.as_bytes(),
+        })
+        .unwrap();
+        let result = link(&[source]);
+        assert_eq!(result.is_ok(), accepted, "{literal}: {result:?}");
+        if accepted {
+            assert_eq!(
+                result.unwrap().entries[0].parameters[0].default,
+                Some(nkdk_rule_model::ScalarLiteral::Number(literal.into()))
+            );
+        }
+    }
     for (default, arguments, expected) in [
         ("\n    default: true", "", None),
         ("", ", with: {flag: false}", None),

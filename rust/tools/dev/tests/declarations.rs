@@ -11,6 +11,16 @@ fn declaration_commands_check_sources_and_export_the_same_schema() {
     ));
     fs::create_dir(&root).unwrap();
     let binary = env!("CARGO_BIN_EXE_nkdk-dev");
+    let language = Command::new(binary)
+        .args(["declarations", "language-schema"])
+        .output()
+        .unwrap();
+    assert!(
+        language.status.success(),
+        "{}",
+        String::from_utf8_lossy(&language.stderr)
+    );
+    assert_eq!(language.stdout, nkdk_rule_compiler::declaration_schema());
     assert!(
         !Command::new(binary)
             .args(["declarations", "check", "--dir"])

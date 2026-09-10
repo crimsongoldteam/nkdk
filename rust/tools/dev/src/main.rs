@@ -15,7 +15,8 @@ fn run() -> Result<(), String> {
         ("corpus", "run") => &["--manifest", "--group", "--root"],
         ("declarations", "check") => &["--dir"],
         ("declarations", "schema") => &["--dir", "--entry"],
-        _ => return Err("Expected corpus run, declarations check or declarations schema".into()),
+        ("declarations", "language-schema") => &[],
+        _ => return Err("Expected corpus run or declarations check/schema/language-schema".into()),
     };
     let mut options = BTreeMap::new();
     while let Some(key) = args.next() {
@@ -29,11 +30,16 @@ fn run() -> Result<(), String> {
     }
     let required = |key: &str| options.get(key).ok_or_else(|| format!("Required: {key}"));
     if family == "declarations" {
+        use std::io::Write;
+        if action == "language-schema" {
+            return std::io::stdout()
+                .write_all(nkdk_rule_compiler::declaration_schema())
+                .map_err(|error| error.to_string());
+        }
         let program = declarations::load(&PathBuf::from(required("--dir")?))?;
         if action == "schema" {
             let bytes = nkdk_rule_compiler::schema(&program, required("--entry")?)
                 .map_err(|errors| format!("{errors:#?}"))?;
-            use std::io::Write;
             std::io::stdout()
                 .write_all(&bytes)
                 .map_err(|error| error.to_string())?;

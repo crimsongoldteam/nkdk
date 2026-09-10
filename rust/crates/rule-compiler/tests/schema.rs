@@ -30,5 +30,26 @@ fn schema_preserves_conditional_decimal_bounds_and_enum_spellings() {
     ))
     .unwrap();
     assert_eq!(actual, expected);
+    jsonschema::meta::validate(&actual).unwrap();
+    let validator = jsonschema::validator_for(&actual).unwrap();
+    for (kind, length, accepted) in [
+        ("Число", 38, true),
+        ("Число", 39, false),
+        ("Строка", 50, true),
+        ("Строка", 51, false),
+        ("Строка", -1, false),
+        ("Число", 0, true),
+    ] {
+        assert_eq!(
+            validator.is_valid(&serde_json::json!({"ТипКода":kind,"ДлинаКода":length})),
+            accepted
+        );
+    }
+    for invalid in [
+        serde_json::json!({"ДлинаКода":38}),
+        serde_json::json!({"ТипКода":"Unknown","ДлинаКода":38}),
+    ] {
+        assert!(!validator.is_valid(&invalid));
+    }
     assert!(schema(&program, "missing").is_err());
 }

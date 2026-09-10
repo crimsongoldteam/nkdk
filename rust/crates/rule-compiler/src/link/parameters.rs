@@ -78,6 +78,13 @@ fn check_literal(
     expected: &LinkedType,
     source: &SourceLocation,
 ) -> Result<(), Diagnostic> {
+    if let (ScalarLiteral::Number(text), LinkedType::Scalar(ScalarType::Decimal)) =
+        (value, expected)
+    {
+        return nkdk_decimal::Decimal::parse(text)
+            .map(|_| ())
+            .map_err(|error| diagnostic("invalid_decimal_literal", source, &error.to_string()));
+    }
     if matches!(
         (value, expected),
         (

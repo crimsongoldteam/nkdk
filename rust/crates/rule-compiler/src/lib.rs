@@ -23,3 +23,8 @@ pub fn compile(sources: &[SourceFile<'_>]) -> Result<GeneratedSources, Vec<Diagn
 
 mod schema;
 pub use schema::schema;
+
+/// Structural authoring schema; name resolution and YAML source checks remain in parse/link.
+pub fn declaration_schema() -> &'static [u8] {
+    include_bytes!("../../../../schemas/nkdk-declarations.schema.json")
+}

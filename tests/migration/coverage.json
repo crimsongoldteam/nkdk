@@ -8456,8 +8456,14 @@
       "typed inputs pending",
       "typed XML and numeric physical-form anomalies pending",
       "compatible diagnostics and collection occurrence addresses pending",
-      "source-language schema, collection and input constraints pending"
+      "collection and input constraints pending"
     ],
     "productionCatalogMigrated": false
+  },
+  "declarationLanguageSchema": {
+    "path": "schemas/nkdk-declarations.schema.json",
+    "status": "verified",
+    "scope": "implemented structural syntax; source YAML checks, names, types and reversibility require compiler",
+    "test": "rust/crates/rule-compiler/tests/declaration_schema.rs"
   }
 }
