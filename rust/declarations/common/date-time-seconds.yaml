@@ -1,0 +1,11 @@
+format: nkdk-declarations/1
+kind: value
+id: common.date-time-seconds
+value: {kind: scalar, scalar: text}
+representations:
+  xml: {kind: calendar, format: iso, zone: written}
+  yaml: {kind: calendar, format: day-month-year, precision: seconds, zeroTime: keep}
+presence:
+  - target: self
+    xml: {missing: {denotes: {absent: true}}}
+    yaml: {missing: {denotes: {absent: true}}}

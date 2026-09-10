@@ -62,6 +62,11 @@ for exported, table in tables.items():
         'namespaces': {'xsi': namespaces['_xmlns:xsi'], 't': namespace},
         'projections': [{'id': 'system.' + name + '.dcs', 'xml': {'kind': 'with-attributes',
             'attributes': [{'name': 'xsi:type', 'value': {'qname': 't:' + name}}], 'content': {'kind': 'text'}}}]})
+    if name in ('StandardBeginningDateVariant', 'StandardPeriodVariant'):
+        modules[-1]['namespaces']['v8'] = 'http://v8.1c.ru/8.1/data/core'
+        modules[-1]['projections'].append({'id': 'system.' + name + '.core', 'xml': {
+            'kind': 'with-attributes', 'attributes': [{'name': 'xsi:type', 'value': {'qname': 'v8:' + name}}],
+            'content': {'kind': 'text'}}})
     probes.append({'kind': 'object', 'id': 'migration.system.' + name, 'imports': {'value': 'system.' + name},
         'value': {'kind': 'record', 'fields': [{'name': 'value', 'type': {'use': 'value'}}]},
         'representations': {'xml': {'kind': 'record', 'fields': [{'field': 'value', 'path': ['Root', 'Value']}]},

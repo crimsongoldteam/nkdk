@@ -3,6 +3,9 @@ use super::*;
 use std::fmt::Write;
 
 pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String, Diagnostic> {
+    if let Some(layout) = super::nested_record::lower(entry, program)? {
+        return generate_at(&layout.entry, program, None);
+    }
     if super::composite::record(entry, program).is_some() {
         return Ok(String::new());
     }

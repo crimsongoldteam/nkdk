@@ -229,6 +229,12 @@ impl Context<'_> {
     }
 }
 fn build(program: &Program, entry: &LinkedEntry) -> Result<Value, Diagnostic> {
+    if let Some(layout) = crate::generate::nested_record::lower(entry, program)? {
+        let inner = build(program, &layout.entry)?;
+        return Ok(
+            json!({"$schema":"https://json-schema.org/draft/2020-12/schema","type":"object","properties":{layout.key:inner},"additionalProperties":false,"x-nkdk-runtime-validation":true}),
+        );
+    }
     if let Some(schema) = composite::build(program, entry)? {
         return Ok(schema);
     }

@@ -18,11 +18,14 @@ mode = parser.add_mutually_exclusive_group()
 mode.add_argument("--choices", action="store_true")
 mode.add_argument("--minmax", action="store_true")
 mode.add_argument("--dates", action="store_true")
+mode.add_argument("--calendar-records", action="store_true")
 args = parser.parse_args()
 root = Path(__file__).resolve().parents[3]
 binary = root / "rust/target/debug/nkdk"
 xsi_type = "{http://www.w3.org/2001/XMLSchema-instance}type"
 xs = "http://www.w3.org/2001/XMLSchema"
+core = "http://v8.1c.ru/8.1/data/core"
+enum_tables = json.loads((root / "tests/migration/system-enumeration-tables.json").read_text()) if args.calendar_records else None
 
 def shape(source):
     namespaces = dict(value for _, value in ET.iterparse(io.BytesIO(source), events=("start-ns",)))
@@ -46,7 +49,13 @@ with tempfile.TemporaryDirectory(prefix="nkdk-typed-e2e-") as temporary:
         parents = {child: parent for parent in tree.iter() for child in parent} if args.minmax else {}
         for index, element in enumerate(tree.iter()):
             kind = element.get(xsi_type, "")
-            if args.minmax:
+            if args.calendar_records:
+                prefix, _, local = kind.partition(":")
+                if namespaces.get(prefix) != core or local not in ("StandardBeginningDate", "StandardPeriod"):
+                    continue
+                entry = "migration.standard-beginning-date" if local == "StandardBeginningDate" else "migration.standard-period"
+                key, physical = "Значение", "Value"
+            elif args.minmax:
                 parent = parents.get(element)
                 grandparent = parents.get(parent)
                 local = element.tag.split("}")[-1]
@@ -85,9 +94,9 @@ with tempfile.TemporaryDirectory(prefix="nkdk-typed-e2e-") as temporary:
                     continue
                 entry = {"xs:decimal":"migration.typed-number","xs:string":"migration.typed-string","xs:dateTime":"migration.typed-date-time"}[kind]
                 key, physical = "Сумма", "Amount"
-            if kind:
+            if kind and not args.calendar_records:
                 assert namespaces.get(kind.split(":")[0]) == xs, source
-            wrapper = ET.Element("Root", {"xmlns:" + prefix: uri for prefix, uri in namespaces.items() if prefix and uri == xs})
+            wrapper = ET.Element("Root", {"xmlns:" + prefix: uri for prefix, uri in namespaces.items() if prefix and uri in ((xs, core) if args.calendar_records else (xs,))})
             value = copy.deepcopy(element)
             value.tag = physical
             value.tail = None
@@ -111,7 +120,19 @@ with tempfile.TemporaryDirectory(prefix="nkdk-typed-e2e-") as temporary:
             expected = element.text or ""
             if args.minmax and entry.endswith("-default") and not expected and element.attrib == {"{http://www.w3.org/2001/XMLSchema-instance}nil": "true"}:
                 assert document is None or not document.value, (source, index, "Ordinary nil must not have an anomaly")
-            if (args.choices or args.minmax) and not expected:
+            if args.calendar_records:
+                assert isinstance(semantic, yaml.MappingNode) and semantic.tag == "tag:yaml.org,2002:map", (source,index)
+                actual = {k.value:v.value for k,v in semantic.value}
+                table = next(row for row in enum_tables["entries"] if row["name"] == local + "Variant")
+                variant = element.find("{" + core + "}variant").text
+                expected = {"Вариант": next(value["yaml"] for value in table["values"] if value["meaning"] == variant)}
+                for field, label in [("date","Дата"),("startDate","ДатаНачала"),("endDate","ДатаОкончания")]:
+                    child=element.find("{" + core + "}" + field)
+                    if child is not None:
+                        date=datetime.fromisoformat(child.text)
+                        expected[label]=f"{date.day:02}.{date.month:02}.{date.year:04} {date.hour:02}:{date.minute:02}:{date.second:02}"
+                assert actual == expected, (source,index,actual,expected)
+            elif (args.choices or args.minmax) and not expected:
                 assert semantic is None, (source,index)
             elif (kind == "xs:string" and not args.minmax) or (args.choices and kind not in ("xs:decimal", "xs:integer", "xs:float", "xs:double")):
                 assert isinstance(semantic, yaml.ScalarNode) and semantic.tag == "tag:yaml.org,2002:str" and semantic.value == expected, (source, index)
@@ -142,6 +163,6 @@ with tempfile.TemporaryDirectory(prefix="nkdk-typed-e2e-") as temporary:
             rows.append({"source": str(source.relative_to(root)), "sha256": hashlib.sha256(original).hexdigest(), "occurrence": index, "type": kind, "entry": entry, "verified": True})
         assert source.read_bytes() == original
 assert rows, "An empty selection is not success"
-scope = "Calendar profiles" if args.dates else "MinMaxValue profiles" if args.minmax else ("Scalar choice properties" if args.choices else "Typed scalar leaf properties")
+scope = "Calendar records" if args.calendar_records else "Calendar profiles" if args.dates else "MinMaxValue profiles" if args.minmax else ("Scalar choice properties" if args.choices else "Typed scalar leaf properties")
 args.output.write_text(json.dumps({"scope": scope + "; not whole-project conversion or performance", "verified": len(rows), "cases": rows}, ensure_ascii=False, indent=2) + "\n")
 print(f"Verified {len(rows)} {scope}")

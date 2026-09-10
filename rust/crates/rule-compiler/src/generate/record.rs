@@ -21,12 +21,22 @@ pub(super) fn path_code(path: &[ExpandedName]) -> String {
 }
 
 pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String, Diagnostic> {
+    if let Some(layout) = super::nested_record::lower(entry, program)? {
+        return generate_at(&layout.entry, program, Some(&layout));
+    }
     if let Some(source) = super::composite::generate(entry, program)? {
         return Ok(source);
     }
     if let Some(source) = super::collections::generate(entry, program)? {
         return Ok(source);
     }
+    generate_at(entry, program, None)
+}
+fn generate_at(
+    entry: &LinkedEntry,
+    program: &Program,
+    layout: Option<&super::nested_record::Layout>,
+) -> Result<String, Diagnostic> {
     super::scalar_presence::validate_owner(entry)?;
     let mut shape = entry.clone();
     shape.presence.clear();
@@ -97,6 +107,9 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
         ));
     }
     let id = entry.id;
+    let parent = layout.map_or("None".to_owned(), |layout| {
+        format!("Some({:?})", layout.key)
+    });
     let preserve = true;
     let attribute_code = |field: &Field<'_>, i: usize| {
         if let Codec::Choice(choice) = &field.codec {
@@ -196,6 +209,9 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
     if preserve {
         out.push_str("raw: core::raw::Fields,\n");
     }
+    if layout.is_some() {
+        out.push_str("present: bool,\n");
+    }
     if keep_positions {
         writeln!(out, "positions: [core::Position; {}],", fields.len()).unwrap();
     }
@@ -205,7 +221,7 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
         if preserve && !xml_side {
             writeln!(out,"fn read_yaml_{id}(source:&[u8],inputs:&PreparedInputs)->core::Result<V{id}> {{ match read_yaml_body_{id}(source,inputs,core::raw::Fields::default()) {{Ok(value)=>Ok(value),Err(error)=>{{let mut raw=core::raw::Fields::default();let mut decoded=source.to_vec();let mut found=false;").unwrap();
             for (i, field) in fields.iter().enumerate() {
-                writeln!(out,"if let Some(envelope)=core::raw::Property::decode(&decoded,{:?},{:?})? {{found=true;raw.insert({i},core::xml::Patch::read(&envelope.payload,&[],Q{id})?);decoded=envelope.meaning;}}",field.key,field.path.last().unwrap().local).unwrap();
+                writeln!(out,"if let Some(envelope)=core::raw::Property::decode_in(&decoded,{parent},{:?},{:?})? {{found=true;raw.insert({i},core::xml::Patch::read(&envelope.payload,&[],Q{id})?);decoded=envelope.meaning;}}",field.key,field.path.last().unwrap().local).unwrap();
             }
             writeln!(
                 out,
@@ -229,6 +245,9 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
             fields.len()
         )
         .unwrap();
+        if layout.is_some() && xml_side {
+            out.push_str("let mut present=false;\n");
+        }
         for i in 0..fields.len() {
             writeln!(out, "let mut r{i}: Option<String> = None;").unwrap();
         }
@@ -252,6 +271,14 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
                     writeln!(out, "if path.len()>{len} && core::xml::matches(&path[..{len}],{path}) {{nested{i}=true;shape{i}=true;return Ok(());}}",len=field.path.len(),path=path_code(field.path)).unwrap();
                 }
                 out.push_str("match token {core::xml::Token::Attribute(_attribute) => {\n");
+                if let Some(layout) = layout {
+                    writeln!(
+                        out,
+                        "if core::xml::matches(path,{}) {{return Ok(());}}",
+                        path_code(&layout.path)
+                    )
+                    .unwrap();
+                }
                 for (i, field) in fields.iter().enumerate() {
                     if let Codec::Choice(choice) = &field.codec {
                         out.push_str(&super::scalar_choice::read_attribute(choice, field.path, i));
@@ -285,6 +312,14 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
             for (i, field) in fields.iter().enumerate() {
                 writeln!(out, "if core::xml::matches(path, {}) {{ if r{i}.is_some() {{ return Err(RuntimeDiagnostic::new(\"xml.duplicate-field\", {:?})); }} positions[{i}] = core::Position::xml(offset); r{i} = Some(String::new()); return Ok(()); }}", path_code(field.path), field.key).unwrap();
             }
+            if let Some(layout) = layout {
+                writeln!(
+                    out,
+                    "if core::xml::matches(path,{}) {{present=true;return Ok(());}}",
+                    path_code(&layout.path)
+                )
+                .unwrap();
+            }
             let mut prefixes = BTreeSet::new();
             for field in &fields {
                 for len in 1..field.path.len() {
@@ -304,7 +339,11 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
             }
             out.push_str("if core::xml::is_whitespace(text) { Ok(()) } else { Err(RuntimeDiagnostic::new(\"xml.unexpected-text\", \"Text outside a declared scalar\")) } }, core::xml::Token::End => Ok(()) } })?;\n");
         } else {
-            out.push_str("core::yaml::visit_tagged_scalars(if source.is_empty() { b\"{}\" } else { source }, |key, value, tag| { match key.as_str() {\n");
+            if let Some(layout) = layout {
+                writeln!(out,"let present=core::yaml::visit_record_scalars(source,{:?},|key,value,tag| {{match key.as_str() {{",layout.key).unwrap();
+            } else {
+                out.push_str("core::yaml::visit_tagged_scalars(if source.is_empty() { b\"{}\" } else { source }, |key, value, tag| { match key.as_str() {\n");
+            }
             for (i, field) in fields.iter().enumerate() {
                 let read = if matches!(field.codec, Codec::Choice(_)) {
                     format!(
@@ -371,6 +410,23 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
                     writeln!(out, "Some(f{i})").unwrap();
                 }
                 out.push_str("} else { ");
+                let guard_absent_record = layout.is_some()
+                    && (!field.optional
+                        || field
+                            .presence
+                            .and_then(|presence| {
+                                if xml_side {
+                                    presence.xml_missing.as_ref()
+                                } else {
+                                    presence.yaml_missing.as_ref()
+                                }
+                            })
+                            .is_some_and(|value| {
+                                !matches!(value.kind, LinkedExpressionKind::Absent)
+                            }));
+                if guard_absent_record {
+                    out.push_str("if !present {None} else { ");
+                }
                 if !field.optional {
                     if xml_side {
                         if field
@@ -402,11 +458,16 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
                     entry,
                 )?;
                 if missing == "None" {
-                    out.push_str("None };\n");
+                    out.push_str(if guard_absent_record {
+                        "None }};\n"
+                    } else {
+                        "None };\n"
+                    });
                 } else {
                     writeln!(
                         out,
-                        "if raw.get({i}).is_some() {{None}} else {{{missing}}} }};"
+                        "if raw.get({i}).is_some() {{None}} else {{{missing}}} }}{nested_close};",
+                        nested_close = if guard_absent_record { "}" } else { "" }
                     )
                     .unwrap();
                 }
@@ -432,7 +493,11 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
                 "{}{}",
                 if keep_positions { "positions," } else { "" },
                 if preserve {
-                    String::from("raw,")
+                    String::from(if layout.is_some() {
+                        "raw,present,"
+                    } else {
+                        "raw,"
+                    })
                 } else {
                     String::new()
                 }
@@ -490,6 +555,15 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
         namespaces.insert("http://www.w3.org/2001/XMLSchema-instance");
     }
     namespaces.remove("");
+    if let Some(layout) = layout {
+        for attr in &layout.attributes {
+            namespaces.insert(&attr.name.namespace);
+            if let LinkedXmlAttributeValue::QName(value) = &attr.value {
+                namespaces.insert(&value.namespace);
+            }
+        }
+        namespaces.remove("");
+    }
     writeln!(
         out,
         "fn write_xml_{id}(value: &V{id}, _inputs: &PreparedInputs) -> core::Result<Vec<u8>> {{"
@@ -548,6 +622,15 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
         .unwrap();
     }
     writeln!(out, "out.container({});", path_code(&first.path[..1])).unwrap();
+    if let Some(layout) = layout {
+        writeln!(
+            out,
+            "if value.present {{out.container_with_attributes({},{});}}",
+            path_code(&layout.path),
+            super::nested_record::attributes(layout)
+        )
+        .unwrap();
+    }
     for (i, field) in fields.iter().enumerate() {
         let text = if field.optional || preserve {
             writeln!(
@@ -595,6 +678,9 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
         "fn write_yaml_{id}(value: &V{id}, _inputs: &PreparedInputs) -> core::Result<Vec<u8>> {{ let mut out = String::new();"
     )
     .unwrap();
+    if let Some(layout) = layout {
+        writeln!(out,"if !value.present {{return Ok(Vec::new());}}out.push_str(&core::yaml::scalar({:?}));out.push_str(\":\\n\");",layout.key).unwrap();
+    }
     for (i, field) in fields.iter().enumerate() {
         let text = if field.optional || preserve {
             write!(out, "if let Some(field_value) = &value.f{i}").unwrap();
@@ -623,16 +709,22 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
         } else {
             format!("&core::yaml::scalar({text})")
         };
+        if layout.is_some() {
+            out.push_str("out.push_str(\"  \");");
+        }
         writeln!(out, "out.push_str(&core::yaml::scalar({:?})); out.push_str(\": \"); if let Some(label)=value.raw.label({i}) {{out.push_str(&label);out.push(' ');}} out.push_str({yaml}); out.push('\\n');", field.key).unwrap();
         if field.optional || preserve {
             out.push_str("}\n");
         }
     }
+    if layout.is_some() {
+        out.push_str("if out.ends_with(\":\\n\") {out.push_str(\"  {}\\n\");}\n");
+    }
     out.push_str("if !out.is_empty() { out.pop(); } let bytes=out.into_bytes();\n");
     if preserve {
         out.push_str("let mut bytes=bytes;\n");
         for (i, field) in fields.iter().enumerate() {
-            writeln!(out,"if let Some(patch)=value.raw.get({i}) {{ if patch.is_null() {{bytes=core::raw::Property::encode({key:?},{physical:?},&bytes,b\"null\")?;}} else {{let tree=patch.apply(None,core::xml::Name{{namespace:{:?}.into(),local:{:?}.into()}},&[],Q{id})?;let payload=tree.payload_yaml(&[],Q{id})?;bytes=core::raw::Property::encode({:?},{:?},&bytes,if payload.is_empty() {{b\"{{}}\"}} else {{payload.as_bytes()}})?; }} }}",field.path.last().unwrap().namespace,field.path.last().unwrap().local,field.key,field.path.last().unwrap().local,key=field.key,physical=field.path.last().unwrap().local).unwrap();
+            writeln!(out,"if let Some(patch)=value.raw.get({i}) {{ if patch.is_null() {{bytes=core::raw::Property::encode_in({parent},{key:?},{physical:?},&bytes,b\"null\")?;}} else {{let tree=patch.apply(None,core::xml::Name{{namespace:{:?}.into(),local:{:?}.into()}},&[],Q{id})?;let payload=tree.payload_yaml(&[],Q{id})?;bytes=core::raw::Property::encode_in({parent},{:?},{:?},&bytes,if payload.is_empty() {{b\"{{}}\"}} else {{payload.as_bytes()}})?; }} }}",field.path.last().unwrap().namespace,field.path.last().unwrap().local,field.key,field.path.last().unwrap().local,key=field.key,physical=field.path.last().unwrap().local).unwrap();
         }
     }
     out.push_str("Ok(bytes) }\n");
@@ -671,7 +763,7 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
                 };
                 write!(restore_meaning, "if _value.raw.get({i}).is_none() && omit_{id}_{i}(_value,inputs)? && let Some(field_value)=&_value.f{i} && {} {{if !candidate.is_empty() {{candidate.push(b'\\n');}} candidate.extend_from_slice(core::yaml::scalar({:?}).as_bytes());candidate.extend_from_slice(b\": \");candidate.extend_from_slice(({yaml}).as_bytes());}}", field.codec.yaml_representable(&name, "field_value"), field.key).unwrap();
             }
-            writeln!(out,"if let Some(tree)=core::xml::Tree::capture(original,{path})? {{let base=core::xml::Tree::capture(&ordinary,{path})?;let patch=tree.patch_yaml(base.as_ref(),&[],Q{id})?;if patch!=\"{{}}\" {{{restore_meaning}candidate=core::raw::Property::encode({key:?},{physical:?},&candidate,if patch.is_empty() {{b\"\\\"\\\"\"}} else {{patch.as_bytes()}})?;}}}} else if core::xml::Tree::capture(&ordinary,{path})?.is_some() {{candidate=core::raw::Property::encode({key:?},{physical:?},&candidate,b\"null\")?;}}",path=path_code(field.path),key=field.key,physical=field.path.last().unwrap().local).unwrap();
+            writeln!(out,"if let Some(tree)=core::xml::Tree::capture(original,{path})? {{let base=core::xml::Tree::capture(&ordinary,{path})?;let patch=tree.patch_yaml(base.as_ref(),&[],Q{id})?;if patch!=\"{{}}\" {{{restore_meaning}candidate=core::raw::Property::encode_in({parent},{key:?},{physical:?},&candidate,if patch.is_empty() {{b\"\\\"\\\"\"}} else {{patch.as_bytes()}})?;}}}} else if core::xml::Tree::capture(&ordinary,{path})?.is_some() {{candidate=core::raw::Property::encode_in({parent},{key:?},{physical:?},&candidate,b\"null\")?;}}",path=path_code(field.path),key=field.key,physical=field.path.last().unwrap().local).unwrap();
         }
         writeln!(
             out,
@@ -681,5 +773,9 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
     } else {
         writeln!(out, "fn finalize_yaml_{id}(original: &[u8], candidate: Vec<u8>, _value: &V{id}, inputs: &PreparedInputs) -> core::Result<Vec<u8>> {{ verify_{id}(original, &candidate, inputs)?; Ok(candidate) }}").unwrap();
     }
-    Ok(out)
+    Ok(if let Some(layout) = layout {
+        super::nested_record::wrap(out, layout)
+    } else {
+        out
+    })
 }

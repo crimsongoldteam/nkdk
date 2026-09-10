@@ -3262,6 +3262,7 @@ declarations:
   namespaces:
     xsi: http://www.w3.org/2001/XMLSchema-instance
     t: http://v8.1c.ru/8.1/data/enterprise
+    v8: http://v8.1c.ru/8.1/data/core
   projections:
   - id: system.StandardBeginningDateVariant.dcs
     xml:
@@ -3270,6 +3271,15 @@ declarations:
       - name: xsi:type
         value:
           qname: t:StandardBeginningDateVariant
+      content:
+        kind: text
+  - id: system.StandardBeginningDateVariant.core
+    xml:
+      kind: with-attributes
+      attributes:
+      - name: xsi:type
+        value:
+          qname: v8:StandardBeginningDateVariant
       content:
         kind: text
 - kind: value
@@ -3355,6 +3365,7 @@ declarations:
   namespaces:
     xsi: http://www.w3.org/2001/XMLSchema-instance
     t: http://v8.1c.ru/8.1/data/enterprise
+    v8: http://v8.1c.ru/8.1/data/core
   projections:
   - id: system.StandardPeriodVariant.dcs
     xml:
@@ -3363,6 +3374,15 @@ declarations:
       - name: xsi:type
         value:
           qname: t:StandardPeriodVariant
+      content:
+        kind: text
+  - id: system.StandardPeriodVariant.core
+    xml:
+      kind: with-attributes
+      attributes:
+      - name: xsi:type
+        value:
+          qname: v8:StandardPeriodVariant
       content:
         kind: text
 - kind: value

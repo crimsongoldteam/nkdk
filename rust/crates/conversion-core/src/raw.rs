@@ -25,6 +25,41 @@ fn mapping(value: Value) -> Result<Vec<(Value, Value)>> {
     }
 }
 impl Property {
+    pub fn encode_in(
+        parent: Option<&str>,
+        key: &str,
+        physical_key: &str,
+        meaning: &[u8],
+        payload: &[u8],
+    ) -> Result<Vec<u8>> {
+        let Some(parent) = parent else {
+            return Self::encode(key, physical_key, meaning, payload);
+        };
+        edit_record(meaning, parent, |child| {
+            Self::encode(key, physical_key, child, payload)
+        })
+    }
+    pub fn decode_in(
+        source: &[u8],
+        parent: Option<&str>,
+        key: &str,
+        physical_key: &str,
+    ) -> Result<Option<Self>> {
+        let Some(parent) = parent else {
+            return Self::decode(source, key, physical_key);
+        };
+        let mut found = None;
+        let meaning = edit_record(source, parent, |child| {
+            found = Self::decode(child, key, physical_key)?;
+            Ok(found
+                .as_ref()
+                .map_or_else(|| child.to_vec(), |value| value.meaning.clone()))
+        })?;
+        if let Some(found) = &mut found {
+            found.meaning = meaning;
+        }
+        Ok(found)
+    }
     pub fn encode(
         key: &str,
         physical_key: &str,
@@ -118,6 +153,23 @@ impl Property {
             uses_semantic_name,
         }))
     }
+}
+
+fn edit_record(
+    source: &[u8],
+    parent: &str,
+    edit: impl FnOnce(&[u8]) -> Result<Vec<u8>>,
+) -> Result<Vec<u8>> {
+    let mut entries = mapping(document::parse(source)?)?;
+    let index = entries
+        .iter()
+        .position(|(key, _)| key.key().is_ok_and(|key| key == parent));
+    let Some(index) = index else {
+        return Ok(source.to_vec());
+    };
+    let child = entries[index].1.document()?;
+    entries[index].1 = document::parse(&edit(&child)?)?;
+    Value::mapping(entries).document()
 }
 
 /// A normal record carries one empty pointer, regardless of its field count.

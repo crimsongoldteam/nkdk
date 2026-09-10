@@ -1,5 +1,59 @@
 use nkdk_rule_compiler::{SourceFile, link, parse, schema};
 #[test]
+fn nested_record_schema_requires_a_variant_and_keeps_calendar_seconds() {
+    let directory = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../declarations");
+    let mut modules = Vec::new();
+    for name in [
+        "common/system-enumerations.yaml",
+        "common/date-time-seconds.yaml",
+        "common/standard-beginning-date.yaml",
+        "probes/standard-beginning-date.yaml",
+        "common/standard-period.yaml",
+        "probes/standard-period.yaml",
+    ] {
+        let bytes = std::fs::read(directory.join(name)).unwrap();
+        modules.extend(
+            nkdk_rule_compiler::parse_many(SourceFile {
+                path: name,
+                bytes: &bytes,
+            })
+            .unwrap(),
+        );
+    }
+    let program = link(&modules).unwrap();
+    for (entry, label, key) in [
+        (
+            "migration.standard-beginning-date",
+            "ПроизвольнаяДата",
+            "Дата",
+        ),
+        (
+            "migration.standard-period",
+            "ПроизвольныйПериод",
+            "ДатаНачала",
+        ),
+    ] {
+        let actual: serde_json::Value =
+            serde_json::from_slice(&schema(&program, entry).unwrap()).unwrap();
+        let validator = jsonschema::validator_for(&actual).unwrap();
+        for (value, valid) in [
+            (serde_json::json!({}), true),
+            (
+                serde_json::json!({"Значение":{"Вариант":label,key:"25.03.2026 12:34:56"}}),
+                true,
+            ),
+            (
+                serde_json::json!({"Значение":{"Вариант":label,key:"25.03.2026 12:34"}}),
+                false,
+            ),
+            (serde_json::json!({"Значение":{"Вариант":"unknown"}}), false),
+            (serde_json::json!({"Значение":{}}), false),
+        ] {
+            assert_eq!(validator.is_valid(&value), valid, "{value}");
+        }
+    }
+}
+#[test]
 fn schema_preserves_conditional_decimal_bounds_and_enum_spellings() {
     let sources = [
         (

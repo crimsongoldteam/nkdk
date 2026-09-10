@@ -7217,17 +7217,23 @@
       "path": "packages/rules/metadata/commonObjects/standardPeriod/fromXML.ts",
       "sha256": "b140ea426100640edd400d9f2440eb0fae35a03db2a99e8b4e7506cbdf3349e4",
       "group": "standardPeriod",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "implemented",
+      "implementation": "rust/declarations/common/standard-period.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/calendar_records.rs",
+        "rust/crates/rule-compiler/tests/schema.rs"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/standardPeriod/fromYAML.ts",
       "sha256": "d03354b19eb40845577543a05ff9a757c62ee36de4f6e4a5669f97037fbdd874",
       "group": "standardPeriod",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "implemented",
+      "implementation": "rust/declarations/common/standard-period.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/calendar_records.rs",
+        "rust/crates/rule-compiler/tests/schema.rs"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/standardPeriod/index.ts",
@@ -7249,25 +7255,34 @@
       "path": "packages/rules/metadata/commonObjects/standardPeriod/toXML.ts",
       "sha256": "e39823a15427c874546a48bf8e9d6961d09fec8e43970b8dfd3d5b43baf12d6c",
       "group": "standardPeriod",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "implemented",
+      "implementation": "rust/declarations/common/standard-period.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/calendar_records.rs",
+        "rust/crates/rule-compiler/tests/schema.rs"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/standardPeriod/toYAML.ts",
       "sha256": "e14e3827d7e62140b2335f0641031230d05e43a752a023e8e60afc2c66cd56c3",
       "group": "standardPeriod",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "implemented",
+      "implementation": "rust/declarations/common/standard-period.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/calendar_records.rs",
+        "rust/crates/rule-compiler/tests/schema.rs"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/standardPeriod/types.ts",
       "sha256": "be6fa44a700ac5397eb84493f9a47c773864b1ce4f0cc3a9e3ea50f27a1a598c",
       "group": "standardPeriod",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "implemented",
+      "implementation": "rust/declarations/common/standard-period.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/calendar_records.rs",
+        "rust/crates/rule-compiler/tests/schema.rs"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/standardTabularSectionDescription/builders.ts",
@@ -7329,9 +7344,13 @@
       "path": "packages/rules/metadata/commonObjects/standartBeginningDate/fromXML.ts",
       "sha256": "871444458ba81f55b7c9ca2f204a4bd12e0547daad2ef71195037e276698b7f2",
       "group": "standartBeginningDate",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/standard-beginning-date.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/calendar_records.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/calendar-records-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/standartBeginningDate/fromYAML.test.ts",
@@ -7345,9 +7364,13 @@
       "path": "packages/rules/metadata/commonObjects/standartBeginningDate/fromYAML.ts",
       "sha256": "faf0f8eba56dd8e58e817d84df61dbf26e11699e1c345fa70df8c29eb6cd46ad",
       "group": "standartBeginningDate",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/standard-beginning-date.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/calendar_records.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/calendar-records-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/standartBeginningDate/toXML.integration.test.ts",
@@ -7361,9 +7384,13 @@
       "path": "packages/rules/metadata/commonObjects/standartBeginningDate/toXML.ts",
       "sha256": "a09f7ca5a89e3c419e6e9fe3919dcc42ede428a7420b1af3ecd33f7fa0c5ddb1",
       "group": "standartBeginningDate",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/standard-beginning-date.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/calendar_records.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/calendar-records-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/standartBeginningDate/toYAML.test.ts",
@@ -7377,17 +7404,25 @@
       "path": "packages/rules/metadata/commonObjects/standartBeginningDate/toYAML.ts",
       "sha256": "0766cb45e8aebc469d0d47660be1a6a8c97ae4049672a034b16cf30c34d8bd7f",
       "group": "standartBeginningDate",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/standard-beginning-date.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/calendar_records.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/calendar-records-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/standartBeginningDate/types.ts",
       "sha256": "bc9efd2deb3237871082eb60f3988e25e766e485d5a45738eba685cccfe6f96f",
       "group": "standartBeginningDate",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/standard-beginning-date.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/calendar_records.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/calendar-records-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/string/atomicConversion.test.ts",

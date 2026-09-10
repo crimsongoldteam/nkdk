@@ -1,0 +1,32 @@
+format: nkdk-declarations/1
+kind: value
+id: common.standard-beginning-date
+imports:
+  variant: system.StandardBeginningDateVariant.core
+  date: common.date-time-seconds
+namespaces:
+  v8: http://v8.1c.ru/8.1/data/core
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+value:
+  kind: record
+  fields:
+    - {name: variant, type: {use: variant}}
+    - {name: date, type: {use: date}}
+representations:
+  xml:
+    kind: with-attributes
+    attributes: [{name: xsi:type, value: {qname: v8:StandardBeginningDate}}]
+    content:
+      kind: record
+      fields:
+        - {field: variant, path: [v8:variant]}
+        - {field: date, path: [v8:date]}
+  yaml:
+    kind: mapping
+    fields:
+      - {field: variant, key: Вариант}
+      - {field: date, key: Дата}
+presence:
+  - target: self
+    xml: {missing: {denotes: {absent: true}}}
+    yaml: {missing: {denotes: {absent: true}}}

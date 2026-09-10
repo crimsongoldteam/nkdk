@@ -6,6 +6,8 @@ pub enum Form {
     Mapping,
 }
 mod nested;
+mod record_scalars;
+pub use record_scalars::visit_record_scalars;
 mod nodes;
 use crate::{Result, RuntimeDiagnostic};
 pub use nested::{RecordSource, RecordState};

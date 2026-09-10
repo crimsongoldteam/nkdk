@@ -5,6 +5,7 @@ mod constraints;
 mod dispatch;
 mod expressions;
 mod inputs;
+pub(crate) mod nested_record;
 mod patterns;
 mod presence;
 mod record;

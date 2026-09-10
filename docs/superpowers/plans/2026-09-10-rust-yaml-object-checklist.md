@@ -112,9 +112,9 @@
 - [ ] [commonObjects/predefinedItem](../../../packages/rules/metadata/commonObjects/predefinedItem)
 - [ ] [commonObjects/rootCommandInterface](../../../packages/rules/metadata/commonObjects/rootCommandInterface)
 - [ ] [commonObjects/standardAttributeDescription](../../../packages/rules/metadata/commonObjects/standardAttributeDescription)
-- [ ] [commonObjects/standardPeriod](../../../packages/rules/metadata/commonObjects/standardPeriod)
+- [ ] [commonObjects/standardPeriod](../../../packages/rules/metadata/commonObjects/standardPeriod) — для полной приёмки нужны пути данных М6 и реальный случай e2e; проверки преобразования записаны в журнале М3.
 - [ ] [commonObjects/standardTabularSectionDescription](../../../packages/rules/metadata/commonObjects/standardTabularSectionDescription)
-- [ ] [commonObjects/standartBeginningDate](../../../packages/rules/metadata/commonObjects/standartBeginningDate)
+- [ ] [commonObjects/standartBeginningDate](../../../packages/rules/metadata/commonObjects/standartBeginningDate) — для полной приёмки нужны пути данных М6; проверки преобразования записаны в журнале М3.
 - [ ] [commonObjects/string](../../../packages/rules/metadata/commonObjects/string)
 - [x] [commonObjects/stringOrNumber](../../../packages/rules/metadata/commonObjects/stringOrNumber) — 2026-09-10: [декларация](../../../rust/declarations/common/string-or-number.yaml), [e2e семейства](../../../tests/migration/scalar-choice-e2e.json), [оба профиля и аномалии](../../../rust/crates/compiled-rules/tests/scalars.rs), [схема](../../../rust/crates/rule-compiler/tests/schema.rs).
 - [ ] [commonObjects/styleItemValue](../../../packages/rules/metadata/commonObjects/styleItemValue)

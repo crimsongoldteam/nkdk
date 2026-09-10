@@ -1,0 +1,46 @@
+{
+  "scope": "Calendar records; not whole-project conversion or performance",
+  "verified": 5,
+  "cases": [
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/УсловноеОформление/Ext/Form.xml",
+      "sha256": "fe5469fadefa4512dc7d1f67cea7369cbd5ff1197982be2ab823c440a250a42a",
+      "occurrence": 585,
+      "type": "v8:StandardBeginningDate",
+      "entry": "migration.standard-beginning-date",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/УсловноеОформление/Ext/Form.xml",
+      "sha256": "fe5469fadefa4512dc7d1f67cea7369cbd5ff1197982be2ab823c440a250a42a",
+      "occurrence": 667,
+      "type": "v8:StandardBeginningDate",
+      "entry": "migration.standard-beginning-date",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/УсловноеОформление/Ext/Form.xml",
+      "sha256": "fe5469fadefa4512dc7d1f67cea7369cbd5ff1197982be2ab823c440a250a42a",
+      "occurrence": 673,
+      "type": "v8:StandardBeginningDate",
+      "entry": "migration.standard-beginning-date",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/УсловноеОформление/Ext/Form.xml",
+      "sha256": "fe5469fadefa4512dc7d1f67cea7369cbd5ff1197982be2ab823c440a250a42a",
+      "occurrence": 678,
+      "type": "v8:StandardBeginningDate",
+      "entry": "migration.standard-beginning-date",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/УсловноеОформление/Ext/Form.xml",
+      "sha256": "fe5469fadefa4512dc7d1f67cea7369cbd5ff1197982be2ab823c440a250a42a",
+      "occurrence": 684,
+      "type": "v8:StandardBeginningDate",
+      "entry": "migration.standard-beginning-date",
+      "verified": true
+    }
+  ]
+}
