@@ -349,7 +349,7 @@ pub(super) fn resolve_expression_in(
                 })?;
             (
                 LinkedExpressionKind::Input(slot as u32),
-                resolve_type(
+                resolve_data_type(
                     module,
                     &input.definition,
                     &input.source,

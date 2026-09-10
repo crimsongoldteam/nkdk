@@ -1355,3 +1355,69 @@ representations:
     assert_eq!(errors[0].code, "xml_path_collision");
     assert_eq!(errors[0].related.len(), 1);
 }
+
+#[test]
+fn unused_local_types_are_still_checked() {
+    for (definition, code) in [
+        ("{local: missing}", "missing_local_type"),
+        ("{local: unused}", "local_type_cycle"),
+        (
+            "{kind: record, fields: [{name: x, type: {kind: scalar, scalar: text}}, {name: x, type: {kind: scalar, scalar: text}}]}",
+            "duplicate_field",
+        ),
+    ] {
+        let source = format!(
+            "{}\ntypes:\n  unused: {}\n",
+            include_str!("fixtures/common.yaml"),
+            definition
+        );
+        let module = parse(SourceFile {
+            path: "unused.yaml",
+            bytes: source.as_bytes(),
+        })
+        .unwrap();
+        let errors = link(&[module]).expect_err("unused declarations must not bypass validation");
+        assert_eq!(errors[0].code, code);
+    }
+}
+
+#[test]
+fn input_bindings_compare_semantic_types_across_import_aliases() {
+    let flag = include_str!("fixtures/common.yaml").replace("common.boolean", "common.flag");
+    for (caller_type, callee_type) in [
+        ("{use: flag}", "{kind: scalar, scalar: boolean}"),
+        ("{kind: scalar, scalar: boolean}", "{use: flag}"),
+    ] {
+        let common = format!(
+            "{}\nimports: {{flag: common.flag}}\ninputs:\n  enabled: {{type: {callee_type}}}\n",
+            include_str!("fixtures/common.yaml")
+        );
+        let owner = include_str!("fixtures/owner.yaml")
+            .replace(
+                "boolean: common.boolean",
+                "boolean: common.boolean\n  flag: common.flag",
+            )
+            .replace(
+                "{use: boolean}",
+                "{use: boolean, bind: {enabled: {input: active}}}",
+            )
+            + &format!("\ninputs:\n  active: {{type: {caller_type}}}\n");
+        let modules = [
+            ("flag.yaml", &flag),
+            ("common.yaml", &common),
+            ("owner.yaml", &owner),
+        ]
+        .map(|(path, source)| {
+            parse(SourceFile {
+                path,
+                bytes: source.as_bytes(),
+            })
+            .unwrap()
+        });
+        assert!(
+            link(&modules).is_ok(),
+            "{caller_type} -> {callee_type}: {:?}",
+            link(&modules)
+        );
+    }
+}

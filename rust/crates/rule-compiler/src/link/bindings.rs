@@ -30,7 +30,7 @@ pub(super) fn resolve_bindings(
                 )
             })?;
         let value = resolve_expression(module, &binding.value, modules, ids)?;
-        let expected = resolve_type(
+        let expected = resolve_data_type(
             target,
             &input.definition,
             &input.source,

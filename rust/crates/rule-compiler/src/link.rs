@@ -57,6 +57,19 @@ pub fn link(modules: &[Module]) -> Result<Program, Vec<Diagnostic>> {
     type_graph::validate(&indexed)?;
     for module in indexed.values() {
         text::validate(module).map_err(|error| vec![error])?;
+        for definition in &module.types {
+            if !matches!(definition.definition, TypeDefinition::TextTransform(_)) {
+                resolve_type(
+                    module,
+                    &definition.definition,
+                    &definition.source,
+                    &indexed,
+                    &ids,
+                    &mut BTreeSet::new(),
+                )
+                .map_err(|error| vec![error])?;
+            }
+        }
     }
     let mut cache = BTreeMap::new();
     for module in indexed.values() {
@@ -116,7 +129,7 @@ fn build_entry(
             .map(|input| {
                 Ok(LinkedField {
                     name: input.name.clone(),
-                    value: resolve_type(
+                    value: resolve_data_type(
                         module,
                         &input.definition,
                         &input.source,
@@ -687,4 +700,16 @@ fn check_coverage(
         }
     }
     Ok(())
+}
+
+fn resolve_data_type(
+    module: &Module,
+    value: &TypeDefinition,
+    source: &SourceLocation,
+    modules: &BTreeMap<&str, &Module>,
+    ids: &BTreeMap<&str, u32>,
+    visiting: &mut BTreeSet<String>,
+) -> Result<LinkedType, Diagnostic> {
+    resolve_type(module, value, source, modules, ids, visiting)?;
+    expressions::field_shape(module, value, source, modules, ids, visiting)
 }
