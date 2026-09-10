@@ -80,7 +80,19 @@ representations:
     attributes:
       - name: xsi:type
         value: {qname: v8:LocalStringType}
-        when: {parameter: typedXML}
+        when:
+          and:
+            - {parameter: typedXML}
+            - not:
+                and:
+                  - or: [{parameter: preserveEmptyXML}, {parameter: excludeIfEqualNameYAML}]
+                  - each:
+                      in: {self: true}
+                      as: translation
+                      where:
+                        and:
+                          - eq: [{get: {of: {var: translation}, field: language}}, {input: defaultLanguage}]
+                          - eq: [{get: {of: {var: translation}, field: content}}, {literal: ""}]
     content:
       kind: element-sequence
       path: [v8:item]
@@ -120,13 +132,7 @@ representations:
                 content: {literal: ""}
           absentKeys: [{input: defaultLanguage}]
         denotes: {capture: otherTranslations}
-        when:
-          and:
-            - {parameter: excludeIfEqualNameYAML}
-            - exists:
-                in: {capture: otherTranslations}
-                as: translation
-                where: {literal: true}
+        when: {parameter: excludeIfEqualNameYAML}
       - id: primary-language-string
         representation: {kind: scalar, scalar: text, capture: text}
         denotes:
@@ -139,8 +145,16 @@ presence:
     xml:
       missing: {denotes: {absent: true}}
       empty:
-        - {form: empty-element, denotes: {sequence: []}}
-        - {form: nil, denotes: {absent: true}}
+        - form: empty-element
+          denotes:
+            if: {or: [{parameter: preserveEmptyXML}, {parameter: excludeIfEqualNameYAML}]}
+            then: {sequence: []}
+            else: {absent: true}
+        - form: nil
+          denotes:
+            if: {or: [{parameter: preserveEmptyXML}, {parameter: excludeIfEqualNameYAML}]}
+            then: {sequence: []}
+            else: {absent: true}
       canonical:
         - when:
             and:
@@ -153,6 +167,17 @@ presence:
                       - eq: [{get: {of: {var: translation}, field: language}}, {input: defaultLanguage}]
                       - eq: [{get: {of: {var: translation}, field: content}}, {literal: ""}]
           form: missing
+        - when:
+            and:
+              - or: [{parameter: preserveEmptyXML}, {parameter: excludeIfEqualNameYAML}]
+              - each:
+                  in: {self: true}
+                  as: translation
+                  where:
+                    and:
+                      - eq: [{get: {of: {var: translation}, field: language}}, {input: defaultLanguage}]
+                      - eq: [{get: {of: {var: translation}, field: content}}, {literal: ""}]
+          form: empty-element
         - form: ordinary
     yaml:
       missing:

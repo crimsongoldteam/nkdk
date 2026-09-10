@@ -481,7 +481,6 @@ name = "nkdk"
 version = "0.1.0"
 dependencies = [
  "nkdk-compiled-rules",
- "serde_json",
 ]
 
 [[package]]

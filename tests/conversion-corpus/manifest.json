@@ -1373,6 +1373,30 @@
       "evidence": [
         "tests/declaration-corpus/valid/numeric-bound.yaml"
       ]
+    },
+    {
+      "id": "numeric-bound-negative",
+      "group": "numeric-bounds",
+      "inputs": {
+        "yaml": {
+          "path": "tests/conversion-corpus/cases/numeric-bound-negative/input.yaml",
+          "sha256": "6905c8e94eef09044b81d9c18d9465cd169d5533a8a91f28cc1d419c5742b186"
+        }
+      },
+      "context": "tests/conversion-corpus/cases/numeric-bound-negative/context.json",
+      "directions": [
+        "yaml-validation",
+        "yaml-to-xml"
+      ],
+      "outcome": "failure",
+      "diagnosticsFormat": "rust-runtime-v1",
+      "expectations": {
+        "diagnostics": "tests/conversion-corpus/cases/numeric-bound-negative/diagnostics.json"
+      },
+      "scope": "Synthetic diagnostic without code, preserving source and field position; full TS public compatibility pending",
+      "evidence": [
+        "tests/declaration-corpus/valid/numeric-bound.yaml"
+      ]
     }
   ],
   "pendingImport": [

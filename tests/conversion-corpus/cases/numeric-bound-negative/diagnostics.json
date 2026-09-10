@@ -1,0 +1,13 @@
+[
+  {
+    "source": "structure",
+    "severity": "error",
+    "file": "",
+    "path": [
+      "ДлинаКода"
+    ],
+    "line": 2,
+    "column": 12,
+    "message": "Длина кода неотрицательна"
+  }
+]

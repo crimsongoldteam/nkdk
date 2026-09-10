@@ -37,13 +37,6 @@ pub(super) fn resolve(
                 .map(|value| {
                     let value = expressions::resolve_expression(module, value, modules, ids)?;
                     expressions::require_boolean(&value)?;
-                    if !normalization::is_static(&value) {
-                        return Err(diagnostic(
-                            "dynamic_attribute_condition",
-                            &value.source,
-                            "Canonical attribute conditions must be static",
-                        ));
-                    }
                     Ok(value)
                 })
                 .transpose()?;

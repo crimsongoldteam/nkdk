@@ -1,4 +1,12 @@
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Form {
+    Missing,
+    Scalar,
+    Mapping,
+}
+mod nodes;
 use crate::{Result, RuntimeDiagnostic};
+pub use nodes::{Node, visit_nodes};
 use std::collections::HashSet;
 use yaml_rust2::{
     Yaml,
@@ -12,6 +20,9 @@ pub struct Scalar {
     position: crate::Position,
 }
 impl Scalar {
+    pub fn is_empty(&self) -> bool {
+        self.text.is_empty()
+    }
     pub fn position(&self) -> crate::Position {
         self.position
     }

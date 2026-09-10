@@ -101,7 +101,7 @@ fn main() {
             }
         }
     }
-    assert_eq!(validate_file(bounded, "ДлинаКода: 38".as_bytes(), &PreparedInputs::default())[0].code, "value.missing");
+    assert_eq!(validate_file(bounded, "ДлинаКода: 38".as_bytes(), &PreparedInputs::default())[0].code.as_deref(), Some("value.missing"));
     let decimal_entry = entry_id("test.decimal-owner").unwrap();
     for literal in ["9007199254740993", "0.12345678901234567890123456789012345678", "1e+1000000"] {
         let xml = format!("\u{feff}<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Root>\n\t<Amount>{literal}</Amount>\n</Root>");

@@ -1,140 +1,95 @@
+use super::expressions::Expressions;
 use super::*;
 use std::fmt::Write;
 
-struct Expressions<'a> {
-    entry: &'a LinkedEntry,
-    program: &'a Program,
-    fields: &'a [LinkedField],
-    constants: String,
-    next_constant: usize,
-    transforms: BTreeSet<(u32, u32)>,
-    fallible: bool,
-}
-impl Expressions<'_> {
-    fn lower(&mut self, value: &LinkedExpression) -> Result<String, Diagnostic> {
-        Ok(match &value.kind {
-            LinkedExpressionKind::Variable(slot) => match value.value_type {
-                LinkedType::Scalar(ScalarType::Text) => format!("v{slot}.as_str()"),
-                _ => {
-                    return Err(unsupported(
-                        self.entry,
-                        "This local variable type is not generated",
-                    ));
-                }
-            },
-            LinkedExpressionKind::Field(index) => {
-                let field = &self.fields[*index as usize];
-                scalar::Codec::resolve(&field.value, self.entry, self.program)?
-                    .meaning(&format!("E{}F{index}", self.entry.id), *index as usize)
-            }
-            LinkedExpressionKind::Literal(ScalarLiteral::Boolean(value)) => value.to_string(),
-            LinkedExpressionKind::Literal(ScalarLiteral::Text(value)) => format!("{value:?}"),
-            LinkedExpressionKind::Literal(ScalarLiteral::Number(value)) => {
-                let number = nkdk_decimal::Decimal::parse(value)
-                    .map_err(|_| unsupported(self.entry, "Invalid decimal constant"))?;
-                let (negative, digits, exponent) = number.parts();
-                let index = self.next_constant;
-                self.next_constant += 1;
-                writeln!(self.constants, "const D{index}: core::decimal::Decimal = core::decimal::Decimal::constant({negative}, {digits:?}, {exponent});").unwrap();
-                format!("&D{index}")
-            }
-            LinkedExpressionKind::Operation {
-                operator,
-                arguments,
-            } => {
-                let values = arguments
-                    .iter()
-                    .map(|value| self.lower(value))
-                    .collect::<Result<Vec<_>, _>>()?;
-                match operator {
-                    LinkedOperator::Transform { entry, index } => {
-                        self.fallible = true;
-                        if self.transforms.insert((*entry, *index)) {
-                            let target = self
-                                .program
-                                .entries
-                                .iter()
-                                .find(|target| target.id == *entry)
-                                .expect("linked transform entry");
-                            self.constants.push_str(&text::generate(
-                                *entry,
-                                *index,
-                                &target.text_transforms[*index as usize].definition,
-                            ));
-                        }
-                        format!("text_{entry}_{index}({})?", values[0])
-                    }
-                    LinkedOperator::MatchOptional(slot) => format!(
-                        "match {} {{ Some(v{slot}) => {}, None => {} }}",
-                        values[0], values[1], values[2]
-                    ),
-                    LinkedOperator::Equal | LinkedOperator::Less | LinkedOperator::LessEqual => {
-                        if arguments[0].value_type == LinkedType::Scalar(ScalarType::Decimal) {
-                            let function = match operator {
-                                LinkedOperator::Equal => "PartialEq::eq",
-                                LinkedOperator::Less => "PartialOrd::lt",
-                                _ => "PartialOrd::le",
-                            };
-                            format!("std::cmp::{function}({}, {})", values[0], values[1])
-                        } else {
-                            format!("({}) == ({})", values[0], values[1])
-                        }
-                    }
-                    LinkedOperator::Not => format!("!({})", values[0]),
-                    LinkedOperator::And | LinkedOperator::Or => {
-                        if values.is_empty() {
-                            if *operator == LinkedOperator::And {
-                                "true".into()
-                            } else {
-                                "false".into()
-                            }
-                        } else {
-                            values
-                                .iter()
-                                .map(|value| format!("({value})"))
-                                .collect::<Vec<_>>()
-                                .join(if *operator == LinkedOperator::And {
-                                    " && "
-                                } else {
-                                    " || "
-                                })
-                        }
-                    }
-                    LinkedOperator::Conditional => format!(
-                        "if {} {{ {} }} else {{ {} }}",
-                        values[0], values[1], values[2]
-                    ),
-                    _ => {
-                        return Err(unsupported(
-                            self.entry,
-                            "Constraint operation is not generated by the scalar profile",
-                        ));
-                    }
-                }
-            }
-            _ => {
-                return Err(unsupported(
-                    self.entry,
-                    "Constraint needs an unsupported runtime input or collection expression",
-                ));
-            }
-        })
-    }
-}
 pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String, Diagnostic> {
-    let LinkedType::Record(fields) = &entry.value else {
-        return Err(unsupported(entry, "Constraints require a record"));
+    if let LinkedType::Record(fields) = &entry.value
+        && fields.len() == 1
+    {
+        let reference = match &fields[0].value {
+            LinkedType::Reference(id) => Some((*id, &[][..], &[][..])),
+            LinkedType::BoundReference {
+                entry,
+                bindings,
+                arguments,
+            } => Some((*entry, bindings.as_slice(), arguments.as_slice())),
+            _ => None,
+        };
+        if let Some((id, bindings, arguments)) = reference {
+            let common = program
+                .entries
+                .iter()
+                .find(|entry| entry.id == id)
+                .expect("linked common");
+            if matches!(common.value, LinkedType::Sequence(_)) {
+                let mut common = common.clone();
+                common.id = entry.id;
+                for constraint in &mut common.constraints {
+                    super::shorthand::specialize_constraint(
+                        constraint, bindings, arguments, entry,
+                    )?;
+                }
+                let YamlRepresentation::Mapping(mapping) = &entry.yaml else {
+                    return Err(unsupported(entry, "Owner needs a mapping"));
+                };
+                return generate_at(&common, program, Some(&mapping[0].key));
+            }
+        }
+    }
+    generate_at(entry, program, None)
+}
+fn generate_at(
+    entry: &LinkedEntry,
+    program: &Program,
+    base: Option<&str>,
+) -> Result<String, Diagnostic> {
+    let fields = match &entry.value {
+        LinkedType::Record(fields) => fields.as_slice(),
+        LinkedType::Sequence(item) => match item.as_ref() {
+            LinkedType::Record(fields) => fields.as_slice(),
+            _ => return Err(unsupported(entry, "Collection items need records")),
+        },
+        _ => {
+            return Err(unsupported(
+                entry,
+                "Constraints require a record or record sequence",
+            ));
+        }
     };
-    let YamlRepresentation::Mapping(yaml) = &entry.yaml else {
-        return Err(unsupported(entry, "Constraints require a YAML mapping"));
+    let yaml = match &entry.yaml {
+        YamlRepresentation::Mapping(mapping) => mapping.as_slice(),
+        YamlRepresentation::KeyedMapping { .. } => &[],
+        _ => return Err(unsupported(entry, "Constraints require a mapping")),
     };
+    let key_index = match &entry.yaml {
+        YamlRepresentation::KeyedMapping { key, .. } => fields
+            .iter()
+            .position(|field| field.name == *key)
+            .expect("linked key"),
+        _ => 0,
+    };
+    let prefix = base
+        .map(|key| format!(".field({key:?})"))
+        .unwrap_or_default();
     let mut out = String::new();
     for (side, phase, form) in [
-        ("xml", ValidationPhase::XmlImport, LinkedForm::XmlRecord),
+        (
+            "xml",
+            ValidationPhase::XmlImport,
+            if base.is_some() {
+                LinkedForm::XmlElementSequence
+            } else {
+                LinkedForm::XmlRecord
+            },
+        ),
         (
             "yaml",
             ValidationPhase::YamlValidation,
-            LinkedForm::YamlMapping,
+            if base.is_some() {
+                LinkedForm::YamlKeyedMapping
+            } else {
+                LinkedForm::YamlMapping
+            },
         ),
     ] {
         let selected: Vec<_> = entry
@@ -142,12 +97,16 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
             .iter()
             .filter(|constraint| {
                 constraint.applies_to.contains(&phase)
-                    && (constraint.forms.is_empty() || constraint.forms.contains(&form))
+                    && (constraint.forms.is_empty()
+                        || constraint.forms.contains(&form)
+                        || (base.is_some()
+                            && side == "yaml"
+                            && constraint.forms.contains(&LinkedForm::YamlScalar)))
             })
             .collect();
         writeln!(
             out,
-            "fn check_{side}_{}(_value: &V{}, _source: &[u8]) -> Vec<RuntimeDiagnostic> {{",
+            "fn check_{side}_{}(_value: &V{}, _source: &[u8], _inputs: &PreparedInputs) -> Vec<RuntimeDiagnostic> {{",
             entry.id, entry.id
         )
         .unwrap();
@@ -167,40 +126,61 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
         let mut body = String::new();
         for constraint in selected {
             expressions.fallible = false;
-            if constraint.for_each.is_some() || constraint.diagnostic.source.is_some() {
-                return Err(unsupported(
-                    entry,
-                    "Iteration and external diagnostic sources are not generated by this profile",
-                ));
-            }
-            let code = constraint.diagnostic.code.as_ref().ok_or_else(|| {
-                unsupported(
-                    entry,
-                    "A generated scalar constraint requires an explicit diagnostic code",
-                )
-            })?;
-            let message = constraint
-                .diagnostic
-                .message
-                .iter()
-                .map(|part| match part {
-                    LinkedMessagePart::Text(text) => Ok(text.as_str()),
-                    _ => Err(unsupported(
+            if let Some(iteration) = &constraint.for_each {
+                if base.is_none() {
+                    return Err(unsupported(
                         entry,
-                        "Dynamic diagnostic messages are not generated by this profile",
-                    )),
-                })
-                .collect::<Result<Vec<_>, _>>()?
-                .join("");
-            let when = constraint
+                        "Record iteration requires collection storage",
+                    ));
+                }
+                let input = expressions.lower(&iteration.input)?;
+                let count = if matches!(
+                    constraint.diagnostic.at,
+                    LinkedDiagnosticTarget::Occurrence { .. }
+                ) {
+                    format!(
+                        "let count=occurrences.entry(v{}.fields[{key_index}].as_str()).or_insert(0u32); let Some(next)=count.checked_add(1) else {{ errors.push(RuntimeDiagnostic::new(\"collection.too-many-occurrences\", \"Occurrence count exceeds supported range\")); break; }}; *count=next; let occurrence=std::num::NonZeroU32::new(next).expect(\"positive occurrence\");",
+                        iteration.slot
+                    )
+                } else {
+                    String::new()
+                };
+                let counter = if count.is_empty() {
+                    ""
+                } else {
+                    "let mut occurrences=std::collections::HashMap::new();"
+                };
+                writeln!(body, "let iterate = || -> core::Result<&[R{}]> {{ Ok({input}) }}; match iterate() {{ Err(error) => errors.push(error{prefix}), Ok(rows) => {{ {counter} for v{} in rows {{ {count}", entry.id, iteration.slot).unwrap();
+            }
+            let code = constraint.diagnostic.code.as_deref();
+            let source = constraint.diagnostic.source.as_deref();
+            let message = expressions.message(&constraint.diagnostic.message)?;
+            let message_fallible = expressions.fallible;
+            expressions.fallible = false;
+            let mut when = constraint
                 .when
                 .as_ref()
                 .map(|value| expressions.lower(value))
                 .transpose()?
                 .unwrap_or_else(|| "true".into());
+            if base.is_some() && side == "yaml" && !constraint.forms.is_empty() {
+                let selected = constraint
+                    .forms
+                    .iter()
+                    .filter_map(|form| match form {
+                        LinkedForm::YamlKeyedMapping => {
+                            Some("_value.form == core::yaml::Form::Mapping")
+                        }
+                        LinkedForm::YamlScalar => Some("_value.form == core::yaml::Form::Scalar"),
+                        _ => None,
+                    })
+                    .collect::<Vec<_>>()
+                    .join(" || ");
+                when = format!("({selected}) && ({when})");
+            }
             let assertion = expressions.lower(&constraint.assertion)?;
             let address = match constraint.diagnostic.at {
-                LinkedDiagnosticTarget::SelfValue => String::new(),
+                LinkedDiagnosticTarget::SelfValue => prefix.clone(),
                 LinkedDiagnosticTarget::Field(index) => {
                     let field = &fields[index as usize];
                     let key = &yaml
@@ -210,15 +190,16 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
                         .key;
                     format!(".field({key:?})")
                 }
-                _ => {
-                    return Err(unsupported(
-                        entry,
-                        "Occurrence diagnostics require collection generation",
-                    ));
-                }
+                LinkedDiagnosticTarget::Occurrence { slot, .. } => format!(
+                    "{prefix}.field(v{slot}.fields[{key_index}].as_str()).with_occurrence(occurrence)"
+                ),
             };
             let position = match constraint.diagnostic.at {
                 LinkedDiagnosticTarget::Field(index) => format!("_value.positions[{index}]"),
+                LinkedDiagnosticTarget::Occurrence { slot, field } => {
+                    format!("v{slot}.positions[{field}]")
+                }
+                LinkedDiagnosticTarget::SelfValue if base.is_some() => "_value.position".into(),
                 _ => "core::Position::default()".into(),
             };
             let severity = match constraint.diagnostic.severity {
@@ -231,13 +212,25 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
             } else {
                 format!("({when}) && !({assertion})")
             };
-            let report = format!(
-                "let mut error = RuntimeDiagnostic::new({code:?}, {message:?}){address}; error.severity = core::Severity::{severity}; errors.push({position}.apply(_source, error));"
+            let make_error = format!(
+                "RuntimeDiagnostic::declared({code:?}, {source:?}, core::Severity::{severity}, {message}){address}"
             );
+            let error = if message_fallible {
+                format!(
+                    "{{ let compose = || -> core::Result<RuntimeDiagnostic> {{ Ok({make_error}) }}; match compose() {{ Ok(error) => error, Err(error) => error{address} }} }}"
+                )
+            } else {
+                make_error
+            };
+            let report =
+                format!("let error = {error}; errors.push({position}.apply(_source, error));");
             if expressions.fallible {
                 writeln!(body, "let evaluate = || -> core::Result<bool> {{ Ok({condition}) }}; match evaluate() {{ Ok(true) => {{ {report} }}, Ok(false) => {{}}, Err(error) => errors.push({position}.apply(_source, error{address})), }}").unwrap();
             } else {
                 writeln!(body, "if {condition} {{ {report} }}").unwrap();
+            }
+            if constraint.for_each.is_some() {
+                body.push_str("} } }\n");
             }
         }
         out.push_str(&expressions.constants);

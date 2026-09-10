@@ -7,7 +7,7 @@ struct Field<'a> {
     key: &'a str,
     codec: Codec<'a>,
 }
-fn path_code(path: &[ExpandedName]) -> String {
+pub(super) fn path_code(path: &[ExpandedName]) -> String {
     format!(
         "&[{}]",
         path.iter()
@@ -18,6 +18,9 @@ fn path_code(path: &[ExpandedName]) -> String {
 }
 
 pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String, Diagnostic> {
+    if let Some(source) = super::collections::generate(entry, program)? {
+        return Ok(source);
+    }
     plain_shape(entry)?;
     let (LinkedType::Record(types), LinkedXml::Record(xml), YamlRepresentation::Mapping(yaml)) =
         (&entry.value, &entry.xml, &entry.yaml)
@@ -96,7 +99,7 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
         let side = if xml_side { "xml" } else { "yaml" };
         writeln!(
             out,
-            "fn read_{side}_{id}(source: &[u8]) -> core::Result<V{id}> {{"
+            "fn read_{side}_{id}(source: &[u8], _inputs: &PreparedInputs) -> core::Result<V{id}> {{"
         )
         .unwrap();
         writeln!(
@@ -109,7 +112,7 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
             writeln!(out, "let mut r{i}: Option<String> = None;").unwrap();
         }
         if xml_side {
-            out.push_str("core::xml::visit(source, |path, token| { match token { core::xml::Token::Start(offset) => {\n");
+            out.push_str("core::xml::visit(source, |path, token| { match token { core::xml::Token::Attribute(_) => Err(RuntimeDiagnostic::new(\"xml.unknown-attribute\", \"Undeclared XML attribute\")), core::xml::Token::Start(offset) => {\n");
             for (i, field) in fields.iter().enumerate() {
                 writeln!(out, "if core::xml::matches(path, {}) {{ if r{i}.is_some() {{ return Err(RuntimeDiagnostic::new(\"xml.duplicate-field\", {:?})); }} positions[{i}] = core::Position::xml(offset); r{i} = Some(String::new()); return Ok(()); }}", path_code(field.path), field.key).unwrap();
             }
@@ -168,15 +171,15 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
         .map(|name| name.namespace.as_str())
         .filter(|ns| !ns.is_empty())
         .collect();
-    writeln!(out, "fn write_xml_{id}(value: &V{id}) -> Vec<u8> {{ let mut out = core::xml::Writer::new(&{:?});", namespaces.into_iter().collect::<Vec<_>>()).unwrap();
+    writeln!(out, "fn write_xml_{id}(value: &V{id}, _inputs: &PreparedInputs) -> core::Result<Vec<u8>> {{ let mut out = core::xml::Writer::new(&{:?});", namespaces.into_iter().collect::<Vec<_>>()).unwrap();
     for (i, field) in fields.iter().enumerate() {
         let text = field.codec.write(&format!("E{id}F{i}"), i, true);
         writeln!(out, "out.field({}, {text});", path_code(field.path)).unwrap();
     }
-    out.push_str("out.finish() }\n");
+    out.push_str("Ok(out.finish()) }\n");
     writeln!(
         out,
-        "fn write_yaml_{id}(value: &V{id}) -> Vec<u8> {{ let mut out = String::new();"
+        "fn write_yaml_{id}(value: &V{id}, _inputs: &PreparedInputs) -> core::Result<Vec<u8>> {{ let mut out = String::new();"
     )
     .unwrap();
     for (i, field) in fields.iter().enumerate() {
@@ -188,8 +191,8 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
         };
         writeln!(out, "out.push_str(&core::yaml::scalar({:?})); out.push_str(\": \"); out.push_str({yaml}); out.push('\\n');", field.key).unwrap();
     }
-    out.push_str("if !out.is_empty() { out.pop(); } out.into_bytes() }\n");
-    writeln!(out, "fn verify_{id}(original: &[u8], candidate: &[u8]) -> core::Result<()> {{ let value = read_yaml_{id}(candidate)?; if let Some(error) = check_yaml_{id}(&value, candidate).into_iter().find(|error| error.severity == core::Severity::Error) {{ return Err(error); }} let restored = write_xml_{id}(&value); core::proof::verify(original, &restored, |path| {{").unwrap();
+    out.push_str("if !out.is_empty() { out.pop(); } Ok(out.into_bytes()) }\n");
+    writeln!(out, "fn verify_{id}(original: &[u8], candidate: &[u8], _inputs: &PreparedInputs) -> core::Result<()> {{ let value = read_yaml_{id}(candidate, _inputs)?; if let Some(error) = check_yaml_{id}(&value, candidate, _inputs).into_iter().find(|error| error.severity == core::Severity::Error) {{ return Err(error); }} let restored = write_xml_{id}(&value, _inputs)?; core::proof::verify(original, &restored, |path| {{").unwrap();
     out.push_str(
         &fields
             .iter()
@@ -201,5 +204,6 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
         out.push_str("false");
     }
     out.push_str("}) }\n");
+    writeln!(out, "fn finalize_yaml_{id}(original: &[u8], candidate: Vec<u8>, _value: &V{id}, inputs: &PreparedInputs) -> core::Result<Vec<u8>> {{ verify_{id}(original, &candidate, inputs)?; Ok(candidate) }}").unwrap();
     Ok(out)
 }

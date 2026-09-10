@@ -42,7 +42,7 @@ constraints:
     appliesTo: [xml-import, yaml-validation]
     assert: {lte: [{literal: 0}, {field: codeLength}]}
     diagnostic:
-      code: example.code-length-minimum
+      source: structure
       severity: error
       at: {field: codeLength}
       message: Длина кода неотрицательна

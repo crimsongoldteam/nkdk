@@ -8,12 +8,26 @@ pub fn writer_count() -> usize {
 
 use quick_xml::{NsReader, events::Event, name::ResolveResult};
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Name {
     pub namespace: String,
     pub local: String,
 }
+pub struct Attribute {
+    pub name: Name,
+    pub text: String,
+    pub qname: Option<Name>,
+}
+pub enum AttributeValue<'a> {
+    Text(&'a str),
+    QName((&'static str, &'static str)),
+}
+pub struct WriteAttribute<'a> {
+    pub name: (&'static str, &'static str),
+    pub value: AttributeValue<'a>,
+}
 pub enum Token<'a> {
+    Attribute(Attribute),
     Start(usize),
     Text(&'a str),
     End,
@@ -80,19 +94,75 @@ pub fn visit(
                         ));
                     }
                 };
+                let mut attributes = Vec::new();
                 for attribute in e.attributes() {
-                    let a = attribute
-                        .map_err(|e| RuntimeDiagnostic::new("xml.syntax", e.to_string()))?;
-                    if a.key.as_ref() != "xmlns" && !a.key.as_ref().starts_with("xmlns:") {
-                        return Err(located(
-                            text,
-                            offset,
-                            RuntimeDiagnostic::new(
-                                "xml.unknown-attribute",
-                                "Attribute is not supported by this generated operation",
-                            ),
-                        ));
+                    let attribute = attribute
+                        .map_err(|error| RuntimeDiagnostic::new("xml.syntax", error.to_string()))?;
+                    if attribute.key.as_ref() == "xmlns"
+                        || attribute.key.as_ref().starts_with("xmlns:")
+                    {
+                        continue;
                     }
+                    let (ns, local) = reader.resolver().resolve_attribute(attribute.key);
+                    let namespace = match ns {
+                        ResolveResult::Unbound => String::new(),
+                        ResolveResult::Bound(value) => value.as_ref().to_owned(),
+                        ResolveResult::Unknown(_) => {
+                            return Err(located(
+                                text,
+                                offset,
+                                RuntimeDiagnostic::new("xml.namespace", "Unbound attribute prefix"),
+                            ));
+                        }
+                    };
+                    let name = Name {
+                        namespace,
+                        local: local.as_ref().to_owned(),
+                    };
+                    let value = attribute
+                        .normalized_value(quick_xml::XmlVersion::Implicit1_0)
+                        .map_err(|error| {
+                            RuntimeDiagnostic::new("xml.attribute", error.to_string())
+                        })?
+                        .into_owned();
+                    validate_text(&value)?;
+                    let qname = if !value.is_empty() && !value.chars().any(char::is_whitespace) {
+                        let (ns, local) = reader
+                            .resolver()
+                            .resolve_element(quick_xml::name::QName(&value));
+                        match ns {
+                            ResolveResult::Unknown(_) => None,
+                            ResolveResult::Unbound => Some(Name {
+                                namespace: String::new(),
+                                local: local.as_ref().to_owned(),
+                            }),
+                            ResolveResult::Bound(namespace) => Some(Name {
+                                namespace: namespace.as_ref().to_owned(),
+                                local: local.as_ref().to_owned(),
+                            }),
+                        }
+                    } else {
+                        None
+                    };
+                    attributes.push(Attribute {
+                        name,
+                        text: value,
+                        qname,
+                    });
+                }
+                attributes.sort_unstable_by(|a, b| a.name.cmp(&b.name));
+                if attributes
+                    .windows(2)
+                    .any(|pair| pair[0].name == pair[1].name)
+                {
+                    return Err(located(
+                        text,
+                        offset,
+                        RuntimeDiagnostic::new(
+                            "xml.duplicate-attribute",
+                            "Repeated expanded attribute name",
+                        ),
+                    ));
                 }
                 path.push(Name {
                     namespace,
@@ -100,6 +170,10 @@ pub fn visit(
                 });
                 consume(&path, Token::Start(offset))
                     .map_err(|error| located(text, offset, error))?;
+                for attribute in attributes {
+                    consume(&path, Token::Attribute(attribute))
+                        .map_err(|error| located(text, offset, error))?;
+                }
                 if matches!(event, Event::Empty(_)) {
                     consume(&path, Token::End)?;
                     path.pop();
@@ -203,6 +277,7 @@ pub fn escape(value: &str) -> String {
 pub struct Writer {
     output: String,
     path: Vec<(&'static str, &'static str)>,
+    children: Vec<bool>,
     namespaces: &'static [&'static str],
 }
 impl Writer {
@@ -212,6 +287,7 @@ impl Writer {
         Self {
             output: "\u{feff}<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n".into(),
             path: vec![],
+            children: vec![],
             namespaces,
         }
     }
@@ -231,7 +307,8 @@ impl Writer {
     }
     fn close(&mut self, container: bool) {
         let name = self.path.pop().unwrap();
-        if container {
+        let children = self.children.pop().expect("opened element");
+        if container && children {
             self.output.push('\n');
             for _ in 0..self.path.len() {
                 self.output.push('\t');
@@ -239,7 +316,14 @@ impl Writer {
         }
         self.output.push_str(&format!("</{}>", self.name(name)));
     }
-    pub fn field(&mut self, path: &'static [(&'static str, &'static str)], value: &str) {
+    pub fn container(&mut self, path: &'static [(&'static str, &'static str)]) {
+        self.container_with_attributes(path, &[]);
+    }
+    pub fn container_with_attributes(
+        &mut self,
+        path: &'static [(&'static str, &'static str)],
+        attributes: &[WriteAttribute<'_>],
+    ) {
         let common = self
             .path
             .iter()
@@ -249,7 +333,11 @@ impl Writer {
         while self.path.len() > common {
             self.close(true);
         }
-        for &part in &path[common..] {
+        assert!(
+            attributes.is_empty() || common < path.len(),
+            "Attributes require a newly opened element"
+        );
+        for (index, &part) in path[common..].iter().enumerate() {
             if !self.path.is_empty() {
                 self.output.push('\n');
                 for _ in 0..self.path.len() {
@@ -266,9 +354,36 @@ impl Writer {
                     ));
                 }
             }
+            if common + index + 1 == path.len() {
+                for attribute in attributes {
+                    self.output.push(' ');
+                    self.output.push_str(&self.name(attribute.name));
+                    self.output.push_str("=\"");
+                    let value = match attribute.value {
+                        AttributeValue::Text(value) => escape(value)
+                            .replace('"', "&quot;")
+                            .replace('\n', "&#10;")
+                            .replace('\r', "&#13;")
+                            .replace('\t', "&#9;"),
+                        AttributeValue::QName(name) => self.name(name),
+                    };
+                    self.output.push_str(&value);
+                    self.output.push('"');
+                }
+            }
             self.output.push('>');
+            if let Some(parent) = self.children.last_mut() {
+                *parent = true;
+            }
             self.path.push(part);
+            self.children.push(false);
         }
+    }
+    pub fn end_container(&mut self) {
+        self.close(true);
+    }
+    pub fn field(&mut self, path: &'static [(&'static str, &'static str)], value: &str) {
+        self.container(path);
         self.output.push_str(&escape(value));
         self.close(false);
     }

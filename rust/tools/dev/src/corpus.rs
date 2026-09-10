@@ -62,10 +62,13 @@ fn run_case(root: &Path, case: &Value) -> Result<(), String> {
     if case["outcome"] != "success" {
         return Err("Unsupported expected outcome".into());
     }
-    if case["comparison"]["xml"] != "exact" || case["comparison"]["yaml"] != "exact" {
-        return Err(
-            "Only exact byte comparisons are implemented; no fallback comparison is allowed".into(),
-        );
+    let structural = match case["comparison"]["xml"].as_str() {
+        Some("exact") => false,
+        Some("structural") => true,
+        _ => return Err("Unsupported XML comparison; no fallback is allowed".into()),
+    };
+    if case["comparison"]["yaml"] != "exact" {
+        return Err("Only exact YAML comparisons are supported".into());
     }
     if case["comparison"]["exceptions"]
         .as_array()
@@ -90,12 +93,19 @@ fn run_case(root: &Path, case: &Value) -> Result<(), String> {
     }
     let backward = convert_file(entry, Direction::YamlToXml, &yaml, &inputs)
         .map_err(|e| format!("YAML→XML: {e:?}"))?;
-    if backward.bytes != expected_xml || !backward.diagnostics.is_empty() {
+    if structural {
+        verify_candidate(entry, &expected_xml, &yaml, &inputs)
+            .map_err(|e| format!("Expected XML structure differs: {e:?}"))?;
+    }
+    if (!structural && backward.bytes != expected_xml) || !backward.diagnostics.is_empty() {
         return Err("YAML→XML differs from the independent expectation".into());
     }
     let round_trip = convert_file(entry, Direction::YamlToXml, &forward.bytes, &inputs)
         .map_err(|e| format!("round-trip: {e:?}"))?;
-    if round_trip.bytes != expected_xml {
+    if structural {
+        verify_candidate(entry, &expected_xml, &forward.bytes, &inputs)
+            .map_err(|e| format!("Final YAML does not recover expected XML structure: {e:?}"))?;
+    } else if round_trip.bytes != expected_xml {
         return Err("Final YAML does not recover the expected XML bytes".into());
     }
     verify_candidate(entry, &xml, &forward.bytes, &inputs).map_err(|e| format!("proof: {e:?}"))?;
@@ -107,11 +117,16 @@ fn run_case(root: &Path, case: &Value) -> Result<(), String> {
 }
 
 fn native_diagnostics(values: &[RuntimeDiagnostic]) -> Value {
-    serde_json::json!(values.iter().map(|value| serde_json::json!({
-        "code": value.code,
-        "severity": match value.severity { Severity::Error => "error", Severity::Warning => "warning", Severity::Info => "info" },
-        "file": value.file, "path": value.path, "line": value.line, "column": value.column, "message": value.message
-    })).collect::<Vec<_>>())
+    serde_json::json!(values.iter().map(|value| {
+        let mut diagnostic = serde_json::json!({
+            "severity": match value.severity { Severity::Error => "error", Severity::Warning => "warning", Severity::Info => "info" },
+            "file": value.file, "path": value.path, "line": value.line, "column": value.column, "message": value.message
+        });
+        if let Some(code) = &value.code { diagnostic["code"] = serde_json::json!(code); }
+        if let Some(occurrence) = value.occurrence { diagnostic["occurrence"] = serde_json::json!(occurrence.get()); }
+        if let Some(source) = &value.source { diagnostic["source"] = serde_json::json!(source); }
+        diagnostic
+    }).collect::<Vec<_>>())
 }
 fn run_failure(root: &Path, case: &Value, entry: EntryId) -> Result<(), String> {
     if case["diagnosticsFormat"] != "rust-runtime-v1" {

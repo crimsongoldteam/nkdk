@@ -67,29 +67,26 @@ impl Context<'_> {
             TextCondition::NextAfterRun { class, next } => {
                 let next_id = self.lookahead.len();
                 let index = *self.lookahead.entry(class.clone()).or_insert(next_id);
-                let member = self.class(class, &format!("units[look{index}]"));
-                let next = next.as_ref().map_or_else(
-                    || format!("look{index} == units.len()"),
+                next.as_ref().map_or_else(
+                    || format!("after{index}(_index) == units.len()"),
                     |class| {
                         format!(
-                            "units.get(look{index}).is_some_and(|&_next| {})",
+                            "units.get(after{index}(_index)).is_some_and(|&_next| {})",
                             self.class(class, "_next")
                         )
                     },
-                );
-                format!(
-                    "{{ if look{index} <= _index {{ look{index} = _index; while look{index} < units.len() && {member} {{ look{index} += 1; }} }} {next} }}"
                 )
             }
         }
     }
-    fn casing(&self, case: &TextCase) -> String {
+    fn casing(&self, case: &TextCase, guard: Option<&str>) -> String {
         match case {
             TextCase::Identity => String::new(),
             TextCase::LowerFirstUnlessAllInClass(class) => {
                 let member = self.class(class, "_unit");
+                let guard = guard.map_or(String::new(), |guard| format!("({guard}) && "));
                 let mut output = format!(
-                    "if !_output[_start..].iter().all(|&_unit| {member}) {{ _output[_start] = match _output[_start] {{\n"
+                    "if {guard}!_output[_start..].iter().all(|&_unit| {member}) {{ _output[_start] = match _output[_start] {{\n"
                 );
                 for shift in &self.definition.result.lowercase {
                     writeln!(
@@ -120,6 +117,12 @@ pub(super) fn generate(entry: u32, index: u32, definition: &TextTransform) -> St
     };
     let mut transitions = String::new();
     for (index, transition) in definition.transitions.iter().enumerate() {
+        if transition.when.is_none()
+            && matches!(transition.emit, TextEmit::Discard)
+            && transition.set.is_empty()
+        {
+            continue;
+        }
         if index != 0 {
             transitions.push_str("else ");
         }
@@ -159,8 +162,9 @@ pub(super) fn generate(entry: u32, index: u32, definition: &TextTransform) -> St
         empty(&definition.result.empty_input)
     );
     // Every run cursor advances monotonically, so lookahead cannot repeatedly scan a long run.
-    for index in context.lookahead.values() {
-        writeln!(output, "let mut look{index} = 0;").unwrap();
+    for (class, index) in &context.lookahead {
+        let member = context.class(class, &format!("units[look{index}]"));
+        writeln!(output, "let mut look{index} = 0; let mut after{index} = |position: usize| {{ if look{index} <= position {{ look{index} = position; while look{index} < units.len() && {member} {{ look{index} += 1; }} }} look{index} }};").unwrap();
     }
     for (index, flag) in definition.state.iter().enumerate() {
         let mutable = if definition.transitions.iter().any(|transition| {
@@ -175,8 +179,22 @@ pub(super) fn generate(entry: u32, index: u32, definition: &TextTransform) -> St
         };
         writeln!(output, "let {mutable}_flag{index} = {};", flag.value).unwrap();
     }
-    writeln!(output, "let finish_token = |_output: &mut Vec<u16>, _start: usize, first: bool| {{ if first {{ {} }} else {{ {} }} }};", context.casing(&definition.result.first), context.casing(&definition.result.rest)).unwrap();
-    output.push_str("for (_index, &_unit) in units.iter().enumerate() {\n");
+    let finish = if definition.result.first == definition.result.rest {
+        context.casing(&definition.result.first, None)
+    } else {
+        context.casing(&definition.result.first, Some("_first"))
+            + &context.casing(&definition.result.rest, Some("!_first"))
+    };
+    writeln!(
+        output,
+        "let finish_token = |_output: &mut [u16], _start: usize, _first: bool| {{ {finish} }};"
+    )
+    .unwrap();
+    output.push_str(if context.lookahead.is_empty() {
+        "for &_unit in &units {\n"
+    } else {
+        "for (_index, &_unit) in units.iter().enumerate() {\n"
+    });
     output.push_str(&transitions);
     writeln!(output, "}} if output.is_empty() {{ return Ok({}); }} finish_token(&mut output, start, first); drop(units); String::from_utf16(&output).map(Some).map_err(|error| RuntimeDiagnostic::new(\"text.invalid-utf16\", error.to_string())) }}", empty(&definition.result.no_tokens)).unwrap();
     output

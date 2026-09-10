@@ -1700,6 +1700,16 @@ fn canonical_xml_attributes_preserve_value_shape_and_expand_qnames() {
     };
     assert_eq!(value.namespace, "http://v8.1c.ru/8.1/data/core");
     assert_eq!(value.local, "LocalStringType");
+    let dynamic = source.replace(
+        "{parameter: typedXML}",
+        "{eq: [{input: defaultLanguage}, {literal: ru}]}",
+    );
+    let dynamic = parse(SourceFile {
+        path: "dynamic.yaml",
+        bytes: dynamic.as_bytes(),
+    })
+    .unwrap();
+    assert!(link(&[dynamic]).is_ok());
 
     for (from, to, code) in [
         (
@@ -1711,11 +1721,6 @@ fn canonical_xml_attributes_preserve_value_shape_and_expand_qnames() {
             "v8:LocalStringType",
             "missing:LocalStringType",
             "missing_namespace",
-        ),
-        (
-            "{parameter: typedXML}",
-            "{eq: [{input: defaultLanguage}, {literal: ru}]}",
-            "dynamic_attribute_condition",
         ),
         (
             "    content:\n",

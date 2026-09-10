@@ -1,6 +1,7 @@
 mod publication;
 use nkdk_compiled_rules::{
-    Direction, PreparedInputs, RuntimeDiagnostic, Severity, convert_file, entry_id, validate_file,
+    Direction, PreparedInputs, RuntimeDiagnostic, Severity, convert_file, entry_id, read_inputs,
+    validate_file,
 };
 use std::{collections::BTreeMap, fs, path::Path};
 fn main() {
@@ -38,17 +39,11 @@ fn run() -> Result<(), String> {
         entry_id(required("--entry")?).ok_or("Entry is not supported by this generated catalog")?;
     let input_path = required("--input")?;
     let source = fs::read(input_path).map_err(|e| e.to_string())?;
-    if let Some(path) = options.get("--inputs") {
-        let value: serde_json::Value =
-            serde_json::from_slice(&fs::read(path).map_err(|e| e.to_string())?)
-                .map_err(|e| e.to_string())?;
-        if !value.as_object().is_some_and(|object| object.is_empty()) {
-            return Err(
-                "The current scalar entries accept only an empty prepared-input object".into(),
-            );
-        }
-    }
-    let inputs = PreparedInputs::default();
+    let inputs = match options.get("--inputs") {
+        Some(path) => read_inputs(entry, &fs::read(path).map_err(|error| error.to_string())?)
+            .map_err(|error| format!("{path}: {error:?}"))?,
+        None => PreparedInputs::default(),
+    };
     if command == "validate-file" {
         if options.contains_key("--direction") || options.contains_key("--output") {
             return Err("validate-file does not accept --direction or --output".into());
