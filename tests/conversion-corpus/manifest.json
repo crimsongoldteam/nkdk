@@ -856,6 +856,103 @@
         "packages/rules/metadata/commonObjects/formattedI8nText/__fixtures__/data.ts"
       ],
       "verification": "Source-reviewed independent expectations; Rust execution pending; no new annotation policy"
+    },
+    {
+      "id": "i8n-name-empty-container",
+      "group": "i8n-text",
+      "capabilities": [
+        "reversible-collection-pattern",
+        "physical-empty-preservation"
+      ],
+      "inputs": {
+        "xml": {
+          "path": "tests/conversion-corpus/cases/i8n-name-empty-container/input.xml",
+          "sha256": "f28eb237ed61406ee509b46059364281ad7740306af7190622d5b425c31c7a67"
+        },
+        "yaml": {
+          "path": "tests/conversion-corpus/cases/i8n-name-empty-container/expected.yaml",
+          "sha256": "b4ceb62f2998e6604ce9311c07132339ba1717e21c696c96f4122f9630e6b89a"
+        }
+      },
+      "context": "tests/conversion-corpus/cases/i8n-name-empty-container/context.json",
+      "directions": [
+        "xml-to-yaml",
+        "yaml-to-xml",
+        "round-trip",
+        "yaml-validation"
+      ],
+      "outcome": "success",
+      "expectations": {
+        "xml": "tests/conversion-corpus/cases/i8n-name-empty-container/input.xml",
+        "yaml": "tests/conversion-corpus/cases/i8n-name-empty-container/expected.yaml",
+        "diagnostics": "tests/conversion-corpus/cases/i8n-name-empty-container/diagnostics.json"
+      },
+      "comparison": {
+        "yaml": "exact",
+        "xml": "structural",
+        "exceptions": []
+      },
+      "scope": "independent property contract; not full project e2e",
+      "xmlInputKind": "independently-authored-fragment",
+      "evidence": [
+        "docs/superpowers/reports/2026-09-10-i8n-e2e-frequency.md",
+        "tests/migration/i8n-full-round-trip-observations.json",
+        ".agents/xml-anomalies.md"
+      ],
+      "verification": "User approved rare physical-empty anomaly after frequency research; expectations source-reviewed against profile 2 empty-container/empty-primary, Rust execution pending"
+    },
+    {
+      "id": "i8n-name-physical-empty",
+      "group": "i8n-text",
+      "capabilities": [
+        "reversible-collection-pattern",
+        "physical-empty-preservation"
+      ],
+      "inputs": {
+        "xml": {
+          "path": "tests/conversion-corpus/cases/i8n-name-physical-empty/input.xml",
+          "sha256": "a92d7266762caecfc351c222624eea1620747bfb9493636e6daf1d5e5986d212"
+        },
+        "yaml": {
+          "path": "tests/conversion-corpus/cases/i8n-name-physical-empty/expected.yaml",
+          "sha256": "2decce86bd92b249acf284a96cc54b450f26290e8696bc124f341d17038f04c1"
+        }
+      },
+      "context": "tests/conversion-corpus/cases/i8n-name-physical-empty/context.json",
+      "directions": [
+        "xml-to-yaml",
+        "yaml-to-xml",
+        "round-trip",
+        "yaml-validation"
+      ],
+      "outcome": "success",
+      "expectations": {
+        "xml": "tests/conversion-corpus/cases/i8n-name-physical-empty/input.xml",
+        "yaml": "tests/conversion-corpus/cases/i8n-name-physical-empty/expected.yaml",
+        "diagnostics": "tests/conversion-corpus/cases/i8n-name-physical-empty/diagnostics.json"
+      },
+      "comparison": {
+        "yaml": "exact",
+        "xml": "structural",
+        "exceptions": []
+      },
+      "scope": "independent property contract; not full project e2e",
+      "xmlInputKind": "independently-authored-fragment",
+      "evidence": [
+        "docs/superpowers/reports/2026-09-10-i8n-e2e-frequency.md",
+        "tests/migration/i8n-full-round-trip-observations.json",
+        ".agents/xml-anomalies.md"
+      ],
+      "verification": "User approved rare physical-empty anomaly after frequency research; expectations source-reviewed against profile 2 empty-container/empty-primary, Rust execution pending",
+      "annotationPolicy": {
+        "kind": "raw",
+        "yamlPath": [
+          "Заголовок"
+        ],
+        "xmlBoundary": "Title",
+        "reason": "Empty scalar denotes zero translations; the physical empty ru item cannot be recovered from it. This property is the smallest existing address in the scalar YAML form. Owner root raw is forbidden.",
+        "authorization": "User confirmed frequency-based selection: absence is ordinary, physical empty is exceptional only when otherwise not recoverable."
+      }
     }
   ],
   "pendingImport": [

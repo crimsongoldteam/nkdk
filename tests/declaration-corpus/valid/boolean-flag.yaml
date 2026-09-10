@@ -1,0 +1,19 @@
+format: nkdk-declarations/1
+kind: value
+id: common.boolean-flag
+value: {kind: scalar, scalar: boolean}
+representations:
+  xml:
+    kind: text
+    values:
+      - {value: true, text: "true"}
+      - {value: false, text: "false"}
+  yaml:
+    kind: scalar
+    values:
+      - {value: true, literal: Истина}
+presence:
+  - target: self
+    yaml:
+      missing: {denotes: {literal: false}}
+      omitWhen: {not: {self: true}}

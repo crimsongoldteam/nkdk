@@ -1908,3 +1908,95 @@ representations:
             .any(|error| error.code == "xml_path_collision" && !error.related.is_empty())
     );
 }
+
+#[test]
+fn imported_collection_and_sibling_attribute_share_xml_wrapper_without_overlapping_ownership() {
+    let formatted =
+        include_str!("../../../../tests/declaration-corpus/valid/formatted-i8n-text-core.yaml");
+    let text = include_str!("../../../../tests/declaration-corpus/valid/i8n-text-core.yaml");
+    let boolean = include_str!("../../../../tests/declaration-corpus/valid/boolean-flag.yaml");
+    let check = |formatted: &str, text: &str| {
+        let source = [
+            ("formatted.yaml", formatted),
+            ("text.yaml", text),
+            ("boolean.yaml", boolean),
+        ]
+        .map(|(path, text)| {
+            parse(SourceFile {
+                path,
+                bytes: text.as_bytes(),
+            })
+            .unwrap()
+        });
+        link(&source)
+    };
+    assert!(
+        check(formatted, text).is_ok(),
+        "imported children and parent attribute have distinct ownership: {:?}",
+        check(formatted, text)
+    );
+    let invalid_attribute = formatted.replace(
+        "type: {use: boolean}",
+        "type: {use: text, bind: {defaultLanguage: {input: defaultLanguage}}}",
+    );
+    assert!(
+        check(&invalid_attribute, text)
+            .expect_err("collection cannot be an attribute")
+            .iter()
+            .any(|error| error.code == "invalid_attribute_type")
+    );
+    for replacement in [
+        "        path: [v8:item]",
+        "        path: [v8:item]\n        attribute: formatted",
+    ] {
+        let conflicting = formatted
+            .replace(
+                "imports:\n",
+                "namespaces:\n  v8: http://v8.1c.ru/8.1/data/core\nimports:\n",
+            )
+            .replace(
+                "        path: []\n        attribute: formatted",
+                replacement,
+            );
+        let errors = check(&conflicting, text)
+            .expect_err("repeated element and its attributes have one owner");
+        assert!(
+            errors
+                .iter()
+                .any(|error| error.code == "xml_path_collision" && !error.related.is_empty())
+        );
+    }
+}
+
+#[test]
+fn boolean_value_can_be_represented_by_reversible_absence_instead_of_a_literal() {
+    let source = include_str!("../../../../tests/declaration-corpus/valid/boolean-flag.yaml");
+    let check = |source: &str| {
+        let module = parse(SourceFile {
+            path: "flag.yaml",
+            bytes: source.as_bytes(),
+        })
+        .unwrap();
+        link(&[module])
+    };
+    assert!(
+        check(source).is_ok(),
+        "false is restored from absence: {:?}",
+        check(source)
+    );
+    for invalid in [
+        source.replace(
+            "missing: {denotes: {literal: false}}",
+            "missing: {denotes: {literal: true}}",
+        ),
+        source.replace("omitWhen: {not: {self: true}}", "omitWhen: {self: true}"),
+        source.replace("      omitWhen: {not: {self: true}}\n", ""),
+    ] {
+        let errors = check(&invalid).expect_err("unrepresented value cannot be recovered");
+        assert!(
+            errors
+                .iter()
+                .any(|error| error.code == "unrepresented_boolean_value")
+        );
+    }
+}

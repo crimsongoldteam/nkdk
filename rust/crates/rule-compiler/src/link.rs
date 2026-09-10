@@ -1,4 +1,5 @@
 mod bindings;
+mod boolean;
 mod collections;
 mod composition;
 mod constraints;
@@ -14,6 +15,7 @@ mod shorthands;
 mod text;
 mod type_graph;
 mod xml_attributes;
+mod xml_ownership;
 use bindings::resolve_bindings;
 use nkdk_rule_model::*;
 use std::collections::{BTreeMap, BTreeSet};
@@ -82,6 +84,7 @@ pub fn link(modules: &[Module]) -> Result<Program, Vec<Diagnostic>> {
         }
     }
     if errors.is_empty() {
+        xml_ownership::validate(&cache).map_err(|error| vec![error])?;
         Ok(Program {
             entries: cache.into_values().collect(),
         })
@@ -550,7 +553,6 @@ fn validate_xml(
         (LinkedType::Record(fields), LinkedXml::Record(mappings)) => {
             let names: BTreeSet<_> = fields.iter().map(|field| field.name.as_str()).collect();
             let mut covered = BTreeSet::new();
-            let mut paths: BTreeMap<Vec<(bool, String, String)>, &SourceLocation> = BTreeMap::new();
             for mapping in mappings {
                 if !names.contains(mapping.field.as_str()) {
                     return Err(diagnostic(
@@ -566,27 +568,6 @@ fn validate_xml(
                         "Field has multiple XML mappings",
                     ));
                 }
-                let mut key: Vec<_> = mapping
-                    .path
-                    .iter()
-                    .map(|name| (false, name.namespace.clone(), name.local.clone()))
-                    .collect();
-                if let Some(attribute) = &mapping.attribute {
-                    key.push((true, attribute.namespace.clone(), attribute.local.clone()));
-                }
-                if let Some((_, first)) = paths
-                    .iter()
-                    .find(|(path, _)| path.starts_with(&key) || key.starts_with(path))
-                {
-                    let mut error = diagnostic(
-                        "xml_path_collision",
-                        &mapping.source,
-                        "XML path has multiple owners",
-                    );
-                    error.related.push((*first).clone());
-                    return Err(error);
-                }
-                paths.insert(key, &mapping.source);
             }
             check_coverage(fields, &covered, presence, RepresentationSide::Xml, source)?;
         }
@@ -687,7 +668,7 @@ fn validate_yaml(
             }
         }
         (LinkedType::Scalar(ScalarType::Boolean), YamlRepresentation::BooleanTable(table)) => {
-            validate_boolean_table(table, source)?
+            boolean::yaml_table(table, presence, source)?
         }
         (LinkedType::Scalar(ScalarType::Text), YamlRepresentation::Text) => {}
         _ => {

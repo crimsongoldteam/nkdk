@@ -1,0 +1,33 @@
+format: nkdk-declarations/1
+kind: value
+id: common.formatted-i8n-text-core
+imports:
+  text: common.i8n-text
+  boolean: common.boolean-flag
+inputs:
+  defaultLanguage:
+    type: {kind: scalar, scalar: text}
+value:
+  kind: record
+  fields:
+    - name: formatted
+      type: {use: boolean}
+    - name: text
+      type:
+        use: text
+        bind:
+          defaultLanguage: {input: defaultLanguage}
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: formatted
+        path: []
+        attribute: formatted
+      - field: text
+        path: []
+  yaml:
+    kind: mapping
+    fields:
+      - {field: formatted, key: Форматированный}
+      - {field: text, key: Текст}

@@ -1,0 +1,158 @@
+{
+  "files": 1125,
+  "parsed": 1125,
+  "parseErrors": [],
+  "corpusSha256": "5a72118639a2a3979ee16000acc5146e76c45a4f8ec0f50b1d8dbe4d324b3a2e",
+  "candidateContainers": {
+    "total": {
+      "no-items": 4794,
+      "ru-nonempty": 2730,
+      "ru-absent-with-other": 10
+    },
+    "components": {
+      "cf": {
+        "no-items": 1798,
+        "ru-nonempty": 1639,
+        "ru-absent-with-other": 7
+      },
+      "cfe/all-extension": {
+        "ru-nonempty": 1089,
+        "no-items": 2986,
+        "ru-absent-with-other": 3
+      },
+      "cfe/control": {
+        "ru-nonempty": 1,
+        "no-items": 5
+      },
+      "cfe/default": {
+        "ru-nonempty": 1,
+        "no-items": 5
+      }
+    }
+  },
+  "synonyms": {
+    "total": {
+      "no-items": 913,
+      "ru-nonempty": 890,
+      "ru-absent-with-other": 10
+    },
+    "components": {
+      "cf": {
+        "no-items": 226,
+        "ru-nonempty": 514,
+        "ru-absent-with-other": 7
+      },
+      "cfe/all-extension": {
+        "ru-nonempty": 374,
+        "no-items": 687,
+        "ru-absent-with-other": 3
+      },
+      "cfe/control": {
+        "ru-nonempty": 1
+      },
+      "cfe/default": {
+        "ru-nonempty": 1
+      }
+    }
+  },
+  "emptyExamples": [],
+  "absentOtherExamples": [
+    {
+      "file": "cf/ChartsOfAccounts/ПланСчетовВсеСвойства.xml",
+      "path": "/MetaDataObject[1]/ChartOfAccounts[1]/Properties[1]/StandardTabularSections[1]/StandardTabularSection[1]/Synonym[1]",
+      "tag": "{http://v8.1c.ru/8.3/xcf/readable}Synonym",
+      "category": "ru-absent-with-other",
+      "items": 1,
+      "emptyRu": 0
+    },
+    {
+      "file": "cf/ChartsOfCalculationTypes/ПланВидовРасчетаМаксимальнаяДлинаКодаИНаименованияЧисло.xml",
+      "path": "/MetaDataObject[1]/ChartOfCalculationTypes[1]/Properties[1]/StandardTabularSections[1]/StandardTabularSection[1]/Synonym[1]",
+      "tag": "{http://v8.1c.ru/8.3/xcf/readable}Synonym",
+      "category": "ru-absent-with-other",
+      "items": 1,
+      "emptyRu": 0
+    },
+    {
+      "file": "cf/ChartsOfCalculationTypes/ПланВидовРасчетаМаксимальнаяДлинаКодаИНаименованияЧисло.xml",
+      "path": "/MetaDataObject[1]/ChartOfCalculationTypes[1]/Properties[1]/StandardTabularSections[1]/StandardTabularSection[2]/Synonym[1]",
+      "tag": "{http://v8.1c.ru/8.3/xcf/readable}Synonym",
+      "category": "ru-absent-with-other",
+      "items": 1,
+      "emptyRu": 0
+    },
+    {
+      "file": "cf/ChartsOfCalculationTypes/ПланВидовРасчетаМаксимальнаяДлинаКодаИНаименованияЧисло.xml",
+      "path": "/MetaDataObject[1]/ChartOfCalculationTypes[1]/Properties[1]/StandardTabularSections[1]/StandardTabularSection[3]/Synonym[1]",
+      "tag": "{http://v8.1c.ru/8.3/xcf/readable}Synonym",
+      "category": "ru-absent-with-other",
+      "items": 1,
+      "emptyRu": 0
+    },
+    {
+      "file": "cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства.xml",
+      "path": "/MetaDataObject[1]/ChartOfCalculationTypes[1]/Properties[1]/StandardTabularSections[1]/StandardTabularSection[1]/Synonym[1]",
+      "tag": "{http://v8.1c.ru/8.3/xcf/readable}Synonym",
+      "category": "ru-absent-with-other",
+      "items": 1,
+      "emptyRu": 0
+    },
+    {
+      "file": "cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства.xml",
+      "path": "/MetaDataObject[1]/ChartOfCalculationTypes[1]/Properties[1]/StandardTabularSections[1]/StandardTabularSection[2]/Synonym[1]",
+      "tag": "{http://v8.1c.ru/8.3/xcf/readable}Synonym",
+      "category": "ru-absent-with-other",
+      "items": 1,
+      "emptyRu": 0
+    },
+    {
+      "file": "cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства.xml",
+      "path": "/MetaDataObject[1]/ChartOfCalculationTypes[1]/Properties[1]/StandardTabularSections[1]/StandardTabularSection[3]/Synonym[1]",
+      "tag": "{http://v8.1c.ru/8.3/xcf/readable}Synonym",
+      "category": "ru-absent-with-other",
+      "items": 1,
+      "emptyRu": 0
+    },
+    {
+      "file": "cfe/all-extension/ChartsOfAccounts/ПланСчетов1Ext.xml",
+      "path": "/MetaDataObject[1]/ChartOfAccounts[1]/Properties[1]/StandardTabularSections[1]/StandardTabularSection[1]/Synonym[1]",
+      "tag": "{http://v8.1c.ru/8.3/xcf/readable}Synonym",
+      "category": "ru-absent-with-other",
+      "items": 1,
+      "emptyRu": 0
+    },
+    {
+      "file": "cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойстваExt.xml",
+      "path": "/MetaDataObject[1]/ChartOfAccounts[1]/Properties[1]/StandardTabularSections[1]/StandardTabularSection[1]/Synonym[1]",
+      "tag": "{http://v8.1c.ru/8.3/xcf/readable}Synonym",
+      "category": "ru-absent-with-other",
+      "items": 1,
+      "emptyRu": 0
+    },
+    {
+      "file": "cfe/all-extension/ChartsOfAccounts/ПланСчетовПоУмолчаниюExt.xml",
+      "path": "/MetaDataObject[1]/ChartOfAccounts[1]/Properties[1]/StandardTabularSections[1]/StandardTabularSection[1]/Synonym[1]",
+      "tag": "{http://v8.1c.ru/8.3/xcf/readable}Synonym",
+      "category": "ru-absent-with-other",
+      "items": 1,
+      "emptyRu": 0
+    }
+  ],
+  "confirmedFoldableCatalogDocumentSynonyms": {
+    "total": {
+      "ru-nonempty": 47,
+      "no-items": 5
+    },
+    "components": {
+      "cf": {
+        "ru-nonempty": 26,
+        "no-items": 3
+      },
+      "cfe/all-extension": {
+        "ru-nonempty": 21,
+        "no-items": 2
+      }
+    }
+  },
+  "scope": "e2e XML only; ru is the configured default in cf and each cfe. Present containers only; absent properties are not inferred. Candidate container names are discovered from actual v8:item/v8:lang and include empty nodes of those expanded names; this broad set is not a registry-resolved count. Synonym and the confirmed root Catalog/Document subset are reported separately. Empty means existing v8:content with zero characters; whitespace is not trimmed. All physical duplicates are counted. Generated YAML, synthetic migration cases and unit fixtures are excluded."
+}
