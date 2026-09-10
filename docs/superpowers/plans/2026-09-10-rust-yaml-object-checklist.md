@@ -8,7 +8,7 @@
 - `[ ]` — объект не завершён. Промежуточные результаты учитываются только в журнале.
 - Служебные каталоги включены, чтобы не потерять их обязанности. Для них завершение означает перенос ответственности в общий Rust-механизм, а не обязательное создание отдельной YAML-декларации.
 
-Приняты 5 common-объектов: двусторонние интерфейсы I8nText, FormattedI8nText, MetadataName, StringOrNumber и PredefinedCode (XML ↔ YAML, валидация и структурная схема). Enterprise исключён из реализации и условий готовности по решению пользователя. Наличие общего компилятора, синтетического примера или успешного теста отдельного свойства не означает завершение всего объекта. В частности, `common.code-type` — синтетический пример, а не перенесённое системное перечисление.
+Приняты 6 common-объектов: двусторонние интерфейсы I8nText, FormattedI8nText, MetadataName, StringOrNumber, PredefinedCode и MinMaxValue (XML ↔ YAML, валидация и структурная схема). Enterprise исключён из реализации и условий готовности по решению пользователя. Наличие общего компилятора, синтетического примера или успешного теста отдельного свойства не означает завершение всего объекта. В частности, `common.code-type` — синтетический пример, а не перенесённое системное перечисление.
 
 ## Когда ставить галочку
 
@@ -31,7 +31,7 @@
 
 | Группа | Записей | Полностью завершено |
 |---|---:|---:|
-| Общие объекты (common) | 90 | 5 |
+| Общие объекты (common) | 90 | 6 |
 | Вложенные части общих объектов | 27 | 0 |
 | Прикладные объекты и их вложенные части | 56 | 0 |
 | Формы, элементы и общие части форм | 66 | 0 |
@@ -102,7 +102,7 @@
 - [ ] [commonObjects/metadataTaskAddressingAttribute](../../../packages/rules/metadata/commonObjects/metadataTaskAddressingAttribute)
 - [ ] [commonObjects/metadataValue](../../../packages/rules/metadata/commonObjects/metadataValue)
 - [ ] [commonObjects/metadataWebServiceOperation](../../../packages/rules/metadata/commonObjects/metadataWebServiceOperation)
-- [ ] [commonObjects/minMaxValue](../../../packages/rules/metadata/commonObjects/minMaxValue)
+- [x] [commonObjects/minMaxValue](../../../packages/rules/metadata/commonObjects/minMaxValue) — 2026-09-10: [decimal](../../../rust/declarations/common/min-max-value.yaml), [строковый XML с запятой](../../../rust/declarations/common/min-max-value-text.yaml), [проверки профилей](../../../rust/crates/compiled-rules/tests/scalars.rs), [1934 свойства e2e](../../../tests/migration/min-max-value-e2e.json). Пустой nil владельца и отсутствие различаются; числа точные.
 - [ ] [commonObjects/mobileDeviceCommandBarContent](../../../packages/rules/metadata/commonObjects/mobileDeviceCommandBarContent)
 - [ ] [commonObjects/module](../../../packages/rules/metadata/commonObjects/module)
 - [ ] [commonObjects/number](../../../packages/rules/metadata/commonObjects/number)

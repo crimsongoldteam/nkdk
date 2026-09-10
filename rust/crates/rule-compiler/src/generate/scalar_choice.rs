@@ -4,7 +4,7 @@ pub(super) fn attributes(choice: &ScalarChoiceXml<ExpandedName>) -> String {
         return "&[]".into();
     };
     format!(
-        "if field_value.is_number() {{ &[core::xml::WriteAttribute{{name:({:?},{:?}),value:core::xml::AttributeValue::QName(({:?},{:?}))}}] }} else {{ &[] }}",
+        "if field_value.is_number() {{ &[core::xml::WriteAttribute{{name:({:?},{:?}),value:core::xml::AttributeValue::QName(({:?},{:?}))}}][..] }} else {{ &[] }}",
         choice.attribute.namespace, choice.attribute.local, value.namespace, value.local
     )
 }

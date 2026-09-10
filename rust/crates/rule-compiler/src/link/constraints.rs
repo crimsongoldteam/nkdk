@@ -162,6 +162,7 @@ fn resolve_forms(module: &Module, constraint: &Constraint) -> Result<Vec<LinkedF
             XmlRepresentation::WithAttributes { .. } => unreachable!(),
             XmlRepresentation::Text
             | XmlRepresentation::ScalarChoice(_)
+            | XmlRepresentation::FormattedDecimal(_)
             | XmlRepresentation::Calendar
             | XmlRepresentation::BooleanTable(_)
             | XmlRepresentation::Decimal

@@ -41,13 +41,17 @@ fn qualified(name: &Name, namespaces: &[(&str, &str)]) -> Result<String> {
 }
 impl Tree {
     /// Materialize the canonical scalar only while applying an XML difference.
-    pub fn scalar(name: Name, text: &str, attributes: &[super::WriteAttribute<'_>]) -> Self {
+    pub fn scalar<'b, 'c: 'b>(
+        name: Name,
+        text: &str,
+        attributes: impl IntoIterator<Item = &'b super::WriteAttribute<'c>>,
+    ) -> Self {
         Self {
             name,
             text: text.into(),
             children: Vec::new(),
             attributes: attributes
-                .iter()
+                .into_iter()
                 .map(|attribute| {
                     let (text, qname) = match attribute.value {
                         super::AttributeValue::Text(text) => (text.into(), None),

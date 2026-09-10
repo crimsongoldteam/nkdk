@@ -37,13 +37,13 @@ pub(crate) fn validate_owner(owner: &LinkedEntry) -> Result<(), Diagnostic> {
         if !matches!(rule.target, LinkedPresenceTarget::Field(_))
             || !constant(&rule.xml_missing)
             || !constant(&rule.yaml_missing)
-            || !rule.xml_empty.is_empty()
+            || !supported_empty(rule)
             || !rule.yaml_empty.is_empty()
-            || !rule.canonical.is_empty()
+            || !supported_canonical(rule)
         {
             return Err(unsupported(
                 owner,
-                "Scalar field presence requires constant missing states and ordinary XML",
+                "Scalar field presence requires constant missing states and an explicit absence representation",
             ));
         }
     }
@@ -70,7 +70,10 @@ pub(super) fn missing(
         (LinkedExpressionKind::Literal(ScalarLiteral::Text(value)), scalar::Codec::Text) => {
             format!("String::from({value:?})")
         }
-        (LinkedExpressionKind::Literal(ScalarLiteral::Number(value)), scalar::Codec::Decimal) => {
+        (
+            LinkedExpressionKind::Literal(ScalarLiteral::Number(value)),
+            scalar::Codec::Decimal | scalar::Codec::FormattedDecimal(_),
+        ) => {
             let number = nkdk_decimal::Decimal::parse(value)
                 .map_err(|_| unsupported(owner, "Invalid decimal default"))?;
             let (negative, digits, exponent) = number.parts();
@@ -101,6 +104,22 @@ pub(super) fn omit(
     index: usize,
     owner: &LinkedEntry,
     program: &Program,
+) -> Result<String, Diagnostic> {
+    predicate(
+        expression,
+        index,
+        owner,
+        program,
+        &format!("omit_{}_{index}", owner.id),
+    )
+}
+
+pub(super) fn predicate(
+    expression: &LinkedExpression,
+    index: usize,
+    owner: &LinkedEntry,
+    program: &Program,
+    name: &str,
 ) -> Result<String, Diagnostic> {
     let LinkedType::Record(fields) = &owner.value else {
         unreachable!()
@@ -155,7 +174,81 @@ pub(super) fn omit(
     };
     let condition = context.lower(&expression)?;
     Ok(format!(
-        "fn omit_{}_{index}(_value:&V{},_inputs:&PreparedInputs)->core::Result<bool>{{{guard} {} Ok({condition})}}\n",
-        owner.id, owner.id, context.constants
+        "fn {name}(_value:&V{},_inputs:&PreparedInputs)->core::Result<bool>{{{guard} {} Ok({condition})}}\n",
+        owner.id, context.constants
     ))
+}
+
+pub(super) fn supported_empty(rule: &LinkedPresence) -> bool {
+    rule.xml_empty.iter().all(|empty| {
+        matches!(empty.form, EmptyKind::Element | EmptyKind::Nil)
+            && matches!(empty.denotes.kind, LinkedExpressionKind::Absent)
+    })
+}
+
+pub(super) fn supported_canonical(rule: &LinkedPresence) -> bool {
+    if rule.canonical.is_empty() {
+        return true;
+    }
+    let [canonical] = rule.canonical.as_slice() else {
+        return false;
+    };
+    if !matches!(
+        canonical.form,
+        XmlForm::Nil | XmlForm::EmptyElement | XmlForm::Missing
+    ) {
+        return false;
+    }
+    let Some(LinkedExpression {
+        kind:
+            LinkedExpressionKind::Operation {
+                operator: LinkedOperator::Not,
+                arguments,
+            },
+        ..
+    }) = &canonical.when
+    else {
+        return false;
+    };
+    let [
+        LinkedExpression {
+            kind:
+                LinkedExpressionKind::Operation {
+                    operator: LinkedOperator::State(StatePredicate::Present),
+                    arguments,
+                },
+            ..
+        },
+    ] = arguments.as_slice()
+    else {
+        return false;
+    };
+    let [value] = arguments.as_slice() else {
+        return false;
+    };
+    matches!(
+        (&rule.target, &value.kind),
+        (
+            LinkedPresenceTarget::SelfValue,
+            LinkedExpressionKind::SelfValue
+        )
+    ) || matches!((&rule.target, &value.kind), (LinkedPresenceTarget::Field(a), LinkedExpressionKind::Field(b)) if a == b)
+}
+
+pub(super) fn absent_form(rule: Option<&LinkedPresence>) -> XmlForm {
+    rule.and_then(|rule| rule.canonical.first())
+        .map(|rule| rule.form.clone())
+        .unwrap_or(XmlForm::Missing)
+}
+
+pub(super) fn empty(rule: Option<&LinkedPresence>, kind: EmptyKind) -> bool {
+    rule.is_some_and(|rule| rule.xml_empty.iter().any(|empty| empty.form == kind))
+}
+
+pub(super) fn absent_attributes(form: &XmlForm) -> &'static str {
+    if *form == XmlForm::Nil {
+        "&[core::xml::WriteAttribute{name:(\"http://www.w3.org/2001/XMLSchema-instance\",\"nil\"),value:core::xml::AttributeValue::Text(\"true\")}]"
+    } else {
+        "&[]"
+    }
 }

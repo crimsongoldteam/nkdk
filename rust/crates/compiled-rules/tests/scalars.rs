@@ -317,3 +317,121 @@ fn scalar_choice_preserves_type_and_the_two_export_profiles() {
         }
     }
 }
+
+#[test]
+fn static_scalar_parameters_select_attributes_without_runtime_context() {
+    let entry = entry_id("migration.scalar-parameters").unwrap();
+    let inputs = PreparedInputs::default();
+    let yaml = b"Amount: 7\nText: hello";
+    let output = convert_file(entry, Direction::YamlToXml, yaml, &inputs).unwrap();
+    let xml = String::from_utf8_lossy(&output.bytes);
+    assert!(xml.contains("<Amount>7</Amount>"), "{xml}");
+    assert!(
+        xml.contains("string") && xml.contains(">hello</Text>"),
+        "{xml}"
+    );
+    let imported = convert_file(entry, Direction::XmlToYaml, &output.bytes, &inputs).unwrap();
+    assert_eq!(imported.bytes, yaml);
+    assert!(validate_file(entry, yaml, &inputs).is_empty());
+    let empty = b"Amount: 7\nText: \"\"";
+    let result = convert_file(entry, Direction::YamlToXml, empty, &inputs).unwrap();
+    assert!(!String::from_utf8_lossy(&result.bytes).contains("type="));
+    let restored = convert_file(entry, Direction::XmlToYaml, &result.bytes, &inputs).unwrap();
+    assert_eq!(restored.bytes, empty);
+    let absent = b"Text: hello";
+    let nil = convert_file(entry, Direction::YamlToXml, absent, &inputs).unwrap();
+    assert!(String::from_utf8_lossy(&nil.bytes).contains("nil=\"true\""));
+    let restored = convert_file(entry, Direction::XmlToYaml, &nil.bytes, &inputs).unwrap();
+    assert_eq!(restored.bytes, absent);
+    let assert_raw = |xml: String| {
+        let imported = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs)
+            .unwrap_or_else(|error| panic!("{xml}: {error:?}"));
+        assert!(String::from_utf8_lossy(&imported.bytes).contains("!xml"));
+        let exported = convert_file(entry, Direction::YamlToXml, &imported.bytes, &inputs)
+            .unwrap_or_else(|error| panic!("{xml}: {error:?}"));
+        nkdk_conversion_core::proof::verify_with_attributes(
+            xml.as_bytes(),
+            &exported.bytes,
+            |path| path.len() == 2,
+            |_, name| {
+                name.namespace == "http://www.w3.org/2001/XMLSchema-instance"
+                    && name.local == "type"
+            },
+        )
+        .unwrap_or_else(|error| panic!("{xml}: {error:?}"));
+    };
+    for amount in [
+        "",
+        "<Amount/>",
+        "<Amount xsi:nil=\"false\"/>",
+        "<Amount xsi:nil=\"true\">7</Amount>",
+    ] {
+        let xml = format!(
+            "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">{amount}<Text xsi:type=\"xs:string\">hello</Text></Root>"
+        );
+        assert_raw(xml);
+    }
+    for text in ["", "hello"] {
+        // The same inferred difference handles both an extra and a missing type.
+        let attribute = if text.is_empty() {
+            " xsi:type=\"xs:string\""
+        } else {
+            ""
+        };
+        let xml = format!(
+            "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Amount>7</Amount><Text{attribute}>{text}</Text></Root>"
+        );
+        assert_raw(xml);
+    }
+}
+
+#[test]
+fn decimal_representations_preserve_comma_dot_and_the_xml_type() {
+    let inputs = PreparedInputs::default();
+    for (name, kind, canonical) in [
+        ("min-max-value", "decimal", "1.5"),
+        ("min-max-value-text", "string", "1,5"),
+    ] {
+        let entry = entry_id(&format!("migration.{name}")).unwrap();
+        for text in ["1.5", "1,5", "01,500", "9007199254740993,125"] {
+            let xml = format!(
+                "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Value xsi:type=\"xs:{kind}\">{text}</Value></Root>"
+            );
+            let result =
+                convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+            let yaml = String::from_utf8_lossy(&result.bytes);
+            assert!(
+                yaml.contains(if text.starts_with("900") {
+                    "9007199254740993.125"
+                } else {
+                    "1.5"
+                }),
+                "{yaml}"
+            );
+            assert_eq!(
+                yaml.contains("!xml/raw"),
+                text != canonical && !(kind == "string" && text == "9007199254740993,125"),
+                "{yaml}"
+            );
+            assert!(validate_file(entry, &result.bytes, &inputs).is_empty());
+            nkdk_compiled_rules::verify_candidate(entry, xml.as_bytes(), &result.bytes, &inputs)
+                .unwrap();
+        }
+        for text in ["", "NaN", "1,2,3"] {
+            let xml = format!("<Root><Value>{text}</Value></Root>");
+            let result =
+                convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+            assert!(!String::from_utf8_lossy(&result.bytes).contains("$значение"));
+            nkdk_compiled_rules::verify_candidate(entry, xml.as_bytes(), &result.bytes, &inputs)
+                .unwrap();
+        }
+        let result = convert_file(
+            entry,
+            Direction::YamlToXml,
+            "Значение: 1.5".as_bytes(),
+            &inputs,
+        )
+        .unwrap();
+        assert!(String::from_utf8_lossy(&result.bytes).contains(&format!(">{canonical}</Value>")));
+    }
+}

@@ -13,6 +13,7 @@ mod parameters;
 mod patterns;
 mod presence;
 mod scalar_contracts;
+mod scalar_parameters;
 mod shorthands;
 mod text;
 mod type_graph;
@@ -88,6 +89,7 @@ pub fn link(modules: &[Module]) -> Result<Program, Vec<Diagnostic>> {
     if errors.is_empty() {
         xml_ownership::validate(&cache).map_err(|error| vec![error])?;
         let mut entries: Vec<_> = cache.into_values().collect();
+        scalar_parameters::specialize(&mut entries).map_err(|error| vec![error])?;
         scalar_contracts::lift(&mut entries).map_err(|error| vec![error])?;
         Ok(Program { entries })
     } else {
@@ -517,6 +519,7 @@ fn resolve_xml(
         },
         XmlRepresentation::EnumTable(table) => LinkedXml::EnumTable(table.clone()),
         XmlRepresentation::Decimal => LinkedXml::Decimal,
+        XmlRepresentation::FormattedDecimal(format) => LinkedXml::FormattedDecimal(format.clone()),
         XmlRepresentation::Text => LinkedXml::Text,
         XmlRepresentation::Calendar => LinkedXml::Calendar,
         XmlRepresentation::BooleanTable(table) => LinkedXml::BooleanTable(table.clone()),
@@ -657,7 +660,10 @@ fn validate_xml(
         (LinkedType::Enum(variants), LinkedXml::EnumTable(table)) => {
             enumeration::table(variants, table, source)?
         }
-        (LinkedType::Scalar(ScalarType::Decimal), LinkedXml::Decimal) => {}
+        (
+            LinkedType::Scalar(ScalarType::Decimal),
+            LinkedXml::Decimal | LinkedXml::FormattedDecimal(_),
+        ) => {}
         (LinkedType::Scalar(ScalarType::Text), LinkedXml::Text | LinkedXml::Calendar) => {}
         _ => {
             return Err(diagnostic(

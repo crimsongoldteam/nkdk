@@ -14,7 +14,9 @@ import yaml
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("--output", required=True, type=Path)
-parser.add_argument("--choices", action="store_true")
+mode = parser.add_mutually_exclusive_group()
+mode.add_argument("--choices", action="store_true")
+mode.add_argument("--minmax", action="store_true")
 args = parser.parse_args()
 root = Path(__file__).resolve().parents[3]
 binary = root / "rust/target/debug/nkdk"
@@ -39,9 +41,30 @@ with tempfile.TemporaryDirectory(prefix="nkdk-typed-e2e-") as temporary:
     for source in sorted((root / "e2e/fixtures/xml").rglob("*.xml")):
         original = source.read_bytes()
         namespaces = dict(value for _, value in ET.iterparse(io.BytesIO(original), events=("start-ns",)))
-        for index, element in enumerate(ET.fromstring(original).iter()):
+        tree = ET.fromstring(original)
+        parents = {child: parent for parent in tree.iter() for child in parent} if args.minmax else {}
+        for index, element in enumerate(tree.iter()):
             kind = element.get(xsi_type, "")
-            if args.choices:
+            if args.minmax:
+                parent = parents.get(element)
+                grandparent = parents.get(parent)
+                local = element.tag.split("}")[-1]
+                if parent is None or local not in ("MinValue", "MaxValue"):
+                    continue
+                if parent.tag == "{http://v8.1c.ru/8.3/xcf/logform}InputField":
+                    entry = "migration.min-max-value"
+                elif parent.tag == "{http://v8.1c.ru/8.3/xcf/readable}StandardAttribute":
+                    entry = "migration.min-max-value-default"
+                elif parent.tag == "{http://v8.1c.ru/8.3/MDClasses}Properties" and grandparent is not None and grandparent.tag in {
+                    "{http://v8.1c.ru/8.3/MDClasses}" + name for name in
+                    ("Constant", "CommonAttribute", "Attribute", "Field", "Dimension", "Resource", "AddressingAttribute", "AccountingFlag", "ExtDimensionAccountingFlag")
+                }:
+                    entry = "migration.min-max-value-text-default"
+                else:
+                    continue
+                assert not len(element), source
+                key, physical = "Значение", "Value"
+            elif args.choices:
                 if element.tag == "{http://v8.1c.ru/8.3/xcf/predef}Code" and source.name == "Predefined.xml":
                     entry = "migration.predefined-code"
                 elif element.tag in ("{http://v8.1c.ru/8.3/xcf/logform}ReportResult", "{http://v8.1c.ru/8.3/xcf/logform}DetailsData") and source.name == "Form.xml":
@@ -74,14 +97,16 @@ with tempfile.TemporaryDirectory(prefix="nkdk-typed-e2e-") as temporary:
                 assert result.returncode == 0, f"{source}:{index}: {result.stderr}"
             assert shape(input_xml) == shape((directory / "restored.xml").read_bytes()), (source, index)
             document = yaml.compose((directory / "value.yaml").read_text())
-            assert isinstance(document, yaml.MappingNode)
-            semantic = next((v for k, v in document.value if k.value in (key, physical)), None)
+            assert document is None or isinstance(document, yaml.MappingNode)
+            semantic = next((v for k, v in (document.value if document else []) if k.value in (key, physical)), None)
             if semantic is not None and semantic.tag == "!xml/raw":
                 semantic = next((v for k, v in semantic.value if k.value == "$значение"), None)
             expected = element.text or ""
-            if args.choices and not expected:
+            if args.minmax and entry.endswith("-default") and not expected and element.attrib == {"{http://www.w3.org/2001/XMLSchema-instance}nil": "true"}:
+                assert document is None or not document.value, (source, index, "Ordinary nil must not have an anomaly")
+            if (args.choices or args.minmax) and not expected:
                 assert semantic is None, (source,index)
-            elif kind == "xs:string" or (args.choices and kind not in ("xs:decimal", "xs:integer", "xs:float", "xs:double")):
+            elif (kind == "xs:string" and not args.minmax) or (args.choices and kind not in ("xs:decimal", "xs:integer", "xs:float", "xs:double")):
                 assert isinstance(semantic, yaml.ScalarNode) and semantic.tag == "tag:yaml.org,2002:str" and semantic.value == expected, (source, index)
             elif kind == "xs:dateTime":
                 try:
@@ -97,7 +122,7 @@ with tempfile.TemporaryDirectory(prefix="nkdk-typed-e2e-") as temporary:
                     assert isinstance(semantic,yaml.ScalarNode) and semantic.value==clock, (source,index)
             else:
                 try:
-                    number = Decimal(expected)
+                    number = Decimal(expected.replace(",", ".") if args.minmax else expected)
                 except InvalidOperation:
                     number = None
                 if number is not None and number.is_finite():
@@ -107,6 +132,6 @@ with tempfile.TemporaryDirectory(prefix="nkdk-typed-e2e-") as temporary:
             rows.append({"source": str(source.relative_to(root)), "sha256": hashlib.sha256(original).hexdigest(), "occurrence": index, "type": kind, "entry": entry, "verified": True})
         assert source.read_bytes() == original
 assert rows, "An empty selection is not success"
-scope = "Scalar choice properties" if args.choices else "Typed scalar leaf properties"
+scope = "MinMaxValue profiles" if args.minmax else ("Scalar choice properties" if args.choices else "Typed scalar leaf properties")
 args.output.write_text(json.dumps({"scope": scope + "; not whole-project conversion or performance", "verified": len(rows), "cases": rows}, ensure_ascii=False, indent=2) + "\n")
 print(f"Verified {len(rows)} {scope}")

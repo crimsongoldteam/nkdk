@@ -66,6 +66,7 @@ pub struct Representations {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum XmlRepresentation {
+    FormattedDecimal(DecimalText),
     ScalarChoice(ScalarChoiceXml<String>),
     Calendar,
     WithAttributes {
@@ -475,4 +476,10 @@ pub struct ScalarChoiceCase<N> {
     pub scalar: ScalarType,
     pub values: Vec<N>,
     pub emit: Option<N>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DecimalText {
+    pub separator: char,
+    pub accepted: Vec<char>,
 }

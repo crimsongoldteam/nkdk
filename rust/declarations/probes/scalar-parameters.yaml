@@ -1,0 +1,29 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.scalar-parameters
+imports:
+  number: common.typed-number
+  text: common.typed-string
+value:
+  kind: record
+  fields:
+    - {name: amount, type: {use: number, with: {typedXML: false}}}
+    - {name: text, type: {use: text, with: {typedXML: true, typeForEmptyXML: false}}}
+representations:
+  xml:
+    kind: record
+    fields:
+      - {field: amount, path: [Root, Amount]}
+      - {field: text, path: [Root, Text]}
+  yaml:
+    kind: mapping
+    fields:
+      - {field: amount, key: Amount}
+      - {field: text, key: Text}
+presence:
+  - target: {field: amount}
+    xml:
+      missing: {denotes: {absent: true}}
+      empty: [{form: nil, denotes: {absent: true}}]
+      canonical: [{when: {not: {present: {field: amount}}}, form: nil}]
+    yaml: {missing: {denotes: {absent: true}}}

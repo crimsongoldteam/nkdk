@@ -1,4 +1,5 @@
 mod constraints;
+mod decimal_text;
 mod enumeration;
 mod expressions;
 mod presence;
@@ -360,9 +361,7 @@ pub fn decode(path: &str, events: Vec<(Event, Marker)>) -> Result<Module, Diagno
             }
         }
         TypeDefinition::Scalar(ScalarType::Decimal) => {
-            let fields = xml.mapping(path, &["kind"])?;
-            xml.field(path, fields, "kind")?
-                .literal(path, "text", "unsupported_representation")?;
+            let xml_rep = decimal_text::parse(path, xml)?;
             let fields = yaml.mapping(path, &["kind", "scalar"])?;
             yaml.field(path, fields, "kind")?.literal(
                 path,
@@ -371,7 +370,7 @@ pub fn decode(path: &str, events: Vec<(Event, Marker)>) -> Result<Module, Diagno
             )?;
             yaml.field(path, fields, "scalar")?
                 .literal(path, "number", "unsupported_scalar")?;
-            (XmlRepresentation::Decimal, YamlRepresentation::Decimal)
+            (xml_rep, YamlRepresentation::Decimal)
         }
         TypeDefinition::Enum(_) => (
             XmlRepresentation::EnumTable(enumeration::table(path, xml, "text", "text")?),

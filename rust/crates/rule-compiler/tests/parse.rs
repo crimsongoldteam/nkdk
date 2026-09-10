@@ -1113,3 +1113,34 @@ fn collection_shorthand_patterns_parse_with_strict_structure() {
         );
     }
 }
+
+#[test]
+fn decimal_separator_contract_rejects_ambiguous_or_unreadable_output() {
+    let source = include_str!("../../../declarations/common/min-max-value.yaml");
+    for (before, after, code) in [
+        (
+            "decimalSeparator: \".\"",
+            "decimalSeparator: \";\"",
+            "invalid_decimal_separator",
+        ),
+        (
+            "acceptDecimalSeparators: [\".\", \",\"]",
+            "acceptDecimalSeparators: [\".\", \".\"]",
+            "invalid_decimal_separators",
+        ),
+        (
+            "acceptDecimalSeparators: [\".\", \",\"]",
+            "acceptDecimalSeparators: [\",\"]",
+            "invalid_decimal_separators",
+        ),
+    ] {
+        let text = source.replace(before, after);
+        assert_ne!(source, text);
+        let errors = parse(SourceFile {
+            path: "decimal.yaml",
+            bytes: text.as_bytes(),
+        })
+        .unwrap_err();
+        assert!(errors.iter().any(|error| error.code == code), "{errors:?}");
+    }
+}

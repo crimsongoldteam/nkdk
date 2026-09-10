@@ -59,6 +59,7 @@ pub struct ExpandedName {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum LinkedXml {
+    FormattedDecimal(crate::DecimalText),
     ScalarChoice(crate::ScalarChoiceXml<ExpandedName>),
     Calendar,
     WithAttributes {

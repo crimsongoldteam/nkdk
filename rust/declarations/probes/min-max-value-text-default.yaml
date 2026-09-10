@@ -1,0 +1,26 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.min-max-value-text-default
+imports: {value: common.min-max-value-text}
+value:
+  kind: record
+  fields:
+    - {name: value, type: {use: value}}
+representations:
+  xml:
+    kind: record
+    fields:
+      - {field: value, path: [Root, Value]}
+  yaml:
+    kind: mapping
+    fields:
+      - {field: value, key: Значение}
+presence:
+  - target: {field: value}
+    xml:
+      missing: {denotes: {absent: true}}
+      empty:
+        - {form: empty-element, denotes: {absent: true}}
+        - {form: nil, denotes: {absent: true}}
+      canonical: [{when: {not: {present: {field: value}}}, form: nil}]
+    yaml: {missing: {denotes: {absent: true}}}

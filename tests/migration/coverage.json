@@ -6137,65 +6137,113 @@
       "path": "packages/rules/metadata/commonObjects/minMaxValue/fromXML.integration.test.ts",
       "sha256": "78bac8acff78355b416bdccc37b2aca03eba4f70f41860cfb21297a7163680bb",
       "group": "minMaxValue",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/min-max-value.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/min-max-value-text.yaml",
+        "rust/declarations/probes/min-max-value-default.yaml",
+        "rust/declarations/probes/min-max-value-text-default.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "tests/migration/min-max-value-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/minMaxValue/fromXML.ts",
       "sha256": "4db8841a88093d71b20e7ed3dd0c47760755e8156304e74297961b5992054577",
       "group": "minMaxValue",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/min-max-value.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/min-max-value-text.yaml",
+        "rust/declarations/probes/min-max-value-default.yaml",
+        "rust/declarations/probes/min-max-value-text-default.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "tests/migration/min-max-value-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/minMaxValue/fromYAML.ts",
       "sha256": "e54b8f03994bd4e934cf4e04ffebb9faa7858a9d0453642090f2445928883613",
       "group": "minMaxValue",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/min-max-value.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/min-max-value-text.yaml",
+        "rust/declarations/probes/min-max-value-default.yaml",
+        "rust/declarations/probes/min-max-value-text-default.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "tests/migration/min-max-value-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/minMaxValue/toJSONSchema.test.ts",
       "sha256": "dd271065dea23f3e25f64619ffe167af4196ba684111920fed0e6c9868804676",
       "group": "minMaxValue",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/min-max-value.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/min-max-value-text.yaml",
+        "rust/declarations/probes/min-max-value-default.yaml",
+        "rust/declarations/probes/min-max-value-text-default.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "tests/migration/min-max-value-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/minMaxValue/toJSONSchema.ts",
       "sha256": "c6b5e70caa26e9123dcf880c132cefd962e114eba93d8b5d69c2e9b769789b1a",
       "group": "minMaxValue",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/min-max-value.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/min-max-value-text.yaml",
+        "rust/declarations/probes/min-max-value-default.yaml",
+        "rust/declarations/probes/min-max-value-text-default.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "tests/migration/min-max-value-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/minMaxValue/toXML.ts",
       "sha256": "151efb5fff0fc2e5d698897a2f8b1b4937deddfef2791e1341fcc79708385ba8",
       "group": "minMaxValue",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/min-max-value.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/min-max-value-text.yaml",
+        "rust/declarations/probes/min-max-value-default.yaml",
+        "rust/declarations/probes/min-max-value-text-default.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "tests/migration/min-max-value-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/minMaxValue/toYAML.ts",
       "sha256": "2325043b7def4965cf85b37c33f3bfcbe7a77eeed0e485758c544a6c77fca726",
       "group": "minMaxValue",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/min-max-value.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/min-max-value-text.yaml",
+        "rust/declarations/probes/min-max-value-default.yaml",
+        "rust/declarations/probes/min-max-value-text-default.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "tests/migration/min-max-value-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/minMaxValue/types.ts",
       "sha256": "7cbc72108b7d941b40c4085596432e0126afa8fbe7ab3b55cffa7c163d9ac42b",
       "group": "minMaxValue",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/min-max-value.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/min-max-value-text.yaml",
+        "rust/declarations/probes/min-max-value-default.yaml",
+        "rust/declarations/probes/min-max-value-text-default.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "tests/migration/min-max-value-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/mobileDeviceCommandBarContent/__fixtures__/data.ts",

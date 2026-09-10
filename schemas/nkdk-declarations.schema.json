@@ -314,7 +314,7 @@
             "type": "object",
             "properties": {
               "xml": {
-                "$ref": "#/$defs/xmlText"
+                "$ref": "#/$defs/xmlDecimalText"
               },
               "yaml": {
                 "type": "object",
@@ -2637,6 +2637,63 @@
         "profile"
       ],
       "additionalProperties": false
+    },
+    "xmlDecimalText": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "text"
+            },
+            "decimalSeparator": {
+              "enum": [
+                ".",
+                ","
+              ]
+            },
+            "acceptDecimalSeparators": {
+              "type": "array",
+              "items": {
+                "enum": [
+                  ".",
+                  ","
+                ]
+              },
+              "minItems": 1,
+              "maxItems": 2,
+              "uniqueItems": true
+            }
+          },
+          "required": [
+            "kind"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "with-attributes"
+            },
+            "attributes": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/attribute"
+              }
+            },
+            "content": {
+              "$ref": "#/$defs/xmlDecimalText"
+            }
+          },
+          "required": [
+            "kind",
+            "attributes",
+            "content"
+          ],
+          "additionalProperties": false
+        }
+      ]
     }
   }
 }

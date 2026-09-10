@@ -75,12 +75,6 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
                 "Scalar choice owns its selector; outer attribute composition is not yet supported",
             ));
         }
-        if attributes.iter().any(|attribute| attribute.when.is_some()) {
-            return Err(unsupported(
-                entry,
-                "Conditional scalar attributes require value expression lowering",
-            ));
-        }
         fields.push(Field {
             path: &mapping.path,
             key: &yaml.key,
@@ -104,13 +98,24 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
     }
     let id = entry.id;
     let preserve = true;
-    let attribute_code = |field: &Field<'_>| {
+    let attribute_code = |field: &Field<'_>, i: usize| {
         if let Codec::Choice(choice) = &field.codec {
             return super::scalar_choice::attributes(choice);
         }
 
-        let mut code = String::from("&[");
-        for attribute in &field.attributes {
+        let dynamic = field
+            .attributes
+            .iter()
+            .any(|attribute| attribute.when.is_some());
+        let mut code = String::from(if dynamic { "[" } else { "&[" });
+        for (j, attribute) in field.attributes.iter().enumerate() {
+            if dynamic {
+                if attribute.when.is_some() {
+                    write!(code, "(attr_{id}_{i}_{j}(value,_inputs)?).then_some(").unwrap();
+                } else {
+                    code.push_str("Some(");
+                }
+            }
             let value = match &attribute.value {
                 LinkedXmlAttributeValue::Text(text) => {
                     format!("core::xml::AttributeValue::Text({text:?})")
@@ -122,12 +127,19 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
             };
             write!(
                 code,
-                "core::xml::WriteAttribute{{name:({:?},{:?}),value:{value}}},",
+                "core::xml::WriteAttribute{{name:({:?},{:?}),value:{value}}}",
                 attribute.name.namespace, attribute.name.local
             )
             .unwrap();
+            if dynamic {
+                code.push(')');
+            }
+            code.push(',');
         }
         code.push(']');
+        if dynamic {
+            code.push_str(".iter().flatten()");
+        }
         code
     };
     let keep_positions = entry.constraints.iter().any(|constraint| {
@@ -154,6 +166,17 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
             out.push_str(&super::scalar_presence::omit(
                 expression, i, entry, program,
             )?);
+        }
+        for (j, attribute) in field.attributes.iter().enumerate() {
+            if let Some(expression) = &attribute.when {
+                out.push_str(&super::scalar_presence::predicate(
+                    expression,
+                    i,
+                    entry,
+                    program,
+                    &format!("attr_{id}_{i}_{j}"),
+                )?);
+            }
         }
         out.push_str(&field.codec.definition(&format!("E{id}F{i}")));
     }
@@ -215,7 +238,10 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
             }
         }
         if xml_side && preserve {
-            for i in 0..fields.len() {
+            for (i, field) in fields.iter().enumerate() {
+                if super::scalar_presence::empty(field.presence, EmptyKind::Nil) {
+                    writeln!(out, "let mut nil{i}=false;").unwrap();
+                }
                 writeln!(out, "let mut shape{i}=false;let mut nested{i}=false;").unwrap();
             }
         }
@@ -229,6 +255,9 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
                 for (i, field) in fields.iter().enumerate() {
                     if let Codec::Choice(choice) = &field.codec {
                         out.push_str(&super::scalar_choice::read_attribute(choice, field.path, i));
+                    }
+                    if super::scalar_presence::empty(field.presence, EmptyKind::Nil) {
+                        writeln!(out,"if core::xml::matches(path,{}) && _attribute.name.namespace==\"http://www.w3.org/2001/XMLSchema-instance\" && _attribute.name.local==\"nil\" && _attribute.text==\"true\" {{nil{i}=true;return Ok(());}}",path_code(field.path)).unwrap();
                     }
                     for expected in &field.attributes {
                         let valid = match &expected.value {
@@ -303,7 +332,21 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
             }
             if field.optional || preserve {
                 writeln!(out, "let f{i} = if let Some(r{i}) = r{i} {{").unwrap();
+                if xml_side {
+                    let condition =
+                        if super::scalar_presence::empty(field.presence, EmptyKind::Element) {
+                            format!("!nested{i} && r{i}.is_empty()")
+                        } else if super::scalar_presence::empty(field.presence, EmptyKind::Nil) {
+                            format!("!nested{i} && r{i}.is_empty() && nil{i}")
+                        } else {
+                            "false".into()
+                        };
+                    writeln!(out, "let empty_absence={condition};").unwrap();
+                }
                 if preserve {
+                    if xml_side {
+                        out.push_str("let decoded=if empty_absence {None} else {\n");
+                    }
                     writeln!(
                         out,
                         "let decoded=(|| -> core::Result<{}> {{",
@@ -319,7 +362,8 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
                 if preserve {
                     writeln!(out, "Ok(f{i}) }})();").unwrap();
                     if xml_side {
-                        writeln!(out,"let decoded=if nested{i} {{None}} else {{decoded.ok()}};if shape{i} || decoded.is_none() {{let tree=core::xml::Tree::capture(source,{})?.expect(\"present scalar\");let payload=tree.payload_yaml(&[],Q{id})?;raw.insert({i},core::xml::Patch::read(if payload.is_empty() {{b\"{{}}\"}} else {{payload.as_bytes()}},&[],Q{id})?);}} decoded",path_code(field.path)).unwrap();
+                        out.push_str("decoded.ok()};\n");
+                        writeln!(out,"let decoded=if nested{i} {{None}} else {{decoded}};if (shape{i} || (decoded.is_none() && !empty_absence)) && !(decoded.is_none() && {canonical_empty}) {{let tree=core::xml::Tree::capture(source,{})?.expect(\"present scalar\");let payload=tree.payload_yaml(&[],Q{id})?;raw.insert({i},core::xml::Patch::read(if payload.is_empty() {{b\"{{}}\"}} else {{payload.as_bytes()}},&[],Q{id})?);}} decoded",path_code(field.path),canonical_empty=matches!(super::scalar_presence::absent_form(field.presence),XmlForm::Nil | XmlForm::EmptyElement)).unwrap();
                     } else {
                         out.push_str("Some(decoded?)");
                     }
@@ -425,6 +469,12 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
             }
         }
     }
+    if fields
+        .iter()
+        .any(|field| super::scalar_presence::absent_form(field.presence) == XmlForm::Nil)
+    {
+        namespaces.insert("http://www.w3.org/2001/XMLSchema-instance");
+    }
     namespaces.remove("");
     writeln!(
         out,
@@ -434,11 +484,35 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
     for (i, field) in fields.iter().enumerate() {
         if preserve {
             let physical = field.path.last().unwrap();
-            writeln!(out, "let tree{i}=if let Some(patch)=value.raw.get({i}) {{ if {null_is_absence} {{None}} else {{",null_is_absence=if field.presence.and_then(|presence|presence.yaml_missing.as_ref()).is_some_and(|value|matches!(value.kind,LinkedExpressionKind::Literal(_))) {"patch.is_null()"} else {"false"}).unwrap();
+            writeln!(out, "let tree{i}=if let Some(patch)=value.raw.get({i}) {{ if {null_is_absence} {{None}} else {{",null_is_absence=if super::scalar_presence::absent_form(field.presence) != XmlForm::Missing || field.presence.and_then(|presence|presence.yaml_missing.as_ref()).is_some_and(|value|matches!(value.kind,LinkedExpressionKind::Literal(_))) {"patch.is_null()"} else {"false"}).unwrap();
             let text = field
                 .codec
                 .write_reference(&format!("E{id}F{i}"), "field_value", true);
-            writeln!(out,"let name=core::xml::Name{{namespace:{:?}.into(),local:{:?}.into()}}; let base=value.f{i}.as_ref().map(|field_value|core::xml::Tree::scalar(name.clone(),{text},{attributes})); Some(patch.apply(base,name,&[],Q{id})?) }} }} else {{ None }};",physical.namespace,physical.local,attributes=attribute_code(field)).unwrap();
+            let tree = format!(
+                "core::xml::Tree::scalar(name.clone(),{text},{})",
+                attribute_code(field, i)
+            );
+            let base = if field
+                .attributes
+                .iter()
+                .any(|attribute| attribute.when.is_some())
+            {
+                format!(
+                    "value.f{i}.as_ref().map(|field_value| -> core::Result<_> {{Ok({tree})}}).transpose()?"
+                )
+            } else {
+                format!("value.f{i}.as_ref().map(|field_value|{tree})")
+            };
+            let base = match super::scalar_presence::absent_form(field.presence) {
+                XmlForm::Nil | XmlForm::EmptyElement => format!(
+                    "({base}).or_else(||Some(core::xml::Tree::scalar(name.clone(),\"\",{})))",
+                    super::scalar_presence::absent_attributes(
+                        &super::scalar_presence::absent_form(field.presence)
+                    )
+                ),
+                _ => base,
+            };
+            writeln!(out,"let name=core::xml::Name{{namespace:{:?}.into(),local:{:?}.into()}}; let base={base}; Some(patch.apply(base,name,&[],Q{id})?) }} }} else {{ None }};",physical.namespace,physical.local).unwrap();
         }
     }
     if preserve {
@@ -482,11 +556,15 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
             out,
             "out.field_with_attributes({}, {text}, {});",
             path_code(field.path),
-            attribute_code(field)
+            attribute_code(field, i)
         )
         .unwrap();
         if field.optional || preserve {
             out.push_str("}\n");
+        }
+        let form = super::scalar_presence::absent_form(field.presence);
+        if matches!(form, XmlForm::Nil | XmlForm::EmptyElement) {
+            writeln!(out,"if value.f{i}.is_none() && value.raw.get({i}).is_none() {{out.field_with_attributes({},\"\",{});}}",path_code(field.path),super::scalar_presence::absent_attributes(&form)).unwrap();
         }
         if preserve {
             writeln!(

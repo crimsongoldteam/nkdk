@@ -2,6 +2,7 @@ use super::*;
 use std::fmt::Write;
 
 pub(super) enum Codec<'a> {
+    FormattedDecimal(&'a DecimalText),
     Choice(&'a ScalarChoiceXml<ExpandedName>),
     Calendar { seconds: bool, omit_zero: bool },
     Text,
@@ -27,6 +28,11 @@ impl<'a> Codec<'a> {
                 optional(target)?;
                 let (xml, _) = super::attributes::content(&target.xml);
                 match (&target.value, xml, &target.yaml) {
+                    (
+                        LinkedType::Scalar(ScalarType::Decimal),
+                        LinkedXml::FormattedDecimal(format),
+                        YamlRepresentation::Decimal,
+                    ) => Ok(Self::FormattedDecimal(format)),
                     (
                         LinkedType::ScalarChoice(_),
                         LinkedXml::ScalarChoice(choice),
@@ -74,7 +80,7 @@ impl<'a> Codec<'a> {
     }
     pub fn rust_type(&self, name: &str) -> String {
         match self {
-            Self::Decimal => "core::decimal::Decimal".into(),
+            Self::Decimal | Self::FormattedDecimal(_) => "core::decimal::Decimal".into(),
             Self::Choice(_) => "core::scalar::Value".into(),
             Self::Text => "String".into(),
             Self::Calendar { .. } => "core::calendar::Value".into(),
@@ -96,7 +102,11 @@ impl<'a> Codec<'a> {
     }
     fn cases(&self, name: &str, xml_side: bool) -> Vec<(String, String)> {
         match self {
-            Self::Text | Self::Decimal | Self::Calendar { .. } | Self::Choice(_) => vec![],
+            Self::Text
+            | Self::Decimal
+            | Self::FormattedDecimal(_)
+            | Self::Calendar { .. }
+            | Self::Choice(_) => vec![],
             Self::Boolean(xml, yaml) => (if xml_side { xml } else { yaml })
                 .iter()
                 .map(|item| (item.text.clone(), item.value.to_string()))
@@ -114,7 +124,7 @@ impl<'a> Codec<'a> {
         }
     }
     pub fn yaml_input(&self) -> &'static str {
-        if matches!(self, Self::Decimal) {
+        if self.is_decimal() {
             "into_decimal_text"
         } else {
             "into_text"
@@ -125,7 +135,7 @@ impl<'a> Codec<'a> {
             Self::Text => format!("_value.f{index}.as_str()"),
             Self::Choice(_) => format!("&_value.f{index}"),
             Self::Calendar { .. } => format!("&_value.f{index}.xml()"),
-            Self::Decimal => format!("&_value.f{index}"),
+            Self::Decimal | Self::FormattedDecimal(_) => format!("&_value.f{index}"),
             Self::Boolean(..) => format!("_value.f{index}"),
             Self::Enumeration(variants, ..) => format!(
                 "match _value.f{index} {{ {} }}",
@@ -144,7 +154,7 @@ impl<'a> Codec<'a> {
             Self::Text => format!("{reference}.as_str()"),
             Self::Choice(_) => reference,
             Self::Calendar { .. } => format!("&{reference}.xml()"),
-            Self::Decimal => reference,
+            Self::Decimal | Self::FormattedDecimal(_) => reference,
             Self::Boolean(..) => format!("*{reference}"),
             Self::Enumeration(variants, ..) => format!(
                 "match {reference} {{ {} }}",
@@ -156,10 +166,13 @@ impl<'a> Codec<'a> {
             ),
         }
     }
+    pub fn is_decimal(&self) -> bool {
+        matches!(self, Self::Decimal | Self::FormattedDecimal(_))
+    }
     pub fn plain_yaml(&self) -> bool {
         matches!(
             self,
-            Self::Decimal | Self::Calendar { .. } | Self::Choice(_)
+            Self::Decimal | Self::FormattedDecimal(_) | Self::Calendar { .. } | Self::Choice(_)
         )
     }
     pub fn read(&self, name: &str, index: usize, key: &str, xml_side: bool) -> String {
@@ -187,9 +200,20 @@ impl<'a> Codec<'a> {
             );
         }
 
-        if matches!(self, Self::Decimal) {
+        if self.is_decimal() {
+            let parse = if let Self::FormattedDecimal(format) = self
+                && xml_side
+            {
+                format!(
+                    "core::decimal::parse_formatted(r{index},{},{})",
+                    format.accepted.contains(&'.'),
+                    format.accepted.contains(&',')
+                )
+            } else {
+                format!("core::decimal::Decimal::parse_owned(r{index})")
+            };
             return format!(
-                "let f{index} = core::decimal::Decimal::parse_owned(r{index}).map_err(|error| positions[{index}].apply(source, RuntimeDiagnostic::new(\"value.decimal\", error.to_string()).field({key:?})))?;\n"
+                "let f{index} = {parse}.map_err(|error| positions[{index}].apply(source, RuntimeDiagnostic::new(\"value.decimal\", error.to_string()).field({key:?})))?;\n"
             );
         }
         if matches!(self, Self::Text) {
@@ -242,7 +266,15 @@ impl<'a> Codec<'a> {
             };
         }
 
-        if matches!(self, Self::Decimal) {
+        if self.is_decimal() {
+            if let Self::FormattedDecimal(format) = self
+                && xml_side
+            {
+                return format!(
+                    "&core::decimal::format({reference},{})",
+                    format.separator == ','
+                );
+            }
             return format!("&({reference}).to_string()");
         }
         if matches!(self, Self::Text) {
@@ -290,14 +322,14 @@ pub(crate) fn optional(entry: &LinkedEntry) -> Result<bool, Diagnostic> {
             p.target == LinkedPresenceTarget::SelfValue
                 && missing(&p.xml_missing)
                 && missing(&p.yaml_missing)
-                && p.xml_empty.is_empty()
+                && super::scalar_presence::supported_empty(p)
                 && p.yaml_empty.is_empty()
-                && p.canonical.is_empty()
+                && super::scalar_presence::supported_canonical(p)
         })
     {
         return Err(unsupported(
             entry,
-            "Scalar presence requires constant missing states and ordinary XML",
+            "Scalar presence requires constant missing states and an explicit absence representation",
         ));
     }
     let mut shape = entry.clone();

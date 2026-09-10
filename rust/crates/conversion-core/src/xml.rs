@@ -321,11 +321,12 @@ impl<'a> Writer<'a> {
     pub fn container(&mut self, path: &[(&'a str, &'a str)]) {
         self.container_with_attributes(path, &[]);
     }
-    pub fn container_with_attributes(
+    pub fn container_with_attributes<'b, 'c: 'b>(
         &mut self,
         path: &[(&'a str, &'a str)],
-        attributes: &[WriteAttribute<'_>],
+        attributes: impl IntoIterator<Item = &'b WriteAttribute<'c>>,
     ) {
+        let mut attributes = attributes.into_iter().peekable();
         let common = self
             .path
             .iter()
@@ -336,7 +337,7 @@ impl<'a> Writer<'a> {
             self.close(true);
         }
         assert!(
-            attributes.is_empty() || common < path.len(),
+            attributes.peek().is_none() || common < path.len(),
             "Attributes require a newly opened element"
         );
         for (index, &part) in path[common..].iter().enumerate() {
@@ -357,7 +358,7 @@ impl<'a> Writer<'a> {
                 }
             }
             if common + index + 1 == path.len() {
-                for attribute in attributes {
+                for attribute in attributes.by_ref() {
                     self.output.push(' ');
                     self.output.push_str(&self.name(attribute.name));
                     self.output.push_str("=\"");
@@ -387,11 +388,11 @@ impl<'a> Writer<'a> {
     pub fn field(&mut self, path: &[(&'a str, &'a str)], value: &str) {
         self.field_with_attributes(path, value, &[]);
     }
-    pub fn field_with_attributes(
+    pub fn field_with_attributes<'b, 'c: 'b>(
         &mut self,
         path: &[(&'a str, &'a str)],
         value: &str,
-        attributes: &[WriteAttribute<'_>],
+        attributes: impl IntoIterator<Item = &'b WriteAttribute<'c>>,
     ) {
         self.container_with_attributes(path, attributes);
         self.output.push_str(&escape(value));

@@ -2179,3 +2179,29 @@ fn assert_link_error(path: &str, text: &str, code: &str) {
     let errors = link(&[module]).unwrap_err();
     assert!(errors.iter().any(|error| error.code == code), "{errors:?}");
 }
+
+#[test]
+fn identical_scalar_arguments_share_a_deterministic_specialization() {
+    let common = include_str!("../../../declarations/common/typed-string.yaml");
+    let owner = "format: nkdk-declarations/1\nkind: object\nid: test.scalar-profile\nimports: {text: common.typed-string}\nvalue:\n  kind: record\n  fields:\n    - {name: a, type: {use: text}}\n    - {name: b, type: {use: text, with: {typedXML: true}}}\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - {field: a, path: [Root, A]}\n      - {field: b, path: [Root, B]}\n  yaml:\n    kind: mapping\n    fields:\n      - {field: a, key: A}\n      - {field: b, key: B}\n";
+    let mut modules = [("common", common), ("owner", owner)].map(|(path, text)| {
+        parse(SourceFile {
+            path,
+            bytes: text.as_bytes(),
+        })
+        .unwrap()
+    });
+    let program = link(&modules).unwrap();
+    modules.reverse();
+    assert_eq!(program, link(&modules).unwrap());
+    let owner = program
+        .entries
+        .iter()
+        .find(|entry| entry.name == "test.scalar-profile")
+        .unwrap();
+    let nkdk_rule_model::LinkedType::Record(fields) = &owner.value else {
+        panic!("record")
+    };
+    assert_eq!(fields[0].value, fields[1].value);
+    assert_eq!(program.entries.len(), 3);
+}
