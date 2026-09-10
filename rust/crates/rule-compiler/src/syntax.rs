@@ -1,13 +1,25 @@
+mod constraints;
+mod expressions;
+mod presence;
+use constraints::constraints;
+use expressions::{expression, scalar_literal};
+use presence::{normalization, presence};
+
+use nkdk_rule_model::ComparisonOperator;
 use nkdk_rule_model::Normalization;
 use nkdk_rule_model::{
     BooleanLexeme, Diagnostic, Module, ModuleKind, NamedBinding, NamedType, Representations,
     ScalarType, SourceLocation, TypeDefinition, TypeField, XmlRepresentation, YamlRepresentation,
 };
 use nkdk_rule_model::{CanonicalForm, Presence, PresenceTarget, XmlForm};
+use nkdk_rule_model::{
+    Constraint, DiagnosticDefinition, DiagnosticTarget, Severity, ValidationPhase,
+};
 use nkdk_rule_model::{EmptyForm, EmptyKind};
 use nkdk_rule_model::{
     Expression, ExpressionField, ExpressionKind, Parameter, ScalarLiteral, Shorthand,
 };
+use nkdk_rule_model::{Iteration, MessageDefinition, MessagePart};
 use nkdk_rule_model::{StaticArgument, TypeUse};
 use nkdk_rule_model::{XmlField, YamlField};
 use yaml_rust2::{
@@ -199,6 +211,8 @@ pub fn decode(path: &str, events: Vec<(Event, Marker)>) -> Result<Module, Diagno
             "parameters",
             "presence",
             "normalization",
+            "constraints",
+            "compose",
             "value",
             "representations",
         ],
@@ -292,6 +306,15 @@ pub fn decode(path: &str, events: Vec<(Event, Marker)>) -> Result<Module, Diagno
         })
         .map(|value| value.text(path).map(str::to_owned))
         .transpose()?;
+    let compose = composition(path, fields)?;
+    if kind == ModuleKind::Value && optional_field(fields, "compose").is_some() {
+        return Err(error(
+            path,
+            root.mark,
+            "invalid_composition_role",
+            "Composition requires fragment or object",
+        ));
+    }
     Ok(Module {
         kind,
         id: id.into(),
@@ -303,6 +326,8 @@ pub fn decode(path: &str, events: Vec<(Event, Marker)>) -> Result<Module, Diagno
         parameters: parameters(path, fields)?,
         presence: presence(path, fields)?,
         normalization: normalization(path, fields)?,
+        constraints: constraints(path, fields)?,
+        compose,
         value: definition,
         representations: Representations {
             xml: xml_rep,
@@ -690,104 +715,6 @@ fn named_inputs(path: &str, fields: &[(Node, Node)]) -> Result<Vec<NamedType>, D
         .collect()
 }
 
-fn presence(path: &str, fields: &[(Node, Node)]) -> Result<Vec<Presence>, Diagnostic> {
-    let Some(value) = fields.iter().find_map(|(key, value)| match &key.shape {
-        Shape::Scalar(name, _) if name == "presence" => Some(value),
-        _ => None,
-    }) else {
-        return Ok(vec![]);
-    };
-    let Shape::Sequence(entries) = &value.shape else {
-        return Err(error(
-            path,
-            value.mark,
-            "expected_sequence",
-            "Expected presence entries",
-        ));
-    };
-    entries
-        .iter()
-        .map(|entry| {
-            let fields = entry.mapping(path, &["target", "xml", "yaml"])?;
-            let target = entry.field(path, fields, "target")?;
-            let target_kind = if let Shape::Mapping(_) = &target.shape {
-                let fields = target.mapping(path, &["field"])?;
-                PresenceTarget::Field(target.field(path, fields, "field")?.text(path)?.into())
-            } else {
-                target.literal(path, "self", "invalid_target")?;
-                PresenceTarget::SelfValue
-            };
-            let xml = optional_field(fields, "xml")
-                .map(|node| node.mapping(path, &["missing", "empty", "canonical"]))
-                .transpose()?;
-            let yaml = optional_field(fields, "yaml")
-                .map(|node| node.mapping(path, &["missing", "empty", "omitWhen"]))
-                .transpose()?;
-            let xml_fields = xml.unwrap_or(&[]);
-            let yaml_fields = yaml.unwrap_or(&[]);
-            let forms = if let Some(canonical) = optional_field(xml_fields, "canonical") {
-                let Shape::Sequence(forms) = &canonical.shape else {
-                    return Err(error(
-                        path,
-                        canonical.mark,
-                        "expected_sequence",
-                        "Expected canonical forms",
-                    ));
-                };
-                forms.as_slice()
-            } else {
-                &[]
-            };
-            let xml_canonical = forms
-                .iter()
-                .map(|form| {
-                    let fields = form.mapping(path, &["when", "form"])?;
-                    let when = fields
-                        .iter()
-                        .find_map(|(key, value)| match &key.shape {
-                            Shape::Scalar(name, _) if name == "when" => Some(value),
-                            _ => None,
-                        })
-                        .map(|value| expression(path, value))
-                        .transpose()?;
-                    let name = form.field(path, fields, "form")?;
-                    let kind = match name.text(path)? {
-                        "ordinary" => XmlForm::Ordinary,
-                        "empty-element" => XmlForm::EmptyElement,
-                        "nil" => XmlForm::Nil,
-                        "missing" => XmlForm::Missing,
-                        _ => {
-                            return Err(error(
-                                path,
-                                name.mark,
-                                "invalid_xml_form",
-                                "Unknown canonical XML form",
-                            ));
-                        }
-                    };
-                    Ok(CanonicalForm {
-                        when,
-                        form: kind,
-                        source: location(path, name),
-                    })
-                })
-                .collect::<Result<Vec<_>, Diagnostic>>()?;
-            Ok(Presence {
-                target: target_kind,
-                xml_missing: missing_value(path, xml_fields)?,
-                xml_empty: empty_forms(path, xml_fields, true)?,
-                yaml_missing: missing_value(path, yaml_fields)?,
-                yaml_empty: empty_forms(path, yaml_fields, false)?,
-                yaml_omit_when: optional_field(yaml_fields, "omitWhen")
-                    .map(|node| expression(path, node))
-                    .transpose()?,
-                xml_canonical,
-                source: location(path, target),
-            })
-        })
-        .collect()
-}
-
 fn parameters(path: &str, fields: &[(Node, Node)]) -> Result<Vec<Parameter>, Diagnostic> {
     let Some(value) = fields.iter().find_map(|(key, value)| match &key.shape {
         Shape::Scalar(name, _) if name == "parameters" => Some(value),
@@ -837,7 +764,7 @@ fn shorthands(path: &str, value: &Node) -> Result<Vec<Shorthand>, Diagnostic> {
     items
         .iter()
         .map(|item| {
-            let fields = item.mapping(path, &["id", "representation", "denotes"])?;
+            let fields = item.mapping(path, &["id", "representation", "denotes", "when"])?;
             let representation = item.field(path, fields, "representation")?;
             let rep_fields = representation.mapping(path, &["kind", "scalar", "capture"])?;
             representation.field(path, rep_fields, "kind")?.literal(
@@ -858,239 +785,13 @@ fn shorthands(path: &str, value: &Node) -> Result<Vec<Shorthand>, Diagnostic> {
                     .text(path)?
                     .into(),
                 denotes: expression(path, item.field(path, fields, "denotes")?)?,
+                when: optional_field(fields, "when")
+                    .map(|node| expression(path, node))
+                    .transpose()?,
                 source: location(path, id),
             })
         })
         .collect()
-}
-
-fn expression(path: &str, value: &Node) -> Result<Expression, Diagnostic> {
-    if let Shape::Mapping(entries) = &value.shape
-        && entries
-            .iter()
-            .any(|(key, _)| matches!(&key.shape, Shape::Scalar(name, _) if name == "if"))
-    {
-        let fields = value.mapping(path, &["if", "then", "else"])?;
-        return Ok(Expression {
-            kind: ExpressionKind::Conditional {
-                condition: Box::new(expression(path, value.field(path, fields, "if")?)?),
-                then_value: Box::new(expression(path, value.field(path, fields, "then")?)?),
-                else_value: Box::new(expression(path, value.field(path, fields, "else")?)?),
-            },
-            source: location(path, value),
-        });
-    }
-    let fields = value.mapping(
-        path,
-        &[
-            "input",
-            "parameter",
-            "capture",
-            "sequence",
-            "record",
-            "literal",
-            "not",
-            "absent",
-            "self",
-            "var",
-            "get",
-            "each",
-            "and",
-            "eq",
-        ],
-    )?;
-    if fields.len() != 1 {
-        return Err(error(
-            path,
-            value.mark,
-            "invalid_expression",
-            "Expected one expression operator",
-        ));
-    }
-    let (operator, operand) = &fields[0];
-    let kind = match operator.text(path)? {
-        "not" => ExpressionKind::Not(Box::new(expression(path, operand)?)),
-        "absent" => {
-            if scalar_literal(path, operand)? != ScalarLiteral::Boolean(true) {
-                return Err(error(
-                    path,
-                    operand.mark,
-                    "invalid_absent",
-                    "Expected absent: true",
-                ));
-            }
-            ExpressionKind::Absent
-        }
-        "self" => {
-            if scalar_literal(path, operand)? != ScalarLiteral::Boolean(true) {
-                return Err(error(
-                    path,
-                    operand.mark,
-                    "invalid_self",
-                    "Expected self: true",
-                ));
-            }
-            ExpressionKind::SelfValue
-        }
-        "var" => ExpressionKind::Variable(operand.text(path)?.into()),
-        "get" => {
-            let fields = operand.mapping(path, &["of", "field"])?;
-            ExpressionKind::Get {
-                value: Box::new(expression(path, operand.field(path, fields, "of")?)?),
-                field: operand.field(path, fields, "field")?.text(path)?.into(),
-            }
-        }
-        "each" => {
-            let fields = operand.mapping(path, &["in", "as", "where"])?;
-            ExpressionKind::Each {
-                input: Box::new(expression(path, operand.field(path, fields, "in")?)?),
-                binding: operand.field(path, fields, "as")?.text(path)?.into(),
-                predicate: Box::new(expression(path, operand.field(path, fields, "where")?)?),
-            }
-        }
-        "and" | "eq" => {
-            let Shape::Sequence(items) = &operand.shape else {
-                return Err(error(
-                    path,
-                    operand.mark,
-                    "expected_sequence",
-                    "Expected operands",
-                ));
-            };
-            let equal = operator.text(path)? == "eq";
-            if (equal && items.len() != 2) || (!equal && items.is_empty()) {
-                return Err(error(
-                    path,
-                    operand.mark,
-                    "invalid_arity",
-                    "eq requires two operands; and requires at least one",
-                ));
-            }
-            let mut expressions = items
-                .iter()
-                .map(|item| expression(path, item))
-                .collect::<Result<Vec<_>, _>>()?;
-            if equal {
-                let right = expressions.pop().expect("two operands checked");
-                let left = expressions.pop().expect("two operands checked");
-                ExpressionKind::Equal {
-                    left: Box::new(left),
-                    right: Box::new(right),
-                }
-            } else {
-                ExpressionKind::And(expressions)
-            }
-        }
-        "literal" => ExpressionKind::Literal(scalar_literal(path, operand)?),
-        "input" => ExpressionKind::Input(operand.text(path)?.into()),
-        "parameter" => ExpressionKind::Parameter(operand.text(path)?.into()),
-        "capture" => ExpressionKind::Capture(operand.text(path)?.into()),
-        "sequence" => {
-            let Shape::Sequence(items) = &operand.shape else {
-                return Err(error(
-                    path,
-                    operand.mark,
-                    "expected_sequence",
-                    "Expected sequence constructor",
-                ));
-            };
-            ExpressionKind::Sequence(
-                items
-                    .iter()
-                    .map(|item| expression(path, item))
-                    .collect::<Result<Vec<_>, _>>()?,
-            )
-        }
-        "record" => {
-            let Shape::Mapping(items) = &operand.shape else {
-                return Err(error(
-                    path,
-                    operand.mark,
-                    "expected_mapping",
-                    "Expected record constructor",
-                ));
-            };
-            ExpressionKind::Record(
-                items
-                    .iter()
-                    .map(|(key, item)| {
-                        Ok(ExpressionField {
-                            name: key.text(path)?.into(),
-                            value: expression(path, item)?,
-                        })
-                    })
-                    .collect::<Result<Vec<_>, Diagnostic>>()?,
-            )
-        }
-        _ => unreachable!("closed expression operators"),
-    };
-    Ok(Expression {
-        kind,
-        source: location(path, value),
-    })
-}
-
-fn scalar_literal(path: &str, value: &Node) -> Result<ScalarLiteral, Diagnostic> {
-    let Shape::Scalar(text, is_string) = &value.shape else {
-        return Err(error(
-            path,
-            value.mark,
-            "expected_scalar",
-            "Expected scalar literal",
-        ));
-    };
-    if *is_string {
-        return Ok(ScalarLiteral::Text(text.clone()));
-    }
-    match text.as_str() {
-        "true" | "True" | "TRUE" => Ok(ScalarLiteral::Boolean(true)),
-        "false" | "False" | "FALSE" => Ok(ScalarLiteral::Boolean(false)),
-        "" | "~" | "null" | "Null" | "NULL" => Ok(ScalarLiteral::Null),
-        _ if decimal_literal(text) => Ok(ScalarLiteral::Number(text.clone())),
-        _ => Err(error(
-            path,
-            value.mark,
-            "invalid_number",
-            "Expected finite decimal literal",
-        )),
-    }
-}
-
-fn decimal_literal(text: &str) -> bool {
-    let mut bytes = text.bytes().peekable();
-    if matches!(bytes.peek(), Some(b'+' | b'-')) {
-        bytes.next();
-    }
-    let mut digits = 0;
-    while bytes.peek().is_some_and(u8::is_ascii_digit) {
-        bytes.next();
-        digits += 1;
-    }
-    if bytes.peek() == Some(&b'.') {
-        bytes.next();
-        while bytes.peek().is_some_and(u8::is_ascii_digit) {
-            bytes.next();
-            digits += 1;
-        }
-    }
-    if digits == 0 {
-        return false;
-    }
-    if matches!(bytes.peek(), Some(b'e' | b'E')) {
-        bytes.next();
-        if matches!(bytes.peek(), Some(b'+' | b'-')) {
-            bytes.next();
-        }
-        let mut exponent_digits = 0;
-        while bytes.peek().is_some_and(u8::is_ascii_digit) {
-            bytes.next();
-            exponent_digits += 1;
-        }
-        if exponent_digits == 0 {
-            return false;
-        }
-    }
-    bytes.next().is_none()
 }
 
 fn optional_field<'a>(fields: &'a [(Node, Node)], name: &str) -> Option<&'a Node> {
@@ -1098,88 +799,6 @@ fn optional_field<'a>(fields: &'a [(Node, Node)], name: &str) -> Option<&'a Node
         Shape::Scalar(key, _) if key == name => Some(value),
         _ => None,
     })
-}
-
-fn missing_value(path: &str, fields: &[(Node, Node)]) -> Result<Option<Expression>, Diagnostic> {
-    optional_field(fields, "missing")
-        .map(|node| {
-            let fields = node.mapping(path, &["denotes"])?;
-            expression(path, node.field(path, fields, "denotes")?)
-        })
-        .transpose()
-}
-
-fn empty_forms(
-    path: &str,
-    fields: &[(Node, Node)],
-    xml: bool,
-) -> Result<Vec<EmptyForm>, Diagnostic> {
-    let Some(node) = optional_field(fields, "empty") else {
-        return Ok(vec![]);
-    };
-    let Shape::Sequence(items) = &node.shape else {
-        return Err(error(
-            path,
-            node.mark,
-            "expected_sequence",
-            "Expected empty forms",
-        ));
-    };
-    items
-        .iter()
-        .map(|item| {
-            let fields = item.mapping(path, &["form", "denotes"])?;
-            let name = item.field(path, fields, "form")?;
-            let Shape::Scalar(spelling, _) = &name.shape else {
-                return Err(error(
-                    path,
-                    name.mark,
-                    "expected_scalar",
-                    "Expected form name",
-                ));
-            };
-            let form = match (xml, spelling.as_str()) {
-                (true, "empty-element") => EmptyKind::Element,
-                (true, "empty-text") => EmptyKind::Text,
-                (true, "nil") => EmptyKind::Nil,
-                (false, "empty-string") => EmptyKind::String,
-                (false, "empty-mapping") => EmptyKind::Mapping,
-                (false, "empty-sequence") => EmptyKind::Sequence,
-                (false, "null") => EmptyKind::Null,
-                _ => {
-                    return Err(error(
-                        path,
-                        name.mark,
-                        "invalid_empty_form",
-                        "Unknown empty form for this format",
-                    ));
-                }
-            };
-            Ok(EmptyForm {
-                form,
-                denotes: expression(path, item.field(path, fields, "denotes")?)?,
-                source: location(path, name),
-            })
-        })
-        .collect()
-}
-
-fn normalization(path: &str, fields: &[(Node, Node)]) -> Result<Option<Normalization>, Diagnostic> {
-    optional_field(fields, "normalization")
-        .map(|node| {
-            let fields = node.mapping(path, &["when", "from", "denotes"])?;
-            node.field(path, fields, "from")?.literal(
-                path,
-                "empty-sequence",
-                "invalid_normalization",
-            )?;
-            Ok(Normalization {
-                when: expression(path, node.field(path, fields, "when")?)?,
-                denotes: expression(path, node.field(path, fields, "denotes")?)?,
-                source: location(path, node),
-            })
-        })
-        .transpose()
 }
 
 fn named_nodes<'a>(path: &str, node: Option<&'a Node>) -> Result<&'a [(Node, Node)], Diagnostic> {
@@ -1196,4 +815,33 @@ fn named_nodes<'a>(path: &str, node: Option<&'a Node>) -> Result<&'a [(Node, Nod
             "Expected named bindings",
         )),
     }
+}
+
+fn composition(path: &str, fields: &[(Node, Node)]) -> Result<Vec<TypeUse>, Diagnostic> {
+    let Some(node) = optional_field(fields, "compose") else {
+        return Ok(vec![]);
+    };
+    let Shape::Sequence(items) = &node.shape else {
+        return Err(error(
+            path,
+            node.mark,
+            "expected_sequence",
+            "Expected fragment list",
+        ));
+    };
+    items
+        .iter()
+        .map(|item| {
+            item.mapping(path, &["use", "with", "bind"])?;
+            match type_definition(path, item)? {
+                TypeDefinition::Use(usage) => Ok(usage),
+                _ => Err(error(
+                    path,
+                    item.mark,
+                    "expected_fragment_use",
+                    "Expected fragment import",
+                )),
+            }
+        })
+        .collect()
 }

@@ -32,6 +32,8 @@ pub struct Module {
     pub parameters: Vec<Parameter>,
     pub presence: Vec<Presence>,
     pub normalization: Option<Normalization>,
+    pub constraints: Vec<Constraint>,
+    pub compose: Vec<TypeUse>,
     pub value: TypeDefinition,
     pub representations: Representations,
 }
@@ -148,6 +150,7 @@ pub struct Shorthand {
     pub id: String,
     pub capture: String,
     pub denotes: Expression,
+    pub when: Option<Expression>,
     pub source: SourceLocation,
 }
 
@@ -159,6 +162,7 @@ pub struct Expression {
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum ExpressionKind {
+    Field(String),
     Not(Box<Expression>),
     Absent,
     SelfValue,
@@ -173,7 +177,14 @@ pub enum ExpressionKind {
         predicate: Box<Expression>,
     },
     And(Vec<Expression>),
-    Equal {
+    Or(Vec<Expression>),
+    Exists {
+        input: Box<Expression>,
+        binding: String,
+        predicate: Box<Expression>,
+    },
+    Compare {
+        operator: ComparisonOperator,
         left: Box<Expression>,
         right: Box<Expression>,
     },
@@ -188,6 +199,13 @@ pub enum ExpressionKind {
     Capture(String),
     Sequence(Vec<Expression>),
     Record(Vec<ExpressionField>),
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub enum ComparisonOperator {
+    Equal,
+    LessThan,
+    LessOrEqual,
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -218,6 +236,66 @@ pub struct Normalization {
     pub when: Expression,
     pub denotes: Expression,
     pub source: SourceLocation,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub struct Constraint {
+    pub id: String,
+    pub applies_to: Vec<ValidationPhase>,
+    pub when: Option<Expression>,
+    pub for_each: Option<Iteration>,
+    pub forms: Vec<String>,
+    pub assertion: Expression,
+    pub diagnostic: DiagnosticDefinition,
+    pub source: SourceLocation,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub enum ValidationPhase {
+    XmlImport,
+    YamlValidation,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub struct DiagnosticDefinition {
+    pub code: Option<String>,
+    pub source: Option<String>,
+    pub severity: Severity,
+    pub at: DiagnosticTarget,
+    pub message: MessageDefinition,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub enum Severity {
+    Error,
+    Warning,
+    Info,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub enum DiagnosticTarget {
+    SelfValue,
+    Field(String),
+    Occurrence { name: String, field: String },
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub struct Iteration {
+    pub input: Expression,
+    pub binding: String,
+    pub source: SourceLocation,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub enum MessageDefinition {
+    Text(String),
+    Parts(Vec<MessagePart>),
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub enum MessagePart {
+    Text(String),
+    Expression(Expression),
 }
 
 #[derive(Debug, PartialEq, Eq)]

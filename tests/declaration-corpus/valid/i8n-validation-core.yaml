@@ -1,0 +1,82 @@
+format: nkdk-declarations/1
+kind: value
+id: common.i8n-text
+
+namespaces:
+  v8: "http://v8.1c.ru/8.1/data/core"
+
+inputs:
+  registeredLanguages:
+    type: {kind: sequence, item: {kind: scalar, scalar: text}}
+  defaultLanguage:
+    type: {kind: scalar, scalar: text}
+
+types:
+  translation:
+    kind: record
+    fields:
+      - name: language
+        type: {kind: scalar, scalar: text}
+      - name: content
+        type: {kind: scalar, scalar: text}
+
+value:
+  kind: sequence
+  item: {local: translation}
+
+representations:
+  xml:
+    kind: element-sequence
+    path: [v8:item]
+    item:
+      kind: record
+      fields:
+        - field: language
+          path: [v8:lang]
+        - field: content
+          path: [v8:content]
+  yaml:
+    kind: keyed-mapping
+    key: language
+    value: content
+    shorthand:
+      - id: primary-language-string
+        representation:
+          kind: scalar
+          scalar: text
+          capture: text
+        denotes:
+          sequence:
+            - record:
+                language: {input: defaultLanguage}
+                content: {capture: text}
+
+constraints:
+  - id: registered-language-on-import
+    appliesTo: [xml-import]
+    forEach: {in: {self: true}, as: translation}
+    when:
+      not:
+        or:
+          - eq:
+              - {get: {of: {var: translation}, field: language}}
+              - {literal: ""}
+          - eq:
+              - {get: {of: {var: translation}, field: language}}
+              - {literal: "#"}
+    assert:
+      exists:
+        in: {input: registeredLanguages}
+        as: registered
+        where:
+          eq:
+            - {var: registered}
+            - {get: {of: {var: translation}, field: language}}
+    diagnostic:
+      severity: error
+      source: structure
+      at: {occurrence: translation, field: language}
+      message:
+        parts:
+          - "Незарегистрированный язык "
+          - {get: {of: {var: translation}, field: language}}

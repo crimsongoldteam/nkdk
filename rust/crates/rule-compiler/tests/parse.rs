@@ -779,3 +779,172 @@ fn with_rejects_runtime_expressions_and_bind_requires_expression_tree() {
         assert_eq!(errors[0].code, code, "{usage}");
     }
 }
+
+#[test]
+fn constraints_keep_public_diagnostics_separate_from_internal_id() {
+    let source = format!(
+        "{TEXT_MODULE}\nconstraints:\n  - id: internal-check\n    appliesTo: [yaml-validation]\n    assert: {{literal: false}}\n    diagnostic:\n      severity: error\n      source: structure\n      at: {{self: true}}\n      message: Invalid value\n"
+    );
+    let module = parse(SourceFile {
+        path: "constraints.yaml",
+        bytes: source.as_bytes(),
+    })
+    .expect("constraint declaration");
+    assert_eq!(module.constraints[0].id, "internal-check");
+    assert!(module.constraints[0].diagnostic.code.is_none());
+    assert_eq!(
+        module.constraints[0].diagnostic.source.as_deref(),
+        Some("structure")
+    );
+}
+
+#[test]
+fn localized_validation_uses_declared_iteration_and_message_parts() {
+    let module = parse(SourceFile {
+        path: "validation.yaml",
+        bytes: include_bytes!(
+            "../../../../tests/declaration-corpus/valid/i8n-validation-core.yaml"
+        ),
+    })
+    .expect("localized validation syntax");
+    let constraint = &module.constraints[0];
+    assert_eq!(constraint.for_each.as_ref().unwrap().binding, "translation");
+    assert_eq!(
+        constraint.diagnostic.at,
+        nkdk_rule_model::DiagnosticTarget::Occurrence {
+            name: "translation".into(),
+            field: "language".into()
+        }
+    );
+    let nkdk_rule_model::MessageDefinition::Parts(parts) = &constraint.diagnostic.message else {
+        panic!("parts expected")
+    };
+    assert_eq!(parts.len(), 2);
+    assert!(constraint.diagnostic.code.is_none());
+}
+
+#[test]
+fn constraint_diagnostics_reject_unknown_phases_and_ambiguous_addresses() {
+    let original =
+        include_str!("../../../../tests/declaration-corpus/valid/i8n-validation-core.yaml");
+    for (old, new, code) in [
+        ("[xml-import]", "[xml-export]", "invalid_validation_phase"),
+        ("severity: error", "severity: fatal", "invalid_severity"),
+        (
+            "{occurrence: translation, field: language}",
+            "{self: true, field: language}",
+            "unknown_key",
+        ),
+        ("source: structure", "source: true", "expected_string"),
+        (
+            "message:\n        parts:",
+            "message:\n        callback:",
+            "unknown_key",
+        ),
+    ] {
+        let source = original.replace(old, new);
+        assert_ne!(source, original);
+        let errors = parse(SourceFile {
+            path: "diagnostic.yaml",
+            bytes: source.as_bytes(),
+        })
+        .expect_err(new);
+        assert_eq!(errors[0].code, code, "{new}");
+    }
+}
+
+#[test]
+fn composition_preserves_explicit_fragment_arguments() {
+    let original =
+        include_str!("../../../../tests/declaration-corpus/valid/common-module-core.yaml");
+    let source = format!(
+        "{original}\ncompose:\n  - use: identity\n    with: {{required: true}}\n    bind: {{owner: {{input: ownerName}}}}\n"
+    );
+    let module = parse(SourceFile {
+        path: "composition.yaml",
+        bytes: source.as_bytes(),
+    })
+    .expect("fragment composition");
+    assert_eq!(module.compose[0].name, "identity");
+    assert_eq!(
+        module.compose[0].arguments[0].value,
+        nkdk_rule_model::ScalarLiteral::Boolean(true)
+    );
+    assert_eq!(module.compose[0].bindings[0].name, "owner");
+}
+
+#[test]
+fn value_role_cannot_compose_even_an_empty_fragment_list() {
+    let source = format!("{TEXT_MODULE}\ncompose: []\n");
+    let errors = parse(SourceFile {
+        path: "composition.yaml",
+        bytes: source.as_bytes(),
+    })
+    .expect_err("value composition");
+    assert_eq!(errors[0].code, "invalid_composition_role");
+}
+
+#[test]
+fn comparison_operators_use_explicit_field_references() {
+    let original = include_str!("../../../../tests/declaration-corpus/valid/i8n-text-core.yaml");
+    for operator in ["lt", "lte"] {
+        let source = original.replace(
+            "{capture: text}",
+            &format!("{{{operator}: [{{field: codeLength}}, {{literal: 38}}]}}"),
+        );
+        parse(SourceFile {
+            path: "comparison.yaml",
+            bytes: source.as_bytes(),
+        })
+        .expect(operator);
+    }
+}
+
+#[test]
+fn presence_rejects_duplicate_targets_forms_and_early_fallback() {
+    for (section, code) in [
+        (
+            "  - target: self\n    xml: {}\n  - target: self\n    xml: {}\n",
+            "duplicate_presence_target",
+        ),
+        (
+            "  - target: self\n    yaml:\n      empty:\n        - {form: empty-string, denotes: {literal: \"\"}}\n        - {form: empty-string, denotes: {literal: \"\"}}\n",
+            "duplicate_empty_form",
+        ),
+        (
+            "  - target: self\n    xml:\n      canonical:\n        - {form: ordinary}\n        - {when: {literal: true}, form: missing}\n",
+            "early_canonical_fallback",
+        ),
+    ] {
+        let source = format!("{TEXT_MODULE}\npresence:\n{section}");
+        let errors = parse(SourceFile {
+            path: "presence.yaml",
+            bytes: source.as_bytes(),
+        })
+        .expect_err(code);
+        assert_eq!(errors[0].code, code);
+    }
+}
+
+#[test]
+fn shorthand_condition_limits_export_without_changing_denotes() {
+    let original = include_str!("../../../../tests/declaration-corpus/valid/i8n-text-core.yaml");
+    let source = original.replace(
+        "      - id: primary-language-string",
+        "      - id: primary-language-string\n        when: {literal: true}",
+    );
+    let module = parse(SourceFile {
+        path: "shorthand.yaml",
+        bytes: source.as_bytes(),
+    })
+    .expect("conditional shorthand");
+    let nkdk_rule_model::YamlRepresentation::KeyedMapping { shorthand, .. } =
+        module.representations.yaml
+    else {
+        panic!("mapping expected")
+    };
+    assert_eq!(
+        shorthand[0].when.as_ref().unwrap().kind,
+        nkdk_rule_model::ExpressionKind::Literal(nkdk_rule_model::ScalarLiteral::Boolean(true))
+    );
+}
