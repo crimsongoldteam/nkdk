@@ -166,6 +166,26 @@ pub struct Expression {
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum ExpressionKind {
+    StateTest {
+        predicate: StatePredicate,
+        value: Box<Expression>,
+    },
+    Take {
+        input: Box<Expression>,
+        count: u64,
+    },
+    FirstBy {
+        input: Box<Expression>,
+        binding: String,
+        key: Box<Expression>,
+    },
+    Ordered {
+        input: Box<Expression>,
+        binding: String,
+        key: Box<Expression>,
+        unique: bool,
+        first: Vec<Expression>,
+    },
     Transform {
         local: String,
         value: Box<Expression>,
@@ -214,6 +234,13 @@ pub enum ComparisonOperator {
     Equal,
     LessThan,
     LessOrEqual,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub enum StatePredicate {
+    Present,
+    IsNull,
+    IsReady,
 }
 
 #[derive(Debug, PartialEq, Eq)]

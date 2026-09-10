@@ -1,4 +1,5 @@
 use super::*;
+use nkdk_rule_model::StatePredicate;
 
 pub(super) fn expression(path: &str, value: &Node) -> Result<Expression, Diagnostic> {
     if let Shape::Mapping(entries) = &value.shape
@@ -20,7 +21,13 @@ pub(super) fn expression(path: &str, value: &Node) -> Result<Expression, Diagnos
         path,
         &[
             "input",
+            "present",
+            "isNull",
+            "isReady",
             "transform",
+            "take",
+            "firstBy",
+            "ordered",
             "parameter",
             "capture",
             "sequence",
@@ -51,6 +58,95 @@ pub(super) fn expression(path: &str, value: &Node) -> Result<Expression, Diagnos
     }
     let (operator, operand) = &fields[0];
     let kind = match operator.text(path)? {
+        "present" | "isNull" | "isReady" => ExpressionKind::StateTest {
+            predicate: match operator.text(path)? {
+                "present" => StatePredicate::Present,
+                "isNull" => StatePredicate::IsNull,
+                "isReady" => StatePredicate::IsReady,
+                _ => unreachable!("state predicate checked"),
+            },
+            value: Box::new(expression(path, operand)?),
+        },
+        "take" => {
+            let fields = operand.mapping(path, &["in", "count"])?;
+            let count_node = operand.field(path, fields, "count")?;
+            let ScalarLiteral::Number(count) = scalar_literal(path, count_node)? else {
+                return Err(error(
+                    path,
+                    count_node.mark,
+                    "invalid_take_count",
+                    "Expected nonnegative integer count",
+                ));
+            };
+            let count = count.parse::<u64>().map_err(|_| {
+                error(
+                    path,
+                    count_node.mark,
+                    "invalid_take_count",
+                    "Expected nonnegative integer count",
+                )
+            })?;
+            ExpressionKind::Take {
+                input: Box::new(expression(path, operand.field(path, fields, "in")?)?),
+                count,
+            }
+        }
+        "firstBy" | "ordered" => {
+            let ordered = operator.text(path)? == "ordered";
+            let fields = operand.mapping(
+                path,
+                if ordered {
+                    &["in", "as", "key", "unique", "first", "comparison"]
+                } else {
+                    &["in", "as", "key"]
+                },
+            )?;
+            let input = Box::new(expression(path, operand.field(path, fields, "in")?)?);
+            let binding = operand.field(path, fields, "as")?.text(path)?.into();
+            let key = Box::new(expression(path, operand.field(path, fields, "key")?)?);
+            if ordered {
+                operand.field(path, fields, "comparison")?.literal(
+                    path,
+                    "utf16",
+                    "unsupported_comparison",
+                )?;
+                let unique_node = operand.field(path, fields, "unique")?;
+                let ScalarLiteral::Boolean(unique) = scalar_literal(path, unique_node)? else {
+                    return Err(error(
+                        path,
+                        unique_node.mark,
+                        "expected_boolean",
+                        "Expected unique boolean",
+                    ));
+                };
+                let first = operand.field(path, fields, "first")?;
+                let Shape::Sequence(first) = &first.shape else {
+                    return Err(error(
+                        path,
+                        first.mark,
+                        "expected_sequence",
+                        "Expected preferred keys",
+                    ));
+                };
+                let first = first
+                    .iter()
+                    .map(|node| expression(path, node))
+                    .collect::<Result<Vec<_>, _>>()?;
+                ExpressionKind::Ordered {
+                    input,
+                    binding,
+                    key,
+                    unique,
+                    first,
+                }
+            } else {
+                ExpressionKind::FirstBy {
+                    input,
+                    binding,
+                    key,
+                }
+            }
+        }
         "transform" => {
             let fields = operand.mapping(path, &["local", "value"])?;
             ExpressionKind::Transform {

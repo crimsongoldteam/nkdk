@@ -1014,3 +1014,71 @@ fn transform_expression_references_local_data() {
     })
     .expect("transform expression");
 }
+
+#[test]
+fn collection_views_and_order_have_explicit_inputs_and_keys() {
+    let original = include_str!("../../../../tests/declaration-corpus/valid/i8n-text-core.yaml");
+    for expression in [
+        "{take: {in: {self: true}, count: 1}}",
+        "{firstBy: {in: {self: true}, as: item, key: {get: {of: {var: item}, field: language}}}}",
+        "{ordered: {in: {self: true}, as: item, key: {get: {of: {var: item}, field: language}}, unique: true, first: [{input: defaultLanguage}], comparison: utf16}}",
+    ] {
+        let source = original.replace("{capture: text}", expression);
+        parse(SourceFile {
+            path: "collection-view.yaml",
+            bytes: source.as_bytes(),
+        })
+        .expect(expression);
+    }
+}
+
+#[test]
+fn collection_views_reject_dynamic_counts_and_implicit_sorting_modes() {
+    let original = include_str!("../../../../tests/declaration-corpus/valid/i8n-text-core.yaml");
+    for (expression, code) in [
+        (
+            "{take: {in: {self: true}, count: -1}}",
+            "invalid_take_count",
+        ),
+        (
+            "{take: {in: {self: true}, count: 1.5}}",
+            "invalid_take_count",
+        ),
+        (
+            "{take: {in: {self: true}, count: {input: limit}}}",
+            "expected_scalar",
+        ),
+        (
+            "{firstBy: {in: {self: true}, as: item, key: {var: item}, sort: true}}",
+            "unknown_key",
+        ),
+        (
+            "{ordered: {in: {self: true}, as: item, key: {var: item}, unique: true, first: [], comparison: locale}}",
+            "unsupported_comparison",
+        ),
+    ] {
+        let source = original.replace("{capture: text}", expression);
+        let errors = parse(SourceFile {
+            path: "collection-view.yaml",
+            bytes: source.as_bytes(),
+        })
+        .expect_err(expression);
+        assert_eq!(errors[0].code, code, "{expression}");
+    }
+}
+
+#[test]
+fn state_predicates_remain_distinct_expression_nodes() {
+    let original = include_str!("../../../../tests/declaration-corpus/valid/i8n-text-core.yaml");
+    for operator in ["present", "isNull", "isReady"] {
+        let source = original.replace(
+            "{capture: text}",
+            &format!("{{{operator}: {{input: optionalValue}}}}"),
+        );
+        parse(SourceFile {
+            path: "state.yaml",
+            bytes: source.as_bytes(),
+        })
+        .expect(operator);
+    }
+}

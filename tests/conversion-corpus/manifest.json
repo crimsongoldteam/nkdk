@@ -443,6 +443,51 @@
       ],
       "scope": "closed object schema; no metadata resolver",
       "verification": "TypeScript diagnostic observed; Rust pending"
+    },
+    {
+      "id": "i8n-empty-first-duplicate",
+      "group": "i8n-text",
+      "capabilities": [
+        "physical-occurrences",
+        "existing-invalid-policy",
+        "skip-empty-correction"
+      ],
+      "inputs": {
+        "xml": {
+          "path": "tests/conversion-corpus/cases/i8n-empty-first-duplicate/input.xml",
+          "sha256": "758942f266359344c7f9590209a643c373aca51369ed7a9524a3595b8b61fda5"
+        },
+        "yaml": {
+          "path": "tests/conversion-corpus/cases/i8n-empty-first-duplicate/expected.yaml",
+          "sha256": "7286be5fbdaf10c01284663eb2c03bbb962ecaeb009acbc7997db2dbaacd8e40"
+        }
+      },
+      "context": "tests/conversion-corpus/cases/i8n-empty-first-duplicate/context.json",
+      "directions": [
+        "xml-to-yaml",
+        "yaml-to-xml",
+        "round-trip"
+      ],
+      "outcome": "success",
+      "expectations": {
+        "yaml": "tests/conversion-corpus/cases/i8n-empty-first-duplicate/expected.yaml",
+        "xml": "tests/conversion-corpus/cases/i8n-empty-first-duplicate/input.xml",
+        "diagnostics": "tests/conversion-corpus/cases/i8n-empty-first-duplicate/diagnostics.json"
+      },
+      "comparison": {
+        "yaml": "exact",
+        "xml": "structural",
+        "exceptions": []
+      },
+      "evidence": [
+        "tests/migration/i8n-duplicate-empty-observations.json",
+        ".agents/xml-anomalies.md",
+        "packages/runtime/metadata/validation/localizedTextYAML.ts"
+      ],
+      "verification": "User-approved correction and independently specified expectation; Rust execution pending; TypeScript full round-trip is known to fail",
+      "scope": "property-contract; not full project import",
+      "xmlInputKind": "legacy-test-fragment",
+      "namespaceResolution": "Explicit xmlFragmentNamespaces supplied by corpus adapter; source bytes retained"
     }
   ],
   "pendingImport": [

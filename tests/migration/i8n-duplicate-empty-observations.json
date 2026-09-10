@@ -87,6 +87,7 @@
     ],
     "skipEmptyToXMLMustNotDropNonemptyOccurrences": true,
     "proofMustRestoreBothOccurrences": true,
-    "newRawPolicyAuthorized": false
+    "newRawPolicyAuthorized": false,
+    "caseId": "i8n-empty-first-duplicate"
   }
 }

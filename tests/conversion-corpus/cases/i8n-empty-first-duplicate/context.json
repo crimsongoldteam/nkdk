@@ -1,0 +1,20 @@
+{
+  "entry": "migration.i8n-text-probe",
+  "defaultLanguage": "ru",
+  "registeredLanguages": [
+    "ru",
+    "en"
+  ],
+  "profile": "skip-empty",
+  "parameters": {
+    "skipEmptyToXML": true,
+    "excludeIfEqualNameYAML": false,
+    "preserveEmptyXML": false,
+    "typedXML": false
+  },
+  "boundary": "property",
+  "reference": false,
+  "xmlFragmentNamespaces": {
+    "v8": "http://v8.1c.ru/8.1/data/core"
+  }
+}
