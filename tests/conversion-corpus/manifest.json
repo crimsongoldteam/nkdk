@@ -339,7 +339,7 @@
     },
     {
       "id": "formatted-i8n-without-text",
-      "group": "i8n-text",
+      "group": "formatted-i8n-text",
       "inputs": {
         "xml": {
           "path": "tests/conversion-corpus/cases/formatted-i8n-without-text/input.xml",
@@ -899,7 +899,8 @@
         "tests/migration/i8n-full-round-trip-observations.json",
         ".agents/xml-anomalies.md"
       ],
-      "verification": "User approved rare physical-empty anomaly after frequency research; expectations source-reviewed against profile 2 empty-container/empty-primary, Rust execution pending"
+      "verification": "User approved rare physical-empty anomaly after frequency research; expectations source-reviewed against profile 2 empty-container/empty-primary, Rust execution pending",
+      "xmlEnvelope": "Root"
     },
     {
       "id": "i8n-name-physical-empty",
@@ -952,7 +953,8 @@
         "xmlBoundary": "Title",
         "reason": "Empty scalar denotes zero translations; the physical empty ru item cannot be recovered from it. This property is the smallest existing address in the scalar YAML form. Owner root raw is forbidden.",
         "authorization": "User confirmed frequency-based selection: absence is ordinary, physical empty is exceptional only when otherwise not recoverable."
-      }
+      },
+      "xmlEnvelope": "Root"
     },
     {
       "id": "generated-record-scalars",

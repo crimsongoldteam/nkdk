@@ -47,7 +47,7 @@ pub fn generate(program: &Program) -> Result<GeneratedSources, Vec<Diagnostic>> 
         source.push_str(&record::generate(entry, program).map_err(|error| vec![error])?);
         source.push_str(&constraints::generate(entry, program).map_err(|error| vec![error])?);
     }
-    source.push_str(&inputs::generate(&entries).map_err(|error| vec![error])?);
+    source.push_str(&inputs::generate(&entries, program).map_err(|error| vec![error])?);
     source.push_str("pub fn entry_id(name: &str) -> Option<EntryId> { match name {\n");
     for entry in &entries {
         source.push_str(&format!(

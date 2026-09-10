@@ -1815,8 +1815,7 @@ constraints:
 
 #[test]
 fn integrated_i8n_profile_links_presence_names_patterns_and_typed_xml() {
-    let source =
-        include_bytes!("../../../../tests/declaration-corpus/valid/i8n-integrated-profile.yaml");
+    let source = include_bytes!("../../../declarations/common/i8n-text.yaml");
     let module = parse(SourceFile {
         path: "integrated.yaml",
         bytes: source,

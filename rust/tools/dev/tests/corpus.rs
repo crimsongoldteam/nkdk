@@ -113,3 +113,95 @@ fn structural_comparison_requires_explicit_mode_and_preserves_leaf_text() {
     assert!(!run(&case).status.success());
     fs::remove_dir_all(root).unwrap();
 }
+
+#[test]
+fn localized_collection_corpus_uses_declared_profiles_and_real_inputs() {
+    let repository = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../../..")
+        .canonicalize()
+        .unwrap();
+    let output = Command::new(env!("CARGO_BIN_EXE_nkdk-dev"))
+        .current_dir(&repository)
+        .args([
+            "corpus",
+            "run",
+            "--manifest",
+            "tests/conversion-corpus/manifest.json",
+            "--group",
+            "i8n-text",
+        ])
+        .output()
+        .unwrap();
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    assert_eq!(
+        String::from_utf8(output.stdout)
+            .unwrap()
+            .lines()
+            .filter(|line| line.starts_with("PASS "))
+            .count(),
+        12
+    );
+    let root = std::env::temp_dir().join(format!("nkdk-corpus-context-{}", std::process::id()));
+    fs::create_dir_all(&root).unwrap();
+    let manifest: serde_json::Value = serde_json::from_slice(
+        &fs::read(repository.join("tests/conversion-corpus/manifest.json")).unwrap(),
+    )
+    .unwrap();
+    let mut case = manifest["cases"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|case| case["id"] == "i8n-name-and-rest")
+        .unwrap()
+        .clone();
+    let context: serde_json::Value = serde_json::from_slice(
+        &fs::read(repository.join(case["context"].as_str().unwrap())).unwrap(),
+    )
+    .unwrap();
+    let context_path = root.join("context.json");
+    case["context"] = serde_json::json!(context_path);
+    let manifest_path = root.join("manifest.json");
+    fs::write(
+        &manifest_path,
+        serde_json::to_vec(&serde_json::json!({"version":1,"cases":[case]})).unwrap(),
+    )
+    .unwrap();
+    let run = |context: &serde_json::Value| {
+        fs::write(&context_path, serde_json::to_vec(context).unwrap()).unwrap();
+        Command::new(env!("CARGO_BIN_EXE_nkdk-dev"))
+            .current_dir(&repository)
+            .args(["corpus", "run", "--manifest"])
+            .arg(&manifest_path)
+            .args(["--group", "i8n-text"])
+            .output()
+            .unwrap()
+    };
+    assert!(run(&context).status.success());
+    for (field, replacement) in [
+        (
+            "parameters",
+            serde_json::json!({"excludeIfEqualNameYAML":false,"preserveEmptyXML":false,"skipEmptyToXML":false,"typedXML":false}),
+        ),
+        ("profile", serde_json::json!("not-declared")),
+        ("registeredLanguages", serde_json::json!("ru")),
+        (
+            "xmlFragmentNamespaces",
+            serde_json::json!({"bad prefix":"urn:bad"}),
+        ),
+    ] {
+        let mut wrong = context.clone();
+        wrong[field] = replacement;
+        assert!(
+            !run(&wrong).status.success(),
+            "Invalid {field} was silently ignored"
+        );
+    }
+    let mut missing = context.clone();
+    missing.as_object_mut().unwrap().remove("defaultLanguage");
+    assert!(!run(&missing).status.success());
+    fs::remove_dir_all(root).unwrap();
+}

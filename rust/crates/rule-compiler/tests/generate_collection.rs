@@ -84,8 +84,7 @@ fn generated_keyed_mapping_preserves_duplicate_occurrences_and_proves_the_candid
     let nil_owner = owner
         .replace("test.dictionary", "test.nil-dictionary")
         .replace("common.dictionary", "common.nil-dictionary");
-    let integrated =
-        include_bytes!("../../../../tests/declaration-corpus/valid/i8n-integrated-profile.yaml");
+    let integrated = include_bytes!("../../../declarations/common/i8n-text.yaml");
     let integrated_owner = owner
         .replace("test.dictionary", "test.integrated-i8n")
         .replace("common.dictionary", "common.i8n-text")

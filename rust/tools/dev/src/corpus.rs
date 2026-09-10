@@ -1,6 +1,7 @@
+mod context;
 use nkdk_compiled_rules::{
-    Direction, EntryId, PreparedInputs, RuntimeDiagnostic, Severity, convert_file, entry_id,
-    validate_file, verify_candidate,
+    Direction, EntryId, PreparedInputs, RuntimeDiagnostic, Severity, convert_file, validate_file,
+    verify_candidate,
 };
 use serde_json::Value;
 use sha2::{Digest, Sha256};
@@ -47,17 +48,9 @@ pub fn run(root: &Path, manifest: &Path, group: &str) -> Result<usize, String> {
 }
 fn run_case(root: &Path, case: &Value) -> Result<(), String> {
     let context = json(root, text(case, "context")?)?;
-    let entry_name = text(&context, "entry")?;
-    let entry =
-        entry_id(entry_name).ok_or_else(|| format!("Unsupported generated entry: {entry_name}"))?;
-    if context
-        .get("parameters")
-        .is_some_and(|value| !value.as_object().is_some_and(|object| object.is_empty()))
-    {
-        return Err("Dynamic parameters are not implemented in the scalar runner".into());
-    }
+    let (entry, inputs) = context::prepare(&context)?;
     if case["outcome"] == "failure" {
-        return run_failure(root, case, entry);
+        return run_failure(root, case, entry, &inputs);
     }
     if case["outcome"] != "success" {
         return Err("Unsupported expected outcome".into());
@@ -76,16 +69,23 @@ fn run_case(root: &Path, case: &Value) -> Result<(), String> {
     {
         return Err("Comparison exceptions are not supported".into());
     }
-    let xml = input(root, &case["inputs"]["xml"])?;
+    let xml = context::xml(
+        input(root, &case["inputs"]["xml"])?,
+        &context,
+        case.get("xmlEnvelope"),
+    )?;
     let yaml = input(root, &case["inputs"]["yaml"])?;
-    let expected_xml = read(root, text(&case["expectations"], "xml")?)?;
+    let expected_xml = context::xml(
+        read(root, text(&case["expectations"], "xml")?)?,
+        &context,
+        case.get("xmlEnvelope"),
+    )?;
     let expected_yaml = read(root, text(&case["expectations"], "yaml")?)?;
     if let Some(path) = case["expectations"]["diagnostics"].as_str()
         && json(root, path)? != serde_json::json!([])
     {
         return Err("Nonempty diagnostic contracts are not implemented by this runner".into());
     }
-    let inputs = PreparedInputs::default();
     let forward = convert_file(entry, Direction::XmlToYaml, &xml, &inputs)
         .map_err(|e| format!("XML→YAML: {e:?}"))?;
     if forward.bytes != expected_yaml || !forward.diagnostics.is_empty() {
@@ -128,7 +128,12 @@ fn native_diagnostics(values: &[RuntimeDiagnostic]) -> Value {
         diagnostic
     }).collect::<Vec<_>>())
 }
-fn run_failure(root: &Path, case: &Value, entry: EntryId) -> Result<(), String> {
+fn run_failure(
+    root: &Path,
+    case: &Value,
+    entry: EntryId,
+    inputs: &PreparedInputs,
+) -> Result<(), String> {
     if case["diagnosticsFormat"] != "rust-runtime-v1" {
         return Err("Unsupported diagnostic contract; no projection or fallback is allowed".into());
     }
@@ -138,11 +143,10 @@ fn run_failure(root: &Path, case: &Value, entry: EntryId) -> Result<(), String> 
         .ok_or("Expected nonempty failure directions")?;
     let yaml = input(root, &case["inputs"]["yaml"])?;
     let expected = json(root, text(&case["expectations"], "diagnostics")?)?;
-    let inputs = PreparedInputs::default();
     for direction in directions {
         let actual = match direction.as_str() {
-            Some("yaml-validation") => validate_file(entry, &yaml, &inputs),
-            Some("yaml-to-xml") => convert_file(entry, Direction::YamlToXml, &yaml, &inputs)
+            Some("yaml-validation") => validate_file(entry, &yaml, inputs),
+            Some("yaml-to-xml") => convert_file(entry, Direction::YamlToXml, &yaml, inputs)
                 .err()
                 .ok_or("Expected YAML export to fail")?,
             _ => return Err("Unsupported expected-failure direction".into()),

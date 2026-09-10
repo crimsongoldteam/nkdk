@@ -510,6 +510,7 @@ name = "nkdk-dev"
 version = "0.1.0"
 dependencies = [
  "nkdk-compiled-rules",
+ "nkdk-conversion-core",
  "nkdk-rule-compiler",
  "serde_json",
  "sha2",

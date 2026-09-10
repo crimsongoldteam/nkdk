@@ -1,4 +1,4 @@
-# Integrated grammar fixture; full runtime/proof verification is pending.
+# Full object acceptance remains tracked in the migration checklist.
 format: nkdk-declarations/1
 kind: value
 id: common.i8n-text
