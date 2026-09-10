@@ -1345,6 +1345,16 @@ representations:
         panic!("record")
     };
     assert_eq!(fields[0].attribute.as_ref().unwrap().namespace, "");
+    let namespace_attribute = source.replace("attribute: a:flag", "attribute: xmlns");
+    let module = parse(SourceFile {
+        path: "attributes.yaml",
+        bytes: namespace_attribute.as_bytes(),
+    })
+    .unwrap();
+    assert_eq!(
+        link(&[module]).unwrap_err()[0].code,
+        "invalid_attribute_name"
+    );
     let collision = source.replace("path: [a:flag]", "path: [], attribute: b:flag");
     let module = parse(SourceFile {
         path: "attributes.yaml",
@@ -1419,5 +1429,64 @@ fn input_bindings_compare_semantic_types_across_import_aliases() {
             "{caller_type} -> {callee_type}: {:?}",
             link(&modules)
         );
+    }
+}
+
+#[test]
+fn xml_qualified_names_follow_ncname_character_rules() {
+    for (name, accepted) in [
+        ("md:Имя", true),
+        ("md:_a-1.2", true),
+        ("md:a\u{301}", true),
+        ("md:𐀀", true),
+        ("md:1Name", false),
+        ("md:two words", false),
+        ("md:\u{301}a", false),
+        ("md:a/b", false),
+        ("1md:Name", false),
+    ] {
+        let source = include_str!("fixtures/owner.yaml").replace("md:Properties", name);
+        let mut loaded = modules();
+        loaded[1] = parse(SourceFile {
+            path: "owner.yaml",
+            bytes: source.as_bytes(),
+        })
+        .unwrap();
+        let result = link(&loaded);
+        if accepted {
+            assert!(result.is_ok(), "{name}: {result:?}");
+        } else {
+            assert_eq!(result.unwrap_err()[0].code, "invalid_qname", "{name}");
+        }
+    }
+}
+
+#[test]
+fn namespace_bindings_respect_reserved_names_even_when_unused() {
+    for (prefix, uri, accepted) in [
+        ("xml", "http://www.w3.org/XML/1998/namespace", true),
+        ("xml", "urn:other", false),
+        ("alias", "http://www.w3.org/XML/1998/namespace", false),
+        ("xmlns", "urn:other", false),
+        ("alias", "http://www.w3.org/2000/xmlns/", false),
+        ("alias", "", false),
+        ("1alias", "urn:other", false),
+        ("xmlOther", "urn:other", true),
+        ("", "", true),
+    ] {
+        let source = format!(
+            "{}\nnamespaces: {{\"{prefix}\": \"{uri}\"}}\n",
+            include_str!("fixtures/common.yaml")
+        );
+        let module = parse(SourceFile {
+            path: "namespace.yaml",
+            bytes: source.as_bytes(),
+        })
+        .unwrap();
+        let result = link(&[module]);
+        assert_eq!(result.is_ok(), accepted, "{prefix}={uri}: {result:?}");
+        if !accepted {
+            assert_eq!(result.unwrap_err()[0].code, "invalid_namespace_binding");
+        }
     }
 }

@@ -5,6 +5,7 @@ mod constraints;
 mod denotations;
 mod dependencies;
 mod expressions;
+mod names;
 mod normalization;
 mod parameters;
 mod presence;
@@ -56,6 +57,7 @@ pub fn link(modules: &[Module]) -> Result<Program, Vec<Diagnostic>> {
     }
     type_graph::validate(&indexed)?;
     for module in indexed.values() {
+        names::validate(module).map_err(|error| vec![error])?;
         text::validate(module).map_err(|error| vec![error])?;
         for definition in &module.types {
             if !matches!(definition.definition, TypeDefinition::TextTransform(_)) {
@@ -422,6 +424,13 @@ fn resolve_xml(
                             .attribute
                             .as_ref()
                             .map(|name| {
+                                if name == "xmlns" || name.starts_with("xmlns:") {
+                                    return Err(diagnostic(
+                                        "invalid_attribute_name",
+                                        &field.source,
+                                        "Namespace declarations are not value attributes",
+                                    ));
+                                }
                                 expand_path(module, std::slice::from_ref(name), &field.source).map(
                                     |mut names| {
                                         let mut expanded = names.remove(0);
@@ -449,7 +458,10 @@ fn expand_path(
     path.iter()
         .map(|name| {
             let (prefix, local) = name.split_once(':').unwrap_or(("", name));
-            if local.is_empty() || local.contains(':') || name.starts_with(':') {
+            if !names::ncname(local)
+                || (!prefix.is_empty() && !names::ncname(prefix))
+                || name.starts_with(':')
+            {
                 return Err(diagnostic(
                     "invalid_qname",
                     source,
