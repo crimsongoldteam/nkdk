@@ -21,6 +21,10 @@ fn digits(value: &str) -> Result<u16> {
 }
 impl Value {
     fn checked(parts: [u16; 6]) -> Result<Self> {
+        Self::from_parts(parts).ok_or_else(invalid)
+    }
+    /// The same calendar check serves parsed inputs and compiled constants.
+    pub const fn from_parts(parts: [u16; 6]) -> Option<Self> {
         let [year, month, day, hour, minute, second] = parts;
         let leap =
             year.is_multiple_of(4) && (!year.is_multiple_of(100) || year.is_multiple_of(400));
@@ -36,10 +40,17 @@ impl Value {
             }
             _ => 0,
         };
-        if year == 0 || day == 0 || day > days || hour > 23 || minute > 59 || second > 59 {
-            return Err(invalid());
+        if year == 0
+            || year > 9999
+            || day == 0
+            || day > days
+            || hour > 23
+            || minute > 59
+            || second > 59
+        {
+            return None;
         }
-        Ok(Self {
+        Some(Self {
             year,
             month: month as u8,
             day: day as u8,
@@ -47,6 +58,16 @@ impl Value {
             minute: minute as u8,
             second: second as u8,
         })
+    }
+    pub const fn parts(&self) -> [u16; 6] {
+        [
+            self.year,
+            self.month as u16,
+            self.day as u16,
+            self.hour as u16,
+            self.minute as u16,
+            self.second as u16,
+        ]
     }
     pub fn from_xml(source: &str) -> Result<Self> {
         if !source.is_ascii()

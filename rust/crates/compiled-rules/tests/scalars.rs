@@ -156,6 +156,12 @@ fn declared_scalar_xml_types_keep_text_and_exact_numbers() {
             "Сумма: 9007199254740993",
         ),
         ("migration.typed-string", "string", "001", "Сумма: \"001\""),
+        (
+            "migration.number-as-text",
+            "string",
+            "9007199254740993.125",
+            "Сумма: 9007199254740993.125",
+        ),
     ] {
         let entry = entry_id(entry).unwrap();
         let xml = format!(
@@ -204,6 +210,32 @@ fn omitted_scalar_defaults_do_not_erase_absence_or_empty_xml() {
     nkdk_compiled_rules::verify_candidate(typed, normal, &result.bytes, &inputs).unwrap();
     for yaml in ["Enabled: Ложь", "Text: \"\"", "Amount: 0"] {
         assert!(!validate_file(entry, yaml.as_bytes(), &inputs).is_empty());
+    }
+    let preserved = entry_id("migration.boolean-preserved-default").unwrap();
+    for (xml, yaml) in [
+        ("<Root><Enabled>true</Enabled></Root>", "Enabled: Истина"),
+        ("<Root><Enabled>false</Enabled></Root>", "Enabled: Ложь"),
+    ] {
+        let result =
+            convert_file(preserved, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+        assert_eq!(result.bytes, yaml.as_bytes());
+        assert!(validate_file(preserved, yaml.as_bytes(), &inputs).is_empty());
+        nkdk_compiled_rules::verify_candidate(preserved, xml.as_bytes(), &result.bytes, &inputs)
+            .unwrap();
+    }
+    let default = convert_file(preserved, Direction::YamlToXml, b"", &inputs).unwrap();
+    assert!(String::from_utf8_lossy(&default.bytes).contains(">true</Enabled>"));
+    let date = entry_id("migration.date-time-default").unwrap();
+    let default = convert_file(date, Direction::YamlToXml, b"", &inputs).unwrap();
+    assert!(String::from_utf8_lossy(&default.bytes).contains("0001-01-01T00:00:00"));
+    let imported = convert_file(date, Direction::XmlToYaml, &default.bytes, &inputs).unwrap();
+    assert!(imported.bytes.is_empty());
+    for original in ["<Root/>", "<Root><Amount/></Root>"] {
+        let result =
+            convert_file(date, Direction::XmlToYaml, original.as_bytes(), &inputs).unwrap();
+        assert!(String::from_utf8_lossy(&result.bytes).contains("!xml/raw"));
+        nkdk_compiled_rules::verify_candidate(date, original.as_bytes(), &result.bytes, &inputs)
+            .unwrap();
     }
 }
 

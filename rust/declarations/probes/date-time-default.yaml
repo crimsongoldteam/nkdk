@@ -1,0 +1,23 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.date-time-default
+imports: {date: common.typed-date-time}
+value:
+  kind: record
+  fields:
+    - {name: amount, type: {use: date}}
+representations:
+  xml:
+    kind: record
+    fields:
+      - {field: amount, path: [Root, Amount]}
+  yaml:
+    kind: mapping
+    fields:
+      - {field: amount, key: Сумма}
+presence:
+  - target: {field: amount}
+    xml: {missing: {denotes: {literal: "0001-01-01T00:00:00"}}}
+    yaml:
+      missing: {denotes: {literal: "0001-01-01T00:00:00"}}
+      omitWhen: {eq: [{field: amount}, {literal: "0001-01-01T00:00:00"}]}

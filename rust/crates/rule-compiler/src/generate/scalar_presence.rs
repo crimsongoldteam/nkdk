@@ -81,6 +81,17 @@ pub(super) fn missing(
         }
         (
             LinkedExpressionKind::Literal(ScalarLiteral::Text(value)),
+            scalar::Codec::Calendar { .. },
+        ) => {
+            let date = nkdk_conversion_core::calendar::Value::from_xml(value)
+                .map_err(|_| unsupported(owner, "Invalid calendar default"))?;
+            format!(
+                "const {{core::calendar::Value::from_parts({:?}).expect(\"validated calendar default\")}}",
+                date.parts()
+            )
+        }
+        (
+            LinkedExpressionKind::Literal(ScalarLiteral::Text(value)),
             scalar::Codec::Enumeration(variants, ..),
         ) => {
             let index = variants

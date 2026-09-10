@@ -141,89 +141,144 @@
       "path": "packages/rules/metadata/commonObjects/boolean/atomicConversion.test.ts",
       "sha256": "9545e28ab63a3310aaf86ffb984c0cb663272dd5f27dfd50852613a257c27267",
       "group": "boolean",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/boolean.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/scalar-defaults.yaml",
+        "rust/declarations/probes/boolean-preserved-default.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "tests/migration/scalar-value-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/boolean/atomicConversion.ts",
       "sha256": "c34f0c77eecf1b48a7d66ca869864a891b3c6240f26f003c0b04eaad2c952d88",
       "group": "boolean",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/boolean.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/scalar-defaults.yaml",
+        "rust/declarations/probes/boolean-preserved-default.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "tests/migration/scalar-value-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/boolean/fromXML.test.ts",
       "sha256": "79460b5257fe6ab45ab26dec7c46a8bb3e173517e44ab44bf6003bacf7fdef56",
       "group": "boolean",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/boolean.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/scalar-defaults.yaml",
+        "rust/declarations/probes/boolean-preserved-default.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "tests/migration/scalar-value-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/boolean/fromXML.ts",
       "sha256": "51a3cf9c05d5c1736c2dec03c28fd73751d7b98a5214f5c4e7ca74d96023ba15",
       "group": "boolean",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/boolean.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/scalar-defaults.yaml",
+        "rust/declarations/probes/boolean-preserved-default.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "tests/migration/scalar-value-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/boolean/fromYAML.test.ts",
       "sha256": "da29f227dbb3074419a0e4327856895d3b84f2387e5cccd1ba40a19805e48675",
       "group": "boolean",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/boolean.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/scalar-defaults.yaml",
+        "rust/declarations/probes/boolean-preserved-default.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "tests/migration/scalar-value-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/boolean/fromYAML.ts",
       "sha256": "8f85799339d3368dce9404094c7c744fd2e18b828eb551e4cf58759d494326e2",
       "group": "boolean",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/boolean.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/scalar-defaults.yaml",
+        "rust/declarations/probes/boolean-preserved-default.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "tests/migration/scalar-value-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/boolean/toJSONSchema.ts",
       "sha256": "4b511976bbbe8d0928f01ac9181094d750a4dd40aebbbf398d1b19514a4c9f62",
       "group": "boolean",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/boolean.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/scalar-defaults.yaml",
+        "rust/declarations/probes/boolean-preserved-default.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "tests/migration/scalar-value-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/boolean/toYAML.test.ts",
       "sha256": "9a5ca17734b0b14855cec3f2e3d1f7350b2551d2c56d49b720064306a89a4405",
       "group": "boolean",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/boolean.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/scalar-defaults.yaml",
+        "rust/declarations/probes/boolean-preserved-default.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "tests/migration/scalar-value-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/boolean/toYAML.ts",
       "sha256": "dd5a7e3338dee6bac1c2b2d92e0d7bb241733e02c7658a3a9085e3536e74eb3f",
       "group": "boolean",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/boolean.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/scalar-defaults.yaml",
+        "rust/declarations/probes/boolean-preserved-default.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "tests/migration/scalar-value-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/boolean/types.ts",
       "sha256": "e6547dda421e385eb7cbe736a09a882b08ef31c36d437c9284f2966cd753bae4",
       "group": "boolean",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/boolean.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/scalar-defaults.yaml",
+        "rust/declarations/probes/boolean-preserved-default.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "tests/migration/scalar-value-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/boolean/xmlValue.ts",
       "sha256": "0628840403e563b18f07b595f93b2ac93557c302f5cd2b4d062536c2d40c3502",
       "group": "boolean",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/boolean.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/scalar-defaults.yaml",
+        "rust/declarations/probes/boolean-preserved-default.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "tests/migration/scalar-value-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/border/__fixtures__/data.ts",
@@ -2853,97 +2908,169 @@
       "path": "packages/rules/metadata/commonObjects/dateTime/__fixtures__/data.ts",
       "sha256": "fd8fd3bec5d573f6616d486cc88d575b3f8bde2af78626959207c18aedcefcfb",
       "group": "dateTime",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/date-time.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/typed-date-time.yaml",
+        "rust/declarations/probes/date-time-default.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/calendar-profile-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dateTime/fromXML.integration.test.ts",
       "sha256": "11c1bf03797ce920563ef50b06c60d6eafb731757618bd9ad62a2051c6436894",
       "group": "dateTime",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/date-time.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/typed-date-time.yaml",
+        "rust/declarations/probes/date-time-default.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/calendar-profile-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dateTime/fromXML.ts",
       "sha256": "391973a2b8c39e8a388fd0ccdf033f5230cf5fffb6d07508adf12022cbf9103a",
       "group": "dateTime",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/date-time.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/typed-date-time.yaml",
+        "rust/declarations/probes/date-time-default.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/calendar-profile-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dateTime/fromYAML.test.ts",
       "sha256": "07b211f75cfd2a89ee3b9055a7ccbe71ac76e930175771f337129f7ecd7895bd",
       "group": "dateTime",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/date-time.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/typed-date-time.yaml",
+        "rust/declarations/probes/date-time-default.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/calendar-profile-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dateTime/fromYAML.ts",
       "sha256": "91039c6942bd8af005c6bb754a5e249314980d1aee05a6e8572f655ff15d688d",
       "group": "dateTime",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/date-time.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/typed-date-time.yaml",
+        "rust/declarations/probes/date-time-default.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/calendar-profile-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dateTime/index.ts",
       "sha256": "29123d18dfce3ea72825628e050e0c10cdd39685122e885af50d76b4170253fa",
       "group": "dateTime",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/date-time.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/typed-date-time.yaml",
+        "rust/declarations/probes/date-time-default.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/calendar-profile-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dateTime/toJSONSchema.ts",
       "sha256": "cfeaa8932b575ecdc34860d2959ba984b6a6824b4cc775c175ea3ebec30a0792",
       "group": "dateTime",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/date-time.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/typed-date-time.yaml",
+        "rust/declarations/probes/date-time-default.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/calendar-profile-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dateTime/toXML.integration.test.ts",
       "sha256": "5ab999805229496c005dbeb6ab199bebce50cb9cf660930e5492282d6faa7182",
       "group": "dateTime",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/date-time.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/typed-date-time.yaml",
+        "rust/declarations/probes/date-time-default.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/calendar-profile-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dateTime/toXML.ts",
       "sha256": "695759e6517f49db8165337c802760dbc38bf090878b53cbb845e9139a3dbb5a",
       "group": "dateTime",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/date-time.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/typed-date-time.yaml",
+        "rust/declarations/probes/date-time-default.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/calendar-profile-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dateTime/toYAML.test.ts",
       "sha256": "5173e357a1c46fcf3d0f9dc7105f84dd6afde65d4bafa86b8ce3cc994f07147b",
       "group": "dateTime",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/date-time.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/typed-date-time.yaml",
+        "rust/declarations/probes/date-time-default.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/calendar-profile-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dateTime/toYAML.ts",
       "sha256": "d4e6dd0995b510109aa121938b08c1072208053d7c8a508a346e7616a309ff4c",
       "group": "dateTime",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/date-time.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/typed-date-time.yaml",
+        "rust/declarations/probes/date-time-default.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/calendar-profile-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dateTime/types.ts",
       "sha256": "21d19ea29fb74215b0a1cb43b8816f697e9686ff0744576fcc0a1d9ec6546088",
       "group": "dateTime",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/date-time.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/typed-date-time.yaml",
+        "rust/declarations/probes/date-time-default.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/calendar-profile-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dcsText.test.ts",
@@ -6353,89 +6480,166 @@
       "path": "packages/rules/metadata/commonObjects/number/__fixtures__/data.ts",
       "sha256": "81decd2da89001676e28399e161972f26ea990887c218a0c4059306730e80c2f",
       "group": "number",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/number.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/typed-number.yaml",
+        "rust/declarations/common/number-as-text.yaml",
+        "rust/declarations/probes/numeric-bound.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/typed-scalar-value-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/number/atomicConversion.test.ts",
       "sha256": "4295b0eb15cb734b1c89400547e669dd5436f0fdbad891a2790a313b69e3959d",
       "group": "number",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/number.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/typed-number.yaml",
+        "rust/declarations/common/number-as-text.yaml",
+        "rust/declarations/probes/numeric-bound.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/typed-scalar-value-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/number/atomicConversion.ts",
       "sha256": "fb58e4bce7f2553459fd52a58ba21606ac732c0895b87618bb8a78fc74046c2c",
       "group": "number",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/number.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/typed-number.yaml",
+        "rust/declarations/common/number-as-text.yaml",
+        "rust/declarations/probes/numeric-bound.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/typed-scalar-value-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/number/fromXML.integration.test.ts",
       "sha256": "4e3d38829c81948d6fff3d9c4ed6f4dd4d276553499acd410b160f07e1e4d944",
       "group": "number",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/number.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/typed-number.yaml",
+        "rust/declarations/common/number-as-text.yaml",
+        "rust/declarations/probes/numeric-bound.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/typed-scalar-value-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/number/fromXML.ts",
       "sha256": "6aa78e1b45b9357332164ccd6322fc6181e66793deb181aa4ce02ee4c059a530",
       "group": "number",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/number.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/typed-number.yaml",
+        "rust/declarations/common/number-as-text.yaml",
+        "rust/declarations/probes/numeric-bound.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/typed-scalar-value-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/number/toJSONSchema.test.ts",
       "sha256": "6f5b99960ee06c3c6539b681ec4de2c9bfcff9309dd05523f4ccc73de8f2f7f8",
       "group": "number",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/number.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/typed-number.yaml",
+        "rust/declarations/common/number-as-text.yaml",
+        "rust/declarations/probes/numeric-bound.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/typed-scalar-value-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/number/toJSONSchema.ts",
       "sha256": "ae087e805e1c9317a292706ffd28ff63c609972cbc906728fae70b8b25cb53c0",
       "group": "number",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/number.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/typed-number.yaml",
+        "rust/declarations/common/number-as-text.yaml",
+        "rust/declarations/probes/numeric-bound.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/typed-scalar-value-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/number/toXML.integration.test.ts",
       "sha256": "4be85ff219b6267f16ac12323d527fae37d3603d267e4dabb128880787b4a5de",
       "group": "number",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/number.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/typed-number.yaml",
+        "rust/declarations/common/number-as-text.yaml",
+        "rust/declarations/probes/numeric-bound.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/typed-scalar-value-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/number/toXML.ts",
       "sha256": "9ef5fadf367bd66a1d74afa731621756e249463ed6cf9d42cbefec515be6ca24",
       "group": "number",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/number.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/typed-number.yaml",
+        "rust/declarations/common/number-as-text.yaml",
+        "rust/declarations/probes/numeric-bound.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/typed-scalar-value-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/number/types.ts",
       "sha256": "364b24411622ffd8c055b408f83414c9d4f0d898b7af9b0d069a9ceb6fd202a4",
       "group": "number",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/number.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/typed-number.yaml",
+        "rust/declarations/common/number-as-text.yaml",
+        "rust/declarations/probes/numeric-bound.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/typed-scalar-value-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/number/xmlValue.ts",
       "sha256": "593c421230125fc636f0099295bb488908ecfe3b9e01192215c11f4531ff68fc",
       "group": "number",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/number.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/typed-number.yaml",
+        "rust/declarations/common/number-as-text.yaml",
+        "rust/declarations/probes/numeric-bound.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/typed-scalar-value-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/omittedChildren.test.ts",

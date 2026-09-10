@@ -115,6 +115,14 @@ impl Context<'_> {
                 .find(|entry| entry.id == id)
                 .expect("linked reference");
             match (&target.yaml, literal) {
+                (
+                    YamlRepresentation::Calendar { seconds, omit_zero },
+                    ScalarLiteral::Text(value),
+                ) => {
+                    let date = nkdk_conversion_core::calendar::Value::from_xml(value)
+                        .map_err(|_| unsupported(target))?;
+                    return Ok(json!(date.yaml(*seconds, *omit_zero)));
+                }
                 (YamlRepresentation::EnumTable(table), ScalarLiteral::Text(value)) => {
                     return table
                         .iter()

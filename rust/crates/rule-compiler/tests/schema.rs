@@ -187,6 +187,14 @@ fn scalar_absence_changes_required_fields_without_widening_boolean_values() {
 fn scalar_default_schema_accepts_omission_and_rejects_explicit_shortened_values() {
     let modules = [
         (
+            "date",
+            include_str!("../../../declarations/common/typed-date-time.yaml"),
+        ),
+        (
+            "date-owner",
+            include_str!("../../../declarations/probes/date-time-default.yaml"),
+        ),
+        (
             "boolean",
             include_str!("../../../declarations/common/boolean.yaml"),
         ),
@@ -220,6 +228,14 @@ fn scalar_default_schema_accepts_omission_and_rejects_explicit_shortened_values(
     ] {
         assert_eq!(validator.is_valid(&value), valid, "{value}");
     }
+    let date_schema: serde_json::Value = serde_json::from_slice(
+        &nkdk_rule_compiler::schema(&program, "migration.date-time-default").unwrap(),
+    )
+    .unwrap();
+    let validator = jsonschema::validator_for(&date_schema).unwrap();
+    assert!(validator.is_valid(&serde_json::json!({})));
+    assert!(!validator.is_valid(&serde_json::json!({"Сумма":"01.01.0001"})));
+    assert!(validator.is_valid(&serde_json::json!({"Сумма":"02.01.0001"})));
 }
 
 #[test]

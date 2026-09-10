@@ -8,7 +8,7 @@
 - `[ ]` — объект не завершён. Промежуточные результаты учитываются только в журнале.
 - Служебные каталоги включены, чтобы не потерять их обязанности. Для них завершение означает перенос ответственности в общий Rust-механизм, а не обязательное создание отдельной YAML-декларации.
 
-Приняты 6 common-объектов: двусторонние интерфейсы I8nText, FormattedI8nText, MetadataName, StringOrNumber, PredefinedCode и MinMaxValue (XML ↔ YAML, валидация и структурная схема). Enterprise исключён из реализации и условий готовности по решению пользователя. Наличие общего компилятора, синтетического примера или успешного теста отдельного свойства не означает завершение всего объекта. В частности, `common.code-type` — синтетический пример, а не перенесённое системное перечисление.
+Приняты 9 common-объектов: двусторонние интерфейсы I8nText, FormattedI8nText, MetadataName, StringOrNumber, PredefinedCode, MinMaxValue, boolean, number и dateTime (XML ↔ YAML, валидация и структурная схема). Enterprise исключён из реализации и условий готовности по решению пользователя. Наличие общего компилятора, синтетического примера или успешного теста отдельного свойства не означает завершение всего объекта. В частности, `common.code-type` — синтетический пример, а не перенесённое системное перечисление.
 
 ## Когда ставить галочку
 
@@ -31,7 +31,7 @@
 
 | Группа | Записей | Полностью завершено |
 |---|---:|---:|
-| Общие объекты (common) | 90 | 6 |
+| Общие объекты (common) | 90 | 9 |
 | Вложенные части общих объектов | 27 | 0 |
 | Прикладные объекты и их вложенные части | 56 | 0 |
 | Формы, элементы и общие части форм | 66 | 0 |
@@ -44,7 +44,7 @@
 - [ ] [commonObjects/accountingFlag](../../../packages/rules/metadata/commonObjects/accountingFlag)
 - [ ] [commonObjects/accumulationRegisterAggregates](../../../packages/rules/metadata/commonObjects/accumulationRegisterAggregates)
 - [ ] [commonObjects/additionalIndex](../../../packages/rules/metadata/commonObjects/additionalIndex)
-- [ ] [commonObjects/boolean](../../../packages/rules/metadata/commonObjects/boolean)
+- [x] [commonObjects/boolean](../../../packages/rules/metadata/commonObjects/boolean) — 2026-09-10: [декларация](../../../rust/declarations/common/boolean.yaml), [default без сокращения](../../../rust/declarations/probes/boolean-preserved-default.yaml), [общие проверки](../../../rust/crates/compiled-rules/tests/scalars.rs), [e2e](../../../tests/migration/scalar-value-e2e.json). Оба значения, отсутствие, сокращение и сохранение явного default.
 - [ ] [commonObjects/border](../../../packages/rules/metadata/commonObjects/border)
 - [ ] [commonObjects/characteristicsDescription](../../../packages/rules/metadata/commonObjects/characteristicsDescription)
 - [ ] [commonObjects/childFileItemNames](../../../packages/rules/metadata/commonObjects/childFileItemNames)
@@ -57,7 +57,7 @@
 - [ ] [commonObjects/color](../../../packages/rules/metadata/commonObjects/color)
 - [ ] [commonObjects/commonAttributeContent](../../../packages/rules/metadata/commonObjects/commonAttributeContent)
 - [ ] [commonObjects/dataCompositionSystem](../../../packages/rules/metadata/commonObjects/dataCompositionSystem)
-- [ ] [commonObjects/dateTime](../../../packages/rules/metadata/commonObjects/dateTime)
+- [x] [commonObjects/dateTime](../../../packages/rules/metadata/commonObjects/dateTime) — 2026-09-10: [дата](../../../rust/declarations/common/date-time.yaml), [типизированная дата](../../../rust/declarations/common/typed-date-time.yaml), [default](../../../rust/declarations/probes/date-time-default.yaml), [26 календарных свойств e2e](../../../tests/migration/calendar-profile-e2e.json). Время как записано, константа при сборке, сокращение и схема.
 - [ ] [commonObjects/exchangePlanContent](../../../packages/rules/metadata/commonObjects/exchangePlanContent)
 - [ ] [commonObjects/externalFile](../../../packages/rules/metadata/commonObjects/externalFile)
 - [ ] [commonObjects/externalPicture](../../../packages/rules/metadata/commonObjects/externalPicture)
@@ -105,7 +105,7 @@
 - [x] [commonObjects/minMaxValue](../../../packages/rules/metadata/commonObjects/minMaxValue) — 2026-09-10: [decimal](../../../rust/declarations/common/min-max-value.yaml), [строковый XML с запятой](../../../rust/declarations/common/min-max-value-text.yaml), [проверки профилей](../../../rust/crates/compiled-rules/tests/scalars.rs), [1934 свойства e2e](../../../tests/migration/min-max-value-e2e.json). Пустой nil владельца и отсутствие различаются; числа точные.
 - [ ] [commonObjects/mobileDeviceCommandBarContent](../../../packages/rules/metadata/commonObjects/mobileDeviceCommandBarContent)
 - [ ] [commonObjects/module](../../../packages/rules/metadata/commonObjects/module)
-- [ ] [commonObjects/number](../../../packages/rules/metadata/commonObjects/number)
+- [x] [commonObjects/number](../../../packages/rules/metadata/commonObjects/number) — 2026-09-10: [точное число](../../../rust/declarations/common/number.yaml), [тип decimal](../../../rust/declarations/common/typed-number.yaml), [тип string с точкой](../../../rust/declarations/common/number-as-text.yaml), [границы](../../../rust/declarations/probes/numeric-bound.yaml), [общие проверки](../../../rust/crates/compiled-rules/tests/scalars.rs), [e2e](../../../tests/migration/typed-scalar-value-e2e.json). Ограничения, условный максимум, default и исходная лексика.
 - [ ] [commonObjects/picture](../../../packages/rules/metadata/commonObjects/picture)
 - [ ] [commonObjects/predefined](../../../packages/rules/metadata/commonObjects/predefined)
 - [x] [commonObjects/predefinedCode](../../../packages/rules/metadata/commonObjects/predefinedCode) — 2026-09-10: [декларация](../../../rust/declarations/common/predefined-code.yaml), [e2e семейства](../../../tests/migration/scalar-choice-e2e.json), [оба профиля и аномалии](../../../rust/crates/compiled-rules/tests/scalars.rs), [схема](../../../rust/crates/rule-compiler/tests/schema.rs).

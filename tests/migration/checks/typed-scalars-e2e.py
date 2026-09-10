@@ -17,6 +17,7 @@ parser.add_argument("--output", required=True, type=Path)
 mode = parser.add_mutually_exclusive_group()
 mode.add_argument("--choices", action="store_true")
 mode.add_argument("--minmax", action="store_true")
+mode.add_argument("--dates", action="store_true")
 args = parser.parse_args()
 root = Path(__file__).resolve().parents[3]
 binary = root / "rust/target/debug/nkdk"
@@ -64,6 +65,12 @@ with tempfile.TemporaryDirectory(prefix="nkdk-typed-e2e-") as temporary:
                     continue
                 assert not len(element), source
                 key, physical = "Значение", "Value"
+            elif args.dates:
+                if len(element) or kind != "xs:dateTime":
+                    continue
+                default = element.tag in {"{http://v8.1c.ru/8.1/data-composition-system/settings}" + name for name in ("periodAdditionBegin", "periodAdditionEnd")}
+                entry = "migration.date-time-default" if default else "migration.typed-date-time"
+                key, physical = "Сумма", "Amount"
             elif args.choices:
                 if element.tag == "{http://v8.1c.ru/8.3/xcf/predef}Code" and source.name == "Predefined.xml":
                     entry = "migration.predefined-code"
@@ -108,6 +115,9 @@ with tempfile.TemporaryDirectory(prefix="nkdk-typed-e2e-") as temporary:
                 assert semantic is None, (source,index)
             elif (kind == "xs:string" and not args.minmax) or (args.choices and kind not in ("xs:decimal", "xs:integer", "xs:float", "xs:double")):
                 assert isinstance(semantic, yaml.ScalarNode) and semantic.tag == "tag:yaml.org,2002:str" and semantic.value == expected, (source, index)
+            elif args.dates and entry == "migration.date-time-default" and expected == "0001-01-01T00:00:00":
+                assert semantic is None, (source, index)
+                assert document is None or not document.value, (source, index, "Ordinary calendar default must be omitted")
             elif kind == "xs:dateTime":
                 try:
                     date = datetime.fromisoformat(expected)
@@ -132,6 +142,6 @@ with tempfile.TemporaryDirectory(prefix="nkdk-typed-e2e-") as temporary:
             rows.append({"source": str(source.relative_to(root)), "sha256": hashlib.sha256(original).hexdigest(), "occurrence": index, "type": kind, "entry": entry, "verified": True})
         assert source.read_bytes() == original
 assert rows, "An empty selection is not success"
-scope = "MinMaxValue profiles" if args.minmax else ("Scalar choice properties" if args.choices else "Typed scalar leaf properties")
+scope = "Calendar profiles" if args.dates else "MinMaxValue profiles" if args.minmax else ("Scalar choice properties" if args.choices else "Typed scalar leaf properties")
 args.output.write_text(json.dumps({"scope": scope + "; not whole-project conversion or performance", "verified": len(rows), "cases": rows}, ensure_ascii=False, indent=2) + "\n")
 print(f"Verified {len(rows)} {scope}")

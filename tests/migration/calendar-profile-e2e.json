@@ -1,0 +1,214 @@
+{
+  "scope": "Calendar profiles; not whole-project conversion or performance",
+  "verified": 26,
+  "cases": [
+    {
+      "source": "e2e/fixtures/xml/cf/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОбороты.xml",
+      "sha256": "8ccfd7367b0d43ae6abea5f2df41ef7981057bce01f51be2c9a3fa62b5ba946e",
+      "occurrence": 480,
+      "type": "xs:dateTime",
+      "entry": "migration.typed-date-time",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства.xml",
+      "sha256": "a03527edc24990a7c2bbb21285d9dd179b7dac8e32848be870967e2b466ec3d6",
+      "occurrence": 320,
+      "type": "xs:dateTime",
+      "entry": "migration.typed-date-time",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CalculationRegisters/РегистрРасчетаВсеСвойства.xml",
+      "sha256": "d304ae507ba211ffc86fb27d5568c6d8861da76b18ac95b5f546cecf43f21ecf",
+      "occurrence": 562,
+      "type": "xs:dateTime",
+      "entry": "migration.typed-date-time",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства.xml",
+      "sha256": "fcd73718d1134a63afb433454d4d4d3fb14fb461b80620b33aa9c37f4750acdf",
+      "occurrence": 528,
+      "type": "xs:dateTime",
+      "entry": "migration.typed-date-time",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства.xml",
+      "sha256": "0b75c93753e1b9bc03c8e9955857140aa466f69c769353c62a59d788bf1997a8",
+      "occurrence": 602,
+      "type": "xs:dateTime",
+      "entry": "migration.typed-date-time",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml",
+      "sha256": "7e0bf00f09ca16dd1efd3346c0347efb62b08d6643f65ef79b038bb2a8cdbd31",
+      "occurrence": 286,
+      "type": "xs:dateTime",
+      "entry": "migration.date-time-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml",
+      "sha256": "7e0bf00f09ca16dd1efd3346c0347efb62b08d6643f65ef79b038bb2a8cdbd31",
+      "occurrence": 287,
+      "type": "xs:dateTime",
+      "entry": "migration.date-time-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml",
+      "sha256": "7e0bf00f09ca16dd1efd3346c0347efb62b08d6643f65ef79b038bb2a8cdbd31",
+      "occurrence": 299,
+      "type": "xs:dateTime",
+      "entry": "migration.date-time-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml",
+      "sha256": "7e0bf00f09ca16dd1efd3346c0347efb62b08d6643f65ef79b038bb2a8cdbd31",
+      "occurrence": 300,
+      "type": "xs:dateTime",
+      "entry": "migration.date-time-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml",
+      "sha256": "7e0bf00f09ca16dd1efd3346c0347efb62b08d6643f65ef79b038bb2a8cdbd31",
+      "occurrence": 307,
+      "type": "xs:dateTime",
+      "entry": "migration.date-time-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml",
+      "sha256": "7e0bf00f09ca16dd1efd3346c0347efb62b08d6643f65ef79b038bb2a8cdbd31",
+      "occurrence": 308,
+      "type": "xs:dateTime",
+      "entry": "migration.date-time-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml",
+      "sha256": "7e0bf00f09ca16dd1efd3346c0347efb62b08d6643f65ef79b038bb2a8cdbd31",
+      "occurrence": 465,
+      "type": "xs:dateTime",
+      "entry": "migration.date-time-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml",
+      "sha256": "7e0bf00f09ca16dd1efd3346c0347efb62b08d6643f65ef79b038bb2a8cdbd31",
+      "occurrence": 466,
+      "type": "xs:dateTime",
+      "entry": "migration.date-time-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml",
+      "sha256": "7e0bf00f09ca16dd1efd3346c0347efb62b08d6643f65ef79b038bb2a8cdbd31",
+      "occurrence": 473,
+      "type": "xs:dateTime",
+      "entry": "migration.date-time-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml",
+      "sha256": "7e0bf00f09ca16dd1efd3346c0347efb62b08d6643f65ef79b038bb2a8cdbd31",
+      "occurrence": 474,
+      "type": "xs:dateTime",
+      "entry": "migration.date-time-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства.xml",
+      "sha256": "ea7e9507ee5538c46acb941135ff909df0caefabf86926fdb4969fb063c3002d",
+      "occurrence": 349,
+      "type": "xs:dateTime",
+      "entry": "migration.typed-date-time",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства.xml",
+      "sha256": "9c2920177c6974fc6941bd2f9d10d1ed1c0e69efe5a564b67a35daa5abc5f72d",
+      "occurrence": 355,
+      "type": "xs:dateTime",
+      "entry": "migration.typed-date-time",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства.xml",
+      "sha256": "9c2920177c6974fc6941bd2f9d10d1ed1c0e69efe5a564b67a35daa5abc5f72d",
+      "occurrence": 660,
+      "type": "xs:dateTime",
+      "entry": "migration.typed-date-time",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОборотыExt.xml",
+      "sha256": "74cdbd86c72cb85061598772d3b4c8cd856f719b17c00d23df96d4bd1225dc4f",
+      "occurrence": 461,
+      "type": "xs:dateTime",
+      "entry": "migration.typed-date-time",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/BusinessProcesses/БизнесПроцессВсеСвойстваExt.xml",
+      "sha256": "80673d2d4f16696a071a62273a51c95d1ca745d6b592ff4a78cd6092e2ffe019",
+      "occurrence": 320,
+      "type": "xs:dateTime",
+      "entry": "migration.typed-date-time",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/CalculationRegisters/РегистрРасчетаВсеСвойстваExt.xml",
+      "sha256": "c11bafd928d25fa427c981f226d4833651b50edea68da23a9442f86c46929b34",
+      "occurrence": 544,
+      "type": "xs:dateTime",
+      "entry": "migration.typed-date-time",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойстваExt.xml",
+      "sha256": "d0f769e38027e7fcb3c9a9370c6397b78f823e5bc86147b24f6e13e2c5368423",
+      "occurrence": 523,
+      "type": "xs:dateTime",
+      "entry": "migration.typed-date-time",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCalculationTypes/ПланРасчетаВсеСвойстваExt.xml",
+      "sha256": "bc0057e014964e687fad1fa03dfec7ff26fa621cc8eb80af2fc293d2fd4f19cb",
+      "occurrence": 606,
+      "type": "xs:dateTime",
+      "entry": "migration.typed-date-time",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExchangePlans/ПланОбменаВсеСвойстваExt.xml",
+      "sha256": "a20807181ce270cade440ab6f014efb8f0e81b9a51c0e3172874404788e0d907",
+      "occurrence": 330,
+      "type": "xs:dateTime",
+      "entry": "migration.typed-date-time",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Tasks/ЗадачаВсеСвойстваExt.xml",
+      "sha256": "25df146096e8d8fc00f34702ece490a48a9409c450c6e2c94b61b18ea1b3e90a",
+      "occurrence": 347,
+      "type": "xs:dateTime",
+      "entry": "migration.typed-date-time",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Tasks/ЗадачаВсеСвойстваExt.xml",
+      "sha256": "25df146096e8d8fc00f34702ece490a48a9409c450c6e2c94b61b18ea1b3e90a",
+      "occurrence": 652,
+      "type": "xs:dateTime",
+      "entry": "migration.typed-date-time",
+      "verified": true
+    }
+  ]
+}

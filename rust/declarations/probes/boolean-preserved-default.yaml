@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.boolean-preserved-default
+imports: {value: common.boolean}
+value:
+  kind: record
+  fields: [{name: enabled, type: {use: value}}]
+representations:
+  xml:
+    kind: record
+    fields: [{field: enabled, path: [Root, Enabled]}]
+  yaml:
+    kind: mapping
+    fields: [{field: enabled, key: Enabled}]
+presence:
+  - target: {field: enabled}
+    xml: {missing: {denotes: {literal: true}}}
+    yaml: {missing: {denotes: {literal: true}}}

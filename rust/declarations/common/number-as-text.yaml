@@ -1,0 +1,16 @@
+format: nkdk-declarations/1
+kind: value
+id: common.number-as-text
+parameters:
+  typedXML: {type: {kind: scalar, scalar: boolean}, default: true}
+value: {kind: scalar, scalar: number, profile: decimal}
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  xs: http://www.w3.org/2001/XMLSchema
+representations:
+  xml:
+    kind: with-attributes
+    attributes:
+      - {name: xsi:type, value: {qname: xs:string}, when: {parameter: typedXML}}
+    content: {kind: text}
+  yaml: {kind: scalar, scalar: number}
