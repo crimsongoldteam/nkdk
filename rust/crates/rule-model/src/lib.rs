@@ -1,3 +1,6 @@
+mod text;
+pub use text::*;
+
 pub struct SourceFile<'a> {
     pub path: &'a str,
     pub bytes: &'a [u8],
@@ -102,6 +105,7 @@ pub struct NamedType {
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum TypeDefinition {
+    TextTransform(Box<TextTransform>),
     Scalar(ScalarType),
     Record(Vec<TypeField>),
     Sequence(Box<TypeDefinition>),
@@ -162,6 +166,10 @@ pub struct Expression {
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum ExpressionKind {
+    Transform {
+        local: String,
+        value: Box<Expression>,
+    },
     Field(String),
     Not(Box<Expression>),
     Absent,

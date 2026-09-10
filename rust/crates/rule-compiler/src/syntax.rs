@@ -1,6 +1,7 @@
 mod constraints;
 mod expressions;
 mod presence;
+mod text;
 use constraints::constraints;
 use expressions::{expression, scalar_literal};
 use presence::{normalization, presence};
@@ -460,6 +461,15 @@ fn named_types(path: &str, fields: &[(Node, Node)]) -> Result<Vec<NamedType>, Di
 }
 
 fn type_definition(path: &str, value: &Node) -> Result<TypeDefinition, Diagnostic> {
+    if let Shape::Mapping(fields) = &value.shape
+        && optional_field(fields, "kind").is_some_and(
+            |kind| matches!(&kind.shape, Shape::Scalar(name, true) if name == "text-transform"),
+        )
+    {
+        return Ok(TypeDefinition::TextTransform(Box::new(text::decode(
+            path, value,
+        )?)));
+    }
     let fields = value.mapping(
         path,
         &[

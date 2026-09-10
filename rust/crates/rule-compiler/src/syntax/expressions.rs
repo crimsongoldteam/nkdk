@@ -20,6 +20,7 @@ pub(super) fn expression(path: &str, value: &Node) -> Result<Expression, Diagnos
         path,
         &[
             "input",
+            "transform",
             "parameter",
             "capture",
             "sequence",
@@ -50,6 +51,13 @@ pub(super) fn expression(path: &str, value: &Node) -> Result<Expression, Diagnos
     }
     let (operator, operand) = &fields[0];
     let kind = match operator.text(path)? {
+        "transform" => {
+            let fields = operand.mapping(path, &["local", "value"])?;
+            ExpressionKind::Transform {
+                local: operand.field(path, fields, "local")?.text(path)?.into(),
+                value: Box::new(expression(path, operand.field(path, fields, "value")?)?),
+            }
+        }
         "not" => ExpressionKind::Not(Box::new(expression(path, operand)?)),
         "absent" => {
             if scalar_literal(path, operand)? != ScalarLiteral::Boolean(true) {

@@ -948,3 +948,69 @@ fn shorthand_condition_limits_export_without_changing_denotes() {
         nkdk_rule_model::ExpressionKind::Literal(nkdk_rule_model::ScalarLiteral::Boolean(true))
     );
 }
+
+#[test]
+fn parses_declarative_name_transform_from_the_specification() {
+    let module = parse(SourceFile {
+        path: "name-transform.yaml",
+        bytes: include_bytes!(
+            "../../../../tests/declaration-corpus/valid/name-text-transform.yaml"
+        ),
+    })
+    .expect("declarative text transform");
+    let nkdk_rule_model::TypeDefinition::TextTransform(transform) = &module.types[0].definition
+    else {
+        panic!("text transform expected")
+    };
+    assert_eq!(
+        transform.classes[0].ranges,
+        [(65, 90), (1040, 1071), (1025, 1025)]
+    );
+    assert_eq!(transform.transitions.len(), 7);
+    assert_eq!(
+        transform.result.no_tokens,
+        nkdk_rule_model::EmptyTextResult::Absent
+    );
+    assert_eq!(
+        transform.result.empty_input,
+        nkdk_rule_model::EmptyTextResult::EmptyText
+    );
+}
+
+#[test]
+fn text_transform_rejects_invalid_ranges_and_external_context() {
+    let original =
+        include_str!("../../../../tests/declaration-corpus/valid/name-text-transform.yaml");
+    for (old, new, code) in [
+        ("[65, 90]", "[90, 65]", "invalid_character_range"),
+        ("[65, 90]", "[65, 65536]", "invalid_character_range"),
+        ("[65, 90]", "[65.5, 90]", "expected_integer"),
+        ("{class: upper}", "{input: ownerName}", "unknown_key"),
+        ("units: utf16", "units: unicode", "unsupported_text_units"),
+        ("emit: append", "emit: callback", "invalid_text_emit"),
+    ] {
+        let source = original.replace(old, new);
+        assert_ne!(source, original);
+        let errors = parse(SourceFile {
+            path: "text.yaml",
+            bytes: source.as_bytes(),
+        })
+        .expect_err(new);
+        assert_eq!(errors[0].code, code, "{new}");
+    }
+}
+
+#[test]
+fn transform_expression_references_local_data() {
+    let original =
+        include_str!("../../../../tests/declaration-corpus/valid/name-text-transform.yaml");
+    let source = original.replace(
+        "{capture: text}",
+        "{transform: {local: name-words, value: {input: ownerName}}}",
+    );
+    parse(SourceFile {
+        path: "text.yaml",
+        bytes: source.as_bytes(),
+    })
+    .expect("transform expression");
+}

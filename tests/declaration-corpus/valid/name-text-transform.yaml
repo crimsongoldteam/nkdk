@@ -1,0 +1,98 @@
+format: nkdk-declarations/1
+kind: value
+id: common.i8n-text
+
+namespaces:
+  v8: "http://v8.1c.ru/8.1/data/core"
+
+inputs:
+  defaultLanguage:
+    type: {kind: scalar, scalar: text}
+
+types:
+  name-words:
+    kind: text-transform
+    units: utf16
+    classes:
+      upper: [[65, 90], [1040, 1071], [1025, 1025]]
+      lower: [[97, 122], [1072, 1103], [1105, 1105]]
+      digit: [[48, 57]]
+    state:
+      abbreviation: true
+      hasDigit: false
+    transitions:
+      - when: {and: [{class: upper}, {tokenEmpty: true}]}
+        emit: append
+        set: {abbreviation: true, hasDigit: false}
+      - when: {and: [{class: upper}, {flag: abbreviation}]}
+        emit: append
+        set: {}
+      - when: {class: upper}
+        emit: start-token
+        set: {abbreviation: true, hasDigit: false}
+      - when: {class: lower}
+        emit: append
+        set: {abbreviation: false}
+      - when:
+          and:
+            - {class: digit}
+            - {not: {tokenEmpty: true}}
+            - {not: {flag: hasDigit}}
+            - or:
+                - {nextAfterRun: {class: digit, is: upper}}
+                - {nextAfterRun: {class: digit, end: true}}
+        emit: start-token
+        set: {abbreviation: false, hasDigit: true}
+      - when: {class: digit}
+        emit: append
+        set: {abbreviation: false, hasDigit: true}
+      - emit: discard
+        set: {}
+    result:
+      separator: " "
+      first: {kind: identity}
+      rest: {kind: lower-first-unless-all-in-class, class: upper}
+      lowercase:
+        - {from: [65, 90], offset: 32}
+        - {from: [1040, 1071], offset: 32}
+        - {from: [1025, 1025], offset: 80}
+      emptyInput: empty-text
+      noTokens: absent
+  translation:
+    kind: record
+    fields:
+      - name: language
+        type: {kind: scalar, scalar: text}
+      - name: content
+        type: {kind: scalar, scalar: text}
+
+value:
+  kind: sequence
+  item: {local: translation}
+
+representations:
+  xml:
+    kind: element-sequence
+    path: [v8:item]
+    item:
+      kind: record
+      fields:
+        - field: language
+          path: [v8:lang]
+        - field: content
+          path: [v8:content]
+  yaml:
+    kind: keyed-mapping
+    key: language
+    value: content
+    shorthand:
+      - id: primary-language-string
+        representation:
+          kind: scalar
+          scalar: text
+          capture: text
+        denotes:
+          sequence:
+            - record:
+                language: {input: defaultLanguage}
+                content: {capture: text}
