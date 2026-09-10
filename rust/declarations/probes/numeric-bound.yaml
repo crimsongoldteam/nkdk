@@ -1,0 +1,48 @@
+format: nkdk-declarations/1
+kind: object
+id: test.numeric-bound
+imports:
+  code: common.code-type
+  number: common.exact-decimal
+value:
+  kind: record
+  fields:
+    - {name: codeType, type: {use: code}}
+    - {name: codeLength, type: {use: number}}
+representations:
+  xml:
+    kind: record
+    fields:
+      - {field: codeType, path: [Root, CodeType]}
+      - {field: codeLength, path: [Root, CodeLength]}
+  yaml:
+    kind: mapping
+    fields:
+      - {field: codeType, key: ТипКода}
+      - {field: codeLength, key: ДлинаКода}
+constraints:
+  - id: numeric-maximum
+    appliesTo: [xml-import, yaml-validation]
+    when: {eq: [{field: codeType}, {literal: Number}]}
+    assert: {lte: [{field: codeLength}, {literal: 38}]}
+    diagnostic:
+      code: example.numeric-code-length
+      severity: error
+      at: {field: codeLength}
+      message: Числовой код не длиннее 38
+  - id: general-maximum
+    appliesTo: [xml-import, yaml-validation]
+    assert: {lte: [{field: codeLength}, {literal: 50}]}
+    diagnostic:
+      code: example.code-length
+      severity: error
+      at: {field: codeLength}
+      message: Код не длиннее 50
+  - id: minimum
+    appliesTo: [xml-import, yaml-validation]
+    assert: {lte: [{literal: 0}, {field: codeLength}]}
+    diagnostic:
+      code: example.code-length-minimum
+      severity: error
+      at: {field: codeLength}
+      message: Длина кода неотрицательна

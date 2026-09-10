@@ -338,16 +338,33 @@ pub(super) fn resolve_expression_in(
             )
         }
         ExpressionKind::Compare {
-            operator: ComparisonOperator::Equal,
+            operator,
             left,
             right,
         } => {
-            let left = resolve_expression_in(module, left, modules, ids, scope)?;
-            let right = resolve_expression_in(module, right, modules, ids, scope)?;
+            let mut left = resolve_expression_in(module, left, modules, ids, scope)?;
+            let mut right = resolve_expression_in(module, right, modules, ids, scope)?;
+            if *operator == ComparisonOperator::Equal {
+                enum_literal(&left, &mut right)?;
+                enum_literal(&right, &mut left)?;
+            }
             require_same(&left, &right)?;
+            if *operator != ComparisonOperator::Equal
+                && left.value_type != LinkedType::Scalar(ScalarType::Decimal)
+            {
+                return Err(diagnostic(
+                    "expression_type_mismatch",
+                    &expression.source,
+                    "Ordered comparison requires decimal operands",
+                ));
+            }
             (
                 LinkedExpressionKind::Operation {
-                    operator: LinkedOperator::Equal,
+                    operator: match operator {
+                        ComparisonOperator::Equal => LinkedOperator::Equal,
+                        ComparisonOperator::LessThan => LinkedOperator::Less,
+                        ComparisonOperator::LessOrEqual => LinkedOperator::LessEqual,
+                    },
                     arguments: vec![left, right],
                 },
                 LinkedType::Scalar(ScalarType::Boolean),
@@ -429,6 +446,16 @@ pub(super) fn resolve_expression_in(
             let scalar = match literal {
                 ScalarLiteral::Text(_) => ScalarType::Text,
                 ScalarLiteral::Boolean(_) => ScalarType::Boolean,
+                ScalarLiteral::Number(text) => {
+                    nkdk_decimal::Decimal::parse(text).map_err(|error| {
+                        diagnostic(
+                            "invalid_decimal_literal",
+                            &expression.source,
+                            &error.to_string(),
+                        )
+                    })?;
+                    ScalarType::Decimal
+                }
                 _ => {
                     return Err(diagnostic(
                         "unsupported_link_feature",
@@ -442,13 +469,6 @@ pub(super) fn resolve_expression_in(
                 LinkedType::Scalar(scalar),
             )
         }
-        _ => {
-            return Err(diagnostic(
-                "unsupported_link_feature",
-                &expression.source,
-                "Binding expression is not linked yet",
-            ));
-        }
     };
     Ok(LinkedExpression {
         kind,
@@ -460,6 +480,13 @@ pub(super) fn resolve_expression_in(
 pub(super) fn same_type(left: &LinkedType, right: &LinkedType) -> bool {
     match (left, right) {
         (LinkedType::Scalar(a), LinkedType::Scalar(b)) => a == b,
+        (LinkedType::Enum(a), LinkedType::Enum(b)) => {
+            a.len() == b.len()
+                && a.iter().all(|variant| {
+                    b.iter()
+                        .any(|other| variant.name == other.name && variant.value == other.value)
+                })
+        }
         (LinkedType::Reference(a), LinkedType::Reference(b)) => a == b,
         (LinkedType::Sequence(a), LinkedType::Sequence(b))
         | (LinkedType::Optional(a), LinkedType::Optional(b)) => same_type(a, b),
@@ -670,4 +697,23 @@ fn conditional_type(a: &LinkedType, b: &LinkedType) -> Option<LinkedType> {
         }
         _ => None,
     }
+}
+
+fn enum_literal(
+    expected: &LinkedExpression,
+    literal: &mut LinkedExpression,
+) -> Result<(), Diagnostic> {
+    if let (LinkedType::Enum(variants), LinkedExpressionKind::Literal(ScalarLiteral::Text(value))) =
+        (&expected.value_type, &literal.kind)
+    {
+        if !variants.iter().any(|variant| variant.value == *value) {
+            return Err(diagnostic(
+                "unknown_enum_literal",
+                &literal.source,
+                "Literal is not a declared enum meaning",
+            ));
+        }
+        literal.value_type = expected.value_type.clone();
+    }
+    Ok(())
 }

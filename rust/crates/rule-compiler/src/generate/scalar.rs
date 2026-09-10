@@ -102,18 +102,34 @@ impl<'a> Codec<'a> {
             "into_text"
         }
     }
+    pub fn meaning(&self, name: &str, index: usize) -> String {
+        match self {
+            Self::Text => format!("_value.f{index}.as_str()"),
+            Self::Decimal => format!("&_value.f{index}"),
+            Self::Boolean(..) => format!("_value.f{index}"),
+            Self::Enumeration(variants, ..) => format!(
+                "match _value.f{index} {{ {} }}",
+                variants
+                    .iter()
+                    .enumerate()
+                    .map(|(i, variant)| format!("{name}::V{i} => {:?},", variant.value))
+                    .collect::<Vec<_>>()
+                    .join("")
+            ),
+        }
+    }
     pub fn numeric(&self) -> bool {
         matches!(self, Self::Decimal)
     }
     pub fn read(&self, name: &str, index: usize, key: &str, xml_side: bool) -> String {
         if matches!(self, Self::Decimal) {
             return format!(
-                "let f{index} = core::decimal::Decimal::parse(&r{index}).map_err(|error| error.field({key:?}))?;\n"
+                "let f{index} = core::decimal::Decimal::parse_owned(r{index}).map_err(|error| positions[{index}].apply(source, RuntimeDiagnostic::new(\"value.decimal\", error.to_string()).field({key:?})))?;\n"
             );
         }
         if matches!(self, Self::Text) {
             return format!(
-                "core::xml::validate_text(&r{index}).map_err(|error| error.field({key:?}))?; let f{index} = r{index};\n"
+                "core::xml::validate_text(&r{index}).map_err(|error| positions[{index}].apply(source, error.field({key:?})))?; let f{index} = r{index};\n"
             );
         }
         let mut out = format!("let f{index} = match r{index}.as_str() {{\n");
@@ -125,7 +141,7 @@ impl<'a> Codec<'a> {
         } else {
             "value.enum"
         };
-        writeln!(out, "_ => return Err(RuntimeDiagnostic::new({code:?}, \"Unknown canonical literal\").field({key:?})), }};").unwrap();
+        writeln!(out, "_ => return Err(positions[{index}].apply(source, RuntimeDiagnostic::new({code:?}, \"Unknown canonical literal\").field({key:?}))), }};").unwrap();
         out
     }
     pub fn write(&self, name: &str, index: usize, xml_side: bool) -> String {

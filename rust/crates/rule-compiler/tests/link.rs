@@ -223,7 +223,7 @@ fn fragment_composition_cycles_are_rejected() {
 #[test]
 fn unsupported_behavior_is_not_silently_erased() {
     let text = format!(
-        "{}\nconstraints:\n  - id: numeric\n    appliesTo: [yaml-validation]\n    assert: {{lt: [{{literal: 1}}, {{literal: 2}}]}}\n    diagnostic:\n      severity: error\n      at: {{self: true}}\n      message: Invalid\n",
+        "{}\nconstraints:\n  - id: numeric\n    appliesTo: [yaml-validation]\n    assert: {{eq: [{{literal: null}}, {{literal: null}}]}}\n    diagnostic:\n      severity: error\n      at: {{self: true}}\n      message: Invalid\n",
         include_str!("fixtures/common.yaml")
     );
     let source = vec![
@@ -2026,5 +2026,44 @@ fn enum_tables_are_total_and_unambiguous() {
         })
         .and_then(|module| nkdk_rule_compiler::link(&[module]).map(|_| ()));
         assert!(result.is_err(), "Ambiguous or incomplete enum accepted");
+    }
+}
+
+#[test]
+fn decimal_boundaries_and_enum_literals_are_typed_before_generation() {
+    let sources = [
+        (
+            "enum.yaml",
+            include_str!("../../../../tests/declaration-corpus/valid/code-type-enum.yaml"),
+        ),
+        (
+            "decimal.yaml",
+            include_str!("../../../../tests/declaration-corpus/valid/exact-decimal.yaml"),
+        ),
+        (
+            "owner.yaml",
+            include_str!("../../../../tests/declaration-corpus/valid/numeric-bound.yaml"),
+        ),
+    ];
+    let modules = sources.map(|(path, source)| {
+        nkdk_rule_compiler::parse(nkdk_rule_compiler::SourceFile {
+            path,
+            bytes: source.as_bytes(),
+        })
+        .unwrap()
+    });
+    nkdk_rule_compiler::link(&modules).expect("valid numeric contract");
+    for bad in [
+        sources[2].1.replace("literal: Number", "literal: Unknown"),
+        sources[2].1.replace("literal: 38", "literal: '38'"),
+        sources[2].1.replace("field: codeLength", "field: missing"),
+    ] {
+        let mut changed = modules.clone();
+        changed[2] = nkdk_rule_compiler::parse(nkdk_rule_compiler::SourceFile {
+            path: "owner.yaml",
+            bytes: bad.as_bytes(),
+        })
+        .unwrap();
+        assert!(nkdk_rule_compiler::link(&changed).is_err());
     }
 }

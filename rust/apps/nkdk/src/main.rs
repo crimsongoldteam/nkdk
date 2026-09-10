@@ -1,5 +1,7 @@
 mod publication;
-use nkdk_compiled_rules::{Direction, PreparedInputs, convert_file, entry_id, validate_file};
+use nkdk_compiled_rules::{
+    Direction, PreparedInputs, RuntimeDiagnostic, Severity, convert_file, entry_id, validate_file,
+};
 use std::{collections::BTreeMap, fs, path::Path};
 fn main() {
     if let Err(error) = run() {
@@ -52,10 +54,7 @@ fn run() -> Result<(), String> {
             return Err("validate-file does not accept --direction or --output".into());
         }
         let diagnostics = validate_file(entry, &source, &inputs);
-        if !diagnostics.is_empty() {
-            return Err(format!("{input_path}: {diagnostics:#?}"));
-        }
-        return Ok(());
+        return report(input_path, &diagnostics);
     }
     let direction = match required("--direction")?.as_str() {
         "xml-to-yaml" => Direction::XmlToYaml,
@@ -68,6 +67,20 @@ fn run() -> Result<(), String> {
     }
     let result = convert_file(entry, direction, &source, &inputs)
         .map_err(|errors| format!("{input_path}: {errors:#?}"))?;
+    report(input_path, &result.diagnostics)?;
     publication::publish(Path::new(output), &result.bytes)?;
+    Ok(())
+}
+
+fn report(path: &str, diagnostics: &[RuntimeDiagnostic]) -> Result<(), String> {
+    if diagnostics
+        .iter()
+        .any(|error| error.severity == Severity::Error)
+    {
+        return Err(format!("{path}: {diagnostics:#?}"));
+    }
+    if !diagnostics.is_empty() {
+        eprintln!("{path}: {diagnostics:#?}");
+    }
     Ok(())
 }

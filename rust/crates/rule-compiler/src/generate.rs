@@ -1,3 +1,4 @@
+mod constraints;
 mod record;
 mod scalar;
 mod source_map;
@@ -17,7 +18,7 @@ pub struct GeneratedSources {
 
 pub fn generate(program: &Program) -> Result<GeneratedSources, Vec<Diagnostic>> {
     let mut source = String::from(
-        "pub use nkdk_conversion_core::{Direction, EntryId, PreparedInputs, FileResult, RuntimeDiagnostic};\nuse nkdk_conversion_core as core;\n",
+        "pub use nkdk_conversion_core::{Direction, EntryId, PreparedInputs, FileResult, RuntimeDiagnostic, Severity};\nuse nkdk_conversion_core as core;\n",
     );
     let entries: Vec<_> = program
         .entries
@@ -36,6 +37,7 @@ pub fn generate(program: &Program) -> Result<GeneratedSources, Vec<Diagnostic>> 
     }
     for entry in &entries {
         source.push_str(&record::generate(entry, program).map_err(|error| vec![error])?);
+        source.push_str(&constraints::generate(entry, program).map_err(|error| vec![error])?);
     }
     source.push_str("pub fn entry_id(name: &str) -> Option<EntryId> { match name {\n");
     for entry in &entries {
@@ -45,20 +47,28 @@ pub fn generate(program: &Program) -> Result<GeneratedSources, Vec<Diagnostic>> 
         ));
     }
     source.push_str("_ => None } }\n");
-    source.push_str("pub fn convert_file(entry: EntryId, direction: Direction, source: &[u8], _inputs: &PreparedInputs) -> std::result::Result<FileResult, Vec<RuntimeDiagnostic>> { let result: core::Result<Vec<u8>> = (|| { match (entry.0, direction) {\n");
+    source.push_str("pub fn convert_file(entry: EntryId, direction: Direction, source: &[u8], _inputs: &PreparedInputs) -> std::result::Result<FileResult, Vec<RuntimeDiagnostic>> { match (entry.0, direction) {\n");
     for entry in &entries {
         let id = entry.id;
-        source.push_str(&format!("({id}, Direction::XmlToYaml) => {{ let yaml = write_yaml_{id}(&read_xml_{id}(source)?); verify_{id}(source, &yaml)?; Ok(yaml) }},\n({id}, Direction::YamlToXml) => Ok(write_xml_{id}(&read_yaml_{id}(source)?)),\n"));
+        for (direction, read, write) in [("XmlToYaml", "xml", "yaml"), ("YamlToXml", "yaml", "xml")]
+        {
+            source.push_str(&format!("({id}, Direction::{direction}) => {{ let value = read_{read}_{id}(source).map_err(|error| vec![error])?; let diagnostics = check_{read}_{id}(&value, source); if diagnostics.iter().any(|error| error.severity == core::Severity::Error) {{ return Err(diagnostics); }} let bytes = write_{write}_{id}(&value);"));
+            if read == "xml" {
+                source.push_str(&format!(
+                    "verify_{id}(source, &bytes).map_err(|error| vec![error])?;"
+                ));
+            }
+            source.push_str("Ok(FileResult { bytes, diagnostics }) },\n");
+        }
     }
-    source.push_str("_ => Err(RuntimeDiagnostic::new(\"entry.unknown\", \"Unknown generated entry\")) } })(); result.map(|bytes| FileResult { bytes, diagnostics: vec![] }).map_err(|error| vec![error]) }\n");
-    source.push_str("pub fn validate_file(entry: EntryId, source: &[u8], _inputs: &PreparedInputs) -> Vec<RuntimeDiagnostic> { let result = match entry.0 {\n");
+    source.push_str("_ => Err(vec![RuntimeDiagnostic::new(\"entry.unknown\", \"Unknown generated entry\")]) } }\n");
+    source.push_str("pub fn validate_file(entry: EntryId, source: &[u8], _inputs: &PreparedInputs) -> Vec<RuntimeDiagnostic> { match entry.0 {\n");
     for entry in &entries {
-        source.push_str(&format!(
-            "{} => read_yaml_{}(source).map(|_| ()),\n",
-            entry.id, entry.id
-        ));
+        source.push_str(&format!("{} => match read_yaml_{}(source) {{ Ok(value) => check_yaml_{}(&value, source), Err(error) => vec![error] }},\n", entry.id, entry.id, entry.id));
     }
-    source.push_str("_ => Err(RuntimeDiagnostic::new(\"entry.unknown\", \"Unknown generated entry\")) }; result.err().into_iter().collect() }\n");
+    source.push_str(
+        "_ => vec![RuntimeDiagnostic::new(\"entry.unknown\", \"Unknown generated entry\")] } }\n",
+    );
     source.push_str("pub fn verify_candidate(entry: EntryId, original: &[u8], candidate: &[u8], _inputs: &PreparedInputs) -> std::result::Result<(), Vec<RuntimeDiagnostic>> { let result = match entry.0 {\n");
     for entry in &entries {
         source.push_str(&format!(
@@ -100,9 +110,18 @@ fn unsupported(entry: &LinkedEntry, message: &str) -> Diagnostic {
     }
 }
 fn plain(entry: &LinkedEntry) -> Result<(), Diagnostic> {
+    plain_shape(entry)?;
+    if !entry.constraints.is_empty() {
+        return Err(unsupported(
+            entry,
+            "Referenced scalar constraints are not generated yet",
+        ));
+    }
+    Ok(())
+}
+fn plain_shape(entry: &LinkedEntry) -> Result<(), Diagnostic> {
     if !entry.inputs.is_empty()
         || !entry.parameters.is_empty()
-        || !entry.constraints.is_empty()
         || !entry.presence.is_empty()
         || !entry.shorthands.is_empty()
         || entry.normalization.is_some()

@@ -185,7 +185,7 @@ pub fn validate_file(
 
 **Interfaces:** validate_file использует те же сгенерированные predicates, что импорт и экспорт. `schema(program: &Program, entry: &str) -> Result<Vec<u8>, Vec<Diagnostic>>` возвращает JSON Schema только выражаемой структурной части. CLI `nkdk-dev declarations check --dir PATH` проверяет исходный язык и импорты, а не данные пользователя.
 
-- [ ] Создать табличный тест conditional maximum: codeType=Number, codeLength=38 проходит, 39 даёт адрес codeLength; при String граница 50. Добавить missing dependency и ошибку типа, сохранив различие этих исходов.
+- [x] Создать табличный тест conditional maximum: codeType=Number, codeLength=38 проходит, 39 даёт адрес codeLength; при String граница 50. Добавить missing dependency и ошибку типа, сохранив различие этих исходов.
 
   ```rust
   #[test]
@@ -201,8 +201,8 @@ pub fn validate_file(
 
   `validate_numeric_case(&str) -> Vec<RuntimeDiagnostic>` — локальный helper теста: выбирает сгенерированный numeric-bound EntryId и пустые PreparedInputs, вызывает validate_file. Он не вычисляет ожидания и не реализует условие проверки.
 
-- [ ] Запустить `cargo test --manifest-path rust/Cargo.toml -p nkdk-rule-compiler --test schema`; реализовать генерацию predicate для eq/lte/when и его подключение к обоим направлениям/validation. Запретить неявное приведение отсутствующего значения к false/0.
-- [ ] Проверить, что validation не вызывает XML-writer и не запрашивает resource/identity публикацию. Проверять это через тестовый счётчик общего адаптера, не через повторение алгоритма validation в тесте.
+- [x] Запустить `cargo test --manifest-path rust/Cargo.toml -p nkdk-rule-compiler --test schema`; реализовать генерацию predicate для eq/lte/when и его подключение к обоим направлениям/validation. Запретить неявное приведение отсутствующего значения к false/0.
+- [x] Проверить, что validation не вызывает XML-writer и не запрашивает resource/identity публикацию. Проверять это через тестовый счётчик общего адаптера, не через повторение алгоритма validation в тесте.
 - [ ] Создать схему исходного языка из описанного синтаксиса и сверить с parse на корпусе допустимых/ошибочных деклараций. Отдельно сравнить схему пользовательского numeric-bound с заранее записанным ожидаемым набором допустимых/недопустимых YAML; project lookup не изображать средствами JSON Schema.
 - [ ] Получить зелёную проверку обеих схем и диагностики, выполнить проверки слоя и коммит.
 

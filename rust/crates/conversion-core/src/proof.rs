@@ -17,7 +17,7 @@ fn fingerprint(source: &[u8], scalar: &impl Fn(&[Name]) -> bool) -> Result<[u8; 
     let mut hash = Sha256::new();
     xml::visit(source, |path, token| {
         match token {
-            Token::Start => {
+            Token::Start(_) => {
                 hash.update([0, b'S']);
                 let name = path.last().expect("start has a name");
                 for part in [&name.namespace, &name.local] {

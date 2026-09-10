@@ -1,4 +1,6 @@
 pub mod decimal;
+pub mod position;
+pub use position::Position;
 pub mod proof;
 pub mod xml;
 pub mod yaml;
@@ -21,6 +23,7 @@ pub struct FileResult {
 pub enum Severity {
     Error,
     Warning,
+    Info,
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RuntimeDiagnostic {

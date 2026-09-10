@@ -135,6 +135,8 @@ pub enum LinkedOperator {
     And,
     Or,
     Equal,
+    Less,
+    LessEqual,
     Conditional,
 }
 

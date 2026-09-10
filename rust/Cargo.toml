@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/rule-model", "crates/rule-compiler", "crates/conversion-core", "crates/compiled-rules", "apps/nkdk", "tools/dev"]
+members = ["crates/decimal", "crates/rule-model", "crates/rule-compiler", "crates/conversion-core", "crates/compiled-rules", "apps/nkdk", "tools/dev"]
 resolver = "3"
 
 [workspace.package]
@@ -11,3 +11,4 @@ publish = false
 [workspace.dependencies]
 nkdk-rule-model = { path = "crates/rule-model" }
 yaml-rust2 = "=0.11.0"
+nkdk-decimal = { path = "crates/decimal" }

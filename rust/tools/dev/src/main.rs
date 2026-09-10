@@ -1,4 +1,5 @@
 mod corpus;
+mod declarations;
 use std::{collections::BTreeMap, path::PathBuf};
 fn main() {
     if let Err(error) = run() {
@@ -8,12 +9,17 @@ fn main() {
 }
 fn run() -> Result<(), String> {
     let mut args = std::env::args().skip(1);
-    if args.next().as_deref() != Some("corpus") || args.next().as_deref() != Some("run") {
-        return Err("Expected: corpus run --manifest PATH --group NAME [--root PATH]".into());
-    }
+    let family = args.next().ok_or("Expected corpus or declarations")?;
+    let action = args.next().ok_or("Expected action")?;
+    let allowed: &[&str] = match (family.as_str(), action.as_str()) {
+        ("corpus", "run") => &["--manifest", "--group", "--root"],
+        ("declarations", "check") => &["--dir"],
+        ("declarations", "schema") => &["--dir", "--entry"],
+        _ => return Err("Expected corpus run, declarations check or declarations schema".into()),
+    };
     let mut options = BTreeMap::new();
     while let Some(key) = args.next() {
-        if !["--manifest", "--group", "--root"].contains(&key.as_str()) {
+        if !allowed.contains(&key.as_str()) {
             return Err(format!("Unknown option: {key}"));
         }
         let value = args.next().ok_or_else(|| format!("Missing value: {key}"))?;
@@ -22,6 +28,23 @@ fn run() -> Result<(), String> {
         }
     }
     let required = |key: &str| options.get(key).ok_or_else(|| format!("Required: {key}"));
+    if family == "declarations" {
+        let program = declarations::load(&PathBuf::from(required("--dir")?))?;
+        if action == "schema" {
+            let bytes = nkdk_rule_compiler::schema(&program, required("--entry")?)
+                .map_err(|errors| format!("{errors:#?}"))?;
+            use std::io::Write;
+            std::io::stdout()
+                .write_all(&bytes)
+                .map_err(|error| error.to_string())?;
+        } else {
+            println!(
+                "Checked {} declarations: syntax and links",
+                program.entries.len()
+            );
+        }
+        return Ok(());
+    }
     let root = options
         .get("--root")
         .map(PathBuf::from)
@@ -31,6 +54,6 @@ fn run() -> Result<(), String> {
         &PathBuf::from(required("--manifest")?),
         required("--group")?,
     )?;
-    println!("Verified {count} cases: XML→YAML, YAML→XML, round-trip and validation");
+    println!("Verified {count} cases with conversion and validation expectations");
     Ok(())
 }

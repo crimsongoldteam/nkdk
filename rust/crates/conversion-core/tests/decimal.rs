@@ -1,6 +1,11 @@
 use nkdk_conversion_core::decimal::Decimal;
 #[test]
 fn decimals_keep_precision_and_compare_without_binary_rounding() {
+    let source = String::from("+00012.3400e2");
+    let allocation = source.as_ptr();
+    let owned = Decimal::parse_owned(source).unwrap();
+    assert_eq!(owned.to_string(), "1234");
+    assert_eq!(owned.parts().1.as_ptr(), allocation);
     for (input, canonical) in [
         ("9007199254740993", "9007199254740993"),
         (
@@ -13,6 +18,8 @@ fn decimals_keep_precision_and_compare_without_binary_rounding() {
         ("1e-7", "1e-7"),
         ("-0.000", "0"),
         ("1e1000000", "1e+1000000"),
+        ("1.0e-9223372036854775808", "1e-9223372036854775808"),
+        ("1e9223372036854775807", "1e+9223372036854775807"),
     ] {
         let value = Decimal::parse(input).unwrap();
         assert_eq!(value.to_string(), canonical);

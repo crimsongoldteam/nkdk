@@ -1,4 +1,11 @@
 use crate::{Result, RuntimeDiagnostic};
+#[cfg(feature = "test-probes")]
+static WRITERS: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
+#[cfg(feature = "test-probes")]
+pub fn writer_count() -> usize {
+    WRITERS.load(std::sync::atomic::Ordering::Relaxed)
+}
+
 use quick_xml::{NsReader, events::Event, name::ResolveResult};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -7,7 +14,7 @@ pub struct Name {
     pub local: String,
 }
 pub enum Token<'a> {
-    Start,
+    Start(usize),
     Text(&'a str),
     End,
 }
@@ -25,11 +32,13 @@ pub fn visit(
     let text = std::str::from_utf8(source)
         .map_err(|e| RuntimeDiagnostic::new("xml.encoding", e.to_string()))?;
     let mut reader = NsReader::from_str(text);
+    // The slice reader removes the UTF-8 BOM without advancing buffer_position.
+    let bom = usize::from(text.starts_with('\u{feff}')) * 3;
     let mut path = vec![];
     let mut roots = 0;
     let mut declaration_seen = false;
     loop {
-        let offset = reader.buffer_position() as usize;
+        let offset = reader.buffer_position() as usize + bom;
         let event = reader.read_event().map_err(|e| {
             located(
                 text,
@@ -39,6 +48,13 @@ pub fn visit(
         })?;
         let result = match event {
             Event::Start(ref e) | Event::Empty(ref e) => {
+                let offset = reader.buffer_position() as usize + bom
+                    - e.len()
+                    - if matches!(event, Event::Empty(_)) {
+                        3
+                    } else {
+                        2
+                    };
                 if path.is_empty() {
                     roots += 1;
                     if roots > 1 {
@@ -82,7 +98,8 @@ pub fn visit(
                     namespace,
                     local: local.as_ref().to_owned(),
                 });
-                consume(&path, Token::Start).map_err(|error| located(text, offset, error))?;
+                consume(&path, Token::Start(offset))
+                    .map_err(|error| located(text, offset, error))?;
                 if matches!(event, Event::Empty(_)) {
                     consume(&path, Token::End)?;
                     path.pop();
@@ -166,12 +183,10 @@ pub fn visit(
     }
     Ok(())
 }
-fn located(text: &str, offset: usize, mut error: RuntimeDiagnostic) -> RuntimeDiagnostic {
-    let before = &text[..offset.min(text.len())];
-    error.line = before.bytes().filter(|b| *b == b'\n').count() + 1;
-    error.column = before.rsplit('\n').next().unwrap_or("").chars().count() + 1;
-    error
+fn located(text: &str, offset: usize, error: RuntimeDiagnostic) -> RuntimeDiagnostic {
+    crate::Position::xml(offset).apply(text.as_bytes(), error)
 }
+
 pub fn escape(value: &str) -> String {
     let mut out = String::with_capacity(value.len());
     for c in value.chars() {
@@ -192,6 +207,8 @@ pub struct Writer {
 }
 impl Writer {
     pub fn new(namespaces: &'static [&'static str]) -> Self {
+        #[cfg(feature = "test-probes")]
+        WRITERS.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
         Self {
             output: "\u{feff}<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n".into(),
             path: vec![],

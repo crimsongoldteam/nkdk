@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "ТипКода": {
+      "type": "string",
+      "enum": [
+        "Число",
+        "Строка",
+        "Авто"
+      ]
+    },
+    "ДлинаКода": {
+      "type": "number",
+      "x-nkdk-number-profile": "decimal"
+    }
+  },
+  "required": [
+    "ТипКода",
+    "ДлинаКода"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "ТипКода": {
+            "const": "Число"
+          }
+        },
+        "required": [
+          "ТипКода"
+        ]
+      },
+      "then": {
+        "properties": {
+          "ДлинаКода": {
+            "maximum": 38
+          }
+        },
+        "required": [
+          "ДлинаКода"
+        ]
+      }
+    },
+    {
+      "properties": {
+        "ДлинаКода": {
+          "maximum": 50
+        }
+      },
+      "required": [
+        "ДлинаКода"
+      ]
+    },
+    {
+      "properties": {
+        "ДлинаКода": {
+          "minimum": 0
+        }
+      },
+      "required": [
+        "ДлинаКода"
+      ]
+    }
+  ]
+}

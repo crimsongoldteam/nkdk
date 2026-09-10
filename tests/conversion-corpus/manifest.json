@@ -1245,6 +1245,134 @@
       "evidence": [
         "docs/superpowers/specs/2026-09-10-declaration-language-design.md"
       ]
+    },
+    {
+      "id": "numeric-bound-number",
+      "group": "numeric-bounds",
+      "capabilities": [
+        "conditional-constraint",
+        "exact-decimal"
+      ],
+      "inputs": {
+        "xml": {
+          "path": "tests/conversion-corpus/cases/numeric-bound-number/input.xml",
+          "sha256": "5bf0f9bc41c106731f2a62a4d4a000e87c36f0c0b3f4a7eb6381fc495c54570b"
+        },
+        "yaml": {
+          "path": "tests/conversion-corpus/cases/numeric-bound-number/expected.yaml",
+          "sha256": "8f13f6db0c4757801a135cbb06a81d96b7ae50ff41d6e2196a56906fd1f3124f"
+        }
+      },
+      "context": "tests/conversion-corpus/cases/numeric-bound-number/context.json",
+      "directions": [
+        "xml-to-yaml",
+        "yaml-to-xml",
+        "round-trip",
+        "yaml-validation"
+      ],
+      "outcome": "success",
+      "expectations": {
+        "xml": "tests/conversion-corpus/cases/numeric-bound-number/input.xml",
+        "yaml": "tests/conversion-corpus/cases/numeric-bound-number/expected.yaml",
+        "diagnostics": "tests/conversion-corpus/cases/numeric-bound-number/diagnostics.json"
+      },
+      "comparison": {
+        "xml": "exact",
+        "yaml": "exact",
+        "exceptions": []
+      },
+      "scope": "Synthetic conditional constraint contract",
+      "evidence": [
+        "tests/declaration-corpus/valid/numeric-bound.yaml"
+      ]
+    },
+    {
+      "id": "numeric-bound-string",
+      "group": "numeric-bounds",
+      "capabilities": [
+        "conditional-constraint",
+        "exact-decimal"
+      ],
+      "inputs": {
+        "xml": {
+          "path": "tests/conversion-corpus/cases/numeric-bound-string/input.xml",
+          "sha256": "4fc861e175df142246398e44fc0c046607934f3ece014a8787e23da76f161a30"
+        },
+        "yaml": {
+          "path": "tests/conversion-corpus/cases/numeric-bound-string/expected.yaml",
+          "sha256": "69abe863c6836e9ec29b72b6d934544e5fb42a7ac88c903fa04937756593816e"
+        }
+      },
+      "context": "tests/conversion-corpus/cases/numeric-bound-string/context.json",
+      "directions": [
+        "xml-to-yaml",
+        "yaml-to-xml",
+        "round-trip",
+        "yaml-validation"
+      ],
+      "outcome": "success",
+      "expectations": {
+        "xml": "tests/conversion-corpus/cases/numeric-bound-string/input.xml",
+        "yaml": "tests/conversion-corpus/cases/numeric-bound-string/expected.yaml",
+        "diagnostics": "tests/conversion-corpus/cases/numeric-bound-string/diagnostics.json"
+      },
+      "comparison": {
+        "xml": "exact",
+        "yaml": "exact",
+        "exceptions": []
+      },
+      "scope": "Synthetic conditional constraint contract",
+      "evidence": [
+        "tests/declaration-corpus/valid/numeric-bound.yaml"
+      ]
+    },
+    {
+      "id": "numeric-bound-fraction-overflow",
+      "group": "numeric-bounds",
+      "inputs": {
+        "yaml": {
+          "path": "tests/conversion-corpus/cases/numeric-bound-fraction-overflow/input.yaml",
+          "sha256": "9ebf5774a191c8bd1ad93a6402337676fff3152a7054b0e656edfae41b6940ce"
+        }
+      },
+      "context": "tests/conversion-corpus/cases/numeric-bound-fraction-overflow/context.json",
+      "directions": [
+        "yaml-validation",
+        "yaml-to-xml"
+      ],
+      "outcome": "failure",
+      "diagnosticsFormat": "rust-runtime-v1",
+      "expectations": {
+        "diagnostics": "tests/conversion-corpus/cases/numeric-bound-fraction-overflow/diagnostics.json"
+      },
+      "scope": "Synthetic exact numeric diagnostics with source positions; TS public compatibility pending",
+      "evidence": [
+        "tests/declaration-corpus/valid/numeric-bound.yaml"
+      ]
+    },
+    {
+      "id": "numeric-bound-multiple-errors",
+      "group": "numeric-bounds",
+      "inputs": {
+        "yaml": {
+          "path": "tests/conversion-corpus/cases/numeric-bound-multiple-errors/input.yaml",
+          "sha256": "ca4b45dbdb721cc24ee8c60c814363ab7b94c6e09ca740f77cf5b2cf2466573b"
+        }
+      },
+      "context": "tests/conversion-corpus/cases/numeric-bound-multiple-errors/context.json",
+      "directions": [
+        "yaml-validation",
+        "yaml-to-xml"
+      ],
+      "outcome": "failure",
+      "diagnosticsFormat": "rust-runtime-v1",
+      "expectations": {
+        "diagnostics": "tests/conversion-corpus/cases/numeric-bound-multiple-errors/diagnostics.json"
+      },
+      "scope": "Synthetic exact numeric diagnostics with source positions; TS public compatibility pending",
+      "evidence": [
+        "tests/declaration-corpus/valid/numeric-bound.yaml"
+      ]
     }
   ],
   "pendingImport": [

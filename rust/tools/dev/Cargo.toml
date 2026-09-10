@@ -5,6 +5,7 @@ edition.workspace = true
 rust-version.workspace = true
 publish.workspace = true
 [dependencies]
+nkdk-rule-compiler = { path = "../../crates/rule-compiler" }
 nkdk-compiled-rules = { path = "../../crates/compiled-rules" }
 serde_json = "=1.0.150"
 sha2 = "=0.10.9"

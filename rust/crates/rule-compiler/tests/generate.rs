@@ -5,6 +5,11 @@ use std::{fs, process::Command};
 fn generated_rust_executes_both_directions_and_uses_the_imported_table() {
     let common = include_str!("fixtures/common.yaml");
     let owner = "format: nkdk-declarations/1\nkind: object\nid: test.scalar-owner\nimports: {boolean: common.boolean}\nvalue:\n  kind: record\n  fields:\n    - name: server\n      type: {use: boolean}\n    - name: description\n      type: {kind: scalar, scalar: text}\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - {field: server, path: [Root, Server]}\n      - {field: description, path: [Root, Description]}\n  yaml:\n    kind: mapping\n    fields:\n      - {field: server, key: Сервер}\n      - {field: description, key: Описание}\n";
+    let numeric_bound =
+        include_str!("../../../../tests/declaration-corpus/valid/numeric-bound.yaml");
+    let warning_bound = numeric_bound
+        .replace("id: test.numeric-bound", "id: test.warning-bound")
+        .replace("severity: error", "severity: warning");
     let decimal = include_str!("../../../../tests/declaration-corpus/valid/exact-decimal.yaml");
     let decimal_owner = "format: nkdk-declarations/1\nkind: object\nid: test.decimal-owner\nimports: {number: common.exact-decimal}\nvalue:\n  kind: record\n  fields:\n    - {name: amount, type: {use: number}}\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - {field: amount, path: [Root, Amount]}\n  yaml:\n    kind: mapping\n    fields:\n      - {field: amount, key: Сумма}\n";
     let enumeration =
@@ -23,7 +28,7 @@ fn generated_rust_executes_both_directions_and_uses_the_imported_table() {
         .parent()
         .unwrap()
         .join("conversion-core");
-    fs::write(root.join("Cargo.toml"), format!("[package]\nname = \"generated-contract\"\nversion = \"0.0.0\"\nedition = \"2024\"\n[dependencies]\nnkdk-conversion-core = {{ path = {:?} }}\n[workspace]\n", core)).unwrap();
+    fs::write(root.join("Cargo.toml"), format!("[package]\nname = \"generated-contract\"\nversion = \"0.0.0\"\nedition = \"2024\"\n[dependencies]\nnkdk-conversion-core = {{ path = {:?}, features = [\"test-probes\"] }}\n[workspace]\n", core)).unwrap();
     for literal in ["Истина", "Да"] {
         let common = common.replace("Истина", literal);
         let mut modules = [
@@ -33,6 +38,8 @@ fn generated_rust_executes_both_directions_and_uses_the_imported_table() {
             ("enum-owner.yaml", enum_owner),
             ("decimal.yaml", decimal),
             ("decimal-owner.yaml", decimal_owner),
+            ("numeric-bound.yaml", numeric_bound),
+            ("warning-bound.yaml", warning_bound.as_str()),
         ]
         .map(|(path, source)| {
             parse(SourceFile {
@@ -53,7 +60,9 @@ fn generated_rust_executes_both_directions_and_uses_the_imported_table() {
                 "decimal.yaml",
                 "enum-owner.yaml",
                 "enum.yaml",
-                "owner.yaml"
+                "numeric-bound.yaml",
+                "owner.yaml",
+                "warning-bound.yaml"
             ]
         );
         for file in generated.files {
@@ -62,6 +71,37 @@ fn generated_rust_executes_both_directions_and_uses_the_imported_table() {
         let main = r#"
 include!("generated.rs");
 fn main() {
+    let warning = entry_id("test.warning-bound").unwrap();
+    let warning_yaml = "ТипКода: Число\nДлинаКода: 51";
+    let warnings = validate_file(warning, warning_yaml.as_bytes(), &PreparedInputs::default());
+    assert_eq!(warnings.len(), 2);
+    assert!(warnings.iter().all(|warning| warning.severity == core::Severity::Warning));
+    assert_eq!(convert_file(warning, Direction::YamlToXml, warning_yaml.as_bytes(), &PreparedInputs::default()).unwrap().diagnostics, warnings);
+    let bounded = entry_id("test.numeric-bound").unwrap();
+    for (kind, xml_kind, length, errors) in [("Число", "Number", "38", 0), ("Число", "Number", "39", 1), ("Строка", "String", "50", 0), ("Строка", "String", "51", 1), ("Строка", "String", "-1", 1), ("Число", "Number", "0", 0), ("Число", "Number", "51", 2), ("Число", "Number", "38.000000000000000000000001", 1)] {
+        let yaml = format!("ТипКода: {kind}\nДлинаКода: {length}");
+        let xml = format!("\u{feff}<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Root>\n\t<CodeType>{xml_kind}</CodeType>\n\t<CodeLength>{length}</CodeLength>\n</Root>");
+        let inputs = PreparedInputs::default();
+        let writes = core::xml::writer_count();
+        let diagnostics = validate_file(bounded, yaml.as_bytes(), &inputs);
+        assert_eq!(core::xml::writer_count(), writes, "validation must not write XML");
+        assert_eq!(diagnostics.len(), errors, "{yaml}");
+        if errors == 0 {
+            assert_eq!(convert_file(bounded, Direction::YamlToXml, yaml.as_bytes(), &inputs).unwrap().bytes, xml.as_bytes());
+            assert_eq!(convert_file(bounded, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap().bytes, yaml.as_bytes());
+        } else {
+            assert!(diagnostics.iter().all(|error| error.path == ["ДлинаКода"]));
+            assert_eq!(convert_file(bounded, Direction::YamlToXml, yaml.as_bytes(), &inputs).unwrap_err(), diagnostics);
+            assert!(diagnostics.iter().all(|error| (error.line, error.column) == (2, 12)));
+            let xml_errors = convert_file(bounded, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap_err();
+            assert_eq!(xml_errors.len(), diagnostics.len());
+            for (xml_error, yaml_error) in xml_errors.iter().zip(&diagnostics) {
+                assert_eq!((&xml_error.code, &xml_error.path, &xml_error.message), (&yaml_error.code, &yaml_error.path, &yaml_error.message));
+                assert_eq!((xml_error.line, xml_error.column), (4, 2));
+            }
+        }
+    }
+    assert_eq!(validate_file(bounded, "ДлинаКода: 38".as_bytes(), &PreparedInputs::default())[0].code, "value.missing");
     let decimal_entry = entry_id("test.decimal-owner").unwrap();
     for literal in ["9007199254740993", "0.12345678901234567890123456789012345678", "1e+1000000"] {
         let xml = format!("\u{feff}<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Root>\n\t<Amount>{literal}</Amount>\n</Root>");
@@ -109,6 +149,7 @@ fn main() {
     let invalid = "Сервер: wrong\nОписание: x";
     let errors = validate_file(entry, invalid.as_bytes(), &inputs);
     assert_eq!(errors[0].path, ["Сервер"]);
+    assert_eq!((errors[0].line, errors[0].column), (1, 9));
     assert_eq!(errors, convert_file(entry, Direction::YamlToXml, invalid.as_bytes(), &inputs).unwrap_err());
     let duplicate = validate_file(entry, "Сервер: LITERAL\nСервер: Ложь\nОписание: x".as_bytes(), &inputs);
     assert_eq!(duplicate[0].path, ["Сервер"]);

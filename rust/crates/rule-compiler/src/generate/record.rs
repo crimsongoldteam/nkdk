@@ -18,7 +18,7 @@ fn path_code(path: &[ExpandedName]) -> String {
 }
 
 pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String, Diagnostic> {
-    plain(entry)?;
+    plain_shape(entry)?;
     let (LinkedType::Record(types), LinkedXml::Record(xml), YamlRepresentation::Mapping(yaml)) =
         (&entry.value, &entry.xml, &entry.yaml)
     else {
@@ -63,6 +63,18 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
         ));
     }
     let id = entry.id;
+    let keep_positions = entry.constraints.iter().any(|constraint| {
+        matches!(constraint.diagnostic.at, LinkedDiagnosticTarget::Field(_))
+            && [
+                (ValidationPhase::XmlImport, LinkedForm::XmlRecord),
+                (ValidationPhase::YamlValidation, LinkedForm::YamlMapping),
+            ]
+            .iter()
+            .any(|(phase, form)| {
+                constraint.applies_to.contains(phase)
+                    && (constraint.forms.is_empty() || constraint.forms.contains(form))
+            })
+    });
     let mut out = String::new();
     for (i, field) in fields.iter().enumerate() {
         out.push_str(&field.codec.definition(&format!("E{id}F{i}")));
@@ -76,6 +88,9 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
         )
         .unwrap();
     }
+    if keep_positions {
+        writeln!(out, "positions: [core::Position; {}],", fields.len()).unwrap();
+    }
     out.push_str("}\n");
     for xml_side in [true, false] {
         let side = if xml_side { "xml" } else { "yaml" };
@@ -84,13 +99,19 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
             "fn read_{side}_{id}(source: &[u8]) -> core::Result<V{id}> {{"
         )
         .unwrap();
+        writeln!(
+            out,
+            "let mut positions = [core::Position::default(); {}];",
+            fields.len()
+        )
+        .unwrap();
         for i in 0..fields.len() {
             writeln!(out, "let mut r{i}: Option<String> = None;").unwrap();
         }
         if xml_side {
-            out.push_str("core::xml::visit(source, |path, token| { match token { core::xml::Token::Start => {\n");
+            out.push_str("core::xml::visit(source, |path, token| { match token { core::xml::Token::Start(offset) => {\n");
             for (i, field) in fields.iter().enumerate() {
-                writeln!(out, "if core::xml::matches(path, {}) {{ if r{i}.is_some() {{ return Err(RuntimeDiagnostic::new(\"xml.duplicate-field\", {:?})); }} r{i} = Some(String::new()); return Ok(()); }}", path_code(field.path), field.key).unwrap();
+                writeln!(out, "if core::xml::matches(path, {}) {{ if r{i}.is_some() {{ return Err(RuntimeDiagnostic::new(\"xml.duplicate-field\", {:?})); }} positions[{i}] = core::Position::xml(offset); r{i} = Some(String::new()); return Ok(()); }}", path_code(field.path), field.key).unwrap();
             }
             let mut prefixes = BTreeSet::new();
             for field in &fields {
@@ -113,14 +134,14 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
         } else {
             out.push_str("core::yaml::visit_scalars(source, |key, value| { match key.as_str() {\n");
             for (i, field) in fields.iter().enumerate() {
-                writeln!(out, "{:?} => {{ r{i} = Some(value.{}().map_err(|error| error.field({:?}))?); Ok(()) }},", field.key, field.codec.yaml_input(), field.key).unwrap();
+                writeln!(out, "{:?} => {{ positions[{i}] = value.position(); r{i} = Some(value.{}().map_err(|error| error.field({:?}))?); Ok(()) }},", field.key, field.codec.yaml_input(), field.key).unwrap();
             }
             out.push_str("_ => Err(RuntimeDiagnostic::new(\"yaml.unknown-field\", format!(\"Unknown YAML key: {key}\")).field(key)) } })?;\n");
         }
         for (i, field) in fields.iter().enumerate() {
             writeln!(
                 out,
-                "let r{i} = r{i}.ok_or_else(|| RuntimeDiagnostic::new(\"value.missing\", {:?}).field({:?}))?;",
+                "let r{i} = r{i}.ok_or_else(|| positions[{i}].apply(source, RuntimeDiagnostic::new(\"value.missing\", {:?}).field({:?})))?;",
                 field.key, field.key
             )
             .unwrap();
@@ -132,7 +153,8 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
         }
         writeln!(
             out,
-            "Ok(V{id} {{ {} }}) }}",
+            "Ok(V{id} {{ {} {} }}) }}",
+            if keep_positions { "positions," } else { "" },
             (0..fields.len())
                 .map(|i| format!("f{i}"))
                 .collect::<Vec<_>>()
@@ -167,7 +189,7 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
         writeln!(out, "out.push_str(&core::yaml::scalar({:?})); out.push_str(\": \"); out.push_str({yaml}); out.push('\\n');", field.key).unwrap();
     }
     out.push_str("if !out.is_empty() { out.pop(); } out.into_bytes() }\n");
-    writeln!(out, "fn verify_{id}(original: &[u8], candidate: &[u8]) -> core::Result<()> {{ let restored = write_xml_{id}(&read_yaml_{id}(candidate)?); core::proof::verify(original, &restored, |path| {{").unwrap();
+    writeln!(out, "fn verify_{id}(original: &[u8], candidate: &[u8]) -> core::Result<()> {{ let value = read_yaml_{id}(candidate)?; if let Some(error) = check_yaml_{id}(&value, candidate).into_iter().find(|error| error.severity == core::Severity::Error) {{ return Err(error); }} let restored = write_xml_{id}(&value); core::proof::verify(original, &restored, |path| {{").unwrap();
     out.push_str(
         &fields
             .iter()

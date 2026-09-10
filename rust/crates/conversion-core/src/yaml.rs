@@ -9,8 +9,12 @@ use yaml_rust2::{
 pub struct Scalar {
     text: String,
     plain: bool,
+    position: crate::Position,
 }
 impl Scalar {
+    pub fn position(&self) -> crate::Position {
+        self.position
+    }
     pub fn into_text(self) -> Result<String> {
         if self.plain && !matches!(Yaml::from_str(&self.text), Yaml::String(_)) {
             return Err(RuntimeDiagnostic::new(
@@ -108,6 +112,7 @@ impl<F: FnMut(String, Scalar) -> Result<()>> MarkedEventReceiver for Receiver<F>
                         Scalar {
                             text: value,
                             plain: style == TScalarStyle::Plain,
+                            position: crate::Position::yaml(mark.line(), mark.col() + 1),
                         },
                     )
                     .err()

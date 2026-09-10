@@ -1,5 +1,6 @@
 use nkdk_compiled_rules::{
-    Direction, PreparedInputs, convert_file, entry_id, validate_file, verify_candidate,
+    Direction, EntryId, PreparedInputs, RuntimeDiagnostic, Severity, convert_file, entry_id,
+    validate_file, verify_candidate,
 };
 use serde_json::Value;
 use sha2::{Digest, Sha256};
@@ -45,8 +46,21 @@ pub fn run(root: &Path, manifest: &Path, group: &str) -> Result<usize, String> {
     Ok(selected.len())
 }
 fn run_case(root: &Path, case: &Value) -> Result<(), String> {
+    let context = json(root, text(case, "context")?)?;
+    let entry_name = text(&context, "entry")?;
+    let entry =
+        entry_id(entry_name).ok_or_else(|| format!("Unsupported generated entry: {entry_name}"))?;
+    if context
+        .get("parameters")
+        .is_some_and(|value| !value.as_object().is_some_and(|object| object.is_empty()))
+    {
+        return Err("Dynamic parameters are not implemented in the scalar runner".into());
+    }
+    if case["outcome"] == "failure" {
+        return run_failure(root, case, entry);
+    }
     if case["outcome"] != "success" {
-        return Err("This runner has not implemented expected-failure contracts yet".into());
+        return Err("Unsupported expected outcome".into());
     }
     if case["comparison"]["xml"] != "exact" || case["comparison"]["yaml"] != "exact" {
         return Err(
@@ -58,16 +72,6 @@ fn run_case(root: &Path, case: &Value) -> Result<(), String> {
         .is_some_and(|values| !values.is_empty())
     {
         return Err("Comparison exceptions are not supported".into());
-    }
-    let context = json(root, text(case, "context")?)?;
-    let entry_name = text(&context, "entry")?;
-    let entry =
-        entry_id(entry_name).ok_or_else(|| format!("Unsupported generated entry: {entry_name}"))?;
-    if context
-        .get("parameters")
-        .is_some_and(|value| !value.as_object().is_some_and(|object| object.is_empty()))
-    {
-        return Err("Dynamic parameters are not implemented in the scalar runner".into());
     }
     let xml = input(root, &case["inputs"]["xml"])?;
     let yaml = input(root, &case["inputs"]["yaml"])?;
@@ -98,6 +102,43 @@ fn run_case(root: &Path, case: &Value) -> Result<(), String> {
     let diagnostics = validate_file(entry, &yaml, &inputs);
     if !diagnostics.is_empty() {
         return Err(format!("validation: {diagnostics:?}"));
+    }
+    Ok(())
+}
+
+fn native_diagnostics(values: &[RuntimeDiagnostic]) -> Value {
+    serde_json::json!(values.iter().map(|value| serde_json::json!({
+        "code": value.code,
+        "severity": match value.severity { Severity::Error => "error", Severity::Warning => "warning", Severity::Info => "info" },
+        "file": value.file, "path": value.path, "line": value.line, "column": value.column, "message": value.message
+    })).collect::<Vec<_>>())
+}
+fn run_failure(root: &Path, case: &Value, entry: EntryId) -> Result<(), String> {
+    if case["diagnosticsFormat"] != "rust-runtime-v1" {
+        return Err("Unsupported diagnostic contract; no projection or fallback is allowed".into());
+    }
+    let directions = case["directions"]
+        .as_array()
+        .filter(|values| !values.is_empty())
+        .ok_or("Expected nonempty failure directions")?;
+    let yaml = input(root, &case["inputs"]["yaml"])?;
+    let expected = json(root, text(&case["expectations"], "diagnostics")?)?;
+    let inputs = PreparedInputs::default();
+    for direction in directions {
+        let actual = match direction.as_str() {
+            Some("yaml-validation") => validate_file(entry, &yaml, &inputs),
+            Some("yaml-to-xml") => convert_file(entry, Direction::YamlToXml, &yaml, &inputs)
+                .err()
+                .ok_or("Expected YAML export to fail")?,
+            _ => return Err("Unsupported expected-failure direction".into()),
+        };
+        if !actual.iter().any(|error| error.severity == Severity::Error)
+            || native_diagnostics(&actual) != expected
+        {
+            return Err(format!(
+                "{direction}: diagnostics differ from the exact independent expectation"
+            ));
+        }
     }
     Ok(())
 }

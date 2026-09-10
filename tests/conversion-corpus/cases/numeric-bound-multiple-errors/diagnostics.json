@@ -1,0 +1,24 @@
+[
+  {
+    "code": "example.numeric-code-length",
+    "severity": "error",
+    "file": "",
+    "path": [
+      "ДлинаКода"
+    ],
+    "line": 2,
+    "column": 12,
+    "message": "Числовой код не длиннее 38"
+  },
+  {
+    "code": "example.code-length",
+    "severity": "error",
+    "file": "",
+    "path": [
+      "ДлинаКода"
+    ],
+    "line": 2,
+    "column": 12,
+    "message": "Код не длиннее 50"
+  }
+]

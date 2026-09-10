@@ -172,16 +172,22 @@ dependencies = [
 name = "nkdk-conversion-core"
 version = "0.1.0"
 dependencies = [
+ "nkdk-decimal",
  "quick-xml",
  "sha2",
  "yaml-rust2",
 ]
 
 [[package]]
+name = "nkdk-decimal"
+version = "0.1.0"
+
+[[package]]
 name = "nkdk-dev"
 version = "0.1.0"
 dependencies = [
  "nkdk-compiled-rules",
+ "nkdk-rule-compiler",
  "serde_json",
  "sha2",
 ]
@@ -190,7 +196,9 @@ dependencies = [
 name = "nkdk-rule-compiler"
 version = "0.1.0"
 dependencies = [
+ "nkdk-decimal",
  "nkdk-rule-model",
+ "serde_json",
  "yaml-rust2",
 ]
 

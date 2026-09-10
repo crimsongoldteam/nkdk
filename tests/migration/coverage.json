@@ -8429,7 +8429,11 @@
       "validation through the generated YAML reader",
       "total string-valued enum tables",
       "exact finite decimal profile",
-      "record field and representation source locations"
+      "record field and representation source locations",
+      "exact decimal conditional constraints shared by conversion and validation",
+      "structural JSON Schema for supported field/literal constraints",
+      "semantic scalar diagnostic source positions",
+      "constant decimal bounds without runtime parsing"
     ],
     "verifiedCases": [
       "boolean-true",
@@ -8440,7 +8444,11 @@
       "generated-enum-auto",
       "exact-decimal-integer",
       "exact-decimal-fraction",
-      "exact-decimal-exponent"
+      "exact-decimal-exponent",
+      "numeric-bound-number",
+      "numeric-bound-string",
+      "numeric-bound-fraction-overflow",
+      "numeric-bound-multiple-errors"
     ],
     "limitations": [
       "collections and I8nText pending",
@@ -8448,7 +8456,7 @@
       "typed inputs pending",
       "typed XML and numeric physical-form anomalies pending",
       "compatible diagnostics and collection occurrence addresses pending",
-      "constraints and schemas pending"
+      "source-language schema, collection and input constraints pending"
     ],
     "productionCatalogMigrated": false
   }
