@@ -317,6 +317,7 @@ pub fn decode(path: &str, events: Vec<(Event, Marker)>) -> Result<Module, Diagno
         ));
     }
     Ok(Module {
+        source: location(path, id_node),
         kind,
         id: id.into(),
         description,

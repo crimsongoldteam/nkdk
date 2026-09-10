@@ -1,3 +1,5 @@
+mod linked;
+pub use linked::*;
 mod text;
 pub use text::*;
 
@@ -6,14 +8,14 @@ pub struct SourceFile<'a> {
     pub bytes: &'a [u8],
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct SourceLocation {
     pub file: String,
     pub line: usize,
     pub column: usize,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Diagnostic {
     pub code: String,
     pub file: String,
@@ -23,8 +25,9 @@ pub struct Diagnostic {
     pub related: Vec<SourceLocation>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Module {
+    pub source: SourceLocation,
     pub kind: ModuleKind,
     pub id: String,
     pub description: Option<String>,
@@ -41,26 +44,26 @@ pub struct Module {
     pub representations: Representations,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ModuleKind {
     Value,
     Fragment,
     Object,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ScalarType {
     Text,
     Boolean,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Representations {
     pub xml: XmlRepresentation,
     pub yaml: YamlRepresentation,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum XmlRepresentation {
     ElementSequence {
         path: Vec<String>,
@@ -71,7 +74,7 @@ pub enum XmlRepresentation {
     BooleanTable(Vec<BooleanLexeme>),
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum YamlRepresentation {
     KeyedMapping {
         key: String,
@@ -83,27 +86,27 @@ pub enum YamlRepresentation {
     BooleanTable(Vec<BooleanLexeme>),
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct BooleanLexeme {
     pub value: bool,
     pub text: String,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct NamedBinding {
     pub name: String,
     pub value: String,
     pub source: SourceLocation,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct NamedType {
     pub name: String,
     pub definition: TypeDefinition,
     pub source: SourceLocation,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TypeDefinition {
     TextTransform(Box<TextTransform>),
     Scalar(ScalarType),
@@ -113,14 +116,14 @@ pub enum TypeDefinition {
     Use(TypeUse),
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TypeField {
     pub name: String,
     pub definition: TypeDefinition,
     pub source: SourceLocation,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TypeUse {
     pub name: String,
     pub arguments: Vec<StaticArgument>,
@@ -128,28 +131,28 @@ pub struct TypeUse {
     pub source: SourceLocation,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct StaticArgument {
     pub name: String,
     pub value: ScalarLiteral,
     pub source: SourceLocation,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct XmlField {
     pub field: String,
     pub path: Vec<String>,
     pub source: SourceLocation,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct YamlField {
     pub field: String,
     pub key: String,
     pub source: SourceLocation,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Shorthand {
     pub id: String,
     pub capture: String,
@@ -158,13 +161,13 @@ pub struct Shorthand {
     pub source: SourceLocation,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Expression {
     pub kind: ExpressionKind,
     pub source: SourceLocation,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ExpressionKind {
     StateTest {
         predicate: StatePredicate,
@@ -229,21 +232,21 @@ pub enum ExpressionKind {
     Record(Vec<ExpressionField>),
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ComparisonOperator {
     Equal,
     LessThan,
     LessOrEqual,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum StatePredicate {
     Present,
     IsNull,
     IsReady,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ScalarLiteral {
     Text(String),
     Boolean(bool),
@@ -252,7 +255,7 @@ pub enum ScalarLiteral {
     Number(String),
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Parameter {
     pub name: String,
     pub definition: TypeDefinition,
@@ -260,20 +263,20 @@ pub struct Parameter {
     pub source: SourceLocation,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ExpressionField {
     pub name: String,
     pub value: Expression,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Normalization {
     pub when: Expression,
     pub denotes: Expression,
     pub source: SourceLocation,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Constraint {
     pub id: String,
     pub applies_to: Vec<ValidationPhase>,
@@ -285,13 +288,13 @@ pub struct Constraint {
     pub source: SourceLocation,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ValidationPhase {
     XmlImport,
     YamlValidation,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DiagnosticDefinition {
     pub code: Option<String>,
     pub source: Option<String>,
@@ -300,40 +303,40 @@ pub struct DiagnosticDefinition {
     pub message: MessageDefinition,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Severity {
     Error,
     Warning,
     Info,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum DiagnosticTarget {
     SelfValue,
     Field(String),
     Occurrence { name: String, field: String },
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Iteration {
     pub input: Expression,
     pub binding: String,
     pub source: SourceLocation,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum MessageDefinition {
     Text(String),
     Parts(Vec<MessagePart>),
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum MessagePart {
     Text(String),
     Expression(Expression),
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Presence {
     pub target: PresenceTarget,
     pub xml_missing: Option<Expression>,
@@ -345,14 +348,14 @@ pub struct Presence {
     pub source: SourceLocation,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct EmptyForm {
     pub form: EmptyKind,
     pub denotes: Expression,
     pub source: SourceLocation,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum EmptyKind {
     Element,
     Text,
@@ -363,20 +366,20 @@ pub enum EmptyKind {
     Null,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum PresenceTarget {
     SelfValue,
     Field(String),
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CanonicalForm {
     pub when: Option<Expression>,
     pub form: XmlForm,
     pub source: SourceLocation,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum XmlForm {
     Ordinary,
     EmptyElement,

@@ -1,6 +1,6 @@
 use crate::SourceLocation;
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TextTransform {
     pub classes: Vec<CharacterClass>,
     pub state: Vec<TextFlag>,
@@ -8,21 +8,21 @@ pub struct TextTransform {
     pub result: TextResult,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CharacterClass {
     pub name: String,
     pub ranges: Vec<(u16, u16)>,
     pub source: SourceLocation,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TextFlag {
     pub name: String,
     pub value: bool,
     pub source: SourceLocation,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TextTransition {
     pub when: Option<TextPredicate>,
     pub emit: TextEmit,
@@ -30,14 +30,14 @@ pub struct TextTransition {
     pub source: SourceLocation,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TextEmit {
     Append,
     StartToken,
     Discard,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TextCondition {
     Class(String),
     Flag(String),
@@ -48,7 +48,7 @@ pub enum TextCondition {
     Not(Box<TextPredicate>),
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TextResult {
     pub separator: String,
     pub first: TextCase,
@@ -58,26 +58,26 @@ pub struct TextResult {
     pub no_tokens: EmptyTextResult,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CaseShift {
     pub from: (u16, u16),
     pub offset: i32,
     pub source: SourceLocation,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TextCase {
     Identity,
     LowerFirstUnlessAllInClass(String),
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum EmptyTextResult {
     Absent,
     EmptyText,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TextPredicate {
     pub kind: TextCondition,
     pub source: SourceLocation,

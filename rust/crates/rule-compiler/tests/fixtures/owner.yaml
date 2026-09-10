@@ -1,0 +1,27 @@
+format: nkdk-declarations/1
+kind: object
+id: applied.common-module
+
+imports:
+  boolean: common.boolean
+
+namespaces:
+  md: "http://v8.1c.ru/8.3/MDClasses"
+
+value:
+  kind: record
+  fields:
+    - name: server
+      type: {use: boolean}
+
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: server
+        path: [md:Properties, md:Server]
+  yaml:
+    kind: mapping
+    fields:
+      - field: server
+        key: Сервер

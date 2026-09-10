@@ -1,3 +1,5 @@
+mod link;
+pub use link::link;
 mod parse;
 mod syntax;
 
