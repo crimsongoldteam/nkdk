@@ -5,7 +5,7 @@ mod parse;
 mod syntax;
 
 pub use nkdk_rule_model::{Diagnostic, Module, Program, SourceFile};
-pub use parse::parse;
+pub use parse::{parse, parse_many};
 mod generate;
 pub use generate::{GeneratedFile, GeneratedSources, generate};
 
@@ -13,13 +13,13 @@ pub fn compile(sources: &[SourceFile<'_>]) -> Result<GeneratedSources, Vec<Diagn
     let modules = sources
         .iter()
         .map(|source| {
-            parse(SourceFile {
+            parse_many(SourceFile {
                 path: source.path,
                 bytes: source.bytes,
             })
         })
         .collect::<Result<Vec<_>, _>>()?;
-    generate(&link(&modules)?)
+    generate(&link(&modules.into_iter().flatten().collect::<Vec<_>>())?)
 }
 
 mod schema;

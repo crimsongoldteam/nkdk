@@ -1,3 +1,4 @@
+mod catalog;
 mod constraints;
 mod decimal_text;
 mod enumeration;
@@ -34,11 +35,13 @@ use yaml_rust2::{
     scanner::{Marker, TScalarStyle},
 };
 
+#[derive(Clone)]
 enum Shape {
     Scalar(String, bool),
     Mapping(Vec<(Node, Node)>),
     Sequence(Vec<Node>),
 }
+#[derive(Clone)]
 struct Node {
     shape: Shape,
     mark: Marker,
@@ -174,7 +177,7 @@ impl Node {
     }
 }
 
-pub fn decode(path: &str, events: Vec<(Event, Marker)>) -> Result<Module, Diagnostic> {
+pub fn decode(path: &str, events: Vec<(Event, Marker)>) -> Result<Vec<Module>, Diagnostic> {
     let mut events = events.into_iter().peekable();
     while matches!(
         events.peek(),
@@ -204,6 +207,11 @@ pub fn decode(path: &str, events: Vec<(Event, Marker)>) -> Result<Module, Diagno
         ));
     }
     let root = node(path, &mut events)?;
+    catalog::decode(path, root)
+}
+
+fn module(path: &str, mut root: Node) -> Result<Module, Diagnostic> {
+    catalog::expand_enum(path, &mut root)?;
     let fields = root.mapping(
         path,
         &[

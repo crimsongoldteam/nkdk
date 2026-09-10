@@ -489,6 +489,7 @@ version = "0.1.0"
 dependencies = [
  "nkdk-conversion-core",
  "nkdk-rule-compiler",
+ "serde_json",
 ]
 
 [[package]]

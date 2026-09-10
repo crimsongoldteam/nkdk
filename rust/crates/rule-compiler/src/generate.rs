@@ -2,6 +2,7 @@ mod attributes;
 mod collections;
 pub(crate) mod composite;
 mod constraints;
+mod dispatch;
 mod expressions;
 mod inputs;
 mod patterns;
@@ -51,44 +52,7 @@ pub fn generate(program: &Program) -> Result<GeneratedSources, Vec<Diagnostic>> 
         source.push_str(&constraints::generate(entry, program).map_err(|error| vec![error])?);
     }
     source.push_str(&inputs::generate(&entries, program).map_err(|error| vec![error])?);
-    source.push_str("pub fn entry_id(name: &str) -> Option<EntryId> { match name {\n");
-    for entry in &entries {
-        source.push_str(&format!(
-            "{:?} => Some(EntryId({})),\n",
-            entry.name, entry.id
-        ));
-    }
-    source.push_str("_ => None } }\n");
-    source.push_str("pub fn convert_file(entry: EntryId, direction: Direction, source: &[u8], _inputs: &PreparedInputs) -> std::result::Result<FileResult, Vec<RuntimeDiagnostic>> { _inputs.check_entry(entry).map_err(|error| vec![error])?; match (entry.0, direction) {\n");
-    for entry in &entries {
-        let id = entry.id;
-        for (direction, read, write) in [("XmlToYaml", "xml", "yaml"), ("YamlToXml", "yaml", "xml")]
-        {
-            source.push_str(&format!("({id}, Direction::{direction}) => {{ let value = read_{read}_{id}(source, _inputs).map_err(|error| vec![error])?; let diagnostics = check_{read}_{id}(&value, source, _inputs); if diagnostics.iter().any(|error| error.severity == core::Severity::Error) {{ return Err(diagnostics); }} let bytes = write_{write}_{id}(&value, _inputs).map_err(|error| vec![error])?;"));
-            if read == "xml" {
-                source.push_str(&format!(
-                    "let bytes = finalize_yaml_{id}(source, bytes, &value, _inputs).map_err(|error| vec![error])?;"
-                ));
-            }
-            source.push_str("Ok(FileResult { bytes, diagnostics }) },\n");
-        }
-    }
-    source.push_str("_ => Err(vec![RuntimeDiagnostic::new(\"entry.unknown\", \"Unknown generated entry\")]) } }\n");
-    source.push_str("pub fn validate_file(entry: EntryId, source: &[u8], _inputs: &PreparedInputs) -> Vec<RuntimeDiagnostic> { if let Err(error) = _inputs.check_entry(entry) { return vec![error]; } match entry.0 {\n");
-    for entry in &entries {
-        source.push_str(&format!("{} => match read_yaml_{}(source, _inputs) {{ Ok(value) => check_yaml_{}(&value, source, _inputs), Err(error) => vec![error] }},\n", entry.id, entry.id, entry.id));
-    }
-    source.push_str(
-        "_ => vec![RuntimeDiagnostic::new(\"entry.unknown\", \"Unknown generated entry\")] } }\n",
-    );
-    source.push_str("pub fn verify_candidate(entry: EntryId, original: &[u8], candidate: &[u8], _inputs: &PreparedInputs) -> std::result::Result<(), Vec<RuntimeDiagnostic>> { _inputs.check_entry(entry).map_err(|error| vec![error])?; let result = match entry.0 {\n");
-    for entry in &entries {
-        source.push_str(&format!(
-            "{} => verify_{}(original, candidate, _inputs),\n",
-            entry.id, entry.id
-        ));
-    }
-    source.push_str("_ => Err(RuntimeDiagnostic::new(\"entry.unknown\", \"Unknown generated entry\")) }; result.map_err(|error| vec![error]) }\n");
+    source.push_str(&dispatch::generate(&entries));
     let map = source_map::generate(program);
     source.push_str("include!(\"source_map.rs\");\n");
     Ok(GeneratedSources {

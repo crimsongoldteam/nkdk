@@ -372,7 +372,21 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
                 }
                 out.push_str("} else { ");
                 if !field.optional {
-                    writeln!(out,"if raw.get({i}).is_none() {{return Err(RuntimeDiagnostic::new(\"value.missing\",\"Missing scalar\").field({:?}));}}",field.key).unwrap();
+                    if xml_side {
+                        if field
+                            .presence
+                            .and_then(|presence| presence.xml_missing.as_ref())
+                            .is_none()
+                        {
+                            writeln!(
+                                out,
+                                "raw.insert({i},core::xml::Patch::read(b\"null\",&[],Q{id})?);"
+                            )
+                            .unwrap();
+                        }
+                    } else {
+                        writeln!(out,"if raw.get({i}).is_none() {{return Err(RuntimeDiagnostic::new(\"value.missing\",\"Missing scalar\").field({:?}));}}",field.key).unwrap();
+                    }
                 }
                 let missing = field.presence.and_then(|presence| {
                     if xml_side {
@@ -484,7 +498,7 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
     for (i, field) in fields.iter().enumerate() {
         if preserve {
             let physical = field.path.last().unwrap();
-            writeln!(out, "let tree{i}=if let Some(patch)=value.raw.get({i}) {{ if {null_is_absence} {{None}} else {{",null_is_absence=if super::scalar_presence::absent_form(field.presence) != XmlForm::Missing || field.presence.and_then(|presence|presence.yaml_missing.as_ref()).is_some_and(|value|matches!(value.kind,LinkedExpressionKind::Literal(_))) {"patch.is_null()"} else {"false"}).unwrap();
+            writeln!(out, "let tree{i}=if let Some(patch)=value.raw.get({i}) {{ if {null_is_absence} {{None}} else {{",null_is_absence=if !field.optional || super::scalar_presence::absent_form(field.presence) != XmlForm::Missing || field.presence.and_then(|presence|presence.yaml_missing.as_ref()).is_some_and(|value|matches!(value.kind,LinkedExpressionKind::Literal(_))) {"patch.is_null()"} else {"false"}).unwrap();
             let text = field
                 .codec
                 .write_reference(&format!("E{id}F{i}"), "field_value", true);

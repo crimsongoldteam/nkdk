@@ -1,4 +1,4 @@
-use nkdk_rule_compiler::{SourceFile, declaration_schema, parse};
+use nkdk_rule_compiler::{SourceFile, declaration_schema, parse_many};
 use serde_json::{Value, json};
 
 fn json_value(value: yaml_rust2::Yaml) -> Value {
@@ -41,7 +41,7 @@ fn authoring_schema_accepts_the_corpus_and_rejects_structural_mistakes() {
     {
         let path = entry.unwrap().path();
         let bytes = std::fs::read(&path).unwrap();
-        parse(SourceFile {
+        parse_many(SourceFile {
             path: path.to_str().unwrap(),
             bytes: &bytes,
         })
@@ -79,7 +79,7 @@ fn authoring_schema_accepts_the_corpus_and_rejects_structural_mistakes() {
         assert!(!validator.is_valid(&invalid), "{invalid}");
         let bytes = serde_json::to_vec(&invalid).unwrap();
         assert!(
-            parse(SourceFile {
+            parse_many(SourceFile {
                 path: "invalid.json",
                 bytes: &bytes
             })
@@ -103,7 +103,7 @@ fn authoring_schema_accepts_the_corpus_and_rejects_structural_mistakes() {
         assert!(!validator.is_valid(&invalid), "{invalid}");
         let bytes = serde_json::to_vec(&invalid).unwrap();
         assert!(
-            parse(SourceFile {
+            parse_many(SourceFile {
                 path: "invalid.json",
                 bytes: &bytes
             })

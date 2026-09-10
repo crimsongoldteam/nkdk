@@ -49,11 +49,34 @@ pub(super) fn table(
     items
         .iter()
         .map(|item| {
-            let fields = item.mapping(path, &["value", spelling])?;
+            let fields = item.mapping(
+                path,
+                if spelling == "text" {
+                    &["value", "text", "accept"]
+                } else {
+                    &["value", "literal"]
+                },
+            )?;
             let value = item.field(path, fields, "value")?;
             Ok(EnumLexeme {
                 value: value.text(path)?.into(),
                 text: item.field(path, fields, spelling)?.text(path)?.into(),
+                accepted: if let Some(accepted) = optional_field(fields, "accept") {
+                    let Shape::Sequence(values) = &accepted.shape else {
+                        return Err(error(
+                            path,
+                            accepted.mark,
+                            "expected_sequence",
+                            "Expected accepted XML spellings",
+                        ));
+                    };
+                    values
+                        .iter()
+                        .map(|value| value.text(path).map(String::from))
+                        .collect::<Result<_, _>>()?
+                } else {
+                    vec![]
+                },
                 source: location(path, value),
             })
         })

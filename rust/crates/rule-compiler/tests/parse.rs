@@ -1144,3 +1144,57 @@ fn decimal_separator_contract_rejects_ambiguous_or_unreadable_output() {
         assert!(errors.iter().any(|error| error.code == code), "{errors:?}");
     }
 }
+
+#[test]
+fn compact_catalog_compiles_through_the_same_linker_and_generator() {
+    let incomplete = b"format: nkdk-declarations/1\nkind: value\nid: incomplete\nvalue: {kind: enum, variants: [{name: One, value: One}]}\nrepresentations:\n  xml: {kind: text, values: []}\n  yaml: {kind: scalar, values: [{value: One, literal: One}]}\nprojections: [{id: incomplete.typed, xml: {kind: text}}]\n";
+    assert!(
+        nkdk_rule_compiler::parse_many(SourceFile {
+            path: "incomplete.yaml",
+            bytes: incomplete
+        })
+        .is_err()
+    );
+    let source = include_bytes!("../../../../tests/declaration-corpus/valid/enum-catalog.yaml");
+    nkdk_rule_compiler::compile(&[SourceFile {
+        path: "catalog.yaml",
+        bytes: source,
+    }])
+    .unwrap();
+    let modules = nkdk_rule_compiler::parse_many(SourceFile {
+        path: "catalog.yaml",
+        bytes: source,
+    })
+    .unwrap();
+    assert_eq!(modules.len(), 4);
+    assert!(
+        parse(SourceFile {
+            path: "catalog.yaml",
+            bytes: source
+        })
+        .is_err()
+    );
+    let text = std::str::from_utf8(source).unwrap();
+    for (before, after) in [
+        ("accept: [Switch]", "accept: [Auto]"),
+        ("accept: [Switch]", "accept: Switch"),
+        ("id: test.switch.typed", "id: test.switch"),
+        ("Auto: Авто", "Auto: false"),
+        ("kind: catalog", "kind: catalog\nignored: true"),
+        (
+            "kind: value",
+            "kind: value\n    value: {kind: scalar, scalar: text}",
+        ),
+    ] {
+        let invalid = text.replace(before, after);
+        assert_ne!(invalid, text);
+        assert!(
+            nkdk_rule_compiler::compile(&[SourceFile {
+                path: "catalog.yaml",
+                bytes: invalid.as_bytes()
+            }])
+            .is_err(),
+            "{before}"
+        );
+    }
+}

@@ -130,6 +130,22 @@ impl MarkedEventReceiver for KeyAudit<'_> {
 }
 
 pub fn parse(source: SourceFile<'_>) -> Result<Module, Vec<Diagnostic>> {
+    let path = source.path.to_owned();
+    let mut modules = parse_many(source)?;
+    if modules.len() != 1 {
+        return Err(vec![Diagnostic {
+            code: "expected_single_declaration".into(),
+            file: path,
+            line: 1,
+            column: 1,
+            message: "Use parse_many to read a declaration catalog".into(),
+            related: vec![],
+        }]);
+    }
+    Ok(modules.remove(0))
+}
+
+pub fn parse_many(source: SourceFile<'_>) -> Result<Vec<Module>, Vec<Diagnostic>> {
     let text = std::str::from_utf8(source.bytes).map_err(|_| {
         vec![Diagnostic {
             code: "invalid_utf8".into(),

@@ -462,6 +462,7 @@ pub struct EnumVariant {
 pub struct EnumLexeme {
     pub value: String,
     pub text: String,
+    pub accepted: Vec<String>,
     pub source: SourceLocation,
 }
 

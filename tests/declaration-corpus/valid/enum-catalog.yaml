@@ -1,0 +1,31 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+  - kind: value
+    id: test.switch
+    namespaces: {xsi: "http://www.w3.org/2001/XMLSchema-instance", t: "https://example.test/types"}
+    projections:
+      - id: test.switch.typed
+        xml:
+          kind: with-attributes
+          attributes: [{name: xsi:type, value: {qname: "t:Switch"}}]
+          content: {kind: text}
+    enum:
+      Auto: Авто
+      Switch: {yaml: Переключатель, xml: Switcher, accept: [Switch]}
+  - kind: value
+    id: test.number-kind
+    enum: {Number: Число, String: Строка}
+  - kind: object
+    id: test.catalog-owner
+    imports: {switch: test.switch}
+    value:
+      kind: record
+      fields: [{name: mode, type: {use: switch}}]
+    representations:
+      xml:
+        kind: record
+        fields: [{field: mode, path: [Root, Mode]}]
+      yaml:
+        kind: mapping
+        fields: [{field: mode, key: Вид}]

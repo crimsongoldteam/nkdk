@@ -3,585 +3,43 @@
   "$id": "urn:nkdk:declarations:1",
   "title": "NKDK declaration language — implemented syntax",
   "$comment": "Structural authoring schema. YAML duplicate keys, anchors/tags, physical numeric spelling, name resolution, range ordering, type compatibility and reversibility require declarations check. Runtime generation supports a smaller subset than parsing.",
-  "type": "object",
-  "properties": {
-    "format": {
-      "const": "nkdk-declarations/1"
-    },
-    "kind": {
-      "enum": [
-        "value",
-        "fragment",
-        "object"
-      ]
-    },
-    "id": {
-      "type": "string",
-      "minLength": 1
-    },
-    "description": {
-      "type": "string"
-    },
-    "imports": {
-      "type": "object",
-      "additionalProperties": {
-        "type": "string"
-      },
-      "propertyNames": {
-        "not": {
-          "const": "<<"
-        }
-      }
-    },
-    "namespaces": {
-      "type": "object",
-      "additionalProperties": {
-        "type": "string"
-      },
-      "propertyNames": {
-        "not": {
-          "const": "<<"
-        }
-      }
-    },
-    "types": {
-      "type": "object",
-      "additionalProperties": {
-        "$ref": "#/$defs/type"
-      },
-      "propertyNames": {
-        "not": {
-          "const": "<<"
-        }
-      }
-    },
-    "inputs": {
-      "type": "object",
-      "additionalProperties": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "$ref": "#/$defs/type"
-          }
-        },
-        "required": [
-          "type"
-        ],
-        "additionalProperties": false
-      },
-      "propertyNames": {
-        "not": {
-          "const": "<<"
-        }
-      }
-    },
-    "parameters": {
-      "type": "object",
-      "additionalProperties": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "$ref": "#/$defs/type"
-          },
-          "default": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
-          }
-        },
-        "required": [
-          "type"
-        ],
-        "additionalProperties": false
-      },
-      "propertyNames": {
-        "not": {
-          "const": "<<"
-        }
-      }
-    },
-    "presence": {
-      "type": "array",
-      "items": {
-        "$ref": "#/$defs/presence"
-      }
-    },
-    "normalization": {
-      "type": "object",
-      "properties": {
-        "when": {
-          "$ref": "#/$defs/expression"
-        },
-        "from": {
-          "const": "empty-sequence"
-        },
-        "denotes": {
-          "$ref": "#/$defs/expression"
-        }
-      },
-      "required": [
-        "when",
-        "from",
-        "denotes"
-      ],
-      "additionalProperties": false
-    },
-    "constraints": {
-      "type": "array",
-      "items": {
-        "$ref": "#/$defs/constraint"
-      }
-    },
-    "compose": {
-      "type": "array",
-      "items": {
-        "$ref": "#/$defs/use"
-      }
-    },
-    "value": {
-      "$ref": "#/$defs/rootType"
-    },
-    "representations": {
-      "type": "object",
-      "properties": {
-        "xml": {},
-        "yaml": {}
-      },
-      "required": [
-        "xml",
-        "yaml"
-      ],
-      "additionalProperties": false
-    }
-  },
-  "required": [
-    "format",
-    "kind",
-    "id",
-    "value",
-    "representations"
-  ],
-  "additionalProperties": false,
-  "allOf": [
+  "oneOf": [
     {
-      "if": {
-        "properties": {
-          "kind": {
-            "const": "value"
-          }
-        }
-      },
-      "then": {
-        "not": {
-          "required": [
-            "compose"
-          ]
-        }
-      },
-      "else": {
-        "properties": {
-          "value": {
-            "$ref": "#/$defs/record"
-          }
-        }
-      }
+      "$ref": "#/$defs/module"
     },
     {
-      "if": {
-        "properties": {
-          "value": {
-            "properties": {
-              "kind": {
-                "const": "scalar"
-              },
-              "scalar": {
-                "const": "text"
-              }
-            },
-            "required": [
-              "kind",
-              "scalar"
-            ]
-          }
-        }
-      },
-      "then": {
-        "properties": {
-          "representations": {
+      "$ref": "#/$defs/compactEnumModule"
+    },
+    {
+      "type": "object",
+      "properties": {
+        "format": {
+          "const": "nkdk-declarations/1"
+        },
+        "kind": {
+          "const": "catalog"
+        },
+        "declarations": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
             "oneOf": [
               {
-                "type": "object",
-                "properties": {
-                  "xml": {
-                    "$ref": "#/$defs/xmlText"
-                  },
-                  "yaml": {
-                    "type": "object",
-                    "properties": {
-                      "kind": {
-                        "const": "scalar"
-                      },
-                      "scalar": {
-                        "const": "text"
-                      }
-                    },
-                    "required": [
-                      "kind",
-                      "scalar"
-                    ],
-                    "additionalProperties": false
-                  }
-                },
-                "required": [
-                  "xml",
-                  "yaml"
-                ],
-                "additionalProperties": false
+                "$ref": "#/$defs/module"
               },
               {
-                "type": "object",
-                "properties": {
-                  "xml": {
-                    "$ref": "#/$defs/xmlCalendar"
-                  },
-                  "yaml": {
-                    "type": "object",
-                    "properties": {
-                      "kind": {
-                        "const": "calendar"
-                      },
-                      "format": {
-                        "const": "day-month-year"
-                      },
-                      "precision": {
-                        "enum": [
-                          "minutes",
-                          "seconds"
-                        ]
-                      },
-                      "zeroTime": {
-                        "enum": [
-                          "omit",
-                          "keep"
-                        ]
-                      }
-                    },
-                    "required": [
-                      "kind",
-                      "format",
-                      "precision",
-                      "zeroTime"
-                    ],
-                    "additionalProperties": false
-                  }
-                },
-                "required": [
-                  "xml",
-                  "yaml"
-                ],
-                "additionalProperties": false
+                "$ref": "#/$defs/compactEnumModule"
               }
-            ]
-          }
-        }
-      }
-    },
-    {
-      "if": {
-        "properties": {
-          "value": {
-            "properties": {
-              "kind": {
-                "const": "scalar"
-              },
-              "scalar": {
-                "const": "number"
-              }
-            },
-            "required": [
-              "kind",
-              "scalar"
             ]
           }
         }
       },
-      "then": {
-        "properties": {
-          "representations": {
-            "type": "object",
-            "properties": {
-              "xml": {
-                "$ref": "#/$defs/xmlDecimalText"
-              },
-              "yaml": {
-                "type": "object",
-                "properties": {
-                  "kind": {
-                    "const": "scalar"
-                  },
-                  "scalar": {
-                    "const": "number"
-                  }
-                },
-                "required": [
-                  "kind",
-                  "scalar"
-                ],
-                "additionalProperties": false
-              }
-            },
-            "required": [
-              "xml",
-              "yaml"
-            ],
-            "additionalProperties": false
-          }
-        }
-      }
-    },
-    {
-      "if": {
-        "properties": {
-          "value": {
-            "properties": {
-              "kind": {
-                "const": "scalar"
-              },
-              "scalar": {
-                "const": "boolean"
-              }
-            },
-            "required": [
-              "kind",
-              "scalar"
-            ]
-          }
-        }
-      },
-      "then": {
-        "properties": {
-          "representations": {
-            "type": "object",
-            "properties": {
-              "xml": {
-                "$ref": "#/$defs/xmlBoolean"
-              },
-              "yaml": {
-                "$ref": "#/$defs/yamlBoolean"
-              }
-            },
-            "required": [
-              "xml",
-              "yaml"
-            ],
-            "additionalProperties": false
-          }
-        }
-      }
-    },
-    {
-      "if": {
-        "properties": {
-          "value": {
-            "properties": {
-              "kind": {
-                "const": "enum"
-              }
-            },
-            "required": [
-              "kind"
-            ]
-          }
-        }
-      },
-      "then": {
-        "properties": {
-          "representations": {
-            "type": "object",
-            "properties": {
-              "xml": {
-                "$ref": "#/$defs/xmlEnum"
-              },
-              "yaml": {
-                "$ref": "#/$defs/yamlEnum"
-              }
-            },
-            "required": [
-              "xml",
-              "yaml"
-            ],
-            "additionalProperties": false
-          }
-        }
-      }
-    },
-    {
-      "if": {
-        "properties": {
-          "value": {
-            "properties": {
-              "kind": {
-                "const": "record"
-              }
-            },
-            "required": [
-              "kind"
-            ]
-          }
-        }
-      },
-      "then": {
-        "properties": {
-          "representations": {
-            "type": "object",
-            "properties": {
-              "xml": {
-                "$ref": "#/$defs/xmlRecord"
-              },
-              "yaml": {
-                "$ref": "#/$defs/yamlRecord"
-              }
-            },
-            "required": [
-              "xml",
-              "yaml"
-            ],
-            "additionalProperties": false
-          }
-        }
-      }
-    },
-    {
-      "if": {
-        "properties": {
-          "value": {
-            "properties": {
-              "kind": {
-                "const": "sequence"
-              }
-            },
-            "required": [
-              "kind"
-            ]
-          }
-        }
-      },
-      "then": {
-        "properties": {
-          "representations": {
-            "type": "object",
-            "properties": {
-              "xml": {
-                "$ref": "#/$defs/xmlCollection"
-              },
-              "yaml": {
-                "$ref": "#/$defs/yamlCollection"
-              }
-            },
-            "required": [
-              "xml",
-              "yaml"
-            ],
-            "additionalProperties": false
-          }
-        }
-      }
-    },
-    {
-      "if": {
-        "properties": {
-          "value": {
-            "properties": {
-              "kind": {
-                "const": "scalar-choice"
-              }
-            },
-            "required": [
-              "kind"
-            ]
-          }
-        }
-      },
-      "then": {
-        "properties": {
-          "representations": {
-            "properties": {
-              "xml": {
-                "type": "object",
-                "properties": {
-                  "kind": {
-                    "const": "scalar-choice"
-                  },
-                  "attribute": {
-                    "type": "string",
-                    "minLength": 1
-                  },
-                  "empty": {
-                    "const": "absent"
-                  },
-                  "cases": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "scalar": {
-                          "const": "number"
-                        },
-                        "in": {
-                          "type": "array",
-                          "items": {
-                            "type": "string",
-                            "minLength": 1
-                          },
-                          "minItems": 1,
-                          "uniqueItems": true
-                        },
-                        "emit": {
-                          "type": "string",
-                          "minLength": 1
-                        }
-                      },
-                      "required": [
-                        "scalar",
-                        "in"
-                      ],
-                      "additionalProperties": false
-                    },
-                    "minItems": 1,
-                    "maxItems": 1
-                  },
-                  "otherwise": {
-                    "const": "text"
-                  }
-                },
-                "required": [
-                  "kind",
-                  "attribute",
-                  "empty",
-                  "cases",
-                  "otherwise"
-                ],
-                "additionalProperties": false
-              },
-              "yaml": {
-                "type": "object",
-                "properties": {
-                  "kind": {
-                    "const": "scalar-choice"
-                  }
-                },
-                "required": [
-                  "kind"
-                ],
-                "additionalProperties": false
-              }
-            }
-          }
-        }
-      }
+      "required": [
+        "format",
+        "kind",
+        "declarations"
+      ],
+      "additionalProperties": false
     }
   ],
   "$defs": {
@@ -2000,6 +1458,13 @@
                   },
                   "text": {
                     "type": "string"
+                  },
+                  "accept": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "uniqueItems": true
                   }
                 },
                 "required": [
@@ -2694,6 +2159,890 @@
           "additionalProperties": false
         }
       ]
+    },
+    "module": {
+      "type": "object",
+      "properties": {
+        "format": {
+          "const": "nkdk-declarations/1"
+        },
+        "kind": {
+          "enum": [
+            "value",
+            "fragment",
+            "object"
+          ]
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string"
+        },
+        "imports": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "propertyNames": {
+            "not": {
+              "const": "<<"
+            }
+          }
+        },
+        "namespaces": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "propertyNames": {
+            "not": {
+              "const": "<<"
+            }
+          }
+        },
+        "types": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/type"
+          },
+          "propertyNames": {
+            "not": {
+              "const": "<<"
+            }
+          }
+        },
+        "inputs": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "$ref": "#/$defs/type"
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "additionalProperties": false
+          },
+          "propertyNames": {
+            "not": {
+              "const": "<<"
+            }
+          }
+        },
+        "parameters": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "$ref": "#/$defs/type"
+              },
+              "default": {
+                "type": [
+                  "string",
+                  "number",
+                  "boolean",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "additionalProperties": false
+          },
+          "propertyNames": {
+            "not": {
+              "const": "<<"
+            }
+          }
+        },
+        "presence": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/presence"
+          }
+        },
+        "normalization": {
+          "type": "object",
+          "properties": {
+            "when": {
+              "$ref": "#/$defs/expression"
+            },
+            "from": {
+              "const": "empty-sequence"
+            },
+            "denotes": {
+              "$ref": "#/$defs/expression"
+            }
+          },
+          "required": [
+            "when",
+            "from",
+            "denotes"
+          ],
+          "additionalProperties": false
+        },
+        "constraints": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/constraint"
+          }
+        },
+        "compose": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/use"
+          }
+        },
+        "value": {
+          "$ref": "#/$defs/rootType"
+        },
+        "representations": {
+          "type": "object",
+          "properties": {
+            "xml": {},
+            "yaml": {}
+          },
+          "required": [
+            "xml",
+            "yaml"
+          ],
+          "additionalProperties": false
+        },
+        "projections": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "xml": {
+                "$ref": "#/$defs/enumProjectionXml"
+              }
+            },
+            "required": [
+              "id",
+              "xml"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "value",
+        "representations"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "value"
+              }
+            }
+          },
+          "then": {
+            "not": {
+              "required": [
+                "compose"
+              ]
+            }
+          },
+          "else": {
+            "properties": {
+              "value": {
+                "$ref": "#/$defs/record"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "value": {
+                "properties": {
+                  "kind": {
+                    "const": "scalar"
+                  },
+                  "scalar": {
+                    "const": "text"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "scalar"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "representations": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "xml": {
+                        "$ref": "#/$defs/xmlText"
+                      },
+                      "yaml": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "const": "scalar"
+                          },
+                          "scalar": {
+                            "const": "text"
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "scalar"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "required": [
+                      "xml",
+                      "yaml"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "xml": {
+                        "$ref": "#/$defs/xmlCalendar"
+                      },
+                      "yaml": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "const": "calendar"
+                          },
+                          "format": {
+                            "const": "day-month-year"
+                          },
+                          "precision": {
+                            "enum": [
+                              "minutes",
+                              "seconds"
+                            ]
+                          },
+                          "zeroTime": {
+                            "enum": [
+                              "omit",
+                              "keep"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "format",
+                          "precision",
+                          "zeroTime"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "required": [
+                      "xml",
+                      "yaml"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "value": {
+                "properties": {
+                  "kind": {
+                    "const": "scalar"
+                  },
+                  "scalar": {
+                    "const": "number"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "scalar"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "representations": {
+                "type": "object",
+                "properties": {
+                  "xml": {
+                    "$ref": "#/$defs/xmlDecimalText"
+                  },
+                  "yaml": {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "const": "scalar"
+                      },
+                      "scalar": {
+                        "const": "number"
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "scalar"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "xml",
+                  "yaml"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "value": {
+                "properties": {
+                  "kind": {
+                    "const": "scalar"
+                  },
+                  "scalar": {
+                    "const": "boolean"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "scalar"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "representations": {
+                "type": "object",
+                "properties": {
+                  "xml": {
+                    "$ref": "#/$defs/xmlBoolean"
+                  },
+                  "yaml": {
+                    "$ref": "#/$defs/yamlBoolean"
+                  }
+                },
+                "required": [
+                  "xml",
+                  "yaml"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "value": {
+                "properties": {
+                  "kind": {
+                    "const": "enum"
+                  }
+                },
+                "required": [
+                  "kind"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "representations": {
+                "type": "object",
+                "properties": {
+                  "xml": {
+                    "$ref": "#/$defs/xmlEnum"
+                  },
+                  "yaml": {
+                    "$ref": "#/$defs/yamlEnum"
+                  }
+                },
+                "required": [
+                  "xml",
+                  "yaml"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "value": {
+                "properties": {
+                  "kind": {
+                    "const": "record"
+                  }
+                },
+                "required": [
+                  "kind"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "representations": {
+                "type": "object",
+                "properties": {
+                  "xml": {
+                    "$ref": "#/$defs/xmlRecord"
+                  },
+                  "yaml": {
+                    "$ref": "#/$defs/yamlRecord"
+                  }
+                },
+                "required": [
+                  "xml",
+                  "yaml"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "value": {
+                "properties": {
+                  "kind": {
+                    "const": "sequence"
+                  }
+                },
+                "required": [
+                  "kind"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "representations": {
+                "type": "object",
+                "properties": {
+                  "xml": {
+                    "$ref": "#/$defs/xmlCollection"
+                  },
+                  "yaml": {
+                    "$ref": "#/$defs/yamlCollection"
+                  }
+                },
+                "required": [
+                  "xml",
+                  "yaml"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "value": {
+                "properties": {
+                  "kind": {
+                    "const": "scalar-choice"
+                  }
+                },
+                "required": [
+                  "kind"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "representations": {
+                "properties": {
+                  "xml": {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "const": "scalar-choice"
+                      },
+                      "attribute": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "empty": {
+                        "const": "absent"
+                      },
+                      "cases": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "scalar": {
+                              "const": "number"
+                            },
+                            "in": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "minLength": 1
+                              },
+                              "minItems": 1,
+                              "uniqueItems": true
+                            },
+                            "emit": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "scalar",
+                            "in"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "minItems": 1,
+                        "maxItems": 1
+                      },
+                      "otherwise": {
+                        "const": "text"
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "attribute",
+                      "empty",
+                      "cases",
+                      "otherwise"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "yaml": {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "const": "scalar-choice"
+                      }
+                    },
+                    "required": [
+                      "kind"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "projections"
+            ]
+          },
+          "then": {
+            "properties": {
+              "kind": {
+                "const": "value"
+              },
+              "value": {
+                "$ref": "#/$defs/enum"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "compactEnumModule": {
+      "type": "object",
+      "properties": {
+        "format": {
+          "const": "nkdk-declarations/1"
+        },
+        "kind": {
+          "const": "value"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string"
+        },
+        "imports": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "propertyNames": {
+            "not": {
+              "const": "<<"
+            }
+          }
+        },
+        "namespaces": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "propertyNames": {
+            "not": {
+              "const": "<<"
+            }
+          }
+        },
+        "types": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/type"
+          },
+          "propertyNames": {
+            "not": {
+              "const": "<<"
+            }
+          }
+        },
+        "inputs": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "$ref": "#/$defs/type"
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "additionalProperties": false
+          },
+          "propertyNames": {
+            "not": {
+              "const": "<<"
+            }
+          }
+        },
+        "parameters": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "$ref": "#/$defs/type"
+              },
+              "default": {
+                "type": [
+                  "string",
+                  "number",
+                  "boolean",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "additionalProperties": false
+          },
+          "propertyNames": {
+            "not": {
+              "const": "<<"
+            }
+          }
+        },
+        "presence": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/presence"
+          }
+        },
+        "normalization": {
+          "type": "object",
+          "properties": {
+            "when": {
+              "$ref": "#/$defs/expression"
+            },
+            "from": {
+              "const": "empty-sequence"
+            },
+            "denotes": {
+              "$ref": "#/$defs/expression"
+            }
+          },
+          "required": [
+            "when",
+            "from",
+            "denotes"
+          ],
+          "additionalProperties": false
+        },
+        "constraints": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/constraint"
+          }
+        },
+        "enum": {
+          "type": "object",
+          "minProperties": 1,
+          "propertyNames": {
+            "type": "string",
+            "minLength": 1,
+            "not": {
+              "const": "<<"
+            }
+          },
+          "additionalProperties": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "yaml": {
+                    "type": "string"
+                  },
+                  "xml": {
+                    "type": "string"
+                  },
+                  "accept": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "uniqueItems": true
+                  }
+                },
+                "required": [
+                  "yaml"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          }
+        },
+        "projections": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "xml": {
+                "$ref": "#/$defs/enumProjectionXml"
+              }
+            },
+            "required": [
+              "id",
+              "xml"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "enum"
+      ],
+      "additionalProperties": false
+    },
+    "enumProjectionXml": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "text"
+            },
+            "values": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "value": {
+                    "type": "string"
+                  },
+                  "text": {
+                    "type": "string"
+                  },
+                  "accept": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "uniqueItems": true
+                  }
+                },
+                "required": [
+                  "value",
+                  "text"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "kind"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "with-attributes"
+            },
+            "attributes": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/attribute"
+              }
+            },
+            "content": {
+              "$ref": "#/$defs/enumProjectionXml"
+            }
+          },
+          "required": [
+            "kind",
+            "attributes",
+            "content"
+          ],
+          "additionalProperties": false
+        }
+      ]
     }
-  }
+  },
+  "required": [
+    "format"
+  ]
 }

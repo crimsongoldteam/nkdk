@@ -8,3 +8,6 @@ publish.workspace = true
 nkdk-conversion-core = { path = "../conversion-core" }
 [build-dependencies]
 nkdk-rule-compiler = { path = "../rule-compiler" }
+
+[dev-dependencies]
+serde_json = { version = "=1.0.150", features = ["arbitrary_precision"] }

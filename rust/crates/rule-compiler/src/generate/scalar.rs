@@ -100,7 +100,7 @@ impl<'a> Codec<'a> {
             _ => String::new(),
         }
     }
-    fn cases(&self, name: &str, xml_side: bool) -> Vec<(String, String)> {
+    fn cases(&self, name: &str, xml_side: bool, reading: bool) -> Vec<(String, String)> {
         match self {
             Self::Text
             | Self::Decimal
@@ -113,12 +113,18 @@ impl<'a> Codec<'a> {
                 .collect(),
             Self::Enumeration(variants, xml, yaml) => (if xml_side { xml } else { yaml })
                 .iter()
-                .map(|item| {
+                .flat_map(|item| {
                     let i = variants
                         .iter()
                         .position(|variant| variant.value == item.value)
                         .expect("linked enum table");
-                    (item.text.clone(), format!("{name}::V{i}"))
+                    std::iter::once(&item.text)
+                        .chain(if xml_side && reading {
+                            item.accepted.iter()
+                        } else {
+                            [].iter()
+                        })
+                        .map(move |text| (text.clone(), format!("{name}::V{i}")))
                 })
                 .collect(),
         }
@@ -222,7 +228,7 @@ impl<'a> Codec<'a> {
             );
         }
         let mut out = format!("let f{index} = match r{index}.as_str() {{\n");
-        for (text, value) in self.cases(name, xml_side) {
+        for (text, value) in self.cases(name, xml_side, true) {
             writeln!(out, "{text:?} => {value},").unwrap();
         }
         let code = if matches!(self, Self::Boolean(..)) {
@@ -244,7 +250,7 @@ impl<'a> Codec<'a> {
             return "true".into();
         }
         let patterns = self
-            .cases(name, false)
+            .cases(name, false, false)
             .into_iter()
             .map(|(_, value)| value)
             .collect::<Vec<_>>();
@@ -280,7 +286,7 @@ impl<'a> Codec<'a> {
         if matches!(self, Self::Text) {
             return reference.into();
         }
-        let cases = self.cases(name, xml_side);
+        let cases = self.cases(name, xml_side, false);
         let count = match self {
             Self::Boolean(..) => 2,
             Self::Enumeration(variants, ..) => variants.len(),

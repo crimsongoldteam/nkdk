@@ -43,7 +43,9 @@ pub(super) fn table(
     for value in values {
         if !expected.contains(&value.value)
             || !meanings.insert(&value.value)
-            || !spellings.insert(&value.text)
+            || std::iter::once(&value.text)
+                .chain(&value.accepted)
+                .any(|text| !spellings.insert(text))
         {
             return Err(diagnostic(
                 "ambiguous_enum_table",

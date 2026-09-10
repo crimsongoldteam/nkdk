@@ -1,0 +1,671 @@
+{
+  "scope": "Enum properties with known owners or an explicit type; owner defaults and whole-file conversion excluded",
+  "verified": 95,
+  "cases": [
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/CheckBoxField/Ext/Form.xml",
+      "sha256": "85e66b0e578fdd5512a0c9e6b13b4a601f429f21ef187101d82ead55977ed554",
+      "occurrence": 69,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/RadioButtonField/Ext/Form.xml",
+      "sha256": "1f637d4c82a084fa97cc4d70b21869db5b3fe3948db16620a46ef14a23badd1c",
+      "occurrence": 57,
+      "entry": "migration.system.RadioButtonType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/RadioButtonField/Ext/Form.xml",
+      "sha256": "1f637d4c82a084fa97cc4d70b21869db5b3fe3948db16620a46ef14a23badd1c",
+      "occurrence": 88,
+      "entry": "migration.system.RadioButtonType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/Table/Ext/Form.xml",
+      "sha256": "92385cea4321b5486e5ca81579c6dc88a677e939b1f5c6c836a908458c153c59",
+      "occurrence": 459,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/Table/Ext/Form.xml",
+      "sha256": "92385cea4321b5486e5ca81579c6dc88a677e939b1f5c6c836a908458c153c59",
+      "occurrence": 745,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/Table/Ext/Form.xml",
+      "sha256": "92385cea4321b5486e5ca81579c6dc88a677e939b1f5c6c836a908458c153c59",
+      "occurrence": 888,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/Table/Ext/Form.xml",
+      "sha256": "92385cea4321b5486e5ca81579c6dc88a677e939b1f5c6c836a908458c153c59",
+      "occurrence": 949,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/Table/Ext/Form.xml",
+      "sha256": "92385cea4321b5486e5ca81579c6dc88a677e939b1f5c6c836a908458c153c59",
+      "occurrence": 993,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/Table/Ext/Form.xml",
+      "sha256": "92385cea4321b5486e5ca81579c6dc88a677e939b1f5c6c836a908458c153c59",
+      "occurrence": 1031,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/Table/Ext/Form.xml",
+      "sha256": "92385cea4321b5486e5ca81579c6dc88a677e939b1f5c6c836a908458c153c59",
+      "occurrence": 1144,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml",
+      "sha256": "7e0bf00f09ca16dd1efd3346c0347efb62b08d6643f65ef79b038bb2a8cdbd31",
+      "occurrence": 153,
+      "entry": "migration.system.FoldersAndItemsUse.dcs",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml",
+      "sha256": "7e0bf00f09ca16dd1efd3346c0347efb62b08d6643f65ef79b038bb2a8cdbd31",
+      "occurrence": 396,
+      "entry": "migration.system.FoldersAndItemsUse.dcs",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 67,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 189,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 298,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 504,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 701,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 856,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 978,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 1044,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 1158,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 1365,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 1478,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 1648,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 1786,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 1895,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 2102,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 2257,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 2379,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 2445,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 2559,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 2766,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 2879,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 3040,
+      "entry": "migration.system.RadioButtonType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 3097,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 3156,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 3194,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 3400,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 3523,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 3678,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 3744,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 3858,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 4065,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 4178,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 4219,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 4414,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 4536,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 4645,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 4851,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 5048,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 5203,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 5325,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 5391,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 5505,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 5712,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 5825,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 5964,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 6073,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 6280,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 6435,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 6552,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 6618,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 6732,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 6939,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек/Ext/Form.xml",
+      "sha256": "707c8bb912bcf0275c4705f7c11e33618c2a0950dd83f853d419c60af65f635c",
+      "occurrence": 7052,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/УсловноеОформление/Ext/Form.xml",
+      "sha256": "fe5469fadefa4512dc7d1f67cea7369cbd5ff1197982be2ab823c440a250a42a",
+      "occurrence": 700,
+      "entry": "migration.system.HorizontalAlign.dcs",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаВариантаОтчета/Ext/Form.xml",
+      "sha256": "bdd3caf9eb5104c6b2f21fae33d6cef8bf93965b13cda95423de28759ab41bc7",
+      "occurrence": 270,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаВариантаОтчета/Ext/Form.xml",
+      "sha256": "bdd3caf9eb5104c6b2f21fae33d6cef8bf93965b13cda95423de28759ab41bc7",
+      "occurrence": 432,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаВариантаОтчета/Ext/Form.xml",
+      "sha256": "bdd3caf9eb5104c6b2f21fae33d6cef8bf93965b13cda95423de28759ab41bc7",
+      "occurrence": 596,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаВариантаОтчета/Ext/Form.xml",
+      "sha256": "bdd3caf9eb5104c6b2f21fae33d6cef8bf93965b13cda95423de28759ab41bc7",
+      "occurrence": 757,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаВариантаОтчета/Ext/Form.xml",
+      "sha256": "bdd3caf9eb5104c6b2f21fae33d6cef8bf93965b13cda95423de28759ab41bc7",
+      "occurrence": 881,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "fef9c701650f47891fbf65a0cc0eb268b404fff0fb21af9cd37c5ad681c627ed",
+      "occurrence": 270,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "fef9c701650f47891fbf65a0cc0eb268b404fff0fb21af9cd37c5ad681c627ed",
+      "occurrence": 432,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "fef9c701650f47891fbf65a0cc0eb268b404fff0fb21af9cd37c5ad681c627ed",
+      "occurrence": 596,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "fef9c701650f47891fbf65a0cc0eb268b404fff0fb21af9cd37c5ad681c627ed",
+      "occurrence": 757,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "fef9c701650f47891fbf65a0cc0eb268b404fff0fb21af9cd37c5ad681c627ed",
+      "occurrence": 881,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства/Forms/ФормаОтчета/Ext/Form.xml",
+      "sha256": "7ae0a69f3059cfcca37c2941c11a70056efcf15436a619b8ed8c39a9ec0ccbc1",
+      "occurrence": 56,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "occurrence": 259,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "occurrence": 412,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "occurrence": 567,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "occurrence": 719,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "occurrence": 835,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "occurrence": 1194,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "occurrence": 1347,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "occurrence": 1502,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "occurrence": 1654,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "occurrence": 1770,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаОтчета/Ext/Form.xml",
+      "sha256": "dd7ed9ae10d418382c253770ca51ec08dcb9ce920572c3363ad2d1f0fdbb7311",
+      "occurrence": 15,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаОтчета/Ext/Form.xml",
+      "sha256": "dd7ed9ae10d418382c253770ca51ec08dcb9ce920572c3363ad2d1f0fdbb7311",
+      "occurrence": 86,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "6373a997877fa5fd5198051be86ad896cdaa1a3061852c673d0068b99490cb68",
+      "occurrence": 270,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "6373a997877fa5fd5198051be86ad896cdaa1a3061852c673d0068b99490cb68",
+      "occurrence": 432,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "6373a997877fa5fd5198051be86ad896cdaa1a3061852c673d0068b99490cb68",
+      "occurrence": 596,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "6373a997877fa5fd5198051be86ad896cdaa1a3061852c673d0068b99490cb68",
+      "occurrence": 757,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "6373a997877fa5fd5198051be86ad896cdaa1a3061852c673d0068b99490cb68",
+      "occurrence": 881,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt/Forms/ФормаОтчета/Ext/Form.xml",
+      "sha256": "bbcf5d0e58e78fee17342cdacc18510d140d4840f2a68b18ffc12b5d6c7a6d86",
+      "occurrence": 56,
+      "entry": "migration.system.CheckBoxType",
+      "verified": true
+    }
+  ]
+}

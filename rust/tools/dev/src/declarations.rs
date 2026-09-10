@@ -1,6 +1,6 @@
 #[path = "../../../build-support/declarations.rs"]
 mod files;
-use nkdk_rule_compiler::{Program, SourceFile, link, parse};
+use nkdk_rule_compiler::{Program, SourceFile, link, parse_many};
 use std::path::Path;
 pub fn load(directory: &Path) -> Result<Program, String> {
     let directory = directory
@@ -9,8 +9,9 @@ pub fn load(directory: &Path) -> Result<Program, String> {
     let sources = files::load(&directory, &directory).map_err(|error| error.to_string())?;
     let modules = sources
         .iter()
-        .map(|(path, bytes)| parse(SourceFile { path, bytes }))
+        .map(|(path, bytes)| parse_many(SourceFile { path, bytes }))
         .collect::<Result<Vec<_>, _>>()
         .map_err(|errors| format!("{errors:#?}"))?;
-    link(&modules).map_err(|errors| format!("{errors:#?}"))
+    link(&modules.into_iter().flatten().collect::<Vec<_>>())
+        .map_err(|errors| format!("{errors:#?}"))
 }
