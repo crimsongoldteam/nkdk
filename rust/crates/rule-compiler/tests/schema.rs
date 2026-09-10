@@ -53,3 +53,57 @@ fn schema_preserves_conditional_decimal_bounds_and_enum_spellings() {
     }
     assert!(schema(&program, "missing").is_err());
 }
+
+#[test]
+fn keyed_collection_schema_is_derived_from_the_shared_declaration() {
+    let common = include_bytes!("../../../declarations/common/i8n-text.yaml");
+    for (owner, foldable) in [
+        (
+            include_bytes!("../../../declarations/probes/i8n-ordinary.yaml").as_slice(),
+            false,
+        ),
+        (
+            include_bytes!("../../../declarations/probes/i8n-exclude-equal-name.yaml").as_slice(),
+            true,
+        ),
+    ] {
+        let modules = [
+            parse(SourceFile {
+                path: "common.yaml",
+                bytes: common,
+            })
+            .unwrap(),
+            parse(SourceFile {
+                path: "owner.yaml",
+                bytes: owner,
+            })
+            .unwrap(),
+        ];
+        let name = modules[1].id.clone();
+        let program = link(&modules).unwrap();
+        let value: serde_json::Value =
+            serde_json::from_slice(&schema(&program, &name).unwrap()).unwrap();
+        jsonschema::meta::validate(&value).unwrap();
+        let validator = jsonschema::validator_for(&value).unwrap();
+        for valid in [
+            serde_json::json!({}),
+            serde_json::json!({"Заголовок":""}),
+            serde_json::json!({"Заголовок":"Текст"}),
+            serde_json::json!({"Заголовок":{"ru":"Текст"}}),
+        ] {
+            assert!(validator.is_valid(&valid));
+        }
+        assert_eq!(
+            validator.is_valid(&serde_json::json!({"Заголовок":{"ru":""}})),
+            foldable
+        );
+        for invalid in [
+            serde_json::json!({"Заголовок":null}),
+            serde_json::json!({"Заголовок":[]}),
+            serde_json::json!({"Заголовок":{"ru":true}}),
+            serde_json::json!({"Лишнее":"x"}),
+        ] {
+            assert!(!validator.is_valid(&invalid));
+        }
+    }
+}

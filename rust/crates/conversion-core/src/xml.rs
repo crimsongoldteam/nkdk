@@ -2,7 +2,7 @@ mod names;
 pub use names::is_ncname;
 mod tree;
 use crate::{Result, RuntimeDiagnostic};
-pub use tree::Tree;
+pub use tree::{Patch, Tree};
 #[cfg(feature = "test-probes")]
 static WRITERS: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
 #[cfg(feature = "test-probes")]

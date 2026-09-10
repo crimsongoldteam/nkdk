@@ -300,33 +300,41 @@ constraints:
     appliesTo: [yaml-validation]
     forms: [keyed-mapping]
     forEach: {in: {self: true}, as: translation}
-    when:
-      not:
-        exists:
-          in: {self: true}
-          as: candidate
-          where:
-            or:
-              - eq: [{get: {of: {var: candidate}, field: language}}, {literal: ""}]
-              - eq: [{get: {of: {var: candidate}, field: language}}, {literal: "#"}]
     assert:
       if:
         eq: [{get: {of: {var: translation}, field: content}}, {literal: ""}]
       then:
         and:
           - {parameter: excludeIfEqualNameYAML}
-          - eq: [{get: {of: {var: translation}, field: language}}, {input: defaultLanguage}]
-          - exists:
-              in: {take: {in: {self: true}, count: 1}}
-              as: first
-              where:
-                eq: [{get: {of: {var: first}, field: language}}, {input: defaultLanguage}]
+          - or:
+              - exists:
+                  in: {self: true}
+                  as: candidate
+                  where:
+                    or:
+                      - eq: [{get: {of: {var: candidate}, field: language}}, {literal: ""}]
+                      - eq: [{get: {of: {var: candidate}, field: language}}, {literal: "#"}]
+              - and:
+                  - eq: [{get: {of: {var: translation}, field: language}}, {input: defaultLanguage}]
+                  - exists:
+                      in: {take: {in: {self: true}, count: 1}}
+                      as: first
+                      where:
+                        eq: [{get: {of: {var: first}, field: language}}, {input: defaultLanguage}]
       else:
-        exists:
-          in: {input: registeredLanguages}
-          as: registered
-          where:
-            eq: [{var: registered}, {get: {of: {var: translation}, field: language}}]
+        or:
+          - exists:
+              in: {self: true}
+              as: candidate
+              where:
+                or:
+                  - eq: [{get: {of: {var: candidate}, field: language}}, {literal: ""}]
+                  - eq: [{get: {of: {var: candidate}, field: language}}, {literal: "#"}]
+          - exists:
+              in: {input: registeredLanguages}
+              as: registered
+              where:
+                eq: [{var: registered}, {get: {of: {var: translation}, field: language}}]
     diagnostic:
       severity: error
       source: structure

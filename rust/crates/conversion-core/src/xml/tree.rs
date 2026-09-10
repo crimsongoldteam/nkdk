@@ -1,7 +1,9 @@
 //! A subtree is materialized only on the exceptional preservation path.
+mod patch;
 mod read;
 use super::{Attribute, Name, Token, is_whitespace, matches, visit};
 use crate::{Result, RuntimeDiagnostic};
+pub use patch::Patch;
 
 pub struct Tree {
     name: Name,
@@ -9,6 +11,7 @@ pub struct Tree {
     text: String,
     children: Vec<Tree>,
 }
+#[derive(Clone, PartialEq, Eq)]
 enum Payload {
     Null,
     Text(String),
@@ -255,6 +258,7 @@ fn render(value: &Payload, indent: usize) -> String {
             .map(|(key, value)| {
                 let key = crate::yaml::scalar(key);
                 match value {
+                    Payload::Null if key.starts_with('_') => format!("{padding}{key}: null"),
                     Payload::Null => format!("{padding}{key}:"),
                     Payload::Text(_) => format!("{padding}{key}: {}", render(value, 0)),
                     _ => format!("{padding}{key}:\n{}", render(value, indent + 2)),

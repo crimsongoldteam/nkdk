@@ -7,7 +7,7 @@ pub(super) struct ScalarShorthand {
     pub read_keyed: String,
     pub write: String,
 }
-pub(super) fn specialize(
+pub(crate) fn specialize(
     value: &LinkedExpression,
     bindings: &[LinkedBinding],
     arguments: &[ScalarLiteral],
@@ -155,7 +155,7 @@ pub(super) fn scalar(
     if !result.read_keyed.is_empty() {
         writeln!(result.definitions, "fn expand_keys_{}(rows: Vec<R{}>, _inputs: &PreparedInputs) -> core::Result<Vec<R{}>> {{ {} Ok(rows) }}", owner.id, owner.id, owner.id, result.read_keyed).unwrap();
         result.read_keyed = format!(
-            "if keyed_input && !rows.is_empty() {{ rows=expand_keys_{}(rows, _inputs)?; }}",
+            "if expand && keyed_input && !rows.is_empty() {{ rows=expand_keys_{}(rows, _inputs)?; }}",
             owner.id
         );
     }

@@ -3733,9 +3733,13 @@
       "path": "packages/rules/metadata/commonObjects/i8nText/anomalies.ts",
       "sha256": "a89e65620671c9aef0fcb24e60353935b13c8e309a0db1d1a612321f02450fc7",
       "group": "i8nText",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/i8n-text.yaml",
+      "verifiedCases": [
+        "tests/migration/i8n-rust-acceptance.json",
+        "tests/migration/i8n-e2e-acceptance.json",
+        "docs/superpowers/reports/2026-09-10-i8n-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/i8nText/fromXML.test.ts",
@@ -3749,9 +3753,13 @@
       "path": "packages/rules/metadata/commonObjects/i8nText/fromXML.ts",
       "sha256": "2aa4491e92a0f1b88771a0b3204a2d7f4cf37cbf199bed3f9cbf6fb0199ca158",
       "group": "i8nText",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/i8n-text.yaml",
+      "verifiedCases": [
+        "tests/migration/i8n-rust-acceptance.json",
+        "tests/migration/i8n-e2e-acceptance.json",
+        "docs/superpowers/reports/2026-09-10-i8n-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/i8nText/fromXMLToYAML.integration.test.ts",
@@ -3765,9 +3773,13 @@
       "path": "packages/rules/metadata/commonObjects/i8nText/fromXMLToYAML.ts",
       "sha256": "94ee86765fab7fbffb8a35c80cb004d87a84e6118fed7f6bc6e2a204a09b8d00",
       "group": "i8nText",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/i8n-text.yaml",
+      "verifiedCases": [
+        "tests/migration/i8n-rust-acceptance.json",
+        "tests/migration/i8n-e2e-acceptance.json",
+        "docs/superpowers/reports/2026-09-10-i8n-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/i8nText/fromYAML.test.ts",
@@ -3781,9 +3793,13 @@
       "path": "packages/rules/metadata/commonObjects/i8nText/fromYAML.ts",
       "sha256": "e42abb15997439fed78acf1d246170a916f230423eb8a8dad1e9858a91d478e5",
       "group": "i8nText",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/i8n-text.yaml",
+      "verifiedCases": [
+        "tests/migration/i8n-rust-acceptance.json",
+        "tests/migration/i8n-e2e-acceptance.json",
+        "docs/superpowers/reports/2026-09-10-i8n-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/i8nText/helper.test.ts",
@@ -3805,9 +3821,13 @@
       "path": "packages/rules/metadata/commonObjects/i8nText/registry.types.ts",
       "sha256": "b7d5c942f5efa0bdcc4766c50b9344b72519184bc49c308bc1a624080c8c167b",
       "group": "i8nText",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/i8n-text.yaml",
+      "verifiedCases": [
+        "tests/migration/i8n-rust-acceptance.json",
+        "tests/migration/i8n-e2e-acceptance.json",
+        "docs/superpowers/reports/2026-09-10-i8n-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/i8nText/toEnterprise.test.ts",
@@ -3837,9 +3857,13 @@
       "path": "packages/rules/metadata/commonObjects/i8nText/toJSONSchema.ts",
       "sha256": "9a56e3aa37dedba76c706a68a341e02c9a6f2de16e3e2ba5d36ec19082e79b67",
       "group": "i8nText",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/i8n-text.yaml",
+      "verifiedCases": [
+        "tests/migration/i8n-rust-acceptance.json",
+        "tests/migration/i8n-e2e-acceptance.json",
+        "docs/superpowers/reports/2026-09-10-i8n-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/i8nText/toXML.integration.test.ts",
@@ -3853,9 +3877,13 @@
       "path": "packages/rules/metadata/commonObjects/i8nText/toXML.ts",
       "sha256": "63183447f7ed3b868516982d87d86d42b51bf31b786ee49aa6aaf78ac9b69499",
       "group": "i8nText",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/i8n-text.yaml",
+      "verifiedCases": [
+        "tests/migration/i8n-rust-acceptance.json",
+        "tests/migration/i8n-e2e-acceptance.json",
+        "docs/superpowers/reports/2026-09-10-i8n-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/i8nText/toYAML.test.ts",
@@ -3869,17 +3897,25 @@
       "path": "packages/rules/metadata/commonObjects/i8nText/toYAML.ts",
       "sha256": "13943426659cfaca76179a30171e2c534b3f4b726a3df3da396363d94a69c6e5",
       "group": "i8nText",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/i8n-text.yaml",
+      "verifiedCases": [
+        "tests/migration/i8n-rust-acceptance.json",
+        "tests/migration/i8n-e2e-acceptance.json",
+        "docs/superpowers/reports/2026-09-10-i8n-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/i8nText/types.ts",
       "sha256": "3852450b3be2763e437955e5937a36e0cc53bf29b3ba48bf4b1471a2273a0578",
       "group": "i8nText",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/i8n-text.yaml",
+      "verifiedCases": [
+        "tests/migration/i8n-rust-acceptance.json",
+        "tests/migration/i8n-e2e-acceptance.json",
+        "docs/superpowers/reports/2026-09-10-i8n-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/index.ts",

@@ -1,0 +1,2069 @@
+{
+  "scope": "I8nText XML/YAML property contract; all 16 P/N/S/T profiles; exact expected YAML, validation and XML proof",
+  "observations": "tests/migration/i8n-full-round-trip-observations.json",
+  "observationsSha256": "01ddd432c4086aa6c5f669340df9701806f7701d486b1831b0811f801c498086",
+  "declaration": "rust/declarations/common/i8n-text.yaml",
+  "declarationSha256": "7c985830fb914657671a4d711ad10aa719920c705ce7f4cbe7b6185842086e47",
+  "verified": 256,
+  "unchangedTypeScriptYAML": 186,
+  "changedCases": {
+    "empty-first-duplicate": 16,
+    "noncanonical-order": 16,
+    "equal-name-with-foreign": 8,
+    "empty-primary": 8,
+    "empty-container": 6,
+    "typed-empty": 6,
+    "nil": 6,
+    "equal-name": 4
+  },
+  "cases": [
+    {
+      "profile": 0,
+      "case": "missing",
+      "sourceSha256": "541b00ae0da038bb3dee3590d7ca38cc88da0a17371da1476a2fe75172517409",
+      "yaml": "",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 0,
+      "case": "empty-container",
+      "sourceSha256": "02cfcd3cbf609288b3f3c25f733fb66fb09d2e3ce200c0da9486188f8cfd8605",
+      "yaml": "Title: !xml/raw\n  $xml:",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 0,
+      "case": "empty-primary",
+      "sourceSha256": "c79c149affce557ecfaf8efef60ffc3c245336fe1a57c48da55f62378a96f0b5",
+      "yaml": "Заголовок: \"\"",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 0,
+      "case": "primary-text",
+      "sourceSha256": "a650d0b0b11bac40c269cb97083c7aec974251b11b1c5866c112642b5d391070",
+      "yaml": "Заголовок: Текст",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 0,
+      "case": "foreign-only",
+      "sourceSha256": "fe00de3c77d389fa203197eb95b6492399305208c6267fc91945c556de8c616c",
+      "yaml": "Заголовок:\n  en: Text",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 0,
+      "case": "equal-name",
+      "sourceSha256": "027675b953be46213155c31e8fa36c6ac28f1ad999a5d27b287155bc36c1da7f",
+      "yaml": "Заголовок: Test name",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 0,
+      "case": "equal-name-with-foreign",
+      "sourceSha256": "d441d4a5dd79e05198f42a1a95b7d3672168cad2751639080703479106993a4c",
+      "yaml": "Заголовок:\n  ru: Test name\n  en: Text",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 0,
+      "case": "unknown-language",
+      "sourceSha256": "b37e68af4b5962bf4a24af7114530066b8114b999817290734fcaaf356babff0",
+      "yaml": "Заголовок:\n  !xml/invalid de: Text",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 0,
+      "case": "separated-duplicate",
+      "sourceSha256": "ab2187f3101f4ceaaffd732547d72fbebb43ee50b2be71358d8841c787008809",
+      "yaml": "Заголовок:\n  ru: Первый\n  en: Text\n  !xml/invalid ru: Второй",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 0,
+      "case": "empty-first-duplicate",
+      "sourceSha256": "77a28cf27b62c2f45a4d8537bd4e21c4a3606f97e793d963118197afeb790060",
+      "yaml": "Заголовок:\n  !xml/invalid ru: \"\"\n  !xml/invalid/2 ru: Второй",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 0,
+      "case": "noncanonical-order",
+      "sourceSha256": "3780b668660577ab59984feea3360825c1a07d2b751cf3374db155d04f5b0adf",
+      "yaml": "Заголовок: !xml/invalid\n  en: Text\n  ru: Текст",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 0,
+      "case": "service-empty-code",
+      "sourceSha256": "0c76e749621b34411df440b605332a206e9f704262726706fbeff0b71ab3125a",
+      "yaml": "Заголовок:\n  : Служебный\n  ru: Текст",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 0,
+      "case": "service-hash-code",
+      "sourceSha256": "1ce6f6b278e4a52eb7ad7dc47ca9425e68bc264e724419762b2fa2fc9b703dd8",
+      "yaml": "Заголовок:\n  \"#\": Служебный\n  ru: Текст",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 0,
+      "case": "typed-empty",
+      "sourceSha256": "af00194fdcd83a74b1fdc33e9dffcbf9061a8b7f0e9ed2981260a68381986fbf",
+      "yaml": "Title: !xml/raw\n  $xml:\n    _xsi:type: v8:LocalStringType",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 0,
+      "case": "typed-text",
+      "sourceSha256": "327b1fe8490caca33cf2e1831b76f4ffc46c6cbdb4760cc86f88834db256935c",
+      "yaml": "Заголовок: !xml/raw\n  $значение: Текст\n  $xml:\n    _xsi:type: v8:LocalStringType",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 0,
+      "case": "nil",
+      "sourceSha256": "5788adddb8d556e19dc8ba3ed0c6c42e56f9d6d09a5574a5dbf7d11630288fe9",
+      "yaml": "Title: !xml/raw\n  $xml:\n    _xsi:nil: \"true\"",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 1,
+      "case": "missing",
+      "sourceSha256": "541b00ae0da038bb3dee3590d7ca38cc88da0a17371da1476a2fe75172517409",
+      "yaml": "",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 1,
+      "case": "empty-container",
+      "sourceSha256": "02cfcd3cbf609288b3f3c25f733fb66fb09d2e3ce200c0da9486188f8cfd8605",
+      "yaml": "Заголовок: \"\"",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 1,
+      "case": "empty-primary",
+      "sourceSha256": "c79c149affce557ecfaf8efef60ffc3c245336fe1a57c48da55f62378a96f0b5",
+      "yaml": "Заголовок: !xml/raw\n  $значение: \"\"\n  $xml:\n    v8:item:\n      v8:lang: ru\n      v8:content:",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 1,
+      "case": "primary-text",
+      "sourceSha256": "a650d0b0b11bac40c269cb97083c7aec974251b11b1c5866c112642b5d391070",
+      "yaml": "Заголовок: Текст",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 1,
+      "case": "foreign-only",
+      "sourceSha256": "fe00de3c77d389fa203197eb95b6492399305208c6267fc91945c556de8c616c",
+      "yaml": "Заголовок:\n  en: Text",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 1,
+      "case": "equal-name",
+      "sourceSha256": "027675b953be46213155c31e8fa36c6ac28f1ad999a5d27b287155bc36c1da7f",
+      "yaml": "Заголовок: Test name",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 1,
+      "case": "equal-name-with-foreign",
+      "sourceSha256": "d441d4a5dd79e05198f42a1a95b7d3672168cad2751639080703479106993a4c",
+      "yaml": "Заголовок:\n  ru: Test name\n  en: Text",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 1,
+      "case": "unknown-language",
+      "sourceSha256": "b37e68af4b5962bf4a24af7114530066b8114b999817290734fcaaf356babff0",
+      "yaml": "Заголовок:\n  !xml/invalid de: Text",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 1,
+      "case": "separated-duplicate",
+      "sourceSha256": "ab2187f3101f4ceaaffd732547d72fbebb43ee50b2be71358d8841c787008809",
+      "yaml": "Заголовок:\n  ru: Первый\n  en: Text\n  !xml/invalid ru: Второй",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 1,
+      "case": "empty-first-duplicate",
+      "sourceSha256": "77a28cf27b62c2f45a4d8537bd4e21c4a3606f97e793d963118197afeb790060",
+      "yaml": "Заголовок:\n  !xml/invalid ru: \"\"\n  !xml/invalid/2 ru: Второй",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 1,
+      "case": "noncanonical-order",
+      "sourceSha256": "3780b668660577ab59984feea3360825c1a07d2b751cf3374db155d04f5b0adf",
+      "yaml": "Заголовок: !xml/invalid\n  en: Text\n  ru: Текст",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 1,
+      "case": "service-empty-code",
+      "sourceSha256": "0c76e749621b34411df440b605332a206e9f704262726706fbeff0b71ab3125a",
+      "yaml": "Заголовок:\n  : Служебный\n  ru: Текст",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 1,
+      "case": "service-hash-code",
+      "sourceSha256": "1ce6f6b278e4a52eb7ad7dc47ca9425e68bc264e724419762b2fa2fc9b703dd8",
+      "yaml": "Заголовок:\n  \"#\": Служебный\n  ru: Текст",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 1,
+      "case": "typed-empty",
+      "sourceSha256": "af00194fdcd83a74b1fdc33e9dffcbf9061a8b7f0e9ed2981260a68381986fbf",
+      "yaml": "Заголовок: !xml/raw\n  $значение: \"\"\n  $xml:\n    _xsi:type: v8:LocalStringType",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 1,
+      "case": "typed-text",
+      "sourceSha256": "327b1fe8490caca33cf2e1831b76f4ffc46c6cbdb4760cc86f88834db256935c",
+      "yaml": "Заголовок: !xml/raw\n  $значение: Текст\n  $xml:\n    _xsi:type: v8:LocalStringType",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 1,
+      "case": "nil",
+      "sourceSha256": "5788adddb8d556e19dc8ba3ed0c6c42e56f9d6d09a5574a5dbf7d11630288fe9",
+      "yaml": "Заголовок: !xml/raw\n  $значение: \"\"\n  $xml:\n    _xsi:nil: \"true\"",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 2,
+      "case": "missing",
+      "sourceSha256": "541b00ae0da038bb3dee3590d7ca38cc88da0a17371da1476a2fe75172517409",
+      "yaml": "",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 2,
+      "case": "empty-container",
+      "sourceSha256": "02cfcd3cbf609288b3f3c25f733fb66fb09d2e3ce200c0da9486188f8cfd8605",
+      "yaml": "Заголовок: \"\"",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 2,
+      "case": "empty-primary",
+      "sourceSha256": "c79c149affce557ecfaf8efef60ffc3c245336fe1a57c48da55f62378a96f0b5",
+      "yaml": "Заголовок: !xml/raw\n  $значение: \"\"\n  $xml:\n    v8:item:\n      v8:lang: ru\n      v8:content:",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 2,
+      "case": "primary-text",
+      "sourceSha256": "a650d0b0b11bac40c269cb97083c7aec974251b11b1c5866c112642b5d391070",
+      "yaml": "Заголовок: Текст",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 2,
+      "case": "foreign-only",
+      "sourceSha256": "fe00de3c77d389fa203197eb95b6492399305208c6267fc91945c556de8c616c",
+      "yaml": "Заголовок:\n  ru: \"\"\n  en: Text",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 2,
+      "case": "equal-name",
+      "sourceSha256": "027675b953be46213155c31e8fa36c6ac28f1ad999a5d27b287155bc36c1da7f",
+      "yaml": "",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 2,
+      "case": "equal-name-with-foreign",
+      "sourceSha256": "d441d4a5dd79e05198f42a1a95b7d3672168cad2751639080703479106993a4c",
+      "yaml": "Заголовок:\n  en: Text",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 2,
+      "case": "unknown-language",
+      "sourceSha256": "b37e68af4b5962bf4a24af7114530066b8114b999817290734fcaaf356babff0",
+      "yaml": "Заголовок:\n  ru: \"\"\n  !xml/invalid de: Text",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 2,
+      "case": "separated-duplicate",
+      "sourceSha256": "ab2187f3101f4ceaaffd732547d72fbebb43ee50b2be71358d8841c787008809",
+      "yaml": "Заголовок:\n  ru: Первый\n  en: Text\n  !xml/invalid ru: Второй",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 2,
+      "case": "empty-first-duplicate",
+      "sourceSha256": "77a28cf27b62c2f45a4d8537bd4e21c4a3606f97e793d963118197afeb790060",
+      "yaml": "Заголовок:\n  ru: \"\"\n  !xml/invalid ru: Второй",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 2,
+      "case": "noncanonical-order",
+      "sourceSha256": "3780b668660577ab59984feea3360825c1a07d2b751cf3374db155d04f5b0adf",
+      "yaml": "Заголовок: !xml/invalid\n  en: Text\n  ru: Текст",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 2,
+      "case": "service-empty-code",
+      "sourceSha256": "0c76e749621b34411df440b605332a206e9f704262726706fbeff0b71ab3125a",
+      "yaml": "Заголовок:\n  : Служебный\n  ru: Текст",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 2,
+      "case": "service-hash-code",
+      "sourceSha256": "1ce6f6b278e4a52eb7ad7dc47ca9425e68bc264e724419762b2fa2fc9b703dd8",
+      "yaml": "Заголовок:\n  \"#\": Служебный\n  ru: Текст",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 2,
+      "case": "typed-empty",
+      "sourceSha256": "af00194fdcd83a74b1fdc33e9dffcbf9061a8b7f0e9ed2981260a68381986fbf",
+      "yaml": "Заголовок: !xml/raw\n  $значение: \"\"\n  $xml:\n    _xsi:type: v8:LocalStringType",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 2,
+      "case": "typed-text",
+      "sourceSha256": "327b1fe8490caca33cf2e1831b76f4ffc46c6cbdb4760cc86f88834db256935c",
+      "yaml": "Заголовок: !xml/raw\n  $значение: Текст\n  $xml:\n    _xsi:type: v8:LocalStringType",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 2,
+      "case": "nil",
+      "sourceSha256": "5788adddb8d556e19dc8ba3ed0c6c42e56f9d6d09a5574a5dbf7d11630288fe9",
+      "yaml": "Заголовок: !xml/raw\n  $значение: \"\"\n  $xml:\n    _xsi:nil: \"true\"",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 3,
+      "case": "missing",
+      "sourceSha256": "541b00ae0da038bb3dee3590d7ca38cc88da0a17371da1476a2fe75172517409",
+      "yaml": "",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 3,
+      "case": "empty-container",
+      "sourceSha256": "02cfcd3cbf609288b3f3c25f733fb66fb09d2e3ce200c0da9486188f8cfd8605",
+      "yaml": "Заголовок: \"\"",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 3,
+      "case": "empty-primary",
+      "sourceSha256": "c79c149affce557ecfaf8efef60ffc3c245336fe1a57c48da55f62378a96f0b5",
+      "yaml": "Заголовок: !xml/raw\n  $значение: \"\"\n  $xml:\n    v8:item:\n      v8:lang: ru\n      v8:content:",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 3,
+      "case": "primary-text",
+      "sourceSha256": "a650d0b0b11bac40c269cb97083c7aec974251b11b1c5866c112642b5d391070",
+      "yaml": "Заголовок: Текст",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 3,
+      "case": "foreign-only",
+      "sourceSha256": "fe00de3c77d389fa203197eb95b6492399305208c6267fc91945c556de8c616c",
+      "yaml": "Заголовок:\n  ru: \"\"\n  en: Text",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 3,
+      "case": "equal-name",
+      "sourceSha256": "027675b953be46213155c31e8fa36c6ac28f1ad999a5d27b287155bc36c1da7f",
+      "yaml": "",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 3,
+      "case": "equal-name-with-foreign",
+      "sourceSha256": "d441d4a5dd79e05198f42a1a95b7d3672168cad2751639080703479106993a4c",
+      "yaml": "Заголовок:\n  en: Text",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 3,
+      "case": "unknown-language",
+      "sourceSha256": "b37e68af4b5962bf4a24af7114530066b8114b999817290734fcaaf356babff0",
+      "yaml": "Заголовок:\n  ru: \"\"\n  !xml/invalid de: Text",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 3,
+      "case": "separated-duplicate",
+      "sourceSha256": "ab2187f3101f4ceaaffd732547d72fbebb43ee50b2be71358d8841c787008809",
+      "yaml": "Заголовок:\n  ru: Первый\n  en: Text\n  !xml/invalid ru: Второй",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 3,
+      "case": "empty-first-duplicate",
+      "sourceSha256": "77a28cf27b62c2f45a4d8537bd4e21c4a3606f97e793d963118197afeb790060",
+      "yaml": "Заголовок:\n  ru: \"\"\n  !xml/invalid ru: Второй",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 3,
+      "case": "noncanonical-order",
+      "sourceSha256": "3780b668660577ab59984feea3360825c1a07d2b751cf3374db155d04f5b0adf",
+      "yaml": "Заголовок: !xml/invalid\n  en: Text\n  ru: Текст",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 3,
+      "case": "service-empty-code",
+      "sourceSha256": "0c76e749621b34411df440b605332a206e9f704262726706fbeff0b71ab3125a",
+      "yaml": "Заголовок:\n  : Служебный\n  ru: Текст",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 3,
+      "case": "service-hash-code",
+      "sourceSha256": "1ce6f6b278e4a52eb7ad7dc47ca9425e68bc264e724419762b2fa2fc9b703dd8",
+      "yaml": "Заголовок:\n  \"#\": Служебный\n  ru: Текст",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 3,
+      "case": "typed-empty",
+      "sourceSha256": "af00194fdcd83a74b1fdc33e9dffcbf9061a8b7f0e9ed2981260a68381986fbf",
+      "yaml": "Заголовок: !xml/raw\n  $значение: \"\"\n  $xml:\n    _xsi:type: v8:LocalStringType",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 3,
+      "case": "typed-text",
+      "sourceSha256": "327b1fe8490caca33cf2e1831b76f4ffc46c6cbdb4760cc86f88834db256935c",
+      "yaml": "Заголовок: !xml/raw\n  $значение: Текст\n  $xml:\n    _xsi:type: v8:LocalStringType",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 3,
+      "case": "nil",
+      "sourceSha256": "5788adddb8d556e19dc8ba3ed0c6c42e56f9d6d09a5574a5dbf7d11630288fe9",
+      "yaml": "Заголовок: !xml/raw\n  $значение: \"\"\n  $xml:\n    _xsi:nil: \"true\"",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 4,
+      "case": "missing",
+      "sourceSha256": "541b00ae0da038bb3dee3590d7ca38cc88da0a17371da1476a2fe75172517409",
+      "yaml": "",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 4,
+      "case": "empty-container",
+      "sourceSha256": "02cfcd3cbf609288b3f3c25f733fb66fb09d2e3ce200c0da9486188f8cfd8605",
+      "yaml": "Title: !xml/raw\n  $xml:",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 4,
+      "case": "empty-primary",
+      "sourceSha256": "c79c149affce557ecfaf8efef60ffc3c245336fe1a57c48da55f62378a96f0b5",
+      "yaml": "Заголовок: !xml/raw\n  $значение: \"\"\n  $xml:\n    v8:item:\n      v8:lang: ru\n      v8:content:",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 4,
+      "case": "primary-text",
+      "sourceSha256": "a650d0b0b11bac40c269cb97083c7aec974251b11b1c5866c112642b5d391070",
+      "yaml": "Заголовок: Текст",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 4,
+      "case": "foreign-only",
+      "sourceSha256": "fe00de3c77d389fa203197eb95b6492399305208c6267fc91945c556de8c616c",
+      "yaml": "Заголовок:\n  en: Text",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 4,
+      "case": "equal-name",
+      "sourceSha256": "027675b953be46213155c31e8fa36c6ac28f1ad999a5d27b287155bc36c1da7f",
+      "yaml": "Заголовок: Test name",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 4,
+      "case": "equal-name-with-foreign",
+      "sourceSha256": "d441d4a5dd79e05198f42a1a95b7d3672168cad2751639080703479106993a4c",
+      "yaml": "Заголовок:\n  ru: Test name\n  en: Text",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 4,
+      "case": "unknown-language",
+      "sourceSha256": "b37e68af4b5962bf4a24af7114530066b8114b999817290734fcaaf356babff0",
+      "yaml": "Заголовок:\n  !xml/invalid de: Text",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 4,
+      "case": "separated-duplicate",
+      "sourceSha256": "ab2187f3101f4ceaaffd732547d72fbebb43ee50b2be71358d8841c787008809",
+      "yaml": "Заголовок:\n  ru: Первый\n  en: Text\n  !xml/invalid ru: Второй",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 4,
+      "case": "empty-first-duplicate",
+      "sourceSha256": "77a28cf27b62c2f45a4d8537bd4e21c4a3606f97e793d963118197afeb790060",
+      "yaml": "Заголовок:\n  !xml/invalid ru: \"\"\n  !xml/invalid/2 ru: Второй",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 4,
+      "case": "noncanonical-order",
+      "sourceSha256": "3780b668660577ab59984feea3360825c1a07d2b751cf3374db155d04f5b0adf",
+      "yaml": "Заголовок: !xml/invalid\n  en: Text\n  ru: Текст",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 4,
+      "case": "service-empty-code",
+      "sourceSha256": "0c76e749621b34411df440b605332a206e9f704262726706fbeff0b71ab3125a",
+      "yaml": "Заголовок:\n  : Служебный\n  ru: Текст",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 4,
+      "case": "service-hash-code",
+      "sourceSha256": "1ce6f6b278e4a52eb7ad7dc47ca9425e68bc264e724419762b2fa2fc9b703dd8",
+      "yaml": "Заголовок:\n  \"#\": Служебный\n  ru: Текст",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 4,
+      "case": "typed-empty",
+      "sourceSha256": "af00194fdcd83a74b1fdc33e9dffcbf9061a8b7f0e9ed2981260a68381986fbf",
+      "yaml": "Title: !xml/raw\n  $xml:\n    _xsi:type: v8:LocalStringType",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 4,
+      "case": "typed-text",
+      "sourceSha256": "327b1fe8490caca33cf2e1831b76f4ffc46c6cbdb4760cc86f88834db256935c",
+      "yaml": "Заголовок: !xml/raw\n  $значение: Текст\n  $xml:\n    _xsi:type: v8:LocalStringType",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 4,
+      "case": "nil",
+      "sourceSha256": "5788adddb8d556e19dc8ba3ed0c6c42e56f9d6d09a5574a5dbf7d11630288fe9",
+      "yaml": "Title: !xml/raw\n  $xml:\n    _xsi:nil: \"true\"",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 5,
+      "case": "missing",
+      "sourceSha256": "541b00ae0da038bb3dee3590d7ca38cc88da0a17371da1476a2fe75172517409",
+      "yaml": "",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 5,
+      "case": "empty-container",
+      "sourceSha256": "02cfcd3cbf609288b3f3c25f733fb66fb09d2e3ce200c0da9486188f8cfd8605",
+      "yaml": "Заголовок: !xml/raw\n  $значение: \"\"\n  $xml:",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 5,
+      "case": "empty-primary",
+      "sourceSha256": "c79c149affce557ecfaf8efef60ffc3c245336fe1a57c48da55f62378a96f0b5",
+      "yaml": "Заголовок: !xml/raw\n  $значение: \"\"\n  $xml:\n    v8:item:\n      v8:lang: ru\n      v8:content:",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 5,
+      "case": "primary-text",
+      "sourceSha256": "a650d0b0b11bac40c269cb97083c7aec974251b11b1c5866c112642b5d391070",
+      "yaml": "Заголовок: Текст",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 5,
+      "case": "foreign-only",
+      "sourceSha256": "fe00de3c77d389fa203197eb95b6492399305208c6267fc91945c556de8c616c",
+      "yaml": "Заголовок:\n  en: Text",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 5,
+      "case": "equal-name",
+      "sourceSha256": "027675b953be46213155c31e8fa36c6ac28f1ad999a5d27b287155bc36c1da7f",
+      "yaml": "Заголовок: Test name",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 5,
+      "case": "equal-name-with-foreign",
+      "sourceSha256": "d441d4a5dd79e05198f42a1a95b7d3672168cad2751639080703479106993a4c",
+      "yaml": "Заголовок:\n  ru: Test name\n  en: Text",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 5,
+      "case": "unknown-language",
+      "sourceSha256": "b37e68af4b5962bf4a24af7114530066b8114b999817290734fcaaf356babff0",
+      "yaml": "Заголовок:\n  !xml/invalid de: Text",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 5,
+      "case": "separated-duplicate",
+      "sourceSha256": "ab2187f3101f4ceaaffd732547d72fbebb43ee50b2be71358d8841c787008809",
+      "yaml": "Заголовок:\n  ru: Первый\n  en: Text\n  !xml/invalid ru: Второй",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 5,
+      "case": "empty-first-duplicate",
+      "sourceSha256": "77a28cf27b62c2f45a4d8537bd4e21c4a3606f97e793d963118197afeb790060",
+      "yaml": "Заголовок:\n  !xml/invalid ru: \"\"\n  !xml/invalid/2 ru: Второй",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 5,
+      "case": "noncanonical-order",
+      "sourceSha256": "3780b668660577ab59984feea3360825c1a07d2b751cf3374db155d04f5b0adf",
+      "yaml": "Заголовок: !xml/invalid\n  en: Text\n  ru: Текст",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 5,
+      "case": "service-empty-code",
+      "sourceSha256": "0c76e749621b34411df440b605332a206e9f704262726706fbeff0b71ab3125a",
+      "yaml": "Заголовок:\n  : Служебный\n  ru: Текст",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 5,
+      "case": "service-hash-code",
+      "sourceSha256": "1ce6f6b278e4a52eb7ad7dc47ca9425e68bc264e724419762b2fa2fc9b703dd8",
+      "yaml": "Заголовок:\n  \"#\": Служебный\n  ru: Текст",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 5,
+      "case": "typed-empty",
+      "sourceSha256": "af00194fdcd83a74b1fdc33e9dffcbf9061a8b7f0e9ed2981260a68381986fbf",
+      "yaml": "Заголовок: !xml/raw\n  $значение: \"\"\n  $xml:\n    _xsi:type: v8:LocalStringType",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 5,
+      "case": "typed-text",
+      "sourceSha256": "327b1fe8490caca33cf2e1831b76f4ffc46c6cbdb4760cc86f88834db256935c",
+      "yaml": "Заголовок: !xml/raw\n  $значение: Текст\n  $xml:\n    _xsi:type: v8:LocalStringType",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 5,
+      "case": "nil",
+      "sourceSha256": "5788adddb8d556e19dc8ba3ed0c6c42e56f9d6d09a5574a5dbf7d11630288fe9",
+      "yaml": "Заголовок: !xml/raw\n  $значение: \"\"\n  $xml:\n    _xsi:nil: \"true\"",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 6,
+      "case": "missing",
+      "sourceSha256": "541b00ae0da038bb3dee3590d7ca38cc88da0a17371da1476a2fe75172517409",
+      "yaml": "",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 6,
+      "case": "empty-container",
+      "sourceSha256": "02cfcd3cbf609288b3f3c25f733fb66fb09d2e3ce200c0da9486188f8cfd8605",
+      "yaml": "Заголовок: !xml/raw\n  $значение: \"\"\n  $xml:",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 6,
+      "case": "empty-primary",
+      "sourceSha256": "c79c149affce557ecfaf8efef60ffc3c245336fe1a57c48da55f62378a96f0b5",
+      "yaml": "Заголовок: !xml/raw\n  $значение: \"\"\n  $xml:\n    v8:item:\n      v8:lang: ru\n      v8:content:",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 6,
+      "case": "primary-text",
+      "sourceSha256": "a650d0b0b11bac40c269cb97083c7aec974251b11b1c5866c112642b5d391070",
+      "yaml": "Заголовок: Текст",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 6,
+      "case": "foreign-only",
+      "sourceSha256": "fe00de3c77d389fa203197eb95b6492399305208c6267fc91945c556de8c616c",
+      "yaml": "Заголовок:\n  ru: \"\"\n  en: Text",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 6,
+      "case": "equal-name",
+      "sourceSha256": "027675b953be46213155c31e8fa36c6ac28f1ad999a5d27b287155bc36c1da7f",
+      "yaml": "",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 6,
+      "case": "equal-name-with-foreign",
+      "sourceSha256": "d441d4a5dd79e05198f42a1a95b7d3672168cad2751639080703479106993a4c",
+      "yaml": "Заголовок:\n  en: Text",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 6,
+      "case": "unknown-language",
+      "sourceSha256": "b37e68af4b5962bf4a24af7114530066b8114b999817290734fcaaf356babff0",
+      "yaml": "Заголовок:\n  ru: \"\"\n  !xml/invalid de: Text",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 6,
+      "case": "separated-duplicate",
+      "sourceSha256": "ab2187f3101f4ceaaffd732547d72fbebb43ee50b2be71358d8841c787008809",
+      "yaml": "Заголовок:\n  ru: Первый\n  en: Text\n  !xml/invalid ru: Второй",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 6,
+      "case": "empty-first-duplicate",
+      "sourceSha256": "77a28cf27b62c2f45a4d8537bd4e21c4a3606f97e793d963118197afeb790060",
+      "yaml": "Заголовок:\n  ru: \"\"\n  !xml/invalid ru: Второй",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 6,
+      "case": "noncanonical-order",
+      "sourceSha256": "3780b668660577ab59984feea3360825c1a07d2b751cf3374db155d04f5b0adf",
+      "yaml": "Заголовок: !xml/invalid\n  en: Text\n  ru: Текст",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 6,
+      "case": "service-empty-code",
+      "sourceSha256": "0c76e749621b34411df440b605332a206e9f704262726706fbeff0b71ab3125a",
+      "yaml": "Заголовок:\n  : Служебный\n  ru: Текст",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 6,
+      "case": "service-hash-code",
+      "sourceSha256": "1ce6f6b278e4a52eb7ad7dc47ca9425e68bc264e724419762b2fa2fc9b703dd8",
+      "yaml": "Заголовок:\n  \"#\": Служебный\n  ru: Текст",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 6,
+      "case": "typed-empty",
+      "sourceSha256": "af00194fdcd83a74b1fdc33e9dffcbf9061a8b7f0e9ed2981260a68381986fbf",
+      "yaml": "Заголовок: !xml/raw\n  $значение: \"\"\n  $xml:\n    _xsi:type: v8:LocalStringType",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 6,
+      "case": "typed-text",
+      "sourceSha256": "327b1fe8490caca33cf2e1831b76f4ffc46c6cbdb4760cc86f88834db256935c",
+      "yaml": "Заголовок: !xml/raw\n  $значение: Текст\n  $xml:\n    _xsi:type: v8:LocalStringType",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 6,
+      "case": "nil",
+      "sourceSha256": "5788adddb8d556e19dc8ba3ed0c6c42e56f9d6d09a5574a5dbf7d11630288fe9",
+      "yaml": "Заголовок: !xml/raw\n  $значение: \"\"\n  $xml:\n    _xsi:nil: \"true\"",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 7,
+      "case": "missing",
+      "sourceSha256": "541b00ae0da038bb3dee3590d7ca38cc88da0a17371da1476a2fe75172517409",
+      "yaml": "",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 7,
+      "case": "empty-container",
+      "sourceSha256": "02cfcd3cbf609288b3f3c25f733fb66fb09d2e3ce200c0da9486188f8cfd8605",
+      "yaml": "Заголовок: !xml/raw\n  $значение: \"\"\n  $xml:",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 7,
+      "case": "empty-primary",
+      "sourceSha256": "c79c149affce557ecfaf8efef60ffc3c245336fe1a57c48da55f62378a96f0b5",
+      "yaml": "Заголовок: !xml/raw\n  $значение: \"\"\n  $xml:\n    v8:item:\n      v8:lang: ru\n      v8:content:",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 7,
+      "case": "primary-text",
+      "sourceSha256": "a650d0b0b11bac40c269cb97083c7aec974251b11b1c5866c112642b5d391070",
+      "yaml": "Заголовок: Текст",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 7,
+      "case": "foreign-only",
+      "sourceSha256": "fe00de3c77d389fa203197eb95b6492399305208c6267fc91945c556de8c616c",
+      "yaml": "Заголовок:\n  ru: \"\"\n  en: Text",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 7,
+      "case": "equal-name",
+      "sourceSha256": "027675b953be46213155c31e8fa36c6ac28f1ad999a5d27b287155bc36c1da7f",
+      "yaml": "",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 7,
+      "case": "equal-name-with-foreign",
+      "sourceSha256": "d441d4a5dd79e05198f42a1a95b7d3672168cad2751639080703479106993a4c",
+      "yaml": "Заголовок:\n  en: Text",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 7,
+      "case": "unknown-language",
+      "sourceSha256": "b37e68af4b5962bf4a24af7114530066b8114b999817290734fcaaf356babff0",
+      "yaml": "Заголовок:\n  ru: \"\"\n  !xml/invalid de: Text",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 7,
+      "case": "separated-duplicate",
+      "sourceSha256": "ab2187f3101f4ceaaffd732547d72fbebb43ee50b2be71358d8841c787008809",
+      "yaml": "Заголовок:\n  ru: Первый\n  en: Text\n  !xml/invalid ru: Второй",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 7,
+      "case": "empty-first-duplicate",
+      "sourceSha256": "77a28cf27b62c2f45a4d8537bd4e21c4a3606f97e793d963118197afeb790060",
+      "yaml": "Заголовок:\n  ru: \"\"\n  !xml/invalid ru: Второй",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 7,
+      "case": "noncanonical-order",
+      "sourceSha256": "3780b668660577ab59984feea3360825c1a07d2b751cf3374db155d04f5b0adf",
+      "yaml": "Заголовок: !xml/invalid\n  en: Text\n  ru: Текст",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 7,
+      "case": "service-empty-code",
+      "sourceSha256": "0c76e749621b34411df440b605332a206e9f704262726706fbeff0b71ab3125a",
+      "yaml": "Заголовок:\n  : Служебный\n  ru: Текст",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 7,
+      "case": "service-hash-code",
+      "sourceSha256": "1ce6f6b278e4a52eb7ad7dc47ca9425e68bc264e724419762b2fa2fc9b703dd8",
+      "yaml": "Заголовок:\n  \"#\": Служебный\n  ru: Текст",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 7,
+      "case": "typed-empty",
+      "sourceSha256": "af00194fdcd83a74b1fdc33e9dffcbf9061a8b7f0e9ed2981260a68381986fbf",
+      "yaml": "Заголовок: !xml/raw\n  $значение: \"\"\n  $xml:\n    _xsi:type: v8:LocalStringType",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 7,
+      "case": "typed-text",
+      "sourceSha256": "327b1fe8490caca33cf2e1831b76f4ffc46c6cbdb4760cc86f88834db256935c",
+      "yaml": "Заголовок: !xml/raw\n  $значение: Текст\n  $xml:\n    _xsi:type: v8:LocalStringType",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 7,
+      "case": "nil",
+      "sourceSha256": "5788adddb8d556e19dc8ba3ed0c6c42e56f9d6d09a5574a5dbf7d11630288fe9",
+      "yaml": "Заголовок: !xml/raw\n  $значение: \"\"\n  $xml:\n    _xsi:nil: \"true\"",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 8,
+      "case": "missing",
+      "sourceSha256": "541b00ae0da038bb3dee3590d7ca38cc88da0a17371da1476a2fe75172517409",
+      "yaml": "",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 8,
+      "case": "empty-container",
+      "sourceSha256": "02cfcd3cbf609288b3f3c25f733fb66fb09d2e3ce200c0da9486188f8cfd8605",
+      "yaml": "Title: !xml/raw\n  $xml:",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 8,
+      "case": "empty-primary",
+      "sourceSha256": "c79c149affce557ecfaf8efef60ffc3c245336fe1a57c48da55f62378a96f0b5",
+      "yaml": "Заголовок: !xml/raw\n  $значение: \"\"\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 8,
+      "case": "primary-text",
+      "sourceSha256": "a650d0b0b11bac40c269cb97083c7aec974251b11b1c5866c112642b5d391070",
+      "yaml": "Заголовок: !xml/raw\n  $значение: Текст\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 8,
+      "case": "foreign-only",
+      "sourceSha256": "fe00de3c77d389fa203197eb95b6492399305208c6267fc91945c556de8c616c",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    en: Text\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 8,
+      "case": "equal-name",
+      "sourceSha256": "027675b953be46213155c31e8fa36c6ac28f1ad999a5d27b287155bc36c1da7f",
+      "yaml": "Заголовок: !xml/raw\n  $значение: Test name\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 8,
+      "case": "equal-name-with-foreign",
+      "sourceSha256": "d441d4a5dd79e05198f42a1a95b7d3672168cad2751639080703479106993a4c",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    ru: Test name\n    en: Text\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 8,
+      "case": "unknown-language",
+      "sourceSha256": "b37e68af4b5962bf4a24af7114530066b8114b999817290734fcaaf356babff0",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    !xml/invalid de: Text\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 8,
+      "case": "separated-duplicate",
+      "sourceSha256": "ab2187f3101f4ceaaffd732547d72fbebb43ee50b2be71358d8841c787008809",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    ru: Первый\n    en: Text\n    !xml/invalid ru: Второй\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 8,
+      "case": "empty-first-duplicate",
+      "sourceSha256": "77a28cf27b62c2f45a4d8537bd4e21c4a3606f97e793d963118197afeb790060",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    !xml/invalid ru: \"\"\n    !xml/invalid/2 ru: Второй\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 8,
+      "case": "noncanonical-order",
+      "sourceSha256": "3780b668660577ab59984feea3360825c1a07d2b751cf3374db155d04f5b0adf",
+      "yaml": "Заголовок: !xml/raw\n  $значение: !xml/invalid\n    en: Text\n    ru: Текст\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 8,
+      "case": "service-empty-code",
+      "sourceSha256": "0c76e749621b34411df440b605332a206e9f704262726706fbeff0b71ab3125a",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    : Служебный\n    ru: Текст\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 8,
+      "case": "service-hash-code",
+      "sourceSha256": "1ce6f6b278e4a52eb7ad7dc47ca9425e68bc264e724419762b2fa2fc9b703dd8",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    \"#\": Служебный\n    ru: Текст\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 8,
+      "case": "typed-empty",
+      "sourceSha256": "af00194fdcd83a74b1fdc33e9dffcbf9061a8b7f0e9ed2981260a68381986fbf",
+      "yaml": "Title: !xml/raw\n  $xml:\n    _xsi:type: v8:LocalStringType",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 8,
+      "case": "typed-text",
+      "sourceSha256": "327b1fe8490caca33cf2e1831b76f4ffc46c6cbdb4760cc86f88834db256935c",
+      "yaml": "Заголовок: Текст",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 8,
+      "case": "nil",
+      "sourceSha256": "5788adddb8d556e19dc8ba3ed0c6c42e56f9d6d09a5574a5dbf7d11630288fe9",
+      "yaml": "Title: !xml/raw\n  $xml:\n    _xsi:nil: \"true\"",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 9,
+      "case": "missing",
+      "sourceSha256": "541b00ae0da038bb3dee3590d7ca38cc88da0a17371da1476a2fe75172517409",
+      "yaml": "",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 9,
+      "case": "empty-container",
+      "sourceSha256": "02cfcd3cbf609288b3f3c25f733fb66fb09d2e3ce200c0da9486188f8cfd8605",
+      "yaml": "Заголовок: \"\"",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 9,
+      "case": "empty-primary",
+      "sourceSha256": "c79c149affce557ecfaf8efef60ffc3c245336fe1a57c48da55f62378a96f0b5",
+      "yaml": "Заголовок: !xml/raw\n  $значение: \"\"\n  $xml:\n    v8:item:\n      v8:lang: ru\n      v8:content:",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 9,
+      "case": "primary-text",
+      "sourceSha256": "a650d0b0b11bac40c269cb97083c7aec974251b11b1c5866c112642b5d391070",
+      "yaml": "Заголовок: !xml/raw\n  $значение: Текст\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 9,
+      "case": "foreign-only",
+      "sourceSha256": "fe00de3c77d389fa203197eb95b6492399305208c6267fc91945c556de8c616c",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    en: Text\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 9,
+      "case": "equal-name",
+      "sourceSha256": "027675b953be46213155c31e8fa36c6ac28f1ad999a5d27b287155bc36c1da7f",
+      "yaml": "Заголовок: !xml/raw\n  $значение: Test name\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 9,
+      "case": "equal-name-with-foreign",
+      "sourceSha256": "d441d4a5dd79e05198f42a1a95b7d3672168cad2751639080703479106993a4c",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    ru: Test name\n    en: Text\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 9,
+      "case": "unknown-language",
+      "sourceSha256": "b37e68af4b5962bf4a24af7114530066b8114b999817290734fcaaf356babff0",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    !xml/invalid de: Text\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 9,
+      "case": "separated-duplicate",
+      "sourceSha256": "ab2187f3101f4ceaaffd732547d72fbebb43ee50b2be71358d8841c787008809",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    ru: Первый\n    en: Text\n    !xml/invalid ru: Второй\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 9,
+      "case": "empty-first-duplicate",
+      "sourceSha256": "77a28cf27b62c2f45a4d8537bd4e21c4a3606f97e793d963118197afeb790060",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    !xml/invalid ru: \"\"\n    !xml/invalid/2 ru: Второй\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 9,
+      "case": "noncanonical-order",
+      "sourceSha256": "3780b668660577ab59984feea3360825c1a07d2b751cf3374db155d04f5b0adf",
+      "yaml": "Заголовок: !xml/raw\n  $значение: !xml/invalid\n    en: Text\n    ru: Текст\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 9,
+      "case": "service-empty-code",
+      "sourceSha256": "0c76e749621b34411df440b605332a206e9f704262726706fbeff0b71ab3125a",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    : Служебный\n    ru: Текст\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 9,
+      "case": "service-hash-code",
+      "sourceSha256": "1ce6f6b278e4a52eb7ad7dc47ca9425e68bc264e724419762b2fa2fc9b703dd8",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    \"#\": Служебный\n    ru: Текст\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 9,
+      "case": "typed-empty",
+      "sourceSha256": "af00194fdcd83a74b1fdc33e9dffcbf9061a8b7f0e9ed2981260a68381986fbf",
+      "yaml": "Заголовок: !xml/raw\n  $значение: \"\"\n  $xml:\n    _xsi:type: v8:LocalStringType",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 9,
+      "case": "typed-text",
+      "sourceSha256": "327b1fe8490caca33cf2e1831b76f4ffc46c6cbdb4760cc86f88834db256935c",
+      "yaml": "Заголовок: Текст",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 9,
+      "case": "nil",
+      "sourceSha256": "5788adddb8d556e19dc8ba3ed0c6c42e56f9d6d09a5574a5dbf7d11630288fe9",
+      "yaml": "Заголовок: !xml/raw\n  $значение: \"\"\n  $xml:\n    _xsi:nil: \"true\"",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 10,
+      "case": "missing",
+      "sourceSha256": "541b00ae0da038bb3dee3590d7ca38cc88da0a17371da1476a2fe75172517409",
+      "yaml": "",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 10,
+      "case": "empty-container",
+      "sourceSha256": "02cfcd3cbf609288b3f3c25f733fb66fb09d2e3ce200c0da9486188f8cfd8605",
+      "yaml": "Заголовок: \"\"",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 10,
+      "case": "empty-primary",
+      "sourceSha256": "c79c149affce557ecfaf8efef60ffc3c245336fe1a57c48da55f62378a96f0b5",
+      "yaml": "Заголовок: !xml/raw\n  $значение: \"\"\n  $xml:\n    v8:item:\n      v8:lang: ru\n      v8:content:",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 10,
+      "case": "primary-text",
+      "sourceSha256": "a650d0b0b11bac40c269cb97083c7aec974251b11b1c5866c112642b5d391070",
+      "yaml": "Заголовок: !xml/raw\n  $значение: Текст\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 10,
+      "case": "foreign-only",
+      "sourceSha256": "fe00de3c77d389fa203197eb95b6492399305208c6267fc91945c556de8c616c",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    ru: \"\"\n    en: Text\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 10,
+      "case": "equal-name",
+      "sourceSha256": "027675b953be46213155c31e8fa36c6ac28f1ad999a5d27b287155bc36c1da7f",
+      "yaml": "Заголовок: !xml/raw\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 10,
+      "case": "equal-name-with-foreign",
+      "sourceSha256": "d441d4a5dd79e05198f42a1a95b7d3672168cad2751639080703479106993a4c",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    en: Text\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 10,
+      "case": "unknown-language",
+      "sourceSha256": "b37e68af4b5962bf4a24af7114530066b8114b999817290734fcaaf356babff0",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    ru: \"\"\n    !xml/invalid de: Text\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 10,
+      "case": "separated-duplicate",
+      "sourceSha256": "ab2187f3101f4ceaaffd732547d72fbebb43ee50b2be71358d8841c787008809",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    ru: Первый\n    en: Text\n    !xml/invalid ru: Второй\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 10,
+      "case": "empty-first-duplicate",
+      "sourceSha256": "77a28cf27b62c2f45a4d8537bd4e21c4a3606f97e793d963118197afeb790060",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    ru: \"\"\n    !xml/invalid ru: Второй\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 10,
+      "case": "noncanonical-order",
+      "sourceSha256": "3780b668660577ab59984feea3360825c1a07d2b751cf3374db155d04f5b0adf",
+      "yaml": "Заголовок: !xml/raw\n  $значение: !xml/invalid\n    en: Text\n    ru: Текст\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 10,
+      "case": "service-empty-code",
+      "sourceSha256": "0c76e749621b34411df440b605332a206e9f704262726706fbeff0b71ab3125a",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    : Служебный\n    ru: Текст\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 10,
+      "case": "service-hash-code",
+      "sourceSha256": "1ce6f6b278e4a52eb7ad7dc47ca9425e68bc264e724419762b2fa2fc9b703dd8",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    \"#\": Служебный\n    ru: Текст\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 10,
+      "case": "typed-empty",
+      "sourceSha256": "af00194fdcd83a74b1fdc33e9dffcbf9061a8b7f0e9ed2981260a68381986fbf",
+      "yaml": "Заголовок: !xml/raw\n  $значение: \"\"\n  $xml:\n    _xsi:type: v8:LocalStringType",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 10,
+      "case": "typed-text",
+      "sourceSha256": "327b1fe8490caca33cf2e1831b76f4ffc46c6cbdb4760cc86f88834db256935c",
+      "yaml": "Заголовок: Текст",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 10,
+      "case": "nil",
+      "sourceSha256": "5788adddb8d556e19dc8ba3ed0c6c42e56f9d6d09a5574a5dbf7d11630288fe9",
+      "yaml": "Заголовок: !xml/raw\n  $значение: \"\"\n  $xml:\n    _xsi:nil: \"true\"",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 11,
+      "case": "missing",
+      "sourceSha256": "541b00ae0da038bb3dee3590d7ca38cc88da0a17371da1476a2fe75172517409",
+      "yaml": "",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 11,
+      "case": "empty-container",
+      "sourceSha256": "02cfcd3cbf609288b3f3c25f733fb66fb09d2e3ce200c0da9486188f8cfd8605",
+      "yaml": "Заголовок: \"\"",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 11,
+      "case": "empty-primary",
+      "sourceSha256": "c79c149affce557ecfaf8efef60ffc3c245336fe1a57c48da55f62378a96f0b5",
+      "yaml": "Заголовок: !xml/raw\n  $значение: \"\"\n  $xml:\n    v8:item:\n      v8:lang: ru\n      v8:content:",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 11,
+      "case": "primary-text",
+      "sourceSha256": "a650d0b0b11bac40c269cb97083c7aec974251b11b1c5866c112642b5d391070",
+      "yaml": "Заголовок: !xml/raw\n  $значение: Текст\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 11,
+      "case": "foreign-only",
+      "sourceSha256": "fe00de3c77d389fa203197eb95b6492399305208c6267fc91945c556de8c616c",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    ru: \"\"\n    en: Text\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 11,
+      "case": "equal-name",
+      "sourceSha256": "027675b953be46213155c31e8fa36c6ac28f1ad999a5d27b287155bc36c1da7f",
+      "yaml": "Заголовок: !xml/raw\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 11,
+      "case": "equal-name-with-foreign",
+      "sourceSha256": "d441d4a5dd79e05198f42a1a95b7d3672168cad2751639080703479106993a4c",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    en: Text\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 11,
+      "case": "unknown-language",
+      "sourceSha256": "b37e68af4b5962bf4a24af7114530066b8114b999817290734fcaaf356babff0",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    ru: \"\"\n    !xml/invalid de: Text\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 11,
+      "case": "separated-duplicate",
+      "sourceSha256": "ab2187f3101f4ceaaffd732547d72fbebb43ee50b2be71358d8841c787008809",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    ru: Первый\n    en: Text\n    !xml/invalid ru: Второй\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 11,
+      "case": "empty-first-duplicate",
+      "sourceSha256": "77a28cf27b62c2f45a4d8537bd4e21c4a3606f97e793d963118197afeb790060",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    ru: \"\"\n    !xml/invalid ru: Второй\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 11,
+      "case": "noncanonical-order",
+      "sourceSha256": "3780b668660577ab59984feea3360825c1a07d2b751cf3374db155d04f5b0adf",
+      "yaml": "Заголовок: !xml/raw\n  $значение: !xml/invalid\n    en: Text\n    ru: Текст\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 11,
+      "case": "service-empty-code",
+      "sourceSha256": "0c76e749621b34411df440b605332a206e9f704262726706fbeff0b71ab3125a",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    : Служебный\n    ru: Текст\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 11,
+      "case": "service-hash-code",
+      "sourceSha256": "1ce6f6b278e4a52eb7ad7dc47ca9425e68bc264e724419762b2fa2fc9b703dd8",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    \"#\": Служебный\n    ru: Текст\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 11,
+      "case": "typed-empty",
+      "sourceSha256": "af00194fdcd83a74b1fdc33e9dffcbf9061a8b7f0e9ed2981260a68381986fbf",
+      "yaml": "Заголовок: !xml/raw\n  $значение: \"\"\n  $xml:\n    _xsi:type: v8:LocalStringType",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 11,
+      "case": "typed-text",
+      "sourceSha256": "327b1fe8490caca33cf2e1831b76f4ffc46c6cbdb4760cc86f88834db256935c",
+      "yaml": "Заголовок: Текст",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 11,
+      "case": "nil",
+      "sourceSha256": "5788adddb8d556e19dc8ba3ed0c6c42e56f9d6d09a5574a5dbf7d11630288fe9",
+      "yaml": "Заголовок: !xml/raw\n  $значение: \"\"\n  $xml:\n    _xsi:nil: \"true\"",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 12,
+      "case": "missing",
+      "sourceSha256": "541b00ae0da038bb3dee3590d7ca38cc88da0a17371da1476a2fe75172517409",
+      "yaml": "",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 12,
+      "case": "empty-container",
+      "sourceSha256": "02cfcd3cbf609288b3f3c25f733fb66fb09d2e3ce200c0da9486188f8cfd8605",
+      "yaml": "Title: !xml/raw\n  $xml:",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 12,
+      "case": "empty-primary",
+      "sourceSha256": "c79c149affce557ecfaf8efef60ffc3c245336fe1a57c48da55f62378a96f0b5",
+      "yaml": "Заголовок: !xml/raw\n  $значение: \"\"\n  $xml:\n    v8:item:\n      v8:lang: ru\n      v8:content:",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 12,
+      "case": "primary-text",
+      "sourceSha256": "a650d0b0b11bac40c269cb97083c7aec974251b11b1c5866c112642b5d391070",
+      "yaml": "Заголовок: !xml/raw\n  $значение: Текст\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 12,
+      "case": "foreign-only",
+      "sourceSha256": "fe00de3c77d389fa203197eb95b6492399305208c6267fc91945c556de8c616c",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    en: Text\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 12,
+      "case": "equal-name",
+      "sourceSha256": "027675b953be46213155c31e8fa36c6ac28f1ad999a5d27b287155bc36c1da7f",
+      "yaml": "Заголовок: !xml/raw\n  $значение: Test name\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 12,
+      "case": "equal-name-with-foreign",
+      "sourceSha256": "d441d4a5dd79e05198f42a1a95b7d3672168cad2751639080703479106993a4c",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    ru: Test name\n    en: Text\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 12,
+      "case": "unknown-language",
+      "sourceSha256": "b37e68af4b5962bf4a24af7114530066b8114b999817290734fcaaf356babff0",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    !xml/invalid de: Text\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 12,
+      "case": "separated-duplicate",
+      "sourceSha256": "ab2187f3101f4ceaaffd732547d72fbebb43ee50b2be71358d8841c787008809",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    ru: Первый\n    en: Text\n    !xml/invalid ru: Второй\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 12,
+      "case": "empty-first-duplicate",
+      "sourceSha256": "77a28cf27b62c2f45a4d8537bd4e21c4a3606f97e793d963118197afeb790060",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    !xml/invalid ru: \"\"\n    !xml/invalid/2 ru: Второй\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 12,
+      "case": "noncanonical-order",
+      "sourceSha256": "3780b668660577ab59984feea3360825c1a07d2b751cf3374db155d04f5b0adf",
+      "yaml": "Заголовок: !xml/raw\n  $значение: !xml/invalid\n    en: Text\n    ru: Текст\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 12,
+      "case": "service-empty-code",
+      "sourceSha256": "0c76e749621b34411df440b605332a206e9f704262726706fbeff0b71ab3125a",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    : Служебный\n    ru: Текст\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 12,
+      "case": "service-hash-code",
+      "sourceSha256": "1ce6f6b278e4a52eb7ad7dc47ca9425e68bc264e724419762b2fa2fc9b703dd8",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    \"#\": Служебный\n    ru: Текст\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 12,
+      "case": "typed-empty",
+      "sourceSha256": "af00194fdcd83a74b1fdc33e9dffcbf9061a8b7f0e9ed2981260a68381986fbf",
+      "yaml": "Title: !xml/raw\n  $xml:\n    _xsi:type: v8:LocalStringType",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 12,
+      "case": "typed-text",
+      "sourceSha256": "327b1fe8490caca33cf2e1831b76f4ffc46c6cbdb4760cc86f88834db256935c",
+      "yaml": "Заголовок: Текст",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 12,
+      "case": "nil",
+      "sourceSha256": "5788adddb8d556e19dc8ba3ed0c6c42e56f9d6d09a5574a5dbf7d11630288fe9",
+      "yaml": "Title: !xml/raw\n  $xml:\n    _xsi:nil: \"true\"",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 13,
+      "case": "missing",
+      "sourceSha256": "541b00ae0da038bb3dee3590d7ca38cc88da0a17371da1476a2fe75172517409",
+      "yaml": "",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 13,
+      "case": "empty-container",
+      "sourceSha256": "02cfcd3cbf609288b3f3c25f733fb66fb09d2e3ce200c0da9486188f8cfd8605",
+      "yaml": "Заголовок: !xml/raw\n  $значение: \"\"\n  $xml:",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 13,
+      "case": "empty-primary",
+      "sourceSha256": "c79c149affce557ecfaf8efef60ffc3c245336fe1a57c48da55f62378a96f0b5",
+      "yaml": "Заголовок: !xml/raw\n  $значение: \"\"\n  $xml:\n    v8:item:\n      v8:lang: ru\n      v8:content:",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 13,
+      "case": "primary-text",
+      "sourceSha256": "a650d0b0b11bac40c269cb97083c7aec974251b11b1c5866c112642b5d391070",
+      "yaml": "Заголовок: !xml/raw\n  $значение: Текст\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 13,
+      "case": "foreign-only",
+      "sourceSha256": "fe00de3c77d389fa203197eb95b6492399305208c6267fc91945c556de8c616c",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    en: Text\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 13,
+      "case": "equal-name",
+      "sourceSha256": "027675b953be46213155c31e8fa36c6ac28f1ad999a5d27b287155bc36c1da7f",
+      "yaml": "Заголовок: !xml/raw\n  $значение: Test name\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 13,
+      "case": "equal-name-with-foreign",
+      "sourceSha256": "d441d4a5dd79e05198f42a1a95b7d3672168cad2751639080703479106993a4c",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    ru: Test name\n    en: Text\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 13,
+      "case": "unknown-language",
+      "sourceSha256": "b37e68af4b5962bf4a24af7114530066b8114b999817290734fcaaf356babff0",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    !xml/invalid de: Text\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 13,
+      "case": "separated-duplicate",
+      "sourceSha256": "ab2187f3101f4ceaaffd732547d72fbebb43ee50b2be71358d8841c787008809",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    ru: Первый\n    en: Text\n    !xml/invalid ru: Второй\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 13,
+      "case": "empty-first-duplicate",
+      "sourceSha256": "77a28cf27b62c2f45a4d8537bd4e21c4a3606f97e793d963118197afeb790060",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    !xml/invalid ru: \"\"\n    !xml/invalid/2 ru: Второй\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 13,
+      "case": "noncanonical-order",
+      "sourceSha256": "3780b668660577ab59984feea3360825c1a07d2b751cf3374db155d04f5b0adf",
+      "yaml": "Заголовок: !xml/raw\n  $значение: !xml/invalid\n    en: Text\n    ru: Текст\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 13,
+      "case": "service-empty-code",
+      "sourceSha256": "0c76e749621b34411df440b605332a206e9f704262726706fbeff0b71ab3125a",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    : Служебный\n    ru: Текст\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 13,
+      "case": "service-hash-code",
+      "sourceSha256": "1ce6f6b278e4a52eb7ad7dc47ca9425e68bc264e724419762b2fa2fc9b703dd8",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    \"#\": Служебный\n    ru: Текст\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 13,
+      "case": "typed-empty",
+      "sourceSha256": "af00194fdcd83a74b1fdc33e9dffcbf9061a8b7f0e9ed2981260a68381986fbf",
+      "yaml": "Заголовок: !xml/raw\n  $значение: \"\"\n  $xml:\n    _xsi:type: v8:LocalStringType",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 13,
+      "case": "typed-text",
+      "sourceSha256": "327b1fe8490caca33cf2e1831b76f4ffc46c6cbdb4760cc86f88834db256935c",
+      "yaml": "Заголовок: Текст",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 13,
+      "case": "nil",
+      "sourceSha256": "5788adddb8d556e19dc8ba3ed0c6c42e56f9d6d09a5574a5dbf7d11630288fe9",
+      "yaml": "Заголовок: !xml/raw\n  $значение: \"\"\n  $xml:\n    _xsi:nil: \"true\"",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 14,
+      "case": "missing",
+      "sourceSha256": "541b00ae0da038bb3dee3590d7ca38cc88da0a17371da1476a2fe75172517409",
+      "yaml": "",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 14,
+      "case": "empty-container",
+      "sourceSha256": "02cfcd3cbf609288b3f3c25f733fb66fb09d2e3ce200c0da9486188f8cfd8605",
+      "yaml": "Заголовок: !xml/raw\n  $значение: \"\"\n  $xml:",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 14,
+      "case": "empty-primary",
+      "sourceSha256": "c79c149affce557ecfaf8efef60ffc3c245336fe1a57c48da55f62378a96f0b5",
+      "yaml": "Заголовок: !xml/raw\n  $значение: \"\"\n  $xml:\n    v8:item:\n      v8:lang: ru\n      v8:content:",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 14,
+      "case": "primary-text",
+      "sourceSha256": "a650d0b0b11bac40c269cb97083c7aec974251b11b1c5866c112642b5d391070",
+      "yaml": "Заголовок: !xml/raw\n  $значение: Текст\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 14,
+      "case": "foreign-only",
+      "sourceSha256": "fe00de3c77d389fa203197eb95b6492399305208c6267fc91945c556de8c616c",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    ru: \"\"\n    en: Text\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 14,
+      "case": "equal-name",
+      "sourceSha256": "027675b953be46213155c31e8fa36c6ac28f1ad999a5d27b287155bc36c1da7f",
+      "yaml": "Заголовок: !xml/raw\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 14,
+      "case": "equal-name-with-foreign",
+      "sourceSha256": "d441d4a5dd79e05198f42a1a95b7d3672168cad2751639080703479106993a4c",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    en: Text\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 14,
+      "case": "unknown-language",
+      "sourceSha256": "b37e68af4b5962bf4a24af7114530066b8114b999817290734fcaaf356babff0",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    ru: \"\"\n    !xml/invalid de: Text\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 14,
+      "case": "separated-duplicate",
+      "sourceSha256": "ab2187f3101f4ceaaffd732547d72fbebb43ee50b2be71358d8841c787008809",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    ru: Первый\n    en: Text\n    !xml/invalid ru: Второй\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 14,
+      "case": "empty-first-duplicate",
+      "sourceSha256": "77a28cf27b62c2f45a4d8537bd4e21c4a3606f97e793d963118197afeb790060",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    ru: \"\"\n    !xml/invalid ru: Второй\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 14,
+      "case": "noncanonical-order",
+      "sourceSha256": "3780b668660577ab59984feea3360825c1a07d2b751cf3374db155d04f5b0adf",
+      "yaml": "Заголовок: !xml/raw\n  $значение: !xml/invalid\n    en: Text\n    ru: Текст\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 14,
+      "case": "service-empty-code",
+      "sourceSha256": "0c76e749621b34411df440b605332a206e9f704262726706fbeff0b71ab3125a",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    : Служебный\n    ru: Текст\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 14,
+      "case": "service-hash-code",
+      "sourceSha256": "1ce6f6b278e4a52eb7ad7dc47ca9425e68bc264e724419762b2fa2fc9b703dd8",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    \"#\": Служебный\n    ru: Текст\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 14,
+      "case": "typed-empty",
+      "sourceSha256": "af00194fdcd83a74b1fdc33e9dffcbf9061a8b7f0e9ed2981260a68381986fbf",
+      "yaml": "Заголовок: !xml/raw\n  $значение: \"\"\n  $xml:\n    _xsi:type: v8:LocalStringType",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 14,
+      "case": "typed-text",
+      "sourceSha256": "327b1fe8490caca33cf2e1831b76f4ffc46c6cbdb4760cc86f88834db256935c",
+      "yaml": "Заголовок: Текст",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 14,
+      "case": "nil",
+      "sourceSha256": "5788adddb8d556e19dc8ba3ed0c6c42e56f9d6d09a5574a5dbf7d11630288fe9",
+      "yaml": "Заголовок: !xml/raw\n  $значение: \"\"\n  $xml:\n    _xsi:nil: \"true\"",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 15,
+      "case": "missing",
+      "sourceSha256": "541b00ae0da038bb3dee3590d7ca38cc88da0a17371da1476a2fe75172517409",
+      "yaml": "",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 15,
+      "case": "empty-container",
+      "sourceSha256": "02cfcd3cbf609288b3f3c25f733fb66fb09d2e3ce200c0da9486188f8cfd8605",
+      "yaml": "Заголовок: !xml/raw\n  $значение: \"\"\n  $xml:",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 15,
+      "case": "empty-primary",
+      "sourceSha256": "c79c149affce557ecfaf8efef60ffc3c245336fe1a57c48da55f62378a96f0b5",
+      "yaml": "Заголовок: !xml/raw\n  $значение: \"\"\n  $xml:\n    v8:item:\n      v8:lang: ru\n      v8:content:",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 15,
+      "case": "primary-text",
+      "sourceSha256": "a650d0b0b11bac40c269cb97083c7aec974251b11b1c5866c112642b5d391070",
+      "yaml": "Заголовок: !xml/raw\n  $значение: Текст\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 15,
+      "case": "foreign-only",
+      "sourceSha256": "fe00de3c77d389fa203197eb95b6492399305208c6267fc91945c556de8c616c",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    ru: \"\"\n    en: Text\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 15,
+      "case": "equal-name",
+      "sourceSha256": "027675b953be46213155c31e8fa36c6ac28f1ad999a5d27b287155bc36c1da7f",
+      "yaml": "Заголовок: !xml/raw\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 15,
+      "case": "equal-name-with-foreign",
+      "sourceSha256": "d441d4a5dd79e05198f42a1a95b7d3672168cad2751639080703479106993a4c",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    en: Text\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 15,
+      "case": "unknown-language",
+      "sourceSha256": "b37e68af4b5962bf4a24af7114530066b8114b999817290734fcaaf356babff0",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    ru: \"\"\n    !xml/invalid de: Text\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 15,
+      "case": "separated-duplicate",
+      "sourceSha256": "ab2187f3101f4ceaaffd732547d72fbebb43ee50b2be71358d8841c787008809",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    ru: Первый\n    en: Text\n    !xml/invalid ru: Второй\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 15,
+      "case": "empty-first-duplicate",
+      "sourceSha256": "77a28cf27b62c2f45a4d8537bd4e21c4a3606f97e793d963118197afeb790060",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    ru: \"\"\n    !xml/invalid ru: Второй\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 15,
+      "case": "noncanonical-order",
+      "sourceSha256": "3780b668660577ab59984feea3360825c1a07d2b751cf3374db155d04f5b0adf",
+      "yaml": "Заголовок: !xml/raw\n  $значение: !xml/invalid\n    en: Text\n    ru: Текст\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 15,
+      "case": "service-empty-code",
+      "sourceSha256": "0c76e749621b34411df440b605332a206e9f704262726706fbeff0b71ab3125a",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    : Служебный\n    ru: Текст\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 15,
+      "case": "service-hash-code",
+      "sourceSha256": "1ce6f6b278e4a52eb7ad7dc47ca9425e68bc264e724419762b2fa2fc9b703dd8",
+      "yaml": "Заголовок: !xml/raw\n  $значение:\n    \"#\": Служебный\n    ru: Текст\n  $xml:\n    _xsi:type: null",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 15,
+      "case": "typed-empty",
+      "sourceSha256": "af00194fdcd83a74b1fdc33e9dffcbf9061a8b7f0e9ed2981260a68381986fbf",
+      "yaml": "Заголовок: !xml/raw\n  $значение: \"\"\n  $xml:\n    _xsi:type: v8:LocalStringType",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    },
+    {
+      "profile": 15,
+      "case": "typed-text",
+      "sourceSha256": "327b1fe8490caca33cf2e1831b76f4ffc46c6cbdb4760cc86f88834db256935c",
+      "yaml": "Заголовок: Текст",
+      "matchesRecordedTypeScript": true,
+      "verified": true
+    },
+    {
+      "profile": 15,
+      "case": "nil",
+      "sourceSha256": "5788adddb8d556e19dc8ba3ed0c6c42e56f9d6d09a5574a5dbf7d11630288fe9",
+      "yaml": "Заголовок: !xml/raw\n  $значение: \"\"\n  $xml:\n    _xsi:nil: \"true\"",
+      "matchesRecordedTypeScript": false,
+      "verified": true
+    }
+  ]
+}

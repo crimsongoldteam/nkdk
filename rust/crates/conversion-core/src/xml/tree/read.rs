@@ -26,7 +26,7 @@ fn attach(stack: &mut [Frame], root: &mut Option<Payload>, value: Payload) -> Re
     }
     Ok(())
 }
-fn parse(source: &[u8]) -> Result<Payload> {
+pub(super) fn parse(source: &[u8]) -> Result<Payload> {
     if source.is_empty() {
         return Ok(Payload::Null);
     }
@@ -71,7 +71,7 @@ fn parse(source: &[u8]) -> Result<Payload> {
     }
     root.ok_or_else(|| failure("Missing preservation payload"))
 }
-fn expand(value: &str, namespaces: &[(&str, &str)], attribute: bool) -> Result<Name> {
+pub(super) fn expand(value: &str, namespaces: &[(&str, &str)], attribute: bool) -> Result<Name> {
     let (prefix, local) = value
         .split_once(':')
         .map_or((None, value), |(prefix, local)| (Some(prefix), local));
@@ -109,7 +109,7 @@ fn text(value: Payload) -> Result<String> {
         _ => Err(failure("Expected preserved text")),
     }
 }
-fn build(
+pub(super) fn build(
     name: Name,
     payload: Payload,
     namespaces: &[(&str, &str)],

@@ -7,7 +7,7 @@ mod patterns;
 mod presence;
 mod record;
 mod scalar;
-mod shorthand;
+pub(crate) mod shorthand;
 mod source_map;
 mod text;
 use nkdk_rule_model::*;

@@ -8,7 +8,7 @@
 - `[ ]` — объект не завершён. Промежуточные результаты учитываются только в журнале.
 - Служебные каталоги включены, чтобы не потерять их обязанности. Для них завершение означает перенос ответственности в общий Rust-механизм, а не обязательное создание отдельной YAML-декларации.
 
-Сейчас полностью принятых объектов нет. Наличие общего компилятора, синтетического примера или успешного теста отдельного свойства не означает завершение всего объекта. В частности, `common.code-type` — синтетический пример, а не перенесённое системное перечисление.
+Принят 1 common-объект: двусторонний интерфейс I8nText (XML ↔ YAML, валидация и структурная схема). Enterprise учитывается отдельно, согласно спецификации. Наличие общего компилятора, синтетического примера или успешного теста отдельного свойства не означает завершение всего объекта. В частности, `common.code-type` — синтетический пример, а не перенесённое системное перечисление.
 
 ## Когда ставить галочку
 
@@ -29,7 +29,7 @@
 
 | Группа | Записей | Полностью завершено |
 |---|---:|---:|
-| Общие объекты (common) | 90 | 0 |
+| Общие объекты (common) | 90 | 1 |
 | Вложенные части общих объектов | 27 | 0 |
 | Прикладные объекты и их вложенные части | 56 | 0 |
 | Формы, элементы и общие части форм | 66 | 0 |
@@ -66,7 +66,7 @@
 - [ ] [commonObjects/functionalOptionsProperty](../../../packages/rules/metadata/commonObjects/functionalOptionsProperty)
 - [ ] [commonObjects/help](../../../packages/rules/metadata/commonObjects/help)
 - [ ] [commonObjects/homePageWorkArea](../../../packages/rules/metadata/commonObjects/homePageWorkArea)
-- [ ] [commonObjects/i8nText](../../../packages/rules/metadata/commonObjects/i8nText)
+- [x] [commonObjects/i8nText](../../../packages/rules/metadata/commonObjects/i8nText) — 2026-09-10; [декларация](../../../rust/declarations/common/i8n-text.yaml), [приёмка и проверки](../reports/2026-09-10-i8n-acceptance.md).
 - [ ] [commonObjects/indexField](../../../packages/rules/metadata/commonObjects/indexField)
 - [ ] [commonObjects/inputByStringFields](../../../packages/rules/metadata/commonObjects/inputByStringFields)
 - [ ] [commonObjects/internalInfo](../../../packages/rules/metadata/commonObjects/internalInfo)

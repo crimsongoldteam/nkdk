@@ -184,11 +184,25 @@ impl Mapping {
         &self,
         property: &str,
         rows: impl Iterator<Item = (&'a str, Position)>,
+        issues: Vec<RuntimeDiagnostic>,
+    ) -> Vec<RuntimeDiagnostic> {
+        self.validate_with_evidence(property, rows, issues, &[])
+    }
+    /// Import constraints justify existing marks at the exact same boundary;
+    /// they do not become new errors for unannotated YAML.
+    pub fn validate_with_evidence<'a>(
+        &self,
+        property: &str,
+        rows: impl Iterator<Item = (&'a str, Position)>,
         mut issues: Vec<RuntimeDiagnostic>,
+        evidence: &[RuntimeDiagnostic],
     ) -> Vec<RuntimeDiagnostic> {
         let mut contracts = Vec::new();
         let mut apply = |mark: &Mark, target: RuntimeDiagnostic, duplicate: bool| {
-            let accepted = issues.iter().any(|issue| matches(issue, &target));
+            let accepted = issues
+                .iter()
+                .chain(evidence)
+                .any(|issue| matches(issue, &target));
             issues.retain(|issue| !matches(issue, &target));
             if mark.annotation == Annotation::Important {
                 let mut issue = target;

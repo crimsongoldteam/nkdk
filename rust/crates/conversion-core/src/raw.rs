@@ -8,6 +8,7 @@ pub struct Property {
     pub meaning: Vec<u8>,
     pub payload: Vec<u8>,
     pub has_semantic: bool,
+    pub uses_semantic_name: bool,
 }
 fn invalid(message: &str) -> RuntimeDiagnostic {
     RuntimeDiagnostic::new("yaml.raw-envelope", message)
@@ -101,6 +102,7 @@ impl Property {
             .ok_or_else(|| invalid("Raw property requires $xml"))?
             .render()?;
         let has_semantic = semantic.is_some();
+        let uses_semantic_name = name.key()? == key;
         if let Some(value) = semantic {
             if name.key()? != key {
                 return Err(invalid(
@@ -113,6 +115,7 @@ impl Property {
             meaning: Value::mapping(entries).document()?,
             payload,
             has_semantic,
+            uses_semantic_name,
         }))
     }
 }

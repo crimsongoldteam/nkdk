@@ -1,3 +1,4 @@
+mod keyed;
 use nkdk_rule_model::*;
 use serde_json::{Value, json};
 use std::str::FromStr;
@@ -180,6 +181,9 @@ impl Context<'_> {
     }
 }
 fn build(program: &Program, entry: &LinkedEntry) -> Result<Value, Diagnostic> {
+    if let Some(schema) = keyed::build(program, entry)? {
+        return Ok(schema);
+    }
     if !plain(entry) {
         return Err(unsupported(entry));
     }

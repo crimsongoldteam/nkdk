@@ -252,6 +252,12 @@ fn main() {
     let broken=String::from_utf8(preserved.bytes).unwrap().replace("$xml:", "$unknown:");
     assert!(!validate_file(foldable, broken.as_bytes(), &foldable_inputs).is_empty());
 
+    let mixed=b"<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\"><Entries><v8:item><v8:lang/><v8:content>Service</v8:content></v8:item><v8:item><v8:lang>de</v8:lang><v8:content>Text</v8:content></v8:item></Entries></Root>";
+    let mixed_yaml=convert_file(integrated,Direction::XmlToYaml,mixed,&integrated_inputs).unwrap();
+    assert!(String::from_utf8_lossy(&mixed_yaml.bytes).contains("!xml/invalid de"));
+    assert!(validate_file(integrated,&mixed_yaml.bytes,&integrated_inputs).is_empty());
+    verify_candidate(integrated,mixed,&mixed_yaml.bytes,&integrated_inputs).unwrap();
+    assert!(!validate_file(integrated,b"Entries: {\"\": Service, ru: \"\"}",&integrated_inputs).is_empty());
     let folded_tag=b"Entries:\n  !xml/invalid de: Andere";
     assert!(validate_file(foldable, folded_tag, &foldable_inputs).is_empty());
     let restored=convert_file(foldable, Direction::YamlToXml, folded_tag, &foldable_inputs).unwrap();
@@ -362,8 +368,16 @@ fn main() {
     assert_eq!(empty.bytes, b"Entries: {}");
 }"#).unwrap();
     let main = fs::read_to_string(root.join("src/main.rs")).unwrap();
-    let main = main.replacen("fn main() {", "fn main() { independent_corpus();", 1);
-    fs::write(root.join("src/main.rs"), main + &corpus_checks()).unwrap();
+    let main = main.replacen(
+        "fn main() {",
+        "fn main() { independent_corpus(); profile_matrix();",
+        1,
+    );
+    fs::write(
+        root.join("src/main.rs"),
+        main + &corpus_checks() + &matrix_checks(),
+    )
+    .unwrap();
     for args in [
         vec!["+1.98.1", "run", "--offline", "--quiet"],
         vec![
@@ -381,6 +395,11 @@ fn main() {
             .current_dir(&root)
             .output()
             .unwrap();
+        if let Ok(path) = std::env::var("NKDK_I8N_MATRIX_OUTPUT")
+            && !output.stdout.is_empty()
+        {
+            fs::write(path, &output.stdout).unwrap();
+        }
         assert!(
             output.status.success(),
             "{}: {}",
@@ -473,4 +492,95 @@ fn corpus_checks() -> String {
     );
     code.push_str("}\n");
     code
+}
+
+fn matrix_checks() -> String {
+    let repository = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..");
+    let observations: serde_json::Value = serde_json::from_slice(
+        &fs::read(repository.join("tests/migration/i8n-full-round-trip-observations.json"))
+            .unwrap(),
+    )
+    .unwrap();
+    let mut code = String::from("\nfn profile_matrix() { let mut failed=0;\n");
+    for row in observations["rows"].as_array().unwrap() {
+        let profile = row["profile"].as_u64().unwrap();
+        let case = row["case"].as_str().unwrap();
+        let xml=row["sourceXML"].as_str().unwrap().replacen("<Root>", "<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">",1);
+        let expected = matrix_expected(row);
+        let mut inputs = String::from("languages: [ru, en]");
+        if let Some(name) = row["name"].as_str() {
+            inputs.push_str(&format!("\nname: {}", serde_json::to_string(name).unwrap()));
+        }
+        code.push_str(&format!(r#"{{
+          let entry=entry_id("test.corpus-{profile}").unwrap();
+          let inputs=read_inputs(entry,{inputs:?}.as_bytes()).unwrap();
+          let xml={xml:?}.as_bytes();
+          match convert_file(entry,Direction::XmlToYaml,xml,&inputs) {{
+            Ok(value)=>{{
+              assert_eq!(std::str::from_utf8(&value.bytes).unwrap(), {expected:?}, "profile {profile} {case}");
+              let issues=validate_file(entry,&value.bytes,&inputs);
+              let proof=verify_candidate(entry,xml,&value.bytes,&inputs);
+              if !issues.is_empty() || proof.is_err() {{ failed+=1; eprintln!("{profile} {case}: {{issues:?}} {{proof:?}}"); }}
+              let encoded=value.bytes.iter().map(|byte| format!("{{byte:02x}}")).collect::<String>();
+              println!("MATRIX\t{profile}\t{case}\t{{encoded}}");
+            }},
+            Err(errors)=>{{failed+=1; eprintln!("{profile} {case}: {{errors:?}}");}},
+          }}
+        }}
+"#));
+    }
+    code.push_str("assert_eq!(failed,0,\"Full profile matrix has failures\"); }\n");
+    code
+}
+
+// Independent expectations for the approved corrections to the recorded TS
+// behavior. All other rows retain the exact original YAML expectation.
+fn matrix_expected(row: &serde_json::Value) -> String {
+    let profile = row["profile"].as_u64().unwrap();
+    let case = row["case"].as_str().unwrap();
+    let typed = profile & 8 != 0;
+    let foldable = profile & 2 != 0;
+    let type_patch = |yaml: &str| {
+        if !typed {
+            return yaml.to_owned();
+        }
+        let meaning = if yaml.is_empty() {
+            String::new()
+        } else {
+            format!(
+                "\n  $значение:{}",
+                yaml.strip_prefix("Заголовок:")
+                    .unwrap()
+                    .replace('\n', "\n  ")
+            )
+        };
+        format!("Заголовок: !xml/raw{meaning}\n  $xml:\n    _xsi:type: null")
+    };
+    if case == "noncanonical-order" {
+        return type_patch("Заголовок: !xml/invalid\n  en: Text\n  ru: Текст");
+    }
+    if case == "empty-first-duplicate" {
+        return type_patch(if foldable {
+            "Заголовок:\n  ru: \"\"\n  !xml/invalid ru: Второй"
+        } else {
+            "Заголовок:\n  !xml/invalid ru: \"\"\n  !xml/invalid/2 ru: Второй"
+        });
+    }
+    if foldable && case == "equal-name-with-foreign" {
+        return type_patch("Заголовок:\n  en: Text");
+    }
+    if foldable && case == "equal-name" {
+        return type_patch("");
+    }
+    if row["outcome"] != "preserved" {
+        let payload = match case {
+            "empty-container" => "",
+            "empty-primary" => "\n    v8:item:\n      v8:lang: ru\n      v8:content:",
+            "typed-empty" => "\n    _xsi:type: v8:LocalStringType",
+            "nil" => "\n    _xsi:nil: \"true\"",
+            _ => panic!("Unreviewed TS failure: {case}"),
+        };
+        return format!("Заголовок: !xml/raw\n  $значение: \"\"\n  $xml:{payload}");
+    }
+    row["yaml"].as_str().unwrap().to_owned()
 }

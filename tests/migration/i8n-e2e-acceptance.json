@@ -1,0 +1,370 @@
+{
+  "scope": "I8nText properties of root Catalog/Document objects; not full-project e2e or a benchmark",
+  "cases": [
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/ЗначенияХарактеристик.xml",
+      "sha256": "58773b4f054597f6979fb4709c27d914db3804affb9c559b833a2ae0e53616ec",
+      "name": "ЗначенияХарактеристик",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/ПараметрыВыбора.xml",
+      "sha256": "1daefe64e500e908f32d7a366733bb365edbb5a0c193fc4c5f41012988289b2d",
+      "name": "ПараметрыВыбора",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/ПоУмолчанию.xml",
+      "sha256": "ec36f22853fb3ca9bb73a7574734a9bbfef58db1446ebcb500efb811508f79cb",
+      "name": "ПоУмолчанию",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникCоВсемиОбъектами.xml",
+      "sha256": "0b6783aa9e5468c6205210c90e6e159e7a09c25fad69be082b6a039a4a56e1a5",
+      "name": "СправочникCоВсемиОбъектами",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникБезКодИНаименования.xml",
+      "sha256": "e40003535f7e5dea555e0abc894e2db1472bb240e1b84320456427cb53df7f8f",
+      "name": "СправочникБезКодИНаименования",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникВладелец.xml",
+      "sha256": "c25865f1f70c463f8743596b3254d0749fbc0dbec32e5fd56b9fcfc92508e493",
+      "name": "СправочникВладелец",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникДвоичныеДанные.xml",
+      "sha256": "1c9ac9c325f834b5322e9ce6657eaf4edef7ca6655dd299626b49c2217cc2f63",
+      "name": "СправочникДвоичныеДанные",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникКомандныйИнтерфейс.xml",
+      "sha256": "e36763cb8ac588767165493ac667b70f5415816947f611f829ca1594bfdc31c6",
+      "name": "СправочникКомандныйИнтерфейс",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникМаксимальнаяДлинаКодаИНаименования.xml",
+      "sha256": "ff675bed6bbf21edce21d858b74836b517ce01b8178d5da189f3ec7059ccd7a1",
+      "name": "СправочникМаксимальнаяДлинаКодаИНаименования",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникМаксимальнаяДлинаКодаИНаименованияЧисло.xml",
+      "sha256": "d5195f31df69ed65a011900ca12449cd60a04c039f5266a92c92e7dbb5af851a",
+      "name": "СправочникМаксимальнаяДлинаКодаИНаименованияЧисло",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникОбщиеРеквизиты.xml",
+      "sha256": "f5dfb36d118d83a092c6f02232b7c1be378d53463489adf85273f272318773f7",
+      "name": "СправочникОбщиеРеквизиты",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml",
+      "sha256": "27231ddedad3d68c1c8aa071d611c32f94681c7bc94d6533b22ee9409b0217dd",
+      "name": "СправочникПолный",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникРеквизит.xml",
+      "sha256": "080673dc01565e136dc8f3cc6667c4a516fece687dbafa99fbf5ae70a27d3be1",
+      "name": "СправочникРеквизит",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникРеквизитБезСинонима.xml",
+      "sha256": "85e7e02d512939bd4e037efcc025c2f679eb26241cb1bcb6d3031124ae6ff6ae",
+      "name": "СправочникРеквизитБезСинонима",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникСВладельцем.xml",
+      "sha256": "832d619313d9e4fd41b0204c5f8acdb3bfef4e1b6b63e9149d2cb9048a0aa221",
+      "name": "СправочникСВладельцем",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникСПредопределенными.xml",
+      "sha256": "38b7a0d75fed45dd44b780eb1b92c682148db4129825d8e310a33c97b1f190b6",
+      "name": "СправочникСПредопределенными",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникСХарактеристиками.xml",
+      "sha256": "36dbc7844baf9eff30363b9416624b39ebcde4adb52886fba70d84e242978c3e",
+      "name": "СправочникСХарактеристиками",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникТолькоКод.xml",
+      "sha256": "0518c56c623aaddcdfdba45b02faa6fcea74b6a252ba8fff0b0cda02a8655331",
+      "name": "СправочникТолькоКод",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникТолькоНаименование.xml",
+      "sha256": "0f26dd2d02dba7825c2bc481efa144c9411fa60c2715c7f8c79039d352f2fb91",
+      "name": "СправочникТолькоНаименование",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникФормаВсеСвойства.xml",
+      "sha256": "0317495f4a8c9bd3116e4d32b66e42e31e6fbac2eee68858be9a07f8d78bd4c7",
+      "name": "СправочникФормаВсеСвойства",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникФормаТабличнаяЧасть.xml",
+      "sha256": "1d1b3e98ae9444fe65135924a03ae8d3b40be3541730cc5e7abc38c167596377",
+      "name": "СправочникФормаТабличнаяЧасть",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/ЗначенияХарактеристикExt.xml",
+      "sha256": "a770a05c72fe225909318a6715ead280e35583f245e1930e4fd20dd3e665881a",
+      "name": "ЗначенияХарактеристикExt",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/ПараметрыВыбораExt.xml",
+      "sha256": "7d3c49f6cb4ff84c063b003f7a0e9ec48aab63b529a7fe4c2879be434140c6da",
+      "name": "ПараметрыВыбораExt",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/ПоУмолчанию.xml",
+      "sha256": "d152a40ce5236ff72f366a27b3a703b695ad6209a6d07abac4ffa09f62806b7a",
+      "name": "ПоУмолчанию",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/ПоУмолчаниюExt.xml",
+      "sha256": "686e51969d969c32addc81816ffeb702971d8763a8259dd6cccccbe91d91db61",
+      "name": "ПоУмолчаниюExt",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникCоВсемиОбъектамиExt.xml",
+      "sha256": "86a700ae56a48422b0daada8d74238a5cf8b90cb348fa32486dbdb2d4d9ba4c8",
+      "name": "СправочникCоВсемиОбъектамиExt",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникВладелецExt.xml",
+      "sha256": "1f16fa107bff75645471e1b8b7dc54b9b6a6e25426531e2305e567fa31ee37d3",
+      "name": "СправочникВладелецExt",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникДвоичныеДанныеExt.xml",
+      "sha256": "ce99724b6fdba0555f5cdfe1e2b2e8ad15389cee6d9a32cee148e30d813c032c",
+      "name": "СправочникДвоичныеДанныеExt",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникКомандныйИнтерфейсExt.xml",
+      "sha256": "f95d750dbf4d6dbe1588ae9f9658f2a194deabdc5c3c2875f473aa1c504fba6e",
+      "name": "СправочникКомандныйИнтерфейсExt",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникОбщиеРеквизитыExt.xml",
+      "sha256": "82bdcc468d1bb7e1700790a2f3225265affea9dc4c80d52701ee2c2b158fb207",
+      "name": "СправочникОбщиеРеквизитыExt",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникПолныйExt.xml",
+      "sha256": "d0f5a2010c7e7b8a29cae27a21f48ac071e90d10b78a927d6bd41cf398ec4580",
+      "name": "СправочникПолныйExt",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникРеквизит.xml",
+      "sha256": "fa37739c7609920c2d1bfafba87e97b135d0ab37d5815279021d3acf839ffa5f",
+      "name": "СправочникРеквизит",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникРеквизитExt.xml",
+      "sha256": "a204e50dff5c50314e7b7263cc6335d10de3ec4d4f9b1c712319ebc2e1f95128",
+      "name": "СправочникРеквизитExt",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникРеквизитБезСинонимаExt.xml",
+      "sha256": "d4e2a35a3bf47b9042f54976575b2d298b9f1b63a088d8f1ac48213b1181ccfa",
+      "name": "СправочникРеквизитБезСинонимаExt",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникСВладельцемExt.xml",
+      "sha256": "18146c2250f58a7cc14a6753609d0c1cdb5fa817cd7720f039998442bbfd6615",
+      "name": "СправочникСВладельцемExt",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникСПредопределеннымиExt.xml",
+      "sha256": "10f64d635059a8024ded0bae1c3ba169e7cf46bc354489ae6c0cd7dab20a78cb",
+      "name": "СправочникСПредопределеннымиExt",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникФормаВсеСвойстваExt.xml",
+      "sha256": "50344872f4584098467b0a7267305f2583930406c369bf330440566e2489a2a3",
+      "name": "СправочникФормаВсеСвойстваExt",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникФормаТабличнаяЧастьExt.xml",
+      "sha256": "a8962e86b8de132c1685cfc6b765c1be71d6b4f77a1706e15f4adeaf0e776c54",
+      "name": "СправочникФормаТабличнаяЧастьExt",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументБезНомера.xml",
+      "sha256": "213baccf8f18062043acd6eafa6db59c4961e6a86126c837f918b54ff9e7f812",
+      "name": "ДокументБезНомера",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства.xml",
+      "sha256": "346554c79ff22c0239e18eaa00e69bc203b161485dcbd6a482b191871f90b79e",
+      "name": "ДокументВсеСвойства",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументДругойДляЖурнала.xml",
+      "sha256": "d0e7ad7b6bf2ecaad57f80627c3fc5b8b9749c0ff561c1c5c89d165acaf8b940",
+      "name": "ДокументДругойДляЖурнала",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументКнопкаСПараметрами.xml",
+      "sha256": "44104a7a85966fe43831e0a20cb1b54899f68a3e62d32d3fc76cc336ce54415c",
+      "name": "ДокументКнопкаСПараметрами",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументМаксимальнаяДлинаНомераСтрока.xml",
+      "sha256": "6965b019b691abafbd130fed3d2c0e24b196b4381d7f97a736a22436ebcaa386",
+      "name": "ДокументМаксимальнаяДлинаНомераСтрока",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументМаксимальнаяДлинаНомераЧисло.xml",
+      "sha256": "de5112a4e062c2c2a6c77d93fdb2eb371587c9253c3167aecfea11ea077985b8",
+      "name": "ДокументМаксимальнаяДлинаНомераЧисло",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументПоУмолчанию.xml",
+      "sha256": "39684df92c4531cd47edbcb6c6b62f35d3600a65b4a5ddd5d65f997965f747df",
+      "name": "ДокументПоУмолчанию",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументСНумератором.xml",
+      "sha256": "d87095892e57c947584c910df6202d7c04eb878b53a544c7916eb6875e19b184",
+      "name": "ДокументСНумератором",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Documents/ДокументВсеСвойства.xml",
+      "sha256": "6445b9c1728afc38babd360b742d8ea4e595d109828576f64595f8ac212510b9",
+      "name": "ДокументВсеСвойства",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Documents/ДокументВсеСвойстваExt.xml",
+      "sha256": "dc44cba2816c8da178f7fc72bef06b824593fc9a23ade0676b1144a7e1effe66",
+      "name": "ДокументВсеСвойстваExt",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Documents/ДокументДругойДляЖурналаExt.xml",
+      "sha256": "99b0d9d1277918529b920980587d845ea97262a2fdb069dd0700518aa0c0d872",
+      "name": "ДокументДругойДляЖурналаExt",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Documents/ДокументКнопкаСПараметрамиExt.xml",
+      "sha256": "4d2f0f017e11d4ebd8963de54b6e8a5b4136b23ceb49cf6add7babc89eecc617",
+      "name": "ДокументКнопкаСПараметрамиExt",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Documents/ДокументПоУмолчаниюExt.xml",
+      "sha256": "b4f6760ce693349f0005d11d0263491eed883bf5a028565a5ff905feaba2d0a7",
+      "name": "ДокументПоУмолчаниюExt",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Documents/ДокументСНумераторомExt.xml",
+      "sha256": "8cf327ace7556fe10b5bbf87f94b5a2d62e32b4f30d59cc7aa75c4e526529fed",
+      "name": "ДокументСНумераторомExt",
+      "defaultLanguage": "ru",
+      "verified": true
+    }
+  ],
+  "verified": 52
+}
