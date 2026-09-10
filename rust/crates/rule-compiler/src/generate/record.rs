@@ -6,6 +6,7 @@ struct Field<'a> {
     path: &'a [ExpandedName],
     key: &'a str,
     codec: Codec<'a>,
+    optional: bool,
 }
 pub(super) fn path_code(path: &[ExpandedName]) -> String {
     format!(
@@ -50,10 +51,18 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
             .find(|mapping| mapping.field == field.name)
             .ok_or_else(|| unsupported(entry, "YAML field missing"))?;
         let codec = Codec::resolve(&field.value, entry, program)?;
+        let optional = super::scalar::field_optional(&field.value, program)?;
+        if optional && !entry.constraints.is_empty() {
+            return Err(unsupported(
+                entry,
+                "Constraints on optional scalar records are not generated",
+            ));
+        }
         fields.push(Field {
             path: &mapping.path,
             key: &yaml.key,
             codec,
+            optional,
         });
     }
     let Some(first) = fields.first() else {
@@ -90,7 +99,11 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
         writeln!(
             out,
             "f{i}: {},",
-            field.codec.rust_type(&format!("E{id}F{i}"))
+            if field.optional {
+                format!("Option<{}>", field.codec.rust_type(&format!("E{id}F{i}")))
+            } else {
+                field.codec.rust_type(&format!("E{id}F{i}"))
+            }
         )
         .unwrap();
     }
@@ -138,13 +151,23 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
             }
             out.push_str("if core::xml::is_whitespace(text) { Ok(()) } else { Err(RuntimeDiagnostic::new(\"xml.unexpected-text\", \"Text outside a declared scalar\")) } }, core::xml::Token::End => Ok(()) } })?;\n");
         } else {
-            out.push_str("core::yaml::visit_scalars(source, |key, value| { match key.as_str() {\n");
+            out.push_str("core::yaml::visit_scalars(if source.is_empty() { b\"{}\" } else { source }, |key, value| { match key.as_str() {\n");
             for (i, field) in fields.iter().enumerate() {
                 writeln!(out, "{:?} => {{ positions[{i}] = value.position(); r{i} = Some(value.{}().map_err(|error| error.field({:?}))?); Ok(()) }},", field.key, field.codec.yaml_input(), field.key).unwrap();
             }
             out.push_str("_ => Err(RuntimeDiagnostic::new(\"yaml.unknown-field\", format!(\"Unknown YAML key: {key}\")).field(key)) } })?;\n");
         }
         for (i, field) in fields.iter().enumerate() {
+            if field.optional {
+                writeln!(out, "let f{i} = if let Some(r{i}) = r{i} {{").unwrap();
+                out.push_str(
+                    &field
+                        .codec
+                        .read(&format!("E{id}F{i}"), i, field.key, xml_side),
+                );
+                writeln!(out, "Some(f{i}) }} else {{ None }};").unwrap();
+                continue;
+            }
             writeln!(
                 out,
                 "let r{i} = r{i}.ok_or_else(|| positions[{i}].apply(source, RuntimeDiagnostic::new(\"value.missing\", {:?}).field({:?})))?;",
@@ -175,9 +198,20 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
         .filter(|ns| !ns.is_empty())
         .collect();
     writeln!(out, "fn write_xml_{id}(value: &V{id}, _inputs: &PreparedInputs) -> core::Result<Vec<u8>> {{ let mut out = core::xml::Writer::new(&{:?});", namespaces.into_iter().collect::<Vec<_>>()).unwrap();
+    writeln!(out, "out.container({});", path_code(&first.path[..1])).unwrap();
     for (i, field) in fields.iter().enumerate() {
-        let text = field.codec.write(&format!("E{id}F{i}"), i, true);
+        let text = if field.optional {
+            writeln!(out, "if let Some(field_value) = &value.f{i} {{").unwrap();
+            field
+                .codec
+                .write_reference(&format!("E{id}F{i}"), "field_value", true)
+        } else {
+            field.codec.write(&format!("E{id}F{i}"), i, true)
+        };
         writeln!(out, "out.field({}, {text});", path_code(field.path)).unwrap();
+        if field.optional {
+            out.push_str("}\n");
+        }
     }
     out.push_str("Ok(out.finish()) }\n");
     writeln!(
@@ -186,13 +220,23 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
     )
     .unwrap();
     for (i, field) in fields.iter().enumerate() {
-        let text = field.codec.write(&format!("E{id}F{i}"), i, false);
+        let text = if field.optional {
+            writeln!(out, "if let Some(field_value) = &value.f{i} {{").unwrap();
+            field
+                .codec
+                .write_reference(&format!("E{id}F{i}"), "field_value", false)
+        } else {
+            field.codec.write(&format!("E{id}F{i}"), i, false)
+        };
         let yaml = if field.codec.numeric() {
             text
         } else {
             format!("&core::yaml::scalar({text})")
         };
         writeln!(out, "out.push_str(&core::yaml::scalar({:?})); out.push_str(\": \"); out.push_str({yaml}); out.push('\\n');", field.key).unwrap();
+        if field.optional {
+            out.push_str("}\n");
+        }
     }
     out.push_str("if !out.is_empty() { out.pop(); } Ok(out.into_bytes()) }\n");
     writeln!(out, "fn verify_{id}(original: &[u8], candidate: &[u8], _inputs: &PreparedInputs) -> core::Result<()> {{ let value = read_yaml_{id}(candidate, _inputs)?; if let Some(error) = check_yaml_{id}(&value, candidate, _inputs).into_iter().find(|error| error.severity == core::Severity::Error) {{ return Err(error); }} let restored = write_xml_{id}(&value, _inputs)?; core::proof::verify(original, &restored, |path| {{").unwrap();

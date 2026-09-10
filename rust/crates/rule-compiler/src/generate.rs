@@ -7,7 +7,7 @@ mod inputs;
 mod patterns;
 mod presence;
 mod record;
-mod scalar;
+pub(crate) mod scalar;
 pub(crate) mod shorthand;
 mod source_map;
 mod text;

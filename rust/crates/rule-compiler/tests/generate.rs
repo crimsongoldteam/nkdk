@@ -31,8 +31,15 @@ fn generated_rust_executes_both_directions_and_uses_the_imported_table() {
     fs::write(root.join("Cargo.toml"), format!("[package]\nname = \"generated-contract\"\nversion = \"0.0.0\"\nedition = \"2024\"\n[dependencies]\nnkdk-conversion-core = {{ path = {:?}, features = [\"test-probes\"] }}\n[workspace]\n", core)).unwrap();
     for literal in ["Истина", "Да"] {
         let common = common.replace("Истина", literal);
+        let optional = common.replace("common.boolean", "common.optional-boolean")
+            + "\npresence:\n  - target: self\n    xml: {missing: {denotes: {absent: true}}}\n    yaml: {missing: {denotes: {absent: true}}}\n";
+        let optional_owner = owner
+            .replace("test.scalar-owner", "test.optional-owner")
+            .replace("common.boolean", "common.optional-boolean");
         let mut modules = [
             ("common.yaml", common.as_str()),
+            ("optional.yaml", optional.as_str()),
+            ("optional-owner.yaml", optional_owner.as_str()),
             ("owner.yaml", owner),
             ("enum.yaml", enumeration),
             ("enum-owner.yaml", enum_owner),
@@ -61,6 +68,8 @@ fn generated_rust_executes_both_directions_and_uses_the_imported_table() {
                 "enum-owner.yaml",
                 "enum.yaml",
                 "numeric-bound.yaml",
+                "optional-owner.yaml",
+                "optional.yaml",
                 "owner.yaml",
                 "warning-bound.yaml"
             ]
@@ -125,6 +134,17 @@ fn main() {
     }
     let errors = validate_file(enumeration, "ТипКода: Неизвестно".as_bytes(), &PreparedInputs::default());
     assert_eq!(errors[0].path, ["ТипКода"]);
+    let optional = entry_id("test.optional-owner").unwrap();
+    for (xml, yaml) in [
+        ("<Root><Description>x</Description></Root>", "Описание: x"),
+        ("<Root><Server>false</Server><Description>x</Description></Root>", "Сервер: Ложь\nОписание: x"),
+    ] {
+        let result = convert_file(optional, Direction::XmlToYaml, xml.as_bytes(), &PreparedInputs::default()).unwrap();
+        assert_eq!(result.bytes, yaml.as_bytes());
+        assert!(validate_file(optional, yaml.as_bytes(), &PreparedInputs::default()).is_empty());
+        verify_candidate(optional, xml.as_bytes(), yaml.as_bytes(), &PreparedInputs::default()).unwrap();
+    }
+    assert!(convert_file(optional, Direction::XmlToYaml, b"<Root><Server/><Description>x</Description></Root>", &PreparedInputs::default()).is_err());
     let entry = entry_id("test.scalar-owner").unwrap();
     let field_source = DECLARATION_FIELDS.iter().find(|field| field.entry == entry.0 && field.name == "server").unwrap();
     assert_eq!((field_source.value.file, field_source.value.line), ("owner.yaml", 8));

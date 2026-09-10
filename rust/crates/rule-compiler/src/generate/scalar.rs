@@ -22,7 +22,7 @@ impl<'a> Codec<'a> {
                     .iter()
                     .find(|entry| entry.id == *id)
                     .expect("linked reference");
-                plain(target)?;
+                optional(target)?;
                 match (&target.value, &target.xml, &target.yaml) {
                     (
                         LinkedType::Scalar(ScalarType::Decimal),
@@ -148,16 +148,70 @@ impl<'a> Codec<'a> {
         if matches!(self, Self::Decimal) {
             return format!("&value.f{index}.to_string()");
         }
+        self.write_reference(name, &format!("&value.f{index}"), xml_side)
+    }
+    pub fn write_reference(&self, name: &str, reference: &str, xml_side: bool) -> String {
+        if matches!(self, Self::Decimal) {
+            return format!("&({reference}).to_string()");
+        }
         if matches!(self, Self::Text) {
-            return format!("&value.f{index}");
+            return reference.into();
         }
         format!(
-            "match value.f{index} {{ {} }}",
+            "match {reference} {{ {} }}",
             self.cases(name, xml_side)
                 .iter()
                 .map(|(text, value)| format!("{value} => {text:?},"))
                 .collect::<Vec<_>>()
                 .join("")
         )
+    }
+}
+
+/// Absence is a declared state, not a default for an unknown scalar token.
+/// Other presence forms must be generated explicitly before accepting them.
+pub(crate) fn optional(entry: &LinkedEntry) -> Result<bool, Diagnostic> {
+    if entry.presence.is_empty() {
+        plain(entry)?;
+        return Ok(false);
+    }
+    let missing = |value: &Option<LinkedExpression>| {
+        value
+            .as_ref()
+            .is_some_and(|v| matches!(v.kind, LinkedExpressionKind::Absent))
+    };
+    if entry.presence.len() != 1
+        || !entry.presence.iter().all(|p| {
+            p.target == LinkedPresenceTarget::SelfValue
+                && missing(&p.xml_missing)
+                && missing(&p.yaml_missing)
+                && p.xml_empty.is_empty()
+                && p.yaml_empty.is_empty()
+                && p.canonical.is_empty()
+                && p.yaml_omit_when.is_none()
+        })
+    {
+        return Err(unsupported(
+            entry,
+            "Scalar presence requires explicit reversible absence",
+        ));
+    }
+    let mut shape = entry.clone();
+    shape.presence.clear();
+    plain(&shape)?;
+    Ok(true)
+}
+
+pub(crate) fn field_optional(value: &LinkedType, program: &Program) -> Result<bool, Diagnostic> {
+    if let LinkedType::Reference(id) = value {
+        optional(
+            program
+                .entries
+                .iter()
+                .find(|entry| entry.id == *id)
+                .expect("linked reference"),
+        )
+    } else {
+        Ok(false)
     }
 }

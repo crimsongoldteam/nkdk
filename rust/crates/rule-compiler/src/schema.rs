@@ -56,9 +56,7 @@ fn scalar(
                 .iter()
                 .find(|entry| entry.id == *id)
                 .expect("linked reference");
-            if !plain(target) || !target.constraints.is_empty() {
-                return Err(unsupported(target));
-            }
+            crate::generate::scalar::optional(target).map_err(|_| unsupported(target))?;
             match &target.yaml {
                 YamlRepresentation::Text => Ok(json!({"type":"string"})),
                 YamlRepresentation::Decimal => {
@@ -218,7 +216,11 @@ fn build(program: &Program, entry: &LinkedEntry) -> Result<Value, Diagnostic> {
     let mut required = vec![];
     for (index, field) in fields.iter().enumerate() {
         properties.insert(context.key(index).into(), scalar(program, entry, field)?);
-        required.push(context.key(index));
+        if !crate::generate::scalar::field_optional(&field.value, program)
+            .map_err(|_| unsupported(entry))?
+        {
+            required.push(context.key(index));
+        }
     }
     let mut result = json!({"$schema":"https://json-schema.org/draft/2020-12/schema", "type":"object", "properties":properties, "required":required, "additionalProperties":false});
     let mut constraints = vec![];

@@ -159,3 +159,32 @@ fn composed_schema_requires_text_or_a_true_flag_and_reuses_text_constraints() {
         assert_eq!(validator.is_valid(&value), accepted, "{value}");
     }
 }
+
+#[test]
+fn scalar_absence_changes_required_fields_without_widening_boolean_values() {
+    let modules = [
+        (
+            "boolean.yaml",
+            include_bytes!("../../../declarations/common/boolean.yaml").as_slice(),
+        ),
+        (
+            "owner.yaml",
+            include_bytes!("../../../declarations/probes/boolean.yaml").as_slice(),
+        ),
+    ]
+    .map(|(path, bytes)| parse(SourceFile { path, bytes }).unwrap());
+    let program = link(&modules).unwrap();
+    let value: serde_json::Value =
+        serde_json::from_slice(&schema(&program, "pilot.boolean").unwrap()).unwrap();
+    let validator = jsonschema::validator_for(&value).unwrap();
+    for (input, valid) in [
+        (serde_json::json!({}), true),
+        (serde_json::json!({"Значение":"Истина"}), true),
+        (serde_json::json!({"Значение":"Ложь"}), true),
+        (serde_json::json!({"Значение":false}), false),
+        (serde_json::json!({"Значение":null}), false),
+        (serde_json::json!({"Значение":""}), false),
+    ] {
+        assert_eq!(validator.is_valid(&input), valid, "{input}");
+    }
+}
