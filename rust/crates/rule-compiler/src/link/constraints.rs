@@ -54,14 +54,9 @@ pub(super) fn resolve_constraints(
             let at = match &constraint.diagnostic.at {
                 DiagnosticTarget::SelfValue => LinkedDiagnosticTarget::SelfValue,
                 DiagnosticTarget::Field(name) => {
-                    if !module.compose.is_empty() {
-                        return Err(diagnostic(
-                            "unsupported_link_feature",
-                            &constraint.source,
-                            "Composed diagnostic fields are not linked yet",
-                        ));
-                    }
-                    let TypeDefinition::Record(fields) = &module.value else {
+                    let LinkedType::Record(fields) =
+                        expressions::module_shape(module, modules, ids, &mut BTreeSet::new())?
+                    else {
                         return Err(diagnostic(
                             "unknown_field",
                             &constraint.source,

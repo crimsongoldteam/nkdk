@@ -184,26 +184,10 @@ pub(super) fn resolve_expression_in(
                 LinkedType::Scalar(ScalarType::Boolean),
             )
         }
-        ExpressionKind::SelfValue => {
-            if !module.compose.is_empty() {
-                return Err(diagnostic(
-                    "unsupported_link_feature",
-                    &expression.source,
-                    "Composed self shape is not linked yet",
-                ));
-            }
-            (
-                LinkedExpressionKind::SelfValue,
-                field_shape(
-                    module,
-                    &module.value,
-                    &expression.source,
-                    modules,
-                    ids,
-                    &mut BTreeSet::new(),
-                )?,
-            )
-        }
+        ExpressionKind::SelfValue => (
+            LinkedExpressionKind::SelfValue,
+            module_shape(module, modules, ids, &mut BTreeSet::new())?,
+        ),
         ExpressionKind::Get { value, field } => {
             let value = resolve_expression_in(module, value, modules, ids, scope)?;
             let LinkedType::Record(fields) = &value.value_type else {
@@ -329,14 +313,9 @@ pub(super) fn resolve_expression_in(
             )
         }
         ExpressionKind::Field(name) => {
-            if !module.compose.is_empty() {
-                return Err(diagnostic(
-                    "unsupported_link_feature",
-                    &expression.source,
-                    "Field binding across composition is not linked yet",
-                ));
-            }
-            let TypeDefinition::Record(fields) = &module.value else {
+            let LinkedType::Record(fields) =
+                module_shape(module, modules, ids, &mut BTreeSet::new())?
+            else {
                 return Err(diagnostic(
                     "unknown_field",
                     &expression.source,
@@ -352,14 +331,7 @@ pub(super) fn resolve_expression_in(
                 })?;
             (
                 LinkedExpressionKind::Field(index as u32),
-                field_shape(
-                    module,
-                    &field.definition,
-                    &expression.source,
-                    modules,
-                    ids,
-                    &mut BTreeSet::new(),
-                )?,
+                field.value.clone(),
             )
         }
         ExpressionKind::Input(name) => {
@@ -465,7 +437,7 @@ pub(super) fn field_shape(
                     "Recursive value shape needs an explicit recursion contract",
                 ));
             }
-            let result = field_shape(target, &target.value, source, modules, ids, visiting);
+            let result = module_shape(target, modules, ids, visiting);
             visiting.remove(&target.id);
             result
         }
@@ -536,4 +508,80 @@ fn require_same(left: &LinkedExpression, right: &LinkedExpression) -> Result<(),
             "Expression operands have incompatible types",
         ))
     }
+}
+
+pub(super) fn module_shape(
+    module: &Module,
+    modules: &BTreeMap<&str, &Module>,
+    ids: &BTreeMap<&str, u32>,
+    visiting: &mut BTreeSet<String>,
+) -> Result<LinkedType, Diagnostic> {
+    let key = format!("module:{}", module.id);
+    if !visiting.insert(key.clone()) {
+        return Err(diagnostic(
+            "composition_cycle",
+            &module.source,
+            "Composed shape is cyclic",
+        ));
+    }
+    let own = field_shape(
+        module,
+        &module.value,
+        &module.source,
+        modules,
+        ids,
+        visiting,
+    )?;
+    if module.compose.is_empty() {
+        visiting.remove(&key);
+        return Ok(own);
+    }
+    let LinkedType::Record(mut own_fields) = own else {
+        return Err(diagnostic(
+            "invalid_composition_role",
+            &module.source,
+            "Composition requires record fields",
+        ));
+    };
+    let mut fields = vec![];
+    for usage in &module.compose {
+        let import = module
+            .imports
+            .iter()
+            .find(|import| import.name == usage.name)
+            .ok_or_else(|| {
+                diagnostic(
+                    "missing_import_alias",
+                    &usage.source,
+                    "Fragment alias is not declared",
+                )
+            })?;
+        let target = modules[import.value.as_str()];
+        if target.kind != ModuleKind::Fragment {
+            return Err(diagnostic(
+                "expected_fragment",
+                &usage.source,
+                "Composition target must be a fragment",
+            ));
+        }
+        let LinkedType::Record(fragment) = module_shape(target, modules, ids, visiting)? else {
+            return Err(diagnostic(
+                "invalid_composition_role",
+                &usage.source,
+                "Fragment must contain record fields",
+            ));
+        };
+        fields.extend(fragment);
+    }
+    fields.append(&mut own_fields);
+    let mut seen = BTreeMap::new();
+    for field in &fields {
+        if let Some(first) = seen.insert(&field.name, &field.source) {
+            let mut error = diagnostic("duplicate_field", &field.source, "Composed fields collide");
+            error.related.push(first.clone());
+            return Err(error);
+        }
+    }
+    visiting.remove(&key);
+    Ok(LinkedType::Record(fields))
 }

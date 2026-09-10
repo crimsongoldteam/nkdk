@@ -1,5 +1,6 @@
 mod bindings;
 mod collections;
+mod composition;
 mod constraints;
 mod denotations;
 mod dependencies;
@@ -145,14 +146,9 @@ fn build_entry(
         let mut included_fields = vec![];
         let mut included_xml = vec![];
         let mut included_yaml = vec![];
+        let mut included_constraints = vec![];
+        let mut included_presence = vec![];
         for usage in &module.compose {
-            if !usage.arguments.is_empty() || !usage.bindings.is_empty() {
-                return Err(diagnostic(
-                    "unsupported_link_feature",
-                    &usage.source,
-                    "Parameterized composition is not linked yet",
-                ));
-            }
             let import = module
                 .imports
                 .iter()
@@ -179,37 +175,30 @@ fn build_entry(
                     "Fragment normalization is not linked yet",
                 ));
             }
-            if !target.presence.is_empty() {
+            if target
+                .presence
+                .iter()
+                .any(|rule| matches!(rule.target, PresenceTarget::SelfValue))
+            {
                 return Err(diagnostic(
                     "unsupported_link_feature",
                     &usage.source,
                     "Fragment presence relocation is not linked yet",
                 ));
             }
-            if !target.constraints.is_empty() {
-                return Err(diagnostic(
-                    "unsupported_link_feature",
-                    &usage.source,
-                    "Fragment constraint relocation is not linked yet",
-                ));
-            }
-            if !target.parameters.is_empty() {
-                return Err(diagnostic(
-                    "unsupported_link_feature",
-                    &usage.source,
-                    "Parameterized fragment specialization is not linked yet",
-                ));
-            }
-            if !target.inputs.is_empty() {
-                return Err(diagnostic(
-                    "missing_input_binding",
-                    &usage.source,
-                    "Fragment input has no binding",
-                ));
-            }
-            let fragment = build_entry(target, modules, ids, visiting, cache)?;
+            let bindings = resolve_bindings(module, target, usage, modules, ids)?;
+            let arguments = parameters::resolve_arguments(target, usage, modules, ids)?;
+            let mut fragment = build_entry(target, modules, ids, visiting, cache)?;
+            composition::instantiate(
+                &mut fragment,
+                included_fields.len() as u32,
+                &bindings,
+                &arguments,
+            )?;
+            included_constraints.extend(fragment.constraints);
+            included_presence.extend(fragment.presence);
             let (
-                LinkedType::Record(mut fields),
+                LinkedType::Record(fields),
                 LinkedXml::Record(xml),
                 YamlRepresentation::Mapping(yaml),
             ) = (fragment.value, fragment.xml, fragment.yaml)
@@ -220,9 +209,6 @@ fn build_entry(
                     "Fragment requires record representations",
                 ));
             };
-            for field in &mut fields {
-                dependencies::shift_fields(&mut field.value, included_fields.len() as u32);
-            }
             included_fields.extend(fields);
             included_xml.extend(xml);
             included_yaml.extend(yaml);
@@ -236,6 +222,38 @@ fn build_entry(
                 "Composition requires record representations",
             ));
         };
+        included_presence.append(&mut entry.presence);
+        entry.presence = included_presence;
+        let mut presence_targets = BTreeMap::new();
+        for rule in &entry.presence {
+            let target = match rule.target {
+                LinkedPresenceTarget::SelfValue => None,
+                LinkedPresenceTarget::Field(index) => Some(index),
+            };
+            if let Some(first) = presence_targets.insert(target, &rule.source) {
+                let mut error = diagnostic(
+                    "duplicate_presence",
+                    &rule.source,
+                    "Composed presence targets collide",
+                );
+                error.related.push(first.clone());
+                return Err(error);
+            }
+        }
+        included_constraints.append(&mut entry.constraints);
+        entry.constraints = included_constraints;
+        let mut constraint_names = BTreeMap::new();
+        for constraint in &entry.constraints {
+            if let Some(first) = constraint_names.insert(&constraint.id, &constraint.source) {
+                let mut error = diagnostic(
+                    "duplicate_constraint",
+                    &constraint.source,
+                    "Composed constraint ids collide",
+                );
+                error.related.push(first.clone());
+                return Err(error);
+            }
+        }
         included_fields.append(fields);
         included_xml.append(xml);
         included_yaml.append(yaml);
@@ -252,9 +270,9 @@ fn build_entry(
             }
         }
     }
-    entry.field_dependencies = dependencies::field_dependencies(&entry.value)?;
-    validate_xml(&entry.value, &entry.xml, &entry.source)?;
-    validate_yaml(&entry.value, &entry.yaml, &entry.source)?;
+    entry.field_dependencies = dependencies::field_dependencies(&entry.value, &entry.presence)?;
+    validate_xml(&entry.value, &entry.xml, &entry.presence, &entry.source)?;
+    validate_yaml(&entry.value, &entry.yaml, &entry.presence, &entry.source)?;
     visiting.remove(&id);
     cache.insert(id, entry.clone());
     Ok(entry)
@@ -449,6 +467,7 @@ fn diagnostic(code: &str, source: &SourceLocation, message: &str) -> Diagnostic 
 fn validate_xml(
     value: &LinkedType,
     xml: &LinkedXml,
+    presence: &[LinkedPresence],
     source: &SourceLocation,
 ) -> Result<(), Diagnostic> {
     match (value, xml) {
@@ -490,16 +509,10 @@ fn validate_xml(
                 }
                 paths.insert(key, &mapping.source);
             }
-            if covered != names {
-                return Err(diagnostic(
-                    "unrepresented_field",
-                    source,
-                    "Record field has no XML representation or restoration",
-                ));
-            }
+            check_coverage(fields, &covered, presence, RepresentationSide::Xml, source)?;
         }
         (LinkedType::Sequence(item), LinkedXml::ElementSequence { item: xml, .. }) => {
-            validate_xml(item, xml, source)?
+            validate_xml(item, xml, &[], source)?
         }
         (LinkedType::Scalar(ScalarType::Boolean), LinkedXml::BooleanTable(table)) => {
             validate_boolean_table(table, source)?
@@ -519,6 +532,7 @@ fn validate_xml(
 fn validate_yaml(
     value: &LinkedType,
     yaml: &YamlRepresentation,
+    presence: &[LinkedPresence],
     source: &SourceLocation,
 ) -> Result<(), Diagnostic> {
     match (value, yaml) {
@@ -551,13 +565,7 @@ fn validate_yaml(
                     return Err(error);
                 }
             }
-            if covered != names {
-                return Err(diagnostic(
-                    "unrepresented_field",
-                    source,
-                    "Record field has no YAML representation or restoration",
-                ));
-            }
+            check_coverage(fields, &covered, presence, RepresentationSide::Yaml, source)?;
         }
         (LinkedType::Sequence(item), YamlRepresentation::KeyedMapping { key, value, .. }) => {
             let LinkedType::Record(fields) = item.as_ref() else {
@@ -626,6 +634,39 @@ fn validate_boolean_table(
             source,
             "Canonical boolean table must map two values to distinct spellings",
         ));
+    }
+    Ok(())
+}
+
+enum RepresentationSide {
+    Xml,
+    Yaml,
+}
+fn check_coverage(
+    fields: &[LinkedField],
+    covered: &BTreeSet<&str>,
+    presence: &[LinkedPresence],
+    side: RepresentationSide,
+    source: &SourceLocation,
+) -> Result<(), Diagnostic> {
+    for (index, field) in fields.iter().enumerate() {
+        if covered.contains(field.name.as_str()) {
+            continue;
+        }
+        let restored = presence.iter().any(|rule| {
+            rule.target == LinkedPresenceTarget::Field(index as u32)
+                && match side {
+                    RepresentationSide::Xml => rule.xml_missing.is_some(),
+                    RepresentationSide::Yaml => rule.yaml_missing.is_some(),
+                }
+        });
+        if !restored {
+            return Err(diagnostic(
+                "unrepresented_field",
+                source,
+                "Record field has neither representation nor explicit restoration",
+            ));
+        }
     }
     Ok(())
 }

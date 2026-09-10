@@ -1,16 +1,36 @@
 use super::*;
 
-pub(super) fn field_dependencies(value: &LinkedType) -> Result<Vec<Vec<u32>>, Diagnostic> {
+pub(super) fn field_dependencies(
+    value: &LinkedType,
+    presence: &[LinkedPresence],
+) -> Result<Vec<Vec<u32>>, Diagnostic> {
     let LinkedType::Record(fields) = value else {
         return Ok(vec![]);
     };
-    let dependencies: Vec<Vec<u32>> = fields
+    let mut sets: Vec<BTreeSet<u32>> = fields
         .iter()
         .map(|field| {
             let mut result = BTreeSet::new();
             collect(&field.value, &mut result);
-            result.into_iter().collect()
+            result
         })
+        .collect();
+    for rule in presence {
+        if let LinkedPresenceTarget::Field(index) = rule.target {
+            let target = &mut sets[index as usize];
+            for value in rule.xml_missing.iter().chain(&rule.yaml_missing).chain(
+                rule.xml_empty
+                    .iter()
+                    .chain(&rule.yaml_empty)
+                    .map(|form| &form.denotes),
+            ) {
+                collect_expression(value, target);
+            }
+        }
+    }
+    let dependencies: Vec<Vec<u32>> = sets
+        .into_iter()
+        .map(|set| set.into_iter().collect())
         .collect();
     let mut states = vec![0; fields.len()];
     for index in 0..fields.len() {
@@ -63,23 +83,6 @@ fn visit(
     Ok(())
 }
 
-pub(super) fn shift_fields(value: &mut LinkedType, offset: u32) {
-    match value {
-        LinkedType::BoundReference { bindings, .. } => {
-            for binding in bindings {
-                shift_expression(&mut binding.value, offset);
-            }
-        }
-        LinkedType::Sequence(item) => shift_fields(item, offset),
-        LinkedType::Record(fields) => {
-            for field in fields {
-                shift_fields(&mut field.value, offset);
-            }
-        }
-        _ => {}
-    }
-}
-
 fn collect_expression(value: &LinkedExpression, result: &mut BTreeSet<u32>) {
     match &value.kind {
         LinkedExpressionKind::SelfValue => {
@@ -93,18 +96,6 @@ fn collect_expression(value: &LinkedExpression, result: &mut BTreeSet<u32>) {
         LinkedExpressionKind::Operation { arguments, .. } => {
             for argument in arguments {
                 collect_expression(argument, result);
-            }
-        }
-        _ => {}
-    }
-}
-
-fn shift_expression(value: &mut LinkedExpression, offset: u32) {
-    match &mut value.kind {
-        LinkedExpressionKind::Field(index) => *index += offset,
-        LinkedExpressionKind::Operation { arguments, .. } => {
-            for argument in arguments {
-                shift_expression(argument, offset);
             }
         }
         _ => {}

@@ -223,15 +223,16 @@ fn fragment_composition_cycles_are_rejected() {
 #[test]
 fn unsupported_behavior_is_not_silently_erased() {
     let text = format!(
-        "{}\npresence:\n  - target: {{field: server}}\n    xml:\n      canonical: [{{form: ordinary}}]\n",
-        include_str!("fixtures/owner.yaml")
+        "{}\nconstraints:\n  - id: numeric\n    appliesTo: [yaml-validation]\n    assert: {{lt: [{{literal: 1}}, {{literal: 2}}]}}\n    diagnostic:\n      severity: error\n      at: {{self: true}}\n      message: Invalid\n",
+        include_str!("fixtures/common.yaml")
     );
-    let mut source = modules();
-    source[1] = parse(SourceFile {
-        path: "owner.yaml",
-        bytes: text.as_bytes(),
-    })
-    .unwrap();
+    let source = vec![
+        parse(SourceFile {
+            path: "common.yaml",
+            bytes: text.as_bytes(),
+        })
+        .unwrap(),
+    ];
     let errors = link(&source).unwrap_err();
     assert!(
         errors
@@ -1086,5 +1087,214 @@ fn constraint_forms_must_exist_in_the_selected_representation_phase() {
         .unwrap();
         let result = link(&[module]);
         assert_eq!(result.is_ok(), accepted, "{phase} {form}: {result:?}");
+    }
+}
+
+#[test]
+fn composition_substitutes_inputs_parameters_and_constraint_addresses() {
+    let common = format!(
+        "{}\ninputs:\n  enabled: {{type: {{kind: scalar, scalar: boolean}}}}\n",
+        include_str!("fixtures/common.yaml")
+    );
+    let fragment = include_str!("fixtures/owner.yaml")
+        .replace("kind: object", "kind: fragment")
+        .replace("applied.common-module", "common.fragment")
+        .replace(
+            "{use: boolean}",
+            "{use: boolean, bind: {enabled: {and: [{parameter: permit}, {input: ready}]}}}",
+        )
+        + "\ninputs:\n  ready: {type: {kind: scalar, scalar: boolean}}\nparameters:\n  permit: {type: {kind: scalar, scalar: boolean}, default: true}\nconstraints:\n  - id: enabled\n    appliesTo: [yaml-validation]\n    assert: {field: server}\n    diagnostic:\n      severity: error\n      at: {field: server}\n      message: Disabled\npresence:\n  - target: {field: server}\n    xml:\n      missing: {denotes: {parameter: permit}}\n";
+    let prefix = include_str!("fixtures/owner.yaml")
+        .replace("kind: object", "kind: fragment")
+        .replace("applied.common-module", "common.prefix")
+        .replace("{use: boolean}", "{kind: scalar, scalar: boolean}")
+        .replace("server", "prefix")
+        .replace("Server", "Prefix")
+        .replace("Сервер", "Prefix");
+    let owner = "format: nkdk-declarations/1\nkind: object\nid: applied.owner\nimports: {prefix: common.prefix, body: common.fragment}\ninputs:\n  active: {type: {kind: scalar, scalar: boolean}}\ncompose: [{use: prefix}, {use: body, with: {permit: false}, bind: {ready: {input: active}}}]\nvalue: {kind: record, fields: []}\nrepresentations:\n  xml: {kind: record, fields: []}\n  yaml: {kind: mapping, fields: []}\n";
+    let source = [
+        ("common.yaml", common.as_str()),
+        ("fragment.yaml", fragment.as_str()),
+        ("prefix.yaml", prefix.as_str()),
+        ("owner.yaml", owner),
+    ]
+    .into_iter()
+    .map(|(path, text)| {
+        parse(SourceFile {
+            path,
+            bytes: text.as_bytes(),
+        })
+        .unwrap()
+    })
+    .collect::<Vec<_>>();
+    let program = link(&source).unwrap();
+    let entry = &program.entries[0];
+    assert_eq!(entry.constraints.len(), 1);
+    assert_eq!(
+        entry.presence[0].target,
+        nkdk_rule_model::LinkedPresenceTarget::Field(1)
+    );
+    assert_eq!(
+        entry.presence[0].xml_missing.as_ref().unwrap().kind,
+        nkdk_rule_model::LinkedExpressionKind::Literal(nkdk_rule_model::ScalarLiteral::Boolean(
+            false
+        ))
+    );
+    assert_eq!(
+        entry.constraints[0].diagnostic.at,
+        nkdk_rule_model::LinkedDiagnosticTarget::Field(1)
+    );
+    let nkdk_rule_model::LinkedType::Record(fields) = &entry.value else {
+        panic!("record expected")
+    };
+    let nkdk_rule_model::LinkedType::BoundReference { bindings, .. } = &fields[1].value else {
+        panic!("bound field expected")
+    };
+    let nkdk_rule_model::LinkedExpressionKind::Operation { arguments, .. } =
+        &bindings[0].value.kind
+    else {
+        panic!("conjunction expected")
+    };
+    assert_eq!(
+        arguments[0].kind,
+        nkdk_rule_model::LinkedExpressionKind::Literal(nkdk_rule_model::ScalarLiteral::Boolean(
+            false
+        ))
+    );
+    assert_eq!(
+        arguments[1].kind,
+        nkdk_rule_model::LinkedExpressionKind::Input(0)
+    );
+}
+
+#[test]
+fn owner_fields_can_depend_on_composed_fields() {
+    let common = format!(
+        "{}\ninputs:\n  enabled: {{type: {{kind: scalar, scalar: boolean}}}}\n",
+        include_str!("fixtures/common.yaml")
+    );
+    let fragment = include_str!("fixtures/owner.yaml")
+        .replace("kind: object", "kind: fragment")
+        .replace("applied.common-module", "common.fragment")
+        .replace("{use: boolean}", "{kind: scalar, scalar: boolean}")
+        .replace("server", "flag")
+        .replace("Server", "Flag")
+        .replace("Сервер", "Flag");
+    let owner = include_str!("fixtures/owner.yaml")
+        .replace(
+            "  boolean: common.boolean",
+            "  boolean: common.boolean\n  body: common.fragment",
+        )
+        .replace(
+            "{use: boolean}",
+            "{use: boolean, bind: {enabled: {field: flag}}}",
+        )
+        + "\ncompose: [{use: body}]\nconstraints:\n  - id: field-check\n    appliesTo: [yaml-validation]\n    assert: {get: {of: {self: true}, field: flag}}\n    diagnostic:\n      severity: error\n      at: {field: server}\n      message: Disabled\n";
+    let source = [
+        ("common.yaml", common.as_str()),
+        ("fragment.yaml", fragment.as_str()),
+        ("owner.yaml", owner.as_str()),
+    ]
+    .into_iter()
+    .map(|(path, text)| {
+        parse(SourceFile {
+            path,
+            bytes: text.as_bytes(),
+        })
+        .unwrap()
+    })
+    .collect::<Vec<_>>();
+    let program = link(&source).unwrap();
+    let entry = &program.entries[0];
+    assert_eq!(entry.field_dependencies, vec![vec![], vec![0]]);
+    assert_eq!(
+        entry.constraints[0].diagnostic.at,
+        nkdk_rule_model::LinkedDiagnosticTarget::Field(1)
+    );
+}
+
+#[test]
+fn composed_constraints_cannot_silently_override_each_other() {
+    let first = include_str!("fixtures/owner.yaml")
+        .replace("kind: object", "kind: fragment")
+        .replace("applied.common-module", "common.first")
+        + "\nconstraints:\n  - id: shared\n    appliesTo: [yaml-validation]\n    assert: {literal: true}\n    diagnostic:\n      severity: error\n      at: {self: true}\n      message: Invalid\n";
+    let second = first
+        .replace("common.first", "common.second")
+        .replace("server", "client")
+        .replace("Server", "Client")
+        .replace("Сервер", "Client");
+    let owner = "format: nkdk-declarations/1\nkind: object\nid: applied.owner\nimports: {a: common.first, b: common.second}\ncompose: [{use: a}, {use: b}]\nvalue: {kind: record, fields: []}\nrepresentations:\n  xml: {kind: record, fields: []}\n  yaml: {kind: mapping, fields: []}\n";
+    let source = [
+        ("common.yaml", include_str!("fixtures/common.yaml")),
+        ("a.yaml", first.as_str()),
+        ("b.yaml", second.as_str()),
+        ("owner.yaml", owner),
+    ]
+    .into_iter()
+    .map(|(path, text)| {
+        parse(SourceFile {
+            path,
+            bytes: text.as_bytes(),
+        })
+        .unwrap()
+    })
+    .collect::<Vec<_>>();
+    let errors = link(&source).unwrap_err();
+    let error = errors
+        .iter()
+        .find(|error| error.code == "duplicate_constraint")
+        .unwrap();
+    assert_eq!(error.file, "b.yaml");
+    assert_eq!(error.related[0].file, "a.yaml");
+}
+
+#[test]
+fn field_presence_defaults_are_typed_and_participate_in_dependency_checks() {
+    for (denotes, expected) in [
+        ("{literal: false}", None),
+        ("{literal: text}", Some("expression_type_mismatch")),
+        ("{field: server}", Some("field_dependency_cycle")),
+    ] {
+        let mut source = modules();
+        let text = format!(
+            "{}\npresence:\n  - target: {{field: server}}\n    xml:\n      missing: {{denotes: {denotes}}}\n    yaml:\n      missing: {{denotes: {denotes}}}\n",
+            include_str!("fixtures/owner.yaml")
+        );
+        source[1] = parse(SourceFile {
+            path: "owner.yaml",
+            bytes: text.as_bytes(),
+        })
+        .unwrap();
+        let result = link(&source);
+        if let Some(code) = expected {
+            assert!(result.unwrap_err().iter().any(|error| error.code == code));
+        } else {
+            assert!(result.is_ok(), "{result:?}");
+        }
+    }
+}
+
+#[test]
+fn omitted_representation_requires_an_explicit_restoration() {
+    for (restore, accepted) in [(true, true), (false, false)] {
+        let mut source = modules();
+        let owner = include_str!("fixtures/owner.yaml").replace(
+            "    fields:\n      - field: server\n        path: [md:Properties, md:Server]",
+            "    fields: []",
+        );
+        let owner = if restore {
+            owner
+                + "\npresence:\n  - target: {field: server}\n    xml:\n      missing: {denotes: {literal: false}}\n"
+        } else {
+            owner
+        };
+        source[1] = parse(SourceFile {
+            path: "owner.yaml",
+            bytes: owner.as_bytes(),
+        })
+        .unwrap();
+        let result = link(&source);
+        assert_eq!(result.is_ok(), accepted, "{result:?}");
     }
 }

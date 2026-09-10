@@ -178,6 +178,7 @@ pub struct LinkedShorthand {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct LinkedPresence {
+    pub target: LinkedPresenceTarget,
     pub xml_missing: Option<LinkedExpression>,
     pub yaml_missing: Option<LinkedExpression>,
     pub xml_empty: Vec<LinkedEmpty>,
@@ -223,4 +224,10 @@ pub enum LinkedForm {
     YamlScalar,
     YamlMapping,
     YamlKeyedMapping,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum LinkedPresenceTarget {
+    SelfValue,
+    Field(u32),
 }

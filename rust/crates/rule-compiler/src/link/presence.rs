@@ -9,21 +9,34 @@ pub(super) fn resolve(
         .presence
         .iter()
         .map(|presence| {
-            if !matches!(presence.target, PresenceTarget::SelfValue) {
-                return Err(diagnostic(
-                    "unsupported_link_feature",
-                    &presence.source,
-                    "Field presence scope is not linked yet",
-                ));
-            }
-            let expected = expressions::field_shape(
-                module,
-                &module.value,
-                &module.source,
-                modules,
-                ids,
-                &mut BTreeSet::new(),
-            )?;
+            let shape = expressions::module_shape(module, modules, ids, &mut BTreeSet::new())?;
+            let (target, expected) = match &presence.target {
+                PresenceTarget::SelfValue => (LinkedPresenceTarget::SelfValue, shape),
+                PresenceTarget::Field(name) => {
+                    let LinkedType::Record(fields) = shape else {
+                        return Err(diagnostic(
+                            "unknown_field",
+                            &presence.source,
+                            "Field presence requires record",
+                        ));
+                    };
+                    let (index, field) = fields
+                        .iter()
+                        .enumerate()
+                        .find(|(_, field)| &field.name == name)
+                        .ok_or_else(|| {
+                            diagnostic(
+                                "unknown_field",
+                                &presence.source,
+                                "Presence target does not exist",
+                            )
+                        })?;
+                    (
+                        LinkedPresenceTarget::Field(index as u32),
+                        field.value.clone(),
+                    )
+                }
+            };
             let denotes = |expression: &Expression| {
                 denotations::resolve(module, expression, &expected, modules, ids)
             };
@@ -56,6 +69,7 @@ pub(super) fn resolve(
                 })
                 .collect::<Result<_, Diagnostic>>()?;
             Ok(LinkedPresence {
+                target,
                 canonical,
                 xml_missing: presence.xml_missing.as_ref().map(denotes).transpose()?,
                 yaml_missing: presence.yaml_missing.as_ref().map(denotes).transpose()?,
