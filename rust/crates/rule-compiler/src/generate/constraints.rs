@@ -7,10 +7,21 @@ struct Expressions<'a> {
     fields: &'a [LinkedField],
     constants: String,
     next_constant: usize,
+    transforms: BTreeSet<(u32, u32)>,
+    fallible: bool,
 }
 impl Expressions<'_> {
     fn lower(&mut self, value: &LinkedExpression) -> Result<String, Diagnostic> {
         Ok(match &value.kind {
+            LinkedExpressionKind::Variable(slot) => match value.value_type {
+                LinkedType::Scalar(ScalarType::Text) => format!("v{slot}.as_str()"),
+                _ => {
+                    return Err(unsupported(
+                        self.entry,
+                        "This local variable type is not generated",
+                    ));
+                }
+            },
             LinkedExpressionKind::Field(index) => {
                 let field = &self.fields[*index as usize];
                 scalar::Codec::resolve(&field.value, self.entry, self.program)?
@@ -36,6 +47,27 @@ impl Expressions<'_> {
                     .map(|value| self.lower(value))
                     .collect::<Result<Vec<_>, _>>()?;
                 match operator {
+                    LinkedOperator::Transform { entry, index } => {
+                        self.fallible = true;
+                        if self.transforms.insert((*entry, *index)) {
+                            let target = self
+                                .program
+                                .entries
+                                .iter()
+                                .find(|target| target.id == *entry)
+                                .expect("linked transform entry");
+                            self.constants.push_str(&text::generate(
+                                *entry,
+                                *index,
+                                &target.text_transforms[*index as usize].definition,
+                            ));
+                        }
+                        format!("text_{entry}_{index}({})?", values[0])
+                    }
+                    LinkedOperator::MatchOptional(slot) => format!(
+                        "match {} {{ Some(v{slot}) => {}, None => {} }}",
+                        values[0], values[1], values[2]
+                    ),
                     LinkedOperator::Equal | LinkedOperator::Less | LinkedOperator::LessEqual => {
                         if arguments[0].value_type == LinkedType::Scalar(ScalarType::Decimal) {
                             let function = match operator {
@@ -129,9 +161,12 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
             fields,
             constants: String::new(),
             next_constant: 0,
+            transforms: BTreeSet::new(),
+            fallible: false,
         };
         let mut body = String::new();
         for constraint in selected {
+            expressions.fallible = false;
             if constraint.for_each.is_some() || constraint.diagnostic.source.is_some() {
                 return Err(unsupported(
                     entry,
@@ -196,7 +231,14 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
             } else {
                 format!("({when}) && !({assertion})")
             };
-            writeln!(body, "if {condition} {{ let mut error = RuntimeDiagnostic::new({code:?}, {message:?}){address}; error.severity = core::Severity::{severity}; errors.push({position}.apply(_source, error)); }}").unwrap();
+            let report = format!(
+                "let mut error = RuntimeDiagnostic::new({code:?}, {message:?}){address}; error.severity = core::Severity::{severity}; errors.push({position}.apply(_source, error));"
+            );
+            if expressions.fallible {
+                writeln!(body, "let evaluate = || -> core::Result<bool> {{ Ok({condition}) }}; match evaluate() {{ Ok(true) => {{ {report} }}, Ok(false) => {{}}, Err(error) => errors.push({position}.apply(_source, error{address})), }}").unwrap();
+            } else {
+                writeln!(body, "if {condition} {{ {report} }}").unwrap();
+            }
         }
         out.push_str(&expressions.constants);
         out.push_str("let mut errors = Vec::new();\n");

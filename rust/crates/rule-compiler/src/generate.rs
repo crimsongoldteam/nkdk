@@ -2,6 +2,7 @@ mod constraints;
 mod record;
 mod scalar;
 mod source_map;
+mod text;
 use nkdk_rule_model::*;
 use std::collections::BTreeSet;
 
@@ -125,7 +126,6 @@ fn plain_shape(entry: &LinkedEntry) -> Result<(), Diagnostic> {
         || !entry.presence.is_empty()
         || !entry.shorthands.is_empty()
         || entry.normalization.is_some()
-        || !entry.text_transforms.is_empty()
     {
         return Err(unsupported(
             entry,
