@@ -39,7 +39,7 @@ pub enum LinkedType {
     BoundReference {
         entry: u32,
         bindings: Vec<LinkedBinding>,
-        arguments: Vec<ScalarLiteral>,
+        arguments: Vec<LinkedExpression>,
     },
 }
 

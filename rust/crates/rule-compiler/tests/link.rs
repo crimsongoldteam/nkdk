@@ -1945,7 +1945,7 @@ fn imported_collection_and_sibling_attribute_share_xml_wrapper_without_overlappi
     let formatted =
         include_str!("../../../../tests/declaration-corpus/valid/formatted-i8n-text-core.yaml");
     let text = include_str!("../../../../tests/declaration-corpus/valid/i8n-text-core.yaml");
-    let boolean = include_str!("../../../../tests/declaration-corpus/valid/boolean-flag.yaml");
+    let boolean = include_str!("../../../declarations/common/boolean-flag.yaml");
     let check = |formatted: &str, text: &str| {
         let source = [
             ("formatted.yaml", formatted),
@@ -2001,7 +2001,7 @@ fn imported_collection_and_sibling_attribute_share_xml_wrapper_without_overlappi
 
 #[test]
 fn boolean_value_can_be_represented_by_reversible_absence_instead_of_a_literal() {
-    let source = include_str!("../../../../tests/declaration-corpus/valid/boolean-flag.yaml");
+    let source = include_str!("../../../declarations/common/boolean-flag.yaml");
     let check = |source: &str| {
         let module = parse(SourceFile {
             path: "flag.yaml",
@@ -2096,5 +2096,57 @@ fn decimal_boundaries_and_enum_literals_are_typed_before_generation() {
         })
         .unwrap();
         assert!(nkdk_rule_compiler::link(&changed).is_err());
+    }
+}
+
+#[test]
+fn forwarded_static_parameters_require_a_declared_parameter_of_the_same_type() {
+    let common = include_str!("../../../declarations/common/formatted-i8n-text.yaml");
+    for (source, expected) in [
+        (common.to_owned(), None),
+        (
+            common.replace(
+                "typedXML: {parameter: typedXML}",
+                "typedXML: {parameter: missing}",
+            ),
+            Some("unknown_parameter"),
+        ),
+        (
+            common
+                .replace(
+                    "parameters:\n",
+                    "parameters:\n  wrong: {type: {kind: scalar, scalar: text}, default: wrong}\n",
+                )
+                .replace(
+                    "typedXML: {parameter: typedXML}",
+                    "typedXML: {parameter: wrong}",
+                ),
+            Some("parameter_type_mismatch"),
+        ),
+    ] {
+        let modules = [
+            ("composite", source.as_str()),
+            (
+                "text",
+                include_str!("../../../declarations/common/i8n-text.yaml"),
+            ),
+            (
+                "flag",
+                include_str!("../../../declarations/common/boolean-flag.yaml"),
+            ),
+        ]
+        .map(|(path, source)| {
+            parse(SourceFile {
+                path,
+                bytes: source.as_bytes(),
+            })
+            .unwrap()
+        });
+        let result = link(&modules);
+        if let Some(code) = expected {
+            assert_eq!(result.unwrap_err()[0].code, code);
+        } else {
+            result.unwrap();
+        }
     }
 }

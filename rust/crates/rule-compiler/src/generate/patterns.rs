@@ -10,7 +10,7 @@ struct Builder<'a> {
     common: &'a LinkedEntry,
     program: &'a Program,
     bindings: &'a [LinkedBinding],
-    arguments: &'a [ScalarLiteral],
+    arguments: &'a [LinkedExpression],
     fields: &'a [LinkedField],
     prefix: String,
     next: usize,
@@ -145,7 +145,7 @@ pub(super) fn generate(
     common: &LinkedEntry,
     program: &Program,
     bindings: &[LinkedBinding],
-    arguments: &[ScalarLiteral],
+    arguments: &[LinkedExpression],
     fields: &[LinkedField],
     index: usize,
 ) -> Result<Pattern, Diagnostic> {

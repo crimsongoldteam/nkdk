@@ -1,5 +1,5 @@
 {
-  "entry": "migration.formatted-i8n-probe",
+  "entry": "migration.formatted-i8n-text-probe",
   "defaultLanguage": "ru",
   "profile": "ordinary",
   "boundary": "property"

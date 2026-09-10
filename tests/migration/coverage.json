@@ -3405,9 +3405,12 @@
       "path": "packages/rules/metadata/commonObjects/formattedI8nText/fromXML.ts",
       "sha256": "59055db814e6056cef77fbda2fa31bb2977c58d2fe93489bafcfde237868aad2",
       "group": "formattedI8nText",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/formatted-i8n-text.yaml",
+      "verifiedCases": [
+        "tests/migration/formatted-i8n-e2e-acceptance.json",
+        "docs/superpowers/reports/2026-09-10-formatted-i8n-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/formattedI8nText/fromYAML.test.ts",
@@ -3421,9 +3424,12 @@
       "path": "packages/rules/metadata/commonObjects/formattedI8nText/fromYAML.ts",
       "sha256": "922bf54d1d20141f22c9905e9d7af48bb2f2184000cbc30cecceb7fdbec5be21",
       "group": "formattedI8nText",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/formatted-i8n-text.yaml",
+      "verifiedCases": [
+        "tests/migration/formatted-i8n-e2e-acceptance.json",
+        "docs/superpowers/reports/2026-09-10-formatted-i8n-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/formattedI8nText/helper.test.ts",
@@ -3437,17 +3443,23 @@
       "path": "packages/rules/metadata/commonObjects/formattedI8nText/helper.ts",
       "sha256": "beed11bd65bf42fa8ab1c0b1d2f81a18bef8f93835325267a5e75e472e3f69b4",
       "group": "formattedI8nText",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/formatted-i8n-text.yaml",
+      "verifiedCases": [
+        "tests/migration/formatted-i8n-e2e-acceptance.json",
+        "docs/superpowers/reports/2026-09-10-formatted-i8n-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/formattedI8nText/registry.types.ts",
       "sha256": "339567b483a3eb37719e40150918a7bb509ecb8ab0b0571d47f1165eb8db0424",
       "group": "formattedI8nText",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/formatted-i8n-text.yaml",
+      "verifiedCases": [
+        "tests/migration/formatted-i8n-e2e-acceptance.json",
+        "docs/superpowers/reports/2026-09-10-formatted-i8n-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/formattedI8nText/toEnterprise.test.ts",
@@ -3477,9 +3489,12 @@
       "path": "packages/rules/metadata/commonObjects/formattedI8nText/toJSONSchema.ts",
       "sha256": "4a2a4cc0a4238148471381d87dd0751ea373cb914002068a069a56fa2a68efd9",
       "group": "formattedI8nText",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/formatted-i8n-text.yaml",
+      "verifiedCases": [
+        "tests/migration/formatted-i8n-e2e-acceptance.json",
+        "docs/superpowers/reports/2026-09-10-formatted-i8n-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/formattedI8nText/toXML.test.ts",
@@ -3493,9 +3508,12 @@
       "path": "packages/rules/metadata/commonObjects/formattedI8nText/toXML.ts",
       "sha256": "43ff3d7a7319bf31c3ad6e1e08952b7a304567b666fee3f0dc2dec8e7ce8b27a",
       "group": "formattedI8nText",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/formatted-i8n-text.yaml",
+      "verifiedCases": [
+        "tests/migration/formatted-i8n-e2e-acceptance.json",
+        "docs/superpowers/reports/2026-09-10-formatted-i8n-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/formattedI8nText/toYAML.test.ts",
@@ -3509,9 +3527,12 @@
       "path": "packages/rules/metadata/commonObjects/formattedI8nText/toYAML.ts",
       "sha256": "9101d88e22cda94b255103e6ef86aae69b93e3bd6699c08f2ba37539eeb81b7e",
       "group": "formattedI8nText",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/formatted-i8n-text.yaml",
+      "verifiedCases": [
+        "tests/migration/formatted-i8n-e2e-acceptance.json",
+        "docs/superpowers/reports/2026-09-10-formatted-i8n-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/formattedI8nText/types.test.ts",
@@ -3525,9 +3546,12 @@
       "path": "packages/rules/metadata/commonObjects/formattedI8nText/types.ts",
       "sha256": "0a5ccd353ee8f1aab048bdaa73befbaf915d95e41e28ec23c5cf9c95d1236cba",
       "group": "formattedI8nText",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/formatted-i8n-text.yaml",
+      "verifiedCases": [
+        "tests/migration/formatted-i8n-e2e-acceptance.json",
+        "docs/superpowers/reports/2026-09-10-formatted-i8n-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/functionalOptionsProperty/fromXML.integration.test.ts",

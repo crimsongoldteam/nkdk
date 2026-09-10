@@ -7,11 +7,15 @@
   ],
   "parameters": {
     "excludeIfEqualNameYAML": false,
-    "xmlWithDefaultLanguage": false
+    "xmlWithDefaultLanguage": false,
+    "preserveEmptyXML": false,
+    "skipEmptyToXML": false,
+    "typedXML": false
   },
   "boundary": "property",
   "reference": false,
   "xmlFragmentNamespaces": {
     "v8": "http://v8.1c.ru/8.1/data/core"
-  }
+  },
+  "profile": "ordinary"
 }

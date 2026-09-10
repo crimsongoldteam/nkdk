@@ -1,3 +1,4 @@
+mod composite;
 mod keyed;
 use nkdk_rule_model::*;
 use serde_json::{Value, json};
@@ -134,10 +135,22 @@ impl Context<'_> {
     fn expression(&self, expression: &LinkedExpression) -> Result<Value, Diagnostic> {
         match &expression.kind {
             LinkedExpressionKind::Literal(ScalarLiteral::Boolean(value)) => Ok(json!(value)),
+            LinkedExpressionKind::Field(index) => {
+                let index = *index as usize;
+                Ok(
+                    json!({"properties":{self.key(index):{"const":self.literal(index,&ScalarLiteral::Boolean(true))?}},"required":[self.key(index)]}),
+                )
+            }
             LinkedExpressionKind::Operation {
                 operator,
                 arguments,
             } => match operator {
+                LinkedOperator::State(StatePredicate::Present) => {
+                    let LinkedExpressionKind::Field(index) = arguments[0].kind else {
+                        return Err(unsupported(self.entry));
+                    };
+                    Ok(json!({"required":[self.key(index as usize)]}))
+                }
                 LinkedOperator::And | LinkedOperator::Or => {
                     let values = arguments
                         .iter()
@@ -181,6 +194,9 @@ impl Context<'_> {
     }
 }
 fn build(program: &Program, entry: &LinkedEntry) -> Result<Value, Diagnostic> {
+    if let Some(schema) = composite::build(program, entry)? {
+        return Ok(schema);
+    }
     if let Some(schema) = keyed::build(program, entry)? {
         return Ok(schema);
     }

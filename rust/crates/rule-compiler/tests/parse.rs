@@ -749,7 +749,9 @@ fn imported_type_accepts_static_arguments_and_dynamic_bindings() {
     };
     assert_eq!(
         usage.arguments[0].value,
-        nkdk_rule_model::ScalarLiteral::Number("12345678901234567890.0123".into())
+        nkdk_rule_model::StaticValue::Literal(nkdk_rule_model::ScalarLiteral::Number(
+            "12345678901234567890.0123".into()
+        ))
     );
     assert_eq!(
         usage.bindings[0].value.kind,
@@ -764,7 +766,7 @@ fn with_rejects_runtime_expressions_and_bind_requires_expression_tree() {
     for (usage, code) in [
         (
             "{use: boolean, with: {enabled: {input: value}}}",
-            "expected_scalar",
+            "unknown_key",
         ),
         ("{use: boolean, bind: {value: true}}", "expected_mapping"),
         ("{local: boolean, with: {value: true}}", "unknown_key"),
@@ -868,7 +870,7 @@ fn composition_preserves_explicit_fragment_arguments() {
     assert_eq!(module.compose[0].name, "identity");
     assert_eq!(
         module.compose[0].arguments[0].value,
-        nkdk_rule_model::ScalarLiteral::Boolean(true)
+        nkdk_rule_model::StaticValue::Literal(nkdk_rule_model::ScalarLiteral::Boolean(true))
     );
     assert_eq!(module.compose[0].bindings[0].name, "owner");
 }

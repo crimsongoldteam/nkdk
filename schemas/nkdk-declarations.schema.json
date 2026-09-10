@@ -454,11 +454,27 @@
         "with": {
           "type": "object",
           "additionalProperties": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
+            "oneOf": [
+              {
+                "type": [
+                  "string",
+                  "number",
+                  "boolean",
+                  "null"
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "parameter": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "parameter"
+                ],
+                "additionalProperties": false
+              }
             ]
           },
           "propertyNames": {

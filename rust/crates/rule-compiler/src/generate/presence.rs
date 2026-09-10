@@ -27,7 +27,7 @@ fn code(
     owner: &LinkedEntry,
     program: &Program,
     bindings: &[LinkedBinding],
-    arguments: &[ScalarLiteral],
+    arguments: &[LinkedExpression],
     index: usize,
 ) -> Result<(String, String), Diagnostic> {
     let value = super::shorthand::specialize(value, bindings, arguments, owner)?;
@@ -70,7 +70,7 @@ pub(super) fn generate(
     owner: &LinkedEntry,
     program: &Program,
     bindings: &[LinkedBinding],
-    arguments: &[ScalarLiteral],
+    arguments: &[LinkedExpression],
     key: &str,
     parent: &[ExpandedName],
 ) -> Result<Presence, Diagnostic> {
@@ -186,7 +186,7 @@ pub(super) fn generate(
                 select.push_str("Ok(0)\n");
             }
             select.push_str("};\n");
-            writeln!(select, "match canonical()? {{ 1 => {{ out.container({root}); return Ok(out.finish()); }}, 2 => {{ out.container_with_attributes({property}, &attributes); return Ok(out.finish()); }}, 3 => {{ let mut attributes=attributes; attributes.push(core::xml::WriteAttribute {{name:(\"http://www.w3.org/2001/XMLSchema-instance\", \"nil\"), value:core::xml::AttributeValue::Text(\"true\")}}); out.container_with_attributes({property}, &attributes); return Ok(out.finish()); }}, _ => {{}} }}").unwrap();
+            writeln!(select, "match canonical()? {{ 1 => {{ if _retain_wrapper {{out.container_with_attributes({property}, &attributes);}} else {{out.container({root});}} return Ok(out.finish()); }}, 2 => {{ out.container_with_attributes({property}, &attributes); return Ok(out.finish()); }}, 3 => {{ let mut attributes=attributes; attributes.push(core::xml::WriteAttribute {{name:(\"http://www.w3.org/2001/XMLSchema-instance\", \"nil\"), value:core::xml::AttributeValue::Text(\"true\")}}); out.container_with_attributes({property}, &attributes); return Ok(out.finish()); }}, _ => {{}} }}").unwrap();
             result.xml_write.push_str(&select);
         }
     }

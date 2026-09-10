@@ -31,11 +31,12 @@ pub(super) fn resolve_parameters(
 }
 
 pub(super) fn resolve_arguments(
+    owner: &Module,
     target: &Module,
     usage: &TypeUse,
     modules: &BTreeMap<&str, &Module>,
     ids: &BTreeMap<&str, u32>,
-) -> Result<Vec<ScalarLiteral>, Diagnostic> {
+) -> Result<Vec<LinkedExpression>, Diagnostic> {
     let parameters = resolve_parameters(target, modules, ids)?;
     for argument in &usage.arguments {
         if !parameters
@@ -56,19 +57,52 @@ pub(super) fn resolve_arguments(
                 .arguments
                 .iter()
                 .find(|argument| argument.name == parameter.name);
-            let value = argument
-                .map(|argument| &argument.value)
-                .or(parameter.default.as_ref())
-                .ok_or_else(|| {
-                    diagnostic(
-                        "missing_parameter_argument",
-                        &usage.source,
-                        "Static parameter has neither argument nor default",
-                    )
-                })?;
             let source = argument.map_or(&parameter.source, |argument| &argument.source);
-            check_literal(value, &parameter.value_type, source)?;
-            Ok(value.clone())
+            let kind = match argument.map(|a| &a.value) {
+                Some(StaticValue::Parameter(name)) => {
+                    let owner_parameters = resolve_parameters(owner, modules, ids)?;
+                    let (index, owner_parameter) = owner_parameters
+                        .iter()
+                        .enumerate()
+                        .find(|(_, p)| p.name == *name)
+                        .ok_or_else(|| {
+                            diagnostic(
+                                "unknown_parameter",
+                                source,
+                                "Forwarded parameter is not declared",
+                            )
+                        })?;
+                    if owner_parameter.value_type != parameter.value_type {
+                        return Err(diagnostic(
+                            "parameter_type_mismatch",
+                            source,
+                            "Forwarded parameter has a different type",
+                        ));
+                    }
+                    LinkedExpressionKind::Parameter(index as u32)
+                }
+                value => {
+                    let value = match value {
+                        Some(StaticValue::Literal(value)) => Some(value),
+                        None => parameter.default.as_ref(),
+                        _ => unreachable!(),
+                    }
+                    .ok_or_else(|| {
+                        diagnostic(
+                            "missing_parameter_argument",
+                            &usage.source,
+                            "Static parameter has neither argument nor default",
+                        )
+                    })?;
+                    check_literal(value, &parameter.value_type, source)?;
+                    LinkedExpressionKind::Literal(value.clone())
+                }
+            };
+            Ok(LinkedExpression {
+                kind,
+                value_type: parameter.value_type.clone(),
+                source: source.clone(),
+            })
         })
         .collect()
 }

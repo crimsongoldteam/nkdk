@@ -518,7 +518,14 @@ fn type_definition(path: &str, value: &Node) -> Result<TypeDefinition, Diagnosti
                 .map(|(key, value)| {
                     Ok(StaticArgument {
                         name: key.text(path)?.into(),
-                        value: scalar_literal(path, value)?,
+                        value: if matches!(&value.shape, Shape::Mapping(_)) {
+                            let fields = value.mapping(path, &["parameter"])?;
+                            nkdk_rule_model::StaticValue::Parameter(
+                                value.field(path, fields, "parameter")?.text(path)?.into(),
+                            )
+                        } else {
+                            nkdk_rule_model::StaticValue::Literal(scalar_literal(path, value)?)
+                        },
                         source: location(path, key),
                     })
                 })

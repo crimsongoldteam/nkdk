@@ -142,9 +142,15 @@ pub struct TypeUse {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+pub enum StaticValue {
+    Literal(ScalarLiteral),
+    Parameter(String),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct StaticArgument {
     pub name: String,
-    pub value: ScalarLiteral,
+    pub value: StaticValue,
     pub source: SourceLocation,
 }
 

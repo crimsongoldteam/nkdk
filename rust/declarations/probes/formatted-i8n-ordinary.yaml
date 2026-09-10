@@ -1,0 +1,26 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.formatted-i8n-text-probe.ordinary
+imports: {text: common.formatted-i8n-text}
+inputs:
+  defaultLanguage: {type: {kind: scalar, scalar: text}}
+  registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  name: {type: {kind: scalar, scalar: text}}
+value:
+  kind: record
+  fields:
+    - name: title
+      type:
+        use: text
+        with: {}
+        bind:
+          defaultLanguage: {input: defaultLanguage}
+          languages: {input: registeredLanguages}
+          name: {input: name}
+representations:
+  xml:
+    kind: record
+    fields: [{field: title, path: [Root, Title]}]
+  yaml:
+    kind: mapping
+    fields: [{field: title, key: Заголовок}]

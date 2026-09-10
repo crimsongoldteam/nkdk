@@ -8,7 +8,7 @@
 - `[ ]` — объект не завершён. Промежуточные результаты учитываются только в журнале.
 - Служебные каталоги включены, чтобы не потерять их обязанности. Для них завершение означает перенос ответственности в общий Rust-механизм, а не обязательное создание отдельной YAML-декларации.
 
-Принят 1 common-объект: двусторонний интерфейс I8nText (XML ↔ YAML, валидация и структурная схема). Enterprise учитывается отдельно, согласно спецификации. Наличие общего компилятора, синтетического примера или успешного теста отдельного свойства не означает завершение всего объекта. В частности, `common.code-type` — синтетический пример, а не перенесённое системное перечисление.
+Приняты 2 common-объекта: двусторонние интерфейсы I8nText и FormattedI8nText (XML ↔ YAML, валидация и структурная схема). Enterprise исключён из реализации и условий готовности по решению пользователя. Наличие общего компилятора, синтетического примера или успешного теста отдельного свойства не означает завершение всего объекта. В частности, `common.code-type` — синтетический пример, а не перенесённое системное перечисление.
 
 ## Когда ставить галочку
 
@@ -29,7 +29,7 @@
 
 | Группа | Записей | Полностью завершено |
 |---|---:|---:|
-| Общие объекты (common) | 90 | 1 |
+| Общие объекты (common) | 90 | 2 |
 | Вложенные части общих объектов | 27 | 0 |
 | Прикладные объекты и их вложенные части | 56 | 0 |
 | Формы, элементы и общие части форм | 66 | 0 |
@@ -62,7 +62,7 @@
 - [ ] [commonObjects/fieldsList](../../../packages/rules/metadata/commonObjects/fieldsList)
 - [ ] [commonObjects/fillValue](../../../packages/rules/metadata/commonObjects/fillValue)
 - [ ] [commonObjects/font](../../../packages/rules/metadata/commonObjects/font)
-- [ ] [commonObjects/formattedI8nText](../../../packages/rules/metadata/commonObjects/formattedI8nText)
+- [x] [commonObjects/formattedI8nText](../../../packages/rules/metadata/commonObjects/formattedI8nText) — 2026-09-10; [декларация](../../../rust/declarations/common/formatted-i8n-text.yaml), [приёмка](../reports/2026-09-10-formatted-i8n-acceptance.md).
 - [ ] [commonObjects/functionalOptionsProperty](../../../packages/rules/metadata/commonObjects/functionalOptionsProperty)
 - [ ] [commonObjects/help](../../../packages/rules/metadata/commonObjects/help)
 - [ ] [commonObjects/homePageWorkArea](../../../packages/rules/metadata/commonObjects/homePageWorkArea)

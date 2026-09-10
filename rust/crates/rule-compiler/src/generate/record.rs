@@ -18,6 +18,9 @@ pub(super) fn path_code(path: &[ExpandedName]) -> String {
 }
 
 pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String, Diagnostic> {
+    if let Some(source) = super::composite::generate(entry, program)? {
+        return Ok(source);
+    }
     if let Some(source) = super::collections::generate(entry, program)? {
         return Ok(source);
     }

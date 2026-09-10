@@ -14,6 +14,7 @@ import xml.etree.ElementTree as ET
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--root', type=Path, default=Path(__file__).resolve().parents[3])
 parser.add_argument('--output', type=Path, required=True)
+parser.add_argument('--formatted', action='store_true')
 args = parser.parse_args()
 root = args.root.resolve()
 fixtures = root / 'e2e/fixtures/xml'
@@ -46,19 +47,27 @@ rows = []
 base_languages = languages(fixtures / 'cf')
 with tempfile.TemporaryDirectory(prefix='nkdk-i8n-e2e-') as temp:
     directory = Path(temp)
-    for pattern in ('**/Catalogs/*.xml', '**/Documents/*.xml'):
+    patterns = ('**/*.xml',) if args.formatted else ('**/Catalogs/*.xml', '**/Documents/*.xml')
+    for pattern in patterns:
         for source in sorted(fixtures.glob(pattern)):
             original = source.read_bytes()
             document = ET.fromstring(original)
-            for item in document:
-                if item.tag not in (MD + 'Catalog', MD + 'Document'):
-                    continue
-                properties = item.find(MD + 'Properties')
-                if properties is None:
-                    continue
-                synonym = properties.find(MD + 'Synonym')
-                if synonym is None:
-                    continue
+            selected = []
+            if args.formatted:
+                for index, element in enumerate(document.iter()):
+                    if 'formatted' in element.attrib:
+                        selected.append((element, f'{element.tag}:{index}'))
+            else:
+                for item in document:
+                    if item.tag not in (MD + 'Catalog', MD + 'Document'):
+                        continue
+                    properties = item.find(MD + 'Properties')
+                    if properties is None:
+                        continue
+                    synonym = properties.find(MD + 'Synonym')
+                    if synonym is not None:
+                        selected.append((synonym, properties.findtext(MD + 'Name')))
+            for synonym, name in selected:
                 relative = source.relative_to(fixtures)
                 configuration = fixtures / relative.parts[0]
                 if relative.parts[0] == 'cfe':
@@ -68,7 +77,7 @@ with tempfile.TemporaryDirectory(prefix='nkdk-i8n-e2e-') as temp:
                 default_reference = config.findtext(f'{MD}Configuration/{MD}Properties/{MD}DefaultLanguage')
                 assert default_reference.startswith('Language.'), default_reference
                 primary = registered[default_reference.removeprefix('Language.')]
-                inputs = {'defaultLanguage': primary, 'registeredLanguages': sorted(set(registered.values())), 'name': properties.findtext(MD + 'Name')}
+                inputs = {'defaultLanguage': primary, 'registeredLanguages': sorted(set(registered.values())), 'name': name}
                 value = copy.deepcopy(synonym)
                 value.tag = 'Title'
                 value.tail = None
@@ -77,7 +86,8 @@ with tempfile.TemporaryDirectory(prefix='nkdk-i8n-e2e-') as temp:
                 input_xml = directory / 'input.xml'
                 input_xml.write_bytes(ET.tostring(wrapper, encoding='utf-8'))
                 (directory / 'inputs.json').write_text(json.dumps(inputs, ensure_ascii=False))
-                options = ['--entry', 'migration.i8n-text-probe.exclude-equal-name', '--inputs', str(directory / 'inputs.json')]
+                entry = 'migration.formatted-i8n-text-probe.ordinary' if args.formatted else 'migration.i8n-text-probe.exclude-equal-name'
+                options = ['--entry', entry, '--inputs', str(directory / 'inputs.json')]
                 yaml = directory / 'value.yaml'
                 restored = directory / 'restored.xml'
                 commands = [
@@ -92,5 +102,6 @@ with tempfile.TemporaryDirectory(prefix='nkdk-i8n-e2e-') as temp:
                 assert source.read_bytes() == original, 'Source fixture was modified'
                 rows.append({'source': str(source.relative_to(root)), 'sha256': hashlib.sha256(original).hexdigest(), 'name': inputs['name'], 'defaultLanguage': primary, 'verified': True})
 assert rows, 'An empty e2e selection is not success'
-args.output.write_text(json.dumps({'scope': 'I8nText properties of root Catalog/Document objects; not full-project e2e or a benchmark', 'cases': rows, 'verified': len(rows)}, ensure_ascii=False, indent=2) + '\n')
-print(f'Verified {len(rows)} I8nText properties from e2e fixtures')
+scope = 'FormattedI8nText properties with an explicit formatted attribute' if args.formatted else 'I8nText properties of root Catalog/Document objects'
+args.output.write_text(json.dumps({'scope': scope + '; not full-project e2e or a benchmark', 'cases': rows, 'verified': len(rows)}, ensure_ascii=False, indent=2) + '\n')
+print(f'Verified {len(rows)} {scope} from e2e fixtures')

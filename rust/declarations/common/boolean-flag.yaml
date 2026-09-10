@@ -14,6 +14,8 @@ representations:
       - {value: true, literal: Истина}
 presence:
   - target: self
+    xml:
+      missing: {denotes: {literal: false}}
     yaml:
       missing: {denotes: {literal: false}}
       omitWhen: {not: {self: true}}

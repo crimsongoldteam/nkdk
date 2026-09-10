@@ -41,6 +41,9 @@ impl Tree {
                 .unwrap_or(Payload::Mapping(Vec::new())),
             None => expected,
         };
+        if matches!(&patch,Payload::Mapping(fields) if fields.is_empty()) {
+            return Ok("{}".into());
+        }
         Ok(render(&patch, 0))
     }
 }
@@ -126,6 +129,26 @@ fn merge(base: Payload, patch: &Payload) -> Payload {
             base.push((key.clone(), value.clone()));
         }
     }
+    // When all surviving attributes are explicit, their patch order is the
+    // required XML order. A partial patch keeps the ordinary attribute order.
+    let order: Vec<_> = fields
+        .iter()
+        .filter(|(key, value)| key.starts_with('_') && !matches!(value, Payload::Null))
+        .map(|(key, _)| key.as_str())
+        .collect();
+    if !order.is_empty()
+        && base
+            .iter()
+            .filter(|(key, _)| key.starts_with('_'))
+            .all(|(key, _)| order.contains(&key.as_str()))
+    {
+        base.sort_by_key(|(key, _)| {
+            order
+                .iter()
+                .position(|name| *name == key)
+                .unwrap_or(order.len())
+        });
+    }
     Payload::Mapping(base)
 }
 fn difference(expected: &Payload, actual: &Payload) -> Option<Payload> {
@@ -157,6 +180,34 @@ fn difference(expected: &Payload, actual: &Payload) -> Option<Payload> {
         if !expected.iter().any(|(name, _)| name == key) {
             fields.push((key.clone(), Payload::Null));
         }
+    }
+    let attributes = |values: &[(String, Payload)]| {
+        values
+            .iter()
+            .filter(|(key, _)| key.starts_with('_'))
+            .cloned()
+            .collect::<Vec<_>>()
+    };
+    let projected = merge(
+        Payload::Mapping(attributes(actual)),
+        &Payload::Mapping(attributes(&fields)),
+    );
+    let Payload::Mapping(projected) = projected else {
+        unreachable!("attribute mapping");
+    };
+    let desired = attributes(expected);
+    if projected
+        .iter()
+        .map(|(key, _)| key)
+        .ne(desired.iter().map(|(key, _)| key))
+    {
+        let mut ordered = desired;
+        ordered.extend(
+            fields
+                .into_iter()
+                .filter(|(key, value)| !key.starts_with('_') || matches!(value, Payload::Null)),
+        );
+        fields = ordered;
     }
     Some(Payload::Mapping(fields))
 }

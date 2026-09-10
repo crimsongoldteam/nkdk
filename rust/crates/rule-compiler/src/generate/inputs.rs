@@ -67,7 +67,13 @@ pub(super) fn generate(entries: &[&LinkedEntry], program: &Program) -> Result<St
                         .iter()
                         .find(|entry| entry.id == *reference)
                         .expect("linked reference");
-                    for (parameter, value) in common.parameters.iter().zip(arguments) {
+                    for (parameter, argument) in common.parameters.iter().zip(arguments) {
+                        let LinkedExpressionKind::Literal(value) = &argument.kind else {
+                            return Err(unsupported(
+                                entry,
+                                "Entry parameter must be a compile-time literal",
+                            ));
+                        };
                         writeln!(out, "StaticParameter {{ field: {:?}, name: {:?}, json: {:?}, default_json: {:?} }},", field.name, parameter.name, literal_json(value), parameter.default.as_ref().map(literal_json)).unwrap();
                     }
                 }

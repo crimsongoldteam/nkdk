@@ -1,0 +1,1084 @@
+{
+  "scope": "FormattedI8nText properties with an explicit formatted attribute; not full-project e2e or a benchmark",
+  "cases": [
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный/Forms/ФормаЭлемента/Ext/Form.xml",
+      "sha256": "a587052dcb3e1ba262836f69e417655178a8cf7356ed386f1e071ba00cf509f6",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:23",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/CalendarField/Ext/Form.xml",
+      "sha256": "0f4e7e4c658b0d5e83747c10be3c81cb938af7731e6f3c4bf0fd77c770c1ef13",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:82",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ChartField/Ext/Form.xml",
+      "sha256": "bb00684a4d1ea6a261886758eb3af7bb5147f053ed60f38ad9e92230e16035ad",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:68",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/CheckBoxField/Ext/Form.xml",
+      "sha256": "85e66b0e578fdd5512a0c9e6b13b4a601f429f21ef187101d82ead55977ed554",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:61",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ColumnGroup/Ext/Form.xml",
+      "sha256": "354db54a17b25542abf05e972c6751fa32fb72b9b3fd412cf277337ea1b27a5a",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:70",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/DendrogramField/Ext/Form.xml",
+      "sha256": "8fad8990286728930f89201c3586ccf2d6982a358d6fef742d8805c365e4ebe9",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:68",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ExtendedTooltip/Ext/Form.xml",
+      "sha256": "e1eeffe824e410d9c8994193841aa1f875a329542547197a3e8e29295e1ae383",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:17",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/FormDecoraction/Ext/Form.xml",
+      "sha256": "4c0a04fc6f8f9464175e5f57aba6b6b14cce49bec9cfdd9d3e0b852113116e82",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:21",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/FormDecoraction/Ext/Form.xml",
+      "sha256": "4c0a04fc6f8f9464175e5f57aba6b6b14cce49bec9cfdd9d3e0b852113116e82",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:46",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/FormDecoraction/Ext/Form.xml",
+      "sha256": "4c0a04fc6f8f9464175e5f57aba6b6b14cce49bec9cfdd9d3e0b852113116e82",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:74",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/FormDecoraction/Ext/Form.xml",
+      "sha256": "4c0a04fc6f8f9464175e5f57aba6b6b14cce49bec9cfdd9d3e0b852113116e82",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:97",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/FormattedDocumentField/Ext/Form.xml",
+      "sha256": "6ec4ac9a332aacec6dacf195b4bbdaa4b1bca0e7191630933bd4527430a920e1",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:75",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/GanttChartField/Ext/Form.xml",
+      "sha256": "165e45261d0a516a18644fdb5d5b78a3aaa2312203ac13aa145ca553a824e9c2",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:73",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/GeographicalSchemaField/Ext/Form.xml",
+      "sha256": "a458818e69df782c37a50192afc1cf67d30a02ad27ad162ac03de0357a631922",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:70",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/GraphicalSchemaField/Ext/Form.xml",
+      "sha256": "b529a8ff390f7a962f603cbca7df42017891e43ce3d9004e0341a130778e7146",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:70",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/HTMLDocumentField/Ext/Form.xml",
+      "sha256": "dd2edafe510cea171b2cb30e0c7275ae0cfc1d9b37876109ea29aa4367f6e2f9",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:70",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/InputField/Ext/Form.xml",
+      "sha256": "4bab6c2f7d9dfeb072ff4f258f453a910f0db8b80b5f0ada5ee4370b2619b20d",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:162",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/LabelField/Ext/Form.xml",
+      "sha256": "3f3c6b714ff77d196dcfdf32e06f4d2470ecbe177c0733a2aeb37e2c0b7292c0",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:81",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/PDFDocumentField/Ext/Form.xml",
+      "sha256": "a231d555c30a0c420876bae10664f25c92b2c915634c6895590ec8b0fc3860db",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:72",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/PDFDocumentField/Ext/Form.xml",
+      "sha256": "a231d555c30a0c420876bae10664f25c92b2c915634c6895590ec8b0fc3860db",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:107",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/Pages/Ext/Form.xml",
+      "sha256": "bdf8ccff025cc53c94a599456785963376bbe7644cc457b29bf7802d5f438bf1",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:44",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/Pages/Ext/Form.xml",
+      "sha256": "bdf8ccff025cc53c94a599456785963376bbe7644cc457b29bf7802d5f438bf1",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:94",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/PeriodField/Ext/Form.xml",
+      "sha256": "cfc57b9683fd5431026748518fbf974b78e345afd3597b5f60eb2e8d92beac66",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:72",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/PictureField/Ext/Form.xml",
+      "sha256": "d3929dea350f384809d913de26d09b1a5565cd765d5fc160719d3322f17e86e5",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:87",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/PlannerField/Ext/Form.xml",
+      "sha256": "a669a642df8008f24f9a3e568fb9769d640f503f1c4ed069e38b7f69d83dbb72",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:68",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ProgressBarField/Ext/Form.xml",
+      "sha256": "31f4f748cc2e42e0a4cc1e3789532f0a9768e93fea3a198d6b1a3d2f0d7995ee",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:73",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/RadioButtonField/Ext/Form.xml",
+      "sha256": "1f637d4c82a084fa97cc4d70b21869db5b3fe3948db16620a46ef14a23badd1c",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:80",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/SpreadSheetDocumentField/Ext/Form.xml",
+      "sha256": "f61cd2fd3ab8315fb7b4a1a7040cf45c6d4fe852e179910ce2932a0ae19ead3e",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:86",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/Table/Ext/Form.xml",
+      "sha256": "92385cea4321b5486e5ca81579c6dc88a677e939b1f5c6c836a908458c153c59",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:91",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/Table/Ext/Form.xml",
+      "sha256": "92385cea4321b5486e5ca81579c6dc88a677e939b1f5c6c836a908458c153c59",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:301",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/Table/Ext/Form.xml",
+      "sha256": "92385cea4321b5486e5ca81579c6dc88a677e939b1f5c6c836a908458c153c59",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:397",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/Table/Ext/Form.xml",
+      "sha256": "92385cea4321b5486e5ca81579c6dc88a677e939b1f5c6c836a908458c153c59",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:665",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/TextDocumentField/Ext/Form.xml",
+      "sha256": "904961f11fe0de2eb45b993a35bbecbd0e30a710a5df95bee1d46d308c9d4740",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:73",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/TrackBarField/Ext/Form.xml",
+      "sha256": "a68fd1f5c0a53f589ec53c50e79282b12c3e8d8ded21802443d76994fddbbdd6",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:73",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/UsualGroup/Ext/Form.xml",
+      "sha256": "86a83dc150561eaf3ebe00b9679c7568858eb711e0010ae812356e87a4edc5b0",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:59",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаВариантаОтчета/Ext/Form.xml",
+      "sha256": "bdd3caf9eb5104c6b2f21fae33d6cef8bf93965b13cda95423de28759ab41bc7",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:247",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаВариантаОтчета/Ext/Form.xml",
+      "sha256": "bdd3caf9eb5104c6b2f21fae33d6cef8bf93965b13cda95423de28759ab41bc7",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:372",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаВариантаОтчета/Ext/Form.xml",
+      "sha256": "bdd3caf9eb5104c6b2f21fae33d6cef8bf93965b13cda95423de28759ab41bc7",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:379",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаВариантаОтчета/Ext/Form.xml",
+      "sha256": "bdd3caf9eb5104c6b2f21fae33d6cef8bf93965b13cda95423de28759ab41bc7",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:399",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаВариантаОтчета/Ext/Form.xml",
+      "sha256": "bdd3caf9eb5104c6b2f21fae33d6cef8bf93965b13cda95423de28759ab41bc7",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:406",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаВариантаОтчета/Ext/Form.xml",
+      "sha256": "bdd3caf9eb5104c6b2f21fae33d6cef8bf93965b13cda95423de28759ab41bc7",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:536",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаВариантаОтчета/Ext/Form.xml",
+      "sha256": "bdd3caf9eb5104c6b2f21fae33d6cef8bf93965b13cda95423de28759ab41bc7",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:543",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаВариантаОтчета/Ext/Form.xml",
+      "sha256": "bdd3caf9eb5104c6b2f21fae33d6cef8bf93965b13cda95423de28759ab41bc7",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:563",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаВариантаОтчета/Ext/Form.xml",
+      "sha256": "bdd3caf9eb5104c6b2f21fae33d6cef8bf93965b13cda95423de28759ab41bc7",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:570",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаВариантаОтчета/Ext/Form.xml",
+      "sha256": "bdd3caf9eb5104c6b2f21fae33d6cef8bf93965b13cda95423de28759ab41bc7",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:697",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаВариантаОтчета/Ext/Form.xml",
+      "sha256": "bdd3caf9eb5104c6b2f21fae33d6cef8bf93965b13cda95423de28759ab41bc7",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:704",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаВариантаОтчета/Ext/Form.xml",
+      "sha256": "bdd3caf9eb5104c6b2f21fae33d6cef8bf93965b13cda95423de28759ab41bc7",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:724",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаВариантаОтчета/Ext/Form.xml",
+      "sha256": "bdd3caf9eb5104c6b2f21fae33d6cef8bf93965b13cda95423de28759ab41bc7",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:731",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаВариантаОтчета/Ext/Form.xml",
+      "sha256": "bdd3caf9eb5104c6b2f21fae33d6cef8bf93965b13cda95423de28759ab41bc7",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:821",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаВариантаОтчета/Ext/Form.xml",
+      "sha256": "bdd3caf9eb5104c6b2f21fae33d6cef8bf93965b13cda95423de28759ab41bc7",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:828",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаВариантаОтчета/Ext/Form.xml",
+      "sha256": "bdd3caf9eb5104c6b2f21fae33d6cef8bf93965b13cda95423de28759ab41bc7",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:848",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаВариантаОтчета/Ext/Form.xml",
+      "sha256": "bdd3caf9eb5104c6b2f21fae33d6cef8bf93965b13cda95423de28759ab41bc7",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:855",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаВариантаОтчета/Ext/Form.xml",
+      "sha256": "bdd3caf9eb5104c6b2f21fae33d6cef8bf93965b13cda95423de28759ab41bc7",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:944",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаВариантаОтчета/Ext/Form.xml",
+      "sha256": "bdd3caf9eb5104c6b2f21fae33d6cef8bf93965b13cda95423de28759ab41bc7",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:951",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаВариантаОтчета/Ext/Form.xml",
+      "sha256": "bdd3caf9eb5104c6b2f21fae33d6cef8bf93965b13cda95423de28759ab41bc7",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:971",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаВариантаОтчета/Ext/Form.xml",
+      "sha256": "bdd3caf9eb5104c6b2f21fae33d6cef8bf93965b13cda95423de28759ab41bc7",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:978",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаПоиска/Ext/Form.xml",
+      "sha256": "0b4c25c5045ff33dbef17163a39e89635304974e1b5d71186eac5902389f5191",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:67",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаПоиска/Ext/Form.xml",
+      "sha256": "0b4c25c5045ff33dbef17163a39e89635304974e1b5d71186eac5902389f5191",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:86",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаПоиска/Ext/Form.xml",
+      "sha256": "0b4c25c5045ff33dbef17163a39e89635304974e1b5d71186eac5902389f5191",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:97",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаПоиска/Ext/Form.xml",
+      "sha256": "0b4c25c5045ff33dbef17163a39e89635304974e1b5d71186eac5902389f5191",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:107",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаПоиска/Ext/Form.xml",
+      "sha256": "0b4c25c5045ff33dbef17163a39e89635304974e1b5d71186eac5902389f5191",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:125",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаПоиска/Ext/Form.xml",
+      "sha256": "0b4c25c5045ff33dbef17163a39e89635304974e1b5d71186eac5902389f5191",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:135",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаПоиска/Ext/Form.xml",
+      "sha256": "0b4c25c5045ff33dbef17163a39e89635304974e1b5d71186eac5902389f5191",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:153",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "fef9c701650f47891fbf65a0cc0eb268b404fff0fb21af9cd37c5ad681c627ed",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:247",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "fef9c701650f47891fbf65a0cc0eb268b404fff0fb21af9cd37c5ad681c627ed",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:372",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "fef9c701650f47891fbf65a0cc0eb268b404fff0fb21af9cd37c5ad681c627ed",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:379",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "fef9c701650f47891fbf65a0cc0eb268b404fff0fb21af9cd37c5ad681c627ed",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:399",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "fef9c701650f47891fbf65a0cc0eb268b404fff0fb21af9cd37c5ad681c627ed",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:406",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "fef9c701650f47891fbf65a0cc0eb268b404fff0fb21af9cd37c5ad681c627ed",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:536",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "fef9c701650f47891fbf65a0cc0eb268b404fff0fb21af9cd37c5ad681c627ed",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:543",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "fef9c701650f47891fbf65a0cc0eb268b404fff0fb21af9cd37c5ad681c627ed",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:563",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "fef9c701650f47891fbf65a0cc0eb268b404fff0fb21af9cd37c5ad681c627ed",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:570",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "fef9c701650f47891fbf65a0cc0eb268b404fff0fb21af9cd37c5ad681c627ed",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:697",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "fef9c701650f47891fbf65a0cc0eb268b404fff0fb21af9cd37c5ad681c627ed",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:704",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "fef9c701650f47891fbf65a0cc0eb268b404fff0fb21af9cd37c5ad681c627ed",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:724",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "fef9c701650f47891fbf65a0cc0eb268b404fff0fb21af9cd37c5ad681c627ed",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:731",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "fef9c701650f47891fbf65a0cc0eb268b404fff0fb21af9cd37c5ad681c627ed",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:821",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "fef9c701650f47891fbf65a0cc0eb268b404fff0fb21af9cd37c5ad681c627ed",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:828",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "fef9c701650f47891fbf65a0cc0eb268b404fff0fb21af9cd37c5ad681c627ed",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:848",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "fef9c701650f47891fbf65a0cc0eb268b404fff0fb21af9cd37c5ad681c627ed",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:855",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "fef9c701650f47891fbf65a0cc0eb268b404fff0fb21af9cd37c5ad681c627ed",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:944",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "fef9c701650f47891fbf65a0cc0eb268b404fff0fb21af9cd37c5ad681c627ed",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:951",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "fef9c701650f47891fbf65a0cc0eb268b404fff0fb21af9cd37c5ad681c627ed",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:971",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "fef9c701650f47891fbf65a0cc0eb268b404fff0fb21af9cd37c5ad681c627ed",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:978",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникПолный/Forms/ФормаЭлемента/Ext/Form.xml",
+      "sha256": "301b60a65a48b2a2de45876db933d4ce1925032168fafc3329acd7136a5bebbb",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:23",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникПолный/Forms/ФормаЭлемента/Ext/Form.xml",
+      "sha256": "301b60a65a48b2a2de45876db933d4ce1925032168fafc3329acd7136a5bebbb",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:66",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникПолныйExt/Forms/ФормаЭлемента/Ext/Form.xml",
+      "sha256": "e204c466ee3c7fcad2c16be9a19e8ef43a2328b838447c4ffa5d17df074d154a",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:23",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/CommonForms/InputField/Ext/Form.xml",
+      "sha256": "a1e36c452e5bdea528f3ba4c6d2e1d26b26adcc1730af893c73199896105bda0",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:150",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/CommonForms/InputField/Ext/Form.xml",
+      "sha256": "a1e36c452e5bdea528f3ba4c6d2e1d26b26adcc1730af893c73199896105bda0",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:246",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/CommonForms/InputField/Ext/Form.xml",
+      "sha256": "a1e36c452e5bdea528f3ba4c6d2e1d26b26adcc1730af893c73199896105bda0",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:486",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/CommonForms/InputFieldExt/Ext/Form.xml",
+      "sha256": "9de73981f63b91506fff151a0b04132cb7ca27eda281f0815b4fd364c3ca24af",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:159",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:237",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:357",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:364",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:382",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:389",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:512",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:519",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:537",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:544",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:664",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:671",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:689",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:696",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:780",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:787",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:805",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:812",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:895",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:902",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:920",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:927",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:1172",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:1292",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:1299",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:1317",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:1324",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:1447",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:1454",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:1472",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:1479",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:1599",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:1606",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:1624",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:1631",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:1715",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:1722",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:1740",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:1747",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:1830",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:1837",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:1855",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "19481da8028b00e6e21b9b1397c6f9f655c10abc52be158f4870159cc7b8e0f3",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:1862",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "6373a997877fa5fd5198051be86ad896cdaa1a3061852c673d0068b99490cb68",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:247",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "6373a997877fa5fd5198051be86ad896cdaa1a3061852c673d0068b99490cb68",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:372",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "6373a997877fa5fd5198051be86ad896cdaa1a3061852c673d0068b99490cb68",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:379",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "6373a997877fa5fd5198051be86ad896cdaa1a3061852c673d0068b99490cb68",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:399",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "6373a997877fa5fd5198051be86ad896cdaa1a3061852c673d0068b99490cb68",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:406",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "6373a997877fa5fd5198051be86ad896cdaa1a3061852c673d0068b99490cb68",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:536",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "6373a997877fa5fd5198051be86ad896cdaa1a3061852c673d0068b99490cb68",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:543",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "6373a997877fa5fd5198051be86ad896cdaa1a3061852c673d0068b99490cb68",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:563",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "6373a997877fa5fd5198051be86ad896cdaa1a3061852c673d0068b99490cb68",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:570",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "6373a997877fa5fd5198051be86ad896cdaa1a3061852c673d0068b99490cb68",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:697",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "6373a997877fa5fd5198051be86ad896cdaa1a3061852c673d0068b99490cb68",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:704",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "6373a997877fa5fd5198051be86ad896cdaa1a3061852c673d0068b99490cb68",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:724",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "6373a997877fa5fd5198051be86ad896cdaa1a3061852c673d0068b99490cb68",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:731",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "6373a997877fa5fd5198051be86ad896cdaa1a3061852c673d0068b99490cb68",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:821",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "6373a997877fa5fd5198051be86ad896cdaa1a3061852c673d0068b99490cb68",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:828",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "6373a997877fa5fd5198051be86ad896cdaa1a3061852c673d0068b99490cb68",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:848",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "6373a997877fa5fd5198051be86ad896cdaa1a3061852c673d0068b99490cb68",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:855",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "6373a997877fa5fd5198051be86ad896cdaa1a3061852c673d0068b99490cb68",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:944",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "6373a997877fa5fd5198051be86ad896cdaa1a3061852c673d0068b99490cb68",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:951",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "6373a997877fa5fd5198051be86ad896cdaa1a3061852c673d0068b99490cb68",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:971",
+      "defaultLanguage": "ru",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt/Forms/ФормаВарианта/Ext/Form.xml",
+      "sha256": "6373a997877fa5fd5198051be86ad896cdaa1a3061852c673d0068b99490cb68",
+      "name": "{http://v8.1c.ru/8.3/xcf/logform}Title:978",
+      "defaultLanguage": "ru",
+      "verified": true
+    }
+  ],
+  "verified": 154
+}

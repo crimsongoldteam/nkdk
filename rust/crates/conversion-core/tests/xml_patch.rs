@@ -48,3 +48,32 @@ fn patches_preserve_ordinary_content_and_delete_only_requested_attributes() {
         assert!(Patch::read(invalid, &ns, &qnames).is_err());
     }
 }
+
+#[test]
+fn patches_restore_attribute_order_without_copying_child_content() {
+    let ns = [("x", "urn:x")];
+    let original=Tree::capture(b"<Root xmlns:x=\"urn:x\"><Title x:type=\"kind\" formatted=\"true\"><Item>keep</Item></Title></Root>",&[("","Root"),("","Title")]).unwrap().unwrap();
+    let ordinary=Tree::capture(b"<Root xmlns:x=\"urn:x\"><Title formatted=\"true\" x:type=\"kind\"><Item>keep</Item></Title></Root>",&[("","Root"),("","Title")]).unwrap().unwrap();
+    assert_eq!(
+        ordinary.patch_yaml(Some(&ordinary), &ns, &[]).unwrap(),
+        "{}"
+    );
+    let payload = original.patch_yaml(Some(&ordinary), &ns, &[]).unwrap();
+    assert!(!payload.contains("Item"));
+    let patch = Patch::read(payload.as_bytes(), &ns, &[]).unwrap();
+    let actual = patch
+        .apply(
+            Some(ordinary),
+            Name {
+                namespace: String::new(),
+                local: "Title".into(),
+            },
+            &ns,
+            &[],
+        )
+        .unwrap();
+    assert_eq!(
+        actual.payload_yaml(&ns, &[]).unwrap(),
+        original.payload_yaml(&ns, &[]).unwrap()
+    );
+}

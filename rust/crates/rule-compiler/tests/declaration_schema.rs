@@ -28,7 +28,17 @@ fn authoring_schema_accepts_the_corpus_and_rejects_structural_mistakes() {
     let directory = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("../../../tests/declaration-corpus/valid");
     let mut count = 0;
-    for entry in std::fs::read_dir(directory).unwrap() {
+    let production =
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../rust/declarations");
+    let paths = [
+        directory,
+        production.join("common"),
+        production.join("probes"),
+    ];
+    for entry in paths
+        .into_iter()
+        .flat_map(|path| std::fs::read_dir(path).unwrap())
+    {
         let path = entry.unwrap().path();
         let bytes = std::fs::read(&path).unwrap();
         parse(SourceFile {

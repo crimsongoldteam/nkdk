@@ -25,7 +25,7 @@ pub(super) fn generate(
     common: &LinkedEntry,
     program: &Program,
     bindings: &[LinkedBinding],
-    arguments: &[ScalarLiteral],
+    arguments: &[LinkedExpression],
     attributes: &[&LinkedXmlAttribute],
     parent: &[ExpandedName],
 ) -> Result<Attributes, Diagnostic> {
@@ -37,7 +37,7 @@ pub(super) fn generate(
         namespaces: BTreeSet::new(),
         qnames: String::new(),
     };
-    let mutable = if attributes.is_empty() { "" } else { "mut " };
+    let mutable = "mut ";
     writeln!(
         result.write,
         "let {mutable}attributes: Vec<core::xml::WriteAttribute<'_>>=Vec::new();"

@@ -107,3 +107,55 @@ fn keyed_collection_schema_is_derived_from_the_shared_declaration() {
         }
     }
 }
+
+#[test]
+fn composed_schema_requires_text_or_a_true_flag_and_reuses_text_constraints() {
+    let sources = [
+        (
+            "text",
+            include_bytes!("../../../declarations/common/i8n-text.yaml").as_slice(),
+        ),
+        (
+            "flag",
+            include_bytes!("../../../declarations/common/boolean-flag.yaml").as_slice(),
+        ),
+        (
+            "composite",
+            include_bytes!("../../../declarations/common/formatted-i8n-text.yaml").as_slice(),
+        ),
+        (
+            "owner",
+            include_bytes!("../../../declarations/probes/formatted-i8n-ordinary.yaml").as_slice(),
+        ),
+    ];
+    let modules = sources.map(|(path, bytes)| parse(SourceFile { path, bytes }).unwrap());
+    let program = link(&modules).unwrap();
+    let value: serde_json::Value =
+        serde_json::from_slice(&schema(&program, &modules[3].id).unwrap()).unwrap();
+    jsonschema::meta::validate(&value).unwrap();
+    let validator = jsonschema::validator_for(&value).unwrap();
+    for (value, accepted) in [
+        (serde_json::json!({}), true),
+        (
+            serde_json::json!({"Заголовок":{"Форматированный":"Истина"}}),
+            true,
+        ),
+        (serde_json::json!({"Заголовок":{"Текст":"Hello"}}), true),
+        (
+            serde_json::json!({"Заголовок":{"Текст":{"ru":"Hello"},"Форматированный":"Истина"}}),
+            true,
+        ),
+        (serde_json::json!({"Заголовок":{}}), false),
+        (
+            serde_json::json!({"Заголовок":{"Форматированный":"Ложь"}}),
+            false,
+        ),
+        (serde_json::json!({"Заголовок":{"Текст":{"ru":""}}}), false),
+        (
+            serde_json::json!({"Заголовок":{"Текст":"Hello","Extra":true}}),
+            false,
+        ),
+    ] {
+        assert_eq!(validator.is_valid(&value), accepted, "{value}");
+    }
+}

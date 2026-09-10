@@ -3,6 +3,9 @@ use super::*;
 use std::fmt::Write;
 
 pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String, Diagnostic> {
+    if super::composite::record(entry, program).is_some() {
+        return Ok(String::new());
+    }
     if let LinkedType::Record(fields) = &entry.value
         && fields.len() == 1
     {
@@ -119,6 +122,7 @@ fn generate_at(
             entry,
             program,
             fields,
+            field_storage: None,
             constants: String::new(),
             next_constant: 0,
             transforms: BTreeSet::new(),

@@ -362,12 +362,12 @@
         "yaml": "tests/conversion-corpus/cases/formatted-i8n-without-text/expected.yaml"
       },
       "comparison": {
-        "xml": "exact",
+        "xml": "structural",
         "yaml": "exact",
         "exceptions": []
       },
-      "scope": "property converters; public project validation is separate",
-      "verification": "Both directions executed against TypeScript; Rust pending",
+      "scope": "property fragment wrapped as an XML document; compare names, attributes, leaf text and order, not document formatting",
+      "verification": "Verified by Rust corpus command: exact independent YAML, structural XML, validation and round-trip; 2026-09-10",
       "evidence": [
         "packages/rules/metadata/commonObjects/formattedI8nText/fromXML.ts",
         "packages/rules/metadata/commonObjects/formattedI8nText/fromYAML.ts",
@@ -379,7 +379,8 @@
         "packages/rules/metadata/commonObjects/formattedI8nText/fromYAML.ts": "922bf54d1d20141f22c9905e9d7af48bb2f2184000cbc30cecceb7fdbec5be21",
         "packages/rules/metadata/commonObjects/formattedI8nText/toXML.ts": "43ff3d7a7319bf31c3ad6e1e08952b7a304567b666fee3f0dc2dec8e7ce8b27a",
         "packages/rules/metadata/commonObjects/formattedI8nText/toYAML.ts": "9101d88e22cda94b255103e6ef86aae69b93e3bd6699c08f2ba37539eeb81b7e"
-      }
+      },
+      "xmlEnvelope": "Root"
     },
     {
       "id": "xml-scalar-attributes",
@@ -763,7 +764,8 @@
         "packages/rules/metadata/commonObjects/formattedI8nText/toXML.ts",
         "packages/rules/metadata/commonObjects/formattedI8nText/__fixtures__/data.ts"
       ],
-      "verification": "Source-reviewed independent expectations; Rust execution pending; no new annotation policy"
+      "verification": "Verified by Rust corpus command: exact independent YAML, structural XML, validation and round-trip; 2026-09-10",
+      "xmlEnvelope": "Root"
     },
     {
       "id": "formatted-i8n-primary-true",
@@ -809,7 +811,8 @@
         "packages/rules/metadata/commonObjects/formattedI8nText/toXML.ts",
         "packages/rules/metadata/commonObjects/formattedI8nText/__fixtures__/data.ts"
       ],
-      "verification": "Source-reviewed independent expectations; Rust execution pending; no new annotation policy"
+      "verification": "Verified by Rust corpus command: exact independent YAML, structural XML, validation and round-trip; 2026-09-10",
+      "xmlEnvelope": "Root"
     },
     {
       "id": "formatted-i8n-primary-false",
@@ -855,7 +858,8 @@
         "packages/rules/metadata/commonObjects/formattedI8nText/toXML.ts",
         "packages/rules/metadata/commonObjects/formattedI8nText/__fixtures__/data.ts"
       ],
-      "verification": "Source-reviewed independent expectations; Rust execution pending; no new annotation policy"
+      "verification": "Verified by Rust corpus command: exact independent YAML, structural XML, validation and round-trip; 2026-09-10",
+      "xmlEnvelope": "Root"
     },
     {
       "id": "i8n-name-empty-container",

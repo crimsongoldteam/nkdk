@@ -5,6 +5,7 @@ pub(super) struct Expressions<'a> {
     pub(super) entry: &'a LinkedEntry,
     pub(super) program: &'a Program,
     pub(super) fields: &'a [LinkedField],
+    pub(super) field_storage: Option<&'a [(String, String)]>,
     pub(super) constants: String,
     pub(super) next_constant: usize,
     pub(super) transforms: BTreeSet<(u32, u32)>,
@@ -166,6 +167,9 @@ impl Expressions<'_> {
                 }
             },
             LinkedExpressionKind::Field(index) => {
+                if let Some(storage) = self.field_storage {
+                    return Ok(storage[*index as usize].0.clone());
+                }
                 let field = &self.fields[*index as usize];
                 scalar::Codec::resolve(&field.value, self.entry, self.program)?
                     .meaning(&format!("E{}F{index}", self.entry.id), *index as usize)
@@ -232,6 +236,13 @@ impl Expressions<'_> {
                     {
                         return Ok(format!("({sequence}).is_empty()"));
                     }
+                    let sequence = if self.field_storage.is_some()
+                        && matches!(arguments[0].kind, LinkedExpressionKind::Field(_))
+                    {
+                        format!("&{sequence}")
+                    } else {
+                        sequence
+                    };
                     let predicate = self.lower(&arguments[1])?;
                     let LinkedType::Sequence(item) = &arguments[0].value_type else {
                         return Err(unsupported(self.entry, "Iteration requires a sequence"));
@@ -330,7 +341,11 @@ impl Expressions<'_> {
                     LinkedOperator::State(StatePredicate::Present)
                         if matches!(arguments[0].value_type, LinkedType::Sequence(_)) =>
                     {
-                        if matches!(arguments[0].kind, LinkedExpressionKind::SelfValue) {
+                        if let (Some(storage), LinkedExpressionKind::Field(index)) =
+                            (self.field_storage, &arguments[0].kind)
+                        {
+                            storage[*index as usize].1.clone()
+                        } else if matches!(arguments[0].kind, LinkedExpressionKind::SelfValue) {
                             "_value.rows.is_present()".into()
                         } else {
                             format!("({}).is_present()", values[0])
@@ -514,6 +529,7 @@ pub(super) fn expression(
         entry,
         program,
         fields,
+        field_storage: None,
         constants: String::new(),
         next_constant: 0,
         transforms: BTreeSet::new(),

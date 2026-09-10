@@ -5,6 +5,13 @@ pub(super) fn generate(
     entry: &LinkedEntry,
     program: &Program,
 ) -> Result<Option<String>, Diagnostic> {
+    generate_embedded(entry, program, "")
+}
+pub(super) fn generate_embedded(
+    entry: &LinkedEntry,
+    program: &Program,
+    visibility: &str,
+) -> Result<Option<String>, Diagnostic> {
     let LinkedType::Record(fields) = &entry.value else {
         return Ok(None);
     };
@@ -175,10 +182,11 @@ pub(super) fn generate(
             "An optional property must be inside an XML document root",
         ));
     }
+    let parent_code = super::record::path_code(parent);
     let missing_root = super::record::path_code(&parent[..parent.len() - 1]);
     let write_missing = if xml_missing {
         format!(
-            "if !value.rows.is_present() {{ out.container({missing_root}); return Ok(out.finish()); }}"
+            "if !value.rows.is_present() {{ if _retain_wrapper {{ out.container_with_attributes({parent_code}, &attributes); }} else {{ out.container({missing_root}); }} return Ok(out.finish()); }}"
         )
     } else {
         String::new()
@@ -220,10 +228,10 @@ pub(super) fn generate(
     out.push_str(&presence.definitions);
     out.push_str(&attributes.definitions);
     out.push_str(&format!(
-        "struct R{id} {{ fields: [String; 2]{row_member} }}\nstruct V{id} {{ rows: core::Sequence<R{id}>{self_member}{form_member}, raw: Option<core::xml::Patch>, annotations: core::annotations::Mapping, yaml_issues: Vec<RuntimeDiagnostic>, declared_issues: Vec<RuntimeDiagnostic> }}\n"
+        "{visibility}struct R{id} {{ {visibility}fields: [String; 2]{row_member} }}\n{visibility}struct V{id} {{ {visibility}rows: core::Sequence<R{id}>{self_member}{form_member}, raw: Option<core::xml::Patch>, annotations: core::annotations::Mapping, yaml_issues: Vec<RuntimeDiagnostic>, declared_issues: Vec<RuntimeDiagnostic> }}\n"
     ));
     writeln!(out, "impl PartialEq for R{id} {{ fn eq(&self, other: &Self) -> bool {{ self.fields == other.fields }} }} impl Eq for R{id} {{}}").unwrap();
-    writeln!(out, "fn read_xml_{id}(source: &[u8], _inputs: &PreparedInputs) -> core::Result<V{id}> {{ let mut rows=Vec::new(); let mut fields: [Option<String>; 2]=[None, None]; let mut seen=false; {row_local} {self_local} {nil_local} core::xml::visit(source, |path, token| {{ match token {{ core::xml::Token::Attribute(_attribute) => {{ {attribute_read} {nil_attribute} Err(RuntimeDiagnostic::new(\"xml.unknown-attribute\", \"Undeclared XML attribute\")) }}, core::xml::Token::Start(_offset) => {{").unwrap();
+    writeln!(out, "fn read_xml_{id}(source: &[u8], inputs: &PreparedInputs) -> core::Result<V{id}> {{ read_xml_with_{id}(source,inputs,|_,_| Ok(false)) }}\n{visibility}fn read_xml_with_{id}(source: &[u8], _inputs: &PreparedInputs, mut consume: impl FnMut(&[core::xml::Name], &core::xml::Token<'_>) -> core::Result<bool>) -> core::Result<V{id}> {{ let mut rows=Vec::new(); let mut fields: [Option<String>; 2]=[None, None]; let mut seen=false; {row_local} {self_local} {nil_local} core::xml::visit(source, |path, token| {{ if consume(path,&token)? {{ return Ok(()); }} match token {{ core::xml::Token::Attribute(_attribute) => {{ {attribute_read} {nil_attribute} Err(RuntimeDiagnostic::new(\"xml.unknown-attribute\", \"Undeclared XML attribute\")) }}, core::xml::Token::Start(_offset) => {{").unwrap();
     writeln!(out, "if core::xml::matches(path, {parent_code}) {{ if seen {{ return Err(RuntimeDiagnostic::new(\"xml.duplicate-field\", \"Repeated collection property\")); }} seen=true; {self_xml} return Ok(()); }}\nif core::xml::matches(path, {item_code}) {{ fields=[None, None]; return Ok(()); }}").unwrap();
     for (index, path) in paths.iter().enumerate() {
         let path = super::record::path_code(path);
@@ -276,10 +284,13 @@ pub(super) fn generate(
     let shorthand_read = &shorthand.read;
     let shorthand_write = &shorthand.write;
     writeln!(out, r#"fn read_plain_yaml_{id}(source: &[u8], inputs: &PreparedInputs) -> core::Result<V{id}> {{ read_yaml_value_{id}(source,inputs,true) }}
-fn read_yaml_value_{id}(source: &[u8], _inputs: &PreparedInputs, expand: bool) -> core::Result<V{id}> {{
+fn read_yaml_value_{id}(source: &[u8], inputs: &PreparedInputs, expand: bool) -> core::Result<V{id}> {{
+let source=if source.is_empty() {{ b"{{}}".as_slice() }} else {{ source }};
+read_yaml_events_{id}(source,inputs,expand,core::yaml::DocumentSource(source)) }}
+{visibility}fn read_yaml_events_{id}(source: &[u8], _inputs: &PreparedInputs, expand: bool, visit: impl core::yaml::Source) -> core::Result<V{id}> {{
 let mut annotations=core::annotations::Mapping::default(); let mut rows=Vec::new(); let mut depth=0; let mut seen=false; let mut key=false; let mut pending: Option<String>=None; {row_local} {self_local} {form_local} {empty_local} {keyed_local}
 let source=if source.is_empty() {{ b"{{}}".as_slice() }} else {{ source }};
-core::yaml::visit_nodes(source, |node, _position| {{ match node {{
+visit.visit(|node, _position| {{ match node {{
 core::yaml::Node::MappingStart(None) if depth==0 && !seen => {{ depth=1; Ok(()) }},
 core::yaml::Node::Scalar(value, None) if depth==1 && !seen && !key => {{
 if value.into_text()? != {key_name:?} {{ return Err(RuntimeDiagnostic::new("yaml.unknown-field", "Unknown collection property")); }} key=true; Ok(()) }},
@@ -301,10 +312,10 @@ let V{id} {{ rows, annotations, .. }}=physical;
 let core::Sequence::Present({expanded_mut}rows)=rows else {{ unreachable!("physical rows are present"); }};
 {keyed_read}
 if (!seen && !{yaml_missing}) || depth!=0 {{ return Err(RuntimeDiagnostic::new("value.missing", "Missing collection property")); }} Ok(V{id} {{rows: if expand {{ {yaml_value} }} else {{ core::Sequence::Present(rows) }}{self_init}{form_yaml}, raw: None, annotations, yaml_issues, declared_issues}}) }}
-fn check_xml_{id}(value: &V{id}, source: &[u8], inputs: &PreparedInputs) -> Vec<RuntimeDiagnostic> {{ issues_xml_{id}(value, source, inputs).into_iter().filter(|error| error.kind==core::annotations::IssueKind::Structural || error.severity!=Severity::Error).collect() }}
-fn check_yaml_{id}(value: &V{id}, _source: &[u8], _inputs: &PreparedInputs) -> Vec<RuntimeDiagnostic> {{ value.yaml_issues.clone() }}
+{visibility}fn check_xml_{id}(value: &V{id}, source: &[u8], inputs: &PreparedInputs) -> Vec<RuntimeDiagnostic> {{ issues_xml_{id}(value, source, inputs).into_iter().filter(|error| error.kind==core::annotations::IssueKind::Structural || error.severity!=Severity::Error).collect() }}
+{visibility}fn check_yaml_{id}(value: &V{id}, _source: &[u8], _inputs: &PreparedInputs) -> Vec<RuntimeDiagnostic> {{ value.yaml_issues.clone() }}
 fn write_yaml_{id}(value: &V{id}, inputs: &PreparedInputs) -> core::Result<Vec<u8>> {{ prepare_yaml_{id}(value, inputs, true) }}
-fn prepare_yaml_{id}(value: &V{id}, inputs: &PreparedInputs, shorten: bool) -> core::Result<Vec<u8>> {{
+{visibility}fn prepare_yaml_{id}(value: &V{id}, inputs: &PreparedInputs, shorten: bool) -> core::Result<Vec<u8>> {{
 let candidate=emit_yaml_{id}(value, inputs, shorten)?;
 let mut restored=read_yaml_value_{id}(&candidate, inputs, false)?;
 let mut issues=restored.declared_issues.clone(); issues.extend(issues_xml_{id}(value, &[], inputs));
@@ -362,7 +373,7 @@ fn append_rows_{id}<'a>(out: &mut String, rows: impl IntoIterator<Item=&'a R{id}
             }}
         }}
     }}"#).unwrap();
-    writeln!(out, "fn write_plain_xml_{id}(value: &V{id}, _inputs: &PreparedInputs) -> core::Result<Vec<u8>> {{ let _value=value; let mut out=core::xml::Writer::new(&{:?}); {attribute_write} {presence_xml} {write_missing} out.container_with_attributes({parent_code}, &attributes); for row in &value.rows {{ out.container({item_code});", namespaces.iter().copied().collect::<Vec<_>>()).unwrap();
+    writeln!(out, "fn write_plain_xml_{id}(value: &V{id}, inputs: &PreparedInputs) -> core::Result<Vec<u8>> {{ write_xml_attributes_{id}(value,inputs, &[], false) }}\n{visibility}fn write_xml_attributes_{id}(value: &V{id}, _inputs: &PreparedInputs, extra: &[core::xml::WriteAttribute<'_>], _retain_wrapper: bool) -> core::Result<Vec<u8>> {{ let _value=value; let mut out=core::xml::Writer::new(&{:?}); {attribute_write} attributes.splice(0..0,extra.iter().map(|a| core::xml::WriteAttribute {{ name:a.name, value:match a.value {{ core::xml::AttributeValue::Text(t)=>core::xml::AttributeValue::Text(t),core::xml::AttributeValue::QName(q)=>core::xml::AttributeValue::QName(q) }} }})); {presence_xml} {write_missing} out.container_with_attributes({parent_code}, &attributes); for row in &value.rows {{ out.container({item_code});", namespaces.iter().copied().collect::<Vec<_>>()).unwrap();
     for (index, path) in paths.iter().enumerate() {
         writeln!(
             out,

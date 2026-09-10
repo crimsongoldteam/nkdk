@@ -102,6 +102,17 @@ fn generated_keyed_mapping_preserves_duplicate_occurrences_and_proves_the_candid
                 .replace("key: Entries", "key: Заголовок")
         })
         .collect();
+    let composite = include_str!("../../../declarations/common/formatted-i8n-text.yaml");
+    let composite_owner = integrated_owner
+        .replace("test.integrated-i8n", "test.composite")
+        .replace("common.i8n-text", "common.formatted-i8n-text")
+        .replace(
+            "registeredLanguages: {input: languages}, ownerName: {input: name}",
+            "languages: {input: languages}, name: {input: name}",
+        );
+    let composite_profiles:Vec<_>=(0..32).map(|profile|composite_owner
+        .replace("test.composite", &format!("test.composite-{profile}"))
+        .replace("{use: dictionary, bind:", &format!("{{use: dictionary, with: {{preserveEmptyXML: {}, excludeIfEqualNameYAML: {}, skipEmptyToXML: {}, typedXML: {}, xmlWithDefaultLanguage: {}}}, bind:",profile&1!=0,profile&2!=0,profile&4!=0,profile&8!=0,profile&16!=0))).collect();
     let mut sources = vec![
         SourceFile {
             path: "integrated.yaml",
@@ -188,12 +199,30 @@ fn generated_keyed_mapping_preserves_duplicate_occurrences_and_proves_the_candid
             bytes: owner.as_bytes(),
         },
     ];
+    sources.extend([
+        SourceFile {
+            path: "composite.yaml",
+            bytes: composite.as_bytes(),
+        },
+        SourceFile {
+            path: "composite-owner.yaml",
+            bytes: composite_owner.as_bytes(),
+        },
+        SourceFile {
+            path: "flag.yaml",
+            bytes: include_bytes!("../../../declarations/common/boolean-flag.yaml"),
+        },
+    ]);
     sources.extend(profiles.iter().map(|source| SourceFile {
         path: "profile.yaml",
         bytes: source.as_bytes(),
     }));
     sources.extend(corpus_profiles.iter().map(|source| SourceFile {
         path: "corpus-profile.yaml",
+        bytes: source.as_bytes(),
+    }));
+    sources.extend(composite_profiles.iter().map(|source| SourceFile {
+        path: "composite-profile.yaml",
         bytes: source.as_bytes(),
     }));
     let generated = compile(&sources).unwrap();
@@ -216,6 +245,32 @@ fn generated_keyed_mapping_preserves_duplicate_occurrences_and_proves_the_candid
     }
     fs::write(root.join("src/main.rs"), r#"include!("generated.rs");
 fn main() {
+    composite_matrix();
+    let composite=entry_id("test.composite").unwrap();
+    let inputs=read_inputs(composite,b"languages: [ru, en]").unwrap();
+    let diagnostics=validate_file(composite,"Entries:\n  Текст:\n    de: Hallo".as_bytes(),&inputs);
+    assert_eq!(diagnostics[0].path,["Entries","Текст","de"]);
+    assert_eq!(diagnostics[0].line,3);
+    let empty=b"<Root><Entries formatted=\"true\"/></Root>";
+    let result=convert_file(composite,Direction::XmlToYaml,empty,&inputs).unwrap();
+    assert_eq!(result.bytes,"Entries:\n  Форматированный: Истина".as_bytes());
+    verify_candidate(composite,empty,&result.bytes,&inputs).unwrap();
+    for bad in ["Entries: {}","Entries: {Форматированный: Ложь}","Entries: {Other: value}","Entries: {Текст: []}","Entries: {Текст: Hello, Текст: Other}"] {
+        assert!(!validate_file(composite,bad.as_bytes(),&inputs).is_empty(),"{bad}");
+    }
+    let missing_attr=b"<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\"><Entries><v8:item><v8:lang>ru</v8:lang><v8:content>Hello</v8:content></v8:item></Entries></Root>";
+    let value=convert_file(composite,Direction::XmlToYaml,missing_attr,&inputs).unwrap();
+    assert_eq!(value.bytes,"Entries: !xml/raw\n  $значение:\n    Текст: Hello\n  $xml:\n    _formatted: null".as_bytes());
+    verify_candidate(composite,missing_attr,&value.bytes,&inputs).unwrap();
+    let changed=String::from_utf8(value.bytes).unwrap().replace("Hello","Changed");
+    assert!(verify_candidate(composite,missing_attr,changed.as_bytes(),&inputs).is_err());
+    for (flag,expected) in [("true","Entries:\n  Форматированный: Истина\n  Текст: Hello"),("false","Entries:\n  Текст: Hello")] {
+        let xml=format!("<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\"><Entries formatted=\"{flag}\"><v8:item><v8:lang>ru</v8:lang><v8:content>Hello</v8:content></v8:item></Entries></Root>");
+        let value=convert_file(composite,Direction::XmlToYaml,xml.as_bytes(),&inputs).unwrap();
+        assert_eq!(value.bytes,expected.as_bytes());
+        assert!(validate_file(composite,&value.bytes,&inputs).is_empty());
+        verify_candidate(composite,xml.as_bytes(),&value.bytes,&inputs).unwrap();
+    }
     let integrated=entry_id("test.integrated-i8n").unwrap();
     let integrated_inputs=read_inputs(integrated, b"languages: [ru, en]\nname: TestTest").unwrap();
     let integrated_xml=b"<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\"><Entries><v8:item><v8:lang>ru</v8:lang><v8:content>Hello</v8:content></v8:item></Entries></Root>";
@@ -375,7 +430,7 @@ fn main() {
     );
     fs::write(
         root.join("src/main.rs"),
-        main + &corpus_checks() + &matrix_checks(),
+        main + &corpus_checks() + &matrix_checks() + &composite_matrix_checks(),
     )
     .unwrap();
     for args in [
@@ -583,4 +638,78 @@ fn matrix_expected(row: &serde_json::Value) -> String {
         return format!("Заголовок: !xml/raw\n  $значение: \"\"\n  $xml:{payload}");
     }
     row["yaml"].as_str().unwrap().to_owned()
+}
+
+fn composite_matrix_checks() -> String {
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..");
+    let observations: serde_json::Value = serde_json::from_slice(
+        &fs::read(root.join("tests/migration/i8n-full-round-trip-observations.json")).unwrap(),
+    )
+    .unwrap();
+    let mut code =
+        String::from("\nfn composite_matrix() { let mut failed=0; let mut verified=0;\n");
+    for row in observations["rows"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|row| row["profile"] == 0)
+    {
+        let case = row["case"].as_str().unwrap();
+        for flag in ["true", "false", "missing"] {
+            let xml=row["sourceXML"].as_str().unwrap().replacen("<Root>","<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">",1).replace("Title","Entries");
+            let xml = if flag == "missing" {
+                xml
+            } else {
+                xml.replace("<Entries", &format!("<Entries formatted=\"{flag}\""))
+            };
+            let xml = if case == "typed-text" && flag == "true" {
+                xml.replace(
+                    "formatted=\"true\" xsi:type=\"v8:LocalStringType\"",
+                    "xsi:type=\"v8:LocalStringType\" formatted=\"true\"",
+                )
+            } else {
+                xml
+            };
+            code.push_str(&format!(r#"for profile in 0..32 {{
+let entry=entry_id(&format!("test.composite-{{profile}}")).unwrap();
+let inputs=read_inputs(entry,b"languages: [ru, en]\nname: TestName").unwrap();
+let xml={xml:?}.as_bytes();
+match convert_file(entry,Direction::XmlToYaml,xml,&inputs) {{
+Ok(value)=>{{let issues=validate_file(entry,&value.bytes,&inputs);let proof=verify_candidate(entry,xml,&value.bytes,&inputs);if !issues.is_empty() || proof.is_err() {{failed+=1;eprintln!("{{profile}} {case} {flag}: {{issues:?}} {{proof:?}}");}} else {{verified+=1;}}}},
+Err(error)=>{{failed+=1;eprintln!("{{profile}} {case} {flag}: {{error:?}}");}}
+}}
+}}
+"#));
+        }
+    }
+    code.push_str("assert_eq!(failed,0,\"Composite profile matrix\"); assert_eq!(verified,1536); println!(\"COMPOSITE\\t{verified}\"); }\n");
+    code
+}
+
+#[test]
+fn composite_requires_explicit_xml_absence_semantics() {
+    let flag = include_str!("../../../declarations/common/boolean-flag.yaml");
+    let flag = flag.replace("    xml:\n      missing: {denotes: {literal: false}}\n", "");
+    let sources = [
+        SourceFile {
+            path: "flag.yaml",
+            bytes: flag.as_bytes(),
+        },
+        SourceFile {
+            path: "text.yaml",
+            bytes: include_bytes!("../../../declarations/common/i8n-text.yaml"),
+        },
+        SourceFile {
+            path: "formatted.yaml",
+            bytes: include_bytes!("../../../declarations/common/formatted-i8n-text.yaml"),
+        },
+        SourceFile {
+            path: "owner.yaml",
+            bytes: include_bytes!("../../../declarations/probes/formatted-i8n-ordinary.yaml"),
+        },
+    ];
+    assert!(
+        compile(&sources).is_err(),
+        "XML absence must not inherit YAML defaults silently"
+    );
 }

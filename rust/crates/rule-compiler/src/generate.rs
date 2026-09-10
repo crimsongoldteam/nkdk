@@ -1,5 +1,6 @@
 mod attributes;
 mod collections;
+pub(crate) mod composite;
 mod constraints;
 mod expressions;
 mod inputs;

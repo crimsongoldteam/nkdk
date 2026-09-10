@@ -216,7 +216,7 @@ fn build_entry(
                 ));
             }
             let bindings = resolve_bindings(module, target, usage, modules, ids)?;
-            let arguments = parameters::resolve_arguments(target, usage, modules, ids)?;
+            let arguments = parameters::resolve_arguments(module, target, usage, modules, ids)?;
             let mut fragment = build_entry(target, modules, ids, visiting, cache)?;
             composition::instantiate(
                 &mut fragment,
@@ -412,7 +412,7 @@ fn resolve_type(
                 })?;
             let target = modules[import.value.as_str()];
             let bindings = resolve_bindings(module, target, usage, modules, ids)?;
-            let arguments = parameters::resolve_arguments(target, usage, modules, ids)?;
+            let arguments = parameters::resolve_arguments(module, target, usage, modules, ids)?;
             if bindings.is_empty() && arguments.is_empty() {
                 LinkedType::Reference(ids[import.value.as_str()])
             } else {

@@ -5,8 +5,10 @@ pub enum Form {
     Scalar,
     Mapping,
 }
+mod nested;
 mod nodes;
 use crate::{Result, RuntimeDiagnostic};
+pub use nested::{RecordSource, RecordState};
 pub use nodes::{Node, visit_nodes};
 use std::collections::HashSet;
 use yaml_rust2::{
@@ -208,4 +210,16 @@ pub fn scalar(value: &str) -> String {
     }
     output.push('"');
     output
+}
+
+/// A statically dispatched stream of YAML nodes. Composition routes the same
+/// parse into a child decoder rather than serializing a temporary document.
+pub trait Source {
+    fn visit(self, consume: impl FnMut(Node, crate::Position) -> Result<()>) -> Result<()>;
+}
+pub struct DocumentSource<'a>(pub &'a [u8]);
+impl Source for DocumentSource<'_> {
+    fn visit(self, consume: impl FnMut(Node, crate::Position) -> Result<()>) -> Result<()> {
+        visit_nodes(self.0, consume)
+    }
 }

@@ -10,7 +10,7 @@ pub(super) struct ScalarShorthand {
 pub(crate) fn specialize(
     value: &LinkedExpression,
     bindings: &[LinkedBinding],
-    arguments: &[ScalarLiteral],
+    arguments: &[LinkedExpression],
     owner: &LinkedEntry,
 ) -> Result<LinkedExpression, Diagnostic> {
     let mut value = value.clone();
@@ -23,12 +23,10 @@ pub(crate) fn specialize(
                 .ok_or_else(|| unsupported(owner, "Missing common input binding"));
         }
         LinkedExpressionKind::Parameter(slot) => {
-            value.kind = LinkedExpressionKind::Literal(
-                arguments
-                    .get(*slot as usize)
-                    .ok_or_else(|| unsupported(owner, "Missing static argument"))?
-                    .clone(),
-            )
+            value = arguments
+                .get(*slot as usize)
+                .ok_or_else(|| unsupported(owner, "Missing static argument"))?
+                .clone()
         }
         LinkedExpressionKind::Operation {
             arguments: children,
@@ -47,7 +45,7 @@ pub(super) fn scalar(
     common: &LinkedEntry,
     program: &Program,
     bindings: &[LinkedBinding],
-    arguments: &[ScalarLiteral],
+    arguments: &[LinkedExpression],
     fields: &[LinkedField],
 ) -> Result<ScalarShorthand, Diagnostic> {
     let mut result = ScalarShorthand {
@@ -165,7 +163,7 @@ pub(super) fn scalar(
 pub(super) fn specialize_constraint(
     constraint: &mut LinkedConstraint,
     bindings: &[LinkedBinding],
-    arguments: &[ScalarLiteral],
+    arguments: &[LinkedExpression],
     owner: &LinkedEntry,
 ) -> Result<(), Diagnostic> {
     constraint.assertion = specialize(&constraint.assertion, bindings, arguments, owner)?;

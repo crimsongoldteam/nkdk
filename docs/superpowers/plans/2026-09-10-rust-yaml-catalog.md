@@ -207,7 +207,7 @@ SourceBatch — ограниченная порция файлов по обще
 
 - [ ] Реализовать точную проверку coverage: `nkdk-dev coverage check --manifest tests/migration/coverage.json --require verified`. До окончания переноса она обязана перечислять непокрытые записи, а не возвращать успех по одному проценту покрытия.
 - [ ] Переносить последовательно: оставшиеся скаляры/коллекции → metadataAttribute и 21 соседний metadata-record → CommonModule целиком → Catalog/Document → остальные appliedObjects → InputField и остальные forms → общие регистрации. Системные перечисления переносить перед их первым потребителем. На каждом шаге брать список source/registrations из реестра, а не угадывать по имени каталога.
-- [ ] Для каждого владельца сопоставить все поля и ветви: xmlOrder/reference, dynamic defaults, adopted state, children, schema, references, rename, Enterprise, files. Добавить независимый случай в существующую таблицу catalog_contract и получить содержательный отказ перед декларацией.
+- [ ] Для каждого владельца сопоставить все поля и ветви: xmlOrder/reference, dynamic defaults, adopted state, children, schema, references, rename, files (Enterprise исключён из переноса). Добавить независимый случай в существующую таблицу catalog_contract и получить содержательный отказ перед декларацией.
 
   ```rust
   #[test]

@@ -4,7 +4,7 @@ pub(super) fn instantiate(
     entry: &mut LinkedEntry,
     offset: u32,
     bindings: &[LinkedBinding],
-    arguments: &[ScalarLiteral],
+    arguments: &[LinkedExpression],
 ) -> Result<(), Diagnostic> {
     let substitution = Substitution {
         offset,
@@ -60,7 +60,7 @@ pub(super) fn instantiate(
 struct Substitution<'a> {
     offset: u32,
     bindings: &'a [LinkedBinding],
-    arguments: &'a [ScalarLiteral],
+    arguments: &'a [LinkedExpression],
 }
 impl Substitution<'_> {
     fn xml(&self, xml: &mut LinkedXml) -> Result<(), Diagnostic> {
@@ -84,7 +84,14 @@ impl Substitution<'_> {
 
     fn value(&self, value: &mut LinkedType) -> Result<(), Diagnostic> {
         match value {
-            LinkedType::BoundReference { bindings, .. } => {
+            LinkedType::BoundReference {
+                bindings,
+                arguments,
+                ..
+            } => {
+                for argument in arguments {
+                    self.expression(argument)?;
+                }
                 for binding in bindings {
                     self.expression(&mut binding.value)?;
                 }
@@ -123,7 +130,7 @@ impl Substitution<'_> {
                         "Fragment parameter has no substitution",
                     )
                 })?;
-                value.kind = LinkedExpressionKind::Literal(argument.clone());
+                *value = argument.clone();
             }
             LinkedExpressionKind::Field(index) => *index += self.offset,
             LinkedExpressionKind::Operation { arguments, .. } => {
