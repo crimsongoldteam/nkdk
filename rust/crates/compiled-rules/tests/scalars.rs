@@ -231,3 +231,89 @@ fn metadata_name_uses_the_common_pattern_for_validation_and_anomalies() {
             .unwrap();
     }
 }
+
+#[test]
+fn scalar_choice_preserves_type_and_the_two_export_profiles() {
+    let inputs = PreparedInputs::default();
+    for name in ["migration.string-or-number", "migration.predefined-code"] {
+        let entry = entry_id(name).unwrap();
+        for (attributes, text, expected) in [
+            ("", "001", "\"001\""),
+            ("", "true", "\"true\""),
+            ("xsi:type=\"xs:unknown\"", "001", "\"001\""),
+            (
+                "xsi:type=\"xs:double\"",
+                "0.1234567890123456789",
+                "0.1234567890123456789",
+            ),
+            ("xsi:type=\"xs:string\"", "001", "\"001\""),
+            (
+                "xsi:type=\"xs:decimal\"",
+                "9007199254740993",
+                "9007199254740993",
+            ),
+            ("xsi:type=\"xs:integer\"", "42", "42"),
+            ("xsi:type=\"xs:float\"", "1e3", "1000"),
+        ] {
+            let xml = format!(
+                "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Value {attributes}>{text}</Value></Root>"
+            );
+            let result =
+                convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+            let yaml = String::from_utf8_lossy(&result.bytes);
+            assert!(yaml.contains(&format!(": {expected}")), "{yaml}");
+            let ordinary = attributes.is_empty()
+                || (name == "migration.predefined-code" && attributes == "xsi:type=\"xs:decimal\"");
+            assert_eq!(yaml.contains("!xml/raw"), !ordinary, "{yaml}");
+            assert!(validate_file(entry, &result.bytes, &inputs).is_empty());
+            nkdk_compiled_rules::verify_candidate(entry, xml.as_bytes(), &result.bytes, &inputs)
+                .unwrap();
+        }
+        let absent = convert_file(entry, Direction::XmlToYaml, b"<Root/>", &inputs).unwrap();
+        assert!(absent.bytes.is_empty());
+        nkdk_compiled_rules::verify_candidate(entry, b"<Root/>", &absent.bytes, &inputs).unwrap();
+        let empty = convert_file(
+            entry,
+            Direction::XmlToYaml,
+            b"<Root><Value/></Root>",
+            &inputs,
+        )
+        .unwrap();
+        assert!(!String::from_utf8_lossy(&empty.bytes).contains("$значение"));
+        nkdk_compiled_rules::verify_candidate(
+            entry,
+            b"<Root><Value/></Root>",
+            &empty.bytes,
+            &inputs,
+        )
+        .unwrap();
+        for text in ["", "NaN", "wrong"] {
+            let xml = format!(
+                "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Value xsi:type=\"xs:decimal\">{text}</Value></Root>"
+            );
+            let result =
+                convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+            let yaml = String::from_utf8_lossy(&result.bytes);
+            assert!(
+                yaml.contains("!xml/raw") && !yaml.contains("$значение"),
+                "{yaml}"
+            );
+            nkdk_compiled_rules::verify_candidate(entry, xml.as_bytes(), &result.bytes, &inputs)
+                .unwrap();
+        }
+        let result = convert_file(
+            entry,
+            Direction::YamlToXml,
+            "Значение: 42".as_bytes(),
+            &inputs,
+        )
+        .unwrap();
+        assert_eq!(
+            String::from_utf8_lossy(&result.bytes).contains("decimal"),
+            name == "migration.predefined-code"
+        );
+        for yaml in ["Значение: true", "Значение: null", "Значение: []"] {
+            assert!(!validate_file(entry, yaml.as_bytes(), &inputs).is_empty());
+        }
+    }
+}

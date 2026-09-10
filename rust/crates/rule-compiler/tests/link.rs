@@ -1036,13 +1036,7 @@ fn text_transform_tables_reject_unknown_symbols_and_ambiguous_case_shifts() {
         ),
     ] {
         let text = original.replace(from, to);
-        let module = parse(SourceFile {
-            path: "text.yaml",
-            bytes: text.as_bytes(),
-        })
-        .unwrap();
-        let errors = link(&[module]).unwrap_err();
-        assert!(errors.iter().any(|error| error.code == code), "{errors:?}");
+        assert_link_error("text.yaml", &text, code);
     }
 }
 
@@ -2149,4 +2143,39 @@ fn forwarded_static_parameters_require_a_declared_parameter_of_the_same_type() {
             result.unwrap();
         }
     }
+}
+
+#[test]
+fn scalar_choice_rejects_ambiguous_or_unreachable_selectors() {
+    let source = include_str!("../../../declarations/common/predefined-code.yaml");
+    for (invalid, code) in [
+        (
+            source.replace("xs:integer", "xs:decimal"),
+            "ambiguous_choice_selector",
+        ),
+        (
+            source.replace("emit: xs:decimal", "emit: xs:string"),
+            "invalid_choice_emit",
+        ),
+        (
+            source.replace("otherwise: text", "otherwise: number"),
+            "invalid_choice_coverage",
+        ),
+        (
+            source.replace("attribute: xsi:type", "attribute: xs:type"),
+            "unsupported_choice_selector",
+        ),
+    ] {
+        assert_link_error("choice.yaml", &invalid, code);
+    }
+}
+
+fn assert_link_error(path: &str, text: &str, code: &str) {
+    let module = parse(SourceFile {
+        path,
+        bytes: text.as_bytes(),
+    })
+    .unwrap();
+    let errors = link(&[module]).unwrap_err();
+    assert!(errors.iter().any(|error| error.code == code), "{errors:?}");
 }

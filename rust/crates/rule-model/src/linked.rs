@@ -29,6 +29,7 @@ pub struct LinkedEntry {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum LinkedType {
+    ScalarChoice(Vec<ScalarType>),
     Enum(Vec<crate::EnumVariant>),
     Absent,
     Optional(Box<LinkedType>),
@@ -58,6 +59,7 @@ pub struct ExpandedName {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum LinkedXml {
+    ScalarChoice(crate::ScalarChoiceXml<ExpandedName>),
     Calendar,
     WithAttributes {
         attributes: Vec<LinkedXmlAttribute>,

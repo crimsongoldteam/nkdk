@@ -1,0 +1,20 @@
+format: nkdk-declarations/1
+kind: value
+id: common.predefined-code
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  xs: http://www.w3.org/2001/XMLSchema
+value: {kind: scalar-choice, variants: [text, number], profile: decimal}
+representations:
+  xml:
+    kind: scalar-choice
+    attribute: xsi:type
+    empty: absent
+    cases:
+      - {scalar: number, in: [xs:decimal, xs:integer, xs:double, xs:float], emit: xs:decimal}
+    otherwise: text
+  yaml: {kind: scalar-choice}
+presence:
+  - target: self
+    xml: {missing: {denotes: {absent: true}}}
+    yaml: {missing: {denotes: {absent: true}}}

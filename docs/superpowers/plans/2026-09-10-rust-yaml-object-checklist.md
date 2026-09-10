@@ -8,7 +8,7 @@
 - `[ ]` — объект не завершён. Промежуточные результаты учитываются только в журнале.
 - Служебные каталоги включены, чтобы не потерять их обязанности. Для них завершение означает перенос ответственности в общий Rust-механизм, а не обязательное создание отдельной YAML-декларации.
 
-Приняты 3 common-объекта: двусторонние интерфейсы I8nText, FormattedI8nText и MetadataName (XML ↔ YAML, валидация и структурная схема). Enterprise исключён из реализации и условий готовности по решению пользователя. Наличие общего компилятора, синтетического примера или успешного теста отдельного свойства не означает завершение всего объекта. В частности, `common.code-type` — синтетический пример, а не перенесённое системное перечисление.
+Приняты 5 common-объектов: двусторонние интерфейсы I8nText, FormattedI8nText, MetadataName, StringOrNumber и PredefinedCode (XML ↔ YAML, валидация и структурная схема). Enterprise исключён из реализации и условий готовности по решению пользователя. Наличие общего компилятора, синтетического примера или успешного теста отдельного свойства не означает завершение всего объекта. В частности, `common.code-type` — синтетический пример, а не перенесённое системное перечисление.
 
 ## Когда ставить галочку
 
@@ -21,6 +21,8 @@
 
 Общая цель 10× по времени и памяти проверяется отдельно на e2e; галочка отдельного объекта её не подтверждает. Окончательное удаление TS относится к заключительному этапу проекта.
 
+Работы группируются по [механизмам и семействам](2026-09-10-rust-yaml-catalog.md#перенос-семействами-рабочая-карта-механизмов). Общий механизм сам по себе не даёт галочку его потребителям.
+
 ## Правило обновления для исполнителя
 
 После завершения каждого объекта, в той же порции изменений, обновить его строку, ссылки на доказательства и сводку; согласовать запись с `tests/migration/coverage.json`, если объект входит в этот реестр, и журналом. Не откладывать обновление до конца всего этапа. Промежуточные результаты записывать только в журнале; в чеклисте оставлять пустой флажок. При найденном несоответствии снять галочку и записать причину. Новые объекты и вложенные части добавлять при их обнаружении. Общую инфраструктуру не засчитывать вместо объектов.
@@ -29,7 +31,7 @@
 
 | Группа | Записей | Полностью завершено |
 |---|---:|---:|
-| Общие объекты (common) | 90 | 3 |
+| Общие объекты (common) | 90 | 5 |
 | Вложенные части общих объектов | 27 | 0 |
 | Прикладные объекты и их вложенные части | 56 | 0 |
 | Формы, элементы и общие части форм | 66 | 0 |
@@ -106,7 +108,7 @@
 - [ ] [commonObjects/number](../../../packages/rules/metadata/commonObjects/number)
 - [ ] [commonObjects/picture](../../../packages/rules/metadata/commonObjects/picture)
 - [ ] [commonObjects/predefined](../../../packages/rules/metadata/commonObjects/predefined)
-- [ ] [commonObjects/predefinedCode](../../../packages/rules/metadata/commonObjects/predefinedCode)
+- [x] [commonObjects/predefinedCode](../../../packages/rules/metadata/commonObjects/predefinedCode) — 2026-09-10: [декларация](../../../rust/declarations/common/predefined-code.yaml), [e2e семейства](../../../tests/migration/scalar-choice-e2e.json), [оба профиля и аномалии](../../../rust/crates/compiled-rules/tests/scalars.rs), [схема](../../../rust/crates/rule-compiler/tests/schema.rs).
 - [ ] [commonObjects/predefinedItem](../../../packages/rules/metadata/commonObjects/predefinedItem)
 - [ ] [commonObjects/rootCommandInterface](../../../packages/rules/metadata/commonObjects/rootCommandInterface)
 - [ ] [commonObjects/standardAttributeDescription](../../../packages/rules/metadata/commonObjects/standardAttributeDescription)
@@ -114,7 +116,7 @@
 - [ ] [commonObjects/standardTabularSectionDescription](../../../packages/rules/metadata/commonObjects/standardTabularSectionDescription)
 - [ ] [commonObjects/standartBeginningDate](../../../packages/rules/metadata/commonObjects/standartBeginningDate)
 - [ ] [commonObjects/string](../../../packages/rules/metadata/commonObjects/string)
-- [ ] [commonObjects/stringOrNumber](../../../packages/rules/metadata/commonObjects/stringOrNumber)
+- [x] [commonObjects/stringOrNumber](../../../packages/rules/metadata/commonObjects/stringOrNumber) — 2026-09-10: [декларация](../../../rust/declarations/common/string-or-number.yaml), [e2e семейства](../../../tests/migration/scalar-choice-e2e.json), [оба профиля и аномалии](../../../rust/crates/compiled-rules/tests/scalars.rs), [схема](../../../rust/crates/rule-compiler/tests/schema.rs).
 - [ ] [commonObjects/styleItemValue](../../../packages/rules/metadata/commonObjects/styleItemValue)
 - [ ] [commonObjects/typeDescription](../../../packages/rules/metadata/commonObjects/typeDescription)
 - [ ] [commonObjects/typeLink](../../../packages/rules/metadata/commonObjects/typeLink)

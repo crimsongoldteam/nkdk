@@ -2,6 +2,7 @@ mod constraints;
 mod enumeration;
 mod expressions;
 mod presence;
+mod scalar_choice;
 mod shorthands;
 mod text;
 mod xml;
@@ -282,6 +283,7 @@ pub fn decode(path: &str, events: Vec<(Event, Marker)>) -> Result<Module, Diagno
     let (xml, wrappers) = xml::unwrap(path, xml)?;
     let yaml = representations.field(path, rep_fields, "yaml")?;
     let (xml_rep, yaml_rep) = match &definition {
+        TypeDefinition::ScalarChoice(_) => scalar_choice::representations(path, xml, yaml)?,
         TypeDefinition::Scalar(ScalarType::Text) => {
             let xml_fields = xml.mapping(path, &["kind", "format", "zone"])?;
             if xml.field(path, xml_fields, "kind")?.text(path)? == "calendar" {
@@ -654,6 +656,7 @@ fn type_definition(path: &str, value: &Node) -> Result<TypeDefinition, Diagnosti
     let kind = value.field(path, fields, "kind")?;
     match kind.text(path)? {
         "enum" => enumeration::variants(path, value),
+        "scalar-choice" => scalar_choice::value(path, value),
         "scalar" => {
             value.mapping(path, &["kind", "scalar", "profile"])?;
             let scalar = value.field(path, fields, "scalar")?;

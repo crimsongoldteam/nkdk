@@ -14,6 +14,7 @@ import yaml
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("--output", required=True, type=Path)
+parser.add_argument("--choices", action="store_true")
 args = parser.parse_args()
 root = Path(__file__).resolve().parents[3]
 binary = root / "rust/target/debug/nkdk"
@@ -40,17 +41,29 @@ with tempfile.TemporaryDirectory(prefix="nkdk-typed-e2e-") as temporary:
         namespaces = dict(value for _, value in ET.iterparse(io.BytesIO(original), events=("start-ns",)))
         for index, element in enumerate(ET.fromstring(original).iter()):
             kind = element.get(xsi_type, "")
-            if len(element) or kind not in ("xs:decimal", "xs:string", "xs:dateTime"):
-                continue
-            assert namespaces.get("xs") == xs, source
-            wrapper = ET.Element("Root", {"xmlns:xs": xs})
+            if args.choices:
+                if element.tag == "{http://v8.1c.ru/8.3/xcf/predef}Code" and source.name == "Predefined.xml":
+                    entry = "migration.predefined-code"
+                elif element.tag in ("{http://v8.1c.ru/8.3/xcf/logform}ReportResult", "{http://v8.1c.ru/8.3/xcf/logform}DetailsData") and source.name == "Form.xml":
+                    entry = "migration.string-or-number"
+                else:
+                    continue
+                assert not len(element), source
+                key, physical = "Значение", "Value"
+            else:
+                if len(element) or kind not in ("xs:decimal", "xs:string", "xs:dateTime"):
+                    continue
+                entry = {"xs:decimal":"migration.typed-number","xs:string":"migration.typed-string","xs:dateTime":"migration.typed-date-time"}[kind]
+                key, physical = "Сумма", "Amount"
+            if kind:
+                assert namespaces.get(kind.split(":")[0]) == xs, source
+            wrapper = ET.Element("Root", {"xmlns:" + prefix: uri for prefix, uri in namespaces.items() if prefix and uri == xs})
             value = copy.deepcopy(element)
-            value.tag = "Amount"
+            value.tag = physical
             value.tail = None
             wrapper.append(value)
             input_xml = ET.tostring(wrapper, encoding="utf-8")
             (directory / "input.xml").write_bytes(input_xml)
-            entry = {"xs:decimal":"migration.typed-number","xs:string":"migration.typed-string","xs:dateTime":"migration.typed-date-time"}[kind]
             commands = [
                 ["convert-file", "--direction", "xml-to-yaml", "--input", str(directory / "input.xml"), "--output", str(directory / "value.yaml")],
                 ["validate-file", "--input", str(directory / "value.yaml")],
@@ -62,11 +75,13 @@ with tempfile.TemporaryDirectory(prefix="nkdk-typed-e2e-") as temporary:
             assert shape(input_xml) == shape((directory / "restored.xml").read_bytes()), (source, index)
             document = yaml.compose((directory / "value.yaml").read_text())
             assert isinstance(document, yaml.MappingNode)
-            semantic = next((v for k, v in document.value if k.value == "Сумма"), None)
+            semantic = next((v for k, v in document.value if k.value in (key, physical)), None)
             if semantic is not None and semantic.tag == "!xml/raw":
                 semantic = next((v for k, v in semantic.value if k.value == "$значение"), None)
             expected = element.text or ""
-            if kind == "xs:string":
+            if args.choices and not expected:
+                assert semantic is None, (source,index)
+            elif kind == "xs:string" or (args.choices and kind not in ("xs:decimal", "xs:integer", "xs:float", "xs:double")):
                 assert isinstance(semantic, yaml.ScalarNode) and semantic.tag == "tag:yaml.org,2002:str" and semantic.value == expected, (source, index)
             elif kind == "xs:dateTime":
                 try:
@@ -89,8 +104,9 @@ with tempfile.TemporaryDirectory(prefix="nkdk-typed-e2e-") as temporary:
                     assert isinstance(semantic, yaml.ScalarNode) and semantic.tag in ("tag:yaml.org,2002:int", "tag:yaml.org,2002:float") and Decimal(semantic.value) == number, (source, index)
                 else:
                     assert semantic is None, (source, index)
-            rows.append({"source": str(source.relative_to(root)), "sha256": hashlib.sha256(original).hexdigest(), "occurrence": index, "type": kind, "verified": True})
+            rows.append({"source": str(source.relative_to(root)), "sha256": hashlib.sha256(original).hexdigest(), "occurrence": index, "type": kind, "entry": entry, "verified": True})
         assert source.read_bytes() == original
 assert rows, "An empty selection is not success"
-args.output.write_text(json.dumps({"scope": "Typed scalar leaf properties; not whole-project conversion or performance", "verified": len(rows), "cases": rows}, ensure_ascii=False, indent=2) + "\n")
-print(f"Verified {len(rows)} typed scalar properties")
+scope = "Scalar choice properties" if args.choices else "Typed scalar leaf properties"
+args.output.write_text(json.dumps({"scope": scope + "; not whole-project conversion or performance", "verified": len(rows), "cases": rows}, ensure_ascii=False, indent=2) + "\n")
+print(f"Verified {len(rows)} {scope}")

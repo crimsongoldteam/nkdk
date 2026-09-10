@@ -1,0 +1,17 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.predefined-code
+imports: {value: common.predefined-code}
+value:
+  kind: record
+  fields:
+    - {name: value, type: {use: value}}
+representations:
+  xml:
+    kind: record
+    fields:
+      - {field: value, path: [Root, Value]}
+  yaml:
+    kind: mapping
+    fields:
+      - {field: value, key: Значение}

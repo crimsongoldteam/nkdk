@@ -66,6 +66,7 @@ pub struct Representations {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum XmlRepresentation {
+    ScalarChoice(ScalarChoiceXml<String>),
     Calendar,
     WithAttributes {
         attributes: Vec<XmlAttribute>,
@@ -84,6 +85,7 @@ pub enum XmlRepresentation {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum YamlRepresentation {
+    ScalarChoice,
     Calendar {
         seconds: bool,
         omit_zero: bool,
@@ -122,6 +124,7 @@ pub struct NamedType {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TypeDefinition {
+    ScalarChoice(Vec<ScalarType>),
     Enum(Vec<EnumVariant>),
     TextTransform(Box<TextTransform>),
     Scalar(ScalarType),
@@ -459,4 +462,17 @@ pub struct EnumLexeme {
     pub value: String,
     pub text: String,
     pub source: SourceLocation,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ScalarChoiceXml<N> {
+    pub attribute: N,
+    pub cases: Vec<ScalarChoiceCase<N>>,
+    pub otherwise: ScalarType,
+}
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ScalarChoiceCase<N> {
+    pub scalar: ScalarType,
+    pub values: Vec<N>,
+    pub emit: Option<N>,
 }

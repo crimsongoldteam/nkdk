@@ -29,6 +29,20 @@ impl Scalar {
     pub fn position(&self) -> crate::Position {
         self.position
     }
+    pub fn into_choice_text(self) -> Result<(String, bool)> {
+        if !self.plain {
+            return Ok((self.text, false));
+        }
+        match Yaml::from_str(&self.text) {
+            Yaml::Integer(_) | Yaml::Real(_) => return Ok((self.text, true)),
+            Yaml::String(_) => return Ok((self.text, false)),
+            _ => (),
+        }
+        Err(RuntimeDiagnostic::new(
+            "yaml.expected-scalar-choice",
+            "Expected text or an exact finite number",
+        ))
+    }
     pub fn into_text(self) -> Result<String> {
         if self.plain && !matches!(Yaml::from_str(&self.text), Yaml::String(_)) {
             return Err(RuntimeDiagnostic::new(

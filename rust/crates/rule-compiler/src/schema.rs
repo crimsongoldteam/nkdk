@@ -57,6 +57,9 @@ fn scalar(
                 .expect("linked reference");
             crate::generate::scalar::optional(target).map_err(|_| unsupported(target))?;
             match &target.yaml {
+                YamlRepresentation::ScalarChoice => {
+                    Ok(json!({"type":["string","number"],"x-nkdk-number-profile":"decimal"}))
+                }
                 YamlRepresentation::Text => Ok(json!({"type":"string"})),
                 YamlRepresentation::Calendar { seconds, omit_zero } => {
                     let clock = if *seconds {

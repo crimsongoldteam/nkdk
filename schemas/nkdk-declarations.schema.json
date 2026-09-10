@@ -489,6 +489,99 @@
           }
         }
       }
+    },
+    {
+      "if": {
+        "properties": {
+          "value": {
+            "properties": {
+              "kind": {
+                "const": "scalar-choice"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "representations": {
+            "properties": {
+              "xml": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "scalar-choice"
+                  },
+                  "attribute": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "empty": {
+                    "const": "absent"
+                  },
+                  "cases": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "scalar": {
+                          "const": "number"
+                        },
+                        "in": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "minItems": 1,
+                          "uniqueItems": true
+                        },
+                        "emit": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "required": [
+                        "scalar",
+                        "in"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "minItems": 1,
+                    "maxItems": 1
+                  },
+                  "otherwise": {
+                    "const": "text"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "attribute",
+                  "empty",
+                  "cases",
+                  "otherwise"
+                ],
+                "additionalProperties": false
+              },
+              "yaml": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "scalar-choice"
+                  }
+                },
+                "required": [
+                  "kind"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
     }
   ],
   "$defs": {
@@ -703,6 +796,9 @@
             "pattern"
           ],
           "additionalProperties": false
+        },
+        {
+          "$ref": "#/$defs/scalarChoice"
         }
       ]
     },
@@ -728,6 +824,9 @@
         },
         {
           "$ref": "#/$defs/textTransform"
+        },
+        {
+          "$ref": "#/$defs/scalarChoice"
         }
       ]
     },
@@ -2509,6 +2608,35 @@
           "additionalProperties": false
         }
       ]
+    },
+    "scalarChoice": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "const": "scalar-choice"
+        },
+        "variants": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "text",
+              "number"
+            ]
+          },
+          "minItems": 2,
+          "maxItems": 2,
+          "uniqueItems": true
+        },
+        "profile": {
+          "const": "decimal"
+        }
+      },
+      "required": [
+        "kind",
+        "variants",
+        "profile"
+      ],
+      "additionalProperties": false
     }
   }
 }

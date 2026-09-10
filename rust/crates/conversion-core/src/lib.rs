@@ -85,3 +85,5 @@ impl RuntimeDiagnostic {
         self
     }
 }
+
+pub mod scalar;

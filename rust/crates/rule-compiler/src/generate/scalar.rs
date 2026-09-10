@@ -2,6 +2,7 @@ use super::*;
 use std::fmt::Write;
 
 pub(super) enum Codec<'a> {
+    Choice(&'a ScalarChoiceXml<ExpandedName>),
     Calendar { seconds: bool, omit_zero: bool },
     Text,
     Decimal,
@@ -26,6 +27,11 @@ impl<'a> Codec<'a> {
                 optional(target)?;
                 let (xml, _) = super::attributes::content(&target.xml);
                 match (&target.value, xml, &target.yaml) {
+                    (
+                        LinkedType::ScalarChoice(_),
+                        LinkedXml::ScalarChoice(choice),
+                        YamlRepresentation::ScalarChoice,
+                    ) => Ok(Self::Choice(choice)),
                     (
                         LinkedType::Scalar(ScalarType::Text),
                         LinkedXml::Calendar,
@@ -69,6 +75,7 @@ impl<'a> Codec<'a> {
     pub fn rust_type(&self, name: &str) -> String {
         match self {
             Self::Decimal => "core::decimal::Decimal".into(),
+            Self::Choice(_) => "core::scalar::Value".into(),
             Self::Text => "String".into(),
             Self::Calendar { .. } => "core::calendar::Value".into(),
             Self::Boolean(..) => "bool".into(),
@@ -89,7 +96,7 @@ impl<'a> Codec<'a> {
     }
     fn cases(&self, name: &str, xml_side: bool) -> Vec<(String, String)> {
         match self {
-            Self::Text | Self::Decimal | Self::Calendar { .. } => vec![],
+            Self::Text | Self::Decimal | Self::Calendar { .. } | Self::Choice(_) => vec![],
             Self::Boolean(xml, yaml) => (if xml_side { xml } else { yaml })
                 .iter()
                 .map(|item| (item.text.clone(), item.value.to_string()))
@@ -116,6 +123,7 @@ impl<'a> Codec<'a> {
     pub fn meaning(&self, name: &str, index: usize) -> String {
         match self {
             Self::Text => format!("_value.f{index}.as_str()"),
+            Self::Choice(_) => format!("&_value.f{index}"),
             Self::Calendar { .. } => format!("&_value.f{index}.xml()"),
             Self::Decimal => format!("&_value.f{index}"),
             Self::Boolean(..) => format!("_value.f{index}"),
@@ -134,6 +142,7 @@ impl<'a> Codec<'a> {
         let reference = format!("_value.f{index}.as_ref().expect(\"guarded scalar\")");
         match self {
             Self::Text => format!("{reference}.as_str()"),
+            Self::Choice(_) => reference,
             Self::Calendar { .. } => format!("&{reference}.xml()"),
             Self::Decimal => reference,
             Self::Boolean(..) => format!("*{reference}"),
@@ -148,9 +157,25 @@ impl<'a> Codec<'a> {
         }
     }
     pub fn plain_yaml(&self) -> bool {
-        matches!(self, Self::Decimal | Self::Calendar { .. })
+        matches!(
+            self,
+            Self::Decimal | Self::Calendar { .. } | Self::Choice(_)
+        )
     }
     pub fn read(&self, name: &str, index: usize, key: &str, xml_side: bool) -> String {
+        if matches!(self, Self::Choice(_)) {
+            let empty = if xml_side {
+                format!(
+                    "if r{index}.is_empty() {{return Err(RuntimeDiagnostic::new(\"value.empty\",\"Empty XML denotes absence\"));}}"
+                )
+            } else {
+                String::new()
+            };
+            return format!(
+                "{empty}let f{index}=core::scalar::Value::read(r{index},number{index}).map_err(|error|positions[{index}].apply(source,error.field({key:?})))?;\n"
+            );
+        }
+
         if let Self::Calendar { seconds, omit_zero } = self {
             let call = if xml_side {
                 format!("core::calendar::Value::from_xml(&r{index})")
@@ -205,6 +230,10 @@ impl<'a> Codec<'a> {
         format!("matches!({reference}, {})", patterns.join(" | "))
     }
     pub fn write_reference(&self, name: &str, reference: &str, xml_side: bool) -> String {
+        if matches!(self, Self::Choice(_)) {
+            return format!("&({reference}).{}()", if xml_side { "xml" } else { "yaml" });
+        }
+
         if let Self::Calendar { seconds, omit_zero } = self {
             return if xml_side {
                 format!("&({reference}).xml()")

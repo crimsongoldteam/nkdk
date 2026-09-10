@@ -1,0 +1,238 @@
+{
+  "scope": "Scalar choice properties; not whole-project conversion or performance",
+  "verified": 29,
+  "cases": [
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникCоВсемиОбъектами/Ext/Predefined.xml",
+      "sha256": "3117e339494437e70f4f47d865c76d2dc7f71e67b4df828c21ee18570cc331d2",
+      "occurrence": 3,
+      "type": "",
+      "entry": "migration.predefined-code",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникВладелец/Ext/Predefined.xml",
+      "sha256": "4a347011214e1e54884d48e5c72095444a93e657245cdef39442779b4a64cde5",
+      "occurrence": 3,
+      "type": "",
+      "entry": "migration.predefined-code",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникРеквизит/Ext/Predefined.xml",
+      "sha256": "0df8b16b7f45e0df0b01a69a7951cc10f9828ce0f7b21130a9b405e75c31e73b",
+      "occurrence": 3,
+      "type": "",
+      "entry": "migration.predefined-code",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникСПредопределенными/Ext/Predefined.xml",
+      "sha256": "86d7b61d88fed8a1232bcbe97535094b11312a66d178ec97d3f8bbabbb58e097",
+      "occurrence": 3,
+      "type": "",
+      "entry": "migration.predefined-code",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникСПредопределенными/Ext/Predefined.xml",
+      "sha256": "86d7b61d88fed8a1232bcbe97535094b11312a66d178ec97d3f8bbabbb58e097",
+      "occurrence": 9,
+      "type": "",
+      "entry": "migration.predefined-code",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникСПредопределенными/Ext/Predefined.xml",
+      "sha256": "86d7b61d88fed8a1232bcbe97535094b11312a66d178ec97d3f8bbabbb58e097",
+      "occurrence": 14,
+      "type": "",
+      "entry": "migration.predefined-code",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникСПредопределенными/Ext/Predefined.xml",
+      "sha256": "86d7b61d88fed8a1232bcbe97535094b11312a66d178ec97d3f8bbabbb58e097",
+      "occurrence": 20,
+      "type": "",
+      "entry": "migration.predefined-code",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникСПредопределенными/Ext/Predefined.xml",
+      "sha256": "86d7b61d88fed8a1232bcbe97535094b11312a66d178ec97d3f8bbabbb58e097",
+      "occurrence": 25,
+      "type": "",
+      "entry": "migration.predefined-code",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства/Ext/Predefined.xml",
+      "sha256": "b2460988ea38a4844c191c63415b18a26a401783118df328444f1d0f2c155d08",
+      "occurrence": 3,
+      "type": "",
+      "entry": "migration.predefined-code",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства/Ext/Predefined.xml",
+      "sha256": "b2460988ea38a4844c191c63415b18a26a401783118df328444f1d0f2c155d08",
+      "occurrence": 14,
+      "type": "",
+      "entry": "migration.predefined-code",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства/Ext/Predefined.xml",
+      "sha256": "bbf64736033137157df7b5e93ce802cd60d258c36f11345a99c7bb29f2d30fd5",
+      "occurrence": 3,
+      "type": "xs:decimal",
+      "entry": "migration.predefined-code",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства/Ext/Predefined.xml",
+      "sha256": "bbf64736033137157df7b5e93ce802cd60d258c36f11345a99c7bb29f2d30fd5",
+      "occurrence": 14,
+      "type": "xs:decimal",
+      "entry": "migration.predefined-code",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства/Ext/Predefined.xml",
+      "sha256": "bbf64736033137157df7b5e93ce802cd60d258c36f11345a99c7bb29f2d30fd5",
+      "occurrence": 19,
+      "type": "xs:decimal",
+      "entry": "migration.predefined-code",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ВидыСубконто/Ext/Predefined.xml",
+      "sha256": "8fa391247d22c3966748654c38d6e55031de9421735ed64e5e76f8603e48ed8b",
+      "occurrence": 3,
+      "type": "",
+      "entry": "migration.predefined-code",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ВидыСубконто/Ext/Predefined.xml",
+      "sha256": "8fa391247d22c3966748654c38d6e55031de9421735ed64e5e76f8603e48ed8b",
+      "occurrence": 13,
+      "type": "",
+      "entry": "migration.predefined-code",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойства/Ext/Predefined.xml",
+      "sha256": "5b0c26a4aa44dbb58097b081f5ce06b638926832b26ab49dc9517f1211ce0c33",
+      "occurrence": 3,
+      "type": "",
+      "entry": "migration.predefined-code",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойства/Ext/Predefined.xml",
+      "sha256": "5b0c26a4aa44dbb58097b081f5ce06b638926832b26ab49dc9517f1211ce0c33",
+      "occurrence": 9,
+      "type": "",
+      "entry": "migration.predefined-code",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойства/Ext/Predefined.xml",
+      "sha256": "5b0c26a4aa44dbb58097b081f5ce06b638926832b26ab49dc9517f1211ce0c33",
+      "occurrence": 16,
+      "type": "",
+      "entry": "migration.predefined-code",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойства/Ext/Predefined.xml",
+      "sha256": "5b0c26a4aa44dbb58097b081f5ce06b638926832b26ab49dc9517f1211ce0c33",
+      "occurrence": 22,
+      "type": "",
+      "entry": "migration.predefined-code",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаОтчета/Ext/Form.xml",
+      "sha256": "960ea0dc7a860ca859668738e593f0dad4609e7054e3519eb2de54870bc4dee6",
+      "occurrence": 1,
+      "type": "",
+      "entry": "migration.string-or-number",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаОтчета/Ext/Form.xml",
+      "sha256": "960ea0dc7a860ca859668738e593f0dad4609e7054e3519eb2de54870bc4dee6",
+      "occurrence": 2,
+      "type": "",
+      "entry": "migration.string-or-number",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства/Forms/ФормаОтчета/Ext/Form.xml",
+      "sha256": "7ae0a69f3059cfcca37c2941c11a70056efcf15436a619b8ed8c39a9ec0ccbc1",
+      "occurrence": 1,
+      "type": "",
+      "entry": "migration.string-or-number",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства/Forms/ФормаОтчета/Ext/Form.xml",
+      "sha256": "7ae0a69f3059cfcca37c2941c11a70056efcf15436a619b8ed8c39a9ec0ccbc1",
+      "occurrence": 2,
+      "type": "",
+      "entry": "migration.string-or-number",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникСПредопределенными/Ext/Predefined.xml",
+      "sha256": "e72c0238e823af733c4d92f3510aa0939828d003adb66e27daf923b6e82a04be",
+      "occurrence": 3,
+      "type": "",
+      "entry": "migration.predefined-code",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникСПредопределенными/Ext/Predefined.xml",
+      "sha256": "e72c0238e823af733c4d92f3510aa0939828d003adb66e27daf923b6e82a04be",
+      "occurrence": 10,
+      "type": "",
+      "entry": "migration.predefined-code",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникСПредопределенными/Ext/Predefined.xml",
+      "sha256": "e72c0238e823af733c4d92f3510aa0939828d003adb66e27daf923b6e82a04be",
+      "occurrence": 16,
+      "type": "",
+      "entry": "migration.predefined-code",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникСПредопределенными/Ext/Predefined.xml",
+      "sha256": "e72c0238e823af733c4d92f3510aa0939828d003adb66e27daf923b6e82a04be",
+      "occurrence": 22,
+      "type": "",
+      "entry": "migration.predefined-code",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt/Forms/ФормаОтчета/Ext/Form.xml",
+      "sha256": "bbcf5d0e58e78fee17342cdacc18510d140d4840f2a68b18ffc12b5d6c7a6d86",
+      "occurrence": 1,
+      "type": "",
+      "entry": "migration.string-or-number",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt/Forms/ФормаОтчета/Ext/Form.xml",
+      "sha256": "bbcf5d0e58e78fee17342cdacc18510d140d4840f2a68b18ffc12b5d6c7a6d86",
+      "occurrence": 2,
+      "type": "",
+      "entry": "migration.string-or-number",
+      "verified": true
+    }
+  ]
+}

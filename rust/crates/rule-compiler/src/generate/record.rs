@@ -69,6 +69,12 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
         } else {
             Vec::new()
         };
+        if matches!(codec, Codec::Choice(_)) && !attributes.is_empty() {
+            return Err(unsupported(
+                entry,
+                "Scalar choice owns its selector; outer attribute composition is not yet supported",
+            ));
+        }
         if attributes.iter().any(|attribute| attribute.when.is_some()) {
             return Err(unsupported(
                 entry,
@@ -99,6 +105,10 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
     let id = entry.id;
     let preserve = true;
     let attribute_code = |field: &Field<'_>| {
+        if let Codec::Choice(choice) = &field.codec {
+            return super::scalar_choice::attributes(choice);
+        }
+
         let mut code = String::from("&[");
         for attribute in &field.attributes {
             let value = match &attribute.value {
@@ -199,6 +209,11 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
         for i in 0..fields.len() {
             writeln!(out, "let mut r{i}: Option<String> = None;").unwrap();
         }
+        for (i, field) in fields.iter().enumerate() {
+            if matches!(field.codec, Codec::Choice(_)) {
+                writeln!(out, "let mut number{i}=false;").unwrap();
+            }
+        }
         if xml_side && preserve {
             for i in 0..fields.len() {
                 writeln!(out, "let mut shape{i}=false;let mut nested{i}=false;").unwrap();
@@ -212,6 +227,9 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
                 }
                 out.push_str("match token {core::xml::Token::Attribute(_attribute) => {\n");
                 for (i, field) in fields.iter().enumerate() {
+                    if let Codec::Choice(choice) = &field.codec {
+                        out.push_str(&super::scalar_choice::read_attribute(choice, field.path, i));
+                    }
                     for expected in &field.attributes {
                         let valid = match &expected.value {
                             LinkedXmlAttributeValue::Text(text) => {
@@ -259,7 +277,19 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
         } else {
             out.push_str("core::yaml::visit_tagged_scalars(if source.is_empty() { b\"{}\" } else { source }, |key, value, tag| { match key.as_str() {\n");
             for (i, field) in fields.iter().enumerate() {
-                writeln!(out, "{:?} => {{ positions[{i}] = value.position(); raw.read_mark({i},tag.as_deref(),positions[{i}])?; r{i} = Some(value.{}().map_err(|error| error.field({:?}))?); Ok(()) }},", field.key, field.codec.yaml_input(), field.key).unwrap();
+                let read = if matches!(field.codec, Codec::Choice(_)) {
+                    format!(
+                        "let (text,number)=value.into_choice_text().map_err(|error|error.field({:?}))?;number{i}=number;r{i}=Some(text);",
+                        field.key
+                    )
+                } else {
+                    format!(
+                        "r{i}=Some(value.{}().map_err(|error|error.field({:?}))?);",
+                        field.codec.yaml_input(),
+                        field.key
+                    )
+                };
+                writeln!(out,"{:?} => {{ positions[{i}]=value.position();raw.read_mark({i},tag.as_deref(),positions[{i}])?;{read}Ok(()) }},",field.key).unwrap();
             }
             out.push_str("_ => Err(RuntimeDiagnostic::new(\"yaml.unknown-field\", format!(\"Unknown YAML key: {key}\")).field(key)) } })?;\n");
         }
@@ -382,6 +412,12 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
         .filter(|ns| !ns.is_empty())
         .collect();
     for field in &fields {
+        if let Codec::Choice(choice) = &field.codec
+            && let Some(value) = &choice.cases[0].emit
+        {
+            namespaces.insert(choice.attribute.namespace.as_str());
+            namespaces.insert(value.namespace.as_str());
+        }
         for attribute in &field.attributes {
             namespaces.insert(attribute.name.namespace.as_str());
             if let LinkedXmlAttributeValue::QName(name) = &attribute.value {

@@ -6561,57 +6561,85 @@
       "path": "packages/rules/metadata/commonObjects/predefinedCode/fromXML.test.ts",
       "sha256": "692acec1338e6562ca30f747138f2aec094e369e14a1694baf35d7fe1761bc1d",
       "group": "predefinedCode",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/predefined-code.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/scalar-choice-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/predefinedCode/fromXML.ts",
       "sha256": "064b2b736b60866b060fa62d6905d367edcd053ce2e1d50880bd6e339baba7c2",
       "group": "predefinedCode",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/predefined-code.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/scalar-choice-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/predefinedCode/index.ts",
       "sha256": "d1904641059af16a2691597c69f15938512737d1523652d99f228ee54317d355",
       "group": "predefinedCode",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/predefined-code.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/scalar-choice-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/predefinedCode/toJSONSchema.ts",
       "sha256": "cb4aea358a528b64e281c389d33ff411d06b54e46adb2ccc2fa7490fee8ead36",
       "group": "predefinedCode",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/predefined-code.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/scalar-choice-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/predefinedCode/toXML.test.ts",
       "sha256": "5535ba5ca33b3e80f877e22a3bcc1ada9897e840d41f60f7682cc92e28063ee2",
       "group": "predefinedCode",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/predefined-code.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/scalar-choice-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/predefinedCode/toXML.ts",
       "sha256": "47887506cb8d8326db10d5a61252b0edf6eba2a2e1515af92991826acf7861d4",
       "group": "predefinedCode",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/predefined-code.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/scalar-choice-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/predefinedCode/types.ts",
       "sha256": "6c1426971b49aefba0e0fdc7a82b0c20df7385ee06fb355eec40c7ee8a991cb4",
       "group": "predefinedCode",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/predefined-code.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/scalar-choice-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/predefinedItem/__fixtures__/group.ts",
@@ -7177,57 +7205,85 @@
       "path": "packages/rules/metadata/commonObjects/stringOrNumber/fromXML.test.ts",
       "sha256": "dc3c09209cc1d59778d6bd4ae2a47d5d5f10c306666c468d67f56ba3c8f58d9f",
       "group": "stringOrNumber",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/string-or-number.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/scalar-choice-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/stringOrNumber/fromXML.ts",
       "sha256": "4fb92db10485cb37843e8ef803701400d321e9dbe2b3c63201175f9322302d32",
       "group": "stringOrNumber",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/string-or-number.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/scalar-choice-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/stringOrNumber/toJSONSchema.test.ts",
       "sha256": "fffa11bdbbf3f1efeb918d7a6542c56be8b0cac712b717b3d7c344fe4da8ca59",
       "group": "stringOrNumber",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/string-or-number.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/scalar-choice-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/stringOrNumber/toJSONSchema.ts",
       "sha256": "5973fa1c2a1965c4bc828d02f5253054f9632a0934d7a94e2b78558871bc82f4",
       "group": "stringOrNumber",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/string-or-number.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/scalar-choice-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/stringOrNumber/toXML.integration.test.ts",
       "sha256": "25c2825b221a9a2b6797952eebc37448853be0eda8fa814a7a997f8bd02c5e96",
       "group": "stringOrNumber",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/string-or-number.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/scalar-choice-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/stringOrNumber/toXML.ts",
       "sha256": "4a00e746a0e82cc3bf710bfdcbfc4152b31eae167f9064a53582f9bf5e6bc4ba",
       "group": "stringOrNumber",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/string-or-number.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/scalar-choice-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/stringOrNumber/types.ts",
       "sha256": "b4676a4084eec0b261eb294a196d8ecdf57329b01be948c215e40e4226903d44",
       "group": "stringOrNumber",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/string-or-number.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/scalar-choice-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/structuralChildNames.test.ts",

@@ -262,3 +262,39 @@ fn parse_module((path, source): (&str, &str)) -> nkdk_rule_model::Module {
     })
     .unwrap()
 }
+
+#[test]
+fn scalar_choices_share_a_precise_union_schema() {
+    for (name, common, owner) in [
+        (
+            "string-or-number",
+            include_str!("../../../declarations/common/string-or-number.yaml"),
+            include_str!("../../../declarations/probes/string-or-number.yaml"),
+        ),
+        (
+            "predefined-code",
+            include_str!("../../../declarations/common/predefined-code.yaml"),
+            include_str!("../../../declarations/probes/predefined-code.yaml"),
+        ),
+    ] {
+        let modules = [("common", common), ("owner", owner)].map(parse_module);
+        let program = link(&modules).unwrap();
+        let value: serde_json::Value =
+            serde_json::from_slice(&schema(&program, &format!("migration.{name}")).unwrap())
+                .unwrap();
+        let validator = jsonschema::validator_for(&value).unwrap();
+        for (value, valid) in [
+            (serde_json::json!("001"), true),
+            (serde_json::json!(9007199254740993u64), true),
+            (serde_json::json!(""), true),
+            (serde_json::json!(true), false),
+            (serde_json::json!(null), false),
+            (serde_json::json!([]), false),
+        ] {
+            assert_eq!(
+                validator.is_valid(&serde_json::json!({"Значение":value})),
+                valid
+            );
+        }
+    }
+}

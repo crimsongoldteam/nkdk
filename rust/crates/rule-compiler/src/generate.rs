@@ -8,6 +8,7 @@ mod patterns;
 mod presence;
 mod record;
 pub(crate) mod scalar;
+mod scalar_choice;
 pub(crate) mod scalar_presence;
 pub(crate) mod shorthand;
 mod source_map;

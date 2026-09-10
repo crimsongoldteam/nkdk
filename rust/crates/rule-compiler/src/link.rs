@@ -340,6 +340,7 @@ fn resolve_type(
     visiting: &mut BTreeSet<String>,
 ) -> Result<LinkedType, Diagnostic> {
     Ok(match value {
+        TypeDefinition::ScalarChoice(variants) => LinkedType::ScalarChoice(variants.clone()),
         TypeDefinition::Enum(variants) => {
             enumeration::variants(variants, source)?;
             LinkedType::Enum(variants.clone())
@@ -442,6 +443,71 @@ fn resolve_xml(
     ids: &BTreeMap<&str, u32>,
 ) -> Result<LinkedXml, Diagnostic> {
     Ok(match xml {
+        XmlRepresentation::ScalarChoice(choice) => {
+            let expand = |name: &String| -> Result<ExpandedName, Diagnostic> {
+                Ok(expand_path(module, std::slice::from_ref(name), source)?.remove(0))
+            };
+            let attribute = expand(&choice.attribute)?;
+            if attribute.namespace != "http://www.w3.org/2001/XMLSchema-instance"
+                || attribute.local != "type"
+            {
+                return Err(diagnostic(
+                    "unsupported_choice_selector",
+                    source,
+                    "The scalar choice selector currently requires xsi:type",
+                ));
+            }
+            if choice.otherwise != ScalarType::Text
+                || choice.cases.len() != 1
+                || choice.cases[0].scalar != ScalarType::Decimal
+                || choice.cases[0].values.is_empty()
+            {
+                return Err(diagnostic(
+                    "invalid_choice_coverage",
+                    source,
+                    "Expected a numeric selector and a text fallback",
+                ));
+            }
+            let mut seen = BTreeSet::new();
+            let cases = choice
+                .cases
+                .iter()
+                .map(|case| {
+                    let values = case
+                        .values
+                        .iter()
+                        .map(expand)
+                        .collect::<Result<Vec<_>, _>>()?;
+                    for value in &values {
+                        if !seen.insert((value.namespace.clone(), value.local.clone())) {
+                            return Err(diagnostic(
+                                "ambiguous_choice_selector",
+                                source,
+                                "A QName selects more than one alternative",
+                            ));
+                        }
+                    }
+                    let emit = case.emit.as_ref().map(expand).transpose()?;
+                    if emit.as_ref().is_some_and(|emit| !values.contains(emit)) {
+                        return Err(diagnostic(
+                            "invalid_choice_emit",
+                            source,
+                            "Canonical QName must select the emitted alternative",
+                        ));
+                    }
+                    Ok(ScalarChoiceCase {
+                        scalar: case.scalar.clone(),
+                        values,
+                        emit,
+                    })
+                })
+                .collect::<Result<_, Diagnostic>>()?;
+            LinkedXml::ScalarChoice(ScalarChoiceXml {
+                attribute,
+                cases,
+                otherwise: choice.otherwise.clone(),
+            })
+        }
         XmlRepresentation::WithAttributes {
             attributes,
             content,
@@ -556,6 +622,7 @@ fn validate_xml(
     source: &SourceLocation,
 ) -> Result<(), Diagnostic> {
     match (value, xml) {
+        (LinkedType::ScalarChoice(_), LinkedXml::ScalarChoice(_)) => {}
         (_, LinkedXml::WithAttributes { content, .. }) => {
             xml_attributes::check_ownership(xml)?;
             validate_xml(value, content, presence, source)?;
@@ -610,6 +677,7 @@ fn validate_yaml(
     source: &SourceLocation,
 ) -> Result<(), Diagnostic> {
     match (value, yaml) {
+        (LinkedType::ScalarChoice(_), YamlRepresentation::ScalarChoice) => {}
         (LinkedType::Record(fields), YamlRepresentation::Mapping(mappings)) => {
             let names: BTreeSet<_> = fields.iter().map(|field| field.name.as_str()).collect();
             let mut covered = BTreeSet::new();
