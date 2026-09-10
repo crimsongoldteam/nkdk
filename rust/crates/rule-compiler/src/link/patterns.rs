@@ -102,14 +102,30 @@ pub(super) fn resolve(
 }
 
 fn context_only(value: &LinkedExpression) -> bool {
-    match &value.kind {
-        LinkedExpressionKind::Absent
-        | LinkedExpressionKind::Input(_)
-        | LinkedExpressionKind::Parameter(_)
-        | LinkedExpressionKind::Literal(_) => true,
-        LinkedExpressionKind::Operation { arguments, .. } => arguments.iter().all(context_only),
-        _ => false,
+    fn visit(value: &LinkedExpression, locals: &BTreeSet<u32>) -> bool {
+        match &value.kind {
+            LinkedExpressionKind::Absent
+            | LinkedExpressionKind::Input(_)
+            | LinkedExpressionKind::Parameter(_)
+            | LinkedExpressionKind::Literal(_) => true,
+            LinkedExpressionKind::Variable(slot) => locals.contains(slot),
+            LinkedExpressionKind::Operation {
+                operator: LinkedOperator::MatchOptional(slot),
+                arguments,
+            } => {
+                let mut nested = locals.clone();
+                nested.insert(*slot);
+                visit(&arguments[0], locals)
+                    && visit(&arguments[1], &nested)
+                    && visit(&arguments[2], locals)
+            }
+            LinkedExpressionKind::Operation { arguments, .. } => {
+                arguments.iter().all(|value| visit(value, locals))
+            }
+            _ => false,
+        }
     }
+    visit(value, &BTreeSet::new())
 }
 
 pub(super) fn disjoint(a: &LinkedShorthand, b: &LinkedShorthand) -> bool {

@@ -185,6 +185,12 @@ pub struct Expression {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ExpressionKind {
+    MatchOptional {
+        value: Box<Expression>,
+        binding: String,
+        present: Box<Expression>,
+        absent: Box<Expression>,
+    },
     SequencePattern {
         prefix: Vec<Expression>,
         rest: String,

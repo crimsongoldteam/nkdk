@@ -36,9 +36,8 @@ pub(super) fn resolve(
         } => {
             let input = resolve_expression_in(module, input, modules, ids, scope)?;
             let item = sequence_item(&input)?.clone();
-            let mut nested = scope.clone();
-            let slot = nested.variables.len() as u32;
-            nested.variables.push((binding.clone(), item));
+            let slot = scope.variables.len() as u32;
+            let nested = scope.bind(binding, item, &expression.source)?;
             let key = resolve_expression_in(module, key, modules, ids, &nested)?;
             if !matches!(key.value_type, LinkedType::Scalar(_)) {
                 return Err(diagnostic(

@@ -21,6 +21,7 @@ pub(super) fn expression(path: &str, value: &Node) -> Result<Expression, Diagnos
         path,
         &[
             "input",
+            "match",
             "present",
             "isNull",
             "isReady",
@@ -146,6 +147,23 @@ pub(super) fn expression(path: &str, value: &Node) -> Result<Expression, Diagnos
                     binding,
                     key,
                 }
+            }
+        }
+        "match" => {
+            let fields = operand.mapping(path, &["value", "present", "absent"])?;
+            let present = operand.field(path, fields, "present")?;
+            let present_fields = present.mapping(path, &["as", "then"])?;
+            ExpressionKind::MatchOptional {
+                value: Box::new(expression(path, operand.field(path, fields, "value")?)?),
+                binding: present
+                    .field(path, present_fields, "as")?
+                    .text(path)?
+                    .into(),
+                present: Box::new(expression(
+                    path,
+                    present.field(path, present_fields, "then")?,
+                )?),
+                absent: Box::new(expression(path, operand.field(path, fields, "absent")?)?),
             }
         }
         "transform" => {

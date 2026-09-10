@@ -1575,6 +1575,24 @@ fn pattern_fixed_parts_retain_optional_text_results() {
     })
     .unwrap();
     let program = link(&[module]).expect("an unavailable fixed text disables the pattern");
+    let matched = source.replace("{transform: {local: name-words, value: {input: nameText}}}", "{match: {value: {transform: {local: name-words, value: {input: nameText}}}, present: {as: found, then: {var: found}}, absent: {absent: true}}}");
+    let module = parse(SourceFile {
+        path: "matched.yaml",
+        bytes: matched.as_bytes(),
+    })
+    .expect("optional match syntax");
+    assert!(
+        link(&[module]).is_ok(),
+        "present branch unwraps its local value"
+    );
+    let escaped = matched.replace("absent: {absent: true}", "absent: {var: found}");
+    let module = parse(SourceFile {
+        path: "escaped.yaml",
+        bytes: escaped.as_bytes(),
+    })
+    .unwrap();
+    assert_eq!(link(&[module]).unwrap_err()[0].code, "unknown_variable");
+
     let guarded = source.replace("{transform: {local: name-words, value: {input: nameText}}}", "{if: {isReady: {input: nameText}}, then: {transform: {local: name-words, value: {input: nameText}}}, else: {absent: true}}");
     let module = parse(SourceFile {
         path: "guarded.yaml",
@@ -1687,4 +1705,112 @@ fn canonical_xml_attributes_preserve_value_shape_and_expand_qnames() {
         .unwrap();
         assert_eq!(link(&[module]).unwrap_err()[0].code, code);
     }
+}
+
+#[test]
+fn optional_match_can_restore_a_missing_collection_without_losing_absence() {
+    let source =
+        include_str!("../../../../tests/declaration-corpus/valid/name-text-transform.yaml")
+            .to_owned()
+            + r#"
+inputs:
+  defaultLanguage: {type: {kind: scalar, scalar: text}}
+  ownerName: {type: {kind: scalar, scalar: text}}
+presence:
+  - target: self
+    yaml:
+      missing:
+        denotes:
+          match:
+            value: {transform: {local: name-words, value: {input: ownerName}}}
+            present:
+              as: words
+              then:
+                sequence:
+                  - record:
+                      language: {input: defaultLanguage}
+                      content: {var: words}
+            absent: {absent: true}
+"#;
+    let start = source.find("inputs:\n").unwrap();
+    let end = source.find("types:\n").unwrap();
+    let source = format!("{}{}", &source[..start], &source[end..]);
+    let module = parse(SourceFile {
+        path: "missing-name.yaml",
+        bytes: source.as_bytes(),
+    })
+    .unwrap();
+    let program = link(&[module]).expect("known absence remains an optional collection");
+    assert!(matches!(
+        program.entries[0].presence[0]
+            .yaml_missing
+            .as_ref()
+            .unwrap()
+            .value_type,
+        nkdk_rule_model::LinkedType::Optional(_)
+    ));
+}
+
+#[test]
+fn nested_expression_bindings_cannot_shadow_outer_names() {
+    let source = include_str!("../../../../tests/declaration-corpus/valid/i8n-text-core.yaml")
+        .to_owned()
+        + r#"
+constraints:
+  - id: scope
+    appliesTo: [yaml-validation]
+    assert:
+      each:
+        in: {self: true}
+        as: translation
+        where:
+          exists:
+            in: {self: true}
+            as: translation
+            where: {literal: true}
+    diagnostic:
+      severity: error
+      at: {self: true}
+      message: scope
+"#;
+    let module = parse(SourceFile {
+        path: "shadow.yaml",
+        bytes: source.as_bytes(),
+    })
+    .unwrap();
+    assert_eq!(link(&[module]).unwrap_err()[0].code, "duplicate_variable");
+}
+
+#[test]
+fn integrated_i8n_profile_links_presence_names_patterns_and_typed_xml() {
+    let source =
+        include_bytes!("../../../../tests/declaration-corpus/valid/i8n-integrated-profile.yaml");
+    let module = parse(SourceFile {
+        path: "integrated.yaml",
+        bytes: source,
+    })
+    .unwrap();
+    let program = link(&[module]).expect("integrated declarative profile");
+    let entry = &program.entries[0];
+    assert_eq!(entry.parameters.len(), 4);
+    assert_eq!(entry.shorthands.len(), 3);
+    assert_eq!(entry.text_transforms.len(), 1);
+    assert_eq!(
+        entry
+            .constraints
+            .iter()
+            .filter(|constraint| constraint
+                .applies_to
+                .contains(&nkdk_rule_model::ValidationPhase::YamlValidation))
+            .map(|constraint| constraint.id.as_str())
+            .collect::<Vec<_>>(),
+        ["yaml-language-order", "yaml-language-value"]
+    );
+
+    assert!(entry.presence[0].yaml_missing.is_some());
+    assert!(entry.presence[0].yaml_omit_when.is_some());
+    assert!(matches!(
+        entry.xml,
+        nkdk_rule_model::LinkedXml::WithAttributes { .. }
+    ));
 }

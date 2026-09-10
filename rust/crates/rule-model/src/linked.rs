@@ -116,6 +116,7 @@ pub struct LinkedParameter {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum LinkedOperator {
+    MatchOptional(u32),
     Transform { entry: u32, index: u32 },
     Take(u64),
     FirstBy(u32),

@@ -6,6 +6,26 @@ pub(super) struct Scope {
     pub captures: Vec<(String, LinkedType)>,
 }
 
+impl Scope {
+    pub(super) fn bind(
+        &self,
+        name: &str,
+        value_type: LinkedType,
+        source: &SourceLocation,
+    ) -> Result<Self, Diagnostic> {
+        if self.variables.iter().any(|(existing, _)| existing == name) {
+            return Err(diagnostic(
+                "duplicate_variable",
+                source,
+                "Nested binding cannot shadow an outer variable",
+            ));
+        }
+        let mut nested = self.clone();
+        nested.variables.push((name.into(), value_type));
+        Ok(nested)
+    }
+}
+
 pub(super) fn resolve_expression(
     module: &Module,
     expression: &Expression,
@@ -23,6 +43,39 @@ pub(super) fn resolve_expression_in(
     scope: &Scope,
 ) -> Result<LinkedExpression, Diagnostic> {
     let (kind, value_type) = match &expression.kind {
+        ExpressionKind::MatchOptional {
+            value,
+            binding,
+            present,
+            absent,
+        } => {
+            let value = resolve_expression_in(module, value, modules, ids, scope)?;
+            let LinkedType::Optional(inner) = &value.value_type else {
+                return Err(diagnostic(
+                    "expression_type_mismatch",
+                    &value.source,
+                    "Optional match requires an optional value",
+                ));
+            };
+            let nested = scope.bind(binding, *inner.clone(), &expression.source)?;
+            let present = resolve_expression_in(module, present, modules, ids, &nested)?;
+            let absent = resolve_expression_in(module, absent, modules, ids, scope)?;
+            let value_type =
+                conditional_type(&present.value_type, &absent.value_type).ok_or_else(|| {
+                    diagnostic(
+                        "expression_type_mismatch",
+                        &expression.source,
+                        "Match branches have incompatible value types",
+                    )
+                })?;
+            (
+                LinkedExpressionKind::Operation {
+                    operator: LinkedOperator::MatchOptional(scope.variables.len() as u32),
+                    arguments: vec![value, present, absent],
+                },
+                value_type,
+            )
+        }
         ExpressionKind::Absent => (LinkedExpressionKind::Absent, LinkedType::Absent),
         ExpressionKind::SequencePattern { .. } => {
             return Err(diagnostic(
@@ -174,8 +227,7 @@ pub(super) fn resolve_expression_in(
                     "Collection operator requires a sequence",
                 ));
             };
-            let mut nested = scope.clone();
-            nested.variables.push((binding.clone(), *item.clone()));
+            let nested = scope.bind(binding, *item.clone(), &expression.source)?;
             let predicate = resolve_expression_in(module, predicate, modules, ids, &nested)?;
             require_boolean(&predicate)?;
             let slot = scope.variables.len() as u32;
