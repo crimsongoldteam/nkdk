@@ -520,6 +520,7 @@ name = "nkdk-rule-compiler"
 version = "0.1.0"
 dependencies = [
  "jsonschema",
+ "nkdk-conversion-core",
  "nkdk-decimal",
  "nkdk-rule-model",
  "serde_json",

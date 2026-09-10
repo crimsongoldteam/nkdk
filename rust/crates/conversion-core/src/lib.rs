@@ -6,6 +6,7 @@ pub mod position;
 pub use position::Position;
 pub mod presence;
 pub mod proof;
+pub mod raw;
 pub mod sequence_pattern;
 pub use presence::Sequence;
 pub mod xml;

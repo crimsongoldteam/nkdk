@@ -156,6 +156,8 @@ presence:
             then: {sequence: []}
             else: {absent: true}
       canonical:
+        - when: {not: {present: {self: true}}}
+          form: missing
         - when:
             and:
               - {parameter: skipEmptyToXML}

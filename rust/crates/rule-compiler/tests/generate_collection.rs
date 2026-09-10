@@ -94,6 +94,15 @@ fn generated_keyed_mapping_preserves_duplicate_occurrences_and_proves_the_candid
     let profiles: Vec<_> = (0..16).map(|profile| integrated_owner
         .replace("test.integrated-i8n", &format!("test.profile-{profile}"))
         .replace("{use: dictionary, bind:", &format!("{{use: dictionary, with: {{preserveEmptyXML: {}, excludeIfEqualNameYAML: {}, skipEmptyToXML: {}, typedXML: {}}}, bind:", profile & 1 != 0, profile & 2 != 0, profile & 4 != 0, profile & 8 != 0))).collect();
+    let corpus_profiles: Vec<_> = profiles
+        .iter()
+        .map(|source| {
+            source
+                .replace("test.profile-", "test.corpus-")
+                .replace("path: [Root, Entries]", "path: [Root, Title]")
+                .replace("key: Entries", "key: Заголовок")
+        })
+        .collect();
     let mut sources = vec![
         SourceFile {
             path: "integrated.yaml",
@@ -184,6 +193,10 @@ fn generated_keyed_mapping_preserves_duplicate_occurrences_and_proves_the_candid
         path: "profile.yaml",
         bytes: source.as_bytes(),
     }));
+    sources.extend(corpus_profiles.iter().map(|source| SourceFile {
+        path: "corpus-profile.yaml",
+        bytes: source.as_bytes(),
+    }));
     let generated = compile(&sources).unwrap();
     let root = std::env::temp_dir().join(format!(
         "nkdk-generated-collection-{}-{}",
@@ -221,11 +234,46 @@ fn main() {
         assert_eq!(empty.contains("<Entries"), profile & 4 == 0, "profile {profile}: {empty}");
         assert_eq!(empty.contains(":type="), profile & 8 != 0 && profile & 7 == 0, "profile {profile}: {empty}");
         assert_eq!(empty.contains(":item>"), profile & 7 == 0, "profile {profile}: {empty}");
+        for content in ["", "<Entries/>", "<Entries xsi:nil=\"true\"/>", "<Entries><v8:item><v8:lang>ru</v8:lang><v8:content/></v8:item></Entries>", "<Entries xsi:type=\"v8:LocalStringType\"><v8:item><v8:lang>ru</v8:lang><v8:content>Hello</v8:content></v8:item></Entries>"] {
+            let xml=format!("<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">{content}</Root>");
+            let yaml=convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap_or_else(|error| panic!("profile {profile}, {content}: {error:?}"));
+            verify_candidate(entry, xml.as_bytes(), &yaml.bytes, &inputs).unwrap();
+        }
+
+    }
+    let foldable=entry_id("test.profile-2").unwrap();
+    let foldable_inputs=read_inputs(foldable, b"languages: [ru, en]\nname: TestTest").unwrap();
+    let physical_empty=b"<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\"><Entries><v8:item><v8:lang>ru</v8:lang><v8:content/></v8:item></Entries></Root>";
+    let preserved=convert_file(foldable, Direction::XmlToYaml, physical_empty, &foldable_inputs).unwrap();
+    assert_eq!(preserved.bytes, "Entries: !xml/raw\n  $значение: \"\"\n  $xml:\n    v8:item:\n      v8:lang: ru\n      v8:content:".as_bytes());
+    assert!(validate_file(foldable, &preserved.bytes, &foldable_inputs).is_empty());
+    verify_candidate(foldable, physical_empty, &preserved.bytes, &foldable_inputs).unwrap();
+    let changed=String::from_utf8(preserved.bytes.clone()).unwrap().replace("v8:lang: ru", "v8:lang: en");
+    assert!(verify_candidate(foldable, physical_empty, changed.as_bytes(), &foldable_inputs).is_err());
+    let broken=String::from_utf8(preserved.bytes).unwrap().replace("$xml:", "$unknown:");
+    assert!(!validate_file(foldable, broken.as_bytes(), &foldable_inputs).is_empty());
+
+    let folded_tag=b"Entries:\n  !xml/invalid de: Andere";
+    assert!(validate_file(foldable, folded_tag, &foldable_inputs).is_empty());
+    let restored=convert_file(foldable, Direction::YamlToXml, folded_tag, &foldable_inputs).unwrap();
+    let restored=String::from_utf8(restored.bytes).unwrap();
+    assert!(restored.contains("Test test") && restored.contains("Andere"));
+    for (entry, inputs, body, expected) in [
+        (integrated, &integrated_inputs, "<v8:item><v8:lang/><v8:content>Service</v8:content></v8:item><v8:item><v8:lang>ru</v8:lang><v8:content>Hello</v8:content></v8:item>", "Entries:\n  : Service\n  ru: Hello"),
+        (integrated, &integrated_inputs, "<v8:item><v8:lang>de</v8:lang><v8:content>Eins</v8:content></v8:item><v8:item><v8:lang>de</v8:lang><v8:content>Zwei</v8:content></v8:item>", "Entries:\n  !xml/invalid de: Eins\n  !xml/invalid/2 de: Zwei"),
+        (integrated, &integrated_inputs, "<v8:item><v8:lang>en</v8:lang><v8:content>Other</v8:content></v8:item><v8:item><v8:lang>ru</v8:lang><v8:content>Hello</v8:content></v8:item>", "Entries: !xml/invalid\n  en: Other\n  ru: Hello"),
+        (foldable, &foldable_inputs, "<v8:item><v8:lang>ru</v8:lang><v8:content>Test test</v8:content></v8:item><v8:item><v8:lang>en</v8:lang><v8:content>Other</v8:content></v8:item>", "Entries:\n  en: Other"),
+    ] {
+        let xml=format!("<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\"><Entries>{body}</Entries></Root>");
+        let result=convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), inputs).unwrap();
+        assert_eq!(result.bytes, expected.as_bytes());
+        assert!(validate_file(entry, expected.as_bytes(), inputs).is_empty());
+        assert!(verify_candidate(entry, xml.as_bytes(), expected.as_bytes(), inputs).is_ok());
     }
     let entry=entry_id("test.dictionary").unwrap();
     let inputs=PreparedInputs::default();
     let xml=b"<Root><Entries><item><key>ru</key><text>one</text></item><item><key>en</key><text>two</text></item><item><key>ru</key><text>three</text></item></Entries></Root>";
-    let expected=b"Entries:\n  ru: one\n  en: two\n  ru: three";
+    let expected=b"Entries:\n  ru: one\n  en: two\n  !xml/invalid ru: three";
     let yaml=convert_file(entry, Direction::XmlToYaml, xml, &inputs).unwrap();
     assert_eq!(yaml.bytes, expected);
     let restored=convert_file(entry, Direction::YamlToXml, expected, &inputs).unwrap();
@@ -243,11 +291,14 @@ fn main() {
     assert_eq!(errors[0].path, ["Entries", "ru"]);
     assert_eq!(errors[0].message, "Forbidden: bad");
     assert_eq!((errors[0].line, errors[0].column), (2, 3));
-    assert!(convert_file(entry, Direction::XmlToYaml, b"<Root><Entries><item><key>ru</key><text>bad</text></item></Entries></Root>", &inputs).is_err());
+    assert_eq!(convert_file(entry, Direction::XmlToYaml, b"<Root><Entries><item><key>ru</key><text>bad</text></item></Entries></Root>", &inputs).unwrap().bytes, b"Entries:\n  !xml/invalid ru: bad");
+    assert!(validate_file(entry, b"Entries:\n  !xml/invalid ru: bad", &inputs).is_empty());
+    assert!(validate_file(entry, b"Entries:\n  !xml/invalid ru: good", &inputs).iter().any(|error| error.code.as_deref()==Some("xml/anomaly-tag-unnecessary")));
+    assert!(validate_file(entry, b"Entries: !xml/invalid\n  ru: bad", &inputs).iter().any(|error| error.code.as_deref()==Some("text.forbidden")));
     let errors=validate_file(entry, b"Entries:\n  ru: good\n  en: good\n  ru: bad\n  ru: bad", &inputs);
-    assert_eq!(errors.iter().map(|error| error.occurrence.unwrap().get()).collect::<Vec<_>>(), [2, 3]);
+    assert_eq!(errors.iter().filter(|error| error.code.as_deref()==Some("text.forbidden")).map(|error| error.occurrence.unwrap().get()).collect::<Vec<_>>(), [2, 3]);
     let sorted=entry_id("test.sorted-dictionary").unwrap();
-    for (yaml, valid) in [("Entries: {ru: first, en: second}", true), ("Entries: {en: first, ru: second}", false), ("Entries: {ru: first, ru: second}", true), ("Entries: {ru: first, en: second, ru: third}", true), ("Entries: {en: first, ru: second, en: third}", false), ("Entries: {𐀀: first, : second}", true), ("Entries: {: first, 𐀀: second}", false)] {
+    for (yaml, valid) in [("Entries: {ru: first, en: second}", true), ("Entries: {en: first, ru: second}", false), ("Entries: {ru: first, !xml/invalid ru: second}", true), ("Entries: {ru: first, en: second, !xml/invalid ru: third}", true), ("Entries: {en: first, ru: second, !xml/invalid en: third}", false), ("Entries: {𐀀: first, : second}", true), ("Entries: {: first, 𐀀: second}", false)] {
         let diagnostics=validate_file(sorted, yaml.as_bytes(), &inputs);
         assert_eq!(diagnostics.is_empty(), valid, "{yaml}: {diagnostics:?}");
         if !valid { assert_eq!(diagnostics[0].path, ["Entries"]); }
@@ -266,12 +317,12 @@ fn main() {
     }
     assert_eq!(convert_file(derived, Direction::XmlToYaml, b"<Root><Entries><item><key>ru</key><text/></item></Entries></Root>", &inputs).unwrap().bytes, b"Entries:\n  ru: \"\"");
     let normalized=entry_id("test.normalized-dictionary").unwrap();
-    let errors=convert_file(normalized, Direction::XmlToYaml, b"<Root><Entries/></Root>", &inputs).unwrap_err();
-    assert_eq!(errors[0].code.as_deref(), Some("xml.round-trip-mismatch"));
+    let preserved=convert_file(normalized, Direction::XmlToYaml, b"<Root><Entries/></Root>", &inputs).unwrap();
+    verify_candidate(normalized, b"<Root><Entries/></Root>", &preserved.bytes, &inputs).unwrap();
     assert_eq!(convert_file(normalized, Direction::XmlToYaml, b"<Root><Entries><item><key>ru</key><text/></item></Entries></Root>", &inputs).unwrap().bytes, b"Entries: \"\"");
     let canonical=entry_id("test.canonical-dictionary").unwrap();
     assert_eq!(convert_file(canonical, Direction::YamlToXml, b"Entries: \"\"", &inputs).unwrap().bytes, "\u{feff}<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Root></Root>".as_bytes());
-    let both=convert_file(canonical, Direction::YamlToXml, b"Entries:\n  ru: \"\"\n  ru: second", &inputs).unwrap();
+    let both=convert_file(canonical, Direction::YamlToXml, b"Entries:\n  ru: \"\"\n  !xml/invalid ru: second", &inputs).unwrap();
     let both=String::from_utf8(both.bytes).unwrap();
     assert_eq!(both.matches("<item>").count(), 2);
     assert!(both.contains("second"));
@@ -281,7 +332,7 @@ fn main() {
         assert_eq!(result.bytes, expected.as_bytes());
         assert!(verify_candidate(patterned, xml.as_bytes(), expected.as_bytes(), &inputs).is_ok());
     }
-    let duplicate=b"Entries:\n  ru: Default\n  en: Other\n  ru: Second";
+    let duplicate=b"Entries:\n  ru: Default\n  en: Other\n  !xml/invalid ru: Second";
     let xml=convert_file(patterned, Direction::YamlToXml, duplicate, &inputs).unwrap();
     assert_eq!(convert_file(patterned, Direction::XmlToYaml, &xml.bytes, &inputs).unwrap().bytes, duplicate);
     let named=entry_id("test.named-dictionary").unwrap();
@@ -298,7 +349,8 @@ fn main() {
     assert_eq!(convert_file(typed, Direction::XmlToYaml, typed_xml, &inputs).unwrap().bytes, b"Entries: Hello");
     assert!(verify_candidate(typed, typed_xml, b"Entries: Hello", &inputs).is_ok());
     let untyped_xml=b"<Root><Entries><item><key>ru</key><text>Hello</text></item></Entries></Root>";
-    assert!(convert_file(typed, Direction::XmlToYaml, untyped_xml, &inputs).is_err());
+    let preserved=convert_file(typed, Direction::XmlToYaml, untyped_xml, &inputs).unwrap();
+    verify_candidate(typed, untyped_xml, &preserved.bytes, &inputs).unwrap();
     let untyped=entry_id("test.untyped-dictionary").unwrap();
     assert_eq!(convert_file(untyped, Direction::XmlToYaml, untyped_xml, &inputs).unwrap().bytes, b"Entries: Hello");
     let nil=entry_id("test.nil-dictionary").unwrap();
@@ -310,6 +362,9 @@ fn main() {
     let empty=convert_file(entry, Direction::XmlToYaml, b"<Root><Entries/></Root>", &inputs).unwrap();
     assert_eq!(empty.bytes, b"Entries: {}");
 }"#).unwrap();
+    let main = fs::read_to_string(root.join("src/main.rs")).unwrap();
+    let main = main.replacen("fn main() {", "fn main() { independent_corpus();", 1);
+    fs::write(root.join("src/main.rs"), main + &corpus_checks()).unwrap();
     for args in [
         vec!["+1.98.1", "run", "--offline", "--quiet"],
         vec![
@@ -335,4 +390,88 @@ fn main() {
         );
     }
     fs::remove_dir_all(root).unwrap();
+}
+
+fn corpus_checks() -> String {
+    use serde_json::Value;
+    let repository = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..");
+    let manifest: Value = serde_json::from_slice(
+        &fs::read(repository.join("tests/conversion-corpus/manifest.json")).unwrap(),
+    )
+    .unwrap();
+    let mut code = String::from("\nfn independent_corpus() {\n");
+    let mut count = 0;
+    for case in manifest["cases"].as_array().unwrap() {
+        if case["group"] != "i8n-text" {
+            continue;
+        }
+        let context: Value = serde_json::from_slice(
+            &fs::read(repository.join(case["context"].as_str().unwrap())).unwrap(),
+        )
+        .unwrap();
+        if context["entry"] != "migration.i8n-text-probe" {
+            continue;
+        }
+        assert_eq!(context["defaultLanguage"], "ru");
+        assert_eq!(
+            context["registeredLanguages"],
+            serde_json::json!(["ru", "en"])
+        );
+        assert_eq!(
+            context["xmlFragmentNamespaces"],
+            serde_json::json!({"v8":"http://v8.1c.ru/8.1/data/core"})
+        );
+        let parameters = [
+            "preserveEmptyXML",
+            "excludeIfEqualNameYAML",
+            "skipEmptyToXML",
+            "typedXML",
+        ];
+        let profile = parameters
+            .iter()
+            .enumerate()
+            .fold(0, |profile, (bit, key)| {
+                profile
+                    | (usize::from(context["parameters"][key].as_bool().unwrap_or(false)) << bit)
+            });
+        let mut xml =
+            fs::read_to_string(repository.join(case["inputs"]["xml"]["path"].as_str().unwrap()))
+                .unwrap();
+        if xml.starts_with("<Title") {
+            xml = format!("<Root>{xml}</Root>");
+        }
+        assert!(xml.starts_with("<Root>"));
+        xml = xml.replacen(
+            "<Root>",
+            "<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\">",
+            1,
+        );
+        let yaml =
+            fs::read_to_string(repository.join(case["expectations"]["yaml"].as_str().unwrap()))
+                .unwrap();
+        let name = context["name"].as_str().unwrap_or("");
+        let input = format!(
+            "languages: [ru, en]\nname: {}",
+            serde_json::to_string(name).unwrap()
+        );
+        let id = case["id"].as_str().unwrap();
+        code.push_str(&format!(r#"{{
+            let entry=entry_id("test.corpus-{profile}").unwrap();
+            let inputs=read_inputs(entry, {input:?}.as_bytes()).unwrap();
+            let xml={xml:?}.as_bytes(); let expected={yaml:?}.as_bytes();
+            let result=convert_file(entry, Direction::XmlToYaml, xml, &inputs).unwrap_or_else(|error| panic!("{{}}: {{error:?}}", {id:?}));
+            assert_eq!(String::from_utf8(result.bytes.clone()).unwrap(), std::str::from_utf8(expected).unwrap(), "{{}}", {id:?});
+            assert!(validate_file(entry, expected, &inputs).is_empty(), "{{}}", {id:?});
+            verify_candidate(entry, xml, expected, &inputs).unwrap();
+            verify_candidate(entry, xml, &result.bytes, &inputs).unwrap();
+        }}
+"#));
+        count += 1;
+    }
+    assert_eq!(
+        count, 12,
+        "Independent I8nText coverage changed; review the cases"
+    );
+    code.push_str("}\n");
+    code
 }

@@ -104,9 +104,10 @@ fn generate_at(
                             && constraint.forms.contains(&LinkedForm::YamlScalar)))
             })
             .collect();
+        let function = if base.is_some() { "issues" } else { "check" };
         writeln!(
             out,
-            "fn check_{side}_{}(_value: &V{}, _source: &[u8], _inputs: &PreparedInputs) -> Vec<RuntimeDiagnostic> {{",
+            "fn {function}_{side}_{}(_value: &V{}, _source: &[u8], _inputs: &PreparedInputs) -> Vec<RuntimeDiagnostic> {{",
             entry.id, entry.id
         )
         .unwrap();

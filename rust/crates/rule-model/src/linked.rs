@@ -11,6 +11,7 @@ pub struct Program {
 pub struct LinkedEntry {
     pub id: u32,
     pub name: String,
+    pub namespaces: Vec<crate::NamedBinding>,
     pub kind: ModuleKind,
     pub value: LinkedType,
     pub inputs: Vec<LinkedField>,

@@ -1,3 +1,4 @@
+pub(crate) mod document;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Form {
     Missing,
@@ -34,6 +35,20 @@ impl Scalar {
             ));
         }
         Ok(self.text)
+    }
+    pub fn into_nullable_text(self) -> Result<Option<String>> {
+        if self.plain && matches!(Yaml::from_str(&self.text), Yaml::Null) {
+            Ok(None)
+        } else {
+            self.into_text().map(Some)
+        }
+    }
+    pub fn into_mapping_key(self) -> Result<String> {
+        if self.text.is_empty() {
+            Ok(String::new())
+        } else {
+            self.into_text()
+        }
     }
     pub fn into_decimal_text(self) -> Result<String> {
         if !self.plain {
@@ -155,6 +170,13 @@ impl<F: FnMut(String, Scalar) -> Result<()>> MarkedEventReceiver for Receiver<F>
         if let Some(error) = error {
             self.error = Some(error.at(mark.line(), mark.col() + 1));
         }
+    }
+}
+pub fn mapping_key(value: &str) -> String {
+    if value.is_empty() {
+        String::new()
+    } else {
+        scalar(value)
     }
 }
 pub fn scalar(value: &str) -> String {

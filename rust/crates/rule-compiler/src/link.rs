@@ -122,6 +122,7 @@ fn build_entry(
         constraints: constraints::resolve_constraints(module, modules, ids)?,
         parameters: parameters::resolve_parameters(module, modules, ids)?,
         name: module.id.clone(),
+        namespaces: module.namespaces.clone(),
         kind: module.kind.clone(),
         value: resolve_type(
             module,

@@ -6,6 +6,7 @@ rust-version.workspace = true
 publish.workspace = true
 
 [dependencies]
+nkdk-conversion-core = { path = "../conversion-core" }
 nkdk-decimal.workspace = true
 nkdk-rule-model.workspace = true
 yaml-rust2.workspace = true

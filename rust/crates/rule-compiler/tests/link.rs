@@ -1700,6 +1700,7 @@ fn canonical_xml_attributes_preserve_value_shape_and_expand_qnames() {
     };
     assert_eq!(value.namespace, "http://v8.1c.ru/8.1/data/core");
     assert_eq!(value.local, "LocalStringType");
+    assert!(program.entries[0].namespaces.iter().any(|binding| binding.name == "v8" && binding.value == "http://v8.1c.ru/8.1/data/core"));
     let dynamic = source.replace(
         "{parameter: typedXML}",
         "{eq: [{input: defaultLanguage}, {literal: ru}]}",

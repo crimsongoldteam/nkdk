@@ -1,4 +1,8 @@
+mod names;
+pub use names::is_ncname;
+mod tree;
 use crate::{Result, RuntimeDiagnostic};
+pub use tree::Tree;
 #[cfg(feature = "test-probes")]
 static WRITERS: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
 #[cfg(feature = "test-probes")]
@@ -20,10 +24,10 @@ pub struct Attribute {
 }
 pub enum AttributeValue<'a> {
     Text(&'a str),
-    QName((&'static str, &'static str)),
+    QName((&'a str, &'a str)),
 }
 pub struct WriteAttribute<'a> {
-    pub name: (&'static str, &'static str),
+    pub name: (&'a str, &'a str),
     pub value: AttributeValue<'a>,
 }
 pub enum Token<'a> {
@@ -150,11 +154,9 @@ pub fn visit(
                         qname,
                     });
                 }
-                attributes.sort_unstable_by(|a, b| a.name.cmp(&b.name));
-                if attributes
-                    .windows(2)
-                    .any(|pair| pair[0].name == pair[1].name)
-                {
+                let unique_names: std::collections::BTreeSet<_> =
+                    attributes.iter().map(|attribute| &attribute.name).collect();
+                if unique_names.len() != attributes.len() {
                     return Err(located(
                         text,
                         offset,
@@ -274,14 +276,14 @@ pub fn escape(value: &str) -> String {
     }
     out
 }
-pub struct Writer {
+pub struct Writer<'a> {
     output: String,
-    path: Vec<(&'static str, &'static str)>,
+    path: Vec<(&'a str, &'a str)>,
     children: Vec<bool>,
-    namespaces: &'static [&'static str],
+    namespaces: &'a [&'a str],
 }
-impl Writer {
-    pub fn new(namespaces: &'static [&'static str]) -> Self {
+impl<'a> Writer<'a> {
+    pub fn new(namespaces: &'a [&'a str]) -> Self {
         #[cfg(feature = "test-probes")]
         WRITERS.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
         Self {
@@ -316,12 +318,12 @@ impl Writer {
         }
         self.output.push_str(&format!("</{}>", self.name(name)));
     }
-    pub fn container(&mut self, path: &'static [(&'static str, &'static str)]) {
+    pub fn container(&mut self, path: &[(&'a str, &'a str)]) {
         self.container_with_attributes(path, &[]);
     }
     pub fn container_with_attributes(
         &mut self,
-        path: &'static [(&'static str, &'static str)],
+        path: &[(&'a str, &'a str)],
         attributes: &[WriteAttribute<'_>],
     ) {
         let common = self
@@ -382,7 +384,7 @@ impl Writer {
     pub fn end_container(&mut self) {
         self.close(true);
     }
-    pub fn field(&mut self, path: &'static [(&'static str, &'static str)], value: &str) {
+    pub fn field(&mut self, path: &[(&'a str, &'a str)], value: &str) {
         self.container(path);
         self.output.push_str(&escape(value));
         self.close(false);

@@ -1,6 +1,8 @@
 //! Exact-boundary validation. Registration and YAML tag placement belong to
 //! generated composition; this module never grants a raw boundary.
+mod mapping;
 use crate::RuntimeDiagnostic;
+pub use mapping::Mapping;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Annotation {
