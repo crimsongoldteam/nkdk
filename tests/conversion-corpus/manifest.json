@@ -953,6 +953,49 @@
         "reason": "Empty scalar denotes zero translations; the physical empty ru item cannot be recovered from it. This property is the smallest existing address in the scalar YAML form. Owner root raw is forbidden.",
         "authorization": "User confirmed frequency-based selection: absence is ordinary, physical empty is exceptional only when otherwise not recoverable."
       }
+    },
+    {
+      "id": "generated-record-scalars",
+      "group": "generated-scalars",
+      "capabilities": [
+        "generated-record",
+        "boolean-scalar",
+        "exact-string",
+        "control-export"
+      ],
+      "inputs": {
+        "xml": {
+          "path": "tests/conversion-corpus/cases/generated-record-scalars/input.xml",
+          "sha256": "a72161c91f554d3cafb9b9d72685bb808ef51a6e439d66bf1cf559cacb34e7c8"
+        },
+        "yaml": {
+          "path": "tests/conversion-corpus/cases/generated-record-scalars/expected.yaml",
+          "sha256": "5914aba50a34a38ecc1720023b11848e90a4152297e19c2a07cf9933682d5425"
+        }
+      },
+      "context": "tests/conversion-corpus/cases/generated-record-scalars/context.json",
+      "directions": [
+        "xml-to-yaml",
+        "yaml-to-xml",
+        "round-trip",
+        "yaml-validation"
+      ],
+      "outcome": "success",
+      "expectations": {
+        "xml": "tests/conversion-corpus/cases/generated-record-scalars/input.xml",
+        "yaml": "tests/conversion-corpus/cases/generated-record-scalars/expected.yaml",
+        "diagnostics": "tests/conversion-corpus/cases/generated-record-scalars/diagnostics.json"
+      },
+      "comparison": {
+        "xml": "exact",
+        "yaml": "exact",
+        "exceptions": []
+      },
+      "scope": "independently authored scalar owner; not full metadata or performance coverage",
+      "evidence": [
+        "docs/superpowers/plans/2026-09-10-rust-yaml-foundation.md",
+        "packages/rules/tests/directConversion.ts"
+      ]
     }
   ],
   "pendingImport": [

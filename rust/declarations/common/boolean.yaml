@@ -1,0 +1,20 @@
+format: nkdk-declarations/1
+kind: value
+id: common.boolean
+description: Логическое значение
+
+value:
+  kind: scalar
+  scalar: boolean
+
+representations:
+  xml:
+    kind: text
+    values:
+      - {value: true, text: "true"}
+      - {value: false, text: "false"}
+  yaml:
+    kind: scalar
+    values:
+      - {value: true, literal: Истина}
+      - {value: false, literal: Ложь}

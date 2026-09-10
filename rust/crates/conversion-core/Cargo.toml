@@ -1,0 +1,11 @@
+[package]
+name = "nkdk-conversion-core"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+
+[dependencies]
+quick-xml = "=0.42.0"
+yaml-rust2.workspace = true
+sha2 = "=0.10.9"

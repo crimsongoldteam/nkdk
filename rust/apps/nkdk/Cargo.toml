@@ -1,0 +1,9 @@
+[package]
+name = "nkdk"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+[dependencies]
+nkdk-compiled-rules = { path = "../../crates/compiled-rules" }
+serde_json = "=1.0.150"

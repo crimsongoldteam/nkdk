@@ -1,0 +1,22 @@
+format: nkdk-declarations/1
+kind: object
+id: test.scalar-owner
+imports: {boolean: common.boolean, string: common.string}
+value:
+  kind: record
+  fields:
+    - name: server
+      type: {use: boolean}
+    - name: description
+      type: {use: string}
+representations:
+  xml:
+    kind: record
+    fields:
+      - {field: server, path: [Root, Server]}
+      - {field: description, path: [Root, Description]}
+  yaml:
+    kind: mapping
+    fields:
+      - {field: server, key: Сервер}
+      - {field: description, key: Описание}

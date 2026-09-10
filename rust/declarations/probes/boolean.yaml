@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: pilot.boolean
+imports: {boolean: common.boolean}
+value:
+  kind: record
+  fields:
+    - name: value
+      type: {use: boolean}
+representations:
+  xml:
+    kind: record
+    fields:
+      - {field: value, path: [Root, Value]}
+  yaml:
+    kind: mapping
+    fields:
+      - {field: value, key: Значение}

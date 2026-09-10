@@ -8417,5 +8417,29 @@
       "implementation": null,
       "verifiedCases": []
     }
-  ]
+  ],
+  "generatedRuntime": {
+    "status": "partial",
+    "supported": [
+      "required record fields with exact text",
+      "complete boolean tables",
+      "flat YAML mapping",
+      "single XML root",
+      "candidate re-export proof",
+      "validation through the generated YAML reader"
+    ],
+    "verifiedCases": [
+      "boolean-true",
+      "boolean-false",
+      "generated-record-scalars"
+    ],
+    "limitations": [
+      "number and enum pending",
+      "collections and I8nText pending",
+      "anomaly annotations pending",
+      "typed inputs pending",
+      "field-level source map and compatible diagnostics pending"
+    ],
+    "productionCatalogMigrated": false
+  }
 }
