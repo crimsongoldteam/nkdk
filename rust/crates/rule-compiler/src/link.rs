@@ -8,6 +8,7 @@ mod expressions;
 mod names;
 mod normalization;
 mod parameters;
+mod patterns;
 mod presence;
 mod shorthands;
 mod text;

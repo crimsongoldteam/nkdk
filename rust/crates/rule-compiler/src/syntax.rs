@@ -1,10 +1,12 @@
 mod constraints;
 mod expressions;
 mod presence;
+mod shorthands;
 mod text;
 use constraints::constraints;
 use expressions::{expression, scalar_literal};
 use presence::{normalization, presence};
+use shorthands::shorthands;
 
 use nkdk_rule_model::ComparisonOperator;
 use nkdk_rule_model::Normalization;
@@ -761,48 +763,6 @@ fn parameters(path: &str, fields: &[(Node, Node)]) -> Result<Vec<Parameter>, Dia
                 definition: type_definition(path, value.field(path, fields, "type")?)?,
                 default,
                 source: location(path, key),
-            })
-        })
-        .collect()
-}
-
-fn shorthands(path: &str, value: &Node) -> Result<Vec<Shorthand>, Diagnostic> {
-    let Shape::Sequence(items) = &value.shape else {
-        return Err(error(
-            path,
-            value.mark,
-            "expected_sequence",
-            "Expected shorthand list",
-        ));
-    };
-    items
-        .iter()
-        .map(|item| {
-            let fields = item.mapping(path, &["id", "representation", "denotes", "when"])?;
-            let representation = item.field(path, fields, "representation")?;
-            let rep_fields = representation.mapping(path, &["kind", "scalar", "capture"])?;
-            representation.field(path, rep_fields, "kind")?.literal(
-                path,
-                "scalar",
-                "unsupported_representation",
-            )?;
-            representation.field(path, rep_fields, "scalar")?.literal(
-                path,
-                "text",
-                "unsupported_scalar",
-            )?;
-            let id = item.field(path, fields, "id")?;
-            Ok(Shorthand {
-                id: id.text(path)?.into(),
-                capture: representation
-                    .field(path, rep_fields, "capture")?
-                    .text(path)?
-                    .into(),
-                denotes: expression(path, item.field(path, fields, "denotes")?)?,
-                when: optional_field(fields, "when")
-                    .map(|node| expression(path, node))
-                    .transpose()?,
-                source: location(path, id),
             })
         })
         .collect()

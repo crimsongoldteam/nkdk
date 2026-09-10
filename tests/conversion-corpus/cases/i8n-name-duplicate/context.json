@@ -1,0 +1,21 @@
+{
+  "entry": "migration.i8n-text-probe",
+  "defaultLanguage": "ru",
+  "registeredLanguages": [
+    "ru",
+    "en"
+  ],
+  "name": "ЗаказПокупателя",
+  "profile": "exclude-equal-name",
+  "parameters": {
+    "excludeIfEqualNameYAML": true,
+    "preserveEmptyXML": false,
+    "skipEmptyToXML": false,
+    "typedXML": false
+  },
+  "boundary": "property",
+  "reference": false,
+  "xmlFragmentNamespaces": {
+    "v8": "http://v8.1c.ru/8.1/data/core"
+  }
+}

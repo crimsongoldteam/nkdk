@@ -156,10 +156,21 @@ pub struct YamlField {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Shorthand {
     pub id: String,
+    pub representation: ShorthandRepresentation,
     pub capture: String,
     pub denotes: Expression,
     pub when: Option<Expression>,
     pub source: SourceLocation,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ShorthandRepresentation {
+    ScalarText,
+    KeyedMapping {
+        prefix: Vec<Expression>,
+        suffix: Vec<Expression>,
+        absent_keys: Vec<Expression>,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -170,6 +181,11 @@ pub struct Expression {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ExpressionKind {
+    SequencePattern {
+        prefix: Vec<Expression>,
+        rest: String,
+        suffix: Vec<Expression>,
+    },
     StateTest {
         predicate: StatePredicate,
         value: Box<Expression>,

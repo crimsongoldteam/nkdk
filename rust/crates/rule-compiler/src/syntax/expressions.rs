@@ -31,6 +31,7 @@ pub(super) fn expression(path: &str, value: &Node) -> Result<Expression, Diagnos
             "parameter",
             "capture",
             "sequence",
+            "sequence-pattern",
             "record",
             "literal",
             "not",
@@ -251,6 +252,23 @@ pub(super) fn expression(path: &str, value: &Node) -> Result<Expression, Diagnos
         "input" => ExpressionKind::Input(operand.text(path)?.into()),
         "parameter" => ExpressionKind::Parameter(operand.text(path)?.into()),
         "capture" => ExpressionKind::Capture(operand.text(path)?.into()),
+        "sequence-pattern" => {
+            let fields = operand.mapping(path, &["prefix", "rest", "suffix"])?;
+            let rest = expression(path, operand.field(path, fields, "rest")?)?;
+            let ExpressionKind::Capture(rest) = rest.kind else {
+                return Err(error(
+                    path,
+                    operand.mark,
+                    "invalid_pattern_rest",
+                    "Pattern rest must be a single capture",
+                ));
+            };
+            ExpressionKind::SequencePattern {
+                prefix: super::shorthands::expression_list(path, fields, "prefix")?,
+                rest,
+                suffix: super::shorthands::expression_list(path, fields, "suffix")?,
+            }
+        }
         "sequence" => {
             let Shape::Sequence(items) = &operand.shape else {
                 return Err(error(

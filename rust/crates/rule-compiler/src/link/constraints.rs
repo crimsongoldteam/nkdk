@@ -174,7 +174,9 @@ fn resolve_forms(module: &Module, constraint: &Constraint) -> Result<Vec<LinkedF
             }
             YamlRepresentation::Mapping(_) => ("mapping", LinkedForm::YamlMapping),
             YamlRepresentation::KeyedMapping { shorthand, .. } => {
-                if !shorthand.is_empty() {
+                if shorthand.iter().any(|short| {
+                    matches!(short.representation, ShorthandRepresentation::ScalarText)
+                }) {
                     available.push(("scalar", LinkedForm::YamlScalar));
                 }
                 ("keyed-mapping", LinkedForm::YamlKeyedMapping)

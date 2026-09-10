@@ -118,6 +118,7 @@ pub enum LinkedOperator {
     Ordered { slot: u32, unique: bool },
     State(crate::StatePredicate),
     Sequence,
+    SequencePattern { prefix_len: u32, suffix_len: u32 },
     Record(Vec<String>),
     Each(u32),
     Exists(u32),
@@ -172,6 +173,7 @@ pub enum LinkedMessagePart {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct LinkedShorthand {
     pub id: String,
+    pub representation: LinkedShorthandRepresentation,
     pub denotes: LinkedExpression,
     pub when: Option<LinkedExpression>,
     pub source: SourceLocation,
@@ -231,4 +233,15 @@ pub enum LinkedForm {
 pub enum LinkedPresenceTarget {
     SelfValue,
     Field(u32),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum LinkedShorthandRepresentation {
+    ScalarText,
+    KeyedMapping {
+        prefix: Vec<LinkedExpression>,
+        suffix: Vec<LinkedExpression>,
+        absent_keys: Vec<LinkedExpression>,
+        key_field: u32,
+    },
 }

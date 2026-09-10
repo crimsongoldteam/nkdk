@@ -1082,3 +1082,32 @@ fn state_predicates_remain_distinct_expression_nodes() {
         .expect(operator);
     }
 }
+
+#[test]
+fn collection_shorthand_patterns_parse_with_strict_structure() {
+    let source =
+        include_str!("../../../../tests/declaration-corpus/valid/i8n-collection-patterns.yaml");
+    assert!(
+        parse(SourceFile {
+            path: "patterns.yaml",
+            bytes: source.as_bytes()
+        })
+        .is_ok()
+    );
+    for (from, to) in [
+        ("absentKeys:", "absentKey:"),
+        (
+            "rest: {capture: otherTranslations}",
+            "rest: {literal: text}",
+        ),
+    ] {
+        let invalid = source.replace(from, to);
+        assert!(
+            parse(SourceFile {
+                path: "patterns.yaml",
+                bytes: invalid.as_bytes()
+            })
+            .is_err()
+        );
+    }
+}

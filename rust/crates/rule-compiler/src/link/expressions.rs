@@ -23,6 +23,13 @@ pub(super) fn resolve_expression_in(
     scope: &Scope,
 ) -> Result<LinkedExpression, Diagnostic> {
     let (kind, value_type) = match &expression.kind {
+        ExpressionKind::SequencePattern { .. } => {
+            return Err(diagnostic(
+                "invalid_pattern_context",
+                &expression.source,
+                "Sequence patterns are only allowed as shorthand denotations",
+            ));
+        }
         ExpressionKind::Transform { local, value } => {
             let transforms = text::transforms(module);
             let index = transforms

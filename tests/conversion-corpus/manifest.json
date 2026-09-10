@@ -488,6 +488,236 @@
       "scope": "property-contract; not full project import",
       "xmlInputKind": "legacy-test-fragment",
       "namespaceResolution": "Explicit xmlFragmentNamespaces supplied by corpus adapter; source bytes retained"
+    },
+    {
+      "id": "i8n-name-and-rest",
+      "group": "i8n-text",
+      "capabilities": [
+        "reversible-collection-pattern",
+        "physical-occurrences",
+        "existing-invalid-policy"
+      ],
+      "inputs": {
+        "xml": {
+          "path": "tests/conversion-corpus/cases/i8n-name-and-rest/input.xml",
+          "sha256": "fba253bb2dd539483d0d5f1d65670fb6f93ba741c5a92fe5e47c02828230235f"
+        },
+        "yaml": {
+          "path": "tests/conversion-corpus/cases/i8n-name-and-rest/expected.yaml",
+          "sha256": "8422c277d56bbd7992ada7fb592d33b20abe36f2530b04a4c7ec8379ca597f86"
+        }
+      },
+      "context": "tests/conversion-corpus/cases/i8n-name-and-rest/context.json",
+      "directions": [
+        "xml-to-yaml",
+        "yaml-to-xml",
+        "round-trip",
+        "yaml-validation"
+      ],
+      "outcome": "success",
+      "expectations": {
+        "yaml": "tests/conversion-corpus/cases/i8n-name-and-rest/expected.yaml",
+        "xml": "tests/conversion-corpus/cases/i8n-name-and-rest/input.xml",
+        "diagnostics": "tests/conversion-corpus/cases/i8n-name-and-rest/diagnostics.json"
+      },
+      "comparison": {
+        "yaml": "exact",
+        "xml": "structural",
+        "exceptions": []
+      },
+      "scope": "independent property contract; not full project e2e",
+      "xmlInputKind": "independently-authored-fragment",
+      "namespaceResolution": "Explicit xmlFragmentNamespaces; source bytes immutable",
+      "evidence": [
+        "docs/superpowers/specs/2026-09-10-declaration-language-design.md",
+        ".agents/xml-anomalies.md",
+        "packages/rules/metadata/helpers/synonymHelpers.ts"
+      ],
+      "verification": "User-approved reversible-pattern contract; independently authored expectations; Rust execution pending"
+    },
+    {
+      "id": "i8n-absent-primary-marker",
+      "group": "i8n-text",
+      "capabilities": [
+        "reversible-collection-pattern",
+        "physical-occurrences",
+        "existing-invalid-policy"
+      ],
+      "inputs": {
+        "xml": {
+          "path": "tests/conversion-corpus/cases/i8n-absent-primary-marker/input.xml",
+          "sha256": "d61e3a677da0532134b818fcffee6ad6a49fe28de16bf05fa2b37b177105de33"
+        },
+        "yaml": {
+          "path": "tests/conversion-corpus/cases/i8n-absent-primary-marker/expected.yaml",
+          "sha256": "b192b11881743d33e20bdffd5c7840c345924528d9d3f2a85b67a601866bd6f4"
+        }
+      },
+      "context": "tests/conversion-corpus/cases/i8n-absent-primary-marker/context.json",
+      "directions": [
+        "xml-to-yaml",
+        "yaml-to-xml",
+        "round-trip",
+        "yaml-validation"
+      ],
+      "outcome": "success",
+      "expectations": {
+        "yaml": "tests/conversion-corpus/cases/i8n-absent-primary-marker/expected.yaml",
+        "xml": "tests/conversion-corpus/cases/i8n-absent-primary-marker/input.xml",
+        "diagnostics": "tests/conversion-corpus/cases/i8n-absent-primary-marker/diagnostics.json"
+      },
+      "comparison": {
+        "yaml": "exact",
+        "xml": "structural",
+        "exceptions": []
+      },
+      "scope": "independent property contract; not full project e2e",
+      "xmlInputKind": "independently-authored-fragment",
+      "namespaceResolution": "Explicit xmlFragmentNamespaces; source bytes immutable",
+      "evidence": [
+        "docs/superpowers/specs/2026-09-10-declaration-language-design.md",
+        ".agents/xml-anomalies.md",
+        "packages/rules/metadata/helpers/synonymHelpers.ts"
+      ],
+      "verification": "User-approved reversible-pattern contract; independently authored expectations; Rust execution pending"
+    },
+    {
+      "id": "i8n-name-different",
+      "group": "i8n-text",
+      "capabilities": [
+        "reversible-collection-pattern",
+        "physical-occurrences",
+        "existing-invalid-policy"
+      ],
+      "inputs": {
+        "xml": {
+          "path": "tests/conversion-corpus/cases/i8n-name-different/input.xml",
+          "sha256": "18b94ace5d799c7ccaa7ef73d765a88c73cbc7e2bfbc3fdcda3dd125961da1bc"
+        },
+        "yaml": {
+          "path": "tests/conversion-corpus/cases/i8n-name-different/expected.yaml",
+          "sha256": "bb740d0fa5bfadf61ac971ef94a34415c87feee346cd05394b20aaea910eb688"
+        }
+      },
+      "context": "tests/conversion-corpus/cases/i8n-name-different/context.json",
+      "directions": [
+        "xml-to-yaml",
+        "yaml-to-xml",
+        "round-trip",
+        "yaml-validation"
+      ],
+      "outcome": "success",
+      "expectations": {
+        "yaml": "tests/conversion-corpus/cases/i8n-name-different/expected.yaml",
+        "xml": "tests/conversion-corpus/cases/i8n-name-different/input.xml",
+        "diagnostics": "tests/conversion-corpus/cases/i8n-name-different/diagnostics.json"
+      },
+      "comparison": {
+        "yaml": "exact",
+        "xml": "structural",
+        "exceptions": []
+      },
+      "scope": "independent property contract; not full project e2e",
+      "xmlInputKind": "independently-authored-fragment",
+      "namespaceResolution": "Explicit xmlFragmentNamespaces; source bytes immutable",
+      "evidence": [
+        "docs/superpowers/specs/2026-09-10-declaration-language-design.md",
+        ".agents/xml-anomalies.md",
+        "packages/rules/metadata/helpers/synonymHelpers.ts"
+      ],
+      "verification": "User-approved reversible-pattern contract; independently authored expectations; Rust execution pending"
+    },
+    {
+      "id": "i8n-name-noncanonical-order",
+      "group": "i8n-text",
+      "capabilities": [
+        "reversible-collection-pattern",
+        "physical-occurrences",
+        "existing-invalid-policy"
+      ],
+      "inputs": {
+        "xml": {
+          "path": "tests/conversion-corpus/cases/i8n-name-noncanonical-order/input.xml",
+          "sha256": "686de4809a2cca9f0a801a5e5239ffa5a435651a82434b8bae8de98a00ea5df5"
+        },
+        "yaml": {
+          "path": "tests/conversion-corpus/cases/i8n-name-noncanonical-order/expected.yaml",
+          "sha256": "de4c856520a12c752e598440124dfddb26b1275cada92bba8ab041e18344a4a9"
+        }
+      },
+      "context": "tests/conversion-corpus/cases/i8n-name-noncanonical-order/context.json",
+      "directions": [
+        "xml-to-yaml",
+        "yaml-to-xml",
+        "round-trip",
+        "yaml-validation"
+      ],
+      "outcome": "success",
+      "expectations": {
+        "yaml": "tests/conversion-corpus/cases/i8n-name-noncanonical-order/expected.yaml",
+        "xml": "tests/conversion-corpus/cases/i8n-name-noncanonical-order/input.xml",
+        "diagnostics": "tests/conversion-corpus/cases/i8n-name-noncanonical-order/diagnostics.json"
+      },
+      "comparison": {
+        "yaml": "exact",
+        "xml": "structural",
+        "exceptions": []
+      },
+      "scope": "independent property contract; not full project e2e",
+      "xmlInputKind": "independently-authored-fragment",
+      "namespaceResolution": "Explicit xmlFragmentNamespaces; source bytes immutable",
+      "evidence": [
+        "docs/superpowers/specs/2026-09-10-declaration-language-design.md",
+        ".agents/xml-anomalies.md",
+        "packages/rules/metadata/helpers/synonymHelpers.ts"
+      ],
+      "verification": "User-approved reversible-pattern contract; independently authored expectations; Rust execution pending"
+    },
+    {
+      "id": "i8n-name-duplicate",
+      "group": "i8n-text",
+      "capabilities": [
+        "reversible-collection-pattern",
+        "physical-occurrences",
+        "existing-invalid-policy"
+      ],
+      "inputs": {
+        "xml": {
+          "path": "tests/conversion-corpus/cases/i8n-name-duplicate/input.xml",
+          "sha256": "0fffa9b2c226a0e742ecfe500e56782fcfd4cea38e4ed70cb7f14a613c4bc79e"
+        },
+        "yaml": {
+          "path": "tests/conversion-corpus/cases/i8n-name-duplicate/expected.yaml",
+          "sha256": "cfdb2fd233f8a9c91d6863c0ffd5ab32b5465475cff6a1f74fc3cb0abb25cacf"
+        }
+      },
+      "context": "tests/conversion-corpus/cases/i8n-name-duplicate/context.json",
+      "directions": [
+        "xml-to-yaml",
+        "yaml-to-xml",
+        "round-trip",
+        "yaml-validation"
+      ],
+      "outcome": "success",
+      "expectations": {
+        "yaml": "tests/conversion-corpus/cases/i8n-name-duplicate/expected.yaml",
+        "xml": "tests/conversion-corpus/cases/i8n-name-duplicate/input.xml",
+        "diagnostics": "tests/conversion-corpus/cases/i8n-name-duplicate/diagnostics.json"
+      },
+      "comparison": {
+        "yaml": "exact",
+        "xml": "structural",
+        "exceptions": []
+      },
+      "scope": "independent property contract; not full project e2e",
+      "xmlInputKind": "independently-authored-fragment",
+      "namespaceResolution": "Explicit xmlFragmentNamespaces; source bytes immutable",
+      "evidence": [
+        "docs/superpowers/specs/2026-09-10-declaration-language-design.md",
+        ".agents/xml-anomalies.md",
+        "packages/rules/metadata/helpers/synonymHelpers.ts"
+      ],
+      "verification": "User-approved reversible-pattern contract; independently authored expectations; Rust execution pending"
     }
   ],
   "pendingImport": [

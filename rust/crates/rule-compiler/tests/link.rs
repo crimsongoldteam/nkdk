@@ -1490,3 +1490,105 @@ fn namespace_bindings_respect_reserved_names_even_when_unused() {
         }
     }
 }
+
+#[test]
+fn collection_patterns_link_only_with_unique_rest_and_disjoint_forms() {
+    let source =
+        include_str!("../../../../tests/declaration-corpus/valid/i8n-collection-patterns.yaml");
+    let module = parse(SourceFile {
+        path: "patterns.yaml",
+        bytes: source.as_bytes(),
+    })
+    .unwrap();
+    let program = link(&[module]).expect("disjoint name and marker forms");
+    let overlapping = source.replace(
+        "language: {input: defaultLanguage}\n                content: {literal: \"\"}",
+        "content: {input: defaultLanguage}\n                language: {literal: en}",
+    );
+    let module = parse(SourceFile {
+        path: "reordered.yaml",
+        bytes: overlapping.as_bytes(),
+    })
+    .unwrap();
+    assert_eq!(link(&[module]).unwrap_err()[0].code, "ambiguous_shorthand");
+
+    assert_eq!(program.entries[0].shorthands.len(), 2);
+    for (from, to, code) in [
+        (
+            "id: absent-primary-marker",
+            "id: name-and-rest",
+            "duplicate_shorthand",
+        ),
+        (
+            "rest: {capture: otherTranslations}",
+            "rest: {capture: missing}",
+            "unknown_capture",
+        ),
+        (
+            "content: {input: nameText}",
+            "content: {capture: otherTranslations}",
+            "invalid_pattern_dependency",
+        ),
+        (
+            "absentKeys: [{input: defaultLanguage}]",
+            "absentKeys: [{literal: true}]",
+            "expression_type_mismatch",
+        ),
+        (
+            "absentKeys: [{input: defaultLanguage}]",
+            "absentKeys: []",
+            "ambiguous_shorthand",
+        ),
+    ] {
+        let text = source.replace(from, to);
+        let module = parse(SourceFile {
+            path: "patterns.yaml",
+            bytes: text.as_bytes(),
+        })
+        .unwrap();
+        assert_eq!(link(&[module]).unwrap_err()[0].code, code, "{to}");
+    }
+}
+
+#[test]
+fn pattern_fixed_parts_retain_optional_text_results() {
+    let source =
+        include_str!("../../../../tests/declaration-corpus/valid/i8n-collection-patterns.yaml");
+    let text_source =
+        include_str!("../../../../tests/declaration-corpus/valid/name-text-transform.yaml");
+    let transform = text_source
+        .split("types:\n")
+        .nth(1)
+        .unwrap()
+        .split("  translation:")
+        .next()
+        .unwrap();
+    let source = source
+        .replace("types:\n", &format!("types:\n{transform}"))
+        .replace(
+            "content: {input: nameText}",
+            "content: {transform: {local: name-words, value: {input: nameText}}}",
+        );
+    let module = parse(SourceFile {
+        path: "optional-pattern.yaml",
+        bytes: source.as_bytes(),
+    })
+    .unwrap();
+    let program = link(&[module]).expect("an unavailable fixed text disables the pattern");
+    let nkdk_rule_model::LinkedExpressionKind::Operation { arguments, .. } =
+        &program.entries[0].shorthands[0].denotes.kind
+    else {
+        panic!("pattern")
+    };
+    let nkdk_rule_model::LinkedType::Record(fields) = &arguments[0].value_type else {
+        panic!("record")
+    };
+    assert!(matches!(
+        fields
+            .iter()
+            .find(|field| field.name == "content")
+            .unwrap()
+            .value,
+        nkdk_rule_model::LinkedType::Optional(_)
+    ));
+}
