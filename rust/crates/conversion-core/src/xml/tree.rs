@@ -25,11 +25,13 @@ fn qualified(name: &Name, namespaces: &[(&str, &str)]) -> Result<String> {
     if name.namespace.is_empty() {
         return Ok(name.local.clone());
     }
-    let prefix = namespaces
+    let Some(prefix) = namespaces
         .iter()
         .find(|(_, uri)| *uri == name.namespace)
         .map(|(prefix, _)| *prefix)
-        .ok_or_else(|| failure("Preserved name has no declared namespace prefix"))?;
+    else {
+        return Ok(format!("{{{}}}{}", name.namespace, name.local));
+    };
     if prefix.is_empty() {
         return Err(failure(
             "Preserved qualified names require a nonempty prefix",
@@ -38,6 +40,24 @@ fn qualified(name: &Name, namespaces: &[(&str, &str)]) -> Result<String> {
     Ok(format!("{prefix}:{}", name.local))
 }
 impl Tree {
+    /// Register names from an exceptional subtree without a global namespace table.
+    pub fn collect_namespaces<'a>(&'a self, namespaces: &mut Vec<&'a str>) {
+        let mut register = |name: &'a Name| {
+            if !name.namespace.is_empty() && !namespaces.contains(&name.namespace.as_str()) {
+                namespaces.push(&name.namespace);
+            }
+        };
+        register(&self.name);
+        for attribute in &self.attributes {
+            register(&attribute.name);
+            if let Some(name) = &attribute.qname {
+                register(name);
+            }
+        }
+        for child in &self.children {
+            child.collect_namespaces(namespaces);
+        }
+    }
     pub fn from_payload_yaml(
         source: &[u8],
         root: Name,

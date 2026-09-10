@@ -77,3 +77,33 @@ fn patches_restore_attribute_order_without_copying_child_content() {
         original.payload_yaml(&ns, &[]).unwrap()
     );
 }
+
+#[test]
+fn unregistered_namespaces_survive_self_contained_preservation() {
+    let xml = b"<Root xmlns:custom=\"urn:custom\"><Value custom:flag=\"x\">text</Value></Root>";
+    let tree = Tree::capture(xml, &[("", "Root"), ("", "Value")])
+        .unwrap()
+        .unwrap();
+    let payload = tree.payload_yaml(&[], &[]).unwrap();
+    assert!(payload.contains("_{urn:custom}flag"));
+    let restored = Tree::from_payload_yaml(
+        payload.as_bytes(),
+        Name {
+            namespace: String::new(),
+            local: "Value".into(),
+        },
+        &[],
+        &[],
+    )
+    .unwrap();
+    let mut namespaces = Vec::new();
+    restored.collect_namespaces(&mut namespaces);
+    let mut writer = Writer::new(&namespaces);
+    restored
+        .write_at(&mut writer, &[("", "Root")], &[])
+        .unwrap();
+    nkdk_conversion_core::proof::verify(xml, &writer.finish(), |path| {
+        path.last().is_some_and(|name| name.local == "Value")
+    })
+    .unwrap();
+}

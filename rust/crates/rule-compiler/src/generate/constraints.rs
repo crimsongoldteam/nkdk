@@ -107,7 +107,7 @@ fn generate_at(
                             && constraint.forms.contains(&LinkedForm::YamlScalar)))
             })
             .collect();
-        let function = if base.is_some() { "issues" } else { "check" };
+        let function = "issues";
         writeln!(
             out,
             "fn {function}_{side}_{}(_value: &V{}, _source: &[u8], _inputs: &PreparedInputs) -> Vec<RuntimeDiagnostic> {{",
@@ -118,11 +118,28 @@ fn generate_at(
             out.push_str("Vec::new() }\n");
             continue;
         }
+        let storage = if base.is_none() {
+            Some(
+                fields
+                    .iter()
+                    .enumerate()
+                    .map(|(index, field)| {
+                        Ok((
+                            super::scalar::Codec::resolve(&field.value, entry, program)?
+                                .optional_meaning(&format!("E{}F{index}", entry.id), index),
+                            format!("_value.f{index}.is_some()"),
+                        ))
+                    })
+                    .collect::<Result<Vec<_>, Diagnostic>>()?,
+            )
+        } else {
+            None
+        };
         let mut expressions = Expressions {
             entry,
             program,
             fields,
-            field_storage: None,
+            field_storage: storage.as_deref(),
             constants: String::new(),
             next_constant: 0,
             transforms: BTreeSet::new(),
@@ -182,6 +199,28 @@ fn generate_at(
                     .collect::<Vec<_>>()
                     .join(" || ");
                 when = format!("({selected}) && ({when})");
+            }
+            if base.is_none() {
+                let mut reads = BTreeSet::new();
+                read_fields(&constraint.assertion, &mut reads);
+                if let Some(value) = &constraint.when {
+                    read_fields(value, &mut reads);
+                }
+                for part in &constraint.diagnostic.message {
+                    if let LinkedMessagePart::Expression(value) = part {
+                        read_fields(value, &mut reads);
+                    }
+                }
+                if !reads.is_empty() {
+                    when = format!(
+                        "{} && ({when})",
+                        reads
+                            .iter()
+                            .map(|index| format!("_value.f{index}.is_some()"))
+                            .collect::<Vec<_>>()
+                            .join(" && ")
+                    );
+                }
             }
             let assertion = expressions.lower(&constraint.assertion)?;
             let address = match constraint.diagnostic.at {
@@ -243,5 +282,38 @@ fn generate_at(
         out.push_str(&body);
         out.push_str("errors }\n");
     }
+    if base.is_none() {
+        let id = entry.id;
+        let keys = fields
+            .iter()
+            .map(|field| {
+                yaml.iter()
+                    .find(|mapping| mapping.field == field.name)
+                    .expect("linked YAML field")
+                    .key
+                    .as_str()
+            })
+            .collect::<Vec<_>>();
+        writeln!(out,"fn check_xml_{id}(value:&V{id},_source:&[u8],_inputs:&PreparedInputs)->Vec<RuntimeDiagnostic> {{value.raw.diagnostics()}}").unwrap();
+        writeln!(out,"fn check_yaml_{id}(value:&V{id},source:&[u8],inputs:&PreparedInputs)->Vec<RuntimeDiagnostic> {{value.raw.validate(&{keys:?},issues_yaml_{id}(value,source,inputs),&issues_xml_{id}(value,source,inputs))}}").unwrap();
+    }
     Ok(out)
+}
+
+fn read_fields(expression: &LinkedExpression, result: &mut BTreeSet<u32>) {
+    match &expression.kind {
+        LinkedExpressionKind::Field(index) => {
+            result.insert(*index);
+        }
+        LinkedExpressionKind::Operation {
+            operator: LinkedOperator::State(_),
+            ..
+        } => (),
+        LinkedExpressionKind::Operation { arguments, .. } => {
+            for value in arguments {
+                read_fields(value, result);
+            }
+        }
+        _ => (),
+    }
 }

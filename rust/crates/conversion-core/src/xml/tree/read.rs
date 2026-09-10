@@ -72,6 +72,22 @@ pub(super) fn parse(source: &[u8]) -> Result<Payload> {
     root.ok_or_else(|| failure("Missing preservation payload"))
 }
 pub(super) fn expand(value: &str, namespaces: &[(&str, &str)], attribute: bool) -> Result<Name> {
+    if let Some(expanded) = value.strip_prefix('{') {
+        let (namespace, local) = expanded
+            .split_once('}')
+            .ok_or_else(|| failure("Invalid expanded preserved name"))?;
+        if namespace.is_empty()
+            || namespace == "http://www.w3.org/2000/xmlns/"
+            || !super::super::is_ncname(local)
+        {
+            return Err(failure("Invalid expanded preserved name"));
+        }
+        super::super::validate_text(namespace)?;
+        return Ok(Name {
+            namespace: namespace.into(),
+            local: local.into(),
+        });
+    }
     let (prefix, local) = value
         .split_once(':')
         .map_or((None, value), |(prefix, local)| (Some(prefix), local));

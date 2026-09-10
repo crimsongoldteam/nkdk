@@ -118,6 +118,22 @@ impl<'a> Codec<'a> {
             ),
         }
     }
+    pub fn optional_meaning(&self, name: &str, index: usize) -> String {
+        let reference = format!("_value.f{index}.as_ref().expect(\"guarded scalar\")");
+        match self {
+            Self::Text => format!("{reference}.as_str()"),
+            Self::Decimal => reference,
+            Self::Boolean(..) => format!("*{reference}"),
+            Self::Enumeration(variants, ..) => format!(
+                "match {reference} {{ {} }}",
+                variants
+                    .iter()
+                    .enumerate()
+                    .map(|(i, v)| format!("{name}::V{i}=>{:?},", v.value))
+                    .collect::<String>()
+            ),
+        }
+    }
     pub fn numeric(&self) -> bool {
         matches!(self, Self::Decimal)
     }

@@ -119,3 +119,116 @@ impl Property {
         }))
     }
 }
+
+/// A normal record carries one empty pointer, regardless of its field count.
+/// The exceptional storage is allocated only when the first patch is inserted.
+#[derive(Default)]
+pub struct Fields(Option<Box<FieldPatches>>);
+#[derive(Default)]
+struct FieldPatches {
+    marks: Vec<(usize, crate::annotations::Mapping)>,
+    diagnostics: Vec<RuntimeDiagnostic>,
+    values: Vec<(usize, crate::xml::Patch)>,
+}
+impl Fields {
+    pub fn is_empty(&self) -> bool {
+        self.0.is_none()
+    }
+    pub fn read_mark(
+        &mut self,
+        index: usize,
+        tag: Option<&str>,
+        position: crate::Position,
+    ) -> Result<()> {
+        if tag.is_none() {
+            return Ok(());
+        }
+        let mut mark = crate::annotations::Mapping::default();
+        mark.read(None, tag, position)?;
+        self.0
+            .get_or_insert_with(|| Box::new(FieldPatches::default()))
+            .marks
+            .push((index, mark));
+        Ok(())
+    }
+    pub fn label(&self, index: usize) -> Option<String> {
+        self.0
+            .as_ref()?
+            .marks
+            .iter()
+            .find(|(i, _)| *i == index)?
+            .1
+            .label(None)
+    }
+    pub fn infer(&mut self, keys: &[&str], issues: Vec<RuntimeDiagnostic>) -> Result<()> {
+        if issues.is_empty() {
+            return Ok(());
+        }
+        let fields = self
+            .0
+            .get_or_insert_with(|| Box::new(FieldPatches::default()));
+        for issue in &issues {
+            if issue.severity == crate::Severity::Error
+                && (issue.kind != crate::annotations::IssueKind::Semantic
+                    || issue.path.len() != 1
+                    || !keys.contains(&issue.path[0].as_str()))
+            {
+                return Err(issue.clone());
+            }
+        }
+        for (index, key) in keys.iter().enumerate() {
+            let selected = issues
+                .iter()
+                .filter(|issue| issue.path.first().is_some_and(|name| name == key))
+                .cloned()
+                .collect::<Vec<_>>();
+            let mark = crate::annotations::Mapping::infer(key, std::iter::empty(), &selected)?;
+            if !mark.is_empty() {
+                fields.marks.push((index, mark));
+            }
+        }
+        fields.diagnostics = issues
+            .into_iter()
+            .filter(|issue| issue.severity != crate::Severity::Error)
+            .collect();
+        Ok(())
+    }
+    pub fn diagnostics(&self) -> Vec<RuntimeDiagnostic> {
+        self.0
+            .as_ref()
+            .map(|fields| fields.diagnostics.clone())
+            .unwrap_or_default()
+    }
+    pub fn validate(
+        &self,
+        keys: &[&str],
+        mut issues: Vec<RuntimeDiagnostic>,
+        evidence: &[RuntimeDiagnostic],
+    ) -> Vec<RuntimeDiagnostic> {
+        if let Some(fields) = &self.0 {
+            for (index, mark) in &fields.marks {
+                issues =
+                    mark.validate_with_evidence(keys[*index], std::iter::empty(), issues, evidence);
+            }
+        }
+        issues
+    }
+    pub fn get(&self, index: usize) -> Option<&crate::xml::Patch> {
+        self.0
+            .as_ref()?
+            .values
+            .iter()
+            .find(|(key, _)| *key == index)
+            .map(|(_, patch)| patch)
+    }
+    pub fn insert(&mut self, index: usize, patch: crate::xml::Patch) {
+        let fields = self
+            .0
+            .get_or_insert_with(|| Box::new(FieldPatches::default()));
+        if let Some((_, existing)) = fields.values.iter_mut().find(|(key, _)| *key == index) {
+            *existing = patch;
+        } else {
+            fields.values.push((index, patch));
+        }
+    }
+}

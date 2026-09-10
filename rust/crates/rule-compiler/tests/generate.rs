@@ -102,12 +102,11 @@ fn main() {
             assert!(diagnostics.iter().all(|error| error.path == ["ДлинаКода"]));
             assert_eq!(convert_file(bounded, Direction::YamlToXml, yaml.as_bytes(), &inputs).unwrap_err(), diagnostics);
             assert!(diagnostics.iter().all(|error| (error.line, error.column) == (2, 12)));
-            let xml_errors = convert_file(bounded, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap_err();
-            assert_eq!(xml_errors.len(), diagnostics.len());
-            for (xml_error, yaml_error) in xml_errors.iter().zip(&diagnostics) {
-                assert_eq!((&xml_error.code, &xml_error.path, &xml_error.message), (&yaml_error.code, &yaml_error.path, &yaml_error.message));
-                assert_eq!((xml_error.line, xml_error.column), (4, 2));
-            }
+            let annotated = convert_file(bounded, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+            let expected = format!("ТипКода: {kind}\nДлинаКода: !xml/invalid {length}");
+            assert_eq!(annotated.bytes,expected.as_bytes());
+            assert!(validate_file(bounded,&annotated.bytes,&inputs).is_empty());
+            verify_candidate(bounded,xml.as_bytes(),&annotated.bytes,&inputs).unwrap();
         }
     }
     assert_eq!(validate_file(bounded, "ДлинаКода: 38".as_bytes(), &PreparedInputs::default())[0].code.as_deref(), Some("value.missing"));
@@ -144,7 +143,9 @@ fn main() {
         assert!(validate_file(optional, yaml.as_bytes(), &PreparedInputs::default()).is_empty());
         verify_candidate(optional, xml.as_bytes(), yaml.as_bytes(), &PreparedInputs::default()).unwrap();
     }
-    assert!(convert_file(optional, Direction::XmlToYaml, b"<Root><Server/><Description>x</Description></Root>", &PreparedInputs::default()).is_err());
+    let empty = b"<Root><Server/><Description>x</Description></Root>";
+    let annotated = convert_file(optional, Direction::XmlToYaml, empty, &PreparedInputs::default()).unwrap();
+    verify_candidate(optional, empty, &annotated.bytes, &PreparedInputs::default()).unwrap();
     let entry = entry_id("test.scalar-owner").unwrap();
     let field_source = DECLARATION_FIELDS.iter().find(|field| field.entry == entry.0 && field.name == "server").unwrap();
     assert_eq!((field_source.value.file, field_source.value.line), ("owner.yaml", 8));
@@ -181,7 +182,7 @@ fn main() {
     for bad in ["<Root><Server>true</Server><Description>\0</Description></Root>", "<Root>\u{a0}<Server>true</Server><Description>x</Description></Root>", "<?xml version=\"1.1\"?><Root><Server>true</Server><Description>x</Description></Root>"] {
         assert!(convert_file(entry, Direction::XmlToYaml, bad.as_bytes(), &inputs).is_err(), "Invalid XML content was accepted");
     }
-    for bad in ["<Root><Server>true</Server><Unknown/></Root>", "<Root><Server>wrong</Server><Description>x</Description></Root>", "<Root><Server>true</Server><Server>false</Server><Description>x</Description></Root>"] {
+    for bad in ["<Root><Server>true</Server><Unknown/></Root>", "<Root><Server>true</Server><Server>false</Server><Description>x</Description></Root>"] {
         assert!(convert_file(entry, Direction::XmlToYaml, bad.as_bytes(), &inputs).is_err(), "{bad}");
     }
     for bad in ["Сервер: LITERAL\nСервер: Ложь\nОписание: x", "Сервер: wrong\nОписание: x", "Сервер: LITERAL\nЛишнее: x", "Сервер: LITERAL\nОписание: !xml/raw x"] {

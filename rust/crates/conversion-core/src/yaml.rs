@@ -67,7 +67,21 @@ pub fn visit(source: &[u8], mut consume: impl FnMut(String, String) -> Result<()
 }
 pub fn visit_scalars(
     source: &[u8],
-    consume: impl FnMut(String, Scalar) -> Result<()>,
+    mut consume: impl FnMut(String, Scalar) -> Result<()>,
+) -> Result<()> {
+    visit_tagged_scalars(source, |key, value, tag| {
+        if tag.is_some() {
+            return Err(
+                RuntimeDiagnostic::new("yaml.annotation", "Unexpected scalar annotation")
+                    .field(key),
+            );
+        }
+        consume(key, value)
+    })
+}
+pub fn visit_tagged_scalars(
+    source: &[u8],
+    consume: impl FnMut(String, Scalar, Option<String>) -> Result<()>,
 ) -> Result<()> {
     let source = std::str::from_utf8(source)
         .map_err(|e| RuntimeDiagnostic::new("yaml.encoding", e.to_string()))?;
@@ -106,7 +120,7 @@ struct Receiver<F> {
     mapping_seen: bool,
     error: Option<RuntimeDiagnostic>,
 }
-impl<F: FnMut(String, Scalar) -> Result<()>> MarkedEventReceiver for Receiver<F> {
+impl<F: FnMut(String, Scalar, Option<String>) -> Result<()>> MarkedEventReceiver for Receiver<F> {
     fn on_event(&mut self, event: Event, mark: Marker) {
         if self.error.is_some() {
             return;
@@ -133,7 +147,7 @@ impl<F: FnMut(String, Scalar) -> Result<()>> MarkedEventReceiver for Receiver<F>
                 self.depth = 0;
                 None
             }
-            Event::Scalar(value, style, 0, None) if self.depth == 1 => {
+            Event::Scalar(value, style, 0, tag) if self.depth == 1 => {
                 if let Some(key) = self.key.take() {
                     (self.consume)(
                         key,
@@ -142,8 +156,14 @@ impl<F: FnMut(String, Scalar) -> Result<()>> MarkedEventReceiver for Receiver<F>
                             plain: style == TScalarStyle::Plain,
                             position: crate::Position::yaml(mark.line(), mark.col() + 1),
                         },
+                        tag.map(|tag| tag.handle + &tag.suffix),
                     )
                     .err()
+                } else if tag.is_some() {
+                    Some(RuntimeDiagnostic::new(
+                        "yaml.annotation",
+                        "Unexpected key annotation",
+                    ))
                 } else if style == TScalarStyle::Plain
                     && !matches!(Yaml::from_str(&value), Yaml::String(_))
                 {
