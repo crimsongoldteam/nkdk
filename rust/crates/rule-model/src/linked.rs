@@ -221,6 +221,23 @@ pub struct LinkedConstraint {
     pub source: SourceLocation,
 }
 
+impl LinkedConstraint {
+    pub fn expressions(&self) -> impl Iterator<Item = &LinkedExpression> {
+        std::iter::once(&self.assertion)
+            .chain(&self.when)
+            .chain(self.for_each.iter().map(|iteration| &iteration.input))
+            .chain(
+                self.diagnostic
+                    .message
+                    .iter()
+                    .filter_map(|part| match part {
+                        LinkedMessagePart::Expression(value) => Some(value),
+                        _ => None,
+                    }),
+            )
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct LinkedDiagnostic {
     pub code: Option<String>,

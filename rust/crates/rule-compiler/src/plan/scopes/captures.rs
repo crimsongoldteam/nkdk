@@ -81,19 +81,7 @@ pub(crate) fn capture_inputs(entry: &LinkedEntry) -> Result<CapturedInputs<'_>, 
             LinkedDiagnosticTarget::Field(slot) => Some(slot),
             _ => None,
         };
-        for value in std::iter::once(&rule.assertion)
-            .chain(&rule.when)
-            .chain(rule.for_each.iter().map(|iteration| &iteration.input))
-            .chain(
-                rule.diagnostic
-                    .message
-                    .iter()
-                    .filter_map(|part| match part {
-                        LinkedMessagePart::Expression(value) => Some(value),
-                        _ => None,
-                    }),
-            )
-        {
+        for value in rule.expressions() {
             expression(value, &mut captures, local);
         }
     }

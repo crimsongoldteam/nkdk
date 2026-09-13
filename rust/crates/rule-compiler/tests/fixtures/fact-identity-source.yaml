@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: test.identity-source
+inputs: {saved: {index: test.identities}}
+value:
+  kind: record
+  fields:
+  - {name: name, type: {kind: scalar, scalar: text}}
+  - {name: token, type: {kind: scalar, scalar: text}}
+representations:
+  xml: {kind: record, fields: [{field: name, path: [Root, Name]}, {field: token, path: [Root], attribute: token}]}
+  yaml: {kind: mapping, fields: [{field: name, key: Name}]}
+presence:
+- target: {field: token}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {missing: {denotes: {lookup: {in: {input: saved}, key: {field: name}}}}}
+contributions:
+- {index: test.identities, key: {field: name}, value: {field: token}}

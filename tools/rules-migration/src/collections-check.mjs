@@ -37,6 +37,17 @@ textCollections.push(emitCollections(implicitGraph,implicitEntries,catalog));
 for(const result of textCollections)if(result.results[0].status!=='candidate')throw new Error(JSON.stringify(result.results));
 const textXML='<Root xmlns:v8="http://v8.1c.ru/8.1/data/core"><Items><Item><Properties><Synonym><v8:item><v8:lang>ru</v8:lang><v8:content>Первый</v8:content></v8:item></Synonym><Name>Первый</Name><Enabled>true</Enabled></Properties></Item><Item><Properties><Synonym><v8:item><v8:lang>ru</v8:lang><v8:content>Второй</v8:content></v8:item></Synonym><Name>Второй</Name><Enabled>false</Enabled></Properties></Item></Items></Root>';
 named.modules[0].constraints=[{id:'key-policy',appliesTo:['xml-import','yaml-validation'],assert:{not:{eq:[{field:'name'},{literal:'forbidden'}]}},diagnostic:{code:'test.key-policy',severity:'error',at:{field:'name'},message:'Reserved key'}}];
+const identified=structuredClone(textCollections[1].modules);
+identified.forEach((module,index)=>{module.id=`test.identified-text.${index}`;module.inputs.identities={type:{kind:'index',key:{kind:'scalar',scalar:'text'},value:{kind:'scalar',scalar:'text'}}};});
+identified[0].value.fields.push({name:'token',type:{kind:'scalar',scalar:'text'}});
+identified[0].representations.xml.fields.push({field:'token',path:[],attribute:'token'});
+(identified[0].presence??=[]).push({target:{field:'token'},xml:{missing:{denotes:{absent:true}}},yaml:{missing:{denotes:{lookup:{in:{input:'identities'},key:{field:'name'}}}}}});
+identified[1].imports.item=identified[0].id;identified[1].value.item.bind.identities={input:'identities'};
+identified[2].imports.items=identified[1].id;identified[2].value.fields[0].type.bind.identities={input:'identities'};
+identified[2].inputs.identities={index:'test.identified-text'};
+identified[2].contributions=[{index:'test.identified-text',forEach:{in:{field:'items'},as:'row'},key:{get:{of:{var:'row'},field:'name'}},value:{get:{of:{var:'row'},field:'token'}}}];
+let token=0;const identifiedXML=textXML.replaceAll('<Item>',()=>`<Item token="identity-${++token}">`);
+const identifiedInputs={defaultLanguage:'ru',registeredLanguages:['ru','en']};
 const nested={format:'nkdk-declarations/1',kind:'value',id:'test.collection.nested',presence:[{target:'self',xml:{missing:{denotes:{absent:true}}},yaml:{missing:{denotes:{absent:true}}}}],value:{kind:'record',fields:[{name:'text',type:{kind:'scalar',scalar:'text'}}]},representations:{xml:{kind:'record',fields:[{field:'text',path:['Text']}]},yaml:{kind:'mapping',fields:[{field:'text',key:'Текст'}]}}};
 const composed=structuredClone(named.modules);
 composed[0].id='test.collection.composed.item';
@@ -71,11 +82,12 @@ xmlOnlyScalar.value.fields=xmlOnlyScalar.value.fields.filter(field=>field.name!=
 xmlOnlyScalar.representations.xml.fields=xmlOnlyScalar.representations.xml.fields.filter(field=>field.field!=='nested').map(field=>({...field,path:['Root',...field.path]}));
 xmlOnlyScalar.representations.yaml.fields=xmlOnlyScalar.representations.yaml.fields.filter(field=>field.field!=='nested');
 xmlOnlyScalar.constraints.push({id:'hidden-policy',appliesTo:['yaml-validation'],assert:{not:{eq:[{field:'token'},{literal:'blocked-token'}]}},diagnostic:{code:'test.hidden-policy',severity:'error',at:{field:'token'},message:'Restored token is reserved'}});
-const declarations=[...unifiedDeclarations,xmlOnlyScalar,...xmlOnly,...groupedCommon,...grouped,...emitted.modules,...named.modules,...composed,nested,...indexed.modules,...textCollections.flatMap(result=>result.modules),computedFacts,computedConsumer,catalog.get('migration.metadata-root-index')];
+const declarations=[...unifiedDeclarations,xmlOnlyScalar,...xmlOnly,...groupedCommon,...grouped,...emitted.modules,...named.modules,...composed,nested,...indexed.modules,...textCollections.flatMap(result=>result.modules),...identified,computedFacts,computedConsumer,catalog.get('migration.metadata-root-index')];
 const modules=[...declarations,...dependencyFiles(declarations,catalog)];
 const files=Object.fromEntries(modules.map(m=>[m.id+'.yaml',yaml.dump(m,{noRefs:true})]));
 const entry=emitted.results[0].declaration;
-const paths=writeFocused(join(root,'rust/target/collection-emission-check'),files,{factSources:[{entry:'migration.metadata-root-index',xml:'<Root><Kind>DocumentNumerator</Kind><Name>Общий</Name><Identity>shared</Identity></Root>'},{entry:computedFacts.id,xml:'<Root><Items><Item><Properties><Name>Первый</Name><Enabled>true</Enabled></Properties></Item></Items></Root>'},{entry:computedFacts.id,yaml:'Элементы: [{Имя: Второй, Включено: Ложь}]'}],cases:[
+const paths=writeFocused(join(root,'rust/target/collection-emission-check'),files,{factSources:[{entry:identified[2].id,xml:identifiedXML,inputs:identifiedInputs},{entry:'migration.metadata-root-index',xml:'<Root><Kind>DocumentNumerator</Kind><Name>Общий</Name><Identity>shared</Identity></Root>'},{entry:computedFacts.id,xml:'<Root><Items><Item><Properties><Name>Первый</Name><Enabled>true</Enabled></Properties></Item></Items></Root>'},{entry:computedFacts.id,yaml:'Элементы: [{Имя: Второй, Включено: Ложь}]'}],cases:[
+  {id:'generated-identity-and-synonym',entry:identified[2].id,inputs:identifiedInputs,factBindings:{identities:'test.identified-text'},xml:identifiedXML,yaml:'Элементы:\n  Первый:\n    Включено: Истина\n  Второй:\n    Включено: Ложь'},
   ...['Первый','Второй'].map((name,index)=>({id:`generated-computed-index-${index}`,entry:computedConsumer.id,factBindings:{derived:'test.computed'},xml:`<Root><Name>Нум${name}</Name></Root>`,yaml:`Name: Нум${name}`,rejectedYAML:['Name: Первый','Name: НумОтсутствует']})),
   ...textCollections.map((result,index)=>({id:`generated-local-name-${index}`,entry:result.results[0].declaration,inputs:{defaultLanguage:'ru',registeredLanguages:['ru','en']},xml:textXML,yaml:index===0?expected:'Элементы:\n  Первый:\n    Включено: Истина\n  Второй:\n    Включено: Ложь'})),
   {id:'generated-shared-index',entry:indexed.results[0].declaration,factBindings:{roots:'metadata.roots'},xml:xml.replaceAll('</Properties>','<Numerator>DocumentNumerator.Общий</Numerator></Properties>'),yaml:'Элементы:\n  - Имя: Первый\n    Включено: Истина\n    Нумератор: Общий\n  - Имя: Второй\n    Включено: Ложь\n    Нумератор: Общий',rejectedYAML:['Элементы: [{Имя: Первый, Включено: Истина, Нумератор: Отсутствует}]']},

@@ -1,7 +1,7 @@
 use super::*;
 use std::fmt::Write;
 
-pub(super) fn generate(entries: &[&LinkedEntry], names: &[&str]) -> String {
+pub(super) fn generate(entries: &[&LinkedEntry], names: &[&str], program: &Program) -> String {
     let mut out = String::from(
         "pub fn fact_input_bindings(entry:EntryId)-> &'static [(&'static str,core::facts::prepared::FactId)] {match entry.0 {\n",
     );
@@ -19,6 +19,37 @@ pub(super) fn generate(entries: &[&LinkedEntry], names: &[&str]) -> String {
             .unwrap();
         }
         out.push_str("],\n");
+    }
+    out.push_str("_=>&[]}}\n");
+    out.push_str("pub fn fact_source_input_bindings(entry:EntryId,direction:Direction)-> &'static [(&'static str,core::facts::prepared::FactId)] {match (entry.0,direction) {\n");
+    for entry in entries {
+        for (phase, direction) in [
+            (ValidationPhase::XmlImport, "XmlToYaml"),
+            (ValidationPhase::YamlValidation, "YamlToXml"),
+        ] {
+            let required = crate::plan::input_dependencies::read(entry, program, phase);
+            writeln!(out, "({},Direction::{direction})=>&[", entry.id).unwrap();
+            for binding in &entry.input_indexes {
+                let slot = entry
+                    .inputs
+                    .iter()
+                    .position(|input| input.name == binding.name)
+                    .expect("linked input");
+                if !required.contains(&(slot as u32)) {
+                    continue;
+                }
+                let index = names
+                    .binary_search(&binding.value.as_str())
+                    .expect("linked index binding");
+                writeln!(
+                    out,
+                    "({:?},core::facts::prepared::FactId({index})),",
+                    binding.name
+                )
+                .unwrap();
+            }
+            out.push_str("],\n");
+        }
     }
     out.push_str("_=>&[]}}\n");
     out.push_str(r#"

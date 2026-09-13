@@ -3,6 +3,38 @@ use std::{fs, process::Command};
 
 #[test]
 fn generated_rust_executes_both_directions_and_uses_the_imported_table() {
+    let identity_row = include_str!("fixtures/fact-identity-source.yaml")
+        .split("contributions:").next().unwrap()
+        .replace("kind: object", "kind: value")
+        .replace("test.identity-source", "test.identity-row")
+        .replace("{index: test.identities}", "{type: {kind: index, key: {kind: scalar, scalar: text}, value: {kind: scalar, scalar: text}}}")
+        .replace("[Root, Name]", "[Name]")
+        .replace("[Root]", "[]");
+    let identity_rows = r#"format: nkdk-declarations/1
+kind: value
+id: test.identity-rows
+imports: {row: test.identity-row}
+inputs: {saved: {type: {kind: index, key: {kind: scalar, scalar: text}, value: {kind: scalar, scalar: text}}}}
+value: {kind: sequence, item: {use: row, bind: {saved: {input: saved}}}}
+representations:
+  xml: {kind: element-sequence, path: [Item]}
+  yaml: {kind: record-mapping, key: name}
+"#;
+    let identity_owner = r#"format: nkdk-declarations/1
+kind: object
+id: test.identity-owner
+imports: {rows: test.identity-rows}
+inputs: {saved: {index: test.identities}}
+value: {kind: record, fields: [{name: rows, type: {use: rows, bind: {saved: {input: saved}}}}]}
+representations:
+  xml: {kind: record, fields: [{field: rows, path: [Root, Rows]}]}
+  yaml: {kind: mapping, fields: [{field: rows, key: Rows}]}
+contributions:
+- index: test.identities
+  forEach: {in: {field: rows}, as: row}
+  key: {get: {of: {var: row}, field: name}}
+  value: {get: {of: {var: row}, field: token}}
+"#;
     let declared_nested = include_str!("fixtures/declared-row.yaml")
         .replace("common.row", "common.nested-row")
         .replace(
@@ -427,6 +459,10 @@ fn generated_rust_executes_both_directions_and_uses_the_imported_table() {
                 include_str!("fixtures/fact-member-consumer.yaml"),
             ),
             ("fact-owner.yaml", include_str!("fixtures/fact-owner.yaml")),
+            ("fact-identity-owner.yaml", identity_owner),
+            ("fact-identity-row.yaml", identity_row.as_str()),
+            ("fact-identity-rows.yaml", identity_rows),
+            ("fact-identity-source.yaml", include_str!("fixtures/fact-identity-source.yaml")),
             (
                 "fact-rows-owner.yaml",
                 include_str!("fixtures/fact-rows-owner.yaml"),
@@ -611,6 +647,10 @@ fn generated_rust_executes_both_directions_and_uses_the_imported_table() {
                 "fact-bound-consumer.yaml",
                 "fact-code.yaml",
                 "fact-consumer.yaml",
+                "fact-identity-owner.yaml",
+                "fact-identity-row.yaml",
+                "fact-identity-rows.yaml",
+                "fact-identity-source.yaml",
                 "fact-member-consumer.yaml",
                 "fact-owner.yaml",
                 "fact-path-consumer.yaml",
@@ -1087,6 +1127,24 @@ fn main() {
     assert!(fact_plan(&[EntryId(u32::MAX)],&[],10).is_err());
     let generation = core::facts::Generation(7);
     let budget = || core::facts::prepared::FactBudget { text: core::facts::text::TextBudget { entries: 30, bytes: 1000 }, rows: 20 };
+    for (name,source,yaml) in [
+        ("test.identity-source", "<Root token='exact'><Name>First</Name></Root>","Name: First"),
+        ("test.identity-owner", "<Root><Rows><Item token='first-id'><Name>First</Name></Item><Item token='second-id'><Name>Second</Name></Item></Rows></Root>","Rows:\n  First: {}\n  Second: {}"),
+    ] {
+    let identity = entry_id(name).unwrap();
+    let source_plan = fact_plan_for_sources(&[(identity,Direction::XmlToYaml)],&[identity],20).unwrap();
+    assert!(source_plan.dependencies(core::facts::dependencies::StepId(0)).unwrap().is_empty());
+    assert!(fact_plan_for_sources(&[(identity,Direction::YamlToXml)],&[],20).is_err());
+    assert!(fact_plan(&[identity],&[],20).is_err());
+    assert!(fact_plan_for_sources(&[(identity,Direction::XmlToYaml)],&[],0).is_err());
+    let mut own = fact_builder(generation,budget());
+    let source=source.as_bytes();
+    let diagnostics=contribute_file(identity,Direction::XmlToYaml,source,&PreparedInputs::default(),&mut own);
+    assert!(diagnostics.is_empty(),"{name}: {diagnostics:?}");
+    let restored = prepare_fact_inputs(identity,std::sync::Arc::new(own.finish()),generation,vec![]).unwrap();
+    let output = convert_file(identity,Direction::YamlToXml,yaml.as_bytes(),&restored).unwrap();
+    core::proof::verify(source,&output.bytes,|_|false).unwrap();
+    }
     let mut builder = fact_builder(generation, budget());
     let writes = core::xml::writer_count();
     for (direction, source) in [

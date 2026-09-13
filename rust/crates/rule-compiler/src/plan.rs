@@ -9,6 +9,7 @@ use std::{
 };
 mod composition;
 pub(crate) mod contracts;
+pub(crate) mod input_dependencies;
 pub(crate) mod records;
 pub(crate) mod routes;
 pub(crate) mod scopes;

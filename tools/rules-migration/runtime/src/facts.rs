@@ -19,9 +19,31 @@ pub fn prepare(entry: EntryId, case: &Value, manifest: &Value) -> PreparedInputs
             rows: 10_000,
         },
     );
-    for source in manifest["factSources"].as_array().unwrap() {
-        let producer = rules::entry_id(source["entry"].as_str().unwrap()).unwrap();
-        let context = rules::read_inputs(producer, b"{}").unwrap();
+    let sources = manifest["factSources"].as_array().unwrap();
+    let operations: Vec<_> = sources
+        .iter()
+        .map(|source| {
+            (
+                rules::entry_id(source["entry"].as_str().unwrap()).unwrap(),
+                if source.get("yaml").is_some() {
+                    Direction::YamlToXml
+                } else {
+                    Direction::XmlToYaml
+                },
+            )
+        })
+        .collect();
+    let schedule = rules::fact_plan_for_sources(&operations, &[entry], 100_000).unwrap();
+    for step in schedule
+        .order()
+        .iter()
+        .filter(|step| (step.0 as usize) < sources.len())
+    {
+        let source = &sources[step.0 as usize];
+        let (producer, _) = operations[step.0 as usize];
+        let source_inputs =
+            serde_json::to_vec(source.get("inputs").unwrap_or(&serde_json::json!({}))).unwrap();
+        let context = rules::read_inputs(producer, &source_inputs).unwrap();
         let (direction, bytes) = match source.get("yaml").and_then(Value::as_str) {
             Some(yaml) => {
                 assert!(source.get("xml").is_none(), "Ambiguous fact source format");

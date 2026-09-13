@@ -1,6 +1,28 @@
 use super::*;
 
 #[test]
+fn fact_source_dependencies_follow_the_read_direction() {
+    let modules = crate::parse_many(SourceFile {
+        path: "identity.yaml",
+        bytes: include_bytes!("../../tests/fixtures/fact-identity-source.yaml"),
+    })
+    .unwrap();
+    let program = crate::link(&modules).unwrap();
+    let entry = &program.entries[0];
+    assert!(input_dependencies::read(entry, &program, ValidationPhase::XmlImport).is_empty());
+    assert_eq!(
+        input_dependencies::read(entry, &program, ValidationPhase::YamlValidation),
+        BTreeSet::from([0])
+    );
+    let mut needs_xml = entry.clone();
+    needs_xml.presence[0].xml_missing = needs_xml.presence[0].yaml_missing.clone();
+    assert_eq!(
+        input_dependencies::read(&needs_xml, &program, ValidationPhase::XmlImport),
+        BTreeSet::from([0])
+    );
+}
+
+#[test]
 fn record_plan_keeps_hidden_fields_and_shared_consumers() {
     let modules = crate::parse_many(SourceFile {path:"record.yaml",bytes:br#"
 format: nkdk-declarations/1

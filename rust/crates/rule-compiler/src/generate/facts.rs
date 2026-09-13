@@ -91,25 +91,33 @@ pub(super) fn generate(entries: &[&LinkedEntry], program: &Program) -> Result<St
         .unwrap();
     }
     out.push_str("_=>&[]}}\n");
-    out.push_str(&super::fact_inputs::generate(entries, &names));
+    out.push_str(&super::fact_inputs::generate(entries, &names, program));
     let entry_ids: Vec<_> = entries.iter().map(|entry| entry.id).collect();
     writeln!(out, r#"pub fn fact_plan(sources:&[EntryId],consumers:&[EntryId],edge_budget:usize)->core::Result<core::facts::dependencies::DependencyPlan> {{
-        let count=sources.len().checked_add(fact_names().len()).and_then(|count|count.checked_add(consumers.len())).filter(|count|u32::try_from(*count).is_ok()).ok_or_else(||RuntimeDiagnostic::new("fact.plan-budget","Too many preparation steps"))?;
+        build_fact_plan(sources.iter().map(|entry|(*entry,None)),consumers,edge_budget)
+    }}
+    pub fn fact_plan_for_sources(sources:&[(EntryId,Direction)],consumers:&[EntryId],edge_budget:usize)->core::Result<core::facts::dependencies::DependencyPlan> {{
+        build_fact_plan(sources.iter().map(|(entry,direction)|(*entry,Some(*direction))),consumers,edge_budget)
+    }}
+    fn build_fact_plan(sources:impl ExactSizeIterator<Item=(EntryId,Option<Direction>)>,consumers:&[EntryId],edge_budget:usize)->core::Result<core::facts::dependencies::DependencyPlan> {{
+        let source_count=sources.len();
+        let count=source_count.checked_add(fact_names().len()).and_then(|count|count.checked_add(consumers.len())).filter(|count|u32::try_from(*count).is_ok()).ok_or_else(||RuntimeDiagnostic::new("fact.plan-budget","Too many preparation steps"))?;
         let mut dependencies=vec![Vec::new();count];
         let mut edges=0usize;
-        for (slot,entry) in sources.iter().enumerate() {{
+        for (slot,(entry,direction)) in sources.enumerate() {{
             if !{entry_ids:?}.contains(&entry.0) {{return Err(RuntimeDiagnostic::new("entry.unknown","Unknown fact source entry"));}}
-            for (_,index) in fact_input_bindings(*entry) {{
+            let bindings=direction.map_or_else(||fact_input_bindings(entry),|direction|fact_source_input_bindings(entry,direction));
+            for (_,index) in bindings {{
                 if edges==edge_budget {{return Err(RuntimeDiagnostic::new("fact.plan-budget","Too many preparation dependencies"));}}edges+=1;
-                dependencies[slot].push(core::facts::dependencies::StepId((sources.len()+index.0 as usize) as u32));
+                dependencies[slot].push(core::facts::dependencies::StepId((source_count+index.0 as usize) as u32));
             }}
-            for index in contribution_indexes(*entry) {{if edges==edge_budget {{return Err(RuntimeDiagnostic::new("fact.plan-budget","Too many preparation dependencies"));}}edges+=1;dependencies[sources.len()+index.0 as usize].push(core::facts::dependencies::StepId(slot as u32));}}
+            for index in contribution_indexes(entry) {{if edges==edge_budget {{return Err(RuntimeDiagnostic::new("fact.plan-budget","Too many preparation dependencies"));}}edges+=1;dependencies[source_count+index.0 as usize].push(core::facts::dependencies::StepId(slot as u32));}}
         }}
         for (slot,entry) in consumers.iter().enumerate() {{
             if !{entry_ids:?}.contains(&entry.0) {{return Err(RuntimeDiagnostic::new("entry.unknown","Unknown fact consumer entry"));}}
             for (_,index) in fact_input_bindings(*entry) {{
                 if edges==edge_budget {{return Err(RuntimeDiagnostic::new("fact.plan-budget","Too many preparation dependencies"));}}edges+=1;
-                dependencies[sources.len()+fact_names().len()+slot].push(core::facts::dependencies::StepId((sources.len()+index.0 as usize) as u32));
+                dependencies[source_count+fact_names().len()+slot].push(core::facts::dependencies::StepId((source_count+index.0 as usize) as u32));
             }}
         }}
         core::facts::dependencies::DependencyPlan::new(dependencies,edge_budget).map_err(|error|RuntimeDiagnostic::new("fact.plan",format!("{{error:?}}")))
