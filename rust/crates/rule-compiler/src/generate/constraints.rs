@@ -294,6 +294,25 @@ fn generate_at(
                     );
                 }
             }
+            let mut input_reads = BTreeSet::new();
+            for expression in std::iter::once(&constraint.assertion)
+                .chain(&constraint.when)
+                .chain(
+                    constraint
+                        .diagnostic
+                        .message
+                        .iter()
+                        .filter_map(|part| match part {
+                            LinkedMessagePart::Expression(value) => Some(value),
+                            _ => None,
+                        }),
+                )
+            {
+                read_inputs(expression, &mut input_reads);
+            }
+            if !input_reads.is_empty() {
+                when = format!("{} && ({when})", input_reads.iter().map(|slot|format!("!matches!(_inputs.slot({slot}),Some(core::inputs::InputRef::MissingValue))")).collect::<Vec<_>>().join(" && "));
+            }
             let assertion = expressions.lower(&constraint.assertion)?;
             let address = match constraint.diagnostic.at {
                 LinkedDiagnosticTarget::SelfValue => prefix.clone(),
@@ -359,27 +378,40 @@ fn generate_at(
 }
 
 pub(super) fn read_fields(expression: &LinkedExpression, result: &mut BTreeSet<u32>) {
-    match &expression.kind {
-        LinkedExpressionKind::Field(index) => {
+    read_slots(expression, &mut |kind| {
+        if let LinkedExpressionKind::Field(index) = kind {
             result.insert(*index);
         }
+    });
+}
+pub(super) fn read_inputs(expression: &LinkedExpression, result: &mut BTreeSet<u32>) {
+    read_slots(expression, &mut |kind| {
+        if let LinkedExpressionKind::Input(index) = kind {
+            result.insert(*index);
+        }
+    });
+}
+fn read_slots(expression: &LinkedExpression, visitor: &mut impl FnMut(&LinkedExpressionKind)) {
+    match &expression.kind {
         LinkedExpressionKind::Operation {
             operator: LinkedOperator::State(_),
             arguments,
         } => {
-            // Inspect computed optional values: their inputs still need to exist.
-            // A direct field state, however, deliberately accepts an absent field.
+            // Direct state predicates intentionally observe absent data.
             for value in arguments {
-                if !matches!(value.kind, LinkedExpressionKind::Field(_)) {
-                    read_fields(value, result);
+                if !matches!(
+                    value.kind,
+                    LinkedExpressionKind::Field(_) | LinkedExpressionKind::Input(_)
+                ) {
+                    read_slots(value, visitor);
                 }
             }
         }
         LinkedExpressionKind::Operation { arguments, .. } => {
             for value in arguments {
-                read_fields(value, result);
+                read_slots(value, visitor);
             }
         }
-        _ => (),
+        kind => visitor(kind),
     }
 }

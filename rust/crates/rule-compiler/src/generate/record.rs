@@ -47,7 +47,7 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
         return Ok(source);
     }
     if let Some(layout) = super::nested_record::lower(entry, program)? {
-        return generate_at(&layout.entry, program, Some(&layout));
+        return generate_at(&layout.entry, program, Some(&layout), false);
     }
     if let Some(source) = super::composite::generate(entry, program)? {
         return Ok(source);
@@ -55,12 +55,19 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
     if let Some(source) = super::collections::generate(entry, program)? {
         return Ok(source);
     }
-    generate_at(entry, program, None)
+    generate_at(entry, program, None, false)
+}
+pub(super) fn generate_deferred(
+    entry: &LinkedEntry,
+    program: &Program,
+) -> Result<String, Diagnostic> {
+    generate_at(entry, program, None, true)
 }
 fn generate_at(
     entry: &LinkedEntry,
     program: &Program,
     layout: Option<&super::nested_record::Layout>,
+    defer_inference: bool,
 ) -> Result<String, Diagnostic> {
     super::scalar_presence::validate_owner(entry)?;
     let mut shape = entry.clone();
@@ -330,7 +337,7 @@ fn generate_at(
             writeln!(out,"fn read_yaml_body_{id}(source:&[u8],inputs:&InputView<'_>,raw:core::raw::Fields)->core::Result<V{id}> {{read_yaml_events_{id}(source,inputs,raw,core::yaml::DocumentSource(if source.is_empty() {{b\"{{}}\"}} else {{source}}))}}\nfn read_yaml_events_{id}(source:&[u8],_inputs:&InputView<'_>,raw:core::raw::Fields,events:impl core::yaml::Source)->core::Result<V{id}> {{let mut state=YamlFields{id}::new(raw)?;{yaml_events}}}\nfn finish_yaml_{id}(state:YamlFields{id},{yaml_present}source:&[u8],_inputs:&InputView<'_>)->core::Result<V{id}> {{let _=source;{yaml_bindings}").unwrap();
         } else {
             if xml_side {
-                writeln!(out, "fn read_xml_{id}(source:&[u8],inputs:&InputView<'_>)->core::Result<V{id}> {{read_xml_events_{id}(source,inputs,core::xml::DocumentSource(source))}}\nfn read_xml_events_{id}(source:&[u8],_inputs:&InputView<'_>,events:impl core::xml::Source)->core::Result<V{id}> {{let mut state=XmlRead{id}::new();events.visit(|path,token|state.consume(path,token))?;finish_xml_{id}(state,source,_inputs)}}\nfn finish_xml_{id}(state:XmlRead{id},source:&[u8],_inputs:&InputView<'_>)->core::Result<V{id}> {{{xml_bindings}").unwrap();
+                writeln!(out, "fn read_xml_{id}(source:&[u8],inputs:&InputView<'_>)->core::Result<V{id}> {{read_xml_events_{id}(source,inputs,core::xml::DocumentSource(source))}}\nfn read_xml_events_{id}(source:&[u8],_inputs:&InputView<'_>,events:impl core::xml::Source)->core::Result<V{id}> {{let mut state=XmlRead{id}::new();events.visit(|path,token|state.consume(path,token))?;finish_xml_{id}(state,source,_inputs)}}\nfn finish_xml_{id}(state:XmlRead{id},source:&[u8],_inputs:&InputView<'_>)->core::Result<V{id}> {{let _=source;{xml_bindings}").unwrap();
             } else {
                 writeln!(out, "fn read_{side}_{id}(source:&[u8],_inputs:&InputView<'_>)->core::Result<V{id}> {{").unwrap();
             }
@@ -508,7 +515,11 @@ fn generate_at(
         writeln!(
             out,
             "let {}value=V{id} {{ {} {} }};",
-            if xml_side { "mut " } else { "" },
+            if xml_side && !defer_inference {
+                "mut "
+            } else {
+                ""
+            },
             format_args!(
                 "{}{}",
                 if keep_positions { "positions," } else { "" },
@@ -538,16 +549,12 @@ fn generate_at(
                 }
             }
         }
-        if xml_side {
-            writeln!(
-                out,
-                "let issues=issues_xml_{id}(&value,source,_inputs);value.raw.infer(&{:?},issues)?;",
-                fields.iter().map(|field| field.key).collect::<Vec<_>>()
-            )
-            .unwrap();
+        if xml_side && !defer_inference {
+            writeln!(out, "infer_xml_{id}(&mut value,source,_inputs)?;").unwrap();
         }
         out.push_str("Ok(value) }\n");
     }
+    writeln!(out, "fn infer_xml_{id}(value:&mut V{id},source:&[u8],inputs:&InputView<'_>)->core::Result<()>{{let issues=issues_xml_{id}(value,source,inputs);value.raw.infer(&{:?},issues)}}",fields.iter().map(|field| field.key).collect::<Vec<_>>()).unwrap();
     let mut namespaces: BTreeSet<_> = fields
         .iter()
         .flat_map(|field| field.path)
@@ -793,7 +800,7 @@ fn generate_at(
     }
     writeln!(
         out,
-        "fn write_yaml_{id}(value: &V{id}, inputs: &InputView<'_>) -> core::Result<Vec<u8>> {{let mut out=String::new();write_yaml_into_{id}(value,inputs,&mut out)?;Ok(out.into_bytes())}}\nfn write_yaml_into_{id}(value: &V{id}, inputs: &InputView<'_>, out: &mut String) -> core::Result<()> {{if value.raw.is_empty() {{core::yaml::append_properties(out,|out|write_yaml_fields_{id}(value,inputs,out))}} else {{core::yaml::append_encoded_properties(out,&write_yaml_preserved_{id}(value,inputs)?)}} }}\nfn write_yaml_fields_{id}(value: &V{id}, inputs: &InputView<'_>, out: &mut String) -> core::Result<()> {{write_yaml_indented_{id}(value,inputs,out,\"\",false)}}\nfn write_yaml_indented_{id}(value: &V{id}, inputs: &InputView<'_>, out: &mut String, indent:&str, lift_attributes:bool) -> core::Result<()> {{write_yaml_except_{id}(value,inputs,out,indent,lift_attributes,None)}}\nfn write_yaml_except_{id}(value: &V{id}, _inputs: &InputView<'_>, out: &mut String, indent:&str, lift_attributes:bool, excluded:Option<usize>) -> core::Result<()> {{ let _=lift_attributes;let start=out.len();"
+        "fn write_yaml_{id}(value: &V{id}, inputs: &InputView<'_>) -> core::Result<Vec<u8>> {{let mut out=String::new();write_yaml_into_{id}(value,inputs,&mut out)?;Ok(out.into_bytes())}}\nfn write_yaml_into_{id}(value: &V{id}, inputs: &InputView<'_>, out: &mut String) -> core::Result<()> {{if value.raw.is_empty() {{core::yaml::append_properties(out,|out|write_yaml_fields_{id}(value,inputs,out))}} else {{core::yaml::append_encoded_properties(out,&write_yaml_preserved_{id}(value,inputs)?)}} }}\nfn write_yaml_fields_{id}(value: &V{id}, inputs: &InputView<'_>, out: &mut String) -> core::Result<()> {{write_yaml_indented_{id}(value,inputs,out,\"\",false)}}\nfn write_yaml_indented_{id}(value: &V{id}, inputs: &InputView<'_>, out: &mut String, indent:&str, lift_attributes:bool) -> core::Result<()> {{write_yaml_except_{id}(value,inputs,out,indent,lift_attributes,None)}}\nfn write_yaml_except_{id}(value: &V{id}, _inputs: &InputView<'_>, out: &mut String, indent:&str, lift_attributes:bool, excluded:Option<usize>) -> core::Result<()> {{ let _=(value,indent,excluded,lift_attributes);let start=out.len();"
     )
     .unwrap();
     if let Some(layout) = layout {

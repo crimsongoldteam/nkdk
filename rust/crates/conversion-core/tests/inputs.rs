@@ -55,6 +55,12 @@ fn preparation_preserves_exact_values_and_checks_the_declared_slots() {
     let absent_slots = [Some(InputRef::MissingValue)];
     let absent = view.rebind(&absent_slots);
     assert!(!absent.is_ready(0));
+    assert!(!absent.is_present(0).unwrap());
+    assert!(child.is_present(2).unwrap());
+    assert_eq!(
+        child.is_present(3).unwrap_err().code.as_deref(),
+        Some("input.not-ready")
+    );
     assert_eq!(
         absent.text(0).unwrap_err().code.as_deref(),
         Some("value.missing")

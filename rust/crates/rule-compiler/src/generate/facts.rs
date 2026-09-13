@@ -26,7 +26,7 @@ fn text(
                 ));
             }
             if super::owner::applies(entry, program) {
-                let (part, local) = owners::field(entry, *slot, program)?;
+                let (part, local) = owners::field(entry, *slot)?;
                 return Ok(format!(
                     "part_{}_{part}::fact_{local}(&value.p{part},direction,source,inputs)?",
                     entry.id
@@ -158,7 +158,7 @@ pub(super) fn generate(entries: &[&LinkedEntry], program: &Program) -> Result<St
                         "Owner contribution must iterate a field",
                     ));
                 };
-                let (part, _) = owners::field(entry, field, program)?;
+                let (part, _) = owners::field(entry, field)?;
                 writeln!(out,"if matches!(direction,Direction::XmlToYaml) && value.containers[{part}]!=1 {{return Err(vec![RuntimeDiagnostic::new(\"fact.unready\",\"Contribution owner container is missing or repeated\")]);}}part_{id}_{part}::contribute_{ordinal}(&value.p{part},direction,source,inputs,builder)?;").unwrap();
                 continue;
             }

@@ -35,15 +35,7 @@ impl InputScope {
         let mut captured = Vec::new();
         for &field in captures {
             let codec = scalar::Codec::resolve(&fields[field as usize].value, owner, program)?;
-            if !matches!(
-                codec,
-                scalar::Codec::Text
-                    | scalar::Codec::TextTable(_)
-                    | scalar::Codec::Boolean(..)
-                    | scalar::Codec::Decimal
-                    | scalar::Codec::FormattedDecimal(_)
-                    | scalar::Codec::Enumeration(..)
-            ) {
+            if codec.input_method().is_none() {
                 return Err(unsupported(
                     owner,
                     "An input capture requires a borrowable scalar value",

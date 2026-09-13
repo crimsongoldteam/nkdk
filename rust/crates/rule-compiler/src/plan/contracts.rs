@@ -20,7 +20,7 @@ fn index(slot: u32, owner: &LinkedEntry, part: &LinkedEntry) -> Result<u32, Diag
             )
         })
 }
-pub(super) fn expression(
+pub(crate) fn expression(
     value: &mut LinkedExpression,
     owner: &LinkedEntry,
     part: &LinkedEntry,

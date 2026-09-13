@@ -33,7 +33,6 @@ pub(super) fn emit_usage(
         }
     }
     let record_value = crate::plan::routes::record_usage(&local, program)?.is_some();
-    let code = record::generate(&local, program)?;
     let checks = constraints::generate(&local, program)?;
     let qname = super::qname::applies(child, program);
     let nested_layout = if record_value {
@@ -44,6 +43,17 @@ pub(super) fn emit_usage(
     let nested = nested_layout.is_some();
     let composite =
         !record_value && !qname && !nested && super::composite::record(child, program).is_some();
+    let deferred = !record_value && !nested && !qname && !composite && sequence.is_none();
+    let code = if deferred {
+        record::generate_deferred(&local, program)?
+    } else {
+        record::generate(&local, program)?
+    };
+    let infer = if deferred {
+        format!("infer_xml_{id}(&mut value.0,source,inputs)")
+    } else {
+        "let _=(value,source,inputs);Ok(())".to_owned()
+    };
     let stateful_part = !qname
         && !composite
         && sequence
@@ -277,6 +287,7 @@ pub(super) fn verify_boundary(value:&Stored,before:&[u8],after:&[u8])->core::Res
 {state_adapter}
 {yaml_adapter}
 {fact_accessors}
+pub(super) fn infer_xml(value:&mut Stored,source:&[u8],inputs:&InputView<'_>)->core::Result<()> {{{infer}}}
 pub(super) fn check_xml(value:&Stored,source:&[u8],inputs:&InputView<'_>)->Vec<RuntimeDiagnostic> {{check_xml_{id}(&value.0,source,inputs)}}
 pub(super) fn check_yaml(value:&Stored,source:&[u8],inputs:&InputView<'_>)->Vec<RuntimeDiagnostic> {{check_yaml_{id}(&value.0,source,inputs)}}
 }}

@@ -33,8 +33,7 @@ constraints:
     assert_eq!(record.fields[0].diagnostic_key(), "token");
     assert_eq!(record.fields[1].yaml.unwrap().key, "Label");
     let scope = scopes::capture_inputs(&program.entries[0]).unwrap();
-    assert!(scope.captures.is_empty());
-    assert!(matches!(scope.entry, Cow::Borrowed(_)));
+    assert_eq!(scope.captures, [1]);
     assert_eq!(
         crate::generate::from_plan(&plan).unwrap(),
         crate::generate(&program).unwrap()
@@ -59,6 +58,10 @@ constraints:
     assert_eq!(cycle.related, [fields[1].source.clone()]);
     let mut broken = program.clone();
     broken.entries[0].presence.clear();
+    broken.entries[0].constraints.clear();
+    let scope = scopes::capture_inputs(&broken.entries[0]).unwrap();
+    assert!(scope.captures.is_empty());
+    assert!(matches!(scope.entry, Cow::Borrowed(_)));
     assert_eq!(build(&broken).unwrap_err()[0].code, "unrepresented_field");
 }
 

@@ -132,3 +132,50 @@ const optionalPair=structuredClone(pair);optionalPair.id='test.unified.optional-
 optionalPair.value.fields.forEach(field=>delete field.type.bind);
 declarations.push(optional,optionalPair);
 cases.push({id:'unified-absent-and-empty-record',entry:optionalPair.id,xml:'<Root><Second/></Root>',yaml:'Второй: {}'});
+
+const restored=structuredClone(root);restored.id='test.unified.restored-ancestor';
+restored.value.fields.unshift({name:'token',type:scalar('text')});
+restored.representations.xml.fields.unshift({field:'token',path:['Root'],attribute:'token'});
+restored.presence=[{target:{field:'token'},yaml:{missing:{denotes:{field:'name'}}}}];
+declarations.push(restored);
+cases.push({id:'unified-restored-ancestor-field',entry:restored.id,inputs:cases[0].inputs,xml:cases[0].xml.replace('<Root ','<Root token="Alpha" '),yaml:cases[0].yaml});
+
+const checked=structuredClone(root);checked.id='test.unified.cross-field-check';
+checked.imports.boolean='common.boolean';checked.value.fields.push({name:'enabled',type:{use:'boolean'}});
+checked.representations.xml.fields.push({field:'enabled',path:['Root'],attribute:'enabled'});
+checked.representations.yaml.fields.push({field:'enabled',key:'Включено'});
+checked.constraints=[{id:'name-policy',appliesTo:['xml-import','yaml-validation'],
+  assert:{or:[{not:{field:'enabled'}},{not:{eq:[{field:'name'},{literal:'blocked'}]}}]},
+  diagnostic:{code:'test.name-policy',severity:'error',at:{field:'name'},message:'Reserved name'},
+}];
+declarations.push(checked);
+cases.push({id:'unified-check-across-containers',entry:checked.id,inputs:cases[0].inputs,xml:cases[0].xml.replace('<Root ','<Root enabled="true" '),yaml:'Имя: Alpha\nВключено: Истина'});
+cases.push({...cases.at(-1),id:'unified-check-across-containers-invalid',xml:cases.at(-1).xml.replaceAll('Alpha','blocked'),yaml:undefined,annotation:'Имя: !xml/invalid blocked'});
+
+const sameHeader=structuredClone(checked);sameHeader.id='test.unified.same-header-check';
+sameHeader.value.fields.push({name:'mode',type:scalar('text')});
+sameHeader.representations.xml.fields.push({field:'mode',path:['Root'],attribute:'mode'});
+sameHeader.representations.yaml.fields.push({field:'mode',key:'Режим'});
+sameHeader.constraints=[{id:'header-policy',appliesTo:['xml-import','yaml-validation'],
+  assert:{or:[{not:{field:'enabled'}},{eq:[{field:'mode'},{literal:'open'}]}]},
+  diagnostic:{code:'test.header-policy',severity:'error',at:{field:'enabled'},message:'Mode must be open'},
+}];
+declarations.push(sameHeader);
+cases.push({id:'unified-check-inside-header',entry:sameHeader.id,inputs:cases[0].inputs,xml:cases[0].xml.replace('<Root ','<Root enabled="true" mode="open" '),yaml:'Имя: Alpha\nВключено: Истина\nРежим: open'});
+
+const localDefault=structuredClone(sameHeader);localDefault.id='test.unified.header-default';
+localDefault.value.fields.push({name:'backup',type:scalar('text')});
+localDefault.representations.xml.fields.push({field:'backup',path:['Root'],attribute:'backup'});
+localDefault.presence=[{target:{field:'backup'},yaml:{missing:{denotes:{field:'mode'}}}}];
+declarations.push(localDefault);
+cases.push({...cases.at(-1),id:'unified-restore-inside-header',entry:localDefault.id,xml:cases.at(-1).xml.replace('mode="open"','mode="open" backup="open"')});
+
+const restoredItem=structuredClone(restored);restoredItem.id='test.unified.restored-item';restoredItem.kind='value';restoredItem.representations.xml.fields.forEach(field=>field.path.shift());
+const restoredList=structuredClone(keyed);restoredList.id='test.unified.restored-items';restoredList.imports.item=restoredItem.id;
+const restoredOwner=structuredClone(keyedOwner);restoredOwner.id='test.unified.restored-items-owner';restoredOwner.imports.list=restoredList.id;
+declarations.push(restoredItem,restoredList,restoredOwner);
+const keyedCase=cases.find(value=>value.id==='unified-dependent-record-keys');
+cases.push({...keyedCase,id:'unified-restored-attribute-from-key',entry:restoredOwner.id,xml:keyedCase.xml.replace('<Item>','<Item token="Alpha">').replace('<Item>','<Item token="Beta">')});
+
+const checkedCase=cases.find(value=>value.id==='unified-check-across-containers');
+cases.push({...checkedCase,id:'unified-check-unavailable-source',xml:checkedCase.xml.replace('enabled="true"','enabled="broken"'),yaml:undefined,annotation:'enabled: !xml/raw'});

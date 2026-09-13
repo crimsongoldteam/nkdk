@@ -71,6 +71,14 @@ impl<'a> InputView<'a> {
             RuntimeDiagnostic::new("input.not-ready", format!("Input slot {slot} is not ready"))
         })
     }
+    /// Absence of source data is observable; an unprepared slot remains an error.
+    pub fn is_present(&self, slot: usize) -> Result<bool> {
+        if matches!(self.slot(slot), Some(InputRef::MissingValue)) {
+            Ok(false)
+        } else {
+            self.value(slot).map(|_| true)
+        }
+    }
     pub fn is_ready(&self, slot: usize) -> bool {
         match self.slot(slot) {
             Some(InputRef::TextIndex(value)) => value.is_ready(),

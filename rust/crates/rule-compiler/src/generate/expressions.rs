@@ -298,9 +298,19 @@ impl<'a> Expressions<'a> {
                     {
                         "text_index"
                     }
-                    LinkedType::Scalar(ScalarType::Text) => "text",
+                    LinkedType::Scalar(ScalarType::Text) | LinkedType::Enum(_) => "text",
                     LinkedType::Scalar(ScalarType::Boolean) => "boolean",
                     LinkedType::Scalar(ScalarType::Decimal) => "decimal",
+                    LinkedType::Reference(_) => {
+                        super::scalar::Codec::resolve(&value.value_type, self.entry, self.program)?
+                            .input_method()
+                            .ok_or_else(|| {
+                                unsupported(
+                                    self.entry,
+                                    "Input scalar has no borrowed representation",
+                                )
+                            })?
+                    }
                     LinkedType::Sequence(_) => "sequence",
                     _ => {
                         return Err(unsupported(
@@ -431,6 +441,12 @@ impl<'a> Expressions<'a> {
                     && let Some(code) = self.fixed_sequence_equality(arguments)?
                 {
                     return Ok(code);
+                }
+                if *operator == LinkedOperator::State(StatePredicate::Present)
+                    && let LinkedExpressionKind::Input(slot) = arguments[0].kind
+                {
+                    self.fallible = true;
+                    return Ok(format!("_inputs.is_present({slot})?"));
                 }
                 if *operator == LinkedOperator::State(StatePredicate::Present)
                     && let LinkedExpressionKind::Field(index) = arguments[0].kind

@@ -40,7 +40,7 @@ pub(super) fn generate(
     };
     let captured = crate::plan::scopes::capture_inputs(row)?;
     let parts = if composed && lifted.is_some() {
-        super::owner_layout::parts(&captured.entry, program)?
+        crate::plan::records::parts(&captured.entry)?
     } else {
         Vec::new()
     };

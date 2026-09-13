@@ -108,6 +108,15 @@ impl<'a> Codec<'a> {
             )),
         }
     }
+    /// The borrowed semantic representation, independent of its XML/YAML spelling.
+    pub fn input_method(&self) -> Option<&'static str> {
+        match self {
+            Self::Text | Self::TextTable(_) | Self::Enumeration(..) => Some("text"),
+            Self::Boolean(..) => Some("boolean"),
+            Self::Decimal | Self::FormattedDecimal(_) => Some("decimal"),
+            _ => None,
+        }
+    }
     pub fn rust_type(&self, name: &str) -> String {
         match self {
             Self::Decimal | Self::FormattedDecimal(_) => "core::decimal::Decimal".into(),

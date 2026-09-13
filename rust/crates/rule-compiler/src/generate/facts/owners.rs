@@ -1,15 +1,12 @@
 use super::*;
 
-pub(super) fn field(
-    entry: &LinkedEntry,
-    slot: u32,
-    program: &Program,
-) -> Result<(usize, usize), Diagnostic> {
+pub(super) fn field(entry: &LinkedEntry, slot: u32) -> Result<(usize, usize), Diagnostic> {
     let LinkedType::Record(fields) = &entry.value else {
         unreachable!()
     };
     let name = &fields[slot as usize].name;
-    super::super::owner_layout::parts(entry, program)?
+    let captured = crate::plan::scopes::capture_inputs(entry)?;
+    crate::plan::records::parts(&captured.entry)?
         .iter()
         .enumerate()
         .find_map(|(part, entry)| {
@@ -96,13 +93,13 @@ pub(in crate::generate) fn accessors(
         }
         let mut entry = part.clone();
         let mut contribution = contribution.clone();
-        super::super::owner_contracts::expression(
+        crate::plan::contracts::expression(
             &mut contribution.for_each.as_mut().unwrap().input,
             owner,
             part,
         )?;
-        super::super::owner_contracts::expression(&mut contribution.key, owner, part)?;
-        super::super::owner_contracts::expression(&mut contribution.value, owner, part)?;
+        crate::plan::contracts::expression(&mut contribution.key, owner, part)?;
+        crate::plan::contracts::expression(&mut contribution.value, owner, part)?;
         entry.contributions = vec![contribution];
         let id = entry.id;
         let code = super::collections::stored(&entry, program)?.expect("collection contribution");

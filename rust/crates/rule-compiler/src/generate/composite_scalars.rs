@@ -71,7 +71,7 @@ pub(super) fn lower(
         // Expressions keep semantic field identities when scalar storage is partitioned.
         for expr in rule.expressions_mut() {
             *expr = shorthand::specialize(expr, bindings, args, entry)?;
-            owner_contracts::expression(expr, common, &flat)?;
+            crate::plan::contracts::expression(expr, common, &flat)?;
         }
         flat.presence.push(rule);
     }

@@ -7,6 +7,8 @@ use std::{
     collections::{BTreeMap, BTreeSet},
     ops::Deref,
 };
+pub(crate) mod contracts;
+pub(crate) mod records;
 pub(crate) mod routes;
 pub(crate) mod scopes;
 mod values;
@@ -88,4 +90,8 @@ pub(crate) fn check_coverage(
         }
     }
     Ok(())
+}
+
+pub(crate) fn unsupported(entry: &LinkedEntry, message: &str) -> Diagnostic {
+    diagnostic("unsupported_generation_feature", &entry.source, message)
 }

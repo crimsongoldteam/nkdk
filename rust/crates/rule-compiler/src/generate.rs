@@ -14,8 +14,6 @@ mod facts;
 mod inputs;
 pub(crate) mod nested_record;
 mod owner;
-mod owner_contracts;
-mod owner_layout;
 mod patterns;
 mod presence;
 mod proof;
@@ -112,16 +110,8 @@ pub(crate) fn from_plan(program: &Program<'_>) -> Result<GeneratedSources, Vec<D
             .collect(),
     })
 }
-fn unsupported(entry: &LinkedEntry, message: &str) -> Diagnostic {
-    Diagnostic {
-        code: "unsupported_generation_feature".into(),
-        file: entry.source.file.clone(),
-        line: entry.source.line,
-        column: entry.source.column,
-        message: message.into(),
-        related: vec![],
-    }
-}
+use crate::plan::unsupported;
+
 fn plain(entry: &LinkedEntry) -> Result<(), Diagnostic> {
     plain_shape(entry)?;
     if !entry.inputs.is_empty() {

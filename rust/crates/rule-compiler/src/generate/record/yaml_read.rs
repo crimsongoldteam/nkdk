@@ -54,7 +54,7 @@ pub(super) fn generate(id: u32, fields: &[Field<'_>]) -> String {
             writeln!(out, "number{i}:false,").unwrap();
         }
     }
-    writeln!(out,"}})}}\nfn consume(&mut self,key:String,value:core::yaml::Scalar,tag:Option<String>)->core::Result<()>{{match key.as_str(){{").unwrap();
+    writeln!(out,"}})}}\nfn consume(&mut self,key:String,value:core::yaml::Scalar,tag:Option<String>)->core::Result<()>{{let _=(&value,&tag);match key.as_str(){{").unwrap();
     for (i, field) in fields
         .iter()
         .enumerate()

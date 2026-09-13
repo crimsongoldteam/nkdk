@@ -23,7 +23,10 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
     let mut shape = entry.clone();
     shape.presence.clear();
     plain_shape(&shape)?;
-    let parts = super::owner_layout::parts(entry, program)?;
+    let mut parts = crate::plan::records::parts(entry)?;
+    for part in &mut parts {
+        captured.localize(part)?;
+    }
     let input_scope =
         super::value::InputScope::prepare(original, &parts, &captured.captures, program)?;
     let scope_full = input_scope.bind(entry.id, "value.", None);
@@ -146,6 +149,19 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
         );
         attributes.push(names);
     }
+    writeln!(out, "fn infer_xml_owner_{id}(mut value:V{id},source:&[u8],inputs:&InputView<'_>)->core::Result<V{id}>{{").unwrap();
+    for slot in 0..parts.len() {
+        let mut ready = vec![true; parts.len()];
+        ready[slot] = false;
+        let binding = input_scope.bind(id, "value.", Some(&ready));
+        let source = source_for(slot, "source");
+        writeln!(
+            out,
+            "{{{binding}part_{id}_{slot}::infer_xml(&mut value.p{slot},{source},inputs)?;}}"
+        )
+        .unwrap();
+    }
+    out.push_str("Ok(value)}\n");
     for left in 0..paths.len() {
         for right in left + 1..paths.len() {
             if files[left].is_some() || files[right].is_some() {
@@ -336,7 +352,16 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
                     out.push_str("}))?);Ok(())\n");
                 }
             }
-            out.push_str("Ok(V");
+            write!(
+                out,
+                "{}(V",
+                if side == "xml" {
+                    format!("infer_xml_owner_{id}")
+                } else {
+                    "Ok".into()
+                }
+            )
+            .unwrap();
             write!(out, "{id}{{root:None,containers,").unwrap();
             for (slot, file) in files.iter().enumerate() {
                 if slot == first || (side == "xml" && file.is_some()) {
@@ -349,7 +374,11 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
                 )
                 .unwrap();
             }
-            out.push_str("})}\n");
+            out.push_str(if side == "xml" {
+                "},source,inputs)}\n"
+            } else {
+                "})}\n"
+            });
         }
         writeln!(out,"fn check_{side}_{id}(value:&V{id},source:&[u8],inputs:&InputView<'_>)->Vec<RuntimeDiagnostic>{{{scope_full}let mut result=Vec::new();").unwrap();
         for slot in 0..parts.len() {
@@ -392,11 +421,11 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
             writeln!(out, "{slot}=>p{slot}.consume(path,token,source,inputs),").unwrap();
         }
         out.push_str("_=>unreachable!(\"declared XML route\")})}\n");
-        writeln!(out,"fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<V{id}>{{{scope_finish}Ok(V{id}{{root:None,containers:self.containers,").unwrap();
+        writeln!(out,"fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<V{id}>{{{scope_finish}infer_xml_owner_{id}(V{id}{{root:None,containers:self.containers,").unwrap();
         for slot in 0..parts.len() {
             writeln!(out, "p{slot},").unwrap();
         }
-        out.push_str("})}}\n");
+        out.push_str("},source,inputs)}}\n");
     }
     if yaml_stateful {
         writeln!(
@@ -631,11 +660,24 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
         } else {
             writeln!(out, "let containers=[1u8;{count}];").unwrap();
         }
-        write!(out, "Ok(V{id}{{root:None,containers,").unwrap();
+        write!(
+            out,
+            "{}(V{id}{{root:None,containers,",
+            if side == "xml" {
+                format!("infer_xml_owner_{id}")
+            } else {
+                "Ok".into()
+            }
+        )
+        .unwrap();
         for slot in 0..parts.len() {
             write!(out, "p{slot},").unwrap();
         }
-        out.push_str("})}}}\n");
+        out.push_str(if side == "xml" {
+            "},source,inputs)}}}\n"
+        } else {
+            "})}}}\n"
+        });
     }
     writeln!(out,"fn write_xml_{id}(value:&V{id},inputs:&InputView<'_>)->core::Result<Vec<u8>> {{let ordinary=write_xml_plain_{id}(value,inputs)?;let Some(patch)=&value.root else {{return Ok(ordinary);}};let qnames=xml_qnames_{id}();let base=core::xml::Tree::capture_with_qnames(&ordinary,{root_code},xml_qname_text_{id})?;let tree=patch.apply(base,core::xml::Name{{namespace:{:?}.into(),local:{:?}.into()}},&[],&qnames)?;let mut names=Vec::new();tree.collect_namespaces(&mut names);let mut writer=core::xml::Writer::new(&names);tree.write_at(&mut writer,&[],&qnames)?;let restored=writer.finish();",root[0].namespace,root[0].local).unwrap();
     for slot in (0..parts.len()).filter(|slot| files[*slot].is_none()) {
@@ -695,7 +737,7 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
 pub(super) fn state_supported(entry: &LinkedEntry, program: &Program) -> Result<bool, Diagnostic> {
     let captured = crate::plan::scopes::capture_inputs(entry)?;
     let entry = captured.entry.as_ref();
-    for child in super::owner_layout::parts(entry, program)? {
+    for child in crate::plan::records::parts(entry)? {
         if crate::plan::routes::record_usage(&child, program)?.is_some() {
             continue;
         }

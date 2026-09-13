@@ -191,9 +191,14 @@ pub(super) fn predicate(
     replace_self(&mut expression, index);
     let mut referenced = BTreeSet::new();
     super::constraints::read_fields(&expression, &mut referenced);
+    let mut input_reads = BTreeSet::new();
+    super::constraints::read_inputs(&expression, &mut input_reads);
     let guard = referenced
         .iter()
         .map(|index| format!("_value.f{index}.is_none()"))
+        .chain(input_reads.iter().map(|slot| {
+            format!("matches!(_inputs.slot({slot}),Some(core::inputs::InputRef::MissingValue))")
+        }))
         .collect::<Vec<_>>()
         .join(" || ");
     let guard = if guard.is_empty() {
