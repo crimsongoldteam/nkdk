@@ -1,0 +1,365 @@
+[
+  {
+    "type": "AdditionalIndex",
+    "fragment": "fragment.additional-indexes",
+    "parameters": {
+      "type": "AdditionalIndex",
+      "yaml": "ДополнительныеИндексы",
+      "filePath": "Ext/AdditionalIndexes.xml"
+    }
+  },
+  {
+    "type": "Help",
+    "fragment": "fragment.help",
+    "parameters": {
+      "type": "Help",
+      "externalMetadata": {
+        "segment": "Help",
+        "placement": "derivedEntry"
+      },
+      "filePath": "Ext/Help.xml",
+      "nkdkDir": "Справка"
+    }
+  },
+  {
+    "type": "Help",
+    "fragment": "fragment.help",
+    "parameters": {
+      "type": "Help",
+      "externalMetadata": {
+        "segment": "Help",
+        "placement": "derivedEntry"
+      },
+      "filePath": "Ext/Help.xml",
+      "nkdkDir": "Справка",
+      "toXML": false,
+      "fromXML": false
+    }
+  },
+  {
+    "type": "Help",
+    "fragment": "fragment.help",
+    "parameters": {
+      "type": "Help",
+      "externalMetadata": {
+        "segment": "Help",
+        "placement": "derivedEntry"
+      },
+      "filePath": "Ext/Help.xml",
+      "nkdkDir": "Справка",
+      "xmlPath": "Ext/Help.xml"
+    }
+  },
+  {
+    "type": "Help",
+    "fragment": "fragment.help",
+    "parameters": {
+      "type": "Help",
+      "externalMetadata": {
+        "segment": "Help",
+        "placement": "derivedEntry"
+      },
+      "filePath": "Ext/Help.xml",
+      "nkdkDir": "Справка",
+      "toXML": false,
+      "fromXML": false,
+      "xmlPath": "Ext/Help.xml"
+    }
+  },
+  {
+    "type": "Help",
+    "fragment": "fragment.help",
+    "parameters": {
+      "type": "Help",
+      "filePath": "Ext/Help.xml",
+      "nkdkDir": "Справка"
+    }
+  },
+  {
+    "type": "Help",
+    "fragment": "fragment.help",
+    "parameters": {
+      "type": "Help",
+      "externalMetadata": {
+        "segment": "Help",
+        "placement": "derivedEntry"
+      },
+      "filePath": "Ext/Help.xml",
+      "nkdkDir": "Справка",
+      "xmlPath": {
+        "$pathTemplate": [
+          {
+            "input": "name"
+          },
+          "Ext",
+          "Help.xml"
+        ]
+      }
+    },
+    "sourceRoot": [
+      {
+        "input": "name"
+      }
+    ]
+  },
+  {
+    "type": "ExternalFile",
+    "fragment": "common.external-file",
+    "parameters": {
+      "type": "ExternalFile",
+      "nkdkPath": "СодержимоеАвтономнойКонфигурации.bin",
+      "xmlPath": "Ext/StandaloneConfigurationContent.bin",
+      "syncExternalOnly": true
+    },
+    "bindings": {
+      "sourcePath": {
+        "sequence": [
+          {
+            "literal": "Ext"
+          },
+          {
+            "literal": "StandaloneConfigurationContent.bin"
+          }
+        ]
+      },
+      "targetPath": {
+        "sequence": [
+          {
+            "literal": "СодержимоеАвтономнойКонфигурации.bin"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "ExternalFile",
+    "fragment": "common.external-file",
+    "parameters": {
+      "type": "ExternalFile",
+      "nkdkPath": "ПодписьМобильногоКлиента.bin",
+      "xmlPath": "Ext/MobileClientSignature.bin",
+      "syncExternalOnly": true
+    },
+    "bindings": {
+      "sourcePath": {
+        "sequence": [
+          {
+            "literal": "Ext"
+          },
+          {
+            "literal": "MobileClientSignature.bin"
+          }
+        ]
+      },
+      "targetPath": {
+        "sequence": [
+          {
+            "literal": "ПодписьМобильногоКлиента.bin"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "ExternalFile",
+    "fragment": "common.external-file",
+    "parameters": {
+      "type": "ExternalFile",
+      "nkdkPath": "Package.bin",
+      "xmlPath": "Ext/Package.bin",
+      "syncExternalOnly": true,
+      "toYAML": false,
+      "fromYAML": false
+    },
+    "bindings": {
+      "sourcePath": {
+        "sequence": [
+          {
+            "literal": "Ext"
+          },
+          {
+            "literal": "Package.bin"
+          }
+        ]
+      },
+      "targetPath": {
+        "sequence": [
+          {
+            "literal": "Package.bin"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "Module",
+    "parameters": {
+      "type": "Module",
+      "nkdkPath": "МодульПриложения.bsl",
+      "xmlPath": "Ext/ManagedApplicationModule.bsl",
+      "syncExternalOnly": true
+    },
+    "fragment": "fragment.managed-application-module-resource"
+  },
+  {
+    "type": "Module",
+    "parameters": {
+      "type": "Module",
+      "nkdkPath": "МодульСеанса.bsl",
+      "xmlPath": "Ext/SessionModule.bsl",
+      "syncExternalOnly": true
+    },
+    "fragment": "fragment.session-module-resource"
+  },
+  {
+    "type": "Module",
+    "parameters": {
+      "type": "Module",
+      "nkdkPath": "МодульВнешнегоСоединения.bsl",
+      "xmlPath": "Ext/ExternalConnectionModule.bsl",
+      "syncExternalOnly": true
+    },
+    "fragment": "fragment.external-connection-module-resource"
+  },
+  {
+    "type": "Module",
+    "parameters": {
+      "type": "Module",
+      "nkdkPath": "МодульОбычногоПриложения.bsl",
+      "xmlPath": "Ext/OrdinaryApplicationModule.bsl",
+      "syncExternalOnly": true
+    },
+    "fragment": "fragment.ordinary-application-module-resource"
+  },
+  {
+    "type": "Module",
+    "parameters": {
+      "type": "Module",
+      "nkdkPath": "МодульНабораЗаписей.bsl",
+      "xmlPath": "Ext/RecordSetModule.bsl",
+      "toXML": false,
+      "fromXML": false
+    },
+    "fragment": "fragment.record-set-module-resource"
+  },
+  {
+    "type": "Module",
+    "parameters": {
+      "type": "Module",
+      "externalMetadata": {
+        "segment": "ManagerModule",
+        "placement": "derivedEntry"
+      },
+      "nkdkPath": "МодульМенеджера.bsl",
+      "xmlPath": "Ext/ManagerModule.bsl",
+      "toXML": false,
+      "fromXML": false
+    },
+    "fragment": "fragment.manager-module-resource"
+  },
+  {
+    "type": "Module",
+    "parameters": {
+      "type": "Module",
+      "nkdkPath": "Модуль.bsl",
+      "xmlPath": "Ext/Module.bsl"
+    },
+    "fragment": "fragment.module-resource"
+  },
+  {
+    "type": "Module",
+    "parameters": {
+      "type": "Module",
+      "externalMetadata": {
+        "segment": "ObjectModule",
+        "placement": "derivedEntry"
+      },
+      "nkdkPath": "МодульОбъекта.bsl",
+      "xmlPath": "Ext/ObjectModule.bsl",
+      "toXML": false,
+      "fromXML": false
+    },
+    "fragment": "fragment.object-module-resource"
+  },
+  {
+    "type": "Module",
+    "parameters": {
+      "type": "Module",
+      "externalMetadata": {
+        "segment": "CommandModule",
+        "placement": "derivedEntry"
+      },
+      "nkdkPath": "Модуль.bsl",
+      "xmlPath": "Ext/CommandModule.bsl",
+      "toXML": false,
+      "fromXML": false
+    },
+    "fragment": "fragment.standalone-command-module-resource"
+  },
+  {
+    "type": "Module",
+    "parameters": {
+      "type": "Module",
+      "nkdkPath": "Модуль.bsl",
+      "xmlPath": "Ext/Form/Module.bsl",
+      "toXML": false,
+      "fromXML": false
+    },
+    "fragment": "fragment.form-module-resource"
+  },
+  {
+    "type": "Module",
+    "parameters": {
+      "type": "Module",
+      "externalMetadata": {
+        "segment": "ManagerModule",
+        "placement": "derivedEntry"
+      },
+      "nkdkPath": "МодульМенеджера.bsl",
+      "xmlPath": "Ext/ManagerModule.bsl"
+    },
+    "fragment": "fragment.manager-module-resource"
+  },
+  {
+    "type": "Module",
+    "parameters": {
+      "type": "Module",
+      "nkdkPath": "МодульМенеджераЗначения.bsl",
+      "xmlPath": "Ext/ValueManagerModule.bsl"
+    },
+    "fragment": "fragment.value-manager-module-resource"
+  },
+  {
+    "type": "Module",
+    "parameters": {
+      "type": "Module",
+      "nkdkPath": "Модуль.bsl",
+      "xmlPath": "Ext/Module.bsl",
+      "toXML": false,
+      "fromXML": false
+    },
+    "fragment": "fragment.module-resource"
+  },
+  {
+    "type": "Module",
+    "parameters": {
+      "type": "Module",
+      "nkdkPath": "МодульНабораЗаписей.bsl",
+      "xmlPath": "Ext/RecordSetModule.bsl"
+    },
+    "fragment": "fragment.record-set-module-resource"
+  },
+  {
+    "type": "Module",
+    "parameters": {
+      "type": "Module",
+      "externalMetadata": {
+        "segment": "ObjectModule",
+        "placement": "derivedEntry"
+      },
+      "nkdkPath": "МодульОбъекта.bsl",
+      "xmlPath": "Ext/ObjectModule.bsl"
+    },
+    "fragment": "fragment.object-module-resource"
+  }
+]

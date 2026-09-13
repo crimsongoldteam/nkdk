@@ -1,0 +1,547 @@
+[
+  {
+    "symbol": "MetadataDocumentRules",
+    "property": "help",
+    "declaration": "migration.document-identity-and-children",
+    "fragment": "fragment.help",
+    "bindings": {
+      "pages": "helpPages"
+    },
+    "indexes": {}
+  },
+  {
+    "symbol": "MetadataDocumentRules",
+    "property": "additionalIndexes",
+    "declaration": "migration.document-identity-and-children",
+    "fragment": "fragment.additional-indexes",
+    "bindings": {
+      "owner": "owner",
+      "identities": "additionalIndexIds"
+    },
+    "indexes": {
+      "additionalIndexIds": "metadata.additional-index-ids"
+    }
+  },
+  {
+    "symbol": "MetadataDocumentJournalRules",
+    "property": "help",
+    "declaration": "migration.journal-identity-and-children",
+    "fragment": "fragment.help",
+    "bindings": {
+      "pages": "helpPages"
+    },
+    "indexes": {}
+  },
+  {
+    "symbol": "MetadataDocumentJournalRules",
+    "property": "additionalIndexes",
+    "declaration": "migration.journal-identity-and-children",
+    "fragment": "fragment.additional-indexes",
+    "bindings": {
+      "owner": "owner",
+      "identities": "additionalIndexIds"
+    },
+    "indexes": {
+      "additionalIndexIds": "metadata.additional-index-ids"
+    }
+  },
+  {
+    "symbol": "MetadataConfigurationRules",
+    "property": "standaloneConfigurationContent",
+    "declaration": "resources.configuration-external-files",
+    "fragment": "common.external-file",
+    "fixedBindings": {
+      "sourcePath": {
+        "sequence": [
+          {
+            "literal": "Ext"
+          },
+          {
+            "literal": "StandaloneConfigurationContent.bin"
+          }
+        ]
+      },
+      "targetPath": {
+        "sequence": [
+          {
+            "literal": "СодержимоеАвтономнойКонфигурации.bin"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "symbol": "MetadataConfigurationRules",
+    "property": "mobileClientSignature",
+    "declaration": "resources.configuration-external-files",
+    "fragment": "common.external-file",
+    "fixedBindings": {
+      "sourcePath": {
+        "sequence": [
+          {
+            "literal": "Ext"
+          },
+          {
+            "literal": "MobileClientSignature.bin"
+          }
+        ]
+      },
+      "targetPath": {
+        "sequence": [
+          {
+            "literal": "ПодписьМобильногоКлиента.bin"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "symbol": "MetadataConfigurationExtensionRules",
+    "property": "standaloneConfigurationContent",
+    "declaration": "resources.configuration-extension-external-files",
+    "fragment": "common.external-file",
+    "fixedBindings": {
+      "sourcePath": {
+        "sequence": [
+          {
+            "literal": "Ext"
+          },
+          {
+            "literal": "StandaloneConfigurationContent.bin"
+          }
+        ]
+      },
+      "targetPath": {
+        "sequence": [
+          {
+            "literal": "СодержимоеАвтономнойКонфигурации.bin"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "symbol": "MetadataXDTOPackageRules",
+    "property": "package",
+    "declaration": "resources.xdto-package-external-files",
+    "fragment": "common.external-file",
+    "fixedBindings": {
+      "sourcePath": {
+        "sequence": [
+          {
+            "literal": "Ext"
+          },
+          {
+            "literal": "Package.bin"
+          }
+        ]
+      },
+      "targetPath": {
+        "sequence": [
+          {
+            "literal": "Package.bin"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "symbol": "MetadataConfigurationRules",
+    "property": "managedApplicationModule",
+    "declaration": "resources.configuration-modules",
+    "fragment": "fragment.managed-application-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataConfigurationRules",
+    "property": "sessionModule",
+    "declaration": "resources.configuration-modules",
+    "fragment": "fragment.session-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataConfigurationRules",
+    "property": "externalConnectionModule",
+    "declaration": "resources.configuration-modules",
+    "fragment": "fragment.external-connection-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataConfigurationRules",
+    "property": "ordinaryApplicationModule",
+    "declaration": "resources.configuration-modules",
+    "fragment": "fragment.ordinary-application-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataConfigurationExtensionRules",
+    "property": "managedApplicationModule",
+    "declaration": "resources.configuration-modules",
+    "fragment": "fragment.managed-application-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataConfigurationExtensionRules",
+    "property": "sessionModule",
+    "declaration": "resources.configuration-modules",
+    "fragment": "fragment.session-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataConfigurationExtensionRules",
+    "property": "externalConnectionModule",
+    "declaration": "resources.configuration-modules",
+    "fragment": "fragment.external-connection-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataConfigurationExtensionRules",
+    "property": "ordinaryApplicationModule",
+    "declaration": "resources.configuration-modules",
+    "fragment": "fragment.ordinary-application-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataAccountingRegisterRules",
+    "property": "recordSetModule",
+    "declaration": "resources.record-set-module-resource",
+    "fragment": "fragment.record-set-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataAccountingRegisterRules",
+    "property": "managerModule",
+    "declaration": "resources.manager-module-resource",
+    "fragment": "fragment.manager-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataAccumulationRegisterRules",
+    "property": "managerModule",
+    "declaration": "resources.manager-module-resource",
+    "fragment": "fragment.manager-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataAccumulationRegisterRules",
+    "property": "recordSetModule",
+    "declaration": "resources.record-set-module-resource",
+    "fragment": "fragment.record-set-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataBotRules",
+    "property": "module",
+    "declaration": "resources.module-resource",
+    "fragment": "fragment.module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataBusinessProcessRules",
+    "property": "objectModule",
+    "declaration": "resources.object-module-resource",
+    "fragment": "fragment.object-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataBusinessProcessRules",
+    "property": "managerModule",
+    "declaration": "resources.manager-module-resource",
+    "fragment": "fragment.manager-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "RecalculationRules",
+    "property": "recordSetModule",
+    "declaration": "resources.record-set-module-resource",
+    "fragment": "fragment.record-set-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataCalculationRegisterRules",
+    "property": "recordSetModule",
+    "declaration": "resources.record-set-module-resource",
+    "fragment": "fragment.record-set-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataCalculationRegisterRules",
+    "property": "managerModule",
+    "declaration": "resources.manager-module-resource",
+    "fragment": "fragment.manager-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataCatalogRules",
+    "property": "managerModule",
+    "declaration": "resources.manager-module-resource",
+    "fragment": "fragment.manager-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataChartOfAccountsRules",
+    "property": "objectModule",
+    "declaration": "resources.object-module-resource",
+    "fragment": "fragment.object-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataChartOfAccountsRules",
+    "property": "managerModule",
+    "declaration": "resources.manager-module-resource",
+    "fragment": "fragment.manager-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataChartOfCalculationTypesRules",
+    "property": "objectModule",
+    "declaration": "resources.object-module-resource",
+    "fragment": "fragment.object-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataChartOfCalculationTypesRules",
+    "property": "managerModule",
+    "declaration": "resources.manager-module-resource",
+    "fragment": "fragment.manager-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataChartOfCharacteristicTypesRules",
+    "property": "objectModule",
+    "declaration": "resources.object-module-resource",
+    "fragment": "fragment.object-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataChartOfCharacteristicTypesRules",
+    "property": "managerModule",
+    "declaration": "resources.manager-module-resource",
+    "fragment": "fragment.manager-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataCommonCommandRules",
+    "property": "commandModule",
+    "declaration": "resources.standalone-command-module-resource",
+    "fragment": "fragment.standalone-command-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataCommonFormRules",
+    "property": "module",
+    "declaration": "resources.form-module-resource",
+    "fragment": "fragment.form-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataCommonModuleRules",
+    "property": "module",
+    "declaration": "resources.module-resource",
+    "fragment": "fragment.module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataConstantRules",
+    "property": "managerModule",
+    "declaration": "resources.manager-module-resource",
+    "fragment": "fragment.manager-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataConstantRules",
+    "property": "valueManagerModule",
+    "declaration": "resources.value-manager-module-resource",
+    "fragment": "fragment.value-manager-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataDocumentRules",
+    "property": "objectModule",
+    "declaration": "migration.document-identity-and-children",
+    "fragment": "fragment.object-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataDocumentRules",
+    "property": "managerModule",
+    "declaration": "migration.document-identity-and-children",
+    "fragment": "fragment.manager-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataDocumentJournalRules",
+    "property": "managerModule",
+    "declaration": "migration.journal-identity-and-children",
+    "fragment": "fragment.manager-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataEnumerationRules",
+    "property": "managerModule",
+    "declaration": "resources.manager-module-resource",
+    "fragment": "fragment.manager-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataExchangePlanRules",
+    "property": "objectModule",
+    "declaration": "resources.object-module-resource",
+    "fragment": "fragment.object-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataExchangePlanRules",
+    "property": "managerModule",
+    "declaration": "resources.manager-module-resource",
+    "fragment": "fragment.manager-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataFilterCriterionRules",
+    "property": "managerModule",
+    "declaration": "resources.manager-module-resource",
+    "fragment": "fragment.manager-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataHTTPServiceRules",
+    "property": "module",
+    "declaration": "resources.module-resource",
+    "fragment": "fragment.module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataInformationRegisterRules",
+    "property": "recordSetModule",
+    "declaration": "resources.record-set-module-resource",
+    "fragment": "fragment.record-set-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataInformationRegisterRules",
+    "property": "managerModule",
+    "declaration": "resources.manager-module-resource",
+    "fragment": "fragment.manager-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataIntegrationServiceRules",
+    "property": "module",
+    "declaration": "resources.module-resource",
+    "fragment": "fragment.module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataSequenceRules",
+    "property": "recordSetModule",
+    "declaration": "resources.record-set-module-resource",
+    "fragment": "fragment.record-set-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataSettingsStorageRules",
+    "property": "managerModule",
+    "declaration": "resources.manager-module-resource",
+    "fragment": "fragment.manager-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataTaskRules",
+    "property": "objectModule",
+    "declaration": "resources.object-module-resource",
+    "fragment": "fragment.object-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataTaskRules",
+    "property": "managerModule",
+    "declaration": "resources.manager-module-resource",
+    "fragment": "fragment.manager-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataWebServiceRules",
+    "property": "module",
+    "declaration": "resources.module-resource",
+    "fragment": "fragment.module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataWebSocketClientRules",
+    "property": "module",
+    "declaration": "resources.module-resource",
+    "fragment": "fragment.module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataExternalDataSourceCubeRules",
+    "property": "recordSetModule",
+    "declaration": "resources.record-set-module-resource",
+    "fragment": "fragment.record-set-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataExternalDataSourceCubeCollectionRules",
+    "property": "recordSetModule",
+    "declaration": "resources.record-set-module-resource",
+    "fragment": "fragment.record-set-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataExternalDataSourceDimensionTableRules",
+    "property": "managerModule",
+    "declaration": "resources.manager-module-resource",
+    "fragment": "fragment.manager-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataExternalDataSourceDimensionTableCollectionRules",
+    "property": "managerModule",
+    "declaration": "resources.manager-module-resource",
+    "fragment": "fragment.manager-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataExternalDataSourceTableRules",
+    "property": "managerModule",
+    "declaration": "resources.manager-module-resource",
+    "fragment": "fragment.manager-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataExternalDataSourceTableRules",
+    "property": "objectModule",
+    "declaration": "resources.object-module-resource",
+    "fragment": "fragment.object-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataExternalDataSourceTableRules",
+    "property": "recordSetModule",
+    "declaration": "resources.record-set-module-resource",
+    "fragment": "fragment.record-set-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataExternalDataSourceTableCollectionRules",
+    "property": "managerModule",
+    "declaration": "resources.manager-module-resource",
+    "fragment": "fragment.manager-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataExternalDataSourceTableCollectionRules",
+    "property": "objectModule",
+    "declaration": "resources.object-module-resource",
+    "fragment": "fragment.object-module-resource",
+    "bindings": {}
+  },
+  {
+    "symbol": "MetadataExternalDataSourceTableCollectionRules",
+    "property": "recordSetModule",
+    "declaration": "resources.record-set-module-resource",
+    "fragment": "fragment.record-set-module-resource",
+    "bindings": {}
+  }
+]

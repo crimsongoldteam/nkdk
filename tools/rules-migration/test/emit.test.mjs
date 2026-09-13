@@ -1,0 +1,225 @@
+import { sourceContract } from '../src/source-contract.mjs';
+import { propertyContractSignature } from '../src/property-contract.mjs';
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { emitCandidates } from '../src/emit.mjs';
+import { safeUpdate } from '../src/candidate-output.mjs';
+import { mapProperty } from '../src/mappings.mjs';
+import { checkSnapshot } from '../src/source-snapshot.mjs';
+import { candidateDiff } from '../src/candidate-diff.mjs';
+
+test('candidate generation shares fragments, rejects unknown parameters and protects edits', () => {
+  const property = {name:'enabled', source:{path:'shared.ts',line:1,column:1}, status:'static-parameters',
+    type:'boolean', parameters:{type:'boolean',yaml:'Включено',xmlParents:['Properties'],implicitValueYAML:false,defaultValueXML:false}};
+  const entry = symbol => ({symbol, path:`${symbol}.ts`, comparison:{status:'keys-match'}, properties:[property]});
+  const catalog = new Map([['common.boolean', {}]]);
+  const result = emitCandidates([entry('FirstRules'),entry('SecondRules')], catalog, () => 'shared#flags');
+  const fragments = result.modules.filter(m => m.kind === 'fragment');
+  assert.equal(fragments.length, 1);
+  assert.deepEqual(fragments[0].presence[0].yaml, {default:{literal:false}});
+  assert.deepEqual(fragments[0].representations.xml.fields[0].path, ['Properties','Enabled']);
+  assert.equal(result.modules.filter(m => m.kind === 'object').length, 1);
+  assert.equal(result.entries[0].projections[0].id, result.entries[1].projections[0].id);
+  assert.deepEqual(emitCandidates([entry('FirstRules'),entry('SecondRules')], catalog, () => 'shared#flags'), result);
+  const rejected = emitCandidates([{...entry('BadRules'), properties:[{...property, parameters:{...property.parameters, magic:true}}]}], catalog);
+  assert.equal(rejected.modules.length, 0);
+  assert.equal(rejected.entries[0].properties[0].status, 'blocked');
+  assert.throws(() => safeUpdate({'a.yaml':'manual'}, {'a.yaml':'old'}, {'a.yaml':'new'}), /modified/);
+  assert.throws(() => safeUpdate({'extra.yaml':'manual'}, {}, {'a.yaml':'new'}), /unowned/);
+  assert.doesNotThrow(() => safeUpdate({'a.yaml':'old'}, {'a.yaml':'old'}, {'a.yaml':'new'}));
+  assert.throws(() => checkSnapshot({'new.ts':'x'},[]), /file set changed/);
+  assert.throws(() => checkSnapshot({'old.ts':'x'},[{path:'old.ts',sha256:'old'}]), /Stale snapshot/);
+  for (const [type, id] of [['string','common.string'], ['number','common.exact-decimal'], ['boolean','common.boolean'], ['SystemEnumeration','system.Example']]) {
+    const parameters={type,yaml:'Обязательное',required:true,...(type==='SystemEnumeration'?{typeSE:'Example'}:{})};
+    const source={...property,parameters};
+    const declarations=new Map([[id,{enum:{A:'А'}}]]);
+    const required=mapProperty(source,declarations);
+    assert.equal(required.status,'candidate');
+    assert.equal(required.presence,undefined);
+    assert.deepEqual(mapProperty(source,new Map([[id,{presence:[{target:'self',yaml:{missing:{denotes:{absent:true}}}}]}]])).presence,{target:{field:property.name}});
+    for(const extra of [{required:'true'},{defaultValueXMLRaw:''},{implicitValueYAML:false},{defaultValueXML:false},{implicitValueXML:false}]) {
+      assert.equal(mapProperty({...source,parameters:{...parameters,...extra}},declarations).status,'blocked');
+    }
+    assert.equal(mapProperty({...source,parameters:{...parameters,yaml:undefined}},declarations).status,'blocked');
+    assert.equal(mapProperty(source,new Map([[id,{presence:[{target:'self',yaml:{default:{literal:false}}}]}]])).reason,'required-common-presence-profile');
+  }
+  const cases = [
+    ['string','common.string',{defaultValueXMLRaw:''}],
+    ['number','common.exact-decimal',{implicitValueYAML:30}],
+    ['SystemEnumeration','system.Example',{typeSE:'Example',implicitValueYAML:'A'}],
+    ['I8nText','common.i8n-text',{excludeIfEqualNameYAML:true}],
+  ];
+  for (const [type,id,params] of cases) {
+    const mapped = mapProperty({...property,type,parameters:{type,yaml:'Значение',...params}},new Map([[id,{enum:{A:'А'}}]]));
+    assert.equal(mapped.status,'candidate');
+    assert.equal(mapped.id,id);
+    if (type === 'I8nText') {
+      assert.deepEqual(mapped.type.bind.ownerName,{input:'ownerName'});
+      assert.equal(Object.hasOwn(mapped.presence,'yaml'),false);
+      const explicit = mapProperty({...property,parameters:{type,yaml:'Текст',excludeIfEqualNameYAML:true,noImplicitValueYAML:true}},new Map([[id,{}]]));
+      assert.deepEqual(explicit.presence.yaml,{missing:{denotes:{absent:true}}});
+    }
+  }
+  assert.equal(mapProperty({...property,parameters:{...property.parameters,defaultValueXML:true}},catalog).status,'blocked');
+  assert.equal(mapProperty({...property,type:'number',parameters:{type:'number',yaml:'Число',implicitValueYAML:0.1}},new Map([['common.exact-decimal',{}]])).reason,'exact-number-source-required');
+  for (const type of ['Module','MetadataAttribute']) assert.equal(mapProperty({...property,type,parameters:{type,yaml:'Объект'}},catalog).status,'blocked');
+  const dateCatalog=new Map([['common.typed-date-time',{}],['common.date-time',{}]]);
+  const dateParams={type:'dateTime',yaml:'Дата',typedXML:true,defaultValueXML:'0001-01-01T00:00:00'};
+  const date=mapProperty({...property,parameters:dateParams},dateCatalog);
+  assert.equal(date.id,'common.typed-date-time');
+  assert.deepEqual(date.presence.yaml,{missing:{denotes:{literal:dateParams.defaultValueXML}},omitWhen:{eq:[{field:'enabled'},{literal:dateParams.defaultValueXML}]}});
+  assert.equal(mapProperty({...property,parameters:{type:'dateTime',yaml:'Дата'}},dateCatalog).id,'common.date-time');
+  for(const params of [{typedXML:'xs:dateTime'},{implicitValueYAML:'01.01.0001'},{defaultValueXML:'not-a-date'},{defaultValueXML:'2026-09-10T12:00:00+03:00'}])assert.equal(mapProperty({...property,parameters:{...dateParams,...params}},dateCatalog).status,'blocked');
+  const rawText=mapProperty({...property,parameters:{type:'I8nText',yaml:'Текст',defaultValueXMLRaw:''}},new Map([['common.i8n-text',{}]]));
+  assert.deepEqual(rawText.presence.xml.canonical,[{when:{not:{present:{field:'enabled'}}},form:'empty-element'}]);
+  const minMax=mapProperty({...property,parameters:{type:'MinMaxValue',yaml:'Минимум',typedXML:'xs:string',defaultValueXMLRaw:{'_xsi:nil':true}}},new Map([['common.min-max-value-text',{}]]));
+  assert.equal(minMax.id,'common.min-max-value-text');
+  assert.equal(minMax.presence.xml.canonical[0].form,'nil');
+  assert.equal(mapProperty({...property,parameters:{type:'MinMaxValue',yaml:'Минимум',typedXML:'xs:unknown'}},new Map([['common.min-max-value',{}]])).status,'blocked');
+  for(const [item,id] of [['Field','common.fields-list'],['xr:Field','common.fields-list-readable']]) {
+    const mapped=mapProperty({...property,parameters:{type:'FieldsList',yaml:'Поля',fieldsListXMLItem:item,defaultValueXMLRaw:''}},new Map([[id,{}]]));
+    assert.equal(mapped.id,id);
+    assert.equal(mapped.presence.xml.canonical[0].form,'empty-element');
+    assert.equal(Object.hasOwn(mapped.presence,'yaml'),false);
+  }
+  assert.equal(mapProperty({...property,parameters:{type:'FieldsList',yaml:'Поля',fieldsListXMLItem:'unknown'}},new Map([['common.fields-list',{}]])).status,'blocked');
+  assert.equal(mapProperty({...property,parameters:{type:'MinMaxValue',yaml:'Минимум',defaultValueXMLRaw:''}},new Map([['common.min-max-value',{}]])).status,'blocked');
+  for(const [type,id,defaults] of [
+    ['WebSocketClientHeaders','common.web-socket-client-headers',{defaultValueXML:[],implicitValueYAML:[]}],
+    ['XDTOPackages','common.xdto-packages',{defaultValueXMLRaw:{}}],
+  ]) {
+    const target=new Map([[id,{}]]);
+    const mapped=mapProperty({...property,parameters:{type,yaml:'Список',...defaults}},target);
+    assert.equal(mapped.id,id);
+    assert.deepEqual(mapped.presence.xml.missing,{denotes:{sequence:[]}});
+    assert.deepEqual(mapped.presence.yaml.missing,{denotes:{sequence:[]}});
+    assert.equal(mapProperty({...property,parameters:{type,yaml:'Список',...defaults,implicitValueYAML:['unexpected']}},target).status,'blocked');
+  }
+  const formatted=mapProperty({...property,parameters:{type:'FormattedI8nText',yaml:'Заголовок'}},new Map([['common.formatted-i8n-text',{}]]));
+  assert.equal(formatted.id,'common.formatted-i8n-text');
+  assert.deepEqual(formatted.type.bind,{defaultLanguage:{input:'defaultLanguage'},languages:{input:'registeredLanguages'},name:{input:'ownerName'}});
+  assert.equal(formatted.presence,undefined);
+  const excluded=emitCandidates([{...entry('WithoutEnterpriseRules'),properties:[{...property,parameters:{...property.parameters,toEnterprise:false}}]}],catalog);
+  assert.equal(excluded.entries[0].properties[0].status,'candidate');
+  assert.deepEqual(excluded.entries[0].properties[0].excludedParameters,['toEnterprise']);
+  assert.equal(mapProperty({...property,parameters:{...property.parameters,toEnterprise:true}},catalog).status,'blocked');
+  const scalarChoice=mapProperty({...property,parameters:{type:'StringOrNumber',yaml:'Result',tag:'Form'}},new Map([['common.string-or-number',{}]]));
+  assert.equal(scalarChoice.id,'common.string-or-number');assert.equal(scalarChoice.presence,undefined);
+  const qname=mapProperty({...property,parameters:{type:'XDTOTypeName',yaml:'Тип',xmlParents:['Properties']}},new Map([['common.xdto-type-name',{}]]));
+  assert.equal(qname.id,'common.xdto-type-name');assert.equal(qname.presence,undefined);
+  for(const defaults of [{},{defaultValueXMLRaw:{}}]) {
+    const index=mapProperty({...property,parameters:{type:'IndexField',yaml:'Поля',preserveExplicitDefaultXML:true,...defaults}},new Map([['common.index-field',{}]]));
+    assert.equal(index.id,'common.index-field');
+    if(defaults.defaultValueXMLRaw)assert.equal(index.presence.xml.canonical[0].form,'empty-element');
+    else assert.equal(index.presence,undefined);
+  }
+  const missingDefault=mapProperty({...property,parameters:{type:'boolean',yaml:'Flag',implicitValueYAML:true}},catalog);
+  const bounded={...property,parameters:{type:'number',yaml:'Length',minimum:1,maximum:250}};
+  const boundedCatalog=new Map([['common.exact-decimal',{}]]);
+  const bounds=emitCandidates([{...entry('BoundedRules'),properties:[bounded]}],boundedCatalog);
+  assert.equal(bounds.entries[0].properties[0].status,'candidate');
+  assert.deepEqual(bounds.modules.find(m=>m.kind==='fragment').constraints.map(c=>c.assert),[{lte:[{literal:1},{field:'enabled'}]},{lte:[{field:'enabled'},{literal:250}]}]);
+  for(const invalid of [{minimum:251,maximum:250},{minimum:1.25},{minimum:9007199254740992}])assert.equal(mapProperty({...bounded,parameters:{...bounded.parameters,...invalid}},boundedCatalog).status,'blocked');
+  assert.deepEqual(missingDefault.presence.xml,{missing:{denotes:{literal:true}},canonical:[{when:{eq:[{field:'enabled'},{literal:true}]},form:'missing'}]});
+  const explicit=mapProperty({...property,parameters:{...property.parameters,preserveExplicitDefaultXML:true}},catalog);
+  assert.deepEqual(explicit.presence?.yaml,{missing:{denotes:{literal:false}}});
+  assert.equal(mapProperty({...property,parameters:{...property.parameters,preserveExplicitDefaultXML:false}},catalog).status,'blocked');
+  const explicitXML=mapProperty({...property,parameters:{type:'SystemEnumeration',typeSE:'HTTPMethod',yaml:'Method',defaultValueXML:'GET',noImplicitValueYAML:true,preserveExplicitDefaultXML:true}},new Map([['system.HTTPMethod',{enum:{GET:'GET'}}]]));
+  assert.equal(explicitXML.status,'candidate');
+  assert.deepEqual(explicitXML.presence.yaml,{missing:{denotes:{literal:'GET'}}});
+  const encodedBoolean={...property,parameters:{...property.parameters,implicitValueYAML:'FalseLiteral'}};
+  const booleanCatalog=new Map([['common.boolean',{representations:{yaml:{kind:'scalar',values:[{literal:'FalseLiteral',value:false}]}}}]]);
+  assert.deepEqual(mapProperty(encodedBoolean,booleanCatalog).presence.yaml,{default:{literal:false}});
+  assert.equal(mapProperty(encodedBoolean,catalog).status,'blocked');
+  const emptyString={...property,parameters:{type:'string',yaml:'Text',defaultValueXMLRaw:''}};
+  const stringCatalog=new Map([['common.string',{}]]);
+  const duplicateString=mapProperty({...emptyString,parameters:{...emptyString.parameters,defaultValueXML:''}},stringCatalog);
+  assert.deepEqual(duplicateString.presence,mapProperty(emptyString,stringCatalog).presence);
+  assert.deepEqual(duplicateString.parameterEquivalences,[{parameter:'defaultValueXML',equivalentTo:'defaultValueXMLRaw',via:'common.string'}]);
+  const purposes={...property,constantDefaults:['defaultValue'],parameters:{type:'UsePurposes',yaml:'Purposes',defaultValue:{$constantFunction:{value:['PlatformApplication']}},defaultValueXML:['PlatformApplication']}};
+  const purposeCatalog=new Map([['common.use-purposes',{}]]);
+  const purpose=mapProperty(purposes,purposeCatalog);
+  assert.equal(purpose.id,'common.use-purposes');
+  assert.deepEqual(purpose.presence.yaml.missing,{denotes:{sequence:[{literal:'PlatformApplication'}]}});
+  assert.equal(mapProperty({...purposes,constantDefaults:[]},purposeCatalog).status,'blocked');
+  assert.equal(mapProperty({...purposes,parameters:{...purposes.parameters,defaultValueXML:['MobilePlatformApplication']}},purposeCatalog).status,'blocked');
+  assert.equal(mapProperty({...purposes,parameters:{...purposes.parameters,defaultValueAdoptedXML:['PlatformApplication']}},purposeCatalog).status,'candidate');
+  const plainPurpose=mapProperty({...property,parameters:{type:'UsePurposes',yaml:'Purposes'}},purposeCatalog);
+  assert.equal(plainPurpose.id,'common.use-purposes');assert.equal(plainPurpose.presence,undefined);
+  const implicitParams={type:'boolean',yaml:'Flag',implicitValueYAML:true,implicitValueXML:false};
+  const implicit=mapProperty({...property,parameters:implicitParams},catalog);
+  assert.deepEqual(implicit.presence?.xml,{missing:{denotes:{literal:false}},canonical:[{when:{eq:[{field:'enabled'},{literal:false}]},form:'missing'}]});
+  assert.equal(mapProperty({...property,parameters:{...implicitParams,defaultValueXML:false}},catalog).status,'blocked');
+  const routed=emitCandidates([{...entry('RoutedRules'),properties:[{...property,name:'metadata',parameters:{...property.parameters,tag:'Metadata'}},{...property,name:'form',parameters:{...property.parameters,tag:'Form'}},property]}],catalog);
+  assert.equal(routed.entries[0].projections.length,3);
+  assert.deepEqual(routed.entries[0].projections.map(row=>row.sourceTag),['Metadata','Form',undefined]);
+  assert.equal(routed.entries[0].properties[0].sourceTag,'Metadata');
+  const formSource=sourceContract(routed.entries[0],'Form',new Map(routed.modules.map(module=>[module.id,module])),'Envelope');
+  assert.deepEqual(formSource.fields.map(field=>field.name),['form']);
+  assert.deepEqual(formSource.modules[0].representations.xml.fields[0].path,['Envelope','Properties','Form']);
+  assert.equal(formSource.source.sourceTag,'Form');
+
+  assert.equal(mapProperty({...property,parameters:{...property.parameters,tag:''}},catalog).status,'blocked');
+  const adopted=emitCandidates([{...entry('SameAdoptedRules'),properties:[{...property,parameters:{...property.parameters,defaultValueAdoptedXML:false}}]}],catalog);
+  assert.equal(adopted.entries[0].properties[0].status,'candidate');
+  assert.deepEqual(adopted.entries[0].properties[0].parameterEquivalences,[{parameter:'defaultValueAdoptedXML',equivalentTo:'defaultValueXML'}]);
+  assert.equal(mapProperty({...property,parameters:{...property.parameters,defaultValueAdoptedXML:true}},catalog).status,'blocked');
+  const grouped=emitCandidates([{...entry('GroupRules'),properties:[{...property,name:'group',parameters:{type:'MetadataCommandGroup',yaml:'Группа',xmlParents:['Properties']}}]}],new Map([['common.metadata-command-group',{imports:{kind:'common.path-root'},inputs:{roots:{type:{kind:'index',key:{kind:'record',fields:[{name:'kind',type:{use:'kind'}},{name:'name',type:{kind:'scalar',scalar:'text'}}]},value:{kind:'scalar',scalar:'text'}}}}}]]));
+  assert.equal(grouped.entries[0].properties[0].status,'candidate');
+  assert(grouped.entries[0].projections[0].fragments.every(id=>grouped.modules.find(module=>module.id===id)?.kind==='fragment'));
+  for(const module of grouped.modules) {
+    const alias=module.inputs.roots.type.key.fields[0].type.use;
+    assert.equal(module.imports[alias],'common.path-root');
+  }
+  const formTarget={kind:'member',owner:'this',memberKinds:['Form'],objectRoots:['CommonForm']};
+  const formCatalog=new Map([['common.owner-or-common-form-link',{inputs:{owner:{type:{kind:'scalar',scalar:'text'}},forms:{type:{kind:'sequence',item:{kind:'scalar',scalar:'text'}}}}}]]);
+  const formParams={type:'MetadataItemLink',yaml:'Форма',xmlParents:['Properties'],metadataTarget:formTarget,defaultValueXMLRaw:''};
+  const form=mapProperty({...property,parameters:formParams},formCatalog);
+  assert.equal(form.id,'common.owner-or-common-form-link');
+  assert.equal(form.presence.xml.canonical[0].form,'empty-element');
+  assert.equal(mapProperty({...property,parameters:{...formParams,metadataTarget:{...formTarget,owner:'type'}}},formCatalog).status,'blocked');
+  assert.equal(mapProperty({...property,parameters:{...formParams,metadataTarget:{...formTarget,allowedMemberPaths:[['DocumentJournal','Form']]}}},formCatalog).status,'blocked');
+  const basedOnPaths=[['ChartOfAccounts'],['ExternalDataSource','Table'],['ExchangePlan'],['Catalog'],['Document'],['ChartOfCharacteristicTypes'],['BusinessProcess'],['ChartOfCalculationTypes'],['Task']];
+  const basedOnParams={type:'MetadataItemLinks',yaml:'BasedOn',metadataTarget:{kind:'object',allowedObjectPaths:basedOnPaths},defaultValueXMLRaw:{}};
+  const basedOnCatalog=new Map([['common.based-on-links',{}]]);
+  assert.equal(mapProperty({...property,parameters:basedOnParams},basedOnCatalog).id,'common.based-on-links');
+  assert.equal(mapProperty({...property,parameters:{...basedOnParams,metadataTarget:{kind:'object',allowedObjectPaths:[['Document']]}}},basedOnCatalog).status,'blocked');
+  const documentListParams={type:'MetadataItemLinks',yaml:'Documents',metadataTarget:{kind:'object',roots:['Document']}};
+  const documentListCatalog=new Map([['common.journal-document-links',{}]]);
+  assert.equal(mapProperty({...property,parameters:documentListParams},documentListCatalog).id,'common.journal-document-links');
+  assert.equal(mapProperty({...property,parameters:{...documentListParams,metadataTarget:{kind:'object',roots:['Document'],owner:'this'}}},documentListCatalog).status,'blocked');
+  const numeratorParams={...formParams,metadataTarget:{kind:'object',roots:['DocumentNumerator']}};
+  const numeratorCatalog=new Map([['common.document-numerator-link',{}]]);
+  assert.equal(mapProperty({...property,parameters:numeratorParams},numeratorCatalog).id,'common.document-numerator-link');
+  assert.equal(mapProperty({...property,parameters:{...numeratorParams,metadataTarget:{kind:'object',roots:['DocumentNumerator','Document']}}},numeratorCatalog).status,'blocked');
+  assert.equal(mapProperty({...property,parameters:null},catalog).status,'blocked');
+  assert.equal(mapProperty({...property,parameters:{...property.parameters,xml:'${name}'}},catalog).reason,'xml-path-profile');
+  const qualified={...property,parameters:{...property.parameters,xml:'test:Enabled'}};
+  assert.equal(mapProperty(qualified,catalog).reason,'unknown-xml-prefix:test');
+  const namespaced=emitCandidates([{...entry('NamespacedRules'),properties:[qualified]}],catalog,undefined,{test:'urn:test'});
+  assert.equal(namespaced.entries[0].properties[0].status,'candidate');
+  assert.deepEqual(namespaced.modules.find(m=>m.kind==='fragment').namespaces,{test:'urn:test'});
+  assert.deepEqual(namespaced.modules.find(m=>m.kind==='fragment').representations.xml.fields[0].path,['Properties','test:Enabled']);
+  const invalidOrder = emitCandidates([{...entry('RepeatedRules'),xmlOrder:{status:'static',keys:['enabled','enabled']}}],catalog);
+  assert.equal(invalidOrder.entries[0].properties[0].reason,'owner-order-unresolved');
+  const existing = structuredClone(fragments[0]);
+  existing.id = 'existing.fragment';
+  existing.representations.xml.fields[0].path.unshift('md:Owner');
+  const diff = candidateDiff(result.modules,new Map([[existing.id,existing]]));
+  assert.equal(diff.matchedFields,1);
+  assert.deepEqual(diff.entries[0].reviewTargets[0].differences,['path']);
+  const signature=propertyContractSignature(fragments[0]);
+  const renamed=structuredClone(fragments[0]);
+  renamed.id='other';renamed.imports.alternate=renamed.imports.value0;delete renamed.imports.value0;renamed.value.fields[0].type.use='alternate';
+  assert.equal(propertyContractSignature(renamed),signature);
+  renamed.presence[0].xml={missing:{denotes:{literal:false}}};
+  assert.notEqual(propertyContractSignature(renamed),signature);
+  renamed.inputs={context:{type:{kind:'scalar',scalar:'text'}}};renamed.value.fields[0].type.bind={value:{input:'context'}};
+  const withInput=propertyContractSignature(renamed);
+  renamed.inputs.context.type.scalar='boolean';
+  assert.notEqual(propertyContractSignature(renamed),withInput);
+  existing.presence[0].xml={missing:{denotes:{literal:false}}};
+  assert.deepEqual(candidateDiff(result.modules,new Map([[existing.id,existing]])).entries[0].reviewTargets[0].differences,['path','xmlPresence']);
+  existing.constraints=[{assert:{present:{field:'enabled'}}}];
+  assert.deepEqual(candidateDiff(result.modules,new Map([[existing.id,existing]])).entries[0].reviewTargets[0].differences,['path','xmlPresence','constraints']);
+});
