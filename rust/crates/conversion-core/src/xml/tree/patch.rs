@@ -59,6 +59,13 @@ impl Tree {
                 .unwrap_or(Payload::Mapping(Vec::new())),
             None => insertion(&expected),
         };
+        // This method always describes an existing element. At a property
+        // boundary null means removal, so an empty element must be empty text.
+        let patch = if matches!(patch, Payload::Null) {
+            Payload::Text(String::new())
+        } else {
+            patch
+        };
         if matches!(&patch,Payload::Mapping(fields) if fields.is_empty()) {
             return Ok("{}".into());
         }

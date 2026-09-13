@@ -17,6 +17,13 @@ pub(super) fn applies(entry: &LinkedEntry, program: &Program) -> bool {
 }
 
 pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String, Diagnostic> {
+    generate_at(entry, program, None)
+}
+pub(super) fn generate_at(
+    entry: &LinkedEntry,
+    program: &Program,
+    boundary: Option<&[ExpandedName]>,
+) -> Result<String, Diagnostic> {
     let original = entry;
     let captured = crate::plan::scopes::capture_inputs(entry)?;
     let entry = captured.entry.as_ref();
@@ -69,7 +76,9 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
     let LinkedXml::Record(first_xml) = &parts[primary].xml else {
         unreachable!()
     };
-    let root = &first_xml[0].path[..1];
+    let root = boundary.unwrap_or(&first_xml[0].path[..1]);
+    let root_parent = record::path_code(&root[..root.len() - 1]);
+    let root_name = root.last().expect("placed root");
     let root_code = record::path_code(root);
     let conditional_attributes = root_attributes
         .iter()
@@ -698,7 +707,7 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
             "})}}}\n"
         });
     }
-    writeln!(out,"fn write_xml_{id}(value:&V{id},inputs:&InputView<'_>)->core::Result<Vec<u8>> {{let ordinary=write_xml_plain_{id}(value,inputs)?;let Some(patch)=&value.root else {{return Ok(ordinary);}};let qnames=xml_qnames_{id}();let base=core::xml::Tree::capture_with_qnames(&ordinary,{root_code},xml_qname_text_{id})?;let tree=patch.apply(base,core::xml::Name{{namespace:{:?}.into(),local:{:?}.into()}},&[],&qnames)?;let mut names=Vec::new();tree.collect_namespaces(&mut names);let mut writer=core::xml::Writer::new(&names);tree.write_at(&mut writer,&[],&qnames)?;let restored=writer.finish();",root[0].namespace,root[0].local).unwrap();
+    writeln!(out,"fn write_xml_{id}(value:&V{id},inputs:&InputView<'_>)->core::Result<Vec<u8>> {{let ordinary=write_xml_plain_{id}(value,inputs)?;let Some(patch)=&value.root else {{return Ok(ordinary);}};let qnames=xml_qnames_{id}();let base=core::xml::Tree::capture_with_qnames(&ordinary,{root_code},xml_qname_text_{id})?;let tree=patch.apply(base,core::xml::Name{{namespace:{:?}.into(),local:{:?}.into()}},&[],&qnames)?;let mut names=Vec::new();tree.collect_namespaces(&mut names);let mut writer=core::xml::Writer::new(&names);tree.write_at(&mut writer,{root_parent},&qnames)?;let restored=writer.finish();",root_name.namespace,root_name.local).unwrap();
     for slot in (0..parts.len()).filter(|slot| files[*slot].is_none()) {
         writeln!(
             out,
@@ -723,7 +732,7 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
     writeln!(out,"fn verify_{id}(original:&[u8],candidate:&[u8],inputs:&InputView<'_>)->core::Result<()> {{let value=read_yaml_{id}(candidate,inputs)?;if let Some(error)=check_yaml_{id}(&value,candidate,inputs).into_iter().find(|error|error.severity==Severity::Error) {{return Err(error);}}{verify_documents}prove_xml_{id}(&value,original,&write_xml_{id}(&value,inputs)?)}}\nfn finalize_yaml_{id}(original:&[u8],candidate:Vec<u8>,value:&V{id},inputs:&InputView<'_>)->core::Result<Vec<u8>> {{{scope_full}match verify_{id}(original,&candidate,inputs) {{Ok(())=>return Ok(candidate),Err(error) if error.code.as_deref()==Some(\"xml.round-trip-mismatch\")=>{{}},Err(error)=>return Err(error)}}let mut out=String::new();").unwrap();
     for slot in 0..parts.len() {
         let source = source_for(slot, "original");
-        writeln!(out,"let source=part_{id}_{slot}::project({source})?;let yaml=part_{id}_{slot}::finalize(&source,&value.p{slot},inputs)?;core::yaml::append_encoded_properties(&mut out,&yaml)?;").unwrap();
+        writeln!(out,"let source=part_{id}_{slot}::project({source})?;let yaml=match part_{id}_{slot}::finalize(&source,&value.p{slot},inputs) {{Ok(yaml)=>yaml,Err(error) if error.code.as_deref()==Some(\"xml.round-trip-mismatch\")=>{{let mut yaml=String::new();part_{id}_{slot}::write_yaml(&value.p{slot},inputs,&mut yaml)?;yaml.into_bytes()}},Err(error)=>return Err(error)}};core::yaml::append_encoded_properties(&mut out,&yaml)?;").unwrap();
     }
     writeln!(
         out,

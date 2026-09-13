@@ -9,21 +9,23 @@ pub(super) struct RecordBody {
 pub(super) fn generate(
     row: &LinkedEntry,
     program: &Program,
+    boundary: &[ExpandedName],
     lifted: Option<(usize, String)>,
 ) -> Result<RecordBody, Diagnostic> {
     let LinkedType::Record(row_fields) = &row.value else {
         return Err(unsupported(row, "Expected a record value"));
     };
-    let composed = row_fields
-        .iter()
-        .any(|field| scalar::Codec::resolve(&field.value, row, program).is_err());
+    let composed = !attributes::content(&row.xml).1.is_empty()
+        || row_fields
+            .iter()
+            .any(|field| scalar::Codec::resolve(&field.value, row, program).is_err());
     if composed && !owner::state_supported(row, program)? {
         return Err(unsupported(
             row,
             "This item representation does not yet support independent event states",
         ));
     }
-    let scalar_routes = if let LinkedXml::Record(fields) = &row.xml {
+    let scalar_routes = if let LinkedXml::Record(fields) = attributes::content(&row.xml).0 {
         fields
             .iter()
             .filter(|field| field.attribute.is_none())
@@ -95,7 +97,7 @@ pub(super) fn generate(
         }
     };
     let row_code = if composed {
-        owner::generate(row, program)?
+        owner::generate_at(row, program, Some(boundary))?
     } else {
         record::generate(row, program)?
     };
@@ -207,6 +209,7 @@ pub(super) fn consume(&mut self,path:&[core::xml::Name],token:&core::xml::Token<
 pub(super) fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<Stored>{@xml_finish@.map(Stored)}
 }
 @yaml_reader@
+pub(super) fn read_xml(source:&[u8],inputs:&InputView<'_>)->core::Result<Stored>{read_xml_@id@(source,inputs).map(Stored)}
 pub(super) fn read_yaml(source:&[u8],inputs:&InputView<'_>)->core::Result<Stored>{read_yaml_@id@(source,inputs).map(Stored)}
 pub(super) fn finalize(source:&[u8],value:&Stored,inputs:&InputView<'_>)->core::Result<Vec<u8>>{finalize_yaml_@id@(source,write_yaml_@id@(&value.0,inputs)?,&value.0,inputs)}
 pub(super) fn text(value:&Stored,field:usize)->core::Result<&str>{text_field_@id@(&value.0,field)}

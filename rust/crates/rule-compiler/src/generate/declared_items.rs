@@ -127,17 +127,7 @@ pub(super) fn generate(
         .collect::<String>();
     let mut route = parent.clone();
     route.extend(relative.iter().cloned());
-    let LinkedXml::Record(row_xml) = &mut row.xml else {
-        return Err(unsupported(
-            &row,
-            "The item requires a record XML representation",
-        ));
-    };
-    for field in row_xml {
-        let mut path = route.clone();
-        path.extend(field.path.iter().cloned());
-        field.path = path;
-    }
+    crate::plan::routes::place_record(&mut row, &route)?;
     row.id = entry.id;
     let LinkedType::Record(row_fields) = &row.value else {
         return Err(unsupported(&row, "The item requires a record value"));
@@ -165,7 +155,7 @@ pub(super) fn generate(
     } else {
         None
     };
-    let body = super::value_record::generate(&row, program, lifted.clone())?;
+    let body = super::value_record::generate(&row, program, &route, lifted.clone())?;
     let presence = collection_presence::override_for(&common, entry, bindings, arguments)?
         .unwrap_or(common.clone());
     if presence.presence.iter().any(|rule| {

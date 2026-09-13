@@ -30,13 +30,10 @@ pub(crate) fn record_usage(
         .find(|entry| entry.id == id)
         .expect("linked value");
     if !matches!(
-        (&common.value, &common.xml, &common.yaml),
-        (
-            LinkedType::Record(_),
-            LinkedXml::Record(_),
-            YamlRepresentation::Mapping(_)
-        )
-    ) || !common.shorthands.is_empty()
+        (&common.value, &common.yaml),
+        (LinkedType::Record(_), YamlRepresentation::Mapping(_))
+    ) || super::values::xml_fields(&common.xml).is_none()
+        || !common.shorthands.is_empty()
         || common.normalization.is_some()
         || !common.resources.is_empty()
         || !common.contributions.is_empty()
@@ -46,7 +43,7 @@ pub(crate) fn record_usage(
     // A shared wrapper needs the collection's element routes, rather than the
     // property's container route. Keep that placement on its existing backend
     // until the shared route plan represents it explicitly.
-    if let LinkedXml::Record(fields) = &common.xml
+    if let Some(fields) = super::values::xml_fields(&common.xml)
         && fields
             .iter()
             .any(|field| field.path.is_empty() && field.attribute.is_none())
@@ -98,12 +95,7 @@ pub(crate) fn record_usage(
     entry
         .presence
         .retain(|rule| rule.target != LinkedPresenceTarget::SelfValue);
-    let LinkedXml::Record(fields) = &mut entry.xml else {
-        unreachable!()
-    };
-    for field in fields {
-        field.path = mapping.path.iter().chain(&field.path).cloned().collect();
-    }
+    place_record(&mut entry, &mapping.path)?;
     entry.field_dependencies = super::scopes::dependencies(&entry.value, &entry.presence)?;
     Ok(Some(RecordUsage {
         entry,
@@ -112,4 +104,25 @@ pub(crate) fn record_usage(
         xml_missing,
         yaml_missing,
     }))
+}
+
+/// Placement changes routes, preserving the record's declared header and field scope.
+pub(crate) fn place_record(
+    entry: &mut LinkedEntry,
+    prefix: &[ExpandedName],
+) -> Result<(), Diagnostic> {
+    let mut xml = &mut entry.xml;
+    while let LinkedXml::WithAttributes { content, .. } = xml {
+        xml = content;
+    }
+    let LinkedXml::Record(fields) = xml else {
+        return Err(super::unsupported(
+            entry,
+            "Record placement requires record XML routes",
+        ));
+    };
+    for field in fields {
+        field.path = prefix.iter().chain(&field.path).cloned().collect();
+    }
+    Ok(())
 }

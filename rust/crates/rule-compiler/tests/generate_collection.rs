@@ -1703,6 +1703,13 @@ fn matrix_checks() -> String {
 // Independent expectations for the approved corrections to the recorded TS
 // behavior. All other rows retain the exact original YAML expectation.
 fn matrix_expected(row: &serde_json::Value) -> String {
+    // A present empty container is explicit empty text; null removes it.
+    if row["case"] == "empty-container"
+        && let Some(yaml) = row["yaml"].as_str()
+        && yaml.ends_with("$xml:")
+    {
+        return format!("{yaml} \"\"");
+    }
     let profile = row["profile"].as_u64().unwrap();
     let case = row["case"].as_str().unwrap();
     let typed = profile & 8 != 0;
@@ -1741,7 +1748,7 @@ fn matrix_expected(row: &serde_json::Value) -> String {
     }
     if row["outcome"] != "preserved" {
         let payload = match case {
-            "empty-container" => "",
+            "empty-container" => " \"\"",
             "empty-primary" => "\n    v8:item:\n      v8:lang: ru\n      v8:content:",
             "typed-empty" => "\n    _xsi:type: v8:LocalStringType",
             "nil" => "\n    _xsi:nil: \"true\"",

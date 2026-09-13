@@ -127,6 +127,16 @@ fn check_case(case: &Value, manifest: &Value) {
             "anomaly location: {actual}"
         );
     }
+    if let Some(retained) = case["retainedYAML"].as_array() {
+        for expected in retained {
+            assert!(
+                actual
+                    .lines()
+                    .any(|line| line == expected.as_str().unwrap()),
+                "Readable meaning was lost: {actual}"
+            );
+        }
+    }
     if let Some(rejected) = case["rejectedYAML"].as_array() {
         for yaml in rejected {
             assert!(

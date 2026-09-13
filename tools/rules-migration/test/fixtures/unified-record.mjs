@@ -189,3 +189,20 @@ cases.push({...checkedCase,id:'unified-conditional-header-present',entry:conditi
 cases.push({...checkedCase,id:'unified-conditional-header-absent',entry:conditional.id,xml:checkedCase.xml.replace('enabled="true"','enabled="false"'),yaml:'Имя: Alpha\nВключено: Ложь'});
 cases.push({...cases.find(value=>value.id==='unified-conditional-header-present'),id:'unified-conditional-header-order',xml:checkedCase.xml.replace('enabled="true"','enabled="true" mode="active"'),yaml:undefined,annotation:'!xml/raw'});
 cases.push({...cases.find(value=>value.id==='unified-conditional-header-present'),id:'unified-conditional-header-damaged-source',xml:checkedCase.xml.replace('enabled="true"','mode="active" enabled="broken"'),yaml:undefined,annotation:'!xml/raw'});
+
+const conditionalValue=structuredClone(conditional);conditionalValue.kind='value';conditionalValue.id='test.unified.conditional-value';conditionalValue.representations.xml.content.fields.forEach(field=>field.path.shift());
+const conditionalPair=structuredClone(pair);conditionalPair.id='test.unified.conditional-pair';conditionalPair.imports.record=conditionalValue.id;
+declarations.push(conditionalValue,conditionalPair);
+cases.push({id:'unified-conditional-nested-boundary',entry:conditionalPair.id,inputs:{registeredLanguages:['ru','en']},
+  xml:cases[1].xml.replace('<First>','<First mode="active" enabled="true">').replace('<Second>','<Second enabled="false">'),
+  yaml:'Первый:\n  Имя: Alpha\n  Включено: Истина\nВторой:\n  Имя: Beta\n  Включено: Ложь'});
+const conditionalList=structuredClone(list);conditionalList.id='test.unified.conditional-list';conditionalList.imports.item=conditionalValue.id;
+const conditionalOwner=structuredClone(listOwner);conditionalOwner.id='test.unified.conditional-list-owner';conditionalOwner.imports.list=conditionalList.id;
+declarations.push(conditionalList,conditionalOwner);
+cases.push({...cases.find(value=>value.id==='unified-dependent-record-items'),id:'unified-conditional-item-boundary',entry:conditionalOwner.id,
+  xml:cases.find(value=>value.id==='unified-dependent-record-items').xml.replace('<Item>','<Item mode="active" enabled="true">').replace('<Item>','<Item enabled="false">'),
+  yaml:'Элементы:\n  -\n    Имя: Alpha\n    Включено: Истина\n  -\n    Имя: Beta\n    Включено: Ложь'});
+for(const [source,id,element] of [['unified-conditional-nested-boundary','unified-nested-header-anomaly','First'],['unified-conditional-item-boundary','unified-item-header-anomaly','Item']]){
+  const original=cases.find(value=>value.id===source);
+  cases.push({...original,id,xml:original.xml.replace(`<${element} `,`<${element} extra="preserved" `),yaml:undefined,annotation:element==='First'?'  !xml/raw':'Элементы: !xml/raw',...(element==='First'?{retainedYAML:['    Имя: Alpha','    Включено: Истина']}:{})});
+}

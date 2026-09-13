@@ -178,35 +178,40 @@ fn unregistered_namespaces_survive_self_contained_preservation() {
 #[test]
 fn patches_add_empty_children_without_treating_them_as_deletions() {
     let path = [("", "Root"), ("", "Value")];
-    for base in [
-        "<Root/>",
+    for expected in [
+        "<Root><Value><Empty/><Nested><Empty/></Nested></Value></Root>",
         "<Root><Value/></Root>",
-        "<Root><Value><Other/></Value></Root>",
     ] {
-        let original = Tree::capture(
-            b"<Root><Value><Empty/><Nested><Empty/></Nested></Value></Root>",
-            &path,
-        )
-        .unwrap()
-        .unwrap();
-        let ordinary = Tree::capture(base.as_bytes(), &path).unwrap();
-        let payload = original.patch_yaml(ordinary.as_ref(), &[], &[]).unwrap();
-        let restored = Patch::read(payload.as_bytes(), &[], &[])
-            .unwrap()
-            .apply(
-                ordinary,
-                Name {
-                    namespace: String::new(),
-                    local: "Value".into(),
-                },
-                &[],
-                &[],
-            )
-            .unwrap();
-        assert_eq!(
-            restored.payload_yaml(&[], &[]).unwrap(),
-            original.payload_yaml(&[], &[]).unwrap(),
-            "{base}: {payload}"
-        );
+        for base in [
+            "<Root/>",
+            "<Root><Value mode=\"normal\"/></Root>",
+            "<Root><Value/></Root>",
+            "<Root><Value><Other/></Value></Root>",
+        ] {
+            let original = Tree::capture(expected.as_bytes(), &path).unwrap().unwrap();
+            let ordinary = Tree::capture(base.as_bytes(), &path).unwrap();
+            let payload = original.patch_yaml(ordinary.as_ref(), &[], &[]).unwrap();
+            let patch = Patch::read(payload.as_bytes(), &[], &[]).unwrap();
+            assert!(
+                !patch.is_null(),
+                "A present element cannot be a removal: {payload}"
+            );
+            let restored = patch
+                .apply(
+                    ordinary,
+                    Name {
+                        namespace: String::new(),
+                        local: "Value".into(),
+                    },
+                    &[],
+                    &[],
+                )
+                .unwrap();
+            assert_eq!(
+                restored.payload_yaml(&[], &[]).unwrap(),
+                original.payload_yaml(&[], &[]).unwrap(),
+                "{base}: {payload}"
+            );
+        }
     }
 }
