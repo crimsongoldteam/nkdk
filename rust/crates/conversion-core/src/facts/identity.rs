@@ -1,5 +1,7 @@
 //! Stable identity derivation during operation preparation, never per-field state.
+mod address;
 use super::FactState;
+pub use address::LogicalAddress;
 use sha2::{Digest, Sha256};
 use std::borrow::Cow;
 
@@ -29,12 +31,12 @@ impl OperationIdentity {
         previous: FactState<&'a str>,
         domain: &str,
         format: IdentityFormat,
-        address: &str,
+        address: &LogicalAddress,
     ) -> FactState<Cow<'a, str>> {
         match previous {
             FactState::Ready(value) => FactState::Ready(Cow::Borrowed(value)),
             FactState::Missing => {
-                FactState::Ready(Cow::Owned(self.generate(domain, format, address)))
+                FactState::Ready(Cow::Owned(self.generate(domain, format, address.as_str())))
             }
             FactState::Ambiguous => FactState::Ambiguous,
             FactState::Cycle => FactState::Cycle,

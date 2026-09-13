@@ -191,7 +191,7 @@ fn identity_fragments_keep_components_owners_and_base_links_separate() {
         previous,
         "uuid",
         nkdk_conversion_core::facts::identity::IdentityFormat::Uuid,
-        "Объект",
+        &nkdk_conversion_core::facts::identity::LogicalAddress::from_segments(["Объект"]).unwrap(),
     ) else {
         panic!("complete previous index permits creation");
     };
