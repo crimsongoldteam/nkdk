@@ -1,7 +1,6 @@
 use crate::rules;
 use nkdk_conversion_core::{Direction, EntryId, InputValue, PreparedInputs, facts::Generation};
 use serde_json::Value;
-use std::sync::Arc;
 
 pub fn prepare(entry: EntryId, case: &Value, manifest: &Value) -> PreparedInputs {
     let input = serde_json::to_vec(case.get("inputs").unwrap_or(&serde_json::json!({}))).unwrap();
@@ -9,7 +8,35 @@ pub fn prepare(entry: EntryId, case: &Value, manifest: &Value) -> PreparedInputs
         return rules::read_inputs(entry, &input).unwrap();
     };
     let generation = Generation(1);
-    let mut builder = rules::fact_builder(
+    let sources = manifest["factSources"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|source| {
+            let entry = rules::entry_id(source["entry"].as_str().unwrap()).unwrap();
+            let (direction, bytes) = match source.get("yaml").and_then(Value::as_str) {
+                Some(yaml) => {
+                    assert!(source.get("xml").is_none(), "Ambiguous fact source format");
+                    (Direction::YamlToXml, yaml.as_bytes())
+                }
+                None => (
+                    Direction::XmlToYaml,
+                    source["xml"].as_str().unwrap().as_bytes(),
+                ),
+            };
+            let input =
+                serde_json::to_vec(source.get("inputs").unwrap_or(&serde_json::json!({}))).unwrap();
+            nkdk_conversion_core::facts::preparation::Source {
+                entry,
+                direction,
+                bytes,
+                inputs: rules::read_inputs(entry, &input).unwrap(),
+            }
+        })
+        .collect();
+    let prepared = nkdk_conversion_core::facts::preparation::prepare::<rules::FactCatalog>(
+        sources,
+        &[entry],
         generation,
         nkdk_conversion_core::facts::prepared::FactBudget {
             text: nkdk_conversion_core::facts::text::TextBudget {
@@ -18,60 +45,10 @@ pub fn prepare(entry: EntryId, case: &Value, manifest: &Value) -> PreparedInputs
             },
             rows: 10_000,
         },
-    );
-    let sources = manifest["factSources"].as_array().unwrap();
-    let operations: Vec<_> = sources
-        .iter()
-        .map(|source| {
-            (
-                rules::entry_id(source["entry"].as_str().unwrap()).unwrap(),
-                if source.get("yaml").is_some() {
-                    Direction::YamlToXml
-                } else {
-                    Direction::XmlToYaml
-                },
-            )
-        })
-        .collect();
-    let schedule = rules::fact_plan_for_sources(&operations, &[entry], 100_000).unwrap();
-    for step in schedule.order() {
-        let position = step.0 as usize;
-        if position >= sources.len() {
-            let index = position - sources.len();
-            if index < rules::fact_names().len() {
-                builder
-                    .publish(nkdk_conversion_core::facts::prepared::FactId(index as u32))
-                    .unwrap();
-            }
-            continue;
-        }
-        let source = &sources[step.0 as usize];
-        let (producer, source_direction) = operations[step.0 as usize];
-        let source_inputs =
-            serde_json::to_vec(source.get("inputs").unwrap_or(&serde_json::json!({}))).unwrap();
-        let context = rules::prepare_fact_source_inputs(
-            producer,
-            source_direction,
-            builder.snapshot(),
-            generation,
-            nkdk_conversion_core::inputs::read(&source_inputs).unwrap(),
-        )
-        .unwrap();
-        let (direction, bytes) = match source.get("yaml").and_then(Value::as_str) {
-            Some(yaml) => {
-                assert!(source.get("xml").is_none(), "Ambiguous fact source format");
-                (Direction::YamlToXml, yaml.as_bytes())
-            }
-            None => (
-                Direction::XmlToYaml,
-                source["xml"].as_str().unwrap().as_bytes(),
-            ),
-        };
-        let diagnostics =
-            rules::contribute_file(producer, direction, bytes, &context, &mut builder);
-        assert!(diagnostics.is_empty(), "Index preparation: {diagnostics:?}");
-    }
-    let facts = Arc::new(builder.finish());
+        100_000,
+    )
+    .unwrap_or_else(|errors| panic!("Index preparation: {errors:?}"));
+    let facts = prepared.facts;
     let mut values = nkdk_conversion_core::inputs::read(&input).unwrap();
     for (name, index) in bindings {
         values.push((

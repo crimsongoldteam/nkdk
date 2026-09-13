@@ -46,6 +46,37 @@ pub struct PreparedInputs {
     values: Vec<Option<InputValue>>,
 }
 impl PreparedInputs {
+    /// Replace prepared index handles without copying scalar context or documents.
+    pub fn with_indexes(mut self, overlay: Self) -> Result<Self> {
+        if overlay.entry.is_none()
+            || self.entry.map(|id| id.0) != overlay.entry.map(|id| id.0)
+            || self.values.len() != overlay.values.len()
+            || !overlay.documents.is_empty()
+            || overlay
+                .values
+                .iter()
+                .flatten()
+                .any(|value| !matches!(value, InputValue::TextIndex(_)))
+            || self.values.iter().zip(&overlay.values).any(|(old, new)| {
+                new.is_some()
+                    && old
+                        .as_ref()
+                        .is_some_and(|value| !matches!(value, InputValue::TextIndex(_)))
+            })
+        {
+            return Err(RuntimeDiagnostic::new(
+                "input.index-overlay",
+                "Incompatible prepared index overlay",
+            ));
+        }
+        for (slot, value) in self.values.iter_mut().zip(overlay.values) {
+            if value.is_some() {
+                *slot = value;
+            }
+        }
+        Ok(self)
+    }
+
     pub fn with_documents(
         mut self,
         documents: Vec<(crate::resources::RelativePath, Vec<u8>)>,

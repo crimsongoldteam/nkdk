@@ -4,6 +4,7 @@
 pub mod dependencies;
 pub mod graph;
 pub mod identity;
+pub mod preparation;
 pub mod prepared;
 pub mod text;
 

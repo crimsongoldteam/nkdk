@@ -105,3 +105,59 @@ fn prepared_index_inputs_borrow_values_and_keep_missing_distinct_from_unready() 
         .is_err()
     );
 }
+
+#[test]
+fn replacing_indexes_moves_context_and_rejects_foreign_or_scalar_overlays() {
+    let declaration = [("name", InputType::Text), ("index", InputType::TextIndex)];
+    let original = PreparedInputs::prepare(
+        EntryId(1),
+        &declaration,
+        vec![("name".into(), InputValue::Text("owned context".into()))],
+    )
+    .unwrap();
+    let original = original
+        .with_documents(vec![(
+            nkdk_conversion_core::resources::RelativePath::new(["source.xml"], 100).unwrap(),
+            b"<Source/>".to_vec(),
+        )])
+        .unwrap();
+    let document = original.document(&["source.xml"]).as_ptr();
+    let pointer = original.text(0).unwrap().as_ptr();
+    let mut builder = TextFactsBuilder::new(
+        Generation(1),
+        1,
+        FactBudget {
+            text: TextBudget {
+                entries: 10,
+                bytes: 100,
+            },
+            rows: 10,
+        },
+    );
+    builder.push(FactId(0), "key", "value").unwrap();
+    let binding = TextIndexInput::new(Arc::new(builder.finish()), Generation(1), FactId(0));
+    let overlay = PreparedInputs::prepare(
+        EntryId(1),
+        &declaration,
+        vec![("index".into(), InputValue::TextIndex(binding))],
+    )
+    .unwrap();
+    let merged = original.with_indexes(overlay).unwrap();
+    assert_eq!(merged.text(0).unwrap().as_ptr(), pointer);
+    assert_eq!(merged.document(&["source.xml"]).as_ptr(), document);
+    assert_eq!(
+        merged.text_index(1).unwrap().lookup("key").unwrap(),
+        Some("value")
+    );
+    for (entry, values) in [
+        (EntryId(2), vec![]),
+        (
+            EntryId(1),
+            vec![("name".into(), InputValue::Text("replacement".into()))],
+        ),
+    ] {
+        let original = PreparedInputs::prepare(EntryId(1), &declaration, vec![]).unwrap();
+        let overlay = PreparedInputs::prepare(entry, &declaration, values).unwrap();
+        assert!(original.with_indexes(overlay).is_err());
+    }
+}

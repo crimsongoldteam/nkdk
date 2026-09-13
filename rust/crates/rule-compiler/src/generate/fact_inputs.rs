@@ -53,6 +53,19 @@ pub(super) fn generate(entries: &[&LinkedEntry], names: &[&str], program: &Progr
     }
     out.push_str("_=>&[]}}\n");
     out.push_str(r#"
+pub struct FactCatalog;
+impl core::facts::preparation::Catalog for FactCatalog {
+    fn index_count()->usize { fact_names().len() }
+    fn plan(sources:&[(EntryId,Direction)],consumers:&[EntryId],budget:usize)->core::Result<core::facts::dependencies::DependencyPlan> { fact_plan_for_sources(sources,consumers,budget) }
+    fn builder(generation:core::facts::Generation,budget:core::facts::prepared::FactBudget)->core::facts::prepared::TextFactsBuilder { fact_builder(generation,budget) }
+    fn bind(source:&core::facts::preparation::Source<'_>,direction:Option<Direction>,facts:std::sync::Arc<core::facts::prepared::PreparedTextFacts>,generation:core::facts::Generation)->core::Result<PreparedInputs> {
+        match direction {
+            Some(direction)=>prepare_fact_source_inputs(source.entry,direction,facts,generation,vec![]),
+            None=>prepare_fact_inputs(source.entry,facts,generation,vec![]),
+        }
+    }
+    fn contribute(source:&core::facts::preparation::Source<'_>,builder:&mut core::facts::prepared::TextFactsBuilder)->Vec<RuntimeDiagnostic> { contribute_file(source.entry,source.direction,source.bytes,&source.inputs,builder) }
+}
 pub fn prepare_fact_inputs(entry:EntryId,facts:std::sync::Arc<core::facts::prepared::PreparedTextFacts>,generation:core::facts::Generation,values:Vec<(String,InputValue)>)->core::Result<PreparedInputs> {
     bind_fact_inputs(entry,fact_input_bindings(entry),facts,generation,values)
 }
