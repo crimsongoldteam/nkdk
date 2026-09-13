@@ -1,6 +1,50 @@
+ExternalFile принят: четыре свойства подключены к трём файловым сборкам
+конфигурации, расширения и XDTO-пакета. Принято **19/90 common**.
+Прошли 199 Rust-тестов, 76 сценариев кандидатов, 19 проверок инструмента
+миграции, Clippy, архитектурная проверка и поиск дублей. Полные владельцы
+конфигурации и XDTO ещё не приняты; [подробности](../reports/2026-09-13-external-file.md).
+
+
+Завершено распознавание группы Help/AdditionalIndexes: 39/39 вхождений.
+Для отчёта и обработки сохранено требование привязать source_root к каталогу
+имени; Rust-групповая операция проверена на их e2e-каталогах в обе стороны.
+Это не завершение полных владельцев: рабочие привязки остаются 4,
+новых флажков нет, common — 18/90.
+
+Продолжение пакета Help: распознаются 37/39 вхождений; добавлены два
+составных кандидата (основные свойства конфигурации/общей формы + Help).
+Проходят 72 проверки кандидатов и проверка сборок документа/журнала.
+Это новые проверяемые подключения к проекциям, не полные владельцы.
+Два вычисляемых пути остаются блокировками. Итог common — 18/90.
+
+Массовый пакет Help, 13 сентября: +17 проверенных соответствий старых правил;
+генератор распознаёт 36/39 вхождений. Проходят 68 проверок внешних файлов
+на e2e. Рабочих привязок владельцев по-прежнему 4; новых полных объектов
+нет, флажки и итог 18/90 не меняются. Оставшиеся 3 блокировки: конфигурация
+без externalMetadata, вычисляемые пути обработки и отчёта.
+
 # Чеклист перехода объектов на YAML-декларации и Rust
 
-Дата сверки: 2026-09-10. [Главный план](2026-09-10-rust-yaml-declarations.md) · [Журнал проверок](../reports/2026-09-10-rust-yaml-progress.md).
+Принято **19/90 common**. Полные Document и DocumentJournal ещё не приняты.
+Общий XML-record расширен типизированными атрибутами и сохранением их исходной
+записи. Это инфраструктура; дополнительных флажков объектов не устанавливает.
+Правила присутствия полей вложенной скалярной записи также перенесены в общий
+путь. Счётчик принятия объектов от этой подготовки не изменяется.
+Подключены ограничения полей вложенной скалярной записи и полные пути их
+диагностик. Это также подготовка общего механизма, без новых флажков объектов.
+Составная запись больше не требует единственного булева атрибута: проверены
+несколько скалярных атрибутов, поле-элемент и коллекция. Новых принятых объектов
+от этого изменения нет. Следующий пакет обязательных простых свойств добавил
+19 кандидатов: всего 3369; 127 независимых сценариев прошли. Флажки не меняются.
+Подготовка и восстановление GeneratedType, сборка соседних коллекций, обычные свойства владельцев и команды, цепочки реквизитов и внешние формы выбора, свойства и регистрация дочерних форм, общие группы модулей и файлов макетов, декларация страниц справки и её файловые ресурсы описаны в [текущем плане](2026-09-10-rust-yaml-current.md); флажки остаются снятыми до полного переноса.
+Подробности промежуточных работ — в журнале, ниже только итоговые флажки.
+
+Коллекция со ссылкой на целую декларацию строки получила выполнение XML/YAML,
+включая вложенные коллекции и аномалии отдельных вхождений. Это общий механизм;
+AdditionalIndexes принят после проверки идентичностей, корневого YAML-массива
+и внешнего документа. [Отчёт](../reports/2026-09-13-additional-indexes.md).
+
+Дата сверки: 2026-09-13. [Главный план](2026-09-10-rust-yaml-declarations.md) · [Журнал проверок](../reports/2026-09-10-rust-yaml-progress.md).
 
 ## Как читать
 
@@ -8,7 +52,7 @@
 - `[ ]` — объект не завершён. Промежуточные результаты учитываются только в журнале.
 - Служебные каталоги включены, чтобы не потерять их обязанности. Для них завершение означает перенос ответственности в общий Rust-механизм, а не обязательное создание отдельной YAML-декларации.
 
-Приняты 9 common-объектов: двусторонние интерфейсы I8nText, FormattedI8nText, MetadataName, StringOrNumber, PredefinedCode, MinMaxValue, boolean, number и dateTime (XML ↔ YAML, валидация и структурная схема). Enterprise исключён из реализации и условий готовности по решению пользователя. Наличие общего компилятора, синтетического примера или успешного теста отдельного свойства не означает завершение всего объекта. В частности, `common.code-type` — синтетический пример, а не перенесённое системное перечисление.
+Приняты 19 common-объектов: двусторонние интерфейсы I8nText, FormattedI8nText, MetadataName, StringOrNumber, PredefinedCode, MinMaxValue, boolean, number, dateTime, FieldsList, IndexField, WebSocketClientHeaders, XDTOPackages, UsePurposes, XDTOTypeName, Help, AdditionalIndex и String (XML ↔ YAML, валидация и структурная схема), а также ExternalFile (перенос непрозрачных файлов в обе стороны). Enterprise исключён из реализации и условий готовности по решению пользователя. Наличие общего компилятора, синтетического примера или успешного теста отдельного свойства не означает завершение всего объекта. В частности, `common.code-type` — синтетический пример, а не перенесённое системное перечисление.
 
 ## Когда ставить галочку
 
@@ -23,6 +67,8 @@
 
 Работы группируются по [механизмам и семействам](2026-09-10-rust-yaml-catalog.md#перенос-семействами-рабочая-карта-механизмов). Общий механизм сам по себе не даёт галочку его потребителям.
 
+При приёмке проверять настоящую декларативность: предметные имена, значения и исключения находятся в YAML, а общий Rust-код не содержит условий по конкретному объекту. Проверка того же механизма на независимой декларации с другими именами обязательна для нового семейства.
+
 ## Правило обновления для исполнителя
 
 После завершения каждого объекта, в той же порции изменений, обновить его строку, ссылки на доказательства и сводку; согласовать запись с `tests/migration/coverage.json`, если объект входит в этот реестр, и журналом. Не откладывать обновление до конца всего этапа. Промежуточные результаты записывать только в журнале; в чеклисте оставлять пустой флажок. При найденном несоответствии снять галочку и записать причину. Новые объекты и вложенные части добавлять при их обнаружении. Общую инфраструктуру не засчитывать вместо объектов.
@@ -31,7 +77,7 @@
 
 | Группа | Записей | Полностью завершено |
 |---|---:|---:|
-| Общие объекты (common) | 90 | 9 |
+| Общие объекты (common) | 90 | 19 |
 | Вложенные части общих объектов | 27 | 0 |
 | Прикладные объекты и их вложенные части | 56 | 0 |
 | Формы, элементы и общие части форм | 66 | 0 |
@@ -43,7 +89,7 @@
 
 - [ ] [commonObjects/accountingFlag](../../../packages/rules/metadata/commonObjects/accountingFlag)
 - [ ] [commonObjects/accumulationRegisterAggregates](../../../packages/rules/metadata/commonObjects/accumulationRegisterAggregates)
-- [ ] [commonObjects/additionalIndex](../../../packages/rules/metadata/commonObjects/additionalIndex)
+- [x] [commonObjects/additionalIndex](../../../packages/rules/metadata/commonObjects/additionalIndex) — 2026-09-13: [декларация](../../../rust/declarations/common/additional-indexes.yaml), [приёмка](../reports/2026-09-13-additional-indexes.md), [e2e](../../../tests/migration/additional-indexes-e2e.json).
 - [x] [commonObjects/boolean](../../../packages/rules/metadata/commonObjects/boolean) — 2026-09-10: [декларация](../../../rust/declarations/common/boolean.yaml), [default без сокращения](../../../rust/declarations/probes/boolean-preserved-default.yaml), [общие проверки](../../../rust/crates/compiled-rules/tests/scalars.rs), [e2e](../../../tests/migration/scalar-value-e2e.json). Оба значения, отсутствие, сокращение и сохранение явного default.
 - [ ] [commonObjects/border](../../../packages/rules/metadata/commonObjects/border)
 - [ ] [commonObjects/characteristicsDescription](../../../packages/rules/metadata/commonObjects/characteristicsDescription)
@@ -59,17 +105,17 @@
 - [ ] [commonObjects/dataCompositionSystem](../../../packages/rules/metadata/commonObjects/dataCompositionSystem)
 - [x] [commonObjects/dateTime](../../../packages/rules/metadata/commonObjects/dateTime) — 2026-09-10: [дата](../../../rust/declarations/common/date-time.yaml), [типизированная дата](../../../rust/declarations/common/typed-date-time.yaml), [default](../../../rust/declarations/probes/date-time-default.yaml), [26 календарных свойств e2e](../../../tests/migration/calendar-profile-e2e.json). Время как записано, константа при сборке, сокращение и схема.
 - [ ] [commonObjects/exchangePlanContent](../../../packages/rules/metadata/commonObjects/exchangePlanContent)
-- [ ] [commonObjects/externalFile](../../../packages/rules/metadata/commonObjects/externalFile)
+- [x] [commonObjects/externalFile](../../../packages/rules/metadata/commonObjects/externalFile) — 2026-09-13: [декларация](../../../rust/declarations/common/external-file.yaml), [сборки владельцев](../../../rust/declarations/resources), [приёмка](../reports/2026-09-13-external-file.md).
 - [ ] [commonObjects/externalPicture](../../../packages/rules/metadata/commonObjects/externalPicture)
-- [ ] [commonObjects/fieldsList](../../../packages/rules/metadata/commonObjects/fieldsList)
+- [x] [commonObjects/fieldsList](../../../packages/rules/metadata/commonObjects/fieldsList) — 2026-09-11: [декларация](../../../rust/declarations/common/fields-list.yaml), [readable](../../../rust/declarations/common/fields-list-readable.yaml), [профиль владельца](../../../rust/declarations/probes/fields-list-readable-default.yaml), [проверки](../../../rust/crates/compiled-rules/tests/sequences.rs), [e2e](../../../tests/migration/text-collections-e2e.json).
 - [ ] [commonObjects/fillValue](../../../packages/rules/metadata/commonObjects/fillValue)
 - [ ] [commonObjects/font](../../../packages/rules/metadata/commonObjects/font)
 - [x] [commonObjects/formattedI8nText](../../../packages/rules/metadata/commonObjects/formattedI8nText) — 2026-09-10; [декларация](../../../rust/declarations/common/formatted-i8n-text.yaml), [приёмка](../reports/2026-09-10-formatted-i8n-acceptance.md).
 - [ ] [commonObjects/functionalOptionsProperty](../../../packages/rules/metadata/commonObjects/functionalOptionsProperty)
-- [ ] [commonObjects/help](../../../packages/rules/metadata/commonObjects/help)
+- [x] [commonObjects/help](../../../packages/rules/metadata/commonObjects/help) — 2026-09-12: [декларация](../../../rust/declarations/fragments/help.yaml), [владельцы](../../../rust/crates/compiled-rules/tests/path_lexicons.rs), [группа файлов](../../../rust/apps/nkdk/tests/resources.rs).
 - [ ] [commonObjects/homePageWorkArea](../../../packages/rules/metadata/commonObjects/homePageWorkArea)
 - [x] [commonObjects/i8nText](../../../packages/rules/metadata/commonObjects/i8nText) — 2026-09-10; [декларация](../../../rust/declarations/common/i8n-text.yaml), [приёмка и проверки](../reports/2026-09-10-i8n-acceptance.md).
-- [ ] [commonObjects/indexField](../../../packages/rules/metadata/commonObjects/indexField)
+- [x] [commonObjects/indexField](../../../packages/rules/metadata/commonObjects/indexField) — 2026-09-11: [декларация](../../../rust/declarations/common/index-field.yaml), [профиль AdditionalFields](../../../rust/declarations/probes/index-field-default.yaml), [проверки](../../../rust/crates/compiled-rules/tests/sequences.rs), [e2e](../../../tests/migration/text-collections-e2e.json).
 - [ ] [commonObjects/inputByStringFields](../../../packages/rules/metadata/commonObjects/inputByStringFields)
 - [ ] [commonObjects/internalInfo](../../../packages/rules/metadata/commonObjects/internalInfo)
 - [ ] [commonObjects/metadataAttribute](../../../packages/rules/metadata/commonObjects/metadataAttribute)
@@ -115,19 +161,19 @@
 - [ ] [commonObjects/standardPeriod](../../../packages/rules/metadata/commonObjects/standardPeriod) — для полной приёмки нужны пути данных М6 и реальный случай e2e; проверки преобразования записаны в журнале М3.
 - [ ] [commonObjects/standardTabularSectionDescription](../../../packages/rules/metadata/commonObjects/standardTabularSectionDescription)
 - [ ] [commonObjects/standartBeginningDate](../../../packages/rules/metadata/commonObjects/standartBeginningDate) — для полной приёмки нужны пути данных М6; проверки преобразования записаны в журнале М3.
-- [ ] [commonObjects/string](../../../packages/rules/metadata/commonObjects/string)
+- [x] [commonObjects/string](../../../packages/rules/metadata/commonObjects/string) — 2026-09-13: [декларация](../../../rust/declarations/common/string.yaml), [матрица и 51 значение e2e](../../../rust/crates/compiled-rules/tests/scalars.rs), [приёмка и границы](../reports/2026-09-13-ready-common-package.md).
 - [x] [commonObjects/stringOrNumber](../../../packages/rules/metadata/commonObjects/stringOrNumber) — 2026-09-10: [декларация](../../../rust/declarations/common/string-or-number.yaml), [e2e семейства](../../../tests/migration/scalar-choice-e2e.json), [оба профиля и аномалии](../../../rust/crates/compiled-rules/tests/scalars.rs), [схема](../../../rust/crates/rule-compiler/tests/schema.rs).
 - [ ] [commonObjects/styleItemValue](../../../packages/rules/metadata/commonObjects/styleItemValue)
 - [ ] [commonObjects/typeDescription](../../../packages/rules/metadata/commonObjects/typeDescription)
 - [ ] [commonObjects/typeLink](../../../packages/rules/metadata/commonObjects/typeLink)
-- [ ] [commonObjects/usePurposes](../../../packages/rules/metadata/commonObjects/usePurposes)
+- [x] [commonObjects/usePurposes](../../../packages/rules/metadata/commonObjects/usePurposes) — 2026-09-11: [декларация](../../../rust/declarations/common/use-purposes.yaml), [профиль default](../../../rust/declarations/probes/use-purposes-default.yaml), [оба направления и аномалии](../../../rust/crates/compiled-rules/tests/sequences.rs), [175 свойств e2e](../../../tests/migration/use-purposes-e2e.json). Сокращения точных списков, сохранение порядка/повторов и неизвестных значений; ограничения и аномалии без предметного Rust.
 - [ ] [commonObjects/userSettingsID](../../../packages/rules/metadata/commonObjects/userSettingsID)
 - [ ] [commonObjects/userVisible](../../../packages/rules/metadata/commonObjects/userVisible)
 - [ ] [commonObjects/uuid](../../../packages/rules/metadata/commonObjects/uuid)
-- [ ] [commonObjects/webSocketClientHeaders](../../../packages/rules/metadata/commonObjects/webSocketClientHeaders)
+- [x] [commonObjects/webSocketClientHeaders](../../../packages/rules/metadata/commonObjects/webSocketClientHeaders) — 2026-09-10: [декларация](../../../rust/declarations/common/web-socket-client-headers.yaml), [профиль владельца](../../../rust/declarations/probes/web-socket-client-headers-default.yaml), [проверки](../../../rust/crates/compiled-rules/tests/sequences.rs), [e2e](../../../tests/migration/text-collections-e2e.json).
 - [ ] [commonObjects/wsDefinitionSchemas](../../../packages/rules/metadata/commonObjects/wsDefinitionSchemas)
-- [ ] [commonObjects/xDTOPackages](../../../packages/rules/metadata/commonObjects/xDTOPackages)
-- [ ] [commonObjects/xdtoTypeName](../../../packages/rules/metadata/commonObjects/xdtoTypeName)
+- [x] [commonObjects/xDTOPackages](../../../packages/rules/metadata/commonObjects/xDTOPackages) — 2026-09-10: [декларация](../../../rust/declarations/common/xdto-packages.yaml), [профиль владельца](../../../rust/declarations/probes/xdto-packages-default.yaml), [проверки](../../../rust/crates/compiled-rules/tests/sequences.rs), [e2e](../../../tests/migration/text-collections-e2e.json).
+- [x] [commonObjects/xdtoTypeName](../../../packages/rules/metadata/commonObjects/xdtoTypeName) — декларация `common/xdto-type-name.yaml`, общий QName по URI и локальному имени; XML ↔ YAML, схема, валидация, вывод аномалий; 8 реальных свойств: `tests/migration/xdto-type-name-e2e.json`, независимые проверки QName в core/compiler/compiled-rules.
 - [ ] [commonObjects/xmlRoot](../../../packages/rules/metadata/commonObjects/xmlRoot)
 - [ ] [commonObjects/сhoiceParameterLinks](../../../packages/rules/metadata/commonObjects/сhoiceParameterLinks)
 - [ ] [commonObjects/сhoiceParameters](../../../packages/rules/metadata/commonObjects/сhoiceParameters)
@@ -307,4 +353,178 @@
 - [ ] Завершить CLI/MCP, сборку и проверки без TypeScript/Node.js.
 - [ ] Проверить цели 10× на согласованном e2e-наборе и удалить TypeScript.
 
-Подробные проверенные результаты основы приведены в журнале. Последние изменения аномалий и сохранения XML ещё находятся в рабочей копии; галочек объектам они не добавляют.
+Подробные проверенные результаты основы приведены в журнале. Профили путей (695 корневых и 1211 путей членов из e2e) ещё не завершают metadataPath: остаются остальные формы, общий выбор профиля, сокращения и проверка связей. В 474 случаях член и вложенный объект выбираются общей [декларацией](../../../rust/declarations/common/metadata-structural-path.yaml) по словарям и разделителям. Ограничения выбранного варианта сохраняются; это ещё не выбор всех форм metadataPath. Флажки ссылочных объектов не изменены; принято 15/90 common. Изменения находятся в рабочей копии.
+
+Уточнено распознавание первого многосимвольного разделителя; оно проверено
+независимой матрицей и повторным e2e на собранном CLI. Это улучшение общего
+механизма, новых отметок готовности объектов нет.
+
+Предопределённые значения, пустые ссылки и MainTable проверены на
+[39 проекциях e2e](../../../tests/migration/metadata-terminal-path-e2e.json).
+Исправлен прежний слишком широкий отбор Table: AdditionalIndex.Table имеет
+строковый договор и не переводится. MetadataName переиспользуется без копии
+ограничения в новых представлениях. Флажки полного переноса не изменены.
+Самостоятельная text-sequence подключена к генератору: ограничения каждого
+элемента, перевод словарей и аномалии физического свойства проверяются вместе.
+[20 хвостов путей e2e](../../../tests/migration/metadata-object-segments-e2e.json)
+прошли оба направления на CLI. Проекция исключает корень и владельца;
+композиция начала и хвоста теперь подключена; проверка существования цели
+и полный набор форм metadataPath ещё не готовы.
+Флажки ссылочных common остаются снятыми; принято 15/90.
+
+Генератор цепочки проверяет границы без повторного прохода по отдельным
+элементам и резервирует итоговую строку один раз. Это улучшение общего
+механизма; оно не добавляет отметок готовности common.
+
+Фиксированное начало и переменная коллекция сегментов генерируются общим
+механизмом. common.metadata-object-chain-path переиспользует словари и
+MetadataName; это вспомогательный профиль, не новый завершённый common.
+Проверены [20 полных записей путей e2e](../../../tests/migration/metadata-object-chain-path-e2e.json)
+на свежем CLI. Затем подключена проверка конечной цели по индексам:
+235 корней и 12 детей из cf e2e, 17 путей с проверкой YAML и восстановления XML.
+[Происхождение данных](../../../tests/migration/metadata-root-index-inventory.json).
+Общие fold/each выражают обход и ограничения свойства без частных обработчиков.
+Флажок metadataPath остаётся снятым до всех форм, владельцев и проектной интеграции.
+
+
+2026-09-12: [14 тестовых договоров кандидатов](../reports/2026-09-12-rules-contracts.md)
+прошли на Rust. Это проверка пяти проекций свойств; полные объекты не приняты,
+новые флажки не установлены. Счётчик остаётся 16/90 common.
+
+Продолжение проверки кандидатов: 29 случаев, включая пустые состояния,
+порядок, повторы и аномалии базового профиля I8nText. Это не завершает
+новый объект; флажки и счётчик 16/90 не изменены.
+
+Проверки кандидатов расширены до 46: обычный I8nText, сокращение по имени,
+отсутствие свойства внутри Properties и при известном имени. Исправлено
+наследование common в генераторе кандидатов. Это ещё не полный владелец;
+флажки остаются без изменений, 16/90 common.
+
+Массовое извлечение охватывает 224 набора свойств rules.ts/childRules.ts.
+Проверены совместные свойства e2e, включая реквизиты, WebService и WebSocket.
+MinMaxValue и три семейства списков подключены к кандидатам; это не приёмка
+полных объектов. Флажки без изменений: 16/90 common.
+
+Переносчик подключает также FormattedI8nText. 68 проверок защищают полные
+ожидаемые YAML, включая scalar-аномалии и отсутствие атрибута formatted.
+Состав и явный xmlOrder 224 правил совпали с TS. Новых принятых объектов нет.
+
+Прошли 74 проверки кандидатов, включая QName вложенных WebService и списки
+AdditionalIndex. Для 2995 свойств получены декларации-кандидаты. Полные
+владельцы ещё не приняты; флажки без изменений (16/90).
+
+Прошли 79 проверок, включая группы команд с подготовленным индексом.
+Исправлена обычная форма Group по 74 значениям e2e; редкий xsi:type сохраняется
+как аномалия. 3012 свойств-кандидатов; новые флажки не установлены.
+
+Прошли 85 проверок: добавлены собственные/общие формы и нумераторы с индексами.
+3111 свойств-кандидатов не означают готовность полных объектов. Новые флажки
+не установлены; счётчик 16/90. Системные перечисления остаются одним пунктом.
+
+Прошли 89 проверок: дополнительно выражены разные значения при отсутствии
+XML/YAML у логических свойств форм. 3145 свойств-кандидатов, ещё 2732
+вхождения заблокированы. Полные объекты не приняты, флажки без изменений.
+
+Прошли 90 проверок, включая список документов журнала и повторения ссылок.
+Полный набор тестов проекта и проверка типов зелёные. Новых принятых объектов
+нет: это проекции свойств, счётчик остаётся 16/90.
+
+Прошёл 91 договор, включая «Вводится на основании» и дочернюю таблицу.
+3154 свойства-кандидата, 2723 вхождения заблокированы. Флажки без изменений:
+полная оболочка, дочерние объекты и внешние файлы ещё требуют приёмки.
+
+Дополнительно перенесён договор сохранения явных значений по умолчанию;
+3165 свойств-кандидатов и 91 прошедшая проверка. Новых принятых объектов нет,
+счётчик остаётся 16/90; 2712 вхождений ещё заблокированы.
+
+Прошли 98 договоров, включая 39 поддержанных свойств источника Form на
+четырёх реальных формах и StringOrNumber. Получены 3247 свойств-кандидатов;
+2630 вхождений заблокированы. Полные формы ещё не приняты: флажки и счётчик
+16/90 сохраняются до проверки оставшихся свойств, дочерних объектов и ресурсов.
+
+Добавлены четыре проверки второго источника формы (Metadata), всего 102
+прошедших договора. Разделение источников проверено; полного переноса формы
+это не подтверждает. Новых флажков нет.
+
+Поддержаны пути с пространствами имён: 3318 свойств-кандидатов, 104
+прошедших договора, 2559 заблокированных вхождений. Полный Rust-набор зелёный.
+Число принятых common по-прежнему 16/90; проекции не заменяют приёмку объектов.
+
+Постоянные числовые границы перенесены для девяти свойств: 3327 кандидатов,
+110 прошедших договоров, 2550 блокировок. Новых полностью принятых объектов
+нет; бинарные флажки остаются без изменений.
+
+Проверены явный HTTPМетод при XML-default, логические YAML-литералы из common
+и строковые defaults конфигурации. Всего 3343 кандидата и 113 прошедших
+договоров; 2534 вхождения заблокированы. Полная конфигурация этим не принята,
+флажки common остаются 16/90.
+
+Проверка массового переноса: UsePurposes подключён во всех пяти обнаруженных
+вхождениях; базовый профиль и профиль с назначением по умолчанию проверены
+раздельно. Всего прошёл 121 договор кандидатов. Это не приёмка содержащих их
+владельцев; дополнительные флажки не установлены.
+
+Два свойства dateTime получили кандидаты; проверены дата, время и default. Всего 124 сценария. Новые флажки объектов не установлены.
+
+
+2026-09-13: завершён слой независимых состояний XML-записей/коллекций и YAML-полей/
+обычных списков. Полный Rust workspace — 192 теста; после последнего уточнения
+служебной привязки повторно прошли 127 договоров кандидатов. Сохранены 3369
+кандидатов, 838 фрагментов, 813 проекций и 2508 блокировок. Дополнительных флажков
+нет: сборка вложенного элемента, AdditionalIndexes и полные владельцы остаются
+непринятыми. Принято по-прежнему **16/90 common**.
+
+
+2026-09-13: после сборки XML/YAML-состояний владельца прошли полный Rust workspace
+(192 теста) и все 127 договоров кандидатов на текущем коде. Проверены сокращения,
+аномалии, независимые состояния и сочетание скаляров с коллекцией. Кандидатов
+по-прежнему 3369; нового полностью принятого объекта нет. Флажки сохраняются
+строго бинарными: **16/90 common**. AdditionalIndexes, Document и DocumentJournal
+остаются без флажков до полной приёмки.
+
+
+### 2026-09-13: состояние вложенной скалярной YAML-записи
+
+`ScalarRecordReader` принимает события общей YAML-последовательности; сборщик
+владельца подключает его для вложенной скалярной записи. Отсутствие оболочки,
+пустая запись, повторные ключи и теги сохраняют прежние договоры. Для обычного
+пути не создаются промежуточные YAML-байты или дерево.
+
+Добавлена одна проверка независимости состояний в conversion-core; существующая
+матрица генератора расширена сочетанием скалярного атрибута, вложенной записи и
+соседнего поля. Ожидаемый XML задан независимо; источник байтов при приёме
+событий пустой. Проверка обязательных полей пустой записи сохранена.
+Целевая матрица генератора и проверки YAML прошли. Архитектура Rust и новые
+дубли проверены успешно. Все 164 теста двух затронутых пакетов и Clippy для них прошли.
+
+Число полностью принятых common остаётся 16/90. AdditionalIndexes не отмечен:
+ссылка на целую декларацию элемента, вложенные коллекции и идентичности ещё
+требуют завершения. Самопроверка универсальности: ветвление идёт по форме
+представления, частных имён объектов и свойств в общем обработчике нет.
+
+
+### 2026-09-13: полный договор элемента коллекции — связывание
+
+Ссылка `value.item: {use: row}` позволяет опустить `representations.xml.item`
+и `representations.yaml.item` одновременно. Компилятор сохраняет целую
+декларацию строки и специализирует её параметры, не копируя поля в описание
+коллекции. Схема скалярной записи сохраняет обязательность, значения по
+умолчанию и ограничения. Проверены явные параметры и параметры по умолчанию,
+неполная пара представлений и запрет неявного представления встроенного типа.
+Примеры включены в существующую проверку схемы деклараций.
+
+Это завершение связывания, а не выполнения коллекции. Генерация жизненного
+цикла строки, вложенные коллекции и приёмка AdditionalIndexes остаются открыты.
+Флажки объектов не изменены: 16/90 common. Полная проверка Rust прошла: 194 теста. Разбор ссылки объединён в
+`LinkedType::as_reference`; новых дублей нет. После объединения повторно
+прошли 133 теста компилятора и модели, а также Clippy их целей.
+Архитектурная проверка Rust, форматирование и `git diff --check` прошли.
+# Проверка состояния 13 сентября
+
+Проверены четыре существующих подключения Help/AdditionalIndexes к документу
+и журналу, включая внешние XML и ресурсы. Новых полностью принятых объектов
+нет; флажки и итог 18/90 не изменяются.
+
+Реестр готовых подключений сформировал два кандидата для 19 вхождений.
+Это не новые полностью перенесённые объекты: итог остаётся 18/90,
+дополнительные флажки не выставлены. Пять случаев проверяют внешние XML.
