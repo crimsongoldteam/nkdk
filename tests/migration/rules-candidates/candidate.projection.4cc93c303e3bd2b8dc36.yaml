@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.4cc93c303e3bd2b8dc36
+description: 'Кандидат проекции: относительный XML-корень MarkingStep; не полный владелец'
+imports:
+  part0: candidate.fragment.c31e7ff761c4119d6993
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

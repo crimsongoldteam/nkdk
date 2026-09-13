@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.3f791eafb4aec710d080
+description: 'Кандидат проекции: относительный XML-корень Scale; не полный владелец'
+imports:
+  part0: candidate.fragment.603f649e17f7895d2a07
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

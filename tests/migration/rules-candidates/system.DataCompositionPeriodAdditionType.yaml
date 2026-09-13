@@ -1,0 +1,40 @@
+format: nkdk-declarations/1
+kind: value
+id: system.DataCompositionPeriodAdditionType
+enum:
+  None: БезДополнения
+  Year: Год
+  YearSinceBeginOfPeriod: ГодОтНачалаПериода
+  YearSinceBeginOfPeriod445: ГодОтНачалаПериода445
+  TenDays: Декада
+  Day: День
+  DaySinceBeginOfPeriod: ДеньОтНачалаПериода
+  Quarter: Квартал
+  QuarterSinceBeginOfPeriod: КварталОтНачалаПериода
+  QuarterSinceBeginOfPeriod445: КварталОтНачалаПериода445
+  Month: Месяц
+  MonthSinceBeginOfPeriod: МесяцОтНачалаПериода
+  MonthSinceBeginOfPeriod445: МесяцОтНачалаПериода445
+  Minute: Минута
+  MinuteSinceBeginOfPeriod: МинутаОтНачалаПериода
+  Week: Неделя
+  WeekSinceBeginOfPeriod: НеделяОтНачалаПериода
+  HalfYear: Полугодие
+  HalfYearSinceBeginOfPeriod: ПолугодиеОтНачалаПериода
+  HalfYearSinceBeginOfPeriod445: ПолугодиеОтНачалаПериода445
+  Second: Секунда
+  Hour: Час
+  HourSinceBeginOfPeriod: ЧасОтНачалаПериода
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  t: http://v8.1c.ru/8.1/data-composition-system/core
+projections:
+  - id: system.DataCompositionPeriodAdditionType.dcs
+    xml:
+      kind: with-attributes
+      attributes:
+        - name: xsi:type
+          value:
+            qname: t:DataCompositionPeriodAdditionType
+      content:
+        kind: text

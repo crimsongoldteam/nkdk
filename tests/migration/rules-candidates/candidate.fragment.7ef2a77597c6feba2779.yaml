@@ -1,0 +1,34 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: openButton
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: openButton
+        path:
+          - OpenButton
+  yaml:
+    kind: mapping
+    fields:
+      - field: openButton
+        key: КнопкаОткрытия
+presence:
+  - target:
+      field: openButton
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+id: candidate.fragment.7ef2a77597c6feba2779

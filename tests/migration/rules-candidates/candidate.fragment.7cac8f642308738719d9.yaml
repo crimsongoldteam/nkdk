@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.exact-decimal
+value:
+  kind: record
+  fields:
+    - name: heightInTableRows
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: heightInTableRows
+        path:
+          - HeightInTableRows
+  yaml:
+    kind: mapping
+    fields:
+      - field: heightInTableRows
+        key: ВысотаВСтрокахТаблицы
+presence:
+  - target:
+      field: heightInTableRows
+    xml:
+      missing:
+        denotes:
+          literal: 0
+      canonical:
+        - when:
+            eq:
+              - field: heightInTableRows
+              - literal: 0
+          form: missing
+    yaml:
+      default:
+        literal: 0
+id: candidate.fragment.7cac8f642308738719d9

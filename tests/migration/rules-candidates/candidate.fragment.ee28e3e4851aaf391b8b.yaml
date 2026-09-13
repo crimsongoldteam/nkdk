@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.FileDragMode
+value:
+  kind: record
+  fields:
+    - name: fileDragMode
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: fileDragMode
+        path:
+          - FileDragMode
+  yaml:
+    kind: mapping
+    fields:
+      - field: fileDragMode
+        key: СпособПеретаскиванияФайлов
+presence:
+  - target:
+      field: fileDragMode
+    xml:
+      missing:
+        denotes:
+          literal: AsFileRef
+      canonical:
+        - when:
+            eq:
+              - field: fileDragMode
+              - literal: AsFileRef
+          form: missing
+    yaml:
+      default:
+        literal: AsFileRef
+id: candidate.fragment.ee28e3e4851aaf391b8b

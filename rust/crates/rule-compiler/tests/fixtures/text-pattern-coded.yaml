@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: value
+id: common.coded-pair
+imports: {kind: common.pattern-kind, name: common.pattern-name}
+value:
+  kind: record
+  fields:
+  - {name: domain, type: {use: kind}}
+  - {name: name, type: {use: name}}
+representations:
+  xml: {kind: text-pattern, parts: [{field: domain}, {literal: '::'}, {field: name}]}
+  yaml: {kind: text-pattern, parts: [{literal: '['}, {field: name}, {literal: '] '}, {field: domain}]}
+constraints:
+- id: reserved-name
+  appliesTo: [xml-import, yaml-validation]
+  forms: [text, scalar]
+  assert: {not: {eq: [{get: {of: {self: true}, field: name}}, {literal: reserved}]}}
+  diagnostic: {code: pattern.reserved, severity: error, at: {self: true}, message: Reserved name}

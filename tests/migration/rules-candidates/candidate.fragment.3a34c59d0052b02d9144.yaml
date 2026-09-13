@@ -1,0 +1,35 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: markNegatives
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: markNegatives
+        path:
+          - xr:MarkNegatives
+  yaml:
+    kind: mapping
+    fields:
+      - field: markNegatives
+        key: ВыделятьОтрицательные
+presence:
+  - target:
+      field: markNegatives
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: false
+namespaces:
+  xr: http://v8.1c.ru/8.3/xcf/readable
+id: candidate.fragment.3a34c59d0052b02d9144

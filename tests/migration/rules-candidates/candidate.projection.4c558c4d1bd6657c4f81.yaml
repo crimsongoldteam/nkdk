@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.4c558c4d1bd6657c4f81
+description: 'Кандидат проекции: относительный XML-корень MarkingAppearance; не полный владелец'
+imports:
+  part0: candidate.fragment.405768de72a39b51f114
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.d6fc135383f077013c6e
+description: 'Кандидат проекции: относительный XML-корень EditTextUpdate; не полный владелец'
+imports:
+  part0: candidate.fragment.000a2f9941fead941e22
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

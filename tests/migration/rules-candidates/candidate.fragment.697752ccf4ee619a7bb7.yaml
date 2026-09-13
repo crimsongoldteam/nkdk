@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: hyperlink
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: hyperlink
+        path:
+          - Hyperlink
+  yaml:
+    kind: mapping
+    fields:
+      - field: hyperlink
+        key: Гиперссылка
+presence:
+  - target:
+      field: hyperlink
+    xml:
+      missing:
+        denotes:
+          literal: false
+      canonical:
+        - when:
+            eq:
+              - field: hyperlink
+              - literal: false
+          form: missing
+    yaml:
+      default:
+        literal: false
+id: candidate.fragment.697752ccf4ee619a7bb7

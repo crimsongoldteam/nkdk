@@ -1,0 +1,37 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.attachment.fragment.help
+imports:
+  ready: fragment.help
+compose:
+  - use: ready
+    bind:
+      pages:
+        input: pages
+inputs:
+  pages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+value:
+  kind: record
+  fields:
+    - name: probe
+      type:
+        kind: scalar
+        scalar: text
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: probe
+        path:
+          - Probe
+          - Name
+  yaml:
+    kind: mapping
+    fields:
+      - field: probe
+        key: Проверка

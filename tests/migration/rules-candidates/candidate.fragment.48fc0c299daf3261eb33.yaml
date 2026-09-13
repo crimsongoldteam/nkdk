@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: getInvisibleFieldPresentations
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: getInvisibleFieldPresentations
+        path:
+          - GetInvisibleFieldPresentations
+  yaml:
+    kind: mapping
+    fields:
+      - field: getInvisibleFieldPresentations
+        key: ПолучениеПредставленийДляНевидимыхПолей
+presence:
+  - target:
+      field: getInvisibleFieldPresentations
+    xml:
+      missing:
+        denotes:
+          literal: true
+      canonical:
+        - when:
+            eq:
+              - field: getInvisibleFieldPresentations
+              - literal: true
+          form: missing
+    yaml:
+      default:
+        literal: true
+id: candidate.fragment.48fc0c299daf3261eb33

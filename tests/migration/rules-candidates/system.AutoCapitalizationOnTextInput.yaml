@@ -1,0 +1,22 @@
+format: nkdk-declarations/1
+kind: value
+id: system.AutoCapitalizationOnTextInput
+enum:
+  Auto: Авто
+  AllCharacters: ВсеСимволы
+  None: Нет
+  Sentences: Предложения
+  Words: Слова
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  t: http://v8.1c.ru/8.1/data/enterprise
+projections:
+  - id: system.AutoCapitalizationOnTextInput.dcs
+    xml:
+      kind: with-attributes
+      attributes:
+        - name: xsi:type
+          value:
+            qname: t:AutoCapitalizationOnTextInput
+      content:
+        kind: text

@@ -1,0 +1,36 @@
+format: nkdk-declarations/1
+kind: value
+id: system.InputFieldAutofillHint
+enum:
+  Email: Email
+  City: Город
+  GivenName: Имя
+  UserName: ИмяПользователя
+  PostalCode: Индекс
+  DontUse: НеИспользовать
+  NewPassword: НовыйПароль
+  CreditCardNumber: НомерБанковскойКарты
+  PhoneNumber: НомерТелефона
+  OneTimeCode: ОдноразовыйПароль
+  MiddleName: Отчество
+  Password: Пароль
+  FullName: ПолноеИмя
+  NamePrefix: ПрефиксИмени
+  Region: Регион
+  Country: Страна
+  NameSuffix: СуффиксИмени
+  Street: Улица
+  FamilyName: Фамилия
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  t: http://v8.1c.ru/8.1/data/enterprise
+projections:
+  - id: system.InputFieldAutofillHint.dcs
+    xml:
+      kind: with-attributes
+      attributes:
+        - name: xsi:type
+          value:
+            qname: t:InputFieldAutofillHint
+      content:
+        kind: text

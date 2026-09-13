@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.f607074e344db8fdff69
+description: 'Кандидат проекции: относительный XML-корень AllowInputEmptyMultipleValues; не полный владелец'
+imports:
+  part0: candidate.fragment.ae7f14f71dc63746c139
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

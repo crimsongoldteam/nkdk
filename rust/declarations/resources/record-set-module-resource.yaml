@@ -1,0 +1,9 @@
+format: nkdk-declarations/1
+kind: resources
+id: resources.record-set-module-resource
+imports: {module: fragment.record-set-module-resource}
+compose: [{use: module}]
+value: {kind: record, fields: []}
+representations:
+  xml: {kind: record, fields: []}
+  yaml: {kind: mapping, fields: []}

@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: enableDrag
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: enableDrag
+        path:
+          - EnableDrag
+  yaml:
+    kind: mapping
+    fields:
+      - field: enableDrag
+        key: РазрешитьПеретаскивание
+presence:
+  - target:
+      field: enableDrag
+    xml:
+      missing:
+        denotes:
+          literal: false
+      canonical:
+        - when:
+            eq:
+              - field: enableDrag
+              - literal: false
+          form: missing
+    yaml:
+      default:
+        literal: false
+id: candidate.fragment.4820f28696c0f895e40a

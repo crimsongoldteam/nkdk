@@ -1,0 +1,5041 @@
+{
+  "status": "review-only-no-replacement",
+  "candidateManifestSHA256": "b35a69f2084b4757fd9f27da0331874364cca81a9320ca3c855d9a6c4a55b841",
+  "workingSources": [
+    {
+      "path": "rust/declarations/common/document-name-path.yaml",
+      "sha256": "690beb0600e2d6234d6e12c5fbad2f9423d13db49a712d711507a6e93e344d9f"
+    },
+    {
+      "path": "rust/declarations/common/document-numerator-link.yaml",
+      "sha256": "b35d33e8204d24cf51352fa94acfc88e0ae228c49dd0913fb2dec632d28ee867"
+    },
+    {
+      "path": "rust/declarations/common/document-register-links.yaml",
+      "sha256": "fead12b9e49f0c53cce8e1ba91c3e0a80648e0873565d86b5746bef026ad08a9"
+    },
+    {
+      "path": "rust/declarations/common/journal-document-links.yaml",
+      "sha256": "c66952e419f4449150683a853200b15f6b59c265598bb8cfec86e95fec5a45ad"
+    },
+    {
+      "path": "rust/declarations/fragments/document-base-properties.yaml",
+      "sha256": "34baf83cf7fd86d2acb90889ef7adbe56310bf7744c1e211220b410e1e24e0f6"
+    },
+    {
+      "path": "rust/declarations/fragments/document-based-on.yaml",
+      "sha256": "32b7b7cef5bd2fb9502bd36e5516278714dbcf09842a57ee11a3fedcdf80cd92"
+    },
+    {
+      "path": "rust/declarations/fragments/document-child-names.yaml",
+      "sha256": "0b61c760c1eff9def9f73cf6e879c8a24a4eb4e679ef1634cac90200847bb9f1"
+    },
+    {
+      "path": "rust/declarations/fragments/document-form-links.yaml",
+      "sha256": "fdc1c72722dd42e34e36b9be1c7c59667eb576b6f61f299902524acccf226dd3"
+    },
+    {
+      "path": "rust/declarations/fragments/document-internal-info.yaml",
+      "sha256": "b6ff5554ac7cf974586c13bbdb5acc092f23769f6f66482c166a8c220b544f9c"
+    },
+    {
+      "path": "rust/declarations/fragments/document-numerator.yaml",
+      "sha256": "aed08fc51d63ddf276f7ba7f8fa79dec306d7b078e5cc0cfdea287068af425b7"
+    },
+    {
+      "path": "rust/declarations/fragments/document-object-links.yaml",
+      "sha256": "03b5b15faae4f10e66f6a1d306f51b946af2e1683de020043e848761597e3d7e"
+    },
+    {
+      "path": "rust/declarations/fragments/document-register-records.yaml",
+      "sha256": "b4ba9ce5c9a4a07546f188e7874ca7fd0db4a4dce751066d2617d7ad2b9e9e57"
+    },
+    {
+      "path": "rust/declarations/fragments/journal-base-properties.yaml",
+      "sha256": "afc4b0ff44c35644463f6d4b836686781e1193dfb9de6e1a0ccb322001f65b3a"
+    },
+    {
+      "path": "rust/declarations/fragments/journal-child-names.yaml",
+      "sha256": "073b87e2468ef342514bad175113e87e80d9449097b8f54ef60ea80d70e14bc8"
+    },
+    {
+      "path": "rust/declarations/fragments/journal-form-links.yaml",
+      "sha256": "59f5dff2a423aa1c05d00d3bdae42a2502402e5302af8389da86fe6f54bc5698"
+    },
+    {
+      "path": "rust/declarations/fragments/journal-internal-info.yaml",
+      "sha256": "93397ea820247b13c5fd79197af5b894cc0db5f7c891ab72ea0d1d37be2cea0f"
+    },
+    {
+      "path": "rust/declarations/probes/document-base-properties.yaml",
+      "sha256": "8321ada0c1a507242167e0da126416acbdcf653018f2a4b7e38542e82381abf2"
+    },
+    {
+      "path": "rust/declarations/probes/document-child-names.yaml",
+      "sha256": "3ae9a5cd184e8050a61d8ca3cc4d5c3fa7102a3b7c231c2c62e70e00aa481c80"
+    },
+    {
+      "path": "rust/declarations/probes/document-form-links.yaml",
+      "sha256": "d4e55f2ee103b7228161bda226e741fd0851272c5355463cd397fce04a501057"
+    },
+    {
+      "path": "rust/declarations/probes/document-identity-and-children.yaml",
+      "sha256": "bf554ca6609c2cc6a86550aaef31d72301d8c00addb17e298fd9aba4cd8c23bb"
+    },
+    {
+      "path": "rust/declarations/probes/document-internal-info.yaml",
+      "sha256": "b2b7813f420c775ac1e0183a995ddbd11dd9250990b3aa37983ded5e8c70b6c8"
+    },
+    {
+      "path": "rust/declarations/probes/document-internal-types.yaml",
+      "sha256": "96a82e23c68274cc52d68bb8512fe4a1a09c44a0a3300486a27bb2a8d192626a"
+    },
+    {
+      "path": "rust/declarations/probes/document-object-links.yaml",
+      "sha256": "702e82be3e327196cbe643ae9a190ef06c11bfa04fb242de33efe7703ee34000"
+    },
+    {
+      "path": "rust/declarations/probes/document-register-links.yaml",
+      "sha256": "d5b06dae04a2301e82fbd63fd8c32bc4337c8cc35658ae271787f56296896e83"
+    },
+    {
+      "path": "rust/declarations/probes/document-register-records.yaml",
+      "sha256": "3a7cda92171e85169fc9ff559d6bcff8b5dd48b5f10990706e5480c755392e4d"
+    },
+    {
+      "path": "rust/declarations/probes/journal-base-properties.yaml",
+      "sha256": "116b9edf4dc7b251dceff32b619f75237d1bfb9c0a6425fb2c11b9a33b48f654"
+    },
+    {
+      "path": "rust/declarations/probes/journal-child-names.yaml",
+      "sha256": "7777384e032d62164d3851e2c9301348ffa80d208fc09fa4051ba6aaa7676302"
+    },
+    {
+      "path": "rust/declarations/probes/journal-document-links.yaml",
+      "sha256": "ad6bc84e7ff5b3ddc6b222c97485e5b7dbfd0560b158b7e2dceba2c4fe943b2e"
+    },
+    {
+      "path": "rust/declarations/probes/journal-form-links.yaml",
+      "sha256": "ce6c58b29aa069ccd88b88cc2fa6547fdc400929e7b2fe455ed204c28dacd615"
+    },
+    {
+      "path": "rust/declarations/probes/journal-identity-and-children.yaml",
+      "sha256": "13b026065eb5dcbec6d89ff062fb2d4a9ff91244d17723312079cee7ca384b86"
+    },
+    {
+      "path": "rust/declarations/probes/journal-internal-info.yaml",
+      "sha256": "45d560fb5b777d62a465b6853ff115ea1bdff81ea53c31e21daae2c4d94911a6"
+    },
+    {
+      "path": "rust/declarations/probes/journal-internal-types.yaml",
+      "sha256": "69910a8875c11ff784c9e22117002cd59f6c98a0f7cb18c2b7805b4bed25f9e9"
+    }
+  ],
+  "owners": [
+    {
+      "symbol": "MetadataDocumentRules",
+      "candidateCount": 38,
+      "matchedCount": 38,
+      "blocked": [
+        {
+          "name": "internalInfo",
+          "source": {
+            "path": "packages/rules/metadata/appliedObjects/metadataDocument/rules.ts",
+            "line": 116,
+            "column": 5
+          },
+          "status": "blocked",
+          "reason": "unsupported-common"
+        },
+        {
+          "name": "objectBelonging",
+          "source": {
+            "path": "packages/rules/metadata/appliedObjects/metadataDocument/rules.ts",
+            "line": 370,
+            "column": 5
+          },
+          "status": "blocked",
+          "reason": "unsupported-parameters:toYAML,fromYAML"
+        },
+        {
+          "name": "name",
+          "source": {
+            "path": "packages/rules/metadata/appliedObjects/metadataDocument/rules.ts",
+            "line": 328,
+            "column": 5
+          },
+          "status": "blocked",
+          "reason": "requires-expression-mapping"
+        },
+        {
+          "name": "numberLength",
+          "source": {
+            "path": "packages/rules/metadata/appliedObjects/metadataDocument/rules.ts",
+            "line": 340,
+            "column": 5
+          },
+          "status": "blocked",
+          "reason": "unsupported-parameters:description,maximumWhen"
+        },
+        {
+          "name": "standardAttributes",
+          "source": {
+            "path": "packages/rules/metadata/appliedObjects/metadataDocument/rules.ts",
+            "line": 443,
+            "column": 5
+          },
+          "status": "blocked",
+          "reason": "unsupported-common"
+        },
+        {
+          "name": "characteristics",
+          "source": {
+            "path": "packages/rules/metadata/appliedObjects/metadataDocument/rules.ts",
+            "line": 161,
+            "column": 5
+          },
+          "status": "blocked",
+          "reason": "unsupported-common"
+        },
+        {
+          "name": "inputByString",
+          "source": {
+            "path": "packages/rules/metadata/appliedObjects/metadataDocument/rules.ts",
+            "line": 316,
+            "column": 5
+          },
+          "status": "blocked",
+          "reason": "requires-expression-mapping"
+        },
+        {
+          "name": "defaultChoiceForm",
+          "source": {
+            "path": "packages/rules/metadata/appliedObjects/metadataDocument/rules.ts",
+            "line": 261,
+            "column": 5
+          },
+          "status": "blocked",
+          "reason": "unsupported-common"
+        },
+        {
+          "name": "registerRecords",
+          "source": {
+            "path": "packages/rules/metadata/appliedObjects/metadataDocument/rules.ts",
+            "line": 411,
+            "column": 5
+          },
+          "status": "blocked",
+          "reason": "adopted-default-profile"
+        },
+        {
+          "name": "dataLockFields",
+          "source": {
+            "path": "packages/rules/metadata/appliedObjects/metadataDocument/rules.ts",
+            "line": 255,
+            "column": 5
+          },
+          "status": "blocked",
+          "reason": "unsupported-common"
+        },
+        {
+          "name": "attributes",
+          "source": {
+            "path": "packages/rules/metadata/appliedObjects/metadataDocument/rules.ts",
+            "line": 140,
+            "column": 5
+          },
+          "status": "blocked",
+          "reason": "requires-expression-mapping"
+        },
+        {
+          "name": "forms",
+          "source": {
+            "path": "packages/rules/metadata/appliedObjects/metadataDocument/rules.ts",
+            "line": 212,
+            "column": 5
+          },
+          "status": "blocked",
+          "reason": "unsupported-common"
+        },
+        {
+          "name": "tabularSections",
+          "source": {
+            "path": "packages/rules/metadata/appliedObjects/metadataDocument/rules.ts",
+            "line": 454,
+            "column": 5
+          },
+          "status": "blocked",
+          "reason": "requires-expression-mapping"
+        },
+        {
+          "name": "templates",
+          "source": {
+            "path": "packages/rules/metadata/appliedObjects/metadataDocument/rules.ts",
+            "line": 220,
+            "column": 5
+          },
+          "status": "blocked",
+          "reason": "unsupported-common"
+        },
+        {
+          "name": "commands",
+          "source": {
+            "path": "packages/rules/metadata/appliedObjects/metadataDocument/rules.ts",
+            "line": 186,
+            "column": 5
+          },
+          "status": "blocked",
+          "reason": "unsupported-common"
+        },
+        {
+          "name": "uuid",
+          "source": {
+            "path": "packages/rules/metadata/appliedObjects/metadataDocument/rules.ts",
+            "line": 127,
+            "column": 5
+          },
+          "status": "blocked",
+          "reason": "unsupported-common"
+        },
+        {
+          "name": "additionalIndexes",
+          "source": {
+            "path": "packages/rules/metadata/appliedObjects/metadataDocument/rules.ts",
+            "line": 136,
+            "column": 5
+          },
+          "status": "blocked",
+          "reason": "unsupported-common"
+        },
+        {
+          "name": "help",
+          "source": {
+            "path": "packages/rules/metadata/appliedObjects/metadataDocument/rules.ts",
+            "line": 205,
+            "column": 5
+          },
+          "status": "blocked",
+          "reason": "unsupported-common"
+        },
+        {
+          "name": "xmlRoot",
+          "source": {
+            "path": "packages/rules/metadata/appliedObjects/metadataDocument/rules.ts",
+            "line": 109,
+            "column": 5
+          },
+          "status": "blocked",
+          "reason": "unsupported-common"
+        },
+        {
+          "name": "objectModule",
+          "source": {
+            "path": "packages/rules/metadata/appliedObjects/metadataDocument/rules.ts",
+            "line": 191,
+            "column": 5
+          },
+          "status": "blocked",
+          "reason": "unsupported-common"
+        },
+        {
+          "name": "managerModule",
+          "source": {
+            "path": "packages/rules/metadata/appliedObjects/metadataDocument/rules.ts",
+            "line": 198,
+            "column": 5
+          },
+          "status": "blocked",
+          "reason": "unsupported-common"
+        }
+      ],
+      "fields": [
+        {
+          "candidate": {
+            "module": "candidate.fragment.b8bab99065f19b00e056",
+            "field": "synonym",
+            "type": {
+              "use": "common.i8n-text",
+              "with": {
+                "excludeIfEqualNameYAML": true
+              },
+              "bind": {
+                "defaultLanguage": {
+                  "input": "defaultLanguage"
+                },
+                "registeredLanguages": {
+                  "input": "registeredLanguages"
+                },
+                "ownerName": {
+                  "input": "ownerName"
+                }
+              }
+            },
+            "xml": {
+              "field": "synonym",
+              "path": [
+                "Properties",
+                "Synonym"
+              ]
+            },
+            "yaml": {
+              "field": "synonym",
+              "key": "Синоним"
+            },
+            "presence": {
+              "target": {
+                "field": "synonym"
+              },
+              "xml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                },
+                "canonical": [
+                  {
+                    "when": {
+                      "not": {
+                        "present": {
+                          "field": "synonym"
+                        }
+                      }
+                    },
+                    "form": "empty-element"
+                  }
+                ]
+              }
+            }
+          },
+          "existing": [
+            {
+              "module": "fragment.document-base-properties",
+              "field": "Synonym",
+              "type": {
+                "use": "common.i8n-text",
+                "with": {
+                  "excludeIfEqualNameYAML": true
+                },
+                "bind": {
+                  "defaultLanguage": {
+                    "input": "defaultLanguage"
+                  },
+                  "registeredLanguages": {
+                    "input": "registeredLanguages"
+                  },
+                  "ownerName": {
+                    "input": "name"
+                  }
+                }
+              },
+              "xml": {
+                "field": "Synonym",
+                "path": [
+                  "md:MetaDataObject",
+                  "md:Document",
+                  "md:Properties",
+                  "md:Synonym"
+                ]
+              },
+              "yaml": {
+                "field": "Synonym",
+                "key": "Синоним"
+              },
+              "presence": null
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "module": "candidate.fragment.b8bab99065f19b00e056",
+            "field": "comment",
+            "type": {
+              "use": "common.string",
+              "with": {},
+              "bind": {}
+            },
+            "xml": {
+              "field": "comment",
+              "path": [
+                "Properties",
+                "Comment"
+              ]
+            },
+            "yaml": {
+              "field": "comment",
+              "key": "Комментарий"
+            },
+            "presence": {
+              "target": {
+                "field": "comment"
+              },
+              "xml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                }
+              },
+              "yaml": {
+                "default": {
+                  "literal": ""
+                }
+              }
+            }
+          },
+          "existing": [
+            {
+              "module": "fragment.document-base-properties",
+              "field": "Comment",
+              "type": {
+                "kind": "scalar",
+                "scalar": "text"
+              },
+              "xml": {
+                "field": "Comment",
+                "path": [
+                  "md:MetaDataObject",
+                  "md:Document",
+                  "md:Properties",
+                  "md:Comment"
+                ]
+              },
+              "yaml": {
+                "field": "Comment",
+                "key": "Комментарий"
+              },
+              "presence": {
+                "target": {
+                  "field": "Comment"
+                },
+                "xml": {
+                  "missing": {
+                    "denotes": {
+                      "absent": true
+                    }
+                  }
+                },
+                "yaml": {
+                  "default": {
+                    "literal": ""
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "module": "candidate.fragment.b8bab99065f19b00e056",
+            "field": "useStandardCommands",
+            "type": {
+              "use": "common.boolean",
+              "with": {},
+              "bind": {}
+            },
+            "xml": {
+              "field": "useStandardCommands",
+              "path": [
+                "Properties",
+                "UseStandardCommands"
+              ]
+            },
+            "yaml": {
+              "field": "useStandardCommands",
+              "key": "ИспользоватьСтандартныеКоманды"
+            },
+            "presence": {
+              "target": {
+                "field": "useStandardCommands"
+              },
+              "xml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                }
+              },
+              "yaml": {
+                "default": {
+                  "literal": true
+                }
+              }
+            }
+          },
+          "existing": [
+            {
+              "module": "fragment.document-base-properties",
+              "field": "UseStandardCommands",
+              "type": {
+                "use": "common.boolean",
+                "with": {},
+                "bind": {}
+              },
+              "xml": {
+                "field": "UseStandardCommands",
+                "path": [
+                  "md:MetaDataObject",
+                  "md:Document",
+                  "md:Properties",
+                  "md:UseStandardCommands"
+                ]
+              },
+              "yaml": {
+                "field": "UseStandardCommands",
+                "key": "ИспользоватьСтандартныеКоманды"
+              },
+              "presence": {
+                "target": {
+                  "field": "UseStandardCommands"
+                },
+                "xml": {
+                  "missing": {
+                    "denotes": {
+                      "absent": true
+                    }
+                  }
+                },
+                "yaml": {
+                  "default": {
+                    "literal": true
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "module": "candidate.fragment.b8bab99065f19b00e056",
+            "field": "numerator",
+            "type": {
+              "use": "common.document-numerator-link",
+              "with": {},
+              "bind": {
+                "roots": {
+                  "input": "roots"
+                }
+              }
+            },
+            "xml": {
+              "field": "numerator",
+              "path": [
+                "Properties",
+                "Numerator"
+              ]
+            },
+            "yaml": {
+              "field": "numerator",
+              "key": "Нумератор"
+            },
+            "presence": {
+              "target": {
+                "field": "numerator"
+              },
+              "xml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                },
+                "empty": [
+                  {
+                    "form": "empty-element",
+                    "denotes": {
+                      "absent": true
+                    }
+                  }
+                ],
+                "canonical": [
+                  {
+                    "when": {
+                      "not": {
+                        "present": {
+                          "field": "numerator"
+                        }
+                      }
+                    },
+                    "form": "empty-element"
+                  }
+                ]
+              },
+              "yaml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                }
+              }
+            }
+          },
+          "existing": [
+            {
+              "module": "fragment.document-numerator",
+              "field": "Numerator",
+              "type": {
+                "use": "common.document-numerator-link",
+                "with": {},
+                "bind": {
+                  "roots": {
+                    "input": "roots"
+                  }
+                }
+              },
+              "xml": {
+                "field": "Numerator",
+                "path": [
+                  "md:MetaDataObject",
+                  "md:Document",
+                  "md:Properties",
+                  "md:Numerator"
+                ]
+              },
+              "yaml": {
+                "field": "Numerator",
+                "key": "Нумератор"
+              },
+              "presence": {
+                "target": {
+                  "field": "Numerator"
+                },
+                "xml": {
+                  "missing": {
+                    "denotes": {
+                      "absent": true
+                    }
+                  },
+                  "empty": [
+                    {
+                      "form": "empty-element",
+                      "denotes": {
+                        "absent": true
+                      }
+                    }
+                  ],
+                  "canonical": [
+                    {
+                      "when": {
+                        "not": {
+                          "present": {
+                            "field": "Numerator"
+                          }
+                        }
+                      },
+                      "form": "empty-element"
+                    }
+                  ]
+                },
+                "yaml": {
+                  "missing": {
+                    "denotes": {
+                      "absent": true
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "module": "candidate.fragment.b8bab99065f19b00e056",
+            "field": "numberType",
+            "type": {
+              "use": "system.DocumentNumberType",
+              "with": {},
+              "bind": {}
+            },
+            "xml": {
+              "field": "numberType",
+              "path": [
+                "Properties",
+                "NumberType"
+              ]
+            },
+            "yaml": {
+              "field": "numberType",
+              "key": "ТипНомера"
+            },
+            "presence": {
+              "target": {
+                "field": "numberType"
+              },
+              "xml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                }
+              },
+              "yaml": {
+                "default": {
+                  "literal": "String"
+                }
+              }
+            }
+          },
+          "existing": [
+            {
+              "module": "fragment.document-base-properties",
+              "field": "NumberType",
+              "type": {
+                "use": "system.DocumentNumberType",
+                "with": {},
+                "bind": {}
+              },
+              "xml": {
+                "field": "NumberType",
+                "path": [
+                  "md:MetaDataObject",
+                  "md:Document",
+                  "md:Properties",
+                  "md:NumberType"
+                ]
+              },
+              "yaml": {
+                "field": "NumberType",
+                "key": "ТипНомера"
+              },
+              "presence": {
+                "target": {
+                  "field": "NumberType"
+                },
+                "xml": {
+                  "missing": {
+                    "denotes": {
+                      "absent": true
+                    }
+                  }
+                },
+                "yaml": {
+                  "default": {
+                    "literal": "String"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "module": "candidate.fragment.b8bab99065f19b00e056",
+            "field": "numberAllowedLength",
+            "type": {
+              "use": "system.AllowedLength",
+              "with": {},
+              "bind": {}
+            },
+            "xml": {
+              "field": "numberAllowedLength",
+              "path": [
+                "Properties",
+                "NumberAllowedLength"
+              ]
+            },
+            "yaml": {
+              "field": "numberAllowedLength",
+              "key": "ДопустимаяДлинаНомера"
+            },
+            "presence": {
+              "target": {
+                "field": "numberAllowedLength"
+              },
+              "xml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                }
+              },
+              "yaml": {
+                "default": {
+                  "literal": "Variable"
+                }
+              }
+            }
+          },
+          "existing": [
+            {
+              "module": "fragment.document-base-properties",
+              "field": "NumberAllowedLength",
+              "type": {
+                "use": "system.AllowedLength",
+                "with": {},
+                "bind": {}
+              },
+              "xml": {
+                "field": "NumberAllowedLength",
+                "path": [
+                  "md:MetaDataObject",
+                  "md:Document",
+                  "md:Properties",
+                  "md:NumberAllowedLength"
+                ]
+              },
+              "yaml": {
+                "field": "NumberAllowedLength",
+                "key": "ДопустимаяДлинаНомера"
+              },
+              "presence": {
+                "target": {
+                  "field": "NumberAllowedLength"
+                },
+                "xml": {
+                  "missing": {
+                    "denotes": {
+                      "absent": true
+                    }
+                  }
+                },
+                "yaml": {
+                  "default": {
+                    "literal": "Variable"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "module": "candidate.fragment.b8bab99065f19b00e056",
+            "field": "numberPeriodicity",
+            "type": {
+              "use": "system.BusinessProcessNumberPeriodicity",
+              "with": {},
+              "bind": {}
+            },
+            "xml": {
+              "field": "numberPeriodicity",
+              "path": [
+                "Properties",
+                "NumberPeriodicity"
+              ]
+            },
+            "yaml": {
+              "field": "numberPeriodicity",
+              "key": "ПериодичностьНомера"
+            },
+            "presence": {
+              "target": {
+                "field": "numberPeriodicity"
+              },
+              "xml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                }
+              },
+              "yaml": {
+                "default": {
+                  "literal": "Nonperiodical"
+                }
+              }
+            }
+          },
+          "existing": [
+            {
+              "module": "fragment.document-base-properties",
+              "field": "NumberPeriodicity",
+              "type": {
+                "use": "system.BusinessProcessNumberPeriodicity",
+                "with": {},
+                "bind": {}
+              },
+              "xml": {
+                "field": "NumberPeriodicity",
+                "path": [
+                  "md:MetaDataObject",
+                  "md:Document",
+                  "md:Properties",
+                  "md:NumberPeriodicity"
+                ]
+              },
+              "yaml": {
+                "field": "NumberPeriodicity",
+                "key": "ПериодичностьНомера"
+              },
+              "presence": {
+                "target": {
+                  "field": "NumberPeriodicity"
+                },
+                "xml": {
+                  "missing": {
+                    "denotes": {
+                      "absent": true
+                    }
+                  }
+                },
+                "yaml": {
+                  "default": {
+                    "literal": "Nonperiodical"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "module": "candidate.fragment.b8bab99065f19b00e056",
+            "field": "checkUnique",
+            "type": {
+              "use": "common.boolean",
+              "with": {},
+              "bind": {}
+            },
+            "xml": {
+              "field": "checkUnique",
+              "path": [
+                "Properties",
+                "CheckUnique"
+              ]
+            },
+            "yaml": {
+              "field": "checkUnique",
+              "key": "КонтрольУникальности"
+            },
+            "presence": {
+              "target": {
+                "field": "checkUnique"
+              },
+              "xml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                }
+              },
+              "yaml": {
+                "default": {
+                  "literal": true
+                }
+              }
+            }
+          },
+          "existing": [
+            {
+              "module": "fragment.document-base-properties",
+              "field": "CheckUnique",
+              "type": {
+                "use": "common.boolean",
+                "with": {},
+                "bind": {}
+              },
+              "xml": {
+                "field": "CheckUnique",
+                "path": [
+                  "md:MetaDataObject",
+                  "md:Document",
+                  "md:Properties",
+                  "md:CheckUnique"
+                ]
+              },
+              "yaml": {
+                "field": "CheckUnique",
+                "key": "КонтрольУникальности"
+              },
+              "presence": {
+                "target": {
+                  "field": "CheckUnique"
+                },
+                "xml": {
+                  "missing": {
+                    "denotes": {
+                      "absent": true
+                    }
+                  }
+                },
+                "yaml": {
+                  "default": {
+                    "literal": true
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "module": "candidate.fragment.b8bab99065f19b00e056",
+            "field": "autonumbering",
+            "type": {
+              "use": "common.boolean",
+              "with": {},
+              "bind": {}
+            },
+            "xml": {
+              "field": "autonumbering",
+              "path": [
+                "Properties",
+                "Autonumbering"
+              ]
+            },
+            "yaml": {
+              "field": "autonumbering",
+              "key": "Автонумерация"
+            },
+            "presence": {
+              "target": {
+                "field": "autonumbering"
+              },
+              "xml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                }
+              },
+              "yaml": {
+                "default": {
+                  "literal": true
+                }
+              }
+            }
+          },
+          "existing": [
+            {
+              "module": "fragment.document-base-properties",
+              "field": "Autonumbering",
+              "type": {
+                "use": "common.boolean",
+                "with": {},
+                "bind": {}
+              },
+              "xml": {
+                "field": "Autonumbering",
+                "path": [
+                  "md:MetaDataObject",
+                  "md:Document",
+                  "md:Properties",
+                  "md:Autonumbering"
+                ]
+              },
+              "yaml": {
+                "field": "Autonumbering",
+                "key": "Автонумерация"
+              },
+              "presence": {
+                "target": {
+                  "field": "Autonumbering"
+                },
+                "xml": {
+                  "missing": {
+                    "denotes": {
+                      "absent": true
+                    }
+                  }
+                },
+                "yaml": {
+                  "default": {
+                    "literal": true
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "module": "candidate.fragment.b8bab99065f19b00e056",
+            "field": "basedOn",
+            "type": {
+              "use": "common.based-on-links",
+              "with": {},
+              "bind": {
+                "roots": {
+                  "input": "roots"
+                },
+                "children": {
+                  "input": "children"
+                }
+              }
+            },
+            "xml": {
+              "field": "basedOn",
+              "path": [
+                "Properties",
+                "BasedOn"
+              ]
+            },
+            "yaml": {
+              "field": "basedOn",
+              "key": "ВводитсяНаОсновании"
+            },
+            "presence": null
+          },
+          "existing": [
+            {
+              "module": "fragment.document-based-on",
+              "field": "BasedOn",
+              "type": {
+                "use": "common.based-on-links",
+                "with": {},
+                "bind": {
+                  "roots": {
+                    "input": "roots"
+                  },
+                  "children": {
+                    "input": "children"
+                  }
+                }
+              },
+              "xml": {
+                "field": "BasedOn",
+                "path": [
+                  "md:MetaDataObject",
+                  "md:Document",
+                  "md:Properties",
+                  "md:BasedOn"
+                ]
+              },
+              "yaml": {
+                "field": "BasedOn",
+                "key": "ВводитсяНаОсновании"
+              },
+              "presence": null
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "module": "candidate.fragment.b8bab99065f19b00e056",
+            "field": "createOnInput",
+            "type": {
+              "use": "system.CreateOnInput",
+              "with": {},
+              "bind": {}
+            },
+            "xml": {
+              "field": "createOnInput",
+              "path": [
+                "Properties",
+                "CreateOnInput"
+              ]
+            },
+            "yaml": {
+              "field": "createOnInput",
+              "key": "СозданиеПриВводе"
+            },
+            "presence": {
+              "target": {
+                "field": "createOnInput"
+              },
+              "xml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                }
+              },
+              "yaml": {
+                "default": {
+                  "literal": "Use"
+                }
+              }
+            }
+          },
+          "existing": [
+            {
+              "module": "fragment.document-base-properties",
+              "field": "CreateOnInput",
+              "type": {
+                "use": "system.CreateOnInput",
+                "with": {},
+                "bind": {}
+              },
+              "xml": {
+                "field": "CreateOnInput",
+                "path": [
+                  "md:MetaDataObject",
+                  "md:Document",
+                  "md:Properties",
+                  "md:CreateOnInput"
+                ]
+              },
+              "yaml": {
+                "field": "CreateOnInput",
+                "key": "СозданиеПриВводе"
+              },
+              "presence": {
+                "target": {
+                  "field": "CreateOnInput"
+                },
+                "xml": {
+                  "missing": {
+                    "denotes": {
+                      "absent": true
+                    }
+                  }
+                },
+                "yaml": {
+                  "default": {
+                    "literal": "Use"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "module": "candidate.fragment.b8bab99065f19b00e056",
+            "field": "searchStringModeOnInputByString",
+            "type": {
+              "use": "system.SearchStringModeOnInputByString",
+              "with": {},
+              "bind": {}
+            },
+            "xml": {
+              "field": "searchStringModeOnInputByString",
+              "path": [
+                "Properties",
+                "SearchStringModeOnInputByString"
+              ]
+            },
+            "yaml": {
+              "field": "searchStringModeOnInputByString",
+              "key": "СпособПоискаСтрокиПриВводеПоСтроке"
+            },
+            "presence": {
+              "target": {
+                "field": "searchStringModeOnInputByString"
+              },
+              "xml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                }
+              },
+              "yaml": {
+                "default": {
+                  "literal": "Begin"
+                }
+              }
+            }
+          },
+          "existing": [
+            {
+              "module": "fragment.document-base-properties",
+              "field": "SearchStringModeOnInputByString",
+              "type": {
+                "use": "system.SearchStringModeOnInputByString",
+                "with": {},
+                "bind": {}
+              },
+              "xml": {
+                "field": "SearchStringModeOnInputByString",
+                "path": [
+                  "md:MetaDataObject",
+                  "md:Document",
+                  "md:Properties",
+                  "md:SearchStringModeOnInputByString"
+                ]
+              },
+              "yaml": {
+                "field": "SearchStringModeOnInputByString",
+                "key": "СпособПоискаСтрокиПриВводеПоСтроке"
+              },
+              "presence": {
+                "target": {
+                  "field": "SearchStringModeOnInputByString"
+                },
+                "xml": {
+                  "missing": {
+                    "denotes": {
+                      "absent": true
+                    }
+                  }
+                },
+                "yaml": {
+                  "default": {
+                    "literal": "Begin"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "module": "candidate.fragment.b8bab99065f19b00e056",
+            "field": "fullTextSearchOnInputByString",
+            "type": {
+              "use": "system.FullTextSearchOnInputByString",
+              "with": {},
+              "bind": {}
+            },
+            "xml": {
+              "field": "fullTextSearchOnInputByString",
+              "path": [
+                "Properties",
+                "FullTextSearchOnInputByString"
+              ]
+            },
+            "yaml": {
+              "field": "fullTextSearchOnInputByString",
+              "key": "ПолнотекстовыйПоискПриВводеПоСтроке"
+            },
+            "presence": {
+              "target": {
+                "field": "fullTextSearchOnInputByString"
+              },
+              "xml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                }
+              },
+              "yaml": {
+                "default": {
+                  "literal": "DontUse"
+                }
+              }
+            }
+          },
+          "existing": [
+            {
+              "module": "fragment.document-base-properties",
+              "field": "FullTextSearchOnInputByString",
+              "type": {
+                "use": "system.FullTextSearchOnInputByString",
+                "with": {},
+                "bind": {}
+              },
+              "xml": {
+                "field": "FullTextSearchOnInputByString",
+                "path": [
+                  "md:MetaDataObject",
+                  "md:Document",
+                  "md:Properties",
+                  "md:FullTextSearchOnInputByString"
+                ]
+              },
+              "yaml": {
+                "field": "FullTextSearchOnInputByString",
+                "key": "ПолнотекстовыйПоискПриВводеПоСтроке"
+              },
+              "presence": {
+                "target": {
+                  "field": "FullTextSearchOnInputByString"
+                },
+                "xml": {
+                  "missing": {
+                    "denotes": {
+                      "absent": true
+                    }
+                  }
+                },
+                "yaml": {
+                  "default": {
+                    "literal": "DontUse"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "module": "candidate.fragment.b8bab99065f19b00e056",
+            "field": "choiceDataGetModeOnInputByString",
+            "type": {
+              "use": "system.ChoiceDataGetModeOnInputByString",
+              "with": {},
+              "bind": {}
+            },
+            "xml": {
+              "field": "choiceDataGetModeOnInputByString",
+              "path": [
+                "Properties",
+                "ChoiceDataGetModeOnInputByString"
+              ]
+            },
+            "yaml": {
+              "field": "choiceDataGetModeOnInputByString",
+              "key": "РежимПолученияДанныхВыбораПриВводеПоСтроке"
+            },
+            "presence": {
+              "target": {
+                "field": "choiceDataGetModeOnInputByString"
+              },
+              "xml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                }
+              },
+              "yaml": {
+                "default": {
+                  "literal": "Directly"
+                }
+              }
+            }
+          },
+          "existing": [
+            {
+              "module": "fragment.document-base-properties",
+              "field": "ChoiceDataGetModeOnInputByString",
+              "type": {
+                "use": "system.ChoiceDataGetModeOnInputByString",
+                "with": {},
+                "bind": {}
+              },
+              "xml": {
+                "field": "ChoiceDataGetModeOnInputByString",
+                "path": [
+                  "md:MetaDataObject",
+                  "md:Document",
+                  "md:Properties",
+                  "md:ChoiceDataGetModeOnInputByString"
+                ]
+              },
+              "yaml": {
+                "field": "ChoiceDataGetModeOnInputByString",
+                "key": "РежимПолученияДанныхВыбораПриВводеПоСтроке"
+              },
+              "presence": {
+                "target": {
+                  "field": "ChoiceDataGetModeOnInputByString"
+                },
+                "xml": {
+                  "missing": {
+                    "denotes": {
+                      "absent": true
+                    }
+                  }
+                },
+                "yaml": {
+                  "default": {
+                    "literal": "Directly"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "module": "candidate.fragment.b8bab99065f19b00e056",
+            "field": "defaultObjectForm",
+            "type": {
+              "use": "common.owner-or-common-form-link",
+              "with": {},
+              "bind": {
+                "owner": {
+                  "input": "owner"
+                },
+                "forms": {
+                  "input": "forms"
+                },
+                "roots": {
+                  "input": "roots"
+                }
+              }
+            },
+            "xml": {
+              "field": "defaultObjectForm",
+              "path": [
+                "Properties",
+                "DefaultObjectForm"
+              ]
+            },
+            "yaml": {
+              "field": "defaultObjectForm",
+              "key": "ОсновнаяФормаОбъекта"
+            },
+            "presence": {
+              "target": {
+                "field": "defaultObjectForm"
+              },
+              "xml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                },
+                "empty": [
+                  {
+                    "form": "empty-element",
+                    "denotes": {
+                      "absent": true
+                    }
+                  }
+                ],
+                "canonical": [
+                  {
+                    "when": {
+                      "not": {
+                        "present": {
+                          "field": "defaultObjectForm"
+                        }
+                      }
+                    },
+                    "form": "empty-element"
+                  }
+                ]
+              },
+              "yaml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                }
+              }
+            }
+          },
+          "existing": [
+            {
+              "module": "fragment.document-form-links",
+              "field": "DefaultObjectForm",
+              "type": {
+                "use": "common.owner-form-link",
+                "with": {},
+                "bind": {
+                  "owner": {
+                    "input": "ownerPath"
+                  },
+                  "forms": {
+                    "input": "forms"
+                  }
+                }
+              },
+              "xml": {
+                "field": "DefaultObjectForm",
+                "path": [
+                  "md:MetaDataObject",
+                  "md:Document",
+                  "md:Properties",
+                  "md:DefaultObjectForm"
+                ]
+              },
+              "yaml": {
+                "field": "DefaultObjectForm",
+                "key": "ОсновнаяФормаОбъекта"
+              },
+              "presence": {
+                "target": {
+                  "field": "DefaultObjectForm"
+                },
+                "xml": {
+                  "missing": {
+                    "denotes": {
+                      "absent": true
+                    }
+                  },
+                  "empty": [
+                    {
+                      "form": "empty-element",
+                      "denotes": {
+                        "absent": true
+                      }
+                    }
+                  ],
+                  "canonical": [
+                    {
+                      "when": {
+                        "not": {
+                          "present": {
+                            "field": "DefaultObjectForm"
+                          }
+                        }
+                      },
+                      "form": "empty-element"
+                    }
+                  ]
+                },
+                "yaml": {
+                  "missing": {
+                    "denotes": {
+                      "absent": true
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "module": "candidate.fragment.b8bab99065f19b00e056",
+            "field": "defaultListForm",
+            "type": {
+              "use": "common.owner-or-common-form-link",
+              "with": {},
+              "bind": {
+                "owner": {
+                  "input": "owner"
+                },
+                "forms": {
+                  "input": "forms"
+                },
+                "roots": {
+                  "input": "roots"
+                }
+              }
+            },
+            "xml": {
+              "field": "defaultListForm",
+              "path": [
+                "Properties",
+                "DefaultListForm"
+              ]
+            },
+            "yaml": {
+              "field": "defaultListForm",
+              "key": "ОсновнаяФормаСписка"
+            },
+            "presence": {
+              "target": {
+                "field": "defaultListForm"
+              },
+              "xml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                },
+                "empty": [
+                  {
+                    "form": "empty-element",
+                    "denotes": {
+                      "absent": true
+                    }
+                  }
+                ],
+                "canonical": [
+                  {
+                    "when": {
+                      "not": {
+                        "present": {
+                          "field": "defaultListForm"
+                        }
+                      }
+                    },
+                    "form": "empty-element"
+                  }
+                ]
+              },
+              "yaml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                }
+              }
+            }
+          },
+          "existing": [
+            {
+              "module": "fragment.document-form-links",
+              "field": "DefaultListForm",
+              "type": {
+                "use": "common.owner-form-link",
+                "with": {},
+                "bind": {
+                  "owner": {
+                    "input": "ownerPath"
+                  },
+                  "forms": {
+                    "input": "forms"
+                  }
+                }
+              },
+              "xml": {
+                "field": "DefaultListForm",
+                "path": [
+                  "md:MetaDataObject",
+                  "md:Document",
+                  "md:Properties",
+                  "md:DefaultListForm"
+                ]
+              },
+              "yaml": {
+                "field": "DefaultListForm",
+                "key": "ОсновнаяФормаСписка"
+              },
+              "presence": {
+                "target": {
+                  "field": "DefaultListForm"
+                },
+                "xml": {
+                  "missing": {
+                    "denotes": {
+                      "absent": true
+                    }
+                  },
+                  "empty": [
+                    {
+                      "form": "empty-element",
+                      "denotes": {
+                        "absent": true
+                      }
+                    }
+                  ],
+                  "canonical": [
+                    {
+                      "when": {
+                        "not": {
+                          "present": {
+                            "field": "DefaultListForm"
+                          }
+                        }
+                      },
+                      "form": "empty-element"
+                    }
+                  ]
+                },
+                "yaml": {
+                  "missing": {
+                    "denotes": {
+                      "absent": true
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "module": "candidate.fragment.b8bab99065f19b00e056",
+            "field": "auxiliaryObjectForm",
+            "type": {
+              "use": "common.owner-or-common-form-link",
+              "with": {},
+              "bind": {
+                "owner": {
+                  "input": "owner"
+                },
+                "forms": {
+                  "input": "forms"
+                },
+                "roots": {
+                  "input": "roots"
+                }
+              }
+            },
+            "xml": {
+              "field": "auxiliaryObjectForm",
+              "path": [
+                "Properties",
+                "AuxiliaryObjectForm"
+              ]
+            },
+            "yaml": {
+              "field": "auxiliaryObjectForm",
+              "key": "ДополнительнаяФормаОбъекта"
+            },
+            "presence": {
+              "target": {
+                "field": "auxiliaryObjectForm"
+              },
+              "xml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                },
+                "empty": [
+                  {
+                    "form": "empty-element",
+                    "denotes": {
+                      "absent": true
+                    }
+                  }
+                ],
+                "canonical": [
+                  {
+                    "when": {
+                      "not": {
+                        "present": {
+                          "field": "auxiliaryObjectForm"
+                        }
+                      }
+                    },
+                    "form": "empty-element"
+                  }
+                ]
+              },
+              "yaml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                }
+              }
+            }
+          },
+          "existing": [
+            {
+              "module": "fragment.document-form-links",
+              "field": "AuxiliaryObjectForm",
+              "type": {
+                "use": "common.owner-form-link",
+                "with": {},
+                "bind": {
+                  "owner": {
+                    "input": "ownerPath"
+                  },
+                  "forms": {
+                    "input": "forms"
+                  }
+                }
+              },
+              "xml": {
+                "field": "AuxiliaryObjectForm",
+                "path": [
+                  "md:MetaDataObject",
+                  "md:Document",
+                  "md:Properties",
+                  "md:AuxiliaryObjectForm"
+                ]
+              },
+              "yaml": {
+                "field": "AuxiliaryObjectForm",
+                "key": "ДополнительнаяФормаОбъекта"
+              },
+              "presence": {
+                "target": {
+                  "field": "AuxiliaryObjectForm"
+                },
+                "xml": {
+                  "missing": {
+                    "denotes": {
+                      "absent": true
+                    }
+                  },
+                  "empty": [
+                    {
+                      "form": "empty-element",
+                      "denotes": {
+                        "absent": true
+                      }
+                    }
+                  ],
+                  "canonical": [
+                    {
+                      "when": {
+                        "not": {
+                          "present": {
+                            "field": "AuxiliaryObjectForm"
+                          }
+                        }
+                      },
+                      "form": "empty-element"
+                    }
+                  ]
+                },
+                "yaml": {
+                  "missing": {
+                    "denotes": {
+                      "absent": true
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "module": "candidate.fragment.b8bab99065f19b00e056",
+            "field": "auxiliaryListForm",
+            "type": {
+              "use": "common.owner-or-common-form-link",
+              "with": {},
+              "bind": {
+                "owner": {
+                  "input": "owner"
+                },
+                "forms": {
+                  "input": "forms"
+                },
+                "roots": {
+                  "input": "roots"
+                }
+              }
+            },
+            "xml": {
+              "field": "auxiliaryListForm",
+              "path": [
+                "Properties",
+                "AuxiliaryListForm"
+              ]
+            },
+            "yaml": {
+              "field": "auxiliaryListForm",
+              "key": "ДополнительнаяФормаСписка"
+            },
+            "presence": {
+              "target": {
+                "field": "auxiliaryListForm"
+              },
+              "xml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                },
+                "empty": [
+                  {
+                    "form": "empty-element",
+                    "denotes": {
+                      "absent": true
+                    }
+                  }
+                ],
+                "canonical": [
+                  {
+                    "when": {
+                      "not": {
+                        "present": {
+                          "field": "auxiliaryListForm"
+                        }
+                      }
+                    },
+                    "form": "empty-element"
+                  }
+                ]
+              },
+              "yaml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                }
+              }
+            }
+          },
+          "existing": [
+            {
+              "module": "fragment.document-form-links",
+              "field": "AuxiliaryListForm",
+              "type": {
+                "use": "common.owner-form-link",
+                "with": {},
+                "bind": {
+                  "owner": {
+                    "input": "ownerPath"
+                  },
+                  "forms": {
+                    "input": "forms"
+                  }
+                }
+              },
+              "xml": {
+                "field": "AuxiliaryListForm",
+                "path": [
+                  "md:MetaDataObject",
+                  "md:Document",
+                  "md:Properties",
+                  "md:AuxiliaryListForm"
+                ]
+              },
+              "yaml": {
+                "field": "AuxiliaryListForm",
+                "key": "ДополнительнаяФормаСписка"
+              },
+              "presence": {
+                "target": {
+                  "field": "AuxiliaryListForm"
+                },
+                "xml": {
+                  "missing": {
+                    "denotes": {
+                      "absent": true
+                    }
+                  },
+                  "empty": [
+                    {
+                      "form": "empty-element",
+                      "denotes": {
+                        "absent": true
+                      }
+                    }
+                  ],
+                  "canonical": [
+                    {
+                      "when": {
+                        "not": {
+                          "present": {
+                            "field": "AuxiliaryListForm"
+                          }
+                        }
+                      },
+                      "form": "empty-element"
+                    }
+                  ]
+                },
+                "yaml": {
+                  "missing": {
+                    "denotes": {
+                      "absent": true
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "module": "candidate.fragment.b8bab99065f19b00e056",
+            "field": "auxiliaryChoiceForm",
+            "type": {
+              "use": "common.owner-or-common-form-link",
+              "with": {},
+              "bind": {
+                "owner": {
+                  "input": "owner"
+                },
+                "forms": {
+                  "input": "forms"
+                },
+                "roots": {
+                  "input": "roots"
+                }
+              }
+            },
+            "xml": {
+              "field": "auxiliaryChoiceForm",
+              "path": [
+                "Properties",
+                "AuxiliaryChoiceForm"
+              ]
+            },
+            "yaml": {
+              "field": "auxiliaryChoiceForm",
+              "key": "ДополнительнаяФормаДляВыбора"
+            },
+            "presence": {
+              "target": {
+                "field": "auxiliaryChoiceForm"
+              },
+              "xml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                },
+                "empty": [
+                  {
+                    "form": "empty-element",
+                    "denotes": {
+                      "absent": true
+                    }
+                  }
+                ],
+                "canonical": [
+                  {
+                    "when": {
+                      "not": {
+                        "present": {
+                          "field": "auxiliaryChoiceForm"
+                        }
+                      }
+                    },
+                    "form": "empty-element"
+                  }
+                ]
+              },
+              "yaml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                }
+              }
+            }
+          },
+          "existing": [
+            {
+              "module": "fragment.document-form-links",
+              "field": "AuxiliaryChoiceForm",
+              "type": {
+                "use": "common.owner-form-link",
+                "with": {},
+                "bind": {
+                  "owner": {
+                    "input": "ownerPath"
+                  },
+                  "forms": {
+                    "input": "forms"
+                  }
+                }
+              },
+              "xml": {
+                "field": "AuxiliaryChoiceForm",
+                "path": [
+                  "md:MetaDataObject",
+                  "md:Document",
+                  "md:Properties",
+                  "md:AuxiliaryChoiceForm"
+                ]
+              },
+              "yaml": {
+                "field": "AuxiliaryChoiceForm",
+                "key": "ДополнительнаяФормаДляВыбора"
+              },
+              "presence": {
+                "target": {
+                  "field": "AuxiliaryChoiceForm"
+                },
+                "xml": {
+                  "missing": {
+                    "denotes": {
+                      "absent": true
+                    }
+                  },
+                  "empty": [
+                    {
+                      "form": "empty-element",
+                      "denotes": {
+                        "absent": true
+                      }
+                    }
+                  ],
+                  "canonical": [
+                    {
+                      "when": {
+                        "not": {
+                          "present": {
+                            "field": "AuxiliaryChoiceForm"
+                          }
+                        }
+                      },
+                      "form": "empty-element"
+                    }
+                  ]
+                },
+                "yaml": {
+                  "missing": {
+                    "denotes": {
+                      "absent": true
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "module": "candidate.fragment.b8bab99065f19b00e056",
+            "field": "posting",
+            "type": {
+              "use": "system.Posting",
+              "with": {},
+              "bind": {}
+            },
+            "xml": {
+              "field": "posting",
+              "path": [
+                "Properties",
+                "Posting"
+              ]
+            },
+            "yaml": {
+              "field": "posting",
+              "key": "Проведение"
+            },
+            "presence": {
+              "target": {
+                "field": "posting"
+              },
+              "xml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                }
+              },
+              "yaml": {
+                "default": {
+                  "literal": "Allow"
+                }
+              }
+            }
+          },
+          "existing": [
+            {
+              "module": "fragment.document-base-properties",
+              "field": "Posting",
+              "type": {
+                "use": "system.Posting",
+                "with": {},
+                "bind": {}
+              },
+              "xml": {
+                "field": "Posting",
+                "path": [
+                  "md:MetaDataObject",
+                  "md:Document",
+                  "md:Properties",
+                  "md:Posting"
+                ]
+              },
+              "yaml": {
+                "field": "Posting",
+                "key": "Проведение"
+              },
+              "presence": {
+                "target": {
+                  "field": "Posting"
+                },
+                "xml": {
+                  "missing": {
+                    "denotes": {
+                      "absent": true
+                    }
+                  }
+                },
+                "yaml": {
+                  "default": {
+                    "literal": "Allow"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "module": "candidate.fragment.b8bab99065f19b00e056",
+            "field": "realTimePosting",
+            "type": {
+              "use": "system.RealTimePosting",
+              "with": {},
+              "bind": {}
+            },
+            "xml": {
+              "field": "realTimePosting",
+              "path": [
+                "Properties",
+                "RealTimePosting"
+              ]
+            },
+            "yaml": {
+              "field": "realTimePosting",
+              "key": "ОперативноеПроведение"
+            },
+            "presence": {
+              "target": {
+                "field": "realTimePosting"
+              },
+              "xml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                }
+              },
+              "yaml": {
+                "default": {
+                  "literal": "Allow"
+                }
+              }
+            }
+          },
+          "existing": [
+            {
+              "module": "fragment.document-base-properties",
+              "field": "RealTimePosting",
+              "type": {
+                "use": "system.RealTimePosting",
+                "with": {},
+                "bind": {}
+              },
+              "xml": {
+                "field": "RealTimePosting",
+                "path": [
+                  "md:MetaDataObject",
+                  "md:Document",
+                  "md:Properties",
+                  "md:RealTimePosting"
+                ]
+              },
+              "yaml": {
+                "field": "RealTimePosting",
+                "key": "ОперативноеПроведение"
+              },
+              "presence": {
+                "target": {
+                  "field": "RealTimePosting"
+                },
+                "xml": {
+                  "missing": {
+                    "denotes": {
+                      "absent": true
+                    }
+                  }
+                },
+                "yaml": {
+                  "default": {
+                    "literal": "Allow"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "module": "candidate.fragment.b8bab99065f19b00e056",
+            "field": "registerRecordsDeletion",
+            "type": {
+              "use": "system.RegisterRecordsDeletion",
+              "with": {},
+              "bind": {}
+            },
+            "xml": {
+              "field": "registerRecordsDeletion",
+              "path": [
+                "Properties",
+                "RegisterRecordsDeletion"
+              ]
+            },
+            "yaml": {
+              "field": "registerRecordsDeletion",
+              "key": "УдалениеДвижений"
+            },
+            "presence": {
+              "target": {
+                "field": "registerRecordsDeletion"
+              },
+              "xml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                }
+              },
+              "yaml": {
+                "default": {
+                  "literal": "AutoDeleteOnUnpost"
+                }
+              }
+            }
+          },
+          "existing": [
+            {
+              "module": "fragment.document-base-properties",
+              "field": "RegisterRecordsDeletion",
+              "type": {
+                "use": "system.RegisterRecordsDeletion",
+                "with": {},
+                "bind": {}
+              },
+              "xml": {
+                "field": "RegisterRecordsDeletion",
+                "path": [
+                  "md:MetaDataObject",
+                  "md:Document",
+                  "md:Properties",
+                  "md:RegisterRecordsDeletion"
+                ]
+              },
+              "yaml": {
+                "field": "RegisterRecordsDeletion",
+                "key": "УдалениеДвижений"
+              },
+              "presence": {
+                "target": {
+                  "field": "RegisterRecordsDeletion"
+                },
+                "xml": {
+                  "missing": {
+                    "denotes": {
+                      "absent": true
+                    }
+                  }
+                },
+                "yaml": {
+                  "default": {
+                    "literal": "AutoDeleteOnUnpost"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "module": "candidate.fragment.b8bab99065f19b00e056",
+            "field": "actionsWritingOnPost",
+            "type": {
+              "use": "system.RegisterRecordsWritingOnPost",
+              "with": {},
+              "bind": {}
+            },
+            "xml": {
+              "field": "actionsWritingOnPost",
+              "path": [
+                "Properties",
+                "RegisterRecordsWritingOnPost"
+              ]
+            },
+            "yaml": {
+              "field": "actionsWritingOnPost",
+              "key": "ЗаписьДвиженийПриПроведении"
+            },
+            "presence": {
+              "target": {
+                "field": "actionsWritingOnPost"
+              },
+              "xml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                }
+              },
+              "yaml": {
+                "default": {
+                  "literal": "WriteSelected"
+                }
+              }
+            }
+          },
+          "existing": [
+            {
+              "module": "fragment.document-base-properties",
+              "field": "RegisterRecordsWritingOnPost",
+              "type": {
+                "use": "system.RegisterRecordsWritingOnPost",
+                "with": {},
+                "bind": {}
+              },
+              "xml": {
+                "field": "RegisterRecordsWritingOnPost",
+                "path": [
+                  "md:MetaDataObject",
+                  "md:Document",
+                  "md:Properties",
+                  "md:RegisterRecordsWritingOnPost"
+                ]
+              },
+              "yaml": {
+                "field": "RegisterRecordsWritingOnPost",
+                "key": "ЗаписьДвиженийПриПроведении"
+              },
+              "presence": {
+                "target": {
+                  "field": "RegisterRecordsWritingOnPost"
+                },
+                "xml": {
+                  "missing": {
+                    "denotes": {
+                      "absent": true
+                    }
+                  }
+                },
+                "yaml": {
+                  "default": {
+                    "literal": "WriteSelected"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "module": "candidate.fragment.b8bab99065f19b00e056",
+            "field": "sequenceFilling",
+            "type": {
+              "use": "system.SequenceFilling",
+              "with": {},
+              "bind": {}
+            },
+            "xml": {
+              "field": "sequenceFilling",
+              "path": [
+                "Properties",
+                "SequenceFilling"
+              ]
+            },
+            "yaml": {
+              "field": "sequenceFilling",
+              "key": "ЗаполнениеПоследовательностей"
+            },
+            "presence": {
+              "target": {
+                "field": "sequenceFilling"
+              },
+              "xml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                }
+              },
+              "yaml": {
+                "default": {
+                  "literal": "AutoFill"
+                }
+              }
+            }
+          },
+          "existing": [
+            {
+              "module": "fragment.document-base-properties",
+              "field": "SequenceFilling",
+              "type": {
+                "use": "system.SequenceFilling",
+                "with": {},
+                "bind": {}
+              },
+              "xml": {
+                "field": "SequenceFilling",
+                "path": [
+                  "md:MetaDataObject",
+                  "md:Document",
+                  "md:Properties",
+                  "md:SequenceFilling"
+                ]
+              },
+              "yaml": {
+                "field": "SequenceFilling",
+                "key": "ЗаполнениеПоследовательностей"
+              },
+              "presence": {
+                "target": {
+                  "field": "SequenceFilling"
+                },
+                "xml": {
+                  "missing": {
+                    "denotes": {
+                      "absent": true
+                    }
+                  }
+                },
+                "yaml": {
+                  "default": {
+                    "literal": "AutoFill"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "module": "candidate.fragment.b8bab99065f19b00e056",
+            "field": "privilegedPostingMode",
+            "type": {
+              "use": "common.boolean",
+              "with": {},
+              "bind": {}
+            },
+            "xml": {
+              "field": "privilegedPostingMode",
+              "path": [
+                "Properties",
+                "PostInPrivilegedMode"
+              ]
+            },
+            "yaml": {
+              "field": "privilegedPostingMode",
+              "key": "ПривилегированныйРежимПриПроведении"
+            },
+            "presence": {
+              "target": {
+                "field": "privilegedPostingMode"
+              },
+              "xml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                }
+              },
+              "yaml": {
+                "default": {
+                  "literal": true
+                }
+              }
+            }
+          },
+          "existing": [
+            {
+              "module": "fragment.document-base-properties",
+              "field": "PostInPrivilegedMode",
+              "type": {
+                "use": "common.boolean",
+                "with": {},
+                "bind": {}
+              },
+              "xml": {
+                "field": "PostInPrivilegedMode",
+                "path": [
+                  "md:MetaDataObject",
+                  "md:Document",
+                  "md:Properties",
+                  "md:PostInPrivilegedMode"
+                ]
+              },
+              "yaml": {
+                "field": "PostInPrivilegedMode",
+                "key": "ПривилегированныйРежимПриПроведении"
+              },
+              "presence": {
+                "target": {
+                  "field": "PostInPrivilegedMode"
+                },
+                "xml": {
+                  "missing": {
+                    "denotes": {
+                      "absent": true
+                    }
+                  }
+                },
+                "yaml": {
+                  "default": {
+                    "literal": true
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "module": "candidate.fragment.b8bab99065f19b00e056",
+            "field": "privilegedUnpostingMode",
+            "type": {
+              "use": "common.boolean",
+              "with": {},
+              "bind": {}
+            },
+            "xml": {
+              "field": "privilegedUnpostingMode",
+              "path": [
+                "Properties",
+                "UnpostInPrivilegedMode"
+              ]
+            },
+            "yaml": {
+              "field": "privilegedUnpostingMode",
+              "key": "ПривилегированныйРежимПриОтменеПроведения"
+            },
+            "presence": {
+              "target": {
+                "field": "privilegedUnpostingMode"
+              },
+              "xml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                }
+              },
+              "yaml": {
+                "default": {
+                  "literal": true
+                }
+              }
+            }
+          },
+          "existing": [
+            {
+              "module": "fragment.document-base-properties",
+              "field": "UnpostInPrivilegedMode",
+              "type": {
+                "use": "common.boolean",
+                "with": {},
+                "bind": {}
+              },
+              "xml": {
+                "field": "UnpostInPrivilegedMode",
+                "path": [
+                  "md:MetaDataObject",
+                  "md:Document",
+                  "md:Properties",
+                  "md:UnpostInPrivilegedMode"
+                ]
+              },
+              "yaml": {
+                "field": "UnpostInPrivilegedMode",
+                "key": "ПривилегированныйРежимПриОтменеПроведения"
+              },
+              "presence": {
+                "target": {
+                  "field": "UnpostInPrivilegedMode"
+                },
+                "xml": {
+                  "missing": {
+                    "denotes": {
+                      "absent": true
+                    }
+                  }
+                },
+                "yaml": {
+                  "default": {
+                    "literal": true
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "module": "candidate.fragment.b8bab99065f19b00e056",
+            "field": "includeHelpInContents",
+            "type": {
+              "use": "common.boolean",
+              "with": {},
+              "bind": {}
+            },
+            "xml": {
+              "field": "includeHelpInContents",
+              "path": [
+                "Properties",
+                "IncludeHelpInContents"
+              ]
+            },
+            "yaml": {
+              "field": "includeHelpInContents",
+              "key": "ВключатьСправкуВСодержание"
+            },
+            "presence": {
+              "target": {
+                "field": "includeHelpInContents"
+              },
+              "xml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                }
+              },
+              "yaml": {
+                "default": {
+                  "literal": false
+                }
+              }
+            }
+          },
+          "existing": [
+            {
+              "module": "fragment.document-base-properties",
+              "field": "IncludeHelpInContents",
+              "type": {
+                "use": "common.boolean",
+                "with": {},
+                "bind": {}
+              },
+              "xml": {
+                "field": "IncludeHelpInContents",
+                "path": [
+                  "md:MetaDataObject",
+                  "md:Document",
+                  "md:Properties",
+                  "md:IncludeHelpInContents"
+                ]
+              },
+              "yaml": {
+                "field": "IncludeHelpInContents",
+                "key": "ВключатьСправкуВСодержание"
+              },
+              "presence": {
+                "target": {
+                  "field": "IncludeHelpInContents"
+                },
+                "xml": {
+                  "missing": {
+                    "denotes": {
+                      "absent": true
+                    }
+                  }
+                },
+                "yaml": {
+                  "default": {
+                    "literal": false
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "module": "candidate.fragment.b8bab99065f19b00e056",
+            "field": "dataLockControlMode",
+            "type": {
+              "use": "system.DefaultDataLockControlMode",
+              "with": {},
+              "bind": {}
+            },
+            "xml": {
+              "field": "dataLockControlMode",
+              "path": [
+                "Properties",
+                "DataLockControlMode"
+              ]
+            },
+            "yaml": {
+              "field": "dataLockControlMode",
+              "key": "РежимУправленияБлокировкойДанных"
+            },
+            "presence": {
+              "target": {
+                "field": "dataLockControlMode"
+              },
+              "xml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                }
+              },
+              "yaml": {
+                "default": {
+                  "literal": "Managed"
+                }
+              }
+            }
+          },
+          "existing": [
+            {
+              "module": "fragment.document-base-properties",
+              "field": "DataLockControlMode",
+              "type": {
+                "use": "system.DefaultDataLockControlMode",
+                "with": {},
+                "bind": {}
+              },
+              "xml": {
+                "field": "DataLockControlMode",
+                "path": [
+                  "md:MetaDataObject",
+                  "md:Document",
+                  "md:Properties",
+                  "md:DataLockControlMode"
+                ]
+              },
+              "yaml": {
+                "field": "DataLockControlMode",
+                "key": "РежимУправленияБлокировкойДанных"
+              },
+              "presence": {
+                "target": {
+                  "field": "DataLockControlMode"
+                },
+                "xml": {
+                  "missing": {
+                    "denotes": {
+                      "absent": true
+                    }
+                  }
+                },
+                "yaml": {
+                  "default": {
+                    "literal": "Managed"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "module": "candidate.fragment.b8bab99065f19b00e056",
+            "field": "fullTextSearch",
+            "type": {
+              "use": "system.UseFullTextSearch",
+              "with": {},
+              "bind": {}
+            },
+            "xml": {
+              "field": "fullTextSearch",
+              "path": [
+                "Properties",
+                "FullTextSearch"
+              ]
+            },
+            "yaml": {
+              "field": "fullTextSearch",
+              "key": "ПолнотекстовыйПоиск"
+            },
+            "presence": {
+              "target": {
+                "field": "fullTextSearch"
+              },
+              "xml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                }
+              },
+              "yaml": {
+                "default": {
+                  "literal": "Use"
+                }
+              }
+            }
+          },
+          "existing": [
+            {
+              "module": "fragment.document-base-properties",
+              "field": "FullTextSearch",
+              "type": {
+                "use": "system.UseFullTextSearch",
+                "with": {},
+                "bind": {}
+              },
+              "xml": {
+                "field": "FullTextSearch",
+                "path": [
+                  "md:MetaDataObject",
+                  "md:Document",
+                  "md:Properties",
+                  "md:FullTextSearch"
+                ]
+              },
+              "yaml": {
+                "field": "FullTextSearch",
+                "key": "ПолнотекстовыйПоиск"
+              },
+              "presence": {
+                "target": {
+                  "field": "FullTextSearch"
+                },
+                "xml": {
+                  "missing": {
+                    "denotes": {
+                      "absent": true
+                    }
+                  }
+                },
+                "yaml": {
+                  "default": {
+                    "literal": "Use"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "module": "candidate.fragment.b8bab99065f19b00e056",
+            "field": "objectPresentation",
+            "type": {
+              "use": "common.i8n-text",
+              "with": {},
+              "bind": {
+                "defaultLanguage": {
+                  "input": "defaultLanguage"
+                },
+                "registeredLanguages": {
+                  "input": "registeredLanguages"
+                },
+                "ownerName": {
+                  "input": "ownerName"
+                }
+              }
+            },
+            "xml": {
+              "field": "objectPresentation",
+              "path": [
+                "Properties",
+                "ObjectPresentation"
+              ]
+            },
+            "yaml": {
+              "field": "objectPresentation",
+              "key": "ПредставлениеОбъекта"
+            },
+            "presence": {
+              "target": {
+                "field": "objectPresentation"
+              },
+              "xml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                },
+                "canonical": [
+                  {
+                    "when": {
+                      "not": {
+                        "present": {
+                          "field": "objectPresentation"
+                        }
+                      }
+                    },
+                    "form": "empty-element"
+                  }
+                ]
+              }
+            }
+          },
+          "existing": [
+            {
+              "module": "fragment.document-base-properties",
+              "field": "ObjectPresentation",
+              "type": {
+                "use": "common.i8n-text",
+                "with": {},
+                "bind": {
+                  "defaultLanguage": {
+                    "input": "defaultLanguage"
+                  },
+                  "registeredLanguages": {
+                    "input": "registeredLanguages"
+                  },
+                  "ownerName": {
+                    "input": "name"
+                  }
+                }
+              },
+              "xml": {
+                "field": "ObjectPresentation",
+                "path": [
+                  "md:MetaDataObject",
+                  "md:Document",
+                  "md:Properties",
+                  "md:ObjectPresentation"
+                ]
+              },
+              "yaml": {
+                "field": "ObjectPresentation",
+                "key": "ПредставлениеОбъекта"
+              },
+              "presence": {
+                "target": {
+                  "field": "ObjectPresentation"
+                },
+                "xml": {
+                  "canonical": [
+                    {
+                      "when": {
+                        "not": {
+                          "present": {
+                            "field": "ObjectPresentation"
+                          }
+                        }
+                      },
+                      "form": "empty-element"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "module": "candidate.fragment.b8bab99065f19b00e056",
+            "field": "extendedObjectPresentation",
+            "type": {
+              "use": "common.i8n-text",
+              "with": {},
+              "bind": {
+                "defaultLanguage": {
+                  "input": "defaultLanguage"
+                },
+                "registeredLanguages": {
+                  "input": "registeredLanguages"
+                },
+                "ownerName": {
+                  "input": "ownerName"
+                }
+              }
+            },
+            "xml": {
+              "field": "extendedObjectPresentation",
+              "path": [
+                "Properties",
+                "ExtendedObjectPresentation"
+              ]
+            },
+            "yaml": {
+              "field": "extendedObjectPresentation",
+              "key": "РасширенноеПредставлениеОбъекта"
+            },
+            "presence": {
+              "target": {
+                "field": "extendedObjectPresentation"
+              },
+              "xml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                },
+                "canonical": [
+                  {
+                    "when": {
+                      "not": {
+                        "present": {
+                          "field": "extendedObjectPresentation"
+                        }
+                      }
+                    },
+                    "form": "empty-element"
+                  }
+                ]
+              }
+            }
+          },
+          "existing": [
+            {
+              "module": "fragment.document-base-properties",
+              "field": "ExtendedObjectPresentation",
+              "type": {
+                "use": "common.i8n-text",
+                "with": {},
+                "bind": {
+                  "defaultLanguage": {
+                    "input": "defaultLanguage"
+                  },
+                  "registeredLanguages": {
+                    "input": "registeredLanguages"
+                  },
+                  "ownerName": {
+                    "input": "name"
+                  }
+                }
+              },
+              "xml": {
+                "field": "ExtendedObjectPresentation",
+                "path": [
+                  "md:MetaDataObject",
+                  "md:Document",
+                  "md:Properties",
+                  "md:ExtendedObjectPresentation"
+                ]
+              },
+              "yaml": {
+                "field": "ExtendedObjectPresentation",
+                "key": "РасширенноеПредставлениеОбъекта"
+              },
+              "presence": {
+                "target": {
+                  "field": "ExtendedObjectPresentation"
+                },
+                "xml": {
+                  "canonical": [
+                    {
+                      "when": {
+                        "not": {
+                          "present": {
+                            "field": "ExtendedObjectPresentation"
+                          }
+                        }
+                      },
+                      "form": "empty-element"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "module": "candidate.fragment.b8bab99065f19b00e056",
+            "field": "listPresentation",
+            "type": {
+              "use": "common.i8n-text",
+              "with": {},
+              "bind": {
+                "defaultLanguage": {
+                  "input": "defaultLanguage"
+                },
+                "registeredLanguages": {
+                  "input": "registeredLanguages"
+                },
+                "ownerName": {
+                  "input": "ownerName"
+                }
+              }
+            },
+            "xml": {
+              "field": "listPresentation",
+              "path": [
+                "Properties",
+                "ListPresentation"
+              ]
+            },
+            "yaml": {
+              "field": "listPresentation",
+              "key": "ПредставлениеСписка"
+            },
+            "presence": {
+              "target": {
+                "field": "listPresentation"
+              },
+              "xml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                },
+                "canonical": [
+                  {
+                    "when": {
+                      "not": {
+                        "present": {
+                          "field": "listPresentation"
+                        }
+                      }
+                    },
+                    "form": "empty-element"
+                  }
+                ]
+              }
+            }
+          },
+          "existing": [
+            {
+              "module": "fragment.document-base-properties",
+              "field": "ListPresentation",
+              "type": {
+                "use": "common.i8n-text",
+                "with": {},
+                "bind": {
+                  "defaultLanguage": {
+                    "input": "defaultLanguage"
+                  },
+                  "registeredLanguages": {
+                    "input": "registeredLanguages"
+                  },
+                  "ownerName": {
+                    "input": "name"
+                  }
+                }
+              },
+              "xml": {
+                "field": "ListPresentation",
+                "path": [
+                  "md:MetaDataObject",
+                  "md:Document",
+                  "md:Properties",
+                  "md:ListPresentation"
+                ]
+              },
+              "yaml": {
+                "field": "ListPresentation",
+                "key": "ПредставлениеСписка"
+              },
+              "presence": {
+                "target": {
+                  "field": "ListPresentation"
+                },
+                "xml": {
+                  "canonical": [
+                    {
+                      "when": {
+                        "not": {
+                          "present": {
+                            "field": "ListPresentation"
+                          }
+                        }
+                      },
+                      "form": "empty-element"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "module": "candidate.fragment.b8bab99065f19b00e056",
+            "field": "extendedListPresentation",
+            "type": {
+              "use": "common.i8n-text",
+              "with": {},
+              "bind": {
+                "defaultLanguage": {
+                  "input": "defaultLanguage"
+                },
+                "registeredLanguages": {
+                  "input": "registeredLanguages"
+                },
+                "ownerName": {
+                  "input": "ownerName"
+                }
+              }
+            },
+            "xml": {
+              "field": "extendedListPresentation",
+              "path": [
+                "Properties",
+                "ExtendedListPresentation"
+              ]
+            },
+            "yaml": {
+              "field": "extendedListPresentation",
+              "key": "РасширенноеПредставлениеСписка"
+            },
+            "presence": {
+              "target": {
+                "field": "extendedListPresentation"
+              },
+              "xml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                },
+                "canonical": [
+                  {
+                    "when": {
+                      "not": {
+                        "present": {
+                          "field": "extendedListPresentation"
+                        }
+                      }
+                    },
+                    "form": "empty-element"
+                  }
+                ]
+              }
+            }
+          },
+          "existing": [
+            {
+              "module": "fragment.document-base-properties",
+              "field": "ExtendedListPresentation",
+              "type": {
+                "use": "common.i8n-text",
+                "with": {},
+                "bind": {
+                  "defaultLanguage": {
+                    "input": "defaultLanguage"
+                  },
+                  "registeredLanguages": {
+                    "input": "registeredLanguages"
+                  },
+                  "ownerName": {
+                    "input": "name"
+                  }
+                }
+              },
+              "xml": {
+                "field": "ExtendedListPresentation",
+                "path": [
+                  "md:MetaDataObject",
+                  "md:Document",
+                  "md:Properties",
+                  "md:ExtendedListPresentation"
+                ]
+              },
+              "yaml": {
+                "field": "ExtendedListPresentation",
+                "key": "РасширенноеПредставлениеСписка"
+              },
+              "presence": {
+                "target": {
+                  "field": "ExtendedListPresentation"
+                },
+                "xml": {
+                  "canonical": [
+                    {
+                      "when": {
+                        "not": {
+                          "present": {
+                            "field": "ExtendedListPresentation"
+                          }
+                        }
+                      },
+                      "form": "empty-element"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "module": "candidate.fragment.b8bab99065f19b00e056",
+            "field": "explanation",
+            "type": {
+              "use": "common.i8n-text",
+              "with": {},
+              "bind": {
+                "defaultLanguage": {
+                  "input": "defaultLanguage"
+                },
+                "registeredLanguages": {
+                  "input": "registeredLanguages"
+                },
+                "ownerName": {
+                  "input": "ownerName"
+                }
+              }
+            },
+            "xml": {
+              "field": "explanation",
+              "path": [
+                "Properties",
+                "Explanation"
+              ]
+            },
+            "yaml": {
+              "field": "explanation",
+              "key": "Пояснение"
+            },
+            "presence": {
+              "target": {
+                "field": "explanation"
+              },
+              "xml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                },
+                "canonical": [
+                  {
+                    "when": {
+                      "not": {
+                        "present": {
+                          "field": "explanation"
+                        }
+                      }
+                    },
+                    "form": "empty-element"
+                  }
+                ]
+              }
+            }
+          },
+          "existing": [
+            {
+              "module": "fragment.document-base-properties",
+              "field": "Explanation",
+              "type": {
+                "use": "common.i8n-text",
+                "with": {},
+                "bind": {
+                  "defaultLanguage": {
+                    "input": "defaultLanguage"
+                  },
+                  "registeredLanguages": {
+                    "input": "registeredLanguages"
+                  },
+                  "ownerName": {
+                    "input": "name"
+                  }
+                }
+              },
+              "xml": {
+                "field": "Explanation",
+                "path": [
+                  "md:MetaDataObject",
+                  "md:Document",
+                  "md:Properties",
+                  "md:Explanation"
+                ]
+              },
+              "yaml": {
+                "field": "Explanation",
+                "key": "Пояснение"
+              },
+              "presence": {
+                "target": {
+                  "field": "Explanation"
+                },
+                "xml": {
+                  "canonical": [
+                    {
+                      "when": {
+                        "not": {
+                          "present": {
+                            "field": "Explanation"
+                          }
+                        }
+                      },
+                      "form": "empty-element"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "module": "candidate.fragment.b8bab99065f19b00e056",
+            "field": "choiceHistoryOnInput",
+            "type": {
+              "use": "system.ChoiceHistoryOnInput",
+              "with": {},
+              "bind": {}
+            },
+            "xml": {
+              "field": "choiceHistoryOnInput",
+              "path": [
+                "Properties",
+                "ChoiceHistoryOnInput"
+              ]
+            },
+            "yaml": {
+              "field": "choiceHistoryOnInput",
+              "key": "ИсторияВыбораПриВводе"
+            },
+            "presence": {
+              "target": {
+                "field": "choiceHistoryOnInput"
+              },
+              "xml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                }
+              },
+              "yaml": {
+                "default": {
+                  "literal": "Auto"
+                }
+              }
+            }
+          },
+          "existing": [
+            {
+              "module": "fragment.document-base-properties",
+              "field": "ChoiceHistoryOnInput",
+              "type": {
+                "use": "system.ChoiceHistoryOnInput",
+                "with": {},
+                "bind": {}
+              },
+              "xml": {
+                "field": "ChoiceHistoryOnInput",
+                "path": [
+                  "md:MetaDataObject",
+                  "md:Document",
+                  "md:Properties",
+                  "md:ChoiceHistoryOnInput"
+                ]
+              },
+              "yaml": {
+                "field": "ChoiceHistoryOnInput",
+                "key": "ИсторияВыбораПриВводе"
+              },
+              "presence": {
+                "target": {
+                  "field": "ChoiceHistoryOnInput"
+                },
+                "xml": {
+                  "missing": {
+                    "denotes": {
+                      "absent": true
+                    }
+                  }
+                },
+                "yaml": {
+                  "default": {
+                    "literal": "Auto"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "module": "candidate.fragment.b8bab99065f19b00e056",
+            "field": "dataHistory",
+            "type": {
+              "use": "system.DataHistoryUse",
+              "with": {},
+              "bind": {}
+            },
+            "xml": {
+              "field": "dataHistory",
+              "path": [
+                "Properties",
+                "DataHistory"
+              ]
+            },
+            "yaml": {
+              "field": "dataHistory",
+              "key": "ИсторияДанных"
+            },
+            "presence": {
+              "target": {
+                "field": "dataHistory"
+              },
+              "xml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                }
+              },
+              "yaml": {
+                "default": {
+                  "literal": "DontUse"
+                }
+              }
+            }
+          },
+          "existing": [
+            {
+              "module": "fragment.document-base-properties",
+              "field": "DataHistory",
+              "type": {
+                "use": "system.DataHistoryUse",
+                "with": {},
+                "bind": {}
+              },
+              "xml": {
+                "field": "DataHistory",
+                "path": [
+                  "md:MetaDataObject",
+                  "md:Document",
+                  "md:Properties",
+                  "md:DataHistory"
+                ]
+              },
+              "yaml": {
+                "field": "DataHistory",
+                "key": "ИсторияДанных"
+              },
+              "presence": {
+                "target": {
+                  "field": "DataHistory"
+                },
+                "xml": {
+                  "missing": {
+                    "denotes": {
+                      "absent": true
+                    }
+                  }
+                },
+                "yaml": {
+                  "default": {
+                    "literal": "DontUse"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "module": "candidate.fragment.b8bab99065f19b00e056",
+            "field": "updateDataHistoryImmediatelyAfterWrite",
+            "type": {
+              "use": "common.boolean",
+              "with": {},
+              "bind": {}
+            },
+            "xml": {
+              "field": "updateDataHistoryImmediatelyAfterWrite",
+              "path": [
+                "Properties",
+                "UpdateDataHistoryImmediatelyAfterWrite"
+              ]
+            },
+            "yaml": {
+              "field": "updateDataHistoryImmediatelyAfterWrite",
+              "key": "ОбновлятьИсториюДанныхСразуПослеЗаписи"
+            },
+            "presence": {
+              "target": {
+                "field": "updateDataHistoryImmediatelyAfterWrite"
+              },
+              "xml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                }
+              },
+              "yaml": {
+                "default": {
+                  "literal": false
+                }
+              }
+            }
+          },
+          "existing": [
+            {
+              "module": "fragment.document-base-properties",
+              "field": "UpdateDataHistoryImmediatelyAfterWrite",
+              "type": {
+                "use": "common.boolean",
+                "with": {},
+                "bind": {}
+              },
+              "xml": {
+                "field": "UpdateDataHistoryImmediatelyAfterWrite",
+                "path": [
+                  "md:MetaDataObject",
+                  "md:Document",
+                  "md:Properties",
+                  "md:UpdateDataHistoryImmediatelyAfterWrite"
+                ]
+              },
+              "yaml": {
+                "field": "UpdateDataHistoryImmediatelyAfterWrite",
+                "key": "ОбновлятьИсториюДанныхСразуПослеЗаписи"
+              },
+              "presence": {
+                "target": {
+                  "field": "UpdateDataHistoryImmediatelyAfterWrite"
+                },
+                "xml": {
+                  "missing": {
+                    "denotes": {
+                      "absent": true
+                    }
+                  }
+                },
+                "yaml": {
+                  "default": {
+                    "literal": false
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "module": "candidate.fragment.b8bab99065f19b00e056",
+            "field": "executeAfterWriteDataHistoryVersionProcessing",
+            "type": {
+              "use": "common.boolean",
+              "with": {},
+              "bind": {}
+            },
+            "xml": {
+              "field": "executeAfterWriteDataHistoryVersionProcessing",
+              "path": [
+                "Properties",
+                "ExecuteAfterWriteDataHistoryVersionProcessing"
+              ]
+            },
+            "yaml": {
+              "field": "executeAfterWriteDataHistoryVersionProcessing",
+              "key": "ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных"
+            },
+            "presence": {
+              "target": {
+                "field": "executeAfterWriteDataHistoryVersionProcessing"
+              },
+              "xml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                }
+              },
+              "yaml": {
+                "default": {
+                  "literal": false
+                }
+              }
+            }
+          },
+          "existing": [
+            {
+              "module": "fragment.document-base-properties",
+              "field": "ExecuteAfterWriteDataHistoryVersionProcessing",
+              "type": {
+                "use": "common.boolean",
+                "with": {},
+                "bind": {}
+              },
+              "xml": {
+                "field": "ExecuteAfterWriteDataHistoryVersionProcessing",
+                "path": [
+                  "md:MetaDataObject",
+                  "md:Document",
+                  "md:Properties",
+                  "md:ExecuteAfterWriteDataHistoryVersionProcessing"
+                ]
+              },
+              "yaml": {
+                "field": "ExecuteAfterWriteDataHistoryVersionProcessing",
+                "key": "ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных"
+              },
+              "presence": {
+                "target": {
+                  "field": "ExecuteAfterWriteDataHistoryVersionProcessing"
+                },
+                "xml": {
+                  "missing": {
+                    "denotes": {
+                      "absent": true
+                    }
+                  }
+                },
+                "yaml": {
+                  "default": {
+                    "literal": false
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataDocumentJournalRules",
+      "candidateCount": 10,
+      "matchedCount": 10,
+      "blocked": [
+        {
+          "name": "internalInfo",
+          "source": {
+            "path": "packages/rules/metadata/appliedObjects/metadataDocumentJournal/rules.ts",
+            "line": 76,
+            "column": 5
+          },
+          "status": "blocked",
+          "reason": "unsupported-common"
+        },
+        {
+          "name": "objectBelonging",
+          "source": {
+            "path": "packages/rules/metadata/appliedObjects/metadataDocumentJournal/rules.ts",
+            "line": 133,
+            "column": 5
+          },
+          "status": "blocked",
+          "reason": "unsupported-parameters:toYAML,fromYAML"
+        },
+        {
+          "name": "name",
+          "source": {
+            "path": "packages/rules/metadata/appliedObjects/metadataDocumentJournal/rules.ts",
+            "line": 86,
+            "column": 5
+          },
+          "status": "blocked",
+          "reason": "requires-expression-mapping"
+        },
+        {
+          "name": "standardAttributes",
+          "source": {
+            "path": "packages/rules/metadata/appliedObjects/metadataDocumentJournal/rules.ts",
+            "line": 113,
+            "column": 5
+          },
+          "status": "blocked",
+          "reason": "unsupported-common"
+        },
+        {
+          "name": "columns",
+          "source": {
+            "path": "packages/rules/metadata/appliedObjects/metadataDocumentJournal/rules.ts",
+            "line": 145,
+            "column": 5
+          },
+          "status": "blocked",
+          "reason": "unsupported-common"
+        },
+        {
+          "name": "forms",
+          "source": {
+            "path": "packages/rules/metadata/appliedObjects/metadataDocumentJournal/rules.ts",
+            "line": 151,
+            "column": 5
+          },
+          "status": "blocked",
+          "reason": "unsupported-common"
+        },
+        {
+          "name": "templates",
+          "source": {
+            "path": "packages/rules/metadata/appliedObjects/metadataDocumentJournal/rules.ts",
+            "line": 159,
+            "column": 5
+          },
+          "status": "blocked",
+          "reason": "unsupported-common"
+        },
+        {
+          "name": "commands",
+          "source": {
+            "path": "packages/rules/metadata/appliedObjects/metadataDocumentJournal/rules.ts",
+            "line": 167,
+            "column": 5
+          },
+          "status": "blocked",
+          "reason": "unsupported-common"
+        },
+        {
+          "name": "uuid",
+          "source": {
+            "path": "packages/rules/metadata/appliedObjects/metadataDocumentJournal/rules.ts",
+            "line": 85,
+            "column": 5
+          },
+          "status": "blocked",
+          "reason": "unsupported-common"
+        },
+        {
+          "name": "additionalIndexes",
+          "source": {
+            "path": "packages/rules/metadata/appliedObjects/metadataDocumentJournal/rules.ts",
+            "line": 172,
+            "column": 5
+          },
+          "status": "blocked",
+          "reason": "unsupported-common"
+        },
+        {
+          "name": "help",
+          "source": {
+            "path": "packages/rules/metadata/appliedObjects/metadataDocumentJournal/rules.ts",
+            "line": 183,
+            "column": 5
+          },
+          "status": "blocked",
+          "reason": "unsupported-common"
+        },
+        {
+          "name": "xmlRoot",
+          "source": {
+            "path": "packages/rules/metadata/appliedObjects/metadataDocumentJournal/rules.ts",
+            "line": 69,
+            "column": 5
+          },
+          "status": "blocked",
+          "reason": "unsupported-common"
+        },
+        {
+          "name": "extendedConfigurationObject",
+          "source": {
+            "path": "packages/rules/metadata/appliedObjects/metadataDocumentJournal/rules.ts",
+            "line": 141,
+            "column": 5
+          },
+          "status": "blocked",
+          "reason": "unsupported-parameters:runtimeOnly"
+        },
+        {
+          "name": "managerModule",
+          "source": {
+            "path": "packages/rules/metadata/appliedObjects/metadataDocumentJournal/rules.ts",
+            "line": 176,
+            "column": 5
+          },
+          "status": "blocked",
+          "reason": "unsupported-common"
+        }
+      ],
+      "fields": [
+        {
+          "candidate": {
+            "module": "candidate.fragment.6ca6807c679d5d575792",
+            "field": "synonym",
+            "type": {
+              "use": "common.i8n-text",
+              "with": {
+                "excludeIfEqualNameYAML": true
+              },
+              "bind": {
+                "defaultLanguage": {
+                  "input": "defaultLanguage"
+                },
+                "registeredLanguages": {
+                  "input": "registeredLanguages"
+                },
+                "ownerName": {
+                  "input": "ownerName"
+                }
+              }
+            },
+            "xml": {
+              "field": "synonym",
+              "path": [
+                "Properties",
+                "Synonym"
+              ]
+            },
+            "yaml": {
+              "field": "synonym",
+              "key": "Синоним"
+            },
+            "presence": {
+              "target": {
+                "field": "synonym"
+              },
+              "xml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                },
+                "canonical": [
+                  {
+                    "when": {
+                      "not": {
+                        "present": {
+                          "field": "synonym"
+                        }
+                      }
+                    },
+                    "form": "empty-element"
+                  }
+                ]
+              }
+            }
+          },
+          "existing": [
+            {
+              "module": "fragment.journal-base-properties",
+              "field": "Synonym",
+              "type": {
+                "use": "common.i8n-text",
+                "with": {
+                  "excludeIfEqualNameYAML": true
+                },
+                "bind": {
+                  "defaultLanguage": {
+                    "input": "defaultLanguage"
+                  },
+                  "registeredLanguages": {
+                    "input": "registeredLanguages"
+                  },
+                  "ownerName": {
+                    "input": "name"
+                  }
+                }
+              },
+              "xml": {
+                "field": "Synonym",
+                "path": [
+                  "md:MetaDataObject",
+                  "md:DocumentJournal",
+                  "md:Properties",
+                  "md:Synonym"
+                ]
+              },
+              "yaml": {
+                "field": "Synonym",
+                "key": "Синоним"
+              },
+              "presence": null
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "module": "candidate.fragment.6ca6807c679d5d575792",
+            "field": "comment",
+            "type": {
+              "use": "common.string",
+              "with": {},
+              "bind": {}
+            },
+            "xml": {
+              "field": "comment",
+              "path": [
+                "Properties",
+                "Comment"
+              ]
+            },
+            "yaml": {
+              "field": "comment",
+              "key": "Комментарий"
+            },
+            "presence": {
+              "target": {
+                "field": "comment"
+              },
+              "xml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                }
+              },
+              "yaml": {
+                "default": {
+                  "literal": ""
+                }
+              }
+            }
+          },
+          "existing": [
+            {
+              "module": "fragment.journal-base-properties",
+              "field": "Comment",
+              "type": {
+                "kind": "scalar",
+                "scalar": "text"
+              },
+              "xml": {
+                "field": "Comment",
+                "path": [
+                  "md:MetaDataObject",
+                  "md:DocumentJournal",
+                  "md:Properties",
+                  "md:Comment"
+                ]
+              },
+              "yaml": {
+                "field": "Comment",
+                "key": "Комментарий"
+              },
+              "presence": {
+                "target": {
+                  "field": "Comment"
+                },
+                "xml": {
+                  "missing": {
+                    "denotes": {
+                      "absent": true
+                    }
+                  }
+                },
+                "yaml": {
+                  "default": {
+                    "literal": ""
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "module": "candidate.fragment.6ca6807c679d5d575792",
+            "field": "defaultForm",
+            "type": {
+              "use": "common.owner-or-common-form-link",
+              "with": {},
+              "bind": {
+                "owner": {
+                  "input": "owner"
+                },
+                "forms": {
+                  "input": "forms"
+                },
+                "roots": {
+                  "input": "roots"
+                }
+              }
+            },
+            "xml": {
+              "field": "defaultForm",
+              "path": [
+                "Properties",
+                "DefaultForm"
+              ]
+            },
+            "yaml": {
+              "field": "defaultForm",
+              "key": "ОсновнаяФорма"
+            },
+            "presence": {
+              "target": {
+                "field": "defaultForm"
+              },
+              "xml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                },
+                "empty": [
+                  {
+                    "form": "empty-element",
+                    "denotes": {
+                      "absent": true
+                    }
+                  }
+                ],
+                "canonical": [
+                  {
+                    "when": {
+                      "not": {
+                        "present": {
+                          "field": "defaultForm"
+                        }
+                      }
+                    },
+                    "form": "empty-element"
+                  }
+                ]
+              },
+              "yaml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                }
+              }
+            }
+          },
+          "existing": [
+            {
+              "module": "fragment.journal-form-links",
+              "field": "DefaultForm",
+              "type": {
+                "use": "common.owner-form-link",
+                "with": {},
+                "bind": {
+                  "owner": {
+                    "input": "ownerPath"
+                  },
+                  "forms": {
+                    "input": "forms"
+                  }
+                }
+              },
+              "xml": {
+                "field": "DefaultForm",
+                "path": [
+                  "md:MetaDataObject",
+                  "md:DocumentJournal",
+                  "md:Properties",
+                  "md:DefaultForm"
+                ]
+              },
+              "yaml": {
+                "field": "DefaultForm",
+                "key": "ОсновнаяФорма"
+              },
+              "presence": {
+                "target": {
+                  "field": "DefaultForm"
+                },
+                "xml": {
+                  "missing": {
+                    "denotes": {
+                      "absent": true
+                    }
+                  },
+                  "empty": [
+                    {
+                      "form": "empty-element",
+                      "denotes": {
+                        "absent": true
+                      }
+                    }
+                  ],
+                  "canonical": [
+                    {
+                      "when": {
+                        "not": {
+                          "present": {
+                            "field": "DefaultForm"
+                          }
+                        }
+                      },
+                      "form": "empty-element"
+                    }
+                  ]
+                },
+                "yaml": {
+                  "missing": {
+                    "denotes": {
+                      "absent": true
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "module": "candidate.fragment.6ca6807c679d5d575792",
+            "field": "auxiliaryForm",
+            "type": {
+              "use": "common.owner-or-common-form-link",
+              "with": {},
+              "bind": {
+                "owner": {
+                  "input": "owner"
+                },
+                "forms": {
+                  "input": "forms"
+                },
+                "roots": {
+                  "input": "roots"
+                }
+              }
+            },
+            "xml": {
+              "field": "auxiliaryForm",
+              "path": [
+                "Properties",
+                "AuxiliaryForm"
+              ]
+            },
+            "yaml": {
+              "field": "auxiliaryForm",
+              "key": "ДополнительнаяФорма"
+            },
+            "presence": {
+              "target": {
+                "field": "auxiliaryForm"
+              },
+              "xml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                },
+                "empty": [
+                  {
+                    "form": "empty-element",
+                    "denotes": {
+                      "absent": true
+                    }
+                  }
+                ],
+                "canonical": [
+                  {
+                    "when": {
+                      "not": {
+                        "present": {
+                          "field": "auxiliaryForm"
+                        }
+                      }
+                    },
+                    "form": "empty-element"
+                  }
+                ]
+              },
+              "yaml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                }
+              }
+            }
+          },
+          "existing": [
+            {
+              "module": "fragment.journal-form-links",
+              "field": "AuxiliaryForm",
+              "type": {
+                "use": "common.owner-form-link",
+                "with": {},
+                "bind": {
+                  "owner": {
+                    "input": "ownerPath"
+                  },
+                  "forms": {
+                    "input": "forms"
+                  }
+                }
+              },
+              "xml": {
+                "field": "AuxiliaryForm",
+                "path": [
+                  "md:MetaDataObject",
+                  "md:DocumentJournal",
+                  "md:Properties",
+                  "md:AuxiliaryForm"
+                ]
+              },
+              "yaml": {
+                "field": "AuxiliaryForm",
+                "key": "ДополнительнаяФорма"
+              },
+              "presence": {
+                "target": {
+                  "field": "AuxiliaryForm"
+                },
+                "xml": {
+                  "missing": {
+                    "denotes": {
+                      "absent": true
+                    }
+                  },
+                  "empty": [
+                    {
+                      "form": "empty-element",
+                      "denotes": {
+                        "absent": true
+                      }
+                    }
+                  ],
+                  "canonical": [
+                    {
+                      "when": {
+                        "not": {
+                          "present": {
+                            "field": "AuxiliaryForm"
+                          }
+                        }
+                      },
+                      "form": "empty-element"
+                    }
+                  ]
+                },
+                "yaml": {
+                  "missing": {
+                    "denotes": {
+                      "absent": true
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "module": "candidate.fragment.6ca6807c679d5d575792",
+            "field": "useStandardCommands",
+            "type": {
+              "use": "common.boolean",
+              "with": {},
+              "bind": {}
+            },
+            "xml": {
+              "field": "useStandardCommands",
+              "path": [
+                "Properties",
+                "UseStandardCommands"
+              ]
+            },
+            "yaml": {
+              "field": "useStandardCommands",
+              "key": "ИспользоватьСтандартныеКоманды"
+            },
+            "presence": {
+              "target": {
+                "field": "useStandardCommands"
+              },
+              "xml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                }
+              },
+              "yaml": {
+                "default": {
+                  "literal": true
+                }
+              }
+            }
+          },
+          "existing": [
+            {
+              "module": "fragment.journal-base-properties",
+              "field": "UseStandardCommands",
+              "type": {
+                "use": "common.boolean",
+                "with": {},
+                "bind": {}
+              },
+              "xml": {
+                "field": "UseStandardCommands",
+                "path": [
+                  "md:MetaDataObject",
+                  "md:DocumentJournal",
+                  "md:Properties",
+                  "md:UseStandardCommands"
+                ]
+              },
+              "yaml": {
+                "field": "UseStandardCommands",
+                "key": "ИспользоватьСтандартныеКоманды"
+              },
+              "presence": {
+                "target": {
+                  "field": "UseStandardCommands"
+                },
+                "xml": {
+                  "missing": {
+                    "denotes": {
+                      "absent": true
+                    }
+                  }
+                },
+                "yaml": {
+                  "default": {
+                    "literal": true
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "module": "candidate.fragment.6ca6807c679d5d575792",
+            "field": "registeredDocuments",
+            "type": {
+              "use": "common.journal-document-links",
+              "with": {},
+              "bind": {
+                "roots": {
+                  "input": "roots"
+                }
+              }
+            },
+            "xml": {
+              "field": "registeredDocuments",
+              "path": [
+                "Properties",
+                "RegisteredDocuments"
+              ]
+            },
+            "yaml": {
+              "field": "registeredDocuments",
+              "key": "РегистрируемыеДокументы"
+            },
+            "presence": null
+          },
+          "existing": [
+            {
+              "module": "fragment.journal-base-properties",
+              "field": "RegisteredDocuments",
+              "type": {
+                "use": "common.journal-document-links",
+                "with": {},
+                "bind": {
+                  "roots": {
+                    "input": "roots"
+                  }
+                }
+              },
+              "xml": {
+                "field": "RegisteredDocuments",
+                "path": [
+                  "md:MetaDataObject",
+                  "md:DocumentJournal",
+                  "md:Properties",
+                  "md:RegisteredDocuments"
+                ]
+              },
+              "yaml": {
+                "field": "RegisteredDocuments",
+                "key": "РегистрируемыеДокументы"
+              },
+              "presence": null
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "module": "candidate.fragment.6ca6807c679d5d575792",
+            "field": "includeHelpInContents",
+            "type": {
+              "use": "common.boolean",
+              "with": {},
+              "bind": {}
+            },
+            "xml": {
+              "field": "includeHelpInContents",
+              "path": [
+                "Properties",
+                "IncludeHelpInContents"
+              ]
+            },
+            "yaml": {
+              "field": "includeHelpInContents",
+              "key": "ВключатьСправкуВСодержание"
+            },
+            "presence": {
+              "target": {
+                "field": "includeHelpInContents"
+              },
+              "xml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                }
+              },
+              "yaml": {
+                "default": {
+                  "literal": false
+                }
+              }
+            }
+          },
+          "existing": [
+            {
+              "module": "fragment.journal-base-properties",
+              "field": "IncludeHelpInContents",
+              "type": {
+                "use": "common.boolean",
+                "with": {},
+                "bind": {}
+              },
+              "xml": {
+                "field": "IncludeHelpInContents",
+                "path": [
+                  "md:MetaDataObject",
+                  "md:DocumentJournal",
+                  "md:Properties",
+                  "md:IncludeHelpInContents"
+                ]
+              },
+              "yaml": {
+                "field": "IncludeHelpInContents",
+                "key": "ВключатьСправкуВСодержание"
+              },
+              "presence": {
+                "target": {
+                  "field": "IncludeHelpInContents"
+                },
+                "xml": {
+                  "missing": {
+                    "denotes": {
+                      "absent": true
+                    }
+                  }
+                },
+                "yaml": {
+                  "default": {
+                    "literal": false
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "module": "candidate.fragment.6ca6807c679d5d575792",
+            "field": "listPresentation",
+            "type": {
+              "use": "common.i8n-text",
+              "with": {},
+              "bind": {
+                "defaultLanguage": {
+                  "input": "defaultLanguage"
+                },
+                "registeredLanguages": {
+                  "input": "registeredLanguages"
+                },
+                "ownerName": {
+                  "input": "ownerName"
+                }
+              }
+            },
+            "xml": {
+              "field": "listPresentation",
+              "path": [
+                "Properties",
+                "ListPresentation"
+              ]
+            },
+            "yaml": {
+              "field": "listPresentation",
+              "key": "ПредставлениеСписка"
+            },
+            "presence": {
+              "target": {
+                "field": "listPresentation"
+              },
+              "xml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                },
+                "canonical": [
+                  {
+                    "when": {
+                      "not": {
+                        "present": {
+                          "field": "listPresentation"
+                        }
+                      }
+                    },
+                    "form": "empty-element"
+                  }
+                ]
+              }
+            }
+          },
+          "existing": [
+            {
+              "module": "fragment.journal-base-properties",
+              "field": "ListPresentation",
+              "type": {
+                "use": "common.i8n-text",
+                "with": {},
+                "bind": {
+                  "defaultLanguage": {
+                    "input": "defaultLanguage"
+                  },
+                  "registeredLanguages": {
+                    "input": "registeredLanguages"
+                  },
+                  "ownerName": {
+                    "input": "name"
+                  }
+                }
+              },
+              "xml": {
+                "field": "ListPresentation",
+                "path": [
+                  "md:MetaDataObject",
+                  "md:DocumentJournal",
+                  "md:Properties",
+                  "md:ListPresentation"
+                ]
+              },
+              "yaml": {
+                "field": "ListPresentation",
+                "key": "ПредставлениеСписка"
+              },
+              "presence": {
+                "target": {
+                  "field": "ListPresentation"
+                },
+                "xml": {
+                  "canonical": [
+                    {
+                      "when": {
+                        "not": {
+                          "present": {
+                            "field": "ListPresentation"
+                          }
+                        }
+                      },
+                      "form": "empty-element"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "module": "candidate.fragment.6ca6807c679d5d575792",
+            "field": "extendedListPresentation",
+            "type": {
+              "use": "common.i8n-text",
+              "with": {},
+              "bind": {
+                "defaultLanguage": {
+                  "input": "defaultLanguage"
+                },
+                "registeredLanguages": {
+                  "input": "registeredLanguages"
+                },
+                "ownerName": {
+                  "input": "ownerName"
+                }
+              }
+            },
+            "xml": {
+              "field": "extendedListPresentation",
+              "path": [
+                "Properties",
+                "ExtendedListPresentation"
+              ]
+            },
+            "yaml": {
+              "field": "extendedListPresentation",
+              "key": "РасширенноеПредставлениеСписка"
+            },
+            "presence": {
+              "target": {
+                "field": "extendedListPresentation"
+              },
+              "xml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                },
+                "canonical": [
+                  {
+                    "when": {
+                      "not": {
+                        "present": {
+                          "field": "extendedListPresentation"
+                        }
+                      }
+                    },
+                    "form": "empty-element"
+                  }
+                ]
+              }
+            }
+          },
+          "existing": [
+            {
+              "module": "fragment.journal-base-properties",
+              "field": "ExtendedListPresentation",
+              "type": {
+                "use": "common.i8n-text",
+                "with": {},
+                "bind": {
+                  "defaultLanguage": {
+                    "input": "defaultLanguage"
+                  },
+                  "registeredLanguages": {
+                    "input": "registeredLanguages"
+                  },
+                  "ownerName": {
+                    "input": "name"
+                  }
+                }
+              },
+              "xml": {
+                "field": "ExtendedListPresentation",
+                "path": [
+                  "md:MetaDataObject",
+                  "md:DocumentJournal",
+                  "md:Properties",
+                  "md:ExtendedListPresentation"
+                ]
+              },
+              "yaml": {
+                "field": "ExtendedListPresentation",
+                "key": "РасширенноеПредставлениеСписка"
+              },
+              "presence": {
+                "target": {
+                  "field": "ExtendedListPresentation"
+                },
+                "xml": {
+                  "canonical": [
+                    {
+                      "when": {
+                        "not": {
+                          "present": {
+                            "field": "ExtendedListPresentation"
+                          }
+                        }
+                      },
+                      "form": "empty-element"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "module": "candidate.fragment.6ca6807c679d5d575792",
+            "field": "explanation",
+            "type": {
+              "use": "common.i8n-text",
+              "with": {},
+              "bind": {
+                "defaultLanguage": {
+                  "input": "defaultLanguage"
+                },
+                "registeredLanguages": {
+                  "input": "registeredLanguages"
+                },
+                "ownerName": {
+                  "input": "ownerName"
+                }
+              }
+            },
+            "xml": {
+              "field": "explanation",
+              "path": [
+                "Properties",
+                "Explanation"
+              ]
+            },
+            "yaml": {
+              "field": "explanation",
+              "key": "Пояснение"
+            },
+            "presence": {
+              "target": {
+                "field": "explanation"
+              },
+              "xml": {
+                "missing": {
+                  "denotes": {
+                    "absent": true
+                  }
+                },
+                "canonical": [
+                  {
+                    "when": {
+                      "not": {
+                        "present": {
+                          "field": "explanation"
+                        }
+                      }
+                    },
+                    "form": "empty-element"
+                  }
+                ]
+              }
+            }
+          },
+          "existing": [
+            {
+              "module": "fragment.journal-base-properties",
+              "field": "Explanation",
+              "type": {
+                "use": "common.i8n-text",
+                "with": {},
+                "bind": {
+                  "defaultLanguage": {
+                    "input": "defaultLanguage"
+                  },
+                  "registeredLanguages": {
+                    "input": "registeredLanguages"
+                  },
+                  "ownerName": {
+                    "input": "name"
+                  }
+                }
+              },
+              "xml": {
+                "field": "Explanation",
+                "path": [
+                  "md:MetaDataObject",
+                  "md:DocumentJournal",
+                  "md:Properties",
+                  "md:Explanation"
+                ]
+              },
+              "yaml": {
+                "field": "Explanation",
+                "key": "Пояснение"
+              },
+              "presence": {
+                "target": {
+                  "field": "Explanation"
+                },
+                "xml": {
+                  "canonical": [
+                    {
+                      "when": {
+                        "not": {
+                          "present": {
+                            "field": "Explanation"
+                          }
+                        }
+                      },
+                      "form": "empty-element"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

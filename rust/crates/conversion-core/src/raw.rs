@@ -1,9 +1,11 @@
 //! Preservation envelopes do not decide where raw is allowed. Generated XML
 //! ownership and the failed final-candidate proof determine the boundary.
+mod owner;
 use crate::{
     Result, RuntimeDiagnostic,
     yaml::document::{self, Kind, Value},
 };
+pub use owner::Document;
 pub struct Property {
     pub meaning: Vec<u8>,
     pub payload: Vec<u8>,

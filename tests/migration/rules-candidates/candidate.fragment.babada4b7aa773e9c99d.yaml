@@ -1,0 +1,41 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.DataCompositionConditionalAppearanceUse
+value:
+  kind: record
+  fields:
+    - name: useInOverallResourceFieldsHeader
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: useInOverallResourceFieldsHeader
+        path:
+          - dcsset:useInOverallResourceFieldsHeader
+  yaml:
+    kind: mapping
+    fields:
+      - field: useInOverallResourceFieldsHeader
+        key: ИспользоватьВЗаголовкеПолейРесурсовОбщегоИтога
+presence:
+  - target:
+      field: useInOverallResourceFieldsHeader
+    xml:
+      missing:
+        denotes:
+          literal: Use
+      canonical:
+        - when:
+            eq:
+              - field: useInOverallResourceFieldsHeader
+              - literal: Use
+          form: missing
+    yaml:
+      default:
+        literal: Use
+namespaces:
+  dcsset: http://v8.1c.ru/8.1/data-composition-system/settings
+id: candidate.fragment.babada4b7aa773e9c99d

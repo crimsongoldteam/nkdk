@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.0cf0707f24ff5987acbe
+description: 'Кандидат проекции: относительный XML-корень AutoFillAvailableFields; не полный владелец'
+imports:
+  part0: candidate.fragment.bc3857b8e298ec7dbe78
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

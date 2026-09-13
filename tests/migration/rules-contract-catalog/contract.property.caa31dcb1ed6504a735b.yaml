@@ -1,0 +1,40 @@
+format: nkdk-declarations/1
+kind: object
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: autoInsertNewRow
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: autoInsertNewRow
+        path:
+          - Element
+          - AutoInsertNewRow
+  yaml:
+    kind: mapping
+    fields:
+      - field: autoInsertNewRow
+        key: АвтоВводНовойСтроки
+presence:
+  - target:
+      field: autoInsertNewRow
+    xml:
+      missing:
+        denotes:
+          literal: false
+      canonical:
+        - when:
+            eq:
+              - field: autoInsertNewRow
+              - literal: false
+          form: missing
+    yaml:
+      default:
+        literal: true
+id: contract.property.caa31dcb1ed6504a735b

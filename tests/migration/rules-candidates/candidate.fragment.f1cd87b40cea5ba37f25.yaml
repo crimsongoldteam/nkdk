@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.SaveFormDataInSettings
+value:
+  kind: record
+  fields:
+    - name: saveDataInSettings
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: saveDataInSettings
+        path:
+          - SaveDataInSettings
+  yaml:
+    kind: mapping
+    fields:
+      - field: saveDataInSettings
+        key: СохранениеДанныхВНастройках
+presence:
+  - target:
+      field: saveDataInSettings
+    xml:
+      missing:
+        denotes:
+          literal: DontUse
+      canonical:
+        - when:
+            eq:
+              - field: saveDataInSettings
+              - literal: DontUse
+          form: missing
+    yaml:
+      default:
+        literal: DontUse
+id: candidate.fragment.f1cd87b40cea5ba37f25

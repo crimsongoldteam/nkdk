@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.20732542af5bed836874
+description: 'Кандидат проекции: относительный XML-корень Width; не полный владелец'
+imports:
+  part0: candidate.fragment.8c56b9fd3ab4ad665f8a
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

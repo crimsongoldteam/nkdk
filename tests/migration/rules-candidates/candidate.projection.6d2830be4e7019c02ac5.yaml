@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.6d2830be4e7019c02ac5
+description: 'Кандидат проекции: относительный XML-корень AutoMaxHeight; не полный владелец'
+imports:
+  part0: candidate.fragment.6b6b1e65cd7089f69b63
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

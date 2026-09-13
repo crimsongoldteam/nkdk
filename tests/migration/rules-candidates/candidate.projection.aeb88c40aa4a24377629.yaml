@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.aeb88c40aa4a24377629
+description: 'Кандидат проекции: относительный XML-корень VerticalScrollOnReduceSize; не полный владелец'
+imports:
+  part0: candidate.fragment.581951ddec6bb74a8c6d
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

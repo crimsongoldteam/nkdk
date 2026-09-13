@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.2e41fe14f55216f177b4
+description: 'Кандидат проекции: относительный XML-корень SkipOnInput; не полный владелец'
+imports:
+  part0: candidate.fragment.7e022c0a89dc6bbc00bc
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

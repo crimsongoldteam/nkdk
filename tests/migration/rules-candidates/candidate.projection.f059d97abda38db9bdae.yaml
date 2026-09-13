@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.f059d97abda38db9bdae
+description: 'Кандидат проекции: относительный XML-корень AutoURL; не полный владелец'
+imports:
+  part0: candidate.fragment.aa04f269b59be1a01540
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

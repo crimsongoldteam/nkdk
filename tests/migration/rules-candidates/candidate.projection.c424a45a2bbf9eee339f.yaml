@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.c424a45a2bbf9eee339f
+description: 'Кандидат проекции: относительный XML-корень SearchControlLocation; не полный владелец'
+imports:
+  part0: candidate.fragment.a2393a55880c9109dde2
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

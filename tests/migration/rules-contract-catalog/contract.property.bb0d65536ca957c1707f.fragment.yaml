@@ -1,0 +1,40 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: customizable
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: customizable
+        path:
+          - Form
+          - Customizable
+  yaml:
+    kind: mapping
+    fields:
+      - field: customizable
+        key: РазрешитьИзменятьФорму
+presence:
+  - target:
+      field: customizable
+    xml:
+      missing:
+        denotes:
+          literal: true
+      canonical:
+        - when:
+            eq:
+              - field: customizable
+              - literal: true
+          form: missing
+    yaml:
+      default:
+        literal: true
+id: contract.property.bb0d65536ca957c1707f.fragment

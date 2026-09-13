@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.240e50d75642c3b2d272
+description: 'Кандидат проекции: относительный XML-корень OnMainServerUnavalableBehavior; не полный владелец'
+imports:
+  part0: candidate.fragment.a87f3fda72769383e5e8
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

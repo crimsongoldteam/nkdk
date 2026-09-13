@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: showInHeader
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: showInHeader
+        path:
+          - ShowInHeader
+  yaml:
+    kind: mapping
+    fields:
+      - field: showInHeader
+        key: ОтображатьВШапке
+presence:
+  - target:
+      field: showInHeader
+    xml:
+      missing:
+        denotes:
+          literal: false
+      canonical:
+        - when:
+            eq:
+              - field: showInHeader
+              - literal: false
+          form: missing
+    yaml:
+      default:
+        literal: false
+id: candidate.fragment.e109d9153b3cff29bde2

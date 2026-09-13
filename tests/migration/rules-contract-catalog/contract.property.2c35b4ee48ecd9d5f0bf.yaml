@@ -1,0 +1,114 @@
+format: nkdk-declarations/1
+kind: object
+imports:
+  value0: common.i8n-text
+  value1: common.string
+  value2: common.boolean
+  inputType1f8ea46361ff: common.path-root
+  value4: common.document-numerator-link
+  value5: system.DocumentNumberType
+  value6: system.AllowedLength
+  value7: system.BusinessProcessNumberPeriodicity
+  inputType00917033b468: common.path-object-kind
+  value9: common.based-on-links
+  value10: system.CreateOnInput
+  value11: system.SearchStringModeOnInputByString
+  value12: system.FullTextSearchOnInputByString
+  value13: system.ChoiceDataGetModeOnInputByString
+  value14: common.owner-or-common-form-link
+  value15: system.Posting
+  value16: system.RealTimePosting
+  value17: system.RegisterRecordsDeletion
+  value18: system.RegisterRecordsWritingOnPost
+  value19: system.SequenceFilling
+  value20: system.DefaultDataLockControlMode
+  value21: system.UseFullTextSearch
+  value22: system.ChoiceHistoryOnInput
+  value23: system.DataHistoryUse
+value:
+  kind: record
+  fields:
+    - name: basedOn
+      type:
+        use: value9
+        bind:
+          roots:
+            input: roots
+          children:
+            input: children
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: basedOn
+        path:
+          - Properties
+          - BasedOn
+  yaml:
+    kind: mapping
+    fields:
+      - field: basedOn
+        key: ВводитсяНаОсновании
+presence: []
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  ownerName:
+    type:
+      kind: scalar
+      scalar: text
+  roots:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: kind
+            type:
+              use: inputType1f8ea46361ff
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  children:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: kind
+            type:
+              use: inputType00917033b468
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: parent
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  owner:
+    type:
+      kind: scalar
+      scalar: text
+  forms:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+id: contract.property.2c35b4ee48ecd9d5f0bf

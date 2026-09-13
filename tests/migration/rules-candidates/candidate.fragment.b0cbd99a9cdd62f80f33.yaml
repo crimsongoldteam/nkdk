@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.exact-decimal
+value:
+  kind: record
+  fields:
+    - name: height
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: height
+        path:
+          - Height
+  yaml:
+    kind: mapping
+    fields:
+      - field: height
+        key: Высота
+presence:
+  - target:
+      field: height
+    xml:
+      missing:
+        denotes:
+          literal: 0
+      canonical:
+        - when:
+            eq:
+              - field: height
+              - literal: 0
+          form: missing
+    yaml:
+      default:
+        literal: 0
+id: candidate.fragment.b0cbd99a9cdd62f80f33

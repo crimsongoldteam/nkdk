@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.ViewScalingMode
+value:
+  kind: record
+  fields:
+    - name: viewScalingMode
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: viewScalingMode
+        path:
+          - ViewScalingMode
+  yaml:
+    kind: mapping
+    fields:
+      - field: viewScalingMode
+        key: РежимМасштабированияПросмотра
+presence:
+  - target:
+      field: viewScalingMode
+    xml:
+      missing:
+        denotes:
+          literal: Auto
+      canonical:
+        - when:
+            eq:
+              - field: viewScalingMode
+              - literal: Auto
+          form: missing
+    yaml:
+      default:
+        literal: Auto
+id: candidate.fragment.ee59302555b67d89d456

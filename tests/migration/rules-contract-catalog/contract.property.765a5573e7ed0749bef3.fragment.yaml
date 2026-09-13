@@ -1,0 +1,40 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: showTitle
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: showTitle
+        path:
+          - Form
+          - ShowTitle
+  yaml:
+    kind: mapping
+    fields:
+      - field: showTitle
+        key: ОтображатьЗаголовок
+presence:
+  - target:
+      field: showTitle
+    xml:
+      missing:
+        denotes:
+          literal: true
+      canonical:
+        - when:
+            eq:
+              - field: showTitle
+              - literal: true
+          form: missing
+    yaml:
+      default:
+        literal: true
+id: contract.property.765a5573e7ed0749bef3.fragment

@@ -1,0 +1,17 @@
+format: nkdk-declarations/1
+kind: value
+id: common.row
+namespaces: {r: urn:row}
+value: {kind: record, fields: [{name: name, type: {kind: scalar, scalar: text}}, {name: mode, type: {kind: scalar, scalar: text}}]}
+representations:
+  xml: {kind: record, fields: [{field: name, path: [r:Name]}, {field: mode, path: [r:Mode]}]}
+  yaml: {kind: mapping, fields: [{field: name, key: Name}, {field: mode, key: Mode}]}
+presence:
+- target: {field: mode}
+  xml: {missing: {denotes: {literal: normal}}}
+  yaml: {missing: {denotes: {literal: normal}}}
+constraints:
+- id: allowed-name
+  appliesTo: [xml-import, yaml-validation]
+  assert: {not: {eq: [{field: name}, {literal: reserved}]}}
+  diagnostic: {code: row.name, severity: error, at: {field: name}, message: Reserved}

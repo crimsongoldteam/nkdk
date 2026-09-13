@@ -1,0 +1,8 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.web-socket-client-headers
+imports: {value: common.web-socket-client-headers}
+value: {kind: record, fields: [{name: value, type: {use: value}}]}
+representations:
+  xml: {kind: record, fields: [{field: value, path: [Root, Value]}]}
+  yaml: {kind: mapping, fields: [{field: value, key: Headers}]}

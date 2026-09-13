@@ -1,0 +1,20 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.metadata-indexed-root-path
+imports: {segments: common.metadata-object-chain-path}
+value: {kind: record, fields: [{name: value, type: {use: segments}}]}
+representations:
+  xml: {kind: record, fields: [{field: value, path: [Root, Value]}]}
+  yaml: {kind: mapping, fields: [{field: value, key: Путь}]}
+
+inputs:
+  roots: {index: metadata.roots}
+constraints:
+- id: root-exists
+  appliesTo: [xml-import, yaml-validation]
+  assert:
+    present:
+      lookup:
+        in: {input: roots}
+        key: {record: {kind: {get: {of: {field: value}, field: root}}, name: {get: {of: {field: value}, field: name}}}}
+  diagnostic: {code: metadata.root-missing, severity: error, at: {field: value}, message: Metadata root is missing}

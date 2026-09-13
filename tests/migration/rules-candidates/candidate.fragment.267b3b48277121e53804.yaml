@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: autoMaxWidth
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: autoMaxWidth
+        path:
+          - AutoMaxWidth
+  yaml:
+    kind: mapping
+    fields:
+      - field: autoMaxWidth
+        key: АвтоМаксимальнаяШирина
+presence:
+  - target:
+      field: autoMaxWidth
+    xml:
+      missing:
+        denotes:
+          literal: true
+      canonical:
+        - when:
+            eq:
+              - field: autoMaxWidth
+              - literal: true
+          form: missing
+    yaml:
+      default:
+        literal: true
+id: candidate.fragment.267b3b48277121e53804

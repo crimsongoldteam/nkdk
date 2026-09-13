@@ -1,0 +1,35 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.FillChecking
+value:
+  kind: record
+  fields:
+    - name: fillChecking
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: fillChecking
+        path:
+          - xr:FillChecking
+  yaml:
+    kind: mapping
+    fields:
+      - field: fillChecking
+        key: ПроверкаЗаполнения
+presence:
+  - target:
+      field: fillChecking
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: DontCheck
+namespaces:
+  xr: http://v8.1c.ru/8.3/xcf/readable
+id: candidate.fragment.8ec1629eb6c80ba0a8d4

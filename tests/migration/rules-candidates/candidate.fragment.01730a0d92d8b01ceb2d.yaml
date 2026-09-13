@@ -1,0 +1,30 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.fields-list
+value:
+  kind: record
+  fields:
+    - name: save
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: save
+        path:
+          - Save
+  yaml:
+    kind: mapping
+    fields:
+      - field: save
+        key: Сохранение
+presence:
+  - target:
+      field: save
+    xml:
+      missing:
+        denotes:
+          absent: true
+id: candidate.fragment.01730a0d92d8b01ceb2d

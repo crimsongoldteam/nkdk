@@ -1,0 +1,20 @@
+format: nkdk-declarations/1
+kind: object
+id: test.fact-member-consumer
+inputs:
+  names:
+    index: test.member-names
+
+value: {kind: record, fields: [{name: target, type: {kind: scalar, scalar: text}}]}
+representations:
+  xml: {kind: record, fields: [{field: target, path: [Root, Target]}]}
+  yaml: {kind: mapping, fields: [{field: target, key: Target}]}
+constraints:
+- id: known-member
+  appliesTo: [xml-import, yaml-validation]
+  assert:
+    present:
+      lookup:
+        in: {input: names}
+        key: {record: {name: {field: target}, owner: {literal: a.b}, kind: {literal: element}}}
+  diagnostic: {code: member.missing, severity: error, at: {field: target}, message: Member is missing}

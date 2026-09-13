@@ -1,0 +1,24 @@
+format: nkdk-declarations/1
+kind: value
+id: system.RadioButtonType
+enum:
+  Auto: Авто
+  RadioButton:
+    yaml: Переключатель
+    xml: RadioButtons
+    accept:
+      - RadioButton
+  Tumbler: Тумблер
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  t: http://v8.1c.ru/8.1/data/enterprise
+projections:
+  - id: system.RadioButtonType.dcs
+    xml:
+      kind: with-attributes
+      attributes:
+        - name: xsi:type
+          value:
+            qname: t:RadioButtonType
+      content:
+        kind: text

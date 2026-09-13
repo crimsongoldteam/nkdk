@@ -1,0 +1,12 @@
+format: nkdk-declarations/1
+kind: fragment
+id: fragment.help
+imports: {pages: common.help-pages, files: fragment.help-resources}
+compose: [{use: files}]
+namespaces: {ep: 'http://v8.1c.ru/8.3/xcf/extrnprops'}
+inputs:
+  pages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+value: {kind: record, fields: [{name: help, type: {use: pages, bind: {pages: {input: pages}}}}]}
+representations:
+  xml: {kind: record, fields: [{field: help, file: [Ext, Help.xml], path: ['ep:Help']}]}
+  yaml: {kind: mapping, fields: [{field: help, key: Справка}]}

@@ -1,0 +1,41 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.DataCompositionConditionalAppearanceUse
+value:
+  kind: record
+  fields:
+    - name: useInHierarchicalGroup
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: useInHierarchicalGroup
+        path:
+          - dcsset:useInHierarchicalGroup
+  yaml:
+    kind: mapping
+    fields:
+      - field: useInHierarchicalGroup
+        key: ИспользоватьВИерархическойГруппировке
+presence:
+  - target:
+      field: useInHierarchicalGroup
+    xml:
+      missing:
+        denotes:
+          literal: Use
+      canonical:
+        - when:
+            eq:
+              - field: useInHierarchicalGroup
+              - literal: Use
+          form: missing
+    yaml:
+      default:
+        literal: Use
+namespaces:
+  dcsset: http://v8.1c.ru/8.1/data-composition-system/settings
+id: candidate.fragment.5e0a5043a6da2e5c01ac

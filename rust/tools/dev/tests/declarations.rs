@@ -71,6 +71,17 @@ fn declaration_commands_check_sources_and_export_the_same_schema() {
         String::from_utf8_lossy(&output.stderr)
     );
     let actual: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
+    let compiled = Command::new(binary)
+        .args(["declarations", "compile", "--dir"])
+        .arg(&root)
+        .output()
+        .unwrap();
+    assert!(
+        compiled.status.success(),
+        "{}",
+        String::from_utf8_lossy(&compiled.stderr)
+    );
+    assert!(String::from_utf8_lossy(&compiled.stdout).contains("Generated"));
     let expected: serde_json::Value = serde_json::from_slice(include_bytes!(
         "../../../../tests/declaration-corpus/schemas/numeric-bound.schema.json"
     ))

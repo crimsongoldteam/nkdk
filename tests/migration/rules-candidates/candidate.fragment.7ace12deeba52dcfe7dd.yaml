@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: enableStartDrag
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: enableStartDrag
+        path:
+          - EnableStartDrag
+  yaml:
+    kind: mapping
+    fields:
+      - field: enableStartDrag
+        key: РазрешитьНачалоПеретаскивания
+presence:
+  - target:
+      field: enableStartDrag
+    xml:
+      missing:
+        denotes:
+          literal: false
+      canonical:
+        - when:
+            eq:
+              - field: enableStartDrag
+              - literal: false
+          form: missing
+    yaml:
+      default:
+        literal: false
+id: candidate.fragment.7ace12deeba52dcfe7dd

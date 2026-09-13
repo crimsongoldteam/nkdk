@@ -52,6 +52,29 @@ fn exceptional_xml_tree_keeps_empty_leaves_attributes_and_occurrences() {
             "{invalid}"
         );
     }
+    let repeated = b"<Root><Value>first</Value><Value code='x'>second</Value></Root>";
+    let path = &[("", "Root"), ("", "Value")];
+    assert!(Tree::capture(repeated, path).is_err());
+    let offset = repeated
+        .windows(b"<Value code".len())
+        .position(|part| part == b"<Value code")
+        .unwrap();
+    let selected = Tree::capture_at(repeated, path, offset).unwrap().unwrap();
+    let mut writer = nkdk_conversion_core::xml::Writer::new(&[]);
+    selected
+        .write_at(&mut writer, &[("", "Root")], &[])
+        .unwrap();
+    nkdk_conversion_core::proof::verify(
+        b"<Root><Value code='x'>second</Value></Root>",
+        &writer.finish(),
+        |_| false,
+    )
+    .unwrap();
+    assert!(
+        Tree::capture_at(repeated, path, offset + 1)
+            .unwrap()
+            .is_none()
+    );
     let interleaved = b"<Root><Title><A>one</A><B>two</B><A>three</A></Title></Root>";
     let tree = Tree::capture(interleaved, &[("", "Root"), ("", "Title")])
         .unwrap()
@@ -112,4 +135,19 @@ fn exceptional_xml_tree_keeps_empty_leaves_attributes_and_occurrences() {
             .unwrap(),
         "_x:type: v8:Kind"
     );
+}
+
+#[test]
+fn repeated_fields_have_occurrence_specific_meaning() {
+    use nkdk_conversion_core::proof::verify_with_occurrences;
+    let original =
+        b"<Root><Item><Value> </Value></Item><Item><Value><Child/></Value></Item></Root>";
+    let restored =
+        b"<Root>\n<Item><Value> </Value></Item>\n<Item><Value>\n<Child/>\n</Value></Item>\n</Root>";
+    let scalar = |path: &[nkdk_conversion_core::xml::Name], positions: &[usize]| {
+        path.last().is_some_and(|name| name.local == "Value") && positions[1] == 1
+    };
+    verify_with_occurrences(original, restored, scalar, |_, _| false, |_| false).unwrap();
+    let changed = b"<Root><Item><Value/></Item><Item><Value><Child/></Value></Item></Root>";
+    assert!(verify_with_occurrences(original, changed, scalar, |_, _| false, |_| false).is_err());
 }

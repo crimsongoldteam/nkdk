@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.bc4971240df052d5ecde
+description: 'Кандидат проекции: относительный XML-корень xr:MultiLine; не полный владелец'
+imports:
+  part0: candidate.fragment.991fa9999a4366811f75
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

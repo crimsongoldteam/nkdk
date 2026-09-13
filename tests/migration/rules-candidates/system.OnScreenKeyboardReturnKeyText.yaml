@@ -1,0 +1,26 @@
+format: nkdk-declarations/1
+kind: value
+id: system.OnScreenKeyboardReturnKeyText
+enum:
+  Auto: Авто
+  Return: Ввод
+  Done: Готово
+  Next: Далее
+  Search: Найти
+  Send: Отправить
+  Go: Перейти
+  Join: Подключиться
+  Continue: Продолжить
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  t: http://v8.1c.ru/8.1/data/enterprise
+projections:
+  - id: system.OnScreenKeyboardReturnKeyText.dcs
+    xml:
+      kind: with-attributes
+      attributes:
+        - name: xsi:type
+          value:
+            qname: t:OnScreenKeyboardReturnKeyText
+      content:
+        kind: text

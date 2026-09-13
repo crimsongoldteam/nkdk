@@ -4,6 +4,11 @@ version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 publish.workspace = true
+# Generated declarations are exercised by tests/*.rs. The library has no unit tests;
+# avoid compiling the entire catalog again as an empty unit-test executable.
+[lib]
+test = false
+
 [dependencies]
 nkdk-conversion-core = { path = "../conversion-core" }
 [build-dependencies]

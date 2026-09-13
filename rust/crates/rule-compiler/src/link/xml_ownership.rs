@@ -21,6 +21,14 @@ fn routes(
     entries: &BTreeMap<u32, LinkedEntry>,
 ) -> Result<Vec<Route>, Diagnostic> {
     let result = match xml {
+        LinkedXml::Declared => {
+            let id = match value {
+                LinkedType::Reference(id) | LinkedType::BoundReference { entry: id, .. } => id,
+                _ => unreachable!("declared representation requires a reference"),
+            };
+            let entry = &entries[id];
+            routes(&entry.value, &entry.xml, &entry.source, entries)?
+        }
         LinkedXml::WithAttributes {
             attributes,
             content,
@@ -79,6 +87,15 @@ fn routes(
             }
             result
         }
+        LinkedXml::Tree(nodes) => nodes
+            .iter()
+            .map(|node| Route {
+                path: vec![node.name.clone()],
+                attribute: None,
+                source: node.source.clone(),
+                owns_element: true,
+            })
+            .collect(),
         LinkedXml::ElementSequence { path, item } => {
             let LinkedType::Sequence(value) = value else {
                 unreachable!("shape validated before ownership")
@@ -91,7 +108,11 @@ fn routes(
                 owns_element: true,
             }]
         }
-        LinkedXml::Text
+        LinkedXml::Choice
+        | LinkedXml::Text
+        | LinkedXml::TextPattern(_)
+        | LinkedXml::TextSequence { .. }
+        | LinkedXml::QName { .. }
         | LinkedXml::ScalarChoice(_)
         | LinkedXml::FormattedDecimal(_)
         | LinkedXml::Calendar
@@ -140,7 +161,9 @@ fn attribute_type(value: &LinkedType, entries: &BTreeMap<u32, LinkedEntry>) -> b
         LinkedType::Reference(id) | LinkedType::BoundReference { entry: id, .. } => {
             matches!(
                 entries[id].xml,
-                LinkedXml::Text
+                LinkedXml::Choice
+                    | LinkedXml::Text
+                    | LinkedXml::TextPattern(_)
                     | LinkedXml::ScalarChoice(_)
                     | LinkedXml::FormattedDecimal(_)
                     | LinkedXml::Calendar

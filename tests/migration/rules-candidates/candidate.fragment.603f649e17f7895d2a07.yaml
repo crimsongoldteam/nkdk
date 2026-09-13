@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.exact-decimal
+value:
+  kind: record
+  fields:
+    - name: scale
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: scale
+        path:
+          - Scale
+  yaml:
+    kind: mapping
+    fields:
+      - field: scale
+        key: Масштаб
+presence:
+  - target:
+      field: scale
+    xml:
+      missing:
+        denotes:
+          literal: 100
+      canonical:
+        - when:
+            eq:
+              - field: scale
+              - literal: 100
+          form: missing
+    yaml:
+      default:
+        literal: 100
+id: candidate.fragment.603f649e17f7895d2a07

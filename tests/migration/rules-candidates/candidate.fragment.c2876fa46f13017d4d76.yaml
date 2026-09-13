@@ -1,0 +1,41 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.DataCompositionFilterApplicationType
+value:
+  kind: record
+  fields:
+    - name: application
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: application
+        path:
+          - dcsset:application
+  yaml:
+    kind: mapping
+    fields:
+      - field: application
+        key: Применение
+presence:
+  - target:
+      field: application
+    xml:
+      missing:
+        denotes:
+          literal: Items
+      canonical:
+        - when:
+            eq:
+              - field: application
+              - literal: Items
+          form: missing
+    yaml:
+      default:
+        literal: Items
+namespaces:
+  dcsset: http://v8.1c.ru/8.1/data-composition-system/settings
+id: candidate.fragment.c2876fa46f13017d4d76

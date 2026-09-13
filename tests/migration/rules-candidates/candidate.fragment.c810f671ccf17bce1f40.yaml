@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.exact-decimal
+value:
+  kind: record
+  fields:
+    - name: widthInMonths
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: widthInMonths
+        path:
+          - WidthInMonths
+  yaml:
+    kind: mapping
+    fields:
+      - field: widthInMonths
+        key: ШиринаВМесяцах
+presence:
+  - target:
+      field: widthInMonths
+    xml:
+      missing:
+        denotes:
+          literal: 1
+      canonical:
+        - when:
+            eq:
+              - field: widthInMonths
+              - literal: 1
+          form: missing
+    yaml:
+      default:
+        literal: 1
+id: candidate.fragment.c810f671ccf17bce1f40

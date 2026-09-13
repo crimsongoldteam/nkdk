@@ -1,0 +1,16 @@
+format: nkdk-declarations/1
+kind: fragment
+id: fragment.additional-indexes
+imports: {indexes: common.additional-indexes}
+namespaces: {x: 'http://v8.1c.ru/8.3/xcf/extrnprops'}
+inputs:
+  owner: {type: {kind: scalar, scalar: text}}
+  identities:
+    type:
+      kind: index
+      key: {kind: record, fields: [{name: owner, type: {kind: scalar, scalar: text}}, {name: name, type: {kind: scalar, scalar: text}}]}
+      value: {kind: scalar, scalar: text}
+value: {kind: record, fields: [{name: indexes, type: {use: indexes, bind: {owner: {input: owner}, identities: {input: identities}}}}]}
+representations:
+  xml: {kind: record, fields: [{field: indexes, file: [Ext, AdditionalIndexes.xml], path: [x:AdditionalIndexes]}]}
+  yaml: {kind: mapping, fields: [{field: indexes, key: ДополнительныеИндексы}]}

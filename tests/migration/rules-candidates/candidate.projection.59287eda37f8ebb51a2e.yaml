@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.59287eda37f8ebb51a2e
+description: 'Кандидат проекции: относительный XML-корень ShowInFooter; не полный владелец'
+imports:
+  part0: candidate.fragment.752afee2ee544807de63
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

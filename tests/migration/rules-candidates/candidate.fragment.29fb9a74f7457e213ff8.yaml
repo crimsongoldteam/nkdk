@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.exact-decimal
+value:
+  kind: record
+  fields:
+    - name: columnsCount
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: columnsCount
+        path:
+          - ColumnsCount
+  yaml:
+    kind: mapping
+    fields:
+      - field: columnsCount
+        key: КоличествоКолонок
+presence:
+  - target:
+      field: columnsCount
+    xml:
+      missing:
+        denotes:
+          literal: 0
+      canonical:
+        - when:
+            eq:
+              - field: columnsCount
+              - literal: 0
+          form: missing
+    yaml:
+      default:
+        literal: 0
+id: candidate.fragment.29fb9a74f7457e213ff8

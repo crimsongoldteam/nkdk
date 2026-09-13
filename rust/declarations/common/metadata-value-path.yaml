@@ -1,0 +1,33 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: common.metadata-value-keyword
+  enum: {EmptyRef: ПустаяСсылка}
+- kind: value
+  id: common.metadata-value-name
+  imports: {name: common.metadata-name, words: common.metadata-value-keyword}
+  value: {use: name}
+  representations:
+    xml: {kind: text}
+    yaml: {kind: text-table, use: words}
+- kind: value
+  id: common.metadata-value-path
+  imports: {root: common.path-root, name: common.metadata-name, value: common.metadata-value-name}
+  value:
+    kind: record
+    fields:
+    - {name: root, type: {use: root}}
+    - {name: owner, type: {use: name}}
+    - {name: value, type: {use: value}}
+  representations:
+    xml: {kind: text-pattern, parts: [{field: root}, {literal: '.'}, {field: owner}, {literal: '.'}, {field: value}]}
+    yaml: {kind: text-pattern, parts: [{field: root}, {literal: '.'}, {field: owner}, {literal: '.'}, {field: value}]}
+  constraints:
+  - id: predefined-or-empty
+    appliesTo: [xml-import, yaml-validation]
+    assert:
+      or:
+      - {not: {eq: [{get: {of: {self: true}, field: root}}, {literal: Enum}]}}
+      - {eq: [{get: {of: {self: true}, field: value}}, {literal: EmptyRef}]}
+    diagnostic: {code: path.value-kind, severity: error, at: {self: true}, message: Enumeration values require the EnumValue segment}

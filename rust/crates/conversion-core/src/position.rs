@@ -13,6 +13,9 @@ impl Position {
             column: offset,
         }
     }
+    pub fn xml_offset(self) -> Option<usize> {
+        (self.line == 0).then_some(self.column)
+    }
     pub fn yaml(line: usize, column: usize) -> Self {
         Self { line, column }
     }

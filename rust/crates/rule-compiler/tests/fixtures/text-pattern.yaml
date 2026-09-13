@@ -1,0 +1,11 @@
+format: nkdk-declarations/1
+kind: value
+id: common.text-pair
+value:
+  kind: record
+  fields:
+  - {name: domain, type: {kind: scalar, scalar: text}}
+  - {name: name, type: {kind: scalar, scalar: text}}
+representations:
+  xml: {kind: text-pattern, parts: [{field: domain}, {literal: '::'}, {field: name}]}
+  yaml: {kind: text-pattern, parts: [{literal: '['}, {field: name}, {literal: '] '}, {field: domain}]}

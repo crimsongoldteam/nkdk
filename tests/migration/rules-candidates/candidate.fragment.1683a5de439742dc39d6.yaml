@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.ButtonGroupRepresentation
+value:
+  kind: record
+  fields:
+    - name: representation
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: representation
+        path:
+          - Representation
+  yaml:
+    kind: mapping
+    fields:
+      - field: representation
+        key: Отображение
+presence:
+  - target:
+      field: representation
+    xml:
+      missing:
+        denotes:
+          literal: Auto
+      canonical:
+        - when:
+            eq:
+              - field: representation
+              - literal: Auto
+          form: missing
+    yaml:
+      default:
+        literal: Auto
+id: candidate.fragment.1683a5de439742dc39d6

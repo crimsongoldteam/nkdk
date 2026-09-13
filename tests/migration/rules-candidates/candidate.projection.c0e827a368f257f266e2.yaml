@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.c0e827a368f257f266e2
+description: 'Кандидат проекции: относительный XML-корень SpecialTextInputMode; не полный владелец'
+imports:
+  part0: candidate.fragment.c8e93b3138c609746cda
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

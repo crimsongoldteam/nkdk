@@ -1,0 +1,41 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.DataCompositionConditionalAppearanceUse
+value:
+  kind: record
+  fields:
+    - name: useInParameters
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: useInParameters
+        path:
+          - dcsset:useInParameters
+  yaml:
+    kind: mapping
+    fields:
+      - field: useInParameters
+        key: ИспользоватьВПараметрах
+presence:
+  - target:
+      field: useInParameters
+    xml:
+      missing:
+        denotes:
+          literal: Use
+      canonical:
+        - when:
+            eq:
+              - field: useInParameters
+              - literal: Use
+          form: missing
+    yaml:
+      default:
+        literal: Use
+namespaces:
+  dcsset: http://v8.1c.ru/8.1/data-composition-system/settings
+id: candidate.fragment.ad6352ee9c319aa44234

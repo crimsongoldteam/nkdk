@@ -1,0 +1,25 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.fields-list-readable-default
+imports: {value: common.fields-list-readable}
+value: {kind: record, fields: [{name: value, type: {use: value}}]}
+representations:
+  xml: {kind: record, fields: [{field: value, path: [Root, Value]}]}
+  yaml: {kind: mapping, fields: [{field: value, key: List}]}
+presence:
+- target: {field: value}
+  xml:
+    missing: {denotes: {absent: true}}
+    empty:
+    - {form: empty-element, denotes: {absent: true}}
+    - {form: empty-item, denotes: {absent: true}}
+    canonical:
+    - when: {not: {present: {field: value}}}
+      form: empty-element
+    - form: ordinary
+  yaml:
+    missing: {denotes: {absent: true}}
+    empty:
+    - {form: empty-mapping, denotes: {sequence: []}}
+    - {form: empty-sequence, denotes: {absent: true}}
+    omitWhen: {not: {present: {field: value}}}

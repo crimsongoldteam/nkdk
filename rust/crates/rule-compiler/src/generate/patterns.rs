@@ -212,7 +212,7 @@ pub(super) fn generate(
             "if let Some(rewrite)={read}(&rows, _inputs)? {{ return Ok(rewrite.apply(rows)); }}\n"
         ),
         write: format!(
-            "if shorten && let Some(rewrite)={write}(&value.rows, _inputs)? {{ append_rows_{}(&mut out, rewrite.iter(&value.rows)); return Ok(out.into_bytes()); }}\n",
+            "if shorten && let Some(rewrite)={write}(&value.rows, _inputs)? {{ append_rows_{}(out, rewrite.iter(&value.rows)); return Ok(()); }}\n",
             owner.id
         ),
     })

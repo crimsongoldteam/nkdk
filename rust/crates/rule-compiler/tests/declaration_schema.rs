@@ -32,8 +32,10 @@ fn authoring_schema_accepts_the_corpus_and_rejects_structural_mistakes() {
         std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../rust/declarations");
     let paths = [
         directory,
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures"),
         production.join("common"),
         production.join("probes"),
+        production.join("resources"),
     ];
     for entry in paths
         .into_iter()

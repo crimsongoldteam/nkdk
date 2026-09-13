@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.1ba158bbd009d612e163
+description: 'Кандидат проекции: относительный XML-корень HorizontalStretch; не полный владелец'
+imports:
+  part0: candidate.fragment.8e316e630b11b2eda79e
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

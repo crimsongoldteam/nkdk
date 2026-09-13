@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.AutoShowOpenButtonMode
+value:
+  kind: record
+  fields:
+    - name: autoShowOpenButton
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: autoShowOpenButton
+        path:
+          - AutoShowOpenButtonMode
+  yaml:
+    kind: mapping
+    fields:
+      - field: autoShowOpenButton
+        key: АвтоОтображениеКнопкиОткрытия
+presence:
+  - target:
+      field: autoShowOpenButton
+    xml:
+      missing:
+        denotes:
+          literal: Auto
+      canonical:
+        - when:
+            eq:
+              - field: autoShowOpenButton
+              - literal: Auto
+          form: missing
+    yaml:
+      default:
+        literal: Auto
+id: candidate.fragment.6b70b7d4470e1fecad0b

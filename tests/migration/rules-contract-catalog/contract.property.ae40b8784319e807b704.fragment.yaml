@@ -1,0 +1,35 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: savedInSettingsDataModified
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: savedInSettingsDataModified
+        path:
+          - Form
+          - SavedInSettingsDataModified
+  yaml:
+    kind: mapping
+    fields:
+      - field: savedInSettingsDataModified
+        key: СохраняемыеВНастройкахДанныеМодифицированы
+presence:
+  - target:
+      field: savedInSettingsDataModified
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+id: contract.property.ae40b8784319e807b704.fragment

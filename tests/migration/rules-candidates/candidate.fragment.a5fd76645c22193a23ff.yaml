@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.FormItemTitleLocation
+value:
+  kind: record
+  fields:
+    - name: titleLocation
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: titleLocation
+        path:
+          - TitleLocation
+  yaml:
+    kind: mapping
+    fields:
+      - field: titleLocation
+        key: ПоложениеЗаголовка
+presence:
+  - target:
+      field: titleLocation
+    xml:
+      missing:
+        denotes:
+          literal: Auto
+      canonical:
+        - when:
+            eq:
+              - field: titleLocation
+              - literal: Auto
+          form: missing
+    yaml:
+      default:
+        literal: Auto
+id: candidate.fragment.a5fd76645c22193a23ff

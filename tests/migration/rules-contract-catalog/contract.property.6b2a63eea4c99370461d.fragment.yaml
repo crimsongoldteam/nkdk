@@ -1,0 +1,35 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.string
+value:
+  kind: record
+  fields:
+    - name: variantAppearance
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: variantAppearance
+        path:
+          - Form
+          - VariantAppearance
+  yaml:
+    kind: mapping
+    fields:
+      - field: variantAppearance
+        key: ПредставлениеВарианта
+presence:
+  - target:
+      field: variantAppearance
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+id: contract.property.6b2a63eea4c99370461d.fragment

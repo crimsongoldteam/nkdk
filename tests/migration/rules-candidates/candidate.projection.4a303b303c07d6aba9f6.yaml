@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.4a303b303c07d6aba9f6
+description: 'Кандидат проекции: относительный XML-корень ChoiceForm; не полный владелец'
+imports:
+  part0: candidate.fragment.f8d4ad1adad6e31891b9
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

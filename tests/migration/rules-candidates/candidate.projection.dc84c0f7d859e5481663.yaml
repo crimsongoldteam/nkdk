@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.dc84c0f7d859e5481663
+description: 'Кандидат проекции: относительный XML-корень WrappedTimeScaleHeaderHyperlink; не полный владелец'
+imports:
+  part0: candidate.fragment.83df09525fb9d4e29d0b
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

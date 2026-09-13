@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.UsualGroupBehavior
+value:
+  kind: record
+  fields:
+    - name: behavior
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: behavior
+        path:
+          - Behavior
+  yaml:
+    kind: mapping
+    fields:
+      - field: behavior
+        key: Поведение
+presence:
+  - target:
+      field: behavior
+    xml:
+      missing:
+        denotes:
+          literal: Auto
+      canonical:
+        - when:
+            eq:
+              - field: behavior
+              - literal: Auto
+          form: missing
+    yaml:
+      default:
+        literal: Auto
+id: candidate.fragment.f3c4d503573e0657684f

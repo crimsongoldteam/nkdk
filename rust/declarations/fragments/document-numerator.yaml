@@ -1,0 +1,22 @@
+format: nkdk-declarations/1
+kind: fragment
+id: fragment.document-numerator
+imports: {link: common.document-numerator-link, rootKind: common.path-root}
+namespaces: {md: 'http://v8.1c.ru/8.3/MDClasses'}
+inputs:
+  roots:
+    type:
+      kind: index
+      key: {kind: record, fields: [{name: kind, type: {use: rootKind}}, {name: name, type: {kind: scalar, scalar: text}}]}
+      value: {kind: scalar, scalar: text}
+value: {kind: record, fields: [{name: Numerator, type: {use: link, bind: {roots: {input: roots}}}}]}
+representations:
+  xml: {kind: record, fields: [{field: Numerator, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:Numerator']}]}
+  yaml: {kind: mapping, fields: [{field: Numerator, key: Нумератор}]}
+presence:
+- target: {field: Numerator}
+  xml:
+    missing: {denotes: {absent: true}}
+    empty: [{form: empty-element, denotes: {absent: true}}]
+    canonical: [{when: {not: {present: {field: Numerator}}}, form: empty-element}]
+  yaml: {missing: {denotes: {absent: true}}}

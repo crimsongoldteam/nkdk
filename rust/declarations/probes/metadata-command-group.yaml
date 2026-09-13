@@ -1,0 +1,9 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.metadata-command-group
+imports: {group: common.metadata-command-group}
+inputs: {roots: {index: metadata.roots}}
+value: {kind: record, fields: [{name: group, type: {use: group, bind: {roots: {input: roots}}}}]}
+representations:
+  xml: {kind: record, fields: [{field: group, path: [Root, Group]}]}
+  yaml: {kind: mapping, fields: [{field: group, key: Группа}]}

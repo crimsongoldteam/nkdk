@@ -1,0 +1,41 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: order
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: order
+        path:
+          - dcssch:order
+  yaml:
+    kind: mapping
+    fields:
+      - field: order
+        key: Порядок
+presence:
+  - target:
+      field: order
+    xml:
+      missing:
+        denotes:
+          literal: false
+      canonical:
+        - when:
+            eq:
+              - field: order
+              - literal: false
+          form: missing
+    yaml:
+      default:
+        literal: false
+namespaces:
+  dcssch: http://v8.1c.ru/8.1/data-composition-system/schema
+id: candidate.fragment.f090b9d0f13c60cb5701

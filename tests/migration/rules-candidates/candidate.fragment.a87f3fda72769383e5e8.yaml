@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.OnMainServerUnavalableBehavior
+value:
+  kind: record
+  fields:
+    - name: onMainServerUnavalableBehavior
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: onMainServerUnavalableBehavior
+        path:
+          - OnMainServerUnavalableBehavior
+  yaml:
+    kind: mapping
+    fields:
+      - field: onMainServerUnavalableBehavior
+        key: ПоведениеПриНедоступностиОсновногоСервера
+presence:
+  - target:
+      field: onMainServerUnavalableBehavior
+    xml:
+      missing:
+        denotes:
+          literal: Auto
+      canonical:
+        - when:
+            eq:
+              - field: onMainServerUnavalableBehavior
+              - literal: Auto
+          form: missing
+    yaml:
+      default:
+        literal: Auto
+id: candidate.fragment.a87f3fda72769383e5e8

@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.73641affba97300c51bb
+description: 'Кандидат проекции: относительный XML-корень OpenButton; не полный владелец'
+imports:
+  part0: candidate.fragment.7ef2a77597c6feba2779
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

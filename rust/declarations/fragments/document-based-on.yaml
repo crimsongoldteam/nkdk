@@ -1,0 +1,29 @@
+format: nkdk-declarations/1
+kind: fragment
+id: fragment.document-based-on
+imports: {based: common.based-on-links, rootKind: common.path-root, childKind: common.path-object-kind}
+namespaces: {md: 'http://v8.1c.ru/8.3/MDClasses'}
+inputs:
+  roots:
+    type:
+      kind: index
+      key: {kind: record, fields: [{name: kind, type: {use: rootKind}}, {name: name, type: {kind: scalar, scalar: text}}]}
+      value: {kind: scalar, scalar: text}
+  children:
+    type:
+      kind: index
+      key: {kind: record, fields: [{name: kind, type: {use: childKind}}, {name: name, type: {kind: scalar, scalar: text}}, {name: parent, type: {kind: scalar, scalar: text}}]}
+      value: {kind: scalar, scalar: text}
+value:
+  kind: record
+  fields:
+  - {name: BasedOn, type: {use: based, bind: {roots: {input: roots}, children: {input: children}}}}
+representations:
+  xml:
+    kind: record
+    fields:
+    - {field: BasedOn, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:BasedOn']}
+  yaml:
+    kind: mapping
+    fields:
+    - {field: BasedOn, key: ВводитсяНаОсновании}

@@ -1,0 +1,87 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.i8n-text
+value:
+  kind: record
+  fields:
+    - name: objectPresentation
+      type:
+        use: value0
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          ownerName:
+            input: ownerName
+    - name: extendedObjectPresentation
+      type:
+        use: value0
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          ownerName:
+            input: ownerName
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: objectPresentation
+        path:
+          - Properties
+          - ObjectPresentation
+      - field: extendedObjectPresentation
+        path:
+          - Properties
+          - ExtendedObjectPresentation
+  yaml:
+    kind: mapping
+    fields:
+      - field: objectPresentation
+        key: ПредставлениеОбъекта
+      - field: extendedObjectPresentation
+        key: РасширенноеПредставлениеОбъекта
+presence:
+  - target:
+      field: objectPresentation
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: objectPresentation
+          form: empty-element
+  - target:
+      field: extendedObjectPresentation
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: extendedObjectPresentation
+          form: empty-element
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  ownerName:
+    type:
+      kind: scalar
+      scalar: text
+id: candidate.fragment.10b589ff92af699fefa7

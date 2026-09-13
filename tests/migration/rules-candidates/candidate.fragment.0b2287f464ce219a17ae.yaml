@@ -1,0 +1,35 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: useRestriction
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: useRestriction
+        path:
+          - dcssch:useRestriction
+  yaml:
+    kind: mapping
+    fields:
+      - field: useRestriction
+        key: ОграничениеИспользования
+presence:
+  - target:
+      field: useRestriction
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: false
+namespaces:
+  dcssch: http://v8.1c.ru/8.1/data-composition-system/schema
+id: candidate.fragment.0b2287f464ce219a17ae

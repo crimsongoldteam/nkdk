@@ -1,0 +1,8 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.index-field
+imports: {value: common.index-field}
+value: {kind: record, fields: [{name: value, type: {use: value}}]}
+representations:
+  xml: {kind: record, fields: [{field: value, path: [Root, Value]}]}
+  yaml: {kind: mapping, fields: [{field: value, key: List}]}

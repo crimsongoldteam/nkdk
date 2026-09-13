@@ -1,10 +1,203 @@
-use nkdk_rule_compiler::{SourceFile, generate, link, parse};
+use nkdk_rule_compiler::{SourceFile, generate, link, parse, schema};
 use std::{fs, process::Command};
 
 #[test]
 fn generated_rust_executes_both_directions_and_uses_the_imported_table() {
+    let declared_nested = include_str!("fixtures/declared-row.yaml")
+        .replace("common.row", "common.nested-row")
+        .replace(
+            "namespaces:",
+            "imports: {codes: common.project-rows}\nnamespaces:",
+        )
+        .replace(
+            "{name: name,",
+            "{name: codes, type: {use: codes}}, {name: name,",
+        )
+        .replace(
+            "{field: name, path:",
+            "{field: codes, path: [Codes]}, {field: name, path:",
+        )
+        .replace(
+            "{field: name, key:",
+            "{field: codes, key: Codes}, {field: name, key:",
+        );
+    let declared_nested=declared_nested
+        .replace("{name: name,", "{name: token, type: {kind: scalar, scalar: text}}, {name: name,")
+        .replace("{field: name, path:", "{field: token, path: [], attribute: token}, {field: name, path:")
+        .replace("{field: name, key:", "{field: token, key: Token}, {field: name, key:")
+        .replace("presence:\n", "presence:\n- target: {field: token}\n  xml: {missing: {denotes: {absent: true}}}\n  yaml: {default: {field: name}}\n");
+    let declared_nested_list = include_str!("fixtures/declared-rows.yaml")
+        .replace("common.rows", "common.nested-rows")
+        .replace("common.row}", "common.nested-row}");
+    let declared_nested_owner = "format: nkdk-declarations/1\nkind: object\nid: test.nested-items\nimports: {rows: common.nested-rows}\nvalue: {kind: record, fields: [{name: rows, type: {use: rows}}]}\nrepresentations:\n  xml: {kind: record, fields: [{field: rows, path: [Root, Rows]}]}\n  yaml: {kind: mapping, fields: [{field: rows, key: Rows}]}\n";
+    let declared_deep = declared_nested
+        .replace("common.nested-row", "common.deep-row")
+        .replace("common.project-rows", "common.rows");
+    let declared_deep_list = declared_nested_list.replace("common.nested-row", "common.deep-row");
+    let declared_deep_owner = declared_nested_owner
+        .replace("common.nested-rows", "common.deep-rows")
+        .replace("test.nested-items", "test.deep-items");
+    let projected_owner = declared_deep_owner
+        .replace("test.deep-items", "test.projected-items")
+        .replace(
+            "yaml: {kind: mapping, fields: [{field: rows, key: Rows}]}",
+            "yaml: {kind: projection, field: rows}",
+        );
+    let parameterized_row = include_str!("fixtures/declared-row.yaml")
+        .replace("{literal: reserved}", "{parameter: forbidden}")
+        .replace("yaml: {missing: {denotes: {literal: normal}}}", "yaml: {default: {field: name}}")
+        .replace("{name: name,", "{name: id, type: {kind: scalar, scalar: text}}, {name: name,")
+        .replace("{field: name, path:", "{field: id, path: [], attribute: uuid}, {field: name, path:")
+        .replace("{field: name, key:", "{field: id, key: Id}, {field: name, key:")
+        .replace("presence:\n", "presence:\n- target: {field: id}\n  xml: {missing: {denotes: {absent: true}}}\n  yaml: {missing: {denotes: {absent: true}}}\n")
+        + "parameters:\n  forbidden: {type: {kind: scalar, scalar: text}, default: other}\n";
+    let parameterized_rows = include_str!("fixtures/declared-rows.yaml")
+        .replace("{use: row}", "{use: row, with: {forbidden: reserved}}");
     let common = include_str!("fixtures/common.yaml");
     let owner = "format: nkdk-declarations/1\nkind: object\nid: test.scalar-owner\nimports: {boolean: common.boolean}\nvalue:\n  kind: record\n  fields:\n    - name: server\n      type: {use: boolean}\n    - name: description\n      type: {kind: scalar, scalar: text}\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - {field: server, path: [Root, Server]}\n      - {field: description, path: [Root, Description]}\n  yaml:\n    kind: mapping\n    fields:\n      - {field: server, key: Сервер}\n      - {field: description, key: Описание}\n";
+    let assembled = owner
+        .replace("test.scalar-owner", "test.assembled-owner")
+        .replace(
+            "{boolean: common.boolean}",
+            "{boolean: common.boolean, rows: common.project-rows}",
+        )
+        .replace(
+            "    - name: description",
+            "    - {name: rows, type: {use: rows}}\n    - name: description",
+        )
+        .replace(
+            "      - {field: description, path:",
+            "      - {field: rows, path: [Root, Rows]}\n      - {field: description, path:",
+        )
+        .replace(
+            "      - {field: description, key:",
+            "      - {field: rows, key: Rows}\n      - {field: description, key:",
+        );
+    let typed_attributes = assembled
+        .replace("test.assembled-owner", "test.typed-attributes")
+        .replace(
+            "{field: server, path: [Root, Server]}",
+            "{field: server, path: [Root], attribute: enabled}",
+        );
+    let nested_stream = typed_attributes
+        .replace("test.typed-attributes", "test.nested-stream")
+        .replace("common.project-rows", "common.nested-scalars");
+    let default_attributes = typed_attributes
+        .replace("test.typed-attributes", "test.default-attributes")
+        + "presence:\n- target: {field: server}\n  xml: {missing: {denotes: {literal: false}}}\n  yaml: {missing: {denotes: {literal: false}}, omitWhen: {eq: [{field: server}, {literal: false}]}}\n";
+    let numeric_attributes=typed_attributes.replace("test.typed-attributes","test.numeric-attributes")
+        .replace("imports:","namespaces: {meta: urn:attributes}\nimports:")
+        .replace("{boolean: common.boolean,", "{number: common.exact-decimal, boolean: common.boolean,")
+        .replace("    - name: description", "    - {name: amount, type: {use: number}}\n    - name: description")
+        .replace("      - {field: description, path:", "      - {field: amount, path: [Root], attribute: meta:amount}\n      - {field: description, path:")
+        .replace("      - {field: description, key:", "      - {field: amount, key: Amount}\n      - {field: description, key:");
+    let assembled = assembled
+        .replace("rows: common.project-rows}", "rows: common.project-rows, settings: common.nested-scalars, qualified: common.qualified}")
+        .replace("    - name: description", "    - {name: settings, type: {use: settings}}\n    - {name: qualified, type: {use: qualified}}\n    - name: description")
+        .replace("      - {field: description, path:", "      - {field: settings, path: [Root, Settings]}\n      - {field: qualified, path: [Root, Type]}\n      - {field: description, path:")
+        .replace("      - {field: description, key:", "      - {field: settings, key: Settings}\n      - {field: qualified, key: Qualified}\n      - {field: description, key:");
+    let assembled = assembled
+        .replace("    - name: server", "    - {name: version, type: {kind: scalar, scalar: text}}\n    - {name: identity, type: {kind: scalar, scalar: text}}\n    - name: server")
+        .replace("      - {field: server, path:", "      - {field: version, path: [Root], attribute: version}\n      - {field: identity, path: [Root], attribute: uuid}\n      - {field: server, path:")
+        .replace("      - {field: server, key:", "      - {field: version, key: Version}\n      - {field: identity, key: UUID}\n      - {field: server, key:");
+    let assembled = assembled
+        + "\npresence:\n- target: {field: server}\n  xml: {missing: {denotes: {literal: false}}}\n  yaml:\n    missing: {denotes: {literal: false}}\n    omitWhen: {eq: [{field: server}, {literal: false}]}\nconstraints:\n- id: description-allowed\n  appliesTo: [xml-import, yaml-validation]\n  assert: {not: {eq: [{field: description}, {literal: reserved}]}}\n  diagnostic: {code: owner.description-reserved, severity: error, at: {field: description}, message: Reserved description}\n";
+    let assembled = assembled
+        + "contributions:\n- index: test.owner-identities\n  key: {field: description}\n  value: {field: identity}\n- index: test.owner-rows\n  forEach: {in: {field: rows}, as: row}\n  key: {get: {of: {var: row}, field: code}}\n  value: {get: {of: {var: row}, field: title}}\n";
+    let (assembled_head, assembled_xml) = assembled.split_once("  xml:\n").unwrap();
+    let (assembled_xml, assembled_tail) = assembled_xml.split_once("  yaml:").unwrap();
+    let assembled = format!(
+        "{assembled_head}  xml:\n    kind: with-attributes\n    attributes: [{{name: format, value: {{text: normal}}}}]\n    content:\n{}  yaml:{assembled_tail}",
+        assembled_xml
+            .lines()
+            .map(|line| format!("  {line}\n"))
+            .collect::<String>()
+    );
+    let indexed_assembly=assembled.replace("test.assembled-owner","test.indexed-assembly")
+        .replace("value:\n", "inputs:\n  identity: {type: {kind: scalar, scalar: text}}\nvalue:\n")
+        .replace("presence:\n", "presence:\n- target: {field: identity}\n  xml: {missing: {denotes: {absent: true}}}\n  yaml:\n    missing: {denotes: {input: identity}}\n    omitWhen: {eq: [{field: identity}, {input: identity}]}\n");
+    let attributed_rows=include_str!("fixtures/fact-rows.yaml")
+        .replace("common.project-rows","common.attributed-rows")
+        .replace("value:\n", "namespaces: {row: urn:row}\nvalue:\n")
+        .replace("    - {name: title, type: {kind: scalar, scalar: text}}", "    - {name: title, type: {kind: scalar, scalar: text}}\n    - {name: identity, type: {kind: scalar, scalar: text}}")
+        .replace("{field: code, path: [Code]}","{field: code, path: [], attribute: code}")
+        .replace("{field: title, path: [Title]}","{field: title, path: [], attribute: row:title}\n      - {field: identity, path: [Identity]}")
+        .replace("{field: title, key: Title}","{field: title, key: Title}\n      - {field: identity, key: Identity}");
+    let attributed_rows_owner = include_str!("fixtures/fact-rows-owner.yaml")
+        .replace("test.fact-rows", "test.attributed-rows")
+        .replace("common.project-rows", "common.attributed-rows");
+    let attributed_rows_owner = attributed_rows_owner
+        .replace("value: {kind: record", "types:\n  short-name:\n    kind: text-transform\n    units: utf16\n    classes: {separator: [[46, 46]]}\n    state: {finished: false}\n    transitions:\n    - when: {class: separator}\n      emit: discard\n      set: {finished: true}\n    - when: {flag: finished}\n      emit: discard\n      set: {}\n    - emit: append\n      set: {}\n    result:\n      separator: ''\n      first: {kind: identity}\n      rest: {kind: identity}\n      lowercase: []\n      emptyInput: absent\n      noTokens: absent\nvalue: {kind: record")
+        + "\n- index: test.short-names\n  forEach: {in: {field: rows}, as: row}\n  key:\n    match:\n      value: {transform: {local: short-name, value: {get: {of: {var: row}, field: code}}}}\n      present: {as: name, then: {var: name}}\n      absent: {literal: empty}\n  value: {get: {of: {var: row}, field: identity}}\n";
+    let attributed_rows_fragment = attributed_rows_owner
+        .replace("kind: object", "kind: fragment")
+        .replace(
+            "id: test.attributed-rows",
+            "id: common.attributed-row-facts",
+        );
+    let fact_prefix = "format: nkdk-declarations/1\nkind: fragment\nid: common.fact-prefix\nvalue: {kind: record, fields: [{name: marker, type: {kind: scalar, scalar: text}}]}\nrepresentations:\n  xml: {kind: record, fields: [{field: marker, path: [Root], attribute: marker}]}\n  yaml: {kind: mapping, fields: [{field: marker, key: Marker}]}\npresence:\n- target: {field: marker}\n  xml: {missing: {denotes: {absent: true}}}\n  yaml: {missing: {denotes: {absent: true}}}\n";
+    let attributed_rows_owner = "format: nkdk-declarations/1\nkind: object\nid: test.attributed-rows\nimports: {prefix: common.fact-prefix, body: common.attributed-row-facts}\ncompose: [{use: prefix}, {use: body}]\nvalue: {kind: record, fields: []}\nrepresentations:\n  xml: {kind: record, fields: []}\n  yaml: {kind: mapping, fields: []}\ncontributions:\n- index: test.static-owner\n  key: {literal: static}\n  value: {literal: retained}\n";
+    let attribute_owner = owner.replace("test.scalar-owner", "test.attribute-owner")
+        .replace("imports:", "namespaces: {meta: urn:owner}\nimports:")
+        .replace("    - name: server", "    - {name: version, type: {kind: scalar, scalar: text}}\n    - {name: identity, type: {kind: scalar, scalar: text}}\n    - name: server")
+        .replace("[Root, Server]", "[Root, Item, Server]")
+        .replace("[Root, Description]", "[Root, Item, Description]")
+        .replace("      - {field: server, path:", "      - {field: version, path: [Root], attribute: version}\n      - {field: identity, path: [Root, Item], attribute: meta:uuid}\n      - {field: server, path:")
+        .replace("      - {field: server, key:", "      - {field: version, key: Version}\n      - {field: identity, key: UUID}\n      - {field: server, key:");
+    let attribute_owner = attribute_owner
+        .replace("    - name: server", "    - {name: revision, type: {kind: scalar, scalar: text}}\n    - name: server")
+        .replace("      - {field: server, path:", "      - {field: revision, path: [Root, Item], attribute: revision}\n      - {field: server, path:")
+        .replace("      - {field: server, key:", "      - {field: revision, key: Revision}\n      - {field: server, key:");
+    let attribute_only = attribute_owner
+        .replace("test.attribute-owner", "test.attribute-only")
+        .replace("    - name: server\n      type: {use: boolean}\n", "")
+        .replace(
+            "    - name: description\n      type: {kind: scalar, scalar: text}\n",
+            "",
+        )
+        .replace("      - {field: server, path: [Root, Item, Server]}\n", "")
+        .replace(
+            "      - {field: description, path: [Root, Item, Description]}\n",
+            "",
+        )
+        .replace("      - {field: server, key: Сервер}\n", "")
+        .replace("      - {field: description, key: Описание}\n", "");
+    let nested_common = owner
+        .replace("kind: object", "kind: value")
+        .replace("test.scalar-owner", "common.nested-scalars")
+        .replace("[Root, ", "[")
+        + "\npresence:\n- target: self\n  xml: {missing: {denotes: {absent: true}}}\n  yaml: {missing: {denotes: {absent: true}}}\n";
+    let nested_owner = include_str!("fixtures/qname-owner.yaml")
+        .replace("test.qualified", "test.nested-scalars")
+        .replace("common.qualified", "common.nested-scalars")
+        .replace("Type", "Settings")
+        .replace("Qualified", "Settings");
+    let nested_defaults = nested_common.replace("common.nested-scalars", "common.nested-defaults")
+        + "- target: {field: server}\n  xml: {missing: {denotes: {literal: false}}}\n  yaml:\n    missing: {denotes: {literal: false}}\n    omitWhen: {eq: [{field: server}, {literal: false}]}\n";
+    let nested_defaults = nested_defaults
+        + "constraints:\n- id: description-value\n  appliesTo: [xml-import, yaml-validation]\n  assert: {eq: [{field: description}, {literal: body}]}\n  diagnostic:\n    code: test.description-value\n    severity: error\n    at: {field: description}\n    message: Expected body\n";
+    let nested_defaults_owner = nested_owner.replace("nested-scalars", "nested-defaults");
+    let nested_notices = nested_defaults
+        .replace("common.nested-defaults", "common.nested-notices")
+        .replace(
+            "assert: {eq: [{field: description}, {literal: body}]}",
+            "assert: {literal: false}",
+        )
+        .replace("severity: error", "severity: warning");
+    let nested_notices_owner = nested_owner.replace("nested-scalars", "nested-notices");
+    let header_common = nested_common
+        .replace("common.nested-scalars", "common.nested-header")
+        .replace("path: [Description]", "path: [], attribute: uuid");
+    let (header_start, header_xml) = header_common.split_once("  xml:\n").unwrap();
+    let (header_xml, header_yaml) = header_xml.split_once("  yaml:").unwrap();
+    let header_common = format!(
+        "{header_start}  xml:\n    kind: with-attributes\n    attributes: [{{name: mode, value: {{text: normal}}}}]\n    content:\n{}  yaml:{header_yaml}",
+        header_xml
+            .lines()
+            .map(|line| format!("  {line}\n"))
+            .collect::<String>()
+    );
+    let header_owner = nested_owner.replace("nested-scalars", "nested-header");
     let numeric_bound =
         include_str!("../../../../tests/declaration-corpus/valid/numeric-bound.yaml");
     let warning_bound = numeric_bound
@@ -16,6 +209,14 @@ fn generated_rust_executes_both_directions_and_uses_the_imported_table() {
     let typed_owner = decimal_owner
         .replace("test.decimal-owner", "test.typed-owner")
         .replace("common.exact-decimal", "common.typed-decimal");
+    let root_scalar_owner = typed_owner
+        .replace("test.typed-owner", "test.root-scalar")
+        .replace("[Root, Amount]", "[Root]");
+    let enum_attributes = owner
+        .replace("test.scalar-owner", "test.enum-attributes")
+        .replace("{boolean: common.boolean}", "{boolean: common.code-type}")
+        .replace("path: [Root, Server]", "path: [Root], attribute: code")
+        .replace("key: Сервер", "key: ТипКода");
     let default_number_owner = decimal_owner.replace("test.decimal-owner", "test.default-number")
         + "\npresence:\n  - target: {field: amount}\n    xml: {missing: {denotes: {literal: 0}}}\n    yaml:\n      missing: {denotes: {literal: 0}}\n      omitWhen: {eq: [{field: amount}, {literal: 0}]}\n";
     let calendar = "format: nkdk-declarations/1\nkind: value\nid: common.date-time\nvalue: {kind: scalar, scalar: text}\nrepresentations:\n  xml: {kind: calendar, format: iso, zone: written}\n  yaml: {kind: calendar, format: day-month-year, precision: minutes, zeroTime: omit}\n";
@@ -59,11 +260,178 @@ fn generated_rust_executes_both_directions_and_uses_the_imported_table() {
         let default_owner = owner
             .replace("test.scalar-owner", "test.default-owner")
             .replace("common.boolean", "common.default-boolean");
+        let implicit_owner = owner.replace("test.scalar-owner", "test.implicit-owner")
+            + "\npresence:\n- target: {field: server}\n  xml:\n    missing: {denotes: {literal: false}}\n    canonical: [{when: {not: {field: server}}, form: missing}]\n  yaml: {default: {literal: true}}\n";
         let optional_owner = owner
             .replace("test.scalar-owner", "test.optional-owner")
             .replace("common.boolean", "common.optional-boolean");
+        let required_owner = optional_owner.replace("test.optional-owner", "test.required-owner")
+            + "\npresence:\n- target: {field: server}\n";
+        let chain_row = include_str!("fixtures/text-pattern-coded.yaml")
+            .replace("common.coded-pair", "common.chain-pair")
+            .replace("{literal: '['}, ", "")
+            .replace("{literal: '] '}", "{literal: '/'}");
+        let chain = include_str!("fixtures/text-sequence.yaml")
+            .replace("common.text-pair", "common.chain-pair");
+        let chain_owner = include_str!("fixtures/text-pattern-owner.yaml")
+            .replace("test.text-pattern", "test.text-sequence")
+            .replace("common.text-pair", "common.text-sequence");
+        let framed = chain_row
+            .replace("common.chain-pair", "common.framed-pair")
+            .replace("imports: {", "imports: {tail: common.text-sequence, ")
+            .replace(
+                "representations:",
+                "  - {name: tail, type: {use: tail}}\nrepresentations:",
+            )
+            .replace(
+                "{field: name}]}",
+                "{field: name}, {literal: '::'}, {field: tail}]}",
+            )
+            .replace(
+                "{field: domain}]}",
+                "{field: domain}, {literal: '/'}, {field: tail}]}",
+            );
+        let framed_owner = chain_owner
+            .replace("test.text-sequence", "test.framed-sequence")
+            .replace("common.text-sequence", "common.framed-pair");
+        let indexed_frame = framed_owner.replace("test.framed-sequence", "test.indexed-frame")
+            + "\ninputs:\n  roots: {index: test.path-roots}\nconstraints:\n- id: known-root\n  appliesTo: [xml-import, yaml-validation]\n  assert: {present: {lookup: {in: {input: roots}, key: {record: {kind: {get: {of: {field: pair}, field: domain}}, name: {get: {of: {field: pair}, field: name}}}}}}}\n  diagnostic: {code: path.root-missing, severity: error, at: {field: pair}, message: Root is missing}\n";
+        let bound_variant = include_str!("fixtures/text-choice-first.yaml")
+            .replace("common.choice-first", "common.bound-first")
+            .replace(
+                "value:\n",
+                "inputs: {allowed: {type: {kind: scalar, scalar: text}}}\nvalue:\n",
+            )
+            .replace(
+                "assert: {matches: {value: {field: name}, pattern: '[a-z]+'}}",
+                "assert: {eq: [{field: name}, {input: allowed}]}",
+            );
+        let bound_choice = include_str!("fixtures/text-choice.yaml")
+            .replace("common.text-choice", "common.bound-choice")
+            .replace("common.choice-first", "common.bound-first")
+            .replace(
+                "value:\n",
+                "inputs: {allowed: {type: {kind: scalar, scalar: text}}}\nvalue:\n",
+            )
+            .replace(
+                "{use: first}",
+                "{use: first, bind: {allowed: {input: allowed}}}",
+            );
+        let bound_choice = bound_choice
+            .replace("inputs: {allowed: {type: {kind: scalar, scalar: text}}}", "inputs: {allowed: {type: {kind: scalar, scalar: text}}, enabled: {type: {kind: scalar, scalar: boolean}}}")
+            .replace("xml: {kind: choice}", "xml: {kind: with-attributes, attributes: [{name: marked, value: {text: yes}, when: {and: [{present: {self: true}}, {input: enabled}]}}], content: {kind: choice}}")
+            + "\npresence:\n- target: self\n  xml: {missing: {denotes: {absent: true}}}\n  yaml: {missing: {denotes: {absent: true}}}\n";
+        let bound_choice_owner = include_str!("fixtures/text-choice-owner.yaml")
+            .replace("test.text-choice", "test.bound-choice")
+            .replace("common.text-choice", "common.bound-choice")
+            .replace("value:", "inputs: {unused: {type: {kind: scalar, scalar: boolean}}, selected: {type: {kind: scalar, scalar: text}}}\nvalue:")
+            .replace("{use: pair}", "{use: pair, bind: {allowed: {input: selected}, enabled: {input: unused}}}");
         let mut modules = [
+            ("bound-choice.yaml", bound_choice.as_str()),
+            ("bound-first.yaml", bound_variant.as_str()),
+            ("bound-choice-owner.yaml", bound_choice_owner.as_str()),
+            (
+                "fact-path-edge.yaml",
+                include_str!("fixtures/fact-path-edge.yaml"),
+            ),
+            (
+                "fact-path-consumer.yaml",
+                include_str!("fixtures/fact-path-consumer.yaml"),
+            ),
+            (
+                "fact-path-owner.yaml",
+                include_str!("fixtures/fact-path-owner.yaml"),
+            ),
+            ("indexed-frame.yaml", indexed_frame.as_str()),
+            ("framed.yaml", framed.as_str()),
+            ("framed-owner.yaml", framed_owner.as_str()),
+            ("text-sequence-row.yaml", chain_row.as_str()),
+            ("text-sequence.yaml", chain.as_str()),
+            ("text-sequence-owner.yaml", chain_owner.as_str()),
             ("common.yaml", common.as_str()),
+            (
+                "text-delimiter.yaml",
+                include_str!("fixtures/text-delimiter.yaml"),
+            ),
+            (
+                "text-delimiter-first.yaml",
+                include_str!("fixtures/text-delimiter-first.yaml"),
+            ),
+            (
+                "text-delimiter-second.yaml",
+                include_str!("fixtures/text-delimiter-second.yaml"),
+            ),
+            (
+                "text-delimiter-owner.yaml",
+                include_str!("fixtures/text-delimiter-owner.yaml"),
+            ),
+            (
+                "text-choice.yaml",
+                include_str!("fixtures/text-choice.yaml"),
+            ),
+            (
+                "text-choice-first.yaml",
+                include_str!("fixtures/text-choice-first.yaml"),
+            ),
+            (
+                "text-choice-second.yaml",
+                include_str!("fixtures/text-choice-second.yaml"),
+            ),
+            (
+                "text-choice-owner.yaml",
+                include_str!("fixtures/text-choice-owner.yaml"),
+            ),
+            (
+                "fact-bound-consumer.yaml",
+                include_str!("fixtures/fact-bound-consumer.yaml"),
+            ),
+            (
+                "fact-target.yaml",
+                include_str!("fixtures/fact-target.yaml"),
+            ),
+            (
+                "text-table-owner.yaml",
+                include_str!("fixtures/text-table-owner.yaml"),
+            ),
+            (
+                "text-pattern-name.yaml",
+                include_str!("fixtures/text-pattern-name.yaml"),
+            ),
+            (
+                "text-pattern-kind.yaml",
+                include_str!("fixtures/text-pattern-kind.yaml"),
+            ),
+            (
+                "text-pattern-coded.yaml",
+                include_str!("fixtures/text-pattern-coded.yaml"),
+            ),
+            (
+                "text-pattern-coded-owner.yaml",
+                include_str!("fixtures/text-pattern-coded-owner.yaml"),
+            ),
+            (
+                "text-pattern.yaml",
+                include_str!("fixtures/text-pattern.yaml"),
+            ),
+            (
+                "text-pattern-owner.yaml",
+                include_str!("fixtures/text-pattern-owner.yaml"),
+            ),
+            ("fact-code.yaml", include_str!("fixtures/fact-code.yaml")),
+            (
+                "fact-consumer.yaml",
+                include_str!("fixtures/fact-consumer.yaml"),
+            ),
+            (
+                "fact-member-consumer.yaml",
+                include_str!("fixtures/fact-member-consumer.yaml"),
+            ),
+            ("fact-owner.yaml", include_str!("fixtures/fact-owner.yaml")),
+            (
+                "fact-rows-owner.yaml",
+                include_str!("fixtures/fact-rows-owner.yaml"),
+            ),
+            ("fact-rows.yaml", include_str!("fixtures/fact-rows.yaml")),
             (
                 "name.yaml",
                 if literal == "Истина" {
@@ -73,19 +441,70 @@ fn generated_rust_executes_both_directions_and_uses_the_imported_table() {
                 },
             ),
             ("name-owner.yaml", name_owner.as_str()),
+            ("additional-indexes-owner.yaml",include_str!("../../../declarations/probes/additional-indexes-owner.yaml")),
+            ("additional-indexes-fragment.yaml",include_str!("../../../declarations/fragments/additional-indexes.yaml")),
+            ("additional-index-row.yaml",include_str!("../../../declarations/common/additional-index-row.yaml")),
+            ("additional-indexes.yaml",include_str!("../../../declarations/common/additional-indexes.yaml")),
+            ("additional-indexes-probe.yaml",include_str!("../../../declarations/probes/additional-indexes.yaml")),
+            ("index-field-common.yaml",include_str!("../../../declarations/common/index-field.yaml")),
+            ("declared-projected.yaml",projected_owner.as_str()),
+            ("declared-deep-row.yaml", declared_deep.as_str()),
+            ("declared-deep-rows.yaml", declared_deep_list.as_str()),
+            ("declared-deep-owner.yaml", declared_deep_owner.as_str()),
+            ("declared-nested-row.yaml", declared_nested.as_str()),
+            ("declared-nested-rows.yaml", declared_nested_list.as_str()),
+            ("declared-nested-owner.yaml", declared_nested_owner),
+            ("declared-row.yaml", parameterized_row.as_str()),
+            ("declared-rows.yaml", parameterized_rows.as_str()),
+            ("declared-owner.yaml", "format: nkdk-declarations/1\nkind: object\nid: test.declared-rows\nimports: {rows: common.rows}\nvalue: {kind: record, fields: [{name: rows, type: {use: rows}}]}\nrepresentations:\n  xml: {kind: record, fields: [{field: rows, path: [Root, Rows]}]}\n  yaml: {kind: mapping, fields: [{field: rows, key: Rows}]}\n"),
+            ("nested-common.yaml", nested_common.as_str()),
+            ("nested-defaults.yaml", nested_defaults.as_str()),
+            ("nested-defaults-owner.yaml", nested_defaults_owner.as_str()),
+            ("nested-notices.yaml", nested_notices.as_str()),
+            ("nested-notices-owner.yaml", nested_notices_owner.as_str()),
+            ("nested-owner.yaml", nested_owner.as_str()),
+            ("nested-stream.yaml", nested_stream.as_str()),
+            ("header-common.yaml", header_common.as_str()),
+            ("header-owner.yaml", header_owner.as_str()),
+            ("assembled-owner.yaml", assembled.as_str()),
+            ("attributed-rows.yaml", attributed_rows.as_str()),
+            ("attributed-rows-owner.yaml", attributed_rows_owner),
+            (
+                "attributed-rows-fragment.yaml",
+                attributed_rows_fragment.as_str(),
+            ),
+            ("fact-prefix.yaml", fact_prefix),
+            ("indexed-assembly.yaml", indexed_assembly.as_str()),
+            ("attribute-owner.yaml", attribute_owner.as_str()),
+            ("typed-attributes.yaml", typed_attributes.as_str()),
+            ("default-attributes.yaml", default_attributes.as_str()),
+            ("numeric-attributes.yaml", numeric_attributes.as_str()),
+            ("attribute-only.yaml", attribute_only.as_str()),
             ("calendar.yaml", calendar),
             ("calendar-owner.yaml", calendar_owner.as_str()),
             ("optional.yaml", optional.as_str()),
             ("default.yaml", defaulted.as_str()),
             ("default-owner.yaml", default_owner.as_str()),
+            ("implicit-owner.yaml", implicit_owner.as_str()),
             ("optional-owner.yaml", optional_owner.as_str()),
+            ("required-owner.yaml", required_owner.as_str()),
             ("owner.yaml", owner),
+            (
+                "qname-common.yaml",
+                include_str!("fixtures/qname-common.yaml"),
+            ),
+            (
+                "qname-owner.yaml",
+                include_str!("fixtures/qname-owner.yaml"),
+            ),
             ("enum.yaml", enumeration),
             ("enum-owner.yaml", enum_owner),
+            ("enum-attributes.yaml", enum_attributes.as_str()),
             ("decimal.yaml", decimal),
             ("default-number.yaml", default_number_owner.as_str()),
             ("typed-decimal.yaml", typed_decimal.as_str()),
             ("typed-owner.yaml", typed_owner.as_str()),
+            ("root-scalar.yaml", root_scalar_owner.as_str()),
             ("decimal-owner.yaml", decimal_owner),
             ("numeric-bound.yaml", numeric_bound),
             ("warning-bound.yaml", warning_bound.as_str()),
@@ -98,28 +517,154 @@ fn generated_rust_executes_both_directions_and_uses_the_imported_table() {
             .unwrap()
         });
         let program = link(&modules).unwrap();
+        let choice_schema: serde_json::Value =
+            serde_json::from_slice(&schema(&program, "test.text-choice").unwrap()).unwrap();
+        assert!(
+            jsonschema::validator_for(&choice_schema)
+                .unwrap()
+                .is_valid(&serde_json::json!({"Pair":"Первое: leaf"}))
+        );
+        let required_shape: serde_json::Value =
+            serde_json::from_slice(&schema(&program, "test.required-owner").unwrap()).unwrap();
+        assert!(
+            required_shape["required"]
+                .as_array()
+                .unwrap()
+                .contains(&serde_json::json!("Сервер"))
+        );
+        let nested_shape: serde_json::Value =
+            serde_json::from_slice(&schema(&program, "test.deep-items").unwrap()).unwrap();
+        let validator = jsonschema::validator_for(&nested_shape).unwrap();
+        assert!(
+            validator.is_valid(
+                &serde_json::json!({"Rows":[{"Codes":[{"Name":"child"}],"Name":"parent"}]})
+            )
+        );
+        assert!(!validator.is_valid(
+            &serde_json::json!({"Rows":[{"Codes":[{"Mode":"normal"}],"Name":"parent"}]})
+        ));
+        let additional_shape: serde_json::Value =
+            serde_json::from_slice(&schema(&program, "migration.additional-indexes").unwrap())
+                .unwrap();
+        let additional_validator = jsonschema::validator_for(&additional_shape).unwrap();
+        assert!(
+            additional_validator
+                .is_valid(&serde_json::json!([{"Имя":"One","ИндексируемыеПоля":["Ref"]}]))
+        );
+        assert!(!additional_validator.is_valid(&serde_json::json!([{"Таблица":"Document.D"}])));
         let generated = generate(&program).expect("generate supported record");
+        let shape: serde_json::Value =
+            serde_json::from_slice(&schema(&program, "test.text-pattern-coded").unwrap()).unwrap();
+        assert_eq!(shape["properties"]["Pair"]["type"], "string");
+        assert_eq!(
+            shape["properties"]["Pair"]["x-nkdk-runtime-validation"],
+            true
+        );
+        let table_shape: serde_json::Value =
+            serde_json::from_slice(&schema(&program, "test.text-table").unwrap()).unwrap();
+        assert!(
+            jsonschema::validator_for(&table_shape)
+                .unwrap()
+                .is_valid(&serde_json::json!({"Pair":"Восток"}))
+        );
         modules.reverse();
         assert_eq!(generated, generate(&link(&modules).unwrap()).unwrap());
         assert_eq!(
             generated.dependencies,
             [
+                "additional-index-row.yaml",
+                "additional-indexes-fragment.yaml",
+                "additional-indexes-owner.yaml",
+                "additional-indexes-probe.yaml",
+                "additional-indexes.yaml",
+                "assembled-owner.yaml",
+                "attribute-only.yaml",
+                "attribute-owner.yaml",
+                "attributed-rows-fragment.yaml",
+                "attributed-rows-owner.yaml",
+                "attributed-rows.yaml",
+                "bound-choice-owner.yaml",
+                "bound-choice.yaml",
+                "bound-first.yaml",
                 "calendar-owner.yaml",
                 "calendar.yaml",
                 "common.yaml",
                 "decimal-owner.yaml",
                 "decimal.yaml",
+                "declared-deep-owner.yaml",
+                "declared-deep-row.yaml",
+                "declared-deep-rows.yaml",
+                "declared-nested-owner.yaml",
+                "declared-nested-row.yaml",
+                "declared-nested-rows.yaml",
+                "declared-owner.yaml",
+                "declared-projected.yaml",
+                "declared-row.yaml",
+                "declared-rows.yaml",
+                "default-attributes.yaml",
                 "default-number.yaml",
                 "default-owner.yaml",
                 "default.yaml",
+                "enum-attributes.yaml",
                 "enum-owner.yaml",
                 "enum.yaml",
+                "fact-bound-consumer.yaml",
+                "fact-code.yaml",
+                "fact-consumer.yaml",
+                "fact-member-consumer.yaml",
+                "fact-owner.yaml",
+                "fact-path-consumer.yaml",
+                "fact-path-edge.yaml",
+                "fact-path-owner.yaml",
+                "fact-prefix.yaml",
+                "fact-rows-owner.yaml",
+                "fact-rows.yaml",
+                "fact-target.yaml",
+                "framed-owner.yaml",
+                "framed.yaml",
+                "header-common.yaml",
+                "header-owner.yaml",
+                "implicit-owner.yaml",
+                "index-field-common.yaml",
+                "indexed-assembly.yaml",
+                "indexed-frame.yaml",
                 "name-owner.yaml",
                 "name.yaml",
+                "nested-common.yaml",
+                "nested-defaults-owner.yaml",
+                "nested-defaults.yaml",
+                "nested-notices-owner.yaml",
+                "nested-notices.yaml",
+                "nested-owner.yaml",
+                "nested-stream.yaml",
+                "numeric-attributes.yaml",
                 "numeric-bound.yaml",
                 "optional-owner.yaml",
                 "optional.yaml",
                 "owner.yaml",
+                "qname-common.yaml",
+                "qname-owner.yaml",
+                "required-owner.yaml",
+                "root-scalar.yaml",
+                "text-choice-first.yaml",
+                "text-choice-owner.yaml",
+                "text-choice-second.yaml",
+                "text-choice.yaml",
+                "text-delimiter-first.yaml",
+                "text-delimiter-owner.yaml",
+                "text-delimiter-second.yaml",
+                "text-delimiter.yaml",
+                "text-pattern-coded-owner.yaml",
+                "text-pattern-coded.yaml",
+                "text-pattern-kind.yaml",
+                "text-pattern-name.yaml",
+                "text-pattern-owner.yaml",
+                "text-pattern.yaml",
+                "text-sequence-owner.yaml",
+                "text-sequence-row.yaml",
+                "text-sequence.yaml",
+                "text-table-owner.yaml",
+                "typed-attributes.yaml",
                 "typed-decimal.yaml",
                 "typed-owner.yaml",
                 "warning-bound.yaml"
@@ -131,6 +676,730 @@ fn generated_rust_executes_both_directions_and_uses_the_imported_table() {
         let main = r###"
 include!("generated.rs");
 fn main() {
+    {
+        let inputs=PreparedInputs::default();
+        let xml=b"<Root enabled='true'><Description>kept</Description></Root>";
+        let yaml="Сервер: LITERAL\nОписание: kept";
+        for (yaml, expected) in [
+            ("Сервер: LITERAL\nОписание: outer", "<Root enabled='true'><Description>outer</Description></Root>"),
+            ("Сервер: LITERAL\nRows: {Сервер: LITERAL, Описание: inner}\nОписание: outer", "<Root enabled='true'><Rows><Server>true</Server><Description>inner</Description></Rows><Description>outer</Description></Root>"),
+        ] {
+            let mut nested=OwnerYamlReadNESTED_STREAM_ID::new().unwrap();
+            core::yaml::visit_nodes(yaml.as_bytes(),|node,position|nested.consume(node,position,b"",&inputs)).unwrap();
+            let nested=nested.finish(b"",&inputs).unwrap();
+            core::proof::verify(expected.as_bytes(),&write_xml_NESTED_STREAM_ID(&nested,&inputs).unwrap(),|_|false).unwrap();
+        }
+        let mut nested=OwnerYamlReadNESTED_STREAM_ID::new().unwrap();
+        core::yaml::visit_nodes("Сервер: LITERAL\nRows: {}\nОписание: outer".as_bytes(),|node,position|nested.consume(node,position,b"",&inputs)).unwrap();
+        let error=match nested.finish(b"",&inputs){Err(error)=>error,Ok(_)=>panic!("Empty record lost required fields")};
+        assert_eq!(error.code.as_deref(),Some("value.missing"));
+        {
+            {
+                let entry=entry_id("test.nested-items").unwrap();let inputs=prepare_inputs(entry,vec![]).unwrap();
+                let xml=b"<Root xmlns:r='urn:row'><Rows><Item token='first'><Codes><Item><Code>a</Code><Title>A</Title></Item><Item><Code>b</Code><Title>B</Title></Item></Codes><r:Name>first</r:Name><r:Mode>normal</r:Mode></Item><Item token='second'><Codes/><r:Name>second</r:Name><r:Mode>other</r:Mode></Item></Rows></Root>";
+                let yaml=b"Rows:\n  -\n    Codes:\n      - Code: a\n        Title: A\n      - Code: b\n        Title: B\n    Name: first\n    Mode: normal\n  -\n    Codes: []\n    Name: second\n    Mode: other";
+                let result=convert_file(entry,Direction::XmlToYaml,xml,&inputs).unwrap();assert_eq!(result.bytes,yaml);
+                let result=convert_file(entry,Direction::YamlToXml,yaml,&inputs).unwrap();core::proof::verify(xml,&result.bytes,|_|false).unwrap();
+            }
+            {
+                let entry=entry_id("test.deep-items").unwrap();let inputs=prepare_inputs(entry,vec![]).unwrap();
+                let xml=b"<Root xmlns:r='urn:row'><Rows><Item token='parent'><Codes><Item><r:Name>child</r:Name><r:Mode>normal</r:Mode></Item></Codes><r:Name>parent</r:Name><r:Mode>normal</r:Mode></Item></Rows></Root>";
+                let yaml=b"Rows:\n  -\n    Codes:\n      -\n        Name: child\n        Mode: normal\n    Name: parent\n    Mode: normal";
+                let result=convert_file(entry,Direction::XmlToYaml,xml,&inputs).unwrap();assert_eq!(result.bytes,yaml);
+                let projected=entry_id("test.projected-items").unwrap();let projected_inputs=prepare_inputs(projected,vec![]).unwrap();
+                let expected=String::from_utf8_lossy(yaml).lines().skip(1).map(|line|line.strip_prefix("  ").unwrap()).collect::<Vec<_>>().join("\n");
+                let result=convert_file(projected,Direction::XmlToYaml,xml,&projected_inputs).unwrap();assert_eq!(result.bytes,expected.as_bytes());
+                let result=convert_file(projected,Direction::YamlToXml,&result.bytes,&projected_inputs).unwrap();core::proof::verify(xml,&result.bytes,|_|false).unwrap();
+                let mut visits=0;
+                let value=read_yaml_events_DEEP_ID(b"",&inputs,core::yaml::Events(|consume:&mut core::yaml::Consumer<'_>|{visits+=1;core::yaml::visit_nodes(yaml,|node,at|consume(node,at))})).unwrap();
+                assert_eq!(visits,1);
+                let prepared=prepare_xml_DEEP_ID(&value,&inputs).unwrap();let mut names=Vec::new();namespaces_xml_DEEP_ID(&value,&prepared,&mut names);
+                let before=core::xml::writer_count();let mut writer=core::xml::Writer::new(&names);
+                write_xml_into_DEEP_ID(&value,&prepared,&inputs,&mut writer).unwrap();let restored=writer.finish();
+                assert_eq!(core::xml::writer_count(),before+1);core::proof::verify(xml,&restored,|_|false).unwrap();
+                for source in [String::from_utf8_lossy(xml).replace("<r:Mode>normal</r:Mode>","<r:Mode extra='x'>other</r:Mode>"),String::from_utf8_lossy(xml).replace("<r:Name>child</r:Name>","<r:Name>reserved</r:Name>")] {
+                    let yaml=convert_file(entry,Direction::XmlToYaml,source.as_bytes(),&inputs).unwrap();
+                    let result=convert_file(entry,Direction::YamlToXml,&yaml.bytes,&inputs).unwrap();core::proof::verify(source.as_bytes(),&result.bytes,|_|false).unwrap();
+                }
+            }
+            let entry=entry_id("test.declared-rows").unwrap();
+            let inputs=prepare_inputs(entry,vec![]).unwrap();
+            let xml=b"<Root xmlns:r='urn:row'><Rows><Item><r:Name>first</r:Name><r:Mode>normal</r:Mode></Item><Item><r:Name>second</r:Name><r:Mode>other</r:Mode></Item></Rows></Root>";
+            let yaml=b"Rows:\n  -\n    Name: first\n    Mode: normal\n  -\n    Name: second\n    Mode: other";
+            let result=convert_file(entry,Direction::XmlToYaml,xml,&inputs).unwrap();
+            assert_eq!(result.bytes,yaml);
+            let result=convert_file(entry,Direction::YamlToXml,yaml,&inputs).unwrap();
+            core::proof::verify(xml,&result.bytes,|_|false).unwrap();
+            let derived=convert_file(entry,Direction::YamlToXml,b"Rows: [{Name: derived}]",&inputs).unwrap();
+            core::proof::verify(b"<Root xmlns:r='urn:row'><Rows><Item><r:Name>derived</r:Name><r:Mode>derived</r:Mode></Item></Rows></Root>",&derived.bytes,|_|false).unwrap();
+            let identified=String::from_utf8_lossy(xml).replacen("<Item>","<Item uuid='one'>",1);
+            let result=convert_file(entry,Direction::XmlToYaml,identified.as_bytes(),&inputs).unwrap();
+            assert!(String::from_utf8_lossy(&result.bytes).contains("Id: one"));
+            let restored=convert_file(entry,Direction::YamlToXml,&result.bytes,&inputs).unwrap();
+            core::proof::verify(identified.as_bytes(),&restored.bytes,|_|false).unwrap();
+            assert!(validate_file(entry,b"Rows: [{Name: reserved}]",&inputs).iter().any(|issue|issue.code.as_deref()==Some("row.name")));
+            for original in [
+                "<Root xmlns:r='urn:row'><Rows><Item><r:Name>first</r:Name></Item><Item><r:Name>second</r:Name><r:Mode>other</r:Mode></Item></Rows></Root>",
+                "<Root xmlns:r='urn:row'><Rows><Item><r:Name>reserved</r:Name><r:Mode>normal</r:Mode></Item><Item><r:Name>allowed</r:Name><r:Mode>other</r:Mode></Item></Rows></Root>",
+                "<Root xmlns:r='urn:row'><Rows><Item><r:Name>first</r:Name><r:Mode extra='a'>x</r:Mode></Item><Item><r:Name>second</r:Name><r:Mode><N/></r:Mode></Item></Rows></Root>",
+                "<Root xmlns:r='urn:row'><Rows><Item extra='a'><r:Name>first</r:Name></Item></Rows></Root>",
+                "<Root/>",
+                "<Root><Rows/></Root>",
+            ] {
+                let yaml=convert_file(entry,Direction::XmlToYaml,original.as_bytes(),&inputs).unwrap_or_else(|error|panic!("{original}: {error:?}"));
+                let restored=convert_file(entry,Direction::YamlToXml,&yaml.bytes,&inputs).unwrap();
+                core::proof::verify(original.as_bytes(),&restored.bytes,|_|false).unwrap();
+            }
+
+        }
+        let mut state=OwnerXmlReadOWNER_STREAM_ID::new();
+        let mut other=OwnerXmlReadOWNER_STREAM_ID::new();
+        core::xml::visit_scoped(xml,|path,token,scope| {
+            if matches!(token,core::xml::Token::Start(_)) && path.last().is_some_and(|name|name.local=="Description") {
+                core::xml::visit_scoped(b"<Root enabled='true'><Description>independent</Description></Root>",|path,token,scope|other.consume(path,&token,scope,&[],&inputs))?;
+            }
+            state.consume(path,&token,scope,&[],&inputs)
+        }).unwrap();
+        let other=other.finish(&[],&inputs).unwrap();
+        let stored=state.finish(&[],&inputs).unwrap();
+        assert_eq!(write_yaml_OWNER_STREAM_ID(&other,&inputs).unwrap(),"Сервер: LITERAL\nОписание: independent".as_bytes());
+        assert_eq!(write_yaml_OWNER_STREAM_ID(&stored,&inputs).unwrap(),yaml.as_bytes());
+        let mut visits=0;
+        let value=read_xml_shared_events_OWNER_STREAM_ID(b"",&inputs,core::xml::ScopedEvents(|consume:&mut core::xml::ScopedConsumer<'_>| {
+            visits+=1;
+            core::xml::visit_scoped(xml,|path,token,scope|consume(path,&token,scope))
+        })).unwrap();
+        assert_eq!(visits,1);
+        assert_eq!(write_yaml_OWNER_STREAM_ID(&value,&inputs).unwrap(),yaml.as_bytes());
+        let mut state=OwnerYamlReadOWNER_STREAM_ID::new().unwrap();
+        let mut other=OwnerYamlReadOWNER_STREAM_ID::new().unwrap();
+        let mut nodes=Vec::new();let mut other_nodes=Vec::new();
+        core::yaml::visit_nodes(yaml.as_bytes(),|node,at|{nodes.push((node,at));Ok(())}).unwrap();
+        core::yaml::visit_nodes("Сервер: LITERAL\nОписание: independent".as_bytes(),|node,at|{other_nodes.push((node,at));Ok(())}).unwrap();
+        for ((node,at),(other_node,position)) in nodes.into_iter().zip(other_nodes){
+            state.consume(node,at,&[],&inputs).unwrap();other.consume(other_node,position,&[],&inputs).unwrap();
+        }
+        let other=other.finish(&[],&inputs).unwrap();
+        let stored=state.finish(&[],&inputs).unwrap();
+        core::proof::verify(b"<Root enabled='true'><Description>independent</Description></Root>",&write_xml_OWNER_STREAM_ID(&other,&inputs).unwrap(),|_|false).unwrap();
+        core::proof::verify(xml,&write_xml_OWNER_STREAM_ID(&stored,&inputs).unwrap(),|_|false).unwrap();
+        let mut visits=0;
+        let value=read_yaml_shared_events_OWNER_STREAM_ID(b"",&inputs,core::yaml::Events(|consume:&mut core::yaml::Consumer<'_>| {
+            visits+=1;
+            core::yaml::visit_nodes(yaml.as_bytes(),|node,position|consume(node,position))
+        })).unwrap();
+        assert_eq!(visits,1);
+        let prepared=prepare_xml_plain_OWNER_STREAM_ID(&value,&inputs).unwrap();
+        let mut namespaces=Vec::new();
+        namespaces_xml_plain_OWNER_STREAM_ID(&value,&prepared,&mut namespaces);
+        let writers=core::xml::writer_count();
+        let mut writer=core::xml::Writer::new(&namespaces);
+        write_xml_plain_into_OWNER_STREAM_ID(&value,&prepared,&inputs,&mut writer).unwrap();
+        let restored=writer.finish();
+        assert_eq!(core::xml::writer_count(),writers+1);
+        core::proof::verify(xml,&restored,|_|false).unwrap();
+    }
+    {
+        let entry=entry_id("migration.additional-indexes").unwrap();let generation=core::facts::Generation(1);
+        let budget=||core::facts::prepared::FactBudget{text:core::facts::text::TextBudget{entries:100,bytes:10000},rows:100};
+        let empty=std::sync::Arc::new(fact_builder(generation,budget()).finish());
+        let prepare=|facts|prepare_fact_inputs(entry,facts,generation,vec![("owner".into(),InputValue::Text("owner".into()))]).unwrap();
+        let xml=b"<AdditionalIndexes xmlns='http://v8.1c.ru/8.3/xcf/extrnprops' version='2.20'><AdditionalIndex id='123'><Name>One</Name><Table>Document.D</Table><IndexedFields><Field>Ref</Field></IndexedFields><AdditionalFields/></AdditionalIndex></AdditionalIndexes>";
+        let mut builder=fact_builder(generation,budget());
+        let issues=contribute_file(entry,Direction::XmlToYaml,xml,&prepare(empty),&mut builder);assert!(issues.is_empty(),"{issues:?}");
+        let snapshot=std::sync::Arc::new(builder.finish());
+        let inputs=prepare(snapshot.clone());
+        let mut conflict=fact_builder(generation,budget());
+        for source in [xml.to_vec(),String::from_utf8_lossy(xml).replace("id='123'","id='456'").into_bytes()] {assert!(contribute_file(entry,Direction::XmlToYaml,&source,&inputs,&mut conflict).is_empty());}
+        let conflict=prepare(std::sync::Arc::new(conflict.finish()));
+        let explicit=convert_file(entry,Direction::XmlToYaml,xml,&conflict).unwrap();
+        assert!(String::from_utf8_lossy(&explicit.bytes).contains("Идентификатор:"));
+        let restored=convert_file(entry,Direction::YamlToXml,&explicit.bytes,&conflict).unwrap();core::proof::verify(xml,&restored.bytes,|_|false).unwrap();
+        let owner_entry=entry_id("migration.additional-indexes-owner").unwrap();
+        let owner_inputs=||prepare_fact_inputs(owner_entry,snapshot.clone(),generation,vec![("owner".into(),InputValue::Text("owner".into()))]).unwrap();
+        for external in [xml.to_vec(),Vec::new(),b"<AdditionalIndexes xmlns='http://v8.1c.ru/8.3/xcf/extrnprops' version='2.20'/>".to_vec()] {
+            let path=core::resources::RelativePath::new(["Ext","AdditionalIndexes.xml"],4096).unwrap();
+            let prepared=owner_inputs().with_documents(vec![(path,external.clone())]).unwrap();
+            let primary=b"<Root><Name>Main</Name></Root>";
+            let yaml=convert_file(owner_entry,Direction::XmlToYaml,primary,&prepared).unwrap();
+            let result=convert_file(owner_entry,Direction::YamlToXml,&yaml.bytes,&owner_inputs()).unwrap();
+            assert_eq!(result.documents.len(),usize::from(!external.is_empty()));
+            let prepared=owner_inputs().with_documents(result.documents).unwrap();
+            verify_candidate(owner_entry,primary,&yaml.bytes,&prepared).unwrap();
+        }
+
+        let result=convert_file(entry,Direction::XmlToYaml,xml,&inputs).unwrap();
+        assert_eq!(String::from_utf8_lossy(&result.bytes),"-\n  Имя: One\n  Таблица: Document.D\n  ИндексируемыеПоля:\n    - Ref");
+        let restored=convert_file(entry,Direction::YamlToXml,&result.bytes,&inputs).unwrap();core::proof::verify(xml,&restored.bytes,|_|false).unwrap();
+        for original in [String::from_utf8_lossy(xml).replace("version='2.20'","version='9'"),String::from_utf8_lossy(xml).replace(" id='123'",""),String::from_utf8_lossy(xml).replace("id='123'","id='123' extra='x'"),String::from_utf8_lossy(xml).replace("<Field>Ref</Field>","<Field>Ref</Field><Field>Ref</Field>"),String::from_utf8_lossy(xml).replace("<AdditionalFields/>",""),String::from_utf8_lossy(xml).replace("<Name>One</Name>","<Name>One</Name><Unknown/>")] {
+            let result=convert_file(entry,Direction::XmlToYaml,original.as_bytes(),&inputs).unwrap();let restored=convert_file(entry,Direction::YamlToXml,&result.bytes,&inputs).unwrap();core::proof::verify(original.as_bytes(),&restored.bytes,|_|false).unwrap();
+        }
+    }
+    for (name,attributes,expected,omit,raw) in [
+        ("typed", "enabled='true'", Some("Сервер: LITERAL"),false,false),
+        ("typed", "enabled='false'", Some("Сервер: Ложь"),false,false),
+        ("typed", "enabled='wrong'", None,false,true),
+        ("typed", "", None,false,true),
+        ("default", "enabled='false'", None,true,false),
+        ("default", "", None,false,true),
+        ("default", "enabled='wrong'", None,false,true),
+        ("numeric", "enabled='true' a:amount='9007199254740993'", Some("Amount: 9007199254740993"),false,false),
+        ("numeric", "enabled='true' a:amount='001.20'", Some("1.2"),false,true),
+        ("numeric", "enabled='true' a:amount='wrong'", None,false,true),
+        ("numeric", "enabled='true' a:amount=''", None,false,true),
+        ("numeric", "enabled='false'", None,false,true),
+        ("enum", "code='Number'", Some("ТипКода: Число"),false,false),
+        ("enum", "code='Future'", None,false,true),
+    ] {
+        let entry=entry_id(&format!("test.{name}-attributes")).unwrap();
+        let inputs=PreparedInputs::default();
+        let xml=format!("<Root xmlns:a='urn:attributes' {attributes}><Description>kept</Description></Root>");
+        let result=convert_file(entry,Direction::XmlToYaml,xml.as_bytes(),&inputs).unwrap();
+        let yaml=String::from_utf8_lossy(&result.bytes);
+        if let Some(expected)=expected {assert!(yaml.contains(expected),"{name} {attributes}: {yaml}");}
+        if omit {assert!(!yaml.contains("Сервер:"),"{yaml}");}
+        assert_eq!(yaml.contains("!xml/raw"),raw,"{name} {attributes}: {yaml}");
+        assert!(validate_file(entry,&result.bytes,&inputs).is_empty(),"{yaml}");
+        verify_candidate(entry,xml.as_bytes(),&result.bytes,&inputs).unwrap();
+    }
+    {
+        let entry=entry_id("test.root-scalar").unwrap();
+        for extra in ["", " extra='retained'"] {
+            let xml=format!("<Root xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:xs='http://www.w3.org/2001/XMLSchema' xsi:type='xs:decimal'{extra}>42</Root>");
+            let result=convert_file(entry,Direction::XmlToYaml,xml.as_bytes(),&PreparedInputs::default()).unwrap();
+            assert_eq!(String::from_utf8_lossy(&result.bytes).contains("!xml/raw"), !extra.is_empty());
+            verify_candidate(entry,xml.as_bytes(),&result.bytes,&PreparedInputs::default()).unwrap();
+        }
+    }
+    {
+        let entry=entry_id("test.implicit-owner").unwrap();
+        let inputs=PreparedInputs::default();
+        for (xml,yaml) in [("<Root><Description>body</Description></Root>","\u{0421}\u{0435}\u{0440}\u{0432}\u{0435}\u{0440}: \u{041b}\u{043e}\u{0436}\u{044c}\n\u{041e}\u{043f}\u{0438}\u{0441}\u{0430}\u{043d}\u{0438}\u{0435}: body"), ("<Root><Server>true</Server><Description>body</Description></Root>","\u{041e}\u{043f}\u{0438}\u{0441}\u{0430}\u{043d}\u{0438}\u{0435}: body")] {
+            let imported=convert_file(entry,Direction::XmlToYaml,xml.as_bytes(),&inputs).unwrap();
+            assert_eq!(imported.bytes,yaml.as_bytes());
+            let exported=convert_file(entry,Direction::YamlToXml,yaml.as_bytes(),&inputs).unwrap();
+            core::proof::verify(xml.as_bytes(), &exported.bytes, |path| path.len()==2).unwrap();
+        }
+        let explicit=b"<Root><Server>false</Server><Description>body</Description></Root>";
+        let imported=convert_file(entry,Direction::XmlToYaml,explicit,&inputs).unwrap();
+        assert!(String::from_utf8_lossy(&imported.bytes).contains("!xml/raw"));
+        verify_candidate(entry,explicit,&imported.bytes,&inputs).unwrap();
+    }
+    {
+        let entry=entry_id("test.assembled-owner").unwrap();
+        let xml=b"<Root xmlns:q='urn:types' format='normal' version='2.0' uuid='owner'><Server>true</Server><Rows><Item><Code>one</Code><Title>First</Title></Item></Rows><Settings><Server>true</Server><Description>nested</Description></Settings><Type>q:Atom</Type><Description>body</Description></Root>";
+        let result=convert_file(entry,Direction::XmlToYaml,xml,&PreparedInputs::default()).unwrap();
+        assert_eq!(String::from_utf8_lossy(&result.bytes),"Version: \"2.0\"\nUUID: owner\nСервер: LITERAL\nRows:\n  - Code: one\n    Title: First\nSettings:\n  Сервер: LITERAL\n  Описание: nested\nQualified:\n  Namespace: urn:types\n  Name: Atom\nОписание: body");
+        verify_candidate(entry,xml,&result.bytes,&PreparedInputs::default()).unwrap();
+        for (direction,source) in [(Direction::XmlToYaml,xml.as_slice()),(Direction::YamlToXml,result.bytes.as_slice())] {
+            let generation=core::facts::Generation(1);
+            let mut builder=fact_builder(generation,core::facts::prepared::FactBudget {text:core::facts::text::TextBudget {entries:20,bytes:1000},rows:20});
+            let writes=core::xml::writer_count();
+            let errors=contribute_file(entry,direction,source,&PreparedInputs::default(),&mut builder);
+            assert!(errors.is_empty(),"{errors:?}");
+            assert_eq!(core::xml::writer_count(),writes,"Owner fact preparation must reuse typed values");
+            let facts=builder.finish();
+            assert_eq!(facts.lookup(generation,fact_id("test.owner-identities").unwrap(),"body"),core::facts::FactState::Ready("owner"));
+            assert_eq!(facts.lookup(generation,fact_id("test.owner-rows").unwrap(),"one"),core::facts::FactState::Ready("First"));
+        }
+        for original in [String::from_utf8_lossy(xml).replace(" uuid='owner'",""),String::from_utf8_lossy(xml).replace("<Description>body</Description>","<Description>reserved</Description>"),String::from_utf8_lossy(xml).replace("<Title>First</Title>","")] {
+            let generation=core::facts::Generation(2);
+            let mut builder=fact_builder(generation,core::facts::prepared::FactBudget {text:core::facts::text::TextBudget {entries:20,bytes:1000},rows:20});
+            assert!(!contribute_file(entry,Direction::XmlToYaml,original.as_bytes(),&PreparedInputs::default(),&mut builder).is_empty(),"Accepted invalid contribution: {original}");
+            let facts=builder.finish();
+            assert!(!matches!(facts.lookup(generation,fact_id("test.owner-identities").unwrap(),"body"),core::facts::FactState::Ready(_)));
+        }
+        let indexed=entry_id("test.indexed-assembly").unwrap();
+        let inputs=prepare_inputs(indexed,vec![("identity".into(),core::InputValue::Text("owner".into()))]).unwrap();
+        let compact=convert_file(indexed,Direction::XmlToYaml,xml,&inputs).unwrap();
+        assert!(!String::from_utf8_lossy(&compact.bytes).contains("UUID:"));
+        verify_candidate(indexed,xml,&compact.bytes,&inputs).unwrap();
+        let changed=String::from_utf8_lossy(xml).replace("uuid='owner'","uuid='different'");
+        let explicit=convert_file(indexed,Direction::XmlToYaml,changed.as_bytes(),&inputs).unwrap();
+        assert!(String::from_utf8_lossy(&explicit.bytes).contains("UUID: different"));
+        verify_candidate(indexed,changed.as_bytes(),&explicit.bytes,&inputs).unwrap();
+        let absent=String::from_utf8_lossy(xml).replace(" uuid='owner'","");
+        let preserved=convert_file(indexed,Direction::XmlToYaml,absent.as_bytes(),&inputs).unwrap();
+        verify_candidate(indexed,absent.as_bytes(),&preserved.bytes,&inputs).unwrap();
+        assert!(String::from_utf8_lossy(&preserved.bytes).contains("!xml/raw"));
+        let hostile=core::raw::Document::encode(&result.bytes,b"Server: 'false'").unwrap();
+        assert!(!validate_file(entry,&hostile,&PreparedInputs::default()).is_empty());
+        assert!(convert_file(entry,Direction::YamlToXml,&hostile,&PreparedInputs::default()).is_err());
+        let mut rejected=fact_builder(core::facts::Generation(3),core::facts::prepared::FactBudget {text:core::facts::text::TextBudget {entries:20,bytes:1000},rows:20});
+        assert!(!contribute_file(entry,Direction::YamlToXml,&hostile,&PreparedInputs::default(),&mut rejected).is_empty());
+        let reordered=String::from_utf8_lossy(xml).replacen("<Server>true</Server><Rows>","<Rows>",1).replacen("</Rows>","</Rows><Server>true</Server>",1);
+        let result=convert_file(entry,Direction::XmlToYaml,reordered.as_bytes(),&PreparedInputs::default()).unwrap();
+        assert!(String::from_utf8_lossy(&result.bytes).starts_with("!xml/raw"));
+        verify_candidate(entry,reordered.as_bytes(),&result.bytes,&PreparedInputs::default()).unwrap();
+        let omitted=String::from_utf8_lossy(xml).replacen("<Server>true</Server>","<Server>false</Server>",1);
+        let result=convert_file(entry,Direction::XmlToYaml,omitted.as_bytes(),&PreparedInputs::default()).unwrap();
+        assert!(!String::from_utf8_lossy(&result.bytes).lines().any(|line|line.starts_with("Сервер:")));
+        verify_candidate(entry,omitted.as_bytes(),&result.bytes,&PreparedInputs::default()).unwrap();
+        let reserved=String::from_utf8_lossy(xml).replace("<Description>body</Description>","<Description>reserved</Description>");
+        let result=convert_file(entry,Direction::XmlToYaml,reserved.as_bytes(),&PreparedInputs::default()).unwrap();
+        assert!(String::from_utf8_lossy(&result.bytes).contains("!xml/invalid"));
+        verify_candidate(entry,reserved.as_bytes(),&result.bytes,&PreparedInputs::default()).unwrap();
+        for (from,to) in [(" format='normal'",""),("format='normal'","format='different'"),("</Root>","<Extra flag='keep'/></Root>"),(" uuid='owner'",""),("<Server>true</Server>","<Server>unexpected</Server>"),("<Rows>","<Rows extra='keep'>"),("<Settings>","<Settings extra='keep'>"),("<Type>","<Type extra='keep'>")] {
+            let original=String::from_utf8_lossy(xml).replacen(from,to,1);
+            let result=convert_file(entry,Direction::XmlToYaml,original.as_bytes(),&PreparedInputs::default()).unwrap();
+            assert!(String::from_utf8_lossy(&result.bytes).contains("!xml/raw"));
+            verify_candidate(entry,original.as_bytes(),&result.bytes,&PreparedInputs::default()).unwrap();
+        }
+
+    }
+    {
+        let entry=entry_id("test.attributed-rows").unwrap();
+        let xml=b"<Root xmlns:r='urn:row'><Rows><Item code='one' r:title='First'><Identity>id</Identity></Item><Item code='two' r:title='Second'><Identity>id2</Identity></Item></Rows></Root>";
+        let result=convert_file(entry,Direction::XmlToYaml,xml,&PreparedInputs::default()).unwrap();
+        assert_eq!(String::from_utf8_lossy(&result.bytes),"Rows:\n  - Code: one\n    Title: First\n    Identity: id\n  - Code: two\n    Title: Second\n    Identity: id2");
+        verify_candidate(entry,xml,&result.bytes,&PreparedInputs::default()).unwrap();
+        for (code,key) in [("one.NewName","one"),(".suffix","empty")] {
+            let renamed=String::from_utf8_lossy(xml).replace("code='one'",&format!("code='{code}'"));
+            let yaml=convert_file(entry,Direction::XmlToYaml,renamed.as_bytes(),&PreparedInputs::default()).unwrap();
+            for (direction,source) in [(Direction::XmlToYaml,renamed.as_bytes()),(Direction::YamlToXml,yaml.bytes.as_slice())] {
+                let generation=core::facts::Generation(4);
+                let mut builder=fact_builder(generation,core::facts::prepared::FactBudget {text:core::facts::text::TextBudget {entries:30,bytes:1000},rows:30});
+                let errors=contribute_file(entry,direction,source,&PreparedInputs::default(),&mut builder);
+                assert!(errors.is_empty(),"{errors:?}");
+                let facts=builder.finish();
+                assert_eq!(facts.lookup(generation,fact_id("test.short-names").unwrap(),key),core::facts::FactState::Ready("id"));
+                assert_eq!(facts.lookup(generation,fact_id("test.static-owner").unwrap(),"static"),core::facts::FactState::Ready("retained"));
+            }
+        }
+        for original in [String::from_utf8_lossy(xml).replacen(" code='one'","",1),String::from_utf8_lossy(xml).replacen("code='one'","code='one' extra='keep'",1)] {
+            let preserved=convert_file(entry,Direction::XmlToYaml,original.as_bytes(),&PreparedInputs::default()).unwrap();
+            assert!(String::from_utf8_lossy(&preserved.bytes).contains("!xml/raw"));
+            verify_candidate(entry,original.as_bytes(),&preserved.bytes,&PreparedInputs::default()).unwrap();
+        }
+    }
+    for boolean in ["true", "unexpected"] {
+        let xml=format!("<Root><Server>{boolean}</Server><Rows><Item><Code>one</Code><Title>First</Title></Item></Rows><Description>body</Description></Root>");
+        let inputs=PreparedInputs::default();
+        let mut collection=None;
+        let mut reads=0;
+        let scalar=read_xml_events_SCALAR_ID(xml.as_bytes(),&inputs,core::xml::Events(|consume: &mut core::xml::Consumer<'_>| {
+            reads+=1;
+            collection=Some(read_xml_events_ROWS_ID(xml.as_bytes(),&inputs,core::xml::DocumentSource(xml.as_bytes()),|path,token| {
+                if path.get(1).is_some_and(|name|name.local=="Server" || name.local=="Description") {
+                    consume(path,token)?;Ok(true)
+                } else {Ok(false)}
+            })?);
+            Ok(())
+        })).unwrap();
+        assert_eq!(reads,1);
+        let yaml=String::from_utf8(write_yaml_SCALAR_ID(&scalar,&inputs).unwrap()).unwrap();
+        assert!(yaml.contains("body"));
+        assert_eq!(yaml.contains("!xml/raw"),boolean=="unexpected");
+        let mut combined_yaml=String::from("Before: preserved");
+        write_yaml_into_SCALAR_ID(&scalar,&inputs,&mut combined_yaml).unwrap();
+        assert_eq!(combined_yaml,format!("Before: preserved\n{yaml}"));
+        let mut collection=collection.unwrap();
+        let rows=String::from_utf8(write_yaml_ROWS_ID(&collection,&inputs).unwrap()).unwrap();
+        assert!(rows.contains("one") && rows.contains("First"));
+        prepare_yaml_into_ROWS_ID(&collection,&inputs,true,&mut combined_yaml,"").unwrap();
+        assert_eq!(combined_yaml,format!("Before: preserved\n{yaml}\n{rows}"));
+        let mut nested=String::from("Owner:");
+        prepare_yaml_into_ROWS_ID(&collection,&inputs,true,&mut nested,"  ").unwrap();
+        assert_eq!(nested,"Owner:\n  Rows:\n    - Code: one\n      Title: First");
+        if boolean=="unexpected" {
+            let source=b"<Root><Rows xmlns:x='urn:extra' x:flag='keep'><Item><Code>one</Code><Title>First</Title></Item></Rows></Root>";
+            let converted=convert_file(entry_id("test.fact-rows").unwrap(),Direction::XmlToYaml,source,&inputs).unwrap();
+            assert!(String::from_utf8_lossy(&converted.bytes).contains("!xml/raw"));
+            collection=read_yaml_ROWS_ID(&converted.bytes,&inputs).unwrap();
+            let mut repeated=String::new();
+            write_yaml_into_ROWS_ID(&collection,&inputs,&mut repeated).unwrap();
+            verify_candidate(entry_id("test.fact-rows").unwrap(),source,repeated.as_bytes(),&inputs).unwrap();
+        }
+        let writes=core::xml::writer_count();
+        let prepared=prepare_xml_SCALAR_ID(&scalar,&inputs).unwrap();
+        let prepared_rows=prepare_xml_ROWS_ID(&collection,&inputs).unwrap();
+        let mut namespaces=Vec::new();
+        namespaces_xml_SCALAR_ID(&scalar,&prepared,&mut namespaces);
+        namespaces_xml_ROWS_ID(&collection,&prepared_rows,&mut namespaces);
+        let mut writer=core::xml::Writer::new(&namespaces);
+        write_xml_field_SCALAR_ID_0(&scalar,&prepared,&inputs,&mut writer).unwrap();
+        write_xml_into_ROWS_ID(&collection,&prepared_rows,&inputs,&mut writer).unwrap();
+        write_xml_field_SCALAR_ID_1(&scalar,&prepared,&inputs,&mut writer).unwrap();
+        let combined=writer.finish();
+        assert_eq!(core::xml::writer_count()-writes,if boolean=="unexpected" {2} else {1});
+        let attributes=if boolean=="unexpected" {" xmlns:x='urn:extra' x:flag='keep'"} else {""};
+        let expected=format!("<Root><Server>{boolean}</Server><Rows{attributes}><Item><Code>one</Code><Title>First</Title></Item></Rows><Description>body</Description></Root>");
+        core::proof::verify_with_attributes(expected.as_bytes(),&combined,|path|path.last().is_some_and(|name|matches!(name.local.as_str(),"Server"|"Description"|"Code"|"Title")),|_,_|false).unwrap_or_else(|error|panic!("{error:?}: {}",String::from_utf8_lossy(&combined)));
+        assert_eq!(String::from_utf8(combined).unwrap().matches("<?xml").count(),1);
+    }
+    {
+        let source="Сервер: LITERAL\nRows: [{Code: one, Title: First}]\nОписание: body".as_bytes();
+        let inputs=PreparedInputs::default();
+        let mut rows=None;
+        let mut reads=0;
+        let scalar=read_yaml_events_SCALAR_ID(source,&inputs,core::raw::Fields::default(),core::yaml::Events(|consume:&mut core::yaml::Consumer<'_>| {
+            reads+=1;
+            rows=Some(read_yaml_events_ROWS_ID(source,&inputs,core::yaml::PartitionSource {
+                source:core::yaml::DocumentSource(source),select:|key:&str|key=="Rows",sibling:consume,
+            })?);
+            Ok(())
+        })).unwrap();
+        assert_eq!(reads,1);
+        assert!(String::from_utf8(write_yaml_SCALAR_ID(&scalar,&inputs).unwrap()).unwrap().contains("body"));
+        assert!(String::from_utf8(write_yaml_ROWS_ID(&rows.unwrap(),&inputs).unwrap()).unwrap().contains("First"));
+    }
+    let chain = core::text_pattern::Sequence::<2>::new("::").unwrap();
+    let rows = chain.rows("west::leaf::east::twig", 10, 1024).unwrap();
+    let items = rows.map(|row| SLOT_CODEC::read_slots(row.unwrap(), true)).collect::<core::Result<Vec<_>>>().unwrap();
+    let printed = items.iter().map(|item| item.write(false)).collect::<core::Result<Vec<_>>>().unwrap();
+    assert_eq!(printed, ["[leaf] Запад", "[twig] Восток"]);
+    let sequence = entry_id("test.text-sequence").unwrap();
+    for (entry, text, expected, tag) in [
+        (sequence, "west::leaf::east::twig", Some("Pair: leaf/Запад/twig/Восток"), None),
+        (sequence, "west::leaf::west::leaf", Some("Pair: leaf/Запад/leaf/Запад"), None),
+        (sequence, "", Some("Pair: \"\""), None),
+        (sequence, "west::1bad", None, Some("!xml/invalid")),
+        (sequence, "west::reserved", None, Some("!xml/invalid")),
+        (sequence, "west::leaf::extra", None, Some("!xml/raw")),
+        (sequence, "unknown::leaf", None, Some("!xml/raw")),
+        (sequence, "west::a/b", None, Some("!xml/raw")),
+        (entry_id("test.framed-sequence").unwrap(), "west::leaf", Some("Pair: leaf/Запад"), None),
+        (entry_id("test.framed-sequence").unwrap(), "west::leaf::east::twig::west::leaf", Some("Pair: leaf/Запад/twig/Восток/leaf/Запад"), None),
+        (entry_id("test.framed-sequence").unwrap(), "west::reserved::east::twig", None, Some("!xml/invalid")),
+        (entry_id("test.framed-sequence").unwrap(), "west::leaf::east::1bad", None, Some("!xml/invalid")),
+        (entry_id("test.framed-sequence").unwrap(), "west::leaf::", None, Some("!xml/raw")),
+    ] {
+        let xml = format!("<Root><Pair>{text}</Pair></Root>");
+        let result = convert_file(entry,Direction::XmlToYaml,xml.as_bytes(),&PreparedInputs::default()).unwrap();
+        match (expected,tag) {
+            (Some(expected),None) => assert_eq!(result.bytes,expected.as_bytes()),
+            (None,Some(tag)) => assert!(String::from_utf8_lossy(&result.bytes).contains(tag),"{}",String::from_utf8_lossy(&result.bytes)),
+            _ => panic!("Each case must declare either normal output or anomaly"),
+        }
+        assert!(validate_file(entry,&result.bytes,&PreparedInputs::default()).is_empty(),"{}",String::from_utf8_lossy(&result.bytes));
+        verify_candidate(entry,xml.as_bytes(),&result.bytes,&PreparedInputs::default()).unwrap();
+    }
+    let issues = validate_file(sequence,"Pair: leaf/Запад/1bad/Восток".as_bytes(),&PreparedInputs::default());
+    assert!(issues.iter().any(|issue|issue.message.starts_with("Element 2:")));
+    assert!(SLOT_CODEC::read_slots(["unknown", "leaf"], true).is_err());
+    let fact_owner = entry_id("test.fact-owner").unwrap();
+    let schedule = fact_plan(&[fact_owner,fact_owner],&[],10).unwrap();
+    let names_slot = fact_id("test.names").unwrap().0 as usize + 2;
+    let index_step = core::facts::dependencies::StepId(names_slot as u32);
+    assert_eq!(schedule.dependencies(index_step).unwrap(), &[core::facts::dependencies::StepId(0),core::facts::dependencies::StepId(1)]);
+    assert_eq!(schedule.affected(&[core::facts::dependencies::StepId(0)]).unwrap(),vec![core::facts::dependencies::StepId(0),index_step]);
+    assert!(fact_plan(&[fact_owner],&[],0).is_err());
+    assert!(fact_plan(&[EntryId(u32::MAX)],&[],10).is_err());
+    let generation = core::facts::Generation(7);
+    let budget = || core::facts::prepared::FactBudget { text: core::facts::text::TextBudget { entries: 30, bytes: 1000 }, rows: 20 };
+    let mut builder = fact_builder(generation, budget());
+    let writes = core::xml::writer_count();
+    for (direction, source) in [
+        (Direction::XmlToYaml, "<Root><Code>one</Code><Title>First</Title></Root>"),
+        (Direction::YamlToXml, "Code: two\nTitle: Second"),
+        (Direction::YamlToXml, "Code: two\nTitle: Duplicate"),
+    ] {
+        assert!(contribute_file(fact_owner,direction,source.as_bytes(),&PreparedInputs::default(),&mut builder).is_empty());
+    }
+    let rows_owner=entry_id("test.fact-rows").unwrap();
+    for (direction,source) in [
+        (Direction::XmlToYaml,"<Root><Rows><Item><Code>three</Code><Title>Third</Title></Item></Rows></Root>"),
+        (Direction::YamlToXml,"Rows:\n  - Code: four\n    Title: Fourth\n  - Code: five\n    Title: Fifth"),
+    ] {
+        let errors=contribute_file(rows_owner,direction,source.as_bytes(),&PreparedInputs::default(),&mut builder);
+        assert!(errors.is_empty(),"{errors:?}");
+    }
+    assert_eq!(core::xml::writer_count(),writes,"Preparation must not write XML");
+    let facts = std::sync::Arc::new(builder.finish());
+    let names = fact_id("test.names").unwrap();
+    use nkdk_conversion_core::facts::FactState;
+    assert_eq!(facts.lookup(generation,names,"one"),FactState::Ready("First"));
+    assert_eq!(facts.lookup(generation,names,"three"),FactState::Ready("Third"));
+    assert_eq!(facts.lookup(generation,names,"four"),FactState::Ready("Fourth"));
+    assert_eq!(facts.lookup(generation,names,"five"),FactState::Ready("Fifth"));
+    assert_eq!(facts.lookup(generation,names,"two"),FactState::Ambiguous);
+    assert_eq!(facts.lookup(generation,names,"unknown"),FactState::Missing);
+    let indexed_frame=entry_id("test.indexed-frame").unwrap();
+    let source_entry=entry_id("test.fact-path-owner").unwrap();
+    let mut path_builder=fact_builder(generation,budget());
+    for text in ["Kind: Запад\nName: one\nIdentity: first", "Kind: Восток\nName: one\nIdentity: other", "Kind: Запад\nName: two\nIdentity: second", "Kind: Запад\nName: two\nIdentity: duplicate"] {
+        assert!(contribute_file(source_entry,Direction::YamlToXml,text.as_bytes(),&PreparedInputs::default(),&mut path_builder).is_empty());
+    }
+    let edge=entry_id("test.fact-path-edge").unwrap();
+    for text in ["Kind: Восток\nName: forbidden\nParent: first\nIdentity: registered", "Kind: Восток\nName: twig\nParent: first\nIdentity: branch","Kind: Запад\nName: leaf\nParent: branch\nIdentity: terminal","Kind: Восток\nName: ambiguous\nParent: first\nIdentity: x","Kind: Восток\nName: ambiguous\nParent: first\nIdentity: y"] {
+        assert!(contribute_file(edge,Direction::YamlToXml,text.as_bytes(),&PreparedInputs::default(),&mut path_builder).is_empty());
+    }
+    let path_facts=std::sync::Arc::new(path_builder.finish());
+    let path_inputs=prepare_fact_inputs(indexed_frame,path_facts.clone(),generation,vec![]).unwrap();
+    for (text,code) in [("Pair: one/Запад/twig/Восток",None),("Pair: one/Восток",None),("Pair: absent/Запад",Some("path.root-missing")),("Pair: two/Запад",Some("fact.ambiguous"))] {
+        let issues=validate_file(indexed_frame,text.as_bytes(),&path_inputs);
+        if let Some(code)=code {assert!(issues.iter().any(|issue|issue.code.as_deref()==Some(code)),"{issues:?}");}else{assert!(issues.is_empty(),"{issues:?}");}
+    }
+    let walked=entry_id("test.walked-path").unwrap();
+    let walked_inputs=prepare_fact_inputs(walked,path_facts.clone(),generation,vec![]).unwrap();
+    for (path,code) in [("one/Запад",None),("one/Запад/twig/Восток/leaf/Запад",None),("one/Запад/leaf/Запад",Some("path.target-missing")),("one/Запад/twig/Запад",Some("path.target-missing")),("one/Запад/forbidden/Восток",Some("path.segment-not-allowed")),("absent/Запад",Some("path.target-missing")),("one/Запад/ambiguous/Восток",Some("fact.ambiguous"))] {
+        let issues=validate_file(walked,format!("Path: {path}").as_bytes(),&walked_inputs);
+        if let Some(code)=code {assert!(issues.iter().any(|issue|issue.code.as_deref()==Some(code)),"{issues:?}");}else{assert!(issues.is_empty(),"{issues:?}");}
+    }
+    let too_deep=validate_file(walked,"Path: one/Запад/twig/Восток/leaf/Запад/leaf/Запад".as_bytes(),&walked_inputs);
+    assert!(too_deep.iter().any(|issue|issue.code.as_deref()==Some("path.too-deep")),"{too_deep:?}");
+    for missing_child in [b"<Root><Path>west::one::west::leaf</Path></Root>".as_slice(),b"<Root><Path>west::one::east::forbidden</Path></Root>"] {
+    let preserved_child=convert_file(walked,Direction::XmlToYaml,missing_child,&walked_inputs).unwrap();
+    assert!(String::from_utf8_lossy(&preserved_child.bytes).contains("!xml/invalid"));
+    assert!(validate_file(walked,&preserved_child.bytes,&walked_inputs).is_empty());
+    verify_candidate(walked,missing_child,&preserved_child.bytes,&walked_inputs).unwrap();
+    }
+    let mut incomplete=fact_builder(generation,budget());
+    assert!(contribute_file(source_entry,Direction::XmlToYaml,b"<Root><Kind>west</Kind><Name>one</Name><Identity>first</Identity></Root>",&PreparedInputs::default(),&mut incomplete).is_empty());
+    incomplete.mark_unready(fact_id("test.path-children").unwrap()).unwrap();
+    let incomplete=prepare_fact_inputs(walked,std::sync::Arc::new(incomplete.finish()),generation,vec![]).unwrap();
+    assert!(validate_file(walked,"Path: one/Запад".as_bytes(),&incomplete).is_empty());
+    assert!(validate_file(walked,"Path: one/Запад/twig/Восток".as_bytes(),&incomplete).iter().any(|issue|issue.code.as_deref()==Some("fact.unready")));
+    let old=prepare_fact_inputs(indexed_frame,path_facts,core::facts::Generation(99),vec![]).unwrap();
+    assert!(validate_file(indexed_frame,"Pair: one/Запад".as_bytes(),&old).iter().any(|issue|issue.code.as_deref()==Some("fact.unready")));
+    let source=b"<Root><Pair>west::absent::east::twig</Pair></Root>";
+    let preserved=convert_file(indexed_frame,Direction::XmlToYaml,source,&path_inputs).unwrap();
+    assert!(String::from_utf8_lossy(&preserved.bytes).contains("!xml/invalid"));
+    assert!(validate_file(indexed_frame,&preserved.bytes,&path_inputs).is_empty());
+    verify_candidate(indexed_frame,source,&preserved.bytes,&path_inputs).unwrap();
+    let consumer = entry_id("test.fact-consumer").unwrap();
+    let bind = |generation| prepare_fact_inputs(consumer,facts.clone(),generation,vec![]).unwrap();
+    let schedule=fact_plan(&[fact_owner],&[consumer,consumer],10).unwrap();
+    let affected=schedule.affected(&[core::facts::dependencies::StepId(0)]).unwrap();
+    assert_eq!(affected.len(),4,"One source, one shared index, two consumers");
+    assert!(schedule.dependencies(core::facts::dependencies::StepId((1+fact_names().len()) as u32)).unwrap().contains(&core::facts::dependencies::StepId(1+names.0)));
+    let consumer_inputs = bind(generation);
+    assert!(validate_file(consumer,b"Target: one",&consumer_inputs).is_empty());
+    for (source,code) in [(b"Target: absent".as_slice(),"target.missing"),(b"Target: two","fact.ambiguous")] {
+        let errors=validate_file(consumer,source,&consumer_inputs);
+        assert!(errors.iter().any(|error|error.code.as_deref()==Some(code)),"{errors:?}");
+    }
+    assert!(validate_file(consumer,b"Target: one",&bind(core::facts::Generation(99))).iter().any(|error|error.code.as_deref()==Some("fact.unready")));
+    let member=entry_id("test.fact-member-consumer").unwrap();
+    let member_inputs=prepare_fact_inputs(member,facts.clone(),generation,vec![]).unwrap();
+    assert!(validate_file(member,b"Target: three",&member_inputs).is_empty());
+    assert!(validate_file(member,b"Target: one",&member_inputs).iter().any(|error|error.code.as_deref()==Some("member.missing")));
+    let bound=entry_id("test.fact-bound-consumer").unwrap();
+    let bound_inputs=prepare_fact_inputs(bound,facts.clone(),generation,vec![("context".into(),core::InputValue::Text("owner".into()))]).unwrap();
+    assert!(validate_file(bound,b"Target: one",&bound_inputs).is_empty());
+    for (source,code) in [(b"Target: absent".as_slice(),"bound-target.missing"),(b"Target: two","fact.ambiguous")] {
+        let errors=validate_file(bound,source,&bound_inputs);
+        assert!(errors.iter().any(|error|error.code.as_deref()==Some(code)),"{errors:?}");
+    }
+    let missing_target=b"<Root><Target>absent</Target></Root>";
+    let preserved=convert_file(bound,Direction::XmlToYaml,missing_target,&bound_inputs).unwrap();
+    assert!(String::from_utf8_lossy(&preserved.bytes).contains("!xml/invalid"));
+    assert!(validate_file(bound,&preserved.bytes,&bound_inputs).is_empty());
+    verify_candidate(bound,missing_target,&preserved.bytes,&bound_inputs).unwrap();
+    // Independent consumers borrow the same prepared value.
+    let FactState::Ready(first) = facts.lookup(generation,names,"one") else { panic!() };
+    let FactState::Ready(second) = facts.lookup(generation,names,"one") else { panic!() };
+    assert!(std::ptr::eq(first,second));
+    let mut broken = fact_builder(generation, core::facts::prepared::FactBudget { text: core::facts::text::TextBudget { entries: 10, bytes: 100 }, rows: 10 });
+    for invalid in [b"<Root>".as_slice(), b"<Root><Code>BAD</Code><Title>Invalid code</Title></Root>", b"<Root><Code>one</Code></Root>"] {
+        assert!(!contribute_file(fact_owner,Direction::XmlToYaml,invalid,&PreparedInputs::default(),&mut broken).is_empty());
+    }
+    assert!(contribute_file(fact_owner,Direction::YamlToXml,b"Code: one\nTitle: First",&PreparedInputs::default(),&mut broken).is_empty());
+    assert!(!contribute_file(rows_owner,Direction::YamlToXml,b"Rows: !xml/raw\n  $xml: {Unknown: value}",&PreparedInputs::default(),&mut broken).is_empty());
+    assert!(!contribute_file(rows_owner,Direction::XmlToYaml,b"<Root><Rows><Item><Code>incomplete</Code></Item></Rows></Root>",&PreparedInputs::default(),&mut broken).is_empty());
+    for (direction, source) in [
+        (Direction::XmlToYaml, "<Root><Rows><Item><Code/><Title>Invalid</Title></Item></Rows></Root>"),
+        (Direction::YamlToXml, "Rows: [{Code: '', Title: Invalid}]"),
+        (Direction::YamlToXml, "Rows: !xml/invalid [{Code: '', Title: Invalid}]"),
+    ] {
+        let errors=contribute_file(rows_owner,direction,source.as_bytes(),&PreparedInputs::default(),&mut broken);
+        assert!(errors.iter().any(|error|error.code.as_deref()==Some("fact.row-code")),"{errors:?}");
+    }
+    assert_eq!(broken.finish().lookup(generation,names,"never-read"),FactState::Unready);
+    for (entry,text,expected) in [
+        ("test.text-delimiter","leafaawest",Some("Pair: leafaa\u{417}\u{430}\u{43f}\u{430}\u{434}")),
+        ("test.text-delimiter","aaaawest",Some("Pair: literal.\u{417}\u{430}\u{43f}\u{430}\u{434}")),
+        ("test.text-delimiter","aaawest",None),
+        ("test.text-choice","a:leaf",Some("Pair: \"Первое: leaf\"")),
+        ("test.text-choice","b:leaf",Some("Pair: \"Второе: leaf\"")),
+        ("test.text-choice","c:leaf",None),
+        ("test.text-table","leaf",Some("Pair: leaf")),
+        ("test.text-table","east",Some("Pair: Восток")),
+        ("test.text-table","Восток",None),
+        ("test.text-pattern","west::leaf",Some("Pair: \"[leaf] west\"")),
+        ("test.text-pattern","missing",None),
+        ("test.text-pattern","west::leaf] extra",None),
+        ("test.text-pattern-coded","west::leaf",Some("Pair: \"[leaf] Запад\"")),
+        ("test.text-pattern-coded","unknown::leaf",None),
+        ("test.text-pattern-coded","west::east",Some("Pair: \"[Восток] Запад\"")),
+        ("test.text-pattern-coded","west::Восток",None),
+    ] {
+        let patterned=entry_id(entry).unwrap();
+        let original=format!("<Root><Pair>{text}</Pair></Root>");
+        let result=convert_file(patterned,Direction::XmlToYaml,original.as_bytes(),&PreparedInputs::default()).unwrap();
+        let rendered=String::from_utf8_lossy(&result.bytes);
+        if let Some(expected)=expected { assert_eq!(rendered, expected); }
+        else { assert!(rendered.contains("!xml/raw"),"{rendered}"); }
+        assert!(validate_file(patterned,&result.bytes,&PreparedInputs::default()).is_empty());
+        let restored=convert_file(patterned,Direction::YamlToXml,&result.bytes,&PreparedInputs::default()).unwrap();
+        core::proof::verify(original.as_bytes(),&restored.bytes,|path|path.last().is_some_and(|name|name.local=="Pair")).unwrap();
+        verify_candidate(patterned,original.as_bytes(),&result.bytes,&PreparedInputs::default()).unwrap();
+    }
+    let attribute_only = entry_id("test.attribute-only").unwrap();
+    for xml in ["<Root version=\"2\"><Item xmlns:m=\"urn:owner\" m:uuid=\"abc\"/></Root>", "<Root><Item/></Root>"] {
+        let result=convert_file(attribute_only,Direction::XmlToYaml,xml.as_bytes(),&PreparedInputs::default()).unwrap();
+        verify_candidate(attribute_only,xml.as_bytes(),&result.bytes,&PreparedInputs::default()).unwrap();
+    }
+    let nested_header = entry_id("test.nested-header").unwrap();
+    for xml in [
+        "<Root/>",
+        "<Root><Settings/></Root>",
+        "<Root><Settings mode='normal'><Server>true</Server></Settings></Root>",
+        "<Root><Settings uuid='body'><Server>true</Server></Settings></Root>",
+        "<Root><Settings uuid='body' mode='normal'><Server>true</Server></Settings></Root>",
+        "<Root><Settings mode='different' uuid='body'><Server>true</Server></Settings></Root>",
+    ] {
+        let result=convert_file(nested_header,Direction::XmlToYaml,xml.as_bytes(),&PreparedInputs::default()).unwrap();
+        verify_candidate(nested_header,xml.as_bytes(),&result.bytes,&PreparedInputs::default()).unwrap();
+        let value=read_yaml_HEADER_ID(&result.bytes,&PreparedInputs::default()).unwrap();
+        let repeated=write_yaml_HEADER_ID(&value,&PreparedInputs::default()).unwrap();
+        verify_candidate(nested_header,xml.as_bytes(),&repeated,&PreparedInputs::default()).unwrap();
+    }
+    let attributes = entry_id("test.attribute-owner").unwrap();
+    for attribute in [" meta:uuid=\"owner-1\"", " meta:uuid=\"\"", " meta:uuid=\"a&amp;b\"", " meta:uuid=\"a&#10;b&#9;c&#13;d\"", ""] {
+        let original=format!("<Root xmlns:meta=\"urn:owner\" version=\"2.0\"><Item{attribute} revision=\"r1\"><Server>true</Server><Description>body</Description></Item></Root>");
+        let result=convert_file(attributes,Direction::XmlToYaml,original.as_bytes(),&PreparedInputs::default()).unwrap();
+        assert_eq!(String::from_utf8_lossy(&result.bytes).contains("!xml/raw"),attribute.is_empty());
+        verify_candidate(attributes,original.as_bytes(),&result.bytes,&PreparedInputs::default()).unwrap();
+    }
+    for bad in [
+        "Version: '2.0'\nUUID: !xml/raw\n  $xml: {unexpected: x}\nСервер: LITERAL\nОписание: body",
+        "Version: '2.0'\nСервер: LITERAL\nОписание: body",
+    ] {
+        assert!(!validate_file(attributes,bad.as_bytes(),&PreparedInputs::default()).is_empty());
+        assert!(convert_file(attributes,Direction::YamlToXml,bad.as_bytes(),&PreparedInputs::default()).is_err());
+    }
+    let bound = entry_id("test.bound-choice").unwrap();
+    for (selected, enabled) in [("leaf",true), ("other",false)] {
+        let inputs=read_inputs(bound,format!("unused: {enabled}\nselected: {selected}").as_bytes()).unwrap();
+        let normal=convert_file(bound,Direction::YamlToXml,format!("Pair: \"Первое: {selected}\"").as_bytes(),&inputs).unwrap();
+        assert_eq!(String::from_utf8_lossy(&normal.bytes).contains("marked=\"yes\""),enabled);
+        verify_candidate(bound,b"<Root/>",b"{}",&inputs).unwrap();
+        for (text, valid) in [("a:leaf", selected=="leaf"), ("a:other", selected=="other"), ("b:leaf",true)] {
+            let original=format!("<Root><Pair>{text}</Pair></Root>");
+            let result=convert_file(bound,Direction::XmlToYaml,original.as_bytes(),&inputs).unwrap();
+            assert_eq!(String::from_utf8_lossy(&result.bytes).contains("!xml/invalid"),!valid);
+            verify_candidate(bound,original.as_bytes(),&result.bytes,&inputs).unwrap();
+        }
+    }
+    let choice = entry_id("test.text-choice").unwrap();
+    for (xml, yaml) in [("a:123", "Первое: 123"), ("b:", "Второе: ")] {
+        let original = format!("<Root><Pair>{xml}</Pair></Root>");
+        let result = convert_file(choice, Direction::XmlToYaml, original.as_bytes(), &PreparedInputs::default()).unwrap();
+        let rendered = String::from_utf8_lossy(&result.bytes);
+        assert!(rendered.contains("!xml/invalid"), "{rendered}");
+        assert!(rendered.contains(yaml), "{rendered}");
+        assert!(validate_file(choice, &result.bytes, &PreparedInputs::default()).is_empty());
+        assert!(!validate_file(choice, format!("Pair: {yaml:?}").as_bytes(), &PreparedInputs::default()).is_empty());
+        verify_candidate(choice, original.as_bytes(), &result.bytes, &PreparedInputs::default()).unwrap();
+    }
+    let table_entry = entry_id("test.text-table").unwrap();
+    let model_alias = b"Pair: east";
+    assert!(validate_file(table_entry, model_alias, &PreparedInputs::default()).is_empty());
+    let model = convert_file(table_entry, Direction::YamlToXml, model_alias, &PreparedInputs::default()).unwrap();
+    let canonical = convert_file(table_entry, Direction::XmlToYaml, &model.bytes, &PreparedInputs::default()).unwrap();
+    assert_eq!(canonical.bytes, "Pair: Восток".as_bytes());
+    let patterned = entry_id("test.text-pattern-coded").unwrap();
+    for name in ["bad-name", "reserved"] {
+    let original = format!("<Root><Pair>west::{name}</Pair></Root>");
+    let original = original.as_bytes();
+    let inputs = PreparedInputs::default();
+    let result = convert_file(patterned, Direction::XmlToYaml, original, &inputs).unwrap();
+    let rendered = String::from_utf8_lossy(&result.bytes);
+    assert!(rendered.contains("!xml/invalid"), "{rendered}");
+    assert!(rendered.contains(&format!("[{name}] Запад")), "{rendered}");
+    assert!(validate_file(patterned, &result.bytes, &inputs).is_empty());
+    assert!(!validate_file(patterned, format!("Pair: \"[{name}] Запад\"").as_bytes(), &inputs).is_empty());
+    verify_candidate(patterned, original, &result.bytes, &inputs).unwrap();
+    }
+    {
+        let entry=entry_id("test.nested-defaults").unwrap();
+        let inputs=PreparedInputs::default();
+        for (xml, expected) in [
+            ("<Root/>", ""),
+            ("<Root><Settings><Description>body</Description></Settings></Root>", "Settings:\n  Описание: body\n  Server: !xml/raw\n    $xml: null"),
+            ("<Root><Settings><Server>false</Server><Description>body</Description></Settings></Root>", "Settings:\n  Описание: body"),
+        ] {
+            let result=convert_file(entry,Direction::XmlToYaml,xml.as_bytes(),&inputs).unwrap();
+            assert_eq!(String::from_utf8_lossy(&result.bytes),expected);
+            verify_candidate(entry,xml.as_bytes(),&result.bytes,&inputs).unwrap();
+        }
+        let invalid="Settings: {Описание: wrong}";
+        let issues=validate_file(entry,invalid.as_bytes(),&inputs);
+        assert_eq!(issues.len(),1,"{issues:?}");
+        assert_eq!(issues[0].path,vec!["Settings","Описание"]);
+        let xml=b"<Root><Settings><Server>false</Server><Description>wrong</Description></Settings></Root>";
+        let converted=convert_file(entry,Direction::XmlToYaml,xml,&inputs).unwrap();
+        assert!(String::from_utf8_lossy(&converted.bytes).contains("!xml/invalid"));
+        assert!(validate_file(entry,&converted.bytes,&inputs).is_empty());
+        verify_candidate(entry,xml,&converted.bytes,&inputs).unwrap();
+        let restored=convert_file(entry,Direction::YamlToXml,"Settings: {Описание: body}".as_bytes(),&inputs).unwrap();
+        assert!(String::from_utf8_lossy(&restored.bytes).contains("<Server>false</Server>"));
+    }
+    {
+        let entry=entry_id("test.nested-notices").unwrap();
+        let inputs=PreparedInputs::default();
+        assert!(validate_file(entry,b"",&inputs).is_empty());
+        let absent=convert_file(entry,Direction::XmlToYaml,b"<Root/>",&inputs).unwrap();
+        assert!(absent.diagnostics.is_empty());
+        let yaml="Settings: {Описание: body}";
+        let issues=validate_file(entry,yaml.as_bytes(),&inputs);
+        assert_eq!(issues.len(),1,"{issues:?}");
+        assert_eq!(issues[0].path,vec!["Settings","Описание"]);
+        assert_eq!(issues[0].severity,Severity::Warning);
+        let xml=b"<Root><Settings><Server>false</Server><Description>body</Description></Settings></Root>";
+        let converted=convert_file(entry,Direction::XmlToYaml,xml,&inputs).unwrap();
+        assert_eq!(converted.diagnostics.len(),1);
+        assert_eq!(converted.diagnostics[0].path,vec!["Settings","Описание"]);
+        verify_candidate(entry,xml,&converted.bytes,&inputs).unwrap();
+    }
+    macro_rules! shared_nested_xml {
+        ($entry:expr,$read:ident,$prepare:ident,$namespaces:ident,$write:ident,$element:literal,$qname:expr,$source:expr) => {{
+            let inputs=PreparedInputs::default();
+            let original=$source;
+            let converted=convert_file(entry_id($entry).unwrap(),Direction::XmlToYaml,original.as_bytes(),&inputs).unwrap();
+            let value=$read(&converted.bytes,&inputs).unwrap();
+            let prepared=$prepare(&value,&inputs).unwrap();
+            let mut namespaces=Vec::new();$namespaces(&value,&prepared,&mut namespaces);
+            let mut writer=core::xml::Writer::new(&namespaces);
+            writer.field(&[("","Root"),("","Before")],"kept");
+            $write(&value,&prepared,&inputs,&mut writer).unwrap();
+            writer.field(&[("","Root"),("","After")],"kept");
+            let expected=original.replacen(concat!("<",$element),concat!("<Before>kept</Before><",$element),1).replace("</Root>","<After>kept</After></Root>");
+            core::proof::verify_with_qnames(expected.as_bytes(),&writer.finish(),|path|path.last().is_some_and(|name|matches!(name.local.as_str(),"Before"|"After"|"Server"|"Description")),|_,_|false,|path|$qname && path.last().is_some_and(|name|name.local==$element)).unwrap();
+        }};
+    }
+    for extra in ["", " extra='kept'"] {
+        shared_nested_xml!("test.qualified",read_yaml_QNAME_ID,prepare_xml_QNAME_ID,namespaces_xml_QNAME_ID,write_xml_into_QNAME_ID,"Type",true,format!("<Root xmlns:q='urn:value'><Type{extra}>q:Atom</Type></Root>"));
+        shared_nested_xml!("test.nested-scalars",read_yaml_NESTED_ID,prepare_xml_NESTED_ID,namespaces_xml_NESTED_ID,write_xml_into_NESTED_ID,"Settings",false,format!("<Root><Settings{extra}><Server>true</Server><Description>body</Description></Settings></Root>"));
+        shared_nested_xml!("test.nested-header",read_yaml_HEADER_ID,prepare_xml_HEADER_ID,namespaces_xml_HEADER_ID,write_xml_into_HEADER_ID,"Settings",false,format!("<Root><Settings mode='normal' uuid='body'{extra}><Server>true</Server></Settings></Root>"));
+    }
+    {
+        let source=b"<Root xmlns:p='urn:outer'><Type xmlns:p='urn:inner'>p:Atom</Type></Root>";
+        let inputs=PreparedInputs::default();let mut reads=0;
+        let value=read_xml_events_QNAME_ID(source,&inputs,core::xml::ScopedEvents(|consume:&mut core::xml::ScopedConsumer<'_>| {
+            use crate::core::xml::ScopedSource;
+            reads+=1;
+            core::xml::DocumentSource(source).visit_scoped(|path,token,scope|consume(path,token,scope))
+        })).unwrap();
+        assert_eq!(reads,1);
+        assert_eq!(write_yaml_QNAME_ID(&value,&inputs).unwrap(),b"Qualified:\n  Namespace: urn:inner\n  Name: Atom");
+    }
+    let qualified = entry_id("test.qualified").unwrap();
+    let inputs = PreparedInputs::default();
+    let original = br#"<Root xmlns:q="urn:independent"><Type>q:Atom</Type></Root>"#;
+    let result = convert_file(qualified, Direction::XmlToYaml, original, &inputs).unwrap();
+    assert_eq!(result.bytes, b"Qualified:\n  Namespace: urn:independent\n  Name: Atom");
+    verify_candidate(qualified, original, &result.bytes, &inputs).unwrap();
+    for (source,valid) in [
+        ("Qualified: {Namespace: urn:independent, Name: Atom}",true),
+        ("Type: !xml/raw\n  $xml: unknown:Atom",true),
+        ("Type: !xml/raw\n  $xml:\n    '#qname': [urn:independent, Atom]\n    '#text': invalid",false),
+    ] {
+        let writes = core::xml::writer_count();
+        assert_eq!(validate_file(qualified,source.as_bytes(),&inputs).is_empty(),valid);
+        assert_eq!(core::xml::writer_count(),writes,"QName validation must not write XML");
+    }
     let typed = entry_id("test.typed-owner").unwrap();
     let input = br#"<Root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema"><Amount xsi:type="xs:decimal">9007199254740993</Amount></Root>"#;
     let converted = convert_file(typed, Direction::XmlToYaml, input, &PreparedInputs::default()).unwrap();
@@ -237,6 +1506,13 @@ fn main() {
     }
     let errors = validate_file(enumeration, "ТипКода: Неизвестно".as_bytes(), &PreparedInputs::default());
     assert_eq!(errors[0].path, ["ТипКода"]);
+    let required = entry_id("test.required-owner").unwrap();
+    assert!(!validate_file(required,"Описание: x".as_bytes(),&PreparedInputs::default()).is_empty());
+    for xml in ["<Root><Server>false</Server><Description>x</Description></Root>","<Root><Description>x</Description></Root>"] {
+        let converted=convert_file(required,Direction::XmlToYaml,xml.as_bytes(),&PreparedInputs::default()).unwrap();
+        assert_eq!(String::from_utf8_lossy(&converted.bytes).contains("!xml/raw"),!xml.contains("<Server>"));
+        verify_candidate(required,xml.as_bytes(),&converted.bytes,&PreparedInputs::default()).unwrap();
+    }
     let optional = entry_id("test.optional-owner").unwrap();
     for (xml, yaml) in [
         ("<Root><Description>x</Description></Root>", "Описание: x"),
@@ -258,9 +1534,42 @@ fn main() {
     let inputs = PreparedInputs::default();
     let xml = "\u{feff}<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Root>\n\t<Server>true</Server>\n\t<Description>  A &amp; B  </Description>\n</Root>";
     let yaml = "Сервер: LITERAL\nОписание: \"  A & B  \"";
+    let mut first=XmlReadSCALAR_ID::new();
+    let mut second=XmlReadSCALAR_ID::new();
+    core::xml::visit(xml.as_bytes(),|path,token|first.consume(path,&token)).unwrap();
+    let other=xml.replace("A &amp; B","other");
+    core::xml::visit(other.as_bytes(),|path,token|second.consume(path,&token)).unwrap();
+    let other_value=finish_xml_SCALAR_ID(second,other.as_bytes(),&inputs).unwrap();
+    assert_eq!(write_yaml_SCALAR_ID(&other_value,&inputs).unwrap(),yaml.replace("A & B","other").as_bytes());
+    let first_value=finish_xml_SCALAR_ID(first,xml.as_bytes(),&inputs).unwrap();
+    assert_eq!(write_yaml_SCALAR_ID(&first_value,&inputs).unwrap(),yaml.as_bytes());
+    let repeated=b"<Root><Server>wrong-first</Server><Description>x</Description><Server>wrong-second</Server><Description>y</Description></Root>";
+    let mut states=[XmlReadSCALAR_ID::new(),XmlReadSCALAR_ID::new()];
+    let (mut current,mut started)=(0,0);
+    core::xml::visit(repeated,|path,token| {
+        if matches!(token,core::xml::Token::Start(_)) && path.len()==2 && path[1].local=="Server" {current=started;started+=1;}
+        states[current].consume(path,&token)
+    }).unwrap();
+    for (state,expected) in states.into_iter().zip([
+        b"<Root><Server>wrong-first</Server><Description>x</Description></Root>".as_slice(),
+        b"<Root><Server>wrong-second</Server><Description>y</Description></Root>".as_slice(),
+    ]) {
+        let value=finish_xml_SCALAR_ID(state,repeated,&inputs).unwrap();
+        let restored=write_xml_SCALAR_ID(&value,&inputs).unwrap();
+        core::proof::verify(expected,&restored,|_|false).unwrap();
+    }
     let encoded = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
     assert_eq!(encoded.bytes, yaml.as_bytes());
     assert!(encoded.diagnostics.is_empty());
+    let mut mapping=core::yaml::ScalarMapping::default();
+    let mut yaml_fields=YamlFieldsSCALAR_ID::new(core::raw::Fields::default()).unwrap();
+    core::yaml::visit_nodes(yaml.as_bytes(),|node,position| {
+        if let Some(entry)=mapping.consume(node,position)? {yaml_fields.consume(entry.key,entry.value,entry.tag)?;}
+        Ok(())
+    }).unwrap();
+    mapping.finish().unwrap();
+    let yaml_value=finish_yaml_SCALAR_ID(yaml_fields,yaml.as_bytes(),&inputs).unwrap();
+    assert_eq!(write_xml_SCALAR_ID(&yaml_value,&inputs).unwrap(),xml.as_bytes());
     let decoded = convert_file(entry, Direction::YamlToXml, yaml.as_bytes(), &inputs).unwrap();
     assert_eq!(decoded.bytes, xml.as_bytes());
     assert!(validate_file(entry, yaml.as_bytes(), &inputs).is_empty());
@@ -293,7 +1602,7 @@ fn main() {
         assert!(!validate_file(entry, bad.as_bytes(), &inputs).is_empty(), "{bad}");
     }
 }
-"###.replace("LITERAL", literal);
+"###.replace("DEEP_ID", &program.entries.iter().find(|entry|entry.name=="test.deep-items").unwrap().id.to_string()).replace("NESTED_STREAM_ID", &program.entries.iter().find(|entry|entry.name=="test.nested-stream").unwrap().id.to_string()).replace("OWNER_STREAM_ID", &program.entries.iter().find(|entry|entry.name=="test.typed-attributes").unwrap().id.to_string()).replace("HEADER_ID", &program.entries.iter().find(|entry|entry.name=="test.nested-header").unwrap().id.to_string()).replace("QNAME_ID", &program.entries.iter().find(|entry|entry.name=="test.qualified").unwrap().id.to_string()).replace("NESTED_ID", &program.entries.iter().find(|entry|entry.name=="test.nested-scalars").unwrap().id.to_string()).replace("SCALAR_ID", &program.entries.iter().find(|entry| entry.name == "test.scalar-owner").unwrap().id.to_string()).replace("ROWS_ID", &program.entries.iter().find(|entry| entry.name == "test.fact-rows").unwrap().id.to_string()).replace("LITERAL", literal).replace("SLOT_CODEC", &format!("E{}F0", program.entries.iter().find(|entry| entry.name == "test.text-pattern-coded").unwrap().id));
         fs::write(root.join("src/main.rs"), main).unwrap();
         let output = Command::new(env!("CARGO"))
             .args(["run", "--offline", "--quiet"])
@@ -319,6 +1628,10 @@ fn generation_rejects_records_without_a_single_xml_document_root() {
     for owner in [
         source.replace("Root, Description", "Other, Description"),
         source.replace("Root, Server", "Server"),
+        source.replace(
+            "path: [Root, Description]",
+            "path: [Root, Header], attribute: uuid",
+        ),
     ] {
         let modules = [
             ("owner.yaml", owner.as_str()),
@@ -335,7 +1648,7 @@ fn generation_rejects_records_without_a_single_xml_document_root() {
         let program = link(&modules).unwrap();
         assert!(
             generate(&program).is_err(),
-            "Generation must not emit multiple XML roots"
+            "Unsupported record layout must not produce a lossy writer"
         );
     }
 }

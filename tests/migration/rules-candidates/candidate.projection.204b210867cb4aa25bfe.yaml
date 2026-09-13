@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.204b210867cb4aa25bfe
+description: 'Кандидат проекции: относительный XML-корень OnScreenKeyboardReturnKeyText; не полный владелец'
+imports:
+  part0: candidate.fragment.be528a36aa9c86d60ffe
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

@@ -1,0 +1,23 @@
+format: nkdk-declarations/1
+kind: value
+id: common.owner-or-common-form-link
+imports:
+  own: common.owner-form-link
+  common: common.common-form-link
+  rootKind: common.path-root
+inputs:
+  owner: {type: {kind: scalar, scalar: text}}
+  forms: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  roots:
+    type:
+      kind: index
+      key: {kind: record, fields: [{name: kind, type: {use: rootKind}}, {name: name, type: {kind: scalar, scalar: text}}]}
+      value: {kind: scalar, scalar: text}
+value:
+  kind: choice
+  variants:
+  - {name: own, type: {use: own, bind: {owner: {input: owner}, forms: {input: forms}}}}
+  - {name: common, type: {use: common, bind: {roots: {input: roots}}}}
+representations:
+  xml: {kind: choice}
+  yaml: {kind: choice}

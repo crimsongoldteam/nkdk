@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.ccff3f6509244f2d517f
+description: 'Кандидат проекции: относительный XML-корень ShowCheckBoxesInDropList; не полный владелец'
+imports:
+  part0: candidate.fragment.674231e959930850d7ee
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

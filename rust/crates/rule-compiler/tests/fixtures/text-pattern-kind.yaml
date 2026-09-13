@@ -1,0 +1,4 @@
+format: nkdk-declarations/1
+kind: value
+id: common.pattern-kind
+enum: {west: Запад, east: Восток}

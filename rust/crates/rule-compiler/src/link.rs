@@ -1,24 +1,35 @@
 mod bindings;
 mod boolean;
+mod choice_contracts;
 mod collections;
 mod composition;
 mod constraints;
+mod contributions;
 mod denotations;
 mod dependencies;
 mod enumeration;
 mod expressions;
+mod index_inputs;
 mod names;
 mod normalization;
 mod parameters;
 mod patterns;
 mod presence;
+mod resources;
 mod scalar_contracts;
+mod scalar_inputs;
 mod scalar_parameters;
+pub(crate) mod sequence_item;
 mod shorthands;
 mod text;
+mod text_pattern;
+mod text_projection;
+pub(crate) mod text_sequence;
+mod text_table;
 mod type_graph;
 mod xml_attributes;
 mod xml_ownership;
+mod xml_tree;
 use bindings::resolve_bindings;
 use nkdk_rule_model::*;
 use std::collections::{BTreeMap, BTreeSet};
@@ -63,6 +74,9 @@ pub fn link(modules: &[Module]) -> Result<Program, Vec<Diagnostic>> {
         return Err(errors);
     }
     type_graph::validate(&indexed)?;
+    if let Some(expanded) = index_inputs::infer(&indexed, &ids).map_err(|error| vec![error])? {
+        return link(&expanded);
+    }
     for module in indexed.values() {
         names::validate(module).map_err(|error| vec![error])?;
         text::validate(module).map_err(|error| vec![error])?;
@@ -87,10 +101,14 @@ pub fn link(modules: &[Module]) -> Result<Program, Vec<Diagnostic>> {
         }
     }
     if errors.is_empty() {
+        text_pattern::types(&cache).map_err(|error| vec![error])?;
+        text_sequence::types(&cache).map_err(|error| vec![error])?;
         xml_ownership::validate(&cache).map_err(|error| vec![error])?;
         let mut entries: Vec<_> = cache.into_values().collect();
         scalar_parameters::specialize(&mut entries).map_err(|error| vec![error])?;
         scalar_contracts::lift(&mut entries).map_err(|error| vec![error])?;
+        choice_contracts::lift(&mut entries).map_err(|error| vec![error])?;
+        contributions::validate_inputs(&entries).map_err(|error| vec![error])?;
         Ok(Program { entries })
     } else {
         Err(errors)
@@ -118,11 +136,14 @@ fn build_entry(
     let mut entry = LinkedEntry {
         id,
         field_dependencies: vec![],
+        input_indexes: module.input_indexes.clone(),
         text_transforms: text::transforms(module),
         normalization: normalization::resolve(module, modules, ids)?,
         presence: presence::resolve(module, modules, ids)?,
         shorthands: shorthands::resolve(module, modules, ids)?,
         constraints: constraints::resolve_constraints(module, modules, ids)?,
+        contributions: contributions::resolve(module, modules, ids)?,
+        resources: resources::resolve(module, modules, ids)?,
         parameters: parameters::resolve_parameters(module, modules, ids)?,
         name: module.id.clone(),
         namespaces: module.namespaces.clone(),
@@ -160,9 +181,26 @@ fn build_entry(
             modules,
             ids,
         )?,
-        yaml: module.representations.yaml.clone(),
+        yaml: text_table::resolve(module, |name| {
+            build_entry(modules[name], modules, ids, visiting, cache)
+        })?,
         source: module.source.clone(),
     };
+    if let TypeDefinition::Use(usage) = &module.value {
+        let import = module
+            .imports
+            .iter()
+            .find(|import| import.name == usage.name)
+            .expect("resolved value import");
+        let source = build_entry(
+            modules[import.value.as_str()],
+            modules,
+            ids,
+            visiting,
+            cache,
+        )?;
+        text_projection::apply(&mut entry, &source)?;
+    }
     if let YamlRepresentation::KeyedMapping { shorthand, .. } = &mut entry.yaml {
         shorthand.clear();
     }
@@ -179,6 +217,8 @@ fn build_entry(
         let mut included_attributes = vec![];
         let mut included_yaml = vec![];
         let mut included_constraints = vec![];
+        let mut included_contributions = vec![];
+        let mut included_resources = vec![];
         let mut included_presence = vec![];
         for usage in &module.compose {
             let import = module
@@ -228,6 +268,8 @@ fn build_entry(
                 &arguments,
             )?;
             included_constraints.extend(fragment.constraints);
+            included_contributions.extend(fragment.contributions);
+            included_resources.extend(fragment.resources);
             included_presence.extend(fragment.presence);
             let (
                 LinkedType::Record(fields),
@@ -279,6 +321,10 @@ fn build_entry(
                 return Err(error);
             }
         }
+        included_contributions.append(&mut entry.contributions);
+        entry.contributions = included_contributions;
+        included_resources.append(&mut entry.resources);
+        entry.resources = included_resources;
         included_constraints.append(&mut entry.constraints);
         entry.constraints = included_constraints;
         let mut constraint_names = BTreeMap::new();
@@ -319,6 +365,7 @@ fn build_entry(
     entry.field_dependencies = dependencies::field_dependencies(&entry.value, &entry.presence)?;
     validate_xml(&entry.value, &entry.xml, &entry.presence, &entry.source)?;
     validate_yaml(&entry.value, &entry.yaml, &entry.presence, &entry.source)?;
+    sequence_item::validate(&entry)?;
     visiting.remove(&id);
     cache.insert(id, entry.clone());
     Ok(entry)
@@ -342,6 +389,17 @@ fn resolve_type(
     visiting: &mut BTreeSet<String>,
 ) -> Result<LinkedType, Diagnostic> {
     Ok(match value {
+        TypeDefinition::IndexFromBinding(_) => {
+            return Err(diagnostic(
+                "unresolved_index_input",
+                source,
+                "Prepared index input type has not been inferred",
+            ));
+        }
+        TypeDefinition::Index { key, value } => LinkedType::Index {
+            key: Box::new(resolve_type(module, key, source, modules, ids, visiting)?),
+            value: Box::new(resolve_type(module, value, source, modules, ids, visiting)?),
+        },
         TypeDefinition::ScalarChoice(variants) => LinkedType::ScalarChoice(variants.clone()),
         TypeDefinition::Enum(variants) => {
             enumeration::variants(variants, source)?;
@@ -351,7 +409,7 @@ fn resolve_type(
         TypeDefinition::Sequence(item) => LinkedType::Sequence(Box::new(resolve_type(
             module, item, source, modules, ids, visiting,
         )?)),
-        TypeDefinition::Record(fields) => {
+        TypeDefinition::Record(fields) | TypeDefinition::Choice(fields) => {
             let mut seen = BTreeMap::new();
             let mut output = vec![];
             for field in fields {
@@ -374,7 +432,26 @@ fn resolve_type(
                     source: field.source.clone(),
                 });
             }
-            LinkedType::Record(output)
+            if matches!(value, TypeDefinition::Choice(_)) {
+                if output.is_empty()
+                    || output.iter().any(|variant| {
+                        variant.name.is_empty()
+                            || !matches!(
+                                variant.value,
+                                LinkedType::Reference(_) | LinkedType::BoundReference { .. }
+                            )
+                    })
+                {
+                    return Err(diagnostic(
+                        "choice_variants",
+                        source,
+                        "Choice requires named referenced value variants",
+                    ));
+                }
+                LinkedType::Choice(output)
+            } else {
+                LinkedType::Record(output)
+            }
         }
         TypeDefinition::Local(name) => {
             let definition = module
@@ -521,17 +598,40 @@ fn resolve_xml(
         XmlRepresentation::Decimal => LinkedXml::Decimal,
         XmlRepresentation::FormattedDecimal(format) => LinkedXml::FormattedDecimal(format.clone()),
         XmlRepresentation::Text => LinkedXml::Text,
+        XmlRepresentation::Choice => LinkedXml::Choice,
+        XmlRepresentation::TextPattern(parts) => LinkedXml::TextPattern(parts.clone()),
+        XmlRepresentation::TextSequence { separator } => LinkedXml::TextSequence {
+            separator: separator.clone(),
+        },
         XmlRepresentation::Calendar => LinkedXml::Calendar,
         XmlRepresentation::BooleanTable(table) => LinkedXml::BooleanTable(table.clone()),
-        XmlRepresentation::ElementSequence { path, item } => LinkedXml::ElementSequence {
-            path: expand_path(module, path, source)?,
-            item: Box::new(resolve_xml(module, item, source, modules, ids)?),
+        XmlRepresentation::Tree(nodes) => {
+            LinkedXml::Tree(xml_tree::resolve(module, nodes, modules, ids)?)
+        }
+        XmlRepresentation::Declared => LinkedXml::Declared,
+        XmlRepresentation::ElementSequence { path, item } => {
+            let mut context = module.clone();
+            if let TypeDefinition::Sequence(value) = &module.value {
+                context.value = *value.clone();
+            }
+            LinkedXml::ElementSequence {
+                path: expand_path(module, path, source)?,
+                item: Box::new(resolve_xml(&context, item, source, modules, ids)?),
+            }
+        }
+        XmlRepresentation::QName { namespace, local } => LinkedXml::QName {
+            namespace: namespace.clone(),
+            local: local.clone(),
         },
         XmlRepresentation::Record(fields) => LinkedXml::Record(
             fields
                 .iter()
                 .map(|field| {
+                    if field.file.is_some() && (module.kind == ModuleKind::Value || field.path.len() != 1 || field.attribute.is_some()) {
+                        return Err(diagnostic("invalid_file_boundary", &field.source, "An external document must belong to an object or fragment and own its root element"));
+                    }
                     Ok(LinkedXmlField {
+                        file: field.file.clone(),
                         field: field.field.clone(),
                         path: expand_path(module, &field.path, &field.source)?,
                         attribute: field
@@ -625,10 +725,31 @@ fn validate_xml(
     source: &SourceLocation,
 ) -> Result<(), Diagnostic> {
     match (value, xml) {
+        (LinkedType::Choice(_), LinkedXml::Choice) => {}
+        (LinkedType::Sequence(_), LinkedXml::TextSequence { .. }) => {}
         (LinkedType::ScalarChoice(_), LinkedXml::ScalarChoice(_)) => {}
+        (LinkedType::Record(fields), LinkedXml::TextPattern(parts)) => {
+            text_pattern::fields(fields, parts, source)?
+        }
         (_, LinkedXml::WithAttributes { content, .. }) => {
             xml_attributes::check_ownership(xml)?;
             validate_xml(value, content, presence, source)?;
+        }
+        (LinkedType::Record(fields), LinkedXml::QName { namespace, local }) => {
+            if namespace == local
+                || fields.len() != 2
+                || [namespace, local].iter().any(|name| {
+                    !fields.iter().any(|field| {
+                        &field.name == *name && field.value == LinkedType::Scalar(ScalarType::Text)
+                    })
+                })
+            {
+                return Err(diagnostic(
+                    "qname_fields",
+                    source,
+                    "QName requires two distinct text fields for namespace and local name",
+                ));
+            }
         }
         (LinkedType::Record(fields), LinkedXml::Record(mappings)) => {
             let names: BTreeSet<_> = fields.iter().map(|field| field.name.as_str()).collect();
@@ -651,6 +772,7 @@ fn validate_xml(
             }
             check_coverage(fields, &covered, presence, RepresentationSide::Xml, source)?;
         }
+        (_, LinkedXml::Tree(nodes)) => xml_tree::validate(value, nodes, source)?,
         (LinkedType::Sequence(item), LinkedXml::ElementSequence { item: xml, .. }) => {
             validate_xml(item, xml, &[], source)?
         }
@@ -665,6 +787,10 @@ fn validate_xml(
             LinkedXml::Decimal | LinkedXml::FormattedDecimal(_),
         ) => {}
         (LinkedType::Scalar(ScalarType::Text), LinkedXml::Text | LinkedXml::Calendar) => {}
+        (
+            LinkedType::Reference(_) | LinkedType::BoundReference { .. },
+            LinkedXml::Text | LinkedXml::Declared,
+        ) => {}
         _ => {
             return Err(diagnostic(
                 "unsupported_link_feature",
@@ -683,7 +809,31 @@ fn validate_yaml(
     source: &SourceLocation,
 ) -> Result<(), Diagnostic> {
     match (value, yaml) {
+        (
+            LinkedType::Reference(_) | LinkedType::BoundReference { .. },
+            YamlRepresentation::Declared,
+        ) => {}
+        (LinkedType::Choice(_), YamlRepresentation::Choice) => {}
+        (LinkedType::Sequence(_), YamlRepresentation::TextSequence { .. }) => {}
         (LinkedType::ScalarChoice(_), YamlRepresentation::ScalarChoice) => {}
+        (LinkedType::Record(fields), YamlRepresentation::TextPattern(parts)) => {
+            let represented: Vec<_> = fields.iter().filter(|field| parts.iter().any(|part| matches!(&part.value, TextPatternValue::Field(name) if name == &field.name))).cloned().collect();
+            text_pattern::fields(&represented, parts, source)?;
+            let covered = represented
+                .iter()
+                .map(|field| field.name.as_str())
+                .collect();
+            check_coverage(fields, &covered, presence, RepresentationSide::Yaml, source)?
+        }
+        (LinkedType::Record(fields), YamlRepresentation::Projection(name)) => {
+            if fields.len() != 1 || fields[0].name != *name {
+                return Err(diagnostic(
+                    "invalid_yaml_projection",
+                    source,
+                    "A YAML projection must select the only record field",
+                ));
+            }
+        }
         (LinkedType::Record(fields), YamlRepresentation::Mapping(mappings)) => {
             let names: BTreeSet<_> = fields.iter().map(|field| field.name.as_str()).collect();
             let mut covered = BTreeSet::new();
@@ -714,6 +864,22 @@ fn validate_yaml(
                 }
             }
             check_coverage(fields, &covered, presence, RepresentationSide::Yaml, source)?;
+        }
+        (
+            LinkedType::Sequence(item),
+            YamlRepresentation::Sequence {
+                item: yaml,
+                shorthand,
+            },
+        ) => {
+            if !shorthand.is_empty() && **item != LinkedType::Scalar(ScalarType::Text) {
+                return Err(diagnostic(
+                    "expression_type_mismatch",
+                    source,
+                    "Literal sequence shorthand requires text items",
+                ));
+            }
+            validate_yaml(item, yaml, &[], source)?;
         }
         (LinkedType::Sequence(item), YamlRepresentation::KeyedMapping { key, value, .. }) => {
             let LinkedType::Record(fields) = item.as_ref() else {
@@ -761,7 +927,15 @@ fn validate_yaml(
         (LinkedType::Enum(variants), YamlRepresentation::EnumTable(table)) => {
             enumeration::table(variants, table, source)?
         }
+        (
+            LinkedType::Scalar(ScalarType::Text),
+            YamlRepresentation::TextTable(TextTable::Resolved(_)),
+        ) => {}
         (LinkedType::Scalar(ScalarType::Decimal), YamlRepresentation::Decimal) => {}
+        (
+            LinkedType::Reference(_) | LinkedType::BoundReference { .. },
+            YamlRepresentation::Text,
+        ) => {}
         (
             LinkedType::Scalar(ScalarType::Text),
             YamlRepresentation::Text | YamlRepresentation::Calendar { .. },

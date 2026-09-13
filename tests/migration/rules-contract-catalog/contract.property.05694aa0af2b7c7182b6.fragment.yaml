@@ -1,0 +1,40 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.exact-decimal
+value:
+  kind: record
+  fields:
+    - name: width
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: width
+        path:
+          - Form
+          - Width
+  yaml:
+    kind: mapping
+    fields:
+      - field: width
+        key: Ширина
+presence:
+  - target:
+      field: width
+    xml:
+      missing:
+        denotes:
+          literal: 0
+      canonical:
+        - when:
+            eq:
+              - field: width
+              - literal: 0
+          form: missing
+    yaml:
+      default:
+        literal: 0
+id: contract.property.05694aa0af2b7c7182b6.fragment

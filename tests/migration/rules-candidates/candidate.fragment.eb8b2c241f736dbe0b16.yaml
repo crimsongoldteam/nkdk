@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: mainAttribute
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: mainAttribute
+        path:
+          - MainAttribute
+  yaml:
+    kind: mapping
+    fields:
+      - field: mainAttribute
+        key: ОсновнойРеквизит
+presence:
+  - target:
+      field: mainAttribute
+    xml:
+      missing:
+        denotes:
+          literal: false
+      canonical:
+        - when:
+            eq:
+              - field: mainAttribute
+              - literal: false
+          form: missing
+    yaml:
+      default:
+        literal: false
+id: candidate.fragment.eb8b2c241f736dbe0b16

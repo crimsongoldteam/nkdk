@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.exact-decimal
+value:
+  kind: record
+  fields:
+    - name: maxHeight
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: maxHeight
+        path:
+          - MaxHeight
+  yaml:
+    kind: mapping
+    fields:
+      - field: maxHeight
+        key: МаксимальнаяВысота
+presence:
+  - target:
+      field: maxHeight
+    xml:
+      missing:
+        denotes:
+          literal: 0
+      canonical:
+        - when:
+            eq:
+              - field: maxHeight
+              - literal: 0
+          form: missing
+    yaml:
+      default:
+        literal: 0
+id: candidate.fragment.96cdc05f4d9780d96528

@@ -257,6 +257,12 @@
         },
         {
           "$ref": "#/$defs/scalarChoice"
+        },
+        {
+          "$ref": "#/$defs/choice"
+        },
+        {
+          "$ref": "#/$defs/use"
         }
       ]
     },
@@ -264,9 +270,6 @@
       "oneOf": [
         {
           "$ref": "#/$defs/rootType"
-        },
-        {
-          "$ref": "#/$defs/use"
         },
         {
           "type": "object",
@@ -285,6 +288,26 @@
         },
         {
           "$ref": "#/$defs/scalarChoice"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "index"
+            },
+            "key": {
+              "$ref": "#/$defs/type"
+            },
+            "value": {
+              "$ref": "#/$defs/type"
+            }
+          },
+          "required": [
+            "kind",
+            "key",
+            "value"
+          ],
+          "additionalProperties": false
         }
       ]
     },
@@ -893,6 +916,97 @@
             "matches"
           ],
           "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "lookup": {
+              "type": "object",
+              "properties": {
+                "in": {
+                  "$ref": "#/$defs/expression"
+                },
+                "key": {
+                  "$ref": "#/$defs/expression"
+                }
+              },
+              "required": [
+                "in",
+                "key"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "lookup"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "fold": {
+              "type": "object",
+              "properties": {
+                "in": {
+                  "$ref": "#/$defs/expression"
+                },
+                "initial": {
+                  "$ref": "#/$defs/expression"
+                },
+                "as": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "state": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "next": {
+                  "$ref": "#/$defs/expression"
+                }
+              },
+              "required": [
+                "in",
+                "initial",
+                "as",
+                "state",
+                "next"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "fold"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "concat": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/expression"
+              }
+            }
+          },
+          "required": [
+            "concat"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "require": {
+              "$ref": "#/$defs/expression"
+            }
+          },
+          "required": [
+            "require"
+          ],
+          "additionalProperties": false
         }
       ]
     },
@@ -1172,7 +1286,8 @@
                     "enum": [
                       "empty-element",
                       "empty-text",
-                      "nil"
+                      "nil",
+                      "empty-item"
                     ]
                   },
                   "denotes": {
@@ -1255,10 +1370,29 @@
             },
             "omitWhen": {
               "$ref": "#/$defs/expression"
+            },
+            "default": {
+              "$ref": "#/$defs/expression"
             }
           },
           "required": [],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "not": {
+            "anyOf": [
+              {
+                "required": [
+                  "default",
+                  "missing"
+                ]
+              },
+              {
+                "required": [
+                  "default",
+                  "omitWhen"
+                ]
+              }
+            ]
+          }
         }
       },
       "required": [
@@ -1560,6 +1694,15 @@
               },
               "attribute": {
                 "type": "string"
+              },
+              "file": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^(?!\\.{1,2}$)[^/\\\\\\u0000:]+$"
+                }
               }
             },
             "required": [
@@ -1580,6 +1723,9 @@
       "oneOf": [
         {
           "$ref": "#/$defs/xmlRecordContent"
+        },
+        {
+          "$ref": "#/$defs/xmlQName"
         },
         {
           "type": "object",
@@ -1603,6 +1749,9 @@
             "content"
           ],
           "additionalProperties": false
+        },
+        {
+          "$ref": "#/$defs/textPattern"
         }
       ]
     },
@@ -1610,6 +1759,18 @@
       "oneOf": [
         {
           "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "text"
+                }
+              },
+              "required": [
+                "kind"
+              ],
+              "additionalProperties": false
+            },
             {
               "$ref": "#/$defs/xmlRecordContent"
             },
@@ -1631,8 +1792,7 @@
               },
               "required": [
                 "kind",
-                "path",
-                "item"
+                "path"
               ],
               "additionalProperties": false
             }
@@ -1660,66 +1820,133 @@
             "content"
           ],
           "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "tree"
+            },
+            "children": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/xmlTreeNode"
+              }
+            }
+          },
+          "required": [
+            "kind",
+            "children"
+          ],
+          "additionalProperties": false
         }
       ]
     },
     "yamlRecord": {
-      "type": "object",
-      "properties": {
-        "kind": {
-          "const": "mapping"
-        },
-        "fields": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "field": {
-                "type": "string"
-              },
-              "key": {
-                "type": "string"
-              }
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "mapping"
             },
-            "required": [
-              "field",
-              "key"
-            ],
-            "additionalProperties": false
-          }
+            "fields": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "field": {
+                    "type": "string"
+                  },
+                  "key": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "field",
+                  "key"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "kind",
+            "fields"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "$ref": "#/$defs/textPattern"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "projection"
+            },
+            "field": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "field"
+          ],
+          "additionalProperties": false
         }
-      },
-      "required": [
-        "kind",
-        "fields"
-      ],
-      "additionalProperties": false
+      ]
     },
     "yamlCollection": {
-      "type": "object",
-      "properties": {
-        "kind": {
-          "const": "keyed-mapping"
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "keyed-mapping"
+            },
+            "key": {
+              "type": "string"
+            },
+            "value": {
+              "type": "string"
+            },
+            "shorthand": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/shorthand"
+              }
+            }
+          },
+          "required": [
+            "kind",
+            "key",
+            "value"
+          ],
+          "additionalProperties": false
         },
-        "key": {
-          "type": "string"
-        },
-        "value": {
-          "type": "string"
-        },
-        "shorthand": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/shorthand"
-          }
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "sequence"
+            },
+            "item": {
+              "$ref": "#/$defs/yamlSequenceItem"
+            },
+            "shorthand": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/sequenceLiteralShorthand"
+              }
+            }
+          },
+          "required": [
+            "kind"
+          ],
+          "additionalProperties": false
         }
-      },
-      "required": [
-        "kind",
-        "key",
-        "value"
-      ],
-      "additionalProperties": false
+      ]
     },
     "textPredicate": {
       "oneOf": [
@@ -2170,7 +2397,8 @@
           "enum": [
             "value",
             "fragment",
-            "object"
+            "object",
+            "resources"
           ]
         },
         "id": {
@@ -2220,12 +2448,25 @@
             "properties": {
               "type": {
                 "$ref": "#/$defs/type"
+              },
+              "index": {
+                "type": "string",
+                "minLength": 1
               }
             },
-            "required": [
-              "type"
-            ],
-            "additionalProperties": false
+            "additionalProperties": false,
+            "anyOf": [
+              {
+                "required": [
+                  "type"
+                ]
+              },
+              {
+                "required": [
+                  "index"
+                ]
+              }
+            ]
           },
           "propertyNames": {
             "not": {
@@ -2332,6 +2573,129 @@
               "xml"
             ],
             "additionalProperties": false
+          }
+        },
+        "contributions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "index": {
+                "type": "string",
+                "minLength": 1
+              },
+              "key": {
+                "$ref": "#/$defs/expression"
+              },
+              "value": {
+                "$ref": "#/$defs/expression"
+              },
+              "forEach": {
+                "type": "object",
+                "properties": {
+                  "in": {
+                    "$ref": "#/$defs/expression"
+                  },
+                  "as": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "in",
+                  "as"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "index",
+              "key",
+              "value"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "resources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "oneOf": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "xml",
+                    "yaml"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "xml": {
+                      "$ref": "#/$defs/expression"
+                    },
+                    "yaml": {
+                      "$ref": "#/$defs/expression"
+                    }
+                  }
+                }
+              },
+              "forEach": {
+                "type": "object",
+                "properties": {
+                  "in": {
+                    "$ref": "#/$defs/expression"
+                  },
+                  "as": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "in",
+                  "as"
+                ],
+                "additionalProperties": false
+              },
+              "remainder": {
+                "type": "object",
+                "required": [
+                  "xml",
+                  "yaml"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "xml": {
+                    "$ref": "#/$defs/expression"
+                  },
+                  "yaml": {
+                    "$ref": "#/$defs/expression"
+                  }
+                }
+              }
+            },
+            "oneOf": [
+              {
+                "required": [
+                  "oneOf"
+                ],
+                "not": {
+                  "required": [
+                    "remainder"
+                  ]
+                }
+              },
+              {
+                "required": [
+                  "remainder"
+                ],
+                "not": {
+                  "required": [
+                    "oneOf"
+                  ]
+                }
+              }
+            ]
           }
         }
       },
@@ -2451,6 +2815,36 @@
                           "format",
                           "precision",
                           "zeroTime"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "required": [
+                      "xml",
+                      "yaml"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "xml": {
+                        "$ref": "#/$defs/xmlText"
+                      },
+                      "yaml": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "const": "text-table"
+                          },
+                          "use": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "use"
                         ],
                         "additionalProperties": false
                       }
@@ -2652,10 +3046,24 @@
                 "type": "object",
                 "properties": {
                   "xml": {
-                    "$ref": "#/$defs/xmlCollection"
+                    "oneOf": [
+                      {
+                        "$ref": "#/$defs/xmlCollection"
+                      },
+                      {
+                        "$ref": "#/$defs/textSequence"
+                      }
+                    ]
                   },
                   "yaml": {
-                    "$ref": "#/$defs/yamlCollection"
+                    "oneOf": [
+                      {
+                        "$ref": "#/$defs/yamlCollection"
+                      },
+                      {
+                        "$ref": "#/$defs/textSequence"
+                      }
+                    ]
                   }
                 },
                 "required": [
@@ -2773,6 +3181,116 @@
               },
               "value": {
                 "$ref": "#/$defs/enum"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "value": {
+                "properties": {
+                  "kind": {
+                    "const": "choice"
+                  }
+                },
+                "required": [
+                  "kind"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "representations": {
+                "type": "object",
+                "properties": {
+                  "xml": {
+                    "$ref": "#/$defs/xmlChoice"
+                  },
+                  "yaml": {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "const": "choice"
+                      }
+                    },
+                    "required": [
+                      "kind"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "xml",
+                  "yaml"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "value": {
+                "required": [
+                  "use"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "representations": {
+                "type": "object",
+                "properties": {
+                  "xml": {
+                    "$ref": "#/$defs/xmlText"
+                  },
+                  "yaml": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "const": "text-table"
+                          },
+                          "use": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "use"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "const": "scalar"
+                          },
+                          "scalar": {
+                            "const": "text"
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "scalar"
+                        ],
+                        "additionalProperties": false
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "xml",
+                  "yaml"
+                ],
+                "additionalProperties": false
               }
             }
           }
@@ -3030,6 +3548,327 @@
             },
             "content": {
               "$ref": "#/$defs/enumProjectionXml"
+            }
+          },
+          "required": [
+            "kind",
+            "attributes",
+            "content"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "yamlSequenceItem": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "scalar"
+            },
+            "scalar": {
+              "const": "text"
+            }
+          },
+          "required": [
+            "kind",
+            "scalar"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "$ref": "#/$defs/yamlRecord"
+        },
+        {
+          "$ref": "#/$defs/yamlCollection"
+        }
+      ]
+    },
+    "xmlTreeNode": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "attributes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/attribute"
+          }
+        },
+        "text": {
+          "type": "string"
+        },
+        "field": {
+          "type": "string"
+        },
+        "self": {
+          "const": true
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/xmlTreeNode"
+          }
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "not": {
+            "required": [
+              "text",
+              "field"
+            ]
+          }
+        },
+        {
+          "not": {
+            "required": [
+              "text",
+              "self"
+            ]
+          }
+        },
+        {
+          "not": {
+            "required": [
+              "text",
+              "children"
+            ]
+          }
+        },
+        {
+          "not": {
+            "required": [
+              "field",
+              "self"
+            ]
+          }
+        },
+        {
+          "not": {
+            "required": [
+              "field",
+              "children"
+            ]
+          }
+        },
+        {
+          "not": {
+            "required": [
+              "self",
+              "children"
+            ]
+          }
+        }
+      ]
+    },
+    "sequenceLiteralShorthand": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "representation": {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "literal"
+            },
+            "value": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        "denotes": {
+          "type": "object",
+          "properties": {
+            "sequence": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "literal": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "literal"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "sequence"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "representation",
+        "denotes"
+      ],
+      "additionalProperties": false
+    },
+    "xmlQName": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "const": "qname"
+        },
+        "namespace": {
+          "type": "string"
+        },
+        "local": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "namespace",
+        "local"
+      ],
+      "additionalProperties": false
+    },
+    "textPattern": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "const": "text-pattern"
+        },
+        "separator": {
+          "type": "string",
+          "minLength": 1
+        },
+        "parts": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "field": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "field"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "literal": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "literal"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "parts"
+      ],
+      "additionalProperties": false
+    },
+    "choice": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "const": "choice"
+        },
+        "variants": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "type": {
+                "$ref": "#/$defs/use"
+              }
+            },
+            "required": [
+              "name",
+              "type"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "variants"
+      ],
+      "additionalProperties": false
+    },
+    "textSequence": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "const": "text-sequence"
+        },
+        "separator": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "kind",
+        "separator"
+      ],
+      "additionalProperties": false
+    },
+    "xmlChoice": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "choice"
+            }
+          },
+          "required": [
+            "kind"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "with-attributes"
+            },
+            "attributes": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/attribute"
+              }
+            },
+            "content": {
+              "$ref": "#/$defs/xmlChoice"
             }
           },
           "required": [

@@ -1,0 +1,33 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: turnover
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: turnover
+        path:
+          - Turnover
+  yaml:
+    kind: mapping
+    fields:
+      - field: turnover
+        key: Оборотный
+presence:
+  - target:
+      field: turnover
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: false
+id: candidate.fragment.f18e2f6952a670f1387f

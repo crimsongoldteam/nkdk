@@ -1,0 +1,13 @@
+format: nkdk-declarations/1
+kind: value
+id: common.qualified
+value: {kind: record, fields: [{name: uri, type: {kind: scalar, scalar: text}}, {name: part, type: {kind: scalar, scalar: text}}]}
+representations:
+  xml: {kind: qname, namespace: uri, local: part}
+  yaml: {kind: mapping, fields: [{field: uri, key: Namespace}, {field: part, key: Name}]}
+presence:
+- target: self
+  xml:
+    missing: {denotes: {absent: true}}
+    empty: [{form: empty-element, denotes: {absent: true}}]
+  yaml: {missing: {denotes: {absent: true}}}

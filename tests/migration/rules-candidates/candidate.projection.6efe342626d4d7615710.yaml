@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.6efe342626d4d7615710
+description: 'Кандидат проекции: относительный XML-корень dcssch:functionalOptionsParameter; не полный владелец'
+imports:
+  part0: candidate.fragment.c37c526b7dae92d76dbb
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

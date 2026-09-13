@@ -1,0 +1,73 @@
+format: nkdk-declarations/1
+kind: fragment
+id: fragment.journal-base-properties
+imports: {string: common.string, text: common.i8n-text, boolean: common.boolean, links: common.journal-document-links, rootKind: common.path-root}
+namespaces: {md: 'http://v8.1c.ru/8.3/MDClasses'}
+inputs:
+  name: {type: {kind: scalar, scalar: text}}
+  defaultLanguage: {type: {kind: scalar, scalar: text}}
+  registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  roots:
+    type:
+      kind: index
+      key: {kind: record, fields: [{name: kind, type: {use: rootKind}}, {name: name, type: {kind: scalar, scalar: text}}]}
+      value: {kind: scalar, scalar: text}
+value:
+  kind: record
+  fields:
+  - {name: Name, type: {kind: scalar, scalar: text}}
+  - {name: Synonym, type: {use: text, with: {excludeIfEqualNameYAML: true}, bind: {defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}, ownerName: {input: name}}}}
+  - {name: Comment, type: {use: string}}
+  - {name: UseStandardCommands, type: {use: boolean}}
+  - {name: RegisteredDocuments, type: {use: links, bind: {roots: {input: roots}}}}
+  - {name: IncludeHelpInContents, type: {use: boolean}}
+  - {name: ListPresentation, type: {use: text, bind: {defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}, ownerName: {input: name}}}}
+  - {name: ExtendedListPresentation, type: {use: text, bind: {defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}, ownerName: {input: name}}}}
+  - {name: Explanation, type: {use: text, bind: {defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}, ownerName: {input: name}}}}
+representations:
+  xml:
+    kind: record
+    fields:
+    - {field: Name, path: ['md:MetaDataObject', 'md:DocumentJournal', 'md:Properties', 'md:Name']}
+    - {field: Synonym, path: ['md:MetaDataObject', 'md:DocumentJournal', 'md:Properties', 'md:Synonym']}
+    - {field: Comment, path: ['md:MetaDataObject', 'md:DocumentJournal', 'md:Properties', 'md:Comment']}
+    - {field: UseStandardCommands, path: ['md:MetaDataObject', 'md:DocumentJournal', 'md:Properties', 'md:UseStandardCommands']}
+    - {field: RegisteredDocuments, path: ['md:MetaDataObject', 'md:DocumentJournal', 'md:Properties', 'md:RegisteredDocuments']}
+    - {field: IncludeHelpInContents, path: ['md:MetaDataObject', 'md:DocumentJournal', 'md:Properties', 'md:IncludeHelpInContents']}
+    - {field: ListPresentation, path: ['md:MetaDataObject', 'md:DocumentJournal', 'md:Properties', 'md:ListPresentation']}
+    - {field: ExtendedListPresentation, path: ['md:MetaDataObject', 'md:DocumentJournal', 'md:Properties', 'md:ExtendedListPresentation']}
+    - {field: Explanation, path: ['md:MetaDataObject', 'md:DocumentJournal', 'md:Properties', 'md:Explanation']}
+  yaml:
+    kind: mapping
+    fields:
+    - {field: Name, key: Имя}
+    - {field: Synonym, key: Синоним}
+    - {field: Comment, key: Комментарий}
+    - {field: UseStandardCommands, key: ИспользоватьСтандартныеКоманды}
+    - {field: RegisteredDocuments, key: РегистрируемыеДокументы}
+    - {field: IncludeHelpInContents, key: ВключатьСправкуВСодержание}
+    - {field: ListPresentation, key: ПредставлениеСписка}
+    - {field: ExtendedListPresentation, key: РасширенноеПредставлениеСписка}
+    - {field: Explanation, key: Пояснение}
+presence:
+- target: {field: Name}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {default: {input: name}}
+- target: {field: Comment}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {default: {literal: ''}}
+- target: {field: UseStandardCommands}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {default: {literal: true}}
+- target: {field: IncludeHelpInContents}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {default: {literal: false}}
+- target: {field: ListPresentation}
+  xml:
+    canonical: [{when: {not: {present: {field: ListPresentation}}}, form: empty-element}]
+- target: {field: ExtendedListPresentation}
+  xml:
+    canonical: [{when: {not: {present: {field: ExtendedListPresentation}}}, form: empty-element}]
+- target: {field: Explanation}
+  xml:
+    canonical: [{when: {not: {present: {field: Explanation}}}, form: empty-element}]

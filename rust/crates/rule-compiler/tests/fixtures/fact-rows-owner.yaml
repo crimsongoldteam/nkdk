@@ -1,0 +1,21 @@
+format: nkdk-declarations/1
+kind: object
+id: test.fact-rows
+imports: {rows: common.project-rows}
+value: {kind: record, fields: [{name: rows, type: {use: rows}}]}
+representations:
+  xml: {kind: record, fields: [{field: rows, path: [Root, Rows]}]}
+  yaml: {kind: mapping, fields: [{field: rows, key: Rows}]}
+contributions:
+- index: test.names
+  forEach: {in: {field: rows}, as: row}
+  key: {get: {of: {var: row}, field: code}}
+  value: {get: {of: {var: row}, field: title}}
+- index: test.member-names
+  forEach: {in: {field: rows}, as: row}
+  key:
+    record:
+      owner: {literal: a.b}
+      kind: {literal: element}
+      name: {get: {of: {var: row}, field: code}}
+  value: {get: {of: {var: row}, field: title}}

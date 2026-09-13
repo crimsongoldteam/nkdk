@@ -1,0 +1,24 @@
+format: nkdk-declarations/1
+kind: value
+id: system.FormPagesRepresentation
+enum:
+  Auto: Авто
+  TabsOnTop: ЗакладкиСверху
+  TabsOnLeftHorizontal: ЗакладкиСлеваГоризонтально
+  TabsOnBottom: ЗакладкиСнизу
+  TabsOnRightHorizontal: ЗакладкиСправаГоризонтально
+  None: Нет
+  Swipe: Пролистывание
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  t: http://v8.1c.ru/8.1/data/enterprise
+projections:
+  - id: system.FormPagesRepresentation.dcs
+    xml:
+      kind: with-attributes
+      attributes:
+        - name: xsi:type
+          value:
+            qname: t:FormPagesRepresentation
+      content:
+        kind: text

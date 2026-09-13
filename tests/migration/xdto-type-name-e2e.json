@@ -1,0 +1,70 @@
+{
+  "scope": "QName properties; not whole-project conversion or performance",
+  "verified": 8,
+  "cases": [
+    {
+      "source": "e2e/fixtures/xml/cf/WebServices/WebСервисВсеСвойства.xml",
+      "sha256": "a6455c22eac16513435e14f8b1bbdc903811ddd467a1715837fe9e466f53d906",
+      "occurrence": 35,
+      "type": "",
+      "entry": "migration.xdto-type-name-metadata",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/WebServices/WebСервисВсеСвойства.xml",
+      "sha256": "a6455c22eac16513435e14f8b1bbdc903811ddd467a1715837fe9e466f53d906",
+      "occurrence": 49,
+      "type": "",
+      "entry": "migration.xdto-type-name-metadata",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/WebServices/WebСервисВсеСвойства.xml",
+      "sha256": "a6455c22eac16513435e14f8b1bbdc903811ddd467a1715837fe9e466f53d906",
+      "occurrence": 60,
+      "type": "",
+      "entry": "migration.xdto-type-name-metadata",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/WebServices/WebСервисВсеСвойства.xml",
+      "sha256": "a6455c22eac16513435e14f8b1bbdc903811ddd467a1715837fe9e466f53d906",
+      "occurrence": 71,
+      "type": "",
+      "entry": "migration.xdto-type-name-metadata",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/WebServices/WebСервисВсеСвойстваExt.xml",
+      "sha256": "f3cd655b6b02ad778ca5803c886cdab4dc4d7fa1c343d37065d37e73881aea8b",
+      "occurrence": 31,
+      "type": "",
+      "entry": "migration.xdto-type-name-metadata",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/WebServices/WebСервисВсеСвойстваExt.xml",
+      "sha256": "f3cd655b6b02ad778ca5803c886cdab4dc4d7fa1c343d37065d37e73881aea8b",
+      "occurrence": 45,
+      "type": "",
+      "entry": "migration.xdto-type-name-metadata",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/WebServices/WebСервисВсеСвойстваExt.xml",
+      "sha256": "f3cd655b6b02ad778ca5803c886cdab4dc4d7fa1c343d37065d37e73881aea8b",
+      "occurrence": 56,
+      "type": "",
+      "entry": "migration.xdto-type-name-metadata",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/WebServices/WebСервисВсеСвойстваExt.xml",
+      "sha256": "f3cd655b6b02ad778ca5803c886cdab4dc4d7fa1c343d37065d37e73881aea8b",
+      "occurrence": 67,
+      "type": "",
+      "entry": "migration.xdto-type-name-metadata",
+      "verified": true
+    }
+  ]
+}

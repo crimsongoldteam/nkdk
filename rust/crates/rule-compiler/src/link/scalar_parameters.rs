@@ -1,13 +1,25 @@
-//! Resolve constant scalar profiles once at build time; runtime sees ordinary references.
+//! Specialize scalar profiles and input contracts once at build time.
 use super::*;
 
 pub(super) fn specialize(entries: &mut Vec<LinkedEntry>) -> Result<(), Diagnostic> {
     let originals = entries.clone();
     let mut instances: Vec<(u32, Vec<LinkedExpression>, u32)> = Vec::new();
     let mut next_id = originals.iter().map(|entry| entry.id).max().unwrap_or(0) + 1;
-    for owner_index in 0..originals.len() {
-        let LinkedType::Record(fields) = &originals[owner_index].value else {
-            continue;
+    let mut cursor = 0;
+    while cursor < entries.len() {
+        let owner_index = cursor;
+        cursor += 1;
+        let owner = entries[owner_index].clone();
+        let fields = match &owner.value {
+            LinkedType::Record(fields) | LinkedType::Choice(fields) => fields.clone(),
+            LinkedType::Sequence(item) if super::scalar_inputs::typed_collection(&owner) => {
+                vec![LinkedField {
+                    name: "item".into(),
+                    value: *item.clone(),
+                    source: owner.source.clone(),
+                }]
+            }
+            _ => continue,
         };
         for (field_index, field) in fields.iter().enumerate() {
             let LinkedType::BoundReference {
@@ -24,15 +36,19 @@ pub(super) fn specialize(entries: &mut Vec<LinkedEntry>) -> Result<(), Diagnosti
                 .expect("linked scalar target");
             if !matches!(
                 common.value,
-                LinkedType::Scalar(_) | LinkedType::Enum(_) | LinkedType::ScalarChoice(_)
-            ) || !bindings.is_empty()
-                || !common.inputs.is_empty()
+                LinkedType::Scalar(_)
+                    | LinkedType::Enum(_)
+                    | LinkedType::ScalarChoice(_)
+                    | LinkedType::Choice(_)
+            ) && !matches!(common.xml, LinkedXml::TextPattern(_))
+                && !super::scalar_inputs::typed_collection(common)
             {
                 continue;
             }
-            if arguments
-                .iter()
-                .any(|argument| !matches!(argument.kind, LinkedExpressionKind::Literal(_)))
+            if common.inputs.is_empty()
+                && arguments
+                    .iter()
+                    .any(|argument| !matches!(argument.kind, LinkedExpressionKind::Literal(_)))
             {
                 return Err(diagnostic(
                     "unsupported_scalar_specialization",
@@ -41,7 +57,9 @@ pub(super) fn specialize(entries: &mut Vec<LinkedEntry>) -> Result<(), Diagnosti
                 ));
             }
             let id = if let Some((_, _, id)) = instances.iter().find(|(target, args, _)| {
-                target == entry
+                bindings.is_empty()
+                    && common.inputs.is_empty()
+                    && target == entry
                     && args
                         .iter()
                         .map(|arg| &arg.kind)
@@ -49,23 +67,39 @@ pub(super) fn specialize(entries: &mut Vec<LinkedEntry>) -> Result<(), Diagnosti
             }) {
                 *id
             } else {
-                let mut instance = common.clone();
+                let mut instance = if common.inputs.is_empty() {
+                    let mut instance = common.clone();
+                    bind(&mut instance, arguments)?;
+                    instance
+                } else {
+                    let Some(instance) =
+                        super::scalar_inputs::specialize(common, bindings, arguments)?
+                    else {
+                        continue;
+                    };
+                    instance
+                };
                 instance.id = next_id;
                 next_id += 1;
                 instance.name = format!("{}@scalar-{}", common.name, instance.id);
                 while entries.iter().any(|entry| entry.name == instance.name) {
                     instance.name.push('@');
                 }
-                bind(&mut instance, arguments)?;
                 let id = instance.id;
                 entries.push(instance);
-                instances.push((*entry, arguments.clone(), id));
+                if bindings.is_empty() {
+                    instances.push((*entry, arguments.clone(), id));
+                }
                 id
             };
-            let LinkedType::Record(fields) = &mut entries[owner_index].value else {
-                unreachable!()
+            let target = match &mut entries[owner_index].value {
+                LinkedType::Record(fields) | LinkedType::Choice(fields) => {
+                    &mut fields[field_index].value
+                }
+                LinkedType::Sequence(item) => item.as_mut(),
+                _ => unreachable!(),
             };
-            fields[field_index].value = LinkedType::Reference(id);
+            *target = LinkedType::Reference(id);
         }
     }
     Ok(())

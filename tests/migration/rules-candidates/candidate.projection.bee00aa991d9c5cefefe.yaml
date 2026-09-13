@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.bee00aa991d9c5cefefe
+description: 'Кандидат проекции: относительный XML-корень UserSettingsGroup; не полный владелец'
+imports:
+  part0: candidate.fragment.02361b2783e0c7224ab3
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

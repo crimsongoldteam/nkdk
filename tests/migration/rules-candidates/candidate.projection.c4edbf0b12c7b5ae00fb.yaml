@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.c4edbf0b12c7b5ae00fb
+description: 'Кандидат проекции: относительный XML-корень BlackAndWhiteView; не полный владелец'
+imports:
+  part0: candidate.fragment.37e3d17a4882ef5f48b8
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

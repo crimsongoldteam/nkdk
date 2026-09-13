@@ -1,0 +1,37 @@
+format: nkdk-declarations/1
+kind: value
+id: system.DataCompositionComparisonType
+enum:
+  Greater: Больше
+  GreaterOrEqual: БольшеИлиРавно
+  InHierarchy: ВИерархии
+  InList: ВСписке
+  InListByHierarchy: ВСпискеПоИерархии
+  Filled: Заполнено
+  Less: Меньше
+  LessOrEqual: МеньшеИлиРавно
+  BeginsWith: НачинаетсяС
+  NotInHierarchy: НеВИерархии
+  NotInList: НеВСписке
+  NotInListByHierarchy: НеВСпискеПоИерархии
+  NotFilled: НеЗаполнено
+  NotBeginsWith: НеНачинаетсяС
+  NotLike: НеПодобно
+  NotEqual: НеРавно
+  NotContains: НеСодержит
+  Like: Подобно
+  Equal: Равно
+  Contains: Содержит
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  t: http://v8.1c.ru/8.1/data-composition-system/settings
+projections:
+  - id: system.DataCompositionComparisonType.dcs
+    xml:
+      kind: with-attributes
+      attributes:
+        - name: xsi:type
+          value:
+            qname: t:DataCompositionComparisonType
+      content:
+        kind: text

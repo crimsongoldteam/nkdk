@@ -1,0 +1,12 @@
+format: nkdk-declarations/1
+kind: value
+id: common.text-choice
+imports: {first: common.choice-first, second: common.choice-second}
+value:
+  kind: choice
+  variants:
+  - {name: first, type: {use: first}}
+  - {name: second, type: {use: second}}
+representations:
+  xml: {kind: choice}
+  yaml: {kind: choice}

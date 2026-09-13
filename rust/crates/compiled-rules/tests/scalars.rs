@@ -467,3 +467,109 @@ fn decimal_representations_preserve_comma_dot_and_the_xml_type() {
         assert!(String::from_utf8_lossy(&result.bytes).contains(&format!(">{canonical}</Value>")));
     }
 }
+
+#[test]
+fn strings_preserve_the_existing_contract_and_e2e_values() {
+    use nkdk_conversion_core::{proof, xml};
+    let entry = entry_id("test.scalar-owner").unwrap();
+    let inputs = PreparedInputs::default();
+    let check = |source: &str, expected: Option<&str>| {
+        let converted =
+            convert_file(entry, Direction::XmlToYaml, source.as_bytes(), &inputs).unwrap();
+        assert!(validate_file(entry, &converted.bytes, &inputs).is_empty());
+        nkdk_compiled_rules::verify_candidate(entry, source.as_bytes(), &converted.bytes, &inputs)
+            .unwrap();
+        let restored =
+            convert_file(entry, Direction::YamlToXml, &converted.bytes, &inputs).unwrap();
+        proof::verify(source.as_bytes(), &restored.bytes, |_| false).unwrap();
+        if let Some(expected) = expected {
+            let yaml = format!(
+                "Сервер: Ложь\nОписание: {}",
+                serde_json::to_string(expected).unwrap()
+            );
+            assert!(validate_file(entry, yaml.as_bytes(), &inputs).is_empty());
+            nkdk_compiled_rules::verify_candidate(
+                entry,
+                source.as_bytes(),
+                yaml.as_bytes(),
+                &inputs,
+            )
+            .unwrap();
+        }
+    };
+    for (body, expected) in [
+        ("текст", "текст"),
+        ("001", "001"),
+        ("true", "true"),
+        ("null", "null"),
+        ("42", "42"),
+        ("До<![CDATA[ и после]]>", "До и после"),
+        (" &amp; &lt; &gt; ", " & < > "),
+    ] {
+        check(
+            &format!("<Root><Server>false</Server><Description>{body}</Description></Root>"),
+            Some(expected),
+        );
+    }
+    for field in [
+        "",
+        "<Description/>",
+        "<Description><![CDATA[]]></Description>",
+        "<Description><Child>Не текст родителя</Child></Description>",
+        "<Description extra='saved'>текст</Description>",
+    ] {
+        check(&format!("<Root><Server>false</Server>{field}</Root>"), None);
+    }
+    for invalid in ["42", "true", "null", "[]", "{}"] {
+        assert!(
+            !validate_file(
+                entry,
+                format!("Сервер: Ложь\nОписание: {invalid}").as_bytes(),
+                &inputs
+            )
+            .is_empty()
+        );
+    }
+    let corpus: serde_json::Value = serde_json::from_slice(include_bytes!(
+        "../../../../tests/migration/scalar-value-e2e.json"
+    ))
+    .unwrap();
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..");
+    let mut count = 0;
+    for case in corpus["cases"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|case| case["kind"] == "string")
+    {
+        let source = std::fs::read(root.join(case["source"].as_str().unwrap())).unwrap();
+        let property = case["property"].as_str().unwrap();
+        let mut value = String::new();
+        xml::visit(&source, |path, token| {
+            if path.len() == 4
+                && path[2].local == "Properties"
+                && path[3].local == property
+                && let xml::Token::Text(text) = token
+            {
+                value.push_str(text);
+            }
+            Ok(())
+        })
+        .unwrap();
+        assert_eq!(
+            value,
+            case["value"].as_str().unwrap(),
+            "{}: {property}",
+            case["source"]
+        );
+        check(
+            &format!(
+                "<Root><Server>false</Server><Description>{}</Description></Root>",
+                xml::escape(&value)
+            ),
+            Some(&value),
+        );
+        count += 1;
+    }
+    assert_eq!(count, 51);
+}

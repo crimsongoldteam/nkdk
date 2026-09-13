@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.86d5d1073a4901f67320
+description: 'Кандидат проекции: относительный XML-корень Periodicity; не полный владелец'
+imports:
+  part0: candidate.fragment.b1b46f2b8a91b755aace
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

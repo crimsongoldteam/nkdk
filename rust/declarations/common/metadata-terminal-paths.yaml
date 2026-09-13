@@ -1,0 +1,49 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: common.metadata-empty-ref-path
+  imports: {root: common.path-root, name: common.metadata-name}
+  value:
+    kind: record
+    fields:
+    - {name: root, type: {use: root}}
+    - {name: owner, type: {use: name}}
+  representations:
+    xml: {kind: text-pattern, parts: [{field: root}, {literal: '.'}, {field: owner}, {literal: '.EmptyRef'}]}
+    yaml: {kind: text-pattern, parts: [{field: root}, {literal: '.'}, {field: owner}, {literal: '.ПустаяСсылка'}]}
+- kind: value
+  id: common.metadata-virtual-table-path
+  imports: {root: common.path-root, name: common.metadata-name, table: common.path-virtual-table}
+  value:
+    kind: record
+    fields:
+    - {name: root, type: {use: root}}
+    - {name: owner, type: {use: name}}
+    - {name: table, type: {use: table}}
+  representations:
+    xml: {kind: text-pattern, parts: [{field: root}, {literal: '.'}, {field: owner}, {literal: '.'}, {field: table}]}
+    yaml: {kind: text-pattern, parts: [{field: root}, {literal: '.'}, {field: owner}, {literal: '.'}, {field: table}]}
+- kind: value
+  id: common.metadata-base-table-path
+  imports: {root: common.path-root, name: common.metadata-name}
+  value:
+    kind: record
+    fields:
+    - {name: root, type: {use: root}}
+    - {name: owner, type: {use: name}}
+    - {name: base, type: {use: name}}
+  representations:
+    xml: {kind: text-pattern, parts: [{field: root}, {literal: '.'}, {field: owner}, {literal: '.Base'}, {field: base}]}
+    yaml: {kind: text-pattern, parts: [{field: root}, {literal: '.'}, {field: owner}, {literal: '.База'}, {field: base}]}
+- kind: value
+  id: common.metadata-table-path
+  imports: {table: common.metadata-virtual-table-path, base: common.metadata-base-table-path}
+  value:
+    kind: choice
+    variants:
+    - {name: table, type: {use: table}}
+    - {name: base, type: {use: base}}
+  representations:
+    xml: {kind: choice}
+    yaml: {kind: choice}

@@ -1,0 +1,10 @@
+{
+  "id": "document-journal",
+  "expectedPropertyCount": 48,
+  "cases": [
+    "e2e-properties-ДокументПоУмолчанию",
+    "e2e-properties-ДокументВсеСвойства",
+    "e2e-properties-ЖурналДокументовПоУмолчанию",
+    "e2e-properties-ЖурналДокументовВсеСвойства"
+  ]
+}

@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.fbdf22f0a2da44ddef84
+description: 'Кандидат проекции: относительный XML-корень WindowOpeningMode; не полный владелец'
+imports:
+  part0: candidate.fragment.5819c3bedd16f7e520eb
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

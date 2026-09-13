@@ -1,0 +1,28 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.attachment.fragment.standalone-command-module-resource
+imports:
+  ready: fragment.standalone-command-module-resource
+compose:
+  - use: ready
+inputs: {}
+value:
+  kind: record
+  fields:
+    - name: probe
+      type:
+        kind: scalar
+        scalar: text
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: probe
+        path:
+          - Probe
+          - Name
+  yaml:
+    kind: mapping
+    fields:
+      - field: probe
+        key: Проверка

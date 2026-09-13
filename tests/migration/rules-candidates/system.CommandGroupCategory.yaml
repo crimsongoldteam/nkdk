@@ -1,0 +1,21 @@
+format: nkdk-declarations/1
+kind: value
+id: system.CommandGroupCategory
+enum:
+  FormCommandBar: КоманднаяПанельФормы
+  ActionsPanel: ПанельДействий
+  NavigationPanel: ПанельНавигации
+  FormNavigationPanel: ПанельНавигацииФормы
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  t: http://v8.1c.ru/8.1/data/enterprise
+projections:
+  - id: system.CommandGroupCategory.dcs
+    xml:
+      kind: with-attributes
+      attributes:
+        - name: xsi:type
+          value:
+            qname: t:CommandGroupCategory
+      content:
+        kind: text

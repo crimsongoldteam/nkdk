@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.ButtonLocationInCommandBar
+value:
+  kind: record
+  fields:
+    - name: locationInCommandBar
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: locationInCommandBar
+        path:
+          - LocationInCommandBar
+  yaml:
+    kind: mapping
+    fields:
+      - field: locationInCommandBar
+        key: ПоложениеВКоманднойПанели
+presence:
+  - target:
+      field: locationInCommandBar
+    xml:
+      missing:
+        denotes:
+          literal: Auto
+      canonical:
+        - when:
+            eq:
+              - field: locationInCommandBar
+              - literal: Auto
+          form: missing
+    yaml:
+      default:
+        literal: Auto
+id: candidate.fragment.39d73a8dd39f349d1ee0

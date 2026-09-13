@@ -1,0 +1,38 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: object
+  id: migration.path-root
+  imports: {token: common.path-root}
+  value: {kind: record, fields: [{name: value, type: {use: token}}]}
+  representations:
+    xml: {kind: record, fields: [{field: value, path: [Root, Value]}]}
+    yaml: {kind: mapping, fields: [{field: value, key: Значение}]}
+- kind: object
+  id: migration.path-member-kind
+  imports: {token: common.path-member-kind}
+  value: {kind: record, fields: [{name: value, type: {use: token}}]}
+  representations:
+    xml: {kind: record, fields: [{field: value, path: [Root, Value]}]}
+    yaml: {kind: mapping, fields: [{field: value, key: Значение}]}
+- kind: object
+  id: migration.path-object-kind
+  imports: {token: common.path-object-kind}
+  value: {kind: record, fields: [{name: value, type: {use: token}}]}
+  representations:
+    xml: {kind: record, fields: [{field: value, path: [Root, Value]}]}
+    yaml: {kind: mapping, fields: [{field: value, key: Значение}]}
+- kind: object
+  id: migration.path-standard-attribute
+  imports: {token: common.path-standard-attribute}
+  value: {kind: record, fields: [{name: value, type: {use: token}}]}
+  representations:
+    xml: {kind: record, fields: [{field: value, path: [Root, Value]}]}
+    yaml: {kind: mapping, fields: [{field: value, key: Значение}]}
+- kind: object
+  id: migration.path-virtual-table
+  imports: {token: common.path-virtual-table}
+  value: {kind: record, fields: [{name: value, type: {use: token}}]}
+  representations:
+    xml: {kind: record, fields: [{field: value, path: [Root, Value]}]}
+    yaml: {kind: mapping, fields: [{field: value, key: Значение}]}

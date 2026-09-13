@@ -1,0 +1,194 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+  value1: common.string
+  value2: common.web-socket-client-headers
+  value3: common.exact-decimal
+value:
+  kind: record
+  fields:
+    - name: predefined
+      type:
+        use: value0
+    - name: autoConnect
+      type:
+        use: value0
+    - name: serverURL
+      type:
+        use: value1
+    - name: user
+      type:
+        use: value1
+    - name: password
+      type:
+        use: value1
+    - name: headers
+      type:
+        use: value2
+    - name: useOSProxy
+      type:
+        use: value0
+    - name: useOSAuthentication
+      type:
+        use: value0
+    - name: timeout
+      type:
+        use: value3
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: predefined
+        path:
+          - Properties
+          - Predefined
+      - field: autoConnect
+        path:
+          - Properties
+          - AutoConnect
+      - field: serverURL
+        path:
+          - Properties
+          - ServerURL
+      - field: user
+        path:
+          - Properties
+          - User
+      - field: password
+        path:
+          - Properties
+          - Password
+      - field: headers
+        path:
+          - Properties
+          - Headers
+      - field: useOSProxy
+        path:
+          - Properties
+          - UseOSProxy
+      - field: useOSAuthentication
+        path:
+          - Properties
+          - UseOSAuthentication
+      - field: timeout
+        path:
+          - Properties
+          - Timeout
+  yaml:
+    kind: mapping
+    fields:
+      - field: predefined
+        key: Предопределенный
+      - field: autoConnect
+        key: АвтоПодключение
+      - field: serverURL
+        key: АдресСервера
+      - field: user
+        key: Пользователь
+      - field: password
+        key: Пароль
+      - field: headers
+        key: Заголовки
+      - field: useOSProxy
+        key: ИспользоватьПроксиОС
+      - field: useOSAuthentication
+        key: ИспользоватьАутентификациюОС
+      - field: timeout
+        key: Таймаут
+presence:
+  - target:
+      field: predefined
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: false
+  - target:
+      field: autoConnect
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: false
+  - target:
+      field: serverURL
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: ''
+  - target:
+      field: user
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: ''
+  - target:
+      field: password
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: ''
+  - target:
+      field: headers
+    xml:
+      missing:
+        denotes:
+          sequence: []
+      empty:
+        - form: empty-element
+          denotes:
+            sequence: []
+    yaml:
+      missing:
+        denotes:
+          sequence: []
+      omitWhen:
+        not:
+          exists:
+            in:
+              field: headers
+            as: row
+            where:
+              literal: true
+  - target:
+      field: useOSProxy
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: false
+  - target:
+      field: useOSAuthentication
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: false
+  - target:
+      field: timeout
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: 30
+id: candidate.fragment.e25876e5bbd4ae1b1a83

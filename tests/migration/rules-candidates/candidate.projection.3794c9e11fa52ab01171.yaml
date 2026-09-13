@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.3794c9e11fa52ab01171
+description: 'Кандидат проекции: относительный XML-корень Behavior; не полный владелец'
+imports:
+  part0: candidate.fragment.f3c4d503573e0657684f
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

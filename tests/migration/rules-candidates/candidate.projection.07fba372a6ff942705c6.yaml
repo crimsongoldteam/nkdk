@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.07fba372a6ff942705c6
+description: 'Кандидат проекции: относительный XML-корень SelectionMode; не полный владелец'
+imports:
+  part0: candidate.fragment.f0b1682f4ff2f4d48c09
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

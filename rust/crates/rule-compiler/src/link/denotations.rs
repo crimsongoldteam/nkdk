@@ -91,7 +91,8 @@ pub(super) fn resolve(
             )
         }
         _ => {
-            let value = expressions::resolve_expression(module, expression, modules, ids)?;
+            let mut value = expressions::resolve_expression(module, expression, modules, ids)?;
+            expressions::contextual_literals(expected, &mut value)?;
             let compatible = expressions::same_type(&value.value_type, expected)
                 || matches!(&value.value_type, LinkedType::Optional(inner) if expressions::same_type(inner, expected));
             if !compatible {

@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.82aabc4599dd3fe37bc6
+description: 'Кандидат проекции: относительный XML-корень xr:Comment; не полный владелец'
+imports:
+  part0: candidate.fragment.c4c4c7949042c35d9afa
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

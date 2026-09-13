@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.AutoShowClearButtonMode
+value:
+  kind: record
+  fields:
+    - name: autoShowClearButton
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: autoShowClearButton
+        path:
+          - AutoShowClearButtonMode
+  yaml:
+    kind: mapping
+    fields:
+      - field: autoShowClearButton
+        key: АвтоОтображениеКнопкиОчистки
+presence:
+  - target:
+      field: autoShowClearButton
+    xml:
+      missing:
+        denotes:
+          literal: Auto
+      canonical:
+        - when:
+            eq:
+              - field: autoShowClearButton
+              - literal: Auto
+          form: missing
+    yaml:
+      default:
+        literal: Auto
+id: candidate.fragment.a3ef3f24b7065eb2faa0

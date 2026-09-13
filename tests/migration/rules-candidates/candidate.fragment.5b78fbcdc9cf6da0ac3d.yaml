@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.ClientApplicationFormScaleVariant
+value:
+  kind: record
+  fields:
+    - name: scalingMode
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: scalingMode
+        path:
+          - ScalingMode
+  yaml:
+    kind: mapping
+    fields:
+      - field: scalingMode
+        key: ВариантМасштаба
+presence:
+  - target:
+      field: scalingMode
+    xml:
+      missing:
+        denotes:
+          literal: Auto
+      canonical:
+        - when:
+            eq:
+              - field: scalingMode
+              - literal: Auto
+          form: missing
+    yaml:
+      default:
+        literal: Auto
+id: candidate.fragment.5b78fbcdc9cf6da0ac3d

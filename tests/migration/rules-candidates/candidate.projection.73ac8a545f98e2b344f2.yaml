@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.73ac8a545f98e2b344f2
+description: 'Кандидат проекции: относительный XML-корень HorizontalAlign; не полный владелец'
+imports:
+  part0: candidate.fragment.7af5785703c6659c9f91
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

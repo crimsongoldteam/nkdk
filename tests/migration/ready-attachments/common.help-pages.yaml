@@ -1,0 +1,67 @@
+format: nkdk-declarations/1
+kind: value
+id: common.help-pages
+namespaces:
+  ep: http://v8.1c.ru/8.3/xcf/extrnprops
+inputs:
+  pages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+value:
+  kind: sequence
+  item:
+    kind: scalar
+    scalar: text
+representations:
+  xml:
+    kind: with-attributes
+    attributes:
+      - name: version
+        value:
+          text: '2.20'
+    content:
+      kind: element-sequence
+      path:
+        - ep:Page
+      item:
+        kind: text
+  yaml:
+    kind: sequence
+    item:
+      kind: scalar
+      scalar: text
+presence:
+  - target: self
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            eq:
+              - self: true
+              - sequence: []
+          form: missing
+    yaml:
+      default:
+        input: pages
+constraints:
+  - id: prepared-pages
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      present:
+        self: true
+    assert:
+      eq:
+        - self: true
+        - input: pages
+    diagnostic:
+      severity: error
+      at:
+        self: true
+      message: Список страниц отличается от имеющихся файлов справки

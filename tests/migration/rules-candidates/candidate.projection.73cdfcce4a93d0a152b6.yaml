@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.73cdfcce4a93d0a152b6
+description: 'Кандидат проекции: относительный XML-корень MultipleValuePictureShape; не полный владелец'
+imports:
+  part0: candidate.fragment.9f54284d9b7c0e307455
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: showRowAndColumnNames
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: showRowAndColumnNames
+        path:
+          - ShowRowAndColumnNames
+  yaml:
+    kind: mapping
+    fields:
+      - field: showRowAndColumnNames
+        key: ОтображатьИменаСтрокИКолонок
+presence:
+  - target:
+      field: showRowAndColumnNames
+    xml:
+      missing:
+        denotes:
+          literal: false
+      canonical:
+        - when:
+            eq:
+              - field: showRowAndColumnNames
+              - literal: false
+          form: missing
+    yaml:
+      default:
+        literal: false
+id: candidate.fragment.7c47f72dc7e05a3ba312

@@ -1,0 +1,40 @@
+format: nkdk-declarations/1
+kind: object
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: autoCellHeight
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: autoCellHeight
+        path:
+          - Element
+          - AutoCellHeight
+  yaml:
+    kind: mapping
+    fields:
+      - field: autoCellHeight
+        key: АвтоВысотаЯчейки
+presence:
+  - target:
+      field: autoCellHeight
+    xml:
+      missing:
+        denotes:
+          literal: false
+      canonical:
+        - when:
+            eq:
+              - field: autoCellHeight
+              - literal: false
+          form: missing
+    yaml:
+      default:
+        literal: false
+id: contract.property.6e3c695989599c37e835

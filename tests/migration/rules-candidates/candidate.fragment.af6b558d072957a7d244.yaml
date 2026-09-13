@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: footer
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: footer
+        path:
+          - Footer
+  yaml:
+    kind: mapping
+    fields:
+      - field: footer
+        key: Подвал
+presence:
+  - target:
+      field: footer
+    xml:
+      missing:
+        denotes:
+          literal: false
+      canonical:
+        - when:
+            eq:
+              - field: footer
+              - literal: false
+          form: missing
+    yaml:
+      default:
+        literal: false
+id: candidate.fragment.af6b558d072957a7d244

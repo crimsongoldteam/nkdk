@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.ButtonLocationInContextMenu
+value:
+  kind: record
+  fields:
+    - name: representationInContextMenu
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: representationInContextMenu
+        path:
+          - RepresentationInContextMenu
+  yaml:
+    kind: mapping
+    fields:
+      - field: representationInContextMenu
+        key: ОтображениеВКонтекстномМеню
+presence:
+  - target:
+      field: representationInContextMenu
+    xml:
+      missing:
+        denotes:
+          literal: Auto
+      canonical:
+        - when:
+            eq:
+              - field: representationInContextMenu
+              - literal: Auto
+          form: missing
+    yaml:
+      default:
+        literal: Auto
+id: candidate.fragment.4c7535e721d7319026d3

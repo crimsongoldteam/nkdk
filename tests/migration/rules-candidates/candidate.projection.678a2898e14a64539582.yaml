@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.678a2898e14a64539582
+description: 'Кандидат проекции: относительный XML-корень RefreshRequest; не полный владелец'
+imports:
+  part0: candidate.fragment.aafe21b19544b982b32c
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

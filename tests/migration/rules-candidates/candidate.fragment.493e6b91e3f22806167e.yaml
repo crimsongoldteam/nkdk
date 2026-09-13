@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.exact-decimal
+value:
+  kind: record
+  fields:
+    - name: maxHeightInTableRows
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: maxHeightInTableRows
+        path:
+          - MaxRowsCount
+  yaml:
+    kind: mapping
+    fields:
+      - field: maxHeightInTableRows
+        key: МаксимальнаяВысотаВСтрокахТаблицы
+presence:
+  - target:
+      field: maxHeightInTableRows
+    xml:
+      missing:
+        denotes:
+          literal: 0
+      canonical:
+        - when:
+            eq:
+              - field: maxHeightInTableRows
+              - literal: 0
+          form: missing
+    yaml:
+      default:
+        literal: 0
+id: candidate.fragment.493e6b91e3f22806167e

@@ -1,0 +1,35 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.string
+value:
+  kind: record
+  fields:
+    - name: windowOptionsKey
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: windowOptionsKey
+        path:
+          - Form
+          - WindowOptionsKey
+  yaml:
+    kind: mapping
+    fields:
+      - field: windowOptionsKey
+        key: КлючСохраненияПоложенияОкна
+presence:
+  - target:
+      field: windowOptionsKey
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+id: contract.property.dd1f6b760fa360f6182c.fragment

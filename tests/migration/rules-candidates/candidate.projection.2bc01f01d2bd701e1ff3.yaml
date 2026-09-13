@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.2bc01f01d2bd701e1ff3
+description: 'Кандидат проекции: относительный XML-корень PasswordMode; не полный владелец'
+imports:
+  part0: candidate.fragment.bd3aa72be48954d64c94
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

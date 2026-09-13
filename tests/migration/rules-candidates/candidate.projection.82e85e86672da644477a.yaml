@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.82e85e86672da644477a
+description: 'Кандидат проекции: относительный XML-корень InitialListView; не полный владелец'
+imports:
+  part0: candidate.fragment.6c435e22d0913f541c9e
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

@@ -1,0 +1,53 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.attachment.identities
+value:
+  kind: record
+  fields:
+    - name: owner
+      type:
+        kind: scalar
+        scalar: text
+    - name: name
+      type:
+        kind: scalar
+        scalar: text
+    - name: id
+      type:
+        kind: scalar
+        scalar: text
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: owner
+        path:
+          - Identity
+          - owner
+      - field: name
+        path:
+          - Identity
+          - name
+      - field: id
+        path:
+          - Identity
+          - id
+  yaml:
+    kind: mapping
+    fields:
+      - field: owner
+        key: owner
+      - field: name
+        key: name
+      - field: id
+        key: id
+contributions:
+  - index: migration.attachment-identities
+    key:
+      record:
+        owner:
+          field: owner
+        name:
+          field: name
+    value:
+      field: id

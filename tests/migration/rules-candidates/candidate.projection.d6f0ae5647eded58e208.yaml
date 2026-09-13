@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.d6f0ae5647eded58e208
+description: 'Кандидат проекции: относительный XML-корень VerticalStretch; не полный владелец'
+imports:
+  part0: candidate.fragment.05b92f1a60ce608efba7
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

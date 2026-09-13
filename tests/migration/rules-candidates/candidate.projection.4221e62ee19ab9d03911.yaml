@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.4221e62ee19ab9d03911
+description: 'Кандидат проекции: относительный XML-корень AutoSaveUserSettings; не полный владелец'
+imports:
+  part0: candidate.fragment.0edff66d7a0e2a2a3070
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

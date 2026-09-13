@@ -1,0 +1,12 @@
+format: nkdk-declarations/1
+kind: value
+id: common.text-delimiter
+imports: {first: common.delimiter-first, second: common.delimiter-second}
+value:
+  kind: choice
+  variants:
+  - {name: first, type: {use: first}}
+  - {name: second, type: {use: second}}
+representations:
+  xml: {kind: choice}
+  yaml: {kind: choice}

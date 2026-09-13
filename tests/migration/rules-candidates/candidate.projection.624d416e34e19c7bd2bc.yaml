@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.624d416e34e19c7bd2bc
+description: 'Кандидат проекции: относительный XML-корень ThroughAlign; не полный владелец'
+imports:
+  part0: candidate.fragment.93839754f3cdbd344140
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

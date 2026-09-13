@@ -1,0 +1,145 @@
+format: nkdk-declarations/1
+kind: value
+id: common.additional-index-row
+imports:
+  fields: common.index-field
+namespaces:
+  x: http://v8.1c.ru/8.3/xcf/extrnprops
+inputs:
+  owner:
+    type:
+      kind: scalar
+      scalar: text
+  identities:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: owner
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+value:
+  kind: record
+  fields:
+    - name: name
+      type:
+        kind: scalar
+        scalar: text
+    - name: id
+      type:
+        kind: scalar
+        scalar: text
+    - name: table
+      type:
+        kind: scalar
+        scalar: text
+    - name: indexedFields
+      type:
+        use: fields
+    - name: additionalFields
+      type:
+        use: fields
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: name
+        path:
+          - x:Name
+      - field: id
+        path: []
+        attribute: id
+      - field: table
+        path:
+          - x:Table
+      - field: indexedFields
+        path:
+          - x:IndexedFields
+      - field: additionalFields
+        path:
+          - x:AdditionalFields
+  yaml:
+    kind: mapping
+    fields:
+      - field: name
+        key: Имя
+      - field: id
+        key: Идентификатор
+      - field: table
+        key: Таблица
+      - field: indexedFields
+        key: ИндексируемыеПоля
+      - field: additionalFields
+        key: ДополнительныеПоля
+presence:
+  - target:
+      field: id
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          lookup:
+            in:
+              input: identities
+            key:
+              record:
+                owner:
+                  input: owner
+                name:
+                  field: name
+      omitWhen:
+        match:
+          value:
+            lookup:
+              in:
+                input: identities
+              key:
+                record:
+                  owner:
+                    input: owner
+                  name:
+                    field: name
+          present:
+            as: id
+            then:
+              eq:
+                - field: id
+                - var: id
+          absent:
+            literal: false
+  - target:
+      field: table
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: additionalFields
+    xml:
+      canonical:
+        - when:
+            not:
+              exists:
+                in:
+                  field: additionalFields
+                as: row
+                where:
+                  literal: true
+          form: empty-element
+        - form: ordinary

@@ -1,0 +1,20 @@
+format: nkdk-declarations/1
+kind: value
+id: system.ItemHeightControlVariant
+enum:
+  Auto: Авто
+  UseHeightInFormRows: ВСтрокахФормы
+  UseContentHeight: ПоСодержимому
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  t: http://v8.1c.ru/8.1/data/enterprise
+projections:
+  - id: system.ItemHeightControlVariant.dcs
+    xml:
+      kind: with-attributes
+      attributes:
+        - name: xsi:type
+          value:
+            qname: t:ItemHeightControlVariant
+      content:
+        kind: text

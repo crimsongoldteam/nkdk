@@ -1,0 +1,36 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.attachment.common.external-file.7ee8164e64c1
+imports:
+  ready: common.external-file
+compose:
+  - use: ready
+    bind:
+      sourcePath:
+        sequence:
+          - literal: Ext
+          - literal: Package.bin
+      targetPath:
+        sequence:
+          - literal: Package.bin
+inputs: {}
+value:
+  kind: record
+  fields:
+    - name: probe
+      type:
+        kind: scalar
+        scalar: text
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: probe
+        path:
+          - Probe
+          - Name
+  yaml:
+    kind: mapping
+    fields:
+      - field: probe
+        key: Проверка

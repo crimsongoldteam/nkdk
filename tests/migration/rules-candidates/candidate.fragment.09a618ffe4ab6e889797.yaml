@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.exact-decimal
+value:
+  kind: record
+  fields:
+    - name: itemWidth
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: itemWidth
+        path:
+          - ItemWidth
+  yaml:
+    kind: mapping
+    fields:
+      - field: itemWidth
+        key: ШиринаЭлемента
+presence:
+  - target:
+      field: itemWidth
+    xml:
+      missing:
+        denotes:
+          literal: 0
+      canonical:
+        - when:
+            eq:
+              - field: itemWidth
+              - literal: 0
+          form: missing
+    yaml:
+      default:
+        literal: 0
+id: candidate.fragment.09a618ffe4ab6e889797

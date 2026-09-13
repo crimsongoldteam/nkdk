@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.ThroughAlign
+value:
+  kind: record
+  fields:
+    - name: throughAlign
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: throughAlign
+        path:
+          - ThroughAlign
+  yaml:
+    kind: mapping
+    fields:
+      - field: throughAlign
+        key: СквозноеВыравнивание
+presence:
+  - target:
+      field: throughAlign
+    xml:
+      missing:
+        denotes:
+          literal: Auto
+      canonical:
+        - when:
+            eq:
+              - field: throughAlign
+              - literal: Auto
+          form: missing
+    yaml:
+      default:
+        literal: Auto
+id: candidate.fragment.93839754f3cdbd344140

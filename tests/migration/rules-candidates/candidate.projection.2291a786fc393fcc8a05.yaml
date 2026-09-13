@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.2291a786fc393fcc8a05
+description: 'Кандидат проекции: относительный XML-корень FixingInTable; не полный владелец'
+imports:
+  part0: candidate.fragment.f20b186c685e4e28f5c0
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

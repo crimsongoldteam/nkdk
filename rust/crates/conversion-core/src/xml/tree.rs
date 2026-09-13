@@ -1,7 +1,7 @@
 //! A subtree is materialized only on the exceptional preservation path.
 mod patch;
 mod read;
-use super::{Attribute, Name, Token, is_whitespace, matches, visit};
+use super::{Attribute, Name, Token, is_whitespace, matches, visit_scoped};
 use crate::{Result, RuntimeDiagnostic};
 pub use patch::Patch;
 
@@ -9,6 +9,7 @@ pub struct Tree {
     name: Name,
     attributes: Vec<Attribute>,
     text: String,
+    text_qname: Option<Name>,
     children: Vec<Tree>,
 }
 #[derive(Clone, PartialEq, Eq)]
@@ -40,6 +41,12 @@ fn qualified(name: &Name, namespaces: &[(&str, &str)]) -> Result<String> {
     Ok(format!("{prefix}:{}", name.local))
 }
 impl Tree {
+    pub fn qname_scalar(name: Name, value: Name) -> Result<Self> {
+        super::validate_qname((&value.namespace, &value.local))?;
+        let mut node = Self::scalar(name, "", &[]);
+        node.text_qname = Some(value);
+        Ok(node)
+    }
     /// Materialize the canonical scalar only while applying an XML difference.
     pub fn scalar<'b, 'c: 'b>(
         name: Name,
@@ -49,6 +56,7 @@ impl Tree {
         Self {
             name,
             text: text.into(),
+            text_qname: None,
             children: Vec::new(),
             attributes: attributes
                 .into_iter()
@@ -83,6 +91,9 @@ impl Tree {
             }
         };
         register(&self.name);
+        if let Some(name) = &self.text_qname {
+            register(name);
+        }
         for attribute in &self.attributes {
             register(&attribute.name);
             if let Some(name) = &attribute.qname {
@@ -102,13 +113,45 @@ impl Tree {
         read::restore(source, root, namespaces, qname_attributes)
     }
     pub fn capture(source: &[u8], target: &[(&str, &str)]) -> Result<Option<Self>> {
+        Self::capture_with_qnames(source, target, |_| false)
+    }
+    pub fn capture_with_qnames(
+        source: &[u8],
+        target: &[(&str, &str)],
+        qname_text: impl Fn(&[Name]) -> bool,
+    ) -> Result<Option<Self>> {
+        Self::capture_selected(source, target, None, qname_text)
+    }
+    /// Select a particular occurrence only on the exceptional preservation path.
+    pub fn capture_at(
+        source: &[u8],
+        target: &[(&str, &str)],
+        offset: usize,
+    ) -> Result<Option<Self>> {
+        Self::capture_selected(source, target, Some(offset), |_| false)
+    }
+    fn capture_selected(
+        source: &[u8],
+        target: &[(&str, &str)],
+        offset: Option<usize>,
+        qname_text: impl Fn(&[Name]) -> bool,
+    ) -> Result<Option<Self>> {
         if target.is_empty() {
             return Err(failure("A preservation boundary must name an element"));
         }
         let mut stack: Vec<Self> = Vec::new();
         let mut result = None;
-        visit(source, |path, token| {
+        let mut selected = false;
+        visit_scoped(source, |path, token, scope| {
             if path.len() < target.len() || !matches(&path[..target.len()], target) {
+                return Ok(());
+            }
+            if path.len() == target.len()
+                && let Token::Start(position) = &token
+            {
+                selected = offset.is_none_or(|offset| offset == *position);
+            }
+            if !selected {
                 return Ok(());
             }
             match token {
@@ -120,6 +163,7 @@ impl Tree {
                         name: path.last().expect("element path").clone(),
                         attributes: Vec::new(),
                         text: String::new(),
+                        text_qname: None,
                         children: Vec::new(),
                     });
                 }
@@ -142,6 +186,14 @@ impl Tree {
                             ));
                         }
                         node.text.clear();
+                    } else if qname_text(path)
+                        && let Ok((namespace, local)) = scope.resolve_qname(&node.text)
+                    {
+                        node.text_qname = Some(Name {
+                            namespace: namespace.into(),
+                            local: local.into(),
+                        });
+                        node.text.clear();
                     }
                     if let Some(parent) = stack.last_mut() {
                         parent.children.push(node);
@@ -153,6 +205,53 @@ impl Tree {
             Ok(())
         })?;
         Ok(result)
+    }
+    /// Select owned siblings only on the exceptional preservation path.
+    pub(super) fn retain_children(&mut self, names: &[(&str, &str)]) {
+        self.children.retain(|child| {
+            names
+                .iter()
+                .any(|name| child.name.namespace == name.0 && child.name.local == name.1)
+        });
+        self.attributes.clear();
+        self.text.clear();
+        self.text_qname = None;
+    }
+    pub(super) fn retain_record(&mut self, children: &[(&str, &str)], attributes: &[(&str, &str)]) {
+        let mut saved = std::mem::take(&mut self.attributes);
+        saved.retain(|attribute| {
+            attributes
+                .iter()
+                .any(|name| attribute.name.namespace == name.0 && attribute.name.local == name.1)
+        });
+        self.retain_children(children);
+        self.attributes = saved;
+    }
+    /// Append an unwrapped collection without reopening its shared container.
+    pub fn write_children_at<'a>(
+        &'a self,
+        writer: &mut super::Writer<'a>,
+        parent: &[(&'a str, &'a str)],
+        member: (&str, &str),
+        qname_attributes: &[(&str, &str)],
+    ) -> Result<()> {
+        if !self.attributes.is_empty()
+            || !self.text.is_empty()
+            || self.text_qname.is_some()
+            || self
+                .children
+                .iter()
+                .any(|child| child.name.namespace != member.0 || child.name.local != member.1)
+        {
+            return Err(failure(
+                "A collection patch cannot change its shared container or sibling collections",
+            ));
+        }
+        writer.ensure_container(parent);
+        for child in &self.children {
+            child.write_at(writer, parent, qname_attributes)?;
+        }
+        Ok(())
     }
     pub fn write_at<'a>(
         &'a self,
@@ -169,9 +268,7 @@ impl Tree {
         path: &mut Vec<(&'a str, &'a str)>,
         qname_attributes: &[(&str, &str)],
     ) -> Result<()> {
-        let registered = |name: &Name| {
-            name.namespace.is_empty() || writer.namespaces.contains(&name.namespace.as_str())
-        };
+        let registered = |name: &Name| writer.has_namespace(&name.namespace);
         if !registered(&self.name) {
             return Err(failure(
                 "Preserved element namespace is not registered with the writer",
@@ -208,8 +305,19 @@ impl Tree {
         path.push((&self.name.namespace, &self.name.local));
         writer.container_with_attributes(path, &attributes);
         if self.children.is_empty() {
-            super::validate_text(&self.text)?;
-            writer.output.push_str(&super::escape(&self.text));
+            if let Some(name) = &self.text_qname {
+                if !writer.has_namespace(&name.namespace) {
+                    return Err(failure(
+                        "Preserved QName namespace is not registered with the writer",
+                    ));
+                }
+                writer
+                    .output
+                    .push_str(&writer.name((&name.namespace, &name.local)));
+            } else {
+                super::validate_text(&self.text)?;
+                writer.output.push_str(&super::escape(&self.text));
+            }
         } else {
             for child in &self.children {
                 child.write_node(writer, path, qname_attributes)?;
@@ -224,7 +332,7 @@ impl Tree {
         namespaces: &[(&str, &str)],
         qname_attributes: &[(&str, &str)],
     ) -> Result<Payload> {
-        if self.attributes.is_empty() && self.children.is_empty() {
+        if self.attributes.is_empty() && self.children.is_empty() && self.text_qname.is_none() {
             return Ok(if self.text.is_empty() {
                 Payload::Null
             } else {
@@ -251,7 +359,15 @@ impl Tree {
                 Payload::Text(value),
             ));
         }
-        if !self.text.is_empty() {
+        if let Some(name) = &self.text_qname {
+            fields.push((
+                "#qname".into(),
+                Payload::Sequence(vec![
+                    Payload::Text(name.namespace.clone()),
+                    Payload::Text(name.local.clone()),
+                ]),
+            ));
+        } else if !self.text.is_empty() {
             fields.push(("#text".into(), Payload::Text(self.text.clone())));
         }
         let mut groups: Vec<Vec<&Tree>> = Vec::new();
@@ -304,17 +420,37 @@ impl Tree {
     }
 }
 fn render(value: &Payload, indent: usize) -> String {
+    render_payload(value, indent, false)
+}
+fn render_payload(value: &Payload, indent: usize, patch: bool) -> String {
+    let render = |value: &Payload, indent| render_payload(value, indent, patch);
     let padding = " ".repeat(indent);
     match value {
-        Payload::Null => String::new(),
+        Payload::Null => {
+            if patch {
+                "null".into()
+            } else {
+                String::new()
+            }
+        }
+        Payload::Mapping(fields) if patch && fields.is_empty() => "{}".into(),
+        Payload::Sequence(values) if patch && values.is_empty() => "[]".into(),
         Payload::Text(text) => crate::yaml::scalar(text),
         Payload::Mapping(fields) => fields
             .iter()
             .map(|(key, value)| {
                 let key = crate::yaml::scalar(key);
                 match value {
-                    Payload::Null if key.starts_with('_') => format!("{padding}{key}: null"),
+                    Payload::Null if key.starts_with('_') => {
+                        format!("{padding}{key}: null")
+                    }
                     Payload::Null => format!("{padding}{key}:"),
+                    Payload::Mapping(fields) if patch && fields.is_empty() => {
+                        format!("{padding}{key}: {{}}")
+                    }
+                    Payload::Sequence(values) if patch && values.is_empty() => {
+                        format!("{padding}{key}: []")
+                    }
                     Payload::Text(_) => format!("{padding}{key}: {}", render(value, 0)),
                     _ => format!("{padding}{key}:\n{}", render(value, indent + 2)),
                 }

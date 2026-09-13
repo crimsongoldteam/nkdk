@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.10894425b0093dd1254e
+description: 'Кандидат проекции: относительный XML-корень TimeScaleItemHyperlink; не полный владелец'
+imports:
+  part0: candidate.fragment.f1d57735b340b5b38696
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

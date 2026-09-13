@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: dimensionItemHyperlink
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: dimensionItemHyperlink
+        path:
+          - DimensionItemHyperlink
+  yaml:
+    kind: mapping
+    fields:
+      - field: dimensionItemHyperlink
+        key: ГиперссылкаЭлементаИзмерения
+presence:
+  - target:
+      field: dimensionItemHyperlink
+    xml:
+      missing:
+        denotes:
+          literal: false
+      canonical:
+        - when:
+            eq:
+              - field: dimensionItemHyperlink
+              - literal: false
+          form: missing
+    yaml:
+      default:
+        literal: false
+id: candidate.fragment.78c45e5b5a7db2f821b1

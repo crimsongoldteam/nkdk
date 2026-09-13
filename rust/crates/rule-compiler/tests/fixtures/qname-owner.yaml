@@ -1,0 +1,8 @@
+format: nkdk-declarations/1
+kind: object
+id: test.qualified
+imports: {name: common.qualified}
+value: {kind: record, fields: [{name: value, type: {use: name}}]}
+representations:
+  xml: {kind: record, fields: [{field: value, path: [Root, Type]}]}
+  yaml: {kind: mapping, fields: [{field: value, key: Qualified}]}

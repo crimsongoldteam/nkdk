@@ -1,0 +1,40 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.FormWindowOpeningMode
+value:
+  kind: record
+  fields:
+    - name: formWindowOpeningMode
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: formWindowOpeningMode
+        path:
+          - Form
+          - WindowOpeningMode
+  yaml:
+    kind: mapping
+    fields:
+      - field: formWindowOpeningMode
+        key: РежимОткрытияОкнаФормы
+presence:
+  - target:
+      field: formWindowOpeningMode
+    xml:
+      missing:
+        denotes:
+          literal: DontBlock
+      canonical:
+        - when:
+            eq:
+              - field: formWindowOpeningMode
+              - literal: DontBlock
+          form: missing
+    yaml:
+      default:
+        literal: DontBlock
+id: contract.property.c23ffff8ab563dfe3cc5.fragment

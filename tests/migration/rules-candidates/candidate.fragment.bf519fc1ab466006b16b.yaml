@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: showMonthsPanel
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: showMonthsPanel
+        path:
+          - ShowMonthsPanel
+  yaml:
+    kind: mapping
+    fields:
+      - field: showMonthsPanel
+        key: ОтображатьПанельМесяцев
+presence:
+  - target:
+      field: showMonthsPanel
+    xml:
+      missing:
+        denotes:
+          literal: false
+      canonical:
+        - when:
+            eq:
+              - field: showMonthsPanel
+              - literal: false
+          form: missing
+    yaml:
+      default:
+        literal: false
+id: candidate.fragment.bf519fc1ab466006b16b

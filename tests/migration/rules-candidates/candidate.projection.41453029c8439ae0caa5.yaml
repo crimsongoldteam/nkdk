@@ -1,0 +1,40 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.41453029c8439ae0caa5
+description: 'Кандидат проекции: относительный XML-корень xr:ToolTip; не полный владелец'
+imports:
+  part0: candidate.fragment.c6dc26c494f76d1bbe98
+compose:
+  - use: part0
+    bind:
+      defaultLanguage:
+        input: defaultLanguage
+      registeredLanguages:
+        input: registeredLanguages
+      ownerName:
+        input: ownerName
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  ownerName:
+    type:
+      kind: scalar
+      scalar: text

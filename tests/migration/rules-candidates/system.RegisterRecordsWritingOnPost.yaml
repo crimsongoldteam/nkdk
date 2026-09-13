@@ -1,0 +1,19 @@
+format: nkdk-declarations/1
+kind: value
+id: system.RegisterRecordsWritingOnPost
+enum:
+  WriteSelected: ЗаписыватьВыбранные
+  WriteModified: ЗаписыватьМодифицированные
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  t: http://v8.1c.ru/8.1/data/enterprise
+projections:
+  - id: system.RegisterRecordsWritingOnPost.dcs
+    xml:
+      kind: with-attributes
+      attributes:
+        - name: xsi:type
+          value:
+            qname: t:RegisterRecordsWritingOnPost
+      content:
+        kind: text

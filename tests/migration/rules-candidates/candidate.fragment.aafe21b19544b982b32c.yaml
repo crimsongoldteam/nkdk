@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.RefreshRequestMethod
+value:
+  kind: record
+  fields:
+    - name: refreshRequest
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: refreshRequest
+        path:
+          - RefreshRequest
+  yaml:
+    kind: mapping
+    fields:
+      - field: refreshRequest
+        key: ЗапросОбновления
+presence:
+  - target:
+      field: refreshRequest
+    xml:
+      missing:
+        denotes:
+          literal: None
+      canonical:
+        - when:
+            eq:
+              - field: refreshRequest
+              - literal: None
+          form: missing
+    yaml:
+      default:
+        literal: None
+id: candidate.fragment.aafe21b19544b982b32c

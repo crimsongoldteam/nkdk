@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.dbcffb4d1d8db5968422
+description: 'Кандидат проекции: относительный XML-корень CommandSource; не полный владелец'
+imports:
+  part0: candidate.fragment.3a90213fd2d4ae43bd91
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

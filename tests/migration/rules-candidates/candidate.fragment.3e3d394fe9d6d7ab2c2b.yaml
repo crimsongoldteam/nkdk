@@ -1,0 +1,41 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: denyIncompleteValues
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: denyIncompleteValues
+        path:
+          - dcssch:denyIncompleteValues
+  yaml:
+    kind: mapping
+    fields:
+      - field: denyIncompleteValues
+        key: ЗапрещатьНезаполненныеЗначения
+presence:
+  - target:
+      field: denyIncompleteValues
+    xml:
+      missing:
+        denotes:
+          literal: false
+      canonical:
+        - when:
+            eq:
+              - field: denyIncompleteValues
+              - literal: false
+          form: missing
+    yaml:
+      default:
+        literal: false
+namespaces:
+  dcssch: http://v8.1c.ru/8.1/data-composition-system/schema
+id: candidate.fragment.3e3d394fe9d6d7ab2c2b

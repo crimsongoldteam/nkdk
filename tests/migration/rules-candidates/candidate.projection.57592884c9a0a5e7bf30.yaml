@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.57592884c9a0a5e7bf30
+description: 'Кандидат проекции: относительный XML-корень CloseOnChoice; не полный владелец'
+imports:
+  part0: candidate.fragment.cb25495a150de5034cb2
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

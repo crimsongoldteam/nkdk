@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.8b0e6cb73cc68768d77d
+description: 'Кандидат проекции: относительный XML-корень FileDragMode; не полный владелец'
+imports:
+  part0: candidate.fragment.7ac3093796e4cfca3777
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

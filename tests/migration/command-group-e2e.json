@@ -1,0 +1,451 @@
+{
+  "scope": "Command/CommonCommand Properties/Group in e2e cf and cfe; original fixtures unchanged",
+  "count": 74,
+  "withType": 0,
+  "rows": [
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt.xml",
+      "value": "FormNavigationPanelGoTo",
+      "attributes": {},
+      "sha256": "ba35b75641d1a6a46ea5821b44bfe9ef56655aa7e4752b4b036ed7e633f4b23d"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства.xml",
+      "value": "FormNavigationPanelGoTo",
+      "attributes": {},
+      "sha256": "2c0e6fa906363085def52dc9d23fd62fc76dd2d899229768b22548a0267fddbe"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства.xml",
+      "value": "NavigationPanelImportant",
+      "attributes": {},
+      "sha256": "346554c79ff22c0239e18eaa00e69bc203b161485dcbd6a482b191871f90b79e"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства.xml",
+      "value": "FormCommandBarImportant",
+      "attributes": {},
+      "sha256": "ea7e9507ee5538c46acb941135ff909df0caefabf86926fdb4969fb063c3002d"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства.xml",
+      "value": "NavigationPanelImportant",
+      "attributes": {},
+      "sha256": "a03527edc24990a7c2bbb21285d9dd179b7dac8e32848be870967e2b466ec3d6"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства.xml",
+      "value": "NavigationPanelImportant",
+      "attributes": {},
+      "sha256": "a03527edc24990a7c2bbb21285d9dd179b7dac8e32848be870967e2b466ec3d6"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый.xml",
+      "value": "ActionsPanelCreate",
+      "attributes": {},
+      "sha256": "d88e5e7cd186df824284b5108f3554d7ff786d8eb53279cf6549946ba40e6fc5"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/AccumulationRegisters/РегистрНакопленияВсеСвойстваОбороты.xml",
+      "value": "ActionsPanelCreate",
+      "attributes": {},
+      "sha256": "3df60315edca01ce56335f95a07d45fc9d88d33cb3719b5c023fe71ec0745c90"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CalculationRegisters/РегистрРасчетаВсеСвойства.xml",
+      "value": "ActionsPanelCreate",
+      "attributes": {},
+      "sha256": "d304ae507ba211ffc86fb27d5568c6d8861da76b18ac95b5f546cecf43f21ecf"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойства.xml",
+      "value": "FormNavigationPanelGoTo",
+      "attributes": {},
+      "sha256": "ee9cf784680600b26d8040df15657b6813d51ce3bc3c1eeb77a98344788a2dd3"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/DataProcessors/ОбработкаВсеСвойства.xml",
+      "value": "FormNavigationPanelGoTo",
+      "attributes": {},
+      "sha256": "9a70ce3ab3fda19d59f75df003af943cf930723673ecec29a366017c8ae4867d"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства.xml",
+      "value": "FormCommandBarImportant",
+      "attributes": {},
+      "sha256": "66ea4b6187197369483e37c0f742e3ce9cd23d1e01d58228bf55da2511b7759c"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCalculationTypes/ПланРасчетаВсеСвойстваExt.xml",
+      "value": "FormCommandBarImportant",
+      "attributes": {},
+      "sha256": "bc0057e014964e687fad1fa03dfec7ff26fa621cc8eb80af2fc293d2fd4f19cb"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Tasks/ЗадачаВсеСвойства.xml",
+      "value": "FormCommandBarImportant",
+      "attributes": {},
+      "sha256": "0861cb0b907e399e44ec5f8820a01a2e4b4adfcde0067d2bd8e6f8fda06b9537"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/CommonCommands/КомандаСДанными.xml",
+      "value": "FormCommandBarImportant",
+      "attributes": {},
+      "sha256": "14988eaff44ead757a50621f9c992ddd88fdb4880fc7ffcabfa5c794c63a32d4"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/CommonCommands/КомандаСДаннымиExt.xml",
+      "value": "FormCommandBarImportant",
+      "attributes": {},
+      "sha256": "ac18d16ed606744414240b54056fff475e18ffc573163a7f86c3b9bcfae8ed00"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/FilterCriteria/КритерийОтбораВсеСвойстваExt.xml",
+      "value": "FormCommandBarCreateBasedOn",
+      "attributes": {},
+      "sha256": "79cf5b2539c0a812b2ce9381182e5ead2b2f9ddd3a4c40062e7f782f8ec968d8"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойства.xml",
+      "value": "FormNavigationPanelImportant",
+      "attributes": {},
+      "sha256": "d54fdc5a4d68f3ae9f685e19cbe0eea9f12c3f7660394e0322cdbf9fd905f779"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойства.xml",
+      "value": "NavigationPanelOrdinary",
+      "attributes": {},
+      "sha256": "d54fdc5a4d68f3ae9f685e19cbe0eea9f12c3f7660394e0322cdbf9fd905f779"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/FilterCriteria/КритерийОтбораВсеСвойства.xml",
+      "value": "FormCommandBarCreateBasedOn",
+      "attributes": {},
+      "sha256": "534f2e4aa4de37c9c2952c6432e7916355575719ccc990a9ca93a27922cbe825"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Enums/ПеречислениеВсеСвойства.xml",
+      "value": "NavigationPanelImportant",
+      "attributes": {},
+      "sha256": "107c5026868059b333b8f37c27de1aa173882d4642a9766e3a837ef6e8c9652f"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/BusinessProcesses/БизнесПроцессВсеСвойства.xml",
+      "value": "NavigationPanelImportant",
+      "attributes": {},
+      "sha256": "350004039c72617d5b11d9068c6c2d4dd541b7aea86492607b25e3b8fd4f0840"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/BusinessProcesses/БизнесПроцессВсеСвойства.xml",
+      "value": "NavigationPanelImportant",
+      "attributes": {},
+      "sha256": "350004039c72617d5b11d9068c6c2d4dd541b7aea86492607b25e3b8fd4f0840"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/FilterCriteria/КритерийОтбораВсеСвойства.xml",
+      "value": "FormCommandBarCreateBasedOn",
+      "attributes": {},
+      "sha256": "1b6bca1ced8ba1e6a26d80d7971b5851dc663e56b2469fab8a297add89a4a9be"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства.xml",
+      "value": "NavigationPanelImportant",
+      "attributes": {},
+      "sha256": "0244103351fe00c0e343c0149d82c9d4669e288bb0d78c49047be6081fd6117f"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойства.xml",
+      "value": "FormCommandBarImportant",
+      "attributes": {},
+      "sha256": "16a187cfb48737f5c12a5c537b2bcb98739031f498f09a57c75a07db64d959c9"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/DataProcessors/ОбработкаВсеСвойства.xml",
+      "value": "FormNavigationPanelGoTo",
+      "attributes": {},
+      "sha256": "4e13d66bfb515ea77107b4390dba8f64bca6ad8f9e5cd9d283191992657f5e0f"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Enums/ПеречислениеВсеСвойства.xml",
+      "value": "NavigationPanelImportant",
+      "attributes": {},
+      "sha256": "f592fee049bd1b6a0e0a5cf4acb6647d0486d987d1f5a61ac6112a6e466c5d20"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойстваExt.xml",
+      "value": "FormCommandBarImportant",
+      "attributes": {},
+      "sha256": "d0f769e38027e7fcb3c9a9370c6397b78f823e5bc86147b24f6e13e2c5368423"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/DataProcessors/ОбработкаВсеСвойстваExt.xml",
+      "value": "FormNavigationPanelGoTo",
+      "attributes": {},
+      "sha256": "20f447da14a75ddc7114148549687a04665e7f996dba35cb4910554cd3b16df9"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Tasks/ЗадачаВсеСвойстваExt.xml",
+      "value": "FormCommandBarImportant",
+      "attributes": {},
+      "sha256": "25df146096e8d8fc00f34702ece490a48a9409c450c6e2c94b61b18ea1b3e90a"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Enums/ПеречислениеВсеСвойстваExt.xml",
+      "value": "NavigationPanelImportant",
+      "attributes": {},
+      "sha256": "8f577527689eefef44b06a17631e99694c23c22d6201af2409c40e23eb8175d9"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства.xml",
+      "value": "NavigationPanelImportant",
+      "attributes": {},
+      "sha256": "f84718d18d582a4b913581beec2f29f3122ec510f01c90d336bf59c779750a36"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/BusinessProcesses/БизнесПроцессВсеСвойстваExt.xml",
+      "value": "NavigationPanelImportant",
+      "attributes": {},
+      "sha256": "80673d2d4f16696a071a62273a51c95d1ca745d6b592ff4a78cd6092e2ffe019"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/BusinessProcesses/БизнесПроцессВсеСвойстваExt.xml",
+      "value": "NavigationPanelImportant",
+      "attributes": {},
+      "sha256": "80673d2d4f16696a071a62273a51c95d1ca745d6b592ff4a78cd6092e2ffe019"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОбороты.xml",
+      "value": "ActionsPanelCreate",
+      "attributes": {},
+      "sha256": "955e664d05854c0c525668b40ef65a5607ca779be518bb244dd10f128945487e"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойстваExt.xml",
+      "value": "FormNavigationPanelImportant",
+      "attributes": {},
+      "sha256": "130290821ff067b6c3c7ebb27e52b72dc40e8228c6fddb249cf1d5d1ea396cef"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойстваExt.xml",
+      "value": "NavigationPanelOrdinary",
+      "attributes": {},
+      "sha256": "130290821ff067b6c3c7ebb27e52b72dc40e8228c6fddb249cf1d5d1ea396cef"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойстваExt/Cubes/КубВсеСвойства.xml",
+      "value": "NavigationPanelImportant",
+      "attributes": {},
+      "sha256": "60ed088f42155d2d93e3245c1fe15d2857e7d7212853c8ec80bbb63cfd393dcd"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойства.xml",
+      "value": "FormNavigationPanelImportant",
+      "attributes": {},
+      "sha256": "740f6cfa807fb9e49d6dfacf65c77d53b6f6903dc1e7c4767b636967d6cd82f8"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойства.xml",
+      "value": "NavigationPanelOrdinary",
+      "attributes": {},
+      "sha256": "740f6cfa807fb9e49d6dfacf65c77d53b6f6903dc1e7c4767b636967d6cd82f8"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОборотыExt.xml",
+      "value": "ActionsPanelCreate",
+      "attributes": {},
+      "sha256": "74cdbd86c72cb85061598772d3b4c8cd856f719b17c00d23df96d4bd1225dc4f"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml",
+      "value": "FormNavigationPanelImportant",
+      "attributes": {},
+      "sha256": "27231ddedad3d68c1c8aa071d611c32f94681c7bc94d6533b22ee9409b0217dd"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml",
+      "value": "NavigationPanelOrdinary",
+      "attributes": {},
+      "sha256": "27231ddedad3d68c1c8aa071d611c32f94681c7bc94d6533b22ee9409b0217dd"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/DocumentJournals/ЖурналДокументовВсеСвойстваExt.xml",
+      "value": "CommandGroup.ГруппаКомандПоУмолчанию",
+      "attributes": {},
+      "sha256": "fe2764eafcb466bdc43777774d8e832e020f80e070f45efd8bfc0ca770dd4850"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/DocumentJournals/ЖурналДокументовВсеСвойства.xml",
+      "value": "CommandGroup.ГруппаКомандПоУмолчанию",
+      "attributes": {},
+      "sha256": "10ecc54cce095fb279d2ae8156b90f033d59adbb6162e93e1ef353f53c67a24e"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/InformationRegisters/РегистрСведенийВсеСвойстваНезависимыйExt.xml",
+      "value": "ActionsPanelCreate",
+      "attributes": {},
+      "sha256": "1e3b15be1bb15d91e4ed22a7af5f0dc09b7b4eb90c708475abf832e6d2f68c11"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойстваExt/Tables/ТаблицаВсеСвойства.xml",
+      "value": "NavigationPanelImportant",
+      "attributes": {},
+      "sha256": "c9e1c6fdde59a8a71163293636f9abbdbb9137fe82da422f0e3e6c600e1ffe0d"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый.xml",
+      "value": "ActionsPanelCreate",
+      "attributes": {},
+      "sha256": "ffa4040d1a1488a7fcf684fba0ed0a7b5d58ebeb69acf3cc49d79971a4e74a11"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExchangePlans/ПланОбменаВсеСвойства.xml",
+      "value": "FormCommandBarImportant",
+      "attributes": {},
+      "sha256": "dcfa6328b12dc6735fd07a24d101ca1220429b7ef47cf96f33de215fdbe7491b"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExchangePlans/ПланОбменаВсеСвойстваExt.xml",
+      "value": "FormCommandBarImportant",
+      "attributes": {},
+      "sha256": "a20807181ce270cade440ab6f014efb8f0e81b9a51c0e3172874404788e0d907"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства.xml",
+      "value": "FormCommandBarImportant",
+      "attributes": {},
+      "sha256": "0b75c93753e1b9bc03c8e9955857140aa466f69c769353c62a59d788bf1997a8"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОбороты.xml",
+      "value": "ActionsPanelCreate",
+      "attributes": {},
+      "sha256": "8ccfd7367b0d43ae6abea5f2df41ef7981057bce01f51be2c9a3fa62b5ba946e"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникПолныйExt.xml",
+      "value": "FormNavigationPanelImportant",
+      "attributes": {},
+      "sha256": "d0f5a2010c7e7b8a29cae27a21f48ac071e90d10b78a927d6bd41cf398ec4580"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникПолныйExt.xml",
+      "value": "NavigationPanelOrdinary",
+      "attributes": {},
+      "sha256": "d0f5a2010c7e7b8a29cae27a21f48ac071e90d10b78a927d6bd41cf398ec4580"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникCоВсемиОбъектами.xml",
+      "value": "NavigationPanelImportant",
+      "attributes": {},
+      "sha256": "0b6783aa9e5468c6205210c90e6e159e7a09c25fad69be082b6a039a4a56e1a5"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства.xml",
+      "value": "NavigationPanelImportant",
+      "attributes": {},
+      "sha256": "d28dfd79e7a5a2bdfb5f5cafee33dcc38c55abf6c8d911171ac8199580460be8"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/DocumentJournals/ЖурналДокументовВсеСвойства.xml",
+      "value": "CommandGroup.ГруппаКомандПоУмолчанию",
+      "attributes": {},
+      "sha256": "158835bccaf6f4bda5403f7cf742fc725257bcfe1e3d1fda9b10fbfed1c84af6"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства.xml",
+      "value": "FormCommandBarImportant",
+      "attributes": {},
+      "sha256": "fcd73718d1134a63afb433454d4d4d3fb14fb461b80620b33aa9c37f4750acdf"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Documents/ДокументВсеСвойства.xml",
+      "value": "NavigationPanelImportant",
+      "attributes": {},
+      "sha256": "6445b9c1728afc38babd360b742d8ea4e595d109828576f64595f8ac212510b9"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства.xml",
+      "value": "FormCommandBarImportant",
+      "attributes": {},
+      "sha256": "9c2920177c6974fc6941bd2f9d10d1ed1c0e69efe5a564b67a35daa5abc5f72d"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonCommands/ОбщаяКомандаВсеСвойства.xml",
+      "value": "FormCommandBarImportant",
+      "attributes": {},
+      "sha256": "dc12119d01570517505a00fe66fcaa4a675f057fd681f457622a6a06342e9be9"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Documents/ДокументВсеСвойстваExt.xml",
+      "value": "NavigationPanelImportant",
+      "attributes": {},
+      "sha256": "dc44cba2816c8da178f7fc72bef06b824593fc9a23ade0676b1144a7e1effe66"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonCommands/КомандаСДанными.xml",
+      "value": "FormCommandBarImportant",
+      "attributes": {},
+      "sha256": "069d7a82c4488e09e1794b4788ee624ab63bf9dec940a3d468f63ee7a36ca943"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonCommands/ОбщаяКомандаПоУмолчанию.xml",
+      "value": "NavigationPanelImportant",
+      "attributes": {},
+      "sha256": "b345dc7d88b9e62de9abf8d5f2d9d1b71a7424176f445b1b2b053ee250d7dc9d"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства.xml",
+      "value": "NavigationPanelImportant",
+      "attributes": {},
+      "sha256": "1e2e310995587efd1dd1fcd8349b9878930fb609ba109b31bc6d0d1173c2b102"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникПолный.xml",
+      "value": "FormNavigationPanelImportant",
+      "attributes": {},
+      "sha256": "37ca9d04093ce656ca3a59506ead17d8ca4a6e8bb8152cccca7f6a2b62e1577f"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникПолный.xml",
+      "value": "NavigationPanelOrdinary",
+      "attributes": {},
+      "sha256": "37ca9d04093ce656ca3a59506ead17d8ca4a6e8bb8152cccca7f6a2b62e1577f"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникCоВсемиОбъектамиExt.xml",
+      "value": "NavigationPanelImportant",
+      "attributes": {},
+      "sha256": "86a700ae56a48422b0daada8d74238a5cf8b90cb348fa32486dbdb2d4d9ba4c8"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникCоВсемиОбъектами.xml",
+      "value": "NavigationPanelImportant",
+      "attributes": {},
+      "sha256": "f748d013455ab440220c5e53dbac73f639c8137f5348b771dc1fbcd7da926158"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/AccumulationRegisters/РегистрНакопленияВсеСвойстваОбороты.xml",
+      "value": "ActionsPanelCreate",
+      "attributes": {},
+      "sha256": "4d636c8efb6153a5dd432439c655911f6c1d302745656248bd3b755d3eccdfce"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/CalculationRegisters/РегистрРасчетаВсеСвойства.xml",
+      "value": "ActionsPanelCreate",
+      "attributes": {},
+      "sha256": "20e2630e0940391f0bcf8cae7c45c4bdfa6ad26953d2c898cc33c440bc7524cb"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/CalculationRegisters/РегистрРасчетаВсеСвойстваExt.xml",
+      "value": "ActionsPanelCreate",
+      "attributes": {},
+      "sha256": "c11bafd928d25fa427c981f226d4833651b50edea68da23a9442f86c46929b34"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/AccumulationRegisters/РегистрНакопленияВсеСвойстваОборотыExt.xml",
+      "value": "ActionsPanelCreate",
+      "attributes": {},
+      "sha256": "d4b59f86e32f9577d966057a8137d9cb3ed273d71b21ea19029c263b01ddcf6d"
+    }
+  ]
+}

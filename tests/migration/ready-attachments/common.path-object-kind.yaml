@@ -1,0 +1,9 @@
+format: nkdk-declarations/1
+kind: value
+id: common.path-object-kind
+enum:
+  Table: Таблица
+  Cube: Куб
+  DimensionTable: ТаблицаИзмерения
+  Function: Функция
+  Recalculation: Перерасчет

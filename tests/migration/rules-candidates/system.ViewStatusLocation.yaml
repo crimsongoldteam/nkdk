@@ -1,0 +1,21 @@
+format: nkdk-declarations/1
+kind: value
+id: system.ViewStatusLocation
+enum:
+  Auto: Авто
+  Top: Верх
+  None: Нет
+  Bottom: Низ
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  t: http://v8.1c.ru/8.1/data/enterprise
+projections:
+  - id: system.ViewStatusLocation.dcs
+    xml:
+      kind: with-attributes
+      attributes:
+        - name: xsi:type
+          value:
+            qname: t:ViewStatusLocation
+      content:
+        kind: text

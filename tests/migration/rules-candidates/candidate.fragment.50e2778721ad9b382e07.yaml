@@ -1,0 +1,41 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.DCSParameterUse
+value:
+  kind: record
+  fields:
+    - name: use
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: use
+        path:
+          - dcssch:use
+  yaml:
+    kind: mapping
+    fields:
+      - field: use
+        key: Использование
+presence:
+  - target:
+      field: use
+    xml:
+      missing:
+        denotes:
+          literal: Auto
+      canonical:
+        - when:
+            eq:
+              - field: use
+              - literal: Auto
+          form: missing
+    yaml:
+      default:
+        literal: Auto
+namespaces:
+  dcssch: http://v8.1c.ru/8.1/data-composition-system/schema
+id: candidate.fragment.50e2778721ad9b382e07

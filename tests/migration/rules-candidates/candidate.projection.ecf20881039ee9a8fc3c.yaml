@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.ecf20881039ee9a8fc3c
+description: 'Кандидат проекции: относительный XML-корень CommandUniqueness; не полный владелец'
+imports:
+  part0: candidate.fragment.905772a96445a0f93467
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

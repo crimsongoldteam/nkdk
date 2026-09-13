@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.5516b47ac359e0f75865
+description: 'Кандидат проекции: относительный XML-корень VerticalScroll; не полный владелец'
+imports:
+  part0: candidate.fragment.47b8f9b854be17accdfc
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

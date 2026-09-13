@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.ItemHorizontalLocation
+value:
+  kind: record
+  fields:
+    - name: horizontalAlignInGroup
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: horizontalAlignInGroup
+        path:
+          - GroupHorizontalAlign
+  yaml:
+    kind: mapping
+    fields:
+      - field: horizontalAlignInGroup
+        key: ГоризонтальноеПоложениеВГруппе
+presence:
+  - target:
+      field: horizontalAlignInGroup
+    xml:
+      missing:
+        denotes:
+          literal: Auto
+      canonical:
+        - when:
+            eq:
+              - field: horizontalAlignInGroup
+              - literal: Auto
+          form: missing
+    yaml:
+      default:
+        literal: Auto
+id: candidate.fragment.0bac7941eec4e7334b36

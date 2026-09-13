@@ -1,0 +1,21 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: common.metadata-object-segment
+  imports: {kind: common.path-object-kind, name: common.metadata-name}
+  value:
+    kind: record
+    fields:
+    - {name: kind, type: {use: kind}}
+    - {name: name, type: {use: name}}
+  representations:
+    xml: {kind: text-pattern, parts: [{field: kind}, {literal: '.'}, {field: name}]}
+    yaml: {kind: text-pattern, parts: [{field: kind}, {literal: '.'}, {field: name}]}
+- kind: value
+  id: common.metadata-object-segments
+  imports: {segment: common.metadata-object-segment}
+  value: {kind: sequence, item: {use: segment}}
+  representations:
+    xml: {kind: text-sequence, separator: '.'}
+    yaml: {kind: text-sequence, separator: '.'}

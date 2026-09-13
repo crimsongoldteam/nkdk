@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.AutoCapitalizationOnTextInput
+value:
+  kind: record
+  fields:
+    - name: autoCapitalizationOnTextInput
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: autoCapitalizationOnTextInput
+        path:
+          - AutoCapitalizationOnTextInput
+  yaml:
+    kind: mapping
+    fields:
+      - field: autoCapitalizationOnTextInput
+        key: АвтоИзменениеРегистраПриВводеТекста
+presence:
+  - target:
+      field: autoCapitalizationOnTextInput
+    xml:
+      missing:
+        denotes:
+          literal: Auto
+      canonical:
+        - when:
+            eq:
+              - field: autoCapitalizationOnTextInput
+              - literal: Auto
+          form: missing
+    yaml:
+      default:
+        literal: Auto
+id: candidate.fragment.a307a0aab5def579983d

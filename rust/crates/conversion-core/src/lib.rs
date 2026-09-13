@@ -1,14 +1,17 @@
 pub mod annotations;
 pub mod calendar;
 pub mod decimal;
+pub mod facts;
 pub mod inputs;
 pub mod pattern;
+pub mod text_pattern;
 pub use inputs::{InputType, InputValue, PreparedInputs};
 pub mod position;
 pub use position::Position;
 pub mod presence;
 pub mod proof;
 pub mod raw;
+pub mod resources;
 pub mod sequence_pattern;
 pub use presence::Sequence;
 pub mod xml;
@@ -23,6 +26,7 @@ pub enum Direction {
 pub struct EntryId(pub u32);
 #[derive(Debug)]
 pub struct FileResult {
+    pub documents: Vec<(resources::RelativePath, Vec<u8>)>,
     pub bytes: Vec<u8>,
     pub diagnostics: Vec<RuntimeDiagnostic>,
 }

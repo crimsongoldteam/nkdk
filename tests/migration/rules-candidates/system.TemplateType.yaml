@@ -1,0 +1,27 @@
+format: nkdk-declarations/1
+kind: value
+id: system.TemplateType
+enum:
+  ActiveDocument: ActiveDocument
+  HTMLDocument: HTMLДокумент
+  AddIn: ВнешняяКомпонента
+  GeographicalSchema: ГеографическаяСхема
+  GraphicalSchema: ГрафическаяСхема
+  BinaryData: ДвоичныеДанные
+  DataCompositionAppearanceTemplate: МакетОформленияКомпоновкиДанных
+  DataCompositionSchema: СхемаКомпоновкиДанных
+  SpreadsheetDocument: ТабличныйДокумент
+  TextDocument: ТекстовыйДокумент
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  t: http://v8.1c.ru/8.1/data/enterprise
+projections:
+  - id: system.TemplateType.dcs
+    xml:
+      kind: with-attributes
+      attributes:
+        - name: xsi:type
+          value:
+            qname: t:TemplateType
+      content:
+        kind: text

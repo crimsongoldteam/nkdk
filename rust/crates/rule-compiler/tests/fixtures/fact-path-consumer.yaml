@@ -1,0 +1,41 @@
+format: nkdk-declarations/1
+kind: object
+id: test.walked-path
+imports: {path: common.framed-pair}
+inputs:
+  roots: {index: test.path-roots}
+  children: {index: test.path-children}
+value: {kind: record, fields: [{name: path, type: {use: path}}]}
+representations:
+  xml: {kind: record, fields: [{field: path, path: [Root, Path]}]}
+  yaml: {kind: mapping, fields: [{field: path, key: Path}]}
+constraints:
+- id: target-exists
+  appliesTo: [xml-import, yaml-validation]
+  assert:
+    present:
+      fold:
+        in: {get: {of: {field: path}, field: tail}}
+        initial: {lookup: {in: {input: roots}, key: {record: {kind: {get: {of: {field: path}, field: domain}}, name: {get: {of: {field: path}, field: name}}}}}}
+        as: segment
+        state: parent
+        next:
+          lookup:
+            in: {input: children}
+            key: {record: {parent: {var: parent}, kind: {get: {of: {var: segment}, field: domain}}, name: {get: {of: {var: segment}, field: name}}}}
+  diagnostic: {code: path.target-missing, severity: error, at: {field: path}, message: Target is missing}
+- id: allowed-segment
+  appliesTo: [xml-import, yaml-validation]
+  assert:
+    each:
+      in: {get: {of: {field: path}, field: tail}}
+      as: segment
+      where: {not: {eq: [{get: {of: {var: segment}, field: name}}, {literal: forbidden}]}}
+  diagnostic: {code: path.segment-not-allowed, severity: error, at: {field: path}, message: This property does not allow the segment}
+- id: bounded-tail
+  appliesTo: [xml-import, yaml-validation]
+  assert:
+    eq:
+    - {get: {of: {field: path}, field: tail}}
+    - {take: {in: {get: {of: {field: path}, field: tail}}, count: 2}}
+  diagnostic: {code: path.too-deep, severity: error, at: {field: path}, message: At most two segments}

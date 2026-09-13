@@ -1,6 +1,20 @@
 use nkdk_conversion_core::raw::Property;
 #[test]
 fn raw_property_keeps_semantic_annotations_and_requires_an_exact_boundary() {
+    let owner =
+        nkdk_conversion_core::raw::Document::encode(b"Number: 9007199254740993", b"_format: null")
+            .unwrap();
+    let decoded = nkdk_conversion_core::raw::Document::decode(&owner)
+        .unwrap()
+        .unwrap();
+    assert_eq!(decoded.meaning, b"Number: 9007199254740993");
+    assert_eq!(decoded.payload, b"_format: null");
+    for source in [
+        b"!xml/raw\n$xml: {}".as_slice(),
+        "!xml/raw\n$значение: {}\n$xml: {}\nextra: x".as_bytes(),
+    ] {
+        assert!(nkdk_conversion_core::raw::Document::decode(source).is_err());
+    }
     let semantic = "Заголовок: \"\"".as_bytes();
     let payload = b"v8:item:\n  v8:lang: ru\n  v8:content:";
     let encoded = Property::encode("Заголовок", "Title", semantic, payload).unwrap();

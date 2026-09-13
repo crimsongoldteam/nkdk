@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: defaultItem
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: defaultItem
+        path:
+          - DefaultItem
+  yaml:
+    kind: mapping
+    fields:
+      - field: defaultItem
+        key: АктивизироватьПоУмолчанию
+presence:
+  - target:
+      field: defaultItem
+    xml:
+      missing:
+        denotes:
+          literal: false
+      canonical:
+        - when:
+            eq:
+              - field: defaultItem
+              - literal: false
+          form: missing
+    yaml:
+      default:
+        literal: false
+id: candidate.fragment.6dd78737b50e7d058858

@@ -1,0 +1,10 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.based-on-links
+imports: {links: common.based-on-links}
+namespaces: {md: 'http://v8.1c.ru/8.3/MDClasses'}
+inputs: {roots: {index: metadata.roots}, children: {index: metadata.children}}
+value: {kind: record, fields: [{name: links, type: {use: links, bind: {roots: {input: roots}, children: {input: children}}}}]}
+representations:
+  xml: {kind: record, fields: [{field: links, path: [Root, 'md:BasedOn']}]}
+  yaml: {kind: mapping, fields: [{field: links, key: ВводитсяНаОсновании}]}

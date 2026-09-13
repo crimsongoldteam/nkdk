@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.f1c704c90c913ecaeb13
+description: 'Кандидат проекции: относительный XML-корень MinValue; не полный владелец'
+imports:
+  part0: candidate.fragment.74ba96989fccdf2502a0
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

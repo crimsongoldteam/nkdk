@@ -1124,6 +1124,16 @@ fn composition_substitutes_inputs_parameters_and_constraint_addresses() {
             "{use: boolean, bind: {enabled: {and: [{parameter: permit}, {input: ready}]}}}",
         )
         + "\ninputs:\n  ready: {type: {kind: scalar, scalar: boolean}}\nparameters:\n  permit: {type: {kind: scalar, scalar: boolean}, default: true}\nconstraints:\n  - id: enabled\n    appliesTo: [yaml-validation]\n    assert: {field: server}\n    diagnostic:\n      severity: error\n      at: {field: server}\n      message: Disabled\npresence:\n  - target: {field: server}\n    xml:\n      missing: {denotes: {parameter: permit}}\n";
+    let fragment = fragment
+        .replace(
+            "inputs:\n",
+            "inputs:\n  label: {type: {kind: scalar, scalar: text}}\n",
+        )
+        .replace(
+            "parameters:\n",
+            "parameters:\n  bucket: {type: {kind: scalar, scalar: text}, default: original}\n",
+        )
+        + "contributions:\n- index: test.bound-fragment\n  key: {parameter: bucket}\n  value: {input: label}\n";
     let prefix = include_str!("fixtures/owner.yaml")
         .replace("kind: object", "kind: fragment")
         .replace("applied.common-module", "common.prefix")
@@ -1132,11 +1142,20 @@ fn composition_substitutes_inputs_parameters_and_constraint_addresses() {
         .replace("Server", "Prefix")
         .replace("Сервер", "Prefix");
     let owner = "format: nkdk-declarations/1\nkind: object\nid: applied.owner\nimports: {prefix: common.prefix, body: common.fragment}\ninputs:\n  active: {type: {kind: scalar, scalar: boolean}}\ncompose: [{use: prefix}, {use: body, with: {permit: false}, bind: {ready: {input: active}}}]\nvalue: {kind: record, fields: []}\nrepresentations:\n  xml: {kind: record, fields: []}\n  yaml: {kind: mapping, fields: []}\n";
+    let owner = owner
+        .replace(
+            "with: {permit: false}",
+            "with: {permit: false, bucket: substituted}",
+        )
+        .replace(
+            "bind: {ready: {input: active}}",
+            "bind: {ready: {input: active}, label: {literal: bound}}",
+        );
     let source = [
         ("common.yaml", common.as_str()),
         ("fragment.yaml", fragment.as_str()),
         ("prefix.yaml", prefix.as_str()),
-        ("owner.yaml", owner),
+        ("owner.yaml", owner.as_str()),
     ]
     .into_iter()
     .map(|(path, text)| {
@@ -1149,6 +1168,18 @@ fn composition_substitutes_inputs_parameters_and_constraint_addresses() {
     .collect::<Vec<_>>();
     let program = link(&source).unwrap();
     let entry = &program.entries[0];
+    assert_eq!(entry.contributions.len(), 1);
+    for (expression, expected) in [
+        (&entry.contributions[0].key, "substituted"),
+        (&entry.contributions[0].value, "bound"),
+    ] {
+        assert_eq!(
+            expression.kind,
+            nkdk_rule_model::LinkedExpressionKind::Literal(nkdk_rule_model::ScalarLiteral::Text(
+                expected.into()
+            ))
+        );
+    }
     assert_eq!(entry.constraints.len(), 1);
     assert_eq!(
         entry.presence[0].target,
@@ -2078,6 +2109,29 @@ fn decimal_boundaries_and_enum_literals_are_typed_before_generation() {
         .unwrap()
     });
     nkdk_rule_compiler::link(&modules).expect("valid numeric contract");
+    for (literal, expected) in [
+        ("String", None),
+        ("Unknown", Some("unknown_enum_literal")),
+        ("true", Some("expression_type_mismatch")),
+    ] {
+        let source = format!(
+            "{}\npresence:\n- target: {{field: codeType}}\n  xml: {{missing: {{denotes: {{absent: true}}}}}}\n  yaml: {{default: {{literal: {literal}}}}}\n",
+            sources[2].1
+        );
+        let mut changed = modules.clone();
+        changed[2] = nkdk_rule_compiler::parse(nkdk_rule_compiler::SourceFile {
+            path: "owner.yaml",
+            bytes: source.as_bytes(),
+        })
+        .unwrap();
+        let result = nkdk_rule_compiler::link(&changed);
+        if let Some(code) = expected {
+            assert!(result.unwrap_err().iter().any(|error| error.code == code));
+        } else {
+            result.expect("enum default inherits its property type");
+        }
+    }
+
     for bad in [
         sources[2].1.replace("literal: Number", "literal: Unknown"),
         sources[2].1.replace("literal: 38", "literal: '38'"),

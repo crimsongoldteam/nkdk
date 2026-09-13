@@ -1,0 +1,13 @@
+format: nkdk-declarations/1
+kind: value
+id: common.metadata-name
+value:
+  kind: scalar
+  scalar: text
+  pattern: '[A-Za-zА-Яа-яЁё_][A-Za-zА-Яа-яЁё0-9_]*'
+representations:
+  xml:
+    kind: text
+  yaml:
+    kind: scalar
+    scalar: text

@@ -7,6 +7,14 @@ pub(super) struct Attributes {
     pub namespaces: BTreeSet<String>,
     pub qnames: String,
 }
+pub(super) fn name_matches(name: &ExpandedName, receiver: &str) -> String {
+    let namespace = if name.namespace.is_empty() {
+        format!("{receiver}.namespace.is_empty()")
+    } else {
+        format!("{receiver}.namespace=={:?}", name.namespace)
+    };
+    format!("{namespace} && {receiver}.local=={:?}", name.local)
+}
 pub(super) fn content(xml: &LinkedXml) -> (&LinkedXml, Vec<&LinkedXmlAttribute>) {
     let mut content = xml;
     let mut attributes = Vec::new();
@@ -50,10 +58,7 @@ pub(super) fn generate(
             "({:?}, {:?})",
             attribute.name.namespace, attribute.name.local
         );
-        let named = format!(
-            "_attribute.name.namespace=={:?} && _attribute.name.local=={:?}",
-            attribute.name.namespace, attribute.name.local
-        );
+        let named = name_matches(&attribute.name, "_attribute.name");
         let (valid, output) = match &attribute.value {
             LinkedXmlAttributeValue::Text(text) => (
                 format!("_attribute.text=={text:?}"),
@@ -94,4 +99,29 @@ pub(super) fn generate(
         qnames.join(" || ")
     };
     Ok(result)
+}
+
+pub(super) fn static_attributes(attributes: &[LinkedXmlAttribute]) -> String {
+    format!(
+        "&[{}]",
+        attributes
+            .iter()
+            .map(|attr| {
+                let value = match &attr.value {
+                    LinkedXmlAttributeValue::Text(value) => {
+                        format!("core::xml::AttributeValue::Text({value:?})")
+                    }
+                    LinkedXmlAttributeValue::QName(value) => format!(
+                        "core::xml::AttributeValue::QName(({:?},{:?}))",
+                        value.namespace, value.local
+                    ),
+                };
+                format!(
+                    "core::xml::WriteAttribute{{name:({:?},{:?}),value:{value}}}",
+                    attr.name.namespace, attr.name.local
+                )
+            })
+            .collect::<Vec<_>>()
+            .join(",")
+    )
 }

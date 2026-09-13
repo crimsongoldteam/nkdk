@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: listChoiceMode
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: listChoiceMode
+        path:
+          - ListChoiceMode
+  yaml:
+    kind: mapping
+    fields:
+      - field: listChoiceMode
+        key: РежимВыбораИзСписка
+presence:
+  - target:
+      field: listChoiceMode
+    xml:
+      missing:
+        denotes:
+          literal: false
+      canonical:
+        - when:
+            eq:
+              - field: listChoiceMode
+              - literal: false
+          form: missing
+    yaml:
+      default:
+        literal: false
+id: candidate.fragment.775a21559f4b92bd2062

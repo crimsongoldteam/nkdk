@@ -19,24 +19,8 @@ pub(super) fn resolve_constraints(
                 error.related.push(first.clone());
                 return Err(error);
             }
-            let mut scope = expressions::Scope::default();
-            let for_each = if let Some(iteration) = &constraint.for_each {
-                let input =
-                    expressions::resolve_expression(module, &iteration.input, modules, ids)?;
-                let LinkedType::Sequence(item) = &input.value_type else {
-                    return Err(diagnostic(
-                        "expression_type_mismatch",
-                        &iteration.source,
-                        "forEach requires a sequence",
-                    ));
-                };
-                scope
-                    .variables
-                    .push((iteration.binding.clone(), *item.clone()));
-                Some(LinkedIteration { input, slot: 0 })
-            } else {
-                None
-            };
+            let (for_each, scope) =
+                expressions::iteration_scope(module, constraint.for_each.as_ref(), modules, ids)?;
             let resolve = |expression: &Expression| {
                 expressions::resolve_expression_in(module, expression, modules, ids, &scope)
             };
@@ -159,8 +143,19 @@ fn resolve_forms(module: &Module, constraint: &Constraint) -> Result<Vec<LinkedF
             xml = content;
         }
         available.push(match xml {
+            XmlRepresentation::Declared => {
+                return Err(diagnostic(
+                    "invalid_declared_representation",
+                    &module.source,
+                    "Inherited representation is only valid for a referenced sequence item",
+                ));
+            }
             XmlRepresentation::WithAttributes { .. } => unreachable!(),
-            XmlRepresentation::Text
+            XmlRepresentation::Choice
+            | XmlRepresentation::Text
+            | XmlRepresentation::TextPattern(_)
+            | XmlRepresentation::TextSequence { .. }
+            | XmlRepresentation::QName { .. }
             | XmlRepresentation::ScalarChoice(_)
             | XmlRepresentation::FormattedDecimal(_)
             | XmlRepresentation::Calendar
@@ -168,6 +163,7 @@ fn resolve_forms(module: &Module, constraint: &Constraint) -> Result<Vec<LinkedF
             | XmlRepresentation::Decimal
             | XmlRepresentation::EnumTable(_) => ("text", LinkedForm::XmlText),
             XmlRepresentation::Record(_) => ("record", LinkedForm::XmlRecord),
+            XmlRepresentation::Tree(_) => ("tree", LinkedForm::XmlTree),
             XmlRepresentation::ElementSequence { .. } => {
                 ("element-sequence", LinkedForm::XmlElementSequence)
             }
@@ -178,13 +174,32 @@ fn resolve_forms(module: &Module, constraint: &Constraint) -> Result<Vec<LinkedF
         .contains(&ValidationPhase::YamlValidation)
     {
         let form = match &module.representations.yaml {
-            YamlRepresentation::Text
+            YamlRepresentation::Projection(_) => {
+                return Err(diagnostic(
+                    "unsupported_projection_constraint",
+                    &module.source,
+                    "Define constraints on the projected field declaration; whole-projection constraints are not yet supported",
+                ));
+            }
+            YamlRepresentation::Declared => {
+                return Err(diagnostic(
+                    "invalid_declared_representation",
+                    &module.source,
+                    "Inherited representation is only valid for a referenced sequence item",
+                ));
+            }
+            YamlRepresentation::Choice
+            | YamlRepresentation::TextTable(_)
+            | YamlRepresentation::Text
+            | YamlRepresentation::TextPattern(_)
+            | YamlRepresentation::TextSequence { .. }
             | YamlRepresentation::ScalarChoice
             | YamlRepresentation::Calendar { .. }
             | YamlRepresentation::BooleanTable(_)
             | YamlRepresentation::Decimal
             | YamlRepresentation::EnumTable(_) => ("scalar", LinkedForm::YamlScalar),
             YamlRepresentation::Mapping(_) => ("mapping", LinkedForm::YamlMapping),
+            YamlRepresentation::Sequence { .. } => ("sequence", LinkedForm::YamlSequence),
             YamlRepresentation::KeyedMapping { shorthand, .. } => {
                 if shorthand.iter().any(|short| {
                     matches!(short.representation, ShorthandRepresentation::ScalarText)

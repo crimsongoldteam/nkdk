@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.ced1ae83b6524739a0a5
+description: 'Кандидат проекции: относительный XML-корень ScalingMode; не полный владелец'
+imports:
+  part0: candidate.fragment.5b78fbcdc9cf6da0ac3d
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

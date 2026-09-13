@@ -2,6 +2,15 @@ use super::*;
 use std::fmt::Write;
 fn shape(value: &LinkedType, entry: &LinkedEntry) -> Result<String, Diagnostic> {
     Ok(match value {
+        LinkedType::Index { key, value } if **value == LinkedType::Scalar(ScalarType::Text) => {
+            let columns = crate::fact_shape::columns(key)
+                .ok_or_else(|| unsupported(entry, "Unsupported index key shape"))?;
+            if columns.is_empty() {
+                "core::InputType::TextIndex".into()
+            } else {
+                format!("core::InputType::TextRecordIndex(&{columns:?})")
+            }
+        }
         LinkedType::Scalar(ScalarType::Text) => "core::InputType::Text".into(),
         LinkedType::Scalar(ScalarType::Boolean) => "core::InputType::Boolean".into(),
         LinkedType::Scalar(ScalarType::Decimal) => "core::InputType::Decimal".into(),
@@ -92,4 +101,20 @@ fn literal_json(value: &ScalarLiteral) -> String {
         ScalarLiteral::Number(value) => value.clone(),
         ScalarLiteral::Null => "null".into(),
     }
+}
+
+pub(super) fn identity(entry: &LinkedEntry) -> Vec<LinkedBinding> {
+    entry
+        .inputs
+        .iter()
+        .enumerate()
+        .map(|(slot, input)| LinkedBinding {
+            slot: slot as u32,
+            value: LinkedExpression {
+                kind: LinkedExpressionKind::Input(slot as u32),
+                value_type: input.value.clone(),
+                source: input.source.clone(),
+            },
+        })
+        .collect()
 }

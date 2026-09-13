@@ -56,6 +56,14 @@ fn run() -> Result<(), String> {
         "yaml-to-xml" => Direction::YamlToXml,
         _ => return Err("Unknown conversion direction".into()),
     };
+    if !nkdk_compiled_rules::document_paths(entry)
+        .map_err(|error| format!("{error:?}"))?
+        .is_empty()
+    {
+        return Err(
+            "convert-file cannot publish a document group; use the group conversion API".into(),
+        );
+    }
     let output = required("--output")?;
     if Path::new(input_path) == Path::new(output) {
         return Err("Input and output must differ".into());

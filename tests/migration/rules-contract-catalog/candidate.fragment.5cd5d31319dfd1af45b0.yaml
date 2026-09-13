@@ -1,0 +1,38 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.index-field
+value:
+  kind: record
+  fields:
+    - name: additionalFields
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: additionalFields
+        path:
+          - AdditionalFields
+  yaml:
+    kind: mapping
+    fields:
+      - field: additionalFields
+        key: ДополнительныеПоля
+presence:
+  - target:
+      field: additionalFields
+    xml:
+      canonical:
+        - when:
+            not:
+              exists:
+                in:
+                  field: additionalFields
+                as: row
+                where:
+                  literal: true
+          form: empty-element
+        - form: ordinary
+id: candidate.fragment.5cd5d31319dfd1af45b0

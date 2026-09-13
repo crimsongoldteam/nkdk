@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.SpellCheckingOnTextInput
+value:
+  kind: record
+  fields:
+    - name: spellCheckingOnTextInput
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: spellCheckingOnTextInput
+        path:
+          - SpellCheckingOnTextInput
+  yaml:
+    kind: mapping
+    fields:
+      - field: spellCheckingOnTextInput
+        key: ПроверкаПравописанияПриВводеТекста
+presence:
+  - target:
+      field: spellCheckingOnTextInput
+    xml:
+      missing:
+        denotes:
+          literal: Auto
+      canonical:
+        - when:
+            eq:
+              - field: spellCheckingOnTextInput
+              - literal: Auto
+          form: missing
+    yaml:
+      default:
+        literal: Auto
+id: candidate.fragment.0a189831aed1b667eaaa

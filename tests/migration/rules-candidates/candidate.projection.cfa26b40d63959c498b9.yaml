@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.cfa26b40d63959c498b9
+description: 'Кандидат проекции: относительный XML-корень xr:MarkNegatives; не полный владелец'
+imports:
+  part0: candidate.fragment.3a34c59d0052b02d9144
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

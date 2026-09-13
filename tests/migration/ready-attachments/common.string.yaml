@@ -1,0 +1,12 @@
+format: nkdk-declarations/1
+kind: value
+id: common.string
+value:
+  kind: scalar
+  scalar: text
+representations:
+  xml:
+    kind: text
+  yaml:
+    kind: scalar
+    scalar: text

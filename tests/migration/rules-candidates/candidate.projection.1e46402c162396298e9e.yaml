@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.1e46402c162396298e9e
+description: 'Кандидат проекции: относительный XML-корень ToolTipRepresentation; не полный владелец'
+imports:
+  part0: candidate.fragment.864fa59b52c3b2a71923
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

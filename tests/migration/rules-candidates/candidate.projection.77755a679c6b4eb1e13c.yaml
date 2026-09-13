@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.77755a679c6b4eb1e13c
+description: 'Кандидат проекции: относительный XML-корень ColumnsCount; не полный владелец'
+imports:
+  part0: candidate.fragment.29fb9a74f7457e213ff8
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

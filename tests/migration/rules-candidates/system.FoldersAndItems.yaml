@@ -1,0 +1,21 @@
+format: nkdk-declarations/1
+kind: value
+id: system.FoldersAndItems
+enum:
+  Auto: Авто
+  Folders: Группы
+  FoldersAndItems: ГруппыИЭлементы
+  Items: Элементы
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  t: http://v8.1c.ru/8.1/data/enterprise
+projections:
+  - id: system.FoldersAndItems.dcs
+    xml:
+      kind: with-attributes
+      attributes:
+        - name: xsi:type
+          value:
+            qname: t:FoldersAndItems
+      content:
+        kind: text

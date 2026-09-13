@@ -1,0 +1,21 @@
+format: nkdk-declarations/1
+kind: value
+id: system.TableRowInputMode
+enum:
+  EndOfWindow: ВКонецОкна
+  EndOfList: ВКонецСписка
+  BeforeCurrentRow: ПередТекущейСтрокой
+  AfterCurrentRow: ПослеТекущейСтроки
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  t: http://v8.1c.ru/8.1/data/enterprise
+projections:
+  - id: system.TableRowInputMode.dcs
+    xml:
+      kind: with-attributes
+      attributes:
+        - name: xsi:type
+          value:
+            qname: t:TableRowInputMode
+      content:
+        kind: text

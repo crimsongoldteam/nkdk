@@ -1,0 +1,20 @@
+format: nkdk-declarations/1
+kind: value
+id: system.SubordinationUse
+enum:
+  ToFolders: Группам
+  ToFoldersAndItems: ГруппамИЭлементам
+  ToItems: Элементам
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  t: http://v8.1c.ru/8.1/data/enterprise
+projections:
+  - id: system.SubordinationUse.dcs
+    xml:
+      kind: with-attributes
+      attributes:
+        - name: xsi:type
+          value:
+            qname: t:SubordinationUse
+      content:
+        kind: text

@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.6320d729bba78e238f44
+description: 'Кандидат проекции: относительный XML-корень ShowMonthsPanel; не полный владелец'
+imports:
+  part0: candidate.fragment.bf519fc1ab466006b16b
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

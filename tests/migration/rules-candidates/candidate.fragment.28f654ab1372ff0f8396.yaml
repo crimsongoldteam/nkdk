@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.UsualGroupControlRepresentation
+value:
+  kind: record
+  fields:
+    - name: controlRepresentation
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: controlRepresentation
+        path:
+          - ControlRepresentation
+  yaml:
+    kind: mapping
+    fields:
+      - field: controlRepresentation
+        key: ОтображениеУправления
+presence:
+  - target:
+      field: controlRepresentation
+    xml:
+      missing:
+        denotes:
+          literal: TitleHyperlink
+      canonical:
+        - when:
+            eq:
+              - field: controlRepresentation
+              - literal: TitleHyperlink
+          form: missing
+    yaml:
+      default:
+        literal: TitleHyperlink
+id: candidate.fragment.28f654ab1372ff0f8396

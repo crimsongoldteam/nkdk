@@ -1,0 +1,345 @@
+[
+  {
+    "source": "e2e/fixtures/xml/cf/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОбороты/Ext/AdditionalIndexes.xml",
+    "owner": "e2e/fixtures/xml/cf/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОбороты",
+    "identities": [
+      {
+        "name": "Индекс1",
+        "id": "00000000-0000-0000-0000-000000000000"
+      }
+    ],
+    "yaml": "-\n  Имя: Индекс1\n  Таблица: AccountingRegister.РегистрБухгалтерииВсеСвойстваОбороты.BalanceAndTurnovers\n  ИндексируемыеПоля:\n    - ExtDimensionType1\n    - PeriodAdjustment\n  ДополнительныеПоля:\n    - ИзмерениеВсеСвойства"
+  },
+  {
+    "source": "e2e/fixtures/xml/cf/AccumulationRegisters/РегистрНакопленияВсеСвойстваОбороты/Ext/AdditionalIndexes.xml",
+    "owner": "e2e/fixtures/xml/cf/AccumulationRegisters/РегистрНакопленияВсеСвойстваОбороты",
+    "identities": [
+      {
+        "name": "Индекс1",
+        "id": "00000000-0000-0000-0000-000000000000"
+      }
+    ],
+    "yaml": "-\n  Имя: Индекс1\n  Таблица: AccumulationRegister.РегистрНакопленияВсеСвойстваОбороты\n  ИндексируемыеПоля:\n    - ИзмерениеВсеСвойства\n  ДополнительныеПоля:\n    - РеквизитВсеСвойства"
+  },
+  {
+    "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства/Ext/AdditionalIndexes.xml",
+    "owner": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства",
+    "identities": [
+      {
+        "name": "Индекс1",
+        "id": "00000000-0000-0000-0000-000000000000"
+      }
+    ],
+    "yaml": "-\n  Имя: Индекс1\n  Таблица: BusinessProcess.БизнесПроцессВсеСвойства\n  ИндексируемыеПоля:\n    - Ref\n    - РеквизитХранилище\n  ДополнительныеПоля:\n    - Date"
+  },
+  {
+    "source": "e2e/fixtures/xml/cf/CalculationRegisters/РегистрРасчетаВсеСвойства/Ext/AdditionalIndexes.xml",
+    "owner": "e2e/fixtures/xml/cf/CalculationRegisters/РегистрРасчетаВсеСвойства",
+    "identities": [
+      {
+        "name": "Индекс1",
+        "id": "00000000-0000-0000-0000-000000000000"
+      }
+    ],
+    "yaml": "-\n  Имя: Индекс1\n  Таблица: CalculationRegister.РегистрРасчетаВсеСвойства\n  ИндексируемыеПоля:\n    - RegistrationPeriod\n  ДополнительныеПоля:\n    - ReversingEntry"
+  },
+  {
+    "source": "e2e/fixtures/xml/cf/Catalogs/СправочникCоВсемиОбъектами/Ext/AdditionalIndexes.xml",
+    "owner": "e2e/fixtures/xml/cf/Catalogs/СправочникCоВсемиОбъектами",
+    "identities": [
+      {
+        "name": "Индекс1",
+        "id": "00000000-0000-0000-0000-000000000000"
+      }
+    ],
+    "yaml": "-\n  Имя: Индекс1\n  Таблица: Catalog.СправочникCоВсемиОбъектами\n  ИндексируемыеПоля:\n    - Ref\n  ДополнительныеПоля:\n    - Description"
+  },
+  {
+    "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный/Ext/AdditionalIndexes.xml",
+    "owner": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный",
+    "identities": [
+      {
+        "name": "ОдинИндекс",
+        "id": "00000000-0000-0000-0000-000000000000"
+      },
+      {
+        "name": "ДругойИндекс",
+        "id": "21e30df3-c251-4d61-a078-ac5ce7c4119e"
+      }
+    ],
+    "yaml": "-\n  Имя: ОдинИндекс\n  Таблица: Catalog.СправочникПолный\n  ИндексируемыеПоля:\n    - Code\n  ДополнительныеПоля:\n    - Ref\n-\n  Имя: ДругойИндекс\n  Таблица: Catalog.СправочникПолный\n  ИндексируемыеПоля:\n    - Ref"
+  },
+  {
+    "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства/Ext/AdditionalIndexes.xml",
+    "owner": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства",
+    "identities": [
+      {
+        "name": "Индекс1",
+        "id": "00000000-0000-0000-0000-000000000000"
+      }
+    ],
+    "yaml": "-\n  Имя: Индекс1\n  Таблица: ChartOfAccounts.ПланСчетовВсеСвойства\n  ИндексируемыеПоля:\n    - Parent\n  ДополнительныеПоля:\n    - Description"
+  },
+  {
+    "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства/Ext/AdditionalIndexes.xml",
+    "owner": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства",
+    "identities": [
+      {
+        "name": "Индекс1",
+        "id": "00000000-0000-0000-0000-000000000000"
+      }
+    ],
+    "yaml": "-\n  Имя: Индекс1\n  Таблица: ChartOfCalculationTypes.ПланРасчетаВсеСвойства.DisplacingCalculationTypes\n  ИндексируемыеПоля:\n    - Ref\n  ДополнительныеПоля:\n    - CalculationType"
+  },
+  {
+    "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойства/Ext/AdditionalIndexes.xml",
+    "owner": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойства",
+    "identities": [
+      {
+        "name": "ОдинИндекс",
+        "id": "00000000-0000-0000-0000-000000000000"
+      },
+      {
+        "name": "ДругойИндекс",
+        "id": "21e30df3-c251-4d61-a078-ac5ce7c4119e"
+      }
+    ],
+    "yaml": "-\n  Имя: ОдинИндекс\n  Таблица: ChartOfCharacteristicTypes.ПланВидовХарактеристикВсеСвойства\n  ИндексируемыеПоля:\n    - Ref\n  ДополнительныеПоля:\n    - Code\n-\n  Имя: ДругойИндекс\n  Таблица: ChartOfCharacteristicTypes.ПланВидовХарактеристикВсеСвойства\n  ИндексируемыеПоля:\n    - Code"
+  },
+  {
+    "source": "e2e/fixtures/xml/cf/DocumentJournals/ЖурналДокументовВсеСвойства/Ext/AdditionalIndexes.xml",
+    "owner": "e2e/fixtures/xml/cf/DocumentJournals/ЖурналДокументовВсеСвойства",
+    "identities": [
+      {
+        "name": "Индекс1",
+        "id": "00000000-0000-0000-0000-000000000000"
+      }
+    ],
+    "yaml": "-\n  Имя: Индекс1\n  Таблица: DocumentJournal.ЖурналДокументовВсеСвойства\n  ИндексируемыеПоля:\n    - Ref\n  ДополнительныеПоля:\n    - Date"
+  },
+  {
+    "source": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства/Ext/AdditionalIndexes.xml",
+    "owner": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства",
+    "identities": [
+      {
+        "name": "ИндексКакойТо",
+        "id": "00000000-0000-0000-0000-000000000000"
+      }
+    ],
+    "yaml": "-\n  Имя: ИндексКакойТо\n  Таблица: Document.ДокументВсеСвойства\n  ИндексируемыеПоля:\n    - Ref\n  ДополнительныеПоля:\n    - Date"
+  },
+  {
+    "source": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства/Ext/AdditionalIndexes.xml",
+    "owner": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства",
+    "identities": [
+      {
+        "name": "Индекс1",
+        "id": "00000000-0000-0000-0000-000000000000"
+      }
+    ],
+    "yaml": "-\n  Имя: Индекс1\n  Таблица: ExchangePlan.ПланОбменаВсеСвойства\n  ИндексируемыеПоля:\n    - Ref\n  ДополнительныеПоля:\n    - ExchangeDate"
+  },
+  {
+    "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый/Ext/AdditionalIndexes.xml",
+    "owner": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый",
+    "identities": [
+      {
+        "name": "Индекс1",
+        "id": "00000000-0000-0000-0000-000000000000"
+      },
+      {
+        "name": "Индекс2",
+        "id": "8a50f2f5-a3ba-409e-a973-ebb1327d9846"
+      }
+    ],
+    "yaml": "-\n  Имя: Индекс1\n  Таблица: InformationRegister.РегистрСведенийВсеСвойстваНезависимый.SliceFirst\n  ИндексируемыеПоля:\n    - Period\n  ДополнительныеПоля:\n    - ИзмерениеВсеСвойства\n-\n  Имя: Индекс2\n  Таблица: InformationRegister.РегистрСведенийВсеСвойстваНезависимый.SliceLast\n  ИндексируемыеПоля:\n    - ИзмерениеВсеСвойства\n  ДополнительныеПоля:\n    - Period"
+  },
+  {
+    "source": "e2e/fixtures/xml/cf/Sequences/ПоследовательностьВсеПоля/Ext/AdditionalIndexes.xml",
+    "owner": "e2e/fixtures/xml/cf/Sequences/ПоследовательностьВсеПоля",
+    "identities": [
+      {
+        "name": "Индекс1",
+        "id": "00000000-0000-0000-0000-000000000000"
+      }
+    ],
+    "yaml": "-\n  Имя: Индекс1\n  Таблица: Sequence.ПоследовательностьВсеПоля\n  ИндексируемыеПоля:\n    - Recorder\n  ДополнительныеПоля:\n    - Period"
+  },
+  {
+    "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства/Ext/AdditionalIndexes.xml",
+    "owner": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства",
+    "identities": [
+      {
+        "name": "Индекс1",
+        "id": "00000000-0000-0000-0000-000000000000"
+      }
+    ],
+    "yaml": "-\n  Имя: Индекс1\n  Таблица: Task.ЗадачаВсеСвойства\n  ИндексируемыеПоля:\n    - Ref\n    - РеквизитХранилище\n  ДополнительныеПоля:\n    - Date"
+  },
+  {
+    "source": "e2e/fixtures/xml/cfe/all-extension/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОборотыExt/Ext/AdditionalIndexes.xml",
+    "owner": "e2e/fixtures/xml/cfe/all-extension/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОборотыExt",
+    "identities": [
+      {
+        "name": "Индекс1",
+        "id": "00000000-0000-0000-0000-000000000000"
+      }
+    ],
+    "yaml": "-\n  Имя: Индекс1\n  Таблица: AccountingRegister.РегистрБухгалтерииВсеСвойстваОборотыExt.BalanceAndTurnovers\n  ИндексируемыеПоля:\n    - PeriodAdjustment\n  ДополнительныеПоля:\n    - ИзмерениеВсеСвойства"
+  },
+  {
+    "source": "e2e/fixtures/xml/cfe/all-extension/AccumulationRegisters/РегистрНакопленияВсеСвойстваОборотыExt/Ext/AdditionalIndexes.xml",
+    "owner": "e2e/fixtures/xml/cfe/all-extension/AccumulationRegisters/РегистрНакопленияВсеСвойстваОборотыExt",
+    "identities": [
+      {
+        "name": "Индекс1",
+        "id": "00000000-0000-0000-0000-000000000000"
+      }
+    ],
+    "yaml": "-\n  Имя: Индекс1\n  Таблица: AccumulationRegister.РегистрНакопленияВсеСвойстваОборотыExt\n  ИндексируемыеПоля:\n    - ИзмерениеВсеСвойства\n  ДополнительныеПоля:\n    - РеквизитВсеСвойства"
+  },
+  {
+    "source": "e2e/fixtures/xml/cfe/all-extension/BusinessProcesses/БизнесПроцессВсеСвойстваExt/Ext/AdditionalIndexes.xml",
+    "owner": "e2e/fixtures/xml/cfe/all-extension/BusinessProcesses/БизнесПроцессВсеСвойстваExt",
+    "identities": [
+      {
+        "name": "Индекс1",
+        "id": "00000000-0000-0000-0000-000000000000"
+      }
+    ],
+    "yaml": "-\n  Имя: Индекс1\n  Таблица: BusinessProcess.БизнесПроцессВсеСвойстваExt\n  ИндексируемыеПоля:\n    - Ref\n    - РеквизитХранилище\n  ДополнительныеПоля:\n    - Date"
+  },
+  {
+    "source": "e2e/fixtures/xml/cfe/all-extension/CalculationRegisters/РегистрРасчетаВсеСвойстваExt/Ext/AdditionalIndexes.xml",
+    "owner": "e2e/fixtures/xml/cfe/all-extension/CalculationRegisters/РегистрРасчетаВсеСвойстваExt",
+    "identities": [
+      {
+        "name": "Индекс1",
+        "id": "00000000-0000-0000-0000-000000000000"
+      }
+    ],
+    "yaml": "-\n  Имя: Индекс1\n  Таблица: CalculationRegister.РегистрРасчетаВсеСвойстваExt\n  ИндексируемыеПоля:\n    - RegistrationPeriod\n  ДополнительныеПоля:\n    - ReversingEntry"
+  },
+  {
+    "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникCоВсемиОбъектамиExt/Ext/AdditionalIndexes.xml",
+    "owner": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникCоВсемиОбъектамиExt",
+    "identities": [
+      {
+        "name": "Индекс1",
+        "id": "00000000-0000-0000-0000-000000000000"
+      }
+    ],
+    "yaml": "-\n  Имя: Индекс1\n  Таблица: Catalog.СправочникCоВсемиОбъектамиExt\n  ИндексируемыеПоля:\n    - Ref\n  ДополнительныеПоля:\n    - Description"
+  },
+  {
+    "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникПолныйExt/Ext/AdditionalIndexes.xml",
+    "owner": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникПолныйExt",
+    "identities": [
+      {
+        "name": "ОдинИндекс",
+        "id": "00000000-0000-0000-0000-000000000000"
+      },
+      {
+        "name": "ДругойИндекс",
+        "id": "21e30df3-c251-4d61-a078-ac5ce7c4119e"
+      }
+    ],
+    "yaml": "-\n  Имя: ОдинИндекс\n  Таблица: Catalog.СправочникПолныйExt\n  ИндексируемыеПоля:\n    - Code\n  ДополнительныеПоля:\n    - Ref\n-\n  Имя: ДругойИндекс\n  Таблица: Catalog.СправочникПолныйExt\n  ИндексируемыеПоля:\n    - Ref"
+  },
+  {
+    "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойстваExt/Ext/AdditionalIndexes.xml",
+    "owner": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойстваExt",
+    "identities": [
+      {
+        "name": "Индекс1",
+        "id": "00000000-0000-0000-0000-000000000000"
+      }
+    ],
+    "yaml": "-\n  Имя: Индекс1\n  Таблица: ChartOfAccounts.ПланСчетовВсеСвойстваExt\n  ИндексируемыеПоля:\n    - Parent\n  ДополнительныеПоля:\n    - Description"
+  },
+  {
+    "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCalculationTypes/ПланРасчетаВсеСвойстваExt/Ext/AdditionalIndexes.xml",
+    "owner": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCalculationTypes/ПланРасчетаВсеСвойстваExt",
+    "identities": [
+      {
+        "name": "Индекс1",
+        "id": "00000000-0000-0000-0000-000000000000"
+      }
+    ],
+    "yaml": "-\n  Имя: Индекс1\n  Таблица: ChartOfCalculationTypes.ПланРасчетаВсеСвойстваExt.DisplacingCalculationTypes\n  ИндексируемыеПоля:\n    - Ref\n  ДополнительныеПоля:\n    - CalculationType"
+  },
+  {
+    "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойстваExt/Ext/AdditionalIndexes.xml",
+    "owner": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойстваExt",
+    "identities": [
+      {
+        "name": "ОдинИндекс",
+        "id": "00000000-0000-0000-0000-000000000000"
+      },
+      {
+        "name": "ДругойИндекс",
+        "id": "21e30df3-c251-4d61-a078-ac5ce7c4119e"
+      }
+    ],
+    "yaml": "-\n  Имя: ОдинИндекс\n  Таблица: ChartOfCharacteristicTypes.ПланВидовХарактеристикВсеСвойстваExt\n  ИндексируемыеПоля:\n    - Ref\n  ДополнительныеПоля:\n    - Code\n-\n  Имя: ДругойИндекс\n  Таблица: ChartOfCharacteristicTypes.ПланВидовХарактеристикВсеСвойстваExt\n  ИндексируемыеПоля:\n    - Code"
+  },
+  {
+    "source": "e2e/fixtures/xml/cfe/all-extension/DocumentJournals/ЖурналДокументовВсеСвойстваExt/Ext/AdditionalIndexes.xml",
+    "owner": "e2e/fixtures/xml/cfe/all-extension/DocumentJournals/ЖурналДокументовВсеСвойстваExt",
+    "identities": [
+      {
+        "name": "Индекс1",
+        "id": "00000000-0000-0000-0000-000000000000"
+      }
+    ],
+    "yaml": "-\n  Имя: Индекс1\n  Таблица: DocumentJournal.ЖурналДокументовВсеСвойстваExt\n  ИндексируемыеПоля:\n    - Ref\n  ДополнительныеПоля:\n    - Date"
+  },
+  {
+    "source": "e2e/fixtures/xml/cfe/all-extension/Documents/ДокументВсеСвойстваExt/Ext/AdditionalIndexes.xml",
+    "owner": "e2e/fixtures/xml/cfe/all-extension/Documents/ДокументВсеСвойстваExt",
+    "identities": [
+      {
+        "name": "ИндексКакойТо",
+        "id": "00000000-0000-0000-0000-000000000000"
+      }
+    ],
+    "yaml": "-\n  Имя: ИндексКакойТо\n  Таблица: Document.ДокументВсеСвойстваExt\n  ИндексируемыеПоля:\n    - Ref\n  ДополнительныеПоля:\n    - Date"
+  },
+  {
+    "source": "e2e/fixtures/xml/cfe/all-extension/ExchangePlans/ПланОбменаВсеСвойстваExt/Ext/AdditionalIndexes.xml",
+    "owner": "e2e/fixtures/xml/cfe/all-extension/ExchangePlans/ПланОбменаВсеСвойстваExt",
+    "identities": [
+      {
+        "name": "Индекс1",
+        "id": "00000000-0000-0000-0000-000000000000"
+      }
+    ],
+    "yaml": "-\n  Имя: Индекс1\n  Таблица: ExchangePlan.ПланОбменаВсеСвойстваExt\n  ИндексируемыеПоля:\n    - Ref\n  ДополнительныеПоля:\n    - ExchangeDate"
+  },
+  {
+    "source": "e2e/fixtures/xml/cfe/all-extension/InformationRegisters/РегистрСведенийВсеСвойстваНезависимыйExt/Ext/AdditionalIndexes.xml",
+    "owner": "e2e/fixtures/xml/cfe/all-extension/InformationRegisters/РегистрСведенийВсеСвойстваНезависимыйExt",
+    "identities": [
+      {
+        "name": "Индекс1",
+        "id": "00000000-0000-0000-0000-000000000000"
+      },
+      {
+        "name": "Индекс2",
+        "id": "8a50f2f5-a3ba-409e-a973-ebb1327d9846"
+      }
+    ],
+    "yaml": "-\n  Имя: Индекс1\n  Таблица: InformationRegister.РегистрСведенийВсеСвойстваНезависимыйExt.SliceFirst\n  ИндексируемыеПоля:\n    - Period\n  ДополнительныеПоля:\n    - ИзмерениеВсеСвойства\n-\n  Имя: Индекс2\n  Таблица: InformationRegister.РегистрСведенийВсеСвойстваНезависимыйExt.SliceLast\n  ИндексируемыеПоля:\n    - ИзмерениеВсеСвойства\n  ДополнительныеПоля:\n    - Period"
+  },
+  {
+    "source": "e2e/fixtures/xml/cfe/all-extension/Tasks/ЗадачаВсеСвойстваExt/Ext/AdditionalIndexes.xml",
+    "owner": "e2e/fixtures/xml/cfe/all-extension/Tasks/ЗадачаВсеСвойстваExt",
+    "identities": [
+      {
+        "name": "Индекс1",
+        "id": "00000000-0000-0000-0000-000000000000"
+      }
+    ],
+    "yaml": "-\n  Имя: Индекс1\n  Таблица: Task.ЗадачаВсеСвойстваExt\n  ИндексируемыеПоля:\n    - Ref\n    - РеквизитХранилище\n  ДополнительныеПоля:\n    - Date"
+  }
+]

@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.0affa3fa9f56e2a7a13c
+description: 'Кандидат проекции: относительный XML-корень MaxWidth; не полный владелец'
+imports:
+  part0: candidate.fragment.eaff6431e60db86629da
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

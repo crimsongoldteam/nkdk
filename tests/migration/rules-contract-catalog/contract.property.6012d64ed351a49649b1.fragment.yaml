@@ -1,0 +1,25 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.string-or-number
+value:
+  kind: record
+  fields:
+    - name: reportResult
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: reportResult
+        path:
+          - Form
+          - ReportResult
+  yaml:
+    kind: mapping
+    fields:
+      - field: reportResult
+        key: РезультатОтчета
+presence: []
+id: contract.property.6012d64ed351a49649b1.fragment

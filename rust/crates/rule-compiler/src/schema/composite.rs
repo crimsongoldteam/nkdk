@@ -24,33 +24,40 @@ pub(super) fn build(program: &Program, owner: &LinkedEntry) -> Result<Option<Val
             .find(|m| m.field == field.name)
             .ok_or_else(|| unsupported(common))?
             .key;
-        let (id, _, _) = reference(&field.value).ok_or_else(|| unsupported(common))?;
-        let target = program
-            .entries
-            .iter()
-            .find(|e| e.id == id)
-            .expect("linked reference");
-        let schema = match &target.yaml {
-            YamlRepresentation::BooleanTable(values) => {
-                json!({"type":"string","enum":values.iter().map(|v|v.text.as_str()).collect::<Vec<_>>()})
+        let target = reference(&field.value).map(|(id, _, _)| {
+            program
+                .entries
+                .iter()
+                .find(|entry| entry.id == id)
+                .expect("linked reference")
+        });
+        let schema = if let Some(target) = target {
+            match &target.yaml {
+                YamlRepresentation::BooleanTable(values) => {
+                    json!({"type":"string","enum":values.iter().map(|v|v.text.as_str()).collect::<Vec<_>>()})
+                }
+                YamlRepresentation::KeyedMapping { .. } => {
+                    let nested = nested_owner(owner, common, field, program)?;
+                    let mut schema =
+                        keyed::build(program, &nested)?.ok_or_else(|| unsupported(target))?;
+                    schema["properties"]
+                        .as_object_mut()
+                        .and_then(|p| p.remove(key))
+                        .ok_or_else(|| unsupported(target))?
+                }
+                _ => return Err(unsupported(target)),
             }
-            YamlRepresentation::KeyedMapping { .. } => {
-                let nested = nested_owner(owner, common, field, program)?;
-                let mut schema =
-                    keyed::build(program, &nested)?.ok_or_else(|| unsupported(target))?;
-                schema["properties"]
-                    .as_object_mut()
-                    .and_then(|p| p.remove(key))
-                    .ok_or_else(|| unsupported(target))?
-            }
-            _ => return Err(unsupported(target)),
+        } else {
+            scalar(program, common, field)?
         };
         let optional = common.presence.iter().any(|p| {
             p.target == LinkedPresenceTarget::Field(index as u32) && p.yaml_missing.is_some()
-        }) || target
-            .presence
-            .iter()
-            .any(|p| p.target == LinkedPresenceTarget::SelfValue && p.yaml_missing.is_some());
+        }) || target.is_some_and(|target| {
+            target
+                .presence
+                .iter()
+                .any(|p| p.target == LinkedPresenceTarget::SelfValue && p.yaml_missing.is_some())
+        });
         if !optional {
             required.push(key);
         }

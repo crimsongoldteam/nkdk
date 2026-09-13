@@ -1,8 +1,17 @@
 mod names;
+mod project;
+pub use project::{PropertyProjection, project_attributes, project_property};
+mod scope;
+mod source;
 pub use names::is_ncname;
+pub use scope::NamespaceScope;
+pub use source::{
+    Consumer, DocumentSource, Events, ScopedConsumer, ScopedEvents, ScopedSource, Source,
+};
 mod tree;
 use crate::{Result, RuntimeDiagnostic};
 pub use tree::{Patch, Tree};
+const XML_NAMESPACE: &str = "http://www.w3.org/XML/1998/namespace";
 #[cfg(feature = "test-probes")]
 static WRITERS: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
 #[cfg(feature = "test-probes")]
@@ -16,6 +25,22 @@ use quick_xml::{NsReader, events::Event, name::ResolveResult};
 pub struct Name {
     pub namespace: String,
     pub local: String,
+}
+pub fn validate_qname(value: (&str, &str)) -> Result<()> {
+    validate_text(value.0)?;
+    if value.0 == "http://www.w3.org/2000/xmlns/" {
+        return Err(RuntimeDiagnostic::new(
+            "xml.qname",
+            "The xmlns namespace cannot name a value",
+        ));
+    }
+    if !is_ncname(value.1) {
+        return Err(RuntimeDiagnostic::new(
+            "xml.qname",
+            "Expected a local XML name",
+        ));
+    }
+    Ok(())
 }
 pub struct Attribute {
     pub name: Name,
@@ -46,6 +71,12 @@ pub fn matches(path: &[Name], expected: &[(&str, &str)]) -> bool {
 pub fn visit(
     source: &[u8],
     mut consume: impl FnMut(&[Name], Token<'_>) -> Result<()>,
+) -> Result<()> {
+    visit_scoped(source, |path, token, _| consume(path, token))
+}
+pub fn visit_scoped(
+    source: &[u8],
+    mut consume: impl FnMut(&[Name], Token<'_>, NamespaceScope<'_>) -> Result<()>,
 ) -> Result<()> {
     let text = std::str::from_utf8(source)
         .map_err(|e| RuntimeDiagnostic::new("xml.encoding", e.to_string()))?;
@@ -170,33 +201,43 @@ pub fn visit(
                     namespace,
                     local: local.as_ref().to_owned(),
                 });
-                consume(&path, Token::Start(offset))
-                    .map_err(|error| located(text, offset, error))?;
+                consume(
+                    &path,
+                    Token::Start(offset),
+                    NamespaceScope(reader.resolver()),
+                )
+                .map_err(|error| located(text, offset, error))?;
                 for attribute in attributes {
-                    consume(&path, Token::Attribute(attribute))
-                        .map_err(|error| located(text, offset, error))?;
+                    consume(
+                        &path,
+                        Token::Attribute(attribute),
+                        NamespaceScope(reader.resolver()),
+                    )
+                    .map_err(|error| located(text, offset, error))?;
                 }
                 if matches!(event, Event::Empty(_)) {
-                    consume(&path, Token::End)?;
+                    consume(&path, Token::End, NamespaceScope(reader.resolver()))?;
                     path.pop();
                 }
                 Ok(())
             }
             Event::End(_) => {
-                let result = consume(&path, Token::End);
+                let result = consume(&path, Token::End, NamespaceScope(reader.resolver()));
                 path.pop();
                 result
             }
-            Event::Text(e) => {
-                let value = e.xml10_content();
-                validate_text(&value)?;
-                consume(&path, Token::Text(&value))
-            }
-            Event::CData(e) => {
-                let value = e.xml10_content();
-                validate_text(&value)?;
-                consume(&path, Token::Text(&value))
-            }
+            Event::Text(e) => consume_text(
+                &e.xml10_content(),
+                &path,
+                NamespaceScope(reader.resolver()),
+                &mut consume,
+            ),
+            Event::CData(e) => consume_text(
+                &e.xml10_content(),
+                &path,
+                NamespaceScope(reader.resolver()),
+                &mut consume,
+            ),
             Event::GeneralRef(e) => {
                 let value = if let Some(value) = e
                     .resolve_char_ref()
@@ -214,8 +255,12 @@ pub fn visit(
                     }
                     .into()
                 };
-                validate_text(&value)?;
-                consume(&path, Token::Text(&value))
+                consume_text(
+                    &value,
+                    &path,
+                    NamespaceScope(reader.resolver()),
+                    &mut consume,
+                )
             }
             Event::Decl(declaration) => {
                 if declaration_seen
@@ -259,6 +304,17 @@ pub fn visit(
     }
     Ok(())
 }
+
+fn consume_text(
+    value: &str,
+    path: &[Name],
+    scope: NamespaceScope<'_>,
+    consume: &mut impl FnMut(&[Name], Token<'_>, NamespaceScope<'_>) -> Result<()>,
+) -> Result<()> {
+    validate_text(value)?;
+    consume(path, Token::Text(value), scope)
+}
+
 fn located(text: &str, offset: usize, error: RuntimeDiagnostic) -> RuntimeDiagnostic {
     crate::Position::xml(offset).apply(text.as_bytes(), error)
 }
@@ -287,7 +343,7 @@ impl<'a> Writer<'a> {
         #[cfg(feature = "test-probes")]
         WRITERS.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
         Self {
-            output: "\u{feff}<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n".into(),
+            output: String::new(),
             path: vec![],
             children: vec![],
             namespaces,
@@ -296,6 +352,8 @@ impl<'a> Writer<'a> {
     fn name(&self, name: (&str, &str)) -> String {
         if name.0.is_empty() {
             name.1.into()
+        } else if name.0 == XML_NAMESPACE {
+            format!("xml:{}", name.1)
         } else {
             format!(
                 "n{}:{}",
@@ -307,6 +365,9 @@ impl<'a> Writer<'a> {
             )
         }
     }
+    fn has_namespace(&self, namespace: &str) -> bool {
+        namespace.is_empty() || namespace == XML_NAMESPACE || self.namespaces.contains(&namespace)
+    }
     fn close(&mut self, container: bool) {
         let name = self.path.pop().unwrap();
         let children = self.children.pop().expect("opened element");
@@ -317,6 +378,13 @@ impl<'a> Writer<'a> {
             }
         }
         self.output.push_str(&format!("</{}>", self.name(name)));
+    }
+    /// Open an enclosing path only when it is not already an ancestor of the current node.
+    /// Independent property writers must not close and reopen their shared owner.
+    pub fn ensure_container(&mut self, path: &[(&'a str, &'a str)]) {
+        if !self.path.starts_with(path) {
+            self.container(path);
+        }
     }
     pub fn container(&mut self, path: &[(&'a str, &'a str)]) {
         self.container_with_attributes(path, &[]);
@@ -347,10 +415,17 @@ impl<'a> Writer<'a> {
                     self.output.push('\t');
                 }
             }
+            if self.output.is_empty() {
+                self.output
+                    .push_str("\u{feff}<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+            }
             self.output.push('<');
             self.output.push_str(&self.name(part));
             if self.path.is_empty() {
                 for (index, ns) in self.namespaces.iter().enumerate() {
+                    if *ns == XML_NAMESPACE {
+                        continue;
+                    }
                     self.output.push_str(&format!(
                         " xmlns:n{index}=\"{}\"",
                         escape(ns).replace('"', "&quot;")
@@ -388,6 +463,17 @@ impl<'a> Writer<'a> {
     pub fn field(&mut self, path: &[(&'a str, &'a str)], value: &str) {
         self.field_with_attributes(path, value, &[]);
     }
+    pub fn qname_field(&mut self, path: &[(&'a str, &'a str)], value: (&str, &str)) -> Result<()> {
+        validate_qname(value)?;
+        if !self.has_namespace(value.0) {
+            return Err(RuntimeDiagnostic::new(
+                "xml.qname-prefix",
+                "QName namespace is not registered with the writer",
+            ));
+        }
+        self.field(path, &self.name(value));
+        Ok(())
+    }
     pub fn field_with_attributes<'b, 'c: 'b>(
         &mut self,
         path: &[(&'a str, &'a str)],
@@ -397,6 +483,14 @@ impl<'a> Writer<'a> {
         self.container_with_attributes(path, attributes);
         self.output.push_str(&escape(value));
         self.close(false);
+    }
+    /// Retain the document element when all of its optional values were omitted.
+    /// Opening this fallback after field writers lets a scalar root write attributes first.
+    pub fn finish_with_root(mut self, root: (&'a str, &'a str)) -> Vec<u8> {
+        if self.output.is_empty() {
+            self.container(&[root]);
+        }
+        self.finish()
     }
     pub fn finish(mut self) -> Vec<u8> {
         while !self.path.is_empty() {

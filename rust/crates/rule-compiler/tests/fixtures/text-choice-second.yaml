@@ -1,0 +1,15 @@
+format: nkdk-declarations/1
+kind: value
+id: common.choice-second
+value:
+  kind: record
+  fields:
+  - {name: code, type: {kind: scalar, scalar: text}}
+representations:
+  xml: {kind: text-pattern, parts: [{literal: 'b:'}, {field: code}]}
+  yaml: {kind: text-pattern, parts: [{literal: 'Второе: '}, {field: code}]}
+constraints:
+- id: name
+  appliesTo: [xml-import, yaml-validation]
+  assert: {matches: {value: {field: code}, pattern: '[a-z]+'}}
+  diagnostic: {code: choice.name, severity: error, at: {self: true}, message: Invalid name}

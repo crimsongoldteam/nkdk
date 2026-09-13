@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.77a78c844f8179314c85
+description: 'Кандидат проекции: относительный XML-корень MultipleValuesHyperlink; не полный владелец'
+imports:
+  part0: candidate.fragment.48245f3bb20e514b541c
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

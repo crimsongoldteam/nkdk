@@ -1,0 +1,837 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.i8n-text
+  value1: common.string
+  value2: common.boolean
+  value3: system.EditType
+  value4: system.CreateOnInput
+  value5: system.SearchStringModeOnInputByString
+  value6: system.ChoiceDataGetModeOnInputByString
+  value7: system.FullTextSearchOnInputByString
+  inputType1f8ea46361ff: common.path-root
+  value9: common.owner-or-common-form-link
+  value10: system.ChoiceHistoryOnInput
+  value11: system.BusinessProcessNumberType
+  value12: system.AllowedLength
+  inputType00917033b468: common.path-object-kind
+  value14: common.based-on-links
+  value15: system.BusinessProcessNumberPeriodicity
+  value16: system.DefaultDataLockControlMode
+  value17: system.UseFullTextSearch
+  value18: system.DataHistoryUse
+value:
+  kind: record
+  fields:
+    - name: synonym
+      type:
+        use: value0
+        with:
+          excludeIfEqualNameYAML: true
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          ownerName:
+            input: ownerName
+    - name: comment
+      type:
+        use: value1
+    - name: useStandardCommands
+      type:
+        use: value2
+    - name: editType
+      type:
+        use: value3
+    - name: createOnInput
+      type:
+        use: value4
+    - name: searchStringModeOnInputByString
+      type:
+        use: value5
+    - name: choiceDataGetModeOnInputByString
+      type:
+        use: value6
+    - name: fullTextSearchOnInputByString
+      type:
+        use: value7
+    - name: defaultObjectForm
+      type:
+        use: value9
+        bind:
+          owner:
+            input: owner
+          forms:
+            input: forms
+          roots:
+            input: roots
+    - name: defaultListForm
+      type:
+        use: value9
+        bind:
+          owner:
+            input: owner
+          forms:
+            input: forms
+          roots:
+            input: roots
+    - name: defaultChoiceForm
+      type:
+        use: value9
+        bind:
+          owner:
+            input: owner
+          forms:
+            input: forms
+          roots:
+            input: roots
+    - name: auxiliaryObjectForm
+      type:
+        use: value9
+        bind:
+          owner:
+            input: owner
+          forms:
+            input: forms
+          roots:
+            input: roots
+    - name: auxiliaryListForm
+      type:
+        use: value9
+        bind:
+          owner:
+            input: owner
+          forms:
+            input: forms
+          roots:
+            input: roots
+    - name: auxiliaryChoiceForm
+      type:
+        use: value9
+        bind:
+          owner:
+            input: owner
+          forms:
+            input: forms
+          roots:
+            input: roots
+    - name: choiceHistoryOnInput
+      type:
+        use: value10
+    - name: numberType
+      type:
+        use: value11
+    - name: numberAllowedLength
+      type:
+        use: value12
+    - name: autonumbering
+      type:
+        use: value2
+    - name: basedOn
+      type:
+        use: value14
+        bind:
+          roots:
+            input: roots
+          children:
+            input: children
+    - name: numberPeriodicity
+      type:
+        use: value15
+    - name: createTaskInPrivilegedMode
+      type:
+        use: value2
+    - name: dataLockControlMode
+      type:
+        use: value16
+    - name: includeHelpInContents
+      type:
+        use: value2
+    - name: fullTextSearch
+      type:
+        use: value17
+    - name: objectPresentation
+      type:
+        use: value0
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          ownerName:
+            input: ownerName
+    - name: extendedObjectPresentation
+      type:
+        use: value0
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          ownerName:
+            input: ownerName
+    - name: listPresentation
+      type:
+        use: value0
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          ownerName:
+            input: ownerName
+    - name: extendedListPresentation
+      type:
+        use: value0
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          ownerName:
+            input: ownerName
+    - name: explanation
+      type:
+        use: value0
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          ownerName:
+            input: ownerName
+    - name: dataHistory
+      type:
+        use: value18
+    - name: updateDataHistoryImmediatelyAfterWrite
+      type:
+        use: value2
+    - name: executeAfterWriteDataHistoryVersionProcessing
+      type:
+        use: value2
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: synonym
+        path:
+          - Properties
+          - Synonym
+      - field: comment
+        path:
+          - Properties
+          - Comment
+      - field: useStandardCommands
+        path:
+          - Properties
+          - UseStandardCommands
+      - field: editType
+        path:
+          - Properties
+          - EditType
+      - field: createOnInput
+        path:
+          - Properties
+          - CreateOnInput
+      - field: searchStringModeOnInputByString
+        path:
+          - Properties
+          - SearchStringModeOnInputByString
+      - field: choiceDataGetModeOnInputByString
+        path:
+          - Properties
+          - ChoiceDataGetModeOnInputByString
+      - field: fullTextSearchOnInputByString
+        path:
+          - Properties
+          - FullTextSearchOnInputByString
+      - field: defaultObjectForm
+        path:
+          - Properties
+          - DefaultObjectForm
+      - field: defaultListForm
+        path:
+          - Properties
+          - DefaultListForm
+      - field: defaultChoiceForm
+        path:
+          - Properties
+          - DefaultChoiceForm
+      - field: auxiliaryObjectForm
+        path:
+          - Properties
+          - AuxiliaryObjectForm
+      - field: auxiliaryListForm
+        path:
+          - Properties
+          - AuxiliaryListForm
+      - field: auxiliaryChoiceForm
+        path:
+          - Properties
+          - AuxiliaryChoiceForm
+      - field: choiceHistoryOnInput
+        path:
+          - Properties
+          - ChoiceHistoryOnInput
+      - field: numberType
+        path:
+          - Properties
+          - NumberType
+      - field: numberAllowedLength
+        path:
+          - Properties
+          - NumberAllowedLength
+      - field: autonumbering
+        path:
+          - Properties
+          - Autonumbering
+      - field: basedOn
+        path:
+          - Properties
+          - BasedOn
+      - field: numberPeriodicity
+        path:
+          - Properties
+          - NumberPeriodicity
+      - field: createTaskInPrivilegedMode
+        path:
+          - Properties
+          - CreateTaskInPrivilegedMode
+      - field: dataLockControlMode
+        path:
+          - Properties
+          - DataLockControlMode
+      - field: includeHelpInContents
+        path:
+          - Properties
+          - IncludeHelpInContents
+      - field: fullTextSearch
+        path:
+          - Properties
+          - FullTextSearch
+      - field: objectPresentation
+        path:
+          - Properties
+          - ObjectPresentation
+      - field: extendedObjectPresentation
+        path:
+          - Properties
+          - ExtendedObjectPresentation
+      - field: listPresentation
+        path:
+          - Properties
+          - ListPresentation
+      - field: extendedListPresentation
+        path:
+          - Properties
+          - ExtendedListPresentation
+      - field: explanation
+        path:
+          - Properties
+          - Explanation
+      - field: dataHistory
+        path:
+          - Properties
+          - DataHistory
+      - field: updateDataHistoryImmediatelyAfterWrite
+        path:
+          - Properties
+          - UpdateDataHistoryImmediatelyAfterWrite
+      - field: executeAfterWriteDataHistoryVersionProcessing
+        path:
+          - Properties
+          - ExecuteAfterWriteDataHistoryVersionProcessing
+  yaml:
+    kind: mapping
+    fields:
+      - field: synonym
+        key: Синоним
+      - field: comment
+        key: Комментарий
+      - field: useStandardCommands
+        key: ИспользоватьСтандартныеКоманды
+      - field: editType
+        key: СпособРедактирования
+      - field: createOnInput
+        key: СозданиеПриВводе
+      - field: searchStringModeOnInputByString
+        key: РежимСтрокиПоискаПриВводеПоСтроке
+      - field: choiceDataGetModeOnInputByString
+        key: РежимПолученияДанныхВыбораПриВводеПоСтроке
+      - field: fullTextSearchOnInputByString
+        key: ПолнотекстовыйПоискПриВводеПоСтроке
+      - field: defaultObjectForm
+        key: ОсновнаяФормаОбъекта
+      - field: defaultListForm
+        key: ОсновнаяФормаСписка
+      - field: defaultChoiceForm
+        key: ОсновнаяФормаВыбора
+      - field: auxiliaryObjectForm
+        key: ДополнительнаяФормаОбъекта
+      - field: auxiliaryListForm
+        key: ДополнительнаяФормаСписка
+      - field: auxiliaryChoiceForm
+        key: ДополнительнаяФормаВыбора
+      - field: choiceHistoryOnInput
+        key: ИсторияВыбораПриВводе
+      - field: numberType
+        key: ТипНомера
+      - field: numberAllowedLength
+        key: ДопустимаяДлинаНомера
+      - field: autonumbering
+        key: Автонумерация
+      - field: basedOn
+        key: ВводитсяНаОсновании
+      - field: numberPeriodicity
+        key: ПериодичностьНомера
+      - field: createTaskInPrivilegedMode
+        key: ПривилегированныйРежимПриСозданииЗадач
+      - field: dataLockControlMode
+        key: РежимУправленияБлокировкойДанных
+      - field: includeHelpInContents
+        key: ВключатьСправкуВСодержание
+      - field: fullTextSearch
+        key: ПолнотекстовыйПоиск
+      - field: objectPresentation
+        key: ПредставлениеОбъекта
+      - field: extendedObjectPresentation
+        key: РасширенноеПредставлениеОбъекта
+      - field: listPresentation
+        key: ПредставлениеСписка
+      - field: extendedListPresentation
+        key: РасширенноеПредставлениеСписка
+      - field: explanation
+        key: Пояснение
+      - field: dataHistory
+        key: ИсторияДанных
+      - field: updateDataHistoryImmediatelyAfterWrite
+        key: ОбновлятьИсториюДанныхСразуПослеЗаписи
+      - field: executeAfterWriteDataHistoryVersionProcessing
+        key: ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных
+presence:
+  - target:
+      field: synonym
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: synonym
+          form: empty-element
+  - target:
+      field: comment
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: ''
+  - target:
+      field: useStandardCommands
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: true
+  - target:
+      field: editType
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: InDialog
+  - target:
+      field: createOnInput
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: DontUse
+  - target:
+      field: searchStringModeOnInputByString
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: Begin
+  - target:
+      field: choiceDataGetModeOnInputByString
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: Directly
+  - target:
+      field: fullTextSearchOnInputByString
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: DontUse
+  - target:
+      field: defaultObjectForm
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: defaultObjectForm
+          form: empty-element
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: defaultListForm
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: defaultListForm
+          form: empty-element
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: defaultChoiceForm
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: defaultChoiceForm
+          form: empty-element
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: auxiliaryObjectForm
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: auxiliaryObjectForm
+          form: empty-element
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: auxiliaryListForm
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: auxiliaryListForm
+          form: empty-element
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: auxiliaryChoiceForm
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: auxiliaryChoiceForm
+          form: empty-element
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: choiceHistoryOnInput
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: Auto
+  - target:
+      field: numberType
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: String
+  - target:
+      field: numberAllowedLength
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: Variable
+  - target:
+      field: autonumbering
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: true
+  - target:
+      field: numberPeriodicity
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: Nonperiodical
+  - target:
+      field: createTaskInPrivilegedMode
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: true
+  - target:
+      field: dataLockControlMode
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: Managed
+  - target:
+      field: includeHelpInContents
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: false
+  - target:
+      field: fullTextSearch
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: Use
+  - target:
+      field: objectPresentation
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: objectPresentation
+          form: empty-element
+  - target:
+      field: extendedObjectPresentation
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: extendedObjectPresentation
+          form: empty-element
+  - target:
+      field: listPresentation
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: listPresentation
+          form: empty-element
+  - target:
+      field: extendedListPresentation
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: extendedListPresentation
+          form: empty-element
+  - target:
+      field: explanation
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: explanation
+          form: empty-element
+  - target:
+      field: dataHistory
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: DontUse
+  - target:
+      field: updateDataHistoryImmediatelyAfterWrite
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: false
+  - target:
+      field: executeAfterWriteDataHistoryVersionProcessing
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: false
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  ownerName:
+    type:
+      kind: scalar
+      scalar: text
+  owner:
+    type:
+      kind: scalar
+      scalar: text
+  forms:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  roots:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: kind
+            type:
+              use: inputType1f8ea46361ff
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  children:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: kind
+            type:
+              use: inputType00917033b468
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: parent
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+id: candidate.fragment.5c3a9d4c9a98a78d300d

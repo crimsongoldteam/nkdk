@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: storedData
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: storedData
+        path:
+          - SavedData
+  yaml:
+    kind: mapping
+    fields:
+      - field: storedData
+        key: СохраняемыеДанные
+presence:
+  - target:
+      field: storedData
+    xml:
+      missing:
+        denotes:
+          literal: false
+      canonical:
+        - when:
+            eq:
+              - field: storedData
+              - literal: false
+          form: missing
+    yaml:
+      default:
+        literal: false
+id: candidate.fragment.455e8bc8d604dde51d23

@@ -1,0 +1,40 @@
+format: nkdk-declarations/1
+kind: value
+id: common.xdto-type-name
+value:
+  kind: record
+  fields:
+    - name: namespace
+      type:
+        kind: scalar
+        scalar: text
+    - name: name
+      type:
+        kind: scalar
+        scalar: text
+representations:
+  xml:
+    kind: qname
+    namespace: namespace
+    local: name
+  yaml:
+    kind: mapping
+    fields:
+      - field: namespace
+        key: ПространствоИмен
+      - field: name
+        key: Имя
+presence:
+  - target: self
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true

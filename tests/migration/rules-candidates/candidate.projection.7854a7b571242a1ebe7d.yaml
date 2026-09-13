@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.7854a7b571242a1ebe7d
+description: 'Кандидат проекции: относительный XML-корень ChoiceFoldersAndItems; не полный владелец'
+imports:
+  part0: candidate.fragment.6458331417352644a6a3
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

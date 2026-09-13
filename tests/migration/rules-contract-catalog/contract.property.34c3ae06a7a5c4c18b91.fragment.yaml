@@ -1,0 +1,25 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.string-or-number
+value:
+  kind: record
+  fields:
+    - name: detailsData
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: detailsData
+        path:
+          - Form
+          - DetailsData
+  yaml:
+    kind: mapping
+    fields:
+      - field: detailsData
+        key: ДанныеРасшифровки
+presence: []
+id: contract.property.34c3ae06a7a5c4c18b91.fragment

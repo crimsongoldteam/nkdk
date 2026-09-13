@@ -1,0 +1,17 @@
+format: nkdk-declarations/1
+kind: resources
+id: resources.configuration-modules
+imports:
+  m0: fragment.managed-application-module-resource
+  m1: fragment.session-module-resource
+  m2: fragment.external-connection-module-resource
+  m3: fragment.ordinary-application-module-resource
+compose:
+- {use: m0}
+- {use: m1}
+- {use: m2}
+- {use: m3}
+value: {kind: record, fields: []}
+representations:
+  xml: {kind: record, fields: []}
+  yaml: {kind: mapping, fields: []}

@@ -1,0 +1,321 @@
+{
+  "scope": "Terminal path profiles (property projection only); not whole-project conversion or performance",
+  "verified": 39,
+  "notCovered": {
+    "other three-segment profile": 16
+  },
+  "cases": [
+    {
+      "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства.xml",
+      "sha256": "a03527edc24990a7c2bbb21285d9dd179b7dac8e32848be870967e2b466ec3d6",
+      "occurrence": 310,
+      "type": "xr:DesignTimeRef",
+      "entry": "migration.metadata-value-path",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникВладелец.xml",
+      "sha256": "c25865f1f70c463f8743596b3254d0749fbc0dbec32e5fd56b9fcfc92508e493",
+      "occurrence": 522,
+      "type": "xr:DesignTimeRef",
+      "entry": "migration.metadata-value-path",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml",
+      "sha256": "27231ddedad3d68c1c8aa071d611c32f94681c7bc94d6533b22ee9409b0217dd",
+      "occurrence": 206,
+      "type": "xr:DesignTimeRef",
+      "entry": "migration.metadata-value-path",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml",
+      "sha256": "27231ddedad3d68c1c8aa071d611c32f94681c7bc94d6533b22ee9409b0217dd",
+      "occurrence": 210,
+      "type": "xr:DesignTimeRef",
+      "entry": "migration.metadata-value-path",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml",
+      "sha256": "27231ddedad3d68c1c8aa071d611c32f94681c7bc94d6533b22ee9409b0217dd",
+      "occurrence": 238,
+      "type": "xr:DesignTimeRef",
+      "entry": "migration.metadata-value-path",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникСВладельцем.xml",
+      "sha256": "832d619313d9e4fd41b0204c5f8acdb3bfef4e1b6b63e9149d2cb9048a0aa221",
+      "occurrence": 196,
+      "type": "xr:DesignTimeRef",
+      "entry": "migration.metadata-value-path",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства.xml",
+      "sha256": "fcd73718d1134a63afb433454d4d4d3fb14fb461b80620b33aa9c37f4750acdf",
+      "occurrence": 518,
+      "type": "xr:DesignTimeRef",
+      "entry": "migration.metadata-value-path",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства/Ext/Predefined.xml",
+      "sha256": "bbf64736033137157df7b5e93ce802cd60d258c36f11345a99c7bb29f2d30fd5",
+      "occurrence": 7,
+      "type": "",
+      "entry": "migration.metadata-value-path",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства/Ext/Predefined.xml",
+      "sha256": "bbf64736033137157df7b5e93ce802cd60d258c36f11345a99c7bb29f2d30fd5",
+      "occurrence": 9,
+      "type": "",
+      "entry": "migration.metadata-value-path",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства/Ext/Predefined.xml",
+      "sha256": "bbf64736033137157df7b5e93ce802cd60d258c36f11345a99c7bb29f2d30fd5",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.metadata-value-path",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства.xml",
+      "sha256": "0b75c93753e1b9bc03c8e9955857140aa466f69c769353c62a59d788bf1997a8",
+      "occurrence": 596,
+      "type": "xr:DesignTimeRef",
+      "entry": "migration.metadata-value-path",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписокОсновнаяТаблица/Ext/Form.xml",
+      "sha256": "763ed42a69d202cb9bdf988866261d797554fc0146114346af993b484df25c42",
+      "occurrence": 266,
+      "type": "",
+      "entry": "migration.metadata-table-path",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписокОсновнаяТаблица/Ext/Form.xml",
+      "sha256": "763ed42a69d202cb9bdf988866261d797554fc0146114346af993b484df25c42",
+      "occurrence": 289,
+      "type": "",
+      "entry": "migration.metadata-table-path",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписокОсновнаяТаблица/Ext/Form.xml",
+      "sha256": "763ed42a69d202cb9bdf988866261d797554fc0146114346af993b484df25c42",
+      "occurrence": 335,
+      "type": "",
+      "entry": "migration.metadata-table-path",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписокОсновнаяТаблица/Ext/Form.xml",
+      "sha256": "763ed42a69d202cb9bdf988866261d797554fc0146114346af993b484df25c42",
+      "occurrence": 381,
+      "type": "",
+      "entry": "migration.metadata-table-path",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписокОсновнаяТаблица/Ext/Form.xml",
+      "sha256": "763ed42a69d202cb9bdf988866261d797554fc0146114346af993b484df25c42",
+      "occurrence": 404,
+      "type": "",
+      "entry": "migration.metadata-table-path",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписокОсновнаяТаблица/Ext/Form.xml",
+      "sha256": "763ed42a69d202cb9bdf988866261d797554fc0146114346af993b484df25c42",
+      "occurrence": 427,
+      "type": "",
+      "entry": "migration.metadata-table-path",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписокОсновнаяТаблица/Ext/Form.xml",
+      "sha256": "763ed42a69d202cb9bdf988866261d797554fc0146114346af993b484df25c42",
+      "occurrence": 450,
+      "type": "",
+      "entry": "migration.metadata-table-path",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписокОсновнаяТаблица/Ext/Form.xml",
+      "sha256": "763ed42a69d202cb9bdf988866261d797554fc0146114346af993b484df25c42",
+      "occurrence": 473,
+      "type": "",
+      "entry": "migration.metadata-table-path",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписокОсновнаяТаблица/Ext/Form.xml",
+      "sha256": "763ed42a69d202cb9bdf988866261d797554fc0146114346af993b484df25c42",
+      "occurrence": 496,
+      "type": "",
+      "entry": "migration.metadata-table-path",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписокОсновнаяТаблица/Ext/Form.xml",
+      "sha256": "763ed42a69d202cb9bdf988866261d797554fc0146114346af993b484df25c42",
+      "occurrence": 542,
+      "type": "",
+      "entry": "migration.metadata-table-path",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписокОсновнаяТаблица/Ext/Form.xml",
+      "sha256": "763ed42a69d202cb9bdf988866261d797554fc0146114346af993b484df25c42",
+      "occurrence": 565,
+      "type": "",
+      "entry": "migration.metadata-table-path",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписокОсновнаяТаблица/Ext/Form.xml",
+      "sha256": "763ed42a69d202cb9bdf988866261d797554fc0146114346af993b484df25c42",
+      "occurrence": 588,
+      "type": "",
+      "entry": "migration.metadata-table-path",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписокОсновнаяТаблица/Ext/Form.xml",
+      "sha256": "763ed42a69d202cb9bdf988866261d797554fc0146114346af993b484df25c42",
+      "occurrence": 634,
+      "type": "",
+      "entry": "migration.metadata-table-path",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписокОсновнаяТаблица/Ext/Form.xml",
+      "sha256": "763ed42a69d202cb9bdf988866261d797554fc0146114346af993b484df25c42",
+      "occurrence": 749,
+      "type": "",
+      "entry": "migration.metadata-table-path",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/DataProcessors/ОбработкаВсеСвойства.xml",
+      "sha256": "9a70ce3ab3fda19d59f75df003af943cf930723673ecec29a366017c8ae4867d",
+      "occurrence": 230,
+      "type": "xr:DesignTimeRef",
+      "entry": "migration.metadata-value-path",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства.xml",
+      "sha256": "ea7e9507ee5538c46acb941135ff909df0caefabf86926fdb4969fb063c3002d",
+      "occurrence": 339,
+      "type": "xr:DesignTimeRef",
+      "entry": "migration.metadata-value-path",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства.xml",
+      "sha256": "2c0e6fa906363085def52dc9d23fd62fc76dd2d899229768b22548a0267fddbe",
+      "occurrence": 233,
+      "type": "xr:DesignTimeRef",
+      "entry": "migration.metadata-value-path",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства.xml",
+      "sha256": "9c2920177c6974fc6941bd2f9d10d1ed1c0e69efe5a564b67a35daa5abc5f72d",
+      "occurrence": 345,
+      "type": "xr:DesignTimeRef",
+      "entry": "migration.metadata-value-path",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства.xml",
+      "sha256": "9c2920177c6974fc6941bd2f9d10d1ed1c0e69efe5a564b67a35daa5abc5f72d",
+      "occurrence": 650,
+      "type": "xr:DesignTimeRef",
+      "entry": "migration.metadata-value-path",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/BusinessProcesses/БизнесПроцессВсеСвойстваExt.xml",
+      "sha256": "80673d2d4f16696a071a62273a51c95d1ca745d6b592ff4a78cd6092e2ffe019",
+      "occurrence": 310,
+      "type": "xr:DesignTimeRef",
+      "entry": "migration.metadata-value-path",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникВладелецExt.xml",
+      "sha256": "1f16fa107bff75645471e1b8b7dc54b9b6a6e25426531e2305e567fa31ee37d3",
+      "occurrence": 520,
+      "type": "xr:DesignTimeRef",
+      "entry": "migration.metadata-value-path",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойстваExt.xml",
+      "sha256": "d0f769e38027e7fcb3c9a9370c6397b78f823e5bc86147b24f6e13e2c5368423",
+      "occurrence": 513,
+      "type": "xr:DesignTimeRef",
+      "entry": "migration.metadata-value-path",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCalculationTypes/ПланРасчетаВсеСвойстваExt.xml",
+      "sha256": "bc0057e014964e687fad1fa03dfec7ff26fa621cc8eb80af2fc293d2fd4f19cb",
+      "occurrence": 600,
+      "type": "xr:DesignTimeRef",
+      "entry": "migration.metadata-value-path",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/DataProcessors/ОбработкаВсеСвойстваExt.xml",
+      "sha256": "20f447da14a75ddc7114148549687a04665e7f996dba35cb4910554cd3b16df9",
+      "occurrence": 227,
+      "type": "xr:DesignTimeRef",
+      "entry": "migration.metadata-value-path",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExchangePlans/ПланОбменаВсеСвойстваExt.xml",
+      "sha256": "a20807181ce270cade440ab6f014efb8f0e81b9a51c0e3172874404788e0d907",
+      "occurrence": 320,
+      "type": "xr:DesignTimeRef",
+      "entry": "migration.metadata-value-path",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt.xml",
+      "sha256": "ba35b75641d1a6a46ea5821b44bfe9ef56655aa7e4752b4b036ed7e633f4b23d",
+      "occurrence": 233,
+      "type": "xr:DesignTimeRef",
+      "entry": "migration.metadata-value-path",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Tasks/ЗадачаВсеСвойстваExt.xml",
+      "sha256": "25df146096e8d8fc00f34702ece490a48a9409c450c6e2c94b61b18ea1b3e90a",
+      "occurrence": 337,
+      "type": "xr:DesignTimeRef",
+      "entry": "migration.metadata-value-path",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Tasks/ЗадачаВсеСвойстваExt.xml",
+      "sha256": "25df146096e8d8fc00f34702ece490a48a9409c450c6e2c94b61b18ea1b3e90a",
+      "occurrence": 642,
+      "type": "xr:DesignTimeRef",
+      "entry": "migration.metadata-value-path",
+      "verified": true
+    }
+  ]
+}

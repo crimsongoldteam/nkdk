@@ -47,7 +47,11 @@ fn collect<'a>(value: &'a TypeDefinition, usages: &mut Vec<&'a TypeUse>) {
     match value {
         TypeDefinition::Use(usage) => usages.push(usage),
         TypeDefinition::Sequence(item) => collect(item, usages),
-        TypeDefinition::Record(fields) => {
+        TypeDefinition::Index { key, value } => {
+            collect(key, usages);
+            collect(value, usages);
+        }
+        TypeDefinition::Record(fields) | TypeDefinition::Choice(fields) => {
             for field in fields {
                 collect(&field.definition, usages);
             }

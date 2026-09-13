@@ -1,0 +1,146 @@
+format: nkdk-declarations/1
+kind: value
+id: common.formatted-i8n-text
+imports:
+  text: common.i8n-text
+  boolean: common.boolean-flag
+parameters:
+  preserveEmptyXML:
+    type:
+      kind: scalar
+      scalar: boolean
+    default: false
+  excludeIfEqualNameYAML:
+    type:
+      kind: scalar
+      scalar: boolean
+    default: false
+  skipEmptyToXML:
+    type:
+      kind: scalar
+      scalar: boolean
+    default: false
+  typedXML:
+    type:
+      kind: scalar
+      scalar: boolean
+    default: false
+  xmlWithDefaultLanguage:
+    type:
+      kind: scalar
+      scalar: boolean
+    default: false
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  languages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  name:
+    type:
+      kind: scalar
+      scalar: text
+value:
+  kind: record
+  fields:
+    - name: formatted
+      type:
+        use: boolean
+    - name: text
+      type:
+        use: text
+        with:
+          preserveEmptyXML:
+            parameter: preserveEmptyXML
+          excludeIfEqualNameYAML:
+            parameter: excludeIfEqualNameYAML
+          skipEmptyToXML:
+            parameter: skipEmptyToXML
+          typedXML:
+            parameter: typedXML
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: languages
+          ownerName:
+            input: name
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: formatted
+        path: []
+        attribute: formatted
+      - field: text
+        path: []
+  yaml:
+    kind: mapping
+    fields:
+      - field: formatted
+        key: Форматированный
+      - field: text
+        key: Текст
+presence:
+  - target: self
+    xml:
+      canonical:
+        - when:
+            and:
+              - parameter: xmlWithDefaultLanguage
+              - not:
+                  field: formatted
+              - each:
+                  in:
+                    field: text
+                  as: translation
+                  where:
+                    and:
+                      - eq:
+                          - get:
+                              of:
+                                var: translation
+                              field: language
+                          - input: defaultLanguage
+                      - eq:
+                          - get:
+                              of:
+                                var: translation
+                              field: content
+                          - literal: ''
+          form: missing
+        - form: ordinary
+  - target:
+      field: text
+    yaml:
+      missing:
+        denotes:
+          sequence: []
+      omitWhen:
+        and:
+          - field: formatted
+          - each:
+              in:
+                field: text
+              as: translation
+              where:
+                literal: false
+constraints:
+  - id: text-or-flag
+    appliesTo:
+      - yaml-validation
+    assert:
+      or:
+        - field: formatted
+        - present:
+            field: text
+    diagnostic:
+      severity: error
+      at:
+        self: true
+      message: Требуется текст или признак форматирования

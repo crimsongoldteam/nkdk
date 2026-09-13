@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.f070322daad070a77734
+description: 'Кандидат проекции: относительный XML-корень ShowGroups; не полный владелец'
+imports:
+  part0: candidate.fragment.2d3d9c49893e45ea7a1e
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

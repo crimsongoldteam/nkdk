@@ -134,7 +134,7 @@ pub(super) fn scalar(
         let form_scalar = if common.constraints.iter().any(|rule| {
             rule.applies_to.contains(&ValidationPhase::YamlValidation) && !rule.forms.is_empty()
         }) {
-            "form=core::yaml::Form::Scalar;"
+            "self.form=core::yaml::Form::Scalar;"
         } else {
             ""
         };
@@ -143,12 +143,12 @@ pub(super) fn scalar(
             .iter()
             .any(|rule| matches!(rule.diagnostic.at, LinkedDiagnosticTarget::SelfValue))
         {
-            "position=_position;"
+            "self.position=_position;"
         } else {
             ""
         };
-        writeln!(result.read, "core::yaml::Node::Scalar(value, None) if depth==1 && key && !seen => {{ let text=value.into_text()?; let fixed={function}(_inputs)?.ok_or_else(|| RuntimeDiagnostic::new(\"yaml.shorthand\", \"Scalar shorthand is not applicable\"))?; let mut fields=[String::new(), String::new()]; fields[{capture_field}]=text; fields[{fixed_field}]=fixed; rows.push(R{} {{ fields{row_position} }}); seen=true; {parent_position} {form_scalar} Ok(()) }},", owner.id).unwrap();
-        writeln!(result.write, "if shorten && value.rows.len()==1 && {function}(_inputs)?.is_some_and(|fixed| value.rows[0].fields[{fixed_field}]==fixed) {{ out.push(' '); out.push_str(&core::yaml::scalar(&value.rows[0].fields[{capture_field}])); return Ok(out.into_bytes()); }}").unwrap();
+        writeln!(result.read, "core::yaml::Node::Scalar(value, None) if self.depth==1 && self.key && !self.seen => {{ let text=value.into_text()?; let fixed={function}(_inputs)?.ok_or_else(|| RuntimeDiagnostic::new(\"yaml.shorthand\", \"Scalar shorthand is not applicable\"))?; let mut fields=[String::new(), String::new()]; fields[{capture_field}]=text; fields[{fixed_field}]=fixed; self.rows.push(R{} {{ fields{row_position} }}); self.seen=true; {parent_position} {form_scalar} Ok(()) }},", owner.id).unwrap();
+        writeln!(result.write, "if shorten && value.rows.len()==1 && {function}(_inputs)?.is_some_and(|fixed| value.rows[0].fields[{fixed_field}]==fixed) {{ out.push(' '); out.push_str(&core::yaml::scalar(&value.rows[0].fields[{capture_field}])); return Ok(()); }}").unwrap();
     }
     if !result.read_keyed.is_empty() {
         writeln!(result.definitions, "fn expand_keys_{}(rows: Vec<R{}>, _inputs: &PreparedInputs) -> core::Result<Vec<R{}>> {{ {} Ok(rows) }}", owner.id, owner.id, owner.id, result.read_keyed).unwrap();

@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.b05d12eae8285938bd84
+description: 'Кандидат проекции: относительный XML-корень ChoiceListButton; не полный владелец'
+imports:
+  part0: candidate.fragment.b90f0a8d4cd71514909e
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

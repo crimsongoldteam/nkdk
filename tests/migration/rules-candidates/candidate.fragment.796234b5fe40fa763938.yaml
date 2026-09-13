@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.InputFieldMultipleValuePictureSize
+value:
+  kind: record
+  fields:
+    - name: multipleValuePictureSize
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: multipleValuePictureSize
+        path:
+          - MultipleValuePictureSize
+  yaml:
+    kind: mapping
+    fields:
+      - field: multipleValuePictureSize
+        key: РазмерКартинкиМножественногоЗначения
+presence:
+  - target:
+      field: multipleValuePictureSize
+    xml:
+      missing:
+        denotes:
+          literal: Auto
+      canonical:
+        - when:
+            eq:
+              - field: multipleValuePictureSize
+              - literal: Auto
+          form: missing
+    yaml:
+      default:
+        literal: Auto
+id: candidate.fragment.796234b5fe40fa763938

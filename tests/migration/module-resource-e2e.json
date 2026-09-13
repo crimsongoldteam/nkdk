@@ -1,0 +1,933 @@
+{
+  "scope": "Static module resource routes only; owner primary metadata is excluded",
+  "cases": [
+    {
+      "entry": "resources.manager-module-resource",
+      "xml": "Ext/ManagerModule.bsl",
+      "yaml": "МодульМенеджера.bsl",
+      "files": [
+        {
+          "file": "e2e/fixtures/xml/cf/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОбороты/Ext/ManagerModule.bsl",
+          "root": "e2e/fixtures/xml/cf/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОбороты"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/AccumulationRegisters/РегистрНакопленияВсеСвойстваОбороты/Ext/ManagerModule.bsl",
+          "root": "e2e/fixtures/xml/cf/AccumulationRegisters/РегистрНакопленияВсеСвойстваОбороты"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства/Ext/ManagerModule.bsl",
+          "root": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/CalculationRegisters/РегистрРасчетаВсеСвойства/Ext/ManagerModule.bsl",
+          "root": "e2e/fixtures/xml/cf/CalculationRegisters/РегистрРасчетаВсеСвойства"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/Catalogs/СправочникCоВсемиОбъектами/Ext/ManagerModule.bsl",
+          "root": "e2e/fixtures/xml/cf/Catalogs/СправочникCоВсемиОбъектами"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства/Ext/ManagerModule.bsl",
+          "root": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства/Ext/ManagerModule.bsl",
+          "root": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойства/Ext/ManagerModule.bsl",
+          "root": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойства"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/Constants/КонстантаВсеСвойства/Ext/ManagerModule.bsl",
+          "root": "e2e/fixtures/xml/cf/Constants/КонстантаВсеСвойства"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/DataProcessors/ОбработкаВсеСвойства/Ext/ManagerModule.bsl",
+          "root": "e2e/fixtures/xml/cf/DataProcessors/ОбработкаВсеСвойства"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/DocumentJournals/ЖурналДокументовВсеСвойства/Ext/ManagerModule.bsl",
+          "root": "e2e/fixtures/xml/cf/DocumentJournals/ЖурналДокументовВсеСвойства"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства/Ext/ManagerModule.bsl",
+          "root": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/Enums/ПеречислениеВсеСвойства/Ext/ManagerModule.bsl",
+          "root": "e2e/fixtures/xml/cf/Enums/ПеречислениеВсеСвойства"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства/Ext/ManagerModule.bsl",
+          "root": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства/DimensionTables/ТаблицаИзмеренияВсеСвойства/Ext/ManagerModule.bsl",
+          "root": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства/DimensionTables/ТаблицаИзмеренияВсеСвойства"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства/Ext/ManagerModule.bsl",
+          "root": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/FilterCriteria/КритерийОтбораВсеСвойства/Ext/ManagerModule.bsl",
+          "root": "e2e/fixtures/xml/cf/FilterCriteria/КритерийОтбораВсеСвойства"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства/Ext/ManagerModule.bsl",
+          "root": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОборотыExt/Ext/ManagerModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОборотыExt"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/AccumulationRegisters/РегистрНакопленияВсеСвойстваОборотыExt/Ext/ManagerModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/AccumulationRegisters/РегистрНакопленияВсеСвойстваОборотыExt"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/BusinessProcesses/БизнесПроцессВсеСвойстваExt/Ext/ManagerModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/BusinessProcesses/БизнесПроцессВсеСвойстваExt"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/CalculationRegisters/РегистрРасчетаВсеСвойстваExt/Ext/ManagerModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/CalculationRegisters/РегистрРасчетаВсеСвойстваExt"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникCоВсемиОбъектамиExt/Ext/ManagerModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникCоВсемиОбъектамиExt"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойстваExt/Ext/ManagerModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойстваExt"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCalculationTypes/ПланРасчетаВсеСвойстваExt/Ext/ManagerModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCalculationTypes/ПланРасчетаВсеСвойстваExt"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойстваExt/Ext/ManagerModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойстваExt"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/Constants/КонстантаВсеСвойстваExt/Ext/ManagerModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/Constants/КонстантаВсеСвойстваExt"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/DataProcessors/ОбработкаВсеСвойстваExt/Ext/ManagerModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/DataProcessors/ОбработкаВсеСвойстваExt"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/DocumentJournals/ЖурналДокументовВсеСвойстваExt/Ext/ManagerModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/DocumentJournals/ЖурналДокументовВсеСвойстваExt"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/Documents/ДокументВсеСвойстваExt/Ext/ManagerModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/Documents/ДокументВсеСвойстваExt"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/Enums/ПеречислениеВсеСвойстваExt/Ext/ManagerModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/Enums/ПеречислениеВсеСвойстваExt"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/ExchangePlans/ПланОбменаВсеСвойстваExt/Ext/ManagerModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/ExchangePlans/ПланОбменаВсеСвойстваExt"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойстваExt/Cubes/КубВсеСвойства/DimensionTables/ТаблицаИзмеренияВсеСвойства/Ext/ManagerModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойстваExt/Cubes/КубВсеСвойства/DimensionTables/ТаблицаИзмеренияВсеСвойства"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойстваExt/Tables/ТаблицаВсеСвойства/Ext/ManagerModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойстваExt/Tables/ТаблицаВсеСвойства"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/FilterCriteria/КритерийОтбораВсеСвойстваExt/Ext/ManagerModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/FilterCriteria/КритерийОтбораВсеСвойстваExt"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt/Ext/ManagerModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt"
+        }
+      ]
+    },
+    {
+      "entry": "resources.object-module-resource",
+      "xml": "Ext/ObjectModule.bsl",
+      "yaml": "МодульОбъекта.bsl",
+      "files": [
+        {
+          "file": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства/Ext/ObjectModule.bsl",
+          "root": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/Catalogs/СправочникCоВсемиОбъектами/Ext/ObjectModule.bsl",
+          "root": "e2e/fixtures/xml/cf/Catalogs/СправочникCоВсемиОбъектами"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства/Ext/ObjectModule.bsl",
+          "root": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства/Ext/ObjectModule.bsl",
+          "root": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойства/Ext/ObjectModule.bsl",
+          "root": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойства"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/DataProcessors/ОбработкаВсеСвойства/Ext/ObjectModule.bsl",
+          "root": "e2e/fixtures/xml/cf/DataProcessors/ОбработкаВсеСвойства"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства/Ext/ObjectModule.bsl",
+          "root": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства/Ext/ObjectModule.bsl",
+          "root": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства/Ext/ObjectModule.bsl",
+          "root": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства/Ext/ObjectModule.bsl",
+          "root": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/BusinessProcesses/БизнесПроцессВсеСвойстваExt/Ext/ObjectModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/BusinessProcesses/БизнесПроцессВсеСвойстваExt"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникCоВсемиОбъектамиExt/Ext/ObjectModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникCоВсемиОбъектамиExt"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойстваExt/Ext/ObjectModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойстваExt"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCalculationTypes/ПланРасчетаВсеСвойстваExt/Ext/ObjectModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCalculationTypes/ПланРасчетаВсеСвойстваExt"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойстваExt/Ext/ObjectModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойстваExt"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/DataProcessors/ОбработкаВсеСвойстваExt/Ext/ObjectModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/DataProcessors/ОбработкаВсеСвойстваExt"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/Documents/ДокументВсеСвойстваExt/Ext/ObjectModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/Documents/ДокументВсеСвойстваExt"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/ExchangePlans/ПланОбменаВсеСвойстваExt/Ext/ObjectModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/ExchangePlans/ПланОбменаВсеСвойстваExt"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойстваExt/Tables/ТаблицаВсеСвойства/Ext/ObjectModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойстваExt/Tables/ТаблицаВсеСвойства"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt/Ext/ObjectModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt"
+        }
+      ]
+    },
+    {
+      "entry": "resources.record-set-module-resource",
+      "xml": "Ext/RecordSetModule.bsl",
+      "yaml": "МодульНабораЗаписей.bsl",
+      "files": [
+        {
+          "file": "e2e/fixtures/xml/cf/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОбороты/Ext/RecordSetModule.bsl",
+          "root": "e2e/fixtures/xml/cf/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОбороты"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/AccumulationRegisters/РегистрНакопленияВсеСвойстваОбороты/Ext/RecordSetModule.bsl",
+          "root": "e2e/fixtures/xml/cf/AccumulationRegisters/РегистрНакопленияВсеСвойстваОбороты"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/CalculationRegisters/РегистрРасчетаВсеСвойства/Ext/RecordSetModule.bsl",
+          "root": "e2e/fixtures/xml/cf/CalculationRegisters/РегистрРасчетаВсеСвойства"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/CalculationRegisters/РегистрРасчетаВсеСвойства/Recalculations/ПерерасчетВсеСвойства/Ext/RecordSetModule.bsl",
+          "root": "e2e/fixtures/xml/cf/CalculationRegisters/РегистрРасчетаВсеСвойства/Recalculations/ПерерасчетВсеСвойства"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства/Ext/RecordSetModule.bsl",
+          "root": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства/Ext/RecordSetModule.bsl",
+          "root": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаМодульНабора/Ext/RecordSetModule.bsl",
+          "root": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаМодульНабора"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаПоУмолчанию/Ext/RecordSetModule.bsl",
+          "root": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаПоУмолчанию"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/Sequences/ПоследовательностьВсеПоля/Ext/RecordSetModule.bsl",
+          "root": "e2e/fixtures/xml/cf/Sequences/ПоследовательностьВсеПоля"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОборотыExt/Ext/RecordSetModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОборотыExt"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/AccumulationRegisters/РегистрНакопленияВсеСвойстваОборотыExt/Ext/RecordSetModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/AccumulationRegisters/РегистрНакопленияВсеСвойстваОборотыExt"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/CalculationRegisters/РегистрРасчетаВсеСвойстваExt/Ext/RecordSetModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/CalculationRegisters/РегистрРасчетаВсеСвойстваExt"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/CalculationRegisters/РегистрРасчетаВсеСвойстваExt/Recalculations/ПерерасчетВсеСвойства/Ext/RecordSetModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/CalculationRegisters/РегистрРасчетаВсеСвойстваExt/Recalculations/ПерерасчетВсеСвойства"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойстваExt/Cubes/КубВсеСвойства/Ext/RecordSetModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойстваExt/Cubes/КубВсеСвойства"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойстваExt/Tables/ТаблицаВсеСвойства/Ext/RecordSetModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойстваExt/Tables/ТаблицаВсеСвойства"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойстваExt/Tables/ТаблицаМодульНабора/Ext/RecordSetModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойстваExt/Tables/ТаблицаМодульНабора"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойстваExt/Tables/ТаблицаПоУмолчанию/Ext/RecordSetModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойстваExt/Tables/ТаблицаПоУмолчанию"
+        }
+      ]
+    },
+    {
+      "entry": "resources.module-resource",
+      "xml": "Ext/Module.bsl",
+      "yaml": "Модуль.bsl",
+      "files": [
+        {
+          "file": "e2e/fixtures/xml/cf/Bots/БотВсеСвойства/Ext/Module.bsl",
+          "root": "e2e/fixtures/xml/cf/Bots/БотВсеСвойства"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/CommonModules/ОбщийМодульГлобальный/Ext/Module.bsl",
+          "root": "e2e/fixtures/xml/cf/CommonModules/ОбщийМодульГлобальный"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/CommonModules/ОбщийМодульПовторный/Ext/Module.bsl",
+          "root": "e2e/fixtures/xml/cf/CommonModules/ОбщийМодульПовторный"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/CommonModules/ОбщийМодульПодпискаНаСобытие/Ext/Module.bsl",
+          "root": "e2e/fixtures/xml/cf/CommonModules/ОбщийМодульПодпискаНаСобытие"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/CommonModules/ОбщийМодульРегЗадание/Ext/Module.bsl",
+          "root": "e2e/fixtures/xml/cf/CommonModules/ОбщийМодульРегЗадание"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/HTTPServices/HTTPСервисВсеСвойства/Ext/Module.bsl",
+          "root": "e2e/fixtures/xml/cf/HTTPServices/HTTPСервисВсеСвойства"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/IntegrationServices/СервисИнтеграцииВсеСвойства/Ext/Module.bsl",
+          "root": "e2e/fixtures/xml/cf/IntegrationServices/СервисИнтеграцииВсеСвойства"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/WebServices/WebСервисВсеСвойства/Ext/Module.bsl",
+          "root": "e2e/fixtures/xml/cf/WebServices/WebСервисВсеСвойства"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/WebSocketClients/WebSocketКлиентВсеСвойства/Ext/Module.bsl",
+          "root": "e2e/fixtures/xml/cf/WebSocketClients/WebSocketКлиентВсеСвойства"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/CommonModules/ОбщийМодульПовторныйExt/Ext/Module.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/CommonModules/ОбщийМодульПовторныйExt"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/CommonModules/ОбщийМодульПодпискаНаСобытие/Ext/Module.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/CommonModules/ОбщийМодульПодпискаНаСобытие"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/CommonModules/ОбщийМодульПодпискаНаСобытиеExt/Ext/Module.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/CommonModules/ОбщийМодульПодпискаНаСобытиеExt"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/CommonModules/ОбщийМодульРегЗадание/Ext/Module.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/CommonModules/ОбщийМодульРегЗадание"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/CommonModules/ОбщийМодульРегЗаданиеExt/Ext/Module.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/CommonModules/ОбщийМодульРегЗаданиеExt"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/HTTPServices/HTTPСервисВсеСвойстваExt/Ext/Module.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/HTTPServices/HTTPСервисВсеСвойстваExt"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/IntegrationServices/СервисИнтеграцииВсеСвойстваExt/Ext/Module.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/IntegrationServices/СервисИнтеграцииВсеСвойстваExt"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/WebServices/WebСервисВсеСвойстваExt/Ext/Module.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/WebServices/WebСервисВсеСвойстваExt"
+        }
+      ]
+    },
+    {
+      "entry": "resources.managed-application-module-resource",
+      "xml": "Ext/ManagedApplicationModule.bsl",
+      "yaml": "МодульПриложения.bsl",
+      "files": [
+        {
+          "file": "e2e/fixtures/xml/cf/Ext/ManagedApplicationModule.bsl",
+          "root": "e2e/fixtures/xml/cf"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/control/Ext/ManagedApplicationModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/control"
+        }
+      ]
+    },
+    {
+      "entry": "resources.session-module-resource",
+      "xml": "Ext/SessionModule.bsl",
+      "yaml": "МодульСеанса.bsl",
+      "files": [
+        {
+          "file": "e2e/fixtures/xml/cf/Ext/SessionModule.bsl",
+          "root": "e2e/fixtures/xml/cf"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/control/Ext/SessionModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/control"
+        }
+      ]
+    },
+    {
+      "entry": "resources.external-connection-module-resource",
+      "xml": "Ext/ExternalConnectionModule.bsl",
+      "yaml": "МодульВнешнегоСоединения.bsl",
+      "files": [
+        {
+          "file": "e2e/fixtures/xml/cf/Ext/ExternalConnectionModule.bsl",
+          "root": "e2e/fixtures/xml/cf"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/control/Ext/ExternalConnectionModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/control"
+        }
+      ]
+    },
+    {
+      "entry": "resources.ordinary-application-module-resource",
+      "xml": "Ext/OrdinaryApplicationModule.bsl",
+      "yaml": "МодульОбычногоПриложения.bsl",
+      "files": []
+    },
+    {
+      "entry": "resources.standalone-command-module-resource",
+      "xml": "Ext/CommandModule.bsl",
+      "yaml": "Модуль.bsl",
+      "files": [
+        {
+          "file": "e2e/fixtures/xml/cf/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОбороты/Commands/Команда1/Ext/CommandModule.bsl",
+          "root": "e2e/fixtures/xml/cf/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОбороты/Commands/Команда1"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/AccumulationRegisters/РегистрНакопленияВсеСвойстваОбороты/Commands/Команда1/Ext/CommandModule.bsl",
+          "root": "e2e/fixtures/xml/cf/AccumulationRegisters/РегистрНакопленияВсеСвойстваОбороты/Commands/Команда1"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/CalculationRegisters/РегистрРасчетаВсеСвойства/Commands/Команда1/Ext/CommandModule.bsl",
+          "root": "e2e/fixtures/xml/cf/CalculationRegisters/РегистрРасчетаВсеСвойства/Commands/Команда1"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/Catalogs/СправочникCоВсемиОбъектами/Commands/КомандаОбъекта/Ext/CommandModule.bsl",
+          "root": "e2e/fixtures/xml/cf/Catalogs/СправочникCоВсемиОбъектами/Commands/КомандаОбъекта"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный/Commands/ПоУмолчанию/Ext/CommandModule.bsl",
+          "root": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный/Commands/ПоУмолчанию"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный/Commands/ПолнаяКоманда/Ext/CommandModule.bsl",
+          "root": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный/Commands/ПолнаяКоманда"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства/Commands/Команда1/Ext/CommandModule.bsl",
+          "root": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства/Commands/Команда1"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства/Commands/Команда1/Ext/CommandModule.bsl",
+          "root": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства/Commands/Команда1"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойства/Commands/ПоУмолчанию/Ext/CommandModule.bsl",
+          "root": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойства/Commands/ПоУмолчанию"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойства/Commands/ПолнаяКоманда/Ext/CommandModule.bsl",
+          "root": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойства/Commands/ПолнаяКоманда"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/CommonCommands/КомандаСДанными/Ext/CommandModule.bsl",
+          "root": "e2e/fixtures/xml/cf/CommonCommands/КомандаСДанными"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/CommonCommands/ОбщаяКомандаВсеСвойства/Ext/CommandModule.bsl",
+          "root": "e2e/fixtures/xml/cf/CommonCommands/ОбщаяКомандаВсеСвойства"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/CommonCommands/ОбщаяКомандаПоУмолчанию/Ext/CommandModule.bsl",
+          "root": "e2e/fixtures/xml/cf/CommonCommands/ОбщаяКомандаПоУмолчанию"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/DataProcessors/ОбработкаВсеСвойства/Commands/Команда1/Ext/CommandModule.bsl",
+          "root": "e2e/fixtures/xml/cf/DataProcessors/ОбработкаВсеСвойства/Commands/Команда1"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/DocumentJournals/ЖурналДокументовВсеСвойства/Commands/Команда1/Ext/CommandModule.bsl",
+          "root": "e2e/fixtures/xml/cf/DocumentJournals/ЖурналДокументовВсеСвойства/Commands/Команда1"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства/Commands/Команда1/Ext/CommandModule.bsl",
+          "root": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства/Commands/Команда1"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/Enums/ПеречислениеВсеСвойства/Commands/Команда1/Ext/CommandModule.bsl",
+          "root": "e2e/fixtures/xml/cf/Enums/ПеречислениеВсеСвойства/Commands/Команда1"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства/Commands/Команда1/Ext/CommandModule.bsl",
+          "root": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства/Commands/Команда1"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства/Commands/Команда1/Ext/CommandModule.bsl",
+          "root": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства/Commands/Команда1"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства/Commands/Команда1/Ext/CommandModule.bsl",
+          "root": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства/Commands/Команда1"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/FilterCriteria/КритерийОтбораВсеСвойства/Commands/Команда1/Ext/CommandModule.bsl",
+          "root": "e2e/fixtures/xml/cf/FilterCriteria/КритерийОтбораВсеСвойства/Commands/Команда1"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый/Commands/Команда1/Ext/CommandModule.bsl",
+          "root": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый/Commands/Команда1"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства/Commands/Команда1/Ext/CommandModule.bsl",
+          "root": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства/Commands/Команда1"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства/Commands/Команда1/Ext/CommandModule.bsl",
+          "root": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства/Commands/Команда1"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОборотыExt/Commands/Команда1/Ext/CommandModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОборотыExt/Commands/Команда1"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/AccumulationRegisters/РегистрНакопленияВсеСвойстваОборотыExt/Commands/Команда1/Ext/CommandModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/AccumulationRegisters/РегистрНакопленияВсеСвойстваОборотыExt/Commands/Команда1"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/CalculationRegisters/РегистрРасчетаВсеСвойстваExt/Commands/Команда1/Ext/CommandModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/CalculationRegisters/РегистрРасчетаВсеСвойстваExt/Commands/Команда1"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникCоВсемиОбъектамиExt/Commands/КомандаОбъекта/Ext/CommandModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникCоВсемиОбъектамиExt/Commands/КомандаОбъекта"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникПолныйExt/Commands/ПоУмолчанию/Ext/CommandModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникПолныйExt/Commands/ПоУмолчанию"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникПолныйExt/Commands/ПолнаяКоманда/Ext/CommandModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникПолныйExt/Commands/ПолнаяКоманда"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойстваExt/Commands/Команда1/Ext/CommandModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойстваExt/Commands/Команда1"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCalculationTypes/ПланРасчетаВсеСвойстваExt/Commands/Команда1/Ext/CommandModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCalculationTypes/ПланРасчетаВсеСвойстваExt/Commands/Команда1"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойстваExt/Commands/ПоУмолчанию/Ext/CommandModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойстваExt/Commands/ПоУмолчанию"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойстваExt/Commands/ПолнаяКоманда/Ext/CommandModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойстваExt/Commands/ПолнаяКоманда"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/CommonCommands/КомандаСДаннымиExt/Ext/CommandModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/CommonCommands/КомандаСДаннымиExt"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/DataProcessors/ОбработкаВсеСвойстваExt/Commands/Команда1/Ext/CommandModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/DataProcessors/ОбработкаВсеСвойстваExt/Commands/Команда1"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/DocumentJournals/ЖурналДокументовВсеСвойстваExt/Commands/Команда1/Ext/CommandModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/DocumentJournals/ЖурналДокументовВсеСвойстваExt/Commands/Команда1"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/Documents/ДокументВсеСвойстваExt/Commands/Команда1/Ext/CommandModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/Documents/ДокументВсеСвойстваExt/Commands/Команда1"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/Enums/ПеречислениеВсеСвойстваExt/Commands/Команда1/Ext/CommandModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/Enums/ПеречислениеВсеСвойстваExt/Commands/Команда1"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/ExchangePlans/ПланОбменаВсеСвойстваExt/Commands/Команда1/Ext/CommandModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/ExchangePlans/ПланОбменаВсеСвойстваExt/Commands/Команда1"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойстваExt/Cubes/КубВсеСвойства/Commands/Команда1/Ext/CommandModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойстваExt/Cubes/КубВсеСвойства/Commands/Команда1"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойстваExt/Tables/ТаблицаВсеСвойства/Commands/Команда1/Ext/CommandModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойстваExt/Tables/ТаблицаВсеСвойства/Commands/Команда1"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/FilterCriteria/КритерийОтбораВсеСвойстваExt/Commands/Команда1/Ext/CommandModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/FilterCriteria/КритерийОтбораВсеСвойстваExt/Commands/Команда1"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/InformationRegisters/РегистрСведенийВсеСвойстваНезависимыйExt/Commands/Команда1/Ext/CommandModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/InformationRegisters/РегистрСведенийВсеСвойстваНезависимыйExt/Commands/Команда1"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt/Commands/Команда1/Ext/CommandModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt/Commands/Команда1"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/Tasks/ЗадачаВсеСвойстваExt/Commands/Команда1/Ext/CommandModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/Tasks/ЗадачаВсеСвойстваExt/Commands/Команда1"
+        }
+      ]
+    },
+    {
+      "entry": "resources.form-module-resource",
+      "xml": "Ext/Form/Module.bsl",
+      "yaml": "Модуль.bsl",
+      "files": [
+        {
+          "file": "e2e/fixtures/xml/cf/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОбороты/Forms/ФормаСписка/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cf/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОбороты/Forms/ФормаСписка"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/AccumulationRegisters/РегистрНакопленияВсеСвойстваОбороты/Forms/ФормаСписка/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cf/AccumulationRegisters/РегистрНакопленияВсеСвойстваОбороты/Forms/ФормаСписка"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства/Forms/ФормаВыбора/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства/Forms/ФормаВыбора"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства/Forms/ФормаЗадачи/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства/Forms/ФормаЗадачи"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства/Forms/ФормаСписка/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства/Forms/ФормаСписка"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/CalculationRegisters/РегистрРасчетаВсеСвойства/Forms/ФормаСписка/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cf/CalculationRegisters/РегистрРасчетаВсеСвойства/Forms/ФормаСписка"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/Catalogs/СправочникФормаВсеСвойства/Forms/ФормаЭлемента/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cf/Catalogs/СправочникФормаВсеСвойства/Forms/ФормаЭлемента"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства/Forms/ФормаВыбора/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства/Forms/ФормаВыбора"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства/Forms/ФормаЗаписи/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства/Forms/ФормаЗаписи"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства/Forms/ФормаСписка/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства/Forms/ФормаСписка"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства/Forms/ФормаВидаРасчета/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства/Forms/ФормаВидаРасчета"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства/Forms/ФормаВыбора/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства/Forms/ФормаВыбора"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства/Forms/ФормаСписка/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства/Forms/ФормаСписка"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/CommonForms/ExtendedTooltip/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cf/CommonForms/ExtendedTooltip"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/CommonForms/FormDecoraction/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cf/CommonForms/FormDecoraction"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/CommonForms/Table/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cf/CommonForms/Table"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/CommonForms/Команды/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cf/CommonForms/Команды"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/CommonForms/ФормаВариантаОтчета/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cf/CommonForms/ФормаВариантаОтчета"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/CommonForms/ФормаДанныхВерсииИсторииДанных/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cf/CommonForms/ФормаДанныхВерсииИсторииДанных"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/CommonForms/ФормаИсторииИзмененийИсторииДанных/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cf/CommonForms/ФормаИсторииИзмененийИсторииДанных"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/CommonForms/ФормаПоиска/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cf/CommonForms/ФормаПоиска"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/CommonForms/ФормаРазличийВерсийИсторииДанных/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cf/CommonForms/ФормаРазличийВерсийИсторииДанных"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/DataProcessors/ОбработкаВсеСвойства/Forms/Форма/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cf/DataProcessors/ОбработкаВсеСвойства/Forms/Форма"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/DocumentJournals/ЖурналДокументовВсеСвойства/Forms/ФормаСписка/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cf/DocumentJournals/ЖурналДокументовВсеСвойства/Forms/ФормаСписка"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства/Forms/ФормаДокумента/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства/Forms/ФормаДокумента"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства/Forms/ФормаДокументаВсеСвойства/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства/Forms/ФормаДокументаВсеСвойства"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/Enums/ПеречислениеВсеСвойства/Forms/ФормаВыбора/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cf/Enums/ПеречислениеВсеСвойства/Forms/ФормаВыбора"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/Enums/ПеречислениеВсеСвойства/Forms/ФормаСписка/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cf/Enums/ПеречислениеВсеСвойства/Forms/ФормаСписка"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства/Forms/ФормаВыбора/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства/Forms/ФормаВыбора"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства/Forms/ФормаСписка/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства/Forms/ФормаСписка"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства/Forms/ФормаУзла/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства/Forms/ФормаУзла"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/FilterCriteria/КритерийОтбораВсеСвойства/Forms/ФормаСписка/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cf/FilterCriteria/КритерийОтбораВсеСвойства/Forms/ФормаСписка"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый/Forms/ФормаЗаписи/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый/Forms/ФормаЗаписи"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый/Forms/ФормаСписка/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый/Forms/ФормаСписка"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства/Forms/ФормаОтчета/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства/Forms/ФормаОтчета"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства/Forms/ФормаВыбора/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства/Forms/ФормаВыбора"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства/Forms/ФормаЗадачи/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства/Forms/ФормаЗадачи"
+        },
+        {
+          "file": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства/Forms/ФормаСписка/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства/Forms/ФормаСписка"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОборотыExt/Forms/ФормаСписка/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОборотыExt/Forms/ФормаСписка"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/AccumulationRegisters/РегистрНакопленияВсеСвойстваОборотыExt/Forms/ФормаСписка/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/AccumulationRegisters/РегистрНакопленияВсеСвойстваОборотыExt/Forms/ФормаСписка"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/BusinessProcesses/БизнесПроцессВсеСвойстваExt/Forms/ФормаВыбора/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/BusinessProcesses/БизнесПроцессВсеСвойстваExt/Forms/ФормаВыбора"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/BusinessProcesses/БизнесПроцессВсеСвойстваExt/Forms/ФормаЗадачи/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/BusinessProcesses/БизнесПроцессВсеСвойстваExt/Forms/ФормаЗадачи"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/BusinessProcesses/БизнесПроцессВсеСвойстваExt/Forms/ФормаСписка/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/BusinessProcesses/БизнесПроцессВсеСвойстваExt/Forms/ФормаСписка"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/CalculationRegisters/РегистрРасчетаВсеСвойстваExt/Forms/ФормаСписка/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/CalculationRegisters/РегистрРасчетаВсеСвойстваExt/Forms/ФормаСписка"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникФормаВсеСвойстваExt/Forms/ФормаЭлемента/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникФормаВсеСвойстваExt/Forms/ФормаЭлемента"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойстваExt/Forms/ФормаВыбора/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойстваExt/Forms/ФормаВыбора"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойстваExt/Forms/ФормаЗаписи/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойстваExt/Forms/ФормаЗаписи"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойстваExt/Forms/ФормаСписка/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойстваExt/Forms/ФормаСписка"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCalculationTypes/ПланРасчетаВсеСвойстваExt/Forms/ФормаВидаРасчета/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCalculationTypes/ПланРасчетаВсеСвойстваExt/Forms/ФормаВидаРасчета"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCalculationTypes/ПланРасчетаВсеСвойстваExt/Forms/ФормаВыбора/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCalculationTypes/ПланРасчетаВсеСвойстваExt/Forms/ФормаВыбора"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCalculationTypes/ПланРасчетаВсеСвойстваExt/Forms/ФормаСписка/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCalculationTypes/ПланРасчетаВсеСвойстваExt/Forms/ФормаСписка"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/DataProcessors/ОбработкаВсеСвойстваExt/Forms/Форма/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/DataProcessors/ОбработкаВсеСвойстваExt/Forms/Форма"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/DocumentJournals/ЖурналДокументовВсеСвойстваExt/Forms/ФормаСписка/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/DocumentJournals/ЖурналДокументовВсеСвойстваExt/Forms/ФормаСписка"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/Documents/ДокументВсеСвойстваExt/Forms/ФормаДокумента/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/Documents/ДокументВсеСвойстваExt/Forms/ФормаДокумента"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/Documents/ДокументВсеСвойстваExt/Forms/ФормаДокументаВсеСвойства/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/Documents/ДокументВсеСвойстваExt/Forms/ФормаДокументаВсеСвойства"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/Enums/ПеречислениеВсеСвойстваExt/Forms/ФормаВыбора/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/Enums/ПеречислениеВсеСвойстваExt/Forms/ФормаВыбора"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/Enums/ПеречислениеВсеСвойстваExt/Forms/ФормаСписка/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/Enums/ПеречислениеВсеСвойстваExt/Forms/ФормаСписка"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/ExchangePlans/ПланОбменаВсеСвойстваExt/Forms/ФормаВыбора/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/ExchangePlans/ПланОбменаВсеСвойстваExt/Forms/ФормаВыбора"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/ExchangePlans/ПланОбменаВсеСвойстваExt/Forms/ФормаСписка/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/ExchangePlans/ПланОбменаВсеСвойстваExt/Forms/ФормаСписка"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/ExchangePlans/ПланОбменаВсеСвойстваExt/Forms/ФормаУзла/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/ExchangePlans/ПланОбменаВсеСвойстваExt/Forms/ФормаУзла"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/FilterCriteria/КритерийОтбораВсеСвойстваExt/Forms/ФормаСписка/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/FilterCriteria/КритерийОтбораВсеСвойстваExt/Forms/ФормаСписка"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/InformationRegisters/РегистрСведенийВсеСвойстваНезависимыйExt/Forms/ФормаЗаписи/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/InformationRegisters/РегистрСведенийВсеСвойстваНезависимыйExt/Forms/ФормаЗаписи"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/InformationRegisters/РегистрСведенийВсеСвойстваНезависимыйExt/Forms/ФормаСписка/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/InformationRegisters/РегистрСведенийВсеСвойстваНезависимыйExt/Forms/ФормаСписка"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt/Forms/ФормаВарианта/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt/Forms/ФормаВарианта"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt/Forms/ФормаОтчета/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt/Forms/ФормаОтчета"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/Tasks/ЗадачаВсеСвойстваExt/Forms/ФормаВыбора/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/Tasks/ЗадачаВсеСвойстваExt/Forms/ФормаВыбора"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/Tasks/ЗадачаВсеСвойстваExt/Forms/ФормаЗадачи/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/Tasks/ЗадачаВсеСвойстваExt/Forms/ФормаЗадачи"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/Tasks/ЗадачаВсеСвойстваExt/Forms/ФормаСписка/Ext/Form/Module.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/Tasks/ЗадачаВсеСвойстваExt/Forms/ФормаСписка"
+        }
+      ]
+    },
+    {
+      "entry": "resources.value-manager-module-resource",
+      "xml": "Ext/ValueManagerModule.bsl",
+      "yaml": "МодульМенеджераЗначения.bsl",
+      "files": [
+        {
+          "file": "e2e/fixtures/xml/cf/Constants/КонстантаВсеСвойства/Ext/ValueManagerModule.bsl",
+          "root": "e2e/fixtures/xml/cf/Constants/КонстантаВсеСвойства"
+        },
+        {
+          "file": "e2e/fixtures/xml/cfe/all-extension/Constants/КонстантаВсеСвойстваExt/Ext/ValueManagerModule.bsl",
+          "root": "e2e/fixtures/xml/cfe/all-extension/Constants/КонстантаВсеСвойстваExt"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.56403f1ba3204332b39d
+description: 'Кандидат проекции: относительный XML-корень DrawingSelectionShowMode; не полный владелец'
+imports:
+  part0: candidate.fragment.4eb7c9dab433289beb68
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.ItemVerticalAlign
+value:
+  kind: record
+  fields:
+    - name: childItemsVerticalAlign
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: childItemsVerticalAlign
+        path:
+          - ChildItemsVerticalAlign
+  yaml:
+    kind: mapping
+    fields:
+      - field: childItemsVerticalAlign
+        key: ВертикальноеПоложениеПодчиненных
+presence:
+  - target:
+      field: childItemsVerticalAlign
+    xml:
+      missing:
+        denotes:
+          literal: Auto
+      canonical:
+        - when:
+            eq:
+              - field: childItemsVerticalAlign
+              - literal: Auto
+          form: missing
+    yaml:
+      default:
+        literal: Auto
+id: candidate.fragment.1e50b3a5b1ac75e6f140

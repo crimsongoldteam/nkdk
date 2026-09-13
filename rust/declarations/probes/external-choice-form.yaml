@@ -1,0 +1,9 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.external-choice-form
+imports: {form: common.external-choice-form}
+inputs: {roots: {index: metadata.roots}, forms: {index: metadata.forms}}
+value: {kind: record, fields: [{name: form, type: {use: form, bind: {roots: {input: roots}, forms: {input: forms}}}}]}
+representations:
+  xml: {kind: record, fields: [{field: form, path: [Root, Form]}]}
+  yaml: {kind: mapping, fields: [{field: form, key: Форма}]}

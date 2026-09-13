@@ -1,20 +1,24 @@
 mod catalog;
 mod constraints;
+mod contributions;
 mod decimal_text;
 mod enumeration;
 mod expressions;
 mod presence;
+mod resources;
 mod scalar_choice;
+mod sequence_shorthand;
 mod shorthands;
 mod text;
+mod text_pattern;
 mod xml;
+mod xml_tree;
 use constraints::constraints;
 use expressions::{expression, scalar_literal};
 use presence::{normalization, presence};
 use shorthands::shorthands;
 
 use nkdk_rule_model::ComparisonOperator;
-use nkdk_rule_model::Normalization;
 use nkdk_rule_model::{
     BooleanLexeme, Diagnostic, Module, ModuleKind, NamedBinding, NamedType, Representations,
     ScalarType, SourceLocation, TypeDefinition, TypeField, XmlRepresentation, YamlRepresentation,
@@ -28,6 +32,7 @@ use nkdk_rule_model::{
     Expression, ExpressionField, ExpressionKind, Parameter, ScalarLiteral, Shorthand,
 };
 use nkdk_rule_model::{Iteration, MessageDefinition, MessagePart};
+use nkdk_rule_model::{Normalization, TextTable};
 use nkdk_rule_model::{StaticArgument, TypeUse};
 use nkdk_rule_model::{XmlField, YamlField};
 use yaml_rust2::{
@@ -227,6 +232,8 @@ fn module(path: &str, mut root: Node) -> Result<Module, Diagnostic> {
             "presence",
             "normalization",
             "constraints",
+            "contributions",
+            "resources",
             "compose",
             "value",
             "representations",
@@ -242,12 +249,13 @@ fn module(path: &str, mut root: Node) -> Result<Module, Diagnostic> {
         "value" => ModuleKind::Value,
         "fragment" => ModuleKind::Fragment,
         "object" => ModuleKind::Object,
+        "resources" => ModuleKind::Resources,
         _ => {
             return Err(error(
                 path,
                 kind_node.mark,
                 "unsupported_kind",
-                "Expected value, fragment or object",
+                "Expected value, fragment, object or resources",
             ));
         }
     };
@@ -292,8 +300,19 @@ fn module(path: &str, mut root: Node) -> Result<Module, Diagnostic> {
     let (xml, wrappers) = xml::unwrap(path, xml)?;
     let yaml = representations.field(path, rep_fields, "yaml")?;
     let (xml_rep, yaml_rep) = match &definition {
+        TypeDefinition::Choice(_) => {
+            for representation in [xml, yaml] {
+                let fields = representation.mapping(path, &["kind"])?;
+                representation.field(path, fields, "kind")?.literal(
+                    path,
+                    "choice",
+                    "unsupported_representation",
+                )?;
+            }
+            (XmlRepresentation::Choice, YamlRepresentation::Choice)
+        }
         TypeDefinition::ScalarChoice(_) => scalar_choice::representations(path, xml, yaml)?,
-        TypeDefinition::Scalar(ScalarType::Text) => {
+        TypeDefinition::Scalar(ScalarType::Text) | TypeDefinition::Use(_) => {
             let xml_fields = xml.mapping(path, &["kind", "format", "zone"])?;
             if xml.field(path, xml_fields, "kind")?.text(path)? == "calendar" {
                 xml.field(path, xml_fields, "format")?.literal(
@@ -354,18 +373,33 @@ fn module(path: &str, mut root: Node) -> Result<Module, Diagnostic> {
                     "text",
                     "unsupported_representation",
                 )?;
-                let yaml_fields = yaml.mapping(path, &["kind", "scalar"])?;
-                yaml.field(path, yaml_fields, "kind")?.literal(
-                    path,
-                    "scalar",
-                    "unsupported_representation",
-                )?;
-                yaml.field(path, yaml_fields, "scalar")?.literal(
-                    path,
-                    "text",
-                    "unsupported_scalar",
-                )?;
-                (XmlRepresentation::Text, YamlRepresentation::Text)
+                if let Shape::Mapping(fields) = &yaml.shape
+                    && optional_field(fields, "kind")
+                        .is_some_and(|node| node.text(path).is_ok_and(|kind| kind == "text-table"))
+                {
+                    let fields = yaml.mapping(path, &["kind", "use"])?;
+                    let usage = yaml.field(path, fields, "use")?;
+                    (
+                        XmlRepresentation::Text,
+                        YamlRepresentation::TextTable(TextTable::Import {
+                            name: usage.text(path)?.into(),
+                            source: location(path, usage),
+                        }),
+                    )
+                } else {
+                    let yaml_fields = yaml.mapping(path, &["kind", "scalar"])?;
+                    yaml.field(path, yaml_fields, "kind")?.literal(
+                        path,
+                        "scalar",
+                        "unsupported_representation",
+                    )?;
+                    yaml.field(path, yaml_fields, "scalar")?.literal(
+                        path,
+                        "text",
+                        "unsupported_scalar",
+                    )?;
+                    (XmlRepresentation::Text, YamlRepresentation::Text)
+                }
             }
         }
         TypeDefinition::Scalar(ScalarType::Decimal) => {
@@ -389,12 +423,19 @@ fn module(path: &str, mut root: Node) -> Result<Module, Diagnostic> {
             YamlRepresentation::BooleanTable(boolean_table(path, yaml, "scalar", "literal")?),
         ),
         TypeDefinition::Record(_) => (
-            XmlRepresentation::Record(xml_fields(path, xml)?),
-            YamlRepresentation::Mapping(yaml_fields(path, yaml)?),
+            xml::record(path, xml)?,
+            text_pattern::yaml_record(path, yaml)?,
         ),
-        TypeDefinition::Sequence(_) => {
-            (xml_collection(path, xml)?, yaml_keyed_mapping(path, yaml)?)
-        }
+        TypeDefinition::Sequence(_) => (
+            match text_pattern::sequence_separator(path, xml)? {
+                Some(separator) => XmlRepresentation::TextSequence { separator },
+                None => xml_collection(path, xml)?,
+            },
+            match text_pattern::sequence_separator(path, yaml)? {
+                Some(separator) => YamlRepresentation::TextSequence { separator },
+                None => yaml_collection(path, yaml)?,
+            },
+        ),
         _ => {
             return Err(error(
                 path,
@@ -462,10 +503,13 @@ fn module(path: &str, mut root: Node) -> Result<Module, Diagnostic> {
         namespaces: named_bindings(path, fields, "namespaces")?,
         types: named_types(path, fields)?,
         inputs: named_inputs(path, fields)?,
+        input_indexes: contributions::inputs(path, fields)?,
         parameters: parameters(path, fields)?,
         presence: presence(path, fields)?,
         normalization: normalization(path, fields)?,
         constraints,
+        contributions: contributions::parse(path, fields)?,
+        resources: resources::parse(path, fields)?,
         compose,
         value: definition,
         representations: Representations {
@@ -611,8 +655,8 @@ fn type_definition(path: &str, value: &Node) -> Result<TypeDefinition, Diagnosti
     let fields = value.mapping(
         path,
         &[
-            "kind", "scalar", "fields", "item", "local", "use", "with", "bind", "variants",
-            "profile",
+            "kind", "scalar", "fields", "item", "local", "use", "with", "bind", "variants", "key",
+            "value", "profile",
         ],
     )?;
     for (key, _) in fields {
@@ -697,6 +741,13 @@ fn type_definition(path: &str, value: &Node) -> Result<TypeDefinition, Diagnosti
             }
             Ok(TypeDefinition::Scalar(scalar))
         }
+        "index" => {
+            let fields = value.mapping(path, &["kind", "key", "value"])?;
+            Ok(TypeDefinition::Index {
+                key: Box::new(type_definition(path, value.field(path, fields, "key")?)?),
+                value: Box::new(type_definition(path, value.field(path, fields, "value")?)?),
+            })
+        }
         "sequence" => {
             value.mapping(path, &["kind", "item"])?;
             Ok(TypeDefinition::Sequence(Box::new(type_definition(
@@ -704,9 +755,11 @@ fn type_definition(path: &str, value: &Node) -> Result<TypeDefinition, Diagnosti
                 value.field(path, fields, "item")?,
             )?)))
         }
-        "record" => {
-            value.mapping(path, &["kind", "fields"])?;
-            let members = value.field(path, fields, "fields")?;
+        "record" | "choice" => {
+            let choice = kind.text(path)? == "choice";
+            let list = if choice { "variants" } else { "fields" };
+            value.mapping(path, &["kind", list])?;
+            let members = value.field(path, fields, list)?;
             let Shape::Sequence(members_list) = &members.shape else {
                 return Err(error(
                     path,
@@ -727,7 +780,11 @@ fn type_definition(path: &str, value: &Node) -> Result<TypeDefinition, Diagnosti
                     })
                 })
                 .collect::<Result<Vec<_>, Diagnostic>>()?;
-            Ok(TypeDefinition::Record(members))
+            Ok(if choice {
+                TypeDefinition::Choice(members)
+            } else {
+                TypeDefinition::Record(members)
+            })
         }
         _ => Err(error(
             path,
@@ -765,7 +822,7 @@ fn xml_fields(path: &str, representation: &Node) -> Result<Vec<XmlField>, Diagno
     representation_fields(path, representation, "record")?
         .iter()
         .map(|item| {
-            let fields = item.mapping(path, &["field", "path", "attribute"])?;
+            let fields = item.mapping(path, &["field", "path", "attribute", "file"])?;
             let name = item.field(path, fields, "field")?;
             let route = item.field(path, fields, "path")?;
             let Shape::Sequence(segments) = &route.shape else {
@@ -780,7 +837,39 @@ fn xml_fields(path: &str, representation: &Node) -> Result<Vec<XmlField>, Diagno
                 .iter()
                 .map(|segment| segment.text(path).map(str::to_owned))
                 .collect::<Result<Vec<_>, _>>()?;
+            let file = optional_field(fields, "file")
+                .map(|node| {
+                    let Shape::Sequence(parts) = &node.shape else {
+                        return Err(error(
+                            path,
+                            node.mark,
+                            "expected_sequence",
+                            "Expected relative file path",
+                        ));
+                    };
+                    let parts = parts
+                        .iter()
+                        .map(|part| part.text(path).map(str::to_owned))
+                        .collect::<Result<Vec<_>, _>>()?;
+                    if parts.is_empty()
+                        || parts.iter().any(|part| {
+                            part.is_empty()
+                                || matches!(part.as_str(), "." | "..")
+                                || part.contains(['/', '\\', '\0', ':'])
+                        })
+                    {
+                        return Err(error(
+                            path,
+                            node.mark,
+                            "invalid_file_path",
+                            "Expected a safe relative file path",
+                        ));
+                    }
+                    Ok(parts)
+                })
+                .transpose()?;
             Ok(XmlField {
+                file,
                 field: name.text(path)?.into(),
                 path: segments,
                 attribute: optional_field(fields, "attribute")
@@ -819,8 +908,19 @@ fn xml_collection_content(
     path: &str,
     representation: &Node,
 ) -> Result<XmlRepresentation, Diagnostic> {
-    let fields = representation.mapping(path, &["kind", "path", "item", "fields"])?;
+    let fields = representation.mapping(path, &["kind", "path", "item", "fields", "children"])?;
     let kind = representation.field(path, fields, "kind")?;
+    if kind.text(path)? == "tree" {
+        representation.mapping(path, &["kind", "children"])?;
+        return Ok(XmlRepresentation::Tree(xml_tree::children(
+            path,
+            representation.field(path, fields, "children")?,
+        )?));
+    }
+    if kind.text(path)? == "text" {
+        representation.mapping(path, &["kind"])?;
+        return Ok(XmlRepresentation::Text);
+    }
     if kind.text(path)? == "record" {
         return Ok(XmlRepresentation::Record(xml_fields(path, representation)?));
     }
@@ -839,7 +939,10 @@ fn xml_collection_content(
         .iter()
         .map(|node| node.text(path).map(str::to_owned))
         .collect::<Result<Vec<_>, _>>()?;
-    let item = xml_collection(path, representation.field(path, fields, "item")?)?;
+    let item = optional_field(fields, "item")
+        .map(|item| xml_collection(path, item))
+        .transpose()?
+        .unwrap_or(XmlRepresentation::Declared);
     Ok(XmlRepresentation::ElementSequence {
         path: segments,
         item: Box::new(item),
@@ -875,6 +978,43 @@ fn yaml_keyed_mapping(path: &str, representation: &Node) -> Result<YamlRepresent
     })
 }
 
+fn yaml_collection(path: &str, node: &Node) -> Result<YamlRepresentation, Diagnostic> {
+    let fields = node.mapping(
+        path,
+        &[
+            "kind",
+            "item",
+            "fields",
+            "scalar",
+            "key",
+            "value",
+            "shorthand",
+        ],
+    )?;
+    match node.field(path, fields, "kind")?.text(path)? {
+        "sequence" => {
+            node.mapping(path, &["kind", "item", "shorthand"])?;
+            Ok(YamlRepresentation::Sequence {
+                item: Box::new(
+                    optional_field(fields, "item")
+                        .map(|item| yaml_collection(path, item))
+                        .transpose()?
+                        .unwrap_or(YamlRepresentation::Declared),
+                ),
+                shorthand: sequence_shorthand::parse(path, optional_field(fields, "shorthand"))?,
+            })
+        }
+        "mapping" => Ok(YamlRepresentation::Mapping(yaml_fields(path, node)?)),
+        "scalar" => {
+            node.mapping(path, &["kind", "scalar"])?;
+            node.field(path, fields, "scalar")?
+                .literal(path, "text", "unsupported_scalar")?;
+            Ok(YamlRepresentation::Text)
+        }
+        _ => yaml_keyed_mapping(path, node),
+    }
+}
+
 fn named_inputs(path: &str, fields: &[(Node, Node)]) -> Result<Vec<NamedType>, Diagnostic> {
     let Some(value) = fields.iter().find_map(|(key, value)| match &key.shape {
         Shape::Scalar(name, _) if name == "inputs" => Some(value),
@@ -893,10 +1033,16 @@ fn named_inputs(path: &str, fields: &[(Node, Node)]) -> Result<Vec<NamedType>, D
     entries
         .iter()
         .map(|(key, value)| {
-            let fields = value.mapping(path, &["type"])?;
+            let fields = value.mapping(path, &["type", "index"])?;
             Ok(NamedType {
                 name: key.text(path)?.into(),
-                definition: type_definition(path, value.field(path, fields, "type")?)?,
+                definition: if let Some(definition) = optional_field(fields, "type") {
+                    type_definition(path, definition)?
+                } else if let Some(index) = optional_field(fields, "index") {
+                    TypeDefinition::IndexFromBinding(index.text(path)?.into())
+                } else {
+                    type_definition(path, value.field(path, fields, "type")?)?
+                },
                 source: location(path, key),
             })
         })
@@ -990,4 +1136,25 @@ fn composition(path: &str, fields: &[(Node, Node)]) -> Result<Vec<TypeUse>, Diag
             }
         })
         .collect()
+}
+
+fn iteration(path: &str, node: &Node) -> Result<Iteration, Diagnostic> {
+    let fields = node.mapping(path, &["in", "as"])?;
+    Ok(Iteration {
+        input: expression(path, node.field(path, fields, "in")?)?,
+        binding: node.field(path, fields, "as")?.text(path)?.into(),
+        source: location(path, node),
+    })
+}
+
+fn sequence<'a>(path: &str, node: &'a Node) -> Result<&'a [Node], Diagnostic> {
+    match &node.shape {
+        Shape::Sequence(items) => Ok(items),
+        _ => Err(error(
+            path,
+            node.mark,
+            "expected_sequence",
+            "Expected sequence",
+        )),
+    }
 }

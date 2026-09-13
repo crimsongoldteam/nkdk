@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: modifiesSavedData
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: modifiesSavedData
+        path:
+          - ModifiesSavedData
+  yaml:
+    kind: mapping
+    fields:
+      - field: modifiesSavedData
+        key: ИзменяемыеДанные
+presence:
+  - target:
+      field: modifiesSavedData
+    xml:
+      missing:
+        denotes:
+          literal: false
+      canonical:
+        - when:
+            eq:
+              - field: modifiesSavedData
+              - literal: false
+          form: missing
+    yaml:
+      default:
+        literal: false
+id: candidate.fragment.fbcd730f4183c7352ed8

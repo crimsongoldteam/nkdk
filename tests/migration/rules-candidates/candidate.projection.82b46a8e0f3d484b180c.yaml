@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.82b46a8e0f3d484b180c
+description: 'Кандидат проекции: относительный XML-корень GroupVerticalAlign; не полный владелец'
+imports:
+  part0: candidate.fragment.6fe4a0cd206db282b3b5
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

@@ -1,0 +1,35 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.ChoiceMode
+value:
+  kind: record
+  fields:
+    - name: choiceMode
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: choiceMode
+        path:
+          - Form
+          - ChoiceMode
+  yaml:
+    kind: mapping
+    fields:
+      - field: choiceMode
+        key: РежимВыбора
+presence:
+  - target:
+      field: choiceMode
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+id: contract.property.48658fd1e3764519c308.fragment

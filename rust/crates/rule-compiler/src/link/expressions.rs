@@ -43,6 +43,37 @@ pub(super) fn resolve_expression_in(
     scope: &Scope,
 ) -> Result<LinkedExpression, Diagnostic> {
     let (kind, value_type) = match &expression.kind {
+        ExpressionKind::Lookup { input, key } => {
+            let input = resolve_expression_in(module, input, modules, ids, scope)?;
+            let mut key = resolve_expression_in(module, key, modules, ids, scope)?;
+            let LinkedType::Index {
+                key: key_type,
+                value: value_type,
+            } = &input.value_type
+            else {
+                return Err(diagnostic(
+                    "expression_type_mismatch",
+                    &input.source,
+                    "Lookup requires a declared index input",
+                ));
+            };
+            contextual_literals(key_type, &mut key)?;
+            if !same_type(&key.value_type, key_type) {
+                return Err(diagnostic(
+                    "expression_type_mismatch",
+                    &key.source,
+                    "Lookup key does not match the index key type",
+                ));
+            }
+            let result_type = LinkedType::Optional(value_type.clone());
+            (
+                LinkedExpressionKind::Operation {
+                    operator: LinkedOperator::Lookup,
+                    arguments: vec![input, key],
+                },
+                result_type,
+            )
+        }
         ExpressionKind::Matches { value, pattern } => {
             let value = resolve_expression_in(module, value, modules, ids, scope)?;
             if value.value_type != LinkedType::Scalar(ScalarType::Text) {
@@ -192,25 +223,59 @@ pub(super) fn resolve_expression_in(
                 value_type,
             )
         }
-        ExpressionKind::Sequence(items) => {
+        ExpressionKind::Require(value) => {
+            let value = resolve_expression_in(module, value, modules, ids, scope)?;
+            let LinkedType::Optional(inner) = &value.value_type else {
+                return Err(diagnostic(
+                    "expression_type_mismatch",
+                    &value.source,
+                    "Required value must be optional",
+                ));
+            };
+            let result = *inner.clone();
+            (
+                LinkedExpressionKind::Operation {
+                    operator: LinkedOperator::Require,
+                    arguments: vec![value],
+                },
+                result,
+            )
+        }
+        ExpressionKind::Concat(items) | ExpressionKind::Sequence(items) => {
             let arguments = items
                 .iter()
                 .map(|value| resolve_expression_in(module, value, modules, ids, scope))
                 .collect::<Result<Vec<_>, Diagnostic>>()?;
-            let first = arguments.first().ok_or_else(|| {
-                diagnostic(
-                    "unsupported_link_feature",
-                    &expression.source,
-                    "Empty sequence requires contextual typing",
+            let (operator, value_type) = if matches!(expression.kind, ExpressionKind::Concat(_)) {
+                for value in &arguments {
+                    if value.value_type != LinkedType::Scalar(ScalarType::Text) {
+                        return Err(diagnostic(
+                            "expression_type_mismatch",
+                            &value.source,
+                            "Text concatenation requires text operands",
+                        ));
+                    }
+                }
+                (LinkedOperator::Concat, LinkedType::Scalar(ScalarType::Text))
+            } else {
+                let first = arguments.first().ok_or_else(|| {
+                    diagnostic(
+                        "unsupported_link_feature",
+                        &expression.source,
+                        "Empty sequence requires contextual typing",
+                    )
+                })?;
+                for value in &arguments[1..] {
+                    require_same(first, value)?;
+                }
+                (
+                    LinkedOperator::Sequence,
+                    LinkedType::Sequence(Box::new(first.value_type.clone())),
                 )
-            })?;
-            for value in &arguments[1..] {
-                require_same(first, value)?;
-            }
-            let value_type = LinkedType::Sequence(Box::new(first.value_type.clone()));
+            };
             (
                 LinkedExpressionKind::Operation {
-                    operator: LinkedOperator::Sequence,
+                    operator,
                     arguments,
                 },
                 value_type,
@@ -233,6 +298,50 @@ pub(super) fn resolve_expression_in(
             (
                 LinkedExpressionKind::Variable(slot as u32),
                 value_type.clone(),
+            )
+        }
+        ExpressionKind::Fold {
+            input,
+            initial,
+            binding,
+            state,
+            next,
+        } => {
+            let input = resolve_expression_in(module, input, modules, ids, scope)?;
+            let initial = resolve_expression_in(module, initial, modules, ids, scope)?;
+            let LinkedType::Sequence(item) = &input.value_type else {
+                return Err(diagnostic(
+                    "expression_type_mismatch",
+                    &input.source,
+                    "Fold requires a sequence",
+                ));
+            };
+            let expected = LinkedType::Optional(Box::new(LinkedType::Scalar(ScalarType::Text)));
+            if initial.value_type != expected {
+                return Err(diagnostic(
+                    "expression_type_mismatch",
+                    &initial.source,
+                    "Fold state requires an optional text value",
+                ));
+            }
+            let nested = scope
+                .bind(binding, *item.clone(), &expression.source)?
+                .bind(
+                    state,
+                    LinkedType::Scalar(ScalarType::Text),
+                    &expression.source,
+                )?;
+            let next = resolve_expression_in(module, next, modules, ids, &nested)?;
+            require_same(&initial, &next)?;
+            (
+                LinkedExpressionKind::Operation {
+                    operator: LinkedOperator::Fold {
+                        item: scope.variables.len() as u32,
+                        state: scope.variables.len() as u32 + 1,
+                    },
+                    arguments: vec![input, initial, next],
+                },
+                expected,
             )
         }
         ExpressionKind::Each {
@@ -368,11 +477,52 @@ pub(super) fn resolve_expression_in(
             left,
             right,
         } => {
-            let mut left = resolve_expression_in(module, left, modules, ids, scope)?;
-            let mut right = resolve_expression_in(module, right, modules, ids, scope)?;
+            let empty = |value: &Expression| matches!(&value.kind, ExpressionKind::Sequence(items) if items.is_empty());
+            let (mut left, mut right) =
+                if *operator == ComparisonOperator::Equal && empty(left) != empty(right) {
+                    let empty_left = empty(left);
+                    let (literal, other) = if empty_left {
+                        (left, right)
+                    } else {
+                        (right, left)
+                    };
+                    let other = resolve_expression_in(module, other, modules, ids, scope)?;
+                    if !matches!(other.value_type, LinkedType::Sequence(_)) {
+                        return Err(diagnostic(
+                            "expression_type_mismatch",
+                            &literal.source,
+                            "An empty sequence must be compared with a sequence",
+                        ));
+                    }
+                    let literal = LinkedExpression {
+                        kind: LinkedExpressionKind::Operation {
+                            operator: LinkedOperator::Sequence,
+                            arguments: vec![],
+                        },
+                        value_type: other.value_type.clone(),
+                        source: literal.source.clone(),
+                    };
+                    if empty_left {
+                        (literal, other)
+                    } else {
+                        (other, literal)
+                    }
+                } else {
+                    (
+                        resolve_expression_in(module, left, modules, ids, scope)?,
+                        resolve_expression_in(module, right, modules, ids, scope)?,
+                    )
+                };
             if *operator == ComparisonOperator::Equal {
-                enum_literal(&left, &mut right)?;
-                enum_literal(&right, &mut left)?;
+                contextual_literals(&left.value_type, &mut right)?;
+                contextual_literals(&right.value_type, &mut left)?;
+            }
+            if contains_index(&left.value_type) || contains_index(&right.value_type) {
+                return Err(diagnostic(
+                    "opaque_index_comparison",
+                    &expression.source,
+                    "Compare lookup values, not prepared indexes",
+                ));
             }
             require_same(&left, &right)?;
             if *operator != ComparisonOperator::Equal
@@ -505,6 +655,9 @@ pub(super) fn resolve_expression_in(
 
 pub(super) fn same_type(left: &LinkedType, right: &LinkedType) -> bool {
     match (left, right) {
+        (LinkedType::Index { key: a, value: b }, LinkedType::Index { key: c, value: d }) => {
+            same_type(a, c) && same_type(b, d)
+        }
         (LinkedType::Scalar(a), LinkedType::Scalar(b)) => a == b,
         (LinkedType::Enum(a), LinkedType::Enum(b)) => {
             a.len() == b.len()
@@ -537,6 +690,10 @@ pub(super) fn field_shape(
     visiting: &mut BTreeSet<String>,
 ) -> Result<LinkedType, Diagnostic> {
     match value {
+        TypeDefinition::Index { key, value } => Ok(LinkedType::Index {
+            key: Box::new(field_shape(module, key, source, modules, ids, visiting)?),
+            value: Box::new(field_shape(module, value, source, modules, ids, visiting)?),
+        }),
         TypeDefinition::Use(usage) => {
             let import = module
                 .imports
@@ -725,12 +882,12 @@ fn conditional_type(a: &LinkedType, b: &LinkedType) -> Option<LinkedType> {
     }
 }
 
-fn enum_literal(
-    expected: &LinkedExpression,
+pub(super) fn contextual_literals(
+    expected: &LinkedType,
     literal: &mut LinkedExpression,
 ) -> Result<(), Diagnostic> {
     if let (LinkedType::Enum(variants), LinkedExpressionKind::Literal(ScalarLiteral::Text(value))) =
-        (&expected.value_type, &literal.kind)
+        (expected, &literal.kind)
     {
         if !variants.iter().any(|variant| variant.value == *value) {
             return Err(diagnostic(
@@ -739,7 +896,55 @@ fn enum_literal(
                 "Literal is not a declared enum meaning",
             ));
         }
-        literal.value_type = expected.value_type.clone();
+        literal.value_type = expected.clone();
+    }
+    if let (
+        LinkedType::Record(expected_fields),
+        LinkedExpressionKind::Operation {
+            operator: LinkedOperator::Record(names),
+            arguments,
+        },
+        LinkedType::Record(fields),
+    ) = (expected, &mut literal.kind, &mut literal.value_type)
+    {
+        for (name, argument) in names.iter().zip(arguments) {
+            if let Some(expected) = expected_fields.iter().find(|field| field.name == *name) {
+                contextual_literals(&expected.value, argument)?;
+                if let Some(field) = fields.iter_mut().find(|field| field.name == *name) {
+                    field.value = argument.value_type.clone();
+                }
+            }
+        }
     }
     Ok(())
+}
+
+fn contains_index(value: &LinkedType) -> bool {
+    match value {
+        LinkedType::Index { .. } => true,
+        LinkedType::Sequence(item) | LinkedType::Optional(item) => contains_index(item),
+        LinkedType::Record(fields) => fields.iter().any(|field| contains_index(&field.value)),
+        _ => false,
+    }
+}
+
+pub(super) fn iteration_scope(
+    module: &Module,
+    iteration: Option<&Iteration>,
+    modules: &BTreeMap<&str, &Module>,
+    ids: &BTreeMap<&str, u32>,
+) -> Result<(Option<LinkedIteration>, Scope), Diagnostic> {
+    let Some(iteration) = iteration else {
+        return Ok((None, Scope::default()));
+    };
+    let input = resolve_expression(module, &iteration.input, modules, ids)?;
+    let LinkedType::Sequence(item) = &input.value_type else {
+        return Err(diagnostic(
+            "expression_type_mismatch",
+            &iteration.source,
+            "forEach requires a sequence",
+        ));
+    };
+    let scope = Scope::default().bind(&iteration.binding, *item.clone(), &iteration.source)?;
+    Ok((Some(LinkedIteration { input, slot: 0 }), scope))
 }

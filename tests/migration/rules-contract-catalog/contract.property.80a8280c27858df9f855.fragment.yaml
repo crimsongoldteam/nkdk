@@ -1,0 +1,40 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.FormItemSpacing
+value:
+  kind: record
+  fields:
+    - name: verticalSpacing
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: verticalSpacing
+        path:
+          - Form
+          - VerticalSpacing
+  yaml:
+    kind: mapping
+    fields:
+      - field: verticalSpacing
+        key: ВертикальныйИнтервал
+presence:
+  - target:
+      field: verticalSpacing
+    xml:
+      missing:
+        denotes:
+          literal: Auto
+      canonical:
+        - when:
+            eq:
+              - field: verticalSpacing
+              - literal: Auto
+          form: missing
+    yaml:
+      default:
+        literal: Auto
+id: contract.property.80a8280c27858df9f855.fragment

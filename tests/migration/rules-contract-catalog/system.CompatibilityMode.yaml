@@ -1,0 +1,48 @@
+format: nkdk-declarations/1
+kind: value
+id: system.CompatibilityMode
+enum:
+  Version8_1: Версия8_1
+  Version8_2_13: Версия8_2_13
+  Version8_2_16: Версия8_2_16
+  Version8_3_1: Версия8_3_1
+  Version8_3_10: Версия8_3_10
+  Version8_3_11: Версия8_3_11
+  Version8_3_12: Версия8_3_12
+  Version8_3_13: Версия8_3_13
+  Version8_3_14: Версия8_3_14
+  Version8_3_15: Версия8_3_15
+  Version8_3_16: Версия8_3_16
+  Version8_3_17: Версия8_3_17
+  Version8_3_18: Версия8_3_18
+  Version8_3_19: Версия8_3_19
+  Version8_3_2: Версия8_3_2
+  Version8_3_20: Версия8_3_20
+  Version8_3_21: Версия8_3_21
+  Version8_3_22: Версия8_3_22
+  Version8_3_23: Версия8_3_23
+  Version8_3_24: Версия8_3_24
+  Version8_3_25: Версия8_3_25
+  Version8_3_26: Версия8_3_26
+  Version8_3_27: Версия8_3_27
+  Version8_3_3: Версия8_3_3
+  Version8_3_4: Версия8_3_4
+  Version8_3_5: Версия8_3_5
+  Version8_3_6: Версия8_3_6
+  Version8_3_7: Версия8_3_7
+  Version8_3_8: Версия8_3_8
+  Version8_3_9: Версия8_3_9
+  DontUse: НеИспользовать
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  t: http://v8.1c.ru/8.1/data/enterprise
+projections:
+  - id: system.CompatibilityMode.dcs
+    xml:
+      kind: with-attributes
+      attributes:
+        - name: xsi:type
+          value:
+            qname: t:CompatibilityMode
+      content:
+        kind: text

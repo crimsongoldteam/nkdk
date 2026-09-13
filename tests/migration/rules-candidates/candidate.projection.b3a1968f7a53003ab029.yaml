@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.b3a1968f7a53003ab029
+description: 'Кандидат проекции: относительный XML-корень AutoMaxRowsCount; не полный владелец'
+imports:
+  part0: candidate.fragment.e7d70f3c3c6e0626a16a
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

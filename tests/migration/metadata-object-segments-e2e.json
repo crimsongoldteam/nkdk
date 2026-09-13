@@ -1,0 +1,169 @@
+{
+  "scope": "Object segment suffixes (root and owner excluded from projection); not whole-project conversion or performance",
+  "verified": 20,
+  "notCovered": {
+    "other nested path contract": 1323
+  },
+  "cases": [
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписокОсновнаяТаблица/Ext/Form.xml",
+      "sha256": "763ed42a69d202cb9bdf988866261d797554fc0146114346af993b484df25c42",
+      "occurrence": 680,
+      "type": "",
+      "entry": "migration.metadata-object-segments",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписокОсновнаяТаблица/Ext/Form.xml",
+      "sha256": "763ed42a69d202cb9bdf988866261d797554fc0146114346af993b484df25c42",
+      "occurrence": 703,
+      "type": "",
+      "entry": "migration.metadata-object-segments",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписокОсновнаяТаблица/Ext/Form.xml",
+      "sha256": "763ed42a69d202cb9bdf988866261d797554fc0146114346af993b484df25c42",
+      "occurrence": 726,
+      "type": "",
+      "entry": "migration.metadata-object-segments",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "5dda501bbe75a7f65cc70801d5556eb9b4239685748397c54528e2b0968b488c",
+      "occurrence": 74,
+      "type": "",
+      "entry": "migration.metadata-object-segments",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства/Forms/ФормаВыбора/Ext/Form.xml",
+      "sha256": "13382011507458a0feb163d26913e8c60be010017974b95173ca8433b2977b7b",
+      "occurrence": 73,
+      "type": "",
+      "entry": "migration.metadata-object-segments",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "c56b8d0a7abc952386669b7ee15e0683a6afd04b54f019f0d6cda19eab0df02d",
+      "occurrence": 71,
+      "type": "",
+      "entry": "migration.metadata-object-segments",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/FunctionalOptions/ФункциональнаяОпцияБулево.xml",
+      "sha256": "8be24d5f421ae1e2b1ddb6e050a751b4ef9ba9d358de748ddf015d3115a88b36",
+      "occurrence": 26,
+      "type": "",
+      "entry": "migration.metadata-object-segments",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/FunctionalOptions/ФункциональнаяОпцияБулево.xml",
+      "sha256": "8be24d5f421ae1e2b1ddb6e050a751b4ef9ba9d358de748ddf015d3115a88b36",
+      "occurrence": 27,
+      "type": "",
+      "entry": "migration.metadata-object-segments",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/FunctionalOptions/ФункциональнаяОпцияВсеСвойства.xml",
+      "sha256": "399de5ceaa75c88da6cd288e6845612aecd2f9e70db02c81885abe9900cf3f35",
+      "occurrence": 87,
+      "type": "",
+      "entry": "migration.metadata-object-segments",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/FunctionalOptions/ФункциональнаяОпцияВсеСвойства.xml",
+      "sha256": "399de5ceaa75c88da6cd288e6845612aecd2f9e70db02c81885abe9900cf3f35",
+      "occurrence": 89,
+      "type": "",
+      "entry": "migration.metadata-object-segments",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/FunctionalOptions/ФункциональнаяОпцияВсеСвойства.xml",
+      "sha256": "399de5ceaa75c88da6cd288e6845612aecd2f9e70db02c81885abe9900cf3f35",
+      "occurrence": 90,
+      "type": "",
+      "entry": "migration.metadata-object-segments",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/FunctionalOptions/ФункциональнаяОпцияВсеСвойства.xml",
+      "sha256": "399de5ceaa75c88da6cd288e6845612aecd2f9e70db02c81885abe9900cf3f35",
+      "occurrence": 95,
+      "type": "",
+      "entry": "migration.metadata-object-segments",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Subsystems/ПодсистемаВсеСвойства.xml",
+      "sha256": "1096d1682dba60be0ba84f9ead9733df2be304a7c287de0bc8f8698f1c21e3c8",
+      "occurrence": 67,
+      "type": "xr:MDObjectRef",
+      "entry": "migration.metadata-object-segments",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Subsystems/ПодсистемаВсеСвойства.xml",
+      "sha256": "1096d1682dba60be0ba84f9ead9733df2be304a7c287de0bc8f8698f1c21e3c8",
+      "occurrence": 68,
+      "type": "xr:MDObjectRef",
+      "entry": "migration.metadata-object-segments",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Subsystems/ПодсистемаВсеСвойства.xml",
+      "sha256": "1096d1682dba60be0ba84f9ead9733df2be304a7c287de0bc8f8698f1c21e3c8",
+      "occurrence": 69,
+      "type": "xr:MDObjectRef",
+      "entry": "migration.metadata-object-segments",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Subsystems/ПодсистемаИспользуетсяВПримерах.xml",
+      "sha256": "0ba716e6e05f0b601077119ca65234145066a71b574f0797a37ec5db3ad51bf3",
+      "occurrence": 37,
+      "type": "xr:MDObjectRef",
+      "entry": "migration.metadata-object-segments",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Subsystems/ПодсистемаИспользуетсяВПримерах.xml",
+      "sha256": "0ba716e6e05f0b601077119ca65234145066a71b574f0797a37ec5db3ad51bf3",
+      "occurrence": 38,
+      "type": "xr:MDObjectRef",
+      "entry": "migration.metadata-object-segments",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойстваExt/Cubes/КубВсеСвойства/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "0785b887527db0bea41ab9f4c31112e8b05b906eadf093fb4bfedd9dc39df94b",
+      "occurrence": 74,
+      "type": "",
+      "entry": "migration.metadata-object-segments",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойстваExt/Tables/ТаблицаВсеСвойства/Forms/ФормаВыбора/Ext/Form.xml",
+      "sha256": "aca666b097a8d1e14764f11d6a323562b2287376a5239251ae6aa58193fe377c",
+      "occurrence": 73,
+      "type": "",
+      "entry": "migration.metadata-object-segments",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойстваExt/Tables/ТаблицаВсеСвойства/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "e9e29683b3751c5e2b4b857165c849733017eecb882f33b553a37a5ef146b903",
+      "occurrence": 71,
+      "type": "",
+      "entry": "migration.metadata-object-segments",
+      "verified": true
+    }
+  ]
+}

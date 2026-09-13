@@ -1,0 +1,34 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: showTitle
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: showTitle
+        path:
+          - ShowTitle
+  yaml:
+    kind: mapping
+    fields:
+      - field: showTitle
+        key: ОтображатьЗаголовок
+presence:
+  - target:
+      field: showTitle
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+id: candidate.fragment.768e2cc0215869a8e3ac

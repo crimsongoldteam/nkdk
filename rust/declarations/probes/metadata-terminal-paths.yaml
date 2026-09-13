@@ -1,0 +1,17 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: object
+  id: migration.metadata-empty-ref-path
+  imports: {path: common.metadata-empty-ref-path}
+  value: {kind: record, fields: [{name: value, type: {use: path}}]}
+  representations:
+    xml: {kind: record, fields: [{field: value, path: [Root, Value]}]}
+    yaml: {kind: mapping, fields: [{field: value, key: Путь}]}
+- kind: object
+  id: migration.metadata-table-path
+  imports: {path: common.metadata-table-path}
+  value: {kind: record, fields: [{name: value, type: {use: path}}]}
+  representations:
+    xml: {kind: record, fields: [{field: value, path: [Root, Value]}]}
+    yaml: {kind: mapping, fields: [{field: value, key: Путь}]}

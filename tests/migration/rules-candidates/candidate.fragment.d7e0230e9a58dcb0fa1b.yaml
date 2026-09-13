@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: cellHyperlink
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: cellHyperlink
+        path:
+          - CellHyperlink
+  yaml:
+    kind: mapping
+    fields:
+      - field: cellHyperlink
+        key: ГиперссылкаЯчейки
+presence:
+  - target:
+      field: cellHyperlink
+    xml:
+      missing:
+        denotes:
+          literal: false
+      canonical:
+        - when:
+            eq:
+              - field: cellHyperlink
+              - literal: false
+          form: missing
+    yaml:
+      default:
+        literal: false
+id: candidate.fragment.d7e0230e9a58dcb0fa1b

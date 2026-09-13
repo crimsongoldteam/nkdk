@@ -1,0 +1,145 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.string
+  value1: common.boolean
+  value2: common.exact-decimal
+value:
+  kind: record
+  fields:
+    - name: methodName
+      type:
+        use: value0
+    - name: description
+      type:
+        use: value0
+    - name: key
+      type:
+        use: value0
+    - name: use
+      type:
+        use: value1
+    - name: predefined
+      type:
+        use: value1
+    - name: restartCountOnFailure
+      type:
+        use: value2
+    - name: restartIntervalOnFailure
+      type:
+        use: value2
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: methodName
+        path:
+          - Properties
+          - MethodName
+      - field: description
+        path:
+          - Properties
+          - Description
+      - field: key
+        path:
+          - Properties
+          - Key
+      - field: use
+        path:
+          - Properties
+          - Use
+      - field: predefined
+        path:
+          - Properties
+          - Predefined
+      - field: restartCountOnFailure
+        path:
+          - Properties
+          - RestartCountOnFailure
+      - field: restartIntervalOnFailure
+        path:
+          - Properties
+          - RestartIntervalOnFailure
+  yaml:
+    kind: mapping
+    fields:
+      - field: methodName
+        key: ИмяМетода
+      - field: description
+        key: Описание
+      - field: key
+        key: Ключ
+      - field: use
+        key: Использование
+      - field: predefined
+        key: Предопределенное
+      - field: restartCountOnFailure
+        key: КоличествоПовторовПриАварийномЗавершении
+      - field: restartIntervalOnFailure
+        key: ИнтервалПовтораПриАварийномЗавершении
+presence:
+  - target:
+      field: methodName
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: description
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: ''
+  - target:
+      field: key
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: ''
+  - target:
+      field: use
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: true
+  - target:
+      field: predefined
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: false
+  - target:
+      field: restartCountOnFailure
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: 3
+  - target:
+      field: restartIntervalOnFailure
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: 10
+id: candidate.fragment.3bf3800b24feb68ba431

@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: multipleChoice
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: multipleChoice
+        path:
+          - MultipleChoice
+  yaml:
+    kind: mapping
+    fields:
+      - field: multipleChoice
+        key: МножественныйВыбор
+presence:
+  - target:
+      field: multipleChoice
+    xml:
+      missing:
+        denotes:
+          literal: false
+      canonical:
+        - when:
+            eq:
+              - field: multipleChoice
+              - literal: false
+          form: missing
+    yaml:
+      default:
+        literal: false
+id: candidate.fragment.bb9a8663cd019cd53893

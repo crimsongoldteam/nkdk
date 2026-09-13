@@ -1,4 +1,6 @@
+mod automata;
 mod expressions;
+mod fact_shape;
 mod link;
 pub use link::link;
 mod parse;

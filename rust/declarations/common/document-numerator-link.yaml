@@ -1,0 +1,19 @@
+format: nkdk-declarations/1
+kind: value
+id: common.document-numerator-link
+imports: {name: common.metadata-name, rootKind: common.path-root}
+inputs:
+  roots:
+    type:
+      kind: index
+      key: {kind: record, fields: [{name: kind, type: {use: rootKind}}, {name: name, type: {kind: scalar, scalar: text}}]}
+      value: {kind: scalar, scalar: text}
+value: {kind: record, fields: [{name: name, type: {use: name}}]}
+representations:
+  xml: {kind: text-pattern, parts: [{literal: 'DocumentNumerator.'}, {field: name}]}
+  yaml: {kind: text-pattern, parts: [{field: name}]}
+constraints:
+- id: target-exists
+  appliesTo: [xml-import, yaml-validation]
+  assert: {present: {lookup: {in: {input: roots}, key: {record: {kind: {literal: DocumentNumerator}, name: {get: {of: {self: true}, field: name}}}}}}}
+  diagnostic: {code: metadata.target-missing, severity: error, at: {self: true}, message: Numerator is missing}

@@ -1,0 +1,35 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: closeOnChoice
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: closeOnChoice
+        path:
+          - Form
+          - CloseOnChoice
+  yaml:
+    kind: mapping
+    fields:
+      - field: closeOnChoice
+        key: ЗакрыватьПриВыборе
+presence:
+  - target:
+      field: closeOnChoice
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+id: contract.property.d18cedb1249417364bbf.fragment

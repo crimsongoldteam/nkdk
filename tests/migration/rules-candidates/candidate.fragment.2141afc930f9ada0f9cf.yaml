@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.PictureSize
+value:
+  kind: record
+  fields:
+    - name: pictureSize
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: pictureSize
+        path:
+          - PictureSize
+  yaml:
+    kind: mapping
+    fields:
+      - field: pictureSize
+        key: РазмерКартинки
+presence:
+  - target:
+      field: pictureSize
+    xml:
+      missing:
+        denotes:
+          literal: RealSize
+      canonical:
+        - when:
+            eq:
+              - field: pictureSize
+              - literal: RealSize
+          form: missing
+    yaml:
+      default:
+        literal: RealSize
+id: candidate.fragment.2141afc930f9ada0f9cf

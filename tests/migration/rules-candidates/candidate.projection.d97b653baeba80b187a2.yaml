@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.d97b653baeba80b187a2
+description: 'Кандидат проекции: относительный XML-корень HorizontalLines; не полный владелец'
+imports:
+  part0: candidate.fragment.8d545d746ebb1686614f
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

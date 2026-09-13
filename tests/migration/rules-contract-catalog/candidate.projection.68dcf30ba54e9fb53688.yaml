@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.68dcf30ba54e9fb53688
+description: 'Кандидат проекции: относительный XML-корень Turnover; не полный владелец'
+imports:
+  part0: candidate.fragment.f18e2f6952a670f1387f
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

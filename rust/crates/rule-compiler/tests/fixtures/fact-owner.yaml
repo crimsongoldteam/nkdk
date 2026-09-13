@@ -1,0 +1,24 @@
+format: nkdk-declarations/1
+kind: object
+id: test.fact-owner
+imports: {code: common.project-code}
+value:
+  kind: record
+  fields:
+  - {name: code, type: {use: code}}
+  - {name: title, type: {kind: scalar, scalar: text}}
+representations:
+  xml:
+    kind: record
+    fields:
+    - {field: code, path: [Root, Code]}
+    - {field: title, path: [Root, Title]}
+  yaml:
+    kind: mapping
+    fields:
+    - {field: code, key: Code}
+    - {field: title, key: Title}
+contributions:
+- index: test.names
+  key: {field: code}
+  value: {field: title}

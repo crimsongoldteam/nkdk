@@ -1,0 +1,34 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.TemplateType
+value:
+  kind: record
+  fields:
+    - name: templateType
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: templateType
+        path:
+          - Properties
+          - TemplateType
+  yaml:
+    kind: mapping
+    fields:
+      - field: templateType
+        key: ВидМакета
+presence:
+  - target:
+      field: templateType
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: SpreadsheetDocument
+id: candidate.fragment.ff7751d1bfc3ef4044db

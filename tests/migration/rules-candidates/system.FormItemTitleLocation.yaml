@@ -1,0 +1,23 @@
+format: nkdk-declarations/1
+kind: value
+id: system.FormItemTitleLocation
+enum:
+  Auto: Авто
+  Top: Верх
+  Left: Лево
+  None: Нет
+  Bottom: Низ
+  Right: Право
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  t: http://v8.1c.ru/8.1/data/enterprise
+projections:
+  - id: system.FormItemTitleLocation.dcs
+    xml:
+      kind: with-attributes
+      attributes:
+        - name: xsi:type
+          value:
+            qname: t:FormItemTitleLocation
+      content:
+        kind: text

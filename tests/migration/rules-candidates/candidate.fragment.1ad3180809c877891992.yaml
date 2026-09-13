@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.ButtonShapeRepresentation
+value:
+  kind: record
+  fields:
+    - name: shapeRepresentation
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: shapeRepresentation
+        path:
+          - ShapeRepresentation
+  yaml:
+    kind: mapping
+    fields:
+      - field: shapeRepresentation
+        key: ОтображениеФигуры
+presence:
+  - target:
+      field: shapeRepresentation
+    xml:
+      missing:
+        denotes:
+          literal: Auto
+      canonical:
+        - when:
+            eq:
+              - field: shapeRepresentation
+              - literal: Auto
+          form: missing
+    yaml:
+      default:
+        literal: Auto
+id: candidate.fragment.1ad3180809c877891992

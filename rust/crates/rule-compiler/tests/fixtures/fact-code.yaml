@@ -1,0 +1,7 @@
+format: nkdk-declarations/1
+kind: value
+id: common.project-code
+value: {kind: scalar, scalar: text, pattern: '[a-z]+'}
+representations:
+  xml: {kind: text}
+  yaml: {kind: scalar, scalar: text}

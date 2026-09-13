@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.3cc6cdf93ff3b1f0d187
+description: 'Кандидат проекции: относительный XML-корень ShowGrid; не полный владелец'
+imports:
+  part0: candidate.fragment.d5cb812f24a4a7883d7e
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

@@ -21,29 +21,36 @@ pub(crate) fn rule<'a>(
         .iter()
         .find(|entry| entry.id == *id)?
         .presence
-        .first()
+        .iter()
+        .find(|rule| rule.target == LinkedPresenceTarget::SelfValue)
 }
 
 pub(crate) fn validate_owner(owner: &LinkedEntry) -> Result<(), Diagnostic> {
     for rule in &owner.presence {
-        let constant = |expression: &Option<LinkedExpression>| {
-            expression.as_ref().is_some_and(|expression| {
-                matches!(
-                    expression.kind,
-                    LinkedExpressionKind::Absent | LinkedExpressionKind::Literal(_)
-                )
-            })
-        };
+        fn independent(expression: &LinkedExpression) -> bool {
+            match &expression.kind {
+                LinkedExpressionKind::Absent
+                | LinkedExpressionKind::Literal(_)
+                | LinkedExpressionKind::Input(_)
+                | LinkedExpressionKind::Field(_) => true,
+                LinkedExpressionKind::Operation { arguments, .. } => {
+                    arguments.iter().all(independent)
+                }
+                _ => false,
+            }
+        }
+        let supported =
+            |expression: &Option<LinkedExpression>| expression.as_ref().is_none_or(independent);
         if !matches!(rule.target, LinkedPresenceTarget::Field(_))
-            || !constant(&rule.xml_missing)
-            || !constant(&rule.yaml_missing)
+            || !supported(&rule.xml_missing)
+            || !supported(&rule.yaml_missing)
             || !supported_empty(rule)
             || !rule.yaml_empty.is_empty()
             || !supported_canonical(rule)
         {
             return Err(unsupported(
                 owner,
-                "Scalar field presence requires constant missing states and an explicit absence representation",
+                "Scalar field presence requires independent missing expressions when declared and supported empty/canonical forms",
             ));
         }
     }
@@ -57,6 +64,7 @@ pub(super) fn missing(
     codec: &scalar::Codec<'_>,
     name: &str,
     owner: &LinkedEntry,
+    program: &Program,
 ) -> Result<String, Diagnostic> {
     let Some(expression) = expression else {
         return Ok("None".into());
@@ -101,10 +109,53 @@ pub(super) fn missing(
             format!("{name}::V{index}")
         }
         _ => {
-            return Err(unsupported(
-                owner,
-                "Scalar missing state requires a typed constant or absence",
-            ));
+            let LinkedType::Record(fields) = &owner.value else {
+                unreachable!()
+            };
+            let storage = scalar_storage(owner, program, true)?;
+            let mut context = expressions::Expressions::new(owner, program, fields, Some(&storage));
+            let lowered = context.lower(expression)?;
+            if matches!(expression.value_type, LinkedType::Optional(_))
+                && matches!(codec, scalar::Codec::Text)
+            {
+                if !context.transforms.is_empty() {
+                    return Err(unsupported(
+                        owner,
+                        "Missing state transform requires a generated helper",
+                    ));
+                }
+                let value = format!("({lowered}).map(|value|value.to_owned())");
+                return Ok(if context.constants.is_empty() {
+                    value
+                } else {
+                    format!("{{{}{value}}}", context.constants)
+                });
+            }
+
+            let value = match codec {
+                scalar::Codec::Text => format!("({lowered}).to_owned()"),
+                scalar::Codec::Boolean(..) => lowered,
+                scalar::Codec::Decimal | scalar::Codec::FormattedDecimal(_) => {
+                    format!("({lowered}).clone()")
+                }
+                _ => {
+                    return Err(unsupported(
+                        owner,
+                        "Dynamic missing state requires a scalar text, boolean or decimal",
+                    ));
+                }
+            };
+            if !context.transforms.is_empty() {
+                return Err(unsupported(
+                    owner,
+                    "Missing state transform requires a generated helper",
+                ));
+            }
+            if context.constants.is_empty() {
+                value
+            } else {
+                format!("{{{} {value}}}", context.constants)
+            }
         }
     };
     Ok(format!("Some({value})"))
@@ -116,13 +167,12 @@ pub(super) fn omit(
     owner: &LinkedEntry,
     program: &Program,
 ) -> Result<String, Diagnostic> {
-    predicate(
-        expression,
-        index,
-        owner,
-        program,
-        &format!("omit_{}_{index}", owner.id),
-    )
+    let id = owner.id;
+    let check = format!("omit_check_{id}_{index}");
+    let condition = predicate(expression, index, owner, program, &check)?;
+    Ok(format!(
+        "{condition}fn omit_{id}_{index}(value:&V{id},inputs:&PreparedInputs)->core::Result<bool>{{match {check}(value,inputs){{Err(error) if error.code.as_deref()==Some(\"fact.ambiguous\")=>Ok(false),result=>result}}}}\n"
+    ))
 }
 
 pub(super) fn predicate(
@@ -135,44 +185,12 @@ pub(super) fn predicate(
     let LinkedType::Record(fields) = &owner.value else {
         unreachable!()
     };
-    let storage = fields
-        .iter()
-        .enumerate()
-        .map(|(index, field)| {
-            let codec = scalar::Codec::resolve(&field.value, owner, program)?;
-            Ok((
-                codec.optional_meaning(&format!("E{}F{index}", owner.id), index),
-                format!("_value.f{index}.is_some()"),
-            ))
-        })
-        .collect::<Result<Vec<_>, Diagnostic>>()?;
-    let mut context = expressions::Expressions {
-        entry: owner,
-        program,
-        fields,
-        field_storage: Some(&storage),
-        constants: String::new(),
-        next_constant: 0,
-        transforms: BTreeSet::new(),
-        fallible: false,
-    };
+    let storage = scalar_storage(owner, program, false)?;
+    let mut context = expressions::Expressions::new(owner, program, fields, Some(&storage));
     let mut expression = expression.clone();
     replace_self(&mut expression, index);
-    fn reads(expression: &LinkedExpression, result: &mut BTreeSet<u32>) {
-        match &expression.kind {
-            LinkedExpressionKind::Field(index) => {
-                result.insert(*index);
-            }
-            LinkedExpressionKind::Operation { arguments, .. } => {
-                for argument in arguments {
-                    reads(argument, result)
-                }
-            }
-            _ => (),
-        }
-    }
     let mut referenced = BTreeSet::new();
-    reads(&expression, &mut referenced);
+    super::constraints::read_fields(&expression, &mut referenced);
     let guard = referenced
         .iter()
         .map(|index| format!("_value.f{index}.is_none()"))
@@ -204,6 +222,9 @@ pub(super) fn supported_canonical(rule: &LinkedPresence) -> bool {
     let [canonical] = rule.canonical.as_slice() else {
         return false;
     };
+    if canonical.form == XmlForm::Missing && canonical.when.is_some() {
+        return true;
+    }
     if !matches!(
         canonical.form,
         XmlForm::Nil | XmlForm::EmptyElement | XmlForm::Missing
@@ -262,4 +283,41 @@ pub(super) fn absent_attributes(form: &XmlForm) -> &'static str {
     } else {
         "&[]"
     }
+}
+
+pub(super) fn order(entry: &LinkedEntry) -> Vec<usize> {
+    fn visit(index: usize, entry: &LinkedEntry, seen: &mut [bool], out: &mut Vec<usize>) {
+        if seen[index] {
+            return;
+        }
+        seen[index] = true;
+        for child in &entry.field_dependencies[index] {
+            visit(*child as usize, entry, seen, out)
+        }
+        out.push(index);
+    }
+    let mut out = Vec::new();
+    let mut seen = vec![false; entry.field_dependencies.len()];
+    for index in 0..seen.len() {
+        visit(index, entry, &mut seen, &mut out)
+    }
+    out
+}
+
+fn scalar_storage(
+    owner: &LinkedEntry,
+    program: &Program,
+    local: bool,
+) -> Result<Vec<(String, String)>, Diagnostic> {
+    let LinkedType::Record(fields) = &owner.value else {
+        unreachable!()
+    };
+    fields.iter().enumerate().map(|(index,field)| {
+        let codec=scalar::Codec::resolve(&field.value,owner,program)?;
+        let name=format!("E{}F{index}",owner.id);
+        let (value, stored)=if local {
+            (codec.meaning_reference(&name,&format!("f{index}.as_ref().ok_or_else(||RuntimeDiagnostic::new(\"value.missing\",\"Default dependency is unavailable\"))?")),format!("f{index}"))
+        } else {(codec.optional_meaning(&name,index),format!("_value.f{index}"))};
+        Ok((value,format!("{stored}.is_some()")))
+    }).collect()
 }

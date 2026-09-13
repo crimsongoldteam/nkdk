@@ -1,0 +1,8 @@
+format: nkdk-declarations/1
+kind: object
+id: test.text-table
+imports: {name: common.pattern-name}
+value: {kind: record, fields: [{name: value, type: {use: name}}]}
+representations:
+  xml: {kind: record, fields: [{field: value, path: [Root, Pair]}]}
+  yaml: {kind: mapping, fields: [{field: value, key: Pair}]}

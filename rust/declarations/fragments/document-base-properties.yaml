@@ -1,0 +1,249 @@
+format: nkdk-declarations/1
+kind: fragment
+id: fragment.document-base-properties
+imports:
+  string: common.string
+  text: common.i8n-text
+  boolean: common.boolean
+  number: common.exact-decimal
+  AllowedLength: system.AllowedLength
+  BusinessProcessNumberPeriodicity: system.BusinessProcessNumberPeriodicity
+  ChoiceDataGetModeOnInputByString: system.ChoiceDataGetModeOnInputByString
+  ChoiceHistoryOnInput: system.ChoiceHistoryOnInput
+  CreateOnInput: system.CreateOnInput
+  DataHistoryUse: system.DataHistoryUse
+  DefaultDataLockControlMode: system.DefaultDataLockControlMode
+  DocumentNumberType: system.DocumentNumberType
+  FullTextSearchOnInputByString: system.FullTextSearchOnInputByString
+  Posting: system.Posting
+  RealTimePosting: system.RealTimePosting
+  RegisterRecordsDeletion: system.RegisterRecordsDeletion
+  RegisterRecordsWritingOnPost: system.RegisterRecordsWritingOnPost
+  SearchStringModeOnInputByString: system.SearchStringModeOnInputByString
+  SequenceFilling: system.SequenceFilling
+  UseFullTextSearch: system.UseFullTextSearch
+namespaces: {md: 'http://v8.1c.ru/8.3/MDClasses'}
+inputs:
+  name: {type: {kind: scalar, scalar: text}}
+  defaultLanguage: {type: {kind: scalar, scalar: text}}
+  registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+value:
+  kind: record
+  fields:
+  - {name: Name, type: {kind: scalar, scalar: text}}
+  - {name: Synonym, type: {use: text, with: {excludeIfEqualNameYAML: true}, bind: {defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}, ownerName: {input: name}}}}
+  - {name: Comment, type: {use: string}}
+  - {name: UseStandardCommands, type: {use: boolean}}
+  - {name: NumberType, type: {use: DocumentNumberType}}
+  - {name: NumberLength, type: {use: number}}
+  - {name: NumberAllowedLength, type: {use: AllowedLength}}
+  - {name: NumberPeriodicity, type: {use: BusinessProcessNumberPeriodicity}}
+  - {name: CheckUnique, type: {use: boolean}}
+  - {name: Autonumbering, type: {use: boolean}}
+  - {name: CreateOnInput, type: {use: CreateOnInput}}
+  - {name: SearchStringModeOnInputByString, type: {use: SearchStringModeOnInputByString}}
+  - {name: FullTextSearchOnInputByString, type: {use: FullTextSearchOnInputByString}}
+  - {name: ChoiceDataGetModeOnInputByString, type: {use: ChoiceDataGetModeOnInputByString}}
+  - {name: Posting, type: {use: Posting}}
+  - {name: RealTimePosting, type: {use: RealTimePosting}}
+  - {name: RegisterRecordsDeletion, type: {use: RegisterRecordsDeletion}}
+  - {name: RegisterRecordsWritingOnPost, type: {use: RegisterRecordsWritingOnPost}}
+  - {name: SequenceFilling, type: {use: SequenceFilling}}
+  - {name: PostInPrivilegedMode, type: {use: boolean}}
+  - {name: UnpostInPrivilegedMode, type: {use: boolean}}
+  - {name: IncludeHelpInContents, type: {use: boolean}}
+  - {name: DataLockControlMode, type: {use: DefaultDataLockControlMode}}
+  - {name: FullTextSearch, type: {use: UseFullTextSearch}}
+  - {name: ObjectPresentation, type: {use: text, bind: {defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}, ownerName: {input: name}}}}
+  - {name: ExtendedObjectPresentation, type: {use: text, bind: {defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}, ownerName: {input: name}}}}
+  - {name: ListPresentation, type: {use: text, bind: {defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}, ownerName: {input: name}}}}
+  - {name: ExtendedListPresentation, type: {use: text, bind: {defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}, ownerName: {input: name}}}}
+  - {name: Explanation, type: {use: text, bind: {defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}, ownerName: {input: name}}}}
+  - {name: ChoiceHistoryOnInput, type: {use: ChoiceHistoryOnInput}}
+  - {name: DataHistory, type: {use: DataHistoryUse}}
+  - {name: UpdateDataHistoryImmediatelyAfterWrite, type: {use: boolean}}
+  - {name: ExecuteAfterWriteDataHistoryVersionProcessing, type: {use: boolean}}
+representations:
+  xml:
+    kind: record
+    fields:
+    - {field: Name, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:Name']}
+    - {field: Synonym, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:Synonym']}
+    - {field: Comment, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:Comment']}
+    - {field: UseStandardCommands, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:UseStandardCommands']}
+    - {field: NumberType, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:NumberType']}
+    - {field: NumberLength, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:NumberLength']}
+    - {field: NumberAllowedLength, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:NumberAllowedLength']}
+    - {field: NumberPeriodicity, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:NumberPeriodicity']}
+    - {field: CheckUnique, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:CheckUnique']}
+    - {field: Autonumbering, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:Autonumbering']}
+    - {field: CreateOnInput, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:CreateOnInput']}
+    - {field: SearchStringModeOnInputByString, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:SearchStringModeOnInputByString']}
+    - {field: FullTextSearchOnInputByString, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:FullTextSearchOnInputByString']}
+    - {field: ChoiceDataGetModeOnInputByString, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:ChoiceDataGetModeOnInputByString']}
+    - {field: Posting, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:Posting']}
+    - {field: RealTimePosting, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:RealTimePosting']}
+    - {field: RegisterRecordsDeletion, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:RegisterRecordsDeletion']}
+    - {field: RegisterRecordsWritingOnPost, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:RegisterRecordsWritingOnPost']}
+    - {field: SequenceFilling, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:SequenceFilling']}
+    - {field: PostInPrivilegedMode, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:PostInPrivilegedMode']}
+    - {field: UnpostInPrivilegedMode, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:UnpostInPrivilegedMode']}
+    - {field: IncludeHelpInContents, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:IncludeHelpInContents']}
+    - {field: DataLockControlMode, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:DataLockControlMode']}
+    - {field: FullTextSearch, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:FullTextSearch']}
+    - {field: ObjectPresentation, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:ObjectPresentation']}
+    - {field: ExtendedObjectPresentation, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:ExtendedObjectPresentation']}
+    - {field: ListPresentation, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:ListPresentation']}
+    - {field: ExtendedListPresentation, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:ExtendedListPresentation']}
+    - {field: Explanation, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:Explanation']}
+    - {field: ChoiceHistoryOnInput, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:ChoiceHistoryOnInput']}
+    - {field: DataHistory, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:DataHistory']}
+    - {field: UpdateDataHistoryImmediatelyAfterWrite, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:UpdateDataHistoryImmediatelyAfterWrite']}
+    - {field: ExecuteAfterWriteDataHistoryVersionProcessing, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:ExecuteAfterWriteDataHistoryVersionProcessing']}
+  yaml:
+    kind: mapping
+    fields:
+    - {field: Name, key: Имя}
+    - {field: Synonym, key: Синоним}
+    - {field: Comment, key: Комментарий}
+    - {field: UseStandardCommands, key: ИспользоватьСтандартныеКоманды}
+    - {field: NumberType, key: ТипНомера}
+    - {field: NumberLength, key: ДлинаНомера}
+    - {field: NumberAllowedLength, key: ДопустимаяДлинаНомера}
+    - {field: NumberPeriodicity, key: ПериодичностьНомера}
+    - {field: CheckUnique, key: КонтрольУникальности}
+    - {field: Autonumbering, key: Автонумерация}
+    - {field: CreateOnInput, key: СозданиеПриВводе}
+    - {field: SearchStringModeOnInputByString, key: СпособПоискаСтрокиПриВводеПоСтроке}
+    - {field: FullTextSearchOnInputByString, key: ПолнотекстовыйПоискПриВводеПоСтроке}
+    - {field: ChoiceDataGetModeOnInputByString, key: РежимПолученияДанныхВыбораПриВводеПоСтроке}
+    - {field: Posting, key: Проведение}
+    - {field: RealTimePosting, key: ОперативноеПроведение}
+    - {field: RegisterRecordsDeletion, key: УдалениеДвижений}
+    - {field: RegisterRecordsWritingOnPost, key: ЗаписьДвиженийПриПроведении}
+    - {field: SequenceFilling, key: ЗаполнениеПоследовательностей}
+    - {field: PostInPrivilegedMode, key: ПривилегированныйРежимПриПроведении}
+    - {field: UnpostInPrivilegedMode, key: ПривилегированныйРежимПриОтменеПроведения}
+    - {field: IncludeHelpInContents, key: ВключатьСправкуВСодержание}
+    - {field: DataLockControlMode, key: РежимУправленияБлокировкойДанных}
+    - {field: FullTextSearch, key: ПолнотекстовыйПоиск}
+    - {field: ObjectPresentation, key: ПредставлениеОбъекта}
+    - {field: ExtendedObjectPresentation, key: РасширенноеПредставлениеОбъекта}
+    - {field: ListPresentation, key: ПредставлениеСписка}
+    - {field: ExtendedListPresentation, key: РасширенноеПредставлениеСписка}
+    - {field: Explanation, key: Пояснение}
+    - {field: ChoiceHistoryOnInput, key: ИсторияВыбораПриВводе}
+    - {field: DataHistory, key: ИсторияДанных}
+    - {field: UpdateDataHistoryImmediatelyAfterWrite, key: ОбновлятьИсториюДанныхСразуПослеЗаписи}
+    - {field: ExecuteAfterWriteDataHistoryVersionProcessing, key: ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных}
+presence:
+- target: {field: Name}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {default: {input: name}}
+- target: {field: Comment}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {default: {literal: ""}}
+- target: {field: UseStandardCommands}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {default: {literal: true}}
+- target: {field: NumberType}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {default: {literal: "String"}}
+- target: {field: NumberAllowedLength}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {default: {literal: "Variable"}}
+- target: {field: NumberPeriodicity}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {default: {literal: "Nonperiodical"}}
+- target: {field: CheckUnique}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {default: {literal: true}}
+- target: {field: Autonumbering}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {default: {literal: true}}
+- target: {field: CreateOnInput}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {default: {literal: "Use"}}
+- target: {field: SearchStringModeOnInputByString}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {default: {literal: "Begin"}}
+- target: {field: FullTextSearchOnInputByString}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {default: {literal: "DontUse"}}
+- target: {field: ChoiceDataGetModeOnInputByString}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {default: {literal: "Directly"}}
+- target: {field: Posting}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {default: {literal: "Allow"}}
+- target: {field: RealTimePosting}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {default: {literal: "Allow"}}
+- target: {field: RegisterRecordsDeletion}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {default: {literal: "AutoDeleteOnUnpost"}}
+- target: {field: RegisterRecordsWritingOnPost}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {default: {literal: "WriteSelected"}}
+- target: {field: SequenceFilling}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {default: {literal: "AutoFill"}}
+- target: {field: PostInPrivilegedMode}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {default: {literal: true}}
+- target: {field: UnpostInPrivilegedMode}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {default: {literal: true}}
+- target: {field: IncludeHelpInContents}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {default: {literal: false}}
+- target: {field: DataLockControlMode}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {default: {literal: "Managed"}}
+- target: {field: FullTextSearch}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {default: {literal: "Use"}}
+- target: {field: ObjectPresentation}
+  xml:
+    canonical: [{when: {not: {present: {field: ObjectPresentation}}}, form: empty-element}]
+- target: {field: ExtendedObjectPresentation}
+  xml:
+    canonical: [{when: {not: {present: {field: ExtendedObjectPresentation}}}, form: empty-element}]
+- target: {field: ListPresentation}
+  xml:
+    canonical: [{when: {not: {present: {field: ListPresentation}}}, form: empty-element}]
+- target: {field: ExtendedListPresentation}
+  xml:
+    canonical: [{when: {not: {present: {field: ExtendedListPresentation}}}, form: empty-element}]
+- target: {field: Explanation}
+  xml:
+    canonical: [{when: {not: {present: {field: Explanation}}}, form: empty-element}]
+- target: {field: ChoiceHistoryOnInput}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {default: {literal: "Auto"}}
+- target: {field: DataHistory}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {default: {literal: "DontUse"}}
+- target: {field: UpdateDataHistoryImmediatelyAfterWrite}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {default: {literal: false}}
+- target: {field: ExecuteAfterWriteDataHistoryVersionProcessing}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {default: {literal: false}}
+- target: {field: NumberLength}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {default: {literal: 9}}
+constraints:
+- id: numeric-number-length
+  appliesTo: [xml-import, yaml-validation]
+  when: {eq: [{field: NumberType}, {literal: Number}]}
+  assert: {lte: [{field: NumberLength}, {literal: 38}]}
+  diagnostic: {code: number-length.numeric-maximum, severity: error, at: {field: NumberLength}, message: Числовой номер не длиннее 38}
+- id: number-length-maximum
+  appliesTo: [xml-import, yaml-validation]
+  assert: {lte: [{field: NumberLength}, {literal: 50}]}
+  diagnostic: {code: number-length.maximum, severity: error, at: {field: NumberLength}, message: Номер не длиннее 50}
+- id: number-length-minimum
+  appliesTo: [xml-import, yaml-validation]
+  assert: {lte: [{literal: 0}, {field: NumberLength}]}
+  diagnostic: {code: number-length.minimum, severity: error, at: {field: NumberLength}, message: Длина номера неотрицательна}

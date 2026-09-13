@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.79e465cf0d6d5ec81c26
+description: 'Кандидат проекции: относительный XML-корень SpellCheckingOnTextInput; не полный владелец'
+imports:
+  part0: candidate.fragment.0a189831aed1b667eaaa
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

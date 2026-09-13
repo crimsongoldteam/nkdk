@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.GanttChartIntervalsSelectionMode
+value:
+  kind: record
+  fields:
+    - name: intervalsSelectionMode
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: intervalsSelectionMode
+        path:
+          - IntervalsSelectionMode
+  yaml:
+    kind: mapping
+    fields:
+      - field: intervalsSelectionMode
+        key: РежимВыделенияИнтервалов
+presence:
+  - target:
+      field: intervalsSelectionMode
+    xml:
+      missing:
+        denotes:
+          literal: Auto
+      canonical:
+        - when:
+            eq:
+              - field: intervalsSelectionMode
+              - literal: Auto
+          form: missing
+    yaml:
+      default:
+        literal: Auto
+id: candidate.fragment.e470b6f22f90f6bf8471

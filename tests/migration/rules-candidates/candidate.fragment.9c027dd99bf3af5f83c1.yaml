@@ -1,0 +1,91 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.Indexing
+  value1: system.AttributeUse
+  value2: system.UseFullTextSearch
+  value3: system.DataHistoryUse
+value:
+  kind: record
+  fields:
+    - name: indexing
+      type:
+        use: value0
+    - name: use
+      type:
+        use: value1
+    - name: fullTextSearch
+      type:
+        use: value2
+    - name: dataHistory
+      type:
+        use: value3
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: indexing
+        path:
+          - Properties
+          - Indexing
+      - field: use
+        path:
+          - Properties
+          - Use
+      - field: fullTextSearch
+        path:
+          - Properties
+          - FullTextSearch
+      - field: dataHistory
+        path:
+          - Properties
+          - DataHistory
+  yaml:
+    kind: mapping
+    fields:
+      - field: indexing
+        key: Индексирование
+      - field: use
+        key: Использование
+      - field: fullTextSearch
+        key: ПолнотекстовыйПоиск
+      - field: dataHistory
+        key: ИсторияДанных
+presence:
+  - target:
+      field: indexing
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: DontIndex
+  - target:
+      field: use
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: ForItem
+  - target:
+      field: fullTextSearch
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: Use
+  - target:
+      field: dataHistory
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: Use
+id: candidate.fragment.9c027dd99bf3af5f83c1

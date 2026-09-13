@@ -44,7 +44,7 @@ pub(super) fn presence(path: &str, fields: &[(Node, Node)]) -> Result<Vec<Presen
                 .map(|node| node.mapping(path, &["missing", "empty", "canonical"]))
                 .transpose()?;
             let yaml = optional_field(fields, "yaml")
-                .map(|node| node.mapping(path, &["missing", "empty", "omitWhen"]))
+                .map(|node| node.mapping(path, &["missing", "empty", "omitWhen", "default"]))
                 .transpose()?;
             let xml_fields = xml.unwrap_or(&[]);
             let yaml_fields = yaml.unwrap_or(&[]);
@@ -104,15 +104,54 @@ pub(super) fn presence(path: &str, fields: &[(Node, Node)]) -> Result<Vec<Presen
                     })
                 })
                 .collect::<Result<Vec<_>, Diagnostic>>()?;
+            let default = optional_field(yaml_fields, "default");
+            if let Some(default) = default
+                && (optional_field(yaml_fields, "missing").is_some()
+                    || optional_field(yaml_fields, "omitWhen").is_some())
+            {
+                return Err(error(
+                    path,
+                    default.mark,
+                    "conflicting_yaml_default",
+                    "YAML default already defines missing and omitWhen",
+                ));
+            }
+            let (yaml_missing, yaml_omit_when) = if let Some(default) = default {
+                let value = expression(path, default)?;
+                let source = location(path, default);
+                let target = Expression {
+                    kind: match &target_kind {
+                        PresenceTarget::SelfValue => ExpressionKind::SelfValue,
+                        PresenceTarget::Field(name) => ExpressionKind::Field(name.clone()),
+                    },
+                    source: source.clone(),
+                };
+                (
+                    Some(value.clone()),
+                    Some(Expression {
+                        kind: ExpressionKind::Compare {
+                            operator: ComparisonOperator::Equal,
+                            left: Box::new(target),
+                            right: Box::new(value),
+                        },
+                        source,
+                    }),
+                )
+            } else {
+                (
+                    missing_value(path, yaml_fields)?,
+                    optional_field(yaml_fields, "omitWhen")
+                        .map(|node| expression(path, node))
+                        .transpose()?,
+                )
+            };
             Ok(Presence {
                 target: target_kind,
                 xml_missing: missing_value(path, xml_fields)?,
                 xml_empty: empty_forms(path, xml_fields, true)?,
-                yaml_missing: missing_value(path, yaml_fields)?,
+                yaml_missing,
                 yaml_empty: empty_forms(path, yaml_fields, false)?,
-                yaml_omit_when: optional_field(yaml_fields, "omitWhen")
-                    .map(|node| expression(path, node))
-                    .transpose()?,
+                yaml_omit_when,
                 xml_canonical,
                 source: location(path, target),
             })
@@ -164,6 +203,7 @@ pub(super) fn empty_forms(
             };
             let form = match (xml, spelling.as_str()) {
                 (true, "empty-element") => EmptyKind::Element,
+                (true, "empty-item") => EmptyKind::Item,
                 (true, "empty-text") => EmptyKind::Text,
                 (true, "nil") => EmptyKind::Nil,
                 (false, "empty-string") => EmptyKind::String,

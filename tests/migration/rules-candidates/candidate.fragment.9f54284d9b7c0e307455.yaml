@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.InputFieldMultipleValuePictureShape
+value:
+  kind: record
+  fields:
+    - name: multipleValuePictureShape
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: multipleValuePictureShape
+        path:
+          - MultipleValuePictureShape
+  yaml:
+    kind: mapping
+    fields:
+      - field: multipleValuePictureShape
+        key: ФигураКартинкиМножественногоЗначения
+presence:
+  - target:
+      field: multipleValuePictureShape
+    xml:
+      missing:
+        denotes:
+          literal: Auto
+      canonical:
+        - when:
+            eq:
+              - field: multipleValuePictureShape
+              - literal: Auto
+          form: missing
+    yaml:
+      default:
+        literal: Auto
+id: candidate.fragment.9f54284d9b7c0e307455

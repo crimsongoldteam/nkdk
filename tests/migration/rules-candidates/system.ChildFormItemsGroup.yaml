@@ -1,0 +1,21 @@
+format: nkdk-declarations/1
+kind: value
+id: system.ChildFormItemsGroup
+enum:
+  Vertical: Вертикальная
+  Horizontal: Горизонтальная
+  AlwaysHorizontal: ГоризонтальнаяВсегда
+  HorizontalIfPossible: ГоризонтальнаяЕслиВозможно
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  t: http://v8.1c.ru/8.1/data/enterprise
+projections:
+  - id: system.ChildFormItemsGroup.dcs
+    xml:
+      kind: with-attributes
+      attributes:
+        - name: xsi:type
+          value:
+            qname: t:ChildFormItemsGroup
+      content:
+        kind: text

@@ -1,0 +1,14 @@
+format: nkdk-declarations/1
+kind: object
+id: test.fact-bound-consumer
+imports: {target: common.project-target}
+inputs:
+  context: {type: {kind: scalar, scalar: text}}
+  targets: {index: test.names}
+value:
+  kind: record
+  fields:
+  - {name: target, type: {use: target, bind: {names: {input: targets}}}}
+representations:
+  xml: {kind: record, fields: [{field: target, path: [Root, Target]}]}
+  yaml: {kind: mapping, fields: [{field: target, key: Target}]}

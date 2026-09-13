@@ -5,8 +5,12 @@ pub(crate) struct Layout {
     pub key: String,
     pub path: Vec<ExpandedName>,
     pub attributes: Vec<LinkedXmlAttribute>,
+    pub qname_text: bool,
 }
 pub(crate) fn lower(owner: &LinkedEntry, program: &Program) -> Result<Option<Layout>, Diagnostic> {
+    if super::qname::applies(owner, program) {
+        return Ok(None);
+    }
     let Some((common, bindings, arguments)) = composite::record(owner, program) else {
         return Ok(None);
     };
@@ -23,24 +27,31 @@ pub(crate) fn lower(owner: &LinkedEntry, program: &Program) -> Result<Option<Lay
         || !arguments.is_empty()
         || !owner.constraints.is_empty()
         || !owner.presence.is_empty()
-        || !common.constraints.is_empty()
         || !common.parameters.is_empty()
         || !common.inputs.is_empty()
         || !common.shorthands.is_empty()
         || common.normalization.is_some()
-        || common.presence.len() != 1
+        || common
+            .presence
+            .iter()
+            .filter(|rule| rule.target == LinkedPresenceTarget::SelfValue)
+            .count()
+            != 1
     {
         return Err(unsupported(
             common,
-            "Nested scalar records currently require static, unconstrained composition",
+            "Nested scalar records currently require static composition without owner contracts",
         ));
     }
-    for rule in &common.presence {
-        if rule.target != LinkedPresenceTarget::SelfValue
-            || !rule
-                .xml_missing
-                .as_ref()
-                .is_some_and(|value| matches!(value.kind, LinkedExpressionKind::Absent))
+    for rule in common
+        .presence
+        .iter()
+        .filter(|rule| rule.target == LinkedPresenceTarget::SelfValue)
+    {
+        if !rule
+            .xml_missing
+            .as_ref()
+            .is_some_and(|value| matches!(value.kind, LinkedExpressionKind::Absent))
             || !rule
                 .yaml_missing
                 .as_ref()
@@ -82,7 +93,8 @@ pub(crate) fn lower(owner: &LinkedEntry, program: &Program) -> Result<Option<Lay
     flat.id = owner.id;
     flat.name = owner.name.clone();
     flat.kind = ModuleKind::Object;
-    flat.presence.clear();
+    flat.presence
+        .retain(|rule| rule.target != LinkedPresenceTarget::SelfValue);
     flat.xml = LinkedXml::Record(
         xml.iter()
             .map(|field| {
@@ -97,32 +109,11 @@ pub(crate) fn lower(owner: &LinkedEntry, program: &Program) -> Result<Option<Lay
         key: owner_yaml[0].key.clone(),
         path,
         attributes: attrs.into_iter().cloned().collect(),
+        qname_text: false,
     }))
 }
 pub(super) fn attributes(layout: &Layout) -> String {
-    format!(
-        "&[{}]",
-        layout
-            .attributes
-            .iter()
-            .map(|attr| {
-                let value = match &attr.value {
-                    LinkedXmlAttributeValue::Text(value) => {
-                        format!("core::xml::AttributeValue::Text({value:?})")
-                    }
-                    LinkedXmlAttributeValue::QName(value) => format!(
-                        "core::xml::AttributeValue::QName(({:?},{:?}))",
-                        value.namespace, value.local
-                    ),
-                };
-                format!(
-                    "core::xml::WriteAttribute{{name:({:?},{:?}),value:{value}}}",
-                    attr.name.namespace, attr.name.local
-                )
-            })
-            .collect::<Vec<_>>()
-            .join(",")
-    )
+    super::attributes::static_attributes(&layout.attributes)
 }
 
 /// Keep wrapper differences on the declared record boundary. The ordinary path
@@ -141,13 +132,46 @@ pub(super) fn wrap(mut source: String, layout: &Layout) -> String {
             &format!("fn {function}_plain_{id}("),
         );
     }
+    source = source.replace(
+        &format!("write_yaml_into_{id}("),
+        &format!("write_yaml_into_plain_{id}("),
+    );
+    writeln!(source,"fn write_yaml_{id}(value:&V{id},inputs:&PreparedInputs)->core::Result<Vec<u8>> {{let mut out=String::new();write_yaml_into_{id}(value,inputs,&mut out)?;Ok(out.into_bytes())}}\nfn write_yaml_into_{id}(value:&V{id},inputs:&PreparedInputs,out:&mut String)->core::Result<()> {{if value.raw.get(usize::MAX).is_some() {{core::yaml::append_encoded_properties(out,&write_yaml_wrapped_{id}(value,inputs)?)}} else {{write_yaml_into_plain_{id}(value,inputs,out)}}}}").unwrap();
     writeln!(source,"fn read_yaml_{id}(source:&[u8],inputs:&PreparedInputs)->core::Result<V{id}> {{match read_yaml_plain_{id}(source,inputs) {{Ok(value)=>Ok(value),Err(error)=>{{let Some(envelope)=core::raw::Property::decode(source,{key:?},{physical:?})? else {{return Err(error);}};let mut value=read_yaml_plain_{id}(&envelope.meaning,inputs)?;value.raw.insert(usize::MAX,core::xml::Patch::read(&envelope.payload,&[],Q{id})?);Ok(value)}}}}}}").unwrap();
-    writeln!(source,"fn read_xml_{id}(source:&[u8],inputs:&PreparedInputs)->core::Result<V{id}> {{match read_xml_plain_{id}(source,inputs) {{Ok(value)=>Ok(value),Err(error) if matches!(error.code.as_deref(),Some(\"xml.unknown-field\"|\"xml.unknown-attribute\"|\"xml.duplicate-field\"|\"xml.unexpected-text\"))=>{{let Some(tree)=core::xml::Tree::capture(source,{path})? else {{return Err(error);}};let mut value=read_yaml_plain_{id}(b\"\",inputs)?;let payload=tree.payload_yaml(&[],Q{id})?;value.raw.insert(usize::MAX,core::xml::Patch::read(if payload.is_empty() {{b\"{{}}\"}} else {{payload.as_bytes()}},&[],Q{id})?);Ok(value)}},Err(error)=>Err(error)}}}}").unwrap();
-    writeln!(source,"fn write_yaml_{id}(value:&V{id},inputs:&PreparedInputs)->core::Result<Vec<u8>> {{let bytes=write_yaml_plain_{id}(value,inputs)?;let Some(patch)=value.raw.get(usize::MAX) else {{return Ok(bytes);}};let tree=patch.apply(None,core::xml::Name{{namespace:{:?}.into(),local:{physical:?}.into()}},&[],Q{id})?;let payload=tree.payload_yaml(&[],Q{id})?;core::raw::Property::encode({key:?},{physical:?},&bytes,if payload.is_empty() {{b\"{{}}\"}} else {{payload.as_bytes()}})}}",name.namespace).unwrap();
-    writeln!(source,"fn write_xml_{id}(value:&V{id},inputs:&PreparedInputs)->core::Result<Vec<u8>> {{let bytes=write_xml_plain_{id}(value,inputs)?;let Some(patch)=value.raw.get(usize::MAX) else {{return Ok(bytes);}};let base=core::xml::Tree::capture(&bytes,{path})?;let tree=patch.apply(base,core::xml::Name{{namespace:{:?}.into(),local:{physical:?}.into()}},&[],Q{id})?;let mut namespaces=Vec::new();tree.collect_namespaces(&mut namespaces);let mut writer=core::xml::Writer::new(&namespaces);tree.write_at(&mut writer,{parent},Q{id})?;Ok(writer.finish())}}",name.namespace).unwrap();
+    writeln!(source,"fn read_xml_{id}(source:&[u8],inputs:&PreparedInputs)->core::Result<V{id}> {{match read_xml_plain_{id}(source,inputs) {{Ok(value)=>Ok(value),Err(error) if matches!(error.code.as_deref(),Some(\"xml.unknown-field\"|\"xml.unknown-attribute\"|\"xml.duplicate-field\"|\"xml.unexpected-text\"))=>{{let Some(tree)=core::xml::Tree::capture(source,{path})? else {{return Err(error);}};let mut value=read_yaml_plain_{id}(b\"\",inputs)?;let payload=tree.patch_yaml(None,&[],Q{id})?;value.raw.insert(usize::MAX,core::xml::Patch::read(if payload.is_empty() {{b\"{{}}\"}} else {{payload.as_bytes()}},&[],Q{id})?);Ok(value)}},Err(error)=>Err(error)}}}}").unwrap();
+    writeln!(source,"fn write_yaml_wrapped_{id}(value:&V{id},inputs:&PreparedInputs)->core::Result<Vec<u8>> {{let bytes=write_yaml_plain_{id}(value,inputs)?;let Some(patch)=value.raw.get(usize::MAX) else {{return Ok(bytes);}};let payload=patch.to_yaml();core::raw::Property::encode({key:?},{physical:?},&bytes,payload.as_bytes())}}\n").unwrap();
+    writeln!(source,r#"struct XmlPrepared{id} {{plain:XmlPreparedPlain{id},tree:Option<core::xml::Tree>}}
+fn prepare_xml_{id}(value:&V{id},inputs:&PreparedInputs)->core::Result<XmlPrepared{id}> {{
+let tree=if let Some(patch)=value.raw.get(usize::MAX) {{let bytes=write_xml_plain_{id}(value,inputs)?;let base=core::xml::Tree::capture(&bytes,{path})?;Some(patch.apply(base,core::xml::Name{{namespace:{namespace:?}.into(),local:{physical:?}.into()}},&[],Q{id})?)}} else {{None}};
+Ok(XmlPrepared{id}{{plain:prepare_xml_plain_{id}(value,inputs)?,tree}})
+}}
+fn namespaces_xml_{id}<'a>(value:&'a V{id},prepared:&'a XmlPrepared{id},namespaces:&mut Vec<&'a str>) {{namespaces_xml_plain_{id}(value,&prepared.plain,namespaces);if let Some(tree)=&prepared.tree {{tree.collect_namespaces(namespaces);}}}}
+fn write_xml_into_{id}<'a>(value:&V{id},prepared:&'a XmlPrepared{id},inputs:&PreparedInputs,writer:&mut core::xml::Writer<'a>)->core::Result<()> {{if let Some(tree)=&prepared.tree {{tree.write_at(writer,{parent},Q{id})}} else {{write_xml_into_plain_{id}(value,&prepared.plain,inputs,writer)}}}}
+fn write_xml_{id}(value:&V{id},inputs:&PreparedInputs)->core::Result<Vec<u8>> {{
+if value.raw.get(usize::MAX).is_none() {{return write_xml_plain_{id}(value,inputs);}}
+let prepared=prepare_xml_{id}(value,inputs)?;let mut namespaces=Vec::new();namespaces_xml_{id}(value,&prepared,&mut namespaces);let mut writer=core::xml::Writer::new(&namespaces);write_xml_into_{id}(value,&prepared,inputs,&mut writer)?;Ok(writer.finish())
+}}
+"#,namespace=name.namespace).unwrap();
     let end = format!("verify_{id}(original,&candidate,inputs)?;Ok(candidate)");
     let replacement = format!(
         "let restored=write_xml_{id}(&read_yaml_{id}(&candidate,inputs)?,inputs)?;if let Some(original_tree)=core::xml::Tree::capture(original,{path})? {{let restored_tree=core::xml::Tree::capture(&restored,{path})?;let patch=original_tree.patch_yaml(restored_tree.as_ref(),&[],Q{id})?;if patch!=\"{{}}\" {{candidate=core::raw::Property::encode({key:?},{physical:?},&candidate,patch.as_bytes())?;}}}}{end}"
     );
-    source.replace(&end, &replacement)
+    source = source.replace(&end, &replacement);
+    if layout.qname_text {
+        for input in ["source", "&bytes", "original", "&restored"] {
+            source = source.replace(
+                &format!("core::xml::Tree::capture({input},{path})"),
+                &format!("core::xml::Tree::capture_with_qnames({input},{path},|node|core::xml::matches(node,{path}))"),
+            );
+        }
+        source = source.replace(
+            "\"xml.unexpected-text\"",
+            "\"xml.unexpected-text\"|\"xml.qname\"|\"xml.qname-prefix\"",
+        );
+        source = source.replace(
+            "&candidate,patch.as_bytes())?",
+            "&candidate,if patch.is_empty() {b\"\\\"\\\"\"} else {patch.as_bytes()})?",
+        );
+    }
+    source
 }

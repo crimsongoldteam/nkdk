@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.exact-decimal
+value:
+  kind: record
+  fields:
+    - name: step
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: step
+        path:
+          - Step
+  yaml:
+    kind: mapping
+    fields:
+      - field: step
+        key: Шаг
+presence:
+  - target:
+      field: step
+    xml:
+      missing:
+        denotes:
+          literal: 1
+      canonical:
+        - when:
+            eq:
+              - field: step
+              - literal: 1
+          form: missing
+    yaml:
+      default:
+        literal: 1
+id: candidate.fragment.67925b0cd2414805ce6a

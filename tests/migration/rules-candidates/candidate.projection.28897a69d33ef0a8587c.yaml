@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.28897a69d33ef0a8587c
+description: 'Кандидат проекции: относительный XML-корень SavedInSettingsDataModified; не полный владелец'
+imports:
+  part0: candidate.fragment.c3f1b88a19b600ef29fe
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

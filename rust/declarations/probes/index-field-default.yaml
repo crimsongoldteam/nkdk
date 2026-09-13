@@ -1,0 +1,21 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.index-field-default
+imports: {value: common.index-field}
+value: {kind: record, fields: [{name: value, type: {use: value}}]}
+representations:
+  xml: {kind: record, fields: [{field: value, path: [Root, Value]}]}
+  yaml: {kind: mapping, fields: [{field: value, key: List}]}
+presence:
+- target: {field: value}
+  xml:
+    missing: {denotes: {absent: true}}
+    empty:
+    - {form: empty-element, denotes: {absent: true}}
+    - {form: empty-item, denotes: {sequence: []}}
+    canonical:
+    - when: {not: {exists: {in: {field: value}, as: row, where: {literal: true}}}}
+      form: empty-element
+    - form: ordinary
+  yaml:
+    missing: {denotes: {absent: true}}

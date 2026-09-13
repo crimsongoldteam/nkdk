@@ -1,0 +1,26 @@
+format: nkdk-declarations/1
+kind: object
+id: test.fact-consumer
+inputs:
+  names:
+    index: test.names
+    type:
+      kind: index
+      key: {kind: scalar, scalar: text}
+      value: {kind: scalar, scalar: text}
+value:
+  kind: record
+  fields:
+  - {name: target, type: {kind: scalar, scalar: text}}
+representations:
+  xml: {kind: record, fields: [{field: target, path: [Root, Target]}]}
+  yaml: {kind: mapping, fields: [{field: target, key: Target}]}
+constraints:
+- id: known-target
+  appliesTo: [xml-import, yaml-validation]
+  assert:
+    match:
+      value: {lookup: {in: {input: names}, key: {field: target}}}
+      present: {as: found, then: {not: {eq: [{var: found}, {literal: ''}]}}}
+      absent: {literal: false}
+  diagnostic: {code: target.missing, severity: error, at: {field: target}, message: Target is missing}

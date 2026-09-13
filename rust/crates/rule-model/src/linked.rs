@@ -15,9 +15,12 @@ pub struct LinkedEntry {
     pub kind: ModuleKind,
     pub value: LinkedType,
     pub inputs: Vec<LinkedField>,
+    pub input_indexes: Vec<crate::NamedBinding>,
     pub parameters: Vec<LinkedParameter>,
     pub field_dependencies: Vec<Vec<u32>>,
     pub constraints: Vec<LinkedConstraint>,
+    pub contributions: Vec<LinkedContribution>,
+    pub resources: Vec<crate::ResourceGroup<LinkedExpression, LinkedIteration>>,
     pub shorthands: Vec<LinkedShorthand>,
     pub presence: Vec<LinkedPresence>,
     pub normalization: Option<LinkedNormalization>,
@@ -29,6 +32,11 @@ pub struct LinkedEntry {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum LinkedType {
+    Choice(Vec<LinkedField>),
+    Index {
+        key: Box<LinkedType>,
+        value: Box<LinkedType>,
+    },
     ScalarChoice(Vec<ScalarType>),
     Enum(Vec<crate::EnumVariant>),
     Absent,
@@ -42,6 +50,21 @@ pub enum LinkedType {
         bindings: Vec<LinkedBinding>,
         arguments: Vec<LinkedExpression>,
     },
+}
+
+impl LinkedType {
+    /// The declaration and checked substitutions carried by a reference.
+    pub fn as_reference(&self) -> Option<(u32, &[LinkedBinding], &[LinkedExpression])> {
+        match self {
+            Self::Reference(id) => Some((*id, &[], &[])),
+            Self::BoundReference {
+                entry,
+                bindings,
+                arguments,
+            } => Some((*entry, bindings, arguments)),
+            _ => None,
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -59,6 +82,17 @@ pub struct ExpandedName {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum LinkedXml {
+    Declared,
+    TextSequence {
+        separator: String,
+    },
+    Choice,
+    TextPattern(Vec<crate::TextPatternPart>),
+    QName {
+        namespace: String,
+        local: String,
+    },
+    Tree(Vec<crate::XmlTreeNode<ExpandedName, LinkedXmlAttribute>>),
     FormattedDecimal(crate::DecimalText),
     ScalarChoice(crate::ScalarChoiceXml<ExpandedName>),
     Calendar,
@@ -79,6 +113,7 @@ pub enum LinkedXml {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct LinkedXmlField {
+    pub file: Option<Vec<String>>,
     pub field: String,
     pub path: Vec<ExpandedName>,
     pub attribute: Option<ExpandedName>,
@@ -96,6 +131,28 @@ pub struct LinkedExpression {
     pub kind: LinkedExpressionKind,
     pub value_type: LinkedType,
     pub source: SourceLocation,
+}
+
+impl LinkedExpression {
+    /// Compare meaning, ignoring the source positions of repeated expressions.
+    pub fn equivalent_to(&self, other: &Self) -> bool {
+        match (&self.kind, &other.kind) {
+            (
+                LinkedExpressionKind::Operation {
+                    operator: a,
+                    arguments: x,
+                },
+                LinkedExpressionKind::Operation {
+                    operator: b,
+                    arguments: y,
+                },
+            ) => a == b && x.len() == y.len() && x.iter().zip(y).all(|(a, b)| a.equivalent_to(b)),
+            (a, b) => a == b,
+        }
+    }
+    pub fn negates(&self, other: &Self) -> bool {
+        matches!(&self.kind, LinkedExpressionKind::Operation {operator:LinkedOperator::Not,arguments} if arguments.len()==1 && arguments[0].equivalent_to(other))
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -124,6 +181,9 @@ pub struct LinkedParameter {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum LinkedOperator {
+    IsVariant(u32),
+    VariantField { variant: u32, field: u32 },
+    Lookup,
     Matches(String),
     MatchOptional(u32),
     Transform { entry: u32, index: u32 },
@@ -132,8 +192,11 @@ pub enum LinkedOperator {
     Ordered { slot: u32, unique: bool },
     State(crate::StatePredicate),
     Sequence,
+    Concat,
+    Require,
     SequencePattern { prefix_len: u32, suffix_len: u32 },
     Record(Vec<String>),
+    Fold { item: u32, state: u32 },
     Each(u32),
     Exists(u32),
     Get(u32),
@@ -207,6 +270,26 @@ pub struct LinkedPresence {
     pub source: SourceLocation,
 }
 
+impl LinkedPresence {
+    pub fn expressions_mut(&mut self) -> impl Iterator<Item = &mut LinkedExpression> {
+        self.xml_missing
+            .iter_mut()
+            .chain(&mut self.yaml_missing)
+            .chain(&mut self.yaml_omit_when)
+            .chain(
+                self.xml_empty
+                    .iter_mut()
+                    .chain(&mut self.yaml_empty)
+                    .map(|form| &mut form.denotes),
+            )
+            .chain(
+                self.canonical
+                    .iter_mut()
+                    .filter_map(|form| form.when.as_mut()),
+            )
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct LinkedCanonical {
     pub when: Option<LinkedExpression>,
@@ -243,6 +326,8 @@ pub enum LinkedForm {
     YamlScalar,
     YamlMapping,
     YamlKeyedMapping,
+    YamlSequence,
+    XmlTree,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -273,4 +358,13 @@ pub struct LinkedXmlAttribute {
 pub enum LinkedXmlAttributeValue {
     Text(String),
     QName(ExpandedName),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LinkedContribution {
+    pub for_each: Option<LinkedIteration>,
+    pub index: String,
+    pub key: LinkedExpression,
+    pub value: LinkedExpression,
+    pub source: SourceLocation,
 }

@@ -98,7 +98,7 @@ pub(super) fn expand(value: &str, namespaces: &[(&str, &str)], attribute: bool) 
         return Err(failure("Invalid preserved XML name"));
     }
     let namespace = match prefix {
-        Some("xml") => "http://www.w3.org/XML/1998/namespace",
+        Some("xml") => super::super::XML_NAMESPACE,
         Some(prefix) => namespaces
             .iter()
             .find(|(name, _)| *name == prefix)
@@ -135,9 +135,11 @@ pub(super) fn build(
         name,
         attributes: Vec::new(),
         text: String::new(),
+        text_qname: None,
         children: Vec::new(),
     };
     let mut order = None;
+    let mut text_seen = false;
     match payload {
         Payload::Null => (),
         Payload::Text(value) => tree.text = text(Payload::Text(value))?,
@@ -155,7 +157,10 @@ pub(super) fn build(
                             .collect::<Result<Vec<_>>>()?,
                     );
                 } else if key == "#text" {
+                    text_seen = true;
                     tree.text = text(value)?;
+                } else if key == "#qname" {
+                    tree.text_qname = Some(qname_payload(&value)?);
                 } else if let Some(key) = key.strip_prefix('_') {
                     let name = expand(key, namespaces, true)?;
                     if tree
@@ -218,12 +223,30 @@ pub(super) fn build(
             );
         }
     }
+    if tree.text_qname.is_some() && (text_seen || !tree.children.is_empty()) {
+        return Err(failure(
+            "QName content cannot include literal text or children",
+        ));
+    }
     if !tree.children.is_empty() && !tree.text.is_empty() {
         return Err(failure(
             "Mixed content requires an explicit ordered text representation",
         ));
     }
     Ok(tree)
+}
+pub(super) fn qname_payload(value: &Payload) -> Result<Name> {
+    let Payload::Sequence(parts) = value else {
+        return Err(failure("QName requires a namespace and local name pair"));
+    };
+    let [Payload::Text(namespace), Payload::Text(local)] = parts.as_slice() else {
+        return Err(failure("QName requires two text values"));
+    };
+    super::super::validate_qname((namespace, local))?;
+    Ok(Name {
+        namespace: namespace.clone(),
+        local: local.clone(),
+    })
 }
 pub(super) fn restore(
     source: &[u8],

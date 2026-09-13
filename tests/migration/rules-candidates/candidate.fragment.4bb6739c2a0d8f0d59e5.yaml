@@ -1,0 +1,658 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.SearchStringModeOnInputByString
+  value1: system.FullTextSearchOnInputByString
+  value2: system.ChoiceDataGetModeOnInputByString
+  inputType1f8ea46361ff: common.path-root
+  value4: common.owner-or-common-form-link
+  value5: common.boolean
+  value6: system.CreateOnInput
+  value7: system.ChoiceHistoryOnInput
+  value8: system.DefaultDataLockControlMode
+  value9: system.UseFullTextSearch
+  value10: common.i8n-text
+  value11: system.DataHistoryUse
+value:
+  kind: record
+  fields:
+    - name: searchStringModeOnInputByString
+      type:
+        use: value0
+    - name: fullTextSearchOnInputByString
+      type:
+        use: value1
+    - name: choiceDataGetModeOnInputByString
+      type:
+        use: value2
+    - name: defaultObjectForm
+      type:
+        use: value4
+        bind:
+          owner:
+            input: owner
+          forms:
+            input: forms
+          roots:
+            input: roots
+    - name: defaultListForm
+      type:
+        use: value4
+        bind:
+          owner:
+            input: owner
+          forms:
+            input: forms
+          roots:
+            input: roots
+    - name: defaultChoiceForm
+      type:
+        use: value4
+        bind:
+          owner:
+            input: owner
+          forms:
+            input: forms
+          roots:
+            input: roots
+    - name: auxiliaryObjectForm
+      type:
+        use: value4
+        bind:
+          owner:
+            input: owner
+          forms:
+            input: forms
+          roots:
+            input: roots
+    - name: auxiliaryListForm
+      type:
+        use: value4
+        bind:
+          owner:
+            input: owner
+          forms:
+            input: forms
+          roots:
+            input: roots
+    - name: auxiliaryChoiceForm
+      type:
+        use: value4
+        bind:
+          owner:
+            input: owner
+          forms:
+            input: forms
+          roots:
+            input: roots
+    - name: distributedInfoBase
+      type:
+        use: value5
+    - name: includeConfigurationExtensions
+      type:
+        use: value5
+    - name: createOnInput
+      type:
+        use: value6
+    - name: choiceHistoryOnInput
+      type:
+        use: value7
+    - name: includeHelpInContents
+      type:
+        use: value5
+    - name: dataLockControlMode
+      type:
+        use: value8
+    - name: fullTextSearch
+      type:
+        use: value9
+    - name: objectPresentation
+      type:
+        use: value10
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          ownerName:
+            input: ownerName
+    - name: extendedObjectPresentation
+      type:
+        use: value10
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          ownerName:
+            input: ownerName
+    - name: listPresentation
+      type:
+        use: value10
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          ownerName:
+            input: ownerName
+    - name: extendedListPresentation
+      type:
+        use: value10
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          ownerName:
+            input: ownerName
+    - name: explanation
+      type:
+        use: value10
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          ownerName:
+            input: ownerName
+    - name: dataHistory
+      type:
+        use: value11
+    - name: updateDataHistoryImmediatelyAfterWrite
+      type:
+        use: value5
+    - name: executeAfterWriteDataHistoryVersionProcessing
+      type:
+        use: value5
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: searchStringModeOnInputByString
+        path:
+          - Properties
+          - SearchStringModeOnInputByString
+      - field: fullTextSearchOnInputByString
+        path:
+          - Properties
+          - FullTextSearchOnInputByString
+      - field: choiceDataGetModeOnInputByString
+        path:
+          - Properties
+          - ChoiceDataGetModeOnInputByString
+      - field: defaultObjectForm
+        path:
+          - Properties
+          - DefaultObjectForm
+      - field: defaultListForm
+        path:
+          - Properties
+          - DefaultListForm
+      - field: defaultChoiceForm
+        path:
+          - Properties
+          - DefaultChoiceForm
+      - field: auxiliaryObjectForm
+        path:
+          - Properties
+          - AuxiliaryObjectForm
+      - field: auxiliaryListForm
+        path:
+          - Properties
+          - AuxiliaryListForm
+      - field: auxiliaryChoiceForm
+        path:
+          - Properties
+          - AuxiliaryChoiceForm
+      - field: distributedInfoBase
+        path:
+          - Properties
+          - DistributedInfoBase
+      - field: includeConfigurationExtensions
+        path:
+          - Properties
+          - IncludeConfigurationExtensions
+      - field: createOnInput
+        path:
+          - Properties
+          - CreateOnInput
+      - field: choiceHistoryOnInput
+        path:
+          - Properties
+          - ChoiceHistoryOnInput
+      - field: includeHelpInContents
+        path:
+          - Properties
+          - IncludeHelpInContents
+      - field: dataLockControlMode
+        path:
+          - Properties
+          - DataLockControlMode
+      - field: fullTextSearch
+        path:
+          - Properties
+          - FullTextSearch
+      - field: objectPresentation
+        path:
+          - Properties
+          - ObjectPresentation
+      - field: extendedObjectPresentation
+        path:
+          - Properties
+          - ExtendedObjectPresentation
+      - field: listPresentation
+        path:
+          - Properties
+          - ListPresentation
+      - field: extendedListPresentation
+        path:
+          - Properties
+          - ExtendedListPresentation
+      - field: explanation
+        path:
+          - Properties
+          - Explanation
+      - field: dataHistory
+        path:
+          - Properties
+          - DataHistory
+      - field: updateDataHistoryImmediatelyAfterWrite
+        path:
+          - Properties
+          - UpdateDataHistoryImmediatelyAfterWrite
+      - field: executeAfterWriteDataHistoryVersionProcessing
+        path:
+          - Properties
+          - ExecuteAfterWriteDataHistoryVersionProcessing
+  yaml:
+    kind: mapping
+    fields:
+      - field: searchStringModeOnInputByString
+        key: РежимСтрокиПоискаПриВводеПоСтроке
+      - field: fullTextSearchOnInputByString
+        key: ПолнотекстовыйПоискПриВводеПоСтроке
+      - field: choiceDataGetModeOnInputByString
+        key: РежимПолученияДанныхВыбораПриВводеПоСтроке
+      - field: defaultObjectForm
+        key: ОсновнаяФормаОбъекта
+      - field: defaultListForm
+        key: ОсновнаяФормаСписка
+      - field: defaultChoiceForm
+        key: ОсновнаяФормаВыбора
+      - field: auxiliaryObjectForm
+        key: ДополнительнаяФормаОбъекта
+      - field: auxiliaryListForm
+        key: ДополнительнаяФормаСписка
+      - field: auxiliaryChoiceForm
+        key: ДополнительнаяФормаВыбора
+      - field: distributedInfoBase
+        key: РаспределеннаяИнформационнаяБаза
+      - field: includeConfigurationExtensions
+        key: ВключатьРасширенияКонфигурации
+      - field: createOnInput
+        key: СозданиеПриВводе
+      - field: choiceHistoryOnInput
+        key: ИсторияВыбораПриВводе
+      - field: includeHelpInContents
+        key: ВключатьСправкуВСодержание
+      - field: dataLockControlMode
+        key: РежимУправленияБлокировкойДанных
+      - field: fullTextSearch
+        key: ПолнотекстовыйПоиск
+      - field: objectPresentation
+        key: ПредставлениеОбъекта
+      - field: extendedObjectPresentation
+        key: РасширенноеПредставлениеОбъекта
+      - field: listPresentation
+        key: ПредставлениеСписка
+      - field: extendedListPresentation
+        key: РасширенноеПредставлениеСписка
+      - field: explanation
+        key: Пояснение
+      - field: dataHistory
+        key: ИсторияДанных
+      - field: updateDataHistoryImmediatelyAfterWrite
+        key: ОбновлятьИсториюДанныхСразуПослеЗаписи
+      - field: executeAfterWriteDataHistoryVersionProcessing
+        key: ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных
+presence:
+  - target:
+      field: searchStringModeOnInputByString
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: Begin
+  - target:
+      field: fullTextSearchOnInputByString
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: DontUse
+  - target:
+      field: choiceDataGetModeOnInputByString
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: Directly
+  - target:
+      field: defaultObjectForm
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: defaultObjectForm
+          form: empty-element
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: defaultListForm
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: defaultListForm
+          form: empty-element
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: defaultChoiceForm
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: defaultChoiceForm
+          form: empty-element
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: auxiliaryObjectForm
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: auxiliaryObjectForm
+          form: empty-element
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: auxiliaryListForm
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: auxiliaryListForm
+          form: empty-element
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: auxiliaryChoiceForm
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: auxiliaryChoiceForm
+          form: empty-element
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: distributedInfoBase
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: false
+  - target:
+      field: includeConfigurationExtensions
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: false
+  - target:
+      field: createOnInput
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: DontUse
+  - target:
+      field: choiceHistoryOnInput
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: Auto
+  - target:
+      field: includeHelpInContents
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: false
+  - target:
+      field: dataLockControlMode
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: Managed
+  - target:
+      field: fullTextSearch
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: Use
+  - target:
+      field: objectPresentation
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: objectPresentation
+          form: empty-element
+  - target:
+      field: extendedObjectPresentation
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: extendedObjectPresentation
+          form: empty-element
+  - target:
+      field: listPresentation
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: listPresentation
+          form: empty-element
+  - target:
+      field: extendedListPresentation
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: extendedListPresentation
+          form: empty-element
+  - target:
+      field: explanation
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: explanation
+          form: empty-element
+  - target:
+      field: dataHistory
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: DontUse
+  - target:
+      field: updateDataHistoryImmediatelyAfterWrite
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: false
+  - target:
+      field: executeAfterWriteDataHistoryVersionProcessing
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: false
+inputs:
+  owner:
+    type:
+      kind: scalar
+      scalar: text
+  forms:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  roots:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: kind
+            type:
+              use: inputType1f8ea46361ff
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  ownerName:
+    type:
+      kind: scalar
+      scalar: text
+id: candidate.fragment.4bb6739c2a0d8f0d59e5

@@ -58,14 +58,7 @@ pub(super) fn constraints(
                 id: id.text(path)?.into(),
                 applies_to,
                 for_each: optional_field(fields, "forEach")
-                    .map(|node| {
-                        let fields = node.mapping(path, &["in", "as"])?;
-                        Ok(Iteration {
-                            input: expression(path, node.field(path, fields, "in")?)?,
-                            binding: node.field(path, fields, "as")?.text(path)?.into(),
-                            source: location(path, node),
-                        })
-                    })
+                    .map(|node| iteration(path, node))
                     .transpose()?,
                 forms: string_list(path, optional_field(fields, "forms"))?,
                 when: optional_field(fields, "when")

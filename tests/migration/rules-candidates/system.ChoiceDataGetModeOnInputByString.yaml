@@ -1,0 +1,19 @@
+format: nkdk-declarations/1
+kind: value
+id: system.ChoiceDataGetModeOnInputByString
+enum:
+  Directly: Непосредственно
+  Background: Фоновый
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  t: http://v8.1c.ru/8.1/data/enterprise
+projections:
+  - id: system.ChoiceDataGetModeOnInputByString.dcs
+    xml:
+      kind: with-attributes
+      attributes:
+        - name: xsi:type
+          value:
+            qname: t:ChoiceDataGetModeOnInputByString
+      content:
+        kind: text

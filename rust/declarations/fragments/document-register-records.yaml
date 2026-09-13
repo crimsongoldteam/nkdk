@@ -1,0 +1,25 @@
+format: nkdk-declarations/1
+kind: fragment
+id: fragment.document-register-records
+imports: {links: common.document-register-links, rootKind: common.path-root}
+namespaces: {md: 'http://v8.1c.ru/8.3/MDClasses'}
+inputs:
+  owner: {type: {kind: scalar, scalar: text}}
+  roots:
+    type:
+      kind: index
+      key: {kind: record, fields: [{name: kind, type: {use: rootKind}}, {name: name, type: {kind: scalar, scalar: text}}]}
+      value: {kind: scalar, scalar: text}
+value: {kind: record, fields: [{name: RegisterRecords, type: {use: links, bind: {roots: {input: roots}}}}]}
+representations:
+  xml: {kind: record, fields: [{field: RegisterRecords, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:RegisterRecords']}]}
+  yaml: {kind: mapping, fields: [{field: RegisterRecords, key: Движения}]}
+contributions:
+- index: metadata.owner-register-records
+  forEach: {in: {field: RegisterRecords}, as: target}
+  key:
+    record:
+      owner: {input: owner}
+      kind: {get: {of: {var: target}, field: root}}
+      name: {get: {of: {var: target}, field: name}}
+  value: {input: owner}

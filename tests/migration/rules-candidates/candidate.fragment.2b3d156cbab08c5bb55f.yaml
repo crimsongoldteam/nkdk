@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.exact-decimal
+value:
+  kind: record
+  fields:
+    - name: heightInMonths
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: heightInMonths
+        path:
+          - HeightInMonths
+  yaml:
+    kind: mapping
+    fields:
+      - field: heightInMonths
+        key: ВысотаВМесяцах
+presence:
+  - target:
+      field: heightInMonths
+    xml:
+      missing:
+        denotes:
+          literal: 1
+      canonical:
+        - when:
+            eq:
+              - field: heightInMonths
+              - literal: 1
+          form: missing
+    yaml:
+      default:
+        literal: 1
+id: candidate.fragment.2b3d156cbab08c5bb55f

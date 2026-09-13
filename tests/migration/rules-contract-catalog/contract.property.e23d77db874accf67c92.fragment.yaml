@@ -1,0 +1,40 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.EnterKeyBehaviorType
+value:
+  kind: record
+  fields:
+    - name: enterKeyBehavior
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: enterKeyBehavior
+        path:
+          - Form
+          - EnterKeyBehavior
+  yaml:
+    kind: mapping
+    fields:
+      - field: enterKeyBehavior
+        key: ПоведениеКлавишиEnter
+presence:
+  - target:
+      field: enterKeyBehavior
+    xml:
+      missing:
+        denotes:
+          literal: ControlNavigation
+      canonical:
+        - when:
+            eq:
+              - field: enterKeyBehavior
+              - literal: ControlNavigation
+          form: missing
+    yaml:
+      default:
+        literal: ControlNavigation
+id: contract.property.e23d77db874accf67c92.fragment

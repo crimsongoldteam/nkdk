@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.d016c01e5df70ea1a831
+description: 'Кандидат проекции: относительный XML-корень dcsset:comparisonType; не полный владелец'
+imports:
+  part0: candidate.fragment.d6ea8af6c7083f83ad02
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

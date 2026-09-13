@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.metadata-child-index
+imports: {kind: common.path-object-kind}
+value:
+  kind: record
+  fields:
+  - {name: kind, type: {use: kind}}
+  - {name: name, type: {kind: scalar, scalar: text}}
+  - {name: parent, type: {kind: scalar, scalar: text}}
+  - {name: identity, type: {kind: scalar, scalar: text}}
+representations:
+  xml: {kind: record, fields: [{field: kind, path: [Root, Kind]}, {field: name, path: [Root, Name]}, {field: parent, path: [Root, Parent]}, {field: identity, path: [Root, Identity]}]}
+  yaml: {kind: mapping, fields: [{field: kind, key: Kind}, {field: name, key: Name}, {field: parent, key: Parent}, {field: identity, key: Identity}]}
+contributions:
+- index: metadata.children
+  key: {record: {kind: {field: kind}, name: {field: name}, parent: {field: parent}}}
+  value: {field: identity}

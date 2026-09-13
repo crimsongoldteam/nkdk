@@ -1,0 +1,23 @@
+format: nkdk-declarations/1
+kind: object
+id: contract.source.9f18ce253d758fed8f38
+imports:
+  part0: contract.property.2933946fae5dd895e177.fragment
+  part1: contract.property.b58128a792c364867664.fragment
+  part2: contract.property.a045b5acabb8f758eafb.fragment
+  part3: contract.property.e17ff04b4b4c45b66ae3.fragment
+compose:
+  - use: part0
+  - use: part1
+  - use: part2
+  - use: part3
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

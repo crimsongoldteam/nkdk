@@ -1,0 +1,14 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.document-internal-info
+imports: {part: fragment.document-internal-info}
+inputs:
+  owner: {type: {kind: scalar, scalar: text}}
+  name: {type: {kind: scalar, scalar: text}}
+  typeIds: {index: metadata.internal-type-ids}
+  valueIds: {index: metadata.internal-value-ids}
+compose: [{use: part, bind: {owner: {input: owner}, name: {input: name}, typeIds: {input: typeIds}, valueIds: {input: valueIds}}}]
+value: {kind: record, fields: []}
+representations:
+  xml: {kind: record, fields: []}
+  yaml: {kind: mapping, fields: []}

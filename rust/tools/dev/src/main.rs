@@ -13,10 +13,14 @@ fn run() -> Result<(), String> {
     let action = args.next().ok_or("Expected action")?;
     let allowed: &[&str] = match (family.as_str(), action.as_str()) {
         ("corpus", "run") => &["--manifest", "--group", "--root"],
-        ("declarations", "check") => &["--dir"],
+        ("declarations", "check" | "compile") => &["--dir"],
         ("declarations", "schema") => &["--dir", "--entry"],
         ("declarations", "language-schema") => &[],
-        _ => return Err("Expected corpus run or declarations check/schema/language-schema".into()),
+        _ => {
+            return Err(
+                "Expected corpus run or declarations check/compile/schema/language-schema".into(),
+            );
+        }
     };
     let mut options = BTreeMap::new();
     while let Some(key) = args.next() {
@@ -43,6 +47,14 @@ fn run() -> Result<(), String> {
             std::io::stdout()
                 .write_all(&bytes)
                 .map_err(|error| error.to_string())?;
+        } else if action == "compile" {
+            let generated =
+                nkdk_rule_compiler::generate(&program).map_err(|errors| format!("{errors:#?}"))?;
+            let bytes: usize = generated.files.iter().map(|file| file.contents.len()).sum();
+            println!(
+                "Generated {} Rust files ({bytes} bytes)",
+                generated.files.len()
+            );
         } else {
             println!(
                 "Checked {} declarations: syntax and links",

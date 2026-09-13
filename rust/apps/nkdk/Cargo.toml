@@ -6,3 +6,7 @@ rust-version.workspace = true
 publish.workspace = true
 [dependencies]
 nkdk-compiled-rules = { path = "../../crates/compiled-rules" }
+nkdk-conversion-core = { path = "../../crates/conversion-core" }
+
+[dev-dependencies]
+serde_json = "=1.0.150"

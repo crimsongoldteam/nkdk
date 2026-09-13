@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.WarningOnEditRepresentation
+value:
+  kind: record
+  fields:
+    - name: warningOnEditRepresentation
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: warningOnEditRepresentation
+        path:
+          - WarningOnEditRepresentation
+  yaml:
+    kind: mapping
+    fields:
+      - field: warningOnEditRepresentation
+        key: ОтображениеПредупрежденияПриРедактировании
+presence:
+  - target:
+      field: warningOnEditRepresentation
+    xml:
+      missing:
+        denotes:
+          literal: Auto
+      canonical:
+        - when:
+            eq:
+              - field: warningOnEditRepresentation
+              - literal: Auto
+          form: missing
+    yaml:
+      default:
+        literal: Auto
+id: candidate.fragment.c02f191f766af0b6b28c

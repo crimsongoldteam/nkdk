@@ -1,5 +1,7 @@
 mod linked;
+mod xml_tree;
 pub use linked::*;
+pub use xml_tree::*;
 mod text;
 pub use text::*;
 
@@ -35,10 +37,13 @@ pub struct Module {
     pub namespaces: Vec<NamedBinding>,
     pub types: Vec<NamedType>,
     pub inputs: Vec<NamedType>,
+    pub input_indexes: Vec<NamedBinding>,
     pub parameters: Vec<Parameter>,
     pub presence: Vec<Presence>,
     pub normalization: Option<Normalization>,
     pub constraints: Vec<Constraint>,
+    pub contributions: Vec<Contribution>,
+    pub resources: Vec<ResourceGroup<Expression>>,
     pub compose: Vec<TypeUse>,
     pub value: TypeDefinition,
     pub representations: Representations,
@@ -49,6 +54,7 @@ pub enum ModuleKind {
     Value,
     Fragment,
     Object,
+    Resources,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -66,6 +72,18 @@ pub struct Representations {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum XmlRepresentation {
+    /// Use the complete declaration referenced by the sequence item type.
+    Declared,
+    TextSequence {
+        separator: String,
+    },
+    Choice,
+    TextPattern(Vec<TextPatternPart>),
+    QName {
+        namespace: String,
+        local: String,
+    },
+    Tree(Vec<XmlTreeNode<String, XmlAttribute>>),
     FormattedDecimal(DecimalText),
     ScalarChoice(ScalarChoiceXml<String>),
     Calendar,
@@ -86,6 +104,20 @@ pub enum XmlRepresentation {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum YamlRepresentation {
+    /// Expose a single semantic field as the complete YAML document.
+    Projection(String),
+    /// Use the complete declaration referenced by the sequence item type.
+    Declared,
+    TextSequence {
+        separator: String,
+    },
+    Choice,
+    TextTable(TextTable),
+    TextPattern(Vec<TextPatternPart>),
+    Sequence {
+        item: Box<YamlRepresentation>,
+        shorthand: Vec<LiteralSequenceShorthand>,
+    },
     ScalarChoice,
     Calendar {
         seconds: bool,
@@ -101,6 +133,35 @@ pub enum YamlRepresentation {
     BooleanTable(Vec<BooleanLexeme>),
     EnumTable(Vec<EnumLexeme>),
     Decimal,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum TextTable {
+    Import {
+        name: String,
+        source: SourceLocation,
+    },
+    Resolved(Vec<EnumLexeme>),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TextPatternPart {
+    pub value: TextPatternValue,
+    pub separator: Option<String>,
+    pub source: SourceLocation,
+}
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum TextPatternValue {
+    Literal(String),
+    Field(String),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LiteralSequenceShorthand {
+    pub id: String,
+    pub text: String,
+    pub values: Vec<String>,
+    pub source: SourceLocation,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -125,6 +186,12 @@ pub struct NamedType {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TypeDefinition {
+    Choice(Vec<TypeField>),
+    IndexFromBinding(String),
+    Index {
+        key: Box<TypeDefinition>,
+        value: Box<TypeDefinition>,
+    },
     ScalarChoice(Vec<ScalarType>),
     Enum(Vec<EnumVariant>),
     TextTransform(Box<TextTransform>),
@@ -165,6 +232,7 @@ pub struct StaticArgument {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct XmlField {
+    pub file: Option<Vec<String>>,
     pub field: String,
     pub path: Vec<String>,
     pub attribute: Option<String>,
@@ -206,6 +274,10 @@ pub struct Expression {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ExpressionKind {
+    Lookup {
+        input: Box<Expression>,
+        key: Box<Expression>,
+    },
     Matches {
         value: Box<Expression>,
         pattern: String,
@@ -254,6 +326,13 @@ pub enum ExpressionKind {
         value: Box<Expression>,
         field: String,
     },
+    Fold {
+        input: Box<Expression>,
+        initial: Box<Expression>,
+        binding: String,
+        state: String,
+        next: Box<Expression>,
+    },
     Each {
         input: Box<Expression>,
         binding: String,
@@ -281,6 +360,8 @@ pub enum ExpressionKind {
     Input(String),
     Capture(String),
     Sequence(Vec<Expression>),
+    Concat(Vec<Expression>),
+    Require(Box<Expression>),
     Record(Vec<ExpressionField>),
 }
 
@@ -410,6 +491,7 @@ pub struct EmptyForm {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum EmptyKind {
     Element,
+    Item,
     Text,
     Nil,
     String,
@@ -483,4 +565,26 @@ pub struct ScalarChoiceCase<N> {
 pub struct DecimalText {
     pub separator: char,
     pub accepted: Vec<char>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Contribution {
+    pub for_each: Option<Iteration>,
+    pub index: String,
+    pub key: Expression,
+    pub value: Expression,
+    pub source: SourceLocation,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ResourceGroup<E, I = Iteration> {
+    pub remainder: bool,
+    pub for_each: Option<I>,
+    pub alternatives: Vec<ResourceRoute<E>>,
+    pub source: SourceLocation,
+}
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ResourceRoute<E> {
+    pub xml: E,
+    pub yaml: E,
 }

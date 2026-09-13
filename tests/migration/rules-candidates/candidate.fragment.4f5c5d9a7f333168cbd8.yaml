@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.GanttChartTableLocation
+value:
+  kind: record
+  fields:
+    - name: tableLocation
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: tableLocation
+        path:
+          - TableLocation
+  yaml:
+    kind: mapping
+    fields:
+      - field: tableLocation
+        key: ПоложениеТаблицы
+presence:
+  - target:
+      field: tableLocation
+    xml:
+      missing:
+        denotes:
+          literal: Auto
+      canonical:
+        - when:
+            eq:
+              - field: tableLocation
+              - literal: Auto
+          form: missing
+    yaml:
+      default:
+        literal: Auto
+id: candidate.fragment.4f5c5d9a7f333168cbd8

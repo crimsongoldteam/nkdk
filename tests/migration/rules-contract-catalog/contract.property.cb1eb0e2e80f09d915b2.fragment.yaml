@@ -1,0 +1,35 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: modified
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: modified
+        path:
+          - Form
+          - Modified
+  yaml:
+    kind: mapping
+    fields:
+      - field: modified
+        key: Модифицированность
+presence:
+  - target:
+      field: modified
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+id: contract.property.cb1eb0e2e80f09d915b2.fragment

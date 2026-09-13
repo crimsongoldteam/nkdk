@@ -1,0 +1,17 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.form-metadata-header
+imports: {header: fragment.form-metadata-header, module: fragment.form-module-resource}
+inputs:
+  parent: {type: {kind: scalar, scalar: text}}
+  name: {type: {kind: scalar, scalar: text}}
+  identity: {type: {kind: scalar, scalar: text}}
+  defaultLanguage: {type: {kind: scalar, scalar: text}}
+  registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+compose:
+- {use: module}
+- {use: header, bind: {parent: {input: parent}, name: {input: name}, identity: {input: identity}, defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}}}
+value: {kind: record, fields: []}
+representations:
+  xml: {kind: with-attributes, attributes: [{name: version, value: {text: '2.20'}}], content: {kind: record, fields: []}}
+  yaml: {kind: mapping, fields: []}

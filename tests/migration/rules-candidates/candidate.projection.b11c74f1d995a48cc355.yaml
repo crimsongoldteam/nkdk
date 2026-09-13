@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.b11c74f1d995a48cc355
+description: 'Кандидат проекции: относительный XML-корень HorizontalSpacing; не полный владелец'
+imports:
+  part0: candidate.fragment.2e2272c83a7b0d51d7b4
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

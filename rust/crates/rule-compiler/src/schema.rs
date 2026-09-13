@@ -19,6 +19,9 @@ pub fn schema(program: &Program, name: &str) -> Result<Vec<u8>, Vec<Diagnostic>>
                 related: vec![],
             }]
         })?;
+    if entry.kind == ModuleKind::Resources {
+        return Err(vec![unsupported(entry)]);
+    }
     let result = build(program, entry).map_err(|error| vec![error])?;
     Ok(serde_json::to_vec_pretty(&result).expect("JSON schema values are serializable"))
 }
@@ -55,12 +58,28 @@ fn scalar(
                 .iter()
                 .find(|entry| entry.id == *id)
                 .expect("linked reference");
+            if matches!(target.value, LinkedType::Sequence(_))
+                && matches!(target.yaml, YamlRepresentation::Sequence { .. })
+            {
+                return sequence_shape(program, target, &target.presence);
+            }
+            if matches!(target.value, LinkedType::Record(_))
+                && matches!(target.yaml, YamlRepresentation::Mapping(_))
+            {
+                return build(program, target);
+            }
             crate::generate::scalar::optional(target).map_err(|_| unsupported(target))?;
             match &target.yaml {
                 YamlRepresentation::ScalarChoice => {
                     Ok(json!({"type":["string","number"],"x-nkdk-number-profile":"decimal"}))
                 }
                 YamlRepresentation::Text => Ok(json!({"type":"string"})),
+                YamlRepresentation::Choice
+                | YamlRepresentation::TextPattern(_)
+                | YamlRepresentation::TextSequence { .. }
+                | YamlRepresentation::TextTable(_) => {
+                    Ok(json!({"type":"string","x-nkdk-runtime-validation":true}))
+                }
                 YamlRepresentation::Calendar { seconds, omit_zero } => {
                     let clock = if *seconds {
                         " ([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]"
@@ -155,6 +174,29 @@ impl Context<'_> {
             _ => Err(unsupported(self.entry)),
         }
     }
+    fn uses_text_projection(&self, expression: &LinkedExpression) -> bool {
+        match &expression.kind {
+            LinkedExpressionKind::Field(index) => {
+                let LinkedType::Reference(id) = self.fields[*index as usize].value else {
+                    return false;
+                };
+                self.program.entries.iter().any(|entry| {
+                    entry.id == id
+                        && matches!(
+                            entry.yaml,
+                            YamlRepresentation::Choice
+                                | YamlRepresentation::TextPattern(_)
+                                | YamlRepresentation::TextSequence { .. }
+                                | YamlRepresentation::TextTable(_)
+                        )
+                })
+            }
+            LinkedExpressionKind::Operation { arguments, .. } => arguments
+                .iter()
+                .any(|value| self.uses_text_projection(value)),
+            _ => false,
+        }
+    }
     fn expression(&self, expression: &LinkedExpression) -> Result<Value, Diagnostic> {
         if let LinkedExpressionKind::Operation {
             operator: LinkedOperator::Matches(pattern),
@@ -229,6 +271,19 @@ impl Context<'_> {
     }
 }
 fn build(program: &Program, entry: &LinkedEntry) -> Result<Value, Diagnostic> {
+    if let YamlRepresentation::Projection(key) = &entry.yaml {
+        let mut inner = entry.clone();
+        inner.yaml = YamlRepresentation::Mapping(vec![YamlField {
+            field: key.clone(),
+            key: key.clone(),
+            source: entry.source.clone(),
+        }]);
+        let shape = build(program, &inner)?;
+        let mut shape = shape["properties"][key].clone();
+        shape["$schema"] = json!("https://json-schema.org/draft/2020-12/schema");
+        return Ok(shape);
+    }
+
     if let Some(layout) = crate::generate::nested_record::lower(entry, program)? {
         let inner = build(program, &layout.entry)?;
         return Ok(
@@ -241,10 +296,52 @@ fn build(program: &Program, entry: &LinkedEntry) -> Result<Value, Diagnostic> {
     if let Some(schema) = keyed::build(program, entry)? {
         return Ok(schema);
     }
+    if let (LinkedType::Record(fields), YamlRepresentation::Mapping(mapping)) =
+        (&entry.value, &entry.yaml)
+        && fields.len() == 1
+        && let Some((id, _, _)) = crate::generate::composite::reference(&fields[0].value)
+    {
+        let common = program
+            .entries
+            .iter()
+            .find(|value| value.id == id)
+            .expect("linked common");
+        if let (LinkedType::Sequence(item), YamlRepresentation::Sequence { .. }) =
+            (&common.value, &common.yaml)
+        {
+            let presence = if entry.presence.is_empty() {
+                &common.presence
+            } else {
+                &entry.presence
+            };
+            let shape = sequence_shape(program, common, presence)?;
+            let key = &mapping[0].key;
+            let mut result = json!({"$schema":"https://json-schema.org/draft/2020-12/schema","type":"object","properties":{key:shape},"additionalProperties":false});
+            if !common.constraints.is_empty() || matches!(item.as_ref(), LinkedType::Reference(_)) {
+                result["x-nkdk-runtime-validation"] = json!(true);
+            }
+            if !presence.iter().any(|rule| rule.yaml_missing.is_some()) {
+                result["required"] = json!([key]);
+            }
+            return Ok(result);
+        }
+    }
     if !plain(entry) {
         return Err(unsupported(entry));
     }
-    crate::generate::scalar_presence::validate_owner(entry).map_err(|_| unsupported(entry))?;
+    let mut scalar_contract = entry.clone();
+    if let LinkedType::Record(fields) = &entry.value {
+        scalar_contract.presence.retain(|rule| match rule.target {
+            LinkedPresenceTarget::Field(index) => {
+                !referenced(&fields[index as usize].value, program).is_some_and(|entry| {
+                    matches!(entry.value, LinkedType::Sequence(_) | LinkedType::Record(_))
+                })
+            }
+            _ => true,
+        });
+    }
+    crate::generate::scalar_presence::validate_owner(&scalar_contract)
+        .map_err(|_| unsupported(entry))?;
     let (LinkedType::Record(fields), YamlRepresentation::Mapping(mappings)) =
         (&entry.value, &entry.yaml)
     else {
@@ -260,12 +357,32 @@ fn build(program: &Program, entry: &LinkedEntry) -> Result<Value, Diagnostic> {
     let mut required = vec![];
     for (index, field) in fields.iter().enumerate() {
         properties.insert(context.key(index).into(), scalar(program, entry, field)?);
-        if crate::generate::scalar_presence::rule(entry, index, &field.value, program)
-            .and_then(|presence| presence.yaml_missing.as_ref())
-            .is_none()
-            && !crate::generate::scalar::field_optional(&field.value, program)
-                .map_err(|_| unsupported(entry))?
-        {
+        let common = referenced(&field.value, program);
+        let inherited_missing = common.is_some_and(|entry| {
+            entry
+                .presence
+                .iter()
+                .any(|rule| rule.yaml_missing.is_some())
+        });
+        let optional =
+            match crate::generate::scalar_presence::rule(entry, index, &field.value, program) {
+                Some(rule) => {
+                    rule.yaml_missing.is_some()
+                        || (inherited_missing
+                            && common.is_some_and(|entry| {
+                                matches!(entry.value, LinkedType::Sequence(_))
+                            }))
+                }
+                None if common.is_some_and(|entry| {
+                    matches!(entry.value, LinkedType::Record(_) | LinkedType::Sequence(_))
+                }) =>
+                {
+                    inherited_missing
+                }
+                None => crate::generate::scalar::field_optional(&field.value, program)
+                    .map_err(|_| unsupported(entry))?,
+            };
+        if !optional {
             required.push(context.key(index));
         }
     }
@@ -278,7 +395,14 @@ fn build(program: &Program, entry: &LinkedEntry) -> Result<Value, Diagnostic> {
         {
             let mut expression = expression.clone();
             crate::generate::scalar_presence::replace_self(&mut expression, index);
-            constraints.push(json!({"if":{"required":[context.key(index)]},"then":{"not":context.expression(&expression)?}}));
+            match context.expression(&expression) {
+                Ok(shape) => constraints
+                    .push(json!({"if":{"required":[context.key(index)]},"then":{"not":shape}})),
+                Err(error) if error.code == "unsupported_schema_feature" => {
+                    result["x-nkdk-runtime-validation"] = json!(true)
+                }
+                Err(error) => return Err(error),
+            }
         }
     }
     for constraint in &entry.constraints {
@@ -294,6 +418,15 @@ fn build(program: &Program, entry: &LinkedEntry) -> Result<Value, Diagnostic> {
         if constraint.for_each.is_some() {
             return Err(unsupported(entry));
         }
+        if context.uses_text_projection(&constraint.assertion)
+            || constraint
+                .when
+                .as_ref()
+                .is_some_and(|value| context.uses_text_projection(value))
+        {
+            result["x-nkdk-runtime-validation"] = json!(true);
+            continue;
+        }
         let assertion = context.expression(&constraint.assertion)?;
         constraints.push(if let Some(when) = &constraint.when {
             json!({"if":context.expression(when)?, "then":assertion})
@@ -305,4 +438,79 @@ fn build(program: &Program, entry: &LinkedEntry) -> Result<Value, Diagnostic> {
         result["allOf"] = json!(constraints);
     }
     Ok(result)
+}
+
+fn sequence_shape(
+    program: &Program,
+    common: &LinkedEntry,
+    presence: &[LinkedPresence],
+) -> Result<Value, Diagnostic> {
+    let (
+        LinkedType::Sequence(item),
+        YamlRepresentation::Sequence {
+            item: yaml,
+            shorthand,
+        },
+    ) = (&common.value, &common.yaml)
+    else {
+        return Err(unsupported(common));
+    };
+    let items = match (item.as_ref(), yaml.as_ref()) {
+        (
+            LinkedType::Reference(_) | LinkedType::BoundReference { .. },
+            YamlRepresentation::Declared,
+        ) => {
+            let item =
+                crate::link::sequence_item::resolve(common, program)?.expect("linked reference");
+            build(program, &item)?
+        }
+        (LinkedType::Scalar(ScalarType::Text), YamlRepresentation::Text) => {
+            json!({"type":"string"})
+        }
+        (LinkedType::Reference(_), YamlRepresentation::Text) => scalar(
+            program,
+            common,
+            &LinkedField {
+                name: "item".into(),
+                value: *item.clone(),
+                source: common.source.clone(),
+            },
+        )?,
+        (LinkedType::Record(fields), YamlRepresentation::Mapping(mappings)) => {
+            let mut properties = serde_json::Map::new();
+            let mut required = Vec::new();
+            for field in fields {
+                let key = &mappings
+                    .iter()
+                    .find(|mapping| mapping.field == field.name)
+                    .expect("linked mapping")
+                    .key;
+                properties.insert(key.clone(), scalar(program, common, field)?);
+                required.push(key.clone());
+            }
+            json!({"type":"object","properties":properties,"required":required,"additionalProperties":false})
+        }
+        _ => return Err(unsupported(common)),
+    };
+    let mut forms = vec![json!({"type":"array","items":items})];
+    if !shorthand.is_empty() {
+        forms.push(json!({"type":"string","enum":shorthand.iter().map(|short|&short.text).collect::<Vec<_>>()}));
+    }
+    if presence
+        .iter()
+        .flat_map(|rule| &rule.yaml_empty)
+        .any(|form| form.form == nkdk_rule_model::EmptyKind::Mapping)
+    {
+        forms.push(json!({"type":"object","maxProperties":0}));
+    }
+    Ok(if forms.len() == 1 {
+        forms.remove(0)
+    } else {
+        json!({"anyOf":forms})
+    })
+}
+
+fn referenced<'a>(value: &LinkedType, program: &'a Program) -> Option<&'a LinkedEntry> {
+    let (id, _, _) = value.as_reference()?;
+    program.entries.iter().find(|entry| entry.id == id)
 }

@@ -1,0 +1,20 @@
+format: nkdk-declarations/1
+kind: value
+id: common.standard-command-group
+imports:
+  group: system.StandardCommandsGroup
+value:
+  kind: record
+  fields:
+    - name: group
+      type:
+        use: group
+representations:
+  xml:
+    kind: text-pattern
+    parts:
+      - field: group
+  yaml:
+    kind: text-pattern
+    parts:
+      - field: group

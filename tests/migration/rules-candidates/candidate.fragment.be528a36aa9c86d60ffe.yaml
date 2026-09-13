@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.OnScreenKeyboardReturnKeyText
+value:
+  kind: record
+  fields:
+    - name: onScreenKeyboardReturnKeyText
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: onScreenKeyboardReturnKeyText
+        path:
+          - OnScreenKeyboardReturnKeyText
+  yaml:
+    kind: mapping
+    fields:
+      - field: onScreenKeyboardReturnKeyText
+        key: ТекстКнопкиВводаЭкраннойКлавиатуры
+presence:
+  - target:
+      field: onScreenKeyboardReturnKeyText
+    xml:
+      missing:
+        denotes:
+          literal: Auto
+      canonical:
+        - when:
+            eq:
+              - field: onScreenKeyboardReturnKeyText
+              - literal: Auto
+          form: missing
+    yaml:
+      default:
+        literal: Auto
+id: candidate.fragment.be528a36aa9c86d60ffe

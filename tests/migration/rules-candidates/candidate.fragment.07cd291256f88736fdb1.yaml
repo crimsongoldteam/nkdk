@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.ChoiceButtonRepresentation
+value:
+  kind: record
+  fields:
+    - name: choiceButtonRepresentation
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: choiceButtonRepresentation
+        path:
+          - ChoiceButtonRepresentation
+  yaml:
+    kind: mapping
+    fields:
+      - field: choiceButtonRepresentation
+        key: ОтображениеКнопкиВыбора
+presence:
+  - target:
+      field: choiceButtonRepresentation
+    xml:
+      missing:
+        denotes:
+          literal: Auto
+      canonical:
+        - when:
+            eq:
+              - field: choiceButtonRepresentation
+              - literal: Auto
+          form: missing
+    yaml:
+      default:
+        literal: Auto
+id: candidate.fragment.07cd291256f88736fdb1

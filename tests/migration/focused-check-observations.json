@@ -1,0 +1,76 @@
+{
+  "date": "2026-09-13",
+  "scope": "Development checks, not converter performance; existing dependency caches; no new property connections",
+  "toolchain": "1.98.1",
+  "firstSelection": {
+    "batch": "document-journal",
+    "cases": 4,
+    "properties": 48,
+    "declarations": 38,
+    "fullContractDeclarations": 207,
+    "newlyConnectedProperties": 0,
+    "steps": [
+      {
+        "step": "run",
+        "seconds": 13.711900625,
+        "exitCode": 0
+      },
+      {
+        "step": "clippy",
+        "seconds": 5.742797416000001,
+        "exitCode": 0
+      }
+    ]
+  },
+  "cachedRuns": [
+    {
+      "preparationSeconds": 0.21952725,
+      "batch": "document-journal",
+      "cases": 4,
+      "properties": 48,
+      "declarations": 38,
+      "fullContractDeclarations": 207,
+      "newlyConnectedProperties": 0,
+      "steps": [
+        {
+          "step": "run",
+          "seconds": 0.707874542,
+          "exitCode": 0
+        },
+        {
+          "step": "clippy",
+          "seconds": 0.08874266699999998,
+          "exitCode": 0
+        }
+      ],
+      "totalSeconds": 1.016713167
+    },
+    {
+      "preparationSeconds": 0.554406,
+      "batch": "document-journal",
+      "cases": 4,
+      "properties": 48,
+      "declarations": 38,
+      "fullContractDeclarations": 207,
+      "newlyConnectedProperties": 0,
+      "steps": [
+        {
+          "step": "run",
+          "seconds": 0.8818107499999999,
+          "exitCode": 0
+        },
+        {
+          "step": "clippy",
+          "seconds": 0.09963195799999994,
+          "exitCode": 0
+        }
+      ],
+      "totalSeconds": 1.5363490830000002
+    }
+  ],
+  "fullContracts": {
+    "casesPassed": 127,
+    "declarations": 207,
+    "cargoBuildSeconds": 32.35
+  }
+}

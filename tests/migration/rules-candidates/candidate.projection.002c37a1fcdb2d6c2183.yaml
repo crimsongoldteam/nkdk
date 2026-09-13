@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.002c37a1fcdb2d6c2183
+description: 'Кандидат проекции: относительный XML-корень EnterKeyBehavior; не полный владелец'
+imports:
+  part0: candidate.fragment.566c984d63797eb97b33
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

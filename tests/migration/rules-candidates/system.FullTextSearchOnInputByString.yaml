@@ -1,0 +1,19 @@
+format: nkdk-declarations/1
+kind: value
+id: system.FullTextSearchOnInputByString
+enum:
+  Use: Использовать
+  DontUse: НеИспользовать
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  t: http://v8.1c.ru/8.1/data/enterprise
+projections:
+  - id: system.FullTextSearchOnInputByString.dcs
+    xml:
+      kind: with-attributes
+      attributes:
+        - name: xsi:type
+          value:
+            qname: t:FullTextSearchOnInputByString
+      content:
+        kind: text

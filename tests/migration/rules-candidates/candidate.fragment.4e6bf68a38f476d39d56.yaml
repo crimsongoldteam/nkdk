@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.exact-decimal
+value:
+  kind: record
+  fields:
+    - name: headerHeight
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: headerHeight
+        path:
+          - HeaderHeight
+  yaml:
+    kind: mapping
+    fields:
+      - field: headerHeight
+        key: ВысотаШапки
+presence:
+  - target:
+      field: headerHeight
+    xml:
+      missing:
+        denotes:
+          literal: 1
+      canonical:
+        - when:
+            eq:
+              - field: headerHeight
+              - literal: 1
+          form: missing
+    yaml:
+      default:
+        literal: 1
+id: candidate.fragment.4e6bf68a38f476d39d56

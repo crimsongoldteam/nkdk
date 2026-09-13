@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.31b8d8c0ab591902908c
+description: 'Кандидат проекции: относительный XML-корень AutoChoiceIncomplete; не полный владелец'
+imports:
+  part0: candidate.fragment.12211b25e635d31f8de0
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

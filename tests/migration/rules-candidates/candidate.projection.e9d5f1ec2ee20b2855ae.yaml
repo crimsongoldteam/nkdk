@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.e9d5f1ec2ee20b2855ae
+description: 'Кандидат проекции: относительный XML-корень QuickChoice; не полный владелец'
+imports:
+  part0: candidate.fragment.d8899efe9fe0cf7aca87
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

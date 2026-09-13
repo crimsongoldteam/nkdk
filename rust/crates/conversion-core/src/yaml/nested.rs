@@ -1,11 +1,11 @@
-use super::{Node, Scalar, visit_nodes};
+use super::{DocumentSource, Node, Scalar, Source};
 use crate::{Position, Result, RuntimeDiagnostic};
 use std::collections::BTreeSet;
 
 /// Route a record's collection field directly to its existing event reader.
 /// Scalar siblings are consumed in the same parse; no intermediate YAML is built.
 fn visit_record(
-    source: &[u8],
+    source: impl Source,
     property: &str,
     child: &str,
     mut consume: impl FnMut(Node, Position) -> Result<()>,
@@ -18,9 +18,8 @@ fn visit_record(
     let mut field: Option<String> = None;
     let mut fields = BTreeSet::new();
     let mut forwarded = false;
-    let source = if source.is_empty() { b"{}" } else { source };
     consume(Node::MappingStart(None), Position::default())?;
-    visit_nodes(source, |node, position| {
+    source.visit(|node, position| {
         if forwarded {
             match &node {
                 Node::MappingStart(_) | Node::SequenceStart(_) => depth += 1,
@@ -91,7 +90,7 @@ fn visit_record(
                     consume(node, position)
                 } else {
                     sibling(name, node, position)
-                        .map_err(|error| position.apply(source, error.field(name)))?;
+                        .map_err(|error| position.apply(&[], error.field(name)))?;
                     field = None;
                     Ok(())
                 }
@@ -121,6 +120,32 @@ pub struct RecordSource<'a, F> {
     pub sibling: F,
 }
 impl<F: FnMut(&str, Node, Position) -> Result<()>> super::Source for RecordSource<'_, F> {
+    fn visit(self, consume: impl FnMut(Node, Position) -> Result<()>) -> Result<()> {
+        RecordEventsSource {
+            source: DocumentSource(if self.source.is_empty() {
+                b"{}"
+            } else {
+                self.source
+            }),
+            property: self.property,
+            child: self.child,
+            seen: self.seen,
+            sibling: self.sibling,
+        }
+        .visit(consume)
+    }
+}
+
+pub struct RecordEventsSource<'a, S, F> {
+    pub source: S,
+    pub property: &'a str,
+    pub child: &'a str,
+    pub seen: &'a mut RecordState,
+    pub sibling: F,
+}
+impl<S: Source, F: FnMut(&str, Node, Position) -> Result<()>> Source
+    for RecordEventsSource<'_, S, F>
+{
     fn visit(self, consume: impl FnMut(Node, Position) -> Result<()>) -> Result<()> {
         *self.seen = visit_record(
             self.source,

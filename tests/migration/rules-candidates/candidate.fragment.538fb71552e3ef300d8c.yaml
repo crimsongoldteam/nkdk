@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.FormCommandBarLabelLocation
+value:
+  kind: record
+  fields:
+    - name: commandBarLocation
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: commandBarLocation
+        path:
+          - CommandBarLocation
+  yaml:
+    kind: mapping
+    fields:
+      - field: commandBarLocation
+        key: ПоложениеКоманднойПанели
+presence:
+  - target:
+      field: commandBarLocation
+    xml:
+      missing:
+        denotes:
+          literal: Auto
+      canonical:
+        - when:
+            eq:
+              - field: commandBarLocation
+              - literal: Auto
+          form: missing
+    yaml:
+      default:
+        literal: Auto
+id: candidate.fragment.538fb71552e3ef300d8c

@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.DrawingSelectionShowMode
+value:
+  kind: record
+  fields:
+    - name: drawingSelectionShowMode
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: drawingSelectionShowMode
+        path:
+          - DrawingSelectionShowMode
+  yaml:
+    kind: mapping
+    fields:
+      - field: drawingSelectionShowMode
+        key: РежимОтображенияВыделенияРисунков
+presence:
+  - target:
+      field: drawingSelectionShowMode
+    xml:
+      missing:
+        denotes:
+          literal: Auto
+      canonical:
+        - when:
+            eq:
+              - field: drawingSelectionShowMode
+              - literal: Auto
+          form: missing
+    yaml:
+      default:
+        literal: Auto
+id: candidate.fragment.4eb7c9dab433289beb68

@@ -2,9 +2,33 @@ use super::expressions::Expressions;
 use super::*;
 use std::fmt::Write;
 
+pub(super) fn severity_name(severity: &Severity) -> &'static str {
+    match severity {
+        Severity::Error => "Error",
+        Severity::Warning => "Warning",
+        Severity::Info => "Info",
+    }
+}
+pub(super) fn violation(when: &str, assertion: &str) -> String {
+    if when == "true" {
+        format!("!({assertion})")
+    } else {
+        format!("({when}) && !({assertion})")
+    }
+}
+
 pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String, Diagnostic> {
+    if super::declared_items::applies(entry, program) {
+        return Ok(String::new());
+    }
+    if super::owner::applies(entry, program) {
+        return Ok(String::new());
+    }
+    if super::qname::applies(entry, program) {
+        return Ok(String::new());
+    }
     if let Some(layout) = super::nested_record::lower(entry, program)? {
-        return generate_at(&layout.entry, program, None);
+        return generate_at(&layout.entry, program, None, Some(&layout.key));
     }
     if super::composite::record(entry, program).is_some() {
         return Ok(String::new());
@@ -27,7 +51,35 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
                 .iter()
                 .find(|entry| entry.id == id)
                 .expect("linked common");
-            if matches!(common.value, LinkedType::Sequence(_)) {
+            if matches!(common.value, LinkedType::Sequence(_))
+                && !matches!(common.yaml, YamlRepresentation::TextSequence { .. })
+            {
+                if matches!(common.yaml, YamlRepresentation::Sequence { .. }) {
+                    if common.constraints.is_empty()
+                        && entry.constraints.is_empty()
+                        && collection_values::codec(common, program)?.is_none()
+                    {
+                        return Ok(String::new());
+                    }
+                    if !entry.constraints.is_empty()
+                        || common.constraints.iter().any(|rule| {
+                            rule.for_each.is_some()
+                                || !rule.forms.is_empty()
+                                || rule.diagnostic.at != LinkedDiagnosticTarget::SelfValue
+                        })
+                    {
+                        return Err(unsupported(
+                            common,
+                            "Ordinary sequence constraints currently target the whole value",
+                        ));
+                    }
+                }
+                let inherited = super::inputs::identity(entry);
+                let bindings = if bindings.is_empty() && common.inputs.is_empty() {
+                    inherited.as_slice()
+                } else {
+                    bindings
+                };
                 let mut common = common.clone();
                 common.id = entry.id;
                 for constraint in &mut common.constraints {
@@ -38,21 +90,23 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
                 let YamlRepresentation::Mapping(mapping) = &entry.yaml else {
                     return Err(unsupported(entry, "Owner needs a mapping"));
                 };
-                return generate_at(&common, program, Some(&mapping[0].key));
+                return generate_at(&common, program, Some(&mapping[0].key), None);
             }
         }
     }
-    generate_at(entry, program, None)
+    generate_at(entry, program, None, None)
 }
 fn generate_at(
     entry: &LinkedEntry,
     program: &Program,
     base: Option<&str>,
+    record_key: Option<&str>,
 ) -> Result<String, Diagnostic> {
     let fields = match &entry.value {
         LinkedType::Record(fields) => fields.as_slice(),
         LinkedType::Sequence(item) => match item.as_ref() {
             LinkedType::Record(fields) => fields.as_slice(),
+            LinkedType::Scalar(ScalarType::Text) | LinkedType::Reference(_) => &[],
             _ => return Err(unsupported(entry, "Collection items need records")),
         },
         _ => {
@@ -64,7 +118,7 @@ fn generate_at(
     };
     let yaml = match &entry.yaml {
         YamlRepresentation::Mapping(mapping) => mapping.as_slice(),
-        YamlRepresentation::KeyedMapping { .. } => &[],
+        YamlRepresentation::KeyedMapping { .. } | YamlRepresentation::Sequence { .. } => &[],
         _ => return Err(unsupported(entry, "Constraints require a mapping")),
     };
     let key_index = match &entry.yaml {
@@ -117,7 +171,32 @@ fn generate_at(
             entry.id, entry.id
         )
         .unwrap();
-        if selected.is_empty() {
+        if record_key.is_some() {
+            out.push_str("if !_value.present {return Vec::new();}\n");
+        }
+        let mut item_checks = String::new();
+        if base.is_none() {
+            for (index, field) in fields.iter().enumerate() {
+                if let super::scalar::Codec::Sequence(_) =
+                    super::scalar::Codec::resolve(&field.value, entry, program)?
+                {
+                    let key = &yaml
+                        .iter()
+                        .find(|mapping| mapping.field == field.name)
+                        .expect("linked mapping")
+                        .key;
+                    let xml = side == "xml";
+                    writeln!(item_checks,"if let Some(value)=&_value.f{index}{{errors.extend(value.issues({xml},_inputs).into_iter().map(|issue|_value.positions[{index}].apply(_source,issue.field({key:?}))));}}").unwrap();
+                }
+            }
+        }
+        if let Some(key) = base
+            && collection_values::codec(entry, program)?.is_some()
+        {
+            let xml = side == "xml";
+            writeln!(item_checks,"for (index,row) in _value.rows.iter().enumerate(){{errors.extend(row.fields[0].issues({xml},_inputs).into_iter().map(|mut issue|{{issue.message=format!(\"Element {{}}: {{}}\",index+1,issue.message);_value.position.apply(_source,issue.field({key:?}))}}));}}").unwrap();
+        }
+        if selected.is_empty() && item_checks.is_empty() {
             out.push_str("Vec::new() }\n");
             continue;
         }
@@ -138,16 +217,7 @@ fn generate_at(
         } else {
             None
         };
-        let mut expressions = Expressions {
-            entry,
-            program,
-            fields,
-            field_storage: storage.as_deref(),
-            constants: String::new(),
-            next_constant: 0,
-            transforms: BTreeSet::new(),
-            fallible: false,
-        };
+        let mut expressions = Expressions::new(entry, program, fields, storage.as_deref());
         let mut body = String::new();
         for constraint in selected {
             expressions.fallible = false;
@@ -249,16 +319,8 @@ fn generate_at(
                 LinkedDiagnosticTarget::SelfValue if base.is_some() => "_value.position".into(),
                 _ => "core::Position::default()".into(),
             };
-            let severity = match constraint.diagnostic.severity {
-                Severity::Error => "Error",
-                Severity::Warning => "Warning",
-                Severity::Info => "Info",
-            };
-            let condition = if when == "true" {
-                format!("!({assertion})")
-            } else {
-                format!("({when}) && !({assertion})")
-            };
+            let severity = severity_name(&constraint.diagnostic.severity);
+            let condition = super::constraints::violation(&when, &assertion);
             let make_error = format!(
                 "RuntimeDiagnostic::declared({code:?}, {source:?}, core::Severity::{severity}, {message}){address}"
             );
@@ -282,6 +344,7 @@ fn generate_at(
         }
         out.push_str(&expressions.constants);
         out.push_str("let mut errors = Vec::new();\n");
+        out.push_str(&item_checks);
         out.push_str(&body);
         out.push_str("errors }\n");
     }
@@ -297,21 +360,32 @@ fn generate_at(
                     .as_str()
             })
             .collect::<Vec<_>>();
-        writeln!(out,"fn check_xml_{id}(value:&V{id},_source:&[u8],_inputs:&PreparedInputs)->Vec<RuntimeDiagnostic> {{value.raw.diagnostics()}}").unwrap();
-        writeln!(out,"fn check_yaml_{id}(value:&V{id},source:&[u8],inputs:&PreparedInputs)->Vec<RuntimeDiagnostic> {{value.raw.validate(&{keys:?},issues_yaml_{id}(value,source,inputs),&issues_xml_{id}(value,source,inputs))}}").unwrap();
+        let address = record_key.map_or(String::new(), |key| {
+            format!(".into_iter().map(|mut issue|{{issue.path.insert(0,{key:?}.into());issue}}).collect()")
+        });
+        writeln!(out,"fn check_xml_{id}(value:&V{id},_source:&[u8],_inputs:&PreparedInputs)->Vec<RuntimeDiagnostic> {{value.raw.diagnostics(){address}}}").unwrap();
+        writeln!(out,"fn check_yaml_{id}(value:&V{id},source:&[u8],inputs:&PreparedInputs)->Vec<RuntimeDiagnostic> {{value.raw.validate(&{keys:?},issues_yaml_{id}(value,source,inputs),&issues_xml_{id}(value,source,inputs)){address}}}").unwrap();
     }
     Ok(out)
 }
 
-fn read_fields(expression: &LinkedExpression, result: &mut BTreeSet<u32>) {
+pub(super) fn read_fields(expression: &LinkedExpression, result: &mut BTreeSet<u32>) {
     match &expression.kind {
         LinkedExpressionKind::Field(index) => {
             result.insert(*index);
         }
         LinkedExpressionKind::Operation {
             operator: LinkedOperator::State(_),
-            ..
-        } => (),
+            arguments,
+        } => {
+            // Inspect computed optional values: their inputs still need to exist.
+            // A direct field state, however, deliberately accepts an absent field.
+            for value in arguments {
+                if !matches!(value.kind, LinkedExpressionKind::Field(_)) {
+                    read_fields(value, result);
+                }
+            }
+        }
         LinkedExpressionKind::Operation { arguments, .. } => {
             for value in arguments {
                 read_fields(value, result);

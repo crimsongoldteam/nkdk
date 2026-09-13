@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.92eb66a2e27f4f90be21
+description: 'Кандидат проекции: относительный XML-корень AutoMarkIncomplete; не полный владелец'
+imports:
+  part0: candidate.fragment.42726d1f934ef2ffffad
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

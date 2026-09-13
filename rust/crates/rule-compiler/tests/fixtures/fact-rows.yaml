@@ -1,0 +1,40 @@
+format: nkdk-declarations/1
+kind: value
+id: common.project-rows
+value:
+  kind: sequence
+  item:
+    kind: record
+    fields:
+    - {name: code, type: {kind: scalar, scalar: text}}
+    - {name: title, type: {kind: scalar, scalar: text}}
+representations:
+  xml:
+    kind: element-sequence
+    path: [Item]
+    item:
+      kind: record
+      fields:
+      - {field: code, path: [Code]}
+      - {field: title, path: [Title]}
+  yaml:
+    kind: sequence
+    item:
+      kind: mapping
+      fields:
+      - {field: code, key: Code}
+      - {field: title, key: Title}
+presence:
+- target: self
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {missing: {denotes: {absent: true}}}
+constraints:
+- id: row-code
+  appliesTo: [xml-import, yaml-validation]
+  assert:
+    each:
+      in: {self: true}
+      as: row
+      where:
+        not: {eq: [{get: {of: {var: row}, field: code}}, {literal: ""}]}
+  diagnostic: {code: fact.row-code, severity: error, at: {self: true}, message: Empty code}

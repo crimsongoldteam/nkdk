@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.10df833712ec12333fc5
+description: 'Кандидат проекции: относительный XML-корень HeightInMonths; не полный владелец'
+imports:
+  part0: candidate.fragment.2b3d156cbab08c5bb55f
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

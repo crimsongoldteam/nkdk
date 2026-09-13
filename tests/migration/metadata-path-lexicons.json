@@ -1,0 +1,421 @@
+{
+  "source": "packages/runtime/metadata/ruleRuntime/metadataTarget/roots.ts",
+  "sourceSha256": "611ea5097496958c69008a51ec57979db23846226d6a68f03bea4ad096063d24",
+  "pairs": 96,
+  "tables": [
+    {
+      "name": "root",
+      "symbol": "rootToYAML",
+      "values": [
+        {
+          "xml": "Constant",
+          "yaml": "Константа"
+        },
+        {
+          "xml": "Catalog",
+          "yaml": "Справочник"
+        },
+        {
+          "xml": "Document",
+          "yaml": "Документ"
+        },
+        {
+          "xml": "Enum",
+          "yaml": "Перечисление"
+        },
+        {
+          "xml": "DefinedType",
+          "yaml": "ОпределяемыйТип"
+        },
+        {
+          "xml": "Characteristic",
+          "yaml": "Характеристика"
+        },
+        {
+          "xml": "CommandGroup",
+          "yaml": "ГруппаКоманд"
+        },
+        {
+          "xml": "Role",
+          "yaml": "Роль"
+        },
+        {
+          "xml": "InformationRegister",
+          "yaml": "РегистрСведений"
+        },
+        {
+          "xml": "AccumulationRegister",
+          "yaml": "РегистрНакопления"
+        },
+        {
+          "xml": "AccountingRegister",
+          "yaml": "РегистрБухгалтерии"
+        },
+        {
+          "xml": "CalculationRegister",
+          "yaml": "РегистрРасчета"
+        },
+        {
+          "xml": "ExchangePlan",
+          "yaml": "ПланОбмена"
+        },
+        {
+          "xml": "ChartOfAccounts",
+          "yaml": "ПланСчетов"
+        },
+        {
+          "xml": "ChartOfCharacteristicTypes",
+          "yaml": "ПланВидовХарактеристик"
+        },
+        {
+          "xml": "ChartOfCalculationTypes",
+          "yaml": "ПланВидовРасчета"
+        },
+        {
+          "xml": "BusinessProcess",
+          "yaml": "БизнесПроцесс"
+        },
+        {
+          "xml": "BusinessProcessRoutePoint",
+          "yaml": "ТочкаМаршрутаБизнесПроцесса"
+        },
+        {
+          "xml": "Task",
+          "yaml": "Задача"
+        },
+        {
+          "xml": "DataProcessor",
+          "yaml": "Обработка"
+        },
+        {
+          "xml": "Report",
+          "yaml": "Отчет"
+        },
+        {
+          "xml": "DocumentNumerator",
+          "yaml": "НумераторДокументов"
+        },
+        {
+          "xml": "CommonCommand",
+          "yaml": "ОбщаяКоманда"
+        },
+        {
+          "xml": "CommonPicture",
+          "yaml": "ОбщаяКартинка"
+        },
+        {
+          "xml": "CommonTemplate",
+          "yaml": "ОбщийМакет"
+        },
+        {
+          "xml": "CommonModule",
+          "yaml": "ОбщийМодуль"
+        },
+        {
+          "xml": "CommonAttribute",
+          "yaml": "ОбщийРеквизит"
+        },
+        {
+          "xml": "CommonForm",
+          "yaml": "ОбщаяФорма"
+        },
+        {
+          "xml": "FilterCriterion",
+          "yaml": "КритерийОтбора"
+        },
+        {
+          "xml": "ScheduledJob",
+          "yaml": "РегламентноеЗадание"
+        },
+        {
+          "xml": "IntegrationService",
+          "yaml": "СервисИнтеграции"
+        },
+        {
+          "xml": "Language",
+          "yaml": "Язык"
+        },
+        {
+          "xml": "Style",
+          "yaml": "Стиль"
+        },
+        {
+          "xml": "Interface",
+          "yaml": "Интерфейс"
+        },
+        {
+          "xml": "StyleItem",
+          "yaml": "ЭлементСтиля"
+        },
+        {
+          "xml": "FunctionalOption",
+          "yaml": "ФункциональнаяОпция"
+        },
+        {
+          "xml": "FunctionalOptionsParameter",
+          "yaml": "ПараметрФункциональныхОпций"
+        },
+        {
+          "xml": "DocumentJournal",
+          "yaml": "ЖурналДокументов"
+        },
+        {
+          "xml": "HTTPService",
+          "yaml": "HTTPСервис"
+        },
+        {
+          "xml": "WebSocketClient",
+          "yaml": "WebSocketКлиент"
+        },
+        {
+          "xml": "WebService",
+          "yaml": "WebСервис"
+        },
+        {
+          "xml": "Bot",
+          "yaml": "Бот"
+        },
+        {
+          "xml": "ExternalDataSource",
+          "yaml": "ВнешнийИсточникДанных"
+        },
+        {
+          "xml": "EventSubscription",
+          "yaml": "ПодпискаНаСобытие"
+        },
+        {
+          "xml": "XDTOPackage",
+          "yaml": "ПакетXDTO"
+        },
+        {
+          "xml": "WSReference",
+          "yaml": "WSСсылка"
+        },
+        {
+          "xml": "SessionParameter",
+          "yaml": "ПараметрСеанса"
+        },
+        {
+          "xml": "SettingsStorage",
+          "yaml": "ХранилищеНастроек"
+        },
+        {
+          "xml": "Subsystem",
+          "yaml": "Подсистема"
+        },
+        {
+          "xml": "Sequence",
+          "yaml": "Последовательность"
+        }
+      ]
+    },
+    {
+      "name": "member-kind",
+      "symbol": "memberKindToYAML",
+      "values": [
+        {
+          "xml": "Attribute",
+          "yaml": "Реквизит"
+        },
+        {
+          "xml": "StandardAttribute",
+          "yaml": "СтандартныйРеквизит"
+        },
+        {
+          "xml": "TabularSection",
+          "yaml": "ТабличнаяЧасть"
+        },
+        {
+          "xml": "Dimension",
+          "yaml": "Измерение"
+        },
+        {
+          "xml": "Resource",
+          "yaml": "Ресурс"
+        },
+        {
+          "xml": "Form",
+          "yaml": "Форма"
+        },
+        {
+          "xml": "Template",
+          "yaml": "Макет"
+        },
+        {
+          "xml": "Command",
+          "yaml": "Команда"
+        },
+        {
+          "xml": "AccountingFlag",
+          "yaml": "ПризнакУчета"
+        },
+        {
+          "xml": "ExtDimensionAccountingFlag",
+          "yaml": "ПризнакУчетаСубконто"
+        },
+        {
+          "xml": "AddressingAttribute",
+          "yaml": "РеквизитАдресации"
+        },
+        {
+          "xml": "Field",
+          "yaml": "Поле"
+        }
+      ]
+    },
+    {
+      "name": "object-kind",
+      "symbol": "objectPathKindToYAML",
+      "values": [
+        {
+          "xml": "Table",
+          "yaml": "Таблица"
+        },
+        {
+          "xml": "Cube",
+          "yaml": "Куб"
+        },
+        {
+          "xml": "DimensionTable",
+          "yaml": "ТаблицаИзмерения"
+        },
+        {
+          "xml": "Function",
+          "yaml": "Функция"
+        },
+        {
+          "xml": "Recalculation",
+          "yaml": "Перерасчет"
+        }
+      ]
+    },
+    {
+      "name": "standard-attribute",
+      "symbol": "standardAttributeToYAML",
+      "values": [
+        {
+          "xml": "Ref",
+          "yaml": "Ссылка"
+        },
+        {
+          "xml": "LineNumber",
+          "yaml": "НомерСтроки"
+        },
+        {
+          "xml": "Account",
+          "yaml": "Счет"
+        },
+        {
+          "xml": "Owner",
+          "yaml": "Владелец"
+        },
+        {
+          "xml": "Description",
+          "yaml": "Наименование"
+        },
+        {
+          "xml": "Code",
+          "yaml": "Код"
+        },
+        {
+          "xml": "DeletionMark",
+          "yaml": "ПометкаУдаления"
+        },
+        {
+          "xml": "IsFolder",
+          "yaml": "ЭтоГруппа"
+        },
+        {
+          "xml": "Parent",
+          "yaml": "Родитель"
+        },
+        {
+          "xml": "Predefined",
+          "yaml": "Предопределенный"
+        },
+        {
+          "xml": "PredefinedDataName",
+          "yaml": "ИмяПредопределенныхДанных"
+        },
+        {
+          "xml": "Active",
+          "yaml": "Активность"
+        },
+        {
+          "xml": "Recorder",
+          "yaml": "Регистратор"
+        },
+        {
+          "xml": "Period",
+          "yaml": "Период"
+        },
+        {
+          "xml": "Number",
+          "yaml": "Номер"
+        },
+        {
+          "xml": "Date",
+          "yaml": "Дата"
+        },
+        {
+          "xml": "Posted",
+          "yaml": "Проведен"
+        }
+      ]
+    },
+    {
+      "name": "virtual-table",
+      "symbol": "virtualDataTableToYAML",
+      "values": [
+        {
+          "xml": "SliceFirst",
+          "yaml": "СрезПервых"
+        },
+        {
+          "xml": "SliceLast",
+          "yaml": "СрезПоследних"
+        },
+        {
+          "xml": "Balance",
+          "yaml": "Остатки"
+        },
+        {
+          "xml": "Turnovers",
+          "yaml": "Обороты"
+        },
+        {
+          "xml": "BalanceAndTurnovers",
+          "yaml": "ОстаткиИОбороты"
+        },
+        {
+          "xml": "RecordsWithExtDimensions",
+          "yaml": "ДвиженияССубконто"
+        },
+        {
+          "xml": "DrCrTurnovers",
+          "yaml": "ОборотыДтКт"
+        },
+        {
+          "xml": "ExtDimensions",
+          "yaml": "Субконто"
+        },
+        {
+          "xml": "ScheduleData",
+          "yaml": "ДанныеГрафика"
+        },
+        {
+          "xml": "ActualActionPeriod",
+          "yaml": "ФактическийПериодДействия"
+        },
+        {
+          "xml": "Points",
+          "yaml": "Точки"
+        },
+        {
+          "xml": "TasksByExecutive",
+          "yaml": "ЗадачиПоИсполнителю"
+        }
+      ]
+    }
+  ]
+}

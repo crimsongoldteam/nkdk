@@ -1,0 +1,54 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.attachment.fragment.additional-indexes
+imports:
+  ready: fragment.additional-indexes
+compose:
+  - use: ready
+    bind:
+      owner:
+        input: owner
+      identities:
+        input: identities
+inputs:
+  owner:
+    type:
+      kind: scalar
+      scalar: text
+  identities:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: owner
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+value:
+  kind: record
+  fields:
+    - name: probe
+      type:
+        kind: scalar
+        scalar: text
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: probe
+        path:
+          - Probe
+          - Name
+  yaml:
+    kind: mapping
+    fields:
+      - field: probe
+        key: Проверка

@@ -1,0 +1,41 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: group
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: group
+        path:
+          - dcssch:group
+  yaml:
+    kind: mapping
+    fields:
+      - field: group
+        key: Группировка
+presence:
+  - target:
+      field: group
+    xml:
+      missing:
+        denotes:
+          literal: false
+      canonical:
+        - when:
+            eq:
+              - field: group
+              - literal: false
+          form: missing
+    yaml:
+      default:
+        literal: false
+namespaces:
+  dcssch: http://v8.1c.ru/8.1/data-composition-system/schema
+id: candidate.fragment.12e386dd7b9d1b7c6d70

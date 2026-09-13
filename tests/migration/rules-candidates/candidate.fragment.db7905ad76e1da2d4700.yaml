@@ -1,0 +1,41 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: use
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: use
+        path:
+          - dcsset:use
+  yaml:
+    kind: mapping
+    fields:
+      - field: use
+        key: Использование
+presence:
+  - target:
+      field: use
+    xml:
+      missing:
+        denotes:
+          literal: true
+      canonical:
+        - when:
+            eq:
+              - field: use
+              - literal: true
+          form: missing
+    yaml:
+      default:
+        literal: true
+namespaces:
+  dcsset: http://v8.1c.ru/8.1/data-composition-system/settings
+id: candidate.fragment.db7905ad76e1da2d4700

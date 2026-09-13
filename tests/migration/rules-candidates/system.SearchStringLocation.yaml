@@ -1,0 +1,24 @@
+format: nkdk-declarations/1
+kind: value
+id: system.SearchStringLocation
+enum:
+  Auto: Авто
+  Top: Верх
+  FormCaption: ЗаголовокФормы
+  CommandBar: КоманднаяПанель
+  Bottom: Низ
+  PullFromTop: ПотянутьСверху
+  None: Нет
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  t: http://v8.1c.ru/8.1/data/enterprise
+projections:
+  - id: system.SearchStringLocation.dcs
+    xml:
+      kind: with-attributes
+      attributes:
+        - name: xsi:type
+          value:
+            qname: t:SearchStringLocation
+      content:
+        kind: text

@@ -1,0 +1,26 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.metadata-indexed-object-path
+imports: {path: common.metadata-object-chain-path}
+inputs:
+  roots: {index: metadata.roots}
+  children: {index: metadata.children}
+value: {kind: record, fields: [{name: path, type: {use: path}}]}
+representations:
+  xml: {kind: record, fields: [{field: path, path: [Root, Path]}]}
+  yaml: {kind: mapping, fields: [{field: path, key: Path}]}
+constraints:
+- id: target-exists
+  appliesTo: [xml-import, yaml-validation]
+  assert:
+    present:
+      fold:
+        in: {get: {of: {field: path}, field: tail}}
+        initial: {lookup: {in: {input: roots}, key: {record: {kind: {get: {of: {field: path}, field: root}}, name: {get: {of: {field: path}, field: name}}}}}}
+        as: segment
+        state: parent
+        next:
+          lookup:
+            in: {input: children}
+            key: {record: {parent: {var: parent}, kind: {get: {of: {var: segment}, field: kind}}, name: {get: {of: {var: segment}, field: name}}}}
+  diagnostic: {code: metadata.target-missing, severity: error, at: {field: path}, message: Target is missing}

@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: wrappedTimeScaleHeaderHyperlink
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: wrappedTimeScaleHeaderHyperlink
+        path:
+          - WrappedTimeScaleHeaderHyperlink
+  yaml:
+    kind: mapping
+    fields:
+      - field: wrappedTimeScaleHeaderHyperlink
+        key: ГиперссылкаПеренесенногоЗаголовкаШкалыВремени
+presence:
+  - target:
+      field: wrappedTimeScaleHeaderHyperlink
+    xml:
+      missing:
+        denotes:
+          literal: false
+      canonical:
+        - when:
+            eq:
+              - field: wrappedTimeScaleHeaderHyperlink
+              - literal: false
+          form: missing
+    yaml:
+      default:
+        literal: false
+id: candidate.fragment.83df09525fb9d4e29d0b

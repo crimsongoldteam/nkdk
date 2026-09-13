@@ -1,0 +1,84 @@
+format: nkdk-declarations/1
+kind: fragment
+id: fragment.document-form-links
+imports: {link: common.owner-form-link, choice: common.document-choice-form, rootKind: common.path-root}
+namespaces: {md: 'http://v8.1c.ru/8.3/MDClasses'}
+inputs:
+  ownerName: {type: {kind: scalar, scalar: text}}
+  roots:
+    type:
+      kind: index
+      key: {kind: record, fields: [{name: kind, type: {use: rootKind}}, {name: name, type: {kind: scalar, scalar: text}}]}
+      value: {kind: scalar, scalar: text}
+  formTargets:
+    type:
+      kind: index
+      key: {kind: record, fields: [{name: parent, type: {kind: scalar, scalar: text}}, {name: name, type: {kind: scalar, scalar: text}}]}
+      value: {kind: scalar, scalar: text}
+  ownerPath: {type: {kind: scalar, scalar: text}}
+  forms: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+value:
+  kind: record
+  fields:
+  - {name: DefaultObjectForm, type: {use: link, bind: {owner: {input: ownerPath}, forms: {input: forms}}}}
+  - {name: DefaultListForm, type: {use: link, bind: {owner: {input: ownerPath}, forms: {input: forms}}}}
+  - {name: DefaultChoiceForm, type: {use: choice, bind: {owner: {input: ownerName}, forms: {input: forms}, roots: {input: roots}, formTargets: {input: formTargets}}}}
+  - {name: AuxiliaryObjectForm, type: {use: link, bind: {owner: {input: ownerPath}, forms: {input: forms}}}}
+  - {name: AuxiliaryListForm, type: {use: link, bind: {owner: {input: ownerPath}, forms: {input: forms}}}}
+  - {name: AuxiliaryChoiceForm, type: {use: link, bind: {owner: {input: ownerPath}, forms: {input: forms}}}}
+representations:
+  xml:
+    kind: record
+    fields:
+    - {field: DefaultObjectForm, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:DefaultObjectForm']}
+    - {field: DefaultListForm, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:DefaultListForm']}
+    - {field: DefaultChoiceForm, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:DefaultChoiceForm']}
+    - {field: AuxiliaryObjectForm, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:AuxiliaryObjectForm']}
+    - {field: AuxiliaryListForm, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:AuxiliaryListForm']}
+    - {field: AuxiliaryChoiceForm, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:AuxiliaryChoiceForm']}
+  yaml:
+    kind: mapping
+    fields:
+    - {field: DefaultObjectForm, key: ОсновнаяФормаОбъекта}
+    - {field: DefaultListForm, key: ОсновнаяФормаСписка}
+    - {field: DefaultChoiceForm, key: ОсновнаяФормаДляВыбора}
+    - {field: AuxiliaryObjectForm, key: ДополнительнаяФормаОбъекта}
+    - {field: AuxiliaryListForm, key: ДополнительнаяФормаСписка}
+    - {field: AuxiliaryChoiceForm, key: ДополнительнаяФормаДляВыбора}
+presence:
+- target: {field: DefaultObjectForm}
+  xml:
+    missing: {denotes: {absent: true}}
+    empty: [{form: empty-element, denotes: {absent: true}}]
+    canonical: [{when: {not: {present: {field: DefaultObjectForm}}}, form: empty-element}]
+  yaml: {missing: {denotes: {absent: true}}}
+- target: {field: DefaultListForm}
+  xml:
+    missing: {denotes: {absent: true}}
+    empty: [{form: empty-element, denotes: {absent: true}}]
+    canonical: [{when: {not: {present: {field: DefaultListForm}}}, form: empty-element}]
+  yaml: {missing: {denotes: {absent: true}}}
+- target: {field: DefaultChoiceForm}
+  xml:
+    missing: {denotes: {absent: true}}
+    empty: [{form: empty-element, denotes: {absent: true}}]
+    canonical: [{when: {not: {present: {field: DefaultChoiceForm}}}, form: empty-element}]
+  yaml: {missing: {denotes: {absent: true}}}
+- target: {field: AuxiliaryObjectForm}
+  xml:
+    missing: {denotes: {absent: true}}
+    empty: [{form: empty-element, denotes: {absent: true}}]
+    canonical: [{when: {not: {present: {field: AuxiliaryObjectForm}}}, form: empty-element}]
+  yaml: {missing: {denotes: {absent: true}}}
+- target: {field: AuxiliaryListForm}
+  xml:
+    missing: {denotes: {absent: true}}
+    empty: [{form: empty-element, denotes: {absent: true}}]
+    canonical: [{when: {not: {present: {field: AuxiliaryListForm}}}, form: empty-element}]
+  yaml: {missing: {denotes: {absent: true}}}
+- target: {field: AuxiliaryChoiceForm}
+  xml:
+    missing: {denotes: {absent: true}}
+    empty: [{form: empty-element, denotes: {absent: true}}]
+    canonical: [{when: {not: {present: {field: AuxiliaryChoiceForm}}}, form: empty-element}]
+  yaml: {missing: {denotes: {absent: true}}}

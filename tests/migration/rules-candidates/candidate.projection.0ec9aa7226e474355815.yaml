@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.0ec9aa7226e474355815
+description: 'Кандидат проекции: относительный XML-корень Zoomable; не полный владелец'
+imports:
+  part0: candidate.fragment.d9190da2bf6368c7efbe
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

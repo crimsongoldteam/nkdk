@@ -1,0 +1,26 @@
+format: nkdk-declarations/1
+kind: value
+id: system.ToolTipRepresentation
+enum:
+  Auto: Авто
+  Balloon: Всплывающая
+  Button: Кнопка
+  None: Нет
+  ShowAuto: ОтображатьАвто
+  ShowTop: ОтображатьСверху
+  ShowLeft: ОтображатьСлева
+  ShowBottom: ОтображатьСнизу
+  ShowRight: ОтображатьСправа
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  t: http://v8.1c.ru/8.1/data/enterprise
+projections:
+  - id: system.ToolTipRepresentation.dcs
+    xml:
+      kind: with-attributes
+      attributes:
+        - name: xsi:type
+          value:
+            qname: t:ToolTipRepresentation
+      content:
+        kind: text

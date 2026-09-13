@@ -1,0 +1,19 @@
+format: nkdk-declarations/1
+kind: value
+id: system.TaskNumberAutoPrefix
+enum:
+  DontUse: НеИспользовать
+  BusinessProcessNumber: НомерБизнесПроцесса
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  t: http://v8.1c.ru/8.1/data/enterprise
+projections:
+  - id: system.TaskNumberAutoPrefix.dcs
+    xml:
+      kind: with-attributes
+      attributes:
+        - name: xsi:type
+          value:
+            qname: t:TaskNumberAutoPrefix
+      content:
+        kind: text

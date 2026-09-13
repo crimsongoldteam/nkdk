@@ -1,0 +1,97 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.ButtonRepresentation
+  value1: common.i8n-text
+  value2: system.CommandGroupCategory
+value:
+  kind: record
+  fields:
+    - name: representation
+      type:
+        use: value0
+    - name: toolTip
+      type:
+        use: value1
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          ownerName:
+            input: ownerName
+    - name: category
+      type:
+        use: value2
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: representation
+        path:
+          - Properties
+          - Representation
+      - field: toolTip
+        path:
+          - Properties
+          - ToolTip
+      - field: category
+        path:
+          - Properties
+          - Category
+  yaml:
+    kind: mapping
+    fields:
+      - field: representation
+        key: Представление
+      - field: toolTip
+        key: Подсказка
+      - field: category
+        key: Категория
+presence:
+  - target:
+      field: representation
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: Auto
+  - target:
+      field: toolTip
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: toolTip
+          form: empty-element
+  - target:
+      field: category
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: NavigationPanel
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  ownerName:
+    type:
+      kind: scalar
+      scalar: text
+id: candidate.fragment.3620e1ca8219f3fda36f

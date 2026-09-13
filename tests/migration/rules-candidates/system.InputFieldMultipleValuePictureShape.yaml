@@ -1,0 +1,20 @@
+format: nkdk-declarations/1
+kind: value
+id: system.InputFieldMultipleValuePictureShape
+enum:
+  Auto: Авто
+  Rect: Квадрат
+  Circle: Круг
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  t: http://v8.1c.ru/8.1/data/enterprise
+projections:
+  - id: system.InputFieldMultipleValuePictureShape.dcs
+    xml:
+      kind: with-attributes
+      attributes:
+        - name: xsi:type
+          value:
+            qname: t:InputFieldMultipleValuePictureShape
+      content:
+        kind: text

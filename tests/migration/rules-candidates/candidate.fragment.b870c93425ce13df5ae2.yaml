@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.DynamicListKeyType
+value:
+  kind: record
+  fields:
+    - name: keyType
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: keyType
+        path:
+          - KeyType
+  yaml:
+    kind: mapping
+    fields:
+      - field: keyType
+        key: ВидКлюча
+presence:
+  - target:
+      field: keyType
+    xml:
+      missing:
+        denotes:
+          literal: Auto
+      canonical:
+        - when:
+            eq:
+              - field: keyType
+              - literal: Auto
+          form: missing
+    yaml:
+      default:
+        literal: Auto
+id: candidate.fragment.b870c93425ce13df5ae2

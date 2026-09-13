@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.98250f6f77bcb782ccd5
+description: 'Кандидат проекции: относительный XML-корень CustomSettingsFolder; не полный владелец'
+imports:
+  part0: candidate.fragment.c12eff8ac9e357fef0ec
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

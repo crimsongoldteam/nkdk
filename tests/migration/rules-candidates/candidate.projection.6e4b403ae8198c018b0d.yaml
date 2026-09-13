@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.6e4b403ae8198c018b0d
+description: 'Кандидат проекции: относительный XML-корень ShowCurrentDate; не полный владелец'
+imports:
+  part0: candidate.fragment.79b1726635d80c5fbe57
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

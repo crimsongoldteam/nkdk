@@ -1,0 +1,35 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.ChoiceHistoryOnInput
+value:
+  kind: record
+  fields:
+    - name: choiceHistoryOnInput
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: choiceHistoryOnInput
+        path:
+          - xr:ChoiceHistoryOnInput
+  yaml:
+    kind: mapping
+    fields:
+      - field: choiceHistoryOnInput
+        key: ИсторияВыбораПриВводе
+presence:
+  - target:
+      field: choiceHistoryOnInput
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: Auto
+namespaces:
+  xr: http://v8.1c.ru/8.3/xcf/readable
+id: candidate.fragment.850f22b400964c5814cb

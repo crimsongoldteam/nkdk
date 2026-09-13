@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.e7e1e3fdc2ee1e89ae1c
+description: 'Кандидат проекции: относительный XML-корень ChoiceHistoryOnInput; не полный владелец'
+imports:
+  part0: candidate.fragment.c7b186c65e676613c6e1
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

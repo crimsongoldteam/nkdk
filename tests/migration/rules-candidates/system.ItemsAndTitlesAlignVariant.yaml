@@ -1,0 +1,23 @@
+format: nkdk-declarations/1
+kind: value
+id: system.ItemsAndTitlesAlignVariant
+enum:
+  Auto: Авто
+  None: Нет
+  ItemsLeftTitlesLeft: ЭлементыЛевоЗаголовкиЛево
+  ItemsLeftTitlesRight: ЭлементыЛевоЗаголовкиПраво
+  ItemsRightTitlesLeft: ЭлементыПравоЗаголовкиЛево
+  ItemsRightTitlesRight: ЭлементыПравоЗаголовкиПраво
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  t: http://v8.1c.ru/8.1/data/enterprise
+projections:
+  - id: system.ItemsAndTitlesAlignVariant.dcs
+    xml:
+      kind: with-attributes
+      attributes:
+        - name: xsi:type
+          value:
+            qname: t:ItemsAndTitlesAlignVariant
+      content:
+        kind: text

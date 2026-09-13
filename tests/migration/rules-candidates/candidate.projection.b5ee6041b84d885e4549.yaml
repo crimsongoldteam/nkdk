@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.b5ee6041b84d885e4549
+description: 'Кандидат проекции: относительный XML-корень TitleLocation; не полный владелец'
+imports:
+  part0: candidate.fragment.cfb7450888fd86937d18
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

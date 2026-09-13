@@ -1,0 +1,41 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.DataCompositionConditionalAppearanceUse
+value:
+  kind: record
+  fields:
+    - name: useInFieldsHeader
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: useInFieldsHeader
+        path:
+          - dcsset:useInFieldsHeader
+  yaml:
+    kind: mapping
+    fields:
+      - field: useInFieldsHeader
+        key: ИспользоватьВЗаголовкеПолей
+presence:
+  - target:
+      field: useInFieldsHeader
+    xml:
+      missing:
+        denotes:
+          literal: Use
+      canonical:
+        - when:
+            eq:
+              - field: useInFieldsHeader
+              - literal: Use
+          form: missing
+    yaml:
+      default:
+        literal: Use
+namespaces:
+  dcsset: http://v8.1c.ru/8.1/data-composition-system/settings
+id: candidate.fragment.1905a05e0d3e0ebcc1c2

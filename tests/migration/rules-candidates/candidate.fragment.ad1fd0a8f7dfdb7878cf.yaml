@@ -1,0 +1,52 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: checkUnique
+      type:
+        use: value0
+    - name: autonumbering
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: checkUnique
+        path:
+          - Properties
+          - CheckUnique
+      - field: autonumbering
+        path:
+          - Properties
+          - Autonumbering
+  yaml:
+    kind: mapping
+    fields:
+      - field: checkUnique
+        key: КонтрольУникальности
+      - field: autonumbering
+        key: Автонумерация
+presence:
+  - target:
+      field: checkUnique
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: true
+  - target:
+      field: autonumbering
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: true
+id: candidate.fragment.ad1fd0a8f7dfdb7878cf

@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.IncompleteChoiceMode
+value:
+  kind: record
+  fields:
+    - name: incompleteChoiceMode
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: incompleteChoiceMode
+        path:
+          - IncompleteChoiceMode
+  yaml:
+    kind: mapping
+    fields:
+      - field: incompleteChoiceMode
+        key: РежимВыбораНезаполненного
+presence:
+  - target:
+      field: incompleteChoiceMode
+    xml:
+      missing:
+        denotes:
+          literal: OnEnterPressed
+      canonical:
+        - when:
+            eq:
+              - field: incompleteChoiceMode
+              - literal: OnEnterPressed
+          form: missing
+    yaml:
+      default:
+        literal: OnEnterPressed
+id: candidate.fragment.d7baef832ddff5caf078

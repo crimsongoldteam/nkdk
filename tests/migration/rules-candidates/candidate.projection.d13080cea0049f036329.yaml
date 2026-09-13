@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.d13080cea0049f036329
+description: 'Кандидат проекции: относительный XML-корень EnableStartDrag; не полный владелец'
+imports:
+  part0: candidate.fragment.bca0829839839b782fb5
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

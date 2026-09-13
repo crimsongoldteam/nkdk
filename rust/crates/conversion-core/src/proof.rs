@@ -13,7 +13,52 @@ pub fn verify_with_attributes(
     scalar: impl Fn(&[Name]) -> bool,
     qname: impl Fn(&[Name], &Name) -> bool,
 ) -> Result<()> {
-    if fingerprint(original, &scalar, &qname)? != fingerprint(restored, &scalar, &qname)? {
+    verify_with_qnames(original, restored, scalar, qname, |_| false)
+}
+pub fn verify_with_qnames(
+    original: &[u8],
+    restored: &[u8],
+    scalar: impl Fn(&[Name]) -> bool,
+    qname_attribute: impl Fn(&[Name], &Name) -> bool,
+    qname_text: impl Fn(&[Name]) -> bool,
+) -> Result<()> {
+    compare(
+        fingerprint::<false>(
+            original,
+            &|path, _| scalar(path),
+            &qname_attribute,
+            &qname_text,
+        )?,
+        fingerprint::<false>(
+            restored,
+            &|path, _| scalar(path),
+            &qname_attribute,
+            &qname_text,
+        )?,
+    )
+}
+
+/// Supply one-based sibling occurrences for each component of the current path.
+/// This separates repeated records whose corresponding fields have different shapes.
+pub fn verify_with_occurrences<S, A, T>(
+    original: &[u8],
+    restored: &[u8],
+    scalar: S,
+    qname_attribute: A,
+    qname_text: T,
+) -> Result<()>
+where
+    S: Fn(&[Name], &[usize]) -> bool,
+    A: Fn(&[Name], &Name) -> bool,
+    T: Fn(&[Name]) -> bool,
+{
+    compare(
+        fingerprint::<true>(original, &scalar, &qname_attribute, &qname_text)?,
+        fingerprint::<true>(restored, &scalar, &qname_attribute, &qname_text)?,
+    )
+}
+fn compare(original: [u8; 32], restored: [u8; 32]) -> Result<()> {
+    if original != restored {
         return Err(RuntimeDiagnostic::new(
             "xml.round-trip-mismatch",
             "The final YAML candidate does not restore the original XML structure",
@@ -28,6 +73,7 @@ struct TextRun {
     meaningful: bool,
     children: bool,
     scalar: bool,
+    qname: Option<String>,
 }
 impl TextRun {
     fn flush(&mut self, output: &mut Sha256, keep_leaf: bool) {
@@ -42,22 +88,45 @@ impl TextRun {
         self.meaningful = false;
     }
 }
-fn fingerprint(
+fn fingerprint<const OCCURRENCES: bool>(
     source: &[u8],
-    scalar: &impl Fn(&[Name]) -> bool,
+    scalar: &impl Fn(&[Name], &[usize]) -> bool,
     qname: &impl Fn(&[Name], &Name) -> bool,
+    qname_text: &impl Fn(&[Name]) -> bool,
 ) -> Result<[u8; 32]> {
     let mut hash = Sha256::new();
     let mut text_runs: Vec<TextRun> = Vec::new();
-    xml::visit(source, |path, token| {
+    let mut counts: Vec<std::collections::BTreeMap<Name, usize>> = Vec::new();
+    let mut occurrences = Vec::new();
+    xml::visit_scoped(source, |path, token, scope| {
         match token {
             Token::Start(_) => {
+                if OCCURRENCES {
+                    let index = if let Some(siblings) = counts.last_mut() {
+                        let name = path.last().expect("element name");
+                        if let Some(count) = siblings.get_mut(name) {
+                            *count += 1;
+                            *count
+                        } else {
+                            siblings.insert(name.clone(), 1);
+                            1
+                        }
+                    } else {
+                        1
+                    };
+                    occurrences.push(index);
+                    counts.push(std::collections::BTreeMap::new());
+                }
                 if let Some(parent) = text_runs.last_mut() {
                     parent.children = true;
+                    if parent.qname.take().is_some() {
+                        parent.scalar = false;
+                    }
                     parent.flush(&mut hash, false);
                 }
                 text_runs.push(TextRun {
-                    scalar: scalar(path),
+                    scalar: scalar(path, &occurrences),
+                    qname: qname_text(path).then(String::new),
                     ..TextRun::default()
                 });
                 hash.update([0, b'S']);
@@ -92,12 +161,30 @@ fn fingerprint(
                 }
             }
             Token::End => {
+                if OCCURRENCES {
+                    counts.pop();
+                    occurrences.pop();
+                }
                 let mut run = text_runs.pop().expect("started element");
-                run.flush(&mut hash, !run.children);
+                if let Some(value) = run.qname.as_deref()
+                    && let Ok((namespace, local)) = scope.resolve_qname(value)
+                {
+                    hash.update([0, b'Q']);
+                    for part in [namespace, local] {
+                        hash.update((part.len() as u64).to_le_bytes());
+                        hash.update(part.as_bytes());
+                    }
+                } else {
+                    // Invalid or mixed content must remain provable as literal XML.
+                    run.flush(&mut hash, !run.children);
+                }
                 hash.update([0, b'E']);
             }
             Token::Text(text) => {
                 if let Some(run) = text_runs.last_mut() {
+                    if let Some(value) = &mut run.qname {
+                        value.push_str(text);
+                    }
                     run.hash.update(text.as_bytes());
                     run.length += text.len() as u64;
                     run.meaningful |= !xml::is_whitespace(text);

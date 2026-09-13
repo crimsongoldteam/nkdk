@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.ItemVerticalAlign
+value:
+  kind: record
+  fields:
+    - name: verticalAlign
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: verticalAlign
+        path:
+          - VerticalAlign
+  yaml:
+    kind: mapping
+    fields:
+      - field: verticalAlign
+        key: ВертикальноеПоложение
+presence:
+  - target:
+      field: verticalAlign
+    xml:
+      missing:
+        denotes:
+          literal: Auto
+      canonical:
+        - when:
+            eq:
+              - field: verticalAlign
+              - literal: Auto
+          form: missing
+    yaml:
+      default:
+        literal: Auto
+id: candidate.fragment.a613bc243033ff2f0df2

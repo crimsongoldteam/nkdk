@@ -1,0 +1,12 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.journal-form-links
+imports: {part: fragment.journal-form-links}
+inputs:
+  ownerPath: {type: {kind: scalar, scalar: text}}
+  forms: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+compose: [{use: part, bind: {ownerPath: {input: ownerPath}, forms: {input: forms}}}]
+value: {kind: record, fields: []}
+representations:
+  xml: {kind: record, fields: []}
+  yaml: {kind: mapping, fields: []}

@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: autoCellHeight
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: autoCellHeight
+        path:
+          - AutoCellHeight
+  yaml:
+    kind: mapping
+    fields:
+      - field: autoCellHeight
+        key: АвтоВысотаЯчейки
+presence:
+  - target:
+      field: autoCellHeight
+    xml:
+      missing:
+        denotes:
+          literal: false
+      canonical:
+        - when:
+            eq:
+              - field: autoCellHeight
+              - literal: false
+          form: missing
+    yaml:
+      default:
+        literal: false
+id: candidate.fragment.3ae517d1e4733613ce8b

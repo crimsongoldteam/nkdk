@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.SearchStringLocation
+value:
+  kind: record
+  fields:
+    - name: searchStringLocation
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: searchStringLocation
+        path:
+          - SearchStringLocation
+  yaml:
+    kind: mapping
+    fields:
+      - field: searchStringLocation
+        key: ПоложениеСтрокиПоиска
+presence:
+  - target:
+      field: searchStringLocation
+    xml:
+      missing:
+        denotes:
+          literal: Auto
+      canonical:
+        - when:
+            eq:
+              - field: searchStringLocation
+              - literal: Auto
+          form: missing
+    yaml:
+      default:
+        literal: Auto
+id: candidate.fragment.2c44ca65c48f01e17a57

@@ -21,6 +21,7 @@ pub(super) fn expression(path: &str, value: &Node) -> Result<Expression, Diagnos
         path,
         &[
             "input",
+            "lookup",
             "matches",
             "match",
             "present",
@@ -33,6 +34,8 @@ pub(super) fn expression(path: &str, value: &Node) -> Result<Expression, Diagnos
             "parameter",
             "capture",
             "sequence",
+            "concat",
+            "require",
             "sequence-pattern",
             "record",
             "literal",
@@ -41,6 +44,7 @@ pub(super) fn expression(path: &str, value: &Node) -> Result<Expression, Diagnos
             "self",
             "var",
             "get",
+            "fold",
             "each",
             "exists",
             "or",
@@ -61,6 +65,14 @@ pub(super) fn expression(path: &str, value: &Node) -> Result<Expression, Diagnos
     }
     let (operator, operand) = &fields[0];
     let kind = match operator.text(path)? {
+        "require" => ExpressionKind::Require(Box::new(expression(path, operand)?)),
+        "lookup" => {
+            let fields = operand.mapping(path, &["in", "key"])?;
+            ExpressionKind::Lookup {
+                input: Box::new(expression(path, operand.field(path, fields, "in")?)?),
+                key: Box::new(expression(path, operand.field(path, fields, "key")?)?),
+            }
+        }
         "matches" => {
             let fields = operand.mapping(path, &["value", "pattern"])?;
             ExpressionKind::Matches {
@@ -213,6 +225,16 @@ pub(super) fn expression(path: &str, value: &Node) -> Result<Expression, Diagnos
                 field: operand.field(path, fields, "field")?.text(path)?.into(),
             }
         }
+        "fold" => {
+            let fields = operand.mapping(path, &["in", "initial", "as", "state", "next"])?;
+            ExpressionKind::Fold {
+                input: Box::new(expression(path, operand.field(path, fields, "in")?)?),
+                initial: Box::new(expression(path, operand.field(path, fields, "initial")?)?),
+                binding: operand.field(path, fields, "as")?.text(path)?.into(),
+                state: operand.field(path, fields, "state")?.text(path)?.into(),
+                next: Box::new(expression(path, operand.field(path, fields, "next")?)?),
+            }
+        }
         "each" | "exists" => {
             let fields = operand.mapping(path, &["in", "as", "where"])?;
             let input = Box::new(expression(path, operand.field(path, fields, "in")?)?);
@@ -295,21 +317,24 @@ pub(super) fn expression(path: &str, value: &Node) -> Result<Expression, Diagnos
                 suffix: super::shorthands::expression_list(path, fields, "suffix")?,
             }
         }
-        "sequence" => {
+        "sequence" | "concat" => {
             let Shape::Sequence(items) = &operand.shape else {
                 return Err(error(
                     path,
                     operand.mark,
                     "expected_sequence",
-                    "Expected sequence constructor",
+                    "Expected expression list",
                 ));
             };
-            ExpressionKind::Sequence(
-                items
-                    .iter()
-                    .map(|item| expression(path, item))
-                    .collect::<Result<Vec<_>, _>>()?,
-            )
+            let items = items
+                .iter()
+                .map(|item| expression(path, item))
+                .collect::<Result<Vec<_>, _>>()?;
+            if operator.text(path)? == "concat" {
+                ExpressionKind::Concat(items)
+            } else {
+                ExpressionKind::Sequence(items)
+            }
         }
         "record" => {
             let Shape::Mapping(items) = &operand.shape else {

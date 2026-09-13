@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.6412e840a8bdec3f3fbc
+description: 'Кандидат проекции: относительный XML-корень ModalMode; не полный владелец'
+imports:
+  part0: candidate.fragment.0e96589b5a58900d92a4
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

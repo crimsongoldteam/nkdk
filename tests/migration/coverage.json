@@ -93,49 +93,91 @@
       "path": "packages/rules/metadata/commonObjects/additionalIndex/builders.ts",
       "sha256": "960debabeae6c7e4c287aad2502e5426db91d4af992acc4a17311d9ce53f6a36",
       "group": "additionalIndex",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/additional-indexes.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/additional-index-row.yaml",
+        "rust/declarations/fragments/additional-indexes.yaml",
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/compiled-rules/tests/path_lexicons.rs",
+        "rust/crates/rule-compiler/tests/generate.rs",
+        "tests/migration/additional-indexes-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/additionalIndex/fromXMLToYAML.integration.test.ts",
       "sha256": "f568340aeba326ae6f3327611a6117afddbeacf1f8c03ff6afc5b3e366633098",
       "group": "additionalIndex",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/additional-indexes.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/additional-index-row.yaml",
+        "rust/declarations/fragments/additional-indexes.yaml",
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/compiled-rules/tests/path_lexicons.rs",
+        "rust/crates/rule-compiler/tests/generate.rs",
+        "tests/migration/additional-indexes-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/additionalIndex/fromYAMLToXML.integration.test.ts",
       "sha256": "d577d8911b6defbf2700dcf44936c2bc9f821ec97532818746bf1e4331bd0e39",
       "group": "additionalIndex",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/additional-indexes.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/additional-index-row.yaml",
+        "rust/declarations/fragments/additional-indexes.yaml",
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/compiled-rules/tests/path_lexicons.rs",
+        "rust/crates/rule-compiler/tests/generate.rs",
+        "tests/migration/additional-indexes-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/additionalIndex/index.ts",
       "sha256": "8c67c9b31bbee51903d6bb1d5f28421158976f69640d60eb051b09bff242ecef",
       "group": "additionalIndex",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/additional-indexes.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/additional-index-row.yaml",
+        "rust/declarations/fragments/additional-indexes.yaml",
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/compiled-rules/tests/path_lexicons.rs",
+        "rust/crates/rule-compiler/tests/generate.rs",
+        "tests/migration/additional-indexes-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/additionalIndex/rules.ts",
       "sha256": "051e27ccbd1d2e1fc4b9baec1ce484a7d15a3090536d2086648f7b0c0adb8ff0",
       "group": "additionalIndex",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/additional-indexes.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/additional-index-row.yaml",
+        "rust/declarations/fragments/additional-indexes.yaml",
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/compiled-rules/tests/path_lexicons.rs",
+        "rust/crates/rule-compiler/tests/generate.rs",
+        "tests/migration/additional-indexes-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/additionalIndex/types.ts",
       "sha256": "a624a3d45cf802903a6579cdfb0cde8a9aa3ee20a19c7fe281a56b640aea773f",
       "group": "additionalIndex",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/additional-indexes.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/additional-index-row.yaml",
+        "rust/declarations/fragments/additional-indexes.yaml",
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/compiled-rules/tests/path_lexicons.rs",
+        "rust/crates/rule-compiler/tests/generate.rs",
+        "tests/migration/additional-indexes-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/boolean/atomicConversion.test.ts",
@@ -3180,17 +3222,33 @@
       "path": "packages/rules/metadata/commonObjects/externalFile/fromXML.ts",
       "sha256": "3e60feb0562c5c838be571977341a7462293c3de7688b6fda636a80aafd84884",
       "group": "externalFile",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/external-file.yaml",
+      "verifiedCases": [
+        "rust/declarations/resources/configuration-external-files.yaml",
+        "rust/declarations/resources/configuration-extension-external-files.yaml",
+        "rust/declarations/resources/xdto-package-external-files.yaml",
+        "rust/apps/nkdk/tests/resources.rs",
+        "rust/crates/rule-compiler/tests/resources.rs",
+        "tests/migration/ready-attachment-cases.json",
+        "docs/superpowers/reports/2026-09-13-external-file.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/externalFile/types.ts",
       "sha256": "5e5783f230a852eb9d3394ecab9d43d8d6ee31e8617f27e69661265a2b369fce",
       "group": "externalFile",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/external-file.yaml",
+      "verifiedCases": [
+        "rust/declarations/resources/configuration-external-files.yaml",
+        "rust/declarations/resources/configuration-extension-external-files.yaml",
+        "rust/declarations/resources/xdto-package-external-files.yaml",
+        "rust/apps/nkdk/tests/resources.rs",
+        "rust/crates/rule-compiler/tests/resources.rs",
+        "tests/migration/ready-attachment-cases.json",
+        "docs/superpowers/reports/2026-09-13-external-file.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/externalPicture/fromXML.ts",
@@ -3212,97 +3270,157 @@
       "path": "packages/rules/metadata/commonObjects/fieldsList/__fixtures__/data.ts",
       "sha256": "0121831225a4381d1d1f3379e6ff3494a500f11158b5f202b2160c57479c9e15",
       "group": "fieldsList",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/fields-list.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/conversion-core/tests/xml_patch.rs",
+        "tests/migration/text-collections-e2e.json",
+        "rust/declarations/probes/fields-list-readable-default.yaml"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/fieldsList/fromXML.integration.test.ts",
       "sha256": "df0c288e0bac61087bd06a67147d16a9e7a35d1b737b5e4ee2da7f548af9c894",
       "group": "fieldsList",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/fields-list.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/conversion-core/tests/xml_patch.rs",
+        "tests/migration/text-collections-e2e.json",
+        "rust/declarations/probes/fields-list-readable-default.yaml"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/fieldsList/fromXML.ts",
       "sha256": "bc65970aa971f8f600a804f374d8bd90bfce3743fb07c0c40582fddb9ec9ea51",
       "group": "fieldsList",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/fields-list.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/conversion-core/tests/xml_patch.rs",
+        "tests/migration/text-collections-e2e.json",
+        "rust/declarations/probes/fields-list-readable-default.yaml"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/fieldsList/fromYAML.test.ts",
       "sha256": "74ea41bc63945b87da0c36cef5e85086401122d9091162ea14fe31ca4c22062e",
       "group": "fieldsList",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/fields-list.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/conversion-core/tests/xml_patch.rs",
+        "tests/migration/text-collections-e2e.json",
+        "rust/declarations/probes/fields-list-readable-default.yaml"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/fieldsList/fromYAML.ts",
       "sha256": "9c552ea2748821404e8bf664a107bf3105b42aeece0b4afe4c48c3ae3157f274",
       "group": "fieldsList",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/fields-list.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/conversion-core/tests/xml_patch.rs",
+        "tests/migration/text-collections-e2e.json",
+        "rust/declarations/probes/fields-list-readable-default.yaml"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/fieldsList/rules.ts",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "group": "fieldsList",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/fields-list.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/conversion-core/tests/xml_patch.rs",
+        "tests/migration/text-collections-e2e.json",
+        "rust/declarations/probes/fields-list-readable-default.yaml"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/fieldsList/toJSONSchema.ts",
       "sha256": "e59984361d550051bf7a16c5ed12d5fa03463c259efb619931a67ea9fee72d77",
       "group": "fieldsList",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/fields-list.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/conversion-core/tests/xml_patch.rs",
+        "tests/migration/text-collections-e2e.json",
+        "rust/declarations/probes/fields-list-readable-default.yaml"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/fieldsList/toXML.integration.test.ts",
       "sha256": "e89deaa75db41246986a9dd3c615e2559a50c11947eddb8ae215207d4b864a94",
       "group": "fieldsList",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/fields-list.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/conversion-core/tests/xml_patch.rs",
+        "tests/migration/text-collections-e2e.json",
+        "rust/declarations/probes/fields-list-readable-default.yaml"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/fieldsList/toXML.ts",
       "sha256": "8462e21c646d7a0561773ae662f722f921e96057023574e83c4d99327f581dbf",
       "group": "fieldsList",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/fields-list.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/conversion-core/tests/xml_patch.rs",
+        "tests/migration/text-collections-e2e.json",
+        "rust/declarations/probes/fields-list-readable-default.yaml"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/fieldsList/toYAML.test.ts",
       "sha256": "7e466bbe2a201691828915ca639cb5eed90ad252a9427cc4e0f952a219eaf074",
       "group": "fieldsList",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/fields-list.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/conversion-core/tests/xml_patch.rs",
+        "tests/migration/text-collections-e2e.json",
+        "rust/declarations/probes/fields-list-readable-default.yaml"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/fieldsList/toYAML.ts",
       "sha256": "56a6bc604645e57512769e9972337b504cef873526cf5daafb2fc1629c11b97c",
       "group": "fieldsList",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/fields-list.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/conversion-core/tests/xml_patch.rs",
+        "tests/migration/text-collections-e2e.json",
+        "rust/declarations/probes/fields-list-readable-default.yaml"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/fieldsList/types.ts",
       "sha256": "9896e84e873856374a1c6ee03ee4b3b11063992981a76ab2d44e3c2587d0810d",
       "group": "fieldsList",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/fields-list.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/conversion-core/tests/xml_patch.rs",
+        "tests/migration/text-collections-e2e.json",
+        "rust/declarations/probes/fields-list-readable-default.yaml"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/fillValue/analyzeItem.ts",
@@ -3764,49 +3882,85 @@
       "path": "packages/rules/metadata/commonObjects/help/fromXML.ts",
       "sha256": "659460d9002a95afd03bd6d4ebee30510619b78ae5a609a17a939c46b986e156",
       "group": "help",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/fragments/help.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/help-pages.yaml",
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/compiled-rules/tests/path_lexicons.rs",
+        "rust/crates/rule-compiler/tests/generate_collection.rs",
+        "rust/apps/nkdk/tests/resources.rs"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/help/rules.ts",
       "sha256": "b2785cabc6f486c96b4e5f3f09881065b916a4476ba27a30326a7b01440f4ea4",
       "group": "help",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/fragments/help.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/help-pages.yaml",
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/compiled-rules/tests/path_lexicons.rs",
+        "rust/crates/rule-compiler/tests/generate_collection.rs",
+        "rust/apps/nkdk/tests/resources.rs"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/help/toXML.ts",
       "sha256": "3bb5370862773a06396c1b1ed6eb24e33cb3f97291513100f2ee5a566218530a",
       "group": "help",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/fragments/help.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/help-pages.yaml",
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/compiled-rules/tests/path_lexicons.rs",
+        "rust/crates/rule-compiler/tests/generate_collection.rs",
+        "rust/apps/nkdk/tests/resources.rs"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/help/types.ts",
       "sha256": "b930ff43674589badfca66ac8aba95005624de5611d7cb4286d8146001a7ebd1",
       "group": "help",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/fragments/help.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/help-pages.yaml",
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/compiled-rules/tests/path_lexicons.rs",
+        "rust/crates/rule-compiler/tests/generate_collection.rs",
+        "rust/apps/nkdk/tests/resources.rs"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/help/xmlPages.test.ts",
       "sha256": "492f879ca48fb0f61460442d7eff3c17bb5ed6cf40755bec95fded7294073bbc",
       "group": "help",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/fragments/help.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/help-pages.yaml",
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/compiled-rules/tests/path_lexicons.rs",
+        "rust/crates/rule-compiler/tests/generate_collection.rs",
+        "rust/apps/nkdk/tests/resources.rs"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/help/xmlPages.ts",
       "sha256": "28cbf7c5a439d15430b500740f82e66a05bcfd889fbf84d5a247d262c1bca94d",
       "group": "help",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/fragments/help.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/help-pages.yaml",
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/compiled-rules/tests/path_lexicons.rs",
+        "rust/crates/rule-compiler/tests/generate_collection.rs",
+        "rust/apps/nkdk/tests/resources.rs"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/homePageWorkArea/builders.ts",
@@ -4080,57 +4234,92 @@
       "path": "packages/rules/metadata/commonObjects/indexField/fromXML.test.ts",
       "sha256": "4faf75e9386490bf72652af2fae45d4ef8be78964117b4004892faf5f4fd4eff",
       "group": "indexField",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/index-field.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/conversion-core/tests/xml_patch.rs",
+        "tests/migration/text-collections-e2e.json",
+        "rust/declarations/probes/index-field-default.yaml"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/indexField/fromXML.ts",
       "sha256": "dca0ac29493368e73b32cfb39951a6c9ef9c4da867ae3b8b1ca7f9a12cbd3a04",
       "group": "indexField",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/index-field.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/conversion-core/tests/xml_patch.rs",
+        "tests/migration/text-collections-e2e.json",
+        "rust/declarations/probes/index-field-default.yaml"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/indexField/fromYAML.ts",
       "sha256": "388ec74897acc113da6dc9dfcdc58e019e1da5b7d4137a40453e00bbb42b156e",
       "group": "indexField",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/index-field.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/conversion-core/tests/xml_patch.rs",
+        "tests/migration/text-collections-e2e.json",
+        "rust/declarations/probes/index-field-default.yaml"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/indexField/toJSONSchema.ts",
       "sha256": "0f7d7aaf1a0a6dcd2dafe881445b47cf9471fc211520a499e6bf971a49a82489",
       "group": "indexField",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/index-field.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/conversion-core/tests/xml_patch.rs",
+        "tests/migration/text-collections-e2e.json",
+        "rust/declarations/probes/index-field-default.yaml"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/indexField/toXML.ts",
       "sha256": "084eb92da73392bc5dba2b39acbc680b8d9b1ceb888b761989b6aa8de389f7bd",
       "group": "indexField",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/index-field.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/conversion-core/tests/xml_patch.rs",
+        "tests/migration/text-collections-e2e.json",
+        "rust/declarations/probes/index-field-default.yaml"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/indexField/toYAML.ts",
       "sha256": "1cc604a0e60982d3aa219bccda6cfb25d7eaf3a3450e8d34951adf43dca4b1e4",
       "group": "indexField",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/index-field.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/conversion-core/tests/xml_patch.rs",
+        "tests/migration/text-collections-e2e.json",
+        "rust/declarations/probes/index-field-default.yaml"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/indexField/types.ts",
       "sha256": "eca7c77679bbfac350c29d98c456db408ec8d2b39b207996dea66a38eaf50e37",
       "group": "indexField",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/index-field.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/conversion-core/tests/xml_patch.rs",
+        "tests/migration/text-collections-e2e.json",
+        "rust/declarations/probes/index-field-default.yaml"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/inputByStringFields/defaultValue.test.ts",
@@ -7428,65 +7617,113 @@
       "path": "packages/rules/metadata/commonObjects/string/atomicConversion.test.ts",
       "sha256": "3f705fdfeeb9a49de7047b4321b28495c463b4d25f894dc05be94aba300effa3",
       "group": "string",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/string.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/compiled-rules/tests/path_lexicons.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/scalar-value-e2e.json",
+        "docs/superpowers/reports/2026-09-13-ready-common-package.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/string/atomicConversion.ts",
       "sha256": "71bee069e3f4d8f602506d091e7f24b01014f65348e33a38d43f13d812cd5fcf",
       "group": "string",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/string.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/compiled-rules/tests/path_lexicons.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/scalar-value-e2e.json",
+        "docs/superpowers/reports/2026-09-13-ready-common-package.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/string/fromXML.ts",
       "sha256": "883fe8c8bb3b8538daa1c9b780499f59f856c8a1e47d33f5a3b2189a7c5c0267",
       "group": "string",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/string.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/compiled-rules/tests/path_lexicons.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/scalar-value-e2e.json",
+        "docs/superpowers/reports/2026-09-13-ready-common-package.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/string/toJSONSchema.test.ts",
       "sha256": "29eaaac1f576517376b62c4abcec0381a21722168e9e1f71630deb1d76dd3a0d",
       "group": "string",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/string.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/compiled-rules/tests/path_lexicons.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/scalar-value-e2e.json",
+        "docs/superpowers/reports/2026-09-13-ready-common-package.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/string/toJSONSchema.ts",
       "sha256": "5c205f8f54aeabf7d7af6f8744052a1a04066a06669e9aa26258e2400c44c7c1",
       "group": "string",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/string.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/compiled-rules/tests/path_lexicons.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/scalar-value-e2e.json",
+        "docs/superpowers/reports/2026-09-13-ready-common-package.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/string/toYAML.ts",
       "sha256": "2bb6d6be4196a01af3811e8eb4621f00b8fe3e32ae857035896502e1f3249ee4",
       "group": "string",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/string.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/compiled-rules/tests/path_lexicons.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/scalar-value-e2e.json",
+        "docs/superpowers/reports/2026-09-13-ready-common-package.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/string/types.ts",
       "sha256": "66ac419829589117d0444329aab4d6554943d74527d59d4a6656749932ffec9e",
       "group": "string",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/string.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/compiled-rules/tests/path_lexicons.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/scalar-value-e2e.json",
+        "docs/superpowers/reports/2026-09-13-ready-common-package.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/string/xmlValue.ts",
       "sha256": "cc659b6749f8b27d1f6b902f116f89d7c9d64c3ec8edf63880b2700fa903b3db",
       "group": "string",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/string.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/compiled-rules/tests/path_lexicons.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "tests/migration/scalar-value-e2e.json",
+        "docs/superpowers/reports/2026-09-13-ready-common-package.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/stringOrNumber/fromXML.test.ts",
@@ -7952,81 +8189,131 @@
       "path": "packages/rules/metadata/commonObjects/usePurposes/fromXML.test.ts",
       "sha256": "1b7504c20e8c5c2c0bbf0fe60b7deb95736fae2010eb06fd010a62fafaeb9a27",
       "group": "usePurposes",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/use-purposes.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/rule-compiler/tests/generate_collection.rs",
+        "tests/migration/use-purposes-e2e.json",
+        "rust/declarations/probes/use-purposes-default.yaml"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/usePurposes/fromXML.ts",
       "sha256": "56211f963d74934981765cb7572a4ebc00dfc339fab025f1e1cf3b38e3a25231",
       "group": "usePurposes",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/use-purposes.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/rule-compiler/tests/generate_collection.rs",
+        "tests/migration/use-purposes-e2e.json",
+        "rust/declarations/probes/use-purposes-default.yaml"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/usePurposes/fromYAML.test.ts",
       "sha256": "e31fd717255fd174cb42a726182d2ac6c9dab4c307ef28596690c66fd60dd6bb",
       "group": "usePurposes",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/use-purposes.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/rule-compiler/tests/generate_collection.rs",
+        "tests/migration/use-purposes-e2e.json",
+        "rust/declarations/probes/use-purposes-default.yaml"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/usePurposes/fromYAML.ts",
       "sha256": "d7dc9dcee56f1afeef8355f93fe2cdbc8bdc80c7faefd195ffbce5f43af66f09",
       "group": "usePurposes",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/use-purposes.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/rule-compiler/tests/generate_collection.rs",
+        "tests/migration/use-purposes-e2e.json",
+        "rust/declarations/probes/use-purposes-default.yaml"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/usePurposes/toJSONSchema.ts",
       "sha256": "b2a4a34b7cdc158faa1409d152987770b9ac05a7c25bfbb8a3c109c4f7e73193",
       "group": "usePurposes",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/use-purposes.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/rule-compiler/tests/generate_collection.rs",
+        "tests/migration/use-purposes-e2e.json",
+        "rust/declarations/probes/use-purposes-default.yaml"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/usePurposes/toXML.test.ts",
       "sha256": "c8165be95e32a1496bd6f7f01ba09ef6b5cfe8a339f85f4103ee96f9043bf27e",
       "group": "usePurposes",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/use-purposes.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/rule-compiler/tests/generate_collection.rs",
+        "tests/migration/use-purposes-e2e.json",
+        "rust/declarations/probes/use-purposes-default.yaml"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/usePurposes/toXML.ts",
       "sha256": "47590fc865d02f75620ef6bf2f23c063a809a955e271d9d5e362a703dd495aac",
       "group": "usePurposes",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/use-purposes.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/rule-compiler/tests/generate_collection.rs",
+        "tests/migration/use-purposes-e2e.json",
+        "rust/declarations/probes/use-purposes-default.yaml"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/usePurposes/toYAML.test.ts",
       "sha256": "143b288d8f734e4a524410054aad7dc9d1f5ab48fd2476125ecd233fb10238f9",
       "group": "usePurposes",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/use-purposes.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/rule-compiler/tests/generate_collection.rs",
+        "tests/migration/use-purposes-e2e.json",
+        "rust/declarations/probes/use-purposes-default.yaml"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/usePurposes/toYAML.ts",
       "sha256": "fb33eeb55d80a3fcb12f5d811840d2a4170b2fe5faa9762e954c1c42bd9dfe9f",
       "group": "usePurposes",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/use-purposes.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/rule-compiler/tests/generate_collection.rs",
+        "tests/migration/use-purposes-e2e.json",
+        "rust/declarations/probes/use-purposes-default.yaml"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/usePurposes/types.ts",
       "sha256": "25665abfd24f080af70d70756461a3e373130e635867401b5d145966dab85d88",
       "group": "usePurposes",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/use-purposes.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/rule-compiler/tests/generate_collection.rs",
+        "tests/migration/use-purposes-e2e.json",
+        "rust/declarations/probes/use-purposes-default.yaml"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/userSettingsID/__fixtures__/data.ts",
@@ -8280,89 +8567,144 @@
       "path": "packages/rules/metadata/commonObjects/webSocketClientHeaders/fromXML.test.ts",
       "sha256": "71d483dcc7dcf8de3e17032bfdfca3bfe5bbaf467f52af0cf055365592027fa7",
       "group": "webSocketClientHeaders",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/web-socket-client-headers.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/web-socket-client-headers-default.yaml",
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/rule-compiler/tests/sequence.rs",
+        "tests/migration/text-collections-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/webSocketClientHeaders/fromXML.ts",
       "sha256": "e5c7d3ffd19c435a9930262d3237f86126dbc041de486edc96b6df095e17118a",
       "group": "webSocketClientHeaders",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/web-socket-client-headers.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/web-socket-client-headers-default.yaml",
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/rule-compiler/tests/sequence.rs",
+        "tests/migration/text-collections-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/webSocketClientHeaders/fromYAML.test.ts",
       "sha256": "2843e04dbeba7f6de79709bfbbb524d354287be9f93a44c439a7123e39c87dd1",
       "group": "webSocketClientHeaders",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/web-socket-client-headers.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/web-socket-client-headers-default.yaml",
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/rule-compiler/tests/sequence.rs",
+        "tests/migration/text-collections-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/webSocketClientHeaders/fromYAML.ts",
       "sha256": "524a12f5463dc1eae8db87eae65957bbece4d4f0cf3f23f02d7854b04b4eef04",
       "group": "webSocketClientHeaders",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/web-socket-client-headers.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/web-socket-client-headers-default.yaml",
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/rule-compiler/tests/sequence.rs",
+        "tests/migration/text-collections-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/webSocketClientHeaders/toJSONSchema.test.ts",
       "sha256": "e0cddd3be3865c18c599b40eb7f66d2bd31d1c317bdca80e43c536d12a1d8919",
       "group": "webSocketClientHeaders",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/web-socket-client-headers.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/web-socket-client-headers-default.yaml",
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/rule-compiler/tests/sequence.rs",
+        "tests/migration/text-collections-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/webSocketClientHeaders/toJSONSchema.ts",
       "sha256": "d3267897b2f61a54bb4f41d6fdf7eaea33fe042f0d766c4bbad33d3ee1c9abec",
       "group": "webSocketClientHeaders",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/web-socket-client-headers.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/web-socket-client-headers-default.yaml",
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/rule-compiler/tests/sequence.rs",
+        "tests/migration/text-collections-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/webSocketClientHeaders/toXML.test.ts",
       "sha256": "4e7c27bbaf48d8e9871643afa5ee54b54eafdf2e375a5a4c4cf11c49ee13b350",
       "group": "webSocketClientHeaders",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/web-socket-client-headers.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/web-socket-client-headers-default.yaml",
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/rule-compiler/tests/sequence.rs",
+        "tests/migration/text-collections-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/webSocketClientHeaders/toXML.ts",
       "sha256": "fa4c3b286e64794cb7928bbac0612a5043f74be206855844b7526a9f94dcc1ed",
       "group": "webSocketClientHeaders",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/web-socket-client-headers.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/web-socket-client-headers-default.yaml",
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/rule-compiler/tests/sequence.rs",
+        "tests/migration/text-collections-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/webSocketClientHeaders/toYAML.test.ts",
       "sha256": "da16e7d58ea26c8e69282b30c32143d2ff9bbfc38828d2020ac9614b834d352a",
       "group": "webSocketClientHeaders",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/web-socket-client-headers.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/web-socket-client-headers-default.yaml",
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/rule-compiler/tests/sequence.rs",
+        "tests/migration/text-collections-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/webSocketClientHeaders/toYAML.ts",
       "sha256": "7d13ddf52835cf7599e9250e0b49d9a836da3e7521eb1538b6be39b430358d04",
       "group": "webSocketClientHeaders",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/web-socket-client-headers.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/web-socket-client-headers-default.yaml",
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/rule-compiler/tests/sequence.rs",
+        "tests/migration/text-collections-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/webSocketClientHeaders/types.ts",
       "sha256": "d86555a96f29532e7a47628c26906b76d301eb5e186a0197bf8a0109e4630d86",
       "group": "webSocketClientHeaders",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/web-socket-client-headers.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/web-socket-client-headers-default.yaml",
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/rule-compiler/tests/sequence.rs",
+        "tests/migration/text-collections-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/wsDefinitionSchemas/fromXML.ts",
@@ -8384,145 +8726,226 @@
       "path": "packages/rules/metadata/commonObjects/xDTOPackages/fromXML.test.ts",
       "sha256": "20c0f244f39b5737ac9caedfaa80734677494fa62c3e5c39c9a7ca9df62fa9bf",
       "group": "xDTOPackages",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/xdto-packages.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/xdto-packages-default.yaml",
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/rule-compiler/tests/sequence.rs",
+        "tests/migration/text-collections-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/xDTOPackages/fromXML.ts",
       "sha256": "2237685f5e04e28a90183284bd9ee1bb2a0ec936e95399032d0d707ca0ed80c6",
       "group": "xDTOPackages",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/xdto-packages.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/xdto-packages-default.yaml",
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/rule-compiler/tests/sequence.rs",
+        "tests/migration/text-collections-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/xDTOPackages/fromYAML.ts",
       "sha256": "785ebac6775a4cfa2c21fa384f510b8c7578f40db924c4808beb5a699fd20291",
       "group": "xDTOPackages",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/xdto-packages.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/xdto-packages-default.yaml",
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/rule-compiler/tests/sequence.rs",
+        "tests/migration/text-collections-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/xDTOPackages/index.ts",
       "sha256": "59605b2246ae6a6273152ca7bf910b93d8483b531cd89c500b854b697e3cc094",
       "group": "xDTOPackages",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/xdto-packages.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/xdto-packages-default.yaml",
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/rule-compiler/tests/sequence.rs",
+        "tests/migration/text-collections-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/xDTOPackages/toJSONSchema.ts",
       "sha256": "9e45480d62bec3f38836d16b5b057a10077f9b391fefb380e458c86038faa1bf",
       "group": "xDTOPackages",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/xdto-packages.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/xdto-packages-default.yaml",
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/rule-compiler/tests/sequence.rs",
+        "tests/migration/text-collections-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/xDTOPackages/toXML.test.ts",
       "sha256": "9ea4f56ce03442efad0f19217dad5decc2b8d6e03f3136419bae872d6463a3d2",
       "group": "xDTOPackages",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/xdto-packages.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/xdto-packages-default.yaml",
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/rule-compiler/tests/sequence.rs",
+        "tests/migration/text-collections-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/xDTOPackages/toXML.ts",
       "sha256": "340ee8a51ef37da0529f5d66148ae21f5bf0ba82b4184881a2a9effad0651d5d",
       "group": "xDTOPackages",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/xdto-packages.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/xdto-packages-default.yaml",
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/rule-compiler/tests/sequence.rs",
+        "tests/migration/text-collections-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/xDTOPackages/toYAML.ts",
       "sha256": "b96c93464634cfb430d842f7d0fff992d617cefc4d109a3562fab54f59c22de0",
       "group": "xDTOPackages",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/xdto-packages.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/xdto-packages-default.yaml",
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/rule-compiler/tests/sequence.rs",
+        "tests/migration/text-collections-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/xDTOPackages/types.ts",
       "sha256": "1d80ac82c2147fdc92506fa8d197e6085bdf249b3c3756465bf7040f70720a7a",
       "group": "xDTOPackages",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/xdto-packages.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/xdto-packages-default.yaml",
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "rust/crates/rule-compiler/tests/sequence.rs",
+        "tests/migration/text-collections-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/xdtoTypeName/fromXML.test.ts",
       "sha256": "3089535d6ae672fa13a120107f7a0f00e862df0d10bfe61d1e684306783bcf0b",
       "group": "xdtoTypeName",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/xdto-type-name.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/qname.rs",
+        "rust/crates/rule-compiler/tests/generate.rs",
+        "tests/migration/xdto-type-name-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/xdtoTypeName/fromXML.ts",
       "sha256": "25179b7d72c8d1f358fecd3b2de757a8d98801b59e6edbead19ec6feda0aa3bd",
       "group": "xdtoTypeName",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/xdto-type-name.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/qname.rs",
+        "rust/crates/rule-compiler/tests/generate.rs",
+        "tests/migration/xdto-type-name-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/xdtoTypeName/fromYAML.ts",
       "sha256": "8948e51a39758ff9483ae2039c702a456f2d364e9bf71b9a84fb3883e1b7fa22",
       "group": "xdtoTypeName",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/xdto-type-name.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/qname.rs",
+        "rust/crates/rule-compiler/tests/generate.rs",
+        "tests/migration/xdto-type-name-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/xdtoTypeName/toJSONSchema.test.ts",
       "sha256": "1eff12b826e38182c0957826be814b124055d674e53ecfc5e373ee35f905ed64",
       "group": "xdtoTypeName",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/xdto-type-name.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/qname.rs",
+        "rust/crates/rule-compiler/tests/generate.rs",
+        "tests/migration/xdto-type-name-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/xdtoTypeName/toJSONSchema.ts",
       "sha256": "4e9429ea5f1155acd8b517eac53dda5450f7bc4a63f03344afb4308919ad4b1f",
       "group": "xdtoTypeName",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/xdto-type-name.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/qname.rs",
+        "rust/crates/rule-compiler/tests/generate.rs",
+        "tests/migration/xdto-type-name-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/xdtoTypeName/toXML.test.ts",
       "sha256": "513011eb6028c9378766cc871d1a699e84ca9324c50306fc8488567eb090e726",
       "group": "xdtoTypeName",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/xdto-type-name.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/qname.rs",
+        "rust/crates/rule-compiler/tests/generate.rs",
+        "tests/migration/xdto-type-name-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/xdtoTypeName/toXML.ts",
       "sha256": "bd05b6d40b6799a54564c8bfdcf8936c078bad5d38bac9b7f51c2effc2d2e482",
       "group": "xdtoTypeName",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/xdto-type-name.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/qname.rs",
+        "rust/crates/rule-compiler/tests/generate.rs",
+        "tests/migration/xdto-type-name-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/xdtoTypeName/toYAML.ts",
       "sha256": "c9fba9a3e96c05650610fe8a5fc5b3cc27a9d104812533385f71042fcd1f6775",
       "group": "xdtoTypeName",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/xdto-type-name.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/qname.rs",
+        "rust/crates/rule-compiler/tests/generate.rs",
+        "tests/migration/xdto-type-name-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/xdtoTypeName/types.ts",
       "sha256": "ab954a5593a340047123fa76509d8d2de317a511569a31f8a9d02d3eaccf5ad4",
       "group": "xdtoTypeName",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/xdto-type-name.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/qname.rs",
+        "rust/crates/rule-compiler/tests/generate.rs",
+        "tests/migration/xdto-type-name-e2e.json"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/xmlRoot/fromXML.test.ts",

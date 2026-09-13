@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.exact-decimal
+value:
+  kind: record
+  fields:
+    - name: dropListWidth
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: dropListWidth
+        path:
+          - DropListWidth
+  yaml:
+    kind: mapping
+    fields:
+      - field: dropListWidth
+        key: ШиринаВыпадающегоСписка
+presence:
+  - target:
+      field: dropListWidth
+    xml:
+      missing:
+        denotes:
+          literal: 0
+      canonical:
+        - when:
+            eq:
+              - field: dropListWidth
+              - literal: 0
+          form: missing
+    yaml:
+      default:
+        literal: 0
+id: candidate.fragment.eb7d8c736ba727126122

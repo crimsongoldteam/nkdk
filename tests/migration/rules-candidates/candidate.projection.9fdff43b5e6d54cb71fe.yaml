@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.9fdff43b5e6d54cb71fe
+description: 'Кандидат проекции: относительный XML-корень EndOfRepresentationPeriod; не полный владелец'
+imports:
+  part0: candidate.fragment.4a1dbc250e2b0f804548
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

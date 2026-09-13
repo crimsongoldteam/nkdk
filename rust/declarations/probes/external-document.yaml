@@ -1,0 +1,24 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.external-document
+imports: {help: common.help-pages, files: fragment.help-resources}
+compose: [{use: files}]
+namespaces: {ep: 'http://v8.1c.ru/8.3/xcf/extrnprops'}
+inputs:
+  pages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+value:
+  kind: record
+  fields:
+  - {name: help, type: {use: help, bind: {pages: {input: pages}}}}
+  - {name: name, type: {kind: scalar, scalar: text}}
+representations:
+  xml:
+    kind: record
+    fields:
+    - {field: name, path: [Root, Name]}
+    - {field: help, path: ['ep:Help'], file: [Ext, Help.xml]}
+  yaml:
+    kind: mapping
+    fields:
+    - {field: name, key: Имя}
+    - {field: help, key: Справка}

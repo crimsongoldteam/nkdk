@@ -1,0 +1,40 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.FormConversationsRepresentation
+value:
+  kind: record
+  fields:
+    - name: conversationsRepresentation
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: conversationsRepresentation
+        path:
+          - Form
+          - ConversationsRepresentation
+  yaml:
+    kind: mapping
+    fields:
+      - field: conversationsRepresentation
+        key: ОтображениеОбсуждений
+presence:
+  - target:
+      field: conversationsRepresentation
+    xml:
+      missing:
+        denotes:
+          literal: Auto
+      canonical:
+        - when:
+            eq:
+              - field: conversationsRepresentation
+              - literal: Auto
+          form: missing
+    yaml:
+      default:
+        literal: Auto
+id: contract.property.03278174559ab0d51407.fragment

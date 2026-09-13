@@ -1,0 +1,3120 @@
+{
+  "scope": "cf root and child identities with parent-scoped path occurrences",
+  "roots": [
+    {
+      "source": "e2e/fixtures/xml/cf/AccountingRegisters/РегистрБухгалтерии1.xml",
+      "sha256": "aeb6c5d6e4eca3aaf07f32953e2b1cc430fcdf578adbe2da901e1f2f3a5fb474",
+      "kind": "AccountingRegister",
+      "name": "РегистрБухгалтерии1",
+      "identity": "83b220b0-0b60-4163-aa2d-1c6a9304b7dc"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОбороты.xml",
+      "sha256": "8ccfd7367b0d43ae6abea5f2df41ef7981057bce01f51be2c9a3fa62b5ba946e",
+      "kind": "AccountingRegister",
+      "name": "РегистрБухгалтерииВсеСвойстваОбороты",
+      "identity": "28c1195f-ffed-4f2e-994d-663362cadd4d"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/AccountingRegisters/РегистрБухгалтерииПоУмолчанию.xml",
+      "sha256": "e641c6135eb2928919d8ae68367d8094131d425fce5be60c46338b84d35cec69",
+      "kind": "AccountingRegister",
+      "name": "РегистрБухгалтерииПоУмолчанию",
+      "identity": "95af6512-9dc3-45ed-bebd-dd2a97f0069f"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/AccumulationRegisters/РегистрНакопления1.xml",
+      "sha256": "cbcb635b4bbf3280d497000cb8d3ec65218d617214f7295e096e917f80173e21",
+      "kind": "AccumulationRegister",
+      "name": "РегистрНакопления1",
+      "identity": "1eba5047-9b2b-4b7b-8ece-13e62b1049c7"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/AccumulationRegisters/РегистрНакопленияВсеСвойстваОбороты.xml",
+      "sha256": "3df60315edca01ce56335f95a07d45fc9d88d33cb3719b5c023fe71ec0745c90",
+      "kind": "AccumulationRegister",
+      "name": "РегистрНакопленияВсеСвойстваОбороты",
+      "identity": "e9194700-40e3-475f-91a5-fcdef0f9d75c"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/AccumulationRegisters/РегистрНакопленияПоУмолчанию.xml",
+      "sha256": "b7ffe255f8fd75af6b1910d591ad415213d5eefdf8970b7434b5062dca0b93f4",
+      "kind": "AccumulationRegister",
+      "name": "РегистрНакопленияПоУмолчанию",
+      "identity": "0b25c160-c52c-4c11-9f23-f4a3eae33cd4"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Bots/БотВсеСвойства.xml",
+      "sha256": "31132a46eccaff382d5b48aa8f285577d85c39f189ed3cdd769610b2b9bea82f",
+      "kind": "Bot",
+      "name": "БотВсеСвойства",
+      "identity": "1f777cc7-ac1c-46e8-8e35-82485cee6798"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Bots/БотПоУмолчанию.xml",
+      "sha256": "de34b2422d7b68413b312b50b0252d62234fe0499859d050382734e91db02387",
+      "kind": "Bot",
+      "name": "БотПоУмолчанию",
+      "identity": "f46c752d-bf03-4e97-a690-9212ecd8eb3e"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцесс1.xml",
+      "sha256": "77aa3f6de23fb4e6187c74d28f4f7fc59d82f8302727f2e4c2fc7d99e74420c8",
+      "kind": "BusinessProcess",
+      "name": "БизнесПроцесс1",
+      "identity": "ded3835a-260f-481d-8da9-facf543e0f42"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессБезНомера.xml",
+      "sha256": "c49d498f5a0c34097ff09f3153fbe0aea7f7efe1e5c77614ad63d5c09fd42c9b",
+      "kind": "BusinessProcess",
+      "name": "БизнесПроцессБезНомера",
+      "identity": "64e0a899-1060-4ea8-a583-69f763324e46"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства.xml",
+      "sha256": "a03527edc24990a7c2bbb21285d9dd179b7dac8e32848be870967e2b466ec3d6",
+      "kind": "BusinessProcess",
+      "name": "БизнесПроцессВсеСвойства",
+      "identity": "f790632a-04a3-4e35-bb1e-d3c4ed5a2f0e"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессМаксимальнаяДлинаКодаИНаименования.xml",
+      "sha256": "e1c1cae9118a4a2165566e43cf63893920ebf2e82372e32641838d3ed4695f5c",
+      "kind": "BusinessProcess",
+      "name": "БизнесПроцессМаксимальнаяДлинаКодаИНаименования",
+      "identity": "cec41877-70d3-410b-9d46-a3812c7b070c"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессМаксимальнаяДлинаКодаИНаименованияЧисло.xml",
+      "sha256": "199446eb83ec812be351bc8f11282afc6654075a1992ea112c5c5a314ec0a908",
+      "kind": "BusinessProcess",
+      "name": "БизнесПроцессМаксимальнаяДлинаКодаИНаименованияЧисло",
+      "identity": "45c0451a-ec9c-4951-92da-cd9dfb1adc21"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессПоУмолчанию.xml",
+      "sha256": "a61a0ca6ef62e5b8392e383bfb5b870d1bdc8966c28188ad165eb1a409dca8cd",
+      "kind": "BusinessProcess",
+      "name": "БизнесПроцессПоУмолчанию",
+      "identity": "d71a7a40-1552-4061-94ba-462ab002a8c0"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CalculationRegisters/РегистрРасчета1.xml",
+      "sha256": "dacd0bde5423a9672b43e1bc81b2b40c8d3299096e83b22fc887fa00bf36e4ac",
+      "kind": "CalculationRegister",
+      "name": "РегистрРасчета1",
+      "identity": "1dad0117-9cbc-401b-a3e1-c973eef11fe4"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CalculationRegisters/РегистрРасчетаВедущий.xml",
+      "sha256": "448f60fa636f58de237bc7a1c96bb89017fce5cfa2a59330d7524345ca89aff1",
+      "kind": "CalculationRegister",
+      "name": "РегистрРасчетаВедущий",
+      "identity": "45f00fe5-80b1-44e6-877d-989f8d853429"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CalculationRegisters/РегистрРасчетаВсеСвойства.xml",
+      "sha256": "d304ae507ba211ffc86fb27d5568c6d8861da76b18ac95b5f546cecf43f21ecf",
+      "kind": "CalculationRegister",
+      "name": "РегистрРасчетаВсеСвойства",
+      "identity": "963bef13-9fd2-432c-ac46-133d20e7dc0f"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CalculationRegisters/РегистрРасчетаПоУмолчанию.xml",
+      "sha256": "60ba38141a9b40696025a918b6d9a27d6fd5d95a10c3fad28003e1f1bb5b55f6",
+      "kind": "CalculationRegister",
+      "name": "РегистрРасчетаПоУмолчанию",
+      "identity": "a970e8e8-3b0d-450c-a703-b4696255cadb"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/ЗначенияХарактеристик.xml",
+      "sha256": "58773b4f054597f6979fb4709c27d914db3804affb9c559b833a2ae0e53616ec",
+      "kind": "Catalog",
+      "name": "ЗначенияХарактеристик",
+      "identity": "7ecbb4fa-3d7d-49ad-9621-386d4cb318e7"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/ПараметрыВыбора.xml",
+      "sha256": "1daefe64e500e908f32d7a366733bb365edbb5a0c193fc4c5f41012988289b2d",
+      "kind": "Catalog",
+      "name": "ПараметрыВыбора",
+      "identity": "48e146d4-396e-4cc2-bc0b-ce75097b2573"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/ПоУмолчанию.xml",
+      "sha256": "ec36f22853fb3ca9bb73a7574734a9bbfef58db1446ebcb500efb811508f79cb",
+      "kind": "Catalog",
+      "name": "ПоУмолчанию",
+      "identity": "63f82a4b-ad4a-4521-a087-ccb33fdb5f14"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникCоВсемиОбъектами.xml",
+      "sha256": "0b6783aa9e5468c6205210c90e6e159e7a09c25fad69be082b6a039a4a56e1a5",
+      "kind": "Catalog",
+      "name": "СправочникCоВсемиОбъектами",
+      "identity": "85c9d17e-a93a-47e6-ab54-9c37126fb1fa"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникБезКодИНаименования.xml",
+      "sha256": "e40003535f7e5dea555e0abc894e2db1472bb240e1b84320456427cb53df7f8f",
+      "kind": "Catalog",
+      "name": "СправочникБезКодИНаименования",
+      "identity": "a6310360-3c3b-47f2-a3aa-929886597d93"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникВладелец.xml",
+      "sha256": "c25865f1f70c463f8743596b3254d0749fbc0dbec32e5fd56b9fcfc92508e493",
+      "kind": "Catalog",
+      "name": "СправочникВладелец",
+      "identity": "000f4b80-92c9-48d0-9845-ce77c1420161"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникДвоичныеДанные.xml",
+      "sha256": "1c9ac9c325f834b5322e9ce6657eaf4edef7ca6655dd299626b49c2217cc2f63",
+      "kind": "Catalog",
+      "name": "СправочникДвоичныеДанные",
+      "identity": "b67d497a-a629-4180-9587-e313846d302c"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникКомандныйИнтерфейс.xml",
+      "sha256": "e36763cb8ac588767165493ac667b70f5415816947f611f829ca1594bfdc31c6",
+      "kind": "Catalog",
+      "name": "СправочникКомандныйИнтерфейс",
+      "identity": "600e1684-aa0a-495c-b40e-f76eb682746e"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникМаксимальнаяДлинаКодаИНаименования.xml",
+      "sha256": "ff675bed6bbf21edce21d858b74836b517ce01b8178d5da189f3ec7059ccd7a1",
+      "kind": "Catalog",
+      "name": "СправочникМаксимальнаяДлинаКодаИНаименования",
+      "identity": "58df1473-9834-48fb-ba43-537c60f5d3c2"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникМаксимальнаяДлинаКодаИНаименованияЧисло.xml",
+      "sha256": "d5195f31df69ed65a011900ca12449cd60a04c039f5266a92c92e7dbb5af851a",
+      "kind": "Catalog",
+      "name": "СправочникМаксимальнаяДлинаКодаИНаименованияЧисло",
+      "identity": "6d69bfbe-ab43-4336-91d2-8849580768d4"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникОбщиеРеквизиты.xml",
+      "sha256": "f5dfb36d118d83a092c6f02232b7c1be378d53463489adf85273f272318773f7",
+      "kind": "Catalog",
+      "name": "СправочникОбщиеРеквизиты",
+      "identity": "3d73354e-a9ff-46de-949e-7a9b095fc4bf"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml",
+      "sha256": "27231ddedad3d68c1c8aa071d611c32f94681c7bc94d6533b22ee9409b0217dd",
+      "kind": "Catalog",
+      "name": "СправочникПолный",
+      "identity": "f8ffca12-d09d-4111-ba91-67077462df5b"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникРеквизит.xml",
+      "sha256": "080673dc01565e136dc8f3cc6667c4a516fece687dbafa99fbf5ae70a27d3be1",
+      "kind": "Catalog",
+      "name": "СправочникРеквизит",
+      "identity": "52dc511c-8448-4f84-8643-21916e56d775"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникРеквизитБезСинонима.xml",
+      "sha256": "85e7e02d512939bd4e037efcc025c2f679eb26241cb1bcb6d3031124ae6ff6ae",
+      "kind": "Catalog",
+      "name": "СправочникРеквизитБезСинонима",
+      "identity": "3838d316-6ea0-4c81-9525-d7622a1fe58e"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникСВладельцем.xml",
+      "sha256": "832d619313d9e4fd41b0204c5f8acdb3bfef4e1b6b63e9149d2cb9048a0aa221",
+      "kind": "Catalog",
+      "name": "СправочникСВладельцем",
+      "identity": "8e104186-c016-4707-a5be-a33c5a53fd9f"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникСПредопределенными.xml",
+      "sha256": "38b7a0d75fed45dd44b780eb1b92c682148db4129825d8e310a33c97b1f190b6",
+      "kind": "Catalog",
+      "name": "СправочникСПредопределенными",
+      "identity": "b47a9e20-e2c8-4091-9025-b0cf97b28126"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникСХарактеристиками.xml",
+      "sha256": "36dbc7844baf9eff30363b9416624b39ebcde4adb52886fba70d84e242978c3e",
+      "kind": "Catalog",
+      "name": "СправочникСХарактеристиками",
+      "identity": "43a276a6-7d0f-4fd8-b718-13d90094216c"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникТолькоКод.xml",
+      "sha256": "0518c56c623aaddcdfdba45b02faa6fcea74b6a252ba8fff0b0cda02a8655331",
+      "kind": "Catalog",
+      "name": "СправочникТолькоКод",
+      "identity": "0acdb5d9-0043-41e5-b91d-e3810f29a27b"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникТолькоНаименование.xml",
+      "sha256": "0f26dd2d02dba7825c2bc481efa144c9411fa60c2715c7f8c79039d352f2fb91",
+      "kind": "Catalog",
+      "name": "СправочникТолькоНаименование",
+      "identity": "19d3055e-6820-4838-b71a-933f6e2f7df4"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникФормаВсеСвойства.xml",
+      "sha256": "0317495f4a8c9bd3116e4d32b66e42e31e6fbac2eee68858be9a07f8d78bd4c7",
+      "kind": "Catalog",
+      "name": "СправочникФормаВсеСвойства",
+      "identity": "f4eb6828-49ca-4d6c-9ecd-5a691c60b276"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникФормаТабличнаяЧасть.xml",
+      "sha256": "1d1b3e98ae9444fe65135924a03ae8d3b40be3541730cc5e7abc38c167596377",
+      "kind": "Catalog",
+      "name": "СправочникФормаТабличнаяЧасть",
+      "identity": "dbc9a40c-8bd3-4f15-b001-346b132d9e8d"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетов1.xml",
+      "sha256": "31c0d2dbce0b4be9b0fe3ef8988458703e3daff24eadb3213a733ca58b7da20b",
+      "kind": "ChartOfAccounts",
+      "name": "ПланСчетов1",
+      "identity": "937aa117-585d-4030-b06b-8cf852050cd0"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовБезКодаИНаименования.xml",
+      "sha256": "4ae5f3dfb184ccd036b618ad6746b4685b3c131ecb548e62d40b60a59db504d0",
+      "kind": "ChartOfAccounts",
+      "name": "ПланСчетовБезКодаИНаименования",
+      "identity": "4a1cf20f-7cff-46be-8adf-b221cfefc9e6"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства.xml",
+      "sha256": "fcd73718d1134a63afb433454d4d4d3fb14fb461b80620b33aa9c37f4750acdf",
+      "kind": "ChartOfAccounts",
+      "name": "ПланСчетовВсеСвойства",
+      "identity": "06cc2a86-f916-4f8f-964e-66a9ad7b1fc0"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовМаксимальнаяДлинаКодаИНаименования.xml",
+      "sha256": "2fb9e620f0c8d1ea5f850c9c00a9f7b81d685ddc5961a615e37c2e4b99105b6d",
+      "kind": "ChartOfAccounts",
+      "name": "ПланСчетовМаксимальнаяДлинаКодаИНаименования",
+      "identity": "19298ec0-92d9-469c-ab2e-170e9984f385"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовПоУмолчанию.xml",
+      "sha256": "3be4dd1c341092e1ee5a42feb56befc462fc193098cf8af0f1cec2e854e658bd",
+      "kind": "ChartOfAccounts",
+      "name": "ПланСчетовПоУмолчанию",
+      "identity": "af09c4b9-d0e6-4897-9cbb-b9a618590ac8"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовТолькоКод.xml",
+      "sha256": "db8b61a36d02479ed859827d11ff524788b03767968046219542b17f8b179cbe",
+      "kind": "ChartOfAccounts",
+      "name": "ПланСчетовТолькоКод",
+      "identity": "0207abcd-d5bb-4f0c-9110-548a5c1200db"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовТолькоНаименование.xml",
+      "sha256": "c4aebf0abf1f0eaee1ce8edf091b39fb41c78fadbc81cabd20cbad6c7015fd66",
+      "kind": "ChartOfAccounts",
+      "name": "ПланСчетовТолькоНаименование",
+      "identity": "00159e38-cbec-4bf3-8ea6-536f0d009607"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланВидовРасчета1.xml",
+      "sha256": "64351f1fd7ed62a80d59eb2c717874865c75a9da25cc81eff1dc2dd507c862f9",
+      "kind": "ChartOfCalculationTypes",
+      "name": "ПланВидовРасчета1",
+      "identity": "fdaeb8b6-6b8a-4da9-b75a-afce7c338baf"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланВидовРасчетаБезКодаИНаименования.xml",
+      "sha256": "7ddd71ac4463fb7211fafd0929b0fb078516bb6c95ef0fb28b2f816b26114c45",
+      "kind": "ChartOfCalculationTypes",
+      "name": "ПланВидовРасчетаБезКодаИНаименования",
+      "identity": "f48dceeb-80ad-40f3-96c9-50dc612eaeda"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланВидовРасчетаМаксимальнаяДлинаКодаИНаименования.xml",
+      "sha256": "b68db8b678f442f4a003d95133d0d30209b7f945ca5af26498a776b6cb01b4c6",
+      "kind": "ChartOfCalculationTypes",
+      "name": "ПланВидовРасчетаМаксимальнаяДлинаКодаИНаименования",
+      "identity": "32fac09a-077d-4fbc-9e1c-23a1417446d5"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланВидовРасчетаМаксимальнаяДлинаКодаИНаименованияЧисло.xml",
+      "sha256": "419ac3545f5316341a176e5d389bc7b7a749e3677e62a7110b3254f34eb3f5e0",
+      "kind": "ChartOfCalculationTypes",
+      "name": "ПланВидовРасчетаМаксимальнаяДлинаКодаИНаименованияЧисло",
+      "identity": "5731cc89-ef3f-454e-999c-1c7fc6f3b02b"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланВидовРасчетаПоУмолчанию.xml",
+      "sha256": "c358b7c86b28595d964b55ce38611255e07c4b917f5fa53a1eaff7bfff6ae517",
+      "kind": "ChartOfCalculationTypes",
+      "name": "ПланВидовРасчетаПоУмолчанию",
+      "identity": "45392f3c-349b-4fbd-8534-7137330fc81a"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланВидовРасчетаТолькоКод.xml",
+      "sha256": "603d8771cd7c3c568c0e404b38e960da2f07d9486060e005253634dc045265a7",
+      "kind": "ChartOfCalculationTypes",
+      "name": "ПланВидовРасчетаТолькоКод",
+      "identity": "857ba444-f121-440d-85d9-cb10178664a2"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланВидовРасчетаТолькоНаименование.xml",
+      "sha256": "11fba5f3d5ec156f62caeb312b6341aa6e1e77dd53c232c5c3323819d4f879ca",
+      "kind": "ChartOfCalculationTypes",
+      "name": "ПланВидовРасчетаТолькоНаименование",
+      "identity": "c454a63e-5df6-4702-ab90-62c71cf7b9d7"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства.xml",
+      "sha256": "0b75c93753e1b9bc03c8e9955857140aa466f69c769353c62a59d788bf1997a8",
+      "kind": "ChartOfCalculationTypes",
+      "name": "ПланРасчетаВсеСвойства",
+      "identity": "9c6be49a-58d9-4ed5-8037-a77cf3616582"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ВидыСубконто.xml",
+      "sha256": "4b641988637e95109d27900b2c4fd55bfaa9c711f24a3eabe34bf13126800b0d",
+      "kind": "ChartOfCharacteristicTypes",
+      "name": "ВидыСубконто",
+      "identity": "7d2f48d0-ea45-4e6e-bf61-2a5303d8405e"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристик1.xml",
+      "sha256": "a368609fdd7673252f5f084e2b5ef5c54e4277bdf7aa95a325dcecacc0be3376",
+      "kind": "ChartOfCharacteristicTypes",
+      "name": "ПланВидовХарактеристик1",
+      "identity": "30cb0468-ef4e-4845-acbf-7f80ee1518ad"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикБезКодаИНаименования.xml",
+      "sha256": "52aa6282eece8b719fca8374537a9a121e119796cf69571375c72c81a8871626",
+      "kind": "ChartOfCharacteristicTypes",
+      "name": "ПланВидовХарактеристикБезКодаИНаименования",
+      "identity": "4b10cdf1-0d37-4b81-a0f5-df9891941471"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойства.xml",
+      "sha256": "d54fdc5a4d68f3ae9f685e19cbe0eea9f12c3f7660394e0322cdbf9fd905f779",
+      "kind": "ChartOfCharacteristicTypes",
+      "name": "ПланВидовХарактеристикВсеСвойства",
+      "identity": "83430a5b-11ad-4b28-bff4-f3c3f45f0360"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикМаксимальнаяДлинаКодаИНаименования.xml",
+      "sha256": "e0f794415db68b940567689262b18cb63bd2e4ac094ef914fb8b092d45e9addd",
+      "kind": "ChartOfCharacteristicTypes",
+      "name": "ПланВидовХарактеристикМаксимальнаяДлинаКодаИНаименования",
+      "identity": "32bffd0a-0252-4fe1-92f5-628707db9844"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикПоУмолчанию.xml",
+      "sha256": "8d5ef5e22a23d98533fddde7ada6bc60663ad29215e76c74c00e20b2240e3d49",
+      "kind": "ChartOfCharacteristicTypes",
+      "name": "ПланВидовХарактеристикПоУмолчанию",
+      "identity": "3ee86569-24ca-474d-86c4-423f8d678768"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикТолькоКод.xml",
+      "sha256": "ab744a6095e1b9ef7f02c3325a1c39c5451f839600cd6d3eb838a7d88e56c1c6",
+      "kind": "ChartOfCharacteristicTypes",
+      "name": "ПланВидовХарактеристикТолькоКод",
+      "identity": "f9255273-26c1-4616-a0ac-004d2e625ed6"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикТолькоНаименование.xml",
+      "sha256": "fde559c39e6a23ffbfeb559b271078cae0be7baf446b956f3c85b3c6234a5696",
+      "kind": "ChartOfCharacteristicTypes",
+      "name": "ПланВидовХарактеристикТолькоНаименование",
+      "identity": "f1440cb9-62e6-49a7-9ca4-ba82192398cf"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ХарактеристикиОбъектов.xml",
+      "sha256": "8fcc445d7d45cfefbe26cab081bfba75f392ffde8b470a7278b545e92558c1d1",
+      "kind": "ChartOfCharacteristicTypes",
+      "name": "ХарактеристикиОбъектов",
+      "identity": "72bb4826-bd88-41be-8deb-7f9d6f492e1b"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommandGroups/ГруппаКомандВсеСвойства.xml",
+      "sha256": "573530e8254626354fa5816600a2817e30314d952c4e425a1e36339d24284521",
+      "kind": "CommandGroup",
+      "name": "ГруппаКомандВсеСвойства",
+      "identity": "33385155-66cd-455d-b51d-35459aece802"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommandGroups/ГруппаКомандПоУмолчанию.xml",
+      "sha256": "872d74ef9fb98c9b7131e95d2e22520fbe8eadb5b36fdd3d13b1c83a82ea42cd",
+      "kind": "CommandGroup",
+      "name": "ГруппаКомандПоУмолчанию",
+      "identity": "d77a733b-b2c6-49de-9809-9bdab06e0dd9"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonAttributes/ОбщийРеквизитВсеСвойства.xml",
+      "sha256": "6b26b485d8112c23839f23f10b235ae4f31a29c356fb494908a4ab5e0004316a",
+      "kind": "CommonAttribute",
+      "name": "ОбщийРеквизитВсеСвойства",
+      "identity": "afb3d8b6-c846-4eec-8242-2ec9a5dae4eb"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonAttributes/ОбщийРеквизитПоУмолчанию.xml",
+      "sha256": "127ef3e751f3a696912ba7dffe7496dffd7e47e794b6db89b2ca47c923e43ffc",
+      "kind": "CommonAttribute",
+      "name": "ОбщийРеквизитПоУмолчанию",
+      "identity": "b82a1fc0-ce4b-4270-b9b7-018c35ab718e"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonCommands/КомандаСДанными.xml",
+      "sha256": "069d7a82c4488e09e1794b4788ee624ab63bf9dec940a3d468f63ee7a36ca943",
+      "kind": "CommonCommand",
+      "name": "КомандаСДанными",
+      "identity": "2722e04e-e074-4be3-8383-f207e3ec4d58"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonCommands/ОбщаяКомандаВсеСвойства.xml",
+      "sha256": "dc12119d01570517505a00fe66fcaa4a675f057fd681f457622a6a06342e9be9",
+      "kind": "CommonCommand",
+      "name": "ОбщаяКомандаВсеСвойства",
+      "identity": "b2c9c31a-7a87-4524-8b0b-243572337869"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonCommands/ОбщаяКомандаПоУмолчанию.xml",
+      "sha256": "b345dc7d88b9e62de9abf8d5f2d9d1b71a7424176f445b1b2b053ee250d7dc9d",
+      "kind": "CommonCommand",
+      "name": "ОбщаяКомандаПоУмолчанию",
+      "identity": "e985f4cd-11bb-43d2-a765-eec5e537f099"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/Additional.xml",
+      "sha256": "1c2280472d5b61f24c5c9d1c3e7a80674bd0a32aa5ea9040b63e0c1e60389b92",
+      "kind": "CommonForm",
+      "name": "Additional",
+      "identity": "7bc8cb07-1aac-4122-92be-5263aed25241"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/Button.xml",
+      "sha256": "8c72a8cbcd053d5ef2a93f47294cc5842313513c594621f111f2d9bacc075075",
+      "kind": "CommonForm",
+      "name": "Button",
+      "identity": "2eed94ae-0b1c-4aa0-b39b-c6b1ac705a36"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/CalendarField.xml",
+      "sha256": "a9fd92b95d07293535921cce0d5727d15e408ef2dc7b27c0cf9614af789b1b1f",
+      "kind": "CommonForm",
+      "name": "CalendarField",
+      "identity": "5c8a2432-3625-4bdf-a499-8805377996a6"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ChartField.xml",
+      "sha256": "42c9283949adadb03e002844a96ec4beeecee722b80dad84f833029e219163a1",
+      "kind": "CommonForm",
+      "name": "ChartField",
+      "identity": "3d37428c-979b-41ed-acb0-33643621b991"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/CheckBoxField.xml",
+      "sha256": "c7a944185a247f8d6de82f9ba5036c22e3466531da7cfc7a1da0bfe85250d210",
+      "kind": "CommonForm",
+      "name": "CheckBoxField",
+      "identity": "ad3762c3-cd2d-4c5a-9cba-7d6752c46483"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ColumnGroup.xml",
+      "sha256": "1f024835205119415dd2d199b6aa495d9c442f2a5cfebe5df1f0ca44ab77440c",
+      "kind": "CommonForm",
+      "name": "ColumnGroup",
+      "identity": "2b847897-616c-4dd9-baf4-55c5bfeee0a7"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/CommandBar.xml",
+      "sha256": "27591e35e2d80b9b9da59b7b484b956e02b3a272542dbd6222bd9ee5d9883d84",
+      "kind": "CommonForm",
+      "name": "CommandBar",
+      "identity": "6394b014-66ef-44de-a90c-75ac54fd872b"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/DendrogramField.xml",
+      "sha256": "5a3ba0cedc3f008ae0f0b4e11dd666e598a02d03ec484e0b3ee1734a8c7f11d6",
+      "kind": "CommonForm",
+      "name": "DendrogramField",
+      "identity": "602662c6-4e59-49ca-9ea6-80bb4d293f29"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/DynamicList.xml",
+      "sha256": "2c5efbd1f0ed3b7e492f50d9857e0a8310b76ecf95be30f5d7d44258a953ecf9",
+      "kind": "CommonForm",
+      "name": "DynamicList",
+      "identity": "b5445b13-a720-43dd-8daa-7fb041b389ce"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ExtendedTooltip.xml",
+      "sha256": "bcca5a8e6c06563db1c785ae53e5c76be76a1c47c8337d6ffae195c0182fc053",
+      "kind": "CommonForm",
+      "name": "ExtendedTooltip",
+      "identity": "b59a1e58-05bf-4c09-9fd1-b418324281a9"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/FormCommand.xml",
+      "sha256": "bad354c5944c1929b16657567b39274b64acf008b123596293199f40d2fcc5c4",
+      "kind": "CommonForm",
+      "name": "FormCommand",
+      "identity": "aadf1a38-c5bf-4cca-a8ad-5dd06d6fcd91"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/FormDecoraction.xml",
+      "sha256": "5f61269825d90e2baf381de33d04fee095cf3c7786ccc88ef7ac523bcd578aaf",
+      "kind": "CommonForm",
+      "name": "FormDecoraction",
+      "identity": "b22e2048-9a70-4f68-8e99-68f340c0529f"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/FormattedDocumentField.xml",
+      "sha256": "f573b0bca6efeeb8c24274fd515dcd8acf19f5509ea10ef2788e9cd9f08cb3b9",
+      "kind": "CommonForm",
+      "name": "FormattedDocumentField",
+      "identity": "4b7f0d13-8d84-49fc-993b-104b1016cfc8"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/GanttChartField.xml",
+      "sha256": "eca4aa8f1524633f100d2449e3361714731dd472e40d315ad519f8718c39fb59",
+      "kind": "CommonForm",
+      "name": "GanttChartField",
+      "identity": "481d5d49-44c3-4a8b-93f8-c0f732bab99b"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/GeographicalSchemaField.xml",
+      "sha256": "59e61352da0f648866e4945da451bd4683cb2d910b54c41d386999bb3aa04fde",
+      "kind": "CommonForm",
+      "name": "GeographicalSchemaField",
+      "identity": "469893b6-7f6f-455f-8474-d445cfb8b8e4"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/GraphicalSchemaField.xml",
+      "sha256": "f249d521952e7eb2fc203b008a1be3e8101807618f7a1fb1268da568a480658b",
+      "kind": "CommonForm",
+      "name": "GraphicalSchemaField",
+      "identity": "76fb0d26-7890-44e0-b45c-68077f20812b"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/HTMLDocumentField.xml",
+      "sha256": "8ea0c1c67fbccf5e1ccb87d0d39f0d9d0a5170372285ae6dc90ac17d3896325c",
+      "kind": "CommonForm",
+      "name": "HTMLDocumentField",
+      "identity": "6b933742-86d2-4443-96cb-e9193dee7931"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/InputField.xml",
+      "sha256": "e045062b7b641b9514c1d26975e57ebdb43f3311aeb9d885b2bfa661790d5845",
+      "kind": "CommonForm",
+      "name": "InputField",
+      "identity": "881a8424-1181-46eb-ba00-0b55a1b941a1"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/LabelDecoration.xml",
+      "sha256": "2fd3c17b5cdbfcf2dd1e17d973b017c6bc0b1fa95ae4edecc2b4d7fb815be34d",
+      "kind": "CommonForm",
+      "name": "LabelDecoration",
+      "identity": "12e99823-8029-47f8-b7ed-fea06ce89e53"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/LabelField.xml",
+      "sha256": "e23c196dc1163392982f0690416b410e0d84bdfe67c4d5b79e92b5e003631f40",
+      "kind": "CommonForm",
+      "name": "LabelField",
+      "identity": "bda22f37-89be-4a5f-b224-82611edba9ad"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/PDFDocumentField.xml",
+      "sha256": "1ed837723193dbcf71154684c8c0102e654796f5ba78bd239910c1219379673a",
+      "kind": "CommonForm",
+      "name": "PDFDocumentField",
+      "identity": "f8f73fe6-83c4-481a-abe9-3c81f8f694cd"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/Pages.xml",
+      "sha256": "54061ba55c5eb689edbe9c67338dfe496b65f7fe51ce9dfb55b18954f76ed482",
+      "kind": "CommonForm",
+      "name": "Pages",
+      "identity": "ebd00f4b-84e0-406d-91a1-1ca120962d19"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/PeriodField.xml",
+      "sha256": "7772a57418272009ddd7d7055fc86c833c5b7eb55d8b7fba6dafa92abb9f9440",
+      "kind": "CommonForm",
+      "name": "PeriodField",
+      "identity": "b7c681e5-dd58-4aea-8e91-803502650320"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/PictureField.xml",
+      "sha256": "085d6bbde306e303952193ac22e046fe0fe592ebfbb0626d654dac9ec4195dd9",
+      "kind": "CommonForm",
+      "name": "PictureField",
+      "identity": "d0a9a523-b321-4ae3-a7ab-68aabb7cb4c6"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/PlannerField.xml",
+      "sha256": "574ada66c4d3782271361cc0b44be17a3206130aa8b9849be4c2197974215850",
+      "kind": "CommonForm",
+      "name": "PlannerField",
+      "identity": "2fbadf3f-5458-4fbe-b020-4244b1274d5a"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ProgressBarField.xml",
+      "sha256": "7249edec24381958f0dfb4f05ccf752ed67f532c40e089612b980eae6550e68f",
+      "kind": "CommonForm",
+      "name": "ProgressBarField",
+      "identity": "b2e62eff-df34-462d-b3b2-8b58dffde1cf"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/RadioButtonField.xml",
+      "sha256": "d0e69060124809816591f01f2497209cf84b9ec0983edcfab926dfc231e3844b",
+      "kind": "CommonForm",
+      "name": "RadioButtonField",
+      "identity": "dc4fbe7c-f255-4901-affa-251b9001ff1c"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/SpreadSheetDocumentField.xml",
+      "sha256": "2999faef923156ea7f66a1e40609243e380cb26d95b716a31ac2a157d7efbf65",
+      "kind": "CommonForm",
+      "name": "SpreadSheetDocumentField",
+      "identity": "98165078-e3da-4f04-8adf-714234256ae8"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/Table.xml",
+      "sha256": "d8d533ef501dcb365f3844a88def566d3651b1e1ae44176c09ca9cb7db07c9ef",
+      "kind": "CommonForm",
+      "name": "Table",
+      "identity": "70f44c66-7c41-4a1e-aa90-62c7c6f3f5f5"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/TextDocumentField.xml",
+      "sha256": "e5343ecf9ef6631ab0566950b751d244eae0097bffe456690be05c531905dd0b",
+      "kind": "CommonForm",
+      "name": "TextDocumentField",
+      "identity": "278825b5-e693-42ea-8202-772b7ab399f4"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/TrackBarField.xml",
+      "sha256": "25798f4e7220337763e716dab05e8567975098df8543182ebb9f17140aeafc62",
+      "kind": "CommonForm",
+      "name": "TrackBarField",
+      "identity": "2e6c8fbe-7595-48cf-a066-e2c501fce2e5"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/TwoTablesAttributes.xml",
+      "sha256": "dc2eab781fa40aa67d673eff62726e5848e5fab608536700658c6d9f69c7a452",
+      "kind": "CommonForm",
+      "name": "TwoTablesAttributes",
+      "identity": "1e6fa02b-6ae7-4422-acfd-3e4d50bcd8df"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/UsualGroup.xml",
+      "sha256": "c3df9da36b8dfaa7d1b99da0e2519cfe6834965a82811a43c434902fd0ff2e74",
+      "kind": "CommonForm",
+      "name": "UsualGroup",
+      "identity": "6f3066b0-1399-40b6-b14a-31050b1befd4"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок.xml",
+      "sha256": "b61fe877c6289dc5d979454a3a432e9ef047e4294aafa25fec441fc79683dd37",
+      "kind": "CommonForm",
+      "name": "ДинамическийСписок",
+      "identity": "09444956-1866-4dbf-97da-fa9a15da43ba"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписокОсновнаяТаблица.xml",
+      "sha256": "75bf7b846be930c5ae2ceacb0ec6f96e794507e7ed88da772e9046b5cf608fe2",
+      "kind": "CommonForm",
+      "name": "ДинамическийСписокОсновнаяТаблица",
+      "identity": "aeac64f2-3365-499b-afcf-e156a4ed74cb"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/Команды.xml",
+      "sha256": "279a93117609cfdecdcfdca5e2ea649880ce728ac7364b081ed258350c8908bb",
+      "kind": "CommonForm",
+      "name": "Команды",
+      "identity": "7bd24027-f6c7-4607-a8f1-1dd2f29d6da6"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек.xml",
+      "sha256": "7482dab93fc37122129ec82a3ed3dc18c080ad9661546770b2efb6d0bd65a3ba",
+      "kind": "CommonForm",
+      "name": "КомпоновщикНастроек",
+      "identity": "7dcc7e67-fdc1-41da-bd5b-ac175880c0e4"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КонстантаВсеСвойства.xml",
+      "sha256": "ab548f1c4b5db62350cc0cd791f35586b253d145ff83298936b7c6a63363b17a",
+      "kind": "CommonForm",
+      "name": "КонстантаВсеСвойства",
+      "identity": "0d003021-0016-43a6-b789-e2ab99a04253"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ПараметрФормыБезТипа.xml",
+      "sha256": "b607094301b5e36af69e99affd17031566653d038e9d015227aed22969014ba0",
+      "kind": "CommonForm",
+      "name": "ПараметрФормыБезТипа",
+      "identity": "e3d89115-2be1-4fc0-abcf-0cf893cc594c"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/РеквизитБезТипа.xml",
+      "sha256": "b9cae3da239c2ef0c9781b153ae1a67c610736e61b09878836b9d2803b13a50f",
+      "kind": "CommonForm",
+      "name": "РеквизитБезТипа",
+      "identity": "45f644d9-24ec-46a7-b0a0-ee7f129aa6a4"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/СписокЗначений.xml",
+      "sha256": "2245ca480ba54fd8bc1faf36cd639acecc6c5a124632f73938bd3acfbb03dbdd",
+      "kind": "CommonForm",
+      "name": "СписокЗначений",
+      "identity": "18d15fe0-4530-46c9-ae6e-19826c47139b"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/УсловноеОформление.xml",
+      "sha256": "25f67408681095efa5f74d81d22909b3c0e4b67b73fdf5a75e62a66edd89e7a1",
+      "kind": "CommonForm",
+      "name": "УсловноеОформление",
+      "identity": "63763039-7763-4538-b091-2137be4f49e3"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/Форма.xml",
+      "sha256": "4484c6cea2f88e69d0aa8820669ce71546749128a6881fa9fb2949ff5a81dd64",
+      "kind": "CommonForm",
+      "name": "Форма",
+      "identity": "97dd3a73-61f2-43c2-a3ea-0e08f083f2c1"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаВариантаОтчета.xml",
+      "sha256": "84a1676fcee6cf214de6f033636ddd3d83baae413447f0fa61ef68929a0d2c6f",
+      "kind": "CommonForm",
+      "name": "ФормаВариантаОтчета",
+      "identity": "eb61cbd8-e29b-4eb7-ac00-3e4cca74157b"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаВыбораПользователейСистемыВзаимодействия.xml",
+      "sha256": "9a6b67730607a1c5f6c06233958271830843130f01f036369d352ce46e2c86d7",
+      "kind": "CommonForm",
+      "name": "ФормаВыбораПользователейСистемыВзаимодействия",
+      "identity": "40a038b5-28aa-44cc-80e0-91b5f9ccbf84"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаДанныхВерсииИсторииДанных.xml",
+      "sha256": "4e1d0972491adadf35d521fd5fcc58a04315f23a0506dd5d6be9cfbdde47dd30",
+      "kind": "CommonForm",
+      "name": "ФормаДанныхВерсииИсторииДанных",
+      "identity": "6e99f2e0-d24f-4e13-bf48-b3e8bfda9f87"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаИсторииИзмененийИсторииДанных.xml",
+      "sha256": "0800a800d83e778cc4c50b4f211430199385a79636168146d370f3799cd126ae",
+      "kind": "CommonForm",
+      "name": "ФормаИсторииИзмененийИсторииДанных",
+      "identity": "28784831-8903-45b1-8954-053027e5dae1"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаНастроекДинамическогоСписка.xml",
+      "sha256": "3bfabe964c040d57d2e8be3c518097dfb553fde08ad1457d9f83b3f4eee90aa3",
+      "kind": "CommonForm",
+      "name": "ФормаНастроекДинамическогоСписка",
+      "identity": "151a2d5d-13de-4491-9b82-e0e3a067342a"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаНастроекОтчета.xml",
+      "sha256": "dcda0a52821bfcc1416f66b9ea19f003aaa9d5ac9d44cb7b6865ca348f3228ba",
+      "kind": "CommonForm",
+      "name": "ФормаНастроекОтчета",
+      "identity": "9bdece13-de9f-432e-9e43-cf30d0e57b28"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаОтчета.xml",
+      "sha256": "8578bb7bedf47ddd4cf248a5af8e4fa4e8f948054320a416ea948a14dc27911d",
+      "kind": "CommonForm",
+      "name": "ФормаОтчета",
+      "identity": "ee7d0825-30fa-4ca4-9122-6c2771673f8c"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаПоиска.xml",
+      "sha256": "e6ca5e16f4e19df66a2d20dfa34c5cbca27389a2eff62e518b0393cef3bb0238",
+      "kind": "CommonForm",
+      "name": "ФормаПоиска",
+      "identity": "e0e0b15e-ecb1-4e18-8857-0cb586b5d309"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаРазличийВерсийИсторииДанных.xml",
+      "sha256": "b73a161c74210c14b1033f1acfefaf584f4d53e238dba73272287d41df0c1be9",
+      "kind": "CommonForm",
+      "name": "ФормаРазличийВерсийИсторииДанных",
+      "identity": "8ae08dcb-7e67-4fe7-b671-574ff8ed0a99"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonModules/ОбщийМодульГлобальный.xml",
+      "sha256": "36a55beccbb92ea58af8a5d30bac4a5ce0e94b3f63908562c6541bf8b6ce949f",
+      "kind": "CommonModule",
+      "name": "ОбщийМодульГлобальный",
+      "identity": "0d3cc6ee-3a21-49f5-b009-a56f860b67bc"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonModules/ОбщийМодульКлиент.xml",
+      "sha256": "3cfd8229303980f50ec2df9e4ddd7083afe77bdf0121d308ef45464ad71fc34a",
+      "kind": "CommonModule",
+      "name": "ОбщийМодульКлиент",
+      "identity": "e94989a9-39dc-46b8-b151-83182e03a9f2"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonModules/ОбщийМодульПоУмолчанию.xml",
+      "sha256": "8c05a6fdcaea14f579a22d1294acc09ab093c2022afda68578595331886d8d7d",
+      "kind": "CommonModule",
+      "name": "ОбщийМодульПоУмолчанию",
+      "identity": "0c1cc796-038e-4e8f-9216-0b8eba23a390"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonModules/ОбщийМодульПовторный.xml",
+      "sha256": "1a7045b81ad95c34afca53a505ee0de1d71e572f00881024b915e9e5a5cc0140",
+      "kind": "CommonModule",
+      "name": "ОбщийМодульПовторный",
+      "identity": "22830766-1103-4d62-9bb6-c4378c296ff5"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonModules/ОбщийМодульПодпискаНаСобытие.xml",
+      "sha256": "d213ed9edb12516303955bf469b4729734d524dc4291d7ca5d846697cc50f243",
+      "kind": "CommonModule",
+      "name": "ОбщийМодульПодпискаНаСобытие",
+      "identity": "1b31d092-b407-4de9-bacf-61cfaf195561"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonModules/ОбщийМодульРегЗадание.xml",
+      "sha256": "28f88ce53472ab688918f19ff8491c0a08a2d3bd6200d21cb1b298f8c940e27c",
+      "kind": "CommonModule",
+      "name": "ОбщийМодульРегЗадание",
+      "identity": "dc2ecf7f-4c83-4703-b2cd-852fef6d6f18"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonPictures/ОбщаяКартинкаВсеСвойства.xml",
+      "sha256": "82c4ffdbb800653faa218cbd75b5e43e2ccd396cd57ade37f382c280b42e3fb8",
+      "kind": "CommonPicture",
+      "name": "ОбщаяКартинкаВсеСвойства",
+      "identity": "f31105bb-dc03-4230-bdf7-1012d0a24030"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonPictures/ОбщаяКартинкаОднаКартинка.xml",
+      "sha256": "83b8f2838f075869cae75c90574651baac4da2b992430d3a14be54d7e8e65e3a",
+      "kind": "CommonPicture",
+      "name": "ОбщаяКартинкаОднаКартинка",
+      "identity": "912d3133-9c7f-4aac-8bf8-932d3cdd82cd"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonPictures/ОбщаяКартинкаПоУмолчанию.xml",
+      "sha256": "87f9a532cc68141ec0976834eaf4c0561061ecb296d297e2c509a8f1efa650c1",
+      "kind": "CommonPicture",
+      "name": "ОбщаяКартинкаПоУмолчанию",
+      "identity": "e3f435f6-c3e2-4b34-84ed-3a5596e5e979"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonPictures/ОбщаяКартинкаРежимКоллекции.xml",
+      "sha256": "0749f9a0ed3c1ec667a72f299a6fae2efeb819fdca001283eefddb0950e59720",
+      "kind": "CommonPicture",
+      "name": "ОбщаяКартинкаРежимКоллекции",
+      "identity": "36917c88-8f88-4194-95f5-220d36d0a8a7"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonTemplates/ДополнительныйСловарьПолнотекстовогоПоиска.xml",
+      "sha256": "fdfe05ba770a243cc9a24508738704d84733170c5ccac3d36d7856286c4ad62b",
+      "kind": "CommonTemplate",
+      "name": "ДополнительныйСловарьПолнотекстовогоПоиска",
+      "identity": "313c76d3-8d9e-4556-8bc8-23f7488119f0"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonTemplates/ТабличныйДокументВсеСвойства.xml",
+      "sha256": "85f996e6b1016d740ff941b10273d61a7d947d9f72ba50b276823f19f3f4f935",
+      "kind": "CommonTemplate",
+      "name": "ТабличныйДокументВсеСвойства",
+      "identity": "79f24853-08e0-4ef7-b1d1-1e883da0965b"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonTemplates/ТабличныйДокументПоУмолчанию.xml",
+      "sha256": "bf40bbcc17daa4ed64364027a28dd5360ccb5c142ef1e801f5ec6019ec7bddf7",
+      "kind": "CommonTemplate",
+      "name": "ТабличныйДокументПоУмолчанию",
+      "identity": "618b38c6-fe37-4313-8503-ceefa8bfdf96"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Constants/Константа1.xml",
+      "sha256": "6ef592ff0267fc8bcc040980beb35b36474550a808af94bcf8ace7371d6d416a",
+      "kind": "Constant",
+      "name": "Константа1",
+      "identity": "0f6468a1-3964-4eef-9fec-dbf3e7513228"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Constants/КонстантаБулево.xml",
+      "sha256": "689cfe92b379fd97985804ff58f7591518b16c60abb61d1421be1e9d800999c2",
+      "kind": "Constant",
+      "name": "КонстантаБулево",
+      "identity": "d7533d79-977e-4195-ba43-0bc00e5ce47e"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Constants/КонстантаВсеСвойства.xml",
+      "sha256": "23a19ac05a0c406ed9e8e7a2e77b8296feaefbf586d2fb77c245818e993c77d6",
+      "kind": "Constant",
+      "name": "КонстантаВсеСвойства",
+      "identity": "b3c1b9f3-ac80-4402-a1ed-b4c05cf5ab12"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Constants/КонстантаПоУмолчанию.xml",
+      "sha256": "0e81d313a64dc5718d9afead09d9dc9aa157791194185e3a506d00cb13b8b2cd",
+      "kind": "Constant",
+      "name": "КонстантаПоУмолчанию",
+      "identity": "2bd2c3f6-99d2-43cd-8e64-35ddf678c556"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Constants/ЭкранированиеВСинониме.xml",
+      "sha256": "cae72d83aa6869864ca041d8d622f7b23cd0b5f697447f1f10a98cd9c9c9495d",
+      "kind": "Constant",
+      "name": "ЭкранированиеВСинониме",
+      "identity": "f5cc310c-f6a8-4648-be97-40c10a60359d"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/DataProcessors/Обработка1.xml",
+      "sha256": "c1b1c91daed5346157655fc9e022e55003e0608e72cda13ee5228ebc20630192",
+      "kind": "DataProcessor",
+      "name": "Обработка1",
+      "identity": "d383ecfb-ae90-4c06-a5a8-8d4d44069c6e"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/DataProcessors/ОбработкаВсеСвойства.xml",
+      "sha256": "9a70ce3ab3fda19d59f75df003af943cf930723673ecec29a366017c8ae4867d",
+      "kind": "DataProcessor",
+      "name": "ОбработкаВсеСвойства",
+      "identity": "d09aded1-3722-43c0-aff2-25f1c29159ea"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/DataProcessors/ОбработкаПоУмолчанию.xml",
+      "sha256": "82f8d82ffcfbff2c30bbae03978d7de1318e2e200f40138feb207a77bea30fde",
+      "kind": "DataProcessor",
+      "name": "ОбработкаПоУмолчанию",
+      "identity": "011f3d9e-58dc-40e5-a3b9-691782b8dfbd"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/DefinedTypes/ОпределяемыйТипВсеСвойства.xml",
+      "sha256": "4281d3bf6ad4186a7fccead935ce75e336ecdeb287d9af3aa10f492f987454cb",
+      "kind": "DefinedType",
+      "name": "ОпределяемыйТипВсеСвойства",
+      "identity": "426da0c0-ee05-4af5-a132-c7874136d3bf"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/DefinedTypes/ОпределяемыйТипПоУмолчанию.xml",
+      "sha256": "340f9d852e8608bd1b19f452914611a81808b2d1e191e30b28e472f5aee4f42b",
+      "kind": "DefinedType",
+      "name": "ОпределяемыйТипПоУмолчанию",
+      "identity": "61ac73bb-6f4a-4cde-8559-f04443dbc1cc"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/DocumentJournals/ЖурналДокументов1.xml",
+      "sha256": "c302613e3395795b84856df8f112c1828613e24aa82e8fea726df22edab8d609",
+      "kind": "DocumentJournal",
+      "name": "ЖурналДокументов1",
+      "identity": "032fe41c-6893-48cf-b4dc-eca2c6a481f1"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/DocumentJournals/ЖурналДокументовВсеСвойства.xml",
+      "sha256": "158835bccaf6f4bda5403f7cf742fc725257bcfe1e3d1fda9b10fbfed1c84af6",
+      "kind": "DocumentJournal",
+      "name": "ЖурналДокументовВсеСвойства",
+      "identity": "eaa3ce17-c186-4aac-9667-0f4409e5043c"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/DocumentJournals/ЖурналДокументовПоУмолчанию.xml",
+      "sha256": "72273a4f0a55161fac274a64e38bcf584ee684da60d8d09902960fb1dc82c543",
+      "kind": "DocumentJournal",
+      "name": "ЖурналДокументовПоУмолчанию",
+      "identity": "6c8a3e03-a494-4064-a7d3-6f9ea9b3d29f"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/DocumentNumerators/НумераторДокументовВсеСвойства.xml",
+      "sha256": "3feac70c2a71d2d9010c6e53897edacaf79caee41b480601465b0b3ccb7f3043",
+      "kind": "DocumentNumerator",
+      "name": "НумераторДокументовВсеСвойства",
+      "identity": "04a24565-fe2a-45f1-bb2a-e0aef3324322"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/DocumentNumerators/НумераторДокументовМаксимальнаяДлинаНомера.xml",
+      "sha256": "de5c240353665939f32112d81286630b315ac9f832a7a86347561c73cf13ff38",
+      "kind": "DocumentNumerator",
+      "name": "НумераторДокументовМаксимальнаяДлинаНомера",
+      "identity": "00caef35-628f-48a2-a01d-c155752d80d2"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/DocumentNumerators/НумераторДокументовМаксимальнаяДлинаНомераЧисло.xml",
+      "sha256": "2f48b3c6da279304849ac8c80787502fd19addc41de216b52168abf2f6ff81f1",
+      "kind": "DocumentNumerator",
+      "name": "НумераторДокументовМаксимальнаяДлинаНомераЧисло",
+      "identity": "f923a847-7d64-4a98-bbca-bc8350b90034"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/DocumentNumerators/НумераторДокументовМинимальнаяДлинаНомера.xml",
+      "sha256": "3cd6427969c51abad69fa9f899db3872abcad591c423f94fc3ac416248671a70",
+      "kind": "DocumentNumerator",
+      "name": "НумераторДокументовМинимальнаяДлинаНомера",
+      "identity": "8e670851-b32b-4a1c-a87d-2ec4c2922cba"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/DocumentNumerators/НумераторПоУмолчанию.xml",
+      "sha256": "b328af50250c08a482ee94d20a2a9d79b08d9679c586962260be941de6e15f61",
+      "kind": "DocumentNumerator",
+      "name": "НумераторПоУмолчанию",
+      "identity": "2cd303bb-277b-4f8c-8176-6a7082e9cb82"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументБезНомера.xml",
+      "sha256": "213baccf8f18062043acd6eafa6db59c4961e6a86126c837f918b54ff9e7f812",
+      "kind": "Document",
+      "name": "ДокументБезНомера",
+      "identity": "d44d6e1d-7bca-4b51-95b2-bc8456015d2e"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства.xml",
+      "sha256": "346554c79ff22c0239e18eaa00e69bc203b161485dcbd6a482b191871f90b79e",
+      "kind": "Document",
+      "name": "ДокументВсеСвойства",
+      "identity": "2f109eaa-d341-4592-a04f-3f199e75d879"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументДругойДляЖурнала.xml",
+      "sha256": "d0e7ad7b6bf2ecaad57f80627c3fc5b8b9749c0ff561c1c5c89d165acaf8b940",
+      "kind": "Document",
+      "name": "ДокументДругойДляЖурнала",
+      "identity": "93edf229-1612-4501-b750-91152e79c468"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументКнопкаСПараметрами.xml",
+      "sha256": "44104a7a85966fe43831e0a20cb1b54899f68a3e62d32d3fc76cc336ce54415c",
+      "kind": "Document",
+      "name": "ДокументКнопкаСПараметрами",
+      "identity": "b143f868-111c-4446-a622-42513cdc675f"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументМаксимальнаяДлинаНомераСтрока.xml",
+      "sha256": "6965b019b691abafbd130fed3d2c0e24b196b4381d7f97a736a22436ebcaa386",
+      "kind": "Document",
+      "name": "ДокументМаксимальнаяДлинаНомераСтрока",
+      "identity": "051ca6dd-37ad-47a6-aaa0-2abe552aa375"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументМаксимальнаяДлинаНомераЧисло.xml",
+      "sha256": "de5112a4e062c2c2a6c77d93fdb2eb371587c9253c3167aecfea11ea077985b8",
+      "kind": "Document",
+      "name": "ДокументМаксимальнаяДлинаНомераЧисло",
+      "identity": "f6a987f2-7dd3-4a96-aacb-6ca190c53e14"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументПоУмолчанию.xml",
+      "sha256": "39684df92c4531cd47edbcb6c6b62f35d3600a65b4a5ddd5d65f997965f747df",
+      "kind": "Document",
+      "name": "ДокументПоУмолчанию",
+      "identity": "3f6ea743-1a32-4c34-aa36-e2e5cfbc61be"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументСНумератором.xml",
+      "sha256": "d87095892e57c947584c910df6202d7c04eb878b53a544c7916eb6875e19b184",
+      "kind": "Document",
+      "name": "ДокументСНумератором",
+      "identity": "9224a081-f4fe-4d3d-8f9a-67fbdbdbb201"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Enums/Перечисление1.xml",
+      "sha256": "a3093fabbc0df92c9e8e1bbe122f23f0acdbf8e58f183331bbd39e4cec820ad9",
+      "kind": "Enum",
+      "name": "Перечисление1",
+      "identity": "9c860460-72d9-491d-b622-4916f7ff3323"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Enums/ПеречислениеВсеСвойства.xml",
+      "sha256": "f592fee049bd1b6a0e0a5cf4acb6647d0486d987d1f5a61ac6112a6e466c5d20",
+      "kind": "Enum",
+      "name": "ПеречислениеВсеСвойства",
+      "identity": "ec93e916-ecd7-45c4-8e73-ea76f186183c"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Enums/ПеречислениеПоУмолчанию.xml",
+      "sha256": "7153aa335c0a7e1d379c634b0b1ad09a837b5bde947d7a9d9b40f92d71d6ab05",
+      "kind": "Enum",
+      "name": "ПеречислениеПоУмолчанию",
+      "identity": "7e194b74-4c07-45eb-b984-a1ab3b0eff63"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/EventSubscriptions/ПодпискаНаСобытиеВсеСвойства.xml",
+      "sha256": "874bd8e85d29c9ffba77cacef7f4f081ad0072cb5be67f98345e4457ca14c596",
+      "kind": "EventSubscription",
+      "name": "ПодпискаНаСобытиеВсеСвойства",
+      "identity": "f308a688-ea0d-48b8-8e0d-4d2b3a1d8649"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/EventSubscriptions/ПодпискаНаСобытиеПоУмолчанию.xml",
+      "sha256": "3f9a1587bfe7a36c2cd2b01bdc8d2c0583b9f07e1ab7a923c00b6c25aad47566",
+      "kind": "EventSubscription",
+      "name": "ПодпискаНаСобытиеПоУмолчанию",
+      "identity": "b64506fe-9f73-42ba-b1e2-d8757fc9f62a"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства.xml",
+      "sha256": "ea7e9507ee5538c46acb941135ff909df0caefabf86926fdb4969fb063c3002d",
+      "kind": "ExchangePlan",
+      "name": "ПланОбменаВсеСвойства",
+      "identity": "795bd97c-bf59-484f-8fea-c3189e5b197b"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаМаксимальнаяДлинаКода.xml",
+      "sha256": "55136c7ac0d38617c6194b74c31988730cb28c699fa6eec0f5a26329afa02096",
+      "kind": "ExchangePlan",
+      "name": "ПланОбменаМаксимальнаяДлинаКода",
+      "identity": "73d69697-aa9f-4ae1-9498-42d447d6e1db"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаПоУмолчанию.xml",
+      "sha256": "529af5880a334d5ba3bcc76d90439f9659eabf1aa761c22412a7be79ed8bf2b4",
+      "kind": "ExchangePlan",
+      "name": "ПланОбменаПоУмолчанию",
+      "identity": "9ab0ea2b-227d-4789-9d9f-475d050690e4"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства.xml",
+      "sha256": "8cf7bfb424f2609d5969d0d4dd3e08dfd7e6c193ba8a015cae8a92735ce5b3c0",
+      "kind": "ExternalDataSource",
+      "name": "ВнешнийИсточникДанныхВсеСвойства",
+      "identity": "aa0a162f-bf96-4951-9c81-f6a8014ab7e8"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхПоУмолчанию.xml",
+      "sha256": "82ecf0674675726074c13104293bcf19ec83e01a37d0db697865d9e4c1d7415f",
+      "kind": "ExternalDataSource",
+      "name": "ВнешнийИсточникДанныхПоУмолчанию",
+      "identity": "ee82763b-8a1e-47f3-8157-94da0f413a00"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/FilterCriteria/КритерийОтбораВсеСвойства.xml",
+      "sha256": "1b6bca1ced8ba1e6a26d80d7971b5851dc663e56b2469fab8a297add89a4a9be",
+      "kind": "FilterCriterion",
+      "name": "КритерийОтбораВсеСвойства",
+      "identity": "f95f51b6-2066-4076-9691-3f86bffd3e6a"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/FilterCriteria/КритерийОтбораПоУмолчанию.xml",
+      "sha256": "957b8d3ccfb47939a595c2792c90b59dd347fb5d1850af408630b66650e5ee34",
+      "kind": "FilterCriterion",
+      "name": "КритерийОтбораПоУмолчанию",
+      "identity": "f18056bd-2736-4c0c-951b-564937e4bb53"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/FunctionalOptions/ФункциональнаяОпцияБулево.xml",
+      "sha256": "8be24d5f421ae1e2b1ddb6e050a751b4ef9ba9d358de748ddf015d3115a88b36",
+      "kind": "FunctionalOption",
+      "name": "ФункциональнаяОпцияБулево",
+      "identity": "e24d0c03-7602-4853-9411-f91be1001515"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/FunctionalOptions/ФункциональнаяОпцияВсеСвойства.xml",
+      "sha256": "399de5ceaa75c88da6cd288e6845612aecd2f9e70db02c81885abe9900cf3f35",
+      "kind": "FunctionalOption",
+      "name": "ФункциональнаяОпцияВсеСвойства",
+      "identity": "d0ffe839-7432-4f46-afaf-b7b882f06d1b"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/FunctionalOptions/ФункциональнаяОпцияПоУмолчанию.xml",
+      "sha256": "a1fe283aa2549820c94b78f8965734f53e7d7a56653885778c8f874c966a7a86",
+      "kind": "FunctionalOption",
+      "name": "ФункциональнаяОпцияПоУмолчанию",
+      "identity": "84d87b82-21f2-4d2f-9a07-5264cacb1574"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/FunctionalOptions/ФункциональныеОпцииПолный.xml",
+      "sha256": "04d885c5c4304d272df2481ff2c21cb2666347fc7ee5f398f7baf27bdabc3c72",
+      "kind": "FunctionalOption",
+      "name": "ФункциональныеОпцииПолный",
+      "identity": "e3602d0a-5495-4f62-8629-37750f582c78"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/FunctionalOptionsParameters/ПараметрФункциональныхОпцийВсеСвойства.xml",
+      "sha256": "1dbfc1bf944ee68c489dcab614af479b7ab466f469a846d043f0ee006d273691",
+      "kind": "FunctionalOptionsParameter",
+      "name": "ПараметрФункциональныхОпцийВсеСвойства",
+      "identity": "b1b060fb-0c54-4f59-aa82-d911f59a8ec1"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/FunctionalOptionsParameters/ПараметрФункциональныхОпцийПоУмолчанию.xml",
+      "sha256": "ef44746173151c2d0fdb8c1c6262d09acffa0f4ef0d5333c2f05fce0168df97b",
+      "kind": "FunctionalOptionsParameter",
+      "name": "ПараметрФункциональныхОпцийПоУмолчанию",
+      "identity": "841cee2e-c7de-4025-aec5-ee5479f1c1b8"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/HTTPServices/HTTPСервисВсеСвойства.xml",
+      "sha256": "038aa93af442433ce93d1ff7236c453141de7845ce9b799790465cbda4626808",
+      "kind": "HTTPService",
+      "name": "HTTPСервисВсеСвойства",
+      "identity": "4eeded5e-ccd7-490a-bbc3-c1e12ff3711c"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/HTTPServices/HTTPСервисПоУмолчанию.xml",
+      "sha256": "4c247cbe12210ea711e1608e8836afb3ace08ecafd29496df66ca76a9e587c66",
+      "kind": "HTTPService",
+      "name": "HTTPСервисПоУмолчанию",
+      "identity": "0b81a120-98ec-4d91-baeb-0e97999c582b"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/ЗначенияХарактеристикОбъектов.xml",
+      "sha256": "4fae65975903dc9033264f5c076b8fdf1d65d31ca2e4c63d5d0b0a9617a58c5e",
+      "kind": "InformationRegister",
+      "name": "ЗначенияХарактеристикОбъектов",
+      "identity": "ed340dc3-8423-4c83-83ea-6f502fefd5b3"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведений1.xml",
+      "sha256": "4439455e4cceda094528416b92187f2f23f84c215e22bc0c8581bbcf7a89aca3",
+      "kind": "InformationRegister",
+      "name": "РегистрСведений1",
+      "identity": "864c9ce3-ec4e-4330-841b-841b2cd112be"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийАдресация.xml",
+      "sha256": "d602e7b19c90a6dca132994ca6bb3efeb6da195ceeb322f679e2a19b3d3bd04a",
+      "kind": "InformationRegister",
+      "name": "РегистрСведенийАдресация",
+      "identity": "107dc6ff-c307-4635-9740-513ea31bab81"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый.xml",
+      "sha256": "d88e5e7cd186df824284b5108f3554d7ff786d8eb53279cf6549946ba40e6fc5",
+      "kind": "InformationRegister",
+      "name": "РегистрСведенийВсеСвойстваНезависимый",
+      "identity": "879a6653-1fee-49d6-aa2d-fdfd9fc2d9ae"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийГрафик.xml",
+      "sha256": "ab9be3cc20eb01c9500bb035f924fbbed8953b9f42f6d50230154d487a8bef8a",
+      "kind": "InformationRegister",
+      "name": "РегистрСведенийГрафик",
+      "identity": "8b56aac4-7933-454d-8908-8ac378292289"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийКомандныйИнтерфейс.xml",
+      "sha256": "0d0dfe5a6fe7044969e96cc4e9c20c9c4188e698d68ecfb8d5ee89c63ee62da6",
+      "kind": "InformationRegister",
+      "name": "РегистрСведенийКомандныйИнтерфейс",
+      "identity": "9004bd27-2dac-49e4-87bf-f47919dd66c9"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийКомандныйИнтерфейс1.xml",
+      "sha256": "a6237da78e5069324a1121a9bbcbb0545621816a16f8ec3fb2e71a49101460d7",
+      "kind": "InformationRegister",
+      "name": "РегистрСведенийКомандныйИнтерфейс1",
+      "identity": "a7291e11-57bc-4a6b-a09b-30a6ceb66252"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийПоУмолчанию.xml",
+      "sha256": "21e8b23756138813704d6c373c3ae398d1b30bd6e29393ed689965fc7fc437a1",
+      "kind": "InformationRegister",
+      "name": "РегистрСведенийПоУмолчанию",
+      "identity": "686f2c94-7ff6-4f17-865e-bcf6b8478b4f"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийПодчиненРегистратору.xml",
+      "sha256": "2af3f843397dabedb94556093d4b5888efd10c2632f59f11a69e521fa8295fc2",
+      "kind": "InformationRegister",
+      "name": "РегистрСведенийПодчиненРегистратору",
+      "identity": "939a53b9-c7ba-4315-a11e-fa15590651bf"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийПроверкаХарактеристик.xml",
+      "sha256": "1e777e1e287ee9be033c95750630da03533baa544f1b139c46e1a2851f82d0d0",
+      "kind": "InformationRegister",
+      "name": "РегистрСведенийПроверкаХарактеристик",
+      "identity": "e7f7210b-8a6e-4b42-8847-a7396b2a0511"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/IntegrationServices/СервисИнтеграцииВсеСвойства.xml",
+      "sha256": "22ddc46665d884f2a8a2a7fa47b80a73a0bee75980ea48d4be6799a7ad0c333f",
+      "kind": "IntegrationService",
+      "name": "СервисИнтеграцииВсеСвойства",
+      "identity": "caf163ec-7a63-4890-b958-afa7bc3f9c77"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/IntegrationServices/СервисИнтеграцииПоУмолчанию.xml",
+      "sha256": "fc33b22a0cceca2112bbe39a96f1568c266d5093a93c13528aec9cd9c19aa958",
+      "kind": "IntegrationService",
+      "name": "СервисИнтеграцииПоУмолчанию",
+      "identity": "1d619a9b-5818-4271-861c-1fd89dc3b7d0"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Languages/Английский.xml",
+      "sha256": "8ab6017f28356e5667342f20a7872870198aae26a6428aa1b244a4659454b982",
+      "kind": "Language",
+      "name": "Английский",
+      "identity": "b41e73ec-9a10-408d-9f56-3a0608217544"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Languages/Русский.xml",
+      "sha256": "c109d0061b2971d48cfc73cd788ba985888380ada406193fa0e3561f3ae7ca69",
+      "kind": "Language",
+      "name": "Русский",
+      "identity": "fe7bac61-788f-44bc-a496-6719001c5033"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства.xml",
+      "sha256": "2c0e6fa906363085def52dc9d23fd62fc76dd2d899229768b22548a0267fddbe",
+      "kind": "Report",
+      "name": "ОтчетВсеСвойства",
+      "identity": "5f67e404-0a01-4480-aa68-1149a6e085cc"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетПоУмолчанию.xml",
+      "sha256": "9cafd96a558a5e863a8faa12c701767d91f48e6644785771d2f7f3ff40276d4d",
+      "kind": "Report",
+      "name": "ОтчетПоУмолчанию",
+      "identity": "3520138f-4d7e-4969-95bd-216a05f4e5e5"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетСКД.xml",
+      "sha256": "dd758e220589ca4210a7fadcc2deef7f9fbab1c8174d2471477840da0ead0fa0",
+      "kind": "Report",
+      "name": "ОтчетСКД",
+      "identity": "1567f51e-bf8a-4a9b-a9f6-9646157bfd4f"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Roles/Администратор.xml",
+      "sha256": "8635d1390c5c8028ac90cac8fae7bafa0162a4901bbdb9273ecb9a354459af0e",
+      "kind": "Role",
+      "name": "Администратор",
+      "identity": "f07e1587-d9c9-4adc-8fb0-4286b21ad8cf"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Roles/РольВсеСвойства.xml",
+      "sha256": "53b07d1a35d3d10c53bb0f2adc94d2e66ffc2662e8f7b740c4912bab5fbca241",
+      "kind": "Role",
+      "name": "РольВсеСвойства",
+      "identity": "7c083c33-2c69-492d-a294-ae2f072dbf7d"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Roles/РольПоУмолчанию.xml",
+      "sha256": "61f444602329e5ad52719432d8c175460953799f4a7c3f2b978ecb6ba4a5cedf",
+      "kind": "Role",
+      "name": "РольПоУмолчанию",
+      "identity": "b5b14de4-3a63-475b-95e7-64af194b891b"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ScheduledJobs/РегламентноеЗаданиеВсеСвойства.xml",
+      "sha256": "6b865b77c1ef63fb959e7ad9c5d39b0bee88309a99104c2c63a9f2baee3d20e5",
+      "kind": "ScheduledJob",
+      "name": "РегламентноеЗаданиеВсеСвойства",
+      "identity": "f59974cc-26e3-442d-b4ad-9bd97d2ea31c"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ScheduledJobs/РегламентноеЗаданиеПоУмолчанию.xml",
+      "sha256": "7503fd48daa5f03331c170cd0ecc151d2075d958f30fceccd83d022d28877faf",
+      "kind": "ScheduledJob",
+      "name": "РегламентноеЗаданиеПоУмолчанию",
+      "identity": "96544ab9-0183-4daa-bd91-3ca78c5e12a6"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Sequences/ПоследовательностьВсеПоля.xml",
+      "sha256": "394523aff13044d6001b562922ab4a37fa3151c3208ad10791e21510acaf3bd0",
+      "kind": "Sequence",
+      "name": "ПоследовательностьВсеПоля",
+      "identity": "9a75d662-44b7-487e-970b-3265bfe1f7ca"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Sequences/ПоследовательностьДокумента.xml",
+      "sha256": "7d8ca3a71eb2cc55446e09d7de0b28af8da4f3f6346d4747c970615e1755450d",
+      "kind": "Sequence",
+      "name": "ПоследовательностьДокумента",
+      "identity": "1bbd0b43-b1d5-4055-b01b-bce0c5925afb"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Sequences/ПоследовательностьПоУмолчанию.xml",
+      "sha256": "c56d823ddd9f5172eb8dc35dbd72f6638502aab825b6c88456ddb88be4acd915",
+      "kind": "Sequence",
+      "name": "ПоследовательностьПоУмолчанию",
+      "identity": "6d2c11b6-4e22-412a-bd51-1df53dc6f0fb"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/SessionParameters/ПараметрСеансаВсеСвойства.xml",
+      "sha256": "c1b811b2aa6ec4ef5ea4308ee1aa23b44bd62b749a6ebf8af7d1316cf8f27737",
+      "kind": "SessionParameter",
+      "name": "ПараметрСеансаВсеСвойства",
+      "identity": "23f00a54-467a-4f24-bc62-12b1da877d58"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/SessionParameters/ПараметрСеансаПоУмолчанию.xml",
+      "sha256": "3ec89f8c1050394fe6e8b940f115752e685cb21a9de55e000595a234fff4cd86",
+      "kind": "SessionParameter",
+      "name": "ПараметрСеансаПоУмолчанию",
+      "identity": "fd32fe29-ad51-4588-b663-b65a4e461144"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/SessionParameters/ПараметрСеансаТекущийИсполнитель.xml",
+      "sha256": "a704360030f31ddb7283138dec76fbde9d4e184993555433d84dc0cbc20507ca",
+      "kind": "SessionParameter",
+      "name": "ПараметрСеансаТекущийИсполнитель",
+      "identity": "e0337f4b-6e56-40e7-a16d-0ba15eb6fd19"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/SettingsStorages/ХранилищеНастроекВсеСвойства.xml",
+      "sha256": "cef16952ebd324ad432a1109905dfa0ed14b5f67ecfdbdfcb050b14695876855",
+      "kind": "SettingsStorage",
+      "name": "ХранилищеНастроекВсеСвойства",
+      "identity": "93a122b3-1062-46c2-8f12-5806459164ed"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/SettingsStorages/ХранилищеНастроекПоУмолчанию.xml",
+      "sha256": "f893a845a5056671a5421f25961030d998f911e2d64c3d0fed22288a9ce634ff",
+      "kind": "SettingsStorage",
+      "name": "ХранилищеНастроекПоУмолчанию",
+      "identity": "4460a761-5c77-4a67-b2e8-6b0ee66a5656"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/StyleItems/ЭлементСтиляРамка.xml",
+      "sha256": "14fdf54ac0352055e4316ae382f153aff4c1973bbe28b38e70415b2fefa4ad4f",
+      "kind": "StyleItem",
+      "name": "ЭлементСтиляРамка",
+      "identity": "acbdd14e-1bf2-4950-8b19-77b1fe8ee4ee"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/StyleItems/ЭлементСтиляЦвет.xml",
+      "sha256": "ecfcc084de3c03a71fe279595e185ee3ec04f9dc4c31afafae16b32fa7038e4c",
+      "kind": "StyleItem",
+      "name": "ЭлементСтиляЦвет",
+      "identity": "2ce00ad3-04a3-46cc-a4fd-c8feda134b6b"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/StyleItems/ЭлементСтиляШрифтВсеСвойства.xml",
+      "sha256": "8328df281c0ad25d9979593acdd5a920180a490c1e080c1e09460746e8951940",
+      "kind": "StyleItem",
+      "name": "ЭлементСтиляШрифтВсеСвойства",
+      "identity": "8eb9a3b4-df02-441f-afe4-0a914000ab48"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Styles/СтильВсеСвойства.xml",
+      "sha256": "e3501fc7ddcc66036d125221fd6e506c3139a4ebe929a0776a76ed824634447a",
+      "kind": "Style",
+      "name": "СтильВсеСвойства",
+      "identity": "4f0d0100-6176-4b46-98b1-28fcb4cb4f6c"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Styles/СтильПоУмолчанию.xml",
+      "sha256": "319b3b1904ab61f2c5d38a5e7c207ded9a7cf0b3ce12134647fe9743d8820f15",
+      "kind": "Style",
+      "name": "СтильПоУмолчанию",
+      "identity": "531cb96a-3c4b-480c-8930-76a0a6ba8780"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Subsystems/ПодсистемаВсеСвойства.xml",
+      "sha256": "1096d1682dba60be0ba84f9ead9733df2be304a7c287de0bc8f8698f1c21e3c8",
+      "kind": "Subsystem",
+      "name": "ПодсистемаВсеСвойства",
+      "identity": "7f92d7a8-d80c-4a83-afdc-9f980686597d"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Subsystems/ПодсистемаИспользуетсяВПримерах.xml",
+      "sha256": "0ba716e6e05f0b601077119ca65234145066a71b574f0797a37ec5db3ad51bf3",
+      "kind": "Subsystem",
+      "name": "ПодсистемаИспользуетсяВПримерах",
+      "identity": "b1897474-9315-4f0f-83fb-a297e85b28ab"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Subsystems/ПодсистемаПоУмолчанию.xml",
+      "sha256": "723a39cce5cfe9975deaa4b2a14566a4f46ff3ee2abe2ea53765674112a2e19d",
+      "kind": "Subsystem",
+      "name": "ПодсистемаПоУмолчанию",
+      "identity": "5cdef058-55fd-417f-bdc2-13422a0cc63a"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/Задача1.xml",
+      "sha256": "d12bbad09fd201f3cf91e65fc7e016df1cb74a006dc81da44314d4bbcb02db9b",
+      "kind": "Task",
+      "name": "Задача1",
+      "identity": "d6522fd9-d724-48da-a8e3-d19c535a23d8"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаБезНаименования.xml",
+      "sha256": "9302394dd9f845e1566b8c7429cfb6f0c447c601c0781d36558d8d96bd9c5a9f",
+      "kind": "Task",
+      "name": "ЗадачаБезНаименования",
+      "identity": "95092fbe-4386-4e5f-b8af-2d0fdb9ae6df"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаБезНомера.xml",
+      "sha256": "ec2a51d95ac7a2614a63c07cfe6fba01e477d38b5802406ca915764147493ead",
+      "kind": "Task",
+      "name": "ЗадачаБезНомера",
+      "identity": "b0c54d3a-4d00-49ab-943f-a0ababf7a9a8"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаБезНомераИНаименования.xml",
+      "sha256": "627e59cd7cd387f7d9a10184fe9b5ce741184f54c414fbb02a702c91e294e3c2",
+      "kind": "Task",
+      "name": "ЗадачаБезНомераИНаименования",
+      "identity": "c402377c-8ed6-404d-b955-cf33195d6170"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства.xml",
+      "sha256": "9c2920177c6974fc6941bd2f9d10d1ed1c0e69efe5a564b67a35daa5abc5f72d",
+      "kind": "Task",
+      "name": "ЗадачаВсеСвойства",
+      "identity": "cdd7e9c6-691f-429c-a06f-27f74773fd84"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаМаксимальнаяДлинаНомера.xml",
+      "sha256": "7f7d452eb80714deb176fcb1dc8936e26fcb553aa423cfd24210bcbdb7c0b86e",
+      "kind": "Task",
+      "name": "ЗадачаМаксимальнаяДлинаНомера",
+      "identity": "61dacf86-5670-457c-ab93-468473d158b8"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаМаксимальнаяДлинаНомераЧисло.xml",
+      "sha256": "63e2644d127073ac3b9e251b3847a7f03f5a2dd2a595c2f33052312cec5aa425",
+      "kind": "Task",
+      "name": "ЗадачаМаксимальнаяДлинаНомераЧисло",
+      "identity": "534e9bf6-a009-4cb8-8eb4-32a64a22f8e7"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаПоУмолчанию.xml",
+      "sha256": "f105bbcb31500644fbdbe1d91bc0d37e87a967f10a28b6ced16d0d8a29943b7a",
+      "kind": "Task",
+      "name": "ЗадачаПоУмолчанию",
+      "identity": "b245a85b-42d1-43d1-b841-3b03ed8dba8e"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/WSReferences/WSСсылкаВсеСвойства.xml",
+      "sha256": "220af43533bce7e588e07b2034b37e8189d349f4941a2505eee917a701c4316f",
+      "kind": "WSReference",
+      "name": "WSСсылкаВсеСвойства",
+      "identity": "2eeb80e0-52a3-461c-a54e-577744ae62f6"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/WSReferences/WSСсылкаПоУмолчанию.xml",
+      "sha256": "6f2d582354e054ddafae3e8669ebd8eef890c57983a7d9c5a996821acc826761",
+      "kind": "WSReference",
+      "name": "WSСсылкаПоУмолчанию",
+      "identity": "32842803-1300-4a85-8359-aadc37fa3399"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/WebServices/WebСервисВсеСвойства.xml",
+      "sha256": "a6455c22eac16513435e14f8b1bbdc903811ddd467a1715837fe9e466f53d906",
+      "kind": "WebService",
+      "name": "WebСервисВсеСвойства",
+      "identity": "f07c0e74-6895-4aed-9a25-d947f569fd8e"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/WebServices/WebСервисПоУмолчанию.xml",
+      "sha256": "5e9f1a7d7f754b98e9a3404e5481e32222d7fbdeefdbd34a5346b1e61a1d53f0",
+      "kind": "WebService",
+      "name": "WebСервисПоУмолчанию",
+      "identity": "a7de08b5-3da0-4c9a-9cb9-a1a8a2a38185"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/WebSocketClients/WebSocketКлиентВсеСвойства.xml",
+      "sha256": "5ac842f6190fc03a46bb578b9545011907ef28d41cefdd0ee2ab97c70b4225e3",
+      "kind": "WebSocketClient",
+      "name": "WebSocketКлиентВсеСвойства",
+      "identity": "d5fac624-e425-4a82-8c77-7975cd6632c2"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/WebSocketClients/WebSocketКлиентПоУмолчанию.xml",
+      "sha256": "02e59ac820201bd6b047e5cfcf64944dee0197eea2fc9b7a61ad7b31a12000a0",
+      "kind": "WebSocketClient",
+      "name": "WebSocketКлиентПоУмолчанию",
+      "identity": "bf305e2d-eecb-4891-ba5e-04ab2f71dc5a"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/XDTOPackages/ПакетXDTOВсеСвойства.xml",
+      "sha256": "70708a8c729e429e863529cb11e0a45e5843c3bd170faa0444c13707f1824263",
+      "kind": "XDTOPackage",
+      "name": "ПакетXDTOВсеСвойства",
+      "identity": "70d80fbc-fade-411f-b1bd-5058df6b4362"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/XDTOPackages/ПакетXDTOПоУмолчанию.xml",
+      "sha256": "a782def257b7fd2579fdbce770b2a7fe5474ba9d33db739b8e287a84649d7914",
+      "kind": "XDTOPackage",
+      "name": "ПакетXDTOПоУмолчанию",
+      "identity": "5895f5c4-42d5-4da7-a3b6-700049ec8655"
+    }
+  ],
+  "children": [
+    {
+      "source": "e2e/fixtures/xml/cf/CalculationRegisters/РегистрРасчетаВсеСвойства/Recalculations/ПерерасчетВсеСвойства.xml",
+      "sha256": "2de25a67a64dd4a210155ca85b1a940590bd335ad6bb6603bcdd6032dddb00de",
+      "kind": "Recalculation",
+      "name": "ПерерасчетВсеСвойства",
+      "identity": "fe3ce121-d6fc-409c-9b83-19e551d26b21",
+      "parent": "963bef13-9fd2-432c-ac46-133d20e7dc0f"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CalculationRegisters/РегистрРасчетаВсеСвойства/Recalculations/ПерерасчетПоУмолчанию.xml",
+      "sha256": "f364f88e68324225c38f46aafce59811e63b7cec973f1179343b89922fa2a387",
+      "kind": "Recalculation",
+      "name": "ПерерасчетПоУмолчанию",
+      "identity": "46548bba-f23d-42e4-9c54-83d85954c94f",
+      "parent": "963bef13-9fd2-432c-ac46-133d20e7dc0f"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства.xml",
+      "sha256": "d28dfd79e7a5a2bdfb5f5cafee33dcc38c55abf6c8d911171ac8199580460be8",
+      "kind": "Cube",
+      "name": "КубВсеСвойства",
+      "identity": "1838370c-89b3-4870-967f-3a56177d74ca",
+      "parent": "aa0a162f-bf96-4951-9c81-f6a8014ab7e8"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Cubes/КубПоУмолчанию.xml",
+      "sha256": "d864e1c66006209c9466e17c5e61797a64707f9a806902267e940e6ba74652db",
+      "kind": "Cube",
+      "name": "КубПоУмолчанию",
+      "identity": "1d32adeb-3b76-4685-9e6a-21ca3abde728",
+      "parent": "aa0a162f-bf96-4951-9c81-f6a8014ab7e8"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства.xml",
+      "sha256": "1e2e310995587efd1dd1fcd8349b9878930fb609ba109b31bc6d0d1173c2b102",
+      "kind": "Table",
+      "name": "ТаблицаВсеСвойства",
+      "identity": "61def258-8564-4ebe-8985-8cdfeca43828",
+      "parent": "aa0a162f-bf96-4951-9c81-f6a8014ab7e8"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаМодульНабора.xml",
+      "sha256": "8c331499e999b075f5986fe229016914272d2eb176aba5aad4eeb95a2c4c5205",
+      "kind": "Table",
+      "name": "ТаблицаМодульНабора",
+      "identity": "0d6a5c94-2b9c-4196-8f45-ff1d3ee18c05",
+      "parent": "aa0a162f-bf96-4951-9c81-f6a8014ab7e8"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаПоУмолчанию.xml",
+      "sha256": "0b34ff717e10e229ef8e80e89b0d8a3db14589a5e929e8a9bd9d0792f292d2eb",
+      "kind": "Table",
+      "name": "ТаблицаПоУмолчанию",
+      "identity": "272a84de-a65a-42b3-87a1-cf6be83ba9b3",
+      "parent": "aa0a162f-bf96-4951-9c81-f6a8014ab7e8"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства/DimensionTables/ТаблицаИзмеренияВсеСвойства.xml",
+      "sha256": "a7e3de3274b72eb4f7a14f9941323be9396b14a25a7db431af85683881285d52",
+      "kind": "DimensionTable",
+      "name": "ТаблицаИзмеренияВсеСвойства",
+      "identity": "e948bf38-a9fa-411a-8a06-0c14f9fdc867",
+      "parent": "1838370c-89b3-4870-967f-3a56177d74ca"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства/DimensionTables/ТаблицаИзмеренияПоУмолчанию.xml",
+      "sha256": "972ce4c73d586937daf40a3939301fe4b8325dd94289d62455357eb2b0a2493a",
+      "kind": "DimensionTable",
+      "name": "ТаблицаИзмеренияПоУмолчанию",
+      "identity": "0a26b81f-54a0-45f8-bbfa-0692c494f4c7",
+      "parent": "1838370c-89b3-4870-967f-3a56177d74ca"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства.xml",
+      "sha256": "8cf7bfb424f2609d5969d0d4dd3e08dfd7e6c193ba8a015cae8a92735ce5b3c0",
+      "kind": "Function",
+      "name": "ФункцияВсеСвойства",
+      "identity": "f3a425ae-a79d-4001-b911-e1f4ce4b0dff",
+      "parent": "aa0a162f-bf96-4951-9c81-f6a8014ab7e8"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства.xml",
+      "sha256": "8cf7bfb424f2609d5969d0d4dd3e08dfd7e6c193ba8a015cae8a92735ce5b3c0",
+      "kind": "Function",
+      "name": "ФункцияВнешнийИсточникДанныхКубТаблицаИзмеренияСсылка",
+      "identity": "e0faf3c8-0ad3-44b3-b6ee-d1571fd37938",
+      "parent": "aa0a162f-bf96-4951-9c81-f6a8014ab7e8"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства.xml",
+      "sha256": "8cf7bfb424f2609d5969d0d4dd3e08dfd7e6c193ba8a015cae8a92735ce5b3c0",
+      "kind": "Function",
+      "name": "ФункцияПоУмолчанию",
+      "identity": "d9efcf5d-0ff4-4cfc-99dd-165c8d8b80af",
+      "parent": "aa0a162f-bf96-4951-9c81-f6a8014ab7e8"
+    }
+  ],
+  "forms": [
+    {
+      "source": "e2e/fixtures/xml/cf/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОбороты/Forms/ФормаСписка.xml",
+      "sha256": "7d42ee70551fafca25196eac31d9a6198277976503e044d4e9d97352d241ae61",
+      "parent": "28c1195f-ffed-4f2e-994d-663362cadd4d",
+      "name": "ФормаСписка",
+      "identity": "b7015f07-a302-48c6-9a55-101ce50f2841"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/AccumulationRegisters/РегистрНакопленияВсеСвойстваОбороты/Forms/ФормаСписка.xml",
+      "sha256": "0150f3113e270f92ca8e7f0053e963bcf210205de40974166ebdd59e555b302c",
+      "parent": "e9194700-40e3-475f-91a5-fcdef0f9d75c",
+      "name": "ФормаСписка",
+      "identity": "1b72db0a-934a-431d-9a8f-623b4fcb6112"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства/Forms/ФормаВыбора.xml",
+      "sha256": "97999877811fccbd39e017e5c5f29874110b9556cdd87deb1305e84d5c95ef9b",
+      "parent": "f790632a-04a3-4e35-bb1e-d3c4ed5a2f0e",
+      "name": "ФормаВыбора",
+      "identity": "8714684a-07b8-43d4-b9b4-f07bf3d53c7e"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства/Forms/ФормаЗадачи.xml",
+      "sha256": "e30ba2eacb804b492a9da63e19688386c8a7f48acafe344d705f3d9c2262946e",
+      "parent": "f790632a-04a3-4e35-bb1e-d3c4ed5a2f0e",
+      "name": "ФормаЗадачи",
+      "identity": "f2201d72-9daf-47b4-986c-6b022e8220bd"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства/Forms/ФормаСписка.xml",
+      "sha256": "0189cbfb6d9b5742337a8dc5a2f586bd6166f356eab6cde4610606ea79104137",
+      "parent": "f790632a-04a3-4e35-bb1e-d3c4ed5a2f0e",
+      "name": "ФормаСписка",
+      "identity": "9a216186-2d08-47e6-85a7-c37eb4eb9598"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CalculationRegisters/РегистрРасчетаВсеСвойства/Forms/ФормаСписка.xml",
+      "sha256": "58bdc480349e8b68d20a2c772414bdfca9af61eaed8522878703b13c843d8506",
+      "parent": "963bef13-9fd2-432c-ac46-133d20e7dc0f",
+      "name": "ФормаСписка",
+      "identity": "cbc448b2-b679-4473-ae51-2dbf6fd03d8f"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/ПараметрыВыбора/Forms/ФормаЭлемента.xml",
+      "sha256": "bdaa9e71af2f2261148dfcc7db1bd6b7e832356c57c192a74058b1a9264140c6",
+      "parent": "48e146d4-396e-4cc2-bc0b-ce75097b2573",
+      "name": "ФормаЭлемента",
+      "identity": "1e8badcc-b1d1-483f-bb39-edb36ee7fb1d"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникCоВсемиОбъектами/Forms/ФормаЭлемента.xml",
+      "sha256": "2b40aab4282156ffb714cf570ea89b12e52f470b854d1f6d5f749328caa440f4",
+      "parent": "85c9d17e-a93a-47e6-ab54-9c37126fb1fa",
+      "name": "ФормаЭлемента",
+      "identity": "3e7316a8-7842-40bf-87a7-85a61671793f"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникВладелец/Forms/ФормаВыбора.xml",
+      "sha256": "f62de1813ee59e0ba678877dc9cab2e77964385e2d3563a59561e6e7babb762a",
+      "parent": "000f4b80-92c9-48d0-9845-ce77c1420161",
+      "name": "ФормаВыбора",
+      "identity": "962f8ac2-b2e6-45bc-94e6-d422ca8f1025"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникКомандныйИнтерфейс/Forms/ФормаЭлемента.xml",
+      "sha256": "fad7845ef4c164d8d4300125ddc2c013c5e98dacff0b98de3a8986a3ec49afdd",
+      "parent": "600e1684-aa0a-495c-b40e-f76eb682746e",
+      "name": "ФормаЭлемента",
+      "identity": "f26a6997-7313-46d9-9ea7-e586245ec5d8"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный/Forms/Минимальная.xml",
+      "sha256": "4d363a21c99e113bf6db96829f7f68dcebb40fdd9a8ad4612c5bfde50c607e22",
+      "parent": "f8ffca12-d09d-4111-ba91-67077462df5b",
+      "name": "Минимальная",
+      "identity": "4e9b2646-e73a-4c98-ad43-19ac74b24770"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный/Forms/ФормаВыбора.xml",
+      "sha256": "80fafdb411db5d31dd620bc540a59290d738de582204e9e7de72b4c747cbd1d3",
+      "parent": "f8ffca12-d09d-4111-ba91-67077462df5b",
+      "name": "ФормаВыбора",
+      "identity": "03832dfd-eeea-4243-89f4-7e0775d3944a"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный/Forms/ФормаВыбораГруппы.xml",
+      "sha256": "5bfcfa0dd84de3cc668bb19ed52ddbdbd6f4695ab1b54ab350f9352bcedcc071",
+      "parent": "f8ffca12-d09d-4111-ba91-67077462df5b",
+      "name": "ФормаВыбораГруппы",
+      "identity": "f87e74f0-7043-4af6-8c22-80863d983831"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный/Forms/ФормаГруппы.xml",
+      "sha256": "464c36c25188268305a0fe77e1d1f93402a22679ef3a206082494255ab160831",
+      "parent": "f8ffca12-d09d-4111-ba91-67077462df5b",
+      "name": "ФормаГруппы",
+      "identity": "f45cc6f5-7c56-4d14-96cb-e403e7111c84"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный/Forms/ФормаСписка.xml",
+      "sha256": "357b8ca2249a26ac982a406bd6ea4d022e2d51db506fe02dc2a1ca79ec661a00",
+      "parent": "f8ffca12-d09d-4111-ba91-67077462df5b",
+      "name": "ФормаСписка",
+      "identity": "97125ea9-eb1f-4b7e-8b1a-87c50e6009c3"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный/Forms/ФормаЭлемента.xml",
+      "sha256": "7422b8f9f9d764e7c6709b828792e617ed110c0e93cdc86a156f85c3758946ef",
+      "parent": "f8ffca12-d09d-4111-ba91-67077462df5b",
+      "name": "ФормаЭлемента",
+      "identity": "f5577b5c-efe3-48a4-99d2-d77ea4d4187f"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникРеквизит/Forms/ФормаВыбора.xml",
+      "sha256": "0331b971834a2e15514014c9da275ca7e1800e08424a7a22c30bf6467e693157",
+      "parent": "52dc511c-8448-4f84-8643-21916e56d775",
+      "name": "ФормаВыбора",
+      "identity": "d51d2e71-f536-4608-9bc3-d7d02cbcfd3c"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникСПредопределенными/Forms/ФормаВыбора.xml",
+      "sha256": "c48da295da630abe1e8b1cb57fb507c4751ba82a1102b2ad1cf5816f7b0d489f",
+      "parent": "b47a9e20-e2c8-4091-9025-b0cf97b28126",
+      "name": "ФормаВыбора",
+      "identity": "71dfa53d-870d-4458-9679-33c64f55b741"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникФормаВсеСвойства/Forms/ФормаЭлемента.xml",
+      "sha256": "a6322b1130c29d5d08f902d530856a5abf013cf716ab69886dc10fb651f1c1e9",
+      "parent": "f4eb6828-49ca-4d6c-9ecd-5a691c60b276",
+      "name": "ФормаЭлемента",
+      "identity": "d2161686-8e3e-4cae-bf7d-797853505766"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникФормаТабличнаяЧасть/Forms/ФормаЭлемента.xml",
+      "sha256": "9ea4546123355f05c7ad28e1a297e865a7c7a3752567def597db309e201862b0",
+      "parent": "dbc9a40c-8bd3-4f15-b001-346b132d9e8d",
+      "name": "ФормаЭлемента",
+      "identity": "e36f8928-f662-4ea2-a454-722e4f6f9d17"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства/Forms/ФормаВыбора.xml",
+      "sha256": "b32f0801b22ee9b610922baf3cdde701948ba3c268a82d5a193fe8911cbc69a1",
+      "parent": "06cc2a86-f916-4f8f-964e-66a9ad7b1fc0",
+      "name": "ФормаВыбора",
+      "identity": "803ea1e2-6d31-4c5e-a099-c5e3ffe43c59"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства/Forms/ФормаЗаписи.xml",
+      "sha256": "14fff5b4c7960e37c5a2a7153f9c08beda94e874bdb8965bec7d40e7e0fab720",
+      "parent": "06cc2a86-f916-4f8f-964e-66a9ad7b1fc0",
+      "name": "ФормаЗаписи",
+      "identity": "65653deb-18e4-4487-8fe2-229996f8acb1"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства/Forms/ФормаСписка.xml",
+      "sha256": "33a83c61bce39b6b21be48bd637977f248d7fc33080f4b9f7643b6750cebc88b",
+      "parent": "06cc2a86-f916-4f8f-964e-66a9ad7b1fc0",
+      "name": "ФормаСписка",
+      "identity": "034f189f-8333-4440-96e6-e6501608a114"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства/Forms/ФормаВидаРасчета.xml",
+      "sha256": "4e0f477cf5fd53d56155c0f8fa474ad831f160de429a408bb5bda9a9e91f3c34",
+      "parent": "9c6be49a-58d9-4ed5-8037-a77cf3616582",
+      "name": "ФормаВидаРасчета",
+      "identity": "9086da57-9a58-4480-a530-9b041aa5297a"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства/Forms/ФормаВыбора.xml",
+      "sha256": "4ee0d14e8376f64a9dc3d1bc9897f1bb7077431ac093e13eebb3a7e68d76b98b",
+      "parent": "9c6be49a-58d9-4ed5-8037-a77cf3616582",
+      "name": "ФормаВыбора",
+      "identity": "672063e3-5065-4a9b-b659-cf9a7f47fd53"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства/Forms/ФормаСписка.xml",
+      "sha256": "90f32cbe24d3d49ca4f565f40335e0af372691d218961fbccd4f74419c2600b5",
+      "parent": "9c6be49a-58d9-4ed5-8037-a77cf3616582",
+      "name": "ФормаСписка",
+      "identity": "2b0d2fd0-3828-432d-a76a-2103fa40e59c"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойства/Forms/ФормаВыбора.xml",
+      "sha256": "d8a0dac2fa04231243f9c8356646403903e884e66d7918d0867394d37982558d",
+      "parent": "83430a5b-11ad-4b28-bff4-f3c3f45f0360",
+      "name": "ФормаВыбора",
+      "identity": "82a7c4f0-b185-4c65-b29c-8fd749a4fe85"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойства/Forms/ФормаВыбораГруппы.xml",
+      "sha256": "07a63c91587dd3335d545d5733e4adc0eb5b2856bedd0ee4ceeede967fd275b6",
+      "parent": "83430a5b-11ad-4b28-bff4-f3c3f45f0360",
+      "name": "ФормаВыбораГруппы",
+      "identity": "8803da73-c132-464f-890d-217ee10c6a01"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойства/Forms/ФормаГруппы.xml",
+      "sha256": "74c105513033de73daf5b06869eea104c7b8e3b3c5fde48af7b5cfe32cc01299",
+      "parent": "83430a5b-11ad-4b28-bff4-f3c3f45f0360",
+      "name": "ФормаГруппы",
+      "identity": "463c937c-f7d7-4c70-b181-53b66dbd222a"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойства/Forms/ФормаСписка.xml",
+      "sha256": "6ddc084ead7d5f8bbeb9361d4cb8a11ad17ca43bf9525e4578cc985445e526fd",
+      "parent": "83430a5b-11ad-4b28-bff4-f3c3f45f0360",
+      "name": "ФормаСписка",
+      "identity": "81faf4ca-4ce0-42cc-8e8f-1d0c8c36dbbb"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойства/Forms/ФормаЭлемента.xml",
+      "sha256": "8d00aa683963c7e8178622b62cc1324186b5722ff23da278a496bd857dd7dec4",
+      "parent": "83430a5b-11ad-4b28-bff4-f3c3f45f0360",
+      "name": "ФормаЭлемента",
+      "identity": "baa0c1ec-5aca-4827-848a-40e5e3281969"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/DataProcessors/ОбработкаВсеСвойства/Forms/Форма.xml",
+      "sha256": "bd7ca567227eee197119f2ef02711d45082a87ddebe5df3e4621ff6e90e0d0e0",
+      "parent": "d09aded1-3722-43c0-aff2-25f1c29159ea",
+      "name": "Форма",
+      "identity": "cf0bc989-3255-4c3b-81d9-104424ec18cb"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/DocumentJournals/ЖурналДокументовВсеСвойства/Forms/ФормаСписка.xml",
+      "sha256": "dad70848a07096abb5630dec08786aa17827f18facf54ec4dd5c3b1ca6345ae0",
+      "parent": "eaa3ce17-c186-4aac-9667-0f4409e5043c",
+      "name": "ФормаСписка",
+      "identity": "5fa96490-5245-44f7-a93a-a76d5e1b1cb0"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства/Forms/ФормаВыбора.xml",
+      "sha256": "772d44e0e9baafe8eff9f00f8dcef0f3ef2c5d93521f0efe60d548f6ebe2b3dd",
+      "parent": "2f109eaa-d341-4592-a04f-3f199e75d879",
+      "name": "ФормаВыбора",
+      "identity": "3e3cd30c-7bdc-4923-b1be-31e716828cca"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства/Forms/ФормаДокумента.xml",
+      "sha256": "6e013c1b7bcf7db378e0459c046839555ed570e4321bb59a1075b9ff81ca3c7d",
+      "parent": "2f109eaa-d341-4592-a04f-3f199e75d879",
+      "name": "ФормаДокумента",
+      "identity": "e65a7d08-b367-48a2-8fb5-9682bd4ad7e4"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства/Forms/ФормаДокументаВсеСвойства.xml",
+      "sha256": "3e2a0239b9520ed6cb1c8edd005971e70ccbb26e830813df9decb58dbd8eddc0",
+      "parent": "2f109eaa-d341-4592-a04f-3f199e75d879",
+      "name": "ФормаДокументаВсеСвойства",
+      "identity": "1822c61a-5a01-4461-99dc-656e5c69a263"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства/Forms/ФормаСписка.xml",
+      "sha256": "3b0eea61cf96b5825cf80bbe01282678dabca2ed40c6701ae1973977daed0f74",
+      "parent": "2f109eaa-d341-4592-a04f-3f199e75d879",
+      "name": "ФормаСписка",
+      "identity": "773de08f-1a80-4bc2-aeb7-85dcdd721220"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументКнопкаСПараметрами/Forms/ФормаДокумента.xml",
+      "sha256": "a57d711561025cb152b010db6dd4c56638ea1862db3ae45e51f80057e8c2b35c",
+      "parent": "b143f868-111c-4446-a622-42513cdc675f",
+      "name": "ФормаДокумента",
+      "identity": "5c208f1a-207c-4ef1-8183-8fbc88fad128"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Enums/ПеречислениеВсеСвойства/Forms/ФормаВыбора.xml",
+      "sha256": "244e3fe823c705fe350e39313a98b1e0325b3e11ac00379130f7aee55a3d77cf",
+      "parent": "ec93e916-ecd7-45c4-8e73-ea76f186183c",
+      "name": "ФормаВыбора",
+      "identity": "58810ceb-f75e-4ab6-a7e0-246ced939a6a"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Enums/ПеречислениеВсеСвойства/Forms/ФормаСписка.xml",
+      "sha256": "9f76fd566966799699bc4b052296ab6baf7c0bdf6656f8145599b01821e8b9db",
+      "parent": "ec93e916-ecd7-45c4-8e73-ea76f186183c",
+      "name": "ФормаСписка",
+      "identity": "8a972455-f21c-4752-b565-3a02ad004435"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства/Forms/ФормаВыбора.xml",
+      "sha256": "98a88d8529f2018b0422dcad8f1099bb7adb4ad39d56df9c12afeb5646f23abf",
+      "parent": "795bd97c-bf59-484f-8fea-c3189e5b197b",
+      "name": "ФормаВыбора",
+      "identity": "9b69f5bc-e780-4752-afc8-b83a33caeacf"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства/Forms/ФормаСписка.xml",
+      "sha256": "d0c2ca2a4c2dd7a7b8ed3625d468c44d3fe68f3361ddf9379ea543e2cc1bfc1f",
+      "parent": "795bd97c-bf59-484f-8fea-c3189e5b197b",
+      "name": "ФормаСписка",
+      "identity": "09c75099-f3f7-40d1-be69-28004286719e"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства/Forms/ФормаУзла.xml",
+      "sha256": "3f0597a8a47643108ceee381300321762b4588680c2a702498ffd4aa5b6c8b2e",
+      "parent": "795bd97c-bf59-484f-8fea-c3189e5b197b",
+      "name": "ФормаУзла",
+      "identity": "f8f029bb-ab9c-4055-b468-2b400b4cee18"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства/Forms/ФормаЗаписи.xml",
+      "sha256": "214a6516098f94c4415dfd6f80f5832bc5a2e4b929df9dff43145476330e1b76",
+      "parent": "1838370c-89b3-4870-967f-3a56177d74ca",
+      "name": "ФормаЗаписи",
+      "identity": "5c4b116e-d9e2-4248-89fe-aa6a2d46436d"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства/Forms/ФормаСписка.xml",
+      "sha256": "b84f1104b409253de9fffa0772d08c1732feb5b42a192e99af271a6bdab6013f",
+      "parent": "1838370c-89b3-4870-967f-3a56177d74ca",
+      "name": "ФормаСписка",
+      "identity": "7b2e595d-f11a-4de2-82d8-93697625e792"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства/Forms/ФормаВыбора.xml",
+      "sha256": "bee7138ae0a0f5e376b0c65b876dce8f7ac3b291266abf5977594b843778f6b1",
+      "parent": "61def258-8564-4ebe-8985-8cdfeca43828",
+      "name": "ФормаВыбора",
+      "identity": "eaa6c70a-77e9-4486-a3ae-22d7faf48a8a"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства/Forms/ФормаОбъекта.xml",
+      "sha256": "fef4e158b6d073080d32cae94b5c6c0c7ba5a6171d96855ce89cb194536d90ee",
+      "parent": "61def258-8564-4ebe-8985-8cdfeca43828",
+      "name": "ФормаОбъекта",
+      "identity": "bff00030-f31e-47e4-b91e-cdf457f7b2aa"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства/Forms/ФормаСписка.xml",
+      "sha256": "dbaeacb8c33136c57aa0003c6939696b086f2fb70e921138b45b0bc318d8b6f4",
+      "parent": "61def258-8564-4ebe-8985-8cdfeca43828",
+      "name": "ФормаСписка",
+      "identity": "66457fe4-2908-4e40-b50f-6b4fb5761a11"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/FilterCriteria/КритерийОтбораВсеСвойства/Forms/ФормаСписка.xml",
+      "sha256": "ab978507497f36cfb7ac574864ac8700ef8c49d9353bac0f24f58fd083e30bce",
+      "parent": "f95f51b6-2066-4076-9691-3f86bffd3e6a",
+      "name": "ФормаСписка",
+      "identity": "23ec1467-fc42-404b-aa2b-525b5f81b5f0"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведений1/Forms/ФормаЗаписи.xml",
+      "sha256": "57cfaf7484dfbf1f2de6a6ab41f80ff16b445f08b6c918785977d18634f766e3",
+      "parent": "864c9ce3-ec4e-4330-841b-841b2cd112be",
+      "name": "ФормаЗаписи",
+      "identity": "90b0a085-cfaf-4904-a519-88c190c00bc2"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый/Forms/ФормаЗаписи.xml",
+      "sha256": "5c250c751b569e37969fcbfad9e325be1c482e7b6ccca750e716843ff47c517c",
+      "parent": "879a6653-1fee-49d6-aa2d-fdfd9fc2d9ae",
+      "name": "ФормаЗаписи",
+      "identity": "5fcbdf60-96a5-4928-acfd-003656188e68"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый/Forms/ФормаСписка.xml",
+      "sha256": "53fe1029eb85dfa750b241741647e69d65ab9f065968a9dbd9b03bfc671f2fe2",
+      "parent": "879a6653-1fee-49d6-aa2d-fdfd9fc2d9ae",
+      "name": "ФормаСписка",
+      "identity": "74bff7ca-ebbb-4a22-a23c-baf2ef0c5a6e"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта.xml",
+      "sha256": "3e53073357e22d44d25d85623b35da2d816ed52f5d87ddf5dc039997756616d4",
+      "parent": "5f67e404-0a01-4480-aa68-1149a6e085cc",
+      "name": "ФормаВарианта",
+      "identity": "99753e0f-11ab-4978-9bdc-253717797644"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства/Forms/ФормаНастроек.xml",
+      "sha256": "78a2bfca349e5f08d3619bf905466029e8962febb4b253d57e9a5bb0aa9b8b64",
+      "parent": "5f67e404-0a01-4480-aa68-1149a6e085cc",
+      "name": "ФормаНастроек",
+      "identity": "d9a80980-0b5f-4814-8218-7465de5a6c44"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства/Forms/ФормаОтчета.xml",
+      "sha256": "22b7af9c00994fec61df8a5d72bc525ba9dbaaae81df9d0d473b9ec2570a7f7e",
+      "parent": "5f67e404-0a01-4480-aa68-1149a6e085cc",
+      "name": "ФормаОтчета",
+      "identity": "0921068c-e41c-4651-a4bc-89752d6a6445"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/SettingsStorages/ХранилищеНастроекВсеСвойства/Forms/ФормаЗагрузки.xml",
+      "sha256": "9060a72b14a1421655f66353496b37db77c095fb03c36d689125e7c6760e52fc",
+      "parent": "93a122b3-1062-46c2-8f12-5806459164ed",
+      "name": "ФормаЗагрузки",
+      "identity": "3e0b1e47-0837-4fb0-a44b-6f7762fbc872"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/SettingsStorages/ХранилищеНастроекВсеСвойства/Forms/ФормаСохранения.xml",
+      "sha256": "be4689f8d711c0805f80aa7934bab793f970c4da6f6aa959fd4a13cc07be1e02",
+      "parent": "93a122b3-1062-46c2-8f12-5806459164ed",
+      "name": "ФормаСохранения",
+      "identity": "a3ce474b-a801-4044-994d-f85a375ba0a6"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства/Forms/ФормаВыбора.xml",
+      "sha256": "830312e6f473257e5a33c8571fbca1d5d49caf9a7c40cdbaf30e2face7c0d504",
+      "parent": "cdd7e9c6-691f-429c-a06f-27f74773fd84",
+      "name": "ФормаВыбора",
+      "identity": "a5a63fc2-dc1d-4a9d-8227-e363c7d9ff9d"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства/Forms/ФормаЗадачи.xml",
+      "sha256": "43fc3131b1d692d448de79ccc5ce216c9facc6f2baa950e3fb050057713253c3",
+      "parent": "cdd7e9c6-691f-429c-a06f-27f74773fd84",
+      "name": "ФормаЗадачи",
+      "identity": "6d6e7e0c-b366-4ad4-b551-f1b75c956b6f"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства/Forms/ФормаСписка.xml",
+      "sha256": "3e6bac77158768012057a2617c7438f02a97a8da80acba7d48a7663d4b01aa62",
+      "parent": "cdd7e9c6-691f-429c-a06f-27f74773fd84",
+      "name": "ФормаСписка",
+      "identity": "5516efa6-4361-4837-b12d-76f633f04006"
+    }
+  ],
+  "cases": [
+    {
+      "expectedTarget": true,
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписокОсновнаяТаблица/Ext/Form.xml",
+      "sha256": "763ed42a69d202cb9bdf988866261d797554fc0146114346af993b484df25c42",
+      "occurrence": 680,
+      "path": "ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Cube.КубВсеСвойства",
+      "expectedRoot": true
+    },
+    {
+      "expectedTarget": true,
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписокОсновнаяТаблица/Ext/Form.xml",
+      "sha256": "763ed42a69d202cb9bdf988866261d797554fc0146114346af993b484df25c42",
+      "occurrence": 703,
+      "path": "ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Table.ТаблицаВсеСвойства",
+      "expectedRoot": true
+    },
+    {
+      "expectedTarget": true,
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписокОсновнаяТаблица/Ext/Form.xml",
+      "sha256": "763ed42a69d202cb9bdf988866261d797554fc0146114346af993b484df25c42",
+      "occurrence": 726,
+      "path": "ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Cube.КубВсеСвойства.DimensionTable.ТаблицаИзмеренияВсеСвойства",
+      "expectedRoot": true
+    },
+    {
+      "expectedTarget": true,
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "5dda501bbe75a7f65cc70801d5556eb9b4239685748397c54528e2b0968b488c",
+      "occurrence": 74,
+      "path": "ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Cube.КубВсеСвойства",
+      "expectedRoot": true
+    },
+    {
+      "expectedTarget": true,
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства/Forms/ФормаВыбора/Ext/Form.xml",
+      "sha256": "13382011507458a0feb163d26913e8c60be010017974b95173ca8433b2977b7b",
+      "occurrence": 73,
+      "path": "ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Table.ТаблицаВсеСвойства",
+      "expectedRoot": true
+    },
+    {
+      "expectedTarget": true,
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства/Forms/ФормаСписка/Ext/Form.xml",
+      "sha256": "c56b8d0a7abc952386669b7ee15e0683a6afd04b54f019f0d6cda19eab0df02d",
+      "occurrence": 71,
+      "path": "ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Table.ТаблицаВсеСвойства",
+      "expectedRoot": true
+    },
+    {
+      "expectedTarget": true,
+      "source": "e2e/fixtures/xml/cf/FunctionalOptions/ФункциональнаяОпцияБулево.xml",
+      "sha256": "8be24d5f421ae1e2b1ddb6e050a751b4ef9ba9d358de748ddf015d3115a88b36",
+      "occurrence": 26,
+      "path": "ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Table.ТаблицаВсеСвойства",
+      "expectedRoot": true
+    },
+    {
+      "expectedTarget": true,
+      "source": "e2e/fixtures/xml/cf/FunctionalOptions/ФункциональнаяОпцияБулево.xml",
+      "sha256": "8be24d5f421ae1e2b1ddb6e050a751b4ef9ba9d358de748ddf015d3115a88b36",
+      "occurrence": 27,
+      "path": "ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Cube.КубВсеСвойства.DimensionTable.ТаблицаИзмеренияВсеСвойства",
+      "expectedRoot": true
+    },
+    {
+      "expectedTarget": true,
+      "source": "e2e/fixtures/xml/cf/FunctionalOptions/ФункциональнаяОпцияВсеСвойства.xml",
+      "sha256": "399de5ceaa75c88da6cd288e6845612aecd2f9e70db02c81885abe9900cf3f35",
+      "occurrence": 87,
+      "path": "ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Table.ТаблицаВсеСвойства",
+      "expectedRoot": true
+    },
+    {
+      "expectedTarget": true,
+      "source": "e2e/fixtures/xml/cf/FunctionalOptions/ФункциональнаяОпцияВсеСвойства.xml",
+      "sha256": "399de5ceaa75c88da6cd288e6845612aecd2f9e70db02c81885abe9900cf3f35",
+      "occurrence": 89,
+      "path": "ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Cube.КубВсеСвойства",
+      "expectedRoot": true
+    },
+    {
+      "expectedTarget": true,
+      "source": "e2e/fixtures/xml/cf/FunctionalOptions/ФункциональнаяОпцияВсеСвойства.xml",
+      "sha256": "399de5ceaa75c88da6cd288e6845612aecd2f9e70db02c81885abe9900cf3f35",
+      "occurrence": 90,
+      "path": "ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Cube.КубВсеСвойства.DimensionTable.ТаблицаИзмеренияВсеСвойства",
+      "expectedRoot": true
+    },
+    {
+      "expectedTarget": true,
+      "source": "e2e/fixtures/xml/cf/FunctionalOptions/ФункциональнаяОпцияВсеСвойства.xml",
+      "sha256": "399de5ceaa75c88da6cd288e6845612aecd2f9e70db02c81885abe9900cf3f35",
+      "occurrence": 95,
+      "path": "ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Function.ФункцияВсеСвойства",
+      "expectedRoot": true
+    },
+    {
+      "expectedTarget": true,
+      "source": "e2e/fixtures/xml/cf/Subsystems/ПодсистемаВсеСвойства.xml",
+      "sha256": "1096d1682dba60be0ba84f9ead9733df2be304a7c287de0bc8f8698f1c21e3c8",
+      "occurrence": 67,
+      "path": "ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Table.ТаблицаВсеСвойства",
+      "expectedRoot": true
+    },
+    {
+      "expectedTarget": true,
+      "source": "e2e/fixtures/xml/cf/Subsystems/ПодсистемаВсеСвойства.xml",
+      "sha256": "1096d1682dba60be0ba84f9ead9733df2be304a7c287de0bc8f8698f1c21e3c8",
+      "occurrence": 68,
+      "path": "ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Cube.КубВсеСвойства.DimensionTable.ТаблицаИзмеренияВсеСвойства",
+      "expectedRoot": true
+    },
+    {
+      "expectedTarget": true,
+      "source": "e2e/fixtures/xml/cf/Subsystems/ПодсистемаВсеСвойства.xml",
+      "sha256": "1096d1682dba60be0ba84f9ead9733df2be304a7c287de0bc8f8698f1c21e3c8",
+      "occurrence": 69,
+      "path": "ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Cube.КубВсеСвойства",
+      "expectedRoot": true
+    },
+    {
+      "expectedTarget": true,
+      "source": "e2e/fixtures/xml/cf/Subsystems/ПодсистемаИспользуетсяВПримерах.xml",
+      "sha256": "0ba716e6e05f0b601077119ca65234145066a71b574f0797a37ec5db3ad51bf3",
+      "occurrence": 37,
+      "path": "ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Table.ТаблицаВсеСвойства",
+      "expectedRoot": true
+    },
+    {
+      "expectedTarget": true,
+      "source": "e2e/fixtures/xml/cf/Subsystems/ПодсистемаИспользуетсяВПримерах.xml",
+      "sha256": "0ba716e6e05f0b601077119ca65234145066a71b574f0797a37ec5db3ad51bf3",
+      "occurrence": 38,
+      "path": "ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Cube.КубВсеСвойства.DimensionTable.ТаблицаИзмеренияВсеСвойства",
+      "expectedRoot": true
+    }
+  ],
+  "exchangeMetadata": [
+    {
+      "source": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства/Ext/Content.xml",
+      "sha256": "e4541f2e2af918f9171a754fdcd4ee96f8d29f59786547829e559d98adc8f21e",
+      "occurrence": 2,
+      "path": "Catalog.СправочникВладелец"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства/Ext/Content.xml",
+      "sha256": "e4541f2e2af918f9171a754fdcd4ee96f8d29f59786547829e559d98adc8f21e",
+      "occurrence": 5,
+      "path": "Document.ДокументВсеСвойства"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства/Ext/Content.xml",
+      "sha256": "e4541f2e2af918f9171a754fdcd4ee96f8d29f59786547829e559d98adc8f21e",
+      "occurrence": 8,
+      "path": "ChartOfCalculationTypes.ПланРасчетаВсеСвойства"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства/Ext/Content.xml",
+      "sha256": "e4541f2e2af918f9171a754fdcd4ee96f8d29f59786547829e559d98adc8f21e",
+      "occurrence": 11,
+      "path": "Catalog.СправочникПолный"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства/Ext/Content.xml",
+      "sha256": "e4541f2e2af918f9171a754fdcd4ee96f8d29f59786547829e559d98adc8f21e",
+      "occurrence": 14,
+      "path": "CalculationRegister.РегистрРасчетаВсеСвойства.Recalculation.ПерерасчетВсеСвойства"
+    }
+  ],
+  "basedOnMetadata": [
+    {
+      "ownerKind": "BusinessProcess",
+      "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцесс1.xml",
+      "sha256": "77aa3f6de23fb4e6187c74d28f4f7fc59d82f8302727f2e4c2fc7d99e74420c8",
+      "occurrence": 47,
+      "path": "Document.ДокументВсеСвойства"
+    },
+    {
+      "ownerKind": "BusinessProcess",
+      "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства.xml",
+      "sha256": "a03527edc24990a7c2bbb21285d9dd179b7dac8e32848be870967e2b466ec3d6",
+      "occurrence": 246,
+      "path": "Document.ДокументВсеСвойства"
+    },
+    {
+      "ownerKind": "BusinessProcess",
+      "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства.xml",
+      "sha256": "a03527edc24990a7c2bbb21285d9dd179b7dac8e32848be870967e2b466ec3d6",
+      "occurrence": 247,
+      "path": "ChartOfCalculationTypes.ПланРасчетаВсеСвойства"
+    },
+    {
+      "ownerKind": "Catalog",
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml",
+      "sha256": "27231ddedad3d68c1c8aa071d611c32f94681c7bc94d6533b22ee9409b0217dd",
+      "occurrence": 343,
+      "path": "ChartOfAccounts.ПланСчетов1"
+    },
+    {
+      "ownerKind": "Catalog",
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml",
+      "sha256": "27231ddedad3d68c1c8aa071d611c32f94681c7bc94d6533b22ee9409b0217dd",
+      "occurrence": 344,
+      "path": "ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Table.ТаблицаВсеСвойства"
+    },
+    {
+      "ownerKind": "Catalog",
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml",
+      "sha256": "27231ddedad3d68c1c8aa071d611c32f94681c7bc94d6533b22ee9409b0217dd",
+      "occurrence": 345,
+      "path": "ExchangePlan.ПланОбменаВсеСвойства"
+    },
+    {
+      "ownerKind": "Catalog",
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml",
+      "sha256": "27231ddedad3d68c1c8aa071d611c32f94681c7bc94d6533b22ee9409b0217dd",
+      "occurrence": 346,
+      "path": "Catalog.СправочникПолный"
+    },
+    {
+      "ownerKind": "Catalog",
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml",
+      "sha256": "27231ddedad3d68c1c8aa071d611c32f94681c7bc94d6533b22ee9409b0217dd",
+      "occurrence": 347,
+      "path": "Document.ДокументВсеСвойства"
+    },
+    {
+      "ownerKind": "Catalog",
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml",
+      "sha256": "27231ddedad3d68c1c8aa071d611c32f94681c7bc94d6533b22ee9409b0217dd",
+      "occurrence": 348,
+      "path": "ChartOfCharacteristicTypes.ПланВидовХарактеристикВсеСвойства"
+    },
+    {
+      "ownerKind": "Catalog",
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml",
+      "sha256": "27231ddedad3d68c1c8aa071d611c32f94681c7bc94d6533b22ee9409b0217dd",
+      "occurrence": 349,
+      "path": "BusinessProcess.БизнесПроцессВсеСвойства"
+    },
+    {
+      "ownerKind": "Catalog",
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml",
+      "sha256": "27231ddedad3d68c1c8aa071d611c32f94681c7bc94d6533b22ee9409b0217dd",
+      "occurrence": 350,
+      "path": "ChartOfCalculationTypes.ПланРасчетаВсеСвойства"
+    },
+    {
+      "ownerKind": "Catalog",
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml",
+      "sha256": "27231ddedad3d68c1c8aa071d611c32f94681c7bc94d6533b22ee9409b0217dd",
+      "occurrence": 351,
+      "path": "Task.ЗадачаВсеСвойства"
+    },
+    {
+      "ownerKind": "ChartOfAccounts",
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства.xml",
+      "sha256": "fcd73718d1134a63afb433454d4d4d3fb14fb461b80620b33aa9c37f4750acdf",
+      "occurrence": 34,
+      "path": "Document.ДокументВсеСвойства"
+    },
+    {
+      "ownerKind": "ChartOfCalculationTypes",
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланВидовРасчета1.xml",
+      "sha256": "64351f1fd7ed62a80d59eb2c717874865c75a9da25cc81eff1dc2dd507c862f9",
+      "occurrence": 64,
+      "path": "Catalog.СправочникПолный"
+    },
+    {
+      "ownerKind": "ChartOfCalculationTypes",
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства.xml",
+      "sha256": "0b75c93753e1b9bc03c8e9955857140aa466f69c769353c62a59d788bf1997a8",
+      "occurrence": 66,
+      "path": "Document.ДокументВсеСвойства"
+    },
+    {
+      "ownerKind": "ChartOfCharacteristicTypes",
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойства.xml",
+      "sha256": "d54fdc5a4d68f3ae9f685e19cbe0eea9f12c3f7660394e0322cdbf9fd905f779",
+      "occurrence": 331,
+      "path": "ChartOfAccounts.ПланСчетов1"
+    },
+    {
+      "ownerKind": "ChartOfCharacteristicTypes",
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойства.xml",
+      "sha256": "d54fdc5a4d68f3ae9f685e19cbe0eea9f12c3f7660394e0322cdbf9fd905f779",
+      "occurrence": 332,
+      "path": "ExchangePlan.ПланОбменаВсеСвойства"
+    },
+    {
+      "ownerKind": "Document",
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства.xml",
+      "sha256": "346554c79ff22c0239e18eaa00e69bc203b161485dcbd6a482b191871f90b79e",
+      "occurrence": 182,
+      "path": "Catalog.СправочникСВладельцем"
+    },
+    {
+      "ownerKind": "ExchangePlan",
+      "source": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства.xml",
+      "sha256": "ea7e9507ee5538c46acb941135ff909df0caefabf86926fdb4969fb063c3002d",
+      "occurrence": 272,
+      "path": "Document.ДокументВсеСвойства"
+    },
+    {
+      "ownerKind": "ExchangePlan",
+      "source": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства.xml",
+      "sha256": "ea7e9507ee5538c46acb941135ff909df0caefabf86926fdb4969fb063c3002d",
+      "occurrence": 273,
+      "path": "ChartOfCalculationTypes.ПланРасчетаВсеСвойства"
+    },
+    {
+      "ownerKind": "ExchangePlan",
+      "source": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства.xml",
+      "sha256": "ea7e9507ee5538c46acb941135ff909df0caefabf86926fdb4969fb063c3002d",
+      "occurrence": 274,
+      "path": "Task.ЗадачаВсеСвойства"
+    },
+    {
+      "ownerKind": "ExchangePlan",
+      "source": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства.xml",
+      "sha256": "ea7e9507ee5538c46acb941135ff909df0caefabf86926fdb4969fb063c3002d",
+      "occurrence": 275,
+      "path": "BusinessProcess.БизнесПроцессВсеСвойства"
+    },
+    {
+      "ownerKind": "Table",
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства.xml",
+      "sha256": "1e2e310995587efd1dd1fcd8349b9878930fb609ba109b31bc6d0d1173c2b102",
+      "occurrence": 79,
+      "path": "ExchangePlan.ПланОбменаВсеСвойства"
+    },
+    {
+      "ownerKind": "Task",
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства.xml",
+      "sha256": "9c2920177c6974fc6941bd2f9d10d1ed1c0e69efe5a564b67a35daa5abc5f72d",
+      "occurrence": 37,
+      "path": "Document.ДокументВсеСвойства"
+    },
+    {
+      "ownerKind": "Task",
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства.xml",
+      "sha256": "9c2920177c6974fc6941bd2f9d10d1ed1c0e69efe5a564b67a35daa5abc5f72d",
+      "occurrence": 38,
+      "path": "ChartOfCalculationTypes.ПланРасчетаВсеСвойства"
+    }
+  ],
+  "basedOnCollections": [
+    {
+      "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцесс1.xml",
+      "sha256": "77aa3f6de23fb4e6187c74d28f4f7fc59d82f8302727f2e4c2fc7d99e74420c8",
+      "occurrence": 46,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">Document.ДокументВсеСвойства</xr:Item>\n\t\t\t</md:BasedOn>\n\t\t\t</Root>",
+      "items": 1
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессБезНомера.xml",
+      "sha256": "c49d498f5a0c34097ff09f3153fbe0aea7f7efe1e5c77614ad63d5c09fd42c9b",
+      "occurrence": 48,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства.xml",
+      "sha256": "a03527edc24990a7c2bbb21285d9dd179b7dac8e32848be870967e2b466ec3d6",
+      "occurrence": 245,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">Document.ДокументВсеСвойства</xr:Item>\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">ChartOfCalculationTypes.ПланРасчетаВсеСвойства</xr:Item>\n\t\t\t</md:BasedOn>\n\t\t\t</Root>",
+      "items": 2
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессМаксимальнаяДлинаКодаИНаименования.xml",
+      "sha256": "e1c1cae9118a4a2165566e43cf63893920ebf2e82372e32641838d3ed4695f5c",
+      "occurrence": 49,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессМаксимальнаяДлинаКодаИНаименованияЧисло.xml",
+      "sha256": "199446eb83ec812be351bc8f11282afc6654075a1992ea112c5c5a314ec0a908",
+      "occurrence": 232,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессПоУмолчанию.xml",
+      "sha256": "a61a0ca6ef62e5b8392e383bfb5b870d1bdc8966c28188ad165eb1a409dca8cd",
+      "occurrence": 49,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/ЗначенияХарактеристик.xml",
+      "sha256": "58773b4f054597f6979fb4709c27d914db3804affb9c559b833a2ae0e53616ec",
+      "occurrence": 64,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/ПараметрыВыбора.xml",
+      "sha256": "1daefe64e500e908f32d7a366733bb365edbb5a0c193fc4c5f41012988289b2d",
+      "occurrence": 63,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/ПоУмолчанию.xml",
+      "sha256": "ec36f22853fb3ca9bb73a7574734a9bbfef58db1446ebcb500efb811508f79cb",
+      "occurrence": 63,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникCоВсемиОбъектами.xml",
+      "sha256": "0b6783aa9e5468c6205210c90e6e159e7a09c25fad69be082b6a039a4a56e1a5",
+      "occurrence": 60,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникБезКодИНаименования.xml",
+      "sha256": "e40003535f7e5dea555e0abc894e2db1472bb240e1b84320456427cb53df7f8f",
+      "occurrence": 61,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникВладелец.xml",
+      "sha256": "c25865f1f70c463f8743596b3254d0749fbc0dbec32e5fd56b9fcfc92508e493",
+      "occurrence": 298,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникДвоичныеДанные.xml",
+      "sha256": "1c9ac9c325f834b5322e9ce6657eaf4edef7ca6655dd299626b49c2217cc2f63",
+      "occurrence": 63,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникКомандныйИнтерфейс.xml",
+      "sha256": "e36763cb8ac588767165493ac667b70f5415816947f611f829ca1594bfdc31c6",
+      "occurrence": 63,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникМаксимальнаяДлинаКодаИНаименования.xml",
+      "sha256": "ff675bed6bbf21edce21d858b74836b517ce01b8178d5da189f3ec7059ccd7a1",
+      "occurrence": 63,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникМаксимальнаяДлинаКодаИНаименованияЧисло.xml",
+      "sha256": "d5195f31df69ed65a011900ca12449cd60a04c039f5266a92c92e7dbb5af851a",
+      "occurrence": 298,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникОбщиеРеквизиты.xml",
+      "sha256": "f5dfb36d118d83a092c6f02232b7c1be378d53463489adf85273f272318773f7",
+      "occurrence": 63,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml",
+      "sha256": "27231ddedad3d68c1c8aa071d611c32f94681c7bc94d6533b22ee9409b0217dd",
+      "occurrence": 342,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">ChartOfAccounts.ПланСчетов1</xr:Item>\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Table.ТаблицаВсеСвойства</xr:Item>\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">ExchangePlan.ПланОбменаВсеСвойства</xr:Item>\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">Catalog.СправочникПолный</xr:Item>\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">Document.ДокументВсеСвойства</xr:Item>\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">ChartOfCharacteristicTypes.ПланВидовХарактеристикВсеСвойства</xr:Item>\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">BusinessProcess.БизнесПроцессВсеСвойства</xr:Item>\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">ChartOfCalculationTypes.ПланРасчетаВсеСвойства</xr:Item>\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">Task.ЗадачаВсеСвойства</xr:Item>\n\t\t\t</md:BasedOn>\n\t\t\t</Root>",
+      "items": 9
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникРеквизит.xml",
+      "sha256": "080673dc01565e136dc8f3cc6667c4a516fece687dbafa99fbf5ae70a27d3be1",
+      "occurrence": 63,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникРеквизитБезСинонима.xml",
+      "sha256": "85e7e02d512939bd4e037efcc025c2f679eb26241cb1bcb6d3031124ae6ff6ae",
+      "occurrence": 60,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникСВладельцем.xml",
+      "sha256": "832d619313d9e4fd41b0204c5f8acdb3bfef4e1b6b63e9149d2cb9048a0aa221",
+      "occurrence": 302,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникСПредопределенными.xml",
+      "sha256": "38b7a0d75fed45dd44b780eb1b92c682148db4129825d8e310a33c97b1f190b6",
+      "occurrence": 63,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникСХарактеристиками.xml",
+      "sha256": "36dbc7844baf9eff30363b9416624b39ebcde4adb52886fba70d84e242978c3e",
+      "occurrence": 76,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникТолькоКод.xml",
+      "sha256": "0518c56c623aaddcdfdba45b02faa6fcea74b6a252ba8fff0b0cda02a8655331",
+      "occurrence": 62,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникТолькоНаименование.xml",
+      "sha256": "0f26dd2d02dba7825c2bc481efa144c9411fa60c2715c7f8c79039d352f2fb91",
+      "occurrence": 62,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникФормаВсеСвойства.xml",
+      "sha256": "0317495f4a8c9bd3116e4d32b66e42e31e6fbac2eee68858be9a07f8d78bd4c7",
+      "occurrence": 63,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникФормаТабличнаяЧасть.xml",
+      "sha256": "1d1b3e98ae9444fe65135924a03ae8d3b40be3541730cc5e7abc38c167596377",
+      "occurrence": 63,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетов1.xml",
+      "sha256": "31c0d2dbce0b4be9b0fe3ef8988458703e3daff24eadb3213a733ca58b7da20b",
+      "occurrence": 30,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовБезКодаИНаименования.xml",
+      "sha256": "4ae5f3dfb184ccd036b618ad6746b4685b3c131ecb548e62d40b60a59db504d0",
+      "occurrence": 33,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства.xml",
+      "sha256": "fcd73718d1134a63afb433454d4d4d3fb14fb461b80620b33aa9c37f4750acdf",
+      "occurrence": 33,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">Document.ДокументВсеСвойства</xr:Item>\n\t\t\t</md:BasedOn>\n\t\t\t</Root>",
+      "items": 1
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовМаксимальнаяДлинаКодаИНаименования.xml",
+      "sha256": "2fb9e620f0c8d1ea5f850c9c00a9f7b81d685ddc5961a615e37c2e4b99105b6d",
+      "occurrence": 33,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовПоУмолчанию.xml",
+      "sha256": "3be4dd1c341092e1ee5a42feb56befc462fc193098cf8af0f1cec2e854e658bd",
+      "occurrence": 33,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовТолькоКод.xml",
+      "sha256": "db8b61a36d02479ed859827d11ff524788b03767968046219542b17f8b179cbe",
+      "occurrence": 33,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовТолькоНаименование.xml",
+      "sha256": "c4aebf0abf1f0eaee1ce8edf091b39fb41c78fadbc81cabd20cbad6c7015fd66",
+      "occurrence": 33,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланВидовРасчета1.xml",
+      "sha256": "64351f1fd7ed62a80d59eb2c717874865c75a9da25cc81eff1dc2dd507c862f9",
+      "occurrence": 63,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">Catalog.СправочникПолный</xr:Item>\n\t\t\t</md:BasedOn>\n\t\t\t</Root>",
+      "items": 1
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланВидовРасчетаБезКодаИНаименования.xml",
+      "sha256": "7ddd71ac4463fb7211fafd0929b0fb078516bb6c95ef0fb28b2f816b26114c45",
+      "occurrence": 64,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланВидовРасчетаМаксимальнаяДлинаКодаИНаименования.xml",
+      "sha256": "b68db8b678f442f4a003d95133d0d30209b7f945ca5af26498a776b6cb01b4c6",
+      "occurrence": 66,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланВидовРасчетаМаксимальнаяДлинаКодаИНаименованияЧисло.xml",
+      "sha256": "419ac3545f5316341a176e5d389bc7b7a749e3677e62a7110b3254f34eb3f5e0",
+      "occurrence": 66,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланВидовРасчетаПоУмолчанию.xml",
+      "sha256": "c358b7c86b28595d964b55ce38611255e07c4b917f5fa53a1eaff7bfff6ae517",
+      "occurrence": 66,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланВидовРасчетаТолькоКод.xml",
+      "sha256": "603d8771cd7c3c568c0e404b38e960da2f07d9486060e005253634dc045265a7",
+      "occurrence": 65,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланВидовРасчетаТолькоНаименование.xml",
+      "sha256": "11fba5f3d5ec156f62caeb312b6341aa6e1e77dd53c232c5c3323819d4f879ca",
+      "occurrence": 65,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства.xml",
+      "sha256": "0b75c93753e1b9bc03c8e9955857140aa466f69c769353c62a59d788bf1997a8",
+      "occurrence": 65,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">Document.ДокументВсеСвойства</xr:Item>\n\t\t\t</md:BasedOn>\n\t\t\t</Root>",
+      "items": 1
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ВидыСубконто.xml",
+      "sha256": "4b641988637e95109d27900b2c4fd55bfaa9c711f24a3eabe34bf13126800b0d",
+      "occurrence": 74,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристик1.xml",
+      "sha256": "a368609fdd7673252f5f084e2b5ef5c54e4277bdf7aa95a325dcecacc0be3376",
+      "occurrence": 65,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикБезКодаИНаименования.xml",
+      "sha256": "52aa6282eece8b719fca8374537a9a121e119796cf69571375c72c81a8871626",
+      "occurrence": 66,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойства.xml",
+      "sha256": "d54fdc5a4d68f3ae9f685e19cbe0eea9f12c3f7660394e0322cdbf9fd905f779",
+      "occurrence": 330,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">ChartOfAccounts.ПланСчетов1</xr:Item>\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">ExchangePlan.ПланОбменаВсеСвойства</xr:Item>\n\t\t\t</md:BasedOn>\n\t\t\t</Root>",
+      "items": 2
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикМаксимальнаяДлинаКодаИНаименования.xml",
+      "sha256": "e0f794415db68b940567689262b18cb63bd2e4ac094ef914fb8b092d45e9addd",
+      "occurrence": 68,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикПоУмолчанию.xml",
+      "sha256": "8d5ef5e22a23d98533fddde7ada6bc60663ad29215e76c74c00e20b2240e3d49",
+      "occurrence": 68,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикТолькоКод.xml",
+      "sha256": "ab744a6095e1b9ef7f02c3325a1c39c5451f839600cd6d3eb838a7d88e56c1c6",
+      "occurrence": 67,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикТолькоНаименование.xml",
+      "sha256": "fde559c39e6a23ffbfeb559b271078cae0be7baf446b956f3c85b3c6234a5696",
+      "occurrence": 67,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ХарактеристикиОбъектов.xml",
+      "sha256": "8fcc445d7d45cfefbe26cab081bfba75f392ffde8b470a7278b545e92558c1d1",
+      "occurrence": 68,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументБезНомера.xml",
+      "sha256": "213baccf8f18062043acd6eafa6db59c4961e6a86126c837f918b54ff9e7f812",
+      "occurrence": 34,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства.xml",
+      "sha256": "346554c79ff22c0239e18eaa00e69bc203b161485dcbd6a482b191871f90b79e",
+      "occurrence": 181,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">Catalog.СправочникСВладельцем</xr:Item>\n\t\t\t</md:BasedOn>\n\t\t\t</Root>",
+      "items": 1
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументДругойДляЖурнала.xml",
+      "sha256": "d0e7ad7b6bf2ecaad57f80627c3fc5b8b9749c0ff561c1c5c89d165acaf8b940",
+      "occurrence": 34,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументКнопкаСПараметрами.xml",
+      "sha256": "44104a7a85966fe43831e0a20cb1b54899f68a3e62d32d3fc76cc336ce54415c",
+      "occurrence": 34,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументМаксимальнаяДлинаНомераСтрока.xml",
+      "sha256": "6965b019b691abafbd130fed3d2c0e24b196b4381d7f97a736a22436ebcaa386",
+      "occurrence": 34,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументМаксимальнаяДлинаНомераЧисло.xml",
+      "sha256": "de5112a4e062c2c2a6c77d93fdb2eb371587c9253c3167aecfea11ea077985b8",
+      "occurrence": 165,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументПоУмолчанию.xml",
+      "sha256": "39684df92c4531cd47edbcb6c6b62f35d3600a65b4a5ddd5d65f997965f747df",
+      "occurrence": 34,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументСНумератором.xml",
+      "sha256": "d87095892e57c947584c910df6202d7c04eb878b53a544c7916eb6875e19b184",
+      "occurrence": 162,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства.xml",
+      "sha256": "ea7e9507ee5538c46acb941135ff909df0caefabf86926fdb4969fb063c3002d",
+      "occurrence": 271,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">Document.ДокументВсеСвойства</xr:Item>\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">ChartOfCalculationTypes.ПланРасчетаВсеСвойства</xr:Item>\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">Task.ЗадачаВсеСвойства</xr:Item>\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">BusinessProcess.БизнесПроцессВсеСвойства</xr:Item>\n\t\t\t</md:BasedOn>\n\t\t\t</Root>",
+      "items": 4
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаМаксимальнаяДлинаКода.xml",
+      "sha256": "55136c7ac0d38617c6194b74c31988730cb28c699fa6eec0f5a26329afa02096",
+      "occurrence": 47,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаПоУмолчанию.xml",
+      "sha256": "529af5880a334d5ba3bcc76d90439f9659eabf1aa761c22412a7be79ed8bf2b4",
+      "occurrence": 47,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства.xml",
+      "sha256": "1e2e310995587efd1dd1fcd8349b9878930fb609ba109b31bc6d0d1173c2b102",
+      "occurrence": 78,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">ExchangePlan.ПланОбменаВсеСвойства</xr:Item>\n\t\t\t</md:BasedOn>\n\t\t\t</Root>",
+      "items": 1
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаМодульНабора.xml",
+      "sha256": "8c331499e999b075f5986fe229016914272d2eb176aba5aad4eeb95a2c4c5205",
+      "occurrence": 68,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаПоУмолчанию.xml",
+      "sha256": "0b34ff717e10e229ef8e80e89b0d8a3db14589a5e929e8a9bd9d0792f292d2eb",
+      "occurrence": 66,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/Задача1.xml",
+      "sha256": "d12bbad09fd201f3cf91e65fc7e016df1cb74a006dc81da44314d4bbcb02db9b",
+      "occurrence": 33,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаБезНаименования.xml",
+      "sha256": "9302394dd9f845e1566b8c7429cfb6f0c447c601c0781d36558d8d96bd9c5a9f",
+      "occurrence": 36,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаБезНомера.xml",
+      "sha256": "ec2a51d95ac7a2614a63c07cfe6fba01e477d38b5802406ca915764147493ead",
+      "occurrence": 36,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаБезНомераИНаименования.xml",
+      "sha256": "627e59cd7cd387f7d9a10184fe9b5ce741184f54c414fbb02a702c91e294e3c2",
+      "occurrence": 36,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства.xml",
+      "sha256": "9c2920177c6974fc6941bd2f9d10d1ed1c0e69efe5a564b67a35daa5abc5f72d",
+      "occurrence": 36,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">Document.ДокументВсеСвойства</xr:Item>\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">ChartOfCalculationTypes.ПланРасчетаВсеСвойства</xr:Item>\n\t\t\t</md:BasedOn>\n\t\t\t</Root>",
+      "items": 2
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаМаксимальнаяДлинаНомера.xml",
+      "sha256": "7f7d452eb80714deb176fcb1dc8936e26fcb553aa423cfd24210bcbdb7c0b86e",
+      "occurrence": 36,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаМаксимальнаяДлинаНомераЧисло.xml",
+      "sha256": "63e2644d127073ac3b9e251b3847a7f03f5a2dd2a595c2f33052312cec5aa425",
+      "occurrence": 36,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаПоУмолчанию.xml",
+      "sha256": "f105bbcb31500644fbdbe1d91bc0d37e87a967f10a28b6ced16d0d8a29943b7a",
+      "occurrence": 36,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:BasedOn xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    }
+  ],
+  "rootLinkCollections": [
+    {
+      "profile": "journal-document-links",
+      "source": "e2e/fixtures/xml/cf/DocumentJournals/ЖурналДокументов1.xml",
+      "sha256": "c302613e3395795b84856df8f112c1828613e24aa82e8fea726df22edab8d609",
+      "occurrence": 19,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:RegisteredDocuments xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">Document.ДокументВсеСвойства</xr:Item>\n\t\t\t</md:RegisteredDocuments>\n\t\t\t</Root>",
+      "items": 1
+    },
+    {
+      "profile": "journal-document-links",
+      "source": "e2e/fixtures/xml/cf/DocumentJournals/ЖурналДокументовВсеСвойства.xml",
+      "sha256": "158835bccaf6f4bda5403f7cf742fc725257bcfe1e3d1fda9b10fbfed1c84af6",
+      "occurrence": 22,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:RegisteredDocuments xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">Document.ДокументВсеСвойства</xr:Item>\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">Document.ДокументДругойДляЖурнала</xr:Item>\n\t\t\t</md:RegisteredDocuments>\n\t\t\t</Root>",
+      "items": 2
+    },
+    {
+      "profile": "journal-document-links",
+      "source": "e2e/fixtures/xml/cf/DocumentJournals/ЖурналДокументовПоУмолчанию.xml",
+      "sha256": "72273a4f0a55161fac274a64e38bcf584ee684da60d8d09902960fb1dc82c543",
+      "occurrence": 22,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:RegisteredDocuments xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">Document.ДокументВсеСвойства</xr:Item>\n\t\t\t</md:RegisteredDocuments>\n\t\t\t</Root>",
+      "items": 1
+    },
+    {
+      "profile": "document-register-links",
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументБезНомера.xml",
+      "sha256": "213baccf8f18062043acd6eafa6db59c4961e6a86126c837f918b54ff9e7f812",
+      "occurrence": 51,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:RegisterRecords xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "profile": "document-register-links",
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства.xml",
+      "sha256": "346554c79ff22c0239e18eaa00e69bc203b161485dcbd6a482b191871f90b79e",
+      "occurrence": 201,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:RegisterRecords xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">AccumulationRegister.РегистрНакопленияПоУмолчанию</xr:Item>\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">CalculationRegister.РегистрРасчета1</xr:Item>\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">AccumulationRegister.РегистрНакопления1</xr:Item>\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">AccountingRegister.РегистрБухгалтерииВсеСвойстваОбороты</xr:Item>\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">CalculationRegister.РегистрРасчетаВедущий</xr:Item>\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">AccountingRegister.РегистрБухгалтерии1</xr:Item>\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">InformationRegister.РегистрСведенийПодчиненРегистратору</xr:Item>\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">AccountingRegister.РегистрБухгалтерииПоУмолчанию</xr:Item>\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">CalculationRegister.РегистрРасчетаВсеСвойства</xr:Item>\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">CalculationRegister.РегистрРасчетаПоУмолчанию</xr:Item>\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">AccumulationRegister.РегистрНакопленияВсеСвойстваОбороты</xr:Item>\n\t\t\t</md:RegisterRecords>\n\t\t\t</Root>",
+      "items": 11
+    },
+    {
+      "profile": "document-register-links",
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументДругойДляЖурнала.xml",
+      "sha256": "d0e7ad7b6bf2ecaad57f80627c3fc5b8b9749c0ff561c1c5c89d165acaf8b940",
+      "occurrence": 52,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:RegisterRecords xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "profile": "document-register-links",
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументКнопкаСПараметрами.xml",
+      "sha256": "44104a7a85966fe43831e0a20cb1b54899f68a3e62d32d3fc76cc336ce54415c",
+      "occurrence": 52,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:RegisterRecords xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "profile": "document-register-links",
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументМаксимальнаяДлинаНомераСтрока.xml",
+      "sha256": "6965b019b691abafbd130fed3d2c0e24b196b4381d7f97a736a22436ebcaa386",
+      "occurrence": 52,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:RegisterRecords xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "profile": "document-register-links",
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументМаксимальнаяДлинаНомераЧисло.xml",
+      "sha256": "de5112a4e062c2c2a6c77d93fdb2eb371587c9253c3167aecfea11ea077985b8",
+      "occurrence": 183,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:RegisterRecords xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "profile": "document-register-links",
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументПоУмолчанию.xml",
+      "sha256": "39684df92c4531cd47edbcb6c6b62f35d3600a65b4a5ddd5d65f997965f747df",
+      "occurrence": 52,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:RegisterRecords xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    },
+    {
+      "profile": "document-register-links",
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументСНумератором.xml",
+      "sha256": "d87095892e57c947584c910df6202d7c04eb878b53a544c7916eb6875e19b184",
+      "occurrence": 180,
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><md:RegisterRecords xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" />\n\t\t\t</Root>",
+      "items": 0
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.string
+  value1: common.boolean
+value:
+  kind: record
+  fields:
+    - name: nameInDataSource
+      type:
+        use: value0
+    - name: readOnly
+      type:
+        use: value1
+    - name: allowNull
+      type:
+        use: value1
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: nameInDataSource
+        path:
+          - Properties
+          - NameInDataSource
+      - field: readOnly
+        path:
+          - Properties
+          - ReadOnly
+      - field: allowNull
+        path:
+          - Properties
+          - AllowNull
+  yaml:
+    kind: mapping
+    fields:
+      - field: nameInDataSource
+        key: ИмяВИсточникеДанных
+      - field: readOnly
+        key: ТолькоЧтение
+      - field: allowNull
+        key: РазрешитьNull
+presence:
+  - target:
+      field: nameInDataSource
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: readOnly
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: false
+  - target:
+      field: allowNull
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: true
+id: candidate.fragment.c11f9ef55f78feb34918

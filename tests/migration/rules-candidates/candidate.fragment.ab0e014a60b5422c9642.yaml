@@ -1,0 +1,54 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.string
+value:
+  kind: record
+  fields:
+    - name: event
+      type:
+        use: value0
+    - name: handler
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: event
+        path:
+          - Properties
+          - Event
+      - field: handler
+        path:
+          - Properties
+          - Handler
+  yaml:
+    kind: mapping
+    fields:
+      - field: event
+        key: Событие
+      - field: handler
+        key: Обработчик
+presence:
+  - target:
+      field: event
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: handler
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+id: candidate.fragment.ab0e014a60b5422c9642

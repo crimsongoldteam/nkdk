@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.5479f01de5684cdd0bc8
+description: 'Кандидат проекции: относительный XML-корень CommandBarLocation; не полный владелец'
+imports:
+  part0: candidate.fragment.538fb71552e3ef300d8c
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

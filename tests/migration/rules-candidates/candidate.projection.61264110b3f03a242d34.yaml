@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.61264110b3f03a242d34
+description: 'Кандидат проекции: относительный XML-корень GetInvisibleFieldPresentations; не полный владелец'
+imports:
+  part0: candidate.fragment.48fc0c299daf3261eb33
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

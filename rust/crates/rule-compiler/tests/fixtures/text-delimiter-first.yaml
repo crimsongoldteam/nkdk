@@ -1,0 +1,12 @@
+format: nkdk-declarations/1
+kind: value
+id: common.delimiter-first
+imports: {word: common.pattern-kind}
+value:
+  kind: record
+  fields:
+  - {name: prefix, type: {kind: scalar, scalar: text}}
+  - {name: word, type: {use: word}}
+representations:
+  xml: {kind: text-pattern, parts: [{field: prefix}, {literal: aa}, {field: word}]}
+  yaml: {kind: text-pattern, parts: [{field: prefix}, {literal: aa}, {field: word}]}

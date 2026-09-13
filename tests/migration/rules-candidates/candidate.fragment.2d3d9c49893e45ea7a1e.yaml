@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: showGroups
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: showGroups
+        path:
+          - ShowGroups
+  yaml:
+    kind: mapping
+    fields:
+      - field: showGroups
+        key: ОтображатьГруппировки
+presence:
+  - target:
+      field: showGroups
+    xml:
+      missing:
+        denotes:
+          literal: true
+      canonical:
+        - when:
+            eq:
+              - field: showGroups
+              - literal: true
+          form: missing
+    yaml:
+      default:
+        literal: true
+id: candidate.fragment.2d3d9c49893e45ea7a1e

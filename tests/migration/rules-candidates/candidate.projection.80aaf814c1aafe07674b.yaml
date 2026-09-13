@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.80aaf814c1aafe07674b
+description: 'Кандидат проекции: относительный XML-корень CellHyperlink; не полный владелец'
+imports:
+  part0: candidate.fragment.d7e0230e9a58dcb0fa1b
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

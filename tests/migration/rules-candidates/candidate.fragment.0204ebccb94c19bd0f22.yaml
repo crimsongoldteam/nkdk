@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.exact-decimal
+value:
+  kind: record
+  fields:
+    - name: maxValue
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: maxValue
+        path:
+          - MaxValue
+  yaml:
+    kind: mapping
+    fields:
+      - field: maxValue
+        key: МаксимальноеЗначение
+presence:
+  - target:
+      field: maxValue
+    xml:
+      missing:
+        denotes:
+          literal: 100
+      canonical:
+        - when:
+            eq:
+              - field: maxValue
+              - literal: 100
+          form: missing
+    yaml:
+      default:
+        literal: 100
+id: candidate.fragment.0204ebccb94c19bd0f22

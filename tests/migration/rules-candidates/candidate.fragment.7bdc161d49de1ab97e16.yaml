@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.FormItemOrientation
+value:
+  kind: record
+  fields:
+    - name: orientation
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: orientation
+        path:
+          - Orientation
+  yaml:
+    kind: mapping
+    fields:
+      - field: orientation
+        key: Ориентация
+presence:
+  - target:
+      field: orientation
+    xml:
+      missing:
+        denotes:
+          literal: Horizontal
+      canonical:
+        - when:
+            eq:
+              - field: orientation
+              - literal: Horizontal
+          form: missing
+    yaml:
+      default:
+        literal: Horizontal
+id: candidate.fragment.7bdc161d49de1ab97e16

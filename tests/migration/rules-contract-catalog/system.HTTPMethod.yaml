@@ -1,0 +1,35 @@
+format: nkdk-declarations/1
+kind: value
+id: system.HTTPMethod
+enum:
+  CONNECT: CONNECT
+  COPY: COPY
+  DELETE: DELETE
+  GET: GET
+  HEAD: HEAD
+  LOCK: LOCK
+  MERGE: MERGE
+  MKCOL: MKCOL
+  MOVE: MOVE
+  OPTIONS: OPTIONS
+  PATCH: PATCH
+  POST: POST
+  PROPFIND: PROPFIND
+  PROPPATCH: PROPPATCH
+  PUT: PUT
+  TRACE: TRACE
+  UNLOCK: UNLOCK
+  Any: Любой
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  t: http://v8.1c.ru/8.1/data/enterprise
+projections:
+  - id: system.HTTPMethod.dcs
+    xml:
+      kind: with-attributes
+      attributes:
+        - name: xsi:type
+          value:
+            qname: t:HTTPMethod
+      content:
+        kind: text

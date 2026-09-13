@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.6a6eafb89da4a6b8de5b
+description: 'Кандидат проекции: относительный XML-корень HorizontalScrollBar; не полный владелец'
+imports:
+  part0: candidate.fragment.14093dcb2fb94ef4990e
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

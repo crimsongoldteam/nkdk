@@ -1,0 +1,21 @@
+format: nkdk-declarations/1
+kind: value
+id: system.ButtonLocationInContextMenu
+enum:
+  None: Нет
+  AdditionalInContextMenu: ДополнительноВКонтекстномМеню
+  OnlyInContextMenu: ТолькоВКонтекстномМеню
+  Auto: Авто
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  t: http://v8.1c.ru/8.1/data/enterprise
+projections:
+  - id: system.ButtonLocationInContextMenu.dcs
+    xml:
+      kind: with-attributes
+      attributes:
+        - name: xsi:type
+          value:
+            qname: t:ButtonLocationInContextMenu
+      content:
+        kind: text

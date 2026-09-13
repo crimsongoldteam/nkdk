@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.exact-decimal
+value:
+  kind: record
+  fields:
+    - name: footerHeight
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: footerHeight
+        path:
+          - FooterHeight
+  yaml:
+    kind: mapping
+    fields:
+      - field: footerHeight
+        key: ВысотаПодвала
+presence:
+  - target:
+      field: footerHeight
+    xml:
+      missing:
+        denotes:
+          literal: 1
+      canonical:
+        - when:
+            eq:
+              - field: footerHeight
+              - literal: 1
+          form: missing
+    yaml:
+      default:
+        literal: 1
+id: candidate.fragment.71e5ac6a95394a391cd4

@@ -28,6 +28,31 @@ fn attribute_proof_uses_expanded_names_and_only_declared_qname_values() {
         false
     })
     .unwrap();
+    use xml::Source;
+    let mut document_reads = 0;
+    let mut scalar_text = String::new();
+    let mut attributes = 0;
+    xml::Events(|consume: &mut xml::Consumer<'_>| {
+        document_reads += 1;
+        xml::DocumentSource(source).visit(|path, token| {
+            if matches!(token, xml::Token::Attribute(_)) {
+                attributes += 1;
+                return Ok(());
+            }
+            consume(path, token)
+        })
+    })
+    .visit(|path, token| {
+        if scalar(path)
+            && let xml::Token::Text(text) = token
+        {
+            scalar_text.push_str(text);
+        }
+        Ok(())
+    })
+    .unwrap();
+    assert_eq!((document_reads, attributes), (1, 2));
+    assert_eq!(scalar_text, "body");
     let attribute_namespace = String::from("urn:attribute");
     let value_namespace = String::from("urn:value");
     let root_name = String::from("Root");
@@ -51,7 +76,34 @@ fn attribute_proof_uses_expanded_names_and_only_declared_qname_values() {
         &[("", root_name.as_str()), ("", text_name.as_str())],
         "body",
     );
-    proof::verify_with_attributes(source, &writer.finish(), scalar, qname).unwrap();
+    proof::verify_with_attributes(
+        source,
+        &writer.finish_with_root(("", root_name.as_str())),
+        scalar,
+        qname,
+    )
+    .unwrap();
+    proof::verify(
+        b"<Root/>",
+        &xml::Writer::new(&[]).finish_with_root(("", "Root")),
+        |_| false,
+    )
+    .unwrap();
+    let mut writer = xml::Writer::new(&[]);
+    writer.field(&[("", "Root"), ("", "Properties"), ("", "First")], "one");
+    writer.ensure_container(&[("", "Root")]);
+    writer.ensure_container(&[("", "Root"), ("", "Properties")]);
+    writer.field(&[("", "Root"), ("", "Properties"), ("", "Second")], "two");
+    writer.ensure_container(&[("", "Root"), ("", "Children")]);
+    proof::verify(
+        b"<Root><Properties><First>one</First><Second>two</Second></Properties><Children/></Root>",
+        &writer.finish(),
+        |path| {
+            path.last()
+                .is_some_and(|name| matches!(name.local.as_str(), "First" | "Second"))
+        },
+    )
+    .unwrap();
     for invalid in [
         br#"<Root xmlns:a="urn:x" xmlns:b="urn:x" a:x="1" b:x="2"/>"#.as_slice(),
         br#"<Root a:x="1"/>"#.as_slice(),

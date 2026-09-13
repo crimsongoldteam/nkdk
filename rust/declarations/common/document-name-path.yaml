@@ -1,0 +1,8 @@
+format: nkdk-declarations/1
+kind: value
+id: common.document-name-path
+imports: {name: common.metadata-name}
+value: {kind: record, fields: [{name: name, type: {use: name}}]}
+representations:
+  xml: {kind: text-pattern, parts: [{literal: 'Document.'}, {field: name}]}
+  yaml: {kind: text-pattern, parts: [{field: name}]}

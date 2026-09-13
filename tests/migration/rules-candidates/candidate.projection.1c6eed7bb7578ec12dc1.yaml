@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.1c6eed7bb7578ec12dc1
+description: 'Кандидат проекции: относительный XML-корень ListSettings; не полный владелец'
+imports:
+  part0: candidate.fragment.4b5b06d163409cea8972
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

@@ -45,6 +45,7 @@ fn conversion_replaces_output_without_modifying_a_hard_linked_input() {
     assert_eq!(fs::read(&output).unwrap(), "Значение: Истина".as_bytes());
     fs::write(&output, "keep").unwrap();
     assert!(!run("missing.entry").status.success());
+    assert!(!run("migration.external-document").status.success());
     assert_eq!(fs::read(&output).unwrap(), b"keep");
     assert_eq!(
         fs::read_dir(&directory).unwrap().count(),

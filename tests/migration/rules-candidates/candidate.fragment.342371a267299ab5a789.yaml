@@ -1,0 +1,52 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: availabilityForChoice
+      type:
+        use: value0
+    - name: availabilityForAppearance
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: availabilityForChoice
+        path:
+          - Properties
+          - AvailabilityForChoice
+      - field: availabilityForAppearance
+        path:
+          - Properties
+          - AvailabilityForAppearance
+  yaml:
+    kind: mapping
+    fields:
+      - field: availabilityForChoice
+        key: ДоступностьДляВыбора
+      - field: availabilityForAppearance
+        key: ДоступностьДляОформления
+presence:
+  - target:
+      field: availabilityForChoice
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: false
+  - target:
+      field: availabilityForAppearance
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: false
+id: candidate.fragment.342371a267299ab5a789

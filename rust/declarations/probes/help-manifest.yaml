@@ -1,0 +1,11 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.help-manifest
+imports: {pages: common.help-pages}
+namespaces: {ep: 'http://v8.1c.ru/8.3/xcf/extrnprops'}
+inputs:
+  pages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+value: {kind: record, fields: [{name: pages, type: {use: pages, bind: {pages: {input: pages}}}}]}
+representations:
+  xml: {kind: record, fields: [{field: pages, path: ['ep:Help']}]}
+  yaml: {kind: mapping, fields: [{field: pages, key: Справка}]}

@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.4f90c1a239319d42e8ba
+description: 'Кандидат проекции: относительный XML-корень UsedFormServer; не полный владелец'
+imports:
+  part0: candidate.fragment.8b08108be8edbdd288b1
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

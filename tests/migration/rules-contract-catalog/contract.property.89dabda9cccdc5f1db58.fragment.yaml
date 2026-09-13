@@ -1,0 +1,35 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.string
+value:
+  kind: record
+  fields:
+    - name: purposeUseKey
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: purposeUseKey
+        path:
+          - Form
+          - PurposeUseKey
+  yaml:
+    kind: mapping
+    fields:
+      - field: purposeUseKey
+        key: КлючНазначенияИспользования
+presence:
+  - target:
+      field: purposeUseKey
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+id: contract.property.89dabda9cccdc5f1db58.fragment

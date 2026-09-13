@@ -1,0 +1,29 @@
+format: nkdk-declarations/1
+kind: fragment
+id: fragment.value-manager-module-resource
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []
+resources:
+  - oneOf:
+      - xml:
+          sequence:
+            - literal: Ext
+            - literal: ValueManagerModule.bsl
+        yaml:
+          sequence:
+            - literal: МодульМенеджераЗначения.bsl
+      - xml:
+          sequence:
+            - literal: Ext
+            - literal: ValueManagerModule.bin
+        yaml:
+          sequence:
+            - literal: МодульМенеджераЗначения.bin

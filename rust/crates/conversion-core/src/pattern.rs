@@ -18,6 +18,10 @@ impl Pattern {
         }
     }
     pub fn matches(&self, value: &str) -> Result<bool> {
+        self.select(value).map(|selected| selected.is_some())
+    }
+    /// Index in a build-time verified set of disjoint full-text forms.
+    pub fn select(&self, value: &str) -> Result<Option<usize>> {
         let machine = self.machine.get_or_init(|| {
             DFA::from_bytes(self.bytes)
                 .map(|(machine, _)| machine)
@@ -28,7 +32,7 @@ impl Pattern {
             .map_err(|error| RuntimeDiagnostic::new("pattern.compiled-data", error.clone()))?;
         machine
             .try_search_fwd(&Input::new(value))
-            .map(|found| found.is_some())
+            .map(|found| found.map(|matched| matched.pattern().as_usize()))
             .map_err(|error| RuntimeDiagnostic::new("pattern.execution", error.to_string()))
     }
 }

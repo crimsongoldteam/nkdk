@@ -1,0 +1,33 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.RadioButtonType
+value:
+  kind: record
+  fields:
+    - name: radioButtonType
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: radioButtonType
+        path:
+          - RadioButtonType
+  yaml:
+    kind: mapping
+    fields:
+      - field: radioButtonType
+        key: ВидПереключателя
+presence:
+  - target:
+      field: radioButtonType
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: Auto
+id: candidate.fragment.320519df399edf36af88

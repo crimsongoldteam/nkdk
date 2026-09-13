@@ -1,0 +1,8 @@
+format: nkdk-declarations/1
+kind: value
+id: common.text-sequence
+imports: {item: common.text-pair}
+value: {kind: sequence, item: {use: item}}
+representations:
+  xml: {kind: text-sequence, separator: '::'}
+  yaml: {kind: text-sequence, separator: '/'}

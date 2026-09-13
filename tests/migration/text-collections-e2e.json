@@ -1,0 +1,854 @@
+{
+  "scope": "Text collections; not whole-project conversion or performance",
+  "verified": 106,
+  "cases": [
+    {
+      "source": "e2e/fixtures/xml/cf/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОбороты/Ext/AdditionalIndexes.xml",
+      "sha256": "b7f7598d02552a5c54ef67079edad82e209f491704742379d9c36501eda7287a",
+      "occurrence": 4,
+      "type": "",
+      "entry": "migration.index-field",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОбороты/Ext/AdditionalIndexes.xml",
+      "sha256": "b7f7598d02552a5c54ef67079edad82e209f491704742379d9c36501eda7287a",
+      "occurrence": 7,
+      "type": "",
+      "entry": "migration.index-field-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/AccumulationRegisters/РегистрНакопленияВсеСвойстваОбороты/Ext/AdditionalIndexes.xml",
+      "sha256": "2de7ca04f3037fa36469f9b3c0aca60600794478f22ee5fb89c35d3f341cbac5",
+      "occurrence": 4,
+      "type": "",
+      "entry": "migration.index-field",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/AccumulationRegisters/РегистрНакопленияВсеСвойстваОбороты/Ext/AdditionalIndexes.xml",
+      "sha256": "2de7ca04f3037fa36469f9b3c0aca60600794478f22ee5fb89c35d3f341cbac5",
+      "occurrence": 6,
+      "type": "",
+      "entry": "migration.index-field-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства/Ext/AdditionalIndexes.xml",
+      "sha256": "6bd308e26151f7a965822d918a1998a75f276ca15813ad94bf63541f47e6f57a",
+      "occurrence": 4,
+      "type": "",
+      "entry": "migration.index-field",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства/Ext/AdditionalIndexes.xml",
+      "sha256": "6bd308e26151f7a965822d918a1998a75f276ca15813ad94bf63541f47e6f57a",
+      "occurrence": 7,
+      "type": "",
+      "entry": "migration.index-field-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CalculationRegisters/РегистрРасчетаВсеСвойства/Ext/AdditionalIndexes.xml",
+      "sha256": "4a374c7e94b93d1824f28a467028664eb29de911b5ff4d826a39318202900b67",
+      "occurrence": 4,
+      "type": "",
+      "entry": "migration.index-field",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CalculationRegisters/РегистрРасчетаВсеСвойства/Ext/AdditionalIndexes.xml",
+      "sha256": "4a374c7e94b93d1824f28a467028664eb29de911b5ff4d826a39318202900b67",
+      "occurrence": 6,
+      "type": "",
+      "entry": "migration.index-field-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникCоВсемиОбъектами/Ext/AdditionalIndexes.xml",
+      "sha256": "091fe37e640e89fd74877ec9c7676e7ee0d5018e6c21f576eceec646b8409011",
+      "occurrence": 4,
+      "type": "",
+      "entry": "migration.index-field",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникCоВсемиОбъектами/Ext/AdditionalIndexes.xml",
+      "sha256": "091fe37e640e89fd74877ec9c7676e7ee0d5018e6c21f576eceec646b8409011",
+      "occurrence": 6,
+      "type": "",
+      "entry": "migration.index-field-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный/Ext/AdditionalIndexes.xml",
+      "sha256": "33e3e30bb7214c7ba0be264d43829700863b659dacb58f4f3cf1524fb40f45d5",
+      "occurrence": 4,
+      "type": "",
+      "entry": "migration.index-field",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный/Ext/AdditionalIndexes.xml",
+      "sha256": "33e3e30bb7214c7ba0be264d43829700863b659dacb58f4f3cf1524fb40f45d5",
+      "occurrence": 6,
+      "type": "",
+      "entry": "migration.index-field-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный/Ext/AdditionalIndexes.xml",
+      "sha256": "33e3e30bb7214c7ba0be264d43829700863b659dacb58f4f3cf1524fb40f45d5",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.index-field",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный/Ext/AdditionalIndexes.xml",
+      "sha256": "33e3e30bb7214c7ba0be264d43829700863b659dacb58f4f3cf1524fb40f45d5",
+      "occurrence": 13,
+      "type": "",
+      "entry": "migration.index-field-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства/Ext/AdditionalIndexes.xml",
+      "sha256": "d9a0447351a8c1219c04c0681cc5c8f8d45f4a28fd15e452897a2080b7cba9f6",
+      "occurrence": 4,
+      "type": "",
+      "entry": "migration.index-field",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства/Ext/AdditionalIndexes.xml",
+      "sha256": "d9a0447351a8c1219c04c0681cc5c8f8d45f4a28fd15e452897a2080b7cba9f6",
+      "occurrence": 6,
+      "type": "",
+      "entry": "migration.index-field-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства/Ext/AdditionalIndexes.xml",
+      "sha256": "140db4c47bd05fa7958adc951a193a50cdf5984683637650e9ef7d1c0206ed04",
+      "occurrence": 4,
+      "type": "",
+      "entry": "migration.index-field",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства/Ext/AdditionalIndexes.xml",
+      "sha256": "140db4c47bd05fa7958adc951a193a50cdf5984683637650e9ef7d1c0206ed04",
+      "occurrence": 6,
+      "type": "",
+      "entry": "migration.index-field-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойства/Ext/AdditionalIndexes.xml",
+      "sha256": "dbaad208c8b2b680e9d8870cb03ab56227dfead49a30a2504a7d1c52f3ccae69",
+      "occurrence": 4,
+      "type": "",
+      "entry": "migration.index-field",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойства/Ext/AdditionalIndexes.xml",
+      "sha256": "dbaad208c8b2b680e9d8870cb03ab56227dfead49a30a2504a7d1c52f3ccae69",
+      "occurrence": 6,
+      "type": "",
+      "entry": "migration.index-field-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойства/Ext/AdditionalIndexes.xml",
+      "sha256": "dbaad208c8b2b680e9d8870cb03ab56227dfead49a30a2504a7d1c52f3ccae69",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.index-field",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойства/Ext/AdditionalIndexes.xml",
+      "sha256": "dbaad208c8b2b680e9d8870cb03ab56227dfead49a30a2504a7d1c52f3ccae69",
+      "occurrence": 13,
+      "type": "",
+      "entry": "migration.index-field-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/Table/Ext/Form.xml",
+      "sha256": "92385cea4321b5486e5ca81579c6dc88a677e939b1f5c6c836a908458c153c59",
+      "occurrence": 1358,
+      "type": "",
+      "entry": "migration.fields-list",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/УсловноеОформление/Ext/Form.xml",
+      "sha256": "fe5469fadefa4512dc7d1f67cea7369cbd5ff1197982be2ab823c440a250a42a",
+      "occurrence": 261,
+      "type": "",
+      "entry": "migration.fields-list",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/DocumentJournals/ЖурналДокументовВсеСвойства/Ext/AdditionalIndexes.xml",
+      "sha256": "6fc915a150eb4fdc7a550475fb4c0ad2728a12f20cb23c34e164ba75e0c361b6",
+      "occurrence": 4,
+      "type": "",
+      "entry": "migration.index-field",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/DocumentJournals/ЖурналДокументовВсеСвойства/Ext/AdditionalIndexes.xml",
+      "sha256": "6fc915a150eb4fdc7a550475fb4c0ad2728a12f20cb23c34e164ba75e0c361b6",
+      "occurrence": 6,
+      "type": "",
+      "entry": "migration.index-field-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства/Ext/AdditionalIndexes.xml",
+      "sha256": "0b248a9d12bee2a5e52beb9933949727a318f321d8f5ba2bcd44d35190bbce95",
+      "occurrence": 4,
+      "type": "",
+      "entry": "migration.index-field",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства/Ext/AdditionalIndexes.xml",
+      "sha256": "0b248a9d12bee2a5e52beb9933949727a318f321d8f5ba2bcd44d35190bbce95",
+      "occurrence": 6,
+      "type": "",
+      "entry": "migration.index-field-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства/Forms/ФормаДокумента/Ext/Form.xml",
+      "sha256": "046134678cd8a7a5bd9c6bec7ea7c2baedbcdb68894347889d9c69cf4bbe4d48",
+      "occurrence": 76,
+      "type": "",
+      "entry": "migration.fields-list",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства/Forms/ФормаДокументаВсеСвойства/Ext/Form.xml",
+      "sha256": "d8265d2d0222947ab0099aa2617e20124950678ca82312c0791bf4f0c71ce925",
+      "occurrence": 96,
+      "type": "",
+      "entry": "migration.fields-list",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументКнопкаСПараметрами/Forms/ФормаДокумента/Ext/Form.xml",
+      "sha256": "7fdace8fac02752b6dbf7aefed4914c443d7eb7144637970c9bd55a74c3e890e",
+      "occurrence": 35,
+      "type": "",
+      "entry": "migration.fields-list",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства/Ext/AdditionalIndexes.xml",
+      "sha256": "baa02437f7c296b6a2d4d9df152fb18a1f02a7824091b9731a4cf21057a9eb86",
+      "occurrence": 4,
+      "type": "",
+      "entry": "migration.index-field",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства/Ext/AdditionalIndexes.xml",
+      "sha256": "baa02437f7c296b6a2d4d9df152fb18a1f02a7824091b9731a4cf21057a9eb86",
+      "occurrence": 6,
+      "type": "",
+      "entry": "migration.index-field-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства.xml",
+      "sha256": "1e2e310995587efd1dd1fcd8349b9878930fb609ba109b31bc6d0d1173c2b102",
+      "occurrence": 38,
+      "type": "",
+      "entry": "migration.fields-list-readable-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства.xml",
+      "sha256": "1e2e310995587efd1dd1fcd8349b9878930fb609ba109b31bc6d0d1173c2b102",
+      "occurrence": 46,
+      "type": "",
+      "entry": "migration.fields-list-readable-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства.xml",
+      "sha256": "1e2e310995587efd1dd1fcd8349b9878930fb609ba109b31bc6d0d1173c2b102",
+      "occurrence": 80,
+      "type": "",
+      "entry": "migration.fields-list-readable-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаМодульНабора.xml",
+      "sha256": "8c331499e999b075f5986fe229016914272d2eb176aba5aad4eeb95a2c4c5205",
+      "occurrence": 38,
+      "type": "",
+      "entry": "migration.fields-list-readable-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаМодульНабора.xml",
+      "sha256": "8c331499e999b075f5986fe229016914272d2eb176aba5aad4eeb95a2c4c5205",
+      "occurrence": 46,
+      "type": "",
+      "entry": "migration.fields-list-readable-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаМодульНабора.xml",
+      "sha256": "8c331499e999b075f5986fe229016914272d2eb176aba5aad4eeb95a2c4c5205",
+      "occurrence": 69,
+      "type": "",
+      "entry": "migration.fields-list-readable-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаПоУмолчанию.xml",
+      "sha256": "0b34ff717e10e229ef8e80e89b0d8a3db14589a5e929e8a9bd9d0792f292d2eb",
+      "occurrence": 38,
+      "type": "",
+      "entry": "migration.fields-list-readable-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаПоУмолчанию.xml",
+      "sha256": "0b34ff717e10e229ef8e80e89b0d8a3db14589a5e929e8a9bd9d0792f292d2eb",
+      "occurrence": 45,
+      "type": "",
+      "entry": "migration.fields-list-readable-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаПоУмолчанию.xml",
+      "sha256": "0b34ff717e10e229ef8e80e89b0d8a3db14589a5e929e8a9bd9d0792f292d2eb",
+      "occurrence": 67,
+      "type": "",
+      "entry": "migration.fields-list-readable-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый/Ext/AdditionalIndexes.xml",
+      "sha256": "8de25474e12630e573f4e42ba88f57db47437d8aeec85468a62edb422708bf68",
+      "occurrence": 4,
+      "type": "",
+      "entry": "migration.index-field",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый/Ext/AdditionalIndexes.xml",
+      "sha256": "8de25474e12630e573f4e42ba88f57db47437d8aeec85468a62edb422708bf68",
+      "occurrence": 6,
+      "type": "",
+      "entry": "migration.index-field-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый/Ext/AdditionalIndexes.xml",
+      "sha256": "8de25474e12630e573f4e42ba88f57db47437d8aeec85468a62edb422708bf68",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.index-field",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый/Ext/AdditionalIndexes.xml",
+      "sha256": "8de25474e12630e573f4e42ba88f57db47437d8aeec85468a62edb422708bf68",
+      "occurrence": 13,
+      "type": "",
+      "entry": "migration.index-field-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Sequences/ПоследовательностьВсеПоля/Ext/AdditionalIndexes.xml",
+      "sha256": "29066dc426491820f1283c36f9d375437854d2c67ba750d92333af432c96834d",
+      "occurrence": 4,
+      "type": "",
+      "entry": "migration.index-field",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Sequences/ПоследовательностьВсеПоля/Ext/AdditionalIndexes.xml",
+      "sha256": "29066dc426491820f1283c36f9d375437854d2c67ba750d92333af432c96834d",
+      "occurrence": 6,
+      "type": "",
+      "entry": "migration.index-field-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства/Ext/AdditionalIndexes.xml",
+      "sha256": "f0c4646d2a3faaeef96764970c82a23b6bc5f7c60f370dae96c7e0f3e4e210a5",
+      "occurrence": 4,
+      "type": "",
+      "entry": "migration.index-field",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства/Ext/AdditionalIndexes.xml",
+      "sha256": "f0c4646d2a3faaeef96764970c82a23b6bc5f7c60f370dae96c7e0f3e4e210a5",
+      "occurrence": 7,
+      "type": "",
+      "entry": "migration.index-field-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/WebServices/WebСервисВсеСвойства.xml",
+      "sha256": "a6455c22eac16513435e14f8b1bbdc903811ddd467a1715837fe9e466f53d906",
+      "occurrence": 10,
+      "type": "",
+      "entry": "migration.xdto-packages-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/WebServices/WebСервисПоУмолчанию.xml",
+      "sha256": "5e9f1a7d7f754b98e9a3404e5481e32222d7fbdeefdbd34a5346b1e61a1d53f0",
+      "occurrence": 10,
+      "type": "",
+      "entry": "migration.xdto-packages-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/WebSocketClients/WebSocketКлиентВсеСвойства.xml",
+      "sha256": "5ac842f6190fc03a46bb578b9545011907ef28d41cefdd0ee2ab97c70b4225e3",
+      "occurrence": 14,
+      "type": "xr:ValueList",
+      "entry": "migration.web-socket-client-headers-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/WebSocketClients/WebSocketКлиентПоУмолчанию.xml",
+      "sha256": "02e59ac820201bd6b047e5cfcf64944dee0197eea2fc9b7a61ad7b31a12000a0",
+      "occurrence": 14,
+      "type": "xr:ValueList",
+      "entry": "migration.web-socket-client-headers-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОборотыExt/Ext/AdditionalIndexes.xml",
+      "sha256": "1d8c168c241da576be675fcea1c2ca3309be89094863babae043d39372857715",
+      "occurrence": 4,
+      "type": "",
+      "entry": "migration.index-field",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОборотыExt/Ext/AdditionalIndexes.xml",
+      "sha256": "1d8c168c241da576be675fcea1c2ca3309be89094863babae043d39372857715",
+      "occurrence": 6,
+      "type": "",
+      "entry": "migration.index-field-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/AccumulationRegisters/РегистрНакопленияВсеСвойстваОборотыExt/Ext/AdditionalIndexes.xml",
+      "sha256": "6c1004408b4e43a6cb768b6bea89c50c0cfbb454a3436e50a1d36a6f1a322b44",
+      "occurrence": 4,
+      "type": "",
+      "entry": "migration.index-field",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/AccumulationRegisters/РегистрНакопленияВсеСвойстваОборотыExt/Ext/AdditionalIndexes.xml",
+      "sha256": "6c1004408b4e43a6cb768b6bea89c50c0cfbb454a3436e50a1d36a6f1a322b44",
+      "occurrence": 6,
+      "type": "",
+      "entry": "migration.index-field-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/BusinessProcesses/БизнесПроцессВсеСвойстваExt/Ext/AdditionalIndexes.xml",
+      "sha256": "bf965a455b04340327f663c9b89355fd0868f6034c0d5d67009e66b028a00032",
+      "occurrence": 4,
+      "type": "",
+      "entry": "migration.index-field",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/BusinessProcesses/БизнесПроцессВсеСвойстваExt/Ext/AdditionalIndexes.xml",
+      "sha256": "bf965a455b04340327f663c9b89355fd0868f6034c0d5d67009e66b028a00032",
+      "occurrence": 7,
+      "type": "",
+      "entry": "migration.index-field-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/CalculationRegisters/РегистрРасчетаВсеСвойстваExt/Ext/AdditionalIndexes.xml",
+      "sha256": "93ba8fb19dcf20610dda8679e84a622af6a1fd3244aa1de30e394dd8bd1f8ef1",
+      "occurrence": 4,
+      "type": "",
+      "entry": "migration.index-field",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/CalculationRegisters/РегистрРасчетаВсеСвойстваExt/Ext/AdditionalIndexes.xml",
+      "sha256": "93ba8fb19dcf20610dda8679e84a622af6a1fd3244aa1de30e394dd8bd1f8ef1",
+      "occurrence": 6,
+      "type": "",
+      "entry": "migration.index-field-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникCоВсемиОбъектамиExt/Ext/AdditionalIndexes.xml",
+      "sha256": "1d8fc04f05dafe0e517375f26a5e9fe22db01da4154393f8bfd12dfdc216b7e5",
+      "occurrence": 4,
+      "type": "",
+      "entry": "migration.index-field",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникCоВсемиОбъектамиExt/Ext/AdditionalIndexes.xml",
+      "sha256": "1d8fc04f05dafe0e517375f26a5e9fe22db01da4154393f8bfd12dfdc216b7e5",
+      "occurrence": 6,
+      "type": "",
+      "entry": "migration.index-field-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникПолныйExt/Ext/AdditionalIndexes.xml",
+      "sha256": "1da772b64119da772db8e536c007c4c44e5219dc0a2beb165ed67abe587043bf",
+      "occurrence": 4,
+      "type": "",
+      "entry": "migration.index-field",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникПолныйExt/Ext/AdditionalIndexes.xml",
+      "sha256": "1da772b64119da772db8e536c007c4c44e5219dc0a2beb165ed67abe587043bf",
+      "occurrence": 6,
+      "type": "",
+      "entry": "migration.index-field-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникПолныйExt/Ext/AdditionalIndexes.xml",
+      "sha256": "1da772b64119da772db8e536c007c4c44e5219dc0a2beb165ed67abe587043bf",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.index-field",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникПолныйExt/Ext/AdditionalIndexes.xml",
+      "sha256": "1da772b64119da772db8e536c007c4c44e5219dc0a2beb165ed67abe587043bf",
+      "occurrence": 13,
+      "type": "",
+      "entry": "migration.index-field-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойстваExt/Ext/AdditionalIndexes.xml",
+      "sha256": "937cb72dd80900a41e73b25de58345d2326f0e67896f78b19aff6642f910cf8e",
+      "occurrence": 4,
+      "type": "",
+      "entry": "migration.index-field",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойстваExt/Ext/AdditionalIndexes.xml",
+      "sha256": "937cb72dd80900a41e73b25de58345d2326f0e67896f78b19aff6642f910cf8e",
+      "occurrence": 6,
+      "type": "",
+      "entry": "migration.index-field-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCalculationTypes/ПланРасчетаВсеСвойстваExt/Ext/AdditionalIndexes.xml",
+      "sha256": "7cbe4cbc5993b612ea5f6407f39767269a81d9db1302edc0cba9a5981b29fd6d",
+      "occurrence": 4,
+      "type": "",
+      "entry": "migration.index-field",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCalculationTypes/ПланРасчетаВсеСвойстваExt/Ext/AdditionalIndexes.xml",
+      "sha256": "7cbe4cbc5993b612ea5f6407f39767269a81d9db1302edc0cba9a5981b29fd6d",
+      "occurrence": 6,
+      "type": "",
+      "entry": "migration.index-field-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойстваExt/Ext/AdditionalIndexes.xml",
+      "sha256": "d6eee09323f40800d520da869bb4193228c897a768c2edfc2507bd7c58bf7eb2",
+      "occurrence": 4,
+      "type": "",
+      "entry": "migration.index-field",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойстваExt/Ext/AdditionalIndexes.xml",
+      "sha256": "d6eee09323f40800d520da869bb4193228c897a768c2edfc2507bd7c58bf7eb2",
+      "occurrence": 6,
+      "type": "",
+      "entry": "migration.index-field-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойстваExt/Ext/AdditionalIndexes.xml",
+      "sha256": "d6eee09323f40800d520da869bb4193228c897a768c2edfc2507bd7c58bf7eb2",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.index-field",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойстваExt/Ext/AdditionalIndexes.xml",
+      "sha256": "d6eee09323f40800d520da869bb4193228c897a768c2edfc2507bd7c58bf7eb2",
+      "occurrence": 13,
+      "type": "",
+      "entry": "migration.index-field-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/DocumentJournals/ЖурналДокументовВсеСвойстваExt/Ext/AdditionalIndexes.xml",
+      "sha256": "69d3d8b462cfc9f2b25a30a62c7b7a6aee58f874df3ab7d32ee99a28706ceae1",
+      "occurrence": 4,
+      "type": "",
+      "entry": "migration.index-field",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/DocumentJournals/ЖурналДокументовВсеСвойстваExt/Ext/AdditionalIndexes.xml",
+      "sha256": "69d3d8b462cfc9f2b25a30a62c7b7a6aee58f874df3ab7d32ee99a28706ceae1",
+      "occurrence": 6,
+      "type": "",
+      "entry": "migration.index-field-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Documents/ДокументВсеСвойства/Forms/ФормаДокументаВсеСвойства/Ext/Form.xml",
+      "sha256": "0905ee7a6fcff99eee3371fbc3a084ea5357f333c3c09b86fd48f48a9c68e7d7",
+      "occurrence": 65,
+      "type": "",
+      "entry": "migration.fields-list",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Documents/ДокументВсеСвойства/Forms/ФормаДокументаВсеСвойства/Ext/Form.xml",
+      "sha256": "0905ee7a6fcff99eee3371fbc3a084ea5357f333c3c09b86fd48f48a9c68e7d7",
+      "occurrence": 149,
+      "type": "",
+      "entry": "migration.fields-list",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Documents/ДокументВсеСвойстваExt/Ext/AdditionalIndexes.xml",
+      "sha256": "d604beca929226d4d1f2870e6e44edd486226caa98ac03317fe1a5eb397bb4b8",
+      "occurrence": 4,
+      "type": "",
+      "entry": "migration.index-field",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Documents/ДокументВсеСвойстваExt/Ext/AdditionalIndexes.xml",
+      "sha256": "d604beca929226d4d1f2870e6e44edd486226caa98ac03317fe1a5eb397bb4b8",
+      "occurrence": 6,
+      "type": "",
+      "entry": "migration.index-field-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Documents/ДокументВсеСвойстваExt/Forms/ФормаДокумента/Ext/Form.xml",
+      "sha256": "733a0bc2211e15f396b67d8c81d6b042230cb98713fd69a647c66bc64383687b",
+      "occurrence": 72,
+      "type": "",
+      "entry": "migration.fields-list",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Documents/ДокументВсеСвойстваExt/Forms/ФормаДокументаВсеСвойства/Ext/Form.xml",
+      "sha256": "5605e901f17efda319a09653a9dd7994f6c01d82112f4aac81cf598344be2b99",
+      "occurrence": 96,
+      "type": "",
+      "entry": "migration.fields-list",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Documents/ДокументКнопкаСПараметрамиExt/Forms/ФормаДокумента/Ext/Form.xml",
+      "sha256": "6623b8dcf633b1be8a03b568f6b6ae6ab7028c7e5e4d0b6f6075f70cff1a9165",
+      "occurrence": 33,
+      "type": "",
+      "entry": "migration.fields-list",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExchangePlans/ПланОбменаВсеСвойстваExt/Ext/AdditionalIndexes.xml",
+      "sha256": "42cb11df522e539f5d07b6fef2a7098b794961aa2cfa44670955e47ff7101f6d",
+      "occurrence": 4,
+      "type": "",
+      "entry": "migration.index-field",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExchangePlans/ПланОбменаВсеСвойстваExt/Ext/AdditionalIndexes.xml",
+      "sha256": "42cb11df522e539f5d07b6fef2a7098b794961aa2cfa44670955e47ff7101f6d",
+      "occurrence": 6,
+      "type": "",
+      "entry": "migration.index-field-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства.xml",
+      "sha256": "f84718d18d582a4b913581beec2f29f3122ec510f01c90d336bf59c779750a36",
+      "occurrence": 50,
+      "type": "",
+      "entry": "migration.fields-list-readable-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойстваExt/Tables/ТаблицаВсеСвойства.xml",
+      "sha256": "c9e1c6fdde59a8a71163293636f9abbdbb9137fe82da422f0e3e6c600e1ffe0d",
+      "occurrence": 38,
+      "type": "",
+      "entry": "migration.fields-list-readable-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойстваExt/Tables/ТаблицаВсеСвойства.xml",
+      "sha256": "c9e1c6fdde59a8a71163293636f9abbdbb9137fe82da422f0e3e6c600e1ffe0d",
+      "occurrence": 46,
+      "type": "",
+      "entry": "migration.fields-list-readable-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойстваExt/Tables/ТаблицаВсеСвойства.xml",
+      "sha256": "c9e1c6fdde59a8a71163293636f9abbdbb9137fe82da422f0e3e6c600e1ffe0d",
+      "occurrence": 78,
+      "type": "",
+      "entry": "migration.fields-list-readable-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойстваExt/Tables/ТаблицаМодульНабора.xml",
+      "sha256": "539cba49ac7ea5ad2db9e769ad5b6fdd5d14e95bed51e7ba6d4af8436e1ba276",
+      "occurrence": 38,
+      "type": "",
+      "entry": "migration.fields-list-readable-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойстваExt/Tables/ТаблицаМодульНабора.xml",
+      "sha256": "539cba49ac7ea5ad2db9e769ad5b6fdd5d14e95bed51e7ba6d4af8436e1ba276",
+      "occurrence": 46,
+      "type": "",
+      "entry": "migration.fields-list-readable-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойстваExt/Tables/ТаблицаМодульНабора.xml",
+      "sha256": "539cba49ac7ea5ad2db9e769ad5b6fdd5d14e95bed51e7ba6d4af8436e1ba276",
+      "occurrence": 68,
+      "type": "",
+      "entry": "migration.fields-list-readable-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойстваExt/Tables/ТаблицаПоУмолчанию.xml",
+      "sha256": "cd084afd5dc433418e5220b6677be6ae3529150313dd83fb98db0342f5a56615",
+      "occurrence": 38,
+      "type": "",
+      "entry": "migration.fields-list-readable-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойстваExt/Tables/ТаблицаПоУмолчанию.xml",
+      "sha256": "cd084afd5dc433418e5220b6677be6ae3529150313dd83fb98db0342f5a56615",
+      "occurrence": 45,
+      "type": "",
+      "entry": "migration.fields-list-readable-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойстваExt/Tables/ТаблицаПоУмолчанию.xml",
+      "sha256": "cd084afd5dc433418e5220b6677be6ae3529150313dd83fb98db0342f5a56615",
+      "occurrence": 67,
+      "type": "",
+      "entry": "migration.fields-list-readable-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/InformationRegisters/РегистрСведенийВсеСвойстваНезависимыйExt/Ext/AdditionalIndexes.xml",
+      "sha256": "b38477eb474f0c040750e1585802026e03ba5493729ce690fbaffee9f3458103",
+      "occurrence": 4,
+      "type": "",
+      "entry": "migration.index-field",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/InformationRegisters/РегистрСведенийВсеСвойстваНезависимыйExt/Ext/AdditionalIndexes.xml",
+      "sha256": "b38477eb474f0c040750e1585802026e03ba5493729ce690fbaffee9f3458103",
+      "occurrence": 6,
+      "type": "",
+      "entry": "migration.index-field-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/InformationRegisters/РегистрСведенийВсеСвойстваНезависимыйExt/Ext/AdditionalIndexes.xml",
+      "sha256": "b38477eb474f0c040750e1585802026e03ba5493729ce690fbaffee9f3458103",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.index-field",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/InformationRegisters/РегистрСведенийВсеСвойстваНезависимыйExt/Ext/AdditionalIndexes.xml",
+      "sha256": "b38477eb474f0c040750e1585802026e03ba5493729ce690fbaffee9f3458103",
+      "occurrence": 13,
+      "type": "",
+      "entry": "migration.index-field-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Tasks/ЗадачаВсеСвойстваExt/Ext/AdditionalIndexes.xml",
+      "sha256": "31bccc20281801dbedb52c593a0cac3b0eba1f90f8e53d239eb0b2ced42dcd09",
+      "occurrence": 4,
+      "type": "",
+      "entry": "migration.index-field",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Tasks/ЗадачаВсеСвойстваExt/Ext/AdditionalIndexes.xml",
+      "sha256": "31bccc20281801dbedb52c593a0cac3b0eba1f90f8e53d239eb0b2ced42dcd09",
+      "occurrence": 7,
+      "type": "",
+      "entry": "migration.index-field-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/WebServices/WebСервисВсеСвойства.xml",
+      "sha256": "7e7d2051e5834793b097504e7a95c7438d7437932708988e09bc40567b84d40e",
+      "occurrence": 12,
+      "type": "",
+      "entry": "migration.xdto-packages-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/WebServices/WebСервисВсеСвойстваExt.xml",
+      "sha256": "f3cd655b6b02ad778ca5803c886cdab4dc4d7fa1c343d37065d37e73881aea8b",
+      "occurrence": 10,
+      "type": "",
+      "entry": "migration.xdto-packages-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/WebServices/WebСервисПоУмолчаниюExt.xml",
+      "sha256": "ca9c04a4cd2223cbb700efe5399ee89d008ce49d0e58f052600ff67f334c5a9b",
+      "occurrence": 10,
+      "type": "",
+      "entry": "migration.xdto-packages-default",
+      "verified": true
+    }
+  ]
+}

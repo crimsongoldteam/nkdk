@@ -1,0 +1,23 @@
+format: nkdk-declarations/1
+kind: fragment
+id: fragment.child-module-resources
+inputs:
+  forms: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  commands: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+value: {kind: record, fields: []}
+representations:
+  xml: {kind: record, fields: []}
+  yaml: {kind: mapping, fields: []}
+resources:
+- forEach: {in: {input: forms}, as: name}
+  oneOf:
+  - xml: {sequence: [{literal: Forms}, {var: name}, {literal: Ext}, {literal: Form}, {literal: Module.bsl}]}
+    yaml: {sequence: [{literal: Формы}, {var: name}, {literal: Модуль.bsl}]}
+  - xml: {sequence: [{literal: Forms}, {var: name}, {literal: Ext}, {literal: Form}, {literal: Module.bin}]}
+    yaml: {sequence: [{literal: Формы}, {var: name}, {literal: Модуль.bin}]}
+- forEach: {in: {input: commands}, as: name}
+  oneOf:
+  - xml: {sequence: [{literal: Commands}, {var: name}, {literal: Ext}, {literal: CommandModule.bsl}]}
+    yaml: {sequence: [{literal: Команды}, {concat: [{var: name}, {literal: '.bsl'}]}]}
+  - xml: {sequence: [{literal: Commands}, {var: name}, {literal: Ext}, {literal: CommandModule.bin}]}
+    yaml: {sequence: [{literal: Команды}, {concat: [{var: name}, {literal: '.bin'}]}]}

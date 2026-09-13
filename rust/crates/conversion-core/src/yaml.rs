@@ -5,19 +5,31 @@ pub enum Form {
     Scalar,
     Mapping,
 }
+mod mapping_property;
 mod nested;
+pub use mapping_property::MappingPropertySource;
+mod output;
+mod partition;
+mod property;
+pub use output::{Indented, append_encoded_properties, append_properties};
+pub use partition::{PartitionRouter, PartitionSource, visit_partitions};
+pub use property::PropertyReader;
 mod record_scalars;
-pub use record_scalars::visit_record_scalars;
+mod sequence;
+mod split;
+pub use record_scalars::{ScalarRecordReader, visit_record_scalar_events, visit_record_scalars};
+pub use sequence::{
+    SequenceForm, SequenceReader, SequenceValues, TextSequence, text_sequence,
+    text_sequence_events, text_sequence_with,
+};
+pub use split::{split_properties, split_record_properties};
 mod nodes;
 use crate::{Result, RuntimeDiagnostic};
-pub use nested::{RecordSource, RecordState};
+pub use nested::{RecordEventsSource, RecordSource, RecordState};
 pub use nodes::{Node, visit_nodes};
-use std::collections::HashSet;
-use yaml_rust2::{
-    Yaml,
-    parser::{Event, MarkedEventReceiver, Parser},
-    scanner::{Marker, TScalarStyle},
-};
+mod scalar_mapping;
+pub use scalar_mapping::{ScalarEntry, ScalarMapping};
+use yaml_rust2::Yaml;
 
 pub struct Scalar {
     text: String,
@@ -99,116 +111,23 @@ pub fn visit_tagged_scalars(
     source: &[u8],
     consume: impl FnMut(String, Scalar, Option<String>) -> Result<()>,
 ) -> Result<()> {
-    let source = std::str::from_utf8(source)
-        .map_err(|e| RuntimeDiagnostic::new("yaml.encoding", e.to_string()))?;
-    let mut receiver = Receiver {
-        consume,
-        key: None,
-        keys: HashSet::new(),
-        depth: 0,
-        documents: 0,
-        mapping_seen: false,
-        error: None,
-    };
-    Parser::new_from_str(source)
-        .load(&mut receiver, true)
-        .map_err(|e| {
-            RuntimeDiagnostic::new("yaml.syntax", e.to_string())
-                .at(e.marker().line(), e.marker().col() + 1)
-        })?;
-    if let Some(error) = receiver.error {
-        return Err(error);
-    }
-    if receiver.documents != 1 || !receiver.mapping_seen {
-        return Err(RuntimeDiagnostic::new(
-            "yaml.expected-mapping",
-            "Expected one YAML mapping",
-        ));
-    }
-    Ok(())
+    visit_scalar_events(DocumentSource(source), consume)
 }
-struct Receiver<F> {
-    consume: F,
-    key: Option<String>,
-    keys: HashSet<String>,
-    depth: usize,
-    documents: usize,
-    mapping_seen: bool,
-    error: Option<RuntimeDiagnostic>,
-}
-impl<F: FnMut(String, Scalar, Option<String>) -> Result<()>> MarkedEventReceiver for Receiver<F> {
-    fn on_event(&mut self, event: Event, mark: Marker) {
-        if self.error.is_some() {
-            return;
+
+/// Decode scalar fields from the same event source used by nested values.
+pub fn visit_scalar_events(
+    source: impl Source,
+    mut consume: impl FnMut(String, Scalar, Option<String>) -> Result<()>,
+) -> Result<()> {
+    let mut state = ScalarMapping::default();
+    source.visit(|node, position| {
+        if let Some(entry) = state.consume(node, position)? {
+            consume(entry.key, entry.value, entry.tag)
+                .map_err(|error| position.apply(&[], error))?;
         }
-        let error = match event {
-            Event::StreamStart | Event::StreamEnd | Event::DocumentEnd => None,
-            Event::DocumentStart => {
-                self.documents += 1;
-                if self.documents > 1 {
-                    Some(RuntimeDiagnostic::new(
-                        "yaml.multiple-documents",
-                        "Multiple documents are not accepted",
-                    ))
-                } else {
-                    None
-                }
-            }
-            Event::MappingStart(0, None) if self.depth == 0 && !self.mapping_seen => {
-                self.depth = 1;
-                self.mapping_seen = true;
-                None
-            }
-            Event::MappingEnd if self.depth == 1 => {
-                self.depth = 0;
-                None
-            }
-            Event::Scalar(value, style, 0, tag) if self.depth == 1 => {
-                if let Some(key) = self.key.take() {
-                    (self.consume)(
-                        key,
-                        Scalar {
-                            text: value,
-                            plain: style == TScalarStyle::Plain,
-                            position: crate::Position::yaml(mark.line(), mark.col() + 1),
-                        },
-                        tag.map(|tag| tag.handle + &tag.suffix),
-                    )
-                    .err()
-                } else if tag.is_some() {
-                    Some(RuntimeDiagnostic::new(
-                        "yaml.annotation",
-                        "Unexpected key annotation",
-                    ))
-                } else if style == TScalarStyle::Plain
-                    && !matches!(Yaml::from_str(&value), Yaml::String(_))
-                {
-                    Some(RuntimeDiagnostic::new(
-                        "yaml.expected-text",
-                        "Expected a textual scalar",
-                    ))
-                } else if !self.keys.insert(value.clone()) {
-                    Some(
-                        RuntimeDiagnostic::new(
-                            "yaml.duplicate-key",
-                            format!("Duplicate key: {value}"),
-                        )
-                        .field(value),
-                    )
-                } else {
-                    self.key = Some(value);
-                    None
-                }
-            }
-            _ => Some(RuntimeDiagnostic::new(
-                "yaml.unsupported-form",
-                "This generated operation accepts an untagged flat mapping without aliases",
-            )),
-        };
-        if let Some(error) = error {
-            self.error = Some(error.at(mark.line(), mark.col() + 1));
-        }
-    }
+        Ok(())
+    })?;
+    state.finish()
 }
 pub fn mapping_key(value: &str) -> String {
     if value.is_empty() {
@@ -258,4 +177,49 @@ impl Source for DocumentSource<'_> {
     fn visit(self, consume: impl FnMut(Node, crate::Position) -> Result<()>) -> Result<()> {
         visit_nodes(self.0, consume)
     }
+}
+
+/// A composition can forward nodes directly without retaining them.
+pub type Consumer<'a> = dyn FnMut(Node, crate::Position) -> Result<()> + 'a;
+pub struct Events<F>(pub F);
+impl<F> Source for Events<F>
+where
+    F: FnOnce(&mut Consumer<'_>) -> Result<()>,
+{
+    fn visit(self, mut consume: impl FnMut(Node, crate::Position) -> Result<()>) -> Result<()> {
+        (self.0)(&mut consume)
+    }
+}
+
+/// Reconstruct one row only after its streaming reader requests exceptional recovery.
+pub fn preserved_sequence_item(
+    source: &[u8],
+    property: Option<&str>,
+    index: usize,
+) -> Result<Vec<u8>> {
+    let root = document::parse(source)?;
+    let value = if let Some(property) = property {
+        let document::Kind::Mapping(entries) = root.kind else {
+            return Err(RuntimeDiagnostic::new(
+                "yaml.collection-form",
+                "Expected a property mapping",
+            ));
+        };
+        entries
+            .into_iter()
+            .find_map(|(key, value)| key.key().is_ok_and(|key| key == property).then_some(value))
+            .ok_or_else(|| RuntimeDiagnostic::new("yaml.collection-form", "Missing sequence"))?
+    } else {
+        root
+    };
+    let document::Kind::Sequence(items) = value.kind else {
+        return Err(RuntimeDiagnostic::new(
+            "yaml.collection-form",
+            "Expected a sequence",
+        ));
+    };
+    items
+        .get(index)
+        .ok_or_else(|| RuntimeDiagnostic::new("yaml.collection-form", "Missing sequence item"))?
+        .render()
 }

@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.26feedeab1e8aa0f31cc
+description: 'Кандидат проекции: относительный XML-корень ShowTitle; не полный владелец'
+imports:
+  part0: candidate.fragment.7679462103df84e59d49
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

@@ -1,20 +1,41 @@
 mod attributes;
+mod collection_presence;
+mod collection_values;
 mod collections;
 pub(crate) mod composite;
+mod composite_scalars;
 mod constraints;
+mod declared_items;
 mod dispatch;
 mod expressions;
+mod fact_inputs;
+mod fact_keys;
+mod facts;
 mod inputs;
 pub(crate) mod nested_record;
+mod owner;
+mod owner_contracts;
+mod owner_layout;
 mod patterns;
 mod presence;
+mod proof;
+mod qname;
 mod record;
+mod resources;
+mod row_expression;
 pub(crate) mod scalar;
 mod scalar_choice;
 pub(crate) mod scalar_presence;
+mod sequence_yaml;
 pub(crate) mod shorthand;
 mod source_map;
 mod text;
+mod text_choice;
+mod text_item_checks;
+mod text_pattern;
+mod text_sequence;
+mod text_table;
+mod xml_tree;
 use nkdk_rule_model::*;
 use std::collections::BTreeSet;
 
@@ -36,7 +57,7 @@ pub fn generate(program: &Program) -> Result<GeneratedSources, Vec<Diagnostic>> 
     let entries: Vec<_> = program
         .entries
         .iter()
-        .filter(|entry| entry.kind == ModuleKind::Object)
+        .filter(|entry| matches!(entry.kind, ModuleKind::Object | ModuleKind::Resources))
         .collect();
     if entries.is_empty() {
         return Err(vec![Diagnostic {
@@ -44,16 +65,22 @@ pub fn generate(program: &Program) -> Result<GeneratedSources, Vec<Diagnostic>> 
             file: String::new(),
             line: 0,
             column: 0,
-            message: "No object entry was supplied".into(),
+            message: "No executable entry was supplied".into(),
             related: vec![],
         }]);
     }
     for entry in &entries {
+        if entry.kind == ModuleKind::Resources {
+            resources::validate_entry(entry).map_err(|error| vec![error])?;
+            continue;
+        }
         source.push_str(&record::generate(entry, program).map_err(|error| vec![error])?);
         source.push_str(&constraints::generate(entry, program).map_err(|error| vec![error])?);
     }
     source.push_str(&inputs::generate(&entries, program).map_err(|error| vec![error])?);
     source.push_str(&dispatch::generate(&entries));
+    source.push_str(&facts::generate(&entries, program).map_err(|error| vec![error])?);
+    source.push_str(&resources::generate(&entries).map_err(|error| vec![error])?);
     let map = source_map::generate(program);
     source.push_str("include!(\"source_map.rs\");\n");
     Ok(GeneratedSources {

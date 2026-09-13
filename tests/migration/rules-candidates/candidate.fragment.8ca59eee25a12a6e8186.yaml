@@ -1,0 +1,24 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.string
+value:
+  kind: record
+  fields:
+    - name: state
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: state
+        path:
+          - State
+  yaml:
+    kind: mapping
+    fields:
+      - field: state
+        key: state
+presence: []
+id: candidate.fragment.8ca59eee25a12a6e8186

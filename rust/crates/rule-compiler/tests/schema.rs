@@ -1,26 +1,14 @@
 use nkdk_rule_compiler::{SourceFile, link, parse, schema};
 #[test]
 fn nested_record_schema_requires_a_variant_and_keeps_calendar_seconds() {
-    let directory = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../declarations");
-    let mut modules = Vec::new();
-    for name in [
+    let program = declaration_program(&[
         "common/system-enumerations.yaml",
         "common/date-time-seconds.yaml",
         "common/standard-beginning-date.yaml",
         "probes/standard-beginning-date.yaml",
         "common/standard-period.yaml",
         "probes/standard-period.yaml",
-    ] {
-        let bytes = std::fs::read(directory.join(name)).unwrap();
-        modules.extend(
-            nkdk_rule_compiler::parse_many(SourceFile {
-                path: name,
-                bytes: &bytes,
-            })
-            .unwrap(),
-        );
-    }
-    let program = link(&modules).unwrap();
+    ]);
     for (entry, label, key) in [
         (
             "migration.standard-beginning-date",
@@ -154,6 +142,36 @@ fn keyed_collection_schema_is_derived_from_the_shared_declaration() {
             assert!(!validator.is_valid(&invalid));
         }
     }
+    let program = declaration_program(&[
+        "common/metadata-path-lexicons.yaml",
+        "common/metadata-name.yaml",
+        "common/metadata-object-segments.yaml",
+        "common/metadata-object-chain-path.yaml",
+        "common/based-on-links.yaml",
+        "probes/metadata-root-index.yaml",
+        "probes/metadata-child-index.yaml",
+        "probes/based-on-links.yaml",
+    ]);
+    let value: serde_json::Value =
+        serde_json::from_slice(&schema(&program, "migration.based-on-links").unwrap()).unwrap();
+    let validator = jsonschema::validator_for(&value).unwrap();
+    for (candidate, valid) in [
+        (serde_json::json!({}), true),
+        (serde_json::json!({"ВводитсяНаОсновании":[]}), true),
+        (
+            serde_json::json!({"ВводитсяНаОсновании":["Справочник.Пример"]}),
+            true,
+        ),
+        (
+            serde_json::json!({"ВводитсяНаОсновании":"Справочник.Пример"}),
+            false,
+        ),
+        (serde_json::json!({"ВводитсяНаОсновании":[42]}), false),
+        (serde_json::json!({"ВводитсяНаОсновании":[{}]}), false),
+    ] {
+        assert_eq!(validator.is_valid(&candidate), valid, "{candidate}");
+    }
+    assert_eq!(value["x-nkdk-runtime-validation"], true);
 }
 
 #[test]
@@ -367,4 +385,20 @@ fn scalar_choices_share_a_precise_union_schema() {
             );
         }
     }
+}
+
+fn declaration_program(names: &[&str]) -> nkdk_rule_model::Program {
+    let directory = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../declarations");
+    let mut modules = Vec::new();
+    for name in names {
+        let bytes = std::fs::read(directory.join(name)).unwrap();
+        modules.extend(
+            nkdk_rule_compiler::parse_many(SourceFile {
+                path: name,
+                bytes: &bytes,
+            })
+            .unwrap(),
+        );
+    }
+    link(&modules).unwrap()
 }

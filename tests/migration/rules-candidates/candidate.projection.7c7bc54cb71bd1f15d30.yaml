@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.7c7bc54cb71bd1f15d30
+description: 'Кандидат проекции: относительный XML-корень EditMode; не полный владелец'
+imports:
+  part0: candidate.fragment.e4fdd7828e405d8f3aa2
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

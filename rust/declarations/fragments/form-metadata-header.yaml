@@ -1,0 +1,65 @@
+format: nkdk-declarations/1
+kind: fragment
+id: fragment.form-metadata-header
+imports: {text: common.i8n-text, boolean: common.boolean, purposes: common.use-purposes, formType: system.FormType}
+namespaces: {md: 'http://v8.1c.ru/8.3/MDClasses'}
+inputs:
+  parent: {type: {kind: scalar, scalar: text}}
+  name: {type: {kind: scalar, scalar: text}}
+  identity: {type: {kind: scalar, scalar: text}}
+  defaultLanguage: {type: {kind: scalar, scalar: text}}
+  registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+value:
+  kind: record
+  fields:
+  - {name: Name, type: {kind: scalar, scalar: text}}
+  - {name: Synonym, type: {use: text, with: {excludeIfEqualNameYAML: true}, bind: {defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}, ownerName: {input: name}}}}
+  - {name: Comment, type: {kind: scalar, scalar: text}}
+  - {name: FormType, type: {use: formType}}
+  - {name: IncludeHelpInContents, type: {use: boolean}}
+  - {name: UsePurposes, type: {use: purposes}}
+  - {name: identity, type: {kind: scalar, scalar: text}}
+representations:
+  xml:
+    kind: record
+    fields:
+    - {field: Name, path: [md:MetaDataObject, md:Form, md:Properties, md:Name]}
+    - {field: Synonym, path: [md:MetaDataObject, md:Form, md:Properties, md:Synonym]}
+    - {field: Comment, path: [md:MetaDataObject, md:Form, md:Properties, md:Comment]}
+    - {field: FormType, path: [md:MetaDataObject, md:Form, md:Properties, md:FormType]}
+    - {field: IncludeHelpInContents, path: [md:MetaDataObject, md:Form, md:Properties, md:IncludeHelpInContents]}
+    - {field: UsePurposes, path: [md:MetaDataObject, md:Form, md:Properties, md:UsePurposes]}
+    - {field: identity, path: [md:MetaDataObject, md:Form], attribute: uuid}
+  yaml:
+    kind: mapping
+    fields:
+    - {field: Name, key: Имя}
+    - {field: Synonym, key: Синоним}
+    - {field: Comment, key: Комментарий}
+    - {field: FormType, key: ТипФормы}
+    - {field: IncludeHelpInContents, key: ВключатьСправкуВСодержание}
+    - {field: UsePurposes, key: НазначенияИспользования}
+    - {field: identity, key: Идентификатор}
+presence:
+- target: {field: Name}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {default: {input: name}}
+- target: {field: Comment}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {default: {literal: ''}}
+- target: {field: FormType}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {default: {literal: Managed}}
+- target: {field: IncludeHelpInContents}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {default: {literal: false}}
+- target: {field: UsePurposes}
+  xml: {missing: {denotes: {absent: true}}, empty: [{form: empty-element, denotes: {absent: true}}]}
+  yaml: {default: {sequence: [{literal: PlatformApplication}]}}
+- target: {field: identity}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {default: {input: identity}}
+contributions:
+- index: metadata.forms
+  key: {record: {parent: {input: parent}, name: {field: Name}}}
+  value: {field: identity}

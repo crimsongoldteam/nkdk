@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.68272285c51ccf27b474
+description: 'Кандидат проекции: относительный XML-корень UseAlternationRowColor; не полный владелец'
+imports:
+  part0: candidate.fragment.ea39251802076ef5885f
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

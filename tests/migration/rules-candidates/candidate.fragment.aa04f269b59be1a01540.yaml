@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: autoURL
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: autoURL
+        path:
+          - AutoURL
+  yaml:
+    kind: mapping
+    fields:
+      - field: autoURL
+        key: АвтоНавигационнаяСсылка
+presence:
+  - target:
+      field: autoURL
+    xml:
+      missing:
+        denotes:
+          literal: true
+      canonical:
+        - when:
+            eq:
+              - field: autoURL
+              - literal: true
+          form: missing
+    yaml:
+      default:
+        literal: true
+id: candidate.fragment.aa04f269b59be1a01540

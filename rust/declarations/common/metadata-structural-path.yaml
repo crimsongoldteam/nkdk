@@ -1,0 +1,12 @@
+format: nkdk-declarations/1
+kind: value
+id: common.metadata-structural-path
+imports: {member: common.metadata-member-path, object: common.metadata-object-path}
+value:
+  kind: choice
+  variants:
+  - {name: member, type: {use: member}}
+  - {name: object, type: {use: object}}
+representations:
+  xml: {kind: choice}
+  yaml: {kind: choice}

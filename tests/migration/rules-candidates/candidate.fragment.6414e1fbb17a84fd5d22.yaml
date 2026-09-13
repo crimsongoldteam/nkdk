@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: protection
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: protection
+        path:
+          - Protection
+  yaml:
+    kind: mapping
+    fields:
+      - field: protection
+        key: Защита
+presence:
+  - target:
+      field: protection
+    xml:
+      missing:
+        denotes:
+          literal: false
+      canonical:
+        - when:
+            eq:
+              - field: protection
+              - literal: false
+          form: missing
+    yaml:
+      default:
+        literal: false
+id: candidate.fragment.6414e1fbb17a84fd5d22

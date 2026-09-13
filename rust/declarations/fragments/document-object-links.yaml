@@ -1,0 +1,25 @@
+format: nkdk-declarations/1
+kind: fragment
+id: fragment.document-object-links
+imports: {numerator: fragment.document-numerator, based: fragment.document-based-on, registers: fragment.document-register-records, rootKind: common.path-root, childKind: common.path-object-kind}
+namespaces: {md: 'http://v8.1c.ru/8.3/MDClasses'}
+inputs:
+  owner: {type: {kind: scalar, scalar: text}}
+  roots:
+    type:
+      kind: index
+      key: {kind: record, fields: [{name: kind, type: {use: rootKind}}, {name: name, type: {kind: scalar, scalar: text}}]}
+      value: {kind: scalar, scalar: text}
+  children:
+    type:
+      kind: index
+      key: {kind: record, fields: [{name: kind, type: {use: childKind}}, {name: name, type: {kind: scalar, scalar: text}}, {name: parent, type: {kind: scalar, scalar: text}}]}
+      value: {kind: scalar, scalar: text}
+compose:
+- {use: numerator, bind: {roots: {input: roots}}}
+- {use: based, bind: {roots: {input: roots}, children: {input: children}}}
+- {use: registers, bind: {owner: {input: owner}, roots: {input: roots}}}
+value: {kind: record, fields: []}
+representations:
+  xml: {kind: record, fields: []}
+  yaml: {kind: mapping, fields: []}

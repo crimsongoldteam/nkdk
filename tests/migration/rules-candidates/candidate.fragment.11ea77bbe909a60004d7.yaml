@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.SelectionShowMode
+value:
+  kind: record
+  fields:
+    - name: selectionShowMode
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: selectionShowMode
+        path:
+          - SelectionShowMode
+  yaml:
+    kind: mapping
+    fields:
+      - field: selectionShowMode
+        key: РежимОтображенияВыделения
+presence:
+  - target:
+      field: selectionShowMode
+    xml:
+      missing:
+        denotes:
+          literal: Always
+      canonical:
+        - when:
+            eq:
+              - field: selectionShowMode
+              - literal: Always
+          form: missing
+    yaml:
+      default:
+        literal: Always
+id: candidate.fragment.11ea77bbe909a60004d7

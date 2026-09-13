@@ -12,6 +12,21 @@ pub enum Node {
     SequenceEnd,
     Scalar(Scalar, Option<String>),
 }
+impl Node {
+    /// Track value nesting for streaming adapters without retaining nodes.
+    pub(super) fn advance_depth(&self, depth: &mut usize) -> Result<()> {
+        match self {
+            Self::MappingStart(_) | Self::SequenceStart(_) => *depth += 1,
+            Self::MappingEnd | Self::SequenceEnd => {
+                *depth = depth.checked_sub(1).ok_or_else(|| {
+                    RuntimeDiagnostic::new("yaml.structure", "Unexpected closing node")
+                })?;
+            }
+            Self::Scalar(..) => (),
+        }
+        Ok(())
+    }
+}
 fn tag(tag: Option<Tag>) -> Option<String> {
     tag.map(|tag| tag.handle + &tag.suffix)
 }

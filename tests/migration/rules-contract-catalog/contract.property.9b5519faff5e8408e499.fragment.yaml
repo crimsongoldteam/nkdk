@@ -1,0 +1,40 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.AutoSaveFormDataInSettings
+value:
+  kind: record
+  fields:
+    - name: autoSaveDataInSettings
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: autoSaveDataInSettings
+        path:
+          - Form
+          - AutoSaveDataInSettings
+  yaml:
+    kind: mapping
+    fields:
+      - field: autoSaveDataInSettings
+        key: АвтоматическоеСохранениеДанныхВНастройках
+presence:
+  - target:
+      field: autoSaveDataInSettings
+    xml:
+      missing:
+        denotes:
+          literal: DontUse
+      canonical:
+        - when:
+            eq:
+              - field: autoSaveDataInSettings
+              - literal: DontUse
+          form: missing
+    yaml:
+      default:
+        literal: DontUse
+id: contract.property.9b5519faff5e8408e499.fragment

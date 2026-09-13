@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.925f709601148b6e0ec5
+description: 'Кандидат проекции: относительный XML-корень ItemHeight; не полный владелец'
+imports:
+  part0: candidate.fragment.78974dd590b92b66e380
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

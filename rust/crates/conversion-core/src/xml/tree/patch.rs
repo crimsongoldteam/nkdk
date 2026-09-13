@@ -2,8 +2,23 @@ use super::{Name, Payload, Result, Tree, failure, read, render};
 
 pub struct Patch(Payload);
 impl Patch {
+    /// Serialize the patch itself, preserving removals and empty containers.
+    /// Applying it to an empty tree would discard those instructions.
+    pub fn to_yaml(&self) -> String {
+        super::render_payload(&self.0, 0, true)
+    }
+
     pub fn is_null(&self) -> bool {
         matches!(self.0, Payload::Null)
+    }
+    /// An attribute can retain its lexical text or be absent, but cannot carry
+    /// the element structure allowed by a property patch.
+    pub fn attribute_text(&self) -> Result<Option<&str>> {
+        match &self.0 {
+            Payload::Null => Ok(None),
+            Payload::Text(text) => Ok(Some(text)),
+            _ => Err(failure("An attribute patch requires text or null")),
+        }
     }
     pub fn read(
         source: &[u8],
@@ -42,7 +57,7 @@ impl Tree {
         let patch = match ordinary {
             Some(ordinary) => difference(&expected, &ordinary.payload(namespaces, qnames)?)
                 .unwrap_or(Payload::Mapping(Vec::new())),
-            None => expected,
+            None => insertion(&expected),
         };
         if matches!(&patch,Payload::Mapping(fields) if fields.is_empty()) {
             return Ok("{}".into());
@@ -73,6 +88,10 @@ fn validate(value: &Payload, namespaces: &[(&str, &str)], qnames: &[(&str, &str)
                         }
                     } else if !matches!(value, Payload::Null) {
                         return Err(failure("Order requires a sequence"));
+                    }
+                } else if key == "#qname" {
+                    if !matches!(value, Payload::Null) {
+                        read::qname_payload(value)?;
                     }
                 } else if key == "#text" {
                     if let Payload::Text(text) = value {
@@ -159,7 +178,7 @@ fn difference(expected: &Payload, actual: &Payload) -> Option<Payload> {
         return None;
     }
     let (Payload::Mapping(expected), Payload::Mapping(actual)) = (expected, actual) else {
-        return Some(expected.clone());
+        return Some(insertion(expected));
     };
     let mut fields = Vec::new();
     for (key, value) in expected {
@@ -176,7 +195,7 @@ fn difference(expected: &Payload, actual: &Payload) -> Option<Payload> {
                     fields.push((key.clone(), value));
                 }
             }
-            None => fields.push((key.clone(), value.clone())),
+            None => fields.push(inserted_field(key, value)),
         }
     }
     for (key, _) in actual {
@@ -212,5 +231,57 @@ fn difference(expected: &Payload, actual: &Payload) -> Option<Payload> {
         );
         fields = ordered;
     }
+    let Payload::Mapping(projected) = merge(
+        Payload::Mapping(actual.clone()),
+        &Payload::Mapping(fields.clone()),
+    ) else {
+        unreachable!("merged mapping")
+    };
+    let desired = child_order(expected);
+    if desired != child_order(&projected) {
+        fields.retain(|(key, _)| key != "#order");
+        fields.push(("#order".into(), Payload::Sequence(desired)));
+    }
     Some(Payload::Mapping(fields))
+}
+fn child_order(fields: &[(String, Payload)]) -> Vec<Payload> {
+    if let Some((_, Payload::Sequence(order))) = fields.iter().find(|(key, _)| key == "#order") {
+        return order.clone();
+    }
+    fields
+        .iter()
+        .filter(|(key, _)| !key.starts_with('_') && !key.starts_with('#'))
+        .flat_map(|(key, value)| {
+            let count = if let Payload::Sequence(values) = value {
+                values.len()
+            } else {
+                1
+            };
+            std::iter::repeat_n(Payload::Text(key.clone()), count)
+        })
+        .collect()
+}
+
+// In a patch mapping null removes a member. New empty XML children must instead
+// be represented as empty text, including when the ordinary property is absent.
+fn inserted_field(key: &str, value: &Payload) -> (String, Payload) {
+    (
+        key.into(),
+        if matches!(value, Payload::Null) && !key.starts_with('_') {
+            Payload::Text(String::new())
+        } else {
+            value.clone()
+        },
+    )
+}
+fn insertion(value: &Payload) -> Payload {
+    match value {
+        Payload::Mapping(fields) => Payload::Mapping(
+            fields
+                .iter()
+                .map(|(key, value)| inserted_field(key, value))
+                .collect(),
+        ),
+        value => value.clone(),
+    }
 }

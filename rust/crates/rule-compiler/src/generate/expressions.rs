@@ -5,24 +5,125 @@ pub(super) struct Expressions<'a> {
     pub(super) entry: &'a LinkedEntry,
     pub(super) program: &'a Program,
     pub(super) fields: &'a [LinkedField],
+    pub(super) local_fields: std::collections::BTreeMap<u32, Vec<String>>,
     pub(super) field_storage: Option<&'a [(String, String)]>,
     pub(super) constants: String,
     pub(super) next_constant: usize,
     pub(super) transforms: BTreeSet<(u32, u32)>,
     pub(super) fallible: bool,
 }
-impl Expressions<'_> {
-    fn text_reference(value: &LinkedExpression, expression: String) -> String {
-        if matches!(
-            value.kind,
+impl<'a> Expressions<'a> {
+    pub(super) fn new(
+        entry: &'a LinkedEntry,
+        program: &'a Program,
+        fields: &'a [LinkedField],
+        field_storage: Option<&'a [(String, String)]>,
+    ) -> Self {
+        Self {
+            entry,
+            program,
+            fields,
+            field_storage,
+            local_fields: Default::default(),
+            constants: String::new(),
+            next_constant: 0,
+            transforms: BTreeSet::new(),
+            fallible: false,
+        }
+    }
+    fn bind_typed_row(&mut self, input: &LinkedExpression, slot: u32) -> Result<bool, Diagnostic> {
+        if matches!(input.kind, LinkedExpressionKind::SelfValue)
+            && let Some(codec) = collection_values::codec(self.entry, self.program)?
+            && let LinkedType::Sequence(item) = &input.value_type
+            && let LinkedType::Record(fields) = item.as_ref()
+        {
+            let name = collection_values::name(self.entry.id);
+            let receiver = format!("v{slot}.fields[0]");
+            let values = (0..fields.len())
+                .map(|index| match &codec {
+                    scalar::Codec::Pattern(pattern) => {
+                        Ok(pattern.field_meaning(&name, index, &receiver))
+                    }
+                    scalar::Codec::Sequence(sequence) => sequence
+                        .head_meaning(&name, index, &receiver)
+                        .ok_or_else(|| {
+                            unsupported(self.entry, "Typed collection field is unavailable")
+                        }),
+                    _ => Err(unsupported(
+                        self.entry,
+                        "Typed collection field is unavailable",
+                    )),
+                })
+                .collect::<Result<Vec<_>, _>>()?;
+            self.local_fields.insert(slot, values);
+            return Ok(true);
+        }
+        let LinkedExpressionKind::Operation {
+            operator: LinkedOperator::Get(_),
+            arguments,
+        } = &input.kind
+        else {
+            return Ok(false);
+        };
+        if let LinkedExpressionKind::Variable(owner) = arguments[0].kind
+            && self.local_fields.contains_key(&owner)
+            && let Some(scalar::Codec::Sequence(codec)) =
+                collection_values::codec(self.entry, self.program)?
+        {
+            self.local_fields.insert(
+                slot,
+                codec.item_fields(&collection_values::name(self.entry.id), slot),
+            );
+            return Ok(true);
+        }
+        let LinkedExpressionKind::Field(owner) = arguments[0].kind else {
+            return Ok(false);
+        };
+        let scalar::Codec::Sequence(codec) =
+            scalar::Codec::resolve(&self.fields[owner as usize].value, self.entry, self.program)?
+        else {
+            return Ok(false);
+        };
+        self.local_fields.insert(
+            slot,
+            codec.item_fields(&format!("E{}F{owner}", self.entry.id), slot),
+        );
+        Ok(true)
+    }
+
+    fn owns_text(value: &LinkedExpression) -> bool {
+        match &value.kind {
             LinkedExpressionKind::Operation {
-                operator: LinkedOperator::Conditional | LinkedOperator::MatchOptional(_),
+                operator: LinkedOperator::Require,
+                arguments,
+            } => Self::owns_text(&arguments[0]),
+            LinkedExpressionKind::Operation {
+                operator: LinkedOperator::Fold { .. },
+                arguments,
+            } => Self::owns_text(&arguments[1]),
+            LinkedExpressionKind::Operation {
+                operator:
+                    LinkedOperator::Conditional
+                    | LinkedOperator::MatchOptional(_)
+                    | LinkedOperator::Concat
+                    | LinkedOperator::Transform { .. },
                 ..
-            }
-        ) {
+            } => true,
+            _ => false,
+        }
+    }
+    pub(super) fn text_reference(value: &LinkedExpression, expression: String) -> String {
+        if Self::owns_text(value) {
             format!("&({expression})")
         } else {
             expression
+        }
+    }
+    pub(super) fn text_owned(value: &LinkedExpression, expression: String) -> String {
+        if Self::owns_text(value) {
+            expression
+        } else {
+            format!("({expression}).to_owned()")
         }
     }
     pub(super) fn message(&mut self, parts: &[LinkedMessagePart]) -> Result<String, Diagnostic> {
@@ -66,6 +167,14 @@ impl Expressions<'_> {
         } else {
             return Ok(None);
         };
+        if matches!(constructor.kind, LinkedExpressionKind::Input(_))
+            && matches!(&self.entry.value, LinkedType::Sequence(item) if **item == LinkedType::Scalar(ScalarType::Text))
+        {
+            let input = self.lower(constructor)?;
+            return Ok(Some(format!(
+                "{{let expected={input};_value.rows.is_present() && _value.rows.len()==expected.len() && _value.rows.iter().zip(expected).all(|(row,item)| matches!(item,InputValue::Text(text) if &row.fields[0]==text))}}"
+            )));
+        }
         let LinkedExpressionKind::Operation {
             operator: LinkedOperator::Sequence,
             arguments: rows,
@@ -73,11 +182,29 @@ impl Expressions<'_> {
         else {
             return Ok(None);
         };
+        if matches!(&self.entry.value, LinkedType::Sequence(item) if **item == LinkedType::Scalar(ScalarType::Text))
+        {
+            if rows.is_empty() {
+                return Ok(Some(
+                    "_value.rows.is_present() && _value.rows.is_empty()".into(),
+                ));
+            }
+            let values = rows
+                .iter()
+                .map(|row| {
+                    let code = self.lower(row)?;
+                    Ok(Self::text_reference(row, code))
+                })
+                .collect::<Result<Vec<_>, Diagnostic>>()?;
+            return Ok(Some(format!(
+                "_value.rows.is_present() && _value.rows.iter().map(|row|row.fields[0].as_str()).eq([{}])",
+                values.join(",")
+            )));
+        }
         if rows.iter().any(|row| !matches!(&row.kind, LinkedExpressionKind::Operation {operator:LinkedOperator::Record(names), arguments:values} if names.len()==self.fields.len() && values.iter().all(|value| value.value_type==LinkedType::Scalar(ScalarType::Text)))) { return Ok(None); }
         let index = self.next_constant;
         self.next_constant += 1;
-        let mut parameters = vec![format!("value: &V{}", self.entry.id)];
-        let mut call = vec!["_value".to_owned()];
+        let mut call = Vec::new();
         let mut checks = vec![
             "value.rows.is_present()".to_owned(),
             format!("value.rows.len()=={}", rows.len()),
@@ -96,20 +223,31 @@ impl Expressions<'_> {
                     .iter()
                     .position(|field| field.name == names[source_index])
                     .ok_or_else(|| unsupported(self.entry, "Unknown fixed record field"))?;
-                parameters.push(format!("expected_{row_index}_{source_index}: &str"));
+                let expected_index = call.len();
                 let lowered = self.lower(value)?;
                 call.push(Self::text_reference(value, lowered));
-                checks.push(format!("value.rows[{row_index}].fields[{field}].as_str()==expected_{row_index}_{source_index}"));
+                checks.push(format!(
+                    "value.rows[{row_index}].fields[{field}].as_str()==expected[{expected_index}]"
+                ));
             }
         }
         writeln!(
             self.constants,
-            "fn fixed_equal_{index}({}) -> bool {{ {} }}",
-            parameters.join(","),
+            "fn fixed_equal_{index}(value: &V{}, {}: &[&str; {}]) -> bool {{ {} }}",
+            self.entry.id,
+            if call.is_empty() {
+                "_expected"
+            } else {
+                "expected"
+            },
+            call.len(),
             checks.join(" && ")
         )
         .unwrap();
-        Ok(Some(format!("fixed_equal_{index}({})", call.join(","))))
+        Ok(Some(format!(
+            "fixed_equal_{index}(_value,&[{}])",
+            call.join(",")
+        )))
     }
     fn optional_text(&mut self, value: &LinkedExpression) -> Result<String, Diagnostic> {
         if matches!(value.kind, LinkedExpressionKind::Absent) {
@@ -117,12 +255,26 @@ impl Expressions<'_> {
         }
         let code = self.lower(value)?;
         if value.value_type == LinkedType::Scalar(ScalarType::Text) {
-            Ok(format!("Some(({code}).to_owned())"))
+            Ok(format!("Some({})", Self::text_owned(value, code)))
         } else {
             Ok(code)
         }
     }
     pub(super) fn lower(&mut self, value: &LinkedExpression) -> Result<String, Diagnostic> {
+        if let LinkedExpressionKind::Operation {
+            operator: LinkedOperator::Lookup,
+            arguments,
+        } = &value.kind
+        {
+            self.fallible = true;
+            let index = self.lower(&arguments[0])?;
+            let entry = self.entry;
+            let key = super::fact_keys::parts(&arguments[1], entry, |value| {
+                let code = self.lower(value)?;
+                Ok(Self::text_reference(value, code))
+            })?;
+            return Ok(format!("({index}).lookup_parts(&[{}])?", key.join(",")));
+        }
         Ok(match &value.kind {
             LinkedExpressionKind::Capture(0)
                 if matches!(value.value_type, LinkedType::Sequence(_)) =>
@@ -139,7 +291,13 @@ impl Expressions<'_> {
             }
             LinkedExpressionKind::Input(slot) => {
                 self.fallible = true;
-                let method = match value.value_type {
+                let method = match &value.value_type {
+                    LinkedType::Index { key, value }
+                        if crate::fact_shape::columns(key).is_some()
+                            && **value == LinkedType::Scalar(ScalarType::Text) =>
+                    {
+                        "text_index"
+                    }
                     LinkedType::Scalar(ScalarType::Text) => "text",
                     LinkedType::Scalar(ScalarType::Boolean) => "boolean",
                     LinkedType::Scalar(ScalarType::Decimal) => "decimal",
@@ -154,7 +312,9 @@ impl Expressions<'_> {
                 format!("_inputs.{method}({slot})?")
             }
             LinkedExpressionKind::Variable(slot) => match value.value_type {
-                LinkedType::Scalar(ScalarType::Text) => format!("v{slot}.as_str()"),
+                LinkedType::Scalar(ScalarType::Text) => {
+                    format!("std::convert::AsRef::<str>::as_ref(&v{slot})")
+                }
                 LinkedType::Scalar(ScalarType::Boolean) => format!("*v{slot}"),
                 LinkedType::Scalar(ScalarType::Decimal) => format!("v{slot}"),
                 LinkedType::Sequence(_) => format!("v{slot}.as_slice()"),
@@ -168,7 +328,15 @@ impl Expressions<'_> {
             },
             LinkedExpressionKind::Field(index) => {
                 if let Some(storage) = self.field_storage {
-                    return Ok(storage[*index as usize].0.clone());
+                    return storage
+                        .get(*index as usize)
+                        .map(|value| value.0.clone())
+                        .ok_or_else(|| {
+                            unsupported(
+                                self.entry,
+                                "This field requires a specialized constraint evaluator",
+                            )
+                        });
                 }
                 let field = &self.fields[*index as usize];
                 scalar::Codec::resolve(&field.value, self.entry, self.program)?
@@ -191,27 +359,36 @@ impl Expressions<'_> {
             } => {
                 if let LinkedOperator::Matches(pattern) = operator {
                     let input = self.lower(&arguments[0])?;
-                    let machine =
-                        regex_automata::dfa::dense::DFA::new(&format!(r"\A(?:{pattern})\z"))
-                            .map_err(|error| unsupported(self.entry, &error.to_string()))?;
+                    let machine = crate::automata::compile(
+                        &[pattern],
+                        crate::automata::STATE_BUDGET,
+                        crate::automata::BYTE_BUDGET,
+                    )
+                    .map_err(|error| unsupported(self.entry, &error.to_string()))?;
                     let index = self.next_constant;
                     self.next_constant += 1;
-                    let (little, pad) = machine.to_bytes_little_endian();
-                    let little = &little[pad..];
-                    let (big, pad) = machine.to_bytes_big_endian();
-                    let big = &big[pad..];
-                    writeln!(
-                        self.constants,
-                        "#[repr(align(4))] struct PatternBytes{index}([u8;{}]);",
-                        little.len()
-                    )
-                    .unwrap();
-                    for (endian, bytes) in [("little", little), ("big", big)] {
-                        writeln!(self.constants,"#[cfg(target_endian={endian:?})] static PB{index}:PatternBytes{index}=PatternBytes{index}({bytes:?});").unwrap();
-                    }
-                    writeln!(self.constants,"static P{index}:core::pattern::Pattern=core::pattern::Pattern::new(&PB{index}.0);").unwrap();
+                    self.constants.push_str(&crate::automata::declaration(
+                        &format!("P{index}"),
+                        &machine,
+                    ));
                     self.fallible = true;
                     return Ok(format!("P{index}.matches({input})?"));
+                }
+                if let LinkedOperator::Fold { item, state } = operator {
+                    let sequence = self.lower(&arguments[0])?;
+                    let initial = self.lower(&arguments[1])?;
+                    if !self.bind_typed_row(&arguments[0], *item)? {
+                        return Err(unsupported(
+                            self.entry,
+                            "Fold currently requires a typed text sequence tail",
+                        ));
+                    }
+                    let next = self.lower(&arguments[2]);
+                    self.local_fields.remove(item);
+                    let next = next?;
+                    return Ok(format!(
+                        "{{let mut accumulated={initial};if accumulated.is_some(){{for v{item} in {sequence} {{let Some(v{state})=accumulated else{{break;}};accumulated={next};}}}}accumulated}}"
+                    ));
                 }
                 if matches!(&value.value_type, LinkedType::Optional(inner) if **inner==LinkedType::Scalar(ScalarType::Text))
                 {
@@ -233,10 +410,36 @@ impl Expressions<'_> {
                         _ => {}
                     }
                 }
+                if *operator == LinkedOperator::Equal {
+                    for (literal, other) in [
+                        (&arguments[0], &arguments[1]),
+                        (&arguments[1], &arguments[0]),
+                    ] {
+                        if let LinkedExpressionKind::Literal(ScalarLiteral::Boolean(expected)) =
+                            literal.kind
+                        {
+                            let value = self.lower(other)?;
+                            return Ok(if expected {
+                                value
+                            } else {
+                                format!("!({value})")
+                            });
+                        }
+                    }
+                }
                 if *operator == LinkedOperator::Equal
                     && let Some(code) = self.fixed_sequence_equality(arguments)?
                 {
                     return Ok(code);
+                }
+                if *operator == LinkedOperator::State(StatePredicate::Present)
+                    && let LinkedExpressionKind::Field(index) = arguments[0].kind
+                    && let Some(storage) = self.field_storage
+                {
+                    return storage
+                        .get(index as usize)
+                        .map(|field| field.1.clone())
+                        .ok_or_else(|| unsupported(self.entry, "Presence field has no storage"));
                 }
                 if *operator == LinkedOperator::State(StatePredicate::IsReady) {
                     if let LinkedExpressionKind::Input(slot) = arguments[0].kind {
@@ -246,31 +449,54 @@ impl Expressions<'_> {
                 }
                 if let LinkedOperator::Each(slot) | LinkedOperator::Exists(slot) = operator {
                     let sequence = self.lower(&arguments[0])?;
+                    let receiver = sequence.strip_prefix('&').unwrap_or(&sequence);
                     if matches!(
                         arguments[1].kind,
                         LinkedExpressionKind::Literal(ScalarLiteral::Boolean(true))
                     ) && matches!(operator, LinkedOperator::Exists(_))
                     {
-                        return Ok(format!("!({sequence}).is_empty()"));
+                        return Ok(format!("!({receiver}).is_empty()"));
                     }
                     if matches!(
                         arguments[1].kind,
                         LinkedExpressionKind::Literal(ScalarLiteral::Boolean(false))
                     ) && matches!(operator, LinkedOperator::Each(_))
                     {
-                        return Ok(format!("({sequence}).is_empty()"));
+                        return Ok(format!("({receiver}).is_empty()"));
                     }
                     let sequence = if self.field_storage.is_some()
                         && matches!(arguments[0].kind, LinkedExpressionKind::Field(_))
                     {
-                        format!("&{sequence}")
+                        sequence
+                            .strip_prefix('*')
+                            .map_or_else(|| format!("&{sequence}"), str::to_owned)
                     } else {
                         sequence
                     };
-                    let predicate = self.lower(&arguments[1])?;
+                    let typed = self.bind_typed_row(&arguments[0], *slot)?;
+                    let predicate = self.lower(&arguments[1]);
+                    if typed {
+                        self.local_fields.remove(slot);
+                    }
+                    let predicate = predicate?;
                     let LinkedType::Sequence(item) = &arguments[0].value_type else {
                         return Err(unsupported(self.entry, "Iteration requires a sequence"));
                     };
+                    if matches!(item.as_ref(), LinkedType::Scalar(ScalarType::Text))
+                        && matches!(arguments[0].kind, LinkedExpressionKind::SelfValue)
+                        && matches!(self.entry.value, LinkedType::Sequence(_))
+                    {
+                        let each = matches!(operator, LinkedOperator::Each(_));
+                        let condition = if each {
+                            format!("!({predicate})")
+                        } else {
+                            predicate
+                        };
+                        return Ok(format!(
+                            "{{let mut matched={each}; for row in {sequence} {{ let v{slot}=&row.fields[0]; if {condition} {{ matched={};break; }} }} matched}}",
+                            !each
+                        ));
+                    }
                     if matches!(item.as_ref(), LinkedType::Record(_)) {
                         let each = matches!(operator, LinkedOperator::Each(_));
                         let condition = if each {
@@ -312,9 +538,44 @@ impl Expressions<'_> {
                     .map(|value| self.lower(value))
                     .collect::<Result<Vec<_>, _>>()?;
                 match operator {
+                    LinkedOperator::Require => {
+                        self.fallible = true;
+                        format!(
+                            "({}).ok_or_else(||RuntimeDiagnostic::new(\"input.required\",\"A required prepared value is missing\"))?",
+                            values[0]
+                        )
+                    }
+                    LinkedOperator::Concat => {
+                        let pieces = arguments
+                            .iter()
+                            .zip(&values)
+                            .map(|(value, code)| Self::text_reference(value, code.clone()))
+                            .collect::<Vec<_>>();
+                        format!(
+                            "{{let pieces:[&str;{}]=[{}];let mut joined=String::with_capacity(pieces.iter().map(|piece|piece.len()).sum());for piece in pieces {{joined.push_str(piece);}}joined}}",
+                            pieces.len(),
+                            pieces.join(",")
+                        )
+                    }
                     LinkedOperator::Sequence
                         if matches!(self.entry.value, LinkedType::Sequence(_)) =>
                     {
+                        let values = if matches!(&self.entry.value, LinkedType::Sequence(item) if **item == LinkedType::Scalar(ScalarType::Text))
+                        {
+                            values
+                                .iter()
+                                .zip(arguments)
+                                .map(|(code, value)| {
+                                    format!(
+                                        "R{}{{fields:[{}]}}",
+                                        self.entry.id,
+                                        Self::text_owned(value, code.clone())
+                                    )
+                                })
+                                .collect::<Vec<_>>()
+                        } else {
+                            values
+                        };
                         format!(
                             "core::Sequence::<R{}>::Present(vec![{}])",
                             self.entry.id,
@@ -324,7 +585,7 @@ impl Expressions<'_> {
                     LinkedOperator::Record(names)
                         if matches!(self.entry.value, LinkedType::Sequence(_)) =>
                     {
-                        if self.fields.len() != 2 {
+                        if self.fields.len() != names.len() {
                             return Err(unsupported(
                                 self.entry,
                                 "Record constructor needs the generated item shape",
@@ -344,7 +605,7 @@ impl Expressions<'_> {
                                     "Optional record fields require pattern lifting",
                                 ));
                             }
-                            fields.push(format!("({}).to_owned()", values[index]));
+                            fields.push(Self::text_owned(&arguments[index], values[index].clone()));
                         }
                         let positions = if self.entry.constraints.iter().any(|rule| {
                             matches!(
@@ -375,8 +636,76 @@ impl Expressions<'_> {
                             format!("({}).is_present()", values[0])
                         }
                     }
+                    LinkedOperator::State(StatePredicate::Present)
+                        if matches!(arguments[0].value_type, LinkedType::Optional(_)) =>
+                    {
+                        format!("({}).is_some()", values[0])
+                    }
+                    LinkedOperator::IsVariant(variant) => {
+                        let LinkedExpressionKind::Field(owner) = arguments[0].kind else {
+                            return Err(unsupported(
+                                self.entry,
+                                "Variant guard requires an owning field",
+                            ));
+                        };
+                        format!(
+                            "matches!({}, E{}F{owner}::V{variant}(_))",
+                            values[0], self.entry.id
+                        )
+                    }
+                    LinkedOperator::VariantField { variant, field } => {
+                        let LinkedExpressionKind::Field(owner) = arguments[0].kind else {
+                            return Err(unsupported(
+                                self.entry,
+                                "Variant projection requires an owning field",
+                            ));
+                        };
+                        let scalar::Codec::Forms(choice) = scalar::Codec::resolve(
+                            &self.fields[owner as usize].value,
+                            self.entry,
+                            self.program,
+                        )?
+                        else {
+                            return Err(unsupported(
+                                self.entry,
+                                "Variant projection needs a choice",
+                            ));
+                        };
+                        let name = format!("E{}F{owner}", self.entry.id);
+                        let meaning = choice.variants[*variant as usize].field_meaning(
+                            &format!("{name}V{variant}"),
+                            *field as usize,
+                            "selected",
+                        );
+                        format!(
+                            "match {} {{ {name}::V{variant}(selected)=>{meaning}, _=>unreachable!(\"guarded variant\") }}",
+                            values[0]
+                        )
+                    }
                     LinkedOperator::Get(index) => {
-                        format!("({}).fields[{index}].as_str()", values[0])
+                        if let LinkedExpressionKind::Variable(slot) = arguments[0].kind
+                            && let Some(fields) = self.local_fields.get(&slot)
+                        {
+                            return fields.get(*index as usize).cloned().ok_or_else(|| {
+                                unsupported(self.entry, "Typed row field is unavailable")
+                            });
+                        }
+                        if let LinkedExpressionKind::Field(owner) = arguments[0].kind {
+                            let name = format!("E{}F{owner}", self.entry.id);
+                            match scalar::Codec::resolve(&self.fields[owner as usize].value,self.entry,self.program)? {
+                                scalar::Codec::Pattern(pattern)=>pattern.field_meaning(&name,*index as usize,&values[0]),
+                                scalar::Codec::Sequence(sequence)=>sequence.head_meaning(&name,*index as usize,&values[0]).ok_or_else(||unsupported(self.entry,"Sequence projection requires a supported fixed head field"))?,
+                                _=>format!("({}).fields[{index}].as_str()",values[0]),
+                            }
+                        } else {
+                            format!("({}).fields[{index}].as_str()", values[0])
+                        }
+                    }
+                    LinkedOperator::Fold { .. } => {
+                        unreachable!("fold lowered before scalar operators")
+                    }
+                    LinkedOperator::Take(0) => {
+                        format!("{{ let rows = {}; &rows[..0] }}", values[0])
                     }
                     LinkedOperator::Take(count) => format!(
                         "{{ let rows = {}; &rows[..rows.len().min({count})] }}",
@@ -417,12 +746,16 @@ impl Expressions<'_> {
                             Self::text_reference(&arguments[0], values[0].clone())
                         )
                     }
+                    LinkedOperator::Lookup => {
+                        self.fallible = true;
+                        format!("({}).lookup({})?", values[0], values[1])
+                    }
                     LinkedOperator::MatchOptional(slot) => {
                         let (present, absent) =
                             if value.value_type == LinkedType::Scalar(ScalarType::Text) {
                                 (
-                                    format!("({}).to_owned()", values[1]),
-                                    format!("({}).to_owned()", values[2]),
+                                    Self::text_owned(&arguments[1], values[1].clone()),
+                                    Self::text_owned(&arguments[2], values[2].clone()),
                                 )
                             } else {
                                 (values[1].clone(), values[2].clone())
@@ -508,8 +841,10 @@ impl Expressions<'_> {
                     LinkedOperator::Conditional => {
                         if value.value_type == LinkedType::Scalar(ScalarType::Text) {
                             format!(
-                                "if {} {{ ({}).to_owned() }} else {{ ({}).to_owned() }}",
-                                values[0], values[1], values[2]
+                                "if {} {{ {} }} else {{ {} }}",
+                                values[0],
+                                Self::text_owned(&arguments[1], values[1].clone()),
+                                Self::text_owned(&arguments[2], values[2].clone())
                             )
                         } else {
                             format!(
@@ -541,24 +876,21 @@ pub(super) fn expression(
     program: &Program,
     value: &LinkedExpression,
 ) -> Result<(String, String), Diagnostic> {
-    let fields = match &entry.value {
+    let fields: &[LinkedField] = match &entry.value {
         LinkedType::Record(fields) => fields,
         LinkedType::Sequence(item) => match item.as_ref() {
             LinkedType::Record(fields) => fields,
-            _ => return Err(unsupported(entry, "Expression needs record items")),
+            LinkedType::Scalar(ScalarType::Text) | LinkedType::Reference(_) => &[],
+            _ => {
+                return Err(unsupported(
+                    entry,
+                    "Expression needs supported sequence items",
+                ));
+            }
         },
         _ => return Err(unsupported(entry, "Expression owner needs record storage")),
     };
-    let mut expressions = Expressions {
-        entry,
-        program,
-        fields,
-        field_storage: None,
-        constants: String::new(),
-        next_constant: 0,
-        transforms: BTreeSet::new(),
-        fallible: false,
-    };
+    let mut expressions = Expressions::new(entry, program, fields, None);
     let code = expressions.lower(value)?;
     Ok((expressions.constants, code))
 }

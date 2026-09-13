@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.bbf29d26c661e464ef52
+description: 'Кандидат проекции: относительный XML-корень MaxValue; не полный владелец'
+imports:
+  part0: candidate.fragment.0204ebccb94c19bd0f22
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

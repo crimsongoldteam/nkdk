@@ -1,0 +1,9 @@
+format: nkdk-declarations/1
+kind: resources
+id: resources.managed-application-module-resource
+imports: {module: fragment.managed-application-module-resource}
+compose: [{use: module}]
+value: {kind: record, fields: []}
+representations:
+  xml: {kind: record, fields: []}
+  yaml: {kind: mapping, fields: []}

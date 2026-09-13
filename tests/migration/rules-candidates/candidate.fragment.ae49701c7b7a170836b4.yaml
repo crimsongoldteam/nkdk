@@ -1,0 +1,40 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.BinaryDataStorageLocationUse
+value:
+  kind: record
+  fields:
+    - name: binaryDataStorageLocationUse
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: binaryDataStorageLocationUse
+        path:
+          - Properties
+          - BinaryDataStorageLocationUse
+  yaml:
+    kind: mapping
+    fields:
+      - field: binaryDataStorageLocationUse
+        key: ИспользованиеХраненияВХранилищеДвоичныхДанных
+presence:
+  - target:
+      field: binaryDataStorageLocationUse
+    xml:
+      missing:
+        denotes:
+          literal: Use
+      canonical:
+        - when:
+            eq:
+              - field: binaryDataStorageLocationUse
+              - literal: Use
+          form: missing
+    yaml:
+      default:
+        literal: Use
+id: candidate.fragment.ae49701c7b7a170836b4

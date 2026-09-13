@@ -1,0 +1,12 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.external-file
+imports: {file: common.external-file}
+inputs:
+  sourcePath: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  targetPath: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+compose: [{use: file, bind: {sourcePath: {input: sourcePath}, targetPath: {input: targetPath}}}]
+value: {kind: record, fields: [{name: name, type: {kind: scalar, scalar: text}}]}
+representations:
+  xml: {kind: record, fields: [{field: name, path: [Root, Name]}]}
+  yaml: {kind: mapping, fields: [{field: name, key: Имя}]}

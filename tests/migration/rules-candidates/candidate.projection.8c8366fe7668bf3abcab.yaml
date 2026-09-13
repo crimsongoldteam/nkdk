@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.8c8366fe7668bf3abcab
+description: 'Кандидат проекции: относительный XML-корень AutoFillCheck; не полный владелец'
+imports:
+  part0: candidate.fragment.605ebc7d60a0e374f9c0
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

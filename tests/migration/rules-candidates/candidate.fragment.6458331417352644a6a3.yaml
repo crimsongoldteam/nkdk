@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.FoldersAndItems
+value:
+  kind: record
+  fields:
+    - name: choiceFoldersAndItems
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: choiceFoldersAndItems
+        path:
+          - ChoiceFoldersAndItems
+  yaml:
+    kind: mapping
+    fields:
+      - field: choiceFoldersAndItems
+        key: ВыборГруппИЭлементов
+presence:
+  - target:
+      field: choiceFoldersAndItems
+    xml:
+      missing:
+        denotes:
+          literal: Auto
+      canonical:
+        - when:
+            eq:
+              - field: choiceFoldersAndItems
+              - literal: Auto
+          form: missing
+    yaml:
+      default:
+        literal: Auto
+id: candidate.fragment.6458331417352644a6a3

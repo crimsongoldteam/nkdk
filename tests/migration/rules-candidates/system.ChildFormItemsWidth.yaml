@@ -1,0 +1,23 @@
+format: nkdk-declarations/1
+kind: value
+id: system.ChildFormItemsWidth
+enum:
+  Auto: Авто
+  LeftNarrowest: ЛевыйОченьУзкий
+  LeftWidest: ЛевыйОченьШирокий
+  LeftNarrow: ЛевыйУзкий
+  LeftWide: ЛевыйШирокий
+  Equal: Одинаковая
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  t: http://v8.1c.ru/8.1/data/enterprise
+projections:
+  - id: system.ChildFormItemsWidth.dcs
+    xml:
+      kind: with-attributes
+      attributes:
+        - name: xsi:type
+          value:
+            qname: t:ChildFormItemsWidth
+      content:
+        kind: text

@@ -1,0 +1,12 @@
+format: nkdk-declarations/1
+kind: resources
+id: resources.configuration-external-files
+description: Resource group only; primary metadata conversion is a separate operation.
+imports: {file: common.external-file}
+compose:
+- {use: file, bind: {sourcePath: {sequence: [{literal: Ext}, {literal: StandaloneConfigurationContent.bin}]}, targetPath: {sequence: [{literal: СодержимоеАвтономнойКонфигурации.bin}]}}}
+- {use: file, bind: {sourcePath: {sequence: [{literal: Ext}, {literal: MobileClientSignature.bin}]}, targetPath: {sequence: [{literal: ПодписьМобильногоКлиента.bin}]}}}
+value: {kind: record, fields: []}
+representations:
+  xml: {kind: record, fields: []}
+  yaml: {kind: mapping, fields: []}

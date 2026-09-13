@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.TableRowSelectionMode
+value:
+  kind: record
+  fields:
+    - name: rowSelectionMode
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: rowSelectionMode
+        path:
+          - RowSelectionMode
+  yaml:
+    kind: mapping
+    fields:
+      - field: rowSelectionMode
+        key: РежимВыделенияСтроки
+presence:
+  - target:
+      field: rowSelectionMode
+    xml:
+      missing:
+        denotes:
+          literal: Cell
+      canonical:
+        - when:
+            eq:
+              - field: rowSelectionMode
+              - literal: Cell
+          form: missing
+    yaml:
+      default:
+        literal: Cell
+id: candidate.fragment.e840eb7bc68913ab48ec

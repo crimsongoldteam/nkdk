@@ -1,0 +1,60 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: common.path-ordinary-member-kind
+  enum:
+    Attribute: Реквизит
+    TabularSection: ТабличнаяЧасть
+    Dimension: Измерение
+    Resource: Ресурс
+    Form: Форма
+    Template: Макет
+    Command: Команда
+    AccountingFlag: ПризнакУчета
+    ExtDimensionAccountingFlag: ПризнакУчетаСубконто
+    AddressingAttribute: РеквизитАдресации
+    Field: Поле
+- kind: value
+  id: common.path-standard-member-kind
+  enum: {StandardAttribute: СтандартныйРеквизит}
+- kind: value
+  id: common.metadata-ordinary-field-segment
+  imports: {kind: common.path-ordinary-member-kind, name: common.metadata-name}
+  value: {kind: record, fields: [{name: kind, type: {use: kind}}, {name: name, type: {use: name}}]}
+  representations:
+    xml: {kind: text-pattern, parts: [{field: kind}, {literal: '.'}, {field: name}]}
+    yaml: {kind: text-pattern, parts: [{field: kind}, {literal: '.'}, {field: name}]}
+- kind: value
+  id: common.metadata-standard-field-segment
+  imports: {kind: common.path-standard-member-kind, name: common.standard-attribute-name}
+  value: {kind: record, fields: [{name: kind, type: {use: kind}}, {name: name, type: {use: name}}]}
+  representations:
+    xml: {kind: text-pattern, parts: [{field: kind}, {literal: '.'}, {field: name}]}
+    yaml: {kind: text-pattern, parts: [{field: kind}, {literal: '.'}, {field: name}]}
+- kind: value
+  id: common.metadata-field-segment
+  imports: {ordinary: common.metadata-ordinary-field-segment, standard: common.metadata-standard-field-segment}
+  value: {kind: choice, variants: [{name: ordinary, type: {use: ordinary}}, {name: standard, type: {use: standard}}]}
+  representations:
+    xml: {kind: choice}
+    yaml: {kind: choice}
+- kind: value
+  id: common.metadata-field-segments
+  imports: {item: common.metadata-field-segment}
+  value: {kind: sequence, item: {use: item}}
+  representations:
+    xml: {kind: text-sequence, separator: '.'}
+    yaml: {kind: text-sequence, separator: '.'}
+- kind: value
+  id: common.metadata-field-chain-path
+  imports: {root: common.path-root, name: common.metadata-name, segments: common.metadata-field-segments}
+  value:
+    kind: record
+    fields:
+    - {name: root, type: {use: root}}
+    - {name: owner, type: {use: name}}
+    - {name: tail, type: {use: segments}}
+  representations:
+    xml: {kind: text-pattern, parts: [{field: root}, {literal: '.'}, {field: owner}, {literal: '.'}, {field: tail}]}
+    yaml: {kind: text-pattern, parts: [{field: root}, {literal: '.'}, {field: owner}, {literal: '.'}, {field: tail}]}

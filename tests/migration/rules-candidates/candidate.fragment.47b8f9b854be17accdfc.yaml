@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.VerticalFormScroll
+value:
+  kind: record
+  fields:
+    - name: verticalScroll
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: verticalScroll
+        path:
+          - VerticalScroll
+  yaml:
+    kind: mapping
+    fields:
+      - field: verticalScroll
+        key: ВертикальнаяПрокрутка
+presence:
+  - target:
+      field: verticalScroll
+    xml:
+      missing:
+        denotes:
+          literal: auto
+      canonical:
+        - when:
+            eq:
+              - field: verticalScroll
+              - literal: auto
+          form: missing
+    yaml:
+      default:
+        literal: auto
+id: candidate.fragment.47b8f9b854be17accdfc

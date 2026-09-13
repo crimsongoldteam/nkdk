@@ -1,0 +1,10 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.metadata-structural-path
+imports: {path: common.metadata-structural-path}
+value:
+  kind: record
+  fields: [{name: value, type: {use: path}}]
+representations:
+  xml: {kind: record, fields: [{field: value, path: [Root, Value]}]}
+  yaml: {kind: mapping, fields: [{field: value, key: Путь}]}

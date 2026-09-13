@@ -1,0 +1,35 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.string
+value:
+  kind: record
+  fields:
+    - name: mask
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: mask
+        path:
+          - xr:Mask
+  yaml:
+    kind: mapping
+    fields:
+      - field: mask
+        key: Маска
+presence:
+  - target:
+      field: mask
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: ''
+namespaces:
+  xr: http://v8.1c.ru/8.3/xcf/readable
+id: candidate.fragment.14bede8ced4d5f0c7277

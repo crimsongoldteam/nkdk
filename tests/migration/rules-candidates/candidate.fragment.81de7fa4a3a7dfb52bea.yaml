@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.exact-decimal
+value:
+  kind: record
+  fields:
+    - name: itemTitleHeight
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: itemTitleHeight
+        path:
+          - ItemTitleHeight
+  yaml:
+    kind: mapping
+    fields:
+      - field: itemTitleHeight
+        key: ВысотаЗаголовкаЭлемента
+presence:
+  - target:
+      field: itemTitleHeight
+    xml:
+      missing:
+        denotes:
+          literal: 0
+      canonical:
+        - when:
+            eq:
+              - field: itemTitleHeight
+              - literal: 0
+          form: missing
+    yaml:
+      default:
+        literal: 0
+id: candidate.fragment.81de7fa4a3a7dfb52bea

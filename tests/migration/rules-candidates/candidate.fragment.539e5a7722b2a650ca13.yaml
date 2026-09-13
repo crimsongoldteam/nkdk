@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: skipOnInput
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: skipOnInput
+        path:
+          - SkipOnInput
+  yaml:
+    kind: mapping
+    fields:
+      - field: skipOnInput
+        key: ПропускатьПриВводе
+presence:
+  - target:
+      field: skipOnInput
+    xml:
+      missing:
+        denotes:
+          literal: false
+      canonical:
+        - when:
+            eq:
+              - field: skipOnInput
+              - literal: false
+          form: missing
+    yaml:
+      default:
+        literal: false
+id: candidate.fragment.539e5a7722b2a650ca13

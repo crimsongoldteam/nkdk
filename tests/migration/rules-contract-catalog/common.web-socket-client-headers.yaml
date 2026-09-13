@@ -1,0 +1,79 @@
+format: nkdk-declarations/1
+kind: value
+id: common.web-socket-client-headers
+namespaces:
+  xr: http://v8.1c.ru/8.3/xcf/readable
+  v8: http://v8.1c.ru/8.1/data/core
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  xs: http://www.w3.org/2001/XMLSchema
+value:
+  kind: sequence
+  item:
+    kind: record
+    fields:
+      - name: key
+        type:
+          kind: scalar
+          scalar: text
+      - name: value
+        type:
+          kind: scalar
+          scalar: text
+representations:
+  xml:
+    kind: with-attributes
+    attributes:
+      - name: xsi:type
+        value:
+          qname: xr:ValueList
+    content:
+      kind: element-sequence
+      path:
+        - xr:Item
+      item:
+        kind: tree
+        children:
+          - name: xr:Presentation
+          - name: xr:CheckState
+            text: '0'
+          - name: xr:Value
+            attributes:
+              - name: xsi:type
+                value:
+                  qname: v8:KeyAndValue
+            children:
+              - name: v8:Key
+                field: key
+                attributes:
+                  - name: xsi:type
+                    value:
+                      qname: xs:string
+              - name: v8:Value
+                field: value
+                attributes:
+                  - name: xsi:type
+                    value:
+                      qname: xs:string
+  yaml:
+    kind: sequence
+    item:
+      kind: mapping
+      fields:
+        - field: key
+          key: Ключ
+        - field: value
+          key: Значение
+presence:
+  - target: self
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true

@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.3b02e9e14ad1fa26fb38
+description: 'Кандидат проекции: относительный XML-корень ChoiceListHeight; не полный владелец'
+imports:
+  part0: candidate.fragment.0ed5dad56efc1bc8ae8b
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

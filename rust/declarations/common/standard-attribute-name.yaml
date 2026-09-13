@@ -1,0 +1,8 @@
+format: nkdk-declarations/1
+kind: value
+id: common.standard-attribute-name
+imports: {words: common.path-standard-attribute, name: common.metadata-name}
+value: {use: name}
+representations:
+  xml: {kind: text}
+  yaml: {kind: text-table, use: words}

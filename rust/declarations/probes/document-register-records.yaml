@@ -1,0 +1,10 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.document-register-records
+imports: {part: fragment.document-register-records}
+inputs: {owner: {type: {kind: scalar, scalar: text}}, roots: {index: metadata.roots}}
+compose: [{use: part, bind: {owner: {input: owner}, roots: {input: roots}}}]
+value: {kind: record, fields: []}
+representations:
+  xml: {kind: record, fields: []}
+  yaml: {kind: mapping, fields: []}

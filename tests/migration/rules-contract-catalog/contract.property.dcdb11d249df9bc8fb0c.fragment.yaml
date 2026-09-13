@@ -1,0 +1,35 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: choiceAvailable
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: choiceAvailable
+        path:
+          - Form
+          - ChoiceAvailable
+  yaml:
+    kind: mapping
+    fields:
+      - field: choiceAvailable
+        key: ВыборДоступен
+presence:
+  - target:
+      field: choiceAvailable
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+id: contract.property.dcdb11d249df9bc8fb0c.fragment

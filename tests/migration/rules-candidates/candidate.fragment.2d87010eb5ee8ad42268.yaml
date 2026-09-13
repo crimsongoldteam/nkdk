@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: collapsed
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: collapsed
+        path:
+          - Collapsed
+  yaml:
+    kind: mapping
+    fields:
+      - field: collapsed
+        key: Свернута
+presence:
+  - target:
+      field: collapsed
+    xml:
+      missing:
+        denotes:
+          literal: false
+      canonical:
+        - when:
+            eq:
+              - field: collapsed
+              - literal: false
+          form: missing
+    yaml:
+      default:
+        literal: false
+id: candidate.fragment.2d87010eb5ee8ad42268

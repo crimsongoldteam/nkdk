@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.b9c8f77a70a1f3271f43
+description: 'Кандидат проекции: относительный XML-корень Shortcut; не полный владелец'
+imports:
+  part0: candidate.fragment.1b478b692ea6841ff0a2
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.788d950ba360afca310c
+description: 'Кандидат проекции: относительный XML-корень SpinButton; не полный владелец'
+imports:
+  part0: candidate.fragment.526f86fcdea10c9a13cd
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

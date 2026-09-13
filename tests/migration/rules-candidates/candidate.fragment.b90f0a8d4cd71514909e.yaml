@@ -1,0 +1,34 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: choiceListButton
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: choiceListButton
+        path:
+          - ChoiceListButton
+  yaml:
+    kind: mapping
+    fields:
+      - field: choiceListButton
+        key: КнопкаСпискаВыбора
+presence:
+  - target:
+      field: choiceListButton
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+id: candidate.fragment.b90f0a8d4cd71514909e

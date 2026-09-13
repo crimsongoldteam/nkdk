@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.2ecbf570c113cc2b0cae
+description: 'Кандидат проекции: относительный XML-корень xr:DataHistory; не полный владелец'
+imports:
+  part0: candidate.fragment.8176d7d7d4750a400c00
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

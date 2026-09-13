@@ -6,35 +6,47 @@ pub(super) fn instantiate(
     bindings: &[LinkedBinding],
     arguments: &[LinkedExpression],
 ) -> Result<(), Diagnostic> {
-    let substitution = Substitution {
-        offset,
-        bindings,
-        arguments,
-    };
+    instantiate_with(
+        entry,
+        Substitution {
+            offset,
+            bindings,
+            arguments,
+            project_self: true,
+        },
+    )
+}
+
+/// Bind a value without projecting its self into a containing record.
+pub(super) fn instantiate_value(
+    entry: &mut LinkedEntry,
+    bindings: &[LinkedBinding],
+    arguments: &[LinkedExpression],
+) -> Result<(), Diagnostic> {
+    instantiate_with(
+        entry,
+        Substitution {
+            offset: 0,
+            bindings,
+            arguments,
+            project_self: false,
+        },
+    )
+}
+
+fn instantiate_with(
+    entry: &mut LinkedEntry,
+    substitution: Substitution<'_>,
+) -> Result<(), Diagnostic> {
+    let offset = substitution.offset;
     substitution.value(&mut entry.value)?;
     substitution.xml(&mut entry.xml)?;
     for rule in &mut entry.presence {
         if let LinkedPresenceTarget::Field(index) = &mut rule.target {
             *index += offset;
         }
-        for value in rule
-            .xml_missing
-            .iter_mut()
-            .chain(&mut rule.yaml_missing)
-            .chain(&mut rule.yaml_omit_when)
-            .chain(
-                rule.xml_empty
-                    .iter_mut()
-                    .chain(&mut rule.yaml_empty)
-                    .map(|form| &mut form.denotes),
-            )
-        {
+        for value in rule.expressions_mut() {
             substitution.expression(value)?;
-        }
-        for form in &mut rule.canonical {
-            if let Some(when) = &mut form.when {
-                substitution.expression(when)?;
-            }
         }
     }
     for constraint in &mut entry.constraints {
@@ -54,11 +66,32 @@ pub(super) fn instantiate(
             }
         }
     }
+    for group in &mut entry.resources {
+        if let Some(iteration) = &mut group.for_each {
+            substitution.expression(&mut iteration.input)?;
+            resources::validate_sequence(&iteration.input)?;
+        }
+
+        for route in &mut group.alternatives {
+            substitution.expression(&mut route.xml)?;
+            substitution.expression(&mut route.yaml)?;
+            resources::validate(&route.xml)?;
+            resources::validate(&route.yaml)?;
+        }
+    }
+    for contribution in &mut entry.contributions {
+        if let Some(iteration) = &mut contribution.for_each {
+            substitution.expression(&mut iteration.input)?;
+        }
+        substitution.expression(&mut contribution.key)?;
+        substitution.expression(&mut contribution.value)?;
+    }
     Ok(())
 }
 
 struct Substitution<'a> {
     offset: u32,
+    project_self: bool,
     bindings: &'a [LinkedBinding],
     arguments: &'a [LinkedExpression],
 }
@@ -97,7 +130,7 @@ impl Substitution<'_> {
                 }
             }
             LinkedType::Sequence(item) | LinkedType::Optional(item) => self.value(item)?,
-            LinkedType::Record(fields) => {
+            LinkedType::Record(fields) | LinkedType::Choice(fields) => {
                 for field in fields {
                     self.value(&mut field.value)?;
                 }
@@ -138,7 +171,7 @@ impl Substitution<'_> {
                     self.expression(argument)?;
                 }
             }
-            LinkedExpressionKind::SelfValue => {
+            LinkedExpressionKind::SelfValue if self.project_self => {
                 let LinkedType::Record(fields) = &value.value_type else {
                     return Err(diagnostic(
                         "expression_type_mismatch",

@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.ScrollBarUse
+value:
+  kind: record
+  fields:
+    - name: verticalScrollBar
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: verticalScrollBar
+        path:
+          - VerticalScrollBar
+  yaml:
+    kind: mapping
+    fields:
+      - field: verticalScrollBar
+        key: ВертикальнаяПолосаПрокрутки
+presence:
+  - target:
+      field: verticalScrollBar
+    xml:
+      missing:
+        denotes:
+          literal: AutoUse
+      canonical:
+        - when:
+            eq:
+              - field: verticalScrollBar
+              - literal: AutoUse
+          form: missing
+    yaml:
+      default:
+        literal: AutoUse
+id: candidate.fragment.883e30ddef66b326c164

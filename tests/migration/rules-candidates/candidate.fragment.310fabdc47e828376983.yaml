@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.TableRowInputMode
+value:
+  kind: record
+  fields:
+    - name: rowInputMode
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: rowInputMode
+        path:
+          - RowInputMode
+  yaml:
+    kind: mapping
+    fields:
+      - field: rowInputMode
+        key: РежимВводаСтрок
+presence:
+  - target:
+      field: rowInputMode
+    xml:
+      missing:
+        denotes:
+          literal: EndOfList
+      canonical:
+        - when:
+            eq:
+              - field: rowInputMode
+              - literal: EndOfList
+          form: missing
+    yaml:
+      default:
+        literal: EndOfList
+id: candidate.fragment.310fabdc47e828376983

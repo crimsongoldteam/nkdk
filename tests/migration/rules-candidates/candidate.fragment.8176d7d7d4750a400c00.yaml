@@ -1,0 +1,35 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.DataHistoryUse
+value:
+  kind: record
+  fields:
+    - name: dataHistory
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: dataHistory
+        path:
+          - xr:DataHistory
+  yaml:
+    kind: mapping
+    fields:
+      - field: dataHistory
+        key: ИсторияДанных
+presence:
+  - target:
+      field: dataHistory
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: Use
+namespaces:
+  xr: http://v8.1c.ru/8.3/xcf/readable
+id: candidate.fragment.8176d7d7d4750a400c00

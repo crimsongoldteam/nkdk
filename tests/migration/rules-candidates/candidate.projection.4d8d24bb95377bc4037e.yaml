@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.4d8d24bb95377bc4037e
+description: 'Кандидат проекции: относительный XML-корень dcsset:userSettingID; не полный владелец'
+imports:
+  part0: candidate.fragment.f2d27639f7fa24be0c66
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

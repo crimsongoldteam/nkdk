@@ -1,0 +1,123 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: common.common-form-link
+  imports: {name: common.metadata-name, rootKind: common.path-root}
+  inputs:
+    roots:
+      type:
+        kind: index
+        key: {kind: record, fields: [{name: kind, type: {use: rootKind}}, {name: name, type: {kind: scalar, scalar: text}}]}
+        value: {kind: scalar, scalar: text}
+  value: {kind: record, fields: [{name: name, type: {use: name}}]}
+  representations:
+    xml: {kind: text-pattern, separator: '.', parts: [{literal: CommonForm}, {field: name}]}
+    yaml: {kind: text-pattern, separator: '.', parts: [{literal: ОбщаяФорма}, {field: name}]}
+  constraints:
+  - id: target-exists
+    appliesTo: [xml-import, yaml-validation]
+    assert: {present: {lookup: {in: {input: roots}, key: {record: {kind: {literal: CommonForm}, name: {get: {of: {self: true}, field: name}}}}}}}
+    diagnostic: {code: metadata.target-missing, severity: error, at: {self: true}, message: Common form is missing}
+- kind: value
+  id: common.journal-form-link
+  imports: {name: common.metadata-name, rootKind: common.path-root}
+  inputs:
+    roots:
+      type:
+        kind: index
+        key: {kind: record, fields: [{name: kind, type: {use: rootKind}}, {name: name, type: {kind: scalar, scalar: text}}]}
+        value: {kind: scalar, scalar: text}
+    forms:
+      type:
+        kind: index
+        key: {kind: record, fields: [{name: parent, type: {kind: scalar, scalar: text}}, {name: name, type: {kind: scalar, scalar: text}}]}
+        value: {kind: scalar, scalar: text}
+  value: {kind: record, fields: [{name: journal, type: {use: name}}, {name: form, type: {use: name}}]}
+  representations:
+    xml: {kind: text-pattern, separator: '.', parts: [{literal: DocumentJournal}, {field: journal}, {literal: Form}, {field: form}]}
+    yaml: {kind: text-pattern, separator: '.', parts: [{literal: ЖурналДокументов}, {field: journal}, {literal: Форма}, {field: form}]}
+  constraints:
+  - id: target-exists
+    appliesTo: [xml-import, yaml-validation]
+    assert:
+      match:
+        value: {lookup: {in: {input: roots}, key: {record: {kind: {literal: DocumentJournal}, name: {get: {of: {self: true}, field: journal}}}}}}
+        present:
+          as: journal
+          then:
+            present:
+              lookup:
+                in: {input: forms}
+                key: {record: {parent: {var: journal}, name: {get: {of: {self: true}, field: form}}}}
+        absent: {literal: false}
+    diagnostic: {code: metadata.target-missing, severity: error, at: {self: true}, message: Journal form is missing}
+- kind: value
+  id: common.external-choice-form
+  imports: {common: common.common-form-link, journal: common.journal-form-link, rootKind: common.path-root}
+  inputs:
+    roots:
+      type:
+        kind: index
+        key: {kind: record, fields: [{name: kind, type: {use: rootKind}}, {name: name, type: {kind: scalar, scalar: text}}]}
+        value: {kind: scalar, scalar: text}
+    forms:
+      type:
+        kind: index
+        key: {kind: record, fields: [{name: parent, type: {kind: scalar, scalar: text}}, {name: name, type: {kind: scalar, scalar: text}}]}
+        value: {kind: scalar, scalar: text}
+  value:
+    kind: choice
+    variants:
+    - {name: common, type: {use: common, bind: {roots: {input: roots}}}}
+    - {name: journal, type: {use: journal, bind: {roots: {input: roots}, forms: {input: forms}}}}
+  representations:
+    xml: {kind: choice}
+    yaml: {kind: choice}
+- kind: value
+  id: common.document-owned-choice-form
+  imports: {name: common.metadata-name}
+  inputs:
+    owner: {type: {kind: scalar, scalar: text}}
+    forms: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  value:
+    kind: record
+    fields:
+    - {name: owner, type: {kind: scalar, scalar: text}}
+    - {name: form, type: {use: name}}
+  representations:
+    xml: {kind: text-pattern, separator: '.', parts: [{literal: Document}, {field: owner}, {literal: Form}, {field: form}]}
+    yaml: {kind: text-pattern, separator: '.', parts: [{field: form}]}
+  presence:
+  - target: {field: owner}
+    yaml: {default: {input: owner}}
+  constraints:
+  - id: form-exists
+    appliesTo: [xml-import, yaml-validation]
+    assert: {exists: {in: {input: forms}, as: name, where: {eq: [{var: name}, {get: {of: {self: true}, field: form}}]}}}
+    diagnostic: {code: metadata.target-missing, severity: error, at: {self: true}, message: Form is missing}
+- kind: value
+  id: common.document-choice-form
+  imports: {own: common.document-owned-choice-form, common: common.common-form-link, journal: common.journal-form-link, rootKind: common.path-root}
+  inputs:
+    owner: {type: {kind: scalar, scalar: text}}
+    forms: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+    roots:
+      type:
+        kind: index
+        key: {kind: record, fields: [{name: kind, type: {use: rootKind}}, {name: name, type: {kind: scalar, scalar: text}}]}
+        value: {kind: scalar, scalar: text}
+    formTargets:
+      type:
+        kind: index
+        key: {kind: record, fields: [{name: parent, type: {kind: scalar, scalar: text}}, {name: name, type: {kind: scalar, scalar: text}}]}
+        value: {kind: scalar, scalar: text}
+  value:
+    kind: choice
+    variants:
+    - {name: own, type: {use: own, bind: {owner: {input: owner}, forms: {input: forms}}}}
+    - {name: common, type: {use: common, bind: {roots: {input: roots}}}}
+    - {name: journal, type: {use: journal, bind: {roots: {input: roots}, forms: {input: formTargets}}}}
+  representations:
+    xml: {kind: choice}
+    yaml: {kind: choice}

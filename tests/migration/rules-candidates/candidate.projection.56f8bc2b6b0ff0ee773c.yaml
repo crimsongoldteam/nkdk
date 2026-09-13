@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.56f8bc2b6b0ff0ee773c
+description: 'Кандидат проекции: относительный XML-корень CreateButton; не полный владелец'
+imports:
+  part0: candidate.fragment.c3d6c2a1d023f654b91d
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

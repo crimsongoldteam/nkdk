@@ -1,0 +1,161 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+  value1: system.ReturnValuesReuse
+value:
+  kind: record
+  fields:
+    - name: global
+      type:
+        use: value0
+    - name: clientManagedApplication
+      type:
+        use: value0
+    - name: server
+      type:
+        use: value0
+    - name: externalConnection
+      type:
+        use: value0
+    - name: clientOrdinaryApplication
+      type:
+        use: value0
+    - name: serverCall
+      type:
+        use: value0
+    - name: privileged
+      type:
+        use: value0
+    - name: returnValuesReuse
+      type:
+        use: value1
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: global
+        path:
+          - Properties
+          - Global
+      - field: clientManagedApplication
+        path:
+          - Properties
+          - ClientManagedApplication
+      - field: server
+        path:
+          - Properties
+          - Server
+      - field: externalConnection
+        path:
+          - Properties
+          - ExternalConnection
+      - field: clientOrdinaryApplication
+        path:
+          - Properties
+          - ClientOrdinaryApplication
+      - field: serverCall
+        path:
+          - Properties
+          - ServerCall
+      - field: privileged
+        path:
+          - Properties
+          - Privileged
+      - field: returnValuesReuse
+        path:
+          - Properties
+          - ReturnValuesReuse
+  yaml:
+    kind: mapping
+    fields:
+      - field: global
+        key: Глобальный
+      - field: clientManagedApplication
+        key: Клиент
+      - field: server
+        key: Сервер
+      - field: externalConnection
+        key: ВнешнееСоединение
+      - field: clientOrdinaryApplication
+        key: КлиентОбычноеПриложение
+      - field: serverCall
+        key: ВызовСервера
+      - field: privileged
+        key: Привилегированный
+      - field: returnValuesReuse
+        key: ПовторноеИспользованиеВозвращаемыхЗначений
+presence:
+  - target:
+      field: global
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: false
+  - target:
+      field: clientManagedApplication
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: false
+  - target:
+      field: server
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: true
+  - target:
+      field: externalConnection
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: false
+  - target:
+      field: clientOrdinaryApplication
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: false
+  - target:
+      field: serverCall
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: false
+  - target:
+      field: privileged
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: false
+  - target:
+      field: returnValuesReuse
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: DontUse
+id: candidate.fragment.5509abfda0bc220c6d3f

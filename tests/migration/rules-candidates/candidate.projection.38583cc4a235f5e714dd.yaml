@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.38583cc4a235f5e714dd
+description: 'Кандидат проекции: относительный XML-корень ChangeRowOrder; не полный владелец'
+imports:
+  part0: candidate.fragment.e57057fee7928141cbf3
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

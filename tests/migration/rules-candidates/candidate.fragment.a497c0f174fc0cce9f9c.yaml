@@ -1,0 +1,73 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.string
+  value1: system.SessionReuseMode
+  value2: common.exact-decimal
+value:
+  kind: record
+  fields:
+    - name: rootURL
+      type:
+        use: value0
+    - name: reuseSessions
+      type:
+        use: value1
+    - name: sessionMaxAge
+      type:
+        use: value2
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: rootURL
+        path:
+          - Properties
+          - RootURL
+      - field: reuseSessions
+        path:
+          - Properties
+          - ReuseSessions
+      - field: sessionMaxAge
+        path:
+          - Properties
+          - SessionMaxAge
+  yaml:
+    kind: mapping
+    fields:
+      - field: rootURL
+        key: КорневойURL
+      - field: reuseSessions
+        key: ПовторноеИспользованиеСеансов
+      - field: sessionMaxAge
+        key: ВремяЖизниСеанса
+presence:
+  - target:
+      field: rootURL
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: reuseSessions
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: AutoUse
+  - target:
+      field: sessionMaxAge
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: 20
+id: candidate.fragment.a497c0f174fc0cce9f9c

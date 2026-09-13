@@ -1,0 +1,658 @@
+format: nkdk-declarations/1
+kind: value
+id: common.i8n-text
+namespaces:
+  v8: http://v8.1c.ru/8.1/data/core
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+parameters:
+  preserveEmptyXML:
+    type:
+      kind: scalar
+      scalar: boolean
+    default: false
+  excludeIfEqualNameYAML:
+    type:
+      kind: scalar
+      scalar: boolean
+    default: false
+  skipEmptyToXML:
+    type:
+      kind: scalar
+      scalar: boolean
+    default: false
+  typedXML:
+    type:
+      kind: scalar
+      scalar: boolean
+    default: false
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  ownerName:
+    type:
+      kind: scalar
+      scalar: text
+types:
+  name-words:
+    kind: text-transform
+    units: utf16
+    classes:
+      upper:
+        - - 65
+          - 90
+        - - 1040
+          - 1071
+        - - 1025
+          - 1025
+      lower:
+        - - 97
+          - 122
+        - - 1072
+          - 1103
+        - - 1105
+          - 1105
+      digit:
+        - - 48
+          - 57
+    state:
+      abbreviation: true
+      hasDigit: false
+    transitions:
+      - when:
+          and:
+            - class: upper
+            - tokenEmpty: true
+        emit: append
+        set:
+          abbreviation: true
+          hasDigit: false
+      - when:
+          and:
+            - class: upper
+            - flag: abbreviation
+        emit: append
+        set: {}
+      - when:
+          class: upper
+        emit: start-token
+        set:
+          abbreviation: true
+          hasDigit: false
+      - when:
+          class: lower
+        emit: append
+        set:
+          abbreviation: false
+      - when:
+          and:
+            - class: digit
+            - not:
+                tokenEmpty: true
+            - not:
+                flag: hasDigit
+            - or:
+                - nextAfterRun:
+                    class: digit
+                    is: upper
+                - nextAfterRun:
+                    class: digit
+                    end: true
+        emit: start-token
+        set:
+          abbreviation: false
+          hasDigit: true
+      - when:
+          class: digit
+        emit: append
+        set:
+          abbreviation: false
+          hasDigit: true
+      - emit: discard
+        set: {}
+    result:
+      separator: ' '
+      first:
+        kind: identity
+      rest:
+        kind: lower-first-unless-all-in-class
+        class: upper
+      lowercase:
+        - from:
+            - 65
+            - 90
+          offset: 32
+        - from:
+            - 1040
+            - 1071
+          offset: 32
+        - from:
+            - 1025
+            - 1025
+          offset: 80
+      emptyInput: empty-text
+      noTokens: absent
+  translation:
+    kind: record
+    fields:
+      - name: language
+        type:
+          kind: scalar
+          scalar: text
+      - name: content
+        type:
+          kind: scalar
+          scalar: text
+value:
+  kind: sequence
+  item:
+    local: translation
+representations:
+  xml:
+    kind: with-attributes
+    attributes:
+      - name: xsi:type
+        value:
+          qname: v8:LocalStringType
+        when:
+          and:
+            - parameter: typedXML
+            - not:
+                and:
+                  - or:
+                      - parameter: preserveEmptyXML
+                      - parameter: excludeIfEqualNameYAML
+                  - each:
+                      in:
+                        self: true
+                      as: translation
+                      where:
+                        and:
+                          - eq:
+                              - get:
+                                  of:
+                                    var: translation
+                                  field: language
+                              - input: defaultLanguage
+                          - eq:
+                              - get:
+                                  of:
+                                    var: translation
+                                  field: content
+                              - literal: ''
+    content:
+      kind: element-sequence
+      path:
+        - v8:item
+      item:
+        kind: record
+        fields:
+          - field: language
+            path:
+              - v8:lang
+          - field: content
+            path:
+              - v8:content
+  yaml:
+    kind: keyed-mapping
+    key: language
+    value: content
+    shorthand:
+      - id: name-and-rest
+        representation:
+          kind: keyed-mapping
+          capture: otherTranslations
+          absentKeys:
+            - input: defaultLanguage
+        denotes:
+          sequence-pattern:
+            prefix:
+              - record:
+                  language:
+                    input: defaultLanguage
+                  content:
+                    if:
+                      isReady:
+                        input: ownerName
+                    then:
+                      transform:
+                        local: name-words
+                        value:
+                          input: ownerName
+                    else:
+                      absent: true
+            rest:
+              capture: otherTranslations
+        when:
+          parameter: excludeIfEqualNameYAML
+      - id: absent-primary-marker
+        representation:
+          kind: keyed-mapping
+          capture: otherTranslations
+          prefix:
+            - record:
+                language:
+                  input: defaultLanguage
+                content:
+                  literal: ''
+          absentKeys:
+            - input: defaultLanguage
+        denotes:
+          capture: otherTranslations
+        when:
+          parameter: excludeIfEqualNameYAML
+      - id: primary-language-string
+        representation:
+          kind: scalar
+          scalar: text
+          capture: text
+        denotes:
+          sequence:
+            - record:
+                language:
+                  input: defaultLanguage
+                content:
+                  capture: text
+presence:
+  - target: self
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            if:
+              or:
+                - parameter: preserveEmptyXML
+                - parameter: excludeIfEqualNameYAML
+            then:
+              sequence: []
+            else:
+              absent: true
+        - form: nil
+          denotes:
+            if:
+              or:
+                - parameter: preserveEmptyXML
+                - parameter: excludeIfEqualNameYAML
+            then:
+              sequence: []
+            else:
+              absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                self: true
+          form: missing
+        - when:
+            and:
+              - parameter: skipEmptyToXML
+              - each:
+                  in:
+                    self: true
+                  as: translation
+                  where:
+                    and:
+                      - eq:
+                          - get:
+                              of:
+                                var: translation
+                              field: language
+                          - input: defaultLanguage
+                      - eq:
+                          - get:
+                              of:
+                                var: translation
+                              field: content
+                          - literal: ''
+          form: missing
+        - when:
+            and:
+              - or:
+                  - parameter: preserveEmptyXML
+                  - parameter: excludeIfEqualNameYAML
+              - each:
+                  in:
+                    self: true
+                  as: translation
+                  where:
+                    and:
+                      - eq:
+                          - get:
+                              of:
+                                var: translation
+                              field: language
+                          - input: defaultLanguage
+                      - eq:
+                          - get:
+                              of:
+                                var: translation
+                              field: content
+                          - literal: ''
+          form: empty-element
+        - form: ordinary
+    yaml:
+      missing:
+        denotes:
+          if:
+            and:
+              - parameter: excludeIfEqualNameYAML
+              - isReady:
+                  input: ownerName
+          then:
+            match:
+              value:
+                transform:
+                  local: name-words
+                  value:
+                    input: ownerName
+              present:
+                as: words
+                then:
+                  sequence:
+                    - record:
+                        language:
+                          input: defaultLanguage
+                        content:
+                          var: words
+              absent:
+                absent: true
+          else:
+            absent: true
+      empty:
+        - form: empty-string
+          denotes:
+            if:
+              parameter: excludeIfEqualNameYAML
+            then:
+              sequence: []
+            else:
+              sequence:
+                - record:
+                    language:
+                      input: defaultLanguage
+                    content:
+                      literal: ''
+        - form: empty-mapping
+          denotes:
+            absent: true
+      omitWhen:
+        if:
+          and:
+            - parameter: excludeIfEqualNameYAML
+            - isReady:
+                input: ownerName
+        then:
+          match:
+            value:
+              transform:
+                local: name-words
+                value:
+                  input: ownerName
+            present:
+              as: words
+              then:
+                eq:
+                  - self: true
+                  - sequence:
+                      - record:
+                          language:
+                            input: defaultLanguage
+                          content:
+                            var: words
+            absent:
+              literal: false
+        else:
+          literal: false
+normalization:
+  from: empty-sequence
+  when:
+    and:
+      - parameter: preserveEmptyXML
+      - not:
+          parameter: excludeIfEqualNameYAML
+  denotes:
+    sequence:
+      - record:
+          language:
+            input: defaultLanguage
+          content:
+            literal: ''
+constraints:
+  - id: registered-language-on-import
+    appliesTo:
+      - xml-import
+    forEach:
+      in:
+        self: true
+      as: translation
+    when:
+      not:
+        or:
+          - eq:
+              - get:
+                  of:
+                    var: translation
+                  field: language
+              - literal: ''
+          - eq:
+              - get:
+                  of:
+                    var: translation
+                  field: language
+              - literal: '#'
+    assert:
+      exists:
+        in:
+          input: registeredLanguages
+        as: registered
+        where:
+          eq:
+            - var: registered
+            - get:
+                of:
+                  var: translation
+                field: language
+    diagnostic:
+      severity: error
+      source: structure
+      at:
+        occurrence: translation
+        field: language
+      message:
+        parts:
+          - 'Незарегистрированный язык '
+          - get:
+              of:
+                var: translation
+              field: language
+  - id: yaml-language-order
+    appliesTo:
+      - yaml-validation
+    forms:
+      - keyed-mapping
+    when:
+      not:
+        exists:
+          in:
+            self: true
+          as: candidate
+          where:
+            or:
+              - eq:
+                  - get:
+                      of:
+                        var: candidate
+                      field: language
+                  - literal: ''
+              - eq:
+                  - get:
+                      of:
+                        var: candidate
+                      field: language
+                  - literal: '#'
+    assert:
+      ordered:
+        in:
+          self: true
+        as: translation
+        key:
+          get:
+            of:
+              var: translation
+            field: language
+        unique: true
+        first:
+          - input: defaultLanguage
+        comparison: utf16
+    diagnostic:
+      severity: error
+      source: structure
+      at:
+        self: true
+      message: Неканонический порядок языков локализованного текста
+  - id: yaml-language-value
+    appliesTo:
+      - yaml-validation
+    forms:
+      - keyed-mapping
+    forEach:
+      in:
+        self: true
+      as: translation
+    assert:
+      if:
+        eq:
+          - get:
+              of:
+                var: translation
+              field: content
+          - literal: ''
+      then:
+        and:
+          - parameter: excludeIfEqualNameYAML
+          - or:
+              - exists:
+                  in:
+                    self: true
+                  as: candidate
+                  where:
+                    or:
+                      - eq:
+                          - get:
+                              of:
+                                var: candidate
+                              field: language
+                          - literal: ''
+                      - eq:
+                          - get:
+                              of:
+                                var: candidate
+                              field: language
+                          - literal: '#'
+              - and:
+                  - eq:
+                      - get:
+                          of:
+                            var: translation
+                          field: language
+                      - input: defaultLanguage
+                  - exists:
+                      in:
+                        take:
+                          in:
+                            self: true
+                          count: 1
+                      as: first
+                      where:
+                        eq:
+                          - get:
+                              of:
+                                var: first
+                              field: language
+                          - input: defaultLanguage
+      else:
+        or:
+          - exists:
+              in:
+                self: true
+              as: candidate
+              where:
+                or:
+                  - eq:
+                      - get:
+                          of:
+                            var: candidate
+                          field: language
+                      - literal: ''
+                  - eq:
+                      - get:
+                          of:
+                            var: candidate
+                          field: language
+                      - literal: '#'
+          - exists:
+              in:
+                input: registeredLanguages
+              as: registered
+              where:
+                eq:
+                  - var: registered
+                  - get:
+                      of:
+                        var: translation
+                      field: language
+    diagnostic:
+      severity: error
+      source: structure
+      at:
+        occurrence: translation
+        field: language
+      message:
+        parts:
+          - if:
+              eq:
+                - get:
+                    of:
+                      var: translation
+                    field: content
+                - literal: ''
+            then:
+              if:
+                and:
+                  - parameter: excludeIfEqualNameYAML
+                  - eq:
+                      - get:
+                          of:
+                            var: translation
+                          field: language
+                      - input: defaultLanguage
+              then:
+                literal: Маркер отсутствующего основного языка должен быть первым
+              else:
+                literal: Пустое значение языка не представляет XML-текст
+            else:
+              literal: 'Незарегистрированный язык '
+          - if:
+              eq:
+                - get:
+                    of:
+                      var: translation
+                    field: content
+                - literal: ''
+            then:
+              literal: ''
+            else:
+              get:
+                of:
+                  var: translation
+                field: language

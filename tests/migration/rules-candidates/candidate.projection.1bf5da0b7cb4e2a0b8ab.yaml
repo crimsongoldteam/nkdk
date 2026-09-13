@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.1bf5da0b7cb4e2a0b8ab
+description: 'Кандидат проекции: относительный XML-корень AutoCellHeight; не полный владелец'
+imports:
+  part0: candidate.fragment.3ae517d1e4733613ce8b
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

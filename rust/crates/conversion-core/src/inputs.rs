@@ -4,6 +4,7 @@ pub use read::read;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum InputValue {
+    TextIndex(crate::facts::prepared::TextIndexInput),
     Text(String),
     Boolean(bool),
     Decimal(Decimal),
@@ -11,6 +12,8 @@ pub enum InputValue {
 }
 #[derive(Debug, Clone, Copy)]
 pub enum InputType {
+    TextIndex,
+    TextRecordIndex(&'static [&'static str]),
     Text,
     Boolean,
     Decimal,
@@ -19,6 +22,10 @@ pub enum InputType {
 impl InputType {
     fn accepts(self, value: &InputValue) -> bool {
         match (self, value) {
+            (Self::TextIndex, InputValue::TextIndex(value)) => value.key_fields() == Some(None),
+            (Self::TextRecordIndex(fields), InputValue::TextIndex(value)) => {
+                value.key_fields() == Some(Some(fields))
+            }
             (Self::Text, InputValue::Text(_))
             | (Self::Boolean, InputValue::Boolean(_))
             | (Self::Decimal, InputValue::Decimal(_)) => true,
@@ -32,10 +39,40 @@ impl InputType {
 /// Names are resolved once at the operation boundary; generated expressions use slots.
 #[derive(Debug, Default)]
 pub struct PreparedInputs {
+    documents: Vec<(crate::resources::RelativePath, Vec<u8>)>,
     entry: Option<EntryId>,
     values: Vec<Option<InputValue>>,
 }
 impl PreparedInputs {
+    pub fn with_documents(
+        mut self,
+        documents: Vec<(crate::resources::RelativePath, Vec<u8>)>,
+    ) -> Result<Self> {
+        let mut paths = std::collections::BTreeSet::new();
+        for (path, _) in &documents {
+            if !paths.insert(path.segments()) {
+                return Err(RuntimeDiagnostic::new(
+                    "input.document-duplicate",
+                    "Repeated XML document source",
+                ));
+            }
+        }
+        self.documents = documents;
+        Ok(self)
+    }
+    pub fn document(&self, path: &[&str]) -> &[u8] {
+        self.documents
+            .iter()
+            .find(|(candidate, _)| {
+                candidate
+                    .segments()
+                    .iter()
+                    .map(String::as_str)
+                    .eq(path.iter().copied())
+            })
+            .map_or(&[], |(_, bytes)| bytes.as_slice())
+    }
+
     pub fn prepare(
         entry: EntryId,
         declaration: &[(&str, InputType)],
@@ -64,6 +101,7 @@ impl PreparedInputs {
             slots[slot] = Some(value);
         }
         Ok(Self {
+            documents: Vec::new(),
             entry: Some(entry),
             values: slots,
         })
@@ -78,7 +116,11 @@ impl PreparedInputs {
         Ok(())
     }
     pub fn is_ready(&self, slot: usize) -> bool {
-        self.values.get(slot).is_some_and(Option::is_some)
+        match self.values.get(slot).and_then(Option::as_ref) {
+            Some(InputValue::TextIndex(value)) => value.is_ready(),
+            Some(_) => true,
+            None => false,
+        }
     }
     fn get(&self, slot: usize) -> Result<&InputValue> {
         self.values
@@ -87,6 +129,12 @@ impl PreparedInputs {
             .ok_or_else(|| {
                 RuntimeDiagnostic::new("input.not-ready", format!("Input slot {slot} is not ready"))
             })
+    }
+    pub fn text_index(&self, slot: usize) -> Result<&crate::facts::prepared::TextIndexInput> {
+        match self.get(slot)? {
+            InputValue::TextIndex(value) => Ok(value),
+            _ => Err(Self::wrong_type(slot)),
+        }
     }
     pub fn text(&self, slot: usize) -> Result<&str> {
         match self.get(slot)? {

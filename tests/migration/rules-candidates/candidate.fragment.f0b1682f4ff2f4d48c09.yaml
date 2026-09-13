@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.TableSelectionMode
+value:
+  kind: record
+  fields:
+    - name: selectionMode
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: selectionMode
+        path:
+          - SelectionMode
+  yaml:
+    kind: mapping
+    fields:
+      - field: selectionMode
+        key: РежимВыделения
+presence:
+  - target:
+      field: selectionMode
+    xml:
+      missing:
+        denotes:
+          literal: MultiRow
+      canonical:
+        - when:
+            eq:
+              - field: selectionMode
+              - literal: MultiRow
+          form: missing
+    yaml:
+      default:
+        literal: MultiRow
+id: candidate.fragment.f0b1682f4ff2f4d48c09

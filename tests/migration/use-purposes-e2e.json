@@ -1,0 +1,1406 @@
+{
+  "scope": "UsePurposes collections; not whole-project conversion or performance",
+  "verified": 175,
+  "cases": [
+    {
+      "source": "e2e/fixtures/xml/cf/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОбороты/Forms/ФормаСписка.xml",
+      "sha256": "7d42ee70551fafca25196eac31d9a6198277976503e044d4e9d97352d241ae61",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/AccumulationRegisters/РегистрНакопленияВсеСвойстваОбороты/Forms/ФормаСписка.xml",
+      "sha256": "0150f3113e270f92ca8e7f0053e963bcf210205de40974166ebdd59e555b302c",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства/Forms/ФормаВыбора.xml",
+      "sha256": "97999877811fccbd39e017e5c5f29874110b9556cdd87deb1305e84d5c95ef9b",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства/Forms/ФормаЗадачи.xml",
+      "sha256": "e30ba2eacb804b492a9da63e19688386c8a7f48acafe344d705f3d9c2262946e",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства/Forms/ФормаСписка.xml",
+      "sha256": "0189cbfb6d9b5742337a8dc5a2f586bd6166f356eab6cde4610606ea79104137",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CalculationRegisters/РегистрРасчетаВсеСвойства/Forms/ФормаСписка.xml",
+      "sha256": "58bdc480349e8b68d20a2c772414bdfca9af61eaed8522878703b13c843d8506",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/ПараметрыВыбора/Forms/ФормаЭлемента.xml",
+      "sha256": "bdaa9e71af2f2261148dfcc7db1bd6b7e832356c57c192a74058b1a9264140c6",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникCоВсемиОбъектами/Forms/ФормаЭлемента.xml",
+      "sha256": "2b40aab4282156ffb714cf570ea89b12e52f470b854d1f6d5f749328caa440f4",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникВладелец/Forms/ФормаВыбора.xml",
+      "sha256": "f62de1813ee59e0ba678877dc9cab2e77964385e2d3563a59561e6e7babb762a",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникКомандныйИнтерфейс/Forms/ФормаЭлемента.xml",
+      "sha256": "fad7845ef4c164d8d4300125ddc2c013c5e98dacff0b98de3a8986a3ec49afdd",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный/Forms/Минимальная.xml",
+      "sha256": "4d363a21c99e113bf6db96829f7f68dcebb40fdd9a8ad4612c5bfde50c607e22",
+      "occurrence": 8,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный/Forms/ФормаВыбора.xml",
+      "sha256": "80fafdb411db5d31dd620bc540a59290d738de582204e9e7de72b4c747cbd1d3",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный/Forms/ФормаВыбораГруппы.xml",
+      "sha256": "5bfcfa0dd84de3cc668bb19ed52ddbdbd6f4695ab1b54ab350f9352bcedcc071",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный/Forms/ФормаГруппы.xml",
+      "sha256": "464c36c25188268305a0fe77e1d1f93402a22679ef3a206082494255ab160831",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный/Forms/ФормаСписка.xml",
+      "sha256": "357b8ca2249a26ac982a406bd6ea4d022e2d51db506fe02dc2a1ca79ec661a00",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный/Forms/ФормаЭлемента.xml",
+      "sha256": "7422b8f9f9d764e7c6709b828792e617ed110c0e93cdc86a156f85c3758946ef",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникРеквизит/Forms/ФормаВыбора.xml",
+      "sha256": "0331b971834a2e15514014c9da275ca7e1800e08424a7a22c30bf6467e693157",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникСПредопределенными/Forms/ФормаВыбора.xml",
+      "sha256": "c48da295da630abe1e8b1cb57fb507c4751ba82a1102b2ad1cf5816f7b0d489f",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникФормаВсеСвойства/Forms/ФормаЭлемента.xml",
+      "sha256": "a6322b1130c29d5d08f902d530856a5abf013cf716ab69886dc10fb651f1c1e9",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникФормаТабличнаяЧасть/Forms/ФормаЭлемента.xml",
+      "sha256": "9ea4546123355f05c7ad28e1a297e865a7c7a3752567def597db309e201862b0",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства/Forms/ФормаВыбора.xml",
+      "sha256": "b32f0801b22ee9b610922baf3cdde701948ba3c268a82d5a193fe8911cbc69a1",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства/Forms/ФормаЗаписи.xml",
+      "sha256": "14fff5b4c7960e37c5a2a7153f9c08beda94e874bdb8965bec7d40e7e0fab720",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства/Forms/ФормаСписка.xml",
+      "sha256": "33a83c61bce39b6b21be48bd637977f248d7fc33080f4b9f7643b6750cebc88b",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства/Forms/ФормаВидаРасчета.xml",
+      "sha256": "4e0f477cf5fd53d56155c0f8fa474ad831f160de429a408bb5bda9a9e91f3c34",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства/Forms/ФормаВыбора.xml",
+      "sha256": "4ee0d14e8376f64a9dc3d1bc9897f1bb7077431ac093e13eebb3a7e68d76b98b",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства/Forms/ФормаСписка.xml",
+      "sha256": "90f32cbe24d3d49ca4f565f40335e0af372691d218961fbccd4f74419c2600b5",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойства/Forms/ФормаВыбора.xml",
+      "sha256": "d8a0dac2fa04231243f9c8356646403903e884e66d7918d0867394d37982558d",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойства/Forms/ФормаВыбораГруппы.xml",
+      "sha256": "07a63c91587dd3335d545d5733e4adc0eb5b2856bedd0ee4ceeede967fd275b6",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойства/Forms/ФормаГруппы.xml",
+      "sha256": "74c105513033de73daf5b06869eea104c7b8e3b3c5fde48af7b5cfe32cc01299",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойства/Forms/ФормаСписка.xml",
+      "sha256": "6ddc084ead7d5f8bbeb9361d4cb8a11ad17ca43bf9525e4578cc985445e526fd",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойства/Forms/ФормаЭлемента.xml",
+      "sha256": "8d00aa683963c7e8178622b62cc1324186b5722ff23da278a496bd857dd7dec4",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/Additional.xml",
+      "sha256": "1c2280472d5b61f24c5c9d1c3e7a80674bd0a32aa5ea9040b63e0c1e60389b92",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/Button.xml",
+      "sha256": "8c72a8cbcd053d5ef2a93f47294cc5842313513c594621f111f2d9bacc075075",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/CalendarField.xml",
+      "sha256": "a9fd92b95d07293535921cce0d5727d15e408ef2dc7b27c0cf9614af789b1b1f",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ChartField.xml",
+      "sha256": "42c9283949adadb03e002844a96ec4beeecee722b80dad84f833029e219163a1",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/CheckBoxField.xml",
+      "sha256": "c7a944185a247f8d6de82f9ba5036c22e3466531da7cfc7a1da0bfe85250d210",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ColumnGroup.xml",
+      "sha256": "1f024835205119415dd2d199b6aa495d9c442f2a5cfebe5df1f0ca44ab77440c",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/CommandBar.xml",
+      "sha256": "27591e35e2d80b9b9da59b7b484b956e02b3a272542dbd6222bd9ee5d9883d84",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/DendrogramField.xml",
+      "sha256": "5a3ba0cedc3f008ae0f0b4e11dd666e598a02d03ec484e0b3ee1734a8c7f11d6",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/DynamicList.xml",
+      "sha256": "2c5efbd1f0ed3b7e492f50d9857e0a8310b76ecf95be30f5d7d44258a953ecf9",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ExtendedTooltip.xml",
+      "sha256": "bcca5a8e6c06563db1c785ae53e5c76be76a1c47c8337d6ffae195c0182fc053",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/FormCommand.xml",
+      "sha256": "bad354c5944c1929b16657567b39274b64acf008b123596293199f40d2fcc5c4",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/FormDecoraction.xml",
+      "sha256": "5f61269825d90e2baf381de33d04fee095cf3c7786ccc88ef7ac523bcd578aaf",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/FormattedDocumentField.xml",
+      "sha256": "f573b0bca6efeeb8c24274fd515dcd8acf19f5509ea10ef2788e9cd9f08cb3b9",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/GanttChartField.xml",
+      "sha256": "eca4aa8f1524633f100d2449e3361714731dd472e40d315ad519f8718c39fb59",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/GeographicalSchemaField.xml",
+      "sha256": "59e61352da0f648866e4945da451bd4683cb2d910b54c41d386999bb3aa04fde",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/GraphicalSchemaField.xml",
+      "sha256": "f249d521952e7eb2fc203b008a1be3e8101807618f7a1fb1268da568a480658b",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/HTMLDocumentField.xml",
+      "sha256": "8ea0c1c67fbccf5e1ccb87d0d39f0d9d0a5170372285ae6dc90ac17d3896325c",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/InputField.xml",
+      "sha256": "e045062b7b641b9514c1d26975e57ebdb43f3311aeb9d885b2bfa661790d5845",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/LabelDecoration.xml",
+      "sha256": "2fd3c17b5cdbfcf2dd1e17d973b017c6bc0b1fa95ae4edecc2b4d7fb815be34d",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/LabelField.xml",
+      "sha256": "e23c196dc1163392982f0690416b410e0d84bdfe67c4d5b79e92b5e003631f40",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/PDFDocumentField.xml",
+      "sha256": "1ed837723193dbcf71154684c8c0102e654796f5ba78bd239910c1219379673a",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/Pages.xml",
+      "sha256": "54061ba55c5eb689edbe9c67338dfe496b65f7fe51ce9dfb55b18954f76ed482",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/PeriodField.xml",
+      "sha256": "7772a57418272009ddd7d7055fc86c833c5b7eb55d8b7fba6dafa92abb9f9440",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/PictureField.xml",
+      "sha256": "085d6bbde306e303952193ac22e046fe0fe592ebfbb0626d654dac9ec4195dd9",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/PlannerField.xml",
+      "sha256": "574ada66c4d3782271361cc0b44be17a3206130aa8b9849be4c2197974215850",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ProgressBarField.xml",
+      "sha256": "7249edec24381958f0dfb4f05ccf752ed67f532c40e089612b980eae6550e68f",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/RadioButtonField.xml",
+      "sha256": "d0e69060124809816591f01f2497209cf84b9ec0983edcfab926dfc231e3844b",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/SpreadSheetDocumentField.xml",
+      "sha256": "2999faef923156ea7f66a1e40609243e380cb26d95b716a31ac2a157d7efbf65",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/Table.xml",
+      "sha256": "d8d533ef501dcb365f3844a88def566d3651b1e1ae44176c09ca9cb7db07c9ef",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/TextDocumentField.xml",
+      "sha256": "e5343ecf9ef6631ab0566950b751d244eae0097bffe456690be05c531905dd0b",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/TrackBarField.xml",
+      "sha256": "25798f4e7220337763e716dab05e8567975098df8543182ebb9f17140aeafc62",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/TwoTablesAttributes.xml",
+      "sha256": "dc2eab781fa40aa67d673eff62726e5848e5fab608536700658c6d9f69c7a452",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/UsualGroup.xml",
+      "sha256": "c3df9da36b8dfaa7d1b99da0e2519cfe6834965a82811a43c434902fd0ff2e74",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок.xml",
+      "sha256": "b61fe877c6289dc5d979454a3a432e9ef047e4294aafa25fec441fc79683dd37",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ДинамическийСписокОсновнаяТаблица.xml",
+      "sha256": "75bf7b846be930c5ae2ceacb0ec6f96e794507e7ed88da772e9046b5cf608fe2",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/Команды.xml",
+      "sha256": "279a93117609cfdecdcfdca5e2ea649880ce728ac7364b081ed258350c8908bb",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КомпоновщикНастроек.xml",
+      "sha256": "7482dab93fc37122129ec82a3ed3dc18c080ad9661546770b2efb6d0bd65a3ba",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/КонстантаВсеСвойства.xml",
+      "sha256": "ab548f1c4b5db62350cc0cd791f35586b253d145ff83298936b7c6a63363b17a",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ПараметрФормыБезТипа.xml",
+      "sha256": "b607094301b5e36af69e99affd17031566653d038e9d015227aed22969014ba0",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/РеквизитБезТипа.xml",
+      "sha256": "b9cae3da239c2ef0c9781b153ae1a67c610736e61b09878836b9d2803b13a50f",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/СписокЗначений.xml",
+      "sha256": "2245ca480ba54fd8bc1faf36cd639acecc6c5a124632f73938bd3acfbb03dbdd",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/УсловноеОформление.xml",
+      "sha256": "25f67408681095efa5f74d81d22909b3c0e4b67b73fdf5a75e62a66edd89e7a1",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/Форма.xml",
+      "sha256": "4484c6cea2f88e69d0aa8820669ce71546749128a6881fa9fb2949ff5a81dd64",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаВариантаОтчета.xml",
+      "sha256": "84a1676fcee6cf214de6f033636ddd3d83baae413447f0fa61ef68929a0d2c6f",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаВыбораПользователейСистемыВзаимодействия.xml",
+      "sha256": "9a6b67730607a1c5f6c06233958271830843130f01f036369d352ce46e2c86d7",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаДанныхВерсииИсторииДанных.xml",
+      "sha256": "4e1d0972491adadf35d521fd5fcc58a04315f23a0506dd5d6be9cfbdde47dd30",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаИсторииИзмененийИсторииДанных.xml",
+      "sha256": "0800a800d83e778cc4c50b4f211430199385a79636168146d370f3799cd126ae",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаНастроекДинамическогоСписка.xml",
+      "sha256": "3bfabe964c040d57d2e8be3c518097dfb553fde08ad1457d9f83b3f4eee90aa3",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаНастроекОтчета.xml",
+      "sha256": "dcda0a52821bfcc1416f66b9ea19f003aaa9d5ac9d44cb7b6865ca348f3228ba",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаОтчета.xml",
+      "sha256": "8578bb7bedf47ddd4cf248a5af8e4fa4e8f948054320a416ea948a14dc27911d",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаПоиска.xml",
+      "sha256": "e6ca5e16f4e19df66a2d20dfa34c5cbca27389a2eff62e518b0393cef3bb0238",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/ФормаРазличийВерсийИсторииДанных.xml",
+      "sha256": "b73a161c74210c14b1033f1acfefaf584f4d53e238dba73272287d41df0c1be9",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Configuration.xml",
+      "sha256": "a3df63558fbf738275bdf0262521161621d1c0359c5b454ee82f48ab72bba9ac",
+      "occurrence": 34,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/DataProcessors/ОбработкаВсеСвойства/Forms/Форма.xml",
+      "sha256": "bd7ca567227eee197119f2ef02711d45082a87ddebe5df3e4621ff6e90e0d0e0",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/DocumentJournals/ЖурналДокументовВсеСвойства/Forms/ФормаСписка.xml",
+      "sha256": "dad70848a07096abb5630dec08786aa17827f18facf54ec4dd5c3b1ca6345ae0",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства/Forms/ФормаВыбора.xml",
+      "sha256": "772d44e0e9baafe8eff9f00f8dcef0f3ef2c5d93521f0efe60d548f6ebe2b3dd",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства/Forms/ФормаДокумента.xml",
+      "sha256": "6e013c1b7bcf7db378e0459c046839555ed570e4321bb59a1075b9ff81ca3c7d",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства/Forms/ФормаДокументаВсеСвойства.xml",
+      "sha256": "3e2a0239b9520ed6cb1c8edd005971e70ccbb26e830813df9decb58dbd8eddc0",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства/Forms/ФормаСписка.xml",
+      "sha256": "3b0eea61cf96b5825cf80bbe01282678dabca2ed40c6701ae1973977daed0f74",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументКнопкаСПараметрами/Forms/ФормаДокумента.xml",
+      "sha256": "a57d711561025cb152b010db6dd4c56638ea1862db3ae45e51f80057e8c2b35c",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Enums/ПеречислениеВсеСвойства/Forms/ФормаВыбора.xml",
+      "sha256": "244e3fe823c705fe350e39313a98b1e0325b3e11ac00379130f7aee55a3d77cf",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Enums/ПеречислениеВсеСвойства/Forms/ФормаСписка.xml",
+      "sha256": "9f76fd566966799699bc4b052296ab6baf7c0bdf6656f8145599b01821e8b9db",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства/Forms/ФормаВыбора.xml",
+      "sha256": "98a88d8529f2018b0422dcad8f1099bb7adb4ad39d56df9c12afeb5646f23abf",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства/Forms/ФормаСписка.xml",
+      "sha256": "d0c2ca2a4c2dd7a7b8ed3625d468c44d3fe68f3361ddf9379ea543e2cc1bfc1f",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства/Forms/ФормаУзла.xml",
+      "sha256": "3f0597a8a47643108ceee381300321762b4588680c2a702498ffd4aa5b6c8b2e",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства/Forms/ФормаЗаписи.xml",
+      "sha256": "214a6516098f94c4415dfd6f80f5832bc5a2e4b929df9dff43145476330e1b76",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства/Forms/ФормаСписка.xml",
+      "sha256": "b84f1104b409253de9fffa0772d08c1732feb5b42a192e99af271a6bdab6013f",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства/Forms/ФормаВыбора.xml",
+      "sha256": "bee7138ae0a0f5e376b0c65b876dce8f7ac3b291266abf5977594b843778f6b1",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства/Forms/ФормаОбъекта.xml",
+      "sha256": "fef4e158b6d073080d32cae94b5c6c0c7ba5a6171d96855ce89cb194536d90ee",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства/Forms/ФормаСписка.xml",
+      "sha256": "dbaeacb8c33136c57aa0003c6939696b086f2fb70e921138b45b0bc318d8b6f4",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/FilterCriteria/КритерийОтбораВсеСвойства/Forms/ФормаСписка.xml",
+      "sha256": "ab978507497f36cfb7ac574864ac8700ef8c49d9353bac0f24f58fd083e30bce",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведений1/Forms/ФормаЗаписи.xml",
+      "sha256": "57cfaf7484dfbf1f2de6a6ab41f80ff16b445f08b6c918785977d18634f766e3",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый/Forms/ФормаЗаписи.xml",
+      "sha256": "5c250c751b569e37969fcbfad9e325be1c482e7b6ccca750e716843ff47c517c",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый/Forms/ФормаСписка.xml",
+      "sha256": "53fe1029eb85dfa750b241741647e69d65ab9f065968a9dbd9b03bfc671f2fe2",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта.xml",
+      "sha256": "3e53073357e22d44d25d85623b35da2d816ed52f5d87ddf5dc039997756616d4",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства/Forms/ФормаНастроек.xml",
+      "sha256": "78a2bfca349e5f08d3619bf905466029e8962febb4b253d57e9a5bb0aa9b8b64",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства/Forms/ФормаОтчета.xml",
+      "sha256": "22b7af9c00994fec61df8a5d72bc525ba9dbaaae81df9d0d473b9ec2570a7f7e",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/SettingsStorages/ХранилищеНастроекВсеСвойства/Forms/ФормаЗагрузки.xml",
+      "sha256": "9060a72b14a1421655f66353496b37db77c095fb03c36d689125e7c6760e52fc",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/SettingsStorages/ХранилищеНастроекВсеСвойства/Forms/ФормаСохранения.xml",
+      "sha256": "be4689f8d711c0805f80aa7934bab793f970c4da6f6aa959fd4a13cc07be1e02",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства/Forms/ФормаВыбора.xml",
+      "sha256": "830312e6f473257e5a33c8571fbca1d5d49caf9a7c40cdbaf30e2face7c0d504",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства/Forms/ФормаЗадачи.xml",
+      "sha256": "43fc3131b1d692d448de79ccc5ce216c9facc6f2baa950e3fb050057713253c3",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства/Forms/ФормаСписка.xml",
+      "sha256": "3e6bac77158768012057a2617c7438f02a97a8da80acba7d48a7663d4b01aa62",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОборотыExt/Forms/ФормаСписка.xml",
+      "sha256": "d5da9f2d8fee2b5d3202cc3a23c5966104cc2d65e83d9f7827eaaf4876718d84",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/AccumulationRegisters/РегистрНакопленияВсеСвойстваОборотыExt/Forms/ФормаСписка.xml",
+      "sha256": "75ae7acaa675785a08876c667fd41ae7362d92e7a984b4fe44790e4c4d567d8f",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/BusinessProcesses/БизнесПроцессВсеСвойстваExt/Forms/ФормаВыбора.xml",
+      "sha256": "00726baa81e1f06808a94f6245e74df3b9d2a8956829b8cc4e40981d915a0179",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/BusinessProcesses/БизнесПроцессВсеСвойстваExt/Forms/ФормаЗадачи.xml",
+      "sha256": "cefd57f0dcff5dfd3d84410cad7203fd272f3aab920a6f62623bfc9305ec7637",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/BusinessProcesses/БизнесПроцессВсеСвойстваExt/Forms/ФормаСписка.xml",
+      "sha256": "564ffcfccab9bb24ca14ce1f6563b73df5586d9f5d5b5c50eeb3261116791e8b",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/CalculationRegisters/РегистрРасчетаВсеСвойстваExt/Forms/ФормаСписка.xml",
+      "sha256": "4eb44b1c46067619f4c173581d70f4a00b0c1463a984f55a67cf2aa2fa8b3220",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/ПараметрыВыбораExt/Forms/ФормаЭлемента.xml",
+      "sha256": "57965a3cd2c57443d6cd1a1e542645e1acae1963f5aefc86ee686b9a6ab07bca",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникCоВсемиОбъектамиExt/Forms/ФормаЭлемента.xml",
+      "sha256": "9123da731aeea09d4f924b527ff65b90789afad90f0eed767f135ba3ec29890f",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникВладелецExt/Forms/ФормаВыбора.xml",
+      "sha256": "90362ee16425eeccbfbfe99a044a0aacdb15c44e88a056425c6c059b6eeee3eb",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникКомандныйИнтерфейсExt/Forms/ФормаЭлемента.xml",
+      "sha256": "714bc9a93da9c62bbfec0fc9cbc7a54438de3940b143b2407e1a6a35032cc071",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникПолныйExt/Forms/Минимальная.xml",
+      "sha256": "9eac1d81f4effe9fc172393992c40dbf044666d011844aa8d75eefbbc150e23c",
+      "occurrence": 8,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникПолныйExt/Forms/ФормаВыбора.xml",
+      "sha256": "621136e380f09f906aaee8fe693c0e6c7a76d074df8e439987e83b46daf241b2",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникПолныйExt/Forms/ФормаВыбораГруппы.xml",
+      "sha256": "88a141af213e6a57be24c427dab6388ea6eb7c884db337b98e5f18c8b4e8b01a",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникПолныйExt/Forms/ФормаГруппы.xml",
+      "sha256": "5ab44c3502d33fce41aee49f42973fe6440ae4f702e3af3161a7bcfa71f2cd1d",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникПолныйExt/Forms/ФормаСписка.xml",
+      "sha256": "30245d9e119b6b712be7f33e97a4298b1944e44c3c53ac61bbd276b5d2a9722f",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникПолныйExt/Forms/ФормаЭлемента.xml",
+      "sha256": "a92d3c4549359b460605083abec13169688113f22f4f4ed814783ce3c0ac8c86",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникРеквизитExt/Forms/ФормаВыбора.xml",
+      "sha256": "6a26ee8957907b544e6ed399b9bff4d65ed06db7eb9dcb99d3cab01ac225a3f8",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникСПредопределеннымиExt/Forms/ФормаВыбора.xml",
+      "sha256": "251dd361e9a5ecf1be785bcfd97cc1936bc0312c6e8e5accb059d52f23c6c5f6",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникФормаВсеСвойстваExt/Forms/ФормаЭлемента.xml",
+      "sha256": "9d926f0138580b7e7e5cd4db1375c13024763c5e1056649614dbc12a3df548c1",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникФормаТабличнаяЧастьExt/Forms/ФормаЭлемента.xml",
+      "sha256": "89f6260271f8aa54439eecc921d27ab12ab1b397b99966a467077544712fdea3",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойстваExt/Forms/ФормаВыбора.xml",
+      "sha256": "9bf18ea286dbbb255027f62faa8e3b414f5c7f1dd86edc11f5333fceb833a2ac",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойстваExt/Forms/ФормаЗаписи.xml",
+      "sha256": "d441b70dd566449b67a11dce8550c56894af5429303cd6584b2678b5f8e7fda3",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойстваExt/Forms/ФормаСписка.xml",
+      "sha256": "be4fa0bda48ab835a18e4bc623349c484f55814a9e2464a45aab95c973d2b41d",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCalculationTypes/ПланРасчетаВсеСвойстваExt/Forms/ФормаВидаРасчета.xml",
+      "sha256": "bcee03c5006086d7f2059741c4a9e2aad377b1cb751c4fa30309c452f5ff782b",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCalculationTypes/ПланРасчетаВсеСвойстваExt/Forms/ФормаВыбора.xml",
+      "sha256": "c7a2cbe9514929661ff18ee053bc71d1fe4c03da6ddcb6e69d15b6861f436b16",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCalculationTypes/ПланРасчетаВсеСвойстваExt/Forms/ФормаСписка.xml",
+      "sha256": "d3f4a6857f62b882e3ec08cdfdfbb8cef7249c7788fd825a33e4ceae9858bf93",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойстваExt/Forms/ФормаВыбора.xml",
+      "sha256": "cc87ce11e78dd163eb625f0cf2ccf8ac5c118cc3ae1b436e991c64bd2070b87e",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойстваExt/Forms/ФормаВыбораГруппы.xml",
+      "sha256": "98cbeda530f906df306f3094a783ed7659d893c2cc89737b987ba335a22566c5",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойстваExt/Forms/ФормаГруппы.xml",
+      "sha256": "f2b22c573c399eb14fe9c77c25f8ec145267e72bd2d99504e3cbf1750472c901",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойстваExt/Forms/ФормаСписка.xml",
+      "sha256": "6129e7ecfcbdc8c58464b24cf8d8c0e34865bbf5637e72e687450b375ec70733",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойстваExt/Forms/ФормаЭлемента.xml",
+      "sha256": "343bbe3ce5a843c437f61769800538790042b0f29a94af6ebfc3b60041364b57",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/CommonForms/InputFieldExt.xml",
+      "sha256": "e7f3a522606ca610697d11a8559a6adb4becc5f4af6bd30c536fd6311115ac8a",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Configuration.xml",
+      "sha256": "bca5005f5da5003eb34423051d8de75ed0579a1154a7bc58291970a932a0e4df",
+      "occurrence": 59,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/DataProcessors/ОбработкаВсеСвойстваExt/Forms/Форма.xml",
+      "sha256": "0313d06229ef7d7695cc0a37ae52e56b8c5872aabfb34a42bfc055c413835b03",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/DocumentJournals/ЖурналДокументовВсеСвойстваExt/Forms/ФормаСписка.xml",
+      "sha256": "481e7a92542f11c98d46ae77df3d865d154d6da9c8d8d398d9f2b95adfd50e4c",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Documents/ДокументВсеСвойстваExt/Forms/ФормаВыбора.xml",
+      "sha256": "5076638fa1fa7f688ce14f661d823712226a5013064870b3bfc8c0053f4cfcae",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Documents/ДокументВсеСвойстваExt/Forms/ФормаДокумента.xml",
+      "sha256": "c99f8100cd15109f3607a87d586a4d7b67bf818a4c30da5e9e56ac675c15d2cf",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Documents/ДокументВсеСвойстваExt/Forms/ФормаДокументаВсеСвойства.xml",
+      "sha256": "3293bcc6a9d832cc143668a2a9c906beb9174cdce5cb993b2a20656b77b962ab",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Documents/ДокументВсеСвойстваExt/Forms/ФормаСписка.xml",
+      "sha256": "af3f0ac80c69d35e00d4ef50cae8239ed3ee69469cd934a52af02057d8635908",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Documents/ДокументКнопкаСПараметрамиExt/Forms/ФормаДокумента.xml",
+      "sha256": "5d1bc07538be6b4447327e676c6cfaba461a42bce6513ea5e54bbef00d7c694b",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Enums/ПеречислениеВсеСвойстваExt/Forms/ФормаВыбора.xml",
+      "sha256": "1947eb6383a4a877b325ffc23459badb174b851d23b5d24d1739abf6f336e9e4",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Enums/ПеречислениеВсеСвойстваExt/Forms/ФормаСписка.xml",
+      "sha256": "3237b840ffec9847ca2068e5196a594302aec7dbbc7915363e8ed3b4141647f0",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExchangePlans/ПланОбменаВсеСвойстваExt/Forms/ФормаВыбора.xml",
+      "sha256": "e3459f551628d2d33ac8a3a4f334694d47e3d8794892aacd230974e7765f55d9",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExchangePlans/ПланОбменаВсеСвойстваExt/Forms/ФормаСписка.xml",
+      "sha256": "ee7fa7252136b35f37705777a06a360c27c7a86d093a960948a5205339b62f41",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExchangePlans/ПланОбменаВсеСвойстваExt/Forms/ФормаУзла.xml",
+      "sha256": "eb1f9b6f17b3d2be52f758e897a2245925a426dbd1a0632eac01f67c7d8a53d0",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойстваExt/Cubes/КубВсеСвойства/Forms/ФормаЗаписи.xml",
+      "sha256": "21ee93d02c31fca76736338c276abdb2d32117443d27d4dc969ff3c9a18c897a",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойстваExt/Cubes/КубВсеСвойства/Forms/ФормаСписка.xml",
+      "sha256": "7262b120fd61d324610076ab2212bf65cf833cc3d823a9053c97c33f4fb93bfc",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойстваExt/Tables/ТаблицаВсеСвойства/Forms/ФормаВыбора.xml",
+      "sha256": "4ffa0db078fee31a2c1d604ea6fd698a55698119aecd52a6822e6a54bf144164",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойстваExt/Tables/ТаблицаВсеСвойства/Forms/ФормаОбъекта.xml",
+      "sha256": "faca414b88204816de46dd3b2af11287accb489e4e9e3e885686d5489f4e000d",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойстваExt/Tables/ТаблицаВсеСвойства/Forms/ФормаСписка.xml",
+      "sha256": "e647080c5c9bf3bf2c79aef6fbfd7f3e180e306c7379c440cc627e449a6d36b6",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/FilterCriteria/КритерийОтбораВсеСвойстваExt/Forms/ФормаСписка.xml",
+      "sha256": "16e5fa8922ac9f659e8fc191221428ec255a045ccd79fd88ddcc2765a0a86257",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/InformationRegisters/РегистрСведенийExt/Forms/ФормаЗаписи.xml",
+      "sha256": "834cf1606e34483762f651480ae1d215e9874a6522324699e7ee78f13f7835dc",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/InformationRegisters/РегистрСведенийВсеСвойстваНезависимыйExt/Forms/ФормаЗаписи.xml",
+      "sha256": "9659baa94f4bde4f43ed84408246b65d3aa9828c457e1f6dd76df2f5e9481fe9",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/InformationRegisters/РегистрСведенийВсеСвойстваНезависимыйExt/Forms/ФормаСписка.xml",
+      "sha256": "3e9a03422ed747c08363ecb6c332113a20cd4306a752e21205bc774f0438f2d0",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt/Forms/ФормаВарианта.xml",
+      "sha256": "527be7e837991c44f4c48242733c38af5a35cfae4c74bfcbb143fc3fc1dcf279",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt/Forms/ФормаНастроек.xml",
+      "sha256": "f7fb60278bd8b2c5a680056550d206726e75b613b1b8f59634eabd80a9e93603",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt/Forms/ФормаОтчета.xml",
+      "sha256": "1c1957298b763449f9c646c65a80fbc797703b44269c79aa573a81ddce00e2ec",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Tasks/ЗадачаВсеСвойстваExt/Forms/ФормаВыбора.xml",
+      "sha256": "a416745b6c62c55126c81f88f006eb8d4aa7578bd02e0f2a712d125374830a00",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Tasks/ЗадачаВсеСвойстваExt/Forms/ФормаЗадачи.xml",
+      "sha256": "30141dfc0277bb566ffe8e072122148c23eb698145847983de347cbdad2680b6",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Tasks/ЗадачаВсеСвойстваExt/Forms/ФормаСписка.xml",
+      "sha256": "4e8334d5bc769b95889e9b141b5761ae867f1f782bb7f243698dfecf1b639131",
+      "occurrence": 11,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/control/Configuration.xml",
+      "sha256": "a6f14b55256a643727c0f9ad5c077490302a986444823c21a20279166c13531a",
+      "occurrence": 37,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/default/Configuration.xml",
+      "sha256": "790afcb4d549d9e93d6705919177012a36e0d6fe109fe9332d2edef255fdf6d1",
+      "occurrence": 37,
+      "type": "",
+      "entry": "migration.use-purposes-default",
+      "verified": true
+    }
+  ]
+}

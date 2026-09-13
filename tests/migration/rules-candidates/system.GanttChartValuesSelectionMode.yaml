@@ -1,0 +1,21 @@
+format: nkdk-declarations/1
+kind: value
+id: system.GanttChartValuesSelectionMode
+enum:
+  Auto: Авто
+  Multiple: Множественный
+  None: Нет
+  Single: Одиночный
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  t: http://v8.1c.ru/8.1/data/enterprise
+projections:
+  - id: system.GanttChartValuesSelectionMode.dcs
+    xml:
+      kind: with-attributes
+      attributes:
+        - name: xsi:type
+          value:
+            qname: t:GanttChartValuesSelectionMode
+      content:
+        kind: text

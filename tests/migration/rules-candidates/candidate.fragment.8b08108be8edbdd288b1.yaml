@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.UsedServer
+value:
+  kind: record
+  fields:
+    - name: usedFormServer
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: usedFormServer
+        path:
+          - UsedFormServer
+  yaml:
+    kind: mapping
+    fields:
+      - field: usedFormServer
+        key: ИспользуемыйСерверФормы
+presence:
+  - target:
+      field: usedFormServer
+    xml:
+      missing:
+        denotes:
+          literal: Main
+      canonical:
+        - when:
+            eq:
+              - field: usedFormServer
+              - literal: Main
+          form: missing
+    yaml:
+      default:
+        literal: Main
+id: candidate.fragment.8b08108be8edbdd288b1

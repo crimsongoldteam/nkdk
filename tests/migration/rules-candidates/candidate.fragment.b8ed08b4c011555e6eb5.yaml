@@ -1,0 +1,24 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.string-or-number
+value:
+  kind: record
+  fields:
+    - name: reportResult
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: reportResult
+        path:
+          - ReportResult
+  yaml:
+    kind: mapping
+    fields:
+      - field: reportResult
+        key: РезультатОтчета
+presence: []
+id: candidate.fragment.b8ed08b4c011555e6eb5

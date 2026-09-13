@@ -1,0 +1,86 @@
+format: nkdk-declarations/1
+kind: fragment
+id: fragment.command-base-properties
+imports:
+  text: common.i8n-text
+  boolean: common.boolean
+  group: common.metadata-command-group
+  rootKind: common.path-root
+  CommandParameterUseMode: system.CommandParameterUseMode
+  ButtonRepresentation: system.ButtonRepresentation
+  OnMainServerUnavalableBehavior: system.OnMainServerUnavalableBehavior
+namespaces: {md: 'http://v8.1c.ru/8.3/MDClasses'}
+inputs:
+  name: {type: {kind: scalar, scalar: text}}
+  defaultLanguage: {type: {kind: scalar, scalar: text}}
+  registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  roots:
+    type:
+      kind: index
+      key: {kind: record, fields: [{name: kind, type: {use: rootKind}}, {name: name, type: {kind: scalar, scalar: text}}]}
+      value: {kind: scalar, scalar: text}
+value:
+  kind: record
+  fields:
+  - {name: Name, type: {kind: scalar, scalar: text}}
+  - {name: Synonym, type: {use: text, with: {excludeIfEqualNameYAML: true}, bind: {defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}, ownerName: {input: name}}}}
+  - {name: Comment, type: {kind: scalar, scalar: text}}
+  - {name: Group, type: {use: group, bind: {roots: {input: roots}}}}
+  - {name: ParameterUseMode, type: {use: CommandParameterUseMode}}
+  - {name: ModifiesData, type: {use: boolean}}
+  - {name: Representation, type: {use: ButtonRepresentation}}
+  - {name: ToolTip, type: {use: text, bind: {defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}, ownerName: {input: name}}}}
+  - {name: Shortcut, type: {kind: scalar, scalar: text}}
+  - {name: OnMainServerUnavalableBehavior, type: {use: OnMainServerUnavalableBehavior}}
+representations:
+  xml:
+    kind: record
+    fields:
+    - {field: Name, path: [md:Command, md:Properties, md:Name]}
+    - {field: Synonym, path: [md:Command, md:Properties, md:Synonym]}
+    - {field: Comment, path: [md:Command, md:Properties, md:Comment]}
+    - {field: Group, path: [md:Command, md:Properties, md:Group]}
+    - {field: ParameterUseMode, path: [md:Command, md:Properties, md:ParameterUseMode]}
+    - {field: ModifiesData, path: [md:Command, md:Properties, md:ModifiesData]}
+    - {field: Representation, path: [md:Command, md:Properties, md:Representation]}
+    - {field: ToolTip, path: [md:Command, md:Properties, md:ToolTip]}
+    - {field: Shortcut, path: [md:Command, md:Properties, md:Shortcut]}
+    - {field: OnMainServerUnavalableBehavior, path: [md:Command, md:Properties, md:OnMainServerUnavalableBehavior]}
+  yaml:
+    kind: mapping
+    fields:
+    - {field: Name, key: Имя}
+    - {field: Synonym, key: Синоним}
+    - {field: Comment, key: Комментарий}
+    - {field: Group, key: Группа}
+    - {field: ParameterUseMode, key: РежимИспользованияПараметра}
+    - {field: ModifiesData, key: ИзменяетДанные}
+    - {field: Representation, key: Отображение}
+    - {field: ToolTip, key: Подсказка}
+    - {field: Shortcut, key: СочетаниеКлавиш}
+    - {field: OnMainServerUnavalableBehavior, key: ПоведениеПриНедоступностиОсновногоСервера}
+presence:
+- target: {field: Name}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {default: {input: name}}
+- target: {field: Comment}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {default: {literal: ""}}
+- target: {field: ParameterUseMode}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {default: {literal: Single}}
+- target: {field: ModifiesData}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {default: {literal: false}}
+- target: {field: Representation}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {default: {literal: Auto}}
+- target: {field: Shortcut}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {default: {literal: ""}}
+- target: {field: OnMainServerUnavalableBehavior}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {default: {literal: Auto}}
+- target: {field: ToolTip}
+  xml:
+    canonical: [{when: {not: {present: {field: ToolTip}}}, form: empty-element}]

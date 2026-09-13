@@ -1,0 +1,31 @@
+format: nkdk-declarations/1
+kind: fragment
+id: fragment.form-module-resource
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []
+resources:
+  - oneOf:
+      - xml:
+          sequence:
+            - literal: Ext
+            - literal: Form
+            - literal: Module.bsl
+        yaml:
+          sequence:
+            - literal: Модуль.bsl
+      - xml:
+          sequence:
+            - literal: Ext
+            - literal: Form
+            - literal: Module.bin
+        yaml:
+          sequence:
+            - literal: Модуль.bin

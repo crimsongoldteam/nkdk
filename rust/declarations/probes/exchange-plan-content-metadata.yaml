@@ -1,0 +1,43 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.exchange-plan-content-metadata
+imports: {path: common.metadata-object-chain-path}
+inputs:
+  roots: {index: metadata.roots}
+  children: {index: metadata.children}
+value: {kind: record, fields: [{name: path, type: {use: path}}]}
+representations:
+  xml: {kind: record, fields: [{field: path, path: [Item, Metadata]}]}
+  yaml: {kind: mapping, fields: [{field: path, key: Метаданные}]}
+constraints:
+- id: target-exists
+  appliesTo: [xml-import, yaml-validation]
+  assert:
+    present:
+      fold:
+        in: {get: {of: {field: path}, field: tail}}
+        initial: {lookup: {in: {input: roots}, key: {record: {kind: {get: {of: {field: path}, field: root}}, name: {get: {of: {field: path}, field: name}}}}}}
+        as: segment
+        state: parent
+        next:
+          lookup:
+            in: {input: children}
+            key: {record: {parent: {var: parent}, kind: {get: {of: {var: segment}, field: kind}}, name: {get: {of: {var: segment}, field: name}}}}
+  diagnostic: {code: metadata.target-missing, severity: error, at: {field: path}, message: Target is missing}
+- id: allowed-object-path
+  appliesTo: [xml-import, yaml-validation]
+  assert:
+    or:
+    - eq:
+      - {get: {of: {field: path}, field: tail}}
+      - {take: {in: {get: {of: {field: path}, field: tail}}, count: 0}}
+    - and:
+      - eq: [{get: {of: {field: path}, field: root}}, {literal: CalculationRegister}]
+      - eq:
+        - {get: {of: {field: path}, field: tail}}
+        - {take: {in: {get: {of: {field: path}, field: tail}}, count: 1}}
+      - each:
+          in: {get: {of: {field: path}, field: tail}}
+          as: segment
+          where: {eq: [{get: {of: {var: segment}, field: kind}}, {literal: Recalculation}]}
+  diagnostic: {code: metadata.target-not-allowed, severity: error, at: {field: path}, message: Expected a root object or a calculation register recalculation}

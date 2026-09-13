@@ -1,0 +1,35 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: readOnly
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: readOnly
+        path:
+          - Form
+          - ReadOnly
+  yaml:
+    kind: mapping
+    fields:
+      - field: readOnly
+        key: ТолькоПросмотр
+presence:
+  - target:
+      field: readOnly
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+id: contract.property.0d9f07e1f287d696fea0.fragment

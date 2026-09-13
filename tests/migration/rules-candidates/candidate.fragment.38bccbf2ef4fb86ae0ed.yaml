@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: horizontalStretch
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: horizontalStretch
+        path:
+          - HorizontalStretch
+  yaml:
+    kind: mapping
+    fields:
+      - field: horizontalStretch
+        key: РастягиватьПоГоризонтали
+presence:
+  - target:
+      field: horizontalStretch
+    xml:
+      missing:
+        denotes:
+          literal: true
+      canonical:
+        - when:
+            eq:
+              - field: horizontalStretch
+              - literal: true
+          form: missing
+    yaml:
+      default:
+        literal: true
+id: candidate.fragment.38bccbf2ef4fb86ae0ed

@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.bd4edc5f0eda64491966
+description: 'Кандидат проекции: относительный XML-корень ItemWidth; не полный владелец'
+imports:
+  part0: candidate.fragment.5dc57ff7aec5ba5a897c
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

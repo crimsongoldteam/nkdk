@@ -1,0 +1,8 @@
+format: nkdk-declarations/1
+kind: value
+id: common.rows
+imports: {row: common.row}
+value: {kind: sequence, item: {use: row}}
+representations:
+  xml: {kind: element-sequence, path: [Item]}
+  yaml: {kind: sequence}

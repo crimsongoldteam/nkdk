@@ -1,0 +1,15 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.document-form-links
+imports: {part: fragment.document-form-links}
+inputs:
+  name: {type: {kind: scalar, scalar: text}}
+  roots: {index: metadata.roots}
+  formTargets: {index: metadata.forms}
+  ownerPath: {type: {kind: scalar, scalar: text}}
+  forms: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+compose: [{use: part, bind: {ownerName: {input: name}, roots: {input: roots}, formTargets: {input: formTargets}, ownerPath: {input: ownerPath}, forms: {input: forms}}}]
+value: {kind: record, fields: []}
+representations:
+  xml: {kind: record, fields: []}
+  yaml: {kind: mapping, fields: []}

@@ -1,0 +1,318 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.string
+  value1: common.boolean
+  inputType1f8ea46361ff: common.path-root
+  value3: common.owner-or-common-form-link
+  value4: common.i8n-text
+value:
+  kind: record
+  fields:
+    - name: nameInDataSource
+      type:
+        use: value0
+    - name: useStandardCommands
+      type:
+        use: value1
+    - name: defaultRecordForm
+      type:
+        use: value3
+        bind:
+          owner:
+            input: owner
+          forms:
+            input: forms
+          roots:
+            input: roots
+    - name: defaultListForm
+      type:
+        use: value3
+        bind:
+          owner:
+            input: owner
+          forms:
+            input: forms
+          roots:
+            input: roots
+    - name: recordPresentation
+      type:
+        use: value4
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          ownerName:
+            input: ownerName
+    - name: extendedRecordPresentation
+      type:
+        use: value4
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          ownerName:
+            input: ownerName
+    - name: listPresentation
+      type:
+        use: value4
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          ownerName:
+            input: ownerName
+    - name: extendedListPresentation
+      type:
+        use: value4
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          ownerName:
+            input: ownerName
+    - name: explanation
+      type:
+        use: value4
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          ownerName:
+            input: ownerName
+    - name: includeHelpInContents
+      type:
+        use: value1
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: nameInDataSource
+        path:
+          - Properties
+          - NameInDataSource
+      - field: useStandardCommands
+        path:
+          - Properties
+          - UseStandardCommands
+      - field: defaultRecordForm
+        path:
+          - Properties
+          - DefaultRecordForm
+      - field: defaultListForm
+        path:
+          - Properties
+          - DefaultListForm
+      - field: recordPresentation
+        path:
+          - Properties
+          - RecordPresentation
+      - field: extendedRecordPresentation
+        path:
+          - Properties
+          - ExtendedRecordPresentation
+      - field: listPresentation
+        path:
+          - Properties
+          - ListPresentation
+      - field: extendedListPresentation
+        path:
+          - Properties
+          - ExtendedListPresentation
+      - field: explanation
+        path:
+          - Properties
+          - Explanation
+      - field: includeHelpInContents
+        path:
+          - Properties
+          - IncludeHelpInContents
+  yaml:
+    kind: mapping
+    fields:
+      - field: nameInDataSource
+        key: ИмяВИсточникеДанных
+      - field: useStandardCommands
+        key: ИспользоватьСтандартныеКоманды
+      - field: defaultRecordForm
+        key: ОсновнаяФормаЗаписи
+      - field: defaultListForm
+        key: ОсновнаяФормаСписка
+      - field: recordPresentation
+        key: ПредставлениеЗаписи
+      - field: extendedRecordPresentation
+        key: РасширенноеПредставлениеЗаписи
+      - field: listPresentation
+        key: ПредставлениеСписка
+      - field: extendedListPresentation
+        key: РасширенноеПредставлениеСписка
+      - field: explanation
+        key: Пояснение
+      - field: includeHelpInContents
+        key: ВключатьСправкуВСодержание
+presence:
+  - target:
+      field: useStandardCommands
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: false
+  - target:
+      field: defaultRecordForm
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: defaultRecordForm
+          form: empty-element
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: defaultListForm
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: defaultListForm
+          form: empty-element
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: recordPresentation
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: recordPresentation
+          form: empty-element
+  - target:
+      field: extendedRecordPresentation
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: extendedRecordPresentation
+          form: empty-element
+  - target:
+      field: listPresentation
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: listPresentation
+          form: empty-element
+  - target:
+      field: extendedListPresentation
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: extendedListPresentation
+          form: empty-element
+  - target:
+      field: explanation
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: explanation
+          form: empty-element
+  - target:
+      field: includeHelpInContents
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: false
+inputs:
+  owner:
+    type:
+      kind: scalar
+      scalar: text
+  forms:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  roots:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: kind
+            type:
+              use: inputType1f8ea46361ff
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  ownerName:
+    type:
+      kind: scalar
+      scalar: text
+id: candidate.fragment.59f8200d8264247dfecc

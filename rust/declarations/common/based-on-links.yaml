@@ -1,0 +1,106 @@
+format: nkdk-declarations/1
+kind: value
+id: common.based-on-links
+imports: {path: common.metadata-object-chain-path, rootKind: common.path-root, childKind: common.path-object-kind}
+namespaces: {xr: 'http://v8.1c.ru/8.3/xcf/readable', xsi: 'http://www.w3.org/2001/XMLSchema-instance'}
+inputs:
+  roots:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+        - {name: kind, type: {use: rootKind}}
+        - {name: name, type: {kind: scalar, scalar: text}}
+      value: {kind: scalar, scalar: text}
+  children:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+        - {name: kind, type: {use: childKind}}
+        - {name: name, type: {kind: scalar, scalar: text}}
+        - {name: parent, type: {kind: scalar, scalar: text}}
+      value: {kind: scalar, scalar: text}
+value: {kind: sequence, item: {use: path}}
+representations:
+  xml:
+    kind: element-sequence
+    path:
+    - xr:Item
+    item: {kind: with-attributes, attributes: [{name: 'xsi:type', value: {qname: 'xr:MDObjectRef'}}], content: {kind: text}}
+  yaml: {kind: sequence, item: {kind: scalar, scalar: text}}
+presence:
+- target: self
+  xml:
+    missing: {denotes: {absent: true}}
+    empty:
+    - {form: empty-element, denotes: {absent: true}}
+    canonical:
+    - {when: {not: {present: {self: true}}}, form: empty-element}
+    - {form: ordinary}
+  yaml:
+    missing: {denotes: {absent: true}}
+    empty:
+    - {form: empty-sequence, denotes: {absent: true}}
+    omitWhen: {not: {present: {self: true}}}
+constraints:
+- id: target-exists
+  appliesTo:
+  - xml-import
+  - yaml-validation
+  assert:
+    each:
+      in: {self: true}
+      as: path
+      where:
+        present:
+          fold:
+            in: {get: {of: {var: path}, field: tail}}
+            initial:
+              lookup:
+                in: {input: roots}
+                key: {record: {kind: {get: {of: {var: path}, field: root}}, name: {get: {of: {var: path}, field: name}}}}
+            as: segment
+            state: parent
+            next:
+              lookup:
+                in: {input: children}
+                key:
+                  record: {parent: {var: parent}, kind: {get: {of: {var: segment}, field: kind}}, name: {get: {of: {var: segment}, field: name}}}
+  diagnostic: {code: metadata.target-missing, severity: error, at: {self: true}, message: Target is missing}
+- id: allowed-object-path
+  appliesTo:
+  - xml-import
+  - yaml-validation
+  assert:
+    each:
+      in: {self: true}
+      as: path
+      where:
+        or:
+        - and:
+          - {eq: [{get: {of: {var: path}, field: tail}}, {take: {in: {get: {of: {var: path}, field: tail}}, count: 0}}]}
+          - or:
+            - {eq: [{get: {of: {var: path}, field: root}}, {literal: ChartOfAccounts}]}
+            - {eq: [{get: {of: {var: path}, field: root}}, {literal: ExchangePlan}]}
+            - {eq: [{get: {of: {var: path}, field: root}}, {literal: Catalog}]}
+            - {eq: [{get: {of: {var: path}, field: root}}, {literal: Document}]}
+            - {eq: [{get: {of: {var: path}, field: root}}, {literal: ChartOfCharacteristicTypes}]}
+            - {eq: [{get: {of: {var: path}, field: root}}, {literal: BusinessProcess}]}
+            - {eq: [{get: {of: {var: path}, field: root}}, {literal: ChartOfCalculationTypes}]}
+            - {eq: [{get: {of: {var: path}, field: root}}, {literal: Task}]}
+        - and:
+          - {eq: [{get: {of: {var: path}, field: root}}, {literal: ExternalDataSource}]}
+          - {not: {eq: [{get: {of: {var: path}, field: tail}}, {take: {in: {get: {of: {var: path}, field: tail}}, count: 0}}]}}
+          - {eq: [{get: {of: {var: path}, field: tail}}, {take: {in: {get: {of: {var: path}, field: tail}}, count: 1}}]}
+          - each:
+              in: {get: {of: {var: path}, field: tail}}
+              as: segment
+              where: {eq: [{get: {of: {var: segment}, field: kind}}, {literal: Table}]}
+  diagnostic:
+    code: metadata.target-not-allowed
+    severity: error
+    at: {self: true}
+    message: Expected an allowed based-on root or an external data source table

@@ -1,0 +1,12 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.additional-indexes-owner
+imports: {indexes: fragment.additional-indexes}
+inputs:
+  owner: {type: {kind: scalar, scalar: text}}
+  identities: {index: metadata.additional-index-ids}
+compose: [{use: indexes, bind: {owner: {input: owner}, identities: {input: identities}}}]
+value: {kind: record, fields: [{name: name, type: {kind: scalar, scalar: text}}]}
+representations:
+  xml: {kind: record, fields: [{field: name, path: [Root, Name]}]}
+  yaml: {kind: mapping, fields: [{field: name, key: Name}]}

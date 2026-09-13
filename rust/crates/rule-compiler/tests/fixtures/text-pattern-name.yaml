@@ -1,0 +1,8 @@
+format: nkdk-declarations/1
+kind: value
+id: common.pattern-name
+imports: {words: common.pattern-kind, code: common.project-code}
+value: {use: code}
+representations:
+  xml: {kind: text}
+  yaml: {kind: text-table, use: words}

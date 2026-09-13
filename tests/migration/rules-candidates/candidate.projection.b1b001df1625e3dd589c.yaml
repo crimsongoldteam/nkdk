@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.b1b001df1625e3dd589c
+description: 'Кандидат проекции: относительный XML-корень CurrentRowUse; не полный владелец'
+imports:
+  part0: candidate.fragment.38e35996537878ae7715
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

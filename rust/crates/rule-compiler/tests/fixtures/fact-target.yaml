@@ -1,0 +1,15 @@
+format: nkdk-declarations/1
+kind: value
+id: common.project-target
+inputs:
+  names:
+    type: {kind: index, key: {kind: scalar, scalar: text}, value: {kind: scalar, scalar: text}}
+value: {kind: scalar, scalar: text}
+representations:
+  xml: {kind: text}
+  yaml: {kind: scalar, scalar: text}
+constraints:
+- id: known-target
+  appliesTo: [xml-import, yaml-validation]
+  assert: {present: {lookup: {in: {input: names}, key: {self: true}}}}
+  diagnostic: {code: bound-target.missing, severity: error, at: {self: true}, message: Target is missing}

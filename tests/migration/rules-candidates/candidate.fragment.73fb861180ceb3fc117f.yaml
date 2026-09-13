@@ -1,0 +1,36 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.string
+value:
+  kind: record
+  fields:
+    - name: presentationExpression
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: presentationExpression
+        path:
+          - dcssch:presentationExpression
+  yaml:
+    kind: mapping
+    fields:
+      - field: presentationExpression
+        key: ВыражениеПредставления
+presence:
+  - target:
+      field: presentationExpression
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+namespaces:
+  dcssch: http://v8.1c.ru/8.1/data-composition-system/schema
+id: candidate.fragment.73fb861180ceb3fc117f

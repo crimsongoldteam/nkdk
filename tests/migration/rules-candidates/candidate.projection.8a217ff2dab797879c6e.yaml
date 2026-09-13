@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.8a217ff2dab797879c6e
+description: 'Кандидат проекции: относительный XML-корень ViewStatusLocation; не полный владелец'
+imports:
+  part0: candidate.fragment.7b0e686a53750be8e2ba
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

@@ -1,0 +1,24 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.AccumulationRegisterAggregateUse
+value:
+  kind: record
+  fields:
+    - name: use
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: use
+        path:
+          - Use
+  yaml:
+    kind: mapping
+    fields:
+      - field: use
+        key: Использование
+presence: []
+id: candidate.fragment.2149f855765fb5582616

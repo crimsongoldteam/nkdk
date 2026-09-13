@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.FormPagesRepresentation
+value:
+  kind: record
+  fields:
+    - name: pagesRepresentation
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: pagesRepresentation
+        path:
+          - PagesRepresentation
+  yaml:
+    kind: mapping
+    fields:
+      - field: pagesRepresentation
+        key: ОтображениеСтраниц
+presence:
+  - target:
+      field: pagesRepresentation
+    xml:
+      missing:
+        denotes:
+          literal: Auto
+      canonical:
+        - when:
+            eq:
+              - field: pagesRepresentation
+              - literal: Auto
+          form: missing
+    yaml:
+      default:
+        literal: Auto
+id: candidate.fragment.4f1e084a9bb978665da0

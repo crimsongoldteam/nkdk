@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.InputFieldAutofillHint
+value:
+  kind: record
+  fields:
+    - name: autoFillHint
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: autoFillHint
+        path:
+          - AutofillHint
+  yaml:
+    kind: mapping
+    fields:
+      - field: autoFillHint
+        key: ПодсказкаАвтозаполнения
+presence:
+  - target:
+      field: autoFillHint
+    xml:
+      missing:
+        denotes:
+          literal: DontUse
+      canonical:
+        - when:
+            eq:
+              - field: autoFillHint
+              - literal: DontUse
+          form: missing
+    yaml:
+      default:
+        literal: DontUse
+id: candidate.fragment.a11fd2edb4556c199c58

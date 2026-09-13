@@ -1,0 +1,53 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: common.standard-command-group
+  imports: {group: system.StandardCommandsGroup}
+  value: {kind: record, fields: [{name: group, type: {use: group}}]}
+  representations:
+    xml: {kind: text-pattern, parts: [{field: group}]}
+    yaml: {kind: text-pattern, parts: [{field: group}]}
+- kind: value
+  id: common.custom-command-group
+  imports: {name: common.metadata-name, rootKind: common.path-root}
+  inputs:
+    roots:
+      type:
+        kind: index
+        key: {kind: record, fields: [{name: kind, type: {use: rootKind}}, {name: name, type: {kind: scalar, scalar: text}}]}
+        value: {kind: scalar, scalar: text}
+  value: {kind: record, fields: [{name: name, type: {use: name}}]}
+  representations:
+    xml: {kind: text-pattern, parts: [{literal: 'CommandGroup.'}, {field: name}]}
+    yaml: {kind: text-pattern, parts: [{literal: 'ГруппаКоманд.'}, {field: name}]}
+  constraints:
+  - id: target-exists
+    appliesTo: [xml-import, yaml-validation]
+    assert: {present: {lookup: {in: {input: roots}, key: {record: {kind: {literal: CommandGroup}, name: {get: {of: {self: true}, field: name}}}}}}}
+    diagnostic: {code: metadata.target-missing, severity: error, at: {self: true}, message: Command group is missing}
+- kind: value
+  id: common.metadata-command-group
+  imports: {standard: common.standard-command-group, custom: common.custom-command-group, rootKind: common.path-root}
+  namespaces: {xr: 'http://v8.1c.ru/8.3/xcf/readable', xsi: 'http://www.w3.org/2001/XMLSchema-instance'}
+  inputs:
+    roots:
+      type:
+        kind: index
+        key: {kind: record, fields: [{name: kind, type: {use: rootKind}}, {name: name, type: {kind: scalar, scalar: text}}]}
+        value: {kind: scalar, scalar: text}
+  value:
+    kind: choice
+    variants:
+    - {name: standard, type: {use: standard}}
+    - {name: custom, type: {use: custom, bind: {roots: {input: roots}}}}
+  representations:
+    xml: {kind: choice}
+    yaml: {kind: choice}
+  presence:
+  - target: self
+    xml:
+      missing: {denotes: {absent: true}}
+      empty: [{form: empty-element, denotes: {absent: true}}]
+    yaml:
+      missing: {denotes: {absent: true}}

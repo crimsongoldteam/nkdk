@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.ViewStatusLocation
+value:
+  kind: record
+  fields:
+    - name: viewStatusLocation
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: viewStatusLocation
+        path:
+          - ViewStatusLocation
+  yaml:
+    kind: mapping
+    fields:
+      - field: viewStatusLocation
+        key: ПоложениеСостоянияПросмотра
+presence:
+  - target:
+      field: viewStatusLocation
+    xml:
+      missing:
+        denotes:
+          literal: Auto
+      canonical:
+        - when:
+            eq:
+              - field: viewStatusLocation
+              - literal: Auto
+          form: missing
+    yaml:
+      default:
+        literal: Auto
+id: candidate.fragment.7b0e686a53750be8e2ba

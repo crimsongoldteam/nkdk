@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.EditTextUpdate
+value:
+  kind: record
+  fields:
+    - name: editTextUpdate
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: editTextUpdate
+        path:
+          - EditTextUpdate
+  yaml:
+    kind: mapping
+    fields:
+      - field: editTextUpdate
+        key: ОбновлениеТекстаРедактирования
+presence:
+  - target:
+      field: editTextUpdate
+    xml:
+      missing:
+        denotes:
+          literal: Auto
+      canonical:
+        - when:
+            eq:
+              - field: editTextUpdate
+              - literal: Auto
+          form: missing
+    yaml:
+      default:
+        literal: Auto
+id: candidate.fragment.000a2f9941fead941e22

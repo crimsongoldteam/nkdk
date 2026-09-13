@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.47a203d4673bce1950a8
+description: 'Кандидат проекции: относительный XML-корень BehaviorOnHorizontalCompression; не полный владелец'
+imports:
+  part0: candidate.fragment.1b5bfbb16fd377b93207
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

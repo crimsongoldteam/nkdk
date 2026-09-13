@@ -1,0 +1,41 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.DataCompositionSettingsItemViewMode
+value:
+  kind: record
+  fields:
+    - name: viewMode
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: viewMode
+        path:
+          - dcsset:viewMode
+  yaml:
+    kind: mapping
+    fields:
+      - field: viewMode
+        key: РежимОтображения
+presence:
+  - target:
+      field: viewMode
+    xml:
+      missing:
+        denotes:
+          literal: Auto
+      canonical:
+        - when:
+            eq:
+              - field: viewMode
+              - literal: Auto
+          form: missing
+    yaml:
+      default:
+        literal: Auto
+namespaces:
+  dcsset: http://v8.1c.ru/8.1/data-composition-system/settings
+id: candidate.fragment.9ed1a3544ea5e38e31da

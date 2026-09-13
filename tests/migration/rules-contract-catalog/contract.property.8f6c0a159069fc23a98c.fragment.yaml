@@ -1,0 +1,35 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: closeOnOwnerClose
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: closeOnOwnerClose
+        path:
+          - Form
+          - CloseOnOwnerClose
+  yaml:
+    kind: mapping
+    fields:
+      - field: closeOnOwnerClose
+        key: ЗакрыватьПриЗакрытииВладельца
+presence:
+  - target:
+      field: closeOnOwnerClose
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+id: contract.property.8f6c0a159069fc23a98c.fragment

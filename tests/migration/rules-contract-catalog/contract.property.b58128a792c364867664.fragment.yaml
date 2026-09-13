@@ -1,0 +1,38 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.string
+  value1: system.FormType
+  value2: common.boolean
+  value3: common.use-purposes
+value:
+  kind: record
+  fields:
+    - name: formType
+      type:
+        use: value1
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: formType
+        path:
+          - Form
+          - Properties
+          - FormType
+  yaml:
+    kind: mapping
+    fields:
+      - field: formType
+        key: ТипФормы
+presence:
+  - target:
+      field: formType
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: Managed
+id: contract.property.b58128a792c364867664.fragment

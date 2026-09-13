@@ -1,0 +1,124 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.string
+  value1: common.xdto-packages
+  value2: system.SessionReuseMode
+  value3: common.exact-decimal
+value:
+  kind: record
+  fields:
+    - name: namespace
+      type:
+        use: value0
+    - name: xdtoPackages
+      type:
+        use: value1
+    - name: descriptorFileName
+      type:
+        use: value0
+    - name: reuseSessions
+      type:
+        use: value2
+    - name: sessionMaxAge
+      type:
+        use: value3
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: namespace
+        path:
+          - Properties
+          - Namespace
+      - field: xdtoPackages
+        path:
+          - Properties
+          - XDTOPackages
+      - field: descriptorFileName
+        path:
+          - Properties
+          - DescriptorFileName
+      - field: reuseSessions
+        path:
+          - Properties
+          - ReuseSessions
+      - field: sessionMaxAge
+        path:
+          - Properties
+          - SessionMaxAge
+  yaml:
+    kind: mapping
+    fields:
+      - field: namespace
+        key: ПространствоИмен
+      - field: xdtoPackages
+        key: ПакетыXDTO
+      - field: descriptorFileName
+        key: ИмяФайлаДескриптора
+      - field: reuseSessions
+        key: ПовторноеИспользованиеСеансов
+      - field: sessionMaxAge
+        key: ВремяЖизниСеанса
+presence:
+  - target:
+      field: namespace
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: xdtoPackages
+    xml:
+      missing:
+        denotes:
+          sequence: []
+      empty:
+        - form: empty-element
+          denotes:
+            sequence: []
+    yaml:
+      missing:
+        denotes:
+          sequence: []
+      omitWhen:
+        not:
+          exists:
+            in:
+              field: xdtoPackages
+            as: row
+            where:
+              literal: true
+  - target:
+      field: descriptorFileName
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: reuseSessions
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: AutoUse
+  - target:
+      field: sessionMaxAge
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: 20
+id: candidate.fragment.05e1df62941be2e0ce3a

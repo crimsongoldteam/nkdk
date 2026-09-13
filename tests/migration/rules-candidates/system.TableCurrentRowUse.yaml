@@ -1,0 +1,21 @@
+format: nkdk-declarations/1
+kind: value
+id: system.TableCurrentRowUse
+enum:
+  Auto: Авто
+  Choice: Выбор
+  SelectionPresentation: ОтображениеВыделения
+  SelectionPresentationAndChoice: ОтображениеВыделенияИВыбор
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  t: http://v8.1c.ru/8.1/data/enterprise
+projections:
+  - id: system.TableCurrentRowUse.dcs
+    xml:
+      kind: with-attributes
+      attributes:
+        - name: xsi:type
+          value:
+            qname: t:TableCurrentRowUse
+      content:
+        kind: text

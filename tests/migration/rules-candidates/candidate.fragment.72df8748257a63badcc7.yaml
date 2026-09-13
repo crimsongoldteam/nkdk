@@ -1,0 +1,41 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: condition
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: condition
+        path:
+          - dcssch:condition
+  yaml:
+    kind: mapping
+    fields:
+      - field: condition
+        key: Условие
+presence:
+  - target:
+      field: condition
+    xml:
+      missing:
+        denotes:
+          literal: false
+      canonical:
+        - when:
+            eq:
+              - field: condition
+              - literal: false
+          form: missing
+    yaml:
+      default:
+        literal: false
+namespaces:
+  dcssch: http://v8.1c.ru/8.1/data-composition-system/schema
+id: candidate.fragment.72df8748257a63badcc7

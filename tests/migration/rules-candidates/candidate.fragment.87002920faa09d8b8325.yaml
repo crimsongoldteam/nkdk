@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.ItemsAndTitlesAlignVariant
+value:
+  kind: record
+  fields:
+    - name: itemsAndTitlesAlign
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: itemsAndTitlesAlign
+        path:
+          - ChildrenAlign
+  yaml:
+    kind: mapping
+    fields:
+      - field: itemsAndTitlesAlign
+        key: ВыравниваниеЭлементовИЗаголовков
+presence:
+  - target:
+      field: itemsAndTitlesAlign
+    xml:
+      missing:
+        denotes:
+          literal: Auto
+      canonical:
+        - when:
+            eq:
+              - field: itemsAndTitlesAlign
+              - literal: Auto
+          form: missing
+    yaml:
+      default:
+        literal: Auto
+id: candidate.fragment.87002920faa09d8b8325
