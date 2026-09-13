@@ -82,6 +82,7 @@ fn lift_kind(entries: &mut [LinkedEntry], pattern: bool) -> Result<(), Diagnosti
                 owner.constraints.push(constraint);
             }
         }
+        owner.field_dependencies = dependencies::field_dependencies(&owner.value, &owner.presence)?;
     }
     Ok(())
 }
@@ -109,4 +110,54 @@ pub(super) fn snapshot(entries: &[LinkedEntry]) -> BTreeMap<u32, LinkedEntry> {
         .iter()
         .map(|entry| (entry.id, entry.clone()))
         .collect()
+}
+
+/// Resolve inherited scalar restoration before representation coverage checks.
+pub(super) fn inherit_presence(
+    owner: &mut LinkedEntry,
+    modules: &BTreeMap<&str, &Module>,
+    ids: &BTreeMap<&str, u32>,
+    visiting: &mut BTreeSet<u32>,
+    cache: &mut BTreeMap<u32, LinkedEntry>,
+) -> Result<(), Diagnostic> {
+    let LinkedType::Record(fields) = &owner.value else {
+        return Ok(());
+    };
+    let mut inherited = Vec::new();
+    for (slot, field) in fields.iter().enumerate() {
+        if owner
+            .presence
+            .iter()
+            .any(|rule| rule.target == LinkedPresenceTarget::Field(slot as u32))
+        {
+            continue;
+        }
+        let Some((id, bindings, arguments)) = field.value.as_reference() else {
+            continue;
+        };
+        let module = modules
+            .values()
+            .find(|module| ids[module.id.as_str()] == id)
+            .expect("linked reference");
+        let mut common = build_entry(module, modules, ids, visiting, cache)?;
+        if !matches!(common.value, LinkedType::Scalar(_) | LinkedType::Enum(_)) {
+            continue;
+        }
+        if common.presence.is_empty() {
+            continue;
+        }
+        composition::instantiate_value(&mut common, bindings, arguments)?;
+        for mut rule in common.presence {
+            if rule.target != LinkedPresenceTarget::SelfValue {
+                continue;
+            }
+            rule.target = LinkedPresenceTarget::Field(slot as u32);
+            for expression in rule.expressions_mut() {
+                crate::expressions::replace_self(expression, slot);
+            }
+            inherited.push(rule);
+        }
+    }
+    owner.presence.extend(inherited);
+    Ok(())
 }

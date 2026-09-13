@@ -3,10 +3,14 @@ use std::{fs, process::Command};
 
 #[test]
 fn generated_rust_executes_both_directions_and_uses_the_imported_table() {
-    let identity_row = include_str!("fixtures/fact-identity-source.yaml")
+    let identity_source = include_str!("fixtures/fact-identity-source.yaml");
+    let inherited_identity = identity_source.replace("id: test.identity-source", "id: test.inherited-identity\nimports: {restore: common.restored-text}")
+        .replace("{name: token, type: {kind: scalar, scalar: text}}", "{name: token, type: {use: restore, bind: {saved: {input: saved}, name: {field: name}}}}")
+        .replace(&format!("presence:{}", identity_source.split("presence:").nth(1).unwrap().split("contributions:").next().unwrap()), "");
+    let identity_row = inherited_identity
         .split("contributions:").next().unwrap()
         .replace("kind: object", "kind: value")
-        .replace("test.identity-source", "test.identity-row")
+        .replace("test.inherited-identity", "test.identity-row")
         .replace("{index: test.identities}", "{type: {kind: index, key: {kind: scalar, scalar: text}, value: {kind: scalar, scalar: text}}}")
         .replace("[Root, Name]", "[Name]")
         .replace("[Root]", "[]");
@@ -459,6 +463,8 @@ contributions:
                 include_str!("fixtures/fact-member-consumer.yaml"),
             ),
             ("fact-owner.yaml", include_str!("fixtures/fact-owner.yaml")),
+            ("fact-inherited-identity.yaml", inherited_identity.as_str()),
+            ("fact-restored-text.yaml", include_str!("fixtures/fact-restored-text.yaml")),
             ("fact-identity-owner.yaml", identity_owner),
             ("fact-identity-row.yaml", identity_row.as_str()),
             ("fact-identity-rows.yaml", identity_rows),
@@ -651,12 +657,14 @@ contributions:
                 "fact-identity-row.yaml",
                 "fact-identity-rows.yaml",
                 "fact-identity-source.yaml",
+                "fact-inherited-identity.yaml",
                 "fact-member-consumer.yaml",
                 "fact-owner.yaml",
                 "fact-path-consumer.yaml",
                 "fact-path-edge.yaml",
                 "fact-path-owner.yaml",
                 "fact-prefix.yaml",
+                "fact-restored-text.yaml",
                 "fact-rows-owner.yaml",
                 "fact-rows.yaml",
                 "fact-target.yaml",
@@ -1129,6 +1137,7 @@ fn main() {
     let budget = || core::facts::prepared::FactBudget { text: core::facts::text::TextBudget { entries: 30, bytes: 1000 }, rows: 20 };
     for (name,source,yaml) in [
         ("test.identity-source", "<Root token='exact'><Name>First</Name></Root>","Name: First"),
+        ("test.inherited-identity", "<Root token='exact'><Name>First</Name></Root>","Name: First"),
         ("test.identity-owner", "<Root><Rows><Item token='first-id'><Name>First</Name></Item><Item token='second-id'><Name>Second</Name></Item></Rows></Root>","Rows:\n  First: {}\n  Second: {}"),
     ] {
     let identity = entry_id(name).unwrap();

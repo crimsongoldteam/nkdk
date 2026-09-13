@@ -369,6 +369,7 @@ fn build_entry(
             };
         }
     }
+    scalar_contracts::inherit_presence(&mut entry, modules, ids, visiting, cache)?;
     entry.field_dependencies = dependencies::field_dependencies(&entry.value, &entry.presence)?;
     validate_xml(&entry.value, &entry.xml, &entry.presence, &entry.source)?;
     validate_yaml(&entry.value, &entry.yaml, &entry.presence, &entry.source)?;

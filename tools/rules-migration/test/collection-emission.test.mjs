@@ -68,5 +68,17 @@ test('named collections reuse the full item declaration and lift its declared ke
   assert.equal(implicitKey.modules[0].representations.yaml.fields[0].key,'name');
   const array=structuredClone(graph);array.edges[0].mapping.yamlAsArray=true;
   assert.equal(emitCollections(array,withoutKeyYAML,new Map([['common.string',{}],['common.boolean',{}]])).modules.length,0);
+  const identityEntries=structuredClone(entries),{catalog}=candidateCatalog();
+  identityEntries.find(entry=>entry.symbol==='ItemRules').properties.push({name:'uuid',status:'static-parameters',parameters:{type:'uuid',xml:'_uuid',xmlParents:[],xmlOnly:true}});
+  const identified=emitCollections(graph,identityEntries,catalog);
+  assert.equal(identified.results[0].status,'candidate',JSON.stringify(identified.results[0]));
+  const [row,,owner]=identified.modules;
+  assert.deepEqual(row.representations.xml.fields.at(-1),{field:'uuid',path:[],attribute:'uuid'});
+  assert.equal(row.representations.yaml.fields.some(field=>field.field==='uuid'),false);
+  assert.deepEqual(row.value.fields.at(-1).type.bind.name,{field:'name'});
+  assert.deepEqual(row.value.fields.at(-1).type.bind.kind,{literal:'Item'});
+  assert.equal(owner.inputs.identities.index,'metadata.own-identities');
+  assert.equal(owner.contributions[0].index,'metadata.own-identities');
+  assert.deepEqual(owner.contributions[0].value,{get:{of:{var:'row'},field:'uuid'}});
   for(const key of ['missing','enabled']){const invalid=structuredClone(graph);invalid.edges[0].mapping.keyField=key;assert.equal(emitCollections(invalid,entries,new Map([['common.string',{}],['common.boolean',{}]])).modules.length,0);}
 });

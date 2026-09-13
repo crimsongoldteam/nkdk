@@ -56,6 +56,14 @@ identified[2].inputs.identities={index:'test.identified-text'};
 identified[2].contributions=[{index:'test.identified-text',forEach:{in:{field:'items'},as:'row'},key:{get:{of:{var:'row'},field:'name'}},value:{get:{of:{var:'row'},field:'token'}}}];
 let token=0;const identifiedXML=textXML.replaceAll('<Item>',()=>`<Item token="identity-${++token}">`);
 const identifiedInputs={defaultLanguage:'ru',registeredLanguages:['ru','en']};
+const uuidEntries=structuredClone(textEntries);
+uuidEntries.find(entry=>entry.symbol==='ItemRules').properties.push({name:'uuid',status:'static-parameters',parameters:{type:'uuid',xml:'_uuid',xmlParents:[],xmlOnly:true}});
+const automaticIdentity=emitCollections(namedGraph,uuidEntries,catalog);
+if(automaticIdentity.results[0].status!=='candidate')throw new Error(JSON.stringify(automaticIdentity.results));
+const automaticIdentityEntry=automaticIdentity.results[0].declaration;
+const automaticIdentityXML=identifiedXML.replaceAll(' token=',' uuid=');
+const automaticIdentityInputs={...identifiedInputs,component:'cf',owner:'parent-uuid'};
+
 const nested={format:'nkdk-declarations/1',kind:'value',id:'test.collection.nested',presence:[{target:'self',xml:{missing:{denotes:{absent:true}}},yaml:{missing:{denotes:{absent:true}}}}],value:{kind:'record',fields:[{name:'text',type:{kind:'scalar',scalar:'text'}}]},representations:{xml:{kind:'record',fields:[{field:'text',path:['Text']}]},yaml:{kind:'mapping',fields:[{field:'text',key:'Текст'}]}}};
 const composed=structuredClone(named.modules);
 composed[0].id='test.collection.composed.item';
@@ -90,12 +98,13 @@ xmlOnlyScalar.value.fields=xmlOnlyScalar.value.fields.filter(field=>field.name!=
 xmlOnlyScalar.representations.xml.fields=xmlOnlyScalar.representations.xml.fields.filter(field=>field.field!=='nested').map(field=>({...field,path:['Root',...field.path]}));
 xmlOnlyScalar.representations.yaml.fields=xmlOnlyScalar.representations.yaml.fields.filter(field=>field.field!=='nested');
 xmlOnlyScalar.constraints.push({id:'hidden-policy',appliesTo:['yaml-validation'],assert:{not:{eq:[{field:'token'},{literal:'blocked-token'}]}},diagnostic:{code:'test.hidden-policy',severity:'error',at:{field:'token'},message:'Restored token is reserved'}});
-const declarations=[...unifiedDeclarations,xmlOnlyScalar,...xmlOnly,...groupedCommon,...grouped,...emitted.modules,...named.modules,...composed,nested,...indexed.modules,...textCollections.flatMap(result=>result.modules),...identified,computedFacts,computedConsumer,chainedSource,chainedConsumer,catalog.get('migration.metadata-root-index')];
+const declarations=[...unifiedDeclarations,xmlOnlyScalar,...xmlOnly,...groupedCommon,...grouped,...emitted.modules,...named.modules,...composed,nested,...indexed.modules,...textCollections.flatMap(result=>result.modules),...identified,...automaticIdentity.modules,computedFacts,computedConsumer,chainedSource,chainedConsumer,catalog.get('migration.metadata-root-index')];
 const modules=[...declarations,...dependencyFiles(declarations,catalog)];
 const files=Object.fromEntries(modules.map(m=>[m.id+'.yaml',yaml.dump(m,{noRefs:true})]));
 const entry=emitted.results[0].declaration;
-const paths=writeFocused(join(root,'rust/target/collection-emission-check'),files,{factSources:[{entry:chainedSource.id,yaml:"Name: НумПервый"},{entry:identified[2].id,xml:identifiedXML,inputs:identifiedInputs},{entry:'migration.metadata-root-index',xml:'<Root><Kind>DocumentNumerator</Kind><Name>Общий</Name><Identity>shared</Identity></Root>'},{entry:computedFacts.id,xml:'<Root><Items><Item><Properties><Name>Первый</Name><Enabled>true</Enabled></Properties></Item></Items></Root>'},{entry:computedFacts.id,yaml:'Элементы: [{Имя: Второй, Включено: Ложь}]'}],cases:[
+const paths=writeFocused(join(root,'rust/target/collection-emission-check'),files,{factSources:[{entry:automaticIdentityEntry,xml:automaticIdentityXML,inputs:automaticIdentityInputs},{entry:chainedSource.id,yaml:"Name: НумПервый"},{entry:identified[2].id,xml:identifiedXML,inputs:identifiedInputs},{entry:'migration.metadata-root-index',xml:'<Root><Kind>DocumentNumerator</Kind><Name>Общий</Name><Identity>shared</Identity></Root>'},{entry:computedFacts.id,xml:'<Root><Items><Item><Properties><Name>Первый</Name><Enabled>true</Enabled></Properties></Item></Items></Root>'},{entry:computedFacts.id,yaml:'Элементы: [{Имя: Второй, Включено: Ложь}]'}],cases:[
   {id:'generated-dependent-index',entry:chainedConsumer.id,factBindings:{derived:'test.chained'},xml:'<Root><Name>НумПервый</Name></Root>',yaml:'Name: НумПервый',rejectedYAML:['Name: НумВторой']},
+  {id:'automatically-generated-uuid',entry:automaticIdentityEntry,inputs:automaticIdentityInputs,factBindings:{identities:'metadata.own-identities'},xml:automaticIdentityXML,yaml:'Элементы:\n  Первый:\n    Включено: Истина\n  Второй:\n    Включено: Ложь'},
   {id:'generated-identity-and-synonym',entry:identified[2].id,inputs:identifiedInputs,factBindings:{identities:'test.identified-text'},xml:identifiedXML,yaml:'Элементы:\n  Первый:\n    Включено: Истина\n  Второй:\n    Включено: Ложь'},
   ...['Первый','Второй'].map((name,index)=>({id:`generated-computed-index-${index}`,entry:computedConsumer.id,factBindings:{derived:'test.computed'},xml:`<Root><Name>Нум${name}</Name></Root>`,yaml:`Name: Нум${name}`,rejectedYAML:['Name: Первый','Name: НумОтсутствует']})),
   ...textCollections.map((result,index)=>({id:`generated-local-name-${index}`,entry:result.results[0].declaration,inputs:{defaultLanguage:'ru',registeredLanguages:['ru','en']},xml:textXML,yaml:index===0?expected:'Элементы:\n  Первый:\n    Включено: Истина\n  Второй:\n    Включено: Ложь'})),

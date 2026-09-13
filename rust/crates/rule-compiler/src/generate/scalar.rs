@@ -418,12 +418,9 @@ pub(crate) fn optional(entry: &LinkedEntry) -> Result<bool, Diagnostic> {
         return Ok(false);
     }
     let missing = |value: &Option<LinkedExpression>| {
-        value.as_ref().is_some_and(|v| {
-            matches!(
-                v.kind,
-                LinkedExpressionKind::Absent | LinkedExpressionKind::Literal(_)
-            )
-        })
+        value
+            .as_ref()
+            .is_some_and(super::scalar_presence::independent)
     };
     if entry.presence.len() != 1
         || !entry.presence.iter().all(|p| {
@@ -437,7 +434,7 @@ pub(crate) fn optional(entry: &LinkedEntry) -> Result<bool, Diagnostic> {
     {
         return Err(unsupported(
             entry,
-            "Scalar presence requires constant missing states and an explicit absence representation",
+            "Scalar presence requires supported missing expressions and an explicit absence representation",
         ));
     }
     let mut shape = entry.clone();

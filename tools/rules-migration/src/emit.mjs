@@ -18,8 +18,9 @@ export function emitCandidates(entries, catalog, origin = p => p.source.path, xm
     }
     for (const property of ordered) {
       const invalidOrder = entry.xmlOrder?.status === 'static' && new Set(entry.xmlOrder.keys).size !== entry.xmlOrder.keys.length;
-      const mapped = entry.xmlOrder?.status === 'unresolved' || invalidOrder ? {status:'blocked',reason:'owner-order-unresolved'} :
+      let mapped = entry.xmlOrder?.status === 'unresolved' || invalidOrder ? {status:'blocked',reason:'owner-order-unresolved'} :
         entry.comparison.status === 'keys-match' ? mapProperty(property,catalog,xmlNamespaces) : {status:'blocked',reason:`owner-${entry.comparison.status}`};
+      if(mapped.status==='candidate' && !mapped.path.length)mapped={status:'blocked',reason:'owner-root-required'};
       result.properties.push({name:property.name, source:property.source, status:mapped.status, ...(property.constantDefaults?{constantDefaults:property.constantDefaults}:{}), ...(mapped.sourceTag?{sourceTag:mapped.sourceTag}:{}), ...(mapped.reason ? {reason:mapped.reason} : {}), ...(mapped.parameterEquivalences ? {parameterEquivalences:mapped.parameterEquivalences} : {}), ...(mapped.excludedParameters ? {excludedParameters:mapped.excludedParameters} : {})});
       if (mapped.status !== 'candidate') continue;
       const root = mapped.path[0];
@@ -46,8 +47,8 @@ export function emitCandidates(entries, catalog, origin = p => p.source.path, xm
           const alias = Object.entries(fragment.imports).find(([,id])=>id===mapped.id)?.[0] ?? `value${Object.keys(fragment.imports).length}`;
           fragment.imports[alias] = mapped.id;
           fragment.value.fields.push({name:property.name,type:{...mapped.type,use:alias}});
-          fragment.representations.xml.fields.push({field:property.name,path:mapped.path});
-          fragment.representations.yaml.fields.push({field:property.name,key:mapped.key});
+          fragment.representations.xml.fields.push({field:property.name,path:mapped.path,...(mapped.attribute?{attribute:mapped.attribute}:{})});
+          if(mapped.key!==undefined)fragment.representations.yaml.fields.push({field:property.name,key:mapped.key});
           if(mapped.presence)fragment.presence.push(mapped.presence);
           if(mapped.constraints)(fragment.constraints??=[]).push(...mapped.constraints);
           mergeInputs(fragmentInputs,mapped.inputs);

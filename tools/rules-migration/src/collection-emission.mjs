@@ -42,6 +42,15 @@ export function emitCollections(graph,entries,catalog,namespaces={}) {
     // Source metadataCollection selects its name through keyField, then "name".
     // This is a migration correspondence, not a runtime rule for named fields.
     const nameField=fields.find(f=>f.property.name===(edge.mapping.keyField??'name'));
+    const identities=fields.filter(field=>field.mapped.identityProjection);
+    if(identities.length>1)block('multiple-identity-properties');
+    for(const {mapped} of identities) {
+      if(nameField?.mapped.id!=='common.string') { block('identity-name-required'); continue; }
+      if(typeof edge.mapping.xml!=='string') {block('identity-kind-required');continue;}
+      mapped.type.bind.name={field:nameField.property.name};
+      mapped.type.bind.kind={literal:edge.mapping.xml.split(':').at(-1)};
+      mapped.inputs=Object.fromEntries(Object.entries(mapped.inputs).filter(([name])=>!['name','kind'].includes(name)));
+    }
     for(const {property,mapped} of fields) {
       if(!['I8nText','FormattedI8nText'].includes(property.parameters?.type) || mapped.status!=='candidate')continue;
       if(nameField?.mapped.id!=='common.string')continue;
@@ -52,7 +61,7 @@ export function emitCollections(graph,entries,catalog,namespaces={}) {
     // Shared indexes retain their explicit provider. Only researched language
     // inputs are shared scalars; other context still requires a source binding.
     if(fields.some(f=>Object.entries(f.mapped.inputs??{}).some(([name,input])=>input.type?.kind!=='index' &&
-      !(['I8nText','FormattedI8nText'].includes(f.property.parameters?.type) && ['defaultLanguage','registeredLanguages'].includes(name)))))block('item-context-binding-required');
+      !((['I8nText','FormattedI8nText'].includes(f.property.parameters?.type) && ['defaultLanguage','registeredLanguages'].includes(name)) || (f.mapped.identityProjection && ['component','owner'].includes(name))))))block('item-context-binding-required');
     if(fields.some(f=>f.mapped.sourceTag))block('item-source-tag');
     if(typeof edge.mapping.xml!=='string' || typeof edge.mapping.yaml!=='string' || !Array.isArray(edge.mapping.xmlParents) || !edge.mapping.xmlParents.length || edge.mapping.xmlParents.some(p=>typeof p!=='string'))block('collection-owner-path');
     if(edge.context.ownerFactRole || edge.context.configurationIndexUidSegment)block('collection-owner-contributions-required');
@@ -75,8 +84,8 @@ export function emitCollections(graph,entries,catalog,namespaces={}) {
       if(Object.hasOwn(row.imports,alias))throw new Error('Generated collection alias collision');
       row.imports[alias]=mapped.id;
       row.value.fields.push({name:property.name,type:{...mapped.type,use:alias}});
-      row.representations.xml.fields.push({field:property.name,path:mapped.path});
-      row.representations.yaml.fields.push({field:property.name,key:mapped.key});
+      row.representations.xml.fields.push({field:property.name,path:mapped.path,...(mapped.attribute?{attribute:mapped.attribute}:{})});
+      if(mapped.key!==undefined)row.representations.yaml.fields.push({field:property.name,key:mapped.key});
       if(mapped.presence)(row.presence??=[]).push(mapped.presence);
       if(mapped.constraints)(row.constraints??=[]).push(...mapped.constraints);
     }
@@ -102,6 +111,13 @@ export function emitCollections(graph,entries,catalog,namespaces={}) {
     withInputs(projection);
     if(Object.keys(inputs).length)projection.value.fields[0].type.bind=structuredClone(bind);
     if(list.namespaces)projection.namespaces=list.namespaces;
+    if(identities.length) {
+      projection.inputs.identities.index='metadata.own-identities';
+      const field=name=>({get:{of:{var:'row'},field:name}});
+      projection.contributions=[{index:'metadata.own-identities',forEach:{in:{field:edge.property},as:'row'},
+        key:{record:{component:{input:'component'},owner:{input:'owner'},kind:{literal:edge.mapping.xml.split(':').at(-1)},name:field(nameField.property.name)}},
+        value:field(identities[0].property.name)}];
+    }
     projection.id=id('property',[edge.owner,projection]);
     modules.push(row,list,projection);
     result.status='candidate';result.declaration=projection.id;

@@ -25,20 +25,19 @@ pub(crate) fn rule<'a>(
         .find(|rule| rule.target == LinkedPresenceTarget::SelfValue)
 }
 
+pub(crate) fn independent(expression: &LinkedExpression) -> bool {
+    match &expression.kind {
+        LinkedExpressionKind::Absent
+        | LinkedExpressionKind::Literal(_)
+        | LinkedExpressionKind::Input(_)
+        | LinkedExpressionKind::Field(_) => true,
+        LinkedExpressionKind::Operation { arguments, .. } => arguments.iter().all(independent),
+        _ => false,
+    }
+}
+
 pub(crate) fn validate_owner(owner: &LinkedEntry) -> Result<(), Diagnostic> {
     for rule in &owner.presence {
-        fn independent(expression: &LinkedExpression) -> bool {
-            match &expression.kind {
-                LinkedExpressionKind::Absent
-                | LinkedExpressionKind::Literal(_)
-                | LinkedExpressionKind::Input(_)
-                | LinkedExpressionKind::Field(_) => true,
-                LinkedExpressionKind::Operation { arguments, .. } => {
-                    arguments.iter().all(independent)
-                }
-                _ => false,
-            }
-        }
         let supported =
             |expression: &Option<LinkedExpression>| expression.as_ref().is_none_or(independent);
         if !matches!(rule.target, LinkedPresenceTarget::Field(_))

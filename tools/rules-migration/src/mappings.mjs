@@ -1,3 +1,4 @@
+import {mapIdentity} from './identity-property.mjs';
 import { commonInputs } from './common-inputs.mjs';
 const simple = new Map([['boolean','common.boolean'], ['string','common.string'], ['number','common.exact-decimal']]);
 const lists = new Map([['WebSocketClientHeaders','common.web-socket-client-headers'],['XDTOPackages','common.xdto-packages']]);
@@ -14,6 +15,7 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
   if (property.status !== 'static-parameters') return fail('requires-expression-mapping');
   if (!p || typeof p !== 'object' || Array.isArray(p)) return fail('invalid-property-shape');
   if (typeof property.name !== 'string' || !property.name) return fail('field-name-profile');
+  if(p.type==='uuid')return mapIdentity(property,catalog);
   if(Object.hasOwn(p,'toEnterprise') && p.toEnterprise !== false)return fail('excluded-enterprise-profile');
   if(Object.hasOwn(p,'tag') && (typeof p.tag!=='string' || !p.tag))return fail('source-tag-profile');
   const platform=value=>Array.isArray(value) && value.length===1 && value[0]==='PlatformApplication';

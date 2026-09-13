@@ -74,7 +74,71 @@ fn identity_fragments_keep_components_owners_and_base_links_separate() {
             base_count += 1;
         }
     }
-    let facts = builder.finish();
+    let facts = std::sync::Arc::new(builder.finish());
+    let restored_entry = entry_id("migration.metadata-uuid").unwrap();
+    let mut restored_count = 0;
+    for row in rows.iter().filter(|row| row["kind"] == "EnumValue") {
+        let values = ["component", "kind"]
+            .into_iter()
+            .map(|key| (key.to_owned(), InputValue::Text(text(row, key))))
+            .chain(std::iter::once((
+                "owner".into(),
+                InputValue::Text(text(row, "ownerUuid")),
+            )))
+            .collect();
+        let inputs = nkdk_compiled_rules::prepare_fact_inputs(
+            restored_entry,
+            facts.clone(),
+            generation,
+            values,
+        )
+        .unwrap();
+        let yaml = format!("Имя: {}", row["name"]);
+        let result = nkdk_compiled_rules::convert_file(
+            restored_entry,
+            Direction::YamlToXml,
+            yaml.as_bytes(),
+            &inputs,
+        )
+        .unwrap();
+        let expected = format!(
+            "<Root uuid=\"{}\"><Name>{}</Name></Root>",
+            text(row, "uuid"),
+            text(row, "name")
+        );
+        nkdk_conversion_core::proof::verify(expected.as_bytes(), &result.bytes, |_| false).unwrap();
+        let imported = nkdk_compiled_rules::convert_file(
+            restored_entry,
+            Direction::XmlToYaml,
+            expected.as_bytes(),
+            &inputs,
+        )
+        .unwrap();
+        assert!(!String::from_utf8_lossy(&imported.bytes).contains(&text(row, "uuid")));
+        restored_count += 1;
+    }
+    assert_eq!(restored_count, 9, "Reviewed EnumValue inventory");
+    let unprepared = nkdk_compiled_rules::prepare_fact_inputs(
+        restored_entry,
+        facts.clone(),
+        generation,
+        ["component", "owner", "kind"]
+            .into_iter()
+            .map(|key| (key.into(), InputValue::Text("missing".into())))
+            .collect(),
+    )
+    .unwrap();
+    assert!(
+        nkdk_compiled_rules::convert_file(
+            restored_entry,
+            Direction::YamlToXml,
+            "Имя: Новый".as_bytes(),
+            &unprepared
+        )
+        .is_err(),
+        "Missing identity preparation must not silently export XML without UUID"
+    );
+
     let own_id = nkdk_compiled_rules::fact_id("metadata.own-identities").unwrap();
     let base_id = nkdk_compiled_rules::fact_id("metadata.base-identities").unwrap();
     for row in rows {
