@@ -3,6 +3,25 @@ use std::{fs, process::Command};
 
 #[test]
 fn generated_rust_executes_both_directions_and_uses_the_imported_table() {
+    let directional = include_str!("fixtures/directional-fields.yaml");
+    let directional_extra = "format: nkdk-declarations/1\nkind: value\nid: common.directional-extra\nvalue: {kind: record, fields: [{name: marker, type: {kind: scalar, scalar: text}}]}\nrepresentations:\n  xml: {kind: record, fields: [{field: marker, path: [Marker]}]}\n  yaml: {kind: mapping, fields: [{field: marker, key: Marker}]}\n";
+    let directional_composed = directional
+        .replace(
+            "test.directional-fields",
+            "test.directional-composed\nimports: {extra: common.directional-extra}",
+        )
+        .replace(
+            "representations:",
+            "  - {name: extra, type: {use: extra}}\nrepresentations:",
+        )
+        .replace(
+            "[{field: left, path:",
+            "[{field: extra, path: [Root, Extra]}, {field: left, path:",
+        )
+        .replace(
+            "[{field: left, key:",
+            "[{field: extra, key: Extra}, {field: left, key:",
+        );
     let state_owner = include_str!("fixtures/finite-state-owner.yaml");
     let absent_state = include_str!("fixtures/finite-states.yaml")
         .lines()
@@ -400,6 +419,9 @@ contributions:
             .replace("value:", "inputs: {unused: {type: {kind: scalar, scalar: boolean}}, selected: {type: {kind: scalar, scalar: text}}}\nvalue:")
             .replace("{use: pair}", "{use: pair, bind: {allowed: {input: selected}, enabled: {input: unused}}}");
         let mut modules = [
+            ("directional-fields.yaml", directional),
+            ("directional-extra.yaml", directional_extra),
+            ("directional-composed.yaml", directional_composed.as_str()),
             ("absent-state.yaml", absent_state.as_str()),
             ("absent-state-owner.yaml", absent_owner.as_str()),
             ("finite-state-row.yaml", state_row.as_str()),
@@ -733,6 +755,9 @@ contributions:
                 "default-number.yaml",
                 "default-owner.yaml",
                 "default.yaml",
+                "directional-composed.yaml",
+                "directional-extra.yaml",
+                "directional-fields.yaml",
                 "enum-attributes.yaml",
                 "enum-owner.yaml",
                 "enum.yaml",
@@ -815,6 +840,25 @@ contributions:
         let main = r###"
 include!("generated.rs");
 fn main() {
+
+    for (name, extra_xml, extra_yaml) in [
+        ("test.directional-fields", "", ""),
+        ("test.directional-composed", "<Extra><Marker>fixed</Marker></Extra>", "\nExtra:\n  Marker: fixed"),
+    ] {
+        let entry = entry_id(name).unwrap();
+        let xml = format!("<Root><Right>x</Right>{extra_xml}</Root>");
+        let imported = convert_file(entry,Direction::XmlToYaml,xml.as_bytes(),&PreparedInputs::default()).unwrap();
+        verify_candidate(entry,xml.as_bytes(),&imported.bytes,&PreparedInputs::default()).unwrap();
+        let meaning = core::raw::Property::decode_in(&imported.bytes,None,"Left","Left").unwrap().map_or(imported.bytes.clone(),|value|value.meaning);
+        let fields = core::yaml::split_properties(&meaning,&[&["Left","Right"],&["Extra"]]).unwrap();
+        let mut decoded = std::collections::BTreeMap::new();
+        core::yaml::visit(&fields[0],|key,value|{decoded.insert(key,value);Ok(())}).unwrap();
+        assert_eq!(decoded, std::collections::BTreeMap::from([("Left".to_owned(),"x".to_owned()),("Right".to_owned(),"x".to_owned())]),"{name}");
+        let yaml = format!("Left: x{extra_yaml}");
+        let exported = convert_file(entry,Direction::YamlToXml,yaml.as_bytes(),&PreparedInputs::default()).unwrap();
+        let exported = String::from_utf8(exported.bytes).unwrap();
+        assert!(exported.contains("<Left>x</Left>") && exported.contains("<Right>x</Right>"),"{name}: {exported}");
+    }
     let collection = entry_id("test.state-collection").unwrap();
     let collection_xml = "<Root><Mode><Item><Name>One</Name><Mode>Default</Mode></Item><Item><Name>Two</Name><Mode>Empty</Mode></Item><Item><Name>Three</Name><Mode>Tagged</Mode></Item><Item><Name>Four</Name><Mode>Text</Mode></Item></Mode></Root>";
     let collection_yaml = "Mode:\n  One: {}\n  Two:\n    Mode: \n  Three:\n    Mode: !watch\n  Four:\n    Mode: !watch \"\"";

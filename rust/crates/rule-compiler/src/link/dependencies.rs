@@ -5,8 +5,8 @@ pub(super) fn field_dependencies(
     presence: &[LinkedPresence],
 ) -> Result<Vec<Vec<u32>>, Diagnostic> {
     let dependencies = crate::plan::scopes::dependencies(value, presence)?;
-    if let LinkedType::Record(fields) = value {
-        crate::plan::scopes::schedule(&dependencies, fields)?;
+    for side in [RepresentationSide::Xml, RepresentationSide::Yaml] {
+        crate::plan::scopes::read_schedule(value, presence, side)?;
     }
     Ok(dependencies)
 }

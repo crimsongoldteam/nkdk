@@ -34,7 +34,10 @@ pub(super) fn generate_at(
     let input_scope =
         super::value::InputScope::prepare(original, parts, &prepared.captures, program)?;
     let scope_full = input_scope.bind(entry.id, "value.", None);
-    let scope_finish = input_scope.finish(entry.id, parts.len());
+    let scope_finish_xml =
+        input_scope.finish(entry.id, parts.len(), crate::plan::RepresentationSide::Xml);
+    let scope_finish_yaml =
+        input_scope.finish(entry.id, parts.len(), crate::plan::RepresentationSide::Yaml);
     let files: Vec<_> = parts
         .iter()
         .map(|part| {
@@ -189,7 +192,7 @@ pub(super) fn generate_at(
         attributes.push(names);
     }
     writeln!(out, "fn infer_xml_owner_{id}(mut value:V{id},source:&[u8],inputs:&InputView<'_>)->core::Result<V{id}>{{").unwrap();
-    for slot in 0..parts.len() {
+    for &slot in input_scope.order(crate::plan::RepresentationSide::Xml) {
         let mut ready = vec![true; parts.len()];
         ready[slot] = false;
         let binding = input_scope.bind(id, "value.", Some(&ready));
@@ -457,7 +460,7 @@ pub(super) fn generate_at(
             writeln!(out, "{slot}=>p{slot}.consume(path,token,source,inputs),").unwrap();
         }
         out.push_str("_=>unreachable!(\"declared XML route\")})}\n");
-        writeln!(out,"fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<V{id}>{{{scope_finish}infer_xml_owner_{id}(V{id}{{root:None,containers:self.containers,").unwrap();
+        writeln!(out,"fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<V{id}>{{{scope_finish_xml}infer_xml_owner_{id}(V{id}{{root:None,containers:self.containers,").unwrap();
         for slot in 0..parts.len() {
             writeln!(out, "p{slot},").unwrap();
         }
@@ -504,7 +507,7 @@ pub(super) fn generate_at(
             .unwrap();
         }
         out.push_str("},_=>unreachable!(\"mapping boundary\")}Ok(())},_=>unreachable!(\"declared YAML route\")}}\n");
-        writeln!(out,"fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<V{id}>{{self.routing.finish()?;{scope_finish}Ok(V{id}{{root:None,containers:[1;{count}],").unwrap();
+        writeln!(out,"fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<V{id}>{{self.routing.finish()?;{scope_finish_yaml}Ok(V{id}{{root:None,containers:[1;{count}],").unwrap();
         for slot in 0..parts.len() {
             writeln!(out, "p{slot},").unwrap();
         }
@@ -689,7 +692,11 @@ pub(super) fn generate_at(
             .unwrap();
         }
         let mut ready = vec![false; parts.len()];
-        for &slot in input_scope.order() {
+        for &slot in input_scope.order(if side == "xml" {
+            crate::plan::RepresentationSide::Xml
+        } else {
+            crate::plan::RepresentationSide::Yaml
+        }) {
             let binding = input_scope.bind(id, "", Some(&ready));
             if side == "xml" {
                 let source = source_for(slot, "source");

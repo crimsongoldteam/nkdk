@@ -69,6 +69,25 @@ pub(crate) fn dependencies(
     value: &LinkedType,
     presence: &[LinkedPresence],
 ) -> Result<Vec<Vec<u32>>, Diagnostic> {
+    collect_dependencies(value, presence, None)
+}
+
+pub(crate) fn read_schedule(
+    value: &LinkedType,
+    presence: &[LinkedPresence],
+    side: RepresentationSide,
+) -> Result<Vec<usize>, Diagnostic> {
+    let LinkedType::Record(fields) = value else {
+        return Ok(vec![]);
+    };
+    schedule(&collect_dependencies(value, presence, Some(side))?, fields)
+}
+
+fn collect_dependencies(
+    value: &LinkedType,
+    presence: &[LinkedPresence],
+    side: Option<RepresentationSide>,
+) -> Result<Vec<Vec<u32>>, Diagnostic> {
     let LinkedType::Record(fields) = value else {
         return Ok(vec![]);
     };
@@ -83,13 +102,19 @@ pub(crate) fn dependencies(
     for rule in presence {
         if let LinkedPresenceTarget::Field(index) = rule.target {
             let target = &mut sets[index as usize];
-            for value in rule.xml_missing.iter().chain(&rule.yaml_missing).chain(
-                rule.xml_empty
-                    .iter()
-                    .chain(&rule.yaml_empty)
-                    .map(|form| &form.denotes),
-            ) {
-                collect_expression(value, target);
+            for (phase, missing, empty) in [
+                (RepresentationSide::Xml, &rule.xml_missing, &rule.xml_empty),
+                (
+                    RepresentationSide::Yaml,
+                    &rule.yaml_missing,
+                    &rule.yaml_empty,
+                ),
+            ] {
+                if side.is_none_or(|side| side == phase) {
+                    for value in missing.iter().chain(empty.iter().map(|form| &form.denotes)) {
+                        collect_expression(value, target);
+                    }
+                }
             }
         }
     }

@@ -73,6 +73,7 @@ impl ConversionPlan<'_> {
     }
 }
 
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub(crate) enum RepresentationSide {
     Xml,
     Yaml,

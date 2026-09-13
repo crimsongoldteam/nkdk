@@ -60,7 +60,7 @@ pub(crate) fn diagnostic_key<'a>(entry: &'a LinkedEntry, name: &'a str) -> &'a s
 pub(crate) struct RecordPlan<'a> {
     pub entry: &'a LinkedEntry,
     pub fields: Vec<FieldPlan<'a>>,
-    pub schedule: Vec<usize>,
+    schedules: [Vec<usize>; 2],
 }
 pub(super) fn xml_fields(xml: &LinkedXml) -> Option<&[LinkedXmlField]> {
     match xml {
@@ -70,6 +70,12 @@ pub(super) fn xml_fields(xml: &LinkedXml) -> Option<&[LinkedXmlField]> {
     }
 }
 impl<'a> RecordPlan<'a> {
+    pub(crate) fn schedule(&self, side: RepresentationSide) -> &[usize] {
+        &self.schedules[match side {
+            RepresentationSide::Xml => 0,
+            RepresentationSide::Yaml => 1,
+        }]
+    }
     pub(crate) fn requires_runtime(
         &self,
         expression: &LinkedExpression,
@@ -143,7 +149,18 @@ impl<'a> RecordPlan<'a> {
         Ok(Self {
             entry,
             fields: planned,
-            schedule: super::scopes::schedule(&entry.field_dependencies, fields)?,
+            schedules: [
+                super::scopes::read_schedule(
+                    &entry.value,
+                    &entry.presence,
+                    RepresentationSide::Xml,
+                )?,
+                super::scopes::read_schedule(
+                    &entry.value,
+                    &entry.presence,
+                    RepresentationSide::Yaml,
+                )?,
+            ],
         })
     }
 }

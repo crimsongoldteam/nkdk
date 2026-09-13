@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: test.directional-fields
+value:
+  kind: record
+  fields:
+  - {name: left, type: {kind: scalar, scalar: text}}
+  - {name: right, type: {kind: scalar, scalar: text}}
+representations:
+  xml: {kind: record, fields: [{field: left, path: [Root, Left]}, {field: right, path: [Root, Right]}]}
+  yaml: {kind: mapping, fields: [{field: left, key: Left}, {field: right, key: Right}]}
+presence:
+- target: {field: left}
+  xml: {missing: {denotes: {field: right}}}
+  yaml: {missing: {denotes: {absent: true}}}
+- target: {field: right}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {missing: {denotes: {field: left}}}

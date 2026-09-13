@@ -455,6 +455,25 @@ fn binding_record_types_ignore_source_positions_but_preserve_structure() {
 
 #[test]
 fn field_bindings_reject_cycles_independently_of_field_order() {
+    let directional = include_str!("fixtures/directional-fields.yaml");
+    let parse_directional = |source: &str| {
+        parse(SourceFile {
+            path: "directional.yaml",
+            bytes: source.as_bytes(),
+        })
+        .unwrap()
+    };
+    assert!(link(&[parse_directional(directional)]).is_ok());
+    let cycle = directional.replace(
+        "xml: {missing: {denotes: {absent: true}}}",
+        "xml: {missing: {denotes: {field: left}}}",
+    );
+    assert!(
+        link(&[parse_directional(&cycle)])
+            .unwrap_err()
+            .iter()
+            .any(|error| error.code == "field_dependency_cycle")
+    );
     let common = format!(
         "{}\ninputs:\n  enabled: {{type: {{kind: scalar, scalar: boolean}}}}\n",
         include_str!("fixtures/common.yaml")

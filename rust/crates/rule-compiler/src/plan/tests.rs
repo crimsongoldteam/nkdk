@@ -49,7 +49,8 @@ constraints:
     let plan = build(&program).unwrap();
     let record = plan.record(&program.entries[0]).unwrap();
     assert_eq!(record.fields.len(), 2);
-    assert_eq!(record.schedule, [1, 0]);
+    assert_eq!(record.schedule(RepresentationSide::Yaml), [1, 0]);
+    assert_eq!(record.schedule(RepresentationSide::Xml), [0, 1]);
     assert_eq!(record.fields[0].field.name, "token");
     assert!(record.fields[0].yaml.is_none());
     assert_eq!(record.fields[0].diagnostic_key(), "token");

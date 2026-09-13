@@ -349,7 +349,11 @@ fn generate_at(
                 out.push_str("let mut raw=core::raw::Fields::default();\n");
             }
         }
-        for &i in &record.schedule {
+        for &i in record.schedule(if xml_side {
+            crate::plan::RepresentationSide::Xml
+        } else {
+            crate::plan::RepresentationSide::Yaml
+        }) {
             let field = &fields[i];
             if xml_side && field.attribute.is_some() {
                 let missing_restores_value = field.presence.is_some_and(|rule| {
@@ -618,7 +622,7 @@ fn generate_at(
         }
         if preserve {
             let physical = field.physical_name();
-            writeln!(out, "let tree{i}=if let Some(patch)=value.raw.get({i}) {{ if {null_is_absence} {{None}} else {{",null_is_absence=if !field.optional || super::scalar_presence::absent_form(field.presence) != XmlForm::Missing || field.presence.and_then(|presence|presence.yaml_missing.as_ref()).is_some_and(|value|matches!(value.kind,LinkedExpressionKind::Literal(_))) {"patch.is_null()"} else {"false"}).unwrap();
+            writeln!(out, "let tree{i}=if let Some(patch)=value.raw.get({i}) {{ if {null_is_absence} {{None}} else {{",null_is_absence=if !field.optional || super::scalar_presence::absent_form(field.presence) != XmlForm::Missing || field.presence.and_then(|presence|presence.yaml_missing.as_ref()).is_some_and(|value|matches!(value.kind,LinkedExpressionKind::Literal(_))) {"patch.is_null()".to_owned()} else {format!("patch.is_null() && value.f{i}.is_some()") }).unwrap();
             let text = field
                 .codec
                 .write_reference(&format!("E{id}F{i}"), "field_value", true);
