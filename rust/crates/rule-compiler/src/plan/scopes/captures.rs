@@ -97,6 +97,19 @@ pub(crate) fn capture_inputs(entry: &LinkedEntry) -> Result<CapturedInputs<'_>, 
             expression(value, &mut captures, local);
         }
     }
+    let mut xml = &entry.xml;
+    while let LinkedXml::WithAttributes {
+        attributes,
+        content,
+    } = xml
+    {
+        for attribute in attributes {
+            if let Some(when) = &attribute.when {
+                expression(when, &mut captures, None);
+            }
+        }
+        xml = content;
+    }
     if captures.is_empty() {
         return Ok(CapturedInputs {
             entry: Cow::Borrowed(entry),
@@ -194,6 +207,19 @@ fn visit_mut(
         for field in fields {
             bindings(&mut field.value, visitor);
         }
+    }
+    let mut xml = &mut entry.xml;
+    while let LinkedXml::WithAttributes {
+        attributes,
+        content,
+    } = xml
+    {
+        for attribute in attributes {
+            if let Some(when) = &mut attribute.when {
+                expression(when, None, visitor);
+            }
+        }
+        xml = content;
     }
     for rule in &mut entry.presence {
         let local = match rule.target {

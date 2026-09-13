@@ -179,3 +179,13 @@ cases.push({...keyedCase,id:'unified-restored-attribute-from-key',entry:restored
 
 const checkedCase=cases.find(value=>value.id==='unified-check-across-containers');
 cases.push({...checkedCase,id:'unified-check-unavailable-source',xml:checkedCase.xml.replace('enabled="true"','enabled="broken"'),yaml:undefined,annotation:'enabled: !xml/raw'});
+
+const conditional=structuredClone(checked);conditional.id='test.unified.conditional-header';
+conditional.representations.xml={kind:'with-attributes',attributes:[
+  {name:'mode',value:{text:'active'},when:{and:[{field:'enabled'},{eq:[{input:'defaultLanguage'},{literal:'ru'}]}]}},
+],content:conditional.representations.xml};
+declarations.push(conditional);
+cases.push({...checkedCase,id:'unified-conditional-header-present',entry:conditional.id,xml:checkedCase.xml.replace('enabled="true"','mode="active" enabled="true"')});
+cases.push({...checkedCase,id:'unified-conditional-header-absent',entry:conditional.id,xml:checkedCase.xml.replace('enabled="true"','enabled="false"'),yaml:'Имя: Alpha\nВключено: Ложь'});
+cases.push({...cases.find(value=>value.id==='unified-conditional-header-present'),id:'unified-conditional-header-order',xml:checkedCase.xml.replace('enabled="true"','enabled="true" mode="active"'),yaml:undefined,annotation:'!xml/raw'});
+cases.push({...cases.find(value=>value.id==='unified-conditional-header-present'),id:'unified-conditional-header-damaged-source',xml:checkedCase.xml.replace('enabled="true"','mode="active" enabled="broken"'),yaml:undefined,annotation:'!xml/raw'});

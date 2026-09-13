@@ -66,24 +66,35 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
         .into_iter()
         .cloned()
         .collect();
-    if root_attributes
-        .iter()
-        .any(|attribute| attribute.when.is_some())
-    {
-        return Err(unsupported(
-            entry,
-            "Conditional owner attributes require combined owner storage",
-        ));
-    }
-    let root_attributes_code = super::attributes::static_attributes(&root_attributes);
     let LinkedXml::Record(first_xml) = &parts[primary].xml else {
         unreachable!()
     };
     let root = &first_xml[0].path[..1];
     let root_code = record::path_code(root);
+    let conditional_attributes = root_attributes
+        .iter()
+        .any(|attribute| attribute.when.is_some());
+    let generated_attributes = if conditional_attributes {
+        Some(super::attributes::generate_prepared(
+            entry,
+            program,
+            &root_attributes.iter().collect::<Vec<_>>(),
+            root,
+        )?)
+    } else {
+        None
+    };
+    let root_attributes_code = if conditional_attributes {
+        "&declared_attributes".to_owned()
+    } else {
+        super::attributes::static_attributes(&root_attributes)
+    };
 
     let id = entry.id;
     let mut out = String::new();
+    if let Some(attributes) = &generated_attributes {
+        out.push_str(&attributes.definitions);
+    }
     let mut paths = Vec::new();
     let mut routes: Vec<Vec<&[ExpandedName]>> = Vec::new();
     let mut element_routes: Vec<Vec<&[ExpandedName]>> = Vec::new();
@@ -508,6 +519,14 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
         }
     }
     writeln!(out,"}}\nfn write_xml_plain_{id}(value:&V{id},inputs:&InputView<'_>)->core::Result<Vec<u8>> {{let prepared=prepare_xml_plain_{id}(value,inputs)?;let mut names=Vec::new();namespaces_xml_plain_{id}(value,&prepared,&mut names);let mut out=core::xml::Writer::new(&names);write_xml_plain_into_{id}(value,&prepared,inputs,&mut out)?;Ok(out.finish())}}\nfn write_xml_plain_into_{id}<'a>(value:&V{id},prepared:&'a OwnerPrepared{id},inputs:&InputView<'_>,out:&mut core::xml::Writer<'a>)->core::Result<()> {{{scope_full}").unwrap();
+    if let Some(attributes) = &generated_attributes {
+        writeln!(
+            out,
+            "let declared_attributes={{let _value=value;let _inputs=inputs;{}attributes}};",
+            attributes.write
+        )
+        .unwrap();
+    }
     let mut headers: Vec<_> = (0..parts.len())
         .filter(|slot| files[*slot].is_none() && !attributes[*slot].is_empty())
         .collect();

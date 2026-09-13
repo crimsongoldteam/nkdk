@@ -37,6 +37,31 @@ pub(super) fn generate(
     attributes: &[&LinkedXmlAttribute],
     parent: &[ExpandedName],
 ) -> Result<Attributes, Diagnostic> {
+    let mut prepared: Vec<_> = attributes
+        .iter()
+        .map(|attribute| (*attribute).clone())
+        .collect();
+    for attribute in &mut prepared {
+        if let Some(when) = &mut attribute.when {
+            *when = super::shorthand::specialize(when, bindings, arguments, owner)?;
+        }
+    }
+    let mut context = common.clone();
+    context.id = owner.id;
+    generate_prepared(
+        &context,
+        program,
+        &prepared.iter().collect::<Vec<_>>(),
+        parent,
+    )
+}
+
+pub(super) fn generate_prepared(
+    owner: &LinkedEntry,
+    program: &Program,
+    attributes: &[&LinkedXmlAttribute],
+    parent: &[ExpandedName],
+) -> Result<Attributes, Diagnostic> {
     let path = super::record::path_code(parent);
     let mut result = Attributes {
         definitions: String::new(),
@@ -81,10 +106,13 @@ pub(super) fn generate(
         };
         writeln!(result.read, "if core::xml::matches(path, {path}) && {named} {{ if !({valid}) {{ return Err(RuntimeDiagnostic::new(\"xml.attribute-value\", \"Unexpected declared attribute value\")); }} return Ok(()); }}").unwrap();
         let condition = if let Some(when) = &attribute.when {
-            let when = super::shorthand::specialize(when, bindings, arguments, owner)?;
-            let mut context = common.clone();
-            context.id = owner.id;
-            let (defs, condition) = expressions::expression(&context, program, &when)?;
+            let (defs, mut condition) = expressions::expression(owner, program, when)?;
+            let mut reads = BTreeSet::new();
+            super::constraints::read_inputs(when, &mut reads);
+            if !reads.is_empty() {
+                let ready = reads.iter().map(|slot| format!("!matches!(_inputs.slot({slot}),Some(core::inputs::InputRef::MissingValue))")).collect::<Vec<_>>().join(" && ");
+                condition = format!("{ready} && ({condition})");
+            }
             writeln!(result.definitions, "fn attribute_{}_{}(_value: &V{}, _inputs: &InputView<'_>) -> core::Result<bool> {{ {defs} Ok({condition}) }}", owner.id,index,owner.id).unwrap();
             format!("attribute_{}_{index}(_value, _inputs)?", owner.id)
         } else {
