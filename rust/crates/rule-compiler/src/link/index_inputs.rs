@@ -13,36 +13,61 @@ pub(super) fn infer(
     }) {
         return Ok(None);
     }
+    let mut expanded: Vec<Module> = modules.values().map(|module| (*module).clone()).collect();
     let mut shapes = BTreeMap::new();
-    for module in modules
-        .values()
-        .filter(|module| !module.contributions.is_empty())
-    {
-        for contribution in contributions::resolve(module, modules, ids)? {
-            shapes
-                .entry(contribution.index)
-                .or_insert(contribution.key.value_type);
-        }
-    }
-    let mut expanded = Vec::with_capacity(modules.len());
-    for module in modules.values() {
-        let mut module = (*module).clone();
-        for input in &mut module.inputs {
-            if let TypeDefinition::IndexFromBinding(name) = &input.definition {
-                let shape = shapes.get(name).ok_or_else(|| {
-                    diagnostic(
-                        "index_missing",
-                        &input.source,
-                        "No declaration contributes to the bound index",
-                    )
-                })?;
-                input.definition = TypeDefinition::Index {
-                    key: Box::new(key_type(shape)),
-                    value: Box::new(TypeDefinition::Scalar(ScalarType::Text)),
-                };
+    loop {
+        let indexed = expanded
+            .iter()
+            .map(|module| (module.id.as_str(), module))
+            .collect();
+        let mut deferred = None;
+        for module in expanded
+            .iter()
+            .filter(|module| !module.contributions.is_empty())
+        {
+            match contributions::resolve(module, &indexed, ids) {
+                Ok(contributions) => {
+                    for contribution in contributions {
+                        shapes
+                            .entry(contribution.index)
+                            .or_insert(contribution.key.value_type);
+                    }
+                }
+                Err(error) if error.code == "unresolved_index_input" => {
+                    deferred = Some(error);
+                }
+                Err(error) => return Err(error),
             }
         }
-        expanded.push(module);
+        let mut progress = false;
+        let mut unresolved = None;
+        for module in &mut expanded {
+            for input in &mut module.inputs {
+                if let TypeDefinition::IndexFromBinding(name) = &input.definition {
+                    if let Some(shape) = shapes.get(name) {
+                        input.definition = TypeDefinition::Index {
+                            key: Box::new(key_type(shape)),
+                            value: Box::new(TypeDefinition::Scalar(ScalarType::Text)),
+                        };
+                        progress = true;
+                    } else {
+                        unresolved = Some(input.source.clone());
+                    }
+                }
+            }
+        }
+        if unresolved.is_none() {
+            break;
+        }
+        if !progress {
+            return Err(deferred.unwrap_or_else(|| {
+                diagnostic(
+                    "index_missing",
+                    &unresolved.unwrap(),
+                    "No declaration contributes a resolvable type to the bound index",
+                )
+            }));
+        }
     }
     Ok(Some(expanded))
 }

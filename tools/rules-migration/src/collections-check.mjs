@@ -19,6 +19,13 @@ const computedFacts=structuredClone(emitted.modules[2]);
 computedFacts.id='test.collection.computed-facts';
 computedFacts.contributions=[{index:'test.computed',forEach:{in:{field:'items'},as:'row'},key:{concat:[{literal:'Нум'},{get:{of:{var:'row'},field:'name'}}]},value:{get:{of:{var:'row'},field:'name'}}}];
 const computedConsumer={format:'nkdk-declarations/1',kind:'object',id:'test.collection.computed-consumer',inputs:{derived:{index:'test.computed'}},value:{kind:'record',fields:[{name:'name',type:{kind:'scalar',scalar:'text'}}]},representations:{xml:{kind:'record',fields:[{field:'name',path:['Root','Name']}]},yaml:{kind:'mapping',fields:[{field:'name',key:'Name'}]}},constraints:[{id:'derived-exists',appliesTo:['xml-import','yaml-validation'],assert:{present:{lookup:{in:{input:'derived'},key:{field:'name'}}}},diagnostic:{code:'test.derived-missing',severity:'error',at:{field:'name'},message:'Missing computed name'}}]};
+// The dependent source intentionally precedes its producers in the manifest.
+const chainedSource=structuredClone(computedConsumer);
+chainedSource.id='test.collection.chained-source';
+chainedSource.contributions=[{index:'test.chained',key:{field:'name'},value:{field:'name'}}];
+const chainedConsumer=structuredClone(computedConsumer);
+chainedConsumer.id='test.collection.chained-consumer';
+chainedConsumer.inputs.derived={index:'test.chained'};
 const namedGraph=structuredClone(graph);
 namedGraph.edges[0].mapping.yamlAsArray=false;
 namedGraph.edges[0].mapping.keyField='name';
@@ -82,11 +89,12 @@ xmlOnlyScalar.value.fields=xmlOnlyScalar.value.fields.filter(field=>field.name!=
 xmlOnlyScalar.representations.xml.fields=xmlOnlyScalar.representations.xml.fields.filter(field=>field.field!=='nested').map(field=>({...field,path:['Root',...field.path]}));
 xmlOnlyScalar.representations.yaml.fields=xmlOnlyScalar.representations.yaml.fields.filter(field=>field.field!=='nested');
 xmlOnlyScalar.constraints.push({id:'hidden-policy',appliesTo:['yaml-validation'],assert:{not:{eq:[{field:'token'},{literal:'blocked-token'}]}},diagnostic:{code:'test.hidden-policy',severity:'error',at:{field:'token'},message:'Restored token is reserved'}});
-const declarations=[...unifiedDeclarations,xmlOnlyScalar,...xmlOnly,...groupedCommon,...grouped,...emitted.modules,...named.modules,...composed,nested,...indexed.modules,...textCollections.flatMap(result=>result.modules),...identified,computedFacts,computedConsumer,catalog.get('migration.metadata-root-index')];
+const declarations=[...unifiedDeclarations,xmlOnlyScalar,...xmlOnly,...groupedCommon,...grouped,...emitted.modules,...named.modules,...composed,nested,...indexed.modules,...textCollections.flatMap(result=>result.modules),...identified,computedFacts,computedConsumer,chainedSource,chainedConsumer,catalog.get('migration.metadata-root-index')];
 const modules=[...declarations,...dependencyFiles(declarations,catalog)];
 const files=Object.fromEntries(modules.map(m=>[m.id+'.yaml',yaml.dump(m,{noRefs:true})]));
 const entry=emitted.results[0].declaration;
-const paths=writeFocused(join(root,'rust/target/collection-emission-check'),files,{factSources:[{entry:identified[2].id,xml:identifiedXML,inputs:identifiedInputs},{entry:'migration.metadata-root-index',xml:'<Root><Kind>DocumentNumerator</Kind><Name>Общий</Name><Identity>shared</Identity></Root>'},{entry:computedFacts.id,xml:'<Root><Items><Item><Properties><Name>Первый</Name><Enabled>true</Enabled></Properties></Item></Items></Root>'},{entry:computedFacts.id,yaml:'Элементы: [{Имя: Второй, Включено: Ложь}]'}],cases:[
+const paths=writeFocused(join(root,'rust/target/collection-emission-check'),files,{factSources:[{entry:chainedSource.id,yaml:"Name: НумПервый"},{entry:identified[2].id,xml:identifiedXML,inputs:identifiedInputs},{entry:'migration.metadata-root-index',xml:'<Root><Kind>DocumentNumerator</Kind><Name>Общий</Name><Identity>shared</Identity></Root>'},{entry:computedFacts.id,xml:'<Root><Items><Item><Properties><Name>Первый</Name><Enabled>true</Enabled></Properties></Item></Items></Root>'},{entry:computedFacts.id,yaml:'Элементы: [{Имя: Второй, Включено: Ложь}]'}],cases:[
+  {id:'generated-dependent-index',entry:chainedConsumer.id,factBindings:{derived:'test.chained'},xml:'<Root><Name>НумПервый</Name></Root>',yaml:'Name: НумПервый',rejectedYAML:['Name: НумВторой']},
   {id:'generated-identity-and-synonym',entry:identified[2].id,inputs:identifiedInputs,factBindings:{identities:'test.identified-text'},xml:identifiedXML,yaml:'Элементы:\n  Первый:\n    Включено: Истина\n  Второй:\n    Включено: Ложь'},
   ...['Первый','Второй'].map((name,index)=>({id:`generated-computed-index-${index}`,entry:computedConsumer.id,factBindings:{derived:'test.computed'},xml:`<Root><Name>Нум${name}</Name></Root>`,yaml:`Name: Нум${name}`,rejectedYAML:['Name: Первый','Name: НумОтсутствует']})),
   ...textCollections.map((result,index)=>({id:`generated-local-name-${index}`,entry:result.results[0].declaration,inputs:{defaultLanguage:'ru',registeredLanguages:['ru','en']},xml:textXML,yaml:index===0?expected:'Элементы:\n  Первый:\n    Включено: Истина\n  Второй:\n    Включено: Ложь'})),

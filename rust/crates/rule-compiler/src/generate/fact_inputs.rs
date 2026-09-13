@@ -53,8 +53,14 @@ pub(super) fn generate(entries: &[&LinkedEntry], names: &[&str], program: &Progr
     }
     out.push_str("_=>&[]}}\n");
     out.push_str(r#"
-pub fn prepare_fact_inputs(entry:EntryId,facts:std::sync::Arc<core::facts::prepared::PreparedTextFacts>,generation:core::facts::Generation,mut values:Vec<(String,InputValue)>)->core::Result<PreparedInputs> {
-    values.extend(fact_input_bindings(entry).iter().map(|(name,index)| ((*name).to_owned(),InputValue::TextIndex(core::facts::prepared::TextIndexInput::new(facts.clone(),generation,*index)))));
+pub fn prepare_fact_inputs(entry:EntryId,facts:std::sync::Arc<core::facts::prepared::PreparedTextFacts>,generation:core::facts::Generation,values:Vec<(String,InputValue)>)->core::Result<PreparedInputs> {
+    bind_fact_inputs(entry,fact_input_bindings(entry),facts,generation,values)
+}
+pub fn prepare_fact_source_inputs(entry:EntryId,direction:Direction,facts:std::sync::Arc<core::facts::prepared::PreparedTextFacts>,generation:core::facts::Generation,values:Vec<(String,InputValue)>)->core::Result<PreparedInputs> {
+    bind_fact_inputs(entry,fact_source_input_bindings(entry,direction),facts,generation,values)
+}
+fn bind_fact_inputs(entry:EntryId,bindings:&[(&str,core::facts::prepared::FactId)],facts:std::sync::Arc<core::facts::prepared::PreparedTextFacts>,generation:core::facts::Generation,mut values:Vec<(String,InputValue)>)->core::Result<PreparedInputs> {
+    values.extend(bindings.iter().map(|(name,index)| ((*name).to_owned(),InputValue::TextIndex(core::facts::prepared::TextIndexInput::new(facts.clone(),generation,*index)))));
     prepare_inputs(entry,values)
 }
 "#);

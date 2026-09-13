@@ -32,6 +32,23 @@ fn contributions_bind_declared_fields_and_reject_untyped_or_hidden_context() {
         assert!(link(&[parse_one(&source), parse_one(CODE)]).is_err());
     }
     let consumer = include_str!("fixtures/fact-consumer.yaml");
+    let inferred = consumer.replace(
+        "    type:\n      kind: index\n      key: {kind: scalar, scalar: text}\n      value: {kind: scalar, scalar: text}\n", "",
+    );
+    let dependent = inferred.replace("id: test.fact-consumer", "id: test.dependent")
+        + "\ncontributions:\n- index: test.dependent-names\n  key: {field: target}\n  value:\n    match:\n      value: {lookup: {in: {input: names}, key: {field: target}}}\n      present: {as: found, then: {var: found}}\n      absent: {literal: ''}\n";
+    let final_consumer = inferred.replace("test.names", "test.dependent-names");
+    let mut chain = vec![
+        parse_one(&final_consumer),
+        parse_one(&dependent),
+        parse_one(OWNER),
+        parse_one(CODE),
+    ];
+    let linked = link(&chain).unwrap();
+    chain.reverse();
+    assert_eq!(linked, link(&chain).unwrap());
+    let cyclic = dependent.replace("index: test.names", "index: test.dependent-names");
+    assert!(link(&[parse_one(&cyclic)]).is_err());
     let enum_kind = include_str!("fixtures/text-pattern-kind.yaml");
     let enum_key = consumer
         .replace(

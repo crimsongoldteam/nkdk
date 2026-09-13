@@ -12,11 +12,25 @@ fn prepared_strings_share_ids_preserve_spelling_and_enforce_generation_and_budge
         },
     );
     let lower = builder.intern("é").unwrap();
+    let first_snapshot = builder.snapshot();
     let upper = builder.intern("É").unwrap();
+    let second_snapshot = builder.snapshot();
+    assert_eq!(first_snapshot.lookup(generation, "É"), FactState::Missing);
+    assert_eq!(
+        second_snapshot.lookup(generation, "É"),
+        FactState::Ready(upper)
+    );
     assert_ne!(lower, upper);
     assert_eq!(builder.intern("é"), Ok(lower));
     assert_eq!(builder.intern("other"), Err(TextLimit::Entries));
     let text = builder.finish();
+    let FactState::Ready(before) = first_snapshot.resolve(generation, lower) else {
+        panic!("first value")
+    };
+    let FactState::Ready(after) = text.resolve(generation, lower) else {
+        panic!("shared value")
+    };
+    assert!(std::ptr::eq(before, after));
     assert_eq!(text.lookup(generation, "é"), FactState::Ready(lower));
     assert_eq!(text.lookup(generation, "e\u{301}"), FactState::Missing);
     assert_eq!(text.resolve(generation, upper), FactState::Ready("É"));

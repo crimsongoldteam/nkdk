@@ -162,3 +162,50 @@ fn composite_keys_keep_components_separate_without_path_serialization() {
     assert_eq!(binding.lookup_parts(&["a.b", "c"]).unwrap(), Some("first"));
     assert!(binding.lookup("a.b.c").is_err());
 }
+
+#[test]
+fn published_indexes_are_immutable_and_snapshots_share_values() {
+    use std::sync::Arc;
+    let generation = Generation(7);
+    let mut builder = TextFactsBuilder::new(
+        generation,
+        2,
+        FactBudget {
+            text: TextBudget {
+                entries: 8,
+                bytes: 80,
+            },
+            rows: 4,
+        },
+    );
+    builder.push(FactId(0), "a", "first").unwrap();
+    builder.publish(FactId(0)).unwrap();
+    let first = builder.snapshot();
+    assert!(Arc::ptr_eq(&first, &builder.snapshot()));
+    assert_eq!(first.lookup(generation, FactId(1), "b"), FactState::Unready);
+    assert_eq!(
+        builder.push(FactId(0), "b", "late"),
+        Err(FactLimit::PublishedIndex(FactId(0)))
+    );
+    assert_eq!(
+        builder.mark_unready(FactId(0)),
+        Err(FactLimit::PublishedIndex(FactId(0)))
+    );
+    builder.push(FactId(1), "b", "second").unwrap();
+    assert!(Arc::ptr_eq(&first, &builder.snapshot()));
+    builder.publish(FactId(1)).unwrap();
+    let second = builder.snapshot();
+    assert_eq!(first.lookup(generation, FactId(1), "b"), FactState::Unready);
+    assert_eq!(
+        second.lookup(generation, FactId(1), "b"),
+        FactState::Ready("second")
+    );
+    let finished = builder.finish();
+    let FactState::Ready(before) = first.lookup(generation, FactId(0), "a") else {
+        panic!("published value");
+    };
+    let FactState::Ready(after) = finished.lookup(generation, FactId(0), "a") else {
+        panic!("final value");
+    };
+    assert!(std::ptr::eq(before, after));
+}

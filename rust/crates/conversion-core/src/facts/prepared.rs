@@ -5,6 +5,7 @@ use super::{
     text::{PreparedText, TextBudget, TextBuilder, TextId, TextLimit},
 };
 pub use index::{PreparedTextIndex, TextIndexBuilder, text_record_index, text_scalar_index};
+use std::sync::Arc;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct FactId(pub u32);
@@ -17,6 +18,7 @@ pub struct FactBudget {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum FactLimit {
     UnknownIndex(FactId),
+    PublishedIndex(FactId),
     Text(TextLimit),
     Rows,
     KeyArity { expected: usize, actual: usize },
@@ -25,14 +27,16 @@ pub enum FactLimit {
 pub struct TextFactsBuilder {
     generation: Generation,
     text: TextBuilder,
-    indexes: Vec<Box<dyn TextIndexBuilder>>,
+    indexes: Vec<Option<Box<dyn TextIndexBuilder>>>,
+    published: Vec<Option<Arc<dyn PreparedTextIndex>>>,
+    snapshot: Option<Arc<PreparedTextFacts>>,
     remaining_rows: usize,
 }
 
 pub struct PreparedTextFacts {
     generation: Generation,
     text: PreparedText,
-    indexes: Vec<Box<dyn PreparedTextIndex>>,
+    indexes: Vec<Option<Arc<dyn PreparedTextIndex>>>,
 }
 
 impl TextFactsBuilder {
@@ -54,7 +58,9 @@ impl TextFactsBuilder {
         Self {
             generation,
             text: TextBuilder::new(generation, budget.text),
-            indexes,
+            published: (0..indexes.len()).map(|_| None).collect(),
+            indexes: indexes.into_iter().map(Some).collect(),
+            snapshot: None,
             remaining_rows: budget.rows,
         }
     }
@@ -72,7 +78,9 @@ impl TextFactsBuilder {
         let target = self
             .indexes
             .get_mut(index.0 as usize)
-            .ok_or(FactLimit::UnknownIndex(index))?;
+            .ok_or(FactLimit::UnknownIndex(index))?
+            .as_mut()
+            .ok_or(FactLimit::PublishedIndex(index))?;
         let result = if self.remaining_rows == 0 {
             Err(FactLimit::Rows)
         } else {
@@ -94,18 +102,48 @@ impl TextFactsBuilder {
         self.indexes
             .get_mut(index.0 as usize)
             .ok_or(FactLimit::UnknownIndex(index))?
+            .as_mut()
+            .ok_or(FactLimit::PublishedIndex(index))?
             .mark_unready();
         Ok(())
     }
 
+    /// Seal an index after every scheduled producer has contributed.
+    pub fn publish(&mut self, index: FactId) -> Result<(), FactLimit> {
+        let pending = self
+            .indexes
+            .get_mut(index.0 as usize)
+            .ok_or(FactLimit::UnknownIndex(index))?;
+        if let Some(pending) = pending.take() {
+            self.published[index.0 as usize] = Some(Arc::from(pending.finish()));
+            self.snapshot = None;
+        }
+        Ok(())
+    }
+
+    /// Pending indexes stay unavailable; already published tables are shared.
+    pub fn snapshot(&mut self) -> Arc<PreparedTextFacts> {
+        Arc::clone(self.snapshot.get_or_insert_with(|| {
+            Arc::new(PreparedTextFacts {
+                generation: self.generation,
+                text: self.text.snapshot(),
+                indexes: self.published.clone(),
+            })
+        }))
+    }
+
     pub fn finish(self) -> PreparedTextFacts {
+        drop(self.snapshot);
         PreparedTextFacts {
             generation: self.generation,
             text: self.text.finish(),
             indexes: self
                 .indexes
                 .into_iter()
-                .map(|index| index.finish())
+                .zip(self.published)
+                .map(|(pending, published)| {
+                    published.or_else(|| pending.map(|index| Arc::from(index.finish())))
+                })
                 .collect(),
         }
     }
@@ -124,6 +162,7 @@ impl PreparedTextFacts {
     ) -> FactState<&str> {
         self.indexes
             .get(index.0 as usize)
+            .and_then(Option::as_ref)
             .map_or(FactState::Unready, |index| {
                 index.lookup(&self.text, generation, key)
             })
@@ -131,6 +170,7 @@ impl PreparedTextFacts {
     pub fn key_fields(&self, index: FactId) -> Option<Option<&[&'static str]>> {
         self.indexes
             .get(index.0 as usize)
+            .and_then(Option::as_ref)
             .map(|index| index.columns())
     }
     pub fn is_ready(&self, generation: Generation, index: FactId) -> bool {
@@ -138,6 +178,7 @@ impl PreparedTextFacts {
             && self
                 .indexes
                 .get(index.0 as usize)
+                .and_then(Option::as_ref)
                 .is_some_and(|index| index.is_ready(generation))
     }
 }

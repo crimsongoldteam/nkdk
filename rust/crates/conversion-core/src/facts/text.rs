@@ -24,8 +24,10 @@ pub struct TextBuilder {
 
 pub struct PreparedText {
     generation: Generation,
+    offset: usize,
     ids: HashMap<Arc<str>, TextId>,
     values: Vec<Arc<str>>,
+    segments: Vec<Arc<PreparedText>>,
 }
 
 impl TextBuilder {
@@ -33,8 +35,10 @@ impl TextBuilder {
         Self {
             text: PreparedText {
                 generation,
+                offset: 0,
                 ids: HashMap::new(),
                 values: Vec::new(),
+                segments: Vec::new(),
             },
             budget,
             bytes: 0,
@@ -43,13 +47,14 @@ impl TextBuilder {
 
     /// Repeated text allocates nothing, including after reaching the budget.
     pub fn intern(&mut self, value: &str) -> Result<TextId, TextLimit> {
-        if let Some(&id) = self.text.ids.get(value) {
+        if let FactState::Ready(id) = self.text.lookup(self.text.generation, value) {
             return Ok(id);
         }
-        if self.text.values.len() >= self.budget.entries {
+        let count = self.text.offset + self.text.values.len();
+        if count >= self.budget.entries || count.checked_add(1).is_none() {
             return Err(TextLimit::Entries);
         }
-        let id = TextId(u32::try_from(self.text.values.len()).map_err(|_| TextLimit::Entries)?);
+        let id = TextId(u32::try_from(count).map_err(|_| TextLimit::Entries)?);
         let bytes = self
             .bytes
             .checked_add(value.len())
@@ -64,8 +69,58 @@ impl TextBuilder {
         Ok(id)
     }
 
-    pub fn finish(self) -> PreparedText {
-        self.text
+    /// Freeze only new strings. Existing snapshots retain immutable segments.
+    pub fn snapshot(&mut self) -> PreparedText {
+        if !self.text.values.is_empty() {
+            let next = self.text.offset + self.text.values.len();
+            let next_text = PreparedText {
+                generation: self.text.generation,
+                offset: next,
+                ids: HashMap::new(),
+                values: Vec::new(),
+                segments: Vec::new(),
+            };
+            let mut segment = std::mem::replace(&mut self.text, next_text);
+            self.text.segments = std::mem::take(&mut segment.segments);
+            self.text.segments.push(Arc::new(segment));
+        }
+        PreparedText {
+            generation: self.text.generation,
+            offset: self.text.offset,
+            ids: HashMap::new(),
+            values: Vec::new(),
+            segments: self.text.segments.clone(),
+        }
+    }
+
+    /// Final conversion uses a flat lookup table again, never a segment walk.
+    pub fn finish(mut self) -> PreparedText {
+        if self.text.segments.is_empty() {
+            return self.text;
+        }
+        let mut ids = HashMap::with_capacity(self.text.offset + self.text.values.len());
+        let mut values = Vec::with_capacity(self.text.offset + self.text.values.len());
+        for segment in self.text.segments.drain(..) {
+            match Arc::try_unwrap(segment) {
+                Ok(segment) => {
+                    ids.extend(segment.ids);
+                    values.extend(segment.values);
+                }
+                Err(segment) => {
+                    ids.extend(segment.ids.iter().map(|(text, id)| (Arc::clone(text), *id)));
+                    values.extend(segment.values.iter().cloned());
+                }
+            }
+        }
+        ids.extend(self.text.ids);
+        values.extend(self.text.values);
+        PreparedText {
+            generation: self.text.generation,
+            offset: 0,
+            ids,
+            values,
+            segments: Vec::new(),
+        }
     }
 }
 
@@ -77,6 +132,12 @@ impl PreparedText {
         self.ids
             .get(value)
             .copied()
+            .or_else(|| {
+                self.segments
+                    .iter()
+                    .rev()
+                    .find_map(|segment| segment.ids.get(value).copied())
+            })
             .map_or(FactState::Missing, FactState::Ready)
     }
 
@@ -84,8 +145,21 @@ impl PreparedText {
         if generation != self.generation {
             return FactState::Unready;
         }
-        self.values
-            .get(id.0 as usize)
-            .map_or(FactState::Missing, |value| FactState::Ready(value))
+        let index = id.0 as usize;
+        if let Some(local) = index.checked_sub(self.offset) {
+            return self
+                .values
+                .get(local)
+                .map_or(FactState::Missing, |value| FactState::Ready(value));
+        }
+        let segment = self
+            .segments
+            .partition_point(|segment| segment.offset <= index);
+        segment
+            .checked_sub(1)
+            .and_then(|slot| self.segments.get(slot))
+            .map_or(FactState::Missing, |segment| {
+                segment.resolve(generation, id)
+            })
     }
 }

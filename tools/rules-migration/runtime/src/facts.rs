@@ -34,16 +34,29 @@ pub fn prepare(entry: EntryId, case: &Value, manifest: &Value) -> PreparedInputs
         })
         .collect();
     let schedule = rules::fact_plan_for_sources(&operations, &[entry], 100_000).unwrap();
-    for step in schedule
-        .order()
-        .iter()
-        .filter(|step| (step.0 as usize) < sources.len())
-    {
+    for step in schedule.order() {
+        let position = step.0 as usize;
+        if position >= sources.len() {
+            let index = position - sources.len();
+            if index < rules::fact_names().len() {
+                builder
+                    .publish(nkdk_conversion_core::facts::prepared::FactId(index as u32))
+                    .unwrap();
+            }
+            continue;
+        }
         let source = &sources[step.0 as usize];
-        let (producer, _) = operations[step.0 as usize];
+        let (producer, source_direction) = operations[step.0 as usize];
         let source_inputs =
             serde_json::to_vec(source.get("inputs").unwrap_or(&serde_json::json!({}))).unwrap();
-        let context = rules::read_inputs(producer, &source_inputs).unwrap();
+        let context = rules::prepare_fact_source_inputs(
+            producer,
+            source_direction,
+            builder.snapshot(),
+            generation,
+            nkdk_conversion_core::inputs::read(&source_inputs).unwrap(),
+        )
+        .unwrap();
         let (direction, bytes) = match source.get("yaml").and_then(Value::as_str) {
             Some(yaml) => {
                 assert!(source.get("xml").is_none(), "Ambiguous fact source format");
