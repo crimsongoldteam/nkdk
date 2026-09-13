@@ -16,6 +16,13 @@ pub(super) fn generate(
     entry: &LinkedEntry,
     program: &Program,
 ) -> Result<Option<String>, Diagnostic> {
+    generate_at(entry, program, false)
+}
+pub(super) fn generate_at(
+    entry: &LinkedEntry,
+    program: &Program,
+    shared: bool,
+) -> Result<Option<String>, Diagnostic> {
     if !applies(entry, program) {
         return Ok(None);
     }
@@ -190,7 +197,30 @@ pub(super) fn generate(
             )),
         }
     };
+    if shared && !common_attributes.is_empty() {
+        return Err(unsupported(
+            entry,
+            "Shared collection headers require ownership-aware header assembly",
+        ));
+    }
     let mut code = RUNTIME
+        .replace(
+            "@open_parent@",
+            if shared {
+                ""
+            } else {
+                "out.container_with_attributes(@parent@,@headers@);"
+            },
+        )
+        .replace(
+            "@raw_write@",
+            if shared {
+                "tree.write_owned_at(out,@parent@,@relative@,&item_@id@::qnames())?;"
+            } else {
+                "tree.write_at(out,@ancestor@,&item_@id@::qnames())?;"
+            },
+        )
+        .replace("@relative@", &record::path_code(relative))
         .replace("@document@", &(parent.len() == 1).to_string())
         .replace("@headers@", &headers)
         .replace("@extra_namespaces@", &namespace_code)
@@ -281,8 +311,8 @@ fn read_yaml_@id@(source:&[u8],inputs:&InputView<'_>)->core::Result<V@id@>{match
 struct PreparedRows@id@{rows:Vec<item_@id@::Prepared>,raw:Option<core::xml::Tree>}
 fn prepare_xml_@id@(value:&V@id@,inputs:&InputView<'_>)->core::Result<PreparedRows@id@>{let rows=value.rows.iter().map(|row|item_@id@::prepare(row,inputs)).collect::<core::Result<Vec<_>>>()?;let mut result=PreparedRows@id@{rows,raw:None};if let Some(patch)=&value.raw{let ordinary=write_plain_xml_@id@(value,&result,inputs)?;if !patch.is_null(){result.raw=Some(patch.apply(core::xml::Tree::capture(&ordinary,@parent@)?,core::xml::Name{namespace:@namespace@.into(),local:@physical@.into()},&[],&item_@id@::qnames())?);}}Ok(result)}
 fn namespaces_xml_@id@<'a>(value:&'a V@id@,prepared:&'a PreparedRows@id@,names:&mut Vec<&'a str>){@extra_namespaces@for name in @route@{if !name.0.is_empty() && !names.contains(&name.0){names.push(name.0);}}for (row,prepared) in value.rows.iter().zip(&prepared.rows){item_@id@::namespaces(row,prepared,names);}if let Some(tree)=&prepared.raw{tree.collect_namespaces(names);}}
-fn write_plain_fields_@id@<'a>(value:&V@id@,prepared:&'a PreparedRows@id@,inputs:&InputView<'_>,out:&mut core::xml::Writer<'a>)->core::Result<()>{if !value.present{return Ok(())}out.container_with_attributes(@parent@,@headers@);for (row,prepared) in value.rows.iter().zip(&prepared.rows){item_@id@::write_xml(row,prepared,inputs,out)?;out.container(@route@);out.end_container();}Ok(())}
-fn write_xml_into_@id@<'a>(value:&V@id@,prepared:&'a PreparedRows@id@,inputs:&InputView<'_>,out:&mut core::xml::Writer<'a>)->core::Result<()>{if value.raw.is_some(){if let Some(tree)=&prepared.raw{tree.write_at(out,@ancestor@,&item_@id@::qnames())?;}Ok(())}else{write_plain_fields_@id@(value,prepared,inputs,out)}}
+fn write_plain_fields_@id@<'a>(value:&V@id@,prepared:&'a PreparedRows@id@,inputs:&InputView<'_>,out:&mut core::xml::Writer<'a>)->core::Result<()>{if !value.present{return Ok(())}@open_parent@for (row,prepared) in value.rows.iter().zip(&prepared.rows){item_@id@::write_xml(row,prepared,inputs,out)?;out.container(@route@);out.end_container();}Ok(())}
+fn write_xml_into_@id@<'a>(value:&V@id@,prepared:&'a PreparedRows@id@,inputs:&InputView<'_>,out:&mut core::xml::Writer<'a>)->core::Result<()>{if value.raw.is_some(){if let Some(tree)=&prepared.raw{@raw_write@}Ok(())}else{write_plain_fields_@id@(value,prepared,inputs,out)}}
 fn write_plain_xml_@id@(value:&V@id@,prepared:&PreparedRows@id@,inputs:&InputView<'_>)->core::Result<Vec<u8>>{if @document@ && !value.present{return Ok(Vec::new())}let mut names=Vec::new();namespaces_xml_@id@(value,prepared,&mut names);let mut out=core::xml::Writer::new(&names);write_plain_fields_@id@(value,prepared,inputs,&mut out)?;Ok(out.finish_with_root((@parent@)[0]))}
 fn write_xml_@id@(value:&V@id@,inputs:&InputView<'_>)->core::Result<Vec<u8>>{if @document@ && (!value.present || value.raw.as_ref().is_some_and(|patch|patch.is_null())){return Ok(Vec::new())}let prepared=prepare_xml_@id@(value,inputs)?;let mut names=Vec::new();namespaces_xml_@id@(value,&prepared,&mut names);let mut out=core::xml::Writer::new(&names);write_xml_into_@id@(value,&prepared,inputs,&mut out)?;Ok(out.finish_with_root((@parent@)[0]))}
 fn write_yaml_into_@id@(value:&V@id@,inputs:&InputView<'_>,out:&mut String)->core::Result<()>{core::yaml::append_properties(out,|out|write_yaml_indented_@id@(value,inputs,out,"",false))}

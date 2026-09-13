@@ -217,6 +217,51 @@ impl Tree {
         self.text.clear();
         self.text_qname = None;
     }
+    pub(super) fn retain_owned_path(&mut self, path: &[(&str, &str)]) {
+        self.retain_children(&path[..1]);
+        if path.len() > 1 {
+            for child in &mut self.children {
+                child.retain_owned_path(&path[1..]);
+            }
+        }
+    }
+    /// Write only owned descendants, leaving shared ancestors open for siblings.
+    pub fn write_owned_at<'a>(
+        &'a self,
+        writer: &mut super::Writer<'a>,
+        parent: &[(&'a str, &'a str)],
+        route: &[(&str, &str)],
+        qnames: &[(&str, &str)],
+    ) -> Result<()> {
+        let Some((head, tail)) = route.split_first() else {
+            return Err(failure("A shared collection requires a member route"));
+        };
+        if !self.attributes.is_empty()
+            || !self.text.is_empty()
+            || self.text_qname.is_some()
+            || self
+                .children
+                .iter()
+                .any(|child| child.name.namespace != head.0 || child.name.local != head.1)
+        {
+            return Err(failure(
+                "A collection patch cannot change a shared ancestor or sibling",
+            ));
+        }
+        for child in &self.children {
+            if tail.is_empty() {
+                child.write_at(writer, parent, qnames)?;
+            } else {
+                let mut path = parent.to_vec();
+                path.push((&child.name.namespace, &child.name.local));
+                if child.children.is_empty() {
+                    writer.ensure_container(&path);
+                }
+                child.write_owned_at(writer, &path, tail, qnames)?;
+            }
+        }
+        Ok(())
+    }
     pub(super) fn retain_record(&mut self, children: &[(&str, &str)], attributes: &[(&str, &str)]) {
         let mut saved = std::mem::take(&mut self.attributes);
         saved.retain(|attribute| {
@@ -235,22 +280,8 @@ impl Tree {
         member: (&str, &str),
         qname_attributes: &[(&str, &str)],
     ) -> Result<()> {
-        if !self.attributes.is_empty()
-            || !self.text.is_empty()
-            || self.text_qname.is_some()
-            || self
-                .children
-                .iter()
-                .any(|child| child.name.namespace != member.0 || child.name.local != member.1)
-        {
-            return Err(failure(
-                "A collection patch cannot change its shared container or sibling collections",
-            ));
-        }
+        self.write_owned_at(writer, parent, &[member], qname_attributes)?;
         writer.ensure_container(parent);
-        for child in &self.children {
-            child.write_at(writer, parent, qname_attributes)?;
-        }
         Ok(())
     }
     pub fn write_at<'a>(

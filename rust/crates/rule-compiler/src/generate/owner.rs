@@ -104,6 +104,19 @@ pub(super) fn generate_at(
     if let Some(attributes) = &generated_attributes {
         out.push_str(&attributes.definitions);
     }
+    let lookup = |id| {
+        program
+            .entries
+            .iter()
+            .find(|entry| entry.id == id)
+            .expect("linked XML route")
+    };
+    let owned_routes = parts
+        .iter()
+        .map(|part| {
+            crate::plan::xml_ownership::routes(&part.value, &part.xml, &part.source, &lookup)
+        })
+        .collect::<Result<Vec<_>, _>>()?;
     let mut paths = Vec::new();
     let mut routes: Vec<Vec<&[ExpandedName]>> = Vec::new();
     let mut element_routes: Vec<Vec<&[ExpandedName]>> = Vec::new();
@@ -128,7 +141,14 @@ pub(super) fn generate_at(
             program,
             id,
             slot,
-            files[slot].is_some(),
+            super::value_adapters::Placement {
+                external: files[slot].is_some(),
+                shared_container: crate::plan::records::shares_container(
+                    &parts,
+                    slot,
+                    &xml[0].path,
+                ),
+            },
             &names,
         )?;
         stateful &= emitted.xml_stateful;
@@ -142,11 +162,17 @@ pub(super) fn generate_at(
                 .path
                 .as_slice(),
         );
-        routes.push(xml.iter().map(|mapping| mapping.path.as_slice()).collect());
+        routes.push(
+            owned_routes[slot]
+                .iter()
+                .map(|route| route.path.as_slice())
+                .collect(),
+        );
         element_routes.push(
-            xml.iter()
-                .filter(|mapping| mapping.attribute.is_none())
-                .map(|mapping| mapping.path.as_slice())
+            owned_routes[slot]
+                .iter()
+                .filter(|route| route.attribute.is_none())
+                .map(|route| route.path.as_slice())
                 .collect(),
         );
         keys.push(
@@ -270,10 +296,7 @@ pub(super) fn generate_at(
             continue;
         }
         let _ = route;
-        let LinkedXml::Record(mappings) = &parts[slot].xml else {
-            unreachable!()
-        };
-        let selected=mappings.iter().map(|mapping|{
+        let selected=owned_routes[slot].iter().map(|mapping|{
             let route=record::path_code(&mapping.path);
             let filter=if let Some(name)=&mapping.attribute {format!("path.len()<=declared.len() && match token{{core::xml::Token::Attribute(attribute)=>path.len()==declared.len() && {},_=>true}}",attributes::name_matches(name,"attribute.name"))}
                 else{"!matches!(token,core::xml::Token::Attribute(_)) || path.len()>=declared.len()".into()};
@@ -583,7 +606,7 @@ pub(super) fn generate_at(
         )
         .unwrap();
     }
-    out.push_str("Ok(())}\n");
+    writeln!(out, "out.ensure_container({root_code});Ok(())}}").unwrap();
     writeln!(out,"fn write_yaml_{id}(value:&V{id},inputs:&InputView<'_>)->core::Result<Vec<u8>> {{{scope_full}let mut out=String::new();").unwrap();
     for slot in 0..parts.len() {
         writeln!(

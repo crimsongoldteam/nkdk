@@ -12,6 +12,7 @@ pub(crate) mod records;
 pub(crate) mod routes;
 pub(crate) mod scopes;
 mod values;
+pub(crate) mod xml_ownership;
 pub(crate) use values::{RecordPlan, ValueId, ValuePlan, diagnostic_key};
 
 /// Prepared at build time. The runtime never receives this structure.

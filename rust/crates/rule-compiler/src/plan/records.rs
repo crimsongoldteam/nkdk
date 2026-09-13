@@ -91,3 +91,12 @@ fn fields_index(entry: &LinkedEntry, name: &str) -> usize {
         .position(|field| field.name == name)
         .expect("owner field")
 }
+
+/// A container is shared when another storage unit owns a route below it.
+pub(crate) fn shares_container(parts: &[LinkedEntry], slot: usize, path: &[ExpandedName]) -> bool {
+    parts.iter().enumerate().any(|(other, entry)| {
+        other != slot
+            && super::values::xml_fields(&entry.xml)
+                .is_some_and(|fields| fields.iter().any(|field| field.path.starts_with(path)))
+    })
+}

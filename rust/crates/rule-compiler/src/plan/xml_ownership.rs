@@ -1,32 +1,33 @@
 use super::*;
 
-struct Route {
-    path: Vec<ExpandedName>,
-    attribute: Option<ExpandedName>,
-    source: SourceLocation,
-    owns_element: bool,
+#[derive(Clone, Debug)]
+pub(crate) struct XmlRoute {
+    pub path: Vec<ExpandedName>,
+    pub attribute: Option<ExpandedName>,
+    pub source: SourceLocation,
+    pub owns_element: bool,
 }
 
-pub(super) fn validate(entries: &BTreeMap<u32, LinkedEntry>) -> Result<(), Diagnostic> {
+pub(crate) fn validate(entries: &BTreeMap<u32, LinkedEntry>) -> Result<(), Diagnostic> {
     for entry in entries.values() {
-        routes(&entry.value, &entry.xml, &entry.source, entries)?;
+        routes(&entry.value, &entry.xml, &entry.source, &|id| &entries[&id])?;
     }
     Ok(())
 }
 
-fn routes(
+pub(crate) fn routes<'a>(
     value: &LinkedType,
     xml: &LinkedXml,
     source: &SourceLocation,
-    entries: &BTreeMap<u32, LinkedEntry>,
-) -> Result<Vec<Route>, Diagnostic> {
+    entries: &impl Fn(u32) -> &'a LinkedEntry,
+) -> Result<Vec<XmlRoute>, Diagnostic> {
     let result = match xml {
         LinkedXml::Declared => {
             let id = match value {
                 LinkedType::Reference(id) | LinkedType::BoundReference { entry: id, .. } => id,
                 _ => unreachable!("declared representation requires a reference"),
             };
-            let entry = &entries[id];
+            let entry = entries(*id);
             routes(&entry.value, &entry.xml, &entry.source, entries)?
         }
         LinkedXml::WithAttributes {
@@ -34,7 +35,7 @@ fn routes(
             content,
         } => {
             let mut result = routes(value, content, source, entries)?;
-            result.extend(attributes.iter().map(|attribute| Route {
+            result.extend(attributes.iter().map(|attribute| XmlRoute {
                 path: vec![],
                 attribute: Some(attribute.name.clone()),
                 source: attribute.source.clone(),
@@ -68,7 +69,7 @@ fn routes(
                 if mapping.attribute.is_none()
                     && let Some(id) = reference
                 {
-                    let entry = &entries[&id];
+                    let entry = entries(id);
                     for mut route in routes(&entry.value, &entry.xml, &entry.source, entries)? {
                         let mut path = mapping.path.clone();
                         path.extend(route.path);
@@ -77,7 +78,7 @@ fn routes(
                         result.push(route);
                     }
                 } else {
-                    result.push(Route {
+                    result.push(XmlRoute {
                         path: mapping.path.clone(),
                         attribute: mapping.attribute.clone(),
                         source: mapping.source.clone(),
@@ -89,7 +90,7 @@ fn routes(
         }
         LinkedXml::Tree(nodes) => nodes
             .iter()
-            .map(|node| Route {
+            .map(|node| XmlRoute {
                 path: vec![node.name.clone()],
                 attribute: None,
                 source: node.source.clone(),
@@ -101,7 +102,7 @@ fn routes(
                 unreachable!("shape validated before ownership")
             };
             routes(value, item, source, entries)?;
-            vec![Route {
+            vec![XmlRoute {
                 path: path.clone(),
                 attribute: None,
                 source: source.clone(),
@@ -119,7 +120,7 @@ fn routes(
         | LinkedXml::Decimal
         | LinkedXml::BooleanTable(_)
         | LinkedXml::EnumTable(_) => {
-            vec![Route {
+            vec![XmlRoute {
                 path: vec![],
                 attribute: None,
                 source: source.clone(),
@@ -141,7 +142,7 @@ fn routes(
     Ok(result)
 }
 
-fn overlaps(a: &Route, b: &Route) -> bool {
+fn overlaps(a: &XmlRoute, b: &XmlRoute) -> bool {
     match (&a.attribute, &b.attribute) {
         (Some(a_name), Some(b_name)) => a.path == b.path && a_name == b_name,
         (None, None) => a.path.starts_with(&b.path) || b.path.starts_with(&a.path),
@@ -154,13 +155,13 @@ fn overlaps(a: &Route, b: &Route) -> bool {
     }
 }
 
-fn attribute_type(value: &LinkedType, entries: &BTreeMap<u32, LinkedEntry>) -> bool {
+fn attribute_type<'a>(value: &LinkedType, entries: &impl Fn(u32) -> &'a LinkedEntry) -> bool {
     match value {
         LinkedType::Scalar(ScalarType::Text | ScalarType::Boolean | ScalarType::Decimal)
         | LinkedType::Enum(_) => true,
         LinkedType::Reference(id) | LinkedType::BoundReference { entry: id, .. } => {
             matches!(
-                entries[id].xml,
+                entries(*id).xml,
                 LinkedXml::Choice
                     | LinkedXml::Text
                     | LinkedXml::TextPattern(_)

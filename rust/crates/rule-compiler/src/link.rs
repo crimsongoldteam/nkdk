@@ -30,7 +30,6 @@ pub(crate) mod text_sequence;
 mod text_table;
 mod type_graph;
 mod xml_attributes;
-mod xml_ownership;
 mod xml_tree;
 use bindings::resolve_bindings;
 use nkdk_rule_model::*;
@@ -105,7 +104,7 @@ pub fn link(modules: &[Module]) -> Result<Program, Vec<Diagnostic>> {
     if errors.is_empty() {
         text_pattern::types(&cache).map_err(|error| vec![error])?;
         text_sequence::types(&cache).map_err(|error| vec![error])?;
-        xml_ownership::validate(&cache).map_err(|error| vec![error])?;
+        crate::plan::xml_ownership::validate(&cache).map_err(|error| vec![error])?;
         let mut entries: Vec<_> = cache.into_values().collect();
         scalar_parameters::specialize(&mut entries).map_err(|error| vec![error])?;
         scalar_contracts::lift(&mut entries).map_err(|error| vec![error])?;

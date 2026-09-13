@@ -7,6 +7,7 @@ pub enum PropertyProjection<'a> {
     Element,
     Members,
     Fields(&'a [(&'a str, &'a str)]),
+    Path(&'a [(&'a str, &'a str)]),
     Record {
         fields: &'a [(&'a str, &'a str)],
         attributes: &'a [(&'a str, &'a str)],
@@ -25,6 +26,7 @@ pub fn project_property(
         || (matches!(projection, PropertyProjection::Element) && target.len() < 2)
         || (members && target.len() < 3)
         || matches!(projection, PropertyProjection::Fields(names) if names.is_empty())
+        || matches!(projection, PropertyProjection::Path(path) if path.is_empty())
     {
         return Err(RuntimeDiagnostic::new(
             "xml.property-boundary",
@@ -43,9 +45,12 @@ pub fn project_property(
             Some(names)
         }
         PropertyProjection::Element => None,
+        PropertyProjection::Path(path) => Some(&path[..1]),
     };
     if let (Some(names), Some(tree)) = (selected, &mut tree) {
-        if let PropertyProjection::Record { attributes, .. } = projection {
+        if let PropertyProjection::Path(path) = projection {
+            tree.retain_owned_path(path);
+        } else if let PropertyProjection::Record { attributes, .. } = projection {
             tree.retain_record(names, attributes);
         } else {
             tree.retain_children(names);

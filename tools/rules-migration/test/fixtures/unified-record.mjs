@@ -206,3 +206,25 @@ for(const [source,id,element] of [['unified-conditional-nested-boundary','unifie
   const original=cases.find(value=>value.id===source);
   cases.push({...original,id,xml:original.xml.replace(`<${element} `,`<${element} extra="preserved" `),yaml:undefined,annotation:element==='First'?'  !xml/raw':'Элементы: !xml/raw',...(element==='First'?{retainedYAML:['    Имя: Alpha','    Включено: Истина']}:{})});
 }
+
+const otherList=structuredClone(list);otherList.id='test.unified.other-list';otherList.representations.xml.path=['Other'];
+const shared={format:'nkdk-declarations/1',kind:'value',id:'test.unified.shared-wrapper',imports:{first:list.id,second:otherList.id,boolean:'common.boolean'},inputs,
+  value:{kind:'record',fields:[{name:'enabled',type:{use:'boolean'}},...['first','second'].map(name=>({name,type:{use:name,bind:{defaultLanguage:{input:'defaultLanguage'},registeredLanguages:{input:'registeredLanguages'}}}}))]},
+  representations:{xml:{kind:'record',fields:[{field:'enabled',path:[],attribute:'enabled'},{field:'first',path:[]},{field:'second',path:[]}]},yaml:{kind:'mapping',fields:[{field:'enabled',key:'Включено'},{field:'first',key:'Первые'},{field:'second',key:'Вторые'}]}}};
+const sharedOwner=structuredClone(listOwner);sharedOwner.id='test.unified.shared-owner';sharedOwner.imports.list=shared.id;sharedOwner.representations.xml.fields[0].path=['Root','Shared'];sharedOwner.representations.yaml.fields[0].key='Общий';
+declarations.push(otherList,shared,sharedOwner);
+const sharedRows=cases.find(value=>value.id==='unified-dependent-record-items').xml.match(/<Item>[\s\S]*?<\/Item>/g);
+cases.push({id:'unified-two-shared-collections',entry:sharedOwner.id,inputs:cases[0].inputs,
+  xml:`<Root xmlns:v8="http://v8.1c.ru/8.1/data/core"><Shared enabled="true">${sharedRows[0]}${sharedRows[1].replaceAll('Item>','Other>')}</Shared></Root>`,
+  yaml:'Общий:\n  Включено: Истина\n  Первые:\n    -\n      Имя: Alpha\n  Вторые:\n    -\n      Имя: Beta'});
+const sharedCase=cases.find(value=>value.id==='unified-two-shared-collections');
+cases.push({...sharedCase,id:'unified-shared-collection-anomaly',xml:sharedCase.xml.replace('<Item>','<Item extra="preserved">'),yaml:undefined,annotation:'  Первые: !xml/raw',retainedYAML:['  Вторые:','      Имя: Beta']});
+const deepFirst=structuredClone(list);deepFirst.id='test.unified.deep-first';deepFirst.representations.xml.path.unshift('Deep');
+const deepSecond=structuredClone(otherList);deepSecond.id='test.unified.deep-second';deepSecond.representations.xml.path.unshift('Deep');
+const deepShared=structuredClone(shared);deepShared.id='test.unified.deep-shared';deepShared.imports.first=deepFirst.id;deepShared.imports.second=deepSecond.id;
+const deepOwner=structuredClone(sharedOwner);deepOwner.id='test.unified.deep-owner';deepOwner.imports.list=deepShared.id;
+declarations.push(deepFirst,deepSecond,deepShared,deepOwner);
+const deepCase={...sharedCase,id:'unified-deep-shared-collections',entry:deepOwner.id,xml:sharedCase.xml.replace('enabled="true">','enabled="true"><Deep>').replace('</Shared>','</Deep></Shared>')};
+cases.push(deepCase);
+cases.push({...deepCase,id:'unified-deep-shared-anomaly',xml:deepCase.xml.replace('<Item>','<Item extra="preserved">'),yaml:undefined,annotation:'  Первые: !xml/raw',retainedYAML:['  Вторые:','      Имя: Beta']});
+cases.push({...sharedCase,id:'unified-empty-shared-collections',xml:'<Root><Shared enabled="true"/></Root>',yaml:'Общий:\n  Включено: Истина\n  Первые: []\n  Вторые: []'});

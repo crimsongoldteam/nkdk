@@ -8,15 +8,23 @@ pub(super) struct ValueEmission {
     pub yaml_stateful: bool,
 }
 
+pub(super) struct Placement {
+    pub external: bool,
+    pub shared_container: bool,
+}
 pub(super) fn emit_usage(
     entry: &LinkedEntry,
     child: &LinkedEntry,
     program: &Program,
     id: u32,
     slot: usize,
-    external: bool,
+    placement: Placement,
     names: &[(&str, &str)],
 ) -> Result<ValueEmission, Diagnostic> {
+    let Placement {
+        external,
+        shared_container,
+    } = placement;
     let (LinkedType::Record(fields), LinkedXml::Record(xml)) = (&child.value, &child.xml) else {
         unreachable!()
     };
@@ -44,7 +52,10 @@ pub(super) fn emit_usage(
     let composite =
         !record_value && !qname && !nested && super::composite::record(child, program).is_some();
     let deferred = !record_value && !nested && !qname && !composite && sequence.is_none();
-    let code = if deferred {
+    let declared_items = super::declared_items::applies(&local, program);
+    let code = if shared_container && declared_items {
+        super::declared_items::generate_at(&local, program, true)?.expect("declared collection")
+    } else if deferred {
         record::generate_deferred(&local, program)?
     } else {
         record::generate(&local, program)?
@@ -59,7 +70,6 @@ pub(super) fn emit_usage(
         && sequence
             .is_none_or(|entry| !matches!(entry.yaml, YamlRepresentation::TextSequence { .. }));
     let yaml_stateful_part = stateful_part;
-    let declared_items = super::declared_items::applies(&local, program);
     let state_adapter = if stateful_part {
         let state = if record_value {
             format!("RecordXmlRead{id}")
@@ -181,6 +191,20 @@ pub(super) fn emit_usage(
         )
     } else {
         format!("core::xml::project_attributes(source,{route},&{names:?})")
+    };
+    let project = if shared_container && let Some(sequence) = sequence {
+        let LinkedXml::ElementSequence { path, .. } = attributes::content(&sequence.xml).0 else {
+            return Err(unsupported(
+                entry,
+                "Shared collections require declared element routes",
+            ));
+        };
+        format!(
+            "core::xml::project_property(source,{route},core::xml::PropertyProjection::Path({}),xml_qname_attribute_{id},xml_qname_text_{id})",
+            record::path_code(path)
+        )
+    } else {
+        project
     };
     let project = if external {
         "Ok(source.to_vec())".to_owned()

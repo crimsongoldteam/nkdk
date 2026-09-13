@@ -40,15 +40,43 @@ pub(crate) fn record_usage(
     {
         return Ok(None);
     }
-    // A shared wrapper needs the collection's element routes, rather than the
-    // property's container route. Keep that placement on its existing backend
-    // until the shared route plan represents it explicitly.
-    if let Some(fields) = super::values::xml_fields(&common.xml)
-        && fields
+    // Shared scalar-sequence expressions and collection-owned headers still
+    // use their existing backend; declared record items use the common body.
+    for mapping in super::values::xml_fields(&common.xml).expect("record routes") {
+        if !mapping.path.is_empty() || mapping.attribute.is_some() {
+            continue;
+        }
+        let LinkedType::Record(fields) = &common.value else {
+            unreachable!()
+        };
+        let field = fields
             .iter()
-            .any(|field| field.path.is_empty() && field.attribute.is_none())
-    {
-        return Ok(None);
+            .find(|field| field.name == mapping.field)
+            .expect("linked mapping");
+        let Some((id, _, _)) = field.value.as_reference() else {
+            return Ok(None);
+        };
+        let value = program
+            .entries
+            .iter()
+            .find(|entry| entry.id == id)
+            .expect("linked value");
+        if !matches!(&value.yaml, YamlRepresentation::Sequence { item, .. } if **item == YamlRepresentation::Declared)
+            && !matches!(value.yaml, YamlRepresentation::RecordMapping { .. })
+        {
+            return Ok(None);
+        }
+        let mut representation = &value.xml;
+        while let LinkedXml::WithAttributes {
+            attributes,
+            content,
+        } = representation
+        {
+            if !attributes.is_empty() {
+                return Ok(None);
+            }
+            representation = content;
+        }
     }
     let mapping = xml
         .iter()
