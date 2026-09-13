@@ -60,6 +60,7 @@ pub(crate) fn diagnostic_key<'a>(entry: &'a LinkedEntry, name: &'a str) -> &'a s
 pub(crate) struct RecordPlan<'a> {
     pub entry: &'a LinkedEntry,
     pub fields: Vec<FieldPlan<'a>>,
+    pub schedule: Vec<usize>,
 }
 fn xml_fields(xml: &LinkedXml) -> Option<&[LinkedXmlField]> {
     match xml {
@@ -141,6 +142,7 @@ impl<'a> RecordPlan<'a> {
         Ok(Self {
             entry,
             fields: planned,
+            schedule: super::scopes::schedule(&entry.field_dependencies, fields)?,
         })
     }
 }

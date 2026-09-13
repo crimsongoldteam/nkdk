@@ -87,9 +87,9 @@ Ok(V{id}{{rows:{yaml_value},raw:None}})"#
     };
     let checks = if annotated {
         format!(
-            r#"fn check_xml_{id}(value:&V{id},source:&[u8],inputs:&PreparedInputs)->Vec<RuntimeDiagnostic>{{issues_xml_{id}(value,source,inputs).into_iter().filter(|issue|issue.kind==core::annotations::IssueKind::Structural || issue.severity!=Severity::Error).collect()}}
-fn check_yaml_{id}(value:&V{id},_source:&[u8],_inputs:&PreparedInputs)->Vec<RuntimeDiagnostic>{{value.yaml_issues.clone()}}
-fn prepare_yaml_into_{id}(value:&V{id},inputs:&PreparedInputs,shorten:bool,out:&mut String,indent:&str)->core::Result<()>{{
+            r#"fn check_xml_{id}(value:&V{id},source:&[u8],inputs:&InputView<'_>)->Vec<RuntimeDiagnostic>{{issues_xml_{id}(value,source,inputs).into_iter().filter(|issue|issue.kind==core::annotations::IssueKind::Structural || issue.severity!=Severity::Error).collect()}}
+fn check_yaml_{id}(value:&V{id},_source:&[u8],_inputs:&InputView<'_>)->Vec<RuntimeDiagnostic>{{value.yaml_issues.clone()}}
+fn prepare_yaml_into_{id}(value:&V{id},inputs:&InputView<'_>,shorten:bool,out:&mut String,indent:&str)->core::Result<()>{{
 core::yaml::append_properties(out,|out| {{
 let start=out.len();emit_yaml_fields_{id}(value,inputs,shorten,&mut core::yaml::Indented::new(out,indent))?;
 let mut restored=read_plain_yaml_{id}(&out.as_bytes()[start..],inputs)?;
@@ -100,9 +100,9 @@ if !restored.annotations.is_empty() {{out.truncate(start);emit_yaml_fields_{id}(
         )
     } else {
         format!(
-            r#"fn check_xml_{id}(_value:&V{id},_source:&[u8],_inputs:&PreparedInputs)->Vec<RuntimeDiagnostic>{{Vec::new()}}
-fn check_yaml_{id}(_value:&V{id},_source:&[u8],_inputs:&PreparedInputs)->Vec<RuntimeDiagnostic>{{Vec::new()}}
-fn prepare_yaml_into_{id}(value:&V{id},inputs:&PreparedInputs,shorten:bool,out:&mut String,indent:&str)->core::Result<()>{{core::yaml::append_properties(out,|out|emit_yaml_fields_{id}(value,inputs,shorten,&mut core::yaml::Indented::new(out,indent)))}}"#
+            r#"fn check_xml_{id}(_value:&V{id},_source:&[u8],_inputs:&InputView<'_>)->Vec<RuntimeDiagnostic>{{Vec::new()}}
+fn check_yaml_{id}(_value:&V{id},_source:&[u8],_inputs:&InputView<'_>)->Vec<RuntimeDiagnostic>{{Vec::new()}}
+fn prepare_yaml_into_{id}(value:&V{id},inputs:&InputView<'_>,shorten:bool,out:&mut String,indent:&str)->core::Result<()>{{core::yaml::append_properties(out,|out|emit_yaml_fields_{id}(value,inputs,shorten,&mut core::yaml::Indented::new(out,indent)))}}"#
         )
     };
     let shortened = format!("{yaml_write}\n{shorten}");
@@ -118,10 +118,10 @@ fn prepare_yaml_into_{id}(value:&V{id},inputs:&PreparedInputs,shorten:bool,out:&
     };
     let mut out = format!(
         r#"
-fn read_plain_yaml_{id}(source:&[u8], inputs:&PreparedInputs)->core::Result<V{id}> {{
+fn read_plain_yaml_{id}(source:&[u8], inputs:&InputView<'_>)->core::Result<V{id}> {{
     read_yaml_events_{id}(source,inputs,core::yaml::DocumentSource(if source.is_empty() {{b"{{}}"}} else {{source}}))
 }}
-fn read_yaml_events_{id}(source:&[u8], _inputs:&PreparedInputs, events:impl core::yaml::Source)->core::Result<V{id}> {{
+fn read_yaml_events_{id}(source:&[u8], _inputs:&InputView<'_>, events:impl core::yaml::Source)->core::Result<V{id}> {{
     let mut state=YamlSequence{id}::new();
     events.visit(|node,position|state.consume(node,position,source,_inputs))?;
     state.finish(source,_inputs)
@@ -130,12 +130,12 @@ const SEQUENCE_SHORTHANDS_{id}: &[(&str,&[&str])] = {table};
 struct YamlSequence{id} {{property:core::yaml::PropertyReader,rows:core::yaml::SequenceReader<'static,{count},R{id}>}}
 impl YamlSequence{id} {{
 fn new()->Self{{Self{{property:core::yaml::PropertyReader::default(),rows:core::yaml::SequenceReader::new({keys_code},SEQUENCE_SHORTHANDS_{id},{empty_mapping})}}}}
-fn consume(&mut self,node:core::yaml::Node,position:core::Position,source:&[u8],_inputs:&PreparedInputs)->core::Result<()>{{
+fn consume(&mut self,node:core::yaml::Node,position:core::Position,source:&[u8],_inputs:&InputView<'_>)->core::Result<()>{{
 let _=source;
 if let Some(node)=self.property.consume(node,{key:?},"yaml.collection-form")? {{self.rows.consume(node,position,|fields,position|{{let _=position;{read_row}}})?;}}Ok(())}}
-fn finish(self,source:&[u8],inputs:&PreparedInputs)->core::Result<V{id}>{{let present=self.property.finish("yaml.collection-form")?;finish_yaml_sequence_{id}(present.then_some(self.rows.finish()?),source,inputs)}}
+fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<V{id}>{{let present=self.property.finish("yaml.collection-form")?;finish_yaml_sequence_{id}(present.then_some(self.rows.finish()?),source,inputs)}}
 }}
-fn finish_yaml_sequence_{id}(physical:Option<core::yaml::SequenceValues<R{id}>>,source:&[u8],_inputs:&PreparedInputs)->core::Result<V{id}> {{
+fn finish_yaml_sequence_{id}(physical:Option<core::yaml::SequenceValues<R{id}>>,source:&[u8],_inputs:&InputView<'_>)->core::Result<V{id}> {{
     let _=source;
     let seen=physical.is_some();
     if !seen && {required} {{return Err(RuntimeDiagnostic::new("value.missing","Missing sequence property"));}}
@@ -143,8 +143,8 @@ fn finish_yaml_sequence_{id}(physical:Option<core::yaml::SequenceValues<R{id}>>,
     {read_value}
 }}
 {checks}
-fn prepare_yaml_{id}(value:&V{id},inputs:&PreparedInputs,shorten:bool)->core::Result<Vec<u8>>{{let mut out=String::new();prepare_yaml_into_{id}(value,inputs,shorten,&mut out,"")?;Ok(out.into_bytes())}}
-fn emit_yaml_fields_{id}(value:&V{id},_inputs:&PreparedInputs,_shorten:bool,out:&mut core::yaml::Indented<'_>)->core::Result<()>{{
+fn prepare_yaml_{id}(value:&V{id},inputs:&InputView<'_>,shorten:bool)->core::Result<Vec<u8>>{{let mut out=String::new();prepare_yaml_into_{id}(value,inputs,shorten,&mut out,"")?;Ok(out.into_bytes())}}
+fn emit_yaml_fields_{id}(value:&V{id},_inputs:&InputView<'_>,_shorten:bool,out:&mut core::yaml::Indented<'_>)->core::Result<()>{{
     let _value=value;
     {shortened}
     if !value.rows.is_present() {{if {can_read_missing} {{return Ok(());}}return Err(RuntimeDiagnostic::new("yaml.presence","No YAML form for absence"));}}

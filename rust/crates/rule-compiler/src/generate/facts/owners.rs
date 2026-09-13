@@ -76,7 +76,7 @@ pub(in crate::generate) fn accessors(
             "value.0.f{local}.as_ref().ok_or_else(||vec![RuntimeDiagnostic::new(\"fact.unready\",\"Contribution field is unavailable\")])?"
         );
         let meaning = codec.meaning_reference(&format!("E{id}F{local}"), &reference);
-        writeln!(out,"pub(super) fn fact_{local}<'a>(value:&'a Stored,direction:Direction,source:&[u8],inputs:&PreparedInputs)->std::result::Result<&'a str,Vec<RuntimeDiagnostic>> {{let issues=match direction {{Direction::XmlToYaml=>issues_xml_{id}(&value.0,source,inputs),Direction::YamlToXml=>issues_yaml_{id}(&value.0,source,inputs)}};if issues.iter().any(|issue|issue.severity==Severity::Error) {{return Err(issues);}}Ok({meaning})}}").unwrap();
+        writeln!(out,"pub(super) fn fact_{local}<'a>(value:&'a Stored,direction:Direction,source:&[u8],inputs:&InputView<'_>)->std::result::Result<&'a str,Vec<RuntimeDiagnostic>> {{let issues=match direction {{Direction::XmlToYaml=>issues_xml_{id}(&value.0,source,inputs),Direction::YamlToXml=>issues_yaml_{id}(&value.0,source,inputs)}};if issues.iter().any(|issue|issue.severity==Severity::Error) {{return Err(issues);}}Ok({meaning})}}").unwrap();
     }
     for (ordinal, contribution) in owner.contributions.iter().enumerate() {
         let Some(iteration) = &contribution.for_each else {
@@ -106,7 +106,7 @@ pub(in crate::generate) fn accessors(
         entry.contributions = vec![contribution];
         let id = entry.id;
         let code = super::collections::stored(&entry, program)?.expect("collection contribution");
-        writeln!(out,"pub(super) fn contribute_{ordinal}(value:&Stored,direction:Direction,source:&[u8],inputs:&PreparedInputs,builder:&mut core::facts::prepared::TextFactsBuilder)->std::result::Result<(),Vec<RuntimeDiagnostic>> {{if !value.1 {{return Err(vec![RuntimeDiagnostic::new(\"fact.unready\",\"Collection meaning is unavailable\")]);}}{code}contribute_value_{id}(&value.0,direction,source,inputs,builder)}}").unwrap();
+        writeln!(out,"pub(super) fn contribute_{ordinal}(value:&Stored,direction:Direction,source:&[u8],inputs:&InputView<'_>,builder:&mut core::facts::prepared::TextFactsBuilder)->std::result::Result<(),Vec<RuntimeDiagnostic>> {{if !value.1 {{return Err(vec![RuntimeDiagnostic::new(\"fact.unready\",\"Collection meaning is unavailable\")]);}}{code}contribute_value_{id}(&value.0,direction,source,inputs,builder)}}").unwrap();
     }
     Ok(out)
 }

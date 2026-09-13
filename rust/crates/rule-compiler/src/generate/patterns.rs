@@ -67,7 +67,7 @@ impl Builder<'_> {
         } else {
             ""
         };
-        writeln!(self.definitions, "fn {name}(_inputs: &PreparedInputs) -> core::Result<Option<R{}>> {{ {body} Ok(Some(R{} {{fields:[f0,f1]{position}}})) }}", self.owner.id, self.owner.id).unwrap();
+        writeln!(self.definitions, "fn {name}(_inputs: &InputView<'_>) -> core::Result<Option<R{}>> {{ {body} Ok(Some(R{} {{fields:[f0,f1]{position}}})) }}", self.owner.id, self.owner.id).unwrap();
         Ok(name)
     }
     fn fixed_many(&mut self, values: &[LinkedExpression]) -> Result<Vec<String>, Diagnostic> {
@@ -136,7 +136,7 @@ impl Builder<'_> {
             before.len()
         )
         .unwrap();
-        writeln!(self.definitions, "fn {name}(rows: &[R{id}], _inputs: &PreparedInputs) -> core::Result<Option<core::sequence_pattern::Rewrite<R{id}>>> {{ {body} }}").unwrap();
+        writeln!(self.definitions, "fn {name}(rows: &[R{id}], _inputs: &InputView<'_>) -> core::Result<Option<core::sequence_pattern::Rewrite<R{id}>>> {{ {body} }}").unwrap();
         Ok(())
     }
 }

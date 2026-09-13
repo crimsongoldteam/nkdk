@@ -85,7 +85,7 @@ pub(super) fn generate(
             let mut context = common.clone();
             context.id = owner.id;
             let (defs, condition) = expressions::expression(&context, program, &when)?;
-            writeln!(result.definitions, "fn attribute_{}_{}(_value: &V{}, _inputs: &PreparedInputs) -> core::Result<bool> {{ {defs} Ok({condition}) }}", owner.id,index,owner.id).unwrap();
+            writeln!(result.definitions, "fn attribute_{}_{}(_value: &V{}, _inputs: &InputView<'_>) -> core::Result<bool> {{ {defs} Ok({condition}) }}", owner.id,index,owner.id).unwrap();
             format!("attribute_{}_{index}(_value, _inputs)?", owner.id)
         } else {
             "true".into()

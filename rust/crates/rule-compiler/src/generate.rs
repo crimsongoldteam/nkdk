@@ -57,7 +57,7 @@ pub fn generate(program: &nkdk_rule_model::Program) -> Result<GeneratedSources, 
 
 pub(crate) fn from_plan(program: &Program<'_>) -> Result<GeneratedSources, Vec<Diagnostic>> {
     let mut source = String::from(
-        "pub use nkdk_conversion_core::{Direction, EntryId, PreparedInputs, InputValue, FileResult, RuntimeDiagnostic, Severity};\nuse nkdk_conversion_core as core;\n",
+        "pub use nkdk_conversion_core::{Direction, EntryId, PreparedInputs, InputValue, FileResult, RuntimeDiagnostic, Severity};\nuse nkdk_conversion_core as core;\nuse core::inputs::InputView;\n",
     );
     let entries: Vec<_> = program
         .entries

@@ -69,7 +69,7 @@ fn code(
     };
     Ok((
         format!(
-            "fn {name}({value_parameter}_inputs: &PreparedInputs) -> core::Result<{return_type}> {{ {definitions} Ok({expression}) }}\n"
+            "fn {name}({value_parameter}_inputs: &InputView<'_>) -> core::Result<{return_type}> {{ {definitions} Ok({expression}) }}\n"
         ),
         format!("{name}({value_argument}_inputs)?"),
     ))

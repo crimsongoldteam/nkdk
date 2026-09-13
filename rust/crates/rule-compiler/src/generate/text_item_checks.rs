@@ -55,11 +55,11 @@ pub(super) fn generate(
     // Scalar owners currently use lifted constraints; sequences reuse this method.
     if body.is_empty() {
         return Ok(format!(
-            "impl {name} {{ fn issues(&self,_xml:bool,_inputs:&PreparedInputs)->Vec<RuntimeDiagnostic>{{Vec::new()}} }}\n"
+            "impl {name} {{ fn issues(&self,_xml:bool,_inputs:&InputView<'_>)->Vec<RuntimeDiagnostic>{{Vec::new()}} }}\n"
         ));
     }
     Ok(format!(
-        "impl {name} {{ fn issues(&self,xml:bool,_inputs:&PreparedInputs)->Vec<RuntimeDiagnostic>{{ {} let mut errors=Vec::new(); let _=xml; {body} errors }} }}\n",
+        "impl {name} {{ fn issues(&self,xml:bool,_inputs:&InputView<'_>)->Vec<RuntimeDiagnostic>{{ {} let mut errors=Vec::new(); let _=xml; {body} errors }} }}\n",
         expressions.constants
     ))
 }

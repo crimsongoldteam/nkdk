@@ -685,13 +685,13 @@ fn main() {
             ("Сервер: LITERAL\nRows: {Сервер: LITERAL, Описание: inner}\nОписание: outer", "<Root enabled='true'><Rows><Server>true</Server><Description>inner</Description></Rows><Description>outer</Description></Root>"),
         ] {
             let mut nested=OwnerYamlReadNESTED_STREAM_ID::new().unwrap();
-            core::yaml::visit_nodes(yaml.as_bytes(),|node,position|nested.consume(node,position,b"",&inputs)).unwrap();
-            let nested=nested.finish(b"",&inputs).unwrap();
-            core::proof::verify(expected.as_bytes(),&write_xml_NESTED_STREAM_ID(&nested,&inputs).unwrap(),|_|false).unwrap();
+            core::yaml::visit_nodes(yaml.as_bytes(),|node,position|nested.consume(node,position,b"",&inputs.view())).unwrap();
+            let nested=nested.finish(b"",&inputs.view()).unwrap();
+            core::proof::verify(expected.as_bytes(),&write_xml_NESTED_STREAM_ID(&nested,&inputs.view()).unwrap(),|_|false).unwrap();
         }
         let mut nested=OwnerYamlReadNESTED_STREAM_ID::new().unwrap();
-        core::yaml::visit_nodes("Сервер: LITERAL\nRows: {}\nОписание: outer".as_bytes(),|node,position|nested.consume(node,position,b"",&inputs)).unwrap();
-        let error=match nested.finish(b"",&inputs){Err(error)=>error,Ok(_)=>panic!("Empty record lost required fields")};
+        core::yaml::visit_nodes("Сервер: LITERAL\nRows: {}\nОписание: outer".as_bytes(),|node,position|nested.consume(node,position,b"",&inputs.view())).unwrap();
+        let error=match nested.finish(b"",&inputs.view()){Err(error)=>error,Ok(_)=>panic!("Empty record lost required fields")};
         assert_eq!(error.code.as_deref(),Some("value.missing"));
         {
             {
@@ -711,11 +711,11 @@ fn main() {
                 let result=convert_file(projected,Direction::XmlToYaml,xml,&projected_inputs).unwrap();assert_eq!(result.bytes,expected.as_bytes());
                 let result=convert_file(projected,Direction::YamlToXml,&result.bytes,&projected_inputs).unwrap();core::proof::verify(xml,&result.bytes,|_|false).unwrap();
                 let mut visits=0;
-                let value=read_yaml_events_DEEP_ID(b"",&inputs,core::yaml::Events(|consume:&mut core::yaml::Consumer<'_>|{visits+=1;core::yaml::visit_nodes(yaml,|node,at|consume(node,at))})).unwrap();
+                let value=read_yaml_events_DEEP_ID(b"",&inputs.view(),core::yaml::Events(|consume:&mut core::yaml::Consumer<'_>|{visits+=1;core::yaml::visit_nodes(yaml,|node,at|consume(node,at))})).unwrap();
                 assert_eq!(visits,1);
-                let prepared=prepare_xml_DEEP_ID(&value,&inputs).unwrap();let mut names=Vec::new();namespaces_xml_DEEP_ID(&value,&prepared,&mut names);
+                let prepared=prepare_xml_DEEP_ID(&value,&inputs.view()).unwrap();let mut names=Vec::new();namespaces_xml_DEEP_ID(&value,&prepared,&mut names);
                 let before=core::xml::writer_count();let mut writer=core::xml::Writer::new(&names);
-                write_xml_into_DEEP_ID(&value,&prepared,&inputs,&mut writer).unwrap();let restored=writer.finish();
+                write_xml_into_DEEP_ID(&value,&prepared,&inputs.view(),&mut writer).unwrap();let restored=writer.finish();
                 assert_eq!(core::xml::writer_count(),before+1);core::proof::verify(xml,&restored,|_|false).unwrap();
                 for source in [String::from_utf8_lossy(xml).replace("<r:Mode>normal</r:Mode>","<r:Mode extra='x'>other</r:Mode>"),String::from_utf8_lossy(xml).replace("<r:Name>child</r:Name>","<r:Name>reserved</r:Name>")] {
                     let yaml=convert_file(entry,Direction::XmlToYaml,source.as_bytes(),&inputs).unwrap();
@@ -756,45 +756,45 @@ fn main() {
         let mut other=OwnerXmlReadOWNER_STREAM_ID::new();
         core::xml::visit_scoped(xml,|path,token,scope| {
             if matches!(token,core::xml::Token::Start(_)) && path.last().is_some_and(|name|name.local=="Description") {
-                core::xml::visit_scoped(b"<Root enabled='true'><Description>independent</Description></Root>",|path,token,scope|other.consume(path,&token,scope,&[],&inputs))?;
+                core::xml::visit_scoped(b"<Root enabled='true'><Description>independent</Description></Root>",|path,token,scope|other.consume(path,&token,scope,&[],&inputs.view()))?;
             }
-            state.consume(path,&token,scope,&[],&inputs)
+            state.consume(path,&token,scope,&[],&inputs.view())
         }).unwrap();
-        let other=other.finish(&[],&inputs).unwrap();
-        let stored=state.finish(&[],&inputs).unwrap();
-        assert_eq!(write_yaml_OWNER_STREAM_ID(&other,&inputs).unwrap(),"Сервер: LITERAL\nОписание: independent".as_bytes());
-        assert_eq!(write_yaml_OWNER_STREAM_ID(&stored,&inputs).unwrap(),yaml.as_bytes());
+        let other=other.finish(&[],&inputs.view()).unwrap();
+        let stored=state.finish(&[],&inputs.view()).unwrap();
+        assert_eq!(write_yaml_OWNER_STREAM_ID(&other,&inputs.view()).unwrap(),"Сервер: LITERAL\nОписание: independent".as_bytes());
+        assert_eq!(write_yaml_OWNER_STREAM_ID(&stored,&inputs.view()).unwrap(),yaml.as_bytes());
         let mut visits=0;
-        let value=read_xml_shared_events_OWNER_STREAM_ID(b"",&inputs,core::xml::ScopedEvents(|consume:&mut core::xml::ScopedConsumer<'_>| {
+        let value=read_xml_shared_events_OWNER_STREAM_ID(b"",&inputs.view(),core::xml::ScopedEvents(|consume:&mut core::xml::ScopedConsumer<'_>| {
             visits+=1;
             core::xml::visit_scoped(xml,|path,token,scope|consume(path,&token,scope))
         })).unwrap();
         assert_eq!(visits,1);
-        assert_eq!(write_yaml_OWNER_STREAM_ID(&value,&inputs).unwrap(),yaml.as_bytes());
+        assert_eq!(write_yaml_OWNER_STREAM_ID(&value,&inputs.view()).unwrap(),yaml.as_bytes());
         let mut state=OwnerYamlReadOWNER_STREAM_ID::new().unwrap();
         let mut other=OwnerYamlReadOWNER_STREAM_ID::new().unwrap();
         let mut nodes=Vec::new();let mut other_nodes=Vec::new();
         core::yaml::visit_nodes(yaml.as_bytes(),|node,at|{nodes.push((node,at));Ok(())}).unwrap();
         core::yaml::visit_nodes("Сервер: LITERAL\nОписание: independent".as_bytes(),|node,at|{other_nodes.push((node,at));Ok(())}).unwrap();
         for ((node,at),(other_node,position)) in nodes.into_iter().zip(other_nodes){
-            state.consume(node,at,&[],&inputs).unwrap();other.consume(other_node,position,&[],&inputs).unwrap();
+            state.consume(node,at,&[],&inputs.view()).unwrap();other.consume(other_node,position,&[],&inputs.view()).unwrap();
         }
-        let other=other.finish(&[],&inputs).unwrap();
-        let stored=state.finish(&[],&inputs).unwrap();
-        core::proof::verify(b"<Root enabled='true'><Description>independent</Description></Root>",&write_xml_OWNER_STREAM_ID(&other,&inputs).unwrap(),|_|false).unwrap();
-        core::proof::verify(xml,&write_xml_OWNER_STREAM_ID(&stored,&inputs).unwrap(),|_|false).unwrap();
+        let other=other.finish(&[],&inputs.view()).unwrap();
+        let stored=state.finish(&[],&inputs.view()).unwrap();
+        core::proof::verify(b"<Root enabled='true'><Description>independent</Description></Root>",&write_xml_OWNER_STREAM_ID(&other,&inputs.view()).unwrap(),|_|false).unwrap();
+        core::proof::verify(xml,&write_xml_OWNER_STREAM_ID(&stored,&inputs.view()).unwrap(),|_|false).unwrap();
         let mut visits=0;
-        let value=read_yaml_shared_events_OWNER_STREAM_ID(b"",&inputs,core::yaml::Events(|consume:&mut core::yaml::Consumer<'_>| {
+        let value=read_yaml_shared_events_OWNER_STREAM_ID(b"",&inputs.view(),core::yaml::Events(|consume:&mut core::yaml::Consumer<'_>| {
             visits+=1;
             core::yaml::visit_nodes(yaml.as_bytes(),|node,position|consume(node,position))
         })).unwrap();
         assert_eq!(visits,1);
-        let prepared=prepare_xml_plain_OWNER_STREAM_ID(&value,&inputs).unwrap();
+        let prepared=prepare_xml_plain_OWNER_STREAM_ID(&value,&inputs.view()).unwrap();
         let mut namespaces=Vec::new();
         namespaces_xml_plain_OWNER_STREAM_ID(&value,&prepared,&mut namespaces);
         let writers=core::xml::writer_count();
         let mut writer=core::xml::Writer::new(&namespaces);
-        write_xml_plain_into_OWNER_STREAM_ID(&value,&prepared,&inputs,&mut writer).unwrap();
+        write_xml_plain_into_OWNER_STREAM_ID(&value,&prepared,&inputs.view(),&mut writer).unwrap();
         let restored=writer.finish();
         assert_eq!(core::xml::writer_count(),writers+1);
         core::proof::verify(xml,&restored,|_|false).unwrap();
@@ -977,9 +977,9 @@ fn main() {
         let inputs=PreparedInputs::default();
         let mut collection=None;
         let mut reads=0;
-        let scalar=read_xml_events_SCALAR_ID(xml.as_bytes(),&inputs,core::xml::Events(|consume: &mut core::xml::Consumer<'_>| {
+        let scalar=read_xml_events_SCALAR_ID(xml.as_bytes(),&inputs.view(),core::xml::Events(|consume: &mut core::xml::Consumer<'_>| {
             reads+=1;
-            collection=Some(read_xml_events_ROWS_ID(xml.as_bytes(),&inputs,core::xml::DocumentSource(xml.as_bytes()),|path,token| {
+            collection=Some(read_xml_events_ROWS_ID(xml.as_bytes(),&inputs.view(),core::xml::DocumentSource(xml.as_bytes()),|path,token| {
                 if path.get(1).is_some_and(|name|name.local=="Server" || name.local=="Description") {
                     consume(path,token)?;Ok(true)
                 } else {Ok(false)}
@@ -987,39 +987,39 @@ fn main() {
             Ok(())
         })).unwrap();
         assert_eq!(reads,1);
-        let yaml=String::from_utf8(write_yaml_SCALAR_ID(&scalar,&inputs).unwrap()).unwrap();
+        let yaml=String::from_utf8(write_yaml_SCALAR_ID(&scalar,&inputs.view()).unwrap()).unwrap();
         assert!(yaml.contains("body"));
         assert_eq!(yaml.contains("!xml/raw"),boolean=="unexpected");
         let mut combined_yaml=String::from("Before: preserved");
-        write_yaml_into_SCALAR_ID(&scalar,&inputs,&mut combined_yaml).unwrap();
+        write_yaml_into_SCALAR_ID(&scalar,&inputs.view(),&mut combined_yaml).unwrap();
         assert_eq!(combined_yaml,format!("Before: preserved\n{yaml}"));
         let mut collection=collection.unwrap();
-        let rows=String::from_utf8(write_yaml_ROWS_ID(&collection,&inputs).unwrap()).unwrap();
+        let rows=String::from_utf8(write_yaml_ROWS_ID(&collection,&inputs.view()).unwrap()).unwrap();
         assert!(rows.contains("one") && rows.contains("First"));
-        prepare_yaml_into_ROWS_ID(&collection,&inputs,true,&mut combined_yaml,"").unwrap();
+        prepare_yaml_into_ROWS_ID(&collection,&inputs.view(),true,&mut combined_yaml,"").unwrap();
         assert_eq!(combined_yaml,format!("Before: preserved\n{yaml}\n{rows}"));
         let mut nested=String::from("Owner:");
-        prepare_yaml_into_ROWS_ID(&collection,&inputs,true,&mut nested,"  ").unwrap();
+        prepare_yaml_into_ROWS_ID(&collection,&inputs.view(),true,&mut nested,"  ").unwrap();
         assert_eq!(nested,"Owner:\n  Rows:\n    - Code: one\n      Title: First");
         if boolean=="unexpected" {
             let source=b"<Root><Rows xmlns:x='urn:extra' x:flag='keep'><Item><Code>one</Code><Title>First</Title></Item></Rows></Root>";
             let converted=convert_file(entry_id("test.fact-rows").unwrap(),Direction::XmlToYaml,source,&inputs).unwrap();
             assert!(String::from_utf8_lossy(&converted.bytes).contains("!xml/raw"));
-            collection=read_yaml_ROWS_ID(&converted.bytes,&inputs).unwrap();
+            collection=read_yaml_ROWS_ID(&converted.bytes,&inputs.view()).unwrap();
             let mut repeated=String::new();
-            write_yaml_into_ROWS_ID(&collection,&inputs,&mut repeated).unwrap();
+            write_yaml_into_ROWS_ID(&collection,&inputs.view(),&mut repeated).unwrap();
             verify_candidate(entry_id("test.fact-rows").unwrap(),source,repeated.as_bytes(),&inputs).unwrap();
         }
         let writes=core::xml::writer_count();
-        let prepared=prepare_xml_SCALAR_ID(&scalar,&inputs).unwrap();
-        let prepared_rows=prepare_xml_ROWS_ID(&collection,&inputs).unwrap();
+        let prepared=prepare_xml_SCALAR_ID(&scalar,&inputs.view()).unwrap();
+        let prepared_rows=prepare_xml_ROWS_ID(&collection,&inputs.view()).unwrap();
         let mut namespaces=Vec::new();
         namespaces_xml_SCALAR_ID(&scalar,&prepared,&mut namespaces);
         namespaces_xml_ROWS_ID(&collection,&prepared_rows,&mut namespaces);
         let mut writer=core::xml::Writer::new(&namespaces);
-        write_xml_field_SCALAR_ID_0(&scalar,&prepared,&inputs,&mut writer).unwrap();
-        write_xml_into_ROWS_ID(&collection,&prepared_rows,&inputs,&mut writer).unwrap();
-        write_xml_field_SCALAR_ID_1(&scalar,&prepared,&inputs,&mut writer).unwrap();
+        write_xml_field_SCALAR_ID_0(&scalar,&prepared,&inputs.view(),&mut writer).unwrap();
+        write_xml_into_ROWS_ID(&collection,&prepared_rows,&inputs.view(),&mut writer).unwrap();
+        write_xml_field_SCALAR_ID_1(&scalar,&prepared,&inputs.view(),&mut writer).unwrap();
         let combined=writer.finish();
         assert_eq!(core::xml::writer_count()-writes,if boolean=="unexpected" {2} else {1});
         let attributes=if boolean=="unexpected" {" xmlns:x='urn:extra' x:flag='keep'"} else {""};
@@ -1032,16 +1032,16 @@ fn main() {
         let inputs=PreparedInputs::default();
         let mut rows=None;
         let mut reads=0;
-        let scalar=read_yaml_events_SCALAR_ID(source,&inputs,core::raw::Fields::default(),core::yaml::Events(|consume:&mut core::yaml::Consumer<'_>| {
+        let scalar=read_yaml_events_SCALAR_ID(source,&inputs.view(),core::raw::Fields::default(),core::yaml::Events(|consume:&mut core::yaml::Consumer<'_>| {
             reads+=1;
-            rows=Some(read_yaml_events_ROWS_ID(source,&inputs,core::yaml::PartitionSource {
+            rows=Some(read_yaml_events_ROWS_ID(source,&inputs.view(),core::yaml::PartitionSource {
                 source:core::yaml::DocumentSource(source),select:|key:&str|key=="Rows",sibling:consume,
             })?);
             Ok(())
         })).unwrap();
         assert_eq!(reads,1);
-        assert!(String::from_utf8(write_yaml_SCALAR_ID(&scalar,&inputs).unwrap()).unwrap().contains("body"));
-        assert!(String::from_utf8(write_yaml_ROWS_ID(&rows.unwrap(),&inputs).unwrap()).unwrap().contains("First"));
+        assert!(String::from_utf8(write_yaml_SCALAR_ID(&scalar,&inputs.view()).unwrap()).unwrap().contains("body"));
+        assert!(String::from_utf8(write_yaml_ROWS_ID(&rows.unwrap(),&inputs.view()).unwrap()).unwrap().contains("First"));
     }
     let chain = core::text_pattern::Sequence::<2>::new("::").unwrap();
     let rows = chain.rows("west::leaf::east::twig", 10, 1024).unwrap();
@@ -1251,8 +1251,8 @@ fn main() {
     ] {
         let result=convert_file(nested_header,Direction::XmlToYaml,xml.as_bytes(),&PreparedInputs::default()).unwrap();
         verify_candidate(nested_header,xml.as_bytes(),&result.bytes,&PreparedInputs::default()).unwrap();
-        let value=read_yaml_HEADER_ID(&result.bytes,&PreparedInputs::default()).unwrap();
-        let repeated=write_yaml_HEADER_ID(&value,&PreparedInputs::default()).unwrap();
+        let value=read_yaml_HEADER_ID(&result.bytes,&PreparedInputs::default().view()).unwrap();
+        let repeated=write_yaml_HEADER_ID(&value,&PreparedInputs::default().view()).unwrap();
         verify_candidate(nested_header,xml.as_bytes(),&repeated,&PreparedInputs::default()).unwrap();
     }
     let attributes = entry_id("test.attribute-owner").unwrap();
@@ -1358,12 +1358,12 @@ fn main() {
             let inputs=PreparedInputs::default();
             let original=$source;
             let converted=convert_file(entry_id($entry).unwrap(),Direction::XmlToYaml,original.as_bytes(),&inputs).unwrap();
-            let value=$read(&converted.bytes,&inputs).unwrap();
-            let prepared=$prepare(&value,&inputs).unwrap();
+            let value=$read(&converted.bytes,&inputs.view()).unwrap();
+            let prepared=$prepare(&value,&inputs.view()).unwrap();
             let mut namespaces=Vec::new();$namespaces(&value,&prepared,&mut namespaces);
             let mut writer=core::xml::Writer::new(&namespaces);
             writer.field(&[("","Root"),("","Before")],"kept");
-            $write(&value,&prepared,&inputs,&mut writer).unwrap();
+            $write(&value,&prepared,&inputs.view(),&mut writer).unwrap();
             writer.field(&[("","Root"),("","After")],"kept");
             let expected=original.replacen(concat!("<",$element),concat!("<Before>kept</Before><",$element),1).replace("</Root>","<After>kept</After></Root>");
             core::proof::verify_with_qnames(expected.as_bytes(),&writer.finish(),|path|path.last().is_some_and(|name|matches!(name.local.as_str(),"Before"|"After"|"Server"|"Description")),|_,_|false,|path|$qname && path.last().is_some_and(|name|name.local==$element)).unwrap();
@@ -1377,13 +1377,13 @@ fn main() {
     {
         let source=b"<Root xmlns:p='urn:outer'><Type xmlns:p='urn:inner'>p:Atom</Type></Root>";
         let inputs=PreparedInputs::default();let mut reads=0;
-        let value=read_xml_events_QNAME_ID(source,&inputs,core::xml::ScopedEvents(|consume:&mut core::xml::ScopedConsumer<'_>| {
+        let value=read_xml_events_QNAME_ID(source,&inputs.view(),core::xml::ScopedEvents(|consume:&mut core::xml::ScopedConsumer<'_>| {
             use crate::core::xml::ScopedSource;
             reads+=1;
             core::xml::DocumentSource(source).visit_scoped(|path,token,scope|consume(path,token,scope))
         })).unwrap();
         assert_eq!(reads,1);
-        assert_eq!(write_yaml_QNAME_ID(&value,&inputs).unwrap(),b"Qualified:\n  Namespace: urn:inner\n  Name: Atom");
+        assert_eq!(write_yaml_QNAME_ID(&value,&inputs.view()).unwrap(),b"Qualified:\n  Namespace: urn:inner\n  Name: Atom");
     }
     let qualified = entry_id("test.qualified").unwrap();
     let inputs = PreparedInputs::default();
@@ -1539,10 +1539,10 @@ fn main() {
     core::xml::visit(xml.as_bytes(),|path,token|first.consume(path,&token)).unwrap();
     let other=xml.replace("A &amp; B","other");
     core::xml::visit(other.as_bytes(),|path,token|second.consume(path,&token)).unwrap();
-    let other_value=finish_xml_SCALAR_ID(second,other.as_bytes(),&inputs).unwrap();
-    assert_eq!(write_yaml_SCALAR_ID(&other_value,&inputs).unwrap(),yaml.replace("A & B","other").as_bytes());
-    let first_value=finish_xml_SCALAR_ID(first,xml.as_bytes(),&inputs).unwrap();
-    assert_eq!(write_yaml_SCALAR_ID(&first_value,&inputs).unwrap(),yaml.as_bytes());
+    let other_value=finish_xml_SCALAR_ID(second,other.as_bytes(),&inputs.view()).unwrap();
+    assert_eq!(write_yaml_SCALAR_ID(&other_value,&inputs.view()).unwrap(),yaml.replace("A & B","other").as_bytes());
+    let first_value=finish_xml_SCALAR_ID(first,xml.as_bytes(),&inputs.view()).unwrap();
+    assert_eq!(write_yaml_SCALAR_ID(&first_value,&inputs.view()).unwrap(),yaml.as_bytes());
     let repeated=b"<Root><Server>wrong-first</Server><Description>x</Description><Server>wrong-second</Server><Description>y</Description></Root>";
     let mut states=[XmlReadSCALAR_ID::new(),XmlReadSCALAR_ID::new()];
     let (mut current,mut started)=(0,0);
@@ -1554,8 +1554,8 @@ fn main() {
         b"<Root><Server>wrong-first</Server><Description>x</Description></Root>".as_slice(),
         b"<Root><Server>wrong-second</Server><Description>y</Description></Root>".as_slice(),
     ]) {
-        let value=finish_xml_SCALAR_ID(state,repeated,&inputs).unwrap();
-        let restored=write_xml_SCALAR_ID(&value,&inputs).unwrap();
+        let value=finish_xml_SCALAR_ID(state,repeated,&inputs.view()).unwrap();
+        let restored=write_xml_SCALAR_ID(&value,&inputs.view()).unwrap();
         core::proof::verify(expected,&restored,|_|false).unwrap();
     }
     let encoded = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
@@ -1568,8 +1568,8 @@ fn main() {
         Ok(())
     }).unwrap();
     mapping.finish().unwrap();
-    let yaml_value=finish_yaml_SCALAR_ID(yaml_fields,yaml.as_bytes(),&inputs).unwrap();
-    assert_eq!(write_xml_SCALAR_ID(&yaml_value,&inputs).unwrap(),xml.as_bytes());
+    let yaml_value=finish_yaml_SCALAR_ID(yaml_fields,yaml.as_bytes(),&inputs.view()).unwrap();
+    assert_eq!(write_xml_SCALAR_ID(&yaml_value,&inputs.view()).unwrap(),xml.as_bytes());
     let decoded = convert_file(entry, Direction::YamlToXml, yaml.as_bytes(), &inputs).unwrap();
     assert_eq!(decoded.bytes, xml.as_bytes());
     assert!(validate_file(entry, yaml.as_bytes(), &inputs).is_empty());

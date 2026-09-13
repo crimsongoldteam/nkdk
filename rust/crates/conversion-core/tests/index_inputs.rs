@@ -5,6 +5,7 @@ use nkdk_conversion_core::{
         prepared::{FactBudget, FactId, TextFactsBuilder, TextIndexInput},
         text::TextBudget,
     },
+    inputs::InputRef,
 };
 use std::sync::Arc;
 
@@ -48,6 +49,16 @@ fn prepared_index_inputs_borrow_values_and_keep_missing_distinct_from_unready() 
         .unwrap();
     let second = other.text_index(0).unwrap().lookup("one").unwrap().unwrap();
     assert!(std::ptr::eq(first, second));
+    let references = Arc::strong_count(&facts);
+    let view = inputs.view();
+    let slots = [Some(InputRef::TextIndex(inputs.text_index(0).unwrap()))];
+    let child = view.rebind(&slots);
+    assert!(std::ptr::eq(
+        child.text_index(0).unwrap(),
+        inputs.text_index(0).unwrap()
+    ));
+    assert!(child.is_ready(0));
+    assert_eq!(Arc::strong_count(&facts), references);
     assert_eq!(
         inputs.text_index(0).unwrap().lookup("missing").unwrap(),
         None
@@ -67,6 +78,19 @@ fn prepared_index_inputs_borrow_values_and_keep_missing_distinct_from_unready() 
         TextIndexInput::new(facts.clone(), generation, FactId(1)),
     ] {
         assert!(!binding.is_ready());
+        let slots = [Some(InputRef::TextIndex(&binding))];
+        let unready = view.rebind(&slots);
+        assert!(!unready.is_ready(0));
+        assert_eq!(
+            unready
+                .text_index(0)
+                .unwrap()
+                .lookup("never-seen")
+                .unwrap_err()
+                .code
+                .as_deref(),
+            Some("fact.unready")
+        );
         assert_eq!(
             binding.lookup("never-seen").unwrap_err().code.as_deref(),
             Some("fact.unready")

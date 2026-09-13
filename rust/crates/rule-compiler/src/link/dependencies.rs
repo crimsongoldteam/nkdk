@@ -32,10 +32,7 @@ pub(super) fn field_dependencies(
         .into_iter()
         .map(|set| set.into_iter().collect())
         .collect();
-    let mut states = vec![0; fields.len()];
-    for index in 0..fields.len() {
-        visit(index, &dependencies, fields, &mut states)?;
-    }
+    crate::plan::scopes::schedule(&dependencies, fields)?;
     Ok(dependencies)
 }
 
@@ -54,33 +51,6 @@ fn collect(value: &LinkedType, result: &mut BTreeSet<u32>) {
         }
         _ => {}
     }
-}
-
-fn visit(
-    index: usize,
-    dependencies: &[Vec<u32>],
-    fields: &[LinkedField],
-    states: &mut [u8],
-) -> Result<(), Diagnostic> {
-    if states[index] == 2 {
-        return Ok(());
-    }
-    states[index] = 1;
-    for &dependency in &dependencies[index] {
-        let target = dependency as usize;
-        if states[target] == 1 {
-            let mut error = diagnostic(
-                "field_dependency_cycle",
-                &fields[index].source,
-                "Field bindings contain a cycle",
-            );
-            error.related.push(fields[target].source.clone());
-            return Err(error);
-        }
-        visit(target, dependencies, fields, states)?;
-    }
-    states[index] = 2;
-    Ok(())
 }
 
 fn collect_expression(value: &LinkedExpression, result: &mut BTreeSet<u32>) {

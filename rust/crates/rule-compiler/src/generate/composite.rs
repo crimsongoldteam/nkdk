@@ -157,7 +157,7 @@ pub(super) fn generate(
         let code = expressions.lower(&expr)?;
         let slot = condition_count.get();
         condition_count.set(slot + 1);
-        writeln!(scalar_conditions.borrow_mut(),"pub(super) fn condition_{slot}(value:&Stored,rows:&core::Sequence<super::nested_{id}::R{n}>,child_present:bool,_inputs:&PreparedInputs)->core::Result<bool> {{let _value=&value.0;let _=(rows,child_present);{defaults}{} Ok({code})}}",expressions.constants).unwrap();
+        writeln!(scalar_conditions.borrow_mut(),"pub(super) fn condition_{slot}(value:&Stored,rows:&core::Sequence<super::nested_{id}::R{n}>,child_present:bool,_inputs:&InputView<'_>)->core::Result<bool> {{let _value=&value.0;let _=(rows,child_present);{defaults}{} Ok({code})}}",expressions.constants).unwrap();
         Ok(format!(
             "scalars_{id}::condition_{slot}(&_value.scalars,&_value.child.rows,_value.child_present,inputs)?"
         ))
@@ -355,10 +355,10 @@ pub(super) fn generate(
         .map(|a| (a.name.namespace.as_str(), a.name.local.as_str()))
         .collect::<Vec<_>>();
     let mut out = format!(
-        "#[allow(dead_code)] mod nested_{id} {{ use super::*; {source} pub(super) fn read_document(source:&[u8],inputs:&PreparedInputs)->core::Result<V{n}>{{read_yaml_{n}(source,inputs)}} }}\n#[allow(dead_code)] mod scalars_{id} {{use super::*;{scalar_source}{scalar_conditions}}}\nstruct V{id} {{ scalars:scalars_{id}::Stored, child: nested_{id}::V{n}, present: bool, #[allow(dead_code)] child_present: bool, yaml_present: bool, #[allow(dead_code)] position:core::Position, raw: Option<core::xml::Patch> }}\n"
+        "#[allow(dead_code)] mod nested_{id} {{ use super::*; {source} pub(super) fn read_document(source:&[u8],inputs:&InputView<'_>)->core::Result<V{n}>{{read_yaml_{n}(source,inputs)}} }}\n#[allow(dead_code)] mod scalars_{id} {{use super::*;{scalar_source}{scalar_conditions}}}\nstruct V{id} {{ scalars:scalars_{id}::Stored, child: nested_{id}::V{n}, present: bool, #[allow(dead_code)] child_present: bool, yaml_present: bool, #[allow(dead_code)] position:core::Position, raw: Option<core::xml::Patch> }}\n"
     );
-    writeln!(out,r#"fn read_xml_{id}(source:&[u8],inputs:&PreparedInputs)->core::Result<V{id}> {{read_xml_events_{id}(source,inputs,core::xml::DocumentSource(source))}}
-fn read_xml_events_{id}(source:&[u8],inputs:&PreparedInputs,events:impl core::xml::Source)->core::Result<V{id}> {{
+    writeln!(out,r#"fn read_xml_{id}(source:&[u8],inputs:&InputView<'_>)->core::Result<V{id}> {{read_xml_events_{id}(source,inputs,core::xml::DocumentSource(source))}}
+fn read_xml_events_{id}(source:&[u8],inputs:&InputView<'_>,events:impl core::xml::Source)->core::Result<V{id}> {{
 let mut child=None;let mut scalar_seen=false;
 let scalars=scalars_{id}::read_xml(source,inputs,core::xml::Events(|consume:&mut core::xml::Consumer<'_>|{{
 child=Some(nested_{id}::read_xml_events_{n}(source,inputs,events,|path,token|{{
@@ -368,7 +368,7 @@ if core::xml::matches(path,{path}) && let core::xml::Token::Attribute(a)=token &
 Ok(false)}})?);Ok(())}}))?;
 let child=child.expect("collection reader completed");let child_present=child.rows.is_present();let present=scalar_seen || child_present;
 Ok(V{id}{{scalars,child,present,child_present,yaml_present:false,position:core::Position::default(),raw:None}}) }}
-fn read_plain_yaml_{id}(source:&[u8],inputs:&PreparedInputs)->core::Result<V{id}> {{
+fn read_plain_yaml_{id}(source:&[u8],inputs:&InputView<'_>)->core::Result<V{id}> {{
 match read_yaml_events_{id}(source,inputs,core::yaml::DocumentSource(if source.is_empty() {{b"{{}}"}} else {{source}})) {{Ok(value)=>Ok(value),Err(error)=>{{
 let pieces=match core::yaml::split_record_properties(source,{key:?},&[scalars_{id}::KEYS,&[{child_key:?}]]) {{Ok(pieces)=>pieces,Err(_)=>return Err(error)}};
 let child_present=pieces.present[1];let pieces=pieces.parts;
@@ -376,7 +376,7 @@ let scalars=scalars_{id}::read_document(&pieces[0],inputs)?;let {child_mut}child
 let present=true;{missing}
 Ok(V{id}{{scalars,child,present,child_present,yaml_present:present,position:core::Position::default(),raw:None}})
 }}}} }}
-fn read_yaml_events_{id}(source:&[u8],inputs:&PreparedInputs,events:impl core::yaml::Source)->core::Result<V{id}> {{
+fn read_yaml_events_{id}(source:&[u8],inputs:&InputView<'_>,events:impl core::yaml::Source)->core::Result<V{id}> {{
 let mut seen=core::yaml::RecordState::default();let mut child=None;let mut child_present=false;let mut scalar_seen=false;
 let scalars=scalars_{id}::read_yaml(source,inputs,core::yaml::Events(|scalar_consume:&mut core::yaml::Consumer<'_>|{{
 child=Some(nested_{id}::read_yaml_events_{n}(source,inputs,true,core::yaml::Events(|child_consume:&mut core::yaml::Consumer<'_>|{{
@@ -387,36 +387,36 @@ let {child_mut}child=child.expect("collection reader completed");let present=see
 {missing}
 let yaml_present=present;let present=scalar_seen || child.rows.is_present();
 Ok(V{id}{{scalars,child,present,child_present,yaml_present,position:seen.position,raw:None}}) }}
-fn check_xml_{id}(value:&V{id},source:&[u8],inputs:&PreparedInputs)->Vec<RuntimeDiagnostic> {{nested_{id}::check_xml_{n}(&value.child,source,inputs).into_iter().chain(scalars_{id}::check_xml(&value.scalars,source,inputs)).map(prefix_{id}).collect()}}
-fn check_yaml_{id}(value:&V{id},source:&[u8],inputs:&PreparedInputs)->Vec<RuntimeDiagnostic> {{ let _value=value; let mut issues=nested_{id}::check_yaml_{n}(&value.child,source,inputs); if value.yaml_present {{issues.extend(scalars_{id}::check_yaml(&value.scalars,source,inputs));}}
+fn check_xml_{id}(value:&V{id},source:&[u8],inputs:&InputView<'_>)->Vec<RuntimeDiagnostic> {{nested_{id}::check_xml_{n}(&value.child,source,inputs).into_iter().chain(scalars_{id}::check_xml(&value.scalars,source,inputs)).map(prefix_{id}).collect()}}
+fn check_yaml_{id}(value:&V{id},source:&[u8],inputs:&InputView<'_>)->Vec<RuntimeDiagnostic> {{ let _value=value; let mut issues=nested_{id}::check_yaml_{n}(&value.child,source,inputs); if value.yaml_present {{issues.extend(scalars_{id}::check_yaml(&value.scalars,source,inputs));}}
 {checks} issues.into_iter().map(prefix_{id}).collect() }}
 struct XmlPrepared{id} {{scalars:scalars_{id}::Prepared,tree:Option<core::xml::Tree>}}
-fn write_plain_xml_{id}(value:&V{id},inputs:&PreparedInputs)->core::Result<Vec<u8>> {{let prepared=XmlPrepared{id}{{scalars:scalars_{id}::prepare(&value.scalars,inputs)?,tree:None}};let mut namespaces=Vec::new();namespaces_xml_{id}(value,&prepared,&mut namespaces);let mut out=core::xml::Writer::new(&namespaces);write_xml_fields_{id}(value,&prepared,inputs,&mut out)?;Ok(out.finish())}}
-fn write_xml_fields_{id}<'a>(value:&V{id},prepared:&'a XmlPrepared{id},inputs:&PreparedInputs,out:&mut core::xml::Writer<'a>)->core::Result<()> {{
+fn write_plain_xml_{id}(value:&V{id},inputs:&InputView<'_>)->core::Result<Vec<u8>> {{let prepared=XmlPrepared{id}{{scalars:scalars_{id}::prepare(&value.scalars,inputs)?,tree:None}};let mut namespaces=Vec::new();namespaces_xml_{id}(value,&prepared,&mut namespaces);let mut out=core::xml::Writer::new(&namespaces);write_xml_fields_{id}(value,&prepared,inputs,&mut out)?;Ok(out.finish())}}
+fn write_xml_fields_{id}<'a>(value:&V{id},prepared:&'a XmlPrepared{id},inputs:&InputView<'_>,out:&mut core::xml::Writer<'a>)->core::Result<()> {{
 let _value=value;{canonical}
 scalars_{id}::with_attributes(&value.scalars,|fields|{{
 nested_{id}::write_xml_fields_{n}(&value.child,inputs,fields.iter().flatten(),value.present,out)
 }})?;
 if value.present {{scalars_{id}::write_elements(&value.scalars,&prepared.scalars,inputs,out)?;}}Ok(()) }}
-fn write_yaml_{id}(value:&V{id},inputs:&PreparedInputs)->core::Result<Vec<u8>> {{let mut out=String::new();write_yaml_into_{id}(value,inputs,&mut out)?;Ok(out.into_bytes())}}
-fn write_yaml_into_{id}(value:&V{id},inputs:&PreparedInputs,out:&mut String)->core::Result<()> {{
+fn write_yaml_{id}(value:&V{id},inputs:&InputView<'_>)->core::Result<Vec<u8>> {{let mut out=String::new();write_yaml_into_{id}(value,inputs,&mut out)?;Ok(out.into_bytes())}}
+fn write_yaml_into_{id}(value:&V{id},inputs:&InputView<'_>,out:&mut String)->core::Result<()> {{
 if let Some(patch)=&value.raw {{
 let meaning=prepare_yaml_{id}(value,inputs,true)?;
 let payload=patch.to_yaml();
 let encoded=core::raw::Property::encode({key:?},{physical_key:?},&meaning,payload.as_bytes())?;
 core::yaml::append_encoded_properties(out,&encoded)
 }} else {{prepare_yaml_into_{id}(value,inputs,true,out)}} }}
-fn prepare_yaml_{id}(value:&V{id},inputs:&PreparedInputs,shorten:bool)->core::Result<Vec<u8>> {{let mut out=String::new();prepare_yaml_into_{id}(value,inputs,shorten,&mut out)?;Ok(out.into_bytes())}}
-fn prepare_yaml_into_{id}(value:&V{id},inputs:&PreparedInputs,shorten:bool,out:&mut String)->core::Result<()> {{
+fn prepare_yaml_{id}(value:&V{id},inputs:&InputView<'_>,shorten:bool)->core::Result<Vec<u8>> {{let mut out=String::new();prepare_yaml_into_{id}(value,inputs,shorten,&mut out)?;Ok(out.into_bytes())}}
+fn prepare_yaml_into_{id}(value:&V{id},inputs:&InputView<'_>,shorten:bool,out:&mut String)->core::Result<()> {{
 core::yaml::append_properties(out,|out| {{
 let _value=value;let start=out.len();out.push_str(&core::yaml::scalar({key:?}));out.push(':');
 if value.present {{scalars_{id}::write_yaml(&value.scalars,inputs,out,"  ")?;}}
 let scalar_end=out.len();
 if !({omit}) {{nested_{id}::prepare_yaml_into_{n}(&value.child,inputs,shorten,out,"  ")?;}}
 if out.len()==scalar_end && !scalars_{id}::has_meaning(&value.scalars,inputs)? {{out.truncate(start);}} Ok(()) }}) }}
-fn verify_{id}(original:&[u8],candidate:&[u8],inputs:&PreparedInputs)->core::Result<()> {{let value=read_yaml_{id}(candidate,inputs)?;if let Some(error)=check_yaml_{id}(&value,candidate,inputs).into_iter().find(|e|e.severity==Severity::Error) {{return Err(error);}} prove_xml_{id}(&value,original,&write_xml_{id}(&value,inputs)?)}}
+fn verify_{id}(original:&[u8],candidate:&[u8],inputs:&InputView<'_>)->core::Result<()> {{let value=read_yaml_{id}(candidate,inputs)?;if let Some(error)=check_yaml_{id}(&value,candidate,inputs).into_iter().find(|e|e.severity==Severity::Error) {{return Err(error);}} prove_xml_{id}(&value,original,&write_xml_{id}(&value,inputs)?)}}
 fn prefix_{id}(mut error:RuntimeDiagnostic)->RuntimeDiagnostic {{error.path.insert(0,{key:?}.into());error}}
-fn read_yaml_{id}(source:&[u8],inputs:&PreparedInputs)->core::Result<V{id}> {{
+fn read_yaml_{id}(source:&[u8],inputs:&InputView<'_>)->core::Result<V{id}> {{
 match read_plain_yaml_{id}(source,inputs) {{Ok(value)=>Ok(value),Err(error)=>{{
 if !matches!(error.code.as_deref(),Some("yaml.record-form"|"yaml.annotation")) {{return Err(error);}}
 let Some(envelope)=core::raw::Property::decode(source,{key:?},{physical_key:?})? else {{return Err(error);}};
@@ -424,7 +424,7 @@ let mut value=read_plain_yaml_{id}(&envelope.meaning,inputs)?;
 if !envelope.has_semantic && !envelope.uses_semantic_name {{value.present=false;value.child.rows=core::Sequence::Absent;}}
 value.raw=Some(core::xml::Patch::read(&envelope.payload,&{namespaces:?},&{qnames:?})?);Ok(value)
 }}}} }}
-fn prepare_xml_{id}(value:&V{id},inputs:&PreparedInputs)->core::Result<XmlPrepared{id}> {{
+fn prepare_xml_{id}(value:&V{id},inputs:&InputView<'_>)->core::Result<XmlPrepared{id}> {{
 let scalars=scalars_{id}::prepare(&value.scalars,inputs)?;let Some(patch)=&value.raw else {{return Ok(XmlPrepared{id}{{scalars,tree:None}});}};
 let ordinary=write_plain_xml_{id}(value,inputs)?;
 let tree=core::xml::Tree::capture(&ordinary,{path})?;
@@ -436,13 +436,13 @@ for namespace in nested_{id}::XML_NAMESPACES_{n} {{if !namespaces.contains(names
 scalars_{id}::namespaces(&_value.scalars,&prepared.scalars,namespaces);
 if let Some(tree)=&prepared.tree {{tree.collect_namespaces(namespaces);}}
 }}
-fn write_xml_into_{id}<'a>(value:&V{id},prepared:&'a XmlPrepared{id},inputs:&PreparedInputs,out:&mut core::xml::Writer<'a>)->core::Result<()> {{
+fn write_xml_into_{id}<'a>(value:&V{id},prepared:&'a XmlPrepared{id},inputs:&InputView<'_>,out:&mut core::xml::Writer<'a>)->core::Result<()> {{
 if let Some(tree)=&prepared.tree {{tree.write_at(out,{parent_path},&{qnames:?})}} else {{write_xml_fields_{id}(value,prepared,inputs,out)}}
 }}
-fn write_xml_{id}(value:&V{id},inputs:&PreparedInputs)->core::Result<Vec<u8>> {{
+fn write_xml_{id}(value:&V{id},inputs:&InputView<'_>)->core::Result<Vec<u8>> {{
 let prepared=prepare_xml_{id}(value,inputs)?;let mut namespaces=Vec::new();namespaces_xml_{id}(value,&prepared,&mut namespaces);let mut out=core::xml::Writer::new(&namespaces);write_xml_into_{id}(value,&prepared,inputs,&mut out)?;Ok(out.finish())
 }}
-fn finalize_yaml_{id}(original:&[u8],candidate:Vec<u8>,value:&V{id},inputs:&PreparedInputs)->core::Result<Vec<u8>> {{
+fn finalize_yaml_{id}(original:&[u8],candidate:Vec<u8>,value:&V{id},inputs:&InputView<'_>)->core::Result<Vec<u8>> {{
 match verify_{id}(original,&candidate,inputs) {{Ok(())=>return Ok(candidate),Err(error) if error.code.as_deref()==Some("xml.round-trip-mismatch")=>{{}},Err(error)=>return Err(error)}}
 let full=prepare_yaml_{id}(value,inputs,false)?;
 if full!=candidate {{match verify_{id}(original,&full,inputs) {{Ok(())=>return Ok(full),Err(error) if error.code.as_deref()==Some("xml.round-trip-mismatch")=>{{}},Err(error)=>return Err(error)}}}}

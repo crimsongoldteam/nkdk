@@ -139,7 +139,7 @@ impl<'a> Codec<'a> {
         out.push_str(&crate::automata::declaration(&xml_plan, &self.xml));
         out.push_str(&crate::automata::declaration(&yaml_plan, &self.yaml));
         let inputs = if self.needs_inputs() {
-            ",_inputs:&PreparedInputs"
+            ",_inputs:&InputView<'_>"
         } else {
             ""
         };
@@ -178,7 +178,7 @@ impl<'a> Codec<'a> {
         if collection {
             writeln!(
                 out,
-                "impl {name} {{fn issues(&self,xml:bool,_inputs:&PreparedInputs)->Vec<RuntimeDiagnostic>{{match self{{"
+                "impl {name} {{fn issues(&self,xml:bool,_inputs:&InputView<'_>)->Vec<RuntimeDiagnostic>{{match self{{"
             )
             .unwrap();
             for index in 0..self.variants.len() {

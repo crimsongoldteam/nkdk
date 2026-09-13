@@ -90,8 +90,13 @@ pub(super) fn definition(codec: &Codec<'_>, name: &str) -> Result<String, Diagno
     ] {
         writeln!(out,"fn {side}_pattern()-> &'static core::text_pattern::Pattern<'static,{count}> {{static PLAN:std::sync::LazyLock<core::text_pattern::Pattern<'static,{count}>>=std::sync::LazyLock::new(||core::text_pattern::Pattern::new(&[{parts}]).expect(\"checked text pattern\"));&PLAN}}").unwrap();
     }
-    writeln!(out,"fn read(text:&str,xml:bool,_inputs:&PreparedInputs)->core::Result<Self>{{core::xml::validate_text(text)?;let value=if xml{{let slots=Self::xml_pattern().parse(text).map_err(|_|RuntimeDiagnostic::new(\"value.text-pattern\",\"Text does not match the declared pattern\"))?;Self::read_slots(slots,true)?}}else{{let {parsed_name}=Self::yaml_pattern().parse(text).map_err(|_|RuntimeDiagnostic::new(\"value.text-pattern\",\"Text does not match the declared pattern\"))?;{defaults}Self::read_slots([{}],false)?}};value.check(true)?;value.check(false)?;if xml && !value.matches_defaults(_inputs)? {{return Err(RuntimeDiagnostic::new(\"value.text-pattern\",\"Text differs from its restored YAML fields\"));}}Ok(value)}}",slots.join(",")).unwrap();
-    writeln!(out,"fn matches_defaults(&self,_inputs:&PreparedInputs)->core::Result<bool>{{{defaults}Ok({})}}",checks.join(" && ")).unwrap();
+    writeln!(out,"fn read(text:&str,xml:bool,_inputs:&InputView<'_>)->core::Result<Self>{{core::xml::validate_text(text)?;let value=if xml{{let slots=Self::xml_pattern().parse(text).map_err(|_|RuntimeDiagnostic::new(\"value.text-pattern\",\"Text does not match the declared pattern\"))?;Self::read_slots(slots,true)?}}else{{let {parsed_name}=Self::yaml_pattern().parse(text).map_err(|_|RuntimeDiagnostic::new(\"value.text-pattern\",\"Text does not match the declared pattern\"))?;{defaults}Self::read_slots([{}],false)?}};value.check(true)?;value.check(false)?;if xml && !value.matches_defaults(_inputs)? {{return Err(RuntimeDiagnostic::new(\"value.text-pattern\",\"Text differs from its restored YAML fields\"));}}Ok(value)}}",slots.join(",")).unwrap();
+    writeln!(
+        out,
+        "fn matches_defaults(&self,_inputs:&InputView<'_>)->core::Result<bool>{{{defaults}Ok({})}}",
+        checks.join(" && ")
+    )
+    .unwrap();
     let selected = indices
         .iter()
         .map(|index| format!("pieces[{index}]"))

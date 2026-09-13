@@ -982,21 +982,21 @@ fn main() {
     {
         let inputs=PreparedInputs::default();
         let mut state=OwnerXmlReadDEPENDENT_ID::new();
-        core::xml::visit_scoped(b"<Root><Mode>limited</Mode><Count>2</Count><Entries><item><key>first</key><text>hello</text></item></Entries></Root>",|path,token,scope|state.consume(path,&token,scope,&[],&inputs)).unwrap();
-        let value=state.finish(&[],&inputs).unwrap();
-        assert_eq!(write_yaml_DEPENDENT_ID(&value,&inputs).unwrap(),b"Mode: limited\nCount: 2\nEntries:\n  - Code: first\n    Text: hello");
+        core::xml::visit_scoped(b"<Root><Mode>limited</Mode><Count>2</Count><Entries><item><key>first</key><text>hello</text></item></Entries></Root>",|path,token,scope|state.consume(path,&token,scope,&[],&inputs.view())).unwrap();
+        let value=state.finish(&[],&inputs.view()).unwrap();
+        assert_eq!(write_yaml_DEPENDENT_ID(&value,&inputs.view()).unwrap(),b"Mode: limited\nCount: 2\nEntries:\n  - Code: first\n    Text: hello");
         let mut state=OwnerYamlReadDEPENDENT_ID::new().unwrap();
-        core::yaml::visit_nodes(b"Mode: limited\nCount: 2\nEntries:\n  - Code: first\n    Text: hello",|node,at|state.consume(node,at,&[],&inputs)).unwrap();
-        let restored=state.finish(&[],&inputs).unwrap();
-        core::proof::verify(b"<Root><Mode>limited</Mode><Count>2</Count><Entries><item><key>first</key><text>hello</text></item></Entries></Root>",&write_xml_DEPENDENT_ID(&restored,&inputs).unwrap(),|_|false).unwrap();
+        core::yaml::visit_nodes(b"Mode: limited\nCount: 2\nEntries:\n  - Code: first\n    Text: hello",|node,at|state.consume(node,at,&[],&inputs.view())).unwrap();
+        let restored=state.finish(&[],&inputs.view()).unwrap();
+        core::proof::verify(b"<Root><Mode>limited</Mode><Count>2</Count><Entries><item><key>first</key><text>hello</text></item></Entries></Root>",&write_xml_DEPENDENT_ID(&restored,&inputs.view()).unwrap(),|_|false).unwrap();
 
     }
     {
         let inputs=PreparedInputs::default();
         let mut state=core::yaml::SequenceReader::<2,RLIST_ID>::new(Some(&["Code","Text"]),&[],false);
         core::yaml::visit_nodes(b"[{Code: first, Text: hello}, {Text: world, Code: second}]",|node,at|state.consume(node,at,|fields,_|Ok(RLIST_ID{fields}))).unwrap();
-        let value=finish_yaml_sequence_LIST_ID(Some(state.finish().unwrap()),&[],&inputs).unwrap();
-        let xml=write_xml_LIST_ID(&value,&inputs).unwrap();
+        let value=finish_yaml_sequence_LIST_ID(Some(state.finish().unwrap()),&[],&inputs.view()).unwrap();
+        let xml=write_xml_LIST_ID(&value,&inputs.view()).unwrap();
         core::proof::verify(b"<Root><Entries><item><key>first</key><text>hello</text></item><item><key>second</key><text>world</text></item></Entries></Root>",&xml,|_|false).unwrap();
     }
     {
@@ -1009,20 +1009,20 @@ fn main() {
         core::yaml::visit_nodes(b"Entries: {one: first}",|node,at|{nodes.push((node,at));Ok(())}).unwrap();
         core::yaml::visit_nodes(b"Entries: {other: independent}",|node,at|{other_nodes.push((node,at));Ok(())}).unwrap();
         for ((node,at),(other,position)) in nodes.into_iter().zip(other_nodes) {
-            dictionary.consume(node,at,&inputs).unwrap();another.consume(other,position,&inputs).unwrap();
+            dictionary.consume(node,at,&inputs.view()).unwrap();another.consume(other,position,&inputs.view()).unwrap();
         }
-        let another=finish_yaml_dictionary_COLLECTION_ID(another,&[],&inputs,true).unwrap();
-        let dictionary=finish_yaml_dictionary_COLLECTION_ID(dictionary,&[],&inputs,true).unwrap();
-        core::proof::verify(b"<Root><Entries><item><key>other</key><text>independent</text></item></Entries></Root>",&write_xml_COLLECTION_ID(&another,&inputs).unwrap(),|_|false).unwrap();
-        core::proof::verify(first,&write_xml_COLLECTION_ID(&dictionary,&inputs).unwrap(),|_|false).unwrap();
+        let another=finish_yaml_dictionary_COLLECTION_ID(another,&[],&inputs.view(),true).unwrap();
+        let dictionary=finish_yaml_dictionary_COLLECTION_ID(dictionary,&[],&inputs.view(),true).unwrap();
+        core::proof::verify(b"<Root><Entries><item><key>other</key><text>independent</text></item></Entries></Root>",&write_xml_COLLECTION_ID(&another,&inputs.view()).unwrap(),|_|false).unwrap();
+        core::proof::verify(first,&write_xml_COLLECTION_ID(&dictionary,&inputs.view()).unwrap(),|_|false).unwrap();
         let mut left=XmlCollectionCOLLECTION_ID::new();
         let mut right=XmlCollectionCOLLECTION_ID::new();
-        core::xml::visit(first,|path,token| left.consume(path,&token,&[],&inputs)).unwrap();
-        core::xml::visit(second,|path,token| right.consume(path,&token,&[],&inputs)).unwrap();
-        let right=finish_xml_COLLECTION_ID(right,&inputs).unwrap();
-        let left=finish_xml_COLLECTION_ID(left,&inputs).unwrap();
-        assert_eq!(write_yaml_COLLECTION_ID(&right,&inputs).unwrap(),b"Entries:\n  two: second\n  three: third");
-        assert_eq!(write_yaml_COLLECTION_ID(&left,&inputs).unwrap(),b"Entries:\n  one: first");
+        core::xml::visit(first,|path,token| left.consume(path,&token,&[],&inputs.view())).unwrap();
+        core::xml::visit(second,|path,token| right.consume(path,&token,&[],&inputs.view())).unwrap();
+        let right=finish_xml_COLLECTION_ID(right,&inputs.view()).unwrap();
+        let left=finish_xml_COLLECTION_ID(left,&inputs.view()).unwrap();
+        assert_eq!(write_yaml_COLLECTION_ID(&right,&inputs.view()).unwrap(),b"Entries:\n  two: second\n  three: third");
+        assert_eq!(write_yaml_COLLECTION_ID(&left,&inputs.view()).unwrap(),b"Entries:\n  one: first");
     }
     {
         let entry=entry_id("test.external-payload").unwrap();
@@ -1312,15 +1312,15 @@ fn main() {
         String::from_utf8(missing_attr.to_vec()).unwrap().replace("<Entries>","<Entries xmlns:x='urn:extra' x:flag='kept'>"),
     ] {
         let converted=convert_file(composite,Direction::XmlToYaml,original.as_bytes(),&inputs).unwrap();
-        let value=read_yaml_COMPOSITE_ID(&converted.bytes,&inputs).unwrap();
+        let value=read_yaml_COMPOSITE_ID(&converted.bytes,&inputs.view()).unwrap();
         let mut repeated=String::new();
-        write_yaml_into_COMPOSITE_ID(&value,&inputs,&mut repeated).unwrap();
+        write_yaml_into_COMPOSITE_ID(&value,&inputs.view(),&mut repeated).unwrap();
         verify_candidate(composite,original.as_bytes(),repeated.as_bytes(),&inputs).unwrap();
-        let prepared=prepare_xml_COMPOSITE_ID(&value,&inputs).unwrap();
+        let prepared=prepare_xml_COMPOSITE_ID(&value,&inputs.view()).unwrap();
         let mut namespaces=Vec::new();namespaces_xml_COMPOSITE_ID(&value,&prepared,&mut namespaces);
         let mut writer=core::xml::Writer::new(&namespaces);
         writer.field(&[("","Root"),("","Before")],"kept");
-        write_xml_into_COMPOSITE_ID(&value,&prepared,&inputs,&mut writer).unwrap();
+        write_xml_into_COMPOSITE_ID(&value,&prepared,&inputs.view(),&mut writer).unwrap();
         writer.field(&[("","Root"),("","After")],"kept");
         let expected=original.replacen("<Entries","<Before>kept</Before><Entries",1).replace("</Root>","<After>kept</After></Root>");
         core::proof::verify_with_attributes(expected.as_bytes(),&writer.finish(),|path|path.last().is_some_and(|name|matches!(name.local.as_str(),"Before"|"After"|"lang"|"content")),|_,name|name.namespace=="http://www.w3.org/2001/XMLSchema-instance" && name.local=="type").unwrap();
@@ -1329,33 +1329,33 @@ fn main() {
         let source="Before: kept\nEntries:\n  Текст: Hello\nAfter: kept".as_bytes();
         let mut value=None;let mut siblings=Vec::new();
         core::yaml::visit_scalar_events(core::yaml::Events(|consume:&mut core::yaml::Consumer<'_>| {
-            value=Some(read_yaml_events_COMPOSITE_ID(source,&inputs,core::yaml::PartitionSource {
+            value=Some(read_yaml_events_COMPOSITE_ID(source,&inputs.view(),core::yaml::PartitionSource {
                 source:core::yaml::DocumentSource(source),select:|key:&str|key=="Entries",sibling:consume,
             })?);Ok(())
         }),|key,value,tag|{assert!(tag.is_none());siblings.push((key,value.into_text()?));Ok(())}).unwrap();
         assert_eq!(siblings,[("Before".into(),"kept".into()),("After".into(),"kept".into())]);
         let value=value.unwrap();
-        assert_eq!(write_yaml_COMPOSITE_ID(&value,&inputs).unwrap(),"Entries:\n  Текст: Hello".as_bytes());
+        assert_eq!(write_yaml_COMPOSITE_ID(&value,&inputs.view()).unwrap(),"Entries:\n  Текст: Hello".as_bytes());
         let mut joined=String::from("Before: kept");
-        write_yaml_into_COMPOSITE_ID(&value,&inputs,&mut joined).unwrap();
+        write_yaml_into_COMPOSITE_ID(&value,&inputs.view(),&mut joined).unwrap();
         core::yaml::append_encoded_properties(&mut joined,b"After: kept").unwrap();
         assert_eq!(joined,"Before: kept\nEntries:\n  Текст: Hello\nAfter: kept");
         let before=joined.clone();
-        assert!(write_yaml_into_COMPOSITE_ID(&value,&PreparedInputs::default(),&mut joined).is_err());
+        assert!(write_yaml_into_COMPOSITE_ID(&value,&PreparedInputs::default().view(),&mut joined).is_err());
         assert_eq!(joined,before);
         let bad="Before: kept\nEntries:\n  Текст:\n    de: Hallo".as_bytes();
-        let value=read_yaml_events_COMPOSITE_ID(bad,&inputs,core::yaml::PartitionSource {
+        let value=read_yaml_events_COMPOSITE_ID(bad,&inputs.view(),core::yaml::PartitionSource {
             source:core::yaml::DocumentSource(bad),select:|key:&str|key=="Entries",sibling:|_,_|Ok(()),
         }).unwrap();
-        let diagnostics=check_yaml_COMPOSITE_ID(&value,bad,&inputs);
+        let diagnostics=check_yaml_COMPOSITE_ID(&value,bad,&inputs.view());
         assert_eq!(diagnostics[0].path,["Entries","Текст","de"]);
         assert_eq!(diagnostics[0].line,4);
         let mut annotated=String::from("Before: kept");
-        write_yaml_into_COMPOSITE_ID(&value,&inputs,&mut annotated).unwrap();
+        write_yaml_into_COMPOSITE_ID(&value,&inputs.view(),&mut annotated).unwrap();
         assert_eq!(annotated,"Before: kept\nEntries:\n  Текст:\n    !xml/invalid de: Hallo");
         let source=String::from_utf8(missing_attr.to_vec()).unwrap().replace("<Entries>","<Before>kept</Before><Entries formatted='false'>").replace("</Root>","<After>kept</After></Root>");
         let mut siblings=0;
-        let value=read_xml_events_COMPOSITE_ID(source.as_bytes(),&inputs,core::xml::Events(|consume:&mut core::xml::Consumer<'_>| {
+        let value=read_xml_events_COMPOSITE_ID(source.as_bytes(),&inputs.view(),core::xml::Events(|consume:&mut core::xml::Consumer<'_>| {
             use crate::core::xml::Source;
             core::xml::DocumentSource(source.as_bytes()).visit(|path,token| {
                 if path.get(1).is_some_and(|name|matches!(name.local.as_str(),"Before"|"After")) {
@@ -1364,7 +1364,7 @@ fn main() {
             })
         })).unwrap();
         assert_eq!(siblings,2);
-        assert_eq!(write_yaml_COMPOSITE_ID(&value,&inputs).unwrap(),"Entries:\n  Текст: Hello".as_bytes());
+        assert_eq!(write_yaml_COMPOSITE_ID(&value,&inputs.view()).unwrap(),"Entries:\n  Текст: Hello".as_bytes());
     }
     let changed=String::from_utf8(value.bytes).unwrap().replace("Hello","Changed");
     assert!(verify_candidate(composite,missing_attr,changed.as_bytes(),&inputs).is_err());

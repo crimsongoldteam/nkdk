@@ -1,4 +1,7 @@
-use nkdk_conversion_core::{EntryId, InputType, InputValue, PreparedInputs, inputs::read};
+use nkdk_conversion_core::{
+    EntryId, InputType, InputValue, PreparedInputs,
+    inputs::{InputRef, read},
+};
 #[test]
 fn preparation_preserves_exact_values_and_checks_the_declared_slots() {
     let declarations = [
@@ -8,7 +11,13 @@ fn preparation_preserves_exact_values_and_checks_the_declared_slots() {
     ];
     let values =
         read(br#"{"number":9007199254740993,"languages":["ru","en"],"ready":true}"#).unwrap();
-    let prepared = PreparedInputs::prepare(EntryId(3), &declarations, values).unwrap();
+    let prepared = PreparedInputs::prepare(EntryId(3), &declarations, values)
+        .unwrap()
+        .with_documents(vec![(
+            nkdk_conversion_core::resources::RelativePath::new(["Child.xml"], 100).unwrap(),
+            b"<Root/>".to_vec(),
+        )])
+        .unwrap();
     assert_eq!(prepared.decimal(0).unwrap().to_string(), "9007199254740993");
     assert_eq!(
         prepared.sequence(1).unwrap(),
@@ -16,6 +25,37 @@ fn preparation_preserves_exact_values_and_checks_the_declared_slots() {
     );
     assert!(prepared.boolean(2).unwrap());
     assert!(prepared.check_entry(EntryId(4)).is_err());
+    let view = prepared.view();
+    let slots = [
+        Some(InputRef::Sequence(view.sequence(1).unwrap())),
+        Some(InputRef::Decimal(view.decimal(0).unwrap())),
+        Some(InputRef::Text("child")),
+        None,
+    ];
+    let child = view.rebind(&slots);
+    assert!(std::ptr::eq(
+        child.sequence(0).unwrap(),
+        prepared.sequence(1).unwrap()
+    ));
+    assert!(std::ptr::eq(
+        child.decimal(1).unwrap(),
+        prepared.decimal(0).unwrap()
+    ));
+    assert_eq!(child.text(2).unwrap(), "child");
+    assert!(std::ptr::eq(
+        child.document(&["Child.xml"]),
+        prepared.document(&["Child.xml"])
+    ));
+    assert_eq!(child.document(&["Child.xml"]), b"<Root/>");
+    assert_eq!(
+        child.boolean(2).unwrap_err().code.as_deref(),
+        Some("input.type")
+    );
+    assert!(!child.is_ready(3));
+    assert_eq!(
+        child.rebind(&[]).decimal(0).unwrap_err().code.as_deref(),
+        Some("input.not-ready")
+    );
     for input in [
         "number: 1\nnumber: 2",
         "languages: [ru, 1]",

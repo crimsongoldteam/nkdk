@@ -120,7 +120,7 @@ pub(super) fn scalar(
         } else {
             "true".into()
         };
-        writeln!(result.definitions, "fn {function}(_inputs: &PreparedInputs) -> core::Result<Option<String>> {{ {definitions} if {when} {{ Ok(Some(({expression}).to_owned())) }} else {{ Ok(None) }} }}").unwrap();
+        writeln!(result.definitions, "fn {function}(_inputs: &InputView<'_>) -> core::Result<Option<String>> {{ {definitions} if {when} {{ Ok(Some(({expression}).to_owned())) }} else {{ Ok(None) }} }}").unwrap();
         let row_position = if common.constraints.iter().any(|rule| {
             matches!(
                 rule.diagnostic.at,
@@ -151,7 +151,7 @@ pub(super) fn scalar(
         writeln!(result.write, "if shorten && value.rows.len()==1 && {function}(_inputs)?.is_some_and(|fixed| value.rows[0].fields[{fixed_field}]==fixed) {{ out.push(' '); out.push_str(&core::yaml::scalar(&value.rows[0].fields[{capture_field}])); return Ok(()); }}").unwrap();
     }
     if !result.read_keyed.is_empty() {
-        writeln!(result.definitions, "fn expand_keys_{}(rows: Vec<R{}>, _inputs: &PreparedInputs) -> core::Result<Vec<R{}>> {{ {} Ok(rows) }}", owner.id, owner.id, owner.id, result.read_keyed).unwrap();
+        writeln!(result.definitions, "fn expand_keys_{}(rows: Vec<R{}>, _inputs: &InputView<'_>) -> core::Result<Vec<R{}>> {{ {} Ok(rows) }}", owner.id, owner.id, owner.id, result.read_keyed).unwrap();
         result.read_keyed = format!(
             "if expand && keyed_input && !rows.is_empty() {{ rows=expand_keys_{}(rows, _inputs)?; }}",
             owner.id

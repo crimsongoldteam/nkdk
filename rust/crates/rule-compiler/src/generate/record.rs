@@ -315,7 +315,7 @@ fn generate_at(
     for xml_side in [true, false] {
         let side = if xml_side { "xml" } else { "yaml" };
         if preserve && !xml_side {
-            writeln!(out,"fn read_yaml_{id}(source:&[u8],inputs:&PreparedInputs)->core::Result<V{id}> {{ match read_yaml_body_{id}(source,inputs,core::raw::Fields::default()) {{Ok(value)=>Ok(value),Err(error)=>{{let mut raw=core::raw::Fields::default();let mut decoded=source.to_vec();let mut found=false;").unwrap();
+            writeln!(out,"fn read_yaml_{id}(source:&[u8],inputs:&InputView<'_>)->core::Result<V{id}> {{ match read_yaml_body_{id}(source,inputs,core::raw::Fields::default()) {{Ok(value)=>Ok(value),Err(error)=>{{let mut raw=core::raw::Fields::default();let mut decoded=source.to_vec();let mut found=false;").unwrap();
             for (i, field) in fields.iter().enumerate() {
                 writeln!(out,"if let Some(envelope)=core::raw::Property::decode_in(&decoded,{parent},{:?},{:?})? {{found=true;raw.insert({i},core::xml::Patch::read(&envelope.payload,&[],Q{id})?);decoded=envelope.meaning;}}",field.key,field.physical_name().local).unwrap();
             }
@@ -324,18 +324,18 @@ fn generate_at(
                 "if !found {{return Err(error);}}read_yaml_body_{id}(&decoded,inputs,raw)}}}} }}"
             )
             .unwrap();
-            writeln!(out,"fn read_yaml_body_{id}(source:&[u8],inputs:&PreparedInputs,raw:core::raw::Fields)->core::Result<V{id}> {{read_yaml_events_{id}(source,inputs,raw,core::yaml::DocumentSource(if source.is_empty() {{b\"{{}}\"}} else {{source}}))}}\nfn read_yaml_events_{id}(source:&[u8],_inputs:&PreparedInputs,raw:core::raw::Fields,events:impl core::yaml::Source)->core::Result<V{id}> {{let mut state=YamlFields{id}::new(raw)?;{yaml_events}}}\nfn finish_yaml_{id}(state:YamlFields{id},{yaml_present}source:&[u8],_inputs:&PreparedInputs)->core::Result<V{id}> {{let _=source;{yaml_bindings}").unwrap();
+            writeln!(out,"fn read_yaml_body_{id}(source:&[u8],inputs:&InputView<'_>,raw:core::raw::Fields)->core::Result<V{id}> {{read_yaml_events_{id}(source,inputs,raw,core::yaml::DocumentSource(if source.is_empty() {{b\"{{}}\"}} else {{source}}))}}\nfn read_yaml_events_{id}(source:&[u8],_inputs:&InputView<'_>,raw:core::raw::Fields,events:impl core::yaml::Source)->core::Result<V{id}> {{let mut state=YamlFields{id}::new(raw)?;{yaml_events}}}\nfn finish_yaml_{id}(state:YamlFields{id},{yaml_present}source:&[u8],_inputs:&InputView<'_>)->core::Result<V{id}> {{let _=source;{yaml_bindings}").unwrap();
         } else {
             if xml_side {
-                writeln!(out, "fn read_xml_{id}(source:&[u8],inputs:&PreparedInputs)->core::Result<V{id}> {{read_xml_events_{id}(source,inputs,core::xml::DocumentSource(source))}}\nfn read_xml_events_{id}(source:&[u8],_inputs:&PreparedInputs,events:impl core::xml::Source)->core::Result<V{id}> {{let mut state=XmlRead{id}::new();events.visit(|path,token|state.consume(path,token))?;finish_xml_{id}(state,source,_inputs)}}\nfn finish_xml_{id}(state:XmlRead{id},source:&[u8],_inputs:&PreparedInputs)->core::Result<V{id}> {{{xml_bindings}").unwrap();
+                writeln!(out, "fn read_xml_{id}(source:&[u8],inputs:&InputView<'_>)->core::Result<V{id}> {{read_xml_events_{id}(source,inputs,core::xml::DocumentSource(source))}}\nfn read_xml_events_{id}(source:&[u8],_inputs:&InputView<'_>,events:impl core::xml::Source)->core::Result<V{id}> {{let mut state=XmlRead{id}::new();events.visit(|path,token|state.consume(path,token))?;finish_xml_{id}(state,source,_inputs)}}\nfn finish_xml_{id}(state:XmlRead{id},source:&[u8],_inputs:&InputView<'_>)->core::Result<V{id}> {{{xml_bindings}").unwrap();
             } else {
-                writeln!(out, "fn read_{side}_{id}(source:&[u8],_inputs:&PreparedInputs)->core::Result<V{id}> {{").unwrap();
+                writeln!(out, "fn read_{side}_{id}(source:&[u8],_inputs:&InputView<'_>)->core::Result<V{id}> {{").unwrap();
             }
             if preserve {
                 out.push_str("let mut raw=core::raw::Fields::default();\n");
             }
         }
-        for i in super::scalar_presence::order(entry) {
+        for &i in &record.schedule {
             let field = &fields[i];
             if xml_side && field.attribute.is_some() {
                 let missing_restores_value = field.presence.is_some_and(|rule| {
@@ -596,7 +596,7 @@ fn generate_at(
     for i in 0..fields.len() {
         writeln!(out, "tree{i}: Option<core::xml::Tree>,").unwrap();
     }
-    writeln!(out, "}} fn {prepare_xml}(value: &V{id}, _inputs: &PreparedInputs) -> core::Result<{prepared_type}> {{").unwrap();
+    writeln!(out, "}} fn {prepare_xml}(value: &V{id}, _inputs: &InputView<'_>) -> core::Result<{prepared_type}> {{").unwrap();
     for (i, field) in fields.iter().enumerate() {
         if field.attribute.is_some() {
             writeln!(out, "if value.raw.get({i}).is_some_and(|patch| patch.attribute_text().is_err()) {{return Err(RuntimeDiagnostic::new(\"xml.attribute-patch\",\"An attribute patch requires text or absence\").field({:?}));}} let tree{i}=None;",field.key).unwrap();
@@ -653,7 +653,7 @@ fn generate_at(
         )
         .unwrap();
     }
-    writeln!(out, "}} fn write_xml_{id}(value: &V{id}, inputs: &PreparedInputs) -> core::Result<Vec<u8>> {{ let prepared={prepare_xml}(value,inputs)?; let mut namespaces=Vec::new(); if !value.raw.is_empty() {{{namespaces_xml}(value,&prepared,&mut namespaces);}} let mut out=core::xml::Writer::new(if namespaces.is_empty() {{XML_NAMESPACES_{id}}} else {{&namespaces}}); {write_xml_into}(value,&prepared,inputs,&mut out)?; Ok(out.finish_with_root(({:?},{:?}))) }}", first.path[0].namespace, first.path[0].local).unwrap();
+    writeln!(out, "}} fn write_xml_{id}(value: &V{id}, inputs: &InputView<'_>) -> core::Result<Vec<u8>> {{ let prepared={prepare_xml}(value,inputs)?; let mut namespaces=Vec::new(); if !value.raw.is_empty() {{{namespaces_xml}(value,&prepared,&mut namespaces);}} let mut out=core::xml::Writer::new(if namespaces.is_empty() {{XML_NAMESPACES_{id}}} else {{&namespaces}}); {write_xml_into}(value,&prepared,inputs,&mut out)?; Ok(out.finish_with_root(({:?},{:?}))) }}", first.path[0].namespace, first.path[0].local).unwrap();
     // The field decoder owns storage and lexical representation; parent
     // composition consumes this adapter without reading fN/raw directly.
     for group in headers.chunk_by(|left, right| left.1.path == right.1.path) {
@@ -684,7 +684,7 @@ fn generate_at(
         }
         writeln!(out, "consume(&[{}])}}", bound.join(",")).unwrap();
     }
-    writeln!(out, "fn {write_xml_into}<'a>(value: &V{id}, prepared: &'a {prepared_type}, _inputs: &PreparedInputs, out: &mut core::xml::Writer<'a>) -> core::Result<()> {{").unwrap();
+    writeln!(out, "fn {write_xml_into}<'a>(value: &V{id}, prepared: &'a {prepared_type}, _inputs: &InputView<'_>, out: &mut core::xml::Writer<'a>) -> core::Result<()> {{").unwrap();
     out.push_str("let _=prepared;\n");
     if (headers.is_empty() || layout.is_some()) && first.path.len() > 1 {
         writeln!(
@@ -714,7 +714,7 @@ fn generate_at(
         let first = group[0].0;
         writeln!(out, "{{let declared:&[core::xml::WriteAttribute<'_>]={declared};header_xml_{id}_{first}(value,out,declared)?;}}").unwrap();
     }
-    writeln!(out,"write_xml_fields_into_{id}(value,prepared,_inputs,out)}}\nfn write_xml_fields_into_{id}<'a>(value:&V{id},prepared:&'a {prepared_type},_inputs:&PreparedInputs,out:&mut core::xml::Writer<'a>)->core::Result<()>{{let _=(&value,&prepared,&out);").unwrap();
+    writeln!(out,"write_xml_fields_into_{id}(value,prepared,_inputs,out)}}\nfn write_xml_fields_into_{id}<'a>(value:&V{id},prepared:&'a {prepared_type},_inputs:&InputView<'_>,out:&mut core::xml::Writer<'a>)->core::Result<()>{{let _=(&value,&prepared,&out);").unwrap();
     for (i, field) in fields.iter().enumerate() {
         if field.attribute.is_some() {
             continue;
@@ -730,7 +730,7 @@ fn generate_at(
         if field.attribute.is_some() {
             continue;
         }
-        writeln!(out,"fn write_xml_field_{id}_{i}<'a>(value:&V{id},prepared:&'a {prepared_type},_inputs:&PreparedInputs,out:&mut core::xml::Writer<'a>)->core::Result<()> {{").unwrap();
+        writeln!(out,"fn write_xml_field_{id}_{i}<'a>(value:&V{id},prepared:&'a {prepared_type},_inputs:&InputView<'_>,out:&mut core::xml::Writer<'a>)->core::Result<()> {{").unwrap();
         if field.presence.is_some_and(|presence| {
             presence.canonical.first().is_some_and(|canonical| {
                 canonical.form == XmlForm::Missing && canonical.when.is_some()
@@ -790,7 +790,7 @@ fn generate_at(
     }
     writeln!(
         out,
-        "fn write_yaml_{id}(value: &V{id}, inputs: &PreparedInputs) -> core::Result<Vec<u8>> {{let mut out=String::new();write_yaml_into_{id}(value,inputs,&mut out)?;Ok(out.into_bytes())}}\nfn write_yaml_into_{id}(value: &V{id}, inputs: &PreparedInputs, out: &mut String) -> core::Result<()> {{if value.raw.is_empty() {{core::yaml::append_properties(out,|out|write_yaml_fields_{id}(value,inputs,out))}} else {{core::yaml::append_encoded_properties(out,&write_yaml_preserved_{id}(value,inputs)?)}} }}\nfn write_yaml_fields_{id}(value: &V{id}, inputs: &PreparedInputs, out: &mut String) -> core::Result<()> {{write_yaml_indented_{id}(value,inputs,out,\"\",false)}}\nfn write_yaml_indented_{id}(value: &V{id}, inputs: &PreparedInputs, out: &mut String, indent:&str, lift_attributes:bool) -> core::Result<()> {{write_yaml_except_{id}(value,inputs,out,indent,lift_attributes,None)}}\nfn write_yaml_except_{id}(value: &V{id}, _inputs: &PreparedInputs, out: &mut String, indent:&str, lift_attributes:bool, excluded:Option<usize>) -> core::Result<()> {{ let _=lift_attributes;let start=out.len();"
+        "fn write_yaml_{id}(value: &V{id}, inputs: &InputView<'_>) -> core::Result<Vec<u8>> {{let mut out=String::new();write_yaml_into_{id}(value,inputs,&mut out)?;Ok(out.into_bytes())}}\nfn write_yaml_into_{id}(value: &V{id}, inputs: &InputView<'_>, out: &mut String) -> core::Result<()> {{if value.raw.is_empty() {{core::yaml::append_properties(out,|out|write_yaml_fields_{id}(value,inputs,out))}} else {{core::yaml::append_encoded_properties(out,&write_yaml_preserved_{id}(value,inputs)?)}} }}\nfn write_yaml_fields_{id}(value: &V{id}, inputs: &InputView<'_>, out: &mut String) -> core::Result<()> {{write_yaml_indented_{id}(value,inputs,out,\"\",false)}}\nfn write_yaml_indented_{id}(value: &V{id}, inputs: &InputView<'_>, out: &mut String, indent:&str, lift_attributes:bool) -> core::Result<()> {{write_yaml_except_{id}(value,inputs,out,indent,lift_attributes,None)}}\nfn write_yaml_except_{id}(value: &V{id}, _inputs: &InputView<'_>, out: &mut String, indent:&str, lift_attributes:bool, excluded:Option<usize>) -> core::Result<()> {{ let _=lift_attributes;let start=out.len();"
     )
     .unwrap();
     if let Some(layout) = layout {
@@ -846,7 +846,7 @@ fn generate_at(
         out.push_str("if out.ends_with(\":\\n\") {out.push_str(\"  {}\\n\");}\n");
     }
     out.push_str("if out.len()>start { out.pop(); } Ok(()) }\n");
-    writeln!(out,"fn write_yaml_preserved_{id}(value: &V{id}, inputs: &PreparedInputs) -> core::Result<Vec<u8>> {{write_yaml_preserved_fields_{id}(value,inputs,false)}}\nfn write_yaml_preserved_fields_{id}(value:&V{id},inputs:&PreparedInputs,lift_attributes:bool)->core::Result<Vec<u8>> {{write_yaml_preserved_except_{id}(value,inputs,lift_attributes,None)}}\nfn write_yaml_preserved_except_{id}(value:&V{id},inputs:&PreparedInputs,lift_attributes:bool,excluded:Option<usize>)->core::Result<Vec<u8>> {{let mut out=String::new();write_yaml_except_{id}(value,inputs,&mut out,\"\",lift_attributes,excluded)?;let bytes=out.into_bytes();").unwrap();
+    writeln!(out,"fn write_yaml_preserved_{id}(value: &V{id}, inputs: &InputView<'_>) -> core::Result<Vec<u8>> {{write_yaml_preserved_fields_{id}(value,inputs,false)}}\nfn write_yaml_preserved_fields_{id}(value:&V{id},inputs:&InputView<'_>,lift_attributes:bool)->core::Result<Vec<u8>> {{write_yaml_preserved_except_{id}(value,inputs,lift_attributes,None)}}\nfn write_yaml_preserved_except_{id}(value:&V{id},inputs:&InputView<'_>,lift_attributes:bool,excluded:Option<usize>)->core::Result<Vec<u8>> {{let mut out=String::new();write_yaml_except_{id}(value,inputs,&mut out,\"\",lift_attributes,excluded)?;let bytes=out.into_bytes();").unwrap();
     if preserve {
         out.push_str("let mut bytes=bytes;\n");
         for (i, field) in fields.iter().enumerate() {
@@ -880,13 +880,13 @@ fn generate_at(
         "name.namespace==\"http://www.w3.org/2001/XMLSchema-instance\" && name.local==\"type\"",
         "false",
     ));
-    writeln!(out, "fn verify_{id}(original: &[u8], candidate: &[u8], inputs: &PreparedInputs) -> core::Result<()> {{ let value = read_yaml_{id}(candidate, inputs)?; if let Some(error) = check_yaml_{id}(&value, candidate, inputs).into_iter().find(|error| error.severity == core::Severity::Error) {{ return Err(error); }} prove_xml_{id}(&value,original,&write_xml_{id}(&value,inputs)?) }}").unwrap();
+    writeln!(out, "fn verify_{id}(original: &[u8], candidate: &[u8], inputs: &InputView<'_>) -> core::Result<()> {{ let value = read_yaml_{id}(candidate, inputs)?; if let Some(error) = check_yaml_{id}(&value, candidate, inputs).into_iter().find(|error| error.severity == core::Severity::Error) {{ return Err(error); }} prove_xml_{id}(&value,original,&write_xml_{id}(&value,inputs)?) }}").unwrap();
     if preserve
         && fields
             .iter()
             .any(|field| field.attribute.is_none() || !field.yaml_visible)
     {
-        writeln!(out,"fn finalize_yaml_{id}(original:&[u8],candidate:Vec<u8>,_value:&V{id},inputs:&PreparedInputs)->core::Result<Vec<u8>> {{ match verify_{id}(original,&candidate,inputs) {{Ok(())=>return Ok(candidate),Err(error) if error.code.as_deref()==Some(\"xml.round-trip-mismatch\")=>{{}},Err(error)=>return Err(error)}} let ordinary=write_xml_{id}(&read_yaml_{id}(&candidate,inputs)?,inputs)?; let mut candidate=candidate;").unwrap();
+        writeln!(out,"fn finalize_yaml_{id}(original:&[u8],candidate:Vec<u8>,_value:&V{id},inputs:&InputView<'_>)->core::Result<Vec<u8>> {{ match verify_{id}(original,&candidate,inputs) {{Ok(())=>return Ok(candidate),Err(error) if error.code.as_deref()==Some(\"xml.round-trip-mismatch\")=>{{}},Err(error)=>return Err(error)}} let ordinary=write_xml_{id}(&read_yaml_{id}(&candidate,inputs)?,inputs)?; let mut candidate=candidate;").unwrap();
         for (i, field) in fields.iter().enumerate() {
             if let Some(attribute) = field.attribute {
                 if !field.yaml_visible {
@@ -917,7 +917,7 @@ fn generate_at(
         )
         .unwrap();
     } else {
-        writeln!(out, "fn finalize_yaml_{id}(original: &[u8], candidate: Vec<u8>, _value: &V{id}, inputs: &PreparedInputs) -> core::Result<Vec<u8>> {{ verify_{id}(original, &candidate, inputs)?; Ok(candidate) }}").unwrap();
+        writeln!(out, "fn finalize_yaml_{id}(original: &[u8], candidate: Vec<u8>, _value: &V{id}, inputs: &InputView<'_>) -> core::Result<Vec<u8>> {{ verify_{id}(original, &candidate, inputs)?; Ok(candidate) }}").unwrap();
     }
     writeln!(out,"#[allow(dead_code)] fn text_field_{id}(value:&V{id},field:usize)->core::Result<&str>{{let _=(value,field);").unwrap();
     let has_text = fields

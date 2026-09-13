@@ -143,24 +143,24 @@ pub(super) fn generate(
 pub(super) struct Stored(V{id});
 pub(super) struct Prepared(XmlPrepared{id});
 pub(super) const KEYS:&[&str]=&{keys:?};
-pub(super) fn read_xml(source:&[u8],inputs:&PreparedInputs,events:impl core::xml::Source)->core::Result<Stored>{{read_xml_events_{id}(source,inputs,events).map(Stored)}}
-pub(super) fn empty(inputs:&PreparedInputs)->core::Result<Stored>{{read_xml(&[],inputs,core::xml::Events(|_:&mut core::xml::Consumer<'_>|Ok(())))}}
-pub(super) fn read_yaml(source:&[u8],inputs:&PreparedInputs,events:impl core::yaml::Source)->core::Result<Stored>{{read_yaml_events_{id}(source,inputs,core::raw::Fields::default(),events).map(Stored)}}
-pub(super) fn read_document(source:&[u8],inputs:&PreparedInputs)->core::Result<Stored>{{read_yaml_{id}(source,inputs).map(Stored)}}
+pub(super) fn read_xml(source:&[u8],inputs:&InputView<'_>,events:impl core::xml::Source)->core::Result<Stored>{{read_xml_events_{id}(source,inputs,events).map(Stored)}}
+pub(super) fn empty(inputs:&InputView<'_>)->core::Result<Stored>{{read_xml(&[],inputs,core::xml::Events(|_:&mut core::xml::Consumer<'_>|Ok(())))}}
+pub(super) fn read_yaml(source:&[u8],inputs:&InputView<'_>,events:impl core::yaml::Source)->core::Result<Stored>{{read_yaml_events_{id}(source,inputs,core::raw::Fields::default(),events).map(Stored)}}
+pub(super) fn read_document(source:&[u8],inputs:&InputView<'_>)->core::Result<Stored>{{read_yaml_{id}(source,inputs).map(Stored)}}
 pub(super) fn route(path:&[core::xml::Name],token:&core::xml::Token<'_>)->bool{{
 if let core::xml::Token::Attribute(a)=token && core::xml::matches(path,{wrapper}) {{return {attributes:?}.contains(&(a.name.namespace.as_str(),a.name.local.as_str()));}}
 false{routes}
 }}
 pub(super) fn boundary(path:&[core::xml::Name],token:&core::xml::Token<'_>)->bool{{!matches!(token,core::xml::Token::Attribute(_)) && (core::xml::matches(path,{root}) || core::xml::matches(path,{wrapper}))}}
-pub(super) fn check_xml(value:&Stored,source:&[u8],inputs:&PreparedInputs)->Vec<RuntimeDiagnostic>{{check_xml_{id}(&value.0,source,inputs)}}
-pub(super) fn check_yaml(value:&Stored,source:&[u8],inputs:&PreparedInputs)->Vec<RuntimeDiagnostic>{{check_yaml_{id}(&value.0,source,inputs)}}
-pub(super) fn prepare(value:&Stored,inputs:&PreparedInputs)->core::Result<Prepared>{{prepare_xml_{id}(&value.0,inputs).map(Prepared)}}
+pub(super) fn check_xml(value:&Stored,source:&[u8],inputs:&InputView<'_>)->Vec<RuntimeDiagnostic>{{check_xml_{id}(&value.0,source,inputs)}}
+pub(super) fn check_yaml(value:&Stored,source:&[u8],inputs:&InputView<'_>)->Vec<RuntimeDiagnostic>{{check_yaml_{id}(&value.0,source,inputs)}}
+pub(super) fn prepare(value:&Stored,inputs:&InputView<'_>)->core::Result<Prepared>{{prepare_xml_{id}(&value.0,inputs).map(Prepared)}}
 pub(super) fn namespaces<'a>(value:&'a Stored,prepared:&'a Prepared,names:&mut Vec<&'a str>){{namespaces_xml_{id}(&value.0,&prepared.0,names)}}
 pub(super) fn scalar(value:&Stored,path:&[core::xml::Name])->bool{{xml_scalar_{id}(&value.0,path)}}
-pub(super) fn write_yaml(value:&Stored,inputs:&PreparedInputs,out:&mut String,indent:&str)->core::Result<()>{{
+pub(super) fn write_yaml(value:&Stored,inputs:&InputView<'_>,out:&mut String,indent:&str)->core::Result<()>{{
 core::yaml::append_properties(out,|out|{{if value.0.raw.is_empty() {{write_yaml_indented_{id}(&value.0,inputs,out,indent,true)}} else {{let bytes=write_yaml_preserved_fields_{id}(&value.0,inputs,true)?;let text=std::str::from_utf8(&bytes).map_err(|e|RuntimeDiagnostic::new("yaml.encoding",e.to_string()))?;core::yaml::Indented::new(out,indent).push_str(text);Ok(())}}}})
 }}
-pub(super) fn write_elements<'a>(value:&Stored,prepared:&'a Prepared,inputs:&PreparedInputs,out:&mut core::xml::Writer<'a>)->core::Result<()>{{let _=(value,prepared,inputs,&out);
+pub(super) fn write_elements<'a>(value:&Stored,prepared:&'a Prepared,inputs:&InputView<'_>,out:&mut core::xml::Writer<'a>)->core::Result<()>{{let _=(value,prepared,inputs,&out);
 "#).unwrap();
     for (index, field) in fields.iter().enumerate() {
         if xml
@@ -178,7 +178,7 @@ pub(super) fn write_elements<'a>(value:&Stored,prepared:&'a Prepared,inputs:&Pre
         }
     }
     out.push_str("Ok(())}\n");
-    writeln!(out,"pub(super) fn has_meaning(value:&Stored,inputs:&PreparedInputs)->core::Result<bool>{{let _=(value,inputs);").unwrap();
+    writeln!(out,"pub(super) fn has_meaning(value:&Stored,inputs:&InputView<'_>)->core::Result<bool>{{let _=(value,inputs);").unwrap();
     for (index, field) in fields.iter().enumerate() {
         let presence = scalar_presence::rule(flat, index, &field.value, program);
         let omitted = if presence.is_some_and(|rule| rule.yaml_omit_when.is_some()) {

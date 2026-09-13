@@ -147,7 +147,7 @@ pub(super) fn generate(entries: &[&LinkedEntry], program: &Program) -> Result<St
                 "let issues=match direction {{Direction::XmlToYaml=>issues_xml_{id}(&value,source,inputs),Direction::YamlToXml=>issues_yaml_{id}(&value,source,inputs)}};if issues.iter().any(|issue|issue.severity==Severity::Error) {{return Err(issues);}}"
             )
         };
-        writeln!(out,"fn contribute_{id}(direction:Direction,source:&[u8],inputs:&PreparedInputs,builder:&mut core::facts::prepared::TextFactsBuilder)->std::result::Result<(),Vec<RuntimeDiagnostic>> {{let value=match direction {{Direction::XmlToYaml=>read_xml_{id}(source,inputs),Direction::YamlToXml=>read_yaml_{id}(source,inputs)}}.map_err(|error|vec![error])?;{checks}").unwrap();
+        writeln!(out,"fn contribute_{id}(direction:Direction,source:&[u8],inputs:&InputView<'_>,builder:&mut core::facts::prepared::TextFactsBuilder)->std::result::Result<(),Vec<RuntimeDiagnostic>> {{let value=match direction {{Direction::XmlToYaml=>read_xml_{id}(source,inputs),Direction::YamlToXml=>read_yaml_{id}(source,inputs)}}.map_err(|error|vec![error])?;{checks}").unwrap();
         for (ordinal, contribution) in entry.contributions.iter().enumerate() {
             if super::owner::applies(entry, program)
                 && let Some(iteration) = &contribution.for_each
@@ -179,7 +179,7 @@ pub(super) fn generate(entries: &[&LinkedEntry], program: &Program) -> Result<St
         } else {
             writeln!(
                 out,
-                "{}=>contribute_{}(direction,source,inputs,builder),",
+                "{}=>contribute_{}(direction,source,&inputs.view(),builder),",
                 entry.id, entry.id
             )
             .unwrap();

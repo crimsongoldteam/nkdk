@@ -167,7 +167,7 @@ fn generate_at(
         let function = "issues";
         writeln!(
             out,
-            "fn {function}_{side}_{}(_value: &V{}, _source: &[u8], _inputs: &PreparedInputs) -> Vec<RuntimeDiagnostic> {{",
+            "fn {function}_{side}_{}(_value: &V{}, _source: &[u8], _inputs: &InputView<'_>) -> Vec<RuntimeDiagnostic> {{",
             entry.id, entry.id
         )
         .unwrap();
@@ -349,8 +349,8 @@ fn generate_at(
         let address = record_key.map_or(String::new(), |key| {
             format!(".into_iter().map(|mut issue|{{issue.path.insert(0,{key:?}.into());issue}}).collect()")
         });
-        writeln!(out,"fn check_xml_{id}(value:&V{id},_source:&[u8],_inputs:&PreparedInputs)->Vec<RuntimeDiagnostic> {{value.raw.diagnostics(){address}}}").unwrap();
-        writeln!(out,"fn check_yaml_{id}(value:&V{id},source:&[u8],inputs:&PreparedInputs)->Vec<RuntimeDiagnostic> {{value.raw.validate(&{keys:?},issues_yaml_{id}(value,source,inputs),&issues_xml_{id}(value,source,inputs)){address}}}").unwrap();
+        writeln!(out,"fn check_xml_{id}(value:&V{id},_source:&[u8],_inputs:&InputView<'_>)->Vec<RuntimeDiagnostic> {{value.raw.diagnostics(){address}}}").unwrap();
+        writeln!(out,"fn check_yaml_{id}(value:&V{id},source:&[u8],inputs:&InputView<'_>)->Vec<RuntimeDiagnostic> {{value.raw.validate(&{keys:?},issues_yaml_{id}(value,source,inputs),&issues_xml_{id}(value,source,inputs)){address}}}").unwrap();
     }
     Ok(out)
 }

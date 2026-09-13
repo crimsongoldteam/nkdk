@@ -171,7 +171,7 @@ pub(super) fn omit(
     let check = format!("omit_check_{id}_{index}");
     let condition = predicate(expression, index, owner, program, &check)?;
     Ok(format!(
-        "{condition}fn omit_{id}_{index}(value:&V{id},inputs:&PreparedInputs)->core::Result<bool>{{match {check}(value,inputs){{Err(error) if error.code.as_deref()==Some(\"fact.ambiguous\")=>Ok(false),result=>result}}}}\n"
+        "{condition}fn omit_{id}_{index}(value:&V{id},inputs:&InputView<'_>)->core::Result<bool>{{match {check}(value,inputs){{Err(error) if error.code.as_deref()==Some(\"fact.ambiguous\")=>Ok(false),result=>result}}}}\n"
     ))
 }
 
@@ -203,7 +203,7 @@ pub(super) fn predicate(
     };
     let condition = context.lower(&expression)?;
     Ok(format!(
-        "fn {name}(_value:&V{},_inputs:&PreparedInputs)->core::Result<bool>{{{guard} {} Ok({condition})}}\n",
+        "fn {name}(_value:&V{},_inputs:&InputView<'_>)->core::Result<bool>{{{guard} {} Ok({condition})}}\n",
         owner.id, context.constants
     ))
 }
@@ -283,25 +283,6 @@ pub(super) fn absent_attributes(form: &XmlForm) -> &'static str {
     } else {
         "&[]"
     }
-}
-
-pub(super) fn order(entry: &LinkedEntry) -> Vec<usize> {
-    fn visit(index: usize, entry: &LinkedEntry, seen: &mut [bool], out: &mut Vec<usize>) {
-        if seen[index] {
-            return;
-        }
-        seen[index] = true;
-        for child in &entry.field_dependencies[index] {
-            visit(*child as usize, entry, seen, out)
-        }
-        out.push(index);
-    }
-    let mut out = Vec::new();
-    let mut seen = vec![false; entry.field_dependencies.len()];
-    for index in 0..seen.len() {
-        visit(index, entry, &mut seen, &mut out)
-    }
-    out
 }
 
 fn scalar_storage(

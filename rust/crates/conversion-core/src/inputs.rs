@@ -1,6 +1,8 @@
 mod read;
+mod view;
 use crate::{EntryId, Result, RuntimeDiagnostic, decimal::Decimal};
 pub use read::read;
+pub use view::{InputRef, InputView};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum InputValue {
@@ -115,52 +117,25 @@ impl PreparedInputs {
         }
         Ok(())
     }
-    pub fn is_ready(&self, slot: usize) -> bool {
-        match self.values.get(slot).and_then(Option::as_ref) {
-            Some(InputValue::TextIndex(value)) => value.is_ready(),
-            Some(_) => true,
-            None => false,
-        }
+    pub fn view(&self) -> InputView<'_> {
+        InputView::root(self)
     }
-    fn get(&self, slot: usize) -> Result<&InputValue> {
-        self.values
-            .get(slot)
-            .and_then(Option::as_ref)
-            .ok_or_else(|| {
-                RuntimeDiagnostic::new("input.not-ready", format!("Input slot {slot} is not ready"))
-            })
+    pub fn is_ready(&self, slot: usize) -> bool {
+        self.view().is_ready(slot)
     }
     pub fn text_index(&self, slot: usize) -> Result<&crate::facts::prepared::TextIndexInput> {
-        match self.get(slot)? {
-            InputValue::TextIndex(value) => Ok(value),
-            _ => Err(Self::wrong_type(slot)),
-        }
+        self.view().text_index(slot)
     }
     pub fn text(&self, slot: usize) -> Result<&str> {
-        match self.get(slot)? {
-            InputValue::Text(value) => Ok(value),
-            _ => Err(Self::wrong_type(slot)),
-        }
+        self.view().text(slot)
     }
     pub fn boolean(&self, slot: usize) -> Result<bool> {
-        match self.get(slot)? {
-            InputValue::Boolean(value) => Ok(*value),
-            _ => Err(Self::wrong_type(slot)),
-        }
+        self.view().boolean(slot)
     }
     pub fn decimal(&self, slot: usize) -> Result<&Decimal> {
-        match self.get(slot)? {
-            InputValue::Decimal(value) => Ok(value),
-            _ => Err(Self::wrong_type(slot)),
-        }
+        self.view().decimal(slot)
     }
     pub fn sequence(&self, slot: usize) -> Result<&[InputValue]> {
-        match self.get(slot)? {
-            InputValue::Sequence(value) => Ok(value),
-            _ => Err(Self::wrong_type(slot)),
-        }
-    }
-    fn wrong_type(slot: usize) -> RuntimeDiagnostic {
-        RuntimeDiagnostic::new("input.type", format!("Wrong type of input slot {slot}"))
+        self.view().sequence(slot)
     }
 }

@@ -27,6 +27,8 @@ constraints:
     let plan = build(&program).unwrap();
     let record = plan.record(&program.entries[0]).unwrap();
     assert_eq!(record.fields.len(), 2);
+    assert_eq!(record.schedule, [1, 0]);
+    assert_eq!(record.fields[0].field.name, "token");
     assert!(record.fields[0].yaml.is_none());
     assert_eq!(record.fields[0].diagnostic_key(), "token");
     assert_eq!(record.fields[1].yaml.unwrap().key, "Label");
@@ -38,6 +40,20 @@ constraints:
         crate::schema::from_plan(&plan, "test.record-plan").unwrap(),
         crate::schema(&program, "test.record-plan").unwrap()
     );
+    let LinkedType::Record(fields) = &program.entries[0].value else {
+        unreachable!()
+    };
+    let cycle = scopes::schedule(&[vec![1], vec![0]], fields).unwrap_err();
+    assert_eq!(cycle.code, "field_dependency_cycle");
+    assert_eq!(
+        (&cycle.file, cycle.line, cycle.column),
+        (
+            &fields[0].source.file,
+            fields[0].source.line,
+            fields[0].source.column
+        )
+    );
+    assert_eq!(cycle.related, [fields[1].source.clone()]);
     let mut broken = program.clone();
     broken.entries[0].presence.clear();
     assert_eq!(build(&broken).unwrap_err()[0].code, "unrepresented_field");

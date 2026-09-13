@@ -177,7 +177,7 @@ fn generate_impl(
     };
     let route = super::super::record::path_code(&xml[0].path);
     let mut out = format!(
-        r#"fn contribute_{id}(direction:Direction,source:&[u8],inputs:&PreparedInputs,builder:&mut core::facts::prepared::TextFactsBuilder)->std::result::Result<(),Vec<RuntimeDiagnostic>> {{
+        r#"fn contribute_{id}(direction:Direction,source:&[u8],inputs:&InputView<'_>,builder:&mut core::facts::prepared::TextFactsBuilder)->std::result::Result<(),Vec<RuntimeDiagnostic>> {{
         let mut owner_seen=matches!(direction,Direction::YamlToXml);
         let value=match direction {{Direction::XmlToYaml=>read_xml_with_{id}(source,inputs,|path,token|{{
             if path.is_empty() {{return Ok(false);}}
@@ -197,7 +197,7 @@ fn generate_impl(
     if stored {
         out.clear();
     }
-    writeln!(out,r#"fn contribute_value_{id}(value:&V{id},direction:Direction,source:&[u8],inputs:&PreparedInputs,builder:&mut core::facts::prepared::TextFactsBuilder)->std::result::Result<(),Vec<RuntimeDiagnostic>> {{
+    writeln!(out,r#"fn contribute_value_{id}(value:&V{id},direction:Direction,source:&[u8],inputs:&InputView<'_>,builder:&mut core::facts::prepared::TextFactsBuilder)->std::result::Result<(),Vec<RuntimeDiagnostic>> {{
         if value.raw.is_some() && value.rows.is_empty() {{return Err(vec![RuntimeDiagnostic::new("fact.unready","Collection meaning is unavailable")]);}}
         let issues=match direction {{Direction::XmlToYaml=>{check}_xml_{id}(value,source,inputs),Direction::YamlToXml=>{check}_yaml_{id}(value,source,inputs)}};
         if issues.iter().any(|issue|issue.severity==Severity::Error) {{return Err(issues);}}

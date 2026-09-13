@@ -120,7 +120,7 @@ fn walk(
                         context.bindings,
                         context.arguments,
                     )?;
-                    writeln!(result.definitions,"fn {function}(row:&R{},_inputs:&PreparedInputs)->core::Result<bool>{{{definitions} let result={expression}; Ok(result)}}",entry.id).unwrap();
+                    writeln!(result.definitions,"fn {function}(row:&R{},_inputs:&InputView<'_>)->core::Result<bool>{{{definitions} let result={expression}; Ok(result)}}",entry.id).unwrap();
                     let name = format!("condition_{index}");
                     writeln!(result.write, "let {name}={function}(row,_inputs)?;").unwrap();
                     conditions.push((when, name.clone()));

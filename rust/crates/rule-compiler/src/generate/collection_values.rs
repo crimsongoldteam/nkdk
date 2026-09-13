@@ -36,6 +36,6 @@ pub(super) fn read_definition(id: u32, codec: &scalar::Codec<'_>) -> Result<Stri
         _ => codec.definition(&name)?,
     };
     let inputs = codec.read_input_argument();
-    out.push_str(&format!("fn read_row_{id}(fields:[String;1],source:&[u8],position:core::Position,xml:bool,_inputs:&PreparedInputs)->core::Result<R{id}>{{let [text]=fields;let value={name}::read(&text,xml{inputs}).map_err(|error|position.apply(source,error))?;Ok(R{id}{{fields:[value]}})}}\n"));
+    out.push_str(&format!("fn read_row_{id}(fields:[String;1],source:&[u8],position:core::Position,xml:bool,_inputs:&InputView<'_>)->core::Result<R{id}>{{let [text]=fields;let value={name}::read(&text,xml{inputs}).map_err(|error|position.apply(source,error))?;Ok(R{id}{{fields:[value]}})}}\n"));
     Ok(out)
 }

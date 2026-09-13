@@ -134,7 +134,7 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
                 format!("finish_xml_{id}(self.0,_source,_inputs)")
             };
             format!(
-                "pub(super) struct XmlReader({state});impl XmlReader{{pub(super) fn new()->Self{{Self({state}::new())}}pub(super) fn consume(&mut self,path:&[core::xml::Name],token:&core::xml::Token<'_>,_source:&[u8],_inputs:&PreparedInputs)->core::Result<()>{{{consume}}}pub(super) fn finish(self,_source:&[u8],_inputs:&PreparedInputs)->core::Result<Stored>{{{finish}.map(|value|Stored(value,true))}}}}"
+                "pub(super) struct XmlReader({state});impl XmlReader{{pub(super) fn new()->Self{{Self({state}::new())}}pub(super) fn consume(&mut self,path:&[core::xml::Name],token:&core::xml::Token<'_>,_source:&[u8],_inputs:&InputView<'_>)->core::Result<()>{{{consume}}}pub(super) fn finish(self,_source:&[u8],_inputs:&InputView<'_>)->core::Result<Stored>{{{finish}.map(|value|Stored(value,true))}}}}"
             )
         } else {
             String::new()
@@ -157,7 +157,7 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
                     )
                 };
             format!(
-                "pub(super) struct YamlReader({state});impl YamlReader{{pub(super) fn new()->core::Result<Self>{{Ok(Self({state}::new()))}}pub(super) fn consume(&mut self,node:core::yaml::Node,position:core::Position,_source:&[u8],_inputs:&PreparedInputs)->core::Result<()>{{{consume}}}pub(super) fn finish(self,_source:&[u8],_inputs:&PreparedInputs)->core::Result<Stored>{{{finish}.map(|value|Stored(value,true))}}}}"
+                "pub(super) struct YamlReader({state});impl YamlReader{{pub(super) fn new()->core::Result<Self>{{Ok(Self({state}::new()))}}pub(super) fn consume(&mut self,node:core::yaml::Node,position:core::Position,_source:&[u8],_inputs:&InputView<'_>)->core::Result<()>{{{consume}}}pub(super) fn finish(self,_source:&[u8],_inputs:&InputView<'_>)->core::Result<Stored>{{{finish}.map(|value|Stored(value,true))}}}}"
             )
         } else {
             let (mapping, consume, finish) = nested_layout.as_ref().map_or_else(
@@ -165,7 +165,7 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
                 |layout| ("ScalarRecordReader", format!("self.mapping.consume(node,{:?})",layout.key), format!("let present=self.mapping.finish()?;finish_yaml_{id}(self.fields,present,source,inputs)")),
             );
             format!(
-                "pub(super) struct YamlReader{{mapping:core::yaml::{mapping},fields:YamlFields{id}}}impl YamlReader{{pub(super) fn new()->core::Result<Self>{{Ok(Self{{mapping:core::yaml::{mapping}::default(),fields:YamlFields{id}::new(core::raw::Fields::default())?}})}}pub(super) fn consume(&mut self,node:core::yaml::Node,position:core::Position,_source:&[u8],_inputs:&PreparedInputs)->core::Result<()>{{let _=position;if let Some(entry)={consume}?{{self.fields.consume(entry.key,entry.value,entry.tag)?;}}Ok(())}}pub(super) fn finish(self,source:&[u8],inputs:&PreparedInputs)->core::Result<Stored>{{{finish}.map(|value|Stored(value,true))}}}}"
+                "pub(super) struct YamlReader{{mapping:core::yaml::{mapping},fields:YamlFields{id}}}impl YamlReader{{pub(super) fn new()->core::Result<Self>{{Ok(Self{{mapping:core::yaml::{mapping}::default(),fields:YamlFields{id}::new(core::raw::Fields::default())?}})}}pub(super) fn consume(&mut self,node:core::yaml::Node,position:core::Position,_source:&[u8],_inputs:&InputView<'_>)->core::Result<()>{{let _=position;if let Some(entry)={consume}?{{self.fields.consume(entry.key,entry.value,entry.tag)?;}}Ok(())}}pub(super) fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<Stored>{{{finish}.map(|value|Stored(value,true))}}}}"
             )
         };
         let declared_items = super::declared_items::applies(&local, program);
@@ -257,14 +257,14 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
                 )
             };
             format!(
-                "pub(super) fn write_yaml_indented(value:&Stored,inputs:&PreparedInputs,out:&mut String,indent:&str)->core::Result<()>{{if {raw}{{let bytes=write_yaml_{id}(&value.0,inputs)?;core::yaml::append_properties(out,|out|{{core::yaml::Indented::new(out,indent).push_str(std::str::from_utf8(&bytes).expect(\"generated YAML\"));Ok(())}})}}else{{{plain}}}}}"
+                "pub(super) fn write_yaml_indented(value:&Stored,inputs:&InputView<'_>,out:&mut String,indent:&str)->core::Result<()>{{if {raw}{{let bytes=write_yaml_{id}(&value.0,inputs)?;core::yaml::append_properties(out,|out|{{core::yaml::Indented::new(out,indent).push_str(std::str::from_utf8(&bytes).expect(\"generated YAML\"));Ok(())}})}}else{{{plain}}}}}"
             )
         } else {
             String::new()
         };
         let exclude_writer = if !nested && !qname && !composite && sequence.is_none() {
             format!(
-                "pub(super) fn write_yaml_except(value:&Stored,inputs:&PreparedInputs,out:&mut String,indent:&str,excluded:usize)->core::Result<()>{{if value.0.raw.is_empty(){{core::yaml::append_properties(out,|out|write_yaml_except_{id}(&value.0,inputs,out,indent,false,Some(excluded)))}}else{{let bytes=write_yaml_preserved_except_{id}(&value.0,inputs,false,Some(excluded))?;core::yaml::append_properties(out,|out|{{core::yaml::Indented::new(out,indent).push_str(std::str::from_utf8(&bytes).expect(\"generated YAML\"));Ok(())}})}}}}"
+                "pub(super) fn write_yaml_except(value:&Stored,inputs:&InputView<'_>,out:&mut String,indent:&str,excluded:usize)->core::Result<()>{{if value.0.raw.is_empty(){{core::yaml::append_properties(out,|out|write_yaml_except_{id}(&value.0,inputs,out,indent,false,Some(excluded)))}}else{{let bytes=write_yaml_preserved_except_{id}(&value.0,inputs,false,Some(excluded))?;core::yaml::append_properties(out,|out|{{core::yaml::Indented::new(out,indent).push_str(std::str::from_utf8(&bytes).expect(\"generated YAML\"));Ok(())}})}}}}"
             )
         } else {
             String::new()
@@ -310,17 +310,17 @@ pub(super) struct Stored(V{id},bool);
 pub(super) fn text_field(value:&Stored,field:usize)->core::Result<&str>{{{text_accessor}}}
 pub(super) fn field_has_annotation(value:&Stored,field:usize)->bool{{{annotation_accessor}}}
 pub(super) struct Prepared({prepared});
-pub(super) fn read_xml(source:&[u8],inputs:&PreparedInputs,events:impl core::xml::ScopedSource)->core::Result<Stored> {{read_xml_events_{id}(source,inputs,{xml_events}{xml_extra}).map(|value|Stored(value,true))}}
-pub(super) fn read_yaml(source:&[u8],inputs:&PreparedInputs,events:impl core::yaml::Source)->core::Result<Stored> {{let _=source;read_yaml_events_{id}({yaml_source}inputs,{yaml_extra}events).map(|value|Stored(value,true))}}
-pub(super) fn read_xml_document(source:&[u8],inputs:&PreparedInputs)->core::Result<Stored> {{{fallback_xml}}}
-pub(super) fn read_yaml_document(source:&[u8],inputs:&PreparedInputs)->core::Result<Stored> {{read_yaml_{id}(source,inputs).map(|value|Stored(value,true))}}
+pub(super) fn read_xml(source:&[u8],inputs:&InputView<'_>,events:impl core::xml::ScopedSource)->core::Result<Stored> {{read_xml_events_{id}(source,inputs,{xml_events}{xml_extra}).map(|value|Stored(value,true))}}
+pub(super) fn read_yaml(source:&[u8],inputs:&InputView<'_>,events:impl core::yaml::Source)->core::Result<Stored> {{let _=source;read_yaml_events_{id}({yaml_source}inputs,{yaml_extra}events).map(|value|Stored(value,true))}}
+pub(super) fn read_xml_document(source:&[u8],inputs:&InputView<'_>)->core::Result<Stored> {{{fallback_xml}}}
+pub(super) fn read_yaml_document(source:&[u8],inputs:&InputView<'_>)->core::Result<Stored> {{read_yaml_{id}(source,inputs).map(|value|Stored(value,true))}}
 pub(super) fn project(source:&[u8])->core::Result<Vec<u8>> {{{project}}}
-pub(super) fn finalize(source:&[u8],value:&Stored,inputs:&PreparedInputs)->core::Result<Vec<u8>> {{finalize_yaml_{id}(source,write_yaml_{id}(&value.0,inputs)?,&value.0,inputs)}}
-pub(super) fn document(value:&Stored,inputs:&PreparedInputs)->core::Result<Vec<u8>> {{write_xml_{id}(&value.0,inputs)}}
-pub(super) fn prepare(value:&Stored,inputs:&PreparedInputs)->core::Result<Prepared> {{prepare_xml_{id}(&value.0,inputs).map(Prepared)}}
+pub(super) fn finalize(source:&[u8],value:&Stored,inputs:&InputView<'_>)->core::Result<Vec<u8>> {{finalize_yaml_{id}(source,write_yaml_{id}(&value.0,inputs)?,&value.0,inputs)}}
+pub(super) fn document(value:&Stored,inputs:&InputView<'_>)->core::Result<Vec<u8>> {{write_xml_{id}(&value.0,inputs)}}
+pub(super) fn prepare(value:&Stored,inputs:&InputView<'_>)->core::Result<Prepared> {{prepare_xml_{id}(&value.0,inputs).map(Prepared)}}
 pub(super) fn namespaces<'a>(value:&'a Stored,prepared:&'a Prepared,names:&mut Vec<&'a str>) {{namespaces_xml_{id}(&value.0,&prepared.0,names)}}
-pub(super) fn write_xml<'a>(value:&Stored,prepared:&'a Prepared,inputs:&PreparedInputs,out:&mut core::xml::Writer<'a>)->core::Result<()> {{{xml_write}(&value.0,&prepared.0,inputs,out)}}
-pub(super) fn write_yaml(value:&Stored,inputs:&PreparedInputs,out:&mut String)->core::Result<()> {{write_yaml_into_{id}(&value.0,inputs,out)}}
+pub(super) fn write_xml<'a>(value:&Stored,prepared:&'a Prepared,inputs:&InputView<'_>,out:&mut core::xml::Writer<'a>)->core::Result<()> {{{xml_write}(&value.0,&prepared.0,inputs,out)}}
+pub(super) fn write_yaml(value:&Stored,inputs:&InputView<'_>,out:&mut String)->core::Result<()> {{write_yaml_into_{id}(&value.0,inputs,out)}}
 pub(super) fn scalar_at(value:&Stored,path:&[core::xml::Name],occurrences:&[usize])->bool {{{scoped_scalar}}}
 pub(super) fn scalar(value:&Stored,path:&[core::xml::Name])->bool {{xml_scalar_{id}(&value.0,path)}}
 pub(super) fn qname_attribute(path:&[core::xml::Name],name:&core::xml::Name)->bool {{xml_qname_attribute_{id}(path,name)}}
@@ -332,8 +332,8 @@ pub(super) fn verify_boundary(value:&Stored,before:&[u8],after:&[u8])->core::Res
 {state_adapter}
 {yaml_adapter}
 {fact_accessors}
-pub(super) fn check_xml(value:&Stored,source:&[u8],inputs:&PreparedInputs)->Vec<RuntimeDiagnostic> {{check_xml_{id}(&value.0,source,inputs)}}
-pub(super) fn check_yaml(value:&Stored,source:&[u8],inputs:&PreparedInputs)->Vec<RuntimeDiagnostic> {{check_yaml_{id}(&value.0,source,inputs)}}
+pub(super) fn check_xml(value:&Stored,source:&[u8],inputs:&InputView<'_>)->Vec<RuntimeDiagnostic> {{check_xml_{id}(&value.0,source,inputs)}}
+pub(super) fn check_yaml(value:&Stored,source:&[u8],inputs:&InputView<'_>)->Vec<RuntimeDiagnostic> {{check_yaml_{id}(&value.0,source,inputs)}}
 }}
 "#).unwrap();
         paths.push(
@@ -481,7 +481,7 @@ pub(super) fn check_yaml(value:&Stored,source:&[u8],inputs:&PreparedInputs)->Vec
         } else {
             ("Source", "if source.is_empty(){b\"{}\"}else{source}")
         };
-        writeln!(out,"fn read_{side}_shared_{id}(source:&[u8],inputs:&PreparedInputs)->core::Result<V{id}> {{read_{side}_shared_events_{id}(source,inputs,core::{side}::DocumentSource({document}))}}\nfn read_{side}_shared_events_{id}(source:&[u8],inputs:&PreparedInputs,events:impl core::{side}::{event_trait})->core::Result<V{id}> {{").unwrap();
+        writeln!(out,"fn read_{side}_shared_{id}(source:&[u8],inputs:&InputView<'_>)->core::Result<V{id}> {{read_{side}_shared_events_{id}(source,inputs,core::{side}::DocumentSource({document}))}}\nfn read_{side}_shared_events_{id}(source:&[u8],inputs:&InputView<'_>,events:impl core::{side}::{event_trait})->core::Result<V{id}> {{").unwrap();
         if side == "xml" && stateful {
             writeln!(out,"let mut state=OwnerXmlRead{id}::new();events.visit_scoped(|path,token,scope|state.consume(path,token,scope,source,inputs))?;state.finish(source,inputs)}}").unwrap();
         } else if side == "yaml" && yaml_stateful {
@@ -575,7 +575,7 @@ pub(super) fn check_yaml(value:&Stored,source:&[u8],inputs:&PreparedInputs)->Vec
             }
             out.push_str("})}\n");
         }
-        writeln!(out,"fn check_{side}_{id}(value:&V{id},source:&[u8],inputs:&PreparedInputs)->Vec<RuntimeDiagnostic>{{let mut result=Vec::new();").unwrap();
+        writeln!(out,"fn check_{side}_{id}(value:&V{id},source:&[u8],inputs:&InputView<'_>)->Vec<RuntimeDiagnostic>{{let mut result=Vec::new();").unwrap();
         for slot in 0..parts.len() {
             let source = if side == "xml" {
                 source_for(slot, "source")
@@ -607,7 +607,7 @@ pub(super) fn check_yaml(value:&Stored,source:&[u8],inputs:&PreparedInputs)->Vec
             writeln!(out, "p{slot}:part_{id}_{slot}::XmlReader::new(),").unwrap();
         }
         out.push_str("}}\n");
-        writeln!(out,"fn consume<S:Copy>(&mut self,path:&[core::xml::Name],token:&core::xml::Token<'_>,scope:S,source:&[u8],inputs:&PreparedInputs)->core::Result<()>{{let Self{{routing,containers,").unwrap();
+        writeln!(out,"fn consume<S:Copy>(&mut self,path:&[core::xml::Name],token:&core::xml::Token<'_>,scope:S,source:&[u8],inputs:&InputView<'_>)->core::Result<()>{{let Self{{routing,containers,").unwrap();
         for slot in 0..parts.len() {
             write!(out, "p{slot},").unwrap();
         }
@@ -616,7 +616,7 @@ pub(super) fn check_yaml(value:&Stored,source:&[u8],inputs:&PreparedInputs)->Vec
             writeln!(out, "{slot}=>p{slot}.consume(path,token,source,inputs),").unwrap();
         }
         out.push_str("_=>unreachable!(\"declared XML route\")})}\n");
-        writeln!(out,"fn finish(self,source:&[u8],inputs:&PreparedInputs)->core::Result<V{id}>{{Ok(V{id}{{root:None,containers:self.containers,").unwrap();
+        writeln!(out,"fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<V{id}>{{Ok(V{id}{{root:None,containers:self.containers,").unwrap();
         for slot in 0..parts.len() {
             writeln!(out, "p{slot}:self.p{slot}.finish(source,inputs)?,").unwrap();
         }
@@ -636,7 +636,7 @@ pub(super) fn check_yaml(value:&Stored,source:&[u8],inputs:&PreparedInputs)->Vec
             writeln!(out, "p{slot}:part_{id}_{slot}::YamlReader::new()?,").unwrap();
         }
         out.push_str("})}\n");
-        writeln!(out,"fn consume(&mut self,node:core::yaml::Node,position:core::Position,source:&[u8],inputs:&PreparedInputs)->core::Result<()>{{let slot=self.routing.route(&node,|key|match key{{").unwrap();
+        writeln!(out,"fn consume(&mut self,node:core::yaml::Node,position:core::Position,source:&[u8],inputs:&InputView<'_>)->core::Result<()>{{let slot=self.routing.route(&node,|key|match key{{").unwrap();
         for (slot, keys) in keys.iter().enumerate() {
             for key in keys {
                 writeln!(out, "{key:?}=>Some({slot}),").unwrap();
@@ -663,7 +663,7 @@ pub(super) fn check_yaml(value:&Stored,source:&[u8],inputs:&PreparedInputs)->Vec
             .unwrap();
         }
         out.push_str("},_=>unreachable!(\"mapping boundary\")}Ok(())},_=>unreachable!(\"declared YAML route\")}}\n");
-        writeln!(out,"fn finish(self,source:&[u8],inputs:&PreparedInputs)->core::Result<V{id}>{{self.routing.finish()?;Ok(V{id}{{root:None,containers:[1;{count}],").unwrap();
+        writeln!(out,"fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<V{id}>{{self.routing.finish()?;Ok(V{id}{{root:None,containers:[1;{count}],").unwrap();
         for slot in 0..parts.len() {
             writeln!(out, "p{slot}:self.p{slot}.finish(source,inputs)?,").unwrap();
         }
@@ -673,7 +673,7 @@ pub(super) fn check_yaml(value:&Stored,source:&[u8],inputs:&PreparedInputs)->Vec
     for slot in (0..parts.len()).filter(|slot| files[*slot].is_none()) {
         writeln!(out, "p{slot}:part_{id}_{slot}::Prepared,").unwrap();
     }
-    writeln!(out, "}}\nfn prepare_xml_plain_{id}(value:&V{id},inputs:&PreparedInputs)->core::Result<OwnerPrepared{id}> {{Ok(OwnerPrepared{id} {{").unwrap();
+    writeln!(out, "}}\nfn prepare_xml_plain_{id}(value:&V{id},inputs:&InputView<'_>)->core::Result<OwnerPrepared{id}> {{Ok(OwnerPrepared{id} {{").unwrap();
     for slot in (0..parts.len()).filter(|slot| files[*slot].is_none()) {
         writeln!(
             out,
@@ -702,7 +702,7 @@ pub(super) fn check_yaml(value:&Stored,source:&[u8],inputs:&PreparedInputs)->Vec
             .unwrap();
         }
     }
-    writeln!(out,"}}\nfn write_xml_plain_{id}(value:&V{id},inputs:&PreparedInputs)->core::Result<Vec<u8>> {{let prepared=prepare_xml_plain_{id}(value,inputs)?;let mut names=Vec::new();namespaces_xml_plain_{id}(value,&prepared,&mut names);let mut out=core::xml::Writer::new(&names);write_xml_plain_into_{id}(value,&prepared,inputs,&mut out)?;Ok(out.finish())}}\nfn write_xml_plain_into_{id}<'a>(value:&V{id},prepared:&'a OwnerPrepared{id},inputs:&PreparedInputs,out:&mut core::xml::Writer<'a>)->core::Result<()> {{").unwrap();
+    writeln!(out,"}}\nfn write_xml_plain_{id}(value:&V{id},inputs:&InputView<'_>)->core::Result<Vec<u8>> {{let prepared=prepare_xml_plain_{id}(value,inputs)?;let mut names=Vec::new();namespaces_xml_plain_{id}(value,&prepared,&mut names);let mut out=core::xml::Writer::new(&names);write_xml_plain_into_{id}(value,&prepared,inputs,&mut out)?;Ok(out.finish())}}\nfn write_xml_plain_into_{id}<'a>(value:&V{id},prepared:&'a OwnerPrepared{id},inputs:&InputView<'_>,out:&mut core::xml::Writer<'a>)->core::Result<()> {{").unwrap();
     let mut headers: Vec<_> = (0..parts.len())
         .filter(|slot| files[*slot].is_none() && !attributes[*slot].is_empty())
         .collect();
@@ -751,7 +751,7 @@ pub(super) fn check_yaml(value:&Stored,source:&[u8],inputs:&PreparedInputs)->Vec
         .unwrap();
     }
     out.push_str("Ok(())}\n");
-    writeln!(out,"fn write_yaml_{id}(value:&V{id},inputs:&PreparedInputs)->core::Result<Vec<u8>> {{let mut out=String::new();").unwrap();
+    writeln!(out,"fn write_yaml_{id}(value:&V{id},inputs:&InputView<'_>)->core::Result<Vec<u8>> {{let mut out=String::new();").unwrap();
     for slot in 0..parts.len() {
         writeln!(
             out,
@@ -761,7 +761,7 @@ pub(super) fn check_yaml(value:&Stored,source:&[u8],inputs:&PreparedInputs)->Vec
     }
     out.push_str("let bytes=out.into_bytes();if let Some(patch)=&value.root {core::raw::Document::encode(&bytes,patch.to_yaml().as_bytes())}else{Ok(bytes)}}\n");
     if yaml_stateful {
-        writeln!(out,"#[allow(dead_code)] fn write_yaml_indented_{id}(value:&V{id},inputs:&PreparedInputs,out:&mut String,indent:&str,_lift:bool)->core::Result<()>{{if value.root.is_some(){{let bytes=write_yaml_{id}(value,inputs)?;core::yaml::Indented::new(out,indent).push_str(std::str::from_utf8(&bytes).expect(\"generated YAML\"));return Ok(());}}").unwrap();
+        writeln!(out,"#[allow(dead_code)] fn write_yaml_indented_{id}(value:&V{id},inputs:&InputView<'_>,out:&mut String,indent:&str,_lift:bool)->core::Result<()>{{if value.root.is_some(){{let bytes=write_yaml_{id}(value,inputs)?;core::yaml::Indented::new(out,indent).push_str(std::str::from_utf8(&bytes).expect(\"generated YAML\"));return Ok(());}}").unwrap();
         for slot in 0..parts.len() {
             writeln!(
                 out,
@@ -828,7 +828,7 @@ pub(super) fn check_yaml(value:&Stored,source:&[u8],inputs:&PreparedInputs)->Vec
         .collect::<Vec<_>>()
         .join(",");
     for side in ["xml", "yaml"] {
-        writeln!(out,"fn read_{side}_{id}(source:&[u8],inputs:&PreparedInputs)->core::Result<V{id}> {{match read_{side}_shared_{id}(source,inputs) {{Ok(value)=>Ok(value),Err(error)=>{{if !error.code.as_deref().is_some_and(|code|code.starts_with(\"xml.\")||code.starts_with(\"yaml.\")||code.starts_with(\"value.\")) {{return Err(error);}}").unwrap();
+        writeln!(out,"fn read_{side}_{id}(source:&[u8],inputs:&InputView<'_>)->core::Result<V{id}> {{match read_{side}_shared_{id}(source,inputs) {{Ok(value)=>Ok(value),Err(error)=>{{if !error.code.as_deref().is_some_and(|code|code.starts_with(\"xml.\")||code.starts_with(\"yaml.\")||code.starts_with(\"value.\")) {{return Err(error);}}").unwrap();
         if side == "yaml" {
             writeln!(out,"if let Some(envelope)=core::raw::Document::decode(source)? {{let mut value=read_yaml_{id}(&envelope.meaning,inputs)?;let patch=core::xml::Patch::read(&envelope.payload,&[],&xml_qnames_{id}())?;if patch.is_null() {{return Err(RuntimeDiagnostic::new(\"xml.owner-root\",\"The document root cannot be removed\"));}}value.root=Some(patch);return Ok(value);}}").unwrap();
         }
@@ -862,7 +862,7 @@ pub(super) fn check_yaml(value:&Stored,source:&[u8],inputs:&PreparedInputs)->Vec
         }
         out.push_str("})}}}\n");
     }
-    writeln!(out,"fn write_xml_{id}(value:&V{id},inputs:&PreparedInputs)->core::Result<Vec<u8>> {{let ordinary=write_xml_plain_{id}(value,inputs)?;let Some(patch)=&value.root else {{return Ok(ordinary);}};let qnames=xml_qnames_{id}();let base=core::xml::Tree::capture_with_qnames(&ordinary,{root_code},xml_qname_text_{id})?;let tree=patch.apply(base,core::xml::Name{{namespace:{:?}.into(),local:{:?}.into()}},&[],&qnames)?;let mut names=Vec::new();tree.collect_namespaces(&mut names);let mut writer=core::xml::Writer::new(&names);tree.write_at(&mut writer,&[],&qnames)?;let restored=writer.finish();",root[0].namespace,root[0].local).unwrap();
+    writeln!(out,"fn write_xml_{id}(value:&V{id},inputs:&InputView<'_>)->core::Result<Vec<u8>> {{let ordinary=write_xml_plain_{id}(value,inputs)?;let Some(patch)=&value.root else {{return Ok(ordinary);}};let qnames=xml_qnames_{id}();let base=core::xml::Tree::capture_with_qnames(&ordinary,{root_code},xml_qname_text_{id})?;let tree=patch.apply(base,core::xml::Name{{namespace:{:?}.into(),local:{:?}.into()}},&[],&qnames)?;let mut names=Vec::new();tree.collect_namespaces(&mut names);let mut writer=core::xml::Writer::new(&names);tree.write_at(&mut writer,&[],&qnames)?;let restored=writer.finish();",root[0].namespace,root[0].local).unwrap();
     for slot in (0..parts.len()).filter(|slot| files[*slot].is_none()) {
         writeln!(
             out,
@@ -873,7 +873,7 @@ pub(super) fn check_yaml(value:&Stored,source:&[u8],inputs:&PreparedInputs)->Vec
     out.push_str("Ok(restored)}\n");
     let mut verify_documents = String::new();
     if files.iter().any(Option::is_some) {
-        writeln!(out,"fn write_xml_documents_{id}(value:&V{id},inputs:&PreparedInputs)->core::Result<Vec<(core::resources::RelativePath,Vec<u8>)>> {{let mut result=Vec::new();").unwrap();
+        writeln!(out,"fn write_xml_documents_{id}(value:&V{id},inputs:&InputView<'_>)->core::Result<Vec<(core::resources::RelativePath,Vec<u8>)>> {{let mut result=Vec::new();").unwrap();
         for (slot, path) in files
             .iter()
             .enumerate()
@@ -884,7 +884,7 @@ pub(super) fn check_yaml(value:&Stored,source:&[u8],inputs:&PreparedInputs)->Vec
         }
         out.push_str("Ok(result)}\n");
     }
-    writeln!(out,"fn verify_{id}(original:&[u8],candidate:&[u8],inputs:&PreparedInputs)->core::Result<()> {{let value=read_yaml_{id}(candidate,inputs)?;if let Some(error)=check_yaml_{id}(&value,candidate,inputs).into_iter().find(|error|error.severity==Severity::Error) {{return Err(error);}}{verify_documents}prove_xml_{id}(&value,original,&write_xml_{id}(&value,inputs)?)}}\nfn finalize_yaml_{id}(original:&[u8],candidate:Vec<u8>,value:&V{id},inputs:&PreparedInputs)->core::Result<Vec<u8>> {{match verify_{id}(original,&candidate,inputs) {{Ok(())=>return Ok(candidate),Err(error) if error.code.as_deref()==Some(\"xml.round-trip-mismatch\")=>{{}},Err(error)=>return Err(error)}}let mut out=String::new();").unwrap();
+    writeln!(out,"fn verify_{id}(original:&[u8],candidate:&[u8],inputs:&InputView<'_>)->core::Result<()> {{let value=read_yaml_{id}(candidate,inputs)?;if let Some(error)=check_yaml_{id}(&value,candidate,inputs).into_iter().find(|error|error.severity==Severity::Error) {{return Err(error);}}{verify_documents}prove_xml_{id}(&value,original,&write_xml_{id}(&value,inputs)?)}}\nfn finalize_yaml_{id}(original:&[u8],candidate:Vec<u8>,value:&V{id},inputs:&InputView<'_>)->core::Result<Vec<u8>> {{match verify_{id}(original,&candidate,inputs) {{Ok(())=>return Ok(candidate),Err(error) if error.code.as_deref()==Some(\"xml.round-trip-mismatch\")=>{{}},Err(error)=>return Err(error)}}let mut out=String::new();").unwrap();
     for slot in 0..parts.len() {
         let source = source_for(slot, "original");
         writeln!(out,"let source=part_{id}_{slot}::project({source})?;let yaml=part_{id}_{slot}::finalize(&source,&value.p{slot},inputs)?;core::yaml::append_encoded_properties(&mut out,&yaml)?;").unwrap();
