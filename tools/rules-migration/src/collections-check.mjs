@@ -11,6 +11,10 @@ process.chdir(root);
 const {graph,entries}=fixture(),{catalog}=candidateCatalog();
 const emitted=emitCollections(graph,entries,catalog);
 if(emitted.results[0].status!=='candidate')throw new Error(JSON.stringify(emitted.results));
+const indexedEntries=structuredClone(entries);
+indexedEntries.find(entry=>entry.symbol==='ItemRules').properties.push({name:'numerator',status:'static-parameters',parameters:{type:'MetadataItemLink',xml:'Numerator',xmlParents:['Properties'],yaml:'Нумератор',metadataTarget:{kind:'object',roots:['DocumentNumerator']}}});
+const indexed=emitCollections(graph,indexedEntries,catalog);
+if(indexed.results[0].status!=='candidate')throw new Error(JSON.stringify(indexed.results));
 const namedGraph=structuredClone(graph);
 namedGraph.edges[0].mapping.yamlAsArray=false;
 namedGraph.edges[0].mapping.keyField='name';
@@ -18,6 +22,16 @@ namedGraph.registrations[0].parameters.yamlAsArray=false;
 namedGraph.registrations[0].parameters.keyField='name';
 const named=emitCollections(namedGraph,entries,catalog);
 if(named.results[0].status!=='candidate')throw new Error(JSON.stringify(named.results));
+const textEntries=structuredClone(entries);
+textEntries.find(entry=>entry.symbol==='ItemRules').properties.unshift({name:'synonym',status:'static-parameters',parameters:{type:'I8nText',xml:'Synonym',xmlParents:['Properties'],yaml:'Синоним',excludeIfEqualNameYAML:true}});
+const textCollections=[graph,namedGraph].map(source=>emitCollections(source,textEntries,catalog));
+const implicitEntries=structuredClone(textEntries),implicitGraph=structuredClone(namedGraph);
+const implicitName=implicitEntries.find(entry=>entry.symbol==='ItemRules').properties.find(property=>property.name==='name');
+implicitName.name='code';delete implicitName.parameters.yaml;
+implicitGraph.edges[0].mapping.keyField='code';implicitGraph.registrations[0].parameters.keyField='code';
+textCollections.push(emitCollections(implicitGraph,implicitEntries,catalog));
+for(const result of textCollections)if(result.results[0].status!=='candidate')throw new Error(JSON.stringify(result.results));
+const textXML='<Root xmlns:v8="http://v8.1c.ru/8.1/data/core"><Items><Item><Properties><Synonym><v8:item><v8:lang>ru</v8:lang><v8:content>Первый</v8:content></v8:item></Synonym><Name>Первый</Name><Enabled>true</Enabled></Properties></Item><Item><Properties><Synonym><v8:item><v8:lang>ru</v8:lang><v8:content>Второй</v8:content></v8:item></Synonym><Name>Второй</Name><Enabled>false</Enabled></Properties></Item></Items></Root>';
 named.modules[0].constraints=[{id:'key-policy',appliesTo:['xml-import','yaml-validation'],assert:{not:{eq:[{field:'name'},{literal:'forbidden'}]}},diagnostic:{code:'test.key-policy',severity:'error',at:{field:'name'},message:'Reserved key'}}];
 const nested={format:'nkdk-declarations/1',kind:'value',id:'test.collection.nested',presence:[{target:'self',xml:{missing:{denotes:{absent:true}}},yaml:{missing:{denotes:{absent:true}}}}],value:{kind:'record',fields:[{name:'text',type:{kind:'scalar',scalar:'text'}}]},representations:{xml:{kind:'record',fields:[{field:'text',path:['Text']}]},yaml:{kind:'mapping',fields:[{field:'text',key:'Текст'}]}}};
 const composed=structuredClone(named.modules);
@@ -53,11 +67,13 @@ xmlOnlyScalar.value.fields=xmlOnlyScalar.value.fields.filter(field=>field.name!=
 xmlOnlyScalar.representations.xml.fields=xmlOnlyScalar.representations.xml.fields.filter(field=>field.field!=='nested').map(field=>({...field,path:['Root',...field.path]}));
 xmlOnlyScalar.representations.yaml.fields=xmlOnlyScalar.representations.yaml.fields.filter(field=>field.field!=='nested');
 xmlOnlyScalar.constraints.push({id:'hidden-policy',appliesTo:['yaml-validation'],assert:{not:{eq:[{field:'token'},{literal:'blocked-token'}]}},diagnostic:{code:'test.hidden-policy',severity:'error',at:{field:'token'},message:'Restored token is reserved'}});
-const declarations=[...unifiedDeclarations,xmlOnlyScalar,...xmlOnly,...groupedCommon,...grouped,...emitted.modules,...named.modules,...composed,nested];
+const declarations=[...unifiedDeclarations,xmlOnlyScalar,...xmlOnly,...groupedCommon,...grouped,...emitted.modules,...named.modules,...composed,nested,...indexed.modules,...textCollections.flatMap(result=>result.modules),catalog.get('migration.metadata-root-index')];
 const modules=[...declarations,...dependencyFiles(declarations,catalog)];
 const files=Object.fromEntries(modules.map(m=>[m.id+'.yaml',yaml.dump(m,{noRefs:true})]));
 const entry=emitted.results[0].declaration;
-const paths=writeFocused(join(root,'rust/target/collection-emission-check'),files,{cases:[
+const paths=writeFocused(join(root,'rust/target/collection-emission-check'),files,{factSources:[{entry:'migration.metadata-root-index',xml:'<Root><Kind>DocumentNumerator</Kind><Name>Общий</Name><Identity>shared</Identity></Root>'}],cases:[
+  ...textCollections.map((result,index)=>({id:`generated-local-name-${index}`,entry:result.results[0].declaration,inputs:{defaultLanguage:'ru',registeredLanguages:['ru','en']},xml:textXML,yaml:index===0?expected:'Элементы:\n  Первый:\n    Включено: Истина\n  Второй:\n    Включено: Ложь'})),
+  {id:'generated-shared-index',entry:indexed.results[0].declaration,factBindings:{roots:'metadata.roots'},xml:xml.replaceAll('</Properties>','<Numerator>DocumentNumerator.Общий</Numerator></Properties>'),yaml:'Элементы:\n  - Имя: Первый\n    Включено: Истина\n    Нумератор: Общий\n  - Имя: Второй\n    Включено: Ложь\n    Нумератор: Общий',rejectedYAML:['Элементы: [{Имя: Первый, Включено: Истина, Нумератор: Отсутствует}]']},
   ...unifiedCases,
   {id:'xml-only-scalar-normal',entry:xmlOnlyScalar.id,xml:'<Root><Properties token="Первый"><Name>Первый</Name><Enabled>true</Enabled></Properties></Root>',yaml:'Имя: Первый\nВключено: Истина',rejectedYAML:['Имя: Первый\nВключено: Истина\nToken: other','Имя: Первый\nВключено: Истина\ntoken: other','Имя: blocked-token\nВключено: Истина']},
   {id:'xml-only-scalar-mismatch',entry:xmlOnlyScalar.id,xml:'<Root><Properties token="other"><Name>Первый</Name><Enabled>true</Enabled></Properties></Root>',annotation:'token: !xml/raw'},

@@ -2,6 +2,31 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {emitCollections} from '../src/collection-emission.mjs';
 import {fixture} from './fixtures/array-collection.mjs';
+import {candidateCatalog} from '../src/candidate-catalog.mjs';
+
+test('collection inputs retain shared index types and bindings at every boundary',()=>{
+  const {graph,entries}=fixture(),{catalog}=candidateCatalog();
+  const child=entries.find(entry=>entry.symbol==='ItemRules');
+  child.properties.push(...['first','second'].map(name=>({name,status:'static-parameters',parameters:{type:'MetadataItemLink',xml:name==='first'?'First':'Second',xmlParents:['Properties'],yaml:name,metadataTarget:{kind:'object',roots:['DocumentNumerator']}}})));
+  const result=emitCollections(graph,entries,catalog);
+  assert.equal(result.results[0].status,'candidate');
+  const [row,list,owner]=result.modules;
+  for(const module of result.modules) {
+    assert.deepEqual(Object.keys(module.inputs),['roots']);
+    const alias=module.inputs.roots.type.key.fields[0].type.use;
+    assert.equal(module.imports[alias],'common.path-root');
+  }
+  assert.deepEqual(list.value.item.bind,{roots:{input:'roots'}});
+  assert.deepEqual(owner.value.fields[0].type.bind,{roots:{input:'roots'}});
+  assert.deepEqual(row.value.fields.at(-1).type.bind,{roots:{input:'roots'}});
+  child.properties.at(-1).parameters={type:'I8nText',yaml:'Текст'};
+  const contextual=emitCollections(graph,entries,catalog);
+  assert.equal(contextual.results[0].status,'candidate');
+  assert.deepEqual(contextual.modules[0].value.fields.at(-1).type.bind.ownerName,{field:'name'});
+  assert.deepEqual(Object.keys(contextual.modules[0].inputs),['roots','defaultLanguage','registeredLanguages']);
+  graph.edges[0].mapping.keyField='first';
+  assert.equal(emitCollections(graph,entries,catalog).results[0].blockers.some(b=>b.reason==='item-context-binding-required'),true);
+});
 
 test('collection emission requires complete items and preserves unsupported contracts as blockers',()=>{
   const {graph,entries}=fixture(),catalog=new Map([['common.string',{}],['common.boolean',{}]]);
@@ -34,5 +59,12 @@ test('named collections reuse the full item declaration and lift its declared ke
   assert.equal(result.results[0].status,'candidate');
   assert.deepEqual(result.modules[1].representations.yaml,{kind:'record-mapping',key:'name'});
   assert.equal(result.modules[0].value.fields.length,2);
+  const withoutKeyYAML=structuredClone(entries);
+  delete withoutKeyYAML.find(entry=>entry.symbol==='ItemRules').properties[0].parameters.yaml;
+  const implicitKey=emitCollections(graph,withoutKeyYAML,new Map([['common.string',{}],['common.boolean',{}]]));
+  assert.equal(implicitKey.results[0].status,'candidate');
+  assert.equal(implicitKey.modules[0].representations.yaml.fields[0].key,'name');
+  const array=structuredClone(graph);array.edges[0].mapping.yamlAsArray=true;
+  assert.equal(emitCollections(array,withoutKeyYAML,new Map([['common.string',{}],['common.boolean',{}]])).modules.length,0);
   for(const key of ['missing','enabled']){const invalid=structuredClone(graph);invalid.edges[0].mapping.keyField=key;assert.equal(emitCollections(invalid,entries,new Map([['common.string',{}],['common.boolean',{}]])).modules.length,0);}
 });

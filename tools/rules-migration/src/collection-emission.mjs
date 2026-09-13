@@ -1,5 +1,6 @@
 import {createHash} from 'node:crypto';
 import {mapProperty} from './mappings.mjs';
+import {mergeInputs} from './common-inputs.mjs';
 const id=(role,value)=>`candidate.collection.${role}.${createHash('sha256').update(JSON.stringify(value)).digest('hex').slice(0,20)}`;
 
 // Emit complete element rules only. Property projections cannot stand in for an element.
@@ -26,12 +27,32 @@ export function emitCollections(graph,entries,catalog,namespaces={}) {
     const unsupported=Object.keys(property?.parameters??{}).filter(key=>!propertyKeys.includes(key));
     if(unsupported.length)block('collection-property-options',unsupported);
     if(owner?.comparison?.status!=='keys-match')block('owner-source-incomplete');
-    const fields=child.properties.map(property=>({property,mapped:mapProperty(property,catalog,namespaces)}));
+    const fields=child.properties.map(property=>{
+      // The source record collection uses keyField as its key's YAML name
+      // when the property omits yaml. Array items have no such contract.
+      const implicitKey=edge.mapping.yamlAsArray!==true && property.name===edge.mapping.keyField &&
+        property.parameters?.type==='string' && !Object.hasOwn(property.parameters,'yaml');
+      const source=implicitKey?{...property,parameters:{...property.parameters,yaml:property.name}}:property;
+      return {property,mapped:mapProperty(source,catalog,namespaces)};
+    });
     if(edge.mapping.yamlAsArray!==true && !fields.some(f=>f.property.name===edge.mapping.keyField && f.property.parameters?.type==='string'))block('collection-key-type');
     const incomplete=fields.filter(f=>f.mapped.status!=='candidate').map(f=>({property:f.property.name,reason:f.mapped.reason}));
     if(incomplete.length)block('item-properties',incomplete);
     if(!fields.length)block('empty-item');
-    if(fields.some(f=>f.mapped.inputs && Object.keys(f.mapped.inputs).length))block('item-context-binding-required');
+    // Source metadataCollection selects its name through keyField, then "name".
+    // This is a migration correspondence, not a runtime rule for named fields.
+    const nameField=fields.find(f=>f.property.name===(edge.mapping.keyField??'name'));
+    for(const {property,mapped} of fields) {
+      if(!['I8nText','FormattedI8nText'].includes(property.parameters?.type) || mapped.status!=='candidate')continue;
+      if(nameField?.mapped.id!=='common.string')continue;
+      const argument=property.parameters.type==='FormattedI8nText'?'name':'ownerName';
+      mapped.type.bind[argument]={field:nameField.property.name};
+      mapped.inputs=Object.fromEntries(Object.entries(mapped.inputs).filter(([name])=>name!=='ownerName'));
+    }
+    // Shared indexes retain their explicit provider. Only researched language
+    // inputs are shared scalars; other context still requires a source binding.
+    if(fields.some(f=>Object.entries(f.mapped.inputs??{}).some(([name,input])=>input.type?.kind!=='index' &&
+      !(['I8nText','FormattedI8nText'].includes(f.property.parameters?.type) && ['defaultLanguage','registeredLanguages'].includes(name)))))block('item-context-binding-required');
     if(fields.some(f=>f.mapped.sourceTag))block('item-source-tag');
     if(typeof edge.mapping.xml!=='string' || typeof edge.mapping.yaml!=='string' || !Array.isArray(edge.mapping.xmlParents) || !edge.mapping.xmlParents.length || edge.mapping.xmlParents.some(p=>typeof p!=='string'))block('collection-owner-path');
     if(edge.context.ownerFactRole || edge.context.configurationIndexUidSegment)block('collection-owner-contributions-required');
@@ -44,7 +65,10 @@ export function emitCollections(graph,entries,catalog,namespaces={}) {
     }
     const row={format:'nkdk-declarations/1',kind:'value',imports:{},value:{kind:'record',fields:[]},
       representations:{xml:{kind:'record',fields:[]},yaml:{kind:'mapping',fields:[]}}};
+    const inputs={},inputImports={};
     for(const {property,mapped} of fields) {
+      mergeInputs(inputs,mapped.inputs??{});
+      Object.assign(inputImports,mapped.imports);
       if(mapped.namespaces)Object.assign(row.namespaces??={},mapped.namespaces);
       Object.assign(row.imports,mapped.imports);
       const alias=`field${row.value.fields.length}`;
@@ -56,14 +80,27 @@ export function emitCollections(graph,entries,catalog,namespaces={}) {
       if(mapped.presence)(row.presence??=[]).push(mapped.presence);
       if(mapped.constraints)(row.constraints??=[]).push(...mapped.constraints);
     }
+    const bind=Object.fromEntries(Object.keys(inputs).map(name=>[name,{input:name}]));
+    const withInputs=module=>{
+      if(Object.keys(inputs).length) {
+        module.inputs=structuredClone(inputs);
+        Object.assign(module.imports,inputImports);
+      }
+      return module;
+    };
+    withInputs(row);
     row.id=id('item',[edge.item,row]);
     const list={format:'nkdk-declarations/1',kind:'value',imports:{item:row.id},value:{kind:'sequence',item:{use:'item'}},
       representations:{xml:{kind:'element-sequence',path:[edge.mapping.xml]},yaml:edge.mapping.yamlAsArray===true?{kind:'sequence'}:{kind:'record-mapping',key:edge.mapping.keyField}}};
+    withInputs(list);
+    if(Object.keys(inputs).length)list.value.item.bind=structuredClone(bind);
     if(qualified.length)list.namespaces=Object.fromEntries(qualified.map(p=>[p.split(':')[0],namespaces[p.split(':')[0]]]));
     list.id=id('list',list);
     const projection={format:'nkdk-declarations/1',kind:'object',imports:{items:list.id},
       value:{kind:'record',fields:[{name:edge.property,type:{use:'items'}}]},
       representations:{xml:{kind:'record',fields:[{field:edge.property,path:edge.mapping.xmlParents}]},yaml:{kind:'mapping',fields:[{field:edge.property,key:edge.mapping.yaml}]}}};
+    withInputs(projection);
+    if(Object.keys(inputs).length)projection.value.fields[0].type.bind=structuredClone(bind);
     if(list.namespaces)projection.namespaces=list.namespaces;
     projection.id=id('property',[edge.owner,projection]);
     modules.push(row,list,projection);
