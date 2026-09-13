@@ -34,6 +34,9 @@ pub(super) fn generate(
         .clone();
     crate::link::sequence_item::instantiate(&mut common, bindings, arguments)?;
     let mut row = crate::link::sequence_item::resolve(&common, program)?.expect("referenced item");
+    // Bound expressions now address the caller's slots. Captures of the row's
+    // own fields must be appended after them, never overwrite those slots.
+    row.inputs = entry.inputs.clone();
     if [&common, &row]
         .iter()
         .any(|contract| !contract.resources.is_empty() || !contract.contributions.is_empty())
@@ -162,88 +165,7 @@ pub(super) fn generate(
     } else {
         None
     };
-    let composed = row_fields
-        .iter()
-        .any(|field| scalar::Codec::resolve(&field.value, &row, program).is_err());
-    if composed && !owner::state_supported(&row, program)? {
-        return Err(unsupported(
-            &row,
-            "This item representation does not yet support independent event states",
-        ));
-    }
-    let scalar_routes = if let LinkedXml::Record(fields) = &row.xml {
-        fields
-            .iter()
-            .filter(|field| field.attribute.is_none())
-            .map(|field| {
-                format!(
-                    "core::xml::matches(path,{})",
-                    record::path_code(&field.path)
-                )
-            })
-            .collect::<Vec<_>>()
-            .join(" || ")
-    } else {
-        String::new()
-    };
-    let lifted_write = match &lifted {
-        None => "unreachable!()".into(),
-        Some((index, _)) if !composed => {
-            format!("write_yaml_except_@id@(&value.0,inputs,out,indent,false,Some({index}))")
-        }
-        Some((index, _)) => {
-            let mut code = String::new();
-            for (slot, part) in super::owner_layout::parts(&row, program)?
-                .iter()
-                .enumerate()
-            {
-                let LinkedType::Record(fields) = &part.value else {
-                    unreachable!()
-                };
-                if let Some(field) = fields
-                    .iter()
-                    .position(|field| field.name == row_fields[*index].name)
-                {
-                    code.push_str(&format!("part_@id@_{slot}::write_yaml_except(&value.0.p{slot},inputs,out,indent,{field})?;"));
-                } else {
-                    code.push_str(&format!("part_@id@_{slot}::write_yaml_indented(&value.0.p{slot},inputs,out,indent)?;"));
-                }
-            }
-            code.push_str("Ok(())");
-            code
-        }
-    };
-    let key_available = match &lifted {
-        None => "true".into(),
-        Some((index, _)) if !composed => format!("!value.0.raw.has_annotation({index})"),
-        Some((index, _)) => {
-            let parts = super::owner_layout::parts(&row, program)?;
-            let (slot, field) = parts
-                .iter()
-                .enumerate()
-                .find_map(|(slot, part)| {
-                    let LinkedType::Record(fields) = &part.value else {
-                        return None;
-                    };
-                    fields
-                        .iter()
-                        .position(|field| field.name == row_fields[*index].name)
-                        .map(|field| (slot, field))
-                })
-                .expect("linked key part");
-            format!("!part_@id@_{slot}::field_has_annotation(&value.0.p{slot},{field})")
-        }
-    };
-    let row_code = if composed {
-        owner::generate(&row, program)?
-    } else {
-        record::generate(&row, program)?
-    };
-    let checks = if composed {
-        String::new()
-    } else {
-        constraints::generate(&row, program)?
-    };
+    let body = super::value_record::generate(&row, program, lifted.clone())?;
     let presence = collection_presence::override_for(&common, entry, bindings, arguments)?
         .unwrap_or(common.clone());
     if presence.presence.iter().any(|rule| {
@@ -283,16 +205,15 @@ pub(super) fn generate(
         .replace("@headers@", &headers)
         .replace("@extra_namespaces@", &namespace_code)
         .replace("@root_yaml@", &root_yaml.to_string())
-        .replace("@row@", &row_code)
+        .replace("@item@", &body.source)
         .replace(
             "@scalar@",
-            if scalar_routes.is_empty() {
+            if body.scalar_routes.is_empty() {
                 "false"
             } else {
-                &scalar_routes
+                &body.scalar_routes
             },
         )
-        .replace("@checks@", &checks)
         .replace("@route@", &record::path_code(&route))
         .replace("@depth@", &(route.len() - 1).to_string())
         .replace("@parent@", &record::path_code(parent))
@@ -310,147 +231,41 @@ pub(super) fn generate(
         .replace("@yaml_missing@", &missing(false)?.to_string());
     code = code
         .replace(
-            "@prepared@",
-            if composed {
-                "OwnerPrepared@id@"
-            } else {
-                "XmlPrepared@id@"
-            },
-        )
-        .replace(
-            "@xml_state@",
-            if composed {
-                "OwnerXmlRead@id@"
-            } else {
-                "XmlRead@id@"
-            },
-        )
-        .replace(
-            "@xml_consume@",
-            if composed {
-                "self.0.consume(path,token,(),source,inputs)"
-            } else {
-                "self.0.consume(path,token)"
-            },
-        )
-        .replace(
-            "@xml_finish@",
-            if composed {
-                "self.0.finish(source,inputs)"
-            } else {
-                "finish_xml_@id@(self.0,source,inputs)"
-            },
-        )
-        .replace(
-            "@yaml_reader@",
-            if composed { COMPOSED_YAML } else { SCALAR_YAML },
-        )
-        .replace(
-            "@prepare_row@",
-            if composed {
-                "prepare_xml_plain_@id@"
-            } else {
-                "prepare_xml_@id@"
-            },
-        )
-        .replace(
-            "@namespaces_row@",
-            if composed {
-                "namespaces_xml_plain_@id@"
-            } else {
-                "namespaces_xml_@id@"
-            },
-        )
-        .replace(
-            "@write_row@",
-            if composed {
-                "write_xml_plain_into_@id@"
-            } else {
-                "write_xml_into_@id@"
-            },
-        )
-        .replace(
-            "@yaml_write_row@",
-            if composed {
-                "write_yaml_indented_@id@(&value.0,inputs,out,indent,false)"
-            } else {
-                SCALAR_WRITE
-            },
-        );
-    code = code
-        .replace(
             "@lifted_key@",
             &lifted
                 .as_ref()
                 .map_or("None::<&str>".into(), |(_, key)| format!("Some({key:?})")),
         )
-        .replace("@lifted_write@", &lifted_write)
-        .replace("@key_available@", &key_available)
         .replace(
             "@lifted_index@",
             &lifted
                 .as_ref()
                 .map_or("0".into(), |(index, _)| index.to_string()),
         );
-    code = code.replace(
-        "@row_scalar@",
-        if composed {
-            "xml_scalar_at_@id@(&value.0,path,occurrences)"
-        } else {
-            "let _=occurrences;xml_scalar_@id@(&value.0,path)"
-        },
-    );
     code = code.replace("@id@", &entry.id.to_string());
     Ok(Some(code))
 }
 
 const RUNTIME: &str = r#"
-#[allow(dead_code)] mod item_@id@ {
-use super::*;
-@row@
-@checks@
-pub(super) struct Stored(V@id@);
-pub(super) struct Prepared(@prepared@);
-pub(super) struct XmlReader(@xml_state@);
-impl XmlReader {
-pub(super) fn new()->Self{Self(@xml_state@::new())}
-pub(super) fn consume(&mut self,path:&[core::xml::Name],token:&core::xml::Token<'_>,source:&[u8],inputs:&InputView<'_>)->core::Result<()>{let _=(source,inputs);@xml_consume@}
-pub(super) fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<Stored>{@xml_finish@.map(Stored)}
-}
-@yaml_reader@
-pub(super) fn read_yaml(source:&[u8],inputs:&InputView<'_>)->core::Result<Stored>{read_yaml_@id@(source,inputs).map(Stored)}
-pub(super) fn text(value:&Stored,field:usize)->core::Result<&str>{text_field_@id@(&value.0,field)}
-pub(super) fn prepare(value:&Stored,inputs:&InputView<'_>)->core::Result<Prepared>{@prepare_row@(&value.0,inputs).map(Prepared)}
-pub(super) fn namespaces<'a>(value:&'a Stored,prepared:&'a Prepared,names:&mut Vec<&'a str>){@namespaces_row@(&value.0,&prepared.0,names)}
-pub(super) fn write_xml<'a>(value:&Stored,prepared:&'a Prepared,inputs:&InputView<'_>,out:&mut core::xml::Writer<'a>)->core::Result<()>{@write_row@(&value.0,&prepared.0,inputs,out)}
-pub(super) fn write_yaml(value:&Stored,inputs:&InputView<'_>,out:&mut String,indent:&str)->core::Result<()>{@yaml_write_row@}
-
-pub(super) fn key_can_be_lifted(value:&Stored)->bool{let _=value;@key_available@}
-pub(super) fn write_mapping_value(value:&Stored,inputs:&InputView<'_>,out:&mut String,indent:&str)->core::Result<()>{let _=(value,inputs,&mut *out,indent);@lifted_write@}
-pub(super) fn check(value:&Stored,source:&[u8],inputs:&InputView<'_>,xml:bool)->Vec<RuntimeDiagnostic>{if xml{check_xml_@id@(&value.0,source,inputs)}else{check_yaml_@id@(&value.0,source,inputs)}}
-pub(super) fn scalar(value:&Stored,path:&[core::xml::Name],occurrences:&[usize])->bool{@row_scalar@}
-pub(super) fn qnames()->Vec<(&'static str,&'static str)>{xml_qnames_@id@()}
-pub(super) fn qname_attribute(path:&[core::xml::Name],name:&core::xml::Name)->bool{xml_qname_attribute_@id@(path,name)}
-pub(super) fn qname_text(path:&[core::xml::Name])->bool{xml_qname_text_@id@(path)}
-}
+@item@
 fn decode_raw_@id@(source:&[u8])->core::Result<Option<core::raw::Document>>{if @root_yaml@{core::raw::Document::decode(source)}else{Ok(core::raw::Property::decode(source,@key@,@physical@)?.map(|v|core::raw::Document{meaning:v.meaning,payload:v.payload}))}}
 fn encode_raw_@id@(meaning:&[u8],payload:&[u8])->core::Result<Vec<u8>>{if @root_yaml@{core::raw::Document::encode(meaning,payload)}else{core::raw::Property::encode(@key@,@physical@,meaning,payload)}}
 struct V@id@{rows:Vec<item_@id@::Stored>,present:bool,raw:Option<core::xml::Patch>}
-struct XmlCollection@id@{rows:Vec<item_@id@::Stored>,active:Option<item_@id@::XmlReader>,present:bool}
+struct XmlCollection@id@{rows:Vec<item_@id@::XmlReader>,active:Option<item_@id@::XmlReader>,present:bool}
 impl XmlCollection@id@ {
 fn new()->Self{Self{rows:Vec::new(),active:None,present:false}}
 fn consume(&mut self,path:&[core::xml::Name],token:&core::xml::Token<'_>,source:&[u8],inputs:&InputView<'_>)->core::Result<()>{
 if matches!(token,core::xml::Token::Start(_)) && core::xml::matches(path,@parent@){if self.present{return Err(RuntimeDiagnostic::new("xml.duplicate-field","Repeated collection"));}self.present=true;}
 if matches!(token,core::xml::Token::Start(_)) && core::xml::matches(path,@route@){if self.active.is_some(){return Err(RuntimeDiagnostic::new("xml.collection-form","Overlapping items"));}self.active=Some(item_@id@::XmlReader::new());}
 if let Some(reader)=&mut self.active{reader.consume(path,token,source,inputs)?;}
-if matches!(token,core::xml::Token::End) && core::xml::matches(path,@route@){self.rows.push(self.active.take().expect("started item").finish(source,inputs)?);}
+if matches!(token,core::xml::Token::End) && core::xml::matches(path,@route@){self.rows.push(self.active.take().expect("started item"));}
 Ok(())
 }}
-fn finish_xml_@id@(state:XmlCollection@id@,_inputs:&InputView<'_>)->core::Result<V@id@>{if state.active.is_some() || (!state.present && !@xml_missing@){return Err(RuntimeDiagnostic::new("value.missing","Missing collection"));}Ok(V@id@{rows:state.rows,present:state.present,raw:None})}
-fn read_xml_events_@id@(source:&[u8],inputs:&InputView<'_>,events:impl core::xml::Source,mut other:impl FnMut(&[core::xml::Name],&core::xml::Token<'_>)->core::Result<bool>)->core::Result<V@id@>{let mut state=XmlCollection@id@::new();events.visit(|path,token|{if !other(path,token)?{state.consume(path,token,source,inputs)?;}Ok(())})?;finish_xml_@id@(state,inputs)}
+fn finish_xml_@id@(state:XmlCollection@id@,source:&[u8],inputs:&InputView<'_>)->core::Result<V@id@>{if state.active.is_some() || (!state.present && !@xml_missing@){return Err(RuntimeDiagnostic::new("value.missing","Missing collection"));}Ok(V@id@{rows:state.rows.into_iter().map(|reader|reader.finish(source,inputs)).collect::<core::Result<Vec<_>>>()?,present:state.present,raw:None})}
+fn read_xml_events_@id@(source:&[u8],inputs:&InputView<'_>,events:impl core::xml::Source,mut other:impl FnMut(&[core::xml::Name],&core::xml::Token<'_>)->core::Result<bool>)->core::Result<V@id@>{let mut state=XmlCollection@id@::new();events.visit(|path,token|{if !other(path,token)?{state.consume(path,token,source,inputs)?;}Ok(())})?;finish_xml_@id@(state,source,inputs)}
 #[allow(dead_code)] fn read_xml_with_@id@(source:&[u8],inputs:&InputView<'_>,other:impl FnMut(&[core::xml::Name],&core::xml::Token<'_>)->core::Result<bool>)->core::Result<V@id@>{read_xml_events_@id@(source,inputs,core::xml::DocumentSource(source),other)}
 fn read_xml_@id@(source:&[u8],inputs:&InputView<'_>)->core::Result<V@id@>{match read_xml_events_@id@(source,inputs,core::xml::DocumentSource(source),|_,_|Ok(false)){Ok(value)=>Ok(value),Err(error) if matches!(error.code.as_deref(),Some("xml.unknown-field"|"xml.unknown-attribute"|"xml.unexpected-text"|"xml.duplicate-field"|"value.missing"))=>Ok(V@id@{rows:Vec::new(),present:true,raw:None}),Err(error)=>Err(error)}}
-struct YamlSequence@id@{mapping:core::yaml::RecordMappingReader,property:core::yaml::PropertyReader,depth:usize,opened:bool,rows:Vec<item_@id@::Stored>,active:Option<item_@id@::YamlReader>,error:Option<RuntimeDiagnostic>}
+struct YamlSequence@id@{mapping:core::yaml::RecordMappingReader,property:core::yaml::PropertyReader,depth:usize,opened:bool,rows:Vec<core::Result<item_@id@::YamlReader>>,active:Option<item_@id@::YamlReader>,error:Option<RuntimeDiagnostic>}
 impl YamlSequence@id@ {
 fn new()->Self{Self{mapping:core::yaml::RecordMappingReader::default(),property:core::yaml::PropertyReader::default(),depth:0,opened:false,rows:Vec::new(),active:None,error:None}}
 fn consume(&mut self,node:core::yaml::Node,position:core::Position,source:&[u8],inputs:&InputView<'_>)->core::Result<()>{
@@ -463,11 +278,12 @@ if self.depth==1 && matches!(node,core::yaml::Node::SequenceEnd){self.depth=0;re
 if self.depth==1{self.active=Some(item_@id@::YamlReader::new()?);}
 match &node{core::yaml::Node::MappingStart(_)|core::yaml::Node::SequenceStart(_)=>self.depth+=1,core::yaml::Node::MappingEnd|core::yaml::Node::SequenceEnd=>self.depth-=1,_=>{}}
 if self.error.is_none() && let Err(error)=self.active.as_mut().expect("started item").consume(node,position,source,inputs){self.error=Some(error);}
-if self.depth==1{let reader=self.active.take().expect("started item");let result=match self.error.take(){Some(error)=>Err(error),None=>reader.finish(source,inputs)};
-let row=match result{Ok(row)=>row,Err(error)=>{if source.is_empty(){return Err(error);}let property=if @root_yaml@{None}else{Some(@key@)};let bytes=if let Some(key)=@lifted_key@{core::yaml::preserved_record_mapping_item(source,property,self.rows.len(),key)?}else{core::yaml::preserved_sequence_item(source,property,self.rows.len())?};item_@id@::read_yaml(&bytes,inputs)?}};self.rows.push(row);}
+if self.depth==1{let reader=self.active.take().expect("started item");self.rows.push(match self.error.take(){Some(error)=>Err(error),None=>Ok(reader)});}
 Ok(())}
-fn finish(self,_source:&[u8],_inputs:&InputView<'_>)->core::Result<V@id@>{let present=if @root_yaml@{self.opened}else{self.property.finish("yaml.collection-form")?};if present && @lifted_key@.is_some(){self.mapping.finish()?;}
-if self.depth!=0 || self.active.is_some() || (!present && !@yaml_missing@){return Err(RuntimeDiagnostic::new("value.missing","Incomplete collection"));}Ok(V@id@{rows:self.rows,present,raw:None})}
+fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<V@id@>{let present=if @root_yaml@{self.opened}else{self.property.finish("yaml.collection-form")?};if present && @lifted_key@.is_some(){self.mapping.finish()?;}
+if self.depth!=0 || self.active.is_some() || (!present && !@yaml_missing@){return Err(RuntimeDiagnostic::new("value.missing","Incomplete collection"));}let rows=self.rows.into_iter().enumerate().map(|(index,reader)|match reader.and_then(|reader|reader.finish(source,inputs)){
+Ok(row)=>Ok(row),Err(error)=>{if source.is_empty(){return Err(error)}let property=if @root_yaml@{None}else{Some(@key@)};let bytes=if let Some(key)=@lifted_key@{core::yaml::preserved_record_mapping_item(source,property,index,key)?}else{core::yaml::preserved_sequence_item(source,property,index)?};item_@id@::read_yaml(&bytes,inputs)}}).collect::<core::Result<Vec<_>>>()?;
+Ok(V@id@{rows,present,raw:None})}
 }
 fn read_yaml_events_@id@(source:&[u8],inputs:&InputView<'_>,events:impl core::yaml::Source)->core::Result<V@id@>{let mut state=YamlSequence@id@::new();events.visit(|node,position|state.consume(node,position,source,inputs))?;state.finish(source,inputs)}
 fn read_plain_yaml_@id@(source:&[u8],inputs:&InputView<'_>)->core::Result<V@id@>{if source.is_empty() && @yaml_missing@{return Ok(V@id@{rows:Vec::new(),present:false,raw:None})}read_yaml_events_@id@(source,inputs,core::yaml::DocumentSource(if source.is_empty(){b"{}"}else{source}))}
@@ -504,21 +320,4 @@ fn xml_scalar_at_@id@(value:&V@id@,path:&[core::xml::Name],occurrences:&[usize])
 fn prove_xml_@id@(value:&V@id@,original:&[u8],restored:&[u8])->core::Result<()>{core::proof::verify_with_occurrences(original,restored,|path,occurrences|xml_scalar_at_@id@(value,path,occurrences),xml_qname_attribute_@id@,xml_qname_text_@id@)}
 fn verify_@id@(original:&[u8],candidate:&[u8],inputs:&InputView<'_>)->core::Result<()>{let value=read_yaml_@id@(candidate,inputs)?;if let Some(error)=check_yaml_@id@(&value,candidate,inputs).into_iter().find(|error|error.severity==Severity::Error){return Err(error)}prove_xml_@id@(&value,original,&write_xml_@id@(&value,inputs)?)}
 fn finalize_yaml_@id@(original:&[u8],candidate:Vec<u8>,_value:&V@id@,inputs:&InputView<'_>)->core::Result<Vec<u8>>{match verify_@id@(original,&candidate,inputs){Ok(())=>return Ok(candidate),Err(error) if error.code.as_deref()==Some("xml.round-trip-mismatch")=>{},Err(error)=>return Err(error)}let ordinary=write_xml_@id@(&read_yaml_@id@(&candidate,inputs)?,inputs)?;let base=core::xml::Tree::capture(&ordinary,@parent@)?;let tree=core::xml::Tree::capture(original,@parent@)?;let payload=match tree{Some(tree)=>tree.patch_yaml(base.as_ref(),&[],&item_@id@::qnames())?,None=>"null".into()};let annotated=encode_raw_@id@(&candidate,payload.as_bytes())?;verify_@id@(original,&annotated,inputs)?;Ok(annotated)}
-"#;
-
-const SCALAR_YAML: &str = r#"pub(super) struct YamlReader{mapping:core::yaml::ScalarMapping,fields:YamlFields@id@}
-impl YamlReader {
-pub(super) fn new()->core::Result<Self>{Ok(Self{mapping:core::yaml::ScalarMapping::default(),fields:YamlFields@id@::new(core::raw::Fields::default())?})}
-pub(super) fn consume(&mut self,node:core::yaml::Node,position:core::Position,_source:&[u8],_inputs:&InputView<'_>)->core::Result<()>{if let Some(entry)=self.mapping.consume(node,position)?{self.fields.consume(entry.key,entry.value,entry.tag)?;}Ok(())}
-pub(super) fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<Stored>{self.mapping.finish()?;finish_yaml_@id@(self.fields,source,inputs).map(Stored)}
-}
-"#;
-const SCALAR_WRITE: &str = r#"if value.0.raw.is_empty(){write_yaml_indented_@id@(&value.0,inputs,out,indent,false)}else{let bytes=write_yaml_preserved_@id@(&value.0,inputs)?;core::yaml::Indented::new(out,indent).push_str(std::str::from_utf8(&bytes).expect("generated YAML"));Ok(())}"#;
-const COMPOSED_YAML: &str = r#"
-pub(super) struct YamlReader(OwnerYamlRead@id@);
-impl YamlReader{
-pub(super) fn new()->core::Result<Self>{OwnerYamlRead@id@::new().map(Self)}
-pub(super) fn consume(&mut self,node:core::yaml::Node,position:core::Position,source:&[u8],inputs:&InputView<'_>)->core::Result<()>{self.0.consume(node,position,source,inputs)}
-pub(super) fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<Stored>{self.0.finish(source,inputs).map(Stored)}
-}
 "#;

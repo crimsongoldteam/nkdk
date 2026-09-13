@@ -1444,7 +1444,10 @@ fn main() {
     assert_eq!(convert_file(entry, Direction::XmlToYaml, &restored.bytes, &inputs).unwrap().bytes, expected);
     assert!(validate_file(entry, expected, &inputs).is_empty());
     assert!(verify_candidate(entry, xml, b"Entries:\n  ru: CHANGED\n  en: two\n  ru: three", &inputs).is_err());
-    assert!(convert_file(entry, Direction::XmlToYaml, b"<Root><Entries><item><key>ru</key><text>one</text><text>two</text></item></Entries></Root>", &inputs).is_err());
+    let duplicate=b"<Root><Entries><item><key>ru</key><text>one</text><text>two</text></item></Entries></Root>";
+    let preserved=convert_file(entry,Direction::XmlToYaml,duplicate,&inputs).unwrap();
+    assert!(std::str::from_utf8(&preserved.bytes).unwrap().contains("Entries: !xml/raw"));
+    verify_candidate(entry,duplicate,&preserved.bytes,&inputs).unwrap();
     assert!(validate_file(entry, b"Entries: {ru: {nested: x}}", &inputs).iter().any(|error| error.severity == Severity::Error));
     let single=convert_file(entry, Direction::XmlToYaml, b"<Root><Entries><item><key>ru</key><text>Hello</text></item></Entries></Root>", &inputs).unwrap();
     assert_eq!(single.bytes, b"Entries: Hello");

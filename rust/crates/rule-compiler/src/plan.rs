@@ -7,6 +7,7 @@ use std::{
     collections::{BTreeMap, BTreeSet},
     ops::Deref,
 };
+pub(crate) mod routes;
 pub(crate) mod scopes;
 mod values;
 pub(crate) use values::{RecordPlan, ValueId, ValuePlan, diagnostic_key};

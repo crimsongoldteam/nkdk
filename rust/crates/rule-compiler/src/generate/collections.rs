@@ -818,11 +818,13 @@ core::yaml::append_encoded_properties(out,&encoded)
         verify_{id}(original, &annotated, inputs)?;
         Ok(annotated)
     }}"#).unwrap();
-    if ordinary {
+    {
         let fallback = if presence.yaml_missing {
             String::new()
-        } else {
+        } else if ordinary {
             format!("{key_name:?}: []")
+        } else {
+            format!("{key_name:?}: {{}}")
         };
         let read = format!("read_xml_with_{id}(source,inputs,|_,_| Ok(false))");
         let recover = format!(

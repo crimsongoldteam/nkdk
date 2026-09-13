@@ -52,6 +52,23 @@ fn preparation_preserves_exact_values_and_checks_the_declared_slots() {
         Some("input.type")
     );
     assert!(!child.is_ready(3));
+    let absent_slots = [Some(InputRef::MissingValue)];
+    let absent = view.rebind(&absent_slots);
+    assert!(!absent.is_ready(0));
+    assert_eq!(
+        absent.text(0).unwrap_err().code.as_deref(),
+        Some("value.missing")
+    );
+    let inherited = [absent.slot(0)];
+    assert_eq!(
+        absent
+            .rebind(&inherited)
+            .text(0)
+            .unwrap_err()
+            .code
+            .as_deref(),
+        Some("value.missing")
+    );
     assert_eq!(
         child.rebind(&[]).decimal(0).unwrap_err().code.as_deref(),
         Some("input.not-ready")

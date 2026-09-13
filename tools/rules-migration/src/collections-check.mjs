@@ -2,6 +2,7 @@ import {fileURLToPath} from 'node:url';
 import {join} from 'node:path';
 import {spawnSync} from 'node:child_process';
 import {fixture,xml,yaml as expected} from '../test/fixtures/array-collection.mjs';
+import {declarations as unifiedDeclarations,cases as unifiedCases} from '../test/fixtures/unified-record.mjs';
 import {emitCollections} from './collection-emission.mjs';
 import {candidateCatalog,dependencyFiles,yaml} from './candidate-catalog.mjs';
 import {writeFocused} from './focused-output.mjs';
@@ -52,11 +53,12 @@ xmlOnlyScalar.value.fields=xmlOnlyScalar.value.fields.filter(field=>field.name!=
 xmlOnlyScalar.representations.xml.fields=xmlOnlyScalar.representations.xml.fields.filter(field=>field.field!=='nested').map(field=>({...field,path:['Root',...field.path]}));
 xmlOnlyScalar.representations.yaml.fields=xmlOnlyScalar.representations.yaml.fields.filter(field=>field.field!=='nested');
 xmlOnlyScalar.constraints.push({id:'hidden-policy',appliesTo:['yaml-validation'],assert:{not:{eq:[{field:'token'},{literal:'blocked-token'}]}},diagnostic:{code:'test.hidden-policy',severity:'error',at:{field:'token'},message:'Restored token is reserved'}});
-const declarations=[xmlOnlyScalar,...xmlOnly,...groupedCommon,...grouped,...emitted.modules,...named.modules,...composed,nested];
+const declarations=[...unifiedDeclarations,xmlOnlyScalar,...xmlOnly,...groupedCommon,...grouped,...emitted.modules,...named.modules,...composed,nested];
 const modules=[...declarations,...dependencyFiles(declarations,catalog)];
 const files=Object.fromEntries(modules.map(m=>[m.id+'.yaml',yaml.dump(m,{noRefs:true})]));
 const entry=emitted.results[0].declaration;
 const paths=writeFocused(join(root,'rust/target/collection-emission-check'),files,{cases:[
+  ...unifiedCases,
   {id:'xml-only-scalar-normal',entry:xmlOnlyScalar.id,xml:'<Root><Properties token="Первый"><Name>Первый</Name><Enabled>true</Enabled></Properties></Root>',yaml:'Имя: Первый\nВключено: Истина',rejectedYAML:['Имя: Первый\nВключено: Истина\nToken: other','Имя: Первый\nВключено: Истина\ntoken: other','Имя: blocked-token\nВключено: Истина']},
   {id:'xml-only-scalar-mismatch',entry:xmlOnlyScalar.id,xml:'<Root><Properties token="other"><Name>Первый</Name><Enabled>true</Enabled></Properties></Root>',annotation:'token: !xml/raw'},
   {id:'xml-only-scalar-absent',entry:xmlOnlyScalar.id,xml:'<Root><Properties><Name>Первый</Name><Enabled>true</Enabled></Properties></Root>',annotation:'token: !xml/raw'},

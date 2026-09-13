@@ -45,6 +45,19 @@ pub(super) fn specialize(entries: &mut Vec<LinkedEntry>) -> Result<(), Diagnosti
             {
                 continue;
             }
+            // Declared records keep their bindings in the caller's lexical
+            // scope; replacing the use with an instantiated reference would
+            // confuse owner fields with the element's own fields.
+            if let LinkedType::Sequence(item) = &common.value
+                && let Some((target, _, _)) = item.as_reference()
+                && originals.iter().any(|entry| {
+                    entry.id == target
+                        && matches!(entry.value, LinkedType::Record(_))
+                        && matches!(entry.xml, LinkedXml::Record(_))
+                })
+            {
+                continue;
+            }
             if common.inputs.is_empty()
                 && arguments
                     .iter()

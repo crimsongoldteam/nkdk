@@ -18,6 +18,9 @@ pub(super) fn violation(when: &str, assertion: &str) -> String {
 }
 
 pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String, Diagnostic> {
+    if crate::plan::routes::record_usage(entry, program)?.is_some() {
+        return Ok(String::new());
+    }
     if super::declared_items::applies(entry, program) {
         return Ok(String::new());
     }

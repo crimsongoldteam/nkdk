@@ -32,6 +32,9 @@ constraints:
     assert!(record.fields[0].yaml.is_none());
     assert_eq!(record.fields[0].diagnostic_key(), "token");
     assert_eq!(record.fields[1].yaml.unwrap().key, "Label");
+    let scope = scopes::capture_inputs(&program.entries[0]).unwrap();
+    assert!(scope.captures.is_empty());
+    assert!(matches!(scope.entry, Cow::Borrowed(_)));
     assert_eq!(
         crate::generate::from_plan(&plan).unwrap(),
         crate::generate(&program).unwrap()
@@ -57,4 +60,74 @@ constraints:
     let mut broken = program.clone();
     broken.entries[0].presence.clear();
     assert_eq!(build(&broken).unwrap_err()[0].code, "unrepresented_field");
+}
+
+#[test]
+fn input_capture_keeps_owner_and_value_scopes_distinct() {
+    let sources = r#"
+format: nkdk-declarations/1
+kind: value
+id: test.child
+inputs: {expected: {type: {kind: scalar, scalar: text}}}
+value: {kind: scalar, scalar: text}
+representations: {xml: {kind: text}, yaml: {kind: scalar, scalar: text}}
+---
+format: nkdk-declarations/1
+kind: object
+id: test.owner
+imports: {child: test.child}
+inputs: {prefix: {type: {kind: scalar, scalar: text}}}
+value:
+  kind: record
+  fields:
+  - name: content
+    type: {use: child, bind: {expected: {concat: [{input: prefix}, {field: name}]}}}
+  - {name: name, type: {kind: scalar, scalar: text}}
+representations:
+  xml: {kind: record, fields: [{field: content, path: [Root, Content]}, {field: name, path: [Root, Name]}]}
+  yaml: {kind: mapping, fields: [{field: content, key: Content}, {field: name, key: Name}]}
+"#;
+    let modules: Vec<_> = sources
+        .split("\n---\n")
+        .flat_map(|source| {
+            crate::parse_many(SourceFile {
+                path: "scope.yaml",
+                bytes: source.as_bytes(),
+            })
+            .unwrap()
+        })
+        .collect();
+    let program = crate::link(&modules).unwrap();
+    let owner = program
+        .entries
+        .iter()
+        .find(|entry| entry.name == "test.owner")
+        .unwrap();
+    let scope = scopes::capture_inputs(owner).unwrap();
+    assert_eq!(scope.captures, [1]);
+    assert_eq!(scope.entry.inputs.len(), 2);
+    assert_eq!(scope.entry.inputs[0], owner.inputs[0]);
+    assert_eq!(
+        scope.entry.field_dependencies,
+        [Vec::<u32>::new(), Vec::new()]
+    );
+    let LinkedType::Record(fields) = &scope.entry.value else {
+        unreachable!()
+    };
+    let (_, bindings, _) = fields[0].value.as_reference().unwrap();
+    let LinkedExpressionKind::Operation { arguments, .. } = &bindings[0].value.kind else {
+        unreachable!()
+    };
+    assert_eq!(arguments[0].kind, LinkedExpressionKind::Input(0));
+    assert_eq!(arguments[1].kind, LinkedExpressionKind::Input(1));
+    assert_eq!(owner.field_dependencies, [vec![1], vec![]]);
+    let nested = LinkedType::Record(vec![LinkedField {
+        name: "nested".into(),
+        value: owner.value.clone(),
+        source: owner.source.clone(),
+    }]);
+    assert_eq!(
+        scopes::dependencies(&nested, &[]).unwrap(),
+        [Vec::<u32>::new()]
+    );
 }

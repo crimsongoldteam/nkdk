@@ -34,6 +34,9 @@ pub(super) fn path_code(path: &[ExpandedName]) -> String {
 }
 
 pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String, Diagnostic> {
+    if let Some(code) = super::record_reference::generate(entry, program)? {
+        return Ok(code);
+    }
     if let Some(code) = super::declared_items::generate(entry, program)? {
         return Ok(code);
     }
@@ -945,6 +948,34 @@ fn generate_at(
         out.push('}');
     }
     out.push('\n');
+    let mut input_arms = String::new();
+    for (index, field) in fields.iter().enumerate() {
+        let variant = match &field.codec {
+            Codec::Text | Codec::TextTable(_) | Codec::Enumeration(..) => "Text",
+            Codec::Boolean(..) => "Boolean",
+            Codec::Decimal | Codec::FormattedDecimal(_) => "Decimal",
+            _ => continue,
+        };
+        let meaning = field
+            .codec
+            .meaning_reference(&format!("E{id}F{index}"), "stored");
+        let mapper = if meaning == "stored" {
+            format!("core::inputs::InputRef::{variant}")
+        } else {
+            format!("|stored|core::inputs::InputRef::{variant}({meaning})")
+        };
+        writeln!(
+            input_arms,
+            "{index}=>value.f{index}.as_ref().map({mapper}),"
+        )
+        .unwrap();
+    }
+    let input_body = if input_arms.is_empty() {
+        "None".into()
+    } else {
+        format!("match field{{{input_arms}_=>None}}")
+    };
+    writeln!(out,"#[allow(dead_code)] fn input_field_{id}(value:&V{id},field:usize)->Option<core::inputs::InputRef<'_>> {{let _=(value,field);{input_body}}}").unwrap();
     Ok(if let Some(layout) = layout {
         super::nested_record::wrap(out, layout)
     } else {

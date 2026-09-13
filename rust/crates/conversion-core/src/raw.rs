@@ -12,6 +12,20 @@ pub struct Property {
     pub has_semantic: bool,
     pub uses_semantic_name: bool,
 }
+/// Decode a record body only on the preservation path. Ordinary records stream nodes.
+pub fn record_contents(source: &[u8], property: &str) -> Result<Option<Vec<u8>>> {
+    let entries = mapping(document::parse(source)?)?;
+    if entries.is_empty() {
+        return Ok(None);
+    }
+    let [(key, value)] = entries.as_slice() else {
+        return Err(invalid("Expected exactly one record property"));
+    };
+    if key.key()? != property {
+        return Err(invalid("Unexpected record property"));
+    }
+    value.document().map(Some)
+}
 fn invalid(message: &str) -> RuntimeDiagnostic {
     RuntimeDiagnostic::new("yaml.raw-envelope", message)
 }

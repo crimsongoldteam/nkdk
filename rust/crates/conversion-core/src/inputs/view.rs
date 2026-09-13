@@ -2,6 +2,8 @@ use super::*;
 
 #[derive(Clone, Copy, Debug)]
 pub enum InputRef<'a> {
+    /// A completed source field has no semantic value; this is a data anomaly.
+    MissingValue,
     TextIndex(&'a crate::facts::prepared::TextIndexInput),
     Text(&'a str),
     Boolean(bool),
@@ -46,7 +48,8 @@ impl<'a> InputView<'a> {
             slots: Slots::Bound(slots),
         }
     }
-    fn get(&self, slot: usize) -> Option<InputRef<'a>> {
+    /// Preserve missing data separately from an unprepared slot when rebinding.
+    pub fn slot(&self, slot: usize) -> Option<InputRef<'a>> {
         match self.slots {
             Slots::Root => self
                 .root
@@ -58,13 +61,20 @@ impl<'a> InputView<'a> {
         }
     }
     pub fn value(&self, slot: usize) -> Result<InputRef<'a>> {
-        self.get(slot).ok_or_else(|| {
+        if matches!(self.slot(slot), Some(InputRef::MissingValue)) {
+            return Err(RuntimeDiagnostic::new(
+                "value.missing",
+                format!("Source field for input slot {slot} is absent"),
+            ));
+        }
+        self.slot(slot).ok_or_else(|| {
             RuntimeDiagnostic::new("input.not-ready", format!("Input slot {slot} is not ready"))
         })
     }
     pub fn is_ready(&self, slot: usize) -> bool {
-        match self.get(slot) {
+        match self.slot(slot) {
             Some(InputRef::TextIndex(value)) => value.is_ready(),
+            Some(InputRef::MissingValue) => false,
             Some(_) => true,
             None => false,
         }
