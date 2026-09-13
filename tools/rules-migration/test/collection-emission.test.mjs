@@ -19,11 +19,13 @@ test('collection inputs retain shared index types and bindings at every boundary
   assert.deepEqual(list.value.item.bind,{roots:{input:'roots'}});
   assert.deepEqual(owner.value.fields[0].type.bind,{roots:{input:'roots'}});
   assert.deepEqual(row.value.fields.at(-1).type.bind,{roots:{input:'roots'}});
-  child.properties.at(-1).parameters={type:'I8nText',yaml:'Текст'};
-  const contextual=emitCollections(graph,entries,catalog);
-  assert.equal(contextual.results[0].status,'candidate');
-  assert.deepEqual(contextual.modules[0].value.fields.at(-1).type.bind.ownerName,{field:'name'});
-  assert.deepEqual(Object.keys(contextual.modules[0].inputs),['roots','defaultLanguage','registeredLanguages']);
+  for(const [type,argument] of [['I8nText','ownerName'],['FormattedI8nText','name']]) {
+    child.properties.at(-1).parameters={type,yaml:'Текст'};
+    const contextual=emitCollections(graph,entries,catalog);
+    assert.equal(contextual.results[0].status,'candidate');
+    assert.deepEqual(contextual.modules[0].value.fields.at(-1).type.bind[argument],{field:'name'});
+    assert.deepEqual(Object.keys(contextual.modules[0].inputs),['roots','defaultLanguage','registeredLanguages']);
+  }
   graph.edges[0].mapping.keyField='first';
   assert.equal(emitCollections(graph,entries,catalog).results[0].blockers.some(b=>b.reason==='item-context-binding-required'),true);
 });

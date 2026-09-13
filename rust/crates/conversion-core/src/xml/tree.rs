@@ -115,6 +115,35 @@ impl Tree {
     pub fn capture(source: &[u8], target: &[(&str, &str)]) -> Result<Option<Self>> {
         Self::capture_with_qnames(source, target, |_| false)
     }
+    /// Project one child at a time from an already captured exceptional subtree.
+    /// Ancestor attributes and other siblings remain owned by the parent proof.
+    pub fn visit_child_documents(
+        &self,
+        parent: &[(&str, &str)],
+        member: (&str, &str),
+        qnames: &[(&str, &str)],
+        mut visit: impl FnMut(&[u8]) -> Result<()>,
+    ) -> Result<()> {
+        if parent.last().copied() != Some((self.name.namespace.as_str(), self.name.local.as_str()))
+        {
+            return Err(failure("Child projection must retain its parent path"));
+        }
+        for child in &self.children {
+            if (child.name.namespace.as_str(), child.name.local.as_str()) != member {
+                continue;
+            }
+            let mut namespaces: Vec<_> = parent
+                .iter()
+                .map(|(uri, _)| *uri)
+                .filter(|uri| !uri.is_empty())
+                .collect();
+            child.collect_namespaces(&mut namespaces);
+            let mut writer = super::Writer::new(&namespaces);
+            child.write_at(&mut writer, parent, qnames)?;
+            visit(&writer.finish())?;
+        }
+        Ok(())
+    }
     pub fn capture_with_qnames(
         source: &[u8],
         target: &[(&str, &str)],

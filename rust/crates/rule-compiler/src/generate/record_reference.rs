@@ -55,7 +55,7 @@ fn read_yaml_events_@id@(source:&[u8],inputs:&InputView<'_>,events:impl core::ya
 fn read_xml_@id@(source:&[u8],inputs:&InputView<'_>)->core::Result<V@id@>{match read_xml_events_@id@(source,inputs,core::xml::DocumentSource(source)){
 Ok(value)=>Ok(value),Err(error) if error.code.as_deref().is_some_and(|code|code.starts_with("xml.")||code.starts_with("value."))=>{
 let tree=core::xml::Tree::capture_with_qnames(source,@path@,xml_qname_text_@id@)?;
-if tree.is_some(){match item_@id@::read_xml(source,inputs){Ok(body)=>return Ok(V@id@{body:Some(body),raw:None}),Err(error) if error.code.as_deref().is_some_and(|code|code.starts_with("xml.")||code.starts_with("value."))=>{},Err(error)=>return Err(error)}}
+if tree.is_some(){match item_@id@::recover_xml(source,inputs){Ok(body)=>return Ok(V@id@{body:Some(body),raw:None}),Err(error) if error.code.as_deref().is_some_and(|code|code.starts_with("xml.")||code.starts_with("value."))=>{},Err(error)=>return Err(error)}}
 let payload=match tree{Some(tree)=>tree.patch_yaml(None,&[],&xml_qnames_@id@())?,None=>"null".into()};
 Ok(V@id@{body:None,raw:Some(core::xml::Patch::read(payload.as_bytes(),&[],&xml_qnames_@id@())?)})},Err(error)=>Err(error)}}
 #[allow(dead_code)]

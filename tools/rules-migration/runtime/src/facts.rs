@@ -22,13 +22,18 @@ pub fn prepare(entry: EntryId, case: &Value, manifest: &Value) -> PreparedInputs
     for source in manifest["factSources"].as_array().unwrap() {
         let producer = rules::entry_id(source["entry"].as_str().unwrap()).unwrap();
         let context = rules::read_inputs(producer, b"{}").unwrap();
-        let diagnostics = rules::contribute_file(
-            producer,
-            Direction::XmlToYaml,
-            source["xml"].as_str().unwrap().as_bytes(),
-            &context,
-            &mut builder,
-        );
+        let (direction, bytes) = match source.get("yaml").and_then(Value::as_str) {
+            Some(yaml) => {
+                assert!(source.get("xml").is_none(), "Ambiguous fact source format");
+                (Direction::YamlToXml, yaml.as_bytes())
+            }
+            None => (
+                Direction::XmlToYaml,
+                source["xml"].as_str().unwrap().as_bytes(),
+            ),
+        };
+        let diagnostics =
+            rules::contribute_file(producer, direction, bytes, &context, &mut builder);
         assert!(diagnostics.is_empty(), "Index preparation: {diagnostics:?}");
     }
     let facts = Arc::new(builder.finish());

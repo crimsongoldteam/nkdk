@@ -108,8 +108,20 @@ fn check_case(case: &Value, manifest: &Value) {
             "unexpected diagnostics: {:?}",
             forward.diagnostics
         );
+    } else {
+        assert!(
+            actual
+                .lines()
+                .any(|line| line == case["annotation"].as_str().unwrap()),
+            "anomaly location: {actual}"
+        );
+    }
+    if let Some(reverse_input) = case
+        .get("reverseYAML")
+        .or_else(|| case.get("yaml"))
+        .and_then(Value::as_str)
+    {
         let fresh = facts::prepare(entry, case, manifest);
-        let reverse_input = case["reverseYAML"].as_str().unwrap_or(expected);
         let reverse = rules::convert_file(
             entry,
             Direction::YamlToXml,
@@ -119,13 +131,6 @@ fn check_case(case: &Value, manifest: &Value) {
         .unwrap();
         compare_xml(xml, &reverse.bytes, &qname_paths);
         compare_documents(case, &reverse.documents);
-    } else {
-        assert!(
-            actual
-                .lines()
-                .any(|line| line == case["annotation"].as_str().unwrap()),
-            "anomaly location: {actual}"
-        );
     }
     if let Some(retained) = case["retainedYAML"].as_array() {
         for expected in retained {

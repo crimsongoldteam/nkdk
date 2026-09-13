@@ -57,6 +57,12 @@ fn row_expression(
             LinkedExpressionKind::Field(_)
             | LinkedExpressionKind::SelfValue
             | LinkedExpressionKind::Capture(_) => false,
+            LinkedExpressionKind::Operation {
+                operator: LinkedOperator::Get(_),
+                arguments,
+            } if matches!(arguments.as_slice(), [row] if matches!(row.kind, LinkedExpressionKind::Variable(0))) => {
+                crate::fact_shape::text_cell(&value.value_type)
+            }
             LinkedExpressionKind::Operation { arguments, .. } => arguments.iter().all(independent),
             _ => true,
         }
@@ -79,13 +85,20 @@ fn row_expression(
     let LinkedType::Sequence(item) = &common.value else {
         unreachable!()
     };
-    let LinkedType::Record(fields) = item.as_ref() else {
+    let declared = super::super::declared_items::applies(entry, program);
+    let resolved = if declared {
+        crate::link::sequence_item::resolve(common, program)?
+    } else {
+        None
+    };
+    let row_type = resolved.as_ref().map_or(item.as_ref(), |row| &row.value);
+    let LinkedType::Record(fields) = row_type else {
         return Err(unsupported(
             entry,
             "Computed contribution currently requires record rows",
         ));
     };
-    if collection_values::codec(common, program)?.is_some() {
+    if !declared && collection_values::codec(common, program)?.is_some() {
         return Err(unsupported(
             entry,
             "Computed typed contribution requires exposed row storage",
@@ -95,7 +108,13 @@ fn row_expression(
     expressions.local_fields.insert(
         0,
         (0..fields.len())
-            .map(|index| format!("row.fields[{index}].as_str()"))
+            .map(|index| {
+                if declared {
+                    format!("item_{}::text(row,{index})?", entry.id)
+                } else {
+                    format!("row.fields[{index}].as_str()")
+                }
+            })
             .collect(),
     );
     let lowered = expressions.lower(value)?;

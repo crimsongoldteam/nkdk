@@ -367,6 +367,22 @@ impl<'a> Expressions<'a> {
                 operator,
                 arguments,
             } => {
+                if *operator == LinkedOperator::Equal {
+                    let constant = match (&arguments[0].kind, &arguments[1].kind) {
+                        (
+                            LinkedExpressionKind::Literal(ScalarLiteral::Text(left)),
+                            LinkedExpressionKind::Literal(ScalarLiteral::Text(right)),
+                        ) => Some(left == right),
+                        (
+                            LinkedExpressionKind::Literal(ScalarLiteral::Boolean(left)),
+                            LinkedExpressionKind::Literal(ScalarLiteral::Boolean(right)),
+                        ) => Some(left == right),
+                        _ => None,
+                    };
+                    if let Some(value) = constant {
+                        return Ok(value.to_string());
+                    }
+                }
                 if let LinkedOperator::Matches(pattern) = operator {
                     let input = self.lower(&arguments[0])?;
                     let machine = crate::automata::compile(

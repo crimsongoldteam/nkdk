@@ -428,7 +428,7 @@ fn generate_at(
                     writeln!(out, "Ok(f{i}) }})();").unwrap();
                     if xml_side {
                         out.push_str("decoded.ok()};\n");
-                        writeln!(out,"let decoded=if nested{i} {{None}} else {{decoded}};if (shape{i} || (decoded.is_none() && !empty_absence)) && !(decoded.is_none() && {canonical_empty}) {{let tree=core::xml::Tree::capture_at(source,{},positions[{i}].xml_offset().expect(\"XML field position\"))?.expect(\"present scalar\");let payload=tree.payload_yaml(&[],Q{id})?;raw.insert({i},core::xml::Patch::read(if payload.is_empty() {{b\"{{}}\"}} else {{payload.as_bytes()}},&[],Q{id})?);}} decoded",path_code(field.path),canonical_empty=matches!(super::scalar_presence::absent_form(field.presence),XmlForm::Nil | XmlForm::EmptyElement)).unwrap();
+                        writeln!(out,"let decoded=if nested{i} {{None}} else {{decoded}};if (shape{i} || (decoded.is_none() && !empty_absence)) && !(decoded.is_none() && {canonical_empty}) {{let tree=core::xml::Tree::capture_at(source,{},positions[{i}].xml_offset().expect(\"XML field position\"))?.expect(\"present scalar\");let payload=tree.patch_yaml(None,&[],Q{id})?;raw.insert({i},core::xml::Patch::read(if payload.is_empty() {{b\"{{}}\"}} else {{payload.as_bytes()}},&[],Q{id})?);}} decoded",path_code(field.path),canonical_empty=matches!(super::scalar_presence::absent_form(field.presence),XmlForm::Nil | XmlForm::EmptyElement)).unwrap();
                     } else {
                         out.push_str("Some(decoded?)");
                     }

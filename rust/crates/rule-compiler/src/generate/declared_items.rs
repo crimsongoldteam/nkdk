@@ -339,5 +339,20 @@ fn xml_qname_text_@id@(path:&[core::xml::Name])->bool{item_@id@::qname_text(path
 fn xml_scalar_at_@id@(value:&V@id@,path:&[core::xml::Name],occurrences:&[usize])->bool{occurrences.get(@depth@).and_then(|index|value.rows.get(index-1)).is_some_and(|row|item_@id@::scalar(row,path,occurrences))}
 fn prove_xml_@id@(value:&V@id@,original:&[u8],restored:&[u8])->core::Result<()>{core::proof::verify_with_occurrences(original,restored,|path,occurrences|xml_scalar_at_@id@(value,path,occurrences),xml_qname_attribute_@id@,xml_qname_text_@id@)}
 fn verify_@id@(original:&[u8],candidate:&[u8],inputs:&InputView<'_>)->core::Result<()>{let value=read_yaml_@id@(candidate,inputs)?;if let Some(error)=check_yaml_@id@(&value,candidate,inputs).into_iter().find(|error|error.severity==Severity::Error){return Err(error)}prove_xml_@id@(&value,original,&write_xml_@id@(&value,inputs)?)}
-fn finalize_yaml_@id@(original:&[u8],candidate:Vec<u8>,_value:&V@id@,inputs:&InputView<'_>)->core::Result<Vec<u8>>{match verify_@id@(original,&candidate,inputs){Ok(())=>return Ok(candidate),Err(error) if error.code.as_deref()==Some("xml.round-trip-mismatch")=>{},Err(error)=>return Err(error)}let ordinary=write_xml_@id@(&read_yaml_@id@(&candidate,inputs)?,inputs)?;let base=core::xml::Tree::capture(&ordinary,@parent@)?;let tree=core::xml::Tree::capture(original,@parent@)?;let payload=match tree{Some(tree)=>tree.patch_yaml(base.as_ref(),&[],&item_@id@::qnames())?,None=>"null".into()};let annotated=encode_raw_@id@(&candidate,payload.as_bytes())?;verify_@id@(original,&annotated,inputs)?;Ok(annotated)}
+fn refine_rows_@id@(original:&[u8],value:&V@id@,inputs:&InputView<'_>)->core::Result<Option<Vec<u8>>>{
+let route=@route@;let parent=&route[..route.len()-1];
+let Some(tree)=core::xml::Tree::capture_with_qnames(original,parent,xml_qname_text_@id@)? else{return Ok(None)};
+let mut rows=Vec::with_capacity(value.rows.len());
+tree.visit_child_documents(parent,route[route.len()-1],&item_@id@::qnames(),|document|{
+let row=item_@id@::read_xml(document,inputs)?;let yaml=item_@id@::finalize(document,&row,inputs)?;
+rows.push(item_@id@::read_yaml(&yaml,inputs)?);Ok(())
+})?;
+if rows.is_empty(){return Ok(None)}
+write_yaml_@id@(&V@id@{rows,present:value.present,raw:None},inputs).map(Some)
+}
+fn finalize_yaml_@id@(original:&[u8],mut candidate:Vec<u8>,value:&V@id@,inputs:&InputView<'_>)->core::Result<Vec<u8>>{match verify_@id@(original,&candidate,inputs){Ok(())=>return Ok(candidate),Err(error) if error.code.as_deref()==Some("xml.round-trip-mismatch")=>{},Err(error)=>return Err(error)}if value.raw.is_none() && value.present{
+let refined=refine_rows_@id@(original,value,inputs);
+match refined{Ok(Some(bytes))=>{match verify_@id@(original,&bytes,inputs){Ok(())=>return Ok(bytes),Err(error) if error.code.as_deref()==Some("xml.round-trip-mismatch")=>candidate=bytes,Err(error)=>return Err(error)}},Ok(None)=>{},Err(error) if matches!(error.code.as_deref(),Some("xml.round-trip-mismatch"|"xml.unknown-field"|"xml.unknown-attribute"|"xml.unexpected-text"|"xml.duplicate-field"|"value.missing"))=>{},Err(error)=>return Err(error)}
+}
+let ordinary=write_xml_@id@(&read_yaml_@id@(&candidate,inputs)?,inputs)?;let base=core::xml::Tree::capture(&ordinary,@parent@)?;let tree=core::xml::Tree::capture(original,@parent@)?;let payload=match tree{Some(tree)=>tree.patch_yaml(base.as_ref(),&[],&item_@id@::qnames())?,None=>"null".into()};let annotated=encode_raw_@id@(&candidate,payload.as_bytes())?;verify_@id@(original,&annotated,inputs)?;Ok(annotated)}
 "#;

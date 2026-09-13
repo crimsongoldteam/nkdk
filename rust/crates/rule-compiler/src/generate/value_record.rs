@@ -55,7 +55,7 @@ pub(super) fn generate(
     let lifted_write = match &lifted {
         None => "unreachable!()".into(),
         Some((index, _)) if !composed => {
-            format!("write_yaml_except_@id@(&value.0,inputs,out,indent,false,Some({index}))")
+            SCALAR_WRITE.replace("@excluded@", &format!("Some({index})"))
         }
         Some((index, _)) => {
             let mut code = lifted_scope;
@@ -106,6 +106,7 @@ pub(super) fn generate(
     } else {
         constraints::generate(row, program)?
     };
+    let scalar_write = SCALAR_WRITE.replace("@excluded@", "None");
     let mut code = RECORD_BODY
         .replace("@row@", &row_code)
         .replace("@checks@", &checks);
@@ -175,7 +176,7 @@ pub(super) fn generate(
             if composed {
                 "write_yaml_indented_@id@(&value.0,inputs,out,indent,false)"
             } else {
-                SCALAR_WRITE
+                &scalar_write
             },
         );
     code = code
@@ -210,6 +211,13 @@ pub(super) fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<Stor
 }
 @yaml_reader@
 pub(super) fn read_xml(source:&[u8],inputs:&InputView<'_>)->core::Result<Stored>{read_xml_@id@(source,inputs).map(Stored)}
+// Recovery is followed by an XML proof and preservation of every skipped token.
+pub(super) fn recover_xml(source:&[u8],inputs:&InputView<'_>)->core::Result<Stored>{
+let mut reader=XmlReader::new();core::xml::visit(source,|path,token|match reader.consume(path,&token,source,inputs){
+Ok(())=>Ok(()),Err(error) if matches!(error.code.as_deref(),Some("xml.unknown-field"|"xml.unknown-attribute"|"xml.unexpected-text"))=>Ok(()),Err(error)=>Err(error)
+})?;reader.finish(source,inputs)
+}
+
 pub(super) fn read_yaml(source:&[u8],inputs:&InputView<'_>)->core::Result<Stored>{read_yaml_@id@(source,inputs).map(Stored)}
 pub(super) fn finalize(source:&[u8],value:&Stored,inputs:&InputView<'_>)->core::Result<Vec<u8>>{finalize_yaml_@id@(source,write_yaml_@id@(&value.0,inputs)?,&value.0,inputs)}
 pub(super) fn text(value:&Stored,field:usize)->core::Result<&str>{text_field_@id@(&value.0,field)}
@@ -235,7 +243,7 @@ pub(super) fn consume(&mut self,node:core::yaml::Node,position:core::Position,_s
 pub(super) fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<Stored>{self.mapping.finish()?;finish_yaml_@id@(self.fields,source,inputs).map(Stored)}
 }
 "#;
-const SCALAR_WRITE: &str = r#"if value.0.raw.is_empty(){write_yaml_indented_@id@(&value.0,inputs,out,indent,false)}else{let bytes=write_yaml_preserved_@id@(&value.0,inputs)?;core::yaml::Indented::new(out,indent).push_str(std::str::from_utf8(&bytes).expect("generated YAML"));Ok(())}"#;
+const SCALAR_WRITE: &str = r#"if value.0.raw.is_empty(){write_yaml_except_@id@(&value.0,inputs,out,indent,false,@excluded@)}else{let bytes=write_yaml_preserved_except_@id@(&value.0,inputs,false,@excluded@)?;core::yaml::Indented::new(out,indent).push_str(std::str::from_utf8(&bytes).expect("generated YAML"));Ok(())}"#;
 const COMPOSED_YAML: &str = r#"
 pub(super) struct YamlReader(OwnerYamlRead@id@);
 impl YamlReader{

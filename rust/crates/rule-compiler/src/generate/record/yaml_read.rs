@@ -54,7 +54,11 @@ pub(super) fn generate(id: u32, fields: &[Field<'_>]) -> String {
             writeln!(out, "number{i}:false,").unwrap();
         }
     }
-    writeln!(out,"}})}}\nfn consume(&mut self,key:String,value:core::yaml::Scalar,tag:Option<String>)->core::Result<()>{{let _=(&value,&tag);match key.as_str(){{").unwrap();
+    writeln!(out,"}})}}\nfn consume(&mut self,key:String,value:core::yaml::Scalar,tag:Option<String>)->core::Result<()>{{let _=(&value,&tag);").unwrap();
+    let has_keys = fields.iter().any(|field| field.yaml_visible);
+    if has_keys {
+        out.push_str("match key.as_str(){\n");
+    }
     for (i, field) in fields
         .iter()
         .enumerate()
@@ -74,6 +78,13 @@ pub(super) fn generate(id: u32, fields: &[Field<'_>]) -> String {
         };
         writeln!(out,"{:?}=>{{self.positions[{i}]=value.position();self.raw.read_mark({i},tag.as_deref(),self.positions[{i}])?;{read}Ok(())}},",field.key).unwrap();
     }
-    out.push_str("_=>Err(RuntimeDiagnostic::new(\"yaml.unknown-field\",format!(\"Unknown YAML key: {key}\")).field(key))}}}\n");
+    if has_keys {
+        out.push_str("_=>");
+    }
+    out.push_str("Err(RuntimeDiagnostic::new(\"yaml.unknown-field\",format!(\"Unknown YAML key: {key}\")).field(key))");
+    if has_keys {
+        out.push('}');
+    }
+    out.push_str("}}\n");
     out
 }
