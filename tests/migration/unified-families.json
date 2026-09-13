@@ -1,0 +1,10 @@
+[
+  {"id":"enum-values","role":"accept-first","path":"packages/rules/metadata/appliedObjects/metadataEnumeration/rules.ts","symbol":"MetadataEnumerationValueRules"},
+  {"id":"document-attributes","role":"accept-next","path":"packages/rules/metadata/appliedObjects/metadataDocument/childRules.ts","symbol":"MetadataDocumentAttributeRules"},
+  {"id":"input-field","role":"requirements","path":"packages/rules/metadata/forms/elements/inputField/rules.ts","symbol":"InputFieldRules"},
+  {"id":"table-input-field","role":"requirements","path":"packages/rules/metadata/forms/elements/inputField/rules.ts","symbol":"TableInputFieldRules"},
+  {"id":"form-attribute","role":"requirements","path":"packages/rules/metadata/forms/commonObjects/formAttribute/rules.ts","symbol":"FormAttributeRules"},
+  {"id":"usual-group","role":"requirements","path":"packages/rules/metadata/forms/elements/usualGroup/rules.ts","symbol":"UsualGroupRules"},
+  {"id":"column-group","role":"requirements","path":"packages/rules/metadata/forms/elements/columnGroup/rules.ts","symbol":"ColumnGroupRules"},
+  {"id":"button-group","role":"requirements","path":"packages/rules/metadata/forms/elements/buttonGroup/rules.ts","symbol":"ButtonGroupRules"}
+]

@@ -24,6 +24,11 @@
 - В нейтральных модулях нет условий по именам common, объектов и свойств. Предметные соответствия находятся в декларациях и данных переноса.
 - `.agents/architecture.md` не редактируется этим планом: границы metadata-операций не меняются. При необходимости менять их требуется отдельное согласование согласно AGENTS.md.
 
+## Выполнение
+
+Блок 1 выполнен: [исходная база и проверки](../reports/2026-09-13-unified-baseline.md).
+Блок 2 выполняется. Флажки объектов не менялись.
+
 ## Исходное состояние и границы готовности
 
 Рабочий каталог: `/Users/nikita/git/nkdk/.worktrees/common-declarative-spec`,
@@ -138,13 +143,13 @@ export CARGO_PROFILE_TEST_DEBUG=0
 Выход хранит транзитивные зависимости, source hashes и координаты;
 отсутствующий источник возвращает блокировку, а не пустое семейство.
 
-- [ ] Записать выбор: `MetadataEnumerationValueRules` из
+- [x] Записать выбор: `MetadataEnumerationValueRules` из
   `packages/rules/metadata/appliedObjects/metadataEnumeration/rules.ts`,
   `MetadataDocumentAttributeRules` из `metadataDocument/childRules.ts`,
   `InputFieldRules`/`TableInputFieldRules` из `forms/elements/inputField/rules.ts`,
   `FormAttributeRules` из `forms/commonObjects/formAttribute/rules.ts`;
   вложенные группы получить из фактических регистраций форм.
-- [ ] Расширить матрицу инструмента случаем переопределения `itemRule`:
+- [x] Расширить матрицу инструмента случаем переопределения `itemRule`:
 
   ```javascript
   assert.equal(documentEdge.item.symbol, 'MetadataDocumentAttributeRules');
@@ -156,15 +161,15 @@ export CARGO_PROFILE_TEST_DEBUG=0
   `documentEdge` и `enumEdge` выбирать из результата существующего
   `collectionLinks` по данным `families`, не создавать подставной результат.
   Удалённый источник и неразобранное выражение должны оставлять явные блокировки.
-- [ ] Запустить I, подтвердить новую незащищённую проверку, реализовать свод
+- [x] Запустить I, подтвердить новую незащищённую проверку, реализовать свод
   через существующие `extract`, `collectionLinks`, `mapProperty` и
   `testContracts`, затем повторить I. Не исполнять произвольный TypeScript.
-- [ ] В `unified-test-map.json` сопоставить каждому исходному сценарию
+- [x] В `unified-test-map.json` сопоставить каждому исходному сценарию
   путь, название/строку таблицы, источник ожидания, новую проверку и
   сохраняемое отличие. Неизвлекаемое ожидание пометить `review-required`.
   Зафиксировать шесть свойств EnumValue и 31 свойство реквизита документа
   из текущего извлечения; изменение исходников требует пересчёта, не подгонки.
-- [ ] Добавить режим запускателя
+- [x] Добавить режим запускателя
   `nkdk-migration-contracts <manifest> --measure <case-id> --direction <xml-to-yaml|yaml-to-xml> --iterations <N>`.
   Он использует `facts::prepare`, существующий `with_documents` для прямого
   направления и те же `convert_file`/`validate_file`. Обратное направление
@@ -185,7 +190,7 @@ export CARGO_PROFILE_TEST_DEBUG=0
   `iterations` — проверенное положительное число; выполнить один разогрев
   до `started`. Ошибка преобразования завершает замер без успешного результата.
   Выход JSON: `case`, `direction`, `iterations`, `elapsedNs`, `sourceBytes`.
-- [ ] Сохранить копию `tests/migration/ready-attachments/` со всеми YAML-
+- [x] Сохранить копию `tests/migration/ready-attachments/` со всеми YAML-
   зависимостями в `rust/target/unified-plan/before/catalog/`, а manifest случаев
   с включёнными XML/YAML, документами и `factSources` — в
   `rust/target/unified-plan/before/ready-attachment-cases.json`.
@@ -205,7 +210,7 @@ export CARGO_PROFILE_TEST_DEBUG=0
   сведения о рабочем дереве. Не использовать только SHA коммита для грязной базы.
   Дополнительно сохранить текущие 22 синтетических сценария как проверку
   корректности; не называть их e2e-измерением.
-- [ ] Повторить I и D; зафиксировать проверяемый свод и запускатель отдельным
+- [x] Повторить I и D; зафиксировать проверяемый свод и запускатель отдельным
   коммитом. Ожидаемое падение S для служебного поля записать в исходный отчёт,
   сам тест не удалять и не помечать пропускаемым.
 
@@ -850,7 +855,7 @@ value: ValueId) → Result<String, Diagnostic>`. Одинаковый ValueId о
 
 ## Условия выполнения
 
-Пункты этого плана обозначают ещё не выполненную работу. При выполнении
+Незаполненные флажки обозначают ещё не выполненную работу. При выполнении
 продолжать следующий доступный пункт без отдельного запроса после коммита
 или зелёного теста. Вопрос пользователю нужен только для нового смыслового
 договора, который нельзя установить по коду, спецификации и проверенным
