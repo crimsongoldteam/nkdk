@@ -118,16 +118,19 @@ fn identity_fragments_keep_components_owners_and_base_links_separate() {
         restored_count += 1;
     }
     assert_eq!(restored_count, 9, "Reviewed EnumValue inventory");
-    let unprepared = nkdk_compiled_rules::prepare_fact_inputs(
-        restored_entry,
-        facts.clone(),
-        generation,
-        ["component", "owner", "kind"]
-            .into_iter()
-            .map(|key| (key.into(), InputValue::Text("missing".into())))
-            .collect(),
-    )
-    .unwrap();
+    let new_object_inputs = |prepared| {
+        nkdk_compiled_rules::prepare_fact_inputs(
+            restored_entry,
+            prepared,
+            generation,
+            ["component", "owner", "kind"]
+                .into_iter()
+                .map(|key| (key.into(), InputValue::Text("missing".into())))
+                .collect(),
+        )
+        .unwrap()
+    };
+    let unprepared = new_object_inputs(facts.clone());
     assert!(
         nkdk_compiled_rules::convert_file(
             restored_entry,
@@ -178,6 +181,65 @@ fn identity_fragments_keep_components_owners_and_base_links_separate() {
             FactState::Missing
         );
     }
+    let creator = nkdk_conversion_core::facts::identity::OperationIdentity::new([1; 32]);
+    let previous = facts.lookup_parts(
+        generation,
+        own_id,
+        &["missing", "missing", "Новый", "missing"],
+    );
+    let FactState::Ready(created) = creator.resolve(
+        previous,
+        "uuid",
+        nkdk_conversion_core::facts::identity::IdentityFormat::Uuid,
+        "Объект",
+    ) else {
+        panic!("complete previous index permits creation");
+    };
+    let mut next = nkdk_compiled_rules::fact_builder(
+        generation,
+        FactBudget {
+            text: TextBudget {
+                entries: 20,
+                bytes: 1000,
+            },
+            rows: 2,
+        },
+    );
+    let creation_inputs = prepare_inputs(
+        own,
+        vec![
+            ("component".into(), InputValue::Text("missing".into())),
+            ("owner".into(), InputValue::Text("missing".into())),
+            ("kind".into(), InputValue::Text("missing".into())),
+            ("name".into(), InputValue::Text("Новый".into())),
+            ("identity".into(), InputValue::Text(created.into_owned())),
+        ],
+    )
+    .unwrap();
+    assert!(
+        contribute_file(
+            own,
+            Direction::YamlToXml,
+            "Имя: Новый".as_bytes(),
+            &creation_inputs,
+            &mut next
+        )
+        .is_empty()
+    );
+    let inputs = new_object_inputs(std::sync::Arc::new(next.finish()));
+    let output = nkdk_compiled_rules::convert_file(
+        restored_entry,
+        Direction::YamlToXml,
+        "Имя: Новый".as_bytes(),
+        &inputs,
+    )
+    .unwrap();
+    nkdk_conversion_core::proof::verify(
+        "<Root uuid=\"f8a59a9f-0a3d-4f80-bd43-9f1c85dc0ef6\"><Name>Новый</Name></Root>".as_bytes(),
+        &output.bytes,
+        |_| false,
+    )
+    .unwrap();
     assert_eq!(rows.len(), 572);
     assert_eq!(base_count, 179);
 }
