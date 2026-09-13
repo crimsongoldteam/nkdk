@@ -9,6 +9,7 @@ mod resources;
 mod scalar_choice;
 mod sequence_shorthand;
 mod shorthands;
+mod states;
 mod text;
 mod text_pattern;
 mod xml;
@@ -416,7 +417,7 @@ fn module(path: &str, mut root: Node) -> Result<Module, Diagnostic> {
         }
         TypeDefinition::Enum(_) => (
             XmlRepresentation::EnumTable(enumeration::table(path, xml, "text", "text")?),
-            YamlRepresentation::EnumTable(enumeration::table(path, yaml, "scalar", "literal")?),
+            states::parse(path, yaml)?,
         ),
         TypeDefinition::Scalar(ScalarType::Boolean) => (
             XmlRepresentation::BooleanTable(boolean_table(path, xml, "text", "text")?),
@@ -505,7 +506,7 @@ fn module(path: &str, mut root: Node) -> Result<Module, Diagnostic> {
         inputs: named_inputs(path, fields)?,
         input_indexes: contributions::inputs(path, fields)?,
         parameters: parameters(path, fields)?,
-        presence: presence(path, fields)?,
+        presence: states::presence(presence(path, fields)?, &yaml_rep)?,
         normalization: normalization(path, fields)?,
         constraints,
         contributions: contributions::parse(path, fields)?,

@@ -3,6 +3,43 @@ use std::{fs, process::Command};
 
 #[test]
 fn generated_rust_executes_both_directions_and_uses_the_imported_table() {
+    let state_owner = include_str!("fixtures/finite-state-owner.yaml");
+    let absent_state = include_str!("fixtures/finite-states.yaml")
+        .lines()
+        .filter(|line| {
+            !["value: empty", "value: tagged", "value: text"]
+                .iter()
+                .any(|value| line.contains(value))
+        })
+        .collect::<Vec<_>>()
+        .join("\n")
+        .replace("common.finite-states", "common.absent-state");
+    let absent_owner = state_owner
+        .replace("common.finite-states", "common.absent-state")
+        .replace("test.finite-states", "test.absent-state");
+    let state_row = state_owner
+        .replace("kind: object", "kind: value")
+        .replace("test.finite-states", "test.state-row")
+        .replace(
+            "[{name: mode",
+            "[{name: name, type: {kind: scalar, scalar: text}}, {name: mode",
+        )
+        .replace(
+            "[{field: mode, path: [Root, Mode]}",
+            "[{field: name, path: [Name]}, {field: mode, path: [Mode]}",
+        )
+        .replace(
+            "[{field: mode, key:",
+            "[{field: name, key: Name}, {field: mode, key:",
+        );
+    let state_rows = "format: nkdk-declarations/1\nkind: value\nid: test.state-rows\nimports: {row: test.state-row}\nvalue: {kind: sequence, item: {use: row}}\nrepresentations:\n  xml: {kind: element-sequence, path: [Item]}\n  yaml: {kind: record-mapping, key: name}\n";
+    let state_collection = state_owner
+        .replace("test.finite-states", "test.state-collection")
+        .replace("common.finite-states", "test.state-rows")
+        .split("presence:")
+        .next()
+        .unwrap()
+        .to_owned();
     let identity_source = include_str!("fixtures/fact-identity-source.yaml");
     let inherited_identity = identity_source.replace("id: test.identity-source", "id: test.inherited-identity\nimports: {restore: common.restored-text}")
         .replace("{name: token, type: {kind: scalar, scalar: text}}", "{name: token, type: {use: restore, bind: {saved: {input: saved}, name: {field: name}}}}")
@@ -363,6 +400,13 @@ contributions:
             .replace("value:", "inputs: {unused: {type: {kind: scalar, scalar: boolean}}, selected: {type: {kind: scalar, scalar: text}}}\nvalue:")
             .replace("{use: pair}", "{use: pair, bind: {allowed: {input: selected}, enabled: {input: unused}}}");
         let mut modules = [
+            ("absent-state.yaml", absent_state.as_str()),
+            ("absent-state-owner.yaml", absent_owner.as_str()),
+            ("finite-state-row.yaml", state_row.as_str()),
+            ("finite-state-rows.yaml", state_rows),
+            ("finite-state-collection.yaml", state_collection.as_str()),
+            ("finite-states.yaml", include_str!("fixtures/finite-states.yaml")),
+            ("finite-states-owner.yaml", state_owner),
             ("bound-choice.yaml", bound_choice.as_str()),
             ("bound-first.yaml", bound_variant.as_str()),
             ("bound-choice-owner.yaml", bound_choice_owner.as_str()),
@@ -559,6 +603,46 @@ contributions:
             .unwrap()
         });
         let program = link(&modules).unwrap();
+        let state_schema: serde_json::Value =
+            serde_json::from_slice(&schema(&program, "test.finite-states").unwrap()).unwrap();
+        let state_validator = jsonschema::validator_for(&state_schema).unwrap();
+        let absent_schema: serde_json::Value =
+            serde_json::from_slice(&schema(&program, "test.absent-state").unwrap()).unwrap();
+        assert_eq!(absent_schema["properties"]["Mode"], false);
+        let checked = format!(
+            "{state_owner}constraints:\n- id: ready\n  appliesTo: [yaml-validation]\n  assert: {{present: {{field: mode}}}}\n  diagnostic: {{code: state.ready, severity: error, at: {{field: mode}}, message: Expected state}}\n"
+        );
+        let mut checked_modules = modules.clone();
+        checked_modules
+            .iter_mut()
+            .find(|module| module.id == "test.finite-states")
+            .unwrap()
+            .constraints = parse(SourceFile {
+            path: "state-constraint.yaml",
+            bytes: checked.as_bytes(),
+        })
+        .unwrap()
+        .constraints;
+        let checked_schema: serde_json::Value = serde_json::from_slice(
+            &schema(&link(&checked_modules).unwrap(), "test.finite-states").unwrap(),
+        )
+        .unwrap();
+        assert!(
+            jsonschema::validator_for(&checked_schema)
+                .unwrap()
+                .is_valid(&serde_json::json!({})),
+            "{checked_schema}"
+        );
+
+        for valid in [
+            serde_json::json!({}),
+            serde_json::json!({"Mode":null}),
+            serde_json::json!({"Mode":""}),
+        ] {
+            assert!(state_validator.is_valid(&valid), "{state_schema}");
+        }
+        assert!(!state_validator.is_valid(&serde_json::json!({"Mode":true})));
+
         let choice_schema: serde_json::Value =
             serde_json::from_slice(&schema(&program, "test.text-choice").unwrap()).unwrap();
         assert!(
@@ -614,6 +698,8 @@ contributions:
         assert_eq!(
             generated.dependencies,
             [
+                "absent-state-owner.yaml",
+                "absent-state.yaml",
                 "additional-index-row.yaml",
                 "additional-indexes-fragment.yaml",
                 "additional-indexes-owner.yaml",
@@ -668,6 +754,11 @@ contributions:
                 "fact-rows-owner.yaml",
                 "fact-rows.yaml",
                 "fact-target.yaml",
+                "finite-state-collection.yaml",
+                "finite-state-row.yaml",
+                "finite-state-rows.yaml",
+                "finite-states-owner.yaml",
+                "finite-states.yaml",
                 "framed-owner.yaml",
                 "framed.yaml",
                 "header-common.yaml",
@@ -724,6 +815,32 @@ contributions:
         let main = r###"
 include!("generated.rs");
 fn main() {
+    let collection = entry_id("test.state-collection").unwrap();
+    let collection_xml = "<Root><Mode><Item><Name>One</Name><Mode>Default</Mode></Item><Item><Name>Two</Name><Mode>Empty</Mode></Item><Item><Name>Three</Name><Mode>Tagged</Mode></Item><Item><Name>Four</Name><Mode>Text</Mode></Item></Mode></Root>";
+    let collection_yaml = "Mode:\n  One: {}\n  Two:\n    Mode: \n  Three:\n    Mode: !watch\n  Four:\n    Mode: !watch \"\"";
+    let imported = convert_file(collection,Direction::XmlToYaml,collection_xml.as_bytes(),&PreparedInputs::default()).unwrap();
+    assert_eq!(String::from_utf8(imported.bytes).unwrap(), collection_yaml.replace("One: {}", "One:\n    {}"));
+    let exported = convert_file(collection,Direction::YamlToXml,collection_yaml.as_bytes(),&PreparedInputs::default()).unwrap();
+    let exported = String::from_utf8(exported.bytes).unwrap();
+    for (name,mode) in [("One","Default"),("Two","Empty"),("Three","Tagged"),("Four","Text")] {
+        assert!(exported.contains(&format!("<Name>{name}</Name>")) && exported.contains(&format!("<Mode>{mode}</Mode>")));
+    }
+    let absent_entry = entry_id("test.absent-state").unwrap();
+    assert!(convert_file(absent_entry,Direction::XmlToYaml,b"<Root><Mode>Default</Mode></Root>",&PreparedInputs::default()).unwrap().bytes.is_empty());
+    assert!(convert_file(absent_entry,Direction::YamlToXml,b"{}",&PreparedInputs::default()).is_ok());
+    let state_entry = entry_id("test.finite-states").unwrap();
+    let unknown = b"<Root><Mode>Unlisted</Mode></Root>";
+    let preserved = convert_file(state_entry,Direction::XmlToYaml,unknown,&PreparedInputs::default()).unwrap();
+    assert!(String::from_utf8_lossy(&preserved.bytes).contains("!xml/raw"));
+    verify_candidate(state_entry,unknown,&preserved.bytes,&PreparedInputs::default()).unwrap();
+
+    for (xml_value, yaml) in [("Default", ""), ("Empty", "Mode: "), ("Tagged", "Mode: !watch"), ("Text", "Mode: !watch \"\"")] {
+        let xml = format!("<Root><Mode>{xml_value}</Mode></Root>");
+        let imported = convert_file(state_entry,Direction::XmlToYaml,xml.as_bytes(),&PreparedInputs::default()).unwrap();
+        assert_eq!(String::from_utf8(imported.bytes).unwrap().trim_end(),yaml.trim_end());
+        let exported = convert_file(state_entry,Direction::YamlToXml,yaml.as_bytes(),&PreparedInputs::default()).unwrap();
+        assert!(String::from_utf8(exported.bytes).unwrap().contains(&format!("<Mode>{xml_value}</Mode>")));
+    }
     {
         let inputs=PreparedInputs::default();
         let xml=b"<Root enabled='true'><Description>kept</Description></Root>";

@@ -924,6 +924,9 @@ fn validate_yaml(
         (LinkedType::Scalar(ScalarType::Boolean), YamlRepresentation::BooleanTable(table)) => {
             boolean::yaml_table(table, presence, source)?
         }
+        (LinkedType::Enum(variants), YamlRepresentation::States(table)) => {
+            enumeration::states(variants, table, source)?
+        }
         (LinkedType::Enum(variants), YamlRepresentation::EnumTable(table)) => {
             enumeration::table(variants, table, source)?
         }

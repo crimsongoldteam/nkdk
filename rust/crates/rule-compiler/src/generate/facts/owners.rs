@@ -67,7 +67,7 @@ pub(in crate::generate) fn accessors(
             continue;
         };
         let codec = scalar::Codec::resolve(&fields[local].value, part, program)?;
-        if !matches!(codec, scalar::Codec::Text | scalar::Codec::Enumeration(..)) {
+        if !codec.is_index_text() {
             return Err(unsupported(
                 owner,
                 "Contribution requires a text or enumeration field",

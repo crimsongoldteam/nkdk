@@ -28,6 +28,7 @@ pub(crate) mod scalar_presence;
 mod sequence_yaml;
 pub(crate) mod shorthand;
 mod source_map;
+mod states;
 mod text;
 mod text_choice;
 mod text_item_checks;

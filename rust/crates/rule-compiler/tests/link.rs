@@ -2059,6 +2059,42 @@ fn boolean_value_can_be_represented_by_reversible_absence_instead_of_a_literal()
 
 #[test]
 fn enum_tables_are_total_and_unambiguous() {
+    let states = include_str!("fixtures/finite-states.yaml");
+    let check_states = |source: &str| {
+        nkdk_rule_compiler::parse(nkdk_rule_compiler::SourceFile {
+            path: "states.yaml",
+            bytes: source.as_bytes(),
+        })
+        .and_then(|module| nkdk_rule_compiler::link(&[module]).map(|_| ()))
+    };
+    check_states(states).unwrap();
+    let owner = include_str!("fixtures/finite-state-owner.yaml");
+    let conflicting_owner = format!("{owner}  yaml: {{default: {{literal: empty}}}}\n");
+    let parse = |source: &str| {
+        nkdk_rule_compiler::parse(nkdk_rule_compiler::SourceFile {
+            path: "state-owner.yaml",
+            bytes: source.as_bytes(),
+        })
+        .unwrap()
+    };
+    let errors = nkdk_rule_compiler::link(&[parse(states), parse(&conflicting_owner)]).unwrap_err();
+    assert!(
+        errors
+            .iter()
+            .any(|error| error.code == "conflicting_state_presence")
+    );
+
+    for invalid in [
+        states.replace("literal: ''", "form: empty"),
+        states.replace("form: absent", "form: absent, tag: watch"),
+        states.replace("    - {value: text, literal: '', tag: watch}\n", ""),
+        states.replace("tag: watch", "tag: xml"),
+    ] {
+        assert!(
+            check_states(&invalid).is_err(),
+            "Invalid state table accepted"
+        );
+    }
     let source = include_str!("../../../../tests/declaration-corpus/valid/code-type-enum.yaml");
     let module = nkdk_rule_compiler::parse(nkdk_rule_compiler::SourceFile {
         path: "enum.yaml",

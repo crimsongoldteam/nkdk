@@ -105,6 +105,26 @@ fn scalar(
                 YamlRepresentation::BooleanTable(values) => Ok(
                     json!({"type":"string", "enum":values.iter().map(|value| &value.text).collect::<Vec<_>>()}),
                 ),
+                YamlRepresentation::States(values) => {
+                    let forms = values
+                        .iter()
+                        .filter_map(|row| match &row.form {
+                            YamlStateForm::Absent => None,
+                            YamlStateForm::Empty => Some(Value::Null),
+                            YamlStateForm::Text(text) => Some(json!(text)),
+                        })
+                        .fold(Vec::new(), |mut forms, form| {
+                            if !forms.contains(&form) {
+                                forms.push(form);
+                            }
+                            forms
+                        });
+                    Ok(if forms.is_empty() {
+                        json!(false)
+                    } else {
+                        json!({"enum":forms, "x-nkdk-runtime-validation":true})
+                    })
+                }
                 YamlRepresentation::EnumTable(values) => Ok(
                     json!({"type":"string", "enum":values.iter().map(|value| &value.text).collect::<Vec<_>>()}),
                 ),
@@ -144,6 +164,7 @@ impl Context<'_> {
                         .map_err(|_| unsupported(target))?;
                     return Ok(json!(date.yaml(*seconds, *omit_zero)));
                 }
+                (YamlRepresentation::States(_), _) => return Err(unsupported(target)),
                 (YamlRepresentation::EnumTable(table), ScalarLiteral::Text(value)) => {
                     return table
                         .iter()

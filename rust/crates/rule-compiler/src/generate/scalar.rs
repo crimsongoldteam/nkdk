@@ -13,6 +13,7 @@ pub(super) enum Codec<'a> {
     Decimal,
     Boolean(&'a [BooleanLexeme], &'a [BooleanLexeme]),
     Enumeration(&'a [EnumVariant], &'a [EnumLexeme], &'a [EnumLexeme]),
+    States(&'a [EnumVariant], &'a [EnumLexeme], &'a [YamlState]),
 }
 impl<'a> Codec<'a> {
     pub fn resolve(
@@ -96,6 +97,11 @@ impl<'a> Codec<'a> {
                         LinkedXml::EnumTable(xml),
                         YamlRepresentation::EnumTable(yaml),
                     ) => Ok(Self::Enumeration(variants, xml, yaml)),
+                    (
+                        LinkedType::Enum(variants),
+                        LinkedXml::EnumTable(xml),
+                        YamlRepresentation::States(yaml),
+                    ) => Ok(Self::States(variants, xml, yaml)),
                     _ => Err(unsupported(
                         target,
                         "Referenced value is not a supported scalar codec",
@@ -109,9 +115,14 @@ impl<'a> Codec<'a> {
         }
     }
     /// The borrowed semantic representation, independent of its XML/YAML spelling.
+    pub fn is_index_text(&self) -> bool {
+        matches!(self, Self::Text | Self::Enumeration(..) | Self::States(..))
+    }
     pub fn input_method(&self) -> Option<&'static str> {
         match self {
-            Self::Text | Self::TextTable(_) | Self::Enumeration(..) => Some("text"),
+            Self::Text | Self::TextTable(_) | Self::Enumeration(..) | Self::States(..) => {
+                Some("text")
+            }
             Self::Boolean(..) => Some("boolean"),
             Self::Decimal | Self::FormattedDecimal(_) => Some("decimal"),
             _ => None,
@@ -124,9 +135,11 @@ impl<'a> Codec<'a> {
             Self::Text | Self::TextTable(_) => "String".into(),
             Self::Calendar { .. } => "core::calendar::Value".into(),
             Self::Boolean(..) => "bool".into(),
-            Self::Enumeration(..) | Self::Pattern(_) | Self::Forms(_) | Self::Sequence(_) => {
-                name.into()
-            }
+            Self::Enumeration(..)
+            | Self::States(..)
+            | Self::Pattern(_)
+            | Self::Forms(_)
+            | Self::Sequence(_) => name.into(),
         }
     }
     pub fn definition(&self, name: &str) -> Result<String, Diagnostic> {
@@ -134,7 +147,7 @@ impl<'a> Codec<'a> {
             Self::Pattern(pattern) => pattern.definition(name)?,
             Self::Sequence(sequence) => sequence.definition(name)?,
             Self::Forms(choice) => choice.definition(name)?,
-            Self::Enumeration(variants, ..) => format!(
+            Self::Enumeration(variants, ..) | Self::States(variants, ..) => format!(
                 "#[derive(Clone, Copy, PartialEq, Eq)] enum {name} {{ {} }}\n",
                 (0..variants.len())
                     .map(|i| format!("V{i}"))
@@ -159,6 +172,13 @@ impl<'a> Codec<'a> {
                 .iter()
                 .map(|item| (item.text.clone(), item.value.to_string()))
                 .collect(),
+            Self::States(variants, xml, rows) => {
+                if xml_side {
+                    Self::Enumeration(variants, xml, &[]).cases(name, true, reading)
+                } else {
+                    super::states::cases(name, variants, rows, reading)
+                }
+            }
             Self::Enumeration(variants, xml, yaml) => (if xml_side { xml } else { yaml })
                 .iter()
                 .flat_map(|item| {
@@ -208,7 +228,7 @@ impl<'a> Codec<'a> {
             Self::Text | Self::TextTable(_) => format!("({receiver}).as_str()"),
             Self::Calendar { .. } => format!("&({receiver}).xml()"),
             Self::Boolean(..) => format!("*({reference})"),
-            Self::Enumeration(variants, ..) => format!(
+            Self::Enumeration(variants, ..) | Self::States(variants, ..) => format!(
                 "match {reference} {{ {} }}",
                 variants
                     .iter()
@@ -226,6 +246,9 @@ impl<'a> Codec<'a> {
         match self {
             Self::Pattern(_) | Self::Forms(_) | Self::Sequence(_) => true,
             Self::Boolean(left, right) => (if xml { left } else { right }).len() < 2,
+            Self::States(_, _, rows) => {
+                !xml && rows.iter().any(|row| row.form == YamlStateForm::Absent)
+            }
             Self::Enumeration(variants, left, right) => {
                 (if xml { left } else { right }).len() < variants.len()
             }
@@ -235,7 +258,11 @@ impl<'a> Codec<'a> {
     pub fn plain_yaml(&self) -> bool {
         matches!(
             self,
-            Self::Decimal | Self::FormattedDecimal(_) | Self::Calendar { .. } | Self::Choice(_)
+            Self::Decimal
+                | Self::FormattedDecimal(_)
+                | Self::Calendar { .. }
+                | Self::Choice(_)
+                | Self::States(..)
         )
     }
     pub fn read(&self, name: &str, index: usize, key: &str, xml_side: bool) -> String {
@@ -315,7 +342,10 @@ impl<'a> Codec<'a> {
         self.write_reference(name, &format!("&value.f{index}"), xml_side)
     }
     pub fn yaml_representable(&self, name: &str, reference: &str) -> String {
-        if !matches!(self, Self::Boolean(..) | Self::Enumeration(..)) {
+        if !matches!(
+            self,
+            Self::Boolean(..) | Self::Enumeration(..) | Self::States(..)
+        ) {
             return "true".into();
         }
         if let Self::Boolean(_, table) = self {
@@ -371,9 +401,13 @@ impl<'a> Codec<'a> {
             return reference.into();
         }
         let cases = self.cases(name, xml_side, false);
+        if cases.is_empty() {
+            return "Err::<&str,RuntimeDiagnostic>(RuntimeDiagnostic::new(\"value.unrepresented\",\"Scalar has no canonical literal in this representation\"))?".into();
+        }
+
         let count = match self {
             Self::Boolean(..) => 2,
-            Self::Enumeration(variants, ..) => variants.len(),
+            Self::Enumeration(variants, ..) | Self::States(variants, ..) => variants.len(),
             _ => unreachable!(),
         };
         let fallback = if cases.len() < count {

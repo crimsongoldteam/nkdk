@@ -86,6 +86,7 @@ impl<'a> RecordPlan<'a> {
                         matches!(
                             value.entry.yaml,
                             YamlRepresentation::Choice
+                                | YamlRepresentation::States(_)
                                 | YamlRepresentation::TextPattern(_)
                                 | YamlRepresentation::TextSequence { .. }
                                 | YamlRepresentation::TextTable(_)

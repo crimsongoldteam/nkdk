@@ -125,13 +125,10 @@ pub(super) fn inherit_presence(
     };
     let mut inherited = Vec::new();
     for (slot, field) in fields.iter().enumerate() {
-        if owner
+        let explicit = owner
             .presence
             .iter()
-            .any(|rule| rule.target == LinkedPresenceTarget::Field(slot as u32))
-        {
-            continue;
-        }
+            .position(|rule| rule.target == LinkedPresenceTarget::Field(slot as u32));
         let Some((id, bindings, arguments)) = field.value.as_reference() else {
             continue;
         };
@@ -139,6 +136,11 @@ pub(super) fn inherit_presence(
             .values()
             .find(|module| ids[module.id.as_str()] == id)
             .expect("linked reference");
+        if explicit.is_some()
+            && !matches!(module.representations.yaml, YamlRepresentation::States(_))
+        {
+            continue;
+        }
         let mut common = build_entry(module, modules, ids, visiting, cache)?;
         if !matches!(common.value, LinkedType::Scalar(_) | LinkedType::Enum(_)) {
             continue;
@@ -155,7 +157,26 @@ pub(super) fn inherit_presence(
             for expression in rule.expressions_mut() {
                 crate::expressions::replace_self(expression, slot);
             }
-            inherited.push(rule);
+            if let Some(index) = explicit {
+                let explicit = &mut owner.presence[index];
+                if explicit.yaml_missing.is_some()
+                    || explicit.yaml_omit_when.is_some()
+                    || !explicit.yaml_empty.is_empty()
+                {
+                    return Err(diagnostic(
+                        "conflicting_state_presence",
+                        &explicit.source,
+                        "YAML state table already defines presence",
+                    ));
+                }
+                explicit.yaml_missing = rule.yaml_missing;
+                explicit.yaml_omit_when = rule.yaml_omit_when;
+                if explicit.xml_missing.is_none() {
+                    explicit.xml_missing = rule.xml_missing;
+                }
+            } else {
+                inherited.push(rule);
+            }
         }
     }
     owner.presence.extend(inherited);

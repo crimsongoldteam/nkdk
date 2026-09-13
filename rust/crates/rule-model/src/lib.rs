@@ -104,6 +104,7 @@ pub enum XmlRepresentation {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum YamlRepresentation {
+    States(Vec<YamlState>),
     /// Expose a single semantic field as the complete YAML document.
     Projection(String),
     /// Use the complete declaration referenced by the sequence item type.
@@ -541,6 +542,19 @@ pub enum XmlAttributeValue {
 pub struct EnumVariant {
     pub name: String,
     pub value: String,
+    pub source: SourceLocation,
+}
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub enum YamlStateForm {
+    Absent,
+    Empty,
+    Text(String),
+}
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct YamlState {
+    pub value: String,
+    pub form: YamlStateForm,
+    pub tag: Option<String>,
     pub source: SourceLocation,
 }
 #[derive(Debug, Clone, PartialEq, Eq)]

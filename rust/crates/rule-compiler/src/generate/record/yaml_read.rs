@@ -64,6 +64,10 @@ pub(super) fn generate(id: u32, fields: &[Field<'_>]) -> String {
         .enumerate()
         .filter(|(_, field)| field.yaml_visible)
     {
+        if let Codec::States(_, _, rows) = &field.codec {
+            out.push_str(&super::super::states::read(rows, i, field.key));
+            continue;
+        }
         let read = if matches!(field.codec, Codec::Choice(_)) {
             format!(
                 "let (text,number)=value.into_choice_text().map_err(|error|error.field({:?}))?;self.number{i}=number;self.r{i}=Some(text);",

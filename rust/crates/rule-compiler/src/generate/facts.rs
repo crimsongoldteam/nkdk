@@ -19,7 +19,7 @@ fn text(
                 return Err(unsupported(entry, "Index field requires a record"));
             };
             let codec = scalar::Codec::resolve(&fields[*slot as usize].value, entry, program)?;
-            if !matches!(codec, scalar::Codec::Text | scalar::Codec::Enumeration(..)) {
+            if !codec.is_index_text() {
                 return Err(unsupported(
                     entry,
                     "This index projection requires a text or enumeration field",

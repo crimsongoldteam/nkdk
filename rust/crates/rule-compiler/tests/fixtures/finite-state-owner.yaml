@@ -1,0 +1,11 @@
+format: nkdk-declarations/1
+kind: object
+id: test.finite-states
+imports: {state: common.finite-states}
+value: {kind: record, fields: [{name: mode, type: {use: state}}]}
+representations:
+  xml: {kind: record, fields: [{field: mode, path: [Root, Mode]}]}
+  yaml: {kind: mapping, fields: [{field: mode, key: Mode}]}
+presence:
+- target: {field: mode}
+  xml: {missing: {denotes: {absent: true}}}

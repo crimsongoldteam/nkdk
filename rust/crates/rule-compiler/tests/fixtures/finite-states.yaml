@@ -1,0 +1,25 @@
+format: nkdk-declarations/1
+kind: value
+id: common.finite-states
+value:
+  kind: enum
+  variants:
+  - {name: Default, value: default}
+  - {name: Empty, value: empty}
+  - {name: Tagged, value: tagged}
+  - {name: Text, value: text}
+representations:
+  xml:
+    kind: text
+    values:
+    - {value: default, text: Default}
+    - {value: empty, text: Empty}
+    - {value: tagged, text: Tagged}
+    - {value: text, text: Text}
+  yaml:
+    kind: states
+    values:
+    - {value: default, form: absent}
+    - {value: empty, form: empty}
+    - {value: tagged, form: empty, tag: watch}
+    - {value: text, literal: '', tag: watch}

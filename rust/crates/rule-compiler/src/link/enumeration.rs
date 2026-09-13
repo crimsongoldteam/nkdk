@@ -63,3 +63,33 @@ pub(super) fn table(
     }
     Ok(())
 }
+
+pub(super) fn states(
+    variants: &[EnumVariant],
+    values: &[YamlState],
+    source: &SourceLocation,
+) -> Result<(), Diagnostic> {
+    let expected: BTreeSet<_> = variants.iter().map(|value| &value.value).collect();
+    let mut meanings = BTreeSet::new();
+    let mut forms = BTreeSet::new();
+    for value in values {
+        if !expected.contains(&value.value)
+            || !meanings.insert(&value.value)
+            || !forms.insert((&value.form, &value.tag))
+        {
+            return Err(diagnostic(
+                "ambiguous_enum_table",
+                &value.source,
+                "Each state requires a distinct meaning and YAML form",
+            ));
+        }
+    }
+    if meanings != expected {
+        return Err(diagnostic(
+            "incomplete_enum_table",
+            source,
+            "State table must cover every variant",
+        ));
+    }
+    Ok(())
+}

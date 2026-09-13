@@ -197,6 +197,7 @@ fn resolve_forms(module: &Module, constraint: &Constraint) -> Result<Vec<LinkedF
             | YamlRepresentation::Calendar { .. }
             | YamlRepresentation::BooleanTable(_)
             | YamlRepresentation::Decimal
+            | YamlRepresentation::States(_)
             | YamlRepresentation::EnumTable(_) => ("scalar", LinkedForm::YamlScalar),
             YamlRepresentation::Mapping(_) | YamlRepresentation::RecordMapping { .. } => {
                 ("mapping", LinkedForm::YamlMapping)

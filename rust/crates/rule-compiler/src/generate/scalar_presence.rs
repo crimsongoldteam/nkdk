@@ -99,7 +99,7 @@ pub(super) fn missing(
         }
         (
             LinkedExpressionKind::Literal(ScalarLiteral::Text(value)),
-            scalar::Codec::Enumeration(variants, ..),
+            scalar::Codec::Enumeration(variants, ..) | scalar::Codec::States(variants, ..),
         ) => {
             let index = variants
                 .iter()

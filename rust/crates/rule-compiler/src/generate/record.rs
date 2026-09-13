@@ -112,7 +112,11 @@ fn generate_at(
         if mapping.attribute.is_some()
             && (!matches!(
                 codec,
-                Codec::Text | Codec::Boolean(..) | Codec::Decimal | Codec::Enumeration(..)
+                Codec::Text
+                    | Codec::Boolean(..)
+                    | Codec::Decimal
+                    | Codec::Enumeration(..)
+                    | Codec::States(..)
             ) || presence
                 .is_some_and(|rule| !rule.xml_empty.is_empty() || !rule.canonical.is_empty())
                 || !attributes.is_empty())
@@ -930,14 +934,20 @@ fn generate_at(
         writeln!(out, "fn finalize_yaml_{id}(original: &[u8], candidate: Vec<u8>, _value: &V{id}, inputs: &InputView<'_>) -> core::Result<Vec<u8>> {{ verify_{id}(original, &candidate, inputs)?; Ok(candidate) }}").unwrap();
     }
     writeln!(out,"#[allow(dead_code)] fn text_field_{id}(value:&V{id},field:usize)->core::Result<&str>{{let _=(value,field);").unwrap();
-    let has_text = fields
-        .iter()
-        .any(|field| matches!(field.codec, Codec::Text | Codec::Enumeration(..)));
+    let has_text = fields.iter().any(|field| {
+        matches!(
+            field.codec,
+            Codec::Text | Codec::Enumeration(..) | Codec::States(..)
+        )
+    });
     if has_text {
         out.push_str("match field{");
     }
     for (index, field) in fields.iter().enumerate() {
-        if matches!(field.codec, Codec::Text | Codec::Enumeration(..)) {
+        if matches!(
+            field.codec,
+            Codec::Text | Codec::Enumeration(..) | Codec::States(..)
+        ) {
             let reference = format!(
                 "value.f{index}.as_ref().ok_or_else(||RuntimeDiagnostic::new(\"fact.unready\",\"Text field is unavailable\"))?"
             );
@@ -958,7 +968,9 @@ fn generate_at(
     let mut input_arms = String::new();
     for (index, field) in fields.iter().enumerate() {
         let variant = match &field.codec {
-            Codec::Text | Codec::TextTable(_) | Codec::Enumeration(..) => "Text",
+            Codec::Text | Codec::TextTable(_) | Codec::Enumeration(..) | Codec::States(..) => {
+                "Text"
+            }
             Codec::Boolean(..) => "Boolean",
             Codec::Decimal | Codec::FormattedDecimal(_) => "Decimal",
             _ => continue,
