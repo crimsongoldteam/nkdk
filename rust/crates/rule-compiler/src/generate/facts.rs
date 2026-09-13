@@ -2,7 +2,7 @@ mod collections;
 mod owners;
 use super::*;
 pub(super) use owners::accessors as owner_accessors;
-use std::fmt::Write;
+use std::{collections::BTreeMap, fmt::Write};
 
 fn text(
     expression: &LinkedExpression,
@@ -39,11 +39,66 @@ fn text(
             );
             Ok(codec.meaning_reference(&format!("E{}F{slot}", entry.id), &reference))
         }
+        LinkedExpressionKind::Operation { .. } => computed_text(expression, entry, program),
         _ => Err(unsupported(
             entry,
-            "This index projection supports declared text fields, inputs and literals",
+            "Index projection requires a declared text expression",
         )),
     }
+}
+
+fn computed_text(
+    expression: &LinkedExpression,
+    entry: &LinkedEntry,
+    program: &Program,
+) -> Result<String, Diagnostic> {
+    fn collect(value: &LinkedExpression, requested: &mut BTreeMap<u32, LinkedExpression>) -> bool {
+        match &value.kind {
+            LinkedExpressionKind::Field(slot) => {
+                requested.insert(*slot, value.clone());
+            }
+            LinkedExpressionKind::Operation { arguments, .. } => {
+                return arguments.iter().all(|value| collect(value, requested));
+            }
+            LinkedExpressionKind::SelfValue | LinkedExpressionKind::Capture(_) => return false,
+            _ => {}
+        }
+        true
+    }
+    let LinkedType::Record(fields) = &entry.value else {
+        return Err(unsupported(
+            entry,
+            "Computed contribution requires record storage",
+        ));
+    };
+    let mut requested = BTreeMap::new();
+    if !collect(expression, &mut requested) {
+        return Err(unsupported(
+            entry,
+            "Computed contribution requires declared fields and prepared inputs",
+        ));
+    }
+    let mut storage = vec![(String::new(), String::new()); fields.len()];
+    for (slot, value) in requested {
+        let present = if super::owner::applies(entry, program) {
+            let (part, local) = owners::field(entry, slot, program)?;
+            format!(
+                "part_{}_{part}::fact_{local}_present(&value.p{part})",
+                entry.id
+            )
+        } else {
+            format!("value.f{slot}.is_some()")
+        };
+        storage[slot as usize] = (text(&value, entry, program)?, present);
+    }
+    let mut expressions =
+        super::expressions::Expressions::new(entry, program, fields, Some(&storage));
+    let lowered = expressions.lower(expression)?;
+    let lowered = super::expressions::Expressions::text_owned(expression, lowered);
+    Ok(format!(
+        "&{{{}let _inputs=inputs;let evaluate=||->std::result::Result<String,FactErrors>{{Ok({lowered})}};evaluate().map_err(|errors|errors.0)?}}",
+        expressions.constants
+    ))
 }
 
 pub(super) fn generate(entries: &[&LinkedEntry], program: &Program) -> Result<String, Diagnostic> {
@@ -56,6 +111,7 @@ pub(super) fn generate(entries: &[&LinkedEntry], program: &Program) -> Result<St
     let mut out = format!(
         "pub fn fact_names()-> &'static [&'static str] {{ &{names:?} }}\npub fn fact_id(name:&str)->Option<core::facts::prepared::FactId> {{fact_names().iter().position(|candidate|*candidate==name).map(|slot|core::facts::prepared::FactId(slot as u32))}}\n"
     );
+    out.push_str("#[allow(dead_code)] struct FactErrors(Vec<RuntimeDiagnostic>);impl From<RuntimeDiagnostic> for FactErrors {fn from(error:RuntimeDiagnostic)->Self{Self(vec![error])}}impl From<Vec<RuntimeDiagnostic>> for FactErrors {fn from(errors:Vec<RuntimeDiagnostic>)->Self{Self(errors)}}\n");
     let mut layouts = Vec::new();
     for name in &names {
         let projection = entries

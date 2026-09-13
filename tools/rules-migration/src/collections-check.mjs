@@ -22,10 +22,11 @@ const computedConsumer={format:'nkdk-declarations/1',kind:'object',id:'test.coll
 // The dependent source intentionally precedes its producers in the manifest.
 const chainedSource=structuredClone(computedConsumer);
 chainedSource.id='test.collection.chained-source';
-chainedSource.contributions=[{index:'test.chained',key:{field:'name'},value:{field:'name'}}];
+chainedSource.contributions=[{index:'test.chained',key:{field:'name'},value:{match:{value:{lookup:{in:{input:'derived'},key:{field:'name'}}},present:{as:'found',then:{var:'found'}},absent:{literal:''}}}}];
 const chainedConsumer=structuredClone(computedConsumer);
 chainedConsumer.id='test.collection.chained-consumer';
 chainedConsumer.inputs.derived={index:'test.chained'};
+chainedConsumer.constraints[0].assert={match:{value:{lookup:{in:{input:'derived'},key:{field:'name'}}},present:{as:'found',then:{eq:[{var:'found'},{literal:'Первый'}]}},absent:{literal:false}}};
 const namedGraph=structuredClone(graph);
 namedGraph.edges[0].mapping.yamlAsArray=false;
 namedGraph.edges[0].mapping.keyField='name';

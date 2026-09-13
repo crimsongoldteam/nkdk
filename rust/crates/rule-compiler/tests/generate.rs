@@ -168,7 +168,7 @@ contributions:
             "id: common.attributed-row-facts",
         );
     let fact_prefix = "format: nkdk-declarations/1\nkind: fragment\nid: common.fact-prefix\nvalue: {kind: record, fields: [{name: marker, type: {kind: scalar, scalar: text}}]}\nrepresentations:\n  xml: {kind: record, fields: [{field: marker, path: [Root], attribute: marker}]}\n  yaml: {kind: mapping, fields: [{field: marker, key: Marker}]}\npresence:\n- target: {field: marker}\n  xml: {missing: {denotes: {absent: true}}}\n  yaml: {missing: {denotes: {absent: true}}}\n";
-    let attributed_rows_owner = "format: nkdk-declarations/1\nkind: object\nid: test.attributed-rows\nimports: {prefix: common.fact-prefix, body: common.attributed-row-facts}\ncompose: [{use: prefix}, {use: body}]\nvalue: {kind: record, fields: []}\nrepresentations:\n  xml: {kind: record, fields: []}\n  yaml: {kind: mapping, fields: []}\ncontributions:\n- index: test.static-owner\n  key: {literal: static}\n  value: {literal: retained}\n";
+    let attributed_rows_owner = "format: nkdk-declarations/1\nkind: object\nid: test.attributed-rows\nimports: {prefix: common.fact-prefix, body: common.attributed-row-facts}\ncompose: [{use: prefix}, {use: body}]\nvalue: {kind: record, fields: []}\nrepresentations:\n  xml: {kind: record, fields: []}\n  yaml: {kind: mapping, fields: []}\ncontributions:\n- index: test.static-owner\n  key: {literal: static}\n  value: {if: {present: {field: marker}}, then: {concat: [{literal: prefix-}, {field: marker}]}, else: {literal: retained}}\n";
     let attribute_owner = owner.replace("test.scalar-owner", "test.attribute-owner")
         .replace("imports:", "namespaces: {meta: urn:owner}\nimports:")
         .replace("    - name: server", "    - {name: version, type: {kind: scalar, scalar: text}}\n    - {name: identity, type: {kind: scalar, scalar: text}}\n    - name: server")
@@ -993,8 +993,8 @@ fn main() {
         let result=convert_file(entry,Direction::XmlToYaml,xml,&PreparedInputs::default()).unwrap();
         assert_eq!(String::from_utf8_lossy(&result.bytes),"Rows:\n  - Code: one\n    Title: First\n    Identity: id\n  - Code: two\n    Title: Second\n    Identity: id2");
         verify_candidate(entry,xml,&result.bytes,&PreparedInputs::default()).unwrap();
-        for (code,key) in [("one.NewName","one"),(".suffix","empty")] {
-            let renamed=String::from_utf8_lossy(xml).replace("code='one'",&format!("code='{code}'"));
+        for (code,key,marker,expected) in [("one.NewName","one","","retained"),(".suffix","empty","","retained"),("one.NewName","one"," marker='saved'","prefix-saved")] {
+            let renamed=String::from_utf8_lossy(xml).replace("code='one'",&format!("code='{code}'")).replace("<Root ",&format!("<Root{marker} "));
             let yaml=convert_file(entry,Direction::XmlToYaml,renamed.as_bytes(),&PreparedInputs::default()).unwrap();
             for (direction,source) in [(Direction::XmlToYaml,renamed.as_bytes()),(Direction::YamlToXml,yaml.bytes.as_slice())] {
                 let generation=core::facts::Generation(4);
@@ -1003,7 +1003,7 @@ fn main() {
                 assert!(errors.is_empty(),"{errors:?}");
                 let facts=builder.finish();
                 assert_eq!(facts.lookup(generation,fact_id("test.short-names").unwrap(),key),core::facts::FactState::Ready("id"));
-                assert_eq!(facts.lookup(generation,fact_id("test.static-owner").unwrap(),"static"),core::facts::FactState::Ready("retained"));
+                assert_eq!(facts.lookup(generation,fact_id("test.static-owner").unwrap(),"static"),core::facts::FactState::Ready(expected));
             }
         }
         for original in [String::from_utf8_lossy(xml).replacen(" code='one'","",1),String::from_utf8_lossy(xml).replacen("code='one'","code='one' extra='keep'",1)] {

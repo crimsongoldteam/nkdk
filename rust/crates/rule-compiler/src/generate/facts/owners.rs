@@ -73,6 +73,11 @@ pub(in crate::generate) fn accessors(
                 "Contribution requires a text or enumeration field",
             ));
         }
+        writeln!(
+            out,
+            "pub(super) fn fact_{local}_present(value:&Stored)->bool{{value.0.f{local}.is_some()}}"
+        )
+        .unwrap();
         let id = part.id;
         let reference = format!(
             "value.0.f{local}.as_ref().ok_or_else(||vec![RuntimeDiagnostic::new(\"fact.unready\",\"Contribution field is unavailable\")])?"
