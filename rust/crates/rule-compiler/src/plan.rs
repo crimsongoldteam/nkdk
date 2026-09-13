@@ -7,6 +7,7 @@ use std::{
     collections::{BTreeMap, BTreeSet},
     ops::Deref,
 };
+mod composition;
 pub(crate) mod contracts;
 pub(crate) mod records;
 pub(crate) mod routes;
@@ -20,6 +21,7 @@ pub(crate) use values::{RecordPlan, ValueId, ValuePlan, diagnostic_key};
 pub(crate) struct ConversionPlan<'a> {
     program: &'a Program,
     values: BTreeMap<ValueId, ValuePlan<'a>>,
+    compositions: composition::Table,
 }
 impl Deref for ConversionPlan<'_> {
     type Target = Program;
@@ -36,9 +38,19 @@ pub(crate) fn build(program: &Program) -> Result<ConversionPlan<'_>, Vec<Diagnos
             .map_err(|error| vec![error])?;
         values.insert(ValueId(entry.id), ValuePlan { entry, record });
     }
-    Ok(ConversionPlan { program, values })
+    Ok(ConversionPlan {
+        program,
+        values,
+        compositions: Default::default(),
+    })
 }
 impl ConversionPlan<'_> {
+    pub(crate) fn composition(
+        &self,
+        entry: &LinkedEntry,
+    ) -> Result<std::rc::Rc<composition::Composition>, Diagnostic> {
+        self.compositions.prepare(entry)
+    }
     pub(crate) fn value(&self, id: ValueId) -> Option<&ValuePlan<'_>> {
         self.values.get(&id)
     }

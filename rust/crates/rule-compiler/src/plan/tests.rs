@@ -124,6 +124,25 @@ representations:
     assert_eq!(arguments[0].kind, LinkedExpressionKind::Input(0));
     assert_eq!(arguments[1].kind, LinkedExpressionKind::Input(1));
     assert_eq!(owner.field_dependencies, [vec![1], vec![]]);
+    let plan = build(&program).unwrap();
+    let prepared = plan.composition(owner).unwrap();
+    let repeated = plan.composition(&owner.clone()).unwrap();
+    assert!(std::rc::Rc::ptr_eq(&prepared, &repeated));
+    assert_eq!(prepared.captures, [1]);
+    assert_eq!(prepared.parts.len(), 2);
+    let mut placed = owner.clone();
+    let LinkedXml::Record(routes) = &mut placed.xml else {
+        unreachable!()
+    };
+    routes[0].path[0].local = "OtherRoot".into();
+    let different = plan.composition(&placed).unwrap();
+    assert!(!std::rc::Rc::ptr_eq(&prepared, &different));
+    assert_eq!(prepared.entry().xml, owner.xml);
+    assert_eq!(different.entry().xml, placed.xml);
+    assert!(std::rc::Rc::ptr_eq(
+        &prepared,
+        &plan.composition(owner).unwrap()
+    ));
     let nested = LinkedType::Record(vec![LinkedField {
         name: "nested".into(),
         value: owner.value.clone(),

@@ -25,17 +25,14 @@ pub(super) fn generate_at(
     boundary: Option<&[ExpandedName]>,
 ) -> Result<String, Diagnostic> {
     let original = entry;
-    let captured = crate::plan::scopes::capture_inputs(entry)?;
-    let entry = captured.entry.as_ref();
+    let prepared = program.composition(entry)?;
+    let entry = prepared.entry();
     let mut shape = entry.clone();
     shape.presence.clear();
     plain_shape(&shape)?;
-    let mut parts = crate::plan::records::parts(entry)?;
-    for part in &mut parts {
-        captured.localize(part)?;
-    }
+    let parts = &prepared.parts;
     let input_scope =
-        super::value::InputScope::prepare(original, &parts, &captured.captures, program)?;
+        super::value::InputScope::prepare(original, parts, &prepared.captures, program)?;
     let scope_full = input_scope.bind(entry.id, "value.", None);
     let scope_finish = input_scope.finish(entry.id, parts.len());
     let files: Vec<_> = parts
@@ -143,11 +140,7 @@ pub(super) fn generate_at(
             slot,
             super::value_adapters::Placement {
                 external: files[slot].is_some(),
-                shared_container: crate::plan::records::shares_container(
-                    &parts,
-                    slot,
-                    &xml[0].path,
-                ),
+                shared_container: crate::plan::records::shares_container(parts, slot, &xml[0].path),
             },
             &names,
         )?;
@@ -786,21 +779,20 @@ pub(super) fn generate_at(
 
 /// Validate event-state capability before referring to generated state types.
 pub(super) fn state_supported(entry: &LinkedEntry, program: &Program) -> Result<bool, Diagnostic> {
-    let captured = crate::plan::scopes::capture_inputs(entry)?;
-    let entry = captured.entry.as_ref();
-    for child in crate::plan::records::parts(entry)? {
-        if crate::plan::routes::record_usage(&child, program)?.is_some() {
+    let prepared = program.composition(entry)?;
+    for child in &prepared.parts {
+        if crate::plan::routes::record_usage(child, program)?.is_some() {
             continue;
         }
         if matches!(&child.xml, LinkedXml::Record(fields) if fields.iter().any(|field| field.file.is_some()))
         {
             return Ok(false);
         }
-        if super::qname::applies(&child, program) {
+        if super::qname::applies(child, program) {
             return Ok(false);
         }
-        if super::nested_record::lower(&child, program)?.is_none()
-            && super::composite::record(&child, program).is_some()
+        if super::nested_record::lower(child, program)?.is_none()
+            && super::composite::record(child, program).is_some()
         {
             return Ok(false);
         }

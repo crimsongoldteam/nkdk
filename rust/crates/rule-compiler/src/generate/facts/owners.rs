@@ -1,12 +1,17 @@
 use super::*;
 
-pub(super) fn field(entry: &LinkedEntry, slot: u32) -> Result<(usize, usize), Diagnostic> {
+pub(super) fn field(
+    entry: &LinkedEntry,
+    slot: u32,
+    program: &Program,
+) -> Result<(usize, usize), Diagnostic> {
     let LinkedType::Record(fields) = &entry.value else {
         unreachable!()
     };
     let name = &fields[slot as usize].name;
-    let captured = crate::plan::scopes::capture_inputs(entry)?;
-    crate::plan::records::parts(&captured.entry)?
+    program
+        .composition(entry)?
+        .parts
         .iter()
         .enumerate()
         .find_map(|(part, entry)| {

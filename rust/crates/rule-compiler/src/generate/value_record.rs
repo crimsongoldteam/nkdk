@@ -40,17 +40,22 @@ pub(super) fn generate(
     } else {
         String::new()
     };
-    let captured = crate::plan::scopes::capture_inputs(row)?;
-    let parts = if composed && lifted.is_some() {
-        crate::plan::records::parts(&captured.entry)?
-    } else {
-        Vec::new()
-    };
+    let prepared = (composed && lifted.is_some())
+        .then(|| program.composition(row))
+        .transpose()?;
+    let parts = prepared
+        .as_ref()
+        .map_or(&[][..], |plan| plan.parts.as_slice());
     let lifted_scope = if parts.is_empty() {
         String::new()
     } else {
-        super::value::InputScope::prepare(row, &parts, &captured.captures, program)?
-            .bind(row.id, "value.0.", None)
+        super::value::InputScope::prepare(
+            row,
+            parts,
+            &prepared.as_ref().unwrap().captures,
+            program,
+        )?
+        .bind(row.id, "value.0.", None)
     };
     let lifted_write = match &lifted {
         None => "unreachable!()".into(),
