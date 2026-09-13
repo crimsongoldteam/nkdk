@@ -45,7 +45,9 @@
     "test:migration-contracts": "node tools/rules-migration/src/contracts-check.mjs",
     "migration:check:focused": "node tools/rules-migration/src/focused-check.mjs",
     "migration:attachments": "node tools/rules-migration/src/ready-cli.mjs",
-    "test:migration-attachments": "node tools/rules-migration/src/ready-check.mjs"
+    "test:migration-attachments": "node tools/rules-migration/src/ready-check.mjs",
+    "migration:collections": "node tools/rules-migration/src/collections-cli.mjs",
+    "test:migration-collections": "node tools/rules-migration/src/collections-check.mjs"
   },
   "devDependencies": {
     "@nkdk/platform": "workspace:*",

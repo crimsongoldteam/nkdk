@@ -4,6 +4,7 @@ mod fact_shape;
 mod link;
 pub use link::link;
 mod parse;
+mod plan;
 mod syntax;
 
 pub use nkdk_rule_model::{Diagnostic, Module, Program, SourceFile};
@@ -30,4 +31,19 @@ pub use schema::schema;
 /// Structural authoring schema; name resolution and YAML source checks remain in parse/link.
 pub fn declaration_schema() -> &'static [u8] {
     include_bytes!("../../../../schemas/nkdk-declarations.schema.json")
+}
+
+pub(crate) fn diagnostic(
+    code: &str,
+    source: &nkdk_rule_model::SourceLocation,
+    message: &str,
+) -> Diagnostic {
+    Diagnostic {
+        code: code.into(),
+        file: source.file.clone(),
+        line: source.line,
+        column: source.column,
+        message: message.into(),
+        related: vec![],
+    }
 }

@@ -8,7 +8,7 @@ pub(super) struct Pattern {
 struct Builder<'a> {
     owner: &'a LinkedEntry,
     common: &'a LinkedEntry,
-    program: &'a Program,
+    program: &'a Program<'a>,
     bindings: &'a [LinkedBinding],
     arguments: &'a [LinkedExpression],
     fields: &'a [LinkedField],

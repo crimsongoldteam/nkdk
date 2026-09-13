@@ -20,7 +20,7 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
     let mut shape = entry.clone();
     shape.presence.clear();
     plain_shape(&shape)?;
-    let parts = super::owner_layout::parts(entry)?;
+    let parts = super::owner_layout::parts(entry, program)?;
     let files: Vec<_> = parts
         .iter()
         .map(|part| {
@@ -262,10 +262,22 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
         } else {
             String::new()
         };
+        let exclude_writer = if !nested && !qname && !composite && sequence.is_none() {
+            format!(
+                "pub(super) fn write_yaml_except(value:&Stored,inputs:&PreparedInputs,out:&mut String,indent:&str,excluded:usize)->core::Result<()>{{if value.0.raw.is_empty(){{core::yaml::append_properties(out,|out|write_yaml_except_{id}(&value.0,inputs,out,indent,false,Some(excluded)))}}else{{let bytes=write_yaml_preserved_except_{id}(&value.0,inputs,false,Some(excluded))?;core::yaml::append_properties(out,|out|{{core::yaml::Indented::new(out,indent).push_str(std::str::from_utf8(&bytes).expect(\"generated YAML\"));Ok(())}})}}}}"
+            )
+        } else {
+            String::new()
+        };
         let text_accessor = if !nested && !qname && !composite && sequence.is_none() {
             format!("text_field_{id}(&value.0,field)")
         } else {
             "let _=(value,field);Err(RuntimeDiagnostic::new(\"fact.field-type\",\"Expected a scalar field\"))".into()
+        };
+        let annotation_accessor = if !nested && !qname && !composite && sequence.is_none() {
+            "value.0.raw.has_annotation(field)"
+        } else {
+            "let _=(value,field);false"
         };
         let xml_write =
             if !names.is_empty() && xml.iter().any(|mapping| mapping.attribute.is_none()) {
@@ -293,8 +305,10 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
         writeln!(out,r#"#[allow(dead_code)] mod part_{id}_{slot} {{ use super::*;
 {code}
 {checks}
+{exclude_writer}
 pub(super) struct Stored(V{id},bool);
 pub(super) fn text_field(value:&Stored,field:usize)->core::Result<&str>{{{text_accessor}}}
+pub(super) fn field_has_annotation(value:&Stored,field:usize)->bool{{{annotation_accessor}}}
 pub(super) struct Prepared({prepared});
 pub(super) fn read_xml(source:&[u8],inputs:&PreparedInputs,events:impl core::xml::ScopedSource)->core::Result<Stored> {{read_xml_events_{id}(source,inputs,{xml_events}{xml_extra}).map(|value|Stored(value,true))}}
 pub(super) fn read_yaml(source:&[u8],inputs:&PreparedInputs,events:impl core::yaml::Source)->core::Result<Stored> {{let _=source;read_yaml_events_{id}({yaml_source}inputs,{yaml_extra}events).map(|value|Stored(value,true))}}
@@ -904,7 +918,7 @@ pub(super) fn check_yaml(value:&Stored,source:&[u8],inputs:&PreparedInputs)->Vec
 
 /// Validate event-state capability before referring to generated state types.
 pub(super) fn state_supported(entry: &LinkedEntry, program: &Program) -> Result<bool, Diagnostic> {
-    for child in super::owner_layout::parts(entry)? {
+    for child in super::owner_layout::parts(entry, program)? {
         if matches!(&child.xml, LinkedXml::Record(fields) if fields.iter().any(|field| field.file.is_some()))
         {
             return Ok(false);

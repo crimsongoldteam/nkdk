@@ -1,0 +1,85 @@
+import {fileURLToPath} from 'node:url';
+import {join} from 'node:path';
+import {spawnSync} from 'node:child_process';
+import {fixture,xml,yaml as expected} from '../test/fixtures/array-collection.mjs';
+import {emitCollections} from './collection-emission.mjs';
+import {candidateCatalog,dependencyFiles,yaml} from './candidate-catalog.mjs';
+import {writeFocused} from './focused-output.mjs';
+const root=fileURLToPath(new URL('../../../',import.meta.url));
+process.chdir(root);
+const {graph,entries}=fixture(),{catalog}=candidateCatalog();
+const emitted=emitCollections(graph,entries,catalog);
+if(emitted.results[0].status!=='candidate')throw new Error(JSON.stringify(emitted.results));
+const namedGraph=structuredClone(graph);
+namedGraph.edges[0].mapping.yamlAsArray=false;
+namedGraph.edges[0].mapping.keyField='name';
+namedGraph.registrations[0].parameters.yamlAsArray=false;
+namedGraph.registrations[0].parameters.keyField='name';
+const named=emitCollections(namedGraph,entries,catalog);
+if(named.results[0].status!=='candidate')throw new Error(JSON.stringify(named.results));
+named.modules[0].constraints=[{id:'key-policy',appliesTo:['xml-import','yaml-validation'],assert:{not:{eq:[{field:'name'},{literal:'forbidden'}]}},diagnostic:{code:'test.key-policy',severity:'error',at:{field:'name'},message:'Reserved key'}}];
+const nested={format:'nkdk-declarations/1',kind:'value',id:'test.collection.nested',presence:[{target:'self',xml:{missing:{denotes:{absent:true}}},yaml:{missing:{denotes:{absent:true}}}}],value:{kind:'record',fields:[{name:'text',type:{kind:'scalar',scalar:'text'}}]},representations:{xml:{kind:'record',fields:[{field:'text',path:['Text']}]},yaml:{kind:'mapping',fields:[{field:'text',key:'Текст'}]}}};
+const composed=structuredClone(named.modules);
+composed[0].id='test.collection.composed.item';
+composed[0].imports.nested=nested.id;
+composed[0].value.fields.push({name:'nested',type:{use:'nested'}});
+composed[0].representations.xml.fields.push({field:'nested',path:['Properties','Nested']});
+composed[0].representations.yaml.fields.push({field:'nested',key:'Вложенное'});
+composed[1].id='test.collection.composed.list';composed[1].imports.item=composed[0].id;
+composed[2].id='test.collection.composed.property';composed[2].imports.items=composed[1].id;
+const grouped=structuredClone(composed);
+grouped[0].id='test.collection.grouped.item';
+grouped[0].value.fields.find(field=>field.name==='name').type={kind:'scalar',scalar:'text'};
+grouped[0].value.fields.unshift({name:'token',type:{kind:'scalar',scalar:'text'}});
+grouped[0].representations.xml.fields.unshift({field:'token',path:['Properties'],attribute:'token'});
+grouped[0].representations.yaml.fields.unshift({field:'token',key:'Token'});
+grouped[0].presence=[{target:{field:'token'},xml:{missing:{denotes:{absent:true}}},yaml:{default:{field:'name'}}}];
+grouped[1].id='test.collection.grouped.list';grouped[1].imports.item=grouped[0].id;
+grouped[2].id='test.collection.grouped.property';grouped[2].imports.items=grouped[1].id;
+const groupedCommon=structuredClone(grouped);
+groupedCommon[0].id='test.collection.grouped-common.item';
+groupedCommon[0].value.fields.find(field=>field.name==='name').type=structuredClone(named.modules[0].value.fields.find(field=>field.name==='name').type);
+groupedCommon[1].id='test.collection.grouped-common.list';groupedCommon[1].imports.item=groupedCommon[0].id;
+groupedCommon[2].id='test.collection.grouped-common.property';groupedCommon[2].imports.items=groupedCommon[1].id;
+const xmlOnly=structuredClone(groupedCommon);
+xmlOnly[0].id='test.collection.xml-only.item';
+xmlOnly[0].representations.yaml.fields=xmlOnly[0].representations.yaml.fields.filter(field=>field.field!=='token');
+xmlOnly[1].id='test.collection.xml-only.list';xmlOnly[1].imports.item=xmlOnly[0].id;
+xmlOnly[2].id='test.collection.xml-only.property';xmlOnly[2].imports.items=xmlOnly[1].id;
+const xmlOnlyScalar=structuredClone(xmlOnly[0]);
+xmlOnlyScalar.id='test.xml-only.scalar';xmlOnlyScalar.kind='object';
+xmlOnlyScalar.value.fields=xmlOnlyScalar.value.fields.filter(field=>field.name!=='nested');
+xmlOnlyScalar.representations.xml.fields=xmlOnlyScalar.representations.xml.fields.filter(field=>field.field!=='nested').map(field=>({...field,path:['Root',...field.path]}));
+xmlOnlyScalar.representations.yaml.fields=xmlOnlyScalar.representations.yaml.fields.filter(field=>field.field!=='nested');
+xmlOnlyScalar.constraints.push({id:'hidden-policy',appliesTo:['yaml-validation'],assert:{not:{eq:[{field:'token'},{literal:'blocked-token'}]}},diagnostic:{code:'test.hidden-policy',severity:'error',at:{field:'token'},message:'Restored token is reserved'}});
+const declarations=[xmlOnlyScalar,...xmlOnly,...groupedCommon,...grouped,...emitted.modules,...named.modules,...composed,nested];
+const modules=[...declarations,...dependencyFiles(declarations,catalog)];
+const files=Object.fromEntries(modules.map(m=>[m.id+'.yaml',yaml.dump(m,{noRefs:true})]));
+const entry=emitted.results[0].declaration;
+const paths=writeFocused(join(root,'rust/target/collection-emission-check'),files,{cases:[
+  {id:'xml-only-scalar-normal',entry:xmlOnlyScalar.id,xml:'<Root><Properties token="Первый"><Name>Первый</Name><Enabled>true</Enabled></Properties></Root>',yaml:'Имя: Первый\nВключено: Истина',rejectedYAML:['Имя: Первый\nВключено: Истина\nToken: other','Имя: Первый\nВключено: Истина\ntoken: other','Имя: blocked-token\nВключено: Истина']},
+  {id:'xml-only-scalar-mismatch',entry:xmlOnlyScalar.id,xml:'<Root><Properties token="other"><Name>Первый</Name><Enabled>true</Enabled></Properties></Root>',annotation:'token: !xml/raw'},
+  {id:'xml-only-scalar-absent',entry:xmlOnlyScalar.id,xml:'<Root><Properties><Name>Первый</Name><Enabled>true</Enabled></Properties></Root>',annotation:'token: !xml/raw'},
+  {id:'xml-only-grouped-normal',entry:xmlOnly[2].id,xml:xml.replace('<Properties>','<Properties token="Первый">').replace('<Properties>','<Properties token="Второй">').replaceAll('</Enabled>','</Enabled><Nested><Text>Данные</Text></Nested>'),yaml:'Элементы:\n  Первый:\n    Включено: Истина\n    Вложенное:\n      Текст: Данные\n  Второй:\n    Включено: Ложь\n    Вложенное:\n      Текст: Данные'},
+  {id:'xml-only-grouped-mismatch',entry:xmlOnly[2].id,xml:xml.replaceAll('<Properties>','<Properties token="other">').replaceAll('</Enabled>','</Enabled><Nested><Text>Данные</Text></Nested>'),annotation:'Элементы: !xml/raw'},
+  {id:'xml-only-grouped-absent',entry:xmlOnly[2].id,xml:xml.replaceAll('</Enabled>','</Enabled><Nested><Text>Данные</Text></Nested>'),annotation:'    token: !xml/raw'},
+  {id:'named-grouped-missing-attribute',entry:grouped[2].id,xml:xml.replaceAll('</Enabled>','</Enabled><Nested><Text>Данные</Text></Nested>'),annotation:'    token: !xml/raw'},
+  {id:'named-grouped-invalid-key',entry:grouped[2].id,xml:xml.replace('Первый','forbidden').replaceAll('</Enabled>','</Enabled><Nested><Text>Данные</Text></Nested>'),annotation:'Элементы: !xml/raw'},
+  ...[grouped,groupedCommon].map((modules,index)=>({id:`named-grouped-key-${index}`,entry:modules[2].id,xml:xml.replace('<Properties>','<Properties token="Первый">').replace('<Properties>','<Properties token="other">').replaceAll('</Enabled>','</Enabled><Nested><Text>Данные</Text></Nested>'),yaml:'Элементы:\n  Первый:\n    Включено: Истина\n    Вложенное:\n      Текст: Данные\n  Второй:\n    Token: other\n    Включено: Ложь\n    Вложенное:\n      Текст: Данные'})),
+  {id:'named-composed-preservation',entry:composed[2].id,xml:xml.replaceAll('</Enabled>','</Enabled><Nested extra="x"><Text>Данные</Text></Nested>'),annotation:'Элементы: !xml/raw',reverseYAML:'Элементы:\n  Первый:\n    Включено: Истина\n    Вложенное: !xml/raw\n      $значение:\n        Текст: Данные\n      $xml:\n        _extra: x\n  Второй:\n    Включено: Ложь\n    Вложенное: !xml/raw\n      $значение:\n        Текст: Данные\n      $xml:\n        _extra: x'},
+  {id:'named-composed-invalid-key',entry:composed[2].id,xml:xml.replace('Первый','forbidden').replaceAll('</Enabled>','</Enabled><Nested><Text>Данные</Text></Nested>'),annotation:'Элементы: !xml/raw'},
+  {id:'named-composed-records',entry:composed[2].id,xml:xml.replaceAll('</Enabled>','</Enabled><Nested><Text>Данные</Text></Nested>'),yaml:'Элементы:\n  Первый:\n    Включено: Истина\n    Вложенное:\n      Текст: Данные\n  Второй:\n    Включено: Ложь\n    Вложенное:\n      Текст: Данные'},
+  {id:'generated-named-records',entry:named.results[0].declaration,xml,rejectedYAML:['Элементы: {forbidden: {Включено: Истина}}','Элементы: {Первый: {Имя: Второй, Включено: Истина}}','Элементы: {Первый: {}, Первый: {}}'],yaml:'Элементы:\n  Первый:\n    Включено: Истина\n  Второй:\n    Включено: Ложь'},
+  {id:'generated-named-invalid-key',entry:named.results[0].declaration,xml:xml.replace('Первый','forbidden'),annotation:'Элементы: !xml/raw'},
+  {id:'generated-named-missing-key',entry:named.results[0].declaration,xml:xml.replace(/<Name>[^<]+<\/Name>/g,''),annotation:'Элементы: !xml/raw'},
+  {id:'generated-named-duplicate',entry:named.results[0].declaration,xml:xml.replace('Второй','Первый'),annotation:'Элементы: !xml/raw'},
+  {id:'generated-named-invalid-field',entry:named.results[0].declaration,xml:xml.replace('<Enabled>true</Enabled>','<Enabled>broken</Enabled>'),annotation:'Элементы: !xml/raw'},
+  {id:'generated-empty-mapping',entry:named.results[0].declaration,xml:'<Root><Items/></Root>',yaml:'Элементы: {}'},
+  {id:'generated-array-records',entry,xml,yaml:expected},
+  {id:'generated-array-repeated-names',entry,xml:xml.replace('Второй','Первый'),yaml:expected.replace('Второй','Первый')},
+  {id:'generated-empty-array',entry,xml:'<Root><Items/></Root>',yaml:'Элементы: []'},
+]});
+const result=spawnSync('cargo',['run','--offline','--locked','--manifest-path','../tools/rules-migration/runtime/Cargo.toml','--target-dir','target/migration-contracts','-j','1','--',paths.cases],{
+ cwd:join(root,'rust'),stdio:'inherit',env:{...process.env,NKDK_MIGRATION_CATALOG:paths.catalog,CARGO_INCREMENTAL:'0',CARGO_PROFILE_DEV_DEBUG:'0',CARGO_PROFILE_TEST_DEBUG:'0'}});
+if(result.error)throw result.error;
+process.exitCode=result.status??1;

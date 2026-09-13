@@ -18,6 +18,51 @@ pub(crate) fn resolve(
         .expect("linked item")
         .clone();
     instantiate(&mut entry, bindings, arguments)?;
+    if let YamlRepresentation::RecordMapping { key } = &collection.yaml {
+        let LinkedType::Record(fields) = &entry.value else {
+            return Err(diagnostic(
+                "expression_type_mismatch",
+                &collection.source,
+                "Record mapping requires record items",
+            ));
+        };
+        let Some(field) = fields.iter().find(|field| &field.name == key) else {
+            return Err(diagnostic(
+                "unknown_representation_field",
+                &collection.source,
+                "Record mapping key is absent",
+            ));
+        };
+        let text =
+            match &field.value {
+                LinkedType::Scalar(ScalarType::Text) => true,
+                LinkedType::Reference(id) => program
+                    .entries
+                    .iter()
+                    .find(|e| e.id == *id)
+                    .is_some_and(|e| {
+                        e.value == LinkedType::Scalar(ScalarType::Text)
+                            && e.yaml == YamlRepresentation::Text
+                    }),
+                _ => false,
+            };
+        if !text {
+            return Err(diagnostic(
+                "expression_type_mismatch",
+                &collection.source,
+                "Record mapping key must be text",
+            ));
+        }
+        if !matches!(&entry.yaml, YamlRepresentation::Mapping(fields) if fields.iter().any(|field| &field.field==key))
+        {
+            return Err(diagnostic(
+                "unknown_representation_field",
+                &collection.source,
+                "Record mapping key needs a YAML field",
+            ));
+        }
+    }
+
     Ok(Some(entry))
 }
 
@@ -32,6 +77,15 @@ pub(super) fn validate(entry: &LinkedEntry) -> Result<(), Diagnostic> {
             LinkedXml::WithAttributes { content, .. } => return visit(content, yaml, source),
             other => other,
         };
+        if matches!(yaml, YamlRepresentation::RecordMapping { .. })
+            && !matches!(xml,LinkedXml::ElementSequence {item,..} if **item==LinkedXml::Declared)
+        {
+            return Err(diagnostic(
+                "incomplete_item_contract",
+                source,
+                "A record mapping inherits the complete XML item declaration",
+            ));
+        }
         if let (
             LinkedXml::ElementSequence { item: xml, .. },
             YamlRepresentation::Sequence { item: yaml, .. },

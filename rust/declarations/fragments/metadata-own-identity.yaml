@@ -1,0 +1,22 @@
+format: nkdk-declarations/1
+kind: fragment
+id: fragment.metadata-own-identity
+inputs:
+  component: {type: {kind: scalar, scalar: text}}
+  owner: {type: {kind: scalar, scalar: text}}
+  kind: {type: {kind: scalar, scalar: text}}
+  name: {type: {kind: scalar, scalar: text}}
+  identity: {type: {kind: scalar, scalar: text}}
+value: {kind: record, fields: []}
+representations:
+  xml: {kind: record, fields: []}
+  yaml: {kind: mapping, fields: []}
+contributions:
+- index: metadata.own-identities
+  key:
+    record:
+      component: {input: component}
+      owner: {input: owner}
+      kind: {input: kind}
+      name: {input: name}
+  value: {input: identity}

@@ -1,0 +1,17 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.metadata-own-identity
+imports: {facts: fragment.metadata-own-identity}
+inputs:
+  component: {type: {kind: scalar, scalar: text}}
+  owner: {type: {kind: scalar, scalar: text}}
+  kind: {type: {kind: scalar, scalar: text}}
+  name: {type: {kind: scalar, scalar: text}}
+  identity: {type: {kind: scalar, scalar: text}}
+compose:
+- use: facts
+  bind: {component: {input: component}, owner: {input: owner}, kind: {input: kind}, name: {input: name}, identity: {input: identity}}
+value: {kind: record, fields: [{name: name, type: {kind: scalar, scalar: text}}]}
+representations:
+  xml: {kind: record, fields: [{field: name, path: [Root, Name]}]}
+  yaml: {kind: mapping, fields: [{field: name, key: Имя}]}

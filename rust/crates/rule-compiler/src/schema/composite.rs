@@ -10,7 +10,7 @@ pub(super) fn build(program: &Program, owner: &LinkedEntry) -> Result<Option<Val
     };
     let (
         LinkedType::Record(fields),
-        YamlRepresentation::Mapping(mapping),
+        YamlRepresentation::Mapping(_),
         YamlRepresentation::Mapping(owner_mapping),
     ) = (&common.value, &common.yaml, &owner.yaml)
     else {
@@ -18,12 +18,12 @@ pub(super) fn build(program: &Program, owner: &LinkedEntry) -> Result<Option<Val
     };
     let mut properties = serde_json::Map::new();
     let mut required = Vec::new();
+    let planned = program.record(common)?;
     for (index, field) in fields.iter().enumerate() {
-        let key = &mapping
-            .iter()
-            .find(|m| m.field == field.name)
-            .ok_or_else(|| unsupported(common))?
-            .key;
+        let Some(mapping) = planned.fields[index].yaml else {
+            continue;
+        };
+        let key = &mapping.key;
         let target = reference(&field.value).map(|(id, _, _)| {
             program
                 .entries
@@ -67,7 +67,7 @@ pub(super) fn build(program: &Program, owner: &LinkedEntry) -> Result<Option<Val
         program,
         entry: common,
         fields,
-        mappings: mapping,
+        record: planned,
     };
     let mut checks = Vec::new();
     for rule in &common.constraints {
@@ -78,6 +78,18 @@ pub(super) fn build(program: &Program, owner: &LinkedEntry) -> Result<Option<Val
                 return Err(unsupported(common));
             }
             let assertion = specialize(&rule.assertion, &bindings, &args, owner)?;
+            let when = rule
+                .when
+                .as_ref()
+                .map(|when| specialize(when, &bindings, &args, owner))
+                .transpose()?;
+            if context.uses_runtime_value(&assertion)
+                || when
+                    .as_ref()
+                    .is_some_and(|when| context.uses_runtime_value(when))
+            {
+                continue;
+            }
             let mut check = context.expression(&assertion)?;
             if let Some(when) = &rule.when {
                 check = json!({"if":context.expression(&specialize(when,&bindings,&args,owner)?)?,"then":check});

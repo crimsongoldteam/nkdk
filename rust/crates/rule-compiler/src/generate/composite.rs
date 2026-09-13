@@ -9,7 +9,7 @@ pub(crate) fn reference(
 
 pub(crate) fn record<'a>(
     entry: &LinkedEntry,
-    program: &'a Program,
+    program: &'a Program<'a>,
 ) -> Option<(&'a LinkedEntry, Vec<LinkedBinding>, Vec<LinkedExpression>)> {
     let LinkedType::Record(fields) = &entry.value else {
         return None;

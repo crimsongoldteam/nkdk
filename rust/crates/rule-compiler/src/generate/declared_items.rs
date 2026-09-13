@@ -9,7 +9,7 @@ pub(super) fn applies(entry: &LinkedEntry, program: &Program) -> bool {
     {
         return false;
     }
-    fields.len()==1 && fields[0].value.as_reference().and_then(|(id,_,_)|program.entries.iter().find(|item|item.id==id)).is_some_and(|item|matches!(&item.yaml,YamlRepresentation::Sequence{item,..} if **item==YamlRepresentation::Declared))
+    fields.len()==1 && fields[0].value.as_reference().and_then(|(id,_,_)|program.entries.iter().find(|item|item.id==id)).is_some_and(|item|(matches!(&item.yaml,YamlRepresentation::Sequence{item,..} if **item==YamlRepresentation::Declared) || matches!(&item.yaml,YamlRepresentation::RecordMapping{..})))
 }
 
 pub(super) fn generate(
@@ -49,7 +49,7 @@ pub(super) fn generate(
             path: relative,
             item,
         },
-        YamlRepresentation::Sequence { shorthand, .. },
+        yaml,
     ) = (&entry.xml, attributes::content(&common.xml).0, &common.yaml)
     else {
         return Err(unsupported(
@@ -68,7 +68,7 @@ pub(super) fn generate(
         }
     };
     if **item != LinkedXml::Declared
-        || !shorthand.is_empty()
+        || matches!(yaml, YamlRepresentation::Sequence { shorthand, .. } if !shorthand.is_empty())
         || !common.constraints.is_empty()
         || !common.shorthands.is_empty()
         || common.normalization.is_some()
@@ -139,6 +139,29 @@ pub(super) fn generate(
     let LinkedType::Record(row_fields) = &row.value else {
         return Err(unsupported(&row, "The item requires a record value"));
     };
+    let lifted = if let YamlRepresentation::RecordMapping { key } = &common.yaml {
+        let index = row_fields
+            .iter()
+            .position(|field| &field.name == key)
+            .expect("validated key");
+        let YamlRepresentation::Mapping(fields) = &row.yaml else {
+            return Err(unsupported(
+                &row,
+                "Record mapping needs a record YAML representation",
+            ));
+        };
+        Some((
+            index,
+            fields
+                .iter()
+                .find(|field| &field.field == key)
+                .expect("validated YAML key")
+                .key
+                .clone(),
+        ))
+    } else {
+        None
+    };
     let composed = row_fields
         .iter()
         .any(|field| scalar::Codec::resolve(&field.value, &row, program).is_err());
@@ -162,6 +185,54 @@ pub(super) fn generate(
             .join(" || ")
     } else {
         String::new()
+    };
+    let lifted_write = match &lifted {
+        None => "unreachable!()".into(),
+        Some((index, _)) if !composed => {
+            format!("write_yaml_except_@id@(&value.0,inputs,out,indent,false,Some({index}))")
+        }
+        Some((index, _)) => {
+            let mut code = String::new();
+            for (slot, part) in super::owner_layout::parts(&row, program)?
+                .iter()
+                .enumerate()
+            {
+                let LinkedType::Record(fields) = &part.value else {
+                    unreachable!()
+                };
+                if let Some(field) = fields
+                    .iter()
+                    .position(|field| field.name == row_fields[*index].name)
+                {
+                    code.push_str(&format!("part_@id@_{slot}::write_yaml_except(&value.0.p{slot},inputs,out,indent,{field})?;"));
+                } else {
+                    code.push_str(&format!("part_@id@_{slot}::write_yaml_indented(&value.0.p{slot},inputs,out,indent)?;"));
+                }
+            }
+            code.push_str("Ok(())");
+            code
+        }
+    };
+    let key_available = match &lifted {
+        None => "true".into(),
+        Some((index, _)) if !composed => format!("!value.0.raw.has_annotation({index})"),
+        Some((index, _)) => {
+            let parts = super::owner_layout::parts(&row, program)?;
+            let (slot, field) = parts
+                .iter()
+                .enumerate()
+                .find_map(|(slot, part)| {
+                    let LinkedType::Record(fields) = &part.value else {
+                        return None;
+                    };
+                    fields
+                        .iter()
+                        .position(|field| field.name == row_fields[*index].name)
+                        .map(|field| (slot, field))
+                })
+                .expect("linked key part");
+            format!("!part_@id@_{slot}::field_has_annotation(&value.0.p{slot},{field})")
+        }
     };
     let row_code = if composed {
         owner::generate(&row, program)?
@@ -306,6 +377,21 @@ pub(super) fn generate(
                 SCALAR_WRITE
             },
         );
+    code = code
+        .replace(
+            "@lifted_key@",
+            &lifted
+                .as_ref()
+                .map_or("None::<&str>".into(), |(_, key)| format!("Some({key:?})")),
+        )
+        .replace("@lifted_write@", &lifted_write)
+        .replace("@key_available@", &key_available)
+        .replace(
+            "@lifted_index@",
+            &lifted
+                .as_ref()
+                .map_or("0".into(), |(index, _)| index.to_string()),
+        );
     code = code.replace(
         "@row_scalar@",
         if composed {
@@ -339,6 +425,8 @@ pub(super) fn namespaces<'a>(value:&'a Stored,prepared:&'a Prepared,names:&mut V
 pub(super) fn write_xml<'a>(value:&Stored,prepared:&'a Prepared,inputs:&PreparedInputs,out:&mut core::xml::Writer<'a>)->core::Result<()>{@write_row@(&value.0,&prepared.0,inputs,out)}
 pub(super) fn write_yaml(value:&Stored,inputs:&PreparedInputs,out:&mut String,indent:&str)->core::Result<()>{@yaml_write_row@}
 
+pub(super) fn key_can_be_lifted(value:&Stored)->bool{let _=value;@key_available@}
+pub(super) fn write_mapping_value(value:&Stored,inputs:&PreparedInputs,out:&mut String,indent:&str)->core::Result<()>{let _=(value,inputs,&mut *out,indent);@lifted_write@}
 pub(super) fn check(value:&Stored,source:&[u8],inputs:&PreparedInputs,xml:bool)->Vec<RuntimeDiagnostic>{if xml{check_xml_@id@(&value.0,source,inputs)}else{check_yaml_@id@(&value.0,source,inputs)}}
 pub(super) fn scalar(value:&Stored,path:&[core::xml::Name],occurrences:&[usize])->bool{@row_scalar@}
 pub(super) fn qnames()->Vec<(&'static str,&'static str)>{xml_qnames_@id@()}
@@ -362,20 +450,24 @@ fn finish_xml_@id@(state:XmlCollection@id@,_inputs:&PreparedInputs)->core::Resul
 fn read_xml_events_@id@(source:&[u8],inputs:&PreparedInputs,events:impl core::xml::Source,mut other:impl FnMut(&[core::xml::Name],&core::xml::Token<'_>)->core::Result<bool>)->core::Result<V@id@>{let mut state=XmlCollection@id@::new();events.visit(|path,token|{if !other(path,token)?{state.consume(path,token,source,inputs)?;}Ok(())})?;finish_xml_@id@(state,inputs)}
 #[allow(dead_code)] fn read_xml_with_@id@(source:&[u8],inputs:&PreparedInputs,other:impl FnMut(&[core::xml::Name],&core::xml::Token<'_>)->core::Result<bool>)->core::Result<V@id@>{read_xml_events_@id@(source,inputs,core::xml::DocumentSource(source),other)}
 fn read_xml_@id@(source:&[u8],inputs:&PreparedInputs)->core::Result<V@id@>{match read_xml_events_@id@(source,inputs,core::xml::DocumentSource(source),|_,_|Ok(false)){Ok(value)=>Ok(value),Err(error) if matches!(error.code.as_deref(),Some("xml.unknown-field"|"xml.unknown-attribute"|"xml.unexpected-text"|"xml.duplicate-field"|"value.missing"))=>Ok(V@id@{rows:Vec::new(),present:true,raw:None}),Err(error)=>Err(error)}}
-struct YamlSequence@id@{property:core::yaml::PropertyReader,depth:usize,opened:bool,rows:Vec<item_@id@::Stored>,active:Option<item_@id@::YamlReader>,error:Option<RuntimeDiagnostic>}
+struct YamlSequence@id@{mapping:core::yaml::RecordMappingReader,property:core::yaml::PropertyReader,depth:usize,opened:bool,rows:Vec<item_@id@::Stored>,active:Option<item_@id@::YamlReader>,error:Option<RuntimeDiagnostic>}
 impl YamlSequence@id@ {
-fn new()->Self{Self{property:core::yaml::PropertyReader::default(),depth:0,opened:false,rows:Vec::new(),active:None,error:None}}
+fn new()->Self{Self{mapping:core::yaml::RecordMappingReader::default(),property:core::yaml::PropertyReader::default(),depth:0,opened:false,rows:Vec::new(),active:None,error:None}}
 fn consume(&mut self,node:core::yaml::Node,position:core::Position,source:&[u8],inputs:&PreparedInputs)->core::Result<()>{
 let node=if @root_yaml@{node}else{let Some(node)=self.property.consume(node,@key@,"yaml.collection-form")? else{return Ok(())};node};
+if let Some(key)=@lifted_key@ {let mut mapping=std::mem::take(&mut self.mapping);let result=mapping.consume(node,position,key,|node,position|self.consume_item(node,position,source,inputs));self.mapping=mapping;return result;}
+self.consume_item(node,position,source,inputs)}
+fn consume_item(&mut self,node:core::yaml::Node,position:core::Position,source:&[u8],inputs:&PreparedInputs)->core::Result<()>{
 if self.depth==0{if self.opened || !matches!(node,core::yaml::Node::SequenceStart(None)){return Err(RuntimeDiagnostic::new("yaml.collection-form","Expected a sequence"));}self.opened=true;self.depth=1;return Ok(())}
 if self.depth==1 && matches!(node,core::yaml::Node::SequenceEnd){self.depth=0;return Ok(())}
 if self.depth==1{self.active=Some(item_@id@::YamlReader::new()?);}
 match &node{core::yaml::Node::MappingStart(_)|core::yaml::Node::SequenceStart(_)=>self.depth+=1,core::yaml::Node::MappingEnd|core::yaml::Node::SequenceEnd=>self.depth-=1,_=>{}}
 if self.error.is_none() && let Err(error)=self.active.as_mut().expect("started item").consume(node,position,source,inputs){self.error=Some(error);}
 if self.depth==1{let reader=self.active.take().expect("started item");let result=match self.error.take(){Some(error)=>Err(error),None=>reader.finish(source,inputs)};
-let row=match result{Ok(row)=>row,Err(error)=>{if source.is_empty(){return Err(error);}let bytes=core::yaml::preserved_sequence_item(source,if @root_yaml@{None}else{Some(@key@)},self.rows.len())?;item_@id@::read_yaml(&bytes,inputs)?}};self.rows.push(row);}
+let row=match result{Ok(row)=>row,Err(error)=>{if source.is_empty(){return Err(error);}let property=if @root_yaml@{None}else{Some(@key@)};let bytes=if let Some(key)=@lifted_key@{core::yaml::preserved_record_mapping_item(source,property,self.rows.len(),key)?}else{core::yaml::preserved_sequence_item(source,property,self.rows.len())?};item_@id@::read_yaml(&bytes,inputs)?}};self.rows.push(row);}
 Ok(())}
-fn finish(self,_source:&[u8],_inputs:&PreparedInputs)->core::Result<V@id@>{let present=if @root_yaml@{self.opened}else{self.property.finish("yaml.collection-form")?};if self.depth!=0 || self.active.is_some() || (!present && !@yaml_missing@){return Err(RuntimeDiagnostic::new("value.missing","Incomplete collection"));}Ok(V@id@{rows:self.rows,present,raw:None})}
+fn finish(self,_source:&[u8],_inputs:&PreparedInputs)->core::Result<V@id@>{let present=if @root_yaml@{self.opened}else{self.property.finish("yaml.collection-form")?};if present && @lifted_key@.is_some(){self.mapping.finish()?;}
+if self.depth!=0 || self.active.is_some() || (!present && !@yaml_missing@){return Err(RuntimeDiagnostic::new("value.missing","Incomplete collection"));}Ok(V@id@{rows:self.rows,present,raw:None})}
 }
 fn read_yaml_events_@id@(source:&[u8],inputs:&PreparedInputs,events:impl core::yaml::Source)->core::Result<V@id@>{let mut state=YamlSequence@id@::new();events.visit(|node,position|state.consume(node,position,source,inputs))?;state.finish(source,inputs)}
 fn read_plain_yaml_@id@(source:&[u8],inputs:&PreparedInputs)->core::Result<V@id@>{if source.is_empty() && @yaml_missing@{return Ok(V@id@{rows:Vec::new(),present:false,raw:None})}read_yaml_events_@id@(source,inputs,core::yaml::DocumentSource(if source.is_empty(){b"{}"}else{source}))}
@@ -390,7 +482,16 @@ fn write_xml_@id@(value:&V@id@,inputs:&PreparedInputs)->core::Result<Vec<u8>>{if
 fn write_yaml_into_@id@(value:&V@id@,inputs:&PreparedInputs,out:&mut String)->core::Result<()>{core::yaml::append_properties(out,|out|write_yaml_indented_@id@(value,inputs,out,"",false))}
 fn write_yaml_indented_@id@(value:&V@id@,inputs:&PreparedInputs,out:&mut String,indent:&str,_lift:bool)->core::Result<()>{if !value.present{return Ok(())}
 if !@root_yaml@{out.push_str(indent);out.push_str(&core::yaml::scalar(@key@));out.push(':');}
+if @lifted_key@.is_some(){return write_mapping_rows_@id@(value,inputs,out,indent);}
 if value.rows.is_empty(){if !@root_yaml@{out.push(' ');}out.push_str("[]");return Ok(())}let row_indent=format!("{indent}{}",if @root_yaml@{"  "}else{"    "});for (index,row) in value.rows.iter().enumerate(){if !@root_yaml@ || index>0{out.push('\n');}out.push_str(indent);out.push_str(if @root_yaml@{"-\n"}else{"  -\n"});let start=out.len();item_@id@::write_yaml(row,inputs,out,&row_indent)?;if out.len()==start{out.push_str(&row_indent);out.push_str("{}");}}Ok(())}
+fn write_mapping_rows_@id@(value:&V@id@,inputs:&PreparedInputs,out:&mut String,indent:&str)->core::Result<()>{
+if value.rows.is_empty(){if !@root_yaml@{out.push(' ');}out.push_str("{}");return Ok(())}
+let mut seen=std::collections::HashSet::new();let row_indent=format!("{indent}{}",if @root_yaml@{"  "}else{"    "});
+for row in &value.rows{if !item_@id@::key_can_be_lifted(row){continue;}
+let key=match item_@id@::text(row,@lifted_index@){Ok(key)=>key,Err(error) if error.code.as_deref()==Some("fact.unready")=>continue,Err(error)=>return Err(error)};if !seen.insert(key){continue;}
+if !@root_yaml@ || seen.len()>1{out.push('\n');}out.push_str(indent);if !@root_yaml@{out.push_str("  ");}out.push_str(&core::yaml::scalar(key));out.push_str(":\n");let start=out.len();item_@id@::write_mapping_value(row,inputs,out,&row_indent)?;if start==out.len(){out.push_str(&row_indent);out.push_str("{}");}}
+if seen.is_empty(){if !@root_yaml@{out.push(' ');}out.push_str("{}");}
+Ok(())}
 fn write_yaml_@id@(value:&V@id@,inputs:&PreparedInputs)->core::Result<Vec<u8>>{let mut out=String::new();write_yaml_into_@id@(value,inputs,&mut out)?;let bytes=out.into_bytes();if let Some(patch)=&value.raw{encode_raw_@id@(&bytes,patch.to_yaml().as_bytes())}else{Ok(bytes)}}
 fn check_rows_@id@(value:&V@id@,source:&[u8],inputs:&PreparedInputs,xml:bool)->Vec<RuntimeDiagnostic>{let mut issues=Vec::new();for (index,row) in value.rows.iter().enumerate(){issues.extend(item_@id@::check(row,source,inputs,xml).into_iter().map(|mut issue|{if !@root_yaml@{issue.path.insert(0,@key@.into());}issue.occurrence=std::num::NonZeroU32::new(index as u32+1);issue}));}issues}
 fn check_xml_@id@(value:&V@id@,source:&[u8],inputs:&PreparedInputs)->Vec<RuntimeDiagnostic>{check_rows_@id@(value,source,inputs,true)}

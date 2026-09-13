@@ -55,7 +55,11 @@ pub(super) fn generate(id: u32, fields: &[Field<'_>]) -> String {
         }
     }
     writeln!(out,"}})}}\nfn consume(&mut self,key:String,value:core::yaml::Scalar,tag:Option<String>)->core::Result<()>{{match key.as_str(){{").unwrap();
-    for (i, field) in fields.iter().enumerate() {
+    for (i, field) in fields
+        .iter()
+        .enumerate()
+        .filter(|(_, field)| field.yaml_visible)
+    {
         let read = if matches!(field.codec, Codec::Choice(_)) {
             format!(
                 "let (text,number)=value.into_choice_text().map_err(|error|error.field({:?}))?;self.number{i}=number;self.r{i}=Some(text);",

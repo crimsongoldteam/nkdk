@@ -1,11 +1,15 @@
 use super::*;
 
-pub(super) fn field(entry: &LinkedEntry, slot: u32) -> Result<(usize, usize), Diagnostic> {
+pub(super) fn field(
+    entry: &LinkedEntry,
+    slot: u32,
+    program: &Program,
+) -> Result<(usize, usize), Diagnostic> {
     let LinkedType::Record(fields) = &entry.value else {
         unreachable!()
     };
     let name = &fields[slot as usize].name;
-    super::super::owner_layout::parts(entry)?
+    super::super::owner_layout::parts(entry, program)?
         .iter()
         .enumerate()
         .find_map(|(part, entry)| {

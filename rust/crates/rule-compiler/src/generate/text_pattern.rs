@@ -10,7 +10,7 @@ enum DefinitionMode {
 
 pub(super) struct Codec<'a> {
     common: &'a LinkedEntry,
-    program: &'a Program,
+    program: &'a Program<'a>,
     fields: Vec<scalar::Codec<'a>>,
     xml: &'a [TextPatternPart],
     yaml: &'a [TextPatternPart],
@@ -19,7 +19,7 @@ pub(super) struct Codec<'a> {
 impl<'a> Codec<'a> {
     pub(super) fn resolve(
         common: &'a LinkedEntry,
-        program: &'a Program,
+        program: &'a Program<'a>,
     ) -> Result<Self, Diagnostic> {
         let (
             LinkedType::Record(fields),
@@ -40,7 +40,7 @@ impl<'a> Codec<'a> {
     }
     pub(super) fn resolve_parts(
         common: &'a LinkedEntry,
-        program: &'a Program,
+        program: &'a Program<'a>,
         fields: &'a [LinkedField],
         xml: &'a [TextPatternPart],
         yaml: &'a [TextPatternPart],

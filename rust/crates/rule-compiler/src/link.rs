@@ -1,3 +1,5 @@
+use crate::diagnostic;
+use crate::plan::{RepresentationSide, check_coverage};
 mod bindings;
 mod boolean;
 mod choice_contracts;
@@ -109,7 +111,13 @@ pub fn link(modules: &[Module]) -> Result<Program, Vec<Diagnostic>> {
         scalar_contracts::lift(&mut entries).map_err(|error| vec![error])?;
         choice_contracts::lift(&mut entries).map_err(|error| vec![error])?;
         contributions::validate_inputs(&entries).map_err(|error| vec![error])?;
-        Ok(Program { entries })
+        let program = Program { entries };
+        for entry in &program.entries {
+            if matches!(entry.yaml, YamlRepresentation::RecordMapping { .. }) {
+                sequence_item::resolve(entry, &program).map_err(|error| vec![error])?;
+            }
+        }
+        Ok(program)
     } else {
         Err(errors)
     }
@@ -707,17 +715,6 @@ fn expand_path(
         .collect()
 }
 
-fn diagnostic(code: &str, source: &SourceLocation, message: &str) -> Diagnostic {
-    Diagnostic {
-        code: code.into(),
-        file: source.file.clone(),
-        line: source.line,
-        column: source.column,
-        message: message.into(),
-        related: vec![],
-    }
-}
-
 fn validate_xml(
     value: &LinkedType,
     xml: &LinkedXml,
@@ -881,6 +878,9 @@ fn validate_yaml(
             }
             validate_yaml(item, yaml, &[], source)?;
         }
+        (LinkedType::Sequence(item), YamlRepresentation::RecordMapping { .. }) => {
+            validate_yaml(item, &YamlRepresentation::Declared, &[], source)?;
+        }
         (LinkedType::Sequence(item), YamlRepresentation::KeyedMapping { key, value, .. }) => {
             let LinkedType::Record(fields) = item.as_ref() else {
                 return Err(diagnostic(
@@ -963,39 +963,6 @@ fn validate_boolean_table(
             source,
             "Canonical boolean table must map two values to distinct spellings",
         ));
-    }
-    Ok(())
-}
-
-enum RepresentationSide {
-    Xml,
-    Yaml,
-}
-fn check_coverage(
-    fields: &[LinkedField],
-    covered: &BTreeSet<&str>,
-    presence: &[LinkedPresence],
-    side: RepresentationSide,
-    source: &SourceLocation,
-) -> Result<(), Diagnostic> {
-    for (index, field) in fields.iter().enumerate() {
-        if covered.contains(field.name.as_str()) {
-            continue;
-        }
-        let restored = presence.iter().any(|rule| {
-            rule.target == LinkedPresenceTarget::Field(index as u32)
-                && match side {
-                    RepresentationSide::Xml => rule.xml_missing.is_some(),
-                    RepresentationSide::Yaml => rule.yaml_missing.is_some(),
-                }
-        });
-        if !restored {
-            return Err(diagnostic(
-                "unrepresented_field",
-                source,
-                "Record field has neither representation nor explicit restoration",
-            ));
-        }
     }
     Ok(())
 }

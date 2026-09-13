@@ -68,6 +68,30 @@ pub fn matches(path: &[Name], expected: &[(&str, &str)]) -> bool {
             .zip(expected)
             .all(|(a, b)| a.namespace == b.0 && a.local == b.1)
 }
+/// Read an attribute only on the exceptional round-trip preservation path.
+pub fn attribute_value(
+    source: &[u8],
+    path: &[(&str, &str)],
+    name: (&str, &str),
+) -> Result<Option<String>> {
+    let mut result = None;
+    visit(source, |at, token| {
+        if matches(at, path)
+            && let Token::Attribute(attribute) = token
+            && attribute.name.namespace == name.0
+            && attribute.name.local == name.1
+            && result.replace(attribute.text.clone()).is_some()
+        {
+            return Err(RuntimeDiagnostic::new(
+                "xml.duplicate-field",
+                "Repeated attribute path",
+            ));
+        }
+        Ok(())
+    })?;
+    Ok(result)
+}
+
 pub fn visit(
     source: &[u8],
     mut consume: impl FnMut(&[Name], Token<'_>) -> Result<()>,

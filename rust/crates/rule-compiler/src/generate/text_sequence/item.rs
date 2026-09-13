@@ -14,7 +14,7 @@ pub(super) struct Layout<'a> {
 impl<'a> Item<'a> {
     pub(super) fn resolve(
         entry: &'a LinkedEntry,
-        program: &'a Program,
+        program: &'a Program<'a>,
         xml: &str,
         yaml: &str,
     ) -> Result<Layout<'a>, Diagnostic> {

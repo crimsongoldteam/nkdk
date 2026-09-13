@@ -36,6 +36,7 @@ mod text_pattern;
 mod text_sequence;
 mod text_table;
 mod xml_tree;
+use crate::plan::{ConversionPlan as Program, ValueId};
 use nkdk_rule_model::*;
 use std::collections::BTreeSet;
 
@@ -50,7 +51,11 @@ pub struct GeneratedSources {
     pub dependencies: Vec<String>,
 }
 
-pub fn generate(program: &Program) -> Result<GeneratedSources, Vec<Diagnostic>> {
+pub fn generate(program: &nkdk_rule_model::Program) -> Result<GeneratedSources, Vec<Diagnostic>> {
+    from_plan(&crate::plan::build(program)?)
+}
+
+pub(crate) fn from_plan(program: &Program<'_>) -> Result<GeneratedSources, Vec<Diagnostic>> {
     let mut source = String::from(
         "pub use nkdk_conversion_core::{Direction, EntryId, PreparedInputs, InputValue, FileResult, RuntimeDiagnostic, Severity};\nuse nkdk_conversion_core as core;\n",
     );

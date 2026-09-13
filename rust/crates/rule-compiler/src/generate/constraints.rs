@@ -116,7 +116,7 @@ fn generate_at(
             ));
         }
     };
-    let yaml = match &entry.yaml {
+    let _yaml = match &entry.yaml {
         YamlRepresentation::Mapping(mapping) => mapping.as_slice(),
         YamlRepresentation::KeyedMapping { .. } | YamlRepresentation::Sequence { .. } => &[],
         _ => return Err(unsupported(entry, "Constraints require a mapping")),
@@ -180,11 +180,7 @@ fn generate_at(
                 if let super::scalar::Codec::Sequence(_) =
                     super::scalar::Codec::resolve(&field.value, entry, program)?
                 {
-                    let key = &yaml
-                        .iter()
-                        .find(|mapping| mapping.field == field.name)
-                        .expect("linked mapping")
-                        .key;
+                    let key = super::record::diagnostic_key(entry, &field.name);
                     let xml = side == "xml";
                     writeln!(item_checks,"if let Some(value)=&_value.f{index}{{errors.extend(value.issues({xml},_inputs).into_iter().map(|issue|_value.positions[{index}].apply(_source,issue.field({key:?}))));}}").unwrap();
                 }
@@ -300,11 +296,7 @@ fn generate_at(
                 LinkedDiagnosticTarget::SelfValue => prefix.clone(),
                 LinkedDiagnosticTarget::Field(index) => {
                     let field = &fields[index as usize];
-                    let key = &yaml
-                        .iter()
-                        .find(|mapping| mapping.field == field.name)
-                        .expect("linked mapping")
-                        .key;
+                    let key = super::record::diagnostic_key(entry, &field.name);
                     format!(".field({key:?})")
                 }
                 LinkedDiagnosticTarget::Occurrence { slot, .. } => format!(
@@ -352,13 +344,7 @@ fn generate_at(
         let id = entry.id;
         let keys = fields
             .iter()
-            .map(|field| {
-                yaml.iter()
-                    .find(|mapping| mapping.field == field.name)
-                    .expect("linked YAML field")
-                    .key
-                    .as_str()
-            })
+            .map(|field| super::record::diagnostic_key(entry, &field.name))
             .collect::<Vec<_>>();
         let address = record_key.map_or(String::new(), |key| {
             format!(".into_iter().map(|mut issue|{{issue.path.insert(0,{key:?}.into());issue}}).collect()")

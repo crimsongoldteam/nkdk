@@ -1,6 +1,9 @@
 use super::*;
 
-pub(super) fn parts(entry: &LinkedEntry) -> Result<Vec<LinkedEntry>, Diagnostic> {
+pub(super) fn parts(
+    entry: &LinkedEntry,
+    program: &Program,
+) -> Result<Vec<LinkedEntry>, Diagnostic> {
     let (LinkedType::Record(fields), LinkedXml::Record(xml), YamlRepresentation::Mapping(yaml)) = (
         &entry.value,
         super::attributes::content(&entry.xml).0,
@@ -11,17 +14,14 @@ pub(super) fn parts(entry: &LinkedEntry) -> Result<Vec<LinkedEntry>, Diagnostic>
             "Composed owner requires record mappings",
         ));
     };
-    let groups = constraint_groups(entry, fields, xml)?;
+    let groups = constraint_groups(entry, fields, xml, program)?;
     let mut result: Vec<LinkedEntry> = Vec::new();
     for (slot, field) in fields.iter().enumerate() {
         let mapping = xml
             .iter()
             .find(|mapping| mapping.field == field.name)
             .expect("linked XML field");
-        let property = yaml
-            .iter()
-            .find(|mapping| mapping.field == field.name)
-            .expect("linked YAML field");
+        let property = yaml.iter().find(|mapping| mapping.field == field.name);
         if mapping.path.is_empty()
             || (mapping.file.is_none() && mapping.attribute.is_none() && mapping.path.len() < 2)
         {
@@ -48,7 +48,7 @@ pub(super) fn parts(entry: &LinkedEntry) -> Result<Vec<LinkedEntry>, Diagnostic>
             };
             fields.push(field.clone());
             xml.push(mapping.clone());
-            yaml.push(property.clone());
+            yaml.extend(property.cloned());
             part.field_dependencies.push(Vec::new());
         } else {
             let mut child = entry.clone();
@@ -57,7 +57,7 @@ pub(super) fn parts(entry: &LinkedEntry) -> Result<Vec<LinkedEntry>, Diagnostic>
             child.presence.clear();
             child.value = LinkedType::Record(vec![field.clone()]);
             child.xml = LinkedXml::Record(vec![mapping.clone()]);
-            child.yaml = YamlRepresentation::Mapping(vec![property.clone()]);
+            child.yaml = YamlRepresentation::Mapping(property.cloned().into_iter().collect());
             child.field_dependencies = vec![Vec::new()];
             result.push(child);
         }
@@ -104,19 +104,35 @@ fn constraint_groups(
     entry: &LinkedEntry,
     fields: &[LinkedField],
     xml: &[LinkedXmlField],
+    program: &Program,
 ) -> Result<Vec<usize>, Diagnostic> {
-    fn collect(value: &LinkedExpression, slots: &mut BTreeSet<usize>, scalar: &mut bool) {
+    fn scalar_type(value: &LinkedType, program: &Program) -> bool {
+        match value {
+            LinkedType::Scalar(_) | LinkedType::Enum(_) => true,
+            LinkedType::Reference(id) => program
+                .entries
+                .iter()
+                .find(|entry| entry.id == *id)
+                .is_some_and(|entry| {
+                    matches!(entry.value, LinkedType::Scalar(_) | LinkedType::Enum(_))
+                }),
+            _ => false,
+        }
+    }
+    fn collect(
+        value: &LinkedExpression,
+        slots: &mut BTreeSet<usize>,
+        scalar: &mut bool,
+        program: &Program,
+    ) {
         match &value.kind {
             LinkedExpressionKind::Field(slot) => {
                 slots.insert(*slot as usize);
-                *scalar &= matches!(
-                    value.value_type,
-                    LinkedType::Scalar(_) | LinkedType::Enum(_)
-                );
+                *scalar &= scalar_type(&value.value_type, program);
             }
             LinkedExpressionKind::Operation { arguments, .. } => {
                 for value in arguments {
-                    collect(value, slots, scalar);
+                    collect(value, slots, scalar, program);
                 }
             }
             _ => (),
@@ -131,12 +147,7 @@ fn constraint_groups(
         if merged.len() > 1 {
             if std::iter::once(slot)
                 .chain(dependencies.iter().map(|slot| *slot as usize))
-                .any(|slot| {
-                    !matches!(
-                        fields[slot].value,
-                        LinkedType::Scalar(_) | LinkedType::Enum(_)
-                    )
-                })
+                .any(|slot| !scalar_type(&fields[slot].value, program))
             {
                 return Err(unsupported(
                     entry,
@@ -154,16 +165,16 @@ fn constraint_groups(
     for rule in &entry.constraints {
         let mut slots = BTreeSet::new();
         let mut scalar = true;
-        collect(&rule.assertion, &mut slots, &mut scalar);
+        collect(&rule.assertion, &mut slots, &mut scalar, program);
         if let Some(value) = &rule.when {
-            collect(value, &mut slots, &mut scalar);
+            collect(value, &mut slots, &mut scalar, program);
         }
         if let Some(iteration) = &rule.for_each {
-            collect(&iteration.input, &mut slots, &mut scalar);
+            collect(&iteration.input, &mut slots, &mut scalar, program);
         }
         for message in &rule.diagnostic.message {
             if let LinkedMessagePart::Expression(value) = message {
-                collect(value, &mut slots, &mut scalar);
+                collect(value, &mut slots, &mut scalar, program);
             }
         }
         if let LinkedDiagnosticTarget::Field(slot) = rule.diagnostic.at {

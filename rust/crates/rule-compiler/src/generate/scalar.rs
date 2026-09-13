@@ -18,17 +18,13 @@ impl<'a> Codec<'a> {
     pub fn resolve(
         value: &'a LinkedType,
         owner: &LinkedEntry,
-        program: &'a Program,
+        program: &'a Program<'a>,
     ) -> Result<Self, Diagnostic> {
         match value {
             LinkedType::Scalar(ScalarType::Text) => Ok(Self::Text),
             LinkedType::Scalar(ScalarType::Decimal) => Ok(Self::Decimal),
             LinkedType::Reference(id) => {
-                let target = program
-                    .entries
-                    .iter()
-                    .find(|entry| entry.id == *id)
-                    .expect("linked reference");
+                let target = program.value(ValueId(*id)).expect("linked reference").entry;
                 optional(target)?;
                 let (xml, _) = super::attributes::content(&target.xml);
                 match (&target.value, xml, &target.yaml) {
@@ -443,13 +439,7 @@ pub(crate) fn optional(entry: &LinkedEntry) -> Result<bool, Diagnostic> {
 
 pub(crate) fn field_optional(value: &LinkedType, program: &Program) -> Result<bool, Diagnostic> {
     if let LinkedType::Reference(id) = value {
-        optional(
-            program
-                .entries
-                .iter()
-                .find(|entry| entry.id == *id)
-                .expect("linked reference"),
-        )
+        optional(program.value(ValueId(*id)).expect("linked reference").entry)
     } else {
         Ok(false)
     }

@@ -1,0 +1,15 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.metadata-base-identity
+imports: {facts: fragment.metadata-base-identity}
+inputs:
+  component: {type: {kind: scalar, scalar: text}}
+  identity: {type: {kind: scalar, scalar: text}}
+  baseIdentity: {type: {kind: scalar, scalar: text}}
+compose:
+- use: facts
+  bind: {component: {input: component}, identity: {input: identity}, baseIdentity: {input: baseIdentity}}
+value: {kind: record, fields: [{name: name, type: {kind: scalar, scalar: text}}]}
+representations:
+  xml: {kind: record, fields: [{field: name, path: [Root, Name]}]}
+  yaml: {kind: mapping, fields: [{field: name, key: Имя}]}

@@ -21,7 +21,7 @@ pub(super) struct Codec<'a> {
 impl<'a> Codec<'a> {
     pub(super) fn resolve(
         entry: &'a LinkedEntry,
-        program: &'a Program,
+        program: &'a Program<'a>,
     ) -> Result<Self, Diagnostic> {
         let LinkedType::Choice(fields) = &entry.value else {
             unreachable!("choice codec")

@@ -205,6 +205,15 @@ impl Fields {
             .push((index, mark));
         Ok(())
     }
+    /// A field carrying an annotation cannot be moved to an unannotated key.
+    pub fn has_annotation(&self, index: usize) -> bool {
+        self.0.as_ref().is_some_and(|fields| {
+            fields
+                .marks
+                .iter()
+                .any(|(slot, mark)| *slot == index && !mark.is_empty())
+        })
+    }
     pub fn label(&self, index: usize) -> Option<String> {
         self.0
             .as_ref()?

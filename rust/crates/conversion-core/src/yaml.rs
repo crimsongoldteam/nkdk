@@ -1,3 +1,5 @@
+mod record_mapping;
+pub use record_mapping::{RecordMappingReader, preserved_record_mapping_item};
 pub(crate) mod document;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Form {
@@ -197,8 +199,25 @@ pub fn preserved_sequence_item(
     property: Option<&str>,
     index: usize,
 ) -> Result<Vec<u8>> {
+    let value = preserved_collection_value(source, property)?;
+    let document::Kind::Sequence(items) = value.kind else {
+        return Err(RuntimeDiagnostic::new(
+            "yaml.collection-form",
+            "Expected a sequence",
+        ));
+    };
+    items
+        .get(index)
+        .ok_or_else(|| RuntimeDiagnostic::new("yaml.collection-form", "Missing sequence item"))?
+        .render()
+}
+
+pub(super) fn preserved_collection_value(
+    source: &[u8],
+    property: Option<&str>,
+) -> Result<document::Value> {
     let root = document::parse(source)?;
-    let value = if let Some(property) = property {
+    Ok(if let Some(property) = property {
         let document::Kind::Mapping(entries) = root.kind else {
             return Err(RuntimeDiagnostic::new(
                 "yaml.collection-form",
@@ -211,15 +230,5 @@ pub fn preserved_sequence_item(
             .ok_or_else(|| RuntimeDiagnostic::new("yaml.collection-form", "Missing sequence"))?
     } else {
         root
-    };
-    let document::Kind::Sequence(items) = value.kind else {
-        return Err(RuntimeDiagnostic::new(
-            "yaml.collection-form",
-            "Expected a sequence",
-        ));
-    };
-    items
-        .get(index)
-        .ok_or_else(|| RuntimeDiagnostic::new("yaml.collection-form", "Missing sequence item"))?
-        .render()
+    })
 }

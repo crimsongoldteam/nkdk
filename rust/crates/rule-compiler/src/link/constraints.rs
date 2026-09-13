@@ -198,7 +198,9 @@ fn resolve_forms(module: &Module, constraint: &Constraint) -> Result<Vec<LinkedF
             | YamlRepresentation::BooleanTable(_)
             | YamlRepresentation::Decimal
             | YamlRepresentation::EnumTable(_) => ("scalar", LinkedForm::YamlScalar),
-            YamlRepresentation::Mapping(_) => ("mapping", LinkedForm::YamlMapping),
+            YamlRepresentation::Mapping(_) | YamlRepresentation::RecordMapping { .. } => {
+                ("mapping", LinkedForm::YamlMapping)
+            }
             YamlRepresentation::Sequence { .. } => ("sequence", LinkedForm::YamlSequence),
             YamlRepresentation::KeyedMapping { shorthand, .. } => {
                 if shorthand.iter().any(|short| {

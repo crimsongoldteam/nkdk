@@ -402,3 +402,82 @@ fn declaration_program(names: &[&str]) -> nkdk_rule_model::Program {
     }
     link(&modules).unwrap()
 }
+
+#[test]
+fn xml_only_fields_are_restored_by_runtime_not_exposed_by_schema() {
+    let source = r#"
+format: nkdk-declarations/1
+kind: object
+id: test.xml-only
+value:
+  kind: record
+  fields:
+  - {name: token, type: {kind: scalar, scalar: text}}
+  - {name: name, type: {kind: scalar, scalar: text}}
+representations:
+  xml: {kind: record, fields: [{field: token, path: [Root], attribute: token}, {field: name, path: [Root, Name]}]}
+  yaml: {kind: mapping, fields: [{field: name, key: Name}]}
+presence:
+- target: {field: token}
+  yaml: {missing: {denotes: {field: name}}}
+constraints:
+- id: restored-token
+  appliesTo: [yaml-validation]
+  assert: {eq: [{field: token}, {field: name}]}
+  diagnostic: {code: test.restored-token, severity: error, at: {field: token}, message: Token must match name}
+"#;
+    let program = link(&[parse_module(("xml-only.yaml", source))]).unwrap();
+    let actual: serde_json::Value =
+        serde_json::from_slice(&schema(&program, "test.xml-only").unwrap()).unwrap();
+    assert_eq!(actual["x-nkdk-runtime-validation"], true);
+    let validator = jsonschema::validator_for(&actual).unwrap();
+    assert!(validator.is_valid(&serde_json::json!({"Name":"First"})));
+    for invalid in [
+        serde_json::json!({}),
+        serde_json::json!({"Name":"First","token":"First"}),
+    ] {
+        assert!(!validator.is_valid(&invalid));
+    }
+    let item = source.replace("kind: object", "kind: value")
+        .replace("path: [Root]", "path: []")
+        .replace("path: [Root, Name]", "path: [Name]")
+        .replace("constraints:", "- target: self\n  xml: {missing: {denotes: {absent: true}}}\n  yaml: {missing: {denotes: {absent: true}}}\nconstraints:");
+    for (representation, valid, invalid) in [
+        (
+            None,
+            serde_json::json!({"Box":{"Name":"First"}}),
+            serde_json::json!({"Box":{"Name":"First","token":"First"}}),
+        ),
+        (
+            Some("{kind: sequence}"),
+            serde_json::json!({"Box":[{"Name":"First"}]}),
+            serde_json::json!({"Box":[{"Name":"First","token":"First"}]}),
+        ),
+        (
+            Some("{kind: record-mapping, key: name}"),
+            serde_json::json!({"Box":{"First":{}}}),
+            serde_json::json!({"Box":{"First":{"token":"First"}}}),
+        ),
+    ] {
+        let mut modules = vec![parse_module(("item.yaml", &item))];
+        let target = if let Some(yaml) = representation {
+            let sequence = format!(
+                "format: nkdk-declarations/1\nkind: value\nid: test.hidden-list\nimports: {{item: test.xml-only}}\nvalue: {{kind: sequence, item: {{use: item}}}}\nrepresentations:\n  xml: {{kind: element-sequence, path: [Item]}}\n  yaml: {yaml}\n"
+            );
+            modules.push(parse_module(("list.yaml", &sequence)));
+            "test.hidden-list"
+        } else {
+            "test.xml-only"
+        };
+        let owner = format!(
+            "format: nkdk-declarations/1\nkind: object\nid: test.container\nimports: {{item: {target}}}\nvalue: {{kind: record, fields: [{{name: box, type: {{use: item}}}}]}}\nrepresentations:\n  xml: {{kind: record, fields: [{{field: box, path: [Root, Box]}}]}}\n  yaml: {{kind: mapping, fields: [{{field: box, key: Box}}]}}\n"
+        );
+        modules.push(parse_module(("owner.yaml", &owner)));
+        let program = link(&modules).unwrap();
+        let shape: serde_json::Value =
+            serde_json::from_slice(&schema(&program, "test.container").unwrap()).unwrap();
+        let validator = jsonschema::validator_for(&shape).unwrap();
+        assert!(validator.is_valid(&valid), "{representation:?}: {shape}");
+        assert!(!validator.is_valid(&invalid), "{representation:?}: {shape}");
+    }
+}

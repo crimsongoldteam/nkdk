@@ -47,13 +47,26 @@ export function evaluator(program) {
         const value=source.fields.get(key)?.value??scalar(undefined);
         return value.kind==='scalar'&&value.value===undefined&&declaration.initializer?run(declaration.initializer):value;
       }
-      if (declaration?.initializer) return run(declaration.initializer);
+      if (declaration?.initializer) {
+        const value=run(declaration.initializer);
+        return value.kind==='object' ? {...value,reference:{path:location(declaration).path,symbol:declaration.name.getText()}} : value;
+      }
       if (declaration && ts.isFunctionDeclaration(declaration)) {
         const symbol = program.checker.getSymbolAtLocation(declaration.name);
         const implementation = symbol?.declarations?.find(d => ts.isFunctionDeclaration(d) && d.body);
         return implementation ? {kind:'function', node:implementation, env} : unknown(node, 'function-without-body');
       }
       return unknown(node, 'unresolved-symbol');
+    }
+    if (ts.isTypeOfExpression(node)) {
+      const value=run(node.expression);
+      return value.kind==='scalar' ? scalar(typeof value.value) : ['array','object','function'].includes(value.kind) ? scalar(value.kind==='function'?'function':'object') : unknown(node,'dynamic-typeof');
+    }
+    if (ts.isElementAccessExpression(node)) {
+      const object=run(node.expression), key=run(node.argumentExpression);
+      if(object.kind==='array' && key.kind==='scalar' && Number.isInteger(key.value) && key.value>=0)
+        return object.values[key.value] ?? scalar(undefined);
+      return unknown(node,'dynamic-element-access');
     }
     if (ts.isArrowFunction(node) || ts.isFunctionExpression(node)) return {kind:'function', node, env};
     if (ts.isPropertyAccessExpression(node)) {
@@ -113,6 +126,14 @@ export function evaluator(program) {
       return unknown(node, 'unsupported-operation');
     }
     if (ts.isCallExpression(node)) {
+      if(ts.isPropertyAccessExpression(node.expression) && node.expression.name.text==='replace' && node.arguments.length===2) {
+        const receiver=run(node.expression.expression),replacement=run(node.arguments[1]),pattern=unwrap(node.arguments[0]);
+        if(receiver.kind==='scalar' && typeof receiver.value==='string' && replacement.kind==='scalar' && typeof replacement.value==='string' && ts.isRegularExpressionLiteral(pattern)) {
+          const end=pattern.text.lastIndexOf('/');
+          try {return scalar(receiver.value.replace(new RegExp(pattern.text.slice(1,end),pattern.text.slice(end+1)),replacement.value));}
+          catch {return unknown(node,'invalid-static-regexp');}
+        }
+      }
       // Only these pure builtins are recognized, and only when Object is not shadowed.
       if (ts.isPropertyAccessExpression(node.expression) && ts.isIdentifier(node.expression.expression) &&
           node.expression.expression.text === 'Object' && !program.target(node.expression.expression)) {
@@ -190,7 +211,7 @@ export function evaluator(program) {
     }
     return unknown(node, `unsupported-${ts.SyntaxKind[node.kind]}`);
   }
-  return node => { steps = 0; return evaluate(node); };
+  return (node, env = new Map()) => { steps = 0; return evaluate(node, env); };
 }
 
 export function serialize(value, issues = []) {

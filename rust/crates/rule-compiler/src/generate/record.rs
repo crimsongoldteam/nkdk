@@ -8,6 +8,7 @@ struct Field<'a> {
     path: &'a [ExpandedName],
     attribute: Option<&'a ExpandedName>,
     key: &'a str,
+    yaml_visible: bool,
     codec: Codec<'a>,
     optional: bool,
     attributes: Vec<&'a LinkedXmlAttribute>,
@@ -17,6 +18,10 @@ impl Field<'_> {
     fn physical_name(&self) -> &ExpandedName {
         self.attribute.unwrap_or_else(|| self.path.last().unwrap())
     }
+}
+// Diagnostic and exceptional XML names do not make a field a normal YAML key.
+pub(super) fn diagnostic_key<'a>(entry: &'a LinkedEntry, name: &'a str) -> &'a str {
+    crate::plan::diagnostic_key(entry, name)
 }
 pub(super) fn path_code(path: &[ExpandedName]) -> String {
     format!(
@@ -58,19 +63,13 @@ fn generate_at(
     let mut shape = entry.clone();
     shape.presence.clear();
     plain_shape(&shape)?;
-    let (LinkedType::Record(types), LinkedXml::Record(xml), YamlRepresentation::Mapping(yaml)) =
-        (&entry.value, &entry.xml, &entry.yaml)
-    else {
-        return Err(unsupported(
-            entry,
-            "Scalar operation requires record XML and YAML representations",
-        ));
-    };
+    let record = program.record(entry)?;
     let mut fields = vec![];
-    for (index, field) in types.iter().enumerate() {
-        let mapping = xml
-            .iter()
-            .find(|mapping| mapping.field == field.name)
+    for planned in &record.fields {
+        let index = planned.id.0;
+        let field = planned.field;
+        let mapping = planned
+            .xml
             .ok_or_else(|| unsupported(entry, "XML field missing"))?;
         if mapping.path.is_empty() {
             return Err(unsupported(
@@ -78,10 +77,6 @@ fn generate_at(
                 "Empty-route generation is not available at this stage",
             ));
         }
-        let yaml = yaml
-            .iter()
-            .find(|mapping| mapping.field == field.name)
-            .ok_or_else(|| unsupported(entry, "YAML field missing"))?;
         let codec = Codec::resolve(&field.value, entry, program)?;
         let presence = super::scalar_presence::rule(entry, index, &field.value, program);
         let optional = match presence {
@@ -120,7 +115,8 @@ fn generate_at(
         fields.push(Field {
             path: &mapping.path,
             attribute: mapping.attribute.as_ref(),
-            key: &yaml.key,
+            key: planned.diagnostic_key(),
+            yaml_visible: planned.yaml.is_some(),
             codec,
             optional,
             attributes,
@@ -794,15 +790,20 @@ fn generate_at(
     }
     writeln!(
         out,
-        "fn write_yaml_{id}(value: &V{id}, inputs: &PreparedInputs) -> core::Result<Vec<u8>> {{let mut out=String::new();write_yaml_into_{id}(value,inputs,&mut out)?;Ok(out.into_bytes())}}\nfn write_yaml_into_{id}(value: &V{id}, inputs: &PreparedInputs, out: &mut String) -> core::Result<()> {{if value.raw.is_empty() {{core::yaml::append_properties(out,|out|write_yaml_fields_{id}(value,inputs,out))}} else {{core::yaml::append_encoded_properties(out,&write_yaml_preserved_{id}(value,inputs)?)}} }}\nfn write_yaml_fields_{id}(value: &V{id}, inputs: &PreparedInputs, out: &mut String) -> core::Result<()> {{write_yaml_indented_{id}(value,inputs,out,\"\",false)}}\nfn write_yaml_indented_{id}(value: &V{id}, _inputs: &PreparedInputs, out: &mut String, indent:&str, lift_attributes:bool) -> core::Result<()> {{ let _=lift_attributes;let start=out.len();"
+        "fn write_yaml_{id}(value: &V{id}, inputs: &PreparedInputs) -> core::Result<Vec<u8>> {{let mut out=String::new();write_yaml_into_{id}(value,inputs,&mut out)?;Ok(out.into_bytes())}}\nfn write_yaml_into_{id}(value: &V{id}, inputs: &PreparedInputs, out: &mut String) -> core::Result<()> {{if value.raw.is_empty() {{core::yaml::append_properties(out,|out|write_yaml_fields_{id}(value,inputs,out))}} else {{core::yaml::append_encoded_properties(out,&write_yaml_preserved_{id}(value,inputs)?)}} }}\nfn write_yaml_fields_{id}(value: &V{id}, inputs: &PreparedInputs, out: &mut String) -> core::Result<()> {{write_yaml_indented_{id}(value,inputs,out,\"\",false)}}\nfn write_yaml_indented_{id}(value: &V{id}, inputs: &PreparedInputs, out: &mut String, indent:&str, lift_attributes:bool) -> core::Result<()> {{write_yaml_except_{id}(value,inputs,out,indent,lift_attributes,None)}}\nfn write_yaml_except_{id}(value: &V{id}, _inputs: &PreparedInputs, out: &mut String, indent:&str, lift_attributes:bool, excluded:Option<usize>) -> core::Result<()> {{ let _=lift_attributes;let start=out.len();"
     )
     .unwrap();
     if let Some(layout) = layout {
-        writeln!(out,"if !value.present {{return Ok(());}}out.push_str(&core::yaml::scalar({:?}));out.push_str(\":\\n\");",layout.key).unwrap();
+        writeln!(out,"if !value.present {{return Ok(());}}out.push_str(indent);out.push_str(&core::yaml::scalar({:?}));out.push_str(\":\\n\");",layout.key).unwrap();
     }
-    for (i, field) in fields.iter().enumerate() {
+    for (i, field) in fields
+        .iter()
+        .enumerate()
+        .filter(|(_, field)| field.yaml_visible)
+    {
+        write!(out, "if excluded != Some({i})").unwrap();
         let text = if field.optional || preserve {
-            write!(out, "if let Some(field_value) = &value.f{i}").unwrap();
+            write!(out, " && let Some(field_value) = &value.f{i}").unwrap();
             if field
                 .presence
                 .is_some_and(|presence| presence.yaml_omit_when.is_some())
@@ -826,6 +827,7 @@ fn generate_at(
                 .codec
                 .write_reference(&format!("E{id}F{i}"), "field_value", false)
         } else {
+            out.push_str(" {\n");
             field.codec.write(&format!("E{id}F{i}"), i, false)
         };
         let yaml = if field.codec.plain_yaml() {
@@ -838,15 +840,13 @@ fn generate_at(
             out.push_str("out.push_str(\"  \");");
         }
         writeln!(out, "out.push_str(&core::yaml::scalar({:?})); out.push_str(\": \"); if let Some(label)=value.raw.label({i}) {{out.push_str(&label);out.push(' ');}} out.push_str({yaml}); out.push('\\n');", field.key).unwrap();
-        if field.optional || preserve {
-            out.push_str("}\n");
-        }
+        out.push_str("}\n");
     }
     if layout.is_some() {
         out.push_str("if out.ends_with(\":\\n\") {out.push_str(\"  {}\\n\");}\n");
     }
     out.push_str("if out.len()>start { out.pop(); } Ok(()) }\n");
-    writeln!(out,"fn write_yaml_preserved_{id}(value: &V{id}, inputs: &PreparedInputs) -> core::Result<Vec<u8>> {{write_yaml_preserved_fields_{id}(value,inputs,false)}}\nfn write_yaml_preserved_fields_{id}(value:&V{id},inputs:&PreparedInputs,lift_attributes:bool)->core::Result<Vec<u8>> {{let mut out=String::new();write_yaml_indented_{id}(value,inputs,&mut out,\"\",lift_attributes)?;let bytes=out.into_bytes();").unwrap();
+    writeln!(out,"fn write_yaml_preserved_{id}(value: &V{id}, inputs: &PreparedInputs) -> core::Result<Vec<u8>> {{write_yaml_preserved_fields_{id}(value,inputs,false)}}\nfn write_yaml_preserved_fields_{id}(value:&V{id},inputs:&PreparedInputs,lift_attributes:bool)->core::Result<Vec<u8>> {{write_yaml_preserved_except_{id}(value,inputs,lift_attributes,None)}}\nfn write_yaml_preserved_except_{id}(value:&V{id},inputs:&PreparedInputs,lift_attributes:bool,excluded:Option<usize>)->core::Result<Vec<u8>> {{let mut out=String::new();write_yaml_except_{id}(value,inputs,&mut out,\"\",lift_attributes,excluded)?;let bytes=out.into_bytes();").unwrap();
     if preserve {
         out.push_str("let mut bytes=bytes;\n");
         for (i, field) in fields.iter().enumerate() {
@@ -857,7 +857,7 @@ fn generate_at(
             } else {
                 format!(" && (!lift_attributes || value.f{i}.is_none())")
             };
-            writeln!(out,"if let Some(patch)=value.raw.get({i}){guard} {{let payload=patch.to_yaml();bytes=core::raw::Property::encode_in({parent},{key:?},{physical:?},&bytes,payload.as_bytes())?;}}",key=field.key,physical=field.physical_name().local).unwrap();
+            writeln!(out,"if excluded!=Some({i}) && let Some(patch)=value.raw.get({i}){guard} {{let payload=patch.to_yaml();bytes=core::raw::Property::encode_in({parent},{key:?},{physical:?},&bytes,payload.as_bytes())?;}}",key=field.key,physical=field.physical_name().local).unwrap();
         }
     }
     out.push_str("Ok(bytes) }\n");
@@ -881,16 +881,24 @@ fn generate_at(
         "false",
     ));
     writeln!(out, "fn verify_{id}(original: &[u8], candidate: &[u8], inputs: &PreparedInputs) -> core::Result<()> {{ let value = read_yaml_{id}(candidate, inputs)?; if let Some(error) = check_yaml_{id}(&value, candidate, inputs).into_iter().find(|error| error.severity == core::Severity::Error) {{ return Err(error); }} prove_xml_{id}(&value,original,&write_xml_{id}(&value,inputs)?) }}").unwrap();
-    if preserve && fields.iter().any(|field| field.attribute.is_none()) {
+    if preserve
+        && fields
+            .iter()
+            .any(|field| field.attribute.is_none() || !field.yaml_visible)
+    {
         writeln!(out,"fn finalize_yaml_{id}(original:&[u8],candidate:Vec<u8>,_value:&V{id},inputs:&PreparedInputs)->core::Result<Vec<u8>> {{ match verify_{id}(original,&candidate,inputs) {{Ok(())=>return Ok(candidate),Err(error) if error.code.as_deref()==Some(\"xml.round-trip-mismatch\")=>{{}},Err(error)=>return Err(error)}} let ordinary=write_xml_{id}(&read_yaml_{id}(&candidate,inputs)?,inputs)?; let mut candidate=candidate;").unwrap();
         for (i, field) in fields.iter().enumerate() {
-            if field.attribute.is_some() {
+            if let Some(attribute) = field.attribute {
+                if !field.yaml_visible {
+                    writeln!(out,"{{let expected=core::xml::attribute_value(original,{path},({ns:?},{name:?}))?;let restored=core::xml::attribute_value(&ordinary,{path},({ns:?},{name:?}))?;if expected!=restored {{let payload=expected.as_deref().map(core::yaml::scalar).unwrap_or_else(||\"null\".into());candidate=core::raw::Property::encode_in({parent},{key:?},{physical:?},&candidate,payload.as_bytes())?;}}}}",path=path_code(field.path),ns=attribute.namespace,name=attribute.local,key=field.key,physical=field.physical_name().local).unwrap();
+                }
                 continue;
             }
             let mut restore_meaning = String::new();
-            if field
-                .presence
-                .is_some_and(|presence| presence.yaml_omit_when.is_some())
+            if field.yaml_visible
+                && field
+                    .presence
+                    .is_some_and(|presence| presence.yaml_omit_when.is_some())
             {
                 let name = format!("E{id}F{i}");
                 let text = field.codec.write_reference(&name, "field_value", false);

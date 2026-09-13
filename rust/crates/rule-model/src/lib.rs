@@ -123,6 +123,9 @@ pub enum YamlRepresentation {
         seconds: bool,
         omit_zero: bool,
     },
+    RecordMapping {
+        key: String,
+    },
     KeyedMapping {
         key: String,
         value: String,

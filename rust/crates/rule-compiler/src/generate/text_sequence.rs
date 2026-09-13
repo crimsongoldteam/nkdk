@@ -11,7 +11,7 @@ pub(super) struct Codec<'a> {
 impl<'a> Codec<'a> {
     pub(super) fn resolve(
         entry: &'a LinkedEntry,
-        program: &'a Program,
+        program: &'a Program<'a>,
     ) -> Result<Self, Diagnostic> {
         let (
             LinkedType::Sequence(item),
@@ -46,7 +46,7 @@ impl<'a> Codec<'a> {
     }
     pub(super) fn framed(
         entry: &'a LinkedEntry,
-        program: &'a Program,
+        program: &'a Program<'a>,
     ) -> Result<Option<Self>, Diagnostic> {
         let Some(id) = crate::link::text_sequence::tail_id(entry) else {
             return Ok(None);

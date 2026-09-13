@@ -1,3 +1,6 @@
+import {collectionReport} from './collection-report.mjs';
+import {emitCollections} from './collection-emission.mjs';
+import {collectionLinks} from './collection-links.mjs';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { emitCandidates } from './emit.mjs';
 import { writeCandidates } from './candidate-output.mjs';
@@ -24,6 +27,9 @@ const namespacePath='packages/rules/metadata/forms/clientApplicationForm/namespa
 const namespaceSource=literalFixture(namespacePath,sources.get(namespacePath),'FORM_NAMESPACES');
 const namespaces=Object.fromEntries(Object.entries(namespaceSource.data).filter(([name])=>name.startsWith('_xmlns:')).map(([name,uri])=>[name.slice(7),uri]));
 const emitted = emitCandidates(extraction.entries,catalog,origin,namespaces);
+const collectionGraph=collectionLinks(Object.fromEntries(sources),extraction.entries);
+const collections=emitCollections(collectionGraph,extraction.entries,catalog,namespaces);
+emitted.modules.push(...collections.modules);
 const dependencies = dependencyFiles(emitted.modules,catalog);
 const files = Object.fromEntries([...emitted.modules,...dependencies].map(module =>
   [`${module.id}.yaml`,yaml.dump(module,{noRefs:true,lineWidth:120,quotingType:'"'})]));
@@ -35,6 +41,7 @@ for (const entry of emitted.entries) for (const property of entry.properties) {
 }
 const manifest = {version:1,status:'candidates-only',sourceRevision:extraction.sourceRevision,
   sourceHashes:extraction.sourceHashes,declarationHashes:sourceHashes,
+  collectionGraph,collectionEmission:{scope:collections.scope,results:collections.results},
   xmlNamespaces:{source:namespaceSource.source,bindings:namespaces},
   existingComparison:candidateDiff(emitted.modules,catalog),
   summary:{properties:count,fragments:emitted.modules.filter(m => m.kind === 'fragment').length,
@@ -42,5 +49,6 @@ const manifest = {version:1,status:'candidates-only',sourceRevision:extraction.s
     blockers:[...blocked].sort((a,b) => b[1]-a[1])},entries:emitted.entries};
 writeCandidates('tests/migration/rules-candidates',files,manifest);
 writeFileSync('docs/superpowers/reports/2026-09-12-rules-candidates.md',candidateReport(manifest));
+writeFileSync('docs/superpowers/reports/2026-09-13-collection-emission.md',collectionReport(collections));
 const {blockers,...totals} = manifest.summary;
 console.log(JSON.stringify({...totals,blockedPropertyOccurrences:blockers.reduce((n,[,count]) => n+count,0)}));

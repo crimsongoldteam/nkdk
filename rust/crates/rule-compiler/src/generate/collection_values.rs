@@ -3,7 +3,7 @@ use super::*;
 /// Physical text may carry a typed value; collection framing stays shared.
 pub(super) fn codec<'a>(
     common: &'a LinkedEntry,
-    program: &'a Program,
+    program: &'a Program<'a>,
 ) -> Result<Option<scalar::Codec<'a>>, Diagnostic> {
     let LinkedType::Sequence(item) = &common.value else {
         return Ok(None);

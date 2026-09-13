@@ -4,7 +4,7 @@ pub(crate) fn rule<'a>(
     owner: &'a LinkedEntry,
     index: usize,
     value: &LinkedType,
-    program: &'a Program,
+    program: &'a Program<'a>,
 ) -> Option<&'a LinkedPresence> {
     if let Some(rule) = owner
         .presence

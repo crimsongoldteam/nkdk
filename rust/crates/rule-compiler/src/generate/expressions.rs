@@ -3,7 +3,7 @@ use std::fmt::Write;
 
 pub(super) struct Expressions<'a> {
     pub(super) entry: &'a LinkedEntry,
-    pub(super) program: &'a Program,
+    pub(super) program: &'a Program<'a>,
     pub(super) fields: &'a [LinkedField],
     pub(super) local_fields: std::collections::BTreeMap<u32, Vec<String>>,
     pub(super) field_storage: Option<&'a [(String, String)]>,
@@ -15,7 +15,7 @@ pub(super) struct Expressions<'a> {
 impl<'a> Expressions<'a> {
     pub(super) fn new(
         entry: &'a LinkedEntry,
-        program: &'a Program,
+        program: &'a Program<'a>,
         fields: &'a [LinkedField],
         field_storage: Option<&'a [(String, String)]>,
     ) -> Self {

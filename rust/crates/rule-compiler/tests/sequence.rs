@@ -109,18 +109,7 @@ fn literal_sequence_shorthand_has_one_inverse() {
 fn referenced_sequence_items_keep_their_own_contract() {
     let row = include_str!("fixtures/declared-row.yaml");
     let list = include_str!("fixtures/declared-rows.yaml");
-    let owner = "format: nkdk-declarations/1\nkind: object\nid: test.rows\nimports: {rows: common.rows}\nvalue: {kind: record, fields: [{name: rows, type: {use: rows}}]}\nrepresentations:\n  xml: {kind: record, fields: [{field: rows, path: [Root, Rows]}]}\n  yaml: {kind: mapping, fields: [{field: rows, key: Rows}]}\n";
-    let modules = [row, list, owner]
-        .into_iter()
-        .enumerate()
-        .map(|(i, source)| {
-            parse(SourceFile {
-                path: &format!("{i}.yaml"),
-                bytes: source.as_bytes(),
-            })
-            .unwrap()
-        })
-        .collect::<Vec<_>>();
+    let modules = referenced_modules(row, list);
     let program = link(&modules).unwrap();
     let schema: serde_json::Value =
         serde_json::from_slice(&schema(&program, "test.rows").unwrap()).unwrap();
@@ -201,4 +190,91 @@ fn referenced_sequence_items_keep_their_own_contract() {
     })
     .unwrap();
     assert!(link(&invalid).is_err());
+}
+
+#[test]
+fn named_records_validate_the_key_and_describe_the_remaining_body() {
+    let authoring: serde_json::Value =
+        serde_json::from_slice(nkdk_rule_compiler::declaration_schema()).unwrap();
+    let authoring = jsonschema::validator_for(&authoring).unwrap();
+    let declaration = serde_json::json!({"format":"nkdk-declarations/1","kind":"value","id":"common.rows","imports":{"row":"common.row"},"value":{"kind":"sequence","item":{"use":"row"}},"representations":{"xml":{"kind":"element-sequence","path":["Item"]},"yaml":{"kind":"record-mapping","key":"name"}}});
+    assert!(authoring.is_valid(&declaration));
+    let row = include_str!("fixtures/declared-row.yaml");
+    let list = include_str!("fixtures/declared-rows.yaml").replace(
+        "yaml: {kind: sequence}",
+        "yaml: {kind: record-mapping, key: name}",
+    );
+    let modules = referenced_modules(row, &list);
+    let program = link(&modules).unwrap();
+    let shape: serde_json::Value =
+        serde_json::from_slice(&schema(&program, "test.rows").unwrap()).unwrap();
+    let dictionary = &shape["properties"]["Rows"];
+    assert_eq!(dictionary["type"], "object");
+    assert!(
+        dictionary["additionalProperties"]["properties"]
+            .get("Name")
+            .is_none()
+    );
+    let validator = jsonschema::validator_for(&shape).unwrap();
+    assert!(validator.is_valid(&serde_json::json!({"Rows":{"allowed":{"Mode":"other"}}})));
+    assert!(!validator.is_valid(&serde_json::json!({"Rows":{"allowed":{"Name":"wrong"}}})));
+    // Relations involving a lifted key are checked by compiled validation,
+    // not evaluated against the body where that property no longer exists.
+    let mut positive = modules.clone();
+    positive[0] = parse(SourceFile {
+        path: "positive.yaml",
+        bytes: row
+            .replace(
+                "{not: {eq: [{field: name}, {literal: reserved}]}}",
+                "{eq: [{field: name}, {literal: allowed}]}",
+            )
+            .as_bytes(),
+    })
+    .unwrap();
+    let positive = link(&positive).unwrap();
+    let positive: serde_json::Value =
+        serde_json::from_slice(&schema(&positive, "test.rows").unwrap()).unwrap();
+    assert!(
+        jsonschema::validator_for(&positive)
+            .unwrap()
+            .is_valid(&serde_json::json!({"Rows":{"allowed":{"Mode":"other"}}}))
+    );
+    for (source, code) in [
+        (
+            list.replace("key: name", "key: missing"),
+            "unknown_representation_field",
+        ),
+        (
+            list.replace("path: [Item]", "path: [Item], item: {kind: text}"),
+            "incomplete_item_contract",
+        ),
+    ] {
+        let mut invalid = modules.clone();
+        invalid[1] = parse(SourceFile {
+            path: "invalid.yaml",
+            bytes: source.as_bytes(),
+        })
+        .unwrap();
+        assert!(
+            link(&invalid)
+                .unwrap_err()
+                .iter()
+                .any(|error| error.code == code)
+        );
+    }
+}
+
+fn referenced_modules(row: &str, list: &str) -> Vec<nkdk_rule_compiler::Module> {
+    let owner = "format: nkdk-declarations/1\nkind: object\nid: test.rows\nimports: {rows: common.rows}\nvalue: {kind: record, fields: [{name: rows, type: {use: rows}}]}\nrepresentations:\n  xml: {kind: record, fields: [{field: rows, path: [Root, Rows]}]}\n  yaml: {kind: mapping, fields: [{field: rows, key: Rows}]}\n";
+    [row, list, owner]
+        .into_iter()
+        .enumerate()
+        .map(|(i, source)| {
+            parse(SourceFile {
+                path: &format!("{i}.yaml"),
+                bytes: source.as_bytes(),
+            })
+            .unwrap()
+        })
+        .collect::<Vec<_>>()
 }

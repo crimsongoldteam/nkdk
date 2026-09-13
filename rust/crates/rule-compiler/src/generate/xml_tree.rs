@@ -39,7 +39,7 @@ pub(super) fn lower(
 
 struct Context<'a> {
     entry: &'a LinkedEntry,
-    program: &'a Program,
+    program: &'a Program<'a>,
     fields: &'a [LinkedField],
     parent: &'a [ExpandedName],
     bindings: &'a [LinkedBinding],
