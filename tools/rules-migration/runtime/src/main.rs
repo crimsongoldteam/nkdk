@@ -101,6 +101,9 @@ fn check_case(case: &Value, manifest: &Value) {
     let xml = case["xml"].as_str().unwrap().as_bytes();
     let forward = rules::convert_file(entry, Direction::XmlToYaml, xml, &inputs).unwrap();
     let actual = std::str::from_utf8(&forward.bytes).unwrap().trim_end();
+    if case["noRaw"].as_bool() == Some(true) {
+        assert!(!actual.contains("$xml"), "unexpected raw XML: {actual}");
+    }
     if let Some(expected) = case["yaml"].as_str() {
         compare_yaml(expected, actual);
         assert!(

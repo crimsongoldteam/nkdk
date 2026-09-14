@@ -3,14 +3,14 @@
   "status": "limited-profile; original tests retained",
   "derivedProjections": [
     {
-      "entry": "contract.property.f56ce477c9970e0052c8",
-      "sourceProjection": "candidate.projection.f288ee6058c1b97c559f",
-      "sourceFragment": "candidate.fragment.cfa86f8dfb055002dfc5",
+      "entry": "contract.property.acf86bdcc031bc8a20c7",
+      "sourceProjection": "candidate.projection.268f4bbecb50102ceab5",
+      "sourceFragment": "candidate.fragment.a99e4815f468118c8454",
       "field": "languageCode"
     },
     {
-      "entry": "contract.property.3e8a06691df9b605bfee",
-      "sourceProjection": "candidate.projection.2d60e4c705405beffe77",
+      "entry": "contract.property.37b194f1b2458adc4601",
+      "sourceProjection": "candidate.projection.b8e04686f1c238ffc749",
       "sourceFragment": "candidate.fragment.381457343c6174fef16a",
       "field": "synonym"
     },
@@ -21,15 +21,15 @@
       "field": "usePurposes"
     },
     {
-      "entry": "contract.property.f92145021b0f0c9d3e0d",
-      "sourceProjection": "candidate.projection.6aa89eba22c547592941",
-      "sourceFragment": "candidate.fragment.0b214f3bfffbf9b045d5",
+      "entry": "contract.property.147dce1ef2d78cb0a691",
+      "sourceProjection": "candidate.projection.1a24073d48b199530711",
+      "sourceFragment": "candidate.fragment.56b5c7ec0379218277fe",
       "field": "usePurposes"
     },
     {
-      "entry": "contract.property.ad036e9e2115a4b2db9b",
-      "sourceProjection": "candidate.projection.fc2af2ca8f04f8befd63",
-      "sourceFragment": "candidate.fragment.0e8dcc632c1e8b062aba",
+      "entry": "contract.property.f75d742080b7d43659d5",
+      "sourceProjection": "candidate.projection.17ba5cdd27ba12cc7efb",
+      "sourceFragment": "candidate.fragment.5d3f271697c1d5e7a4d2",
       "field": "descriptionLength"
     },
     {
@@ -443,56 +443,56 @@
       "adaptation": "Relative field paths bound to an explicit test container"
     },
     {
-      "entry": "contract.property.1247b81a9d9a98e55d9a",
-      "sourceProjection": "candidate.projection.05432aa1a9e3511e6894",
-      "sourceFragment": "candidate.fragment.6ca6807c679d5d575792",
+      "entry": "contract.property.484ec19fa72126cbee11",
+      "sourceProjection": "candidate.projection.a219239548c3cbfcc4fe",
+      "sourceFragment": "candidate.fragment.bdc514e41da33d00a34c",
       "field": "defaultForm"
     },
     {
-      "entry": "contract.property.719c6ed7a1dc22e04c4c",
-      "sourceProjection": "candidate.projection.954ab5f8d8f6939a71a1",
-      "sourceFragment": "candidate.fragment.b8bab99065f19b00e056",
+      "entry": "contract.property.290954e5cda67caebed1",
+      "sourceProjection": "candidate.projection.411404fac763767c3c5a",
+      "sourceFragment": "candidate.fragment.23d3c68fc6cb35d6c5eb",
       "field": "numerator"
     },
     {
-      "entry": "contract.property.10adb634742fe4522d90",
-      "sourceProjection": "candidate.projection.05432aa1a9e3511e6894",
-      "sourceFragment": "candidate.fragment.6ca6807c679d5d575792",
+      "entry": "contract.property.ddb058402c2f7ccfc6d7",
+      "sourceProjection": "candidate.projection.a219239548c3cbfcc4fe",
+      "sourceFragment": "candidate.fragment.bdc514e41da33d00a34c",
       "field": "registeredDocuments"
     },
     {
-      "entry": "contract.property.2c35b4ee48ecd9d5f0bf",
-      "sourceProjection": "candidate.projection.954ab5f8d8f6939a71a1",
-      "sourceFragment": "candidate.fragment.b8bab99065f19b00e056",
+      "entry": "contract.property.24ac489024aa0aa9c8f4",
+      "sourceProjection": "candidate.projection.411404fac763767c3c5a",
+      "sourceFragment": "candidate.fragment.23d3c68fc6cb35d6c5eb",
       "field": "basedOn"
     },
     {
-      "entry": "contract.property.8be455fdc8bf6c2c4dc3",
-      "sourceProjection": "candidate.projection.696d26331cfcacc85e49",
-      "sourceFragment": "candidate.fragment.03a2832124205dcb0ebf",
+      "entry": "contract.property.493bae2b8b2d8260e408",
+      "sourceProjection": "candidate.projection.7761ded88f7507684acf",
+      "sourceFragment": "candidate.fragment.a73c09e51f0461f1f771",
       "field": "group"
     }
   ],
   "sharedProfiles": [
     {
       "source": {
-        "entry": "contract.property.9b8e6f4c4ab650c2940b",
-        "sourceProjection": "candidate.projection.954ab5f8d8f6939a71a1",
-        "sourceFragment": "candidate.fragment.b8bab99065f19b00e056",
+        "entry": "contract.property.fb9196f5df935b361378",
+        "sourceProjection": "candidate.projection.411404fac763767c3c5a",
+        "sourceFragment": "candidate.fragment.23d3c68fc6cb35d6c5eb",
         "field": "synonym"
       },
-      "coveredBy": "contract.property.3e8a06691df9b605bfee",
+      "coveredBy": "contract.property.37b194f1b2458adc4601",
       "signatureSHA256": "cd257dc026f654a0ab45171a1aceaa6bb91e0bf51cc8a9b3e0829cbc923f73f0",
       "scope": "Isolated property contract and required inputs; owner composition remains separate"
     },
     {
       "source": {
-        "entry": "contract.property.9709a97098098d7ae829",
-        "sourceProjection": "candidate.projection.05432aa1a9e3511e6894",
-        "sourceFragment": "candidate.fragment.6ca6807c679d5d575792",
+        "entry": "contract.property.b17dd2b7468cb24ca3a1",
+        "sourceProjection": "candidate.projection.a219239548c3cbfcc4fe",
+        "sourceFragment": "candidate.fragment.bdc514e41da33d00a34c",
         "field": "synonym"
       },
-      "coveredBy": "contract.property.3e8a06691df9b605bfee",
+      "coveredBy": "contract.property.37b194f1b2458adc4601",
       "signatureSHA256": "cd257dc026f654a0ab45171a1aceaa6bb91e0bf51cc8a9b3e0829cbc923f73f0",
       "scope": "Isolated property contract and required inputs; owner composition remains separate"
     }
@@ -1267,6 +1267,10 @@
       "sha256": "7703675b857009689c5700bd01a2c8e2b96384588c45e88896e62b3de277a6c7"
     },
     {
+      "path": "rust/crates/conversion-core/src/xml/tree/patch.rs",
+      "sha256": "8efd7262083edf65a0124f51ef5b8acfdbe80b4b4d09496442d6d15069a2cd86"
+    },
+    {
       "path": "rust/crates/compiled-rules/tests/scalars.rs",
       "sha256": "2591c38511ef3114acff30e69fa348a63cac73fb30cc673fdbd84c9ef9575a3b"
     },
@@ -1870,7 +1874,7 @@
   "cases": [
     {
       "id": "required-language-code",
-      "entry": "contract.property.f56ce477c9970e0052c8",
+      "entry": "contract.property.acf86bdcc031bc8a20c7",
       "xml": "<Properties><LanguageCode>ru</LanguageCode>\n\t\t</Properties>",
       "yaml": "КодЯзыка: ru",
       "omittedXMLProperties": [
@@ -1896,7 +1900,7 @@
     },
     {
       "id": "required-language-code-missing-xml",
-      "entry": "contract.property.f56ce477c9970e0052c8",
+      "entry": "contract.property.acf86bdcc031bc8a20c7",
       "xml": "<Properties/>",
       "annotation": "LanguageCode: !xml/raw",
       "source": [
@@ -2022,7 +2026,7 @@
     },
     {
       "id": "purposes-without-default",
-      "entry": "contract.property.f92145021b0f0c9d3e0d",
+      "entry": "contract.property.147dce1ef2d78cb0a691",
       "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:app=\"http://v8.1c.ru/8.2/managed-application/core\"><UsePurposes><v8:Value xsi:type=\"app:ApplicationUsePurpose\">PlatformApplication</v8:Value></UsePurposes></Properties>",
       "yaml": "НазначенияИспользования:\n  - PlatformApplication",
       "source": [
@@ -2082,7 +2086,7 @@
     },
     {
       "id": "number-bound-0",
-      "entry": "contract.property.ad036e9e2115a4b2db9b",
+      "entry": "contract.property.f75d742080b7d43659d5",
       "xml": "<Properties><DescriptionLength>0</DescriptionLength></Properties>",
       "yaml": "ДлинаНаименования: !xml/invalid 0",
       "source": [
@@ -2097,7 +2101,7 @@
     },
     {
       "id": "number-bound-1",
-      "entry": "contract.property.ad036e9e2115a4b2db9b",
+      "entry": "contract.property.f75d742080b7d43659d5",
       "xml": "<Properties><DescriptionLength>1</DescriptionLength></Properties>",
       "yaml": "ДлинаНаименования: 1",
       "source": [
@@ -2112,7 +2116,7 @@
     },
     {
       "id": "number-bound-1.5",
-      "entry": "contract.property.ad036e9e2115a4b2db9b",
+      "entry": "contract.property.f75d742080b7d43659d5",
       "xml": "<Properties><DescriptionLength>1.5</DescriptionLength></Properties>",
       "yaml": "ДлинаНаименования: 1.5",
       "source": [
@@ -2127,7 +2131,7 @@
     },
     {
       "id": "number-bound-25",
-      "entry": "contract.property.ad036e9e2115a4b2db9b",
+      "entry": "contract.property.f75d742080b7d43659d5",
       "xml": "<Properties><DescriptionLength>25</DescriptionLength></Properties>",
       "yaml": "",
       "source": [
@@ -2142,7 +2146,7 @@
     },
     {
       "id": "number-bound-250",
-      "entry": "contract.property.ad036e9e2115a4b2db9b",
+      "entry": "contract.property.f75d742080b7d43659d5",
       "xml": "<Properties><DescriptionLength>250</DescriptionLength></Properties>",
       "yaml": "ДлинаНаименования: 250",
       "source": [
@@ -2157,7 +2161,7 @@
     },
     {
       "id": "number-bound-251",
-      "entry": "contract.property.ad036e9e2115a4b2db9b",
+      "entry": "contract.property.f75d742080b7d43659d5",
       "xml": "<Properties><DescriptionLength>251</DescriptionLength></Properties>",
       "yaml": "ДлинаНаименования: !xml/invalid 251",
       "source": [
@@ -2761,10 +2765,14 @@
       "id": "boolean-anomaly-\"\"",
       "entry": "candidate.projection.68dcf30ba54e9fb53688",
       "xml": "<Turnover></Turnover>",
-      "yaml": "Turnover: !xml/raw\n  $xml: {}",
+      "yaml": "Turnover: !xml/raw\n  $xml: ''",
+      "reverseYAML": "Turnover: !xml/raw\n  $xml: {}",
       "source": [
         {
           "path": "rust/crates/conversion-core/tests/raw_property.rs"
+        },
+        {
+          "path": "rust/crates/conversion-core/src/xml/tree/patch.rs"
         }
       ],
       "contract": "Approved inferred anomaly without semantic value uses physical XML key; existing raw_property contract with full literal payload expectation; independent reverse and cold XML restoration"
@@ -2777,6 +2785,9 @@
       "source": [
         {
           "path": "rust/crates/conversion-core/tests/raw_property.rs"
+        },
+        {
+          "path": "rust/crates/conversion-core/src/xml/tree/patch.rs"
         }
       ],
       "contract": "Approved inferred anomaly without semantic value uses physical XML key; existing raw_property contract with full literal payload expectation; independent reverse and cold XML restoration"
@@ -2789,6 +2800,9 @@
       "source": [
         {
           "path": "rust/crates/conversion-core/tests/raw_property.rs"
+        },
+        {
+          "path": "rust/crates/conversion-core/src/xml/tree/patch.rs"
         }
       ],
       "contract": "Approved inferred anomaly without semantic value uses physical XML key; existing raw_property contract with full literal payload expectation; independent reverse and cold XML restoration"
@@ -2804,7 +2818,7 @@
         }
       ],
       "xml": "<Title xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"/>",
-      "yaml": "Title: !xml/raw\n  $xml:",
+      "yaml": "Title: !xml/raw\n  $xml: \"\"",
       "inputs": {
         "defaultLanguage": "ru",
         "registeredLanguages": [
@@ -3112,7 +3126,7 @@
     },
     {
       "id": "i8n-contract-2-missing",
-      "entry": "contract.property.3e8a06691df9b605bfee",
+      "entry": "contract.property.37b194f1b2458adc4601",
       "source": [
         {
           "path": "tests/migration/i8n-full-round-trip-observations.json",
@@ -3133,7 +3147,7 @@
     },
     {
       "id": "i8n-contract-2-empty-container",
-      "entry": "contract.property.3e8a06691df9b605bfee",
+      "entry": "contract.property.37b194f1b2458adc4601",
       "source": [
         {
           "path": "tests/migration/i8n-full-round-trip-observations.json",
@@ -3154,7 +3168,7 @@
     },
     {
       "id": "i8n-contract-2-empty-primary",
-      "entry": "contract.property.3e8a06691df9b605bfee",
+      "entry": "contract.property.37b194f1b2458adc4601",
       "source": [
         {
           "path": "tests/migration/i8n-full-round-trip-observations.json",
@@ -3175,7 +3189,7 @@
     },
     {
       "id": "i8n-contract-2-primary-text",
-      "entry": "contract.property.3e8a06691df9b605bfee",
+      "entry": "contract.property.37b194f1b2458adc4601",
       "source": [
         {
           "path": "tests/migration/i8n-full-round-trip-observations.json",
@@ -3196,7 +3210,7 @@
     },
     {
       "id": "i8n-contract-2-foreign-only",
-      "entry": "contract.property.3e8a06691df9b605bfee",
+      "entry": "contract.property.37b194f1b2458adc4601",
       "source": [
         {
           "path": "tests/migration/i8n-full-round-trip-observations.json",
@@ -3217,7 +3231,7 @@
     },
     {
       "id": "i8n-contract-2-equal-name",
-      "entry": "contract.property.3e8a06691df9b605bfee",
+      "entry": "contract.property.37b194f1b2458adc4601",
       "source": [
         {
           "path": "tests/migration/i8n-full-round-trip-observations.json",
@@ -3239,7 +3253,7 @@
     },
     {
       "id": "i8n-contract-2-equal-name-with-foreign",
-      "entry": "contract.property.3e8a06691df9b605bfee",
+      "entry": "contract.property.37b194f1b2458adc4601",
       "source": [
         {
           "path": "tests/migration/i8n-full-round-trip-observations.json",
@@ -3261,7 +3275,7 @@
     },
     {
       "id": "i8n-contract-2-unknown-language",
-      "entry": "contract.property.3e8a06691df9b605bfee",
+      "entry": "contract.property.37b194f1b2458adc4601",
       "source": [
         {
           "path": "tests/migration/i8n-full-round-trip-observations.json",
@@ -3282,7 +3296,7 @@
     },
     {
       "id": "i8n-contract-2-separated-duplicate",
-      "entry": "contract.property.3e8a06691df9b605bfee",
+      "entry": "contract.property.37b194f1b2458adc4601",
       "source": [
         {
           "path": "tests/migration/i8n-full-round-trip-observations.json",
@@ -3303,7 +3317,7 @@
     },
     {
       "id": "i8n-contract-2-empty-first-duplicate",
-      "entry": "contract.property.3e8a06691df9b605bfee",
+      "entry": "contract.property.37b194f1b2458adc4601",
       "source": [
         {
           "path": "tests/migration/i8n-full-round-trip-observations.json",
@@ -3324,7 +3338,7 @@
     },
     {
       "id": "i8n-contract-2-noncanonical-order",
-      "entry": "contract.property.3e8a06691df9b605bfee",
+      "entry": "contract.property.37b194f1b2458adc4601",
       "source": [
         {
           "path": "tests/migration/i8n-full-round-trip-observations.json",
@@ -3345,7 +3359,7 @@
     },
     {
       "id": "i8n-contract-2-service-empty-code",
-      "entry": "contract.property.3e8a06691df9b605bfee",
+      "entry": "contract.property.37b194f1b2458adc4601",
       "source": [
         {
           "path": "tests/migration/i8n-full-round-trip-observations.json",
@@ -3366,7 +3380,7 @@
     },
     {
       "id": "i8n-contract-2-service-hash-code",
-      "entry": "contract.property.3e8a06691df9b605bfee",
+      "entry": "contract.property.37b194f1b2458adc4601",
       "source": [
         {
           "path": "tests/migration/i8n-full-round-trip-observations.json",
@@ -3387,7 +3401,7 @@
     },
     {
       "id": "i8n-contract-2-typed-empty",
-      "entry": "contract.property.3e8a06691df9b605bfee",
+      "entry": "contract.property.37b194f1b2458adc4601",
       "source": [
         {
           "path": "tests/migration/i8n-full-round-trip-observations.json",
@@ -3408,7 +3422,7 @@
     },
     {
       "id": "i8n-contract-2-typed-text",
-      "entry": "contract.property.3e8a06691df9b605bfee",
+      "entry": "contract.property.37b194f1b2458adc4601",
       "source": [
         {
           "path": "tests/migration/i8n-full-round-trip-observations.json",
@@ -3429,7 +3443,7 @@
     },
     {
       "id": "i8n-contract-2-nil",
-      "entry": "contract.property.3e8a06691df9b605bfee",
+      "entry": "contract.property.37b194f1b2458adc4601",
       "source": [
         {
           "path": "tests/migration/i8n-full-round-trip-observations.json",
@@ -3450,7 +3464,7 @@
     },
     {
       "id": "i8n-absent-with-known-name",
-      "entry": "contract.property.3e8a06691df9b605bfee",
+      "entry": "contract.property.37b194f1b2458adc4601",
       "xml": "<Properties/>",
       "yaml": "Синоним: !xml/raw\n  $значение: {}\n  $xml: null",
       "inputs": {
@@ -3706,7 +3720,7 @@
     },
     {
       "id": "e2e-properties-ТаблицаПоУмолчанию",
-      "entry": "candidate.projection.f4c7c74e41bd55d594f3",
+      "entry": "candidate.projection.61c3000785e1c2490900",
       "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\"><Synonym>\n\t\t\t\t<v8:item>\n\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t<v8:content>Таблица по умолчанию</v8:content>\n\t\t\t\t</v8:item>\n\t\t\t</Synonym>\n\t\t\t<Comment />\n\t\t\t<TableType>Table</TableType>\n\t\t\t<NameInDataSource>Имя в источнике данных</NameInDataSource>\n\t\t\t<ExpressionInDataSource />\n\t\t\t<TableDataType>NonobjectData</TableDataType>\n\t\t\t<PresentationField />\n\t\t\t<ParentField />\n\t\t\t<UseStandardCommands>true</UseStandardCommands>\n\t\t\t<QuickChoice>false</QuickChoice>\n\t\t\t<InputByString />\n\t\t\t<CreateOnInput>Auto</CreateOnInput>\n\t\t\t<SearchStringModeOnInputByString>Begin</SearchStringModeOnInputByString>\n\t\t\t<ChoiceDataGetModeOnInputByString>Directly</ChoiceDataGetModeOnInputByString>\n\t\t\t<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>\n\t\t\t<DefaultObjectForm />\n\t\t\t<DefaultRecordForm />\n\t\t\t<DefaultListForm />\n\t\t\t<DefaultChoiceForm />\n\t\t\t<ObjectPresentation />\n\t\t\t<ExtendedObjectPresentation />\n\t\t\t<RecordPresentation />\n\t\t\t<ExtendedRecordPresentation />\n\t\t\t<ListPresentation />\n\t\t\t<ExtendedListPresentation />\n\t\t\t<Explanation />\n\t\t\t<IncludeHelpInContents>false</IncludeHelpInContents>\n\t\t\t<ReadOnly>false</ReadOnly>\n\t\t\t<TransactionsIsolationLevel>Auto</TransactionsIsolationLevel>\n\t\t\t<DataVersionField />\n\t\t\t<EditType>InDialog</EditType>\n\t\t\t<BasedOn />\n\t\t\t<DataLockFields />\n\t\t\t<DataLockControlMode>Automatic</DataLockControlMode>\n\t\t</Properties>",
       "yaml": "ИмяВИсточникеДанных: Имя в источнике данных",
       "omittedXMLProperties": [
@@ -3752,7 +3766,7 @@
     },
     {
       "id": "e2e-properties-ТаблицаВсеСвойства",
-      "entry": "candidate.projection.f4c7c74e41bd55d594f3",
+      "entry": "candidate.projection.61c3000785e1c2490900",
       "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Synonym>\n\t\t\t\t<v8:item>\n\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t<v8:content>Синоним</v8:content>\n\t\t\t\t</v8:item>\n\t\t\t</Synonym>\n\t\t\t<Comment>Комментарий</Comment>\n\t\t\t<TableType>Table</TableType>\n\t\t\t<NameInDataSource>ИмяВИсточнике</NameInDataSource>\n\t\t\t<ExpressionInDataSource />\n\t\t\t<TableDataType>ObjectData</TableDataType>\n\t\t\t<PresentationField>ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Table.ТаблицаВсеСвойства.Field.ПолеПоУмолчанию</PresentationField>\n\t\t\t<ParentField />\n\t\t\t<UseStandardCommands>true</UseStandardCommands>\n\t\t\t<QuickChoice>true</QuickChoice>\n\t\t\t<InputByString>\n\t\t\t\t<xr:Field>ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Table.ТаблицаВсеСвойства.Field.ПолеПоУмолчанию</xr:Field>\n\t\t\t\t<xr:Field>ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Table.ТаблицаВсеСвойства.Field.ПолеПоУмолчанию</xr:Field>\n\t\t\t</InputByString>\n\t\t\t<CreateOnInput>Auto</CreateOnInput>\n\t\t\t<SearchStringModeOnInputByString>AnyPart</SearchStringModeOnInputByString>\n\t\t\t<ChoiceDataGetModeOnInputByString>Background</ChoiceDataGetModeOnInputByString>\n\t\t\t<ChoiceHistoryOnInput>DontUse</ChoiceHistoryOnInput>\n\t\t\t<DefaultObjectForm>ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Table.ТаблицаВсеСвойства.Form.ФормаОбъекта</DefaultObjectForm>\n\t\t\t<DefaultRecordForm />\n\t\t\t<DefaultListForm>ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Table.ТаблицаВсеСвойства.Form.ФормаСписка</DefaultListForm>\n\t\t\t<DefaultChoiceForm>ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Table.ТаблицаВсеСвойства.Form.ФормаВыбора</DefaultChoiceForm>\n\t\t\t<ObjectPresentation />\n\t\t\t<ExtendedObjectPresentation />\n\t\t\t<RecordPresentation />\n\t\t\t<ExtendedRecordPresentation />\n\t\t\t<ListPresentation>\n\t\t\t\t<v8:item>\n\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t<v8:content>Представление списка</v8:content>\n\t\t\t\t</v8:item>\n\t\t\t</ListPresentation>\n\t\t\t<ExtendedListPresentation>\n\t\t\t\t<v8:item>\n\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t<v8:content>Расширенное представление списка</v8:content>\n\t\t\t\t</v8:item>\n\t\t\t</ExtendedListPresentation>\n\t\t\t<Explanation>\n\t\t\t\t<v8:item>\n\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t<v8:content>Пояснение</v8:content>\n\t\t\t\t</v8:item>\n\t\t\t</Explanation>\n\t\t\t<IncludeHelpInContents>true</IncludeHelpInContents>\n\t\t\t<ReadOnly>true</ReadOnly>\n\t\t\t<TransactionsIsolationLevel>ReadUncommitted</TransactionsIsolationLevel>\n\t\t\t<DataVersionField>ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Table.ТаблицаВсеСвойства.Field.ПолеПоУмолчанию</DataVersionField>\n\t\t\t<EditType>InDialog</EditType>\n\t\t\t<BasedOn>\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">ExchangePlan.ПланОбменаВсеСвойства</xr:Item>\n\t\t\t</BasedOn>\n\t\t\t<DataLockFields>\n\t\t\t\t<xr:Field>ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Table.ТаблицаВсеСвойства.Field.ПолеПоУмолчанию</xr:Field>\n\t\t\t</DataLockFields>\n\t\t\t<DataLockControlMode>Managed</DataLockControlMode>\n\t\t</Properties>",
       "yaml": "Синоним: Синоним\nКомментарий: Комментарий\nИмяВИсточникеДанных: ИмяВИсточнике\nТипДанныхТаблицы: ОбъектныеДанные\nПолеПредставления: ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Table.ТаблицаВсеСвойства.Field.ПолеПоУмолчанию\nБыстрыйВыбор: Истина\nВводПоСтроке:\n  - ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Table.ТаблицаВсеСвойства.Field.ПолеПоУмолчанию\n  - ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Table.ТаблицаВсеСвойства.Field.ПолеПоУмолчанию\nРежимСтрокиПоискаПриВводеПоСтроке: ЛюбаяЧасть\nРежимПолученияДанныхВыбораПриВводеПоСтроке: Фоновый\nИсторияВыбораПриВводе: НеИспользовать\nОсновнаяФормаОбъекта: ФормаОбъекта\nОсновнаяФормаСписка: ФормаСписка\nОсновнаяФормаВыбора: ФормаВыбора\nПредставлениеСписка: Представление списка\nРасширенноеПредставлениеСписка: Расширенное представление списка\nПояснение: Пояснение\nВключатьСправкуВСодержание: Истина\nТолькоЧтение: Истина\nУровеньИзоляцииТранзакций: ЧтениеНезафиксированных\nПолеВерсииДанных: ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Table.ТаблицаВсеСвойства.Field.ПолеПоУмолчанию\nВводитсяНаОсновании:\n  - ПланОбмена.ПланОбменаВсеСвойства\nПоляБлокировкиДанных:\n  - ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Table.ТаблицаВсеСвойства.Field.ПолеПоУмолчанию\nРежимУправленияБлокировкойДанных: Управляемый",
       "omittedXMLProperties": [
@@ -3814,7 +3828,7 @@
     },
     {
       "id": "e2e-properties-Команда1",
-      "entry": "candidate.projection.accb1feb4f7236892a07",
+      "entry": "candidate.projection.27bee66ce7374f86f2e7",
       "xml": "<Properties><Synonym />\n\t\t\t\t\t<Comment />\n\t\t\t\t\t<Group>CommandGroup.ГруппаКомандПоУмолчанию</Group>\n\t\t\t\t\t<ParameterUseMode>Single</ParameterUseMode>\n\t\t\t\t\t<ModifiesData>false</ModifiesData>\n\t\t\t\t\t<Representation>Auto</Representation>\n\t\t\t\t\t<ToolTip />\n\t\t\t\t\t<Shortcut />\n\t\t\t\t\t<OnMainServerUnavalableBehavior>Auto</OnMainServerUnavalableBehavior>\n\t\t\t\t</Properties>",
       "yaml": "Синоним: \"\"\nГруппа: ГруппаКоманд.ГруппаКомандПоУмолчанию",
       "omittedXMLProperties": [
@@ -3848,7 +3862,7 @@
     },
     {
       "id": "e2e-properties-ОбщаяКомандаПоУмолчанию",
-      "entry": "candidate.projection.696d26331cfcacc85e49",
+      "entry": "candidate.projection.7761ded88f7507684acf",
       "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\"><Synonym>\n\t\t\t\t<v8:item>\n\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t<v8:content>Общая команда по умолчанию</v8:content>\n\t\t\t\t</v8:item>\n\t\t\t</Synonym>\n\t\t\t<Comment />\n\t\t\t<Group>NavigationPanelImportant</Group>\n\t\t\t<Representation>Auto</Representation>\n\t\t\t<ToolTip />\n\t\t\t<Shortcut />\n\t\t\t<IncludeHelpInContents>false</IncludeHelpInContents>\n\t\t\t<ParameterUseMode>Single</ParameterUseMode>\n\t\t\t<ModifiesData>false</ModifiesData>\n\t\t\t<OnMainServerUnavalableBehavior>Auto</OnMainServerUnavalableBehavior>\n\t\t</Properties>",
       "yaml": "Группа: ПанельНавигацииВажное",
       "omittedXMLProperties": [
@@ -3882,7 +3896,7 @@
     },
     {
       "id": "e2e-properties-ОбщаяКомандаВсеСвойства",
-      "entry": "candidate.projection.696d26331cfcacc85e49",
+      "entry": "candidate.projection.7761ded88f7507684acf",
       "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\"><Synonym>\n\t\t\t\t<v8:item>\n\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t<v8:content>Синоним</v8:content>\n\t\t\t\t</v8:item>\n\t\t\t</Synonym>\n\t\t\t<Comment>Комментарий</Comment>\n\t\t\t<Group>FormCommandBarImportant</Group>\n\t\t\t<Representation>PictureAndText</Representation>\n\t\t\t<ToolTip>\n\t\t\t\t<v8:item>\n\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t<v8:content>Подсказка</v8:content>\n\t\t\t\t</v8:item>\n\t\t\t</ToolTip>\n\t\t\t<Shortcut>S</Shortcut>\n\t\t\t<IncludeHelpInContents>true</IncludeHelpInContents>\n\t\t\t<ParameterUseMode>Multiple</ParameterUseMode>\n\t\t\t<ModifiesData>true</ModifiesData>\n\t\t\t<OnMainServerUnavalableBehavior>MakeDisable</OnMainServerUnavalableBehavior>\n\t\t</Properties>",
       "yaml": "Синоним: Синоним\nКомментарий: Комментарий\nГруппа: КоманднаяПанельФормыВажное\nОтображение: КартинкаИТекст\nПодсказка: Подсказка\nСочетаниеКлавиш: S\nВключатьСправкуВСодержание: Истина\nРежимИспользованияПараметра: Множественный\nИзменяетДанные: Истина\nПоведениеПриНедоступностиОсновногоСервера: ОтключитьДоступность",
       "omittedXMLProperties": [
@@ -3916,7 +3930,7 @@
     },
     {
       "id": "e2e-properties-ДокументПоУмолчанию",
-      "entry": "candidate.projection.954ab5f8d8f6939a71a1",
+      "entry": "candidate.projection.411404fac763767c3c5a",
       "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\"><Synonym>\n\t\t\t\t<v8:item>\n\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t<v8:content>Документ по умолчанию</v8:content>\n\t\t\t\t</v8:item>\n\t\t\t</Synonym>\n\t\t\t<Comment />\n\t\t\t<UseStandardCommands>true</UseStandardCommands>\n\t\t\t<Numerator />\n\t\t\t<NumberType>String</NumberType>\n\t\t\t<NumberAllowedLength>Variable</NumberAllowedLength>\n\t\t\t<NumberPeriodicity>Nonperiodical</NumberPeriodicity>\n\t\t\t<CheckUnique>true</CheckUnique>\n\t\t\t<Autonumbering>true</Autonumbering>\n\t\t\t<BasedOn />\n\t\t\t<CreateOnInput>Use</CreateOnInput>\n\t\t\t<SearchStringModeOnInputByString>Begin</SearchStringModeOnInputByString>\n\t\t\t<FullTextSearchOnInputByString>DontUse</FullTextSearchOnInputByString>\n\t\t\t<ChoiceDataGetModeOnInputByString>Directly</ChoiceDataGetModeOnInputByString>\n\t\t\t<DefaultObjectForm />\n\t\t\t<DefaultListForm />\n\t\t\t<AuxiliaryObjectForm />\n\t\t\t<AuxiliaryListForm />\n\t\t\t<AuxiliaryChoiceForm />\n\t\t\t<Posting>Allow</Posting>\n\t\t\t<RealTimePosting>Allow</RealTimePosting>\n\t\t\t<RegisterRecordsDeletion>AutoDeleteOnUnpost</RegisterRecordsDeletion>\n\t\t\t<RegisterRecordsWritingOnPost>WriteSelected</RegisterRecordsWritingOnPost>\n\t\t\t<SequenceFilling>AutoFill</SequenceFilling>\n\t\t\t<PostInPrivilegedMode>true</PostInPrivilegedMode>\n\t\t\t<UnpostInPrivilegedMode>true</UnpostInPrivilegedMode>\n\t\t\t<IncludeHelpInContents>false</IncludeHelpInContents>\n\t\t\t<DataLockControlMode>Managed</DataLockControlMode>\n\t\t\t<FullTextSearch>Use</FullTextSearch>\n\t\t\t<ObjectPresentation />\n\t\t\t<ExtendedObjectPresentation />\n\t\t\t<ListPresentation />\n\t\t\t<ExtendedListPresentation />\n\t\t\t<Explanation />\n\t\t\t<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>\n\t\t\t<DataHistory>DontUse</DataHistory>\n\t\t\t<UpdateDataHistoryImmediatelyAfterWrite>false</UpdateDataHistoryImmediatelyAfterWrite>\n\t\t\t<ExecuteAfterWriteDataHistoryVersionProcessing>false</ExecuteAfterWriteDataHistoryVersionProcessing>\n\t\t</Properties>",
       "yaml": "",
       "omittedXMLProperties": [
@@ -3961,7 +3975,7 @@
     },
     {
       "id": "e2e-properties-ДокументВсеСвойства",
-      "entry": "candidate.projection.954ab5f8d8f6939a71a1",
+      "entry": "candidate.projection.411404fac763767c3c5a",
       "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Synonym>\n\t\t\t\t<v8:item>\n\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t<v8:content>Синоним</v8:content>\n\t\t\t\t</v8:item>\n\t\t\t</Synonym>\n\t\t\t<Comment>Комментарий</Comment>\n\t\t\t<UseStandardCommands>false</UseStandardCommands>\n\t\t\t<Numerator />\n\t\t\t<NumberType>Number</NumberType>\n\t\t\t<NumberAllowedLength>Variable</NumberAllowedLength>\n\t\t\t<NumberPeriodicity>Year</NumberPeriodicity>\n\t\t\t<CheckUnique>false</CheckUnique>\n\t\t\t<Autonumbering>false</Autonumbering>\n\t\t\t<BasedOn>\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">Catalog.СправочникСВладельцем</xr:Item>\n\t\t\t</BasedOn>\n\t\t\t<CreateOnInput>DontUse</CreateOnInput>\n\t\t\t<SearchStringModeOnInputByString>AnyPart</SearchStringModeOnInputByString>\n\t\t\t<FullTextSearchOnInputByString>Use</FullTextSearchOnInputByString>\n\t\t\t<ChoiceDataGetModeOnInputByString>Background</ChoiceDataGetModeOnInputByString>\n\t\t\t<DefaultObjectForm>Document.ДокументВсеСвойства.Form.ФормаДокумента</DefaultObjectForm>\n\t\t\t<DefaultListForm>Document.ДокументВсеСвойства.Form.ФормаСписка</DefaultListForm>\n\t\t\t<AuxiliaryObjectForm />\n\t\t\t<AuxiliaryListForm />\n\t\t\t<AuxiliaryChoiceForm />\n\t\t\t<Posting>Allow</Posting>\n\t\t\t<RealTimePosting>Allow</RealTimePosting>\n\t\t\t<RegisterRecordsDeletion>AutoDeleteOnUnpost</RegisterRecordsDeletion>\n\t\t\t<RegisterRecordsWritingOnPost>WriteSelected</RegisterRecordsWritingOnPost>\n\t\t\t<SequenceFilling>AutoFill</SequenceFilling>\n\t\t\t<PostInPrivilegedMode>true</PostInPrivilegedMode>\n\t\t\t<UnpostInPrivilegedMode>true</UnpostInPrivilegedMode>\n\t\t\t<IncludeHelpInContents>true</IncludeHelpInContents>\n\t\t\t<DataLockControlMode>Managed</DataLockControlMode>\n\t\t\t<FullTextSearch>DontUse</FullTextSearch>\n\t\t\t<ObjectPresentation>\n\t\t\t\t<v8:item>\n\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t<v8:content>Представление объекта</v8:content>\n\t\t\t\t</v8:item>\n\t\t\t</ObjectPresentation>\n\t\t\t<ExtendedObjectPresentation>\n\t\t\t\t<v8:item>\n\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t<v8:content>Расширенное предствление объекта</v8:content>\n\t\t\t\t</v8:item>\n\t\t\t</ExtendedObjectPresentation>\n\t\t\t<ListPresentation>\n\t\t\t\t<v8:item>\n\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t<v8:content>Представление списка</v8:content>\n\t\t\t\t</v8:item>\n\t\t\t</ListPresentation>\n\t\t\t<ExtendedListPresentation>\n\t\t\t\t<v8:item>\n\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t<v8:content>Расширенное представление списка</v8:content>\n\t\t\t\t</v8:item>\n\t\t\t</ExtendedListPresentation>\n\t\t\t<Explanation>\n\t\t\t\t<v8:item>\n\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t<v8:content>Пояснение\n</v8:content>\n\t\t\t\t</v8:item>\n\t\t\t</Explanation>\n\t\t\t<ChoiceHistoryOnInput>DontUse</ChoiceHistoryOnInput>\n\t\t\t<DataHistory>Use</DataHistory>\n\t\t\t<UpdateDataHistoryImmediatelyAfterWrite>true</UpdateDataHistoryImmediatelyAfterWrite>\n\t\t\t<ExecuteAfterWriteDataHistoryVersionProcessing>true</ExecuteAfterWriteDataHistoryVersionProcessing>\n\t\t</Properties>",
       "yaml": "Синоним: Синоним\nКомментарий: Комментарий\nИспользоватьСтандартныеКоманды: Ложь\nТипНомера: Число\nПериодичностьНомера: Год\nКонтрольУникальности: Ложь\nАвтонумерация: Ложь\nВводитсяНаОсновании:\n  - Справочник.СправочникСВладельцем\nСозданиеПриВводе: НеИспользовать\nСпособПоискаСтрокиПриВводеПоСтроке: ЛюбаяЧасть\nПолнотекстовыйПоискПриВводеПоСтроке: Использовать\nРежимПолученияДанныхВыбораПриВводеПоСтроке: Фоновый\nОсновнаяФормаОбъекта: ФормаДокумента\nОсновнаяФормаСписка: ФормаСписка\nВключатьСправкуВСодержание: Истина\nПолнотекстовыйПоиск: НеИспользовать\nПредставлениеОбъекта: Представление объекта\nРасширенноеПредставлениеОбъекта: Расширенное предствление объекта\nПредставлениеСписка: Представление списка\nРасширенноеПредставлениеСписка: Расширенное представление списка\nПояснение: |\n  Пояснение\nИсторияВыбораПриВводе: НеИспользовать\nИсторияДанных: Использовать\nОбновлятьИсториюДанныхСразуПослеЗаписи: Истина\nВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных: Истина",
       "omittedXMLProperties": [
@@ -4028,7 +4042,7 @@
     },
     {
       "id": "e2e-properties-ЖурналДокументовПоУмолчанию",
-      "entry": "candidate.projection.05432aa1a9e3511e6894",
+      "entry": "candidate.projection.a219239548c3cbfcc4fe",
       "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Synonym>\n\t\t\t\t<v8:item>\n\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t<v8:content>Журнал документов по умолчанию</v8:content>\n\t\t\t\t</v8:item>\n\t\t\t</Synonym>\n\t\t\t<Comment />\n\t\t\t<DefaultForm />\n\t\t\t<AuxiliaryForm />\n\t\t\t<UseStandardCommands>true</UseStandardCommands>\n\t\t\t<RegisteredDocuments>\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">Document.ДокументВсеСвойства</xr:Item>\n\t\t\t</RegisteredDocuments>\n\t\t\t<IncludeHelpInContents>false</IncludeHelpInContents>\n\t\t\t<ListPresentation />\n\t\t\t<ExtendedListPresentation />\n\t\t\t<Explanation />\n\t\t</Properties>",
       "yaml": "РегистрируемыеДокументы:\n  - ДокументВсеСвойства",
       "omittedXMLProperties": [
@@ -4066,7 +4080,7 @@
     },
     {
       "id": "e2e-properties-ЖурналДокументовВсеСвойства",
-      "entry": "candidate.projection.05432aa1a9e3511e6894",
+      "entry": "candidate.projection.a219239548c3cbfcc4fe",
       "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Synonym>\n\t\t\t\t<v8:item>\n\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t<v8:content>Синоним</v8:content>\n\t\t\t\t</v8:item>\n\t\t\t</Synonym>\n\t\t\t<Comment>Комментарий</Comment>\n\t\t\t<DefaultForm>DocumentJournal.ЖурналДокументовВсеСвойства.Form.ФормаСписка</DefaultForm>\n\t\t\t<AuxiliaryForm />\n\t\t\t<UseStandardCommands>false</UseStandardCommands>\n\t\t\t<RegisteredDocuments>\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">Document.ДокументВсеСвойства</xr:Item>\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">Document.ДокументДругойДляЖурнала</xr:Item>\n\t\t\t</RegisteredDocuments>\n\t\t\t<IncludeHelpInContents>true</IncludeHelpInContents>\n\t\t\t<ListPresentation>\n\t\t\t\t<v8:item>\n\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t<v8:content>Представление списка</v8:content>\n\t\t\t\t</v8:item>\n\t\t\t</ListPresentation>\n\t\t\t<ExtendedListPresentation>\n\t\t\t\t<v8:item>\n\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t<v8:content>Расширенное представление списка</v8:content>\n\t\t\t\t</v8:item>\n\t\t\t</ExtendedListPresentation>\n\t\t\t<Explanation>\n\t\t\t\t<v8:item>\n\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t<v8:content>Прояснение</v8:content>\n\t\t\t\t</v8:item>\n\t\t\t</Explanation>\n\t\t</Properties>",
       "yaml": "Синоним: Синоним\nКомментарий: Комментарий\nОсновнаяФорма: ФормаСписка\nИспользоватьСтандартныеКоманды: Ложь\nРегистрируемыеДокументы:\n  - ДокументВсеСвойства\n  - ДокументДругойДляЖурнала\nВключатьСправкуВСодержание: Истина\nПредставлениеСписка: Представление списка\nРасширенноеПредставлениеСписка: Расширенное представление списка\nПояснение: Прояснение",
       "omittedXMLProperties": [
@@ -4111,7 +4125,7 @@
     },
     {
       "id": "e2e-properties-WebСервисПоУмолчанию",
-      "entry": "candidate.projection.7979e997a8429903ceb8",
+      "entry": "candidate.projection.015a12222a2e452c53d9",
       "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\"><Synonym>\n\t\t\t\t<v8:item>\n\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t<v8:content>Web сервис по умолчанию</v8:content>\n\t\t\t\t</v8:item>\n\t\t\t</Synonym>\n\t\t\t<Comment />\n\t\t\t<Namespace>http://example.org</Namespace>\n\t\t\t<XDTOPackages />\n\t\t\t<DescriptorFileName>ws1.1cws</DescriptorFileName>\n\t\t\t<ReuseSessions>AutoUse</ReuseSessions>\n\t\t\t<SessionMaxAge>20</SessionMaxAge>\n\t\t</Properties>",
       "yaml": "ПространствоИмен: http://example.org\nИмяФайлаДескриптора: ws1.1cws",
       "omittedXMLProperties": [
@@ -4140,7 +4154,7 @@
     },
     {
       "id": "e2e-properties-WebСервисВсеСвойства",
-      "entry": "candidate.projection.7979e997a8429903ceb8",
+      "entry": "candidate.projection.015a12222a2e452c53d9",
       "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Synonym>\n\t\t\t\t<v8:item>\n\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t<v8:content>Синоним</v8:content>\n\t\t\t\t</v8:item>\n\t\t\t</Synonym>\n\t\t\t<Comment>Комментарий</Comment>\n\t\t\t<Namespace>https://logic-core.io</Namespace>\n\t\t\t<XDTOPackages>\n\t\t\t\t<xr:Item>\n\t\t\t\t\t<xr:Presentation />\n\t\t\t\t\t<xr:CheckState>0</xr:CheckState>\n\t\t\t\t\t<xr:Value xsi:type=\"xr:MDObjectRef\">XDTOPackage.ПакетXDTOВсеСвойства</xr:Value>\n\t\t\t\t</xr:Item>\n\t\t\t\t<xr:Item>\n\t\t\t\t\t<xr:Presentation />\n\t\t\t\t\t<xr:CheckState>0</xr:CheckState>\n\t\t\t\t\t<xr:Value xsi:type=\"xs:string\">http://v8.1c.ru/8.3/managed-application/logform/hippo</xr:Value>\n\t\t\t\t</xr:Item>\n\t\t\t\t<xr:Item>\n\t\t\t\t\t<xr:Presentation />\n\t\t\t\t\t<xr:CheckState>0</xr:CheckState>\n\t\t\t\t\t<xr:Value xsi:type=\"xs:string\">http://v8.1c.ru/8.3/mobile-application/form</xr:Value>\n\t\t\t\t</xr:Item>\n\t\t\t</XDTOPackages>\n\t\t\t<DescriptorFileName>ws123.1cws</DescriptorFileName>\n\t\t\t<ReuseSessions>DontUse</ReuseSessions>\n\t\t\t<SessionMaxAge>61</SessionMaxAge>\n\t\t</Properties>",
       "yaml": "Синоним: Синоним\nКомментарий: Комментарий\nПространствоИмен: https://logic-core.io\nПакетыXDTO:\n  - XDTOPackage.ПакетXDTOВсеСвойства\n  - http://v8.1c.ru/8.3/managed-application/logform/hippo\n  - http://v8.1c.ru/8.3/mobile-application/form\nИмяФайлаДескриптора: ws123.1cws\nПовторноеИспользованиеСеансов: НеИспользовать\nВремяЖизниСеанса: 61",
       "omittedXMLProperties": [
@@ -4169,7 +4183,7 @@
     },
     {
       "id": "e2e-properties-WebSocketКлиентПоУмолчанию",
-      "entry": "candidate.projection.6040788e0c422ef7d40c",
+      "entry": "candidate.projection.5f074b281f55021aa57a",
       "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><Synonym>\n\t\t\t\t<v8:item>\n\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t<v8:content>Web socket клиент по умолчанию</v8:content>\n\t\t\t\t</v8:item>\n\t\t\t</Synonym>\n\t\t\t<Comment />\n\t\t\t<Predefined>false</Predefined>\n\t\t\t<AutoConnect>false</AutoConnect>\n\t\t\t<ServerURL />\n\t\t\t<User />\n\t\t\t<Password />\n\t\t\t<Headers xsi:type=\"xr:ValueList\" />\n\t\t\t<UseOSProxy>false</UseOSProxy>\n\t\t\t<UseOSAuthentication>false</UseOSAuthentication>\n\t\t\t<Timeout>30</Timeout>\n\t\t</Properties>",
       "yaml": "",
       "omittedXMLProperties": [
@@ -4198,7 +4212,7 @@
     },
     {
       "id": "e2e-properties-WebSocketКлиентВсеСвойства",
-      "entry": "candidate.projection.6040788e0c422ef7d40c",
+      "entry": "candidate.projection.5f074b281f55021aa57a",
       "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Synonym>\n\t\t\t\t<v8:item>\n\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t<v8:content>Синоним</v8:content>\n\t\t\t\t</v8:item>\n\t\t\t</Synonym>\n\t\t\t<Comment>Комментарий</Comment>\n\t\t\t<Predefined>true</Predefined>\n\t\t\t<AutoConnect>true</AutoConnect>\n\t\t\t<ServerURL>url</ServerURL>\n\t\t\t<User>пользователь</User>\n\t\t\t<Password>пароль</Password>\n\t\t\t<Headers xsi:type=\"xr:ValueList\">\n\t\t\t\t<xr:Item>\n\t\t\t\t\t<xr:Presentation />\n\t\t\t\t\t<xr:CheckState>0</xr:CheckState>\n\t\t\t\t\t<xr:Value xsi:type=\"v8:KeyAndValue\">\n\t\t\t\t\t\t<v8:Key xsi:type=\"xs:string\">Заголовок 1</v8:Key>\n\t\t\t\t\t\t<v8:Value xsi:type=\"xs:string\">Значение 1</v8:Value>\n\t\t\t\t\t</xr:Value>\n\t\t\t\t</xr:Item>\n\t\t\t\t<xr:Item>\n\t\t\t\t\t<xr:Presentation />\n\t\t\t\t\t<xr:CheckState>0</xr:CheckState>\n\t\t\t\t\t<xr:Value xsi:type=\"v8:KeyAndValue\">\n\t\t\t\t\t\t<v8:Key xsi:type=\"xs:string\">Заголовок 2</v8:Key>\n\t\t\t\t\t\t<v8:Value xsi:type=\"xs:string\">Значение 2</v8:Value>\n\t\t\t\t\t</xr:Value>\n\t\t\t\t</xr:Item>\n\t\t\t</Headers>\n\t\t\t<UseOSProxy>true</UseOSProxy>\n\t\t\t<UseOSAuthentication>true</UseOSAuthentication>\n\t\t\t<Timeout>99</Timeout>\n\t\t</Properties>",
       "yaml": "Синоним: Синоним\nКомментарий: Комментарий\nПредопределенный: Истина\nАвтоПодключение: Истина\nАдресСервера: url\nПользователь: пользователь\nПароль: пароль\nЗаголовки:\n  - Ключ: Заголовок 1\n    Значение: Значение 1\n  - Ключ: Заголовок 2\n    Значение: Значение 2\nИспользоватьПроксиОС: Истина\nИспользоватьАутентификациюОС: Истина\nТаймаут: 99",
       "omittedXMLProperties": [
@@ -4227,7 +4241,7 @@
     },
     {
       "id": "e2e-properties-СтроковыйРеквизит",
-      "entry": "candidate.projection.6c8cd2cb85bebf0614d3",
+      "entry": "candidate.projection.4a27a2ca48303884c711",
       "xml": "<Properties xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Comment />\n\t\t\t\t\t<PasswordMode>false</PasswordMode>\n\t\t\t\t\t<Format />\n\t\t\t\t\t<EditFormat />\n\t\t\t\t\t<ToolTip />\n\t\t\t\t\t<MarkNegatives>false</MarkNegatives>\n\t\t\t\t\t<Mask />\n\t\t\t\t\t<MultiLine>false</MultiLine>\n\t\t\t\t\t<ExtendedEdit>false</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<FillFromFillingValue>false</FillFromFillingValue>\n\t\t\t\t\t<FillChecking>DontCheck</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>Auto</CreateOnInput>\n\t\t\t\t\t<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>\n\t\t\t\t\t<Indexing>DontIndex</Indexing>\n\t\t\t\t\t<FullTextSearch>Use</FullTextSearch>\n\t\t\t\t\t<DataHistory>Use</DataHistory>\n\t\t\t\t</Properties>",
       "yaml": "",
       "omittedXMLProperties": [
@@ -4263,7 +4277,7 @@
     },
     {
       "id": "e2e-properties-РеквизитБулево",
-      "entry": "candidate.projection.6c8cd2cb85bebf0614d3",
+      "entry": "candidate.projection.4a27a2ca48303884c711",
       "xml": "<Properties xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Comment />\n\t\t\t\t\t<PasswordMode>false</PasswordMode>\n\t\t\t\t\t<Format />\n\t\t\t\t\t<EditFormat />\n\t\t\t\t\t<ToolTip />\n\t\t\t\t\t<MarkNegatives>false</MarkNegatives>\n\t\t\t\t\t<Mask />\n\t\t\t\t\t<MultiLine>false</MultiLine>\n\t\t\t\t\t<ExtendedEdit>false</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<FillFromFillingValue>false</FillFromFillingValue>\n\t\t\t\t\t<FillChecking>DontCheck</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>Auto</CreateOnInput>\n\t\t\t\t\t<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>\n\t\t\t\t\t<Indexing>DontIndex</Indexing>\n\t\t\t\t\t<FullTextSearch>Use</FullTextSearch>\n\t\t\t\t\t<DataHistory>Use</DataHistory>\n\t\t\t\t</Properties>",
       "yaml": "",
       "omittedXMLProperties": [
@@ -4299,7 +4313,7 @@
     },
     {
       "id": "e2e-properties-ПолныйРеквизит",
-      "entry": "candidate.projection.6c8cd2cb85bebf0614d3",
+      "entry": "candidate.projection.4a27a2ca48303884c711",
       "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Comment>Комментарий</Comment>\n\t\t\t\t\t<PasswordMode>true</PasswordMode>\n\t\t\t\t\t<Format>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>ДФ=dd.MM.yyyy</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Format>\n\t\t\t\t\t<EditFormat>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>ДФ=d.M.yy</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</EditFormat>\n\t\t\t\t\t<ToolTip>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Подсказка</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</ToolTip>\n\t\t\t\t\t<MarkNegatives>true</MarkNegatives>\n\t\t\t\t\t<Mask>Маска</Mask>\n\t\t\t\t\t<MultiLine>true</MultiLine>\n\t\t\t\t\t<ExtendedEdit>true</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:type=\"xs:string\">1</MinValue>\n\t\t\t\t\t<MaxValue xsi:type=\"xs:string\">100</MaxValue>\n\t\t\t\t\t<FillFromFillingValue>true</FillFromFillingValue>\n\t\t\t\t\t<FillChecking>ShowError</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>DontUse</CreateOnInput>\n\t\t\t\t\t<ChoiceHistoryOnInput>DontUse</ChoiceHistoryOnInput>\n\t\t\t\t\t<Indexing>DontIndex</Indexing>\n\t\t\t\t\t<FullTextSearch>DontUse</FullTextSearch>\n\t\t\t\t\t<DataHistory>DontUse</DataHistory>\n\t\t\t\t\t</Properties>",
       "yaml": "Комментарий: Комментарий\nРежимПароля: Истина\nФормат: ДФ=dd.MM.yyyy\nФорматРедактирования: ДФ=d.M.yy\nПодсказка: Подсказка\nВыделятьОтрицательные: Истина\nМаска: Маска\nМногострочныйРежим: Истина\nРасширенноеРедактирование: Истина\nМинимальноеЗначение: 1\nМаксимальноеЗначение: 100\nЗаполнятьИзДанныхЗаполнения: Истина\nПроверкаЗаполнения: ВыдаватьОшибку\nСозданиеПриВводе: НеИспользовать\nИсторияВыбораПриВводе: НеИспользовать\nПолнотекстовыйПоиск: НеИспользовать\nИсторияДанных: НеИспользовать",
       "omittedXMLProperties": [
@@ -4336,7 +4350,7 @@
     },
     {
       "id": "e2e-properties-ОперацияПоУмолчанию",
-      "entry": "candidate.projection.f0d96618dc5ad7c6323e",
+      "entry": "candidate.projection.200b115e67a8262d2e02",
       "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Synonym>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Операция по умолчанию</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Synonym>\n\t\t\t\t\t<XDTOReturningValueType>xs:string</XDTOReturningValueType>\n\t\t\t\t\t<Nillable>false</Nillable>\n\t\t\t\t\t<Transactioned>false</Transactioned>\n\t\t\t\t\t<ProcedureName>ОперацияПоУмолчанию</ProcedureName>\n\t\t\t\t\t<DataLockControlMode>Managed</DataLockControlMode>\n\t\t\t\t</Properties>",
       "yaml": "ТипВозвращаемогоЗначенияXDTO:\n  ПространствоИмен: http://www.w3.org/2001/XMLSchema\n  Имя: string\nМожетБытьНеопределено: Ложь\nТранзакционный: Ложь\nИмяПроцедуры: ОперацияПоУмолчанию\nРежимУправленияБлокировкойДанных: Управляемый",
       "omittedXMLProperties": [
@@ -4371,7 +4385,7 @@
     },
     {
       "id": "e2e-properties-ОперацияВсеСвойства",
-      "entry": "candidate.projection.f0d96618dc5ad7c6323e",
+      "entry": "candidate.projection.200b115e67a8262d2e02",
       "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Synonym>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Синоним</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Synonym>\n\t\t\t\t\t<XDTOReturningValueType>xs:token</XDTOReturningValueType>\n\t\t\t\t\t<Nillable>true</Nillable>\n\t\t\t\t\t<Transactioned>true</Transactioned>\n\t\t\t\t\t<ProcedureName>ОперацияВсеСвойства</ProcedureName>\n\t\t\t\t\t<DataLockControlMode>Automatic</DataLockControlMode>\n\t\t\t\t</Properties>",
       "yaml": "Синоним: Синоним\nТипВозвращаемогоЗначенияXDTO:\n  ПространствоИмен: http://www.w3.org/2001/XMLSchema\n  Имя: token\nМожетБытьНеопределено: Истина\nТранзакционный: Истина\nИмяПроцедуры: ОперацияВсеСвойства\nРежимУправленияБлокировкойДанных: Автоматический",
       "omittedXMLProperties": [
@@ -4406,7 +4420,7 @@
     },
     {
       "id": "e2e-properties-ПараметрПоУмолчанию",
-      "entry": "candidate.projection.246a71b49dde0d85a18d",
+      "entry": "candidate.projection.5eea739d4fcb2d5e5676",
       "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Synonym>\n\t\t\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t\t\t<v8:content>Параметр по умолчанию</v8:content>\n\t\t\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t\t\t</Synonym>\n\t\t\t\t\t\t\t<XDTOValueType>xs:string</XDTOValueType>\n\t\t\t\t\t\t\t<Nillable>false</Nillable>\n\t\t\t\t\t\t\t<TransferDirection>In</TransferDirection>\n\t\t\t\t\t\t</Properties>",
       "yaml": "ТипЗначенияXDTO:\n  ПространствоИмен: http://www.w3.org/2001/XMLSchema\n  Имя: string\nМожетБытьНеопределено: Ложь\nНаправлениеПередачи: Входной",
       "omittedXMLProperties": [
@@ -4441,7 +4455,7 @@
     },
     {
       "id": "e2e-properties-ПараметрВсеСвойства",
-      "entry": "candidate.projection.246a71b49dde0d85a18d",
+      "entry": "candidate.projection.5eea739d4fcb2d5e5676",
       "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Synonym>\n\t\t\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t\t\t<v8:content>Синоним</v8:content>\n\t\t\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t\t\t</Synonym>\n\t\t\t\t\t\t\t<XDTOValueType>xs:time</XDTOValueType>\n\t\t\t\t\t\t\t<Nillable>true</Nillable>\n\t\t\t\t\t\t\t<TransferDirection>InOut</TransferDirection>\n\t\t\t\t\t\t</Properties>",
       "yaml": "Синоним: Синоним\nТипЗначенияXDTO:\n  ПространствоИмен: http://www.w3.org/2001/XMLSchema\n  Имя: time\nМожетБытьНеопределено: Истина\nНаправлениеПередачи: ВходнойВыходной",
       "omittedXMLProperties": [
@@ -4476,7 +4490,7 @@
     },
     {
       "id": "e2e-properties-МетодПоУмолчанию",
-      "entry": "candidate.projection.9d13ea09e535b190bd06",
+      "entry": "candidate.projection.3ecc07c32e2e30fbde05",
       "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\"><Synonym>\n\t\t\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t\t\t<v8:content>Метод по умолчанию</v8:content>\n\t\t\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t\t\t</Synonym>\n\t\t\t\t\t\t\t<Comment />\n\t\t\t\t\t\t\t<HTTPMethod>GET</HTTPMethod>\n\t\t\t\t\t\t\t<Handler>ШаблонURLВсеСвойстваМетодПоУмолчанию</Handler>\n\t\t\t\t\t\t</Properties>",
       "yaml": "HTTPМетод: GET\nОбработчик: ШаблонURLВсеСвойстваМетодПоУмолчанию",
       "omittedXMLProperties": [
@@ -4506,7 +4520,7 @@
     },
     {
       "id": "e2e-properties-МетодВсеСвойства",
-      "entry": "candidate.projection.9d13ea09e535b190bd06",
+      "entry": "candidate.projection.3ecc07c32e2e30fbde05",
       "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\"><Synonym>\n\t\t\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t\t\t<v8:content>Синоним метода</v8:content>\n\t\t\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t\t\t</Synonym>\n\t\t\t\t\t\t\t<Comment>Комментарий метода</Comment>\n\t\t\t\t\t\t\t<HTTPMethod>HEAD</HTTPMethod>\n\t\t\t\t\t\t\t<Handler>ШаблонURLВсеСвойстваМетодВсеСвойства</Handler>\n\t\t\t\t\t\t</Properties>",
       "yaml": "Синоним: Синоним метода\nКомментарий: Комментарий метода\nHTTPМетод: HEAD\nОбработчик: ШаблонURLВсеСвойстваМетодВсеСвойства",
       "omittedXMLProperties": [
@@ -4587,7 +4601,7 @@
     },
     {
       "id": "e2e-properties-Button",
-      "entry": "candidate.projection.6aa89eba22c547592941",
+      "entry": "candidate.projection.1a24073d48b199530711",
       "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:app=\"http://v8.1c.ru/8.2/managed-application/core\"><Synonym>\n\t\t\t\t<v8:item>\n\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t<v8:content>Button</v8:content>\n\t\t\t\t</v8:item>\n\t\t\t</Synonym>\n\t\t\t<Comment />\n\t\t\t<FormType>Managed</FormType>\n\t\t\t<IncludeHelpInContents>false</IncludeHelpInContents>\n\t\t\t<UsePurposes>\n\t\t\t\t<v8:Value xsi:type=\"app:ApplicationUsePurpose\">PlatformApplication</v8:Value>\n\t\t\t\t<v8:Value xsi:type=\"app:ApplicationUsePurpose\">MobilePlatformApplication</v8:Value>\n\t\t\t</UsePurposes>\n\t\t\t<UseStandardCommands>false</UseStandardCommands>\n\t\t\t<ExtendedPresentation />\n\t\t\t<Explanation />\n\t\t</Properties>",
       "yaml": "НазначенияИспользования: ПлатформаИМобильноеПриложение\nИспользоватьСтандартныеКоманды: Ложь",
       "omittedXMLProperties": [
@@ -4616,7 +4630,7 @@
     },
     {
       "id": "form-common-target",
-      "entry": "contract.property.1247b81a9d9a98e55d9a",
+      "entry": "contract.property.484ec19fa72126cbee11",
       "xml": "<Properties><DefaultForm>CommonForm.ФормаОтчета</DefaultForm></Properties>",
       "yaml": "ОсновнаяФорма: ОбщаяФорма.ФормаОтчета",
       "inputs": {
@@ -4647,7 +4661,7 @@
     },
     {
       "id": "form-foreign-owner",
-      "entry": "contract.property.1247b81a9d9a98e55d9a",
+      "entry": "contract.property.484ec19fa72126cbee11",
       "xml": "<Properties><DefaultForm>Document.Other.Form.ФормаСписка</DefaultForm></Properties>",
       "yaml": "DefaultForm: !xml/raw\n  $xml: Document.Other.Form.ФормаСписка",
       "inputs": {
@@ -4669,7 +4683,7 @@
     },
     {
       "id": "form-missing",
-      "entry": "contract.property.1247b81a9d9a98e55d9a",
+      "entry": "contract.property.484ec19fa72126cbee11",
       "xml": "<Properties/>",
       "yaml": "DefaultForm: !xml/raw\n  $xml: null",
       "inputs": {
@@ -4691,7 +4705,7 @@
     },
     {
       "id": "form-empty",
-      "entry": "contract.property.1247b81a9d9a98e55d9a",
+      "entry": "contract.property.484ec19fa72126cbee11",
       "xml": "<Properties><DefaultForm/></Properties>",
       "yaml": "",
       "inputs": {
@@ -4713,7 +4727,7 @@
     },
     {
       "id": "journal-document-order-and-repeats",
-      "entry": "contract.property.10adb634742fe4522d90",
+      "entry": "contract.property.ddb058402c2f7ccfc6d7",
       "xml": "<Properties xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><RegisteredDocuments><xr:Item xsi:type=\"xr:MDObjectRef\">Document.ДокументДругойДляЖурнала</xr:Item><xr:Item xsi:type=\"xr:MDObjectRef\">Document.ДокументВсеСвойства</xr:Item><xr:Item xsi:type=\"xr:MDObjectRef\">Document.ДокументДругойДляЖурнала</xr:Item></RegisteredDocuments></Properties>",
       "yaml": "РегистрируемыеДокументы:\n  - ДокументДругойДляЖурнала\n  - ДокументВсеСвойства\n  - ДокументДругойДляЖурнала",
       "factBindings": {
@@ -4728,7 +4742,7 @@
     },
     {
       "id": "based-on-external-table",
-      "entry": "contract.property.2c35b4ee48ecd9d5f0bf",
+      "entry": "contract.property.24ac489024aa0aa9c8f4",
       "xml": "<Properties xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><BasedOn><xr:Item xsi:type=\"xr:MDObjectRef\">ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Table.ТаблицаВсеСвойства</xr:Item></BasedOn></Properties>",
       "yaml": "ВводитсяНаОсновании:\n  - ВнешнийИсточникДанных.ВнешнийИсточникДанныхВсеСвойства.Таблица.ТаблицаВсеСвойства",
       "factBindings": {
@@ -4747,7 +4761,7 @@
     },
     {
       "id": "numerator-existing",
-      "entry": "contract.property.719c6ed7a1dc22e04c4c",
+      "entry": "contract.property.290954e5cda67caebed1",
       "xml": "<Properties><Numerator>DocumentNumerator.НумераторПоУмолчанию</Numerator></Properties>",
       "yaml": "Нумератор: НумераторПоУмолчанию",
       "factBindings": {
@@ -4766,7 +4780,7 @@
     },
     {
       "id": "numerator-missing-target",
-      "entry": "contract.property.719c6ed7a1dc22e04c4c",
+      "entry": "contract.property.290954e5cda67caebed1",
       "xml": "<Properties><Numerator>DocumentNumerator.Missing</Numerator></Properties>",
       "yaml": "Нумератор: !xml/invalid Missing",
       "factBindings": {
@@ -4776,7 +4790,7 @@
     },
     {
       "id": "group-typed-wrapper",
-      "entry": "contract.property.8be455fdc8bf6c2c4dc3",
+      "entry": "contract.property.493bae2b8b2d8260e408",
       "xml": "<Properties xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><Group xsi:type=\"xr:MDObjectRef\">NavigationPanelImportant</Group></Properties>",
       "yaml": "Группа: !xml/raw\n  $значение: ПанельНавигацииВажное\n  $xml:\n    _{http://www.w3.org/2001/XMLSchema-instance}type: '{http://v8.1c.ru/8.3/xcf/readable}MDObjectRef'\n    '#text': NavigationPanelImportant",
       "factBindings": {
@@ -4786,7 +4800,7 @@
     },
     {
       "id": "group-missing-target",
-      "entry": "contract.property.8be455fdc8bf6c2c4dc3",
+      "entry": "contract.property.493bae2b8b2d8260e408",
       "xml": "<Properties><Group>CommandGroup.Missing</Group></Properties>",
       "yaml": "Группа: !xml/invalid ГруппаКоманд.Missing",
       "factBindings": {

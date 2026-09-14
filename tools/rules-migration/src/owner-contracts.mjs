@@ -30,7 +30,7 @@ export function ownerContracts(manifest,catalog,snapshot) {
         if(field.path.length!==2 || field.path[0]!=='Properties')throw new Error('Unsupported fixture projection path');
         const value=fragment.value.fields.find(value=>value.name===field.field);
         const common=catalog.get(fragment.imports[value.type.use]);
-        return {xml:field.path[1],qname:common.representations?.xml?.kind==='qname',yaml:fragment.representations.yaml.fields.find(y=>y.field===field.field).key};
+        return {xml:field.path[1],qname:common.representations?.xml?.kind==='qname',yaml:fragment.representations.yaml.fields.find(y=>y.field===field.field)?.key};
       });
     });
     if(symbol==='MetadataDocumentJournalCommandRules') {

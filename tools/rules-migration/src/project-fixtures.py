@@ -133,7 +133,7 @@ def select(request):
             raise ValueError('Repeated top-level fixture property: ' + key)
         end = starts[index + 1].start() if index + 1 < len(starts) else len(text)
         blocks[key] = text[match.start():end].rstrip()
-    expected = '\n'.join(blocks[field['yaml']] for field in request['fields'] if field['yaml'] in blocks)
+    expected = '\n'.join(blocks[field['yaml']] for field in request['fields'] if field.get('yaml') in blocks)
     return {'xml': ET.tostring(selected, encoding='unicode'), 'yaml': expected,
             'omittedXMLProperties': omitted,
             'xmlQNamePaths': [[selected.tag, field] for field in sorted(qname_fields)],

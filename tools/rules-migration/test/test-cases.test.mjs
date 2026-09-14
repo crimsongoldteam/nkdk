@@ -55,7 +55,7 @@ test('test data extraction keeps literal expectations independent and reports dy
   const xml='<Root><Title/></Root>';
   const observation={profile:0,case:'empty-container',sourceXML:xml,sourceSha256:createHash('sha256').update(xml).digest('hex'),yaml:'Title: !xml/raw\n  $xml:',parameters:{typedXML:false}};
   const converted=i8nContracts({rows:[observation]},'candidate');
-  assert.equal(converted[0].yaml,observation.yaml);
+  assert.equal(converted[0].yaml,'Title: !xml/raw\n  $xml: ""');
   assert.equal(converted[0].entry,'candidate');
   assert.equal(Object.hasOwn(converted[0].inputs,'ownerName'),false);
   const named=i8nContracts({rows:[{...observation,profile:2,name:'TestName',parameters:{excludeIfEqualNameYAML:true}}]},'candidate',2);

@@ -7,6 +7,8 @@ export function i8nContracts(observations, entry, profile=0) {
   if(!row.sourceXML.startsWith('<Root>') || !row.sourceXML.endsWith('</Root>') || Object.entries(row.parameters).some(([key,value])=>Boolean(value)!==(profile===2 && key==='excludeIfEqualNameYAML'))) throw new Error(`Unsupported observation shape ${row.case}`);
   let expected=row.yaml;
   // Explicit approved corrections to the recorded TS result, never Rust-generated expectations.
+  // A present empty element is empty text; null removes the element.
+  if(row.case==='empty-container' && profile===0) expected='Title: !xml/raw\n  $xml: ""';
   if(row.case==='empty-first-duplicate' && profile===0) expected='Заголовок:\n  !xml/invalid ru: ""\n  !xml/invalid/2 ru: Второй';
   if(row.case==='noncanonical-order') expected='Заголовок: !xml/invalid\n  en: Text\n  ru: Текст';
   if(profile===2 && row.case==='empty-first-duplicate') expected='Заголовок:\n  ru: ""\n  !xml/invalid ru: Второй';

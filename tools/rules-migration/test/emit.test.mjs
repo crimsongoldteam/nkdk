@@ -72,6 +72,21 @@ test('candidate generation shares fragments, rejects unknown parameters and prot
   for(const params of [{typedXML:'xs:dateTime'},{implicitValueYAML:'01.01.0001'},{defaultValueXML:'not-a-date'},{defaultValueXML:'2026-09-10T12:00:00+03:00'}])assert.equal(mapProperty({...property,parameters:{...dateParams,...params}},dateCatalog).status,'blocked');
   const rawText=mapProperty({...property,parameters:{type:'I8nText',yaml:'Текст',defaultValueXMLRaw:''}},new Map([['common.i8n-text',{}]]));
   assert.deepEqual(rawText.presence.xml.canonical,[{when:{not:{present:{field:'enabled'}}},form:'empty-element'}]);
+  const emptyTextParameters={type:'I8nText',yaml:'Текст',defaultValueXMLRaw:'',implicitValueYAML:''};
+  const emptyText=mapProperty({...property,parameters:emptyTextParameters},new Map([['common.i8n-text',{}]]));
+  assert.equal(emptyText.status,'candidate');
+  assert.deepEqual(emptyText.presence.yaml.missing,{denotes:{absent:true}});
+  assert.ok(emptyText.presence.yaml.omitWhen);
+  for(const extra of [{implicitValueYAML:'other'},{defaultValueXMLRaw:undefined},{excludeIfEqualNameYAML:true},{preserveEmptyXML:true}]) {
+    assert.equal(mapProperty({...property,parameters:{...emptyTextParameters,...extra}},new Map([['common.i8n-text',{}]])).status,'blocked');
+  }
+  const hiddenParameters={type:'SystemEnumeration',typeSE:'Example',yaml:'Скрытое',implicitValueYAML:'A',toYAML:false,fromYAML:false};
+  const hiddenCatalog=new Map([['system.Example',{enum:{A:'А',B:'Б'}}]]);
+  const hidden=mapProperty({...property,parameters:hiddenParameters},hiddenCatalog);
+  assert.equal(hidden.status,'candidate');
+  assert.equal(hidden.key,undefined);
+  assert.deepEqual(hidden.presence.yaml,{default:{literal:'A'}});
+  for(const extra of [{toYAML:true},{fromYAML:true},{implicitValueYAML:undefined}])assert.equal(mapProperty({...property,parameters:{...hiddenParameters,...extra}},hiddenCatalog).status,'blocked');
   const minMax=mapProperty({...property,parameters:{type:'MinMaxValue',yaml:'Минимум',typedXML:'xs:string',defaultValueXMLRaw:{'_xsi:nil':true}}},new Map([['common.min-max-value-text',{}]]));
   assert.equal(minMax.id,'common.min-max-value-text');
   assert.equal(minMax.presence.xml.canonical[0].form,'nil');

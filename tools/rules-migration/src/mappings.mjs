@@ -16,6 +16,13 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
   if (!p || typeof p !== 'object' || Array.isArray(p)) return fail('invalid-property-shape');
   if (typeof property.name !== 'string' || !property.name) return fail('field-name-profile');
   if(p.type==='uuid')return mapIdentity(property,catalog);
+  if(Object.hasOwn(p,'toYAML') || Object.hasOwn(p,'fromYAML')) {
+    if(p.toYAML!==false || p.fromYAML!==false || !(simple.has(p.type) || p.type==='SystemEnumeration') || !Object.hasOwn(p,'implicitValueYAML'))return fail('hidden-scalar-default-required');
+    const {toYAML,fromYAML,...parameters}=p;
+    const mapped=mapProperty({...property,parameters},catalog,xmlNamespaces);
+    if(mapped.status==='candidate')delete mapped.key;
+    return mapped;
+  }
   if(Object.hasOwn(p,'toEnterprise') && p.toEnterprise !== false)return fail('excluded-enterprise-profile');
   if(Object.hasOwn(p,'tag') && (typeof p.tag!=='string' || !p.tag))return fail('source-tag-profile');
   const platform=value=>Array.isArray(value) && value.length===1 && value[0]==='PlatformApplication';
@@ -56,6 +63,7 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
   const qname = p.type === 'XDTOTypeName';
   const formatted = p.type === 'FormattedI8nText';
   const text = p.type === 'I8nText' || formatted;
+  const emptyTextDefault=p.type==='I8nText' && p.implicitValueYAML==='' && p.defaultValueXMLRaw==='' && !Object.hasOwn(p,'defaultValueXML') && !['preserveEmptyXML','excludeIfEqualNameYAML','skipEmptyToXML','typedXML'].some(key=>p[key]===true);
   if((formatted || qname || grouped || linkList || scalarChoice || purposes) && Object.keys(p).some(key=>!['tag','type','yaml','xml','xmlParents','toEnterprise',...(linkList?['metadataTarget']:[]),...(basedOn?['defaultValueXMLRaw']:[]),...(purposes?['defaultValue','defaultValueXML','defaultValueAdoptedXML','evaluateWhenYAMLMissing']:[])].includes(key)))return fail('record-parameter-profile');
   const date=p.type==='dateTime';
   if(date && ((Object.hasOwn(p,'typedXML') && p.typedXML!==true) || ['implicitValueYAML','noImplicitValueYAML','defaultValueXMLRaw'].some(key=>Object.hasOwn(p,key)) || (Object.hasOwn(p,'defaultValueXML') && p.defaultValueXML!=='0001-01-01T00:00:00')))return fail('calendar-default-profile');
@@ -111,9 +119,9 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
   if (fields && (Object.hasOwn(p,'implicitValueYAML') || Object.hasOwn(p,'defaultValueXML'))) return fail('collection-default-profile');
   if (Object.hasOwn(p,'defaultValueXMLRaw') && p.defaultValueXMLRaw !== '' && !nilDefault && !rawEmptyList && !indexDefault && !basedOnDefault) return fail('raw-default-profile');
   if (!list && !purposes && !date && !xmlOnlyDefault && !emptyStringDefault && Object.hasOwn(p,'defaultValueXML') && (!Object.hasOwn(p,'implicitValueYAML') || p.defaultValueXML !== implicitValue)) return fail('asymmetric-defaults');
-  if (text && (Object.hasOwn(p,'implicitValueYAML') || Object.hasOwn(p,'defaultValueXML'))) return fail('text-default-needs-expression');
+  if (text && !emptyTextDefault && (Object.hasOwn(p,'implicitValueYAML') || Object.hasOwn(p,'defaultValueXML'))) return fail('text-default-needs-expression');
   if (p.defaultValueXMLRaw === '' && Object.hasOwn(p,'implicitValueYAML') && p.implicitValueYAML !== '') return fail('asymmetric-raw-default');
-  const hasDefault = xmlOnlyDefault || (!list && !p.noImplicitValueYAML && (Object.hasOwn(p,'implicitValueYAML') || (p.type === 'string' && p.defaultValueXMLRaw === '')));
+  const hasDefault = xmlOnlyDefault || (!list && !emptyTextDefault && !p.noImplicitValueYAML && (Object.hasOwn(p,'implicitValueYAML') || (p.type === 'string' && p.defaultValueXMLRaw === '')));
   const defaultValue = Object.hasOwn(p,'implicitValueYAML') ? implicitValue : xmlOnlyDefault ? p.defaultValueXML : '';
   if (hasDefault) {
     const expected = p.type === 'SystemEnumeration' ? 'string' : p.type;
@@ -139,6 +147,10 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
   if(explicitDefault && hasDefault)mapped.presence.yaml={missing:{denotes:{literal:defaultValue}}};
   if(implicitXML)mapped.presence.xml={missing:{denotes:{literal:p.implicitValueXML}},canonical:[{when:{eq:[{field:property.name},{literal:p.implicitValueXML}]},form:'missing'}]};
   if(Object.keys(namespaces).length)mapped.namespaces=namespaces;
+  if(emptyTextDefault)mapped.presence.yaml={missing:{denotes:{absent:true}},omitWhen:{or:[
+    {not:{present:{field:property.name}}},
+    {eq:[{field:property.name},{sequence:[{record:{language:{input:'defaultLanguage'},content:{literal:''}}}]}]},
+  ]}};
   if(date && Object.hasOwn(p,'defaultValueXML')) {
     const denotes={literal:p.defaultValueXML};
     mapped.presence={target:{field:property.name},xml:{missing:{denotes}},yaml:{missing:{denotes},omitWhen:{eq:[{field:property.name},denotes]}}};

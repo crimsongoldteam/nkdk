@@ -1,0 +1,233 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.ObjectBelonging
+  value1: common.i8n-text
+  value2: common.string
+  value3: common.boolean
+  value4: common.exact-decimal
+  value5: system.ChartOfCalculationTypesCodeType
+  value6: system.AllowedLength
+  value7: system.CalculationTypeMainPresentation
+value:
+  kind: record
+  fields:
+    - name: objectBelonging
+      type:
+        use: value0
+    - name: synonym
+      type:
+        use: value1
+        with:
+          excludeIfEqualNameYAML: true
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          ownerName:
+            input: ownerName
+    - name: comment
+      type:
+        use: value2
+    - name: useStandardCommands
+      type:
+        use: value3
+    - name: descriptionLength
+      type:
+        use: value4
+    - name: codeType
+      type:
+        use: value5
+    - name: codeAllowedLength
+      type:
+        use: value6
+    - name: defaultPresentation
+      type:
+        use: value7
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: objectBelonging
+        path:
+          - Properties
+          - ObjectBelonging
+      - field: synonym
+        path:
+          - Properties
+          - Synonym
+      - field: comment
+        path:
+          - Properties
+          - Comment
+      - field: useStandardCommands
+        path:
+          - Properties
+          - UseStandardCommands
+      - field: descriptionLength
+        path:
+          - Properties
+          - DescriptionLength
+      - field: codeType
+        path:
+          - Properties
+          - CodeType
+      - field: codeAllowedLength
+        path:
+          - Properties
+          - CodeAllowedLength
+      - field: defaultPresentation
+        path:
+          - Properties
+          - DefaultPresentation
+  yaml:
+    kind: mapping
+    fields:
+      - field: synonym
+        key: Синоним
+      - field: comment
+        key: Комментарий
+      - field: useStandardCommands
+        key: ИспользоватьСтандартныеКоманды
+      - field: descriptionLength
+        key: ДлинаНаименования
+      - field: codeType
+        key: ТипКода
+      - field: codeAllowedLength
+        key: ДопустимаяДлинаКода
+      - field: defaultPresentation
+        key: ОсновноеПредставление
+presence:
+  - target:
+      field: objectBelonging
+    xml:
+      missing:
+        denotes:
+          literal: Native
+      canonical:
+        - when:
+            eq:
+              - field: objectBelonging
+              - literal: Native
+          form: missing
+    yaml:
+      default:
+        literal: Native
+  - target:
+      field: synonym
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: synonym
+          form: empty-element
+  - target:
+      field: comment
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: ''
+  - target:
+      field: useStandardCommands
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: true
+  - target:
+      field: descriptionLength
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: 40
+  - target:
+      field: codeType
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: String
+  - target:
+      field: codeAllowedLength
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: Variable
+  - target:
+      field: defaultPresentation
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: AsDescription
+constraints:
+  - id: descriptionLength-minimum
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      present:
+        field: descriptionLength
+    assert:
+      lte:
+        - literal: 0
+        - field: descriptionLength
+    diagnostic:
+      code: number.minimum
+      severity: error
+      at:
+        field: descriptionLength
+      message: Значение не меньше 0
+  - id: descriptionLength-maximum
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      present:
+        field: descriptionLength
+    assert:
+      lte:
+        - field: descriptionLength
+        - literal: 100
+    diagnostic:
+      code: number.maximum
+      severity: error
+      at:
+        field: descriptionLength
+      message: Значение не больше 100
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  ownerName:
+    type:
+      kind: scalar
+      scalar: text
+id: candidate.fragment.1f03e43b5c27ac4a777d

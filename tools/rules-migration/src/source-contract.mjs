@@ -17,7 +17,7 @@ export function sourceContract(entry, sourceTag, catalog, container) {
     compose.push({use:alias,...(Object.keys(lifted.bind).length?{bind:lifted.bind}:{})});
     const xml=module.representations.xml.fields[0],yaml=module.representations.yaml.fields[0];
     if(xml.attribute)throw new Error('Source contract requires element properties');
-    fields.push({name:property.name,xmlPath:xml.path,yaml:yaml.key});
+    fields.push({name:property.name,xmlPath:xml.path,...(yaml?{yaml:yaml.key}:{})});
     origins.push({...derived.source,entry:module.id});modules.push(module);
   }
   if(!fields.length)throw new Error('Empty source contract');
