@@ -39,6 +39,7 @@ impl RecordMappingReader {
                     return Err(failure("Repeated record key"));
                 }
                 self.key = Some(Scalar {
+                    annotation: None,
                     text,
                     plain: false,
                     position,
@@ -53,6 +54,7 @@ impl RecordMappingReader {
             emit(
                 Node::Scalar(
                     Scalar {
+                        annotation: None,
                         text: field.into(),
                         plain: false,
                         position,

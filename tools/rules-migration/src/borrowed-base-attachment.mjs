@@ -1,10 +1,11 @@
+import {compatibilityConstraints} from './compatibility-constraints.mjs';
 import {readFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';
 import {yaml} from './candidate-catalog.mjs';
 
 // Source-to-declaration correspondence for the researched borrowed-base profile.
 // No conversion runs here; the resulting ordinary declarations compile to Rust.
-export function attachBorrowedBase(emission,source) {
+export function attachBorrowedBase(emission,source,catalog) {
   if(emission.results.length!==1 || emission.results[0].status!=='candidate')throw new Error('Expected one complete base collection candidate');
   const properties=source.properties;
   if(!['uuid','name','synonym','objectBelonging','extendedConfigurationObject'].every(name=>properties.some(p=>p.name===name)))throw new Error('Incomplete borrowed-base source');
@@ -47,6 +48,18 @@ export function attachBorrowedBase(emission,source) {
   for(const m of result.modules)m.inputs.baseIds=structuredClone(baseType);
   list.value.item.bind.baseIds={input:'baseIds'};owner.value.fields[0].type.bind.baseIds={input:'baseIds'};owner.inputs.baseIds.index='metadata.base-identities';
 
+  for(const module of result.modules)module.inputs.compatibilityMode={type:{kind:'scalar',scalar:'text'}};
+  list.value.item.bind.compatibilityMode={input:'compatibilityMode'};owner.value.fields[0].type.bind.compatibilityMode={input:'compatibilityMode'};
+  (row.constraints??=[]).push(...compatibilityConstraints(source,catalog));
+
+  // The source metadata envelope supplies MDClasses for all unqualified paths.
+  // Keep this namespace in the complete child operation instead of stripping it.
+  for(const module of result.modules) {
+    (module.namespaces??={}).md='http://v8.1c.ru/8.3/MDClasses';
+    const xml=module.representations.xml;
+    for(const mapping of xml.fields??[xml])if(mapping.path)mapping.path=mapping.path.map(name=>name.includes(':')?name:`md:${name}`);
+  }
+
   // Hash the completed modules, not the earlier base-only candidate.
   for(const [module,consumer,alias] of [[row,list,'item'],[list,owner,'items'],[owner,null,null]]) {
     delete module.id;
@@ -55,6 +68,6 @@ export function attachBorrowedBase(emission,source) {
   }
   result.results[0].declaration=owner.id;
   result.profile='own-and-borrowed';
-  result.scope='Complete child conversion with borrowed-base states; owner contributions and compatibility validation remain separate acceptance requirements';
+  result.scope='Child conversion with declared compatibility; owner contributions require operation attachment';
   return result;
 }

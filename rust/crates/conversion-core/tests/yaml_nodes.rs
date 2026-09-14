@@ -1,6 +1,44 @@
 use nkdk_conversion_core::yaml::{Node, visit_nodes};
 #[test]
 fn nested_mapping_keeps_occurrence_order_tags_and_positions() {
+    for (semantic, expected) in [
+        ("!opaque", None),
+        ("!opaque \"\"", Some("")),
+        ("!opaque text", Some("text")),
+    ] {
+        let mut encoded = String::from("Value: ");
+        nkdk_conversion_core::yaml::append_marked_scalar(
+            &mut encoded,
+            semantic,
+            Some("!xml/invalid"),
+            "",
+            false,
+        );
+        let mut count = 0;
+        nkdk_conversion_core::yaml::visit_tagged_scalars(encoded.as_bytes(), |key, value, tag| {
+            count += 1;
+            assert_eq!(key, "Value");
+            assert_eq!(tag.as_deref(), Some("!opaque"));
+            assert_eq!(value.annotation(), Some("!xml/invalid"));
+            assert_eq!(value.into_nullable_text()?.as_deref(), expected);
+            Ok(())
+        })
+        .unwrap();
+        assert_eq!(count, 1);
+        assert!(
+            nkdk_conversion_core::yaml::visit_scalars(encoded.as_bytes(), |_, _| Ok(())).is_err()
+        );
+    }
+    for invalid in [
+        "Value: !xml/invalid {$значение: !opaque x, extra: y}",
+        "Value: !xml/invalid {$значение: []}",
+        "Value: !xml/invalid {}",
+    ] {
+        assert!(
+            nkdk_conversion_core::yaml::visit_tagged_scalars(invalid.as_bytes(), |_, _, _| Ok(()))
+                .is_err()
+        );
+    }
     let mut states = [
         nkdk_conversion_core::yaml::ScalarMapping::default(),
         nkdk_conversion_core::yaml::ScalarMapping::default(),

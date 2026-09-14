@@ -78,30 +78,30 @@ declarations:
         fields:
           - field: rows
             path:
-              - InternalInfo
+              - md:InternalInfo
           - field: objectBelonging
             path:
-              - Properties
-              - ObjectBelonging
+              - md:Properties
+              - md:ObjectBelonging
           - field: name
             path:
-              - Properties
-              - Name
+              - md:Properties
+              - md:Name
           - field: synonym
             path:
-              - Properties
-              - Synonym
+              - md:Properties
+              - md:Synonym
           - field: comment
             path:
-              - Properties
-              - Comment
+              - md:Properties
+              - md:Comment
           - field: uuid
             path: []
             attribute: uuid
           - field: base
             path:
-              - Properties
-              - ExtendedConfigurationObject
+              - md:Properties
+              - md:ExtendedConfigurationObject
       yaml:
         kind: mapping
         fields:
@@ -293,6 +293,10 @@ declarations:
           value:
             kind: scalar
             scalar: text
+      compatibilityMode:
+        type:
+          kind: scalar
+          scalar: text
     state-relations:
       - field: state
         sources:
@@ -360,11 +364,255 @@ declarations:
             - notice
           text:
             - notice
-    id: candidate.borrowed.c75630c8428dfc4949b9
+    constraints:
+      - id: borrowed-compatibility
+        appliesTo:
+          - xml-import
+          - yaml-validation
+        assert:
+          or:
+            - not:
+                field: participates
+            - or:
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_10
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Версия8_3_10
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_11
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Версия8_3_11
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_12
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Версия8_3_12
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_13
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Версия8_3_13
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_14
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Версия8_3_14
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_15
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Версия8_3_15
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_16
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Версия8_3_16
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_17
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Версия8_3_17
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_18
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Версия8_3_18
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_19
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Версия8_3_19
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_20
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Версия8_3_20
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_21
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Версия8_3_21
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_22
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Версия8_3_22
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_23
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Версия8_3_23
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_24
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Версия8_3_24
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_25
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Версия8_3_25
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_26
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Версия8_3_26
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_27
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Версия8_3_27
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_8
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Версия8_3_8
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_9
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Версия8_3_9
+                - eq:
+                    - input: compatibilityMode
+                    - literal: DontUse
+                - eq:
+                    - input: compatibilityMode
+                    - literal: НеИспользовать
+        diagnostic:
+          code: metadata.borrowed-compatibility
+          severity: error
+          at:
+            field: objectBelonging
+          message: Borrowing is unavailable in this compatibility mode
+      - id: notify-compatibility
+        appliesTo:
+          - xml-import
+          - yaml-validation
+        assert:
+          or:
+            - not:
+                present:
+                  field: notice
+            - or:
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_15
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Версия8_3_15
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_16
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Версия8_3_16
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_17
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Версия8_3_17
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_18
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Версия8_3_18
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_19
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Версия8_3_19
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_20
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Версия8_3_20
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_21
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Версия8_3_21
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_22
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Версия8_3_22
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_23
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Версия8_3_23
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_24
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Версия8_3_24
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_25
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Версия8_3_25
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_26
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Версия8_3_26
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_27
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Версия8_3_27
+                - eq:
+                    - input: compatibilityMode
+                    - literal: DontUse
+                - eq:
+                    - input: compatibilityMode
+                    - literal: НеИспользовать
+        diagnostic:
+          code: metadata.notify-compatibility
+          severity: error
+          at:
+            field: state
+          message: Notification is unavailable in this compatibility mode
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    id: candidate.borrowed.b6a52afd87da80b72728
   - format: nkdk-declarations/1
     kind: value
     imports:
-      item: candidate.borrowed.c75630c8428dfc4949b9
+      item: candidate.borrowed.b6a52afd87da80b72728
     value:
       kind: sequence
       item:
@@ -382,11 +630,13 @@ declarations:
             input: owner
           baseIds:
             input: baseIds
+          compatibilityMode:
+            input: compatibilityMode
     representations:
       xml:
         kind: element-sequence
         path:
-          - EnumValue
+          - md:EnumValue
       yaml:
         kind: record-mapping
         key: name
@@ -451,11 +701,17 @@ declarations:
           value:
             kind: scalar
             scalar: text
-    id: candidate.borrowed.d849f4688e49b1d2666c
+      compatibilityMode:
+        type:
+          kind: scalar
+          scalar: text
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    id: candidate.borrowed.2e10ad74f4057674e8ba
   - format: nkdk-declarations/1
     kind: object
     imports:
-      items: candidate.borrowed.d849f4688e49b1d2666c
+      items: candidate.borrowed.2e10ad74f4057674e8ba
     value:
       kind: record
       fields:
@@ -475,13 +731,15 @@ declarations:
                 input: owner
               baseIds:
                 input: baseIds
+              compatibilityMode:
+                input: compatibilityMode
     representations:
       xml:
         kind: record
         fields:
           - field: enumValues
             path:
-              - ChildObjects
+              - md:ChildObjects
       yaml:
         kind: mapping
         fields:
@@ -550,6 +808,10 @@ declarations:
             kind: scalar
             scalar: text
         index: metadata.base-identities
+      compatibilityMode:
+        type:
+          kind: scalar
+          scalar: text
     contributions:
       - index: metadata.own-identities
         forEach:
@@ -620,4 +882,6 @@ declarations:
             of:
               var: row
             field: uuid
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
     id: metadata.enumeration-values

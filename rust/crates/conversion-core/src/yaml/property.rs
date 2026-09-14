@@ -46,7 +46,7 @@ impl PropertyReader {
                 let Node::Scalar(key, None) = node else {
                     return Err(failure());
                 };
-                if key.into_text()? != property {
+                if key.annotation().is_some() || key.into_text()? != property {
                     return Err(failure());
                 }
                 self.selected = true;

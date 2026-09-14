@@ -20,7 +20,7 @@ pub fn visit_record_scalar_events(
     mut consume: impl FnMut(String, Scalar, Option<String>) -> Result<()>,
 ) -> Result<bool> {
     let mut state = ScalarRecordReader::default();
-    source.visit(|node, _| {
+    super::marked_scalar::visit(source, |node, _| {
         if let Some(entry) = state.consume(node, property)? {
             consume(entry.key, entry.value, entry.tag)?;
         }
@@ -48,7 +48,7 @@ impl ScalarRecordReader {
                 if let Some(key) = self.key.take() {
                     return Ok(Some(ScalarEntry { key, value, tag }));
                 }
-                if tag.is_some() {
+                if tag.is_some() || value.annotation().is_some() {
                     return Err(failure("Annotated record key"));
                 }
                 let name = value.into_text()?;

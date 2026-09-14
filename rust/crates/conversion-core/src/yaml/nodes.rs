@@ -87,6 +87,7 @@ impl<F: FnMut(Node, Position) -> Result<()>> MarkedEventReceiver for Receiver<F>
             Event::SequenceEnd => Node::SequenceEnd,
             Event::Scalar(text, style, 0, annotation) => Node::Scalar(
                 Scalar {
+                    annotation: None,
                     text,
                     plain: style == TScalarStyle::Plain,
                     position,

@@ -39,7 +39,7 @@ pub(super) fn read(rows: &[YamlState], index: usize, key: &str) -> String {
         );
     }
     let mut out = format!(
-        "{key:?}=>{{self.positions[{index}]=value.position();let text=value.into_nullable_text().map_err(|error|error.field({key:?}))?;let semantic_tag=match tag.as_deref(){{"
+        "{key:?}=>{{self.positions[{index}]=value.position();self.raw.read_mark({index},value.annotation(),value.position())?;let text=value.into_nullable_text().map_err(|error|error.field({key:?}))?;let semantic_tag=match tag.as_deref(){{"
     );
     let tags: BTreeSet<_> = rows.iter().filter_map(|row| row.tag.as_ref()).collect();
     for tag in tags {

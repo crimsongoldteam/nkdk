@@ -73,6 +73,7 @@ fn visit_record(
                     consume(
                         Node::Scalar(
                             Scalar {
+                                annotation: None,
                                 text: child.into(),
                                 plain: false,
                                 position,

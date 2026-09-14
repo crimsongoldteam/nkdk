@@ -56,17 +56,22 @@ fn complete_enumeration_values_use_the_working_operation_in_both_directions() {
     .unwrap();
     let facts = manifest["factSources"].as_array().unwrap();
     let cases = manifest["cases"].as_array().unwrap();
-    let prepare_context = || {
+    let prepare_context = |mode: Option<&str>| {
         let sources = facts
             .iter()
             .map(|source| {
                 let entry = entry_id(source["entry"].as_str().unwrap()).unwrap();
+                let mut inputs = source["inputs"].clone();
+                if let Some(mode) = mode
+                    && inputs.get("compatibilityMode").is_some()
+                {
+                    inputs["compatibilityMode"] = mode.into();
+                }
                 Source {
                     entry,
                     direction: Direction::XmlToYaml,
                     bytes: source["xml"].as_str().unwrap().as_bytes(),
-                    inputs: read_inputs(entry, &serde_json::to_vec(&source["inputs"]).unwrap())
-                        .unwrap(),
+                    inputs: read_inputs(entry, &serde_json::to_vec(&inputs).unwrap()).unwrap(),
                 }
             })
             .collect();
@@ -85,7 +90,7 @@ fn complete_enumeration_values_use_the_working_operation_in_both_directions() {
         )
         .unwrap_or_else(|errors| panic!("{errors:?}"))
     };
-    let memberships = prepare_context();
+    let memberships = prepare_context(None);
     for row in manifest["ownerMembers"].as_array().unwrap() {
         for (index, field, label, expected) in [
             (
@@ -123,10 +128,13 @@ fn complete_enumeration_values_use_the_working_operation_in_both_directions() {
     let temporary = std::env::temp_dir();
     for case in cases {
         let entry = entry_id(case["entry"].as_str().unwrap()).unwrap();
+        let mode = case["inputs"]["compatibilityMode"].as_str();
         let source = facts
             .iter()
             .position(|source| {
-                source["entry"] == case["entry"] && source["inputs"] == case["inputs"]
+                source["entry"] == case["entry"]
+                    && source["inputs"]["component"] == case["inputs"]["component"]
+                    && source["inputs"]["owner"] == case["inputs"]["owner"]
             })
             .unwrap();
         let run = |direction, primary, inputs| {
@@ -150,7 +158,7 @@ fn complete_enumeration_values_use_the_working_operation_in_both_directions() {
         let imported = run(
             Direction::XmlToYaml,
             xml,
-            prepare_context()
+            prepare_context(mode)
                 .sources
                 .into_iter()
                 .nth(source)
@@ -172,17 +180,39 @@ fn complete_enumeration_values_use_the_working_operation_in_both_directions() {
                 "{yaml}"
             );
         }
+        if case["noRaw"].as_bool() == Some(true) {
+            assert!(!yaml.contains("$xml"), "{yaml}");
+        }
         for retained in case["retainedYAML"].as_array().into_iter().flatten() {
             assert!(
                 yaml.lines().any(|line| Some(line) == retained.as_str()),
                 "{yaml}"
             );
         }
+        for rejected in case["rejectedYAML"].as_array().into_iter().flatten() {
+            let inputs = prepare_context(mode)
+                .sources
+                .into_iter()
+                .nth(source)
+                .unwrap()
+                .inputs;
+            let issues = nkdk_compiled_rules::validate_file(
+                entry,
+                rejected.as_str().unwrap().as_bytes(),
+                &inputs,
+            );
+            assert!(
+                issues
+                    .iter()
+                    .any(|issue| issue.code.as_deref() == case["rejectedCode"].as_str()),
+                "{issues:?}"
+            );
+        }
         let reverse = case["yaml"].as_str().unwrap_or(yaml);
         let exported = run(
             Direction::YamlToXml,
             reverse.as_bytes(),
-            prepare_context()
+            prepare_context(mode)
                 .sources
                 .into_iter()
                 .nth(source)

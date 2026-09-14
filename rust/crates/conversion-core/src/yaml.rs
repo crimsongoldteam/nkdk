@@ -1,3 +1,5 @@
+mod marked_scalar;
+pub use marked_scalar::append as append_marked_scalar;
 mod record_mapping;
 pub use record_mapping::{RecordMappingReader, preserved_record_mapping_item};
 pub(crate) mod document;
@@ -34,11 +36,15 @@ pub use scalar_mapping::{ScalarEntry, ScalarMapping};
 use yaml_rust2::Yaml;
 
 pub struct Scalar {
+    annotation: Option<Box<str>>,
     text: String,
     plain: bool,
     position: crate::Position,
 }
 impl Scalar {
+    pub fn annotation(&self) -> Option<&str> {
+        self.annotation.as_deref()
+    }
     pub fn is_empty(&self) -> bool {
         self.text.is_empty()
     }
@@ -100,7 +106,7 @@ pub fn visit_scalars(
     mut consume: impl FnMut(String, Scalar) -> Result<()>,
 ) -> Result<()> {
     visit_tagged_scalars(source, |key, value, tag| {
-        if tag.is_some() {
+        if tag.is_some() || value.annotation().is_some() {
             return Err(
                 RuntimeDiagnostic::new("yaml.annotation", "Unexpected scalar annotation")
                     .field(key),
@@ -122,7 +128,7 @@ pub fn visit_scalar_events(
     mut consume: impl FnMut(String, Scalar, Option<String>) -> Result<()>,
 ) -> Result<()> {
     let mut state = ScalarMapping::default();
-    source.visit(|node, position| {
+    marked_scalar::visit(source, |node, position| {
         if let Some(entry) = state.consume(node, position)? {
             consume(entry.key, entry.value, entry.tag)
                 .map_err(|error| position.apply(&[], error))?;

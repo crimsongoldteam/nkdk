@@ -80,7 +80,7 @@ pub(super) fn generate(id: u32, fields: &[Field<'_>]) -> String {
                 field.key
             )
         };
-        writeln!(out,"{:?}=>{{self.positions[{i}]=value.position();self.raw.read_mark({i},tag.as_deref(),self.positions[{i}])?;{read}Ok(())}},",field.key).unwrap();
+        writeln!(out,"{:?}=>{{self.positions[{i}]=value.position();self.raw.read_mark({i},value.annotation(),value.position())?;self.raw.read_mark({i},tag.as_deref(),self.positions[{i}])?;{read}Ok(())}},",field.key).unwrap();
     }
     if has_keys {
         out.push_str("_=>");

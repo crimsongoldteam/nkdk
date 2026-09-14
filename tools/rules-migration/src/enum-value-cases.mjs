@@ -15,30 +15,41 @@ export function enumValueCases(catalog) {
   graph.edges=graph.edges.filter(edge=>edge.item.symbol==='MetadataEnumerationValueRules');
   if(graph.edges.length!==1)throw new Error('Ambiguous enumeration value collection');
   const source=extraction.entries.find(entry=>entry.symbol==='MetadataEnumerationValueRules');
-  const emitted=attachBorrowedBase(emitBaseCollections(graph,extraction.entries,catalog),source);
+  const emitted=attachBorrowedBase(emitBaseCollections(graph,extraction.entries,catalog),source,catalog);
   const requests=[['cf','cf','ПеречислениеВсеСвойства'],['cfe/all-extension','cfe/Расширение_All','ПеречислениеВсеСвойства'],['cfe/all-extension','cfe/Расширение_All','ПеречислениеВсеСвойстваExt']].map(([component,folder,name])=>({
     component,xml:`e2e/fixtures/xml/${component}/Enums/${name}.xml`,
     yaml:`e2e/fixtures/nkdk/${folder}/Перечисление/${name}/Свойства.yaml`,
-    collection:{item:'EnumValue',yaml:'Значения'}}));
+    collection:{item:'EnumValue',yaml:'Значения',preserveNamespace:true},context:[{name:'compatibilityMode',file:`e2e/fixtures/xml/${component}/Configuration.xml`,selector:'./{*}Configuration/{*}Properties/{*}CompatibilityMode'}]}));
   const examples=JSON.parse(execFileSync('python3',['tools/rules-migration/src/project-fixtures.py'],{input:JSON.stringify(requests),encoding:'utf8'}));
   const entry=emitted.results[0].declaration;
   const cases=examples.map((example,index)=>({id:`e2e-complete-enum-values-${index}`,entry,
-    inputs:{component:requests[index].component,owner:example.ownerIdentity,defaultLanguage:'ru',registeredLanguages:['ru','en']},
+    inputs:{...example.context,component:requests[index].component,owner:example.ownerIdentity,defaultLanguage:'ru',registeredLanguages:['ru','en']},
     factBindings:{identities:'metadata.own-identities',baseIds:'metadata.base-identities'},
     xml:example.xml,yaml:example.yaml,source:example.source,
-    adaptation:'Complete EnumValue elements; only outer MDClasses namespace removed; owner contributions not accepted'}));
+    adaptation:'Complete EnumValue elements with original namespaces; context from source configuration'}));
   const factSources=cases.map(c=>({entry,xml:c.xml,inputs:c.inputs}));
   const snapshot=JSON.parse(readFileSync('tests/migration/nested-identity-inventory.json','utf8'));
   for(const row of snapshot.rows.filter(row=>row.kind==='EnumValue'&&row.baseUuid&&requests.some(request=>request.xml===row.source))) {
     if(createHash('sha256').update(readFileSync(row.source)).digest('hex')!==row.sha256)throw new Error('Stale base identity source');
     factSources.push({entry:'migration.metadata-base-identity',xml:'<Root><Name>base</Name></Root>',inputs:{component:row.component,identity:row.uuid,baseIdentity:row.baseUuid}});
   }
+  cases.push({...cases[0],id:'enum-values-own-before-borrowing',inputs:{...cases[0].inputs,compatibilityMode:'Version8_3_7'}});
   const borrowed=cases[1];
   const notify='<xr:PropertyState><xr:Property>ExtendedConfigurationObject</xr:Property><xr:State>Notify</xr:State></xr:PropertyState>';
-  const withRows=rows=>borrowed.xml.replace('<ChildObjects','<ChildObjects xmlns:xr="http://v8.1c.ru/8.3/xcf/readable"').replace(/<InternalInfo\s*\/>/,`<InternalInfo>${rows}</InternalInfo>`);
+  const withRows=rows=>borrowed.xml.replace(/^<[^\s>]+/,'$& xmlns:xr="http://v8.1c.ru/8.3/xcf/readable"').replace(/<((?:[^:<>\s]+:)?InternalInfo)\s*\/>/,(_,name)=>`<${name}>${rows}</${name}>`);
   const notifyYAML=borrowed.yaml.replace('    ПринадлежностьОбъекта: Заимствованный','    ПринадлежностьОбъекта: Заимствованный\n    ОбъектРасширяемойКонфигурации: !проверять');
   cases.push({...borrowed,id:'enum-values-notify',xml:withRows(notify),yaml:notifyYAML});
-  const withoutBase=xml=>xml.replace(/<ExtendedConfigurationObject>[^<]*<\/ExtendedConfigurationObject>/,'');
+  for(const mode of ['Version8_3_14','Version8_3_15','Версия8_3_15','DontUse']) {
+    cases.push({...borrowed,id:'enum-values-notify-'+mode,inputs:{...borrowed.inputs,compatibilityMode:mode},
+      xml:withRows(notify),yaml:mode==='Version8_3_14'?undefined:notifyYAML,
+      ...(mode==='Version8_3_14'?{annotation:'    ОбъектРасширяемойКонфигурации: !xml/invalid',noRaw:true,retainedYAML:['    Синоним: ""','    ПринадлежностьОбъекта: Заимствованный'],rejectedYAML:[notifyYAML],rejectedCode:'metadata.notify-compatibility'}:mode==='Version8_3_15'?{rejectedYAML:[notifyYAML.replace('ОбъектРасширяемойКонфигурации: !проверять','ОбъектРасширяемойКонфигурации: !xml/invalid\n      $значение: !проверять')],rejectedCode:'xml/anomaly-tag-unnecessary'}:{})});
+  }
+  for(const mode of ['Version8_3_7','Version8_3_8']) {
+    cases.push({...borrowed,id:'enum-values-borrowing-'+mode,inputs:{...borrowed.inputs,compatibilityMode:mode},
+      yaml:mode==='Version8_3_7'?undefined:borrowed.yaml,
+      ...(mode==='Version8_3_7'?{annotation:'    ПринадлежностьОбъекта: !xml/invalid Заимствованный',rejectedYAML:[borrowed.yaml],rejectedCode:'metadata.borrowed-compatibility'}:{})});
+  }
+  const withoutBase=xml=>xml.replace(/<((?:[^:<>\s]+:)?ExtendedConfigurationObject)>[^<]*<\/\1>/,'');
   for(const [suffix,xml,marker] of [['control',borrowed.xml,''],['notify',withRows(notify),'!проверять ""']]) {
     cases.push({...borrowed,id:'enum-values-missing-base-'+suffix,xml:withoutBase(xml),
       yaml:borrowed.yaml.replace('    ПринадлежностьОбъекта: Заимствованный',`    ПринадлежностьОбъекта: Заимствованный\n    ОбъектРасширяемойКонфигурации: ${marker}`)});

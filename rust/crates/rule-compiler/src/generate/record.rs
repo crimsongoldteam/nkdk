@@ -950,7 +950,7 @@ fn generate_at(
         if layout.is_some() {
             out.push_str("out.push_str(\"  \");");
         }
-        writeln!(out, "out.push_str(&core::yaml::scalar({:?})); out.push_str(\": \"); if let Some(label)=value.raw.label({i}) {{out.push_str(&label);out.push(' ');}} out.push_str({yaml}); out.push('\\n');", field.key).unwrap();
+        writeln!(out, "out.push_str(&core::yaml::scalar({:?})); out.push_str(\": \"); core::yaml::append_marked_scalar(out,{yaml},value.raw.label({i}).as_deref(),indent,{nested}); out.push('\\n');", field.key,nested=layout.is_some()).unwrap();
         out.push_str("}\n");
     }
     if layout.is_some() {

@@ -30,7 +30,7 @@ impl ScalarMapping {
             Node::Scalar(value, tag) if self.opened && !self.closed => {
                 if let Some(key) = self.key.take() {
                     Ok(Some(ScalarEntry { key, value, tag }))
-                } else if tag.is_some() {
+                } else if tag.is_some() || value.annotation().is_some() {
                     Err(RuntimeDiagnostic::new(
                         "yaml.annotation",
                         "Unexpected key annotation",

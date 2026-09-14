@@ -1,11 +1,11 @@
 import {attachOwnerMembership} from './owner-membership.mjs';
-import {mkdirSync,readFileSync,writeFileSync} from 'node:fs';
+import {existsSync,mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import {dirname} from 'node:path';
 import {candidateCatalog,yaml} from './candidate-catalog.mjs';
 import {enumValueCases} from './enum-value-cases.mjs';
 
 // Publish the researched child boundary through the same automatic source adapter.
-// This does not accept deferred owner roles or the surrounding enumeration.
+// The enclosing enumeration remains a separate acceptance boundary.
 const result=enumValueCases(candidateCatalog().catalog);
 const modules=result.modules.slice(0,3);
 const emission={modules,results:[{ownerRequirements:result.ownerRequirements}]};
@@ -28,5 +28,5 @@ const outputs={
 for(const [path,content] of Object.entries(outputs)) {
   if(process.argv.includes('--check')) {
     if(readFileSync(path,'utf8')!==content)throw new Error('Stale generated operation input: '+path);
-  } else {mkdirSync(dirname(path),{recursive:true});writeFileSync(path,content);}
+  } else if(!existsSync(path) || readFileSync(path,'utf8')!==content) {mkdirSync(dirname(path),{recursive:true});writeFileSync(path,content);}
 }

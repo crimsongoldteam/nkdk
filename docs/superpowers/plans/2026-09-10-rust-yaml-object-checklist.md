@@ -79,7 +79,7 @@ AdditionalIndexes принят после проверки идентичнос�
 |---|---:|---:|
 | Общие объекты (common) | 90 | 19 |
 | Вложенные части общих объектов | 27 | 0 |
-| Прикладные объекты и их вложенные части | 56 | 0 |
+| Прикладные объекты и их вложенные части | 57 | 1 |
 | Формы, элементы и общие части форм | 66 | 0 |
 | Системные перечисления (весь каталог) | 1 | 1 |
 
@@ -241,6 +241,7 @@ AdditionalIndexes принят после проверки идентичнос�
 - [ ] [appliedObjects/metadataDocumentJournal](../../../packages/rules/metadata/appliedObjects/metadataDocumentJournal)
 - [ ] [appliedObjects/metadataDocumentNumerator](../../../packages/rules/metadata/appliedObjects/metadataDocumentNumerator)
 - [ ] [appliedObjects/metadataEnumeration](../../../packages/rules/metadata/appliedObjects/metadataEnumeration)
+- [x] **MetadataEnumerationValueRules — значение перечисления** — 2026-09-14: полная дочерняя коллекция в рабочей операции Rust, cf/cfe, контекст владельца, режимы совместимости, аномалии и экспорт без референса. [Декларации](../../../rust/declarations/objects/enumeration-values.generated.yaml) · [Машинные случаи](../../../tests/migration/enum-values-operation.json) · [Приёмка](../reports/2026-09-14-enum-value-real.md). Родительское перечисление остаётся отдельным незавершённым объектом.
 - [ ] [appliedObjects/metadataEventSubscription](../../../packages/rules/metadata/appliedObjects/metadataEventSubscription)
 - [ ] [appliedObjects/metadataExchangePlan](../../../packages/rules/metadata/appliedObjects/metadataExchangePlan)
 - [ ] [appliedObjects/metadataExternalDataSource](../../../packages/rules/metadata/appliedObjects/metadataExternalDataSource)

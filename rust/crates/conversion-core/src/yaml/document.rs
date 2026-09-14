@@ -14,6 +14,7 @@ impl Value {
     pub fn text(text: &str) -> Self {
         Self {
             kind: Kind::Scalar(Scalar {
+                annotation: None,
                 text: text.into(),
                 plain: false,
                 position: Position::default(),
@@ -24,6 +25,7 @@ impl Value {
     pub fn null() -> Self {
         Self {
             kind: Kind::Scalar(Scalar {
+                annotation: None,
                 text: String::new(),
                 plain: true,
                 position: Position::default(),
