@@ -4070,6 +4070,9 @@
                 "properties": {
                   "present": {
                     "$ref": "#/$defs/expression"
+                  },
+                  "from": {
+                    "$ref": "#/$defs/expression"
                   }
                 },
                 "required": [
@@ -4081,6 +4084,9 @@
                 "type": "object",
                 "properties": {
                   "equals": {
+                    "$ref": "#/$defs/expression"
+                  },
+                  "from": {
                     "$ref": "#/$defs/expression"
                   }
                 },

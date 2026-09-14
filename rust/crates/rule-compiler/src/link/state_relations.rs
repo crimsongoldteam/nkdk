@@ -13,8 +13,11 @@ pub(super) fn validate(modules: &[Module], program: &Program) -> Result<(), Diag
                 xml = content;
             }
             let xml_sources = matches!(xml, LinkedXml::Record(fields)
-                if !fields.iter().any(|field| field.field == relation.field)
-                && relation.sources.iter().all(|source| fields.iter().any(|field| &field.field == source)));
+            if !fields.iter().any(|field| field.field == relation.field)
+            && relation.sources.iter().all(|source| {
+                let physical = fields.iter().any(|field| &field.field == source);
+                physical != relation.computed_sources.contains(source)
+            }));
             let yaml_state = match &entry.yaml {
                 YamlRepresentation::Mapping(fields) => {
                     fields.iter().any(|field| field.field == relation.field)

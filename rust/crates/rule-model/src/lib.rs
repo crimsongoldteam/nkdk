@@ -55,6 +55,7 @@ pub struct Module {
 pub struct StateRelation {
     pub field: String,
     pub sources: Vec<String>,
+    pub computed_sources: Vec<String>,
     pub values: Vec<String>,
     pub source: SourceLocation,
 }

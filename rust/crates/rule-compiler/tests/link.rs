@@ -2519,3 +2519,89 @@ fn row_contract_modules(source: &str) -> Vec<nkdk_rule_model::Module> {
     })
     .collect()
 }
+
+#[test]
+fn computed_state_sources_keep_directional_ownership() {
+    let source = include_str!("fixtures/state-record-relation.yaml");
+    let states = parse(SourceFile {
+        path: "states.yaml",
+        bytes: include_bytes!("fixtures/finite-states.yaml"),
+    })
+    .unwrap();
+    let mut modules = property_state_modules(source);
+    modules.push(states.clone());
+    link(&modules).unwrap();
+    for (replacement, valid) in [
+        ("concat: [{sequence: []}, {sequence: []}]", true),
+        ("concat: []", true),
+        ("concat: [{absent: true}]", false),
+        ("concat: [{literal: wrong}]", false),
+        ("concat: [{sequence: [{literal: wrong}]}]", false),
+    ] {
+        let changed=source.replace("then:\n          sequence:\n          - record: {name: {literal: ExtendedConfigurationObject}, mode: {field: notice}}",&format!("then: {{{replacement}}}"));
+        assert_ne!(changed, source);
+        let mut modules = property_state_modules(&changed);
+        modules.push(states.clone());
+        let result = link(&modules);
+        if valid {
+            result.unwrap();
+        } else {
+            assert!(
+                result
+                    .unwrap_err()
+                    .iter()
+                    .any(|error| error.code == "expression_type_mismatch")
+            );
+        }
+    }
+    for (from, to, expected) in [
+        (
+            "fields: [{field: base, path:",
+            "fields: [{field: notice, path: [Root, Notice]}, {field: base, path:",
+            "conflicting_state_projection",
+        ),
+        (
+            "key: State}]",
+            "key: State}, {field: notice, key: Notice}]",
+            "conflicting_state_projection",
+        ),
+        (
+            "if: {present: {field: rows}}",
+            "if: {present: {field: notice}}",
+            "field_dependency_cycle",
+        ),
+        ("field: mode", "field: missing", "unknown_field"),
+        (
+            "then: {get: {of: {var: selected}, field: mode}}",
+            "then: {literal: true}",
+            "expression_type_mismatch",
+        ),
+    ] {
+        let changed = source.replace(from, to);
+        assert_ne!(changed, source);
+        let mut modules = property_state_modules(&changed);
+        modules.push(states.clone());
+        let errors = link(&modules).unwrap_err();
+        assert!(
+            errors.iter().any(|error| error.code == expected),
+            "{expected}: {errors:?}"
+        );
+    }
+}
+
+fn property_state_modules(source: &str) -> Vec<nkdk_rule_model::Module> {
+    [
+        ("owner.yaml", source),
+        ("row.yaml", include_str!("fixtures/property-state-row.yaml")),
+        ("rows.yaml", include_str!("fixtures/property-states.yaml")),
+    ]
+    .into_iter()
+    .map(|(path, source)| {
+        parse(SourceFile {
+            path,
+            bytes: source.as_bytes(),
+        })
+        .unwrap()
+    })
+    .collect()
+}

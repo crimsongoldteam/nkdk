@@ -7,6 +7,7 @@ struct Source {
     field: String,
     test: Expression,
     denotes: Expression,
+    from: Option<Expression>,
 }
 struct Row {
     value: String,
@@ -125,8 +126,12 @@ pub(super) fn expand(
                     "A state cannot be its own source",
                 ));
             }
-            let parts = value.mapping(path, &["present", "equals"])?;
-            if parts.len() != 1 {
+            let parts = value.mapping(path, &["present", "equals", "from"])?;
+            let modes: Vec<_> = parts
+                .iter()
+                .filter(|(key, _)| key.text(path).is_ok_and(|key| key != "from"))
+                .collect();
+            if modes.len() != 1 {
                 return Err(error(
                     path,
                     value.mark,
@@ -134,7 +139,7 @@ pub(super) fn expand(
                     "Choose exactly one present or equals source",
                 ));
             }
-            let (mode, denotes) = &parts[0];
+            let (mode, denotes) = modes[0];
             let denotes = super::expression(path, denotes)?;
             let field_expression = expression(&source, ExpressionKind::Field(field.into()));
             let present = expression(
@@ -159,6 +164,9 @@ pub(super) fn expand(
                 field: field.into(),
                 test,
                 denotes,
+                from: optional_field(parts, "from")
+                    .map(|node| super::expression(path, node))
+                    .transpose()?,
             });
         }
         let states_node = node.field(path, fields, "states")?;
@@ -257,10 +265,20 @@ pub(super) fn expand(
                 input.denotes.clone(),
                 absent.clone(),
             );
-            rules.push(rule(&source, &input.field, absent, Some(restored)));
+            rules.push(rule(
+                &source,
+                &input.field,
+                input.from.clone().unwrap_or(absent),
+                Some(restored),
+            ));
         }
         relations.push(StateRelation {
             field: target.into(),
+            computed_sources: sources
+                .iter()
+                .filter(|source| source.from.is_some())
+                .map(|source| source.field.clone())
+                .collect(),
             sources: sources.into_iter().map(|source| source.field).collect(),
             values: rows.into_iter().map(|row| row.value).collect(),
             source,

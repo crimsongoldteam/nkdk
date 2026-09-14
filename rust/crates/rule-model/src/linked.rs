@@ -193,6 +193,7 @@ pub enum LinkedOperator {
     State(crate::StatePredicate),
     Sequence,
     Concat,
+    SequenceConcat,
     Require,
     SequencePattern { prefix_len: u32, suffix_len: u32 },
     Record(Vec<String>),

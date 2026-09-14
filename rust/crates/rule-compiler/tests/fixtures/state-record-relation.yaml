@@ -1,0 +1,49 @@
+format: nkdk-declarations/1
+kind: object
+id: test.state-record-relation
+imports: {state: common.finite-states, rows: common.property-states}
+inputs: {baseId: {type: {kind: scalar, scalar: text}}}
+value:
+  kind: record
+  fields:
+  - {name: state, type: {use: state}}
+  - {name: base, type: {kind: scalar, scalar: text}}
+  - {name: notice, type: {kind: scalar, scalar: text}}
+  - {name: rows, type: {use: rows}}
+representations:
+  xml: {kind: record, fields: [{field: base, path: [Root, Properties, ExtendedConfigurationObject]}, {field: rows, path: [Root, InternalInfo]}]}
+  yaml: {kind: mapping, fields: [{field: state, key: State}]}
+state-relations:
+- field: state
+  sources:
+    base: {present: {input: baseId}}
+    notice:
+      equals: {literal: Notify}
+      from:
+        if: {present: {field: rows}}
+        then:
+          match:
+            value:
+              select:
+                in: {field: rows}
+                as: item
+                where: {and: [{present: {get: {of: {var: item}, field: name}}}, {eq: [{get: {of: {var: item}, field: name}}, {literal: ExtendedConfigurationObject}]}]}
+            present: {as: selected, then: {get: {of: {var: selected}, field: mode}}}
+            absent: {absent: true}
+        else: {absent: true}
+  states:
+    default: [base]
+    empty: []
+    tagged: [base, notice]
+    text: [notice]
+presence:
+- target: {field: rows}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml:
+    missing:
+      denotes:
+        if: {present: {field: notice}}
+        then:
+          sequence:
+          - record: {name: {literal: ExtendedConfigurationObject}, mode: {field: notice}}
+        else: {absent: true}

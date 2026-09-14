@@ -518,6 +518,12 @@ contributions:
             .replace("test.selected-record-row", "test.hidden-selected-row")
             .replace(", {field: rows, key: Rows}", "")
             + "\n- target: {field: rows}\n  yaml:\n    missing:\n      denotes:\n        sequence:\n        - record: {id: {literal: token}, name: {literal: Second}, mode: {field: found}}\n";
+        let neighbor_relation = include_str!("fixtures/state-record-relation.yaml")
+            .replace("test.state-record-relation", "test.state-neighbor-relation")
+            .replace("  - {name: notice,", "  - {name: neighbor, type: {kind: scalar, scalar: text}}\n  - {name: notice,")
+            .replace("{field: state, key: State}]", "{field: state, key: State}, {field: neighbor, key: Neighbor}]")
+            .replace("        if: {present: {field: notice}}\n        then:\n          sequence:\n          - record: {name: {literal: ExtendedConfigurationObject}, mode: {field: notice}}\n        else: {absent: true}", "        concat:\n        - if: {present: {field: notice}}\n          then: {sequence: [{record: {name: {literal: ExtendedConfigurationObject}, mode: {field: notice}}}]}\n          else: {sequence: []}\n        - if: {present: {field: neighbor}}\n          then: {sequence: [{record: {name: {literal: Comment}, mode: {field: neighbor}}}]}\n          else: {sequence: []}")
+            + "\n- target: {field: neighbor}\n  xml:\n    missing:\n      denotes:\n        match:\n          value:\n            select:\n              in: {field: rows}\n              as: row\n              where: {eq: [{get: {of: {var: row}, field: name}}, {literal: Comment}]}\n          present: {as: row, then: {get: {of: {var: row}, field: mode}}}\n          absent: {absent: true}\n  yaml: {missing: {denotes: {absent: true}}}\n";
         let typed_constructed_row = r#"format: nkdk-declarations/1
 kind: value
 id: common.typed-constructed-row
@@ -587,6 +593,10 @@ presence:
             ("cube-states.yaml", cube_states.as_str()),
             ("cube.yaml", cube),
             ("state-projections-composed.yaml", projections_composed.as_str()),
+            ("property-state-row.yaml", include_str!("fixtures/property-state-row.yaml")),
+            ("property-states.yaml", include_str!("fixtures/property-states.yaml")),
+            ("state-neighbor-relation.yaml", neighbor_relation.as_str()),
+            ("state-record-relation.yaml", include_str!("fixtures/state-record-relation.yaml")),
             ("state-projections.yaml", include_str!("fixtures/state-projections.yaml")),
             ("computed-fields.yaml", computed_checked.as_str()),
             ("computed-row.yaml", computed_row.as_str()),
@@ -999,14 +1009,18 @@ presence:
                 "optional-owner.yaml",
                 "optional.yaml",
                 "owner.yaml",
+                "property-state-row.yaml",
+                "property-states.yaml",
                 "qname-common.yaml",
                 "qname-owner.yaml",
                 "required-owner.yaml",
                 "root-scalar.yaml",
                 "selected-record-row.yaml",
                 "single-record-row.yaml",
+                "state-neighbor-relation.yaml",
                 "state-projections-composed.yaml",
                 "state-projections.yaml",
+                "state-record-relation.yaml",
                 "text-choice-first.yaml",
                 "text-choice-owner.yaml",
                 "text-choice-second.yaml",
@@ -1177,6 +1191,30 @@ fn main() {
         let inputs = prepare_inputs(typed_constructed, vec![("emit".into(),InputValue::Boolean(enabled))]).unwrap();
         let result = convert_file(typed_constructed,Direction::YamlToXml,yaml.as_bytes(),&inputs).unwrap();
         core::proof::verify(expected.as_bytes(),&result.bytes,|_|false).unwrap();
+    }
+    let relation = entry_id("test.state-record-relation").unwrap();
+    let inputs = prepare_inputs(relation,vec![("baseId".into(),InputValue::Text("base-id".into()))]).unwrap();
+    for (base, notice, expected) in [(false,false,"State: "),(true,false,""),(false,true,"State: !watch \"\""),(true,true,"State: !watch")] {
+        let mut xml = String::from("<Root xmlns:xr='http://v8.1c.ru/8.3/xcf/readable'>");
+        if base { xml.push_str("<Properties><ExtendedConfigurationObject>base-id</ExtendedConfigurationObject></Properties>"); }
+        if notice { xml.push_str("<InternalInfo><xr:PropertyState><xr:Property>ExtendedConfigurationObject</xr:Property><xr:State>Notify</xr:State></xr:PropertyState></InternalInfo>"); }
+        xml.push_str("</Root>");
+        let result = convert_file(relation,Direction::XmlToYaml,xml.as_bytes(),&inputs).unwrap();
+        assert_eq!(String::from_utf8_lossy(&result.bytes),expected);
+        verify_candidate(relation,xml.as_bytes(),&result.bytes,&inputs).unwrap();
+    }
+    let neighbor = entry_id("test.state-neighbor-relation").unwrap();
+    let inputs = prepare_inputs(neighbor,vec![("baseId".into(),InputValue::Text("base-id".into()))]).unwrap();
+    let state_row = |name:&str,mode:&str|format!("<xr:PropertyState><xr:Property>{name}</xr:Property><xr:State>{mode}</xr:State></xr:PropertyState>");
+    let selected = state_row("ExtendedConfigurationObject","Notify");
+    let other = state_row("Comment","Extended");
+    for (rows, expected) in [(format!("{selected}{other}"),Some("State: !watch \"\"\nNeighbor: Extended")),(format!("{other}{selected}"),None),(format!("{selected}{selected}{other}"),None)] {
+        let xml = format!("<Root xmlns:xr='http://v8.1c.ru/8.3/xcf/readable'><InternalInfo>{rows}</InternalInfo></Root>");
+        let converted = convert_file(neighbor,Direction::XmlToYaml,xml.as_bytes(),&inputs).unwrap();
+        let yaml = String::from_utf8_lossy(&converted.bytes);
+        assert!(yaml.contains("Neighbor: Extended"), "{yaml}");
+        if let Some(expected)=expected { assert_eq!(yaml,expected); } else { assert!(yaml.contains("InternalInfo: !xml/raw"), "{yaml}"); }
+        verify_candidate(neighbor,xml.as_bytes(),&converted.bytes,&inputs).unwrap();
     }
     let cube = entry_id("test.cube").unwrap();
     for mask in 0..8 {

@@ -31,6 +31,15 @@ pub(super) fn missing(
             ))
         }
         LinkedExpressionKind::Operation {
+            operator: LinkedOperator::SequenceConcat,
+            ..
+        } => {
+            let (code, capacity) = append(value, entry, row, program, constructible, id)?;
+            Ok(format!(
+                "{{let mut constructed_rows=Vec::with_capacity({capacity});{code}V{id}{{rows:constructed_rows,present:true,raw:None}}}}"
+            ))
+        }
+        LinkedExpressionKind::Operation {
             operator: LinkedOperator::Sequence,
             arguments,
         } => {
@@ -55,6 +64,65 @@ pub(super) fn missing(
         )),
     }
 }
+fn append(
+    value: &LinkedExpression,
+    entry: &LinkedEntry,
+    row: &LinkedEntry,
+    program: &Program,
+    constructible: bool,
+    id: u32,
+) -> Result<(String, usize), Diagnostic> {
+    let LinkedExpressionKind::Operation {
+        operator,
+        arguments,
+    } = &value.kind
+    else {
+        return Err(unsupported(
+            entry,
+            "Concatenation requires present sequences",
+        ));
+    };
+    match operator {
+        LinkedOperator::Conditional => {
+            let (constants, condition) = expressions::expression(entry, program, &arguments[0])?;
+            let (yes, left) = append(&arguments[1], entry, row, program, constructible, id)?;
+            let (no, right) = append(&arguments[2], entry, row, program, constructible, id)?;
+            Ok((
+                format!("{{let _inputs=inputs;{constants}if {condition}{{{yes}}}else{{{no}}}}}"),
+                left.max(right),
+            ))
+        }
+        LinkedOperator::SequenceConcat => {
+            let mut code = String::new();
+            let mut capacity = 0;
+            for argument in arguments {
+                let (part, count) = append(argument, entry, row, program, constructible, id)?;
+                code.push_str(&part);
+                capacity += count;
+            }
+            Ok((code, capacity))
+        }
+        LinkedOperator::Sequence => {
+            let mut code = String::new();
+            for argument in arguments {
+                if !constructible {
+                    return Err(unsupported(
+                        row,
+                        "Semantic construction requires borrowable scalar record fields",
+                    ));
+                }
+                let value = record(argument, entry, row, program, id)?;
+                write!(code, "constructed_rows.push({value});").unwrap();
+            }
+            Ok((code, arguments.len()))
+        }
+        _ => Err(unsupported(
+            entry,
+            "Concatenation requires declared sequence constructors",
+        )),
+    }
+}
+
 fn record(
     value: &LinkedExpression,
     entry: &LinkedEntry,

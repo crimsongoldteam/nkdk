@@ -34,6 +34,25 @@ pub(super) fn resolve(
                 value_type,
             )
         }
+        ExpressionKind::Concat(items) if matches!(expected, LinkedType::Sequence(_)) => {
+            let arguments = items
+                .iter()
+                .map(|value| {
+                    let result = resolve(module, value, expected, modules, ids)?;
+                    if !expressions::same_type(&result.value_type, expected) {
+                        return Err(type_error(value));
+                    }
+                    Ok(result)
+                })
+                .collect::<Result<_, Diagnostic>>()?;
+            (
+                LinkedExpressionKind::Operation {
+                    operator: LinkedOperator::SequenceConcat,
+                    arguments,
+                },
+                expected.clone(),
+            )
+        }
         ExpressionKind::Sequence(items) => {
             let LinkedType::Sequence(item) = expected else {
                 return Err(type_error(expression));
