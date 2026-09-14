@@ -44,6 +44,25 @@ fn generated_rust_executes_both_directions_and_uses_the_imported_table() {
         "{computed_composed}\nconstraints:{}",
         computed_checked.split_once("\nconstraints:").unwrap().1
     );
+    let projections = include_str!("fixtures/state-projections.yaml");
+    let projections_composed = projections
+        .replace("test.state-projections", "test.state-projections-composed")
+        .replace(
+            "imports: {state: common.finite-states}",
+            "imports: {state: common.finite-states, extra: common.directional-extra}",
+        )
+        .replace(
+            "representations:",
+            "  - {name: extra, type: {use: extra}}\nrepresentations:",
+        )
+        .replace(
+            "fields: [{field: base,",
+            "fields: [{field: extra, path: [Root, Extra]}, {field: base,",
+        )
+        .replace(
+            "fields: [{field: state, key:",
+            "fields: [{field: extra, key: Extra}, {field: state, key:",
+        );
     let state_owner = include_str!("fixtures/finite-state-owner.yaml");
     let absent_state = include_str!("fixtures/finite-states.yaml")
         .lines()
@@ -442,6 +461,8 @@ contributions:
             .replace("{use: pair}", "{use: pair, bind: {allowed: {input: selected}, enabled: {input: unused}}}");
         let mut modules = [
             ("directional-fields.yaml", directional),
+            ("state-projections-composed.yaml", projections_composed.as_str()),
+            ("state-projections.yaml", include_str!("fixtures/state-projections.yaml")),
             ("computed-fields.yaml", computed_checked.as_str()),
             ("computed-row.yaml", computed_row.as_str()),
             ("computed-rows.yaml", computed_rows),
@@ -846,6 +867,8 @@ contributions:
                 "qname-owner.yaml",
                 "required-owner.yaml",
                 "root-scalar.yaml",
+                "state-projections-composed.yaml",
+                "state-projections.yaml",
                 "text-choice-first.yaml",
                 "text-choice-owner.yaml",
                 "text-choice-second.yaml",
@@ -935,6 +958,33 @@ fn main() {
     let exported = convert_file(computed_owner,Direction::YamlToXml,b"Row:\n  Left: x\nExtra:\n  Marker: fixed",&PreparedInputs::default()).unwrap();
     let xml = String::from_utf8(exported.bytes).unwrap();
     assert!(xml.contains("<Right>x</Right>") && xml.contains("<Marker>fixed</Marker>") && !xml.contains("<Left>"), "{xml}");
+    for (entry_name, extra_xml, extra_yaml) in [
+        ("test.state-projections", "", ""),
+        ("test.state-projections-composed", "<Extra><Marker>fixed</Marker></Extra>", "Extra:\n  Marker: fixed"),
+    ] {
+    let projection = entry_id(entry_name).unwrap();
+    let inputs = prepare_inputs(projection, vec![("baseId".into(), InputValue::Text("base-id".into()))]).unwrap();
+    for (base, notice, yaml) in [
+        (true, false, ""), (false, false, "State: "),
+        (true, true, "State: !watch"), (false, true, "State: !watch \"\""),
+    ] {
+        let original = format!("<Root>{}{}{extra_xml}</Root>", if base {"<Base>base-id</Base>"} else {""}, if notice {"<Notice>Notify</Notice>"} else {""});
+        let yaml = [yaml, extra_yaml].into_iter().filter(|part| !part.is_empty()).collect::<Vec<_>>().join("\n");
+        let imported = convert_file(projection,Direction::XmlToYaml,original.as_bytes(),&inputs).unwrap();
+        assert_eq!(String::from_utf8(imported.bytes.clone()).unwrap(),yaml);
+        verify_candidate(projection,original.as_bytes(),&imported.bytes,&inputs).unwrap();
+        let exported = convert_file(projection,Direction::YamlToXml,yaml.as_bytes(),&inputs).unwrap();
+        let xml = String::from_utf8(exported.bytes).unwrap();
+        assert_eq!(xml.contains("<Base>base-id</Base>"),base,"{xml}");
+        assert_eq!(xml.contains("<Notice>Notify</Notice>"),notice,"{xml}");
+        assert!(!xml.contains("<State>"));
+    }
+    let original = format!("<Root><Notice>Unrecognized</Notice>{extra_xml}</Root>");
+    let imported = convert_file(projection,Direction::XmlToYaml,original.as_bytes(),&inputs).unwrap();
+    let yaml = String::from_utf8_lossy(&imported.bytes);
+    assert!(yaml.contains("Unrecognized") && yaml.contains("$xml"), "{yaml}");
+    verify_candidate(projection,original.as_bytes(),&imported.bytes,&inputs).unwrap();
+    }
     let collection = entry_id("test.state-collection").unwrap();
     let collection_xml = "<Root><Mode><Item><Name>One</Name><Mode>Default</Mode></Item><Item><Name>Two</Name><Mode>Empty</Mode></Item><Item><Name>Three</Name><Mode>Tagged</Mode></Item><Item><Name>Four</Name><Mode>Text</Mode></Item></Mode></Root>";
     let collection_yaml = "Mode:\n  One: {}\n  Two:\n    Mode: \n  Three:\n    Mode: !watch\n  Four:\n    Mode: !watch \"\"";

@@ -1,0 +1,44 @@
+format: nkdk-declarations/1
+kind: object
+id: test.state-projections
+imports: {state: common.finite-states}
+inputs: {baseId: {type: {kind: scalar, scalar: text}}}
+value:
+  kind: record
+  fields:
+  - {name: state, type: {use: state}}
+  - {name: base, type: {kind: scalar, scalar: text}}
+  - {name: notice, type: {kind: scalar, scalar: text}}
+representations:
+  xml: {kind: record, fields: [{field: base, path: [Root, Base]}, {field: notice, path: [Root, Notice]}]}
+  yaml: {kind: mapping, fields: [{field: state, key: State}]}
+presence:
+- target: {field: state}
+  xml:
+    missing:
+      denotes:
+        if: {present: {field: base}}
+        then:
+          if: {and: [{present: {field: notice}}, {eq: [{field: notice}, {literal: Notify}]}]}
+          then: {literal: tagged}
+          else: {literal: default}
+        else:
+          if: {and: [{present: {field: notice}}, {eq: [{field: notice}, {literal: Notify}]}]}
+          then: {literal: text}
+          else: {literal: empty}
+- target: {field: base}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml:
+    missing:
+      denotes:
+        if: {or: [{eq: [{field: state}, {literal: default}]}, {eq: [{field: state}, {literal: tagged}]}]}
+        then: {input: baseId}
+        else: {absent: true}
+- target: {field: notice}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml:
+    missing:
+      denotes:
+        if: {or: [{eq: [{field: state}, {literal: tagged}]}, {eq: [{field: state}, {literal: text}]}]}
+        then: {literal: Notify}
+        else: {absent: true}

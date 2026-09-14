@@ -2096,6 +2096,24 @@ fn enum_tables_are_total_and_unambiguous() {
         })
         .unwrap()
     };
+    let projections = include_str!("fixtures/state-projections.yaml");
+    nkdk_rule_compiler::link(&[parse(states), parse(projections)]).unwrap();
+    for (from, to, code) in [
+        (
+            "then: {literal: tagged}",
+            "then: {literal: missing}",
+            "unknown_enum_literal",
+        ),
+        (
+            "then: {literal: tagged}",
+            "then: {literal: true}",
+            "expression_type_mismatch",
+        ),
+    ] {
+        let invalid = projections.replace(from, to);
+        let errors = nkdk_rule_compiler::link(&[parse(states), parse(&invalid)]).unwrap_err();
+        assert!(errors.iter().any(|error| error.code == code), "{errors:?}");
+    }
     let errors = nkdk_rule_compiler::link(&[parse(states), parse(&conflicting_owner)]).unwrap_err();
     assert!(
         errors

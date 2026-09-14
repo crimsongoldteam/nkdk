@@ -68,6 +68,21 @@ pub(super) fn missing(
     let Some(expression) = expression else {
         return Ok("None".into());
     };
+    if let LinkedExpressionKind::Operation {
+        operator: LinkedOperator::Conditional,
+        arguments,
+    } = &expression.kind
+    {
+        let yes = missing(Some(&arguments[1]), codec, name, owner, program)?;
+        let no = missing(Some(&arguments[2]), codec, name, owner, program)?;
+        let (condition, constants) = lower_missing(&arguments[0], owner, program)?;
+        let branch = format!("if {condition} {{{yes}}} else {{{no}}}");
+        return Ok(if constants.is_empty() {
+            branch
+        } else {
+            format!("{{{} {branch}}}", constants)
+        });
+    }
     let value = match (&expression.kind, codec) {
         (LinkedExpressionKind::Absent, _) => return Ok("None".into()),
         (
@@ -108,26 +123,15 @@ pub(super) fn missing(
             format!("{name}::V{index}")
         }
         _ => {
-            let LinkedType::Record(fields) = &owner.value else {
-                unreachable!()
-            };
-            let storage = scalar_storage(owner, program, true)?;
-            let mut context = expressions::Expressions::new(owner, program, fields, Some(&storage));
-            let lowered = context.lower(expression)?;
+            let (lowered, constants) = lower_missing(expression, owner, program)?;
             if matches!(expression.value_type, LinkedType::Optional(_))
                 && matches!(codec, scalar::Codec::Text)
             {
-                if !context.transforms.is_empty() {
-                    return Err(unsupported(
-                        owner,
-                        "Missing state transform requires a generated helper",
-                    ));
-                }
                 let value = format!("({lowered}).map(|value|value.to_owned())");
-                return Ok(if context.constants.is_empty() {
+                return Ok(if constants.is_empty() {
                     value
                 } else {
-                    format!("{{{}{value}}}", context.constants)
+                    format!("{{{}{value}}}", constants)
                 });
             }
 
@@ -144,20 +148,34 @@ pub(super) fn missing(
                     ));
                 }
             };
-            if !context.transforms.is_empty() {
-                return Err(unsupported(
-                    owner,
-                    "Missing state transform requires a generated helper",
-                ));
-            }
-            if context.constants.is_empty() {
+            if constants.is_empty() {
                 value
             } else {
-                format!("{{{} {value}}}", context.constants)
+                format!("{{{} {value}}}", constants)
             }
         }
     };
     Ok(format!("Some({value})"))
+}
+
+fn lower_missing(
+    expression: &LinkedExpression,
+    owner: &LinkedEntry,
+    program: &Program,
+) -> Result<(String, String), Diagnostic> {
+    let LinkedType::Record(fields) = &owner.value else {
+        unreachable!()
+    };
+    let storage = scalar_storage(owner, program, true)?;
+    let mut context = expressions::Expressions::new(owner, program, fields, Some(&storage));
+    let value = context.lower(expression)?;
+    if !context.transforms.is_empty() {
+        return Err(unsupported(
+            owner,
+            "Missing state transform requires a generated helper",
+        ));
+    }
+    Ok((value, context.constants))
 }
 
 pub(super) fn omit(
