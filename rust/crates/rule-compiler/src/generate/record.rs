@@ -413,8 +413,8 @@ fn generate_at(
                 "Nested text record placement is not supported yet",
             ));
         }
-        out.push_str(&text::definition(entry, parts, &fields)?);
-        out.push_str(&text::reader(id, &fields));
+        out.push_str(&text::definition(entry, parts)?);
+        out.push_str(&text::reader(entry));
         text::read(id)
     } else {
         yaml_events
@@ -936,7 +936,7 @@ fn generate_at(
         writeln!(out,"if !value.present {{return Ok(());}}out.push_str(indent);out.push_str(&core::yaml::scalar({:?}));out.push_str(\":\\n\");",layout.key).unwrap();
     }
     if matches!(entry.yaml, YamlRepresentation::TextPattern(_)) {
-        out.push_str(&text::write(id, &fields));
+        out.push_str(&text::write(entry, &fields));
     }
     let mut yaml_fields: Vec<_> = fields
         .iter()

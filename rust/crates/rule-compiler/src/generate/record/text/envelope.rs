@@ -17,7 +17,8 @@ pub(in super::super) fn generate(
     let empty = (0..fields.len())
         .map(|index| format!("f{index}:None,"))
         .collect::<String>();
-    let available = (0..fields.len())
+    let available = super::selected(entry)
+        .into_iter()
         .map(|index| format!("value.f{index}.is_some()"))
         .collect::<Vec<_>>()
         .join("&&");
@@ -31,7 +32,14 @@ pub(in super::super) fn generate(
                 String::new()
             },
         )
-        .replace("@available@", &available)
+        .replace(
+            "@available@",
+            if available.is_empty() {
+                "true"
+            } else {
+                &available
+            },
+        )
         .replace("@root@", &path_code(boundary))
         .replace("@parent@", &path_code(&boundary[..boundary.len() - 1]))
         .replace("@namespace@", &format!("{:?}", root.namespace))

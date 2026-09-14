@@ -346,6 +346,18 @@ contributions:
         .replace("common.qualified", "common.record-text")
         .replace("Type", "Link")
         .replace("Qualified", "Link");
+    let text_record_header = text_record_common
+        .replace("common.record-text", "common.record-text-header")
+        .replace(
+            "  - {name: path",
+            "  - {name: revision, type: {kind: scalar, scalar: text}}\n  - {name: path",
+        )
+        .replace(
+            "fields: [{field: path, path:",
+            "fields: [{field: revision, path: [], attribute: revision}, {field: path, path:",
+        )
+        + "\npresence:\n- target: {field: revision}\n  yaml: {missing: {denotes: {literal: current}}}\n";
+    let text_record_header_owner = text_record_owner.replace("record-text", "record-text-header");
     let nested_common = owner
         .replace("kind: object", "kind: value")
         .replace("test.scalar-owner", "common.nested-scalars")
@@ -728,6 +740,8 @@ presence:
             ("text-nested-rows.yaml", include_str!("fixtures/text-nested-rows.yaml")),
             ("text-nested-rows-owner.yaml", include_str!("fixtures/text-nested-rows-owner.yaml")),
             ("record-text-common.yaml", text_record_common.as_str()),
+            ("record-text-header.yaml", text_record_header.as_str()),
+            ("record-text-header-owner.yaml", text_record_header_owner.as_str()),
             ("record-text-owner.yaml", text_record_owner.as_str()),
             ("record-text.yaml", include_str!("fixtures/record-text.yaml")),
             ("text-pattern-decimal.yaml", include_str!("fixtures/text-pattern-decimal.yaml")),
@@ -1054,6 +1068,8 @@ presence:
                 "qname-common.yaml",
                 "qname-owner.yaml",
                 "record-text-common.yaml",
+                "record-text-header-owner.yaml",
+                "record-text-header.yaml",
                 "record-text-owner.yaml",
                 "record-text.yaml",
                 "required-owner.yaml",
@@ -2010,6 +2026,15 @@ fn main() {
             assert!(yaml.contains("alpha(2)"),"{yaml}");
             verify_candidate(text_record_owner,original.replace("alpha","beta").as_bytes(),yaml.replace("alpha(2)","beta(2)").as_bytes(),&PreparedInputs::default()).unwrap();
         }
+    }
+    let text_record_header = entry_id("test.record-text-header-owner").unwrap();
+    for (attribute, ordinary) in [(" revision='current'", true),(" revision='older'",false),("",false)] {
+        let original=format!("<Root><Link{attribute}><Path>alpha</Path><Index>2</Index></Link></Root>");
+        let result=convert_file(text_record_header,Direction::XmlToYaml,original.as_bytes(),&PreparedInputs::default()).unwrap_or_else(|errors|panic!("{original}: {errors:?}"));
+        let yaml=String::from_utf8(result.bytes).unwrap();
+        if ordinary{assert_eq!(yaml,"Link: alpha(2)");}else{assert!(yaml.contains("!xml/raw"),"{yaml}");assert!(yaml.contains("alpha(2)"),"{yaml}");}
+        verify_candidate(text_record_header,original.as_bytes(),yaml.as_bytes(),&PreparedInputs::default()).unwrap();
+        verify_candidate(text_record_header,original.replace("alpha","beta").as_bytes(),yaml.replace("alpha(2)","beta(2)").as_bytes(),&PreparedInputs::default()).unwrap();
     }
     let attribute_only = entry_id("test.attribute-only").unwrap();
     for xml in ["<Root version=\"2\"><Item xmlns:m=\"urn:owner\" m:uuid=\"abc\"/></Root>", "<Root><Item/></Root>"] {

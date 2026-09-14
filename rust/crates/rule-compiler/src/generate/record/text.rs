@@ -6,21 +6,13 @@ pub(super) use envelope::generate as envelope;
 pub(super) fn definition(
     entry: &LinkedEntry,
     parts: &[TextPatternPart],
-    fields: &[Field<'_>],
 ) -> Result<String, Diagnostic> {
     let LinkedType::Record(names) = &entry.value else {
         unreachable!()
     };
-    if parts
-        .iter()
-        .filter(|part| matches!(part.value, TextPatternValue::Field(_)))
-        .count()
-        != fields.len()
-    {
-        return Err(unsupported(
-            entry,
-            "Text record defaults require omitted-slot restoration",
-        ));
+    let selected = selected(entry);
+    if entry.presence.iter().any(|rule| matches!(rule.target, LinkedPresenceTarget::Field(index) if selected.contains(&(index as usize))) && rule.yaml_omit_when.is_some()) {
+        return Err(unsupported(entry, "Conditional text slots require an explicit optional group"));
     }
     let parts = parts
         .iter()
@@ -29,10 +21,14 @@ pub(super) fn definition(
                 format!("core::text_pattern::Part::Literal({text:?})")
             }
             TextPatternValue::Field(name) => {
-                let index = names
+                let field = names
                     .iter()
                     .position(|field| field.name == *name)
                     .expect("linked field");
+                let index = selected
+                    .iter()
+                    .position(|index| *index == field)
+                    .expect("selected field");
                 match &part.separator {
                     Some(separator) => {
                         format!("core::text_pattern::Part::Cell({index},{separator:?})")
@@ -46,17 +42,18 @@ pub(super) fn definition(
     Ok(format!(
         "fn yaml_pattern_{}()-> &'static core::text_pattern::Pattern<'static,{}>{{static PLAN:std::sync::LazyLock<core::text_pattern::Pattern<'static,{}>>=std::sync::LazyLock::new(||core::text_pattern::Pattern::new(&[{parts}]).expect(\"linked text record\"));&PLAN}}\n",
         entry.id,
-        fields.len(),
-        fields.len()
+        selected.len(),
+        selected.len()
     ))
 }
 
-pub(super) fn reader(id: u32, fields: &[Field<'_>]) -> String {
+pub(super) fn reader(entry: &LinkedEntry) -> String {
+    let id = entry.id;
     let mut consume = String::new();
-    for index in 0..fields.len() {
+    for (slot, index) in selected(entry).into_iter().enumerate() {
         write!(
             consume,
-            "state.r{index}=Some(slots[{index}].to_owned());state.positions[{index}]=position;"
+            "state.r{index}=Some(slots[{slot}].to_owned());state.positions[{index}]=position;"
         )
         .unwrap();
     }
@@ -71,10 +68,13 @@ pub(super) fn read(id: u32) -> String {
     )
 }
 
-pub(super) fn write(id: u32, fields: &[Field<'_>]) -> String {
+pub(super) fn write(entry: &LinkedEntry, fields: &[Field<'_>]) -> String {
+    let id = entry.id;
     let mut out = String::new();
     let mut pieces = Vec::new();
-    for (index, field) in fields.iter().enumerate() {
+    let selected = selected(entry);
+    for &index in &selected {
+        let field = &fields[index];
         write!(out,"let piece_value{index}=value.f{index}.as_ref().ok_or_else(||RuntimeDiagnostic::new(\"value.text-pattern\",\"Text record field is absent\"))?;").unwrap();
         pieces.push(field.codec.write_reference(
             &format!("E{id}F{index}"),
@@ -82,6 +82,15 @@ pub(super) fn write(id: u32, fields: &[Field<'_>]) -> String {
             false,
         ));
     }
-    write!(out,"let pieces:[&str;{count}]=[{}];let mut text=String::new();yaml_pattern_{id}().write(&pieces,&mut text,usize::MAX).map_err(|_|RuntimeDiagnostic::new(\"value.text-pattern\",\"Record field conflicts with delimiter\"))?;out.push_str(indent);out.push_str(&core::yaml::scalar(&text));out.push('\\n');",pieces.join(","),count=fields.len()).unwrap();
+    write!(out,"let pieces:[&str;{count}]=[{}];let mut text=String::new();yaml_pattern_{id}().write(&pieces,&mut text,usize::MAX).map_err(|_|RuntimeDiagnostic::new(\"value.text-pattern\",\"Record field conflicts with delimiter\"))?;out.push_str(indent);out.push_str(&core::yaml::scalar(&text));out.push('\\n');",pieces.join(","),count=selected.len()).unwrap();
     out
+}
+
+fn selected(entry: &LinkedEntry) -> Vec<usize> {
+    let (LinkedType::Record(fields), YamlRepresentation::TextPattern(parts)) =
+        (&entry.value, &entry.yaml)
+    else {
+        unreachable!("text record")
+    };
+    fields.iter().enumerate().filter_map(|(index,field)|parts.iter().any(|part|matches!(&part.value,TextPatternValue::Field(name) if *name == field.name)).then_some(index)).collect()
 }

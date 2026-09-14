@@ -29,6 +29,18 @@ fn text_patterns_cover_typed_fields_without_ambiguous_capture() {
             .any(|error| error.message.contains("Nested text checks"))
     );
 
+    let conditional_record = format!(
+        "{}\npresence:\n- target: {{field: index}}\n  yaml:\n    missing: {{denotes: {{literal: 0}}}}\n    omitWhen: {{eq: [{{field: index}}, {{literal: 0}}]}}\n",
+        include_str!("fixtures/record-text.yaml")
+    );
+    let conditional_record = link(&[read(&conditional_record).unwrap()]).unwrap();
+    assert!(
+        nkdk_rule_compiler::generate(&conditional_record)
+            .unwrap_err()
+            .iter()
+            .any(|error| error.message.contains("explicit optional group"))
+    );
+
     let sequence = include_str!("fixtures/text-sequence.yaml");
     read(sequence).unwrap();
     let row = source
