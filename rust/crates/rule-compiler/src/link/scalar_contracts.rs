@@ -159,10 +159,7 @@ pub(super) fn inherit_presence(
             }
             if let Some(index) = explicit {
                 let explicit = &mut owner.presence[index];
-                if explicit.yaml_missing.is_some()
-                    || explicit.yaml_omit_when.is_some()
-                    || !explicit.yaml_empty.is_empty()
-                {
+                if explicit.yaml_missing.is_some() || !explicit.yaml_empty.is_empty() {
                     return Err(diagnostic(
                         "conflicting_state_presence",
                         &explicit.source,
@@ -170,7 +167,18 @@ pub(super) fn inherit_presence(
                     ));
                 }
                 explicit.yaml_missing = rule.yaml_missing;
-                explicit.yaml_omit_when = rule.yaml_omit_when;
+                explicit.yaml_omit_when =
+                    match (explicit.yaml_omit_when.take(), rule.yaml_omit_when) {
+                        (Some(left), Some(right)) => Some(LinkedExpression {
+                            kind: LinkedExpressionKind::Operation {
+                                operator: LinkedOperator::Or,
+                                arguments: vec![left, right],
+                            },
+                            value_type: LinkedType::Scalar(ScalarType::Boolean),
+                            source: explicit.source.clone(),
+                        }),
+                        (left, right) => left.or(right),
+                    };
                 if explicit.xml_missing.is_none() {
                     explicit.xml_missing = rule.xml_missing;
                 }

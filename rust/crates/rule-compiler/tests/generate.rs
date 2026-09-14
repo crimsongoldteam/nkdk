@@ -518,6 +518,15 @@ contributions:
             .replace("test.selected-record-row", "test.hidden-selected-row")
             .replace(", {field: rows, key: Rows}", "")
             + "\n- target: {field: rows}\n  yaml:\n    missing:\n      denotes:\n        sequence:\n        - record: {id: {literal: token}, name: {literal: Second}, mode: {field: found}}\n";
+        let indexed_relation = include_str!("fixtures/state-record-relation.yaml")
+            .replace("test.state-record-relation", "test.indexed-state-relation")
+            .replace("inputs: {baseId: {type: {kind: scalar, scalar: text}}}", "inputs:\n  component: {type: {kind: scalar, scalar: text}}\n  identity: {type: {kind: scalar, scalar: text}}\n  baseIds:\n    index: metadata.base-identities\n    type:\n      kind: index\n      key: {kind: record, fields: [{name: component, type: {kind: scalar, scalar: text}}, {name: identity, type: {kind: scalar, scalar: text}}]}\n      value: {kind: scalar, scalar: text}")
+            .replace("{input: baseId}", "{require: {lookup: {in: {input: baseIds}, key: {record: {component: {input: component}, identity: {input: identity}}}}}}");
+        let profiled_relation = include_str!("fixtures/state-record-relation.yaml")
+            .replace("test.state-record-relation", "test.profiled-state-relation")
+            .replace("inputs: {baseId: {type: {kind: scalar, scalar: text}}}", "inputs: {baseId: {type: {kind: scalar, scalar: text}}, participates: {type: {kind: scalar, scalar: boolean}}}")
+            .replace("base: {present: {input: baseId}}", "base: {present: {if: {input: participates}, then: {input: baseId}, else: {absent: true}}}")
+            + "\n- target: {field: state}\n  yaml: {omitWhen: {not: {input: participates}}}\n";
         let neighbor_relation = include_str!("fixtures/state-record-relation.yaml")
             .replace("test.state-record-relation", "test.state-neighbor-relation")
             .replace("  - {name: notice,", "  - {name: neighbor, type: {kind: scalar, scalar: text}}\n  - {name: notice,")
@@ -595,6 +604,10 @@ presence:
             ("state-projections-composed.yaml", projections_composed.as_str()),
             ("property-state-row.yaml", include_str!("fixtures/property-state-row.yaml")),
             ("property-states.yaml", include_str!("fixtures/property-states.yaml")),
+            ("profiled-state-relation.yaml", profiled_relation.as_str()),
+            ("indexed-state-relation.yaml", indexed_relation.as_str()),
+            ("metadata-base-fragment.yaml", include_str!("../../../declarations/fragments/metadata-base-identity.yaml")),
+            ("metadata-base-probe.yaml", include_str!("../../../declarations/probes/metadata-base-identity.yaml")),
             ("state-neighbor-relation.yaml", neighbor_relation.as_str()),
             ("state-record-relation.yaml", include_str!("fixtures/state-record-relation.yaml")),
             ("state-projections.yaml", include_str!("fixtures/state-projections.yaml")),
@@ -995,6 +1008,9 @@ presence:
                 "index-field-common.yaml",
                 "indexed-assembly.yaml",
                 "indexed-frame.yaml",
+                "indexed-state-relation.yaml",
+                "metadata-base-fragment.yaml",
+                "metadata-base-probe.yaml",
                 "name-owner.yaml",
                 "name.yaml",
                 "nested-common.yaml",
@@ -1009,6 +1025,7 @@ presence:
                 "optional-owner.yaml",
                 "optional.yaml",
                 "owner.yaml",
+                "profiled-state-relation.yaml",
                 "property-state-row.yaml",
                 "property-states.yaml",
                 "qname-common.yaml",
@@ -1202,6 +1219,24 @@ fn main() {
         let result = convert_file(relation,Direction::XmlToYaml,xml.as_bytes(),&inputs).unwrap();
         assert_eq!(String::from_utf8_lossy(&result.bytes),expected);
         verify_candidate(relation,xml.as_bytes(),&result.bytes,&inputs).unwrap();
+    }
+    let profiled=entry_id("test.profiled-state-relation").unwrap();
+    for participates in [false,true] {
+        let inputs=prepare_inputs(profiled,vec![("baseId".into(),InputValue::Text("base-id".into())),("participates".into(),InputValue::Boolean(participates))]).unwrap();
+        let xml=if participates {"<Root><Properties><ExtendedConfigurationObject>base-id</ExtendedConfigurationObject></Properties></Root>"} else {"<Root/>"};
+        let result=convert_file(profiled,Direction::XmlToYaml,xml.as_bytes(),&inputs).unwrap();
+        assert!(result.bytes.is_empty());
+        verify_candidate(profiled,xml.as_bytes(),&result.bytes,&inputs).unwrap();
+        if participates {
+            let empty=convert_file(profiled,Direction::XmlToYaml,b"<Root/>",&inputs).unwrap();
+            assert_eq!(empty.bytes,b"State: ");
+        } else {
+            let unexpected=b"<Root><Properties><ExtendedConfigurationObject>base-id</ExtendedConfigurationObject></Properties></Root>";
+            let preserved=convert_file(profiled,Direction::XmlToYaml,unexpected,&inputs).unwrap();
+            verify_candidate(profiled,unexpected,&preserved.bytes,&inputs).unwrap();
+        }
+        let issues=validate_file(profiled,b"State: !watch",&inputs);
+        assert_eq!(issues.iter().any(|issue|issue.code.as_deref()==Some("yaml.implicit-value")),!participates);
     }
     let neighbor = entry_id("test.state-neighbor-relation").unwrap();
     let inputs = prepare_inputs(neighbor,vec![("baseId".into(),InputValue::Text("base-id".into()))]).unwrap();
@@ -1696,6 +1731,23 @@ fn main() {
     assert!(fact_plan(&[EntryId(u32::MAX)],&[],10).is_err());
     let generation = core::facts::Generation(7);
     let budget = || core::facts::prepared::FactBudget { text: core::facts::text::TextBudget { entries: 30, bytes: 1000 }, rows: 20 };
+    let indexed_state=entry_id("test.indexed-state-relation").unwrap();
+    let base_source=entry_id("migration.metadata-base-identity").unwrap();
+    let mut base_builder=fact_builder(generation,budget());
+    for (component,base_id) in [("first","base-first"),("second","base-second")] {
+        let inputs=prepare_inputs(base_source,vec![("component".into(),InputValue::Text(component.into())),("identity".into(),InputValue::Text("same-id".into())),("baseIdentity".into(),InputValue::Text(base_id.into()))]).unwrap();
+        assert!(contribute_file(base_source,Direction::YamlToXml,"Имя: Sample".as_bytes(),&inputs,&mut base_builder).is_empty());
+    }
+    let base_facts=std::sync::Arc::new(base_builder.finish());
+    for (component,base_id) in [("first","base-first"),("second","base-second")] {
+        let values=vec![("component".into(),InputValue::Text(component.into())),("identity".into(),InputValue::Text("same-id".into()))];
+        let inputs=prepare_fact_inputs(indexed_state,base_facts.clone(),generation,values.clone()).unwrap();
+        let exported=convert_file(indexed_state,Direction::YamlToXml,b"{}",&inputs).unwrap();
+        let expected=format!("<Root><Properties><ExtendedConfigurationObject>{base_id}</ExtendedConfigurationObject></Properties></Root>");
+        core::proof::verify(expected.as_bytes(),&exported.bytes,|_|false).unwrap();
+        let stale=prepare_fact_inputs(indexed_state,base_facts.clone(),core::facts::Generation(99),values).unwrap();
+        assert!(convert_file(indexed_state,Direction::YamlToXml,b"{}",&stale).unwrap_err().iter().any(|error|error.code.as_deref()==Some("fact.unready")));
+    }
     for (name,source,yaml) in [
         ("test.identity-source", "<Root token='exact'><Name>First</Name></Root>","Name: First"),
         ("test.inherited-identity", "<Root token='exact'><Name>First</Name></Root>","Name: First"),

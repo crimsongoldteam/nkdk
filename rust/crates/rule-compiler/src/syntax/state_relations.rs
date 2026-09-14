@@ -227,6 +227,18 @@ pub(super) fn expand(
                 "The table must cover every source combination",
             ));
         }
+        let omission = rules
+            .iter()
+            .position(|rule| {
+                rule.target == PresenceTarget::Field(target.into())
+                    && rule.xml_missing.is_none()
+                    && rule.yaml_missing.is_none()
+                    && rule.xml_empty.is_empty()
+                    && rule.yaml_empty.is_empty()
+                    && rule.xml_canonical.is_empty()
+                    && rule.yaml_omit_when.is_some()
+            })
+            .and_then(|position| rules.remove(position).yaml_omit_when);
         for field in
             std::iter::once(target).chain(sources.iter().map(|source| source.field.as_str()))
         {
@@ -245,7 +257,9 @@ pub(super) fn expand(
             }
         }
         let decision = decision(&source, &sources, &rows.iter().collect::<Vec<_>>(), 0);
-        rules.push(rule(&source, target, decision, None));
+        let mut state_rule = rule(&source, target, decision, None);
+        state_rule.yaml_omit_when = omission;
+        rules.push(state_rule);
         for (index, input) in sources.iter().enumerate() {
             let selected = rows
                 .iter()
