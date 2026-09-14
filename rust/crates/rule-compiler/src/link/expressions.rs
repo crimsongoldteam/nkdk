@@ -358,6 +358,11 @@ pub(super) fn resolve_expression_in(
             input,
             binding,
             predicate,
+        }
+        | ExpressionKind::Select {
+            input,
+            binding,
+            predicate,
         } => {
             let input = resolve_expression_in(module, input, modules, ids, scope)?;
             let LinkedType::Sequence(item) = &input.value_type else {
@@ -375,15 +380,22 @@ pub(super) fn resolve_expression_in(
                 LinkedOperator::Each(slot)
             } else if matches!(expression.kind, ExpressionKind::One { .. }) {
                 LinkedOperator::One(slot)
+            } else if matches!(expression.kind, ExpressionKind::Select { .. }) {
+                LinkedOperator::Select(slot)
             } else {
                 LinkedOperator::Exists(slot)
+            };
+            let result_type = if matches!(operator, LinkedOperator::Select(_)) {
+                LinkedType::Optional(item.clone())
+            } else {
+                LinkedType::Scalar(ScalarType::Boolean)
             };
             (
                 LinkedExpressionKind::Operation {
                     operator,
                     arguments: vec![input, predicate],
                 },
-                LinkedType::Scalar(ScalarType::Boolean),
+                result_type,
             )
         }
         ExpressionKind::SelfValue => (

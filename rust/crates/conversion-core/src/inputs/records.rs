@@ -32,6 +32,14 @@ impl<'a> Records<'a> {
     pub fn is_empty(&self) -> bool {
         self.0.len() == 0
     }
+    pub fn selected(&self, selection: crate::sequence_pattern::Selection) -> Option<Row<'a>> {
+        match selection {
+            crate::sequence_pattern::Selection::Unique(index) if index < self.0.len() => {
+                Some(Row(self.0.row(index)))
+            }
+            _ => None,
+        }
+    }
 }
 pub struct Rows<'a> {
     records: Records<'a>,
@@ -159,6 +167,20 @@ mod tests {
         }
         assert!(iter.next().is_none());
         assert!(iter.next().is_none());
+        for selection in [
+            crate::sequence_pattern::Selection::Missing,
+            crate::sequence_pattern::Selection::Ambiguous,
+            crate::sequence_pattern::Selection::Unique(2),
+        ] {
+            assert!(rows.selected(selection).is_none());
+        }
+        let selected = rows
+            .selected(crate::sequence_pattern::Selection::Unique(1))
+            .unwrap();
+        assert!(std::ptr::eq(
+            selected.text(0).unwrap().as_ptr(),
+            stored[1].name.as_ptr()
+        ));
         let root = crate::inputs::PreparedInputs::default();
         let slots = [Some(InputRef::Records(rows))];
         let view = root.view().rebind(&slots);

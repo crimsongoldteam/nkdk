@@ -767,6 +767,35 @@
         {
           "type": "object",
           "properties": {
+            "select": {
+              "type": "object",
+              "properties": {
+                "in": {
+                  "$ref": "#/$defs/expression"
+                },
+                "as": {
+                  "type": "string"
+                },
+                "where": {
+                  "$ref": "#/$defs/expression"
+                }
+              },
+              "required": [
+                "in",
+                "as",
+                "where"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "select"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
             "firstBy": {
               "type": "object",
               "properties": {

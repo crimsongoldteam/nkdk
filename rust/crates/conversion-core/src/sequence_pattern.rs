@@ -64,6 +64,48 @@ impl<'a, T> SelectionView<'a, T> {
     }
 }
 
+/// Owns a selected occurrence and its ordered remainder in the original allocation.
+/// The remainder's length is private, so restoration cannot lose its insertion slot.
+#[derive(Debug)]
+pub struct Extracted<T> {
+    selected: Option<(usize, T)>,
+    remaining: Vec<T>,
+}
+impl Selection {
+    /// Ambiguous or invalid selections return all input values unchanged.
+    pub fn extract<T>(self, mut rows: Vec<T>) -> Result<Extracted<T>, Vec<T>> {
+        let selected = match self {
+            Self::Missing => None,
+            Self::Unique(index) if index < rows.len() => Some((index, rows.remove(index))),
+            Self::Unique(_) | Self::Ambiguous => return Err(rows),
+        };
+        Ok(Extracted {
+            selected,
+            remaining: rows,
+        })
+    }
+}
+impl<T> Extracted<T> {
+    pub fn selected(&self) -> Option<&T> {
+        self.selected.as_ref().map(|(_, value)| value)
+    }
+    pub fn selected_mut(&mut self) -> Option<&mut T> {
+        self.selected.as_mut().map(|(_, value)| value)
+    }
+    pub fn remaining(&self) -> &[T] {
+        &self.remaining
+    }
+    pub fn remaining_mut(&mut self) -> &mut [T] {
+        &mut self.remaining
+    }
+    pub fn restore(mut self) -> Vec<T> {
+        if let Some((index, value)) = self.selected {
+            self.remaining.insert(index, value);
+        }
+        self.remaining
+    }
+}
+
 /// A checked structural rewrite. Existing item values move without cloning their strings.
 pub struct Rewrite<T> {
     pub start: usize,

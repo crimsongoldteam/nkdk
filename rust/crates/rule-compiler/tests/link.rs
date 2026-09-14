@@ -2468,15 +2468,54 @@ fn exactly_one_checks_its_input_binding_and_predicate() {
         (source.replace("{var: item}", "{var: missing}"), Some("unknown_variable")),
         (source.replace("where:\n              and:\n              - {present: {get: {of: {var: item}, field: name}}}\n              - {eq: [{get: {of: {var: item}, field: name}}, {literal: Second}]}", "where: {literal: invalid}"), Some("expression_type_mismatch")),
     ] {
-        let modules = [
-            ("owner.yaml", source.as_str()),
-            ("row.yaml", include_str!("fixtures/declared-row.yaml")),
-            ("rows.yaml", include_str!("fixtures/declared-rows.yaml")),
-        ].into_iter().map(|(path,bytes)| parse(SourceFile{path,bytes:bytes.as_bytes()}).unwrap()).collect::<Vec<_>>();
+        let modules = row_contract_modules(&source);
         match (link(&modules), expected) {
             (Ok(_), None) => {},
             (Err(errors), Some(code)) => assert!(errors.iter().any(|error|error.code==code),"{errors:?}"),
             (result, expected) => panic!("Unexpected result: {result:?}; expected {expected:?}"),
         }
     }
+}
+
+#[test]
+fn selection_exposes_only_the_declared_record_fields_in_its_match_arm() {
+    let source = include_str!("fixtures/selected-record-row.yaml");
+    for (source, succeeds) in [
+        (source.to_owned(), true),
+        (
+            source.replace(
+                "{var: selected}, field: mode",
+                "{var: selected}, field: unknown",
+            ),
+            false,
+        ),
+        (
+            source.replace(
+                "absent: {literal: missing}",
+                "absent: {get: {of: {var: selected}, field: mode}}",
+            ),
+            false,
+        ),
+    ] {
+        let modules = row_contract_modules(&source);
+        let result = link(&modules);
+        assert_eq!(result.is_ok(), succeeds, "{result:?}");
+    }
+}
+
+fn row_contract_modules(source: &str) -> Vec<nkdk_rule_model::Module> {
+    [
+        ("owner.yaml", source),
+        ("row.yaml", include_str!("fixtures/declared-row.yaml")),
+        ("rows.yaml", include_str!("fixtures/declared-rows.yaml")),
+    ]
+    .into_iter()
+    .map(|(path, bytes)| {
+        parse(SourceFile {
+            path,
+            bytes: bytes.as_bytes(),
+        })
+        .unwrap()
+    })
+    .collect()
 }

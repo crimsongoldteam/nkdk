@@ -548,7 +548,20 @@ presence:
         let single_rows = include_str!("fixtures/borrowed-record-rows.yaml")
             .replace("test.borrowed-record-rows", "test.single-record-row")
             .replace("exists:", "one:");
+        let typed_selected_rows = include_str!("fixtures/declared-rows.yaml")
+            .replace("common.rows", "common.typed-selected-rows")
+            .replace("common.row}", "common.typed-constructed-row}");
+        let typed_selected_owner = include_str!("fixtures/selected-record-row.yaml")
+            .replace("test.selected-record-row", "test.typed-selected-row")
+            .replace("common.rows", "common.typed-selected-rows")
+            .replace("field: name", "field: label")
+            .replace("literal: Second", "literal: prefix")
+            .replace("present: {as: selected, then: {get: {of: {var: selected}, field: mode}}}",
+                "present: {as: selected, then: {if: {and: [{get: {of: {var: selected}, field: enabled}}, {eq: [{get: {of: {var: selected}, field: amount}}, {literal: 9007199254740993}]}, {eq: [{get: {of: {var: selected}, field: state}}, {literal: tagged}]}]}, then: {get: {of: {var: selected}, field: label}}, else: {literal: invalid}}}");
         let mut modules = [
+            ("typed-selected-rows.yaml",typed_selected_rows.as_str()),
+            ("typed-selected-owner.yaml",typed_selected_owner.as_str()),
+            ("selected-record-row.yaml", include_str!("fixtures/selected-record-row.yaml")),
             ("single-record-row.yaml", single_rows.as_str()),
             ("typed-constructed-row.yaml", typed_constructed_row),
             ("typed-constructed-rows.yaml", typed_constructed_rows),
@@ -978,6 +991,7 @@ presence:
                 "qname-owner.yaml",
                 "required-owner.yaml",
                 "root-scalar.yaml",
+                "selected-record-row.yaml",
                 "single-record-row.yaml",
                 "state-projections-composed.yaml",
                 "state-projections.yaml",
@@ -1005,6 +1019,8 @@ presence:
                 "typed-constructed-rows.yaml",
                 "typed-decimal.yaml",
                 "typed-owner.yaml",
+                "typed-selected-owner.yaml",
+                "typed-selected-rows.yaml",
                 "warning-bound.yaml"
             ]
         );
@@ -1087,6 +1103,22 @@ fn main() {
         let yaml = String::from_utf8_lossy(&imported.bytes);
         assert!(yaml.starts_with(&format!("Found: {expected}\n")), "{yaml}");
         verify_candidate(borrowed, original.as_bytes(), &imported.bytes, &PreparedInputs::default()).unwrap();
+    }
+    let typed_selected = entry_id("test.typed-selected-row").unwrap();
+    let original = b"<Root><Rows><Item><State>Tagged</State><Label>prefix</Label><Enabled>true</Enabled><Amount>9007199254740993</Amount></Item></Rows></Root>";
+    let result = convert_file(typed_selected,Direction::XmlToYaml,original,&PreparedInputs::default()).unwrap();
+    assert!(String::from_utf8_lossy(&result.bytes).starts_with("Found: prefix\n"));
+    verify_candidate(typed_selected,original,&result.bytes,&PreparedInputs::default()).unwrap();
+    let selected = entry_id("test.selected-record-row").unwrap();
+    for (rows, expected) in [
+        ("", "missing"),
+        ("<Item><r:Name>First</r:Name><r:Mode>other</r:Mode></Item><Item><r:Name>Second</r:Name><r:Mode>Notify</r:Mode></Item>", "Notify"),
+        ("<Item><r:Name>Second</r:Name><r:Mode>Notify</r:Mode></Item><Item><r:Name>Second</r:Name><r:Mode>Extended</r:Mode></Item>", "missing"),
+    ] {
+        let xml = format!("<Root xmlns:r='urn:row'><Rows>{rows}</Rows></Root>");
+        let result = convert_file(selected,Direction::XmlToYaml,xml.as_bytes(),&PreparedInputs::default()).unwrap();
+        assert!(String::from_utf8_lossy(&result.bytes).starts_with(&format!("Found: {expected}\n")));
+        verify_candidate(selected,xml.as_bytes(),&result.bytes,&PreparedInputs::default()).unwrap();
     }
     let single = entry_id("test.single-record-row").unwrap();
     for (rows, expected) in [

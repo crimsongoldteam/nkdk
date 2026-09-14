@@ -1,0 +1,26 @@
+format: nkdk-declarations/1
+kind: object
+id: test.selected-record-row
+imports: {rows: common.rows}
+value:
+  kind: record
+  fields:
+  - {name: found, type: {kind: scalar, scalar: text}}
+  - {name: rows, type: {use: rows}}
+representations:
+  xml: {kind: record, fields: [{field: rows, path: [Root, Rows]}]}
+  yaml: {kind: mapping, fields: [{field: found, key: Found}, {field: rows, key: Rows}]}
+presence:
+- target: {field: found}
+  xml:
+    missing:
+      denotes:
+        match:
+          value:
+            select:
+              in: {field: rows}
+              as: item
+              where: {and: [{present: {get: {of: {var: item}, field: name}}}, {eq: [{get: {of: {var: item}, field: name}}, {literal: Second}]}]}
+          present: {as: selected, then: {get: {of: {var: selected}, field: mode}}}
+          absent: {literal: missing}
+  yaml: {missing: {denotes: {absent: true}}}

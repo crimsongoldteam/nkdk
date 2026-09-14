@@ -87,6 +87,35 @@ fn selection_preserves_occurrences_order_and_borrowed_values() {
         for row in view.remaining().chain(view.selected()) {
             assert!(rows.iter().any(|original| std::ptr::eq(row, original)));
         }
+        let allocation = rows.as_ptr();
+        let text_addresses: Vec<_> = rows
+            .iter()
+            .map(|row| (row.0.as_ptr(), row.1.as_ptr()))
+            .collect();
+        let restored = match case.selection.extract(rows) {
+            Ok(extracted) => {
+                assert_ne!(case.selection, Selection::Ambiguous);
+                assert_eq!(extracted.remaining(), expected(&case.remaining));
+                assert_eq!(
+                    extracted.selected().map(meaning),
+                    case.selected.map(|(a, b)| (a.to_string(), b.to_string()))
+                );
+                extracted.restore()
+            }
+            Err(original) => {
+                assert_eq!(case.selection, Selection::Ambiguous);
+                original
+            }
+        };
+        assert_eq!(restored, expected(&case.rows));
+        assert_eq!(restored.as_ptr(), allocation);
+        assert_eq!(
+            restored
+                .iter()
+                .map(|row| (row.0.as_ptr(), row.1.as_ptr()))
+                .collect::<Vec<_>>(),
+            text_addresses
+        );
     }
 }
 
@@ -111,4 +140,29 @@ fn matching_propagates_errors_and_stops_when_uniqueness_is_impossible() {
             Ok(expected)
         );
     }
+}
+
+#[test]
+fn extraction_moves_nonclone_values_and_rejects_invalid_positions_losslessly() {
+    #[derive(Debug, PartialEq)]
+    struct Item(u32);
+    for selection in [
+        Selection::Unique(2),
+        Selection::Unique(usize::MAX),
+        Selection::Ambiguous,
+    ] {
+        let rows = vec![Item(1), Item(2)];
+        let pointer = rows.as_ptr();
+        let Err(original) = selection.extract(rows) else {
+            panic!("Invalid selection was consumed")
+        };
+        assert_eq!(original, vec![Item(1), Item(2)]);
+        assert_eq!(original.as_ptr(), pointer);
+    }
+    let mut extracted = Selection::Unique(1)
+        .extract(vec![Item(1), Item(2), Item(3)])
+        .unwrap();
+    extracted.selected_mut().unwrap().0 = 20;
+    extracted.remaining_mut()[1].0 = 30;
+    assert_eq!(extracted.restore(), vec![Item(1), Item(20), Item(30)]);
 }

@@ -110,8 +110,20 @@ impl<'a> Expressions<'a> {
         }
     }
 
+    fn scalar_input_method(value: &LinkedType) -> Option<&'static str> {
+        match value {
+            LinkedType::Scalar(ScalarType::Text) | LinkedType::Enum(_) => Some("text"),
+            LinkedType::Scalar(ScalarType::Boolean) => Some("boolean"),
+            LinkedType::Scalar(ScalarType::Decimal) => Some("decimal"),
+            _ => None,
+        }
+    }
+
     fn borrowed_method(&self, slot: u32, index: u32) -> Result<&'static str, Diagnostic> {
         let field = &self.borrowed_rows[&slot][index as usize];
+        if let Some(method) = Self::scalar_input_method(&field.value) {
+            return Ok(method);
+        }
         scalar::Codec::resolve(&field.value, self.entry, self.program)?
             .input_method()
             .ok_or_else(|| {
@@ -322,37 +334,37 @@ impl<'a> Expressions<'a> {
             }
             LinkedExpressionKind::Input(slot) => {
                 self.fallible = true;
-                let method = match &value.value_type {
-                    LinkedType::Index { key, value }
-                        if crate::fact_shape::columns(key).is_some()
-                            && **value == LinkedType::Scalar(ScalarType::Text) =>
-                    {
-                        "text_index"
-                    }
-                    LinkedType::Scalar(ScalarType::Text) | LinkedType::Enum(_) => "text",
-                    LinkedType::Scalar(ScalarType::Boolean) => "boolean",
-                    LinkedType::Scalar(ScalarType::Decimal) => "decimal",
-                    LinkedType::Reference(_) => {
-                        super::scalar::Codec::resolve(&value.value_type, self.entry, self.program)?
-                            .input_method()
-                            .ok_or_else(|| {
-                                unsupported(
-                                    self.entry,
-                                    "Input scalar has no borrowed representation",
-                                )
-                            })?
-                    }
-                    LinkedType::Sequence(item)
-                        if matches!(item.as_ref(), LinkedType::Record(_)) =>
-                    {
-                        "records"
-                    }
-                    LinkedType::Sequence(_) => "sequence",
-                    _ => {
-                        return Err(unsupported(
+                let method = if let Some(method) = Self::scalar_input_method(&value.value_type) {
+                    method
+                } else {
+                    match &value.value_type {
+                        LinkedType::Index { key, value }
+                            if crate::fact_shape::columns(key).is_some()
+                                && **value == LinkedType::Scalar(ScalarType::Text) =>
+                        {
+                            "text_index"
+                        }
+                        LinkedType::Reference(_) => super::scalar::Codec::resolve(
+                            &value.value_type,
                             self.entry,
-                            "Input expression type is not generated",
-                        ));
+                            self.program,
+                        )?
+                        .input_method()
+                        .ok_or_else(|| {
+                            unsupported(self.entry, "Input scalar has no borrowed representation")
+                        })?,
+                        LinkedType::Sequence(item)
+                            if matches!(item.as_ref(), LinkedType::Record(_)) =>
+                        {
+                            "records"
+                        }
+                        LinkedType::Sequence(_) => "sequence",
+                        _ => {
+                            return Err(unsupported(
+                                self.entry,
+                                "Input expression type is not generated",
+                            ));
+                        }
                     }
                 };
                 format!("_inputs.{method}({slot})?")
@@ -453,25 +465,41 @@ impl<'a> Expressions<'a> {
                         "{{let mut accumulated={initial};if accumulated.is_some(){{for v{item} in {sequence} {{let Some(v{state})=accumulated else{{break;}};accumulated={next};}}}}accumulated}}"
                     ));
                 }
-                if matches!(&value.value_type, LinkedType::Optional(inner) if **inner==LinkedType::Scalar(ScalarType::Text))
-                {
-                    match operator {
-                        LinkedOperator::Conditional => {
-                            let condition = self.lower(&arguments[0])?;
-                            let yes = self.optional_text(&arguments[1])?;
-                            let no = self.optional_text(&arguments[2])?;
-                            return Ok(format!("if {condition} {{ {yes} }} else {{ {no} }}"));
-                        }
-                        LinkedOperator::MatchOptional(slot) => {
-                            let input = self.lower(&arguments[0])?;
-                            let yes = self.optional_text(&arguments[1])?;
-                            let no = self.optional_text(&arguments[2])?;
-                            return Ok(format!(
-                                "match {input} {{ Some(v{slot}) => {yes}, None => {no} }}"
-                            ));
-                        }
-                        _ => {}
+                if let LinkedOperator::MatchOptional(slot) = operator {
+                    let input = self.lower(&arguments[0])?;
+                    if let LinkedType::Optional(inner) = &arguments[0].value_type
+                        && let LinkedType::Record(fields) = inner.as_ref()
+                    {
+                        self.borrowed_rows.insert(*slot, fields.clone());
                     }
+                    let optional_text = matches!(&value.value_type,LinkedType::Optional(inner) if **inner==LinkedType::Scalar(ScalarType::Text));
+                    let present = if optional_text {
+                        self.optional_text(&arguments[1])
+                    } else {
+                        self.lower(&arguments[1])
+                    };
+                    self.borrowed_rows.remove(slot);
+                    let mut present = present?;
+                    let mut absent = if optional_text {
+                        self.optional_text(&arguments[2])?
+                    } else {
+                        self.lower(&arguments[2])?
+                    };
+                    if value.value_type == LinkedType::Scalar(ScalarType::Text) {
+                        present = Self::text_owned(&arguments[1], present);
+                        absent = Self::text_owned(&arguments[2], absent);
+                    }
+                    return Ok(format!(
+                        "match {input}{{Some(v{slot})=>{present},None=>{absent}}}"
+                    ));
+                }
+                if *operator == LinkedOperator::Conditional
+                    && matches!(&value.value_type, LinkedType::Optional(inner) if **inner==LinkedType::Scalar(ScalarType::Text))
+                {
+                    let condition = self.lower(&arguments[0])?;
+                    let yes = self.optional_text(&arguments[1])?;
+                    let no = self.optional_text(&arguments[2])?;
+                    return Ok(format!("if {condition} {{ {yes} }} else {{ {no} }}"));
                 }
                 if *operator == LinkedOperator::Equal {
                     for (literal, other) in [
@@ -530,7 +558,8 @@ impl<'a> Expressions<'a> {
                 }
                 if let LinkedOperator::Each(slot)
                 | LinkedOperator::Exists(slot)
-                | LinkedOperator::One(slot) = operator
+                | LinkedOperator::One(slot)
+                | LinkedOperator::Select(slot) = operator
                 {
                     let sequence = self.lower(&arguments[0])?;
                     let receiver = sequence.strip_prefix('&').unwrap_or(&sequence);
@@ -567,7 +596,7 @@ impl<'a> Expressions<'a> {
                     let LinkedType::Sequence(item) = &arguments[0].value_type else {
                         return Err(unsupported(self.entry, "Iteration requires a sequence"));
                     };
-                    if matches!(operator, LinkedOperator::One(_)) {
+                    if matches!(operator, LinkedOperator::One(_) | LinkedOperator::Select(_)) {
                         let binding = if matches!(item.as_ref(), LinkedType::Record(_)) {
                             format!("let v{slot}=item;")
                         } else if matches!(arguments[0].kind, LinkedExpressionKind::SelfValue)
@@ -581,9 +610,34 @@ impl<'a> Expressions<'a> {
                             )
                         };
                         self.fallible = true;
-                        return Ok(format!(
-                            "matches!(core::sequence_pattern::select_matching(({sequence}).into_iter().map(|item|->core::Result<bool>{{{binding}Ok({predicate})}}))?,core::sequence_pattern::Selection::Unique(_))"
-                        ));
+                        let selected = matches!(operator, LinkedOperator::Select(_));
+                        if selected
+                            && !(matches!(item.as_ref(), LinkedType::Record(_))
+                                && matches!(arguments[0].kind, LinkedExpressionKind::Input(_)))
+                        {
+                            return Err(unsupported(
+                                self.entry,
+                                "Selection currently requires borrowed declared records",
+                            ));
+                        }
+                        let sequence = if selected {
+                            "_selected_rows".to_owned()
+                        } else {
+                            sequence.clone()
+                        };
+                        let selection = format!(
+                            "core::sequence_pattern::select_matching(({sequence}).into_iter().map(|item|->core::Result<bool>{{{binding}Ok({predicate})}}))?"
+                        );
+                        return Ok(if selected {
+                            format!(
+                                "{{let _selected_rows={};let selection={selection};_selected_rows.selected(selection)}}",
+                                self.lower(&arguments[0])?
+                            )
+                        } else {
+                            format!(
+                                "matches!({selection},core::sequence_pattern::Selection::Unique(_))"
+                            )
+                        });
                     }
                     if matches!(item.as_ref(), LinkedType::Scalar(ScalarType::Text))
                         && matches!(arguments[0].kind, LinkedExpressionKind::SelfValue)
@@ -849,20 +903,8 @@ impl<'a> Expressions<'a> {
                         self.fallible = true;
                         format!("({}).lookup({})?", values[0], values[1])
                     }
-                    LinkedOperator::MatchOptional(slot) => {
-                        let (present, absent) =
-                            if value.value_type == LinkedType::Scalar(ScalarType::Text) {
-                                (
-                                    Self::text_owned(&arguments[1], values[1].clone()),
-                                    Self::text_owned(&arguments[2], values[2].clone()),
-                                )
-                            } else {
-                                (values[1].clone(), values[2].clone())
-                            };
-                        format!(
-                            "match {} {{ Some(v{slot}) => {present}, None => {absent} }}",
-                            values[0]
-                        )
+                    LinkedOperator::MatchOptional(_) => {
+                        unreachable!("optional match lowered before scalar operators")
                     }
                     LinkedOperator::Equal | LinkedOperator::Less | LinkedOperator::LessEqual => {
                         if matches!(

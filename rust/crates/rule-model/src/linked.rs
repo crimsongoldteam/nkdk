@@ -200,6 +200,7 @@ pub enum LinkedOperator {
     Each(u32),
     Exists(u32),
     One(u32),
+    Select(u32),
     Get(u32),
     Not,
     And,
