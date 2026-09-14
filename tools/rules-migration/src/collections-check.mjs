@@ -1,4 +1,5 @@
 import {enumValueCases} from './enum-value-cases.mjs';
+import {internalInfoCases} from './internal-info-cases.mjs';
 import {fileURLToPath} from 'node:url';
 import {join} from 'node:path';
 import {spawnSync} from 'node:child_process';
@@ -11,6 +12,7 @@ const root=fileURLToPath(new URL('../../../',import.meta.url));
 process.chdir(root);
 const {graph,entries}=fixture(),{catalog}=candidateCatalog();
 const enumValues=enumValueCases(catalog);
+const internalInfo=internalInfoCases(catalog);
 const emitted=emitCollections(graph,entries,catalog);
 if(emitted.results[0].status!=='candidate')throw new Error(JSON.stringify(emitted.results));
 const indexedEntries=structuredClone(entries);
@@ -100,11 +102,11 @@ xmlOnlyScalar.value.fields=xmlOnlyScalar.value.fields.filter(field=>field.name!=
 xmlOnlyScalar.representations.xml.fields=xmlOnlyScalar.representations.xml.fields.filter(field=>field.field!=='nested').map(field=>({...field,path:['Root',...field.path]}));
 xmlOnlyScalar.representations.yaml.fields=xmlOnlyScalar.representations.yaml.fields.filter(field=>field.field!=='nested');
 xmlOnlyScalar.constraints.push({id:'hidden-policy',appliesTo:['yaml-validation'],assert:{not:{eq:[{field:'token'},{literal:'blocked-token'}]}},diagnostic:{code:'test.hidden-policy',severity:'error',at:{field:'token'},message:'Restored token is reserved'}});
-const declarations=[...enumValues.modules,...unifiedDeclarations,xmlOnlyScalar,...xmlOnly,...groupedCommon,...grouped,...emitted.modules,...named.modules,...composed,nested,...indexed.modules,...textCollections.flatMap(result=>result.modules),...identified,...automaticIdentity.modules,computedFacts,computedConsumer,chainedSource,chainedConsumer,catalog.get('migration.metadata-root-index')];
+const declarations=[...internalInfo.modules,...enumValues.modules,...unifiedDeclarations,xmlOnlyScalar,...xmlOnly,...groupedCommon,...grouped,...emitted.modules,...named.modules,...composed,nested,...indexed.modules,...textCollections.flatMap(result=>result.modules),...identified,...automaticIdentity.modules,computedFacts,computedConsumer,chainedSource,chainedConsumer,catalog.get('migration.metadata-root-index')];
 const modules=[...declarations,...dependencyFiles(declarations,catalog)];
 const files=Object.fromEntries(modules.map(m=>[m.id+'.yaml',yaml.dump(m,{noRefs:true})]));
 const entry=emitted.results[0].declaration;
-const paths=writeFocused(join(root,'rust/target/collection-emission-check'),files,{factSources:[...enumValues.factSources,{entry:automaticIdentityEntry,xml:automaticIdentityXML,inputs:automaticIdentityInputs},{entry:chainedSource.id,yaml:"Name: НумПервый"},{entry:identified[2].id,xml:identifiedXML,inputs:identifiedInputs},{entry:'migration.metadata-root-index',xml:'<Root><Kind>DocumentNumerator</Kind><Name>Общий</Name><Identity>shared</Identity></Root>'},{entry:computedFacts.id,xml:'<Root><Items><Item><Properties><Name>Первый</Name><Enabled>true</Enabled></Properties></Item></Items></Root>'},{entry:computedFacts.id,yaml:'Элементы: [{Имя: Второй, Включено: Ложь}]'}],cases:[...enumValues.cases,
+const paths=writeFocused(join(root,'rust/target/collection-emission-check'),files,{factSources:[...internalInfo.factSources,...enumValues.factSources,{entry:automaticIdentityEntry,xml:automaticIdentityXML,inputs:automaticIdentityInputs},{entry:chainedSource.id,yaml:"Name: НумПервый"},{entry:identified[2].id,xml:identifiedXML,inputs:identifiedInputs},{entry:'migration.metadata-root-index',xml:'<Root><Kind>DocumentNumerator</Kind><Name>Общий</Name><Identity>shared</Identity></Root>'},{entry:computedFacts.id,xml:'<Root><Items><Item><Properties><Name>Первый</Name><Enabled>true</Enabled></Properties></Item></Items></Root>'},{entry:computedFacts.id,yaml:'Элементы: [{Имя: Второй, Включено: Ложь}]'}],cases:[...internalInfo.cases,...enumValues.cases,
   {id:'generated-dependent-index',entry:chainedConsumer.id,factBindings:{derived:'test.chained'},xml:'<Root><Name>НумПервый</Name></Root>',yaml:'Name: НумПервый',rejectedYAML:['Name: НумВторой']},
   {id:'automatically-generated-uuid',entry:automaticIdentityEntry,inputs:automaticIdentityInputs,factBindings:{identities:'metadata.own-identities'},xml:automaticIdentityXML,yaml:'Элементы:\n  Первый:\n    Включено: Истина\n  Второй:\n    Включено: Ложь'},
   {id:'generated-identity-and-synonym',entry:identified[2].id,inputs:identifiedInputs,factBindings:{identities:'test.identified-text'},xml:identifiedXML,yaml:'Элементы:\n  Первый:\n    Включено: Истина\n  Второй:\n    Включено: Ложь'},

@@ -1,8 +1,16 @@
 import {pathTemplate} from './path-template.mjs';
 import {isDeepStrictEqual} from 'node:util';
 import {commonInputs} from './common-inputs.mjs';
+import {internalInfoAttachment} from './internal-info-attachment.mjs';
 
-export function readyAttachment(property,catalog,profiles) {
+export function readyAttachment(property,catalog,profiles,owner) {
+  if(property.parameters?.type==='InternalInfo' && owner) {
+    const generated=internalInfoAttachment(owner);
+    if(generated.status!=='candidate')return generated;
+    if(!catalog.has('common.internal-generated-types'))return {status:'blocked',reason:'missing-declaration:common.internal-generated-types'};
+    const {module}=generated,{inputs,imports,bind}=commonInputs(module);
+    return {status:'ready',fragment:module.id,modules:[module],inputs,imports:{...imports,ready:module.id},compose:{use:'ready',bind}};
+  }
   const choices=profiles.filter(profile=>profile.type===property.parameters?.type);
   if(!choices.length)return undefined;
   let parameters=property.parameters;

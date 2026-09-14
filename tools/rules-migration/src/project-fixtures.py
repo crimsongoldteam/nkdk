@@ -37,6 +37,17 @@ def select(request):
                 'source': [{'path': str(xml_path), 'sha256': hashlib.sha256(xml_bytes).hexdigest()}]}
 
     owner = root[0]
+    if request.get('internalTypes'):
+        selected = ET.Element(root.tag)
+        nested = ET.SubElement(selected, owner.tag)
+        internal = owner.find(MD + 'InternalInfo')
+        if internal is None:
+            raise ValueError('Missing internal types fixture')
+        nested.append(copy.deepcopy(internal))
+        return {'xml': ET.tostring(selected, encoding='unicode'),
+                'name': owner.findtext(MD + 'Properties/' + MD + 'Name'),
+                'owner': owner.attrib['uuid'],
+                'source': [{'path': str(xml_path), 'sha256': hashlib.sha256(xml_bytes).hexdigest()}]}
     for item in request.get('xmlItems', []):
         candidates = owner.findall(MD + 'ChildObjects/' + MD + item['type'])
         matches = [element for element in candidates

@@ -1284,7 +1284,7 @@
     },
     {
       "path": "rust/crates/rule-compiler/tests/generate_collection.rs",
-      "sha256": "3a58e5268dd47f6144e2ffcf53fa14a6e69908a58ebad05295d68187813b9262"
+      "sha256": "812e8e0c4b3dd05cc29c9bb9fa166b5e21eb3ff27f515f7dfc443600c6ed5d0f"
     },
     {
       "path": "packages/rules/metadata/commonObjects/additionalIndex/fromXMLToYAML.integration.test.ts",

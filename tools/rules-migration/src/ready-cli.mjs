@@ -19,8 +19,9 @@ const ownerProfiles=JSON.parse(ownerProfilesText);
 const {catalog,sourceHashes}=candidateCatalog();
 const modules=new Map(),entries=[];
 for(const entry of extraction.entries)for(const property of entry.properties) {
-  const mapped=readyAttachment(property,catalog,profiles);
+  const mapped=readyAttachment(property,catalog,profiles,entry);
   if(!mapped)continue;
+  for(const module of mapped.modules??[])catalog.set(module.id,module);
   const row={path:entry.path,symbol:entry.symbol,property:property.name,source:property.source,...mapped};
   if(entry.comparison.status!=='keys-match') {
     row.status='blocked';row.reason=`owner-${entry.comparison.status}`;
@@ -28,8 +29,12 @@ for(const entry of extraction.entries)for(const property of entry.properties) {
   if(row.status==='ready') {
     const suffix=Object.values(mapped.compose.bind??{}).some(value=>!Object.hasOwn(value,'input'))?'.'+createHash('sha256').update(JSON.stringify(mapped.compose)).digest('hex').slice(0,12):'';
     const id=`candidate.attachment.${mapped.fragment}${suffix}`;
+    const roots=[...new Set((mapped.modules??[]).flatMap(module=>(module.representations?.xml?.fields??[]).map(field=>field.path?.[0]).filter(Boolean)))];
+    if(roots.length>1)throw new Error('Attachment probe needs a single declared XML root');
+    const probePath=roots.length?[roots[0],'Probe','Name']:['Probe','Name'];
     const declaration={format:'nkdk-declarations/1',kind:'object',id,imports:mapped.imports,compose:[mapped.compose],inputs:mapped.inputs,
-      value:{kind:'record',fields:[{name:'probe',type:{kind:'scalar',scalar:'text'}}]},representations:{xml:{kind:'record',fields:[{field:'probe',path:['Probe','Name']}]},yaml:{kind:'mapping',fields:[{field:'probe',key:'Проверка'}]}}};
+      ...(roots.length?{namespaces:mapped.modules[0].namespaces}:{}),
+      value:{kind:'record',fields:[{name:'probe',type:{kind:'scalar',scalar:'text'}}]},representations:{xml:{kind:'record',fields:[{field:'probe',path:probePath}]},yaml:{kind:'mapping',fields:[{field:'probe',key:'Проверка'}]}}};
     modules.set(id,declaration);
     row.candidate=id;
     row.remaining=[...(mapped.sourceRoot?['owner-source-root-binding']:[]),'owner-context-and-resource-binding','independent-owner-contract'];

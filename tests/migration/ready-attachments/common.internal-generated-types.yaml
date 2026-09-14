@@ -1,0 +1,69 @@
+format: nkdk-declarations/1
+kind: value
+id: common.internal-generated-types
+namespaces:
+  xr: http://v8.1c.ru/8.3/xcf/readable
+value:
+  kind: sequence
+  item:
+    kind: record
+    fields:
+      - name: name
+        type:
+          kind: scalar
+          scalar: text
+      - name: category
+        type:
+          kind: scalar
+          scalar: text
+      - name: typeId
+        type:
+          kind: scalar
+          scalar: text
+      - name: valueId
+        type:
+          kind: scalar
+          scalar: text
+representations:
+  xml:
+    kind: element-sequence
+    path:
+      - xr:GeneratedType
+    item:
+      kind: record
+      fields:
+        - field: name
+          path: []
+          attribute: name
+        - field: category
+          path: []
+          attribute: category
+        - field: typeId
+          path:
+            - xr:TypeId
+        - field: valueId
+          path:
+            - xr:ValueId
+  yaml:
+    kind: sequence
+    item:
+      kind: mapping
+      fields:
+        - field: name
+          key: Имя
+        - field: category
+          key: Категория
+        - field: typeId
+          key: Тип
+        - field: valueId
+          key: Значение
+presence:
+  - target: self
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
