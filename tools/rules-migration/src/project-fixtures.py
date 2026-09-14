@@ -44,6 +44,26 @@ def select(request):
         if len(matches) != 1:
             raise ValueError('Ambiguous child fixture: ' + item['name'])
         owner = matches[0]
+    if 'collection' in request:
+        contract = request['collection']
+        source = owner.find(MD + 'ChildObjects')
+        if source is None:
+            raise ValueError('Missing complete collection boundary')
+        selected = ET.Element('ChildObjects')
+        for element in source.findall(MD + contract['item']):
+            element = copy.deepcopy(element)
+            for child in element.iter():
+                child.tag = child.tag.removeprefix(MD)
+            selected.append(element)
+        text = yaml_bytes.decode('utf-8-sig')
+        block = re.search(r'^' + re.escape(contract['yaml']) + r':[^\n]*\n(?:  [^\n]*\n?)*', text, re.M)
+        if not block:
+            raise ValueError('Missing complete YAML collection')
+        return {'xml': ET.tostring(selected, encoding='unicode'),
+                'yaml': block.group().rstrip(), 'ownerIdentity': owner.attrib['uuid'],
+                'source': [{'path': str(path), 'sha256': hashlib.sha256(data).hexdigest()}
+                           for path, data in [(xml_path, xml_bytes), (yaml_path, yaml_bytes)]]}
+
     namespace = '{' + request['namespace'] + '}' if request.get('sourceRoot') else MD
     if request.get('sourceRoot') and root.tag != namespace + request['root']:
         raise ValueError('Unexpected source XML root')

@@ -4,7 +4,7 @@ import {mergeInputs} from './common-inputs.mjs';
 const id=(role,value)=>`candidate.collection.${role}.${createHash('sha256').update(JSON.stringify(value)).digest('hex').slice(0,20)}`;
 
 // Emit complete element rules only. Property projections cannot stand in for an element.
-export function emitCollections(graph,entries,catalog,namespaces={}) {
+export function emitCollections(graph,entries,catalog,namespaces={},options={}) {
   const modules=[],results=[];
   for(const edge of graph.edges) {
     const result={owner:edge.owner,property:edge.property,item:edge.item,status:'blocked',blockers:[]};
@@ -69,7 +69,10 @@ export function emitCollections(graph,entries,catalog,namespaces={}) {
       !((['I8nText','FormattedI8nText'].includes(f.property.parameters?.type) && ['defaultLanguage','registeredLanguages'].includes(name)) || (f.mapped.identityProjection && ['component','owner'].includes(name))))))block('item-context-binding-required');
     if(fields.some(f=>f.mapped.sourceTag))block('item-source-tag');
     if(typeof edge.mapping.xml!=='string' || typeof edge.mapping.yaml!=='string' || !Array.isArray(edge.mapping.xmlParents) || !edge.mapping.xmlParents.length || edge.mapping.xmlParents.some(p=>typeof p!=='string'))block('collection-owner-path');
-    if(edge.context.ownerFactRole || edge.context.configurationIndexUidSegment)block('collection-owner-contributions-required');
+    if(edge.context.ownerFactRole || edge.context.configurationIndexUidSegment) {
+      if(options.deferOwnerContributions===true)result.ownerRequirements=structuredClone(edge.context);
+      else block('collection-owner-contributions-required');
+    }
     const qualified=[edge.mapping.xml,...(Array.isArray(edge.mapping.xmlParents)?edge.mapping.xmlParents:[])].filter(p=>typeof p==='string'&&p.includes(':'));
     if(qualified.some(p=>typeof namespaces[p.split(':')[0]]!=='string'))block('collection-namespace-binding');
     if(result.blockers.length)continue;
