@@ -5,12 +5,15 @@ pub(in super::super) fn generate(
     entry: &LinkedEntry,
     fields: &[Field<'_>],
     positions: bool,
+    boundary: Option<&[ExpandedName]>,
 ) -> String {
     let root = &fields
         .iter()
         .find(|field| field.xml.is_some())
         .expect("record root")
         .path[0];
+    let boundary = boundary.unwrap_or(std::slice::from_ref(root));
+    let root = boundary.last().expect("record boundary");
     let empty = (0..fields.len())
         .map(|index| format!("f{index}:None,"))
         .collect::<String>();
@@ -29,7 +32,8 @@ pub(in super::super) fn generate(
             },
         )
         .replace("@available@", &available)
-        .replace("@root@", &path_code(std::slice::from_ref(root)))
+        .replace("@root@", &path_code(boundary))
+        .replace("@parent@", &path_code(&boundary[..boundary.len() - 1]))
         .replace("@namespace@", &format!("{:?}", root.namespace))
         .replace("@local@", &format!("{:?}", root.local))
         .replace("@slot@", &fields.len().to_string())
@@ -65,7 +69,7 @@ fn write_xml_@id@(value:&V@id@,inputs:&InputView<'_>)->core::Result<Vec<u8>>{
 let ordinary=write_xml_plain_@id@(value,inputs)?;
 let Some(patch)=value.raw.get(@slot@) else{return Ok(ordinary)};
 let tree=patch.apply(text_tree_@id@(&ordinary)?,core::xml::Name{namespace:@namespace@.into(),local:@local@.into()},&[],Q@id@)?;
-let mut namespaces=Vec::new();tree.collect_namespaces(&mut namespaces);let mut out=core::xml::Writer::new(&namespaces);tree.write_at(&mut out,&[],Q@id@)?;Ok(out.finish())
+let mut namespaces=Vec::new();tree.collect_namespaces(&mut namespaces);let mut out=core::xml::Writer::new(&namespaces);tree.write_at(&mut out,@parent@,Q@id@)?;Ok(out.finish())
 }
 fn preserve_text_record_@id@(meaning:&[u8],expected:&[u8],inputs:&InputView<'_>)->core::Result<Vec<u8>>{
 let base=write_xml_plain_@id@(&text_semantic_@id@(meaning,inputs)?,inputs)?;

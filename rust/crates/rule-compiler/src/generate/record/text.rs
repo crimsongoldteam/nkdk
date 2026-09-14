@@ -51,19 +51,24 @@ pub(super) fn definition(
     ))
 }
 
-pub(super) fn read(id: u32, fields: &[Field<'_>]) -> String {
-    let mut out = format!(
-        "let mut seen=false;events.visit(|node,position|{{let core::yaml::Node::Scalar(value,None)=node else{{return Err(RuntimeDiagnostic::new(\"yaml.expected-text\",\"Expected an untagged text record\"))}};if seen{{return Err(RuntimeDiagnostic::new(\"yaml.document\",\"Expected one text record\"))}}seen=true;let text=value.into_text()?;let slots=yaml_pattern_{id}().parse(&text).map_err(|_|RuntimeDiagnostic::new(\"value.text-pattern\",\"Text does not match record pattern\"))?;"
-    );
+pub(super) fn reader(id: u32, fields: &[Field<'_>]) -> String {
+    let mut consume = String::new();
     for index in 0..fields.len() {
         write!(
-            out,
+            consume,
             "state.r{index}=Some(slots[{index}].to_owned());state.positions[{index}]=position;"
         )
         .unwrap();
     }
-    write!(out,"Ok(())}})?;if !seen{{return Err(RuntimeDiagnostic::new(\"yaml.expected-text\",\"Missing text record\"))}}finish_yaml_{id}(state,source,_inputs)").unwrap();
-    out
+    format!(
+        "fn consume_yaml_text_{id}(state:&mut YamlFields{id},seen:&mut bool,node:core::yaml::Node,position:core::Position)->core::Result<()>{{let core::yaml::Node::Scalar(value,None)=node else{{return Err(RuntimeDiagnostic::new(\"yaml.expected-text\",\"Expected an untagged text record\"))}};if *seen{{return Err(RuntimeDiagnostic::new(\"yaml.document\",\"Expected one text record\"))}}*seen=true;let text=value.into_text()?;let slots=yaml_pattern_{id}().parse(&text).map_err(|_|RuntimeDiagnostic::new(\"value.text-pattern\",\"Text does not match record pattern\"))?;{consume}Ok(())}}"
+    )
+}
+
+pub(super) fn read(id: u32) -> String {
+    format!(
+        "let mut seen=false;events.visit(|node,position|consume_yaml_text_{id}(&mut state,&mut seen,node,position))?;if !seen{{return Err(RuntimeDiagnostic::new(\"yaml.expected-text\",\"Missing text record\"))}}finish_yaml_{id}(state,source,_inputs)"
+    )
 }
 
 pub(super) fn write(id: u32, fields: &[Field<'_>]) -> String {

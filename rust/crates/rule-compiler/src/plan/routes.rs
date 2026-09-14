@@ -31,7 +31,10 @@ pub(crate) fn record_usage(
         .expect("linked value");
     if !matches!(
         (&common.value, &common.yaml),
-        (LinkedType::Record(_), YamlRepresentation::Mapping(_))
+        (
+            LinkedType::Record(_),
+            YamlRepresentation::Mapping(_) | YamlRepresentation::TextPattern(_)
+        )
     ) || super::values::xml_fields(&common.xml).is_none()
         || !common.shorthands.is_empty()
         || common.normalization.is_some()

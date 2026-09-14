@@ -57,7 +57,7 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
         return Ok(source);
     }
     if let Some(layout) = super::nested_record::lower(entry, program)? {
-        return generate_at(&layout.entry, program, Some(&layout), false);
+        return generate_at(&layout.entry, program, Some(&layout), false, None);
     }
     if let Some(source) = super::composite::generate(entry, program)? {
         return Ok(source);
@@ -65,19 +65,27 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
     if let Some(source) = super::collections::generate(entry, program)? {
         return Ok(source);
     }
-    generate_at(entry, program, None, false)
+    generate_at(entry, program, None, false, None)
 }
 pub(super) fn generate_deferred(
     entry: &LinkedEntry,
     program: &Program,
 ) -> Result<String, Diagnostic> {
-    generate_at(entry, program, None, true)
+    generate_at(entry, program, None, true, None)
+}
+pub(super) fn generate_compact_at(
+    entry: &LinkedEntry,
+    program: &Program,
+    boundary: &[ExpandedName],
+) -> Result<String, Diagnostic> {
+    generate_at(entry, program, None, false, Some(boundary))
 }
 fn generate_at(
     entry: &LinkedEntry,
     program: &Program,
     layout: Option<&super::nested_record::Layout>,
     defer_inference: bool,
+    boundary: Option<&[ExpandedName]>,
 ) -> Result<String, Diagnostic> {
     super::scalar_presence::validate_owner(entry)?;
     let mut shape = entry.clone();
@@ -406,7 +414,8 @@ fn generate_at(
             ));
         }
         out.push_str(&text::definition(entry, parts, &fields)?);
-        text::read(id, &fields)
+        out.push_str(&text::reader(id, &fields));
+        text::read(id)
     } else {
         yaml_events
     };
@@ -1119,7 +1128,7 @@ fn generate_at(
     };
     writeln!(out,"#[allow(dead_code)] fn input_field_{id}(value:&V{id},field:usize)->Option<core::inputs::InputRef<'_>> {{let _=(value,field);{input_body}}}").unwrap();
     if text_record {
-        out.push_str(&text::envelope(entry, &fields, keep_positions));
+        out.push_str(&text::envelope(entry, &fields, keep_positions, boundary));
     }
     Ok(if let Some(layout) = layout {
         super::nested_record::wrap(out, layout)

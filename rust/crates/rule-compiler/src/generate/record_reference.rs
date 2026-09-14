@@ -8,11 +8,32 @@ pub(super) fn generate(
         return Ok(None);
     };
     let body = super::value_record::generate(&usage.entry, program, &usage.path, None)?;
+    let compact = matches!(usage.entry.yaml, YamlRepresentation::TextPattern(_));
     let parent = &usage.path[..usage.path.len() - 1];
     let name = usage.path.last().unwrap();
     Ok(Some(
         RUNTIME
             .replace("@body@", &body.source)
+            .replace(
+                "@ensure_container@",
+                if compact {
+                    ""
+                } else {
+                    "out.ensure_container(@path@);"
+                },
+            )
+            .replace(
+                "@read_compact_envelope@",
+                if compact { READ_TEXT_ENVELOPE } else { "" },
+            )
+            .replace(
+                "@write_body@",
+                if compact {
+                    WRITE_TEXT_BODY
+                } else {
+                    WRITE_MAPPING_BODY
+                },
+            )
             .replace("@path@", &record::path_code(&usage.path))
             .replace("@parent@", &record::path_code(parent))
             .replace("@key@", &format!("{:?}", usage.key))
@@ -62,12 +83,13 @@ Ok(V@id@{body:None,raw:Some(core::xml::Patch::read(payload.as_bytes(),&[],&xml_q
 fn read_yaml_@id@(source:&[u8],inputs:&InputView<'_>)->core::Result<V@id@>{match read_yaml_events_@id@(source,inputs,core::yaml::DocumentSource(if source.is_empty(){b"{}"}else{source})){
 Ok(value)=>Ok(value),Err(error)=>{
 if let Some(envelope)=core::raw::Property::decode(source,@key@,@physical@)?{
+@read_compact_envelope@
 let body=core::raw::record_contents(&envelope.meaning,@key@)?.map(|bytes|item_@id@::read_yaml(&bytes,inputs)).transpose()?;
 return Ok(V@id@{body,raw:Some(core::xml::Patch::read(&envelope.payload,&[],&xml_qnames_@id@())?)});}
 if let Some(bytes)=core::raw::record_contents(source,@key@)?{return item_@id@::read_yaml(&bytes,inputs).map(|body|V@id@{body:Some(body),raw:None});}Err(error)}}}
 #[allow(dead_code)]
 fn write_yaml_plain_@id@(value:&V@id@,inputs:&InputView<'_>,out:&mut String,indent:&str)->core::Result<()>{
-let Some(body)=&value.body else{return Ok(())};out.push_str(indent);out.push_str(&core::yaml::mapping_key(@key@));out.push_str(":\n");let start=out.len();item_@id@::write_yaml(body,inputs,out,&format!("{indent}  "))?;if out.len()==start{out.pop();out.push_str(" {}");}Ok(())}
+let Some(body)=&value.body else{return Ok(())};out.push_str(indent);out.push_str(&core::yaml::mapping_key(@key@));@write_body@Ok(())}
 #[allow(dead_code)]
 fn write_yaml_indented_@id@(value:&V@id@,inputs:&InputView<'_>,out:&mut String,indent:&str,_lift:bool)->core::Result<()>{
 if let Some(patch)=&value.raw{let mut meaning=String::new();write_yaml_plain_@id@(value,inputs,&mut meaning,"")?;let payload=patch.to_yaml();let bytes=core::raw::Property::encode(@key@,@physical@,meaning.as_bytes(),payload.as_bytes())?;core::yaml::Indented::new(out,indent).push_str(std::str::from_utf8(&bytes).expect("generated YAML"));Ok(())}else{write_yaml_plain_@id@(value,inputs,out,indent)}}
@@ -84,9 +106,9 @@ let mut prepared=XmlPrepared@id@{body,tree:None};if let Some(patch)=&value.raw{i
 fn namespaces_xml_@id@<'a>(value:&'a V@id@,prepared:&'a XmlPrepared@id@,names:&mut Vec<&'a str>){if let(Some(value),Some(prepared))=(&value.body,&prepared.body){item_@id@::namespaces(value,prepared,names);}
 if let Some(tree)=&prepared.tree{tree.collect_namespaces(names);}}
 #[allow(dead_code)]
-fn write_xml_into_@id@<'a>(value:&V@id@,prepared:&'a XmlPrepared@id@,inputs:&InputView<'_>,out:&mut core::xml::Writer<'a>)->core::Result<()>{if value.raw.is_some(){if let Some(tree)=&prepared.tree{tree.write_at(out,@parent@,&xml_qnames_@id@())?;}}else if let(Some(value),Some(prepared))=(&value.body,&prepared.body){item_@id@::write_xml(value,prepared,inputs,out)?;out.ensure_container(@path@);}Ok(())}
+fn write_xml_into_@id@<'a>(value:&V@id@,prepared:&'a XmlPrepared@id@,inputs:&InputView<'_>,out:&mut core::xml::Writer<'a>)->core::Result<()>{if value.raw.is_some(){if let Some(tree)=&prepared.tree{tree.write_at(out,@parent@,&xml_qnames_@id@())?;}}else if let(Some(value),Some(prepared))=(&value.body,&prepared.body){item_@id@::write_xml(value,prepared,inputs,out)?;@ensure_container@}Ok(())}
 #[allow(dead_code)]
-fn write_plain_xml_@id@(value:&V@id@,prepared:&XmlPrepared@id@,inputs:&InputView<'_>)->core::Result<Vec<u8>>{let mut names=Vec::new();namespaces_xml_@id@(value,prepared,&mut names);let mut out=core::xml::Writer::new(&names);if let(Some(value),Some(prepared))=(&value.body,&prepared.body){item_@id@::write_xml(value,prepared,inputs,&mut out)?;out.ensure_container(@path@);}Ok(out.finish_with_root((@path@)[0]))}
+fn write_plain_xml_@id@(value:&V@id@,prepared:&XmlPrepared@id@,inputs:&InputView<'_>)->core::Result<Vec<u8>>{let mut names=Vec::new();namespaces_xml_@id@(value,prepared,&mut names);let mut out=core::xml::Writer::new(&names);if let(Some(value),Some(prepared))=(&value.body,&prepared.body){item_@id@::write_xml(value,prepared,inputs,&mut out)?;@ensure_container@}Ok(out.finish_with_root((@path@)[0]))}
 #[allow(dead_code)]
 fn write_xml_@id@(value:&V@id@,inputs:&InputView<'_>)->core::Result<Vec<u8>>{let prepared=prepare_xml_@id@(value,inputs)?;let mut names=Vec::new();namespaces_xml_@id@(value,&prepared,&mut names);let mut out=core::xml::Writer::new(&names);write_xml_into_@id@(value,&prepared,inputs,&mut out)?;Ok(out.finish_with_root((@path@)[0]))}
 #[allow(dead_code)]
@@ -112,3 +134,12 @@ fn finalize_yaml_@id@(original:&[u8],candidate:Vec<u8>,value:&V@id@,inputs:&Inpu
 if value.raw.is_none() && let Some(body)=&value.body{let refined_body=match item_@id@::finalize(original,body,inputs){Ok(body)=>Some(body),Err(error) if error.code.as_deref()==Some("xml.round-trip-mismatch")=>None,Err(error)=>return Err(error)};if let Some(body)=refined_body{let mut refined=String::new();refined.push_str(&core::yaml::mapping_key(@key@));refined.push_str(":\n");if body.is_empty(){refined.pop();refined.push_str(" {}");}else{core::yaml::Indented::new(&mut refined,"  ").push_str(std::str::from_utf8(&body).expect("generated YAML"));}match verify_@id@(original,refined.as_bytes(),inputs){Ok(())=>return Ok(refined.into_bytes()),Err(error) if error.code.as_deref()==Some("xml.round-trip-mismatch")=>{},Err(error)=>return Err(error)}}}
 let ordinary=write_xml_@id@(&read_yaml_@id@(candidate.as_slice(),inputs)?,inputs)?;let base=core::xml::Tree::capture_with_qnames(&ordinary,@path@,xml_qname_text_@id@)?;let source=core::xml::Tree::capture_with_qnames(original,@path@,xml_qname_text_@id@)?;let payload=match source{Some(tree)=>tree.patch_yaml(base.as_ref(),&[],&xml_qnames_@id@())?,None=>"null".into()};let annotated=core::raw::Property::encode(@key@,@physical@,&candidate,payload.as_bytes())?;verify_@id@(original,&annotated,inputs)?;Ok(annotated)}
 "#;
+
+const WRITE_MAPPING_BODY: &str = r#"out.push_str(":\n");let start=out.len();item_@id@::write_yaml(body,inputs,out,&format!("{indent}  "))?;if out.len()==start{out.pop();out.push_str(" {}");}"#;
+const WRITE_TEXT_BODY: &str =
+    r#"out.push_str(": ");item_@id@::write_yaml_inline(body,inputs,out,indent)?;"#;
+
+const READ_TEXT_ENVELOPE: &str = r#"if let Some(meaning)=core::raw::record_contents(&envelope.meaning,@key@)?{
+let document=core::raw::Document::encode(&meaning,&envelope.payload)?;
+return item_@id@::read_yaml(&document,inputs).map(|body|V@id@{body:Some(body),raw:None});
+}"#;

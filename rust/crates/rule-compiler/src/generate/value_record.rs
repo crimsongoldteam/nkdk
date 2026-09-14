@@ -16,6 +16,7 @@ pub(super) fn generate(
     let LinkedType::Record(row_fields) = &row.value else {
         return Err(unsupported(row, "Expected a record value"));
     };
+    let compact = matches!(row.yaml, YamlRepresentation::TextPattern(_));
     let composed = !attributes::content(&row.xml).1.is_empty()
         || row_fields
             .iter()
@@ -105,6 +106,8 @@ pub(super) fn generate(
     };
     let row_code = if composed {
         owner::generate_at(row, program, Some(boundary))?
+    } else if compact {
+        record::generate_compact_at(row, program, boundary)?
     } else {
         record::generate(row, program)?
     };
@@ -123,15 +126,31 @@ pub(super) fn generate(
     } else {
         ""
     };
-    let scalar_write = SCALAR_WRITE.replace("@excluded@", "None");
+    let scalar_write = if compact {
+        "let bytes=write_yaml_@id@(&value.0,inputs)?;core::yaml::Indented::new(out,indent).push_str(std::str::from_utf8(&bytes).expect(\"generated YAML\"));Ok(())".into()
+    } else {
+        SCALAR_WRITE.replace("@excluded@", "None")
+    };
     let mut code = RECORD_BODY
         .replace("@row@", &row_code)
         .replace("@checks@", &checks)
+        .replace(
+            "@compact_prepared@",
+            if compact { TEXT_PREPARED } else { "" },
+        )
+        .replace("@root_slot@", &row_fields.len().to_string())
+        .replace("@boundary@", &record::path_code(boundary))
+        .replace(
+            "@boundary_parent@",
+            &record::path_code(&boundary[..boundary.len() - 1]),
+        )
         .replace("@constructor@", constructor);
     code = code
         .replace(
             "@prepared@",
-            if composed {
+            if compact {
+                "TextPrepared@id@"
+            } else if composed {
                 "OwnerPrepared@id@"
             } else {
                 "XmlPrepared@id@"
@@ -163,11 +182,19 @@ pub(super) fn generate(
         )
         .replace(
             "@yaml_reader@",
-            if composed { COMPOSED_YAML } else { SCALAR_YAML },
+            if composed {
+                COMPOSED_YAML
+            } else if compact {
+                TEXT_YAML
+            } else {
+                SCALAR_YAML
+            },
         )
         .replace(
             "@prepare_row@",
-            if composed {
+            if compact {
+                "prepare_text_xml_@id@"
+            } else if composed {
                 "prepare_xml_plain_@id@"
             } else {
                 "prepare_xml_@id@"
@@ -175,7 +202,9 @@ pub(super) fn generate(
         )
         .replace(
             "@namespaces_row@",
-            if composed {
+            if compact {
+                "namespaces_text_xml_@id@"
+            } else if composed {
                 "namespaces_xml_plain_@id@"
             } else {
                 "namespaces_xml_@id@"
@@ -183,7 +212,9 @@ pub(super) fn generate(
         )
         .replace(
             "@write_row@",
-            if composed {
+            if compact {
+                "write_text_xml_@id@"
+            } else if composed {
                 "write_xml_plain_into_@id@"
             } else {
                 "write_xml_into_@id@"
@@ -221,6 +252,7 @@ use super::*;
 @row@
 @checks@
 @constructor@
+@compact_prepared@
 pub(super) struct Stored(V@id@);
 impl core::inputs::RecordInput for Stored {
 fn field(&self,index:usize)->Option<core::inputs::InputRef<'_>>{input_field_@id@(&self.0,index)}
@@ -274,4 +306,29 @@ pub(super) fn new()->core::Result<Self>{OwnerYamlRead@id@::new().map(Self)}
 pub(super) fn consume(&mut self,node:core::yaml::Node,position:core::Position,source:&[u8],inputs:&InputView<'_>)->core::Result<()>{self.0.consume(node,position,source,inputs)}
 pub(super) fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<Stored>{self.0.finish(source,inputs).map(Stored)}
 }
+"#;
+
+const TEXT_YAML: &str = r#"pub(super) struct YamlReader{seen:bool,fields:YamlFields@id@}
+impl YamlReader {
+pub(super) fn new()->core::Result<Self>{Ok(Self{seen:false,fields:YamlFields@id@::new(core::raw::Fields::default())?})}
+pub(super) fn consume(&mut self,node:core::yaml::Node,position:core::Position,_source:&[u8],_inputs:&InputView<'_>)->core::Result<()>{consume_yaml_text_@id@(&mut self.fields,&mut self.seen,node,position)}
+pub(super) fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<Stored>{if !self.seen{return Err(RuntimeDiagnostic::new("yaml.expected-text","Missing text record"))}finish_yaml_@id@(self.fields,source,inputs).map(Stored)}
+}
+"#;
+
+const TEXT_PREPARED: &str = r#"
+// Normal compact values write into the parent's buffer. Only anomalies need an envelope.
+pub(super) fn write_yaml_inline(value:&Stored,inputs:&InputView<'_>,out:&mut String,indent:&str)->core::Result<()>{
+let start=out.len();if value.0.raw.is_empty(){match write_yaml_except_@id@(&value.0,inputs,out,"",false,None){Ok(())=>return Ok(()),Err(error) if error.code.as_deref()==Some("value.text-pattern")=>out.truncate(start),Err(error)=>return Err(error)}}
+let bytes=write_yaml_@id@(&value.0,inputs)?;let text=std::str::from_utf8(&bytes).expect("generated YAML");
+if let Some((first,rest))=text.split_once('\n'){out.push_str(first);out.push('\n');core::yaml::Indented::new(out,&format!("{indent}  ")).push_str(rest);}else{out.push_str(text);}Ok(())}
+struct TextPrepared@id@{ordinary:XmlPrepared@id@,tree:Option<core::xml::Tree>}
+fn prepare_text_xml_@id@(value:&V@id@,inputs:&InputView<'_>)->core::Result<TextPrepared@id@>{
+let ordinary=prepare_xml_@id@(value,inputs)?;
+let tree=if value.raw.get(@root_slot@).is_some(){text_tree_@id@(&write_xml_@id@(value,inputs)?)?}else{None};
+Ok(TextPrepared@id@{ordinary,tree})}
+fn namespaces_text_xml_@id@<'a>(value:&'a V@id@,prepared:&'a TextPrepared@id@,names:&mut Vec<&'a str>){
+if let Some(tree)=&prepared.tree{tree.collect_namespaces(names)}else{namespaces_xml_@id@(value,&prepared.ordinary,names)}}
+fn write_text_xml_@id@<'a>(value:&V@id@,prepared:&'a TextPrepared@id@,inputs:&InputView<'_>,out:&mut core::xml::Writer<'a>)->core::Result<()>{
+if let Some(tree)=&prepared.tree{tree.write_at(out,@boundary_parent@,Q@id@)}else{write_xml_into_@id@(value,&prepared.ordinary,inputs,out)?;out.ensure_container(@boundary@);Ok(())}}
 "#;
