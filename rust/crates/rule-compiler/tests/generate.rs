@@ -510,6 +510,14 @@ contributions:
         let constructed_owner = declared_nested_owner
             .replace("test.nested-items", "test.constructed-rows")
             .replace("common.nested-rows", "common.constructed-rows");
+        let hidden_rows_owner = constructed_owner
+            .replace("test.constructed-rows", "test.hidden-rows")
+            .replace("fields: [{field: rows, key: Rows}]", "fields: []")
+            + "\npresence:\n- target: {field: rows}\n  yaml:\n    missing:\n      denotes:\n        sequence:\n        - record: {id: {literal: token}, name: {literal: Second}, mode: {literal: Notify}}\n";
+        let hidden_selected_owner = include_str!("fixtures/selected-record-row.yaml")
+            .replace("test.selected-record-row", "test.hidden-selected-row")
+            .replace(", {field: rows, key: Rows}", "")
+            + "\n- target: {field: rows}\n  yaml:\n    missing:\n      denotes:\n        sequence:\n        - record: {id: {literal: token}, name: {literal: Second}, mode: {field: found}}\n";
         let typed_constructed_row = r#"format: nkdk-declarations/1
 kind: value
 id: common.typed-constructed-row
@@ -561,6 +569,8 @@ presence:
         let mut modules = [
             ("typed-selected-rows.yaml",typed_selected_rows.as_str()),
             ("typed-selected-owner.yaml",typed_selected_owner.as_str()),
+            ("hidden-rows-owner.yaml", hidden_rows_owner.as_str()),
+            ("hidden-selected-owner.yaml", hidden_selected_owner.as_str()),
             ("selected-record-row.yaml", include_str!("fixtures/selected-record-row.yaml")),
             ("single-record-row.yaml", single_rows.as_str()),
             ("typed-constructed-row.yaml", typed_constructed_row),
@@ -969,6 +979,8 @@ presence:
                 "framed.yaml",
                 "header-common.yaml",
                 "header-owner.yaml",
+                "hidden-rows-owner.yaml",
+                "hidden-selected-owner.yaml",
                 "implicit-owner.yaml",
                 "index-field-common.yaml",
                 "indexed-assembly.yaml",
@@ -1138,6 +1150,21 @@ fn main() {
     let result = convert_file(borrowed_nested, Direction::XmlToYaml, xml, &PreparedInputs::default()).unwrap();
     assert_eq!(String::from_utf8_lossy(&result.bytes), "Found: found\nRows:\n  -\n    Codes:\n      - Code: a\n        Title: A\n    Name: Second\n    Mode: normal");
     verify_candidate(borrowed_nested, xml, &result.bytes, &PreparedInputs::default()).unwrap();
+    let hidden = entry_id("test.hidden-rows").unwrap();
+    let original = b"<Root xmlns:r='urn:row'><Rows><Item uuid='token'><r:Name>Second</r:Name><r:Mode>Notify</r:Mode></Item></Rows></Root>";
+    let imported = convert_file(hidden, Direction::XmlToYaml, original, &PreparedInputs::default()).unwrap();
+    assert!(imported.bytes.is_empty() || imported.bytes == b"{}");
+    verify_candidate(hidden,original,&imported.bytes,&PreparedInputs::default()).unwrap();
+    let unusual = b"<Root xmlns:r='urn:row'><Rows><Item uuid='token' extra='keep'><r:Name>Second</r:Name><r:Mode>Notify</r:Mode></Item></Rows></Root>";
+    let preserved = convert_file(hidden,Direction::XmlToYaml,unusual,&PreparedInputs::default()).unwrap();
+    verify_candidate(hidden,unusual,&preserved.bytes,&PreparedInputs::default()).unwrap();
+    let hidden_selected = entry_id("test.hidden-selected-row").unwrap();
+    for mode in ["Notify", "Extended"] {
+        let xml = format!("<Root xmlns:r='urn:row'><Rows><Item uuid='token'><r:Name>Second</r:Name><r:Mode>{mode}</r:Mode></Item></Rows></Root>");
+        let result = convert_file(hidden_selected,Direction::XmlToYaml,xml.as_bytes(),&PreparedInputs::default()).unwrap();
+        assert_eq!(result.bytes,format!("Found: {mode}").as_bytes());
+        verify_candidate(hidden_selected,xml.as_bytes(),&result.bytes,&PreparedInputs::default()).unwrap();
+    }
     let constructed = entry_id("test.constructed-rows").unwrap();
     let exported = convert_file(constructed, Direction::YamlToXml, b"{}", &PreparedInputs::default()).unwrap();
     core::proof::verify(b"<Root xmlns:r='urn:row'><Rows><Item uuid='token'><r:Name>Second</r:Name><r:Mode>Notify</r:Mode></Item></Rows></Root>", &exported.bytes, |_| false).unwrap();
