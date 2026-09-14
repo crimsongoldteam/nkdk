@@ -182,6 +182,7 @@ pub struct LinkedParameter {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum LinkedOperator {
     IsVariant(u32),
+    VariantValue(u32),
     VariantField { variant: u32, field: u32 },
     Lookup,
     Matches(String),

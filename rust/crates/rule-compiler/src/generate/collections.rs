@@ -659,16 +659,7 @@ fn append_rows_{id}<'a>(out: &mut core::yaml::Indented<'_>, rows: impl IntoItera
         .chain(&entry.namespaces)
         .map(|binding| (binding.name.as_str(), binding.value.as_str()))
         .collect();
-    let mut raw_qnames: Vec<_> = declared_attributes
-        .iter()
-        .filter(|attribute| matches!(attribute.value, LinkedXmlAttributeValue::QName(_)))
-        .map(|attribute| {
-            (
-                attribute.name.namespace.as_str(),
-                attribute.name.local.as_str(),
-            )
-        })
-        .collect();
+    let mut raw_qnames = super::attributes::qname_names(declared_attributes.iter().copied());
     raw_qnames.extend(
         tree.qnames
             .iter()

@@ -254,6 +254,24 @@ fn choice_resolves_named_variants_and_rejects_missing_or_recursive_types() {
     ])
     .unwrap();
     nkdk_rule_compiler::generate(&program).unwrap();
+    let open = choice.replace("common.choice-second", "common.unstructured-text");
+    let text = read("format: nkdk-declarations/1\nkind: value\nid: common.unstructured-text\nvalue: {kind: scalar, scalar: text}\nrepresentations: {xml: {kind: text}, yaml: {kind: scalar, scalar: text}}\n").unwrap();
+    let open_program = link(&[
+        read(&open).unwrap(),
+        first.clone(),
+        text.clone(),
+        owner.clone(),
+    ])
+    .unwrap();
+    nkdk_rule_compiler::generate(&open_program).unwrap();
+    let duplicate = open.replace("common.choice-first", "common.unstructured-text");
+    let duplicate_program = link(&[read(&duplicate).unwrap(), text, owner.clone()]).unwrap();
+    assert!(
+        nkdk_rule_compiler::generate(&duplicate_program)
+            .unwrap_err()
+            .iter()
+            .any(|issue| issue.message.contains("one unstructured text"))
+    );
     for (from, to) in [("b:", "a:"), ("Второе: ", "Первое: ")] {
         let overlap =
             read(&include_str!("fixtures/text-choice-second.yaml").replace(from, to)).unwrap();

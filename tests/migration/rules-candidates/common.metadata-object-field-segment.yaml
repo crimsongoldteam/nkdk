@@ -1,0 +1,28 @@
+format: nkdk-declarations/1
+kind: value
+id: common.metadata-object-field-segment
+imports:
+  kind: common.path-object-kind
+  name: common.metadata-name
+value:
+  kind: record
+  fields:
+    - name: kind
+      type:
+        use: kind
+    - name: name
+      type:
+        use: name
+representations:
+  xml:
+    kind: text-pattern
+    parts:
+      - field: kind
+      - literal: .
+      - field: name
+  yaml:
+    kind: text-pattern
+    parts:
+      - field: kind
+      - literal: .
+      - field: name

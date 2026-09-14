@@ -303,16 +303,9 @@ fn module(path: &str, mut root: Node) -> Result<Module, Diagnostic> {
     let (xml, wrappers) = xml::unwrap(path, xml)?;
     let yaml = representations.field(path, rep_fields, "yaml")?;
     let (xml_rep, yaml_rep) = match &definition {
-        TypeDefinition::Choice(_) => {
-            for representation in [xml, yaml] {
-                let fields = representation.mapping(path, &["kind"])?;
-                representation.field(path, fields, "kind")?.literal(
-                    path,
-                    "choice",
-                    "unsupported_representation",
-                )?;
-            }
-            (XmlRepresentation::Choice, YamlRepresentation::Choice)
+        TypeDefinition::Choice(_) => choice_representations(path, xml, yaml)?,
+        TypeDefinition::Use(_) if matches!(&xml.shape, Shape::Mapping(fields) if optional_field(fields, "kind").is_some_and(|kind| kind.text(path).is_ok_and(|kind| kind=="choice"))) => {
+            choice_representations(path, xml, yaml)?
         }
         TypeDefinition::ScalarChoice(_) => scalar_choice::representations(path, xml, yaml)?,
         TypeDefinition::Scalar(ScalarType::Text) | TypeDefinition::Use(_) => {
@@ -1169,4 +1162,20 @@ fn sequence<'a>(path: &str, node: &'a Node) -> Result<&'a [Node], Diagnostic> {
             "Expected sequence",
         )),
     }
+}
+
+fn choice_representations(
+    path: &str,
+    xml: &Node,
+    yaml: &Node,
+) -> Result<(XmlRepresentation, YamlRepresentation), Diagnostic> {
+    for representation in [xml, yaml] {
+        let fields = representation.mapping(path, &["kind"])?;
+        representation.field(path, fields, "kind")?.literal(
+            path,
+            "choice",
+            "unsupported_representation",
+        )?;
+    }
+    Ok((XmlRepresentation::Choice, YamlRepresentation::Choice))
 }

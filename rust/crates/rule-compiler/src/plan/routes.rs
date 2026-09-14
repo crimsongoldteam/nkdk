@@ -6,6 +6,8 @@ pub(crate) struct RecordUsage {
     pub key: String,
     pub xml_missing: bool,
     pub yaml_missing: bool,
+    pub xml_empty: bool,
+    pub xml_absent_empty: bool,
 }
 
 /// A property changes placement; the referenced record keeps its own field scope.
@@ -98,14 +100,21 @@ pub(crate) fn record_usage(
         .chain(owner.presence.iter())
         .collect();
     let (mut xml_missing, mut yaml_missing) = (false, false);
+    let (mut xml_empty, mut xml_absent_empty) = (false, false);
     for rule in rules {
-        if !rule.xml_empty.is_empty()
-            || !rule.yaml_empty.is_empty()
-            || !rule.canonical.is_empty()
+        if rule.xml_empty.iter().any(|empty| {
+            empty.form != EmptyKind::Element
+                || !matches!(empty.denotes.kind, LinkedExpressionKind::Absent)
+        }) || !rule.yaml_empty.is_empty()
+            || (!rule.canonical.is_empty()
+                && (!crate::presence::supported_canonical(rule)
+                    || rule.canonical[0].form != XmlForm::EmptyElement))
             || rule.yaml_omit_when.is_some()
         {
             return Ok(None);
         }
+        xml_empty |= !rule.xml_empty.is_empty();
+        xml_absent_empty |= !rule.canonical.is_empty();
         for (value, missing) in [
             (&rule.xml_missing, &mut xml_missing),
             (&rule.yaml_missing, &mut yaml_missing),
@@ -134,6 +143,8 @@ pub(crate) fn record_usage(
         key: key.key.clone(),
         xml_missing,
         yaml_missing,
+        xml_empty,
+        xml_absent_empty,
     }))
 }
 

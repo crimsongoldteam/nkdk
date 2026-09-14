@@ -39,6 +39,8 @@ pub(super) fn generate(
             .replace("@key@", &format!("{:?}", usage.key))
             .replace("@physical@", &format!("{:?}", name.local))
             .replace("@namespace@", &format!("{:?}", name.namespace))
+            .replace("@xml_empty@", &usage.xml_empty.to_string())
+            .replace("@xml_absent_empty@", &usage.xml_absent_empty.to_string())
             .replace("@xml_missing@", &usage.xml_missing.to_string())
             .replace("@yaml_missing@", &usage.yaml_missing.to_string())
             .replace("@id@", &entry.id.to_string()),
@@ -48,16 +50,17 @@ pub(super) fn generate(
 const RUNTIME: &str = r#"
 @body@
 struct V@id@{body:Option<item_@id@::Stored>,raw:Option<core::xml::Patch>}
-struct RecordXmlRead@id@{body:item_@id@::XmlReader,present:bool}
+struct RecordXmlRead@id@{body:item_@id@::XmlReader,present:bool,content:bool}
 impl RecordXmlRead@id@{
 #[allow(dead_code)]
-fn new()->Self{Self{body:item_@id@::XmlReader::new(),present:false}}
+fn new()->Self{Self{body:item_@id@::XmlReader::new(),present:false,content:false}}
 #[allow(dead_code)]
 fn consume(&mut self,path:&[core::xml::Name],token:&core::xml::Token<'_>,source:&[u8],inputs:&InputView<'_>)->core::Result<()>{
 if matches!(token,core::xml::Token::Start(_)) && core::xml::matches(path,@path@){if self.present{return Err(RuntimeDiagnostic::new("xml.duplicate-field","Repeated record"))}self.present=true;}
+if path.len()>=(@path@).len() && core::xml::matches(&path[..(@path@).len()],@path@) && ((path.len()>(@path@).len() && matches!(token,core::xml::Token::Start(_))) || matches!(token,core::xml::Token::Text(text) if !text.trim().is_empty())) {self.content=true;}
 self.body.consume(path,token,source,inputs)}
 #[allow(dead_code)]
-fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<V@id@>{if !self.present && !@xml_missing@{return Err(RuntimeDiagnostic::new("value.missing","Missing record"))}Ok(V@id@{body:if self.present{Some(self.body.finish(source,inputs)?)}else{None},raw:None})}
+fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<V@id@>{if !self.present && !@xml_missing@{return Err(RuntimeDiagnostic::new("value.missing","Missing record"))}Ok(V@id@{body:if self.present && !( @xml_empty@ && !self.content ){Some(self.body.finish(source,inputs)?)}else{None},raw:None})}
 }
 struct RecordYamlRead@id@{property:core::yaml::PropertyReader,body:item_@id@::YamlReader}
 impl RecordYamlRead@id@{
@@ -103,12 +106,12 @@ fn prepare_xml_@id@(value:&V@id@,inputs:&InputView<'_>)->core::Result<XmlPrepare
 let body=value.body.as_ref().map(|value|item_@id@::prepare(value,inputs)).transpose()?;
 let mut prepared=XmlPrepared@id@{body,tree:None};if let Some(patch)=&value.raw{if patch.is_null(){return Ok(prepared)}let bytes=write_plain_xml_@id@(value,&prepared,inputs)?;let base=core::xml::Tree::capture_with_qnames(&bytes,@path@,xml_qname_text_@id@)?;prepared.tree=Some(patch.apply(base,core::xml::Name{namespace:@namespace@.into(),local:@physical@.into()},&[],&xml_qnames_@id@())?);}Ok(prepared)}
 #[allow(dead_code)]
-fn namespaces_xml_@id@<'a>(value:&'a V@id@,prepared:&'a XmlPrepared@id@,names:&mut Vec<&'a str>){if let(Some(value),Some(prepared))=(&value.body,&prepared.body){item_@id@::namespaces(value,prepared,names);}
+fn namespaces_xml_@id@<'a>(value:&'a V@id@,prepared:&'a XmlPrepared@id@,names:&mut Vec<&'a str>){if value.body.is_none() && @xml_absent_empty@{for(namespace,_)in @path@{if !namespace.is_empty(){names.push(namespace);}}}if let(Some(value),Some(prepared))=(&value.body,&prepared.body){item_@id@::namespaces(value,prepared,names);}
 if let Some(tree)=&prepared.tree{tree.collect_namespaces(names);}}
 #[allow(dead_code)]
-fn write_xml_into_@id@<'a>(value:&V@id@,prepared:&'a XmlPrepared@id@,inputs:&InputView<'_>,out:&mut core::xml::Writer<'a>)->core::Result<()>{if value.raw.is_some(){if let Some(tree)=&prepared.tree{tree.write_at(out,@parent@,&xml_qnames_@id@())?;}}else if let(Some(value),Some(prepared))=(&value.body,&prepared.body){item_@id@::write_xml(value,prepared,inputs,out)?;@ensure_container@}Ok(())}
+fn write_xml_into_@id@<'a>(value:&V@id@,prepared:&'a XmlPrepared@id@,inputs:&InputView<'_>,out:&mut core::xml::Writer<'a>)->core::Result<()>{if value.raw.is_some(){if let Some(tree)=&prepared.tree{tree.write_at(out,@parent@,&xml_qnames_@id@())?;}}else if let(Some(value),Some(prepared))=(&value.body,&prepared.body){item_@id@::write_xml(value,prepared,inputs,out)?;@ensure_container@}else if @xml_absent_empty@{out.ensure_container(@path@);}Ok(())}
 #[allow(dead_code)]
-fn write_plain_xml_@id@(value:&V@id@,prepared:&XmlPrepared@id@,inputs:&InputView<'_>)->core::Result<Vec<u8>>{let mut names=Vec::new();namespaces_xml_@id@(value,prepared,&mut names);let mut out=core::xml::Writer::new(&names);if let(Some(value),Some(prepared))=(&value.body,&prepared.body){item_@id@::write_xml(value,prepared,inputs,&mut out)?;@ensure_container@}Ok(out.finish_with_root((@path@)[0]))}
+fn write_plain_xml_@id@(value:&V@id@,prepared:&XmlPrepared@id@,inputs:&InputView<'_>)->core::Result<Vec<u8>>{let mut names=Vec::new();namespaces_xml_@id@(value,prepared,&mut names);let mut out=core::xml::Writer::new(&names);if let(Some(value),Some(prepared))=(&value.body,&prepared.body){item_@id@::write_xml(value,prepared,inputs,&mut out)?;@ensure_container@}else if @xml_absent_empty@{out.ensure_container(@path@);}Ok(out.finish_with_root((@path@)[0]))}
 #[allow(dead_code)]
 fn write_xml_@id@(value:&V@id@,inputs:&InputView<'_>)->core::Result<Vec<u8>>{let prepared=prepare_xml_@id@(value,inputs)?;let mut names=Vec::new();namespaces_xml_@id@(value,&prepared,&mut names);let mut out=core::xml::Writer::new(&names);write_xml_into_@id@(value,&prepared,inputs,&mut out)?;Ok(out.finish_with_root((@path@)[0]))}
 #[allow(dead_code)]

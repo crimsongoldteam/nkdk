@@ -1,0 +1,32 @@
+format: nkdk-declarations/1
+kind: value
+id: common.type-link-dcs
+namespaces:
+  dcscor: http://v8.1c.ru/8.1/data-composition-system/core
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+imports: {path: common.open-metadata-field-path}
+value:
+  kind: record
+  fields:
+  - {name: path, type: {use: path}}
+  - {name: index, type: {kind: scalar, scalar: number, profile: decimal}}
+representations:
+  xml:
+    kind: with-attributes
+    attributes: [{name: xsi:type, value: {qname: dcscor:TypeLink}}]
+    content:
+      kind: record
+      fields:
+      - {field: path, path: [dcscor:field]}
+      - {field: index, path: [dcscor:linkItem]}
+  yaml:
+    kind: text-pattern
+    parts:
+    - {field: path}
+    - optional: index
+      parts: [{literal: '('}, {field: index}, {literal: ')'}]
+presence:
+- target: {field: index}
+  yaml:
+    missing: {denotes: {literal: 0}}
+    omitWhen: {eq: [{field: index}, {literal: 0}]}

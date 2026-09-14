@@ -17,10 +17,9 @@ pub(super) fn generate(
         return Err(unsupported(row, "Expected a record value"));
     };
     let compact = matches!(row.yaml, YamlRepresentation::TextPattern(_));
-    let composed = !attributes::content(&row.xml).1.is_empty()
-        || row_fields
-            .iter()
-            .any(|field| scalar::Codec::resolve(&field.value, row, program).is_err());
+    let composed = row_fields
+        .iter()
+        .any(|field| scalar::Codec::resolve(&field.value, row, program).is_err());
     if composed && !owner::state_supported(row, program)? {
         return Err(unsupported(
             row,
@@ -106,10 +105,8 @@ pub(super) fn generate(
     };
     let row_code = if composed {
         owner::generate_at(row, program, Some(boundary))?
-    } else if compact {
-        record::generate_compact_at(row, program, boundary)?
     } else {
-        record::generate(row, program)?
+        record::generate_value_at(row, program, boundary)?
     };
     let checks = if composed {
         String::new()

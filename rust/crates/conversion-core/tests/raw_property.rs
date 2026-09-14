@@ -17,6 +17,8 @@ fn raw_property_keeps_semantic_annotations_and_requires_an_exact_boundary() {
     }
     for semantic in [
         b"alpha(2)".as_slice(),
+        b"!xml/invalid bad(2)",
+        b"!xml/important alpha(2)",
         b"9007199254740993",
         b"null",
         b"\"\"",
@@ -29,6 +31,38 @@ fn raw_property_keeps_semantic_annotations_and_requires_an_exact_boundary() {
         assert_eq!(decoded.meaning, semantic);
         assert_eq!(decoded.payload, b"_format: null");
     }
+    for unsupported in [b"!custom alpha".as_slice(), b"!xml/raw alpha"] {
+        assert!(nkdk_conversion_core::raw::Document::encode(unsupported, b"{}").is_err());
+    }
+    let mut marks = nkdk_conversion_core::raw::Fields::default();
+    let violation = nkdk_conversion_core::RuntimeDiagnostic::declared(
+        Some("fixture.invalid"),
+        None,
+        nkdk_conversion_core::Severity::Error,
+        "Invalid component",
+    )
+    .field("component")
+    .field("nested");
+    marks.infer_value(2, vec![violation.clone()]).unwrap();
+    assert_eq!(marks.label(2).as_deref(), Some("!xml/invalid"));
+    assert!(!marks.has_patches());
+    assert!(
+        marks
+            .validate_value(2, vec![violation.clone()], vec![violation])
+            .is_empty()
+    );
+    assert!(!marks.validate_value(2, vec![], vec![]).is_empty());
+    assert!(
+        marks
+            .infer_value(
+                2,
+                vec![nkdk_conversion_core::RuntimeDiagnostic::new(
+                    "yaml.syntax",
+                    "broken"
+                )]
+            )
+            .is_err()
+    );
     let semantic = "Заголовок: \"\"".as_bytes();
     let payload = b"v8:item:\n  v8:lang: ru\n  v8:content:";
     let encoded = Property::encode("Заголовок", "Title", semantic, payload).unwrap();

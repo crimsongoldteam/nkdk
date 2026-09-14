@@ -206,6 +206,13 @@ impl<'a> Codec<'a> {
             ""
         }
     }
+    pub(super) fn child_check_method(&self) -> Option<&'static str> {
+        match self {
+            Self::Sequence(_) => Some("issues"),
+            Self::Forms(choice) if choice.has_child_checks() => Some("child_issues"),
+            _ => None,
+        }
+    }
     pub fn yaml_input(&self) -> &'static str {
         if self.is_decimal() {
             "into_decimal_text"

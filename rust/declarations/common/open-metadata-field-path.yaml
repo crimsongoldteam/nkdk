@@ -1,0 +1,20 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: common.local-field-path
+  value: {kind: scalar, scalar: text, pattern: '.+'}
+  representations:
+    xml: {kind: text}
+    yaml: {kind: scalar, scalar: text}
+- kind: value
+  id: common.open-metadata-field-path
+  imports: {metadata: common.metadata-field-chain-path, local: common.local-field-path}
+  value:
+    kind: choice
+    variants:
+    - {name: metadata, type: {use: metadata}}
+    - {name: local, type: {use: local}}
+  representations:
+    xml: {kind: choice}
+    yaml: {kind: choice}

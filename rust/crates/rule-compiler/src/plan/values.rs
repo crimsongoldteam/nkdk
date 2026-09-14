@@ -62,7 +62,7 @@ pub(crate) struct RecordPlan<'a> {
     pub fields: Vec<FieldPlan<'a>>,
     schedules: [Vec<usize>; 2],
 }
-pub(super) fn xml_fields(xml: &LinkedXml) -> Option<&[LinkedXmlField]> {
+pub(crate) fn xml_fields(xml: &LinkedXml) -> Option<&[LinkedXmlField]> {
     match xml {
         LinkedXml::Record(fields) => Some(fields),
         LinkedXml::WithAttributes { content, .. } => xml_fields(content),

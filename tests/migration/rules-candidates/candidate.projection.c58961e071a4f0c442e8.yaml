@@ -1,0 +1,46 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.c58961e071a4f0c442e8
+description: 'Кандидат проекции: относительный XML-корень Properties; не полный владелец'
+imports:
+  part0: candidate.fragment.26f2a0ec831699cb55dd
+  part1: candidate.fragment.477f34c9cc30c90a8238
+  part2: candidate.fragment.e1cb531f1119a78767ee
+  part3: candidate.fragment.5d1647c4012948d8e558
+compose:
+  - use: part0
+  - use: part1
+    bind:
+      defaultLanguage:
+        input: defaultLanguage
+      registeredLanguages:
+        input: registeredLanguages
+      ownerName:
+        input: ownerName
+  - use: part2
+  - use: part3
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  ownerName:
+    type:
+      kind: scalar
+      scalar: text

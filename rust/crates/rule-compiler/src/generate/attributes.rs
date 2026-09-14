@@ -62,6 +62,16 @@ pub(super) fn generate_prepared(
     attributes: &[&LinkedXmlAttribute],
     parent: &[ExpandedName],
 ) -> Result<Attributes, Diagnostic> {
+    generate_with_storage(owner, program, attributes, parent, None)
+}
+
+pub(super) fn generate_with_storage(
+    owner: &LinkedEntry,
+    program: &Program,
+    attributes: &[&LinkedXmlAttribute],
+    parent: &[ExpandedName],
+    storage: Option<&[(String, String)]>,
+) -> Result<Attributes, Diagnostic> {
     let path = super::record::path_code(parent);
     let mut result = Attributes {
         definitions: String::new(),
@@ -106,7 +116,8 @@ pub(super) fn generate_prepared(
         };
         writeln!(result.read, "if core::xml::matches(path, {path}) && {named} {{ if !({valid}) {{ return Err(RuntimeDiagnostic::new(\"xml.attribute-value\", \"Unexpected declared attribute value\")); }} return Ok(()); }}").unwrap();
         let condition = if let Some(when) = &attribute.when {
-            let (defs, mut condition) = expressions::expression(owner, program, when)?;
+            let (defs, mut condition) =
+                expressions::expression_with_storage(owner, program, when, storage)?;
             let mut reads = BTreeSet::new();
             super::constraints::read_inputs(when, &mut reads);
             if !reads.is_empty() {
@@ -152,4 +163,18 @@ pub(super) fn static_attributes(attributes: &[LinkedXmlAttribute]) -> String {
             .collect::<Vec<_>>()
             .join(",")
     )
+}
+
+pub(super) fn qname_names<'a>(
+    attributes: impl Iterator<Item = &'a LinkedXmlAttribute>,
+) -> Vec<(&'a str, &'a str)> {
+    attributes
+        .filter(|attribute| matches!(attribute.value, LinkedXmlAttributeValue::QName(_)))
+        .map(|attribute| {
+            (
+                attribute.name.namespace.as_str(),
+                attribute.name.local.as_str(),
+            )
+        })
+        .collect()
 }

@@ -1,3 +1,4 @@
+mod container;
 mod text;
 mod xml_read;
 mod yaml_read;
@@ -73,7 +74,7 @@ pub(super) fn generate_deferred(
 ) -> Result<String, Diagnostic> {
     generate_at(entry, program, None, true, None)
 }
-pub(super) fn generate_compact_at(
+pub(super) fn generate_value_at(
     entry: &LinkedEntry,
     program: &Program,
     boundary: &[ExpandedName],
@@ -202,6 +203,11 @@ fn generate_at(
             "Attribute headers require an ancestor container chain and all element fields below that chain",
         ));
     }
+    let container = container::prepare(
+        entry,
+        program,
+        boundary.or_else(|| first.map(|field| &field.path[..1])),
+    )?;
     let id = entry.id;
     let text_record = matches!(entry.yaml, YamlRepresentation::TextPattern(_));
     let read_yaml_name = format!("read_yaml_{}{id}", if text_record { "plain_" } else { "" });
@@ -263,7 +269,7 @@ fn generate_at(
     };
     let keep_positions = fields
         .iter()
-        .any(|field| matches!(field.codec, Codec::Sequence(_)))
+        .any(|field| field.codec.child_check_method().is_some())
         || entry.constraints.iter().any(|constraint| {
             matches!(constraint.diagnostic.at, LinkedDiagnosticTarget::Field(_))
                 && [
@@ -278,7 +284,16 @@ fn generate_at(
         });
     let mut out = String::new();
     if preserve {
-        writeln!(out,"const Q{id}: &[(&str,&str)] = &[(\"http://www.w3.org/2001/XMLSchema-instance\",\"type\")];").unwrap();
+        let mut qnames = vec![("http://www.w3.org/2001/XMLSchema-instance", "type")];
+        if let Some(container) = &container {
+            qnames.extend(&container.qnames);
+        }
+        qnames.sort_unstable();
+        qnames.dedup();
+        writeln!(out, "const Q{id}: &[(&str,&str)] = &{qnames:?};").unwrap();
+    }
+    if let Some(container) = &container {
+        out.push_str(&container.code.definitions);
     }
     for (i, field) in fields.iter().enumerate() {
         if let Some(expression) = field
@@ -393,7 +408,15 @@ fn generate_at(
         }
         out.push_str("})}\n");
     }
-    out.push_str(&xml_read::generate(id, &fields, layout, &headers));
+    out.push_str(&xml_read::generate(
+        id,
+        &fields,
+        layout,
+        &headers,
+        container
+            .as_ref()
+            .map_or("", |container| container.code.read.as_str()),
+    ));
     let xml_bindings = xml_read::bindings(id, &fields, layout, &headers);
     out.push_str(&yaml_read::generate(id, &fields));
     let yaml_bindings = yaml_read::bindings(id, &fields);
@@ -672,7 +695,11 @@ fn generate_at(
         }
         out.push_str("Ok(value) }\n");
     }
-    writeln!(out, "fn infer_xml_{id}(value:&mut V{id},source:&[u8],inputs:&InputView<'_>)->core::Result<()>{{let issues=issues_xml_{id}(value,source,inputs);value.raw.infer(&{:?},issues)}}",fields.iter().map(|field| field.key).collect::<Vec<_>>()).unwrap();
+    if matches!(entry.yaml, YamlRepresentation::TextPattern(_)) {
+        writeln!(out, "fn infer_xml_{id}(value:&mut V{id},source:&[u8],inputs:&InputView<'_>)->core::Result<()>{{let issues=issues_xml_{id}(value,source,inputs);value.raw.infer_value({},issues)}}",fields.len()).unwrap();
+    } else {
+        writeln!(out, "fn infer_xml_{id}(value:&mut V{id},source:&[u8],inputs:&InputView<'_>)->core::Result<()>{{let issues=issues_xml_{id}(value,source,inputs);value.raw.infer(&{:?},issues)}}",fields.iter().map(|field| field.key).collect::<Vec<_>>()).unwrap();
+    }
     let mut namespaces: BTreeSet<_> = fields
         .iter()
         .flat_map(|field| field.path)
@@ -700,6 +727,9 @@ fn generate_at(
         field.xml.is_some() && super::scalar_presence::absent_form(field.presence) == XmlForm::Nil
     }) {
         namespaces.insert("http://www.w3.org/2001/XMLSchema-instance");
+    }
+    if let Some(container) = &container {
+        namespaces.extend(container.code.namespaces.iter().map(String::as_str));
     }
     namespaces.remove("");
     if let Some(layout) = layout {
@@ -833,6 +863,20 @@ fn generate_at(
         )
         .unwrap();
     }
+    if let Some(container) = &container {
+        out.push_str(&container.write);
+        if !headers
+            .iter()
+            .any(|(_, field)| field.path == container.path)
+        {
+            writeln!(
+                out,
+                "out.container_with_attributes({},attributes.iter());",
+                path_code(container.path)
+            )
+            .unwrap();
+        }
+    }
     if let Some(layout) = layout {
         out.push_str("if !value.present {return Ok(()); }\n");
         if !headers.iter().any(|(_, field)| field.path == layout.path) {
@@ -847,9 +891,16 @@ fn generate_at(
     }
     for group in headers.chunk_by(|left, right| left.1.path == right.1.path) {
         let (_, field) = group[0];
-        let declared = layout
-            .filter(|layout| field.path == layout.path)
-            .map_or_else(|| "&[]".to_owned(), super::nested_record::attributes);
+        let declared = if container
+            .as_ref()
+            .is_some_and(|container| field.path == container.path)
+        {
+            "attributes.as_slice()".into()
+        } else {
+            layout
+                .filter(|layout| field.path == layout.path)
+                .map_or_else(|| "&[]".to_owned(), super::nested_record::attributes)
+        };
         let first = group[0].0;
         writeln!(out, "{{let declared:&[core::xml::WriteAttribute<'_>]={declared};header_xml_{id}_{first}(value,out,declared)?;}}").unwrap();
     }
@@ -937,6 +988,7 @@ fn generate_at(
     }
     if matches!(entry.yaml, YamlRepresentation::TextPattern(_)) {
         out.push_str(&text::write(entry, &fields));
+        writeln!(out, "if let Some(label)=value.raw.label({}) {{out.insert_str(start+indent.len(), &format!(\"{{label}} \"));}}", fields.len()).unwrap();
     }
     let mut yaml_fields: Vec<_> = fields
         .iter()
@@ -1023,7 +1075,7 @@ fn generate_at(
     out.push_str(&super::proof::generate(
         id,
         if scalar.is_empty() { "false" } else { &scalar },
-        "name.namespace==\"http://www.w3.org/2001/XMLSchema-instance\" && name.local==\"type\"",
+        &format!("(name.namespace==\"http://www.w3.org/2001/XMLSchema-instance\" && name.local==\"type\") || ({})", container.as_ref().map_or_else(|| "false".to_owned(), |container| container.code.qnames.replace("_path", "path").replace("_name", "name"))),
         "false",
     ));
     writeln!(out, "fn verify_{id}(original: &[u8], candidate: &[u8], inputs: &InputView<'_>) -> core::Result<()> {{ let value = read_yaml_{id}(candidate, inputs)?; if let Some(error) = check_yaml_{id}(&value, candidate, inputs).into_iter().find(|error| error.severity == core::Severity::Error) {{ return Err(error); }} prove_xml_{id}(&value,original,&write_xml_{id}(&value,inputs)?) }}").unwrap();

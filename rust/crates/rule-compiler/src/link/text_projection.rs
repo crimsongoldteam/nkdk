@@ -6,18 +6,29 @@ pub(super) fn apply(entry: &mut LinkedEntry, source: &LinkedEntry) -> Result<(),
     while let LinkedXml::WithAttributes { content, .. } = xml {
         xml = content;
     }
+    let compatible = match &source.value {
+        LinkedType::Scalar(ScalarType::Text) => {
+            source.xml == LinkedXml::Text
+                && matches!(
+                    source.yaml,
+                    YamlRepresentation::Text | YamlRepresentation::TextTable(_)
+                )
+                && *xml == LinkedXml::Text
+                && matches!(
+                    entry.yaml,
+                    YamlRepresentation::Text | YamlRepresentation::TextTable(_)
+                )
+        }
+        LinkedType::Choice(_) => {
+            source.xml == LinkedXml::Choice
+                && source.yaml == YamlRepresentation::Choice
+                && *xml == LinkedXml::Choice
+                && entry.yaml == YamlRepresentation::Choice
+        }
+        _ => false,
+    };
     if !matches!(entry.value, LinkedType::Reference(_))
-        || source.value != LinkedType::Scalar(ScalarType::Text)
-        || source.xml != LinkedXml::Text
-        || !matches!(
-            source.yaml,
-            YamlRepresentation::Text | YamlRepresentation::TextTable(_)
-        )
-        || *xml != LinkedXml::Text
-        || !matches!(
-            entry.yaml,
-            YamlRepresentation::Text | YamlRepresentation::TextTable(_)
-        )
+        || !compatible
         || !source.inputs.is_empty()
         || !source.parameters.is_empty()
         || !source.presence.is_empty()
@@ -29,7 +40,7 @@ pub(super) fn apply(entry: &mut LinkedEntry, source: &LinkedEntry) -> Result<(),
         return Err(diagnostic(
             "text_projection_source",
             &entry.source,
-            "Text projection requires a plain text value without parameters, presence, normalization or contributions",
+            "Text projection requires plain text or a textual choice without parameters, presence, normalization or contributions",
         ));
     }
     let mut constraints = source.constraints.clone();

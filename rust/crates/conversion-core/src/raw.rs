@@ -202,6 +202,11 @@ impl Fields {
     pub fn is_empty(&self) -> bool {
         self.0.is_none()
     }
+    pub fn has_patches(&self) -> bool {
+        self.0
+            .as_ref()
+            .is_some_and(|fields| !fields.values.is_empty())
+    }
     pub fn read_mark(
         &mut self,
         index: usize,
@@ -269,6 +274,54 @@ impl Fields {
             .filter(|issue| issue.severity != crate::Severity::Error)
             .collect();
         Ok(())
+    }
+    /// A compact scalar has one annotation boundary for all semantic components.
+    pub fn infer_value(&mut self, slot: usize, issues: Vec<RuntimeDiagnostic>) -> Result<()> {
+        if issues.is_empty() {
+            return Ok(());
+        }
+        let projected = Self::value_issues(issues.clone());
+        let mark = crate::annotations::Mapping::infer("", std::iter::empty(), &projected)?;
+        let fields = self
+            .0
+            .get_or_insert_with(|| Box::new(FieldPatches::default()));
+        if !mark.is_empty() {
+            fields.marks.push((slot, mark));
+        }
+        fields.diagnostics = issues
+            .into_iter()
+            .filter(|issue| issue.severity != crate::Severity::Error)
+            .collect();
+        Ok(())
+    }
+    pub fn validate_value(
+        &self,
+        slot: usize,
+        issues: Vec<RuntimeDiagnostic>,
+        evidence: Vec<RuntimeDiagnostic>,
+    ) -> Vec<RuntimeDiagnostic> {
+        let mark = self
+            .0
+            .as_ref()
+            .and_then(|fields| fields.marks.iter().find(|(index, _)| *index == slot));
+        match mark {
+            Some((_, mark)) => mark.validate_with_evidence(
+                "",
+                std::iter::empty(),
+                Self::value_issues(issues),
+                &Self::value_issues(evidence),
+            ),
+            None => issues,
+        }
+    }
+    fn value_issues(mut issues: Vec<RuntimeDiagnostic>) -> Vec<RuntimeDiagnostic> {
+        for issue in &mut issues {
+            if issue.kind == crate::annotations::IssueKind::Semantic {
+                issue.path = vec![String::new()];
+                issue.occurrence = None;
+            }
+        }
+        issues
     }
     pub fn diagnostics(&self) -> Vec<RuntimeDiagnostic> {
         self.0

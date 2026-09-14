@@ -124,7 +124,7 @@ pub(super) fn reader(entry: &LinkedEntry) -> String {
         .unwrap();
     }
     super::consume_function(
-        id,
+        entry,
         &format!("YAML_OPTIONAL_{id}.with(|plan|plan.borrow_mut().parse(&text))"),
         &assignments,
     )

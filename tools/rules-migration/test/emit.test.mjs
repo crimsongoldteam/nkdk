@@ -188,6 +188,19 @@ test('candidate generation shares fragments, rejects unknown parameters and prot
   }
   const formTarget={kind:'member',owner:'this',memberKinds:['Form'],objectRoots:['CommonForm']};
   const formCatalog=new Map([['common.owner-or-common-form-link',{inputs:{owner:{type:{kind:'scalar',scalar:'text'}},forms:{type:{kind:'sequence',item:{kind:'scalar',scalar:'text'}}}}}]]);
+  const typeLinkCatalog=new Map([['common.type-link',{}]]);
+  for(const empty of [false,true]) {
+    const source={...property,name:'linkByType',parameters:{type:'TypeLink',yaml:'СвязьПоТипу',xml:'xr:LinkByType',...(empty?{defaultValueXMLRaw:''}:{})}};
+    const result=mapProperty(source,typeLinkCatalog,{xr:'urn:readable'});
+    assert.equal(result.status,'candidate');
+    assert.equal(result.id,'common.type-link');
+    assert.deepEqual(result.path,['xr:LinkByType']);
+    assert.deepEqual(result.presence.xml.empty,[{form:'empty-element',denotes:{absent:true}}]);
+    assert.equal(result.presence.xml.canonical?.[0].form,empty?'empty-element':undefined);
+    for(const extra of [{metadataTarget:{kind:'object'}},{defaultValueXMLRaw:{}},{typedXML:true},{implicitValueYAML:''}]) {
+      assert.equal(mapProperty({...source,parameters:{...source.parameters,...extra}},typeLinkCatalog,{xr:'urn:readable'}).status,'blocked');
+    }
+  }
   const formParams={type:'MetadataItemLink',yaml:'Форма',xmlParents:['Properties'],metadataTarget:formTarget,defaultValueXMLRaw:''};
   const form=mapProperty({...property,parameters:formParams},formCatalog);
   assert.equal(form.id,'common.owner-or-common-form-link');

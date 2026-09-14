@@ -88,7 +88,7 @@ core::raw::Document::encode(meaning,patch.as_bytes())
 fn write_yaml_@id@(value:&V@id@,inputs:&InputView<'_>)->core::Result<Vec<u8>>{
 let mut text=String::new();
 let semantic=if @available@ {match write_yaml_except_@id@(value,inputs,&mut text,"",false,None){Ok(())=>text.into_bytes(),Err(error) if error.code.as_deref()==Some("value.text-pattern")=>b"null".to_vec(),Err(error)=>return Err(error)}}else{b"null".to_vec()};
-if value.raw.is_empty() && semantic!=b"null"{return Ok(semantic)}
+if !value.raw.has_patches() && semantic!=b"null"{return Ok(semantic)}
 preserve_text_record_@id@(&semantic,&write_xml_@id@(value,inputs)?,inputs)
 }
 fn finalize_yaml_@id@(original:&[u8],candidate:Vec<u8>,_value:&V@id@,inputs:&InputView<'_>)->core::Result<Vec<u8>>{

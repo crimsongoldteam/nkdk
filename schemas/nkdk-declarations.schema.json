@@ -3331,54 +3331,83 @@
           "then": {
             "properties": {
               "representations": {
-                "type": "object",
-                "properties": {
-                  "xml": {
-                    "$ref": "#/$defs/xmlText"
-                  },
-                  "yaml": {
-                    "oneOf": [
-                      {
-                        "type": "object",
-                        "properties": {
-                          "kind": {
-                            "const": "text-table"
-                          },
-                          "use": {
-                            "type": "string",
-                            "minLength": 1
-                          }
-                        },
-                        "required": [
-                          "kind",
-                          "use"
-                        ],
-                        "additionalProperties": false
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "xml": {
+                        "$ref": "#/$defs/xmlText"
                       },
-                      {
+                      "yaml": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "const": "text-table"
+                              },
+                              "use": {
+                                "type": "string",
+                                "minLength": 1
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "use"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "const": "scalar"
+                              },
+                              "scalar": {
+                                "const": "text"
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "scalar"
+                            ],
+                            "additionalProperties": false
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "xml",
+                      "yaml"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "xml": {
+                        "$ref": "#/$defs/xmlChoice"
+                      },
+                      "yaml": {
                         "type": "object",
                         "properties": {
                           "kind": {
-                            "const": "scalar"
-                          },
-                          "scalar": {
-                            "const": "text"
+                            "const": "choice"
                           }
                         },
                         "required": [
-                          "kind",
-                          "scalar"
+                          "kind"
                         ],
                         "additionalProperties": false
                       }
-                    ]
+                    },
+                    "required": [
+                      "xml",
+                      "yaml"
+                    ],
+                    "additionalProperties": false
                   }
-                },
-                "required": [
-                  "xml",
-                  "yaml"
-                ],
-                "additionalProperties": false
+                ]
               }
             }
           }
@@ -3843,32 +3872,7 @@
         "parts": {
           "type": "array",
           "items": {
-            "oneOf": [
-              {
-                "type": "object",
-                "properties": {
-                  "field": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "field"
-                ],
-                "additionalProperties": false
-              },
-              {
-                "type": "object",
-                "properties": {
-                  "literal": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "literal"
-                ],
-                "additionalProperties": false
-              }
-            ]
+            "$ref": "#/$defs/textPatternPart"
           }
         }
       },
@@ -3876,7 +3880,50 @@
         "kind",
         "parts"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "required": [
+              "separator"
+            ]
+          },
+          "then": {
+            "properties": {
+              "parts": {
+                "items": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "field": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "field"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "literal": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "literal"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      ]
     },
     "choice": {
       "type": "object",
@@ -4117,6 +4164,55 @@
       ],
       "additionalProperties": false,
       "$comment": "Completeness, source references, enum domain, types and directional ownership are checked by the compiler."
+    },
+    "textPatternPart": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "field": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "field"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "literal": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "literal"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "optional": {
+              "type": "string",
+              "minLength": 1
+            },
+            "parts": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/textPatternPart"
+              }
+            }
+          },
+          "required": [
+            "optional",
+            "parts"
+          ],
+          "additionalProperties": false
+        }
+      ]
     }
   },
   "required": [

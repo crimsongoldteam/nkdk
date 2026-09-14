@@ -67,6 +67,37 @@ impl<'a> Codec<'a> {
         codec.head = Some((head, xorder, yorder));
         Ok(Some(codec))
     }
+    /// Select a framed sequence by its first finite cell before parsing the body.
+    /// A malformed body must not escape into an unstructured choice variant.
+    pub(super) fn selection_parts(
+        &self,
+        xml: bool,
+        entry: &LinkedEntry,
+    ) -> Result<Vec<Vec<crate::automata::Part>>, Diagnostic> {
+        use crate::automata::Part;
+        let Some((head, _, _)) = &self.head else {
+            return Err(unsupported(
+                entry,
+                "Text sequence choice requires a discriminating head",
+            ));
+        };
+        let mut parts = head.selection_parts(xml).into_iter();
+        let Some(Part::Words(words)) = parts.next() else {
+            return Err(unsupported(
+                entry,
+                "Text sequence choice head must start with a finite scalar table",
+            ));
+        };
+        let separator = if xml { self.xml.0 } else { self.yaml.0 };
+        Ok(vec![
+            vec![Part::Words(words.clone())],
+            vec![
+                Part::Words(words),
+                Part::Literal(separator.into()),
+                Part::Rest,
+            ],
+        ])
+    }
     pub(super) fn head_meaning(&self, name: &str, index: usize, receiver: &str) -> Option<String> {
         let (head, order, _) = self.head.as_ref()?;
         if index == order.len() {
@@ -176,7 +207,12 @@ impl<'a> Codec<'a> {
         writeln!(out,"fn visit(&self,xml:bool,mut visit:impl FnMut(&str,bool)->core::Result<()>)->core::Result<()>{{{head_visit}{visit_rows}Ok(())}}").unwrap();
         writeln!(out,"fn check(&self,xml:bool)->core::Result<usize>{{let mut length=0usize;let separator={separator};let plan=Self::plan(xml);self.visit(xml,|value,followed|{{plan.check_cell(value,followed).map_err(|_|RuntimeDiagnostic::new(\"value.text-sequence\",\"Cell conflicts with sequence separator\"))?;length=length.checked_add(value.len()).and_then(|length|length.checked_add(if followed{{separator.len()}}else{{0}})).ok_or_else(||RuntimeDiagnostic::new(\"value.budget\",\"Text size overflow\"))?;Ok(())}})?;Ok(length)}}").unwrap();
         writeln!(out,"fn write(&self,xml:bool)->core::Result<String>{{let length=self.check(xml)?;let separator={separator};let mut out=String::new();out.try_reserve(length).map_err(|_|RuntimeDiagnostic::new(\"value.budget\",\"Text exceeds memory budget\"))?;self.visit(xml,|value,followed|{{out.push_str(value);if followed{{out.push_str(separator);}}Ok(())}})?;Ok(out)}}").unwrap();
-        writeln!(out,"fn issues(&self,xml:bool,_inputs:&InputView<'_>)->Vec<RuntimeDiagnostic>{{let mut errors=Vec::new();{head_issues}for(index,row)in self.rows.iter().enumerate(){{errors.extend(row.issues(xml,_inputs).into_iter().map(|mut issue|{{issue.message=format!(\"Element {{}}: {{}}\",index+1,issue.message);issue}}));}}errors}}}}\n").unwrap();
+        let combined_issues = if head_issues.is_empty() {
+            "self.child_issues(xml,_inputs)".to_owned()
+        } else {
+            format!("let mut errors=self.child_issues(xml,_inputs);{head_issues}errors")
+        };
+        writeln!(out,"fn child_issues(&self,xml:bool,_inputs:&InputView<'_>)->Vec<RuntimeDiagnostic>{{let mut errors=Vec::new();for(index,row)in self.rows.iter().enumerate(){{errors.extend(row.issues(xml,_inputs).into_iter().map(|mut issue|{{issue.message=format!(\"Element {{}}: {{}}\",index+1,issue.message);issue}}));}}errors}}\nfn issues(&self,xml:bool,_inputs:&InputView<'_>)->Vec<RuntimeDiagnostic>{{{combined_issues}}}}}\n").unwrap();
         Ok(out)
     }
 }

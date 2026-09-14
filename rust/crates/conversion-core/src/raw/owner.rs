@@ -8,9 +8,13 @@ pub struct Document {
 impl Document {
     pub fn encode(meaning: &[u8], payload: &[u8]) -> Result<Vec<u8>> {
         let meaning = document::parse(if meaning.is_empty() { b"{}" } else { meaning })?;
-        if meaning.tag.is_some() {
+        if meaning
+            .tag
+            .as_deref()
+            .is_some_and(|tag| !matches!(tag, "!xml/invalid" | "!xml/important"))
+        {
             return Err(invalid(
-                "An owner envelope requires an untagged semantic value",
+                "An owner envelope permits only semantic annotations on its value",
             ));
         }
         Value {
@@ -38,8 +42,12 @@ impl Document {
             }
             match key.key()? {
                 "$значение" if meaning.is_none() => {
-                    if value.tag.is_some() {
-                        return Err(invalid("Expected untagged owner semantic value"));
+                    if value
+                        .tag
+                        .as_deref()
+                        .is_some_and(|tag| !matches!(tag, "!xml/invalid" | "!xml/important"))
+                    {
+                        return Err(invalid("Unexpected annotation on owner semantic value"));
                     }
                     meaning = Some(value.document()?);
                 }

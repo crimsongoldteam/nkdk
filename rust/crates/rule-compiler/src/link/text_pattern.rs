@@ -158,11 +158,18 @@ pub(super) fn types(entries: &BTreeMap<u32, LinkedEntry>) -> Result<(), Diagnost
                 super::text_sequence::head_layout(entry, &entries[&id], false)?;
                 continue;
             }
-            if let LinkedType::Reference(id) = field.value {
+            if let Some((id, _, _)) = field.value.as_reference() {
                 let target = &entries[&id];
-                if matches!(target.value, LinkedType::Record(_))
+                let mut content = &target.xml;
+                while let LinkedXml::WithAttributes { content: inner, .. } = content {
+                    content = inner;
+                }
+                if (matches!(target.value, LinkedType::Record(_))
                     && xml_parts(&target.xml).is_some()
-                    && matches!(target.yaml, YamlRepresentation::TextPattern(_))
+                    && matches!(target.yaml, YamlRepresentation::TextPattern(_)))
+                    || (matches!(target.value, LinkedType::Choice(_))
+                        && matches!(content, LinkedXml::Choice)
+                        && matches!(target.yaml, YamlRepresentation::Choice))
                 {
                     continue;
                 }

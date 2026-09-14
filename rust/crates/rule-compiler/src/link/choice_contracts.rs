@@ -35,7 +35,11 @@ pub(super) fn lift(entries: &mut [LinkedEntry]) -> Result<(), Diagnostic> {
                     constraint.id = format!("{}.{}.{}", field.name, item.name, constraint.id);
                     let project = |value: &mut LinkedExpression| {
                         crate::expressions::project_record(value, index, &common.value);
-                        project_fields(value, index as u32, variant as u32);
+                        if matches!(common.value, LinkedType::Scalar(_)) {
+                            project_scalar(value, index as u32, variant as u32);
+                        } else {
+                            project_fields(value, index as u32, variant as u32);
+                        }
                     };
                     crate::expressions::map_constraint(&mut constraint, project);
                     let guard = LinkedExpression {
@@ -113,6 +117,19 @@ fn project_fields(value: &mut LinkedExpression, owner: u32, variant: u32) {
             for argument in arguments {
                 project_fields(argument, owner, variant);
             }
+        }
+    }
+}
+
+fn project_scalar(value: &mut LinkedExpression, owner: u32, variant: u32) {
+    if value.kind == LinkedExpressionKind::Field(owner) {
+        value.kind = LinkedExpressionKind::Operation {
+            operator: LinkedOperator::VariantValue(variant),
+            arguments: vec![value.clone()],
+        };
+    } else if let LinkedExpressionKind::Operation { arguments, .. } = &mut value.kind {
+        for argument in arguments {
+            project_scalar(argument, owner, variant);
         }
     }
 }

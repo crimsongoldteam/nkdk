@@ -1,0 +1,806 @@
+{
+  "scope": "TypeLink contents from immutable cf/cfe e2e sources; outer property placement is normalized to Root/TypeLink",
+  "cases": [
+    {
+      "source": "e2e/fixtures/xml/cf/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОбороты.xml",
+      "sourceSha256": "8ccfd7367b0d43ae6abea5f2df41ef7981057bce01f51be2c9a3fa62b5ba946e",
+      "start": 10901,
+      "original": "<xr:LinkByType>\n\t\t\t\t\t\t<xr:DataPath>AccountingRegister.РегистрБухгалтерииВсеСвойстваОбороты.StandardAttribute.Account</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</xr:LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>AccountingRegister.РегистрБухгалтерииВсеСвойстваОбороты.StandardAttribute.Account</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: РегистрБухгалтерии.РегистрБухгалтерииВсеСвойстваОбороты.СтандартныйРеквизит.Счет(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОбороты.xml",
+      "sourceSha256": "8ccfd7367b0d43ae6abea5f2df41ef7981057bce01f51be2c9a3fa62b5ba946e",
+      "start": 13108,
+      "original": "<xr:LinkByType>\n\t\t\t\t\t\t<xr:DataPath>AccountingRegister.РегистрБухгалтерииВсеСвойстваОбороты.StandardAttribute.Account</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>2</xr:LinkItem>\n\t\t\t\t\t</xr:LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>AccountingRegister.РегистрБухгалтерииВсеСвойстваОбороты.StandardAttribute.Account</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>2</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: РегистрБухгалтерии.РегистрБухгалтерииВсеСвойстваОбороты.СтандартныйРеквизит.Счет(2)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОбороты.xml",
+      "sourceSha256": "8ccfd7367b0d43ae6abea5f2df41ef7981057bce01f51be2c9a3fa62b5ba946e",
+      "start": 15315,
+      "original": "<xr:LinkByType>\n\t\t\t\t\t\t<xr:DataPath>AccountingRegister.РегистрБухгалтерииВсеСвойстваОбороты.StandardAttribute.Account</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>3</xr:LinkItem>\n\t\t\t\t\t</xr:LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>AccountingRegister.РегистрБухгалтерииВсеСвойстваОбороты.StandardAttribute.Account</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>3</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: РегистрБухгалтерии.РегистрБухгалтерииВсеСвойстваОбороты.СтандартныйРеквизит.Счет(3)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОбороты.xml",
+      "sourceSha256": "8ccfd7367b0d43ae6abea5f2df41ef7981057bce01f51be2c9a3fa62b5ba946e",
+      "start": 17522,
+      "original": "<xr:LinkByType>\n\t\t\t\t\t\t<xr:DataPath>AccountingRegister.РегистрБухгалтерииВсеСвойстваОбороты.StandardAttribute.Account</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>4</xr:LinkItem>\n\t\t\t\t\t</xr:LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>AccountingRegister.РегистрБухгалтерииВсеСвойстваОбороты.StandardAttribute.Account</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>4</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: РегистрБухгалтерии.РегистрБухгалтерииВсеСвойстваОбороты.СтандартныйРеквизит.Счет(4)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОбороты.xml",
+      "sourceSha256": "8ccfd7367b0d43ae6abea5f2df41ef7981057bce01f51be2c9a3fa62b5ba946e",
+      "start": 22387,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>AccountingRegister.РегистрБухгалтерииВсеСвойстваОбороты.StandardAttribute.Period</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>AccountingRegister.РегистрБухгалтерииВсеСвойстваОбороты.StandardAttribute.Period</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: РегистрБухгалтерии.РегистрБухгалтерииВсеСвойстваОбороты.СтандартныйРеквизит.Период(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОбороты.xml",
+      "sourceSha256": "8ccfd7367b0d43ae6abea5f2df41ef7981057bce01f51be2c9a3fa62b5ba946e",
+      "start": 27179,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>AccountingRegister.РегистрБухгалтерииВсеСвойстваОбороты.StandardAttribute.Period</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>AccountingRegister.РегистрБухгалтерииВсеСвойстваОбороты.StandardAttribute.Period</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: РегистрБухгалтерии.РегистрБухгалтерииВсеСвойстваОбороты.СтандартныйРеквизит.Период(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОбороты.xml",
+      "sourceSha256": "8ccfd7367b0d43ae6abea5f2df41ef7981057bce01f51be2c9a3fa62b5ba946e",
+      "start": 30770,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>AccountingRegister.РегистрБухгалтерииВсеСвойстваОбороты.StandardAttribute.Period</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>AccountingRegister.РегистрБухгалтерииВсеСвойстваОбороты.StandardAttribute.Period</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: РегистрБухгалтерии.РегистрБухгалтерииВсеСвойстваОбороты.СтандартныйРеквизит.Период(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/AccumulationRegisters/РегистрНакопленияВсеСвойстваОбороты.xml",
+      "sourceSha256": "3df60315edca01ce56335f95a07d45fc9d88d33cb3719b5c023fe71ec0745c90",
+      "start": 9821,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>AccumulationRegister.РегистрНакопленияВсеСвойстваОбороты.StandardAttribute.Period</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>AccumulationRegister.РегистрНакопленияВсеСвойстваОбороты.StandardAttribute.Period</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: РегистрНакопления.РегистрНакопленияВсеСвойстваОбороты.СтандартныйРеквизит.Период(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/AccumulationRegisters/РегистрНакопленияВсеСвойстваОбороты.xml",
+      "sourceSha256": "3df60315edca01ce56335f95a07d45fc9d88d33cb3719b5c023fe71ec0745c90",
+      "start": 12926,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>AccumulationRegister.РегистрНакопленияВсеСвойстваОбороты.StandardAttribute.Period</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>AccumulationRegister.РегистрНакопленияВсеСвойстваОбороты.StandardAttribute.Period</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: РегистрНакопления.РегистрНакопленияВсеСвойстваОбороты.СтандартныйРеквизит.Период(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/AccumulationRegisters/РегистрНакопленияВсеСвойстваОбороты.xml",
+      "sourceSha256": "3df60315edca01ce56335f95a07d45fc9d88d33cb3719b5c023fe71ec0745c90",
+      "start": 16034,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>AccumulationRegister.РегистрНакопленияВсеСвойстваОбороты.StandardAttribute.Period</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>AccumulationRegister.РегистрНакопленияВсеСвойстваОбороты.StandardAttribute.Period</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: РегистрНакопления.РегистрНакопленияВсеСвойстваОбороты.СтандартныйРеквизит.Период(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства.xml",
+      "sourceSha256": "a03527edc24990a7c2bbb21285d9dd179b7dac8e32848be870967e2b466ec3d6",
+      "start": 16291,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>BusinessProcess.БизнесПроцессВсеСвойства.StandardAttribute.Date</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>3</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>BusinessProcess.БизнесПроцессВсеСвойства.StandardAttribute.Date</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>3</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: БизнесПроцесс.БизнесПроцессВсеСвойства.СтандартныйРеквизит.Дата(3)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства.xml",
+      "sourceSha256": "a03527edc24990a7c2bbb21285d9dd179b7dac8e32848be870967e2b466ec3d6",
+      "start": 27494,
+      "original": "<LinkByType>\n\t\t\t\t\t\t\t\t<xr:DataPath>BusinessProcess.БизнесПроцессВсеСвойства.StandardAttribute.Date</xr:DataPath>\n\t\t\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t\t\t<xr:DataPath>BusinessProcess.БизнесПроцессВсеСвойства.StandardAttribute.Date</xr:DataPath>\n\t\t\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: БизнесПроцесс.БизнесПроцессВсеСвойства.СтандартныйРеквизит.Дата(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CalculationRegisters/РегистрРасчетаВсеСвойства.xml",
+      "sourceSha256": "d304ae507ba211ffc86fb27d5568c6d8861da76b18ac95b5f546cecf43f21ecf",
+      "start": 18136,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>CalculationRegister.РегистрРасчетаВсеСвойства.StandardAttribute.Recorder</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>CalculationRegister.РегистрРасчетаВсеСвойства.StandardAttribute.Recorder</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: РегистрРасчета.РегистрРасчетаВсеСвойства.СтандартныйРеквизит.Регистратор(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CalculationRegisters/РегистрРасчетаВсеСвойства.xml",
+      "sourceSha256": "d304ae507ba211ffc86fb27d5568c6d8861da76b18ac95b5f546cecf43f21ecf",
+      "start": 21222,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>CalculationRegister.РегистрРасчетаВсеСвойства.StandardAttribute.Recorder</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>CalculationRegister.РегистрРасчетаВсеСвойства.StandardAttribute.Recorder</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: РегистрРасчета.РегистрРасчетаВсеСвойства.СтандартныйРеквизит.Регистратор(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CalculationRegisters/РегистрРасчетаВсеСвойства.xml",
+      "sourceSha256": "d304ae507ba211ffc86fb27d5568c6d8861da76b18ac95b5f546cecf43f21ecf",
+      "start": 25084,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>CalculationRegister.РегистрРасчетаВсеСвойства.StandardAttribute.Recorder</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>CalculationRegister.РегистрРасчетаВсеСвойства.StandardAttribute.Recorder</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: РегистрРасчета.РегистрРасчетаВсеСвойства.СтандартныйРеквизит.Регистратор(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникВладелец.xml",
+      "sourceSha256": "c25865f1f70c463f8743596b3254d0749fbc0dbec32e5fd56b9fcfc92508e493",
+      "start": 15799,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>Catalog.СправочникВладелец.StandardAttribute.Code</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>Catalog.СправочникВладелец.StandardAttribute.Code</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: Справочник.СправочникВладелец.СтандартныйРеквизит.Код(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникВладелец.xml",
+      "sourceSha256": "c25865f1f70c463f8743596b3254d0749fbc0dbec32e5fd56b9fcfc92508e493",
+      "start": 19298,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>Catalog.СправочникВладелец.StandardAttribute.Code</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>Catalog.СправочникВладелец.StandardAttribute.Code</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: Справочник.СправочникВладелец.СтандартныйРеквизит.Код(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникВладелец.xml",
+      "sourceSha256": "c25865f1f70c463f8743596b3254d0749fbc0dbec32e5fd56b9fcfc92508e493",
+      "start": 21311,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>Catalog.СправочникВладелец.StandardAttribute.Description</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>0</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>Catalog.СправочникВладелец.StandardAttribute.Description</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>0</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: Справочник.СправочникВладелец.СтандартныйРеквизит.Наименование",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникВладелец.xml",
+      "sourceSha256": "c25865f1f70c463f8743596b3254d0749fbc0dbec32e5fd56b9fcfc92508e493",
+      "start": 23616,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>Catalog.СправочникВладелец.StandardAttribute.Code</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>0</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>Catalog.СправочникВладелец.StandardAttribute.Code</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>0</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: Справочник.СправочникВладелец.СтандартныйРеквизит.Код",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникВладелец.xml",
+      "sourceSha256": "c25865f1f70c463f8743596b3254d0749fbc0dbec32e5fd56b9fcfc92508e493",
+      "start": 25519,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>Catalog.СправочникВладелец.StandardAttribute.Code</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>Catalog.СправочникВладелец.StandardAttribute.Code</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: Справочник.СправочникВладелец.СтандартныйРеквизит.Код(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникВладелец.xml",
+      "sourceSha256": "c25865f1f70c463f8743596b3254d0749fbc0dbec32e5fd56b9fcfc92508e493",
+      "start": 27585,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>Catalog.СправочникВладелец.StandardAttribute.Code</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>Catalog.СправочникВладелец.StandardAttribute.Code</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: Справочник.СправочникВладелец.СтандартныйРеквизит.Код(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства.xml",
+      "sourceSha256": "fcd73718d1134a63afb433454d4d4d3fb14fb461b80620b33aa9c37f4750acdf",
+      "start": 24665,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>ChartOfAccounts.ПланСчетовВсеСвойства.StandardAttribute.DataVersion</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>3</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>ChartOfAccounts.ПланСчетовВсеСвойства.StandardAttribute.DataVersion</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>3</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: ПланСчетов.ПланСчетовВсеСвойства.СтандартныйРеквизит.DataVersion(3)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства.xml",
+      "sourceSha256": "fcd73718d1134a63afb433454d4d4d3fb14fb461b80620b33aa9c37f4750acdf",
+      "start": 34472,
+      "original": "<LinkByType>\n\t\t\t\t\t\t\t\t<xr:DataPath>ChartOfAccounts.ПланСчетовВсеСвойства.StandardAttribute.DataVersion</xr:DataPath>\n\t\t\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t\t\t<xr:DataPath>ChartOfAccounts.ПланСчетовВсеСвойства.StandardAttribute.DataVersion</xr:DataPath>\n\t\t\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: ПланСчетов.ПланСчетовВсеСвойства.СтандартныйРеквизит.DataVersion(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства.xml",
+      "sourceSha256": "fcd73718d1134a63afb433454d4d4d3fb14fb461b80620b33aa9c37f4750acdf",
+      "start": 37743,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>ChartOfAccounts.ПланСчетовВсеСвойства.Attribute.РеквизитВсеСвойства</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>3</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>ChartOfAccounts.ПланСчетовВсеСвойства.Attribute.РеквизитВсеСвойства</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>3</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: ПланСчетов.ПланСчетовВсеСвойства.Реквизит.РеквизитВсеСвойства(3)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства.xml",
+      "sourceSha256": "fcd73718d1134a63afb433454d4d4d3fb14fb461b80620b33aa9c37f4750acdf",
+      "start": 40747,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>ChartOfAccounts.ПланСчетовВсеСвойства.StandardAttribute.OffBalance</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>3</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>ChartOfAccounts.ПланСчетовВсеСвойства.StandardAttribute.OffBalance</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>3</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: ПланСчетов.ПланСчетовВсеСвойства.СтандартныйРеквизит.OffBalance(3)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства.xml",
+      "sourceSha256": "0b75c93753e1b9bc03c8e9955857140aa466f69c769353c62a59d788bf1997a8",
+      "start": 28683,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>ChartOfCalculationTypes.ПланРасчетаВсеСвойства.StandardAttribute.Description</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>3</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>ChartOfCalculationTypes.ПланРасчетаВсеСвойства.StandardAttribute.Description</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>3</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: ПланВидовРасчета.ПланРасчетаВсеСвойства.СтандартныйРеквизит.Наименование(3)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства.xml",
+      "sourceSha256": "0b75c93753e1b9bc03c8e9955857140aa466f69c769353c62a59d788bf1997a8",
+      "start": 38550,
+      "original": "<LinkByType>\n\t\t\t\t\t\t\t\t<xr:DataPath>ChartOfCalculationTypes.ПланРасчетаВсеСвойства.StandardAttribute.Description</xr:DataPath>\n\t\t\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t\t\t<xr:DataPath>ChartOfCalculationTypes.ПланРасчетаВсеСвойства.StandardAttribute.Description</xr:DataPath>\n\t\t\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: ПланВидовРасчета.ПланРасчетаВсеСвойства.СтандартныйРеквизит.Наименование(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойства.xml",
+      "sourceSha256": "d54fdc5a4d68f3ae9f685e19cbe0eea9f12c3f7660394e0322cdbf9fd905f779",
+      "start": 23926,
+      "original": "<LinkByType>\n\t\t\t\t\t\t\t\t<xr:DataPath>ChartOfCharacteristicTypes.ПланВидовХарактеристикВсеСвойства.StandardAttribute.Description</xr:DataPath>\n\t\t\t\t\t\t\t\t<xr:LinkItem>0</xr:LinkItem>\n\t\t\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t\t\t<xr:DataPath>ChartOfCharacteristicTypes.ПланВидовХарактеристикВсеСвойства.StandardAttribute.Description</xr:DataPath>\n\t\t\t\t\t\t\t\t<xr:LinkItem>0</xr:LinkItem>\n\t\t\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: ПланВидовХарактеристик.ПланВидовХарактеристикВсеСвойства.СтандартныйРеквизит.Наименование",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/InputField/Ext/Form.xml",
+      "sourceSha256": "4bab6c2f7d9dfeb072ff4f258f453a910f0db8b80b5f0ada5ee4370b2619b20d",
+      "start": 7341,
+      "original": "<TypeLink>\n\t\t\t\t<xr:DataPath>РеквизитПодвала</xr:DataPath>\n\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t</TypeLink>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t<xr:DataPath>РеквизитПодвала</xr:DataPath>\n\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: РеквизитПодвала(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonForms/Table/Ext/Form.xml",
+      "sourceSha256": "92385cea4321b5486e5ca81579c6dc88a677e939b1f5c6c836a908458c153c59",
+      "start": 15265,
+      "original": "<TypeLink>\n\t\t\t\t\t\t<xr:DataPath>РеквизитПодвала</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</TypeLink>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>РеквизитПодвала</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: РеквизитПодвала(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Constants/КонстантаВсеСвойства.xml",
+      "sourceSha256": "23a19ac05a0c406ed9e8e7a2e77b8296feaefbf586d2fb77c245818e993c77d6",
+      "start": 3552,
+      "original": "<LinkByType>\n\t\t\t\t<xr:DataPath>Constant.КонстантаБулево</xr:DataPath>\n\t\t\t\t<xr:LinkItem>0</xr:LinkItem>\n\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t<xr:DataPath>Constant.КонстантаБулево</xr:DataPath>\n\t\t\t\t<xr:LinkItem>0</xr:LinkItem>\n\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: Константа.КонстантаБулево",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/DataProcessors/ОбработкаВсеСвойства.xml",
+      "sourceSha256": "9a70ce3ab3fda19d59f75df003af943cf930723673ecec29a366017c8ae4867d",
+      "start": 4312,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>DataProcessor.ОбработкаВсеСвойства.Attribute.РеквизитБулево</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>DataProcessor.ОбработкаВсеСвойства.Attribute.РеквизитБулево</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: Обработка.ОбработкаВсеСвойства.Реквизит.РеквизитБулево(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/DataProcessors/ОбработкаВсеСвойства.xml",
+      "sourceSha256": "9a70ce3ab3fda19d59f75df003af943cf930723673ecec29a366017c8ae4867d",
+      "start": 11627,
+      "original": "<LinkByType>\n\t\t\t\t\t\t\t\t<xr:DataPath>DataProcessor.ОбработкаВсеСвойства.Attribute.РеквизитБулево</xr:DataPath>\n\t\t\t\t\t\t\t\t<xr:LinkItem>0</xr:LinkItem>\n\t\t\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t\t\t<xr:DataPath>DataProcessor.ОбработкаВсеСвойства.Attribute.РеквизитБулево</xr:DataPath>\n\t\t\t\t\t\t\t\t<xr:LinkItem>0</xr:LinkItem>\n\t\t\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: Обработка.ОбработкаВсеСвойства.Реквизит.РеквизитБулево",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства.xml",
+      "sourceSha256": "346554c79ff22c0239e18eaa00e69bc203b161485dcbd6a482b191871f90b79e",
+      "start": 17751,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>Document.ДокументВсеСвойства.StandardAttribute.Date</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>0</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>Document.ДокументВсеСвойства.StandardAttribute.Date</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>0</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: Документ.ДокументВсеСвойства.СтандартныйРеквизит.Дата",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства.xml",
+      "sourceSha256": "346554c79ff22c0239e18eaa00e69bc203b161485dcbd6a482b191871f90b79e",
+      "start": 22430,
+      "original": "<LinkByType>\n\t\t\t\t\t\t\t\t<xr:DataPath>Document.ДокументВсеСвойства.StandardAttribute.Date</xr:DataPath>\n\t\t\t\t\t\t\t\t<xr:LinkItem>0</xr:LinkItem>\n\t\t\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t\t\t<xr:DataPath>Document.ДокументВсеСвойства.StandardAttribute.Date</xr:DataPath>\n\t\t\t\t\t\t\t\t<xr:LinkItem>0</xr:LinkItem>\n\t\t\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: Документ.ДокументВсеСвойства.СтандартныйРеквизит.Дата",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства.xml",
+      "sourceSha256": "ea7e9507ee5538c46acb941135ff909df0caefabf86926fdb4969fb063c3002d",
+      "start": 17282,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>ExchangePlan.ПланОбменаВсеСвойства.StandardAttribute.Description</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>3</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>ExchangePlan.ПланОбменаВсеСвойства.StandardAttribute.Description</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>3</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: ПланОбмена.ПланОбменаВсеСвойства.СтандартныйРеквизит.Наименование(3)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства.xml",
+      "sourceSha256": "ea7e9507ee5538c46acb941135ff909df0caefabf86926fdb4969fb063c3002d",
+      "start": 26305,
+      "original": "<LinkByType>\n\t\t\t\t\t\t\t\t<xr:DataPath>ExchangePlan.ПланОбменаВсеСвойства.StandardAttribute.Description</xr:DataPath>\n\t\t\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t\t\t<xr:DataPath>ExchangePlan.ПланОбменаВсеСвойства.StandardAttribute.Description</xr:DataPath>\n\t\t\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: ПланОбмена.ПланОбменаВсеСвойства.СтандартныйРеквизит.Наименование(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый.xml",
+      "sourceSha256": "d88e5e7cd186df824284b5108f3554d7ff786d8eb53279cf6549946ba40e6fc5",
+      "start": 11711,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>InformationRegister.РегистрСведенийВсеСвойстваНезависимый.StandardAttribute.Period</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>InformationRegister.РегистрСведенийВсеСвойстваНезависимый.StandardAttribute.Period</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: РегистрСведений.РегистрСведенийВсеСвойстваНезависимый.СтандартныйРеквизит.Период(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый.xml",
+      "sourceSha256": "d88e5e7cd186df824284b5108f3554d7ff786d8eb53279cf6549946ba40e6fc5",
+      "start": 15332,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>InformationRegister.РегистрСведенийВсеСвойстваНезависимый.StandardAttribute.Period</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>InformationRegister.РегистрСведенийВсеСвойстваНезависимый.StandardAttribute.Period</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: РегистрСведений.РегистрСведенийВсеСвойстваНезависимый.СтандартныйРеквизит.Период(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый.xml",
+      "sourceSha256": "d88e5e7cd186df824284b5108f3554d7ff786d8eb53279cf6549946ba40e6fc5",
+      "start": 18859,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>InformationRegister.РегистрСведенийВсеСвойстваНезависимый.StandardAttribute.Period</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>InformationRegister.РегистрСведенийВсеСвойстваНезависимый.StandardAttribute.Period</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: РегистрСведений.РегистрСведенийВсеСвойстваНезависимый.СтандартныйРеквизит.Период(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства.xml",
+      "sourceSha256": "2c0e6fa906363085def52dc9d23fd62fc76dd2d899229768b22548a0267fddbe",
+      "start": 4899,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>Report.ОтчетВсеСвойства.Attribute.РеквизитБулево</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>Report.ОтчетВсеСвойства.Attribute.РеквизитБулево</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: Отчет.ОтчетВсеСвойства.Реквизит.РеквизитБулево(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства.xml",
+      "sourceSha256": "2c0e6fa906363085def52dc9d23fd62fc76dd2d899229768b22548a0267fddbe",
+      "start": 11993,
+      "original": "<LinkByType>\n\t\t\t\t\t\t\t\t<xr:DataPath>Report.ОтчетВсеСвойства.Attribute.РеквизитБулево</xr:DataPath>\n\t\t\t\t\t\t\t\t<xr:LinkItem>0</xr:LinkItem>\n\t\t\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t\t\t<xr:DataPath>Report.ОтчетВсеСвойства.Attribute.РеквизитБулево</xr:DataPath>\n\t\t\t\t\t\t\t\t<xr:LinkItem>0</xr:LinkItem>\n\t\t\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: Отчет.ОтчетВсеСвойства.Реквизит.РеквизитБулево",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства.xml",
+      "sourceSha256": "9c2920177c6974fc6941bd2f9d10d1ed1c0e69efe5a564b67a35daa5abc5f72d",
+      "start": 17401,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>Task.ЗадачаВсеСвойства.StandardAttribute.Date</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>3</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>Task.ЗадачаВсеСвойства.StandardAttribute.Date</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>3</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: Задача.ЗадачаВсеСвойства.СтандартныйРеквизит.Дата(3)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства.xml",
+      "sourceSha256": "9c2920177c6974fc6941bd2f9d10d1ed1c0e69efe5a564b67a35daa5abc5f72d",
+      "start": 27080,
+      "original": "<LinkByType>\n\t\t\t\t\t\t\t\t<xr:DataPath>Task.ЗадачаВсеСвойства.StandardAttribute.Date</xr:DataPath>\n\t\t\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t\t\t<xr:DataPath>Task.ЗадачаВсеСвойства.StandardAttribute.Date</xr:DataPath>\n\t\t\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: Задача.ЗадачаВсеСвойства.СтандартныйРеквизит.Дата(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства.xml",
+      "sourceSha256": "9c2920177c6974fc6941bd2f9d10d1ed1c0e69efe5a564b67a35daa5abc5f72d",
+      "start": 31173,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>Task.ЗадачаВсеСвойства.StandardAttribute.Date</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>3</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>Task.ЗадачаВсеСвойства.StandardAttribute.Date</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>3</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: Задача.ЗадачаВсеСвойства.СтандартныйРеквизит.Дата(3)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОборотыExt.xml",
+      "sourceSha256": "74cdbd86c72cb85061598772d3b4c8cd856f719b17c00d23df96d4bd1225dc4f",
+      "start": 9953,
+      "original": "<xr:LinkByType>\n\t\t\t\t\t\t<xr:DataPath>AccountingRegister.РегистрБухгалтерииВсеСвойстваОборотыExt.StandardAttribute.Account</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</xr:LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>AccountingRegister.РегистрБухгалтерииВсеСвойстваОборотыExt.StandardAttribute.Account</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: РегистрБухгалтерии.РегистрБухгалтерииВсеСвойстваОборотыExt.СтандартныйРеквизит.Счет(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОборотыExt.xml",
+      "sourceSha256": "74cdbd86c72cb85061598772d3b4c8cd856f719b17c00d23df96d4bd1225dc4f",
+      "start": 12163,
+      "original": "<xr:LinkByType>\n\t\t\t\t\t\t<xr:DataPath>AccountingRegister.РегистрБухгалтерииВсеСвойстваОборотыExt.StandardAttribute.Account</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>2</xr:LinkItem>\n\t\t\t\t\t</xr:LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>AccountingRegister.РегистрБухгалтерииВсеСвойстваОборотыExt.StandardAttribute.Account</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>2</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: РегистрБухгалтерии.РегистрБухгалтерииВсеСвойстваОборотыExt.СтандартныйРеквизит.Счет(2)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОборотыExt.xml",
+      "sourceSha256": "74cdbd86c72cb85061598772d3b4c8cd856f719b17c00d23df96d4bd1225dc4f",
+      "start": 14373,
+      "original": "<xr:LinkByType>\n\t\t\t\t\t\t<xr:DataPath>AccountingRegister.РегистрБухгалтерииВсеСвойстваОборотыExt.StandardAttribute.Account</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>3</xr:LinkItem>\n\t\t\t\t\t</xr:LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>AccountingRegister.РегистрБухгалтерииВсеСвойстваОборотыExt.StandardAttribute.Account</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>3</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: РегистрБухгалтерии.РегистрБухгалтерииВсеСвойстваОборотыExt.СтандартныйРеквизит.Счет(3)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОборотыExt.xml",
+      "sourceSha256": "74cdbd86c72cb85061598772d3b4c8cd856f719b17c00d23df96d4bd1225dc4f",
+      "start": 16583,
+      "original": "<xr:LinkByType>\n\t\t\t\t\t\t<xr:DataPath>AccountingRegister.РегистрБухгалтерииВсеСвойстваОборотыExt.StandardAttribute.Account</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>4</xr:LinkItem>\n\t\t\t\t\t</xr:LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>AccountingRegister.РегистрБухгалтерииВсеСвойстваОборотыExt.StandardAttribute.Account</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>4</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: РегистрБухгалтерии.РегистрБухгалтерииВсеСвойстваОборотыExt.СтандартныйРеквизит.Счет(4)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОборотыExt.xml",
+      "sourceSha256": "74cdbd86c72cb85061598772d3b4c8cd856f719b17c00d23df96d4bd1225dc4f",
+      "start": 21111,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>AccountingRegister.РегистрБухгалтерииВсеСвойстваОборотыExt.StandardAttribute.Period</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>AccountingRegister.РегистрБухгалтерииВсеСвойстваОборотыExt.StandardAttribute.Period</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: РегистрБухгалтерии.РегистрБухгалтерииВсеСвойстваОборотыExt.СтандартныйРеквизит.Период(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОборотыExt.xml",
+      "sourceSha256": "74cdbd86c72cb85061598772d3b4c8cd856f719b17c00d23df96d4bd1225dc4f",
+      "start": 24554,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>AccountingRegister.РегистрБухгалтерииВсеСвойстваОборотыExt.StandardAttribute.Period</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>AccountingRegister.РегистрБухгалтерииВсеСвойстваОборотыExt.StandardAttribute.Period</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: РегистрБухгалтерии.РегистрБухгалтерииВсеСвойстваОборотыExt.СтандартныйРеквизит.Период(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОборотыExt.xml",
+      "sourceSha256": "74cdbd86c72cb85061598772d3b4c8cd856f719b17c00d23df96d4bd1225dc4f",
+      "start": 28148,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>AccountingRegister.РегистрБухгалтерииВсеСвойстваОборотыExt.StandardAttribute.Period</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>AccountingRegister.РегистрБухгалтерииВсеСвойстваОборотыExt.StandardAttribute.Period</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: РегистрБухгалтерии.РегистрБухгалтерииВсеСвойстваОборотыExt.СтандартныйРеквизит.Период(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/AccumulationRegisters/РегистрНакопленияВсеСвойстваОборотыExt.xml",
+      "sourceSha256": "d4b59f86e32f9577d966057a8137d9cb3ed273d71b21ea19029c263b01ddcf6d",
+      "start": 9705,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>AccumulationRegister.РегистрНакопленияВсеСвойстваОборотыExt.StandardAttribute.Period</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>AccumulationRegister.РегистрНакопленияВсеСвойстваОборотыExt.StandardAttribute.Period</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: РегистрНакопления.РегистрНакопленияВсеСвойстваОборотыExt.СтандартныйРеквизит.Период(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/AccumulationRegisters/РегистрНакопленияВсеСвойстваОборотыExt.xml",
+      "sourceSha256": "d4b59f86e32f9577d966057a8137d9cb3ed273d71b21ea19029c263b01ddcf6d",
+      "start": 12813,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>AccumulationRegister.РегистрНакопленияВсеСвойстваОборотыExt.StandardAttribute.Period</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>AccumulationRegister.РегистрНакопленияВсеСвойстваОборотыExt.StandardAttribute.Period</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: РегистрНакопления.РегистрНакопленияВсеСвойстваОборотыExt.СтандартныйРеквизит.Период(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/AccumulationRegisters/РегистрНакопленияВсеСвойстваОборотыExt.xml",
+      "sourceSha256": "d4b59f86e32f9577d966057a8137d9cb3ed273d71b21ea19029c263b01ddcf6d",
+      "start": 15924,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>AccumulationRegister.РегистрНакопленияВсеСвойстваОборотыExt.StandardAttribute.Period</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>AccumulationRegister.РегистрНакопленияВсеСвойстваОборотыExt.StandardAttribute.Period</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: РегистрНакопления.РегистрНакопленияВсеСвойстваОборотыExt.СтандартныйРеквизит.Период(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/BusinessProcesses/БизнесПроцессВсеСвойстваExt.xml",
+      "sourceSha256": "80673d2d4f16696a071a62273a51c95d1ca745d6b592ff4a78cd6092e2ffe019",
+      "start": 16305,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>BusinessProcess.БизнесПроцессВсеСвойстваExt.StandardAttribute.Date</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>3</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>BusinessProcess.БизнесПроцессВсеСвойстваExt.StandardAttribute.Date</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>3</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: БизнесПроцесс.БизнесПроцессВсеСвойстваExt.СтандартныйРеквизит.Дата(3)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/BusinessProcesses/БизнесПроцессВсеСвойстваExt.xml",
+      "sourceSha256": "80673d2d4f16696a071a62273a51c95d1ca745d6b592ff4a78cd6092e2ffe019",
+      "start": 27526,
+      "original": "<LinkByType>\n\t\t\t\t\t\t\t\t<xr:DataPath>BusinessProcess.БизнесПроцессВсеСвойстваExt.StandardAttribute.Date</xr:DataPath>\n\t\t\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t\t\t<xr:DataPath>BusinessProcess.БизнесПроцессВсеСвойстваExt.StandardAttribute.Date</xr:DataPath>\n\t\t\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: БизнесПроцесс.БизнесПроцессВсеСвойстваExt.СтандартныйРеквизит.Дата(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/CalculationRegisters/РегистрРасчетаВсеСвойстваExt.xml",
+      "sourceSha256": "c11bafd928d25fa427c981f226d4833651b50edea68da23a9442f86c46929b34",
+      "start": 17286,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>CalculationRegister.РегистрРасчетаВсеСвойстваExt.StandardAttribute.Recorder</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>CalculationRegister.РегистрРасчетаВсеСвойстваExt.StandardAttribute.Recorder</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: РегистрРасчета.РегистрРасчетаВсеСвойстваExt.СтандартныйРеквизит.Регистратор(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/CalculationRegisters/РегистрРасчетаВсеСвойстваExt.xml",
+      "sourceSha256": "c11bafd928d25fa427c981f226d4833651b50edea68da23a9442f86c46929b34",
+      "start": 20375,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>CalculationRegister.РегистрРасчетаВсеСвойстваExt.StandardAttribute.Recorder</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>CalculationRegister.РегистрРасчетаВсеСвойстваExt.StandardAttribute.Recorder</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: РегистрРасчета.РегистрРасчетаВсеСвойстваExt.СтандартныйРеквизит.Регистратор(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/CalculationRegisters/РегистрРасчетаВсеСвойстваExt.xml",
+      "sourceSha256": "c11bafd928d25fa427c981f226d4833651b50edea68da23a9442f86c46929b34",
+      "start": 24246,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>CalculationRegister.РегистрРасчетаВсеСвойстваExt.StandardAttribute.Recorder</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>CalculationRegister.РегистрРасчетаВсеСвойстваExt.StandardAttribute.Recorder</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: РегистрРасчета.РегистрРасчетаВсеСвойстваExt.СтандартныйРеквизит.Регистратор(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникВладелецExt.xml",
+      "sourceSha256": "1f16fa107bff75645471e1b8b7dc54b9b6a6e25426531e2305e567fa31ee37d3",
+      "start": 15833,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>Catalog.СправочникВладелецExt.StandardAttribute.Code</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>Catalog.СправочникВладелецExt.StandardAttribute.Code</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: Справочник.СправочникВладелецExt.СтандартныйРеквизит.Код(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникВладелецExt.xml",
+      "sourceSha256": "1f16fa107bff75645471e1b8b7dc54b9b6a6e25426531e2305e567fa31ee37d3",
+      "start": 19175,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>Catalog.СправочникВладелецExt.StandardAttribute.Code</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>Catalog.СправочникВладелецExt.StandardAttribute.Code</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: Справочник.СправочникВладелецExt.СтандартныйРеквизит.Код(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникВладелецExt.xml",
+      "sourceSha256": "1f16fa107bff75645471e1b8b7dc54b9b6a6e25426531e2305e567fa31ee37d3",
+      "start": 21031,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>Catalog.СправочникВладелецExt.StandardAttribute.Description</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>0</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>Catalog.СправочникВладелецExt.StandardAttribute.Description</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>0</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: Справочник.СправочникВладелецExt.СтандартныйРеквизит.Наименование",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникВладелецExt.xml",
+      "sourceSha256": "1f16fa107bff75645471e1b8b7dc54b9b6a6e25426531e2305e567fa31ee37d3",
+      "start": 23342,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>Catalog.СправочникВладелецExt.StandardAttribute.Code</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>0</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>Catalog.СправочникВладелецExt.StandardAttribute.Code</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>0</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: Справочник.СправочникВладелецExt.СтандартныйРеквизит.Код",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникВладелецExt.xml",
+      "sourceSha256": "1f16fa107bff75645471e1b8b7dc54b9b6a6e25426531e2305e567fa31ee37d3",
+      "start": 25248,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>Catalog.СправочникВладелецExt.StandardAttribute.Code</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>Catalog.СправочникВладелецExt.StandardAttribute.Code</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: Справочник.СправочникВладелецExt.СтандартныйРеквизит.Код(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникВладелецExt.xml",
+      "sourceSha256": "1f16fa107bff75645471e1b8b7dc54b9b6a6e25426531e2305e567fa31ee37d3",
+      "start": 27317,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>Catalog.СправочникВладелецExt.StandardAttribute.Code</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>Catalog.СправочникВладелецExt.StandardAttribute.Code</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: Справочник.СправочникВладелецExt.СтандартныйРеквизит.Код(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойстваExt.xml",
+      "sourceSha256": "d0f769e38027e7fcb3c9a9370c6397b78f823e5bc86147b24f6e13e2c5368423",
+      "start": 24675,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>ChartOfAccounts.ПланСчетовВсеСвойстваExt.StandardAttribute.DataVersion</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>3</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>ChartOfAccounts.ПланСчетовВсеСвойстваExt.StandardAttribute.DataVersion</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>3</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: ПланСчетов.ПланСчетовВсеСвойстваExt.СтандартныйРеквизит.DataVersion(3)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойстваExt.xml",
+      "sourceSha256": "d0f769e38027e7fcb3c9a9370c6397b78f823e5bc86147b24f6e13e2c5368423",
+      "start": 34500,
+      "original": "<LinkByType>\n\t\t\t\t\t\t\t\t<xr:DataPath>ChartOfAccounts.ПланСчетовВсеСвойстваExt.StandardAttribute.DataVersion</xr:DataPath>\n\t\t\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t\t\t<xr:DataPath>ChartOfAccounts.ПланСчетовВсеСвойстваExt.StandardAttribute.DataVersion</xr:DataPath>\n\t\t\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: ПланСчетов.ПланСчетовВсеСвойстваExt.СтандартныйРеквизит.DataVersion(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойстваExt.xml",
+      "sourceSha256": "d0f769e38027e7fcb3c9a9370c6397b78f823e5bc86147b24f6e13e2c5368423",
+      "start": 37774,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>ChartOfAccounts.ПланСчетовВсеСвойстваExt.Attribute.РеквизитВсеСвойства</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>3</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>ChartOfAccounts.ПланСчетовВсеСвойстваExt.Attribute.РеквизитВсеСвойства</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>3</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: ПланСчетов.ПланСчетовВсеСвойстваExt.Реквизит.РеквизитВсеСвойства(3)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойстваExt.xml",
+      "sourceSha256": "d0f769e38027e7fcb3c9a9370c6397b78f823e5bc86147b24f6e13e2c5368423",
+      "start": 40781,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>ChartOfAccounts.ПланСчетовВсеСвойстваExt.StandardAttribute.OffBalance</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>3</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>ChartOfAccounts.ПланСчетовВсеСвойстваExt.StandardAttribute.OffBalance</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>3</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: ПланСчетов.ПланСчетовВсеСвойстваExt.СтандартныйРеквизит.OffBalance(3)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCalculationTypes/ПланРасчетаВсеСвойстваExt.xml",
+      "sourceSha256": "bc0057e014964e687fad1fa03dfec7ff26fa621cc8eb80af2fc293d2fd4f19cb",
+      "start": 28997,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>ChartOfCalculationTypes.ПланРасчетаВсеСвойстваExt.StandardAttribute.Description</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>3</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>ChartOfCalculationTypes.ПланРасчетаВсеСвойстваExt.StandardAttribute.Description</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>3</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: ПланВидовРасчета.ПланРасчетаВсеСвойстваExt.СтандартныйРеквизит.Наименование(3)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCalculationTypes/ПланРасчетаВсеСвойстваExt.xml",
+      "sourceSha256": "bc0057e014964e687fad1fa03dfec7ff26fa621cc8eb80af2fc293d2fd4f19cb",
+      "start": 38882,
+      "original": "<LinkByType>\n\t\t\t\t\t\t\t\t<xr:DataPath>ChartOfCalculationTypes.ПланРасчетаВсеСвойстваExt.StandardAttribute.Description</xr:DataPath>\n\t\t\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t\t\t<xr:DataPath>ChartOfCalculationTypes.ПланРасчетаВсеСвойстваExt.StandardAttribute.Description</xr:DataPath>\n\t\t\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: ПланВидовРасчета.ПланРасчетаВсеСвойстваExt.СтандартныйРеквизит.Наименование(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойстваExt.xml",
+      "sourceSha256": "130290821ff067b6c3c7ebb27e52b72dc40e8228c6fddb249cf1d5d1ea396cef",
+      "start": 22425,
+      "original": "<LinkByType>\n\t\t\t\t\t\t\t\t<xr:DataPath>ChartOfCharacteristicTypes.ПланВидовХарактеристикВсеСвойстваExt.StandardAttribute.Description</xr:DataPath>\n\t\t\t\t\t\t\t\t<xr:LinkItem>0</xr:LinkItem>\n\t\t\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t\t\t<xr:DataPath>ChartOfCharacteristicTypes.ПланВидовХарактеристикВсеСвойстваExt.StandardAttribute.Description</xr:DataPath>\n\t\t\t\t\t\t\t\t<xr:LinkItem>0</xr:LinkItem>\n\t\t\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: ПланВидовХарактеристик.ПланВидовХарактеристикВсеСвойстваExt.СтандартныйРеквизит.Наименование",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/CommonForms/InputFieldExt/Ext/Form.xml",
+      "sourceSha256": "9de73981f63b91506fff151a0b04132cb7ca27eda281f0815b4fd364c3ca24af",
+      "start": 7204,
+      "original": "<TypeLink>\n\t\t\t\t<xr:DataPath>РеквизитПодвала</xr:DataPath>\n\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t</TypeLink>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t<xr:DataPath>РеквизитПодвала</xr:DataPath>\n\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: РеквизитПодвала(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Constants/КонстантаВсеСвойстваExt.xml",
+      "sourceSha256": "fd7124f3ae30131b39077f98b4223ac229d9aa287f50fe30e49da582a308b855",
+      "start": 3500,
+      "original": "<LinkByType>\n\t\t\t\t<xr:DataPath>Constant.КонстантаБулево</xr:DataPath>\n\t\t\t\t<xr:LinkItem>0</xr:LinkItem>\n\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t<xr:DataPath>Constant.КонстантаБулево</xr:DataPath>\n\t\t\t\t<xr:LinkItem>0</xr:LinkItem>\n\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: Константа.КонстантаБулево",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/DataProcessors/ОбработкаВсеСвойстваExt.xml",
+      "sourceSha256": "20f447da14a75ddc7114148549687a04665e7f996dba35cb4910554cd3b16df9",
+      "start": 4327,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>DataProcessor.ОбработкаВсеСвойстваExt.Attribute.РеквизитБулево</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>DataProcessor.ОбработкаВсеСвойстваExt.Attribute.РеквизитБулево</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: Обработка.ОбработкаВсеСвойстваExt.Реквизит.РеквизитБулево(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/DataProcessors/ОбработкаВсеСвойстваExt.xml",
+      "sourceSha256": "20f447da14a75ddc7114148549687a04665e7f996dba35cb4910554cd3b16df9",
+      "start": 11493,
+      "original": "<LinkByType>\n\t\t\t\t\t\t\t\t<xr:DataPath>DataProcessor.ОбработкаВсеСвойстваExt.Attribute.РеквизитБулево</xr:DataPath>\n\t\t\t\t\t\t\t\t<xr:LinkItem>0</xr:LinkItem>\n\t\t\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t\t\t<xr:DataPath>DataProcessor.ОбработкаВсеСвойстваExt.Attribute.РеквизитБулево</xr:DataPath>\n\t\t\t\t\t\t\t\t<xr:LinkItem>0</xr:LinkItem>\n\t\t\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: Обработка.ОбработкаВсеСвойстваExt.Реквизит.РеквизитБулево",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Documents/ДокументВсеСвойстваExt.xml",
+      "sourceSha256": "dc44cba2816c8da178f7fc72bef06b824593fc9a23ade0676b1144a7e1effe66",
+      "start": 16607,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>Document.ДокументВсеСвойстваExt.StandardAttribute.Date</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>0</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>Document.ДокументВсеСвойстваExt.StandardAttribute.Date</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>0</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: Документ.ДокументВсеСвойстваExt.СтандартныйРеквизит.Дата",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Documents/ДокументВсеСвойстваExt.xml",
+      "sourceSha256": "dc44cba2816c8da178f7fc72bef06b824593fc9a23ade0676b1144a7e1effe66",
+      "start": 22234,
+      "original": "<LinkByType>\n\t\t\t\t\t\t\t\t<xr:DataPath>Document.ДокументВсеСвойстваExt.StandardAttribute.Date</xr:DataPath>\n\t\t\t\t\t\t\t\t<xr:LinkItem>0</xr:LinkItem>\n\t\t\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t\t\t<xr:DataPath>Document.ДокументВсеСвойстваExt.StandardAttribute.Date</xr:DataPath>\n\t\t\t\t\t\t\t\t<xr:LinkItem>0</xr:LinkItem>\n\t\t\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: Документ.ДокументВсеСвойстваExt.СтандартныйРеквизит.Дата",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExchangePlans/ПланОбменаВсеСвойстваExt.xml",
+      "sourceSha256": "a20807181ce270cade440ab6f014efb8f0e81b9a51c0e3172874404788e0d907",
+      "start": 15709,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>ExchangePlan.ПланОбменаВсеСвойстваExt.StandardAttribute.Description</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>3</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>ExchangePlan.ПланОбменаВсеСвойстваExt.StandardAttribute.Description</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>3</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: ПланОбмена.ПланОбменаВсеСвойстваExt.СтандартныйРеквизит.Наименование(3)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExchangePlans/ПланОбменаВсеСвойстваExt.xml",
+      "sourceSha256": "a20807181ce270cade440ab6f014efb8f0e81b9a51c0e3172874404788e0d907",
+      "start": 25432,
+      "original": "<LinkByType>\n\t\t\t\t\t\t\t\t<xr:DataPath>ExchangePlan.ПланОбменаВсеСвойстваExt.StandardAttribute.Description</xr:DataPath>\n\t\t\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t\t\t<xr:DataPath>ExchangePlan.ПланОбменаВсеСвойстваExt.StandardAttribute.Description</xr:DataPath>\n\t\t\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: ПланОбмена.ПланОбменаВсеСвойстваExt.СтандартныйРеквизит.Наименование(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/InformationRegisters/РегистрСведенийВсеСвойстваНезависимыйExt.xml",
+      "sourceSha256": "1e3b15be1bb15d91e4ed22a7af5f0dc09b7b4eb90c708475abf832e6d2f68c11",
+      "start": 11148,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>InformationRegister.РегистрСведенийВсеСвойстваНезависимыйExt.StandardAttribute.Period</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>InformationRegister.РегистрСведенийВсеСвойстваНезависимыйExt.StandardAttribute.Period</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: РегистрСведений.РегистрСведенийВсеСвойстваНезависимыйExt.СтандартныйРеквизит.Период(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/InformationRegisters/РегистрСведенийВсеСвойстваНезависимыйExt.xml",
+      "sourceSha256": "1e3b15be1bb15d91e4ed22a7af5f0dc09b7b4eb90c708475abf832e6d2f68c11",
+      "start": 14520,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>InformationRegister.РегистрСведенийВсеСвойстваНезависимыйExt.StandardAttribute.Period</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>InformationRegister.РегистрСведенийВсеСвойстваНезависимыйExt.StandardAttribute.Period</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: РегистрСведений.РегистрСведенийВсеСвойстваНезависимыйExt.СтандартныйРеквизит.Период(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/InformationRegisters/РегистрСведенийВсеСвойстваНезависимыйExt.xml",
+      "sourceSha256": "1e3b15be1bb15d91e4ed22a7af5f0dc09b7b4eb90c708475abf832e6d2f68c11",
+      "start": 17798,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>InformationRegister.РегистрСведенийВсеСвойстваНезависимыйExt.StandardAttribute.Period</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>InformationRegister.РегистрСведенийВсеСвойстваНезависимыйExt.StandardAttribute.Period</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: РегистрСведений.РегистрСведенийВсеСвойстваНезависимыйExt.СтандартныйРеквизит.Период(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt.xml",
+      "sourceSha256": "ba35b75641d1a6a46ea5821b44bfe9ef56655aa7e4752b4b036ed7e633f4b23d",
+      "start": 4923,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>Report.ОтчетВсеСвойстваExt.Attribute.РеквизитБулево</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>Report.ОтчетВсеСвойстваExt.Attribute.РеквизитБулево</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: Отчет.ОтчетВсеСвойстваExt.Реквизит.РеквизитБулево(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt.xml",
+      "sourceSha256": "ba35b75641d1a6a46ea5821b44bfe9ef56655aa7e4752b4b036ed7e633f4b23d",
+      "start": 12029,
+      "original": "<LinkByType>\n\t\t\t\t\t\t\t\t<xr:DataPath>Report.ОтчетВсеСвойстваExt.Attribute.РеквизитБулево</xr:DataPath>\n\t\t\t\t\t\t\t\t<xr:LinkItem>0</xr:LinkItem>\n\t\t\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t\t\t<xr:DataPath>Report.ОтчетВсеСвойстваExt.Attribute.РеквизитБулево</xr:DataPath>\n\t\t\t\t\t\t\t\t<xr:LinkItem>0</xr:LinkItem>\n\t\t\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: Отчет.ОтчетВсеСвойстваExt.Реквизит.РеквизитБулево",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Tasks/ЗадачаВсеСвойстваExt.xml",
+      "sourceSha256": "25df146096e8d8fc00f34702ece490a48a9409c450c6e2c94b61b18ea1b3e90a",
+      "start": 17067,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>Task.ЗадачаВсеСвойстваExt.StandardAttribute.Date</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>3</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>Task.ЗадачаВсеСвойстваExt.StandardAttribute.Date</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>3</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: Задача.ЗадачаВсеСвойстваExt.СтандартныйРеквизит.Дата(3)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Tasks/ЗадачаВсеСвойстваExt.xml",
+      "sourceSha256": "25df146096e8d8fc00f34702ece490a48a9409c450c6e2c94b61b18ea1b3e90a",
+      "start": 26764,
+      "original": "<LinkByType>\n\t\t\t\t\t\t\t\t<xr:DataPath>Task.ЗадачаВсеСвойстваExt.StandardAttribute.Date</xr:DataPath>\n\t\t\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t\t\t<xr:DataPath>Task.ЗадачаВсеСвойстваExt.StandardAttribute.Date</xr:DataPath>\n\t\t\t\t\t\t\t\t<xr:LinkItem>1</xr:LinkItem>\n\t\t\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: Задача.ЗадачаВсеСвойстваExt.СтандартныйРеквизит.Дата(1)",
+      "typed": false
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Tasks/ЗадачаВсеСвойстваExt.xml",
+      "sourceSha256": "25df146096e8d8fc00f34702ece490a48a9409c450c6e2c94b61b18ea1b3e90a",
+      "start": 30863,
+      "original": "<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>Task.ЗадачаВсеСвойстваExt.StandardAttribute.Date</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>3</xr:LinkItem>\n\t\t\t\t\t</LinkByType>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><TypeLink>\n\t\t\t\t\t\t<xr:DataPath>Task.ЗадачаВсеСвойстваExt.StandardAttribute.Date</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>3</xr:LinkItem>\n\t\t\t\t\t</TypeLink></Root>",
+      "yaml": "СвязьТипа: Задача.ЗадачаВсеСвойстваExt.СтандартныйРеквизит.Дата(3)",
+      "typed": false
+    }
+  ]
+}

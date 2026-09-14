@@ -1539,6 +1539,182 @@ fn path_lexicons_preserve_the_existing_bidirectional_vocabulary() {
         "Enum.Status.EnumValue.Ref".into(),
         "Перечисление.Status.Ref".into(),
     ));
+    let type_link = entry_id("migration.type-link").unwrap();
+    for (path, index, expected) in [
+        (
+            "Catalog.КакойТоСправочник.TabularSection.КакаяТоТаблица.Attribute.КакойТоРеквизит",
+            "1",
+            "Справочник.КакойТоСправочник.ТабличнаяЧасть.КакаяТоТаблица.Реквизит.КакойТоРеквизит(1)",
+        ),
+        (
+            "Catalog.СправочникВладелец.StandardAttribute.Code",
+            "0",
+            "Справочник.СправочникВладелец.СтандартныйРеквизит.Код",
+        ),
+        ("Constant.КонстантаБулево", "0", "Константа.КонстантаБулево"),
+        ("РеквизитПодвала", "0", "РеквизитПодвала"),
+        ("Поле1", "9007199254740993", "Поле1(9007199254740993)"),
+    ] {
+        let xml = format!(
+            "<Root xmlns:xr='http://v8.1c.ru/8.3/xcf/readable'><TypeLink><xr:DataPath>{path}</xr:DataPath><xr:LinkItem>{index}</xr:LinkItem></TypeLink></Root>"
+        );
+        let result =
+            convert_file(type_link, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+        assert_eq!(
+            String::from_utf8_lossy(&result.bytes),
+            format!("СвязьТипа: {expected}")
+        );
+        verify(type_link, xml.as_bytes(), &result.bytes);
+    }
+    for (profile, path_attribute, empty_xml) in [
+        ("migration.type-link", "", "<Root/>"),
+        (
+            "migration.type-link-typed",
+            " xsi:type='xs:string'",
+            "<Root/>",
+        ),
+        ("migration.type-link-empty", "", "<Root><TypeLink/></Root>"),
+    ] {
+        let entry = entry_id(profile).unwrap();
+        let xml = format!(
+            "<Root xmlns:xr='http://v8.1c.ru/8.3/xcf/readable' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:xs='http://www.w3.org/2001/XMLSchema'><TypeLink><xr:DataPath{path_attribute}>РеквизитПодвала</xr:DataPath><xr:LinkItem>0</xr:LinkItem></TypeLink></Root>"
+        );
+        let imported = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+        assert_eq!(
+            String::from_utf8_lossy(&imported.bytes),
+            "СвязьТипа: РеквизитПодвала"
+        );
+        verify(entry, xml.as_bytes(), &imported.bytes);
+        let absent = convert_file(entry, Direction::YamlToXml, b"{}", &inputs).unwrap();
+        nkdk_conversion_core::proof::verify(empty_xml.as_bytes(), &absent.bytes, |_| false)
+            .unwrap();
+        for source in ["<Root/>", "<Root><TypeLink/></Root>"] {
+            let imported =
+                convert_file(entry, Direction::XmlToYaml, source.as_bytes(), &inputs).unwrap();
+            verify(entry, source.as_bytes(), &imported.bytes);
+            assert_eq!(imported.bytes.is_empty(), source == empty_xml);
+        }
+    }
+    let link_corpus: serde_json::Value = serde_json::from_slice(include_bytes!(
+        "../../../../tests/migration/type-link-e2e.json"
+    ))
+    .unwrap();
+    let link_cases = link_corpus["cases"].as_array().unwrap();
+    assert_eq!(link_cases.len(), 89);
+    for case in link_cases {
+        let original = case["original"].as_str().unwrap();
+        let start = case["start"].as_u64().unwrap() as usize;
+        let source = read_fixture(case);
+        assert_eq!(
+            source.get(start..start + original.len()),
+            Some(original.as_bytes()),
+            "Changed source {}",
+            case["source"]
+        );
+        let xml = case["xml"].as_str().unwrap().as_bytes();
+        let imported = convert_file(type_link, Direction::XmlToYaml, xml, &inputs).unwrap();
+        assert_eq!(
+            String::from_utf8_lossy(&imported.bytes),
+            case["yaml"].as_str().unwrap(),
+            "{}",
+            case["source"]
+        );
+        verify(type_link, xml, &imported.bytes);
+    }
+    for (path, expected) in [
+        (
+            "ExternalDataSource.Source.Table.Rows.Field.Code",
+            "ВнешнийИсточникДанных.Source.Таблица.Rows.Поле.Code",
+        ),
+        (
+            "ExternalDataSource.Source.Cube.Cube.DimensionTable.Rows.Field.Code",
+            "ВнешнийИсточникДанных.Source.Куб.Cube.ТаблицаИзмерения.Rows.Поле.Code",
+        ),
+    ] {
+        let xml = format!(
+            "<Root xmlns:xr='http://v8.1c.ru/8.3/xcf/readable'><TypeLink><xr:DataPath>{path}</xr:DataPath><xr:LinkItem>0</xr:LinkItem></TypeLink></Root>"
+        );
+        let imported =
+            convert_file(type_link, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+        assert_eq!(
+            String::from_utf8_lossy(&imported.bytes),
+            format!("СвязьТипа: {expected}")
+        );
+        verify(type_link, xml.as_bytes(), &imported.bytes);
+    }
+    let dcs_link = entry_id("migration.type-link-dcs").unwrap();
+    for (index, expected) in [
+        ("0", "Поле1"),
+        ("2", "Поле1(2)"),
+        ("9007199254740993", "Поле1(9007199254740993)"),
+    ] {
+        let xml = format!(
+            "<Root xmlns:dcscor='http://v8.1c.ru/8.1/data-composition-system/core' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'><dcscor:value xsi:type='dcscor:TypeLink'><dcscor:field>Поле1</dcscor:field><dcscor:linkItem>{index}</dcscor:linkItem></dcscor:value></Root>"
+        );
+        let imported =
+            convert_file(dcs_link, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+        assert_eq!(
+            String::from_utf8_lossy(&imported.bytes),
+            format!("СвязьТипа: {expected}")
+        );
+        verify(dcs_link, xml.as_bytes(), &imported.bytes);
+        let untyped = xml.replace(" xsi:type='dcscor:TypeLink'", "");
+        let preserved =
+            convert_file(dcs_link, Direction::XmlToYaml, untyped.as_bytes(), &inputs).unwrap();
+        assert!(String::from_utf8_lossy(&preserved.bytes).contains("!xml/raw"));
+        verify(dcs_link, untyped.as_bytes(), &preserved.bytes);
+    }
+    for (body, tag) in [
+        ("<xr:LinkItem>0</xr:LinkItem>", "!xml/raw"),
+        ("<xr:DataPath/><xr:LinkItem>0</xr:LinkItem>", "!xml/invalid"),
+        ("<xr:DataPath>Поле1</xr:DataPath>", "!xml/raw"),
+        (
+            "<xr:DataPath>Поле1</xr:DataPath><xr:LinkItem>bad</xr:LinkItem>",
+            "!xml/raw",
+        ),
+        (
+            "<xr:DataPath>Поле1(2)</xr:DataPath><xr:LinkItem>0</xr:LinkItem>",
+            "!xml/raw",
+        ),
+        (
+            "<xr:DataPath>Catalog.Owner.Attribute.1bad</xr:DataPath><xr:LinkItem>0</xr:LinkItem>",
+            "!xml/invalid",
+        ),
+    ] {
+        let xml = format!(
+            "<Root xmlns:xr='http://v8.1c.ru/8.3/xcf/readable'><TypeLink>{body}</TypeLink></Root>"
+        );
+        let imported =
+            convert_file(type_link, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+        assert!(
+            String::from_utf8_lossy(&imported.bytes).contains(tag),
+            "{}",
+            String::from_utf8_lossy(&imported.bytes)
+        );
+        verify(type_link, xml.as_bytes(), &imported.bytes);
+    }
+    let invalid_with_shape = "<Root xmlns:xr='http://v8.1c.ru/8.3/xcf/readable'><TypeLink extra='kept'><xr:DataPath/><xr:LinkItem>0</xr:LinkItem></TypeLink></Root>";
+    let preserved = convert_file(
+        type_link,
+        Direction::XmlToYaml,
+        invalid_with_shape.as_bytes(),
+        &inputs,
+    )
+    .unwrap();
+    let yaml = String::from_utf8_lossy(&preserved.bytes);
+    assert!(
+        yaml.contains("!xml/raw") && yaml.contains("!xml/invalid"),
+        "{yaml}"
+    );
+    verify(type_link, invalid_with_shape.as_bytes(), &preserved.bytes);
+    assert!(
+        !validate_file(
+            type_link,
+            "СвязьТипа: !xml/invalid Поле1".as_bytes(),
+            &inputs
+        )
+        .is_empty()
+    );
     let combined = entry_id("migration.metadata-structural-path").unwrap();
     let chain = entry_id("migration.metadata-field-chain-path").unwrap();
     for (profile, path, expected) in cases {

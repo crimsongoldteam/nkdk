@@ -66,11 +66,20 @@ pub(super) fn reader(entry: &LinkedEntry) -> String {
         )
         .unwrap();
     }
-    consume_function(id, &format!("yaml_pattern_{id}().parse(&text)"), &consume)
+    consume_function(
+        entry,
+        &format!("yaml_pattern_{id}().parse(&text)"),
+        &consume,
+    )
 }
-fn consume_function(id: u32, parse: &str, assignments: &str) -> String {
+fn consume_function(entry: &LinkedEntry, parse: &str, assignments: &str) -> String {
+    let id = entry.id;
+    let LinkedType::Record(fields) = &entry.value else {
+        unreachable!()
+    };
+    let slot = fields.len();
     format!(
-        "fn consume_yaml_text_{id}(state:&mut YamlFields{id},seen:&mut bool,node:core::yaml::Node,position:core::Position)->core::Result<()>{{let core::yaml::Node::Scalar(value,None)=node else{{return Err(RuntimeDiagnostic::new(\"yaml.expected-text\",\"Expected an untagged text record\"))}};if *seen{{return Err(RuntimeDiagnostic::new(\"yaml.document\",\"Expected one text record\"))}}*seen=true;let text=value.into_text()?;let slots={parse}.map_err(|_|RuntimeDiagnostic::new(\"value.text-pattern\",\"Text does not match record pattern\"))?;{assignments}Ok(())}}"
+        "fn consume_yaml_text_{id}(state:&mut YamlFields{id},seen:&mut bool,node:core::yaml::Node,position:core::Position)->core::Result<()>{{let core::yaml::Node::Scalar(value,tag)=node else{{return Err(RuntimeDiagnostic::new(\"yaml.expected-text\",\"Expected an untagged text record\"))}};if *seen{{return Err(RuntimeDiagnostic::new(\"yaml.document\",\"Expected one text record\"))}}*seen=true;state.raw.read_mark({slot},tag.as_deref().or(value.annotation()),position)?;let text=value.into_text()?;let slots={parse}.map_err(|_|RuntimeDiagnostic::new(\"value.text-pattern\",\"Text does not match record pattern\"))?;{assignments}Ok(())}}"
     )
 }
 

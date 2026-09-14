@@ -70,6 +70,7 @@ pub(super) fn generate(
     fields: &[Field<'_>],
     layout: Option<&super::super::nested_record::Layout>,
     headers: &[(usize, &Field<'_>)],
+    container_attributes: &str,
 ) -> String {
     let mut out = String::new();
     let members = members(fields, layout, headers);
@@ -89,6 +90,7 @@ pub(super) fn generate(
         writeln!(out, "if path.len()>{len} && core::xml::matches(&path[..{len}],{path}) {{self.nested{i}=true;self.shape{i}=true;return Ok(());}}",len=field.path.len(),path=path_code(field.path)).unwrap();
     }
     out.push_str("match token {core::xml::Token::Attribute(_attribute) => {\n");
+    out.push_str(container_attributes);
     for (i, field) in physical_fields(fields) {
         if let Some(attribute) = field.attribute {
             writeln!(out, "if core::xml::matches(path,{}) && {} {{if self.r{i}.replace(_attribute.text.clone()).is_some() {{return Err(RuntimeDiagnostic::new(\"xml.duplicate-field\",\"Repeated attribute\"));}} return Ok(());}}", path_code(field.path), super::super::attributes::name_matches(attribute,"_attribute.name")).unwrap();

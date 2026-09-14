@@ -2,6 +2,7 @@ mod automata;
 mod expressions;
 mod fact_shape;
 mod link;
+mod presence;
 pub use link::link;
 mod parse;
 mod plan;

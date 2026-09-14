@@ -1,0 +1,14 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.type-link-empty
+imports: {link: common.type-link}
+value:
+  kind: record
+  fields: [{name: link, type: {use: link}}]
+representations:
+  xml: {kind: record, fields: [{field: link, path: [Root, TypeLink]}]}
+  yaml: {kind: mapping, fields: [{field: link, key: СвязьТипа}]}
+presence:
+- target: {field: link}
+  xml:
+    canonical: [{when: {not: {present: {field: link}}}, form: empty-element}]

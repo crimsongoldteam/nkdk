@@ -1,0 +1,11 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.type-link-dcs
+namespaces: {dcscor: 'http://v8.1c.ru/8.1/data-composition-system/core'}
+imports: {link: common.type-link-dcs}
+value:
+  kind: record
+  fields: [{name: link, type: {use: link}}]
+representations:
+  xml: {kind: record, fields: [{field: link, path: [Root, dcscor:value]}]}
+  yaml: {kind: mapping, fields: [{field: link, key: СвязьТипа}]}

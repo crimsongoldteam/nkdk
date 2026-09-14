@@ -33,9 +33,16 @@ declarations:
     xml: {kind: text-pattern, parts: [{field: kind}, {literal: '.'}, {field: name}]}
     yaml: {kind: text-pattern, parts: [{field: kind}, {literal: '.'}, {field: name}]}
 - kind: value
+  id: common.metadata-object-field-segment
+  imports: {kind: common.path-object-kind, name: common.metadata-name}
+  value: {kind: record, fields: [{name: kind, type: {use: kind}}, {name: name, type: {use: name}}]}
+  representations:
+    xml: {kind: text-pattern, parts: [{field: kind}, {literal: '.'}, {field: name}]}
+    yaml: {kind: text-pattern, parts: [{field: kind}, {literal: '.'}, {field: name}]}
+- kind: value
   id: common.metadata-field-segment
-  imports: {ordinary: common.metadata-ordinary-field-segment, standard: common.metadata-standard-field-segment}
-  value: {kind: choice, variants: [{name: ordinary, type: {use: ordinary}}, {name: standard, type: {use: standard}}]}
+  imports: {ordinary: common.metadata-ordinary-field-segment, standard: common.metadata-standard-field-segment, object: common.metadata-object-field-segment}
+  value: {kind: choice, variants: [{name: ordinary, type: {use: ordinary}}, {name: standard, type: {use: standard}}, {name: object, type: {use: object}}]}
   representations:
     xml: {kind: choice}
     yaml: {kind: choice}

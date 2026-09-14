@@ -353,8 +353,15 @@ contributions:
             "{optional: index, parts: [{literal: '('}, {field: index}, {literal: ')'}]}",
         )
         + "\npresence:\n- target: {field: index}\n  xml: {missing: {denotes: {literal: 0}}}\n  yaml:\n    missing: {denotes: {literal: 0}}\n    omitWhen: {eq: [{field: index}, {literal: 0}]}\n";
+    let text_record_optional = text_record_optional
+        + "\n- target: self\n  xml:\n    missing: {denotes: {absent: true}}\n    empty: [{form: empty-element, denotes: {absent: true}}]\n    canonical: [{when: {not: {present: {self: true}}}, form: empty-element}]\n  yaml: {missing: {denotes: {absent: true}}}\n";
     let text_record_optional_owner =
         text_record_owner.replace("record-text", "record-text-optional");
+    let text_record_wrapped = text_record_common.replace("common.record-text", "common.record-text-wrapped")
+        .replace("value:\n", "namespaces: {m: 'urn:marker'}\nvalue:\n")
+        .replace("xml: {kind: record, fields:", "xml: {kind: with-attributes, attributes: [{name: m:type, value: {qname: m:Link}, when: {eq: [{field: index}, {literal: 2}]}}], content: {kind: record, fields:")
+        .replace("[Index]}]}", "[Index]}]}}");
+    let text_record_wrapped_owner = text_record_owner.replace("record-text", "record-text-wrapped");
     let text_record_header = text_record_common
         .replace("common.record-text", "common.record-text-header")
         .replace(
@@ -499,6 +506,20 @@ contributions:
         let framed_owner = chain_owner
             .replace("test.text-sequence", "test.framed-sequence")
             .replace("common.text-sequence", "common.framed-pair");
+        let open_frame = framed
+            .replace("common.framed-pair", "common.open-frame")
+            .replace(
+                "{field: name}, {literal: '/'}, {field: domain}, {literal: '/'}, {field: tail}",
+                "{field: domain}, {literal: '/'}, {field: name}, {literal: '/'}, {field: tail}",
+            );
+        let open_text = "format: nkdk-declarations/1\nkind: value\nid: common.open-text\nvalue: {kind: scalar, scalar: text, pattern: '.+'}\nrepresentations: {xml: {kind: text}, yaml: {kind: scalar, scalar: text}}\n";
+        let open_choice = include_str!("fixtures/text-choice.yaml")
+            .replace("common.text-choice", "common.open-choice")
+            .replace("common.choice-first", "common.open-frame")
+            .replace("common.choice-second", "common.open-text");
+        let open_owner = framed_owner
+            .replace("test.framed-sequence", "test.open-choice")
+            .replace("common.framed-pair", "common.open-choice");
         let indexed_frame = framed_owner.replace("test.framed-sequence", "test.indexed-frame")
             + "\ninputs:\n  roots: {index: test.path-roots}\nconstraints:\n- id: known-root\n  appliesTo: [xml-import, yaml-validation]\n  assert: {present: {lookup: {in: {input: roots}, key: {record: {kind: {get: {of: {field: pair}, field: domain}}, name: {get: {of: {field: pair}, field: name}}}}}}}\n  diagnostic: {code: path.root-missing, severity: error, at: {field: pair}, message: Root is missing}\n";
         let bound_variant = include_str!("fixtures/text-choice-first.yaml")
@@ -674,6 +695,10 @@ presence:
             ),
             ("indexed-frame.yaml", indexed_frame.as_str()),
             ("framed.yaml", framed.as_str()),
+            ("open-choice.yaml", open_choice.as_str()),
+            ("open-frame.yaml", open_frame.as_str()),
+            ("open-owner.yaml", open_owner.as_str()),
+            ("open-text.yaml", open_text),
             ("framed-owner.yaml", framed_owner.as_str()),
             ("text-sequence-row.yaml", chain_row.as_str()),
             ("text-sequence.yaml", chain.as_str()),
@@ -752,6 +777,8 @@ presence:
             ("record-text-header.yaml", text_record_header.as_str()),
             ("record-text-header-owner.yaml", text_record_header_owner.as_str()),
             ("record-text-optional.yaml", text_record_optional.as_str()),
+            ("record-text-wrapped.yaml", text_record_wrapped.as_str()),
+            ("record-text-wrapped-owner.yaml", text_record_wrapped_owner.as_str()),
             ("record-text-optional-owner.yaml", text_record_optional_owner.as_str()),
             ("record-text-owner.yaml", text_record_owner.as_str()),
             ("record-text.yaml", include_str!("fixtures/record-text.yaml")),
@@ -1070,6 +1097,10 @@ presence:
                 "nested-stream.yaml",
                 "numeric-attributes.yaml",
                 "numeric-bound.yaml",
+                "open-choice.yaml",
+                "open-frame.yaml",
+                "open-owner.yaml",
+                "open-text.yaml",
                 "optional-owner.yaml",
                 "optional.yaml",
                 "owner.yaml",
@@ -1084,6 +1115,8 @@ presence:
                 "record-text-optional-owner.yaml",
                 "record-text-optional.yaml",
                 "record-text-owner.yaml",
+                "record-text-wrapped-owner.yaml",
+                "record-text-wrapped.yaml",
                 "record-text.yaml",
                 "required-owner.yaml",
                 "root-scalar.yaml",
@@ -1760,6 +1793,15 @@ fn main() {
     assert_eq!(printed, ["[leaf] Запад", "[twig] Восток"]);
     let sequence = entry_id("test.text-sequence").unwrap();
     for (entry, text, expected, tag) in [
+        (entry_id("test.open-choice").unwrap(), "west::leaf", Some("Pair: Запад/leaf"), None),
+        (entry_id("test.open-choice").unwrap(), "west::leaf::east::twig", Some("Pair: Запад/leaf/twig/Восток"), None),
+        (entry_id("test.open-choice").unwrap(), "local::name", Some("Pair: local::name"), None),
+        (entry_id("test.open-choice").unwrap(), "", None, Some("!xml/invalid")),
+        (entry_id("test.open-choice").unwrap(), "west", None, Some("!xml/raw")),
+        (entry_id("test.open-choice").unwrap(), "west::leaf::broken", None, Some("!xml/raw")),
+        (entry_id("test.open-choice").unwrap(), "Запад/leaf", None, Some("!xml/raw")),
+        (entry_id("test.open-choice").unwrap(), "west::reserved", None, Some("!xml/invalid")),
+        (entry_id("test.open-choice").unwrap(), "west::leaf::east::1bad", None, Some("!xml/invalid")),
         (sequence, "west::leaf::east::twig", Some("Pair: leaf/Запад/twig/Восток"), None),
         (sequence, "west::leaf::west::leaf", Some("Pair: leaf/Запад/leaf/Запад"), None),
         (sequence, "", Some("Pair: \"\""), None),
@@ -2049,7 +2091,29 @@ fn main() {
         verify_candidate(text_record_header,original.as_bytes(),yaml.as_bytes(),&PreparedInputs::default()).unwrap();
         verify_candidate(text_record_header,original.replace("alpha","beta").as_bytes(),yaml.replace("alpha(2)","beta(2)").as_bytes(),&PreparedInputs::default()).unwrap();
     }
+    let wrapped_record = entry_id("test.record-text-wrapped-owner").unwrap();
+    let conditional = b"<Root><Link><Path>alpha</Path><Index>3</Index></Link></Root>";
+    let conditional_result = convert_file(wrapped_record, Direction::XmlToYaml, conditional, &PreparedInputs::default()).unwrap();
+    assert_eq!(conditional_result.bytes, b"Link: alpha(3)");
+    verify_candidate(wrapped_record, conditional, &conditional_result.bytes, &PreparedInputs::default()).unwrap();
+
+    for (attributes, preserved) in [("m:type='m:Link'", false), ("", true), ("m:type='m:Other'", true), ("m:type='m:Link' extra='kept'", true)] {
+        let xml=format!("<Root xmlns:m='urn:marker'><Link {attributes}><Path>alpha</Path><Index>2</Index></Link></Root>");
+        let result=convert_file(wrapped_record,Direction::XmlToYaml,xml.as_bytes(),&PreparedInputs::default()).unwrap();
+        assert_eq!(String::from_utf8_lossy(&result.bytes).contains("!xml/raw"),preserved, "{}",String::from_utf8_lossy(&result.bytes));
+        if !preserved {assert_eq!(result.bytes,b"Link: alpha(2)");}
+        verify_candidate(wrapped_record,xml.as_bytes(),&result.bytes,&PreparedInputs::default()).unwrap();
+    }
     let optional_record = entry_id("test.record-text-optional-owner").unwrap();
+    for (xml, preserved) in [("<Root><Link/></Root>", false), ("<Root/>", true), ("<Root><Link extra='kept'/></Root>", true)] {
+        let result=convert_file(optional_record,Direction::XmlToYaml,xml.as_bytes(),&PreparedInputs::default()).unwrap();
+        assert_eq!(String::from_utf8_lossy(&result.bytes).contains("!xml/raw"),preserved);
+        if !preserved {assert!(result.bytes.is_empty());}
+        verify_candidate(optional_record,xml.as_bytes(),&result.bytes,&PreparedInputs::default()).unwrap();
+    }
+    let empty_record=convert_file(optional_record,Direction::YamlToXml,b"{}",&PreparedInputs::default()).unwrap();
+    core::proof::verify(b"<Root><Link/></Root>",&empty_record.bytes,|_|false).unwrap();
+
     for (body,expected) in [
         ("<Path>alpha</Path><Index>0</Index>",Some("Link: alpha")),
         ("<Path>alpha</Path><Index>9007199254740993</Index>",Some("Link: alpha(9007199254740993)")),

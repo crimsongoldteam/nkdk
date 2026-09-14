@@ -56,7 +56,9 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
   const basedOnDefault=basedOn && (p.defaultValueXMLRaw==='' || (p.defaultValueXMLRaw && typeof p.defaultValueXMLRaw==='object' && !Array.isArray(p.defaultValueXMLRaw) && Object.keys(p.defaultValueXMLRaw).length===0));
   if(basedOn && !basedOnDefault)return fail('based-on-default-profile');
   const linkList=documentList || basedOn;
-  const reference=ownerForm || numerator;
+  const typeLink=p.type==='TypeLink';
+  if(typeLink && Object.hasOwn(p,'metadataTarget'))return fail('type-link-target-profile');
+  const reference=ownerForm || numerator || typeLink;
   if(reference && (Object.hasOwn(p,'defaultValueXML') || Object.hasOwn(p,'implicitValueYAML') || Object.hasOwn(p,'noImplicitValueYAML')))return fail('form-default-profile');
   const grouped = p.type === 'MetadataCommandGroup';
   const scalarChoice=p.type==='StringOrNumber';
@@ -80,7 +82,7 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
   if(fields && p.fieldsListXMLItem !== undefined && !['Field','xr:Field'].includes(p.fieldsListXMLItem))return fail('fields-list-item-profile');
   if(minMax && p.typedXML !== undefined && !['xs:string','xs:decimal'].includes(p.typedXML))return fail('min-max-type-profile');
   const nilDefault=minMax && p.defaultValueXMLRaw && typeof p.defaultValueXMLRaw==='object' && Object.keys(p.defaultValueXMLRaw).length===1 && p.defaultValueXMLRaw['_xsi:nil']===true;
-  const id = simple.get(p.type) ?? list ?? (date?(p.typedXML?'common.typed-date-time':'common.date-time'):null) ?? (purposes?'common.use-purposes':scalarChoice?'common.string-or-number':qname?'common.xdto-type-name':index?'common.index-field':grouped?'common.metadata-command-group':ownerForm?'common.owner-or-common-form-link':numerator?'common.document-numerator-link':documentList?'common.journal-document-links':basedOn?'common.based-on-links':null) ?? (p.type === 'SystemEnumeration' ? `system.${p.typeSE}` : text ? (formatted?'common.formatted-i8n-text':'common.i8n-text') : minMax ? (p.typedXML==='xs:string'?'common.min-max-value-text':'common.min-max-value') : fields ? (p.fieldsListXMLItem==='xr:Field'?'common.fields-list-readable':'common.fields-list') : null);
+  const id = simple.get(p.type) ?? list ?? (date?(p.typedXML?'common.typed-date-time':'common.date-time'):null) ?? (purposes?'common.use-purposes':scalarChoice?'common.string-or-number':qname?'common.xdto-type-name':index?'common.index-field':grouped?'common.metadata-command-group':ownerForm?'common.owner-or-common-form-link':numerator?'common.document-numerator-link':typeLink?'common.type-link':documentList?'common.journal-document-links':basedOn?'common.based-on-links':null) ?? (p.type === 'SystemEnumeration' ? `system.${p.typeSE}` : text ? (formatted?'common.formatted-i8n-text':'common.i8n-text') : minMax ? (p.typedXML==='xs:string'?'common.min-max-value-text':'common.min-max-value') : fields ? (p.fieldsListXMLItem==='xr:Field'?'common.fields-list-readable':'common.fields-list') : null);
   if (!id || !catalog.has(id)) return fail('unsupported-common');
   let implicitValue=p.implicitValueYAML;
   if(p.type==='boolean' && typeof implicitValue==='string') {

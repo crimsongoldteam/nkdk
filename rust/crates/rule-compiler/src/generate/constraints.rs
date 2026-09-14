@@ -181,12 +181,12 @@ fn generate_at(
         let mut item_checks = String::new();
         if base.is_none() {
             for (index, field) in fields.iter().enumerate() {
-                if let super::scalar::Codec::Sequence(_) =
-                    super::scalar::Codec::resolve(&field.value, entry, program)?
+                if let Some(method) = super::scalar::Codec::resolve(&field.value, entry, program)?
+                    .child_check_method()
                 {
                     let key = super::record::diagnostic_key(entry, &field.name);
                     let xml = side == "xml";
-                    writeln!(item_checks,"if let Some(value)=&_value.f{index}{{errors.extend(value.issues({xml},_inputs).into_iter().map(|issue|_value.positions[{index}].apply(_source,issue.field({key:?}))));}}").unwrap();
+                    writeln!(item_checks,"if let Some(value)=&_value.f{index}{{errors.extend(value.{method}({xml},_inputs).into_iter().map(|issue|_value.positions[{index}].apply(_source,issue.field({key:?}))));}}").unwrap();
                 }
             }
         }
@@ -201,19 +201,7 @@ fn generate_at(
             continue;
         }
         let storage = if base.is_none() {
-            Some(
-                fields
-                    .iter()
-                    .enumerate()
-                    .map(|(index, field)| {
-                        Ok((
-                            super::scalar::Codec::resolve(&field.value, entry, program)?
-                                .optional_meaning(&format!("E{}F{index}", entry.id), index),
-                            format!("_value.f{index}.is_some()"),
-                        ))
-                    })
-                    .collect::<Result<Vec<_>, Diagnostic>>()?,
-            )
+            Some(super::expressions::record_storage(entry, program, fields)?)
         } else {
             None
         };
@@ -373,7 +361,11 @@ fn generate_at(
             format!(".into_iter().map(|mut issue|{{issue.path.insert(0,{key:?}.into());issue}}).collect()")
         });
         writeln!(out,"fn check_xml_{id}(value:&V{id},_source:&[u8],_inputs:&InputView<'_>)->Vec<RuntimeDiagnostic> {{value.raw.diagnostics(){address}}}").unwrap();
-        writeln!(out,"fn check_yaml_{id}(value:&V{id},source:&[u8],inputs:&InputView<'_>)->Vec<RuntimeDiagnostic> {{value.raw.validate(&{keys:?},issues_yaml_{id}(value,source,inputs),&issues_xml_{id}(value,source,inputs)){address}}}").unwrap();
+        if matches!(entry.yaml, YamlRepresentation::TextPattern(_)) {
+            writeln!(out,"fn check_yaml_{id}(value:&V{id},source:&[u8],inputs:&InputView<'_>)->Vec<RuntimeDiagnostic> {{value.raw.validate_value({},issues_yaml_{id}(value,source,inputs),issues_xml_{id}(value,source,inputs)){address}}}",fields.len()).unwrap();
+        } else {
+            writeln!(out,"fn check_yaml_{id}(value:&V{id},source:&[u8],inputs:&InputView<'_>)->Vec<RuntimeDiagnostic> {{value.raw.validate(&{keys:?},issues_yaml_{id}(value,source,inputs),&issues_xml_{id}(value,source,inputs)){address}}}").unwrap();
+        }
     }
     Ok(out)
 }

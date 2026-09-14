@@ -10,6 +10,11 @@ pub(super) fn specialize(entries: &mut Vec<LinkedEntry>) -> Result<(), Diagnosti
         let owner_index = cursor;
         cursor += 1;
         let owner = entries[owner_index].clone();
+        // Generic definitions are specialized through their concrete callers first.
+        if !owner.parameters.is_empty() {
+            continue;
+        }
+
         let fields = match &owner.value {
             LinkedType::Record(fields) | LinkedType::Choice(fields) => fields.clone(),
             LinkedType::Sequence(item) if super::scalar_inputs::typed_collection(&owner) => {
@@ -34,13 +39,19 @@ pub(super) fn specialize(entries: &mut Vec<LinkedEntry>) -> Result<(), Diagnosti
                 .iter()
                 .find(|value| value.id == *entry)
                 .expect("linked scalar target");
-            if !matches!(
-                common.value,
-                LinkedType::Scalar(_)
-                    | LinkedType::Enum(_)
-                    | LinkedType::ScalarChoice(_)
-                    | LinkedType::Choice(_)
-            ) && !matches!(common.xml, LinkedXml::TextPattern(_))
+            let static_record = matches!(common.value, LinkedType::Record(_))
+                && !common.parameters.is_empty()
+                && common.inputs.is_empty()
+                && crate::plan::xml_fields(&common.xml).is_some();
+            if !static_record
+                && !matches!(
+                    common.value,
+                    LinkedType::Scalar(_)
+                        | LinkedType::Enum(_)
+                        | LinkedType::ScalarChoice(_)
+                        | LinkedType::Choice(_)
+                )
+                && !matches!(common.xml, LinkedXml::TextPattern(_))
                 && !super::scalar_inputs::typed_collection(common)
             {
                 continue;
@@ -125,6 +136,7 @@ fn bind(entry: &mut LinkedEntry, arguments: &[LinkedExpression]) -> Result<(), D
             "Static argument count differs from parameters",
         ));
     }
+    super::composition::instantiate_value(entry, &[], arguments)?;
     for rule in &mut entry.presence {
         for value in [
             &mut rule.xml_missing,

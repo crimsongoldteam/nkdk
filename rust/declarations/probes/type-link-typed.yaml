@@ -1,0 +1,10 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.type-link-typed
+imports: {link: common.type-link}
+value:
+  kind: record
+  fields: [{name: link, type: {use: link, with: {typedXML: true}}}]
+representations:
+  xml: {kind: record, fields: [{field: link, path: [Root, TypeLink]}]}
+  yaml: {kind: mapping, fields: [{field: link, key: СвязьТипа}]}

@@ -799,6 +799,18 @@ impl<'a> Expressions<'a> {
                             values[0], self.entry.id
                         )
                     }
+                    LinkedOperator::VariantValue(variant) => {
+                        let LinkedExpressionKind::Field(owner) = arguments[0].kind else {
+                            return Err(unsupported(
+                                self.entry,
+                                "Scalar variant projection requires an owning field",
+                            ));
+                        };
+                        format!(
+                            "match {} {{ E{}F{owner}::V{variant}(selected)=>selected.as_str(), _=>unreachable!(\"guarded scalar variant\") }}",
+                            values[0], self.entry.id
+                        )
+                    }
                     LinkedOperator::VariantField { variant, field } => {
                         let LinkedExpressionKind::Field(owner) = arguments[0].kind else {
                             return Err(unsupported(
@@ -818,11 +830,12 @@ impl<'a> Expressions<'a> {
                             ));
                         };
                         let name = format!("E{}F{owner}", self.entry.id);
-                        let meaning = choice.variants[*variant as usize].field_meaning(
+                        let meaning = choice.field_meaning(
+                            *variant as usize,
                             &format!("{name}V{variant}"),
                             *field as usize,
                             "selected",
-                        );
+                        )?;
                         format!(
                             "match {} {{ {name}::V{variant}(selected)=>{meaning}, _=>unreachable!(\"guarded variant\") }}",
                             values[0]
@@ -1017,6 +1030,15 @@ pub(super) fn expression(
     program: &Program,
     value: &LinkedExpression,
 ) -> Result<(String, String), Diagnostic> {
+    expression_with_storage(entry, program, value, None)
+}
+
+pub(super) fn expression_with_storage(
+    entry: &LinkedEntry,
+    program: &Program,
+    value: &LinkedExpression,
+    storage: Option<&[(String, String)]>,
+) -> Result<(String, String), Diagnostic> {
     let fields: &[LinkedField] = match &entry.value {
         LinkedType::Record(fields) => fields,
         LinkedType::Sequence(item) => match item.as_ref() {
@@ -1031,7 +1053,25 @@ pub(super) fn expression(
         },
         _ => return Err(unsupported(entry, "Expression owner needs record storage")),
     };
-    let mut expressions = Expressions::new(entry, program, fields, None);
+    let mut expressions = Expressions::new(entry, program, fields, storage);
     let code = expressions.lower(value)?;
     Ok((expressions.constants, code))
+}
+
+pub(super) fn record_storage(
+    entry: &LinkedEntry,
+    program: &Program,
+    fields: &[LinkedField],
+) -> Result<Vec<(String, String)>, Diagnostic> {
+    fields
+        .iter()
+        .enumerate()
+        .map(|(index, field)| {
+            Ok((
+                super::scalar::Codec::resolve(&field.value, entry, program)?
+                    .optional_meaning(&format!("E{}F{index}", entry.id), index),
+                format!("_value.f{index}.is_some()"),
+            ))
+        })
+        .collect()
 }
