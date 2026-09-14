@@ -64,6 +64,19 @@ fn authoring_schema_accepts_the_corpus_and_rejects_structural_mistakes() {
         "value":{"kind":"scalar","scalar":"number","profile":"decimal"},
         "representations":{"xml":{"kind":"text"},"yaml":{"kind":"scalar","scalar":"number"}}
     });
+    let reject_change = |base: &Value, pointer: &str, replacement: Value| {
+        let mut invalid = base.clone();
+        *invalid.pointer_mut(pointer).unwrap() = replacement;
+        assert!(!validator.is_valid(&invalid), "{invalid}");
+        let bytes = serde_json::to_vec(&invalid).unwrap();
+        assert!(
+            parse_many(SourceFile {
+                path: "invalid.json",
+                bytes: &bytes
+            })
+            .is_err()
+        );
+    };
     for (pointer, replacement) in [
         ("/format", json!("future")),
         ("/value/profile", json!("binary64")),
@@ -76,22 +89,34 @@ fn authoring_schema_accepts_the_corpus_and_rejects_structural_mistakes() {
         ("/kind", json!("object")),
         ("/id", json!("")),
     ] {
-        let mut invalid = base.clone();
-        *invalid.pointer_mut(pointer).unwrap() = replacement;
-        assert!(!validator.is_valid(&invalid), "{invalid}");
-        let bytes = serde_json::to_vec(&invalid).unwrap();
-        assert!(
-            parse_many(SourceFile {
-                path: "invalid.json",
-                bytes: &bytes
-            })
-            .is_err()
-        );
+        reject_change(&base, pointer, replacement);
     }
     let mut invalid = base.clone();
     invalid["unknown"] = json!(true);
     assert!(!validator.is_valid(&invalid));
     assert!(validator.is_valid(&base));
+    let relation = json_value(
+        yaml_rust2::YamlLoader::load_from_str(include_str!("fixtures/state-projections.yaml"))
+            .unwrap()
+            .remove(0),
+    );
+    assert!(validator.is_valid(&relation));
+    for (pointer, replacement) in [
+        ("/state-relations/0/sources", json!({})),
+        (
+            "/state-relations/0/sources/base",
+            json!({"present":{"input":"baseId"},"equals":{"input":"baseId"}}),
+        ),
+        (
+            "/state-relations/0/states/text",
+            json!(["notice", "notice"]),
+        ),
+        ("/state-relations/0/states", json!({})),
+        ("/state-relations/0/field", json!(true)),
+    ] {
+        reject_change(&relation, pointer, replacement);
+    }
+
     for expression in [
         json!({"eq":[{"literal":1}]}),
         json!({"and":[]}),

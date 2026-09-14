@@ -63,6 +63,48 @@ fn generated_rust_executes_both_directions_and_uses_the_imported_table() {
             "fields: [{field: state, key:",
             "fields: [{field: extra, key: Extra}, {field: state, key:",
         );
+    let cube_states = format!(
+        "format: nkdk-declarations/1\nkind: value\nid: common.cube-states\nvalue:\n  kind: enum\n  variants:\n{}representations:\n  xml:\n    kind: text\n    values:\n{}  yaml:\n    kind: scalar\n    values:\n{}",
+        (0..8)
+            .map(|index| format!("  - {{name: S{index}, value: s{index}}}\n"))
+            .collect::<String>(),
+        (0..8)
+            .map(|index| format!("    - {{value: s{index}, text: S{index}}}\n"))
+            .collect::<String>(),
+        (0..8)
+            .map(|index| format!("    - {{value: s{index}, literal: s{index}}}\n"))
+            .collect::<String>(),
+    );
+    let cube = r#"format: nkdk-declarations/1
+kind: object
+id: test.cube
+imports: {state: common.cube-states}
+value:
+  kind: record
+  fields:
+  - {name: mode, type: {use: state}}
+  - {name: first, type: {kind: scalar, scalar: text}}
+  - {name: second, type: {kind: scalar, scalar: text}}
+  - {name: third, type: {kind: scalar, scalar: text}}
+representations:
+  xml: {kind: record, fields: [{field: first, path: [Root, A]}, {field: second, path: [Root, B]}, {field: third, path: [Root, C]}]}
+  yaml: {kind: mapping, fields: [{field: mode, key: State}]}
+state-relations:
+- field: mode
+  sources:
+    first: {equals: {literal: on}}
+    second: {equals: {literal: on}}
+    third: {equals: {literal: on}}
+  states:
+    s0: []
+    s1: [first]
+    s2: [second]
+    s3: [first, second]
+    s4: [third]
+    s5: [first, third]
+    s6: [second, third]
+    s7: [first, second, third]
+"#;
     let state_owner = include_str!("fixtures/finite-state-owner.yaml");
     let absent_state = include_str!("fixtures/finite-states.yaml")
         .lines()
@@ -461,6 +503,8 @@ contributions:
             .replace("{use: pair}", "{use: pair, bind: {allowed: {input: selected}, enabled: {input: unused}}}");
         let mut modules = [
             ("directional-fields.yaml", directional),
+            ("cube-states.yaml", cube_states.as_str()),
+            ("cube.yaml", cube),
             ("state-projections-composed.yaml", projections_composed.as_str()),
             ("state-projections.yaml", include_str!("fixtures/state-projections.yaml")),
             ("computed-fields.yaml", computed_checked.as_str()),
@@ -796,6 +840,8 @@ contributions:
                 "computed-owner.yaml",
                 "computed-row.yaml",
                 "computed-rows.yaml",
+                "cube-states.yaml",
+                "cube.yaml",
                 "decimal-owner.yaml",
                 "decimal.yaml",
                 "declared-deep-owner.yaml",
@@ -958,6 +1004,22 @@ fn main() {
     let exported = convert_file(computed_owner,Direction::YamlToXml,b"Row:\n  Left: x\nExtra:\n  Marker: fixed",&PreparedInputs::default()).unwrap();
     let xml = String::from_utf8(exported.bytes).unwrap();
     assert!(xml.contains("<Right>x</Right>") && xml.contains("<Marker>fixed</Marker>") && !xml.contains("<Left>"), "{xml}");
+    let cube = entry_id("test.cube").unwrap();
+    for mask in 0..8 {
+        let mut xml = String::from("<Root>");
+        for (bit, tag) in [(1, "A"), (2, "B"), (4, "C")] {
+            if mask & bit != 0 { xml.push_str(&format!("<{tag}>on</{tag}>")); }
+        }
+        xml.push_str("</Root>");
+        let yaml = format!("State: s{mask}");
+        let imported = convert_file(cube, Direction::XmlToYaml, xml.as_bytes(), &PreparedInputs::default()).unwrap();
+        assert_eq!(String::from_utf8(imported.bytes).unwrap(), yaml);
+        let exported = convert_file(cube, Direction::YamlToXml, yaml.as_bytes(), &PreparedInputs::default()).unwrap();
+        let exported = String::from_utf8(exported.bytes).unwrap();
+        for (bit, tag) in [(1, "A"), (2, "B"), (4, "C")] {
+            assert_eq!(exported.contains(&format!("<{tag}>on</{tag}>")), mask & bit != 0, "{exported}");
+        }
+    }
     for (entry_name, extra_xml, extra_yaml) in [
         ("test.state-projections", "", ""),
         ("test.state-projections-composed", "<Extra><Marker>fixed</Marker></Extra>", "Extra:\n  Marker: fixed"),

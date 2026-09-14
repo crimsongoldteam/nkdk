@@ -23,6 +23,7 @@ mod scalar_inputs;
 mod scalar_parameters;
 pub(crate) mod sequence_item;
 mod shorthands;
+mod state_relations;
 mod text;
 mod text_pattern;
 mod text_projection;
@@ -111,6 +112,7 @@ pub fn link(modules: &[Module]) -> Result<Program, Vec<Diagnostic>> {
         choice_contracts::lift(&mut entries).map_err(|error| vec![error])?;
         contributions::validate_inputs(&entries).map_err(|error| vec![error])?;
         let program = Program { entries };
+        state_relations::validate(modules, &program).map_err(|error| vec![error])?;
         for entry in &program.entries {
             if matches!(entry.yaml, YamlRepresentation::RecordMapping { .. }) {
                 sequence_item::resolve(entry, &program).map_err(|error| vec![error])?;

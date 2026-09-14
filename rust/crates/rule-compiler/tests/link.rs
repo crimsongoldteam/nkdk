@@ -2096,8 +2096,11 @@ fn enum_tables_are_total_and_unambiguous() {
         })
         .unwrap()
     };
-    let projections = include_str!("fixtures/state-projections.yaml");
-    nkdk_rule_compiler::link(&[parse(states), parse(projections)]).unwrap();
+    let projections = owner.replace(
+        "{absent: true}",
+        "{if: {literal: true}, then: {literal: tagged}, else: {literal: default}}",
+    );
+    nkdk_rule_compiler::link(&[parse(states), parse(&projections)]).unwrap();
     for (from, to, code) in [
         (
             "then: {literal: tagged}",
@@ -2331,4 +2334,127 @@ fn identical_scalar_arguments_share_a_deterministic_specialization() {
     };
     assert_eq!(fields[0].value, fields[1].value);
     assert_eq!(program.entries.len(), 3);
+}
+
+#[test]
+fn state_relations_generate_a_total_bidirectional_contract() {
+    let source = include_str!("fixtures/state-projections.yaml");
+    let owner = parse(SourceFile {
+        path: "relation.yaml",
+        bytes: source.as_bytes(),
+    })
+    .unwrap();
+    let states = parse(SourceFile {
+        path: "states.yaml",
+        bytes: include_bytes!("fixtures/finite-states.yaml"),
+    })
+    .unwrap();
+    link(&[owner, states.clone()]).expect("both directions derived from the same table");
+    for (from, to, code) in [
+        ("    text: [notice]\n", "", "incomplete_state_relation"),
+        (
+            "tagged: [base, notice]",
+            "tagged: [base]",
+            "ambiguous_state_relation",
+        ),
+        ("text: [notice]", "text: [unknown]", "unknown_state_source"),
+        (
+            "text: [notice]",
+            "text: [notice, notice]",
+            "duplicate_state_source",
+        ),
+        (
+            "notice: {equals: {literal: Notify}}",
+            "notice: {}",
+            "invalid_state_source",
+        ),
+        (
+            "    base: {present:",
+            "    state: {present:",
+            "state_relation_cycle",
+        ),
+        ("field: state", "field: missing", "unknown_field"),
+        (
+            "{literal: Notify}",
+            "{field: notice}",
+            "field_dependency_cycle",
+        ),
+        (
+            "{field: notice, path: [Root, Notice]}",
+            "",
+            "conflicting_state_projection",
+        ),
+        (
+            "{field: state, key: State}",
+            "",
+            "conflicting_state_projection",
+        ),
+        (
+            "fields: [{field: base, path:",
+            "fields: [{field: state, path: [Root, State]}, {field: base, path:",
+            "conflicting_state_projection",
+        ),
+        (
+            "fields: [{field: state, key:",
+            "fields: [{field: base, key: Base}, {field: state, key:",
+            "conflicting_state_projection",
+        ),
+        (
+            "type: {use: state}",
+            "type: {kind: scalar, scalar: text}",
+            "invalid_state_relation_target",
+        ),
+        (
+            "{literal: Notify}",
+            "{literal: true}",
+            "expression_type_mismatch",
+        ),
+        (
+            "state-relations:",
+            "presence:\n- target: {field: base}\n  xml: {missing: {denotes: {absent: true}}}\nstate-relations:",
+            "conflicting_state_presence",
+        ),
+    ] {
+        let changed = source.replace(from, to);
+        let result = parse(SourceFile {
+            path: "relation.yaml",
+            bytes: changed.as_bytes(),
+        })
+        .and_then(|owner| link(&[owner, states.clone()]));
+        let errors = result.unwrap_err();
+        assert!(
+            errors.iter().any(|error| error.code == code),
+            "{code}: {errors:?}"
+        );
+    }
+    let expanded = include_str!("fixtures/finite-states.yaml")
+        .replace(
+            "  - {name: Text, value: text}",
+            "  - {name: Text, value: text}\n  - {name: Extra, value: extra}",
+        )
+        .replace(
+            "    - {value: text, text: Text}",
+            "    - {value: text, text: Text}\n    - {value: extra, text: Extra}",
+        )
+        .replace(
+            "    - {value: text, literal: '', tag: watch}",
+            "    - {value: text, literal: '', tag: watch}\n    - {value: extra, literal: extra}",
+        );
+    let states = parse(SourceFile {
+        path: "states.yaml",
+        bytes: expanded.as_bytes(),
+    })
+    .unwrap();
+    let owner = parse(SourceFile {
+        path: "relation.yaml",
+        bytes: source.as_bytes(),
+    })
+    .unwrap();
+    let errors = link(&[owner, states]).unwrap_err();
+    assert!(
+        errors
+            .iter()
+            .any(|error| error.code == "incomplete_state_relation_domain"),
+        "{errors:?}"
+    );
 }

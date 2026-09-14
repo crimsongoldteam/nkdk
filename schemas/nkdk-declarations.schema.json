@@ -2721,6 +2721,12 @@
               }
             ]
           }
+        },
+        "state-relations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/stateRelation"
+          }
         }
       },
       "required": [
@@ -3989,6 +3995,64 @@
           }
         }
       }
+    },
+    "stateRelation": {
+      "type": "object",
+      "properties": {
+        "field": {
+          "type": "string"
+        },
+        "sources": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "present": {
+                    "$ref": "#/$defs/expression"
+                  }
+                },
+                "required": [
+                  "present"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "equals": {
+                    "$ref": "#/$defs/expression"
+                  }
+                },
+                "required": [
+                  "equals"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          }
+        },
+        "states": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "uniqueItems": true
+          }
+        }
+      },
+      "required": [
+        "field",
+        "sources",
+        "states"
+      ],
+      "additionalProperties": false,
+      "$comment": "Completeness, source references, enum domain, types and directional ownership are checked by the compiler."
     }
   },
   "required": [

@@ -40,6 +40,8 @@ pub struct Module {
     pub input_indexes: Vec<NamedBinding>,
     pub parameters: Vec<Parameter>,
     pub presence: Vec<Presence>,
+    /// Finite relation domains retained for validation after imports are resolved.
+    pub state_relations: Vec<StateRelation>,
     pub normalization: Option<Normalization>,
     pub constraints: Vec<Constraint>,
     pub contributions: Vec<Contribution>,
@@ -47,6 +49,14 @@ pub struct Module {
     pub compose: Vec<TypeUse>,
     pub value: TypeDefinition,
     pub representations: Representations,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct StateRelation {
+    pub field: String,
+    pub sources: Vec<String>,
+    pub values: Vec<String>,
+    pub source: SourceLocation,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

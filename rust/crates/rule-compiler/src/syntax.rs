@@ -9,6 +9,7 @@ mod resources;
 mod scalar_choice;
 mod sequence_shorthand;
 mod shorthands;
+mod state_relations;
 mod states;
 mod text;
 mod text_pattern;
@@ -231,6 +232,7 @@ fn module(path: &str, mut root: Node) -> Result<Module, Diagnostic> {
             "inputs",
             "parameters",
             "presence",
+            "state-relations",
             "normalization",
             "constraints",
             "contributions",
@@ -495,6 +497,8 @@ fn module(path: &str, mut root: Node) -> Result<Module, Diagnostic> {
             source,
         });
     }
+    let (presence, state_relations) =
+        state_relations::expand(path, fields, presence(path, fields)?)?;
     Ok(Module {
         source: location(path, id_node),
         kind,
@@ -506,7 +510,8 @@ fn module(path: &str, mut root: Node) -> Result<Module, Diagnostic> {
         inputs: named_inputs(path, fields)?,
         input_indexes: contributions::inputs(path, fields)?,
         parameters: parameters(path, fields)?,
-        presence: states::presence(presence(path, fields)?, &yaml_rep)?,
+        presence: states::presence(presence, &yaml_rep)?,
+        state_relations,
         normalization: normalization(path, fields)?,
         constraints,
         contributions: contributions::parse(path, fields)?,
