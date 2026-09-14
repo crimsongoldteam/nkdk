@@ -29,7 +29,7 @@ pub(super) fn emit_usage(
         unreachable!()
     };
     let mut out = String::new();
-    let mapping = &xml[0];
+    let mapping = xml.first();
     let field = &fields[0];
     let sequence = composite::reference(&field.value)
         .and_then(|(target, _, _)| program.entries.iter().find(|entry| entry.id == target))
@@ -160,7 +160,7 @@ pub(super) fn emit_usage(
     } else {
         format!("read_xml_{id}(source,inputs).map(|value|Stored(value,true))")
     };
-    let route = record::path_code(&mapping.path);
+    let route = record::path_code(mapping.map_or(&[], |mapping| &mapping.path));
     let unwrapped = sequence.is_some_and(|entry| matches!(super::attributes::content(&entry.xml).0, LinkedXml::ElementSequence {path,..} if path.is_empty()));
     let projection = if unwrapped { "Members" } else { "Element" };
     let children: Vec<_> = xml
@@ -171,26 +171,30 @@ pub(super) fn emit_usage(
             (name.namespace.as_str(), name.local.as_str())
         })
         .collect();
-    let project = if !names.is_empty() && xml.iter().any(|mapping| mapping.attribute.is_none()) {
-        let boundary = xml
-            .iter()
-            .find(|mapping| mapping.attribute.is_some())
-            .unwrap();
-        let parent = record::path_code(&boundary.path);
-        format!(
-            "core::xml::project_property(source,{parent},core::xml::PropertyProjection::Record{{fields:&{children:?},attributes:&{names:?}}},xml_qname_attribute_{id},xml_qname_text_{id})"
-        )
-    } else if names.is_empty() && xml.len() > 1 {
-        let parent = record::path_code(&mapping.path[..mapping.path.len() - 1]);
-        format!(
-            "core::xml::project_property(source,{parent},core::xml::PropertyProjection::Fields(&{children:?}),xml_qname_attribute_{id},xml_qname_text_{id})"
-        )
-    } else if names.is_empty() {
-        format!(
-            "core::xml::project_property(source,{route},core::xml::PropertyProjection::{projection},xml_qname_attribute_{id},xml_qname_text_{id})"
-        )
+    let project = if let Some(mapping) = mapping {
+        if !names.is_empty() && xml.iter().any(|mapping| mapping.attribute.is_none()) {
+            let boundary = xml
+                .iter()
+                .find(|mapping| mapping.attribute.is_some())
+                .unwrap();
+            let parent = record::path_code(&boundary.path);
+            format!(
+                "core::xml::project_property(source,{parent},core::xml::PropertyProjection::Record{{fields:&{children:?},attributes:&{names:?}}},xml_qname_attribute_{id},xml_qname_text_{id})"
+            )
+        } else if names.is_empty() && xml.len() > 1 {
+            let parent = record::path_code(&mapping.path[..mapping.path.len() - 1]);
+            format!(
+                "core::xml::project_property(source,{parent},core::xml::PropertyProjection::Fields(&{children:?}),xml_qname_attribute_{id},xml_qname_text_{id})"
+            )
+        } else if names.is_empty() {
+            format!(
+                "core::xml::project_property(source,{route},core::xml::PropertyProjection::{projection},xml_qname_attribute_{id},xml_qname_text_{id})"
+            )
+        } else {
+            format!("core::xml::project_attributes(source,{route},&{names:?})")
+        }
     } else {
-        format!("core::xml::project_attributes(source,{route},&{names:?})")
+        "Ok(Vec::<u8>::new())".to_owned()
     };
     let project = if shared_container && let Some(sequence) = sequence {
         let LinkedXml::ElementSequence { path, .. } = attributes::content(&sequence.xml).0 else {

@@ -44,12 +44,17 @@ pub(super) fn generate_at(
             let LinkedXml::Record(fields) = &part.xml else {
                 unreachable!()
             };
-            fields[0].file.clone()
+            fields.first().and_then(|field| field.file.clone())
         })
         .collect();
     let primary = files
         .iter()
-        .position(Option::is_none)
+        .enumerate()
+        .find_map(|(slot, file)| {
+            (file.is_none()
+                && matches!(&parts[slot].xml, LinkedXml::Record(fields) if !fields.is_empty()))
+            .then_some(slot)
+        })
         .ok_or_else(|| unsupported(entry, "An owner requires a primary XML document"))?;
     let mut document_paths = BTreeSet::new();
     if files
@@ -143,20 +148,21 @@ pub(super) fn generate_at(
             slot,
             super::value_adapters::Placement {
                 external: files[slot].is_some(),
-                shared_container: crate::plan::records::shares_container(parts, slot, &xml[0].path),
+                shared_container: xml.first().is_some_and(|mapping| {
+                    crate::plan::records::shares_container(parts, slot, &mapping.path)
+                }),
             },
             &names,
         )?;
         stateful &= emitted.xml_stateful;
         yaml_stateful &= emitted.yaml_stateful;
         out.push_str(&emitted.source);
-        let mapping = &xml[0];
+        let mapping = xml.first();
         paths.push(
             xml.iter()
                 .find(|mapping| mapping.attribute.is_some())
-                .unwrap_or(mapping)
-                .path
-                .as_slice(),
+                .or(mapping)
+                .map_or(&[][..], |mapping| mapping.path.as_slice()),
         );
         routes.push(
             owned_routes[slot]
@@ -206,7 +212,11 @@ pub(super) fn generate_at(
     out.push_str("Ok(value)}\n");
     for left in 0..paths.len() {
         for right in left + 1..paths.len() {
-            if files[left].is_some() || files[right].is_some() {
+            if files[left].is_some()
+                || files[right].is_some()
+                || paths[left].is_empty()
+                || paths[right].is_empty()
+            {
                 continue;
             }
             if (attributes[left].is_empty()
@@ -288,10 +298,9 @@ pub(super) fn generate_at(
         writeln!(xml_routing,"if core::xml::matches(path,{root_code}) && let core::xml::Token::Attribute(attribute)=token && {} {{return Ok(());}}",super::attributes::name_matches(&attribute.name,"attribute.name")).unwrap();
     }
     for (slot, route) in routes.iter().enumerate() {
-        if files[slot].is_some() {
+        if files[slot].is_some() || route.is_empty() {
             continue;
         }
-        let _ = route;
         let selected=owned_routes[slot].iter().map(|mapping|{
             let route=record::path_code(&mapping.path);
             let filter=if let Some(name)=&mapping.attribute {format!("path.len()<=declared.len() && match token{{core::xml::Token::Attribute(attribute)=>path.len()==declared.len() && {},_=>true}}",attributes::name_matches(name,"attribute.name"))}

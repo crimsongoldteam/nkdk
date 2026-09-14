@@ -37,6 +37,13 @@ fn generated_rust_executes_both_directions_and_uses_the_imported_table() {
             "[{field: left, key:",
             "[{field: extra, key: Extra}, {field: left, key:",
         );
+    let computed_composed = directional_composed
+        .replace("test.directional-composed", "test.computed-composed")
+        .replace("{field: left, path: [Root, Left]}, ", "");
+    let computed_composed = format!(
+        "{computed_composed}\nconstraints:{}",
+        computed_checked.split_once("\nconstraints:").unwrap().1
+    );
     let state_owner = include_str!("fixtures/finite-state-owner.yaml");
     let absent_state = include_str!("fixtures/finite-states.yaml")
         .lines()
@@ -439,6 +446,7 @@ contributions:
             ("computed-row.yaml", computed_row.as_str()),
             ("computed-rows.yaml", computed_rows),
             ("computed-collection.yaml", computed_collection),
+            ("computed-composed.yaml", computed_composed.as_str()),
             ("computed-nested.yaml", computed_nested.as_str()),
             ("computed-owner.yaml", computed_owner),
             ("directional-extra.yaml", directional_extra),
@@ -761,6 +769,7 @@ contributions:
                 "calendar.yaml",
                 "common.yaml",
                 "computed-collection.yaml",
+                "computed-composed.yaml",
                 "computed-fields.yaml",
                 "computed-nested.yaml",
                 "computed-owner.yaml",
@@ -905,6 +914,19 @@ fn main() {
     let exported = convert_file(computed_rows,Direction::YamlToXml,b"Rows:\n  x:\n    Left: x\n  y:\n    Left: y",&PreparedInputs::default()).unwrap();
     let xml = String::from_utf8(exported.bytes).unwrap();
     assert!(xml.contains("<Right>x</Right>") && xml.contains("<Right>y</Right>") && !xml.contains("<Left>"), "{xml}");
+    let composed = entry_id("test.computed-composed").unwrap();
+    let original = b"<Root><Right>x</Right><Extra><Marker>fixed</Marker></Extra></Root>";
+    let imported = convert_file(composed,Direction::XmlToYaml,original,&PreparedInputs::default()).unwrap();
+    assert_eq!(String::from_utf8(imported.bytes.clone()).unwrap(), "Left: x\nRight: x\nExtra:\n  Marker: fixed");
+    verify_candidate(composed,original,&imported.bytes,&PreparedInputs::default()).unwrap();
+    let exported = convert_file(composed,Direction::YamlToXml,b"Left: x\nExtra:\n  Marker: fixed",&PreparedInputs::default()).unwrap();
+    let xml = String::from_utf8(exported.bytes).unwrap();
+    assert!(xml.contains("<Right>x</Right>") && !xml.contains("<Left>"), "{xml}");
+    let invalid = b"<Root><Right>bad</Right><Extra><Marker>fixed</Marker></Extra></Root>";
+    let imported = convert_file(composed,Direction::XmlToYaml,invalid,&PreparedInputs::default()).unwrap();
+    assert!(String::from_utf8_lossy(&imported.bytes).contains("Left: !xml/invalid bad"));
+    assert!(!String::from_utf8_lossy(&imported.bytes).contains("$xml"));
+    verify_candidate(composed,invalid,&imported.bytes,&PreparedInputs::default()).unwrap();
     let computed_owner = entry_id("test.computed-owner").unwrap();
     let original = b"<Root><Row><Right>x</Right></Row><Extra><Marker>fixed</Marker></Extra></Root>";
     let imported = convert_file(computed_owner,Direction::XmlToYaml,original,&PreparedInputs::default()).unwrap();

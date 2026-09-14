@@ -6,20 +6,19 @@ pub(crate) fn parts(entry: &LinkedEntry) -> Result<Vec<LinkedEntry>, Diagnostic>
     let mut result: Vec<LinkedEntry> = Vec::new();
     for planned in &record.fields {
         let field = planned.field;
-        let mapping = planned.xml.ok_or_else(|| {
-            unsupported(entry, "An XML-free field needs a storage-only placement")
-        })?;
+        let mapping = planned.xml;
         let property = planned.yaml;
-        if mapping.path.is_empty()
-            || (mapping.file.is_none() && mapping.attribute.is_none() && mapping.path.len() < 2)
-        {
+        if mapping.is_some_and(|mapping| {
+            mapping.path.is_empty()
+                || (mapping.file.is_none() && mapping.attribute.is_none() && mapping.path.len() < 2)
+        }) {
             return Err(unsupported(
                 entry,
                 "Composed properties require a rooted boundary",
             ));
         }
-        let group = if mapping.attribute.is_some() {
-            result.iter_mut().find(|part|matches!(&part.xml,LinkedXml::Record(fields) if fields[0].attribute.is_some() && fields[0].path==mapping.path))
+        let group = if let Some(mapping) = mapping.filter(|mapping| mapping.attribute.is_some()) {
+            result.iter_mut().find(|part|matches!(&part.xml,LinkedXml::Record(fields) if fields.first().is_some_and(|field| field.attribute.is_some() && field.path==mapping.path)))
         } else {
             None
         };
@@ -33,7 +32,7 @@ pub(crate) fn parts(entry: &LinkedEntry) -> Result<Vec<LinkedEntry>, Diagnostic>
                 unreachable!()
             };
             fields.push(field.clone());
-            xml.push(mapping.clone());
+            xml.extend(mapping.cloned());
             yaml.extend(property.cloned());
             part.field_dependencies.push(Vec::new());
         } else {
@@ -42,7 +41,7 @@ pub(crate) fn parts(entry: &LinkedEntry) -> Result<Vec<LinkedEntry>, Diagnostic>
             child.constraints.clear();
             child.presence.clear();
             child.value = LinkedType::Record(vec![field.clone()]);
-            child.xml = LinkedXml::Record(vec![mapping.clone()]);
+            child.xml = LinkedXml::Record(mapping.cloned().into_iter().collect());
             child.yaml = YamlRepresentation::Mapping(property.cloned().into_iter().collect());
             child.field_dependencies = vec![Vec::new()];
             result.push(child);

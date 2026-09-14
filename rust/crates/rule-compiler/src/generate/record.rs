@@ -147,17 +147,16 @@ fn generate_at(
             presence,
         });
     }
-    let Some(first) = fields.iter().find(|field| field.xml.is_some()) else {
+    let first = fields.iter().find(|field| field.xml.is_some());
+    if first.is_none() && !defer_inference {
         return Err(unsupported(
             entry,
             "An empty record has no XML document root",
         ));
     };
-    if fields
-        .iter()
-        .filter(|field| field.xml.is_some())
-        .any(|field| field.path[0] != first.path[0])
-    {
+    if first.is_some_and(|first| {
+        physical_fields(&fields).any(|(_, field)| field.path[0] != first.path[0])
+    }) {
         return Err(unsupported(
             entry,
             "All fields must belong to a single XML document root",
@@ -701,7 +700,16 @@ fn generate_at(
         )
         .unwrap();
     }
-    writeln!(out, "}} fn write_xml_{id}(value: &V{id}, inputs: &InputView<'_>) -> core::Result<Vec<u8>> {{ let prepared={prepare_xml}(value,inputs)?; let mut namespaces=Vec::new(); if !value.raw.is_empty() {{{namespaces_xml}(value,&prepared,&mut namespaces);}} let mut out=core::xml::Writer::new(if namespaces.is_empty() {{XML_NAMESPACES_{id}}} else {{&namespaces}}); {write_xml_into}(value,&prepared,inputs,&mut out)?; Ok(out.finish_with_root(({:?},{:?}))) }}", first.path[0].namespace, first.path[0].local).unwrap();
+    let finish_xml = first.map_or_else(
+        || "out.finish()".to_owned(),
+        |first| {
+            format!(
+                "out.finish_with_root(({:?},{:?}))",
+                first.path[0].namespace, first.path[0].local
+            )
+        },
+    );
+    writeln!(out, "}} fn write_xml_{id}(value: &V{id}, inputs: &InputView<'_>) -> core::Result<Vec<u8>> {{ let prepared={prepare_xml}(value,inputs)?; let mut namespaces=Vec::new(); if !value.raw.is_empty() {{{namespaces_xml}(value,&prepared,&mut namespaces);}} let mut out=core::xml::Writer::new(if namespaces.is_empty() {{XML_NAMESPACES_{id}}} else {{&namespaces}}); {write_xml_into}(value,&prepared,inputs,&mut out)?; Ok({finish_xml}) }}").unwrap();
     // The field decoder owns storage and lexical representation; parent
     // composition consumes this adapter without reading fN/raw directly.
     for group in headers.chunk_by(|left, right| left.1.path == right.1.path) {
@@ -734,7 +742,10 @@ fn generate_at(
     }
     writeln!(out, "fn {write_xml_into}<'a>(value: &V{id}, prepared: &'a {prepared_type}, _inputs: &InputView<'_>, out: &mut core::xml::Writer<'a>) -> core::Result<()> {{").unwrap();
     out.push_str("let _=prepared;\n");
-    if (headers.is_empty() || layout.is_some()) && first.path.len() > 1 {
+    if let Some(first) = first
+        && (headers.is_empty() || layout.is_some())
+        && first.path.len() > 1
+    {
         writeln!(
             out,
             "out.ensure_container({});",
