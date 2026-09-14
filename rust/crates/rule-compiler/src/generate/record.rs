@@ -326,6 +326,54 @@ fn generate_at(
         writeln!(out, "positions: [core::Position; {}],", fields.len()).unwrap();
     }
     out.push_str("}\n");
+    if fields
+        .iter()
+        .all(|field| field.codec.input_method().is_some())
+    {
+        writeln!(out,"#[allow(dead_code)] fn construct_{id}(slots:&[Option<core::inputs::InputRef<'_>>],inputs:&InputView<'_>)->core::Result<V{id}>{{let inputs=inputs.rebind(slots);").unwrap();
+        for (index, field) in fields.iter().enumerate() {
+            let method = field.codec.input_method().unwrap();
+            let read = format!("inputs.{method}({index})?");
+            let value = match &field.codec {
+                Codec::Text | Codec::TextTable(_) => format!("{read}.to_owned()"),
+                Codec::Boolean(..) => read,
+                Codec::Decimal | Codec::FormattedDecimal(_) => format!("{read}.clone()"),
+                Codec::Enumeration(variants, ..) | Codec::States(variants, ..) => {
+                    let mut result = format!("match {read}{{");
+                    for (variant, item) in variants.iter().enumerate() {
+                        write!(result, "{:?}=>E{id}F{index}::V{variant},", item.value).unwrap();
+                    }
+                    result.push_str("_=>return Err(RuntimeDiagnostic::new(\"value.invalid\",\"Unknown semantic enumeration value\"))}");
+                    result
+                }
+                _ => unreachable!("borrowable scalar constructor"),
+            };
+            writeln!(
+                out,
+                "let f{index}=if inputs.is_present({index})?{{Some({value})}}else{{None}};"
+            )
+            .unwrap();
+        }
+        write!(out, "Ok(V{id}{{").unwrap();
+        for index in 0..fields.len() {
+            write!(out, "f{index},").unwrap();
+        }
+        if preserve {
+            out.push_str("raw:core::raw::Fields::default(),");
+        }
+        if layout.is_some() {
+            out.push_str("present:true,");
+        }
+        if keep_positions {
+            write!(
+                out,
+                "positions:[core::Position::default();{}],",
+                fields.len()
+            )
+            .unwrap();
+        }
+        out.push_str("})}\n");
+    }
     out.push_str(&xml_read::generate(id, &fields, layout, &headers));
     let xml_bindings = xml_read::bindings(id, &fields, layout, &headers);
     out.push_str(&yaml_read::generate(id, &fields));

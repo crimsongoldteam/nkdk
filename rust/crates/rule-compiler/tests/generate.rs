@@ -504,7 +504,53 @@ contributions:
         let borrowed_nested = include_str!("fixtures/borrowed-record-rows.yaml")
             .replace("test.borrowed-record-rows", "test.borrowed-nested-rows")
             .replace("common.rows", "common.nested-rows");
+        let constructed_rows = include_str!("fixtures/declared-rows.yaml")
+            .replace("common.rows", "common.constructed-rows")
+            + "\npresence:\n- target: self\n  yaml:\n    missing:\n      denotes:\n        sequence:\n        - record: {id: {literal: token}, name: {literal: Second}, mode: {literal: Notify}}\n";
+        let constructed_owner = declared_nested_owner
+            .replace("test.nested-items", "test.constructed-rows")
+            .replace("common.nested-rows", "common.constructed-rows");
+        let typed_constructed_row = r#"format: nkdk-declarations/1
+kind: value
+id: common.typed-constructed-row
+imports: {boolean: common.boolean, state: common.finite-states}
+value: {kind: record, fields: [{name: state, type: {use: state}}, {name: label, type: {kind: scalar, scalar: text}}, {name: enabled, type: {use: boolean}}, {name: amount, type: {kind: scalar, scalar: number, profile: decimal}}]}
+representations:
+  xml: {kind: record, fields: [{field: state, path: [State]}, {field: label, path: [Label]}, {field: enabled, path: [Enabled]}, {field: amount, path: [Amount]}]}
+  yaml: {kind: mapping, fields: [{field: state, key: State}, {field: label, key: Label}, {field: enabled, key: Enabled}, {field: amount, key: Amount}]}
+"#;
+        let typed_constructed_rows = r#"format: nkdk-declarations/1
+kind: value
+id: common.typed-constructed-rows
+imports: {row: common.typed-constructed-row}
+inputs: {emit: {type: {kind: scalar, scalar: boolean}}}
+value: {kind: sequence, item: {use: row}}
+representations:
+  xml: {kind: element-sequence, path: [Item]}
+  yaml: {kind: sequence}
+presence:
+- target: self
+  yaml:
+    missing:
+      denotes:
+        if: {input: emit}
+        then: {sequence: [{record: {state: {literal: tagged}, label: {concat: [{literal: pre}, {literal: fix}]}, enabled: {input: emit}, amount: {literal: 9007199254740993}}}]}
+        else: {absent: true}
+"#;
+        let typed_constructed_owner = constructed_owner
+            .replace("test.constructed-rows", "test.typed-constructed-rows")
+            .replace("common.constructed-rows", "common.typed-constructed-rows")
+            .replace(
+                "value:",
+                "inputs: {emit: {type: {kind: scalar, scalar: boolean}}}\nvalue:",
+            )
+            .replace("{use: rows}", "{use: rows, bind: {emit: {input: emit}}}");
         let mut modules = [
+            ("typed-constructed-row.yaml", typed_constructed_row),
+            ("typed-constructed-rows.yaml", typed_constructed_rows),
+            ("typed-constructed-owner.yaml", typed_constructed_owner.as_str()),
+            ("constructed-rows.yaml", constructed_rows.as_str()),
+            ("constructed-rows-owner.yaml", constructed_owner.as_str()),
             ("directional-fields.yaml", directional),
             ("borrowed-nested-rows.yaml", borrowed_nested.as_str()),
             ("borrowed-record-rows.yaml", include_str!("fixtures/borrowed-record-rows.yaml")),
@@ -850,6 +896,8 @@ contributions:
                 "computed-owner.yaml",
                 "computed-row.yaml",
                 "computed-rows.yaml",
+                "constructed-rows-owner.yaml",
+                "constructed-rows.yaml",
                 "cube-states.yaml",
                 "cube.yaml",
                 "decimal-owner.yaml",
@@ -947,6 +995,9 @@ contributions:
                 "text-sequence.yaml",
                 "text-table-owner.yaml",
                 "typed-attributes.yaml",
+                "typed-constructed-owner.yaml",
+                "typed-constructed-row.yaml",
+                "typed-constructed-rows.yaml",
                 "typed-decimal.yaml",
                 "typed-owner.yaml",
                 "warning-bound.yaml"
@@ -1037,6 +1088,19 @@ fn main() {
     let result = convert_file(borrowed_nested, Direction::XmlToYaml, xml, &PreparedInputs::default()).unwrap();
     assert_eq!(String::from_utf8_lossy(&result.bytes), "Found: found\nRows:\n  -\n    Codes:\n      - Code: a\n        Title: A\n    Name: Second\n    Mode: normal");
     verify_candidate(borrowed_nested, xml, &result.bytes, &PreparedInputs::default()).unwrap();
+    let constructed = entry_id("test.constructed-rows").unwrap();
+    let exported = convert_file(constructed, Direction::YamlToXml, b"{}", &PreparedInputs::default()).unwrap();
+    core::proof::verify(b"<Root xmlns:r='urn:row'><Rows><Item uuid='token'><r:Name>Second</r:Name><r:Mode>Notify</r:Mode></Item></Rows></Root>", &exported.bytes, |_| false).unwrap();
+    let typed_constructed = entry_id("test.typed-constructed-rows").unwrap();
+    for (enabled, yaml, expected) in [
+        (true, "{}", "<Root><Rows><Item><State>Tagged</State><Label>prefix</Label><Enabled>true</Enabled><Amount>9007199254740993</Amount></Item></Rows></Root>"),
+        (false, "{}", "<Root/>"),
+        (true, "Rows: []", "<Root><Rows/></Root>"),
+    ] {
+        let inputs = prepare_inputs(typed_constructed, vec![("emit".into(),InputValue::Boolean(enabled))]).unwrap();
+        let result = convert_file(typed_constructed,Direction::YamlToXml,yaml.as_bytes(),&inputs).unwrap();
+        core::proof::verify(expected.as_bytes(),&result.bytes,|_|false).unwrap();
+    }
     let cube = entry_id("test.cube").unwrap();
     for mask in 0..8 {
         let mut xml = String::from("<Root>");

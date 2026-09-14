@@ -4,6 +4,7 @@ use super::*;
 pub(super) struct RecordBody {
     pub source: String,
     pub scalar_routes: String,
+    pub constructible: bool,
 }
 
 pub(super) fn generate(
@@ -111,10 +112,21 @@ pub(super) fn generate(
     } else {
         constraints::generate(row, program)?
     };
+    let constructible = !composed
+        && row_fields.iter().all(|field| {
+            scalar::Codec::resolve(&field.value, row, program)
+                .is_ok_and(|codec| codec.input_method().is_some())
+        });
+    let constructor = if constructible {
+        "pub(super) fn construct(slots:&[Option<core::inputs::InputRef<'_>>],inputs:&InputView<'_>)->core::Result<Stored>{construct_@id@(slots,inputs).map(Stored)}"
+    } else {
+        ""
+    };
     let scalar_write = SCALAR_WRITE.replace("@excluded@", "None");
     let mut code = RECORD_BODY
         .replace("@row@", &row_code)
-        .replace("@checks@", &checks);
+        .replace("@checks@", &checks)
+        .replace("@constructor@", constructor);
     code = code
         .replace(
             "@prepared@",
@@ -199,6 +211,7 @@ pub(super) fn generate(
     Ok(RecordBody {
         source: code,
         scalar_routes,
+        constructible,
     })
 }
 
@@ -206,6 +219,7 @@ const RECORD_BODY: &str = r#"#[allow(dead_code)] mod item_@id@ {
 use super::*;
 @row@
 @checks@
+@constructor@
 pub(super) struct Stored(V@id@);
 impl core::inputs::RecordInput for Stored {
 fn field(&self,index:usize)->Option<core::inputs::InputRef<'_>>{input_field_@id@(&self.0,index)}

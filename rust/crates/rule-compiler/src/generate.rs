@@ -5,6 +5,7 @@ mod collections;
 pub(crate) mod composite;
 mod composite_scalars;
 mod constraints;
+mod declared_construction;
 mod declared_items;
 mod dispatch;
 mod expressions;

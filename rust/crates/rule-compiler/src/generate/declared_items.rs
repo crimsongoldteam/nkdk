@@ -163,8 +163,9 @@ pub(super) fn generate_at(
         None
     };
     let body = super::value_record::generate(&row, program, &route, lifted.clone())?;
-    let presence = collection_presence::override_for(&common, entry, bindings, arguments)?
+    let mut presence = collection_presence::override_for(&common, entry, bindings, arguments)?
         .unwrap_or(common.clone());
+    presence.value = LinkedType::Sequence(Box::new(row.value.clone()));
     if presence.presence.iter().any(|rule| {
         !rule.xml_empty.is_empty()
             || !rule.yaml_empty.is_empty()
@@ -176,7 +177,7 @@ pub(super) fn generate_at(
             "This collection presence contract requires an additional sequence expression backend",
         ));
     }
-    let missing = |xml: bool| -> Result<bool, Diagnostic> {
+    let missing = |xml: bool| -> Result<String, Diagnostic> {
         let rule = presence
             .presence
             .iter()
@@ -188,14 +189,14 @@ pub(super) fn generate_at(
                 rule.yaml_missing.as_ref()
             }
         });
-        match value.map(|v| &v.kind) {
-            None => Ok(false),
-            Some(LinkedExpressionKind::Absent) => Ok(true),
-            _ => Err(unsupported(
-                entry,
-                "Collection missing values currently require absence",
-            )),
-        }
+        super::declared_construction::missing(
+            value,
+            &presence,
+            &row,
+            program,
+            body.constructible,
+            entry.id,
+        )
     };
     if shared && !common_attributes.is_empty() {
         return Err(unsupported(
@@ -247,8 +248,8 @@ pub(super) fn generate_at(
             "@namespace@",
             &format!("{:?}", parent.last().unwrap().namespace),
         )
-        .replace("@xml_missing@", &missing(true)?.to_string())
-        .replace("@yaml_missing@", &missing(false)?.to_string());
+        .replace("@xml_missing@", &missing(true)?)
+        .replace("@yaml_missing@", &missing(false)?);
     code = code
         .replace(
             "@lifted_key@",
@@ -281,7 +282,7 @@ if let Some(reader)=&mut self.active{reader.consume(path,token,source,inputs)?;}
 if matches!(token,core::xml::Token::End) && core::xml::matches(path,@route@){self.rows.push(self.active.take().expect("started item"));}
 Ok(())
 }}
-fn finish_xml_@id@(state:XmlCollection@id@,source:&[u8],inputs:&InputView<'_>)->core::Result<V@id@>{if state.active.is_some() || (!state.present && !@xml_missing@){return Err(RuntimeDiagnostic::new("value.missing","Missing collection"));}Ok(V@id@{rows:state.rows.into_iter().map(|reader|reader.finish(source,inputs)).collect::<core::Result<Vec<_>>>()?,present:state.present,raw:None})}
+fn finish_xml_@id@(state:XmlCollection@id@,source:&[u8],inputs:&InputView<'_>)->core::Result<V@id@>{if state.active.is_some(){return Err(RuntimeDiagnostic::new("value.missing","Missing collection"));}if !state.present{return Ok(@xml_missing@)}Ok(V@id@{rows:state.rows.into_iter().map(|reader|reader.finish(source,inputs)).collect::<core::Result<Vec<_>>>()?,present:state.present,raw:None})}
 fn read_xml_events_@id@(source:&[u8],inputs:&InputView<'_>,events:impl core::xml::Source,mut other:impl FnMut(&[core::xml::Name],&core::xml::Token<'_>)->core::Result<bool>)->core::Result<V@id@>{let mut state=XmlCollection@id@::new();events.visit(|path,token|{if !other(path,token)?{state.consume(path,token,source,inputs)?;}Ok(())})?;finish_xml_@id@(state,source,inputs)}
 #[allow(dead_code)] fn read_xml_with_@id@(source:&[u8],inputs:&InputView<'_>,other:impl FnMut(&[core::xml::Name],&core::xml::Token<'_>)->core::Result<bool>)->core::Result<V@id@>{read_xml_events_@id@(source,inputs,core::xml::DocumentSource(source),other)}
 fn read_xml_@id@(source:&[u8],inputs:&InputView<'_>)->core::Result<V@id@>{match read_xml_events_@id@(source,inputs,core::xml::DocumentSource(source),|_,_|Ok(false)){Ok(value)=>Ok(value),Err(error) if matches!(error.code.as_deref(),Some("xml.unknown-field"|"xml.unknown-attribute"|"xml.unexpected-text"|"xml.duplicate-field"|"value.missing"))=>Ok(V@id@{rows:Vec::new(),present:true,raw:None}),Err(error)=>Err(error)}}
@@ -301,12 +302,12 @@ if self.error.is_none() && let Err(error)=self.active.as_mut().expect("started i
 if self.depth==1{let reader=self.active.take().expect("started item");self.rows.push(match self.error.take(){Some(error)=>Err(error),None=>Ok(reader)});}
 Ok(())}
 fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<V@id@>{let present=if @root_yaml@{self.opened}else{self.property.finish("yaml.collection-form")?};if present && @lifted_key@.is_some(){self.mapping.finish()?;}
-if self.depth!=0 || self.active.is_some() || (!present && !@yaml_missing@){return Err(RuntimeDiagnostic::new("value.missing","Incomplete collection"));}let rows=self.rows.into_iter().enumerate().map(|(index,reader)|match reader.and_then(|reader|reader.finish(source,inputs)){
+if self.depth!=0 || self.active.is_some(){return Err(RuntimeDiagnostic::new("value.missing","Incomplete collection"));}if !present{return Ok(@yaml_missing@)}let rows=self.rows.into_iter().enumerate().map(|(index,reader)|match reader.and_then(|reader|reader.finish(source,inputs)){
 Ok(row)=>Ok(row),Err(error)=>{if source.is_empty(){return Err(error)}let property=if @root_yaml@{None}else{Some(@key@)};let bytes=if let Some(key)=@lifted_key@{core::yaml::preserved_record_mapping_item(source,property,index,key)?}else{core::yaml::preserved_sequence_item(source,property,index)?};item_@id@::read_yaml(&bytes,inputs)}}).collect::<core::Result<Vec<_>>>()?;
 Ok(V@id@{rows,present,raw:None})}
 }
 fn read_yaml_events_@id@(source:&[u8],inputs:&InputView<'_>,events:impl core::yaml::Source)->core::Result<V@id@>{let mut state=YamlSequence@id@::new();events.visit(|node,position|state.consume(node,position,source,inputs))?;state.finish(source,inputs)}
-fn read_plain_yaml_@id@(source:&[u8],inputs:&InputView<'_>)->core::Result<V@id@>{if source.is_empty() && @yaml_missing@{return Ok(V@id@{rows:Vec::new(),present:false,raw:None})}read_yaml_events_@id@(source,inputs,core::yaml::DocumentSource(if source.is_empty(){b"{}"}else{source}))}
+fn read_plain_yaml_@id@(source:&[u8],inputs:&InputView<'_>)->core::Result<V@id@>{if source.is_empty(){return Ok(@yaml_missing@)}read_yaml_events_@id@(source,inputs,core::yaml::DocumentSource(if source.is_empty(){b"{}"}else{source}))}
 fn read_yaml_@id@(source:&[u8],inputs:&InputView<'_>)->core::Result<V@id@>{match read_plain_yaml_@id@(source,inputs){Ok(value)=>Ok(value),Err(error)=>{let Some(envelope)=decode_raw_@id@(source)? else{return Err(error)};let mut value=read_plain_yaml_@id@(&envelope.meaning,inputs)?;value.raw=Some(core::xml::Patch::read(&envelope.payload,&[],&item_@id@::qnames())?);Ok(value)}}}
 struct PreparedRows@id@{rows:Vec<item_@id@::Prepared>,raw:Option<core::xml::Tree>}
 fn prepare_xml_@id@(value:&V@id@,inputs:&InputView<'_>)->core::Result<PreparedRows@id@>{let rows=value.rows.iter().map(|row|item_@id@::prepare(row,inputs)).collect::<core::Result<Vec<_>>>()?;let mut result=PreparedRows@id@{rows,raw:None};if let Some(patch)=&value.raw{let ordinary=write_plain_xml_@id@(value,&result,inputs)?;if !patch.is_null(){result.raw=Some(patch.apply(core::xml::Tree::capture(&ordinary,@parent@)?,core::xml::Name{namespace:@namespace@.into(),local:@physical@.into()},&[],&item_@id@::qnames())?);}}Ok(result)}
