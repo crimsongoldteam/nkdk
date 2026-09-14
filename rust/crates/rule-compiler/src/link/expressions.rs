@@ -353,6 +353,11 @@ pub(super) fn resolve_expression_in(
             input,
             binding,
             predicate,
+        }
+        | ExpressionKind::One {
+            input,
+            binding,
+            predicate,
         } => {
             let input = resolve_expression_in(module, input, modules, ids, scope)?;
             let LinkedType::Sequence(item) = &input.value_type else {
@@ -368,6 +373,8 @@ pub(super) fn resolve_expression_in(
             let slot = scope.variables.len() as u32;
             let operator = if matches!(expression.kind, ExpressionKind::Each { .. }) {
                 LinkedOperator::Each(slot)
+            } else if matches!(expression.kind, ExpressionKind::One { .. }) {
+                LinkedOperator::One(slot)
             } else {
                 LinkedOperator::Exists(slot)
             };

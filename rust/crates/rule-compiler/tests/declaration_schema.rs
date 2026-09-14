@@ -95,6 +95,24 @@ fn authoring_schema_accepts_the_corpus_and_rejects_structural_mistakes() {
     invalid["unknown"] = json!(true);
     assert!(!validator.is_valid(&invalid));
     assert!(validator.is_valid(&base));
+    let single_source =
+        include_str!("fixtures/borrowed-record-rows.yaml").replace("exists:", "one:");
+    let single = json_value(
+        yaml_rust2::YamlLoader::load_from_str(&single_source)
+            .unwrap()
+            .remove(0),
+    );
+    assert!(validator.is_valid(&single));
+    parse_many(SourceFile {
+        path: "one.yaml",
+        bytes: single_source.as_bytes(),
+    })
+    .unwrap();
+    reject_change(
+        &single,
+        "/presence/0/xml/missing/denotes/if/one",
+        json!({"in":{"field":"rows"},"where":{"literal":true}}),
+    );
     let relation = json_value(
         yaml_rust2::YamlLoader::load_from_str(include_str!("fixtures/state-projections.yaml"))
             .unwrap()

@@ -47,6 +47,7 @@ pub(super) fn expression(path: &str, value: &Node) -> Result<Expression, Diagnos
             "fold",
             "each",
             "exists",
+            "one",
             "or",
             "and",
             "eq",
@@ -235,13 +236,19 @@ pub(super) fn expression(path: &str, value: &Node) -> Result<Expression, Diagnos
                 next: Box::new(expression(path, operand.field(path, fields, "next")?)?),
             }
         }
-        "each" | "exists" => {
+        "each" | "exists" | "one" => {
             let fields = operand.mapping(path, &["in", "as", "where"])?;
             let input = Box::new(expression(path, operand.field(path, fields, "in")?)?);
             let binding = operand.field(path, fields, "as")?.text(path)?.into();
             let predicate = Box::new(expression(path, operand.field(path, fields, "where")?)?);
             if operator.text(path)? == "each" {
                 ExpressionKind::Each {
+                    input,
+                    binding,
+                    predicate,
+                }
+            } else if operator.text(path)? == "one" {
+                ExpressionKind::One {
                     input,
                     binding,
                     predicate,

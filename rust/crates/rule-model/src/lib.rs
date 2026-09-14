@@ -359,6 +359,11 @@ pub enum ExpressionKind {
         binding: String,
         predicate: Box<Expression>,
     },
+    One {
+        input: Box<Expression>,
+        binding: String,
+        predicate: Box<Expression>,
+    },
     Compare {
         operator: ComparisonOperator,
         left: Box<Expression>,

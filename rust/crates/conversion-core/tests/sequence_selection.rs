@@ -1,4 +1,4 @@
-use nkdk_conversion_core::sequence_pattern::{Selection, select_unique};
+use nkdk_conversion_core::sequence_pattern::{Selection, select_matching, select_unique};
 
 #[test]
 fn selection_preserves_occurrences_order_and_borrowed_values() {
@@ -87,5 +87,28 @@ fn selection_preserves_occurrences_order_and_borrowed_values() {
         for row in view.remaining().chain(view.selected()) {
             assert!(rows.iter().any(|original| std::ptr::eq(row, original)));
         }
+    }
+}
+
+#[test]
+fn matching_propagates_errors_and_stops_when_uniqueness_is_impossible() {
+    assert_eq!(select_matching([Ok(false), Err("bad")]), Err("bad"));
+    let mut visited = 0;
+    let result = select_matching(
+        [Ok(true), Ok(true), Err("unneeded")]
+            .into_iter()
+            .inspect(|_| visited += 1),
+    );
+    assert_eq!(result, Ok(Selection::Ambiguous));
+    assert_eq!(visited, 2);
+    for (input, expected) in [
+        (vec![], Selection::Missing),
+        (vec![false, false], Selection::Missing),
+        (vec![false, true, false], Selection::Unique(1)),
+    ] {
+        assert_eq!(
+            select_matching(input.into_iter().map(Ok::<_, ()>)),
+            Ok(expected)
+        );
     }
 }

@@ -545,7 +545,11 @@ presence:
                 "inputs: {emit: {type: {kind: scalar, scalar: boolean}}}\nvalue:",
             )
             .replace("{use: rows}", "{use: rows, bind: {emit: {input: emit}}}");
+        let single_rows = include_str!("fixtures/borrowed-record-rows.yaml")
+            .replace("test.borrowed-record-rows", "test.single-record-row")
+            .replace("exists:", "one:");
         let mut modules = [
+            ("single-record-row.yaml", single_rows.as_str()),
             ("typed-constructed-row.yaml", typed_constructed_row),
             ("typed-constructed-rows.yaml", typed_constructed_rows),
             ("typed-constructed-owner.yaml", typed_constructed_owner.as_str()),
@@ -974,6 +978,7 @@ presence:
                 "qname-owner.yaml",
                 "required-owner.yaml",
                 "root-scalar.yaml",
+                "single-record-row.yaml",
                 "state-projections-composed.yaml",
                 "state-projections.yaml",
                 "text-choice-first.yaml",
@@ -1082,6 +1087,19 @@ fn main() {
         let yaml = String::from_utf8_lossy(&imported.bytes);
         assert!(yaml.starts_with(&format!("Found: {expected}\n")), "{yaml}");
         verify_candidate(borrowed, original.as_bytes(), &imported.bytes, &PreparedInputs::default()).unwrap();
+    }
+    let single = entry_id("test.single-record-row").unwrap();
+    for (rows, expected) in [
+        ("", "missing"),
+        ("<Item><r:Name>First</r:Name></Item>", "missing"),
+        ("<Item><r:Name>First</r:Name></Item><Item><r:Name>Second</r:Name></Item>", "found"),
+        ("<Item><r:Name>Second</r:Name></Item><Item><r:Name>Second</r:Name></Item>", "missing"),
+        ("<Item><r:Mode>one</r:Mode></Item><Item><r:Name>Second</r:Name></Item>", "found"),
+    ] {
+        let xml = format!("<Root xmlns:r='urn:row'><Rows>{rows}</Rows></Root>");
+        let result = convert_file(single,Direction::XmlToYaml,xml.as_bytes(),&PreparedInputs::default()).unwrap();
+        assert!(String::from_utf8_lossy(&result.bytes).starts_with(&format!("Found: {expected}\n")));
+        verify_candidate(single,xml.as_bytes(),&result.bytes,&PreparedInputs::default()).unwrap();
     }
     let borrowed_nested = entry_id("test.borrowed-nested-rows").unwrap();
     let xml = b"<Root xmlns:r='urn:row'><Rows><Item token='Second'><Codes><Item><Code>a</Code><Title>A</Title></Item></Codes><r:Name>Second</r:Name><r:Mode>normal</r:Mode></Item></Rows></Root>";

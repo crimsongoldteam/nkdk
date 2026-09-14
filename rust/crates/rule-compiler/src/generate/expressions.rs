@@ -100,6 +100,16 @@ impl<'a> Expressions<'a> {
         Ok(true)
     }
 
+    fn input_variant(&self, item: &LinkedType) -> Result<&'static str, Diagnostic> {
+        match item {
+            LinkedType::Scalar(ScalarType::Text) => Ok("Text"),
+            LinkedType::Scalar(ScalarType::Boolean) => Ok("Boolean"),
+            LinkedType::Scalar(ScalarType::Decimal) => Ok("Decimal"),
+            LinkedType::Sequence(_) => Ok("Sequence"),
+            _ => Err(unsupported(self.entry, "Iteration value is not generated")),
+        }
+    }
+
     fn borrowed_method(&self, slot: u32, index: u32) -> Result<&'static str, Diagnostic> {
         let field = &self.borrowed_rows[&slot][index as usize];
         scalar::Codec::resolve(&field.value, self.entry, self.program)?
@@ -518,7 +528,10 @@ impl<'a> Expressions<'a> {
                     }
                     return Err(unsupported(self.entry, "Readiness requires an input slot"));
                 }
-                if let LinkedOperator::Each(slot) | LinkedOperator::Exists(slot) = operator {
+                if let LinkedOperator::Each(slot)
+                | LinkedOperator::Exists(slot)
+                | LinkedOperator::One(slot) = operator
+                {
                     let sequence = self.lower(&arguments[0])?;
                     let receiver = sequence.strip_prefix('&').unwrap_or(&sequence);
                     if matches!(
@@ -554,6 +567,24 @@ impl<'a> Expressions<'a> {
                     let LinkedType::Sequence(item) = &arguments[0].value_type else {
                         return Err(unsupported(self.entry, "Iteration requires a sequence"));
                     };
+                    if matches!(operator, LinkedOperator::One(_)) {
+                        let binding = if matches!(item.as_ref(), LinkedType::Record(_)) {
+                            format!("let v{slot}=item;")
+                        } else if matches!(arguments[0].kind, LinkedExpressionKind::SelfValue)
+                            && matches!(item.as_ref(), LinkedType::Scalar(ScalarType::Text))
+                        {
+                            format!("let v{slot}=&item.fields[0];")
+                        } else {
+                            let variant = self.input_variant(item)?;
+                            format!(
+                                "let InputValue::{variant}(v{slot})=item else{{return Err(RuntimeDiagnostic::new(\"input.type\",\"Unexpected sequence item type\"));}};"
+                            )
+                        };
+                        self.fallible = true;
+                        return Ok(format!(
+                            "matches!(core::sequence_pattern::select_matching(({sequence}).into_iter().map(|item|->core::Result<bool>{{{binding}Ok({predicate})}}))?,core::sequence_pattern::Selection::Unique(_))"
+                        ));
+                    }
                     if matches!(item.as_ref(), LinkedType::Scalar(ScalarType::Text))
                         && matches!(arguments[0].kind, LinkedExpressionKind::SelfValue)
                         && matches!(self.entry.value, LinkedType::Sequence(_))
@@ -581,18 +612,7 @@ impl<'a> Expressions<'a> {
                             !each
                         ));
                     }
-                    let variant = match item.as_ref() {
-                        LinkedType::Scalar(ScalarType::Text) => "Text",
-                        LinkedType::Scalar(ScalarType::Boolean) => "Boolean",
-                        LinkedType::Scalar(ScalarType::Decimal) => "Decimal",
-                        LinkedType::Sequence(_) => "Sequence",
-                        _ => {
-                            return Err(unsupported(
-                                self.entry,
-                                "Iteration value is not generated",
-                            ));
-                        }
-                    };
+                    let variant = self.input_variant(item)?;
                     self.fallible = true;
                     let each = matches!(operator, LinkedOperator::Each(_));
                     let condition = if each {

@@ -2458,3 +2458,25 @@ fn state_relations_generate_a_total_bidirectional_contract() {
         "{errors:?}"
     );
 }
+
+#[test]
+fn exactly_one_checks_its_input_binding_and_predicate() {
+    let source = include_str!("fixtures/borrowed-record-rows.yaml").replace("exists:", "one:");
+    for (source, expected) in [
+        (source.clone(), None),
+        (source.replace("in: {field: rows}", "in: {literal: true}"), Some("expression_type_mismatch")),
+        (source.replace("{var: item}", "{var: missing}"), Some("unknown_variable")),
+        (source.replace("where:\n              and:\n              - {present: {get: {of: {var: item}, field: name}}}\n              - {eq: [{get: {of: {var: item}, field: name}}, {literal: Second}]}", "where: {literal: invalid}"), Some("expression_type_mismatch")),
+    ] {
+        let modules = [
+            ("owner.yaml", source.as_str()),
+            ("row.yaml", include_str!("fixtures/declared-row.yaml")),
+            ("rows.yaml", include_str!("fixtures/declared-rows.yaml")),
+        ].into_iter().map(|(path,bytes)| parse(SourceFile{path,bytes:bytes.as_bytes()}).unwrap()).collect::<Vec<_>>();
+        match (link(&modules), expected) {
+            (Ok(_), None) => {},
+            (Err(errors), Some(code)) => assert!(errors.iter().any(|error|error.code==code),"{errors:?}"),
+            (result, expected) => panic!("Unexpected result: {result:?}; expected {expected:?}"),
+        }
+    }
+}

@@ -13,16 +13,31 @@ pub struct SelectionView<'a, T> {
 }
 
 pub fn select_unique<T>(rows: &[T], mut predicate: impl FnMut(&T) -> bool) -> SelectionView<'_, T> {
+    let selection = match select_matching(
+        rows.iter()
+            .map(|row| Ok::<_, std::convert::Infallible>(predicate(row))),
+    ) {
+        Ok(selection) => selection,
+        Err(never) => match never {},
+    };
+    SelectionView { rows, selection }
+}
+
+/// Classify matches without allocating or selecting an arbitrary duplicate.
+/// Once a second match is found, no later result can change the cardinality.
+pub fn select_matching<E>(
+    matches: impl IntoIterator<Item = Result<bool, E>>,
+) -> Result<Selection, E> {
     let mut selection = Selection::Missing;
-    for (index, row) in rows.iter().enumerate() {
-        if predicate(row) {
-            selection = match selection {
-                Selection::Missing => Selection::Unique(index),
-                _ => Selection::Ambiguous,
-            };
+    for (index, matches) in matches.into_iter().enumerate() {
+        if matches? {
+            if !matches!(selection, Selection::Missing) {
+                return Ok(Selection::Ambiguous);
+            }
+            selection = Selection::Unique(index);
         }
     }
-    SelectionView { rows, selection }
+    Ok(selection)
 }
 
 impl<'a, T> SelectionView<'a, T> {

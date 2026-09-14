@@ -199,6 +199,7 @@ pub enum LinkedOperator {
     Fold { item: u32, state: u32 },
     Each(u32),
     Exists(u32),
+    One(u32),
     Get(u32),
     Not,
     And,
