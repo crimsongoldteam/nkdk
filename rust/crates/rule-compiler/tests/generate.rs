@@ -4,6 +4,21 @@ use std::{fs, process::Command};
 #[test]
 fn generated_rust_executes_both_directions_and_uses_the_imported_table() {
     let directional = include_str!("fixtures/directional-fields.yaml");
+    let computed = directional
+        .replace("test.directional-fields", "test.computed-fields")
+        .replace("{field: left, path: [Root, Left]}, ", "");
+    let computed_row = computed
+        .replace("kind: object", "kind: value")
+        .replace("test.computed-fields", "test.computed-row")
+        .replace("[Root, Right]", "[Right]");
+    let computed_rows = "format: nkdk-declarations/1\nkind: value\nid: test.computed-rows\nimports: {row: test.computed-row}\nvalue: {kind: sequence, item: {use: row}}\nrepresentations:\n  xml: {kind: element-sequence, path: [Item]}\n  yaml: {kind: record-mapping, key: right}\n";
+    let computed_collection = "format: nkdk-declarations/1\nkind: object\nid: test.computed-collection\nimports: {rows: test.computed-rows}\nvalue: {kind: record, fields: [{name: rows, type: {use: rows}}]}\nrepresentations:\n  xml: {kind: record, fields: [{field: rows, path: [Root, Rows]}]}\n  yaml: {kind: mapping, fields: [{field: rows, key: Rows}]}\n";
+    let computed_nested = format!("{computed_row}\n- target: self\n  xml: {{missing: {{denotes: {{absent: true}}}}}}\n  yaml: {{missing: {{denotes: {{absent: true}}}}}}\n")
+        .replace("test.computed-row", "test.computed-nested");
+    let computed_owner = "format: nkdk-declarations/1\nkind: object\nid: test.computed-owner\nimports: {row: test.computed-nested, extra: common.directional-extra}\nvalue: {kind: record, fields: [{name: row, type: {use: row}}, {name: extra, type: {use: extra}}]}\nrepresentations:\n  xml: {kind: record, fields: [{field: row, path: [Root, Row]}, {field: extra, path: [Root, Extra]}]}\n  yaml: {kind: mapping, fields: [{field: row, key: Row}, {field: extra, key: Extra}]}\n";
+    let computed_checked = format!(
+        "{computed}\nconstraints:\n- id: allowed\n  appliesTo: [xml-import, yaml-validation]\n  assert: {{not: {{eq: [{{field: left}}, {{literal: bad}}]}}}}\n  diagnostic: {{code: computed.invalid, severity: error, at: {{field: left}}, message: Unavailable value}}\n"
+    );
     let directional_extra = "format: nkdk-declarations/1\nkind: value\nid: common.directional-extra\nvalue: {kind: record, fields: [{name: marker, type: {kind: scalar, scalar: text}}]}\nrepresentations:\n  xml: {kind: record, fields: [{field: marker, path: [Marker]}]}\n  yaml: {kind: mapping, fields: [{field: marker, key: Marker}]}\n";
     let directional_composed = directional
         .replace(
@@ -420,6 +435,12 @@ contributions:
             .replace("{use: pair}", "{use: pair, bind: {allowed: {input: selected}, enabled: {input: unused}}}");
         let mut modules = [
             ("directional-fields.yaml", directional),
+            ("computed-fields.yaml", computed_checked.as_str()),
+            ("computed-row.yaml", computed_row.as_str()),
+            ("computed-rows.yaml", computed_rows),
+            ("computed-collection.yaml", computed_collection),
+            ("computed-nested.yaml", computed_nested.as_str()),
+            ("computed-owner.yaml", computed_owner),
             ("directional-extra.yaml", directional_extra),
             ("directional-composed.yaml", directional_composed.as_str()),
             ("absent-state.yaml", absent_state.as_str()),
@@ -739,6 +760,12 @@ contributions:
                 "calendar-owner.yaml",
                 "calendar.yaml",
                 "common.yaml",
+                "computed-collection.yaml",
+                "computed-fields.yaml",
+                "computed-nested.yaml",
+                "computed-owner.yaml",
+                "computed-row.yaml",
+                "computed-rows.yaml",
                 "decimal-owner.yaml",
                 "decimal.yaml",
                 "declared-deep-owner.yaml",
@@ -859,6 +886,33 @@ fn main() {
         let exported = String::from_utf8(exported.bytes).unwrap();
         assert!(exported.contains("<Left>x</Left>") && exported.contains("<Right>x</Right>"),"{name}: {exported}");
     }
+    let computed = entry_id("test.computed-fields").unwrap();
+    let imported = convert_file(computed,Direction::XmlToYaml,b"<Root><Right>x</Right></Root>",&PreparedInputs::default()).unwrap();
+    assert_eq!(String::from_utf8(imported.bytes).unwrap(), "Left: x\nRight: x");
+    let exported = convert_file(computed,Direction::YamlToXml,b"Left: x",&PreparedInputs::default()).unwrap();
+    let xml = String::from_utf8(exported.bytes).unwrap();
+    assert!(xml.contains("<Right>x</Right>") && !xml.contains("<Left>"), "{xml}");
+    let invalid_xml = b"<Root><Right>bad</Right></Root>";
+    let invalid = convert_file(computed,Direction::XmlToYaml,invalid_xml,&PreparedInputs::default()).unwrap();
+    assert!(String::from_utf8_lossy(&invalid.bytes).contains("Left: !xml/invalid bad"), "{}", String::from_utf8_lossy(&invalid.bytes));
+    assert!(!String::from_utf8_lossy(&invalid.bytes).contains("$xml"));
+    verify_candidate(computed,invalid_xml,&invalid.bytes,&PreparedInputs::default()).unwrap();
+    let computed_rows = entry_id("test.computed-collection").unwrap();
+    let original = b"<Root><Rows><Item><Right>x</Right></Item><Item><Right>y</Right></Item></Rows></Root>";
+    let imported = convert_file(computed_rows,Direction::XmlToYaml,original,&PreparedInputs::default()).unwrap();
+    assert_eq!(String::from_utf8(imported.bytes.clone()).unwrap(), "Rows:\n  x:\n    Left: x\n  y:\n    Left: y");
+    verify_candidate(computed_rows,original,&imported.bytes,&PreparedInputs::default()).unwrap();
+    let exported = convert_file(computed_rows,Direction::YamlToXml,b"Rows:\n  x:\n    Left: x\n  y:\n    Left: y",&PreparedInputs::default()).unwrap();
+    let xml = String::from_utf8(exported.bytes).unwrap();
+    assert!(xml.contains("<Right>x</Right>") && xml.contains("<Right>y</Right>") && !xml.contains("<Left>"), "{xml}");
+    let computed_owner = entry_id("test.computed-owner").unwrap();
+    let original = b"<Root><Row><Right>x</Right></Row><Extra><Marker>fixed</Marker></Extra></Root>";
+    let imported = convert_file(computed_owner,Direction::XmlToYaml,original,&PreparedInputs::default()).unwrap();
+    assert_eq!(String::from_utf8(imported.bytes.clone()).unwrap(), "Row:\n  Left: x\n  Right: x\nExtra:\n  Marker: fixed");
+    verify_candidate(computed_owner,original,&imported.bytes,&PreparedInputs::default()).unwrap();
+    let exported = convert_file(computed_owner,Direction::YamlToXml,b"Row:\n  Left: x\nExtra:\n  Marker: fixed",&PreparedInputs::default()).unwrap();
+    let xml = String::from_utf8(exported.bytes).unwrap();
+    assert!(xml.contains("<Right>x</Right>") && xml.contains("<Marker>fixed</Marker>") && !xml.contains("<Left>"), "{xml}");
     let collection = entry_id("test.state-collection").unwrap();
     let collection_xml = "<Root><Mode><Item><Name>One</Name><Mode>Default</Mode></Item><Item><Name>Two</Name><Mode>Empty</Mode></Item><Item><Name>Three</Name><Mode>Tagged</Mode></Item><Item><Name>Four</Name><Mode>Text</Mode></Item></Mode></Root>";
     let collection_yaml = "Mode:\n  One: {}\n  Two:\n    Mode: \n  Three:\n    Mode: !watch\n  Four:\n    Mode: !watch \"\"";

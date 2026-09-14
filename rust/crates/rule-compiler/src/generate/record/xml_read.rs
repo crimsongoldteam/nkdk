@@ -14,7 +14,7 @@ fn members(
     if layout.is_some() {
         result.push(("present".into(), "bool".into(), "false".into()));
     }
-    for (i, field) in fields.iter().enumerate() {
+    for (i, field) in physical_fields(fields) {
         result.push((format!("r{i}"), "Option<String>".into(), "None".into()));
         let mut flags = Vec::new();
         if matches!(field.codec, Codec::Choice(_)) {
@@ -82,14 +82,14 @@ pub(super) fn generate(
         writeln!(out, "{name}:{initial},").unwrap();
     }
     writeln!(out,"}}}}\nfn consume(&mut self,path:&[core::xml::Name],token:&core::xml::Token<'_>)->core::Result<()>{{").unwrap();
-    for (i, field) in fields.iter().enumerate() {
+    for (i, field) in physical_fields(fields) {
         if field.attribute.is_some() {
             continue;
         }
         writeln!(out, "if path.len()>{len} && core::xml::matches(&path[..{len}],{path}) {{self.nested{i}=true;self.shape{i}=true;return Ok(());}}",len=field.path.len(),path=path_code(field.path)).unwrap();
     }
     out.push_str("match token {core::xml::Token::Attribute(_attribute) => {\n");
-    for (i, field) in fields.iter().enumerate() {
+    for (i, field) in physical_fields(fields) {
         if let Some(attribute) = field.attribute {
             writeln!(out, "if core::xml::matches(path,{}) && {} {{if self.r{i}.replace(_attribute.text.clone()).is_some() {{return Err(RuntimeDiagnostic::new(\"xml.duplicate-field\",\"Repeated attribute\"));}} return Ok(());}}", path_code(field.path), super::super::attributes::name_matches(attribute,"_attribute.name")).unwrap();
             continue;
@@ -153,7 +153,7 @@ pub(super) fn generate(
         }
         out.push_str("return Ok(()); }\n");
     }
-    for (i, field) in fields.iter().enumerate() {
+    for (i, field) in physical_fields(fields) {
         if field.attribute.is_some() {
             continue;
         }
@@ -181,7 +181,7 @@ pub(super) fn generate(
         .unwrap();
     }
     out.push_str("Err(RuntimeDiagnostic::new(\"xml.unknown-field\", \"Unknown XML path\")) }, core::xml::Token::Text(text) => {\n");
-    for (i, field) in fields.iter().enumerate() {
+    for (i, field) in physical_fields(fields) {
         if field.attribute.is_some() {
             continue;
         }

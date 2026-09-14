@@ -5,6 +5,7 @@ use super::*;
 use std::fmt::Write;
 
 struct Field<'a> {
+    xml: Option<&'a LinkedXmlField>,
     path: &'a [ExpandedName],
     attribute: Option<&'a ExpandedName>,
     key: &'a str,
@@ -18,6 +19,14 @@ impl Field<'_> {
     fn physical_name(&self) -> &ExpandedName {
         self.attribute.unwrap_or_else(|| self.path.last().unwrap())
     }
+}
+fn physical_fields<'s, 'a>(
+    fields: &'s [Field<'a>],
+) -> impl Iterator<Item = (usize, &'s Field<'a>)> {
+    fields
+        .iter()
+        .enumerate()
+        .filter(|(_, field)| field.xml.is_some())
 }
 // Diagnostic and exceptional XML names do not make a field a normal YAML key.
 pub(super) fn diagnostic_key<'a>(entry: &'a LinkedEntry, name: &'a str) -> &'a str {
@@ -78,10 +87,8 @@ fn generate_at(
     for planned in &record.fields {
         let index = planned.id.0;
         let field = planned.field;
-        let mapping = planned
-            .xml
-            .ok_or_else(|| unsupported(entry, "XML field missing"))?;
-        if mapping.path.is_empty() {
+        let mapping = planned.xml;
+        if mapping.is_some_and(|mapping| mapping.path.is_empty()) {
             return Err(unsupported(
                 entry,
                 "Empty-route generation is not available at this stage",
@@ -93,7 +100,9 @@ fn generate_at(
             Some(rule) => rule.yaml_missing.is_some(),
             None => super::scalar::field_optional(&field.value, program)?,
         };
-        let attributes = if let LinkedType::Reference(id) = &field.value {
+        let attributes = if let LinkedType::Reference(id) = &field.value
+            && mapping.is_some()
+        {
             let common = program
                 .entries
                 .iter()
@@ -109,7 +118,7 @@ fn generate_at(
                 "Scalar choice owns its selector; outer attribute composition is not yet supported",
             ));
         }
-        if mapping.attribute.is_some()
+        if mapping.is_some_and(|mapping| mapping.attribute.is_some())
             && (!matches!(
                 codec,
                 Codec::Text
@@ -127,8 +136,9 @@ fn generate_at(
             ));
         }
         fields.push(Field {
-            path: &mapping.path,
-            attribute: mapping.attribute.as_ref(),
+            xml: mapping,
+            path: mapping.map_or(&[], |mapping| mapping.path.as_slice()),
+            attribute: mapping.and_then(|mapping| mapping.attribute.as_ref()),
             key: planned.diagnostic_key(),
             yaml_visible: planned.yaml.is_some(),
             codec,
@@ -137,13 +147,17 @@ fn generate_at(
             presence,
         });
     }
-    let Some(first) = fields.first() else {
+    let Some(first) = fields.iter().find(|field| field.xml.is_some()) else {
         return Err(unsupported(
             entry,
             "An empty record has no XML document root",
         ));
     };
-    if fields.iter().any(|field| field.path[0] != first.path[0]) {
+    if fields
+        .iter()
+        .filter(|field| field.xml.is_some())
+        .any(|field| field.path[0] != first.path[0])
+    {
         return Err(unsupported(
             entry,
             "All fields must belong to a single XML document root",
@@ -169,7 +183,7 @@ fn generate_at(
         || headers.last().is_some_and(|(_, header)| {
             fields
                 .iter()
-                .filter(|field| field.attribute.is_none())
+                .filter(|field| field.xml.is_some() && field.attribute.is_none())
                 .any(|field| {
                     field.path.len() <= header.path.len() || !field.path.starts_with(header.path)
                 })
@@ -330,7 +344,7 @@ fn generate_at(
         let side = if xml_side { "xml" } else { "yaml" };
         if preserve && !xml_side {
             writeln!(out,"fn read_yaml_{id}(source:&[u8],inputs:&InputView<'_>)->core::Result<V{id}> {{ match read_yaml_body_{id}(source,inputs,core::raw::Fields::default()) {{Ok(value)=>Ok(value),Err(error)=>{{let mut raw=core::raw::Fields::default();let mut decoded=source.to_vec();let mut found=false;").unwrap();
-            for (i, field) in fields.iter().enumerate() {
+            for (i, field) in physical_fields(&fields) {
                 writeln!(out,"if let Some(envelope)=core::raw::Property::decode_in(&decoded,{parent},{:?},{:?})? {{found=true;raw.insert({i},core::xml::Patch::read(&envelope.payload,&[],Q{id})?);decoded=envelope.meaning;}}",field.key,field.physical_name().local).unwrap();
             }
             writeln!(
@@ -355,6 +369,23 @@ fn generate_at(
             crate::plan::RepresentationSide::Yaml
         }) {
             let field = &fields[i];
+            if xml_side && field.xml.is_none() {
+                let missing = super::scalar_presence::missing(
+                    field
+                        .presence
+                        .and_then(|presence| presence.xml_missing.as_ref()),
+                    &field.codec,
+                    &format!("E{id}F{i}"),
+                    entry,
+                    program,
+                )?;
+                if layout.is_some() {
+                    writeln!(out, "let f{i} = if present {{{missing}}} else {{None}};").unwrap();
+                } else {
+                    writeln!(out, "let f{i} = {missing};").unwrap();
+                }
+                continue;
+            }
             if xml_side && field.attribute.is_some() {
                 let missing_restores_value = field.presence.is_some_and(|rule| {
                     [&rule.xml_missing, &rule.yaml_missing].iter().any(|value| {
@@ -569,7 +600,7 @@ fn generate_at(
         .map(|name| name.namespace.as_str())
         .filter(|ns| !ns.is_empty())
         .collect();
-    for field in &fields {
+    for field in fields.iter().filter(|field| field.xml.is_some()) {
         if let Some(attribute) = field.attribute {
             namespaces.insert(attribute.namespace.as_str());
         }
@@ -586,10 +617,9 @@ fn generate_at(
             }
         }
     }
-    if fields
-        .iter()
-        .any(|field| super::scalar_presence::absent_form(field.presence) == XmlForm::Nil)
-    {
+    if fields.iter().any(|field| {
+        field.xml.is_some() && super::scalar_presence::absent_form(field.presence) == XmlForm::Nil
+    }) {
         namespaces.insert("http://www.w3.org/2001/XMLSchema-instance");
     }
     namespaces.remove("");
@@ -611,11 +641,11 @@ fn generate_at(
     let namespaces_xml = format!("namespaces_xml{suffix}_{id}");
     let write_xml_into = format!("write_xml_into{suffix}_{id}");
     writeln!(out, "struct {prepared_type} {{").unwrap();
-    for i in 0..fields.len() {
+    for (i, _) in physical_fields(&fields) {
         writeln!(out, "tree{i}: Option<core::xml::Tree>,").unwrap();
     }
     writeln!(out, "}} fn {prepare_xml}(value: &V{id}, _inputs: &InputView<'_>) -> core::Result<{prepared_type}> {{").unwrap();
-    for (i, field) in fields.iter().enumerate() {
+    for (i, field) in physical_fields(&fields) {
         if field.attribute.is_some() {
             writeln!(out, "if value.raw.get({i}).is_some_and(|patch| patch.attribute_text().is_err()) {{return Err(RuntimeDiagnostic::new(\"xml.attribute-patch\",\"An attribute patch requires text or absence\").field({:?}));}} let tree{i}=None;",field.key).unwrap();
             continue;
@@ -657,14 +687,14 @@ fn generate_at(
     writeln!(
         out,
         "Ok({prepared_type} {{ {} }}) }}",
-        (0..fields.len())
-            .map(|i| format!("tree{i}"))
+        physical_fields(&fields)
+            .map(|(i, _)| format!("tree{i}"))
             .collect::<Vec<_>>()
             .join(",")
     )
     .unwrap();
     writeln!(out, "const XML_NAMESPACES_{id}: &[&str]=&{:?}; fn {namespaces_xml}<'a>(_value: &'a V{id}, prepared: &'a {prepared_type}, namespaces: &mut Vec<&'a str>) {{ for namespace in XML_NAMESPACES_{id} {{if !namespaces.contains(namespace) {{namespaces.push(namespace);}}}}", namespaces.into_iter().collect::<Vec<_>>()).unwrap();
-    for i in 0..fields.len() {
+    for (i, _) in physical_fields(&fields) {
         writeln!(
             out,
             "if let Some(tree)=&prepared.tree{i} {{tree.collect_namespaces(namespaces);}}"
@@ -734,7 +764,7 @@ fn generate_at(
     }
     writeln!(out,"write_xml_fields_into_{id}(value,prepared,_inputs,out)}}\nfn write_xml_fields_into_{id}<'a>(value:&V{id},prepared:&'a {prepared_type},_inputs:&InputView<'_>,out:&mut core::xml::Writer<'a>)->core::Result<()>{{let _=(&value,&prepared,&out);").unwrap();
     for (i, field) in fields.iter().enumerate() {
-        if field.attribute.is_some() {
+        if field.xml.is_none() || field.attribute.is_some() {
             continue;
         }
         writeln!(
@@ -745,7 +775,7 @@ fn generate_at(
     }
     out.push_str("Ok(()) }\n");
     for (i, field) in fields.iter().enumerate() {
-        if field.attribute.is_some() {
+        if field.xml.is_none() || field.attribute.is_some() {
             continue;
         }
         writeln!(out,"fn write_xml_field_{id}_{i}<'a>(value:&V{id},prepared:&'a {prepared_type},_inputs:&InputView<'_>,out:&mut core::xml::Writer<'a>)->core::Result<()> {{").unwrap();
@@ -867,7 +897,7 @@ fn generate_at(
     writeln!(out,"fn write_yaml_preserved_{id}(value: &V{id}, inputs: &InputView<'_>) -> core::Result<Vec<u8>> {{write_yaml_preserved_fields_{id}(value,inputs,false)}}\nfn write_yaml_preserved_fields_{id}(value:&V{id},inputs:&InputView<'_>,lift_attributes:bool)->core::Result<Vec<u8>> {{write_yaml_preserved_except_{id}(value,inputs,lift_attributes,None)}}\nfn write_yaml_preserved_except_{id}(value:&V{id},inputs:&InputView<'_>,lift_attributes:bool,excluded:Option<usize>)->core::Result<Vec<u8>> {{let mut out=String::new();write_yaml_except_{id}(value,inputs,&mut out,\"\",lift_attributes,excluded)?;let bytes=out.into_bytes();").unwrap();
     if preserve {
         out.push_str("let mut bytes=bytes;\n");
-        for (i, field) in fields.iter().enumerate() {
+        for (i, field) in physical_fields(&fields) {
             let guard = if field.attribute.is_none() {
                 String::new()
             } else if field.optional {
@@ -882,7 +912,7 @@ fn generate_at(
     let scalar = fields
         .iter()
         .enumerate()
-        .filter(|(_, field)| field.attribute.is_none())
+        .filter(|(_, field)| field.xml.is_some() && field.attribute.is_none())
         .map(|(i, field)| {
             format!(
                 "value.f{i}.is_some() && core::xml::matches(path,{})",
@@ -905,7 +935,7 @@ fn generate_at(
             .any(|field| field.attribute.is_none() || !field.yaml_visible)
     {
         writeln!(out,"fn finalize_yaml_{id}(original:&[u8],candidate:Vec<u8>,_value:&V{id},inputs:&InputView<'_>)->core::Result<Vec<u8>> {{ match verify_{id}(original,&candidate,inputs) {{Ok(())=>return Ok(candidate),Err(error) if error.code.as_deref()==Some(\"xml.round-trip-mismatch\")=>{{}},Err(error)=>return Err(error)}} let ordinary=write_xml_{id}(&read_yaml_{id}(&candidate,inputs)?,inputs)?; let mut candidate=candidate;").unwrap();
-        for (i, field) in fields.iter().enumerate() {
+        for (i, field) in physical_fields(&fields) {
             if let Some(attribute) = field.attribute {
                 if !field.yaml_visible {
                     writeln!(out,"{{let expected=core::xml::attribute_value(original,{path},({ns:?},{name:?}))?;let restored=core::xml::attribute_value(&ordinary,{path},({ns:?},{name:?}))?;if expected!=restored {{let payload=expected.as_deref().map(core::yaml::scalar).unwrap_or_else(||\"null\".into());candidate=core::raw::Property::encode_in({parent},{key:?},{physical:?},&candidate,payload.as_bytes())?;}}}}",path=path_code(field.path),ns=attribute.namespace,name=attribute.local,key=field.key,physical=field.physical_name().local).unwrap();
