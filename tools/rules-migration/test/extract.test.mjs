@@ -2,6 +2,7 @@ import { exposedRules,dataPath } from '../src/exposed-rules.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { extract } from '../src/extract.mjs';
+import { stateContributionsFor } from '../src/state-contributions.mjs';
 import { compare } from '../src/compare.mjs';
 import { fragmentValue, composedValue } from '../src/reviewed-helpers.mjs';
 
@@ -102,4 +103,29 @@ test('static extraction retains fragments, shadowing, unknowns and comparison fa
   }, [{path:'changed.ts', symbol:'ChangedRules'}]);
   assert.equal(changed[0].shapeComplete, false);
   assert.equal(changed[0].blockers[0].detail, 'reviewed-helper-changed');
+});
+
+// The source registry adds contracts outside rules.ts. Losing them must not
+// turn a structurally complete rule into an accepted conversion candidate.
+test('runtime state extraction retains profiles, compatibility patches and order', () => {
+  const contributions=[
+    {id:'shared',profile:{properties:{label:{modes:['extend']}}}},
+    {id:'item:A',item:{itemType:'A',profiles:['shared'],properties:{}}},
+    {id:'item:B',item:{itemType:'B',profiles:[],properties:{}}},
+    {id:'since',delta:{mode:'Version8_3_15',items:[
+      {itemType:'A',properties:{base:{modes:['control','notify']}}},
+      {itemType:'B',properties:{other:{modes:['extend']}}}
+    ]}}
+  ];
+  const selected=stateContributionsFor(contributions,'A');
+  assert.deepEqual(selected.map(c=>c.id),['shared','item:A','since']);
+  assert.deepEqual(selected[2].delta.items.map(i=>i.itemType),['A']);
+  assert.equal(contributions[3].delta.items.length,2);
+  assert.deepEqual(stateContributionsFor(contributions,'unregistered'),[]);
+  assert.throws(()=>stateContributionsFor([...contributions,contributions[1]],'A'),/Duplicate/);
+  assert.throws(()=>stateContributionsFor(contributions.slice(1),'A'),/Missing profile/);
+  assert.throws(()=>stateContributionsFor([{id:'item:A',item:{itemType:'A',profiles:[],properties:{bad:()=>1}}}],'A'),/data/);
+  const [entry]=extract({'rules.ts':`export const Rules={itemType:'A',properties:{}};`},[{path:'rules.ts',symbol:'Rules'}]);
+  assert.equal(entry.itemType,'A');
+  assert.equal(compare(entry,{status:'loaded',keys:[],itemType:'B'}).status,'mismatch');
 });

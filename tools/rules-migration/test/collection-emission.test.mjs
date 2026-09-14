@@ -45,6 +45,16 @@ test('collection emission requires complete items and preserves unsupported cont
     const altered=structuredClone(graph);change(altered);
     assert.equal(emitCollections(altered,entries,catalog).modules.length,0);
   }
+  const states=structuredClone(entries);
+  states[0].itemType='Example';
+  // Older inventories must not silently skip a source registry.
+  assert.equal(emitCollections(graph,states,catalog).results[0].blockers.some(b=>b.reason==='item-state-inventory-required'),true);
+  states[0].propertyStates=[{id:'item:Example',item:{itemType:'Example',profiles:[],properties:{name:{modes:['notify']}}}}];
+  const stateBlocked=emitCollections(graph,states,catalog).results[0];
+  assert.equal(stateBlocked.blockers.some(b=>b.reason==='item-state-assembly-required'),true);
+  assert.deepEqual(stateBlocked.propertyStates,states[0].propertyStates);
+  states[0].propertyStates=[];
+  assert.equal(emitCollections(graph,states,catalog).results[0].status,'candidate');
   const missing=structuredClone(entries);missing[0].properties[1].parameters.type='Unimplemented';
   const blocked=emitCollections(graph,missing,catalog);
   assert.equal(blocked.modules.length,0);

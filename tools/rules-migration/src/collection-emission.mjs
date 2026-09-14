@@ -20,6 +20,11 @@ export function emitCollections(graph,entries,catalog,namespaces={}) {
     if(parameters.schemaShape && parameters.schemaShape!=='array')block('collection-schema-shape');
     const child=entries.find(e=>e.path===edge.item.path&&e.symbol===edge.item.symbol);
     if(!child || child.comparison?.status!=='keys-match' || !child.shapeComplete) {block('item-source-incomplete');continue;}
+    if(child.itemType && !Array.isArray(child.propertyStates))block('item-state-inventory-required');
+    if(child.propertyStates?.length) {
+      result.propertyStates=structuredClone(child.propertyStates);
+      block('item-state-assembly-required');
+    }
     if(child.xmlOrder?.status==='unresolved' || (child.xmlOrder?.status==='static' && new Set(child.xmlOrder.keys).size!==child.xmlOrder.keys.length))block('item-order-unresolved');
     const owner=entries.find(e=>e.path===edge.owner.path&&e.symbol===edge.owner.symbol);
     const property=owner?.properties.find(p=>p.name===edge.property);

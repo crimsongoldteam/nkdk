@@ -15,7 +15,7 @@ const comparable = extracted.filter(e => e.exportStatus === 'owner-candidate');
 const exposed=exposedRules(sources,extracted);
 const runtime = assembled([...comparable.map(({path,symbol}) => ({path,symbol})),...exposed]);
 const loaded = new Map(runtime.map(e => [`${e.path}:${e.symbol}`, e]));
-const entries = extracted.map(entry => ({...entry, runtimeAccess:exposed.find(item=>item.path===entry.path&&item.symbol===entry.symbol)?.via, comparison:compare(entry,
+const entries = extracted.map(entry => ({...entry, propertyStates:loaded.get(`${entry.path}:${entry.symbol}`)?.propertyStates??null, runtimeAccess:exposed.find(item=>item.path===entry.path&&item.symbol===entry.symbol)?.via, comparison:compare(entry,
   loaded.get(`${entry.path}:${entry.symbol}`) ?? {status:entry.exportStatus})}));
 const summary = {};
 for (const entry of entries) summary[entry.comparison.status] = (summary[entry.comparison.status] ?? 0) + 1;

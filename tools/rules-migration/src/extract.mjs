@@ -35,13 +35,14 @@ export function extract(sources, requests) {
       .flatMap(s => [...s.declarationList.declarations]).find(d => d.name.getText() === request.symbol);
     const declaration = resolved?.valueDeclaration ?? localDeclaration;
     const value = declaration?.initializer ? evaluate(declaration.initializer) : {kind:'unknown', reason:'missing-export'};
+    const itemType = value.kind === 'object' ? value.fields.get('itemType')?.value : undefined;
     const props = value.kind === 'object' ? value.fields.get('properties')?.value : value;
     const blockers = [...(value.blockers ?? []), ...(props?.blockers ?? [])];
     if (props?.kind !== 'object') blockers.push({reason:'unresolved-properties', detail: props?.reason});
     const order = value.kind === 'object' ? value.fields.get('xmlOrder')?.value : undefined;
     const xmlOrder = !order ? {status:'absent'} : order.kind === 'array' && order.values.every(v => v.kind === 'scalar' && typeof v.value === 'string')
       ? {status:'static',keys:order.values.map(v => v.value)} : {status:'unresolved'};
-    return {...request, exportStatus:!exported ? 'not-exported' : value.kind === 'object' && value.complete && !value.fields.has('properties') ? 'fragment-without-properties' : 'owner-candidate',
+    return {...request, itemType:itemType?.kind==='scalar' && typeof itemType.value==='string'?itemType.value:null, exportStatus:!exported ? 'not-exported' : value.kind === 'object' && value.complete && !value.fields.has('properties') ? 'fragment-without-properties' : 'owner-candidate',
       source:declaration && location(declaration), xmlOrder, shapeComplete: value.kind === 'object' && value.complete && props?.kind === 'object' && props.complete,
       properties: props?.kind === 'object' ? [...props.fields].map(([name, field]) => {
         const issues = [], constantDefaults=[], encoded = parameters(field.value, issues,constantDefaults);

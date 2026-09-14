@@ -8,7 +8,7 @@ export function emitCandidates(entries, catalog, origin = p => p.source.path, xm
   const modules = new Map(), results = [];
   for (const entry of entries) {
     const result = {path:entry.path, symbol:entry.symbol, ownerStatus:entry.comparison.status,
-      ownerBlockers:entry.blockers ?? [], xmlOrder:entry.xmlOrder ?? {status:'absent'}, properties:[], projections:[]};
+      ownerBlockers:[...(entry.blockers ?? []),...(entry.propertyStates?.length?[{reason:'owner-state-assembly-required'}]:[])], propertyStates:entry.propertyStates??null, xmlOrder:entry.xmlOrder ?? {status:'absent'}, properties:[], projections:[]};
     results.push(result);
     const groups = new Map();
     const ordered = [...entry.properties];

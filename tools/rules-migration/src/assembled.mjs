@@ -11,7 +11,7 @@ export function assembled(requests) {
     const results = JSON.parse(output.slice(offset + marker.length));
     if (!Array.isArray(results) || results.length !== requests.length || results.some((r, i) =>
       r.path !== requests[i].path || r.symbol !== requests[i].symbol || !['loaded','load-error'].includes(r.status) ||
-      (r.status === 'loaded' && (!Array.isArray(r.keys) || r.keys.some(k => typeof k !== 'string') || (r.xmlOrder!==null && (!Array.isArray(r.xmlOrder) || r.xmlOrder.some(k=>typeof k!=='string'))))))) throw new Error('Invalid child result');
+      (r.status === 'loaded' && ((r.itemType!==null && typeof r.itemType!=='string') || !Array.isArray(r.propertyStates) || !Array.isArray(r.keys) || r.keys.some(k => typeof k !== 'string') || (r.xmlOrder!==null && (!Array.isArray(r.xmlOrder) || r.xmlOrder.some(k=>typeof k!=='string'))))))) throw new Error('Invalid child result');
     return results;
   } catch (error) {
     return requests.map(request => ({...request, status:'load-error', error:String(error?.message ?? error).slice(0, 2000)}));
