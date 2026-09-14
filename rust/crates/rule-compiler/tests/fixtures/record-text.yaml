@@ -1,0 +1,11 @@
+format: nkdk-declarations/1
+kind: object
+id: test.record-text
+value:
+  kind: record
+  fields:
+  - {name: path, type: {kind: scalar, scalar: text}}
+  - {name: index, type: {kind: scalar, scalar: number, profile: decimal}}
+representations:
+  xml: {kind: record, fields: [{field: path, path: [Root, Path]}, {field: index, path: [Root, Index]}]}
+  yaml: {kind: text-pattern, parts: [{field: path}, {literal: '('}, {field: index}, {literal: ')'}]}

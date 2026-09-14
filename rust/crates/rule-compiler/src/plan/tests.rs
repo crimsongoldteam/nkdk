@@ -232,3 +232,26 @@ fn borrowed_field_bindings_follow_the_callees_read_direction() {
         "{errors:?}"
     );
 }
+
+#[test]
+fn record_plan_keeps_xml_routes_for_a_text_yaml_representation() {
+    let modules = crate::parse_many(SourceFile {
+        path: "record-text.yaml",
+        bytes: include_bytes!("../../tests/fixtures/record-text.yaml"),
+    })
+    .unwrap();
+    let program = crate::link(&modules).unwrap();
+    let plan = build(&program).unwrap();
+    let record = plan.record(&program.entries[0]).unwrap();
+    assert_eq!(record.fields.len(), 2);
+    assert_eq!(
+        record.fields[0].xml.unwrap().path.last().unwrap().local,
+        "Path"
+    );
+    assert_eq!(
+        record.fields[1].xml.unwrap().path.last().unwrap().local,
+        "Index"
+    );
+    assert!(record.fields.iter().all(|field| field.yaml.is_none()));
+    assert_eq!(record.schedule(RepresentationSide::Yaml), [0, 1]);
+}

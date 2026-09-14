@@ -718,6 +718,7 @@ presence:
             ("text-nested-pattern-owner.yaml", include_str!("fixtures/text-nested-pattern-owner.yaml")),
             ("text-nested-rows.yaml", include_str!("fixtures/text-nested-rows.yaml")),
             ("text-nested-rows-owner.yaml", include_str!("fixtures/text-nested-rows-owner.yaml")),
+            ("record-text.yaml", include_str!("fixtures/record-text.yaml")),
             ("text-pattern-decimal.yaml", include_str!("fixtures/text-pattern-decimal.yaml")),
             ("text-pattern-decimal-owner.yaml", include_str!("fixtures/text-pattern-decimal-owner.yaml")),
             (
@@ -1041,6 +1042,7 @@ presence:
                 "property-states.yaml",
                 "qname-common.yaml",
                 "qname-owner.yaml",
+                "record-text.yaml",
                 "required-owner.yaml",
                 "root-scalar.yaml",
                 "selected-record-row.yaml",
@@ -1949,6 +1951,31 @@ fn main() {
         let restored=convert_file(patterned,Direction::YamlToXml,&result.bytes,&PreparedInputs::default()).unwrap();
         core::proof::verify(original.as_bytes(),&restored.bytes,|path|path.last().is_some_and(|name|name.local=="Pair")).unwrap();
         verify_candidate(patterned,original.as_bytes(),&result.bytes,&PreparedInputs::default()).unwrap();
+    }
+    let record_text = entry_id("test.record-text").unwrap();
+    let original = b"<Root><Path>alpha</Path><Index>9007199254740993</Index></Root>";
+    let result = convert_file(record_text,Direction::XmlToYaml,original,&PreparedInputs::default()).unwrap();
+    assert_eq!(result.bytes, b"alpha(9007199254740993)");
+    assert!(validate_file(record_text,&result.bytes,&PreparedInputs::default()).is_empty());
+    verify_candidate(record_text,original,b"alpha(9007199254740993)",&PreparedInputs::default()).unwrap();
+    for original in [
+        "<Root><Path>alpha</Path><Index>bad</Index></Root>",
+        "<Root><Index>2</Index></Root>",
+        "<Root extra=\"kept\"><Path>alpha</Path><Index>2</Index></Root>",
+        "<Root><Path>alpha</Path><Index>2</Index><Index>3</Index></Root>",
+        "<Root><Path>a(b</Path><Index>2</Index></Root>",
+    ] {
+        let value=convert_file(record_text,Direction::XmlToYaml,original.as_bytes(),&PreparedInputs::default()).unwrap();
+        assert!(String::from_utf8_lossy(&value.bytes).contains("!xml/raw"));
+        assert!(validate_file(record_text,&value.bytes,&PreparedInputs::default()).is_empty());
+        verify_candidate(record_text,original.as_bytes(),&value.bytes,&PreparedInputs::default()).unwrap();
+        if original.contains("extra=") {
+            let yaml=String::from_utf8(value.bytes).unwrap();
+            assert!(yaml.contains("alpha(2)"));
+            let edited=yaml.replace("alpha(2)","beta(2)");
+            let expected=original.replace("alpha","beta");
+            verify_candidate(record_text,expected.as_bytes(),edited.as_bytes(),&PreparedInputs::default()).unwrap();
+        }
     }
     let attribute_only = entry_id("test.attribute-only").unwrap();
     for xml in ["<Root version=\"2\"><Item xmlns:m=\"urn:owner\" m:uuid=\"abc\"/></Root>", "<Root><Item/></Root>"] {

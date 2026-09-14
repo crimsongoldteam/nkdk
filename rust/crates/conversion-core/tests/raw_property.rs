@@ -15,6 +15,20 @@ fn raw_property_keeps_semantic_annotations_and_requires_an_exact_boundary() {
     ] {
         assert!(nkdk_conversion_core::raw::Document::decode(source).is_err());
     }
+    for semantic in [
+        b"alpha(2)".as_slice(),
+        b"9007199254740993",
+        b"null",
+        b"\"\"",
+    ] {
+        let encoded =
+            nkdk_conversion_core::raw::Document::encode(semantic, b"_format: null").unwrap();
+        let decoded = nkdk_conversion_core::raw::Document::decode(&encoded)
+            .unwrap()
+            .unwrap();
+        assert_eq!(decoded.meaning, semantic);
+        assert_eq!(decoded.payload, b"_format: null");
+    }
     let semantic = "Заголовок: \"\"".as_bytes();
     let payload = b"v8:item:\n  v8:lang: ru\n  v8:content:";
     let encoded = Property::encode("Заголовок", "Title", semantic, payload).unwrap();

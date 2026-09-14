@@ -113,16 +113,20 @@ impl<'a> RecordPlan<'a> {
     }
     pub(crate) fn applies(entry: &LinkedEntry) -> bool {
         matches!(entry.value, LinkedType::Record(_))
-            && matches!(entry.yaml, YamlRepresentation::Mapping(_))
+            && (matches!(entry.yaml, YamlRepresentation::Mapping(_))
+                || (xml_fields(&entry.xml).is_some()
+                    && matches!(entry.yaml, YamlRepresentation::TextPattern(_))))
     }
     pub(crate) fn prepare(entry: &'a LinkedEntry, program: &Program) -> Result<Self, Diagnostic> {
-        let (LinkedType::Record(fields), YamlRepresentation::Mapping(_)) =
-            (&entry.value, &entry.yaml)
+        let (
+            LinkedType::Record(fields),
+            YamlRepresentation::Mapping(_) | YamlRepresentation::TextPattern(_),
+        ) = (&entry.value, &entry.yaml)
         else {
             return Err(diagnostic(
                 "expected_record_plan",
                 &entry.source,
-                "Record plan requires XML and YAML mappings",
+                "Record plan requires a record with a YAML mapping or text pattern",
             ));
         };
         let planned: Vec<_> = fields
@@ -134,6 +138,19 @@ impl<'a> RecordPlan<'a> {
             // Non-record XML representations own the entire value boundary.
             // Their linked projection validates field references, not routes.
             if matches!(side, RepresentationSide::Xml) && xml_fields(&entry.xml).is_none() {
+                continue;
+            }
+            if let (RepresentationSide::Yaml, YamlRepresentation::TextPattern(parts)) =
+                (side, &entry.yaml)
+            {
+                let covered = parts
+                    .iter()
+                    .filter_map(|part| match &part.value {
+                        TextPatternValue::Field(name) => Some(name.as_str()),
+                        TextPatternValue::Literal(_) => None,
+                    })
+                    .collect();
+                check_coverage(fields, &covered, &entry.presence, side, &entry.source)?;
                 continue;
             }
             let covered = planned

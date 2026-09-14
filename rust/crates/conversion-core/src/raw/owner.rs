@@ -1,6 +1,6 @@
 use super::{Kind, Result, Value, document, invalid};
 
-/// The owner envelope retains a semantic mapping and a separately proved XML patch.
+/// The owner envelope retains a semantic value and a separately proved XML patch.
 pub struct Document {
     pub meaning: Vec<u8>,
     pub payload: Vec<u8>,
@@ -8,8 +8,10 @@ pub struct Document {
 impl Document {
     pub fn encode(meaning: &[u8], payload: &[u8]) -> Result<Vec<u8>> {
         let meaning = document::parse(if meaning.is_empty() { b"{}" } else { meaning })?;
-        if meaning.tag.is_some() || !matches!(meaning.kind, Kind::Mapping(_) | Kind::Sequence(_)) {
-            return Err(invalid("An owner envelope requires a semantic mapping"));
+        if meaning.tag.is_some() {
+            return Err(invalid(
+                "An owner envelope requires an untagged semantic value",
+            ));
         }
         Value {
             tag: Some("!xml/raw".into()),
@@ -36,10 +38,8 @@ impl Document {
             }
             match key.key()? {
                 "$значение" if meaning.is_none() => {
-                    if value.tag.is_some()
-                        || !matches!(value.kind, Kind::Mapping(_) | Kind::Sequence(_))
-                    {
-                        return Err(invalid("Expected owner semantic properties"));
+                    if value.tag.is_some() {
+                        return Err(invalid("Expected untagged owner semantic value"));
                     }
                     meaning = Some(value.document()?);
                 }
