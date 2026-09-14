@@ -48,5 +48,5 @@ export function enumValueCases(catalog) {
   for(const [suffix,rows] of [['duplicate',notify+notify],['neighbor',notify+neighbor],['reversed',neighbor+notify]]) {
     cases.push({...borrowed,id:'enum-values-'+suffix,xml:withRows(rows),yaml:undefined,annotation:'    InternalInfo: !xml/raw',retainedYAML:['    Синоним: ""','    ПринадлежностьОбъекта: Заимствованный']});
   }
-  return {modules:[...emitted.modules,catalog.get('migration.metadata-base-identity')],factSources,cases};
+  return {ownerRequirements:emitted.results[0].ownerRequirements,modules:[...emitted.modules,catalog.get('migration.metadata-base-identity')],factSources,cases};
 }

@@ -1,0 +1,383 @@
+{
+  "ownerMembers": [
+    {
+      "component": "cf",
+      "owner": "ec93e916-ecd7-45c4-8e73-ea76f186183c",
+      "name": "ЗначениеПеречисления1",
+      "identity": "3422552b-50dd-46cf-88bd-163e75331ff9"
+    },
+    {
+      "component": "cf",
+      "owner": "ec93e916-ecd7-45c4-8e73-ea76f186183c",
+      "name": "ЗначениеПеречисления2",
+      "identity": "915f7a59-e3e0-43d0-9a49-68375464d960"
+    },
+    {
+      "component": "cfe/all-extension",
+      "owner": "e2570bdd-b55c-41d5-b063-440cf87b69dc",
+      "name": "ЗначениеПеречисления1",
+      "identity": "0940c048-29de-4953-b8af-267eaf8bf1c3"
+    },
+    {
+      "component": "cfe/all-extension",
+      "owner": "e2570bdd-b55c-41d5-b063-440cf87b69dc",
+      "name": "ЗначениеПеречисления2",
+      "identity": "0e2d0774-31ff-4411-9056-f7e97e9979c8"
+    },
+    {
+      "component": "cfe/all-extension",
+      "owner": "8e2cf41e-3f1e-41e4-b888-a6f36854ef69",
+      "name": "ЗначениеПеречисления1",
+      "identity": "db841222-6797-438d-b143-f3cd6fe92289"
+    },
+    {
+      "component": "cfe/all-extension",
+      "owner": "8e2cf41e-3f1e-41e4-b888-a6f36854ef69",
+      "name": "ЗначениеПеречисления2",
+      "identity": "6da97163-e16a-42a7-b9e6-d1b946bd96a8"
+    }
+  ],
+  "factSources": [
+    {
+      "entry": "metadata.enumeration-values",
+      "xml": "<ChildObjects xmlns:v8=\"http://v8.1c.ru/8.1/data/core\"><EnumValue uuid=\"3422552b-50dd-46cf-88bd-163e75331ff9\">\n\t\t\t\t<Properties>\n\t\t\t\t\t<Name>ЗначениеПеречисления1</Name>\n\t\t\t\t\t<Synonym>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Синоним</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Synonym>\n\t\t\t\t\t<Comment>Комментарий</Comment>\n\t\t\t\t</Properties>\n\t\t\t</EnumValue>\n\t\t\t<EnumValue uuid=\"915f7a59-e3e0-43d0-9a49-68375464d960\">\n\t\t\t\t<Properties>\n\t\t\t\t\t<Name>ЗначениеПеречисления2</Name>\n\t\t\t\t\t<Synonym>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Синоним 2</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Synonym>\n\t\t\t\t\t<Comment>Комментарий 2</Comment>\n\t\t\t\t</Properties>\n\t\t\t</EnumValue>\n\t\t\t</ChildObjects>",
+      "inputs": {
+        "component": "cf",
+        "owner": "ec93e916-ecd7-45c4-8e73-ea76f186183c",
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ]
+      }
+    },
+    {
+      "entry": "metadata.enumeration-values",
+      "xml": "<ChildObjects><EnumValue uuid=\"0940c048-29de-4953-b8af-267eaf8bf1c3\">\n\t\t\t\t<InternalInfo />\n\t\t\t\t<Properties>\n\t\t\t\t\t<ObjectBelonging>Adopted</ObjectBelonging>\n\t\t\t\t\t<Name>ЗначениеПеречисления1</Name>\n\t\t\t\t\t<Synonym />\n\t\t\t\t\t<Comment />\n\t\t\t\t\t<ExtendedConfigurationObject>3422552b-50dd-46cf-88bd-163e75331ff9</ExtendedConfigurationObject>\n\t\t\t\t</Properties>\n\t\t\t</EnumValue>\n\t\t\t<EnumValue uuid=\"0e2d0774-31ff-4411-9056-f7e97e9979c8\">\n\t\t\t\t<InternalInfo />\n\t\t\t\t<Properties>\n\t\t\t\t\t<ObjectBelonging>Adopted</ObjectBelonging>\n\t\t\t\t\t<Name>ЗначениеПеречисления2</Name>\n\t\t\t\t\t<Comment />\n\t\t\t\t\t<ExtendedConfigurationObject>915f7a59-e3e0-43d0-9a49-68375464d960</ExtendedConfigurationObject>\n\t\t\t\t</Properties>\n\t\t\t</EnumValue>\n\t\t\t</ChildObjects>",
+      "inputs": {
+        "component": "cfe/all-extension",
+        "owner": "e2570bdd-b55c-41d5-b063-440cf87b69dc",
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ]
+      }
+    },
+    {
+      "entry": "metadata.enumeration-values",
+      "xml": "<ChildObjects xmlns:v8=\"http://v8.1c.ru/8.1/data/core\"><EnumValue uuid=\"db841222-6797-438d-b143-f3cd6fe92289\">\n\t\t\t\t<Properties>\n\t\t\t\t\t<Name>ЗначениеПеречисления1</Name>\n\t\t\t\t\t<Synonym>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Синоним</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Synonym>\n\t\t\t\t\t<Comment>Комментарий</Comment>\n\t\t\t\t</Properties>\n\t\t\t</EnumValue>\n\t\t\t<EnumValue uuid=\"6da97163-e16a-42a7-b9e6-d1b946bd96a8\">\n\t\t\t\t<Properties>\n\t\t\t\t\t<Name>ЗначениеПеречисления2</Name>\n\t\t\t\t\t<Synonym>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Синоним 2</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Synonym>\n\t\t\t\t\t<Comment>Комментарий 2</Comment>\n\t\t\t\t</Properties>\n\t\t\t</EnumValue>\n\t\t\t</ChildObjects>",
+      "inputs": {
+        "component": "cfe/all-extension",
+        "owner": "8e2cf41e-3f1e-41e4-b888-a6f36854ef69",
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ]
+      }
+    },
+    {
+      "entry": "migration.metadata-base-identity",
+      "xml": "<Root><Name>base</Name></Root>",
+      "inputs": {
+        "component": "cfe/all-extension",
+        "identity": "0940c048-29de-4953-b8af-267eaf8bf1c3",
+        "baseIdentity": "3422552b-50dd-46cf-88bd-163e75331ff9"
+      }
+    },
+    {
+      "entry": "migration.metadata-base-identity",
+      "xml": "<Root><Name>base</Name></Root>",
+      "inputs": {
+        "component": "cfe/all-extension",
+        "identity": "0e2d0774-31ff-4411-9056-f7e97e9979c8",
+        "baseIdentity": "915f7a59-e3e0-43d0-9a49-68375464d960"
+      }
+    }
+  ],
+  "cases": [
+    {
+      "id": "e2e-complete-enum-values-0",
+      "entry": "metadata.enumeration-values",
+      "inputs": {
+        "component": "cf",
+        "owner": "ec93e916-ecd7-45c4-8e73-ea76f186183c",
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ]
+      },
+      "factBindings": {
+        "identities": "metadata.own-identities",
+        "baseIds": "metadata.base-identities"
+      },
+      "xml": "<ChildObjects xmlns:v8=\"http://v8.1c.ru/8.1/data/core\"><EnumValue uuid=\"3422552b-50dd-46cf-88bd-163e75331ff9\">\n\t\t\t\t<Properties>\n\t\t\t\t\t<Name>ЗначениеПеречисления1</Name>\n\t\t\t\t\t<Synonym>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Синоним</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Synonym>\n\t\t\t\t\t<Comment>Комментарий</Comment>\n\t\t\t\t</Properties>\n\t\t\t</EnumValue>\n\t\t\t<EnumValue uuid=\"915f7a59-e3e0-43d0-9a49-68375464d960\">\n\t\t\t\t<Properties>\n\t\t\t\t\t<Name>ЗначениеПеречисления2</Name>\n\t\t\t\t\t<Synonym>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Синоним 2</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Synonym>\n\t\t\t\t\t<Comment>Комментарий 2</Comment>\n\t\t\t\t</Properties>\n\t\t\t</EnumValue>\n\t\t\t</ChildObjects>",
+      "yaml": "Значения:\n  ЗначениеПеречисления1:\n    Синоним: Синоним\n    Комментарий: Комментарий\n  ЗначениеПеречисления2:\n    Синоним: Синоним 2\n    Комментарий: Комментарий 2",
+      "source": [
+        {
+          "path": "e2e/fixtures/xml/cf/Enums/ПеречислениеВсеСвойства.xml",
+          "sha256": "f592fee049bd1b6a0e0a5cf4acb6647d0486d987d1f5a61ac6112a6e466c5d20"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cf/Перечисление/ПеречислениеВсеСвойства/Свойства.yaml",
+          "sha256": "c37528dbe4cc502bd20540311bab418bbb433b4e5a14e7ee600593609a239c42"
+        }
+      ],
+      "adaptation": "Complete EnumValue elements; only outer MDClasses namespace removed; owner contributions not accepted"
+    },
+    {
+      "id": "e2e-complete-enum-values-1",
+      "entry": "metadata.enumeration-values",
+      "inputs": {
+        "component": "cfe/all-extension",
+        "owner": "e2570bdd-b55c-41d5-b063-440cf87b69dc",
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ]
+      },
+      "factBindings": {
+        "identities": "metadata.own-identities",
+        "baseIds": "metadata.base-identities"
+      },
+      "xml": "<ChildObjects><EnumValue uuid=\"0940c048-29de-4953-b8af-267eaf8bf1c3\">\n\t\t\t\t<InternalInfo />\n\t\t\t\t<Properties>\n\t\t\t\t\t<ObjectBelonging>Adopted</ObjectBelonging>\n\t\t\t\t\t<Name>ЗначениеПеречисления1</Name>\n\t\t\t\t\t<Synonym />\n\t\t\t\t\t<Comment />\n\t\t\t\t\t<ExtendedConfigurationObject>3422552b-50dd-46cf-88bd-163e75331ff9</ExtendedConfigurationObject>\n\t\t\t\t</Properties>\n\t\t\t</EnumValue>\n\t\t\t<EnumValue uuid=\"0e2d0774-31ff-4411-9056-f7e97e9979c8\">\n\t\t\t\t<InternalInfo />\n\t\t\t\t<Properties>\n\t\t\t\t\t<ObjectBelonging>Adopted</ObjectBelonging>\n\t\t\t\t\t<Name>ЗначениеПеречисления2</Name>\n\t\t\t\t\t<Comment />\n\t\t\t\t\t<ExtendedConfigurationObject>915f7a59-e3e0-43d0-9a49-68375464d960</ExtendedConfigurationObject>\n\t\t\t\t</Properties>\n\t\t\t</EnumValue>\n\t\t\t</ChildObjects>",
+      "yaml": "Значения:\n  ЗначениеПеречисления1:\n    Синоним: \"\"\n    ПринадлежностьОбъекта: Заимствованный\n  ЗначениеПеречисления2:\n    ПринадлежностьОбъекта: Заимствованный",
+      "source": [
+        {
+          "path": "e2e/fixtures/xml/cfe/all-extension/Enums/ПеречислениеВсеСвойства.xml",
+          "sha256": "107c5026868059b333b8f37c27de1aa173882d4642a9766e3a837ef6e8c9652f"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cfe/Расширение_All/Перечисление/ПеречислениеВсеСвойства/Свойства.yaml",
+          "sha256": "5e1ccd725db66e63efef56343f1a04a0aaabc422414f0ee05c9d084afd03498d"
+        }
+      ],
+      "adaptation": "Complete EnumValue elements; only outer MDClasses namespace removed; owner contributions not accepted"
+    },
+    {
+      "id": "e2e-complete-enum-values-2",
+      "entry": "metadata.enumeration-values",
+      "inputs": {
+        "component": "cfe/all-extension",
+        "owner": "8e2cf41e-3f1e-41e4-b888-a6f36854ef69",
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ]
+      },
+      "factBindings": {
+        "identities": "metadata.own-identities",
+        "baseIds": "metadata.base-identities"
+      },
+      "xml": "<ChildObjects xmlns:v8=\"http://v8.1c.ru/8.1/data/core\"><EnumValue uuid=\"db841222-6797-438d-b143-f3cd6fe92289\">\n\t\t\t\t<Properties>\n\t\t\t\t\t<Name>ЗначениеПеречисления1</Name>\n\t\t\t\t\t<Synonym>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Синоним</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Synonym>\n\t\t\t\t\t<Comment>Комментарий</Comment>\n\t\t\t\t</Properties>\n\t\t\t</EnumValue>\n\t\t\t<EnumValue uuid=\"6da97163-e16a-42a7-b9e6-d1b946bd96a8\">\n\t\t\t\t<Properties>\n\t\t\t\t\t<Name>ЗначениеПеречисления2</Name>\n\t\t\t\t\t<Synonym>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Синоним 2</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Synonym>\n\t\t\t\t\t<Comment>Комментарий 2</Comment>\n\t\t\t\t</Properties>\n\t\t\t</EnumValue>\n\t\t\t</ChildObjects>",
+      "yaml": "Значения:\n  ЗначениеПеречисления1:\n    Синоним: Синоним\n    Комментарий: Комментарий\n  ЗначениеПеречисления2:\n    Синоним: Синоним 2\n    Комментарий: Комментарий 2",
+      "source": [
+        {
+          "path": "e2e/fixtures/xml/cfe/all-extension/Enums/ПеречислениеВсеСвойстваExt.xml",
+          "sha256": "8f577527689eefef44b06a17631e99694c23c22d6201af2409c40e23eb8175d9"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cfe/Расширение_All/Перечисление/ПеречислениеВсеСвойстваExt/Свойства.yaml",
+          "sha256": "22c5485c22b464a285733900b6c299a62b238102f5de5ad899f773f67b85886e"
+        }
+      ],
+      "adaptation": "Complete EnumValue elements; only outer MDClasses namespace removed; owner contributions not accepted"
+    },
+    {
+      "id": "enum-values-notify",
+      "entry": "metadata.enumeration-values",
+      "inputs": {
+        "component": "cfe/all-extension",
+        "owner": "e2570bdd-b55c-41d5-b063-440cf87b69dc",
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ]
+      },
+      "factBindings": {
+        "identities": "metadata.own-identities",
+        "baseIds": "metadata.base-identities"
+      },
+      "xml": "<ChildObjects xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><EnumValue uuid=\"0940c048-29de-4953-b8af-267eaf8bf1c3\">\n\t\t\t\t<InternalInfo><xr:PropertyState><xr:Property>ExtendedConfigurationObject</xr:Property><xr:State>Notify</xr:State></xr:PropertyState></InternalInfo>\n\t\t\t\t<Properties>\n\t\t\t\t\t<ObjectBelonging>Adopted</ObjectBelonging>\n\t\t\t\t\t<Name>ЗначениеПеречисления1</Name>\n\t\t\t\t\t<Synonym />\n\t\t\t\t\t<Comment />\n\t\t\t\t\t<ExtendedConfigurationObject>3422552b-50dd-46cf-88bd-163e75331ff9</ExtendedConfigurationObject>\n\t\t\t\t</Properties>\n\t\t\t</EnumValue>\n\t\t\t<EnumValue uuid=\"0e2d0774-31ff-4411-9056-f7e97e9979c8\">\n\t\t\t\t<InternalInfo />\n\t\t\t\t<Properties>\n\t\t\t\t\t<ObjectBelonging>Adopted</ObjectBelonging>\n\t\t\t\t\t<Name>ЗначениеПеречисления2</Name>\n\t\t\t\t\t<Comment />\n\t\t\t\t\t<ExtendedConfigurationObject>915f7a59-e3e0-43d0-9a49-68375464d960</ExtendedConfigurationObject>\n\t\t\t\t</Properties>\n\t\t\t</EnumValue>\n\t\t\t</ChildObjects>",
+      "yaml": "Значения:\n  ЗначениеПеречисления1:\n    Синоним: \"\"\n    ПринадлежностьОбъекта: Заимствованный\n    ОбъектРасширяемойКонфигурации: !проверять\n  ЗначениеПеречисления2:\n    ПринадлежностьОбъекта: Заимствованный",
+      "source": [
+        {
+          "path": "e2e/fixtures/xml/cfe/all-extension/Enums/ПеречислениеВсеСвойства.xml",
+          "sha256": "107c5026868059b333b8f37c27de1aa173882d4642a9766e3a837ef6e8c9652f"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cfe/Расширение_All/Перечисление/ПеречислениеВсеСвойства/Свойства.yaml",
+          "sha256": "5e1ccd725db66e63efef56343f1a04a0aaabc422414f0ee05c9d084afd03498d"
+        }
+      ],
+      "adaptation": "Complete EnumValue elements; only outer MDClasses namespace removed; owner contributions not accepted"
+    },
+    {
+      "id": "enum-values-missing-base-control",
+      "entry": "metadata.enumeration-values",
+      "inputs": {
+        "component": "cfe/all-extension",
+        "owner": "e2570bdd-b55c-41d5-b063-440cf87b69dc",
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ]
+      },
+      "factBindings": {
+        "identities": "metadata.own-identities",
+        "baseIds": "metadata.base-identities"
+      },
+      "xml": "<ChildObjects><EnumValue uuid=\"0940c048-29de-4953-b8af-267eaf8bf1c3\">\n\t\t\t\t<InternalInfo />\n\t\t\t\t<Properties>\n\t\t\t\t\t<ObjectBelonging>Adopted</ObjectBelonging>\n\t\t\t\t\t<Name>ЗначениеПеречисления1</Name>\n\t\t\t\t\t<Synonym />\n\t\t\t\t\t<Comment />\n\t\t\t\t\t\n\t\t\t\t</Properties>\n\t\t\t</EnumValue>\n\t\t\t<EnumValue uuid=\"0e2d0774-31ff-4411-9056-f7e97e9979c8\">\n\t\t\t\t<InternalInfo />\n\t\t\t\t<Properties>\n\t\t\t\t\t<ObjectBelonging>Adopted</ObjectBelonging>\n\t\t\t\t\t<Name>ЗначениеПеречисления2</Name>\n\t\t\t\t\t<Comment />\n\t\t\t\t\t<ExtendedConfigurationObject>915f7a59-e3e0-43d0-9a49-68375464d960</ExtendedConfigurationObject>\n\t\t\t\t</Properties>\n\t\t\t</EnumValue>\n\t\t\t</ChildObjects>",
+      "yaml": "Значения:\n  ЗначениеПеречисления1:\n    Синоним: \"\"\n    ПринадлежностьОбъекта: Заимствованный\n    ОбъектРасширяемойКонфигурации: \n  ЗначениеПеречисления2:\n    ПринадлежностьОбъекта: Заимствованный",
+      "source": [
+        {
+          "path": "e2e/fixtures/xml/cfe/all-extension/Enums/ПеречислениеВсеСвойства.xml",
+          "sha256": "107c5026868059b333b8f37c27de1aa173882d4642a9766e3a837ef6e8c9652f"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cfe/Расширение_All/Перечисление/ПеречислениеВсеСвойства/Свойства.yaml",
+          "sha256": "5e1ccd725db66e63efef56343f1a04a0aaabc422414f0ee05c9d084afd03498d"
+        }
+      ],
+      "adaptation": "Complete EnumValue elements; only outer MDClasses namespace removed; owner contributions not accepted"
+    },
+    {
+      "id": "enum-values-missing-base-notify",
+      "entry": "metadata.enumeration-values",
+      "inputs": {
+        "component": "cfe/all-extension",
+        "owner": "e2570bdd-b55c-41d5-b063-440cf87b69dc",
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ]
+      },
+      "factBindings": {
+        "identities": "metadata.own-identities",
+        "baseIds": "metadata.base-identities"
+      },
+      "xml": "<ChildObjects xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><EnumValue uuid=\"0940c048-29de-4953-b8af-267eaf8bf1c3\">\n\t\t\t\t<InternalInfo><xr:PropertyState><xr:Property>ExtendedConfigurationObject</xr:Property><xr:State>Notify</xr:State></xr:PropertyState></InternalInfo>\n\t\t\t\t<Properties>\n\t\t\t\t\t<ObjectBelonging>Adopted</ObjectBelonging>\n\t\t\t\t\t<Name>ЗначениеПеречисления1</Name>\n\t\t\t\t\t<Synonym />\n\t\t\t\t\t<Comment />\n\t\t\t\t\t\n\t\t\t\t</Properties>\n\t\t\t</EnumValue>\n\t\t\t<EnumValue uuid=\"0e2d0774-31ff-4411-9056-f7e97e9979c8\">\n\t\t\t\t<InternalInfo />\n\t\t\t\t<Properties>\n\t\t\t\t\t<ObjectBelonging>Adopted</ObjectBelonging>\n\t\t\t\t\t<Name>ЗначениеПеречисления2</Name>\n\t\t\t\t\t<Comment />\n\t\t\t\t\t<ExtendedConfigurationObject>915f7a59-e3e0-43d0-9a49-68375464d960</ExtendedConfigurationObject>\n\t\t\t\t</Properties>\n\t\t\t</EnumValue>\n\t\t\t</ChildObjects>",
+      "yaml": "Значения:\n  ЗначениеПеречисления1:\n    Синоним: \"\"\n    ПринадлежностьОбъекта: Заимствованный\n    ОбъектРасширяемойКонфигурации: !проверять \"\"\n  ЗначениеПеречисления2:\n    ПринадлежностьОбъекта: Заимствованный",
+      "source": [
+        {
+          "path": "e2e/fixtures/xml/cfe/all-extension/Enums/ПеречислениеВсеСвойства.xml",
+          "sha256": "107c5026868059b333b8f37c27de1aa173882d4642a9766e3a837ef6e8c9652f"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cfe/Расширение_All/Перечисление/ПеречислениеВсеСвойства/Свойства.yaml",
+          "sha256": "5e1ccd725db66e63efef56343f1a04a0aaabc422414f0ee05c9d084afd03498d"
+        }
+      ],
+      "adaptation": "Complete EnumValue elements; only outer MDClasses namespace removed; owner contributions not accepted"
+    },
+    {
+      "id": "enum-values-duplicate",
+      "entry": "metadata.enumeration-values",
+      "inputs": {
+        "component": "cfe/all-extension",
+        "owner": "e2570bdd-b55c-41d5-b063-440cf87b69dc",
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ]
+      },
+      "factBindings": {
+        "identities": "metadata.own-identities",
+        "baseIds": "metadata.base-identities"
+      },
+      "xml": "<ChildObjects xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><EnumValue uuid=\"0940c048-29de-4953-b8af-267eaf8bf1c3\">\n\t\t\t\t<InternalInfo><xr:PropertyState><xr:Property>ExtendedConfigurationObject</xr:Property><xr:State>Notify</xr:State></xr:PropertyState><xr:PropertyState><xr:Property>ExtendedConfigurationObject</xr:Property><xr:State>Notify</xr:State></xr:PropertyState></InternalInfo>\n\t\t\t\t<Properties>\n\t\t\t\t\t<ObjectBelonging>Adopted</ObjectBelonging>\n\t\t\t\t\t<Name>ЗначениеПеречисления1</Name>\n\t\t\t\t\t<Synonym />\n\t\t\t\t\t<Comment />\n\t\t\t\t\t<ExtendedConfigurationObject>3422552b-50dd-46cf-88bd-163e75331ff9</ExtendedConfigurationObject>\n\t\t\t\t</Properties>\n\t\t\t</EnumValue>\n\t\t\t<EnumValue uuid=\"0e2d0774-31ff-4411-9056-f7e97e9979c8\">\n\t\t\t\t<InternalInfo />\n\t\t\t\t<Properties>\n\t\t\t\t\t<ObjectBelonging>Adopted</ObjectBelonging>\n\t\t\t\t\t<Name>ЗначениеПеречисления2</Name>\n\t\t\t\t\t<Comment />\n\t\t\t\t\t<ExtendedConfigurationObject>915f7a59-e3e0-43d0-9a49-68375464d960</ExtendedConfigurationObject>\n\t\t\t\t</Properties>\n\t\t\t</EnumValue>\n\t\t\t</ChildObjects>",
+      "source": [
+        {
+          "path": "e2e/fixtures/xml/cfe/all-extension/Enums/ПеречислениеВсеСвойства.xml",
+          "sha256": "107c5026868059b333b8f37c27de1aa173882d4642a9766e3a837ef6e8c9652f"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cfe/Расширение_All/Перечисление/ПеречислениеВсеСвойства/Свойства.yaml",
+          "sha256": "5e1ccd725db66e63efef56343f1a04a0aaabc422414f0ee05c9d084afd03498d"
+        }
+      ],
+      "adaptation": "Complete EnumValue elements; only outer MDClasses namespace removed; owner contributions not accepted",
+      "annotation": "    InternalInfo: !xml/raw",
+      "retainedYAML": [
+        "    Синоним: \"\"",
+        "    ПринадлежностьОбъекта: Заимствованный"
+      ]
+    },
+    {
+      "id": "enum-values-neighbor",
+      "entry": "metadata.enumeration-values",
+      "inputs": {
+        "component": "cfe/all-extension",
+        "owner": "e2570bdd-b55c-41d5-b063-440cf87b69dc",
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ]
+      },
+      "factBindings": {
+        "identities": "metadata.own-identities",
+        "baseIds": "metadata.base-identities"
+      },
+      "xml": "<ChildObjects xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><EnumValue uuid=\"0940c048-29de-4953-b8af-267eaf8bf1c3\">\n\t\t\t\t<InternalInfo><xr:PropertyState><xr:Property>ExtendedConfigurationObject</xr:Property><xr:State>Notify</xr:State></xr:PropertyState><xr:PropertyState><xr:Property>Synonym</xr:Property><xr:State>Extended</xr:State></xr:PropertyState></InternalInfo>\n\t\t\t\t<Properties>\n\t\t\t\t\t<ObjectBelonging>Adopted</ObjectBelonging>\n\t\t\t\t\t<Name>ЗначениеПеречисления1</Name>\n\t\t\t\t\t<Synonym />\n\t\t\t\t\t<Comment />\n\t\t\t\t\t<ExtendedConfigurationObject>3422552b-50dd-46cf-88bd-163e75331ff9</ExtendedConfigurationObject>\n\t\t\t\t</Properties>\n\t\t\t</EnumValue>\n\t\t\t<EnumValue uuid=\"0e2d0774-31ff-4411-9056-f7e97e9979c8\">\n\t\t\t\t<InternalInfo />\n\t\t\t\t<Properties>\n\t\t\t\t\t<ObjectBelonging>Adopted</ObjectBelonging>\n\t\t\t\t\t<Name>ЗначениеПеречисления2</Name>\n\t\t\t\t\t<Comment />\n\t\t\t\t\t<ExtendedConfigurationObject>915f7a59-e3e0-43d0-9a49-68375464d960</ExtendedConfigurationObject>\n\t\t\t\t</Properties>\n\t\t\t</EnumValue>\n\t\t\t</ChildObjects>",
+      "source": [
+        {
+          "path": "e2e/fixtures/xml/cfe/all-extension/Enums/ПеречислениеВсеСвойства.xml",
+          "sha256": "107c5026868059b333b8f37c27de1aa173882d4642a9766e3a837ef6e8c9652f"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cfe/Расширение_All/Перечисление/ПеречислениеВсеСвойства/Свойства.yaml",
+          "sha256": "5e1ccd725db66e63efef56343f1a04a0aaabc422414f0ee05c9d084afd03498d"
+        }
+      ],
+      "adaptation": "Complete EnumValue elements; only outer MDClasses namespace removed; owner contributions not accepted",
+      "annotation": "    InternalInfo: !xml/raw",
+      "retainedYAML": [
+        "    Синоним: \"\"",
+        "    ПринадлежностьОбъекта: Заимствованный"
+      ]
+    },
+    {
+      "id": "enum-values-reversed",
+      "entry": "metadata.enumeration-values",
+      "inputs": {
+        "component": "cfe/all-extension",
+        "owner": "e2570bdd-b55c-41d5-b063-440cf87b69dc",
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ]
+      },
+      "factBindings": {
+        "identities": "metadata.own-identities",
+        "baseIds": "metadata.base-identities"
+      },
+      "xml": "<ChildObjects xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><EnumValue uuid=\"0940c048-29de-4953-b8af-267eaf8bf1c3\">\n\t\t\t\t<InternalInfo><xr:PropertyState><xr:Property>Synonym</xr:Property><xr:State>Extended</xr:State></xr:PropertyState><xr:PropertyState><xr:Property>ExtendedConfigurationObject</xr:Property><xr:State>Notify</xr:State></xr:PropertyState></InternalInfo>\n\t\t\t\t<Properties>\n\t\t\t\t\t<ObjectBelonging>Adopted</ObjectBelonging>\n\t\t\t\t\t<Name>ЗначениеПеречисления1</Name>\n\t\t\t\t\t<Synonym />\n\t\t\t\t\t<Comment />\n\t\t\t\t\t<ExtendedConfigurationObject>3422552b-50dd-46cf-88bd-163e75331ff9</ExtendedConfigurationObject>\n\t\t\t\t</Properties>\n\t\t\t</EnumValue>\n\t\t\t<EnumValue uuid=\"0e2d0774-31ff-4411-9056-f7e97e9979c8\">\n\t\t\t\t<InternalInfo />\n\t\t\t\t<Properties>\n\t\t\t\t\t<ObjectBelonging>Adopted</ObjectBelonging>\n\t\t\t\t\t<Name>ЗначениеПеречисления2</Name>\n\t\t\t\t\t<Comment />\n\t\t\t\t\t<ExtendedConfigurationObject>915f7a59-e3e0-43d0-9a49-68375464d960</ExtendedConfigurationObject>\n\t\t\t\t</Properties>\n\t\t\t</EnumValue>\n\t\t\t</ChildObjects>",
+      "source": [
+        {
+          "path": "e2e/fixtures/xml/cfe/all-extension/Enums/ПеречислениеВсеСвойства.xml",
+          "sha256": "107c5026868059b333b8f37c27de1aa173882d4642a9766e3a837ef6e8c9652f"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cfe/Расширение_All/Перечисление/ПеречислениеВсеСвойства/Свойства.yaml",
+          "sha256": "5e1ccd725db66e63efef56343f1a04a0aaabc422414f0ee05c9d084afd03498d"
+        }
+      ],
+      "adaptation": "Complete EnumValue elements; only outer MDClasses namespace removed; owner contributions not accepted",
+      "annotation": "    InternalInfo: !xml/raw",
+      "retainedYAML": [
+        "    Синоним: \"\"",
+        "    ПринадлежностьОбъекта: Заимствованный"
+      ]
+    }
+  ]
+}
