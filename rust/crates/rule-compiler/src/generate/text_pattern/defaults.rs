@@ -102,8 +102,8 @@ pub(super) fn definition(codec: &Codec<'_>, name: &str) -> Result<String, Diagno
         .map(|index| format!("pieces[{index}]"))
         .collect::<Vec<_>>()
         .join(",");
-    writeln!(out,"fn check(&self,xml:bool)->core::Result<()>{{let pieces=self.pieces(xml)?;if xml{{Self::xml_pattern().check_values(&pieces)}}else{{Self::yaml_pattern().check_values(&[{selected}])}}.map_err(|_|RuntimeDiagnostic::new(\"value.text-pattern\",\"Slot conflicts with the declared delimiter\"))}}").unwrap();
-    writeln!(out,"fn write(&self,xml:bool)->core::Result<String>{{let pieces=self.pieces(xml)?;let mut out=String::new();if xml{{Self::xml_pattern().write(&pieces,&mut out,usize::MAX)}}else{{Self::yaml_pattern().write(&[{selected}],&mut out,usize::MAX)}}.map_err(|_|RuntimeDiagnostic::new(\"value.text-pattern\",\"Text pattern cannot be printed\"))?;Ok(out)}}}}").unwrap();
+    writeln!(out,"fn check(&self,xml:bool)->core::Result<()>{{let owned_pieces=self.pieces(xml)?;let pieces=owned_pieces.each_ref().map(|piece| &piece[..]);if xml{{Self::xml_pattern().check_values(&pieces)}}else{{Self::yaml_pattern().check_values(&[{selected}])}}.map_err(|_|RuntimeDiagnostic::new(\"value.text-pattern\",\"Slot conflicts with the declared delimiter\"))}}").unwrap();
+    writeln!(out,"fn write(&self,xml:bool)->core::Result<String>{{let owned_pieces=self.pieces(xml)?;let pieces=owned_pieces.each_ref().map(|piece| &piece[..]);let mut out=String::new();if xml{{Self::xml_pattern().write(&pieces,&mut out,usize::MAX)}}else{{Self::yaml_pattern().write(&[{selected}],&mut out,usize::MAX)}}.map_err(|_|RuntimeDiagnostic::new(\"value.text-pattern\",\"Text pattern cannot be printed\"))?;Ok(out)}}}}").unwrap();
     Ok(out)
 }
 

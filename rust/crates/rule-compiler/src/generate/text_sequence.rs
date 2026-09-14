@@ -122,7 +122,7 @@ impl<'a> Codec<'a> {
                 "let order={order};let mut slots=[\"\";{width}];for(index,field)in order.iter().enumerate(){{slots[*field]=cells[index];}}let head={name}Head::read_slots(slots,xml)?;"
             );
             head_visit = format!(
-                "let pieces=self.head.pieces(xml)?;let order={order};for(index,field)in order.iter().enumerate(){{visit(pieces[*field],index<order.len().saturating_sub(1)||!self.rows.is_empty())?;}}"
+                "let owned_pieces=self.head.pieces(xml)?;let pieces=owned_pieces.each_ref().map(|piece| &piece[..]);let order={order};for(index,field)in order.iter().enumerate(){{visit(pieces[*field],index<order.len().saturating_sub(1)||!self.rows.is_empty())?;}}"
             );
             head_issues = "errors.extend(self.head.issues(xml,_inputs));".into();
         } else {

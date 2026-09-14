@@ -1,0 +1,8 @@
+format: nkdk-declarations/1
+kind: object
+id: test.text-nested-rows
+imports: {pair: common.nested-pattern-rows}
+value: {kind: record, fields: [{name: pair, type: {use: pair}}]}
+representations:
+  xml: {kind: record, fields: [{field: pair, path: [Root, Pair]}]}
+  yaml: {kind: mapping, fields: [{field: pair, key: Pair}]}

@@ -1,0 +1,12 @@
+format: nkdk-declarations/1
+kind: value
+id: common.nested-pattern
+imports: {pair: common.decimal-pair}
+value:
+  kind: record
+  fields:
+  - {name: payload, type: {use: pair}}
+  - {name: suffix, type: {kind: scalar, scalar: text}}
+representations:
+  xml: {kind: text-pattern, parts: [{field: payload}, {literal: '#'}, {field: suffix}]}
+  yaml: {kind: text-pattern, parts: [{field: suffix}, {literal: '='}, {field: payload}]}

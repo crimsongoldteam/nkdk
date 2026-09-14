@@ -10,6 +10,25 @@ fn text_patterns_cover_typed_fields_without_ambiguous_capture() {
         })
     };
     link(&[read(source).unwrap()]).unwrap();
+    let nested = include_str!("fixtures/text-nested-pattern.yaml");
+    let nested_owner = include_str!("fixtures/text-nested-pattern-owner.yaml");
+    let decimal = include_str!("fixtures/text-pattern-decimal.yaml");
+    let constrained = format!(
+        "{decimal}\nconstraints:\n- id: nested-check\n  appliesTo: [xml-import, yaml-validation]\n  assert: {{literal: false}}\n  diagnostic: {{code: nested.check, severity: error, at: {{self: true}}, message: Nested check}}\n"
+    );
+    let program = link(&[
+        read(nested).unwrap(),
+        read(nested_owner).unwrap(),
+        read(&constrained).unwrap(),
+    ])
+    .unwrap();
+    let errors = nkdk_rule_compiler::generate(&program).unwrap_err();
+    assert!(
+        errors
+            .iter()
+            .any(|error| error.message.contains("Nested text checks"))
+    );
+
     let sequence = include_str!("fixtures/text-sequence.yaml");
     read(sequence).unwrap();
     let row = source

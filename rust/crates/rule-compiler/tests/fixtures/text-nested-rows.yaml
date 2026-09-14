@@ -1,0 +1,8 @@
+format: nkdk-declarations/1
+kind: value
+id: common.nested-pattern-rows
+imports: {item: common.nested-pattern}
+value: {kind: sequence, item: {use: item}}
+representations:
+  xml: {kind: text-sequence, separator: '#'}
+  yaml: {kind: text-sequence, separator: '='}

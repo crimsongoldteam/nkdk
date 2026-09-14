@@ -1,0 +1,15 @@
+format: nkdk-declarations/1
+kind: value
+id: common.decimal-short
+value:
+  kind: record
+  fields:
+  - {name: domain, type: {kind: scalar, scalar: number, profile: decimal}}
+  - {name: name, type: {kind: scalar, scalar: text}}
+representations:
+  xml: {kind: text-pattern, parts: [{field: domain}, {literal: '::'}, {field: name}]}
+  yaml: {kind: text-pattern, parts: [{field: domain}]}
+
+presence:
+- target: {field: name}
+  yaml: {missing: {denotes: {literal: leaf}}}

@@ -94,6 +94,15 @@ pub(super) fn types(entries: &BTreeMap<u32, LinkedEntry>) -> Result<(), Diagnost
                 super::text_sequence::head_layout(entry, &entries[&id], false)?;
                 continue;
             }
+            if let LinkedType::Reference(id) = field.value {
+                let target = &entries[&id];
+                if matches!(target.value, LinkedType::Record(_))
+                    && xml_parts(&target.xml).is_some()
+                    && matches!(target.yaml, YamlRepresentation::TextPattern(_))
+                {
+                    continue;
+                }
+            }
             let value = match &field.value {
                 LinkedType::Reference(id) | LinkedType::BoundReference { entry: id, .. } => {
                     &entries[id].value

@@ -72,7 +72,7 @@ impl<'a> Item<'a> {
         writeln!(out, "impl {name} {{fn visit_cells(&self,xml:bool,mut visit:impl FnMut(&str,bool)->core::Result<()>)->core::Result<()>{{match self{{").unwrap();
         for (index, orders) in orders.iter().enumerate() {
             let order = text_choice::cell_order(orders);
-            writeln!(out, "Self::V{index}(value)=>{{let pieces=value.pieces(xml)?;let order={order};for(index,field)in order.iter().enumerate(){{visit(pieces[*field],index+1<order.len())?;}}}},").unwrap();
+            writeln!(out, "Self::V{index}(value)=>{{let owned_pieces=value.pieces(xml)?;let pieces=owned_pieces.each_ref().map(|piece| &piece[..]);let order={order};for(index,field)in order.iter().enumerate(){{visit(pieces[*field],index+1<order.len())?;}}}},").unwrap();
         }
         out.push_str("}Ok(())}}\n");
         Ok(out)
@@ -90,7 +90,7 @@ impl<'a> Item<'a> {
     pub(super) fn visit(&self, count: usize, empty_guard: &str) -> String {
         match self {
             Self::Record(_) => format!(
-                "let order=Self::order(xml);for(row_index,row)in self.rows.iter().enumerate(){{let pieces=row.pieces(xml)?;for(cell_index,field)in order.iter().enumerate(){{let value=pieces[*field];{empty_guard}visit(value,row_index+1<self.rows.len()||cell_index+1<{count})?;}}}}"
+                "let order=Self::order(xml);for(row_index,row)in self.rows.iter().enumerate(){{let owned_pieces=row.pieces(xml)?;let pieces=owned_pieces.each_ref().map(|piece| &piece[..]);for(cell_index,field)in order.iter().enumerate(){{let value=pieces[*field];{empty_guard}visit(value,row_index+1<self.rows.len()||cell_index+1<{count})?;}}}}"
             ),
             Self::Choice(..) => format!(
                 "for(row_index,row)in self.rows.iter().enumerate(){{row.visit_cells(xml,|value,followed|{{{empty_guard}visit(value,row_index+1<self.rows.len()||followed)}})?;}}"
