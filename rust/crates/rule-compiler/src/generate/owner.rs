@@ -771,25 +771,34 @@ pub(super) fn generate_at(
         "let candidate=out.into_bytes();match verify_{id}(original,&candidate,inputs) {{Ok(())=>return Ok(candidate),Err(error) if error.code.as_deref()==Some(\"xml.round-trip-mismatch\")=>{{}},Err(error)=>return Err(error)}}let ordinary=write_xml_{id}(&read_yaml_{id}(&candidate,inputs)?,inputs)?;let expected=core::xml::Tree::capture_with_qnames(original,{root_code},xml_qname_text_{id})?.ok_or_else(||RuntimeDiagnostic::new(\"xml.owner-root\",\"Expected the declared document root\"))?;let base=core::xml::Tree::capture_with_qnames(&ordinary,{root_code},xml_qname_text_{id})?;let patch=expected.patch_yaml(base.as_ref(),&[],&xml_qnames_{id}())?;let candidate=core::raw::Document::encode(&candidate,patch.as_bytes())?;verify_{id}(original,&candidate,inputs)?;Ok(candidate)}}"
     )
     .unwrap();
-    writeln!(out,"#[allow(dead_code)] fn text_field_{id}(value:&V{id},field:usize)->core::Result<&str>{{match field{{").unwrap();
-    let LinkedType::Record(fields) = &entry.value else {
-        unreachable!()
-    };
-    for (index, field) in fields.iter().enumerate() {
-        for (slot, part) in parts.iter().enumerate() {
-            let LinkedType::Record(local) = &part.value else {
-                unreachable!()
-            };
-            if let Some(local) = local.iter().position(|item| item.name == field.name) {
-                writeln!(
-                    out,
-                    "{index}=>part_{id}_{slot}::text_field(&value.p{slot},{local}),"
-                )
-                .unwrap();
+    for (accessor, result, fallback) in [
+        (
+            "text_field",
+            "core::Result<&str>",
+            "Err(RuntimeDiagnostic::new(\"fact.field-type\",\"Unknown field\"))",
+        ),
+        ("input_field", "Option<core::inputs::InputRef<'_>>", "None"),
+    ] {
+        writeln!(out,"#[allow(dead_code)] fn {accessor}_{id}(value:&V{id},field:usize)->{result}{{match field{{").unwrap();
+        let LinkedType::Record(fields) = &entry.value else {
+            unreachable!()
+        };
+        for (index, field) in fields.iter().enumerate() {
+            for (slot, part) in parts.iter().enumerate() {
+                let LinkedType::Record(local) = &part.value else {
+                    unreachable!()
+                };
+                if let Some(local) = local.iter().position(|item| item.name == field.name) {
+                    writeln!(
+                        out,
+                        "{index}=>part_{id}_{slot}::{accessor}(&value.p{slot},{local}),"
+                    )
+                    .unwrap();
+                }
             }
         }
+        writeln!(out, "_=>{fallback}}}}}").unwrap();
     }
-    out.push_str("_=>Err(RuntimeDiagnostic::new(\"fact.field-type\",\"Unknown field\"))}}\n");
     Ok(out)
 }
 

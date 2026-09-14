@@ -1,0 +1,28 @@
+format: nkdk-declarations/1
+kind: object
+id: test.borrowed-record-rows
+imports: {rows: common.rows}
+value:
+  kind: record
+  fields:
+  - {name: found, type: {kind: scalar, scalar: text}}
+  - {name: rows, type: {use: rows}}
+representations:
+  xml: {kind: record, fields: [{field: rows, path: [Root, Rows]}]}
+  yaml: {kind: mapping, fields: [{field: found, key: Found}, {field: rows, key: Rows}]}
+presence:
+- target: {field: found}
+  xml:
+    missing:
+      denotes:
+        if:
+          exists:
+            in: {field: rows}
+            as: item
+            where:
+              and:
+              - {present: {get: {of: {var: item}, field: name}}}
+              - {eq: [{get: {of: {var: item}, field: name}}, {literal: Second}]}
+        then: {literal: found}
+        else: {literal: missing}
+  yaml: {missing: {denotes: {absent: true}}}

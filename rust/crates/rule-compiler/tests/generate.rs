@@ -501,8 +501,16 @@ contributions:
             .replace("common.text-choice", "common.bound-choice")
             .replace("value:", "inputs: {unused: {type: {kind: scalar, scalar: boolean}}, selected: {type: {kind: scalar, scalar: text}}}\nvalue:")
             .replace("{use: pair}", "{use: pair, bind: {allowed: {input: selected}, enabled: {input: unused}}}");
+        let borrowed_nested = include_str!("fixtures/borrowed-record-rows.yaml")
+            .replace("test.borrowed-record-rows", "test.borrowed-nested-rows")
+            .replace("common.rows", "common.nested-rows");
         let mut modules = [
             ("directional-fields.yaml", directional),
+            ("borrowed-nested-rows.yaml", borrowed_nested.as_str()),
+            ("borrowed-record-rows.yaml", include_str!("fixtures/borrowed-record-rows.yaml")),
+            ("directional-bound-common.yaml", include_str!("fixtures/directional-bound-common.yaml")),
+            ("directional-bound-reverse.yaml", include_str!("fixtures/directional-bound-reverse.yaml")),
+            ("directional-bound-owner.yaml", include_str!("fixtures/directional-bound-owner.yaml")),
             ("cube-states.yaml", cube_states.as_str()),
             ("cube.yaml", cube),
             ("state-projections-composed.yaml", projections_composed.as_str()),
@@ -827,6 +835,8 @@ contributions:
                 "attributed-rows-fragment.yaml",
                 "attributed-rows-owner.yaml",
                 "attributed-rows.yaml",
+                "borrowed-nested-rows.yaml",
+                "borrowed-record-rows.yaml",
                 "bound-choice-owner.yaml",
                 "bound-choice.yaml",
                 "bound-first.yaml",
@@ -858,6 +868,9 @@ contributions:
                 "default-number.yaml",
                 "default-owner.yaml",
                 "default.yaml",
+                "directional-bound-common.yaml",
+                "directional-bound-owner.yaml",
+                "directional-bound-reverse.yaml",
                 "directional-composed.yaml",
                 "directional-extra.yaml",
                 "directional-fields.yaml",
@@ -948,6 +961,7 @@ fn main() {
 
     for (name, extra_xml, extra_yaml) in [
         ("test.directional-fields", "", ""),
+        ("test.directional-bindings", "", ""),
         ("test.directional-composed", "<Extra><Marker>fixed</Marker></Extra>", "\nExtra:\n  Marker: fixed"),
     ] {
         let entry = entry_id(name).unwrap();
@@ -1004,6 +1018,25 @@ fn main() {
     let exported = convert_file(computed_owner,Direction::YamlToXml,b"Row:\n  Left: x\nExtra:\n  Marker: fixed",&PreparedInputs::default()).unwrap();
     let xml = String::from_utf8(exported.bytes).unwrap();
     assert!(xml.contains("<Right>x</Right>") && xml.contains("<Marker>fixed</Marker>") && !xml.contains("<Left>"), "{xml}");
+    let borrowed = entry_id("test.borrowed-record-rows").unwrap();
+    for (rows, expected) in [
+        ("", "missing"),
+        ("<Item><r:Name>First</r:Name><r:Mode>one</r:Mode></Item>", "missing"),
+        ("<Item><r:Name>First</r:Name><r:Mode>one</r:Mode></Item><Item><r:Name>Second</r:Name><r:Mode>two</r:Mode></Item>", "found"),
+        ("<Item><r:Name>Second</r:Name><r:Mode>one</r:Mode></Item><Item><r:Name>Second</r:Name><r:Mode>two</r:Mode></Item>", "found"),
+        ("<Item><r:Mode>one</r:Mode></Item><Item><r:Name>Second</r:Name><r:Mode>two</r:Mode></Item>", "found"),
+    ] {
+        let original = format!(r#"<Root xmlns:r="urn:row"><Rows>{rows}</Rows></Root>"#);
+        let imported = convert_file(borrowed, Direction::XmlToYaml, original.as_bytes(), &PreparedInputs::default()).unwrap();
+        let yaml = String::from_utf8_lossy(&imported.bytes);
+        assert!(yaml.starts_with(&format!("Found: {expected}\n")), "{yaml}");
+        verify_candidate(borrowed, original.as_bytes(), &imported.bytes, &PreparedInputs::default()).unwrap();
+    }
+    let borrowed_nested = entry_id("test.borrowed-nested-rows").unwrap();
+    let xml = b"<Root xmlns:r='urn:row'><Rows><Item token='Second'><Codes><Item><Code>a</Code><Title>A</Title></Item></Codes><r:Name>Second</r:Name><r:Mode>normal</r:Mode></Item></Rows></Root>";
+    let result = convert_file(borrowed_nested, Direction::XmlToYaml, xml, &PreparedInputs::default()).unwrap();
+    assert_eq!(String::from_utf8_lossy(&result.bytes), "Found: found\nRows:\n  -\n    Codes:\n      - Code: a\n        Title: A\n    Name: Second\n    Mode: normal");
+    verify_candidate(borrowed_nested, xml, &result.bytes, &PreparedInputs::default()).unwrap();
     let cube = entry_id("test.cube").unwrap();
     for mask in 0..8 {
         let mut xml = String::from("<Root>");

@@ -1,0 +1,12 @@
+format: nkdk-declarations/1
+kind: value
+id: common.directional-reverse
+inputs: {expected: {type: {kind: scalar, scalar: text}}}
+value: {kind: scalar, scalar: text}
+representations:
+  xml: {kind: text}
+  yaml: {kind: scalar, scalar: text}
+presence:
+- target: self
+  yaml: {missing: {denotes: {input: expected}}}
+  xml: {missing: {denotes: {absent: true}}}

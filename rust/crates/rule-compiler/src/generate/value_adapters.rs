@@ -251,7 +251,9 @@ pub(super) fn emit_usage(
     } else {
         "let _=(value,field);Err(RuntimeDiagnostic::new(\"fact.field-type\",\"Expected a scalar field\"))".into()
     };
-    let input_accessor = if !record_value && !nested && !qname && !composite && sequence.is_none() {
+    let input_accessor = if declared_items {
+        "if field==0 && value.0.present { Some(core::inputs::InputRef::Records(core::inputs::Records::new(&value.0.rows))) } else { None }".into()
+    } else if !record_value && !nested && !qname && !composite && sequence.is_none() {
         format!("input_field_{id}(&value.0,field)")
     } else {
         "let _=(value,field);None".into()

@@ -34,7 +34,7 @@ pub(crate) fn build(program: &Program) -> Result<ConversionPlan<'_>, Vec<Diagnos
     let mut values = BTreeMap::new();
     for entry in &program.entries {
         let record = RecordPlan::applies(entry)
-            .then(|| RecordPlan::prepare(entry))
+            .then(|| RecordPlan::prepare(entry, program))
             .transpose()
             .map_err(|error| vec![error])?;
         values.insert(ValueId(entry.id), ValuePlan { entry, record });
@@ -50,7 +50,7 @@ impl ConversionPlan<'_> {
         &self,
         entry: &LinkedEntry,
     ) -> Result<std::rc::Rc<composition::Composition>, Diagnostic> {
-        self.compositions.prepare(entry)
+        self.compositions.prepare(entry, self.program)
     }
     pub(crate) fn value(&self, id: ValueId) -> Option<&ValuePlan<'_>> {
         self.values.get(&id)
@@ -69,7 +69,7 @@ impl ConversionPlan<'_> {
         }
         // Existing lowering creates temporary specializations. They use the
         // same preparation contract until their routes move into the plan.
-        RecordPlan::prepare(entry).map(Cow::Owned)
+        RecordPlan::prepare(entry, self.program).map(Cow::Owned)
     }
 }
 

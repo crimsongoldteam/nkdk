@@ -1,7 +1,9 @@
 mod read;
+mod records;
 mod view;
 use crate::{EntryId, Result, RuntimeDiagnostic, decimal::Decimal};
 pub use read::read;
+pub use records::{RecordInput, Records};
 pub use view::{InputRef, InputView};
 
 #[derive(Debug, Clone, PartialEq, Eq)]

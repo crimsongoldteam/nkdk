@@ -1,0 +1,12 @@
+format: nkdk-declarations/1
+kind: object
+id: test.directional-bindings
+imports: {left: common.directional-bound, right: common.directional-reverse}
+value:
+  kind: record
+  fields:
+  - {name: left, type: {use: left, bind: {expected: {field: right}}}}
+  - {name: right, type: {use: right, bind: {expected: {field: left}}}}
+representations:
+  xml: {kind: record, fields: [{field: left, path: [Root, Left]}, {field: right, path: [Root, Right]}]}
+  yaml: {kind: mapping, fields: [{field: left, key: Left}, {field: right, key: Right}]}

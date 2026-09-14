@@ -35,6 +35,11 @@ impl InputScope {
         };
         let mut captured = Vec::new();
         for &field in captures {
+            let capture = location(field as usize);
+            if super::declared_items::applies(&parts[capture.0], program) {
+                captured.push(capture);
+                continue;
+            }
             let codec = scalar::Codec::resolve(&fields[field as usize].value, owner, program)?;
             if codec.input_method().is_none() {
                 return Err(unsupported(

@@ -6,6 +6,7 @@ pub(super) struct Expressions<'a> {
     pub(super) program: &'a Program<'a>,
     pub(super) fields: &'a [LinkedField],
     pub(super) local_fields: std::collections::BTreeMap<u32, Vec<String>>,
+    borrowed_rows: std::collections::BTreeMap<u32, Vec<LinkedField>>,
     pub(super) field_storage: Option<&'a [(String, String)]>,
     pub(super) constants: String,
     pub(super) next_constant: usize,
@@ -25,6 +26,7 @@ impl<'a> Expressions<'a> {
             fields,
             field_storage,
             local_fields: Default::default(),
+            borrowed_rows: Default::default(),
             constants: String::new(),
             next_constant: 0,
             transforms: BTreeSet::new(),
@@ -32,6 +34,13 @@ impl<'a> Expressions<'a> {
         }
     }
     fn bind_typed_row(&mut self, input: &LinkedExpression, slot: u32) -> Result<bool, Diagnostic> {
+        if matches!(input.kind, LinkedExpressionKind::Input(_))
+            && let LinkedType::Sequence(item) = &input.value_type
+            && let LinkedType::Record(fields) = item.as_ref()
+        {
+            self.borrowed_rows.insert(slot, fields.clone());
+            return Ok(true);
+        }
         if matches!(input.kind, LinkedExpressionKind::SelfValue)
             && let Some(codec) = collection_values::codec(self.entry, self.program)?
             && let LinkedType::Sequence(item) = &input.value_type
@@ -89,6 +98,18 @@ impl<'a> Expressions<'a> {
             codec.item_fields(&format!("E{}F{owner}", self.entry.id), slot),
         );
         Ok(true)
+    }
+
+    fn borrowed_method(&self, slot: u32, index: u32) -> Result<&'static str, Diagnostic> {
+        let field = &self.borrowed_rows[&slot][index as usize];
+        scalar::Codec::resolve(&field.value, self.entry, self.program)?
+            .input_method()
+            .ok_or_else(|| {
+                unsupported(
+                    self.entry,
+                    "Record input field has no borrowed representation",
+                )
+            })
     }
 
     fn owns_text(value: &LinkedExpression) -> bool {
@@ -311,6 +332,11 @@ impl<'a> Expressions<'a> {
                                 )
                             })?
                     }
+                    LinkedType::Sequence(item)
+                        if matches!(item.as_ref(), LinkedType::Record(_)) =>
+                    {
+                        "records"
+                    }
                     LinkedType::Sequence(_) => "sequence",
                     _ => {
                         return Err(unsupported(
@@ -411,6 +437,7 @@ impl<'a> Expressions<'a> {
                     }
                     let next = self.lower(&arguments[2]);
                     self.local_fields.remove(item);
+                    self.borrowed_rows.remove(item);
                     let next = next?;
                     return Ok(format!(
                         "{{let mut accumulated={initial};if accumulated.is_some(){{for v{item} in {sequence} {{let Some(v{state})=accumulated else{{break;}};accumulated={next};}}}}accumulated}}"
@@ -457,6 +484,18 @@ impl<'a> Expressions<'a> {
                     && let Some(code) = self.fixed_sequence_equality(arguments)?
                 {
                     return Ok(code);
+                }
+                if *operator == LinkedOperator::State(StatePredicate::Present)
+                    && let LinkedExpressionKind::Operation {
+                        operator: LinkedOperator::Get(index),
+                        arguments: row,
+                    } = &arguments[0].kind
+                    && let LinkedExpressionKind::Variable(slot) = row[0].kind
+                    && self.borrowed_rows.contains_key(&slot)
+                {
+                    return Ok(format!(
+                        "v{slot}.field({index}).is_some_and(|value| !matches!(value,core::inputs::InputRef::MissingValue))"
+                    ));
                 }
                 if *operator == LinkedOperator::State(StatePredicate::Present)
                     && let LinkedExpressionKind::Input(slot) = arguments[0].kind
@@ -509,6 +548,7 @@ impl<'a> Expressions<'a> {
                     let predicate = self.lower(&arguments[1]);
                     if typed {
                         self.local_fields.remove(slot);
+                        self.borrowed_rows.remove(slot);
                     }
                     let predicate = predicate?;
                     let LinkedType::Sequence(item) = &arguments[0].value_type else {
@@ -715,6 +755,13 @@ impl<'a> Expressions<'a> {
                         )
                     }
                     LinkedOperator::Get(index) => {
+                        if let LinkedExpressionKind::Variable(slot) = arguments[0].kind
+                            && self.borrowed_rows.contains_key(&slot)
+                        {
+                            let method = self.borrowed_method(slot, *index)?;
+                            self.fallible = true;
+                            return Ok(format!("v{slot}.{method}({index})?"));
+                        }
                         if let LinkedExpressionKind::Variable(slot) = arguments[0].kind
                             && let Some(fields) = self.local_fields.get(&slot)
                         {

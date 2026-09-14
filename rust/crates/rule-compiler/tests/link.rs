@@ -475,7 +475,7 @@ fn field_bindings_reject_cycles_independently_of_field_order() {
             .any(|error| error.code == "field_dependency_cycle")
     );
     let common = format!(
-        "{}\ninputs:\n  enabled: {{type: {{kind: scalar, scalar: boolean}}}}\n",
+        "{}\ninputs:\n  enabled: {{type: {{kind: scalar, scalar: boolean}}}}\npresence:\n- target: self\n  xml: {{missing: {{denotes: {{input: enabled}}}}}}\n  yaml: {{missing: {{denotes: {{input: enabled}}}}}}\n",
         include_str!("fixtures/common.yaml")
     );
     for (a, b, accepted) in [("true", "a", true), ("b", "a", false)] {

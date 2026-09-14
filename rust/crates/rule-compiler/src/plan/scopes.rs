@@ -76,17 +76,21 @@ pub(crate) fn read_schedule(
     value: &LinkedType,
     presence: &[LinkedPresence],
     side: RepresentationSide,
+    program: &Program,
 ) -> Result<Vec<usize>, Diagnostic> {
     let LinkedType::Record(fields) = value else {
         return Ok(vec![]);
     };
-    schedule(&collect_dependencies(value, presence, Some(side))?, fields)
+    schedule(
+        &collect_dependencies(value, presence, Some((side, program)))?,
+        fields,
+    )
 }
 
 fn collect_dependencies(
     value: &LinkedType,
     presence: &[LinkedPresence],
-    side: Option<RepresentationSide>,
+    phase: Option<(RepresentationSide, &Program)>,
 ) -> Result<Vec<Vec<u32>>, Diagnostic> {
     let LinkedType::Record(fields) = value else {
         return Ok(vec![]);
@@ -95,14 +99,14 @@ fn collect_dependencies(
         .iter()
         .map(|field| {
             let mut result = BTreeSet::new();
-            collect(&field.value, &mut result);
+            collect(&field.value, &mut result, phase);
             result
         })
         .collect();
     for rule in presence {
         if let LinkedPresenceTarget::Field(index) = rule.target {
             let target = &mut sets[index as usize];
-            for (phase, missing, empty) in [
+            for (side, missing, empty) in [
                 (RepresentationSide::Xml, &rule.xml_missing, &rule.xml_empty),
                 (
                     RepresentationSide::Yaml,
@@ -110,7 +114,7 @@ fn collect_dependencies(
                     &rule.yaml_empty,
                 ),
             ] {
-                if side.is_none_or(|side| side == phase) {
+                if phase.is_none_or(|(phase, _)| phase == side) {
                     for value in missing.iter().chain(empty.iter().map(|form| &form.denotes)) {
                         collect_expression(value, target);
                     }
@@ -125,14 +129,45 @@ fn collect_dependencies(
     Ok(dependencies)
 }
 
-fn collect(value: &LinkedType, result: &mut BTreeSet<u32>) {
+fn collect(
+    value: &LinkedType,
+    result: &mut BTreeSet<u32>,
+    phase: Option<(RepresentationSide, &Program)>,
+) {
     match value {
-        LinkedType::BoundReference { bindings, .. } => {
+        LinkedType::BoundReference {
+            entry, bindings, ..
+        } => {
+            let required = phase.map(|(side, program)| {
+                let callee = program
+                    .entries
+                    .iter()
+                    .find(|candidate| candidate.id == *entry)
+                    .expect("linked callee");
+                super::input_dependencies::read(
+                    callee,
+                    program,
+                    match side {
+                        RepresentationSide::Xml => ValidationPhase::XmlImport,
+                        RepresentationSide::Yaml => ValidationPhase::YamlValidation,
+                    },
+                )
+            });
             for binding in bindings {
-                collect_expression(&binding.value, result);
+                let borrowed = matches!(
+                    binding.value.kind,
+                    LinkedExpressionKind::Field(_) | LinkedExpressionKind::Input(_)
+                );
+                if !borrowed
+                    || required
+                        .as_ref()
+                        .is_none_or(|required| required.contains(&binding.slot))
+                {
+                    collect_expression(&binding.value, result);
+                }
             }
         }
-        LinkedType::Sequence(item) => collect(item, result),
+        LinkedType::Sequence(item) => collect(item, result, phase),
         // A nested record declares its own field slots, not owner dependencies.
         LinkedType::Record(_) => {}
         _ => {}

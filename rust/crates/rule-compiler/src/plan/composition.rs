@@ -14,9 +14,9 @@ impl Composition {
     pub(crate) fn entry(&self) -> &LinkedEntry {
         self.captured.as_ref().unwrap_or(&self.original)
     }
-    fn prepare(entry: &LinkedEntry) -> Result<Self, Diagnostic> {
+    fn prepare(entry: &LinkedEntry, program: &Program) -> Result<Self, Diagnostic> {
         let scope = scopes::capture_inputs(entry)?;
-        let mut parts = records::parts(&scope.entry)?;
+        let mut parts = records::parts(&scope.entry, program)?;
         for part in &mut parts {
             scope.localize(part)?;
         }
@@ -35,7 +35,11 @@ impl Composition {
 #[derive(Debug, Default)]
 pub(super) struct Table(RefCell<BTreeMap<ValueId, Vec<Rc<Composition>>>>);
 impl Table {
-    pub(super) fn prepare(&self, entry: &LinkedEntry) -> Result<Rc<Composition>, Diagnostic> {
+    pub(super) fn prepare(
+        &self,
+        entry: &LinkedEntry,
+        program: &Program,
+    ) -> Result<Rc<Composition>, Diagnostic> {
         // Specializations keep the source id. Compare the complete declaration
         // to avoid sharing routes, arguments, bindings or diagnostics by mistake.
         if let Some(found) = self
@@ -46,7 +50,7 @@ impl Table {
         {
             return Ok(Rc::clone(found));
         }
-        let prepared = Rc::new(Composition::prepare(entry)?);
+        let prepared = Rc::new(Composition::prepare(entry, program)?);
         self.0
             .borrow_mut()
             .entry(ValueId(entry.id))

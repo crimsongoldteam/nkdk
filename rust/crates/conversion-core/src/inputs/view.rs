@@ -4,6 +4,7 @@ use super::*;
 pub enum InputRef<'a> {
     /// A completed source field has no semantic value; this is a data anomaly.
     MissingValue,
+    Records(Records<'a>),
     TextIndex(&'a crate::facts::prepared::TextIndexInput),
     Text(&'a str),
     Boolean(bool),
@@ -114,6 +115,12 @@ impl<'a> InputView<'a> {
     pub fn sequence(&self, slot: usize) -> Result<&'a [InputValue]> {
         match self.value(slot)? {
             InputRef::Sequence(value) => Ok(value),
+            _ => Err(Self::wrong_type(slot)),
+        }
+    }
+    pub fn records(&self, slot: usize) -> Result<Records<'a>> {
+        match self.value(slot)? {
+            InputRef::Records(value) => Ok(value),
             _ => Err(Self::wrong_type(slot)),
         }
     }

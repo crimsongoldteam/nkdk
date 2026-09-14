@@ -176,3 +176,59 @@ representations:
         [Vec::<u32>::new()]
     );
 }
+
+#[test]
+fn borrowed_field_bindings_follow_the_callees_read_direction() {
+    let sources = [
+        (
+            "left.yaml",
+            include_str!("../../tests/fixtures/directional-bound-common.yaml"),
+        ),
+        (
+            "right.yaml",
+            include_str!("../../tests/fixtures/directional-bound-reverse.yaml"),
+        ),
+        (
+            "owner.yaml",
+            include_str!("../../tests/fixtures/directional-bound-owner.yaml"),
+        ),
+    ];
+    let modules: Vec<_> = sources
+        .into_iter()
+        .map(|(path, source)| {
+            crate::parse(SourceFile {
+                path,
+                bytes: source.as_bytes(),
+            })
+            .unwrap()
+        })
+        .collect();
+    let program = crate::link(&modules).unwrap();
+    let entry = program
+        .entries
+        .iter()
+        .find(|entry| entry.name == "test.directional-bindings")
+        .unwrap();
+    let plan = build(&program).unwrap();
+    let record = plan.record(entry).unwrap();
+    assert_eq!(record.schedule(RepresentationSide::Xml), [1, 0]);
+    assert_eq!(record.schedule(RepresentationSide::Yaml), [0, 1]);
+    crate::generate(&program).unwrap();
+    let cyclic = sources[1].1.replace(
+        "xml: {missing: {denotes: {absent: true}}}",
+        "xml: {missing: {denotes: {input: expected}}}",
+    );
+    let mut broken = modules;
+    broken[1] = crate::parse(SourceFile {
+        path: "cycle.yaml",
+        bytes: cyclic.as_bytes(),
+    })
+    .unwrap();
+    let errors = crate::link(&broken).unwrap_err();
+    assert!(
+        errors
+            .iter()
+            .any(|error| error.code == "field_dependency_cycle"),
+        "{errors:?}"
+    );
+}

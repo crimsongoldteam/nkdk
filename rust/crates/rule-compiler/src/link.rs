@@ -114,6 +114,10 @@ pub fn link(modules: &[Module]) -> Result<Program, Vec<Diagnostic>> {
         let program = Program { entries };
         state_relations::validate(modules, &program).map_err(|error| vec![error])?;
         for entry in &program.entries {
+            for side in [RepresentationSide::Xml, RepresentationSide::Yaml] {
+                crate::plan::scopes::read_schedule(&entry.value, &entry.presence, side, &program)
+                    .map_err(|error| vec![error])?;
+            }
             if matches!(entry.yaml, YamlRepresentation::RecordMapping { .. }) {
                 sequence_item::resolve(entry, &program).map_err(|error| vec![error])?;
             }

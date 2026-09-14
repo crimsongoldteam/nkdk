@@ -30,7 +30,8 @@ pub(crate) fn independent(expression: &LinkedExpression) -> bool {
         LinkedExpressionKind::Absent
         | LinkedExpressionKind::Literal(_)
         | LinkedExpressionKind::Input(_)
-        | LinkedExpressionKind::Field(_) => true,
+        | LinkedExpressionKind::Field(_)
+        | LinkedExpressionKind::Variable(_) => true,
         LinkedExpressionKind::Operation { arguments, .. } => arguments.iter().all(independent),
         _ => false,
     }

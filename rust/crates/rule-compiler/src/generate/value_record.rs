@@ -207,6 +207,9 @@ use super::*;
 @row@
 @checks@
 pub(super) struct Stored(V@id@);
+impl core::inputs::RecordInput for Stored {
+fn field(&self,index:usize)->Option<core::inputs::InputRef<'_>>{input_field_@id@(&self.0,index)}
+}
 pub(super) struct Prepared(@prepared@);
 pub(super) struct XmlReader(@xml_state@);
 impl XmlReader {

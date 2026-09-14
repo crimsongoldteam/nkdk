@@ -115,7 +115,7 @@ impl<'a> RecordPlan<'a> {
         matches!(entry.value, LinkedType::Record(_))
             && matches!(entry.yaml, YamlRepresentation::Mapping(_))
     }
-    pub(crate) fn prepare(entry: &'a LinkedEntry) -> Result<Self, Diagnostic> {
+    pub(crate) fn prepare(entry: &'a LinkedEntry, program: &Program) -> Result<Self, Diagnostic> {
         let (LinkedType::Record(fields), YamlRepresentation::Mapping(_)) =
             (&entry.value, &entry.yaml)
         else {
@@ -154,11 +154,13 @@ impl<'a> RecordPlan<'a> {
                     &entry.value,
                     &entry.presence,
                     RepresentationSide::Xml,
+                    program,
                 )?,
                 super::scopes::read_schedule(
                     &entry.value,
                     &entry.presence,
                     RepresentationSide::Yaml,
+                    program,
                 )?,
             ],
         })

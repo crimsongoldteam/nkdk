@@ -1,8 +1,11 @@
 //! Partition by physical XML ownership, never by semantic dependencies.
 use super::*;
 
-pub(crate) fn parts(entry: &LinkedEntry) -> Result<Vec<LinkedEntry>, Diagnostic> {
-    let record = RecordPlan::prepare(entry)?;
+pub(crate) fn parts(
+    entry: &LinkedEntry,
+    program: &Program,
+) -> Result<Vec<LinkedEntry>, Diagnostic> {
+    let record = RecordPlan::prepare(entry, program)?;
     let mut result: Vec<LinkedEntry> = Vec::new();
     for planned in &record.fields {
         let field = planned.field;
