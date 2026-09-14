@@ -413,7 +413,7 @@ fn generate_at(
                 "Nested text record placement is not supported yet",
             ));
         }
-        out.push_str(&text::definition(entry, parts)?);
+        out.push_str(&text::definition(entry, parts, &fields)?);
         out.push_str(&text::reader(entry));
         text::read(id)
     } else {
@@ -657,7 +657,7 @@ fn generate_at(
                 .join(",")
         )
         .unwrap();
-        if !xml_side {
+        if !xml_side && !text_record {
             for (i, field) in fields.iter().enumerate() {
                 if field
                     .presence

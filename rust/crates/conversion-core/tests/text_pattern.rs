@@ -287,3 +287,106 @@ fn fixed_text_patterns_borrow_slots_and_print_reversibly_without_backtracking() 
     );
     assert_eq!(output, "keep");
 }
+
+#[test]
+fn optional_text_groups_restore_absent_slots_and_preserve_boundaries() {
+    use nkdk_conversion_core::text_pattern::{OptionalPart as O, OptionalPattern};
+    let mut plan = OptionalPattern::<3>::new(&[
+        O::Slot(0),
+        O::Optional(1, &[O::Literal("("), O::Slot(1), O::Literal(")")]),
+        O::Optional(2, &[O::Literal("#"), O::Slot(2)]),
+    ])
+    .unwrap();
+    for (source, expected, active) in [
+        ("alpha", [Some("alpha"), None, None], [false, false, false]),
+        (
+            "alpha(9007199254740993)",
+            [Some("alpha"), Some("9007199254740993"), None],
+            [false, true, false],
+        ),
+        (
+            "alpha#tail",
+            [Some("alpha"), None, Some("tail")],
+            [false, false, true],
+        ),
+        (
+            "alpha(2)#tail",
+            [Some("alpha"), Some("2"), Some("tail")],
+            [false, true, true],
+        ),
+        (
+            "я(2)#х\nв",
+            [Some("я"), Some("2"), Some("х\nв")],
+            [false, true, true],
+        ),
+    ] {
+        let slots = plan.parse(source).unwrap();
+        assert_eq!(slots, expected);
+        for value in slots.into_iter().flatten() {
+            assert!(
+                (source.as_ptr() as usize..=source.as_ptr() as usize + source.len())
+                    .contains(&(value.as_ptr() as usize))
+            );
+        }
+        let mut output = "keep:".to_owned();
+        plan.write(&expected, &active, &mut output, 1024).unwrap();
+        assert_eq!(&output[5..], source);
+    }
+    let mut output = "keep".to_owned();
+    assert_eq!(
+        plan.write(
+            &[Some("alpha(2)"), None, None],
+            &[false; 3],
+            &mut output,
+            1024
+        ),
+        Err(PatternError::AmbiguousValue)
+    );
+    assert_eq!(output, "keep");
+    assert_eq!(
+        plan.write(&[Some("alpha"), None, None], &[false; 3], &mut output, 2),
+        Err(PatternError::Budget)
+    );
+    assert_eq!(output, "keep");
+    assert!(
+        OptionalPattern::<3>::new(&[
+            O::Slot(0),
+            O::Optional(1, &[O::Literal("("), O::Slot(1), O::Literal(")")]),
+            O::Optional(2, &[O::Literal("("), O::Slot(2), O::Literal(")")])
+        ])
+        .is_err()
+    );
+    let mut nested = OptionalPattern::<3>::new(&[
+        O::Slot(0),
+        O::Optional(
+            1,
+            &[
+                O::Literal("("),
+                O::Slot(1),
+                O::Optional(2, &[O::Literal("#"), O::Slot(2)]),
+                O::Literal(")"),
+            ],
+        ),
+    ])
+    .unwrap();
+    for (source, values, active) in [
+        ("alpha", [Some("alpha"), None, None], [false, false, false]),
+        (
+            "alpha(2)",
+            [Some("alpha"), Some("2"), None],
+            [false, true, false],
+        ),
+        (
+            "alpha(2#tail)",
+            [Some("alpha"), Some("2"), Some("tail")],
+            [false, true, true],
+        ),
+    ] {
+        assert_eq!(nested.parse(source).unwrap(), values);
+        let mut output = String::new();
+        nested.write(&values, &active, &mut output, 1024).unwrap();
+        assert_eq!(output, source);
+    }
+    assert!(OptionalPattern::<1>::new(&[O::Slot(0), O::Slot(0)]).is_err());
+    assert!(OptionalPattern::<1>::new(&[O::Slot(0), O::Optional(1, &[O::Literal("x")])]).is_err());
+}

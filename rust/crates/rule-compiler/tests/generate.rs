@@ -346,6 +346,15 @@ contributions:
         .replace("common.qualified", "common.record-text")
         .replace("Type", "Link")
         .replace("Qualified", "Link");
+    let text_record_optional = text_record_common
+        .replace("common.record-text", "common.record-text-optional")
+        .replace(
+            "{literal: '('}, {field: index}, {literal: ')'}",
+            "{optional: index, parts: [{literal: '('}, {field: index}, {literal: ')'}]}",
+        )
+        + "\npresence:\n- target: {field: index}\n  xml: {missing: {denotes: {literal: 0}}}\n  yaml:\n    missing: {denotes: {literal: 0}}\n    omitWhen: {eq: [{field: index}, {literal: 0}]}\n";
+    let text_record_optional_owner =
+        text_record_owner.replace("record-text", "record-text-optional");
     let text_record_header = text_record_common
         .replace("common.record-text", "common.record-text-header")
         .replace(
@@ -742,6 +751,8 @@ presence:
             ("record-text-common.yaml", text_record_common.as_str()),
             ("record-text-header.yaml", text_record_header.as_str()),
             ("record-text-header-owner.yaml", text_record_header_owner.as_str()),
+            ("record-text-optional.yaml", text_record_optional.as_str()),
+            ("record-text-optional-owner.yaml", text_record_optional_owner.as_str()),
             ("record-text-owner.yaml", text_record_owner.as_str()),
             ("record-text.yaml", include_str!("fixtures/record-text.yaml")),
             ("text-pattern-decimal.yaml", include_str!("fixtures/text-pattern-decimal.yaml")),
@@ -1070,6 +1081,8 @@ presence:
                 "record-text-common.yaml",
                 "record-text-header-owner.yaml",
                 "record-text-header.yaml",
+                "record-text-optional-owner.yaml",
+                "record-text-optional.yaml",
                 "record-text-owner.yaml",
                 "record-text.yaml",
                 "required-owner.yaml",
@@ -2036,6 +2049,21 @@ fn main() {
         verify_candidate(text_record_header,original.as_bytes(),yaml.as_bytes(),&PreparedInputs::default()).unwrap();
         verify_candidate(text_record_header,original.replace("alpha","beta").as_bytes(),yaml.replace("alpha(2)","beta(2)").as_bytes(),&PreparedInputs::default()).unwrap();
     }
+    let optional_record = entry_id("test.record-text-optional-owner").unwrap();
+    for (body,expected) in [
+        ("<Path>alpha</Path><Index>0</Index>",Some("Link: alpha")),
+        ("<Path>alpha</Path><Index>9007199254740993</Index>",Some("Link: alpha(9007199254740993)")),
+        ("<Path>alpha</Path>",None),
+        ("<Path>alpha</Path><Index>bad</Index>",None),
+        ("<Path>alpha(2)</Path><Index>0</Index>",None),
+    ] {
+        let original=format!("<Root><Link>{body}</Link></Root>");
+        let result=convert_file(optional_record,Direction::XmlToYaml,original.as_bytes(),&PreparedInputs::default()).unwrap_or_else(|errors|panic!("{original}: {errors:?}"));
+        let yaml=String::from_utf8(result.bytes).unwrap();
+        if let Some(expected)=expected {assert_eq!(yaml,expected);}else{assert!(yaml.contains("!xml/raw"),"{yaml}");}
+        verify_candidate(optional_record,original.as_bytes(),yaml.as_bytes(),&PreparedInputs::default()).unwrap();
+    }
+    verify_candidate(optional_record,b"<Root><Link><Path>alpha</Path><Index>0</Index></Link></Root>",b"Link: alpha(0)",&PreparedInputs::default()).unwrap();
     let attribute_only = entry_id("test.attribute-only").unwrap();
     for xml in ["<Root version=\"2\"><Item xmlns:m=\"urn:owner\" m:uuid=\"abc\"/></Root>", "<Root><Item/></Root>"] {
         let result=convert_file(attribute_only,Direction::XmlToYaml,xml.as_bytes(),&PreparedInputs::default()).unwrap();

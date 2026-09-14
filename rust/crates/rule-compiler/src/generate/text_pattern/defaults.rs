@@ -65,17 +65,13 @@ pub(super) fn definition(codec: &Codec<'_>, name: &str) -> Result<String, Diagno
     let yaml_parts = codec
         .yaml
         .iter()
-        .map(|part| match &part.value {
-            TextPatternValue::Literal(value) => {
-                format!("core::text_pattern::Part::Literal({value:?})")
-            }
-            TextPatternValue::Field(field) => super::runtime_slot(
+        .map(|part| {
+            super::runtime_part(part, |name| {
                 indices
                     .iter()
-                    .position(|index| codec.names[*index] == field)
-                    .expect("linked slot"),
-                part.separator.as_deref(),
-            ),
+                    .position(|index| codec.names[*index] == name)
+                    .expect("linked slot")
+            })
         })
         .collect::<Vec<_>>()
         .join(",");

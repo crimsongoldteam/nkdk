@@ -169,6 +169,22 @@ pub struct TextPatternPart {
 pub enum TextPatternValue {
     Literal(String),
     Field(String),
+    Optional {
+        field: String,
+        parts: Vec<TextPatternPart>,
+    },
+}
+/// Semantic slots in a text layout, including slots of optional groups.
+pub fn text_pattern_fields(parts: &[TextPatternPart]) -> Vec<&str> {
+    let mut names = Vec::new();
+    for part in parts {
+        match &part.value {
+            TextPatternValue::Field(name) => names.push(name.as_str()),
+            TextPatternValue::Optional { parts, .. } => names.extend(text_pattern_fields(parts)),
+            TextPatternValue::Literal(_) => (),
+        }
+    }
+    names
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

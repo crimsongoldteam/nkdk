@@ -820,7 +820,13 @@ fn validate_yaml(
         (LinkedType::Sequence(_), YamlRepresentation::TextSequence { .. }) => {}
         (LinkedType::ScalarChoice(_), YamlRepresentation::ScalarChoice) => {}
         (LinkedType::Record(fields), YamlRepresentation::TextPattern(parts)) => {
-            let represented: Vec<_> = fields.iter().filter(|field| parts.iter().any(|part| matches!(&part.value, TextPatternValue::Field(name) if name == &field.name))).cloned().collect();
+            let represented: Vec<_> = fields
+                .iter()
+                .filter(|field| {
+                    nkdk_rule_model::text_pattern_fields(parts).contains(&field.name.as_str())
+                })
+                .cloned()
+                .collect();
             text_pattern::fields(&represented, parts, source)?;
             let covered = represented
                 .iter()

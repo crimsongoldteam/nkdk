@@ -29,16 +29,42 @@ fn text_patterns_cover_typed_fields_without_ambiguous_capture() {
             .any(|error| error.message.contains("Nested text checks"))
     );
 
-    let conditional_record = format!(
+    let conditional_source = format!(
         "{}\npresence:\n- target: {{field: index}}\n  yaml:\n    missing: {{denotes: {{literal: 0}}}}\n    omitWhen: {{eq: [{{field: index}}, {{literal: 0}}]}}\n",
         include_str!("fixtures/record-text.yaml")
     );
-    let conditional_record = link(&[read(&conditional_record).unwrap()]).unwrap();
+    let conditional_record = link(&[read(&conditional_source).unwrap()]).unwrap();
     assert!(
         nkdk_rule_compiler::generate(&conditional_record)
             .unwrap_err()
             .iter()
             .any(|error| error.message.contains("explicit optional group"))
+    );
+
+    let optional = conditional_source.replace(
+        "{literal: '('}, {field: index}, {literal: ')'}",
+        "{optional: index, parts: [{literal: '('}, {field: index}, {literal: ')'}]}",
+    );
+    nkdk_rule_compiler::generate(&link(&[read(&optional).unwrap()]).unwrap()).unwrap();
+    for (source, message) in [
+        (
+            optional.replace("    omitWhen: {eq: [{field: index}, {literal: 0}]}\n", ""),
+            "controlling field",
+        ),
+        (
+            optional.replace("    missing: {denotes: {literal: 0}}\n", ""),
+            "missing value",
+        ),
+    ] {
+        assert!(
+            nkdk_rule_compiler::generate(&link(&[read(&source).unwrap()]).unwrap())
+                .unwrap_err()
+                .iter()
+                .any(|error| error.message.contains(message))
+        );
+    }
+    assert!(
+        link(&[read(&optional.replace("optional: index", "optional: unknown")).unwrap()]).is_err()
     );
 
     let sequence = include_str!("fixtures/text-sequence.yaml");

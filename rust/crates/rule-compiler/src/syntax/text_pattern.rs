@@ -59,8 +59,45 @@ pub(super) fn parse(path: &str, node: &Node) -> Result<Vec<TextPatternPart>, Dia
             "Expected text pattern parts",
         ));
     };
+    parse_items(path, items, separator)
+}
+fn parse_items(
+    path: &str,
+    items: &[Node],
+    separator: Option<&str>,
+) -> Result<Vec<TextPatternPart>, Diagnostic> {
     let mut result: Vec<TextPatternPart> = Vec::new();
     for (index, item) in items.iter().enumerate() {
+        let fields = item.mapping(path, &["field", "literal", "optional", "parts"])?;
+        if let Some(controller) = optional_field(fields, "optional") {
+            item.mapping(path, &["optional", "parts"])?;
+            if separator.is_some() {
+                return Err(error(
+                    path,
+                    item.mark,
+                    "text_pattern_group",
+                    "Optional groups use explicit delimiters",
+                ));
+            }
+            let parts = item.field(path, fields, "parts")?;
+            let Shape::Sequence(children) = &parts.shape else {
+                return Err(error(
+                    path,
+                    parts.mark,
+                    "expected_sequence",
+                    "Expected optional group parts",
+                ));
+            };
+            result.push(TextPatternPart {
+                value: TextPatternValue::Optional {
+                    field: controller.text(path)?.into(),
+                    parts: parse_items(path, children, None)?,
+                },
+                separator: None,
+                source: location(path, controller),
+            });
+            continue;
+        }
         let pair = item.mapping(path, &["field", "literal"])?;
         if pair.len() != 1 {
             return Err(error(

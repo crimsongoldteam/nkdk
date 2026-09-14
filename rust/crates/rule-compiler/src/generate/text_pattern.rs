@@ -45,6 +45,16 @@ impl<'a> Codec<'a> {
         xml: &'a [TextPatternPart],
         yaml: &'a [TextPatternPart],
     ) -> Result<Self, Diagnostic> {
+        if xml
+            .iter()
+            .chain(yaml)
+            .any(|part| matches!(part.value, TextPatternValue::Optional { .. }))
+        {
+            return Err(unsupported(
+                common,
+                "Optional groups require record XML with text YAML",
+            ));
+        }
         let mut codecs = Vec::new();
         for field in fields {
             if let LinkedType::Reference(id) = field.value {
@@ -107,6 +117,7 @@ impl<'a> Codec<'a> {
         let mut position = 0;
         while position < parts.len() {
             match &parts[position].value {
+                TextPatternValue::Optional { .. } => unreachable!("validated fixed pattern"),
                 TextPatternValue::Literal(text) => selected.push(Part::Literal(text.clone())),
                 TextPatternValue::Field(name) => {
                     let index = self
@@ -181,17 +192,13 @@ impl<'a> Codec<'a> {
     fn parts(&self, parts: &[TextPatternPart]) -> String {
         parts
             .iter()
-            .map(|part| match &part.value {
-                TextPatternValue::Literal(value) => {
-                    format!("core::text_pattern::Part::Literal({value:?})")
-                }
-                TextPatternValue::Field(name) => runtime_slot(
+            .map(|part| {
+                runtime_part(part, |name| {
                     self.names
                         .iter()
                         .position(|field| *field == name)
-                        .expect("linked slot"),
-                    part.separator.as_deref(),
-                ),
+                        .expect("linked slot")
+                })
             })
             .collect::<Vec<_>>()
             .join(",")
@@ -380,5 +387,13 @@ fn runtime_slot(index: usize, separator: Option<&str>) -> String {
     match separator {
         Some(separator) => format!("core::text_pattern::Part::Cell({index},{separator:?})"),
         None => format!("core::text_pattern::Part::Slot({index})"),
+    }
+}
+
+pub(super) fn runtime_part(part: &TextPatternPart, index: impl FnOnce(&str) -> usize) -> String {
+    match &part.value {
+        TextPatternValue::Literal(text) => format!("core::text_pattern::Part::Literal({text:?})"),
+        TextPatternValue::Field(name) => runtime_slot(index(name), part.separator.as_deref()),
+        TextPatternValue::Optional { .. } => unreachable!("validated fixed pattern"),
     }
 }

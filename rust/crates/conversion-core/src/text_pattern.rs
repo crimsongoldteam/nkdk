@@ -1,5 +1,7 @@
 //! Reversible fixed-slot text layouts. Prepared plans contain no domain names.
+mod optional;
 mod sequence;
+pub use optional::{OptionalPart, OptionalPattern};
 pub use sequence::{Row, Sequence};
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Part<'a> {

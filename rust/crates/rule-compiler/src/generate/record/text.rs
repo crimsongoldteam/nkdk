@@ -1,15 +1,20 @@
 //! Text spelling uses the same typed field storage as XML record routes.
 use super::*;
 mod envelope;
+mod optional;
 pub(super) use envelope::generate as envelope;
 
 pub(super) fn definition(
     entry: &LinkedEntry,
     parts: &[TextPatternPart],
+    fields: &[Field<'_>],
 ) -> Result<String, Diagnostic> {
     let LinkedType::Record(names) = &entry.value else {
         unreachable!()
     };
+    if optional::applies(entry) {
+        return optional::definition(entry, fields);
+    }
     let selected = selected(entry);
     if entry.presence.iter().any(|rule| matches!(rule.target, LinkedPresenceTarget::Field(index) if selected.contains(&(index as usize))) && rule.yaml_omit_when.is_some()) {
         return Err(unsupported(entry, "Conditional text slots require an explicit optional group"));
@@ -17,6 +22,7 @@ pub(super) fn definition(
     let parts = parts
         .iter()
         .map(|part| match &part.value {
+            TextPatternValue::Optional { .. } => unreachable!("fixed pattern"),
             TextPatternValue::Literal(text) => {
                 format!("core::text_pattern::Part::Literal({text:?})")
             }
@@ -48,6 +54,9 @@ pub(super) fn definition(
 }
 
 pub(super) fn reader(entry: &LinkedEntry) -> String {
+    if optional::applies(entry) {
+        return optional::reader(entry);
+    }
     let id = entry.id;
     let mut consume = String::new();
     for (slot, index) in selected(entry).into_iter().enumerate() {
@@ -57,8 +66,11 @@ pub(super) fn reader(entry: &LinkedEntry) -> String {
         )
         .unwrap();
     }
+    consume_function(id, &format!("yaml_pattern_{id}().parse(&text)"), &consume)
+}
+fn consume_function(id: u32, parse: &str, assignments: &str) -> String {
     format!(
-        "fn consume_yaml_text_{id}(state:&mut YamlFields{id},seen:&mut bool,node:core::yaml::Node,position:core::Position)->core::Result<()>{{let core::yaml::Node::Scalar(value,None)=node else{{return Err(RuntimeDiagnostic::new(\"yaml.expected-text\",\"Expected an untagged text record\"))}};if *seen{{return Err(RuntimeDiagnostic::new(\"yaml.document\",\"Expected one text record\"))}}*seen=true;let text=value.into_text()?;let slots=yaml_pattern_{id}().parse(&text).map_err(|_|RuntimeDiagnostic::new(\"value.text-pattern\",\"Text does not match record pattern\"))?;{consume}Ok(())}}"
+        "fn consume_yaml_text_{id}(state:&mut YamlFields{id},seen:&mut bool,node:core::yaml::Node,position:core::Position)->core::Result<()>{{let core::yaml::Node::Scalar(value,None)=node else{{return Err(RuntimeDiagnostic::new(\"yaml.expected-text\",\"Expected an untagged text record\"))}};if *seen{{return Err(RuntimeDiagnostic::new(\"yaml.document\",\"Expected one text record\"))}}*seen=true;let text=value.into_text()?;let slots={parse}.map_err(|_|RuntimeDiagnostic::new(\"value.text-pattern\",\"Text does not match record pattern\"))?;{assignments}Ok(())}}"
     )
 }
 
@@ -69,6 +81,9 @@ pub(super) fn read(id: u32) -> String {
 }
 
 pub(super) fn write(entry: &LinkedEntry, fields: &[Field<'_>]) -> String {
+    if optional::applies(entry) {
+        return optional::write(entry, fields);
+    }
     let id = entry.id;
     let mut out = String::new();
     let mut pieces = Vec::new();
@@ -92,5 +107,13 @@ fn selected(entry: &LinkedEntry) -> Vec<usize> {
     else {
         unreachable!("text record")
     };
-    fields.iter().enumerate().filter_map(|(index,field)|parts.iter().any(|part|matches!(&part.value,TextPatternValue::Field(name) if *name == field.name)).then_some(index)).collect()
+    fields
+        .iter()
+        .enumerate()
+        .filter_map(|(index, field)| {
+            nkdk_rule_model::text_pattern_fields(parts)
+                .contains(&field.name.as_str())
+                .then_some(index)
+        })
+        .collect()
 }

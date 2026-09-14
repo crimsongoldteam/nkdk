@@ -143,12 +143,8 @@ impl<'a> RecordPlan<'a> {
             if let (RepresentationSide::Yaml, YamlRepresentation::TextPattern(parts)) =
                 (side, &entry.yaml)
             {
-                let covered = parts
-                    .iter()
-                    .filter_map(|part| match &part.value {
-                        TextPatternValue::Field(name) => Some(name.as_str()),
-                        TextPatternValue::Literal(_) => None,
-                    })
+                let covered = nkdk_rule_model::text_pattern_fields(parts)
+                    .into_iter()
                     .collect();
                 check_coverage(fields, &covered, &entry.presence, side, &entry.source)?;
                 continue;

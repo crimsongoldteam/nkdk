@@ -5,37 +5,90 @@ pub(super) fn fields(
     parts: &[TextPatternPart],
     source: &SourceLocation,
 ) -> Result<(), Diagnostic> {
-    let mut seen = BTreeSet::new();
-    let mut previous_field = false;
-    for part in parts {
-        match &part.value {
-            TextPatternValue::Field(name) => {
-                if previous_field {
-                    return Err(diagnostic(
-                        "text_pattern_ambiguous",
-                        &part.source,
-                        "Text fields need a nonempty separating literal",
-                    ));
+    fn visit(
+        parts: &[TextPatternPart],
+        fields: &[LinkedField],
+        seen: &mut BTreeSet<String>,
+        mut previous: bool,
+    ) -> Result<bool, Diagnostic> {
+        let mut prefixes: Vec<&str> = Vec::new();
+        for part in parts {
+            match &part.value {
+                TextPatternValue::Field(name) => {
+                    if previous {
+                        return Err(diagnostic(
+                            "text_pattern_ambiguous",
+                            &part.source,
+                            "Text fields need a nonempty separating literal",
+                        ));
+                    }
+                    if !fields.iter().any(|field| field.name == *name) {
+                        return Err(diagnostic(
+                            "text_pattern_field",
+                            &part.source,
+                            "Unknown pattern field",
+                        ));
+                    }
+                    if !seen.insert(name.clone()) {
+                        return Err(diagnostic(
+                            "text_pattern_field",
+                            &part.source,
+                            "Repeated pattern field",
+                        ));
+                    }
+                    previous = true;
                 }
-                if !fields.iter().any(|field| field.name == *name) {
-                    return Err(diagnostic(
-                        "text_pattern_field",
-                        &part.source,
-                        "Unknown pattern field",
-                    ));
+                TextPatternValue::Literal(text) => {
+                    if prefixes
+                        .iter()
+                        .any(|prefix| prefix.starts_with(text) || text.starts_with(prefix))
+                    {
+                        return Err(diagnostic(
+                            "text_pattern_ambiguous",
+                            &part.source,
+                            "Optional prefixes must be disjoint",
+                        ));
+                    }
+                    prefixes.clear();
+                    previous = false;
                 }
-                if !seen.insert(name) {
-                    return Err(diagnostic(
-                        "text_pattern_field",
-                        &part.source,
-                        "Repeated pattern field",
-                    ));
+                TextPatternValue::Optional { field, parts } => {
+                    if !matches!(parts.first().map(|part|&part.value),Some(TextPatternValue::Literal(text)) if !text.is_empty())
+                    {
+                        return Err(diagnostic(
+                            "text_pattern_group",
+                            &part.source,
+                            "Optional group requires a nonempty opening literal",
+                        ));
+                    }
+                    let TextPatternValue::Literal(prefix) = &parts[0].value else {
+                        unreachable!("opening literal")
+                    };
+                    if prefixes.iter().any(|previous| {
+                        previous.starts_with(prefix) || prefix.starts_with(previous)
+                    }) {
+                        return Err(diagnostic(
+                            "text_pattern_ambiguous",
+                            &part.source,
+                            "Optional prefixes must be disjoint",
+                        ));
+                    }
+                    prefixes.push(prefix);
+                    if !nkdk_rule_model::text_pattern_fields(parts).contains(&field.as_str()) {
+                        return Err(diagnostic(
+                            "text_pattern_group",
+                            &part.source,
+                            "Optional group must contain its controlling field",
+                        ));
+                    }
+                    previous |= visit(parts, fields, seen, previous)?;
                 }
-                previous_field = true;
             }
-            TextPatternValue::Literal(_) => previous_field = false,
         }
+        Ok(previous)
     }
+    let mut seen = BTreeSet::new();
+    visit(parts, fields, &mut seen, false)?;
     if seen.len() != fields.len() {
         return Err(diagnostic(
             "text_pattern_coverage",
@@ -55,6 +108,17 @@ pub(super) fn types(entries: &BTreeMap<u32, LinkedEntry>) -> Result<(), Diagnost
         }
     }
     for entry in entries.values() {
+        if xml_parts(&entry.xml).is_some_and(|parts| {
+            parts
+                .iter()
+                .any(|part| matches!(part.value, TextPatternValue::Optional { .. }))
+        }) {
+            return Err(diagnostic(
+                "text_pattern_group",
+                &entry.source,
+                "Optional groups currently belong to the YAML representation",
+            ));
+        }
         if xml_parts(&entry.xml).is_none()
             && !matches!(entry.yaml, YamlRepresentation::TextPattern(_))
         {
