@@ -65,7 +65,8 @@ pub(super) fn generate(
         }
         Some((index, _)) => {
             let mut code = lifted_scope;
-            for (slot, part) in parts.iter().enumerate() {
+            for slot in crate::plan::records::yaml_slots(row, parts) {
+                let part = &parts[slot];
                 let LinkedType::Record(fields) = &part.value else {
                     unreachable!()
                 };

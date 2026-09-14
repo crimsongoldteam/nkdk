@@ -903,11 +903,15 @@ fn generate_at(
     if let Some(layout) = layout {
         writeln!(out,"if !value.present {{return Ok(());}}out.push_str(indent);out.push_str(&core::yaml::scalar({:?}));out.push_str(\":\\n\");",layout.key).unwrap();
     }
-    for (i, field) in fields
+    let mut yaml_fields: Vec<_> = fields
         .iter()
         .enumerate()
         .filter(|(_, field)| field.yaml_visible)
-    {
+        .collect();
+    if let YamlRepresentation::Mapping(mapping) = &entry.yaml {
+        yaml_fields.sort_by_key(|(_, field)| mapping.iter().position(|item| item.key == field.key));
+    }
+    for (i, field) in yaml_fields {
         write!(out, "if excluded != Some({i})").unwrap();
         let text = if field.optional || preserve {
             write!(out, " && let Some(field_value) = &value.f{i}").unwrap();

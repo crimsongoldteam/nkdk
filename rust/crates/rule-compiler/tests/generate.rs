@@ -1115,7 +1115,7 @@ fn main() {
     let composed = entry_id("test.computed-composed").unwrap();
     let original = b"<Root><Right>x</Right><Extra><Marker>fixed</Marker></Extra></Root>";
     let imported = convert_file(composed,Direction::XmlToYaml,original,&PreparedInputs::default()).unwrap();
-    assert_eq!(String::from_utf8(imported.bytes.clone()).unwrap(), "Left: x\nRight: x\nExtra:\n  Marker: fixed");
+    assert_eq!(String::from_utf8(imported.bytes.clone()).unwrap(), "Extra:\n  Marker: fixed\nLeft: x\nRight: x");
     verify_candidate(composed,original,&imported.bytes,&PreparedInputs::default()).unwrap();
     let exported = convert_file(composed,Direction::YamlToXml,b"Left: x\nExtra:\n  Marker: fixed",&PreparedInputs::default()).unwrap();
     let xml = String::from_utf8(exported.bytes).unwrap();
@@ -1211,7 +1211,7 @@ fn main() {
     }
     let relation = entry_id("test.state-record-relation").unwrap();
     let inputs = prepare_inputs(relation,vec![("baseId".into(),InputValue::Text("base-id".into()))]).unwrap();
-    for (base, notice, expected) in [(false,false,"State: "),(true,false,""),(false,true,"State: !watch \"\""),(true,true,"State: !watch")] {
+    for (base, notice, expected) in [(false,false,"State: "),(true,false,""),(false,true,"State: !проверять \"\""),(true,true,"State: !проверять")] {
         let mut xml = String::from("<Root xmlns:xr='http://v8.1c.ru/8.3/xcf/readable'>");
         if base { xml.push_str("<Properties><ExtendedConfigurationObject>base-id</ExtendedConfigurationObject></Properties>"); }
         if notice { xml.push_str("<InternalInfo><xr:PropertyState><xr:Property>ExtendedConfigurationObject</xr:Property><xr:State>Notify</xr:State></xr:PropertyState></InternalInfo>"); }
@@ -1235,7 +1235,7 @@ fn main() {
             let preserved=convert_file(profiled,Direction::XmlToYaml,unexpected,&inputs).unwrap();
             verify_candidate(profiled,unexpected,&preserved.bytes,&inputs).unwrap();
         }
-        let issues=validate_file(profiled,b"State: !watch",&inputs);
+        let issues=validate_file(profiled,"State: !проверять".as_bytes(),&inputs);
         assert_eq!(issues.iter().any(|issue|issue.code.as_deref()==Some("yaml.implicit-value")),!participates);
     }
     let neighbor = entry_id("test.state-neighbor-relation").unwrap();
@@ -1243,7 +1243,7 @@ fn main() {
     let state_row = |name:&str,mode:&str|format!("<xr:PropertyState><xr:Property>{name}</xr:Property><xr:State>{mode}</xr:State></xr:PropertyState>");
     let selected = state_row("ExtendedConfigurationObject","Notify");
     let other = state_row("Comment","Extended");
-    for (rows, expected) in [(format!("{selected}{other}"),Some("State: !watch \"\"\nNeighbor: Extended")),(format!("{other}{selected}"),None),(format!("{selected}{selected}{other}"),None)] {
+    for (rows, expected) in [(format!("{selected}{other}"),Some("State: !проверять \"\"\nNeighbor: Extended")),(format!("{other}{selected}"),None),(format!("{selected}{selected}{other}"),None)] {
         let xml = format!("<Root xmlns:xr='http://v8.1c.ru/8.3/xcf/readable'><InternalInfo>{rows}</InternalInfo></Root>");
         let converted = convert_file(neighbor,Direction::XmlToYaml,xml.as_bytes(),&inputs).unwrap();
         let yaml = String::from_utf8_lossy(&converted.bytes);
@@ -1275,10 +1275,10 @@ fn main() {
     let inputs = prepare_inputs(projection, vec![("baseId".into(), InputValue::Text("base-id".into()))]).unwrap();
     for (base, notice, yaml) in [
         (true, false, ""), (false, false, "State: "),
-        (true, true, "State: !watch"), (false, true, "State: !watch \"\""),
+        (true, true, "State: !проверять"), (false, true, "State: !проверять \"\""),
     ] {
         let original = format!("<Root>{}{}{extra_xml}</Root>", if base {"<Base>base-id</Base>"} else {""}, if notice {"<Notice>Notify</Notice>"} else {""});
-        let yaml = [yaml, extra_yaml].into_iter().filter(|part| !part.is_empty()).collect::<Vec<_>>().join("\n");
+        let yaml = [extra_yaml, yaml].into_iter().filter(|part| !part.is_empty()).collect::<Vec<_>>().join("\n");
         let imported = convert_file(projection,Direction::XmlToYaml,original.as_bytes(),&inputs).unwrap();
         assert_eq!(String::from_utf8(imported.bytes.clone()).unwrap(),yaml);
         verify_candidate(projection,original.as_bytes(),&imported.bytes,&inputs).unwrap();
@@ -1296,7 +1296,7 @@ fn main() {
     }
     let collection = entry_id("test.state-collection").unwrap();
     let collection_xml = "<Root><Mode><Item><Name>One</Name><Mode>Default</Mode></Item><Item><Name>Two</Name><Mode>Empty</Mode></Item><Item><Name>Three</Name><Mode>Tagged</Mode></Item><Item><Name>Four</Name><Mode>Text</Mode></Item></Mode></Root>";
-    let collection_yaml = "Mode:\n  One: {}\n  Two:\n    Mode: \n  Three:\n    Mode: !watch\n  Four:\n    Mode: !watch \"\"";
+    let collection_yaml = "Mode:\n  One: {}\n  Two:\n    Mode: \n  Three:\n    Mode: !проверять\n  Four:\n    Mode: !проверять \"\"";
     let imported = convert_file(collection,Direction::XmlToYaml,collection_xml.as_bytes(),&PreparedInputs::default()).unwrap();
     assert_eq!(String::from_utf8(imported.bytes).unwrap(), collection_yaml.replace("One: {}", "One:\n    {}"));
     let exported = convert_file(collection,Direction::YamlToXml,collection_yaml.as_bytes(),&PreparedInputs::default()).unwrap();
@@ -1313,7 +1313,7 @@ fn main() {
     assert!(String::from_utf8_lossy(&preserved.bytes).contains("!xml/raw"));
     verify_candidate(state_entry,unknown,&preserved.bytes,&PreparedInputs::default()).unwrap();
 
-    for (xml_value, yaml) in [("Default", ""), ("Empty", "Mode: "), ("Tagged", "Mode: !watch"), ("Text", "Mode: !watch \"\"")] {
+    for (xml_value, yaml) in [("Default", ""), ("Empty", "Mode: "), ("Tagged", "Mode: !проверять"), ("Text", "Mode: !проверять \"\"")] {
         let xml = format!("<Root><Mode>{xml_value}</Mode></Root>");
         let imported = convert_file(state_entry,Direction::XmlToYaml,xml.as_bytes(),&PreparedInputs::default()).unwrap();
         assert_eq!(String::from_utf8(imported.bytes).unwrap().trim_end(),yaml.trim_end());

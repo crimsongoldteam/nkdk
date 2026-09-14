@@ -106,6 +106,17 @@ fn collect_dependencies(
     for rule in presence {
         if let LinkedPresenceTarget::Field(index) = rule.target {
             let target = &mut sets[index as usize];
+            // YAML readers check explicit values against omission conditions.
+            // Those sibling captures must be ready before finishing the field.
+            if phase.is_some_and(|(side, _)| side == RepresentationSide::Yaml)
+                && let Some(condition) = &rule.yaml_omit_when
+            {
+                let mut dependencies = BTreeSet::new();
+                collect_expression(condition, &mut dependencies);
+                dependencies.remove(&index);
+                target.extend(dependencies);
+            }
+
             for (side, missing, empty) in [
                 (RepresentationSide::Xml, &rule.xml_missing, &rule.xml_empty),
                 (

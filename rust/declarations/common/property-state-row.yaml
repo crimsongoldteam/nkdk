@@ -1,0 +1,8 @@
+format: nkdk-declarations/1
+kind: value
+id: common.property-state-row
+namespaces: {xr: 'http://v8.1c.ru/8.3/xcf/readable'}
+value: {kind: record, fields: [{name: name, type: {kind: scalar, scalar: text}}, {name: mode, type: {kind: scalar, scalar: text}}]}
+representations:
+  xml: {kind: record, fields: [{field: name, path: [xr:Property]}, {field: mode, path: [xr:State]}]}
+  yaml: {kind: mapping, fields: [{field: name, key: Property}, {field: mode, key: State}]}

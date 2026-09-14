@@ -10,5 +10,5 @@ publish = false
 
 [workspace.dependencies]
 nkdk-rule-model = { path = "crates/rule-model" }
-yaml-rust2 = "=0.11.0"
+yaml-rust2 = { version = "=0.11.0", path = "../third-party/yaml-rust2" }
 nkdk-decimal = { path = "crates/decimal" }

@@ -102,3 +102,21 @@ pub(crate) fn shares_container(parts: &[LinkedEntry], slot: usize, path: &[Expan
                 .is_some_and(|fields| fields.iter().any(|field| field.path.starts_with(path)))
     })
 }
+
+/// Order YAML storage parts by the declared YAML fields, independently of XML.
+pub(crate) fn yaml_slots(entry: &LinkedEntry, parts: &[LinkedEntry]) -> Vec<usize> {
+    let mut slots: Vec<_> = (0..parts.len()).collect();
+    let YamlRepresentation::Mapping(mapping) = &entry.yaml else {
+        return slots;
+    };
+    slots.sort_by_key(|slot| {
+        let LinkedType::Record(fields) = &parts[*slot].value else {
+            unreachable!()
+        };
+        mapping
+            .iter()
+            .position(|item| fields.iter().any(|field| field.name == item.field))
+            .unwrap_or(usize::MAX)
+    });
+    slots
+}

@@ -2126,9 +2126,9 @@ fn enum_tables_are_total_and_unambiguous() {
 
     for invalid in [
         states.replace("literal: ''", "form: empty"),
-        states.replace("form: absent", "form: absent, tag: watch"),
-        states.replace("    - {value: text, literal: '', tag: watch}\n", ""),
-        states.replace("tag: watch", "tag: xml"),
+        states.replace("form: absent", "form: absent, tag: проверять"),
+        states.replace("    - {value: text, literal: '', tag: проверять}\n", ""),
+        states.replace("tag: проверять", "tag: xml"),
     ] {
         assert!(
             check_states(&invalid).is_err(),
@@ -2437,8 +2437,8 @@ fn state_relations_generate_a_total_bidirectional_contract() {
             "    - {value: text, text: Text}\n    - {value: extra, text: Extra}",
         )
         .replace(
-            "    - {value: text, literal: '', tag: watch}",
-            "    - {value: text, literal: '', tag: watch}\n    - {value: extra, literal: extra}",
+            "    - {value: text, literal: '', tag: проверять}",
+            "    - {value: text, literal: '', tag: проверять}\n    - {value: extra, literal: extra}",
         );
     let states = parse(SourceFile {
         path: "states.yaml",

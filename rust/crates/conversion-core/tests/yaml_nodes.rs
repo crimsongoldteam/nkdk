@@ -32,6 +32,24 @@ fn nested_mapping_keeps_occurrence_order_tags_and_positions() {
             ("Name".into(), "second".into(), Some("!xml/invalid".into()))
         ]
     );
+    for (source, expected) in [
+        ("Value: !проверять text", "!проверять"),
+        ("Value: !изменять {}", "!изменять"),
+        ("Value: !état []", "!état"),
+    ] {
+        let mut tags = Vec::new();
+        visit_nodes(source.as_bytes(), |node, _| {
+            match node {
+                Node::Scalar(_, Some(tag))
+                | Node::MappingStart(Some(tag))
+                | Node::SequenceStart(Some(tag)) => tags.push(tag),
+                _ => (),
+            }
+            Ok(())
+        })
+        .unwrap();
+        assert_eq!(tags, [expected]);
+    }
     let mut duplicate = nkdk_conversion_core::yaml::ScalarMapping::default();
     assert!(
         visit_nodes(b"Name: first\nName: second", |node, position| duplicate

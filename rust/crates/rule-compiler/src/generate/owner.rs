@@ -31,6 +31,7 @@ pub(super) fn generate_at(
     shape.presence.clear();
     plain_shape(&shape)?;
     let parts = &prepared.parts;
+    let yaml_slots = crate::plan::records::yaml_slots(entry, parts);
     let input_scope =
         super::value::InputScope::prepare(original, parts, &prepared.captures, program)?;
     let scope_full = input_scope.bind(entry.id, "value.", None);
@@ -613,7 +614,7 @@ pub(super) fn generate_at(
     }
     writeln!(out, "out.ensure_container({root_code});Ok(())}}").unwrap();
     writeln!(out,"fn write_yaml_{id}(value:&V{id},inputs:&InputView<'_>)->core::Result<Vec<u8>> {{{scope_full}let mut out=String::new();").unwrap();
-    for slot in 0..parts.len() {
+    for &slot in &yaml_slots {
         writeln!(
             out,
             "part_{id}_{slot}::write_yaml(&value.p{slot},inputs,&mut out)?;"
@@ -623,7 +624,7 @@ pub(super) fn generate_at(
     out.push_str("let bytes=out.into_bytes();if let Some(patch)=&value.root {core::raw::Document::encode(&bytes,patch.to_yaml().as_bytes())}else{Ok(bytes)}}\n");
     if yaml_stateful {
         writeln!(out,"#[allow(dead_code)] fn write_yaml_indented_{id}(value:&V{id},inputs:&InputView<'_>,out:&mut String,indent:&str,_lift:bool)->core::Result<()>{{{scope_full}if value.root.is_some(){{let bytes=write_yaml_{id}(value,inputs)?;core::yaml::Indented::new(out,indent).push_str(std::str::from_utf8(&bytes).expect(\"generated YAML\"));return Ok(());}}").unwrap();
-        for slot in 0..parts.len() {
+        for &slot in &yaml_slots {
             writeln!(
                 out,
                 "part_{id}_{slot}::write_yaml_indented(&value.p{slot},inputs,out,indent)?;"
@@ -762,7 +763,7 @@ pub(super) fn generate_at(
         out.push_str("Ok(result)}\n");
     }
     writeln!(out,"fn verify_{id}(original:&[u8],candidate:&[u8],inputs:&InputView<'_>)->core::Result<()> {{let value=read_yaml_{id}(candidate,inputs)?;if let Some(error)=check_yaml_{id}(&value,candidate,inputs).into_iter().find(|error|error.severity==Severity::Error) {{return Err(error);}}{verify_documents}prove_xml_{id}(&value,original,&write_xml_{id}(&value,inputs)?)}}\nfn finalize_yaml_{id}(original:&[u8],candidate:Vec<u8>,value:&V{id},inputs:&InputView<'_>)->core::Result<Vec<u8>> {{{scope_full}match verify_{id}(original,&candidate,inputs) {{Ok(())=>return Ok(candidate),Err(error) if error.code.as_deref()==Some(\"xml.round-trip-mismatch\")=>{{}},Err(error)=>return Err(error)}}let mut out=String::new();").unwrap();
-    for slot in 0..parts.len() {
+    for &slot in &yaml_slots {
         let source = source_for(slot, "original");
         writeln!(out,"let source=part_{id}_{slot}::project({source})?;let yaml=match part_{id}_{slot}::finalize(&source,&value.p{slot},inputs) {{Ok(yaml)=>yaml,Err(error) if error.code.as_deref()==Some(\"xml.round-trip-mismatch\")=>{{let mut yaml=String::new();part_{id}_{slot}::write_yaml(&value.p{slot},inputs,&mut yaml)?;yaml.into_bytes()}},Err(error)=>return Err(error)}};core::yaml::append_encoded_properties(&mut out,&yaml)?;").unwrap();
     }

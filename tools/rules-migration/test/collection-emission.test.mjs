@@ -37,6 +37,12 @@ test('collection emission requires complete items and preserves unsupported cont
   assert.equal(result.modules.length,3);
   assert.deepEqual(result.modules[0].value.fields.map(f=>f.name),['name','enabled']);
   assert.deepEqual(emitCollections(graph,entries,catalog),result);
+  const reordered=structuredClone(entries);
+  reordered[0].xmlOrder={status:'static',keys:['enabled','name']};
+  const ordered=emitCollections(graph,reordered,catalog).modules[0];
+  assert.deepEqual(ordered.representations.xml.fields.map(f=>f.field),['enabled','name']);
+  assert.deepEqual(ordered.representations.yaml.fields.map(f=>f.field),['name','enabled']);
+
   for(const change of [
     g=>{g.edges[0].mapping.yamlAsArray=false;},
     g=>{g.edges[0].context.ownerFactRole='items';},

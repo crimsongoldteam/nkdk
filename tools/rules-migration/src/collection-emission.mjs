@@ -97,6 +97,10 @@ export function emitCollections(graph,entries,catalog,namespaces={},options={}) 
       if(mapped.presence)(row.presence??=[]).push(mapped.presence);
       if(mapped.constraints)(row.constraints??=[]).push(...mapped.constraints);
     }
+    // xmlOrder orders the XML representation only. YAML follows source property
+    // registration order; the two orders differ for adopted metadata objects.
+    const yamlOrder=new Map(child.properties.map((property,index)=>[property.name,index]));
+    row.representations.yaml.fields.sort((a,b)=>yamlOrder.get(a.field)-yamlOrder.get(b.field));
     const bind=Object.fromEntries(Object.keys(inputs).map(name=>[name,{input:name}]));
     const withInputs=module=>{
       if(Object.keys(inputs).length) {
