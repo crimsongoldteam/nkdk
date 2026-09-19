@@ -224,6 +224,17 @@ impl<'a> Codec<'a> {
         self.variants.iter().any(Variant::projected)
     }
 
+    pub(super) fn selection_parts(
+        &self,
+        xml: bool,
+    ) -> Result<Vec<Vec<crate::automata::Part>>, Diagnostic> {
+        let mut result = Vec::new();
+        for variant in &self.variants {
+            result.extend(variant.selection_parts(xml, self.entry)?);
+        }
+        Ok(result)
+    }
+
     pub(super) fn definition(&self, name: &str) -> Result<String, Diagnostic> {
         self.definition_mode(name, false, None)
     }

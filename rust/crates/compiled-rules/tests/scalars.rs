@@ -360,6 +360,10 @@ fn discriminated_choice_uses_xml_type_and_reused_yaml_variants() {
             "Значение: Ссылка.Item",
         ),
         (
+            r#"<Root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable"><Value xsi:type="xr:DesignTimeRef">Object.Item</Value></Root>"#,
+            "Значение: Объект.Item",
+        ),
+        (
             r#"<Root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema"><Value xsi:type="xs:string">ordinary</Value></Root>"#,
             "Значение: ordinary",
         ),

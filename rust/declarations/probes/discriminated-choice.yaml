@@ -12,23 +12,38 @@ declarations:
   value: {kind: scalar, scalar: text}
   representations: {xml: {kind: text}, yaml: {kind: scalar, scalar: text}}
 - kind: value
+  id: probe.discriminated-object
+  value: {kind: record, fields: [{name: name, type: {kind: scalar, scalar: text}}]}
+  representations:
+    xml: {kind: text-pattern, parts: [{literal: 'Object.'}, {field: name}]}
+    yaml: {kind: text-pattern, parts: [{literal: 'Объект.'}, {field: name}]}
+- kind: value
+  id: probe.discriminated-structured
+  imports: {reference: probe.discriminated-reference, object: probe.discriminated-object}
+  value:
+    kind: choice
+    variants:
+    - {name: reference, type: {use: reference}}
+    - {name: object, type: {use: object}}
+  representations: {xml: {kind: choice}, yaml: {kind: choice}}
+- kind: value
   id: probe.discriminated-value
   namespaces:
     xsi: http://www.w3.org/2001/XMLSchema-instance
     xs: http://www.w3.org/2001/XMLSchema
     xr: http://v8.1c.ru/8.3/xcf/readable
-  imports: {reference: probe.discriminated-reference, text: probe.discriminated-text}
+  imports: {structured: probe.discriminated-structured, text: probe.discriminated-text}
   value:
     kind: choice
     variants:
-    - {name: reference, type: {use: reference}}
+    - {name: structured, type: {use: structured}}
     - {name: text, type: {use: text}}
   representations:
     xml:
       kind: choice
       attribute: xsi:type
       variants:
-      - {variant: reference, in: [xr:DesignTimeRef], emit: xr:DesignTimeRef}
+      - {variant: structured, in: [xr:DesignTimeRef], emit: xr:DesignTimeRef}
       - {variant: text, in: [xs:string], emit: xs:string}
       otherwise: text
     yaml: {kind: choice}

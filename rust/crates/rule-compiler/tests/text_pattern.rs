@@ -258,19 +258,40 @@ representations: {xml: {kind: text}, yaml: {kind: scalar, scalar: text}}
 "#,
         ),
         (
+            "object.yaml",
+            r#"format: nkdk-declarations/1
+kind: value
+id: test.tagged-object
+value: {kind: record, fields: [{name: value, type: {kind: scalar, scalar: text}}]}
+representations:
+  xml: {kind: text-pattern, parts: [{literal: 'Obj.'}, {field: value}]}
+  yaml: {kind: text-pattern, parts: [{literal: 'Объект.'}, {field: value}]}
+"#,
+        ),
+        (
+            "nested.yaml",
+            r#"format: nkdk-declarations/1
+kind: value
+id: test.tagged-nested
+imports: {reference: test.tagged-pattern, object: test.tagged-object}
+value: {kind: choice, variants: [{name: reference, type: {use: reference}}, {name: object, type: {use: object}}]}
+representations: {xml: {kind: choice}, yaml: {kind: choice}}
+"#,
+        ),
+        (
             "choice.yaml",
             r#"format: nkdk-declarations/1
 kind: value
 id: test.tagged-choice
 namespaces: {xsi: 'http://www.w3.org/2001/XMLSchema-instance', xs: 'http://www.w3.org/2001/XMLSchema', xr: 'http://v8.1c.ru/8.3/xcf/readable'}
-imports: {pattern: test.tagged-pattern, text: test.tagged-text}
-value: {kind: choice, variants: [{name: pattern, type: {use: pattern}}, {name: text, type: {use: text}}]}
+imports: {structured: test.tagged-nested, text: test.tagged-text}
+value: {kind: choice, variants: [{name: structured, type: {use: structured}}, {name: text, type: {use: text}}]}
 representations:
   xml:
     kind: choice
     attribute: xsi:type
     variants:
-    - {variant: pattern, in: [xr:DesignTimeRef], emit: xr:DesignTimeRef}
+    - {variant: structured, in: [xr:DesignTimeRef], emit: xr:DesignTimeRef}
     - {variant: text, in: [xs:string], emit: xs:string}
     otherwise: text
   yaml: {kind: choice}

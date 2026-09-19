@@ -3,6 +3,7 @@ use super::*;
 pub(super) enum Variant<'a> {
     Pattern(text_pattern::Codec<'a>),
     Sequence(Box<text_sequence::Codec<'a>>),
+    Choice(Box<super::Codec<'a>>),
     Text(&'a LinkedEntry),
 }
 
@@ -24,6 +25,14 @@ impl<'a> Variant<'a> {
             }
             return Ok(Self::Text(entry));
         }
+        if matches!(entry.value, LinkedType::Choice(_))
+            && matches!(entry.xml, LinkedXml::Choice)
+            && matches!(entry.yaml, YamlRepresentation::Choice)
+        {
+            return Ok(Self::Choice(Box::new(super::Codec::resolve(
+                entry, program,
+            )?)));
+        }
         if let Some(sequence) = text_sequence::Codec::framed(entry, program)? {
             return Ok(Self::Sequence(Box::new(sequence)));
         }
@@ -39,6 +48,7 @@ impl<'a> Variant<'a> {
 
     pub(super) fn projected(&self) -> bool {
         matches!(self, Self::Pattern(pattern) if pattern.projected())
+            || matches!(self, Self::Choice(choice) if choice.needs_inputs())
     }
 
     pub(super) fn selection_parts(
@@ -49,6 +59,7 @@ impl<'a> Variant<'a> {
         match self {
             Self::Pattern(pattern) => Ok(vec![pattern.selection_parts(xml)]),
             Self::Sequence(sequence) => sequence.selection_parts(xml, entry),
+            Self::Choice(choice) => choice.selection_parts(xml),
             Self::Text(_) => Ok(Vec::new()),
         }
     }
@@ -65,6 +76,7 @@ impl<'a> Variant<'a> {
             Self::Pattern(pattern) if collection => pattern.collection_definition(name),
             Self::Pattern(pattern) => pattern.definition(name),
             Self::Sequence(sequence) if !compact => sequence.definition(name),
+            Self::Choice(choice) if !compact => choice.definition(name),
             Self::Text(common) if !compact && (!collection || common.constraints.is_empty()) => {
                 Ok(format!("type {name}=String;\n"))
             }
@@ -87,6 +99,10 @@ impl<'a> Variant<'a> {
             Self::Sequence(sequence) => sequence
                 .head_meaning(name, index, receiver)
                 .ok_or_else(|| unsupported(entry, "Unknown choice sequence field")),
+            Self::Choice(_) => Err(unsupported(
+                entry,
+                "Nested choice has no direct record fields",
+            )),
             Self::Text(_) => Err(unsupported(entry, "Unstructured text has no record fields")),
         }
     }
