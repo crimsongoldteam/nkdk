@@ -14,11 +14,14 @@ pub(super) fn codec<'a>(
     let value = scalar::Codec::resolve(item, common, program)?;
     if !matches!(
         value,
-        scalar::Codec::Sequence(_) | scalar::Codec::Pattern(_) | scalar::Codec::Forms(_)
+        scalar::Codec::Sequence(_)
+            | scalar::Codec::Pattern(_)
+            | scalar::Codec::Forms(_)
+            | scalar::Codec::QNameEnumeration(..)
     ) {
         return Err(unsupported(
             common,
-            "Typed collection text requires a text sequence, text pattern or text choice",
+            "Typed collection text requires a supported scalar codec",
         ));
     }
     Ok(Some(value))
@@ -36,6 +39,15 @@ pub(super) fn read_definition(id: u32, codec: &scalar::Codec<'_>) -> Result<Stri
         _ => codec.definition(&name)?,
     };
     let inputs = codec.read_input_argument();
-    out.push_str(&format!("fn read_row_{id}(fields:[String;1],source:&[u8],position:core::Position,xml:bool,_inputs:&InputView<'_>)->core::Result<R{id}>{{let [text]=fields;let value={name}::read(&text,xml{inputs}).map_err(|error|position.apply(source,error))?;Ok(R{id}{{fields:[value]}})}}\n"));
+    if matches!(
+        codec,
+        scalar::Codec::Pattern(_) | scalar::Codec::Forms(_) | scalar::Codec::Sequence(_)
+    ) {
+        out.push_str(&format!("fn read_row_{id}(fields:[String;1],source:&[u8],position:core::Position,xml:bool,_inputs:&InputView<'_>)->core::Result<R{id}>{{let [text]=fields;let value={name}::read(&text,xml{inputs}).map_err(|error|position.apply(source,error))?;Ok(R{id}{{fields:[value]}})}}\n"));
+    } else {
+        let xml_read = codec.read(&name, 0, "value", true);
+        let yaml_read = codec.read(&name, 0, "value", false);
+        out.push_str(&format!("fn read_row_{id}(fields:[String;1],source:&[u8],position:core::Position,xml:bool,_inputs:&InputView<'_>)->core::Result<R{id}>{{let [r0]=fields;let positions=[position];if xml {{{xml_read}Ok(R{id}{{fields:[f0]}})}}else{{{yaml_read}Ok(R{id}{{fields:[f0]}})}}}}\n"));
+    }
     Ok(out)
 }

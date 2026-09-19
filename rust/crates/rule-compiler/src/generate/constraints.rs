@@ -191,10 +191,11 @@ fn generate_at(
             }
         }
         if let Some(key) = base
-            && collection_values::codec(entry, program)?.is_some()
+            && let Some(codec) = collection_values::codec(entry, program)?
+            && let Some(method) = codec.child_check_method()
         {
             let xml = side == "xml";
-            writeln!(item_checks,"for (index,row) in _value.rows.iter().enumerate(){{errors.extend(row.fields[0].issues({xml},_inputs).into_iter().map(|mut issue|{{issue.message=format!(\"Element {{}}: {{}}\",index+1,issue.message);_value.position.apply(_source,issue.field({key:?}))}}));}}").unwrap();
+            writeln!(item_checks,"for (index,row) in _value.rows.iter().enumerate(){{errors.extend(row.fields[0].{method}({xml},_inputs).into_iter().map(|mut issue|{{issue.message=format!(\"Element {{}}: {{}}\",index+1,issue.message);_value.position.apply(_source,issue.field({key:?}))}}));}}").unwrap();
         }
         if selected.is_empty() && item_checks.is_empty() {
             out.push_str("Vec::new() }\n");

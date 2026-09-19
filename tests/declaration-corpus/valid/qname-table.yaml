@@ -1,0 +1,20 @@
+format: nkdk-declarations/1
+kind: value
+id: example.qname-table
+namespaces: {xs: 'http://www.w3.org/2001/XMLSchema'}
+value:
+  kind: enum
+  variants:
+  - {name: string, value: string}
+  - {name: boolean, value: boolean}
+representations:
+  xml:
+    kind: qname-table
+    values:
+    - {value: string, name: xs:string}
+    - {value: boolean, name: xs:boolean}
+  yaml:
+    kind: scalar
+    values:
+    - {value: string, literal: Строка}
+    - {value: boolean, literal: Булево}

@@ -9,7 +9,11 @@ pub(super) fn applies(entry: &LinkedEntry, program: &Program) -> bool {
     {
         return false;
     }
-    fields.len()==1 && fields[0].value.as_reference().and_then(|(id,_,_)|program.entries.iter().find(|item|item.id==id)).is_some_and(|item|(matches!(&item.yaml,YamlRepresentation::Sequence{item,..} if **item==YamlRepresentation::Declared) || matches!(&item.yaml,YamlRepresentation::RecordMapping{..})))
+    fields.len()==1 && fields[0].value.as_reference().and_then(|(id,_,_)|program.entries.iter().find(|item|item.id==id)).is_some_and(|item| {
+        let declared = matches!(&item.yaml,YamlRepresentation::Sequence{item,..} if **item==YamlRepresentation::Declared) || matches!(&item.yaml,YamlRepresentation::RecordMapping{..});
+        let record_item = matches!(&item.value, LinkedType::Sequence(value) if value.as_reference().and_then(|(id,_,_)|program.entries.iter().find(|entry| entry.id==id)).is_some_and(|entry|matches!(entry.value,LinkedType::Record(_))));
+        declared && record_item
+    })
 }
 
 pub(super) fn generate(

@@ -1,5 +1,5 @@
 use super::*;
-use nkdk_rule_model::{EnumLexeme, EnumVariant};
+use nkdk_rule_model::{EnumLexeme, EnumVariant, QNameLexeme};
 
 pub(super) fn variants(path: &str, node: &Node) -> Result<TypeDefinition, Diagnostic> {
     let fields = node.mapping(path, &["kind", "variants"])?;
@@ -26,6 +26,33 @@ pub(super) fn variants(path: &str, node: &Node) -> Result<TypeDefinition, Diagno
             })
             .collect::<Result<_, Diagnostic>>()?,
     ))
+}
+
+pub(super) fn qname_table(path: &str, node: &Node) -> Result<Vec<QNameLexeme<String>>, Diagnostic> {
+    let fields = node.mapping(path, &["kind", "values"])?;
+    node.field(path, fields, "kind")?
+        .literal(path, "qname-table", "unsupported_representation")?;
+    let values = node.field(path, fields, "values")?;
+    let Shape::Sequence(items) = &values.shape else {
+        return Err(error(
+            path,
+            values.mark,
+            "expected_sequence",
+            "Expected QName table",
+        ));
+    };
+    items
+        .iter()
+        .map(|item| {
+            let fields = item.mapping(path, &["value", "name"])?;
+            let value = item.field(path, fields, "value")?;
+            Ok(QNameLexeme {
+                value: value.text(path)?.into(),
+                name: item.field(path, fields, "name")?.text(path)?.into(),
+                source: location(path, value),
+            })
+        })
+        .collect()
 }
 
 pub(super) fn table(

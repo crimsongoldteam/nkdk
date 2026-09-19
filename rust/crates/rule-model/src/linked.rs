@@ -103,6 +103,7 @@ pub enum LinkedXml {
     Text,
     BooleanTable(Vec<BooleanLexeme>),
     EnumTable(Vec<crate::EnumLexeme>),
+    QNameTable(Vec<crate::QNameLexeme<ExpandedName>>),
     Decimal,
     Record(Vec<LinkedXmlField>),
     ElementSequence {

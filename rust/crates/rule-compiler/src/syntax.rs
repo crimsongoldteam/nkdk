@@ -410,10 +410,21 @@ fn module(path: &str, mut root: Node) -> Result<Module, Diagnostic> {
                 .literal(path, "number", "unsupported_scalar")?;
             (xml_rep, YamlRepresentation::Decimal)
         }
-        TypeDefinition::Enum(_) => (
-            XmlRepresentation::EnumTable(enumeration::table(path, xml, "text", "text")?),
-            states::parse(path, yaml)?,
-        ),
+        TypeDefinition::Enum(_) => {
+            let xml_kind = xml
+                .mapping(path, &["kind", "values"])
+                .ok()
+                .and_then(|fields| optional_field(fields, "kind"))
+                .and_then(|kind| kind.text(path).ok());
+            (
+                if xml_kind == Some("qname-table") {
+                    XmlRepresentation::QNameTable(enumeration::qname_table(path, xml)?)
+                } else {
+                    XmlRepresentation::EnumTable(enumeration::table(path, xml, "text", "text")?)
+                },
+                states::parse(path, yaml)?,
+            )
+        }
         TypeDefinition::Scalar(ScalarType::Boolean) => (
             XmlRepresentation::BooleanTable(boolean_table(path, xml, "text", "text")?),
             YamlRepresentation::BooleanTable(boolean_table(path, yaml, "scalar", "literal")?),

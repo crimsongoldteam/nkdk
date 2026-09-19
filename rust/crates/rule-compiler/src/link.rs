@@ -609,6 +609,19 @@ fn resolve_xml(
             content: Box::new(resolve_xml(module, content, source, modules, ids)?),
         },
         XmlRepresentation::EnumTable(table) => LinkedXml::EnumTable(table.clone()),
+        XmlRepresentation::QNameTable(table) => LinkedXml::QNameTable(
+            table
+                .iter()
+                .map(|item| {
+                    Ok(QNameLexeme {
+                        value: item.value.clone(),
+                        name: expand_path(module, std::slice::from_ref(&item.name), &item.source)?
+                            .remove(0),
+                        source: item.source.clone(),
+                    })
+                })
+                .collect::<Result<_, Diagnostic>>()?,
+        ),
         XmlRepresentation::Decimal => LinkedXml::Decimal,
         XmlRepresentation::FormattedDecimal(format) => LinkedXml::FormattedDecimal(format.clone()),
         XmlRepresentation::Text => LinkedXml::Text,
@@ -785,6 +798,18 @@ fn validate_xml(
         (LinkedType::Enum(variants), LinkedXml::EnumTable(table)) => {
             enumeration::table(variants, table, source)?
         }
+        (LinkedType::Enum(variants), LinkedXml::QNameTable(table)) => {
+            let spelling = table
+                .iter()
+                .map(|item| EnumLexeme {
+                    value: item.value.clone(),
+                    text: format!("{}\0{}", item.name.namespace, item.name.local),
+                    accepted: vec![],
+                    source: item.source.clone(),
+                })
+                .collect::<Vec<_>>();
+            enumeration::table(variants, &spelling, source)?;
+        }
         (
             LinkedType::Scalar(ScalarType::Decimal),
             LinkedXml::Decimal | LinkedXml::FormattedDecimal(_),
@@ -884,11 +909,17 @@ fn validate_yaml(
                 singleton,
             },
         ) => {
-            if *singleton && (!shorthand.is_empty() || **yaml != YamlRepresentation::Text) {
+            if *singleton
+                && (!shorthand.is_empty()
+                    || !matches!(
+                        **yaml,
+                        YamlRepresentation::Text | YamlRepresentation::Declared
+                    ))
+            {
                 return Err(diagnostic(
                     "ambiguous_singleton",
                     source,
-                    "Singleton spelling requires scalar text items without literal shorthands",
+                    "Singleton spelling requires scalar items without literal shorthands",
                 ));
             }
             if !shorthand.is_empty() && **item != LinkedType::Scalar(ScalarType::Text) {

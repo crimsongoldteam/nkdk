@@ -8,11 +8,19 @@ pub(super) enum Codec<'a> {
     Pattern(Box<super::text_pattern::Codec<'a>>),
     FormattedDecimal(&'a DecimalText),
     Choice(&'a ScalarChoiceXml<ExpandedName>),
-    Calendar { seconds: bool, omit_zero: bool },
+    Calendar {
+        seconds: bool,
+        omit_zero: bool,
+    },
     Text,
     Decimal,
     Boolean(&'a [BooleanLexeme], &'a [BooleanLexeme]),
     Enumeration(&'a [EnumVariant], &'a [EnumLexeme], &'a [EnumLexeme]),
+    QNameEnumeration(
+        &'a [EnumVariant],
+        &'a [QNameLexeme<ExpandedName>],
+        &'a [EnumLexeme],
+    ),
     States(&'a [EnumVariant], &'a [EnumLexeme], &'a [YamlState]),
 }
 impl<'a> Codec<'a> {
@@ -99,6 +107,11 @@ impl<'a> Codec<'a> {
                     ) => Ok(Self::Enumeration(variants, xml, yaml)),
                     (
                         LinkedType::Enum(variants),
+                        LinkedXml::QNameTable(xml),
+                        YamlRepresentation::EnumTable(yaml),
+                    ) => Ok(Self::QNameEnumeration(variants, xml, yaml)),
+                    (
+                        LinkedType::Enum(variants),
                         LinkedXml::EnumTable(xml),
                         YamlRepresentation::States(yaml),
                     ) => Ok(Self::States(variants, xml, yaml)),
@@ -120,9 +133,11 @@ impl<'a> Codec<'a> {
     }
     pub fn input_method(&self) -> Option<&'static str> {
         match self {
-            Self::Text | Self::TextTable(_) | Self::Enumeration(..) | Self::States(..) => {
-                Some("text")
-            }
+            Self::Text
+            | Self::TextTable(_)
+            | Self::Enumeration(..)
+            | Self::QNameEnumeration(..)
+            | Self::States(..) => Some("text"),
             Self::Boolean(..) => Some("boolean"),
             Self::Decimal | Self::FormattedDecimal(_) => Some("decimal"),
             _ => None,
@@ -136,6 +151,7 @@ impl<'a> Codec<'a> {
             Self::Calendar { .. } => "core::calendar::Value".into(),
             Self::Boolean(..) => "bool".into(),
             Self::Enumeration(..)
+            | Self::QNameEnumeration(..)
             | Self::States(..)
             | Self::Pattern(_)
             | Self::Forms(_)
@@ -147,7 +163,9 @@ impl<'a> Codec<'a> {
             Self::Pattern(pattern) => pattern.definition(name)?,
             Self::Sequence(sequence) => sequence.definition(name)?,
             Self::Forms(choice) => choice.definition(name)?,
-            Self::Enumeration(variants, ..) | Self::States(variants, ..) => format!(
+            Self::Enumeration(variants, ..)
+            | Self::QNameEnumeration(variants, ..)
+            | Self::States(variants, ..) => format!(
                 "#[derive(Clone, Copy, PartialEq, Eq)] enum {name} {{ {} }}\n",
                 (0..variants.len())
                     .map(|i| format!("V{i}"))
@@ -195,6 +213,24 @@ impl<'a> Codec<'a> {
                         .map(move |text| (text.clone(), format!("{name}::V{i}")))
                 })
                 .collect(),
+            Self::QNameEnumeration(variants, xml, yaml) => {
+                if xml_side {
+                    xml.iter()
+                        .map(|item| {
+                            let i = variants
+                                .iter()
+                                .position(|variant| variant.value == item.value)
+                                .expect("linked QName enum table");
+                            (
+                                format!("{}\0{}", item.name.namespace, item.name.local),
+                                format!("{name}::V{i}"),
+                            )
+                        })
+                        .collect()
+                } else {
+                    Self::Enumeration(variants, &[], yaml).cases(name, false, reading)
+                }
+            }
         }
     }
     pub(super) fn read_input_argument(&self) -> &'static str {
@@ -235,7 +271,9 @@ impl<'a> Codec<'a> {
             Self::Text | Self::TextTable(_) => format!("({receiver}).as_str()"),
             Self::Calendar { .. } => format!("&({receiver}).xml()"),
             Self::Boolean(..) => format!("*({reference})"),
-            Self::Enumeration(variants, ..) | Self::States(variants, ..) => format!(
+            Self::Enumeration(variants, ..)
+            | Self::QNameEnumeration(variants, ..)
+            | Self::States(variants, ..) => format!(
                 "match {reference} {{ {} }}",
                 variants
                     .iter()
@@ -258,6 +296,9 @@ impl<'a> Codec<'a> {
             }
             Self::Enumeration(variants, left, right) => {
                 (if xml { left } else { right }).len() < variants.len()
+            }
+            Self::QNameEnumeration(variants, left, right) => {
+                (if xml { left.len() } else { right.len() }) < variants.len()
             }
             _ => false,
         }
@@ -351,7 +392,10 @@ impl<'a> Codec<'a> {
     pub fn yaml_representable(&self, name: &str, reference: &str) -> String {
         if !matches!(
             self,
-            Self::Boolean(..) | Self::Enumeration(..) | Self::States(..)
+            Self::Boolean(..)
+                | Self::Enumeration(..)
+                | Self::QNameEnumeration(..)
+                | Self::States(..)
         ) {
             return "true".into();
         }
@@ -414,7 +458,9 @@ impl<'a> Codec<'a> {
 
         let count = match self {
             Self::Boolean(..) => 2,
-            Self::Enumeration(variants, ..) | Self::States(variants, ..) => variants.len(),
+            Self::Enumeration(variants, ..)
+            | Self::QNameEnumeration(variants, ..)
+            | Self::States(variants, ..) => variants.len(),
             _ => unreachable!(),
         };
         let fallback = if cases.len() < count {
@@ -430,6 +476,26 @@ impl<'a> Codec<'a> {
                 .collect::<Vec<_>>()
                 .join("")
         )
+    }
+
+    pub fn qname_reference(&self, name: &str, reference: &str) -> Option<String> {
+        let Self::QNameEnumeration(variants, table, _) = self else {
+            return None;
+        };
+        let arms = table
+            .iter()
+            .map(|item| {
+                let i = variants
+                    .iter()
+                    .position(|variant| variant.value == item.value)
+                    .expect("linked QName enum table");
+                format!(
+                    "{name}::V{i}=>( {:?}, {:?}),",
+                    item.name.namespace, item.name.local
+                )
+            })
+            .collect::<String>();
+        Some(format!("match {reference} {{{arms}}}"))
     }
 }
 

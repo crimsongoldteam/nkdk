@@ -19,6 +19,7 @@ pub(super) fn generate(
     };
     let keys = match item.as_ref() {
         YamlRepresentation::Text => None,
+        YamlRepresentation::Declared if typed.is_some() => None,
         YamlRepresentation::Mapping(mapping) => Some(
             fields
                 .iter()

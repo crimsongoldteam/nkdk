@@ -159,7 +159,7 @@ pub(super) fn generate_embedded(
     let xml_fields = match xml_item {
         LinkedXml::Record(fields) => fields,
         LinkedXml::Tree(_) => &tree.fields,
-        LinkedXml::Text if scalar_items => &scalar_xml,
+        LinkedXml::Text | LinkedXml::Declared if scalar_items => &scalar_xml,
         _ => {
             return Err(unsupported(
                 entry,
@@ -373,6 +373,14 @@ pub(super) fn generate_embedded(
     namespaces.extend(attributes.namespaces.iter().map(String::as_str));
     namespaces.extend(presence.namespaces.iter().map(String::as_str));
     namespaces.extend(tree.namespaces.iter().map(String::as_str));
+    if let Some(scalar::Codec::QNameEnumeration(_, table, _)) = typed.as_ref() {
+        namespaces.extend(
+            table
+                .iter()
+                .map(|item| item.name.namespace.as_str())
+                .filter(|namespace| !namespace.is_empty()),
+        );
+    }
     let id = entry.id;
     let key_name = &owner_yaml[0].key;
     let parent_code = super::record::path_code(parent);
@@ -458,7 +466,7 @@ pub(super) fn generate_embedded(
         state_members.push(("nil", "bool".into(), "false".into()));
     }
     let (state_code, names) = reader_state(&format!("XmlCollection{id}"), &state_members);
-    writeln!(out,"{state_code} impl XmlCollection{id}{{fn consume(&mut self,path:&[core::xml::Name],token:&core::xml::Token<'_>,source:&[u8],_inputs:&InputView<'_>)->core::Result<()>{{let _=source;let Self{{{names}}}=self;match token {{core::xml::Token::Attribute(_attribute)=>{{{attribute_read}{row_attribute_read}{tree_attributes}{nil_attribute}Err(RuntimeDiagnostic::new(\"xml.unknown-attribute\",\"Undeclared XML attribute\"))}},core::xml::Token::Start(_offset)=>{{let _offset=*_offset;").unwrap();
+    writeln!(out,"{state_code} impl XmlCollection{id}{{fn consume(&mut self,path:&[core::xml::Name],token:&core::xml::Token<'_>,source:&[u8],inputs:&InputView<'_>)->core::Result<()>{{self.consume_scoped(path,token,None,source,inputs)}} fn consume_scoped(&mut self,path:&[core::xml::Name],token:&core::xml::Token<'_>,scope:Option<core::xml::NamespaceScope<'_>>,source:&[u8],_inputs:&InputView<'_>)->core::Result<()>{{let _=source;let _=scope;let Self{{{names}}}=self;match token {{core::xml::Token::Attribute(_attribute)=>{{{attribute_read}{row_attribute_read}{tree_attributes}{nil_attribute}Err(RuntimeDiagnostic::new(\"xml.unknown-attribute\",\"Undeclared XML attribute\"))}},core::xml::Token::Start(_offset)=>{{let _offset=*_offset;").unwrap();
     writeln!(out, "if core::xml::matches(path, {parent_code}) {{ if *seen {{ return Err(RuntimeDiagnostic::new(\"xml.duplicate-field\", \"Repeated collection property\")); }} *seen=true; {self_xml} return Ok(()); }}\nif core::xml::matches(path, {item_code}) {{ *fields=std::array::from_fn(|_|None); {row_attribute_positions} if !{direct_item} {{return Ok(());}} }}").unwrap();
     for &(index, path) in &element_paths {
         let path = super::record::path_code(path);
@@ -490,6 +498,14 @@ pub(super) fn generate_embedded(
     }
     out.push_str(tree_text);
     out.push_str("if core::xml::is_whitespace(text) { Ok(()) } else { Err(RuntimeDiagnostic::new(\"xml.unexpected-text\", \"Text outside a scalar\")) } }, core::xml::Token::End => {\n");
+    let resolve_qname = if matches!(typed.as_ref(), Some(scalar::Codec::QNameEnumeration(..))) {
+        format!(
+            "if core::xml::matches(path,{item_code}) {{let raw=fields[0].as_ref().ok_or_else(||RuntimeDiagnostic::new(\"value.missing\",\"Missing QName item\"))?;let (namespace,local)=scope.ok_or_else(||RuntimeDiagnostic::new(\"xml.qname-prefix\",\"QName namespace scope is unavailable\"))?.resolve_qname(raw)?;fields[0]=Some(format!(\"{{namespace}}\\0{{local}}\"));}}"
+        )
+    } else {
+        String::new()
+    };
+    out.push_str(&resolve_qname);
     let take_fields = format!("[{}]", (0..count).map(|i|format!("fields[{i}].take().ok_or_else(|| RuntimeDiagnostic::new(\"value.missing\", \"Missing item field\"))?")).collect::<Vec<_>>().join(","));
     let read_row = if typed.is_some() {
         format!("read_row_{id}({take_fields},source,core::Position::default(),true,_inputs)?")
@@ -509,7 +525,7 @@ pub(super) fn generate_embedded(
     )
     .unwrap();
     writeln!(out,"fn finish_xml_{id}(state:XmlCollection{id},_inputs:&InputView<'_>)->core::Result<V{id}>{{let XmlCollection{id}{{rows,seen{}{},..}}=state;if !seen && !{xml_missing} {{return Err(RuntimeDiagnostic::new(\"value.missing\",\"Missing collection property\"));}} Ok(V{id}{{rows:{xml_value}{self_init}{form_xml},raw:None{extra_init}}})}}",if keep_self{",position"}else{""},if presence.xml_nil{",nil"}else{""}).unwrap();
-    writeln!(out, "fn read_xml_{id}(source: &[u8], inputs: &InputView<'_>) -> core::Result<V{id}> {{ read_xml_with_{id}(source,inputs,|_,_| Ok(false)) }}\n{visibility}fn read_xml_with_{id}(source: &[u8], inputs: &InputView<'_>, consume: impl FnMut(&[core::xml::Name], &core::xml::Token<'_>) -> core::Result<bool>) -> core::Result<V{id}> {{ read_xml_events_{id}(source,inputs,core::xml::DocumentSource(source),consume) }}\n{visibility}fn read_xml_events_{id}(source: &[u8], inputs: &InputView<'_>, events: impl core::xml::Source, mut consume: impl FnMut(&[core::xml::Name], &core::xml::Token<'_>) -> core::Result<bool>) -> core::Result<V{id}> {{let mut state=XmlCollection{id}::new();events.visit(|path,token|{{if consume(path,token)?{{Ok(())}}else{{state.consume(path,token,source,inputs)}}}})?;finish_xml_{id}(state,inputs)}}").unwrap();
+    writeln!(out, "fn read_xml_{id}(source: &[u8], inputs: &InputView<'_>) -> core::Result<V{id}> {{ read_xml_with_{id}(source,inputs,|_,_| Ok(false)) }}\n{visibility}fn read_xml_with_{id}(source: &[u8], inputs: &InputView<'_>, consume: impl FnMut(&[core::xml::Name], &core::xml::Token<'_>) -> core::Result<bool>) -> core::Result<V{id}> {{ read_xml_events_{id}(source,inputs,core::xml::DocumentSource(source),consume) }}\n{visibility}fn read_xml_events_{id}(source: &[u8], inputs: &InputView<'_>, events: impl core::xml::ScopedSource, mut consume: impl FnMut(&[core::xml::Name], &core::xml::Token<'_>) -> core::Result<bool>) -> core::Result<V{id}> {{let mut state=XmlCollection{id}::new();events.visit_scoped(|path,token,scope|{{if consume(path,token)?{{Ok(())}}else{{state.consume_scoped(path,token,Some(scope),source,inputs)}}}})?;finish_xml_{id}(state,inputs)}}").unwrap();
     if ordinary {
         out.push_str(&super::sequence_yaml::generate(
             entry,
@@ -705,6 +721,20 @@ core::yaml::append_encoded_properties(out,&encoded)
         out.push_str(&tree.write);
     } else {
         for &(index, path) in &element_paths {
+            if let Some(qname) = typed.as_ref().and_then(|codec| {
+                codec.qname_reference(
+                    &super::collection_values::name(id),
+                    &format!("&row.fields[{index}]"),
+                )
+            }) {
+                writeln!(
+                    out,
+                    "out.qname_field({}, {qname})?;",
+                    super::record::path_code(path)
+                )
+                .unwrap();
+                continue;
+            }
             let value = typed
                 .as_ref()
                 .map_or(format!("&row.fields[{index}]"), |codec| {
@@ -777,13 +807,27 @@ core::yaml::append_encoded_properties(out,&encoded)
         .collect::<Vec<_>>()
         .join(" || ");
     out.push_str(&super::proof::qnames(id, &format!("vec!{raw_qnames:?}")));
+    let qname_text = if matches!(typed.as_ref(), Some(scalar::Codec::QNameEnumeration(..))) {
+        element_paths
+            .iter()
+            .map(|(_, path)| {
+                format!(
+                    "core::xml::matches(path,{})",
+                    super::record::path_code(path)
+                )
+            })
+            .collect::<Vec<_>>()
+            .join(" || ")
+    } else {
+        "false".into()
+    };
     out.push_str(&super::proof::generate(
         id,
         if scalar.is_empty() { "false" } else { &scalar },
         &qname_attributes
             .replace("_name", "name")
             .replace("_path", "path"),
-        "false",
+        &qname_text,
     ));
     writeln!(out, "fn verify_{id}(original: &[u8], candidate: &[u8], _inputs: &InputView<'_>) -> core::Result<()> {{ let value=read_yaml_{id}(candidate, _inputs)?; if let Some(error)=check_yaml_{id}(&value, candidate, _inputs).into_iter().find(|error| error.severity==Severity::Error) {{ return Err(error); }} prove_xml_{id}(&value,original,&write_xml_{id}(&value,_inputs)?) }}").unwrap();
     writeln!(out, r#"fn finalize_yaml_{id}(original: &[u8], candidate: Vec<u8>, value: &V{id}, inputs: &InputView<'_>) -> core::Result<Vec<u8>> {{

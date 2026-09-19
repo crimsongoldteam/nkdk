@@ -109,17 +109,7 @@ pub(crate) fn routes<'a>(
                 owns_element: true,
             }]
         }
-        LinkedXml::Choice
-        | LinkedXml::Text
-        | LinkedXml::TextPattern(_)
-        | LinkedXml::TextSequence { .. }
-        | LinkedXml::QName { .. }
-        | LinkedXml::ScalarChoice(_)
-        | LinkedXml::FormattedDecimal(_)
-        | LinkedXml::Calendar
-        | LinkedXml::Decimal
-        | LinkedXml::BooleanTable(_)
-        | LinkedXml::EnumTable(_) => {
+        xml if scalar_xml(xml) => {
             vec![XmlRoute {
                 path: vec![],
                 attribute: None,
@@ -127,6 +117,7 @@ pub(crate) fn routes<'a>(
                 owns_element: false,
             }]
         }
+        _ => unreachable!("shape validated before ownership"),
     };
     for (index, route) in result.iter().enumerate() {
         if let Some(first) = result[..index].iter().find(|first| overlaps(first, route)) {
@@ -160,19 +151,31 @@ fn attribute_type<'a>(value: &LinkedType, entries: &impl Fn(u32) -> &'a LinkedEn
         LinkedType::Scalar(ScalarType::Text | ScalarType::Boolean | ScalarType::Decimal)
         | LinkedType::Enum(_) => true,
         LinkedType::Reference(id) | LinkedType::BoundReference { entry: id, .. } => {
-            matches!(
-                entries(*id).xml,
-                LinkedXml::Choice
-                    | LinkedXml::Text
-                    | LinkedXml::TextPattern(_)
-                    | LinkedXml::ScalarChoice(_)
-                    | LinkedXml::FormattedDecimal(_)
-                    | LinkedXml::Calendar
-                    | LinkedXml::Decimal
-                    | LinkedXml::BooleanTable(_)
-                    | LinkedXml::EnumTable(_)
-            )
+            let xml = &entries(*id).xml;
+            scalar_xml(xml)
+                && !matches!(
+                    xml,
+                    LinkedXml::TextSequence { .. } | LinkedXml::QName { .. }
+                )
         }
         _ => false,
     }
+}
+
+fn scalar_xml(value: &LinkedXml) -> bool {
+    matches!(
+        value,
+        LinkedXml::Choice
+            | LinkedXml::Text
+            | LinkedXml::TextPattern(_)
+            | LinkedXml::TextSequence { .. }
+            | LinkedXml::QName { .. }
+            | LinkedXml::ScalarChoice(_)
+            | LinkedXml::FormattedDecimal(_)
+            | LinkedXml::Calendar
+            | LinkedXml::Decimal
+            | LinkedXml::BooleanTable(_)
+            | LinkedXml::EnumTable(_)
+            | LinkedXml::QNameTable(_)
+    )
 }
