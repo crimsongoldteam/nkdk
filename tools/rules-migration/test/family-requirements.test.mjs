@@ -1,6 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {familyRequirements,legacyCases} from '../src/family-requirements.mjs';
+import {readFileSync} from 'node:fs';
+import {familyRequirements,legacyCases,parseFamilySelectionArgs,reportFamily,selectFamily} from '../src/family-requirements.mjs';
 
 test('family requirements retain transitive fields, provenance and unresolved dependencies', () => {
   const parent = {path:'parent.ts',symbol:'ParentRules'};
@@ -48,4 +49,46 @@ test('shared legacy tests are linked through imports without duplicated or silen
   assert.equal(result.cases[0].status,'review-required');
   assert.deepEqual(result.staleCases,[old]);
   assert.deepEqual(legacyCases({files:[file]},[family],result).staleCases,[old]);
+});
+
+test('document attribute family report retains all fields and override parameters',()=>{
+  const read=name=>JSON.parse(readFileSync(`tests/migration/${name}.json`,'utf8'));
+  const family=familyRequirements(
+    read('rules-extraction'),
+    read('collection-links'),
+    read('unified-families'),
+  ).families.find(item=>item.id==='document-attributes');
+  const report=reportFamily(family);
+  assert.deepEqual(report.properties.map(property=>property.name),[
+    'objectBelonging','name','synonym','comment','type','passwordMode','format',
+    'editFormat','toolTip','markNegatives','mask','multiLine','extendedEdit',
+    'minValue','maxValue','fillFromFillingValue','fillValue','fillChecking',
+    'choiceFoldersAndItems','choiceParameterLinks','choiceParameters','quickChoice',
+    'createOnInput','choiceForm','linkByType','choiceHistoryOnInput','indexing',
+    'fullTextSearch','dataHistory','binaryDataStorageLocationUseField','uuid',
+  ]);
+  assert.deepEqual(report.properties.find(property=>property.name==='type').parameters.allowedTypes,[
+    'string','decimal','date','boolean','ValueStorage','UUID','CatalogRef','CatalogRef.*',
+    'DocumentRef','DocumentRef.*','EnumRef','EnumRef.*','ChartOfCharacteristicTypesRef',
+    'ChartOfCharacteristicTypesRef.*','ChartOfAccountsRef','ChartOfAccountsRef.*',
+    'ChartOfCalculationTypesRef','ChartOfCalculationTypesRef.*','BusinessProcessRef',
+    'BusinessProcessRef.*','BusinessProcessRoutePointRef','BusinessProcessRoutePointRef.*',
+    'TaskRef','TaskRef.*','ExchangePlanRef','ExchangePlanRef.*','AnyIBRef','DefinedType.*',
+    'Characteristic.*','ExternalDataSourceTableRef.*','ExternalDataSourceCubeDimensionTableRef.*',
+  ]);
+  assert.equal(report.properties.find(property=>property.name==='synonym').parameters.excludeIfEqualNameYAML,true);
+  assert.equal(report.properties.find(property=>property.name==='fillValue').parameters.exportNilValue,true);
+  assert.equal(report.properties.find(property=>property.name==='objectBelonging').parameters.implicitValueYAML,'Native');
+});
+
+test('family selection returns one exact report and rejects an unknown family',()=>{
+  const report={families:[{id:'enum-values'},{id:'document-attributes'}]};
+  assert.deepEqual(selectFamily(report,'document-attributes'),[{id:'document-attributes'}]);
+  assert.throws(()=>selectFamily(report,'missing'),/Unknown migration family: missing/);
+});
+
+test('family CLI accepts the pnpm argument separator',()=>{
+  assert.equal(parseFamilySelectionArgs(['--','--family','document-attributes']),'document-attributes');
+  assert.equal(parseFamilySelectionArgs([]),undefined);
+  assert.throws(()=>parseFamilySelectionArgs(['--family']),/Usage: migration:families/);
 });

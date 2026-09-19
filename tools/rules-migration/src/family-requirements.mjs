@@ -2,6 +2,43 @@ import {dirname,basename} from 'node:path';
 
 const identity = entry => `${entry.path}:${entry.symbol}`;
 
+const reportProperty = property => {
+  const {owner,name,type,source,collection,status,parameters,emission}=property;
+  return {
+    owner,name,type,source,collection,status,parameters,
+    ...(emission?{emission:{
+      status:emission.status,
+      id:emission.id,
+      reason:emission.reason,
+      inputs:Object.keys(emission.inputs??{}),
+    }}:{}),
+  };
+};
+
+export function reportFamily(family) {
+  return {
+    ...family,
+    properties:family.properties.map(reportProperty),
+    ownerRequirements:family.ownerRequirements.map(({path,symbol,shapeComplete,properties})=>({
+      path,symbol,shapeComplete,
+      properties:properties.map(({name,type,source,status,parameters})=>({name,type,source,status,parameters})),
+    })),
+  };
+}
+
+export function selectFamily(report, id) {
+  const selected=report.families.filter(family=>family.id===id);
+  if(selected.length!==1)throw new Error(`Unknown migration family: ${id}`);
+  return selected;
+}
+
+export function parseFamilySelectionArgs(args) {
+  const normalized=args[0]==='--'?args.slice(1):args;
+  if(normalized.length===0)return undefined;
+  if(normalized.length===2&&normalized[0]==='--family')return normalized[1];
+  throw new Error('Usage: migration:families [--family <id>]');
+}
+
 // Structural requirements only: a known shape is not executable or accepted.
 export function familyRequirements(extraction, graph, selections) {
   const entries = new Map(extraction.entries.map(entry => [identity(entry),entry]));

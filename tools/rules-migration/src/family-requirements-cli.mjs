@@ -1,5 +1,5 @@
 import {readFileSync,writeFileSync} from 'node:fs';
-import {familyRequirements,legacyCases} from './family-requirements.mjs';
+import {familyRequirements,legacyCases,parseFamilySelectionArgs,reportFamily,selectFamily} from './family-requirements.mjs';
 import {loadSources} from './source-snapshot.mjs';
 import {candidateCatalog,dependencyFiles} from './candidate-catalog.mjs';
 import {mapProperty} from './mappings.mjs';
@@ -19,12 +19,7 @@ for(const family of report.families) {
     else family.blockers.push({path:property.owner.path,symbol:property.owner.symbol,property:property.name,source:property.source,reason:mapped.reason});
   }
   family.declarations=dependencyFiles(modules,catalog).map(module=>module.id);
-  family.properties=family.properties.map(({owner,name,type,source,collection,status,emission})=>({
-    owner,name,type,source,collection,status,...(emission?{emission:{status:emission.status,id:emission.id,reason:emission.reason,inputs:Object.keys(emission.inputs??{})}}:{}),
-  }));
-  family.ownerRequirements=family.ownerRequirements.map(({path,symbol,shapeComplete,properties})=>({
-    path,symbol,shapeComplete,properties:properties.map(({name,type,source,status})=>({name,type,source,status})),
-  }));
+  Object.assign(family,reportFamily(family));
 }
 report.blockers=report.families.flatMap(family=>family.blockers.map(blocker=>({family:family.id,...blocker})));
 const existing = (() => {
@@ -39,4 +34,13 @@ for(const [name,value] of [['unified-family-requirements',report],['unified-test
   const fields=Object.entries(value).map(([key,item])=>`${JSON.stringify(key)}:${Array.isArray(item)?`[\n${item.map(row=>JSON.stringify(row)).join(',\n')}\n]`:JSON.stringify(item)}`);
   writeFileSync(`tests/migration/${name}.json`,'{\n'+fields.join(',\n')+'\n}\n');
 }
-console.log(JSON.stringify({families:report.families.map(f=>({id:f.id,properties:f.properties.length,commonTypes:f.commonTypes.length,legacyCases:f.legacyCases.length})),legacyCases:cases.length,blockers:report.blockers.length}));
+const familyId=parseFamilySelectionArgs(process.argv.slice(2));
+const selected=familyId===undefined?report.families:selectFamily(report,familyId);
+console.log(JSON.stringify({families:selected.map(f=>({
+  id:f.id,
+  properties:f.properties.length,
+  candidates:f.properties.filter(property=>property.emission?.status==='candidate').length,
+  commonTypes:f.commonTypes.length,
+  legacyCases:f.legacyCases.length,
+  blockers:f.blockers.length,
+})),legacyCases:cases.length,blockers:report.blockers.length}));
