@@ -95,6 +95,22 @@ fn authoring_schema_accepts_the_corpus_and_rejects_structural_mistakes() {
     invalid["unknown"] = json!(true);
     assert!(!validator.is_valid(&invalid));
     assert!(validator.is_valid(&base));
+    let structured_choice = json!({
+        "format":"nkdk-declarations/1", "kind":"value", "id":"test.choice",
+        "imports":{"period":"common.standard-period","array":"common.fixed-array"},
+        "value":{"kind":"choice","variants":[
+            {"name":"period","type":{"use":"period"}},
+            {"name":"array","type":{"use":"array"}}
+        ]},
+        "representations":{
+            "xml":{"kind":"choice"},
+            "yaml":{"kind":"choice","variants":[
+                {"variant":"period","form":"mapping","key":"Вариант"},
+                {"variant":"array","form":"sequence"}
+            ]}
+        }
+    });
+    assert!(validator.is_valid(&structured_choice));
     let single_source =
         include_str!("fixtures/borrowed-record-rows.yaml").replace("exists:", "one:");
     let single = json_value(

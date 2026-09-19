@@ -191,7 +191,7 @@ fn resolve_forms(module: &Module, constraint: &Constraint) -> Result<Vec<LinkedF
                     "Inherited representation is only valid for a referenced sequence item",
                 ));
             }
-            YamlRepresentation::Choice
+            YamlRepresentation::Choice(_)
             | YamlRepresentation::TextTable(_)
             | YamlRepresentation::Text
             | YamlRepresentation::TextPattern(_)

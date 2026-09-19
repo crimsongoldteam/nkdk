@@ -1,5 +1,19 @@
 use nkdk_rule_compiler::{SourceFile, link, parse, parse_many};
 
+fn parse_catalog(source: &str) -> Vec<nkdk_rule_model::Module> {
+    parse_many(SourceFile {
+        path: "choice.yaml",
+        bytes: source.as_bytes(),
+    })
+    .unwrap()
+}
+
+fn assert_catalog_error(source: &str, code: &str) {
+    let modules = parse_catalog(source);
+    let errors = link(&modules).unwrap_err();
+    assert!(errors.iter().any(|error| error.code == code), "{errors:?}");
+}
+
 fn modules() -> Vec<nkdk_rule_model::Module> {
     [
         (
@@ -2363,14 +2377,74 @@ declarations:
             "invalid_choice_emit",
         ),
     ] {
-        let modules = parse_many(SourceFile {
-            path: "choice.yaml",
-            bytes: invalid.as_bytes(),
-        })
-        .unwrap();
-        let errors = link(&modules).unwrap_err();
-        assert!(errors.iter().any(|error| error.code == code), "{errors:?}");
+        assert_catalog_error(&invalid, code);
     }
+}
+
+#[test]
+fn yaml_choice_structural_selectors_are_checked_at_link_time() {
+    let source = r#"format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: test.mapped
+  value: {kind: record, fields: [{name: name, type: {kind: scalar, scalar: text}}]}
+  representations:
+    xml: {kind: record, fields: [{field: name, path: [Name]}]}
+    yaml: {kind: mapping, fields: [{field: name, key: Имя}]}
+- kind: value
+  id: test.other-mapped
+  value: {kind: record, fields: [{name: name, type: {kind: scalar, scalar: text}}]}
+  representations:
+    xml: {kind: record, fields: [{field: name, path: [OtherName]}]}
+    yaml: {kind: mapping, fields: [{field: name, key: Имя}]}
+- kind: value
+  id: test.text
+  value: {kind: scalar, scalar: text}
+  representations: {xml: {kind: text}, yaml: {kind: scalar, scalar: text}}
+- kind: value
+  id: test.choice
+  imports: {mapped: test.mapped, text: test.text}
+  value:
+    kind: choice
+    variants:
+    - {name: mapped, type: {use: mapped}}
+    - {name: text, type: {use: text}}
+  representations:
+    xml: {kind: choice}
+    yaml:
+      kind: choice
+      variants: [{variant: mapped, form: mapping, key: Имя}]
+"#;
+    let modules = parse_catalog(source);
+    link(&modules).unwrap();
+
+    let invalid_shape = source.replace(
+        "{variant: mapped, form: mapping, key: Имя}",
+        "{variant: mapped, form: sequence}",
+    );
+    assert_catalog_error(&invalid_shape, "choice_selector_shape");
+
+    let missing = source.replace(
+        "\n      variants: [{variant: mapped, form: mapping, key: Имя}]",
+        "",
+    );
+    assert_catalog_error(&missing, "missing_choice_selector");
+
+    let collision = source
+        .replace(
+            "imports: {mapped: test.mapped, text: test.text}",
+            "imports: {mapped: test.mapped, other: test.other-mapped, text: test.text}",
+        )
+        .replace(
+            "    - {name: text, type: {use: text}}",
+            "    - {name: other, type: {use: other}}\n    - {name: text, type: {use: text}}",
+        )
+        .replace(
+            "variants: [{variant: mapped, form: mapping, key: Имя}]",
+            "variants: [{variant: mapped, form: mapping, key: Имя}, {variant: other, form: mapping, key: Имя}]",
+        );
+    assert_catalog_error(&collision, "choice_selector_collision");
 }
 
 fn assert_link_error(path: &str, text: &str, code: &str) {

@@ -55,7 +55,7 @@ impl<'a> Variant<'a> {
         }
         if matches!(entry.value, LinkedType::Choice(_))
             && matches!(entry.xml, LinkedXml::Choice)
-            && matches!(entry.yaml, YamlRepresentation::Choice)
+            && matches!(entry.yaml, YamlRepresentation::Choice(_))
         {
             return Ok(Self::Choice(Box::new(super::Codec::resolve(
                 entry, program,

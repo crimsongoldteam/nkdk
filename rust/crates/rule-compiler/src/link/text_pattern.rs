@@ -169,7 +169,7 @@ pub(super) fn types(entries: &BTreeMap<u32, LinkedEntry>) -> Result<(), Diagnost
                     && matches!(target.yaml, YamlRepresentation::TextPattern(_)))
                     || (matches!(target.value, LinkedType::Choice(_))
                         && matches!(content, LinkedXml::Choice)
-                        && matches!(target.yaml, YamlRepresentation::Choice))
+                        && matches!(target.yaml, YamlRepresentation::Choice(_)))
                 {
                     continue;
                 }

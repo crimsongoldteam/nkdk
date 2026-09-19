@@ -1,4 +1,55 @@
 use nkdk_conversion_core::yaml::{Node, visit_nodes};
+
+#[test]
+fn structured_choice_selects_one_branch_from_streamed_yaml() {
+    use nkdk_conversion_core::yaml::{ChoiceReader, ChoiceSelection, ChoiceSelector};
+    static SELECTORS: &[ChoiceSelector] = &[
+        ChoiceSelector::Sequence { variant: 0 },
+        ChoiceSelector::Mapping {
+            variant: 1,
+            key: "Тип",
+            value: Some("Явный"),
+        },
+        ChoiceSelector::Mapping {
+            variant: 2,
+            key: "Вариант",
+            value: None,
+        },
+    ];
+    for (source, expected) in [
+        ("[one, two]", 0),
+        ("Значение: x\nТип: Явный", 1),
+        ("Дата: 2026-09-10\nВариант: Произвольный", 2),
+    ] {
+        let mut reader = ChoiceReader::new(SELECTORS);
+        let mut selected = None;
+        visit_nodes(source.as_bytes(), |node, position| {
+            if selected.is_some() {
+                return Ok(());
+            }
+            if let ChoiceSelection::Selected { variant, events } = reader.consume(node, position)? {
+                selected = Some((variant, events.len()));
+            }
+            Ok(())
+        })
+        .unwrap();
+        assert_eq!(selected.map(|value| value.0), Some(expected));
+    }
+
+    let mut reader = ChoiceReader::new(SELECTORS);
+    visit_nodes(b"Unknown: value", |node, position| {
+        assert!(matches!(
+            reader.consume(node, position)?,
+            ChoiceSelection::Pending
+        ));
+        Ok(())
+    })
+    .unwrap();
+    assert_eq!(
+        reader.finish().unwrap_err().code.as_deref(),
+        Some("yaml.choice-form")
+    );
+}
 #[test]
 fn nested_mapping_keeps_occurrence_order_tags_and_positions() {
     for (semantic, expected) in [

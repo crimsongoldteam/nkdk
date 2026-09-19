@@ -1,5 +1,88 @@
 use super::*;
 
+pub(super) fn validate_selectors(program: &Program) -> Result<(), Diagnostic> {
+    for choice in &program.entries {
+        let (LinkedType::Choice(variants), YamlRepresentation::Choice(selectors)) =
+            (&choice.value, &choice.yaml)
+        else {
+            continue;
+        };
+        let mut sequence = None;
+        let mut mappings = BTreeMap::new();
+        for selector in selectors {
+            let variant = variants
+                .iter()
+                .find(|variant| variant.name == selector.variant)
+                .expect("choice selector names were checked while linking");
+            let (target, _, _) = variant
+                .value
+                .as_reference()
+                .expect("checked choice reference");
+            let target = program
+                .entries
+                .iter()
+                .find(|entry| entry.id == target)
+                .expect("linked choice variant");
+            match (&selector.form, &target.yaml) {
+                (YamlChoiceForm::Sequence, YamlRepresentation::Sequence { .. }) => {
+                    if let Some(first) = sequence.replace(&selector.source) {
+                        let mut error = diagnostic(
+                            "choice_selector_collision",
+                            &selector.source,
+                            "Several choice variants select the YAML sequence form",
+                        );
+                        error.related.push(first.clone());
+                        return Err(error);
+                    }
+                }
+                (YamlChoiceForm::Mapping { key, value }, YamlRepresentation::Mapping(_)) => {
+                    let selector_key = (key.as_str(), value.as_deref());
+                    if let Some(first) = mappings.insert(selector_key, &selector.source) {
+                        let mut error = diagnostic(
+                            "choice_selector_collision",
+                            &selector.source,
+                            "Several choice variants have the same YAML mapping selector",
+                        );
+                        error.related.push(first.clone());
+                        return Err(error);
+                    }
+                }
+                _ => {
+                    return Err(diagnostic(
+                        "choice_selector_shape",
+                        &selector.source,
+                        "YAML choice selector does not match the selected declaration shape",
+                    ));
+                }
+            }
+        }
+        for variant in variants {
+            let Some((target, _, _)) = variant.value.as_reference() else {
+                continue;
+            };
+            let target = program
+                .entries
+                .iter()
+                .find(|entry| entry.id == target)
+                .expect("linked choice variant");
+            if matches!(
+                target.yaml,
+                YamlRepresentation::Mapping(_) | YamlRepresentation::Sequence { .. }
+            ) && !selectors
+                .iter()
+                .any(|selector| selector.variant == variant.name)
+            {
+                return Err(diagnostic(
+                    "missing_choice_selector",
+                    &variant.source,
+                    "A structured YAML choice variant requires a selector",
+                ));
+            }
+        }
+    }
+    Ok(())
+}
+
 pub(super) fn lift(entries: &mut [LinkedEntry]) -> Result<(), Diagnostic> {
     let originals = scalar_contracts::snapshot(entries);
     for owner in entries {

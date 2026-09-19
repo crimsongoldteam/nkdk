@@ -1206,14 +1206,63 @@ fn choice_representations(
     xml: &Node,
     yaml: &Node,
 ) -> Result<(XmlRepresentation, YamlRepresentation), Diagnostic> {
-    let yaml_fields = yaml.mapping(path, &["kind"])?;
+    let yaml_fields = yaml.mapping(path, &["kind", "variants"])?;
     yaml.field(path, yaml_fields, "kind")?
         .literal(path, "choice", "unsupported_representation")?;
     let xml_fields = xml.mapping(path, &["kind", "attribute", "variants", "otherwise"])?;
     xml.field(path, xml_fields, "kind")?
         .literal(path, "choice", "unsupported_representation")?;
+    let yaml_variants = optional_field(yaml_fields, "variants")
+        .map(|variants| {
+            sequence(path, variants)?
+                .iter()
+                .map(|item| {
+                    let fields = item.mapping(path, &["variant", "form", "key", "value"])?;
+                    let form = item.field(path, fields, "form")?.text(path)?;
+                    let form = match form {
+                        "sequence" => {
+                            if optional_field(fields, "key").is_some()
+                                || optional_field(fields, "value").is_some()
+                            {
+                                return Err(error(
+                                    path,
+                                    item.mark,
+                                    "invalid_choice_selector",
+                                    "A sequence choice selector cannot declare key or value",
+                                ));
+                            }
+                            nkdk_rule_model::YamlChoiceForm::Sequence
+                        }
+                        "mapping" => nkdk_rule_model::YamlChoiceForm::Mapping {
+                            key: item.field(path, fields, "key")?.text(path)?.into(),
+                            value: optional_field(fields, "value")
+                                .map(|value| value.text(path).map(str::to_owned))
+                                .transpose()?,
+                        },
+                        _ => {
+                            return Err(error(
+                                path,
+                                item.mark,
+                                "invalid_choice_selector",
+                                "Choice selector form must be mapping or sequence",
+                            ));
+                        }
+                    };
+                    Ok(nkdk_rule_model::YamlChoiceCase {
+                        variant: item.field(path, fields, "variant")?.text(path)?.into(),
+                        form,
+                        source: location(path, item),
+                    })
+                })
+                .collect::<Result<Vec<_>, Diagnostic>>()
+        })
+        .transpose()?
+        .unwrap_or_default();
     let Some(attribute) = optional_field(xml_fields, "attribute") else {
-        return Ok((XmlRepresentation::Choice, YamlRepresentation::Choice));
+        return Ok((
+            XmlRepresentation::Choice,
+            YamlRepresentation::Choice(yaml_variants),
+        ));
     };
     let mut variants = Vec::new();
     for item in sequence(path, xml.field(path, xml_fields, "variants")?)? {
@@ -1235,6 +1284,6 @@ fn choice_representations(
             variants,
             otherwise: xml.field(path, xml_fields, "otherwise")?.text(path)?.into(),
         }),
-        YamlRepresentation::Choice,
+        YamlRepresentation::Choice(yaml_variants),
     ))
 }

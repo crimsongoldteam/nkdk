@@ -3535,18 +3535,7 @@
                   "xml": {
                     "$ref": "#/$defs/xmlChoice"
                   },
-                  "yaml": {
-                    "type": "object",
-                    "properties": {
-                      "kind": {
-                        "const": "choice"
-                      }
-                    },
-                    "required": [
-                      "kind"
-                    ],
-                    "additionalProperties": false
-                  }
+                  "yaml": {"$ref": "#/$defs/yamlChoice"}
                 },
                 "required": [
                   "xml",
@@ -3627,18 +3616,7 @@
                       "xml": {
                         "$ref": "#/$defs/xmlChoice"
                       },
-                      "yaml": {
-                        "type": "object",
-                        "properties": {
-                          "kind": {
-                            "const": "choice"
-                          }
-                        },
-                        "required": [
-                          "kind"
-                        ],
-                        "additionalProperties": false
-                      }
+                      "yaml": {"$ref": "#/$defs/yamlChoice"}
                     },
                     "required": [
                       "xml",
@@ -4225,6 +4203,42 @@
         "kind",
         "separator"
       ],
+      "additionalProperties": false
+    },
+    "yamlChoice": {
+      "type": "object",
+      "properties": {
+        "kind": {"const": "choice"},
+        "variants": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "variant": {"type": "string", "minLength": 1},
+                  "form": {"const": "sequence"}
+                },
+                "required": ["variant", "form"],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "variant": {"type": "string", "minLength": 1},
+                  "form": {"const": "mapping"},
+                  "key": {"type": "string", "minLength": 1},
+                  "value": {"type": "string"}
+                },
+                "required": ["variant", "form", "key"],
+                "additionalProperties": false
+              }
+            ]
+          }
+        }
+      },
+      "required": ["kind"],
       "additionalProperties": false
     },
     "xmlChoice": {

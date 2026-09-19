@@ -91,7 +91,7 @@ impl<'a> RecordPlan<'a> {
                     program.value(ValueId(id)).is_some_and(|value| {
                         matches!(
                             value.entry.yaml,
-                            YamlRepresentation::Choice
+                            YamlRepresentation::Choice(_)
                                 | YamlRepresentation::States(_)
                                 | YamlRepresentation::TextPattern(_)
                                 | YamlRepresentation::TextSequence { .. }

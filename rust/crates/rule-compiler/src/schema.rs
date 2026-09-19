@@ -78,7 +78,7 @@ fn scalar(
                     Ok(json!({"type":["string","number"],"x-nkdk-number-profile":"decimal"}))
                 }
                 YamlRepresentation::Text => Ok(json!({"type":"string"})),
-                YamlRepresentation::Choice => {
+                YamlRepresentation::Choice(_) => {
                     let LinkedType::Choice(variants) = &target.value else {
                         return Err(unsupported(target));
                     };

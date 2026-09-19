@@ -112,6 +112,7 @@ pub fn link(modules: &[Module]) -> Result<Program, Vec<Diagnostic>> {
         choice_contracts::lift(&mut entries).map_err(|error| vec![error])?;
         contributions::validate_inputs(&entries).map_err(|error| vec![error])?;
         let program = Program { entries };
+        choice_contracts::validate_selectors(&program).map_err(|error| vec![error])?;
         state_relations::validate(modules, &program).map_err(|error| vec![error])?;
         for entry in &program.entries {
             for side in [RepresentationSide::Xml, RepresentationSide::Yaml] {
@@ -1005,7 +1006,38 @@ fn validate_yaml(
             LinkedType::Reference(_) | LinkedType::BoundReference { .. },
             YamlRepresentation::Declared,
         ) => {}
-        (LinkedType::Choice(_), YamlRepresentation::Choice) => {}
+        (LinkedType::Choice(variants), YamlRepresentation::Choice(selectors)) => {
+            let mut selected = BTreeSet::new();
+            for selector in selectors {
+                let Some(variant) = variants
+                    .iter()
+                    .find(|variant| variant.name == selector.variant)
+                else {
+                    return Err(diagnostic(
+                        "unknown_choice_variant",
+                        &selector.source,
+                        "YAML choice selector names an unknown variant",
+                    ));
+                };
+                if !selected.insert(selector.variant.as_str()) {
+                    return Err(diagnostic(
+                        "duplicate_choice_variant",
+                        &selector.source,
+                        "YAML choice variant has several structural selectors",
+                    ));
+                }
+                if !matches!(
+                    variant.value,
+                    LinkedType::Reference(_) | LinkedType::BoundReference { .. }
+                ) {
+                    return Err(diagnostic(
+                        "invalid_choice_variant",
+                        &selector.source,
+                        "A structurally selected choice variant must reference a declaration",
+                    ));
+                }
+            }
+        }
         (LinkedType::Sequence(_), YamlRepresentation::TextSequence { .. }) => {}
         (LinkedType::ScalarChoice(_), YamlRepresentation::ScalarChoice) => {}
         (LinkedType::Record(fields), YamlRepresentation::TextPattern(parts)) => {

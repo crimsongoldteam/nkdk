@@ -61,16 +61,15 @@ pub(crate) fn resolve(
                 "Record mapping key needs a YAML field",
             ));
         }
-        if let Some(value) = value {
-            if !fields.iter().any(|field| &field.name == value)
-                || !matches!(&entry.yaml, YamlRepresentation::Mapping(fields) if fields.iter().any(|field| &field.field==value))
-            {
-                return Err(diagnostic(
-                    "unknown_representation_field",
-                    &collection.source,
-                    "Record mapping value needs a YAML field",
-                ));
-            }
+        if let Some(value) = value
+            && (!fields.iter().any(|field| &field.name == value)
+                || !matches!(&entry.yaml, YamlRepresentation::Mapping(fields) if fields.iter().any(|field| &field.field==value)))
+        {
+            return Err(diagnostic(
+                "unknown_representation_field",
+                &collection.source,
+                "Record mapping value needs a YAML field",
+            ));
         }
     }
 

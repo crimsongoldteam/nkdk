@@ -117,6 +117,19 @@ pub enum XmlRepresentation {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+pub struct YamlChoiceCase {
+    pub variant: String,
+    pub form: YamlChoiceForm,
+    pub source: SourceLocation,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum YamlChoiceForm {
+    Sequence,
+    Mapping { key: String, value: Option<String> },
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DiscriminatedChoiceXml<N> {
     pub attribute: N,
     pub variants: Vec<DiscriminatedChoiceCase<N>>,
@@ -140,7 +153,7 @@ pub enum YamlRepresentation {
     TextSequence {
         separator: String,
     },
-    Choice,
+    Choice(Vec<YamlChoiceCase>),
     TextTable(TextTable),
     TextPattern(Vec<TextPatternPart>),
     Sequence {

@@ -167,9 +167,11 @@ impl<'a> Codec<'a> {
                 .unwrap();
             for value in &case.values {
                 let canonical = case.emit.as_ref().is_some_and(|emit| emit == value);
-                let shape = (!canonical)
-                    .then(|| format!("{prefix}shape{index}=true;"))
-                    .unwrap_or_default();
+                let shape = if !canonical {
+                    format!("{prefix}shape{index}=true;")
+                } else {
+                    String::new()
+                };
                 writeln!(arms, "({:?},{:?})=>{{{prefix}variant{index}=Some({variant});{shape}return Ok(());}},", value.namespace, value.local).unwrap();
             }
         }
