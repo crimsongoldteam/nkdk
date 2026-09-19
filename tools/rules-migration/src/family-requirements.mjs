@@ -1,4 +1,6 @@
 import {dirname,basename} from 'node:path';
+import {mapProperty} from './mappings.mjs';
+import {prepareCollectionProperty} from './collection-property.mjs';
 
 const identity = entry => `${entry.path}:${entry.symbol}`;
 
@@ -37,6 +39,22 @@ export function parseFamilySelectionArgs(args) {
   if(normalized.length===0)return undefined;
   if(normalized.length===2&&normalized[0]==='--family')return normalized[1];
   throw new Error('Usage: migration:families [--family <id>]');
+}
+
+export function emitFamilyProperties(family,catalog,namespaces={}) {
+  const mappings=family.ownerConnections?.map(connection=>connection.mapping).filter(Boolean)??[];
+  const signatures=[...new Set(mappings.map(mapping=>JSON.stringify({yamlAsArray:mapping.yamlAsArray,keyField:mapping.keyField})))];
+  const mapping=signatures.length===1?mappings[0]:undefined;
+  const modules=[];
+  for(const property of family.properties.filter(item=>!item.collection)) {
+    const mapped=mapProperty(prepareCollectionProperty(property,mapping),catalog,namespaces);
+    property.emission=mapped;
+    if(mapped.status==='candidate') {
+      modules.push({imports:{value:mapped.id,...mapped.imports}});
+      family.blockers=family.blockers.filter(blocker=>!(blocker.property===property.name&&blocker.reason==='requires-expression-mapping'));
+    } else family.blockers.push({path:property.owner.path,symbol:property.owner.symbol,property:property.name,source:property.source,reason:mapped.reason});
+  }
+  return modules;
 }
 
 // Structural requirements only: a known shape is not executable or accepted.

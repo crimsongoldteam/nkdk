@@ -15,6 +15,10 @@ const profiles = new Map([
     '21f68d1f13518895e2565205ec92797eee022f06b2a6c0b5a147f53435a2b81f', {
     parameter: 'defaultValue', kind: 'yaml-default-when-input-equals', input: 'ownerType', value: 'СписокЗначений',
   }],
+  ['packages/rules/metadata/commonObjects/metadataAttribute/fragments.ts:23\0' +
+    '574e33c1d66458f04ae34d1f3fc5d0411b61a94592f07cbe534c6a13e932019d', {
+    parameter: 'defaultValue', kind: 'i8n-owner-name-default',
+  }],
 ]);
 
 /**

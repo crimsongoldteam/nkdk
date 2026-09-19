@@ -97,6 +97,8 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
   const qname = p.type === 'XDTOTypeName';
   const formatted = p.type === 'FormattedI8nText';
   const text = p.type === 'I8nText' || formatted;
+  const emptyTextXMLDefault=text && JSON.stringify(p.defaultValueXMLEmpty)===JSON.stringify({items:{}});
+  if(text && Object.hasOwn(p,'defaultValueXMLEmpty') && !emptyTextXMLDefault)return fail('text-empty-default-profile');
   const emptyTextDefault=p.type==='I8nText' && p.implicitValueYAML==='' && p.defaultValueXMLRaw==='' && !Object.hasOwn(p,'defaultValueXML') && !['preserveEmptyXML','excludeIfEqualNameYAML','skipEmptyToXML','typedXML'].some(key=>p[key]===true);
   if((formatted || qname || grouped || linkList || scalarChoice || purposes) && Object.keys(p).some(key=>!['tag','type','yaml','xml','xmlParents','toEnterprise',...(linkList?['metadataTarget']:[]),...(basedOn?['defaultValueXMLRaw']:[]),...(purposes?['defaultValue','defaultValueXML','defaultValueAdoptedXML','evaluateWhenYAMLMissing']:[])].includes(key)))return fail('record-parameter-profile');
   const date=p.type==='dateTime';
@@ -136,7 +138,7 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
     ...(index ? ['preserveExplicitDefaultXML'] : []),
     ...((reference || linkList) && !typeDescription ? ['metadataTarget'] : []),
     ...(typeDescription ? ['addTypeDescriptionAttributeToXML','declareTypeNamespaceXML','allowedTypes','preserveEmptyXML','defaultValueXMLEmpty','runtimeOnly'] : []),
-    ...(text ? ['preserveEmptyXML','excludeIfEqualNameYAML','skipEmptyToXML','typedXML'] : [])]);
+    ...(text ? ['preserveEmptyXML','excludeIfEqualNameYAML','skipEmptyToXML','typedXML','defaultValueXMLEmpty'] : [])]);
   const unknown = Object.keys(p).filter(key => !allowed.has(key));
   if (unknown.length) return fail(`unsupported-parameters:${unknown.join(',')}`);
   if(typeDescription) {
@@ -241,7 +243,13 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
     } else if(profile.kind==='yaml-default-when-input-equals') {
       mapped.presence.yaml.missing={denotes:{if:{eq:[{input:profile.input},{literal:profile.value}]},then:emptyTypeDescription(),else:{absent:true}}};
       mapped.inputs={...(mapped.inputs??{}),[profile.input]:{type:{kind:'scalar',scalar:'text'}}};
+    } else if(profile.kind==='i8n-owner-name-default') {
+      if(p.type!=='I8nText' || p.excludeIfEqualNameYAML!==true)return fail('i8n-owner-name-default-profile');
+      mapped.parameterEquivalences=[...(mapped.parameterEquivalences??[]),
+        {parameter:profile.parameter,equivalentTo:'owner-name-shorthand',via:'common.i8n-text'}];
     }
   }
+  if(emptyTextXMLDefault)mapped.parameterEquivalences=[...(mapped.parameterEquivalences??[]),
+    {parameter:'defaultValueXMLEmpty',equivalentTo:'empty-sequence',via:'common.i8n-text'}];
   return mapped;
 }

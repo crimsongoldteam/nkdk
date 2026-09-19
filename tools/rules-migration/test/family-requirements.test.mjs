@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {familyRequirements,legacyCases,parseFamilySelectionArgs,reportFamily,selectFamily} from '../src/family-requirements.mjs';
+import {emitFamilyProperties,familyRequirements,legacyCases,parseFamilySelectionArgs,reportFamily,selectFamily} from '../src/family-requirements.mjs';
 
 test('family requirements retain transitive fields, provenance and unresolved dependencies', () => {
   const parent = {path:'parent.ts',symbol:'ParentRules'};
@@ -91,4 +91,12 @@ test('family CLI accepts the pnpm argument separator',()=>{
   assert.equal(parseFamilySelectionArgs(['--','--family','document-attributes']),'document-attributes');
   assert.equal(parseFamilySelectionArgs([]),undefined);
   assert.throws(()=>parseFamilySelectionArgs(['--family']),/Usage: migration:families/);
+});
+
+test('family emission evaluates an implicit named-collection key in its owner context',()=>{
+  const property={owner:{path:'child.ts',symbol:'ChildRules'},name:'name',status:'static-parameters',parameters:{type:'string',xml:'Name',required:true}};
+  const family={path:'child.ts',symbol:'ChildRules',properties:[property],ownerConnections:[{mapping:{yamlAsArray:false,keyField:'name'}}],blockers:[]};
+  emitFamilyProperties(family,new Map([['common.string',{}]]));
+  assert.equal(property.emission.status,'candidate');
+  assert.equal(property.emission.key,'name');
 });

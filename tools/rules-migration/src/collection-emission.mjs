@@ -1,6 +1,7 @@
 import {createHash} from 'node:crypto';
 import {mapProperty} from './mappings.mjs';
 import {mergeInputs} from './common-inputs.mjs';
+import {prepareCollectionProperty} from './collection-property.mjs';
 const id=(role,value)=>`candidate.collection.${role}.${createHash('sha256').update(JSON.stringify(value)).digest('hex').slice(0,20)}`;
 
 // Emit complete element rules only. Property projections cannot stand in for an element.
@@ -35,9 +36,7 @@ export function emitCollections(graph,entries,catalog,namespaces={},options={}) 
     const fields=child.properties.map(property=>{
       // The source record collection uses keyField as its key's YAML name
       // when the property omits yaml. Array items have no such contract.
-      const implicitKey=edge.mapping.yamlAsArray!==true && property.name===edge.mapping.keyField &&
-        property.parameters?.type==='string' && !Object.hasOwn(property.parameters,'yaml');
-      const source=implicitKey?{...property,parameters:{...property.parameters,yaml:property.name}}:property;
+      const source=prepareCollectionProperty(property,edge.mapping);
       return {property,mapped:mapProperty(source,catalog,namespaces)};
     });
     if(edge.mapping.yamlAsArray!==true && !fields.some(f=>f.property.name===edge.mapping.keyField && f.property.parameters?.type==='string'))block('collection-key-type');

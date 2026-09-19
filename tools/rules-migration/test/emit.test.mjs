@@ -84,6 +84,21 @@ test('candidate generation shares fragments, rejects unknown parameters and prot
   for(const extra of [{implicitValueYAML:'other'},{defaultValueXMLRaw:undefined},{excludeIfEqualNameYAML:true},{preserveEmptyXML:true}]) {
     assert.equal(mapProperty({...property,parameters:{...emptyTextParameters,...extra}},new Map([['common.i8n-text',{}]])).status,'blocked');
   }
+  const attributeSynonym=mapProperty({...property,name:'synonym',status:'requires-expression-mapping',parameters:{
+    type:'I8nText',yaml:'Синоним',xml:'Synonym',xmlParents:['Properties'],excludeIfEqualNameYAML:true,
+    defaultValue:{$unresolved:{kind:'expression',source:{path:'packages/rules/metadata/commonObjects/metadataAttribute/fragments.ts',line:23,column:17},sourceHash:'574e33c1d66458f04ae34d1f3fc5d0411b61a94592f07cbe534c6a13e932019d'}},
+    defaultValueXMLEmpty:{items:{}},defaultValueXMLRaw:'',preserveEmptyXML:true,
+  }},new Map([['common.i8n-text',{}]]));
+  assert.equal(attributeSynonym.status,'candidate');
+  assert.equal(attributeSynonym.id,'common.i8n-text');
+  assert.equal(attributeSynonym.type.with.excludeIfEqualNameYAML,true);
+  assert.equal(attributeSynonym.type.with.preserveEmptyXML,true);
+  assert.ok(attributeSynonym.parameterEquivalences.some(item=>item.parameter==='defaultValue'));
+  const attributeUuid=mapProperty({...property,name:'uuid',parameters:{
+    type:'uuid',xml:'_uuid',evaluateWhenYAMLMissing:true,xmlOnly:true,toYAML:false,fromYAML:false,
+  }},new Map([['common.uuid',{inputs:{}}]]));
+  assert.equal(attributeUuid.status,'candidate');
+  assert.equal(attributeUuid.identityProjection,true);
   const hiddenParameters={type:'SystemEnumeration',typeSE:'Example',yaml:'Скрытое',implicitValueYAML:'A',toYAML:false,fromYAML:false};
   const hiddenCatalog=new Map([['system.Example',{enum:{A:'А',B:'Б'}}]]);
   const hidden=mapProperty({...property,parameters:hiddenParameters},hiddenCatalog);

@@ -1,8 +1,7 @@
 import {readFileSync,writeFileSync} from 'node:fs';
-import {familyRequirements,legacyCases,parseFamilySelectionArgs,reportFamily,selectFamily} from './family-requirements.mjs';
+import {emitFamilyProperties,familyRequirements,legacyCases,parseFamilySelectionArgs,reportFamily,selectFamily} from './family-requirements.mjs';
 import {loadSources} from './source-snapshot.mjs';
 import {candidateCatalog,dependencyFiles} from './candidate-catalog.mjs';
-import {mapProperty} from './mappings.mjs';
 
 const read = name => JSON.parse(readFileSync(`tests/migration/${name}.json`,'utf8'));
 const extraction=read('rules-extraction'), inventory=read('rules-inventory');
@@ -11,13 +10,7 @@ const report=familyRequirements(extraction,read('collection-links'),read('unifie
 const {catalog,sourceHashes}=candidateCatalog();
 report.declarationHashes=sourceHashes;
 for(const family of report.families) {
-  const modules=[];
-  for(const property of family.properties.filter(p=>!p.collection)) {
-    const mapped=mapProperty(property,catalog);
-    property.emission=mapped;
-    if(mapped.status==='candidate') modules.push({imports:{value:mapped.id,...mapped.imports}});
-    else family.blockers.push({path:property.owner.path,symbol:property.owner.symbol,property:property.name,source:property.source,reason:mapped.reason});
-  }
+  const modules=emitFamilyProperties(family,catalog);
   family.declarations=dependencyFiles(modules,catalog).map(module=>module.id);
   Object.assign(family,reportFamily(family));
 }
