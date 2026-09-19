@@ -139,6 +139,10 @@ impl<'a> Codec<'a> {
             .position(|field| field.name == choice.otherwise)
     }
 
+    pub(super) fn decimal_variant(&self) -> Option<usize> {
+        self.variants.iter().position(Variant::is_decimal)
+    }
+
     pub(super) fn read_attribute(
         &self,
         path: &[ExpandedName],
@@ -306,7 +310,18 @@ impl<'a> Codec<'a> {
                 self.xml_variants
             )
         };
-        writeln!(out, "impl {name} {{{reader}let selected=if xml{{{xml_select}}}else{{{yaml_plan}.select(text)?.map(|index|{:?}[index])}};match selected{{", self.yaml_variants).unwrap();
+        let yaml_select = if self.discriminated() {
+            format!(
+                "if selected.is_some(){{selected}}else{{{yaml_plan}.select(text)?.map(|index|{:?}[index])}}",
+                self.yaml_variants
+            )
+        } else {
+            format!(
+                "{yaml_plan}.select(text)?.map(|index|{:?}[index])",
+                self.yaml_variants
+            )
+        };
+        writeln!(out, "impl {name} {{{reader}let selected=if xml{{{xml_select}}}else{{{yaml_select}}};match selected{{").unwrap();
         for (index, variant) in self.variants.iter().enumerate() {
             if let Some(orders) = compact {
                 let count = orders[index].0.len();
@@ -328,15 +343,15 @@ impl<'a> Codec<'a> {
         if compact.is_none() {
             out.push_str("fn write(&self,xml:bool)->core::Result<String>{match self{\n");
             for index in 0..self.variants.len() {
-                if matches!(self.variants[index], Variant::Text(_)) {
-                    writeln!(out, "Self::V{index}(value)=>Ok(value.clone()),").unwrap();
+                let write = if matches!(self.variants[index], Variant::Text(_)) {
+                    "Ok(value.clone())".into()
                 } else {
-                    writeln!(
-                        out,
-                        "Self::V{index}(value)=>{},",
-                        self.variants[index].write("value")
-                    )
-                    .unwrap();
+                    self.variants[index].write("value")
+                };
+                if self.variants[index].writes_yaml_document() {
+                    writeln!(out, "Self::V{index}(value)=>{write},").unwrap();
+                } else {
+                    writeln!(out, "Self::V{index}(value)=>{{let text={write}?;Ok(if xml{{text}}else{{core::yaml::scalar(&text)}})}},").unwrap();
                 }
             }
             out.push_str("}}\n");

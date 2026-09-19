@@ -78,8 +78,20 @@ fn scalar(
                     Ok(json!({"type":["string","number"],"x-nkdk-number-profile":"decimal"}))
                 }
                 YamlRepresentation::Text => Ok(json!({"type":"string"})),
-                YamlRepresentation::Choice
-                | YamlRepresentation::TextPattern(_)
+                YamlRepresentation::Choice => {
+                    let LinkedType::Choice(variants) = &target.value else {
+                        return Err(unsupported(target));
+                    };
+                    let mut alternatives = Vec::new();
+                    for variant in variants {
+                        let shape = scalar(program, target, variant)?;
+                        if !alternatives.contains(&shape) {
+                            alternatives.push(shape);
+                        }
+                    }
+                    Ok(json!({"anyOf":alternatives,"x-nkdk-runtime-validation":true}))
+                }
+                YamlRepresentation::TextPattern(_)
                 | YamlRepresentation::TextSequence { .. }
                 | YamlRepresentation::TextTable(_) => {
                     Ok(json!({"type":"string","x-nkdk-runtime-validation":true}))

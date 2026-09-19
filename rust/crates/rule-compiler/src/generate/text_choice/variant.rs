@@ -2,6 +2,7 @@ use super::*;
 
 pub(super) enum Variant<'a> {
     Boolean(&'a [BooleanLexeme], &'a [BooleanLexeme]),
+    Decimal,
     Pattern(text_pattern::Codec<'a>),
     Sequence(Box<text_sequence::Codec<'a>>),
     Choice(Box<super::Codec<'a>>),
@@ -20,6 +21,12 @@ impl<'a> Variant<'a> {
         ) = (&entry.value, &entry.xml, &entry.yaml)
         {
             return Ok(Self::Boolean(xml, yaml));
+        }
+        if matches!(entry.value, LinkedType::Scalar(ScalarType::Decimal))
+            && matches!(entry.xml, LinkedXml::Decimal)
+            && matches!(entry.yaml, YamlRepresentation::Decimal)
+        {
+            return Ok(Self::Decimal);
         }
         if matches!(entry.value, LinkedType::Scalar(ScalarType::Text))
             && matches!(entry.xml, LinkedXml::Text)
@@ -72,6 +79,7 @@ impl<'a> Variant<'a> {
                     .map(|item| item.text.clone())
                     .collect(),
             )]]),
+            Self::Decimal => Ok(Vec::new()),
             Self::Pattern(pattern) => Ok(vec![pattern.selection_parts(xml)]),
             Self::Sequence(sequence) => sequence.selection_parts(xml, entry),
             Self::Choice(choice) => choice.selection_parts(xml),
@@ -88,6 +96,7 @@ impl<'a> Variant<'a> {
     ) -> Result<String, Diagnostic> {
         match self {
             Self::Boolean(..) if !compact => Ok(format!("type {name}=bool;\n")),
+            Self::Decimal if !compact => Ok(format!("type {name}=core::decimal::Decimal;\n")),
             Self::Pattern(pattern) if compact => pattern.element_definition(name),
             Self::Pattern(pattern) if collection => pattern.collection_definition(name),
             Self::Pattern(pattern) => pattern.definition(name),
@@ -112,6 +121,7 @@ impl<'a> Variant<'a> {
     ) -> Result<String, Diagnostic> {
         match self {
             Self::Boolean(..) => Err(unsupported(entry, "Boolean has no record fields")),
+            Self::Decimal => Err(unsupported(entry, "Decimal has no record fields")),
             Self::Pattern(pattern) => Ok(pattern.field_meaning(name, index, receiver)),
             Self::Sequence(sequence) => sequence
                 .head_meaning(name, index, receiver)
@@ -139,6 +149,7 @@ impl<'a> Variant<'a> {
                     table(yaml)
                 )
             }
+            Self::Decimal => "core::decimal::Decimal::parse_owned(text.to_owned()).map_err(|error|RuntimeDiagnostic::new(\"value.decimal\",error.to_string()))?".into(),
             _ => format!("{name}::read(text,xml{inputs})?"),
         }
     }
@@ -163,7 +174,16 @@ impl<'a> Variant<'a> {
                     literal(yaml, false)
                 )
             }
+            Self::Decimal => format!("Ok({value}.to_string())"),
             _ => format!("{value}.write(xml)"),
         }
+    }
+
+    pub(super) fn is_decimal(&self) -> bool {
+        matches!(self, Self::Decimal)
+    }
+
+    pub(super) fn writes_yaml_document(&self) -> bool {
+        matches!(self, Self::Decimal | Self::Choice(_))
     }
 }

@@ -1,11 +1,40 @@
 use super::*;
 
+fn read_value(field: &Field<'_>, index: usize, receiver: &str) -> String {
+    if matches!(field.codec, Codec::Choice(_)) {
+        format!(
+            "let (text,number)=value.into_choice_text().map_err(|error|error.field({:?}))?;{receiver}.number{index}=number;{receiver}.r{index}=Some(text);",
+            field.key
+        )
+    } else if let Codec::Forms(choice) = &field.codec
+        && choice.discriminated()
+    {
+        let numeric = choice
+            .decimal_variant()
+            .map(|variant| format!("Some({variant})"))
+            .unwrap_or_else(|| "return Err(RuntimeDiagnostic::new(\"yaml.expected-text\",\"Numeric YAML has no declared choice variant\"))".into());
+        format!(
+            "let (text,number)=value.into_choice_text().map_err(|error|error.field({:?}))?;{receiver}.variant{index}=if number{{{numeric}}}else{{None}};{receiver}.r{index}=Some(text);",
+            field.key,
+        )
+    } else {
+        format!(
+            "{receiver}.r{index}=Some(value.{}().map_err(|error|error.field({:?}))?);",
+            field.codec.yaml_input(),
+            field.key
+        )
+    }
+}
+
 fn members(fields: &[Field<'_>]) -> Vec<String> {
     let mut names = vec!["raw".into(), "positions".into()];
     for (i, field) in fields.iter().enumerate() {
         names.push(format!("r{i}"));
         if matches!(field.codec, Codec::Choice(_)) {
             names.push(format!("number{i}"));
+        }
+        if matches!(&field.codec, Codec::Forms(choice) if choice.discriminated()) {
+            names.push(format!("variant{i}"));
         }
     }
     names
@@ -28,6 +57,9 @@ pub(super) fn generate(id: u32, fields: &[Field<'_>]) -> String {
         writeln!(out, "r{i}:Option<String>,").unwrap();
         if matches!(field.codec, Codec::Choice(_)) {
             writeln!(out, "number{i}:bool,").unwrap();
+        }
+        if matches!(&field.codec, Codec::Forms(choice) if choice.discriminated()) {
+            writeln!(out, "variant{i}:Option<usize>,").unwrap();
         }
     }
     writeln!(
@@ -53,6 +85,9 @@ pub(super) fn generate(id: u32, fields: &[Field<'_>]) -> String {
         if matches!(field.codec, Codec::Choice(_)) {
             writeln!(out, "number{i}:false,").unwrap();
         }
+        if matches!(&field.codec, Codec::Forms(choice) if choice.discriminated()) {
+            writeln!(out, "variant{i}:None,").unwrap();
+        }
     }
     writeln!(out,"}})}}\nfn consume(&mut self,key:String,value:core::yaml::Scalar,tag:Option<String>)->core::Result<()>{{let _=(&value,&tag);").unwrap();
     let has_keys = fields.iter().any(|field| field.yaml_visible);
@@ -68,18 +103,7 @@ pub(super) fn generate(id: u32, fields: &[Field<'_>]) -> String {
             out.push_str(&super::super::states::read(rows, i, field.key));
             continue;
         }
-        let read = if matches!(field.codec, Codec::Choice(_)) {
-            format!(
-                "let (text,number)=value.into_choice_text().map_err(|error|error.field({:?}))?;self.number{i}=number;self.r{i}=Some(text);",
-                field.key
-            )
-        } else {
-            format!(
-                "self.r{i}=Some(value.{}().map_err(|error|error.field({:?}))?);",
-                field.codec.yaml_input(),
-                field.key
-            )
-        };
+        let read = read_value(field, i, "self");
         writeln!(out,"{:?}=>{{self.positions[{i}]=value.position();self.raw.read_mark({i},value.annotation(),value.position())?;self.raw.read_mark({i},tag.as_deref(),self.positions[{i}])?;{read}Ok(())}},",field.key).unwrap();
     }
     if has_keys {
@@ -94,18 +118,7 @@ pub(super) fn generate(id: u32, fields: &[Field<'_>]) -> String {
 }
 
 pub(super) fn projection_reader(id: u32, index: usize, field: &Field<'_>) -> String {
-    let read = if matches!(field.codec, Codec::Choice(_)) {
-        format!(
-            "let (text,number)=value.into_choice_text().map_err(|error|error.field({:?}))?;state.number{index}=number;state.r{index}=Some(text);",
-            field.key
-        )
-    } else {
-        format!(
-            "state.r{index}=Some(value.{}().map_err(|error|error.field({:?}))?);",
-            field.codec.yaml_input(),
-            field.key
-        )
-    };
+    let read = read_value(field, index, "state");
     format!(
         "fn consume_yaml_projection_{id}(state:&mut YamlFields{id},seen:&mut bool,node:core::yaml::Node,position:core::Position)->core::Result<()>{{let core::yaml::Node::Scalar(value,tag)=node else{{return Err(RuntimeDiagnostic::new(\"yaml.expected-scalar\",\"Expected a scalar projection\"))}};if *seen{{return Err(RuntimeDiagnostic::new(\"yaml.document\",\"Expected one projected value\"))}}*seen=true;state.positions[{index}]=position;state.raw.read_mark({index},value.annotation(),position)?;state.raw.read_mark({index},tag.as_deref(),position)?;{read}Ok(())}}\n"
     )

@@ -270,7 +270,7 @@ impl<'a> Codec<'a> {
     pub(super) fn choice_selector_argument(&self, index: usize, xml: bool) -> String {
         match self {
             Self::Forms(choice) if choice.discriminated() && xml => format!(",variant{index}"),
-            Self::Forms(choice) if choice.discriminated() => ",None".into(),
+            Self::Forms(choice) if choice.discriminated() => format!(",variant{index}"),
             _ => String::new(),
         }
     }
@@ -344,6 +344,7 @@ impl<'a> Codec<'a> {
                 | Self::FormattedDecimal(_)
                 | Self::Calendar { .. }
                 | Self::Choice(_)
+                | Self::Forms(_)
                 | Self::States(..)
         )
     }

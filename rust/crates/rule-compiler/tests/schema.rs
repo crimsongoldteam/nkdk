@@ -1,4 +1,28 @@
 use nkdk_rule_compiler::{SourceFile, link, parse, schema};
+
+#[test]
+fn discriminated_choice_schema_preserves_yaml_scalar_kinds() {
+    let program = declaration_program(&[
+        "common/boolean.yaml",
+        "common/number.yaml",
+        "probes/discriminated-choice.yaml",
+    ]);
+    let actual: serde_json::Value =
+        serde_json::from_slice(&schema(&program, "migration.discriminated-choice").unwrap())
+            .unwrap();
+    let validator = jsonschema::validator_for(&actual).unwrap();
+    for (value, valid) in [
+        (
+            serde_json::json!({"Значение":9007199254740993.125_f64}),
+            true,
+        ),
+        (serde_json::json!({"Значение":"9007199254740993.125"}), true),
+        (serde_json::json!({"Значение":true}), false),
+        (serde_json::json!({"Значение":null}), false),
+    ] {
+        assert_eq!(validator.is_valid(&value), valid, "{value}");
+    }
+}
 #[test]
 fn nested_record_schema_requires_a_variant_and_keeps_calendar_seconds() {
     let program = declaration_program(&[
