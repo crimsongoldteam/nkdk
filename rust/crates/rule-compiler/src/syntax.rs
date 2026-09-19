@@ -1018,9 +1018,12 @@ fn yaml_collection(path: &str, node: &Node) -> Result<YamlRepresentation, Diagno
     )?;
     match node.field(path, fields, "kind")?.text(path)? {
         "record-mapping" => {
-            node.mapping(path, &["kind", "key"])?;
+            node.mapping(path, &["kind", "key", "value"])?;
             Ok(YamlRepresentation::RecordMapping {
                 key: node.field(path, fields, "key")?.text(path)?.into(),
+                value: optional_field(fields, "value")
+                    .map(|value| value.text(path).map(str::to_owned))
+                    .transpose()?,
             })
         }
         "sequence" => {

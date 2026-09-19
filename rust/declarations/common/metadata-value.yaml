@@ -1,0 +1,22 @@
+format: nkdk-declarations/1
+kind: value
+id: common.metadata-value
+description: Значение заполнения; тип пустого XML выводится из соседнего описания типа
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  xs: http://www.w3.org/2001/XMLSchema
+value: {kind: scalar, scalar: text}
+representations:
+  xml:
+    kind: with-attributes
+    attributes: [{name: xsi:type, value: {qname: xs:string}}]
+    content: {kind: text}
+  yaml: {kind: scalar, scalar: text}
+presence:
+- target: self
+  xml:
+    missing: {denotes: {absent: true}}
+    empty:
+    - {form: empty-element, denotes: {absent: true}}
+    - {form: nil, denotes: {absent: true}}
+  yaml: {missing: {denotes: {absent: true}}}

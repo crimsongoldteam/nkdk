@@ -46,6 +46,12 @@ export function emitCollections(graph,entries,catalog,namespaces={},options={}) 
     // Source metadataCollection selects its name through keyField, then "name".
     // This is a migration correspondence, not a runtime rule for named fields.
     const nameField=fields.find(f=>f.property.name===(edge.mapping.keyField??'name'));
+    for(const {mapped} of fields) for(const [input,sibling] of Object.entries(mapped.siblingBindings??{})) {
+      const source=fields.find(field=>field.property.name===sibling && field.mapped.status==='candidate');
+      if(!source) {block('item-sibling-binding-required',{input,sibling});continue;}
+      (mapped.type.bind??={})[input]={field:sibling};
+      mapped.inputs=Object.fromEntries(Object.entries(mapped.inputs??{}).filter(([name])=>name!==input));
+    }
     const identities=fields.filter(field=>field.mapped.identityProjection);
     if(identities.length>1)block('multiple-identity-properties');
     for(const {mapped} of identities) {

@@ -218,6 +218,16 @@ fn named_records_validate_the_key_and_describe_the_remaining_body() {
     let validator = jsonschema::validator_for(&shape).unwrap();
     assert!(validator.is_valid(&serde_json::json!({"Rows":{"allowed":{"Mode":"other"}}})));
     assert!(!validator.is_valid(&serde_json::json!({"Rows":{"allowed":{"Name":"wrong"}}})));
+    let projected = list.replace(
+        "record-mapping, key: name",
+        "record-mapping, key: name, value: mode",
+    );
+    let projected = link(&referenced_modules(row, &projected)).unwrap();
+    let projected: serde_json::Value =
+        serde_json::from_slice(&schema(&projected, "test.rows").unwrap()).unwrap();
+    let validator = jsonschema::validator_for(&projected).unwrap();
+    assert!(validator.is_valid(&serde_json::json!({"Rows":{"allowed":"other"}})));
+    assert!(!validator.is_valid(&serde_json::json!({"Rows":{"allowed":{"Mode":"other"}}})));
     // Relations involving a lifted key are checked by compiled validation,
     // not evaluated against the body where that property no longer exists.
     let mut positive = modules.clone();

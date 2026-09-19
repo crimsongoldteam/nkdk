@@ -7,11 +7,18 @@ pub(super) struct RecordBody {
     pub constructible: bool,
 }
 
+fn projected_mapping_write(body: String, value: Option<&str>) -> String {
+    let Some(value) = value else { return body };
+    format!(
+        "let mut projected=String::new();{{let out=&mut projected;(||->core::Result<()>{{{body}}})()?;}}let bytes=core::yaml::mapping_value(projected.as_bytes(),{value:?})?;core::yaml::Indented::new(out,indent).push_str(std::str::from_utf8(&bytes).expect(\"generated YAML\"));Ok(())"
+    )
+}
+
 pub(super) fn generate(
     row: &LinkedEntry,
     program: &Program,
     boundary: &[ExpandedName],
-    lifted: Option<(usize, String)>,
+    lifted: Option<(usize, String, Option<String>)>,
 ) -> Result<RecordBody, Diagnostic> {
     let LinkedType::Record(row_fields) = &row.value else {
         return Err(unsupported(row, "Expected a record value"));
@@ -60,10 +67,11 @@ pub(super) fn generate(
     };
     let lifted_write = match &lifted {
         None => "unreachable!()".into(),
-        Some((index, _)) if !composed => {
-            SCALAR_WRITE.replace("@excluded@", &format!("Some({index})"))
-        }
-        Some((index, _)) => {
+        Some((index, _, value)) if !composed => projected_mapping_write(
+            SCALAR_WRITE.replace("@excluded@", &format!("Some({index})")),
+            value.as_deref(),
+        ),
+        Some((index, _, value)) => {
             let mut code = lifted_scope;
             for slot in crate::plan::records::yaml_slots(row, parts) {
                 let part = &parts[slot];
@@ -80,13 +88,13 @@ pub(super) fn generate(
                 }
             }
             code.push_str("Ok(())");
-            code
+            projected_mapping_write(code, value.as_deref())
         }
     };
     let key_available = match &lifted {
         None => "true".into(),
-        Some((index, _)) if !composed => format!("!value.0.raw.has_annotation({index})"),
-        Some((index, _)) => {
+        Some((index, _, _)) if !composed => format!("!value.0.raw.has_annotation({index})"),
+        Some((index, _, _)) => {
             let (slot, field) = parts
                 .iter()
                 .enumerate()

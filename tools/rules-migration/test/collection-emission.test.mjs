@@ -30,6 +30,19 @@ test('collection inputs retain shared index types and bindings at every boundary
   assert.equal(emitCollections(graph,entries,catalog).results[0].blockers.some(b=>b.reason==='item-context-binding-required'),true);
 });
 
+test('collection fields bind declared sibling inputs without owner context',()=>{
+  const {graph,entries}=fixture(),{catalog}=candidateCatalog();
+  const child=entries.find(entry=>entry.symbol==='ItemRules');
+  child.properties.push({name:'type',status:'static-parameters',parameters:{type:'string',yaml:'Тип',xml:'Type',xmlParents:['Properties']}},
+    {name:'fillValue',status:'static-parameters',parameters:{type:'MetadataValue',yaml:'Значение',xml:'Value',xmlParents:['Properties'],defaultValueXMLRaw:{'_xsi:nil':true},exportNilValue:true}});
+  catalog.set('common.metadata-value',{id:'common.metadata-value',inputs:{valueType:{type:{kind:'scalar',scalar:'text'}}}});
+  const result=emitCollections(graph,entries,catalog);
+  assert.equal(result.results[0].status,'candidate',JSON.stringify(result.results[0]));
+  const field=result.modules[0].value.fields.find(item=>item.name==='fillValue');
+  assert.deepEqual(field.type.bind.valueType,{field:'type'});
+  assert.equal(Object.hasOwn(result.modules[0].inputs??{},'valueType'),false);
+});
+
 test('collection emission requires complete items and preserves unsupported contracts as blockers',()=>{
   const {graph,entries}=fixture(),catalog=new Map([['common.string',{}],['common.boolean',{}]]);
   const result=emitCollections(graph,entries,catalog);

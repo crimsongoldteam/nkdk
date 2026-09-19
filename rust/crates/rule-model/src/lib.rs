@@ -140,6 +140,7 @@ pub enum YamlRepresentation {
     },
     RecordMapping {
         key: String,
+        value: Option<String>,
     },
     KeyedMapping {
         key: String,

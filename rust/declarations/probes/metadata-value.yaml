@@ -1,0 +1,20 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.metadata-value
+imports: {typeDescription: common.type-description, value: common.metadata-value}
+value:
+  kind: record
+  fields:
+  - {name: type, type: {use: typeDescription}}
+  - {name: value, type: {use: value}}
+representations:
+  xml:
+    kind: record
+    fields:
+    - {field: type, path: [Root, Type]}
+    - {field: value, path: [Root, FillValue]}
+  yaml:
+    kind: mapping
+    fields:
+    - {field: type, key: Тип}
+    - {field: value, key: Значение}

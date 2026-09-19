@@ -18,7 +18,7 @@ pub(crate) fn resolve(
         .expect("linked item")
         .clone();
     instantiate(&mut entry, bindings, arguments)?;
-    if let YamlRepresentation::RecordMapping { key } = &collection.yaml {
+    if let YamlRepresentation::RecordMapping { key, value } = &collection.yaml {
         let LinkedType::Record(fields) = &entry.value else {
             return Err(diagnostic(
                 "expression_type_mismatch",
@@ -60,6 +60,17 @@ pub(crate) fn resolve(
                 &collection.source,
                 "Record mapping key needs a YAML field",
             ));
+        }
+        if let Some(value) = value {
+            if !fields.iter().any(|field| &field.name == value)
+                || !matches!(&entry.yaml, YamlRepresentation::Mapping(fields) if fields.iter().any(|field| &field.field==value))
+            {
+                return Err(diagnostic(
+                    "unknown_representation_field",
+                    &collection.source,
+                    "Record mapping value needs a YAML field",
+                ));
+            }
         }
     }
 

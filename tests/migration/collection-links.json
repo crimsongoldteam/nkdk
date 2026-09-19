@@ -13061,6 +13061,7 @@
               "line": 62,
               "column": 20
             },
+            "sourceHash": "f16c4f06c519ed79084b3f40870589fd1b77ceff97bc45bcc12b9bc6e38a533f",
             "expression": "({ yamlKey }) => classifyExtDimensionTypeYamlKey(yamlKey)"
           }
         }
@@ -13073,6 +13074,7 @@
             "line": 62,
             "column": 20
           },
+          "sourceHash": "f16c4f06c519ed79084b3f40870589fd1b77ceff97bc45bcc12b9bc6e38a533f",
           "expression": "({ yamlKey }) => classifyExtDimensionTypeYamlKey(yamlKey)"
         }
       ]
@@ -13249,6 +13251,7 @@
               "line": 6,
               "column": 95
             },
+            "sourceHash": "2d485427576dfc4f00031fb4624fcd820f9c665779d1279bdadb7998413d44d1",
             "expression": "({\n  context,\n  xml,\n  traversal,\n}) => {\n  const itemXmlNodes = traversal.xmlNodes?.filter(\n    (node) => node.name === \"dcssch:orderExpression\",\n  )\n  const source = itemXmlNodes === undefined ? asRecord(xml)?.[\"dcssch:orderExpression\"] ?? xml : undefined\n  const items = itemXmlNodes === undefined\n    ? Array.isArray(source) ? source : source === undefined ? [] : [source]\n    : itemXmlNodes\n  const result = items.flatMap((item, index) => {\n    const itemXmlNode = itemXmlNodes?.[index]\n    const { xmlNodes: _parentXmlNodes, ...itemTraversal } = traversal\n    const yaml = importMetadataItemFromXMLToYAML({\n      context: withConfigurationIndexYamlCollectionItemContext(context, { index, yamlAsArray: true }),\n      rule: CalculatedFieldOrderExpressionRules,\n      xml: itemXmlNode ?? item,\n      traversal: {\n        ...itemTraversal,\n        pathCursor: traversal.pathCursor.child(index),\n        ...(itemXmlNode === undefined ? {} : { xmlNodes: [itemXmlNode] }),\n      },\n    })\n    return yaml === undefined ? [] : [yaml]\n  })\n\n  return result.length === 0 ? undefined : result\n}"
           }
         }
@@ -13261,6 +13264,7 @@
             "line": 6,
             "column": 95
           },
+          "sourceHash": "2d485427576dfc4f00031fb4624fcd820f9c665779d1279bdadb7998413d44d1",
           "expression": "({\n  context,\n  xml,\n  traversal,\n}) => {\n  const itemXmlNodes = traversal.xmlNodes?.filter(\n    (node) => node.name === \"dcssch:orderExpression\",\n  )\n  const source = itemXmlNodes === undefined ? asRecord(xml)?.[\"dcssch:orderExpression\"] ?? xml : undefined\n  const items = itemXmlNodes === undefined\n    ? Array.isArray(source) ? source : source === undefined ? [] : [source]\n    : itemXmlNodes\n  const result = items.flatMap((item, index) => {\n    const itemXmlNode = itemXmlNodes?.[index]\n    const { xmlNodes: _parentXmlNodes, ...itemTraversal } = traversal\n    const yaml = importMetadataItemFromXMLToYAML({\n      context: withConfigurationIndexYamlCollectionItemContext(context, { index, yamlAsArray: true }),\n      rule: CalculatedFieldOrderExpressionRules,\n      xml: itemXmlNode ?? item,\n      traversal: {\n        ...itemTraversal,\n        pathCursor: traversal.pathCursor.child(index),\n        ...(itemXmlNode === undefined ? {} : { xmlNodes: [itemXmlNode] }),\n      },\n    })\n    return yaml === undefined ? [] : [yaml]\n  })\n\n  return result.length === 0 ? undefined : result\n}"
         }
       ]
@@ -13364,6 +13368,7 @@
               "line": 13,
               "column": 75
             },
+            "sourceHash": "5abdb254aebfe648a7e32dd337fa6b48eb35658d15782a8c810f132b79f0a974",
             "expression": "({ context, xml, traversal }) => {\n  const itemNodes = traversal.xmlNodes?.flatMap(filterItemNodes)\n  const xmlRecord = itemNodes === undefined ? objectRecordOrUndefined(xml) : undefined\n  const source = xmlRecord?.[\"_xsi:type\"] === undefined ? (xmlRecord?.[\"dcsset:item\"] ?? xml) : xml\n  const items = itemNodes === undefined\n    ? Array.isArray(source) ? source : source === undefined ? [] : [source]\n    : itemNodes\n  const result = items.flatMap((value, index) => {\n    const itemNode = isXmlElementNode(value) ? value : undefined\n    const item = itemNode === undefined ? objectRecordOrUndefined(value) : undefined\n    const type = itemNode === undefined ? item?.[\"_xsi:type\"]\n      : xmlAttributeValue(itemNode, \"xsi:type\")\n    const itemRule =\n      type === \"dcsset:FilterItemComparison\"\n        ? FilterItemComparisonRules\n        : type === \"dcsset:FilterItemGroup\"\n          ? FilterItemGroupRules\n          : undefined\n    if (itemRule === undefined) return []\n\n    const { xmlNodes: _parentXmlNodes, ...itemTraversal } = traversal\n    const yaml = importMetadataItemFromXMLToYAML({\n      context: withConfigurationIndexYamlCollectionItemContext(context, { index, yamlAsArray: true }),\n      rule: itemRule,\n      xml: itemNode ?? item,\n      traversal: {\n        ...itemTraversal,\n        pathCursor: traversal.pathCursor.child(index),\n        ...(itemNode === undefined ? {} : { xmlNodes: [itemNode] }),\n      },\n    })\n    return yaml === undefined ? [] : [yaml]\n  })\n\n  return result.length === 0 ? undefined : result\n}"
           }
         },
@@ -13375,6 +13380,7 @@
               "line": 80,
               "column": 67
             },
+            "sourceHash": "dd6492f1ee0cd7a7aa503fc6608a6a7ab662ce2151fcf632d570b6b91c9e9f72",
             "expression": "({ context }) => {\n  const itemSchema = Type.Cyclic(\n    {\n      FilterItem: Type.Union([\n        createFilterItemComparisonSchema(context),\n        exportMetadataItemToJSONSchema({\n          context: createFilterItemSchemaContext(context, {\n            FilterItem: Type.Array(Type.Ref(\"FilterItem\")),\n            FilterItemPresentationValue: createFilterItemPresentationValueJSONSchema(context),\n          }),\n          rule: FilterItemGroupRules,\n        }),\n      ]),\n    },\n    \"FilterItem\"\n  )\n  return Type.Array(itemSchema)\n}"
           }
         },
@@ -13391,6 +13397,7 @@
             "line": 13,
             "column": 75
           },
+          "sourceHash": "5abdb254aebfe648a7e32dd337fa6b48eb35658d15782a8c810f132b79f0a974",
           "expression": "({ context, xml, traversal }) => {\n  const itemNodes = traversal.xmlNodes?.flatMap(filterItemNodes)\n  const xmlRecord = itemNodes === undefined ? objectRecordOrUndefined(xml) : undefined\n  const source = xmlRecord?.[\"_xsi:type\"] === undefined ? (xmlRecord?.[\"dcsset:item\"] ?? xml) : xml\n  const items = itemNodes === undefined\n    ? Array.isArray(source) ? source : source === undefined ? [] : [source]\n    : itemNodes\n  const result = items.flatMap((value, index) => {\n    const itemNode = isXmlElementNode(value) ? value : undefined\n    const item = itemNode === undefined ? objectRecordOrUndefined(value) : undefined\n    const type = itemNode === undefined ? item?.[\"_xsi:type\"]\n      : xmlAttributeValue(itemNode, \"xsi:type\")\n    const itemRule =\n      type === \"dcsset:FilterItemComparison\"\n        ? FilterItemComparisonRules\n        : type === \"dcsset:FilterItemGroup\"\n          ? FilterItemGroupRules\n          : undefined\n    if (itemRule === undefined) return []\n\n    const { xmlNodes: _parentXmlNodes, ...itemTraversal } = traversal\n    const yaml = importMetadataItemFromXMLToYAML({\n      context: withConfigurationIndexYamlCollectionItemContext(context, { index, yamlAsArray: true }),\n      rule: itemRule,\n      xml: itemNode ?? item,\n      traversal: {\n        ...itemTraversal,\n        pathCursor: traversal.pathCursor.child(index),\n        ...(itemNode === undefined ? {} : { xmlNodes: [itemNode] }),\n      },\n    })\n    return yaml === undefined ? [] : [yaml]\n  })\n\n  return result.length === 0 ? undefined : result\n}"
         },
         {
@@ -13400,6 +13407,7 @@
             "line": 80,
             "column": 67
           },
+          "sourceHash": "dd6492f1ee0cd7a7aa503fc6608a6a7ab662ce2151fcf632d570b6b91c9e9f72",
           "expression": "({ context }) => {\n  const itemSchema = Type.Cyclic(\n    {\n      FilterItem: Type.Union([\n        createFilterItemComparisonSchema(context),\n        exportMetadataItemToJSONSchema({\n          context: createFilterItemSchemaContext(context, {\n            FilterItem: Type.Array(Type.Ref(\"FilterItem\")),\n            FilterItemPresentationValue: createFilterItemPresentationValueJSONSchema(context),\n          }),\n          rule: FilterItemGroupRules,\n        }),\n      ]),\n    },\n    \"FilterItem\"\n  )\n  return Type.Array(itemSchema)\n}"
         }
       ]
@@ -13425,6 +13433,7 @@
               "line": 6,
               "column": 80
             },
+            "sourceHash": "37533833c7ee4b38b33f55bed92a673991de4bb6a97b92227fd0fe5eaf5d8026",
             "expression": "({\n  context,\n  xml,\n  traversal,\n}) => {\n  const source = isXmlElementNode(xml)\n    ? xml.name === \"dcsset:item\" ? xml : xmlElementChildren(xml, \"dcsset:item\")\n    : asRecord(xml)?.[\"dcsset:item\"] ?? xml\n  const items = Array.isArray(source) ? source : source === undefined ? [] : [source]\n  const result = items.flatMap<unknown>((value, index) => {\n    const item = isXmlElementNode(value) ? value : asRecord(value)\n    if (item === undefined) return []\n    const xsiType = isXmlElementNode(item) ? xmlAttributeValue(item, \"xsi:type\") : item[\"_xsi:type\"]\n    if (xsiType === \"dcsset:OrderItemAuto\") return [\"[Авто]\"]\n    if (xsiType !== undefined && xsiType !== \"dcsset:OrderItemField\") return []\n\n    const yaml = importMetadataItemFromXMLToYAML({\n      context: withConfigurationIndexYamlCollectionItemContext(context, { index, yamlAsArray: true }),\n      rule: OrderItemFieldRules,\n      xml: item,\n      traversal: {\n        ...traversal,\n        pathCursor: traversal.pathCursor.child(index),\n      },\n    })\n    return yaml === undefined ? [] : [yaml]\n  })\n\n  return result.length === 0 ? undefined : result\n}"
           }
         },
@@ -13436,6 +13445,7 @@
               "line": 6,
               "column": 72
             },
+            "sourceHash": "c8a80748932ace33a4166854d4dbfbf48288e5aa5e6004f88837dcb1fbfd5c6b",
             "expression": "({ context }) =>\n  Type.Array(\n    Type.Union([\n      Type.Literal(\"[Авто]\"),\n      exportMetadataItemToJSONSchema({\n        context,\n        rule: OrderItemFieldRules,\n      }),\n    ])\n  )"
           }
         },
@@ -13450,6 +13460,7 @@
             "line": 6,
             "column": 80
           },
+          "sourceHash": "37533833c7ee4b38b33f55bed92a673991de4bb6a97b92227fd0fe5eaf5d8026",
           "expression": "({\n  context,\n  xml,\n  traversal,\n}) => {\n  const source = isXmlElementNode(xml)\n    ? xml.name === \"dcsset:item\" ? xml : xmlElementChildren(xml, \"dcsset:item\")\n    : asRecord(xml)?.[\"dcsset:item\"] ?? xml\n  const items = Array.isArray(source) ? source : source === undefined ? [] : [source]\n  const result = items.flatMap<unknown>((value, index) => {\n    const item = isXmlElementNode(value) ? value : asRecord(value)\n    if (item === undefined) return []\n    const xsiType = isXmlElementNode(item) ? xmlAttributeValue(item, \"xsi:type\") : item[\"_xsi:type\"]\n    if (xsiType === \"dcsset:OrderItemAuto\") return [\"[Авто]\"]\n    if (xsiType !== undefined && xsiType !== \"dcsset:OrderItemField\") return []\n\n    const yaml = importMetadataItemFromXMLToYAML({\n      context: withConfigurationIndexYamlCollectionItemContext(context, { index, yamlAsArray: true }),\n      rule: OrderItemFieldRules,\n      xml: item,\n      traversal: {\n        ...traversal,\n        pathCursor: traversal.pathCursor.child(index),\n      },\n    })\n    return yaml === undefined ? [] : [yaml]\n  })\n\n  return result.length === 0 ? undefined : result\n}"
         },
         {
@@ -13459,6 +13470,7 @@
             "line": 6,
             "column": 72
           },
+          "sourceHash": "c8a80748932ace33a4166854d4dbfbf48288e5aa5e6004f88837dcb1fbfd5c6b",
           "expression": "({ context }) =>\n  Type.Array(\n    Type.Union([\n      Type.Literal(\"[Авто]\"),\n      exportMetadataItemToJSONSchema({\n        context,\n        rule: OrderItemFieldRules,\n      }),\n    ])\n  )"
         }
       ]
@@ -13488,6 +13500,7 @@
               "line": 32,
               "column": 17
             },
+            "sourceHash": "46d632394c4fe966f652b1841c10b558a92c4e709933530d018263696e756d6b",
             "expression": "({ context, execution }) => exchangePlanContentItemsToJSONSchema({ context, execution })"
           }
         }
@@ -13500,6 +13513,7 @@
             "line": 32,
             "column": 17
           },
+          "sourceHash": "46d632394c4fe966f652b1841c10b558a92c4e709933530d018263696e756d6b",
           "expression": "({ context, execution }) => exchangePlanContentItemsToJSONSchema({ context, execution })"
         }
       ]
@@ -14551,6 +14565,7 @@
               "line": 27,
               "column": 46
             },
+            "sourceHash": "8c4087bee6c5221b47344194b2ae6f333aff54a1d6c4739f69a71f8e56ae13dc",
             "expression": "(name: string): StandartAttributeName => {\n  return Object.keys(StandartAttributeNameToYAML).find(\n    (key) => StandartAttributeNameToYAML[key as StandartAttributeName] === name\n  ) as StandartAttributeName\n}"
           }
         },
@@ -14562,6 +14577,7 @@
               "line": 30,
               "column": 31
             },
+            "sourceHash": "b005ea154e393b428367ef53cffa7bdcb391535fc3559750237eb8ef53ac404e",
             "expression": "({ yamlKey, propertyRule }) => buildNameFromYAML(propertyRule)(yamlKey)"
           }
         },
@@ -14573,6 +14589,7 @@
               "line": 31,
               "column": 22
             },
+            "sourceHash": "b005ea154e393b428367ef53cffa7bdcb391535fc3559750237eb8ef53ac404e",
             "expression": "({ source, propertyRule }) => {\n    const rule = propertyRule as StandardAttributeDescriptionsPropertyRule\n    return Object.keys(\n      rule.standartAttributeNamesXML?.(source) ??\n        rule.standartAttributeNames ??\n        {},\n    )\n  }"
           }
         },
@@ -14586,6 +14603,7 @@
               "line": 41,
               "column": 26
             },
+            "sourceHash": "b005ea154e393b428367ef53cffa7bdcb391535fc3559750237eb8ef53ac404e",
             "expression": "({ name, propertyRule }) => buildYamlName(propertyRule)(name)"
           }
         },
@@ -14597,6 +14615,7 @@
               "line": 8,
               "column": 94
             },
+            "sourceHash": "cdc5116ce457812353371da8a8fa8ed1bd87ba09ce27d7ea9b75dc8d331b4870",
             "expression": "(params) => {\n  const rule = params.rule as StandardAttributeDescriptionsPropertyRule\n  const names = rule.standartAttributeNames ?? StandartAttributeNameToYAML\n  const yaml = importMetadataItemCollectionFromXMLToYAML({\n    context: params.context,\n    rule: params.rule,\n    xml: params.xml,\n    itemRule: StandardAttributeDescriptionRules,\n    xmlElement: \"xr:StandardAttribute\",\n    keyField: \"name\",\n    configurationIndexUidSegment: rule.configurationIndexUidSegment,\n    recordYamlKeyFromYAML: ({ name }) =>\n      names[name] ?? StandartAttributeNameToYAML[name as StandartAttributeName] ?? name,\n    traversal: params.traversal,\n  })\n  const canonicalNames = new Set(Object.keys(rule.standartAttributeNames ?? {}))\n  if (Array.isArray(yaml)) return yaml\n  if (yaml === undefined) {\n    return canonicalNames.size > 0\n      ? taggedYAMLScalar(\"xml/standard-attributes\", undefined)\n      : undefined\n  }\n  if (canonicalNames.size === 0) return yaml\n  const preservedEmptyNames = collectPreservedEmptyNames(params.xml, params.traversal.xmlNodes)\n  for (const name of canonicalNames) {\n    if (preservedEmptyNames.has(name)) continue\n    const yamlKey = names[name] ?? StandartAttributeNameToYAML[name as StandartAttributeName] ?? name\n    if (isEmptyRecord(yaml[yamlKey])) delete yaml[yamlKey]\n  }\n\n  return Object.keys(yaml).length === 0 && canonicalNames.size > 0\n    ? taggedYAMLScalar(\"xml/standard-attributes\", undefined)\n    : yaml\n}"
           }
         },
@@ -14608,6 +14627,7 @@
               "line": 8,
               "column": 85
             },
+            "sourceHash": "768fc9ef91ea75e8114f97a68d76191a17734c357d83f7ed838933f1858a32c5",
             "expression": "(params): TSchema => {\n  const { context } = params\n  const rule = params.rule as StandardAttributeDescriptionsPropertyRule\n  const attributeSchema = exportMetadataItemToJSONSchema({\n    context: context,\n    rule: StandardAttributeDescriptionRules,\n  })\n  if (context.exportToJSONSchema?.validationPropertyRefs === true) {\n    const properties = Object.fromEntries(\n      Object.values(rule.standartAttributeNames ?? {}).map((yamlName) => [\n        yamlName,\n        Type.Optional(attributeSchema),\n      ]),\n    )\n    return Type.Object(properties, { additionalProperties: attributeSchema })\n  }\n  if (context.exportToJSONSchema?.mode === \"inline\") {\n    return Type.Record(Type.String(), attributeSchema)\n  }\n  const properties = Object.fromEntries(\n    Object.entries(rule.standartAttributeNames).map(([internalName, yamlName]) => [\n      yamlName,\n      Type.Optional(\n        commonStandardMemberFillValuePolicy(internalName)?.policy === \"forbidden\"\n          ? withoutFillValue(attributeSchema)\n          : attributeSchema\n      ),\n    ])\n  )\n  return Type.Object(properties, { additionalProperties: attributeSchema })\n}"
           }
         }
@@ -14620,6 +14640,7 @@
             "line": 27,
             "column": 46
           },
+          "sourceHash": "8c4087bee6c5221b47344194b2ae6f333aff54a1d6c4739f69a71f8e56ae13dc",
           "expression": "(name: string): StandartAttributeName => {\n  return Object.keys(StandartAttributeNameToYAML).find(\n    (key) => StandartAttributeNameToYAML[key as StandartAttributeName] === name\n  ) as StandartAttributeName\n}"
         },
         {
@@ -14629,6 +14650,7 @@
             "line": 30,
             "column": 31
           },
+          "sourceHash": "b005ea154e393b428367ef53cffa7bdcb391535fc3559750237eb8ef53ac404e",
           "expression": "({ yamlKey, propertyRule }) => buildNameFromYAML(propertyRule)(yamlKey)"
         },
         {
@@ -14638,6 +14660,7 @@
             "line": 31,
             "column": 22
           },
+          "sourceHash": "b005ea154e393b428367ef53cffa7bdcb391535fc3559750237eb8ef53ac404e",
           "expression": "({ source, propertyRule }) => {\n    const rule = propertyRule as StandardAttributeDescriptionsPropertyRule\n    return Object.keys(\n      rule.standartAttributeNamesXML?.(source) ??\n        rule.standartAttributeNames ??\n        {},\n    )\n  }"
         },
         {
@@ -14647,6 +14670,7 @@
             "line": 41,
             "column": 26
           },
+          "sourceHash": "b005ea154e393b428367ef53cffa7bdcb391535fc3559750237eb8ef53ac404e",
           "expression": "({ name, propertyRule }) => buildYamlName(propertyRule)(name)"
         },
         {
@@ -14656,6 +14680,7 @@
             "line": 8,
             "column": 94
           },
+          "sourceHash": "cdc5116ce457812353371da8a8fa8ed1bd87ba09ce27d7ea9b75dc8d331b4870",
           "expression": "(params) => {\n  const rule = params.rule as StandardAttributeDescriptionsPropertyRule\n  const names = rule.standartAttributeNames ?? StandartAttributeNameToYAML\n  const yaml = importMetadataItemCollectionFromXMLToYAML({\n    context: params.context,\n    rule: params.rule,\n    xml: params.xml,\n    itemRule: StandardAttributeDescriptionRules,\n    xmlElement: \"xr:StandardAttribute\",\n    keyField: \"name\",\n    configurationIndexUidSegment: rule.configurationIndexUidSegment,\n    recordYamlKeyFromYAML: ({ name }) =>\n      names[name] ?? StandartAttributeNameToYAML[name as StandartAttributeName] ?? name,\n    traversal: params.traversal,\n  })\n  const canonicalNames = new Set(Object.keys(rule.standartAttributeNames ?? {}))\n  if (Array.isArray(yaml)) return yaml\n  if (yaml === undefined) {\n    return canonicalNames.size > 0\n      ? taggedYAMLScalar(\"xml/standard-attributes\", undefined)\n      : undefined\n  }\n  if (canonicalNames.size === 0) return yaml\n  const preservedEmptyNames = collectPreservedEmptyNames(params.xml, params.traversal.xmlNodes)\n  for (const name of canonicalNames) {\n    if (preservedEmptyNames.has(name)) continue\n    const yamlKey = names[name] ?? StandartAttributeNameToYAML[name as StandartAttributeName] ?? name\n    if (isEmptyRecord(yaml[yamlKey])) delete yaml[yamlKey]\n  }\n\n  return Object.keys(yaml).length === 0 && canonicalNames.size > 0\n    ? taggedYAMLScalar(\"xml/standard-attributes\", undefined)\n    : yaml\n}"
         },
         {
@@ -14665,6 +14690,7 @@
             "line": 8,
             "column": 85
           },
+          "sourceHash": "768fc9ef91ea75e8114f97a68d76191a17734c357d83f7ed838933f1858a32c5",
           "expression": "(params): TSchema => {\n  const { context } = params\n  const rule = params.rule as StandardAttributeDescriptionsPropertyRule\n  const attributeSchema = exportMetadataItemToJSONSchema({\n    context: context,\n    rule: StandardAttributeDescriptionRules,\n  })\n  if (context.exportToJSONSchema?.validationPropertyRefs === true) {\n    const properties = Object.fromEntries(\n      Object.values(rule.standartAttributeNames ?? {}).map((yamlName) => [\n        yamlName,\n        Type.Optional(attributeSchema),\n      ]),\n    )\n    return Type.Object(properties, { additionalProperties: attributeSchema })\n  }\n  if (context.exportToJSONSchema?.mode === \"inline\") {\n    return Type.Record(Type.String(), attributeSchema)\n  }\n  const properties = Object.fromEntries(\n    Object.entries(rule.standartAttributeNames).map(([internalName, yamlName]) => [\n      yamlName,\n      Type.Optional(\n        commonStandardMemberFillValuePolicy(internalName)?.policy === \"forbidden\"\n          ? withoutFillValue(attributeSchema)\n          : attributeSchema\n      ),\n    ])\n  )\n  return Type.Object(properties, { additionalProperties: attributeSchema })\n}"
         }
       ]
@@ -14789,6 +14815,7 @@
               "line": 26,
               "column": 77
             },
+            "sourceHash": "3cdfe73ea44817e7240d3bd2117c946bb6f1b7f256e66a91e3263b9282fd454b",
             "expression": "({\n  context,\n  xml,\n  traversal,\n}) => {\n  const commandNodes = traversal.xmlNodes?.flatMap((node) => xmlElementChildren(node, \"Command\"))\n  const source = commandNodes === undefined ? objectRecordOrUndefined(xml)?.Command ?? xml : undefined\n  const items = commandNodes\n    ?? formCommandCompatibilityItems(source)\n  const collection = getConfigurationIndexCollectionContext(context)\n  const entries: Array<{ key: string; value: Record<string, unknown>; invalid?: true }> = []\n  const importedItems: ImportedFormCommand[] = []\n\n  for (const { name, source: importXml, node: itemXmlNode } of namedXmlInputs(items)) {\n    const placement = prepareNamedCollectionImportItem(traversal, importedItems.length)\n    const itemContext = formCommandItemContext(context, collection, name)\n    const itemTraversal = enterNestedYamlRule(\n      placement.traversal,\n      FormCommandRules.itemType,\n    )\n    const yaml = importMetadataItemFromXMLToYAML({\n      context: itemContext,\n      rule: FormCommandRules,\n      xml: importXml,\n      name,\n      traversal: {\n        ...itemTraversal,\n        ...(itemXmlNode === undefined ? {} : { xmlNodes: [itemXmlNode] }),\n      },\n    })\n    const yamlRecord = objectRecordOrUndefined(yaml)\n    if (yamlRecord === undefined) continue\n    entries.push({\n      key: name,\n      value: yamlRecord,\n      ...(isMetadataNameYAML(name) ? {} : { invalid: true }),\n    })\n    importedItems.push({\n      placement,\n      name,\n      rulePath: itemTraversal.rulePath,\n      ...(itemXmlNode === undefined ? {} : { xmlNode: itemXmlNode }),\n    })\n  }\n\n  if (entries.length === 0) return undefined\n  const projected = projectNamedXmlCollectionForImportWithRuntimeKeys({\n    entries,\n    annotations: traversal.annotations,\n    ...(traversal.mode === \"facts\" ? { ephemeral: true as const } : {}),\n  })\n  for (const [index, item] of importedItems.entries()) {\n    const runtimeKey = projected.runtimeKeys[index]!\n    const yamlPath = item.placement.place(projected.yaml, runtimeKey, item.name, item.xmlNode)\n    traversal.collector.acceptItem({\n      itemType: FormCommandRules.itemType,\n      name: item.name,\n      yamlPath,\n      rulePath: item.rulePath,\n    })\n  }\n\n  return projected.yaml\n}"
           }
         }
@@ -14801,6 +14828,7 @@
             "line": 26,
             "column": 77
           },
+          "sourceHash": "3cdfe73ea44817e7240d3bd2117c946bb6f1b7f256e66a91e3263b9282fd454b",
           "expression": "({\n  context,\n  xml,\n  traversal,\n}) => {\n  const commandNodes = traversal.xmlNodes?.flatMap((node) => xmlElementChildren(node, \"Command\"))\n  const source = commandNodes === undefined ? objectRecordOrUndefined(xml)?.Command ?? xml : undefined\n  const items = commandNodes\n    ?? formCommandCompatibilityItems(source)\n  const collection = getConfigurationIndexCollectionContext(context)\n  const entries: Array<{ key: string; value: Record<string, unknown>; invalid?: true }> = []\n  const importedItems: ImportedFormCommand[] = []\n\n  for (const { name, source: importXml, node: itemXmlNode } of namedXmlInputs(items)) {\n    const placement = prepareNamedCollectionImportItem(traversal, importedItems.length)\n    const itemContext = formCommandItemContext(context, collection, name)\n    const itemTraversal = enterNestedYamlRule(\n      placement.traversal,\n      FormCommandRules.itemType,\n    )\n    const yaml = importMetadataItemFromXMLToYAML({\n      context: itemContext,\n      rule: FormCommandRules,\n      xml: importXml,\n      name,\n      traversal: {\n        ...itemTraversal,\n        ...(itemXmlNode === undefined ? {} : { xmlNodes: [itemXmlNode] }),\n      },\n    })\n    const yamlRecord = objectRecordOrUndefined(yaml)\n    if (yamlRecord === undefined) continue\n    entries.push({\n      key: name,\n      value: yamlRecord,\n      ...(isMetadataNameYAML(name) ? {} : { invalid: true }),\n    })\n    importedItems.push({\n      placement,\n      name,\n      rulePath: itemTraversal.rulePath,\n      ...(itemXmlNode === undefined ? {} : { xmlNode: itemXmlNode }),\n    })\n  }\n\n  if (entries.length === 0) return undefined\n  const projected = projectNamedXmlCollectionForImportWithRuntimeKeys({\n    entries,\n    annotations: traversal.annotations,\n    ...(traversal.mode === \"facts\" ? { ephemeral: true as const } : {}),\n  })\n  for (const [index, item] of importedItems.entries()) {\n    const runtimeKey = projected.runtimeKeys[index]!\n    const yamlPath = item.placement.place(projected.yaml, runtimeKey, item.name, item.xmlNode)\n    traversal.collector.acceptItem({\n      itemType: FormCommandRules.itemType,\n      name: item.name,\n      yamlPath,\n      rulePath: item.rulePath,\n    })\n  }\n\n  return projected.yaml\n}"
         }
       ]
@@ -15103,8 +15131,8 @@
       "property": "attributes",
       "type": "MetadataBusinessProcessTabularSectionAttributes",
       "item": {
-        "path": "packages/rules/metadata/commonObjects/metadataAttribute/rules.ts",
-        "symbol": "MetadataAttributeRules"
+        "path": "packages/rules/metadata/appliedObjects/metadataBusinessProcess/childRules.ts",
+        "symbol": "MetadataBusinessProcessTabularSectionAttributeRules"
       },
       "registration": {
         "path": "packages/rules/metadata/commonObjects/metadataAttribute/register.ts",
@@ -15429,8 +15457,8 @@
       "property": "attributes",
       "type": "MetadataCatalogTabularSectionAttributes",
       "item": {
-        "path": "packages/rules/metadata/commonObjects/metadataAttribute/rules.ts",
-        "symbol": "MetadataAttributeRules"
+        "path": "packages/rules/metadata/appliedObjects/metadataCatalog/childRules.ts",
+        "symbol": "MetadataCatalogTabularSectionAttributeRules"
       },
       "registration": {
         "path": "packages/rules/metadata/commonObjects/metadataAttribute/register.ts",
@@ -15657,8 +15685,8 @@
       "property": "attributes",
       "type": "MetadataChartOfAccountsTabularSectionAttributes",
       "item": {
-        "path": "packages/rules/metadata/commonObjects/metadataAttribute/rules.ts",
-        "symbol": "MetadataAttributeRules"
+        "path": "packages/rules/metadata/appliedObjects/metadataChartOfAccounts/childRules.ts",
+        "symbol": "MetadataChartOfAccountsTabularSectionAttributeRules"
       },
       "registration": {
         "path": "packages/rules/metadata/commonObjects/metadataAttribute/register.ts",
@@ -16133,8 +16161,8 @@
       "property": "attributes",
       "type": "MetadataChartOfCalculationTypesTabularSectionAttributes",
       "item": {
-        "path": "packages/rules/metadata/commonObjects/metadataAttribute/rules.ts",
-        "symbol": "MetadataAttributeRules"
+        "path": "packages/rules/metadata/appliedObjects/metadataChartOfCalculationTypes/childRules.ts",
+        "symbol": "MetadataChartOfCalculationTypesTabularSectionAttributeRules"
       },
       "registration": {
         "path": "packages/rules/metadata/commonObjects/metadataAttribute/register.ts",
@@ -16393,8 +16421,8 @@
       "property": "attributes",
       "type": "MetadataChartOfCharacteristicTypesTabularSectionAttributes",
       "item": {
-        "path": "packages/rules/metadata/commonObjects/metadataAttribute/rules.ts",
-        "symbol": "MetadataAttributeRules"
+        "path": "packages/rules/metadata/appliedObjects/metadataChartOfCharacteristicTypes/childRules.ts",
+        "symbol": "MetadataChartOfCharacteristicTypesTabularSectionAttributeRules"
       },
       "registration": {
         "path": "packages/rules/metadata/commonObjects/metadataAttribute/register.ts",
@@ -16621,8 +16649,8 @@
       "property": "attributes",
       "type": "MetadataDataProcessorTabularSectionAttributes",
       "item": {
-        "path": "packages/rules/metadata/commonObjects/metadataAttribute/rules.ts",
-        "symbol": "MetadataAttributeRules"
+        "path": "packages/rules/metadata/appliedObjects/metadataDataProcessor/childRules.ts",
+        "symbol": "MetadataDataProcessorTabularSectionAttributeRules"
       },
       "registration": {
         "path": "packages/rules/metadata/commonObjects/metadataAttribute/register.ts",
@@ -16783,8 +16811,8 @@
       "property": "attributes",
       "type": "MetadataDocumentTabularSectionAttributes",
       "item": {
-        "path": "packages/rules/metadata/commonObjects/metadataAttribute/rules.ts",
-        "symbol": "MetadataAttributeRules"
+        "path": "packages/rules/metadata/appliedObjects/metadataDocument/childRules.ts",
+        "symbol": "MetadataDocumentTabularSectionAttributeRules"
       },
       "registration": {
         "path": "packages/rules/metadata/commonObjects/metadataAttribute/register.ts",
@@ -17239,8 +17267,8 @@
       "property": "attributes",
       "type": "MetadataExchangePlanTabularSectionAttributes",
       "item": {
-        "path": "packages/rules/metadata/commonObjects/metadataAttribute/rules.ts",
-        "symbol": "MetadataAttributeRules"
+        "path": "packages/rules/metadata/appliedObjects/metadataExchangePlan/childRules.ts",
+        "symbol": "MetadataExchangePlanTabularSectionAttributeRules"
       },
       "registration": {
         "path": "packages/rules/metadata/commonObjects/metadataAttribute/register.ts",
@@ -17661,8 +17689,8 @@
       "property": "attributes",
       "type": "MetadataReportTabularSectionAttributes",
       "item": {
-        "path": "packages/rules/metadata/commonObjects/metadataAttribute/rules.ts",
-        "symbol": "MetadataAttributeRules"
+        "path": "packages/rules/metadata/appliedObjects/metadataReport/childRules.ts",
+        "symbol": "MetadataReportTabularSectionAttributeRules"
       },
       "registration": {
         "path": "packages/rules/metadata/commonObjects/metadataAttribute/register.ts",
@@ -17855,8 +17883,8 @@
       "property": "attributes",
       "type": "MetadataTaskTabularSectionAttributes",
       "item": {
-        "path": "packages/rules/metadata/commonObjects/metadataAttribute/rules.ts",
-        "symbol": "MetadataAttributeRules"
+        "path": "packages/rules/metadata/appliedObjects/metadataTask/childRules.ts",
+        "symbol": "MetadataTaskTabularSectionAttributeRules"
       },
       "registration": {
         "path": "packages/rules/metadata/commonObjects/metadataAttribute/register.ts",

@@ -1,0 +1,10 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.choice-parameter-links
+imports: {links: common.choice-parameter-links}
+value:
+  kind: record
+  fields: [{name: links, type: {use: links}}]
+representations:
+  xml: {kind: record, fields: [{field: links, path: [Root, ChoiceParameterLinks]}]}
+  yaml: {kind: mapping, fields: [{field: links, key: Связи}]}

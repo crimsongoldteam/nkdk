@@ -465,7 +465,7 @@ fn sequence_shape(
     common: &LinkedEntry,
     presence: &[LinkedPresence],
 ) -> Result<Value, Diagnostic> {
-    if let YamlRepresentation::RecordMapping { key } = &common.yaml {
+    if let YamlRepresentation::RecordMapping { key, value } = &common.yaml {
         let item = crate::link::sequence_item::resolve(common, program)?
             .ok_or_else(|| unsupported(common))?;
         let YamlRepresentation::Mapping(fields) = &item.yaml else {
@@ -487,8 +487,22 @@ fn sequence_shape(
         if let Some(required) = shape["required"].as_array_mut() {
             required.retain(|value| value.as_str() != Some(key));
         }
+        let body = if let Some(value) = value {
+            let yaml_key = fields
+                .iter()
+                .find(|field| &field.field == value)
+                .ok_or_else(|| unsupported(common))?
+                .key
+                .as_str();
+            shape["properties"]
+                .get(yaml_key)
+                .cloned()
+                .ok_or_else(|| unsupported(common))?
+        } else {
+            shape
+        };
         return Ok(
-            json!({"type":"object","additionalProperties":shape,"x-nkdk-runtime-validation":true}),
+            json!({"type":"object","additionalProperties":body,"x-nkdk-runtime-validation":true}),
         );
     }
     let (

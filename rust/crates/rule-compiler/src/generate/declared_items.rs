@@ -176,7 +176,7 @@ pub(super) fn generate_at(
     let LinkedType::Record(row_fields) = &row.value else {
         return Err(unsupported(&row, "The item requires a record value"));
     };
-    let lifted = if let YamlRepresentation::RecordMapping { key } = &common.yaml {
+    let lifted = if let YamlRepresentation::RecordMapping { key, value } = &common.yaml {
         let index = row_fields
             .iter()
             .position(|field| &field.name == key)
@@ -187,6 +187,14 @@ pub(super) fn generate_at(
                 "Record mapping needs a record YAML representation",
             ));
         };
+        let value_key = value.as_ref().map(|value| {
+            fields
+                .iter()
+                .find(|field| &field.field == value)
+                .expect("validated YAML value")
+                .key
+                .clone()
+        });
         Some((
             index,
             fields
@@ -195,6 +203,7 @@ pub(super) fn generate_at(
                 .expect("validated YAML key")
                 .key
                 .clone(),
+            value_key,
         ))
     } else {
         None
@@ -316,13 +325,22 @@ pub(super) fn generate_at(
             "@lifted_key@",
             &lifted
                 .as_ref()
-                .map_or("None::<&str>".into(), |(_, key)| format!("Some({key:?})")),
+                .map_or("None::<&str>".into(), |(_, key, _)| {
+                    format!("Some({key:?})")
+                }),
+        )
+        .replace(
+            "@lifted_value@",
+            &lifted
+                .as_ref()
+                .and_then(|(_, _, value)| value.as_ref())
+                .map_or("None::<&str>".into(), |value| format!("Some({value:?})")),
         )
         .replace(
             "@lifted_index@",
             &lifted
                 .as_ref()
-                .map_or("0".into(), |(index, _)| index.to_string()),
+                .map_or("0".into(), |(index, _, _)| index.to_string()),
         );
     code = code.replace("@id@", &entry.id.to_string());
     Ok(Some(code))
@@ -358,7 +376,7 @@ fn new()->Self{Self{mapping:core::yaml::RecordMappingReader::default(),property:
 fn consume(&mut self,node:core::yaml::Node,position:core::Position,source:&[u8],inputs:&InputView<'_>)->core::Result<()>{
 if @hidden@{return Ok(())}
 let node=if @root_yaml@{node}else{let Some(node)=self.property.consume(node,@key@,"yaml.collection-form")? else{return Ok(())};node};
-if let Some(key)=@lifted_key@ {let mut mapping=std::mem::take(&mut self.mapping);let result=mapping.consume(node,position,key,|node,position|self.consume_item(node,position,source,inputs));self.mapping=mapping;return result;}
+if let Some(key)=@lifted_key@ {let mut mapping=std::mem::take(&mut self.mapping);let result=mapping.consume(node,position,key,@lifted_value@,|node,position|self.consume_item(node,position,source,inputs));self.mapping=mapping;return result;}
 self.consume_item(node,position,source,inputs)}
 fn consume_item(&mut self,node:core::yaml::Node,position:core::Position,source:&[u8],inputs:&InputView<'_>)->core::Result<()>{
 if self.depth==0{
@@ -376,7 +394,7 @@ Ok(())}
 fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<V@id@>{let present=@yaml_present@;if present && @lifted_key@.is_some(){self.mapping.finish()?;}
 if self.depth!=0 || self.active.is_some(){return Err(RuntimeDiagnostic::new("value.missing","Incomplete collection"));}
 if !present{return Ok(@yaml_missing@)}let rows=self.rows.into_iter().enumerate().map(|(index,reader)|match reader.and_then(|reader|reader.finish(source,inputs)){
-Ok(row)=>Ok(row),Err(error)=>{if source.is_empty(){return Err(error)}let property=if @root_yaml@{None}else{Some(@key@)};let bytes=if let Some(key)=@lifted_key@{core::yaml::preserved_record_mapping_item(source,property,index,key)?}else{core::yaml::preserved_sequence_item(source,property,index)?};item_@id@::read_yaml(&bytes,inputs)}}).collect::<core::Result<Vec<_>>>()?;
+Ok(row)=>Ok(row),Err(error)=>{if source.is_empty(){return Err(error)}let property=if @root_yaml@{None}else{Some(@key@)};let bytes=if let Some(key)=@lifted_key@{core::yaml::preserved_record_mapping_item(source,property,index,key,@lifted_value@)?}else{core::yaml::preserved_sequence_item(source,property,index)?};item_@id@::read_yaml(&bytes,inputs)}}).collect::<core::Result<Vec<_>>>()?;
 Ok(V@id@{rows,present,raw:None})}
 }
 fn read_yaml_events_@id@(source:&[u8],inputs:&InputView<'_>,events:impl core::yaml::Source)->core::Result<V@id@>{let mut state=YamlSequence@id@::new();events.visit(|node,position|state.consume(node,position,source,inputs))?;state.finish(source,inputs)}

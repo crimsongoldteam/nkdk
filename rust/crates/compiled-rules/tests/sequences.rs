@@ -3,6 +3,58 @@ use nkdk_compiled_rules::{
 };
 
 #[test]
+fn metadata_value_derives_the_empty_xml_form_from_the_sibling_type() {
+    let entry = entry_id("migration.metadata-value").unwrap();
+    let inputs = PreparedInputs::default();
+    let string_xml = b"<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Type><v8:Type>xs:string</v8:Type></Type><FillValue xsi:type=\"xs:string\"/></Root>";
+    let number_xml = b"<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Type><v8:Type>xs:decimal</v8:Type></Type><FillValue xsi:nil=\"true\"/></Root>";
+    for xml in [string_xml.as_slice(), number_xml.as_slice()] {
+        let converted = convert_file(entry, Direction::XmlToYaml, xml, &inputs).unwrap();
+        verify_candidate(entry, xml, &converted.bytes, &inputs).unwrap();
+        assert!(!String::from_utf8_lossy(&converted.bytes).contains("Значение:"));
+    }
+}
+
+#[test]
+fn choice_parameters_use_a_keyed_yaml_mapping_for_declared_values() {
+    let entry = entry_id("migration.choice-parameters").unwrap();
+    let inputs = PreparedInputs::default();
+    let xml = b"<Root xmlns:app=\"http://v8.1c.ru/8.2/managed-application/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><ChoiceParameters><app:item name=\"Text\"><app:value xsi:type=\"xs:string\">value</app:value></app:item></ChoiceParameters></Root>";
+    let converted = convert_file(entry, Direction::XmlToYaml, xml, &inputs).unwrap();
+    assert_eq!(
+        String::from_utf8_lossy(&converted.bytes),
+        "Параметры:\n  Text: value"
+    );
+    verify_candidate(entry, xml, &converted.bytes, &inputs).unwrap();
+
+    let empty = b"<Root xmlns:app=\"http://v8.1c.ru/8.2/managed-application/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><ChoiceParameters><app:item name=\"Missing\"><app:value xsi:nil=\"true\"/></app:item></ChoiceParameters></Root>";
+    let converted = convert_file(entry, Direction::XmlToYaml, empty, &inputs).unwrap();
+    assert_eq!(
+        String::from_utf8_lossy(&converted.bytes),
+        "Параметры:\n  Missing:\n    {}"
+    );
+    verify_candidate(entry, empty, &converted.bytes, &inputs).unwrap();
+}
+
+#[test]
+fn choice_parameter_links_are_structural_and_reversible() {
+    let entry = entry_id("migration.choice-parameter-links").unwrap();
+    let inputs = PreparedInputs::default();
+    let xml = b"<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><ChoiceParameterLinks><xr:Link><xr:Name>Filter.Owner</xr:Name><xr:DataPath xsi:type=\"xs:string\">Catalog.Goods.Attribute.Owner</xr:DataPath><xr:ValueChange>DontChange</xr:ValueChange></xr:Link></ChoiceParameterLinks></Root>";
+    let yaml = "Связи:\n  - Имя: Filter.Owner\n    ПутьКДанным: Справочник.Goods.Реквизит.Owner\n    РежимИзменения: НеИзменять";
+    let converted = convert_file(entry, Direction::XmlToYaml, xml, &inputs).unwrap();
+    assert_eq!(String::from_utf8_lossy(&converted.bytes), yaml);
+    verify_candidate(entry, xml, &converted.bytes, &inputs).unwrap();
+    for original in [
+        b"<Root><ChoiceParameterLinks/></Root>".as_slice(),
+        b"<Root/>".as_slice(),
+    ] {
+        let converted = convert_file(entry, Direction::XmlToYaml, original, &inputs).unwrap();
+        verify_candidate(entry, original, &converted.bytes, &inputs).unwrap();
+    }
+}
+
+#[test]
 fn record_sequences_keep_typed_wrappers_and_infer_their_differences() {
     let entry = entry_id("migration.web-socket-client-headers").unwrap();
     let inputs = PreparedInputs::default();

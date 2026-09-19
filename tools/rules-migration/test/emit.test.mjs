@@ -99,6 +99,26 @@ test('candidate generation shares fragments, rejects unknown parameters and prot
   }},new Map([['common.uuid',{inputs:{}}]]));
   assert.equal(attributeUuid.status,'candidate');
   assert.equal(attributeUuid.identityProjection,true);
+  const metadataLinkCatalog=new Map([
+    ['common.metadata-form-link',{id:'common.metadata-form-link',inputs:{roots:{type:{kind:'index'}},forms:{type:{kind:'index'}}}}],
+    ['common.owner-attribute-link',{id:'common.owner-attribute-link',inputs:{ownerRoot:{type:{kind:'scalar',scalar:'text'}},ownerName:{type:{kind:'scalar',scalar:'text'}},attributes:{type:{kind:'sequence'}}}}],
+  ]);
+  const choiceForm=mapProperty({...property,name:'choiceForm',parameters:{type:'MetadataItemLink',yaml:'ФормаВыбора',xml:'ChoiceForm',xmlParents:['Properties'],defaultValueXMLRaw:'',metadataTarget:{kind:'member',owner:'type',typeProperty:'type',memberKinds:['Form']}}},metadataLinkCatalog);
+  assert.equal(choiceForm.id,'common.metadata-form-link');
+  assert.deepEqual(Object.keys(choiceForm.inputs),['roots','forms']);
+  const storageField=mapProperty({...property,name:'binaryDataStorageLocationUseField',parameters:{type:'MetadataItemLink',yaml:'Поле',xml:'BinaryDataStorageLocationUseField',xmlParents:['Properties'],metadataTarget:{kind:'member',owner:'this',memberKinds:['Attribute'],filters:[{kind:'directMember'},{kind:'hasType',type:'boolean'}]}}},metadataLinkCatalog);
+  assert.equal(storageField.id,'common.owner-attribute-link');
+  assert.deepEqual(Object.keys(storageField.inputs),['ownerRoot','ownerName','attributes']);
+  for(const [type,id] of [['ChoiceParameterLinks','common.choice-parameter-links'],['ChoiceParameters','common.choice-parameters']]) {
+    const mapped=mapProperty({...property,name:'choices',parameters:{type,yaml:'Выбор',xml:'Choice',xmlParents:['Properties'],defaultValueXMLRaw:''}},new Map([[id,{id}]]));
+    assert.equal(mapped.id,id);
+    assert.deepEqual(mapped.presence.xml.canonical,[{when:{not:{present:{field:'choices'}}},form:'empty-element'}]);
+    assert.deepEqual(mapped.presence.yaml.missing,{denotes:{absent:true}});
+  }
+  const fillValue=mapProperty({...property,name:'fillValue',parameters:{type:'MetadataValue',yaml:'ЗначениеЗаполнения',xml:'FillValue',xmlParents:['Properties'],defaultValueXMLRaw:{'_xsi:nil':true},exportNilValue:true}},new Map([['common.metadata-value',{id:'common.metadata-value',inputs:{valueType:{type:{kind:'record'}}}}]]));
+  assert.equal(fillValue.id,'common.metadata-value');
+  assert.deepEqual(fillValue.siblingBindings,{valueType:'type'});
+  assert.equal(fillValue.presence.xml.canonical[0].form,'nil');
   const hiddenParameters={type:'SystemEnumeration',typeSE:'Example',yaml:'Скрытое',implicitValueYAML:'A',toYAML:false,fromYAML:false};
   const hiddenCatalog=new Map([['system.Example',{enum:{A:'А',B:'Б'}}]]);
   const hidden=mapProperty({...property,parameters:hiddenParameters},hiddenCatalog);

@@ -1,7 +1,7 @@
 mod marked_scalar;
 pub use marked_scalar::append as append_marked_scalar;
 mod record_mapping;
-pub use record_mapping::{RecordMappingReader, preserved_record_mapping_item};
+pub use record_mapping::{RecordMappingReader, mapping_value, preserved_record_mapping_item};
 pub(crate) mod document;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Form {
@@ -47,6 +47,9 @@ impl Scalar {
     }
     pub fn is_empty(&self) -> bool {
         self.text.is_empty()
+    }
+    pub(crate) fn is_null(&self) -> bool {
+        self.plain && matches!(Yaml::from_str(&self.text), Yaml::Null)
     }
     pub fn position(&self) -> crate::Position {
         self.position

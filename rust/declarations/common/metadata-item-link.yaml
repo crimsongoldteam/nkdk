@@ -1,0 +1,86 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: common.metadata-form-link
+  imports: {root: common.path-root, name: common.metadata-name}
+  inputs:
+    roots:
+      type:
+        kind: index
+        key:
+          kind: record
+          fields:
+          - {name: kind, type: {use: root}}
+          - {name: name, type: {kind: scalar, scalar: text}}
+        value: {kind: scalar, scalar: text}
+    forms:
+      type:
+        kind: index
+        key:
+          kind: record
+          fields:
+          - {name: parent, type: {kind: scalar, scalar: text}}
+          - {name: name, type: {kind: scalar, scalar: text}}
+        value: {kind: scalar, scalar: text}
+  value:
+    kind: record
+    fields:
+    - {name: root, type: {use: root}}
+    - {name: owner, type: {use: name}}
+    - {name: form, type: {use: name}}
+  representations:
+    xml: {kind: text-pattern, separator: '.', parts: [{field: root}, {field: owner}, {literal: Form}, {field: form}]}
+    yaml: {kind: text-pattern, separator: '.', parts: [{field: root}, {field: owner}, {literal: Форма}, {field: form}]}
+  presence:
+  - target: self
+    xml:
+      missing: {denotes: {absent: true}}
+      empty: [{form: empty-element, denotes: {absent: true}}]
+    yaml: {missing: {denotes: {absent: true}}}
+  constraints:
+  - id: form-exists
+    appliesTo: [xml-import, yaml-validation]
+    assert:
+      match:
+        value: {lookup: {in: {input: roots}, key: {record: {kind: {get: {of: {self: true}, field: root}}, name: {get: {of: {self: true}, field: owner}}}}}}
+        present:
+          as: parent
+          then: {present: {lookup: {in: {input: forms}, key: {record: {parent: {var: parent}, name: {get: {of: {self: true}, field: form}}}}}}}
+        absent: {literal: false}
+    diagnostic: {code: metadata.target-missing, severity: error, at: {self: true}, message: Form is missing}
+- kind: value
+  id: common.owner-attribute-link
+  imports: {root: common.path-root, name: common.metadata-name}
+  inputs:
+    ownerRoot: {type: {use: root}}
+    ownerName: {type: {kind: scalar, scalar: text}}
+    attributes: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  value:
+    kind: record
+    fields:
+    - {name: root, type: {use: root}}
+    - {name: owner, type: {use: name}}
+    - {name: name, type: {use: name}}
+  representations:
+    xml: {kind: text-pattern, separator: '.', parts: [{field: root}, {field: owner}, {literal: Attribute}, {field: name}]}
+    yaml: {kind: text-pattern, parts: [{field: name}]}
+  presence:
+  - target: {field: root}
+    yaml: {default: {input: ownerRoot}}
+  - target: {field: owner}
+    yaml: {default: {input: ownerName}}
+  - target: self
+    xml:
+      missing: {denotes: {absent: true}}
+      empty: [{form: empty-element, denotes: {absent: true}}]
+    yaml: {missing: {denotes: {absent: true}}}
+  constraints:
+  - id: direct-boolean-attribute
+    appliesTo: [xml-import, yaml-validation]
+    assert:
+      and:
+      - {eq: [{get: {of: {self: true}, field: root}}, {input: ownerRoot}]}
+      - {eq: [{get: {of: {self: true}, field: owner}}, {input: ownerName}]}
+      - {exists: {in: {input: attributes}, as: candidate, where: {eq: [{var: candidate}, {get: {of: {self: true}, field: name}}]}}}
+    diagnostic: {code: metadata.target-missing, severity: error, at: {self: true}, message: Direct boolean attribute is missing}
