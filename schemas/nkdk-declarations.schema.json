@@ -4231,14 +4231,43 @@
       "oneOf": [
         {
           "type": "object",
+          "properties": {"kind": {"const": "choice"}},
+          "required": ["kind"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
           "properties": {
             "kind": {
               "const": "choice"
+            },
+            "attribute": {
+              "type": "string"
+            },
+            "variants": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "properties": {
+                  "variant": {"type": "string", "minLength": 1},
+                  "in": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {"type": "string", "minLength": 1}
+                  },
+                  "emit": {"type": "string", "minLength": 1}
+                },
+                "required": ["variant", "in", "emit"],
+                "additionalProperties": false
+              }
+            },
+            "otherwise": {
+              "type": "string",
+              "minLength": 1
             }
           },
-          "required": [
-            "kind"
-          ],
+          "required": ["kind", "attribute", "variants", "otherwise"],
           "additionalProperties": false
         },
         {

@@ -235,6 +235,72 @@ fn text_patterns_cover_typed_fields_without_ambiguous_capture() {
 }
 
 #[test]
+fn discriminated_choice_generates_from_reused_text_variants() {
+    let sources = [
+        (
+            "pattern.yaml",
+            r#"format: nkdk-declarations/1
+kind: value
+id: test.tagged-pattern
+value: {kind: record, fields: [{name: value, type: {kind: scalar, scalar: text}}]}
+representations:
+  xml: {kind: text-pattern, parts: [{literal: 'Ref.'}, {field: value}]}
+  yaml: {kind: text-pattern, parts: [{literal: 'Ссылка.'}, {field: value}]}
+"#,
+        ),
+        (
+            "text.yaml",
+            r#"format: nkdk-declarations/1
+kind: value
+id: test.tagged-text
+value: {kind: scalar, scalar: text}
+representations: {xml: {kind: text}, yaml: {kind: scalar, scalar: text}}
+"#,
+        ),
+        (
+            "choice.yaml",
+            r#"format: nkdk-declarations/1
+kind: value
+id: test.tagged-choice
+namespaces: {xsi: 'http://www.w3.org/2001/XMLSchema-instance', xs: 'http://www.w3.org/2001/XMLSchema', xr: 'http://v8.1c.ru/8.3/xcf/readable'}
+imports: {pattern: test.tagged-pattern, text: test.tagged-text}
+value: {kind: choice, variants: [{name: pattern, type: {use: pattern}}, {name: text, type: {use: text}}]}
+representations:
+  xml:
+    kind: choice
+    attribute: xsi:type
+    variants:
+    - {variant: pattern, in: [xr:DesignTimeRef], emit: xr:DesignTimeRef}
+    - {variant: text, in: [xs:string], emit: xs:string}
+    otherwise: text
+  yaml: {kind: choice}
+"#,
+        ),
+        (
+            "owner.yaml",
+            r#"format: nkdk-declarations/1
+kind: object
+id: test.tagged-owner
+imports: {value: test.tagged-choice}
+value: {kind: record, fields: [{name: value, type: {use: value}}]}
+representations:
+  xml: {kind: record, fields: [{field: value, path: [Root, Value]}]}
+  yaml: {kind: mapping, fields: [{field: value, key: Значение}]}
+"#,
+        ),
+    ];
+    let modules = sources.map(|(path, source)| {
+        nkdk_rule_compiler::parse(nkdk_rule_compiler::SourceFile {
+            path,
+            bytes: source.as_bytes(),
+        })
+        .unwrap()
+    });
+    let program = nkdk_rule_compiler::link(&modules).unwrap();
+    nkdk_rule_compiler::generate(&program).unwrap();
+}
+
+#[test]
 fn choice_resolves_named_variants_and_rejects_missing_or_recursive_types() {
     let read = |source: &str| {
         parse(SourceFile {

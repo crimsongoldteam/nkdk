@@ -57,11 +57,13 @@ impl<'a> Codec<'a> {
                     ) => Ok(Self::Sequence(Box::new(
                         super::text_sequence::Codec::resolve(target, program)?,
                     ))),
-                    (LinkedType::Choice(_), LinkedXml::Choice, YamlRepresentation::Choice) => {
-                        Ok(Self::Forms(Box::new(super::text_choice::Codec::resolve(
-                            target, program,
-                        )?)))
-                    }
+                    (
+                        LinkedType::Choice(_),
+                        LinkedXml::Choice | LinkedXml::DiscriminatedChoice(_),
+                        YamlRepresentation::Choice,
+                    ) => Ok(Self::Forms(Box::new(super::text_choice::Codec::resolve(
+                        target, program,
+                    )?))),
                     (
                         LinkedType::Scalar(ScalarType::Text),
                         LinkedXml::Text,
@@ -265,6 +267,13 @@ impl<'a> Codec<'a> {
             ""
         }
     }
+    pub(super) fn choice_selector_argument(&self, index: usize, xml: bool) -> String {
+        match self {
+            Self::Forms(choice) if choice.discriminated() && xml => format!(",variant{index}"),
+            Self::Forms(choice) if choice.discriminated() => ",None".into(),
+            _ => String::new(),
+        }
+    }
     pub(super) fn child_check_method(&self) -> Option<&'static str> {
         match self {
             Self::Sequence(_) => Some("issues"),
@@ -374,8 +383,9 @@ impl<'a> Codec<'a> {
         }
         if matches!(self, Self::Pattern(_) | Self::Forms(_) | Self::Sequence(_)) {
             let inputs = self.read_input_argument();
+            let selector = self.choice_selector_argument(index, xml_side);
             return format!(
-                "let f{index}={name}::read(&r{index},{xml_side}{inputs}).map_err(|error|positions[{index}].apply(source,error.field({key:?})))?;\n"
+                "let f{index}={name}::read(&r{index},{xml_side}{selector}{inputs}).map_err(|error|positions[{index}].apply(source,error.field({key:?})))?;\n"
             );
         }
         if matches!(self, Self::Choice(_)) {

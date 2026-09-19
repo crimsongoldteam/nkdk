@@ -351,6 +351,39 @@ fn scalar_choice_preserves_type_and_the_two_export_profiles() {
 }
 
 #[test]
+fn discriminated_choice_uses_xml_type_and_reused_yaml_variants() {
+    let entry = entry_id("migration.discriminated-choice").unwrap();
+    let inputs = PreparedInputs::default();
+    for (xml, yaml) in [
+        (
+            r#"<Root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable"><Value xsi:type="xr:DesignTimeRef">Ref.Item</Value></Root>"#,
+            "Значение: Ссылка.Item",
+        ),
+        (
+            r#"<Root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema"><Value xsi:type="xs:string">ordinary</Value></Root>"#,
+            "Значение: ordinary",
+        ),
+    ] {
+        let imported = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+        assert_eq!(String::from_utf8_lossy(&imported.bytes).trim(), yaml);
+        let exported = convert_file(
+            entry,
+            Direction::YamlToXml,
+            imported.bytes.as_slice(),
+            &inputs,
+        )
+        .unwrap();
+        assert!(String::from_utf8_lossy(&exported.bytes).contains("xsi:type="));
+        nkdk_compiled_rules::verify_candidate(entry, xml.as_bytes(), &imported.bytes, &inputs)
+            .unwrap();
+    }
+    let unknown = br#"<Root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema"><Value xsi:type="xs:unknown">ordinary</Value></Root>"#;
+    let imported = convert_file(entry, Direction::XmlToYaml, unknown, &inputs).unwrap();
+    assert!(String::from_utf8_lossy(&imported.bytes).contains("!xml/raw"));
+    nkdk_compiled_rules::verify_candidate(entry, unknown, &imported.bytes, &inputs).unwrap();
+}
+
+#[test]
 fn static_scalar_parameters_select_attributes_without_runtime_context() {
     let entry = entry_id("migration.scalar-parameters").unwrap();
     let inputs = PreparedInputs::default();

@@ -16,6 +16,15 @@ fn members(
     }
     for (i, field) in physical_fields(fields) {
         result.push((format!("r{i}"), "Option<String>".into(), "None".into()));
+        if let Codec::Forms(choice) = &field.codec
+            && choice.discriminated()
+        {
+            result.push((
+                format!("variant{i}"),
+                "Option<usize>".into(),
+                format!("{:?}", choice.fallback_variant()),
+            ));
+        }
         let mut flags = Vec::new();
         if matches!(field.codec, Codec::Choice(_)) {
             flags.push(format!("number{i}"));
@@ -100,6 +109,9 @@ pub(super) fn generate(
             out.push_str(&super::super::scalar_choice::read_attribute(
                 choice, field.path, i, "self.",
             ));
+        }
+        if let Codec::Forms(choice) = &field.codec {
+            out.push_str(&choice.read_attribute(field.path, i, "self."));
         }
         if super::super::scalar_presence::empty(field.presence, EmptyKind::Nil) {
             writeln!(out,"if core::xml::matches(path,{}) && _attribute.name.namespace==\"http://www.w3.org/2001/XMLSchema-instance\" && _attribute.name.local==\"nil\" && _attribute.text==\"true\" {{self.nil{i}=true;return Ok(());}}",path_code(field.path)).unwrap();

@@ -166,6 +166,7 @@ fn scalar_xml(value: &LinkedXml) -> bool {
     matches!(
         value,
         LinkedXml::Choice
+            | LinkedXml::DiscriminatedChoice(_)
             | LinkedXml::Text
             | LinkedXml::TextPattern(_)
             | LinkedXml::TextSequence { .. }

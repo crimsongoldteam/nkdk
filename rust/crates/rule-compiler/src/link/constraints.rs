@@ -152,6 +152,7 @@ fn resolve_forms(module: &Module, constraint: &Constraint) -> Result<Vec<LinkedF
             }
             XmlRepresentation::WithAttributes { .. } => unreachable!(),
             XmlRepresentation::Choice
+            | XmlRepresentation::DiscriminatedChoice(_)
             | XmlRepresentation::Text
             | XmlRepresentation::TextPattern(_)
             | XmlRepresentation::TextSequence { .. }

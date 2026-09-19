@@ -230,6 +230,11 @@ fn generate_at(
         if let Codec::Choice(choice) = &field.codec {
             return super::scalar_choice::attributes(choice);
         }
+        if let Codec::Forms(choice) = &field.codec
+            && choice.discriminated()
+        {
+            return choice.attributes(&format!("E{id}F{i}"));
+        }
 
         let dynamic = field
             .attributes
@@ -739,6 +744,9 @@ fn generate_at(
         {
             namespaces.insert(choice.attribute.namespace.as_str());
             namespaces.insert(value.namespace.as_str());
+        }
+        if let Codec::Forms(choice) = &field.codec {
+            namespaces.extend(choice.xml_namespaces());
         }
         for attribute in &field.attributes {
             namespaces.insert(attribute.name.namespace.as_str());

@@ -1,0 +1,41 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: probe.discriminated-reference
+  value: {kind: record, fields: [{name: name, type: {kind: scalar, scalar: text}}]}
+  representations:
+    xml: {kind: text-pattern, parts: [{literal: 'Ref.'}, {field: name}]}
+    yaml: {kind: text-pattern, parts: [{literal: 'Ссылка.'}, {field: name}]}
+- kind: value
+  id: probe.discriminated-text
+  value: {kind: scalar, scalar: text}
+  representations: {xml: {kind: text}, yaml: {kind: scalar, scalar: text}}
+- kind: value
+  id: probe.discriminated-value
+  namespaces:
+    xsi: http://www.w3.org/2001/XMLSchema-instance
+    xs: http://www.w3.org/2001/XMLSchema
+    xr: http://v8.1c.ru/8.3/xcf/readable
+  imports: {reference: probe.discriminated-reference, text: probe.discriminated-text}
+  value:
+    kind: choice
+    variants:
+    - {name: reference, type: {use: reference}}
+    - {name: text, type: {use: text}}
+  representations:
+    xml:
+      kind: choice
+      attribute: xsi:type
+      variants:
+      - {variant: reference, in: [xr:DesignTimeRef], emit: xr:DesignTimeRef}
+      - {variant: text, in: [xs:string], emit: xs:string}
+      otherwise: text
+    yaml: {kind: choice}
+- kind: object
+  id: migration.discriminated-choice
+  imports: {value: probe.discriminated-value}
+  value: {kind: record, fields: [{name: value, type: {use: value}}]}
+  representations:
+    xml: {kind: record, fields: [{field: value, path: [Root, Value]}]}
+    yaml: {kind: mapping, fields: [{field: value, key: Значение}]}

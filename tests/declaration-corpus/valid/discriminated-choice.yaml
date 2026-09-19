@@ -1,0 +1,32 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: example.choice-text
+  value: {kind: scalar, scalar: text}
+  representations: {xml: {kind: text}, yaml: {kind: scalar, scalar: text}}
+- kind: value
+  id: example.choice-reference
+  value: {kind: scalar, scalar: text, pattern: 'Ref\..+'}
+  representations: {xml: {kind: text}, yaml: {kind: scalar, scalar: text}}
+- kind: value
+  id: example.discriminated-choice
+  namespaces:
+    xsi: http://www.w3.org/2001/XMLSchema-instance
+    xs: http://www.w3.org/2001/XMLSchema
+    xr: http://v8.1c.ru/8.3/xcf/readable
+  imports: {text: example.choice-text, reference: example.choice-reference}
+  value:
+    kind: choice
+    variants:
+    - {name: text, type: {use: text}}
+    - {name: reference, type: {use: reference}}
+  representations:
+    xml:
+      kind: choice
+      attribute: xsi:type
+      variants:
+      - {variant: text, in: [xs:string], emit: xs:string}
+      - {variant: reference, in: [xr:DesignTimeRef], emit: xr:DesignTimeRef}
+      otherwise: text
+    yaml: {kind: choice}

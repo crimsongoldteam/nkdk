@@ -22,6 +22,7 @@ pub(super) struct Codec<'a> {
     fallback: Option<usize>,
     xml: DFA<Vec<u32>>,
     yaml: DFA<Vec<u32>>,
+    discriminator: Option<&'a DiscriminatedChoiceXml<ExpandedName>>,
 }
 
 impl<'a> Codec<'a> {
@@ -31,6 +32,10 @@ impl<'a> Codec<'a> {
     ) -> Result<Self, Diagnostic> {
         let LinkedType::Choice(fields) = &entry.value else {
             unreachable!("choice codec")
+        };
+        let discriminator = match &entry.xml {
+            LinkedXml::DiscriminatedChoice(choice) => Some(choice),
+            _ => None,
         };
         let mut variants = Vec::new();
         for field in fields {
@@ -47,7 +52,7 @@ impl<'a> Codec<'a> {
                 || !target.parameters.is_empty()
                 || !target.shorthands.is_empty()
                 || target.normalization.is_some()
-                || !attributes::content(&target.xml).1.is_empty()
+                || (discriminator.is_none() && !attributes::content(&target.xml).1.is_empty())
             {
                 return Err(unsupported(
                     target,
@@ -116,7 +121,87 @@ impl<'a> Codec<'a> {
             fallback,
             xml,
             yaml,
+            discriminator,
         })
+    }
+
+    pub(super) fn discriminated(&self) -> bool {
+        self.discriminator.is_some()
+    }
+
+    pub(super) fn fallback_variant(&self) -> Option<usize> {
+        let choice = self.discriminator?;
+        let LinkedType::Choice(fields) = &self.entry.value else {
+            return None;
+        };
+        fields
+            .iter()
+            .position(|field| field.name == choice.otherwise)
+    }
+
+    pub(super) fn read_attribute(
+        &self,
+        path: &[ExpandedName],
+        index: usize,
+        prefix: &str,
+    ) -> String {
+        let Some(choice) = self.discriminator else {
+            return String::new();
+        };
+        let LinkedType::Choice(fields) = &self.entry.value else {
+            unreachable!()
+        };
+        let mut arms = String::new();
+        for case in &choice.variants {
+            let variant = fields
+                .iter()
+                .position(|field| field.name == case.variant)
+                .unwrap();
+            for value in &case.values {
+                let canonical = case.emit.as_ref().is_some_and(|emit| emit == value);
+                let shape = (!canonical)
+                    .then(|| format!("{prefix}shape{index}=true;"))
+                    .unwrap_or_default();
+                writeln!(arms, "({:?},{:?})=>{{{prefix}variant{index}=Some({variant});{shape}return Ok(());}},", value.namespace, value.local).unwrap();
+            }
+        }
+        format!(
+            "if core::xml::matches(path,{}) && _attribute.name.namespace=={:?} && _attribute.name.local=={:?} {{if let Some(name)=_attribute.qname.as_ref(){{match(name.namespace.as_str(),name.local.as_str()){{{arms}_=>{{{prefix}shape{index}=true;return Ok(());}}}}}}{prefix}shape{index}=true;return Ok(());}}\n",
+            super::record::path_code(path),
+            choice.attribute.namespace,
+            choice.attribute.local
+        )
+    }
+
+    pub(super) fn attributes(&self, name: &str) -> String {
+        let Some(choice) = self.discriminator else {
+            return "&[]".into();
+        };
+        let LinkedType::Choice(fields) = &self.entry.value else {
+            unreachable!()
+        };
+        let arms = choice.variants.iter().map(|case| {
+            let variant = fields.iter().position(|field| field.name == case.variant).unwrap();
+            let emit = case.emit.as_ref().expect("validated choice emit");
+            format!("{name}::V{variant}(_)=>&[core::xml::WriteAttribute{{name:({:?},{:?}),value:core::xml::AttributeValue::QName(({:?},{:?}))}}][..],", choice.attribute.namespace, choice.attribute.local, emit.namespace, emit.local)
+        }).collect::<String>();
+        format!("match field_value{{{arms}}}")
+    }
+
+    pub(super) fn xml_namespaces(&self) -> Vec<&str> {
+        let Some(choice) = self.discriminator else {
+            return Vec::new();
+        };
+        std::iter::once(choice.attribute.namespace.as_str())
+            .chain(
+                choice
+                    .variants
+                    .iter()
+                    .filter_map(|case| case.emit.as_ref())
+                    .map(|name| name.namespace.as_str()),
+            )
+            .filter(|namespace| !namespace.is_empty())
+            .collect()
     }
 
     pub(super) fn field_meaning(
@@ -189,15 +274,28 @@ impl<'a> Codec<'a> {
         } else {
             ""
         };
+        let selector_argument = if self.discriminated() {
+            ",selected:Option<usize>"
+        } else {
+            ""
+        };
         let reader = if let Some(orders) = compact {
             format!(
                 "fn read_row(row:core::text_pattern::Row<'_,{}>,xml:bool)->core::Result<Self>{{let text=row.text;",
                 orders[0].0.len()
             )
         } else {
-            format!("fn read(text:&str,xml:bool{inputs})->core::Result<Self>{{")
+            format!("fn read(text:&str,xml:bool{selector_argument}{inputs})->core::Result<Self>{{")
         };
-        writeln!(out, "impl {name} {{{reader}let selected=if xml{{{xml_plan}.select(text)?.map(|index|{:?}[index])}}else{{{yaml_plan}.select(text)?.map(|index|{:?}[index])}};match selected{{", self.xml_variants, self.yaml_variants).unwrap();
+        let xml_select = if self.discriminated() {
+            "selected".to_owned()
+        } else {
+            format!(
+                "{xml_plan}.select(text)?.map(|index|{:?}[index])",
+                self.xml_variants
+            )
+        };
+        writeln!(out, "impl {name} {{{reader}let selected=if xml{{{xml_select}}}else{{{yaml_plan}.select(text)?.map(|index|{:?}[index])}};match selected{{", self.yaml_variants).unwrap();
         for (index, variant) in self.variants.iter().enumerate() {
             if let Some(orders) = compact {
                 let count = orders[index].0.len();

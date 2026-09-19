@@ -536,11 +536,35 @@ fn resolve_xml(
     ids: &BTreeMap<&str, u32>,
 ) -> Result<LinkedXml, Diagnostic> {
     Ok(match xml {
+        XmlRepresentation::DiscriminatedChoice(choice) => {
+            let attribute = expand_choice_name(module, &choice.attribute, source)?;
+            let mut seen = BTreeSet::new();
+            let variants = choice
+                .variants
+                .iter()
+                .map(|case| {
+                    let (values, emit) = resolve_choice_qnames(
+                        module,
+                        &case.values,
+                        case.emit.as_ref(),
+                        source,
+                        &mut seen,
+                    )?;
+                    Ok(DiscriminatedChoiceCase {
+                        variant: case.variant.clone(),
+                        values,
+                        emit,
+                    })
+                })
+                .collect::<Result<_, Diagnostic>>()?;
+            LinkedXml::DiscriminatedChoice(DiscriminatedChoiceXml {
+                attribute,
+                variants,
+                otherwise: choice.otherwise.clone(),
+            })
+        }
         XmlRepresentation::ScalarChoice(choice) => {
-            let expand = |name: &String| -> Result<ExpandedName, Diagnostic> {
-                Ok(expand_path(module, std::slice::from_ref(name), source)?.remove(0))
-            };
-            let attribute = expand(&choice.attribute)?;
+            let attribute = expand_choice_name(module, &choice.attribute, source)?;
             if attribute.namespace != "http://www.w3.org/2001/XMLSchema-instance"
                 || attribute.local != "type"
             {
@@ -566,28 +590,13 @@ fn resolve_xml(
                 .cases
                 .iter()
                 .map(|case| {
-                    let values = case
-                        .values
-                        .iter()
-                        .map(expand)
-                        .collect::<Result<Vec<_>, _>>()?;
-                    for value in &values {
-                        if !seen.insert((value.namespace.clone(), value.local.clone())) {
-                            return Err(diagnostic(
-                                "ambiguous_choice_selector",
-                                source,
-                                "A QName selects more than one alternative",
-                            ));
-                        }
-                    }
-                    let emit = case.emit.as_ref().map(expand).transpose()?;
-                    if emit.as_ref().is_some_and(|emit| !values.contains(emit)) {
-                        return Err(diagnostic(
-                            "invalid_choice_emit",
-                            source,
-                            "Canonical QName must select the emitted alternative",
-                        ));
-                    }
+                    let (values, emit) = resolve_choice_qnames(
+                        module,
+                        &case.values,
+                        case.emit.as_ref(),
+                        source,
+                        &mut seen,
+                    )?;
                     Ok(ScalarChoiceCase {
                         scalar: case.scalar.clone(),
                         values,
@@ -714,6 +723,47 @@ fn resolve_xml(
     })
 }
 
+fn expand_choice_name(
+    module: &Module,
+    name: &String,
+    source: &SourceLocation,
+) -> Result<ExpandedName, Diagnostic> {
+    Ok(expand_path(module, std::slice::from_ref(name), source)?.remove(0))
+}
+
+fn resolve_choice_qnames(
+    module: &Module,
+    names: &[String],
+    canonical: Option<&String>,
+    source: &SourceLocation,
+    seen: &mut BTreeSet<(String, String)>,
+) -> Result<(Vec<ExpandedName>, Option<ExpandedName>), Diagnostic> {
+    let values = names
+        .iter()
+        .map(|name| expand_choice_name(module, name, source))
+        .collect::<Result<Vec<_>, _>>()?;
+    for value in &values {
+        if !seen.insert((value.namespace.clone(), value.local.clone())) {
+            return Err(diagnostic(
+                "ambiguous_choice_selector",
+                source,
+                "A QName selects more than one choice variant",
+            ));
+        }
+    }
+    let emit = canonical
+        .map(|name| expand_choice_name(module, name, source))
+        .transpose()?;
+    if emit.as_ref().is_some_and(|emit| !values.contains(emit)) {
+        return Err(diagnostic(
+            "invalid_choice_emit",
+            source,
+            "Canonical QName must select the emitted variant",
+        ));
+    }
+    Ok((values, emit))
+}
+
 fn expand_path(
     module: &Module,
     path: &[String],
@@ -765,6 +815,59 @@ fn validate_xml(
 ) -> Result<(), Diagnostic> {
     match (value, xml) {
         (LinkedType::Choice(_), LinkedXml::Choice) => {}
+        (LinkedType::Choice(variants), LinkedXml::DiscriminatedChoice(choice)) => {
+            if choice.attribute.namespace != "http://www.w3.org/2001/XMLSchema-instance"
+                || choice.attribute.local != "type"
+            {
+                return Err(diagnostic(
+                    "unsupported_choice_selector",
+                    source,
+                    "Discriminated choice currently requires xsi:type",
+                ));
+            }
+            let names = variants
+                .iter()
+                .map(|variant| variant.name.as_str())
+                .collect::<BTreeSet<_>>();
+            if !names.contains(choice.otherwise.as_str()) {
+                return Err(diagnostic(
+                    "unknown_choice_variant",
+                    source,
+                    "Fallback refers to an unknown choice variant",
+                ));
+            }
+            let mut covered = BTreeSet::new();
+            for case in &choice.variants {
+                if !names.contains(case.variant.as_str()) {
+                    return Err(diagnostic(
+                        "unknown_choice_variant",
+                        source,
+                        "XML selector refers to an unknown choice variant",
+                    ));
+                }
+                if case.values.is_empty() || !covered.insert(case.variant.as_str()) {
+                    return Err(diagnostic(
+                        "invalid_choice_coverage",
+                        source,
+                        "Each choice variant needs one non-empty XML selector row",
+                    ));
+                }
+                if case.emit.is_none() {
+                    return Err(diagnostic(
+                        "invalid_choice_emit",
+                        source,
+                        "Each discriminated choice variant needs a canonical QName",
+                    ));
+                }
+            }
+            if covered != names {
+                return Err(diagnostic(
+                    "invalid_choice_coverage",
+                    source,
+                    "XML selector must cover every choice variant exactly once",
+                ));
+            }
+        }
         (LinkedType::Sequence(_), LinkedXml::TextSequence { .. }) => {}
         (LinkedType::ScalarChoice(_), LinkedXml::ScalarChoice(_)) => {}
         (LinkedType::Record(fields), LinkedXml::TextPattern(parts)) => {

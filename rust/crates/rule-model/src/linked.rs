@@ -87,6 +87,7 @@ pub enum LinkedXml {
         separator: String,
     },
     Choice,
+    DiscriminatedChoice(crate::DiscriminatedChoiceXml<ExpandedName>),
     TextPattern(Vec<crate::TextPatternPart>),
     QName {
         namespace: String,

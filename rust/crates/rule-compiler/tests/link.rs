@@ -1,4 +1,4 @@
-use nkdk_rule_compiler::{SourceFile, link, parse};
+use nkdk_rule_compiler::{SourceFile, link, parse, parse_many};
 
 fn modules() -> Vec<nkdk_rule_model::Module> {
     [
@@ -2305,6 +2305,71 @@ fn scalar_choice_rejects_ambiguous_or_unreachable_selectors() {
         ),
     ] {
         assert_link_error("choice.yaml", &invalid, code);
+    }
+}
+
+#[test]
+fn discriminated_choice_validates_variant_coverage_and_qnames() {
+    let source = r#"format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: test.left
+  value: {kind: scalar, scalar: text}
+  representations: {xml: {kind: text}, yaml: {kind: scalar, scalar: text}}
+- kind: value
+  id: test.right
+  value: {kind: scalar, scalar: text}
+  representations: {xml: {kind: text}, yaml: {kind: scalar, scalar: text}}
+- kind: value
+  id: test.choice
+  namespaces: {xsi: 'http://www.w3.org/2001/XMLSchema-instance', xs: 'http://www.w3.org/2001/XMLSchema'}
+  imports: {left: test.left, right: test.right}
+  value: {kind: choice, variants: [{name: left, type: {use: left}}, {name: right, type: {use: right}}]}
+  representations:
+    xml:
+      kind: choice
+      attribute: xsi:type
+      variants:
+      - {variant: left, in: [xs:string], emit: xs:string}
+      - {variant: right, in: [xs:boolean], emit: xs:boolean}
+      otherwise: left
+    yaml: {kind: choice}
+"#;
+    let modules = parse_many(SourceFile {
+        path: "choice.yaml",
+        bytes: source.as_bytes(),
+    })
+    .unwrap();
+    link(&modules).unwrap();
+    for (invalid, code) in [
+        (
+            source.replace("variant: right", "variant: missing"),
+            "unknown_choice_variant",
+        ),
+        (
+            source.replace(
+                "xs:boolean], emit: xs:boolean",
+                "xs:string], emit: xs:string",
+            ),
+            "ambiguous_choice_selector",
+        ),
+        (
+            source.replace("otherwise: left", "otherwise: missing"),
+            "unknown_choice_variant",
+        ),
+        (
+            source.replace(", emit: xs:boolean", ""),
+            "invalid_choice_emit",
+        ),
+    ] {
+        let modules = parse_many(SourceFile {
+            path: "choice.yaml",
+            bytes: invalid.as_bytes(),
+        })
+        .unwrap();
+        let errors = link(&modules).unwrap_err();
+        assert!(errors.iter().any(|error| error.code == code), "{errors:?}");
     }
 }
 

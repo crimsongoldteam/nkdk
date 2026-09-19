@@ -89,6 +89,7 @@ pub enum XmlRepresentation {
         separator: String,
     },
     Choice,
+    DiscriminatedChoice(DiscriminatedChoiceXml<String>),
     TextPattern(Vec<TextPatternPart>),
     QName {
         namespace: String,
@@ -113,6 +114,20 @@ pub enum XmlRepresentation {
     QNameTable(Vec<QNameLexeme<String>>),
     QNameTextTable(Vec<QNameTextLexeme<String>>),
     Decimal,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DiscriminatedChoiceXml<N> {
+    pub attribute: N,
+    pub variants: Vec<DiscriminatedChoiceCase<N>>,
+    pub otherwise: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DiscriminatedChoiceCase<N> {
+    pub variant: String,
+    pub values: Vec<N>,
+    pub emit: Option<N>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

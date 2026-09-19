@@ -1206,13 +1206,35 @@ fn choice_representations(
     xml: &Node,
     yaml: &Node,
 ) -> Result<(XmlRepresentation, YamlRepresentation), Diagnostic> {
-    for representation in [xml, yaml] {
-        let fields = representation.mapping(path, &["kind"])?;
-        representation.field(path, fields, "kind")?.literal(
-            path,
-            "choice",
-            "unsupported_representation",
-        )?;
+    let yaml_fields = yaml.mapping(path, &["kind"])?;
+    yaml.field(path, yaml_fields, "kind")?
+        .literal(path, "choice", "unsupported_representation")?;
+    let xml_fields = xml.mapping(path, &["kind", "attribute", "variants", "otherwise"])?;
+    xml.field(path, xml_fields, "kind")?
+        .literal(path, "choice", "unsupported_representation")?;
+    let Some(attribute) = optional_field(xml_fields, "attribute") else {
+        return Ok((XmlRepresentation::Choice, YamlRepresentation::Choice));
+    };
+    let mut variants = Vec::new();
+    for item in sequence(path, xml.field(path, xml_fields, "variants")?)? {
+        let fields = item.mapping(path, &["variant", "in", "emit"])?;
+        variants.push(nkdk_rule_model::DiscriminatedChoiceCase {
+            variant: item.field(path, fields, "variant")?.text(path)?.into(),
+            values: sequence(path, item.field(path, fields, "in")?)?
+                .iter()
+                .map(|value| value.text(path).map(str::to_owned))
+                .collect::<Result<_, _>>()?,
+            emit: optional_field(fields, "emit")
+                .map(|value| value.text(path).map(str::to_owned))
+                .transpose()?,
+        });
     }
-    Ok((XmlRepresentation::Choice, YamlRepresentation::Choice))
+    Ok((
+        XmlRepresentation::DiscriminatedChoice(nkdk_rule_model::DiscriminatedChoiceXml {
+            attribute: attribute.text(path)?.into(),
+            variants,
+            otherwise: xml.field(path, xml_fields, "otherwise")?.text(path)?.into(),
+        }),
+        YamlRepresentation::Choice,
+    ))
 }
