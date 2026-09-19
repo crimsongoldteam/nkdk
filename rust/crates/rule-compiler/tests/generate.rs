@@ -1,8 +1,23 @@
 use nkdk_rule_compiler::{SourceFile, generate, link, parse, schema};
 use std::{fs, process::Command};
 
+const PROJECTED_RECORD: &str = r#"format: nkdk-declarations/1
+kind: object
+id: test.projected-record
+value: {kind: record, fields: [{name: visible, type: {kind: scalar, scalar: text}}, {name: xmlValue, type: {kind: scalar, scalar: text}}]}
+representations:
+  xml: {kind: record, fields: [{field: xmlValue, path: [Projected, Value]}]}
+  yaml: {kind: projection, field: visible}
+presence:
+- target: {field: visible}
+  xml: {missing: {denotes: {field: xmlValue}}}
+- target: {field: xmlValue}
+  yaml: {missing: {denotes: {field: visible}}}
+"#;
+
 #[test]
 fn generated_rust_executes_both_directions_and_uses_the_imported_table() {
+    let projected_record = PROJECTED_RECORD;
     let directional = include_str!("fixtures/directional-fields.yaml");
     let computed = directional
         .replace("test.directional-fields", "test.computed-fields")
@@ -870,6 +885,7 @@ presence:
             ("optional-owner.yaml", optional_owner.as_str()),
             ("required-owner.yaml", required_owner.as_str()),
             ("owner.yaml", owner),
+            ("projected-record.yaml", projected_record),
             (
                 "qname-common.yaml",
                 include_str!("fixtures/qname-common.yaml"),
@@ -1105,6 +1121,7 @@ presence:
                 "optional.yaml",
                 "owner.yaml",
                 "profiled-state-relation.yaml",
+                "projected-record.yaml",
                 "property-state-row.yaml",
                 "property-states.yaml",
                 "qname-common.yaml",
@@ -1172,6 +1189,18 @@ presence:
         let main = r###"
 include!("generated.rs");
 fn main() {
+
+    let projected = entry_id("test.projected-record").unwrap();
+    let projected_xml = b"<Projected><Value>shown</Value></Projected>";
+    let projected_yaml = convert_file(projected,Direction::XmlToYaml,projected_xml,&PreparedInputs::default()).unwrap();
+    assert_eq!(projected_yaml.bytes,b"shown");
+    verify_candidate(projected,projected_xml,&projected_yaml.bytes,&PreparedInputs::default()).unwrap();
+    let projected_back = convert_file(projected,Direction::YamlToXml,b"changed",&PreparedInputs::default()).unwrap();
+    core::proof::verify(b"<Projected><Value>changed</Value></Projected>",&projected_back.bytes,|_|false).unwrap();
+    let projected_anomaly = b"<Projected><Value extra='kept'>shown</Value></Projected>";
+    let projected_preserved = convert_file(projected,Direction::XmlToYaml,projected_anomaly,&PreparedInputs::default()).unwrap();
+    assert!(String::from_utf8_lossy(&projected_preserved.bytes).starts_with("!xml/raw"),"{}",String::from_utf8_lossy(&projected_preserved.bytes));
+    verify_candidate(projected,projected_anomaly,&projected_preserved.bytes,&PreparedInputs::default()).unwrap();
 
     for (name, extra_xml, extra_yaml) in [
         ("test.directional-fields", "", ""),
@@ -2544,4 +2573,15 @@ fn generation_rejects_records_without_a_single_xml_document_root() {
             "Unsupported record layout must not produce a lossy writer"
         );
     }
+}
+
+#[test]
+fn generated_record_projects_one_field_and_restores_the_other_side() {
+    let program = link(&[parse(SourceFile {
+        path: "projection.yaml",
+        bytes: PROJECTED_RECORD.as_bytes(),
+    })
+    .unwrap()])
+    .unwrap();
+    generate(&program).unwrap();
 }

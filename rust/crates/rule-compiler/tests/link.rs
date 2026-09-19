@@ -2623,3 +2623,46 @@ fn singleton_sequence_spelling_requires_an_unambiguous_scalar_item() {
         assert!(errors.iter().any(|error| error.code == "ambiguous_singleton"), "{errors:?}");
     }
 }
+
+#[test]
+fn record_projection_allows_fields_restored_on_the_hidden_side() {
+    let source = br#"format: nkdk-declarations/1
+kind: value
+id: common.projected-record
+value:
+  kind: record
+  fields:
+  - {name: visible, type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  - {name: xmlValues, type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+representations:
+  xml: {kind: record, fields: [{field: xmlValues, path: [Value]}]}
+  yaml: {kind: projection, field: visible}
+presence:
+- target: {field: visible}
+  xml: {missing: {denotes: {field: xmlValues}}}
+- target: {field: xmlValues}
+  yaml: {missing: {denotes: {field: visible}}}
+"#;
+    link(&[parse(SourceFile {
+        path: "projection.yaml",
+        bytes: source,
+    })
+    .unwrap()])
+    .unwrap();
+
+    let incomplete = std::str::from_utf8(source)
+        .unwrap()
+        .replace("  yaml: {missing: {denotes: {field: visible}}}\n", "");
+    let errors = link(&[parse(SourceFile {
+        path: "projection.yaml",
+        bytes: incomplete.as_bytes(),
+    })
+    .unwrap()])
+    .unwrap_err();
+    assert!(
+        errors
+            .iter()
+            .any(|error| error.code == "unrepresented_field"),
+        "{errors:?}"
+    );
+}

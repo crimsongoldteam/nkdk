@@ -121,7 +121,7 @@ fn generate_at(
     };
     let _yaml = match &entry.yaml {
         YamlRepresentation::Mapping(mapping) => mapping.as_slice(),
-        YamlRepresentation::TextPattern(_) => &[],
+        YamlRepresentation::TextPattern(_) | YamlRepresentation::Projection(_) => &[],
         YamlRepresentation::KeyedMapping { .. } | YamlRepresentation::Sequence { .. } => &[],
         _ => return Err(unsupported(entry, "Constraints require a mapping")),
     };

@@ -114,19 +114,22 @@ impl<'a> RecordPlan<'a> {
     pub(crate) fn applies(entry: &LinkedEntry) -> bool {
         matches!(entry.value, LinkedType::Record(_))
             && (matches!(entry.yaml, YamlRepresentation::Mapping(_))
+                || matches!(entry.yaml, YamlRepresentation::Projection(_))
                 || (xml_fields(&entry.xml).is_some()
                     && matches!(entry.yaml, YamlRepresentation::TextPattern(_))))
     }
     pub(crate) fn prepare(entry: &'a LinkedEntry, program: &Program) -> Result<Self, Diagnostic> {
         let (
             LinkedType::Record(fields),
-            YamlRepresentation::Mapping(_) | YamlRepresentation::TextPattern(_),
+            YamlRepresentation::Mapping(_)
+            | YamlRepresentation::Projection(_)
+            | YamlRepresentation::TextPattern(_),
         ) = (&entry.value, &entry.yaml)
         else {
             return Err(diagnostic(
                 "expected_record_plan",
                 &entry.source,
-                "Record plan requires a record with a YAML mapping or text pattern",
+                "Record plan requires a record with a YAML mapping, projection or text pattern",
             ));
         };
         let planned: Vec<_> = fields
@@ -146,6 +149,13 @@ impl<'a> RecordPlan<'a> {
                 let covered = nkdk_rule_model::text_pattern_fields(parts)
                     .into_iter()
                     .collect();
+                check_coverage(fields, &covered, &entry.presence, side, &entry.source)?;
+                continue;
+            }
+            if let (RepresentationSide::Yaml, YamlRepresentation::Projection(field)) =
+                (side, &entry.yaml)
+            {
+                let covered = [field.as_str()].into_iter().collect();
                 check_coverage(fields, &covered, &entry.presence, side, &entry.source)?;
                 continue;
             }

@@ -92,3 +92,27 @@ pub(super) fn generate(id: u32, fields: &[Field<'_>]) -> String {
     out.push_str("}}\n");
     out
 }
+
+pub(super) fn projection_reader(id: u32, index: usize, field: &Field<'_>) -> String {
+    let read = if matches!(field.codec, Codec::Choice(_)) {
+        format!(
+            "let (text,number)=value.into_choice_text().map_err(|error|error.field({:?}))?;state.number{index}=number;state.r{index}=Some(text);",
+            field.key
+        )
+    } else {
+        format!(
+            "state.r{index}=Some(value.{}().map_err(|error|error.field({:?}))?);",
+            field.codec.yaml_input(),
+            field.key
+        )
+    };
+    format!(
+        "fn consume_yaml_projection_{id}(state:&mut YamlFields{id},seen:&mut bool,node:core::yaml::Node,position:core::Position)->core::Result<()>{{let core::yaml::Node::Scalar(value,tag)=node else{{return Err(RuntimeDiagnostic::new(\"yaml.expected-scalar\",\"Expected a scalar projection\"))}};if *seen{{return Err(RuntimeDiagnostic::new(\"yaml.document\",\"Expected one projected value\"))}}*seen=true;state.positions[{index}]=position;state.raw.read_mark({index},value.annotation(),position)?;state.raw.read_mark({index},tag.as_deref(),position)?;{read}Ok(())}}\n"
+    )
+}
+
+pub(super) fn projection_read(id: u32) -> String {
+    format!(
+        "let mut seen=false;events.visit(|node,position|consume_yaml_projection_{id}(&mut state,&mut seen,node,position))?;if !seen{{return Err(RuntimeDiagnostic::new(\"yaml.expected-scalar\",\"Missing projected value\"))}}finish_yaml_{id}(state,source,_inputs)"
+    )
+}

@@ -12,6 +12,7 @@ struct Field<'a> {
     attribute: Option<&'a ExpandedName>,
     key: &'a str,
     yaml_visible: bool,
+    yaml_projected: bool,
     codec: Codec<'a>,
     optional: bool,
     attributes: Vec<&'a LinkedXmlAttribute>,
@@ -150,7 +151,9 @@ fn generate_at(
             path: mapping.map_or(&[], |mapping| mapping.path.as_slice()),
             attribute: mapping.and_then(|mapping| mapping.attribute.as_ref()),
             key: planned.diagnostic_key(),
-            yaml_visible: planned.yaml.is_some(),
+            yaml_visible: planned.yaml.is_some()
+                || matches!(&entry.yaml, YamlRepresentation::Projection(name) if name == &field.name),
+            yaml_projected: matches!(&entry.yaml, YamlRepresentation::Projection(name) if name == &field.name),
             codec,
             optional,
             attributes,
@@ -439,6 +442,19 @@ fn generate_at(
         out.push_str(&text::definition(entry, parts, &fields)?);
         out.push_str(&text::reader(entry));
         text::read(id)
+    } else if let YamlRepresentation::Projection(_) = &entry.yaml {
+        if layout.is_some() {
+            return Err(unsupported(
+                entry,
+                "Nested whole-field projection is not supported yet",
+            ));
+        }
+        let index = fields
+            .iter()
+            .position(|field| field.yaml_projected)
+            .expect("linked YAML projection");
+        out.push_str(&yaml_read::projection_reader(id, index, &fields[index]));
+        yaml_read::projection_read(id)
     } else {
         yaml_events
     };
@@ -447,7 +463,11 @@ fn generate_at(
         if preserve && !xml_side {
             writeln!(out,"fn {read_yaml_name}(source:&[u8],inputs:&InputView<'_>)->core::Result<V{id}> {{ match read_yaml_body_{id}(source,inputs,core::raw::Fields::default()) {{Ok(value)=>Ok(value),Err(error)=>{{let mut raw=core::raw::Fields::default();let mut decoded=source.to_vec();let mut found=false;").unwrap();
             for (i, field) in physical_fields(&fields) {
-                writeln!(out,"if let Some(envelope)=core::raw::Property::decode_in(&decoded,{parent},{:?},{:?})? {{found=true;raw.insert({i},core::xml::Patch::read(&envelope.payload,&[],Q{id})?);decoded=envelope.meaning;}}",field.key,field.physical_name().local).unwrap();
+                if matches!(entry.yaml, YamlRepresentation::Projection(_)) {
+                    writeln!(out,"if let Some(envelope)=core::raw::Document::decode(&decoded)? {{found=true;raw.insert({i},core::xml::Patch::read(&envelope.payload,&[],Q{id})?);decoded=envelope.meaning;}}").unwrap();
+                } else {
+                    writeln!(out,"if let Some(envelope)=core::raw::Property::decode_in(&decoded,{parent},{:?},{:?})? {{found=true;raw.insert({i},core::xml::Patch::read(&envelope.payload,&[],Q{id})?);decoded=envelope.meaning;}}",field.key,field.physical_name().local).unwrap();
+                }
             }
             writeln!(
                 out,
@@ -978,9 +998,15 @@ fn generate_at(
         }
         out.push_str("Ok(()) }\n");
     }
+    let projected = matches!(entry.yaml, YamlRepresentation::Projection(_));
     writeln!(
         out,
-        "fn {write_yaml_name}(value: &V{id}, inputs: &InputView<'_>) -> core::Result<Vec<u8>> {{let mut out=String::new();write_yaml_into_{id}(value,inputs,&mut out)?;Ok(out.into_bytes())}}\nfn write_yaml_into_{id}(value: &V{id}, inputs: &InputView<'_>, out: &mut String) -> core::Result<()> {{if value.raw.is_empty() {{core::yaml::append_properties(out,|out|write_yaml_fields_{id}(value,inputs,out))}} else {{core::yaml::append_encoded_properties(out,&write_yaml_preserved_{id}(value,inputs)?)}} }}\nfn write_yaml_fields_{id}(value: &V{id}, inputs: &InputView<'_>, out: &mut String) -> core::Result<()> {{write_yaml_indented_{id}(value,inputs,out,\"\",false)}}\nfn write_yaml_indented_{id}(value: &V{id}, inputs: &InputView<'_>, out: &mut String, indent:&str, lift_attributes:bool) -> core::Result<()> {{write_yaml_except_{id}(value,inputs,out,indent,lift_attributes,None)}}\nfn write_yaml_except_{id}(value: &V{id}, _inputs: &InputView<'_>, out: &mut String, indent:&str, lift_attributes:bool, excluded:Option<usize>) -> core::Result<()> {{ let _=(value,indent,excluded,lift_attributes);let start=out.len();"
+        "fn {write_yaml_name}(value: &V{id}, inputs: &InputView<'_>) -> core::Result<Vec<u8>> {{let mut out=String::new();write_yaml_into_{id}(value,inputs,&mut out)?;Ok(out.into_bytes())}}\nfn write_yaml_into_{id}(value: &V{id}, inputs: &InputView<'_>, out: &mut String) -> core::Result<()> {{if value.raw.is_empty() {{{plain_write}}} else {{core::yaml::append_encoded_properties(out,&write_yaml_preserved_{id}(value,inputs)?)}} }}\nfn write_yaml_fields_{id}(value: &V{id}, inputs: &InputView<'_>, out: &mut String) -> core::Result<()> {{write_yaml_indented_{id}(value,inputs,out,\"\",false)}}\nfn write_yaml_indented_{id}(value: &V{id}, inputs: &InputView<'_>, out: &mut String, indent:&str, lift_attributes:bool) -> core::Result<()> {{write_yaml_except_{id}(value,inputs,out,indent,lift_attributes,None)}}\nfn write_yaml_except_{id}(value: &V{id}, _inputs: &InputView<'_>, out: &mut String, indent:&str, lift_attributes:bool, excluded:Option<usize>) -> core::Result<()> {{ let _=(value,indent,excluded,lift_attributes);let start=out.len();",
+        plain_write = if projected {
+            format!("write_yaml_fields_{id}(value,inputs,out)")
+        } else {
+            format!("core::yaml::append_properties(out,|out|write_yaml_fields_{id}(value,inputs,out))")
+        }
     )
     .unwrap();
     if let Some(layout) = layout {
@@ -1033,11 +1059,15 @@ fn generate_at(
         } else {
             format!("&core::yaml::scalar({text})")
         };
-        out.push_str("out.push_str(indent);");
-        if layout.is_some() {
-            out.push_str("out.push_str(\"  \");");
+        if field.yaml_projected {
+            writeln!(out, "core::yaml::append_marked_scalar(out,{yaml},value.raw.label({i}).as_deref(),indent,false); out.push('\\n');").unwrap();
+        } else {
+            out.push_str("out.push_str(indent);");
+            if layout.is_some() {
+                out.push_str("out.push_str(\"  \");");
+            }
+            writeln!(out, "out.push_str(&core::yaml::scalar({:?})); out.push_str(\": \"); core::yaml::append_marked_scalar(out,{yaml},value.raw.label({i}).as_deref(),indent,{nested}); out.push('\\n');", field.key,nested=layout.is_some()).unwrap();
         }
-        writeln!(out, "out.push_str(&core::yaml::scalar({:?})); out.push_str(\": \"); core::yaml::append_marked_scalar(out,{yaml},value.raw.label({i}).as_deref(),indent,{nested}); out.push('\\n');", field.key,nested=layout.is_some()).unwrap();
         out.push_str("}\n");
     }
     if layout.is_some() {
@@ -1055,7 +1085,11 @@ fn generate_at(
             } else {
                 format!(" && (!lift_attributes || value.f{i}.is_none())")
             };
-            writeln!(out,"if excluded!=Some({i}) && let Some(patch)=value.raw.get({i}){guard} {{let payload=patch.to_yaml();bytes=core::raw::Property::encode_in({parent},{key:?},{physical:?},&bytes,payload.as_bytes())?;}}",key=field.key,physical=field.physical_name().local).unwrap();
+            if projected {
+                writeln!(out,"if excluded!=Some({i}) && let Some(patch)=value.raw.get({i}){guard} {{let payload=patch.to_yaml();bytes=core::raw::Document::encode(&bytes,payload.as_bytes())?;}}").unwrap();
+            } else {
+                writeln!(out,"if excluded!=Some({i}) && let Some(patch)=value.raw.get({i}){guard} {{let payload=patch.to_yaml();bytes=core::raw::Property::encode_in({parent},{key:?},{physical:?},&bytes,payload.as_bytes())?;}}",key=field.key,physical=field.physical_name().local).unwrap();
+            }
         }
     }
     out.push_str("Ok(bytes) }\n");
@@ -1107,7 +1141,11 @@ fn generate_at(
                 };
                 write!(restore_meaning, "if _value.raw.get({i}).is_none() && omit_{id}_{i}(_value,inputs)? && let Some(field_value)=&_value.f{i} && {} {{if !candidate.is_empty() {{candidate.push(b'\\n');}} candidate.extend_from_slice(core::yaml::scalar({:?}).as_bytes());candidate.extend_from_slice(b\": \");candidate.extend_from_slice(({yaml}).as_bytes());}}", field.codec.yaml_representable(&name, "field_value"), field.key).unwrap();
             }
-            writeln!(out,"if let Some(tree)=core::xml::Tree::capture(original,{path})? {{let base=core::xml::Tree::capture(&ordinary,{path})?;let patch=tree.patch_yaml(base.as_ref(),&[],Q{id})?;if patch!=\"{{}}\" {{{restore_meaning}candidate=core::raw::Property::encode_in({parent},{key:?},{physical:?},&candidate,if patch.is_empty() {{b\"\\\"\\\"\"}} else {{patch.as_bytes()}})?;}}}} else if core::xml::Tree::capture(&ordinary,{path})?.is_some() {{candidate=core::raw::Property::encode_in({parent},{key:?},{physical:?},&candidate,b\"null\")?;}}",path=path_code(field.path),key=field.key,physical=field.physical_name().local).unwrap();
+            if projected {
+                writeln!(out,"if let Some(tree)=core::xml::Tree::capture(original,{path})? {{let base=core::xml::Tree::capture(&ordinary,{path})?;let patch=tree.patch_yaml(base.as_ref(),&[],Q{id})?;if patch!=\"{{}}\" {{{restore_meaning}candidate=core::raw::Document::encode(&candidate,if patch.is_empty() {{b\"\\\"\\\"\"}} else {{patch.as_bytes()}})?;}}}} else if core::xml::Tree::capture(&ordinary,{path})?.is_some() {{candidate=core::raw::Document::encode(&candidate,b\"null\")?;}}",path=path_code(field.path)).unwrap();
+            } else {
+                writeln!(out,"if let Some(tree)=core::xml::Tree::capture(original,{path})? {{let base=core::xml::Tree::capture(&ordinary,{path})?;let patch=tree.patch_yaml(base.as_ref(),&[],Q{id})?;if patch!=\"{{}}\" {{{restore_meaning}candidate=core::raw::Property::encode_in({parent},{key:?},{physical:?},&candidate,if patch.is_empty() {{b\"\\\"\\\"\"}} else {{patch.as_bytes()}})?;}}}} else if core::xml::Tree::capture(&ordinary,{path})?.is_some() {{candidate=core::raw::Property::encode_in({parent},{key:?},{physical:?},&candidate,b\"null\")?;}}",path=path_code(field.path),key=field.key,physical=field.physical_name().local).unwrap();
+            }
         }
         writeln!(
             out,

@@ -835,13 +835,15 @@ fn validate_yaml(
             check_coverage(fields, &covered, presence, RepresentationSide::Yaml, source)?
         }
         (LinkedType::Record(fields), YamlRepresentation::Projection(name)) => {
-            if fields.len() != 1 || fields[0].name != *name {
+            if !fields.iter().any(|field| field.name == *name) {
                 return Err(diagnostic(
                     "invalid_yaml_projection",
                     source,
-                    "A YAML projection must select the only record field",
+                    "A YAML projection must select a record field",
                 ));
             }
+            let covered = [name.as_str()].into_iter().collect();
+            check_coverage(fields, &covered, presence, RepresentationSide::Yaml, source)?;
         }
         (LinkedType::Record(fields), YamlRepresentation::Mapping(mappings)) => {
             let names: BTreeSet<_> = fields.iter().map(|field| field.name.as_str()).collect();
