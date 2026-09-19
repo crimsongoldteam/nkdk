@@ -15,6 +15,40 @@ presence:
   yaml: {missing: {denotes: {field: visible}}}
 "#;
 
+const PROJECTED_ROW: &str = r#"format: nkdk-declarations/1
+kind: value
+id: test.projected-row
+value: {kind: record, fields: [{name: value, type: {kind: scalar, scalar: text}}]}
+representations:
+  xml: {kind: record, fields: [{field: value, path: [Value]}]}
+  yaml: {kind: mapping, fields: [{field: value, key: Value}]}
+"#;
+const PROJECTED_ROWS: &str = r#"format: nkdk-declarations/1
+kind: value
+id: test.projected-rows
+imports: {row: test.projected-row}
+value: {kind: sequence, item: {use: row}}
+representations:
+  xml: {kind: element-sequence, path: [Item]}
+  yaml: {kind: sequence}
+"#;
+const PROJECTED_ROWS_OWNER: &str = r#"format: nkdk-declarations/1
+kind: object
+id: test.projected-row-owner
+imports: {rows: test.projected-rows}
+value:
+  kind: record
+  fields:
+  - {name: visible, type: {use: rows}}
+  - {name: xmlValues, type: {use: rows}}
+representations:
+  xml: {kind: record, fields: [{field: xmlValues, path: [ProjectedRows, Values]}]}
+  yaml: {kind: projection, field: visible}
+presence:
+- {target: {field: visible}, xml: {missing: {denotes: {field: xmlValues}}}}
+- {target: {field: xmlValues}, yaml: {missing: {denotes: {field: visible}}}}
+"#;
+
 #[test]
 fn generated_rust_executes_both_directions_and_uses_the_imported_table() {
     let projected_record = PROJECTED_RECORD;
@@ -886,6 +920,9 @@ presence:
             ("required-owner.yaml", required_owner.as_str()),
             ("owner.yaml", owner),
             ("projected-record.yaml", projected_record),
+            ("projected-row.yaml", PROJECTED_ROW),
+            ("projected-rows.yaml", PROJECTED_ROWS),
+            ("projected-row-owner.yaml", PROJECTED_ROWS_OWNER),
             (
                 "qname-common.yaml",
                 include_str!("fixtures/qname-common.yaml"),
@@ -1122,6 +1159,9 @@ presence:
                 "owner.yaml",
                 "profiled-state-relation.yaml",
                 "projected-record.yaml",
+                "projected-row-owner.yaml",
+                "projected-row.yaml",
+                "projected-rows.yaml",
                 "property-state-row.yaml",
                 "property-states.yaml",
                 "qname-common.yaml",
@@ -1201,6 +1241,12 @@ fn main() {
     let projected_preserved = convert_file(projected,Direction::XmlToYaml,projected_anomaly,&PreparedInputs::default()).unwrap();
     assert!(String::from_utf8_lossy(&projected_preserved.bytes).starts_with("!xml/raw"),"{}",String::from_utf8_lossy(&projected_preserved.bytes));
     verify_candidate(projected,projected_anomaly,&projected_preserved.bytes,&PreparedInputs::default()).unwrap();
+
+    let projected_rows = entry_id("test.projected-row-owner").unwrap();
+    let projected_rows_xml = b"<ProjectedRows><Values><Item><Value>one</Value></Item><Item><Value>two</Value></Item></Values></ProjectedRows>";
+    let projected_rows_yaml = convert_file(projected_rows,Direction::XmlToYaml,projected_rows_xml,&PreparedInputs::default()).unwrap();
+    assert_eq!(projected_rows_yaml.bytes,b"-\n  Value: one\n-\n  Value: two");
+    verify_candidate(projected_rows,projected_rows_xml,&projected_rows_yaml.bytes,&PreparedInputs::default()).unwrap();
 
     for (name, extra_xml, extra_yaml) in [
         ("test.directional-fields", "", ""),

@@ -19,6 +19,34 @@ pub(super) fn missing(
         LinkedExpressionKind::Absent => {
             Ok(format!("V{id}{{rows:Vec::new(),present:false,raw:None}}"))
         }
+        LinkedExpressionKind::Input(slot) => {
+            if !constructible {
+                return Err(unsupported(
+                    row,
+                    "Semantic construction requires borrowable scalar record fields",
+                ));
+            }
+            let LinkedType::Record(fields) = &row.value else {
+                unreachable!()
+            };
+            let mut slots = Vec::new();
+            for (index, field) in fields.iter().enumerate() {
+                let method = scalar::Codec::resolve(&field.value, row, program)?
+                    .input_method()
+                    .expect("constructible scalar");
+                let value = match method {
+                    "text" => format!("Text(source.text({index})?)"),
+                    "boolean" => format!("Boolean(source.boolean({index})?)"),
+                    "decimal" => format!("Decimal(source.decimal({index})?)"),
+                    _ => unreachable!("borrowable scalar"),
+                };
+                slots.push(format!("Some(core::inputs::InputRef::{value})"));
+            }
+            Ok(format!(
+                "{{let mut constructed_rows=Vec::new();for source in inputs.records({slot})?{{constructed_rows.push(item_{id}::construct(&[{}],inputs)?);}}V{id}{{rows:constructed_rows,present:true,raw:None}}}}",
+                slots.join(",")
+            ))
+        }
         LinkedExpressionKind::Operation {
             operator: LinkedOperator::Conditional,
             arguments,

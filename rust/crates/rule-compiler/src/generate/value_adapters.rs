@@ -40,6 +40,22 @@ pub(super) fn emit_usage(
             field.file = None;
         }
     }
+    if mapping.is_none()
+        && sequence.is_some()
+        && super::declared_items::applies(&local, program)
+        && let LinkedXml::Record(xml) = &mut local.xml
+    {
+        xml.push(LinkedXmlField {
+            file: None,
+            field: field.name.clone(),
+            path: vec![ExpandedName {
+                namespace: String::new(),
+                local: "__declarative_virtual__".into(),
+            }],
+            attribute: None,
+            source: field.source.clone(),
+        });
+    }
     let record_value = crate::plan::routes::record_usage(&local, program)?.is_some();
     let checks = constraints::generate(&local, program)?;
     let qname = super::qname::applies(child, program);

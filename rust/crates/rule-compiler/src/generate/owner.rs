@@ -129,12 +129,17 @@ pub(super) fn generate_at(
     let mut keys = Vec::new();
     let mut aliases = Vec::new();
     let mut attributes = Vec::new();
+    let projected_slot = crate::plan::records::yaml_projection_slot(entry, parts);
     let mut stateful = files.iter().all(Option::is_none);
     let mut yaml_stateful = stateful;
     for (slot, child) in parts.iter().enumerate() {
-        let (LinkedXml::Record(xml), YamlRepresentation::Mapping(yaml)) = (&child.xml, &child.yaml)
-        else {
+        let LinkedXml::Record(xml) = &child.xml else {
             unreachable!()
+        };
+        let yaml: &[_] = match &child.yaml {
+            YamlRepresentation::Mapping(yaml) => yaml,
+            YamlRepresentation::Projection(_) => &[],
+            _ => unreachable!("partitioned owner YAML"),
         };
         let names: Vec<_> = xml
             .iter()
@@ -494,34 +499,38 @@ pub(super) fn generate_at(
             writeln!(out, "p{slot}:part_{id}_{slot}::YamlReader::new()?,").unwrap();
         }
         out.push_str("})}\n");
-        writeln!(out,"fn consume(&mut self,node:core::yaml::Node,position:core::Position,source:&[u8],inputs:&InputView<'_>)->core::Result<()>{{let slot=self.routing.route(&node,|key|match key{{").unwrap();
-        for (slot, keys) in keys.iter().enumerate() {
-            for key in keys {
-                writeln!(out, "{key:?}=>Some({slot}),").unwrap();
+        if let Some(slot) = projected_slot {
+            writeln!(out,"fn consume(&mut self,node:core::yaml::Node,position:core::Position,source:&[u8],inputs:&InputView<'_>)->core::Result<()>{{self.p{slot}.consume(node,position,source,inputs)}}").unwrap();
+        } else {
+            writeln!(out,"fn consume(&mut self,node:core::yaml::Node,position:core::Position,source:&[u8],inputs:&InputView<'_>)->core::Result<()>{{let slot=self.routing.route(&node,|key|match key{{").unwrap();
+            for (slot, keys) in keys.iter().enumerate() {
+                for key in keys {
+                    writeln!(out, "{key:?}=>Some({slot}),").unwrap();
+                }
             }
+            out.push_str("_=>None})?;match slot{\n");
+            for slot in 0..parts.len() {
+                writeln!(
+                    out,
+                    "Some({slot})=>self.p{slot}.consume(node,position,source,inputs),"
+                )
+                .unwrap();
+            }
+            out.push_str("None=>{match node{core::yaml::Node::MappingStart(None)=>{\n");
+            for slot in 0..parts.len() {
+                writeln!(out,"self.p{slot}.consume(core::yaml::Node::MappingStart(None),position,source,inputs)?;").unwrap();
+            }
+            out.push_str("},core::yaml::Node::MappingEnd=>{\n");
+            for slot in 0..parts.len() {
+                writeln!(
+                    out,
+                    "self.p{slot}.consume(core::yaml::Node::MappingEnd,position,source,inputs)?;"
+                )
+                .unwrap();
+            }
+            out.push_str("},_=>unreachable!(\"mapping boundary\")}Ok(())},_=>unreachable!(\"declared YAML route\")}}\n");
         }
-        out.push_str("_=>None})?;match slot{\n");
-        for slot in 0..parts.len() {
-            writeln!(
-                out,
-                "Some({slot})=>self.p{slot}.consume(node,position,source,inputs),"
-            )
-            .unwrap();
-        }
-        out.push_str("None=>{match node{core::yaml::Node::MappingStart(None)=>{\n");
-        for slot in 0..parts.len() {
-            writeln!(out,"self.p{slot}.consume(core::yaml::Node::MappingStart(None),position,source,inputs)?;").unwrap();
-        }
-        out.push_str("},core::yaml::Node::MappingEnd=>{\n");
-        for slot in 0..parts.len() {
-            writeln!(
-                out,
-                "self.p{slot}.consume(core::yaml::Node::MappingEnd,position,source,inputs)?;"
-            )
-            .unwrap();
-        }
-        out.push_str("},_=>unreachable!(\"mapping boundary\")}Ok(())},_=>unreachable!(\"declared YAML route\")}}\n");
-        writeln!(out,"fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<V{id}>{{self.routing.finish()?;{scope_finish_yaml}Ok(V{id}{{root:None,containers:[1;{count}],").unwrap();
+        writeln!(out,"fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<V{id}>{{{} {scope_finish_yaml}Ok(V{id}{{root:None,containers:[1;{count}],",if projected_slot.is_some(){""}else{"self.routing.finish()?;"}).unwrap();
         for slot in 0..parts.len() {
             writeln!(out, "p{slot},").unwrap();
         }
@@ -699,11 +708,20 @@ pub(super) fn generate_at(
             writeln!(out,"if let Some(envelope)=core::raw::Document::decode(source)? {{let mut value=read_yaml_{id}(&envelope.meaning,inputs)?;let patch=core::xml::Patch::read(&envelope.payload,&[],&xml_qnames_{id}())?;if patch.is_null() {{return Err(RuntimeDiagnostic::new(\"xml.owner-root\",\"The document root cannot be removed\"));}}value.root=Some(patch);return Ok(value);}}").unwrap();
         }
         if side == "yaml" {
-            writeln!(
-                out,
-                "let pieces=core::yaml::split_properties(source,&[{groups}])?;"
-            )
-            .unwrap();
+            if let Some(slot) = projected_slot {
+                writeln!(
+                    out,
+                    "let mut pieces=vec![Vec::new();{}];pieces[{slot}]=source.to_vec();",
+                    parts.len()
+                )
+                .unwrap();
+            } else {
+                writeln!(
+                    out,
+                    "let pieces=core::yaml::split_properties(source,&[{groups}])?;"
+                )
+                .unwrap();
+            }
         }
         let mut ready = vec![false; parts.len()];
         for &slot in input_scope.order(if side == "xml" {

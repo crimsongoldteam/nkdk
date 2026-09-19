@@ -45,7 +45,12 @@ pub(crate) fn parts(
             child.presence.clear();
             child.value = LinkedType::Record(vec![field.clone()]);
             child.xml = LinkedXml::Record(mapping.cloned().into_iter().collect());
-            child.yaml = YamlRepresentation::Mapping(property.cloned().into_iter().collect());
+            child.yaml = match &entry.yaml {
+                YamlRepresentation::Projection(selected) if selected == &field.name => {
+                    YamlRepresentation::Projection(field.name.clone())
+                }
+                _ => YamlRepresentation::Mapping(property.cloned().into_iter().collect()),
+            };
             child.field_dependencies = vec![Vec::new()];
             result.push(child);
         }
@@ -105,6 +110,9 @@ pub(crate) fn shares_container(parts: &[LinkedEntry], slot: usize, path: &[Expan
 
 /// Order YAML storage parts by the declared YAML fields, independently of XML.
 pub(crate) fn yaml_slots(entry: &LinkedEntry, parts: &[LinkedEntry]) -> Vec<usize> {
+    if let Some(slot) = yaml_projection_slot(entry, parts) {
+        return vec![slot];
+    }
     let mut slots: Vec<_> = (0..parts.len()).collect();
     let YamlRepresentation::Mapping(mapping) = &entry.yaml else {
         return slots;
@@ -119,4 +127,18 @@ pub(crate) fn yaml_slots(entry: &LinkedEntry, parts: &[LinkedEntry]) -> Vec<usiz
             .unwrap_or(usize::MAX)
     });
     slots
+}
+
+pub(crate) fn yaml_projection_slot(entry: &LinkedEntry, parts: &[LinkedEntry]) -> Option<usize> {
+    let YamlRepresentation::Projection(selected) = &entry.yaml else {
+        return None;
+    };
+    Some(
+        parts
+            .iter()
+            .position(|part| {
+                matches!(&part.value, LinkedType::Record(fields) if fields.iter().any(|field| &field.name == selected))
+            })
+            .expect("linked YAML projection"),
+    )
 }
