@@ -21,6 +21,7 @@ pub(super) enum Codec<'a> {
         &'a [QNameLexeme<ExpandedName>],
         &'a [EnumLexeme],
     ),
+    QNameText(&'a [QNameTextLexeme<ExpandedName>]),
     States(&'a [EnumVariant], &'a [EnumLexeme], &'a [YamlState]),
 }
 impl<'a> Codec<'a> {
@@ -111,6 +112,11 @@ impl<'a> Codec<'a> {
                         YamlRepresentation::EnumTable(yaml),
                     ) => Ok(Self::QNameEnumeration(variants, xml, yaml)),
                     (
+                        LinkedType::Scalar(ScalarType::Text),
+                        LinkedXml::QNameTextTable(xml),
+                        YamlRepresentation::Text,
+                    ) => Ok(Self::QNameText(xml)),
+                    (
                         LinkedType::Enum(variants),
                         LinkedXml::EnumTable(xml),
                         YamlRepresentation::States(yaml),
@@ -129,12 +135,16 @@ impl<'a> Codec<'a> {
     }
     /// The borrowed semantic representation, independent of its XML/YAML spelling.
     pub fn is_index_text(&self) -> bool {
-        matches!(self, Self::Text | Self::Enumeration(..) | Self::States(..))
+        matches!(
+            self,
+            Self::Text | Self::QNameText(_) | Self::Enumeration(..) | Self::States(..)
+        )
     }
     pub fn input_method(&self) -> Option<&'static str> {
         match self {
             Self::Text
             | Self::TextTable(_)
+            | Self::QNameText(_)
             | Self::Enumeration(..)
             | Self::QNameEnumeration(..)
             | Self::States(..) => Some("text"),
@@ -147,7 +157,7 @@ impl<'a> Codec<'a> {
         match self {
             Self::Decimal | Self::FormattedDecimal(_) => "core::decimal::Decimal".into(),
             Self::Choice(_) => "core::scalar::Value".into(),
-            Self::Text | Self::TextTable(_) => "String".into(),
+            Self::Text | Self::TextTable(_) | Self::QNameText(_) => "String".into(),
             Self::Calendar { .. } => "core::calendar::Value".into(),
             Self::Boolean(..) => "bool".into(),
             Self::Enumeration(..)
@@ -179,6 +189,7 @@ impl<'a> Codec<'a> {
         match self {
             Self::Text
             | Self::TextTable(_)
+            | Self::QNameText(_)
             | Self::Pattern(_)
             | Self::Forms(_)
             | Self::Sequence(_)
@@ -268,7 +279,9 @@ impl<'a> Codec<'a> {
     pub(super) fn meaning_reference(&self, name: &str, reference: &str) -> String {
         let receiver = reference.strip_prefix('&').unwrap_or(reference);
         match self {
-            Self::Text | Self::TextTable(_) => format!("({receiver}).as_str()"),
+            Self::Text | Self::TextTable(_) | Self::QNameText(_) => {
+                format!("({receiver}).as_str()")
+            }
             Self::Calendar { .. } => format!("&({receiver}).xml()"),
             Self::Boolean(..) => format!("*({reference})"),
             Self::Enumeration(variants, ..)
@@ -289,7 +302,7 @@ impl<'a> Codec<'a> {
     }
     pub fn write_is_fallible(&self, xml: bool) -> bool {
         match self {
-            Self::Pattern(_) | Self::Forms(_) | Self::Sequence(_) => true,
+            Self::Pattern(_) | Self::Forms(_) | Self::Sequence(_) | Self::QNameText(_) => true,
             Self::Boolean(left, right) => (if xml { left } else { right }).len() < 2,
             Self::States(_, _, rows) => {
                 !xml && rows.iter().any(|row| row.form == YamlStateForm::Absent)
@@ -314,6 +327,27 @@ impl<'a> Codec<'a> {
         )
     }
     pub fn read(&self, name: &str, index: usize, key: &str, xml_side: bool) -> String {
+        if let Self::QNameText(table) = self {
+            if !xml_side {
+                return format!(
+                    "core::xml::validate_text(&r{index}).map_err(|error|positions[{index}].apply(source,error.field({key:?})))?;let f{index}=r{index};\n"
+                );
+            }
+            let mut arms = String::new();
+            for item in *table {
+                for name in std::iter::once(&item.name).chain(&item.accepted) {
+                    let encoded = format!("{}\0{}", name.namespace, name.local);
+                    writeln!(arms, "{encoded:?}=>{:?}.to_owned(),", item.literal).unwrap();
+                    if let Some(separator) = &item.separator {
+                        let prefix = format!("{encoded}{separator}");
+                        writeln!(arms, "value if value.starts_with({prefix:?})=>format!(\"{{}}{{}}{{}}\",{:?},{separator:?},&value[{len}..]),", item.literal, len=prefix.len()).unwrap();
+                    }
+                }
+            }
+            return format!(
+                "let f{index}=match r{index}.as_str(){{{arms}_=>return Err(positions[{index}].apply(source,RuntimeDiagnostic::new(\"value.qname\",\"Unknown qualified name\").field({key:?}))),}};\n"
+            );
+        }
         if let Self::TextTable(table) = self {
             let read = super::text_table::read(table, &format!("r{index}.as_str()"), xml_side);
             return format!(
@@ -448,7 +482,7 @@ impl<'a> Codec<'a> {
             }
             return format!("&({reference}).to_string()");
         }
-        if matches!(self, Self::Text) {
+        if matches!(self, Self::Text | Self::QNameText(_)) {
             return reference.into();
         }
         let cases = self.cases(name, xml_side, false);
@@ -478,24 +512,45 @@ impl<'a> Codec<'a> {
         )
     }
 
-    pub fn qname_reference(&self, name: &str, reference: &str) -> Option<String> {
-        let Self::QNameEnumeration(variants, table, _) = self else {
-            return None;
-        };
-        let arms = table
-            .iter()
-            .map(|item| {
-                let i = variants
+    pub fn qname_owned_reference(&self, name: &str, reference: &str) -> Option<String> {
+        match self {
+            Self::QNameEnumeration(variants, table, _) => {
+                let arms = table
                     .iter()
-                    .position(|variant| variant.value == item.value)
-                    .expect("linked QName enum table");
-                format!(
-                    "{name}::V{i}=>( {:?}, {:?}),",
-                    item.name.namespace, item.name.local
-                )
-            })
-            .collect::<String>();
-        Some(format!("match {reference} {{{arms}}}"))
+                    .map(|item| {
+                        let i = variants
+                            .iter()
+                            .position(|variant| variant.value == item.value)
+                            .expect("linked QName enum table");
+                        format!(
+                            "{name}::V{i}=>( {:?},std::borrow::Cow::Borrowed({:?})),",
+                            item.name.namespace, item.name.local
+                        )
+                    })
+                    .collect::<String>();
+                Some(format!("match {reference} {{{arms}}}"))
+            }
+            Self::QNameText(table) => {
+                let mut arms = String::new();
+                for item in *table {
+                    writeln!(
+                        arms,
+                        "{:?}=>( {:?},std::borrow::Cow::Borrowed({:?})),",
+                        item.literal, item.name.namespace, item.name.local
+                    )
+                    .unwrap();
+                    if let Some(separator) = &item.separator {
+                        let prefix = format!("{}{separator}", item.literal);
+                        let local = format!("{}{separator}", item.name.local);
+                        writeln!(arms,"value if value.starts_with({prefix:?})=>( {:?},std::borrow::Cow::Owned(format!(\"{{}}{{}}\",{local:?},&value[{len}..]))),",item.name.namespace,len=prefix.len()).unwrap();
+                    }
+                }
+                Some(format!(
+                    "match ({reference}).as_str() {{{arms}_=>return Err(RuntimeDiagnostic::new(\"value.unrepresented\",\"Text has no QName spelling\")),}}"
+                ))
+            }
+            _ => None,
+        }
     }
 }
 

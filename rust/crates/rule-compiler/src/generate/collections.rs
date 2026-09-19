@@ -381,6 +381,15 @@ pub(super) fn generate_embedded(
                 .filter(|namespace| !namespace.is_empty()),
         );
     }
+    if let Some(scalar::Codec::QNameText(table)) = typed.as_ref() {
+        namespaces.extend(
+            table
+                .iter()
+                .flat_map(|item| std::iter::once(&item.name).chain(&item.accepted))
+                .map(|name| name.namespace.as_str())
+                .filter(|namespace| !namespace.is_empty()),
+        );
+    }
     let id = entry.id;
     let key_name = &owner_yaml[0].key;
     let parent_code = super::record::path_code(parent);
@@ -498,7 +507,10 @@ pub(super) fn generate_embedded(
     }
     out.push_str(tree_text);
     out.push_str("if core::xml::is_whitespace(text) { Ok(()) } else { Err(RuntimeDiagnostic::new(\"xml.unexpected-text\", \"Text outside a scalar\")) } }, core::xml::Token::End => {\n");
-    let resolve_qname = if matches!(typed.as_ref(), Some(scalar::Codec::QNameEnumeration(..))) {
+    let resolve_qname = if matches!(
+        typed.as_ref(),
+        Some(scalar::Codec::QNameEnumeration(..) | scalar::Codec::QNameText(_))
+    ) {
         format!(
             "if core::xml::matches(path,{item_code}) {{let raw=fields[0].as_ref().ok_or_else(||RuntimeDiagnostic::new(\"value.missing\",\"Missing QName item\"))?;let (namespace,local)=scope.ok_or_else(||RuntimeDiagnostic::new(\"xml.qname-prefix\",\"QName namespace scope is unavailable\"))?.resolve_qname(raw)?;fields[0]=Some(format!(\"{{namespace}}\\0{{local}}\"));}}"
         )
@@ -722,14 +734,14 @@ core::yaml::append_encoded_properties(out,&encoded)
     } else {
         for &(index, path) in &element_paths {
             if let Some(qname) = typed.as_ref().and_then(|codec| {
-                codec.qname_reference(
+                codec.qname_owned_reference(
                     &super::collection_values::name(id),
                     &format!("&row.fields[{index}]"),
                 )
             }) {
                 writeln!(
                     out,
-                    "out.qname_field({}, {qname})?;",
+                    "let qname:(&str,std::borrow::Cow<'_,str>)={qname};out.qname_field({},(qname.0,qname.1.as_ref()))?;",
                     super::record::path_code(path)
                 )
                 .unwrap();
@@ -807,7 +819,10 @@ core::yaml::append_encoded_properties(out,&encoded)
         .collect::<Vec<_>>()
         .join(" || ");
     out.push_str(&super::proof::qnames(id, &format!("vec!{raw_qnames:?}")));
-    let qname_text = if matches!(typed.as_ref(), Some(scalar::Codec::QNameEnumeration(..))) {
+    let qname_text = if matches!(
+        typed.as_ref(),
+        Some(scalar::Codec::QNameEnumeration(..) | scalar::Codec::QNameText(_))
+    ) {
         element_paths
             .iter()
             .map(|(_, path)| {

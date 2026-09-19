@@ -622,6 +622,28 @@ fn resolve_xml(
                 })
                 .collect::<Result<_, Diagnostic>>()?,
         ),
+        XmlRepresentation::QNameTextTable(table) => LinkedXml::QNameTextTable(
+            table
+                .iter()
+                .map(|item| {
+                    Ok(QNameTextLexeme {
+                        name: expand_path(module, std::slice::from_ref(&item.name), &item.source)?
+                            .remove(0),
+                        accepted: item
+                            .accepted
+                            .iter()
+                            .map(|name| {
+                                expand_path(module, std::slice::from_ref(name), &item.source)
+                                    .map(|mut names| names.remove(0))
+                            })
+                            .collect::<Result<_, Diagnostic>>()?,
+                        literal: item.literal.clone(),
+                        separator: item.separator.clone(),
+                        source: item.source.clone(),
+                    })
+                })
+                .collect::<Result<_, Diagnostic>>()?,
+        ),
         XmlRepresentation::Decimal => LinkedXml::Decimal,
         XmlRepresentation::FormattedDecimal(format) => LinkedXml::FormattedDecimal(format.clone()),
         XmlRepresentation::Text => LinkedXml::Text,
@@ -809,6 +831,35 @@ fn validate_xml(
                 })
                 .collect::<Vec<_>>();
             enumeration::table(variants, &spelling, source)?;
+        }
+        (LinkedType::Scalar(ScalarType::Text), LinkedXml::QNameTextTable(table)) => {
+            let mut xml = BTreeSet::new();
+            let mut yaml = BTreeSet::new();
+            for item in table {
+                for name in std::iter::once(&item.name).chain(&item.accepted) {
+                    if !xml.insert((name.namespace.as_str(), name.local.as_str())) {
+                        return Err(diagnostic(
+                            "duplicate_qname",
+                            &item.source,
+                            "QName lexicon has a repeated XML name",
+                        ));
+                    }
+                }
+                if !yaml.insert(item.literal.as_str()) {
+                    return Err(diagnostic(
+                        "duplicate_literal",
+                        &item.source,
+                        "QName lexicon has a repeated YAML literal",
+                    ));
+                }
+                if item.separator.as_deref().is_some_and(str::is_empty) {
+                    return Err(diagnostic(
+                        "invalid_separator",
+                        &item.source,
+                        "QName lexicon separator must not be empty",
+                    ));
+                }
+            }
         }
         (
             LinkedType::Scalar(ScalarType::Decimal),

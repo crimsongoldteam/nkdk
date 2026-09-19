@@ -177,5 +177,6 @@ fn scalar_xml(value: &LinkedXml) -> bool {
             | LinkedXml::BooleanTable(_)
             | LinkedXml::EnumTable(_)
             | LinkedXml::QNameTable(_)
+            | LinkedXml::QNameTextTable(_)
     )
 }

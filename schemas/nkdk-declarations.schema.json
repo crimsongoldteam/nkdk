@@ -1508,6 +1508,51 @@
           "type": "object",
           "properties": {
             "kind": {
+              "const": "qname-lexicon"
+            },
+            "values": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "literal": {
+                    "type": "string"
+                  },
+                  "separator": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "accept": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "uniqueItems": true
+                  }
+                },
+                "required": [
+                  "name",
+                  "literal"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "kind",
+            "values"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
               "const": "text"
             }
           },

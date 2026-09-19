@@ -1,5 +1,5 @@
 use super::*;
-use nkdk_rule_model::{EnumLexeme, EnumVariant, QNameLexeme};
+use nkdk_rule_model::{EnumLexeme, EnumVariant, QNameLexeme, QNameTextLexeme};
 
 pub(super) fn variants(path: &str, node: &Node) -> Result<TypeDefinition, Diagnostic> {
     let fields = node.mapping(path, &["kind", "variants"])?;
@@ -50,6 +50,59 @@ pub(super) fn qname_table(path: &str, node: &Node) -> Result<Vec<QNameLexeme<Str
                 value: value.text(path)?.into(),
                 name: item.field(path, fields, "name")?.text(path)?.into(),
                 source: location(path, value),
+            })
+        })
+        .collect()
+}
+
+pub(super) fn qname_text_table(
+    path: &str,
+    node: &Node,
+) -> Result<Vec<QNameTextLexeme<String>>, Diagnostic> {
+    let fields = node.mapping(path, &["kind", "values"])?;
+    node.field(path, fields, "kind")?.literal(
+        path,
+        "qname-lexicon",
+        "unsupported_representation",
+    )?;
+    let values = node.field(path, fields, "values")?;
+    let Shape::Sequence(items) = &values.shape else {
+        return Err(error(
+            path,
+            values.mark,
+            "expected_sequence",
+            "Expected QName lexicon",
+        ));
+    };
+    items
+        .iter()
+        .map(|item| {
+            let fields = item.mapping(path, &["name", "literal", "separator", "accept"])?;
+            let name = item.field(path, fields, "name")?;
+            Ok(QNameTextLexeme {
+                name: name.text(path)?.into(),
+                accepted: optional_field(fields, "accept")
+                    .map(|values| {
+                        let Shape::Sequence(values) = &values.shape else {
+                            return Err(error(
+                                path,
+                                values.mark,
+                                "expected_sequence",
+                                "Expected accepted QNames",
+                            ));
+                        };
+                        values
+                            .iter()
+                            .map(|value| value.text(path).map(String::from))
+                            .collect()
+                    })
+                    .transpose()?
+                    .unwrap_or_default(),
+                literal: item.field(path, fields, "literal")?.text(path)?.into(),
+                separator: optional_field(fields, "separator")
+                    .map(|value| value.text(path).map(String::from))
+                    .transpose()?,
+                source: location(path, name),
             })
         })
         .collect()

@@ -163,6 +163,7 @@ fn resolve_forms(module: &Module, constraint: &Constraint) -> Result<Vec<LinkedF
             | XmlRepresentation::Decimal
             | XmlRepresentation::EnumTable(_) => ("text", LinkedForm::XmlText),
             XmlRepresentation::QNameTable(_) => ("text", LinkedForm::XmlText),
+            XmlRepresentation::QNameTextTable(_) => ("text", LinkedForm::XmlText),
             XmlRepresentation::Record(_) => ("record", LinkedForm::XmlRecord),
             XmlRepresentation::Tree(_) => ("tree", LinkedForm::XmlTree),
             XmlRepresentation::ElementSequence { .. } => {

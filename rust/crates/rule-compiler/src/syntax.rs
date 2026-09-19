@@ -309,92 +309,93 @@ fn module(path: &str, mut root: Node) -> Result<Module, Diagnostic> {
         }
         TypeDefinition::ScalarChoice(_) => scalar_choice::representations(path, xml, yaml)?,
         TypeDefinition::Scalar(ScalarType::Text) | TypeDefinition::Use(_) => {
-            let xml_fields = xml.mapping(path, &["kind", "format", "zone"])?;
-            if xml.field(path, xml_fields, "kind")?.text(path)? == "calendar" {
-                xml.field(path, xml_fields, "format")?.literal(
-                    path,
-                    "iso",
-                    "unsupported_calendar_format",
-                )?;
-                xml.field(path, xml_fields, "zone")?.literal(
-                    path,
-                    "written",
-                    "unsupported_calendar_zone",
-                )?;
-                let fields = yaml.mapping(path, &["kind", "format", "precision", "zeroTime"])?;
-                yaml.field(path, fields, "kind")?.literal(
-                    path,
-                    "calendar",
-                    "unsupported_representation",
-                )?;
-                yaml.field(path, fields, "format")?.literal(
-                    path,
-                    "day-month-year",
-                    "unsupported_calendar_format",
-                )?;
-                let precision = yaml.field(path, fields, "precision")?;
-                let seconds = match precision.text(path)? {
-                    "seconds" => true,
-                    "minutes" => false,
-                    _ => {
-                        return Err(error(
-                            path,
-                            precision.mark,
-                            "unsupported_calendar_precision",
-                            "Expected minutes or seconds",
-                        ));
-                    }
-                };
-                let zero = yaml.field(path, fields, "zeroTime")?;
-                let omit_zero = match zero.text(path)? {
-                    "omit" => true,
-                    "keep" => false,
-                    _ => {
-                        return Err(error(
-                            path,
-                            zero.mark,
-                            "unsupported_calendar_zero",
-                            "Expected omit or keep",
-                        ));
-                    }
-                };
+            if matches!(&xml.shape, Shape::Mapping(fields) if optional_field(fields, "kind").is_some_and(|kind| kind.text(path).is_ok_and(|kind| kind == "qname-lexicon")))
+            {
+                scalar_yaml(path, yaml, "text")?;
                 (
-                    XmlRepresentation::Calendar,
-                    YamlRepresentation::Calendar { seconds, omit_zero },
+                    XmlRepresentation::QNameTextTable(enumeration::qname_text_table(path, xml)?),
+                    YamlRepresentation::Text,
                 )
             } else {
-                xml.mapping(path, &["kind"])?;
-                xml.field(path, xml_fields, "kind")?.literal(
-                    path,
-                    "text",
-                    "unsupported_representation",
-                )?;
-                if let Shape::Mapping(fields) = &yaml.shape
-                    && optional_field(fields, "kind")
-                        .is_some_and(|node| node.text(path).is_ok_and(|kind| kind == "text-table"))
-                {
-                    let fields = yaml.mapping(path, &["kind", "use"])?;
-                    let usage = yaml.field(path, fields, "use")?;
-                    (
-                        XmlRepresentation::Text,
-                        YamlRepresentation::TextTable(TextTable::Import {
-                            name: usage.text(path)?.into(),
-                            source: location(path, usage),
-                        }),
-                    )
-                } else {
-                    let yaml_fields = yaml.mapping(path, &["kind", "scalar"])?;
-                    yaml.field(path, yaml_fields, "kind")?.literal(
+                let xml_fields = xml.mapping(path, &["kind", "format", "zone"])?;
+                if xml.field(path, xml_fields, "kind")?.text(path)? == "calendar" {
+                    xml.field(path, xml_fields, "format")?.literal(
                         path,
-                        "scalar",
+                        "iso",
+                        "unsupported_calendar_format",
+                    )?;
+                    xml.field(path, xml_fields, "zone")?.literal(
+                        path,
+                        "written",
+                        "unsupported_calendar_zone",
+                    )?;
+                    let fields =
+                        yaml.mapping(path, &["kind", "format", "precision", "zeroTime"])?;
+                    yaml.field(path, fields, "kind")?.literal(
+                        path,
+                        "calendar",
                         "unsupported_representation",
                     )?;
-                    yaml.field(path, yaml_fields, "scalar")?.literal(
+                    yaml.field(path, fields, "format")?.literal(
+                        path,
+                        "day-month-year",
+                        "unsupported_calendar_format",
+                    )?;
+                    let precision = yaml.field(path, fields, "precision")?;
+                    let seconds = match precision.text(path)? {
+                        "seconds" => true,
+                        "minutes" => false,
+                        _ => {
+                            return Err(error(
+                                path,
+                                precision.mark,
+                                "unsupported_calendar_precision",
+                                "Expected minutes or seconds",
+                            ));
+                        }
+                    };
+                    let zero = yaml.field(path, fields, "zeroTime")?;
+                    let omit_zero = match zero.text(path)? {
+                        "omit" => true,
+                        "keep" => false,
+                        _ => {
+                            return Err(error(
+                                path,
+                                zero.mark,
+                                "unsupported_calendar_zero",
+                                "Expected omit or keep",
+                            ));
+                        }
+                    };
+                    (
+                        XmlRepresentation::Calendar,
+                        YamlRepresentation::Calendar { seconds, omit_zero },
+                    )
+                } else {
+                    xml.mapping(path, &["kind"])?;
+                    xml.field(path, xml_fields, "kind")?.literal(
                         path,
                         "text",
-                        "unsupported_scalar",
+                        "unsupported_representation",
                     )?;
-                    (XmlRepresentation::Text, YamlRepresentation::Text)
+                    if let Shape::Mapping(fields) = &yaml.shape
+                        && optional_field(fields, "kind").is_some_and(|node| {
+                            node.text(path).is_ok_and(|kind| kind == "text-table")
+                        })
+                    {
+                        let fields = yaml.mapping(path, &["kind", "use"])?;
+                        let usage = yaml.field(path, fields, "use")?;
+                        (
+                            XmlRepresentation::Text,
+                            YamlRepresentation::TextTable(TextTable::Import {
+                                name: usage.text(path)?.into(),
+                                source: location(path, usage),
+                            }),
+                        )
+                    } else {
+                        scalar_yaml(path, yaml, "text")?;
+                        (XmlRepresentation::Text, YamlRepresentation::Text)
+                    }
                 }
             }
         }
@@ -527,6 +528,15 @@ fn module(path: &str, mut root: Node) -> Result<Module, Diagnostic> {
             yaml: yaml_rep,
         },
     })
+}
+
+fn scalar_yaml(path: &str, yaml: &Node, scalar: &str) -> Result<(), Diagnostic> {
+    let fields = yaml.mapping(path, &["kind", "scalar"])?;
+    yaml.field(path, fields, "kind")?
+        .literal(path, "scalar", "unsupported_representation")?;
+    yaml.field(path, fields, "scalar")?
+        .literal(path, scalar, "unsupported_scalar")?;
+    Ok(())
 }
 
 fn boolean_table(

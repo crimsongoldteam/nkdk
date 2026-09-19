@@ -111,6 +111,7 @@ pub enum XmlRepresentation {
     BooleanTable(Vec<BooleanLexeme>),
     EnumTable(Vec<EnumLexeme>),
     QNameTable(Vec<QNameLexeme<String>>),
+    QNameTextTable(Vec<QNameTextLexeme<String>>),
     Decimal,
 }
 
@@ -608,6 +609,15 @@ pub struct EnumLexeme {
 pub struct QNameLexeme<N> {
     pub value: String,
     pub name: N,
+    pub source: SourceLocation,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct QNameTextLexeme<N> {
+    pub name: N,
+    pub accepted: Vec<N>,
+    pub literal: String,
+    pub separator: Option<String>,
     pub source: SourceLocation,
 }
 

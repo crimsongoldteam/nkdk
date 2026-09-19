@@ -170,7 +170,7 @@ fn emit_yaml_fields_{id}(value:&V{id},_inputs:&InputView<'_>,_shorten:bool,out:&
         }
     } else {
         let value = typed.map_or("&row.fields[0]".into(), |codec| {
-            codec.write_reference(&collection_values::name(id), "row.fields[0]", false)
+            codec.write_reference(&collection_values::name(id), "&row.fields[0]", false)
         });
         writeln!(out, "out.push_str(&core::yaml::scalar({value}));").unwrap();
     }

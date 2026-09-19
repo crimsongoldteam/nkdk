@@ -18,6 +18,7 @@ pub(super) fn codec<'a>(
             | scalar::Codec::Pattern(_)
             | scalar::Codec::Forms(_)
             | scalar::Codec::QNameEnumeration(..)
+            | scalar::Codec::QNameText(_)
     ) {
         return Err(unsupported(
             common,
