@@ -259,12 +259,14 @@ representations:
     - name: n16:ExternalDataSourceTableRef
       literal: 'ВнешнийИсточникДанныхТаблица'
       separator: '.'
+      tailSegments: [ВнешнийИсточникДанных, Таблица]
     - name: n16:ExternalDataSourceTableObject
       literal: 'ВнешнийИсточникДанныхТаблицаОбъект'
       separator: '.'
     - name: n16:ExternalDataSourceCubeDimensionTableRef
       literal: 'ВнешнийИсточникДанныхКубТаблицаИзмерения'
       separator: '.'
+      tailSegments: [ВнешнийИсточникДанных, Куб, ТаблицаИзмерения]
     - name: n16:ExternalDataSourceCubeRecordManager
       literal: 'ВнешнийИсточникДанныхКубМенеджерЗаписи'
       separator: '.'

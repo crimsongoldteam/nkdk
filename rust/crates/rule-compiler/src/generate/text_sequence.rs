@@ -212,7 +212,7 @@ impl<'a> Codec<'a> {
         } else {
             format!("let mut errors=self.child_issues(xml,_inputs);{head_issues}errors")
         };
-        writeln!(out,"fn child_issues(&self,xml:bool,_inputs:&InputView<'_>)->Vec<RuntimeDiagnostic>{{let mut errors=Vec::new();for(index,row)in self.rows.iter().enumerate(){{errors.extend(row.issues(xml,_inputs).into_iter().map(|mut issue|{{issue.message=format!(\"Element {{}}: {{}}\",index+1,issue.message);issue}}));}}errors}}\nfn issues(&self,xml:bool,_inputs:&InputView<'_>)->Vec<RuntimeDiagnostic>{{{combined_issues}}}}}\n").unwrap();
+        writeln!(out,"#[allow(dead_code)] fn child_issues(&self,xml:bool,_inputs:&InputView<'_>)->Vec<RuntimeDiagnostic>{{let mut errors=Vec::new();for(index,row)in self.rows.iter().enumerate(){{errors.extend(row.issues(xml,_inputs).into_iter().map(|mut issue|{{issue.message=format!(\"Element {{}}: {{}}\",index+1,issue.message);issue}}));}}errors}}\n#[allow(dead_code)] fn issues(&self,xml:bool,_inputs:&InputView<'_>)->Vec<RuntimeDiagnostic>{{{combined_issues}}}}}\n").unwrap();
         Ok(out)
     }
 }

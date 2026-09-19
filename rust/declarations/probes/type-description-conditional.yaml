@@ -1,0 +1,21 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.type-description-conditional
+imports: {description: common.type-description}
+inputs:
+  ownerKind: {type: {kind: scalar, scalar: text}}
+value:
+  kind: record
+  fields: [{name: description, type: {use: description}}]
+representations:
+  xml: {kind: record, fields: [{field: description, path: [Root, Type]}]}
+  yaml: {kind: mapping, fields: [{field: description, key: Тип}]}
+presence:
+- target: {field: description}
+  xml:
+    missing: {denotes: {absent: true}}
+    empty: [{form: empty-element, denotes: {absent: true}}]
+    canonical:
+    - {when: {not: {eq: [{input: ownerKind}, {literal: Поле}]}}, form: missing}
+    - {form: ordinary}
+  yaml: {missing: {denotes: {absent: true}}}

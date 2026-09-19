@@ -1,0 +1,289 @@
+format: nkdk-declarations/1
+kind: value
+id: common.type-description
+description: Обратимое описание типов; классификация XML-групп задана выражениями декларации
+namespaces:
+  v8: http://v8.1c.ru/8.1/data/core
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+imports:
+  items: common.type-description-items
+  types: common.type-description-types
+  typeSets: common.type-description-type-sets
+  identifiers: common.type-description-identifiers
+  text: common.string
+parameters:
+  addTypeDescriptionAttributeToXML: {type: {kind: scalar, scalar: boolean}, default: false}
+  metadataAttributeTypesOnly: {type: {kind: scalar, scalar: boolean}, default: false}
+value:
+  kind: record
+  fields:
+  - {name: items, type: {use: items, with: {metadataAttributeTypesOnly: {parameter: metadataAttributeTypesOnly}}}}
+  - {name: types, type: {use: types}}
+  - {name: typeSets, type: {use: typeSets}}
+  - {name: identifiers, type: {use: identifiers}}
+  - {name: stringLength, type: {use: text}}
+  - {name: stringAllowedLength, type: {use: text}}
+  - {name: numberDigits, type: {use: text}}
+  - {name: numberFractionDigits, type: {use: text}}
+  - {name: numberAllowedSign, type: {use: text}}
+  - {name: dateFractions, type: {use: text}}
+  - {name: binaryLength, type: {use: text}}
+  - {name: binaryAllowedLength, type: {use: text}}
+representations:
+  xml:
+    kind: with-attributes
+    attributes:
+    - {name: xsi:type, value: {qname: v8:TypeDescription}, when: {parameter: addTypeDescriptionAttributeToXML}}
+    content:
+      kind: record
+      fields:
+      - {field: types, path: []}
+      - {field: typeSets, path: []}
+      - {field: identifiers, path: []}
+      - {field: stringLength, path: [v8:StringQualifiers, v8:Length]}
+      - {field: stringAllowedLength, path: [v8:StringQualifiers, v8:AllowedLength]}
+      - {field: numberDigits, path: [v8:NumberQualifiers, v8:Digits]}
+      - {field: numberFractionDigits, path: [v8:NumberQualifiers, v8:FractionDigits]}
+      - {field: numberAllowedSign, path: [v8:NumberQualifiers, v8:AllowedSign]}
+      - {field: dateFractions, path: [v8:DateQualifiers, v8:DateFractions]}
+      - {field: binaryLength, path: [v8:BinaryDataQualifiers, v8:Length]}
+      - {field: binaryAllowedLength, path: [v8:BinaryDataQualifiers, v8:AllowedLength]}
+  yaml: {kind: projection, field: items}
+presence:
+- target: {field: items}
+  xml:
+    missing:
+      denotes:
+        concat:
+        - map:
+            in: {field: types}
+            as: item
+            value:
+              record:
+                value:
+                  if: {eq: [{get: {of: {var: item}, field: value}}, {literal: Строка}]}
+                  then:
+                    if: {isReady: {field: stringAllowedLength}}
+                    then: {if: {eq: [{field: stringAllowedLength}, {literal: Fixed}]}, then: {literal: ФиксированнаяСтрока}, else: {literal: Строка}}
+                    else: {literal: Строка}
+                  else:
+                    if: {eq: [{get: {of: {var: item}, field: value}}, {literal: Число}]}
+                    then:
+                      if: {isReady: {field: numberAllowedSign}}
+                      then: {if: {eq: [{field: numberAllowedSign}, {literal: Nonnegative}]}, then: {literal: ПоложительноеЧисло}, else: {literal: Число}}
+                      else: {literal: Число}
+                    else:
+                      if: {matches: {value: {get: {of: {var: item}, field: value}}, pattern: 'Дата|ДатаВремя'}}
+                      then:
+                        if: {isReady: {field: dateFractions}}
+                        then:
+                          if: {eq: [{field: dateFractions}, {literal: Time}]}
+                          then: {literal: Время}
+                          else: {if: {eq: [{field: dateFractions}, {literal: DateTime}]}, then: {literal: ДатаВремя}, else: {literal: Дата}}
+                        else: {literal: Дата}
+                      else: {get: {of: {var: item}, field: value}}
+                first:
+                  if: {eq: [{get: {of: {var: item}, field: value}}, {literal: Строка}]}
+                  then:
+                    if: {isReady: {field: stringLength}}
+                    then:
+                      if:
+                        and:
+                        - {eq: [{field: stringLength}, {literal: '0'}]}
+                        - {not: {eq: [{field: stringAllowedLength}, {literal: Fixed}]}}
+                      then: {literal: ''}
+                      else: {field: stringLength}
+                    else: {literal: ''}
+                  else:
+                    if: {eq: [{get: {of: {var: item}, field: value}}, {literal: Число}]}
+                    then:
+                      if: {isReady: {field: numberDigits}}
+                      then:
+                        if:
+                          and:
+                          - {eq: [{field: numberDigits}, {literal: '0'}]}
+                          - {eq: [{field: numberFractionDigits}, {literal: '0'}]}
+                          - {eq: [{field: numberAllowedSign}, {literal: Any}]}
+                        then: {literal: ''}
+                        else: {field: numberDigits}
+                      else: {literal: ''}
+                    else: {literal: ''}
+                second:
+                  if: {eq: [{get: {of: {var: item}, field: value}}, {literal: Число}]}
+                  then:
+                    if: {isReady: {field: numberFractionDigits}}
+                    then:
+                      if:
+                        and:
+                        - {eq: [{field: numberDigits}, {literal: '0'}]}
+                        - {eq: [{field: numberFractionDigits}, {literal: '0'}]}
+                        - {eq: [{field: numberAllowedSign}, {literal: Any}]}
+                      then: {literal: ''}
+                      else: {field: numberFractionDigits}
+                    else: {literal: ''}
+                  else: {literal: ''}
+        - map: {in: {field: typeSets}, as: item, value: {record: {value: {get: {of: {var: item}, field: value}}, first: {literal: ''}, second: {literal: ''}}}}
+        - map:
+            in:
+              filter:
+                in: {field: identifiers}
+                as: item
+                where: {matches: {value: {get: {of: {var: item}, field: value}}, pattern: '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'}}
+            as: item
+            value: {record: {value: {get: {of: {var: item}, field: value}}, first: {literal: ''}, second: {literal: ''}}}
+- target: {field: identifiers}
+  yaml:
+    missing:
+      denotes:
+        map:
+          in:
+            filter:
+              in: {field: items}
+              as: item
+              where: {matches: {value: {get: {of: {var: item}, field: value}}, pattern: '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'}}
+          as: item
+          value: {record: {value: {get: {of: {var: item}, field: value}}}}
+- target: {field: typeSets}
+  yaml:
+    missing:
+      denotes:
+        map:
+          in:
+            filter:
+              in: {field: items}
+              as: item
+              where:
+                matches:
+                  value: {get: {of: {var: item}, field: value}}
+                  pattern: 'AccumulationRegisterRecordSet|CalculationRegisterRecordSet|ChartOfAccountsObject|ConstantValueManager|RecalculationRecordSet|SequenceRecordSet|БизнесПроцесс|БизнесПроцессОбъект|ВнешнийИсточникДанныхКубМенеджерЗаписи|ВнешнийИсточникДанныхКубТаблицаИзмерения|ВнешнийИсточникДанныхТаблица|ВнешнийИсточникДанныхТаблицаОбъект|Документ|ДокументОбъект|Задача|ЗадачаОбъект|ЛюбаяСсылка|ОпределяемыйТип|Перечисление|ПланВидовРасчета|ПланВидовРасчетаОбъект|ПланВидовХарактеристик|ПланВидовХарактеристикОбъект|ПланОбмена|ПланОбменаОбъект|ПланСчетов|ПланСчетовОбъект|РегистрБухгалтерииНаборЗаписей|РегистрСведенийНаборЗаписей|Справочник|СправочникОбъект|ТочкаМаршрутаБизнесПроцесса|ТочкаМаршрутаБизнесПроцессаОбъект|Характеристика'
+          as: item
+          value: {record: {value: {get: {of: {var: item}, field: value}}}}
+- target: {field: types}
+  yaml:
+    missing:
+      denotes:
+        map:
+          in:
+            filter:
+              in: {field: items}
+              as: item
+              where:
+                and:
+                - {not: {matches: {value: {get: {of: {var: item}, field: value}}, pattern: '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'}}}
+                - not:
+                    matches:
+                      value: {get: {of: {var: item}, field: value}}
+                      pattern: 'AccumulationRegisterRecordSet|CalculationRegisterRecordSet|ChartOfAccountsObject|ConstantValueManager|RecalculationRecordSet|SequenceRecordSet|БизнесПроцесс|БизнесПроцессОбъект|ВнешнийИсточникДанныхКубМенеджерЗаписи|ВнешнийИсточникДанныхКубТаблицаИзмерения|ВнешнийИсточникДанныхТаблица|ВнешнийИсточникДанныхТаблицаОбъект|Документ|ДокументОбъект|Задача|ЗадачаОбъект|ЛюбаяСсылка|ОпределяемыйТип|Перечисление|ПланВидовРасчета|ПланВидовРасчетаОбъект|ПланВидовХарактеристик|ПланВидовХарактеристикОбъект|ПланОбмена|ПланОбменаОбъект|ПланСчетов|ПланСчетовОбъект|РегистрБухгалтерииНаборЗаписей|РегистрСведенийНаборЗаписей|Справочник|СправочникОбъект|ТочкаМаршрутаБизнесПроцесса|ТочкаМаршрутаБизнесПроцессаОбъект|Характеристика'
+          as: item
+          value:
+            record:
+              value:
+                if: {matches: {value: {get: {of: {var: item}, field: value}}, pattern: 'Строка|ФиксированнаяСтрока'}}
+                then: {literal: Строка}
+                else:
+                  if: {matches: {value: {get: {of: {var: item}, field: value}}, pattern: 'Число|ПоложительноеЧисло'}}
+                  then: {literal: Число}
+                  else:
+                    if: {matches: {value: {get: {of: {var: item}, field: value}}, pattern: 'Дата|Время|ДатаВремя'}}
+                    then: {literal: ДатаВремя}
+                    else: {get: {of: {var: item}, field: value}}
+- target: {field: stringLength}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml:
+    missing:
+      denotes:
+        match:
+          value: {find: {in: {field: items}, as: item, where: {matches: {value: {get: {of: {var: item}, field: value}}, pattern: 'Строка|ФиксированнаяСтрока'}}}}
+          present:
+            as: item
+            then:
+              if: {eq: [{get: {of: {var: item}, field: first}}, {literal: ''}]}
+              then: {literal: '0'}
+              else: {get: {of: {var: item}, field: first}}
+          absent: {absent: true}
+- target: {field: stringAllowedLength}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml:
+    missing:
+      denotes:
+        match:
+          value: {find: {in: {field: items}, as: item, where: {matches: {value: {get: {of: {var: item}, field: value}}, pattern: 'Строка|ФиксированнаяСтрока'}}}}
+          present:
+            as: item
+            then:
+              if: {eq: [{get: {of: {var: item}, field: value}}, {literal: ФиксированнаяСтрока}]}
+              then: {literal: Fixed}
+              else: {literal: Variable}
+          absent: {absent: true}
+- target: {field: numberDigits}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml:
+    missing:
+      denotes:
+        match:
+          value: {find: {in: {field: items}, as: item, where: {matches: {value: {get: {of: {var: item}, field: value}}, pattern: 'Число|ПоложительноеЧисло'}}}}
+          present:
+            as: item
+            then:
+              if: {eq: [{get: {of: {var: item}, field: first}}, {literal: ''}]}
+              then: {literal: '0'}
+              else: {get: {of: {var: item}, field: first}}
+          absent: {absent: true}
+- target: {field: numberFractionDigits}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml:
+    missing:
+      denotes:
+        match:
+          value: {find: {in: {field: items}, as: item, where: {matches: {value: {get: {of: {var: item}, field: value}}, pattern: 'Число|ПоложительноеЧисло'}}}}
+          present:
+            as: item
+            then:
+              if: {eq: [{get: {of: {var: item}, field: second}}, {literal: ''}]}
+              then: {literal: '0'}
+              else: {get: {of: {var: item}, field: second}}
+          absent: {absent: true}
+- target: {field: numberAllowedSign}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml:
+    missing:
+      denotes:
+        match:
+          value: {find: {in: {field: items}, as: item, where: {matches: {value: {get: {of: {var: item}, field: value}}, pattern: 'Число|ПоложительноеЧисло'}}}}
+          present:
+            as: item
+            then:
+              if: {eq: [{get: {of: {var: item}, field: value}}, {literal: ПоложительноеЧисло}]}
+              then: {literal: Nonnegative}
+              else: {literal: Any}
+          absent: {absent: true}
+- target: {field: dateFractions}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml:
+    missing:
+      denotes:
+        match:
+          value: {find: {in: {field: items}, as: item, where: {matches: {value: {get: {of: {var: item}, field: value}}, pattern: 'Дата|Время|ДатаВремя'}}}}
+          present:
+            as: item
+            then:
+              if: {eq: [{get: {of: {var: item}, field: value}}, {literal: Время}]}
+              then: {literal: Time}
+              else: {if: {eq: [{get: {of: {var: item}, field: value}}, {literal: ДатаВремя}]}, then: {literal: DateTime}, else: {literal: Date}}
+          absent: {absent: true}
+- target: {field: binaryLength}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml:
+    missing:
+      denotes:
+        if: {exists: {in: {field: items}, as: item, where: {eq: [{get: {of: {var: item}, field: value}}, {literal: ДвоичныеДанные}]}}}
+        then: {literal: '0'}
+        else: {absent: true}
+- target: {field: binaryAllowedLength}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml:
+    missing:
+      denotes:
+        if: {exists: {in: {field: items}, as: item, where: {eq: [{get: {of: {var: item}, field: value}}, {literal: ДвоичныеДанные}]}}}
+        then: {literal: Variable}
+        else: {absent: true}

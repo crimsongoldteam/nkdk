@@ -930,6 +930,10 @@ fn xml_collection_content(
 ) -> Result<XmlRepresentation, Diagnostic> {
     let fields = representation.mapping(path, &["kind", "path", "item", "fields", "children"])?;
     let kind = representation.field(path, fields, "kind")?;
+    if kind.text(path)? == "declared" {
+        representation.mapping(path, &["kind"])?;
+        return Ok(XmlRepresentation::Declared);
+    }
     if kind.text(path)? == "tree" {
         representation.mapping(path, &["kind", "children"])?;
         return Ok(XmlRepresentation::Tree(xml_tree::children(
@@ -1041,6 +1045,10 @@ fn yaml_collection(path: &str, node: &Node) -> Result<YamlRepresentation, Diagno
             node.field(path, fields, "scalar")?
                 .literal(path, "text", "unsupported_scalar")?;
             Ok(YamlRepresentation::Text)
+        }
+        "declared" => {
+            node.mapping(path, &["kind"])?;
+            Ok(YamlRepresentation::Declared)
         }
         _ => yaml_keyed_mapping(path, node),
     }

@@ -1,5 +1,6 @@
 import { ts, unwrap, location } from './syntax.mjs';
 import { reviewedHelper } from './reviewed-helpers.mjs';
+import { createHash } from 'node:crypto';
 
 export function evaluator(program) {
   let steps = 0;
@@ -120,9 +121,15 @@ export function evaluator(program) {
     }
     if (ts.isBinaryExpression(node)) {
       const left = run(node.left), right = run(node.right);
+      const equality = node.operatorToken.kind === ts.SyntaxKind.EqualsEqualsEqualsToken;
+      const inequality = node.operatorToken.kind === ts.SyntaxKind.ExclamationEqualsEqualsToken;
+      if (equality || inequality) {
+        if (left.kind === 'scalar' && right.kind === 'scalar')
+          return scalar(inequality ? left.value !== right.value : left.value === right.value);
+        if ((left.kind === 'scalar') !== (right.kind === 'scalar')) return scalar(inequality);
+        return unknown(node, 'dynamic-operation');
+      }
       if (left.kind !== 'scalar' || right.kind !== 'scalar') return unknown(node, 'dynamic-operation');
-      if (node.operatorToken.kind === ts.SyntaxKind.EqualsEqualsEqualsToken) return scalar(left.value === right.value);
-      if (node.operatorToken.kind === ts.SyntaxKind.ExclamationEqualsEqualsToken) return scalar(left.value !== right.value);
       return unknown(node, 'unsupported-operation');
     }
     if (ts.isCallExpression(node)) {
@@ -221,7 +228,12 @@ export function serialize(value, issues = []) {
     issues.push(...value.blockers);
     return Object.fromEntries([...value.fields].map(([key, field]) => [key, serialize(field.value, issues)]));
   }
-  const issue = value.kind === 'function' ? {kind:'expression', source:location(value.node), expression:value.node.getText()} : value;
+  const issue = value.kind === 'function' ? {
+    kind:'expression',
+    source:location(value.node),
+    sourceHash:createHash('sha256').update(value.node.getSourceFile().text).digest('hex'),
+    expression:value.node.getText(),
+  } : value;
   issues.push(issue);
   return {$unresolved:issue};
 }

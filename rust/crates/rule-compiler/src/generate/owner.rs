@@ -634,7 +634,8 @@ pub(super) fn generate_at(
         )
         .unwrap();
     }
-    out.push_str("let bytes=out.into_bytes();if let Some(patch)=&value.root {core::raw::Document::encode(&bytes,patch.to_yaml().as_bytes())}else{Ok(bytes)}}\n");
+    out.push_str("let bytes=out.into_bytes();");
+    out.push_str("if let Some(patch)=&value.root {core::raw::Document::encode(&bytes,patch.to_yaml().as_bytes())}else{Ok(bytes)}}\n");
     if yaml_stateful {
         writeln!(out,"#[allow(dead_code)] fn write_yaml_indented_{id}(value:&V{id},inputs:&InputView<'_>,out:&mut String,indent:&str,_lift:bool)->core::Result<()>{{{scope_full}if value.root.is_some(){{let bytes=write_yaml_{id}(value,inputs)?;core::yaml::Indented::new(out,indent).push_str(std::str::from_utf8(&bytes).expect(\"generated YAML\"));return Ok(());}}").unwrap();
         for &slot in &yaml_slots {

@@ -127,6 +127,16 @@ declarations:
             denotes:
               absent: true
       - target:
+          field: name
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              absent: true
+      - target:
           field: synonym
         xml:
           missing:
@@ -232,139 +242,20 @@ declarations:
           omitWhen:
             not:
               field: participates
-    inputs:
-      defaultLanguage:
-        type:
-          kind: scalar
-          scalar: text
-      registeredLanguages:
-        type:
-          kind: sequence
-          item:
-            kind: scalar
-            scalar: text
-      identities:
-        type:
-          kind: index
-          key:
-            kind: record
-            fields:
-              - name: component
-                type:
-                  kind: scalar
-                  scalar: text
-              - name: owner
-                type:
-                  kind: scalar
-                  scalar: text
-              - name: kind
-                type:
-                  kind: scalar
-                  scalar: text
-              - name: name
-                type:
-                  kind: scalar
-                  scalar: text
-          value:
-            kind: scalar
-            scalar: text
-      component:
-        type:
-          kind: scalar
-          scalar: text
-      owner:
-        type:
-          kind: scalar
-          scalar: text
-      baseIds:
-        type:
-          kind: index
-          key:
-            kind: record
-            fields:
-              - name: component
-                type:
-                  kind: scalar
-                  scalar: text
-              - name: identity
-                type:
-                  kind: scalar
-                  scalar: text
-          value:
-            kind: scalar
-            scalar: text
-      compatibilityMode:
-        type:
-          kind: scalar
-          scalar: text
-    state-relations:
-      - field: state
-        sources:
-          base:
-            present:
-              if:
-                field: participates
-              then:
-                require:
-                  lookup:
-                    in:
-                      input: baseIds
-                    key:
-                      record:
-                        component:
-                          input: component
-                        identity:
-                          field: uuid
-              else:
-                absent: true
-          notice:
-            equals:
-              literal: Notify
-            from:
-              if:
-                present:
-                  field: rows
-              then:
-                match:
-                  value:
-                    select:
-                      in:
-                        field: rows
-                      as: item
-                      where:
-                        and:
-                          - present:
-                              get:
-                                of:
-                                  var: item
-                                field: name
-                          - eq:
-                              - get:
-                                  of:
-                                    var: item
-                                  field: name
-                              - literal: ExtendedConfigurationObject
-                  present:
-                    as: selected
-                    then:
-                      get:
-                        of:
-                          var: selected
-                        field: mode
-                  absent:
-                    absent: true
-              else:
-                absent: true
-        states:
-          default:
-            - base
-          empty: []
-          tagged:
-            - base
-            - notice
-          text:
-            - notice
     constraints:
+      - id: name-required
+        appliesTo:
+          - xml-import
+          - yaml-validation
+        assert:
+          present:
+            field: name
+        diagnostic:
+          code: value.required
+          severity: warning
+          at:
+            field: name
+          message: Обязательное значение отсутствует
       - id: borrowed-compatibility
         appliesTo:
           - xml-import
@@ -606,13 +497,145 @@ declarations:
           at:
             field: state
           message: Notification is unavailable in this compatibility mode
+    inputs:
+      defaultLanguage:
+        type:
+          kind: scalar
+          scalar: text
+      registeredLanguages:
+        type:
+          kind: sequence
+          item:
+            kind: scalar
+            scalar: text
+      identities:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: component
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: owner
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: kind
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: name
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+      baseIds:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: component
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: identity
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+      compatibilityMode:
+        type:
+          kind: scalar
+          scalar: text
+    state-relations:
+      - field: state
+        sources:
+          base:
+            present:
+              if:
+                field: participates
+              then:
+                require:
+                  lookup:
+                    in:
+                      input: baseIds
+                    key:
+                      record:
+                        component:
+                          input: component
+                        identity:
+                          field: uuid
+              else:
+                absent: true
+          notice:
+            equals:
+              literal: Notify
+            from:
+              if:
+                present:
+                  field: rows
+              then:
+                match:
+                  value:
+                    select:
+                      in:
+                        field: rows
+                      as: item
+                      where:
+                        and:
+                          - present:
+                              get:
+                                of:
+                                  var: item
+                                field: name
+                          - eq:
+                              - get:
+                                  of:
+                                    var: item
+                                  field: name
+                              - literal: ExtendedConfigurationObject
+                  present:
+                    as: selected
+                    then:
+                      get:
+                        of:
+                          var: selected
+                        field: mode
+                  absent:
+                    absent: true
+              else:
+                absent: true
+        states:
+          default:
+            - base
+          empty: []
+          tagged:
+            - base
+            - notice
+          text:
+            - notice
     namespaces:
       md: http://v8.1c.ru/8.3/MDClasses
-    id: candidate.borrowed.b6a52afd87da80b72728
+    id: candidate.borrowed.6773720a2620f2e68980
   - format: nkdk-declarations/1
     kind: value
     imports:
-      item: candidate.borrowed.b6a52afd87da80b72728
+      item: candidate.borrowed.6773720a2620f2e68980
     value:
       kind: sequence
       item:
@@ -707,11 +730,11 @@ declarations:
           scalar: text
     namespaces:
       md: http://v8.1c.ru/8.3/MDClasses
-    id: candidate.borrowed.2e10ad74f4057674e8ba
+    id: candidate.borrowed.b76a9eb46c0c8958885a
   - format: nkdk-declarations/1
     kind: object
     imports:
-      items: candidate.borrowed.2e10ad74f4057674e8ba
+      items: candidate.borrowed.b76a9eb46c0c8958885a
     value:
       kind: record
       fields:

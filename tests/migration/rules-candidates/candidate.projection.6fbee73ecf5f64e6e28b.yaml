@@ -1,0 +1,26 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.6fbee73ecf5f64e6e28b
+description: 'Кандидат проекции: относительный XML-корень dcssch:valueType; не полный владелец'
+imports:
+  part0: candidate.fragment.5f7a040a69ac94b56acf
+compose:
+  - use: part0
+    bind:
+      ownerKind:
+        input: ownerKind
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []
+inputs:
+  ownerKind:
+    type:
+      kind: scalar
+      scalar: text

@@ -1,0 +1,33 @@
+format: nkdk-declarations/1
+kind: value
+id: common.type-description-identifiers
+imports:
+  item: common.type-description-identifier-item
+namespaces:
+  v8: http://v8.1c.ru/8.1/data/core
+value:
+  kind: sequence
+  item:
+    use: item
+representations:
+  xml:
+    kind: element-sequence
+    path:
+      - v8:TypeId
+    item:
+      kind: declared
+  yaml:
+    kind: sequence
+    singleton: scalar
+    item:
+      kind: declared
+presence:
+  - target: self
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true

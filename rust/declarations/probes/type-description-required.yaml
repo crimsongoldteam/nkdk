@@ -1,0 +1,19 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.type-description-required
+imports: {description: common.type-description}
+value:
+  kind: record
+  fields: [{name: description, type: {use: description}}]
+representations:
+  xml: {kind: record, fields: [{field: description, path: [Root, Type]}]}
+  yaml: {kind: mapping, fields: [{field: description, key: Тип}]}
+presence:
+- target: {field: description}
+  xml: {missing: {denotes: {absent: true}}, empty: [{form: empty-element, denotes: {absent: true}}]}
+  yaml: {missing: {denotes: {absent: true}}}
+constraints:
+- id: description-required
+  appliesTo: [xml-import, yaml-validation]
+  assert: {present: {field: description}}
+  diagnostic: {code: value.required, severity: warning, at: {field: description}, message: Обязательное значение отсутствует}

@@ -1,0 +1,21 @@
+format: nkdk-declarations/1
+kind: value
+id: common.path-standard-attribute
+enum:
+  Ref: Ссылка
+  LineNumber: НомерСтроки
+  Account: Счет
+  Owner: Владелец
+  Description: Наименование
+  Code: Код
+  DeletionMark: ПометкаУдаления
+  IsFolder: ЭтоГруппа
+  Parent: Родитель
+  Predefined: Предопределенный
+  PredefinedDataName: ИмяПредопределенныхДанных
+  Active: Активность
+  Recorder: Регистратор
+  Period: Период
+  Number: Номер
+  Date: Дата
+  Posted: Проведен

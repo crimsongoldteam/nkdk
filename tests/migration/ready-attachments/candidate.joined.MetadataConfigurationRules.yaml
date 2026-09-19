@@ -3,7 +3,7 @@ kind: object
 id: candidate.joined.MetadataConfigurationRules
 description: 'Кандидат проекции: относительный XML-корень Properties; не полный владелец'
 imports:
-  part0: candidate.fragment.3ceef7a20b13a8561ae3
+  part0: candidate.fragment.13e28fe11f7bc914cd0b
   ready: fragment.help
   attachment: fragment.help
 compose:

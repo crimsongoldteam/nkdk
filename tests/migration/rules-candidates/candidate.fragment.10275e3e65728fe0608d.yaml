@@ -1,0 +1,48 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.string
+value:
+  kind: record
+  fields:
+    - name: state
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: state
+        path:
+          - State
+  yaml:
+    kind: mapping
+    fields:
+      - field: state
+        key: state
+presence:
+  - target:
+      field: state
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+constraints:
+  - id: state-required
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    assert:
+      present:
+        field: state
+    diagnostic:
+      code: value.required
+      severity: warning
+      at:
+        field: state
+      message: Обязательное значение отсутствует
+id: candidate.fragment.10275e3e65728fe0608d

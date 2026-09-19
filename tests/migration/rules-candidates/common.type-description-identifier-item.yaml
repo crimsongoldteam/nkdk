@@ -1,0 +1,21 @@
+format: nkdk-declarations/1
+kind: value
+id: common.type-description-identifier-item
+description: Идентификатор типа как отдельный элемент TypeDescription
+imports:
+  name: common.string
+value:
+  kind: record
+  fields:
+    - name: value
+      type:
+        use: name
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: value
+        path: []
+  yaml:
+    kind: projection
+    field: value

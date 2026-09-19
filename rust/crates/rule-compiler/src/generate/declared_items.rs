@@ -71,6 +71,13 @@ pub(super) fn generate_at(
             "Declared item collection requires record routes and an element sequence",
         ));
     };
+    let singleton = matches!(
+        common.yaml,
+        YamlRepresentation::Sequence {
+            singleton: true,
+            ..
+        }
+    );
     let (key, root_yaml, hidden) = match &entry.yaml {
         YamlRepresentation::Mapping(fields) => match fields.first() {
             Some(field) => (field.key.as_str(), false, false),
@@ -96,8 +103,31 @@ pub(super) fn generate_at(
             "This collection contract requires an additional sequence expression backend",
         ));
     }
-    let parent = &xml[0].path;
-    if relative.is_empty() || parent.is_empty() || xml[0].attribute.is_some() {
+    // A projected collection may exist only in the semantic value and be
+    // reconstructed from sibling XML collections. Give its generated item
+    // backend an unreachable boundary; the parent adapter suppresses XML
+    // emission for a field without an XML route.
+    let semantic_only = xml.is_empty()
+        || matches!(xml.as_slice(), [field] if field.path.last().is_some_and(|name| name.local == "__declarative_virtual__"));
+    let virtual_parent = vec![ExpandedName {
+        namespace: String::new(),
+        local: "__declarative_semantic__".into(),
+    }];
+    let virtual_relative = vec![ExpandedName {
+        namespace: String::new(),
+        local: "__declarative_item__".into(),
+    }];
+    let parent = if semantic_only {
+        virtual_parent.as_slice()
+    } else {
+        xml[0].path.as_slice()
+    };
+    let relative = if semantic_only {
+        virtual_relative.as_slice()
+    } else {
+        relative.as_slice()
+    };
+    if !semantic_only && (relative.is_empty() || parent.is_empty() || xml[0].attribute.is_some()) {
         return Err(unsupported(
             entry,
             "Declared items require an explicit element boundary",
@@ -139,7 +169,7 @@ pub(super) fn generate_at(
         .filter(|name| !name.is_empty())
         .map(|name| format!("if !names.contains(&{name:?}){{names.push({name:?});}}"))
         .collect::<String>();
-    let mut route = parent.clone();
+    let mut route = parent.to_vec();
     route.extend(relative.iter().cloned());
     crate::plan::routes::place_record(&mut row, &route)?;
     row.id = entry.id;
@@ -170,6 +200,7 @@ pub(super) fn generate_at(
         None
     };
     let body = super::value_record::generate(&row, program, &route, lifted.clone())?;
+    let item_writes_boundary = matches!(attributes::content(&row.xml).0, LinkedXml::Record(fields) if fields.iter().any(|field| field.attribute.is_none() && field.path == route));
     let mut presence = collection_presence::override_for(&common, entry, bindings, arguments)?
         .unwrap_or(common.clone());
     presence.value = LinkedType::Sequence(Box::new(row.value.clone()));
@@ -228,8 +259,17 @@ pub(super) fn generate_at(
                 "tree.write_at(out,@ancestor@,&item_@id@::qnames())?;"
             },
         )
+        .replace(
+            "@close_item@",
+            if item_writes_boundary {
+                ""
+            } else {
+                "out.container(@route@);out.end_container();"
+            },
+        )
         .replace("@relative@", &record::path_code(relative))
         .replace("@document@", &(parent.len() == 1).to_string())
+        .replace("@shared@", &shared.to_string())
         .replace("@headers@", &headers)
         .replace("@extra_namespaces@", &namespace_code)
         .replace(
@@ -245,6 +285,8 @@ pub(super) fn generate_at(
         .replace("@path_prefix@", &(!root_yaml && !hidden).to_string())
         .replace("@root_yaml@", &root_yaml.to_string())
         .replace("@hidden@", &hidden.to_string())
+        .replace("@singleton@", &singleton.to_string())
+        .replace("@semantic_only@", &semantic_only.to_string())
         .replace("@item@", &body.source)
         .replace(
             "@scalar@",
@@ -296,16 +338,20 @@ impl XmlCollection@id@ {
 fn new()->Self{Self{rows:Vec::new(),active:None,present:false}}
 fn consume_scoped(&mut self,path:&[core::xml::Name],token:&core::xml::Token<'_>,scope:Option<core::xml::NamespaceScope<'_>>,source:&[u8],inputs:&InputView<'_>)->core::Result<()>{
 if matches!(token,core::xml::Token::Start(_)) && core::xml::matches(path,@parent@){if self.present{return Err(RuntimeDiagnostic::new("xml.duplicate-field","Repeated collection"));}self.present=true;}
-if matches!(token,core::xml::Token::Start(_)) && core::xml::matches(path,@route@){if self.active.is_some(){return Err(RuntimeDiagnostic::new("xml.collection-form","Overlapping items"));}self.active=Some(item_@id@::XmlReader::new());}
+if matches!(token,core::xml::Token::Start(_)) && core::xml::matches(path,@route@){
+if @shared@{self.present=true;}
+if self.active.is_some(){return Err(RuntimeDiagnostic::new("xml.collection-form","Overlapping items"));}
+self.active=Some(item_@id@::XmlReader::new());}
 if let Some(reader)=&mut self.active{reader.consume_scoped(path,token,scope,source,inputs)?;}
 if matches!(token,core::xml::Token::End) && core::xml::matches(path,@route@){self.rows.push(self.active.take().expect("started item"));}
 Ok(())
 }}
 fn finish_xml_@id@(state:XmlCollection@id@,source:&[u8],inputs:&InputView<'_>)->core::Result<V@id@>{if state.active.is_some(){return Err(RuntimeDiagnostic::new("value.missing","Missing collection"));}
 if !state.present{return Ok(@xml_missing@)}Ok(V@id@{rows:state.rows.into_iter().map(|reader|reader.finish(source,inputs)).collect::<core::Result<Vec<_>>>()?,present:state.present,raw:None})}
-fn read_xml_events_@id@(source:&[u8],inputs:&InputView<'_>,events:impl core::xml::ScopedSource,mut other:impl FnMut(&[core::xml::Name],&core::xml::Token<'_>)->core::Result<bool>)->core::Result<V@id@>{let mut state=XmlCollection@id@::new();events.visit_scoped(|path,token,scope|{if !other(path,token)?{state.consume_scoped(path,token,Some(scope),source,inputs)?;}Ok(())})?;finish_xml_@id@(state,source,inputs)}
-#[allow(dead_code)] fn read_xml_with_@id@(source:&[u8],inputs:&InputView<'_>,other:impl FnMut(&[core::xml::Name],&core::xml::Token<'_>)->core::Result<bool>)->core::Result<V@id@>{read_xml_events_@id@(source,inputs,core::xml::DocumentSource(source),other)}
-fn read_xml_@id@(source:&[u8],inputs:&InputView<'_>)->core::Result<V@id@>{match read_xml_events_@id@(source,inputs,core::xml::DocumentSource(source),|_,_|Ok(false)){Ok(value)=>Ok(value),Err(error) if matches!(error.code.as_deref(),Some("xml.unknown-field"|"xml.unknown-attribute"|"xml.unexpected-text"|"xml.duplicate-field"|"value.missing"))=>Ok(V@id@{rows:Vec::new(),present:true,raw:None}),Err(error)=>Err(error)}}
+fn read_xml_events_scoped_@id@(source:&[u8],inputs:&InputView<'_>,events:impl core::xml::ScopedSource,mut other:impl FnMut(&[core::xml::Name],&core::xml::Token<'_>)->core::Result<bool>)->core::Result<V@id@>{let mut state=XmlCollection@id@::new();events.visit_scoped(|path,token,scope|{if !other(path,token)?{state.consume_scoped(path,token,Some(scope),source,inputs)?;}Ok(())})?;finish_xml_@id@(state,source,inputs)}
+#[allow(dead_code)] fn read_xml_events_@id@(source:&[u8],inputs:&InputView<'_>,events:impl core::xml::Source,mut other:impl FnMut(&[core::xml::Name],&core::xml::Token<'_>)->core::Result<bool>)->core::Result<V@id@>{let mut state=XmlCollection@id@::new();events.visit(|path,token|{if !other(path,token)?{state.consume_scoped(path,token,None,source,inputs)?;}Ok(())})?;finish_xml_@id@(state,source,inputs)}
+#[allow(dead_code)] fn read_xml_with_@id@(source:&[u8],inputs:&InputView<'_>,other:impl FnMut(&[core::xml::Name],&core::xml::Token<'_>)->core::Result<bool>)->core::Result<V@id@>{read_xml_events_scoped_@id@(source,inputs,core::xml::DocumentSource(source),other)}
+fn read_xml_@id@(source:&[u8],inputs:&InputView<'_>)->core::Result<V@id@>{match read_xml_events_scoped_@id@(source,inputs,core::xml::DocumentSource(source),|_,_|Ok(false)){Ok(value)=>Ok(value),Err(error) if matches!(error.code.as_deref(),Some("xml.unknown-field"|"xml.unknown-attribute"|"xml.unexpected-text"|"xml.duplicate-field"|"value.missing"))=>Ok(V@id@{rows:Vec::new(),present:true,raw:None}),Err(error)=>Err(error)}}
 struct YamlSequence@id@{mapping:core::yaml::RecordMappingReader,property:core::yaml::PropertyReader,depth:usize,opened:bool,rows:Vec<core::Result<item_@id@::YamlReader>>,active:Option<item_@id@::YamlReader>,error:Option<RuntimeDiagnostic>}
 impl YamlSequence@id@ {
 fn new()->Self{Self{mapping:core::yaml::RecordMappingReader::default(),property:core::yaml::PropertyReader::default(),depth:0,opened:false,rows:Vec::new(),active:None,error:None}}
@@ -315,7 +361,12 @@ let node=if @root_yaml@{node}else{let Some(node)=self.property.consume(node,@key
 if let Some(key)=@lifted_key@ {let mut mapping=std::mem::take(&mut self.mapping);let result=mapping.consume(node,position,key,|node,position|self.consume_item(node,position,source,inputs));self.mapping=mapping;return result;}
 self.consume_item(node,position,source,inputs)}
 fn consume_item(&mut self,node:core::yaml::Node,position:core::Position,source:&[u8],inputs:&InputView<'_>)->core::Result<()>{
-if self.depth==0{if self.opened || !matches!(node,core::yaml::Node::SequenceStart(None)){return Err(RuntimeDiagnostic::new("yaml.collection-form","Expected a sequence"));}self.opened=true;self.depth=1;return Ok(())}
+if self.depth==0{
+if self.opened{return Err(RuntimeDiagnostic::new("yaml.collection-form","Repeated collection"));}
+self.opened=true;
+if matches!(node,core::yaml::Node::SequenceStart(None)){self.depth=1;return Ok(())}
+if !@singleton@ || !matches!(node,core::yaml::Node::Scalar(..)){return Err(RuntimeDiagnostic::new("yaml.collection-form","Expected a sequence or one scalar item"));}
+let mut reader=item_@id@::YamlReader::new()?;let result=reader.consume(node,position,source,inputs);self.rows.push(match result{Ok(())=>Ok(reader),Err(error)=>Err(error)});return Ok(())}
 if self.depth==1 && matches!(node,core::yaml::Node::SequenceEnd){self.depth=0;return Ok(())}
 if self.depth==1{self.active=Some(item_@id@::YamlReader::new()?);}
 match &node{core::yaml::Node::MappingStart(_)|core::yaml::Node::SequenceStart(_)=>self.depth+=1,core::yaml::Node::MappingEnd|core::yaml::Node::SequenceEnd=>self.depth-=1,_=>{}}
@@ -335,7 +386,7 @@ fn read_yaml_@id@(source:&[u8],inputs:&InputView<'_>)->core::Result<V@id@>{if @h
 struct PreparedRows@id@{rows:Vec<item_@id@::Prepared>,raw:Option<core::xml::Tree>}
 fn prepare_xml_@id@(value:&V@id@,inputs:&InputView<'_>)->core::Result<PreparedRows@id@>{let rows=value.rows.iter().map(|row|item_@id@::prepare(row,inputs)).collect::<core::Result<Vec<_>>>()?;let mut result=PreparedRows@id@{rows,raw:None};if let Some(patch)=&value.raw{let ordinary=write_plain_xml_@id@(value,&result,inputs)?;if !patch.is_null(){result.raw=Some(patch.apply(core::xml::Tree::capture(&ordinary,@parent@)?,core::xml::Name{namespace:@namespace@.into(),local:@physical@.into()},&[],&item_@id@::qnames())?);}}Ok(result)}
 fn namespaces_xml_@id@<'a>(value:&'a V@id@,prepared:&'a PreparedRows@id@,names:&mut Vec<&'a str>){@extra_namespaces@for name in @route@{if !name.0.is_empty() && !names.contains(&name.0){names.push(name.0);}}for (row,prepared) in value.rows.iter().zip(&prepared.rows){item_@id@::namespaces(row,prepared,names);}if let Some(tree)=&prepared.raw{tree.collect_namespaces(names);}}
-fn write_plain_fields_@id@<'a>(value:&V@id@,prepared:&'a PreparedRows@id@,inputs:&InputView<'_>,out:&mut core::xml::Writer<'a>)->core::Result<()>{if !value.present{return Ok(())}@open_parent@for (row,prepared) in value.rows.iter().zip(&prepared.rows){item_@id@::write_xml(row,prepared,inputs,out)?;out.container(@route@);out.end_container();}Ok(())}
+fn write_plain_fields_@id@<'a>(value:&V@id@,prepared:&'a PreparedRows@id@,inputs:&InputView<'_>,out:&mut core::xml::Writer<'a>)->core::Result<()>{if !value.present{return Ok(())}@open_parent@for (row,prepared) in value.rows.iter().zip(&prepared.rows){item_@id@::write_xml(row,prepared,inputs,out)?;@close_item@}Ok(())}
 fn write_xml_into_@id@<'a>(value:&V@id@,prepared:&'a PreparedRows@id@,inputs:&InputView<'_>,out:&mut core::xml::Writer<'a>)->core::Result<()>{if value.raw.is_some(){if let Some(tree)=&prepared.raw{@raw_write@}Ok(())}else{write_plain_fields_@id@(value,prepared,inputs,out)}}
 fn write_plain_xml_@id@(value:&V@id@,prepared:&PreparedRows@id@,inputs:&InputView<'_>)->core::Result<Vec<u8>>{if @document@ && !value.present{return Ok(Vec::new())}let mut names=Vec::new();namespaces_xml_@id@(value,prepared,&mut names);let mut out=core::xml::Writer::new(&names);write_plain_fields_@id@(value,prepared,inputs,&mut out)?;Ok(out.finish_with_root((@parent@)[0]))}
 fn write_xml_@id@(value:&V@id@,inputs:&InputView<'_>)->core::Result<Vec<u8>>{if @document@ && (!value.present || value.raw.as_ref().is_some_and(|patch|patch.is_null())){return Ok(Vec::new())}let prepared=prepare_xml_@id@(value,inputs)?;let mut names=Vec::new();namespaces_xml_@id@(value,&prepared,&mut names);let mut out=core::xml::Writer::new(&names);write_xml_into_@id@(value,&prepared,inputs,&mut out)?;Ok(out.finish_with_root((@parent@)[0]))}
@@ -343,7 +394,9 @@ fn write_yaml_into_@id@(value:&V@id@,inputs:&InputView<'_>,out:&mut String)->cor
 fn write_yaml_indented_@id@(value:&V@id@,inputs:&InputView<'_>,out:&mut String,indent:&str,_lift:bool)->core::Result<()>{if @hidden@ || !value.present{return Ok(())}
 if !@root_yaml@{out.push_str(indent);out.push_str(&core::yaml::scalar(@key@));out.push(':');}
 if @lifted_key@.is_some(){return write_mapping_rows_@id@(value,inputs,out,indent);}
-if value.rows.is_empty(){if !@root_yaml@{out.push(' ');}out.push_str("[]");return Ok(())}let row_indent=format!("{indent}{}",if @root_yaml@{"  "}else{"    "});for (index,row) in value.rows.iter().enumerate(){if !@root_yaml@ || index>0{out.push('\n');}out.push_str(indent);out.push_str(if @root_yaml@{"-\n"}else{"  -\n"});let start=out.len();item_@id@::write_yaml(row,inputs,out,&row_indent)?;if out.len()==start{out.push_str(&row_indent);out.push_str("{}");}}Ok(())}
+if value.rows.is_empty(){if !@root_yaml@{out.push(' ');}out.push_str("[]");return Ok(())}
+if @singleton@ && value.rows.len()==1{if !@root_yaml@{out.push(' ');}return item_@id@::write_yaml(&value.rows[0],inputs,out,if @root_yaml@{indent}else{""});}
+let row_indent=format!("{indent}{}",if @root_yaml@{"  "}else{"    "});for (index,row) in value.rows.iter().enumerate(){if !@root_yaml@ || index>0{out.push('\n');}out.push_str(indent);out.push_str(if @root_yaml@{"-\n"}else{"  -\n"});let start=out.len();item_@id@::write_yaml(row,inputs,out,&row_indent)?;if out.len()==start{out.push_str(&row_indent);out.push_str("{}");}}Ok(())}
 fn write_mapping_rows_@id@(value:&V@id@,inputs:&InputView<'_>,out:&mut String,indent:&str)->core::Result<()>{
 if value.rows.is_empty(){if !@root_yaml@{out.push(' ');}out.push_str("{}");return Ok(())}
 let mut seen=std::collections::HashSet::new();let row_indent=format!("{indent}{}",if @root_yaml@{"  "}else{"    "});
@@ -374,7 +427,10 @@ rows.push(item_@id@::read_yaml(&yaml,inputs)?);Ok(())
 if rows.is_empty(){return Ok(None)}
 write_yaml_@id@(&V@id@{rows,present:value.present,raw:None},inputs).map(Some)
 }
-fn finalize_yaml_@id@(original:&[u8],mut candidate:Vec<u8>,value:&V@id@,inputs:&InputView<'_>)->core::Result<Vec<u8>>{match verify_@id@(original,&candidate,inputs){Ok(())=>return Ok(candidate),Err(error) if error.code.as_deref()==Some("xml.round-trip-mismatch")=>{},Err(error)=>return Err(error)}if value.raw.is_none() && value.present{
+fn finalize_yaml_@id@(original:&[u8],mut candidate:Vec<u8>,value:&V@id@,inputs:&InputView<'_>)->core::Result<Vec<u8>>{
+match verify_@id@(original,&candidate,inputs){Ok(())=>return Ok(candidate),Err(error) if error.code.as_deref()==Some("xml.round-trip-mismatch")=>{},Err(error)=>return Err(error)}
+if @semantic_only@{return Ok(candidate)}
+if value.raw.is_none() && value.present{
 let refined=refine_rows_@id@(original,value,inputs);
 match refined{Ok(Some(bytes))=>{match verify_@id@(original,&bytes,inputs){Ok(())=>return Ok(bytes),Err(error) if error.code.as_deref()==Some("xml.round-trip-mismatch")=>candidate=bytes,Err(error)=>return Err(error)}},Ok(None)=>{},Err(error) if matches!(error.code.as_deref(),Some("xml.round-trip-mismatch"|"xml.unknown-field"|"xml.unknown-attribute"|"xml.unexpected-text"|"xml.duplicate-field"|"value.missing"))=>{},Err(error)=>return Err(error)}
 }

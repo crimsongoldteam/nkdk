@@ -165,8 +165,10 @@ pub(super) fn generate(
             "@xml_consume@",
             if composed {
                 "self.0.consume(path,token,scope,source,inputs)"
-            } else {
+            } else if compact {
                 "self.0.consume(path,token)"
+            } else {
+                "self.0.consume_scoped(path,token,scope)"
             },
         )
         .replace(
@@ -225,6 +227,7 @@ pub(super) fn generate(
                 &scalar_write
             },
         );
+    code = code.replace("@debug_field@", "input_field_@id@(&self.0,index)");
     code = code
         .replace("@lifted_write@", &lifted_write)
         .replace("@key_available@", &key_available);
@@ -252,7 +255,7 @@ use super::*;
 @compact_prepared@
 pub(super) struct Stored(V@id@);
 impl core::inputs::RecordInput for Stored {
-fn field(&self,index:usize)->Option<core::inputs::InputRef<'_>>{input_field_@id@(&self.0,index)}
+fn field(&self,index:usize)->Option<core::inputs::InputRef<'_>>{@debug_field@}
 }
 pub(super) struct Prepared(@prepared@);
 pub(super) struct XmlReader(@xml_state@);

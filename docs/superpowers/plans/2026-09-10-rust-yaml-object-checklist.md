@@ -1,3 +1,16 @@
+13 сентября: автоматизирован выпуск общих индексов, языков и собственного
+имени элемента коллекции; проверен ключ словаря без явного `yaml`.
+Поправки вложенного свойства и служебного атрибута локализуются внутри
+элемента коллекции; проверен независимый обычный сосед.
+Полные объекты ещё не приняты, флажки не меняются: **19/90 common**.
+
+13 сентября: добавлен общий словарь полных записей `record-mapping`.
+Проверены простые и составные элементы и восстановление повторных имён.
+Это механизм языка: новых полностью принятых объектов нет, **19/90 common**.
+Контекст элементов и служебный XML остаются в плане.
+Дополнительно проверен ключ внутри группы зависимых скаляров: соседние поля
+и аномалии сохраняются. Новых флажков это не добавляет.
+
 ExternalFile принят: четыре свойства подключены к трём файловым сборкам
 конфигурации, расширения и XDTO-пакета. Принято **19/90 common**.
 Прошли 199 Rust-тестов, 76 сценариев кандидатов, 19 проверок инструмента
@@ -25,7 +38,10 @@ ExternalFile принят: четыре свойства подключены к
 
 # Чеклист перехода объектов на YAML-декларации и Rust
 
-Принято **19/90 common**. Полные Document и DocumentJournal ещё не приняты.
+Следующий этап описан в [плане единого преобразования](2026-09-13-unified-conversion-plan.md).
+Флажки обновляются только после полной приёмки объекта, предусмотренной этим планом.
+
+Принято **21/90 common**. Полные Document и DocumentJournal ещё не приняты.
 Общий XML-record расширен типизированными атрибутами и сохранением их исходной
 записи. Это инфраструктура; дополнительных флажков объектов не устанавливает.
 Правила присутствия полей вложенной скалярной записи также перенесены в общий
@@ -44,7 +60,7 @@ ExternalFile принят: четыре свойства подключены к
 AdditionalIndexes принят после проверки идентичностей, корневого YAML-массива
 и внешнего документа. [Отчёт](../reports/2026-09-13-additional-indexes.md).
 
-Дата сверки: 2026-09-13. [Главный план](2026-09-10-rust-yaml-declarations.md) · [Журнал проверок](../reports/2026-09-10-rust-yaml-progress.md).
+Дата сверки: 2026-09-19. [Главный план](2026-09-10-rust-yaml-declarations.md) · [Журнал проверок](../reports/2026-09-10-rust-yaml-progress.md).
 
 ## Как читать
 
@@ -52,7 +68,7 @@ AdditionalIndexes принят после проверки идентичнос�
 - `[ ]` — объект не завершён. Промежуточные результаты учитываются только в журнале.
 - Служебные каталоги включены, чтобы не потерять их обязанности. Для них завершение означает перенос ответственности в общий Rust-механизм, а не обязательное создание отдельной YAML-декларации.
 
-Приняты 19 common-объектов: двусторонние интерфейсы I8nText, FormattedI8nText, MetadataName, StringOrNumber, PredefinedCode, MinMaxValue, boolean, number, dateTime, FieldsList, IndexField, WebSocketClientHeaders, XDTOPackages, UsePurposes, XDTOTypeName, Help, AdditionalIndex и String (XML ↔ YAML, валидация и структурная схема), а также ExternalFile (перенос непрозрачных файлов в обе стороны). Enterprise исключён из реализации и условий готовности по решению пользователя. Наличие общего компилятора, синтетического примера или успешного теста отдельного свойства не означает завершение всего объекта. В частности, `common.code-type` — синтетический пример, а не перенесённое системное перечисление.
+Принят 21 common-объект: двусторонние интерфейсы I8nText, FormattedI8nText, MetadataName, StringOrNumber, PredefinedCode, MinMaxValue, boolean, number, dateTime, FieldsList, IndexField, WebSocketClientHeaders, XDTOPackages, UsePurposes, XDTOTypeName, Help, AdditionalIndex, String, TypeDescription и TypeLink (XML ↔ YAML, валидация и структурная схема), а также ExternalFile (перенос непрозрачных файлов в обе стороны). Enterprise исключён из реализации и условий готовности по решению пользователя. Наличие общего компилятора, синтетического примера или успешного теста отдельного свойства не означает завершение всего объекта. В частности, `common.code-type` — синтетический пример, а не перенесённое системное перечисление.
 
 ## Когда ставить галочку
 
@@ -164,8 +180,8 @@ AdditionalIndexes принят после проверки идентичнос�
 - [x] [commonObjects/string](../../../packages/rules/metadata/commonObjects/string) — 2026-09-13: [декларация](../../../rust/declarations/common/string.yaml), [матрица и 51 значение e2e](../../../rust/crates/compiled-rules/tests/scalars.rs), [приёмка и границы](../reports/2026-09-13-ready-common-package.md).
 - [x] [commonObjects/stringOrNumber](../../../packages/rules/metadata/commonObjects/stringOrNumber) — 2026-09-10: [декларация](../../../rust/declarations/common/string-or-number.yaml), [e2e семейства](../../../tests/migration/scalar-choice-e2e.json), [оба профиля и аномалии](../../../rust/crates/compiled-rules/tests/scalars.rs), [схема](../../../rust/crates/rule-compiler/tests/schema.rs).
 - [ ] [commonObjects/styleItemValue](../../../packages/rules/metadata/commonObjects/styleItemValue)
-- [ ] [commonObjects/typeDescription](../../../packages/rules/metadata/commonObjects/typeDescription)
-- [ ] [commonObjects/typeLink](../../../packages/rules/metadata/commonObjects/typeLink)
+- [x] [commonObjects/typeDescription](../../../packages/rules/metadata/commonObjects/typeDescription) — 2026-09-19: [декларации](../../../rust/declarations/common/type-description.yaml), [202 уникальных случая из 1125 неизменённых XML](../../../tests/migration/type-description-e2e.json), [оба направления, ограничения, значения по умолчанию и YAML-only](../../../rust/crates/compiled-rules/tests/type_description.rs), [договор и приёмка](../reports/2026-09-14-type-description-contract.md). Переносчик распознаёт 96/96 применений; полный каталог кандидатов компилируется без предметного Rust.
+- [x] [commonObjects/typeLink](../../../packages/rules/metadata/commonObjects/typeLink) — 2026-09-19: [декларация](../../../rust/declarations/common/type-link.yaml), [89 реальных путей](../../../tests/migration/type-link-e2e.json), [обычная, типизированная, пустая и DCS-формы](../../../rust/crates/compiled-rules/tests/path_lexicons.rs), [договор и приёмка](../reports/2026-09-14-type-description-contract.md). Переносчик распознаёт 46/46 применений; порядок, повторы и аномалии сохраняются общими механизмами.
 - [x] [commonObjects/usePurposes](../../../packages/rules/metadata/commonObjects/usePurposes) — 2026-09-11: [декларация](../../../rust/declarations/common/use-purposes.yaml), [профиль default](../../../rust/declarations/probes/use-purposes-default.yaml), [оба направления и аномалии](../../../rust/crates/compiled-rules/tests/sequences.rs), [175 свойств e2e](../../../tests/migration/use-purposes-e2e.json). Сокращения точных списков, сохранение порядка/повторов и неизвестных значений; ограничения и аномалии без предметного Rust.
 - [ ] [commonObjects/userSettingsID](../../../packages/rules/metadata/commonObjects/userSettingsID)
 - [ ] [commonObjects/userVisible](../../../packages/rules/metadata/commonObjects/userVisible)

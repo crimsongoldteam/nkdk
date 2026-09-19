@@ -1,0 +1,12 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.type-description-restricted
+imports: {description: common.type-description}
+value:
+  kind: record
+  fields:
+  - name: description
+    type: {use: description, with: {metadataAttributeTypesOnly: true}}
+representations:
+  xml: {kind: record, fields: [{field: description, path: [Root, Type]}]}
+  yaml: {kind: mapping, fields: [{field: description, key: Тип}]}

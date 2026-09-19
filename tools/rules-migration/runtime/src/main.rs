@@ -18,7 +18,13 @@ fn compare_xml(expected: &[u8], actual: &[u8], qname_paths: &[Vec<String>]) {
                     && path
                         .iter()
                         .zip(expected)
-                        .all(|(name, local)| name.namespace.is_empty() && &name.local == local)
+                        .all(|(name, expected)| {
+                            if name.namespace.is_empty() {
+                                &name.local == expected
+                            } else {
+                                format!("{{{}}}{}", name.namespace, name.local) == *expected
+                            }
+                        })
             })
         },
     )

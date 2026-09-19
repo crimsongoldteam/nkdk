@@ -100,6 +100,21 @@ impl<'a> Expressions<'a> {
         Ok(true)
     }
 
+    fn lower_bound_predicate(
+        &mut self,
+        input: &LinkedExpression,
+        predicate: &LinkedExpression,
+        slot: u32,
+    ) -> Result<String, Diagnostic> {
+        let typed = self.bind_typed_row(input, slot)?;
+        let predicate = self.lower(predicate);
+        if typed {
+            self.local_fields.remove(&slot);
+            self.borrowed_rows.remove(&slot);
+        }
+        predicate
+    }
+
     fn input_variant(&self, item: &LinkedType) -> Result<&'static str, Diagnostic> {
         match item {
             LinkedType::Scalar(ScalarType::Text) => Ok("Text"),
@@ -388,11 +403,12 @@ impl<'a> Expressions<'a> {
                 if let Some(storage) = self.field_storage {
                     return storage
                         .get(*index as usize)
+                        .filter(|value| !value.0.is_empty())
                         .map(|value| value.0.clone())
                         .ok_or_else(|| {
                             unsupported(
                                 self.entry,
-                                "This field requires a specialized constraint evaluator",
+                                "This structured field requires a specialized constraint evaluator",
                             )
                         });
                 }
@@ -556,6 +572,52 @@ impl<'a> Expressions<'a> {
                     }
                     return Err(unsupported(self.entry, "Readiness requires an input slot"));
                 }
+                if let LinkedOperator::Filter(slot) = operator {
+                    let sequence = self.lower(&arguments[0])?;
+                    let predicate =
+                        self.lower_bound_predicate(&arguments[0], &arguments[1], *slot)?;
+                    let LinkedType::Sequence(item) = &arguments[0].value_type else {
+                        return Err(unsupported(self.entry, "Filtering requires a sequence"));
+                    };
+                    if matches!(item.as_ref(), LinkedType::Scalar(ScalarType::Text))
+                        && matches!(arguments[0].kind, LinkedExpressionKind::Input(_))
+                    {
+                        self.fallible = true;
+                        return Ok(format!(
+                            "{{let mut selected=Vec::new();for item in {sequence}{{let InputValue::Text(v{slot})=item else{{return Err(RuntimeDiagnostic::new(\"input.type\",\"Unexpected sequence item type\"));}};if {predicate}{{selected.push(R{}{{fields:[v{slot}.clone()]}});}}}}core::Sequence::Present(selected)}}",
+                            self.entry.id
+                        ));
+                    }
+                    if matches!(item.as_ref(), LinkedType::Scalar(ScalarType::Text))
+                        && matches!(arguments[0].kind, LinkedExpressionKind::SelfValue)
+                    {
+                        return Ok(format!(
+                            "{{let mut selected=Vec::new();for row in {sequence}{{let v{slot}=&row.fields[0];if {predicate}{{selected.push(R{}{{fields:[v{slot}.clone()]}});}}}}core::Sequence::Present(selected)}}",
+                            self.entry.id
+                        ));
+                    }
+                    return Err(unsupported(
+                        self.entry,
+                        "Filtering currently requires scalar text sequence storage",
+                    ));
+                }
+                if let LinkedOperator::Find(slot) = operator {
+                    if !matches!(arguments[0].kind, LinkedExpressionKind::Input(_))
+                        || !self.bind_typed_row(&arguments[0], *slot)?
+                    {
+                        return Err(unsupported(
+                            self.entry,
+                            "Finding currently requires borrowed declared records",
+                        ));
+                    }
+                    let sequence = self.lower(&arguments[0])?;
+                    let predicate = self.lower(&arguments[1]);
+                    self.borrowed_rows.remove(slot);
+                    let predicate = predicate?;
+                    return Ok(format!(
+                        "{{let mut found=None;for v{slot} in {sequence}{{if {predicate}{{found=Some(v{slot});break;}}}}found}}"
+                    ));
+                }
                 if let LinkedOperator::Each(slot)
                 | LinkedOperator::Exists(slot)
                 | LinkedOperator::One(slot)
@@ -586,13 +648,8 @@ impl<'a> Expressions<'a> {
                     } else {
                         sequence
                     };
-                    let typed = self.bind_typed_row(&arguments[0], *slot)?;
-                    let predicate = self.lower(&arguments[1]);
-                    if typed {
-                        self.local_fields.remove(slot);
-                        self.borrowed_rows.remove(slot);
-                    }
-                    let predicate = predicate?;
+                    let predicate =
+                        self.lower_bound_predicate(&arguments[0], &arguments[1], *slot)?;
                     let LinkedType::Sequence(item) = &arguments[0].value_type else {
                         return Err(unsupported(self.entry, "Iteration requires a sequence"));
                     };
@@ -919,6 +976,9 @@ impl<'a> Expressions<'a> {
                     LinkedOperator::MatchOptional(_) => {
                         unreachable!("optional match lowered before scalar operators")
                     }
+                    LinkedOperator::Find(_) | LinkedOperator::Map(_) => {
+                        unreachable!("collection operator lowered before scalar operators")
+                    }
                     LinkedOperator::Equal | LinkedOperator::Less | LinkedOperator::LessEqual => {
                         if matches!(
                             arguments[0].value_type,
@@ -1058,6 +1118,57 @@ pub(super) fn expression_with_storage(
     Ok((expressions.constants, code))
 }
 
+pub(super) fn borrowed_filter(
+    entry: &LinkedEntry,
+    program: &Program,
+    input: &LinkedExpression,
+    slot: u32,
+    predicate: &LinkedExpression,
+) -> Result<(String, String, String), Diagnostic> {
+    let mut expressions = Expressions::new(entry, program, &[], None);
+    if !expressions.bind_typed_row(input, slot)? {
+        return Err(unsupported(
+            entry,
+            "Declared filtering requires borrowed record rows",
+        ));
+    }
+    let sequence = expressions.lower(input)?;
+    let predicate = expressions.lower(predicate)?;
+    Ok((expressions.constants, sequence, predicate))
+}
+
+pub(super) fn borrowed_map(
+    entry: &LinkedEntry,
+    program: &Program,
+    input: &LinkedExpression,
+    slot: u32,
+    values: &[&LinkedExpression],
+) -> Result<(String, String, Option<String>, Vec<String>), Diagnostic> {
+    let mut expressions = Expressions::new(entry, program, &[], None);
+    let (source, predicate) = match &input.kind {
+        LinkedExpressionKind::Operation {
+            operator: LinkedOperator::Filter(filter_slot),
+            arguments,
+        } if *filter_slot == slot => (&arguments[0], Some(&arguments[1])),
+        _ => (input, None),
+    };
+    if !expressions.bind_typed_row(source, slot)? {
+        return Err(unsupported(
+            entry,
+            "Declared mapping requires borrowed record rows",
+        ));
+    }
+    let sequence = expressions.lower(source)?;
+    let predicate = predicate
+        .map(|predicate| expressions.lower(predicate))
+        .transpose()?;
+    let values = values
+        .iter()
+        .map(|value| expressions.lower(value))
+        .collect::<Result<Vec<_>, _>>()?;
+    Ok((expressions.constants, sequence, predicate, values))
+}
+
 pub(super) fn record_storage(
     entry: &LinkedEntry,
     program: &Program,
@@ -1067,11 +1178,15 @@ pub(super) fn record_storage(
         .iter()
         .enumerate()
         .map(|(index, field)| {
-            Ok((
-                super::scalar::Codec::resolve(&field.value, entry, program)?
-                    .optional_meaning(&format!("E{}F{index}", entry.id), index),
-                format!("_value.f{index}.is_some()"),
-            ))
+            let readiness = format!("_value.f{index}.is_some()");
+            let meaning = match super::scalar::Codec::resolve(&field.value, entry, program) {
+                Ok(codec) => codec.optional_meaning(&format!("E{}F{index}", entry.id), index),
+                Err(_) if super::scalar::structured_reference(&field.value, program) => {
+                    String::new()
+                }
+                Err(error) => return Err(error),
+            };
+            Ok((meaning, readiness))
         })
         .collect()
 }

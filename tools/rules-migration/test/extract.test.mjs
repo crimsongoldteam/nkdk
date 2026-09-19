@@ -80,6 +80,14 @@ test('static extraction retains fragments, shadowing, unknowns and comparison fa
   const namespaced=extract({'fragment.ts':`export const fields={x:{type:'string'}};`,'barrel.ts':`export * as Shared from './fragment';`,'childRules.ts':`import {Shared} from './barrel'; export const ChildRules={properties:Shared.fields};`},[{path:'childRules.ts',symbol:'ChildRules'}]);
   assert.equal(namespaced[0].shapeComplete,true);
   assert.equal(namespaced[0].properties[0].name,'x');
+  const parameterized=extract({
+    'fragment.ts': `export const ALLOWED=['string','CatalogRef.*'] as const;
+      export function fragment(params:{allowed?:readonly string[]}) { return {properties:{type:{type:'TypeDescription',...(params.allowed===undefined?{}:{allowedTypes:params.allowed})}}}; }`,
+    'barrel.ts': `export * as Shared from './fragment';`,
+    'childRules.ts': `import {Shared} from './barrel'; export const ChildRules={properties:{...Shared.fragment({allowed:Shared.ALLOWED}).properties}};`,
+  },[{path:'childRules.ts',symbol:'ChildRules'}]);
+  assert.equal(parameterized[0].shapeComplete,true);
+  assert.deepEqual(parameterized[0].properties[0].parameters.allowedTypes,['string','CatalogRef.*']);
   const sliced=extract({'order.ts':`const order=['one','uuid','last'];const slot=order.indexOf('uuid');
     export const OrderedRules={xmlOrder:[...order.slice(0,slot),'extra',...order.slice(slot)],properties:{}};
     export const DynamicOrderRules={xmlOrder:order.slice(unknown),properties:{}};`},[{path:'order.ts',symbol:'OrderedRules'},{path:'order.ts',symbol:'DynamicOrderRules'}]);

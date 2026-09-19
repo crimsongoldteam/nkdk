@@ -639,6 +639,7 @@ fn resolve_xml(
                             .collect::<Result<_, Diagnostic>>()?,
                         literal: item.literal.clone(),
                         separator: item.separator.clone(),
+                        tail_segments: item.tail_segments.clone(),
                         source: item.source.clone(),
                     })
                 })
@@ -857,6 +858,15 @@ fn validate_xml(
                         "invalid_separator",
                         &item.source,
                         "QName lexicon separator must not be empty",
+                    ));
+                }
+                if !item.tail_segments.is_empty()
+                    && (item.separator.is_none() || item.tail_segments.iter().any(String::is_empty))
+                {
+                    return Err(diagnostic(
+                        "invalid_qname_tail",
+                        &item.source,
+                        "QName tail segments require a separator and nonempty prefixes",
                     ));
                 }
             }

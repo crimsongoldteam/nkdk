@@ -181,9 +181,12 @@ fn generate_at(
         let mut item_checks = String::new();
         if base.is_none() {
             for (index, field) in fields.iter().enumerate() {
-                if let Some(method) = super::scalar::Codec::resolve(&field.value, entry, program)?
-                    .child_check_method()
-                {
+                let codec = match super::scalar::Codec::resolve(&field.value, entry, program) {
+                    Ok(codec) => Some(codec),
+                    Err(_) if super::scalar::structured_reference(&field.value, program) => None,
+                    Err(error) => return Err(error),
+                };
+                if let Some(method) = codec.and_then(|codec| codec.child_check_method()) {
                     let key = super::record::diagnostic_key(entry, &field.name);
                     let xml = side == "xml";
                     writeln!(item_checks,"if let Some(value)=&_value.f{index}{{errors.extend(value.{method}({xml},_inputs).into_iter().map(|issue|_value.positions[{index}].apply(_source,issue.field({key:?}))));}}").unwrap();
@@ -192,7 +195,12 @@ fn generate_at(
         }
         if let Some(key) = base
             && let Some(codec) = collection_values::codec(entry, program)?
-            && let Some(method) = codec.child_check_method()
+            && let Some(method) = match codec {
+                scalar::Codec::Pattern(_)
+                | scalar::Codec::Forms(_)
+                | scalar::Codec::Sequence(_) => Some("issues"),
+                _ => codec.child_check_method(),
+            }
         {
             let xml = side == "xml";
             writeln!(item_checks,"for (index,row) in _value.rows.iter().enumerate(){{errors.extend(row.fields[0].{method}({xml},_inputs).into_iter().map(|mut issue|{{issue.message=format!(\"Element {{}}: {{}}\",index+1,issue.message);_value.position.apply(_source,issue.field({key:?}))}}));}}").unwrap();

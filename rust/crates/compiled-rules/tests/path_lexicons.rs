@@ -4,13 +4,9 @@ use nkdk_compiled_rules::{
 
 #[test]
 fn path_lexicons_preserve_the_existing_bidirectional_vocabulary() {
+    let fixture_root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..");
     let read_fixture = |case: &serde_json::Value| {
-        std::fs::read(
-            std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-                .join("../../..")
-                .join(case["source"].as_str().unwrap()),
-        )
-        .unwrap()
+        std::fs::read(fixture_root.join(case["source"].as_str().unwrap())).unwrap()
     };
     let reference: serde_json::Value = serde_json::from_slice(include_bytes!(
         "../../../../tests/migration/metadata-path-lexicons.json"

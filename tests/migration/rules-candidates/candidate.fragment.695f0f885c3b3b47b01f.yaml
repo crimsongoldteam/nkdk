@@ -1,0 +1,48 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.string
+value:
+  kind: record
+  fields:
+    - name: editParameters
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: editParameters
+        path:
+          - dcssch:editParameters
+  yaml:
+    kind: mapping
+    fields:
+      - field: editParameters
+        key: ПараметрыРедактирования
+presence:
+  - target:
+      field: editParameters
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              eq:
+                - input: ownerKind
+                - literal: ПолеНабораДанныхСхемыКомпоновкиДанных
+          form: missing
+    yaml:
+      missing:
+        denotes:
+          absent: true
+namespaces:
+  dcssch: http://v8.1c.ru/8.1/data-composition-system/schema
+inputs:
+  ownerKind:
+    type:
+      kind: scalar
+      scalar: text
+id: candidate.fragment.695f0f885c3b3b47b01f

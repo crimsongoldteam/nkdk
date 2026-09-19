@@ -49,6 +49,9 @@ pub(super) fn expression(path: &str, value: &Node) -> Result<Expression, Diagnos
             "exists",
             "one",
             "select",
+            "find",
+            "filter",
+            "map",
             "or",
             "and",
             "eq",
@@ -237,7 +240,15 @@ pub(super) fn expression(path: &str, value: &Node) -> Result<Expression, Diagnos
                 next: Box::new(expression(path, operand.field(path, fields, "next")?)?),
             }
         }
-        "each" | "exists" | "one" | "select" => {
+        "map" => {
+            let fields = operand.mapping(path, &["in", "as", "value"])?;
+            ExpressionKind::Map {
+                input: Box::new(expression(path, operand.field(path, fields, "in")?)?),
+                binding: operand.field(path, fields, "as")?.text(path)?.into(),
+                value: Box::new(expression(path, operand.field(path, fields, "value")?)?),
+            }
+        }
+        "each" | "exists" | "one" | "select" | "find" | "filter" => {
             let fields = operand.mapping(path, &["in", "as", "where"])?;
             let input = Box::new(expression(path, operand.field(path, fields, "in")?)?);
             let binding = operand.field(path, fields, "as")?.text(path)?.into();
@@ -250,6 +261,18 @@ pub(super) fn expression(path: &str, value: &Node) -> Result<Expression, Diagnos
                 }
             } else if operator.text(path)? == "select" {
                 ExpressionKind::Select {
+                    input,
+                    binding,
+                    predicate,
+                }
+            } else if operator.text(path)? == "find" {
+                ExpressionKind::Find {
+                    input,
+                    binding,
+                    predicate,
+                }
+            } else if operator.text(path)? == "filter" {
+                ExpressionKind::Filter {
                     input,
                     binding,
                     predicate,

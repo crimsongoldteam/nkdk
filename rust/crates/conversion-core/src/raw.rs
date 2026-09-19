@@ -336,6 +336,26 @@ impl Fields {
         evidence: &[RuntimeDiagnostic],
     ) -> Vec<RuntimeDiagnostic> {
         if let Some(fields) = &self.0 {
+            issues.retain(|issue| {
+                if issue.severity == crate::Severity::Error {
+                    return true;
+                }
+                let patched = issue.path.first().is_some_and(|key| {
+                    keys.iter()
+                        .position(|candidate| candidate == key)
+                        .is_some_and(|index| fields.values.iter().any(|(slot, _)| *slot == index))
+                });
+                !patched
+                    || !evidence.iter().any(|candidate| {
+                        candidate.kind == issue.kind
+                            && candidate.code == issue.code
+                            && candidate.source == issue.source
+                            && candidate.severity == issue.severity
+                            && candidate.occurrence == issue.occurrence
+                            && candidate.file == issue.file
+                            && candidate.path == issue.path
+                    })
+            });
             for (index, mark) in &fields.marks {
                 issues =
                     mark.validate_with_evidence(keys[*index], std::iter::empty(), issues, evidence);

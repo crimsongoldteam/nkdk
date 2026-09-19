@@ -1,0 +1,73 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.type-description
+value:
+  kind: record
+  fields:
+    - name: valueType
+      type:
+        use: value0
+        bind: {}
+        with:
+          addTypeDescriptionAttributeToXML: true
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: valueType
+        path:
+          - Settings
+  yaml:
+    kind: mapping
+    fields:
+      - field: valueType
+        key: ТипЗначения
+presence:
+  - target:
+      field: valueType
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          if:
+            eq:
+              - input: ownerType
+              - literal: СписокЗначений
+          then:
+            record:
+              items:
+                sequence: []
+              types:
+                sequence: []
+              typeSets:
+                sequence: []
+              identifiers:
+                sequence: []
+              stringLength:
+                literal: ''
+              stringAllowedLength:
+                literal: ''
+              numberDigits:
+                literal: ''
+              numberFractionDigits:
+                literal: ''
+              numberAllowedSign:
+                literal: ''
+              dateFractions:
+                literal: ''
+              binaryLength:
+                literal: ''
+              binaryAllowedLength:
+                literal: ''
+          else:
+            absent: true
+inputs:
+  ownerType:
+    type:
+      kind: scalar
+      scalar: text
+id: candidate.fragment.02c7d377a6d706c70443

@@ -77,7 +77,10 @@ pub(super) fn qname_text_table(
     items
         .iter()
         .map(|item| {
-            let fields = item.mapping(path, &["name", "literal", "separator", "accept"])?;
+            let fields = item.mapping(
+                path,
+                &["name", "literal", "separator", "tailSegments", "accept"],
+            )?;
             let name = item.field(path, fields, "name")?;
             Ok(QNameTextLexeme {
                 name: name.text(path)?.into(),
@@ -102,6 +105,23 @@ pub(super) fn qname_text_table(
                 separator: optional_field(fields, "separator")
                     .map(|value| value.text(path).map(String::from))
                     .transpose()?,
+                tail_segments: optional_field(fields, "tailSegments")
+                    .map(|values| {
+                        let Shape::Sequence(values) = &values.shape else {
+                            return Err(error(
+                                path,
+                                values.mark,
+                                "expected_sequence",
+                                "Expected QName tail segment prefixes",
+                            ));
+                        };
+                        values
+                            .iter()
+                            .map(|value| value.text(path).map(String::from))
+                            .collect()
+                    })
+                    .transpose()?
+                    .unwrap_or_default(),
                 source: location(path, name),
             })
         })

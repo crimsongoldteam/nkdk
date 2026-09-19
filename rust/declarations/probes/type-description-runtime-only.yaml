@@ -1,0 +1,23 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.type-description-runtime-only
+imports: {flag: common.boolean, description: common.type-description}
+value:
+  kind: record
+  fields:
+  - {name: visible, type: {use: flag}}
+  - {name: restriction, type: {use: description}}
+representations:
+  xml: {kind: record, fields: [{field: visible, path: [Root, Visible]}]}
+  yaml:
+    kind: mapping
+    fields:
+    - {field: visible, key: Видимость}
+    - {field: restriction, key: ОграничениеТипа}
+presence:
+- target: {field: visible}
+  xml: {missing: {denotes: {literal: true}}, canonical: [{when: {eq: [{field: visible}, {literal: true}]}, form: missing}]}
+  yaml: {default: {literal: true}}
+- target: {field: restriction}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {missing: {denotes: {absent: true}}}

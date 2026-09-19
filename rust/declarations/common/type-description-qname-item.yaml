@@ -1,0 +1,11 @@
+format: nkdk-declarations/1
+kind: value
+id: common.type-description-qname-item
+description: QName-строка описания типа с той же смысловой формой записи
+imports: {name: common.type-description-name}
+value:
+  kind: record
+  fields: [{name: value, type: {use: name}}]
+representations:
+  xml: {kind: record, fields: [{field: value, path: []}]}
+  yaml: {kind: projection, field: value}

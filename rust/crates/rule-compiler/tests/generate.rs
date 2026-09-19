@@ -48,6 +48,29 @@ presence:
 - {target: {field: visible}, xml: {missing: {denotes: {field: xmlValues}}}}
 - {target: {field: xmlValues}, yaml: {missing: {denotes: {field: visible}}}}
 "#;
+const FILTERED_ROWS_OWNER: &str = r#"format: nkdk-declarations/1
+kind: object
+id: test.filtered-row-owner
+imports: {rows: test.projected-rows}
+value:
+  kind: record
+  fields:
+  - {name: visible, type: {use: rows}}
+  - {name: selected, type: {use: rows}}
+representations:
+  xml: {kind: record, fields: [{field: selected, path: [FilteredRows, Values]}]}
+  yaml: {kind: projection, field: visible}
+presence:
+- {target: {field: visible}, xml: {missing: {denotes: {field: selected}}}}
+- target: {field: selected}
+  yaml:
+    missing:
+      denotes:
+        filter:
+          in: {field: visible}
+          as: item
+          where: {or: [{eq: [{get: {of: {var: item}, field: value}}, {literal: alpha}]}, {eq: [{get: {of: {var: item}, field: value}}, {literal: again}]}]}
+"#;
 
 #[test]
 fn generated_rust_executes_both_directions_and_uses_the_imported_table() {
@@ -923,6 +946,7 @@ presence:
             ("projected-row.yaml", PROJECTED_ROW),
             ("projected-rows.yaml", PROJECTED_ROWS),
             ("projected-row-owner.yaml", PROJECTED_ROWS_OWNER),
+            ("filtered-row-owner.yaml", FILTERED_ROWS_OWNER),
             (
                 "qname-common.yaml",
                 include_str!("fixtures/qname-common.yaml"),
@@ -1121,6 +1145,7 @@ presence:
                 "fact-rows-owner.yaml",
                 "fact-rows.yaml",
                 "fact-target.yaml",
+                "filtered-row-owner.yaml",
                 "finite-state-collection.yaml",
                 "finite-state-row.yaml",
                 "finite-state-rows.yaml",
@@ -1247,6 +1272,15 @@ fn main() {
     let projected_rows_yaml = convert_file(projected_rows,Direction::XmlToYaml,projected_rows_xml,&PreparedInputs::default()).unwrap();
     assert_eq!(projected_rows_yaml.bytes,b"-\n  Value: one\n-\n  Value: two");
     verify_candidate(projected_rows,projected_rows_xml,&projected_rows_yaml.bytes,&PreparedInputs::default()).unwrap();
+
+    let filtered_rows = entry_id("test.filtered-row-owner").unwrap();
+    let filtered_yaml = b"-\n  Value: alpha\n-\n  Value: beta\n-\n  Value: again";
+    let filtered_xml = convert_file(filtered_rows,Direction::YamlToXml,filtered_yaml,&PreparedInputs::default()).unwrap();
+    let filtered_text=String::from_utf8_lossy(&filtered_xml.bytes);
+    assert_eq!(filtered_text.matches("<Item>").count(),2,"{filtered_text}");
+    assert!(filtered_text.contains("<Value>alpha</Value>"),"{filtered_text}");
+    assert!(filtered_text.contains("<Value>again</Value>"),"{filtered_text}");
+    assert!(!filtered_text.contains("<Value>beta</Value>"),"{filtered_text}");
 
     for (name, extra_xml, extra_yaml) in [
         ("test.directional-fields", "", ""),

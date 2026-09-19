@@ -1,0 +1,48 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.FormButtonType
+value:
+  kind: record
+  fields:
+    - name: type
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: type
+        path:
+          - Type
+  yaml:
+    kind: mapping
+    fields:
+      - field: type
+        key: Вид
+presence:
+  - target:
+      field: type
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+constraints:
+  - id: type-required
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    assert:
+      present:
+        field: type
+    diagnostic:
+      code: value.required
+      severity: warning
+      at:
+        field: type
+      message: Обязательное значение отсутствует
+id: candidate.fragment.d364e875d6ea6468cf81

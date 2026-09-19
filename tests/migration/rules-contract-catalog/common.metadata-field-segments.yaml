@@ -1,0 +1,16 @@
+format: nkdk-declarations/1
+kind: value
+id: common.metadata-field-segments
+imports:
+  item: common.metadata-field-segment
+value:
+  kind: sequence
+  item:
+    use: item
+representations:
+  xml:
+    kind: text-sequence
+    separator: .
+  yaml:
+    kind: text-sequence
+    separator: .

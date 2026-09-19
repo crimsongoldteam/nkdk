@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.type-description
+value:
+  kind: record
+  fields:
+    - name: typeRestriction
+      type:
+        use: value0
+        bind: {}
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: typeRestriction
+        path:
+          - TypeRestriction
+  yaml:
+    kind: mapping
+    fields:
+      - field: typeRestriction
+        key: ОграничениеТипа
+presence:
+  - target:
+      field: typeRestriction
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+id: candidate.fragment.1e584f9da456186f8056

@@ -4,7 +4,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { emitCandidates } from '../src/emit.mjs';
 import { safeUpdate } from '../src/candidate-output.mjs';
-import { mapProperty } from '../src/mappings.mjs';
+import { mapProperty, METADATA_ATTRIBUTE_TYPE_DESCRIPTION_TYPES } from '../src/mappings.mjs';
 import { checkSnapshot } from '../src/source-snapshot.mjs';
 import { candidateDiff } from '../src/candidate-diff.mjs';
 
@@ -35,8 +35,12 @@ test('candidate generation shares fragments, rejects unknown parameters and prot
     const declarations=new Map([[id,{enum:{A:'А'}}]]);
     const required=mapProperty(source,declarations);
     assert.equal(required.status,'candidate');
-    assert.equal(required.presence,undefined);
-    assert.deepEqual(mapProperty(source,new Map([[id,{presence:[{target:'self',yaml:{missing:{denotes:{absent:true}}}}]}]])).presence,{target:{field:property.name}});
+    assert.deepEqual(required.presence,{target:{field:property.name},xml:{missing:{denotes:{absent:true}}},yaml:{missing:{denotes:{absent:true}}}});
+    assert.deepEqual(required.constraints,[{
+      id:`${property.name}-required`,appliesTo:['xml-import','yaml-validation'],assert:{present:{field:property.name}},
+      diagnostic:{code:'value.required',severity:'warning',at:{field:property.name},message:'Обязательное значение отсутствует'},
+    }]);
+    assert.deepEqual(mapProperty(source,new Map([[id,{presence:[{target:'self',yaml:{missing:{denotes:{absent:true}}}}]}]])).presence,required.presence);
     for(const extra of [{required:'true'},{defaultValueXMLRaw:''},{implicitValueYAML:false},{defaultValueXML:false},{implicitValueXML:false}]) {
       assert.equal(mapProperty({...source,parameters:{...parameters,...extra}},declarations).status,'blocked');
     }
@@ -201,6 +205,96 @@ test('candidate generation shares fragments, rejects unknown parameters and prot
       assert.equal(mapProperty({...source,parameters:{...source.parameters,...extra}},typeLinkCatalog,{xr:'urn:readable'}).status,'blocked');
     }
   }
+  const rootLink=emitCandidates([{...entry('RootLinkRules'),properties:[{
+    ...property,name:'linkByType',parameters:{type:'TypeLink',yaml:'СвязьПоТипу',xml:'xr:LinkByType'},
+  }]}],typeLinkCatalog,undefined,{xr:'urn:readable'});
+  assert.deepEqual(rootLink.modules.find(module=>module.kind==='fragment').representations.xml.fields[0].path,['xr:LinkByType']);
+  assert.match(rootLink.entries[0].projections[0].context,/relative-path/);
+  const typeDescriptionCatalog=new Map([['common.type-description',{}]]);
+  const typeDescription=mapProperty({...property,name:'description',parameters:{
+    type:'TypeDescription',yaml:'Тип',xmlParents:['Properties'],defaultValueXMLRaw:'',
+    addTypeDescriptionAttributeToXML:true,declareTypeNamespaceXML:['dcsset'],
+    allowedTypes:METADATA_ATTRIBUTE_TYPE_DESCRIPTION_TYPES,
+  }},typeDescriptionCatalog);
+  assert.equal(typeDescription.status,'candidate');
+  assert.equal(typeDescription.id,'common.type-description');
+  assert.deepEqual(typeDescription.type.with,{addTypeDescriptionAttributeToXML:true,metadataAttributeTypesOnly:true});
+  assert.equal(typeDescription.presence.xml.canonical[0].form,'empty-element');
+  assert.deepEqual(typeDescription.parameterEquivalences,[{
+    parameter:'declareTypeNamespaceXML',equivalentTo:'canonical-owner-namespace-declarations',via:'common.type-description',
+  }]);
+  assert.equal(typeDescription.constraints,undefined);
+  const requiredTypeDescription=mapProperty({...property,name:'description',parameters:{
+    type:'TypeDescription',yaml:'Тип',xmlParents:['Properties'],required:true,
+  }},typeDescriptionCatalog);
+  assert.equal(requiredTypeDescription.status,'candidate');
+  assert.deepEqual(requiredTypeDescription.presence.xml.missing,{denotes:{absent:true}});
+  assert.equal(requiredTypeDescription.constraints[0].diagnostic.code,'value.required');
+  const ownerFact=emitCandidates([{...entry('OwnerFactRules'),properties:[{...property,name:'description',parameters:{
+    type:'TypeDescription',yaml:'Тип',ownerFactRole:'type',
+  }}]}],typeDescriptionCatalog);
+  assert.equal(ownerFact.entries[0].properties[0].status,'candidate');
+  assert.equal(ownerFact.entries[0].properties[0].ownerFactRole,'type');
+  assert.deepEqual(ownerFact.entries[0].ownerBlockers,[{reason:'owner-fact-contribution-required',property:'description',role:'type'}]);
+  for(const extra of [
+    {addTypeDescriptionAttributeToXML:false}, {preserveEmptyXML:false},
+    {declareTypeNamespaceXML:['unknown']}, {allowedTypes:['unknown']},
+  ]) assert.equal(mapProperty({...property,parameters:{type:'TypeDescription',yaml:'Тип',...extra}},typeDescriptionCatalog).status,'blocked');
+  const unresolved=(path,sourceHash)=>({$unresolved:{kind:'expression',source:{path,line:path.includes('valueListSettings')?19:24,column:1},sourceHash,expression:'reviewed callback'}});
+  const conditionalTypeDescription=mapProperty({...property,status:'requires-expression-mapping',name:'valueType',parameters:{
+    type:'TypeDescription',yaml:'ТипЗначения',xml:'dcssch:valueType',
+    toXML:unresolved('packages/rules/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/rules.ts','a2319c0402f326a1a0e255e2042d7bb13e785acd1f14a4041823fe498882dfb2'),
+  }},typeDescriptionCatalog,{dcssch:'urn:dcs'});
+  assert.equal(conditionalTypeDescription.status,'candidate');
+  assert.deepEqual(conditionalTypeDescription.presence.xml.canonical,[
+    {when:{not:{eq:[{input:'ownerKind'},{literal:'ПолеНабораДанныхСхемыКомпоновкиДанных'}]}},form:'missing'},
+  ]);
+  assert.deepEqual(conditionalTypeDescription.inputs,{ownerKind:{type:{kind:'scalar',scalar:'text'}}});
+  const ownMinMax=mapProperty({...property,status:'requires-expression-mapping',name:'minimum',parameters:{
+    type:'MinMaxValue',yaml:'Минимум',typedXML:'xs:string',defaultValueXMLRaw:{'_xsi:nil':true},
+    toXML:{$unresolved:{kind:'expression',source:{path:'packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts',line:14,column:3},sourceHash:'ce1263678dd952b7e8ef7a748e1f49b34bf00de06ae0250dbd0d55a26ae59cef',expression:'reviewed callback'}},
+  }},new Map([['common.min-max-value-text',{}]]));
+  assert.deepEqual(ownMinMax.presence.xml.canonical,[
+    {when:{not:{present:{field:'minimum'}}},form:'missing'},
+  ]);
+  const formValueType=mapProperty({...property,status:'requires-expression-mapping',name:'valueType',parameters:{
+    type:'TypeDescription',yaml:'ТипЗначения',xml:'Settings',addTypeDescriptionAttributeToXML:true,
+    defaultValueXMLEmpty:{type:[]},preserveEmptyXML:true,
+    defaultValue:unresolved('packages/rules/metadata/forms/commonObjects/formAttribute/valueListSettings.ts','21f68d1f13518895e2565205ec92797eee022f06b2a6c0b5a147f53435a2b81f'),
+  }},typeDescriptionCatalog);
+  assert.equal(formValueType.status,'candidate');
+  assert.equal(formValueType.presence.xml.empty,undefined);
+  assert.deepEqual(formValueType.presence.yaml.missing,{denotes:{
+    if:{eq:[{input:'ownerType'},{literal:'СписокЗначений'}]},then:formValueType.presence.yaml.missing.denotes.then,else:{absent:true},
+  }});
+  assert.deepEqual(formValueType.presence.yaml.missing.denotes.then.record.items,{sequence:[]});
+  assert.deepEqual(formValueType.inputs,{ownerType:{type:{kind:'scalar',scalar:'text'}}});
+  const emptyTypeDescription=mapProperty({...property,name:'description',parameters:{
+    type:'TypeDescription',yaml:'Тип',xml:'Type',defaultValueXMLRaw:{},
+  }},typeDescriptionCatalog);
+  assert.equal(emptyTypeDescription.status,'candidate');
+  assert.deepEqual(emptyTypeDescription.presence.xml.canonical,[{when:{not:{present:{field:'description'}}},form:'empty-element'},{form:'ordinary'}]);
+  const runtimeTypeDescription=mapProperty({...property,name:'typeRestriction',parameters:{
+    type:'TypeDescription',yaml:'ОграничениеТипа',toEnterprise:false,runtimeOnly:true,
+  }},typeDescriptionCatalog);
+  assert.equal(runtimeTypeDescription.status,'candidate');
+  assert.equal(runtimeTypeDescription.yamlOnly,true);
+  assert.deepEqual(runtimeTypeDescription.path,[]);
+  const adoptedTypeDescription=mapProperty({...property,name:'type',parameters:{
+    type:'TypeDescription',yaml:'Тип',xml:'Type',xmlParents:['Properties'],required:true,
+    defaultValueAdoptedXML:{type:[]},
+  }},typeDescriptionCatalog);
+  assert.equal(adoptedTypeDescription.status,'candidate');
+  assert.deepEqual(adoptedTypeDescription.presence.yaml.missing.denotes,{
+    if:{eq:[{input:'xmlDefaultVariant'},{literal:'adopted'}]},
+    then:adoptedTypeDescription.presence.yaml.missing.denotes.then,
+    else:{absent:true},
+  });
+  assert.deepEqual(adoptedTypeDescription.presence.yaml.missing.denotes.then.record.items,{sequence:[]});
+  assert.deepEqual(adoptedTypeDescription.inputs,{xmlDefaultVariant:{type:{kind:'scalar',scalar:'text'}}});
+  assert.equal(mapProperty({...property,status:'requires-expression-mapping',parameters:{
+    type:'TypeDescription',yaml:'Тип',toXML:unresolved('packages/rules/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/rules.ts','changed'),
+  }},typeDescriptionCatalog).reason,'requires-expression-mapping');
   const formParams={type:'MetadataItemLink',yaml:'Форма',xmlParents:['Properties'],metadataTarget:formTarget,defaultValueXMLRaw:''};
   const form=mapProperty({...property,parameters:formParams},formCatalog);
   assert.equal(form.id,'common.owner-or-common-form-link');

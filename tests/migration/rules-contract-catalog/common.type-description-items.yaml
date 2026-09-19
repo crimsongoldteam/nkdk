@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: value
+id: common.type-description-items
+imports:
+  item: common.type-description-item
+parameters:
+  metadataAttributeTypesOnly:
+    type:
+      kind: scalar
+      scalar: boolean
+    default: false
+value:
+  kind: sequence
+  item:
+    use: item
+    with:
+      metadataAttributeTypesOnly:
+        parameter: metadataAttributeTypesOnly
+representations:
+  xml:
+    kind: element-sequence
+    path: []
+    item:
+      kind: declared
+  yaml:
+    kind: sequence
+    singleton: scalar
+    item:
+      kind: declared
+presence:
+  - target: self
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true

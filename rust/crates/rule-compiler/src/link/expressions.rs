@@ -344,6 +344,31 @@ pub(super) fn resolve_expression_in(
                 expected,
             )
         }
+        ExpressionKind::Map {
+            input,
+            binding,
+            value,
+        } => {
+            let input = resolve_expression_in(module, input, modules, ids, scope)?;
+            let LinkedType::Sequence(item) = &input.value_type else {
+                return Err(diagnostic(
+                    "expression_type_mismatch",
+                    &input.source,
+                    "Map requires a sequence",
+                ));
+            };
+            let slot = scope.variables.len() as u32;
+            let nested = scope.bind(binding, *item.clone(), &expression.source)?;
+            let value = resolve_expression_in(module, value, modules, ids, &nested)?;
+            let value_type = LinkedType::Sequence(Box::new(value.value_type.clone()));
+            (
+                LinkedExpressionKind::Operation {
+                    operator: LinkedOperator::Map(slot),
+                    arguments: vec![input, value],
+                },
+                value_type,
+            )
+        }
         ExpressionKind::Each {
             input,
             binding,
@@ -360,6 +385,16 @@ pub(super) fn resolve_expression_in(
             predicate,
         }
         | ExpressionKind::Select {
+            input,
+            binding,
+            predicate,
+        }
+        | ExpressionKind::Find {
+            input,
+            binding,
+            predicate,
+        }
+        | ExpressionKind::Filter {
             input,
             binding,
             predicate,
@@ -382,11 +417,20 @@ pub(super) fn resolve_expression_in(
                 LinkedOperator::One(slot)
             } else if matches!(expression.kind, ExpressionKind::Select { .. }) {
                 LinkedOperator::Select(slot)
+            } else if matches!(expression.kind, ExpressionKind::Find { .. }) {
+                LinkedOperator::Find(slot)
+            } else if matches!(expression.kind, ExpressionKind::Filter { .. }) {
+                LinkedOperator::Filter(slot)
             } else {
                 LinkedOperator::Exists(slot)
             };
-            let result_type = if matches!(operator, LinkedOperator::Select(_)) {
+            let result_type = if matches!(
+                operator,
+                LinkedOperator::Select(_) | LinkedOperator::Find(_)
+            ) {
                 LinkedType::Optional(item.clone())
+            } else if matches!(operator, LinkedOperator::Filter(_)) {
+                input.value_type.clone()
             } else {
                 LinkedType::Scalar(ScalarType::Boolean)
             };

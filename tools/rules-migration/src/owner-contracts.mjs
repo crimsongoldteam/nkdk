@@ -3,6 +3,15 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 
+function usesQName(declaration,catalog,seen=new Set()) {
+  if(!declaration || seen.has(declaration.id))return false;
+  seen.add(declaration.id);
+  const contains=value=>value && typeof value==='object' &&
+    (['qname','qname-lexicon','qname-text'].includes(value.kind) || Object.values(value).some(contains));
+  if(contains(declaration.representations))return true;
+  return Object.values(declaration.imports??{}).some(id=>usesQName(catalog.get(id),catalog,seen));
+}
+
 export function ownerContracts(manifest,catalog,snapshot) {
   const requests=[],modules=[];
   for(const [symbol,xmlFolder,yamlFolder,nameBase=yamlFolder] of [
@@ -30,7 +39,7 @@ export function ownerContracts(manifest,catalog,snapshot) {
         if(field.path.length!==2 || field.path[0]!=='Properties')throw new Error('Unsupported fixture projection path');
         const value=fragment.value.fields.find(value=>value.name===field.field);
         const common=catalog.get(fragment.imports[value.type.use]);
-        return {xml:field.path[1],qname:common.representations?.xml?.kind==='qname',yaml:fragment.representations.yaml.fields.find(y=>y.field===field.field)?.key};
+        return {xml:field.path[1],qname:usesQName(common,catalog),yaml:fragment.representations.yaml.fields.find(y=>y.field===field.field)?.key};
       });
     });
     if(symbol==='MetadataDocumentJournalCommandRules') {

@@ -232,7 +232,7 @@ impl<'a> Codec<'a> {
         }
         out.push_str("}\n");
         if self.has_child_checks() {
-            writeln!(out, "impl {name} {{fn child_issues(&self,xml:bool,inputs:&InputView<'_>)->Vec<RuntimeDiagnostic>{{match self{{").unwrap();
+            writeln!(out, "impl {name} {{#[allow(dead_code)] fn child_issues(&self,xml:bool,inputs:&InputView<'_>)->Vec<RuntimeDiagnostic>{{match self{{").unwrap();
             for (index, variant) in self.variants.iter().enumerate() {
                 if matches!(variant, Variant::Sequence(_)) {
                     writeln!(
@@ -249,7 +249,7 @@ impl<'a> Codec<'a> {
         if collection {
             writeln!(
                 out,
-                "impl {name} {{fn issues(&self,xml:bool,_inputs:&InputView<'_>)->Vec<RuntimeDiagnostic>{{match self{{"
+                "impl {name} {{#[allow(dead_code)] fn issues(&self,xml:bool,_inputs:&InputView<'_>)->Vec<RuntimeDiagnostic>{{match self{{"
             )
             .unwrap();
             for index in 0..self.variants.len() {

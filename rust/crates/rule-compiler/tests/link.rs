@@ -812,6 +812,10 @@ fn collection_variables_are_typed_and_lexically_scoped() {
             "{exists: {in: {input: flags}, as: flag, where: {var: flag}}}",
             None,
         ),
+        (
+            "{present: {filter: {in: {input: flags}, as: flag, where: {var: flag}}}}",
+            None,
+        ),
         ("{var: flag}", Some("unknown_variable")),
         (
             "{each: {in: {literal: true}, as: flag, where: {var: flag}}}",
@@ -819,6 +823,10 @@ fn collection_variables_are_typed_and_lexically_scoped() {
         ),
         (
             "{each: {in: {input: flags}, as: flag, where: {literal: text}}}",
+            Some("expression_type_mismatch"),
+        ),
+        (
+            "{filter: {in: {input: flags}, as: flag, where: {literal: text}}}",
             Some("expression_type_mismatch"),
         ),
         (

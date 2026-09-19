@@ -796,6 +796,93 @@
         {
           "type": "object",
           "properties": {
+            "filter": {
+              "type": "object",
+              "properties": {
+                "in": {
+                  "$ref": "#/$defs/expression"
+                },
+                "as": {
+                  "type": "string"
+                },
+                "where": {
+                  "$ref": "#/$defs/expression"
+                }
+              },
+              "required": [
+                "in",
+                "as",
+                "where"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "filter"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "find": {
+              "type": "object",
+              "properties": {
+                "in": {
+                  "$ref": "#/$defs/expression"
+                },
+                "as": {
+                  "type": "string"
+                },
+                "where": {
+                  "$ref": "#/$defs/expression"
+                }
+              },
+              "required": [
+                "in",
+                "as",
+                "where"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "find"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "map": {
+              "type": "object",
+              "properties": {
+                "in": {
+                  "$ref": "#/$defs/expression"
+                },
+                "as": {
+                  "type": "string"
+                },
+                "value": {
+                  "$ref": "#/$defs/expression"
+                }
+              },
+              "required": [
+                "in",
+                "as",
+                "value"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "map"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
             "firstBy": {
               "type": "object",
               "properties": {
@@ -1526,6 +1613,14 @@
                     "type": "string",
                     "minLength": 1
                   },
+                  "tailSegments": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
                   "accept": {
                     "type": "array",
                     "items": {
@@ -1906,6 +2001,18 @@
               "type": "object",
               "properties": {
                 "kind": {
+                  "const": "declared"
+                }
+              },
+              "required": [
+                "kind"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
                   "const": "text"
                 }
               },
@@ -2107,17 +2214,31 @@
                     "maxItems": 0
                   },
                   "item": {
-                    "properties": {
-                      "kind": {
-                        "const": "scalar"
+                    "oneOf": [
+                      {
+                        "properties": {
+                          "kind": {
+                            "const": "scalar"
+                          },
+                          "scalar": {
+                            "const": "text"
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "scalar"
+                        ]
                       },
-                      "scalar": {
-                        "const": "text"
+                      {
+                        "properties": {
+                          "kind": {
+                            "const": "declared"
+                          }
+                        },
+                        "required": [
+                          "kind"
+                        ]
                       }
-                    },
-                    "required": [
-                      "kind",
-                      "scalar"
                     ]
                   }
                 }
@@ -3792,6 +3913,18 @@
     },
     "yamlSequenceItem": {
       "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "declared"
+            }
+          },
+          "required": [
+            "kind"
+          ],
+          "additionalProperties": false
+        },
         {
           "type": "object",
           "properties": {

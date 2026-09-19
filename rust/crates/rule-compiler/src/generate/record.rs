@@ -372,10 +372,14 @@ fn generate_at(
             let method = field.codec.input_method().unwrap();
             let read = format!("inputs.{method}({index})?");
             let value = match &field.codec {
-                Codec::Text | Codec::TextTable(_) => format!("{read}.to_owned()"),
+                Codec::Text | Codec::TextTable(_) | Codec::QNameText(_) => {
+                    format!("{read}.to_owned()")
+                }
                 Codec::Boolean(..) => read,
                 Codec::Decimal | Codec::FormattedDecimal(_) => format!("{read}.clone()"),
-                Codec::Enumeration(variants, ..) | Codec::States(variants, ..) => {
+                Codec::Enumeration(variants, ..)
+                | Codec::QNameEnumeration(variants, ..)
+                | Codec::States(variants, ..) => {
                     let mut result = format!("match {read}{{");
                     for (variant, item) in variants.iter().enumerate() {
                         write!(result, "{:?}=>E{id}F{index}::V{variant},", item.value).unwrap();
@@ -769,6 +773,12 @@ fn generate_at(
     let prepare_xml = format!("prepare_xml{suffix}_{id}");
     let namespaces_xml = format!("namespaces_xml{suffix}_{id}");
     let write_xml_into = format!("write_xml_into{suffix}_{id}");
+    let required_fields = entry
+        .constraints
+        .iter()
+        .filter(|constraint| constraint.applies_to.contains(&ValidationPhase::XmlImport))
+        .filter_map(crate::plan::routes::required_constraint_field)
+        .collect::<BTreeSet<_>>();
     writeln!(out, "struct {prepared_type} {{").unwrap();
     for (i, _) in physical_fields(&fields) {
         writeln!(out, "tree{i}: Option<core::xml::Tree>,").unwrap();
@@ -781,7 +791,7 @@ fn generate_at(
         }
         if preserve {
             let physical = field.physical_name();
-            writeln!(out, "let tree{i}=if let Some(patch)=value.raw.get({i}) {{ if {null_is_absence} {{None}} else {{",null_is_absence=if !field.optional || super::scalar_presence::absent_form(field.presence) != XmlForm::Missing || field.presence.and_then(|presence|presence.yaml_missing.as_ref()).is_some_and(|value|matches!(value.kind,LinkedExpressionKind::Literal(_))) {"patch.is_null()".to_owned()} else {format!("patch.is_null() && value.f{i}.is_some()") }).unwrap();
+            writeln!(out, "let tree{i}=if let Some(patch)=value.raw.get({i}) {{ if {null_is_absence} {{None}} else {{",null_is_absence=if required_fields.contains(&i) || !field.optional || super::scalar_presence::absent_form(field.presence) != XmlForm::Missing || field.presence.and_then(|presence|presence.yaml_missing.as_ref()).is_some_and(|value|matches!(value.kind,LinkedExpressionKind::Literal(_))) {"patch.is_null()".to_owned()} else {format!("patch.is_null() && value.f{i}.is_some()") }).unwrap();
             let text = field
                 .codec
                 .write_reference(&format!("E{id}F{i}"), "field_value", true);
@@ -829,6 +839,14 @@ fn generate_at(
             "if let Some(tree)=&prepared.tree{i} {{tree.collect_namespaces(namespaces);}}"
         )
         .unwrap();
+    }
+    for (i, field) in physical_fields(&fields) {
+        if let Some(namespace) = field
+            .codec
+            .qname_namespace_reference(&format!("E{id}F{i}"), "field_value")
+        {
+            writeln!(out,"if let Some(field_value)=&_value.f{i} && let Some(namespace)={namespace} {{if !namespaces.contains(&namespace) {{namespaces.push(namespace);}}}}").unwrap();
+        }
     }
     let finish_xml = first.map_or_else(
         || "out.finish()".to_owned(),
@@ -957,6 +975,40 @@ fn generate_at(
             )
             .unwrap();
         }
+        if let Some(qname) = field
+            .codec
+            .qname_owned_reference(&format!("E{id}F{i}"), "field_value")
+        {
+            let guarded = field.optional || preserve;
+            if guarded {
+                writeln!(
+                    out,
+                    "if let Some(field_value) = &value.f{i} {} {{",
+                    if preserve {
+                        format!("&& value.raw.get({i}).is_none()")
+                    } else {
+                        String::new()
+                    }
+                )
+                .unwrap();
+            } else {
+                writeln!(out, "let field_value=&value.f{i};").unwrap();
+            }
+            writeln!(out,"let qname:(&str,std::borrow::Cow<'_,str>)={qname};out.qname_field({},(qname.0,qname.1.as_ref()))?;",path_code(field.path)).unwrap();
+            if guarded {
+                out.push_str("}\n");
+            }
+            if preserve {
+                writeln!(
+                    out,
+                    "if let Some(tree)=&prepared.tree{i} {{tree.write_at(out,{},Q{id})?;}}",
+                    path_code(&field.path[..field.path.len() - 1])
+                )
+                .unwrap();
+            }
+            out.push_str("Ok(()) }\n");
+            continue;
+        }
         let text = if field.optional || preserve {
             writeln!(
                 out,
@@ -1060,7 +1112,7 @@ fn generate_at(
             format!("&core::yaml::scalar({text})")
         };
         if field.yaml_projected {
-            writeln!(out, "core::yaml::append_marked_scalar(out,{yaml},value.raw.label({i}).as_deref(),indent,false); out.push('\\n');").unwrap();
+            writeln!(out, "out.push_str(indent); core::yaml::append_marked_scalar(out,{yaml},value.raw.label({i}).as_deref(),indent,false); out.push('\\n');").unwrap();
         } else {
             out.push_str("out.push_str(indent);");
             if layout.is_some() {
@@ -1105,20 +1157,47 @@ fn generate_at(
         })
         .collect::<Vec<_>>()
         .join(" || ");
+    let qname_text = fields
+        .iter()
+        .filter(|field| {
+            field.xml.is_some()
+                && field.attribute.is_none()
+                && matches!(
+                    field.codec,
+                    Codec::QNameText(_) | Codec::QNameEnumeration(..)
+                )
+        })
+        .map(|field| format!("core::xml::matches(path,{})", path_code(field.path)))
+        .collect::<Vec<_>>()
+        .join(" || ");
     out.push_str(&super::proof::qnames(id, &format!("Q{id}.to_vec()")));
     out.push_str(&super::proof::generate(
         id,
         if scalar.is_empty() { "false" } else { &scalar },
         &format!("(name.namespace==\"http://www.w3.org/2001/XMLSchema-instance\" && name.local==\"type\") || ({})", container.as_ref().map_or_else(|| "false".to_owned(), |container| container.code.qnames.replace("_path", "path").replace("_name", "name"))),
-        "false",
+        if qname_text.is_empty() {
+            "false"
+        } else {
+            &qname_text
+        },
     ));
     writeln!(out, "fn verify_{id}(original: &[u8], candidate: &[u8], inputs: &InputView<'_>) -> core::Result<()> {{ let value = read_yaml_{id}(candidate, inputs)?; if let Some(error) = check_yaml_{id}(&value, candidate, inputs).into_iter().find(|error| error.severity == core::Severity::Error) {{ return Err(error); }} prove_xml_{id}(&value,original,&write_xml_{id}(&value,inputs)?) }}").unwrap();
+    let required_missing = required_fields
+        .iter()
+        .map(|field| format!("_value.f{field}.is_none()"))
+        .collect::<Vec<_>>()
+        .join(" || ");
+    let required_missing = if required_missing.is_empty() {
+        "false".to_owned()
+    } else {
+        required_missing
+    };
     if preserve
         && fields
             .iter()
             .any(|field| field.attribute.is_none() || !field.yaml_visible)
     {
-        writeln!(out,"fn {finalize_name}(original:&[u8],candidate:Vec<u8>,_value:&V{id},inputs:&InputView<'_>)->core::Result<Vec<u8>> {{ match verify_{id}(original,&candidate,inputs) {{Ok(())=>return Ok(candidate),Err(error) if error.code.as_deref()==Some(\"xml.round-trip-mismatch\")=>{{}},Err(error)=>return Err(error)}} let ordinary=write_xml_{id}(&read_yaml_{id}(&candidate,inputs)?,inputs)?; let mut candidate=candidate;").unwrap();
+        writeln!(out,"fn {finalize_name}(original:&[u8],candidate:Vec<u8>,_value:&V{id},inputs:&InputView<'_>)->core::Result<Vec<u8>> {{ if !({required_missing}) {{match verify_{id}(original,&candidate,inputs) {{Ok(())=>return Ok(candidate),Err(error) if error.code.as_deref()==Some(\"xml.round-trip-mismatch\")=>{{}},Err(error)=>return Err(error)}}}} let ordinary=write_xml_{id}(&read_yaml_{id}(&candidate,inputs)?,inputs)?; let mut candidate=candidate;").unwrap();
         for (i, field) in physical_fields(&fields) {
             if let Some(attribute) = field.attribute {
                 if !field.yaml_visible {
@@ -1142,9 +1221,9 @@ fn generate_at(
                 write!(restore_meaning, "if _value.raw.get({i}).is_none() && omit_{id}_{i}(_value,inputs)? && let Some(field_value)=&_value.f{i} && {} {{if !candidate.is_empty() {{candidate.push(b'\\n');}} candidate.extend_from_slice(core::yaml::scalar({:?}).as_bytes());candidate.extend_from_slice(b\": \");candidate.extend_from_slice(({yaml}).as_bytes());}}", field.codec.yaml_representable(&name, "field_value"), field.key).unwrap();
             }
             if projected {
-                writeln!(out,"if let Some(tree)=core::xml::Tree::capture(original,{path})? {{let base=core::xml::Tree::capture(&ordinary,{path})?;let patch=tree.patch_yaml(base.as_ref(),&[],Q{id})?;if patch!=\"{{}}\" {{{restore_meaning}candidate=core::raw::Document::encode(&candidate,if patch.is_empty() {{b\"\\\"\\\"\"}} else {{patch.as_bytes()}})?;}}}} else if core::xml::Tree::capture(&ordinary,{path})?.is_some() {{candidate=core::raw::Document::encode(&candidate,b\"null\")?;}}",path=path_code(field.path)).unwrap();
+                writeln!(out,"if let Some(tree)=core::xml::Tree::capture(original,{path})? {{let base=core::xml::Tree::capture(&ordinary,{path})?;let patch=tree.patch_yaml(base.as_ref(),&[],Q{id})?;if patch!=\"{{}}\" {{{restore_meaning}candidate=core::raw::Document::encode(&candidate,if patch.is_empty() {{b\"\\\"\\\"\"}} else {{patch.as_bytes()}})?;}}}} else if core::xml::Tree::capture(&ordinary,{path})?.is_some() || {required} {{candidate=core::raw::Document::encode(&candidate,b\"null\")?;}}",path=path_code(field.path),required=required_fields.contains(&i)).unwrap();
             } else {
-                writeln!(out,"if let Some(tree)=core::xml::Tree::capture(original,{path})? {{let base=core::xml::Tree::capture(&ordinary,{path})?;let patch=tree.patch_yaml(base.as_ref(),&[],Q{id})?;if patch!=\"{{}}\" {{{restore_meaning}candidate=core::raw::Property::encode_in({parent},{key:?},{physical:?},&candidate,if patch.is_empty() {{b\"\\\"\\\"\"}} else {{patch.as_bytes()}})?;}}}} else if core::xml::Tree::capture(&ordinary,{path})?.is_some() {{candidate=core::raw::Property::encode_in({parent},{key:?},{physical:?},&candidate,b\"null\")?;}}",path=path_code(field.path),key=field.key,physical=field.physical_name().local).unwrap();
+                writeln!(out,"if let Some(tree)=core::xml::Tree::capture(original,{path})? {{let base=core::xml::Tree::capture(&ordinary,{path})?;let patch=tree.patch_yaml(base.as_ref(),&[],Q{id})?;if patch!=\"{{}}\" {{{restore_meaning}candidate=core::raw::Property::encode_in({parent},{key:?},{physical:?},&candidate,if patch.is_empty() {{b\"\\\"\\\"\"}} else {{patch.as_bytes()}})?;}}}} else if core::xml::Tree::capture(&ordinary,{path})?.is_some() || {required} {{candidate=core::raw::Property::encode_in({parent},{key:?},{physical:?},&candidate,b\"null\")?;}}",path=path_code(field.path),key=field.key,physical=field.physical_name().local,required=required_fields.contains(&i)).unwrap();
             }
         }
         writeln!(
@@ -1159,7 +1238,11 @@ fn generate_at(
     let has_text = fields.iter().any(|field| {
         matches!(
             field.codec,
-            Codec::Text | Codec::Enumeration(..) | Codec::States(..)
+            Codec::Text
+                | Codec::QNameText(_)
+                | Codec::Enumeration(..)
+                | Codec::QNameEnumeration(..)
+                | Codec::States(..)
         )
     });
     if has_text {
@@ -1168,7 +1251,11 @@ fn generate_at(
     for (index, field) in fields.iter().enumerate() {
         if matches!(
             field.codec,
-            Codec::Text | Codec::Enumeration(..) | Codec::States(..)
+            Codec::Text
+                | Codec::QNameText(_)
+                | Codec::Enumeration(..)
+                | Codec::QNameEnumeration(..)
+                | Codec::States(..)
         ) {
             let reference = format!(
                 "value.f{index}.as_ref().ok_or_else(||RuntimeDiagnostic::new(\"fact.unready\",\"Text field is unavailable\"))?"
@@ -1190,9 +1277,12 @@ fn generate_at(
     let mut input_arms = String::new();
     for (index, field) in fields.iter().enumerate() {
         let variant = match &field.codec {
-            Codec::Text | Codec::TextTable(_) | Codec::Enumeration(..) | Codec::States(..) => {
-                "Text"
-            }
+            Codec::Text
+            | Codec::TextTable(_)
+            | Codec::QNameText(_)
+            | Codec::Enumeration(..)
+            | Codec::QNameEnumeration(..)
+            | Codec::States(..) => "Text",
             Codec::Boolean(..) => "Boolean",
             Codec::Decimal | Codec::FormattedDecimal(_) => "Decimal",
             _ => continue,

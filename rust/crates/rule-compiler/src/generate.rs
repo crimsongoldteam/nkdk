@@ -132,7 +132,13 @@ fn plain_shape(entry: &LinkedEntry) -> Result<(), Diagnostic> {
     {
         return Err(unsupported(
             entry,
-            "Generation of inputs, constraints, presence or collection behavior is not supported by the scalar stage",
+            &format!(
+                "Generation of parameters, presence, shorthands or normalization is not supported by the scalar stage (parameters={}, presence={}, shorthands={}, normalization={})",
+                entry.parameters.len(),
+                entry.presence.len(),
+                entry.shorthands.len(),
+                entry.normalization.is_some()
+            ),
         ));
     }
     Ok(())

@@ -11,10 +11,7 @@ pub(crate) fn parts(
         let field = planned.field;
         let mapping = planned.xml;
         let property = planned.yaml;
-        if mapping.is_some_and(|mapping| {
-            mapping.path.is_empty()
-                || (mapping.file.is_none() && mapping.attribute.is_none() && mapping.path.len() < 2)
-        }) {
+        if mapping.is_some_and(|mapping| mapping.path.is_empty()) {
             return Err(unsupported(
                 entry,
                 "Composed properties require a rooted boundary",

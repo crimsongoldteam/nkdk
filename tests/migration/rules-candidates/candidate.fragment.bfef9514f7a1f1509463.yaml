@@ -1,0 +1,46 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.type-description
+value:
+  kind: record
+  fields:
+    - name: type
+      type:
+        use: value0
+        bind: {}
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: type
+        path:
+          - Type
+  yaml:
+    kind: mapping
+    fields:
+      - field: type
+        key: Тип
+presence:
+  - target:
+      field: type
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: type
+          form: empty-element
+        - form: ordinary
+    yaml:
+      missing:
+        denotes:
+          absent: true
+id: candidate.fragment.bfef9514f7a1f1509463

@@ -1,0 +1,60 @@
+format: nkdk-declarations/1
+kind: object
+imports:
+  value0: common.string
+  value1: system.CompatibilityMode
+  value2: system.ClientRunMode
+  value3: common.use-purposes
+  value4: system.ScriptVariant
+  value5: common.boolean
+  value6: system.MainClientApplicationWindowMode
+  value7: system.DefaultDataLockControlMode
+  value8: system.ObjectAutonumerationMode
+  value9: system.ModalityUseMode
+  value10: system.SynchronousExtensionAndAddInCallUseMode
+  value11: system.InterfaceCompatibilityMode
+  value12: system.DatabaseTablespacesUseMode
+value:
+  kind: record
+  fields:
+    - name: usePurposes
+      type:
+        use: value3
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: usePurposes
+        path:
+          - Properties
+          - UsePurposes
+  yaml:
+    kind: mapping
+    fields:
+      - field: usePurposes
+        key: НазначенияИспользования
+presence:
+  - target:
+      field: usePurposes
+    xml:
+      missing:
+        denotes:
+          sequence:
+            - literal: PlatformApplication
+      empty:
+        - form: empty-element
+          denotes:
+            sequence:
+              - literal: PlatformApplication
+    yaml:
+      missing:
+        denotes:
+          sequence:
+            - literal: PlatformApplication
+      omitWhen:
+        eq:
+          - field: usePurposes
+          - sequence:
+              - literal: PlatformApplication
+constraints: []
+id: contract.property.d02b7acc27596483de61

@@ -10,7 +10,7 @@ export function emitCandidates(entries, catalog, origin = p => p.source.path, xm
     const result = {path:entry.path, symbol:entry.symbol, ownerStatus:entry.comparison.status,
       ownerBlockers:[...(entry.blockers ?? []),...(entry.propertyStates?.length?[{reason:'owner-state-assembly-required'}]:[])], propertyStates:entry.propertyStates??null, xmlOrder:entry.xmlOrder ?? {status:'absent'}, properties:[], projections:[]};
     results.push(result);
-    const groups = new Map();
+    const groups = new Map(), yamlOnly = [];
     const ordered = [...entry.properties];
     if (entry.xmlOrder?.status === 'static') {
       const ranks = new Map(entry.xmlOrder.keys.map((key,index) => [key,index]));
@@ -20,13 +20,26 @@ export function emitCandidates(entries, catalog, origin = p => p.source.path, xm
       const invalidOrder = entry.xmlOrder?.status === 'static' && new Set(entry.xmlOrder.keys).size !== entry.xmlOrder.keys.length;
       let mapped = entry.xmlOrder?.status === 'unresolved' || invalidOrder ? {status:'blocked',reason:'owner-order-unresolved'} :
         entry.comparison.status === 'keys-match' ? mapProperty(property,catalog,xmlNamespaces) : {status:'blocked',reason:`owner-${entry.comparison.status}`};
-      if(mapped.status==='candidate' && !mapped.path.length)mapped={status:'blocked',reason:'owner-root-required'};
+      if(mapped.status==='candidate' && !mapped.path.length && !mapped.yamlOnly)mapped={status:'blocked',reason:'owner-root-required'};
       result.properties.push({name:property.name, source:property.source, status:mapped.status, ...(property.constantDefaults?{constantDefaults:property.constantDefaults}:{}), ...(mapped.sourceTag?{sourceTag:mapped.sourceTag}:{}), ...(mapped.reason ? {reason:mapped.reason} : {}), ...(mapped.parameterEquivalences ? {parameterEquivalences:mapped.parameterEquivalences} : {}), ...(mapped.excludedParameters ? {excludedParameters:mapped.excludedParameters} : {})});
       if (mapped.status !== 'candidate') continue;
+      if(mapped.yamlOnly) {
+        yamlOnly.push({property,mapped,origin:origin(property)});
+        continue;
+      }
+      if(mapped.ownerFactRole) {
+        result.properties.at(-1).ownerFactRole=mapped.ownerFactRole;
+        result.ownerBlockers.push({reason:'owner-fact-contribution-required',property:property.name,role:mapped.ownerFactRole});
+      }
       const root = mapped.path[0];
       const group=JSON.stringify([root,mapped.sourceTag??null]);
       if (!groups.has(group)) groups.set(group,[]);
       groups.get(group).push({property, mapped, origin:origin(property)});
+    }
+    if(yamlOnly.length) {
+      const target=groups.values().next().value;
+      if(target)target.push(...yamlOnly.map(field=>({...field,origin:target.at(-1).origin})));
+      else result.ownerBlockers.push({reason:'owner-root-required',properties:yamlOnly.map(field=>field.property.name)});
     }
     for (const fields of groups.values()) {
       const root=fields[0].mapped.path[0],sourceTag=fields[0].mapped.sourceTag;
@@ -47,7 +60,9 @@ export function emitCandidates(entries, catalog, origin = p => p.source.path, xm
           const alias = Object.entries(fragment.imports).find(([,id])=>id===mapped.id)?.[0] ?? `value${Object.keys(fragment.imports).length}`;
           fragment.imports[alias] = mapped.id;
           fragment.value.fields.push({name:property.name,type:{...mapped.type,use:alias}});
-          fragment.representations.xml.fields.push({field:property.name,path:mapped.path,...(mapped.attribute?{attribute:mapped.attribute}:{})});
+          if(!mapped.yamlOnly) {
+            fragment.representations.xml.fields.push({field:property.name,path:mapped.path,...(mapped.attribute?{attribute:mapped.attribute}:{})});
+          }
           if(mapped.key!==undefined)fragment.representations.yaml.fields.push({field:property.name,key:mapped.key});
           if(mapped.presence)fragment.presence.push(mapped.presence);
           if(mapped.constraints)(fragment.constraints??=[]).push(...mapped.constraints);

@@ -1,0 +1,36 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.type-description-adopted
+imports: {description: common.type-description}
+inputs:
+  xmlDefaultVariant: {type: {kind: scalar, scalar: text}}
+value:
+  kind: record
+  fields: [{name: description, type: {use: description}}]
+representations:
+  xml: {kind: record, fields: [{field: description, path: [Root, Type]}]}
+  yaml: {kind: mapping, fields: [{field: description, key: Тип}]}
+presence:
+- target: {field: description}
+  xml:
+    missing: {denotes: {absent: true}}
+    empty: [{form: empty-element, denotes: {absent: true}}]
+  yaml:
+    missing:
+      denotes:
+        if: {eq: [{input: xmlDefaultVariant}, {literal: adopted}]}
+        then:
+          record:
+            items: {sequence: []}
+            types: {sequence: []}
+            typeSets: {sequence: []}
+            identifiers: {sequence: []}
+            stringLength: {literal: ''}
+            stringAllowedLength: {literal: ''}
+            numberDigits: {literal: ''}
+            numberFractionDigits: {literal: ''}
+            numberAllowedSign: {literal: ''}
+            dateFractions: {literal: ''}
+            binaryLength: {literal: ''}
+            binaryAllowedLength: {literal: ''}
+        else: {absent: true}

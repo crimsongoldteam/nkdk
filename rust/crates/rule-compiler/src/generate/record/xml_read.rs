@@ -190,6 +190,18 @@ pub(super) fn generate(
         writeln!(out, "if core::xml::matches(path, {}) {{ self.r{i}.as_mut().expect(\"started field\").push_str(text); return Ok(()); }}", path_code(field.path)).unwrap();
     }
     out.push_str("if core::xml::is_whitespace(text) { Ok(()) } else { Err(RuntimeDiagnostic::new(\"xml.unexpected-text\", \"Text outside a declared scalar\")) } }, core::xml::Token::End => Ok(()) } }\n");
+    out.push_str("#[allow(dead_code,unused_variables)] fn consume_scoped(&mut self,path:&[core::xml::Name],token:&core::xml::Token<'_>,scope:Option<core::xml::NamespaceScope<'_>>)->core::Result<()>{self.consume(path,token)?;");
+    for (i, field) in physical_fields(fields) {
+        if field.attribute.is_none()
+            && matches!(
+                field.codec,
+                Codec::QNameText(_) | Codec::QNameEnumeration(..)
+            )
+        {
+            writeln!(out,"if matches!(token,core::xml::Token::End) && core::xml::matches(path,{}) && let Some(raw)=&mut self.r{i} {{let (namespace,local)=scope.ok_or_else(||RuntimeDiagnostic::new(\"xml.qname-prefix\",\"QName namespace scope is unavailable\"))?.resolve_qname(raw)?;*raw=format!(\"{{namespace}}\\0{{local}}\");}}",path_code(field.path)).unwrap();
+        }
+    }
+    out.push_str("Ok(())}\n");
 
     out.push_str("}\n");
     out

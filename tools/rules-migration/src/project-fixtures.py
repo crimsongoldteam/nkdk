@@ -107,18 +107,30 @@ def select(request):
     # ElementTree retains expanded names but does not retain QName attribute values.
     serialized = ET.tostring(selected, encoding='unicode')
     qname_fields = {field['xml'] for field in request['fields'] if field.get('qname')}
+    qname_paths = []
     for element in selected.iter():
         value = element.get('{http://www.w3.org/2001/XMLSchema-instance}type', '')
-        if element.tag in qname_fields:
-            value = element.text or ''
-            if value and ':' not in value:
-                raise ValueError('Default-namespace QName needs an explicit fixture boundary')
         if ':' in value:
             prefix = value.split(':', 1)[0]
             if prefix not in bindings:
                 raise ValueError('Unbound QName in source fixture: ' + value)
             if 'xmlns:' + prefix + '=' not in serialized:
                 selected.set('xmlns:' + prefix, bindings[prefix])
+    for field in selected:
+        if field.tag not in qname_fields:
+            continue
+        def inspect(element, path):
+            value = (element.text or '').strip()
+            if re.fullmatch(r'[A-Za-z_][A-Za-z0-9_.-]*:[^\s]+', value):
+                prefix = value.split(':', 1)[0]
+                if prefix not in bindings:
+                    raise ValueError('Unbound QName in source fixture: ' + value)
+                if 'xmlns:' + prefix + '=' not in serialized:
+                    selected.set('xmlns:' + prefix, bindings[prefix])
+                qname_paths.append(path)
+            for child in element:
+                inspect(child, path + [child.tag])
+        inspect(field, [selected.tag, field.tag])
     text = yaml_bytes.decode('utf-8-sig')
     for key in request.get('yamlPath', []):
         match = re.search(r'^' + re.escape(key) + r':\s*\n((?:(?:  [^\n]*|)\n?)*)', text, re.M)
@@ -136,7 +148,7 @@ def select(request):
     expected = '\n'.join(blocks[field['yaml']] for field in request['fields'] if field.get('yaml') in blocks)
     return {'xml': ET.tostring(selected, encoding='unicode'), 'yaml': expected,
             'omittedXMLProperties': omitted,
-            'xmlQNamePaths': [[selected.tag, field] for field in sorted(qname_fields)],
+            'xmlQNamePaths': qname_paths,
             'source': [{'path': str(path), 'sha256': hashlib.sha256(data).hexdigest()}
                        for path, data in [(xml_path, xml_bytes), (yaml_path, yaml_bytes)]]}
 

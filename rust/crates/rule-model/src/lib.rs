@@ -389,6 +389,21 @@ pub enum ExpressionKind {
         binding: String,
         predicate: Box<Expression>,
     },
+    Find {
+        input: Box<Expression>,
+        binding: String,
+        predicate: Box<Expression>,
+    },
+    Filter {
+        input: Box<Expression>,
+        binding: String,
+        predicate: Box<Expression>,
+    },
+    Map {
+        input: Box<Expression>,
+        binding: String,
+        value: Box<Expression>,
+    },
     Compare {
         operator: ComparisonOperator,
         left: Box<Expression>,
@@ -618,6 +633,7 @@ pub struct QNameTextLexeme<N> {
     pub accepted: Vec<N>,
     pub literal: String,
     pub separator: Option<String>,
+    pub tail_segments: Vec<String>,
     pub source: SourceLocation,
 }
 

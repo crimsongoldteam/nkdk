@@ -1,5 +1,29 @@
 //! Adapt each value backend to the same parent-facing operation contract.
 use super::*;
+
+fn add_virtual_route(entry: &mut LinkedEntry, field: &LinkedField, rooted: bool) {
+    let LinkedXml::Record(xml) = &mut entry.xml else {
+        unreachable!()
+    };
+    let mut path = Vec::new();
+    if rooted {
+        path.push(ExpandedName {
+            namespace: String::new(),
+            local: "__declarative_virtual_root__".into(),
+        });
+    }
+    path.push(ExpandedName {
+        namespace: String::new(),
+        local: "__declarative_virtual__".into(),
+    });
+    xml.push(LinkedXmlField {
+        file: None,
+        field: field.name.clone(),
+        path,
+        attribute: None,
+        source: field.source.clone(),
+    });
+}
 use std::fmt::Write;
 
 pub(super) struct ValueEmission {
@@ -34,27 +58,20 @@ pub(super) fn emit_usage(
     let sequence = composite::reference(&field.value)
         .and_then(|(target, _, _)| program.entries.iter().find(|entry| entry.id == target))
         .filter(|entry| matches!(entry.value, LinkedType::Sequence(_)));
+    let record = composite::reference(&field.value)
+        .and_then(|(target, _, _)| program.entries.iter().find(|entry| entry.id == target))
+        .filter(|entry| matches!(entry.value, LinkedType::Record(_)));
     let mut local = child.clone();
     if let LinkedXml::Record(fields) = &mut local.xml {
         for field in fields {
             field.file = None;
         }
     }
-    if mapping.is_none()
-        && sequence.is_some()
-        && super::declared_items::applies(&local, program)
-        && let LinkedXml::Record(xml) = &mut local.xml
-    {
-        xml.push(LinkedXmlField {
-            file: None,
-            field: field.name.clone(),
-            path: vec![ExpandedName {
-                namespace: String::new(),
-                local: "__declarative_virtual__".into(),
-            }],
-            attribute: None,
-            source: field.source.clone(),
-        });
+    if mapping.is_none() && sequence.is_some() && super::declared_items::applies(&local, program) {
+        add_virtual_route(&mut local, field, false);
+    }
+    if mapping.is_none() && record.is_some() {
+        add_virtual_route(&mut local, field, true);
     }
     let record_value = crate::plan::routes::record_usage(&local, program)?.is_some();
     let checks = constraints::generate(&local, program)?;
@@ -168,6 +185,11 @@ pub(super) fn emit_usage(
     } else {
         ""
     };
+    let xml_reader = if sequence.is_some() {
+        format!("read_xml_events_scoped_{id}")
+    } else {
+        format!("read_xml_events_{id}")
+    };
     let yaml_extra = match sequence {
         Some(entry) if matches!(entry.yaml, YamlRepresentation::KeyedMapping { .. }) => "true,",
         Some(_) => "",
@@ -176,6 +198,8 @@ pub(super) fn emit_usage(
     };
     let xml_events = if qname || record_value || declared_items {
         "events"
+    } else if sequence.is_some() {
+        "core::xml::ScopedEvents(|consume:&mut core::xml::ScopedConsumer<'_>|events.visit_scoped(|path,token,scope|consume(path,token,scope)))"
     } else {
         "core::xml::Events(|consume:&mut core::xml::Consumer<'_>|events.visit_scoped(|path,token,_scope|consume(path,token)))"
     };
@@ -291,10 +315,12 @@ pub(super) fn emit_usage(
         } else {
             "let _=(value,field);false"
         };
-    let xml_write = if !names.is_empty() && xml.iter().any(|mapping| mapping.attribute.is_none()) {
-        format!("write_xml_fields_into_{id}")
+    let xml_write = if mapping.is_none() {
+        "let _=(value,prepared,inputs,out);Ok(())".to_owned()
+    } else if !names.is_empty() && xml.iter().any(|mapping| mapping.attribute.is_none()) {
+        format!("write_xml_fields_into_{id}(&value.0,&prepared.0,inputs,out)")
     } else {
-        format!("write_xml_into_{id}")
+        format!("write_xml_into_{id}(&value.0,&prepared.0,inputs,out)")
     };
     let scoped_scalar = if record_value || declared_items {
         format!("xml_scalar_at_{id}(&value.0,path,occurrences)")
@@ -322,7 +348,7 @@ pub(super) fn input_field(value:&Stored,field:usize)->Option<core::inputs::Input
 pub(super) fn text_field(value:&Stored,field:usize)->core::Result<&str>{{{text_accessor}}}
 pub(super) fn field_has_annotation(value:&Stored,field:usize)->bool{{{annotation_accessor}}}
 pub(super) struct Prepared({prepared});
-pub(super) fn read_xml(source:&[u8],inputs:&InputView<'_>,events:impl core::xml::ScopedSource)->core::Result<Stored> {{read_xml_events_{id}(source,inputs,{xml_events}{xml_extra}).map(|value|Stored(value,true))}}
+pub(super) fn read_xml(source:&[u8],inputs:&InputView<'_>,events:impl core::xml::ScopedSource)->core::Result<Stored> {{{xml_reader}(source,inputs,{xml_events}{xml_extra}).map(|value|Stored(value,true))}}
 pub(super) fn read_yaml(source:&[u8],inputs:&InputView<'_>,events:impl core::yaml::Source)->core::Result<Stored> {{let _=source;read_yaml_events_{id}({yaml_source}inputs,{yaml_extra}events).map(|value|Stored(value,true))}}
 pub(super) fn read_xml_document(source:&[u8],inputs:&InputView<'_>)->core::Result<Stored> {{{fallback_xml}}}
 pub(super) fn read_yaml_document(source:&[u8],inputs:&InputView<'_>)->core::Result<Stored> {{read_yaml_{id}(source,inputs).map(|value|Stored(value,true))}}
@@ -331,7 +357,7 @@ pub(super) fn finalize(source:&[u8],value:&Stored,inputs:&InputView<'_>)->core::
 pub(super) fn document(value:&Stored,inputs:&InputView<'_>)->core::Result<Vec<u8>> {{write_xml_{id}(&value.0,inputs)}}
 pub(super) fn prepare(value:&Stored,inputs:&InputView<'_>)->core::Result<Prepared> {{prepare_xml_{id}(&value.0,inputs).map(Prepared)}}
 pub(super) fn namespaces<'a>(value:&'a Stored,prepared:&'a Prepared,names:&mut Vec<&'a str>) {{namespaces_xml_{id}(&value.0,&prepared.0,names)}}
-pub(super) fn write_xml<'a>(value:&Stored,prepared:&'a Prepared,inputs:&InputView<'_>,out:&mut core::xml::Writer<'a>)->core::Result<()> {{{xml_write}(&value.0,&prepared.0,inputs,out)}}
+pub(super) fn write_xml<'a>(value:&Stored,prepared:&'a Prepared,inputs:&InputView<'_>,out:&mut core::xml::Writer<'a>)->core::Result<()> {{{xml_write}}}
 pub(super) fn write_yaml(value:&Stored,inputs:&InputView<'_>,out:&mut String)->core::Result<()> {{write_yaml_into_{id}(&value.0,inputs,out)}}
 pub(super) fn scalar_at(value:&Stored,path:&[core::xml::Name],occurrences:&[usize])->bool {{{scoped_scalar}}}
 pub(super) fn scalar(value:&Stored,path:&[core::xml::Name])->bool {{xml_scalar_{id}(&value.0,path)}}

@@ -63,6 +63,23 @@ fn raw_property_keeps_semantic_annotations_and_requires_an_exact_boundary() {
             )
             .is_err()
     );
+    let mut patched = nkdk_conversion_core::raw::Fields::default();
+    patched.insert(
+        0,
+        nkdk_conversion_core::xml::Patch::read(b"null", &[], &[]).unwrap(),
+    );
+    let warning = nkdk_conversion_core::RuntimeDiagnostic::declared(
+        Some("value.required"),
+        None,
+        nkdk_conversion_core::Severity::Warning,
+        "Required value is absent",
+    )
+    .field("Title");
+    assert!(
+        patched
+            .validate(&["Title"], vec![warning.clone()], &[warning])
+            .is_empty()
+    );
     let semantic = "Заголовок: \"\"".as_bytes();
     let payload = b"v8:item:\n  v8:lang: ru\n  v8:content:";
     let encoded = Property::encode("Заголовок", "Title", semantic, payload).unwrap();

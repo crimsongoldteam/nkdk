@@ -6,9 +6,9 @@
 
 ## Результат генерации
 
-- 3535 вхождений свойств получили кандидаты.
-- 871 уникальных фрагментов и 826 уникальных проекций.
-- 220 существующих common/перечислений подключены как снимки зависимостей.
+- 3665 вхождений свойств получили кандидаты.
+- 896 уникальных фрагментов и 846 уникальных проекций.
+- 232 существующих common/перечислений подключены как снимки зависимостей.
 
 Проекция — только поддержанные свойства под относительным XML-корнем.
 Это не полный Document, DocumentJournal, реквизит или элемент формы.
@@ -56,7 +56,7 @@ excludedParameters у свойства; остальные неизвестны�
 свойств сохранены в manifest.json, а не дополнительными полями языка YAML.
 
 Ранее написанные YAML служат источником зависимостей и не перезаписываются.
-Для 424 полей найдены возможные соответствия
+Для 452 полей найдены возможные соответствия
 в рабочем каталоге по common, YAML-ключу и суффиксу XML-пути. В manifest.json
 записаны различия пути, присутствия XML и YAML, параметров, входов и ограничений (до трёх примеров
 на поле с полным числом совпадений). Это список для проверки, не доказательство
@@ -67,15 +67,14 @@ excludedParameters у свойства; остальные неизвестны�
 
 | Причина | Вхождения известных свойств |
 |---|---:|
-| unsupported-common | 1341 |
-| requires-expression-mapping | 331 |
+| unsupported-common | 1293 |
+| requires-expression-mapping | 248 |
 | explicit-yaml-name-required | 162 |
-| unsupported-parameters:runtimeOnly | 120 |
-| hidden-scalar-default-required | 108 |
+| runtime-only-profile | 131 |
+| hidden-scalar-default-required | 110 |
 | owner-root-required | 86 |
 | identity-property-profile | 54 |
 | xml-path-profile | 46 |
-| unsupported-parameters:ownerFactRole | 13 |
 | asymmetric-defaults | 11 |
 | unsupported-parameters:xmlAliases | 10 |
 | unsupported-parameters:defaultValueXMLEmpty | 8 |
@@ -86,9 +85,9 @@ excludedParameters у свойства; остальные неизвестны�
 | form-default-profile | 5 |
 | unsupported-parameters:xmlOnly | 5 |
 | unsupported-parameters:fromXML | 4 |
+| adopted-default-profile | 3 |
 | unsupported-parameters:xmlNamespace | 3 |
 | required-default-profile | 2 |
-| adopted-default-profile | 2 |
 | unsupported-parameters:defaultValue,omitImplicitValueYAMLBySource | 2 |
 | unsupported-parameters:description | 2 |
 | unsupported-parameters:defaultValue,toXML | 1 |

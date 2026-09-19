@@ -24,6 +24,18 @@ pub(super) enum Codec<'a> {
     QNameText(&'a [QNameTextLexeme<ExpandedName>]),
     States(&'a [EnumVariant], &'a [EnumLexeme], &'a [YamlState]),
 }
+
+pub(super) fn structured_reference(value: &LinkedType, program: &Program) -> bool {
+    let target = match value {
+        LinkedType::Reference(id) => Some(*id),
+        LinkedType::BoundReference { entry, .. } => Some(*entry),
+        _ => None,
+    };
+    target
+        .and_then(|id| program.entries.iter().find(|entry| entry.id == id))
+        .is_some_and(|entry| matches!(entry.value, LinkedType::Record(_) | LinkedType::Sequence(_)))
+}
+
 impl<'a> Codec<'a> {
     pub fn resolve(
         value: &'a LinkedType,
@@ -340,7 +352,13 @@ impl<'a> Codec<'a> {
                     writeln!(arms, "{encoded:?}=>{:?}.to_owned(),", item.literal).unwrap();
                     if let Some(separator) = &item.separator {
                         let prefix = format!("{encoded}{separator}");
-                        writeln!(arms, "value if value.starts_with({prefix:?})=>format!(\"{{}}{{}}{{}}\",{:?},{separator:?},&value[{len}..]),", item.literal, len=prefix.len()).unwrap();
+                        if item.tail_segments.is_empty() {
+                            writeln!(arms, "value if value.starts_with({prefix:?})=>format!(\"{{}}{{}}{{}}\",{:?},{separator:?},&value[{len}..]),", item.literal, len=prefix.len()).unwrap();
+                        } else {
+                            let tail = format!("&value[{}..]", prefix.len());
+                            let guard = qname_tail_guard(&tail, separator, &item.tail_segments);
+                            writeln!(arms, "value if value.starts_with({prefix:?})&&{guard}=>value[{}..].to_owned(),", prefix.len()).unwrap();
+                        }
                     }
                 }
             }
@@ -540,9 +558,14 @@ impl<'a> Codec<'a> {
                     )
                     .unwrap();
                     if let Some(separator) = &item.separator {
-                        let prefix = format!("{}{separator}", item.literal);
                         let local = format!("{}{separator}", item.name.local);
-                        writeln!(arms,"value if value.starts_with({prefix:?})=>( {:?},std::borrow::Cow::Owned(format!(\"{{}}{{}}\",{local:?},&value[{len}..]))),",item.name.namespace,len=prefix.len()).unwrap();
+                        if item.tail_segments.is_empty() {
+                            let prefix = format!("{}{separator}", item.literal);
+                            writeln!(arms,"value if value.starts_with({prefix:?})=>( {:?},std::borrow::Cow::Owned(format!(\"{{}}{{}}\",{local:?},&value[{len}..]))),",item.name.namespace,len=prefix.len()).unwrap();
+                        } else {
+                            let guard = qname_tail_guard("value", separator, &item.tail_segments);
+                            writeln!(arms,"value if {guard}=>( {:?},std::borrow::Cow::Owned(format!(\"{{}}{{}}\",{local:?},value))),",item.name.namespace).unwrap();
+                        }
                     }
                 }
                 Some(format!(
@@ -552,6 +575,62 @@ impl<'a> Codec<'a> {
             _ => None,
         }
     }
+
+    pub fn qname_namespace_reference(&self, name: &str, reference: &str) -> Option<String> {
+        match self {
+            Self::QNameEnumeration(variants, table, _) => {
+                let mut arms = String::new();
+                for item in *table {
+                    let index = variants
+                        .iter()
+                        .position(|variant| variant.value == item.value)
+                        .expect("linked QName enum table");
+                    write!(arms, "{name}::V{index}=>Some({:?}),", item.name.namespace).unwrap();
+                }
+                Some(format!("match {reference} {{{arms}_=>None}}"))
+            }
+            Self::QNameText(table) => {
+                let arms = table.iter().fold(String::new(), |mut arms, item| {
+                    writeln!(arms, "{:?}=>Some({:?}),", item.literal, item.name.namespace).unwrap();
+                    match (&item.separator, item.tail_segments.is_empty()) {
+                        (Some(separator), true) => {
+                            let prefix = format!("{}{separator}", item.literal);
+                            writeln!(
+                                arms,
+                                "value if value.starts_with({prefix:?})=>Some({:?}),",
+                                item.name.namespace
+                            )
+                            .unwrap();
+                        }
+                        (Some(separator), false) => {
+                            let guard = qname_tail_guard("value", separator, &item.tail_segments);
+                            writeln!(arms, "value if {guard}=>Some({:?}),", item.name.namespace)
+                                .unwrap();
+                        }
+                        (None, _) => {}
+                    }
+                    arms
+                });
+                Some(format!("match ({reference}).as_str() {{{arms}_=>None}}"))
+            }
+            _ => None,
+        }
+    }
+}
+
+fn qname_tail_guard(value: &str, separator: &str, prefixes: &[String]) -> String {
+    let checks = prefixes
+        .iter()
+        .map(|prefix| {
+            format!(
+                "parts.next().is_some_and(|part|part.starts_with({prefix:?})&&part.len()>{})",
+                prefix.len()
+            )
+        })
+        .chain(std::iter::once("parts.next().is_none()".to_owned()))
+        .collect::<Vec<_>>()
+        .join("&&");
+    format!("{{let mut parts=({value}).split({separator:?});{checks}}}")
 }
 
 /// Absence is a declared state, not a default for an unknown scalar token.

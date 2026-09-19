@@ -101,6 +101,7 @@ representations:
     values:
     - {name: xs:string, literal: Строка}
     - {name: cfg:CatalogRef, literal: Справочник, separator: '.'}
+    - {name: cfg:ExternalTableRef, literal: ExternalTable, separator: '.', tailSegments: [Source, Table]}
   yaml: {kind: scalar, scalar: text}
 "#;
     const NAMES: &str = r#"format: nkdk-declarations/1
@@ -176,6 +177,7 @@ fn main(){
  let yaml=convert_file(entry,Direction::XmlToYaml,xml,&inputs).unwrap();assert_eq!(yaml.bytes,"Types:\n  - Строка\n  - Булево".as_bytes());verify_candidate(entry,xml,&yaml.bytes,&inputs).unwrap();
  let singleton=convert_file(entry,Direction::YamlToXml,"Types: Строка".as_bytes(),&inputs).unwrap();let back=convert_file(entry,Direction::XmlToYaml,&singleton.bytes,&inputs).unwrap();assert_eq!(back.bytes,"Types: Строка".as_bytes());
  let names=entry_id("test.type-names").unwrap();let complex="<Root xmlns:v8='http://v8.1c.ru/8.1/data/core' xmlns:any='http://v8.1c.ru/8.1/data/enterprise/current-config'><v8:Type>any:CatalogRef.Товары</v8:Type></Root>".as_bytes();let yaml=convert_file(names,Direction::XmlToYaml,complex,&inputs).unwrap();assert_eq!(yaml.bytes,"Names: Справочник.Товары".as_bytes());verify_candidate(names,complex,&yaml.bytes,&inputs).unwrap();
+ let shortened="<Root xmlns:v8='http://v8.1c.ru/8.1/data/core' xmlns:any='http://v8.1c.ru/8.1/data/enterprise/current-config'><v8:Type>any:ExternalTableRef.SourceMain.TableRows</v8:Type></Root>".as_bytes();let yaml=convert_file(names,Direction::XmlToYaml,shortened,&inputs).unwrap();assert_eq!(yaml.bytes,"Names: SourceMain.TableRows".as_bytes());verify_candidate(names,shortened,&yaml.bytes,&inputs).unwrap();
 }"#;
     fs::write(root.join("src/main.rs"), main).unwrap();
     let status = Command::new("cargo")
