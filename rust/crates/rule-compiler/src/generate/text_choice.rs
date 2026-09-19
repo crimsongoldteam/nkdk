@@ -316,11 +316,8 @@ impl<'a> Codec<'a> {
                 continue;
             } else {
                 let inputs = if variant.projected() { ",_inputs" } else { "" };
-                writeln!(
-                    out,
-                    "Some({index})=>Ok(Self::V{index}({name}V{index}::read(text,xml{inputs})?)),"
-                )
-                .unwrap();
+                let read = variant.read(&format!("{name}V{index}"), inputs);
+                writeln!(out, "Some({index})=>Ok(Self::V{index}({read})),").unwrap();
             }
         }
         if let Some(index) = self.fallback {
@@ -334,7 +331,12 @@ impl<'a> Codec<'a> {
                 if matches!(self.variants[index], Variant::Text(_)) {
                     writeln!(out, "Self::V{index}(value)=>Ok(value.clone()),").unwrap();
                 } else {
-                    writeln!(out, "Self::V{index}(value)=>value.write(xml),").unwrap();
+                    writeln!(
+                        out,
+                        "Self::V{index}(value)=>{},",
+                        self.variants[index].write("value")
+                    )
+                    .unwrap();
                 }
             }
             out.push_str("}}\n");

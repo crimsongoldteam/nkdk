@@ -367,6 +367,10 @@ fn discriminated_choice_uses_xml_type_and_reused_yaml_variants() {
             r#"<Root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema"><Value xsi:type="xs:string">ordinary</Value></Root>"#,
             "Значение: ordinary",
         ),
+        (
+            r#"<Root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema"><Value xsi:type="xs:boolean">true</Value></Root>"#,
+            "Значение: Истина",
+        ),
     ] {
         let imported = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
         assert_eq!(String::from_utf8_lossy(&imported.bytes).trim(), yaml);
@@ -385,6 +389,11 @@ fn discriminated_choice_uses_xml_type_and_reused_yaml_variants() {
     let imported = convert_file(entry, Direction::XmlToYaml, unknown, &inputs).unwrap();
     assert!(String::from_utf8_lossy(&imported.bytes).contains("!xml/raw"));
     nkdk_compiled_rules::verify_candidate(entry, unknown, &imported.bytes, &inputs).unwrap();
+    let invalid_boolean = br#"<Root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema"><Value xsi:type="xs:boolean">unknown</Value></Root>"#;
+    let imported = convert_file(entry, Direction::XmlToYaml, invalid_boolean, &inputs).unwrap();
+    assert!(String::from_utf8_lossy(&imported.bytes).contains("!xml/raw"));
+    nkdk_compiled_rules::verify_candidate(entry, invalid_boolean, &imported.bytes, &inputs)
+        .unwrap();
 }
 
 #[test]
