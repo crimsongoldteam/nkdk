@@ -41,6 +41,12 @@ pub struct Scalar {
     plain: bool,
     position: crate::Position,
 }
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub enum ChoiceScalarForm {
+    PlainText,
+    QuotedText,
+    Number,
+}
 impl Scalar {
     pub fn annotation(&self) -> Option<&str> {
         self.annotation.as_deref()
@@ -67,6 +73,19 @@ impl Scalar {
             "yaml.expected-scalar-choice",
             "Expected text or an exact finite number",
         ))
+    }
+    pub fn into_discriminated_choice_text(self) -> Result<(String, ChoiceScalarForm)> {
+        if !self.plain {
+            return Ok((self.text, ChoiceScalarForm::QuotedText));
+        }
+        match Yaml::from_str(&self.text) {
+            Yaml::Integer(_) | Yaml::Real(_) => Ok((self.text, ChoiceScalarForm::Number)),
+            Yaml::String(_) => Ok((self.text, ChoiceScalarForm::PlainText)),
+            _ => Err(RuntimeDiagnostic::new(
+                "yaml.expected-scalar-choice",
+                "Expected text or an exact finite number",
+            )),
+        }
     }
     pub fn into_text(self) -> Result<String> {
         if self.plain && !matches!(Yaml::from_str(&self.text), Yaml::String(_)) {
@@ -162,6 +181,9 @@ pub fn scalar(value: &str) -> String {
     if safe {
         return value.into();
     }
+    quoted_scalar(value)
+}
+pub fn quoted_scalar(value: &str) -> String {
     let mut output = String::from("\"");
     for c in value.chars() {
         match c {

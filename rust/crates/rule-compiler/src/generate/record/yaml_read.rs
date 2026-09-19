@@ -9,12 +9,16 @@ fn read_value(field: &Field<'_>, index: usize, receiver: &str) -> String {
     } else if let Codec::Forms(choice) = &field.codec
         && choice.discriminated()
     {
-        let numeric = choice
+        let number = choice
             .decimal_variant()
             .map(|variant| format!("Some({variant})"))
             .unwrap_or_else(|| "return Err(RuntimeDiagnostic::new(\"yaml.expected-text\",\"Numeric YAML has no declared choice variant\"))".into());
+        let quoted = choice
+            .text_variant()
+            .map(|variant| format!("Some({variant})"))
+            .unwrap_or_else(|| "return Err(RuntimeDiagnostic::new(\"yaml.expected-text\",\"Quoted YAML has no declared text variant\"))".into());
         format!(
-            "let (text,number)=value.into_choice_text().map_err(|error|error.field({:?}))?;{receiver}.variant{index}=if number{{{numeric}}}else{{None}};{receiver}.r{index}=Some(text);",
+            "let (text,form)=value.into_discriminated_choice_text().map_err(|error|error.field({:?}))?;{receiver}.variant{index}=match form{{core::yaml::ChoiceScalarForm::Number=>{number},core::yaml::ChoiceScalarForm::QuotedText=>{quoted},core::yaml::ChoiceScalarForm::PlainText=>None}};{receiver}.r{index}=Some(text);",
             field.key,
         )
     } else {

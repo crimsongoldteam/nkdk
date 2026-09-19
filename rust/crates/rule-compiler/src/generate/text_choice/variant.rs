@@ -2,6 +2,7 @@ use super::*;
 
 pub(super) enum Variant<'a> {
     Boolean(&'a [BooleanLexeme], &'a [BooleanLexeme]),
+    Calendar { seconds: bool, omit_zero: bool },
     Decimal,
     Pattern(text_pattern::Codec<'a>),
     Sequence(Box<text_sequence::Codec<'a>>),
@@ -27,6 +28,17 @@ impl<'a> Variant<'a> {
             && matches!(entry.yaml, YamlRepresentation::Decimal)
         {
             return Ok(Self::Decimal);
+        }
+        if let (
+            LinkedType::Scalar(ScalarType::Text),
+            LinkedXml::Calendar,
+            YamlRepresentation::Calendar { seconds, omit_zero },
+        ) = (&entry.value, &entry.xml, &entry.yaml)
+        {
+            return Ok(Self::Calendar {
+                seconds: *seconds,
+                omit_zero: *omit_zero,
+            });
         }
         if matches!(entry.value, LinkedType::Scalar(ScalarType::Text))
             && matches!(entry.xml, LinkedXml::Text)
@@ -79,6 +91,34 @@ impl<'a> Variant<'a> {
                     .map(|item| item.text.clone())
                     .collect(),
             )]]),
+            Self::Calendar { .. } if xml => Ok(Vec::new()),
+            Self::Calendar { seconds, omit_zero } => {
+                let date = vec![
+                    crate::automata::Part::AsciiDigits(2),
+                    crate::automata::Part::Literal(".".into()),
+                    crate::automata::Part::AsciiDigits(2),
+                    crate::automata::Part::Literal(".".into()),
+                    crate::automata::Part::AsciiDigits(4),
+                ];
+                let mut clock = date.clone();
+                clock.extend([
+                    crate::automata::Part::Literal(" ".into()),
+                    crate::automata::Part::AsciiDigits(2),
+                    crate::automata::Part::Literal(":".into()),
+                    crate::automata::Part::AsciiDigits(2),
+                ]);
+                if *seconds {
+                    clock.extend([
+                        crate::automata::Part::Literal(":".into()),
+                        crate::automata::Part::AsciiDigits(2),
+                    ]);
+                }
+                Ok(if *omit_zero {
+                    vec![date, clock]
+                } else {
+                    vec![clock]
+                })
+            }
             Self::Decimal => Ok(Vec::new()),
             Self::Pattern(pattern) => Ok(vec![pattern.selection_parts(xml)]),
             Self::Sequence(sequence) => sequence.selection_parts(xml, entry),
@@ -96,6 +136,9 @@ impl<'a> Variant<'a> {
     ) -> Result<String, Diagnostic> {
         match self {
             Self::Boolean(..) if !compact => Ok(format!("type {name}=bool;\n")),
+            Self::Calendar { .. } if !compact => {
+                Ok(format!("type {name}=core::calendar::Value;\n"))
+            }
             Self::Decimal if !compact => Ok(format!("type {name}=core::decimal::Decimal;\n")),
             Self::Pattern(pattern) if compact => pattern.element_definition(name),
             Self::Pattern(pattern) if collection => pattern.collection_definition(name),
@@ -121,6 +164,7 @@ impl<'a> Variant<'a> {
     ) -> Result<String, Diagnostic> {
         match self {
             Self::Boolean(..) => Err(unsupported(entry, "Boolean has no record fields")),
+            Self::Calendar { .. } => Err(unsupported(entry, "Calendar has no record fields")),
             Self::Decimal => Err(unsupported(entry, "Decimal has no record fields")),
             Self::Pattern(pattern) => Ok(pattern.field_meaning(name, index, receiver)),
             Self::Sequence(sequence) => sequence
@@ -150,6 +194,9 @@ impl<'a> Variant<'a> {
                 )
             }
             Self::Decimal => "core::decimal::Decimal::parse_owned(text.to_owned()).map_err(|error|RuntimeDiagnostic::new(\"value.decimal\",error.to_string()))?".into(),
+            Self::Calendar { seconds, omit_zero } => {
+                format!("if xml{{core::calendar::Value::from_xml(text)?}}else{{core::calendar::Value::from_yaml(text,{seconds},{omit_zero})?}}")
+            }
             _ => format!("{name}::read(text,xml{inputs})?"),
         }
     }
@@ -175,6 +222,9 @@ impl<'a> Variant<'a> {
                 )
             }
             Self::Decimal => format!("Ok({value}.to_string())"),
+            Self::Calendar { seconds, omit_zero } => {
+                format!("Ok(if xml{{{value}.xml()}}else{{{value}.yaml({seconds},{omit_zero})}})")
+            }
             _ => format!("{value}.write(xml)"),
         }
     }

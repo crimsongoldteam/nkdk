@@ -4,9 +4,11 @@ use regex_automata::{
     util::{look::Look, primitives::StateID},
 };
 
+#[derive(Clone)]
 pub(crate) enum Part {
     Literal(String),
     Words(Vec<String>),
+    AsciiDigits(usize),
     Until(String),
     Rest,
     Cell(String),
@@ -44,6 +46,19 @@ pub(crate) fn compile_sequences(
                         alternatives.push(literal(&mut builder, word, tail)?);
                     }
                     builder.add_union(alternatives).map_err(build_error)?
+                }
+                Part::AsciiDigits(count) => {
+                    let mut digits = tail;
+                    for _ in 0..*count {
+                        digits = builder
+                            .add_range(Transition {
+                                start: b'0',
+                                end: b'9',
+                                next: digits,
+                            })
+                            .map_err(build_error)?;
+                    }
+                    digits
                 }
                 Part::Until(delimiter) => until(
                     &mut builder,

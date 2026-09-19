@@ -1,7 +1,7 @@
 //! Calendar components retain the written clock; no machine timezone is consulted.
 use crate::{Result, RuntimeDiagnostic};
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub struct Value {
     year: u16,
     month: u8,

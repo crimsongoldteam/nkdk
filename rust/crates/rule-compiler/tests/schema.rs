@@ -5,6 +5,7 @@ fn discriminated_choice_schema_preserves_yaml_scalar_kinds() {
     let program = declaration_program(&[
         "common/boolean.yaml",
         "common/number.yaml",
+        "common/date-time.yaml",
         "probes/discriminated-choice.yaml",
     ]);
     let actual: serde_json::Value =

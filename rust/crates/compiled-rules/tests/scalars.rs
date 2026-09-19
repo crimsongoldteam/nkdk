@@ -379,6 +379,10 @@ fn discriminated_choice_uses_xml_type_and_reused_yaml_variants() {
             r#"<Root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema"><Value xsi:type="xs:string">42</Value></Root>"#,
             "Значение: \"42\"",
         ),
+        (
+            r#"<Root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema"><Value xsi:type="xs:dateTime">2026-09-10T12:34:00</Value></Root>"#,
+            "Значение: 10.09.2026 12:34",
+        ),
     ] {
         let imported = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
         assert_eq!(String::from_utf8_lossy(&imported.bytes).trim(), yaml);
@@ -406,6 +410,18 @@ fn discriminated_choice_uses_xml_type_and_reused_yaml_variants() {
     let imported = convert_file(entry, Direction::XmlToYaml, invalid_decimal, &inputs).unwrap();
     assert!(String::from_utf8_lossy(&imported.bytes).contains("!xml/raw"));
     nkdk_compiled_rules::verify_candidate(entry, invalid_decimal, &imported.bytes, &inputs)
+        .unwrap();
+    let offset_calendar = br#"<Root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema"><Value xsi:type="xs:dateTime">2026-09-10T12:34:00+03:00</Value></Root>"#;
+    let imported = convert_file(entry, Direction::XmlToYaml, offset_calendar, &inputs).unwrap();
+    let yaml = String::from_utf8_lossy(&imported.bytes);
+    assert!(yaml.contains("$значение: 10.09.2026 12:34"), "{yaml}");
+    assert!(yaml.contains("!xml/raw"), "{yaml}");
+    nkdk_compiled_rules::verify_candidate(entry, offset_calendar, &imported.bytes, &inputs)
+        .unwrap();
+    let invalid_calendar = br#"<Root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema"><Value xsi:type="xs:dateTime">2026-02-30T12:34:00</Value></Root>"#;
+    let imported = convert_file(entry, Direction::XmlToYaml, invalid_calendar, &inputs).unwrap();
+    assert!(String::from_utf8_lossy(&imported.bytes).contains("!xml/raw"));
+    nkdk_compiled_rules::verify_candidate(entry, invalid_calendar, &imported.bytes, &inputs)
         .unwrap();
 }
 

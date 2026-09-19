@@ -32,13 +32,14 @@ declarations:
     xsi: http://www.w3.org/2001/XMLSchema-instance
     xs: http://www.w3.org/2001/XMLSchema
     xr: http://v8.1c.ru/8.3/xcf/readable
-  imports: {structured: probe.discriminated-structured, boolean: common.boolean, decimal: common.exact-decimal, text: probe.discriminated-text}
+  imports: {structured: probe.discriminated-structured, boolean: common.boolean, decimal: common.exact-decimal, calendar: common.date-time, text: probe.discriminated-text}
   value:
     kind: choice
     variants:
     - {name: structured, type: {use: structured}}
     - {name: boolean, type: {use: boolean}}
     - {name: decimal, type: {use: decimal}}
+    - {name: calendar, type: {use: calendar}}
     - {name: text, type: {use: text}}
   representations:
     xml:
@@ -48,6 +49,7 @@ declarations:
       - {variant: structured, in: [xr:DesignTimeRef], emit: xr:DesignTimeRef}
       - {variant: boolean, in: [xs:boolean], emit: xs:boolean}
       - {variant: decimal, in: [xs:decimal, xs:integer, xs:double, xs:float], emit: xs:decimal}
+      - {variant: calendar, in: [xs:dateTime], emit: xs:dateTime}
       - {variant: text, in: [xs:string], emit: xs:string}
       otherwise: text
     yaml: {kind: choice}

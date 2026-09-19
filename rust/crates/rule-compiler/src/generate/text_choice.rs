@@ -143,6 +143,10 @@ impl<'a> Codec<'a> {
         self.variants.iter().position(Variant::is_decimal)
     }
 
+    pub(super) fn text_variant(&self) -> Option<usize> {
+        self.fallback
+    }
+
     pub(super) fn read_attribute(
         &self,
         path: &[ExpandedName],
@@ -328,6 +332,9 @@ impl<'a> Codec<'a> {
                 let order = cell_order(&orders[index]);
                 writeln!(out, "Some({index})=>{{let order={order};let mut slots=[\"\";{count}];for(index,field)in order.iter().enumerate(){{slots[*field]=row.cells[index];}}Ok(Self::V{index}({name}V{index}::read_slots(slots,xml)?))}},").unwrap();
             } else if matches!(variant, Variant::Text(_)) {
+                if self.discriminated() {
+                    writeln!(out, "Some({index})=>{{core::xml::validate_text(text)?;Ok(Self::V{index}(text.to_owned()))}},").unwrap();
+                }
                 continue;
             } else {
                 let inputs = if variant.projected() { ",_inputs" } else { "" };
@@ -343,6 +350,10 @@ impl<'a> Codec<'a> {
         if compact.is_none() {
             out.push_str("fn write(&self,xml:bool)->core::Result<String>{match self{\n");
             for index in 0..self.variants.len() {
+                if matches!(self.variants[index], Variant::Text(_)) && self.discriminated() {
+                    writeln!(out, "Self::V{index}(value)=>{{let text=value.clone();Ok(if xml{{text}}else if {yaml_plan}.select(&text)?.is_some(){{core::yaml::quoted_scalar(&text)}}else{{core::yaml::scalar(&text)}})}},").unwrap();
+                    continue;
+                }
                 let write = if matches!(self.variants[index], Variant::Text(_)) {
                     "Ok(value.clone())".into()
                 } else {
