@@ -129,6 +129,7 @@ pub enum YamlRepresentation {
     Sequence {
         item: Box<YamlRepresentation>,
         shorthand: Vec<LiteralSequenceShorthand>,
+        singleton: bool,
     },
     ScalarChoice,
     Calendar {

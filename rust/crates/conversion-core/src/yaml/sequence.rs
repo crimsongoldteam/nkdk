@@ -88,6 +88,7 @@ pub struct SequenceReader<'a, const N: usize, T> {
     keys: Option<&'a [&'a str; N]>,
     shorthand: &'a [(&'a str, &'a [&'a str])],
     accept_empty_mapping: bool,
+    accept_singleton: bool,
     form: SequenceForm,
     annotations: crate::annotations::Mapping,
     position: crate::Position,
@@ -106,6 +107,7 @@ impl<'a, const N: usize, T> SequenceReader<'a, N, T> {
             keys,
             shorthand,
             accept_empty_mapping,
+            accept_singleton: false,
             form: SequenceForm::Sequence,
             annotations: crate::annotations::Mapping::default(),
             position: crate::Position::default(),
@@ -114,6 +116,10 @@ impl<'a, const N: usize, T> SequenceReader<'a, N, T> {
             fields: std::array::from_fn(|_| None),
             rows: Vec::new(),
         }
+    }
+    pub fn with_singleton(mut self, enabled: bool) -> Self {
+        self.accept_singleton = enabled;
+        self
     }
     pub fn consume(
         &mut self,
@@ -131,8 +137,16 @@ impl<'a, const N: usize, T> SequenceReader<'a, N, T> {
                     .shorthand
                     .iter()
                     .find(|(name, _)| *name == text)
-                    .map(|(_, values)| *values)
-                    .ok_or_else(|| failure("Unknown sequence shorthand"))?;
+                    .map(|(_, values)| *values);
+                let Some(values) = values else {
+                    if !self.accept_singleton {
+                        return Err(failure("Unknown sequence shorthand"));
+                    }
+                    let mut row = std::array::from_fn(|_| String::new());
+                    row[0] = text;
+                    self.rows.push(convert(row, at)?);
+                    return Ok(());
+                };
                 for value in values.iter() {
                     let mut row = std::array::from_fn(|_| String::new());
                     row[0] = (*value).to_owned();

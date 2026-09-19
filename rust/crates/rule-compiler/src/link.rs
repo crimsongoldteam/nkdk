@@ -879,8 +879,16 @@ fn validate_yaml(
             YamlRepresentation::Sequence {
                 item: yaml,
                 shorthand,
+                singleton,
             },
         ) => {
+            if *singleton && (!shorthand.is_empty() || **yaml != YamlRepresentation::Text) {
+                return Err(diagnostic(
+                    "ambiguous_singleton",
+                    source,
+                    "Singleton spelling requires scalar text items without literal shorthands",
+                ));
+            }
             if !shorthand.is_empty() && **item != LinkedType::Scalar(ScalarType::Text) {
                 return Err(diagnostic(
                     "expression_type_mismatch",

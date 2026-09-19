@@ -11,6 +11,29 @@ fn generated_keyed_mapping_preserves_duplicate_occurrences_and_proves_the_candid
         .unwrap()
         .replace("common.dictionary", "common.record-list")
         .replace("test.dictionary", "test.record-list");
+    let namespace_row = r#"format: nkdk-declarations/1
+kind: value
+id: common.namespace-row
+imports: {qualified: common.qualified}
+value: {kind: record, fields: [{name: key, type: {kind: scalar, scalar: text}}, {name: qualified, type: {use: qualified}}]}
+representations:
+  xml: {kind: record, fields: [{field: key, path: [Name]}, {field: qualified, path: [Value]}]}
+  yaml: {kind: mapping, fields: [{field: key, key: Key}, {field: qualified, key: Qualified}]}
+"#;
+    let namespace_rows = r#"format: nkdk-declarations/1
+kind: value
+id: common.namespace-rows
+imports: {row: common.namespace-row}
+value: {kind: sequence, item: {use: row}}
+representations:
+  xml: {kind: element-sequence, path: [Item]}
+  yaml: {kind: sequence}
+presence:
+- target: self
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {missing: {denotes: {absent: true}}}
+"#;
+    let namespace_owner = list_owner.replace("record-list", "namespace-rows");
     let dependent_owner = r#"format: nkdk-declarations/1
 kind: object
 id: test.dependent-properties
@@ -67,6 +90,13 @@ presence:
   yaml: {missing: {denotes: {absent: true}}}
 "#;
     let pattern_list_owner = list_owner.replace("record-list", "patterned-list");
+    let singleton_list = patterned_list
+        .replace("common.patterned-list", "common.singleton-list")
+        .replace(
+            "yaml: {kind: sequence,",
+            "yaml: {kind: sequence, singleton: scalar,",
+        );
+    let singleton_owner = pattern_list_owner.replace("patterned-list", "singleton-list");
     let required_patterned_list = patterned_list
         .split("presence:")
         .next()
@@ -537,6 +567,22 @@ representations:
 "#;
     let mut sources = vec![
         SourceFile {
+            path: "qname-common.yaml",
+            bytes: include_bytes!("fixtures/qname-common.yaml"),
+        },
+        SourceFile {
+            path: "namespace-row.yaml",
+            bytes: namespace_row.as_bytes(),
+        },
+        SourceFile {
+            path: "namespace-rows.yaml",
+            bytes: namespace_rows.as_bytes(),
+        },
+        SourceFile {
+            path: "namespace-owner.yaml",
+            bytes: namespace_owner.as_bytes(),
+        },
+        SourceFile {
             path: "external-owner.yaml",
             bytes: external_owner.as_bytes(),
         },
@@ -667,6 +713,14 @@ representations:
         SourceFile {
             path: "patterned-owner.yaml",
             bytes: pattern_list_owner.as_bytes(),
+        },
+        SourceFile {
+            path: "singleton-list.yaml",
+            bytes: singleton_list.as_bytes(),
+        },
+        SourceFile {
+            path: "singleton-owner.yaml",
+            bytes: singleton_owner.as_bytes(),
         },
         SourceFile {
             path: "required-patterned-list.yaml",
@@ -982,7 +1036,7 @@ fn main() {
     {
         let inputs=PreparedInputs::default();
         let mut state=OwnerXmlReadDEPENDENT_ID::new();
-        core::xml::visit_scoped(b"<Root><Mode>limited</Mode><Count>2</Count><Entries><item><key>first</key><text>hello</text></item></Entries></Root>",|path,token,scope|state.consume(path,&token,scope,&[],&inputs.view())).unwrap();
+        core::xml::visit_scoped(b"<Root><Mode>limited</Mode><Count>2</Count><Entries><item><key>first</key><text>hello</text></item></Entries></Root>",|path,token,scope|state.consume(path,&token,Some(scope),&[],&inputs.view())).unwrap();
         let value=state.finish(&[],&inputs.view()).unwrap();
         assert_eq!(write_yaml_DEPENDENT_ID(&value,&inputs.view()).unwrap(),b"Mode: limited\nCount: 2\nEntries:\n  - Code: first\n    Text: hello");
         let mut state=OwnerYamlReadDEPENDENT_ID::new().unwrap();
@@ -1059,6 +1113,24 @@ fn main() {
     }
 
     {
+        let namespaced=entry_id("test.namespace-rows").unwrap();
+        let xml=b"<Root xmlns:p='urn:outer'><Entries><Item><Name>first</Name><Value>p:One</Value></Item><Item><Name>second</Name><Value xmlns:p='urn:inner'>p:Two</Value></Item></Entries></Root>";
+        let result=convert_file(namespaced,Direction::XmlToYaml,xml,&PreparedInputs::default()).unwrap();
+        let yaml=String::from_utf8_lossy(&result.bytes);
+        assert_eq!(yaml, "Entries:\n  -\n    Key: first\n    Qualified:\n      Namespace: urn:outer\n      Name: One\n  -\n    Key: second\n    Qualified:\n      Namespace: urn:inner\n      Name: Two");
+        verify_candidate(namespaced,xml,&result.bytes,&PreparedInputs::default()).unwrap();
+        let singleton=entry_id("test.singleton-list").unwrap();
+        let inputs=PreparedInputs::default();
+        for (body, expected) in [("", "Entries: []"), ("<Item>Entry::good</Item>", "Entries: good"), ("<Item>Entry::good</Item><Item>Entry::other</Item>", "Entries:\n  - good\n  - other")] {
+            let xml=format!("<Root><Entries>{body}</Entries></Root>");
+            let converted=convert_file(singleton,Direction::XmlToYaml,xml.as_bytes(),&inputs).unwrap();
+            assert_eq!(converted.bytes,expected.as_bytes());
+            verify_candidate(singleton,xml.as_bytes(),&converted.bytes,&inputs).unwrap();
+        }
+        let invalid=b"<Root><Entries><Item>Entry::BAD</Item></Entries></Root>";
+        let converted=convert_file(singleton,Direction::XmlToYaml,invalid,&inputs).unwrap();
+        assert!(String::from_utf8_lossy(&converted.bytes).contains("!xml/invalid"));
+        verify_candidate(singleton,invalid,&converted.bytes,&inputs).unwrap();
         for entry_name in ["test.patterned-list", "test.required-patterned-list"] {
         let entry=entry_id(entry_name).unwrap();
         let inputs=PreparedInputs::default();

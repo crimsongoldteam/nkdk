@@ -324,7 +324,7 @@ pub(super) fn generate_at(
         };
         writeln!(out,"fn read_{side}_shared_{id}(source:&[u8],inputs:&InputView<'_>)->core::Result<V{id}> {{read_{side}_shared_events_{id}(source,inputs,core::{side}::DocumentSource({document}))}}\nfn read_{side}_shared_events_{id}(source:&[u8],inputs:&InputView<'_>,events:impl core::{side}::{event_trait})->core::Result<V{id}> {{").unwrap();
         if side == "xml" && stateful {
-            writeln!(out,"let mut state=OwnerXmlRead{id}::new();events.visit_scoped(|path,token,scope|state.consume(path,token,scope,source,inputs))?;state.finish(source,inputs)}}").unwrap();
+            writeln!(out,"let mut state=OwnerXmlRead{id}::new();events.visit_scoped(|path,token,scope|state.consume(path,token,Some(scope),source,inputs))?;state.finish(source,inputs)}}").unwrap();
         } else if side == "yaml" && yaml_stateful {
             writeln!(out,"let mut state=OwnerYamlRead{id}::new()?;events.visit(|node,position|state.consume(node,position,source,inputs))?;state.finish(source,inputs)}}").unwrap();
         } else {
@@ -461,13 +461,17 @@ pub(super) fn generate_at(
             writeln!(out, "p{slot}:part_{id}_{slot}::XmlReader::new(),").unwrap();
         }
         out.push_str("}}\n");
-        writeln!(out,"fn consume<S:Copy>(&mut self,path:&[core::xml::Name],token:&core::xml::Token<'_>,scope:S,source:&[u8],inputs:&InputView<'_>)->core::Result<()>{{let Self{{routing,containers,").unwrap();
+        writeln!(out,"fn consume(&mut self,path:&[core::xml::Name],token:&core::xml::Token<'_>,scope:Option<core::xml::NamespaceScope<'_>>,source:&[u8],inputs:&InputView<'_>)->core::Result<()>{{let Self{{routing,containers,").unwrap();
         for slot in 0..parts.len() {
             write!(out, "p{slot},").unwrap();
         }
-        out.push_str("}=self;routing.consume(path,token,scope,containers,|slot,path,token,_scope|match slot{\n");
+        out.push_str("}=self;routing.consume(path,token,scope,containers,|slot,path,token,scope|match slot{\n");
         for slot in 0..parts.len() {
-            writeln!(out, "{slot}=>p{slot}.consume(path,token,source,inputs),").unwrap();
+            writeln!(
+                out,
+                "{slot}=>p{slot}.consume_scoped(path,token,scope,source,inputs),"
+            )
+            .unwrap();
         }
         out.push_str("_=>unreachable!(\"declared XML route\")})}\n");
         writeln!(out,"fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<V{id}>{{{scope_finish_xml}infer_xml_owner_{id}(V{id}{{root:None,containers:self.containers,").unwrap();
@@ -815,7 +819,7 @@ pub(super) fn state_supported(entry: &LinkedEntry, program: &Program) -> Result<
             return Ok(false);
         }
         if super::qname::applies(child, program) {
-            return Ok(false);
+            continue;
         }
         if super::nested_record::lower(child, program)?.is_none()
             && super::composite::record(child, program).is_some()

@@ -2004,12 +2004,48 @@
               "items": {
                 "$ref": "#/$defs/sequenceLiteralShorthand"
               }
+            },
+            "singleton": {
+              "const": "scalar"
             }
           },
           "required": [
             "kind"
           ],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "allOf": [
+            {
+              "if": {
+                "required": [
+                  "singleton"
+                ]
+              },
+              "then": {
+                "required": [
+                  "item"
+                ],
+                "properties": {
+                  "shorthand": {
+                    "maxItems": 0
+                  },
+                  "item": {
+                    "properties": {
+                      "kind": {
+                        "const": "scalar"
+                      },
+                      "scalar": {
+                        "const": "text"
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "scalar"
+                    ]
+                  }
+                }
+              }
+            }
+          ]
         },
         {
           "type": "object",

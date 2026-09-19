@@ -1499,9 +1499,9 @@ fn main() {
         let mut other=OwnerXmlReadOWNER_STREAM_ID::new();
         core::xml::visit_scoped(xml,|path,token,scope| {
             if matches!(token,core::xml::Token::Start(_)) && path.last().is_some_and(|name|name.local=="Description") {
-                core::xml::visit_scoped(b"<Root enabled='true'><Description>independent</Description></Root>",|path,token,scope|other.consume(path,&token,scope,&[],&inputs.view()))?;
+                core::xml::visit_scoped(b"<Root enabled='true'><Description>independent</Description></Root>",|path,token,scope|other.consume(path,&token,Some(scope),&[],&inputs.view()))?;
             }
-            state.consume(path,&token,scope,&[],&inputs.view())
+            state.consume(path,&token,Some(scope),&[],&inputs.view())
         }).unwrap();
         let other=other.finish(&[],&inputs.view()).unwrap();
         let stored=state.finish(&[],&inputs.view()).unwrap();

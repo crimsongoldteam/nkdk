@@ -228,6 +228,17 @@ pub(super) fn generate_at(
         .replace("@document@", &(parent.len() == 1).to_string())
         .replace("@headers@", &headers)
         .replace("@extra_namespaces@", &namespace_code)
+        .replace(
+            "@yaml_present@",
+            if hidden {
+                "false"
+            } else if root_yaml {
+                "self.opened"
+            } else {
+                "self.property.finish(\"yaml.collection-form\")?"
+            },
+        )
+        .replace("@path_prefix@", &(!root_yaml && !hidden).to_string())
         .replace("@root_yaml@", &root_yaml.to_string())
         .replace("@hidden@", &hidden.to_string())
         .replace("@item@", &body.source)
@@ -279,15 +290,16 @@ struct V@id@{rows:Vec<item_@id@::Stored>,present:bool,raw:Option<core::xml::Patc
 struct XmlCollection@id@{rows:Vec<item_@id@::XmlReader>,active:Option<item_@id@::XmlReader>,present:bool}
 impl XmlCollection@id@ {
 fn new()->Self{Self{rows:Vec::new(),active:None,present:false}}
-fn consume(&mut self,path:&[core::xml::Name],token:&core::xml::Token<'_>,source:&[u8],inputs:&InputView<'_>)->core::Result<()>{
+fn consume_scoped(&mut self,path:&[core::xml::Name],token:&core::xml::Token<'_>,scope:Option<core::xml::NamespaceScope<'_>>,source:&[u8],inputs:&InputView<'_>)->core::Result<()>{
 if matches!(token,core::xml::Token::Start(_)) && core::xml::matches(path,@parent@){if self.present{return Err(RuntimeDiagnostic::new("xml.duplicate-field","Repeated collection"));}self.present=true;}
 if matches!(token,core::xml::Token::Start(_)) && core::xml::matches(path,@route@){if self.active.is_some(){return Err(RuntimeDiagnostic::new("xml.collection-form","Overlapping items"));}self.active=Some(item_@id@::XmlReader::new());}
-if let Some(reader)=&mut self.active{reader.consume(path,token,source,inputs)?;}
+if let Some(reader)=&mut self.active{reader.consume_scoped(path,token,scope,source,inputs)?;}
 if matches!(token,core::xml::Token::End) && core::xml::matches(path,@route@){self.rows.push(self.active.take().expect("started item"));}
 Ok(())
 }}
-fn finish_xml_@id@(state:XmlCollection@id@,source:&[u8],inputs:&InputView<'_>)->core::Result<V@id@>{if state.active.is_some(){return Err(RuntimeDiagnostic::new("value.missing","Missing collection"));}if !state.present{return Ok(@xml_missing@)}Ok(V@id@{rows:state.rows.into_iter().map(|reader|reader.finish(source,inputs)).collect::<core::Result<Vec<_>>>()?,present:state.present,raw:None})}
-fn read_xml_events_@id@(source:&[u8],inputs:&InputView<'_>,events:impl core::xml::Source,mut other:impl FnMut(&[core::xml::Name],&core::xml::Token<'_>)->core::Result<bool>)->core::Result<V@id@>{let mut state=XmlCollection@id@::new();events.visit(|path,token|{if !other(path,token)?{state.consume(path,token,source,inputs)?;}Ok(())})?;finish_xml_@id@(state,source,inputs)}
+fn finish_xml_@id@(state:XmlCollection@id@,source:&[u8],inputs:&InputView<'_>)->core::Result<V@id@>{if state.active.is_some(){return Err(RuntimeDiagnostic::new("value.missing","Missing collection"));}
+if !state.present{return Ok(@xml_missing@)}Ok(V@id@{rows:state.rows.into_iter().map(|reader|reader.finish(source,inputs)).collect::<core::Result<Vec<_>>>()?,present:state.present,raw:None})}
+fn read_xml_events_@id@(source:&[u8],inputs:&InputView<'_>,events:impl core::xml::ScopedSource,mut other:impl FnMut(&[core::xml::Name],&core::xml::Token<'_>)->core::Result<bool>)->core::Result<V@id@>{let mut state=XmlCollection@id@::new();events.visit_scoped(|path,token,scope|{if !other(path,token)?{state.consume_scoped(path,token,Some(scope),source,inputs)?;}Ok(())})?;finish_xml_@id@(state,source,inputs)}
 #[allow(dead_code)] fn read_xml_with_@id@(source:&[u8],inputs:&InputView<'_>,other:impl FnMut(&[core::xml::Name],&core::xml::Token<'_>)->core::Result<bool>)->core::Result<V@id@>{read_xml_events_@id@(source,inputs,core::xml::DocumentSource(source),other)}
 fn read_xml_@id@(source:&[u8],inputs:&InputView<'_>)->core::Result<V@id@>{match read_xml_events_@id@(source,inputs,core::xml::DocumentSource(source),|_,_|Ok(false)){Ok(value)=>Ok(value),Err(error) if matches!(error.code.as_deref(),Some("xml.unknown-field"|"xml.unknown-attribute"|"xml.unexpected-text"|"xml.duplicate-field"|"value.missing"))=>Ok(V@id@{rows:Vec::new(),present:true,raw:None}),Err(error)=>Err(error)}}
 struct YamlSequence@id@{mapping:core::yaml::RecordMappingReader,property:core::yaml::PropertyReader,depth:usize,opened:bool,rows:Vec<core::Result<item_@id@::YamlReader>>,active:Option<item_@id@::YamlReader>,error:Option<RuntimeDiagnostic>}
@@ -306,8 +318,9 @@ match &node{core::yaml::Node::MappingStart(_)|core::yaml::Node::SequenceStart(_)
 if self.error.is_none() && let Err(error)=self.active.as_mut().expect("started item").consume(node,position,source,inputs){self.error=Some(error);}
 if self.depth==1{let reader=self.active.take().expect("started item");self.rows.push(match self.error.take(){Some(error)=>Err(error),None=>Ok(reader)});}
 Ok(())}
-fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<V@id@>{let present=if @hidden@{false}else if @root_yaml@{self.opened}else{self.property.finish("yaml.collection-form")?};if present && @lifted_key@.is_some(){self.mapping.finish()?;}
-if self.depth!=0 || self.active.is_some(){return Err(RuntimeDiagnostic::new("value.missing","Incomplete collection"));}if !present{return Ok(@yaml_missing@)}let rows=self.rows.into_iter().enumerate().map(|(index,reader)|match reader.and_then(|reader|reader.finish(source,inputs)){
+fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<V@id@>{let present=@yaml_present@;if present && @lifted_key@.is_some(){self.mapping.finish()?;}
+if self.depth!=0 || self.active.is_some(){return Err(RuntimeDiagnostic::new("value.missing","Incomplete collection"));}
+if !present{return Ok(@yaml_missing@)}let rows=self.rows.into_iter().enumerate().map(|(index,reader)|match reader.and_then(|reader|reader.finish(source,inputs)){
 Ok(row)=>Ok(row),Err(error)=>{if source.is_empty(){return Err(error)}let property=if @root_yaml@{None}else{Some(@key@)};let bytes=if let Some(key)=@lifted_key@{core::yaml::preserved_record_mapping_item(source,property,index,key)?}else{core::yaml::preserved_sequence_item(source,property,index)?};item_@id@::read_yaml(&bytes,inputs)}}).collect::<core::Result<Vec<_>>>()?;
 Ok(V@id@{rows,present,raw:None})}
 }
@@ -336,7 +349,7 @@ if !@root_yaml@ || seen.len()>1{out.push('\n');}out.push_str(indent);if !@root_y
 if seen.is_empty(){if !@root_yaml@{out.push(' ');}out.push_str("{}");}
 Ok(())}
 fn write_yaml_@id@(value:&V@id@,inputs:&InputView<'_>)->core::Result<Vec<u8>>{let mut out=String::new();write_yaml_into_@id@(value,inputs,&mut out)?;let bytes=out.into_bytes();if let Some(patch)=&value.raw{encode_raw_@id@(&bytes,patch.to_yaml().as_bytes())}else{Ok(bytes)}}
-fn check_rows_@id@(value:&V@id@,source:&[u8],inputs:&InputView<'_>,xml:bool)->Vec<RuntimeDiagnostic>{let mut issues=Vec::new();for (index,row) in value.rows.iter().enumerate(){issues.extend(item_@id@::check(row,source,inputs,xml).into_iter().map(|mut issue|{if !@root_yaml@ && !@hidden@{issue.path.insert(0,@key@.into());}issue.occurrence=std::num::NonZeroU32::new(index as u32+1);issue}));}issues}
+fn check_rows_@id@(value:&V@id@,source:&[u8],inputs:&InputView<'_>,xml:bool)->Vec<RuntimeDiagnostic>{let mut issues=Vec::new();for (index,row) in value.rows.iter().enumerate(){issues.extend(item_@id@::check(row,source,inputs,xml).into_iter().map(|mut issue|{if @path_prefix@{issue.path.insert(0,@key@.into());}issue.occurrence=std::num::NonZeroU32::new(index as u32+1);issue}));}issues}
 fn check_xml_@id@(value:&V@id@,source:&[u8],inputs:&InputView<'_>)->Vec<RuntimeDiagnostic>{check_rows_@id@(value,source,inputs,true)}
 fn check_yaml_@id@(value:&V@id@,source:&[u8],inputs:&InputView<'_>)->Vec<RuntimeDiagnostic>{check_rows_@id@(value,source,inputs,false)}
 #[allow(dead_code)] fn xml_scalar_@id@(value:&V@id@,path:&[core::xml::Name])->bool{let _=value;@scalar@}

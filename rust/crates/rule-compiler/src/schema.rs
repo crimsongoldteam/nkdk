@@ -496,6 +496,7 @@ fn sequence_shape(
         YamlRepresentation::Sequence {
             item: yaml,
             shorthand,
+            singleton,
         },
     ) = (&common.value, &common.yaml)
     else {
@@ -539,6 +540,9 @@ fn sequence_shape(
         _ => return Err(unsupported(common)),
     };
     let mut forms = vec![json!({"type":"array","items":items})];
+    if *singleton {
+        forms.push(items);
+    }
     if !shorthand.is_empty() {
         forms.push(json!({"type":"string","enum":shorthand.iter().map(|short|&short.text).collect::<Vec<_>>()}));
     }

@@ -988,6 +988,7 @@ fn yaml_collection(path: &str, node: &Node) -> Result<YamlRepresentation, Diagno
             "key",
             "value",
             "shorthand",
+            "singleton",
         ],
     )?;
     match node.field(path, fields, "kind")?.text(path)? {
@@ -998,7 +999,7 @@ fn yaml_collection(path: &str, node: &Node) -> Result<YamlRepresentation, Diagno
             })
         }
         "sequence" => {
-            node.mapping(path, &["kind", "item", "shorthand"])?;
+            node.mapping(path, &["kind", "item", "shorthand", "singleton"])?;
             Ok(YamlRepresentation::Sequence {
                 item: Box::new(
                     optional_field(fields, "item")
@@ -1007,6 +1008,10 @@ fn yaml_collection(path: &str, node: &Node) -> Result<YamlRepresentation, Diagno
                         .unwrap_or(YamlRepresentation::Declared),
                 ),
                 shorthand: sequence_shorthand::parse(path, optional_field(fields, "shorthand"))?,
+                singleton: optional_field(fields, "singleton")
+                    .map(|value| value.literal(path, "scalar", "invalid_singleton"))
+                    .transpose()?
+                    .is_some(),
             })
         }
         "mapping" => Ok(YamlRepresentation::Mapping(yaml_fields(path, node)?)),

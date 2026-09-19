@@ -102,29 +102,42 @@ struct V{id} {{value:Option<core::xml::Name>,raw:core::raw::Fields}}
 const Q{id}:&[(&str,&str)]=&[];
 fn read_xml_{id}(source:&[u8],inputs:&InputView<'_>)->core::Result<V{id}> {{read_xml_events_{id}(source,inputs,core::xml::DocumentSource(source))}}
 fn read_xml_events_{id}(_source:&[u8],_inputs:&InputView<'_>,events:impl core::xml::ScopedSource)->core::Result<V{id}> {{
-let mut seen=false;let mut text=String::new();let mut value=None;
-events.visit_scoped(|path,token,scope|{{
+let mut state=QNameXmlRead{id}::new();events.visit_scoped(|path,token,scope|state.consume(path,token,Some(scope)))?;Ok(state.finish())
+}}
+struct QNameXmlRead{id} {{seen:bool,text:String,value:Option<core::xml::Name>}}
+impl QNameXmlRead{id} {{
+fn new()->Self {{Self{{seen:false,text:String::new(),value:None}}}}
+fn consume(&mut self,path:&[core::xml::Name],token:&core::xml::Token<'_>,scope:Option<core::xml::NamespaceScope<'_>>)->core::Result<()> {{
 if core::xml::matches(path,{route}) {{match token {{
-core::xml::Token::Start(_)=>{{if seen {{return Err(RuntimeDiagnostic::new("xml.duplicate-field","Repeated QName property"));}}seen=true;}},
-core::xml::Token::Text(part)=>text.push_str(part),
-core::xml::Token::End=>{{if !({empty_absent} && text.is_empty()) {{let (namespace,local)=scope.resolve_qname(&text)?;value=Some(core::xml::Name{{namespace:namespace.into(),local:local.into()}});}}}},
+core::xml::Token::Start(_)=>{{if self.seen {{return Err(RuntimeDiagnostic::new("xml.duplicate-field","Repeated QName property"));}}self.seen=true;}},
+core::xml::Token::Text(part)=>self.text.push_str(part),
+core::xml::Token::End=>{{if !({empty_absent} && self.text.is_empty()) {{let scope=scope.ok_or_else(||RuntimeDiagnostic::new("internal.namespace-scope","Missing namespace scope for QName"))?;let (namespace,local)=scope.resolve_qname(&self.text)?;self.value=Some(core::xml::Name{{namespace:namespace.into(),local:local.into()}});}}}},
 core::xml::Token::Attribute(_)=>{{}},
 }}return Ok(());}}
 if {prefixes} {{return match token {{core::xml::Token::Start(_)|core::xml::Token::End=>Ok(()),core::xml::Token::Text(text) if core::xml::is_whitespace(text)=>Ok(()),_=>Err(RuntimeDiagnostic::new("xml.unknown-field","Content outside QName property"))}};}}
 Err(RuntimeDiagnostic::new("xml.unknown-field","Unexpected QName child"))
-}})?;Ok(V{id}{{value,raw:core::raw::Fields::default()}})
+}}
+fn finish(self)->V{id} {{V{id}{{value:self.value,raw:core::raw::Fields::default()}}}}
 }}
 fn read_yaml_{id}(source:&[u8],inputs:&InputView<'_>)->core::Result<V{id}> {{read_yaml_events_{id}(inputs,core::yaml::DocumentSource(if source.is_empty() {{b"{{}}"}} else {{source}}))}}
 fn read_yaml_events_{id}(_inputs:&InputView<'_>,events:impl core::yaml::Source)->core::Result<V{id}> {{
-let mut namespace=None;let mut local=None;
-let present=core::yaml::visit_record_scalar_events(events,{key:?},|key,value,tag|{{
-if tag.is_some() {{return Err(RuntimeDiagnostic::new("yaml.qname","Unexpected QName field annotation"));}}
-match key.as_str() {{{namespace_key:?}=>namespace=Some(value.into_text()?),{local_key:?}=>local=Some(value.into_text()?),_=>return Err(RuntimeDiagnostic::new("yaml.qname","Unknown QName field"))}}Ok(())
-}})?;
-let value=if present {{let namespace=namespace.ok_or_else(||RuntimeDiagnostic::new("value.missing","Missing QName namespace"))?;let local=local.ok_or_else(||RuntimeDiagnostic::new("value.missing","Missing QName local name"))?;
+let mut state=QNameYamlRead{id}::new();events.visit(|node,_|state.consume(node))?;state.finish()
+}}
+struct QNameYamlRead{id} {{record:core::yaml::ScalarRecordReader,namespace:Option<String>,local:Option<String>}}
+impl QNameYamlRead{id} {{
+fn new()->Self {{Self{{record:core::yaml::ScalarRecordReader::default(),namespace:None,local:None}}}}
+fn consume(&mut self,node:core::yaml::Node)->core::Result<()> {{
+if let Some(entry)=self.record.consume(node,{key:?})? {{
+if entry.tag.is_some() || entry.value.annotation().is_some() {{return Err(RuntimeDiagnostic::new("yaml.qname","Unexpected QName field annotation"));}}
+match entry.key.as_str() {{{namespace_key:?}=>self.namespace=Some(entry.value.into_text()?),{local_key:?}=>self.local=Some(entry.value.into_text()?),_=>return Err(RuntimeDiagnostic::new("yaml.qname","Unknown QName field"))}}
+}}Ok(())
+}}
+fn finish(self)->core::Result<V{id}> {{
+let value=if self.record.finish()? {{let namespace=self.namespace.ok_or_else(||RuntimeDiagnostic::new("value.missing","Missing QName namespace"))?;let local=self.local.ok_or_else(||RuntimeDiagnostic::new("value.missing","Missing QName local name"))?;
 core::xml::validate_qname((&namespace,&local)).map_err(|error|error.field({key:?}))?;
 Some(core::xml::Name{{namespace,local}})}} else {{None}};
 Ok(V{id}{{value,raw:core::raw::Fields::default()}})
+}}
 }}
 struct XmlPreparedPlain{id};
 fn prepare_xml_plain_{id}(_value:&V{id},_inputs:&InputView<'_>)->core::Result<XmlPreparedPlain{id}> {{Ok(XmlPreparedPlain{id})}}
@@ -144,9 +157,10 @@ write_xml_into_plain_{id}(value,&prepared,inputs,&mut writer)?;
 Ok(writer.finish())
 }}
 fn write_yaml_{id}(value:&V{id},inputs:&InputView<'_>)->core::Result<Vec<u8>> {{let mut out=String::new();write_yaml_into_{id}(value,inputs,&mut out)?;Ok(out.into_bytes())}}
-fn write_yaml_into_{id}(value:&V{id},_inputs:&InputView<'_>,out:&mut String)->core::Result<()> {{core::yaml::append_properties(out,|out| {{
+fn write_yaml_into_{id}(value:&V{id},inputs:&InputView<'_>,out:&mut String)->core::Result<()> {{core::yaml::append_properties(out,|out|write_yaml_indented_{id}(value,inputs,out,"",false))}}
+fn write_yaml_indented_{id}(value:&V{id},_inputs:&InputView<'_>,out:&mut String,indent:&str,_lift:bool)->core::Result<()> {{
 let Some(value)=&value.value else {{return Ok(());}};
-out.push_str(&core::yaml::scalar({key:?}));out.push(':');
+out.push_str(indent);out.push_str(&core::yaml::scalar({key:?}));out.push(':');
 "#
     );
     for field in fields {
@@ -155,9 +169,9 @@ out.push_str(&core::yaml::scalar({key:?}));out.push(':');
         } else {
             "local"
         };
-        writeln!(source,"out.push_str(\"\\n  \");out.push_str(&core::yaml::mapping_key({:?}));out.push_str(\": \");out.push_str(&core::yaml::scalar(&value.{member}));",field.key).unwrap();
+        writeln!(source,"out.push('\\n');out.push_str(indent);out.push_str(\"  \");out.push_str(&core::yaml::mapping_key({:?}));out.push_str(\": \");out.push_str(&core::yaml::scalar(&value.{member}));",field.key).unwrap();
     }
-    writeln!(source,r#"Ok(())}})}}
+    writeln!(source,r#"Ok(())}}
 fn check_xml_{id}(value:&V{id},_source:&[u8],_inputs:&InputView<'_>)->Vec<RuntimeDiagnostic>{{value.raw.diagnostics()}}
 fn check_yaml_{id}(value:&V{id},_source:&[u8],_inputs:&InputView<'_>)->Vec<RuntimeDiagnostic>{{
 let mut issues=value.raw.diagnostics();

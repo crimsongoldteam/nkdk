@@ -55,10 +55,10 @@ impl RecordXmlRead@id@{
 #[allow(dead_code)]
 fn new()->Self{Self{body:item_@id@::XmlReader::new(),present:false,content:false}}
 #[allow(dead_code)]
-fn consume(&mut self,path:&[core::xml::Name],token:&core::xml::Token<'_>,source:&[u8],inputs:&InputView<'_>)->core::Result<()>{
+fn consume_scoped(&mut self,path:&[core::xml::Name],token:&core::xml::Token<'_>,scope:Option<core::xml::NamespaceScope<'_>>,source:&[u8],inputs:&InputView<'_>)->core::Result<()>{
 if matches!(token,core::xml::Token::Start(_)) && core::xml::matches(path,@path@){if self.present{return Err(RuntimeDiagnostic::new("xml.duplicate-field","Repeated record"))}self.present=true;}
 if path.len()>=(@path@).len() && core::xml::matches(&path[..(@path@).len()],@path@) && ((path.len()>(@path@).len() && matches!(token,core::xml::Token::Start(_))) || matches!(token,core::xml::Token::Text(text) if !text.trim().is_empty())) {self.content=true;}
-self.body.consume(path,token,source,inputs)}
+self.body.consume_scoped(path,token,scope,source,inputs)}
 #[allow(dead_code)]
 fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<V@id@>{if !self.present && !@xml_missing@{return Err(RuntimeDiagnostic::new("value.missing","Missing record"))}Ok(V@id@{body:if self.present && !( @xml_empty@ && !self.content ){Some(self.body.finish(source,inputs)?)}else{None},raw:None})}
 }
@@ -72,7 +72,7 @@ fn consume(&mut self,node:core::yaml::Node,position:core::Position,source:&[u8],
 fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<V@id@>{let present=self.property.finish("yaml.record")?;if !present && !@yaml_missing@{return Err(RuntimeDiagnostic::new("value.missing","Missing record"))}Ok(V@id@{body:if present{Some(self.body.finish(source,inputs)?)}else{None},raw:None})}
 }
 #[allow(dead_code)]
-fn read_xml_events_@id@(source:&[u8],inputs:&InputView<'_>,events:impl core::xml::Source)->core::Result<V@id@>{let mut state=RecordXmlRead@id@::new();events.visit(|path,token|state.consume(path,token,source,inputs))?;state.finish(source,inputs)}
+fn read_xml_events_@id@(source:&[u8],inputs:&InputView<'_>,events:impl core::xml::ScopedSource)->core::Result<V@id@>{let mut state=RecordXmlRead@id@::new();events.visit_scoped(|path,token,scope|state.consume_scoped(path,token,Some(scope),source,inputs))?;state.finish(source,inputs)}
 #[allow(dead_code)]
 fn read_yaml_events_@id@(source:&[u8],inputs:&InputView<'_>,events:impl core::yaml::Source)->core::Result<V@id@>{let mut state=RecordYamlRead@id@::new()?;events.visit(|node,position|state.consume(node,position,source,inputs))?;state.finish(source,inputs)}
 #[allow(dead_code)]

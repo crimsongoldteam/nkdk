@@ -164,7 +164,7 @@ pub(super) fn generate(
         .replace(
             "@xml_consume@",
             if composed {
-                "self.0.consume(path,token,(),source,inputs)"
+                "self.0.consume(path,token,scope,source,inputs)"
             } else {
                 "self.0.consume(path,token)"
             },
@@ -258,14 +258,14 @@ pub(super) struct Prepared(@prepared@);
 pub(super) struct XmlReader(@xml_state@);
 impl XmlReader {
 pub(super) fn new()->Self{Self(@xml_state@::new())}
-pub(super) fn consume(&mut self,path:&[core::xml::Name],token:&core::xml::Token<'_>,source:&[u8],inputs:&InputView<'_>)->core::Result<()>{let _=(source,inputs);@xml_consume@}
+pub(super) fn consume_scoped(&mut self,path:&[core::xml::Name],token:&core::xml::Token<'_>,scope:Option<core::xml::NamespaceScope<'_>>,source:&[u8],inputs:&InputView<'_>)->core::Result<()>{let _=(source,inputs,scope);@xml_consume@}
 pub(super) fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<Stored>{@xml_finish@.map(Stored)}
 }
 @yaml_reader@
 pub(super) fn read_xml(source:&[u8],inputs:&InputView<'_>)->core::Result<Stored>{read_xml_@id@(source,inputs).map(Stored)}
 // Recovery is followed by an XML proof and preservation of every skipped token.
 pub(super) fn recover_xml(source:&[u8],inputs:&InputView<'_>)->core::Result<Stored>{
-let mut reader=XmlReader::new();core::xml::visit(source,|path,token|match reader.consume(path,&token,source,inputs){
+let mut reader=XmlReader::new();core::xml::visit_scoped(source,|path,token,scope|match reader.consume_scoped(path,&token,Some(scope),source,inputs){
 Ok(())=>Ok(()),Err(error) if matches!(error.code.as_deref(),Some("xml.unknown-field"|"xml.unknown-attribute"|"xml.unexpected-text"))=>Ok(()),Err(error)=>Err(error)
 })?;reader.finish(source,inputs)
 }

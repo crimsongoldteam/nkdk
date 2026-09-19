@@ -65,25 +65,32 @@ pub(super) fn emit_usage(
     } else {
         "let _=(value,source,inputs);Ok(())".to_owned()
     };
-    let stateful_part = !qname
-        && !composite
+    let stateful_part = !composite
         && sequence
             .is_none_or(|entry| !matches!(entry.yaml, YamlRepresentation::TextSequence { .. }));
     let yaml_stateful_part = stateful_part;
     let state_adapter = if stateful_part {
-        let state = if record_value {
+        let state = if qname {
+            format!("QNameXmlRead{id}")
+        } else if record_value {
             format!("RecordXmlRead{id}")
         } else if sequence.is_some() {
             format!("XmlCollection{id}")
         } else {
             format!("XmlRead{id}")
         };
-        let consume = if record_value || sequence.is_some() {
+        let consume = if qname {
+            "self.0.consume(path,token,scope)"
+        } else if record_value || declared_items {
+            "self.0.consume_scoped(path,token,scope,_source,_inputs)"
+        } else if sequence.is_some() {
             "self.0.consume(path,token,_source,_inputs)"
         } else {
             "self.0.consume(path,token)"
         };
-        let finish = if record_value {
+        let finish = if qname {
+            "Ok(self.0.finish())".to_owned()
+        } else if record_value {
             "self.0.finish(_source,_inputs)".to_owned()
         } else if sequence.is_some() && !declared_items {
             format!("finish_xml_{id}(self.0,_inputs)")
@@ -91,13 +98,17 @@ pub(super) fn emit_usage(
             format!("finish_xml_{id}(self.0,_source,_inputs)")
         };
         format!(
-            "pub(super) struct XmlReader({state});impl XmlReader{{pub(super) fn new()->Self{{Self({state}::new())}}pub(super) fn consume(&mut self,path:&[core::xml::Name],token:&core::xml::Token<'_>,_source:&[u8],_inputs:&InputView<'_>)->core::Result<()>{{{consume}}}pub(super) fn finish(self,_source:&[u8],_inputs:&InputView<'_>)->core::Result<Stored>{{{finish}.map(|value|Stored(value,true))}}}}"
+            "pub(super) struct XmlReader({state});impl XmlReader{{pub(super) fn new()->Self{{Self({state}::new())}}pub(super) fn consume_scoped(&mut self,path:&[core::xml::Name],token:&core::xml::Token<'_>,scope:Option<core::xml::NamespaceScope<'_>>,_source:&[u8],_inputs:&InputView<'_>)->core::Result<()>{{let _=scope;{consume}}}pub(super) fn finish(self,_source:&[u8],_inputs:&InputView<'_>)->core::Result<Stored>{{{finish}.map(|value|Stored(value,true))}}}}"
         )
     } else {
         String::new()
     };
     let yaml_adapter = if !yaml_stateful_part {
         String::new()
+    } else if qname {
+        format!(
+            "pub(super) struct YamlReader(QNameYamlRead{id});impl YamlReader{{pub(super) fn new()->core::Result<Self>{{Ok(Self(QNameYamlRead{id}::new()))}}pub(super) fn consume(&mut self,node:core::yaml::Node,_position:core::Position,_source:&[u8],_inputs:&InputView<'_>)->core::Result<()>{{self.0.consume(node)}}pub(super) fn finish(self,_source:&[u8],_inputs:&InputView<'_>)->core::Result<Stored>{{self.0.finish().map(|value|Stored(value,true))}}}}"
+        )
     } else if record_value {
         format!(
             "pub(super) struct YamlReader(RecordYamlRead{id});impl YamlReader{{pub(super) fn new()->core::Result<Self>{{RecordYamlRead{id}::new().map(Self)}}pub(super) fn consume(&mut self,node:core::yaml::Node,position:core::Position,source:&[u8],inputs:&InputView<'_>)->core::Result<()>{{self.0.consume(node,position,source,inputs)}}pub(super) fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<Stored>{{self.0.finish(source,inputs).map(|value|Stored(value,true))}}}}"
@@ -147,7 +158,7 @@ pub(super) fn emit_usage(
         None if record_value || qname || composite => "",
         None => "core::raw::Fields::default(),",
     };
-    let xml_events = if qname {
+    let xml_events = if qname || record_value || declared_items {
         "events"
     } else {
         "core::xml::Events(|consume:&mut core::xml::Consumer<'_>|events.visit_scoped(|path,token,_scope|consume(path,token)))"

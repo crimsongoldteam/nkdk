@@ -2605,3 +2605,21 @@ fn property_state_modules(source: &str) -> Vec<nkdk_rule_model::Module> {
     })
     .collect()
 }
+
+#[test]
+fn singleton_sequence_spelling_requires_an_unambiguous_scalar_item() {
+    let source = include_str!("../../../../tests/declaration-corpus/valid/sequence-singleton.yaml");
+    link(&[parse(SourceFile {
+        path: "singleton.yaml",
+        bytes: source.as_bytes(),
+    })
+    .unwrap()])
+    .unwrap();
+    for invalid in [
+        source.replace("singleton: scalar", "singleton: scalar, shorthand: [{id: pair, representation: {kind: literal, value: pair}, denotes: {sequence: [{literal: a}, {literal: b}]}}]"),
+        source.replace("singleton: scalar, item: {kind: scalar, scalar: text}", "singleton: scalar, item: {kind: mapping, fields: []}"),
+    ] {
+        let errors = link(&[parse(SourceFile { path: "singleton.yaml", bytes: invalid.as_bytes() }).unwrap()]).unwrap_err();
+        assert!(errors.iter().any(|error| error.code == "ambiguous_singleton"), "{errors:?}");
+    }
+}

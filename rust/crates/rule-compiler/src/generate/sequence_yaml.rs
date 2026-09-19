@@ -9,7 +9,12 @@ pub(super) fn generate(
     presence: &super::presence::Presence,
     typed: Option<&scalar::Codec<'_>>,
 ) -> Result<String, Diagnostic> {
-    let YamlRepresentation::Sequence { item, shorthand } = &common.yaml else {
+    let YamlRepresentation::Sequence {
+        item,
+        shorthand,
+        singleton,
+    } = &common.yaml
+    else {
         unreachable!()
     };
     let keys = match item.as_ref() {
@@ -129,7 +134,7 @@ fn read_yaml_events_{id}(source:&[u8], _inputs:&InputView<'_>, events:impl core:
 const SEQUENCE_SHORTHANDS_{id}: &[(&str,&[&str])] = {table};
 struct YamlSequence{id} {{property:core::yaml::PropertyReader,rows:core::yaml::SequenceReader<'static,{count},R{id}>}}
 impl YamlSequence{id} {{
-fn new()->Self{{Self{{property:core::yaml::PropertyReader::default(),rows:core::yaml::SequenceReader::new({keys_code},SEQUENCE_SHORTHANDS_{id},{empty_mapping})}}}}
+fn new()->Self{{Self{{property:core::yaml::PropertyReader::default(),rows:core::yaml::SequenceReader::new({keys_code},SEQUENCE_SHORTHANDS_{id},{empty_mapping}).with_singleton({singleton})}}}}
 fn consume(&mut self,node:core::yaml::Node,position:core::Position,source:&[u8],_inputs:&InputView<'_>)->core::Result<()>{{
 let _=source;
 if let Some(node)=self.property.consume(node,{key:?},"yaml.collection-form")? {{self.rows.consume(node,position,|fields,position|{{let _=position;{read_row}}})?;}}Ok(())}}
@@ -152,7 +157,7 @@ fn emit_yaml_fields_{id}(value:&V{id},_inputs:&InputView<'_>,_shorten:bool,out:&
     {tag}
     if value.rows.is_empty() {{out.push_str(" []");}}
     for row in &value.rows {{
-        out.push_str("\n  - ");
+        if {singleton} && value.rows.len()==1 {{out.push(' ');}} else {{out.push_str("\n  - ");}}
 "#
     );
     if let Some(keys) = keys {
