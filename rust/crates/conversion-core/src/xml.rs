@@ -42,6 +42,7 @@ pub fn validate_qname(value: (&str, &str)) -> Result<()> {
     }
     Ok(())
 }
+#[derive(Clone)]
 pub struct Attribute {
     pub name: Name,
     pub text: String,
@@ -60,6 +61,30 @@ pub enum Token<'a> {
     Start(usize),
     Text(&'a str),
     End,
+}
+pub enum BufferedToken {
+    Attribute(Attribute),
+    Start(usize),
+    Text(String),
+    End,
+}
+impl BufferedToken {
+    pub fn from_token(value: &Token<'_>) -> Self {
+        match value {
+            Token::Attribute(value) => Self::Attribute(value.clone()),
+            Token::Start(value) => Self::Start(*value),
+            Token::Text(value) => Self::Text((*value).to_owned()),
+            Token::End => Self::End,
+        }
+    }
+    pub fn visit<T>(&self, consume: impl FnOnce(&Token<'_>) -> T) -> T {
+        match self {
+            Self::Attribute(value) => consume(&Token::Attribute(value.clone())),
+            Self::Start(value) => consume(&Token::Start(*value)),
+            Self::Text(value) => consume(&Token::Text(value)),
+            Self::End => consume(&Token::End),
+        }
+    }
 }
 pub fn matches(path: &[Name], expected: &[(&str, &str)]) -> bool {
     path.len() == expected.len()

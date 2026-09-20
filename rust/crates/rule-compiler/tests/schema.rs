@@ -6,6 +6,10 @@ fn discriminated_choice_schema_preserves_yaml_scalar_kinds() {
         "common/boolean.yaml",
         "common/number.yaml",
         "common/date-time.yaml",
+        "common/date-time-seconds.yaml",
+        "common/system-enumerations.yaml",
+        "common/standard-period.yaml",
+        "common/fields-list.yaml",
         "probes/discriminated-choice.yaml",
     ]);
     let actual: serde_json::Value =
@@ -18,6 +22,11 @@ fn discriminated_choice_schema_preserves_yaml_scalar_kinds() {
             true,
         ),
         (serde_json::json!({"Значение":"9007199254740993.125"}), true),
+        (
+            serde_json::json!({"Значение":{"Вариант":"ПроизвольныйПериод","ДатаНачала":"25.03.2026 12:34:56"}}),
+            true,
+        ),
+        (serde_json::json!({"Значение":["Alpha", "Beta"]}), true),
         (serde_json::json!({"Значение":true}), false),
         (serde_json::json!({"Значение":null}), false),
     ] {

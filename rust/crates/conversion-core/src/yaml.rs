@@ -37,6 +37,7 @@ mod scalar_mapping;
 pub use scalar_mapping::{ScalarEntry, ScalarMapping};
 use yaml_rust2::Yaml;
 
+#[derive(Clone)]
 pub struct Scalar {
     annotation: Option<Box<str>>,
     text: String,

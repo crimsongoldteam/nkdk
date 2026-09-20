@@ -32,9 +32,19 @@ pub(super) struct ValueEmission {
     pub yaml_stateful: bool,
 }
 
+#[derive(Clone, Copy)]
 pub(super) struct Placement {
     pub external: bool,
     pub shared_container: bool,
+}
+pub(super) struct UsageRequest<'a> {
+    pub entry: &'a LinkedEntry,
+    pub child: &'a LinkedEntry,
+    pub program: &'a Program<'a>,
+    pub id: u32,
+    pub slot: usize,
+    pub placement: Placement,
+    pub names: &'a [(&'a str, &'a str)],
 }
 pub(super) fn emit_usage(
     entry: &LinkedEntry,
@@ -45,6 +55,30 @@ pub(super) fn emit_usage(
     placement: Placement,
     names: &[(&str, &str)],
 ) -> Result<ValueEmission, Diagnostic> {
+    if super::choice_value::applies(child, program) {
+        return super::choice_value::emit(entry, child, program, id, slot, placement, names);
+    }
+    emit_standard_usage(UsageRequest {
+        entry,
+        child,
+        program,
+        id,
+        slot,
+        placement,
+        names,
+    })
+}
+
+pub(super) fn emit_standard_usage(request: UsageRequest<'_>) -> Result<ValueEmission, Diagnostic> {
+    let UsageRequest {
+        entry,
+        child,
+        program,
+        id,
+        slot,
+        placement,
+        names,
+    } = request;
     let Placement {
         external,
         shared_container,
@@ -271,12 +305,12 @@ pub(super) fn emit_usage(
     } else {
         format!("prove_xml_{id}(&value.0,&project(before)?,&project(after)?)")
     };
+    let raw_test = if record_value || sequence.is_some() || declared_items || composite {
+        "value.0.raw.is_some()"
+    } else {
+        "!value.0.raw.is_empty()"
+    };
     let indented_adapter = if yaml_stateful_part {
-        let raw = if record_value || sequence.is_some() {
-            "value.0.raw.is_some()"
-        } else {
-            "!value.0.raw.is_empty()"
-        };
         let plain = if sequence.is_some() && !declared_items {
             format!("prepare_yaml_into_{id}(&value.0,inputs,true,out,indent)")
         } else {
@@ -285,7 +319,7 @@ pub(super) fn emit_usage(
             )
         };
         format!(
-            "pub(super) fn write_yaml_indented(value:&Stored,inputs:&InputView<'_>,out:&mut String,indent:&str)->core::Result<()>{{if {raw}{{let bytes=write_yaml_{id}(&value.0,inputs)?;core::yaml::append_properties(out,|out|{{core::yaml::Indented::new(out,indent).push_str(std::str::from_utf8(&bytes).expect(\"generated YAML\"));Ok(())}})}}else{{{plain}}}}}"
+            "pub(super) fn write_yaml_indented(value:&Stored,inputs:&InputView<'_>,out:&mut String,indent:&str)->core::Result<()>{{if {raw_test}{{let bytes=write_yaml_{id}(&value.0,inputs)?;core::yaml::append_properties(out,|out|{{core::yaml::Indented::new(out,indent).push_str(std::str::from_utf8(&bytes).expect(\"generated YAML\"));Ok(())}})}}else{{{plain}}}}}"
         )
     } else {
         String::new()
@@ -344,6 +378,7 @@ pub(super) fn emit_usage(
 {checks}
 {exclude_writer}
 pub(super) struct Stored(V{id},bool);
+pub(super) fn has_raw(value:&Stored)->bool{{{raw_test}}}
 pub(super) fn input_field(value:&Stored,field:usize)->Option<core::inputs::InputRef<'_>>{{{input_accessor}}}
 pub(super) fn text_field(value:&Stored,field:usize)->core::Result<&str>{{{text_accessor}}}
 pub(super) fn field_has_annotation(value:&Stored,field:usize)->bool{{{annotation_accessor}}}

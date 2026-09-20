@@ -4,12 +4,13 @@ use std::fmt::Write;
 
 pub(super) fn applies(entry: &LinkedEntry, program: &Program) -> bool {
     matches!(super::attributes::content(&entry.xml).0, LinkedXml::Record(fields) if fields.iter().any(|field|field.file.is_some()))
-        || matches!(&entry.value, LinkedType::Record(fields) if fields.len()>1 && fields.iter().any(|field| {
+        || matches!(&entry.value, LinkedType::Record(fields) if fields.iter().any(|field| {
             composite::reference(&field.value).and_then(|(id,_,_)|program.entries.iter().find(|entry|entry.id==id)).is_some_and(|common| {
                 let (xml,_)=attributes::content(&common.xml);
                 match common.value {
-                    LinkedType::Record(_)=>!matches!(xml,LinkedXml::TextPattern(_)),
-                    LinkedType::Sequence(_)=>!matches!(xml,LinkedXml::TextSequence{..}),
+                    LinkedType::Record(_)=>fields.len()>1 && !matches!(xml,LinkedXml::TextPattern(_)),
+                    LinkedType::Sequence(_)=>fields.len()>1 && !matches!(xml,LinkedXml::TextSequence{..}),
+                    LinkedType::Choice(_)=>matches!(common.yaml,YamlRepresentation::Choice(ref selectors) if !selectors.is_empty()),
                     _=>false,
                 }
             })

@@ -383,8 +383,17 @@ fn discriminated_choice_uses_xml_type_and_reused_yaml_variants() {
             r#"<Root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema"><Value xsi:type="xs:dateTime">2026-09-10T12:34:00</Value></Root>"#,
             "Значение: 10.09.2026 12:34",
         ),
+        (
+            r#"<Root xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><Value xsi:type="v8:StandardPeriod"><v8:variant xsi:type="v8:StandardPeriodVariant">Custom</v8:variant><v8:startDate>2026-03-25T12:34:56</v8:startDate></Value></Root>"#,
+            "Значение:\n  Вариант: ПроизвольныйПериод\n  ДатаНачала: 25.03.2026 12:34:56",
+        ),
+        (
+            r#"<Root xmlns:f="http://v8.1c.ru/8.3/xcf/logform" xmlns:p="urn:nkdk:probe" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><Value xsi:type="p:Fields"><f:Field>Alpha</f:Field><f:Field>Beta</f:Field></Value></Root>"#,
+            "Значение:\n  - Alpha\n  - Beta",
+        ),
     ] {
-        let imported = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+        let imported = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs)
+            .unwrap_or_else(|error| panic!("{xml}: {error:?}"));
         assert_eq!(String::from_utf8_lossy(&imported.bytes).trim(), yaml);
         let exported = convert_file(
             entry,
@@ -422,6 +431,11 @@ fn discriminated_choice_uses_xml_type_and_reused_yaml_variants() {
     let imported = convert_file(entry, Direction::XmlToYaml, invalid_calendar, &inputs).unwrap();
     assert!(String::from_utf8_lossy(&imported.bytes).contains("!xml/raw"));
     nkdk_compiled_rules::verify_candidate(entry, invalid_calendar, &imported.bytes, &inputs)
+        .unwrap();
+    let incomplete_period = br#"<Root xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><Value xsi:type="v8:StandardPeriod"><v8:variant>Custom</v8:variant><v8:startDate>2026-03-25T12:34:56</v8:startDate></Value></Root>"#;
+    let imported = convert_file(entry, Direction::XmlToYaml, incomplete_period, &inputs).unwrap();
+    assert!(String::from_utf8_lossy(&imported.bytes).contains("!xml/raw"));
+    nkdk_compiled_rules::verify_candidate(entry, incomplete_period, &imported.bytes, &inputs)
         .unwrap();
 }
 

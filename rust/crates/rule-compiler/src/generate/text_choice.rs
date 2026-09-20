@@ -6,6 +6,82 @@ use variant::Variant;
 
 pub(super) type CellOrders = (Vec<usize>, Vec<usize>);
 
+fn referenced_variant<'a>(
+    choice: &LinkedEntry,
+    field: &LinkedField,
+    program: &'a Program<'a>,
+) -> Result<(&'a LinkedEntry, Variant<'a>), Diagnostic> {
+    let LinkedType::Reference(id) = field.value else {
+        return Err(unsupported(choice, "Choice needs referenced variants"));
+    };
+    let target = program
+        .entries
+        .iter()
+        .find(|entry| entry.id == id)
+        .expect("linked choice variant");
+    Ok((target, Variant::resolve(target, program)?))
+}
+
+fn compile_variants<'a>(
+    variants: impl IntoIterator<Item = (usize, &'a Variant<'a>)>,
+    xml: bool,
+    entry: &LinkedEntry,
+    map_error: impl FnOnce(crate::automata::Error, &[usize]) -> Diagnostic,
+) -> Result<(DFA<Vec<u32>>, Vec<usize>), Diagnostic> {
+    let mut patterns = Vec::new();
+    let mut selected = Vec::new();
+    for (index, variant) in variants {
+        for parts in variant.selection_parts(xml, entry)? {
+            patterns.push(parts);
+            selected.push(index);
+        }
+    }
+    let machine = crate::automata::compile_sequences(
+        &patterns,
+        crate::automata::STATE_BUDGET,
+        crate::automata::BYTE_BUDGET,
+    )
+    .map_err(|error| map_error(error, &selected))?;
+    Ok((machine, selected))
+}
+
+pub(super) fn scalar_yaml_selector(
+    entry: &LinkedEntry,
+    program: &Program,
+    structured: &BTreeSet<&str>,
+    name: &str,
+) -> Result<String, Diagnostic> {
+    let LinkedType::Choice(fields) = &entry.value else {
+        unreachable!("choice selector")
+    };
+    let mut variants = Vec::new();
+    let mut decimal = None;
+    let mut text = None;
+    for (index, field) in fields.iter().enumerate() {
+        if structured.contains(field.name.as_str()) {
+            continue;
+        }
+        let (_, variant) = referenced_variant(entry, field, program)?;
+        if variant.is_decimal() {
+            decimal = Some(index);
+        }
+        if matches!(variant, Variant::Text(_)) {
+            text = Some(index);
+        }
+        variants.push((index, variant));
+    }
+    let (machine, selected) = compile_variants(
+        variants.iter().map(|(index, variant)| (*index, variant)),
+        false,
+        entry,
+        |error, _| unsupported(entry, &format!("YAML scalar choice: {error}")),
+    )?;
+    let plan = "ChoiceScalarYaml";
+    let mut out = crate::automata::declaration(plan, &machine);
+    writeln!(out,"fn {name}(value:core::yaml::Scalar,tag:Option<String>)->core::Result<usize>{{if tag.is_some()||value.annotation().is_some(){{return Err(RuntimeDiagnostic::new(\"yaml.choice-form\",\"Annotated choice scalar requires preservation\"))}}let(text,form)=value.into_discriminated_choice_text()?;match form{{core::yaml::ChoiceScalarForm::Number=>{:?}.ok_or_else(||RuntimeDiagnostic::new(\"yaml.choice-form\",\"Numeric YAML has no declared choice variant\")),core::yaml::ChoiceScalarForm::QuotedText=>{:?}.ok_or_else(||RuntimeDiagnostic::new(\"yaml.choice-form\",\"Quoted YAML has no declared text variant\")),core::yaml::ChoiceScalarForm::PlainText=>Ok({plan}.select(&text)?.map(|index|{:?}[index]).or({text:?}).ok_or_else(||RuntimeDiagnostic::new(\"value.choice\",\"No declared YAML scalar form matches\"))?),}}}}",decimal,text,selected).unwrap();
+    Ok(out)
+}
+
 pub(super) fn cell_order((xml, yaml): &CellOrders) -> String {
     if xml == yaml {
         format!("{xml:?}")
@@ -39,15 +115,7 @@ impl<'a> Codec<'a> {
         };
         let mut variants = Vec::new();
         for field in fields {
-            let LinkedType::Reference(id) = field.value else {
-                return Err(unsupported(entry, "Choice needs referenced variants"));
-            };
-            let target = program
-                .entries
-                .iter()
-                .find(|entry| entry.id == id)
-                .expect("linked variant");
-            let variant = Variant::resolve(target, program)?;
+            let (target, variant) = referenced_variant(entry, field, program)?;
             if !target.inputs.is_empty()
                 || !target.parameters.is_empty()
                 || !target.shorthands.is_empty()
@@ -76,40 +144,31 @@ impl<'a> Codec<'a> {
             ));
         }
         let compile = |xml| {
-            let mut patterns = Vec::new();
-            let mut selected = Vec::new();
-            for (index, variant) in variants.iter().enumerate() {
-                for parts in variant.selection_parts(xml, entry)? {
-                    patterns.push(parts);
-                    selected.push(index);
-                }
-            }
-            let machine = crate::automata::compile_sequences(
-                &patterns,
-                crate::automata::STATE_BUDGET,
-                crate::automata::BYTE_BUDGET,
-            )
-            .map_err(|error| {
-                let mut issue = unsupported(
-                    entry,
-                    &format!("{} choice: {error}", if xml { "XML" } else { "YAML" }),
-                );
-                if let crate::automata::Error::Overlap { left, right } = error {
-                    issue.code = "choice_overlap".into();
-                    issue.message = format!(
-                        "{} forms '{}' and '{}' overlap",
-                        if xml { "XML" } else { "YAML" },
-                        fields[selected[left]].name,
-                        fields[selected[right]].name
+            compile_variants(
+                variants.iter().enumerate(),
+                xml,
+                entry,
+                |error, selected| {
+                    let mut issue = unsupported(
+                        entry,
+                        &format!("{} choice: {error}", if xml { "XML" } else { "YAML" }),
                     );
-                    issue.related = vec![
-                        fields[selected[left]].source.clone(),
-                        fields[selected[right]].source.clone(),
-                    ];
-                }
-                issue
-            })?;
-            Ok((machine, selected))
+                    if let crate::automata::Error::Overlap { left, right } = error {
+                        issue.code = "choice_overlap".into();
+                        issue.message = format!(
+                            "{} forms '{}' and '{}' overlap",
+                            if xml { "XML" } else { "YAML" },
+                            fields[selected[left]].name,
+                            fields[selected[right]].name
+                        );
+                        issue.related = vec![
+                            fields[selected[left]].source.clone(),
+                            fields[selected[right]].source.clone(),
+                        ];
+                    }
+                    issue
+                },
+            )
         };
         let (xml, xml_variants) = compile(true)?;
         let (yaml, yaml_variants) = compile(false)?;

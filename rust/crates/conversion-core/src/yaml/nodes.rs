@@ -5,6 +5,7 @@ use yaml_rust2::{
     scanner::{Marker, TScalarStyle},
 };
 
+#[derive(Clone)]
 pub enum Node {
     MappingStart(Option<String>),
     MappingEnd,
