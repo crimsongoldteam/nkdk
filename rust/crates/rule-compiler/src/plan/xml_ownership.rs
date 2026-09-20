@@ -21,20 +21,35 @@ pub(crate) fn routes<'a>(
     source: &SourceLocation,
     entries: &impl Fn(u32) -> &'a LinkedEntry,
 ) -> Result<Vec<XmlRoute>, Diagnostic> {
+    routes_inner(value, xml, source, entries, &mut BTreeSet::new())
+}
+
+fn routes_inner<'a>(
+    value: &LinkedType,
+    xml: &LinkedXml,
+    source: &SourceLocation,
+    entries: &impl Fn(u32) -> &'a LinkedEntry,
+    visiting: &mut BTreeSet<u32>,
+) -> Result<Vec<XmlRoute>, Diagnostic> {
     let result = match xml {
         LinkedXml::Declared => {
             let id = match value {
                 LinkedType::Reference(id) | LinkedType::BoundReference { entry: id, .. } => id,
                 _ => unreachable!("declared representation requires a reference"),
             };
+            if !visiting.insert(*id) {
+                return Ok(Vec::new());
+            }
             let entry = entries(*id);
-            routes(&entry.value, &entry.xml, &entry.source, entries)?
+            let result = routes_inner(&entry.value, &entry.xml, &entry.source, entries, visiting)?;
+            visiting.remove(id);
+            result
         }
         LinkedXml::WithAttributes {
             attributes,
             content,
         } => {
-            let mut result = routes(value, content, source, entries)?;
+            let mut result = routes_inner(value, content, source, entries, visiting)?;
             result.extend(attributes.iter().map(|attribute| XmlRoute {
                 path: vec![],
                 attribute: Some(attribute.name.clone()),
@@ -69,14 +84,20 @@ pub(crate) fn routes<'a>(
                 if mapping.attribute.is_none()
                     && let Some(id) = reference
                 {
+                    if !visiting.insert(id) {
+                        continue;
+                    }
                     let entry = entries(id);
-                    for mut route in routes(&entry.value, &entry.xml, &entry.source, entries)? {
+                    for mut route in
+                        routes_inner(&entry.value, &entry.xml, &entry.source, entries, visiting)?
+                    {
                         let mut path = mapping.path.clone();
                         path.extend(route.path);
                         route.path = path;
                         route.source = mapping.source.clone();
                         result.push(route);
                     }
+                    visiting.remove(&id);
                 } else {
                     result.push(XmlRoute {
                         path: mapping.path.clone(),
@@ -101,7 +122,7 @@ pub(crate) fn routes<'a>(
             let LinkedType::Sequence(value) = value else {
                 unreachable!("shape validated before ownership")
             };
-            routes(value, item, source, entries)?;
+            routes_inner(value, item, source, entries, visiting)?;
             vec![XmlRoute {
                 path: path.clone(),
                 attribute: None,

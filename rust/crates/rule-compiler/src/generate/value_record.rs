@@ -1,5 +1,32 @@
 //! The same record body serves a property and a collection element.
 use super::*;
+use std::cell::RefCell;
+
+thread_local! {
+    static RECORD_STACK: RefCell<Vec<String>> = const { RefCell::new(Vec::new()) };
+}
+
+struct RecordFrame(String);
+impl RecordFrame {
+    fn enter(entry: &LinkedEntry) -> Result<Self, Diagnostic> {
+        let repeated = RECORD_STACK.with(|stack| stack.borrow().contains(&entry.name));
+        if repeated {
+            return Err(unsupported(
+                entry,
+                "Recursive record generation requires a reusable value module",
+            ));
+        }
+        RECORD_STACK.with(|stack| stack.borrow_mut().push(entry.name.clone()));
+        Ok(Self(entry.name.clone()))
+    }
+}
+impl Drop for RecordFrame {
+    fn drop(&mut self) {
+        RECORD_STACK.with(|stack| {
+            assert_eq!(stack.borrow_mut().pop().as_deref(), Some(self.0.as_str()));
+        });
+    }
+}
 
 pub(super) struct RecordBody {
     pub source: String,
@@ -20,6 +47,7 @@ pub(super) fn generate(
     boundary: &[ExpandedName],
     lifted: Option<(usize, String, Option<String>)>,
 ) -> Result<RecordBody, Diagnostic> {
+    let _frame = RecordFrame::enter(row)?;
     let LinkedType::Record(row_fields) = &row.value else {
         return Err(unsupported(row, "Expected a record value"));
     };

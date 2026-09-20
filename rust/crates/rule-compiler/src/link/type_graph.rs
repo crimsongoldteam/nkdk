@@ -4,15 +4,15 @@ pub(super) fn validate(modules: &BTreeMap<&str, &Module>) -> Result<(), Vec<Diag
     let mut graph = BTreeMap::new();
     for (&name, module) in modules {
         let mut usages = vec![];
-        collect(&module.value, &mut usages);
+        collect(&module.value, false, &mut usages);
         for item in module.types.iter().chain(&module.inputs) {
-            collect(&item.definition, &mut usages);
+            collect(&item.definition, false, &mut usages);
         }
         for parameter in &module.parameters {
-            collect(&parameter.definition, &mut usages);
+            collect(&parameter.definition, false, &mut usages);
         }
         let mut edges = vec![];
-        for usage in usages {
+        for (usage, collection_bounded) in usages {
             let import = module
                 .imports
                 .iter()
@@ -32,7 +32,9 @@ pub(super) fn validate(modules: &BTreeMap<&str, &Module>) -> Result<(), Vec<Diag
                     "Serialized type must reference a value declaration",
                 )]);
             }
-            edges.push((target.id.as_str(), &usage.source));
+            if !collection_bounded {
+                edges.push((target.id.as_str(), &usage.source));
+            }
         }
         graph.insert(name, edges);
     }
@@ -43,17 +45,21 @@ pub(super) fn validate(modules: &BTreeMap<&str, &Module>) -> Result<(), Vec<Diag
     Ok(())
 }
 
-fn collect<'a>(value: &'a TypeDefinition, usages: &mut Vec<&'a TypeUse>) {
+fn collect<'a>(
+    value: &'a TypeDefinition,
+    collection_bounded: bool,
+    usages: &mut Vec<(&'a TypeUse, bool)>,
+) {
     match value {
-        TypeDefinition::Use(usage) => usages.push(usage),
-        TypeDefinition::Sequence(item) => collect(item, usages),
+        TypeDefinition::Use(usage) => usages.push((usage, collection_bounded)),
+        TypeDefinition::Sequence(item) => collect(item, true, usages),
         TypeDefinition::Index { key, value } => {
-            collect(key, usages);
-            collect(value, usages);
+            collect(key, collection_bounded, usages);
+            collect(value, collection_bounded, usages);
         }
         TypeDefinition::Record(fields) | TypeDefinition::Choice(fields) => {
             for field in fields {
-                collect(&field.definition, usages);
+                collect(&field.definition, collection_bounded, usages);
             }
         }
         _ => {}

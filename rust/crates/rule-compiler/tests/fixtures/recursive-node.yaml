@@ -1,0 +1,20 @@
+format: nkdk-declarations/1
+kind: value
+id: common.node
+imports: {children: common.nodes}
+value:
+  kind: record
+  fields:
+  - {name: name, type: {kind: scalar, scalar: text}}
+  - {name: children, type: {use: children}}
+representations:
+  xml:
+    kind: record
+    fields:
+    - {field: name, path: [Name]}
+    - {field: children, path: []}
+  yaml:
+    kind: mapping
+    fields:
+    - {field: name, key: Имя}
+    - {field: children, key: Дети}

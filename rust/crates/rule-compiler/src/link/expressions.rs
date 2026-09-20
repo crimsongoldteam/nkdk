@@ -771,11 +771,7 @@ pub(super) fn field_shape(
                 })?;
             let target = modules[import.value.as_str()];
             if !visiting.insert(target.id.clone()) {
-                return Err(diagnostic(
-                    "recursive_value_type",
-                    source,
-                    "Recursive value shape needs an explicit recursion contract",
-                ));
+                return Ok(LinkedType::Reference(ids[target.id.as_str()]));
             }
             let result = module_shape(target, modules, ids, visiting);
             visiting.remove(&target.id);

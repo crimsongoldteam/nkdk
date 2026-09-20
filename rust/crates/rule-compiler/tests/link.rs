@@ -704,6 +704,50 @@ fn field_types_cannot_reference_fragments_or_implicit_recursive_values() {
 }
 
 #[test]
+fn value_recursion_requires_a_collection_boundary() {
+    let node = parse(SourceFile {
+        path: "node.yaml",
+        bytes: include_bytes!("fixtures/recursive-node.yaml"),
+    })
+    .unwrap();
+    let nodes = parse(SourceFile {
+        path: "nodes.yaml",
+        bytes: include_bytes!("fixtures/recursive-nodes.yaml"),
+    })
+    .unwrap();
+
+    let program = link(&[node.clone(), nodes]).expect("collection-bounded recursion");
+    let linked_node = program
+        .entries
+        .iter()
+        .find(|entry| entry.name == "common.node")
+        .unwrap();
+    let nkdk_rule_model::LinkedType::Record(fields) = &linked_node.value else {
+        panic!("record expected")
+    };
+    assert!(matches!(
+        fields[1].value,
+        nkdk_rule_model::LinkedType::Reference(_)
+    ));
+
+    let direct = include_str!("fixtures/owner.yaml")
+        .replace("kind: object", "kind: value")
+        .replace("applied.common-module", "common.direct")
+        .replace("common.boolean", "common.direct");
+    let direct = parse(SourceFile {
+        path: "direct.yaml",
+        bytes: direct.as_bytes(),
+    })
+    .unwrap();
+    let errors = link(&[direct]).unwrap_err();
+    assert!(
+        errors
+            .iter()
+            .any(|error| error.code == "recursive_value_type")
+    );
+}
+
+#[test]
 fn boolean_binding_expressions_are_typed_before_generation() {
     let common = format!(
         "{}\ninputs:\n  enabled: {{type: {{kind: scalar, scalar: boolean}}}}\n",

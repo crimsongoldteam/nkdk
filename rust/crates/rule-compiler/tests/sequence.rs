@@ -288,3 +288,38 @@ fn referenced_modules(row: &str, list: &str) -> Vec<nkdk_rule_compiler::Module> 
         })
         .collect::<Vec<_>>()
 }
+
+#[test]
+fn recursive_collection_reports_a_generation_boundary_without_overflowing() {
+    let node = include_bytes!("fixtures/recursive-node.yaml");
+    let nodes = include_bytes!("fixtures/recursive-nodes.yaml");
+    let owner = r#"
+format: nkdk-declarations/1
+kind: object
+id: applied.tree
+imports: {node: common.node}
+value: {kind: record, fields: [{name: root, type: {use: node}}]}
+representations:
+  xml: {kind: record, fields: [{field: root, path: [Root]}]}
+  yaml: {kind: mapping, fields: [{field: root, key: Корень}]}
+"#;
+    let errors = compile(&[
+        SourceFile {
+            path: "node.yaml",
+            bytes: node,
+        },
+        SourceFile {
+            path: "nodes.yaml",
+            bytes: nodes,
+        },
+        SourceFile {
+            path: "owner.yaml",
+            bytes: owner.as_bytes(),
+        },
+    ])
+    .unwrap_err();
+    assert!(errors.iter().any(|error| {
+        error.code == "unsupported_generation_feature"
+            && error.message.contains("reusable value module")
+    }));
+}
