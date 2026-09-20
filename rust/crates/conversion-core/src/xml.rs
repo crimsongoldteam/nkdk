@@ -93,6 +93,19 @@ pub fn matches(path: &[Name], expected: &[(&str, &str)]) -> bool {
             .zip(expected)
             .all(|(a, b)| a.namespace == b.0 && a.local == b.1)
 }
+pub fn first_offset(source: &[u8], expected: &[(&str, &str)]) -> Result<Option<usize>> {
+    let mut offset = None;
+    visit(source, |path, token| {
+        if offset.is_none()
+            && matches(path, expected)
+            && let Token::Start(value) = token
+        {
+            offset = Some(value);
+        }
+        Ok(())
+    })?;
+    Ok(offset)
+}
 /// Read an attribute only on the exceptional round-trip preservation path.
 pub fn attribute_value(
     source: &[u8],

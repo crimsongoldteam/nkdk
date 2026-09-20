@@ -41,6 +41,20 @@ fn qualified(name: &Name, namespaces: &[(&str, &str)]) -> Result<String> {
     Ok(format!("{prefix}:{}", name.local))
 }
 impl Tree {
+    /// Rebase a captured value onto the root expected by a reusable declaration.
+    pub fn rename_root(&mut self, name: Name) {
+        self.name = name;
+    }
+
+    /// Serialize this subtree as an independent XML document.
+    pub fn document(&self, qname_attributes: &[(&str, &str)]) -> Result<Vec<u8>> {
+        let mut namespaces = Vec::new();
+        self.collect_namespaces(&mut namespaces);
+        let mut writer = super::Writer::new(&namespaces);
+        self.write_at(&mut writer, &[], qname_attributes)?;
+        Ok(writer.finish())
+    }
+
     pub fn qname_scalar(name: Name, value: Name) -> Result<Self> {
         super::validate_qname((&value.namespace, &value.local))?;
         let mut node = Self::scalar(name, "", &[]);

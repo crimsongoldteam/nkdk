@@ -1,0 +1,40 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: probe.recursive-node
+  imports: {children: probe.recursive-nodes}
+  value:
+    kind: record
+    fields:
+    - {name: name, type: {kind: scalar, scalar: text}}
+    - {name: children, type: {use: children}}
+  representations:
+    xml:
+      kind: record
+      fields:
+      - {field: name, path: [Name]}
+      - {field: children, path: []}
+    yaml:
+      kind: mapping
+      fields:
+      - {field: name, key: Имя}
+      - {field: children, key: Дети}
+- kind: value
+  id: probe.recursive-nodes
+  imports: {node: probe.recursive-node}
+  value: {kind: sequence, item: {use: node}}
+  representations:
+    xml: {kind: element-sequence, path: [Item]}
+    yaml: {kind: sequence}
+  presence:
+  - target: self
+    xml: {missing: {denotes: {absent: true}}}
+    yaml: {missing: {denotes: {absent: true}}}
+- kind: object
+  id: migration.recursive-record
+  imports: {node: probe.recursive-node}
+  value: {kind: record, fields: [{name: root, type: {use: node}}]}
+  representations:
+    xml: {kind: record, fields: [{field: root, path: [Root]}]}
+    yaml: {kind: mapping, fields: [{field: root, key: Корень}]}

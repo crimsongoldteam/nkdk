@@ -43,7 +43,7 @@ mod value_record;
 mod xml_tree;
 use crate::plan::{ConversionPlan as Program, ValueId};
 use nkdk_rule_model::*;
-use std::collections::BTreeSet;
+use std::{collections::BTreeMap, collections::BTreeSet, fmt::Write};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct GeneratedFile {
@@ -79,6 +79,38 @@ pub(crate) fn from_plan(program: &Program<'_>) -> Result<GeneratedSources, Vec<D
             related: vec![],
         }]);
     }
+    let recursive = recursive_records(program);
+    let _recursive_targets = value_record::RecursiveTargets::enter(
+        recursive
+            .iter()
+            .map(|entry| (entry.name.clone(), entry.id))
+            .collect::<BTreeMap<_, _>>(),
+    );
+    for entry in recursive {
+        let root = value_record::recursive_root(entry.id);
+        let path = vec![ExpandedName {
+            namespace: String::new(),
+            local: root,
+        }];
+        let mut placed = entry.clone();
+        crate::plan::routes::place_record(&mut placed, &path).map_err(|error| vec![error])?;
+        let body =
+            value_record::generate(&placed, program, &path, None).map_err(|error| vec![error])?;
+        let reusable = body
+            .source
+            .replacen(
+                "#[allow(dead_code)] mod item_",
+                "#[allow(dead_code)] pub(crate) mod item_",
+                1,
+            )
+            .replace("pub(super)", "pub(crate)");
+        writeln!(
+            source,
+            "#[allow(dead_code)] pub(crate) mod recursive_value_{}{{use super::*;{}}}",
+            entry.id, reusable
+        )
+        .unwrap();
+    }
     for entry in &entries {
         if entry.kind == ModuleKind::Resources {
             resources::validate_entry(entry).map_err(|error| vec![error])?;
@@ -112,6 +144,50 @@ pub(crate) fn from_plan(program: &Program<'_>) -> Result<GeneratedSources, Vec<D
             .into_iter()
             .collect(),
     })
+}
+
+fn recursive_records<'a>(program: &'a Program<'a>) -> Vec<&'a LinkedEntry> {
+    fn references(value: &LinkedType, out: &mut Vec<u32>) {
+        match value {
+            LinkedType::Reference(id) | LinkedType::BoundReference { entry: id, .. } => {
+                out.push(*id)
+            }
+            LinkedType::Index { key, value } => {
+                references(key, out);
+                references(value, out);
+            }
+            LinkedType::Optional(value) | LinkedType::Sequence(value) => references(value, out),
+            LinkedType::Choice(fields) | LinkedType::Record(fields) => {
+                for field in fields {
+                    references(&field.value, out);
+                }
+            }
+            _ => {}
+        }
+    }
+    fn reaches(
+        program: &Program<'_>,
+        current: u32,
+        target: u32,
+        visited: &mut BTreeSet<u32>,
+    ) -> bool {
+        if !visited.insert(current) {
+            return false;
+        }
+        let entry = program.value(ValueId(current)).expect("linked value").entry;
+        let mut next = Vec::new();
+        references(&entry.value, &mut next);
+        next.into_iter()
+            .any(|id| id == target || reaches(program, id, target, visited))
+    }
+    program
+        .entries
+        .iter()
+        .filter(|entry| {
+            matches!(entry.value, LinkedType::Record(_))
+                && reaches(program, entry.id, entry.id, &mut BTreeSet::new())
+        })
+        .collect()
 }
 use crate::plan::unsupported;
 

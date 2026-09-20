@@ -1,23 +1,42 @@
 //! The same record body serves a property and a collection element.
 use super::*;
-use std::cell::RefCell;
+use std::{cell::RefCell, collections::BTreeMap};
 
 thread_local! {
     static RECORD_STACK: RefCell<Vec<String>> = const { RefCell::new(Vec::new()) };
+    static RECURSIVE_TARGETS: RefCell<BTreeMap<String, u32>> = const { RefCell::new(BTreeMap::new()) };
+}
+
+pub(super) struct RecursiveTargets(BTreeMap<String, u32>);
+impl RecursiveTargets {
+    pub(super) fn enter(targets: BTreeMap<String, u32>) -> Self {
+        Self(
+            RECURSIVE_TARGETS
+                .with(|current| std::mem::replace(&mut *current.borrow_mut(), targets)),
+        )
+    }
+}
+impl Drop for RecursiveTargets {
+    fn drop(&mut self) {
+        RECURSIVE_TARGETS.with(|current| {
+            *current.borrow_mut() = std::mem::take(&mut self.0);
+        });
+    }
+}
+
+fn recursive_target(name: &str) -> Option<u32> {
+    RECURSIVE_TARGETS.with(|targets| targets.borrow().get(name).copied())
 }
 
 struct RecordFrame(String);
 impl RecordFrame {
-    fn enter(entry: &LinkedEntry) -> Result<Self, Diagnostic> {
+    fn enter(entry: &LinkedEntry) -> Option<Self> {
         let repeated = RECORD_STACK.with(|stack| stack.borrow().contains(&entry.name));
-        if repeated {
-            return Err(unsupported(
-                entry,
-                "Recursive record generation requires a reusable value module",
-            ));
+        if repeated && recursive_target(&entry.name).is_some() {
+            return None;
         }
         RECORD_STACK.with(|stack| stack.borrow_mut().push(entry.name.clone()));
-        Ok(Self(entry.name.clone()))
+        Some(Self(entry.name.clone()))
     }
 }
 impl Drop for RecordFrame {
@@ -47,7 +66,9 @@ pub(super) fn generate(
     boundary: &[ExpandedName],
     lifted: Option<(usize, String, Option<String>)>,
 ) -> Result<RecordBody, Diagnostic> {
-    let _frame = RecordFrame::enter(row)?;
+    let Some(_frame) = RecordFrame::enter(row) else {
+        return recursive(row, boundary, lifted);
+    };
     let LinkedType::Record(row_fields) = &row.value else {
         return Err(unsupported(row, "Expected a record value"));
     };
@@ -280,6 +301,75 @@ pub(super) fn generate(
         source: code,
         scalar_routes,
         constructible,
+    })
+}
+
+pub(super) fn recursive_root(id: u32) -> String {
+    format!("__nkdk_recursive_{id}")
+}
+
+fn recursive(
+    row: &LinkedEntry,
+    boundary: &[ExpandedName],
+    lifted: Option<(usize, String, Option<String>)>,
+) -> Result<RecordBody, Diagnostic> {
+    if lifted.is_some() || boundary.is_empty() {
+        return Err(unsupported(
+            row,
+            "Recursive keyed records require a separate reusable projection",
+        ));
+    }
+    let id = row.id;
+    let target_id = recursive_target(&row.name)
+        .ok_or_else(|| unsupported(row, "Recursive record has no reusable declaration target"))?;
+    let route = record::path_code(boundary);
+    let parent = record::path_code(&boundary[..boundary.len() - 1]);
+    let physical = boundary.last().expect("recursive boundary");
+    let root = recursive_root(target_id);
+    let target = format!("crate::recursive_value_{target_id}::item_{target_id}");
+    let source = format!(
+        r#"#[allow(dead_code)] mod item_{id} {{
+use super::*;
+const ROUTE:&[(&str,&str)]={route};
+const PARENT:&[(&str,&str)]={parent};
+fn virtual_source(source:&[u8],offset:usize)->core::Result<Vec<u8>>{{
+let mut tree=core::xml::Tree::capture_at(source,ROUTE,offset)?.ok_or_else(||RuntimeDiagnostic::new("xml.recursive-value","Missing recursive XML value"))?;
+tree.rename_root(core::xml::Name{{namespace:String::new(),local:{root:?}.into()}});
+tree.document(&qnames())}}
+pub(super) struct Stored(Box<{target}::Stored>);
+impl core::inputs::RecordInput for Stored{{fn field(&self,index:usize)->Option<core::inputs::InputRef<'_>>{{core::inputs::RecordInput::field(&*self.0,index)}}}}
+pub(super) struct Prepared(core::xml::Tree);
+pub(super) struct XmlReader{{offset:Option<usize>}}
+impl XmlReader{{pub(super) fn new()->Self{{Self{{offset:None}}}}pub(super) fn consume_scoped(&mut self,path:&[core::xml::Name],token:&core::xml::Token<'_>,_scope:Option<core::xml::NamespaceScope<'_>>,_source:&[u8],_inputs:&InputView<'_>)->core::Result<()>{{if core::xml::matches(path,ROUTE)&&let core::xml::Token::Start(offset)=token{{if self.offset.replace(*offset).is_some(){{return Err(RuntimeDiagnostic::new("xml.duplicate-field","Repeated recursive value"))}}}}Ok(())}}pub(super) fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<Stored>{{let offset=self.offset.ok_or_else(||RuntimeDiagnostic::new("value.missing","Missing recursive value"))?;{target}::read_xml(&virtual_source(source,offset)?,inputs).map(|value|Stored(Box::new(value)))}}}}
+pub(super) struct YamlReader(Box<{target}::YamlReader>);
+impl YamlReader{{pub(super) fn new()->core::Result<Self>{{{target}::YamlReader::new().map(|value|Self(Box::new(value)))}}pub(super) fn consume(&mut self,node:core::yaml::Node,position:core::Position,source:&[u8],inputs:&InputView<'_>)->core::Result<()>{{self.0.consume(node,position,source,inputs)}}pub(super) fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<Stored>{{self.0.finish(source,inputs).map(|value|Stored(Box::new(value)))}}}}
+pub(super) fn read_xml(source:&[u8],inputs:&InputView<'_>)->core::Result<Stored>{{let mut reader=XmlReader::new();core::xml::visit_scoped(source,|path,token,scope|reader.consume_scoped(path,&token,Some(scope),source,inputs))?;reader.finish(source,inputs)}}
+pub(super) fn recover_xml(source:&[u8],inputs:&InputView<'_>)->core::Result<Stored>{{read_xml(source,inputs)}}
+pub(super) fn read_yaml(source:&[u8],inputs:&InputView<'_>)->core::Result<Stored>{{{target}::read_yaml(source,inputs).map(|value|Stored(Box::new(value)))}}
+pub(super) fn finalize(source:&[u8],value:&Stored,inputs:&InputView<'_>)->core::Result<Vec<u8>>{{let offset=core::xml::first_offset(source,ROUTE)?.ok_or_else(||RuntimeDiagnostic::new("value.missing","Missing recursive value"))?;{target}::finalize(&virtual_source(source,offset)?,&value.0,inputs)}}
+pub(super) fn text(value:&Stored,field:usize)->core::Result<&str>{{{target}::text(&value.0,field)}}
+pub(super) fn prepare(value:&Stored,inputs:&InputView<'_>)->core::Result<Prepared>{{let prepared={target}::prepare(&value.0,inputs)?;let mut names=Vec::new();{target}::namespaces(&value.0,&prepared,&mut names);let mut out=core::xml::Writer::new(&names);{target}::write_xml(&value.0,&prepared,inputs,&mut out)?;let bytes=out.finish();let mut tree=core::xml::Tree::capture(&bytes,&[("",{root:?})])?.ok_or_else(||RuntimeDiagnostic::new("xml.recursive-value","Generated recursive value is absent"))?;tree.rename_root(core::xml::Name{{namespace:{:?}.into(),local:{:?}.into()}});Ok(Prepared(tree))}}
+pub(super) fn namespaces<'a>(_value:&'a Stored,prepared:&'a Prepared,names:&mut Vec<&'a str>){{prepared.0.collect_namespaces(names)}}
+pub(super) fn write_xml<'a>(_value:&Stored,prepared:&'a Prepared,_inputs:&InputView<'_>,out:&mut core::xml::Writer<'a>)->core::Result<()>{{prepared.0.write_at(out,PARENT,&qnames())}}
+pub(super) fn write_yaml(value:&Stored,inputs:&InputView<'_>,out:&mut String,indent:&str)->core::Result<()>{{{target}::write_yaml(&value.0,inputs,out,indent)}}
+pub(super) fn key_can_be_lifted(_value:&Stored)->bool{{false}}
+pub(super) fn write_mapping_value(_value:&Stored,_inputs:&InputView<'_>,_out:&mut String,_indent:&str)->core::Result<()>{{Err(RuntimeDiagnostic::new("yaml.recursive-value","Recursive record is not a keyed projection"))}}
+pub(super) fn check(value:&Stored,source:&[u8],inputs:&InputView<'_>,xml:bool)->Vec<RuntimeDiagnostic>{{if xml{{Vec::new()}}else{{{target}::check(&value.0,source,inputs,false)}}}}
+pub(super) fn scalar(_value:&Stored,_path:&[core::xml::Name],_occurrences:&[usize])->bool{{false}}
+thread_local!{{static QNAMES_ACTIVE:std::cell::Cell<bool>=const{{std::cell::Cell::new(false)}};}}
+struct QNamesFrame;
+impl QNamesFrame{{fn enter()->Option<Self>{{QNAMES_ACTIVE.with(|active|if active.replace(true){{None}}else{{Some(Self)}})}}}}
+impl Drop for QNamesFrame{{fn drop(&mut self){{QNAMES_ACTIVE.with(|active|active.set(false));}}}}
+pub(super) fn qnames()->Vec<(&'static str,&'static str)>{{let Some(_frame)=QNamesFrame::enter()else{{return Vec::new()}};{target}::qnames()}}
+pub(super) fn qname_attribute(_path:&[core::xml::Name],name:&core::xml::Name)->bool{{qnames().contains(&(name.namespace.as_str(),name.local.as_str()))}}
+pub(super) fn qname_text(_path:&[core::xml::Name])->bool{{false}}
+}}"#,
+        physical.namespace, physical.local,
+    );
+    Ok(RecordBody {
+        source,
+        scalar_routes: String::new(),
+        constructible: false,
     })
 }
 

@@ -1,4 +1,31 @@
 use nkdk_conversion_core::xml::Tree;
+
+#[test]
+fn captured_subtree_can_be_rebased_to_a_declaration_root() {
+    let source = b"<Owner><Items><Item code='x'><Name>leaf</Name></Item></Items></Owner>";
+    let offset = source
+        .windows(b"<Item code".len())
+        .position(|part| part == b"<Item code")
+        .unwrap();
+    let mut tree = Tree::capture_at(
+        source,
+        &[("", "Owner"), ("", "Items"), ("", "Item")],
+        offset,
+    )
+    .unwrap()
+    .unwrap();
+    tree.rename_root(nkdk_conversion_core::xml::Name {
+        namespace: String::new(),
+        local: "Node".into(),
+    });
+    nkdk_conversion_core::proof::verify(
+        b"<Node code=\"x\"><Name>leaf</Name></Node>",
+        &tree.document(&[]).unwrap(),
+        |_| false,
+    )
+    .unwrap();
+}
+
 #[test]
 fn exceptional_xml_tree_keeps_empty_leaves_attributes_and_occurrences() {
     let source = br#"<Root xmlns:v="urn:values" xmlns:x="urn:attributes"><Title><v:item><v:lang>ru</v:lang><v:content/></v:item><v:item><v:lang>en</v:lang><v:content> </v:content></v:item></Title></Root>"#;

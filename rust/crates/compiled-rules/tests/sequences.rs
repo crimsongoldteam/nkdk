@@ -55,6 +55,22 @@ fn choice_parameter_links_are_structural_and_reversible() {
 }
 
 #[test]
+fn recursive_records_round_trip_through_one_reusable_declaration() {
+    let entry = entry_id("migration.recursive-record").unwrap();
+    let inputs = PreparedInputs::default();
+    let xml = b"<Root><Name>root</Name><Item><Name>first</Name></Item><Item><Name>second</Name><Item><Name>leaf</Name></Item></Item></Root>";
+    let converted = convert_file(entry, Direction::XmlToYaml, xml, &inputs).unwrap();
+    assert_eq!(
+        String::from_utf8_lossy(&converted.bytes),
+        "Корень:\n  Имя: root\n  Дети:\n    -\n      Имя: first\n      Дети: []\n    -\n      Имя: second\n      Дети:\n        -\n          Имя: leaf\n          Дети: []"
+    );
+    verify_candidate(entry, xml, &converted.bytes, &inputs).unwrap();
+    let exported = convert_file(entry, Direction::YamlToXml, &converted.bytes, &inputs).unwrap();
+    let imported = convert_file(entry, Direction::XmlToYaml, &exported.bytes, &inputs).unwrap();
+    assert_eq!(imported.bytes, converted.bytes);
+}
+
+#[test]
 fn record_sequences_keep_typed_wrappers_and_infer_their_differences() {
     let entry = entry_id("migration.web-socket-client-headers").unwrap();
     let inputs = PreparedInputs::default();

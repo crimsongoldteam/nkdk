@@ -290,11 +290,11 @@ fn referenced_modules(row: &str, list: &str) -> Vec<nkdk_rule_compiler::Module> 
 }
 
 #[test]
-fn recursive_collection_reports_a_generation_boundary_without_overflowing() {
+fn recursive_collection_compiles_through_a_reusable_value_module() {
     let node = include_bytes!("fixtures/recursive-node.yaml");
     let nodes = include_bytes!("fixtures/recursive-nodes.yaml");
     let owner = include_bytes!("fixtures/recursive-owner.yaml");
-    let errors = compile(&[
+    let generated = compile(&[
         SourceFile {
             path: "node.yaml",
             bytes: node,
@@ -308,9 +308,9 @@ fn recursive_collection_reports_a_generation_boundary_without_overflowing() {
             bytes: owner,
         },
     ])
-    .unwrap_err();
-    assert!(errors.iter().any(|error| {
-        error.code == "unsupported_generation_feature"
-            && error.message.contains("reusable value module")
-    }));
+    .expect("recursive collection generation");
+    let source = std::str::from_utf8(&generated.files[0].contents).unwrap();
+    assert!(source.contains("mod recursive_value_"));
+    assert!(source.contains("struct Stored(Box<crate::recursive_value_"));
+    assert!(source.contains("static QNAMES_ACTIVE"));
 }

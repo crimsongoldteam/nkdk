@@ -770,12 +770,11 @@ pub(super) fn field_shape(
                     )
                 })?;
             let target = modules[import.value.as_str()];
-            if !visiting.insert(target.id.clone()) {
+            let key = format!("module:{}", target.id);
+            if visiting.contains(&key) {
                 return Ok(LinkedType::Reference(ids[target.id.as_str()]));
             }
-            let result = module_shape(target, modules, ids, visiting);
-            visiting.remove(&target.id);
-            result
+            module_shape(target, modules, ids, visiting)
         }
         TypeDefinition::Record(fields) => Ok(LinkedType::Record(
             fields
