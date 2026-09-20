@@ -1,6 +1,41 @@
 use nkdk_rule_compiler::{SourceFile, link, parse, schema};
 
 #[test]
+fn recursive_collection_schema_uses_defs_and_ref() {
+    let program = link(&[
+        parse(SourceFile {
+            path: "node.yaml",
+            bytes: include_bytes!("fixtures/recursive-node.yaml"),
+        })
+        .unwrap(),
+        parse(SourceFile {
+            path: "nodes.yaml",
+            bytes: include_bytes!("fixtures/recursive-nodes.yaml"),
+        })
+        .unwrap(),
+        parse(SourceFile {
+            path: "owner.yaml",
+            bytes: include_bytes!("fixtures/recursive-owner.yaml"),
+        })
+        .unwrap(),
+    ])
+    .unwrap();
+    let actual: serde_json::Value =
+        serde_json::from_slice(&schema(&program, "applied.tree").unwrap()).unwrap();
+    assert_eq!(
+        actual["$defs"]["common.node"]["properties"]["Дети"]["items"]["$ref"],
+        "#/$defs/common.node"
+    );
+    let validator = jsonschema::validator_for(&actual).unwrap();
+    assert!(validator.is_valid(&serde_json::json!({
+        "Корень": {"Имя":"корень", "Дети":[{"Имя":"лист", "Дети":[]}]}
+    })));
+    assert!(!validator.is_valid(&serde_json::json!({
+        "Корень": {"Имя":"корень", "Дети":[{"Дети":[]}]}
+    })));
+}
+
+#[test]
 fn discriminated_choice_schema_preserves_yaml_scalar_kinds() {
     let program = declaration_program(&[
         "common/boolean.yaml",

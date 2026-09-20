@@ -1,0 +1,8 @@
+format: nkdk-declarations/1
+kind: object
+id: applied.tree
+imports: {node: common.node}
+value: {kind: record, fields: [{name: root, type: {use: node}}]}
+representations:
+  xml: {kind: record, fields: [{field: root, path: [Root]}]}
+  yaml: {kind: mapping, fields: [{field: root, key: Корень}]}

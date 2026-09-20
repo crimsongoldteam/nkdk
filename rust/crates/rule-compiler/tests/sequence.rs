@@ -293,16 +293,7 @@ fn referenced_modules(row: &str, list: &str) -> Vec<nkdk_rule_compiler::Module> 
 fn recursive_collection_reports_a_generation_boundary_without_overflowing() {
     let node = include_bytes!("fixtures/recursive-node.yaml");
     let nodes = include_bytes!("fixtures/recursive-nodes.yaml");
-    let owner = r#"
-format: nkdk-declarations/1
-kind: object
-id: applied.tree
-imports: {node: common.node}
-value: {kind: record, fields: [{name: root, type: {use: node}}]}
-representations:
-  xml: {kind: record, fields: [{field: root, path: [Root]}]}
-  yaml: {kind: mapping, fields: [{field: root, key: Корень}]}
-"#;
+    let owner = include_bytes!("fixtures/recursive-owner.yaml");
     let errors = compile(&[
         SourceFile {
             path: "node.yaml",
@@ -314,7 +305,7 @@ representations:
         },
         SourceFile {
             path: "owner.yaml",
-            bytes: owner.as_bytes(),
+            bytes: owner,
         },
     ])
     .unwrap_err();

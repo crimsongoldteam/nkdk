@@ -45,6 +45,9 @@ pub(super) fn build(program: &Program, owner: &LinkedEntry) -> Result<Option<Val
                         .and_then(|p| p.remove(key))
                         .ok_or_else(|| unsupported(target))?
                 }
+                YamlRepresentation::Sequence { .. } | YamlRepresentation::RecordMapping { .. } => {
+                    sequence_shape(program, target, &target.presence)?
+                }
                 _ => return Err(unsupported(target)),
             }
         } else {
@@ -97,7 +100,10 @@ pub(super) fn build(program: &Program, owner: &LinkedEntry) -> Result<Option<Val
             checks.push(check);
         }
     }
-    let value = json!({"type":"object","properties":properties,"required":required,"additionalProperties":false,"allOf":checks});
+    let mut value = json!({"type":"object","properties":properties,"required":required,"additionalProperties":false});
+    if !checks.is_empty() {
+        value["allOf"] = json!(checks);
+    }
     Ok(Some(
         json!({"$schema":"https://json-schema.org/draft/2020-12/schema","type":"object","properties":{&owner_mapping[0].key:value},"additionalProperties":false,"x-nkdk-runtime-validation":true}),
     ))

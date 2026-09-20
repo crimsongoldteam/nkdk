@@ -3,7 +3,35 @@ mod keyed;
 use crate::plan::{ConversionPlan as Program, ValueId};
 use nkdk_rule_model::*;
 use serde_json::{Value, json};
-use std::str::FromStr;
+use std::{cell::RefCell, str::FromStr};
+
+#[derive(Default)]
+struct RecursiveSchemas {
+    stack: Vec<SchemaFrame>,
+    recursive: Vec<SchemaFrame>,
+    definitions: std::collections::BTreeMap<String, Value>,
+}
+
+#[derive(Clone, PartialEq, Eq)]
+struct SchemaFrame {
+    id: u32,
+    value: LinkedType,
+    yaml: YamlRepresentation,
+}
+
+impl SchemaFrame {
+    fn new(entry: &LinkedEntry) -> Self {
+        Self {
+            id: entry.id,
+            value: entry.value.clone(),
+            yaml: entry.yaml.clone(),
+        }
+    }
+}
+
+thread_local! {
+    static RECURSIVE_SCHEMAS: RefCell<RecursiveSchemas> = RefCell::default();
+}
 
 pub fn schema(program: &nkdk_rule_model::Program, name: &str) -> Result<Vec<u8>, Vec<Diagnostic>> {
     from_plan(&crate::plan::build(program)?, name)
@@ -285,7 +313,60 @@ impl Context<'_> {
         }
     }
 }
+fn schema_pointer(name: &str) -> String {
+    format!("#/$defs/{}", name.replace('~', "~0").replace('/', "~1"))
+}
+
 fn build(program: &Program, entry: &LinkedEntry) -> Result<Value, Diagnostic> {
+    let frame = SchemaFrame::new(entry);
+    let repeated = RECURSIVE_SCHEMAS.with(|context| {
+        let mut context = context.borrow_mut();
+        if context.stack.contains(&frame) {
+            if !context.recursive.contains(&frame) {
+                context.recursive.push(frame.clone());
+            }
+            true
+        } else {
+            context.stack.push(frame.clone());
+            false
+        }
+    });
+    if repeated {
+        return Ok(json!({"$ref": schema_pointer(&entry.name)}));
+    }
+    let result = build_entry(program, entry);
+    let root = RECURSIVE_SCHEMAS.with(|context| {
+        let mut context = context.borrow_mut();
+        assert!(context.stack.pop().as_ref() == Some(&frame));
+        if let Ok(value) = &result
+            && context.recursive.contains(&frame)
+        {
+            context
+                .definitions
+                .insert(entry.name.clone(), value.clone());
+        }
+        context.stack.is_empty()
+    });
+    if !root {
+        return result;
+    }
+    let context = RECURSIVE_SCHEMAS.with(|context| std::mem::take(&mut *context.borrow_mut()));
+    let mut result = result?;
+    if !context.definitions.is_empty() {
+        let definitions = context
+            .definitions
+            .into_iter()
+            .collect::<serde_json::Map<_, _>>();
+        if let Some(object) = result.as_object_mut() {
+            object.insert("$defs".into(), Value::Object(definitions));
+        } else {
+            result = json!({"allOf":[result],"$defs":definitions});
+        }
+    }
+    Ok(result)
+}
+
+fn build_entry(program: &Program, entry: &LinkedEntry) -> Result<Value, Diagnostic> {
     if let YamlRepresentation::Projection(key) = &entry.yaml {
         let mut inner = entry.clone();
         inner.yaml = YamlRepresentation::Mapping(vec![YamlField {
@@ -472,7 +553,7 @@ fn build(program: &Program, entry: &LinkedEntry) -> Result<Value, Diagnostic> {
     Ok(result)
 }
 
-fn sequence_shape(
+pub(super) fn sequence_shape(
     program: &Program,
     common: &LinkedEntry,
     presence: &[LinkedPresence],
