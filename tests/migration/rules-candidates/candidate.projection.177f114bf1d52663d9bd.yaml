@@ -1,22 +1,20 @@
 format: nkdk-declarations/1
 kind: object
-id: candidate.projection.303d3fd0aa7eeee87d86
+id: candidate.projection.177f114bf1d52663d9bd
 description: 'Кандидат проекции: относительный XML-корень Properties; не полный владелец'
 imports:
-  part0: candidate.fragment.26f2a0ec831699cb55dd
-  part1: candidate.fragment.e8b8bc7db0633e109fe8
-  part2: candidate.fragment.1b7d3cc30864a8dd2a70
-  part3: candidate.fragment.75a4cde38b68731d8ce2
-  part4: candidate.fragment.26c6504dd1cbc2075885
+  part0: candidate.fragment.005c1b164180436637b2
+  part1: candidate.fragment.52a2075291fd16c7818a
+  part2: candidate.fragment.e8b8bc7db0633e109fe8
+  part3: candidate.fragment.1765115867f73cbe2b6f
+  part4: candidate.fragment.75a4cde38b68731d8ce2
+  part5: candidate.fragment.26c6504dd1cbc2075885
   inputType1f8ea46361ff: common.path-root
-  part5: candidate.fragment.a7934b48993a4f5da784
-  part6: candidate.fragment.5d1647c4012948d8e558
-  part7: candidate.fragment.872cce32286a95e0e8cf
+  part6: candidate.fragment.d59efb3522a04df62d46
+  part7: candidate.fragment.c11f9ef55f78feb34918
 compose:
   - use: part0
   - use: part1
-  - use: part2
-  - use: part3
     bind:
       defaultLanguage:
         input: defaultLanguage
@@ -24,7 +22,17 @@ compose:
         input: registeredLanguages
       ownerName:
         input: ownerName
+  - use: part2
+  - use: part3
   - use: part4
+    bind:
+      defaultLanguage:
+        input: defaultLanguage
+      registeredLanguages:
+        input: registeredLanguages
+      ownerName:
+        input: ownerName
+  - use: part5
     bind:
       defaultLanguage:
         input: defaultLanguage
@@ -58,13 +66,12 @@ compose:
                         var: item
                       field: value
                   pattern: Строка|ФиксированнаяСтрока
-  - use: part5
+  - use: part6
     bind:
       roots:
         input: roots
       forms:
         input: forms
-  - use: part6
   - use: part7
 value:
   kind: record
@@ -564,6 +571,48 @@ constraints:
       at:
         field: fillValue
       message: Значение заполнения не соответствует календарному типу
+  - id: fillValue.reference-value
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      and:
+        - one:
+            in:
+              get:
+                of:
+                  field: type
+                field: items
+            as: item
+            where:
+              literal: true
+        - exists:
+            in:
+              get:
+                of:
+                  field: type
+                field: items
+            as: item
+            where:
+              matches:
+                value:
+                  get:
+                    of:
+                      var: item
+                    field: value
+                pattern: >-
+                  (Справочник|Документ|Перечисление|ПланОбмена|ПланСчетов|ПланВидовХарактеристик|ПланВидовРасчета|БизнесПроцесс|Задача)\..+
+    assert:
+      isVariant:
+        value:
+          field: fillValue
+        variant: reference
+    diagnostic:
+      code: fill-value.type-mismatch
+      severity: warning
+      at:
+        field: fillValue
+      message: Значение заполнения не соответствует ссылочному типу
 inputs:
   defaultLanguage:
     type:

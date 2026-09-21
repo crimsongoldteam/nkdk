@@ -214,6 +214,13 @@ const referenceAttribute={...stringAttribute,
   adaptation:'Use the supported document attribute wrapper and the unchanged Type/FillValue pair from the immutable exchange-plan e2e fixture; reverse export uses freshly prepared inputs without an XML reference',
 };
 cases.push(referenceAttribute);
+cases.push({...referenceAttribute,
+  id:'fill-value-reference-as-text',
+  xml:referenceAttribute.xml.replace('<FillValue xsi:type="xr:DesignTimeRef">Catalog.СправочникРеквизит.ПредопредленноеЗначение</FillValue>','<FillValue xsi:type="xs:string">текст</FillValue>'),
+  yaml:referenceAttribute.yaml.replace('ЗначениеЗаполнения: Справочник.СправочникРеквизит.ПредопредленноеЗначение','ЗначениеЗаполнения: текст'),
+  diagnostics:['fill-value.type-mismatch'],
+  adaptation:'Retain the declared CatalogRef type and change only explicit FillValue to a string; an incompatible value remains round-trip data with a diagnostic',
+});
 cases.push({...stringAttribute,
   id:'fill-value-string-too-long',
   xml:stringAttribute.xml.replace('<FillValue xsi:type="xs:string" />','<FillValue xsi:type="xs:string">12345678901</FillValue>'),

@@ -1,6 +1,6 @@
 format: nkdk-declarations/1
 kind: object
-id: candidate.projection.58420c69b8be635efbd2
+id: candidate.projection.07408364b24d4fa2ba9b
 description: 'Кандидат проекции: относительный XML-корень Properties; не полный владелец'
 imports:
   part0: candidate.fragment.7c451bae36cbe6851ab7
@@ -8,10 +8,11 @@ imports:
   part2: candidate.fragment.81d72d589aafa2cb526d
   inputType1f8ea46361ff: common.path-root
   part3: candidate.fragment.92ebe1610e39f3cea8e9
-  part4: candidate.fragment.506dc78255a4fe133b20
-  part5: candidate.fragment.a889c49be08ffa2f63c7
-  part6: candidate.fragment.8670582480f963458bc6
-  part7: candidate.fragment.4070ee2c3faabd96b56d
+  part4: candidate.fragment.133b24388e9d251d58cb
+  part5: candidate.fragment.506dc78255a4fe133b20
+  part6: candidate.fragment.a889c49be08ffa2f63c7
+  part7: candidate.fragment.8670582480f963458bc6
+  part8: candidate.fragment.4070ee2c3faabd96b56d
 compose:
   - use: part0
   - use: part1
@@ -66,6 +67,7 @@ compose:
   - use: part5
   - use: part6
   - use: part7
+  - use: part8
 value:
   kind: record
   fields: []
@@ -564,6 +566,48 @@ constraints:
       at:
         field: fillValue
       message: Значение заполнения не соответствует календарному типу
+  - id: fillValue.reference-value
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      and:
+        - one:
+            in:
+              get:
+                of:
+                  field: type
+                field: items
+            as: item
+            where:
+              literal: true
+        - exists:
+            in:
+              get:
+                of:
+                  field: type
+                field: items
+            as: item
+            where:
+              matches:
+                value:
+                  get:
+                    of:
+                      var: item
+                    field: value
+                pattern: >-
+                  (Справочник|Документ|Перечисление|ПланОбмена|ПланСчетов|ПланВидовХарактеристик|ПланВидовРасчета|БизнесПроцесс|Задача)\..+
+    assert:
+      isVariant:
+        value:
+          field: fillValue
+        variant: reference
+    diagnostic:
+      code: fill-value.type-mismatch
+      severity: warning
+      at:
+        field: fillValue
+      message: Значение заполнения не соответствует ссылочному типу
 inputs:
   defaultLanguage:
     type:
