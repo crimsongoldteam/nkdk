@@ -25,6 +25,8 @@ pub(super) fn expression(path: &str, value: &Node) -> Result<Expression, Diagnos
             "matches",
             "isVariant",
             "variantValue",
+            "variantText",
+            "textSegmentPrefix",
             "textLengthAtMost",
             "textLengthEquals",
             "calendarFits",
@@ -76,14 +78,34 @@ pub(super) fn expression(path: &str, value: &Node) -> Result<Expression, Diagnos
     }
     let (operator, operand) = &fields[0];
     let kind = match operator.text(path)? {
-        "isVariant" | "variantValue" => {
+        "isVariant" | "variantValue" | "variantText" => {
             let fields = operand.mapping(path, &["value", "variant"])?;
             let value = Box::new(expression(path, operand.field(path, fields, "value")?)?);
             let variant = operand.field(path, fields, "variant")?.text(path)?.into();
-            if operator.text(path)? == "isVariant" {
-                ExpressionKind::IsVariant { value, variant }
-            } else {
-                ExpressionKind::VariantValue { value, variant }
+            match operator.text(path)? {
+                "isVariant" => ExpressionKind::IsVariant { value, variant },
+                "variantText" => ExpressionKind::VariantText { value, variant },
+                _ => ExpressionKind::VariantValue { value, variant },
+            }
+        }
+        "textSegmentPrefix" => {
+            let fields = operand.mapping(path, &["value", "prefix", "separator"])?;
+            let separator = operand
+                .field(path, fields, "separator")?
+                .text(path)?
+                .to_owned();
+            if separator.is_empty() {
+                return Err(error(
+                    path,
+                    operand.mark,
+                    "invalid_expression",
+                    "Segment separator must not be empty",
+                ));
+            }
+            ExpressionKind::TextSegmentPrefix {
+                value: Box::new(expression(path, operand.field(path, fields, "value")?)?),
+                prefix: Box::new(expression(path, operand.field(path, fields, "prefix")?)?),
+                separator,
             }
         }
         "textLengthAtMost" | "textLengthEquals" => {

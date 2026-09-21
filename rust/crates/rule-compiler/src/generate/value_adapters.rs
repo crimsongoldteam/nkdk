@@ -343,6 +343,15 @@ pub(super) fn emit_standard_usage(request: UsageRequest<'_>) -> Result<ValueEmis
     } else {
         "let _=(value,field);Err(RuntimeDiagnostic::new(\"fact.field-type\",\"Expected a scalar field\"))".into()
     };
+    let text_renderer = if deferred
+        && matches!(
+            scalar::Codec::resolve(&field.value, child, program)?,
+            scalar::Codec::Forms(_)
+        ) {
+        "value.0.f0.as_ref().ok_or_else(||RuntimeDiagnostic::new(\"fact.unready\",\"Text value is unavailable\"))?.write_text(false)"
+    } else {
+        "let _=value;Err(RuntimeDiagnostic::new(\"fact.field-type\",\"Expected a text choice\"))"
+    };
     let calendar_accessor = if !record_value
         && !nested
         && !qname
@@ -409,6 +418,7 @@ pub(super) fn has_raw(value:&Stored)->bool{{{raw_test}}}
 pub(super) fn semantic_present(value:&Stored)->bool{{let _=value;{semantic_present}}}
 pub(super) fn input_field(value:&Stored,field:usize)->Option<core::inputs::InputRef<'_>>{{{input_accessor}}}
 pub(super) fn text_field(value:&Stored,field:usize)->core::Result<&str>{{{text_accessor}}}
+pub(super) fn render_text(value:&Stored)->core::Result<String>{{{text_renderer}}}
 pub(super) fn calendar_field(value:&Stored,field:usize)->core::Result<&core::calendar::Value>{{{calendar_accessor}}}
 pub(super) fn field_has_annotation(value:&Stored,field:usize)->bool{{{annotation_accessor}}}
 pub(super) struct Prepared({prepared});

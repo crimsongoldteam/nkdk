@@ -186,6 +186,8 @@ pub struct LinkedParameter {
 pub enum LinkedOperator {
     IsVariant(u32),
     VariantValue(u32),
+    VariantText(u32),
+    TextSegmentPrefix(String),
     TextLengthAtMost,
     TextLengthEquals,
     CalendarFits,

@@ -1085,6 +1085,22 @@
         {
           "type": "object",
           "properties": {
+            "variantText": {"$ref": "#/$defs/variantExpression"}
+          },
+          "required": ["variantText"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "textSegmentPrefix": {"$ref": "#/$defs/textSegmentPrefixExpression"}
+          },
+          "required": ["textSegmentPrefix"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
             "textLengthAtMost": {
               "$ref": "#/$defs/textLengthExpression"
             }
@@ -4538,6 +4554,16 @@
         "limit": {"$ref": "#/$defs/expression"}
       },
       "required": ["value", "limit"],
+      "additionalProperties": false
+    },
+    "textSegmentPrefixExpression": {
+      "type": "object",
+      "properties": {
+        "value": {"$ref": "#/$defs/expression"},
+        "prefix": {"$ref": "#/$defs/expression"},
+        "separator": {"type": "string", "minLength": 1}
+      },
+      "required": ["value", "prefix", "separator"],
       "additionalProperties": false
     },
     "calendarExpression": {

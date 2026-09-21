@@ -561,6 +561,8 @@ fn generate_checks(
             expressions.decimal_field_storage = Some(format!(
                 "(match part_{id}_{variant}::input_field(value,0){{Some(core::inputs::InputRef::Decimal(number))=>Ok(number),_=>Err(RuntimeDiagnostic::new(\"fact.field-type\",\"Expected a decimal field\"))}})?"
             ));
+            expressions.variant_text_storage =
+                Some(format!("part_{id}_{variant}::render_text(value)?"));
             for original in &child.constraints {
                 if !original.applies_to.contains(&phase)
                     || (!original.forms.is_empty() && !original.forms.contains(&form))
@@ -642,6 +644,19 @@ fn generate_checks(
 
 fn uses_unprojected_owner_field(value: &LinkedExpression) -> bool {
     match &value.kind {
+        LinkedExpressionKind::Operation {
+            operator: LinkedOperator::VariantText(_),
+            arguments,
+        } if matches!(
+            arguments.as_slice(),
+            [LinkedExpression {
+                kind: LinkedExpressionKind::Field(0),
+                ..
+            }]
+        ) =>
+        {
+            false
+        }
         LinkedExpressionKind::Field(0)
             if matches!(
                 value.value_type,
@@ -659,6 +674,22 @@ fn uses_unprojected_owner_field(value: &LinkedExpression) -> bool {
 }
 
 fn specialize_variant_test(value: &mut LinkedExpression, selected: u32) {
+    if let LinkedExpressionKind::Operation {
+        operator: LinkedOperator::VariantText(variant),
+        arguments,
+    } = &value.kind
+        && matches!(
+            arguments.as_slice(),
+            [LinkedExpression {
+                kind: LinkedExpressionKind::Field(0),
+                ..
+            }]
+        )
+        && *variant != selected
+    {
+        value.kind = LinkedExpressionKind::Literal(ScalarLiteral::Text(String::new()));
+        return;
+    }
     if let LinkedExpressionKind::Operation {
         operator: LinkedOperator::VariantValue(variant),
         arguments,

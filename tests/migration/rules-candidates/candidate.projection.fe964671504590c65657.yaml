@@ -1,10 +1,10 @@
 format: nkdk-declarations/1
 kind: object
-id: candidate.projection.4e02b4ee8635fe04370a
+id: candidate.projection.fe964671504590c65657
 description: 'Кандидат проекции: относительный XML-корень Properties; не полный владелец'
 imports:
   part0: candidate.fragment.26f2a0ec831699cb55dd
-  part1: candidate.fragment.fb762ef0ba548a5b86e9
+  part1: candidate.fragment.37cf43a17d5ff0f84899
   part2: candidate.fragment.26c6504dd1cbc2075885
   inputType1f8ea46361ff: common.path-root
   part3: candidate.fragment.a7934b48993a4f5da784
@@ -600,6 +600,75 @@ constraints:
       at:
         field: fillValue
       message: Значение заполнения не соответствует ссылочному типу
+  - id: fillValue.reference-target
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      and:
+        - isVariant:
+            value:
+              field: fillValue
+            variant: reference
+        - not:
+            eq:
+              - variantText:
+                  value:
+                    field: fillValue
+                  variant: reference
+              - literal: .
+        - one:
+            in:
+              get:
+                of:
+                  field: type
+                field: items
+            as: item
+            where:
+              literal: true
+        - exists:
+            in:
+              get:
+                of:
+                  field: type
+                field: items
+            as: item
+            where:
+              matches:
+                value:
+                  get:
+                    of:
+                      var: item
+                    field: value
+                pattern: >-
+                  (Справочник|Документ|Перечисление|ПланОбмена|ПланСчетов|ПланВидовХарактеристик|ПланВидовРасчета|БизнесПроцесс|Задача)(\..+)?
+    assert:
+      exists:
+        in:
+          get:
+            of:
+              field: type
+            field: items
+        as: item
+        where:
+          textSegmentPrefix:
+            value:
+              variantText:
+                value:
+                  field: fillValue
+                variant: reference
+            prefix:
+              get:
+                of:
+                  var: item
+                field: value
+            separator: .
+    diagnostic:
+      code: fill-value.type-mismatch
+      severity: warning
+      at:
+        field: fillValue
+      message: Ссылка значения заполнения не соответствует объявленному типу
 inputs:
   defaultLanguage:
     type:

@@ -10,6 +10,7 @@ pub(super) struct Expressions<'a> {
     pub(super) field_storage: Option<&'a [(String, String)]>,
     pub(super) calendar_field_storage: Option<String>,
     pub(super) decimal_field_storage: Option<String>,
+    pub(super) variant_text_storage: Option<String>,
     pub(super) constants: String,
     pub(super) next_constant: usize,
     pub(super) transforms: BTreeSet<(u32, u32)>,
@@ -29,6 +30,7 @@ impl<'a> Expressions<'a> {
             field_storage,
             calendar_field_storage: None,
             decimal_field_storage: None,
+            variant_text_storage: None,
             local_fields: Default::default(),
             borrowed_rows: Default::default(),
             constants: String::new(),
@@ -170,6 +172,7 @@ impl<'a> Expressions<'a> {
                     LinkedOperator::Conditional
                     | LinkedOperator::MatchOptional(_)
                     | LinkedOperator::Concat
+                    | LinkedOperator::VariantText(_)
                     | LinkedOperator::Transform { .. },
                 ..
             } => true,
@@ -325,6 +328,15 @@ impl<'a> Expressions<'a> {
         }
     }
     pub(super) fn lower(&mut self, value: &LinkedExpression) -> Result<String, Diagnostic> {
+        if let LinkedExpressionKind::Operation {
+            operator: LinkedOperator::VariantText(_),
+            ..
+        } = &value.kind
+            && let Some(storage) = &self.variant_text_storage
+        {
+            self.fallible = true;
+            return Ok(storage.clone());
+        }
         if let LinkedExpressionKind::Operation {
             operator: LinkedOperator::Lookup,
             arguments,
@@ -888,6 +900,27 @@ impl<'a> Expressions<'a> {
                         format!(
                             "match {} {{ E{}F{owner}::V{variant}(selected)=>selected.as_str(), _=>unreachable!(\"guarded scalar variant\") }}",
                             values[0], self.entry.id
+                        )
+                    }
+                    LinkedOperator::VariantText(variant) => {
+                        let LinkedExpressionKind::Field(owner) = arguments[0].kind else {
+                            return Err(unsupported(
+                                self.entry,
+                                "Variant text requires an owning field",
+                            ));
+                        };
+                        self.fallible = true;
+                        format!(
+                            "match {} {{ E{}F{owner}::V{variant}(selected)=>selected.write_text(false)?, _=>unreachable!(\"guarded text variant\") }}",
+                            values[0], self.entry.id
+                        )
+                    }
+                    LinkedOperator::TextSegmentPrefix(separator) => {
+                        let value = Self::text_reference(&arguments[0], values[0].clone());
+                        let prefix = Self::text_reference(&arguments[1], values[1].clone());
+                        let separator = format!("{separator:?}");
+                        format!(
+                            "({value}).strip_prefix({prefix}).is_some_and(|tail|tail.starts_with({separator})&&tail.len()>{separator}.len())"
                         )
                     }
                     LinkedOperator::VariantField { variant, field } => {

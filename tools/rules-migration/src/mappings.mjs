@@ -228,6 +228,7 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
       booleanValue:{isVariant:{value:{field:property.name},variant:'boolean'}},
       calendarValue:{isVariant:{value:{field:property.name},variant:'calendar'}},
       referenceValue:{isVariant:{value:{field:property.name},variant:'reference'}},
+      referenceContent:{variantText:{value:{field:property.name},variant:'reference'}},
       textContent:{variantValue:{value:{field:property.name},variant:'text'}},
       stringLength:{get:{of:{field:'type'},field:'stringLength'}},
       stringAllowedLength:{get:{of:{field:'type'},field:'stringAllowedLength'}},

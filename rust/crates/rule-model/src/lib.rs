@@ -345,6 +345,15 @@ pub enum ExpressionKind {
         value: Box<Expression>,
         variant: String,
     },
+    VariantText {
+        value: Box<Expression>,
+        variant: String,
+    },
+    TextSegmentPrefix {
+        value: Box<Expression>,
+        prefix: Box<Expression>,
+        separator: String,
+    },
     TextLengthAtMost {
         value: Box<Expression>,
         limit: Box<Expression>,

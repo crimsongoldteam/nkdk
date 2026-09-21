@@ -14,6 +14,7 @@ inputs:
   booleanValue: {type: {kind: scalar, scalar: boolean}}
   calendarValue: {type: {kind: scalar, scalar: boolean}}
   referenceValue: {type: {kind: scalar, scalar: boolean}}
+  referenceContent: {type: {kind: scalar, scalar: text}}
   textContent: {type: {kind: scalar, scalar: text}}
   stringLength: {type: {kind: scalar, scalar: text}}
   stringAllowedLength: {type: {kind: scalar, scalar: text}}
@@ -121,3 +122,21 @@ constraints:
     - {exists: {in: {input: typeItems}, as: item, where: {matches: {value: {get: {of: {var: item}, field: value}}, pattern: '(Справочник|Документ|Перечисление|ПланОбмена|ПланСчетов|ПланВидовХарактеристик|ПланВидовРасчета|БизнесПроцесс|Задача)(\..+)?'}}}}
   assert: {input: referenceValue}
   diagnostic: {code: fill-value.type-mismatch, severity: warning, at: {self: true}, message: Значение заполнения не соответствует ссылочному типу}
+- id: reference-target
+  appliesTo: [xml-import, yaml-validation]
+  when:
+    and:
+    - {input: referenceValue}
+    - {not: {eq: [{input: referenceContent}, {literal: '.'}]}}
+    - {one: {in: {input: typeItems}, as: item, where: {literal: true}}}
+    - {exists: {in: {input: typeItems}, as: item, where: {matches: {value: {get: {of: {var: item}, field: value}}, pattern: '(Справочник|Документ|Перечисление|ПланОбмена|ПланСчетов|ПланВидовХарактеристик|ПланВидовРасчета|БизнесПроцесс|Задача)(\..+)?'}}}}
+  assert:
+    exists:
+      in: {input: typeItems}
+      as: item
+      where:
+        textSegmentPrefix:
+          value: {input: referenceContent}
+          prefix: {get: {of: {var: item}, field: value}}
+          separator: '.'
+  diagnostic: {code: fill-value.type-mismatch, severity: warning, at: {self: true}, message: Ссылка значения заполнения не соответствует объявленному типу}

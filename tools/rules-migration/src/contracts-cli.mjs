@@ -214,6 +214,13 @@ const referenceAttribute={...stringAttribute,
   adaptation:'Use the supported document attribute wrapper and the unchanged Type/FillValue pair from the immutable exchange-plan e2e fixture; reverse export uses freshly prepared inputs without an XML reference',
 };
 cases.push(referenceAttribute);
+cases.push({...referenceAttribute,
+  id:'fill-value-reference-wrong-kind',
+  xml:referenceAttribute.xml.replace('Catalog.СправочникРеквизит.ПредопредленноеЗначение</FillValue>','Document.ДокументВсеСвойства.ПредопредленноеЗначение</FillValue>'),
+  yaml:referenceAttribute.yaml.replace('Справочник.СправочникРеквизит.ПредопредленноеЗначение','Документ.ДокументВсеСвойства.ПредопредленноеЗначение'),
+  diagnostics:['fill-value.type-mismatch'],
+  adaptation:'Change only the explicit DesignTimeRef root and owner while retaining the observed CatalogRef type; the incompatible reference remains round-trip data',
+});
 const catalogTypeSetSource='e2e/fixtures/xml/cf/Catalogs/ПараметрыВыбора.xml';
 const catalogTypeSetYAMLSource='e2e/fixtures/nkdk/cf/Справочник/ПараметрыВыбора/Свойства.yaml';
 if(!source(catalogTypeSetSource).includes('<v8:TypeSet>cfg:CatalogRef</v8:TypeSet>') ||

@@ -110,26 +110,69 @@ pub(super) fn resolve_expression_in(
                 LinkedType::Scalar(ScalarType::Boolean),
             )
         }
-        ExpressionKind::VariantValue { value, variant } => {
+        ExpressionKind::VariantValue { value, variant }
+        | ExpressionKind::VariantText { value, variant } => {
             let (value, index, selected) =
                 resolve_choice_variant(module, value, variant, expression, modules, ids, scope)?;
             let selected = resolve_reference_shape(selected, expression, modules, ids)?;
-            if !matches!(
-                selected,
-                LinkedType::Scalar(ScalarType::Text | ScalarType::Decimal)
-            ) {
+            let text_choice = matches!(expression.kind, ExpressionKind::VariantText { .. });
+            let supported = if text_choice {
+                matches!(selected, LinkedType::Choice(_))
+            } else {
+                matches!(
+                    selected,
+                    LinkedType::Scalar(ScalarType::Text | ScalarType::Decimal)
+                )
+            };
+            if !supported {
                 return Err(diagnostic(
                     "expression_type_mismatch",
                     &expression.source,
-                    "Variant projection requires a text or decimal scalar",
+                    if text_choice {
+                        "Variant text requires a text choice"
+                    } else {
+                        "Variant projection requires a text or decimal scalar"
+                    },
                 ));
             }
             (
                 LinkedExpressionKind::Operation {
-                    operator: LinkedOperator::VariantValue(index),
+                    operator: if text_choice {
+                        LinkedOperator::VariantText(index)
+                    } else {
+                        LinkedOperator::VariantValue(index)
+                    },
                     arguments: vec![value],
                 },
-                selected,
+                if text_choice {
+                    LinkedType::Scalar(ScalarType::Text)
+                } else {
+                    selected
+                },
+            )
+        }
+        ExpressionKind::TextSegmentPrefix {
+            value,
+            prefix,
+            separator,
+        } => {
+            let value = resolve_expression_in(module, value, modules, ids, scope)?;
+            let prefix = resolve_expression_in(module, prefix, modules, ids, scope)?;
+            if value.value_type != LinkedType::Scalar(ScalarType::Text)
+                || prefix.value_type != LinkedType::Scalar(ScalarType::Text)
+            {
+                return Err(diagnostic(
+                    "expression_type_mismatch",
+                    &expression.source,
+                    "Segment prefix requires text operands",
+                ));
+            }
+            (
+                LinkedExpressionKind::Operation {
+                    operator: LinkedOperator::TextSegmentPrefix(separator.clone()),
+                    arguments: vec![value, prefix],
+                },
+                LinkedType::Scalar(ScalarType::Boolean),
             )
         }
         ExpressionKind::TextLengthAtMost { value, limit }
