@@ -1,6 +1,6 @@
 format: nkdk-declarations/1
 kind: object
-id: candidate.projection.bb079ddbef611fb2f4b8
+id: candidate.projection.a17869453507d5560fa2
 description: 'Кандидат проекции: относительный XML-корень Properties; не полный владелец'
 imports:
   part0: candidate.fragment.7c451bae36cbe6851ab7
@@ -570,15 +570,6 @@ constraints:
       - yaml-validation
     when:
       and:
-        - one:
-            in:
-              get:
-                of:
-                  field: type
-                field: items
-            as: item
-            where:
-              literal: true
         - exists:
             in:
               get:
@@ -595,6 +586,24 @@ constraints:
                     field: value
                 pattern: >-
                   (Справочник|Документ|Перечисление|ПланОбмена|ПланСчетов|ПланВидовХарактеристик|ПланВидовРасчета|БизнесПроцесс|Задача)(\..+)?
+        - not:
+            exists:
+              in:
+                get:
+                  of:
+                    field: type
+                  field: items
+              as: item
+              where:
+                not:
+                  matches:
+                    value:
+                      get:
+                        of:
+                          var: item
+                        field: value
+                    pattern: >-
+                      (Справочник|Документ|Перечисление|ПланОбмена|ПланСчетов|ПланВидовХарактеристик|ПланВидовРасчета|БизнесПроцесс|Задача)(\..+)?
     assert:
       isVariant:
         value:

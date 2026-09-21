@@ -1,12 +1,13 @@
 format: nkdk-declarations/1
 kind: object
-id: candidate.projection.2a76e98468e0ccd4d542
+id: candidate.projection.49187fc1a3ed42bbd80a
 description: 'Кандидат проекции: относительный XML-корень Properties; не полный владелец'
 imports:
-  part0: candidate.fragment.8d0d2ec2113aed788d91
-  part1: candidate.fragment.381457343c6174fef16a
+  part0: candidate.fragment.26f2a0ec831699cb55dd
+  part1: candidate.fragment.fb762ef0ba548a5b86e9
+  part2: candidate.fragment.26c6504dd1cbc2075885
   inputType1f8ea46361ff: common.path-root
-  part2: candidate.fragment.ef0da0092dc0ad152768
+  part3: candidate.fragment.a7934b48993a4f5da784
 compose:
   - use: part0
   - use: part1
@@ -23,8 +24,36 @@ compose:
         input: defaultLanguage
       registeredLanguages:
         input: registeredLanguages
-      ownerName:
-        input: ownerName
+      onlyStringType:
+        and:
+          - present:
+              field: type
+          - one:
+              in:
+                get:
+                  of:
+                    field: type
+                  field: items
+              as: item
+              where:
+                literal: true
+          - exists:
+              in:
+                get:
+                  of:
+                    field: type
+                  field: items
+              as: item
+              where:
+                matches:
+                  value:
+                    get:
+                      of:
+                        var: item
+                      field: value
+                  pattern: Строка|ФиксированнаяСтрока
+  - use: part3
+    bind:
       roots:
         input: roots
       forms:
@@ -533,15 +562,6 @@ constraints:
       - yaml-validation
     when:
       and:
-        - one:
-            in:
-              get:
-                of:
-                  field: type
-                field: items
-            as: item
-            where:
-              literal: true
         - exists:
             in:
               get:
@@ -558,6 +578,24 @@ constraints:
                     field: value
                 pattern: >-
                   (Справочник|Документ|Перечисление|ПланОбмена|ПланСчетов|ПланВидовХарактеристик|ПланВидовРасчета|БизнесПроцесс|Задача)(\..+)?
+        - not:
+            exists:
+              in:
+                get:
+                  of:
+                    field: type
+                  field: items
+              as: item
+              where:
+                not:
+                  matches:
+                    value:
+                      get:
+                        of:
+                          var: item
+                        field: value
+                    pattern: >-
+                      (Справочник|Документ|Перечисление|ПланОбмена|ПланСчетов|ПланВидовХарактеристик|ПланВидовРасчета|БизнесПроцесс|Задача)(\..+)?
     assert:
       isVariant:
         value:

@@ -238,6 +238,25 @@ cases.push({...compositeReference,
   diagnostics:['fill-value.type-mismatch'],
   adaptation:'Keep both observed reference alternatives and change only the explicit reference kind; the mismatch must remain round-trip data',
 });
+const textFillSource='e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства.xml';
+if(!source(textFillSource).includes('<FillValue xsi:type="xs:string">Строка</FillValue>') ||
+   !source(compositeReferenceSource).includes('<v8:Type>cfg:CatalogRef.СправочникПолный</v8:Type>\n\t\t\t\t\t\t\t\t<v8:Type>xs:string</v8:Type>'))throw new Error('Changed independent composite text value source');
+const compositeReferenceText={...compositeReference,
+  id:'fill-value-reference-composite-as-text',
+  xml:compositeReference.xml.replace('<FillValue xsi:type="xr:DesignTimeRef">Catalog.СправочникРеквизит.ПредопредленноеЗначение</FillValue>','<FillValue xsi:type="xs:string">Строка</FillValue>'),
+  yaml:compositeReference.yaml.replace('ЗначениеЗаполнения: Справочник.СправочникРеквизит.ПредопредленноеЗначение','ЗначениеЗаполнения: Строка'),
+  diagnostics:['fill-value.type-mismatch'],
+  source:[...compositeReference.source,{path:textFillSource}],
+  adaptation:'Use the observed explicit string value with two observed CatalogRef alternatives; a text value is incompatible but remains round-trip data',
+};
+cases.push(compositeReferenceText);
+cases.push({...compositeReferenceText,
+  id:'fill-value-reference-or-string-as-text',
+  xml:compositeReferenceText.xml.replace('<v8:Type>cfg:CatalogRef.СправочникРеквизит</v8:Type>', '<v8:Type>xs:string</v8:Type>\n\t\t\t\t\t\t<v8:StringQualifiers>\n\t\t\t\t\t\t\t<v8:Length>10</v8:Length>\n\t\t\t\t\t\t\t<v8:AllowedLength>Variable</v8:AllowedLength>\n\t\t\t\t\t\t</v8:StringQualifiers>'),
+  yaml:compositeReferenceText.yaml.replace('  - Справочник.СправочникРеквизит', '  - Строка(10)'),
+  diagnostics:[],
+  adaptation:'Replace the second CatalogRef with the observed string alternative and qualifiers; the same explicit string now matches one branch',
+});
 const catalogTypeSetSource='e2e/fixtures/xml/cf/Catalogs/ПараметрыВыбора.xml';
 const catalogTypeSetYAMLSource='e2e/fixtures/nkdk/cf/Справочник/ПараметрыВыбора/Свойства.yaml';
 if(!source(catalogTypeSetSource).includes('<v8:TypeSet>cfg:CatalogRef</v8:TypeSet>') ||

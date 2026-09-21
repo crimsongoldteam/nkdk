@@ -118,8 +118,8 @@ constraints:
   appliesTo: [xml-import, yaml-validation]
   when:
     and:
-    - {one: {in: {input: typeItems}, as: item, where: {literal: true}}}
     - {exists: {in: {input: typeItems}, as: item, where: {matches: {value: {get: {of: {var: item}, field: value}}, pattern: '(Справочник|Документ|Перечисление|ПланОбмена|ПланСчетов|ПланВидовХарактеристик|ПланВидовРасчета|БизнесПроцесс|Задача)(\..+)?'}}}}
+    - {not: {exists: {in: {input: typeItems}, as: item, where: {not: {matches: {value: {get: {of: {var: item}, field: value}}, pattern: '(Справочник|Документ|Перечисление|ПланОбмена|ПланСчетов|ПланВидовХарактеристик|ПланВидовРасчета|БизнесПроцесс|Задача)(\..+)?'}}}}}}
   assert: {input: referenceValue}
   diagnostic: {code: fill-value.type-mismatch, severity: warning, at: {self: true}, message: Значение заполнения не соответствует ссылочному типу}
 - id: reference-target
