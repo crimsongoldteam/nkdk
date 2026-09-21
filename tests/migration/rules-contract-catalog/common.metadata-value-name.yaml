@@ -1,0 +1,14 @@
+format: nkdk-declarations/1
+kind: value
+id: common.metadata-value-name
+imports:
+  name: common.metadata-name
+  words: common.metadata-value-keyword
+value:
+  use: name
+representations:
+  xml:
+    kind: text
+  yaml:
+    kind: text-table
+    use: words

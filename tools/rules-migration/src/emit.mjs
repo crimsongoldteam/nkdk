@@ -54,9 +54,18 @@ export function emitCandidates(entries, catalog, origin = p => p.source.path, xm
       else result.ownerBlockers.push({reason:'owner-root-required',properties:yamlOnly.map(field=>field.property.name)});
     }
     for (const fields of groups.values()) {
-      const root=fields[0].mapped.path[0],sourceTag=fields[0].mapped.sourceTag;
+      const eligibleFields=fields.filter(field=>{
+        const missing=Object.values(field.mapped.siblingExpressions??{}).find(spec=>
+          !fields.some(sibling=>sibling.property.name===spec.source && sibling.mapped.id===spec.sourceId));
+        if(!missing)return true;
+        const row=result.properties.find(row=>row.name===field.property.name);
+        row.status='blocked';row.reason='sibling-expression-required';
+        return false;
+      });
+      if(!eligibleFields.length)continue;
+      const root=eligibleFields[0].mapped.path[0],sourceTag=eligibleFields[0].mapped.sourceTag;
       const chunks = [];
-      for (const field of fields) {
+      for (const field of eligibleFields) {
         if (chunks.at(-1)?.origin === field.origin) chunks.at(-1).fields.push(field);
         else chunks.push({origin:field.origin, fields:[field]});
       }
@@ -64,8 +73,8 @@ export function emitCandidates(entries, catalog, origin = p => p.source.path, xm
       for (const chunk of chunks) {
         const ownerBindings={};
         bindSiblingExpressions(chunk.fields,(input,sibling,spec)=>{
-          if(fields.some(field=>field.property.name===sibling && field.mapped.status==='candidate' && field.mapped.id===spec.sourceId))ownerBindings[input]=spec.value;
-          else result.ownerBlockers.push({reason:'sibling-expression-required',input,sibling});
+          if(eligibleFields.some(field=>field.property.name===sibling && field.mapped.status==='candidate' && field.mapped.id===spec.sourceId))ownerBindings[input]=spec.value;
+          else throw new Error(`Missing eligible sibling expression: ${input} <- ${sibling}`);
         });
         const fragment = {format:'nkdk-declarations/1',kind:'fragment',imports:{},
           value:{kind:'record',fields:[]}, representations:{xml:{kind:'record',fields:[]},yaml:{kind:'mapping',fields:[]}},presence:[]};
@@ -99,7 +108,7 @@ export function emitCandidates(entries, catalog, origin = p => p.source.path, xm
         value:{kind:'record',fields:[]},representations:{xml:{kind:'record',fields:[]},yaml:{kind:'mapping',fields:[]}}};
       if (Object.keys(inputs).length) projection.inputs = inputs;
       modules.set(id,projection);
-      result.projections.push({id,root,...(sourceTag?{sourceTag}:{}),context:'relative-path; owner namespaces and wrapper not bound',fields:fields.map(f => f.property.name), fragments:compose.map(part=>imports[part.use])});
+      result.projections.push({id,root,...(sourceTag?{sourceTag}:{}),context:'relative-path; owner namespaces and wrapper not bound',fields:eligibleFields.map(f => f.property.name), fragments:compose.map(part=>imports[part.use])});
     }
   }
   return {modules:[...modules.values()].sort((a,b) => a.id.localeCompare(b.id,'en')),entries:results};

@@ -1,0 +1,24 @@
+format: nkdk-declarations/1
+kind: value
+id: common.metadata-reference
+imports:
+  path: common.metadata-reference-path
+  empty: common.metadata-empty-reference
+  text: common.string
+value:
+  kind: choice
+  variants:
+    - name: path
+      type:
+        use: path
+    - name: empty
+      type:
+        use: empty
+    - name: text
+      type:
+        use: text
+representations:
+  xml:
+    kind: choice
+  yaml:
+    kind: choice

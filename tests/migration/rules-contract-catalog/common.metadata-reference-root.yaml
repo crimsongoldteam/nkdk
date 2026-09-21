@@ -1,0 +1,54 @@
+format: nkdk-declarations/1
+kind: value
+id: common.metadata-reference-root
+description: Корни ссылок, для которых значение не является элементом перечисления
+enum:
+  Constant: Константа
+  Catalog: Справочник
+  Document: Документ
+  DefinedType: ОпределяемыйТип
+  Characteristic: Характеристика
+  CommandGroup: ГруппаКоманд
+  Role: Роль
+  InformationRegister: РегистрСведений
+  AccumulationRegister: РегистрНакопления
+  AccountingRegister: РегистрБухгалтерии
+  CalculationRegister: РегистрРасчета
+  ExchangePlan: ПланОбмена
+  ChartOfAccounts: ПланСчетов
+  ChartOfCharacteristicTypes: ПланВидовХарактеристик
+  ChartOfCalculationTypes: ПланВидовРасчета
+  BusinessProcess: БизнесПроцесс
+  BusinessProcessRoutePoint: ТочкаМаршрутаБизнесПроцесса
+  Task: Задача
+  DataProcessor: Обработка
+  Report: Отчет
+  DocumentNumerator: НумераторДокументов
+  CommonCommand: ОбщаяКоманда
+  CommonPicture: ОбщаяКартинка
+  CommonTemplate: ОбщийМакет
+  CommonModule: ОбщийМодуль
+  CommonAttribute: ОбщийРеквизит
+  CommonForm: ОбщаяФорма
+  FilterCriterion: КритерийОтбора
+  ScheduledJob: РегламентноеЗадание
+  IntegrationService: СервисИнтеграции
+  Language: Язык
+  Style: Стиль
+  Interface: Интерфейс
+  StyleItem: ЭлементСтиля
+  FunctionalOption: ФункциональнаяОпция
+  FunctionalOptionsParameter: ПараметрФункциональныхОпций
+  DocumentJournal: ЖурналДокументов
+  HTTPService: HTTPСервис
+  WebSocketClient: WebSocketКлиент
+  WebService: WebСервис
+  Bot: Бот
+  ExternalDataSource: ВнешнийИсточникДанных
+  EventSubscription: ПодпискаНаСобытие
+  XDTOPackage: ПакетXDTO
+  WSReference: WSСсылка
+  SessionParameter: ПараметрСеанса
+  SettingsStorage: ХранилищеНастроек
+  Subsystem: Подсистема
+  Sequence: Последовательность

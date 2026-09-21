@@ -327,11 +327,14 @@ fn scalar_storage(
         unreachable!()
     };
     fields.iter().enumerate().map(|(index,field)| {
-        let codec=scalar::Codec::resolve(&field.value,owner,program)?;
         let name=format!("E{}F{index}",owner.id);
-        let (value, stored)=if local {
-            (codec.meaning_reference(&name,&format!("f{index}.as_ref().ok_or_else(||RuntimeDiagnostic::new(\"value.missing\",\"Default dependency is unavailable\"))?")),format!("f{index}"))
-        } else {(codec.optional_meaning(&name,index),format!("_value.f{index}"))};
+        let stored=if local {format!("f{index}")} else {format!("_value.f{index}")};
+        let value=match scalar::Codec::resolve(&field.value,owner,program) {
+            Ok(codec) if local => codec.meaning_reference(&name,&format!("f{index}.as_ref().ok_or_else(||RuntimeDiagnostic::new(\"value.missing\",\"Default dependency is unavailable\"))?")),
+            Ok(codec) => codec.optional_meaning(&name,index),
+            Err(_) if scalar::structured_reference(&field.value,program) => String::new(),
+            Err(error) => return Err(error),
+        };
         Ok((value,format!("{stored}.is_some()")))
     }).collect()
 }

@@ -1,0 +1,20 @@
+format: nkdk-declarations/1
+kind: value
+id: common.metadata-reference-path
+imports:
+  enumValue: common.metadata-enum-value-path
+  generic: common.metadata-reference-generic-path
+value:
+  kind: choice
+  variants:
+    - name: enumValue
+      type:
+        use: enumValue
+    - name: generic
+      type:
+        use: generic
+representations:
+  xml:
+    kind: choice
+  yaml:
+    kind: choice

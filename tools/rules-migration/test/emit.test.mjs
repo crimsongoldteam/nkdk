@@ -162,6 +162,13 @@ test('candidate generation shares fragments, rejects unknown parameters and prot
   const splitProjection=splitOwner.modules.find(module=>module.kind==='object');
   assert.deepEqual(splitProjection.compose[1].bind.onlyStringType,realProfile.siblingExpressions.onlyStringType.value);
   assert.equal(splitProjection.inputs?.onlyStringType,undefined);
+  const orphanValue=emitCandidates([{
+    symbol:'OrphanRules',path:'orphan.ts',comparison:{status:'keys-match'},properties:[
+      {...property,name:'fillValue',parameters:{type:'MetadataValue',yaml:'Значение',xml:'FillValue',xmlParents:['Properties'],defaultValueXMLRaw:{'_xsi:nil':true}}},
+    ],
+  }],new Map([['common.metadata-value',{id:'common.metadata-value',inputs:{onlyStringType:{type:{kind:'scalar',scalar:'boolean'}}}}]]));
+  assert.equal(orphanValue.entries[0].properties[0].reason,'sibling-expression-required');
+  assert.equal(orphanValue.entries[0].projections.length,0);
   const hiddenParameters={type:'SystemEnumeration',typeSE:'Example',yaml:'Скрытое',implicitValueYAML:'A',toYAML:false,fromYAML:false};
   const hiddenCatalog=new Map([['system.Example',{enum:{A:'А',B:'Б'}}]]);
   const hidden=mapProperty({...property,parameters:hiddenParameters},hiddenCatalog);

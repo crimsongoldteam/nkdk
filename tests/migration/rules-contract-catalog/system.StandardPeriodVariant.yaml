@@ -1,0 +1,76 @@
+format: nkdk-declarations/1
+kind: value
+id: system.StandardPeriodVariant
+enum:
+  Yesterday: Вчера
+  TillEndOfThisYear: ДоКонцаЭтогоГода
+  TillEndOfThisQuarter: ДоКонцаЭтогоКвартала
+  TillEndOfThisMonth: ДоКонцаЭтогоМесяца
+  TillEndOfThisHalfYear: ДоКонцаЭтогоПолугодия
+  TillEndOfThisTenDays: ДоКонцаЭтойДекады
+  TillEndOfThisWeek: ДоКонцаЭтойНедели
+  Tomorrow: Завтра
+  Month: Месяц
+  Last7Days: Последние7Дней
+  Custom: ПроизвольныйПериод
+  LastTenDays: ПрошлаяДекада
+  LastTenDaysTillSameDayNumber: ПрошлаяДекадаДоТакогоЖеНомераДня
+  LastWeek: ПрошлаяНеделя
+  LastWeekTillSameWeekDay: ПрошлаяНеделяДоТакогоЖеДняНедели
+  LastHalfYear: ПрошлоеПолугодие
+  LastHalfYearTillSameDate: ПрошлоеПолугодиеДоТакойЖеДаты
+  LastYear: ПрошлыйГод
+  LastYearTillSameDate: ПрошлыйГодДоТакойЖеДаты
+  LastQuarter: ПрошлыйКвартал
+  LastQuarterTillSameDate: ПрошлыйКварталДоТакойЖеДаты
+  LastMonth: ПрошлыйМесяц
+  LastMonthTillSameDate: ПрошлыйМесяцДоТакойЖеДаты
+  Today: Сегодня
+  NextTenDays: СледующаяДекада
+  NextTenDaysTillSameDayNumber: СледующаяДекадаДоТакогоЖеНомераДня
+  NextWeek: СледующаяНеделя
+  NextWeekTillSameWeekDay: СледующаяНеделяДоТакогоЖеДняНедели
+  NextHalfYear: СледующееПолугодие
+  NextHalfYearTillSameDate: СледующееПолугодиеДоТакойЖеДаты
+  Next7Days: Следующие7Дней
+  NextYear: СледующийГод
+  NextYearTillSameDate: СледующийГодДоТакойЖеДаты
+  NextQuarter: СледующийКвартал
+  NextQuarterTillSameDate: СледующийКварталДоТакойЖеДаты
+  NextMonth: СледующийМесяц
+  NextMonthTillSameDate: СледующийМесяцДоТакойЖеДаты
+  FromBeginningOfThisYear: СНачалаЭтогоГода
+  FromBeginningOfThisQuarter: СНачалаЭтогоКвартала
+  FromBeginningOfThisMonth: СНачалаЭтогоМесяца
+  FromBeginningOfThisHalfYear: СНачалаЭтогоПолугодия
+  FromBeginningOfThisTenDays: СНачалаЭтойДекады
+  FromBeginningOfThisWeek: СНачалаЭтойНедели
+  ThisTenDays: ЭтаДекада
+  ThisWeek: ЭтаНеделя
+  ThisHalfYear: ЭтоПолугодие
+  ThisYear: ЭтотГод
+  ThisQuarter: ЭтотКвартал
+  ThisMonth: ЭтотМесяц
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  t: http://v8.1c.ru/8.1/data/enterprise
+  v8: http://v8.1c.ru/8.1/data/core
+projections:
+  - id: system.StandardPeriodVariant.dcs
+    xml:
+      kind: with-attributes
+      attributes:
+        - name: xsi:type
+          value:
+            qname: t:StandardPeriodVariant
+      content:
+        kind: text
+  - id: system.StandardPeriodVariant.core
+    xml:
+      kind: with-attributes
+      attributes:
+        - name: xsi:type
+          value:
+            qname: v8:StandardPeriodVariant
+      content:
+        kind: text

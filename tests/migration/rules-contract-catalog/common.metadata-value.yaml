@@ -1,0 +1,218 @@
+format: nkdk-declarations/1
+kind: value
+id: common.metadata-value
+description: Полиморфное значение метаданных; ветвь выбирается только из декларации
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  xs: http://www.w3.org/2001/XMLSchema
+  xr: http://v8.1c.ru/8.3/xcf/readable
+  v8: http://v8.1c.ru/8.1/data/core
+  ent: http://v8.1c.ru/8.1/data/enterprise
+  dcsset: http://v8.1c.ru/8.1/data-composition-system/settings
+imports:
+  text: common.string
+  decimal: common.exact-decimal
+  boolean: common.boolean
+  calendar: common.date-time-seconds
+  reference: common.metadata-reference
+  list: common.metadata-value-list
+  comparison: common.metadata-comparison-type
+  account: common.metadata-account-type
+  dcsComparison: common.metadata-dcs-comparison-type
+  fixedArray: common.metadata-fixed-array
+  formChoice: common.metadata-form-choice-list-value
+  period: common.standard-period
+parameters:
+  fixedArrayItem:
+    type:
+      kind: scalar
+      scalar: boolean
+    default: false
+  exportNilValue:
+    type:
+      kind: scalar
+      scalar: boolean
+    default: false
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  onlyStringType:
+    type:
+      kind: scalar
+      scalar: boolean
+value:
+  kind: choice
+  variants:
+    - name: reference
+      type:
+        use: reference
+    - name: list
+      type:
+        use: list
+    - name: comparison
+      type:
+        use: comparison
+    - name: account
+      type:
+        use: account
+    - name: dcsComparison
+      type:
+        use: dcsComparison
+    - name: fixedArray
+      type:
+        use: fixedArray
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+    - name: formChoice
+      type:
+        use: formChoice
+        with:
+          fixedArrayItem:
+            parameter: fixedArrayItem
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+    - name: period
+      type:
+        use: period
+    - name: boolean
+      type:
+        use: boolean
+    - name: decimal
+      type:
+        use: decimal
+    - name: calendar
+      type:
+        use: calendar
+    - name: text
+      type:
+        use: text
+representations:
+  xml:
+    kind: choice
+    attribute: xsi:type
+    variants:
+      - variant: reference
+        in:
+          - xr:DesignTimeRef
+        emit: xr:DesignTimeRef
+      - variant: list
+        in:
+          - xr:ValueList
+        emit: xr:ValueList
+      - variant: comparison
+        in:
+          - ent:ComparisonType
+        emit: ent:ComparisonType
+      - variant: account
+        in:
+          - ent:AccountType
+        emit: ent:AccountType
+      - variant: dcsComparison
+        in:
+          - dcsset:DataCompositionComparisonType
+        emit: dcsset:DataCompositionComparisonType
+      - variant: fixedArray
+        in:
+          - v8:FixedArray
+        emit: v8:FixedArray
+      - variant: formChoice
+        in:
+          - FormChoiceListDesTimeValue
+        emit: FormChoiceListDesTimeValue
+      - variant: period
+        in:
+          - v8:StandardPeriod
+        emit: v8:StandardPeriod
+      - variant: boolean
+        in:
+          - xs:boolean
+        emit: xs:boolean
+      - variant: decimal
+        in:
+          - xs:decimal
+          - xs:integer
+          - xs:double
+          - xs:float
+        emit: xs:decimal
+      - variant: calendar
+        in:
+          - xs:dateTime
+        emit: xs:dateTime
+      - variant: text
+        in:
+          - xs:string
+          - xr:MDObjectRef
+          - v8:Type
+          - v8:UUID
+        emit: xs:string
+    otherwise: text
+  yaml:
+    kind: choice
+    variants:
+      - variant: fixedArray
+        form: sequence
+      - variant: formChoice
+        form: mapping
+        key: Тип
+        value: ЗначениеСпискаВыбора
+      - variant: formChoice
+        form: mapping
+        key: Представление
+      - variant: formChoice
+        form: mapping
+        key: Значение
+      - variant: comparison
+        form: mapping
+        key: Тип
+        value: ВидСравнения
+      - variant: account
+        form: mapping
+        key: Тип
+        value: ВидСчета
+      - variant: dcsComparison
+        form: mapping
+        key: Тип
+        value: ВидСравненияКомпоновкиДанных
+      - variant: period
+        form: mapping
+        key: Вариант
+presence:
+  - target: self
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+        - form: nil
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            input: onlyStringType
+          form: empty-element
+          type: xs:string
+        - when:
+            parameter: exportNilValue
+          form: nil
+        - form: missing
+    yaml:
+      missing:
+        denotes:
+          absent: true

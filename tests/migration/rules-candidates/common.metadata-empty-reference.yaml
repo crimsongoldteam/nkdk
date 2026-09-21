@@ -1,0 +1,19 @@
+format: nkdk-declarations/1
+kind: value
+id: common.metadata-empty-reference
+value:
+  kind: enum
+  variants:
+    - name: Empty
+      value: empty
+representations:
+  xml:
+    kind: text
+    values:
+      - value: empty
+        text: ''
+  yaml:
+    kind: scalar
+    values:
+      - value: empty
+        literal: .

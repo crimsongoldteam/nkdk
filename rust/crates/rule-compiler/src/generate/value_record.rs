@@ -331,7 +331,7 @@ fn recursive(
     let parent = record::path_code(&boundary[..boundary.len() - 1]);
     let physical = boundary.last().expect("recursive boundary");
     let root = recursive_root(target_id);
-    let target = format!("crate::recursive_value_{target_id}::item_{target_id}");
+    let target = format!("recursive_value_{target_id}::item_{target_id}");
     let LinkedType::Record(fields) = &row.value else {
         unreachable!("recursive value rows are records")
     };

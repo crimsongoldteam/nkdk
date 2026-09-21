@@ -1,0 +1,59 @@
+format: nkdk-declarations/1
+kind: value
+id: common.standard-period
+imports:
+  variant: system.StandardPeriodVariant.core
+  date: common.date-time-seconds
+namespaces:
+  v8: http://v8.1c.ru/8.1/data/core
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+value:
+  kind: record
+  fields:
+    - name: variant
+      type:
+        use: variant
+    - name: startDate
+      type:
+        use: date
+    - name: endDate
+      type:
+        use: date
+representations:
+  xml:
+    kind: with-attributes
+    attributes:
+      - name: xsi:type
+        value:
+          qname: v8:StandardPeriod
+    content:
+      kind: record
+      fields:
+        - field: variant
+          path:
+            - v8:variant
+        - field: startDate
+          path:
+            - v8:startDate
+        - field: endDate
+          path:
+            - v8:endDate
+  yaml:
+    kind: mapping
+    fields:
+      - field: variant
+        key: Вариант
+      - field: startDate
+        key: ДатаНачала
+      - field: endDate
+        key: ДатаОкончания
+presence:
+  - target: self
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true

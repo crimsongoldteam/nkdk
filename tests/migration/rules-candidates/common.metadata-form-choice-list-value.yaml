@@ -1,0 +1,138 @@
+format: nkdk-declarations/1
+kind: value
+id: common.metadata-form-choice-list-value
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+imports:
+  text: common.string
+  presentation: common.i8n-text
+  value: common.metadata-value
+parameters:
+  fixedArrayItem:
+    type:
+      kind: scalar
+      scalar: boolean
+    default: false
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+value:
+  kind: record
+  fields:
+    - name: kind
+      type:
+        use: text
+    - name: presentation
+      type:
+        use: presentation
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          ownerName:
+            literal: ''
+    - name: value
+      type:
+        use: value
+        with:
+          fixedArrayItem: false
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          onlyStringType:
+            literal: false
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: presentation
+        path:
+          - Presentation
+      - field: value
+        path:
+          - Value
+  yaml:
+    kind: mapping
+    fields:
+      - field: kind
+        key: Тип
+      - field: presentation
+        key: Представление
+      - field: value
+        key: Значение
+presence:
+  - target:
+      field: kind
+    xml:
+      missing:
+        denotes:
+          if:
+            parameter: fixedArrayItem
+          then:
+            literal: ЗначениеСпискаВыбора
+          else:
+            absent: true
+    yaml:
+      missing:
+        denotes:
+          if:
+            parameter: fixedArrayItem
+          then:
+            literal: ЗначениеСпискаВыбора
+          else:
+            absent: true
+  - target:
+      field: presentation
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: presentation
+          form: empty-element
+    yaml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-string
+          denotes:
+            absent: true
+  - target:
+      field: value
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: nil
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: value
+          form: nil
+    yaml:
+      missing:
+        denotes:
+          absent: true

@@ -1,0 +1,42 @@
+format: nkdk-declarations/1
+kind: value
+id: common.metadata-account-type
+imports:
+  text: common.string
+  value: system.AccountType
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  ent: http://v8.1c.ru/8.1/data/enterprise
+value:
+  kind: record
+  fields:
+    - name: kind
+      type:
+        use: text
+    - name: value
+      type:
+        use: value
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: value
+        path: []
+  yaml:
+    kind: mapping
+    fields:
+      - field: kind
+        key: Тип
+      - field: value
+        key: Значение
+presence:
+  - target:
+      field: kind
+    xml:
+      missing:
+        denotes:
+          literal: ВидСчета
+    yaml:
+      missing:
+        denotes:
+          absent: true

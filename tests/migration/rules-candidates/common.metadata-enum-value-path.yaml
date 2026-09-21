@@ -1,0 +1,30 @@
+format: nkdk-declarations/1
+kind: value
+id: common.metadata-enum-value-path
+imports:
+  name: common.metadata-name
+value:
+  kind: record
+  fields:
+    - name: owner
+      type:
+        use: name
+    - name: name
+      type:
+        use: name
+representations:
+  xml:
+    kind: text-pattern
+    separator: .
+    parts:
+      - literal: Enum
+      - field: owner
+      - literal: EnumValue
+      - field: name
+  yaml:
+    kind: text-pattern
+    separator: .
+    parts:
+      - literal: Перечисление
+      - field: owner
+      - field: name

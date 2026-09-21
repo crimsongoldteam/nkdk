@@ -1,0 +1,19 @@
+format: nkdk-declarations/1
+kind: value
+id: common.metadata-value-list
+value:
+  kind: enum
+  variants:
+    - name: ValueList
+      value: value-list
+representations:
+  xml:
+    kind: text
+    values:
+      - value: value-list
+        text: ''
+  yaml:
+    kind: scalar
+    values:
+      - value: value-list
+        literal: СписокЗначений

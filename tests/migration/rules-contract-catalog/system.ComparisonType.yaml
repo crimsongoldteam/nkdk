@@ -1,0 +1,35 @@
+format: nkdk-declarations/1
+kind: value
+id: system.ComparisonType
+enum:
+  Greater: Больше
+  GreaterOrEqual: БольшеИлиРавно
+  InHierarchy: ВИерархии
+  InList: ВСписке
+  InListByHierarchy: ВСпискеПоИерархии
+  Interval: Интервал
+  IntervalIncludingBounds: ИнтервалВключаяГраницы
+  IntervalIncludingLowerBound: ИнтервалВключаяНачало
+  IntervalIncludingUpperBound: ИнтервалВключаяОкончание
+  Less: Меньше
+  LessOrEqual: МеньшеИлиРавно
+  NotInHierarchy: НеВИерархии
+  NotInList: НеВСписке
+  NotInListByHierarchy: НеВСпискеПоИерархии
+  NotEqual: НеРавно
+  NotContains: НеСодержит
+  Equal: Равно
+  Contains: Содержит
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  t: http://v8.1c.ru/8.1/data/enterprise
+projections:
+  - id: system.ComparisonType.dcs
+    xml:
+      kind: with-attributes
+      attributes:
+        - name: xsi:type
+          value:
+            qname: t:ComparisonType
+      content:
+        kind: text

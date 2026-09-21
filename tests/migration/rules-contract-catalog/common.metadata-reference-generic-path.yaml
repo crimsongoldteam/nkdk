@@ -1,0 +1,34 @@
+format: nkdk-declarations/1
+kind: value
+id: common.metadata-reference-generic-path
+imports:
+  root: common.metadata-reference-root
+  name: common.metadata-name
+  value: common.metadata-value-name
+value:
+  kind: record
+  fields:
+    - name: root
+      type:
+        use: root
+    - name: owner
+      type:
+        use: name
+    - name: value
+      type:
+        use: value
+representations:
+  xml:
+    kind: text-pattern
+    separator: .
+    parts:
+      - field: root
+      - field: owner
+      - field: value
+  yaml:
+    kind: text-pattern
+    separator: .
+    parts:
+      - field: root
+      - field: owner
+      - field: value

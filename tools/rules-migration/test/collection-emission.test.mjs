@@ -30,18 +30,20 @@ test('collection inputs retain shared index types and bindings at every boundary
   assert.equal(emitCollections(graph,entries,catalog).results[0].blockers.some(b=>b.reason==='item-context-binding-required'),true);
 });
 
-test('collection fields wait for structured sibling expression backend',()=>{
+test('collection fields bind declared sibling inputs without owner context',()=>{
   const {graph,entries}=fixture(),{catalog}=candidateCatalog();
   const child=entries.find(entry=>entry.symbol==='ItemRules');
   child.properties.push({name:'type',status:'static-parameters',parameters:{type:'TypeDescription',yaml:'Тип',xml:'Type',xmlParents:['Properties']}},
     {name:'fillValue',status:'static-parameters',parameters:{type:'MetadataValue',yaml:'Значение',xml:'Value',xmlParents:['Properties'],defaultValueXMLRaw:{'_xsi:nil':true},exportNilValue:true}});
   const result=emitCollections(graph,entries,catalog);
-  assert.equal(result.results[0].status,'blocked',JSON.stringify(result.results[0]));
-  assert.equal(result.results[0].blockers.some(blocker=>blocker.reason==='item-properties' && blocker.details?.some(detail=>detail.reason==='structured-sibling-expression-backend')),true);
+  assert.equal(result.results[0].status,'candidate',JSON.stringify(result.results[0]));
+  const field=result.modules[0].value.fields.find(item=>item.name==='fillValue');
+  assert.equal(field.type.bind.onlyStringType.and[0].present.field,'type');
+  assert.equal(Object.hasOwn(result.modules[0].inputs??{},'onlyStringType'),false);
   child.properties.find(property=>property.name==='type').parameters.type='string';
   const wrongType=emitCollections(graph,entries,catalog);
   assert.equal(wrongType.results[0].status,'blocked');
-  assert.equal(wrongType.results[0].blockers.some(blocker=>blocker.reason==='item-properties'),true);
+  assert.equal(wrongType.results[0].blockers.some(blocker=>blocker.reason==='item-sibling-binding-required'),true);
 });
 
 test('collection emission requires complete items and preserves unsupported contracts as blockers',()=>{

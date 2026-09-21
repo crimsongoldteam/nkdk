@@ -290,11 +290,6 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
     mapped.presence.xml?.empty?.length || mapped.presence.yaml?.empty?.length ||
     mapped.presence.yaml?.omitWhen || mapped.presence.xml?.canonical?.length
   ))return fail('declared-collection-presence-backend');
-  // The current owner expression backend has no borrowed storage for a
-  // structured sibling. Keep the mapping recipe, but do not publish a full
-  // owner candidate until that generic access path is implemented.
-  if(Object.values(mapped.siblingExpressions??{}).some(spec=>
-    catalog.get(spec.sourceId)?.value?.kind==='record'))return fail('structured-sibling-expression-backend');
   if(common?.value?.kind==='record' && mapped.presence &&
     common.presence?.some(rule=>typeof rule.target==='object' && rule.target?.field) &&
     common.presence?.some(rule=>rule.target==='self'))return fail('mixed-record-presence-backend');
