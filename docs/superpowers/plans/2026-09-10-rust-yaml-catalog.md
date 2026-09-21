@@ -362,6 +362,9 @@ XML-свойства и родителя, число вхождений, при�
 ещё одно несоответствие: ограничение `TypeDescription` сопоставляло
 `ФиксированнаяСтрока(10)` с внутренним полем `value`, хотя длина находится в
 отдельном поле `first`. Ограничение теперь проверяет оба поля декларативно.
+Та же ошибка в ветвях обычной строки и числа позволяла `Строка(abc)` и
+`Число(abc)`. Отрицательные случаи добавлены к проверке владельца;
+декларация проверяет `value`, `first` и `second` как отдельные поля.
 
 **Files:** declarations/common/metadata-value/*.yaml, fill-value.yaml; профили Catalog/Document/Attribute; compiler/generate/relations.rs; compiled-rules/tests/fill_value.rs; tests/conversion-corpus/cases/fill-*.
 

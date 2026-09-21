@@ -43,21 +43,19 @@ constraints:
       - yaml-validation
     assert:
       or:
-        - matches:
-            value:
-              field: value
-            pattern: ^(?:Строка(?:\([1-9][0-9]*\))?)$
+        - and:
+            - {eq: [{field: value}, {literal: Строка}]}
+            - {eq: [{field: second}, {literal: ''}]}
+            - {or: [{eq: [{field: first}, {literal: ''}]}, {matches: {value: {field: first}, pattern: '[1-9][0-9]*'}}]}
         - and:
             - {eq: [{field: value}, {literal: ФиксированнаяСтрока}]}
             - {matches: {value: {field: first}, pattern: '[1-9][0-9]*'}}
-        - matches:
-            value:
-              field: value
-            pattern: ^(?:Число(?:\([1-9][0-9]*(?:\s*,\s*[0-9]+)?\))?)$
-        - matches:
-            value:
-              field: value
-            pattern: ^(?:ПоложительноеЧисло(?:\([1-9][0-9]*(?:\s*,\s*[0-9]+)?\))?)$
+            - {eq: [{field: second}, {literal: ''}]}
+        - and:
+            - {matches: {value: {field: value}, pattern: 'Число|ПоложительноеЧисло'}}
+            - or:
+                - {and: [{eq: [{field: first}, {literal: ''}]}, {eq: [{field: second}, {literal: ''}]}]}
+                - {and: [{matches: {value: {field: first}, pattern: '[1-9][0-9]*'}}, {matches: {value: {field: second}, pattern: '[0-9]*'}}]}
         - matches:
             value:
               field: value

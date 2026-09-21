@@ -4893,7 +4893,16 @@
         ],
         "ownerName": "СтроковыйРеквизит"
       },
-      "adaptation": "Use immutable e2e string attribute with the Fixed qualifier established by the existing FillValue type test; reverse export uses freshly prepared inputs without an XML reference"
+      "adaptation": "Use immutable e2e string attribute with the Fixed qualifier established by the existing FillValue type test; reverse export uses freshly prepared inputs without an XML reference",
+      "rejectedYAML": [
+        "Тип: Строка(abc)",
+        "Тип: Строка(0)",
+        "Тип: Строка(10, 2)",
+        "Тип: ФиксированнаяСтрока(0)",
+        "Тип: Число(abc)",
+        "Тип: Число(0)",
+        "Тип: ПоложительноеЧисло(10, abc)"
+      ]
     },
     {
       "id": "form-common-target",
