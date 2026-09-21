@@ -1,17 +1,12 @@
 format: nkdk-declarations/1
 kind: object
-id: candidate.projection.69d6a364702de17ca763
+id: candidate.projection.bbe49e9936a088a45617
 description: 'Кандидат проекции: относительный XML-корень Properties; не полный владелец'
 imports:
-  part0: candidate.fragment.7c451bae36cbe6851ab7
-  part1: candidate.fragment.ffb1bac13e045080446c
-  part2: candidate.fragment.81d72d589aafa2cb526d
+  part0: candidate.fragment.8d0d2ec2113aed788d91
+  part1: candidate.fragment.381457343c6174fef16a
   inputType1f8ea46361ff: common.path-root
-  part3: candidate.fragment.92ebe1610e39f3cea8e9
-  part4: candidate.fragment.506dc78255a4fe133b20
-  part5: candidate.fragment.a889c49be08ffa2f63c7
-  part6: candidate.fragment.8670582480f963458bc6
-  part7: candidate.fragment.4070ee2c3faabd96b56d
+  part2: candidate.fragment.ef0da0092dc0ad152768
 compose:
   - use: part0
   - use: part1
@@ -28,44 +23,12 @@ compose:
         input: defaultLanguage
       registeredLanguages:
         input: registeredLanguages
-      onlyStringType:
-        and:
-          - present:
-              field: type
-          - one:
-              in:
-                get:
-                  of:
-                    field: type
-                  field: items
-              as: item
-              where:
-                literal: true
-          - exists:
-              in:
-                get:
-                  of:
-                    field: type
-                  field: items
-              as: item
-              where:
-                matches:
-                  value:
-                    get:
-                      of:
-                        var: item
-                      field: value
-                  pattern: Строка|ФиксированнаяСтрока
-  - use: part3
-    bind:
+      ownerName:
+        input: ownerName
       roots:
         input: roots
       forms:
         input: forms
-  - use: part4
-  - use: part5
-  - use: part6
-  - use: part7
 value:
   kind: record
   fields: []
@@ -594,7 +557,7 @@ constraints:
                       var: item
                     field: value
                 pattern: >-
-                  (Справочник|Документ|Перечисление|ПланОбмена|ПланСчетов|ПланВидовХарактеристик|ПланВидовРасчета|БизнесПроцесс|Задача)\..+
+                  (Справочник|Документ|Перечисление|ПланОбмена|ПланСчетов|ПланВидовХарактеристик|ПланВидовРасчета|БизнесПроцесс|Задача)(\..+)?
     assert:
       isVariant:
         value:

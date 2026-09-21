@@ -1,17 +1,14 @@
 format: nkdk-declarations/1
 kind: object
-id: candidate.projection.177f114bf1d52663d9bd
+id: candidate.projection.2d24002a44f938b7e782
 description: 'Кандидат проекции: относительный XML-корень Properties; не полный владелец'
 imports:
-  part0: candidate.fragment.005c1b164180436637b2
-  part1: candidate.fragment.52a2075291fd16c7818a
-  part2: candidate.fragment.e8b8bc7db0633e109fe8
-  part3: candidate.fragment.1765115867f73cbe2b6f
-  part4: candidate.fragment.75a4cde38b68731d8ce2
-  part5: candidate.fragment.26c6504dd1cbc2075885
+  part0: candidate.fragment.26f2a0ec831699cb55dd
+  part1: candidate.fragment.fb762ef0ba548a5b86e9
+  part2: candidate.fragment.26c6504dd1cbc2075885
   inputType1f8ea46361ff: common.path-root
-  part6: candidate.fragment.d59efb3522a04df62d46
-  part7: candidate.fragment.c11f9ef55f78feb34918
+  part3: candidate.fragment.a7934b48993a4f5da784
+  part4: candidate.fragment.9c027dd99bf3af5f83c1
 compose:
   - use: part0
   - use: part1
@@ -23,16 +20,6 @@ compose:
       ownerName:
         input: ownerName
   - use: part2
-  - use: part3
-  - use: part4
-    bind:
-      defaultLanguage:
-        input: defaultLanguage
-      registeredLanguages:
-        input: registeredLanguages
-      ownerName:
-        input: ownerName
-  - use: part5
     bind:
       defaultLanguage:
         input: defaultLanguage
@@ -66,13 +53,13 @@ compose:
                         var: item
                       field: value
                   pattern: Строка|ФиксированнаяСтрока
-  - use: part6
+  - use: part3
     bind:
       roots:
         input: roots
       forms:
         input: forms
-  - use: part7
+  - use: part4
 value:
   kind: record
   fields: []
@@ -601,7 +588,7 @@ constraints:
                       var: item
                     field: value
                 pattern: >-
-                  (Справочник|Документ|Перечисление|ПланОбмена|ПланСчетов|ПланВидовХарактеристик|ПланВидовРасчета|БизнесПроцесс|Задача)\..+
+                  (Справочник|Документ|Перечисление|ПланОбмена|ПланСчетов|ПланВидовХарактеристик|ПланВидовРасчета|БизнесПроцесс|Задача)(\..+)?
     assert:
       isVariant:
         value:

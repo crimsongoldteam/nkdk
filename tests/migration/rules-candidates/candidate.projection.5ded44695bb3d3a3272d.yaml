@@ -1,18 +1,18 @@
 format: nkdk-declarations/1
 kind: object
-id: candidate.projection.b1eb5014d4cb794f3c96
+id: candidate.projection.5ded44695bb3d3a3272d
 description: 'Кандидат проекции: относительный XML-корень Properties; не полный владелец'
 imports:
-  part0: candidate.fragment.005c1b164180436637b2
-  part1: candidate.fragment.52a2075291fd16c7818a
-  part2: candidate.fragment.e8b8bc7db0633e109fe8
-  part3: candidate.fragment.1765115867f73cbe2b6f
-  part4: candidate.fragment.75a4cde38b68731d8ce2
-  part5: candidate.fragment.26c6504dd1cbc2075885
-  part6: candidate.fragment.fa89a9cb2457e28e515f
-  part7: candidate.fragment.c0a1d23d8d7c79a213af
+  part0: candidate.fragment.7c451bae36cbe6851ab7
+  part1: candidate.fragment.ffb1bac13e045080446c
+  part2: candidate.fragment.81d72d589aafa2cb526d
   inputType1f8ea46361ff: common.path-root
-  part8: candidate.fragment.139681ef0e44d2445a78
+  part3: candidate.fragment.92ebe1610e39f3cea8e9
+  part4: candidate.fragment.133b24388e9d251d58cb
+  part5: candidate.fragment.506dc78255a4fe133b20
+  part6: candidate.fragment.a889c49be08ffa2f63c7
+  part7: candidate.fragment.8670582480f963458bc6
+  part8: candidate.fragment.4070ee2c3faabd96b56d
 compose:
   - use: part0
   - use: part1
@@ -24,16 +24,6 @@ compose:
       ownerName:
         input: ownerName
   - use: part2
-  - use: part3
-  - use: part4
-    bind:
-      defaultLanguage:
-        input: defaultLanguage
-      registeredLanguages:
-        input: registeredLanguages
-      ownerName:
-        input: ownerName
-  - use: part5
     bind:
       defaultLanguage:
         input: defaultLanguage
@@ -67,14 +57,17 @@ compose:
                         var: item
                       field: value
                   pattern: Строка|ФиксированнаяСтрока
-  - use: part6
-  - use: part7
-  - use: part8
+  - use: part3
     bind:
       roots:
         input: roots
       forms:
         input: forms
+  - use: part4
+  - use: part5
+  - use: part6
+  - use: part7
+  - use: part8
 value:
   kind: record
   fields: []
@@ -603,7 +596,7 @@ constraints:
                       var: item
                     field: value
                 pattern: >-
-                  (Справочник|Документ|Перечисление|ПланОбмена|ПланСчетов|ПланВидовХарактеристик|ПланВидовРасчета|БизнесПроцесс|Задача)\..+
+                  (Справочник|Документ|Перечисление|ПланОбмена|ПланСчетов|ПланВидовХарактеристик|ПланВидовРасчета|БизнесПроцесс|Задача)(\..+)?
     assert:
       isVariant:
         value:

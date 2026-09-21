@@ -214,6 +214,26 @@ const referenceAttribute={...stringAttribute,
   adaptation:'Use the supported document attribute wrapper and the unchanged Type/FillValue pair from the immutable exchange-plan e2e fixture; reverse export uses freshly prepared inputs without an XML reference',
 };
 cases.push(referenceAttribute);
+const catalogTypeSetSource='e2e/fixtures/xml/cf/Catalogs/ПараметрыВыбора.xml';
+const catalogTypeSetYAMLSource='e2e/fixtures/nkdk/cf/Справочник/ПараметрыВыбора/Свойства.yaml';
+if(!source(catalogTypeSetSource).includes('<v8:TypeSet>cfg:CatalogRef</v8:TypeSet>') ||
+   !source(catalogTypeSetYAMLSource).includes('Тип: Справочник'))throw new Error('Changed independent catalog TypeSet source');
+const catalogTypeSetAttribute={...referenceAttribute,
+  id:'fill-value-reference-type-set',
+  xml:referenceAttribute.xml.replace('<v8:Type>cfg:CatalogRef.СправочникРеквизит</v8:Type>','<v8:TypeSet>cfg:CatalogRef</v8:TypeSet>'),
+  yaml:referenceAttribute.yaml.replace('Тип: Справочник.СправочникРеквизит','Тип: Справочник'),
+  xmlQNamePaths:referenceAttribute.xmlQNamePaths.map(path=>path.map(segment=>segment==='{http://v8.1c.ru/8.1/data/core}Type'?'{http://v8.1c.ru/8.1/data/core}TypeSet':segment)),
+  source:[...referenceAttribute.source,{path:catalogTypeSetSource},{path:catalogTypeSetYAMLSource}],
+  adaptation:'Use the independently observed catalog TypeSet in the supported document attribute wrapper; its explicit DesignTimeRef remains a valid catalog value',
+};
+cases.push(catalogTypeSetAttribute);
+cases.push({...catalogTypeSetAttribute,
+  id:'fill-value-reference-type-set-as-text',
+  xml:catalogTypeSetAttribute.xml.replace('<FillValue xsi:type="xr:DesignTimeRef">Catalog.СправочникРеквизит.ПредопредленноеЗначение</FillValue>','<FillValue xsi:type="xs:string">текст</FillValue>'),
+  yaml:catalogTypeSetAttribute.yaml.replace('ЗначениеЗаполнения: Справочник.СправочникРеквизит.ПредопредленноеЗначение','ЗначениеЗаполнения: текст'),
+  diagnostics:['fill-value.type-mismatch'],
+  adaptation:'Retain the observed catalog TypeSet and change only explicit FillValue to text; the value stays round-trip data with a diagnostic',
+});
 cases.push({...referenceAttribute,
   id:'fill-value-reference-as-text',
   xml:referenceAttribute.xml.replace('<FillValue xsi:type="xr:DesignTimeRef">Catalog.СправочникРеквизит.ПредопредленноеЗначение</FillValue>','<FillValue xsi:type="xs:string">текст</FillValue>'),

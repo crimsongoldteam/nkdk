@@ -1,7 +1,7 @@
 format: nkdk-declarations/1
 kind: fragment
 id: common.fill-value-compatibility
-description: Совместимость явного значения заполнения с единственным простым типом
+description: Совместимость явного значения заполнения с единственным объявленным типом
 inputs:
   typeItems:
     type:
@@ -118,6 +118,6 @@ constraints:
   when:
     and:
     - {one: {in: {input: typeItems}, as: item, where: {literal: true}}}
-    - {exists: {in: {input: typeItems}, as: item, where: {matches: {value: {get: {of: {var: item}, field: value}}, pattern: '(Справочник|Документ|Перечисление|ПланОбмена|ПланСчетов|ПланВидовХарактеристик|ПланВидовРасчета|БизнесПроцесс|Задача)\..+'}}}}
+    - {exists: {in: {input: typeItems}, as: item, where: {matches: {value: {get: {of: {var: item}, field: value}}, pattern: '(Справочник|Документ|Перечисление|ПланОбмена|ПланСчетов|ПланВидовХарактеристик|ПланВидовРасчета|БизнесПроцесс|Задача)(\..+)?'}}}}
   assert: {input: referenceValue}
   diagnostic: {code: fill-value.type-mismatch, severity: warning, at: {self: true}, message: Значение заполнения не соответствует ссылочному типу}

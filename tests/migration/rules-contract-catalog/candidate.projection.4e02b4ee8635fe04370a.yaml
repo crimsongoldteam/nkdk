@@ -1,6 +1,6 @@
 format: nkdk-declarations/1
 kind: object
-id: candidate.projection.c359384f68f0f680495c
+id: candidate.projection.4e02b4ee8635fe04370a
 description: 'Кандидат проекции: относительный XML-корень Properties; не полный владелец'
 imports:
   part0: candidate.fragment.26f2a0ec831699cb55dd
@@ -8,9 +8,7 @@ imports:
   part2: candidate.fragment.26c6504dd1cbc2075885
   inputType1f8ea46361ff: common.path-root
   part3: candidate.fragment.a7934b48993a4f5da784
-  part4: candidate.fragment.bfa57f578c8a5b7b9962
-  part5: candidate.fragment.5d1647c4012948d8e558
-  part6: candidate.fragment.ae49701c7b7a170836b4
+  part4: candidate.fragment.5d1647c4012948d8e558
 compose:
   - use: part0
   - use: part1
@@ -62,8 +60,6 @@ compose:
       forms:
         input: forms
   - use: part4
-  - use: part5
-  - use: part6
 value:
   kind: record
   fields: []
@@ -592,7 +588,7 @@ constraints:
                       var: item
                     field: value
                 pattern: >-
-                  (Справочник|Документ|Перечисление|ПланОбмена|ПланСчетов|ПланВидовХарактеристик|ПланВидовРасчета|БизнесПроцесс|Задача)\..+
+                  (Справочник|Документ|Перечисление|ПланОбмена|ПланСчетов|ПланВидовХарактеристик|ПланВидовРасчета|БизнесПроцесс|Задача)(\..+)?
     assert:
       isVariant:
         value:
