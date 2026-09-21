@@ -223,6 +223,13 @@ cases.push({...numericAttribute,
   diagnostics:['fill-value.type-mismatch'],
   adaptation:'Change only the explicit FillValue of an immutable e2e numeric attribute to a typed string; the declared Type and all sibling properties retain their independent expectations',
 });
+cases.push({...numericAttribute,
+  id:'fill-value-quoted-numeric-text',
+  xml:numericAttribute.xml.replace('<FillValue xsi:type="xs:decimal">1234</FillValue>','<FillValue xsi:type="xs:string">1234</FillValue>'),
+  yaml:numericAttribute.yaml.replace('ЗначениеЗаполнения: 1234',"ЗначениеЗаполнения: '1234'"),
+  diagnostics:['fill-value.type-mismatch'],
+  adaptation:'Change the same immutable e2e numeric attribute to a typed string resembling a number; quoted YAML must keep the string variant and restore the XML type',
+});
 const booleanAttribute=owners.cases.find(row=>row.id==='e2e-properties-РеквизитБулево');
 if(!booleanAttribute?.xml.includes('<FillValue xsi:nil="true" />') || !booleanAttribute.yaml.includes('Тип: Булево'))throw new Error('Changed independent boolean FillValue source');
 const dateAttribute=owners.cases.find(row=>row.id==='e2e-properties-РеквизитСправочника');
