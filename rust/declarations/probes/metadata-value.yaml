@@ -2,6 +2,7 @@ format: nkdk-declarations/1
 kind: object
 id: migration.metadata-value
 imports: {typeDescription: common.type-description, value: common.metadata-value}
+namespaces: {xs: http://www.w3.org/2001/XMLSchema}
 inputs:
   defaultLanguage: {type: {kind: scalar, scalar: text}}
   registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
@@ -21,3 +22,21 @@ representations:
     fields:
     - {field: type, key: Тип}
     - {field: value, key: Значение}
+presence:
+- target: {field: value}
+  xml:
+    missing: {denotes: {absent: true}}
+    empty: [{form: nil, denotes: {absent: true}}, {form: empty-element, denotes: {absent: true}}]
+    canonical:
+    - when:
+        and:
+        - {present: {field: type}}
+        - one: {in: {get: {of: {field: type}, field: items}}, as: item, where: {literal: true}}
+        - exists:
+            in: {get: {of: {field: type}, field: items}}
+            as: item
+            where: {eq: [{get: {of: {var: item}, field: value}}, {literal: Строка}]}
+      form: empty-element
+      type: xs:string
+    - {form: nil}
+  yaml: {missing: {denotes: {absent: true}}}

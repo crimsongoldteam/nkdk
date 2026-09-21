@@ -70,6 +70,33 @@ fn metadata_value_derives_the_empty_xml_form_from_the_sibling_type() {
 }
 
 #[test]
+fn metadata_value_restores_absent_fill_value_from_declared_type_without_reference() {
+    let entry = entry_id("migration.metadata-value").unwrap();
+    let inputs = metadata_value_inputs(entry);
+    for (yaml, string_only) in [
+        ("Тип: Строка", true),
+        ("Тип: Число", false),
+        ("Тип:\n  -\n    Строка\n  -\n    Число", false),
+    ] {
+        let exported = convert_file(entry, Direction::YamlToXml, yaml.as_bytes(), &inputs).unwrap();
+        let xml = String::from_utf8_lossy(&exported.bytes);
+        let tag = xml
+            .split("<FillValue")
+            .nth(1)
+            .and_then(|tail| tail.split('>').next())
+            .expect("FillValue element");
+        let typed_string = tag.contains(":type=\"") && tag.contains(":string\"");
+        let nil = tag.contains(":nil=\"true\"");
+        if string_only {
+            assert!(typed_string && !nil, "{xml}");
+        } else {
+            assert!(nil && !typed_string, "{xml}");
+        }
+        verify_candidate(entry, &exported.bytes, yaml.as_bytes(), &inputs).unwrap();
+    }
+}
+
+#[test]
 fn metadata_value_selects_declared_scalar_and_structured_forms() {
     let entry = entry_id("migration.metadata-value-full").unwrap();
     let inputs = metadata_value_inputs(entry);
