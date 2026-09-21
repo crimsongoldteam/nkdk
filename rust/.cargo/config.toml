@@ -1,0 +1,3 @@
+[build]
+# Generated rule crates are large; parallel rustc processes otherwise exhaust RAM.
+jobs = 2
