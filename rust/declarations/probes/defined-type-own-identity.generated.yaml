@@ -1,0 +1,69 @@
+# Generated from rust/declarations/objects/defined-type.yaml by tools/rules-migration/src/defined-type-identity-operation.mjs
+format: nkdk-declarations/1
+kind: object
+id: migration.defined-type-own-identity
+namespaces:
+  md: http://v8.1c.ru/8.3/MDClasses
+imports:
+  facts: fragment.metadata-own-identity
+inputs:
+  component:
+    type:
+      kind: scalar
+      scalar: text
+  parent:
+    type:
+      kind: scalar
+      scalar: text
+value:
+  kind: record
+  fields:
+    - name: name
+      type:
+        kind: scalar
+        scalar: text
+    - name: uuid
+      type:
+        kind: scalar
+        scalar: text
+compose:
+  - use: facts
+    bind:
+      component:
+        input: component
+      owner:
+        input: parent
+      kind:
+        literal: DefinedType
+      name:
+        field: name
+      identity:
+        field: uuid
+representations:
+  xml:
+    kind: with-attributes
+    attributes:
+      - name: version
+        value:
+          text: '2.20'
+    content:
+      kind: record
+      fields:
+        - field: name
+          path:
+            - md:MetaDataObject
+            - md:DefinedType
+            - md:Properties
+            - md:Name
+        - field: uuid
+          path:
+            - md:MetaDataObject
+            - md:DefinedType
+          attribute: uuid
+  yaml:
+    kind: mapping
+    fields:
+      - field: name
+        key: name
+      - field: uuid
+        key: uuid

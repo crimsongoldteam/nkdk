@@ -27,10 +27,6 @@ inputs:
     type:
       kind: scalar
       scalar: text
-  identity:
-    type:
-      kind: scalar
-      scalar: text
   identities:
     index: metadata.own-identities
   baseIdentities:
@@ -97,7 +93,7 @@ compose:
   - use: internal
     bind:
       owner:
-        input: identity
+        field: uuid
       name:
         input: ownerName
       typeIds:
@@ -240,7 +236,7 @@ presence:
                     component:
                       input: component
                     identity:
-                      input: identity
+                      field: uuid
           else:
             absent: true
   - target:

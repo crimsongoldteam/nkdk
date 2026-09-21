@@ -1,0 +1,61 @@
+# Generated from rust/declarations/objects/defined-type.yaml by tools/rules-migration/src/defined-type-identity-operation.mjs
+format: nkdk-declarations/1
+kind: object
+id: migration.defined-type-base-identity
+namespaces:
+  md: http://v8.1c.ru/8.3/MDClasses
+imports:
+  facts: fragment.metadata-base-identity
+inputs:
+  component:
+    type:
+      kind: scalar
+      scalar: text
+value:
+  kind: record
+  fields:
+    - name: uuid
+      type:
+        kind: scalar
+        scalar: text
+    - name: base
+      type:
+        kind: scalar
+        scalar: text
+compose:
+  - use: facts
+    bind:
+      component:
+        input: component
+      identity:
+        field: uuid
+      baseIdentity:
+        field: base
+representations:
+  xml:
+    kind: with-attributes
+    attributes:
+      - name: version
+        value:
+          text: '2.20'
+    content:
+      kind: record
+      fields:
+        - field: uuid
+          path:
+            - md:MetaDataObject
+            - md:DefinedType
+          attribute: uuid
+        - field: base
+          path:
+            - md:MetaDataObject
+            - md:DefinedType
+            - md:Properties
+            - md:ExtendedConfigurationObject
+  yaml:
+    kind: mapping
+    fields:
+      - field: uuid
+        key: uuid
+      - field: base
+        key: base

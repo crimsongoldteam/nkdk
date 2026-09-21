@@ -7,10 +7,20 @@ imports:
 namespaces:
   md: http://v8.1c.ru/8.3/MDClasses
 inputs:
-  owner:
+  ownerName:
     type:
       kind: scalar
       scalar: text
+  component:
+    type:
+      kind: scalar
+      scalar: text
+  parent:
+    type:
+      kind: scalar
+      scalar: text
+  identities:
+    index: metadata.own-identities
 types:
   short-name:
     kind: text-transform
@@ -71,7 +81,20 @@ contributions:
     key:
       record:
         owner:
-          input: owner
+          require:
+            lookup:
+              in:
+                input: identities
+              key:
+                record:
+                  component:
+                    input: component
+                  owner:
+                    input: parent
+                  kind:
+                    literal: DefinedType
+                  name:
+                    input: ownerName
         name:
           match:
             value:
@@ -101,7 +124,20 @@ contributions:
     key:
       record:
         owner:
-          input: owner
+          require:
+            lookup:
+              in:
+                input: identities
+              key:
+                record:
+                  component:
+                    input: component
+                  owner:
+                    input: parent
+                  kind:
+                    literal: DefinedType
+                  name:
+                    input: ownerName
         name:
           match:
             value:

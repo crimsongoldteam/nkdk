@@ -361,12 +361,11 @@ fn defined_type_owner_receives_prepared_internal_ids_in_the_working_operation() 
         })
         .unwrap();
         let internal = entry_id("migration.defined-type-internal-types").unwrap();
-        let identity = entry_id("migration.metadata-own-identity").unwrap();
+        let identity = entry_id("migration.defined-type-own-identity").unwrap();
         let context = serde_json::json!({
             "ownerName": name,
             "component": component,
             "parent": "configuration",
-            "identity": own_id,
             "defaultLanguage": "ru",
             "registeredLanguages": ["ru", "en"]
         });
@@ -376,22 +375,26 @@ fn defined_type_owner_receives_prepared_internal_ids_in_the_working_operation() 
                     entry: internal,
                     direction: Direction::XmlToYaml,
                     bytes: xml,
-                    inputs: read_inputs(internal, &serde_json::to_vec(&serde_json::json!({"owner": own_id})).unwrap()).unwrap(),
+                    inputs: read_inputs(internal, &serde_json::to_vec(&serde_json::json!({"ownerName": name, "component": component, "parent": "configuration"})).unwrap()).unwrap(),
                 },
                 Source {
                     entry: identity,
                     direction: Direction::XmlToYaml,
-                    bytes: b"<Root><Name>DefinedType</Name></Root>",
-                    inputs: read_inputs(identity, &serde_json::to_vec(&serde_json::json!({"component": component, "owner": "configuration", "kind": "DefinedType", "name": name, "identity": own_id})).unwrap()).unwrap(),
+                    bytes: xml,
+                    inputs: read_inputs(identity, &serde_json::to_vec(&serde_json::json!({"component": component, "parent": "configuration"})).unwrap()).unwrap(),
                 },
             ];
-            if let Some(base) = base_id {
-                let entry = entry_id("migration.metadata-base-identity").unwrap();
+            if base_id.is_some() {
+                let entry = entry_id("migration.defined-type-base-identity").unwrap();
                 sources.push(Source {
                     entry,
                     direction: Direction::XmlToYaml,
-                    bytes: b"<Root><Name>DefinedType</Name></Root>",
-                    inputs: read_inputs(entry, &serde_json::to_vec(&serde_json::json!({"component": component, "identity": own_id, "baseIdentity": base})).unwrap()).unwrap(),
+                    bytes: xml,
+                    inputs: read_inputs(
+                        entry,
+                        &serde_json::to_vec(&serde_json::json!({"component": component})).unwrap(),
+                    )
+                    .unwrap(),
                 });
             }
             sources.push(Source {
@@ -442,4 +445,31 @@ fn defined_type_owner_receives_prepared_internal_ids_in_the_working_operation() 
             }
         }
     }
+}
+
+#[test]
+fn fact_projection_ignores_other_owner_fields_but_rejects_repeated_declared_fields() {
+    let entry = entry_id("migration.defined-type-own-identity").unwrap();
+    let xml = br#"<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" version="2.20"><DefinedType uuid="id"><Properties><Name>One</Name><Name>Two</Name><Comment>Unrelated</Comment></Properties></DefinedType></MetaDataObject>"#;
+    let inputs = read_inputs(entry, br#"{"component":"cf","parent":"configuration"}"#).unwrap();
+    let errors = prepare(
+        vec![Source {
+            entry,
+            direction: Direction::XmlToYaml,
+            bytes: xml,
+            inputs,
+        }],
+        &[entry],
+        Generation(1),
+        operation_budget(1000),
+        10000,
+    )
+    .err()
+    .expect("repeated declared field must be rejected");
+    assert!(
+        errors
+            .iter()
+            .any(|error| error.code.as_deref() == Some("xml.duplicate-field")),
+        "{errors:?}"
+    );
 }

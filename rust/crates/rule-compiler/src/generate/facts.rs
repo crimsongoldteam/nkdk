@@ -4,6 +4,13 @@ use super::*;
 pub(super) use owners::accessors as owner_accessors;
 use std::{collections::BTreeMap, fmt::Write};
 
+pub(super) fn scalar_xml_projection(entry: &LinkedEntry, program: &Program) -> bool {
+    !entry.contributions.is_empty()
+        && !super::owner::applies(entry, program)
+        && matches!(&entry.value, LinkedType::Record(fields) if fields.iter().all(|field| field.value == LinkedType::Scalar(ScalarType::Text)))
+        && matches!(entry.yaml, YamlRepresentation::Mapping(_))
+}
+
 /// A collection contribution may traverse declared record fields before
 /// reaching its rows. The indices are linked field slots, not XML/YAML names.
 pub(super) fn collection_path(expression: &LinkedExpression) -> Option<(u32, Vec<u32>)> {
@@ -234,6 +241,14 @@ pub(super) fn generate(entries: &[&LinkedEntry], program: &Program) -> Result<St
             }
         }
         let id = entry.id;
+        // Scalar fact records may be projections of a larger XML document.
+        // Ignore unrelated paths only while extracting facts; normal conversion
+        // still uses the strict reader and reports them as anomalies.
+        let read_xml = if scalar_xml_projection(entry, program) {
+            format!("read_xml_fact_{id}")
+        } else {
+            format!("read_xml_{id}")
+        };
         let checks = if super::owner::applies(entry, program) {
             format!(
                 "if matches!(direction,Direction::YamlToXml) && value.root.is_some() {{let issues=check_yaml_{id}(&value,source,inputs);if issues.iter().any(|issue|issue.severity==Severity::Error) {{return Err(issues);}}}}"
@@ -243,7 +258,7 @@ pub(super) fn generate(entries: &[&LinkedEntry], program: &Program) -> Result<St
                 "let issues=match direction {{Direction::XmlToYaml=>issues_xml_{id}(&value,source,inputs),Direction::YamlToXml=>issues_yaml_{id}(&value,source,inputs)}};if issues.iter().any(|issue|issue.severity==Severity::Error) {{return Err(issues);}}"
             )
         };
-        writeln!(out,"fn contribute_{id}(direction:Direction,source:&[u8],inputs:&InputView<'_>,builder:&mut core::facts::prepared::TextFactsBuilder)->std::result::Result<(),Vec<RuntimeDiagnostic>> {{let value=match direction {{Direction::XmlToYaml=>read_xml_{id}(source,inputs),Direction::YamlToXml=>read_yaml_{id}(source,inputs)}}.map_err(|error|vec![error])?;{checks}").unwrap();
+        writeln!(out,"fn contribute_{id}(direction:Direction,source:&[u8],inputs:&InputView<'_>,builder:&mut core::facts::prepared::TextFactsBuilder)->std::result::Result<(),Vec<RuntimeDiagnostic>> {{let value=match direction {{Direction::XmlToYaml=>{read_xml}(source,inputs),Direction::YamlToXml=>read_yaml_{id}(source,inputs)}}.map_err(|error|vec![error])?;{checks}").unwrap();
         for (ordinal, contribution) in entry.contributions.iter().enumerate() {
             if super::owner::applies(entry, program)
                 && let Some(iteration) = &contribution.for_each

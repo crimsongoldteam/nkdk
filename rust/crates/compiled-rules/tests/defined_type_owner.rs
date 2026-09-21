@@ -123,7 +123,6 @@ fn defined_type_import_matches_existing_e2e_yaml() {
                 ("ownerName".into(), InputValue::Text(name.into())),
                 ("component".into(), InputValue::Text(component.into())),
                 ("parent".into(), InputValue::Text("configuration".into())),
-                ("identity".into(), InputValue::Text(identity.into())),
                 ("defaultLanguage".into(), InputValue::Text("ru".into())),
                 (
                     "registeredLanguages".into(),

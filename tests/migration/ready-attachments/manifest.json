@@ -13442,11 +13442,11 @@
     },
     {
       "path": "rust/declarations/objects/defined-type-extension.generated.yaml",
-      "sha256": "87152941cce968a0baafac09c741d3d9b38cf6f127d456355a071424b3469701"
+      "sha256": "45c51b1e0a69853199aaf0b990f431200bbfd2751b4c89efe8783ce1140897d4"
     },
     {
       "path": "rust/declarations/objects/defined-type.yaml",
-      "sha256": "21b30ee4fdee17e933c5a29df946eb6523251c891c2822d91f61facebd8b0a3f"
+      "sha256": "fdaa37b318eb95eaeeb4cf2a79874a33a1199714cc5631689cfba98d55eb9075"
     },
     {
       "path": "rust/declarations/objects/enumeration-values.generated.yaml",
@@ -13509,12 +13509,20 @@
       "sha256": "b2aa25e32624bd50b8eaa0ca871dfb0f8f71bb524c82891e33381a8149024f0b"
     },
     {
+      "path": "rust/declarations/probes/defined-type-base-identity.generated.yaml",
+      "sha256": "e642715122f32aefefd890b14d73a3778f6c121adc93479794a0463853d62e91"
+    },
+    {
       "path": "rust/declarations/probes/defined-type-facts.yaml",
       "sha256": "4a5e76d3c4500dd862e35cbfa230c8e265c0825659b6a6b533891115ecd80858"
     },
     {
       "path": "rust/declarations/probes/defined-type-internal-types.generated.yaml",
-      "sha256": "06e395cc53b79d4eb7f07f899a49d6d3c99dc89c6773cb694e3c7720f590221f"
+      "sha256": "fde5a8c4b2dfb61c3141112e2158e54a422d2ae91cf29a5e091d414139cafb52"
+    },
+    {
+      "path": "rust/declarations/probes/defined-type-own-identity.generated.yaml",
+      "sha256": "113d753413c987720a46a12bc453aab6948f43dbc770a3a5e6372ddb111dca7b"
     },
     {
       "path": "rust/declarations/probes/discriminated-choice.yaml",

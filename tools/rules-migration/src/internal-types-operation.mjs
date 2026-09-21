@@ -6,7 +6,17 @@ const target='rust/declarations/probes/defined-type-internal-types.generated.yam
 const declaration=yaml.load(readFileSync(source,'utf8'));
 const ownerFragment=yaml.load(readFileSync('rust/declarations/fragments/defined-type-internal-info.generated.yaml','utf8'));
 declaration.id='migration.defined-type-internal-types';
+delete declaration.inputs.owner;
+declaration.inputs.ownerName={type:{kind:'scalar',scalar:'text'}};
+declaration.inputs.component={type:{kind:'scalar',scalar:'text'}};
+declaration.inputs.parent={type:{kind:'scalar',scalar:'text'}};
+declaration.inputs.identities={index:'metadata.own-identities'};
 declaration.representations.xml.fields[0].path=ownerFragment.representations.xml.fields[0].path;
+for(const contribution of declaration.contributions)contribution.key.record.owner={
+  require:{lookup:{in:{input:'identities'},key:{record:{
+    component:{input:'component'},owner:{input:'parent'},kind:{literal:'DefinedType'},name:{input:'ownerName'},
+  }}}},
+};
 const content=`# Generated from ${source} by tools/rules-migration/src/internal-types-operation.mjs\n${yaml.dump(declaration,{noRefs:true})}`;
 if(process.argv.includes('--check')) {
   if(readFileSync(target,'utf8')!==content)throw new Error(`Stale generated declaration: ${target}`);
