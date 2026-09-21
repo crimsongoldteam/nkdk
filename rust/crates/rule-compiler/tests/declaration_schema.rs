@@ -111,6 +111,35 @@ fn authoring_schema_accepts_the_corpus_and_rejects_structural_mistakes() {
         }
     });
     assert!(validator.is_valid(&structured_choice));
+    let union_owner = json!({
+        "format":"nkdk-declarations/1", "kind":"object", "id":"test.union-owner",
+        "value":{"kind":"record","fields":[
+            {"name":"name","type":{"kind":"scalar","scalar":"text"}},
+            {"name":"items","type":{"kind":"sequence","item":{"kind":"scalar","scalar":"text"}}}
+        ]},
+        "representations":{
+            "xml":{"kind":"record","fields":[
+                {"field":"name","path":["Name"]},
+                {"field":"items","path":["Items"]}
+            ]},
+            "yaml":{"kind":"mapping","fields":[
+                {"field":"name","key":"Name"},
+                {"field":"items","key":"Items"}
+            ]}
+        },
+        "contributions":[{
+            "index":"test.types", "key":{"field":"name"},
+            "forEach":{"in":{"field":"items"},"as":"item"},
+            "value":{"var":"item"}, "union":{"referencePrefix":"ОпределяемыйТип."}
+        }]
+    });
+    assert!(validator.is_valid(&union_owner));
+    let mut invalid_union = union_owner.clone();
+    invalid_union["contributions"][0]["union"]["referencePrefix"] = json!("");
+    assert!(!validator.is_valid(&invalid_union));
+    let mut invalid_union = union_owner.clone();
+    invalid_union["contributions"][0]["union"]["unexpected"] = json!(true);
+    assert!(!validator.is_valid(&invalid_union));
     let single_source =
         include_str!("fixtures/borrowed-record-rows.yaml").replace("exists:", "one:");
     let single = json_value(

@@ -128,6 +128,19 @@ pub(super) fn generate(entries: &[&LinkedEntry], program: &Program) -> Result<St
     let mut out = format!(
         "pub fn fact_names()-> &'static [&'static str] {{ &{names:?} }}\npub fn fact_id(name:&str)->Option<core::facts::prepared::FactId> {{fact_names().iter().position(|candidate|*candidate==name).map(|slot|core::facts::prepared::FactId(slot as u32))}}\n"
     );
+    let union_ids: Vec<_> = names
+        .iter()
+        .enumerate()
+        .filter_map(|(slot, name)| {
+            entries
+                .iter()
+                .flat_map(|entry| &entry.contributions)
+                .find(|contribution| contribution.index == *name)
+                .and_then(|contribution| contribution.union_reference_prefix.as_ref())
+                .map(|_| slot as u32)
+        })
+        .collect();
+    writeln!(out,"pub fn fact_is_union(index:core::facts::prepared::FactId)->bool{{{:?}.contains(&index.0)}}",union_ids).unwrap();
     out.push_str("#[allow(dead_code)] struct FactErrors(Vec<RuntimeDiagnostic>);impl From<RuntimeDiagnostic> for FactErrors {fn from(error:RuntimeDiagnostic)->Self{Self(vec![error])}}impl From<Vec<RuntimeDiagnostic>> for FactErrors {fn from(errors:Vec<RuntimeDiagnostic>)->Self{Self(errors)}}\n");
     let mut layouts = Vec::new();
     for name in &names {
@@ -138,7 +151,9 @@ pub(super) fn generate(entries: &[&LinkedEntry], program: &Program) -> Result<St
             .expect("declared index");
         let columns =
             crate::fact_shape::columns(&projection.key.value_type).expect("linked index shape");
-        layouts.push(if columns.is_empty() {
+        layouts.push(if let Some(prefix) = &projection.union_reference_prefix {
+            format!("core::facts::prepared::text_union_index(generation,{prefix:?},core::facts::graph::GraphBudget{{nodes:budget.rows.saturating_mul(2),edges:budget.rows,members:budget.rows.saturating_mul(16)}})")
+        } else if columns.is_empty() {
             "core::facts::prepared::text_scalar_index(generation)".to_owned()
         } else {
             format!("core::facts::prepared::text_record_index(generation,{columns:?})")

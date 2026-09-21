@@ -73,7 +73,14 @@ pub fn prepare_fact_source_inputs(entry:EntryId,direction:Direction,facts:std::s
     bind_fact_inputs(entry,fact_source_input_bindings(entry,direction),facts,generation,values)
 }
 fn bind_fact_inputs(entry:EntryId,bindings:&[(&str,core::facts::prepared::FactId)],facts:std::sync::Arc<core::facts::prepared::PreparedTextFacts>,generation:core::facts::Generation,mut values:Vec<(String,InputValue)>)->core::Result<PreparedInputs> {
-    values.extend(bindings.iter().map(|(name,index)| ((*name).to_owned(),InputValue::TextIndex(core::facts::prepared::TextIndexInput::new(facts.clone(),generation,*index)))));
+    values.extend(bindings.iter().map(|(name,index)| {
+        let value=if fact_is_union(*index) {
+            InputValue::TextUnionIndex(core::facts::prepared::TextUnionIndexInput::new(facts.clone(),generation,*index))
+        } else {
+            InputValue::TextIndex(core::facts::prepared::TextIndexInput::new(facts.clone(),generation,*index))
+        };
+        ((*name).to_owned(),value)
+    }));
     prepare_inputs(entry,values)
 }
 "#);

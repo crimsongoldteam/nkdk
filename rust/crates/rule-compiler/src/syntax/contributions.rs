@@ -16,7 +16,7 @@ pub(super) fn parse(path: &str, fields: &[(Node, Node)]) -> Result<Vec<Contribut
     items
         .iter()
         .map(|item| {
-            let fields = item.mapping(path, &["index", "key", "value", "forEach"])?;
+            let fields = item.mapping(path, &["index", "key", "value", "forEach", "union"])?;
             let index = item.field(path, fields, "index")?;
             let name = index.text(path)?;
             if name.is_empty() {
@@ -32,6 +32,21 @@ pub(super) fn parse(path: &str, fields: &[(Node, Node)]) -> Result<Vec<Contribut
                     .map(|node| iteration(path, node))
                     .transpose()?,
                 index: name.into(),
+                union_reference_prefix: optional_field(fields, "union")
+                    .map(|union| {
+                        let members = union.mapping(path, &["referencePrefix"])?;
+                        let prefix = union.field(path, members, "referencePrefix")?.text(path)?;
+                        if prefix.is_empty() {
+                            return Err(error(
+                                path,
+                                union.mark,
+                                "invalid_union",
+                                "Reference prefix cannot be empty",
+                            ));
+                        }
+                        Ok(prefix.to_owned())
+                    })
+                    .transpose()?,
                 key: expression(path, item.field(path, fields, "key")?)?,
                 value: expression(path, item.field(path, fields, "value")?)?,
                 source: location(path, item),

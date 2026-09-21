@@ -17,6 +17,33 @@ contributions:
   value: {get: {of: {var: item}, field: code}}
 "#;
 
+const NESTED_ROW: &str = r#"format: nkdk-declarations/1
+kind: value
+id: test.nested-fact-row
+value: {kind: record, fields: [{name: code, type: {kind: scalar, scalar: text}}, {name: title, type: {kind: scalar, scalar: text}}]}
+representations:
+  xml: {kind: record, fields: [{field: code, path: [Code]}, {field: title, path: [Title]}]}
+  yaml: {kind: mapping, fields: [{field: code, key: Code}, {field: title, key: Title}]}
+"#;
+const NESTED_ROWS: &str = r#"format: nkdk-declarations/1
+kind: value
+id: common.project-rows
+imports: {row: test.nested-fact-row}
+value: {kind: sequence, item: {use: row}}
+representations:
+  xml: {kind: element-sequence, path: [Item], item: {kind: declared}}
+  yaml: {kind: sequence, item: {kind: declared}}
+"#;
+const NESTED_RECORD: &str = r#"format: nkdk-declarations/1
+kind: value
+id: test.nested-fact-rows
+imports: {rows: common.project-rows}
+value: {kind: record, fields: [{name: items, type: {use: rows}}]}
+representations:
+  xml: {kind: record, fields: [{field: items, path: [Items]}]}
+  yaml: {kind: mapping, fields: [{field: items, key: Items}]}
+"#;
+
 const FACT_MAIN: &str = r#"include!("generated.rs");
 fn main() {
     let entry=entry_id(@ENTRY@).unwrap();
@@ -36,6 +63,18 @@ fn main() {
 }
 "#;
 
+const UNION_PREPARE_MAIN: &str = r#"include!("generated.rs");
+fn prepared_pair(entry: EntryId, direction: Direction, sources: [&str;2]) -> core::facts::prepared::PreparedTextFacts {
+    let generation=core::facts::Generation(1);
+    let mut builder=fact_builder(generation,core::facts::prepared::FactBudget{text:core::facts::text::TextBudget{entries:30,bytes:1000},rows:20});
+    for source in sources {
+        let errors=contribute_file(entry,direction,source.as_bytes(),&PreparedInputs::default(),&mut builder);
+        assert!(errors.is_empty(),"{errors:?}");
+    }
+    builder.finish()
+}
+"#;
+
 fn fact_main(entry: &str, index: &str, xml: &str, yaml: &str, expected: &str) -> String {
     FACT_MAIN
         .replace("@ENTRY@", &format!("{entry:?}"))
@@ -43,6 +82,50 @@ fn fact_main(entry: &str, index: &str, xml: &str, yaml: &str, expected: &str) ->
         .replace("@XML@", &format!("{xml:?}"))
         .replace("@YAML@", &format!("{yaml:?}"))
         .replace("@EXPECTED@", &format!("{expected:?}"))
+}
+
+fn nested_sources<'a>(
+    row: &'a str,
+    rows: &'a str,
+    nested: &'a str,
+    owner: &'a str,
+    consumer: Option<&'a str>,
+) -> Vec<SourceFile<'a>> {
+    let mut sources = [
+        ("row.yaml", row),
+        ("rows.yaml", rows),
+        ("nested.yaml", nested),
+        ("owner.yaml", owner),
+    ]
+    .into_iter()
+    .map(|(path, bytes)| SourceFile {
+        path,
+        bytes: bytes.as_bytes(),
+    })
+    .collect::<Vec<_>>();
+    if let Some(consumer) = consumer {
+        sources.push(SourceFile {
+            path: "consumer.yaml",
+            bytes: consumer.as_bytes(),
+        });
+    }
+    sources
+}
+
+fn type_sources<'a>(
+    names: &'a [&'a str],
+    contents: &'a [Vec<u8>],
+    owner: &'a str,
+) -> Vec<SourceFile<'a>> {
+    names
+        .iter()
+        .zip(contents)
+        .map(|(name, bytes)| SourceFile { path: name, bytes })
+        .chain(std::iter::once(SourceFile {
+            path: "owner.yaml",
+            bytes: owner.as_bytes(),
+        }))
+        .collect()
 }
 
 fn run_generated(generated: GeneratedSources, name: &str, main: &str) {
@@ -75,52 +158,12 @@ fn run_generated(generated: GeneratedSources, name: &str, main: &str) {
 
 #[test]
 fn owner_can_contribute_rows_from_nested_declared_record() {
-    let row = r#"format: nkdk-declarations/1
-kind: value
-id: test.nested-fact-row
-value: {kind: record, fields: [{name: code, type: {kind: scalar, scalar: text}}, {name: title, type: {kind: scalar, scalar: text}}]}
-representations:
-  xml: {kind: record, fields: [{field: code, path: [Code]}, {field: title, path: [Title]}]}
-  yaml: {kind: mapping, fields: [{field: code, key: Code}, {field: title, key: Title}]}
-"#;
-    let rows = r#"format: nkdk-declarations/1
-kind: value
-id: common.project-rows
-imports: {row: test.nested-fact-row}
-value: {kind: sequence, item: {use: row}}
-representations:
-  xml: {kind: element-sequence, path: [Item], item: {kind: declared}}
-  yaml: {kind: sequence, item: {kind: declared}}
-"#;
-    let nested = r#"format: nkdk-declarations/1
-kind: value
-id: test.nested-fact-rows
-imports: {rows: common.project-rows}
-value: {kind: record, fields: [{name: items, type: {use: rows}}]}
-representations:
-  xml: {kind: record, fields: [{field: items, path: [Items]}]}
-  yaml: {kind: mapping, fields: [{field: items, key: Items}]}
-"#;
+    let row = NESTED_ROW;
+    let rows = NESTED_ROWS;
+    let nested = NESTED_RECORD;
     let owner = NESTED_OWNER;
-    let generated = compile(&[
-        SourceFile {
-            path: "row.yaml",
-            bytes: row.as_bytes(),
-        },
-        SourceFile {
-            path: "rows.yaml",
-            bytes: rows.as_bytes(),
-        },
-        SourceFile {
-            path: "nested.yaml",
-            bytes: nested.as_bytes(),
-        },
-        SourceFile {
-            path: "owner.yaml",
-            bytes: owner.as_bytes(),
-        },
-    ])
-    .expect("nested declared rows must be usable as an index contribution");
+    let generated = compile(&nested_sources(row, rows, nested, owner, None))
+        .expect("nested declared rows must be usable as an index contribution");
     run_generated(
         generated,
         "nested-facts-contract",
@@ -158,15 +201,7 @@ fn type_description_items_can_be_declared_as_an_owner_fact_source() {
         .replace("test.nested-fact-rows", "common.type-description")
         .replace("test.nested-names", "test.real-nested-type-items")
         .replace("field: code", "field: value");
-    let sources: Vec<_> = names
-        .iter()
-        .zip(&contents)
-        .map(|(name, bytes)| SourceFile { path: name, bytes })
-        .chain(std::iter::once(SourceFile {
-            path: "owner.yaml",
-            bytes: owner.as_bytes(),
-        }))
-        .collect();
+    let sources = type_sources(&names, &contents, &owner);
     let generated = compile(&sources)
         .expect("actual TypeDescription item collection must support declared contribution");
     run_generated(
@@ -179,6 +214,137 @@ fn type_description_items_can_be_declared_as_an_owner_fact_source() {
             "Name: A\nType:\n  - Строка",
             "Строка",
         ),
+    );
+    let union_owner = owner
+        .replace("test.real-nested-type-items", "test.real-type-union")
+        .replace("key: {field: name}", "key: {concat: [{literal: 'ОпределяемыйТип.'}, {field: name}]}")
+        .replace("  value: {get: {of: {var: item}, field: value}}", "  value: {get: {of: {var: item}, field: value}}\n  union: {referencePrefix: 'ОпределяемыйТип.'}");
+    let union_sources = type_sources(&names, &contents, &union_owner);
+    let generated = compile(&union_sources).expect("real TypeDescription can feed a named union");
+    let main = r#"fn main() {
+    let entry=entry_id("test.real-nested-fact-owner").unwrap();
+    for (direction, sources) in [
+        (Direction::XmlToYaml, ["<Root xmlns:v8='http://v8.1c.ru/8.1/data/core' xmlns:cfg='http://v8.1c.ru/8.1/data/enterprise/current-config'><Name>A</Name><Type><v8:TypeSet>cfg:DefinedType.Б</v8:TypeSet></Type></Root>","<Root xmlns:v8='http://v8.1c.ru/8.1/data/core' xmlns:xs='http://www.w3.org/2001/XMLSchema'><Name>Б</Name><Type><v8:Type>xs:string</v8:Type></Type></Root>"]),
+        (Direction::YamlToXml, ["Name: A\nType: ОпределяемыйТип.Б","Name: Б\nType: Строка"]),
+    ] {
+        let generation=core::facts::Generation(1);
+        let facts=prepared_pair(entry,direction,sources);
+        let core::facts::FactState::Ready(values)=facts.lookup_union(generation,fact_id("test.real-type-union").unwrap(),"ОпределяемыйТип.A") else {panic!("defined type expansion unavailable")};
+        assert_eq!(values.collect::<Vec<_>>(),vec!["Строка"]);
+    }
+}
+"#;
+    run_generated(
+        generated,
+        "real-type-union-contract",
+        &format!("{UNION_PREPARE_MAIN}{main}"),
+    );
+}
+
+#[test]
+fn named_union_contribution_expands_real_nested_rows_from_both_directions() {
+    let row = NESTED_ROW
+        .replace("test.nested-fact-row", "test.union-row")
+        .replace(", {name: title, type: {kind: scalar, scalar: text}}", "")
+        .replace(", {field: title, path: [Title]}", "")
+        .replace(", {field: title, key: Title}", "");
+    let rows = NESTED_ROWS
+        .replace("common.project-rows", "test.union-rows")
+        .replace("test.nested-fact-row", "test.union-row");
+    let nested = NESTED_RECORD
+        .replace("test.nested-fact-rows", "test.union-nested")
+        .replace("common.project-rows", "test.union-rows");
+    let owner = NESTED_OWNER
+        .replace("test.nested-fact-owner", "test.union-owner")
+        .replace("test.nested-fact-rows", "test.union-nested")
+        .replace("test.nested-names", "test.union-types")
+        .replace("key: {field: name}", "key: {concat: [{literal: 'ОпределяемыйТип.'}, {field: name}]}")
+        .replace("  value: {get: {of: {var: item}, field: code}}", "  value: {get: {of: {var: item}, field: code}}\n  union: {referencePrefix: 'ОпределяемыйТип.'}");
+    let consumer = r#"format: nkdk-declarations/1
+kind: object
+id: test.union-consumer
+inputs: {types: {index: test.union-types}}
+value: {kind: record, fields: [{name: name, type: {kind: scalar, scalar: text}}, {name: value, type: {kind: scalar, scalar: text}}]}
+representations:
+  xml: {kind: record, fields: [{field: name, path: [Root, Name]}, {field: value, path: [Root, Value]}]}
+  yaml: {kind: mapping, fields: [{field: name, key: Name}, {field: value, key: Value}]}
+constraints:
+- id: allowed-type
+  appliesTo: [xml-import, yaml-validation]
+  assert:
+    match:
+      value: {lookup: {in: {input: types}, key: {concat: [{literal: 'ОпределяемыйТип.'}, {field: name}]}}}
+      present: {as: alternatives, then: {exists: {in: {var: alternatives}, as: item, where: {eq: [{var: item}, {field: value}]}}}}
+      absent: {literal: true}
+  diagnostic: {code: type.mismatch, severity: warning, at: {field: value}, message: Value is not an effective type}
+"#;
+    let sources = nested_sources(&row, &rows, &nested, &owner, Some(consumer));
+    let check_invalid = |candidate: &str, expected: &str| {
+        let modules = [
+            row.as_str(),
+            rows.as_str(),
+            nested.as_str(),
+            candidate,
+            consumer,
+        ]
+        .into_iter()
+        .map(|source| {
+            parse(SourceFile {
+                path: "union.yaml",
+                bytes: source.as_bytes(),
+            })
+            .unwrap()
+        })
+        .collect::<Vec<_>>();
+        let issues = link(&modules).unwrap_err();
+        assert!(
+            issues.iter().any(|issue| issue.code == expected),
+            "{issues:?}"
+        );
+    };
+    check_invalid(
+        &owner.replace(
+            "  forEach: {in: {get: {of: {field: type}, field: items}}, as: item}\n",
+            "",
+        ),
+        "unknown_variable",
+    );
+    check_invalid(
+        &owner.replace(
+            "key: {concat: [{literal: 'ОпределяемыйТип.'}, {field: name}]}",
+            "key: {var: item}",
+        ),
+        "union_contribution_type",
+    );
+    check_invalid(
+        &owner.replace(
+            "key: {concat: [{literal: 'ОпределяемыйТип.'}, {field: name}]}",
+            "key: {literal: true}",
+        ),
+        "contribution_type",
+    );
+    let generated = compile(&sources).expect("typed union declaration must compile");
+    let main = r#"fn main() {
+    let entry=entry_id("test.union-owner").unwrap();
+    for (direction, sources) in [
+        (Direction::XmlToYaml, ["<Root><Name>A</Name><Type><Items><Item><Code>Строка</Code></Item><Item><Code>ОпределяемыйТип.Б</Code></Item></Items></Type></Root>","<Root><Name>Б</Name><Type><Items><Item><Code>Число</Code></Item></Items></Type></Root>"]),
+        (Direction::YamlToXml, ["Name: A\nType:\n  Items:\n    - Code: Строка\n    - Code: ОпределяемыйТип.Б","Name: Б\nType:\n  Items:\n    - Code: Число"]),
+    ] {
+        let generation=core::facts::Generation(1);
+        let facts=std::sync::Arc::new(prepared_pair(entry,direction,sources));
+        let core::facts::FactState::Ready(values)=facts.lookup_union(generation,fact_id("test.union-types").unwrap(),"ОпределяемыйТип.A") else {panic!("effective alternatives unavailable")};
+        assert_eq!(values.collect::<Vec<_>>(),vec!["Строка","Число"]);
+        let consumer=entry_id("test.union-consumer").unwrap();
+        let inputs=prepare_fact_inputs(consumer,facts,generation,vec![]).unwrap();
+        assert!(validate_file(consumer,"Name: A\nValue: Число".as_bytes(),&inputs).is_empty());
+        assert!(validate_file(consumer,"Name: A\nValue: Булево".as_bytes(),&inputs).iter().any(|issue|issue.code.as_deref()==Some("type.mismatch")));
+    }
+}
+"#;
+    run_generated(
+        generated,
+        "named-union-contract",
+        &format!("{UNION_PREPARE_MAIN}{main}"),
     );
 }
 

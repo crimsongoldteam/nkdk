@@ -2,9 +2,11 @@
 mod index;
 use super::{
     FactIndex, FactIndexBuilder, FactState, Generation,
+    graph::GraphLimit,
     text::{PreparedText, TextBudget, TextBuilder, TextId, TextLimit},
 };
 pub use index::{PreparedTextIndex, TextIndexBuilder, text_record_index, text_scalar_index};
+pub use index::{TextUnionValues, text_union_index};
 use std::sync::Arc;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -22,6 +24,8 @@ pub enum FactLimit {
     Text(TextLimit),
     Rows,
     KeyArity { expected: usize, actual: usize },
+    WrongIndexKind,
+    Graph(GraphLimit),
 }
 
 pub struct TextFactsBuilder {
@@ -75,6 +79,32 @@ impl TextFactsBuilder {
         key: &[&str],
         value: &str,
     ) -> Result<(), FactLimit> {
+        self.update(index, |target, text| target.push(text, key, value))
+    }
+
+    pub fn mark_unready(&mut self, index: FactId) -> Result<(), FactLimit> {
+        self.indexes
+            .get_mut(index.0 as usize)
+            .ok_or(FactLimit::UnknownIndex(index))?
+            .as_mut()
+            .ok_or(FactLimit::PublishedIndex(index))?
+            .mark_unready();
+        Ok(())
+    }
+
+    pub fn begin_union(&mut self, index: FactId, name: &str) -> Result<(), FactLimit> {
+        self.update(index, |target, text| target.begin_union(text, name))
+    }
+
+    pub fn push_union(&mut self, index: FactId, value: &str) -> Result<(), FactLimit> {
+        self.update(index, |target, text| target.push_union(text, value))
+    }
+
+    fn update(
+        &mut self,
+        index: FactId,
+        apply: impl FnOnce(&mut dyn TextIndexBuilder, &mut TextBuilder) -> Result<(), FactLimit>,
+    ) -> Result<(), FactLimit> {
         let target = self
             .indexes
             .get_mut(index.0 as usize)
@@ -84,7 +114,7 @@ impl TextFactsBuilder {
         let result = if self.remaining_rows == 0 {
             Err(FactLimit::Rows)
         } else {
-            target.push(&mut self.text, key, value)
+            apply(target.as_mut(), &mut self.text)
         };
         match result {
             Ok(()) => {
@@ -98,16 +128,6 @@ impl TextFactsBuilder {
         }
     }
 
-    pub fn mark_unready(&mut self, index: FactId) -> Result<(), FactLimit> {
-        self.indexes
-            .get_mut(index.0 as usize)
-            .ok_or(FactLimit::UnknownIndex(index))?
-            .as_mut()
-            .ok_or(FactLimit::PublishedIndex(index))?
-            .mark_unready();
-        Ok(())
-    }
-
     /// Seal an index after every scheduled producer has contributed.
     pub fn publish(&mut self, index: FactId) -> Result<(), FactLimit> {
         let pending = self
@@ -115,7 +135,11 @@ impl TextFactsBuilder {
             .get_mut(index.0 as usize)
             .ok_or(FactLimit::UnknownIndex(index))?;
         if let Some(pending) = pending.take() {
-            self.published[index.0 as usize] = Some(Arc::from(pending.finish()));
+            let completed = pending.finish();
+            if let Some(limit) = completed.graph_limit() {
+                return Err(FactLimit::Graph(limit));
+            }
+            self.published[index.0 as usize] = Some(Arc::from(completed));
             self.snapshot = None;
         }
         Ok(())
@@ -150,6 +174,18 @@ impl TextFactsBuilder {
 }
 
 impl PreparedTextFacts {
+    pub fn graph_limit(&self, index: FactId) -> Option<GraphLimit> {
+        self.indexes
+            .get(index.0 as usize)
+            .and_then(Option::as_ref)
+            .and_then(|index| index.graph_limit())
+    }
+    pub fn is_union(&self, index: FactId) -> bool {
+        self.indexes
+            .get(index.0 as usize)
+            .and_then(Option::as_ref)
+            .is_some_and(|index| index.is_union())
+    }
     /// Names have already been bound to slots; a lookup borrows the stored value.
     pub fn lookup(&self, generation: Generation, index: FactId, key: &str) -> FactState<&str> {
         self.lookup_parts(generation, index, &[key])
@@ -165,6 +201,19 @@ impl PreparedTextFacts {
             .and_then(Option::as_ref)
             .map_or(FactState::Unready, |index| {
                 index.lookup(&self.text, generation, key)
+            })
+    }
+    pub fn lookup_union(
+        &self,
+        generation: Generation,
+        index: FactId,
+        name: &str,
+    ) -> FactState<TextUnionValues<'_>> {
+        self.indexes
+            .get(index.0 as usize)
+            .and_then(Option::as_ref)
+            .map_or(FactState::Unready, |index| {
+                index.lookup_union(&self.text, generation, name)
             })
     }
     pub fn key_fields(&self, index: FactId) -> Option<Option<&[&'static str]>> {
@@ -185,30 +234,115 @@ impl PreparedTextFacts {
 
 /// A cheap shared handle bound at the operation boundary, never decoded from YAML.
 #[derive(Clone)]
-pub struct TextIndexInput {
+struct IndexHandle {
     facts: std::sync::Arc<PreparedTextFacts>,
     generation: Generation,
     index: FactId,
 }
 
-impl TextIndexInput {
-    pub fn new(
-        facts: std::sync::Arc<PreparedTextFacts>,
-        generation: Generation,
-        index: FactId,
-    ) -> Self {
+impl IndexHandle {
+    fn new(facts: Arc<PreparedTextFacts>, generation: Generation, index: FactId) -> Self {
         Self {
             facts,
             generation,
             index,
         }
     }
-
-    pub fn is_ready(&self) -> bool {
+    fn is_ready(&self) -> bool {
         self.facts.is_ready(self.generation, self.index)
     }
+    fn is_union(&self) -> bool {
+        self.facts.is_union(self.index)
+    }
+}
+
+impl std::fmt::Debug for IndexHandle {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter
+            .debug_struct("IndexHandle")
+            .field("generation", &self.generation)
+            .field("index", &self.index)
+            .finish_non_exhaustive()
+    }
+}
+impl PartialEq for IndexHandle {
+    fn eq(&self, other: &Self) -> bool {
+        self.generation == other.generation
+            && self.index == other.index
+            && Arc::ptr_eq(&self.facts, &other.facts)
+    }
+}
+impl Eq for IndexHandle {}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct TextIndexInput(IndexHandle);
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct TextUnionIndexInput(IndexHandle);
+
+macro_rules! index_handle_api {
+    ($name:ident) => {
+        impl $name {
+            pub fn new(
+                facts: Arc<PreparedTextFacts>,
+                generation: Generation,
+                index: FactId,
+            ) -> Self {
+                Self(IndexHandle::new(facts, generation, index))
+            }
+            pub fn is_ready(&self) -> bool {
+                self.0.is_ready()
+            }
+            pub fn is_union(&self) -> bool {
+                self.0.is_union()
+            }
+        }
+    };
+}
+index_handle_api!(TextIndexInput);
+index_handle_api!(TextUnionIndexInput);
+
+impl TextUnionIndexInput {
+    pub fn lookup(&self, name: &str) -> crate::Result<Option<TextUnionValues<'_>>> {
+        match self
+            .0
+            .facts
+            .lookup_union(self.0.generation, self.0.index, name)
+        {
+            FactState::Ready(values) => Ok(Some(values)),
+            FactState::Missing => Ok(None),
+            FactState::Ambiguous => Err(crate::RuntimeDiagnostic::declared(
+                Some("fact.ambiguous"),
+                None,
+                crate::Severity::Warning,
+                "The named union is ambiguous",
+            )),
+            FactState::Cycle => Err(crate::RuntimeDiagnostic::declared(
+                Some("fact.cycle"),
+                None,
+                crate::Severity::Warning,
+                "The named union contains a cycle",
+            )),
+            FactState::Unready => {
+                if let Some(limit) = self.0.facts.graph_limit(self.0.index) {
+                    Err(crate::RuntimeDiagnostic::new(
+                        "fact.graph-budget",
+                        format!("Graph preparation exceeded {limit:?}"),
+                    ))
+                } else {
+                    Err(crate::RuntimeDiagnostic::new(
+                        "fact.unready",
+                        "The named union is incomplete or belongs to another generation",
+                    ))
+                }
+            }
+        }
+    }
+}
+
+impl TextIndexInput {
     pub fn key_fields(&self) -> Option<Option<&[&'static str]>> {
-        self.facts.key_fields(self.index)
+        self.0.facts.key_fields(self.0.index)
     }
     pub fn lookup(&self, key: &str) -> crate::Result<Option<&str>> {
         self.lookup_parts(&[key])
@@ -223,7 +357,11 @@ impl TextIndexInput {
                 ));
             }
         }
-        let (code, message) = match self.facts.lookup_parts(self.generation, self.index, key) {
+        let (code, message) = match self
+            .0
+            .facts
+            .lookup_parts(self.0.generation, self.0.index, key)
+        {
             FactState::Ready(value) => return Ok(Some(value)),
             FactState::Missing => return Ok(None),
             FactState::Ambiguous => ("fact.ambiguous", "The index key is ambiguous"),
@@ -236,21 +374,3 @@ impl TextIndexInput {
         Err(crate::RuntimeDiagnostic::new(code, message))
     }
 }
-
-impl std::fmt::Debug for TextIndexInput {
-    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        formatter
-            .debug_struct("TextIndexInput")
-            .field("generation", &self.generation)
-            .field("index", &self.index)
-            .finish_non_exhaustive()
-    }
-}
-impl PartialEq for TextIndexInput {
-    fn eq(&self, other: &Self) -> bool {
-        self.generation == other.generation
-            && self.index == other.index
-            && std::sync::Arc::ptr_eq(&self.facts, &other.facts)
-    }
-}
-impl Eq for TextIndexInput {}

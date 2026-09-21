@@ -13,6 +13,7 @@ pub enum InputRef<'a> {
     Record(&'a dyn super::RecordInput),
     Records(Records<'a>),
     TextIndex(&'a crate::facts::prepared::TextIndexInput),
+    TextUnionIndex(&'a crate::facts::prepared::TextUnionIndexInput),
     Text(&'a str),
     Boolean(bool),
     Decimal(&'a Decimal),
@@ -22,6 +23,7 @@ impl<'a> From<&'a InputValue> for InputRef<'a> {
     fn from(value: &'a InputValue) -> Self {
         match value {
             InputValue::TextIndex(value) => Self::TextIndex(value),
+            InputValue::TextUnionIndex(value) => Self::TextUnionIndex(value),
             InputValue::Text(value) => Self::Text(value),
             InputValue::Boolean(value) => Self::Boolean(*value),
             InputValue::Decimal(value) => Self::Decimal(value),
@@ -90,6 +92,7 @@ impl<'a> InputView<'a> {
     pub fn is_ready(&self, slot: usize) -> bool {
         match self.slot(slot) {
             Some(InputRef::TextIndex(value)) => value.is_ready(),
+            Some(InputRef::TextUnionIndex(value)) => value.is_ready(),
             Some(InputRef::MissingValue) => false,
             Some(_) => true,
             None => false,
@@ -98,6 +101,15 @@ impl<'a> InputView<'a> {
     pub fn text_index(&self, slot: usize) -> Result<&'a crate::facts::prepared::TextIndexInput> {
         match self.value(slot)? {
             InputRef::TextIndex(value) => Ok(value),
+            _ => Err(Self::wrong_type(slot)),
+        }
+    }
+    pub fn text_union_index(
+        &self,
+        slot: usize,
+    ) -> Result<&'a crate::facts::prepared::TextUnionIndexInput> {
+        match self.value(slot)? {
+            InputRef::TextUnionIndex(value) => Ok(value),
             _ => Err(Self::wrong_type(slot)),
         }
     }

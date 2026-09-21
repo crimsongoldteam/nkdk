@@ -29,6 +29,7 @@ pub struct NamedUnionGraph<T> {
     graph: UnionGraph<T>,
 }
 
+#[derive(Clone)]
 pub struct NamedValues<'a, T> {
     graph: &'a NamedUnionGraph<T>,
     ids: &'a [NodeId],
@@ -140,17 +141,11 @@ impl<T> NamedUnionGraph<T> {
         generation: Generation,
         name: &str,
     ) -> FactState<NamedValues<'_, T>> {
-        match self.lookup(generation, name) {
-            FactState::Ready(ids) => FactState::Ready(NamedValues {
-                graph: self,
-                ids,
-                cursor: 0,
-            }),
-            FactState::Missing => FactState::Missing,
-            FactState::Ambiguous => FactState::Ambiguous,
-            FactState::Cycle => FactState::Cycle,
-            FactState::Unready => FactState::Unready,
-        }
+        self.lookup(generation, name).map(|ids| NamedValues {
+            graph: self,
+            ids,
+            cursor: 0,
+        })
     }
 }
 

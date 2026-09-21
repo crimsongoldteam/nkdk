@@ -11,6 +11,9 @@ fn shape(value: &LinkedType, entry: &LinkedEntry) -> Result<String, Diagnostic> 
                 format!("core::InputType::TextRecordIndex(&{columns:?})")
             }
         }
+        value if crate::fact_shape::text_union_index(value) => {
+            "core::InputType::TextUnionIndex".into()
+        }
         LinkedType::Scalar(ScalarType::Text) => "core::InputType::Text".into(),
         LinkedType::Scalar(ScalarType::Boolean) => "core::InputType::Boolean".into(),
         LinkedType::Scalar(ScalarType::Decimal) => "core::InputType::Decimal".into(),

@@ -9,6 +9,83 @@ use nkdk_conversion_core::{
 };
 use std::sync::Arc;
 
+fn union_builder(generation: Generation) -> TextFactsBuilder {
+    use nkdk_conversion_core::facts::{graph::GraphBudget, prepared::text_union_index};
+    TextFactsBuilder::with_indexes(
+        generation,
+        vec![text_union_index(
+            generation,
+            "ОпределяемыйТип.",
+            GraphBudget {
+                nodes: 8,
+                edges: 8,
+                members: 8,
+            },
+        )],
+        FactBudget {
+            text: TextBudget {
+                entries: 8,
+                bytes: 150,
+            },
+            rows: 8,
+        },
+    )
+}
+
+#[test]
+fn prepared_union_input_borrows_expanded_values_without_a_second_context() {
+    use nkdk_conversion_core::facts::prepared::TextUnionIndexInput;
+    let generation = Generation(16);
+    let mut builder = union_builder(generation);
+    builder.begin_union(FactId(0), "ОпределяемыйТип.А").unwrap();
+    builder.push_union(FactId(0), "Строка").unwrap();
+    let facts = Arc::new(builder.finish());
+    let index = TextUnionIndexInput::new(facts.clone(), generation, FactId(0));
+    let inputs = PreparedInputs::prepare(
+        EntryId(4),
+        &[("types", InputType::TextUnionIndex)],
+        vec![("types".into(), InputValue::TextUnionIndex(index))],
+    )
+    .unwrap();
+    let values = inputs
+        .view()
+        .text_union_index(0)
+        .unwrap()
+        .lookup("ОпределяемыйТип.А")
+        .unwrap()
+        .unwrap();
+    assert_eq!(values.collect::<Vec<_>>(), vec!["Строка"]);
+    assert!(
+        inputs
+            .view()
+            .text_union_index(0)
+            .unwrap()
+            .lookup("Нет")
+            .unwrap()
+            .is_none()
+    );
+    assert_eq!(Arc::strong_count(&facts), 2);
+}
+
+#[test]
+fn cyclic_union_is_a_data_anomaly_instead_of_a_fatal_error() {
+    use nkdk_conversion_core::facts::prepared::TextUnionIndexInput;
+    use nkdk_conversion_core::{Severity, annotations::IssueKind};
+    let generation = Generation(17);
+    let mut builder = union_builder(generation);
+    builder.begin_union(FactId(0), "ОпределяемыйТип.А").unwrap();
+    builder.push_union(FactId(0), "ОпределяемыйТип.Б").unwrap();
+    builder.begin_union(FactId(0), "ОпределяемыйТип.Б").unwrap();
+    builder.push_union(FactId(0), "ОпределяемыйТип.А").unwrap();
+    let input = TextUnionIndexInput::new(Arc::new(builder.finish()), generation, FactId(0));
+    let Err(issue) = input.lookup("ОпределяемыйТип.А") else {
+        panic!("cycle must be reported")
+    };
+    assert_eq!(issue.code.as_deref(), Some("fact.cycle"));
+    assert_eq!(issue.severity, Severity::Warning);
+    assert_eq!(issue.kind, IssueKind::Semantic);
+}
+
 #[test]
 fn prepared_index_inputs_borrow_values_and_keep_missing_distinct_from_unready() {
     let generation = Generation(9);

@@ -20,6 +20,18 @@ pub enum FactState<T> {
     Unready,
 }
 
+impl<T> FactState<T> {
+    pub fn map<U>(self, transform: impl FnOnce(T) -> U) -> FactState<U> {
+        match self {
+            Self::Ready(value) => FactState::Ready(transform(value)),
+            Self::Missing => FactState::Missing,
+            Self::Ambiguous => FactState::Ambiguous,
+            Self::Cycle => FactState::Cycle,
+            Self::Unready => FactState::Unready,
+        }
+    }
+}
+
 pub struct FactIndexBuilder<K, V> {
     generation: Generation,
     ready: bool,

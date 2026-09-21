@@ -9,6 +9,7 @@ pub use view::{InputRef, InputView};
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum InputValue {
     TextIndex(crate::facts::prepared::TextIndexInput),
+    TextUnionIndex(crate::facts::prepared::TextUnionIndexInput),
     Text(String),
     Boolean(bool),
     Decimal(Decimal),
@@ -17,6 +18,7 @@ pub enum InputValue {
 #[derive(Debug, Clone, Copy)]
 pub enum InputType {
     TextIndex,
+    TextUnionIndex,
     TextRecordIndex(&'static [&'static str]),
     Text,
     Boolean,
@@ -26,7 +28,10 @@ pub enum InputType {
 impl InputType {
     fn accepts(self, value: &InputValue) -> bool {
         match (self, value) {
-            (Self::TextIndex, InputValue::TextIndex(value)) => value.key_fields() == Some(None),
+            (Self::TextIndex, InputValue::TextIndex(value)) => {
+                value.key_fields() == Some(None) && !value.is_union()
+            }
+            (Self::TextUnionIndex, InputValue::TextUnionIndex(value)) => value.is_union(),
             (Self::TextRecordIndex(fields), InputValue::TextIndex(value)) => {
                 value.key_fields() == Some(Some(fields))
             }
@@ -54,16 +59,20 @@ impl PreparedInputs {
             || self.entry.map(|id| id.0) != overlay.entry.map(|id| id.0)
             || self.values.len() != overlay.values.len()
             || !overlay.documents.is_empty()
-            || overlay
-                .values
-                .iter()
-                .flatten()
-                .any(|value| !matches!(value, InputValue::TextIndex(_)))
+            || overlay.values.iter().flatten().any(|value| {
+                !matches!(
+                    value,
+                    InputValue::TextIndex(_) | InputValue::TextUnionIndex(_)
+                )
+            })
             || self.values.iter().zip(&overlay.values).any(|(old, new)| {
                 new.is_some()
-                    && old
-                        .as_ref()
-                        .is_some_and(|value| !matches!(value, InputValue::TextIndex(_)))
+                    && old.as_ref().is_some_and(|value| {
+                        !matches!(
+                            value,
+                            InputValue::TextIndex(_) | InputValue::TextUnionIndex(_)
+                        )
+                    })
             })
         {
             return Err(RuntimeDiagnostic::new(

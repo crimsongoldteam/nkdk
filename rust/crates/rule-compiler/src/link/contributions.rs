@@ -46,9 +46,21 @@ pub(super) fn resolve(
                     "Index projection requires a text value",
                 ));
             }
+            if contribution.union_reference_prefix.is_some()
+                && (for_each.is_none()
+                    || key.value_type != LinkedType::Scalar(ScalarType::Text)
+                    || contains_variable(&key))
+            {
+                return Err(diagnostic(
+                    "union_contribution_type",
+                    &key.source,
+                    "Named union requires a text owner key independent of its alternative rows",
+                ));
+            }
             Ok(LinkedContribution {
                 for_each,
                 index: contribution.index.clone(),
+                union_reference_prefix: contribution.union_reference_prefix.clone(),
                 key,
                 value,
                 source: contribution.source.clone(),
@@ -57,16 +69,27 @@ pub(super) fn resolve(
         .collect()
 }
 
+fn contains_variable(expression: &LinkedExpression) -> bool {
+    match &expression.kind {
+        LinkedExpressionKind::Variable(_) => true,
+        LinkedExpressionKind::Operation { arguments, .. } => {
+            arguments.iter().any(contains_variable)
+        }
+        _ => false,
+    }
+}
+
 pub(super) fn validate_inputs(entries: &[LinkedEntry]) -> Result<(), Diagnostic> {
     let mut shapes = BTreeMap::<&str, &LinkedContribution>::new();
     for contribution in entries.iter().flat_map(|entry| &entry.contributions) {
         if let Some(first) = shapes.insert(&contribution.index, contribution)
-            && !expressions::same_type(&first.key.value_type, &contribution.key.value_type)
+            && (!expressions::same_type(&first.key.value_type, &contribution.key.value_type)
+                || first.union_reference_prefix != contribution.union_reference_prefix)
         {
             let mut error = diagnostic(
                 "index_shape_mismatch",
                 &contribution.source,
-                "Contributions to an index must have the same key shape",
+                "Contributions to an index must have the same key shape and union profile",
             );
             error.related.push(first.source.clone());
             return Err(error);
@@ -93,7 +116,12 @@ pub(super) fn validate_inputs(entries: &[LinkedEntry]) -> Result<(), Diagnostic>
                     "No declaration contributes to the bound index",
                 ));
             };
-            if !matches!(&input.value, LinkedType::Index {key,value} if expressions::same_type(key,&shape.key.value_type) && **value==LinkedType::Scalar(ScalarType::Text))
+            let expected = if shape.union_reference_prefix.is_some() {
+                LinkedType::Sequence(Box::new(LinkedType::Scalar(ScalarType::Text)))
+            } else {
+                LinkedType::Scalar(ScalarType::Text)
+            };
+            if !matches!(&input.value, LinkedType::Index {key,value} if expressions::same_type(key,&shape.key.value_type) && **value==expected)
             {
                 return Err(diagnostic(
                     "index_binding_type",

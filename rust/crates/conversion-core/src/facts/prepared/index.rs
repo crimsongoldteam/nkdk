@@ -1,13 +1,25 @@
 use super::*;
+use crate::facts::graph::{
+    GraphBudget, GraphLimit, NamedAlternative, NamedUnionGraph, NamedValues,
+};
 
 /// The catalog erases the index width once; rows retain fixed-size typed keys.
 pub trait TextIndexBuilder: Send {
     fn push(&mut self, text: &mut TextBuilder, key: &[&str], value: &str) -> Result<(), FactLimit>;
+    fn begin_union(&mut self, _text: &mut TextBuilder, _name: &str) -> Result<(), FactLimit> {
+        Err(FactLimit::WrongIndexKind)
+    }
+    fn push_union(&mut self, _text: &mut TextBuilder, _value: &str) -> Result<(), FactLimit> {
+        Err(FactLimit::WrongIndexKind)
+    }
     fn mark_unready(&mut self);
     fn finish(self: Box<Self>) -> Box<dyn PreparedTextIndex>;
 }
 
 pub trait PreparedTextIndex: Send + Sync {
+    fn is_union(&self) -> bool {
+        false
+    }
     fn columns(&self) -> Option<&[&'static str]>;
     fn is_ready(&self, generation: Generation) -> bool;
     fn lookup<'a>(
@@ -16,6 +28,172 @@ pub trait PreparedTextIndex: Send + Sync {
         generation: Generation,
         key: &[&str],
     ) -> FactState<&'a str>;
+    fn lookup_union<'a>(
+        &'a self,
+        _text: &'a PreparedText,
+        _generation: Generation,
+        _name: &str,
+    ) -> FactState<TextUnionValues<'a>> {
+        FactState::Unready
+    }
+    fn graph_limit(&self) -> Option<GraphLimit> {
+        None
+    }
+}
+
+pub struct TextUnionValues<'a> {
+    values: NamedValues<'a, TextId>,
+    text: &'a PreparedText,
+    generation: Generation,
+}
+impl TextUnionValues<'_> {
+    pub fn is_empty(&self) -> bool {
+        self.values.len() == 0
+    }
+}
+
+impl Clone for TextUnionValues<'_> {
+    fn clone(&self) -> Self {
+        Self {
+            values: self.values.clone(),
+            text: self.text,
+            generation: self.generation,
+        }
+    }
+}
+
+impl<'a> Iterator for TextUnionValues<'a> {
+    type Item = &'a str;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let id = *self.values.next()?;
+        match self.text.resolve(self.generation, id) {
+            FactState::Ready(value) => Some(value),
+            _ => unreachable!("union values were interned in this generation"),
+        }
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.values.size_hint()
+    }
+}
+impl ExactSizeIterator for TextUnionValues<'_> {}
+
+struct UnionBuilder {
+    generation: Generation,
+    prefix: &'static str,
+    budget: GraphBudget,
+    definitions: Vec<(String, Vec<NamedAlternative<TextId>>)>,
+    current: Option<usize>,
+    ready: bool,
+}
+
+struct UnionPrepared {
+    generation: Generation,
+    graph: Option<NamedUnionGraph<TextId>>,
+    limit: Option<GraphLimit>,
+    ready: bool,
+}
+
+pub fn text_union_index(
+    generation: Generation,
+    reference_prefix: &'static str,
+    budget: GraphBudget,
+) -> Box<dyn TextIndexBuilder> {
+    Box::new(UnionBuilder {
+        generation,
+        prefix: reference_prefix,
+        budget,
+        definitions: Vec::new(),
+        current: None,
+        ready: true,
+    })
+}
+
+impl TextIndexBuilder for UnionBuilder {
+    fn push(
+        &mut self,
+        _text: &mut TextBuilder,
+        _key: &[&str],
+        _value: &str,
+    ) -> Result<(), FactLimit> {
+        Err(FactLimit::WrongIndexKind)
+    }
+    fn begin_union(&mut self, text: &mut TextBuilder, name: &str) -> Result<(), FactLimit> {
+        text.intern(name).map_err(FactLimit::Text)?;
+        self.definitions.push((name.to_owned(), Vec::new()));
+        self.current = Some(self.definitions.len() - 1);
+        Ok(())
+    }
+    fn push_union(&mut self, text: &mut TextBuilder, value: &str) -> Result<(), FactLimit> {
+        let current = self.current.ok_or(FactLimit::WrongIndexKind)?;
+        let alternative = if value.starts_with(self.prefix) {
+            NamedAlternative::Reference(value.to_owned())
+        } else {
+            NamedAlternative::Value(text.intern(value).map_err(FactLimit::Text)?)
+        };
+        self.definitions[current].1.push(alternative);
+        Ok(())
+    }
+    fn mark_unready(&mut self) {
+        self.ready = false;
+    }
+    fn finish(self: Box<Self>) -> Box<dyn PreparedTextIndex> {
+        let (graph, limit) = if self.ready {
+            match NamedUnionGraph::prepare(self.generation, self.definitions, self.budget) {
+                Ok(graph) => (Some(graph), None),
+                Err(limit) => (None, Some(limit)),
+            }
+        } else {
+            (None, None)
+        };
+        Box::new(UnionPrepared {
+            generation: self.generation,
+            graph,
+            limit,
+            ready: self.ready,
+        })
+    }
+}
+
+impl PreparedTextIndex for UnionPrepared {
+    fn is_union(&self) -> bool {
+        true
+    }
+    fn columns(&self) -> Option<&[&'static str]> {
+        None
+    }
+    fn is_ready(&self, generation: Generation) -> bool {
+        self.ready && self.generation == generation && self.graph.is_some()
+    }
+    fn lookup<'a>(
+        &'a self,
+        _text: &'a PreparedText,
+        _generation: Generation,
+        _key: &[&str],
+    ) -> FactState<&'a str> {
+        FactState::Unready
+    }
+    fn lookup_union<'a>(
+        &'a self,
+        text: &'a PreparedText,
+        generation: Generation,
+        name: &str,
+    ) -> FactState<TextUnionValues<'a>> {
+        let Some(graph) = self.graph.as_ref().filter(|_| self.is_ready(generation)) else {
+            return FactState::Unready;
+        };
+        graph
+            .lookup_values(generation, name)
+            .map(|values| TextUnionValues {
+                values,
+                text,
+                generation,
+            })
+    }
+    fn graph_limit(&self) -> Option<GraphLimit> {
+        self.limit
+    }
 }
 
 struct Builder<const N: usize> {

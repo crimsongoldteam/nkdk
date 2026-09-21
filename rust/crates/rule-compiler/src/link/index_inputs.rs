@@ -28,9 +28,10 @@ pub(super) fn infer(
             match contributions::resolve(module, &indexed, ids) {
                 Ok(contributions) => {
                     for contribution in contributions {
-                        shapes
-                            .entry(contribution.index)
-                            .or_insert(contribution.key.value_type);
+                        shapes.entry(contribution.index).or_insert((
+                            contribution.key.value_type,
+                            contribution.union_reference_prefix,
+                        ));
                     }
                 }
                 Err(error) if error.code == "unresolved_index_input" => {
@@ -44,10 +45,16 @@ pub(super) fn infer(
         for module in &mut expanded {
             for input in &mut module.inputs {
                 if let TypeDefinition::IndexFromBinding(name) = &input.definition {
-                    if let Some(shape) = shapes.get(name) {
+                    if let Some((shape, union)) = shapes.get(name) {
                         input.definition = TypeDefinition::Index {
                             key: Box::new(key_type(shape)),
-                            value: Box::new(TypeDefinition::Scalar(ScalarType::Text)),
+                            value: Box::new(if union.is_some() {
+                                TypeDefinition::Sequence(Box::new(TypeDefinition::Scalar(
+                                    ScalarType::Text,
+                                )))
+                            } else {
+                                TypeDefinition::Scalar(ScalarType::Text)
+                            }),
                         };
                         progress = true;
                     } else {

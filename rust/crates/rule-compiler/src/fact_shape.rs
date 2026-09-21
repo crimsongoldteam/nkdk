@@ -21,3 +21,10 @@ pub(crate) fn text_cell(value: &LinkedType) -> bool {
         LinkedType::Scalar(ScalarType::Text) | LinkedType::Enum(_)
     )
 }
+
+pub(crate) fn text_union_index(value: &LinkedType) -> bool {
+    matches!(value, LinkedType::Index { key, value }
+        if columns(key) == Some(Vec::new())
+        && matches!(value.as_ref(), LinkedType::Sequence(item)
+            if **item == LinkedType::Scalar(ScalarType::Text)))
+}

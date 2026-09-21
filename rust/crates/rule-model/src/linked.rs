@@ -398,6 +398,7 @@ pub enum LinkedXmlAttributeValue {
 pub struct LinkedContribution {
     pub for_each: Option<LinkedIteration>,
     pub index: String,
+    pub union_reference_prefix: Option<String>,
     pub key: LinkedExpression,
     pub value: LinkedExpression,
     pub source: SourceLocation,

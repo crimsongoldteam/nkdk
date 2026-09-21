@@ -7,6 +7,7 @@ pub(super) struct Expressions<'a> {
     pub(super) fields: &'a [LinkedField],
     pub(super) local_fields: std::collections::BTreeMap<u32, Vec<String>>,
     borrowed_rows: std::collections::BTreeMap<u32, Vec<LinkedField>>,
+    union_rows: BTreeSet<u32>,
     pub(super) field_storage: Option<&'a [(String, String)]>,
     pub(super) calendar_field_storage: Option<String>,
     pub(super) decimal_field_storage: Option<String>,
@@ -36,6 +37,7 @@ impl<'a> Expressions<'a> {
             variant_text_storage: None,
             local_fields: Default::default(),
             borrowed_rows: Default::default(),
+            union_rows: Default::default(),
             constants: String::new(),
             next_constant: 0,
             transforms: BTreeSet::new(),
@@ -352,7 +354,12 @@ impl<'a> Expressions<'a> {
                 let code = self.lower(value)?;
                 Ok(Self::text_reference(value, code))
             })?;
-            return Ok(format!("({index}).lookup_parts(&[{}])?", key.join(",")));
+            let union = matches!(&arguments[0].value_type, LinkedType::Index { value, .. } if matches!(value.as_ref(), LinkedType::Sequence(item) if **item == LinkedType::Scalar(ScalarType::Text)));
+            return Ok(if union {
+                format!("({index}).lookup({})?", key[0])
+            } else {
+                format!("({index}).lookup_parts(&[{}])?", key.join(","))
+            });
         }
         Ok(match &value.kind {
             LinkedExpressionKind::Capture(0)
@@ -380,6 +387,7 @@ impl<'a> Expressions<'a> {
                         {
                             "text_index"
                         }
+                        value if crate::fact_shape::text_union_index(value) => "text_union_index",
                         LinkedType::Sequence(item)
                             if matches!(item.as_ref(), LinkedType::Record(_)) =>
                         {
@@ -420,6 +428,9 @@ impl<'a> Expressions<'a> {
                 }
                 LinkedType::Scalar(ScalarType::Boolean) => format!("*v{slot}"),
                 LinkedType::Scalar(ScalarType::Decimal) => format!("v{slot}"),
+                LinkedType::Sequence(_) if self.union_rows.contains(slot) => {
+                    format!("v{slot}.clone()")
+                }
                 LinkedType::Sequence(_) => format!("v{slot}.as_slice()"),
                 LinkedType::Record(_) => format!("v{slot}"),
                 _ => {
@@ -520,6 +531,10 @@ impl<'a> Expressions<'a> {
                 }
                 if let LinkedOperator::MatchOptional(slot) = operator {
                     let input = self.lower(&arguments[0])?;
+                    let union = matches!(&arguments[0].kind, LinkedExpressionKind::Operation { operator: LinkedOperator::Lookup, arguments } if matches!(&arguments[0].value_type, LinkedType::Index { value, .. } if matches!(value.as_ref(), LinkedType::Sequence(item) if **item == LinkedType::Scalar(ScalarType::Text))));
+                    if union {
+                        self.union_rows.insert(*slot);
+                    }
                     if let LinkedType::Optional(inner) = &arguments[0].value_type
                         && let LinkedType::Record(fields) = inner.as_ref()
                     {
@@ -532,6 +547,9 @@ impl<'a> Expressions<'a> {
                         self.lower(&arguments[1])
                     };
                     self.borrowed_rows.remove(slot);
+                    if union {
+                        self.union_rows.remove(slot);
+                    }
                     let mut present = present?;
                     let mut absent = if optional_text {
                         self.optional_text(&arguments[2])?
@@ -690,8 +708,9 @@ impl<'a> Expressions<'a> {
                     let LinkedType::Sequence(item) = &arguments[0].value_type else {
                         return Err(unsupported(self.entry, "Iteration requires a sequence"));
                     };
+                    let union = matches!(arguments[0].kind, LinkedExpressionKind::Variable(owner) if self.union_rows.contains(&owner));
                     if matches!(operator, LinkedOperator::One(_) | LinkedOperator::Select(_)) {
-                        let binding = if matches!(item.as_ref(), LinkedType::Record(_)) {
+                        let binding = if union || matches!(item.as_ref(), LinkedType::Record(_)) {
                             format!("let v{slot}=item;")
                         } else if matches!(arguments[0].kind, LinkedExpressionKind::SelfValue)
                             && matches!(item.as_ref(), LinkedType::Scalar(ScalarType::Text))
@@ -757,6 +776,18 @@ impl<'a> Expressions<'a> {
                         };
                         return Ok(format!(
                             "{{ let mut matched = {each}; for v{slot} in {sequence} {{ if {condition} {{ matched = {}; break; }} }} matched }}",
+                            !each
+                        ));
+                    }
+                    if union {
+                        let each = matches!(operator, LinkedOperator::Each(_));
+                        let condition = if each {
+                            format!("!({predicate})")
+                        } else {
+                            predicate
+                        };
+                        return Ok(format!(
+                            "{{let mut matched={each};for v{slot} in {sequence}{{if {condition}{{matched={};break;}}}}matched}}",
                             !each
                         ));
                     }

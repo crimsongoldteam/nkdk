@@ -725,6 +725,7 @@ pub struct DecimalText {
 pub struct Contribution {
     pub for_each: Option<Iteration>,
     pub index: String,
+    pub union_reference_prefix: Option<String>,
     pub key: Expression,
     pub value: Expression,
     pub source: SourceLocation,

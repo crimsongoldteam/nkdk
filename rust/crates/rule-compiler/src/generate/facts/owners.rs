@@ -189,6 +189,12 @@ fn nested_contribution(
         writeln!(out,"let record=match record.field({slot}) {{Some(core::inputs::InputRef::Record(record))=>record,_=>return Err(vec![RuntimeDiagnostic::new(\"fact.unready\",\"Contribution record is unavailable\")])}};").unwrap();
     }
     let last = path[path.len() - 1];
-    writeln!(out,"let rows=record.records({last}).map_err(|error|vec![error])?;for v0 in rows {{let result=(||->std::result::Result<(),FactErrors>{{{}let _inputs=inputs;builder.push_parts(fact_id({:?}).expect(\"declared index\"),&[{}],{}).map_err(|error|RuntimeDiagnostic::new(\"fact.budget\",format!(\"{{error:?}}\")))?;Ok(())}})();result.map_err(|errors|errors.0)?;}}Ok(())}}",lowered.constants,contribution.index,keys.join(","),value).unwrap();
+    if contribution.union_reference_prefix.is_some() {
+        let key = keys.first().expect("linked named union key");
+        writeln!(out,"{}let result=(||->std::result::Result<(),FactErrors>{{builder.begin_union(fact_id({:?}).expect(\"declared index\"),{}).map_err(|error|RuntimeDiagnostic::new(\"fact.budget\",format!(\"{{error:?}}\")))?;Ok(())}})();result.map_err(|errors|errors.0)?;",lowered.constants,contribution.index,key).unwrap();
+        writeln!(out,"let rows=record.records({last}).map_err(|error|vec![error])?;for v0 in rows {{let result=(||->std::result::Result<(),FactErrors>{{let _inputs=inputs;builder.push_union(fact_id({:?}).expect(\"declared index\"),{}).map_err(|error|RuntimeDiagnostic::new(\"fact.budget\",format!(\"{{error:?}}\")))?;Ok(())}})();result.map_err(|errors|errors.0)?;}}Ok(())}}",contribution.index,value).unwrap();
+    } else {
+        writeln!(out,"let rows=record.records({last}).map_err(|error|vec![error])?;for v0 in rows {{let result=(||->std::result::Result<(),FactErrors>{{{}let _inputs=inputs;builder.push_parts(fact_id({:?}).expect(\"declared index\"),&[{}],{}).map_err(|error|RuntimeDiagnostic::new(\"fact.budget\",format!(\"{{error:?}}\")))?;Ok(())}})();result.map_err(|errors|errors.0)?;}}Ok(())}}",lowered.constants,contribution.index,keys.join(","),value).unwrap();
+    }
     Ok(out)
 }

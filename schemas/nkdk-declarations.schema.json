@@ -3005,6 +3005,19 @@
                   "as"
                 ],
                 "additionalProperties": false
+              },
+              "union": {
+                "type": "object",
+                "properties": {
+                  "referencePrefix": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "referencePrefix"
+                ],
+                "additionalProperties": false
               }
             },
             "required": [

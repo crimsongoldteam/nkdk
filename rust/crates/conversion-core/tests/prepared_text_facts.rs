@@ -4,6 +4,121 @@ use nkdk_conversion_core::facts::{
     text::TextBudget,
 };
 
+fn limited_union_builder(generation: Generation) -> TextFactsBuilder {
+    use nkdk_conversion_core::facts::{graph::GraphBudget, prepared::text_union_index};
+    TextFactsBuilder::with_indexes(
+        generation,
+        vec![text_union_index(
+            generation,
+            "ОпределяемыйТип.",
+            GraphBudget {
+                nodes: 2,
+                edges: 1,
+                members: 0,
+            },
+        )],
+        FactBudget {
+            text: TextBudget {
+                entries: 2,
+                bytes: 50,
+            },
+            rows: 2,
+        },
+    )
+}
+
+#[test]
+fn named_union_index_preserves_alternatives_and_unresolved_states() {
+    use nkdk_conversion_core::facts::{graph::GraphBudget, prepared::text_union_index};
+    let generation = Generation(11);
+    let mut builder = TextFactsBuilder::with_indexes(
+        generation,
+        vec![text_union_index(
+            generation,
+            "ОпределяемыйТип.",
+            GraphBudget {
+                nodes: 20,
+                edges: 20,
+                members: 20,
+            },
+        )],
+        FactBudget {
+            text: TextBudget {
+                entries: 20,
+                bytes: 300,
+            },
+            rows: 20,
+        },
+    );
+    builder
+        .begin_union(FactId(0), "ОпределяемыйТип.Основной")
+        .unwrap();
+    builder.push_union(FactId(0), "Строка").unwrap();
+    builder
+        .push_union(FactId(0), "ОпределяемыйТип.Дополнительный")
+        .unwrap();
+    builder.push_union(FactId(0), "Строка").unwrap();
+    builder
+        .begin_union(FactId(0), "ОпределяемыйТип.Дополнительный")
+        .unwrap();
+    builder.push_union(FactId(0), "Число").unwrap();
+    builder
+        .begin_union(FactId(0), "ОпределяемыйТип.Цикл")
+        .unwrap();
+    builder
+        .push_union(FactId(0), "ОпределяемыйТип.Цикл")
+        .unwrap();
+    builder
+        .begin_union(FactId(0), "ОпределяемыйТип.Пустой")
+        .unwrap();
+    let facts = builder.finish();
+    let FactState::Ready(values) =
+        facts.lookup_union(generation, FactId(0), "ОпределяемыйТип.Основной")
+    else {
+        panic!("named union must be ready")
+    };
+    assert_eq!(values.collect::<Vec<_>>(), vec!["Строка", "Число"]);
+    assert!(matches!(
+        facts.lookup_union(generation, FactId(0), "ОпределяемыйТип.Цикл"),
+        FactState::Cycle
+    ));
+    assert!(matches!(
+        facts.lookup_union(generation, FactId(0), "ОпределяемыйТип.Пустой"),
+        FactState::Unready
+    ));
+    assert!(matches!(
+        facts.lookup_union(generation, FactId(0), "ОпределяемыйТип.Нет"),
+        FactState::Missing
+    ));
+    assert!(matches!(
+        facts.lookup_union(Generation(12), FactId(0), "ОпределяемыйТип.Основной"),
+        FactState::Unready
+    ));
+}
+
+#[test]
+fn graph_budget_failure_is_reported_and_never_publishes_partial_values() {
+    use nkdk_conversion_core::facts::graph::GraphLimit;
+    let generation = Generation(13);
+    let mut builder = limited_union_builder(generation);
+    builder.begin_union(FactId(0), "ОпределяемыйТип.А").unwrap();
+    builder.push_union(FactId(0), "Строка").unwrap();
+    let facts = builder.finish();
+    assert_eq!(facts.graph_limit(FactId(0)), Some(GraphLimit::Members));
+    assert!(matches!(
+        facts.lookup_union(generation, FactId(0), "ОпределяемыйТип.А"),
+        FactState::Unready
+    ));
+
+    let mut builder = limited_union_builder(generation);
+    builder.begin_union(FactId(0), "ОпределяемыйТип.А").unwrap();
+    builder.push_union(FactId(0), "Строка").unwrap();
+    assert_eq!(
+        builder.publish(FactId(0)),
+        Err(FactLimit::Graph(GraphLimit::Members))
+    );
+}
+
 #[test]
 fn prepared_columns_share_strings_and_preserve_completeness_per_index() {
     let generation = Generation(4);
