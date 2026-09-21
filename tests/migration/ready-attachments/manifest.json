@@ -13513,6 +13513,10 @@
       "sha256": "4a5e76d3c4500dd862e35cbfa230c8e265c0825659b6a6b533891115ecd80858"
     },
     {
+      "path": "rust/declarations/probes/defined-type-internal-types.generated.yaml",
+      "sha256": "06e395cc53b79d4eb7f07f899a49d6d3c99dc89c6773cb694e3c7720f590221f"
+    },
+    {
       "path": "rust/declarations/probes/discriminated-choice.yaml",
       "sha256": "11d89829684a8a4b1fb89919b69de0305edbfdded675bb8bd7e757beb3a6f97b"
     },

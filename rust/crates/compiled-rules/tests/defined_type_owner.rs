@@ -7,7 +7,7 @@ use std::sync::Arc;
 
 #[test]
 fn defined_type_import_matches_existing_e2e_yaml() {
-    let cases: [(&str, &str, &str, &str, &str, &[u8], &[u8]); 4] = [
+    let cases = [
         (
             "ОпределяемыйТипВсеСвойства",
             "426da0c0-ee05-4af5-a132-c7874136d3bf",
@@ -16,10 +16,10 @@ fn defined_type_import_matches_existing_e2e_yaml() {
             "cf",
             include_bytes!(
                 "../../../../e2e/fixtures/xml/cf/DefinedTypes/ОпределяемыйТипВсеСвойства.xml"
-            ),
+            ) as &[u8],
             include_bytes!(
                 "../../../../e2e/fixtures/nkdk/cf/ОпределяемыйТип/ОпределяемыйТипВсеСвойства.yaml"
-            ),
+            ) as &[u8],
         ),
         (
             "ОпределяемыйТипПоУмолчанию",

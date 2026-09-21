@@ -1,0 +1,125 @@
+# Generated from rust/declarations/probes/document-internal-types.yaml by tools/rules-migration/src/internal-types-operation.mjs
+format: nkdk-declarations/1
+kind: object
+id: migration.defined-type-internal-types
+imports:
+  types: common.internal-generated-types
+namespaces:
+  md: http://v8.1c.ru/8.3/MDClasses
+inputs:
+  owner:
+    type:
+      kind: scalar
+      scalar: text
+types:
+  short-name:
+    kind: text-transform
+    units: utf16
+    classes:
+      separator:
+        - - 46
+          - 46
+    state:
+      finished: false
+    transitions:
+      - when:
+          class: separator
+        emit: discard
+        set:
+          finished: true
+      - when:
+          flag: finished
+        emit: discard
+        set: {}
+      - emit: append
+        set: {}
+    result:
+      separator: ''
+      first:
+        kind: identity
+      rest:
+        kind: identity
+      lowercase: []
+      emptyInput: absent
+      noTokens: absent
+value:
+  kind: record
+  fields:
+    - name: types
+      type:
+        use: types
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: types
+        path:
+          - md:MetaDataObject
+          - md:DefinedType
+          - md:InternalInfo
+  yaml:
+    kind: mapping
+    fields:
+      - field: types
+        key: ВнутренниеТипы
+contributions:
+  - index: metadata.internal-type-ids
+    forEach:
+      in:
+        field: types
+      as: row
+    key:
+      record:
+        owner:
+          input: owner
+        name:
+          match:
+            value:
+              transform:
+                local: short-name
+                value:
+                  get:
+                    of:
+                      var: row
+                    field: name
+            present:
+              as: name
+              then:
+                var: name
+            absent:
+              literal: ''
+    value:
+      get:
+        of:
+          var: row
+        field: typeId
+  - index: metadata.internal-value-ids
+    forEach:
+      in:
+        field: types
+      as: row
+    key:
+      record:
+        owner:
+          input: owner
+        name:
+          match:
+            value:
+              transform:
+                local: short-name
+                value:
+                  get:
+                    of:
+                      var: row
+                    field: name
+            present:
+              as: name
+              then:
+                var: name
+            absent:
+              literal: ''
+    value:
+      get:
+        of:
+          var: row
+        field: valueId

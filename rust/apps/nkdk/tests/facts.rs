@@ -1,6 +1,27 @@
 use nkdk::facts::{Source, prepare};
 use nkdk_compiled_rules::{Direction, convert_file, entry_id, read_inputs};
-use nkdk_conversion_core::facts::{Generation, prepared::FactBudget, text::TextBudget};
+use nkdk_conversion_core::{
+    facts::{Generation, prepared::FactBudget, text::TextBudget},
+    resources::Limits,
+};
+
+fn operation_budget(bytes: usize) -> FactBudget {
+    FactBudget {
+        text: TextBudget {
+            entries: 100,
+            bytes,
+        },
+        rows: 100,
+    }
+}
+
+fn operation_limits() -> Limits {
+    Limits {
+        groups: 16,
+        routes: 16,
+        path_bytes: 4096,
+    }
+}
 
 #[test]
 fn operation_prepares_identity_once_and_returns_context_ready_for_reverse_conversion() {
@@ -42,6 +63,58 @@ fn operation_prepares_identity_once_and_returns_context_ready_for_reverse_conver
     let actual = String::from_utf8(restored.bytes).unwrap();
     assert!(actual.contains("uuid=\"retained-id\""), "{actual}");
     assert!(actual.contains("<Name>Первый</Name>"), "{actual}");
+}
+
+#[test]
+fn operation_prepares_shared_facts_once_for_two_conversions() {
+    use nkdk::operation::{Conversion, Request, prepare as convert};
+    let entry = entry_id("migration.metadata-uuid").unwrap();
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..");
+    let context = br#"{"component":"cf","owner":"parent","kind":"EnumValue"}"#;
+    let xml = [
+        "<Root uuid=\"first-id\"><Name>Первый</Name></Root>",
+        "<Root uuid=\"second-id\"><Name>Второй</Name></Root>",
+    ];
+    let yaml = ["Имя: Первый", "Имя: Второй"];
+    let sources = xml
+        .iter()
+        .map(|source| Source {
+            entry,
+            direction: Direction::XmlToYaml,
+            bytes: source.as_bytes(),
+            inputs: read_inputs(entry, context).unwrap(),
+        })
+        .collect();
+    let conversions = yaml
+        .iter()
+        .enumerate()
+        .map(|(consumer_source_index, source)| Conversion {
+            consumer_source_index,
+            direction: Direction::YamlToXml,
+            primary: source.as_bytes(),
+        })
+        .collect();
+    let outputs = convert(Request {
+        sources,
+        conversions,
+        generation: Generation(1),
+        fact_budget: operation_budget(1000),
+        edge_budget: 10000,
+        source_root: &root,
+        temporary_parent: &std::env::temp_dir(),
+        limits: operation_limits(),
+        xml_bytes: 1000000,
+    })
+    .unwrap_or_else(|errors| panic!("{errors:?}"));
+    assert_eq!(outputs.len(), 2);
+    for (output, expected) in outputs.iter().zip(["first-id", "second-id"]) {
+        assert!(output.diagnostics.is_empty());
+        assert!(
+            std::str::from_utf8(&output.primary)
+                .unwrap()
+                .contains(expected)
+        );
+    }
 }
 
 #[test]
@@ -223,5 +296,150 @@ fn complete_enumeration_values_use_the_working_operation_in_both_directions() {
             .unwrap_or_else(|error| panic!("{}: {error:?}", case["id"]));
         assert!(imported.resources.files().is_empty());
         assert!(exported.resources.files().is_empty());
+    }
+}
+
+#[test]
+fn defined_type_owner_receives_prepared_internal_ids_in_the_working_operation() {
+    use nkdk::operation::{Conversion, Request, prepare as convert};
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..");
+    let cases = [
+        (
+            "ОпределяемыйТипВсеСвойства",
+            "cf",
+            "426da0c0-ee05-4af5-a132-c7874136d3bf",
+            None,
+            include_bytes!(
+                "../../../../e2e/fixtures/xml/cf/DefinedTypes/ОпределяемыйТипВсеСвойства.xml"
+            ) as &[u8],
+            include_bytes!(
+                "../../../../e2e/fixtures/nkdk/cf/ОпределяемыйТип/ОпределяемыйТипВсеСвойства.yaml"
+            ) as &[u8],
+        ),
+        (
+            "ОпределяемыйТипПоУмолчанию",
+            "cf",
+            "61ac73bb-6f4a-4cde-8559-f04443dbc1cc",
+            None,
+            include_bytes!(
+                "../../../../e2e/fixtures/xml/cf/DefinedTypes/ОпределяемыйТипПоУмолчанию.xml"
+            ),
+            include_bytes!(
+                "../../../../e2e/fixtures/nkdk/cf/ОпределяемыйТип/ОпределяемыйТипПоУмолчанию.yaml"
+            ),
+        ),
+        (
+            "ОпределяемыйТипВсеСвойства",
+            "cfe",
+            "4ca2ea3b-664b-4f27-b272-21d4943b0e30",
+            Some("426da0c0-ee05-4af5-a132-c7874136d3bf"),
+            include_bytes!(
+                "../../../../e2e/fixtures/xml/cfe/all-extension/DefinedTypes/ОпределяемыйТипВсеСвойства.xml"
+            ),
+            include_bytes!(
+                "../../../../e2e/fixtures/nkdk/cfe/Расширение_All/ОпределяемыйТип/ОпределяемыйТипВсеСвойства.yaml"
+            ),
+        ),
+        (
+            "ОпределяемыйТипПоУмолчанию",
+            "cfe",
+            "56b53617-eb69-452b-873e-35aa362c7001",
+            Some("61ac73bb-6f4a-4cde-8559-f04443dbc1cc"),
+            include_bytes!(
+                "../../../../e2e/fixtures/xml/cfe/all-extension/DefinedTypes/ОпределяемыйТипПоУмолчанию.xml"
+            ),
+            include_bytes!(
+                "../../../../e2e/fixtures/nkdk/cfe/Расширение_All/ОпределяемыйТип/ОпределяемыйТипПоУмолчанию.yaml"
+            ),
+        ),
+    ];
+    for (name, component, own_id, base_id, xml, yaml) in cases {
+        let owner = entry_id(if base_id.is_some() {
+            "metadata.defined-type-extension"
+        } else {
+            "metadata.defined-type"
+        })
+        .unwrap();
+        let internal = entry_id("migration.defined-type-internal-types").unwrap();
+        let identity = entry_id("migration.metadata-own-identity").unwrap();
+        let context = serde_json::json!({
+            "ownerName": name,
+            "component": component,
+            "parent": "configuration",
+            "identity": own_id,
+            "defaultLanguage": "ru",
+            "registeredLanguages": ["ru", "en"]
+        });
+        let sources = || {
+            let mut sources = vec![
+                Source {
+                    entry: internal,
+                    direction: Direction::XmlToYaml,
+                    bytes: xml,
+                    inputs: read_inputs(internal, &serde_json::to_vec(&serde_json::json!({"owner": own_id})).unwrap()).unwrap(),
+                },
+                Source {
+                    entry: identity,
+                    direction: Direction::XmlToYaml,
+                    bytes: b"<Root><Name>DefinedType</Name></Root>",
+                    inputs: read_inputs(identity, &serde_json::to_vec(&serde_json::json!({"component": component, "owner": "configuration", "kind": "DefinedType", "name": name, "identity": own_id})).unwrap()).unwrap(),
+                },
+            ];
+            if let Some(base) = base_id {
+                let entry = entry_id("migration.metadata-base-identity").unwrap();
+                sources.push(Source {
+                    entry,
+                    direction: Direction::XmlToYaml,
+                    bytes: b"<Root><Name>DefinedType</Name></Root>",
+                    inputs: read_inputs(entry, &serde_json::to_vec(&serde_json::json!({"component": component, "identity": own_id, "baseIdentity": base})).unwrap()).unwrap(),
+                });
+            }
+            sources.push(Source {
+                entry: owner,
+                direction: Direction::XmlToYaml,
+                bytes: xml,
+                inputs: read_inputs(owner, &serde_json::to_vec(&context).unwrap()).unwrap(),
+            });
+            sources
+        };
+        for (direction, source) in [(Direction::XmlToYaml, xml), (Direction::YamlToXml, yaml)] {
+            let result = convert(Request {
+                sources: sources(),
+                conversions: vec![Conversion {
+                    consumer_source_index: if base_id.is_some() { 3 } else { 2 },
+                    direction,
+                    primary: source,
+                }],
+                generation: Generation(1),
+                fact_budget: operation_budget(10000),
+                edge_budget: 10000,
+                source_root: &root,
+                temporary_parent: &std::env::temp_dir(),
+                limits: operation_limits(),
+                xml_bytes: 1000000,
+            })
+            .unwrap_or_else(|errors| panic!("{component}/{name} {direction:?}: {errors:?}"))
+            .into_iter()
+            .next()
+            .unwrap();
+            assert!(
+                result.diagnostics.is_empty(),
+                "{component}/{name}: {:?}",
+                result.diagnostics
+            );
+            let actual = std::str::from_utf8(&result.primary).unwrap();
+            if matches!(direction, Direction::YamlToXml) {
+                assert!(
+                    actual.contains("DefinedType") && actual.contains(own_id),
+                    "{actual}"
+                );
+            } else {
+                assert_eq!(
+                    actual.contains("Тип:"),
+                    std::str::from_utf8(yaml).unwrap().contains("Тип:"),
+                    "{component}/{name}: {actual}"
+                );
+            }
+        }
     }
 }
