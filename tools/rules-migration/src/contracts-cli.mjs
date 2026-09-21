@@ -198,6 +198,22 @@ if(!stringAttribute?.xml.includes('<v8:AllowedLength>Variable</v8:AllowedLength>
    !stringAttribute.yaml.includes('Тип: Строка(10)') ||
    !source(fixedTypeSource).includes('allowedLength: "Fixed"'))throw new Error('Changed independent fixed-string source');
 if(!stringAttribute.xml.includes('<FillValue xsi:type="xs:string" />'))throw new Error('Changed independent string FillValue source');
+const referenceXMLSource='e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства.xml';
+const referenceYAMLSource='e2e/fixtures/nkdk/cf/ПланОбмена/ПланОбменаВсеСвойства/Свойства.yaml';
+if(!source(referenceXMLSource).includes('<FillValue xsi:type="xr:DesignTimeRef">Catalog.СправочникРеквизит.ПредопредленноеЗначение</FillValue>') ||
+   !source(referenceYAMLSource).includes('ЗначениеЗаполнения: Справочник.СправочникРеквизит.ПредопредленноеЗначение'))throw new Error('Changed independent reference FillValue source');
+const referenceAttribute={...stringAttribute,
+  id:'fill-value-reference',
+  xml:stringAttribute.xml
+    .replace('<Properties xmlns:v8=', '<Properties xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:v8=')
+    .replace('<v8:Type>xs:string</v8:Type>','<v8:Type>cfg:CatalogRef.СправочникРеквизит</v8:Type>')
+    .replace(/\s*<v8:StringQualifiers>[\s\S]*?<\/v8:StringQualifiers>/,'')
+    .replace('<FillValue xsi:type="xs:string" />','<FillValue xsi:type="xr:DesignTimeRef">Catalog.СправочникРеквизит.ПредопредленноеЗначение</FillValue>'),
+  yaml:'Тип: Справочник.СправочникРеквизит\nЗначениеЗаполнения: Справочник.СправочникРеквизит.ПредопредленноеЗначение',
+  source:[...stringAttribute.source,{path:referenceXMLSource},{path:referenceYAMLSource}],
+  adaptation:'Use the supported document attribute wrapper and the unchanged Type/FillValue pair from the immutable exchange-plan e2e fixture; reverse export uses freshly prepared inputs without an XML reference',
+};
+cases.push(referenceAttribute);
 cases.push({...stringAttribute,
   id:'fill-value-string-too-long',
   xml:stringAttribute.xml.replace('<FillValue xsi:type="xs:string" />','<FillValue xsi:type="xs:string">12345678901</FillValue>'),
