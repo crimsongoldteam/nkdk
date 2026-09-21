@@ -125,6 +125,37 @@ fn unknown_version_and_keys_have_source_diagnostics() {
 }
 
 #[test]
+fn declarations_reject_native_conversion_escape_hatches() {
+    for (name, declaration) in [
+        (
+            "native",
+            TEXT_MODULE.replace(
+                "kind: scalar, scalar: text",
+                "kind: scalar, scalar: text, native: true",
+            ),
+        ),
+        (
+            "operation",
+            TEXT_MODULE.replace("xml: {kind: text}", "xml: {kind: text, operation: custom}"),
+        ),
+        (
+            "rust-path",
+            format!("{TEXT_MODULE}function: crate::fill_value::convert\n"),
+        ),
+    ] {
+        let errors = parse(SourceFile {
+            path: "forbidden.yaml",
+            bytes: declaration.as_bytes(),
+        })
+        .expect_err(name);
+        assert!(
+            errors.iter().any(|error| error.code == "unknown_key"),
+            "{name}: {errors:?}"
+        );
+    }
+}
+
+#[test]
 fn declaration_identity_does_not_coerce_a_boolean_to_text() {
     let text = TEXT_MODULE.replace("id: common.text", "id: true");
     let errors = parse(SourceFile {
