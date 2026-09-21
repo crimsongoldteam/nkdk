@@ -23,6 +23,8 @@ export function ownerContracts(manifest,catalog,snapshot) {
     ['MetadataWebServiceRules','WebServices','WebСервис'],
     ['MetadataWebSocketClientRules','WebSocketClients','WebSocketКлиент'],
     ['MetadataDocumentAttributeRules','Documents','Документ'],
+    ['MetadataCatalogAttributeRules','Catalogs','Справочник'],
+    ['MetadataInformationRegisterAttributeRules','InformationRegisters','РегистрСведений'],
     ['MetadataWebServiceOperationRules','WebServices','WebСервис'],
     ['MetadataWebServiceParameterRules','WebServices','WebСервис'],
     ['MetadataHTTPServiceMethodRules','HTTPServices','HTTPСервис'],
@@ -57,6 +59,14 @@ export function ownerContracts(manifest,catalog,snapshot) {
     }
     if(symbol==='MetadataDocumentAttributeRules') {
       for(const name of ['СтроковыйРеквизит','РеквизитБулево','ПолныйРеквизит'])requests.push({entry:projection.id,name,fields,xmlItems:[{type:'Attribute',name}],yamlPath:['Реквизиты',name],xml:'e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства.xml',yaml:'e2e/fixtures/nkdk/cf/Документ/ДокументВсеСвойства/Свойства.yaml'});
+      continue;
+    }
+    if(symbol==='MetadataCatalogAttributeRules') {
+      for(const name of ['РеквизитСправочника','СтроковыйРеквизитСИндексом'])requests.push({entry:projection.id,name,fields,xmlItems:[{type:'Attribute',name}],yamlPath:['Реквизиты',name],xml:'e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml',yaml:'e2e/fixtures/nkdk/cf/Справочник/СправочникПолный/Свойства.yaml'});
+      continue;
+    }
+    if(symbol==='MetadataInformationRegisterAttributeRules') {
+      for(const name of ['РеквизитВсеСвойства','ИспользоватьХранилищеДвоичныхДанных'])requests.push({entry:projection.id,name,fields,xmlItems:[{type:'Attribute',name}],yamlPath:['Реквизиты',name],xml:'e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый.xml',yaml:'e2e/fixtures/nkdk/cf/РегистрСведений/РегистрСведенийВсеСвойстваНезависимый/Свойства.yaml'});
       continue;
     }
     if(symbol==='MetadataHTTPServiceMethodRules') {
