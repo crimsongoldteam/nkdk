@@ -1,17 +1,23 @@
 format: nkdk-declarations/1
 kind: object
-id: candidate.projection.f3b9af964f032cd04e6c
+id: candidate.projection.949701672073c8bc6788
 description: 'Кандидат проекции: относительный XML-корень Properties; не полный владелец'
 imports:
   part0: candidate.fragment.26f2a0ec831699cb55dd
-  part1: candidate.fragment.37cf43a17d5ff0f84899
-  part2: candidate.fragment.26c6504dd1cbc2075885
+  part1: candidate.fragment.e8b8bc7db0633e109fe8
+  part2: candidate.fragment.1b7d3cc30864a8dd2a70
+  part3: candidate.fragment.75a4cde38b68731d8ce2
+  part4: candidate.fragment.26c6504dd1cbc2075885
   inputType1f8ea46361ff: common.path-root
-  part3: candidate.fragment.a7934b48993a4f5da784
-  part4: candidate.fragment.5d1647c4012948d8e558
+  part5: candidate.fragment.a7934b48993a4f5da784
+  part6: candidate.fragment.be44808be2465a5ff828
+  part7: candidate.fragment.5d1647c4012948d8e558
+  part8: candidate.fragment.872cce32286a95e0e8cf
 compose:
   - use: part0
   - use: part1
+  - use: part2
+  - use: part3
     bind:
       defaultLanguage:
         input: defaultLanguage
@@ -19,7 +25,7 @@ compose:
         input: registeredLanguages
       ownerName:
         input: ownerName
-  - use: part2
+  - use: part4
     bind:
       defaultLanguage:
         input: defaultLanguage
@@ -53,13 +59,15 @@ compose:
                         var: item
                       field: value
                   pattern: Строка|ФиксированнаяСтрока
-  - use: part3
+  - use: part5
     bind:
       roots:
         input: roots
       forms:
         input: forms
-  - use: part4
+  - use: part6
+  - use: part7
+  - use: part8
 value:
   kind: record
   fields: []
@@ -369,6 +377,73 @@ constraints:
       at:
         field: fillValue
       message: Значение заполнения не соответствует числовому типу
+  - id: fillValue.unbounded-number-sign
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      and:
+        - isVariant:
+            value:
+              field: fillValue
+            variant: decimal
+        - one:
+            in:
+              get:
+                of:
+                  field: type
+                field: items
+            as: item
+            where:
+              literal: true
+        - exists:
+            in:
+              get:
+                of:
+                  field: type
+                field: items
+            as: item
+            where:
+              eq:
+                - get:
+                    of:
+                      var: item
+                    field: value
+                - literal: ПоложительноеЧисло
+        - eq:
+            - get:
+                of:
+                  field: type
+                field: numberDigits
+            - literal: '0'
+        - eq:
+            - get:
+                of:
+                  field: type
+                field: numberAllowedSign
+            - literal: Nonnegative
+    assert:
+      decimalFits:
+        value:
+          variantValue:
+            value:
+              field: fillValue
+            variant: decimal
+        digits:
+          literal: '0'
+        fraction:
+          literal: '0'
+        sign:
+          get:
+            of:
+              field: type
+            field: numberAllowedSign
+    diagnostic:
+      code: fill-value.number-qualifiers
+      severity: warning
+      at:
+        field: fillValue
+      message: Отрицательное значение заполнения не соответствует числовому типу
   - id: fillValue.number-value
     appliesTo:
       - xml-import

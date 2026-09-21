@@ -287,6 +287,13 @@ cases.push({...numericAttribute,
   adaptation:'Keep the e2e numeric owner and declared precision, set Nonnegative and an explicit negative exact value; retain round-trip with a diagnostic',
 });
 cases.push({...numericAttribute,
+  id:'fill-value-negative-for-unbounded-nonnegative-type',
+  xml:numericAttribute.xml.replace('<v8:Digits>10</v8:Digits>','<v8:Digits>0</v8:Digits>').replace('<v8:AllowedSign>Any</v8:AllowedSign>','<v8:AllowedSign>Nonnegative</v8:AllowedSign>').replace('<FillValue xsi:type="xs:decimal">1234</FillValue>','<FillValue xsi:type="xs:decimal">-1</FillValue>'),
+  yaml:numericAttribute.yaml.replace('Тип: Число(10, 0)','Тип: ПоложительноеЧисло(0, 0)').replace('ЗначениеЗаполнения: 1234','ЗначениеЗаполнения: -1'),
+  diagnostics:['fill-value.number-qualifiers'],
+  adaptation:'The e2e owner with unbounded numeric precision and Nonnegative sign still rejects an explicit negative value',
+});
+cases.push({...numericAttribute,
   id:'fill-value-incompatible-explicit-text',
   xml:numericAttribute.xml.replace('<FillValue xsi:type="xs:decimal">1234</FillValue>','<FillValue xsi:type="xs:string">abc</FillValue>'),
   yaml:numericAttribute.yaml.replace('ЗначениеЗаполнения: 1234','ЗначениеЗаполнения: abc'),
