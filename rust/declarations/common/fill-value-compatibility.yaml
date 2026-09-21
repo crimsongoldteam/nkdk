@@ -13,6 +13,9 @@ inputs:
   numberValue: {type: {kind: scalar, scalar: boolean}}
   booleanValue: {type: {kind: scalar, scalar: boolean}}
   calendarValue: {type: {kind: scalar, scalar: boolean}}
+  textContent: {type: {kind: scalar, scalar: text}}
+  stringLength: {type: {kind: scalar, scalar: text}}
+  stringAllowedLength: {type: {kind: scalar, scalar: text}}
 value: {kind: record, fields: []}
 representations:
   xml: {kind: record, fields: []}
@@ -26,6 +29,28 @@ constraints:
     - {exists: {in: {input: typeItems}, as: item, where: {matches: {value: {get: {of: {var: item}, field: value}}, pattern: 'Строка|ФиксированнаяСтрока'}}}}
   assert: {input: textValue}
   diagnostic: {code: fill-value.type-mismatch, severity: warning, at: {self: true}, message: Значение заполнения не соответствует строковому типу}
+- id: string-length
+  appliesTo: [xml-import, yaml-validation]
+  when:
+    and:
+    - {input: textValue}
+    - {one: {in: {input: typeItems}, as: item, where: {literal: true}}}
+    - {exists: {in: {input: typeItems}, as: item, where: {matches: {value: {get: {of: {var: item}, field: value}}, pattern: 'Строка|ФиксированнаяСтрока'}}}}
+    - {eq: [{input: stringAllowedLength}, {literal: Variable}]}
+    - {matches: {value: {input: stringLength}, pattern: '[1-9][0-9]*'}}
+  assert: {textLengthAtMost: {value: {input: textContent}, limit: {input: stringLength}}}
+  diagnostic: {code: fill-value.string-length, severity: warning, at: {self: true}, message: Значение заполнения превышает длину строкового типа}
+- id: fixed-string-length
+  appliesTo: [xml-import, yaml-validation]
+  when:
+    and:
+    - {input: textValue}
+    - {one: {in: {input: typeItems}, as: item, where: {literal: true}}}
+    - {exists: {in: {input: typeItems}, as: item, where: {eq: [{get: {of: {var: item}, field: value}}, {literal: ФиксированнаяСтрока}]}}}
+    - {eq: [{input: stringAllowedLength}, {literal: Fixed}]}
+    - {matches: {value: {input: stringLength}, pattern: '[1-9][0-9]*'}}
+  assert: {textLengthEquals: {value: {input: textContent}, limit: {input: stringLength}}}
+  diagnostic: {code: fill-value.string-length, severity: warning, at: {self: true}, message: Значение заполнения имеет неверную фиксированную длину}
 - id: number-value
   appliesTo: [xml-import, yaml-validation]
   when:

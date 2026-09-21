@@ -1065,6 +1065,46 @@
         {
           "type": "object",
           "properties": {
+            "isVariant": {
+              "$ref": "#/$defs/variantExpression"
+            }
+          },
+          "required": ["isVariant"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "variantValue": {
+              "$ref": "#/$defs/variantExpression"
+            }
+          },
+          "required": ["variantValue"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "textLengthAtMost": {
+              "$ref": "#/$defs/textLengthExpression"
+            }
+          },
+          "required": ["textLengthAtMost"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "textLengthEquals": {
+              "$ref": "#/$defs/textLengthExpression"
+            }
+          },
+          "required": ["textLengthEquals"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
             "lookup": {
               "type": "object",
               "properties": {
@@ -4461,6 +4501,24 @@
       ],
       "additionalProperties": false,
       "$comment": "Completeness, source references, enum domain, types and directional ownership are checked by the compiler."
+    },
+    "variantExpression": {
+      "type": "object",
+      "properties": {
+        "value": {"$ref": "#/$defs/expression"},
+        "variant": {"type": "string", "minLength": 1}
+      },
+      "required": ["value", "variant"],
+      "additionalProperties": false
+    },
+    "textLengthExpression": {
+      "type": "object",
+      "properties": {
+        "value": {"$ref": "#/$defs/expression"},
+        "limit": {"$ref": "#/$defs/expression"}
+      },
+      "required": ["value", "limit"],
+      "additionalProperties": false
     },
     "textPatternPart": {
       "oneOf": [

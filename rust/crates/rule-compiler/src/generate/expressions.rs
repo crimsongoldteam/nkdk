@@ -996,6 +996,18 @@ impl<'a> Expressions<'a> {
                         self.fallible = true;
                         format!("({}).lookup({})?", values[0], values[1])
                     }
+                    LinkedOperator::TextLengthAtMost | LinkedOperator::TextLengthEquals => {
+                        let text = Self::text_reference(&arguments[0], values[0].clone());
+                        let limit = Self::text_reference(&arguments[1], values[1].clone());
+                        let comparison = if matches!(operator, LinkedOperator::TextLengthEquals) {
+                            "=="
+                        } else {
+                            "<="
+                        };
+                        format!(
+                            "({limit}).parse::<usize>().ok().is_some_and(|maximum| ({text}).encode_utf16().count() {comparison} maximum)"
+                        )
+                    }
                     LinkedOperator::MatchOptional(_) => {
                         unreachable!("optional match lowered before scalar operators")
                     }

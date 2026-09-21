@@ -341,6 +341,18 @@ pub enum ExpressionKind {
         value: Box<Expression>,
         variant: String,
     },
+    VariantValue {
+        value: Box<Expression>,
+        variant: String,
+    },
+    TextLengthAtMost {
+        value: Box<Expression>,
+        limit: Box<Expression>,
+    },
+    TextLengthEquals {
+        value: Box<Expression>,
+        limit: Box<Expression>,
+    },
     Lookup {
         input: Box<Expression>,
         key: Box<Expression>,

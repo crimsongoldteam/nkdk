@@ -197,7 +197,28 @@ const fixedTypeSource='packages/rules/metadata/commonObjects/fillValue/effective
 if(!stringAttribute?.xml.includes('<v8:AllowedLength>Variable</v8:AllowedLength>') ||
    !stringAttribute.yaml.includes('Тип: Строка(10)') ||
    !source(fixedTypeSource).includes('allowedLength: "Fixed"'))throw new Error('Changed independent fixed-string source');
+if(!stringAttribute.xml.includes('<FillValue xsi:type="xs:string" />'))throw new Error('Changed independent string FillValue source');
 cases.push({...stringAttribute,
+  id:'fill-value-string-too-long',
+  xml:stringAttribute.xml.replace('<FillValue xsi:type="xs:string" />','<FillValue xsi:type="xs:string">12345678901</FillValue>'),
+  yaml:stringAttribute.yaml.replace('Тип: Строка(10)',"Тип: Строка(10)\nЗначениеЗаполнения: '12345678901'"),
+  diagnostics:['fill-value.string-length'],
+  adaptation:'Use immutable e2e string attribute and existing length 10; change only the explicit FillValue to 11 characters, keeping declared Type and sibling expectations',
+});
+cases.push({...stringAttribute,
+  id:'fill-value-string-at-limit',
+  xml:stringAttribute.xml.replace('<FillValue xsi:type="xs:string" />','<FillValue xsi:type="xs:string">1234567890</FillValue>'),
+  yaml:stringAttribute.yaml.replace('Тип: Строка(10)',"Тип: Строка(10)\nЗначениеЗаполнения: '1234567890'"),
+  adaptation:'The same immutable variable string length 10 accepts exactly ten UTF-16 units without a diagnostic',
+});
+cases.push({...stringAttribute,
+  id:'fill-value-string-utf16-length',
+  xml:stringAttribute.xml.replace('<FillValue xsi:type="xs:string" />','<FillValue xsi:type="xs:string">123456789😀</FillValue>'),
+  yaml:stringAttribute.yaml.replace('Тип: Строка(10)',"Тип: Строка(10)\nЗначениеЗаполнения: '123456789😀'"),
+  diagnostics:['fill-value.string-length'],
+  adaptation:'Use the immutable e2e length 10 and an explicit value with nine BMP digits plus one supplementary Unicode character; the existing TypeScript length contract counts UTF-16 units',
+});
+const fixedStringAttribute={...stringAttribute,
   id:'fill-value-fixed-string',
   xml:stringAttribute.xml.replace('<v8:AllowedLength>Variable</v8:AllowedLength>','<v8:AllowedLength>Fixed</v8:AllowedLength>'),
   yaml:stringAttribute.yaml.replace('Тип: Строка(10)','Тип: ФиксированнаяСтрока(10)'),
@@ -212,6 +233,22 @@ cases.push({...stringAttribute,
   ],
   source:[...stringAttribute.source,{path:fixedTypeSource}],
   adaptation:'Use immutable e2e string attribute with the Fixed qualifier established by the existing FillValue type test; reverse export uses freshly prepared inputs without an XML reference',
+};
+cases.push(fixedStringAttribute);
+cases.push({...fixedStringAttribute,
+  id:'fill-value-fixed-string-at-limit',
+  xml:fixedStringAttribute.xml.replace('<FillValue xsi:type="xs:string" />','<FillValue xsi:type="xs:string">1234567890</FillValue>'),
+  yaml:fixedStringAttribute.yaml.replace('Тип: ФиксированнаяСтрока(10)',"Тип: ФиксированнаяСтрока(10)\nЗначениеЗаполнения: '1234567890'"),
+  rejectedYAML:[],
+  adaptation:'The immutable fixed string type length 10 accepts exactly ten UTF-16 units without a diagnostic',
+});
+cases.push({...fixedStringAttribute,
+  id:'fill-value-fixed-string-too-short',
+  xml:fixedStringAttribute.xml.replace('<FillValue xsi:type="xs:string" />','<FillValue xsi:type="xs:string">123456789</FillValue>'),
+  yaml:fixedStringAttribute.yaml.replace('Тип: ФиксированнаяСтрока(10)',"Тип: ФиксированнаяСтрока(10)\nЗначениеЗаполнения: '123456789'"),
+  diagnostics:['fill-value.string-length'],
+  rejectedYAML:[],
+  adaptation:'The existing fixed length 10 requires exactly ten characters; change the immutable e2e value to nine and retain the XML spelling',
 });
 const numericAttribute=owners.cases.find(row=>row.id==='e2e-properties-РеквизитВсеСвойства');
 if(!numericAttribute?.xml.includes('<FillValue xsi:type="xs:decimal">1234</FillValue>') ||

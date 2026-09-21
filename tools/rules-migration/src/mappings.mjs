@@ -227,6 +227,9 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
       numberValue:{isVariant:{value:{field:property.name},variant:'decimal'}},
       booleanValue:{isVariant:{value:{field:property.name},variant:'boolean'}},
       calendarValue:{isVariant:{value:{field:property.name},variant:'calendar'}},
+      textContent:{variantValue:{value:{field:property.name},variant:'text'}},
+      stringLength:{get:{of:{field:'type'},field:'stringLength'}},
+      stringAllowedLength:{get:{of:{field:'type'},field:'stringAllowedLength'}},
     }};
   }
   if(Object.hasOwn(p,'ownerFactRole')) {

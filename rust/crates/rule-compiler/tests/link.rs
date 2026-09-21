@@ -2452,9 +2452,13 @@ declarations:
   value: {kind: scalar, scalar: number, profile: decimal}
   representations: {xml: {kind: text}, yaml: {kind: scalar, scalar: number}}
 - kind: value
+  id: test.text
+  value: {kind: scalar, scalar: text, pattern: '.*'}
+  representations: {xml: {kind: text}, yaml: {kind: scalar, scalar: text}}
+- kind: value
   id: test.choice
-  imports: {number: test.number}
-  value: {kind: choice, variants: [{name: number, type: {use: number}}]}
+  imports: {number: test.number, text: test.text}
+  value: {kind: choice, variants: [{name: number, type: {use: number}}, {name: text, type: {use: text}}]}
   representations: {xml: {kind: choice}, yaml: {kind: choice}}
 - kind: object
   id: test.owner
@@ -2468,6 +2472,11 @@ declarations:
     appliesTo: [yaml-validation]
     assert: {isVariant: {value: {field: value}, variant: number}}
     diagnostic: {code: test.choice, severity: error, at: {field: value}, message: Unexpected variant}
+  - id: text-limit
+    appliesTo: [yaml-validation]
+    when: {isVariant: {value: {field: value}, variant: text}}
+    assert: {textLengthAtMost: {value: {variantValue: {value: {field: value}, variant: text}}, limit: {literal: '10'}}}
+    diagnostic: {code: test.length, severity: warning, at: {field: value}, message: Text is too long}
 "#;
     let modules = parse_catalog(source);
     let program = link(&modules).expect("declared variant can be tested");
@@ -2483,6 +2492,13 @@ declarations:
             ..
         }
     ));
+    assert!(matches!(
+        owner.constraints[1].assertion.kind,
+        nkdk_rule_model::LinkedExpressionKind::Operation {
+            operator: nkdk_rule_model::LinkedOperator::TextLengthAtMost,
+            ..
+        }
+    ));
     assert_catalog_error(
         &source.replace("variant: number}}", "variant: missing}}"),
         "unknown_choice_variant",
@@ -2492,6 +2508,14 @@ declarations:
             "value: {field: value}, variant: number",
             "value: {literal: abc}, variant: number",
         ),
+        "expression_type_mismatch",
+    );
+    assert_catalog_error(
+        &source.replace("variant: text}}, limit:", "variant: missing}}, limit:"),
+        "unknown_choice_variant",
+    );
+    assert_catalog_error(
+        &source.replace("limit: {literal: '10'}", "limit: {literal: true}"),
         "expression_type_mismatch",
     );
 }

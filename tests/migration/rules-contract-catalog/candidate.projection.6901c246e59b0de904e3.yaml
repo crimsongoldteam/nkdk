@@ -1,6 +1,6 @@
 format: nkdk-declarations/1
 kind: object
-id: candidate.projection.f80c307c2d89c9c2ea9d
+id: candidate.projection.6901c246e59b0de904e3
 description: 'Кандидат проекции: относительный XML-корень Properties; не полный владелец'
 imports:
   part0: candidate.fragment.7c451bae36cbe6851ab7
@@ -8,11 +8,10 @@ imports:
   part2: candidate.fragment.81d72d589aafa2cb526d
   inputType1f8ea46361ff: common.path-root
   part3: candidate.fragment.92ebe1610e39f3cea8e9
-  part4: candidate.fragment.133b24388e9d251d58cb
-  part5: candidate.fragment.506dc78255a4fe133b20
-  part6: candidate.fragment.a889c49be08ffa2f63c7
-  part7: candidate.fragment.8670582480f963458bc6
-  part8: candidate.fragment.4070ee2c3faabd96b56d
+  part4: candidate.fragment.506dc78255a4fe133b20
+  part5: candidate.fragment.a889c49be08ffa2f63c7
+  part6: candidate.fragment.8670582480f963458bc6
+  part7: candidate.fragment.4070ee2c3faabd96b56d
 compose:
   - use: part0
   - use: part1
@@ -67,7 +66,6 @@ compose:
   - use: part5
   - use: part6
   - use: part7
-  - use: part8
 value:
   kind: record
   fields: []
@@ -120,6 +118,135 @@ constraints:
       at:
         field: fillValue
       message: Значение заполнения не соответствует строковому типу
+  - id: fillValue.string-length
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      and:
+        - isVariant:
+            value:
+              field: fillValue
+            variant: text
+        - one:
+            in:
+              get:
+                of:
+                  field: type
+                field: items
+            as: item
+            where:
+              literal: true
+        - exists:
+            in:
+              get:
+                of:
+                  field: type
+                field: items
+            as: item
+            where:
+              matches:
+                value:
+                  get:
+                    of:
+                      var: item
+                    field: value
+                pattern: Строка|ФиксированнаяСтрока
+        - eq:
+            - get:
+                of:
+                  field: type
+                field: stringAllowedLength
+            - literal: Variable
+        - matches:
+            value:
+              get:
+                of:
+                  field: type
+                field: stringLength
+            pattern: '[1-9][0-9]*'
+    assert:
+      textLengthAtMost:
+        value:
+          variantValue:
+            value:
+              field: fillValue
+            variant: text
+        limit:
+          get:
+            of:
+              field: type
+            field: stringLength
+    diagnostic:
+      code: fill-value.string-length
+      severity: warning
+      at:
+        field: fillValue
+      message: Значение заполнения превышает длину строкового типа
+  - id: fillValue.fixed-string-length
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      and:
+        - isVariant:
+            value:
+              field: fillValue
+            variant: text
+        - one:
+            in:
+              get:
+                of:
+                  field: type
+                field: items
+            as: item
+            where:
+              literal: true
+        - exists:
+            in:
+              get:
+                of:
+                  field: type
+                field: items
+            as: item
+            where:
+              eq:
+                - get:
+                    of:
+                      var: item
+                    field: value
+                - literal: ФиксированнаяСтрока
+        - eq:
+            - get:
+                of:
+                  field: type
+                field: stringAllowedLength
+            - literal: Fixed
+        - matches:
+            value:
+              get:
+                of:
+                  field: type
+                field: stringLength
+            pattern: '[1-9][0-9]*'
+    assert:
+      textLengthEquals:
+        value:
+          variantValue:
+            value:
+              field: fillValue
+            variant: text
+        limit:
+          get:
+            of:
+              field: type
+            field: stringLength
+    diagnostic:
+      code: fill-value.string-length
+      severity: warning
+      at:
+        field: fillValue
+      message: Значение заполнения имеет неверную фиксированную длину
   - id: fillValue.number-value
     appliesTo:
       - xml-import

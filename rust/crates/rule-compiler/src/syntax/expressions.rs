@@ -24,6 +24,9 @@ pub(super) fn expression(path: &str, value: &Node) -> Result<Expression, Diagnos
             "lookup",
             "matches",
             "isVariant",
+            "variantValue",
+            "textLengthAtMost",
+            "textLengthEquals",
             "match",
             "present",
             "isNull",
@@ -71,11 +74,24 @@ pub(super) fn expression(path: &str, value: &Node) -> Result<Expression, Diagnos
     }
     let (operator, operand) = &fields[0];
     let kind = match operator.text(path)? {
-        "isVariant" => {
+        "isVariant" | "variantValue" => {
             let fields = operand.mapping(path, &["value", "variant"])?;
-            ExpressionKind::IsVariant {
-                value: Box::new(expression(path, operand.field(path, fields, "value")?)?),
-                variant: operand.field(path, fields, "variant")?.text(path)?.into(),
+            let value = Box::new(expression(path, operand.field(path, fields, "value")?)?);
+            let variant = operand.field(path, fields, "variant")?.text(path)?.into();
+            if operator.text(path)? == "isVariant" {
+                ExpressionKind::IsVariant { value, variant }
+            } else {
+                ExpressionKind::VariantValue { value, variant }
+            }
+        }
+        "textLengthAtMost" | "textLengthEquals" => {
+            let fields = operand.mapping(path, &["value", "limit"])?;
+            let value = Box::new(expression(path, operand.field(path, fields, "value")?)?);
+            let limit = Box::new(expression(path, operand.field(path, fields, "limit")?)?);
+            if operator.text(path)? == "textLengthAtMost" {
+                ExpressionKind::TextLengthAtMost { value, limit }
+            } else {
+                ExpressionKind::TextLengthEquals { value, limit }
             }
         }
         "require" => ExpressionKind::Require(Box::new(expression(path, operand)?)),

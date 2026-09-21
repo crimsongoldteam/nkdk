@@ -26,6 +26,62 @@ impl Scope {
     }
 }
 
+fn resolve_choice_variant(
+    module: &Module,
+    value: &Expression,
+    variant: &str,
+    expression: &Expression,
+    modules: &BTreeMap<&str, &Module>,
+    ids: &BTreeMap<&str, u32>,
+    scope: &Scope,
+) -> Result<(LinkedExpression, u32, LinkedType), Diagnostic> {
+    let value = resolve_expression_in(module, value, modules, ids, scope)?;
+    let shape = resolve_reference_shape(value.value_type.clone(), expression, modules, ids)?;
+    let LinkedType::Choice(variants) = shape else {
+        return Err(diagnostic(
+            "expression_type_mismatch",
+            &expression.source,
+            "Variant expression requires a choice value",
+        ));
+    };
+    let index = variants
+        .iter()
+        .position(|item| item.name == variant)
+        .ok_or_else(|| {
+            diagnostic(
+                "unknown_choice_variant",
+                &expression.source,
+                "Choice variant is not declared",
+            )
+        })?;
+    Ok((value, index as u32, variants[index].value.clone()))
+}
+
+fn resolve_reference_shape(
+    mut shape: LinkedType,
+    expression: &Expression,
+    modules: &BTreeMap<&str, &Module>,
+    ids: &BTreeMap<&str, u32>,
+) -> Result<LinkedType, Diagnostic> {
+    let mut visited = BTreeSet::new();
+    while let Some((id, _, _)) = shape.as_reference() {
+        if !visited.insert(id) {
+            return Err(diagnostic(
+                "expression_type_mismatch",
+                &expression.source,
+                "Choice reference is cyclic",
+            ));
+        }
+        let referenced = modules
+            .iter()
+            .find(|(name, _)| ids.get(**name) == Some(&id))
+            .map(|(_, module)| *module)
+            .expect("linked choice reference");
+        shape = module_shape(referenced, modules, ids, &mut BTreeSet::new())?;
+    }
+    Ok(shape)
+}
+
 pub(super) fn resolve_expression(
     module: &Module,
     expression: &Expression,
@@ -44,45 +100,57 @@ pub(super) fn resolve_expression_in(
 ) -> Result<LinkedExpression, Diagnostic> {
     let (kind, value_type) = match &expression.kind {
         ExpressionKind::IsVariant { value, variant } => {
-            let value = resolve_expression_in(module, value, modules, ids, scope)?;
-            let mut shape = value.value_type.clone();
-            let mut visited = BTreeSet::new();
-            while let Some((id, _, _)) = shape.as_reference() {
-                if !visited.insert(id) {
-                    return Err(diagnostic(
-                        "expression_type_mismatch",
-                        &expression.source,
-                        "Choice reference is cyclic",
-                    ));
-                }
-                let referenced = modules
-                    .iter()
-                    .find(|(name, _)| ids.get(**name) == Some(&id))
-                    .map(|(_, module)| *module)
-                    .expect("linked choice reference");
-                shape = module_shape(referenced, modules, ids, &mut BTreeSet::new())?;
-            }
-            let LinkedType::Choice(variants) = shape else {
+            let (value, index, _) =
+                resolve_choice_variant(module, value, variant, expression, modules, ids, scope)?;
+            (
+                LinkedExpressionKind::Operation {
+                    operator: LinkedOperator::IsVariant(index),
+                    arguments: vec![value],
+                },
+                LinkedType::Scalar(ScalarType::Boolean),
+            )
+        }
+        ExpressionKind::VariantValue { value, variant } => {
+            let (value, index, selected) =
+                resolve_choice_variant(module, value, variant, expression, modules, ids, scope)?;
+            let selected = resolve_reference_shape(selected, expression, modules, ids)?;
+            if selected != LinkedType::Scalar(ScalarType::Text) {
                 return Err(diagnostic(
                     "expression_type_mismatch",
                     &expression.source,
-                    "Variant test requires a choice value",
+                    "Variant text projection requires a text scalar",
                 ));
-            };
-            let index = variants
-                .iter()
-                .position(|item| item.name == *variant)
-                .ok_or_else(|| {
-                    diagnostic(
-                        "unknown_choice_variant",
-                        &expression.source,
-                        "Choice variant is not declared",
-                    )
-                })?;
+            }
             (
                 LinkedExpressionKind::Operation {
-                    operator: LinkedOperator::IsVariant(index as u32),
+                    operator: LinkedOperator::VariantValue(index),
                     arguments: vec![value],
+                },
+                selected,
+            )
+        }
+        ExpressionKind::TextLengthAtMost { value, limit }
+        | ExpressionKind::TextLengthEquals { value, limit } => {
+            let value = resolve_expression_in(module, value, modules, ids, scope)?;
+            let limit = resolve_expression_in(module, limit, modules, ids, scope)?;
+            if value.value_type != LinkedType::Scalar(ScalarType::Text)
+                || limit.value_type != LinkedType::Scalar(ScalarType::Text)
+            {
+                return Err(diagnostic(
+                    "expression_type_mismatch",
+                    &expression.source,
+                    "Text length and its limit must be text",
+                ));
+            }
+            let operator = if matches!(expression.kind, ExpressionKind::TextLengthAtMost { .. }) {
+                LinkedOperator::TextLengthAtMost
+            } else {
+                LinkedOperator::TextLengthEquals
+            };
+            (
+                LinkedExpressionKind::Operation {
+                    operator,
+                    arguments: vec![value, limit],
                 },
                 LinkedType::Scalar(ScalarType::Boolean),
             )

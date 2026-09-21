@@ -550,8 +550,12 @@ fn generate_checks(
         out.push_str("};match value{");
         for variant in 0..count {
             writeln!(out, "Stored::V{variant}(value)=>{{").unwrap();
+            let storage = [(
+                format!("part_{id}_{variant}::text_field(value,0).unwrap_or(\"\")"),
+                "true".to_owned(),
+            )];
             let mut expressions =
-                super::expressions::Expressions::new(child, program, fields, None);
+                super::expressions::Expressions::new(child, program, fields, Some(&storage));
             for original in &child.constraints {
                 if !original.applies_to.contains(&phase)
                     || (!original.forms.is_empty() && !original.forms.contains(&form))
@@ -568,7 +572,7 @@ fn generate_checks(
                 crate::expressions::map_constraint(&mut rule, |expression| {
                     specialize_variant_test(expression, variant as u32)
                 });
-                if rule.expressions().any(uses_owner_field) {
+                if rule.expressions().any(uses_unprojected_owner_field) {
                     return Err(unsupported(
                         child,
                         "Choice property contract must use a variant test or a bound input",
@@ -631,15 +635,41 @@ fn generate_checks(
     Ok(out)
 }
 
-fn uses_owner_field(value: &LinkedExpression) -> bool {
+fn uses_unprojected_owner_field(value: &LinkedExpression) -> bool {
     match &value.kind {
+        LinkedExpressionKind::Field(0)
+            if value.value_type == LinkedType::Scalar(ScalarType::Text) =>
+        {
+            false
+        }
         LinkedExpressionKind::Field(_) | LinkedExpressionKind::SelfValue => true,
-        LinkedExpressionKind::Operation { arguments, .. } => arguments.iter().any(uses_owner_field),
+        LinkedExpressionKind::Operation { arguments, .. } => {
+            arguments.iter().any(uses_unprojected_owner_field)
+        }
         _ => false,
     }
 }
 
 fn specialize_variant_test(value: &mut LinkedExpression, selected: u32) {
+    if let LinkedExpressionKind::Operation {
+        operator: LinkedOperator::VariantValue(variant),
+        arguments,
+    } = &value.kind
+        && matches!(
+            arguments.as_slice(),
+            [LinkedExpression {
+                kind: LinkedExpressionKind::Field(0),
+                ..
+            }]
+        )
+    {
+        value.kind = if *variant == selected {
+            LinkedExpressionKind::Field(0)
+        } else {
+            LinkedExpressionKind::Literal(ScalarLiteral::Text(String::new()))
+        };
+        return;
+    }
     if let LinkedExpressionKind::Operation {
         operator: LinkedOperator::IsVariant(variant),
         arguments,

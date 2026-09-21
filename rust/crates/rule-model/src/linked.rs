@@ -186,6 +186,8 @@ pub struct LinkedParameter {
 pub enum LinkedOperator {
     IsVariant(u32),
     VariantValue(u32),
+    TextLengthAtMost,
+    TextLengthEquals,
     VariantField { variant: u32, field: u32 },
     Lookup,
     Matches(String),
