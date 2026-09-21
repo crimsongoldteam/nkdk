@@ -1,0 +1,38 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: migration.nested-empty-kind
+  value: {kind: record, fields: [{name: kind, type: {kind: scalar, scalar: text}}]}
+  representations:
+    xml: {kind: record, fields: [{field: kind, path: [Kind]}]}
+    yaml: {kind: mapping, fields: [{field: kind, key: Вид}]}
+- kind: object
+  id: migration.conditional-nested-empty-scalar
+  imports: {description: migration.nested-empty-kind}
+  namespaces: {xs: http://www.w3.org/2001/XMLSchema}
+  value:
+    kind: record
+    fields:
+    - {name: description, type: {use: description}}
+    - {name: value, type: {kind: scalar, scalar: text}}
+  representations:
+    xml: {kind: record, fields: [{field: description, path: [Root, Type]}, {field: value, path: [Root, Value]}]}
+    yaml: {kind: mapping, fields: [{field: description, key: Тип}, {field: value, key: Значение}]}
+  presence:
+  - target: {field: description}
+    xml: {missing: {denotes: {absent: true}}}
+    yaml: {missing: {denotes: {absent: true}}}
+  - target: {field: value}
+    xml:
+      missing: {denotes: {absent: true}}
+      empty: [{form: nil, denotes: {absent: true}}, {form: empty-element, denotes: {absent: true}}]
+      canonical:
+      - when:
+          and:
+          - {present: {field: description}}
+          - {eq: [{get: {of: {field: description}, field: kind}}, {literal: Строка}]}
+        form: empty-element
+        type: xs:string
+      - {form: nil}
+    yaml: {missing: {denotes: {absent: true}}}

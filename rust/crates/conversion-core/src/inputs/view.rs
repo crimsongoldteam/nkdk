@@ -1,9 +1,16 @@
 use super::*;
 
+impl std::fmt::Debug for dyn super::RecordInput + '_ {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter.write_str("RecordInput")
+    }
+}
+
 #[derive(Clone, Copy, Debug)]
 pub enum InputRef<'a> {
     /// A completed source field has no semantic value; this is a data anomaly.
     MissingValue,
+    Record(&'a dyn super::RecordInput),
     Records(Records<'a>),
     TextIndex(&'a crate::facts::prepared::TextIndexInput),
     Text(&'a str),
@@ -121,6 +128,12 @@ impl<'a> InputView<'a> {
     pub fn records(&self, slot: usize) -> Result<Records<'a>> {
         match self.value(slot)? {
             InputRef::Records(value) => Ok(value),
+            _ => Err(Self::wrong_type(slot)),
+        }
+    }
+    pub fn record(&self, slot: usize) -> Result<&'a dyn super::RecordInput> {
+        match self.value(slot)? {
+            InputRef::Record(value) => Ok(value),
             _ => Err(Self::wrong_type(slot)),
         }
     }

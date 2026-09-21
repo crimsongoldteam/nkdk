@@ -359,6 +359,20 @@ impl<'a> Expressions<'a> {
                         {
                             "text_index"
                         }
+                        LinkedType::Sequence(item)
+                            if matches!(item.as_ref(), LinkedType::Record(_)) =>
+                        {
+                            "records"
+                        }
+                        LinkedType::Record(_) => "record",
+                        LinkedType::Reference(id)
+                        | LinkedType::BoundReference { entry: id, .. }
+                            if self.program.entries.iter().any(|entry| {
+                                entry.id == *id && matches!(entry.value, LinkedType::Record(_))
+                            }) =>
+                        {
+                            "record"
+                        }
                         LinkedType::Reference(_) => super::scalar::Codec::resolve(
                             &value.value_type,
                             self.entry,
@@ -368,11 +382,6 @@ impl<'a> Expressions<'a> {
                         .ok_or_else(|| {
                             unsupported(self.entry, "Input scalar has no borrowed representation")
                         })?,
-                        LinkedType::Sequence(item)
-                            if matches!(item.as_ref(), LinkedType::Record(_)) =>
-                        {
-                            "records"
-                        }
                         LinkedType::Sequence(_) => "sequence",
                         _ => {
                             return Err(unsupported(
@@ -899,6 +908,12 @@ impl<'a> Expressions<'a> {
                         )
                     }
                     LinkedOperator::Get(index) => {
+                        if let LinkedExpressionKind::Input(slot) = arguments[0].kind
+                            && value.value_type == LinkedType::Scalar(ScalarType::Text)
+                        {
+                            self.fallible = true;
+                            return Ok(format!("_inputs.record({slot})?.text({index})?"));
+                        }
                         if let LinkedExpressionKind::Variable(slot) = arguments[0].kind
                             && self.borrowed_rows.contains_key(&slot)
                         {

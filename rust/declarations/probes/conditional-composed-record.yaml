@@ -1,0 +1,30 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.conditional-composed-record
+imports: {description: common.type-description}
+namespaces: {xs: http://www.w3.org/2001/XMLSchema}
+value:
+  kind: record
+  fields:
+  - {name: description, type: {use: description}}
+  - {name: value, type: {kind: scalar, scalar: text}}
+representations:
+  xml: {kind: record, fields: [{field: description, path: [Root, Type]}, {field: value, path: [Root, Value]}]}
+  yaml: {kind: mapping, fields: [{field: description, key: Тип}, {field: value, key: Значение}]}
+presence:
+- target: {field: description}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {missing: {denotes: {absent: true}}}
+- target: {field: value}
+  xml:
+    missing: {denotes: {absent: true}}
+    empty: [{form: nil, denotes: {absent: true}}, {form: empty-element, denotes: {absent: true}}]
+    canonical:
+    - when:
+        and:
+        - {present: {field: description}}
+        - {eq: [{get: {of: {field: description}, field: stringLength}}, {literal: '10'}]}
+      form: empty-element
+      type: xs:string
+    - {form: nil}
+  yaml: {missing: {denotes: {absent: true}}}

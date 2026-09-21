@@ -40,6 +40,17 @@ impl InputScope {
                 captured.push(capture);
                 continue;
             }
+            let borrowed_record = fields[field as usize]
+                .value
+                .as_reference()
+                .and_then(|(id, _, _)| program.entries.iter().find(|entry| entry.id == id))
+                .is_some_and(|entry| matches!(entry.value, LinkedType::Record(_)));
+            if borrowed_record
+                && crate::plan::routes::record_usage(&parts[capture.0], program)?.is_some()
+            {
+                captured.push(capture);
+                continue;
+            }
             let codec = scalar::Codec::resolve(&fields[field as usize].value, owner, program)?;
             if codec.input_method().is_none() {
                 return Err(unsupported(

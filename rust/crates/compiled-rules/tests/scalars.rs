@@ -1,4 +1,33 @@
 use nkdk_compiled_rules::{Direction, PreparedInputs, convert_file, entry_id, validate_file};
+
+#[test]
+fn nested_sibling_record_selects_empty_xml_form_without_reference() {
+    let inputs = PreparedInputs::default();
+    for (name, typed_yaml) in [
+        (
+            "migration.conditional-nested-empty-scalar",
+            "Тип:\n  Вид: Строка",
+        ),
+        ("migration.conditional-composed-record", "Тип: Строка(10)"),
+    ] {
+        let entry = entry_id(name).unwrap();
+        for (yaml, expected_type) in [(typed_yaml, true), ("", false)] {
+            let exported =
+                convert_file(entry, Direction::YamlToXml, yaml.as_bytes(), &inputs).unwrap();
+            let xml = String::from_utf8_lossy(&exported.bytes);
+            assert!(xml.contains("<Value"), "{xml}");
+            if expected_type {
+                assert!(xml.contains("string"), "{xml}");
+                assert!(!xml.contains("nil=\"true\""), "{xml}");
+            } else {
+                assert!(xml.contains("nil=\"true\""), "{xml}");
+            }
+            let imported =
+                convert_file(entry, Direction::XmlToYaml, &exported.bytes, &inputs).unwrap();
+            assert_eq!(imported.bytes, yaml.as_bytes(), "{xml}");
+        }
+    }
+}
 #[test]
 fn absent_scalar_uses_the_declared_contextual_xml_form_without_reference() {
     let entry = entry_id("migration.conditional-empty-scalar").unwrap();

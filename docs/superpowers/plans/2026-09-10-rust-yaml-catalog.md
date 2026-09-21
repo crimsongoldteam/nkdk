@@ -311,8 +311,11 @@ XML-свойства и родителя, число вхождений, при�
 `MetadataValue` восстанавливается из YAML без XML-референса. Это завершает
 механизм формы, но не классификацию и приёмку целого `FillValue`.
 Проверка с соседним скалярным полем уже подтверждает выбор между `xsi:nil` и
-`xs:string` без XML-референса; вложенный `TypeDescription` остаётся отдельной
-незавершённой зависимостью.
+`xs:string` без XML-референса. Тот же общий доступ к записи теперь работает
+для составного `TypeDescription`: проверено условие от его поля
+`stringLength`, без отдельного обработчика в оркестраторе. Для полного
+`FillValue` ещё требуется брать из вложенного `items` набор альтернатив,
+а затем выполнять проверки значения и графа ссылок.
 
 **Files:** declarations/common/metadata-value/*.yaml, fill-value.yaml; профили Catalog/Document/Attribute; compiler/generate/relations.rs; compiled-rules/tests/fill_value.rs; tests/conversion-corpus/cases/fill-*.
 

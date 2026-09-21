@@ -345,6 +345,8 @@ pub(super) fn emit_standard_usage(request: UsageRequest<'_>) -> Result<ValueEmis
     };
     let input_accessor = if declared_items {
         "if field==0 && value.0.present { Some(core::inputs::InputRef::Records(core::inputs::Records::new(&value.0.rows))) } else { None }".into()
+    } else if record_value && record.is_some() {
+        "if field==0 { value.0.body.as_ref().map(|body|core::inputs::InputRef::Record(body)) } else { None }".into()
     } else if !record_value && !nested && !qname && !composite && sequence.is_none() {
         format!("input_field_{id}(&value.0,field)")
     } else {

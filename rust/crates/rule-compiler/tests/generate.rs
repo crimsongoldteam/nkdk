@@ -1,6 +1,17 @@
 use nkdk_rule_compiler::{SourceFile, generate, link, parse, schema};
 use std::{fs, process::Command};
 
+#[test]
+fn sibling_record_field_can_select_an_absent_scalar_xml_form() {
+    let modules = nkdk_rule_compiler::parse_many(SourceFile {
+        path: "conditional-nested-empty-scalar.yaml",
+        bytes: include_bytes!("../../../declarations/probes/conditional-nested-empty-scalar.yaml"),
+    })
+    .unwrap();
+    let program = link(&modules).unwrap();
+    generate(&program).expect("nested sibling record should be a generic expression input");
+}
+
 const PROJECTED_RECORD: &str = r#"format: nkdk-declarations/1
 kind: object
 id: test.projected-record

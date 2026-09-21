@@ -3,6 +3,20 @@ use super::{Decimal, InputRef, Result, RuntimeDiagnostic};
 /// Implemented by generated storage; fields are borrowed from the original row.
 pub trait RecordInput {
     fn field(&self, index: usize) -> Option<InputRef<'_>>;
+
+    fn text(&self, index: usize) -> Result<&str> {
+        match self.field(index) {
+            Some(InputRef::Text(value)) => Ok(value),
+            Some(InputRef::MissingValue) | None => Err(RuntimeDiagnostic::new(
+                "value.missing",
+                format!("Record field {index} is absent"),
+            )),
+            _ => Err(RuntimeDiagnostic::new(
+                "input.type",
+                format!("Record field {index} is not text"),
+            )),
+        }
+    }
 }
 trait RecordSequence {
     fn len(&self) -> usize;
