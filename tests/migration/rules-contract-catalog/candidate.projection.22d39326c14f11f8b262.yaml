@@ -1,6 +1,6 @@
 format: nkdk-declarations/1
 kind: object
-id: candidate.projection.d9a8831b894fcecaa1b8
+id: candidate.projection.22d39326c14f11f8b262
 description: 'Кандидат проекции: относительный XML-корень Properties; не полный владелец'
 imports:
   part0: candidate.fragment.26f2a0ec831699cb55dd
@@ -617,15 +617,6 @@ constraints:
                     field: fillValue
                   variant: reference
               - literal: .
-        - one:
-            in:
-              get:
-                of:
-                  field: type
-                field: items
-            as: item
-            where:
-              literal: true
         - exists:
             in:
               get:

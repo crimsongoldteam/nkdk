@@ -128,7 +128,6 @@ constraints:
     and:
     - {input: referenceValue}
     - {not: {eq: [{input: referenceContent}, {literal: '.'}]}}
-    - {one: {in: {input: typeItems}, as: item, where: {literal: true}}}
     - {exists: {in: {input: typeItems}, as: item, where: {matches: {value: {get: {of: {var: item}, field: value}}, pattern: '(Справочник|Документ|Перечисление|ПланОбмена|ПланСчетов|ПланВидовХарактеристик|ПланВидовРасчета|БизнесПроцесс|Задача)(\..+)?'}}}}
   assert:
     exists:

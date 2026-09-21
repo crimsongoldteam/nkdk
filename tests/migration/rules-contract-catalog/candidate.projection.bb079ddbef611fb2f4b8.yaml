@@ -1,6 +1,6 @@
 format: nkdk-declarations/1
 kind: object
-id: candidate.projection.4af7b1eecff95f37c394
+id: candidate.projection.bb079ddbef611fb2f4b8
 description: 'Кандидат проекции: относительный XML-корень Properties; не полный владелец'
 imports:
   part0: candidate.fragment.7c451bae36cbe6851ab7
@@ -8,11 +8,10 @@ imports:
   part2: candidate.fragment.81d72d589aafa2cb526d
   inputType1f8ea46361ff: common.path-root
   part3: candidate.fragment.92ebe1610e39f3cea8e9
-  part4: candidate.fragment.be44808be2465a5ff828
-  part5: candidate.fragment.506dc78255a4fe133b20
-  part6: candidate.fragment.a889c49be08ffa2f63c7
-  part7: candidate.fragment.8670582480f963458bc6
-  part8: candidate.fragment.4070ee2c3faabd96b56d
+  part4: candidate.fragment.506dc78255a4fe133b20
+  part5: candidate.fragment.a889c49be08ffa2f63c7
+  part6: candidate.fragment.8670582480f963458bc6
+  part7: candidate.fragment.4070ee2c3faabd96b56d
 compose:
   - use: part0
   - use: part1
@@ -67,7 +66,6 @@ compose:
   - use: part5
   - use: part6
   - use: part7
-  - use: part8
 value:
   kind: record
   fields: []
@@ -625,15 +623,6 @@ constraints:
                     field: fillValue
                   variant: reference
               - literal: .
-        - one:
-            in:
-              get:
-                of:
-                  field: type
-                field: items
-            as: item
-            where:
-              literal: true
         - exists:
             in:
               get:
