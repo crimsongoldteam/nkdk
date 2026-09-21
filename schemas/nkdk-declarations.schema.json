@@ -1115,6 +1115,16 @@
         {
           "type": "object",
           "properties": {
+            "decimalFits": {
+              "$ref": "#/$defs/decimalExpression"
+            }
+          },
+          "required": ["decimalFits"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
             "lookup": {
               "type": "object",
               "properties": {
@@ -4537,6 +4547,17 @@
         "fraction": {"$ref": "#/$defs/expression"}
       },
       "required": ["value", "fraction"],
+      "additionalProperties": false
+    },
+    "decimalExpression": {
+      "type": "object",
+      "properties": {
+        "value": {"$ref": "#/$defs/expression"},
+        "digits": {"$ref": "#/$defs/expression"},
+        "fraction": {"$ref": "#/$defs/expression"},
+        "sign": {"$ref": "#/$defs/expression"}
+      },
+      "required": ["value", "digits", "fraction", "sign"],
       "additionalProperties": false
     },
     "textPatternPart": {

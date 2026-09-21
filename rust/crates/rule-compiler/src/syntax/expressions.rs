@@ -28,6 +28,7 @@ pub(super) fn expression(path: &str, value: &Node) -> Result<Expression, Diagnos
             "textLengthAtMost",
             "textLengthEquals",
             "calendarFits",
+            "decimalFits",
             "match",
             "present",
             "isNull",
@@ -100,6 +101,15 @@ pub(super) fn expression(path: &str, value: &Node) -> Result<Expression, Diagnos
             ExpressionKind::CalendarFits {
                 value: Box::new(expression(path, operand.field(path, fields, "value")?)?),
                 fraction: Box::new(expression(path, operand.field(path, fields, "fraction")?)?),
+            }
+        }
+        "decimalFits" => {
+            let fields = operand.mapping(path, &["value", "digits", "fraction", "sign"])?;
+            ExpressionKind::DecimalFits {
+                value: Box::new(expression(path, operand.field(path, fields, "value")?)?),
+                digits: Box::new(expression(path, operand.field(path, fields, "digits")?)?),
+                fraction: Box::new(expression(path, operand.field(path, fields, "fraction")?)?),
+                sign: Box::new(expression(path, operand.field(path, fields, "sign")?)?),
             }
         }
         "require" => ExpressionKind::Require(Box::new(expression(path, operand)?)),

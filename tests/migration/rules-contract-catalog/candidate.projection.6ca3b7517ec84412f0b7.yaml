@@ -1,12 +1,17 @@
 format: nkdk-declarations/1
 kind: object
-id: candidate.projection.11d69f34f7e309358573
+id: candidate.projection.6ca3b7517ec84412f0b7
 description: 'Кандидат проекции: относительный XML-корень Properties; не полный владелец'
 imports:
-  part0: candidate.fragment.8d0d2ec2113aed788d91
-  part1: candidate.fragment.381457343c6174fef16a
+  part0: candidate.fragment.7c451bae36cbe6851ab7
+  part1: candidate.fragment.ffb1bac13e045080446c
+  part2: candidate.fragment.81d72d589aafa2cb526d
   inputType1f8ea46361ff: common.path-root
-  part2: candidate.fragment.ef0da0092dc0ad152768
+  part3: candidate.fragment.92ebe1610e39f3cea8e9
+  part4: candidate.fragment.506dc78255a4fe133b20
+  part5: candidate.fragment.a889c49be08ffa2f63c7
+  part6: candidate.fragment.8670582480f963458bc6
+  part7: candidate.fragment.4070ee2c3faabd96b56d
 compose:
   - use: part0
   - use: part1
@@ -23,12 +28,44 @@ compose:
         input: defaultLanguage
       registeredLanguages:
         input: registeredLanguages
-      ownerName:
-        input: ownerName
+      onlyStringType:
+        and:
+          - present:
+              field: type
+          - one:
+              in:
+                get:
+                  of:
+                    field: type
+                  field: items
+              as: item
+              where:
+                literal: true
+          - exists:
+              in:
+                get:
+                  of:
+                    field: type
+                  field: items
+              as: item
+              where:
+                matches:
+                  value:
+                    get:
+                      of:
+                        var: item
+                      field: value
+                  pattern: Строка|ФиксированнаяСтрока
+  - use: part3
+    bind:
       roots:
         input: roots
       forms:
         input: forms
+  - use: part4
+  - use: part5
+  - use: part6
+  - use: part7
 value:
   kind: record
   fields: []
@@ -262,6 +299,82 @@ constraints:
       at:
         field: fillValue
       message: Значение заполнения не соответствует календарному типу
+  - id: fillValue.number-qualifiers
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      and:
+        - isVariant:
+            value:
+              field: fillValue
+            variant: decimal
+        - one:
+            in:
+              get:
+                of:
+                  field: type
+                field: items
+            as: item
+            where:
+              literal: true
+        - exists:
+            in:
+              get:
+                of:
+                  field: type
+                field: items
+            as: item
+            where:
+              matches:
+                value:
+                  get:
+                    of:
+                      var: item
+                    field: value
+                pattern: Число|ПоложительноеЧисло
+        - matches:
+            value:
+              get:
+                of:
+                  field: type
+                field: numberDigits
+            pattern: '[1-9][0-9]*'
+        - matches:
+            value:
+              get:
+                of:
+                  field: type
+                field: numberFractionDigits
+            pattern: '[0-9]+'
+    assert:
+      decimalFits:
+        value:
+          variantValue:
+            value:
+              field: fillValue
+            variant: decimal
+        digits:
+          get:
+            of:
+              field: type
+            field: numberDigits
+        fraction:
+          get:
+            of:
+              field: type
+            field: numberFractionDigits
+        sign:
+          get:
+            of:
+              field: type
+            field: numberAllowedSign
+    diagnostic:
+      code: fill-value.number-qualifiers
+      severity: warning
+      at:
+        field: fillValue
+      message: Значение заполнения не соответствует числовому типу
   - id: fillValue.number-value
     appliesTo:
       - xml-import

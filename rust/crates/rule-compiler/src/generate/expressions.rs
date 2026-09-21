@@ -9,6 +9,7 @@ pub(super) struct Expressions<'a> {
     borrowed_rows: std::collections::BTreeMap<u32, Vec<LinkedField>>,
     pub(super) field_storage: Option<&'a [(String, String)]>,
     pub(super) calendar_field_storage: Option<String>,
+    pub(super) decimal_field_storage: Option<String>,
     pub(super) constants: String,
     pub(super) next_constant: usize,
     pub(super) transforms: BTreeSet<(u32, u32)>,
@@ -27,6 +28,7 @@ impl<'a> Expressions<'a> {
             fields,
             field_storage,
             calendar_field_storage: None,
+            decimal_field_storage: None,
             local_fields: Default::default(),
             borrowed_rows: Default::default(),
             constants: String::new(),
@@ -413,6 +415,13 @@ impl<'a> Expressions<'a> {
                 }
             },
             LinkedExpressionKind::Field(index) => {
+                if value.value_type == LinkedType::Scalar(ScalarType::Decimal)
+                    && *index == 0
+                    && let Some(decimal) = &self.decimal_field_storage
+                {
+                    self.fallible = true;
+                    return Ok(decimal.clone());
+                }
                 if let Some(storage) = self.field_storage {
                     return storage
                         .get(*index as usize)
@@ -1022,6 +1031,15 @@ impl<'a> Expressions<'a> {
                             let date = Self::text_reference(&arguments[0], values[0].clone());
                             format!("core::calendar::fits_fraction({date}, {fraction})")
                         }
+                    }
+                    LinkedOperator::DecimalFits => {
+                        let digits = Self::text_reference(&arguments[1], values[1].clone());
+                        let fraction = Self::text_reference(&arguments[2], values[2].clone());
+                        let sign = Self::text_reference(&arguments[3], values[3].clone());
+                        format!(
+                            "core::decimal::fits_qualifiers({}, {digits}, {fraction}, {sign})",
+                            values[0]
+                        )
                     }
                     LinkedOperator::MatchOptional(_) => {
                         unreachable!("optional match lowered before scalar operators")

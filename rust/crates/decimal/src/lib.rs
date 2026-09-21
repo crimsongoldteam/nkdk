@@ -77,6 +77,17 @@ impl Decimal {
     pub fn parts(&self) -> (bool, &str, i64) {
         (self.negative, &self.digits, self.exponent)
     }
+    pub fn fits_precision(&self, digits: usize, fraction_digits: usize, nonnegative: bool) -> bool {
+        if nonnegative && self.negative {
+            return false;
+        }
+        if digits == 0 {
+            return true;
+        }
+        let integer = self.point().max(1);
+        let fraction = (-(self.exponent as i128)).max(0);
+        fraction <= fraction_digits as i128 && integer + fraction <= digits as i128
+    }
     pub const fn constant(negative: bool, digits: &'static str, exponent: i64) -> Self {
         let bytes = digits.as_bytes();
         assert!(!bytes.is_empty());
@@ -175,6 +186,31 @@ impl fmt::Display for Decimal {
                 out.write_str(&self.digits[1..])?;
             }
             write!(out, "e{:+}", point - 1)
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Decimal;
+
+    #[test]
+    fn precision_checks_exact_digits_without_floating_point() {
+        for (source, digits, fraction, nonnegative, expected) in [
+            ("1234567890", 10, 0, false, true),
+            ("12345678901", 10, 0, false, false),
+            ("12.5", 10, 0, false, false),
+            ("12.5", 10, 1, false, true),
+            ("-12", 10, 0, true, false),
+            ("9007199254740993", 20, 0, false, true),
+        ] {
+            assert_eq!(
+                Decimal::parse(source)
+                    .unwrap()
+                    .fits_precision(digits, fraction, nonnegative),
+                expected,
+                "{source}"
+            );
         }
     }
 }

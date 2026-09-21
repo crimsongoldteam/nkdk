@@ -357,6 +357,12 @@ pub enum ExpressionKind {
         value: Box<Expression>,
         fraction: Box<Expression>,
     },
+    DecimalFits {
+        value: Box<Expression>,
+        digits: Box<Expression>,
+        fraction: Box<Expression>,
+        sign: Box<Expression>,
+    },
     Lookup {
         input: Box<Expression>,
         key: Box<Expression>,

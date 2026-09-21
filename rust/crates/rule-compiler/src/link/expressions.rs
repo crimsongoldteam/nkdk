@@ -114,11 +114,14 @@ pub(super) fn resolve_expression_in(
             let (value, index, selected) =
                 resolve_choice_variant(module, value, variant, expression, modules, ids, scope)?;
             let selected = resolve_reference_shape(selected, expression, modules, ids)?;
-            if selected != LinkedType::Scalar(ScalarType::Text) {
+            if !matches!(
+                selected,
+                LinkedType::Scalar(ScalarType::Text | ScalarType::Decimal)
+            ) {
                 return Err(diagnostic(
                     "expression_type_mismatch",
                     &expression.source,
-                    "Variant text projection requires a text scalar",
+                    "Variant projection requires a text or decimal scalar",
                 ));
             }
             (
@@ -171,6 +174,35 @@ pub(super) fn resolve_expression_in(
                 LinkedExpressionKind::Operation {
                     operator: LinkedOperator::CalendarFits,
                     arguments: vec![value, fraction],
+                },
+                LinkedType::Scalar(ScalarType::Boolean),
+            )
+        }
+        ExpressionKind::DecimalFits {
+            value,
+            digits,
+            fraction,
+            sign,
+        } => {
+            let value = resolve_expression_in(module, value, modules, ids, scope)?;
+            let digits = resolve_expression_in(module, digits, modules, ids, scope)?;
+            let fraction = resolve_expression_in(module, fraction, modules, ids, scope)?;
+            let sign = resolve_expression_in(module, sign, modules, ids, scope)?;
+            if value.value_type != LinkedType::Scalar(ScalarType::Decimal)
+                || [&digits, &fraction, &sign]
+                    .into_iter()
+                    .any(|part| part.value_type != LinkedType::Scalar(ScalarType::Text))
+            {
+                return Err(diagnostic(
+                    "expression_type_mismatch",
+                    &expression.source,
+                    "Decimal value requires text qualifiers",
+                ));
+            }
+            (
+                LinkedExpressionKind::Operation {
+                    operator: LinkedOperator::DecimalFits,
+                    arguments: vec![value, digits, fraction, sign],
                 },
                 LinkedType::Scalar(ScalarType::Boolean),
             )

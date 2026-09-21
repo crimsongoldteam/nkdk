@@ -232,6 +232,10 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
       stringAllowedLength:{get:{of:{field:'type'},field:'stringAllowedLength'}},
       calendarContent:{variantValue:{value:{field:property.name},variant:'calendar'}},
       dateFractions:{get:{of:{field:'type'},field:'dateFractions'}},
+      decimalContent:{variantValue:{value:{field:property.name},variant:'decimal'}},
+      numberDigits:{get:{of:{field:'type'},field:'numberDigits'}},
+      numberFractionDigits:{get:{of:{field:'type'},field:'numberFractionDigits'}},
+      numberAllowedSign:{get:{of:{field:'type'},field:'numberAllowedSign'}},
     }};
   }
   if(Object.hasOwn(p,'ownerFactRole')) {

@@ -18,6 +18,10 @@ inputs:
   stringAllowedLength: {type: {kind: scalar, scalar: text}}
   calendarContent: {type: {kind: scalar, scalar: text}}
   dateFractions: {type: {kind: scalar, scalar: text}}
+  decimalContent: {type: {kind: scalar, scalar: number, profile: decimal}}
+  numberDigits: {type: {kind: scalar, scalar: text}}
+  numberFractionDigits: {type: {kind: scalar, scalar: text}}
+  numberAllowedSign: {type: {kind: scalar, scalar: text}}
 value: {kind: record, fields: []}
 representations:
   xml: {kind: record, fields: []}
@@ -62,6 +66,17 @@ constraints:
     - {exists: {in: {input: typeItems}, as: item, where: {matches: {value: {get: {of: {var: item}, field: value}}, pattern: 'Дата|Время|ДатаВремя'}}}}
   assert: {calendarFits: {value: {input: calendarContent}, fraction: {input: dateFractions}}}
   diagnostic: {code: fill-value.calendar-fraction, severity: warning, at: {self: true}, message: Значение заполнения не соответствует календарному типу}
+- id: number-qualifiers
+  appliesTo: [xml-import, yaml-validation]
+  when:
+    and:
+    - {input: numberValue}
+    - {one: {in: {input: typeItems}, as: item, where: {literal: true}}}
+    - {exists: {in: {input: typeItems}, as: item, where: {matches: {value: {get: {of: {var: item}, field: value}}, pattern: 'Число|ПоложительноеЧисло'}}}}
+    - {matches: {value: {input: numberDigits}, pattern: '[1-9][0-9]*'}}
+    - {matches: {value: {input: numberFractionDigits}, pattern: '[0-9]+'}}
+  assert: {decimalFits: {value: {input: decimalContent}, digits: {input: numberDigits}, fraction: {input: numberFractionDigits}, sign: {input: numberAllowedSign}}}
+  diagnostic: {code: fill-value.number-qualifiers, severity: warning, at: {self: true}, message: Значение заполнения не соответствует числовому типу}
 - id: number-value
   appliesTo: [xml-import, yaml-validation]
   when:

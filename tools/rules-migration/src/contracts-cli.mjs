@@ -254,6 +254,39 @@ const numericAttribute=owners.cases.find(row=>row.id==='e2e-properties-Рекв�
 if(!numericAttribute?.xml.includes('<FillValue xsi:type="xs:decimal">1234</FillValue>') ||
    !numericAttribute.yaml.includes('ЗначениеЗаполнения: 1234'))throw new Error('Changed independent numeric FillValue source');
 cases.push({...numericAttribute,
+  id:'fill-value-number-over-precision',
+  xml:numericAttribute.xml.replace('<FillValue xsi:type="xs:decimal">1234</FillValue>','<FillValue xsi:type="xs:decimal">12345678901</FillValue>'),
+  yaml:numericAttribute.yaml.replace('ЗначениеЗаполнения: 1234','ЗначениеЗаполнения: 12345678901'),
+  diagnostics:['fill-value.number-qualifiers'],
+  adaptation:'Keep the immutable e2e number type with precision 10 and replace only the explicit value with an exact eleven-digit decimal',
+});
+cases.push({...numericAttribute,
+  id:'fill-value-number-at-precision',
+  xml:numericAttribute.xml.replace('<FillValue xsi:type="xs:decimal">1234</FillValue>','<FillValue xsi:type="xs:decimal">1234567890</FillValue>'),
+  yaml:numericAttribute.yaml.replace('ЗначениеЗаполнения: 1234','ЗначениеЗаполнения: 1234567890'),
+  adaptation:'The same immutable precision 10 accepts exactly ten significant integer digits',
+});
+cases.push({...numericAttribute,
+  id:'fill-value-number-over-fraction',
+  xml:numericAttribute.xml.replace('<FillValue xsi:type="xs:decimal">1234</FillValue>','<FillValue xsi:type="xs:decimal">12.5</FillValue>'),
+  yaml:numericAttribute.yaml.replace('ЗначениеЗаполнения: 1234','ЗначениеЗаполнения: 12.5'),
+  diagnostics:['fill-value.number-qualifiers'],
+  adaptation:'The immutable number type allows zero fraction digits; an exact fractional value remains reversible and is diagnosed',
+});
+cases.push({...numericAttribute,
+  id:'fill-value-exact-large-decimal',
+  xml:numericAttribute.xml.replace('<v8:Digits>10</v8:Digits>','<v8:Digits>20</v8:Digits>').replace('<FillValue xsi:type="xs:decimal">1234</FillValue>','<FillValue xsi:type="xs:decimal">9007199254740993</FillValue>'),
+  yaml:numericAttribute.yaml.replace('Тип: Число(10, 0)','Тип: Число(20, 0)').replace('ЗначениеЗаполнения: 1234','ЗначениеЗаполнения: 9007199254740993'),
+  adaptation:'The same e2e numeric owner with a wider precision accepts a value above JavaScript safe integer; XML and YAML retain the exact digits',
+});
+cases.push({...numericAttribute,
+  id:'fill-value-negative-for-nonnegative-type',
+  xml:numericAttribute.xml.replace('<v8:AllowedSign>Any</v8:AllowedSign>','<v8:AllowedSign>Nonnegative</v8:AllowedSign>').replace('<FillValue xsi:type="xs:decimal">1234</FillValue>','<FillValue xsi:type="xs:decimal">-1</FillValue>'),
+  yaml:numericAttribute.yaml.replace('Тип: Число(10, 0)','Тип: ПоложительноеЧисло(10, 0)').replace('ЗначениеЗаполнения: 1234','ЗначениеЗаполнения: -1'),
+  diagnostics:['fill-value.number-qualifiers'],
+  adaptation:'Keep the e2e numeric owner and declared precision, set Nonnegative and an explicit negative exact value; retain round-trip with a diagnostic',
+});
+cases.push({...numericAttribute,
   id:'fill-value-incompatible-explicit-text',
   xml:numericAttribute.xml.replace('<FillValue xsi:type="xs:decimal">1234</FillValue>','<FillValue xsi:type="xs:string">abc</FillValue>'),
   yaml:numericAttribute.yaml.replace('ЗначениеЗаполнения: 1234','ЗначениеЗаполнения: abc'),

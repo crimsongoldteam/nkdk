@@ -1,5 +1,12 @@
 pub use nkdk_decimal::{Decimal, ParseDecimalError};
 
+pub fn fits_qualifiers(value: &Decimal, digits: &str, fraction: &str, sign: &str) -> bool {
+    let (Ok(digits), Ok(fraction)) = (digits.parse::<usize>(), fraction.parse::<usize>()) else {
+        return false;
+    };
+    value.fits_precision(digits, fraction, sign == "Nonnegative")
+}
+
 /// Normalize the declared separator in the owned input buffer before exact parsing.
 pub fn parse_formatted(
     mut source: String,

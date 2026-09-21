@@ -558,6 +558,9 @@ fn generate_checks(
                 super::expressions::Expressions::new(child, program, fields, Some(&storage));
             expressions.calendar_field_storage =
                 Some(format!("part_{id}_{variant}::calendar_field(value,0)"));
+            expressions.decimal_field_storage = Some(format!(
+                "(match part_{id}_{variant}::input_field(value,0){{Some(core::inputs::InputRef::Decimal(number))=>Ok(number),_=>Err(RuntimeDiagnostic::new(\"fact.field-type\",\"Expected a decimal field\"))}})?"
+            ));
             for original in &child.constraints {
                 if !original.applies_to.contains(&phase)
                     || (!original.forms.is_empty() && !original.forms.contains(&form))
@@ -640,7 +643,10 @@ fn generate_checks(
 fn uses_unprojected_owner_field(value: &LinkedExpression) -> bool {
     match &value.kind {
         LinkedExpressionKind::Field(0)
-            if value.value_type == LinkedType::Scalar(ScalarType::Text) =>
+            if matches!(
+                value.value_type,
+                LinkedType::Scalar(ScalarType::Text | ScalarType::Decimal)
+            ) =>
         {
             false
         }
@@ -668,7 +674,12 @@ fn specialize_variant_test(value: &mut LinkedExpression, selected: u32) {
         value.kind = if *variant == selected {
             LinkedExpressionKind::Field(0)
         } else {
-            LinkedExpressionKind::Literal(ScalarLiteral::Text(String::new()))
+            match value.value_type {
+                LinkedType::Scalar(ScalarType::Decimal) => {
+                    LinkedExpressionKind::Literal(ScalarLiteral::Number("0".into()))
+                }
+                _ => LinkedExpressionKind::Literal(ScalarLiteral::Text(String::new())),
+            }
         };
         return;
     }

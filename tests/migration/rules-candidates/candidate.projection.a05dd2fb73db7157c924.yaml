@@ -1,6 +1,6 @@
 format: nkdk-declarations/1
 kind: object
-id: candidate.projection.cf6b094b0baf21153d8d
+id: candidate.projection.a05dd2fb73db7157c924
 description: 'Кандидат проекции: относительный XML-корень Properties; не полный владелец'
 imports:
   part0: candidate.fragment.7c451bae36cbe6851ab7
@@ -301,6 +301,82 @@ constraints:
       at:
         field: fillValue
       message: Значение заполнения не соответствует календарному типу
+  - id: fillValue.number-qualifiers
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      and:
+        - isVariant:
+            value:
+              field: fillValue
+            variant: decimal
+        - one:
+            in:
+              get:
+                of:
+                  field: type
+                field: items
+            as: item
+            where:
+              literal: true
+        - exists:
+            in:
+              get:
+                of:
+                  field: type
+                field: items
+            as: item
+            where:
+              matches:
+                value:
+                  get:
+                    of:
+                      var: item
+                    field: value
+                pattern: Число|ПоложительноеЧисло
+        - matches:
+            value:
+              get:
+                of:
+                  field: type
+                field: numberDigits
+            pattern: '[1-9][0-9]*'
+        - matches:
+            value:
+              get:
+                of:
+                  field: type
+                field: numberFractionDigits
+            pattern: '[0-9]+'
+    assert:
+      decimalFits:
+        value:
+          variantValue:
+            value:
+              field: fillValue
+            variant: decimal
+        digits:
+          get:
+            of:
+              field: type
+            field: numberDigits
+        fraction:
+          get:
+            of:
+              field: type
+            field: numberFractionDigits
+        sign:
+          get:
+            of:
+              field: type
+            field: numberAllowedSign
+    diagnostic:
+      code: fill-value.number-qualifiers
+      severity: warning
+      at:
+        field: fillValue
+      message: Значение заполнения не соответствует числовому типу
   - id: fillValue.number-value
     appliesTo:
       - xml-import
