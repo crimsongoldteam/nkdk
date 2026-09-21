@@ -1,0 +1,268 @@
+format: nkdk-declarations/1
+kind: value
+id: common.type-description-item
+description: Единая смысловая строка описания типа
+imports:
+  name: common.string
+parameters:
+  metadataAttributeTypesOnly:
+    type:
+      kind: scalar
+      scalar: boolean
+    default: false
+value:
+  kind: record
+  fields:
+    - name: value
+      type:
+        use: name
+    - name: first
+      type:
+        use: name
+    - name: second
+      type:
+        use: name
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: value
+        path:
+          - Value
+      - field: first
+        path:
+          - First
+      - field: second
+        path:
+          - Second
+  yaml:
+    kind: text-pattern
+    parts:
+      - field: value
+      - optional: first
+        parts:
+          - literal: (
+          - field: first
+          - optional: second
+            parts:
+              - literal: ', '
+              - field: second
+          - literal: )
+presence:
+  - target:
+      field: first
+    xml:
+      missing:
+        denotes:
+          literal: ''
+    yaml:
+      missing:
+        denotes:
+          literal: ''
+      omitWhen:
+        eq:
+          - field: first
+          - literal: ''
+  - target:
+      field: second
+    xml:
+      missing:
+        denotes:
+          literal: ''
+    yaml:
+      missing:
+        denotes:
+          literal: ''
+      omitWhen:
+        eq:
+          - field: second
+          - literal: ''
+constraints:
+  - id: metadata-attribute-allowed-types
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    assert:
+      or:
+        - and:
+            - eq:
+                - field: value
+                - literal: Строка
+            - eq:
+                - field: second
+                - literal: ''
+            - or:
+                - eq:
+                    - field: first
+                    - literal: ''
+                - matches:
+                    value:
+                      field: first
+                    pattern: '[1-9][0-9]*'
+        - and:
+            - eq:
+                - field: value
+                - literal: ФиксированнаяСтрока
+            - matches:
+                value:
+                  field: first
+                pattern: '[1-9][0-9]*'
+            - eq:
+                - field: second
+                - literal: ''
+        - and:
+            - matches:
+                value:
+                  field: value
+                pattern: Число|ПоложительноеЧисло
+            - or:
+                - and:
+                    - eq:
+                        - field: first
+                        - literal: ''
+                    - eq:
+                        - field: second
+                        - literal: ''
+                - and:
+                    - matches:
+                        value:
+                          field: first
+                        pattern: '[1-9][0-9]*'
+                    - matches:
+                        value:
+                          field: second
+                        pattern: '[0-9]*'
+        - matches:
+            value:
+              field: value
+            pattern: ^(?:Дата)$
+        - matches:
+            value:
+              field: value
+            pattern: ^(?:Время)$
+        - matches:
+            value:
+              field: value
+            pattern: ^(?:ДатаВремя)$
+        - matches:
+            value:
+              field: value
+            pattern: ^(?:Булево)$
+        - matches:
+            value:
+              field: value
+            pattern: ^(?:ХранилищеЗначения)$
+        - matches:
+            value:
+              field: value
+            pattern: ^(?:УникальныйИдентификатор)$
+        - matches:
+            value:
+              field: value
+            pattern: ^(?:Справочник)$
+        - matches:
+            value:
+              field: value
+            pattern: ^(?:Справочник\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$
+        - matches:
+            value:
+              field: value
+            pattern: ^(?:Документ)$
+        - matches:
+            value:
+              field: value
+            pattern: ^(?:Документ\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$
+        - matches:
+            value:
+              field: value
+            pattern: ^(?:Перечисление)$
+        - matches:
+            value:
+              field: value
+            pattern: ^(?:Перечисление\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$
+        - matches:
+            value:
+              field: value
+            pattern: ^(?:ПланВидовХарактеристик)$
+        - matches:
+            value:
+              field: value
+            pattern: ^(?:ПланВидовХарактеристик\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$
+        - matches:
+            value:
+              field: value
+            pattern: ^(?:ПланСчетов)$
+        - matches:
+            value:
+              field: value
+            pattern: ^(?:ПланСчетов\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$
+        - matches:
+            value:
+              field: value
+            pattern: ^(?:ПланВидовРасчета)$
+        - matches:
+            value:
+              field: value
+            pattern: ^(?:ПланВидовРасчета\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$
+        - matches:
+            value:
+              field: value
+            pattern: ^(?:БизнесПроцесс)$
+        - matches:
+            value:
+              field: value
+            pattern: ^(?:БизнесПроцесс\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$
+        - matches:
+            value:
+              field: value
+            pattern: ^(?:ТочкаМаршрутаБизнесПроцесса)$
+        - matches:
+            value:
+              field: value
+            pattern: ^(?:ТочкаМаршрутаБизнесПроцесса\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$
+        - matches:
+            value:
+              field: value
+            pattern: ^(?:Задача)$
+        - matches:
+            value:
+              field: value
+            pattern: ^(?:Задача\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$
+        - matches:
+            value:
+              field: value
+            pattern: ^(?:ПланОбмена)$
+        - matches:
+            value:
+              field: value
+            pattern: ^(?:ПланОбмена\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$
+        - matches:
+            value:
+              field: value
+            pattern: ^(?:ЛюбаяСсылка)$
+        - matches:
+            value:
+              field: value
+            pattern: ^(?:ОпределяемыйТип\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$
+        - matches:
+            value:
+              field: value
+            pattern: ^(?:Характеристика\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$
+        - matches:
+            value:
+              field: value
+            pattern: >-
+              ^(?:ВнешнийИсточникДанных[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*\.Таблица[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$
+        - matches:
+            value:
+              field: value
+            pattern: >-
+              ^(?:ВнешнийИсточникДанных[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*\.Куб[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*\.ТаблицаИзмерения[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$
+    diagnostic:
+      code: type-description.allowed
+      severity: warning
+      at:
+        field: value
+      message: Тип не разрешён декларацией свойства
+    when:
+      parameter: metadataAttributeTypesOnly

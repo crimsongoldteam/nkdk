@@ -1,0 +1,98 @@
+format: nkdk-declarations/1
+kind: object
+id: metadata.defined-type
+description: Полное определение типа из обычных свойств и подготовленных идентичностей
+namespaces:
+  md: http://v8.1c.ru/8.3/MDClasses
+imports:
+  name: common.string
+  uuid: common.uuid
+  belonging: system.ObjectBelonging
+  base: common.string
+  synonym: common.i8n-text
+  comment: common.string
+  description: common.type-description
+  internal: fragment.defined-type-internal-info
+inputs:
+  ownerName: {type: {kind: scalar, scalar: text}}
+  component: {type: {kind: scalar, scalar: text}}
+  parent: {type: {kind: scalar, scalar: text}}
+  identity: {type: {kind: scalar, scalar: text}}
+  identities: {index: metadata.own-identities}
+  baseIdentities: {index: metadata.base-identities}
+  typeIds: {index: metadata.internal-type-ids}
+  valueIds: {index: metadata.internal-value-ids}
+  defaultLanguage: {type: {kind: scalar, scalar: text}}
+  registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+value:
+  kind: record
+  fields:
+  - {name: objectBelonging, type: {use: belonging}}
+  - {name: name, type: {use: name}}
+  - {name: uuid, type: {use: uuid, bind: {identities: {input: identities}, component: {input: component}, owner: {input: parent}, kind: {literal: DefinedType}, name: {field: name}}}}
+  - {name: synonym, type: {use: synonym, with: {excludeIfEqualNameYAML: true}, bind: {ownerName: {field: name}, defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}}}}
+  - {name: comment, type: {use: comment}}
+  - {name: base, type: {use: base}}
+  - {name: type, type: {use: description}}
+compose:
+- {use: internal, bind: {owner: {input: identity}, name: {input: ownerName}, typeIds: {input: typeIds}, valueIds: {input: valueIds}}}
+representations:
+  xml:
+    kind: with-attributes
+    attributes: [{name: version, value: {text: '2.20'}}]
+    content:
+      kind: record
+      fields:
+      - {field: objectBelonging, path: [md:MetaDataObject, md:DefinedType, md:Properties, md:ObjectBelonging]}
+      - {field: name, path: [md:MetaDataObject, md:DefinedType, md:Properties, md:Name]}
+      - {field: uuid, path: [md:MetaDataObject, md:DefinedType], attribute: uuid}
+      - {field: synonym, path: [md:MetaDataObject, md:DefinedType, md:Properties, md:Synonym]}
+      - {field: comment, path: [md:MetaDataObject, md:DefinedType, md:Properties, md:Comment]}
+      - {field: base, path: [md:MetaDataObject, md:DefinedType, md:Properties, md:ExtendedConfigurationObject]}
+      - {field: type, path: [md:MetaDataObject, md:DefinedType, md:Properties, md:Type]}
+  yaml:
+    kind: mapping
+    fields:
+    - {field: synonym, key: Синоним}
+    - {field: type, key: Тип}
+    - {field: comment, key: Комментарий}
+presence:
+- {target: {field: name}, yaml: {missing: {denotes: {input: ownerName}}}}
+- target: {field: objectBelonging}
+  xml: {missing: {denotes: {literal: Native}}, canonical: [{when: {eq: [{field: objectBelonging}, {literal: Native}]}, form: missing}]}
+  yaml:
+    missing:
+      denotes:
+        if: {eq: [{input: component}, {literal: cfe}]}
+        then: {literal: Adopted}
+        else: {literal: Native}
+- target: {field: synonym}
+  xml: {missing: {denotes: {absent: true}}, canonical: [{when: {not: {present: {field: synonym}}}, form: empty-element}]}
+- target: {field: comment}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {default: {literal: ''}}
+- target: {field: base}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml:
+    missing:
+      denotes:
+        if: {eq: [{input: component}, {literal: cfe}]}
+        then:
+          require:
+            lookup:
+              in: {input: baseIdentities}
+              key:
+                record: {component: {input: component}, identity: {input: identity}}
+        else: {absent: true}
+- target: {field: type}
+  xml:
+    missing: {denotes: {absent: true}}
+    empty: [{form: empty-element, denotes: {absent: true}}]
+    canonical: [{when: {not: {present: {field: type}}}, form: empty-element}]
+  yaml: {missing: {denotes: {absent: true}}}
+contributions:
+- index: metadata.defined-type-alternatives
+  forEach: {in: {get: {of: {field: type}, field: items}}, as: item}
+  key: {concat: [{literal: 'ОпределяемыйТип.'}, {field: name}]}
+  value: {get: {of: {var: item}, field: value}}
+  union: {referencePrefix: 'ОпределяемыйТип.'}

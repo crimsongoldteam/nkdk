@@ -1,0 +1,412 @@
+format: nkdk-declarations/1
+kind: value
+id: common.type-description-name
+description: Имена TypeDescription; таблица перенесена из TypeDescriptionRules
+namespaces:
+  n0: http://v8.1c.ru/8.2/data/spreadsheet
+  n1: http://v8.1c.ru/8.2/data/data-analysis
+  n2: http://v8.1c.ru/8.2/data/chart
+  n3: http://v8.1c.ru/8.2/data/graphscheme
+  n4: http://v8.1c.ru/8.1/data/txtedt
+  n5: http://v8.1c.ru/8.2/data/geo
+  n6: http://v8.1c.ru/8.3/data/entext
+  n7: http://v8.1c.ru/8.2/data/formatted-document
+  n8: http://v8.1c.ru/8.3/data/planner
+  n9: http://v8.1c.ru/8.3/data/pdf
+  n10: http://v8.1c.ru/8.1/data/ui
+  n11: http://v8.1c.ru/8.1/data/enterprise
+  n12: http://v8.1c.ru/8.1/data-composition-system/settings
+  n13: http://v8.1c.ru/8.1/data-composition-system/core
+  n14: http://www.w3.org/2001/XMLSchema
+  n15: http://v8.1c.ru/8.1/data/core
+  n16: http://v8.1c.ru/8.1/data/enterprise/current-config
+value:
+  kind: scalar
+  scalar: text
+representations:
+  xml:
+    kind: qname-lexicon
+    values:
+      - name: n0:SpreadsheetDocument
+        literal: ТабличныйДокумент
+        separator: .
+      - name: n1:AssociationRulesDataSourceType
+        literal: AssociationRulesDataSourceType
+        separator: .
+      - name: n1:AnalysisDataType
+        literal: ТипИсточникаДанныхПоискаАссоциаций
+        separator: .
+      - name: n1:DataAnalysisDistanceMetricType
+        literal: ТипМерыРасстоянияАнализаДанных
+        separator: .
+      - name: n1:DataAnalysisColumnTypeAssociationRules
+        literal: ТипКолонкиАнализаДанныхПоискАссоциаций
+        separator: .
+      - name: n1:DataAnalysisResultTableFillType
+        literal: ТипЗаполненияТаблицыРезультатаАнализаДанных
+        separator: .
+      - name: n1:DataAnalysisNumericValueUseType
+        literal: ТипИспользованияЧисловыхЗначенийАнализаДанных
+        separator: .
+      - name: n1:DecisionTreeSimplificationType
+        literal: ТипУпрощенияДереваРешений
+        separator: .
+      - name: n1:DataAnalysisColumnTypeDecisionTree
+        literal: ТипКолонкиАнализаДанныхДеревоРешений
+        separator: .
+      - name: n1:DataAnalysisSequentialPatternsOrderType
+        literal: ТипУпорядочиванияШаблоновПоследовательностейАнализаДанных
+        separator: .
+      - name: n1:DataAnalysisTimeIntervalUnitType
+        literal: ТипЕдиницыИнтервалаВремениАнализаДанных
+        separator: .
+      - name: n1:DataAnalysisColumnTypeSequentialPatterns
+        literal: ТипКолонкиАнализаДанныхПоискПоследовательностей
+        separator: .
+      - name: n1:DataAnalysisStandardizationType
+        literal: ТипСтандартизацииАнализаДанных
+        separator: .
+      - name: n1:PredictionModelColumnType
+        literal: ТипКолонкиМоделиПрогноза
+        separator: .
+      - name: n1:ClusterizationMethod
+        literal: МетодКластеризации
+        separator: .
+      - name: n1:DataAnalysisAssociationRulesOrderType
+        literal: ТипУпорядочиванияПравилАссоциацииАнализаДанных
+        separator: .
+      - name: n1:DataAnalysisColumnTypeSummaryStatistics
+        literal: ТипКолонкиАнализаДанныхОбщаяСтатистика
+        separator: .
+      - name: n1:AssociationRulesPruneType
+        literal: ТипОтсеченияПравилАссоциации
+        separator: .
+      - name: n1:DataAnalysisColumnTypeClusterization
+        literal: ТипКолонкиАнализаДанныхКластеризация
+        separator: .
+      - name: n2:Dendrogram
+        literal: Дендрограмма
+        separator: .
+      - name: n2:Chart
+        literal: Диаграмма
+        separator: .
+      - name: n2:GanttChart
+        literal: ДиаграммаГанта
+        separator: .
+      - name: n3:FlowchartContextType
+        literal: ГрафическаяСхема
+        separator: .
+      - name: n4:TextDocument
+        literal: ТекстовыйДокумент
+        separator: .
+      - name: n5:GeographicalSchema
+        literal: ГеографическаяСхема
+        separator: .
+      - name: n6:ConditionalAppearance
+        literal: ConditionalAppearance
+        separator: .
+      - name: n7:FormattedDocument
+        literal: ФорматированныйДокумент
+        separator: .
+      - name: n8:Planner
+        literal: Планировщик
+        separator: .
+      - name: n9:PDFDocument
+        literal: ДокументPDF
+        separator: .
+      - name: n10:FormattedString
+        literal: ФорматированнаяСтрока
+        separator: .
+      - name: n10:HorizontalAlign
+        literal: ГоризонтальноеПоложение
+        separator: .
+      - name: n10:VerticalAlign
+        literal: ВертикальноеПоложение
+        separator: .
+      - name: n10:SizeChangeMode
+        literal: РежимИзмененияРазмера
+        separator: .
+      - name: n10:Color
+        literal: Цвет
+        separator: .
+      - name: n10:Font
+        literal: Шрифт
+        separator: .
+      - name: n10:Picture
+        literal: Картинка
+        separator: .
+      - name: n11:AccumulationRecordType
+        literal: ВидДвиженияНакопления
+        separator: .
+      - name: n11:AccountingRecordType
+        literal: ВидДвиженияБухгалтерии
+        separator: .
+      - name: n11:AccountType
+        literal: ВидСчета
+        separator: .
+      - name: n11:ComparisonType
+        literal: ComparisonType
+        separator: .
+      - name: n12:SettingsComposer
+        literal: КомпоновщикНастроекКомпоновкиДанных
+        separator: .
+      - name: n12:Filter
+        literal: Отбор
+        separator: .
+      - name: n12:DataCompositionComparisonType
+        literal: DataCompositionComparisonType
+        separator: .
+      - name: n12:DataCompositionFieldPlacement
+        literal: DataCompositionFieldPlacement
+        separator: .
+      - name: n13:DataCompositionGroupType
+        literal: DataCompositionGroupType
+        separator: .
+      - name: n13:DataCompositionPeriodAdditionType
+        literal: DataCompositionPeriodAdditionType
+        separator: .
+      - name: n13:DataCompositionSortDirection
+        literal: DataCompositionSortDirection
+        separator: .
+      - name: n13:Field
+        literal: ПолеКомпоновкиДанных
+        separator: .
+      - name: n14:string
+        literal: Строка
+        separator: .
+      - name: n14:decimal
+        literal: Число
+        separator: .
+      - name: n14:base64Binary
+        literal: ДвоичныеДанные
+        separator: .
+      - name: n14:dateTime
+        literal: ДатаВремя
+        separator: .
+      - name: n14:date
+        literal: Дата
+        separator: .
+      - name: n14:boolean
+        literal: Булево
+        separator: .
+      - name: n15:ValueStorage
+        literal: ХранилищеЗначения
+        separator: .
+      - name: n15:Null
+        literal: 'Null'
+        separator: .
+      - name: n15:UUID
+        literal: УникальныйИдентификатор
+        separator: .
+      - name: n15:Type
+        literal: Тип
+        separator: .
+      - name: n15:TypeDescription
+        literal: ОписаниеТипов
+        separator: .
+      - name: n15:FixedStructure
+        literal: ФиксированнаяСтруктура
+        separator: .
+      - name: n15:FixedArray
+        literal: ФиксированныйМассив
+        separator: .
+      - name: n15:FixedMap
+        literal: ФиксированноеСоответствие
+        separator: .
+      - name: n15:StandardPeriod
+        literal: СтандартныйПериод
+        separator: .
+      - name: n15:StandardBeginningDate
+        literal: СтандартнаяДатаНачала
+        separator: .
+      - name: n15:ValueTable
+        literal: ТаблицаЗначений
+        separator: .
+      - name: n15:ValueTree
+        literal: ДеревоЗначений
+        separator: .
+      - name: n15:ValueListType
+        literal: СписокЗначений
+        separator: .
+      - name: n16:DynamicList
+        literal: ДинамическийСписок
+        separator: .
+      - name: n16:CatalogRef
+        literal: Справочник
+        separator: .
+      - name: n16:CatalogObject
+        literal: СправочникОбъект
+        separator: .
+      - name: n16:DocumentRef
+        literal: Документ
+        separator: .
+      - name: n16:DocumentObject
+        literal: ДокументОбъект
+        separator: .
+      - name: n16:EnumRef
+        literal: Перечисление
+        separator: .
+      - name: n16:DefinedType
+        literal: ОпределяемыйТип
+        separator: .
+      - name: n16:Characteristic
+        literal: Характеристика
+        separator: .
+      - name: n16:ExchangePlanRef
+        literal: ПланОбмена
+        separator: .
+      - name: n16:ExchangePlanObject
+        literal: ПланОбменаОбъект
+        separator: .
+      - name: n16:ExternalDataSourceTableRef
+        literal: ВнешнийИсточникДанныхТаблица
+        separator: .
+        tailSegments:
+          - ВнешнийИсточникДанных
+          - Таблица
+      - name: n16:ExternalDataSourceTableObject
+        literal: ВнешнийИсточникДанныхТаблицаОбъект
+        separator: .
+      - name: n16:ExternalDataSourceCubeDimensionTableRef
+        literal: ВнешнийИсточникДанныхКубТаблицаИзмерения
+        separator: .
+        tailSegments:
+          - ВнешнийИсточникДанных
+          - Куб
+          - ТаблицаИзмерения
+      - name: n16:ExternalDataSourceCubeRecordManager
+        literal: ВнешнийИсточникДанныхКубМенеджерЗаписи
+        separator: .
+      - name: n16:BusinessProcessRoutePointRef
+        literal: ТочкаМаршрутаБизнесПроцесса
+        separator: .
+      - name: n16:BusinessProcessRoutePointObject
+        literal: ТочкаМаршрутаБизнесПроцессаОбъект
+        separator: .
+      - name: n16:BusinessProcessRef
+        literal: БизнесПроцесс
+        separator: .
+      - name: n16:BusinessProcessObject
+        literal: БизнесПроцессОбъект
+        separator: .
+      - name: n16:AnyIBRef
+        literal: ЛюбаяСсылка
+        separator: .
+        accept:
+          - n16:AnyRef
+      - name: n16:ChartOfCalculationTypesRef
+        literal: ПланВидовРасчета
+        separator: .
+      - name: n16:ChartOfCalculationTypesObject
+        literal: ПланВидовРасчетаОбъект
+        separator: .
+      - name: n16:TaskRef
+        literal: Задача
+        separator: .
+      - name: n16:TaskObject
+        literal: ЗадачаОбъект
+        separator: .
+      - name: n16:ChartOfCharacteristicTypesRef
+        literal: ПланВидовХарактеристик
+        separator: .
+      - name: n16:ChartOfCharacteristicTypesObject
+        literal: ПланВидовХарактеристикОбъект
+        separator: .
+      - name: n16:ChartOfAccountsRef
+        literal: ПланСчетов
+        separator: .
+      - name: n16:ChartOfAccountObject
+        literal: ПланСчетовОбъект
+        separator: .
+      - name: n16:ChartOfAccountsObject
+        literal: ChartOfAccountsObject
+        separator: .
+      - name: n16:ReportObject
+        literal: ОтчетОбъект
+        separator: .
+      - name: n16:ReportManager
+        literal: ReportManager
+        separator: .
+      - name: n16:ReportBuilder
+        literal: ReportBuilder
+        separator: .
+      - name: n16:DataProcessorObject
+        literal: ОбработкаОбъект
+        separator: .
+      - name: n16:DataProcessorManager
+        literal: DataProcessorManager
+        separator: .
+      - name: n16:ConstantsSet
+        literal: КонстантыНабор
+        separator: .
+      - name: n16:ConstantValueManager
+        literal: ConstantValueManager
+        separator: .
+      - name: n16:CatalogManager
+        literal: CatalogManager
+        separator: .
+      - name: n16:DocumentManager
+        literal: DocumentManager
+        separator: .
+      - name: n16:DocumentJournalManager
+        literal: DocumentJournalManager
+        separator: .
+      - name: n16:BusinessProcessManager
+        literal: BusinessProcessManager
+        separator: .
+      - name: n16:TaskManager
+        literal: TaskManager
+        separator: .
+      - name: n16:ExchangePlanManager
+        literal: ExchangePlanManager
+        separator: .
+      - name: n16:ChartOfAccountsManager
+        literal: ChartOfAccountsManager
+        separator: .
+      - name: n16:ChartOfCharacteristicTypesManager
+        literal: ChartOfCharacteristicTypesManager
+        separator: .
+      - name: n16:ChartOfCalculationTypesManager
+        literal: ChartOfCalculationTypesManager
+        separator: .
+      - name: n16:InformationRegisterManager
+        literal: InformationRegisterManager
+        separator: .
+      - name: n16:InformationRegisterRecordSet
+        literal: РегистрСведенийНаборЗаписей
+        separator: .
+      - name: n16:InformationRegisterRecordManager
+        literal: РегистрСведенийМенеджерЗаписи
+        separator: .
+      - name: n16:AccountingRegisterRecordSet
+        literal: РегистрБухгалтерииНаборЗаписей
+        separator: .
+      - name: n16:AccountingRegisterRecordManager
+        literal: РегистрБухгалтерииМенеджерЗаписи
+        separator: .
+      - name: n16:AccountingRegisterManager
+        literal: AccountingRegisterManager
+        separator: .
+      - name: n16:AccumulationRegisterRecordSet
+        literal: AccumulationRegisterRecordSet
+        separator: .
+      - name: n16:AccumulationRegisterManager
+        literal: AccumulationRegisterManager
+        separator: .
+      - name: n16:CalculationRegisterRecordSet
+        literal: CalculationRegisterRecordSet
+        separator: .
+      - name: n16:SequenceRecordSet
+        literal: SequenceRecordSet
+        separator: .
+      - name: n16:CalculationRegisterManager
+        literal: CalculationRegisterManager
+        separator: .
+      - name: n16:RecalculationRecordSet
+        literal: RecalculationRecordSet
+        separator: .
+      - name: n15:FillChecking
+        literal: СистемноеПеречисление.ПроверкаЗаполнения
+  yaml:
+    kind: scalar
+    scalar: text

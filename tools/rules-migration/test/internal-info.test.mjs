@@ -10,7 +10,7 @@ test('internal types derive from source parameters without owner-specific defaul
   execFileSync(process.execPath,['tools/rules-migration/src/internal-info-operation.mjs','--check'],{stdio:'pipe'});
   const entries=JSON.parse(readFileSync('tests/migration/rules-extraction.json')).entries;
   const {catalog}=candidateCatalog();
-  for(const [symbol,previous] of [['MetadataDocumentRules','fragment.document-internal-info'],['MetadataDocumentJournalRules','fragment.journal-internal-info'],['MetadataEnumerationRules',null]]) {
+  for(const [symbol,previous] of [['MetadataDocumentRules','fragment.document-internal-info'],['MetadataDocumentJournalRules','fragment.journal-internal-info'],['MetadataEnumerationRules',null],['MetadataDefinedTypeRules',null]]) {
     const owner=entries.find(e=>e.symbol===symbol);
     const actual=internalInfoAttachment(owner);
     assert.equal(actual.status,'candidate');
@@ -20,6 +20,11 @@ test('internal types derive from source parameters without owner-specific defaul
     assert.equal(attachment.fragment,actual.module.id);
     assert.deepEqual(attachment.modules,[actual.module]);
     assert.equal(actual.module.presence[0].yaml.default.sequence.length,property.parameters.items.length);
+    if(symbol==='MetadataDefinedTypeRules') {
+      const generated=catalog.get('fragment.defined-type-internal-info');
+      assert.deepEqual(generated?.presence,actual.module.presence);
+      assert.deepEqual(generated?.representations,actual.module.representations);
+    }
     if(previous) {
       const old=catalog.get(previous);
       assert.deepEqual(actual.module.presence,old.presence);

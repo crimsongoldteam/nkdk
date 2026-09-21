@@ -13255,7 +13255,7 @@
     },
     {
       "path": "rust/declarations/common/type-description.yaml",
-      "sha256": "9a66b42aede37eb1cd7435f60e79ac4ecab81408ea3d2461f68b200235b597f1"
+      "sha256": "9146e3fe4137c368b8262fd2c9e21114caae30f840e128be973e733144d0c400"
     },
     {
       "path": "rust/declarations/common/type-link-dcs.yaml",
@@ -13320,6 +13320,10 @@
     {
       "path": "rust/declarations/fragments/command-module-resource.yaml",
       "sha256": "58f55ca163520604c4681f726134a9b55b36eeb0b50445c7dac9d7c3b21d3bd7"
+    },
+    {
+      "path": "rust/declarations/fragments/defined-type-internal-info.generated.yaml",
+      "sha256": "1e68353b13e6a71123cae606d2e1f9dc0bfca12b5bd382b41395800ac9f6639b"
     },
     {
       "path": "rust/declarations/fragments/document-base-properties.yaml",
@@ -13436,6 +13440,14 @@
     {
       "path": "rust/declarations/fragments/value-manager-module-resource.yaml",
       "sha256": "c2a278e73f2e7d8b1c50fc3fc878c6727a103e101f0b5860cbc69be0f939ec82"
+    },
+    {
+      "path": "rust/declarations/objects/defined-type-extension.generated.yaml",
+      "sha256": "87152941cce968a0baafac09c741d3d9b38cf6f127d456355a071424b3469701"
+    },
+    {
+      "path": "rust/declarations/objects/defined-type.yaml",
+      "sha256": "21b30ee4fdee17e933c5a29df946eb6523251c891c2822d91f61facebd8b0a3f"
     },
     {
       "path": "rust/declarations/objects/enumeration-values.generated.yaml",
@@ -36965,8 +36977,23 @@
       {
         "candidate": "candidate.fragment.031f08895dcb28895164",
         "field": "type",
-        "matchCount": 1,
+        "matchCount": 3,
         "reviewTargets": [
+          {
+            "id": "metadata.defined-type-extension",
+            "field": "type",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          },
+          {
+            "id": "metadata.defined-type",
+            "field": "type",
+            "differences": [
+              "path"
+            ]
+          },
           {
             "id": "migration.defined-type-facts",
             "field": "type",
@@ -37452,7 +37479,7 @@
       {
         "candidate": "candidate.fragment.13e28fe11f7bc914cd0b",
         "field": "comment",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -37739,8 +37766,26 @@
       {
         "candidate": "candidate.fragment.1765115867f73cbe2b6f",
         "field": "type",
-        "matchCount": 1,
+        "matchCount": 3,
         "reviewTargets": [
+          {
+            "id": "metadata.defined-type-extension",
+            "field": "type",
+            "differences": [
+              "path",
+              "xmlPresence",
+              "constraints"
+            ]
+          },
+          {
+            "id": "metadata.defined-type",
+            "field": "type",
+            "differences": [
+              "path",
+              "xmlPresence",
+              "constraints"
+            ]
+          },
           {
             "id": "migration.defined-type-facts",
             "field": "type",
@@ -37858,8 +37903,24 @@
       {
         "candidate": "candidate.fragment.1b7d3cc30864a8dd2a70",
         "field": "type",
-        "matchCount": 1,
+        "matchCount": 3,
         "reviewTargets": [
+          {
+            "id": "metadata.defined-type-extension",
+            "field": "type",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          },
+          {
+            "id": "metadata.defined-type",
+            "field": "type",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          },
           {
             "id": "migration.defined-type-facts",
             "field": "type",
@@ -37919,7 +37980,7 @@
       {
         "candidate": "candidate.fragment.1d2d50f2694fbadc4ee0",
         "field": "comment",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -38350,7 +38411,7 @@
       {
         "candidate": "candidate.fragment.1f03e43b5c27ac4a777d",
         "field": "synonym",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -38384,7 +38445,7 @@
       {
         "candidate": "candidate.fragment.1f03e43b5c27ac4a777d",
         "field": "comment",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -38457,7 +38518,7 @@
       {
         "candidate": "candidate.fragment.1f4ce5bd4bee3df54147",
         "field": "synonym",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -38491,7 +38552,7 @@
       {
         "candidate": "candidate.fragment.1f4ce5bd4bee3df54147",
         "field": "comment",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -38622,8 +38683,24 @@
       {
         "candidate": "candidate.fragment.200be2e16fff2c6dc619",
         "field": "type",
-        "matchCount": 1,
+        "matchCount": 3,
         "reviewTargets": [
+          {
+            "id": "metadata.defined-type-extension",
+            "field": "type",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          },
+          {
+            "id": "metadata.defined-type",
+            "field": "type",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          },
           {
             "id": "migration.defined-type-facts",
             "field": "type",
@@ -38952,7 +39029,7 @@
       {
         "candidate": "candidate.fragment.23d3c68fc6cb35d6c5eb",
         "field": "synonym",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -38986,7 +39063,7 @@
       {
         "candidate": "candidate.fragment.23d3c68fc6cb35d6c5eb",
         "field": "comment",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -39556,7 +39633,7 @@
       {
         "candidate": "candidate.fragment.255f75defa12d9696130",
         "field": "synonym",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -39590,7 +39667,7 @@
       {
         "candidate": "candidate.fragment.255f75defa12d9696130",
         "field": "comment",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -39707,7 +39784,7 @@
       {
         "candidate": "candidate.fragment.298b58543729d8f90b02",
         "field": "synonym",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -39741,7 +39818,7 @@
       {
         "candidate": "candidate.fragment.298b58543729d8f90b02",
         "field": "comment",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -40189,7 +40266,7 @@
       {
         "candidate": "candidate.fragment.362a1b5f8c8e182534d0",
         "field": "synonym",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -40223,7 +40300,7 @@
       {
         "candidate": "candidate.fragment.362a1b5f8c8e182534d0",
         "field": "comment",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -40296,7 +40373,7 @@
       {
         "candidate": "candidate.fragment.37cf43a17d5ff0f84899",
         "field": "synonym",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -40333,7 +40410,7 @@
       {
         "candidate": "candidate.fragment.37cf43a17d5ff0f84899",
         "field": "comment",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -40361,8 +40438,23 @@
       {
         "candidate": "candidate.fragment.37cf43a17d5ff0f84899",
         "field": "type",
-        "matchCount": 1,
+        "matchCount": 3,
         "reviewTargets": [
+          {
+            "id": "metadata.defined-type-extension",
+            "field": "type",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          },
+          {
+            "id": "metadata.defined-type",
+            "field": "type",
+            "differences": [
+              "path"
+            ]
+          },
           {
             "id": "migration.defined-type-facts",
             "field": "type",
@@ -40473,7 +40565,7 @@
       {
         "candidate": "candidate.fragment.381457343c6174fef16a",
         "field": "synonym",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -40507,7 +40599,7 @@
       {
         "candidate": "candidate.fragment.381457343c6174fef16a",
         "field": "comment",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -40550,7 +40642,7 @@
       {
         "candidate": "candidate.fragment.38b1ecf696d049c622f1",
         "field": "synonym",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -40584,7 +40676,7 @@
       {
         "candidate": "candidate.fragment.38b1ecf696d049c622f1",
         "field": "comment",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -41173,8 +41265,23 @@
       {
         "candidate": "candidate.fragment.3ccf5460b806445d7744",
         "field": "type",
-        "matchCount": 1,
+        "matchCount": 3,
         "reviewTargets": [
+          {
+            "id": "metadata.defined-type-extension",
+            "field": "type",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          },
+          {
+            "id": "metadata.defined-type",
+            "field": "type",
+            "differences": [
+              "path"
+            ]
+          },
           {
             "id": "migration.defined-type-facts",
             "field": "type",
@@ -41594,7 +41701,7 @@
       {
         "candidate": "candidate.fragment.456871e47d22fd4c602b",
         "field": "synonym",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -41682,7 +41789,7 @@
       {
         "candidate": "candidate.fragment.47cfb299966af54d715f",
         "field": "synonym",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -41716,7 +41823,7 @@
       {
         "candidate": "candidate.fragment.47cfb299966af54d715f",
         "field": "comment",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -42361,7 +42468,7 @@
       {
         "candidate": "candidate.fragment.516ff4f285153e415f25",
         "field": "synonym",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -42395,7 +42502,7 @@
       {
         "candidate": "candidate.fragment.516ff4f285153e415f25",
         "field": "comment",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -42714,7 +42821,7 @@
       {
         "candidate": "candidate.fragment.52a2075291fd16c7818a",
         "field": "synonym",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -42858,7 +42965,7 @@
       {
         "candidate": "candidate.fragment.5564cee6abc7c047299c",
         "field": "synonym",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -42892,7 +42999,7 @@
       {
         "candidate": "candidate.fragment.5564cee6abc7c047299c",
         "field": "comment",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -43012,7 +43119,7 @@
       {
         "candidate": "candidate.fragment.56b5c7ec0379218277fe",
         "field": "synonym",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -43046,7 +43153,7 @@
       {
         "candidate": "candidate.fragment.56b5c7ec0379218277fe",
         "field": "comment",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -43208,7 +43315,7 @@
       {
         "candidate": "candidate.fragment.57ec7d5ef63788aab4ff",
         "field": "synonym",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -43242,7 +43349,7 @@
       {
         "candidate": "candidate.fragment.57ec7d5ef63788aab4ff",
         "field": "comment",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -43270,8 +43377,24 @@
       {
         "candidate": "candidate.fragment.57ec7d5ef63788aab4ff",
         "field": "type",
-        "matchCount": 1,
+        "matchCount": 3,
         "reviewTargets": [
+          {
+            "id": "metadata.defined-type-extension",
+            "field": "type",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          },
+          {
+            "id": "metadata.defined-type",
+            "field": "type",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          },
           {
             "id": "migration.defined-type-facts",
             "field": "type",
@@ -43383,7 +43506,7 @@
       {
         "candidate": "candidate.fragment.5d3f271697c1d5e7a4d2",
         "field": "synonym",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -43417,7 +43540,7 @@
       {
         "candidate": "candidate.fragment.5d3f271697c1d5e7a4d2",
         "field": "comment",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -43696,7 +43819,7 @@
       {
         "candidate": "candidate.fragment.62fa9df7e043eba94ff6",
         "field": "synonym",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -43730,7 +43853,7 @@
       {
         "candidate": "candidate.fragment.62fa9df7e043eba94ff6",
         "field": "comment",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -43786,7 +43909,7 @@
       {
         "candidate": "candidate.fragment.63acbf133f0284727b30",
         "field": "synonym",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -43820,7 +43943,7 @@
       {
         "candidate": "candidate.fragment.63acbf133f0284727b30",
         "field": "comment",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -43986,7 +44109,7 @@
       {
         "candidate": "candidate.fragment.68d325ccfd1d8c14e4d9",
         "field": "synonym",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -44108,7 +44231,7 @@
       {
         "candidate": "candidate.fragment.6d9930e4a8e62635894f",
         "field": "synonym",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -44142,7 +44265,7 @@
       {
         "candidate": "candidate.fragment.6d9930e4a8e62635894f",
         "field": "comment",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -44771,31 +44894,29 @@
       {
         "candidate": "candidate.fragment.78756bff26109b9943ce",
         "field": "type",
-        "matchCount": 9,
+        "matchCount": 11,
         "reviewTargets": [
+          {
+            "id": "metadata.defined-type-extension",
+            "field": "type",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          },
+          {
+            "id": "metadata.defined-type",
+            "field": "type",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          },
           {
             "id": "migration.conditional-composed-record",
             "field": "description",
             "differences": [
               "path",
-              "xmlPresence"
-            ]
-          },
-          {
-            "id": "migration.defined-type-facts",
-            "field": "type",
-            "differences": [
-              "path",
-              "presence",
-              "xmlPresence"
-            ]
-          },
-          {
-            "id": "migration.metadata-value",
-            "field": "type",
-            "differences": [
-              "path",
-              "presence",
               "xmlPresence"
             ]
           }
@@ -45089,7 +45210,7 @@
       {
         "candidate": "candidate.fragment.82a8859bce3a778f10cd",
         "field": "comment",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -45129,7 +45250,7 @@
       {
         "candidate": "candidate.fragment.83d7ee00e9ede01b379d",
         "field": "synonym",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -45163,7 +45284,7 @@
       {
         "candidate": "candidate.fragment.83d7ee00e9ede01b379d",
         "field": "comment",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -45498,7 +45619,7 @@
       {
         "candidate": "candidate.fragment.8aa38eb6c55ee32c704c",
         "field": "synonym",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -45532,7 +45653,7 @@
       {
         "candidate": "candidate.fragment.8aa38eb6c55ee32c704c",
         "field": "comment",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -45791,31 +45912,29 @@
       {
         "candidate": "candidate.fragment.8be3465b51eb94a3f492",
         "field": "type",
-        "matchCount": 9,
+        "matchCount": 11,
         "reviewTargets": [
+          {
+            "id": "metadata.defined-type-extension",
+            "field": "type",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          },
+          {
+            "id": "metadata.defined-type",
+            "field": "type",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          },
           {
             "id": "migration.conditional-composed-record",
             "field": "description",
             "differences": [
               "path",
-              "xmlPresence"
-            ]
-          },
-          {
-            "id": "migration.defined-type-facts",
-            "field": "type",
-            "differences": [
-              "path",
-              "presence",
-              "xmlPresence"
-            ]
-          },
-          {
-            "id": "migration.metadata-value",
-            "field": "type",
-            "differences": [
-              "path",
-              "presence",
               "xmlPresence"
             ]
           }
@@ -45952,7 +46071,7 @@
       {
         "candidate": "candidate.fragment.90ff998e0060eac022b6",
         "field": "synonym",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -45986,7 +46105,7 @@
       {
         "candidate": "candidate.fragment.90ff998e0060eac022b6",
         "field": "comment",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -46173,7 +46292,7 @@
       {
         "candidate": "candidate.fragment.97525321c6bc26f385e4",
         "field": "synonym",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -46301,8 +46420,23 @@
       {
         "candidate": "candidate.fragment.9ac5047245d1adffb143",
         "field": "type",
-        "matchCount": 1,
+        "matchCount": 3,
         "reviewTargets": [
+          {
+            "id": "metadata.defined-type-extension",
+            "field": "type",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          },
+          {
+            "id": "metadata.defined-type",
+            "field": "type",
+            "differences": [
+              "path"
+            ]
+          },
           {
             "id": "migration.defined-type-facts",
             "field": "type",
@@ -46504,7 +46638,7 @@
       {
         "candidate": "candidate.fragment.9e4a929bcd537337b0c9",
         "field": "synonym",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -46538,7 +46672,7 @@
       {
         "candidate": "candidate.fragment.9e4a929bcd537337b0c9",
         "field": "comment",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -46578,7 +46712,7 @@
       {
         "candidate": "candidate.fragment.9e4adc13d37da59d7855",
         "field": "synonym",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -46618,8 +46752,24 @@
       {
         "candidate": "candidate.fragment.9e4adc13d37da59d7855",
         "field": "type",
-        "matchCount": 1,
+        "matchCount": 3,
         "reviewTargets": [
+          {
+            "id": "metadata.defined-type-extension",
+            "field": "type",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          },
+          {
+            "id": "metadata.defined-type",
+            "field": "type",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          },
           {
             "id": "migration.defined-type-facts",
             "field": "type",
@@ -46767,7 +46917,7 @@
       {
         "candidate": "candidate.fragment.a3abd637ffe8038043e4",
         "field": "synonym",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -46801,7 +46951,7 @@
       {
         "candidate": "candidate.fragment.a3abd637ffe8038043e4",
         "field": "comment",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -46862,7 +47012,7 @@
       {
         "candidate": "candidate.fragment.a424ecf1a51a58873ca8",
         "field": "synonym",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -46896,7 +47046,7 @@
       {
         "candidate": "candidate.fragment.a424ecf1a51a58873ca8",
         "field": "comment",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -47144,7 +47294,7 @@
       {
         "candidate": "candidate.fragment.a73c09e51f0461f1f771",
         "field": "synonym",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -47178,7 +47328,7 @@
       {
         "candidate": "candidate.fragment.a73c09e51f0461f1f771",
         "field": "comment",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -47399,7 +47549,7 @@
       {
         "candidate": "candidate.fragment.aa2afbaa7cea00a57556",
         "field": "synonym",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -47433,7 +47583,7 @@
       {
         "candidate": "candidate.fragment.aa2afbaa7cea00a57556",
         "field": "comment",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -47687,7 +47837,7 @@
       {
         "candidate": "candidate.fragment.aa684d7c5d2a33975571",
         "field": "comment",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -48056,7 +48206,7 @@
       {
         "candidate": "candidate.fragment.b6fd91b084fde9cd8537",
         "field": "synonym",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -48090,7 +48240,7 @@
       {
         "candidate": "candidate.fragment.b6fd91b084fde9cd8537",
         "field": "comment",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -48288,7 +48438,7 @@
       {
         "candidate": "candidate.fragment.bdc514e41da33d00a34c",
         "field": "synonym",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -48322,7 +48472,7 @@
       {
         "candidate": "candidate.fragment.bdc514e41da33d00a34c",
         "field": "comment",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -48564,31 +48714,29 @@
       {
         "candidate": "candidate.fragment.bfef9514f7a1f1509463",
         "field": "type",
-        "matchCount": 9,
+        "matchCount": 11,
         "reviewTargets": [
+          {
+            "id": "metadata.defined-type-extension",
+            "field": "type",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          },
+          {
+            "id": "metadata.defined-type",
+            "field": "type",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          },
           {
             "id": "migration.conditional-composed-record",
             "field": "description",
             "differences": [
               "path",
-              "xmlPresence"
-            ]
-          },
-          {
-            "id": "migration.defined-type-facts",
-            "field": "type",
-            "differences": [
-              "path",
-              "presence",
-              "xmlPresence"
-            ]
-          },
-          {
-            "id": "migration.metadata-value",
-            "field": "type",
-            "differences": [
-              "path",
-              "presence",
               "xmlPresence"
             ]
           }
@@ -48597,7 +48745,7 @@
       {
         "candidate": "candidate.fragment.bff18f9e4361d956c01c",
         "field": "synonym",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -48715,7 +48863,7 @@
       {
         "candidate": "candidate.fragment.c1b554afe69d9ef99053",
         "field": "synonym",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -48749,7 +48897,7 @@
       {
         "candidate": "candidate.fragment.c1b554afe69d9ef99053",
         "field": "comment",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -48837,7 +48985,7 @@
       {
         "candidate": "candidate.fragment.c307dc70ab35e877a323",
         "field": "synonym",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -48871,7 +49019,7 @@
       {
         "candidate": "candidate.fragment.c307dc70ab35e877a323",
         "field": "comment",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -48905,8 +49053,28 @@
       {
         "candidate": "candidate.fragment.c307dc70ab35e877a323",
         "field": "type",
-        "matchCount": 1,
+        "matchCount": 3,
         "reviewTargets": [
+          {
+            "id": "metadata.defined-type-extension",
+            "field": "type",
+            "differences": [
+              "path",
+              "presence",
+              "xmlPresence",
+              "constraints"
+            ]
+          },
+          {
+            "id": "metadata.defined-type",
+            "field": "type",
+            "differences": [
+              "path",
+              "presence",
+              "xmlPresence",
+              "constraints"
+            ]
+          },
           {
             "id": "migration.defined-type-facts",
             "field": "type",
@@ -48982,7 +49150,7 @@
       {
         "candidate": "candidate.fragment.c4c4c7949042c35d9afa",
         "field": "comment",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -49580,7 +49748,7 @@
       {
         "candidate": "candidate.fragment.d0ae65310b7cc0e11431",
         "field": "synonym",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -49614,7 +49782,7 @@
       {
         "candidate": "candidate.fragment.d0ae65310b7cc0e11431",
         "field": "comment",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -49642,8 +49810,24 @@
       {
         "candidate": "candidate.fragment.d0ae65310b7cc0e11431",
         "field": "type",
-        "matchCount": 1,
+        "matchCount": 3,
         "reviewTargets": [
+          {
+            "id": "metadata.defined-type-extension",
+            "field": "type",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          },
+          {
+            "id": "metadata.defined-type",
+            "field": "type",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          },
           {
             "id": "migration.defined-type-facts",
             "field": "type",
@@ -50053,31 +50237,29 @@
       {
         "candidate": "candidate.fragment.d5ffd6a199be78c7cff4",
         "field": "type",
-        "matchCount": 9,
+        "matchCount": 11,
         "reviewTargets": [
+          {
+            "id": "metadata.defined-type-extension",
+            "field": "type",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          },
+          {
+            "id": "metadata.defined-type",
+            "field": "type",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          },
           {
             "id": "migration.conditional-composed-record",
             "field": "description",
             "differences": [
               "path",
-              "xmlPresence"
-            ]
-          },
-          {
-            "id": "migration.defined-type-facts",
-            "field": "type",
-            "differences": [
-              "path",
-              "presence",
-              "xmlPresence"
-            ]
-          },
-          {
-            "id": "migration.metadata-value",
-            "field": "type",
-            "differences": [
-              "path",
-              "presence",
               "xmlPresence"
             ]
           }
@@ -50149,7 +50331,7 @@
       {
         "candidate": "candidate.fragment.d85e8d1a994a72a5be6c",
         "field": "synonym",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -50186,7 +50368,7 @@
       {
         "candidate": "candidate.fragment.d85e8d1a994a72a5be6c",
         "field": "comment",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -51326,7 +51508,7 @@
       {
         "candidate": "candidate.fragment.e7828433e27109bec795",
         "field": "synonym",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -51537,7 +51719,7 @@
       {
         "candidate": "candidate.fragment.e8b8bc7db0633e109fe8",
         "field": "comment",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -51680,7 +51862,7 @@
       {
         "candidate": "candidate.fragment.eb500c4833aeab48ada6",
         "field": "synonym",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -51714,7 +51896,7 @@
       {
         "candidate": "candidate.fragment.eb500c4833aeab48ada6",
         "field": "comment",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -52014,7 +52196,7 @@
       {
         "candidate": "candidate.fragment.f5a164d4eb972dee1122",
         "field": "synonym",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -52048,7 +52230,7 @@
       {
         "candidate": "candidate.fragment.f5a164d4eb972dee1122",
         "field": "comment",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -52464,7 +52646,7 @@
       {
         "candidate": "candidate.fragment.fb762ef0ba548a5b86e9",
         "field": "synonym",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -52501,7 +52683,7 @@
       {
         "candidate": "candidate.fragment.fb762ef0ba548a5b86e9",
         "field": "comment",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -52529,8 +52711,25 @@
       {
         "candidate": "candidate.fragment.fb762ef0ba548a5b86e9",
         "field": "type",
-        "matchCount": 1,
+        "matchCount": 3,
         "reviewTargets": [
+          {
+            "id": "metadata.defined-type-extension",
+            "field": "type",
+            "differences": [
+              "path",
+              "xmlPresence",
+              "parameters"
+            ]
+          },
+          {
+            "id": "metadata.defined-type",
+            "field": "type",
+            "differences": [
+              "path",
+              "parameters"
+            ]
+          },
           {
             "id": "migration.defined-type-facts",
             "field": "type",
@@ -52640,7 +52839,7 @@
       {
         "candidate": "candidate.fragment.fd2cd2c6f4a34f8ec444",
         "field": "synonym",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -52674,7 +52873,7 @@
       {
         "candidate": "candidate.fragment.fd2cd2c6f4a34f8ec444",
         "field": "comment",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -53163,7 +53362,7 @@
       {
         "candidate": "candidate.fragment.ffb1bac13e045080446c",
         "field": "comment",
-        "matchCount": 6,
+        "matchCount": 8,
         "reviewTargets": [
           {
             "id": "fragment.command-base-properties",
@@ -53191,8 +53390,24 @@
       {
         "candidate": "candidate.fragment.ffb1bac13e045080446c",
         "field": "type",
-        "matchCount": 1,
+        "matchCount": 3,
         "reviewTargets": [
+          {
+            "id": "metadata.defined-type-extension",
+            "field": "type",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          },
+          {
+            "id": "metadata.defined-type",
+            "field": "type",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          },
           {
             "id": "migration.defined-type-facts",
             "field": "type",
@@ -160221,7 +160436,7 @@
     "common.standard-period.yaml": "format: nkdk-declarations/1\nkind: value\nid: common.standard-period\nimports:\n  variant: system.StandardPeriodVariant.core\n  date: common.date-time-seconds\nnamespaces:\n  v8: http://v8.1c.ru/8.1/data/core\n  xsi: http://www.w3.org/2001/XMLSchema-instance\nvalue:\n  kind: record\n  fields:\n    - name: variant\n      type:\n        use: variant\n    - name: startDate\n      type:\n        use: date\n    - name: endDate\n      type:\n        use: date\nrepresentations:\n  xml:\n    kind: with-attributes\n    attributes:\n      - name: xsi:type\n        value:\n          qname: v8:StandardPeriod\n    content:\n      kind: record\n      fields:\n        - field: variant\n          path:\n            - v8:variant\n        - field: startDate\n          path:\n            - v8:startDate\n        - field: endDate\n          path:\n            - v8:endDate\n  yaml:\n    kind: mapping\n    fields:\n      - field: variant\n        key: Вариант\n      - field: startDate\n        key: ДатаНачала\n      - field: endDate\n        key: ДатаОкончания\npresence:\n  - target: self\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      missing:\n        denotes:\n          absent: true\n",
     "common.string.yaml": "format: nkdk-declarations/1\nkind: value\nid: common.string\nvalue:\n  kind: scalar\n  scalar: text\nrepresentations:\n  xml:\n    kind: text\n  yaml:\n    kind: scalar\n    scalar: text\n",
     "common.string-or-number.yaml": "format: nkdk-declarations/1\nkind: value\nid: common.string-or-number\nnamespaces:\n  xsi: http://www.w3.org/2001/XMLSchema-instance\n  xs: http://www.w3.org/2001/XMLSchema\nvalue:\n  kind: scalar-choice\n  variants:\n    - text\n    - number\n  profile: decimal\nrepresentations:\n  xml:\n    kind: scalar-choice\n    attribute: xsi:type\n    empty: absent\n    cases:\n      - scalar: number\n        in:\n          - xs:decimal\n          - xs:integer\n          - xs:double\n          - xs:float\n    otherwise: text\n  yaml:\n    kind: scalar-choice\npresence:\n  - target: self\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      missing:\n        denotes:\n          absent: true\n",
-    "common.type-description.yaml": "format: nkdk-declarations/1\nkind: value\nid: common.type-description\ndescription: Обратимое описание типов; классификация XML-групп задана выражениями декларации\nnamespaces:\n  v8: http://v8.1c.ru/8.1/data/core\n  xsi: http://www.w3.org/2001/XMLSchema-instance\nimports:\n  items: common.type-description-items\n  types: common.type-description-types\n  typeSets: common.type-description-type-sets\n  identifiers: common.type-description-identifiers\n  text: common.string\nparameters:\n  addTypeDescriptionAttributeToXML:\n    type:\n      kind: scalar\n      scalar: boolean\n    default: false\n  metadataAttributeTypesOnly:\n    type:\n      kind: scalar\n      scalar: boolean\n    default: false\nvalue:\n  kind: record\n  fields:\n    - name: items\n      type:\n        use: items\n        with:\n          metadataAttributeTypesOnly:\n            parameter: metadataAttributeTypesOnly\n    - name: types\n      type:\n        use: types\n    - name: typeSets\n      type:\n        use: typeSets\n    - name: identifiers\n      type:\n        use: identifiers\n    - name: stringLength\n      type:\n        use: text\n    - name: stringAllowedLength\n      type:\n        use: text\n    - name: numberDigits\n      type:\n        use: text\n    - name: numberFractionDigits\n      type:\n        use: text\n    - name: numberAllowedSign\n      type:\n        use: text\n    - name: dateFractions\n      type:\n        use: text\n    - name: binaryLength\n      type:\n        use: text\n    - name: binaryAllowedLength\n      type:\n        use: text\nrepresentations:\n  xml:\n    kind: with-attributes\n    attributes:\n      - name: xsi:type\n        value:\n          qname: v8:TypeDescription\n        when:\n          parameter: addTypeDescriptionAttributeToXML\n    content:\n      kind: record\n      fields:\n        - field: types\n          path: []\n        - field: typeSets\n          path: []\n        - field: identifiers\n          path: []\n        - field: stringLength\n          path:\n            - v8:StringQualifiers\n            - v8:Length\n        - field: stringAllowedLength\n          path:\n            - v8:StringQualifiers\n            - v8:AllowedLength\n        - field: numberDigits\n          path:\n            - v8:NumberQualifiers\n            - v8:Digits\n        - field: numberFractionDigits\n          path:\n            - v8:NumberQualifiers\n            - v8:FractionDigits\n        - field: numberAllowedSign\n          path:\n            - v8:NumberQualifiers\n            - v8:AllowedSign\n        - field: dateFractions\n          path:\n            - v8:DateQualifiers\n            - v8:DateFractions\n        - field: binaryLength\n          path:\n            - v8:BinaryDataQualifiers\n            - v8:Length\n        - field: binaryAllowedLength\n          path:\n            - v8:BinaryDataQualifiers\n            - v8:AllowedLength\n  yaml:\n    kind: projection\n    field: items\npresence:\n  - target:\n      field: items\n    xml:\n      missing:\n        denotes:\n          concat:\n            - map:\n                in:\n                  field: types\n                as: item\n                value:\n                  record:\n                    value:\n                      if:\n                        eq:\n                          - get:\n                              of:\n                                var: item\n                              field: value\n                          - literal: Строка\n                      then:\n                        if:\n                          isReady:\n                            field: stringAllowedLength\n                        then:\n                          if:\n                            eq:\n                              - field: stringAllowedLength\n                              - literal: Fixed\n                          then:\n                            literal: ФиксированнаяСтрока\n                          else:\n                            literal: Строка\n                        else:\n                          literal: Строка\n                      else:\n                        if:\n                          eq:\n                            - get:\n                                of:\n                                  var: item\n                                field: value\n                            - literal: Число\n                        then:\n                          if:\n                            isReady:\n                              field: numberAllowedSign\n                          then:\n                            if:\n                              eq:\n                                - field: numberAllowedSign\n                                - literal: Nonnegative\n                            then:\n                              literal: ПоложительноеЧисло\n                            else:\n                              literal: Число\n                          else:\n                            literal: Число\n                        else:\n                          if:\n                            matches:\n                              value:\n                                get:\n                                  of:\n                                    var: item\n                                  field: value\n                              pattern: Дата|ДатаВремя\n                          then:\n                            if:\n                              isReady:\n                                field: dateFractions\n                            then:\n                              if:\n                                eq:\n                                  - field: dateFractions\n                                  - literal: Time\n                              then:\n                                literal: Время\n                              else:\n                                if:\n                                  eq:\n                                    - field: dateFractions\n                                    - literal: DateTime\n                                then:\n                                  literal: ДатаВремя\n                                else:\n                                  literal: Дата\n                            else:\n                              literal: Дата\n                          else:\n                            get:\n                              of:\n                                var: item\n                              field: value\n                    first:\n                      if:\n                        eq:\n                          - get:\n                              of:\n                                var: item\n                              field: value\n                          - literal: Строка\n                      then:\n                        if:\n                          isReady:\n                            field: stringLength\n                        then:\n                          if:\n                            and:\n                              - eq:\n                                  - field: stringLength\n                                  - literal: '0'\n                              - not:\n                                  eq:\n                                    - field: stringAllowedLength\n                                    - literal: Fixed\n                          then:\n                            literal: ''\n                          else:\n                            field: stringLength\n                        else:\n                          literal: ''\n                      else:\n                        if:\n                          eq:\n                            - get:\n                                of:\n                                  var: item\n                                field: value\n                            - literal: Число\n                        then:\n                          if:\n                            isReady:\n                              field: numberDigits\n                          then:\n                            if:\n                              and:\n                                - eq:\n                                    - field: numberDigits\n                                    - literal: '0'\n                                - eq:\n                                    - field: numberFractionDigits\n                                    - literal: '0'\n                                - eq:\n                                    - field: numberAllowedSign\n                                    - literal: Any\n                            then:\n                              literal: ''\n                            else:\n                              field: numberDigits\n                          else:\n                            literal: ''\n                        else:\n                          literal: ''\n                    second:\n                      if:\n                        eq:\n                          - get:\n                              of:\n                                var: item\n                              field: value\n                          - literal: Число\n                      then:\n                        if:\n                          isReady:\n                            field: numberFractionDigits\n                        then:\n                          if:\n                            and:\n                              - eq:\n                                  - field: numberDigits\n                                  - literal: '0'\n                              - eq:\n                                  - field: numberFractionDigits\n                                  - literal: '0'\n                              - eq:\n                                  - field: numberAllowedSign\n                                  - literal: Any\n                          then:\n                            literal: ''\n                          else:\n                            field: numberFractionDigits\n                        else:\n                          literal: ''\n                      else:\n                        literal: ''\n            - map:\n                in:\n                  field: typeSets\n                as: item\n                value:\n                  record:\n                    value:\n                      get:\n                        of:\n                          var: item\n                        field: value\n                    first:\n                      literal: ''\n                    second:\n                      literal: ''\n            - map:\n                in:\n                  filter:\n                    in:\n                      field: identifiers\n                    as: item\n                    where:\n                      matches:\n                        value:\n                          get:\n                            of:\n                              var: item\n                            field: value\n                        pattern: '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'\n                as: item\n                value:\n                  record:\n                    value:\n                      get:\n                        of:\n                          var: item\n                        field: value\n                    first:\n                      literal: ''\n                    second:\n                      literal: ''\n  - target:\n      field: identifiers\n    yaml:\n      missing:\n        denotes:\n          map:\n            in:\n              filter:\n                in:\n                  field: items\n                as: item\n                where:\n                  matches:\n                    value:\n                      get:\n                        of:\n                          var: item\n                        field: value\n                    pattern: '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'\n            as: item\n            value:\n              record:\n                value:\n                  get:\n                    of:\n                      var: item\n                    field: value\n  - target:\n      field: typeSets\n    yaml:\n      missing:\n        denotes:\n          map:\n            in:\n              filter:\n                in:\n                  field: items\n                as: item\n                where:\n                  matches:\n                    value:\n                      get:\n                        of:\n                          var: item\n                        field: value\n                    pattern: >-\n                      AccumulationRegisterRecordSet|CalculationRegisterRecordSet|ChartOfAccountsObject|ConstantValueManager|RecalculationRecordSet|SequenceRecordSet|БизнесПроцесс|БизнесПроцессОбъект|ВнешнийИсточникДанныхКубМенеджерЗаписи|ВнешнийИсточникДанныхКубТаблицаИзмерения|ВнешнийИсточникДанныхТаблица|ВнешнийИсточникДанныхТаблицаОбъект|Документ|ДокументОбъект|Задача|ЗадачаОбъект|ЛюбаяСсылка|ОпределяемыйТип(\\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)?|Перечисление|ПланВидовРасчета|ПланВидовРасчетаОбъект|ПланВидовХарактеристик|ПланВидовХарактеристикОбъект|ПланОбмена|ПланОбменаОбъект|ПланСчетов|ПланСчетовОбъект|РегистрБухгалтерииНаборЗаписей|РегистрСведенийНаборЗаписей|Справочник|СправочникОбъект|ТочкаМаршрутаБизнесПроцесса|ТочкаМаршрутаБизнесПроцессаОбъект|Характеристика\n            as: item\n            value:\n              record:\n                value:\n                  get:\n                    of:\n                      var: item\n                    field: value\n  - target:\n      field: types\n    yaml:\n      missing:\n        denotes:\n          map:\n            in:\n              filter:\n                in:\n                  field: items\n                as: item\n                where:\n                  and:\n                    - not:\n                        matches:\n                          value:\n                            get:\n                              of:\n                                var: item\n                              field: value\n                          pattern: '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'\n                    - not:\n                        matches:\n                          value:\n                            get:\n                              of:\n                                var: item\n                              field: value\n                          pattern: >-\n                            AccumulationRegisterRecordSet|CalculationRegisterRecordSet|ChartOfAccountsObject|ConstantValueManager|RecalculationRecordSet|SequenceRecordSet|БизнесПроцесс|БизнесПроцессОбъект|ВнешнийИсточникДанныхКубМенеджерЗаписи|ВнешнийИсточникДанныхКубТаблицаИзмерения|ВнешнийИсточникДанныхТаблица|ВнешнийИсточникДанныхТаблицаОбъект|Документ|ДокументОбъект|Задача|ЗадачаОбъект|ЛюбаяСсылка|ОпределяемыйТип(\\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)?|Перечисление|ПланВидовРасчета|ПланВидовРасчетаОбъект|ПланВидовХарактеристик|ПланВидовХарактеристикОбъект|ПланОбмена|ПланОбменаОбъект|ПланСчетов|ПланСчетовОбъект|РегистрБухгалтерииНаборЗаписей|РегистрСведенийНаборЗаписей|Справочник|СправочникОбъект|ТочкаМаршрутаБизнесПроцесса|ТочкаМаршрутаБизнесПроцессаОбъект|Характеристика\n            as: item\n            value:\n              record:\n                value:\n                  if:\n                    matches:\n                      value:\n                        get:\n                          of:\n                            var: item\n                          field: value\n                      pattern: Строка|ФиксированнаяСтрока\n                  then:\n                    literal: Строка\n                  else:\n                    if:\n                      matches:\n                        value:\n                          get:\n                            of:\n                              var: item\n                            field: value\n                        pattern: Число|ПоложительноеЧисло\n                    then:\n                      literal: Число\n                    else:\n                      if:\n                        matches:\n                          value:\n                            get:\n                              of:\n                                var: item\n                              field: value\n                          pattern: Дата|Время|ДатаВремя\n                      then:\n                        literal: ДатаВремя\n                      else:\n                        get:\n                          of:\n                            var: item\n                          field: value\n  - target:\n      field: stringLength\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      missing:\n        denotes:\n          match:\n            value:\n              find:\n                in:\n                  field: items\n                as: item\n                where:\n                  matches:\n                    value:\n                      get:\n                        of:\n                          var: item\n                        field: value\n                    pattern: Строка|ФиксированнаяСтрока\n            present:\n              as: item\n              then:\n                if:\n                  eq:\n                    - get:\n                        of:\n                          var: item\n                        field: first\n                    - literal: ''\n                then:\n                  literal: '0'\n                else:\n                  get:\n                    of:\n                      var: item\n                    field: first\n            absent:\n              absent: true\n  - target:\n      field: stringAllowedLength\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      missing:\n        denotes:\n          match:\n            value:\n              find:\n                in:\n                  field: items\n                as: item\n                where:\n                  matches:\n                    value:\n                      get:\n                        of:\n                          var: item\n                        field: value\n                    pattern: Строка|ФиксированнаяСтрока\n            present:\n              as: item\n              then:\n                if:\n                  eq:\n                    - get:\n                        of:\n                          var: item\n                        field: value\n                    - literal: ФиксированнаяСтрока\n                then:\n                  literal: Fixed\n                else:\n                  literal: Variable\n            absent:\n              absent: true\n  - target:\n      field: numberDigits\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      missing:\n        denotes:\n          match:\n            value:\n              find:\n                in:\n                  field: items\n                as: item\n                where:\n                  matches:\n                    value:\n                      get:\n                        of:\n                          var: item\n                        field: value\n                    pattern: Число|ПоложительноеЧисло\n            present:\n              as: item\n              then:\n                if:\n                  eq:\n                    - get:\n                        of:\n                          var: item\n                        field: first\n                    - literal: ''\n                then:\n                  literal: '0'\n                else:\n                  get:\n                    of:\n                      var: item\n                    field: first\n            absent:\n              absent: true\n  - target:\n      field: numberFractionDigits\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      missing:\n        denotes:\n          match:\n            value:\n              find:\n                in:\n                  field: items\n                as: item\n                where:\n                  matches:\n                    value:\n                      get:\n                        of:\n                          var: item\n                        field: value\n                    pattern: Число|ПоложительноеЧисло\n            present:\n              as: item\n              then:\n                if:\n                  eq:\n                    - get:\n                        of:\n                          var: item\n                        field: second\n                    - literal: ''\n                then:\n                  literal: '0'\n                else:\n                  get:\n                    of:\n                      var: item\n                    field: second\n            absent:\n              absent: true\n  - target:\n      field: numberAllowedSign\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      missing:\n        denotes:\n          match:\n            value:\n              find:\n                in:\n                  field: items\n                as: item\n                where:\n                  matches:\n                    value:\n                      get:\n                        of:\n                          var: item\n                        field: value\n                    pattern: Число|ПоложительноеЧисло\n            present:\n              as: item\n              then:\n                if:\n                  eq:\n                    - get:\n                        of:\n                          var: item\n                        field: value\n                    - literal: ПоложительноеЧисло\n                then:\n                  literal: Nonnegative\n                else:\n                  literal: Any\n            absent:\n              absent: true\n  - target:\n      field: dateFractions\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      missing:\n        denotes:\n          match:\n            value:\n              find:\n                in:\n                  field: items\n                as: item\n                where:\n                  matches:\n                    value:\n                      get:\n                        of:\n                          var: item\n                        field: value\n                    pattern: Дата|Время|ДатаВремя\n            present:\n              as: item\n              then:\n                if:\n                  eq:\n                    - get:\n                        of:\n                          var: item\n                        field: value\n                    - literal: Время\n                then:\n                  literal: Time\n                else:\n                  if:\n                    eq:\n                      - get:\n                          of:\n                            var: item\n                          field: value\n                      - literal: ДатаВремя\n                  then:\n                    literal: DateTime\n                  else:\n                    literal: Date\n            absent:\n              absent: true\n  - target:\n      field: binaryLength\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      missing:\n        denotes:\n          if:\n            exists:\n              in:\n                field: items\n              as: item\n              where:\n                eq:\n                  - get:\n                      of:\n                        var: item\n                      field: value\n                  - literal: ДвоичныеДанные\n          then:\n            literal: '0'\n          else:\n            absent: true\n  - target:\n      field: binaryAllowedLength\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      missing:\n        denotes:\n          if:\n            exists:\n              in:\n                field: items\n              as: item\n              where:\n                eq:\n                  - get:\n                      of:\n                        var: item\n                      field: value\n                  - literal: ДвоичныеДанные\n          then:\n            literal: Variable\n          else:\n            absent: true\n",
+    "common.type-description.yaml": "format: nkdk-declarations/1\nkind: value\nid: common.type-description\ndescription: Обратимое описание типов; классификация XML-групп задана выражениями декларации\nnamespaces:\n  v8: http://v8.1c.ru/8.1/data/core\n  xsi: http://www.w3.org/2001/XMLSchema-instance\nimports:\n  items: common.type-description-items\n  types: common.type-description-types\n  typeSets: common.type-description-type-sets\n  identifiers: common.type-description-identifiers\n  text: common.string\nparameters:\n  addTypeDescriptionAttributeToXML:\n    type:\n      kind: scalar\n      scalar: boolean\n    default: false\n  metadataAttributeTypesOnly:\n    type:\n      kind: scalar\n      scalar: boolean\n    default: false\nvalue:\n  kind: record\n  fields:\n    - name: items\n      type:\n        use: items\n        with:\n          metadataAttributeTypesOnly:\n            parameter: metadataAttributeTypesOnly\n    - name: types\n      type:\n        use: types\n    - name: typeSets\n      type:\n        use: typeSets\n    - name: identifiers\n      type:\n        use: identifiers\n    - name: numberDigits\n      type:\n        use: text\n    - name: numberFractionDigits\n      type:\n        use: text\n    - name: numberAllowedSign\n      type:\n        use: text\n    - name: stringLength\n      type:\n        use: text\n    - name: stringAllowedLength\n      type:\n        use: text\n    - name: dateFractions\n      type:\n        use: text\n    - name: binaryLength\n      type:\n        use: text\n    - name: binaryAllowedLength\n      type:\n        use: text\nrepresentations:\n  xml:\n    kind: with-attributes\n    attributes:\n      - name: xsi:type\n        value:\n          qname: v8:TypeDescription\n        when:\n          parameter: addTypeDescriptionAttributeToXML\n    content:\n      kind: record\n      fields:\n        - field: types\n          path: []\n        - field: typeSets\n          path: []\n        - field: identifiers\n          path: []\n        - field: numberDigits\n          path:\n            - v8:NumberQualifiers\n            - v8:Digits\n        - field: numberFractionDigits\n          path:\n            - v8:NumberQualifiers\n            - v8:FractionDigits\n        - field: numberAllowedSign\n          path:\n            - v8:NumberQualifiers\n            - v8:AllowedSign\n        - field: stringLength\n          path:\n            - v8:StringQualifiers\n            - v8:Length\n        - field: stringAllowedLength\n          path:\n            - v8:StringQualifiers\n            - v8:AllowedLength\n        - field: dateFractions\n          path:\n            - v8:DateQualifiers\n            - v8:DateFractions\n        - field: binaryLength\n          path:\n            - v8:BinaryDataQualifiers\n            - v8:Length\n        - field: binaryAllowedLength\n          path:\n            - v8:BinaryDataQualifiers\n            - v8:AllowedLength\n  yaml:\n    kind: projection\n    field: items\npresence:\n  - target:\n      field: items\n    xml:\n      missing:\n        denotes:\n          concat:\n            - map:\n                in:\n                  field: types\n                as: item\n                value:\n                  record:\n                    value:\n                      if:\n                        eq:\n                          - get:\n                              of:\n                                var: item\n                              field: value\n                          - literal: Строка\n                      then:\n                        if:\n                          isReady:\n                            field: stringAllowedLength\n                        then:\n                          if:\n                            eq:\n                              - field: stringAllowedLength\n                              - literal: Fixed\n                          then:\n                            literal: ФиксированнаяСтрока\n                          else:\n                            literal: Строка\n                        else:\n                          literal: Строка\n                      else:\n                        if:\n                          eq:\n                            - get:\n                                of:\n                                  var: item\n                                field: value\n                            - literal: Число\n                        then:\n                          if:\n                            isReady:\n                              field: numberAllowedSign\n                          then:\n                            if:\n                              eq:\n                                - field: numberAllowedSign\n                                - literal: Nonnegative\n                            then:\n                              literal: ПоложительноеЧисло\n                            else:\n                              literal: Число\n                          else:\n                            literal: Число\n                        else:\n                          if:\n                            matches:\n                              value:\n                                get:\n                                  of:\n                                    var: item\n                                  field: value\n                              pattern: Дата|ДатаВремя\n                          then:\n                            if:\n                              isReady:\n                                field: dateFractions\n                            then:\n                              if:\n                                eq:\n                                  - field: dateFractions\n                                  - literal: Time\n                              then:\n                                literal: Время\n                              else:\n                                if:\n                                  eq:\n                                    - field: dateFractions\n                                    - literal: DateTime\n                                then:\n                                  literal: ДатаВремя\n                                else:\n                                  literal: Дата\n                            else:\n                              literal: Дата\n                          else:\n                            get:\n                              of:\n                                var: item\n                              field: value\n                    first:\n                      if:\n                        eq:\n                          - get:\n                              of:\n                                var: item\n                              field: value\n                          - literal: Строка\n                      then:\n                        if:\n                          isReady:\n                            field: stringLength\n                        then:\n                          if:\n                            and:\n                              - eq:\n                                  - field: stringLength\n                                  - literal: '0'\n                              - not:\n                                  eq:\n                                    - field: stringAllowedLength\n                                    - literal: Fixed\n                          then:\n                            literal: ''\n                          else:\n                            field: stringLength\n                        else:\n                          literal: ''\n                      else:\n                        if:\n                          eq:\n                            - get:\n                                of:\n                                  var: item\n                                field: value\n                            - literal: Число\n                        then:\n                          if:\n                            isReady:\n                              field: numberDigits\n                          then:\n                            if:\n                              and:\n                                - eq:\n                                    - field: numberDigits\n                                    - literal: '0'\n                                - eq:\n                                    - field: numberFractionDigits\n                                    - literal: '0'\n                                - eq:\n                                    - field: numberAllowedSign\n                                    - literal: Any\n                            then:\n                              literal: ''\n                            else:\n                              field: numberDigits\n                          else:\n                            literal: ''\n                        else:\n                          literal: ''\n                    second:\n                      if:\n                        eq:\n                          - get:\n                              of:\n                                var: item\n                              field: value\n                          - literal: Число\n                      then:\n                        if:\n                          isReady:\n                            field: numberFractionDigits\n                        then:\n                          if:\n                            and:\n                              - eq:\n                                  - field: numberDigits\n                                  - literal: '0'\n                              - eq:\n                                  - field: numberFractionDigits\n                                  - literal: '0'\n                              - eq:\n                                  - field: numberAllowedSign\n                                  - literal: Any\n                          then:\n                            literal: ''\n                          else:\n                            field: numberFractionDigits\n                        else:\n                          literal: ''\n                      else:\n                        literal: ''\n            - map:\n                in:\n                  field: typeSets\n                as: item\n                value:\n                  record:\n                    value:\n                      get:\n                        of:\n                          var: item\n                        field: value\n                    first:\n                      literal: ''\n                    second:\n                      literal: ''\n            - map:\n                in:\n                  filter:\n                    in:\n                      field: identifiers\n                    as: item\n                    where:\n                      matches:\n                        value:\n                          get:\n                            of:\n                              var: item\n                            field: value\n                        pattern: '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'\n                as: item\n                value:\n                  record:\n                    value:\n                      get:\n                        of:\n                          var: item\n                        field: value\n                    first:\n                      literal: ''\n                    second:\n                      literal: ''\n  - target:\n      field: identifiers\n    yaml:\n      missing:\n        denotes:\n          map:\n            in:\n              filter:\n                in:\n                  field: items\n                as: item\n                where:\n                  matches:\n                    value:\n                      get:\n                        of:\n                          var: item\n                        field: value\n                    pattern: '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'\n            as: item\n            value:\n              record:\n                value:\n                  get:\n                    of:\n                      var: item\n                    field: value\n  - target:\n      field: typeSets\n    yaml:\n      missing:\n        denotes:\n          map:\n            in:\n              filter:\n                in:\n                  field: items\n                as: item\n                where:\n                  matches:\n                    value:\n                      get:\n                        of:\n                          var: item\n                        field: value\n                    pattern: >-\n                      AccumulationRegisterRecordSet|CalculationRegisterRecordSet|ChartOfAccountsObject|ConstantValueManager|RecalculationRecordSet|SequenceRecordSet|БизнесПроцесс|БизнесПроцессОбъект|ВнешнийИсточникДанныхКубМенеджерЗаписи|ВнешнийИсточникДанныхКубТаблицаИзмерения|ВнешнийИсточникДанныхТаблица|ВнешнийИсточникДанныхТаблицаОбъект|Документ|ДокументОбъект|Задача|ЗадачаОбъект|ЛюбаяСсылка|ОпределяемыйТип(\\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)?|Перечисление|ПланВидовРасчета|ПланВидовРасчетаОбъект|ПланВидовХарактеристик|ПланВидовХарактеристикОбъект|ПланОбмена|ПланОбменаОбъект|ПланСчетов|ПланСчетовОбъект|РегистрБухгалтерииНаборЗаписей|РегистрСведенийНаборЗаписей|Справочник|СправочникОбъект|ТочкаМаршрутаБизнесПроцесса|ТочкаМаршрутаБизнесПроцессаОбъект|Характеристика\n            as: item\n            value:\n              record:\n                value:\n                  get:\n                    of:\n                      var: item\n                    field: value\n  - target:\n      field: types\n    yaml:\n      missing:\n        denotes:\n          map:\n            in:\n              filter:\n                in:\n                  field: items\n                as: item\n                where:\n                  and:\n                    - not:\n                        matches:\n                          value:\n                            get:\n                              of:\n                                var: item\n                              field: value\n                          pattern: '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'\n                    - not:\n                        matches:\n                          value:\n                            get:\n                              of:\n                                var: item\n                              field: value\n                          pattern: >-\n                            AccumulationRegisterRecordSet|CalculationRegisterRecordSet|ChartOfAccountsObject|ConstantValueManager|RecalculationRecordSet|SequenceRecordSet|БизнесПроцесс|БизнесПроцессОбъект|ВнешнийИсточникДанныхКубМенеджерЗаписи|ВнешнийИсточникДанныхКубТаблицаИзмерения|ВнешнийИсточникДанныхТаблица|ВнешнийИсточникДанныхТаблицаОбъект|Документ|ДокументОбъект|Задача|ЗадачаОбъект|ЛюбаяСсылка|ОпределяемыйТип(\\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)?|Перечисление|ПланВидовРасчета|ПланВидовРасчетаОбъект|ПланВидовХарактеристик|ПланВидовХарактеристикОбъект|ПланОбмена|ПланОбменаОбъект|ПланСчетов|ПланСчетовОбъект|РегистрБухгалтерииНаборЗаписей|РегистрСведенийНаборЗаписей|Справочник|СправочникОбъект|ТочкаМаршрутаБизнесПроцесса|ТочкаМаршрутаБизнесПроцессаОбъект|Характеристика\n            as: item\n            value:\n              record:\n                value:\n                  if:\n                    matches:\n                      value:\n                        get:\n                          of:\n                            var: item\n                          field: value\n                      pattern: Строка|ФиксированнаяСтрока\n                  then:\n                    literal: Строка\n                  else:\n                    if:\n                      matches:\n                        value:\n                          get:\n                            of:\n                              var: item\n                            field: value\n                        pattern: Число|ПоложительноеЧисло\n                    then:\n                      literal: Число\n                    else:\n                      if:\n                        matches:\n                          value:\n                            get:\n                              of:\n                                var: item\n                              field: value\n                          pattern: Дата|Время|ДатаВремя\n                      then:\n                        literal: ДатаВремя\n                      else:\n                        get:\n                          of:\n                            var: item\n                          field: value\n  - target:\n      field: stringLength\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      missing:\n        denotes:\n          match:\n            value:\n              find:\n                in:\n                  field: items\n                as: item\n                where:\n                  matches:\n                    value:\n                      get:\n                        of:\n                          var: item\n                        field: value\n                    pattern: Строка|ФиксированнаяСтрока\n            present:\n              as: item\n              then:\n                if:\n                  eq:\n                    - get:\n                        of:\n                          var: item\n                        field: first\n                    - literal: ''\n                then:\n                  literal: '0'\n                else:\n                  get:\n                    of:\n                      var: item\n                    field: first\n            absent:\n              absent: true\n  - target:\n      field: stringAllowedLength\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      missing:\n        denotes:\n          match:\n            value:\n              find:\n                in:\n                  field: items\n                as: item\n                where:\n                  matches:\n                    value:\n                      get:\n                        of:\n                          var: item\n                        field: value\n                    pattern: Строка|ФиксированнаяСтрока\n            present:\n              as: item\n              then:\n                if:\n                  eq:\n                    - get:\n                        of:\n                          var: item\n                        field: value\n                    - literal: ФиксированнаяСтрока\n                then:\n                  literal: Fixed\n                else:\n                  literal: Variable\n            absent:\n              absent: true\n  - target:\n      field: numberDigits\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      missing:\n        denotes:\n          match:\n            value:\n              find:\n                in:\n                  field: items\n                as: item\n                where:\n                  matches:\n                    value:\n                      get:\n                        of:\n                          var: item\n                        field: value\n                    pattern: Число|ПоложительноеЧисло\n            present:\n              as: item\n              then:\n                if:\n                  eq:\n                    - get:\n                        of:\n                          var: item\n                        field: first\n                    - literal: ''\n                then:\n                  literal: '0'\n                else:\n                  get:\n                    of:\n                      var: item\n                    field: first\n            absent:\n              absent: true\n  - target:\n      field: numberFractionDigits\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      missing:\n        denotes:\n          match:\n            value:\n              find:\n                in:\n                  field: items\n                as: item\n                where:\n                  matches:\n                    value:\n                      get:\n                        of:\n                          var: item\n                        field: value\n                    pattern: Число|ПоложительноеЧисло\n            present:\n              as: item\n              then:\n                if:\n                  eq:\n                    - get:\n                        of:\n                          var: item\n                        field: second\n                    - literal: ''\n                then:\n                  literal: '0'\n                else:\n                  get:\n                    of:\n                      var: item\n                    field: second\n            absent:\n              absent: true\n  - target:\n      field: numberAllowedSign\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      missing:\n        denotes:\n          match:\n            value:\n              find:\n                in:\n                  field: items\n                as: item\n                where:\n                  matches:\n                    value:\n                      get:\n                        of:\n                          var: item\n                        field: value\n                    pattern: Число|ПоложительноеЧисло\n            present:\n              as: item\n              then:\n                if:\n                  eq:\n                    - get:\n                        of:\n                          var: item\n                        field: value\n                    - literal: ПоложительноеЧисло\n                then:\n                  literal: Nonnegative\n                else:\n                  literal: Any\n            absent:\n              absent: true\n  - target:\n      field: dateFractions\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      missing:\n        denotes:\n          match:\n            value:\n              find:\n                in:\n                  field: items\n                as: item\n                where:\n                  matches:\n                    value:\n                      get:\n                        of:\n                          var: item\n                        field: value\n                    pattern: Дата|Время|ДатаВремя\n            present:\n              as: item\n              then:\n                if:\n                  eq:\n                    - get:\n                        of:\n                          var: item\n                        field: value\n                    - literal: Время\n                then:\n                  literal: Time\n                else:\n                  if:\n                    eq:\n                      - get:\n                          of:\n                            var: item\n                          field: value\n                      - literal: ДатаВремя\n                  then:\n                    literal: DateTime\n                  else:\n                    literal: Date\n            absent:\n              absent: true\n  - target:\n      field: binaryLength\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      missing:\n        denotes:\n          if:\n            exists:\n              in:\n                field: items\n              as: item\n              where:\n                eq:\n                  - get:\n                      of:\n                        var: item\n                      field: value\n                  - literal: ДвоичныеДанные\n          then:\n            literal: '0'\n          else:\n            absent: true\n  - target:\n      field: binaryAllowedLength\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      missing:\n        denotes:\n          if:\n            exists:\n              in:\n                field: items\n              as: item\n              where:\n                eq:\n                  - get:\n                      of:\n                        var: item\n                      field: value\n                  - literal: ДвоичныеДанные\n          then:\n            literal: Variable\n          else:\n            absent: true\n",
     "common.type-description-identifier-item.yaml": "format: nkdk-declarations/1\nkind: value\nid: common.type-description-identifier-item\ndescription: Идентификатор типа как отдельный элемент TypeDescription\nimports:\n  name: common.string\nvalue:\n  kind: record\n  fields:\n    - name: value\n      type:\n        use: name\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - field: value\n        path: []\n  yaml:\n    kind: projection\n    field: value\n",
     "common.type-description-identifiers.yaml": "format: nkdk-declarations/1\nkind: value\nid: common.type-description-identifiers\nimports:\n  item: common.type-description-identifier-item\nnamespaces:\n  v8: http://v8.1c.ru/8.1/data/core\nvalue:\n  kind: sequence\n  item:\n    use: item\nrepresentations:\n  xml:\n    kind: element-sequence\n    path:\n      - v8:TypeId\n    item:\n      kind: declared\n  yaml:\n    kind: sequence\n    singleton: scalar\n    item:\n      kind: declared\npresence:\n  - target: self\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      missing:\n        denotes:\n          absent: true\n",
     "common.type-description-item.yaml": "format: nkdk-declarations/1\nkind: value\nid: common.type-description-item\ndescription: Единая смысловая строка описания типа\nimports:\n  name: common.string\nparameters:\n  metadataAttributeTypesOnly:\n    type:\n      kind: scalar\n      scalar: boolean\n    default: false\nvalue:\n  kind: record\n  fields:\n    - name: value\n      type:\n        use: name\n    - name: first\n      type:\n        use: name\n    - name: second\n      type:\n        use: name\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - field: value\n        path:\n          - Value\n      - field: first\n        path:\n          - First\n      - field: second\n        path:\n          - Second\n  yaml:\n    kind: text-pattern\n    parts:\n      - field: value\n      - optional: first\n        parts:\n          - literal: (\n          - field: first\n          - optional: second\n            parts:\n              - literal: ', '\n              - field: second\n          - literal: )\npresence:\n  - target:\n      field: first\n    xml:\n      missing:\n        denotes:\n          literal: ''\n    yaml:\n      missing:\n        denotes:\n          literal: ''\n      omitWhen:\n        eq:\n          - field: first\n          - literal: ''\n  - target:\n      field: second\n    xml:\n      missing:\n        denotes:\n          literal: ''\n    yaml:\n      missing:\n        denotes:\n          literal: ''\n      omitWhen:\n        eq:\n          - field: second\n          - literal: ''\nconstraints:\n  - id: metadata-attribute-allowed-types\n    appliesTo:\n      - xml-import\n      - yaml-validation\n    assert:\n      or:\n        - and:\n            - eq:\n                - field: value\n                - literal: Строка\n            - eq:\n                - field: second\n                - literal: ''\n            - or:\n                - eq:\n                    - field: first\n                    - literal: ''\n                - matches:\n                    value:\n                      field: first\n                    pattern: '[1-9][0-9]*'\n        - and:\n            - eq:\n                - field: value\n                - literal: ФиксированнаяСтрока\n            - matches:\n                value:\n                  field: first\n                pattern: '[1-9][0-9]*'\n            - eq:\n                - field: second\n                - literal: ''\n        - and:\n            - matches:\n                value:\n                  field: value\n                pattern: Число|ПоложительноеЧисло\n            - or:\n                - and:\n                    - eq:\n                        - field: first\n                        - literal: ''\n                    - eq:\n                        - field: second\n                        - literal: ''\n                - and:\n                    - matches:\n                        value:\n                          field: first\n                        pattern: '[1-9][0-9]*'\n                    - matches:\n                        value:\n                          field: second\n                        pattern: '[0-9]*'\n        - matches:\n            value:\n              field: value\n            pattern: ^(?:Дата)$\n        - matches:\n            value:\n              field: value\n            pattern: ^(?:Время)$\n        - matches:\n            value:\n              field: value\n            pattern: ^(?:ДатаВремя)$\n        - matches:\n            value:\n              field: value\n            pattern: ^(?:Булево)$\n        - matches:\n            value:\n              field: value\n            pattern: ^(?:ХранилищеЗначения)$\n        - matches:\n            value:\n              field: value\n            pattern: ^(?:УникальныйИдентификатор)$\n        - matches:\n            value:\n              field: value\n            pattern: ^(?:Справочник)$\n        - matches:\n            value:\n              field: value\n            pattern: ^(?:Справочник\\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$\n        - matches:\n            value:\n              field: value\n            pattern: ^(?:Документ)$\n        - matches:\n            value:\n              field: value\n            pattern: ^(?:Документ\\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$\n        - matches:\n            value:\n              field: value\n            pattern: ^(?:Перечисление)$\n        - matches:\n            value:\n              field: value\n            pattern: ^(?:Перечисление\\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$\n        - matches:\n            value:\n              field: value\n            pattern: ^(?:ПланВидовХарактеристик)$\n        - matches:\n            value:\n              field: value\n            pattern: ^(?:ПланВидовХарактеристик\\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$\n        - matches:\n            value:\n              field: value\n            pattern: ^(?:ПланСчетов)$\n        - matches:\n            value:\n              field: value\n            pattern: ^(?:ПланСчетов\\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$\n        - matches:\n            value:\n              field: value\n            pattern: ^(?:ПланВидовРасчета)$\n        - matches:\n            value:\n              field: value\n            pattern: ^(?:ПланВидовРасчета\\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$\n        - matches:\n            value:\n              field: value\n            pattern: ^(?:БизнесПроцесс)$\n        - matches:\n            value:\n              field: value\n            pattern: ^(?:БизнесПроцесс\\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$\n        - matches:\n            value:\n              field: value\n            pattern: ^(?:ТочкаМаршрутаБизнесПроцесса)$\n        - matches:\n            value:\n              field: value\n            pattern: ^(?:ТочкаМаршрутаБизнесПроцесса\\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$\n        - matches:\n            value:\n              field: value\n            pattern: ^(?:Задача)$\n        - matches:\n            value:\n              field: value\n            pattern: ^(?:Задача\\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$\n        - matches:\n            value:\n              field: value\n            pattern: ^(?:ПланОбмена)$\n        - matches:\n            value:\n              field: value\n            pattern: ^(?:ПланОбмена\\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$\n        - matches:\n            value:\n              field: value\n            pattern: ^(?:ЛюбаяСсылка)$\n        - matches:\n            value:\n              field: value\n            pattern: ^(?:ОпределяемыйТип\\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$\n        - matches:\n            value:\n              field: value\n            pattern: ^(?:Характеристика\\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$\n        - matches:\n            value:\n              field: value\n            pattern: >-\n              ^(?:ВнешнийИсточникДанных[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*\\.Таблица[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$\n        - matches:\n            value:\n              field: value\n            pattern: >-\n              ^(?:ВнешнийИсточникДанных[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*\\.Куб[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*\\.ТаблицаИзмерения[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$\n    diagnostic:\n      code: type-description.allowed\n      severity: warning\n      at:\n        field: value\n      message: Тип не разрешён декларацией свойства\n    when:\n      parameter: metadataAttributeTypesOnly\n",

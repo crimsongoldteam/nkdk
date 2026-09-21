@@ -21,11 +21,11 @@ value:
   - {name: types, type: {use: types}}
   - {name: typeSets, type: {use: typeSets}}
   - {name: identifiers, type: {use: identifiers}}
-  - {name: stringLength, type: {use: text}}
-  - {name: stringAllowedLength, type: {use: text}}
   - {name: numberDigits, type: {use: text}}
   - {name: numberFractionDigits, type: {use: text}}
   - {name: numberAllowedSign, type: {use: text}}
+  - {name: stringLength, type: {use: text}}
+  - {name: stringAllowedLength, type: {use: text}}
   - {name: dateFractions, type: {use: text}}
   - {name: binaryLength, type: {use: text}}
   - {name: binaryAllowedLength, type: {use: text}}
@@ -40,11 +40,11 @@ representations:
       - {field: types, path: []}
       - {field: typeSets, path: []}
       - {field: identifiers, path: []}
-      - {field: stringLength, path: [v8:StringQualifiers, v8:Length]}
-      - {field: stringAllowedLength, path: [v8:StringQualifiers, v8:AllowedLength]}
       - {field: numberDigits, path: [v8:NumberQualifiers, v8:Digits]}
       - {field: numberFractionDigits, path: [v8:NumberQualifiers, v8:FractionDigits]}
       - {field: numberAllowedSign, path: [v8:NumberQualifiers, v8:AllowedSign]}
+      - {field: stringLength, path: [v8:StringQualifiers, v8:Length]}
+      - {field: stringAllowedLength, path: [v8:StringQualifiers, v8:AllowedLength]}
       - {field: dateFractions, path: [v8:DateQualifiers, v8:DateFractions]}
       - {field: binaryLength, path: [v8:BinaryDataQualifiers, v8:Length]}
       - {field: binaryAllowedLength, path: [v8:BinaryDataQualifiers, v8:AllowedLength]}
