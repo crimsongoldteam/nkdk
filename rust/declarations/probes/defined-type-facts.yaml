@@ -1,0 +1,30 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.defined-type-facts
+description: Подготовка альтернатив определяемого типа из его обычных свойств
+namespaces:
+  md: http://v8.1c.ru/8.3/MDClasses
+  v8: http://v8.1c.ru/8.1/data/core
+imports: {description: common.type-description}
+value:
+  kind: record
+  fields:
+  - {name: name, type: {kind: scalar, scalar: text}}
+  - {name: type, type: {use: description}}
+representations:
+  xml:
+    kind: record
+    fields:
+    - {field: name, path: [md:MetaDataObject, md:DefinedType, md:Properties, md:Name]}
+    - {field: type, path: [md:MetaDataObject, md:DefinedType, md:Properties, md:Type]}
+  yaml:
+    kind: mapping
+    fields:
+    - {field: name, key: Имя}
+    - {field: type, key: Тип}
+contributions:
+- index: metadata.defined-type-alternatives
+  forEach: {in: {get: {of: {field: type}, field: items}}, as: item}
+  key: {concat: [{literal: 'ОпределяемыйТип.'}, {field: name}]}
+  value: {get: {of: {var: item}, field: value}}
+  union: {referencePrefix: 'ОпределяемыйТип.'}

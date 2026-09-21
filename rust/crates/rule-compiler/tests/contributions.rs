@@ -44,6 +44,19 @@ representations:
   yaml: {kind: mapping, fields: [{field: items, key: Items}]}
 "#;
 
+const TYPE_DESCRIPTION_FILES: &[&str] = &[
+    "string",
+    "type-description-name",
+    "type-description-item",
+    "type-description-items",
+    "type-description-qname-item",
+    "type-description-types",
+    "type-description-type-sets",
+    "type-description-identifier-item",
+    "type-description-identifiers",
+    "type-description",
+];
+
 const FACT_MAIN: &str = r#"include!("generated.rs");
 fn main() {
     let entry=entry_id(@ENTRY@).unwrap();
@@ -180,18 +193,7 @@ fn owner_can_contribute_rows_from_nested_declared_record() {
 #[test]
 fn type_description_items_can_be_declared_as_an_owner_fact_source() {
     let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../declarations/common");
-    let names = [
-        "string",
-        "type-description-name",
-        "type-description-item",
-        "type-description-items",
-        "type-description-qname-item",
-        "type-description-types",
-        "type-description-type-sets",
-        "type-description-identifier-item",
-        "type-description-identifiers",
-        "type-description",
-    ];
+    let names = TYPE_DESCRIPTION_FILES;
     let contents: Vec<_> = names
         .iter()
         .map(|name| std::fs::read(root.join(format!("{name}.yaml"))).unwrap())
@@ -201,7 +203,7 @@ fn type_description_items_can_be_declared_as_an_owner_fact_source() {
         .replace("test.nested-fact-rows", "common.type-description")
         .replace("test.nested-names", "test.real-nested-type-items")
         .replace("field: code", "field: value");
-    let sources = type_sources(&names, &contents, &owner);
+    let sources = type_sources(names, &contents, &owner);
     let generated = compile(&sources)
         .expect("actual TypeDescription item collection must support declared contribution");
     run_generated(
@@ -219,7 +221,7 @@ fn type_description_items_can_be_declared_as_an_owner_fact_source() {
         .replace("test.real-nested-type-items", "test.real-type-union")
         .replace("key: {field: name}", "key: {concat: [{literal: 'ОпределяемыйТип.'}, {field: name}]}")
         .replace("  value: {get: {of: {var: item}, field: value}}", "  value: {get: {of: {var: item}, field: value}}\n  union: {referencePrefix: 'ОпределяемыйТип.'}");
-    let union_sources = type_sources(&names, &contents, &union_owner);
+    let union_sources = type_sources(names, &contents, &union_owner);
     let generated = compile(&union_sources).expect("real TypeDescription can feed a named union");
     let main = r#"fn main() {
     let entry=entry_id("test.real-nested-fact-owner").unwrap();
@@ -239,6 +241,36 @@ fn type_description_items_can_be_declared_as_an_owner_fact_source() {
         "real-type-union-contract",
         &format!("{UNION_PREPARE_MAIN}{main}"),
     );
+}
+
+#[test]
+fn real_defined_type_fixture_contributes_declared_alternatives() {
+    let common = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../declarations/common");
+    let contents = TYPE_DESCRIPTION_FILES
+        .iter()
+        .map(|name| std::fs::read(common.join(format!("{name}.yaml"))).unwrap())
+        .collect::<Vec<_>>();
+    let owner = include_str!("../../../declarations/probes/defined-type-facts.yaml");
+    let sources = type_sources(TYPE_DESCRIPTION_FILES, &contents, owner);
+    let generated = compile(&sources).expect("real defined type paths must compile");
+    let fixture = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../../../e2e/fixtures/xml/cf/DefinedTypes/ОпределяемыйТипВсеСвойства.xml");
+    let main = format!(
+        r#"include!("generated.rs");
+fn main() {{
+    let entry=entry_id("migration.defined-type-facts").unwrap();
+    let xml=std::fs::read({fixture:?}).unwrap();
+    let generation=core::facts::Generation(1);
+    let mut builder=fact_builder(generation,core::facts::prepared::FactBudget{{text:core::facts::text::TextBudget{{entries:20,bytes:1000}},rows:10}});
+    let issues=contribute_file(entry,Direction::XmlToYaml,&xml,&PreparedInputs::default(),&mut builder);
+    assert!(issues.is_empty(),"{{issues:?}}");
+    let facts=builder.finish();
+    let core::facts::FactState::Ready(values)=facts.lookup_union(generation,fact_id("metadata.defined-type-alternatives").unwrap(),"ОпределяемыйТип.ОпределяемыйТипВсеСвойства") else {{panic!("real defined type unavailable")}};
+    assert_eq!(values.collect::<Vec<_>>(),vec!["Строка","Число"]);
+}}
+"#
+    );
+    run_generated(generated, "real-defined-type-facts", &main);
 }
 
 #[test]

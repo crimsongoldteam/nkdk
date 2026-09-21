@@ -324,7 +324,14 @@ impl TextUnionIndexInput {
                 "The named union contains a cycle",
             )),
             FactState::Unready => {
-                if let Some(limit) = self.0.facts.graph_limit(self.0.index) {
+                if self.is_ready() {
+                    Err(crate::RuntimeDiagnostic::declared(
+                        Some("fact.unresolved"),
+                        None,
+                        crate::Severity::Warning,
+                        "The named union has no effective alternatives",
+                    ))
+                } else if let Some(limit) = self.0.facts.graph_limit(self.0.index) {
                     Err(crate::RuntimeDiagnostic::new(
                         "fact.graph-budget",
                         format!("Graph preparation exceeded {limit:?}"),

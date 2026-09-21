@@ -87,6 +87,24 @@ fn cyclic_union_is_a_data_anomaly_instead_of_a_fatal_error() {
 }
 
 #[test]
+fn empty_named_definition_is_unresolved_data() {
+    use nkdk_conversion_core::facts::prepared::TextUnionIndexInput;
+    use nkdk_conversion_core::{Severity, annotations::IssueKind};
+    let generation = Generation(18);
+    let mut builder = union_builder(generation);
+    builder
+        .begin_union(FactId(0), "ОпределяемыйТип.Пустой")
+        .unwrap();
+    let input = TextUnionIndexInput::new(Arc::new(builder.finish()), generation, FactId(0));
+    let Err(issue) = input.lookup("ОпределяемыйТип.Пустой") else {
+        panic!("empty definition must be unresolved")
+    };
+    assert_eq!(issue.code.as_deref(), Some("fact.unresolved"));
+    assert_eq!(issue.severity, Severity::Warning);
+    assert_eq!(issue.kind, IssueKind::Semantic);
+}
+
+#[test]
 fn prepared_index_inputs_borrow_values_and_keep_missing_distinct_from_unready() {
     let generation = Generation(9);
     let mut builder = TextFactsBuilder::new(
