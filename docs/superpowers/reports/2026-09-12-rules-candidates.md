@@ -6,9 +6,9 @@
 
 ## Результат генерации
 
-- 3665 вхождений свойств получили кандидаты.
-- 896 уникальных фрагментов и 846 уникальных проекций.
-- 232 существующих common/перечислений подключены как снимки зависимостей.
+- 3700 вхождений свойств получили кандидаты.
+- 893 уникальных фрагментов и 845 уникальных проекций.
+- 219 существующих common/перечислений подключены как снимки зависимостей.
 
 Проекция — только поддержанные свойства под относительным XML-корнем.
 Это не полный Document, DocumentJournal, реквизит или элемент формы.
@@ -56,7 +56,7 @@ excludedParameters у свойства; остальные неизвестны�
 свойств сохранены в manifest.json, а не дополнительными полями языка YAML.
 
 Ранее написанные YAML служат источником зависимостей и не перезаписываются.
-Для 452 полей найдены возможные соответствия
+Для 457 полей найдены возможные соответствия
 в рабочем каталоге по common, YAML-ключу и суффиксу XML-пути. В manifest.json
 записаны различия пути, присутствия XML и YAML, параметров, входов и ограничений (до трёх примеров
 на поле с полным числом совпадений). Это список для проверки, не доказательство
@@ -67,31 +67,36 @@ excludedParameters у свойства; остальные неизвестны�
 
 | Причина | Вхождения известных свойств |
 |---|---:|
-| unsupported-common | 1293 |
-| requires-expression-mapping | 248 |
+| unsupported-common | 1120 |
+| requires-expression-mapping | 215 |
 | explicit-yaml-name-required | 162 |
+| owner-root-required | 136 |
 | runtime-only-profile | 131 |
 | hidden-scalar-default-required | 110 |
-| owner-root-required | 86 |
-| identity-property-profile | 54 |
+| declared-collection-presence-backend | 96 |
+| mixed-record-presence-backend | 50 |
 | xml-path-profile | 46 |
+| structured-sibling-expression-backend | 27 |
 | asymmetric-defaults | 11 |
 | unsupported-parameters:xmlAliases | 10 |
-| unsupported-parameters:defaultValueXMLEmpty | 8 |
+| unsupported-parameters:defaultValue | 8 |
 | unsupported-parameters:description,maximumWhen | 6 |
 | raw-default-profile | 6 |
-| unsupported-parameters:defaultValue | 6 |
-| unsupported-parameters:defaultValueXMLEmpty,defaultValue | 5 |
 | form-default-profile | 5 |
 | unsupported-parameters:xmlOnly | 5 |
+| unsupported-parameters:defaultValueXMLEmpty | 4 |
+| identity-property-profile | 4 |
 | unsupported-parameters:fromXML | 4 |
 | adopted-default-profile | 3 |
+| unsupported-parameters:defaultValueXMLEmpty,defaultValue | 3 |
 | unsupported-parameters:xmlNamespace | 3 |
 | required-default-profile | 2 |
 | unsupported-parameters:defaultValue,omitImplicitValueYAMLBySource | 2 |
 | unsupported-parameters:description | 2 |
 | unsupported-parameters:defaultValue,toXML | 1 |
 | record-parameter-profile | 1 |
+| metadata-value-profile | 1 |
+| common-presence-profile-composition | 1 |
 | unsupported-parameters:externalFile | 1 |
 | unsupported-parameters:fromXML,toXML | 1 |
 

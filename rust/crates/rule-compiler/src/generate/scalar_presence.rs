@@ -252,7 +252,19 @@ pub(super) fn canonical(
     let body = super::canonical::selection(&rule.canonical, |when| {
         let mut expression = when.clone();
         replace_self(&mut expression, index);
-        context.lower(&expression)
+        let mut value_fields = BTreeSet::new();
+        read_value_fields(&expression, &mut value_fields);
+        let condition = context.lower(&expression)?;
+        if value_fields.is_empty() {
+            Ok(condition)
+        } else {
+            let ready = value_fields
+                .iter()
+                .map(|field| format!("_value.f{field}.is_some()"))
+                .collect::<Vec<_>>()
+                .join(" && ");
+            Ok(format!("({ready}) && ({condition})"))
+        }
     })?;
     if !context.transforms.is_empty() {
         return Err(unsupported(
@@ -264,6 +276,24 @@ pub(super) fn canonical(
         "fn xml_form_{}_{index}(_value:&V{},_inputs:&InputView<'_>)->core::Result<usize>{{{}{body}}}\n",
         owner.id, owner.id, context.constants
     ))
+}
+
+fn read_value_fields(expression: &LinkedExpression, fields: &mut BTreeSet<u32>) {
+    match &expression.kind {
+        LinkedExpressionKind::Field(index) => {
+            fields.insert(*index);
+        }
+        LinkedExpressionKind::Operation {
+            operator: LinkedOperator::State(StatePredicate::Present | StatePredicate::IsReady),
+            ..
+        } => (),
+        LinkedExpressionKind::Operation { arguments, .. } => {
+            for argument in arguments {
+                read_value_fields(argument, fields);
+            }
+        }
+        _ => (),
+    }
 }
 
 pub(super) fn absent_form(rule: Option<&LinkedPresence>) -> XmlForm {

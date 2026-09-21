@@ -1,0 +1,104 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.UseQuickChoice
+  inputType1f8ea46361ff: common.path-root
+  value2: common.metadata-form-link
+value:
+  kind: record
+  fields:
+    - name: quickChoice
+      type:
+        use: value0
+    - name: choiceForm
+      type:
+        use: value2
+        bind:
+          roots:
+            input: roots
+          forms:
+            input: forms
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: quickChoice
+        path:
+          - Properties
+          - QuickChoice
+      - field: choiceForm
+        path:
+          - Properties
+          - ChoiceForm
+  yaml:
+    kind: mapping
+    fields:
+      - field: quickChoice
+        key: БыстрыйВыбор
+      - field: choiceForm
+        key: ФормаВыбора
+presence:
+  - target:
+      field: quickChoice
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: Auto
+  - target:
+      field: choiceForm
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: choiceForm
+          form: empty-element
+    yaml:
+      missing:
+        denotes:
+          absent: true
+inputs:
+  roots:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: kind
+            type:
+              use: inputType1f8ea46361ff
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  forms:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: parent
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+id: candidate.fragment.4f530792a46c637daad3

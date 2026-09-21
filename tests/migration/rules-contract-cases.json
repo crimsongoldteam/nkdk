@@ -392,35 +392,42 @@
       ]
     },
     {
-      "entry": "contract.source.9f18ce253d758fed8f38",
+      "entry": "contract.source.d5ab04277aac943f1b33",
       "sourceOwner": "ClientApplicationFormRules",
       "sourceTag": "Metadata",
       "properties": [
         {
-          "entry": "contract.property.2933946fae5dd895e177.fragment",
-          "sourceProjection": "candidate.projection.a9a9eb246aa061b4fb43",
-          "sourceFragment": "candidate.fragment.6b9f1f7a5ac2e3c6cf75",
+          "entry": "contract.property.93d00100ec22204cd15e.fragment",
+          "sourceProjection": "candidate.projection.40a1ff729a11ca497588",
+          "sourceFragment": "candidate.fragment.db932034034040b9086b",
+          "field": "synonym",
+          "sourceTag": "Metadata"
+        },
+        {
+          "entry": "contract.property.a94b008682532bd4ea74.fragment",
+          "sourceProjection": "candidate.projection.40a1ff729a11ca497588",
+          "sourceFragment": "candidate.fragment.db932034034040b9086b",
           "field": "comment",
           "sourceTag": "Metadata"
         },
         {
-          "entry": "contract.property.b58128a792c364867664.fragment",
-          "sourceProjection": "candidate.projection.a9a9eb246aa061b4fb43",
-          "sourceFragment": "candidate.fragment.6b9f1f7a5ac2e3c6cf75",
+          "entry": "contract.property.a53d0a830883e0c74e39.fragment",
+          "sourceProjection": "candidate.projection.40a1ff729a11ca497588",
+          "sourceFragment": "candidate.fragment.db932034034040b9086b",
           "field": "formType",
           "sourceTag": "Metadata"
         },
         {
-          "entry": "contract.property.a045b5acabb8f758eafb.fragment",
-          "sourceProjection": "candidate.projection.a9a9eb246aa061b4fb43",
-          "sourceFragment": "candidate.fragment.6b9f1f7a5ac2e3c6cf75",
+          "entry": "contract.property.f9a694be424160949ee9.fragment",
+          "sourceProjection": "candidate.projection.40a1ff729a11ca497588",
+          "sourceFragment": "candidate.fragment.db932034034040b9086b",
           "field": "includeHelpInContents",
           "sourceTag": "Metadata"
         },
         {
-          "entry": "contract.property.e17ff04b4b4c45b66ae3.fragment",
-          "sourceProjection": "candidate.projection.a9a9eb246aa061b4fb43",
-          "sourceFragment": "candidate.fragment.6b9f1f7a5ac2e3c6cf75",
+          "entry": "contract.property.095e3b1069cb4fd6205a.fragment",
+          "sourceProjection": "candidate.projection.40a1ff729a11ca497588",
+          "sourceFragment": "candidate.fragment.db932034034040b9086b",
           "field": "usePurposes",
           "sourceTag": "Metadata"
         }
@@ -1184,7 +1191,7 @@
     },
     {
       "path": "rust/crates/compiled-rules/tests/sequences.rs",
-      "sha256": "30399283a8ea97011b00854cf19515d440a6d7bcab7774ed8bebc733423667df"
+      "sha256": "5eeee66ece078aa08a25e1e1a48f84f0aafd467b08bf585e0e873fe0c8d73fb9"
     },
     {
       "path": "packages/rules/metadata/commonObjects/usePurposes/toYAML.test.ts",
@@ -1272,7 +1279,7 @@
     },
     {
       "path": "rust/crates/compiled-rules/tests/scalars.rs",
-      "sha256": "2591c38511ef3114acff30e69fa348a63cac73fb30cc673fdbd84c9ef9575a3b"
+      "sha256": "798baf4fe314a1734d57575485bae4e13511c8b464644e3aaa825d18b68e50d3"
     },
     {
       "path": "tests/migration/i8n-full-round-trip-observations.json",
@@ -1320,7 +1327,7 @@
     },
     {
       "path": "rust/crates/compiled-rules/tests/path_lexicons.rs",
-      "sha256": "2d89b98c32e0b912bd51b84a4e954f383a430b93084901e8d36789774932200e"
+      "sha256": "841e539126508996cc2d38b610fdf18d16b79247d9c536434875b3c4b181a068"
     },
     {
       "path": "tests/migration/command-group-e2e.json",
@@ -2298,12 +2305,11 @@
     },
     {
       "id": "form-source-properties-metadata",
-      "entry": "contract.source.9f18ce253d758fed8f38",
-      "xml": "<Form><Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:app=\"http://v8.1c.ru/8.2/managed-application/core\"><Comment>Комментарий</Comment>\n\t\t\t<FormType>Managed</FormType>\n\t\t\t<IncludeHelpInContents>true</IncludeHelpInContents>\n\t\t\t<UsePurposes>\n\t\t\t\t<v8:Value xsi:type=\"app:ApplicationUsePurpose\">PlatformApplication</v8:Value>\n\t\t\t\t<v8:Value xsi:type=\"app:ApplicationUsePurpose\">MobilePlatformApplication</v8:Value>\n\t\t\t</UsePurposes>\n\t\t</Properties></Form>",
-      "yaml": "Комментарий: Комментарий\nВключатьСправкуВСодержание: Истина\nНазначенияИспользования: ПлатформаИМобильноеПриложение",
+      "entry": "contract.source.d5ab04277aac943f1b33",
+      "xml": "<Form><Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:app=\"http://v8.1c.ru/8.2/managed-application/core\"><Synonym>\n\t\t\t\t<v8:item>\n\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t<v8:content>Синоним</v8:content>\n\t\t\t\t</v8:item>\n\t\t\t</Synonym>\n\t\t\t<Comment>Комментарий</Comment>\n\t\t\t<FormType>Managed</FormType>\n\t\t\t<IncludeHelpInContents>true</IncludeHelpInContents>\n\t\t\t<UsePurposes>\n\t\t\t\t<v8:Value xsi:type=\"app:ApplicationUsePurpose\">PlatformApplication</v8:Value>\n\t\t\t\t<v8:Value xsi:type=\"app:ApplicationUsePurpose\">MobilePlatformApplication</v8:Value>\n\t\t\t</UsePurposes>\n\t\t</Properties></Form>",
+      "yaml": "Синоним: Синоним\nКомментарий: Комментарий\nВключатьСправкуВСодержание: Истина\nНазначенияИспользования: ПлатформаИМобильноеПриложение",
       "omittedXMLProperties": [
-        "Name",
-        "Synonym"
+        "Name"
       ],
       "xmlQNamePaths": [],
       "source": [
@@ -2317,7 +2323,15 @@
         }
       ],
       "sourceTag": "Metadata",
-      "adaptation": "Select the independent Metadata source Properties and retain the declared Form wrapper; do not mix fields from Ext/Form.xml"
+      "inputs": {
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ],
+        "ownerName": "ФормаСписка"
+      },
+      "adaptation": "Select the independent Metadata source Properties and retain the declared Form wrapper; bind the same language and owner-name context as its source object; do not mix fields from Ext/Form.xml"
     },
     {
       "id": "document-form-source",
@@ -2369,12 +2383,11 @@
     },
     {
       "id": "document-form-source-metadata",
-      "entry": "contract.source.9f18ce253d758fed8f38",
-      "xml": "<Form><Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:app=\"http://v8.1c.ru/8.2/managed-application/core\"><Comment />\n\t\t\t<FormType>Managed</FormType>\n\t\t\t<IncludeHelpInContents>false</IncludeHelpInContents>\n\t\t\t<UsePurposes>\n\t\t\t\t<v8:Value xsi:type=\"app:ApplicationUsePurpose\">PlatformApplication</v8:Value>\n\t\t\t\t<v8:Value xsi:type=\"app:ApplicationUsePurpose\">MobilePlatformApplication</v8:Value>\n\t\t\t</UsePurposes>\n\t\t</Properties></Form>",
+      "entry": "contract.source.d5ab04277aac943f1b33",
+      "xml": "<Form><Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:app=\"http://v8.1c.ru/8.2/managed-application/core\"><Synonym>\n\t\t\t\t<v8:item>\n\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t<v8:content>Форма документа все свойства</v8:content>\n\t\t\t\t</v8:item>\n\t\t\t</Synonym>\n\t\t\t<Comment />\n\t\t\t<FormType>Managed</FormType>\n\t\t\t<IncludeHelpInContents>false</IncludeHelpInContents>\n\t\t\t<UsePurposes>\n\t\t\t\t<v8:Value xsi:type=\"app:ApplicationUsePurpose\">PlatformApplication</v8:Value>\n\t\t\t\t<v8:Value xsi:type=\"app:ApplicationUsePurpose\">MobilePlatformApplication</v8:Value>\n\t\t\t</UsePurposes>\n\t\t</Properties></Form>",
       "yaml": "НазначенияИспользования: ПлатформаИМобильноеПриложение",
       "omittedXMLProperties": [
-        "Name",
-        "Synonym"
+        "Name"
       ],
       "xmlQNamePaths": [],
       "source": [
@@ -2388,7 +2401,15 @@
         }
       ],
       "sourceTag": "Metadata",
-      "adaptation": "Select the independent Metadata source Properties and retain the declared Form wrapper; do not mix fields from Ext/Form.xml"
+      "inputs": {
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ],
+        "ownerName": "ФормаДокументаВсеСвойства"
+      },
+      "adaptation": "Select the independent Metadata source Properties and retain the declared Form wrapper; bind the same language and owner-name context as its source object; do not mix fields from Ext/Form.xml"
     },
     {
       "id": "journal-form-source",
@@ -2437,12 +2458,11 @@
     },
     {
       "id": "journal-form-source-metadata",
-      "entry": "contract.source.9f18ce253d758fed8f38",
-      "xml": "<Form><Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:app=\"http://v8.1c.ru/8.2/managed-application/core\"><Comment>Комментарий</Comment>\n\t\t\t<FormType>Managed</FormType>\n\t\t\t<IncludeHelpInContents>true</IncludeHelpInContents>\n\t\t\t<UsePurposes>\n\t\t\t\t<v8:Value xsi:type=\"app:ApplicationUsePurpose\">PlatformApplication</v8:Value>\n\t\t\t\t<v8:Value xsi:type=\"app:ApplicationUsePurpose\">MobilePlatformApplication</v8:Value>\n\t\t\t</UsePurposes>\n\t\t</Properties></Form>",
-      "yaml": "Комментарий: Комментарий\nВключатьСправкуВСодержание: Истина\nНазначенияИспользования: ПлатформаИМобильноеПриложение",
+      "entry": "contract.source.d5ab04277aac943f1b33",
+      "xml": "<Form><Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:app=\"http://v8.1c.ru/8.2/managed-application/core\"><Synonym>\n\t\t\t\t<v8:item>\n\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t<v8:content>Синоним</v8:content>\n\t\t\t\t</v8:item>\n\t\t\t</Synonym>\n\t\t\t<Comment>Комментарий</Comment>\n\t\t\t<FormType>Managed</FormType>\n\t\t\t<IncludeHelpInContents>true</IncludeHelpInContents>\n\t\t\t<UsePurposes>\n\t\t\t\t<v8:Value xsi:type=\"app:ApplicationUsePurpose\">PlatformApplication</v8:Value>\n\t\t\t\t<v8:Value xsi:type=\"app:ApplicationUsePurpose\">MobilePlatformApplication</v8:Value>\n\t\t\t</UsePurposes>\n\t\t</Properties></Form>",
+      "yaml": "Синоним: Синоним\nКомментарий: Комментарий\nВключатьСправкуВСодержание: Истина\nНазначенияИспользования: ПлатформаИМобильноеПриложение",
       "omittedXMLProperties": [
-        "Name",
-        "Synonym"
+        "Name"
       ],
       "xmlQNamePaths": [],
       "source": [
@@ -2456,7 +2476,15 @@
         }
       ],
       "sourceTag": "Metadata",
-      "adaptation": "Select the independent Metadata source Properties and retain the declared Form wrapper; do not mix fields from Ext/Form.xml"
+      "inputs": {
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ],
+        "ownerName": "ФормаСписка"
+      },
+      "adaptation": "Select the independent Metadata source Properties and retain the declared Form wrapper; bind the same language and owner-name context as its source object; do not mix fields from Ext/Form.xml"
     },
     {
       "id": "catalog-form-source",
@@ -2498,12 +2526,11 @@
     },
     {
       "id": "catalog-form-source-metadata",
-      "entry": "contract.source.9f18ce253d758fed8f38",
-      "xml": "<Form><Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:app=\"http://v8.1c.ru/8.2/managed-application/core\"><Comment />\n\t\t\t<FormType>Managed</FormType>\n\t\t\t<IncludeHelpInContents>false</IncludeHelpInContents>\n\t\t\t<UsePurposes>\n\t\t\t\t<v8:Value xsi:type=\"app:ApplicationUsePurpose\">PlatformApplication</v8:Value>\n\t\t\t\t<v8:Value xsi:type=\"app:ApplicationUsePurpose\">MobilePlatformApplication</v8:Value>\n\t\t\t</UsePurposes>\n\t\t</Properties></Form>",
+      "entry": "contract.source.d5ab04277aac943f1b33",
+      "xml": "<Form><Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:app=\"http://v8.1c.ru/8.2/managed-application/core\"><Synonym>\n\t\t\t\t<v8:item>\n\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t<v8:content>Форма элемента</v8:content>\n\t\t\t\t</v8:item>\n\t\t\t</Synonym>\n\t\t\t<Comment />\n\t\t\t<FormType>Managed</FormType>\n\t\t\t<IncludeHelpInContents>false</IncludeHelpInContents>\n\t\t\t<UsePurposes>\n\t\t\t\t<v8:Value xsi:type=\"app:ApplicationUsePurpose\">PlatformApplication</v8:Value>\n\t\t\t\t<v8:Value xsi:type=\"app:ApplicationUsePurpose\">MobilePlatformApplication</v8:Value>\n\t\t\t</UsePurposes>\n\t\t</Properties></Form>",
       "yaml": "НазначенияИспользования: ПлатформаИМобильноеПриложение",
       "omittedXMLProperties": [
-        "Name",
-        "Synonym"
+        "Name"
       ],
       "xmlQNamePaths": [],
       "source": [
@@ -2517,7 +2544,15 @@
         }
       ],
       "sourceTag": "Metadata",
-      "adaptation": "Select the independent Metadata source Properties and retain the declared Form wrapper; do not mix fields from Ext/Form.xml"
+      "inputs": {
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ],
+        "ownerName": "ФормаЭлемента"
+      },
+      "adaptation": "Select the independent Metadata source Properties and retain the declared Form wrapper; bind the same language and owner-name context as its source object; do not mix fields from Ext/Form.xml"
     },
     {
       "id": "implicit-autoInsertNewRow-false",
@@ -4244,16 +4279,15 @@
     },
     {
       "id": "e2e-properties-СтроковыйРеквизит",
-      "entry": "candidate.projection.b8a71cfafb324182c007",
-      "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Comment />\n\t\t\t\t\t<Type>\n\t\t\t\t\t\t<v8:Type>xs:string</v8:Type>\n\t\t\t\t\t\t<v8:StringQualifiers>\n\t\t\t\t\t\t\t<v8:Length>10</v8:Length>\n\t\t\t\t\t\t\t<v8:AllowedLength>Variable</v8:AllowedLength>\n\t\t\t\t\t\t</v8:StringQualifiers>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<PasswordMode>false</PasswordMode>\n\t\t\t\t\t<Format />\n\t\t\t\t\t<EditFormat />\n\t\t\t\t\t<ToolTip />\n\t\t\t\t\t<MarkNegatives>false</MarkNegatives>\n\t\t\t\t\t<Mask />\n\t\t\t\t\t<MultiLine>false</MultiLine>\n\t\t\t\t\t<ExtendedEdit>false</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<FillFromFillingValue>false</FillFromFillingValue>\n\t\t\t\t\t<FillChecking>DontCheck</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>Auto</CreateOnInput>\n\t\t\t\t\t<LinkByType />\n\t\t\t\t\t<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>\n\t\t\t\t\t<Indexing>DontIndex</Indexing>\n\t\t\t\t\t<FullTextSearch>Use</FullTextSearch>\n\t\t\t\t\t<DataHistory>Use</DataHistory>\n\t\t\t\t</Properties>",
+      "entry": "candidate.projection.bac17a3ad9e71c41e539",
+      "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Synonym>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Строковый реквизит</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Synonym>\n\t\t\t\t\t<Comment />\n\t\t\t\t\t<Type>\n\t\t\t\t\t\t<v8:Type>xs:string</v8:Type>\n\t\t\t\t\t\t<v8:StringQualifiers>\n\t\t\t\t\t\t\t<v8:Length>10</v8:Length>\n\t\t\t\t\t\t\t<v8:AllowedLength>Variable</v8:AllowedLength>\n\t\t\t\t\t\t</v8:StringQualifiers>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<PasswordMode>false</PasswordMode>\n\t\t\t\t\t<Format />\n\t\t\t\t\t<EditFormat />\n\t\t\t\t\t<ToolTip />\n\t\t\t\t\t<MarkNegatives>false</MarkNegatives>\n\t\t\t\t\t<Mask />\n\t\t\t\t\t<MultiLine>false</MultiLine>\n\t\t\t\t\t<ExtendedEdit>false</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<FillFromFillingValue>false</FillFromFillingValue>\n\t\t\t\t\t<FillChecking>DontCheck</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>Auto</CreateOnInput>\n\t\t\t\t\t<ChoiceForm />\n\t\t\t\t\t<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>\n\t\t\t\t\t<Indexing>DontIndex</Indexing>\n\t\t\t\t\t<FullTextSearch>Use</FullTextSearch>\n\t\t\t\t\t<DataHistory>Use</DataHistory>\n\t\t\t\t</Properties>",
       "yaml": "Тип: Строка(10)",
       "omittedXMLProperties": [
         "Name",
-        "Synonym",
         "FillValue",
         "ChoiceParameterLinks",
         "ChoiceParameters",
-        "ChoiceForm"
+        "LinkByType"
       ],
       "xmlQNamePaths": [
         [
@@ -4272,6 +4306,9 @@
           "sha256": "5402cf710992add6b05ad677aa11a7ebbe4470cbfb7565dc753d80e539813abc"
         }
       ],
+      "factBindings": {
+        "roots": "metadata.roots"
+      },
       "inputs": {
         "defaultLanguage": "ru",
         "registeredLanguages": [
@@ -4284,16 +4321,15 @@
     },
     {
       "id": "e2e-properties-РеквизитБулево",
-      "entry": "candidate.projection.b8a71cfafb324182c007",
-      "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Comment />\n\t\t\t\t\t<Type>\n\t\t\t\t\t\t<v8:Type>xs:boolean</v8:Type>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<PasswordMode>false</PasswordMode>\n\t\t\t\t\t<Format />\n\t\t\t\t\t<EditFormat />\n\t\t\t\t\t<ToolTip />\n\t\t\t\t\t<MarkNegatives>false</MarkNegatives>\n\t\t\t\t\t<Mask />\n\t\t\t\t\t<MultiLine>false</MultiLine>\n\t\t\t\t\t<ExtendedEdit>false</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<FillFromFillingValue>false</FillFromFillingValue>\n\t\t\t\t\t<FillChecking>DontCheck</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>Auto</CreateOnInput>\n\t\t\t\t\t<LinkByType />\n\t\t\t\t\t<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>\n\t\t\t\t\t<Indexing>DontIndex</Indexing>\n\t\t\t\t\t<FullTextSearch>Use</FullTextSearch>\n\t\t\t\t\t<DataHistory>Use</DataHistory>\n\t\t\t\t</Properties>",
+      "entry": "candidate.projection.bac17a3ad9e71c41e539",
+      "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Synonym>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Реквизит булево</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Synonym>\n\t\t\t\t\t<Comment />\n\t\t\t\t\t<Type>\n\t\t\t\t\t\t<v8:Type>xs:boolean</v8:Type>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<PasswordMode>false</PasswordMode>\n\t\t\t\t\t<Format />\n\t\t\t\t\t<EditFormat />\n\t\t\t\t\t<ToolTip />\n\t\t\t\t\t<MarkNegatives>false</MarkNegatives>\n\t\t\t\t\t<Mask />\n\t\t\t\t\t<MultiLine>false</MultiLine>\n\t\t\t\t\t<ExtendedEdit>false</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<FillFromFillingValue>false</FillFromFillingValue>\n\t\t\t\t\t<FillChecking>DontCheck</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>Auto</CreateOnInput>\n\t\t\t\t\t<ChoiceForm />\n\t\t\t\t\t<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>\n\t\t\t\t\t<Indexing>DontIndex</Indexing>\n\t\t\t\t\t<FullTextSearch>Use</FullTextSearch>\n\t\t\t\t\t<DataHistory>Use</DataHistory>\n\t\t\t\t</Properties>",
       "yaml": "Тип: Булево",
       "omittedXMLProperties": [
         "Name",
-        "Synonym",
         "FillValue",
         "ChoiceParameterLinks",
         "ChoiceParameters",
-        "ChoiceForm"
+        "LinkByType"
       ],
       "xmlQNamePaths": [
         [
@@ -4312,6 +4348,9 @@
           "sha256": "5402cf710992add6b05ad677aa11a7ebbe4470cbfb7565dc753d80e539813abc"
         }
       ],
+      "factBindings": {
+        "roots": "metadata.roots"
+      },
       "inputs": {
         "defaultLanguage": "ru",
         "registeredLanguages": [
@@ -4324,16 +4363,15 @@
     },
     {
       "id": "e2e-properties-ПолныйРеквизит",
-      "entry": "candidate.projection.b8a71cfafb324182c007",
-      "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Comment>Комментарий</Comment>\n\t\t\t\t\t<Type>\n\t\t\t\t\t\t<v8:Type>v8:ValueStorage</v8:Type>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<PasswordMode>true</PasswordMode>\n\t\t\t\t\t<Format>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>ДФ=dd.MM.yyyy</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Format>\n\t\t\t\t\t<EditFormat>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>ДФ=d.M.yy</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</EditFormat>\n\t\t\t\t\t<ToolTip>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Подсказка</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</ToolTip>\n\t\t\t\t\t<MarkNegatives>true</MarkNegatives>\n\t\t\t\t\t<Mask>Маска</Mask>\n\t\t\t\t\t<MultiLine>true</MultiLine>\n\t\t\t\t\t<ExtendedEdit>true</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:type=\"xs:string\">1</MinValue>\n\t\t\t\t\t<MaxValue xsi:type=\"xs:string\">100</MaxValue>\n\t\t\t\t\t<FillFromFillingValue>true</FillFromFillingValue>\n\t\t\t\t\t<FillChecking>ShowError</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>DontUse</CreateOnInput>\n\t\t\t\t\t<LinkByType>\n\t\t\t\t\t\t<xr:DataPath>Document.ДокументВсеСвойства.StandardAttribute.Date</xr:DataPath>\n\t\t\t\t\t\t<xr:LinkItem>0</xr:LinkItem>\n\t\t\t\t\t</LinkByType>\n\t\t\t\t\t<ChoiceHistoryOnInput>DontUse</ChoiceHistoryOnInput>\n\t\t\t\t\t<Indexing>DontIndex</Indexing>\n\t\t\t\t\t<FullTextSearch>DontUse</FullTextSearch>\n\t\t\t\t\t<DataHistory>DontUse</DataHistory>\n\t\t\t\t\t</Properties>",
-      "yaml": "Комментарий: Комментарий\nТип: ХранилищеЗначения\nРежимПароля: Истина\nФормат: ДФ=dd.MM.yyyy\nФорматРедактирования: ДФ=d.M.yy\nПодсказка: Подсказка\nВыделятьОтрицательные: Истина\nМаска: Маска\nМногострочныйРежим: Истина\nРасширенноеРедактирование: Истина\nМинимальноеЗначение: 1\nМаксимальноеЗначение: 100\nЗаполнятьИзДанныхЗаполнения: Истина\nПроверкаЗаполнения: ВыдаватьОшибку\nСозданиеПриВводе: НеИспользовать\nСвязьПоТипу: Документ.ДокументВсеСвойства.СтандартныйРеквизит.Дата\nИсторияВыбораПриВводе: НеИспользовать\nПолнотекстовыйПоиск: НеИспользовать\nИсторияДанных: НеИспользовать",
+      "entry": "candidate.projection.bac17a3ad9e71c41e539",
+      "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Synonym>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Синоним</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Synonym>\n\t\t\t\t\t<Comment>Комментарий</Comment>\n\t\t\t\t\t<Type>\n\t\t\t\t\t\t<v8:Type>v8:ValueStorage</v8:Type>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<PasswordMode>true</PasswordMode>\n\t\t\t\t\t<Format>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>ДФ=dd.MM.yyyy</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Format>\n\t\t\t\t\t<EditFormat>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>ДФ=d.M.yy</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</EditFormat>\n\t\t\t\t\t<ToolTip>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Подсказка</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</ToolTip>\n\t\t\t\t\t<MarkNegatives>true</MarkNegatives>\n\t\t\t\t\t<Mask>Маска</Mask>\n\t\t\t\t\t<MultiLine>true</MultiLine>\n\t\t\t\t\t<ExtendedEdit>true</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:type=\"xs:string\">1</MinValue>\n\t\t\t\t\t<MaxValue xsi:type=\"xs:string\">100</MaxValue>\n\t\t\t\t\t<FillFromFillingValue>true</FillFromFillingValue>\n\t\t\t\t\t<FillChecking>ShowError</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>DontUse</CreateOnInput>\n\t\t\t\t\t<ChoiceForm />\n\t\t\t\t\t<ChoiceHistoryOnInput>DontUse</ChoiceHistoryOnInput>\n\t\t\t\t\t<Indexing>DontIndex</Indexing>\n\t\t\t\t\t<FullTextSearch>DontUse</FullTextSearch>\n\t\t\t\t\t<DataHistory>DontUse</DataHistory>\n\t\t\t\t\t</Properties>",
+      "yaml": "Синоним: Синоним\nКомментарий: Комментарий\nТип: ХранилищеЗначения\nРежимПароля: Истина\nФормат: ДФ=dd.MM.yyyy\nФорматРедактирования: ДФ=d.M.yy\nПодсказка: Подсказка\nВыделятьОтрицательные: Истина\nМаска: Маска\nМногострочныйРежим: Истина\nРасширенноеРедактирование: Истина\nМинимальноеЗначение: 1\nМаксимальноеЗначение: 100\nЗаполнятьИзДанныхЗаполнения: Истина\nПроверкаЗаполнения: ВыдаватьОшибку\nСозданиеПриВводе: НеИспользовать\nИсторияВыбораПриВводе: НеИспользовать\nПолнотекстовыйПоиск: НеИспользовать\nИсторияДанных: НеИспользовать",
       "omittedXMLProperties": [
         "Name",
-        "Synonym",
         "FillValue",
         "ChoiceParameterLinks",
         "ChoiceParameters",
-        "ChoiceForm",
+        "LinkByType",
         "BinaryDataStorageLocationUseField"
       ],
       "xmlQNamePaths": [
@@ -4353,6 +4391,9 @@
           "sha256": "5402cf710992add6b05ad677aa11a7ebbe4470cbfb7565dc753d80e539813abc"
         }
       ],
+      "factBindings": {
+        "roots": "metadata.roots"
+      },
       "inputs": {
         "defaultLanguage": "ru",
         "registeredLanguages": [

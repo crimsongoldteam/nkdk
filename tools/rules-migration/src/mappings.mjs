@@ -97,7 +97,7 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
     !Array.isArray(p.defaultValueXMLRaw) && typeof p.defaultValueXMLRaw==='object' &&
     Object.keys(p.defaultValueXMLRaw).length===1 && p.defaultValueXMLRaw['_xsi:type']==='xs:string';
   if(metadataValue && Object.hasOwn(p,'exportNilValue') &&
-    (typeof p.exportNilValue!=='boolean' || p.exportNilValue!==metadataNilDefault))return fail('metadata-value-profile');
+    (typeof p.exportNilValue!=='boolean' || (metadataNilDefault && p.exportNilValue===false)))return fail('metadata-value-profile');
   if(metadataValue && !metadataNilDefault && !metadataStringDefault)return fail('metadata-value-profile');
   const runtimeOnly=p.runtimeOnly===true;
   if(Object.hasOwn(p,'runtimeOnly') && !runtimeOnly)return fail('runtime-only-profile');
@@ -131,6 +131,7 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
   const nilDefault=minMax && p.defaultValueXMLRaw && typeof p.defaultValueXMLRaw==='object' && Object.keys(p.defaultValueXMLRaw).length===1 && p.defaultValueXMLRaw['_xsi:nil']===true;
   const id = simple.get(p.type) ?? list ?? (date?(p.typedXML?'common.typed-date-time':'common.date-time'):null) ?? (purposes?'common.use-purposes':scalarChoice?'common.string-or-number':qname?'common.xdto-type-name':index?'common.index-field':grouped?'common.metadata-command-group':ownerForm?'common.owner-or-common-form-link':typeForm?'common.metadata-form-link':ownBooleanAttribute?'common.owner-attribute-link':numerator?'common.document-numerator-link':typeLink?'common.type-link':typeDescription?'common.type-description':metadataValue?'common.metadata-value':p.type==='ChoiceParameterLinks'?'common.choice-parameter-links':p.type==='ChoiceParameters'?'common.choice-parameters':documentList?'common.journal-document-links':basedOn?'common.based-on-links':null) ?? (p.type === 'SystemEnumeration' ? `system.${p.typeSE}` : text ? (formatted?'common.formatted-i8n-text':'common.i8n-text') : minMax ? (p.typedXML==='xs:string'?'common.min-max-value-text':'common.min-max-value') : fields ? (p.fieldsListXMLItem==='xr:Field'?'common.fields-list-readable':'common.fields-list') : null);
   if (!id || !catalog.has(id)) return fail('unsupported-common');
+  if(metadataValue && !catalog.get(id).inputs?.onlyStringType)return fail('metadata-value-contract');
   let implicitValue=p.implicitValueYAML;
   if(p.type==='boolean' && typeof implicitValue==='string') {
     const matches=(catalog.get(id).representations?.yaml?.values??[]).filter(row=>row.literal===implicitValue && typeof row.value==='boolean');
@@ -196,6 +197,7 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
   }
   const lifted=(grouped || reference || linkList)?commonInputs(catalog.get(id)):undefined;
   const type = {use:'value',...(lifted?{bind:lifted.bind}:{})};
+  if(metadataValue && (metadataNilDefault || p.exportNilValue===true))type.with={exportNilValue:true};
   if(typeDescription && (p.addTypeDescriptionAttributeToXML===true || Object.hasOwn(p,'allowedTypes')))type.with={
     ...(p.addTypeDescriptionAttributeToXML===true?{addTypeDescriptionAttributeToXML:true}:{}),
     ...(Object.hasOwn(p,'allowedTypes')?{metadataAttributeTypesOnly:true}:{}),
@@ -207,19 +209,17 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
     type.bind = Object.fromEntries(Object.keys(textInputs).map(k => [formatted ? ({registeredLanguages:'languages',ownerName:'name'}[k] ?? k) : k,{input:k}]));
   }
   const mapped = {status:'candidate', id, type, ...(p.tag?{sourceTag:p.tag}:{}), ...(parameterEquivalences.length?{parameterEquivalences}:{}), ...(Object.hasOwn(p,'toEnterprise')?{excludedParameters:['toEnterprise']}:{}), path:runtimeOnly?[]:[...parents,xml], ...(runtimeOnly?{yamlOnly:true}:{}), key:p.yaml, inputs:lifted?.inputs ?? (text ? textInputs : {}), ...(lifted?{imports:lifted.imports}:{}),
-    presence:reference ? {target:{field:property.name},xml:{missing:{denotes:{absent:true}},empty:[{form:'empty-element',denotes:{absent:true}}],...(p.defaultValueXMLRaw===''?{canonical:[{when:{not:{present:{field:property.name}}},form:'empty-element'}]}:{})},yaml:{missing:{denotes:{absent:true}}}} : indexDefault ? {target:{field:property.name},xml:{canonical:[{when:{not:{exists:{in:{field:property.name},as:'row',where:{literal:true}}}},form:'empty-element'},{form:'ordinary'}]}} : (formatted || qname || index || grouped || linkList || scalarChoice || purposes) ? undefined : list ? {target:{field:property.name},
+    presence:reference && !metadataValue ? {target:{field:property.name},xml:{missing:{denotes:{absent:true}},empty:[{form:'empty-element',denotes:{absent:true}}],...(p.defaultValueXMLRaw===''?{canonical:[{when:{not:{present:{field:property.name}}},form:'empty-element'}]}:{})},yaml:{missing:{denotes:{absent:true}}}} : indexDefault ? {target:{field:property.name},xml:{canonical:[{when:{not:{exists:{in:{field:property.name},as:'row',where:{literal:true}}}},form:'empty-element'},{form:'ordinary'}]}} : (metadataValue || formatted || qname || index || grouped || linkList || scalarChoice || purposes) ? undefined : list ? {target:{field:property.name},
       xml:{missing:{denotes:{sequence:[]}},empty:[{form:'empty-element',denotes:{sequence:[]}}]},
       yaml:{missing:{denotes:{sequence:[]}},omitWhen:{not:{exists:{in:{field:property.name},as:'row',where:{literal:true}}}}}} : {target:{field:property.name}, xml:{missing:{denotes:{absent:true}},
       ...(((text || fields) && p.defaultValueXMLRaw === '') || nilDefault ? {canonical:[{when:{not:{present:{field:property.name}}},form:nilDefault?'nil':'empty-element'}]} : {})},
       ...((text || fields) && !p.noImplicitValueYAML ? {} : {yaml:hasDefault ? {default:{literal:defaultValue}} : {missing:{denotes:{absent:true}}}})}};
-  if(metadataValue && Object.hasOwn(lifted?.inputs??{},'valueType')) {
-    mapped.siblingBindings={valueType:'type'};
-  }
   if(metadataValue) {
-    mapped.presence.xml.canonical=[
-      {when:{not:{present:{field:property.name}}},form:metadataNilDefault?'nil':'empty-element',...(metadataStringDefault?{type:'xs:string'}:{})},
-      {form:'ordinary'},
-    ];
+    mapped.siblingExpressions={onlyStringType:{source:'type',sourceId:'common.type-description',value:{and:[
+      {present:{field:'type'}},
+      {one:{in:{get:{of:{field:'type'},field:'items'}},as:'item',where:{literal:true}}},
+      {exists:{in:{get:{of:{field:'type'},field:'items'}},as:'item',where:{eq:[{get:{of:{var:'item'},field:'value'}},{literal:'Строка'}]}}},
+    ]}}};
   }
   if(Object.hasOwn(p,'ownerFactRole')) {
     if(typeof p.ownerFactRole!=='string' || !p.ownerFactRole)return fail('owner-fact-role-profile');
@@ -262,6 +262,7 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
     diagnostic:{code:'value.required',severity:'warning',at:{field:property.name},message:'Обязательное значение отсутствует'},
   }];
   for(const profile of profiles) {
+    if(!mapped.presence && ['xml-when-property-present','xml-when-input-equals','yaml-default-when-input-equals'].includes(profile.kind))return fail('common-presence-profile-composition');
     if(profile.kind==='xml-when-property-present' || profile.kind==='xml-when-input-equals') {
       const condition=profile.kind==='xml-when-property-present' ? {present:{field:property.name}} : {eq:[{input:profile.input},{literal:profile.value}]};
       const fallback=profile.kind==='xml-when-property-present' ? [] : (mapped.presence.xml.canonical??[]);
@@ -276,6 +277,27 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
         {parameter:profile.parameter,equivalentTo:'owner-name-shorthand',via:'common.i8n-text'}];
     }
   }
+  // The declared-record collection generator cannot yet apply an owner's
+  // empty/canonical presence contract. Keep such fields explicitly blocked
+  // until that generic backend exists, instead of emitting a candidate that
+  // fails only when its complete owner is compiled.
+  const common=catalog.get(id);
+  const itemId=common?.value?.kind==='sequence' && common.value.item?.use
+    ? common.imports?.[common.value.item.use] : undefined;
+  const declaredRecordCollection=itemId && catalog.get(itemId)?.value?.kind==='record' &&
+    ['sequence','record-mapping'].includes(common.representations?.yaml?.kind);
+  if(declaredRecordCollection && mapped.presence && (
+    mapped.presence.xml?.empty?.length || mapped.presence.yaml?.empty?.length ||
+    mapped.presence.yaml?.omitWhen || mapped.presence.xml?.canonical?.length
+  ))return fail('declared-collection-presence-backend');
+  // The current owner expression backend has no borrowed storage for a
+  // structured sibling. Keep the mapping recipe, but do not publish a full
+  // owner candidate until that generic access path is implemented.
+  if(Object.values(mapped.siblingExpressions??{}).some(spec=>
+    catalog.get(spec.sourceId)?.value?.kind==='record'))return fail('structured-sibling-expression-backend');
+  if(common?.value?.kind==='record' && mapped.presence &&
+    common.presence?.some(rule=>typeof rule.target==='object' && rule.target?.field) &&
+    common.presence?.some(rule=>rule.target==='self'))return fail('mixed-record-presence-backend');
   if(emptyTextXMLDefault)mapped.parameterEquivalences=[...(mapped.parameterEquivalences??[]),
     {parameter:'defaultValueXMLEmpty',equivalentTo:'empty-sequence',via:'common.i8n-text'}];
   return mapped;

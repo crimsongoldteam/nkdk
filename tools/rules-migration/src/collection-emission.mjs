@@ -1,6 +1,6 @@
 import {createHash} from 'node:crypto';
 import {mapProperty} from './mappings.mjs';
-import {mergeInputs} from './common-inputs.mjs';
+import {bindSiblingExpressions,mergeMappedInputs} from './common-inputs.mjs';
 import {prepareCollectionProperty} from './collection-property.mjs';
 const id=(role,value)=>`candidate.collection.${role}.${createHash('sha256').update(JSON.stringify(value)).digest('hex').slice(0,20)}`;
 
@@ -52,6 +52,7 @@ export function emitCollections(graph,entries,catalog,namespaces={},options={}) 
       (mapped.type.bind??={})[input]={field:sibling};
       mapped.inputs=Object.fromEntries(Object.entries(mapped.inputs??{}).filter(([name])=>name!==input));
     }
+    bindSiblingExpressions(fields,(input,sibling)=>block('item-sibling-binding-required',{input,sibling}));
     const identities=fields.filter(field=>field.mapped.identityProjection);
     if(identities.length>1)block('multiple-identity-properties');
     for(const {mapped} of identities) {
@@ -71,7 +72,7 @@ export function emitCollections(graph,entries,catalog,namespaces={},options={}) 
     // Shared indexes retain their explicit provider. Only researched language
     // inputs are shared scalars; other context still requires a source binding.
     if(fields.some(f=>Object.entries(f.mapped.inputs??{}).some(([name,input])=>input.type?.kind!=='index' &&
-      !((['I8nText','FormattedI8nText'].includes(f.property.parameters?.type) && ['defaultLanguage','registeredLanguages'].includes(name)) || (f.mapped.identityProjection && ['component','owner'].includes(name))))))block('item-context-binding-required');
+      !((['I8nText','FormattedI8nText','MetadataValue'].includes(f.property.parameters?.type) && ['defaultLanguage','registeredLanguages'].includes(name)) || (f.mapped.identityProjection && ['component','owner'].includes(name))))))block('item-context-binding-required');
     if(fields.some(f=>f.mapped.sourceTag))block('item-source-tag');
     if(typeof edge.mapping.xml!=='string' || typeof edge.mapping.yaml!=='string' || !Array.isArray(edge.mapping.xmlParents) || !edge.mapping.xmlParents.length || edge.mapping.xmlParents.some(p=>typeof p!=='string'))block('collection-owner-path');
     if(edge.context.ownerFactRole || edge.context.configurationIndexUidSegment) {
@@ -89,7 +90,7 @@ export function emitCollections(graph,entries,catalog,namespaces={},options={}) 
       representations:{xml:{kind:'record',fields:[]},yaml:{kind:'mapping',fields:[]}}};
     const inputs={},inputImports={};
     for(const {property,mapped} of fields) {
-      mergeInputs(inputs,mapped.inputs??{});
+      mergeMappedInputs(inputs,mapped);
       Object.assign(inputImports,mapped.imports);
       if(mapped.namespaces)Object.assign(row.namespaces??={},mapped.namespaces);
       Object.assign(row.imports,mapped.imports);

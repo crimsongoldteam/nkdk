@@ -20,11 +20,13 @@ export function candidateCatalog() {
 
 export function dependencyFiles(modules,catalog) {
   const own = new Set(modules.map(m => m.id)), needed = new Set();
+  const projections=new Map([...catalog.values()].flatMap(module=>(module.projections??[]).map(projection=>[projection.id,module])));
   function include(id) {
     if (own.has(id) || needed.has(id)) return;
-    const module = catalog.get(id);
+    const module = catalog.get(id) ?? projections.get(id);
     if (!module) throw new Error(`Missing declaration dependency: ${id}`);
-    needed.add(id);
+    if(own.has(module.id) || needed.has(module.id))return;
+    needed.add(module.id);
     for (const value of Object.values(module.imports ?? {})) include(value);
   }
   for (const module of modules) for (const id of Object.values(module.imports ?? {})) include(id);

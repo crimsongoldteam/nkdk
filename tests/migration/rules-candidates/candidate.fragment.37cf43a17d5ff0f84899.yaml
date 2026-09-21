@@ -1,0 +1,338 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.i8n-text
+  value1: common.string
+  value2: common.type-description
+  value3: common.boolean
+  value4: common.min-max-value-text
+value:
+  kind: record
+  fields:
+    - name: synonym
+      type:
+        use: value0
+        with:
+          preserveEmptyXML: true
+          excludeIfEqualNameYAML: true
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          ownerName:
+            input: ownerName
+    - name: comment
+      type:
+        use: value1
+    - name: type
+      type:
+        use: value2
+        bind: {}
+    - name: passwordMode
+      type:
+        use: value3
+    - name: format
+      type:
+        use: value0
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          ownerName:
+            input: ownerName
+    - name: editFormat
+      type:
+        use: value0
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          ownerName:
+            input: ownerName
+    - name: toolTip
+      type:
+        use: value0
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          ownerName:
+            input: ownerName
+    - name: markNegatives
+      type:
+        use: value3
+    - name: mask
+      type:
+        use: value1
+    - name: multiLine
+      type:
+        use: value3
+    - name: extendedEdit
+      type:
+        use: value3
+    - name: minValue
+      type:
+        use: value4
+    - name: maxValue
+      type:
+        use: value4
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: synonym
+        path:
+          - Properties
+          - Synonym
+      - field: comment
+        path:
+          - Properties
+          - Comment
+      - field: type
+        path:
+          - Properties
+          - Type
+      - field: passwordMode
+        path:
+          - Properties
+          - PasswordMode
+      - field: format
+        path:
+          - Properties
+          - Format
+      - field: editFormat
+        path:
+          - Properties
+          - EditFormat
+      - field: toolTip
+        path:
+          - Properties
+          - ToolTip
+      - field: markNegatives
+        path:
+          - Properties
+          - MarkNegatives
+      - field: mask
+        path:
+          - Properties
+          - Mask
+      - field: multiLine
+        path:
+          - Properties
+          - MultiLine
+      - field: extendedEdit
+        path:
+          - Properties
+          - ExtendedEdit
+      - field: minValue
+        path:
+          - Properties
+          - MinValue
+      - field: maxValue
+        path:
+          - Properties
+          - MaxValue
+  yaml:
+    kind: mapping
+    fields:
+      - field: synonym
+        key: Синоним
+      - field: comment
+        key: Комментарий
+      - field: type
+        key: Тип
+      - field: passwordMode
+        key: РежимПароля
+      - field: format
+        key: Формат
+      - field: editFormat
+        key: ФорматРедактирования
+      - field: toolTip
+        key: Подсказка
+      - field: markNegatives
+        key: ВыделятьОтрицательные
+      - field: mask
+        key: Маска
+      - field: multiLine
+        key: МногострочныйРежим
+      - field: extendedEdit
+        key: РасширенноеРедактирование
+      - field: minValue
+        key: МинимальноеЗначение
+      - field: maxValue
+        key: МаксимальноеЗначение
+presence:
+  - target:
+      field: synonym
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: synonym
+          form: empty-element
+  - target:
+      field: comment
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: ''
+  - target:
+      field: type
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: type
+          form: empty-element
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: passwordMode
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: false
+  - target:
+      field: format
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: format
+          form: empty-element
+  - target:
+      field: editFormat
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: editFormat
+          form: empty-element
+  - target:
+      field: toolTip
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: toolTip
+          form: empty-element
+  - target:
+      field: markNegatives
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: false
+  - target:
+      field: mask
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: ''
+  - target:
+      field: multiLine
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: false
+  - target:
+      field: extendedEdit
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: false
+  - target:
+      field: minValue
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: minValue
+          form: nil
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: maxValue
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: maxValue
+          form: nil
+    yaml:
+      missing:
+        denotes:
+          absent: true
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  ownerName:
+    type:
+      kind: scalar
+      scalar: text
+id: candidate.fragment.37cf43a17d5ff0f84899

@@ -1,0 +1,100 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.e69691b9710397b59fbb
+description: 'Кандидат проекции: относительный XML-корень Properties; не полный владелец'
+imports:
+  part0: candidate.fragment.005c1b164180436637b2
+  part1: candidate.fragment.52a2075291fd16c7818a
+  part2: candidate.fragment.e8b8bc7db0633e109fe8
+  part3: candidate.fragment.1765115867f73cbe2b6f
+  part4: candidate.fragment.75a4cde38b68731d8ce2
+  part5: candidate.fragment.65ec37a7f762179c9111
+  inputType1f8ea46361ff: common.path-root
+  part6: candidate.fragment.d59efb3522a04df62d46
+  part7: candidate.fragment.c11f9ef55f78feb34918
+compose:
+  - use: part0
+  - use: part1
+    bind:
+      defaultLanguage:
+        input: defaultLanguage
+      registeredLanguages:
+        input: registeredLanguages
+      ownerName:
+        input: ownerName
+  - use: part2
+  - use: part3
+  - use: part4
+    bind:
+      defaultLanguage:
+        input: defaultLanguage
+      registeredLanguages:
+        input: registeredLanguages
+      ownerName:
+        input: ownerName
+  - use: part5
+  - use: part6
+    bind:
+      roots:
+        input: roots
+      forms:
+        input: forms
+  - use: part7
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  ownerName:
+    type:
+      kind: scalar
+      scalar: text
+  roots:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: kind
+            type:
+              use: inputType1f8ea46361ff
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  forms:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: parent
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text

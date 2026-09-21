@@ -1,0 +1,180 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.FillChecking
+  value1: system.FoldersAndItemsUse
+  value2: system.UseQuickChoice
+  value3: system.CreateOnInput
+  inputType1f8ea46361ff: common.path-root
+  value5: common.metadata-form-link
+  value6: system.ChoiceHistoryOnInput
+value:
+  kind: record
+  fields:
+    - name: fillChecking
+      type:
+        use: value0
+    - name: choiceFoldersAndItems
+      type:
+        use: value1
+    - name: quickChoice
+      type:
+        use: value2
+    - name: createOnInput
+      type:
+        use: value3
+    - name: choiceForm
+      type:
+        use: value5
+        bind:
+          roots:
+            input: roots
+          forms:
+            input: forms
+    - name: choiceHistoryOnInput
+      type:
+        use: value6
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: fillChecking
+        path:
+          - Properties
+          - FillChecking
+      - field: choiceFoldersAndItems
+        path:
+          - Properties
+          - ChoiceFoldersAndItems
+      - field: quickChoice
+        path:
+          - Properties
+          - QuickChoice
+      - field: createOnInput
+        path:
+          - Properties
+          - CreateOnInput
+      - field: choiceForm
+        path:
+          - Properties
+          - ChoiceForm
+      - field: choiceHistoryOnInput
+        path:
+          - Properties
+          - ChoiceHistoryOnInput
+  yaml:
+    kind: mapping
+    fields:
+      - field: fillChecking
+        key: ПроверкаЗаполнения
+      - field: choiceFoldersAndItems
+        key: ВыборГруппИЭлементов
+      - field: quickChoice
+        key: БыстрыйВыбор
+      - field: createOnInput
+        key: СозданиеПриВводе
+      - field: choiceForm
+        key: ФормаВыбора
+      - field: choiceHistoryOnInput
+        key: ИсторияВыбораПриВводе
+presence:
+  - target:
+      field: fillChecking
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: DontCheck
+  - target:
+      field: choiceFoldersAndItems
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: Items
+  - target:
+      field: quickChoice
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: Auto
+  - target:
+      field: createOnInput
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: Auto
+  - target:
+      field: choiceForm
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: choiceForm
+          form: empty-element
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: choiceHistoryOnInput
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: Auto
+inputs:
+  roots:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: kind
+            type:
+              use: inputType1f8ea46361ff
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  forms:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: parent
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+id: candidate.fragment.a7934b48993a4f5da784

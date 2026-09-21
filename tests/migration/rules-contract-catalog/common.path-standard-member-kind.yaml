@@ -1,5 +1,0 @@
-format: nkdk-declarations/1
-kind: value
-id: common.path-standard-member-kind
-enum:
-  StandardAttribute: СтандартныйРеквизит

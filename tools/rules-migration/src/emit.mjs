@@ -1,8 +1,20 @@
-import { mergeInputs } from './common-inputs.mjs';
+import { bindSiblingExpressions, mergeMappedInputs } from './common-inputs.mjs';
 import { createHash } from 'node:crypto';
 import { mapProperty } from './mappings.mjs';
 
 const hash = value => createHash('sha256').update(JSON.stringify(value)).digest('hex').slice(0,20);
+function bindFragmentInputs(ownerInputs, fragmentInputs, overrides={}) {
+  const bindings={};
+  for(const [name,type] of Object.entries(fragmentInputs)) {
+    if(Object.hasOwn(overrides,name)) {bindings[name]=structuredClone(overrides[name]);continue;}
+    const ownerName=Object.hasOwn(ownerInputs,name) && JSON.stringify(ownerInputs[name])!==JSON.stringify(type)
+      ? `${name}_${hash(type)}` : name;
+    if(Object.hasOwn(ownerInputs,ownerName) && JSON.stringify(ownerInputs[ownerName])!==JSON.stringify(type))throw new Error(`Conflicting input alias: ${ownerName}`);
+    ownerInputs[ownerName]=type;
+    bindings[name]={input:ownerName};
+  }
+  return bindings;
+}
 
 export function emitCandidates(entries, catalog, origin = p => p.source.path, xmlNamespaces={}) {
   const modules = new Map(), results = [];
@@ -50,6 +62,11 @@ export function emitCandidates(entries, catalog, origin = p => p.source.path, xm
       }
       const imports = {}, compose = [], inputs = {};
       for (const chunk of chunks) {
+        const ownerBindings={};
+        bindSiblingExpressions(chunk.fields,(input,sibling,spec)=>{
+          if(fields.some(field=>field.property.name===sibling && field.mapped.status==='candidate' && field.mapped.id===spec.sourceId))ownerBindings[input]=spec.value;
+          else result.ownerBlockers.push({reason:'sibling-expression-required',input,sibling});
+        });
         const fragment = {format:'nkdk-declarations/1',kind:'fragment',imports:{},
           value:{kind:'record',fields:[]}, representations:{xml:{kind:'record',fields:[]},yaml:{kind:'mapping',fields:[]}},presence:[]};
         const fragmentInputs = {};
@@ -66,15 +83,15 @@ export function emitCandidates(entries, catalog, origin = p => p.source.path, xm
           if(mapped.key!==undefined)fragment.representations.yaml.fields.push({field:property.name,key:mapped.key});
           if(mapped.presence)fragment.presence.push(mapped.presence);
           if(mapped.constraints)(fragment.constraints??=[]).push(...mapped.constraints);
-          mergeInputs(fragmentInputs,mapped.inputs);
+          mergeMappedInputs(fragmentInputs,mapped);
         }
         if (Object.keys(fragmentInputs).length) fragment.inputs = fragmentInputs;
         fragment.id = `candidate.fragment.${hash([chunk.origin,fragment])}`;
         modules.set(fragment.id,fragment);
         const alias = `part${compose.length}`;
         imports[alias] = fragment.id;
-        compose.push({use:alias,...(Object.keys(fragmentInputs).length ? {bind:Object.fromEntries(Object.keys(fragmentInputs).map(k => [k,{input:k}]))} : {})});
-        mergeInputs(inputs,fragmentInputs);
+        const bind=bindFragmentInputs(inputs,fragmentInputs,ownerBindings);
+        compose.push({use:alias,...(Object.keys(bind).length ? {bind} : {})});
       }
       const id = `candidate.projection.${hash([root,imports,compose,inputs])}`;
       const projection = {format:'nkdk-declarations/1',kind:'object',id,
