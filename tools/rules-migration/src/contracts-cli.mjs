@@ -257,6 +257,25 @@ cases.push({...compositeReferenceText,
   diagnostics:[],
   adaptation:'Replace the second CatalogRef with the observed string alternative and qualifiers; the same explicit string now matches one branch',
 });
+const numericCompositeSource='e2e/fixtures/xml/cf/CalculationRegisters/РегистрРасчетаВедущий.xml';
+const numericFillSource='e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый.xml';
+if(!source(numericCompositeSource).includes('<v8:Type>cfg:CatalogRef.СправочникПолный</v8:Type>\n\t\t\t\t\t\t<v8:Type>xs:decimal</v8:Type>') ||
+   !source(numericFillSource).includes('<FillValue xsi:type="xs:decimal">1234</FillValue>'))throw new Error('Changed independent composite number source');
+const compositeReferenceNumber={...compositeReferenceText,
+  id:'fill-value-reference-or-number-as-text',
+  xml:compositeReferenceText.xml.replace('<v8:Type>cfg:CatalogRef.СправочникРеквизит</v8:Type>', '<v8:Type>xs:decimal</v8:Type>\n\t\t\t\t\t\t<v8:NumberQualifiers>\n\t\t\t\t\t\t\t<v8:Digits>10</v8:Digits>\n\t\t\t\t\t\t\t<v8:FractionDigits>0</v8:FractionDigits>\n\t\t\t\t\t\t\t<v8:AllowedSign>Any</v8:AllowedSign>\n\t\t\t\t\t\t</v8:NumberQualifiers>'),
+  yaml:compositeReferenceText.yaml.replace('  - Справочник.СправочникРеквизит','  - Число(10, 0)'),
+  source:[...compositeReferenceText.source,{path:numericCompositeSource},{path:numericFillSource}],
+  adaptation:'Use the observed CatalogRef/decimal type pair and explicit string FillValue; neither alternative accepts text',
+};
+cases.push(compositeReferenceNumber);
+cases.push({...compositeReferenceNumber,
+  id:'fill-value-reference-or-number-as-number',
+  xml:compositeReferenceNumber.xml.replace('<FillValue xsi:type="xs:string">Строка</FillValue>','<FillValue xsi:type="xs:decimal">1234</FillValue>'),
+  yaml:compositeReferenceNumber.yaml.replace('ЗначениеЗаполнения: Строка','ЗначениеЗаполнения: 1234'),
+  diagnostics:[],
+  adaptation:'Keep the observed CatalogRef/decimal type pair and use the observed numeric FillValue; the decimal branch accepts it',
+});
 const catalogTypeSetSource='e2e/fixtures/xml/cf/Catalogs/ПараметрыВыбора.xml';
 const catalogTypeSetYAMLSource='e2e/fixtures/nkdk/cf/Справочник/ПараметрыВыбора/Свойства.yaml';
 if(!source(catalogTypeSetSource).includes('<v8:TypeSet>cfg:CatalogRef</v8:TypeSet>') ||

@@ -1,6 +1,6 @@
 format: nkdk-declarations/1
 kind: object
-id: candidate.projection.1e4251e3ea59f826f617
+id: candidate.projection.b35c6dad98e624db43dd
 description: 'Кандидат проекции: относительный XML-корень Properties; не полный владелец'
 imports:
   part0: candidate.fragment.26f2a0ec831699cb55dd
@@ -8,7 +8,7 @@ imports:
   part2: candidate.fragment.26c6504dd1cbc2075885
   inputType1f8ea46361ff: common.path-root
   part3: candidate.fragment.a7934b48993a4f5da784
-  part4: candidate.fragment.5d1647c4012948d8e558
+  part4: candidate.fragment.9c027dd99bf3af5f83c1
 compose:
   - use: part0
   - use: part1
@@ -71,47 +71,6 @@ representations:
     kind: mapping
     fields: []
 constraints:
-  - id: fillValue.string-value
-    appliesTo:
-      - xml-import
-      - yaml-validation
-    when:
-      and:
-        - one:
-            in:
-              get:
-                of:
-                  field: type
-                field: items
-            as: item
-            where:
-              literal: true
-        - exists:
-            in:
-              get:
-                of:
-                  field: type
-                field: items
-            as: item
-            where:
-              matches:
-                value:
-                  get:
-                    of:
-                      var: item
-                    field: value
-                pattern: Строка|ФиксированнаяСтрока
-    assert:
-      isVariant:
-        value:
-          field: fillValue
-        variant: text
-    diagnostic:
-      code: fill-value.type-mismatch
-      severity: warning
-      at:
-        field: fillValue
-      message: Значение заполнения не соответствует строковому типу
   - id: fillValue.string-length
     appliesTo:
       - xml-import
@@ -436,13 +395,13 @@ constraints:
       at:
         field: fillValue
       message: Отрицательное значение заполнения не соответствует числовому типу
-  - id: fillValue.number-value
+  - id: fillValue.compatible-value
     appliesTo:
       - xml-import
       - yaml-validation
     when:
       and:
-        - one:
+        - exists:
             in:
               get:
                 of:
@@ -451,135 +410,6 @@ constraints:
             as: item
             where:
               literal: true
-        - exists:
-            in:
-              get:
-                of:
-                  field: type
-                field: items
-            as: item
-            where:
-              matches:
-                value:
-                  get:
-                    of:
-                      var: item
-                    field: value
-                pattern: Число|ПоложительноеЧисло
-    assert:
-      isVariant:
-        value:
-          field: fillValue
-        variant: decimal
-    diagnostic:
-      code: fill-value.type-mismatch
-      severity: warning
-      at:
-        field: fillValue
-      message: Значение заполнения не соответствует числовому типу
-  - id: fillValue.boolean-value
-    appliesTo:
-      - xml-import
-      - yaml-validation
-    when:
-      and:
-        - one:
-            in:
-              get:
-                of:
-                  field: type
-                field: items
-            as: item
-            where:
-              literal: true
-        - exists:
-            in:
-              get:
-                of:
-                  field: type
-                field: items
-            as: item
-            where:
-              eq:
-                - get:
-                    of:
-                      var: item
-                    field: value
-                - literal: Булево
-    assert:
-      isVariant:
-        value:
-          field: fillValue
-        variant: boolean
-    diagnostic:
-      code: fill-value.type-mismatch
-      severity: warning
-      at:
-        field: fillValue
-      message: Значение заполнения не соответствует булевому типу
-  - id: fillValue.calendar-value
-    appliesTo:
-      - xml-import
-      - yaml-validation
-    when:
-      and:
-        - one:
-            in:
-              get:
-                of:
-                  field: type
-                field: items
-            as: item
-            where:
-              literal: true
-        - exists:
-            in:
-              get:
-                of:
-                  field: type
-                field: items
-            as: item
-            where:
-              matches:
-                value:
-                  get:
-                    of:
-                      var: item
-                    field: value
-                pattern: Дата|Время|ДатаВремя
-    assert:
-      isVariant:
-        value:
-          field: fillValue
-        variant: calendar
-    diagnostic:
-      code: fill-value.type-mismatch
-      severity: warning
-      at:
-        field: fillValue
-      message: Значение заполнения не соответствует календарному типу
-  - id: fillValue.reference-value
-    appliesTo:
-      - xml-import
-      - yaml-validation
-    when:
-      and:
-        - exists:
-            in:
-              get:
-                of:
-                  field: type
-                field: items
-            as: item
-            where:
-              matches:
-                value:
-                  get:
-                    of:
-                      var: item
-                    field: value
-                pattern: >-
-                  (Справочник|Документ|Перечисление|ПланОбмена|ПланСчетов|ПланВидовХарактеристик|ПланВидовРасчета|БизнесПроцесс|Задача)(\..+)?
         - not:
             exists:
               in:
@@ -597,51 +427,7 @@ constraints:
                           var: item
                         field: value
                     pattern: >-
-                      (Справочник|Документ|Перечисление|ПланОбмена|ПланСчетов|ПланВидовХарактеристик|ПланВидовРасчета|БизнесПроцесс|Задача)(\..+)?
-    assert:
-      isVariant:
-        value:
-          field: fillValue
-        variant: reference
-    diagnostic:
-      code: fill-value.type-mismatch
-      severity: warning
-      at:
-        field: fillValue
-      message: Значение заполнения не соответствует ссылочному типу
-  - id: fillValue.reference-target
-    appliesTo:
-      - xml-import
-      - yaml-validation
-    when:
-      and:
-        - isVariant:
-            value:
-              field: fillValue
-            variant: reference
-        - not:
-            eq:
-              - variantText:
-                  value:
-                    field: fillValue
-                  variant: reference
-              - literal: .
-        - exists:
-            in:
-              get:
-                of:
-                  field: type
-                field: items
-            as: item
-            where:
-              matches:
-                value:
-                  get:
-                    of:
-                      var: item
-                    field: value
-                pattern: >-
-                  (Справочник|Документ|Перечисление|ПланОбмена|ПланСчетов|ПланВидовХарактеристик|ПланВидовРасчета|БизнесПроцесс|Задача)(\..+)?
+                      ^(Строка|ФиксированнаяСтрока|Число|ПоложительноеЧисло|Булево|Дата|Время|ДатаВремя|Справочник|Документ|Перечисление|ПланОбмена|ПланСчетов|ПланВидовХарактеристик|ПланВидовРасчета|БизнесПроцесс|Задача)(\..+)?$
     assert:
       exists:
         in:
@@ -651,24 +437,92 @@ constraints:
             field: items
         as: item
         where:
-          textSegmentPrefix:
-            value:
-              variantText:
-                value:
-                  field: fillValue
-                variant: reference
-            prefix:
-              get:
-                of:
-                  var: item
-                field: value
-            separator: .
+          or:
+            - and:
+                - matches:
+                    value:
+                      get:
+                        of:
+                          var: item
+                        field: value
+                    pattern: Строка|ФиксированнаяСтрока
+                - isVariant:
+                    value:
+                      field: fillValue
+                    variant: text
+            - and:
+                - matches:
+                    value:
+                      get:
+                        of:
+                          var: item
+                        field: value
+                    pattern: Число|ПоложительноеЧисло
+                - isVariant:
+                    value:
+                      field: fillValue
+                    variant: decimal
+            - and:
+                - eq:
+                    - get:
+                        of:
+                          var: item
+                        field: value
+                    - literal: Булево
+                - isVariant:
+                    value:
+                      field: fillValue
+                    variant: boolean
+            - and:
+                - matches:
+                    value:
+                      get:
+                        of:
+                          var: item
+                        field: value
+                    pattern: Дата|Время|ДатаВремя
+                - isVariant:
+                    value:
+                      field: fillValue
+                    variant: calendar
+            - and:
+                - matches:
+                    value:
+                      get:
+                        of:
+                          var: item
+                        field: value
+                    pattern: >-
+                      ^(Справочник|Документ|Перечисление|ПланОбмена|ПланСчетов|ПланВидовХарактеристик|ПланВидовРасчета|БизнесПроцесс|Задача)(\..+)?$
+                - isVariant:
+                    value:
+                      field: fillValue
+                    variant: reference
+                - or:
+                    - eq:
+                        - variantText:
+                            value:
+                              field: fillValue
+                            variant: reference
+                        - literal: .
+                    - textSegmentPrefix:
+                        value:
+                          variantText:
+                            value:
+                              field: fillValue
+                            variant: reference
+                        prefix:
+                          get:
+                            of:
+                              var: item
+                            field: value
+                        separator: .
     diagnostic:
       code: fill-value.type-mismatch
       severity: warning
       at:
         field: fillValue
-      message: Ссылка значения заполнения не соответствует объявленному типу
+      message: Значение заполнения не соответствует объявленному типу
 inputs:
   defaultLanguage:
     type:
