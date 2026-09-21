@@ -1,6 +1,3 @@
-mod declarations {
-    include!("declarations.rs");
-}
 mod compile {
     include!("compile.rs");
 }
@@ -21,14 +18,17 @@ fn main() {
         .unwrap();
     const SHARDS: usize = 8;
     assert!(shard < SHARDS);
-    let directory = workspace.join("declarations");
-    println!("cargo::rerun-if-changed={}", directory.display());
-    let mut sources: Vec<_> = declarations::load(&workspace, &directory)
-        .expect("read declaration sources")
-        .into_iter()
-        .filter(|(path, _)| path.starts_with("declarations/common/"))
-        .collect();
-    let matrix = fs::read(directory.join("probes/system-enumerations.yaml")).unwrap();
+    let system_catalog = "declarations/common/system-enumerations.yaml";
+    let matrix_path = "declarations/probes/system-enumerations.yaml";
+    println!("cargo::rerun-if-changed={}", workspace.join(system_catalog).display());
+    println!("cargo::rerun-if-changed={}", workspace.join(matrix_path).display());
+    // Enumeration probes import only this catalog. Reading every common file
+    // rebuilt all eight shards after unrelated declaration changes.
+    let mut sources = vec![(
+        system_catalog.into(),
+        fs::read(workspace.join(system_catalog)).expect("read system enumerations"),
+    )];
+    let matrix = fs::read(workspace.join(matrix_path)).unwrap();
     let matrix = std::str::from_utf8(&matrix).unwrap();
     let mut parts = matrix.split("\n- kind: object\n");
     let mut selected = parts.next().unwrap().to_owned();

@@ -7,7 +7,7 @@ inputs:
   registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
 value:
   kind: record
-  fields: [{name: value, type: {use: value, bind: {defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}}}}]
+  fields: [{name: value, type: {use: value, bind: {defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}, onlyStringType: {literal: false}}}}]
 representations:
   xml: {kind: record, fields: [{field: value, path: [Root, FillValue]}]}
   yaml: {kind: mapping, fields: [{field: value, key: Значение}]}

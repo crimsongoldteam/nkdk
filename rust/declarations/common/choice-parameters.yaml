@@ -13,7 +13,7 @@ declarations:
     kind: record
     fields:
     - {name: name, type: {kind: scalar, scalar: text}}
-    - {name: value, type: {use: value, bind: {defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}}}}
+    - {name: value, type: {use: value, bind: {defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}, onlyStringType: {literal: false}}}}
   representations:
     xml:
       kind: record

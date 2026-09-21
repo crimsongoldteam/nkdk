@@ -191,6 +191,7 @@ declarations:
         bind:
           defaultLanguage: {input: defaultLanguage}
           registeredLanguages: {input: registeredLanguages}
+          onlyStringType: {literal: false}
   representations:
     xml: {kind: record, fields: [{field: value, path: []}]}
     yaml: {kind: projection, field: value}
@@ -250,6 +251,7 @@ declarations:
         bind:
           defaultLanguage: {input: defaultLanguage}
           registeredLanguages: {input: registeredLanguages}
+          onlyStringType: {literal: false}
   representations:
     xml:
       kind: record
@@ -315,9 +317,11 @@ declarations:
     period: common.standard-period
   parameters:
     fixedArrayItem: {type: {kind: scalar, scalar: boolean}, default: false}
+    exportNilValue: {type: {kind: scalar, scalar: boolean}, default: false}
   inputs:
     defaultLanguage: {type: {kind: scalar, scalar: text}}
     registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+    onlyStringType: {type: {kind: scalar, scalar: boolean}}
   value:
     kind: choice
     variants:
@@ -369,4 +373,8 @@ declarations:
       empty:
       - {form: empty-element, denotes: {absent: true}}
       - {form: nil, denotes: {absent: true}}
+      canonical:
+      - {when: {input: onlyStringType}, form: empty-element, type: xs:string}
+      - {when: {parameter: exportNilValue}, form: nil}
+      - {form: missing}
     yaml: {missing: {denotes: {absent: true}}}
